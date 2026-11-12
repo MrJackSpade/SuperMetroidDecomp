@@ -7,6 +7,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -17,8 +18,8 @@ namespace SuperMetroid.Verification.Rooms.Artwork;
 
 /// <summary>
 /// Confirms #1636's room block sheets on the smallest synthetic fixtures, through the import's and the game's own code: the
-/// import's inventory of a tileset holds the blocks its rooms place and the blocks a writer running in them writes, and no
-/// other block the tileset loads; a block picture's part that shows nothing is not installed, by frame or by name, and the
+/// import's inventory of a tileset holds the blocks its rooms place and the blocks of each writer whose start a room state
+/// of it holds in its installed data, and no other block the tileset loads; a block picture's part that shows nothing is not installed, by frame or by name, and the
 /// room reads its absence as nothing there; and a room showing a block its sheet has no picture of fails, naming the sheet
 /// and the block.
 /// </summary>
@@ -30,39 +31,55 @@ internal static class RoomBlockInventoryVerification
     /// <summary>A block the fixture tileset loads that no room places and nothing writes.</summary>
     private const int UnplacedBlock = 0x041;
 
-    /// <summary>The block a writer running in the fixture room writes.</summary>
-    private const int WrittenBlock = 0x052;
+    /// <summary>The block the bomb blocks' writer writes.</summary>
+    private const int BombWrittenBlock = 0x058;
 
-    /// <summary>The block a writer that does not run in the fixture room writes.</summary>
-    private const int UnrunWrittenBlock = 0x060;
+    /// <summary>The block the writer of Mother Brain's glass writes.</summary>
+    private const int GlassWrittenBlock = 0x060;
 
     /// <summary>
-    /// A tileset whose one room places one block, with a writer running there that writes a second and a writer placed by no
-    /// room of it writing a third: its inventory holds the placed and the written block alone, not the third nor a block it
-    /// loads that nothing shows.
+    /// Two room states of two tilesets, each placing one block. The first's terrain holds a bomb block and its population
+    /// places Mother Brain's glass; the second's terrain holds a bombable block selecting no bomb-block reaction, and it
+    /// places nothing. The first tileset's inventory holds its placed block and both writers' blocks; the second's holds its
+    /// placed block alone, as neither writer's start is in its installed data, and neither holds a block it loads that
+    /// nothing shows. A Ceres state holding both starts shows only what its level places.
     /// </summary>
-    internal static void VerifyInventoryHoldsPlacedAndWrittenBlocks()
+    internal static void VerifyWriterCountsOnlyWhereHeld()
     {
-        TilesetDefinition tileset = default;
-        var room = new InventoriedRoomState(tileset, AreaId.Crateria, new HashSet<int> { PlacedBlock },
-            new HashSet<RoomObjectHeaderId>(), new HashSet<EnemyDefinitionId>(), RoomMainCallback.None, null);
+        TilesetDefinition holding = RoomTilesets.Get(0);
+        TilesetDefinition lacking = RoomTilesets.Get(1);
+        InventoriedRoomState holder = State(holding, AreaId.Crateria, new(RoomCollisionType.BombableBlock, BlockReaction.Common(0)),
+            RoomObjectHeaderId.MotherBrainGlass);
+        InventoriedRoomState other = State(lacking, AreaId.Crateria, new(RoomCollisionType.BombableBlock, BlockReaction.Common(8)));
         RoomBlockWriter[] writers =
         [
-            new("writer running in every Zebes room", new HashSet<int> { WrittenBlock }, state => !state.InCeres),
-            new("writer of a room object the room does not place", new HashSet<int> { UnrunWrittenBlock },
-                state => state.Headers.Contains(RoomObjectHeaderId.MotherBrainGlass)),
+            new("bomb blocks", new HashSet<int> { BombWrittenBlock }, state => state.HoldsBombBlocks),
+            new("Mother Brain's glass", new HashSet<int> { GlassWrittenBlock }, state => state.Headers.Contains(RoomObjectHeaderId.MotherBrainGlass)),
         ];
-        IReadOnlySet<int> shown = RoomBlockInventory.Of([room], writers).Shown(tileset);
-        AssertTrue(shown.SetEquals([PlacedBlock, WrittenBlock]),
-            $"the tileset's inventory holds the placed block {PlacedBlock:X3} and the written block {WrittenBlock:X3} alone, not {string.Join(", ", shown.Select(block => block.ToString("X3", CultureInfo.InvariantCulture)))}");
-        AssertTrue(!shown.Contains(UnplacedBlock), $"block {UnplacedBlock:X3}, which no room places and nothing writes, is not inventoried");
-        AssertTrue(!shown.Contains(UnrunWrittenBlock), $"block {UnrunWrittenBlock:X3}, written only by a room object the room does not place, is not inventoried");
+        RoomBlockInventory inventory = RoomBlockInventory.Of([holder, other], writers);
+        IReadOnlySet<int> held = inventory.Shown(holding);
+        AssertTrue(held.SetEquals([PlacedBlock, BombWrittenBlock, GlassWrittenBlock]),
+            $"the holding tileset's inventory holds its placed block and the blocks of the writers its state holds, not {Blocks(held)}");
+        IReadOnlySet<int> lacked = inventory.Shown(lacking);
+        AssertTrue(lacked.SetEquals([PlacedBlock]),
+            $"the other tileset's inventory holds only its placed block, as its state holds neither writer's start, not {Blocks(lacked)}");
+        AssertTrue(!held.Contains(UnplacedBlock) && !lacked.Contains(UnplacedBlock),
+            $"block {UnplacedBlock:X3}, which no room places and nothing writes, is not inventoried");
 
-        var ceres = room with { Area = AreaId.Ceres };
-        AssertTrue(RoomBlockInventory.Of([ceres], writers).Shown(tileset).SetEquals([PlacedBlock]),
-            "a Ceres room's inventory holds only what its level places, as no Zebes writer runs there");
-        Console.WriteLine("Room block inventory: a tileset holds the blocks its rooms place and the blocks writers running in them write, and no other.");
+        InventoriedRoomState ceres = holder with { Area = AreaId.Ceres };
+        AssertTrue(RoomBlockInventory.Of([ceres], writers).Shown(holding).SetEquals([PlacedBlock]),
+            "a Ceres room's inventory holds only what its level places, as nothing writes blocks there");
+        Console.WriteLine("Room block inventory: a writer's blocks count for the room states whose installed data holds its start, and for no other.");
     }
+
+    /// <summary>A Zebes or Ceres room state of <paramref name="tileset"/> placing <see cref="PlacedBlock"/>, its terrain one block of <paramref name="terrain"/>, placing <paramref name="headers"/>.</summary>
+    private static InventoriedRoomState State(TilesetDefinition tileset, AreaId area, RoomTerrainReaction terrain, params RoomObjectHeaderId[] headers) =>
+        new(tileset, area, new HashSet<int> { PlacedBlock }, new HashSet<RoomTerrainReaction> { terrain }, headers.ToHashSet(),
+            new HashSet<EnemyDefinitionId>(), RoomSetupCallback.None, RoomMainCallback.None, new HashSet<DoorDefinition>(), null);
+
+    /// <summary>Names <paramref name="blocks"/> for a failure message.</summary>
+    private static string Blocks(IReadOnlySet<int> blocks) =>
+        string.Join(", ", blocks.Select(block => block.ToString("X3", CultureInfo.InvariantCulture)));
 
     /// <summary>
     /// Paints four blocks through the import's block painting and split sheet: one of back tiles only, one of front tiles
@@ -155,7 +172,7 @@ internal static class RoomBlockInventoryVerification
     [VerificationCommand("--room-block-inventory")]
     internal static int RoomBlockInventoryCommand()
     {
-        Suite(nameof(VerifyInventoryHoldsPlacedAndWrittenBlocks), VerifyInventoryHoldsPlacedAndWrittenBlocks);
+        Suite(nameof(VerifyWriterCountsOnlyWhereHeld), VerifyWriterCountsOnlyWhereHeld);
         Suite(nameof(VerifyPartThatShowsNothingIsNotInstalled), VerifyPartThatShowsNothingIsNotInstalled);
         Suite(nameof(VerifyUnpicturedBlockFailsLoudly), VerifyUnpicturedBlockFailsLoudly);
         return 0;

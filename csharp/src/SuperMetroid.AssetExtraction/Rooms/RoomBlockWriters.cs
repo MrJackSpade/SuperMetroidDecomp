@@ -1,100 +1,272 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Chozo;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Abilities.Artwork;
+using static SuperMetroid.Core.Rooms.RoomObjects.RoomObjectCollectibleDrawDefinitions;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
 /// Every writer of blocks into a running room the installation holds the pictures of (#1636), read from the installed room
-/// object catalogs and X-ray reveal, each with the room states it can run in. Every block a room object writes comes from
-/// one of these catalogs: the game's room-object drawing draws only their installed frames and the block pairs a
-/// collectible that shows its own picture writes under it, a block reaction's setup writes only the installed setup blocks,
-/// and every other terrain write keeps the block already there or is drawn over in the same update before it shows. The writers that draw only the common room elements' blocks run in every Zebes room,
-/// where those blocks are loaded; the writers of a particular room's own blocks (a station's, a boss's, a statue's) run
-/// only in the room states that place or hold what writes them, as the blocks of a tileset mean nothing in another's rooms.
-/// No writer runs in Ceres, whose rooms place no room object.
+/// object catalogs and X-ray reveal, each with the room states whose installed data directly holds what starts it. Every
+/// block a room object writes comes from one of these catalogs: the game's room-object drawing draws only their installed
+/// frames and the block pairs a collectible that shows its own picture writes under it, a block reaction's setup writes
+/// only the installed setup blocks, and every other terrain write keeps the block already there or is drawn over in the
+/// same update before it shows. A writer counts for a room state only where that state's terrain holds the reaction that
+/// starts it, its population places the room object or enemy that draws it, its setup or main routine spawns it, or a door
+/// into its room closes it behind Samus; nothing follows what a writer goes on to trigger. A block a room shows that no
+/// writer counted for its tileset fails as the room resolves its pictures, naming the sheet and the block.
 /// </summary>
 internal static class RoomBlockWriters
 {
     /// <summary>The writers the installed <paramref name="catalogs"/> and <paramref name="xray"/> reveal hold the blocks of.</summary>
-    /// <exception cref="InvalidDataException">An installed X-ray reveal has no rule that draws it.</exception>
+    /// <exception cref="InvalidDataException">An installed frame or X-ray reveal has no rule that draws it.</exception>
     internal static IReadOnlyList<RoomBlockWriter> Of(RoomObjectVisualCatalogSet catalogs, InstalledXrayReveals xray)
     {
         Ensure.NotNull(catalogs);
         Ensure.NotNull(xray);
         return
         [
-            // The common room elements' doors, gates, block reactions, collectibles, setups and boss-room clearings, which any
-            // Zebes room can come to show.
-            new("shot blocks", FrameBlocks(catalogs.ShotBlock.Images), AnyZebesRoom),
-            new("Grapple blocks", FrameBlocks(catalogs.GrappleBlock.Images), AnyZebesRoom),
-            new("blue door caps", FrameBlocks(catalogs.BlueDoor.Images), AnyZebesRoom),
-            new("coloured doors", FrameBlocks(catalogs.ColoredDoor.Images), AnyZebesRoom),
-            new("grey doors", FrameBlocks(catalogs.GreyDoor.Images), AnyZebesRoom),
-            new("eye doors", FrameBlocks(catalogs.EyeDoor.Images), AnyZebesRoom),
-            new("downward gates", FrameBlocks(catalogs.DownwardGate.Images), AnyZebesRoom),
-            new("linked-block restorations", FrameBlocks(catalogs.LinkedRestore.Images), AnyZebesRoom),
-            new("Tourian access floor", FrameBlocks(catalogs.TourianAccess.Images), AnyZebesRoom),
-            new("Speed Booster blocks", FrameBlocks(catalogs.SpeedBooster.Images), AnyZebesRoom),
-            new("Spore Spawn's ceiling", FrameBlocks(catalogs.SporeSpawnCeiling.Images), AnyZebesRoom),
-            new("Botwoon's wall", FrameBlocks(catalogs.BotwoonWall.Images), AnyZebesRoom),
-            new("collectibles", FrameBlocks(catalogs.Collectible.Images), AnyZebesRoom),
-            new("collectibles' block pairs", BlockPairBlocks(), AnyZebesRoom),
-            new("bombed reveals and walls", FrameBlocks(catalogs.RevealAndWall.Images), AnyZebesRoom),
-            new("setup blocks", BlocksOf(catalogs.SetupBlocks.All.Values), AnyZebesRoom),
-            // A particular room's own blocks, written only where what writes them is placed or held.
-            new("stations", FrameBlocks(catalogs.Station.Images), Placing(StationKindDefinitions.Kinds.Keys)),
+            // The block reactions the room's own terrain starts, and the blocks their setups write.
+            .. PerFrame("shot block", catalogs.ShotBlock.Images, ShotBlockFrameWrittenIn),
+            new("Grapple blocks", FrameBlocks(catalogs.GrappleBlock.Images), state => state.HoldsBreakableGrappleBlocks),
+            .. PerFrame("linked-block restoration", catalogs.LinkedRestore.Images, LinkedRestoreWrittenIn),
+            new("Speed Booster blocks' bomb reveal", FrameBlocks(catalogs.SpeedBooster.Images), state => state.HoldsSpeedBoosterBlocks),
+            new("Samus Eater plants", FrameBlocks(catalogs.SamusEater.Images), state => state.HoldsSamusEaterPlants),
+            .. catalogs.SetupBlocks.All.Select(setup => new RoomBlockWriter($"setup block {setup.Key}",
+                new HashSet<int> { setup.Value.Block }, SetupBlockWrittenIn(setup.Key))),
+            // The blue door caps a shootable cap opens, and those closing behind Samus as she comes through a door.
+            .. PerFrame("blue door cap", catalogs.BlueDoor.Images, BlueDoorFrameWrittenIn),
+            // The room objects the population places.
+            .. PerFrame("coloured door cap", catalogs.ColoredDoor.Images, ColoredDoorFrameWrittenIn),
+            new("grey doors", FrameBlocks(catalogs.GreyDoor.Images), Placing(DoorObjectHeaderDefinitions.GreyDoors.Keys)),
+            new("eye doors", FrameBlocks(catalogs.EyeDoor.Images), Placing(EyeDoorPartDefinitions.Parts.Keys)),
+            new("downward gates", FrameBlocks(catalogs.DownwardGate.Images), state => state.HoldsDownwardGateTriggers ||
+                state.Headers.Contains(RoomObjectHeaderId.DownwardGate) || state.Headers.Contains(RoomObjectHeaderId.DownwardGateShotBlock)),
+            .. PerFrame("collectible", catalogs.Collectible.Images, CollectibleFrameWrittenIn),
+            new("collectibles' block pairs", BlockPairBlocks(), state => state.PlacesCollectible(static (kind, _) => CollectibleObjects.ShowsOwnPicture(kind))),
+            .. PerFrame("station", catalogs.Station.Images, StationFrameWrittenIn),
             new("elevator platforms", FrameBlocks(catalogs.ElevatorPlatform.Images), Placing([RoomObjectHeaderId.ElevatorPlatform])),
             new("Bomb Torizo's hand", FrameBlocks(catalogs.BombTorizoHand.Images), Placing([RoomObjectHeaderId.BombTorizoHand])),
             new("Draygon's cannons", FrameBlocks(catalogs.DraygonCannon.Images), Placing(DraygonCannonDefinitions.Setups.Keys)),
             new("Mother Brain's glass", FrameBlocks(catalogs.MotherBrainGlass.Images), Placing([RoomObjectHeaderId.MotherBrainGlass])),
-            new("Mother Brain's escape gate", FrameBlocks(catalogs.EscapeGate.Images), Placing([RoomObjectHeaderId.MotherBrainEscapeRoomGate])),
+            new("Mother Brain's escape gate", FrameBlocks(catalogs.EscapeGate.Images), state =>
+                state.Headers.Contains(RoomObjectHeaderId.MotherBrainEscapeRoomGate) ||
+                state.Entrances.Any(door => door.Orientation.Closing == DoorClosingBehavior.EscapeGateCloses)),
             new("n00b tube", FrameBlocks(catalogs.NoobTube.Images), Placing([RoomObjectHeaderId.NoobTube])),
+            // The enemies the population places, which change their own rooms.
             new("Kraid's room", FrameBlocks(catalogs.Kraid.Images), Holding([EnemyDefinitionId.Kraid])),
             new("Crocomire's arena", FrameBlocks(catalogs.Crocomire.Images), Holding([EnemyDefinitionId.Crocomire])),
             new("Mother Brain's fake death", FrameBlocks(catalogs.MotherBrainFakeDeath.Images), Holding([EnemyDefinitionId.MotherBrainBody])),
-            new("Chozo statues", FrameBlocks(catalogs.ChozoStatue.Images), Holding(ChozoStatuePartDefinitions.Parts.Keys)),
-            // Brinstar's air reactions bite with its plants, wherever a Brinstar room places one.
-            new("Samus Eater plants", FrameBlocks(catalogs.SamusEater.Images), state => !state.InCeres && state.Area == AreaId.Brinstar),
+            new("Chozo statues", FrameBlocks(catalogs.ChozoStatue.Images), Holding([EnemyDefinitionId.Chozo])),
+            new("Spore Spawn's ceiling", FrameBlocks(catalogs.SporeSpawnCeiling.Images), Holding([EnemyDefinitionId.SporeSpawn])),
+            new("Botwoon's wall", FrameBlocks(catalogs.BotwoonWall.Images), Holding([EnemyDefinitionId.Botwoon])),
+            // What the state's setup and main routines spawn.
+            new("Tourian access floor", FrameBlocks(catalogs.TourianAccess.Images),
+                state => state.SetupCallback == RoomSetupCallback.RunStatueUnlockingAnimations),
+            .. PerFrame("reveal or wall", catalogs.RevealAndWall.Images, RevealOrWallWrittenIn),
             new("Maridia elevatube", FrameBlocks(catalogs.MaridiaElevatube.Images), state => state.MainCallback == RoomMainCallback.MaridiaElevatube),
-            // The X-ray reveal shows its blocks in any Zebes room, and Brinstar's own only in Brinstar; a room's overlay only there.
-            new("X-ray reveals", XrayBlocks(xray, brinstar: false), AnyZebesRoom),
-            new("X-ray reveals of Brinstar", XrayBlocks(xray, brinstar: true), state => !state.InCeres && state.Area == AreaId.Brinstar),
-            new("X-ray tanks and extension exits", BlocksOf([RoomBlockAppearance.Of(xray.ExtensionExitBlock), .. xray.Overlays.tankMetatiles]), AnyZebesRoom),
+            // The X-ray reveal: each reveal where the terrain holds the block it copies over, each tank where one is placed,
+            // the extension exit where an extension can lead out, and a room's overlay only there.
+            .. XrayRevealWriters(xray),
+            .. TankKinds.Select(tank => new RoomBlockWriter($"X-ray reveal of {tank}s", new HashSet<int> { xray.Overlays.TankMetatile(tank).Block },
+                state => state.PlacesCollectible((kind, _) => kind == tank))),
+            new("X-ray extension exits", new HashSet<int> { xray.ExtensionExitBlock }, state => state.HoldsExtensions),
             .. xray.Overlays.rooms.Select(overlay => new RoomBlockWriter($"X-ray overlay {overlay.Key.Name}",
                 BlocksOf(overlay.Value.Select(tile => tile.Appearance)), state => Equals(state.XrayOverlay, overlay.Key))),
         ];
     }
 
     /// <summary>
+    /// Whether a shot block's frame <paramref name="draw"/> is written in a room state: a breakup wherever a block breaks up
+    /// (a reaction of the terrain, a shot-block collectible, Botwoon's wall or a Chozo statue's crumbling), a restoration
+    /// wherever a shot block grows back.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The draw is not a shot block's breakup or restoration.</exception>
+    private static Func<InventoriedRoomState, bool> ShotBlockFrameWrittenIn(RoomObjectDraw draw) => draw switch
+    {
+        RoomObjectFrameDraw<ShotBlockObjectDraws.Draw> { Frame.Restore: true } => static state => state.HoldsRespawningShotBlocks,
+        RoomObjectFrameDraw<ShotBlockObjectDraws.Draw> => static state => state.HoldsBreakingBlocks ||
+            state.PlacesCollectible(static (_, presentation) => presentation == CollectiblePresentation.ShotBlock) ||
+            state.Enemies.Contains(EnemyDefinitionId.Botwoon) || state.Enemies.Contains(EnemyDefinitionId.Chozo),
+        _ => throw new InvalidDataException($"Shot-block frame {draw} is not a shot block's breakup or restoration."),
+    };
+
+    /// <summary>Whether a linked restoration <paramref name="draw"/> is written in a room state: a bomb block's where bomb blocks lie, a crumble block's where crumble blocks lie.</summary>
+    /// <exception cref="InvalidDataException">The draw is neither family's restoration.</exception>
+    private static Func<InventoriedRoomState, bool> LinkedRestoreWrittenIn(RoomObjectDraw draw) => draw switch
+    {
+        RoomObjectFrameDraw<BombBlockRestoreDraw> => static state => state.HoldsBombBlocks,
+        RoomObjectFrameDraw<ContactCrumbleRestoreDraw> => static state => state.HoldsCrumbleBlocks,
+        _ => throw new InvalidDataException($"Linked restoration frame {draw} is neither a bomb block's nor a crumble block's."),
+    };
+
+    /// <summary>Whether the setup block <paramref name="block"/> is written in a room state: where what sets it up lies or arrives.</summary>
+    /// <exception cref="InvalidDataException">The setup block has no writer.</exception>
+    private static Func<InventoriedRoomState, bool> SetupBlockWrittenIn(RoomObjectSetupBlock block) => block switch
+    {
+        RoomObjectSetupBlock.BombBlockParent => static state => state.HoldsBombBlocks,
+        RoomObjectSetupBlock.CrumbleBlockParent => static state => state.HoldsCrumbleBlocks,
+        RoomObjectSetupBlock.SpeedBoosterBlockParent => static state => state.HoldsSpeedBoosterBlocks,
+        RoomObjectSetupBlock.ShotBlockParent => static state => state.HoldsRespawningShotBlocks,
+        RoomObjectSetupBlock.PowerBombBlockParent => static state => state.HoldsPowerBombBlocks,
+        RoomObjectSetupBlock.SuperMissileBlockParent => static state => state.HoldsSuperMissileBlocks,
+        RoomObjectSetupBlock.CritterWallStruck => BuildsEscapeAnimalWall,
+        RoomObjectSetupBlock.TreadmillIdle or RoomObjectSetupBlock.TreadmillRunning => static state => state.Entrances.Any(static door =>
+            door.SetupCode is DoorSetupCode.DoorASM_StartWreckedShipTreadmillWestEntrance or DoorSetupCode.DoorASM_StartWreckedShipTreadmillEastEntrance),
+        _ => throw new InvalidDataException($"Room-object setup block {block} has no writer."),
+    };
+
+    /// <summary>
+    /// Whether a blue door cap's frame <paramref name="draw"/> is written in a room state: where its terrain holds a blue cap
+    /// of the frame's facing, or a door into its room closes a blue cap of that facing behind Samus.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The draw is not a blue door cap's frame.</exception>
+    private static Func<InventoriedRoomState, bool> BlueDoorFrameWrittenIn(RoomObjectDraw draw)
+    {
+        if (!BlueDoorCaps.TryDescribe(draw, out BlueDoorCaps.Draw cap))
+            throw new InvalidDataException($"Blue door frame {draw} is not a blue door cap's frame.");
+        ColoredDoorOrientation facing = cap.Orientation;
+        return state => state.HoldsBlueDoorCap(facing) ||
+            state.Entrances.Any(door => DoorClosingObjects.GetDefinition(door.Orientation)?.BlueCapFacing == facing);
+    }
+
+    /// <summary>Whether a station's frame <paramref name="draw"/> is written in a room state: where a station of the kind that draws it is placed.</summary>
+    /// <exception cref="InvalidDataException">The draw is not a station's frame.</exception>
+    private static Func<InventoriedRoomState, bool> StationFrameWrittenIn(RoomObjectDraw draw)
+    {
+        if (draw is not RoomObjectFrameDraw<StationDraw> { Frame: var station })
+            throw new InvalidDataException($"Station frame {draw} is not a station's frame.");
+        return Placing(station switch
+        {
+            StationDraw.MapFrame0 or StationDraw.MapFrame1 or StationDraw.MapFrame2 or StationDraw.MapRightRetracted or
+                StationDraw.MapRightExtended or StationDraw.MapLeftRetracted or StationDraw.MapLeftExtended => [RoomObjectHeaderId.MapStation],
+            StationDraw.EnergyFrame0 or StationDraw.EnergyFrame1 or StationDraw.EnergyFrame2 => [RoomObjectHeaderId.EnergyStation],
+            StationDraw.MissileFrame0 or StationDraw.MissileFrame1 or StationDraw.MissileFrame2 => [RoomObjectHeaderId.MissileStation],
+            StationDraw.SaveIdle or StationDraw.SaveActive or StationDraw.SaveAlternate => [RoomObjectHeaderId.SaveStation],
+            StationDraw.ResourceRightRetracted or StationDraw.ResourceLeftRetracted or StationDraw.ResourceRightExtended or
+                StationDraw.ResourceLeftExtended => [RoomObjectHeaderId.EnergyStation, RoomObjectHeaderId.MissileStation],
+            _ => throw new InvalidDataException($"Station frame {draw} is of no station."),
+        });
+    }
+
+    /// <summary>Whether a coloured door cap's frame <paramref name="draw"/> is written in a room state: where a door of its colour is placed.</summary>
+    /// <exception cref="InvalidDataException">The draw is not a coloured door cap's frame.</exception>
+    private static Func<InventoriedRoomState, bool> ColoredDoorFrameWrittenIn(RoomObjectDraw draw)
+    {
+        if (!ColoredDoorCaps.TryDescribe(draw, out ColoredDoorCaps.Draw cap))
+            throw new InvalidDataException($"Coloured door frame {draw} is not a coloured door cap's frame.");
+        return Placing(DoorObjectHeaderDefinitions.ColoredDoors.Where(door => door.Value.Color == cap.Color).Select(door => door.Key));
+    }
+
+    /// <summary>
+    /// Whether a collectible's frame <paramref name="draw"/> is written in a room state: where a collectible is placed that
+    /// draws it, by its presentation, or for a tank's frames by its kind.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The draw is not a collectible's frame.</exception>
+    private static Func<InventoriedRoomState, bool> CollectibleFrameWrittenIn(RoomObjectDraw draw)
+    {
+        if (draw is not RoomObjectFrameDraw<Draw> { Frame: var frame })
+            throw new InvalidDataException($"Collectible frame {draw} is not a collectible's frame.");
+        switch (frame.Group)
+        {
+            case DrawGroup.Empty:
+                return static state => state.PlacesCollectible(static (_, _) => true);
+            case DrawGroup.Orb:
+            case DrawGroup.OrbBurst:
+                return static state => state.PlacesCollectible(static (_, presentation) => presentation == CollectiblePresentation.ChozoOrb);
+            case DrawGroup.ShotReveal:
+                return static state => state.PlacesCollectible(static (_, presentation) => presentation == CollectiblePresentation.ShotBlock);
+            case DrawGroup.Tank:
+                int framesPerTank = CollectibleObjectDraws.CountOf(DrawGroup.Tank) / TankKinds.Length;
+                InWorldCollectibleKind tank = TankKinds[frame.Index / framesPerTank];
+                return state => state.PlacesCollectible((kind, _) => kind == tank);
+            case DrawGroup.OwnPicture:
+                return static state => state.PlacesCollectible(static (kind, _) => CollectibleObjects.ShowsOwnPicture(kind));
+            default:
+                throw new InvalidDataException($"Collectible frame {draw} is of no collectible draw group.");
+        }
+    }
+
+    /// <summary>
+    /// Whether a reveal or wall's frame <paramref name="draw"/> is written in a room state: a bombed reveal where the block
+    /// a bomb reveals lies, the escape passage and the escape shaft's wall where the state's setup spawns them, and the
+    /// rescue wall where the state builds it.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The draw is not a reveal or wall's frame.</exception>
+    private static Func<InventoriedRoomState, bool> RevealOrWallWrittenIn(RoomObjectDraw draw) => draw switch
+    {
+        RoomObjectFrameDraw<RoomObjectBombedRevealDraw> { Frame: RoomObjectBombedRevealDraw.CrumbleSingle } => static state => state.HoldsCrumbleBlocks,
+        RoomObjectFrameDraw<RoomObjectBombedRevealDraw> { Frame: RoomObjectBombedRevealDraw.PowerBomb } => static state => state.HoldsPowerBombBlocks,
+        RoomObjectFrameDraw<RoomObjectBombedRevealDraw> { Frame: RoomObjectBombedRevealDraw.SuperMissile } => static state => state.HoldsSuperMissileBlocks,
+        RoomObjectFrameDraw<CrateriaMainstreetEscapePassageObjectDefinitions.Draw> =>
+            static state => state.SetupCallback == RoomSetupCallback.ClearBlocksAfterSavingAnimalsAndShakeScreen,
+        RoomObjectFrameDraw<OldTourianEscapeShaftWallObjectDefinitions.Draw> =>
+            static state => state.SetupCallback == RoomSetupCallback.AutoDestroyWallDuringEscape,
+        RoomObjectFrameDraw<EscapeAnimalDraw> => BuildsEscapeAnimalWall,
+        _ => throw new InvalidDataException($"Reveal and wall frame {draw} is no reveal's or wall's."),
+    };
+
+    /// <summary>Whether a room state builds the escape animals' rescue wall: its setup turns the wall into shot blocks, or its terrain holds it.</summary>
+    private static bool BuildsEscapeAnimalWall(InventoriedRoomState state) =>
+        state.SetupCallback == RoomSetupCallback.TurnWallIntoShotBlocksDuringEscape || state.HoldsEscapeAnimalWall;
+
+    /// <summary>
+    /// One writer for each X-ray reveal: the blocks it copies over the room's, as many as its shape copies, written where the
+    /// state's terrain holds a block of its collision kind and reaction; Brinstar's own reveals only in Brinstar.
+    /// </summary>
+    /// <exception cref="InvalidDataException">An installed reveal has no rule that draws it.</exception>
+    private static IEnumerable<RoomBlockWriter> XrayRevealWriters(InstalledXrayReveals xray)
+    {
+        foreach ((XrayRevealVisualKey key, XrayRevealVisualBlocks visual) in xray.blocks)
+        {
+            XrayRevealCommand command = XrayRevealTable.Find(key.Type, RoomBlockBehavior.Reacting(key.Reaction))
+                ?? throw new InvalidDataException($"X-ray visual {key.Type}/reaction {key.Reaction} has no reveal rule.");
+            bool brinstar = command == XrayRevealCommand.CopyBrinstar;
+            var blocks = new HashSet<int> { visual.TopLeft };
+            if (command is XrayRevealCommand.CopyWide or XrayRevealCommand.CopySquare)
+                blocks.Add(visual.TopRight);
+            if (command is XrayRevealCommand.CopyTall or XrayRevealCommand.CopySquare)
+                blocks.Add(visual.BottomLeft);
+            if (command == XrayRevealCommand.CopySquare)
+                blocks.Add(visual.BottomRight);
+            yield return new($"X-ray reveal of {key.Type} reaction {key.Reaction}", blocks,
+                state => state.Holds(key.Type, key.Reaction) && (!brinstar || state.Area == AreaId.Brinstar));
+        }
+    }
+
+    /// <summary>One writer for each of a room object's installed frames, written where <paramref name="writtenIn"/> says of the frame.</summary>
+    private static IEnumerable<RoomBlockWriter> PerFrame<TFrame>(string name, RoomObjectFrameImages<TFrame> images,
+        Func<TFrame, Func<InventoriedRoomState, bool>> writtenIn) where TFrame : notnull =>
+        images.All.Select(frame => new RoomBlockWriter($"{name} {frame.Key}", BlocksOf(frame.Value), writtenIn(frame.Key)));
+
+    /// <summary>
     /// The blocks a collectible that shows its own picture writes under it, a block pair's frames in turn, which a room shows
     /// where the picture does not cover them (#1538).
     /// </summary>
     private static HashSet<int> BlockPairBlocks() =>
-        [.. Enumerable.Range(RoomObjectCollectibleDrawDefinitions.OwnPictureFirstBlock,
-            CollectibleObjectDraws.CountOf(RoomObjectCollectibleDrawDefinitions.DrawGroup.OwnPicture))];
+        [.. Enumerable.Range(OwnPictureFirstBlock, CollectibleObjectDraws.CountOf(DrawGroup.OwnPicture))];
 
     /// <summary>The blocks <paramref name="shown"/> show, each once.</summary>
     private static HashSet<int> BlocksOf(IEnumerable<RoomBlockAppearance> shown) => [.. shown.Select(block => block.Block)];
 
-    /// <summary>Whether a room state's room lies on Zebes, whose rooms load the common room elements' blocks.</summary>
-    private static bool AnyZebesRoom(InventoriedRoomState state) => !state.InCeres;
+    /// <summary>Every block one installed frame shows.</summary>
+    private static HashSet<int> BlocksOf(RoomObjectFrameImage image) => [.. image.Cells.Values.Select(shown => shown.Block)];
 
-    /// <summary>Runs in a room state whose population places one of <paramref name="headers"/>.</summary>
+    /// <summary>Written in a room state whose population places one of <paramref name="headers"/>.</summary>
     private static Func<InventoriedRoomState, bool> Placing(IEnumerable<RoomObjectHeaderId> headers)
     {
         HashSet<RoomObjectHeaderId> placed = [.. headers];
         return state => state.Headers.Overlaps(placed);
     }
 
-    /// <summary>Runs in a room state whose population holds one of <paramref name="enemies"/>.</summary>
+    /// <summary>Written in a room state whose population holds one of <paramref name="enemies"/>.</summary>
     private static Func<InventoriedRoomState, bool> Holding(IEnumerable<EnemyDefinitionId> enemies)
     {
         HashSet<EnemyDefinitionId> held = [.. enemies];
@@ -104,29 +276,4 @@ internal static class RoomBlockWriters
     /// <summary>Every block any of a room object's installed frames shows.</summary>
     private static HashSet<int> FrameBlocks<TFrame>(RoomObjectFrameImages<TFrame> images) where TFrame : notnull =>
         [.. images.All.Values.SelectMany(image => image.Cells.Values).Select(shown => shown.Block)];
-
-    /// <summary>
-    /// The blocks the X-ray reveal copies over the room's for the blocks it reveals: Brinstar's own reveals' where
-    /// <paramref name="brinstar"/> says so, every other reveal's otherwise; each reveal's blocks as many as its shape copies.
-    /// </summary>
-    /// <exception cref="InvalidDataException">An installed reveal has no rule that draws it.</exception>
-    private static HashSet<int> XrayBlocks(InstalledXrayReveals xray, bool brinstar)
-    {
-        var blocks = new HashSet<int>();
-        foreach ((XrayRevealVisualKey key, XrayRevealVisualBlocks visual) in xray.blocks)
-        {
-            XrayRevealCommand command = XrayRevealTable.Find(key.Type, RoomBlockBehavior.Reacting(key.Reaction))
-                ?? throw new InvalidDataException($"X-ray visual {key.Type}/reaction {key.Reaction} has no reveal rule.");
-            if ((command == XrayRevealCommand.CopyBrinstar) != brinstar)
-                continue;
-            blocks.Add(visual.TopLeft);
-            if (command is XrayRevealCommand.CopyWide or XrayRevealCommand.CopySquare)
-                blocks.Add(visual.TopRight);
-            if (command is XrayRevealCommand.CopyTall or XrayRevealCommand.CopySquare)
-                blocks.Add(visual.BottomLeft);
-            if (command == XrayRevealCommand.CopySquare)
-                blocks.Add(visual.BottomRight);
-        }
-        return blocks;
-    }
 }

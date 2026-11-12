@@ -4,6 +4,7 @@ using SuperMetroid.AssetExtraction.World.RoomStates;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Abilities.Artwork;
 using SuperMetroid.Core.World.RoomStates;
@@ -12,11 +13,12 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
 /// The blocks each tileset's rooms can show (#1636): every block some room state of the tileset places in its level data
-/// where the room shows it, and every block a writer (<see cref="RoomBlockWriters"/>) writes while one of those states runs.
-/// A tileset's block sheet pictures these and no other, so tile graphics a room loads among its blocks' only for another
-/// actor (Ridley's in the Ceres Ridley arena, shown on the sprites' artwork) are not pictured as blocks. The inventory is
-/// the import's private knowledge, read once from the installed stock the sheets compose from: nothing installs it and
-/// nothing at run time recomputes it; a room that shows a block its sheet does not picture fails there, naming it.
+/// where the room shows it, and every block a writer (<see cref="RoomBlockWriters"/>) writes in a state whose installed data
+/// holds what starts that writer. A tileset's block sheet pictures these and no other, so tile graphics a room loads among
+/// its blocks only for another actor (Ridley's in the Ceres Ridley arena, shown on the sprites' artwork) are not pictured
+/// as blocks. Ceres's rooms load no common room elements and place no room objects, so nothing writes blocks there. The
+/// inventory is the import's private knowledge, read once from the installed stock the sheets compose from: nothing installs
+/// it and nothing at run time recomputes it; a room that shows a block its sheet does not picture fails there, naming it.
 /// </summary>
 internal sealed class RoomBlockInventory
 {
@@ -33,19 +35,23 @@ internal sealed class RoomBlockInventory
             : throw new InvalidDataException($"No inventoried room state loads tileset {RoomBlockSheet.NameOf(tileset)}.");
 
     /// <summary>
-    /// The inventory of every retail room state, from the levels' installed layouts and the installed room-object catalogs
-    /// and X-ray reveal under the content directory <paramref name="content"/>.
+    /// The inventory of every retail room state, from the levels' installed layouts and terrain and the installed room-object
+    /// catalogs and X-ray reveal under the content directory <paramref name="content"/>.
     /// </summary>
-    /// <exception cref="InvalidDataException">An installed layout, catalog or reveal is invalid, or a room state's level is not installed.</exception>
+    /// <exception cref="InvalidDataException">An installed layout, terrain, catalog or reveal is invalid, or a room state's level is not installed.</exception>
     internal static RoomBlockInventory Load(string content)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(content);
         RoomLevelArtworks levels = RoomVisualLayoutFiles.Load(Path.Combine(content, GameInstallationLayout.RoomVisualLayoutDirectoryName));
+        InstalledRoomLevelStreams terrain = RoomLevelStreamFiles.Load(Path.Combine(content, GameInstallationLayout.RoomLevelStreamDirectoryName));
         InstalledXrayReveals xray = XrayRevealVisualFiles.Load(Path.Combine(content, GameInstallationLayout.XrayRevealVisualDirectoryName));
-        return Of(RetailStates(levels), RoomBlockWriters.Of(RoomObjectVisualCatalogSet.Load(content), xray));
+        return Of(RetailStates(levels, terrain), RoomBlockWriters.Of(RoomObjectVisualCatalogSet.Load(content), xray));
     }
 
-    /// <summary>The inventory of <paramref name="states"/>, each showing what its level places and what <paramref name="writers"/> that run in it write.</summary>
+    /// <summary>
+    /// The inventory of <paramref name="states"/>, each showing what its level places and what <paramref name="writers"/> its
+    /// installed data starts write; a Ceres state shows only what its level places.
+    /// </summary>
     internal static RoomBlockInventory Of(IEnumerable<InventoriedRoomState> states, IReadOnlyList<RoomBlockWriter> writers)
     {
         Ensure.NotNull(states);
@@ -57,6 +63,8 @@ internal sealed class RoomBlockInventory
             if (!shown.TryGetValue(state.Tileset, out SortedSet<int>? blocks))
                 shown.Add(state.Tileset, blocks = []);
             blocks.UnionWith(state.Placed);
+            if (state.InCeres)
+                continue;
             foreach (RoomBlockWriter writer in writers)
             {
                 if (writer.RunsIn(state))
@@ -66,13 +74,18 @@ internal sealed class RoomBlockInventory
         return new RoomBlockInventory(shown);
     }
 
-    /// <summary>Every retail room state, with the level layout it shows.</summary>
-    private static IEnumerable<InventoriedRoomState> RetailStates(RoomLevelArtworks levels)
+    /// <summary>Every retail room state, with the level layout it shows, its installed terrain and the doors into its room.</summary>
+    private static IEnumerable<InventoriedRoomState> RetailStates(RoomLevelArtworks levels, InstalledRoomLevelStreams terrain)
     {
+        ILookup<RoomHeaderDefinition, DoorDefinition> entrances = RoomDoorListDefinitions.ByRoom.Values
+            .SelectMany(list => list)
+            .Select(entry => entry.Door)
+            .OfType<DoorDefinition>()
+            .ToLookup(door => door.DestinationRoom);
         foreach (RoomHeaderDefinition room in RetailRoomHeaders.All)
         {
             foreach (RoomStateSettings state in RoomStateLists.GetStates(room))
-                yield return InventoriedRoomState.Of(room, state, levels.Get(state.Level));
+                yield return InventoriedRoomState.Of(room, state, levels.Get(state.Level), terrain.Get(state.Level), entrances[room]);
         }
     }
 }

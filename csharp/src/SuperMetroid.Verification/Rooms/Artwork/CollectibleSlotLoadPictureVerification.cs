@@ -29,8 +29,8 @@ internal static class CollectibleSlotLoadPictureVerification
             ImmutableArray<AppearanceInput> inputs = sheet.Inputs.Of(ReportedBlock, RoomBlockArtwork.Tileset);
             string[] loaded = [.. inputs.Select(_ => RoomAppearanceValues.Loaded)];
             string name = RoomBlockPictureNames.Of(ReportedBlock, RoomBlockArtwork.Tileset, inputs, loaded);
-            // The sheet holds the picture as its part behind and its part in front (#1634); a part that shows nothing is held
-            // as such, and a name the sheet does not hold throws.
+            // The sheet holds the picture as its part behind and its part in front (#1634); a part that shows nothing is not
+            // installed (#1636), and a name the sheet does not hold throws.
             _ = sheet.Picture(name);
         }
         Console.WriteLine($"Collectible block load picture: {sheets.Length} Upper Crateria sheet(s) hold block {ReportedBlock:X3}'s picture over the room's load.");

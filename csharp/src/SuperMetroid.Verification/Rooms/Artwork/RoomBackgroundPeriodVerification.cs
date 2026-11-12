@@ -1,6 +1,7 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.Artwork;
@@ -79,38 +80,61 @@ internal static class RoomBackgroundPeriodVerification
     }
 
     /// <summary>
-    /// Fails unless every installed effect page (#1675) is one period across of what BG3 shows: no page, in its part behind
-    /// or its part in front, repeats across with a shorter period of whole 16x16 cells.
+    /// Fails unless every installed effect page (#1675) is one period across of the page's tilemap: its width is the
+    /// shortest period of whole 16x16 cells that every row of its words repeats with, or the whole row where none does. Two
+    /// characters showing the same pixels are still two characters, so a page's pixels may repeat more often than its words.
     /// </summary>
     internal static void VerifyFxPagesStoreOnePeriodAcross()
     {
         GameInstallation installation = RepositoryInstallation.Installation;
-        InstalledPictureStore store = InstalledPictureStore.Open(installation.PictureStoreDirectory);
-        HashSet<string> pages = [.. Enum.GetValues<RoomFxType>().Select(FxOverlayPagePictures.PictureName).SelectMany(name => new[] { name, PictureParts.InFront(name) })];
-        var repeated = new List<string>();
-        var narrowed = new HashSet<string>(StringComparer.Ordinal);
+        RoomFxLayer3Pages tilemaps;
+        using (FileStream file = File.OpenRead(Path.Combine(installation.ContentDirectory, GameInstallationLayout.MapDirectoryName, RoomFxLayer3TilemapFormat.FileName)))
+            tilemaps = RoomFxLayer3Pages.Load(file);
+        Dictionary<string, RoomFxType> pages = [];
+        foreach (RoomFxType type in Enum.GetValues<RoomFxType>())
+        {
+            pages[FxOverlayPagePictures.PictureName(type)] = type;
+            pages[PictureParts.InFront(FxOverlayPagePictures.PictureName(type))] = type;
+        }
+        var wrong = new List<string>();
+        var narrowed = new SortedSet<string>(StringComparer.Ordinal);
         int checkedPages = 0;
         foreach ((string family, string sheet, InstalledSheetDocument document) in InstalledSheetManifests.Read(installation.ContentDirectory))
         {
             if (family != GameInstallationLayout.RoomBlockSheetDirectoryName)
                 continue;
-            string[] shown = [.. document.Frames.Keys.Where(pages.Contains)];
-            if (shown.Length == 0)
-                continue;
-            var image = new InstalledImagePlanes(store.Assemble(sheet, document), document.Size);
-            foreach (string frame in shown)
+            foreach ((string frame, InstalledSheetFrameDocument entry) in document.Frames.Where(frame => pages.ContainsKey(frame.Key)))
             {
-                InstalledSheetFrameDocument entry = document.Frames[frame];
                 checkedPages++;
+                ushort[] words = BackgroundTileWords.ToWords(tilemaps.Resolve(pages[frame]).Span);
+                int expected = PeriodAcross(words) * TilePixels;
+                if (entry.Size.X != expected)
+                    wrong.Add($"{sheet} frame {frame} is {entry.Size.X} wide; its words repeat every {expected} pixels across");
                 if (entry.Size.X < RoomBackgroundImageGeometry.PagePixels)
                     narrowed.Add($"{frame} {entry.Size.X} wide");
-                if (ShorterCellPeriod(image, entry) is { } shorter && shorter.X < entry.Size.X)
-                    repeated.Add($"{sheet} frame {frame} repeats every {shorter.X} pixels across its {entry.Size.X}");
             }
         }
         AssertTrue(checkedPages > 0, "the installation holds effect pages");
-        AssertTrue(repeated.Count == 0, $"{repeated.Count} effect pages repeat across:{Environment.NewLine}{string.Join(Environment.NewLine, repeated)}");
-        Console.WriteLine($"Effect pages: {checkedPages} page pictures are one period across ({string.Join(", ", narrowed.Order(StringComparer.Ordinal))}).");
+        AssertTrue(wrong.Count == 0, $"{wrong.Count} effect pages are not one period across of their words:{Environment.NewLine}{string.Join(Environment.NewLine, wrong)}");
+        Console.WriteLine($"Effect pages: {checkedPages} page pictures are one period across of their words ({string.Join(", ", narrowed)}).");
+    }
+
+    /// <summary>Pixels along a tile's side.</summary>
+    private const int TilePixels = 8;
+
+    /// <summary>The shortest period of whole cells, in tiles, that every 32-tile row of <paramref name="words"/> repeats with; 32 where none does.</summary>
+    private static int PeriodAcross(ushort[] words)
+    {
+        const int rowTiles = RoomBackgroundImageGeometry.PageTiles, cellTiles = 2;
+        for (int period = cellTiles; period < rowTiles; period += cellTiles)
+        {
+            bool repeats = rowTiles % period == 0;
+            for (int index = 0; repeats && index < words.Length; index++)
+                repeats = words[index] == words[(index / rowTiles * rowTiles) + (index % rowTiles % period)];
+            if (repeats)
+                return period;
+        }
+        return rowTiles;
     }
 
     /// <summary>

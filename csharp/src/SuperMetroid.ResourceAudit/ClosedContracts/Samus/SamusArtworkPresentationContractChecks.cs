@@ -64,7 +64,7 @@ internal static class SamusArtworkPresentationContractChecks
             "offset closure must not imply installed frame placement closure");
 
         foreach (string external in new[] {
-            "class ExternalArm { object Make() => SuperMetroid.AssetExtraction.Samus.SamusArmCannonSourceArtwork.FromPlacement(null!, null!); }" })
+            "class ExternalArm { object Make() => SuperMetroid.AssetExtraction.Samus.SamusArmCannonSourceArtwork.FromPlacement(null!); }" })
         {
             AuditReport revoked = Inspect(Compile(trees.Append(CSharpSyntaxTree.ParseText(external,
                 path: "fixture-external-arm.cs"))), true);

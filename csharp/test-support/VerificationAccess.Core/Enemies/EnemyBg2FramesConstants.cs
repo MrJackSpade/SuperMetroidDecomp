@@ -1,8 +1,4 @@
-﻿using System.Collections.Immutable;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using SuperMetroid.Core;
-using SuperMetroid.Core.Enemies.Artwork;
+﻿using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Enemies;

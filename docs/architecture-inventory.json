@@ -71,6 +71,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.ArchitectureAudit.AuditMode",
+      "kind": "enum",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.ArchitectureAudit"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.ArchitectureAudit/AuditMode.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.ArchitectureAudit.CompiledType",
       "kind": "record struct",
       "scope": "tool",
@@ -134,6 +147,45 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.ArchitectureAudit.StaleReview",
+      "kind": "record",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.ArchitectureAudit"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.ArchitectureAudit/StaleReview.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.ArchitectureAudit.StaleReviewPruner",
+      "kind": "static class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.ArchitectureAudit"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.ArchitectureAudit/StaleReviewPruner.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.ArchitectureAudit.StaleReviewPruner.FileRewrite",
+      "kind": "record",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.ArchitectureAudit"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.ArchitectureAudit/StaleReviewPruner.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.ArchitectureAudit.TypeEntry",
@@ -2172,7 +2224,7 @@
         "csharp/src/SuperMetroid.AssetExtraction/Artwork/PictureStoreProvenance.cs"
       ],
       "partial": "none",
-      "disposition": "record"
+      "disposition": "constructor-parameters"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Artwork.PictureStoreWriter",
@@ -3281,6 +3333,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Artwork.StoredPictureDocument",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Artwork/StoredPictureDocument.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Artwork.TypedTextGlyphs",
@@ -63612,6 +63677,22 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Drawing.EnemyFormatDrawAccess.DrawnRun",
+      "kind": "record",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Drawing/EnemyFormatDrawAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Drawing.EnemyFormatDrawAccess.extension(SuperMetroid.Core.Areas.Ceres.CeresElevatorArrivalState)",
@@ -125925,6 +126006,45 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.DebugRunner.Assets.PicturePreview",
+      "kind": "static class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.DebugRunner"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.DebugRunner/Assets/PicturePreview.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.DebugRunner.Assets.PicturePreview.Store",
+      "kind": "class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.DebugRunner"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.DebugRunner/Assets/PicturePreview.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.DebugRunner.Assets.PictureTagGlyphs",
+      "kind": "static class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.DebugRunner"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.DebugRunner/Assets/PictureTagGlyphs.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.DebugRunner.NativeConsoleProcess",

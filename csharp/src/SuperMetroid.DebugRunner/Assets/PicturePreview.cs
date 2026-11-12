@@ -3,7 +3,6 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.DebugRunner.Assets;
 

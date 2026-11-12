@@ -14,7 +14,7 @@
     {
       "module": "csharp/src/SuperMetroid.ArchitectureAudit",
       "role": "tooling",
-      "files": 9,
+      "files": 12,
       "dependsOn": [
         "csharp/src/SuperMetroid.EnsureAnalyzer",
         "csharp/src/SuperMetroid.ReachabilityAudit",
@@ -24,7 +24,7 @@
     {
       "module": "csharp/src/SuperMetroid.AssetExtraction",
       "role": "production",
-      "files": 1759,
+      "files": 1760,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Areas",
@@ -429,7 +429,7 @@
     {
       "module": "csharp/src/SuperMetroid.DebugRunner",
       "role": "tooling",
-      "files": 23,
+      "files": 25,
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Assets",
@@ -1200,6 +1200,15 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.ArchitectureAudit/AuditMode.cs",
+      "module": "csharp/src/SuperMetroid.ArchitectureAudit",
+      "role": "tooling",
+      "namespace": "SuperMetroid.ArchitectureAudit",
+      "assemblies": [
+        "SuperMetroid.ArchitectureAudit"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.ArchitectureAudit/CompiledType.cs",
       "module": "csharp/src/SuperMetroid.ArchitectureAudit",
       "role": "tooling",
@@ -1241,6 +1250,24 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.ReachabilityAudit",
         "csharp/test-support/WindowsConsole"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.ArchitectureAudit/StaleReview.cs",
+      "module": "csharp/src/SuperMetroid.ArchitectureAudit",
+      "role": "tooling",
+      "namespace": "SuperMetroid.ArchitectureAudit",
+      "assemblies": [
+        "SuperMetroid.ArchitectureAudit"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.ArchitectureAudit/StaleReviewPruner.cs",
+      "module": "csharp/src/SuperMetroid.ArchitectureAudit",
+      "role": "tooling",
+      "namespace": "SuperMetroid.ArchitectureAudit",
+      "assemblies": [
+        "SuperMetroid.ArchitectureAudit"
       ]
     },
     {
@@ -3199,6 +3226,18 @@
     },
     {
       "path": "csharp/src/SuperMetroid.AssetExtraction/Artwork/SpritemapPart.cs",
+      "module": "csharp/src/SuperMetroid.AssetExtraction",
+      "role": "production",
+      "namespace": "SuperMetroid.AssetExtraction.Artwork",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Spatial"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.AssetExtraction/Artwork/StoredPictureDocument.cs",
       "module": "csharp/src/SuperMetroid.AssetExtraction",
       "role": "production",
       "namespace": "SuperMetroid.AssetExtraction.Artwork",
@@ -77163,6 +77202,29 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.DebugRunner/Assets/PicturePreview.cs",
+      "module": "csharp/src/SuperMetroid.DebugRunner",
+      "role": "tooling",
+      "namespace": "SuperMetroid.DebugRunner.Assets",
+      "assemblies": [
+        "SuperMetroid.DebugRunner"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Assets",
+        "csharp/src/SuperMetroid.Core/Spatial"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.DebugRunner/Assets/PictureTagGlyphs.cs",
+      "module": "csharp/src/SuperMetroid.DebugRunner",
+      "role": "tooling",
+      "namespace": "SuperMetroid.DebugRunner.Assets",
+      "assemblies": [
+        "SuperMetroid.DebugRunner"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.DebugRunner/GlobalUsings.cs",
       "module": "csharp/src/SuperMetroid.DebugRunner",
       "role": "tooling",
@@ -132642,11 +132704,14 @@
         "SuperMetroid.Verification"
       ],
       "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Areas",
         "csharp/src/SuperMetroid.Core/Assets",
         "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Spatial",
-        "csharp/src/SuperMetroid.Core/World"
+        "csharp/src/SuperMetroid.Core/World",
+        "csharp/test-support/RepositoryInstallation.Verification"
       ]
     },
     {

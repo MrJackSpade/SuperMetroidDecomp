@@ -1,6 +1,4 @@
-﻿using SuperMetroid.AssetExtraction.Artwork;
-
-namespace SuperMetroid.AssetExtraction.Samus;
+﻿namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Verification access to <see cref="SamusDeathTileAtlas"/> members production does not use.</summary>
 internal static class SamusDeathTileAtlasAccess

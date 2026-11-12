@@ -24,7 +24,7 @@
     {
       "module": "csharp/src/SuperMetroid.AssetExtraction",
       "role": "production",
-      "files": 1767,
+      "files": 1771,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Areas",
@@ -542,13 +542,13 @@
     {
       "module": "csharp/src/SuperMetroid.EnsureAnalyzer",
       "role": "analyzer",
-      "files": 95,
+      "files": 98,
       "dependsOn": []
     },
     {
       "module": "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes",
       "role": "analyzer",
-      "files": 6,
+      "files": 25,
       "dependsOn": [
         "csharp/src/SuperMetroid.EnsureAnalyzer"
       ]
@@ -720,7 +720,7 @@
     {
       "module": "csharp/src/SuperMetroid.Verification",
       "role": "verification",
-      "files": 2121,
+      "files": 2122,
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core",
@@ -2438,6 +2438,24 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.AssetExtraction/Artwork/InstalledSheetManifest.cs",
+      "module": "csharp/src/SuperMetroid.AssetExtraction",
+      "role": "production",
+      "namespace": "SuperMetroid.AssetExtraction.Artwork",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.AssetExtraction/Artwork/InstalledSheetManifests.cs",
+      "module": "csharp/src/SuperMetroid.AssetExtraction",
+      "role": "production",
+      "namespace": "SuperMetroid.AssetExtraction.Artwork",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.AssetExtraction/Artwork/InstalledSheetPainter.cs",
       "module": "csharp/src/SuperMetroid.AssetExtraction",
       "role": "production",
@@ -2540,6 +2558,19 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Assets"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.AssetExtraction/Artwork/PictureMap.cs",
+      "module": "csharp/src/SuperMetroid.AssetExtraction",
+      "role": "production",
+      "namespace": "SuperMetroid.AssetExtraction.Artwork",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core",
+        "csharp/src/SuperMetroid.Core/Spatial"
       ]
     },
     {
@@ -3226,6 +3257,18 @@
     },
     {
       "path": "csharp/src/SuperMetroid.AssetExtraction/Artwork/SpritemapPart.cs",
+      "module": "csharp/src/SuperMetroid.AssetExtraction",
+      "role": "production",
+      "namespace": "SuperMetroid.AssetExtraction.Artwork",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Spatial"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.AssetExtraction/Artwork/StoredMapsDocument.cs",
       "module": "csharp/src/SuperMetroid.AssetExtraction",
       "role": "production",
       "namespace": "SuperMetroid.AssetExtraction.Artwork",
@@ -79350,6 +79393,150 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes/Cleanup/CleanupFailure.cs",
+      "module": "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes",
+      "role": "analyzer",
+      "namespace": "SuperMetroid.EnsureAnalyzer.CodeFixes.Cleanup",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer.CodeFixes"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes/Cleanup/DocumentFixAll.cs",
+      "module": "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes",
+      "role": "analyzer",
+      "namespace": "SuperMetroid.EnsureAnalyzer.CodeFixes.Cleanup",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer.CodeFixes"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes/Cleanup/DocumentFixProvider.cs",
+      "module": "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes",
+      "role": "analyzer",
+      "namespace": "SuperMetroid.EnsureAnalyzer.CodeFixes.Cleanup",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer.CodeFixes"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes/Cleanup/SolutionEdits.cs",
+      "module": "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes",
+      "role": "analyzer",
+      "namespace": "SuperMetroid.EnsureAnalyzer.CodeFixes.Cleanup",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer.CodeFixes"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes/Cleanup/SourceEdits.cs",
+      "module": "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes",
+      "role": "analyzer",
+      "namespace": "SuperMetroid.EnsureAnalyzer.CodeFixes.Cleanup",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer.CodeFixes"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes/DeadCode/InitializerEvaluation.cs",
+      "module": "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes",
+      "role": "analyzer",
+      "namespace": "SuperMetroid.EnsureAnalyzer.CodeFixes.DeadCode",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer.CodeFixes"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes/DeadCode/KeptInitializer.cs",
+      "module": "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes",
+      "role": "analyzer",
+      "namespace": "SuperMetroid.EnsureAnalyzer.CodeFixes.DeadCode",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer.CodeFixes"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes/DeadCode/MemberReferences.cs",
+      "module": "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes",
+      "role": "analyzer",
+      "namespace": "SuperMetroid.EnsureAnalyzer.CodeFixes.DeadCode",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer.CodeFixes"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes/DeadCode/SideEffects.cs",
+      "module": "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes",
+      "role": "analyzer",
+      "namespace": "SuperMetroid.EnsureAnalyzer.CodeFixes.DeadCode",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer.CodeFixes"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes/DeadCode/UnreachableCodeCodeFixProvider.cs",
+      "module": "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes",
+      "role": "analyzer",
+      "namespace": "SuperMetroid.EnsureAnalyzer.CodeFixes.DeadCode",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer.CodeFixes"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes/DeadCode/UnreadLocalCodeFixProvider.cs",
+      "module": "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes",
+      "role": "analyzer",
+      "namespace": "SuperMetroid.EnsureAnalyzer.CodeFixes.DeadCode",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer.CodeFixes"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes/DeadCode/UnusedMemberCodeFixProvider.cs",
+      "module": "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes",
+      "role": "analyzer",
+      "namespace": "SuperMetroid.EnsureAnalyzer.CodeFixes.DeadCode",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer.CodeFixes"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes/DeadCode/UnusedVariableCodeFixProvider.cs",
+      "module": "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes",
+      "role": "analyzer",
+      "namespace": "SuperMetroid.EnsureAnalyzer.CodeFixes.DeadCode",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer.CodeFixes"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes/DeadCode/VariableDeclarations.cs",
+      "module": "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes",
+      "role": "analyzer",
+      "namespace": "SuperMetroid.EnsureAnalyzer.CodeFixes.DeadCode",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer.CodeFixes"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes/DeadCode/WriteOnlyMemberCodeFixProvider.cs",
+      "module": "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes",
+      "role": "analyzer",
+      "namespace": "SuperMetroid.EnsureAnalyzer.CodeFixes.DeadCode",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer.CodeFixes"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes/DeadCode/Writes.cs",
+      "module": "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes",
+      "role": "analyzer",
+      "namespace": "SuperMetroid.EnsureAnalyzer.CodeFixes.DeadCode",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer.CodeFixes"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes/EnsureCallKey.cs",
       "module": "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes",
       "role": "analyzer",
@@ -79381,6 +79568,39 @@
     },
     {
       "path": "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes/OneTypePerFileCodeFixProvider.cs",
+      "module": "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes",
+      "role": "analyzer",
+      "namespace": "SuperMetroid.EnsureAnalyzer.CodeFixes",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer.CodeFixes"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes/PartialMergeCodeFixProvider.cs",
+      "module": "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes",
+      "role": "analyzer",
+      "namespace": "SuperMetroid.EnsureAnalyzer.CodeFixes",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer.CodeFixes"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes/Suppressions/UnnecessarySuppressionCodeFixProvider.cs",
+      "module": "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes",
+      "role": "analyzer",
+      "namespace": "SuperMetroid.EnsureAnalyzer.CodeFixes.Suppressions",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer.CodeFixes"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes/TypeFileNameCodeFixProvider.cs",
       "module": "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes",
       "role": "analyzer",
       "namespace": "SuperMetroid.EnsureAnalyzer.CodeFixes",
@@ -79998,6 +80218,15 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.EnsureAnalyzer/Contracts/SpanAdapterAnalyzer.cs",
+      "module": "csharp/src/SuperMetroid.EnsureAnalyzer",
+      "role": "analyzer",
+      "namespace": "SuperMetroid.EnsureAnalyzer.Contracts",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.EnsureAnalyzer/Contracts/SpatialClumpAnalyzer.cs",
       "module": "csharp/src/SuperMetroid.EnsureAnalyzer",
       "role": "analyzer",
@@ -80227,6 +80456,24 @@
     },
     {
       "path": "csharp/src/SuperMetroid.EnsureAnalyzer/SourceLayout/OneTypePerFileAnalyzer.cs",
+      "module": "csharp/src/SuperMetroid.EnsureAnalyzer",
+      "role": "analyzer",
+      "namespace": "SuperMetroid.EnsureAnalyzer.SourceLayout",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.EnsureAnalyzer/SourceLayout/PartialDeclarations.cs",
+      "module": "csharp/src/SuperMetroid.EnsureAnalyzer",
+      "role": "analyzer",
+      "namespace": "SuperMetroid.EnsureAnalyzer.SourceLayout",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.EnsureAnalyzer/SourceLayout/PartialSplitAnalyzer.cs",
       "module": "csharp/src/SuperMetroid.EnsureAnalyzer",
       "role": "analyzer",
       "namespace": "SuperMetroid.EnsureAnalyzer.SourceLayout",
@@ -88992,6 +89239,23 @@
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/Assertions",
         "csharp/test-support/VerificationAccess.Tooling"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Verification/Assets/PictureStorePixelIdentityVerification.cs",
+      "module": "csharp/src/SuperMetroid.Verification",
+      "role": "verification",
+      "namespace": "SuperMetroid.Verification.Assets",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Assets",
+        "csharp/src/SuperMetroid.Core/Spatial",
+        "csharp/test-support/Assertions",
+        "csharp/test-support/RepositoryInstallation",
+        "csharp/test-support/VerificationAccess.Core"
       ]
     },
     {

@@ -9,8 +9,9 @@ using SuperMetroid.EnsureAnalyzer.CodeFixes.Cleanup;
 namespace SuperMetroid.EnsureAnalyzer.CodeFixes.DeadCode;
 
 /// <summary>
-/// IDE0051, an unused private member (#1661), and CA1823, an unused private field (#1662), enforced by the asynchronous
-/// cleanup. The member goes: a method,
+/// IDE0051, an unused private member (#1661), CA1823, an unused private field (#1662), and CS0169, a field never used
+/// (#1663, every such field, with no exception for a type's memory layout), enforced by the asynchronous cleanup. The
+/// member goes: a method,
 /// property, indexer, field, event or nested type. A field or property initializer that could have an effect keeps its
 /// evaluation at the start of the type's constructors (<see cref="InitializerEvaluation"/>). Reflection by name into
 /// owned state is already forbidden (SME6373), so it is no hazard; debugger save states key fields by name, so a state
@@ -26,8 +27,11 @@ public sealed class UnusedMemberCodeFixProvider : DocumentFixProvider
     /// <summary>The code-analysis rule for an unused private field.</summary>
     public const string UnusedFieldId = "CA1823";
 
+    /// <summary>The compiler's never-used field warning.</summary>
+    public const string NeverUsedFieldId = "CS0169";
+
     /// <inheritdoc />
-    public override ImmutableArray<string> FixableDiagnosticIds => [UnusedId, UnusedFieldId];
+    public override ImmutableArray<string> FixableDiagnosticIds => [UnusedId, UnusedFieldId, NeverUsedFieldId];
 
     /// <inheritdoc />
     internal override string Title => "Remove the unused member";

@@ -156524,6 +156524,58 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Verification.Frontend.Intro.IntroCinematicFamilyPosesVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Frontend/Intro/IntroCinematicFamilyPosesVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Frontend.Intro.IntroCinematicFamilyPosesVerification.FamilyActor",
+      "kind": "record struct",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Frontend/Intro/IntroCinematicFamilyPosesVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Verification.Frontend.Intro.IntroCinematicFamilyPosesVerification.FamilyActors",
+      "kind": "record",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Frontend/Intro/IntroCinematicFamilyPosesVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Verification.Frontend.Intro.IntroCinematicFamilyPosesVerification.FamilyFrame",
+      "kind": "record struct",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Frontend/Intro/IntroCinematicFamilyPosesVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Verification.Frontend.Intro.IntroCinematicRomDataVerification",
       "kind": "static class",
       "scope": "test",
@@ -156587,32 +156639,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Verification.Frontend.Intro.IntroDiscoveryScenePosesVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Frontend/Intro/IntroDiscoveryScenePosesVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Verification.Frontend.Intro.IntroDiscoveryScenePosesVerification.DiscoveryActor",
-      "kind": "record struct",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Frontend/Intro/IntroDiscoveryScenePosesVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Verification.Frontend.Intro.IntroDrawnShadeChecks",

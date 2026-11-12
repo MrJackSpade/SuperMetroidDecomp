@@ -13,6 +13,9 @@ param(
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+# Commits the asynchronous cleanup pushes, whose subject starts with "Cleanup:" (tools/cleanup/README.md).
+# 'skip': never announced; next passes over them. 'post': announced like any other commit, as a short "Cleanup" note.
+$CleanupCommits = 'skip'
 
 function Git([string[]]$Arguments) {
     $result = & git.exe -C $Repository @Arguments 2>&1
@@ -30,14 +33,23 @@ function Get-HeadCommit($State) {
     $null = Git @('fetch', '--quiet', '--no-tags', $State.remote, "+refs/heads/$($State.branch):refs/remotes/$($State.remote)/$($State.branch)")
     $tip = "$($State.remote)/$($State.branch)"
     $chain = @( (Git @('rev-list','--first-parent','--reverse',$tip)) -split "`n" | Where-Object { $_ })
+    $start = 0
     if ($State.cursor) {
         $index = [Array]::IndexOf($chain, [string]$State.cursor)
         if ($index -lt 0) { throw 'Tracked commit is no longer on published first-parent history. Restore history or investigate; queue will not reset automatically.' }
-        if ($index + 1 -ge $chain.Count) { return $null }
-        return $chain[$index + 1]
+        $start = $index + 1
     }
-    if ($chain.Count) { return $chain[0] }
+    for ($position = $start; $position -lt $chain.Count; $position++) {
+        if (-not (Test-SkippedCommit $chain[$position])) { return $chain[$position] }
+    }
     return $null
+}
+function Test-SkippedCommit([string]$Sha) {
+    switch ($CleanupCommits) {
+        'skip' { return (Git @('show', '-s', '--format=%s', $Sha)).StartsWith('Cleanup:', [StringComparison]::Ordinal) }
+        'post' { return $false }
+        default { throw "CleanupCommits must be 'skip' or 'post', not '$CleanupCommits'." }
+    }
 }
 function Get-Webhook {
     $url = [Environment]::GetEnvironmentVariable('DISCORD_WEBHOOK_URL')

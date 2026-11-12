@@ -1,0 +1,39 @@
+#!/bin/sh
+# Starts the asynchronous cleanup (tools/cleanup/README.md) when a push or a fetch moves the remote-tracking ref of the
+# branch it cleans. Git has no post-push hook; a successful push updates refs/remotes/origin/<branch> through a ref
+# transaction, which runs this hook in the "committed" state once the update is final.
+# Git runs this hook for every ref transaction, so it stays cheap: builtins only until that ref is among the updates.
+# It never fails a transaction, never waits for the cleanup, and writes only to standard error.
+# The cleanup is installed when cleanup.directory is set (tools/cleanup/install.ps1); unsetting it disables it.
+
+if [ -n "${SUPERMETROID_CLEANUP_WORKER:-}" ] || [ "$1" != committed ]; then
+    while read -r _; do :; done
+    exit 0
+fi
+moved=
+while read -r old new ref; do
+    case "$ref" in
+        refs/remotes/origin/*) moved="$moved $ref=$new" ;;
+    esac
+done
+[ -n "$moved" ] || exit 0
+
+directory=$(git config --get cleanup.directory)
+status=$?
+[ $status -eq 1 ] && exit 0
+if [ $status -ne 0 ]; then
+    echo "cleanup trigger: reading cleanup.directory failed (git config exit $status)" >&2
+    exit 0
+fi
+branch=$(git config --get cleanup.branch)
+if [ $? -ne 0 ] || [ -z "$branch" ]; then
+    echo "cleanup trigger: cleanup.directory is set but cleanup.branch is not; run tools/cleanup/install.ps1" >&2
+    exit 0
+fi
+for update in $moved; do
+    if [ "${update%%=*}" = "refs/remotes/origin/$branch" ]; then
+        pwsh.exe -NoProfile -NonInteractive -File "$directory/bin/trigger.ps1" -Reason "origin/$branch moved" -Commit "${update#*=}" 1>&2 ||
+            echo "cleanup trigger failed; see $directory/trigger.log" >&2
+    fi
+done
+exit 0

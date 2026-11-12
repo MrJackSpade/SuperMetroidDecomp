@@ -2,5 +2,7 @@
 # Reports how much of the agent's time since the previous commit was spent waiting on tools,
 # warning above 20% and demanding the waste be found and fixed above 50%.
 # See "Agent turnaround time" in AGENTS.md and tools/agent-time-report.py.
+# The asynchronous cleanup's own commits (tools/cleanup/README.md) are no agent's time, so they are not reported.
 set -eu
+[ -n "${SUPERMETROID_CLEANUP_WORKER:-}" ] && exit 0
 python "$(git rev-parse --show-toplevel)/tools/agent-time-report.py" --head

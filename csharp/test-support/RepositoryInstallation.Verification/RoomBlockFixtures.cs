@@ -23,10 +23,11 @@ internal static class RoomBlockFixtures
 
     /// <summary>
     /// The appearance inputs each of <paramref name="count"/> fixture blocks depends on (#1466): a fixture table names its
-    /// pictures by block, so no block depends on any, which only satisfies the sheet's record of its blocks.
+    /// pictures by block, so no block depends on any, and every block is shown, which only satisfies the sheet's record of
+    /// its blocks.
     /// </summary>
     internal static RoomBlockAppearances Appearances(int count) =>
-        new([.. Enumerable.Range(0, count).Select(_ => ImmutableArray<AppearanceInput>.Empty)], null);
+        new([.. Enumerable.Range(0, count).Select(_ => ImmutableArray<AppearanceInput>.Empty)], null, Enumerable.Range(0, count));
 
     /// <summary>
     /// The picture of each of <paramref name="definitions"/>' blocks, four tiles each, its characters read from <paramref name="characterWord"/>

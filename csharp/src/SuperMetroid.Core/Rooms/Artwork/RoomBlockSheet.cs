@@ -1,12 +1,15 @@
+using System.Collections.Immutable;
+using System.Globalization;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>
-/// One tileset's installed pre-coloured block pictures (#1392, #1466): every block its rooms can show, for each value each
-/// appearance input it depends on can take, coloured with the tileset's standard colours and named by
-/// <see cref="RoomBlockPictureNames"/>; with the inputs each of its blocks depends on, which choose among them.
+/// One tileset's installed pre-coloured block pictures (#1392, #1466): every block some room of the tileset shows and no
+/// other (#1636), for each value each appearance input it depends on can take, coloured with the tileset's standard
+/// colours and named by <see cref="RoomBlockPictureNames"/>; with the inputs each of its blocks depends on, which choose
+/// among them. A room that shows a block the sheet has no picture of fails, naming the sheet and the block.
 /// </summary>
 public sealed class RoomBlockSheet
 {
@@ -31,7 +34,7 @@ public sealed class RoomBlockSheet
     /// <summary>The sheet.</summary>
     public SpriteSheet Sheet { get; }
 
-    /// <summary>The appearance inputs each block of the tileset depends on (#1466).</summary>
+    /// <summary>The appearance inputs each block of the tileset depends on (#1466), and which blocks its rooms show (#1636).</summary>
     public RoomBlockAppearances Inputs { get; }
 
     /// <summary>The installed name of tileset <paramref name="tileset"/>'s block sheet.</summary>
@@ -41,7 +44,7 @@ public sealed class RoomBlockSheet
     /// The picture named <paramref name="name"/>, as its part drawn behind the actors passing in front of the room's back
     /// tiles and its part drawn in front of them (#1634); either part, or both, may show nothing.
     /// </summary>
-    /// <exception cref="InvalidDataException">The sheet installs neither part of such a picture, or a part is not one block.</exception>
+    /// <exception cref="InvalidDataException">The sheet holds no such picture, or a part is not one block.</exception>
     public LayeredPicture Picture(string name)
     {
         LayeredPicture picture = PictureParts.Of(Sheet, name);
@@ -53,7 +56,37 @@ public sealed class RoomBlockSheet
         return picture;
     }
 
+    /// <summary>The inputs block <paramref name="block"/>'s picture depends on over <paramref name="artwork"/> (#1466).</summary>
+    /// <exception cref="InvalidDataException">
+    /// The sheet has no picture of the block, as the import found no room of the tileset that shows it (#1636), or no room of
+    /// the tileset shows that artwork.
+    /// </exception>
+    public ImmutableArray<AppearanceInput> InputsOf(int block, RoomBlockArtwork artwork)
+    {
+        if (!Inputs.Shows(block))
+            throw new InvalidDataException(
+                $"Room block sheet {Sheet.Image.Name} has no picture of block {BlockName(block)}: the import found no room of the tileset that shows it.");
+        return Inputs.Of(block, artwork);
+    }
+
+    /// <summary>
+    /// The picture block <paramref name="block"/> shows over <paramref name="artwork"/> while the inputs it depends on,
+    /// <paramref name="inputs"/>, take <paramref name="values"/>.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The sheet has no picture of the block for those values (#1636), or its picture is not one block.</exception>
+    public LayeredPicture BlockPicture(int block, RoomBlockArtwork artwork, ImmutableArray<AppearanceInput> inputs, ReadOnlySpan<string> values)
+    {
+        string name = RoomBlockPictureNames.Of(block, artwork, inputs, values);
+        if (!PictureParts.Holds(Sheet, name))
+            throw new InvalidDataException(
+                $"Room block sheet {Sheet.Image.Name} has no picture of block {BlockName(block)} over {artwork} for its inputs' values: it holds no picture {name}.");
+        return Picture(name);
+    }
+
     /// <summary>The picture of <paramref name="collectible"/>'s frame, which its kind shows where it lies in the tileset's rooms (#1538).</summary>
     /// <exception cref="InvalidDataException">The sheet has no such picture: no room of the tileset places the kind.</exception>
     public LayeredPicture PictureOf(CollectiblePicture collectible) => Picture(RoomBlockPictureNames.OfCollectible(collectible));
+
+    /// <summary>A block's index as its picture names spell it.</summary>
+    private static string BlockName(int block) => block.ToString("X3", CultureInfo.InvariantCulture);
 }

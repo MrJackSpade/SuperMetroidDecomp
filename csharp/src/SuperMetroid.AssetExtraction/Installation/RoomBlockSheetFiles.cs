@@ -57,7 +57,7 @@ public static class RoomBlockSheetFiles
     /// <param name="directory">The family's directory, created if absent.</param>
     internal static InstalledSheetFamily Extract(string content, string directory)
     {
-        RoomSheetComposition composition = RoomBlockSheetComposer.Compose(RoomBlockSheetInputs.Load(content));
+        RoomSheetComposition composition = RoomBlockSheetComposer.Compose(RoomBlockSheetInputs.Load(content), RoomBlockInventory.Load(content));
         Directory.CreateDirectory(directory);
         foreach ((TilesetDefinition tileset, RoomBlockAppearances appearances) in composition.BlockAppearances)
             RoomBlockAppearanceFiles.Write(directory, tileset, appearances);

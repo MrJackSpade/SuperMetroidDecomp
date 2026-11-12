@@ -157,7 +157,8 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
     /// The painted planes as a gameplay background sheet, as <see cref="ToRoomSheet"/> gives it, with each of
     /// <paramref name="frames"/> that <paramref name="split"/> names, or every frame without it, installed as its two parts
     /// (#1634, <see cref="PictureParts"/>): the pixels painted from back tiles under the frame's own name and those painted
-    /// from front tiles under <see cref="PictureParts.InFront"/>'s. A part that inks no pixel is installed as a frame that
+    /// from front tiles under <see cref="PictureParts.InFront"/>'s. A part that inks no pixel is not installed at all (#1636),
+    /// neither as a frame nor by name; a frame neither part of which inks a pixel is named once, by its own name, as one that
     /// shows nothing. A frame whose pixels all lie in one part keeps its rectangle; the in-front part of a frame with pixels
     /// in both is laid in a rectangle of its own below the painted planes. Every other frame is installed whole.
     /// </summary>
@@ -166,7 +167,7 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
     /// <param name="kind">How the sheet is coloured.</param>
     /// <param name="split">The frames installed as two parts, or null for every frame.</param>
     /// <param name="keepsEmpty">
-    /// Whether a frame that inks no opaque pixel is installed whole rather than as two parts that show nothing, as a picture
+    /// Whether a frame that inks no opaque pixel is installed whole rather than named as one that shows nothing, as a picture
     /// written over a room's layer is, which covers the layer wherever it lies.
     /// </param>
     /// <exception cref="InvalidDataException">A frame leaves the painted planes, or the in-front parts need more rows than a sheet holds.</exception>
@@ -260,16 +261,15 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
             string inFront = PictureParts.InFront(part.Name);
             switch (inked)
             {
+                // A part that shows nothing is not installed (#1636): a picture that shows nothing at all is named as one that
+                // shows nothing, so the draw that chooses it draws nothing, and a picture with one part installs that part alone.
                 case InkedParts.None:
                     blank.Add(part.Name);
-                    blank.Add(inFront);
                     break;
                 case InkedParts.Behind:
                     installed.Add(part.Name, part.Frame);
-                    blank.Add(inFront);
                     break;
                 case InkedParts.InFront:
-                    blank.Add(part.Name);
                     installed.Add(inFront, part.Frame);
                     break;
                 case InkedParts.Both:

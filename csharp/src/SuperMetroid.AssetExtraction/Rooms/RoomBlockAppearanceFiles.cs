@@ -11,8 +11,9 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// <summary>
 /// The installed record of the appearance inputs each block of a tileset's rooms depends on (#1466), one file per tileset
 /// beside the block sheets: for every block, by its index in what a room of the tileset loads, the inputs its picture
-/// changes with over the tileset's artwork and, where a room of the tileset shows them, over the sprites' artwork. It holds
-/// no characters, tile positions or colours; those are drawn into the block sheet, which a player edits in place.
+/// changes with over the tileset's artwork and, where a room of the tileset shows them, over the sprites' artwork; or no
+/// entry at all for a block no room of the tileset shows, which the sheet does not picture (#1636). It holds no characters,
+/// tile positions or colours; those are drawn into the block sheet, which a player edits in place.
 /// </summary>
 public static class RoomBlockAppearanceFiles
 {
@@ -21,9 +22,10 @@ public static class RoomBlockAppearanceFiles
     /// alone, and only in tilesets whose rooms place one (#1513); revision 4 records no collectible slot at all, a
     /// collectible's pictures being named by its kind and frame, and names an encounter's look by the encounter and the
     /// look, not by a step of its artwork sequence (#1538); revision 5 names a Tourian statue's pictures by the statue's
-    /// animation, not by the animated-tile object that copied them (#1584).
+    /// animation, not by the animated-tile object that copied them (#1584); revision 6 records no inputs, as null, for a
+    /// block no room of the tileset shows, which has no picture (#1636).
     /// </summary>
-    private const int Version = 5;
+    private const int Version = 6;
 
     /// <summary>The installed file name of <paramref name="tileset"/>'s record.</summary>
     public static string FileNameOf(TilesetDefinition tileset) => $"{RoomBlockSheet.NameOf(tileset)}.block-appearances.json";
@@ -41,7 +43,10 @@ public static class RoomBlockAppearanceFiles
     }
 
     /// <summary>Reads <paramref name="tileset"/>'s record from <paramref name="directory"/>.</summary>
-    /// <exception cref="InvalidDataException">The record is not this revision's, names another tileset or spells an unknown input.</exception>
+    /// <exception cref="InvalidDataException">
+    /// The record is not this revision's, names another tileset, spells an unknown input, or records a block over one artwork
+    /// that it records as shown by no room over the other.
+    /// </exception>
     internal static RoomBlockAppearances Read(string directory, TilesetDefinition tileset)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
@@ -54,29 +59,38 @@ public static class RoomBlockAppearanceFiles
             throw new InvalidDataException($"Block appearance record {path} describes {document.Tileset}, not {RoomBlockSheet.NameOf(tileset)}.");
         try
         {
-            return new RoomBlockAppearances(Inputs(document.Blocks), document.SpriteBlocks is null ? null : Inputs(document.SpriteBlocks));
+            string?[]?[] blocks = document.Blocks ?? throw new InvalidDataException("A block appearance record lists no blocks.");
+            int[] shown = [.. Enumerable.Range(0, blocks.Length).Where(block => blocks[block] is not null)];
+            if (document.SpriteBlocks is { } overSprites && (overSprites.Length != blocks.Length
+                || Enumerable.Range(0, blocks.Length).Any(block => (blocks[block] is null) != (overSprites[block] is null))))
+                throw new InvalidDataException("A block appearance record shows other blocks over the sprites' artwork than over the tileset's.");
+            return new RoomBlockAppearances(Inputs(blocks), document.SpriteBlocks is null ? null : Inputs(document.SpriteBlocks), shown);
         }
         catch (InvalidDataException error)
         {
             throw new InvalidDataException($"Invalid block appearance record {path}: {error.Message}", error);
         }
 
-        // Each block's inputs, as the record spells them.
-        static ImmutableArray<AppearanceInput>[] Inputs(string?[]?[]? blocks) =>
-            [.. (blocks ?? throw new InvalidDataException("A block appearance record lists no blocks.")).Select((tokens, block) =>
-                ImmutableArray.CreateRange((tokens ?? throw new InvalidDataException($"Block {block} lists no inputs.")).Select(token =>
+        // Each block's inputs, as the record spells them; none for a block no room shows.
+        static ImmutableArray<AppearanceInput>[] Inputs(string?[]?[] blocks) =>
+            [.. blocks.Select((tokens, block) => tokens is null ? ImmutableArray<AppearanceInput>.Empty
+                : ImmutableArray.CreateRange(tokens.Select(token =>
                     AppearanceInputSpellings.Parse(token ?? throw new InvalidDataException($"Block {block} lists a null input.")))))];
     }
 
-    /// <summary>Each block's inputs over <paramref name="artwork"/>, as the record spells them.</summary>
+    /// <summary>Each block's inputs over <paramref name="artwork"/>, as the record spells them; null for a block no room shows.</summary>
     private static string?[]?[] Tokens(RoomBlockAppearances appearances, RoomBlockArtwork artwork) =>
-        [.. Enumerable.Range(0, appearances.Count).Select(block => appearances.Of(block, artwork).Select(input => (string?)input.Token).ToArray())];
+        [.. Enumerable.Range(0, appearances.Count).Select(block => appearances.Shows(block)
+            ? appearances.Of(block, artwork).Select(input => (string?)input.Token).ToArray() : null)];
 
     /// <summary>One tileset's record.</summary>
     /// <param name="Version">The schema revision.</param>
     /// <param name="Tileset">The tileset's installed name.</param>
-    /// <param name="Blocks">Each block's inputs over the tileset's artwork, by block index.</param>
-    /// <param name="SpriteBlocks">Each block's inputs over the sprites' artwork, or null where no room of the tileset shows it.</param>
+    /// <param name="Blocks">Each block's inputs over the tileset's artwork, by block index; null for a block no room shows.</param>
+    /// <param name="SpriteBlocks">
+    /// Each block's inputs over the sprites' artwork, null for a block no room shows; or null where no room of the tileset
+    /// shows that artwork.
+    /// </param>
     private sealed record BlockAppearancesDocument(int Version, string? Tileset, string?[]?[]? Blocks, string?[]?[]? SpriteBlocks);
 
     /// <summary>Strict camel-case record fields.</summary>

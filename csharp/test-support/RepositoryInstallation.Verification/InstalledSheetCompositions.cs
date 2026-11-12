@@ -40,7 +40,8 @@ internal static class InstalledSheetCompositions
     /// <summary>Every room sheet the installation holds, composed in-process by its installed name.</summary>
     private static Dictionary<string, ComposedSpriteSheet> ComposeRooms()
     {
-        RoomSheetComposition composition = RoomBlockSheetComposer.Compose(RoomBlockSheetInputs.Load(RepositoryInstallation.Installation.ContentDirectory));
+        string content = RepositoryInstallation.Installation.ContentDirectory;
+        RoomSheetComposition composition = RoomBlockSheetComposer.Compose(RoomBlockSheetInputs.Load(content), RoomBlockInventory.Load(content));
         var sheets = new Dictionary<string, ComposedSpriteSheet>(StringComparer.Ordinal);
         foreach ((TilesetDefinition tileset, ComposedSpriteSheet sheet) in composition.BlockSheets)
             sheets.Add(RoomBlockSheet.NameOf(tileset), sheet);

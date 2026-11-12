@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.World.RoomStates;
@@ -7,7 +6,7 @@ namespace SuperMetroid.Core.World.RoomStates;
 /// Which turning floor a room state shows (#1649), decided once from what the state runs, for the import that installs
 /// floors and the room load that binds one alike: a state that runs the elevator shaft's room main shows the shaft's floor,
 /// since the shaft turns whenever its elevator door enters it and its elevator platform is drawn on the floor in every
-/// state; a state whose enemies include Ceres Ridley shows the floor his getaway flies over, since only his retreat starts
+/// state; a state whose enemy population is the Ceres Ridley fight's shows the floor his getaway flies over, since only his retreat starts
 /// that scene. Ceres Ridley's arena after his escape runs the getaway's room main without him, so it shows none.
 /// </summary>
 public static class RoomTurningFloors
@@ -18,7 +17,9 @@ public static class RoomTurningFloors
         Ensure.NotNull(state);
         if (state.MainCallback == RoomMainCallback.CeresElevatorShaft)
             return RoomTurningFloor.ElevatorShaft;
-        return CeresGetawayRooms.HoldsRidley(state) ? RoomTurningFloor.RidleyGetaway : RoomTurningFloor.None;
+        // Only the Ceres Ridley fight's population starts his retreat, and with it the getaway's floor.
+        return ReferenceEquals(state.EnemyPopulation, RoomEnemyPopulationDefinitions.CeresRidleyDefault)
+            ? RoomTurningFloor.RidleyGetaway : RoomTurningFloor.None;
     }
 
     /// <summary>Whether <paramref name="state"/> shows a turning floor.</summary>

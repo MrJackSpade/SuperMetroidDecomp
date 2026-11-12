@@ -84,7 +84,7 @@ internal sealed class PictureMap<T> : IEquatable<PictureMap<T>>
 
     /// <summary>Whether both are the same map, value for value.</summary>
     public bool Equals(PictureMap<T>? other) =>
-        other is not null && (ReferenceEquals(other, this) || (other.Size == Size && other.values.AsSpan().SequenceEqual(values)));
+        other is not null && (ReferenceEquals(other, this) || (other.Size == Size && other.values.SequenceEqual(values)));
 
     /// <inheritdoc />
     public override bool Equals(object? obj) => obj is PictureMap<T> other && Equals(other);

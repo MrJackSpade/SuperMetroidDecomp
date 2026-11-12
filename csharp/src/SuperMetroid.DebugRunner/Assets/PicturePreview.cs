@@ -8,9 +8,10 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.DebugRunner.Assets;
 
 /// <summary>
-/// Developer review of an installation's pictures by tag (#1639). <see cref="Write"/> draws, for every installed sheet, one
-/// preview image of the distinct pictures its frames show: each picture upscaled by a whole number, boxed in its own margin
-/// and labelled with its tag beneath, packed in rows. Transparent pixels show as a checkerboard. <see cref="Describe"/>
+/// Developer review of an installation's pictures by tag (#1639). <see cref="Write"/> draws every stored picture exactly
+/// once, in the preview of the first sheet showing it (families, then sheets, in the order the store writes them): each
+/// picture upscaled by a whole number, boxed in its own margin and labelled with its tag beneath, packed in rows. A sheet
+/// showing no picture an earlier sheet did not has no preview; the tag lookup names every sheet showing a picture. Transparent pixels show as a checkerboard. <see cref="Describe"/>
 /// prints everything a tag resolves to. Neither writes into the installation; a production load never reads a preview.
 /// </summary>
 internal static class PicturePreview
@@ -50,9 +51,9 @@ internal static class PicturePreview
 
     /// <summary>
     /// Writes a preview of every sheet of the installation content in <paramref name="content"/> under
-    /// <paramref name="output"/>, one image per sheet at <c>&lt;family&gt;/&lt;sheet&gt;.png</c>.
+    /// <paramref name="output"/>, one image per sheet showing a picture no earlier sheet did, at <c>&lt;family&gt;/&lt;sheet&gt;.png</c>.
     /// </summary>
-    /// <returns>The number of previews written and of pictures drawn.</returns>
+    /// <returns>The number of previews written and of pictures drawn, each once.</returns>
     /// <exception cref="IOException"><paramref name="output"/> already exists.</exception>
     /// <exception cref="InvalidDataException">The store or a sheet manifest is malformed, or a frame names a tag the store does not list.</exception>
     internal static (int Sheets, int Pictures) Write(string content, string output)
@@ -62,11 +63,12 @@ internal static class PicturePreview
         Store store = Store.Open(content);
         int sheets = 0;
         int pictures = 0;
+        var drawn = new HashSet<string>(StringComparer.Ordinal);
         using var png = new RgbaPngBuffers();
         foreach ((string family, string sheet, InstalledSheetDocument document) in Sheets(content))
         {
             string[] tags = [.. document.Frames.Values.Where(frame => frame.Picture is not null)
-                .Select(frame => frame.Picture!.Tag).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal)];
+                .Select(frame => frame.Picture!.Tag).Distinct(StringComparer.Ordinal).Where(drawn.Add).Order(StringComparer.Ordinal)];
             if (tags.Length == 0)
                 continue;
             (Extent16<ImagePixels> size, RgbaPixel[] pixels) = Draw(store, $"{family}/{sheet}", tags);

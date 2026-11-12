@@ -15,6 +15,7 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Gunship;
+using SuperMetroid.Core.World.RoomStates;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
@@ -87,6 +88,30 @@ internal static class EncounterLookUploads
     internal static IReadOnlyList<ComposedEncounter> Of(RoomEnemyGraphicsSetMembers set) =>
         [.. Ensure.NotNull(set).Records.ToArray().Select(record => record.DefinitionId).Where(ByEncounter.ContainsKey)
             .Select(enemy => ByEncounter[enemy]).Distinct().Order()];
+
+    /// <summary>
+    /// Whether a room of <paramref name="state"/> shows <paramref name="encounter"/>'s looks after its load (#1648): the state
+    /// places an enemy that plays the encounter and copies its looks. Every such enemy does but a Ceres door other than the
+    /// elevator shaft's pre-explosion overlay door, whose initialization alone copies the doors' own look ($A6:F739); a
+    /// room whose state shows no look of an encounter keeps its load there.
+    /// </summary>
+    internal static bool ShownIn(ComposedEncounter encounter, RoomStateSettings state)
+    {
+        foreach (RoomEnemyPopulationRecord record in Ensure.NotNull(state).EnemyPopulation.Records.Span)
+        {
+            if (ByEncounter.TryGetValue(record.DefinitionId, out ComposedEncounter played) && played == encounter && CopiesLooks(record))
+                return true;
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// Whether <paramref name="placement"/> copies its encounter's looks: every placement but a Ceres door other than the
+    /// pre-explosion overlay door (enemy parameter 2, whose initialization alone runs $A6:F739's copy).
+    /// </summary>
+    private static bool CopiesLooks(RoomEnemyPopulationRecord placement) =>
+        placement.DefinitionId != EnemyDefinitionId.CeresDoor
+        || placement.SpawnSettingsOf<CeresDoorSpawnSettings>().Variant == CeresDoorVariant.RotatingElevatorPreExplosionOverlay;
 
     /// <summary>
     /// The encounter gameplay shows <paramref name="encounter"/>'s looks as, or none for an encounter whose looks gameplay

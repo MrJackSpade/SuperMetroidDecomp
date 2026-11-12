@@ -115,6 +115,7 @@ internal static class RoomBlockUploads
                         uploads.AddAnimated(frame);
                 }
                 RoomBlockArtwork blockArtwork = RoomScope.BlockArtworkOf(new SelectedRoom(room, state));
+                uploads.ShowBlocksOver(blockArtwork);
                 BgCharacterUpload[] loadedObjects = [];
                 AppearanceOption[] encounterLooks = [];
                 if (blockArtwork == RoomBlockArtwork.Sprites)
@@ -300,14 +301,16 @@ internal static class RoomBlockUploads
     /// <summary>
     /// What <paramref name="state"/>'s encounters copy over the OBJ character table after its room loads, look by look of
     /// the encounters gameplay shows the looks of, each shown while its encounter shows its look (#1466, #1538): every copy
-    /// of the looks up to it, in order, so the latest copy over a character shows there. Ceres Ridley's getaway shows its
-    /// escape timer and warning so.
+    /// of the looks up to it, in order, so the latest copy over a character shows there. Only the looks the state's room
+    /// shows count (#1648): Ceres Ridley's self-destruct sequence copies his escape timer and warning ($A6:C4CB), which his
+    /// arena shows so; the Ceres doors' own look only the elevator shaft's overlay door copies ($A6:F739), and his arena
+    /// places none.
     /// </summary>
     private static IEnumerable<AppearanceOption> EncounterLookOptions(RoomBlockSheetInputs inputs, RoomStateSettings state)
     {
         foreach (ComposedEncounter encounter in EncounterLookUploads.Of(RoomEnemyGraphicsSetLists.MembersOf(RoomEnemyGraphicsSetLists.Of(state))))
         {
-            if (EncounterLookUploads.ShownAs(encounter) is not EncounterArtwork shownAs)
+            if (EncounterLookUploads.ShownAs(encounter) is not EncounterArtwork shownAs || !EncounterLookUploads.ShownIn(encounter, state))
                 continue;
             EncounterLookSteps steps = EncounterLookUploads.Steps(encounter, inputs.Objects);
             IReadOnlyList<string> looks = EncounterLookUploads.Looks(encounter);
@@ -454,6 +457,30 @@ internal static class RoomBlockUploads
 
         /// <summary>The looks such a room's encounters show there after it loads, in the order they show them.</summary>
         internal IReadOnlyList<AppearanceOption> ObjectPageLooks { get; private set; } = [];
+
+        /// <summary>
+        /// Whether some room of the tileset shows its blocks over the tileset's own artwork. A tileset every room of which
+        /// points its blocks at the sprites' artwork, as Ceres Ridley's arena's setup does before its first frame ($8F:C97B),
+        /// never shows them over the tileset's, so they have no picture over it (#1648).
+        /// </summary>
+        internal bool ShowsTilesetArtwork { get; private set; }
+
+        /// <summary>Records that a room of the tileset shows its blocks over <paramref name="artwork"/>.</summary>
+        /// <exception cref="InvalidDataException">The artwork is undefined.</exception>
+        internal void ShowBlocksOver(RoomBlockArtwork artwork)
+        {
+            switch (artwork)
+            {
+                case RoomBlockArtwork.Tileset:
+                    ShowsTilesetArtwork = true;
+                    return;
+                case RoomBlockArtwork.Sprites:
+                    // What such a room shows there is recorded with its object page (AddObjectPage).
+                    return;
+                default:
+                    throw new InvalidDataException($"Undefined block artwork {artwork}.");
+            }
+        }
 
         /// <summary>
         /// Records what a room whose blocks show the sprites' artwork has there: <paramref name="loaded"/> as it loads, and

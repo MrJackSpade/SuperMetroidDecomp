@@ -12,6 +12,9 @@ dotnet_diagnostic.IDE2001.severity = silent
 # IDE2003: Blank line required between block and subsequent statement
 dotnet_diagnostic.IDE2003.severity = silent
 
+# IDE0059: the cleanup's fixer always keeps a dead store's value as a discard (_ = value) instead of choosing (#1664).
+csharp_style_unused_value_assignment_preference = discard_variable
+
 # Project quality gates
 #
 # These diagnostics describe code shapes the project intentionally treats as
@@ -22,7 +25,6 @@ dotnet_diagnostic.CA1822.severity = error
 dotnet_diagnostic.CA1859.severity = error
 dotnet_diagnostic.CA1826.severity = error
 dotnet_diagnostic.IDE0060.severity = error
-dotnet_diagnostic.IDE0059.severity = error
 dotnet_diagnostic.IDE0010.severity = error
 dotnet_diagnostic.IDE0072.severity = error
 dotnet_diagnostic.CA1508.severity = error
@@ -55,6 +57,7 @@ dotnet_diagnostic.IDE0032.severity = none
 dotnet_diagnostic.IDE0044.severity = none
 dotnet_diagnostic.IDE0051.severity = none
 dotnet_diagnostic.IDE0052.severity = none
+dotnet_diagnostic.IDE0059.severity = none
 dotnet_diagnostic.IDE0076.severity = none
 dotnet_diagnostic.IDE0077.severity = none
 dotnet_diagnostic.IDE0079.severity = none

@@ -40,6 +40,7 @@ $FixedRuleWords = [ordered]@{
     IDE0044 = 'fields made read-only'
     IDE0051 = 'unused private members removed'
     IDE0052 = 'unread private members removed'
+    IDE0059 = 'unnecessary value assignments removed'
     IDE0076 = 'invalid suppression targets removed'
     IDE0077 = 'legacy suppression targets updated'
     IDE0079 = 'unnecessary suppressions removed'

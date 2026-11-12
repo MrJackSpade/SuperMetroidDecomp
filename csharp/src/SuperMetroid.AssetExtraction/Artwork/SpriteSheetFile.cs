@@ -15,9 +15,10 @@ public static class SpriteSheetFile
     /// shades recolour by colour key, its backdrop is a colour key, each frame says whether it blends, and it says which maps
     /// the sheet has (#1633); 15 names the size of the sheet's image and where the picture store holds each frame's picture,
     /// the maps being the store's pages' (#1635); 16 installs no part of a picture that shows nothing, neither as a frame nor
-    /// by name, naming as showing nothing only a picture neither part of which shows anything (#1636).
+    /// by name, naming as showing nothing only a picture neither part of which shows anything (#1636); 17 names each frame's
+    /// picture by its tag as well (#1639).
     /// </summary>
-    public const int Version = 16;
+    public const int Version = 17;
 
     /// <summary>
     /// Camel-case manifest fields; unknown fields are rejected. The import writes manifests with the same settings, unindented:

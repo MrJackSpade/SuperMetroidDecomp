@@ -59,7 +59,11 @@ internal static class InstalledPictureRulesVerification
         File.WriteAllBytes(Path.Combine(store, PictureStoreFiles.ProvenanceFileName), JsonSerializer.SerializeToUtf8Bytes(
             new PictureStoreProvenance(PictureStoreProvenance.FormatVersion, SupportedCartridge.Sha256,
                 new Dictionary<string, string> { [pageFile] = Convert.ToHexString(SHA256.HashData(page)) },
-                new Dictionary<string, string>(), new Dictionary<string, string>()),
+                new Dictionary<string, string>(), new Dictionary<string, string>(),
+                new Dictionary<string, StoredPictureDocument>(StringComparer.Ordinal)
+                {
+                    [EmptyTag] = new StoredPictureDocument { Page = 0, Corner = default, Size = PageSize },
+                }),
             PictureStoreProvenance.JsonOptions));
         InstalledPictureStore pictures = InstalledPictureStore.Open(store);
         var document = new InstalledSheetDocument
@@ -73,7 +77,7 @@ internal static class InstalledPictureRulesVerification
                     Corner = default,
                     Size = PageSize,
                     Origin = default,
-                    Picture = new InstalledPictureReferenceDocument { Page = 0, Corner = default },
+                    Picture = new InstalledPictureReferenceDocument { Tag = EmptyTag, Page = 0, Corner = default },
                 },
             },
         };
@@ -83,6 +87,54 @@ internal static class InstalledPictureRulesVerification
         AssertTrue(error.Message.Contains("empty frame", StringComparison.Ordinal) && error.Message.Contains(pageFile, StringComparison.Ordinal),
             $"the rejection names the frame and the page {pageFile}: {error.Message}");
         Console.WriteLine("Empty stored picture: a frame naming a stored picture that shows nothing is rejected as its sheet is assembled.");
+    }
+
+    /// <summary>The tag the synthetic store lists for its one picture.</summary>
+    private const string EmptyTag = "P0-0000";
+
+    /// <summary>
+    /// A frame naming a tag the store does not list is rejected, naming the frame and the tag (#1639): every installed
+    /// picture carries the tag its store lists.
+    /// </summary>
+    internal static void VerifyUnlistedPictureTagRejected()
+    {
+        using var scratch = new TestScratchDirectory("unlisted-picture-tag");
+        string store = Path.Combine(scratch.Root, PictureStoreFiles.DirectoryName);
+        Directory.CreateDirectory(store);
+        byte[] page = ClearPage();
+        string pageFile = PictureStoreFiles.PageFile(0);
+        File.WriteAllBytes(Path.Combine(store, pageFile), page);
+        File.WriteAllBytes(Path.Combine(store, PictureStoreFiles.ProvenanceFileName), JsonSerializer.SerializeToUtf8Bytes(
+            new PictureStoreProvenance(PictureStoreProvenance.FormatVersion, SupportedCartridge.Sha256,
+                new Dictionary<string, string> { [pageFile] = Convert.ToHexString(SHA256.HashData(page)) },
+                new Dictionary<string, string>(), new Dictionary<string, string>(),
+                new Dictionary<string, StoredPictureDocument>(StringComparer.Ordinal)
+                {
+                    [EmptyTag] = new StoredPictureDocument { Page = 0, Corner = default, Size = PageSize },
+                }),
+            PictureStoreProvenance.JsonOptions));
+        InstalledPictureStore pictures = InstalledPictureStore.Open(store);
+        const string unlisted = "P0-0001";
+        var document = new InstalledSheetDocument
+        {
+            Version = SpriteSheetFile.Version,
+            Size = PageSize,
+            Frames = new Dictionary<string, InstalledSheetFrameDocument>(StringComparer.Ordinal)
+            {
+                ["unlisted frame"] = new InstalledSheetFrameDocument
+                {
+                    Corner = default,
+                    Size = PageSize,
+                    Origin = default,
+                    Picture = new InstalledPictureReferenceDocument { Tag = unlisted, Page = 0, Corner = default },
+                },
+            },
+        };
+        InvalidDataException error = AssertThrows<InvalidDataException>(() => pictures.RequireHolds("unlisted-tag-fixture", document),
+            "a frame naming a tag the store does not list is rejected");
+        AssertTrue(error.Message.Contains("unlisted frame", StringComparison.Ordinal) && error.Message.Contains(unlisted, StringComparison.Ordinal),
+            $"the rejection names the frame and the tag {unlisted}: {error.Message}");
+        Console.WriteLine("Picture tags: a frame naming a tag the picture store does not list is rejected.");
     }
 
     /// <summary>The synthetic store page's size.</summary>
@@ -101,6 +153,7 @@ internal static class InstalledPictureRulesVerification
     {
         Suite(nameof(VerifyStrayPictureFileRejected), VerifyStrayPictureFileRejected);
         Suite(nameof(VerifyEmptyStoredPictureRejected), VerifyEmptyStoredPictureRejected);
+        Suite(nameof(VerifyUnlistedPictureTagRejected), VerifyUnlistedPictureTagRejected);
         return 0;
     }
 }

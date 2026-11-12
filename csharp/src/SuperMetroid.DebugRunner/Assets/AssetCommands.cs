@@ -30,6 +30,20 @@ if (args.Length is 2 or 3 && args[0].Equals("install", StringComparison.OrdinalI
     return 0;
 }
 
+// Developer review by picture tag (#1639): previews of every installed sheet, each picture boxed and tagged, and what a
+// tag resolves to. Both read an installation's content directory and never write into it.
+if (args.Length == 3 && args[0].Equals("picture-preview", StringComparison.OrdinalIgnoreCase))
+{
+    (int sheets, int pictures) = PicturePreview.Write(Path.GetFullPath(args[1]), Path.GetFullPath(args[2]));
+    Console.WriteLine($"Wrote {sheets} sheet previews of {pictures} tagged pictures into {Path.GetFullPath(args[2])}");
+    return 0;
+}
+if (args.Length == 3 && args[0].Equals("picture-tag", StringComparison.OrdinalIgnoreCase))
+{
+    PicturePreview.Describe(Path.GetFullPath(args[1]), args[2]);
+    return 0;
+}
+
 if (args.Length == 3 && args[0].Equals("audio-rom", StringComparison.OrdinalIgnoreCase))
 {
     using Stream source = File.OpenRead(args[1]);

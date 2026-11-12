@@ -59,6 +59,14 @@ internal static class PictureStoreWriter
             picture.Page = shelves.Place(picture.Content.Rectangle.Size, out Position16<ImagePixels> corner);
             picture.Corner = corner;
         }
+        // Each picture's tag is its page and its place in the page's write order, so it is the same at every install (#1639).
+        var placedOnPage = new Dictionary<int, int>();
+        foreach (StoredPicture picture in stored)
+        {
+            int place = placedOnPage.GetValueOrDefault(picture.Page);
+            placedOnPage[picture.Page] = place + 1;
+            picture.Tag = $"P{picture.Page}-{place:D4}";
+        }
         IReadOnlyList<Extent16<ImagePixels>> pages = shelves.Pages;
         WritePages(root, pages, stored, sourceCartridgeSha256);
         foreach (InstalledSheetFamily family in families)
@@ -142,8 +150,11 @@ internal static class PictureStoreWriter
             if (written[page].Blending is { } blending)
                 blendHashes.Add(PictureStoreFiles.BlendMapFileName(page), blending);
         }
+        Dictionary<string, StoredPictureDocument> tagged = pictures.ToDictionary(picture => picture.Tag,
+            picture => new StoredPictureDocument { Page = picture.Page, Corner = picture.Corner, Size = picture.Content.Rectangle.Size },
+            StringComparer.Ordinal);
         File.WriteAllBytes(Path.Combine(directory, PictureStoreFiles.ProvenanceFileName), JsonSerializer.SerializeToUtf8Bytes(
-            new PictureStoreProvenance(PictureStoreProvenance.FormatVersion, sourceCartridgeSha256, pageHashes, regionHashes, blendHashes),
+            new PictureStoreProvenance(PictureStoreProvenance.FormatVersion, sourceCartridgeSha256, pageHashes, regionHashes, blendHashes, tagged),
             PictureStoreProvenance.JsonOptions));
     }
 
@@ -190,7 +201,7 @@ internal static class PictureStoreWriter
         InstalledSheetDocument manifest = sheet.Sheet.Sheet.Manifest;
         Dictionary<string, InstalledSheetFrameDocument> frames = manifest.Frames.ToDictionary(frame => frame.Key,
             frame => sheet.ShownAt.TryGetValue(new FrameRectangle(frame.Value.Corner, frame.Value.Size), out StoredPicture? picture)
-                ? frame.Value with { Picture = new InstalledPictureReferenceDocument { Page = picture.Page, Corner = picture.Corner } }
+                ? frame.Value with { Picture = new InstalledPictureReferenceDocument { Tag = picture.Tag, Page = picture.Page, Corner = picture.Corner } }
                 : frame.Value,
             StringComparer.Ordinal);
         return SpriteSheetManifestWriter.Write(manifest with { Frames = frames });
@@ -226,6 +237,9 @@ internal static class PictureStoreWriter
 
         /// <summary>Its top-left pixel on its page, once packed.</summary>
         internal Position16<ImagePixels> Corner { get; set; }
+
+        /// <summary>Its tag, once packed (#1639).</summary>
+        internal string Tag { get; set; } = string.Empty;
     }
 
     /// <summary>One sheet and where the store holds the picture of each of its frame rectangles that shows one.</summary>

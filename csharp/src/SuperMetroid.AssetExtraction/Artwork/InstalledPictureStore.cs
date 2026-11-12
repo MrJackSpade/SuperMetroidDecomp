@@ -27,6 +27,9 @@ internal sealed class InstalledPictureStore
     /// <summary>The store's pages, in page order.</summary>
     private readonly InstalledPage[] pages;
 
+    /// <summary>Every stored picture's page and rectangle, by its tag (#1639).</summary>
+    private readonly Dictionary<string, StoredPictureDocument> tagged;
+
     /// <summary>Opens the store in <paramref name="directory"/> from its provenance manifest, reading each page's size from its header.</summary>
     /// <exception cref="InvalidDataException">The provenance does not describe this installation's store, or a page's header is invalid.</exception>
     private InstalledPictureStore(string directory, byte[] provenance)
@@ -37,8 +40,10 @@ internal sealed class InstalledPictureStore
             PictureStoreProvenance.JsonOptions, $"picture store provenance {provenancePath}");
         if (manifest.Version != PictureStoreProvenance.FormatVersion ||
             !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256, StringComparison.OrdinalIgnoreCase) ||
-            manifest.PageSha256 is null || manifest.RecolourRegionSha256 is null || manifest.BlendMapSha256 is null)
+            manifest.PageSha256 is null || manifest.RecolourRegionSha256 is null || manifest.BlendMapSha256 is null ||
+            manifest.Pictures is null)
             throw new InvalidDataException($"Picture store provenance {provenancePath} does not describe this installation.");
+        tagged = manifest.Pictures;
         string content = Path.GetDirectoryName(directory)
             ?? throw new ArgumentException($"Picture store directory {directory} has no installation above it.", nameof(directory));
         // The store's pages are the installation's only pictures (#1636): a picture file anywhere else rejects the installation.
@@ -84,9 +89,10 @@ internal sealed class InstalledPictureStore
 
     /// <summary>
     /// Requires every frame of sheet <paramref name="sheet"/>'s manifest to lie on the sheet's image, and every frame naming a
-    /// picture to name a rectangle of its size on one of the store's pages; frames sharing one rectangle name one picture.
+    /// picture to name a rectangle of its size on one of the store's pages, by the tag the store lists for that rectangle;
+    /// frames sharing one rectangle name one picture.
     /// </summary>
-    /// <exception cref="InvalidDataException">A frame leaves the image, names a page the store lacks or a rectangle off its page, or shares a rectangle with a frame naming another picture.</exception>
+    /// <exception cref="InvalidDataException">A frame leaves the image, names a page the store lacks or a rectangle off its page, names a tag the store does not list there, or shares a rectangle with a frame naming another picture.</exception>
     internal void RequireHolds(string sheet, InstalledSheetDocument document)
     {
         Ensure.NotNull(document);
@@ -111,6 +117,13 @@ internal sealed class InstalledPictureStore
             if (!stored.LiesInside(pages[picture.Page].Size))
                 throw new InvalidDataException(
                     $"Sprite sheet {sheet} frame {name} names rectangle {stored} of picture-store page {PictureStoreFiles.PageFile(picture.Page)}, which lies off the page.");
+            // Every stored picture carries its tag (#1639): the tag must be one the store lists, at this rectangle.
+            if (string.IsNullOrEmpty(picture.Tag) || !tagged.TryGetValue(picture.Tag, out StoredPictureDocument? listed))
+                throw new InvalidDataException($"Sprite sheet {sheet} frame {name} names picture tag '{picture.Tag}', which the picture store does not list.");
+            if (listed.Page != picture.Page || listed.Corner != picture.Corner || listed.Size != frame.Size)
+                throw new InvalidDataException(
+                    $"Sprite sheet {sheet} frame {name} names picture {picture.Tag} at {stored} of page {picture.Page}, but the store lists it at " +
+                    $"{new FrameRectangle(listed.Corner, listed.Size)} of page {listed.Page}.");
         }
     }
 

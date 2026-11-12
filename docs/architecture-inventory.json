@@ -2422,6 +2422,19 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Artwork.RepeatingFloors",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Artwork/RepeatingFloors.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Artwork.Rgb5Rows",
       "kind": "static class",
       "scope": "product",
@@ -140948,6 +140961,71 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Assets.PictureStoreVisibleBoxVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Assets/PictureStoreVisibleBoxVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Assets.PictureStoreVisibleBoxVerification.FixtureFamily",
+      "kind": "record",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Assets/PictureStoreVisibleBoxVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Verification.Assets.PictureStoreVisibleBoxVerification.FixtureFrame",
+      "kind": "record",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Assets/PictureStoreVisibleBoxVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Verification.Assets.PictureStoreVisibleBoxVerification.FixturePainter",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Assets/PictureStoreVisibleBoxVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Verification.Assets.PictureStoreVisibleBoxVerification.FixtureSheet",
+      "kind": "record",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Assets/PictureStoreVisibleBoxVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Verification.Assets.PublishedInstallationPagesVerification",

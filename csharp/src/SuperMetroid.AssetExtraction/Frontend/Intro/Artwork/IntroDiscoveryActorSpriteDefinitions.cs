@@ -4,9 +4,11 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 internal static class IntroDiscoveryActorSpriteDefinitions
 {
     /// <summary>
-    /// Sixteen egg states (intact, seven cracking stages, hatched, seven remnants), three confused Baby states, and the
-    /// large Baby composition the second confused-baby list shares with the Ceres large asteroids; the published asset key
-    /// remains hatched-baby.
+    /// Sixteen egg states (intact, seven cracking stages, hatched, seven remnants) and three confused Baby states: every pose
+    /// the discovery scene's two actors show (#1645). The egg's lists, from $8B:CB33 to $8B:CB9F, show the egg's sixteen;
+    /// the confused baby's one list, $8B:CC2B, shows its three. The large asteroids' composition ($8C:909D) is no pose of
+    /// theirs: the list after the baby's, $8B:CC3F, is the Ceres station's large asteroids', which only the Ceres
+    /// destruction draws, over its own characters.
     /// </summary>
     internal static IReadOnlyList<CinematicSpriteFrameDefinition> Frames { get; } =
     [
@@ -29,6 +31,5 @@ internal static class IntroDiscoveryActorSpriteDefinitions
         new("confused-baby-1", new(30), 1),
         new("confused-baby-2", new(31), 1),
         new("confused-baby-3", new(32), 1),
-        new("hatched-baby", new(33), 19),
     ];
 }

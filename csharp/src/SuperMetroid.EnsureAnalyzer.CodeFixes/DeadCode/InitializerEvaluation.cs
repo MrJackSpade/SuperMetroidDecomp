@@ -18,9 +18,11 @@ internal static class InitializerEvaluation
     /// <summary>Inserts the evaluations of <paramref name="kept"/>.</summary>
     internal static async Task KeepAsync(SolutionEdits edits, List<KeptInitializer> kept, Diagnostic site, CancellationToken cancellationToken)
     {
-        foreach (var byType in kept.GroupBy(initializer => initializer.Member.ContainingType, SymbolEqualityComparer.Default))
+        foreach (IGrouping<INamedTypeSymbol, KeptInitializer> byType in kept.GroupBy(
+            initializer => initializer.Member.ContainingType ?? throw new InvalidOperationException($"{initializer.Member} has no containing type."),
+            (IEqualityComparer<INamedTypeSymbol>)SymbolEqualityComparer.Default))
         {
-            var type = (INamedTypeSymbol)byType.Key!;
+            INamedTypeSymbol type = byType.Key;
             foreach (var group in byType.GroupBy(initializer => initializer.Member.IsStatic))
             {
                 var ordered = group.OrderBy(initializer => Order(initializer)).ThenBy(initializer => initializer.Value.SpanStart).ToList();

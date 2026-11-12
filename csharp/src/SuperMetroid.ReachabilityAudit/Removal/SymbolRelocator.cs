@@ -37,6 +37,13 @@ internal static class SymbolRelocator
         ExtensionMember,
     }
 
+    /// <summary>A selected declaration that stays where it is, with the syntax and semantic context to read what it uses.</summary>
+    /// <param name="Symbol">The declared symbol.</param>
+    /// <param name="Node">Its declaration.</param>
+    /// <param name="Tree">The tree that holds the declaration.</param>
+    /// <param name="Model">The tree's semantic model.</param>
+    private sealed record StayingDeclaration(ISymbol Symbol, SyntaxNode Node, SyntaxTree Tree, SemanticModel Model);
+
     /// <summary>Captures a selected symbol with the syntax and semantic context needed to rewrite it.</summary>
     private sealed record Move(ISymbol Symbol, SyntaxNode Node, SyntaxTree Tree, SemanticModel Model, Placement Placement)
     {
@@ -80,6 +87,7 @@ internal static class SymbolRelocator
         // 1. Declarations to move.
         var found = new List<Move>();
         var manual = new List<string>();
+        var staying = new List<StayingDeclaration>();
         foreach (var (tree, compilation, _) in trees)
         {
             var model = compilation.GetSemanticModel(tree);
@@ -89,13 +97,22 @@ internal static class SymbolRelocator
                     || identity.Key(symbol) is not { } key || !targets.Contains(key))
                     continue;
                 if (node is VariableDeclaratorSyntax { Parent: VariableDeclarationSyntax { Variables.Count: > 1 } })
+                {
                     manual.Add($"MANUAL {symbol.Kind} {symbol.ToDisplayString()} (shared declaration, {Location(identity, node)})");
+                    staying.Add(new(symbol, DeclarationNode(node), tree, model));
+                }
                 else if (Classify(symbol, node) is { } placement)
+                {
                     found.Add(new(symbol, DeclarationNode(node), tree, model, placement));
+                }
                 else
+                {
                     manual.Add($"MANUAL {symbol.Kind} {symbol.ToDisplayString()} ({Location(identity, node)})");
+                    staying.Add(new(symbol, DeclarationNode(node), tree, model));
+                }
             }
         }
+        KeepWhatStayingDeclarationsUse(identity, found, staying, manual);
         var seen = found.Select(m => identity.Key(m.Symbol)).ToHashSet();
         foreach (string key in targets.Where(k => !seen.Contains(k) && !manual.Any(m => m.Contains(k.Split('@')[0][2..], StringComparison.Ordinal))))
             manual.Add($"MANUAL unmatched declaration {key}");
@@ -389,6 +406,46 @@ internal static class SymbolRelocator
 
     /// <summary>Whether a source file starts with a UTF-8 byte-order mark, which rewriting it keeps.</summary>
     private static bool HasByteOrderMark(string path) => File.ReadAllBytes(path) is [0xEF, 0xBB, 0xBF, ..];
+
+    /// <summary>
+    /// Keeps in place every selected declaration that a declaration staying in place uses, until none is left: a selected
+    /// declaration left for manual relocation stays in its assembly, so moving a declaration it uses would leave it
+    /// referring to code its assembly no longer holds. The 2026-11-12 cleanup at d44b823793 moved
+    /// InstalledImagePlanesConstants out of AssetExtraction while InstalledImagePlanes.CopyTo, which uses it, stayed for
+    /// manual relocation, and the tree no longer compiled. A staying declaration inside a type that moves whole moves with
+    /// that type, so it holds nothing back while that type moves.
+    /// </summary>
+    private static void KeepWhatStayingDeclarationsUse(SymbolIdentity identity, List<Move> found, List<StayingDeclaration> staying,
+        List<string> manual)
+    {
+        bool Holds(Move move, ISymbol used) => identity.Key(move.Symbol) is { } key &&
+            (identity.Key(used) == key || (move.Symbol is INamedTypeSymbol && Containers(used).Any(type => identity.Key(type) == key)));
+        bool MovesWithType(StayingDeclaration declaration) => found.Any(move => move.Symbol is INamedTypeSymbol &&
+            move.Tree == declaration.Tree && move.Node.FullSpan.Contains(declaration.Node.Span));
+        bool kept = true;
+        while (kept)
+        {
+            kept = false;
+            foreach (StayingDeclaration declaration in staying.ToList())
+            {
+                if (MovesWithType(declaration))
+                    continue;
+                foreach (SyntaxNode use in declaration.Node.DescendantNodes())
+                {
+                    if (SymbolIdentity.Normalize(declaration.Model.GetSymbolInfo(use).Symbol) is not { } used)
+                        continue;
+                    foreach (Move move in found.Where(move => Holds(move, used)).ToList())
+                    {
+                        found.Remove(move);
+                        manual.Add($"MANUAL {move.Symbol.Kind} {move.Symbol.ToDisplayString()} (kept in place: " +
+                            $"{declaration.Symbol.ToDisplayString()} stays and uses it, {Location(identity, move.Node)})");
+                        staying.Add(new(move.Symbol, move.Node, move.Tree, move.Model));
+                        kept = true;
+                    }
+                }
+            }
+        }
+    }
 
     /// <summary>Places supported declarations and leaves unsafe shapes for manual relocation.</summary>
     private static Placement? Classify(ISymbol symbol, SyntaxNode node)

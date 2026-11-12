@@ -57,7 +57,10 @@ public sealed class UnreachableCodeCodeFixProvider : DocumentFixProvider
                     break;
             }
         }
-        foreach (var group in removed.Where(statement => statement.Parent is BlockSyntax or SwitchSectionSyntax).GroupBy(statement => statement.Parent!))
+        foreach (var group in removed
+            .SelectMany(statement => statement.Parent is (BlockSyntax or SwitchSectionSyntax) and var parent
+                ? new[] { (Statement: statement, Parent: parent) } : Array.Empty<(StatementSyntax Statement, SyntaxNode Parent)>())
+            .GroupBy(entry => entry.Parent, entry => entry.Statement))
         {
             int count = group.Count();
             switch (group.Key)
@@ -108,9 +111,13 @@ public sealed class UnreachableCodeCodeFixProvider : DocumentFixProvider
     {
         var spans = removed.Select(statement => statement.Span).ToList();
         bool Removed(SyntaxNode node) => spans.Any(span => span.Contains(node.Span));
-        var jumps = root.DescendantNodes().OfType<GotoStatementSyntax>().Where(jump => jump.IsKind(SyntaxKind.GotoStatement) && jump.Expression is not null).ToList();
-        var orphaned = new HashSet<string>(jumps.Where(Removed).Select(jump => jump.Expression!.ToString()));
-        foreach (string label in jumps.Where(jump => !Removed(jump)).Select(jump => jump.Expression!.ToString()))
+        var jumps = root.DescendantNodes().OfType<GotoStatementSyntax>()
+            .Where(jump => jump.IsKind(SyntaxKind.GotoStatement))
+            .SelectMany(jump => jump.Expression is { } target
+                ? new[] { (Jump: jump, Label: target.ToString()) } : Array.Empty<(GotoStatementSyntax Jump, string Label)>())
+            .ToList();
+        var orphaned = new HashSet<string>(jumps.Where(entry => Removed(entry.Jump)).Select(entry => entry.Label));
+        foreach (string label in jumps.Where(entry => !Removed(entry.Jump)).Select(entry => entry.Label))
             orphaned.Remove(label);
         foreach (LabeledStatementSyntax labeled in root.DescendantNodes().OfType<LabeledStatementSyntax>())
         {

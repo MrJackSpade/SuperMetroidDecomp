@@ -95,6 +95,8 @@ try {
     Disable-ErrorDialogs
     Set-Location $repository
     $names = @(Get-ChildItem -LiteralPath $fixtures -Directory | ForEach-Object Name | Sort-Object)
+    # pwsh -File passes '-Rule A,B' as one string, so the names are split on commas here.
+    $Rule = @($Rule | ForEach-Object { $_ -split ',' } | ForEach-Object { $_.Trim() } | Where-Object { $_ })
     if ($Rule.Count -gt 0) {
         foreach ($name in $Rule) { if ($names -notcontains $name) { throw "There is no fixture for $name in $fixtures." } }
         $names = @($Rule)

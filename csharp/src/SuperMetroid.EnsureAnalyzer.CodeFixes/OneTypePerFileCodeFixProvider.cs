@@ -49,7 +49,8 @@ public sealed class OneTypePerFileCodeFixProvider : DocumentFixProvider
         {
             if (Refusal(document, root, diagnostic) is { } reason)
                 throw new CleanupFailure(diagnostic, reason);
-            MemberDeclarationSyntax declaration = Declaration(root, diagnostic)!;
+            MemberDeclarationSyntax declaration = Declaration(root, diagnostic)
+                ?? throw new CleanupFailure(diagnostic, "the finding names no top-level type declaration");
             moved.Add((OneTypePerFileAnalyzer.NameOf(declaration), NewFile(root, text, edits, declaration)));
             edits.Remove(declaration);
         }

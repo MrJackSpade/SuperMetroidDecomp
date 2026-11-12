@@ -124,8 +124,11 @@ pinned local sources; reference annotations do not replace reproducing a reporte
 - Owner decision (2026-11-11): a rule whose every finding an existing code fix resolves
   without changing behaviour or needing a choice is enforced by the asynchronous cleanup
   that runs after each local commit, not by the local build. Only those rules sit at
-  `suggestion`, under the comment in `csharp/.editorconfig` that names the cleanup. Every
-  other rule stays a full-severity build error, and grandfathering stays forbidden.
+  `none`, under the comment in `csharp/.editorconfig` that names the cleanup, so they cost
+  no build time. Every other rule stays a full-severity build error, and grandfathering
+  stays forbidden.
+- Dead code, stale inventories and stale architecture reviews never block a push; the
+  asynchronous cleanup fixes them ([tools/cleanup/README.md](tools/cleanup/README.md)).
 
 ## Recorded-movie acceptance scope
 
@@ -360,9 +363,9 @@ constraint, not a side concern.
   a single pass. Never build after each unit or rebuild after each individual fix.
 - Build only the projects the change needs. The full solution builds in CI.
 - Build with `pwsh -File tools/build.ps1 [project or solution] [dotnet build arguments...]`, never `dotnet build`
-  directly. It deletes the unused usings (IDE0005) the build reports and builds again until none are left, then prints
-  the remaining errors once. The project's Claude Code hook (`tools/require-build-script.py`) refuses a direct
-  `dotnet build`.
+  directly. It builds once, keeps the full output in a log and prints the errors once; unused usings and the other
+  automatically fixed rules are not build errors, the asynchronous cleanup removes them after the push. The project's
+  Claude Code hook (`tools/require-build-script.py`) refuses a direct `dotnet build`.
 
 ### Run only the checks that cover the change
 

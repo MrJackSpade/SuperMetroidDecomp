@@ -100,7 +100,9 @@ internal static class TypeInventory
             .Where(attribute => attribute.AttributeClass?.Name == ReviewAttributeName && attribute.ConstructorArguments.Length == 2)
             .Select(attribute => new ArchitectureReview(
                 attribute.ConstructorArguments[0].Value as string ?? "",
-                attribute.ConstructorArguments[1].Value as string ?? ""))
+                attribute.ConstructorArguments[1].Value as string ?? "",
+                attribute.ApplicationSyntaxReference ??
+                    throw new InvalidOperationException($"{key}: an [ArchitectureReview] has no source location.")))
             .ToList();
         return new TypeEntry(key, kind, scope, [.. assemblies], [.. files], partial,
             parameterObject ? "constructor-parameters" : Disposition(type, kind, partial), flags, reviews);

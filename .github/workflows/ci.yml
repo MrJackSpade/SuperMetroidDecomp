@@ -44,9 +44,10 @@ jobs:
         run: dotnet build csharp/SuperMetroid.Full.slnx -c Release
       # Dead code is not checked here: the asynchronous cleanup (tools/cleanup) prunes it after every push and pushes the
       # result, so it never blocks a push (owner ruling, 2026-11-11).
-      # Every type has a disposition; a flagged owner, locator, context bag or large class is justified on the type or fails.
-      - name: Architecture audit (inventory current, every finding justified at its site)
-        run: dotnet run --project csharp/src/SuperMetroid.ArchitectureAudit -c Release --no-build -- --solution csharp/SuperMetroid.Full.slnx
+      # A flagged owner, locator, context bag or large class is justified on the type or fails, and so does a Core module
+      # cycle. Stale inventories and stale reviews do not fail here: the asynchronous cleanup (tools/cleanup) fixes them.
+      - name: Architecture audit (every finding justified at its site)
+        run: dotnet run --project csharp/src/SuperMetroid.ArchitectureAudit -c Release --no-build -- --solution csharp/SuperMetroid.Full.slnx --findings
 
   enemy-visuals:
     runs-on: windows-2025

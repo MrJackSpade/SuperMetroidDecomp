@@ -1,5 +1,5 @@
 """Claude Code PreToolUse hook: refuses a shell command that runs `dotnet build` directly, so every build goes through
-tools/build.ps1, which removes the unused usings the build reports and builds again (#1530).
+tools/build.ps1, the one sanctioned build entry point, which builds once and prints the errors once (#1530).
 
 Reads the hook payload on stdin; prints a deny decision for a direct build and nothing otherwise."""
 import json
@@ -28,6 +28,5 @@ if direct and not through_script:
         "permissionDecision": "deny",
         "permissionDecisionReason":
             "Build with `pwsh -File tools/build.ps1 [project or solution] [dotnet build arguments...]` instead of "
-            "`dotnet build`: it removes the unused usings the build reports and rebuilds until none are left, then "
-            "prints the remaining errors once.",
+            "`dotnet build`: it builds once, keeps the full output in a log and prints the errors once.",
     }}))

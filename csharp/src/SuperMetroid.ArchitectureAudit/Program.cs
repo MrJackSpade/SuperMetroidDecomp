@@ -8,14 +8,21 @@ namespace SuperMetroid.ArchitectureAudit;
 /// <summary>
 /// Architecture audit. Inventories every source type with a disposition and checks it against the checked-in
 /// <c>docs/architecture-inventory.json</c>. Every structural finding is justified on the type itself with
-/// <c>[ArchitectureReview]</c> or fails the audit, and a review whose finding is gone fails as stale; there is no
-/// central list of accepted findings. It also writes and checks the per-file module inventory,
-/// <c>docs/module-inventory.json</c>.
+/// <c>[ArchitectureReview]</c> or fails the audit; there is no central list of accepted findings. It also writes and
+/// checks the per-file module inventory, <c>docs/module-inventory.json</c>, and fails on every Core module cycle.
+/// <para>
+/// With no mode flag it runs the full check, which also fails on a stale inventory and on a stale review (one whose
+/// finding its type no longer has). <c>--write</c> regenerates the inventories. <c>--findings</c> fails only on what
+/// needs judgment: an unjustified finding, a review without a reason, a Core module cycle; CI runs it, because a stale
+/// inventory or review is deterministic and the asynchronous cleanup fixes it after the push. <c>--prune-stale-reviews</c>
+/// is that fix for reviews: it deletes every stale review's attribute from the source.
+/// </para>
 /// </summary>
 internal static class Program
 {
-    /// <summary>Requires an explicit solution path and reserves --write for inventory regeneration.</summary>
-    private const string Usage = "Usage: SuperMetroid.ArchitectureAudit --solution <SuperMetroid.Full.slnx> [--write]";
+    /// <summary>Requires an explicit solution path and at most one mode flag.</summary>
+    private const string Usage = "Usage: SuperMetroid.ArchitectureAudit --solution <SuperMetroid.Full.slnx> " +
+        "[--write | --findings | --prune-stale-reviews]";
 
     /// <summary>Stable camel-case JSON settings shared by the inventory documents.</summary>
     private static readonly JsonSerializerOptions Json = new()
@@ -25,48 +32,30 @@ internal static class Program
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
     };
 
-    /// <summary>Checks the type inventory or rewrites it while reporting failures through the guarded console boundary.</summary>
+    /// <summary>Runs the chosen mode while reporting failures through the guarded console boundary.</summary>
     private static async Task<int> Main(string[] args)
     {
         NativeConsoleErrors.DisableDialogs();
         try
         {
-            (string solutionPath, bool write) = args switch
+            (string solutionPath, AuditMode mode) = args switch
             {
-                ["--solution", var path] => new AuditArguments(path, false),
-                ["--solution", var path, "--write"] => new AuditArguments(path, true),
+                ["--solution", var path] => new AuditArguments(path, AuditMode.Check),
+                ["--solution", var path, "--write"] => new AuditArguments(path, AuditMode.Write),
+                ["--solution", var path, "--findings"] => new AuditArguments(path, AuditMode.Findings),
+                ["--solution", var path, "--prune-stale-reviews"] => new AuditArguments(path, AuditMode.PruneStaleReviews),
                 _ => throw new ArgumentException(Usage),
             };
             var solution = await SolutionLoader.LoadAsync(Path.GetFullPath(solutionPath));
-            string inventoryPath = Path.Combine(solution.RepositoryRoot, "docs", "architecture-inventory.json");
             var entries = TypeInventory.Collect(solution);
-            var problems = ReviewProblems(entries);
-            string document = JsonSerializer.Serialize(new
+            return mode switch
             {
-                issue = 621,
-                regenerate = "dotnet run --project csharp/src/SuperMetroid.ArchitectureAudit -c Release -- --solution csharp/SuperMetroid.Full.slnx --write",
-                types = entries.Select(Describe).ToList(),
-            }, Json).ReplaceLineEndings("\n") + "\n";
-            string modulePath = Path.Combine(solution.RepositoryRoot, "docs", "module-inventory.json");
-            string modules = JsonSerializer.Serialize(ModuleInventory.Collect(solution, problems), Json).ReplaceLineEndings("\n") + "\n";
-            foreach ((string path, string content) in new[] { new GeneratedInventory(inventoryPath, document), new GeneratedInventory(modulePath, modules) })
-            {
-                if (write)
-                {
-                    File.WriteAllText(path, content);
-                    Console.WriteLine($"Wrote {path}.");
-                }
-                else if (!File.Exists(path) || File.ReadAllText(path).ReplaceLineEndings("\n") != content)
-                {
-                    problems.Add($"{path} is stale; regenerate it with --write and review the difference.");
-                }
-            }
-            foreach (string problem in problems)
-                Console.Error.WriteLine(problem);
-            if (problems.Count != 0)
-                return 1;
-            Console.WriteLine($"Architecture audit passed: {entries.Count} types, {entries.Count(entry => entry.Flags.Count != 0)} findings justified at their sites.");
-            return 0;
+                AuditMode.PruneStaleReviews => StaleReviewPruner.Prune(StaleReviews(entries), solution.RepositoryRoot),
+                AuditMode.Findings => CheckFindings(solution, entries),
+                AuditMode.Check => CheckInventories(solution, entries, write: false),
+                AuditMode.Write => CheckInventories(solution, entries, write: true),
+                _ => throw new InvalidOperationException($"Unknown audit mode {mode}."),
+            };
         }
         catch (Exception exception)
         {
@@ -76,27 +65,91 @@ internal static class Program
     }
 
     /// <summary>
-    /// Each finding needs a review on its own type naming that finding with a reason; a review naming no current
-    /// finding is stale. Nothing outside the type can justify its finding.
+    /// The full check, or the regeneration: generates both inventories and either writes them or fails on a stale one,
+    /// and fails on every judgment problem, every stale review and every Core module cycle.
     /// </summary>
-    private static List<string> ReviewProblems(IReadOnlyList<TypeEntry> entries)
+    private static int CheckInventories(LoadedSolution solution, IReadOnlyList<TypeEntry> entries, bool write)
+    {
+        string inventoryPath = Path.Combine(solution.RepositoryRoot, "docs", "architecture-inventory.json");
+        var problems = JudgmentProblems(entries);
+        problems.AddRange(StaleReviews(entries).Select(stale =>
+            $"Stale review: {stale.Type} justifies \"{stale.Review.Finding}\" but has no such finding; remove the attribute " +
+            "(--prune-stale-reviews does)."));
+        string document = JsonSerializer.Serialize(new
+        {
+            issue = 621,
+            regenerate = "dotnet run --project csharp/src/SuperMetroid.ArchitectureAudit -c Release -- --solution csharp/SuperMetroid.Full.slnx --write",
+            types = entries.Select(Describe).ToList(),
+        }, Json).ReplaceLineEndings("\n") + "\n";
+        string modulePath = Path.Combine(solution.RepositoryRoot, "docs", "module-inventory.json");
+        string modules = JsonSerializer.Serialize(ModuleInventory.Collect(solution, problems), Json).ReplaceLineEndings("\n") + "\n";
+        foreach ((string path, string content) in new[] { new GeneratedInventory(inventoryPath, document), new GeneratedInventory(modulePath, modules) })
+        {
+            if (write)
+            {
+                File.WriteAllText(path, content);
+                Console.WriteLine($"Wrote {path}.");
+            }
+            else if (!File.Exists(path) || File.ReadAllText(path).ReplaceLineEndings("\n") != content)
+            {
+                problems.Add($"{path} is stale; regenerate it with --write and review the difference.");
+            }
+        }
+        return Report(problems, $"Architecture audit passed: {entries.Count} types, " +
+            $"{entries.Count(entry => entry.Flags.Count != 0)} findings justified at their sites.");
+    }
+
+    /// <summary>
+    /// The push gate: fails only on what needs judgment. The module inventory is generated for its Core cycles but not
+    /// compared, and stale reviews are not reported; the asynchronous cleanup regenerates and prunes both.
+    /// </summary>
+    private static int CheckFindings(LoadedSolution solution, IReadOnlyList<TypeEntry> entries)
+    {
+        var problems = JudgmentProblems(entries);
+        _ = ModuleInventory.Collect(solution, problems);
+        return Report(problems, $"Architecture findings passed: {entries.Count} types, " +
+            $"{entries.Count(entry => entry.Flags.Count != 0)} findings justified at their sites, no Core module cycle.");
+    }
+
+    /// <summary>Prints every problem to standard error and fails, or prints the pass line.</summary>
+    private static int Report(List<string> problems, string passed)
+    {
+        foreach (string problem in problems)
+            Console.Error.WriteLine(problem);
+        if (problems.Count != 0)
+            return 1;
+        Console.WriteLine(passed);
+        return 0;
+    }
+
+    /// <summary>
+    /// The problems only a person can resolve: each finding needs a review on its own type naming that finding, and
+    /// every review needs a reason. Nothing outside the type can justify its finding.
+    /// </summary>
+    private static List<string> JudgmentProblems(IReadOnlyList<TypeEntry> entries)
     {
         var problems = new List<string>();
         foreach (TypeEntry entry in entries)
         {
-            var findings = entry.Flags.Select(FindingKind).ToHashSet(StringComparer.Ordinal);
-            foreach (ArchitectureReview review in entry.Reviews)
-            {
-                if (string.IsNullOrWhiteSpace(review.Reason))
-                    problems.Add($"{entry.Type}: [ArchitectureReview(\"{review.Finding}\")] needs a reason specific to this type.");
-                if (!findings.Contains(review.Finding))
-                    problems.Add($"Stale review: {entry.Type} justifies \"{review.Finding}\" but has no such finding; remove the attribute.");
-            }
+            foreach (ArchitectureReview review in entry.Reviews.Where(review => string.IsNullOrWhiteSpace(review.Reason)))
+                problems.Add($"{entry.Type}: [ArchitectureReview(\"{review.Finding}\")] needs a reason specific to this type.");
             foreach (string flag in entry.Flags.Where(flag => !IsJustified(entry, flag)))
                 problems.Add($"{entry.Type} is flagged [{flag}] with no [ArchitectureReview(\"{FindingKind(flag)}\", reason)] on the type. " +
                     "Fix the shape, or justify this one site.");
         }
         return problems;
+    }
+
+    /// <summary>Every review naming a finding its type no longer has.</summary>
+    private static List<StaleReview> StaleReviews(IReadOnlyList<TypeEntry> entries)
+    {
+        var stale = new List<StaleReview>();
+        foreach (TypeEntry entry in entries)
+        {
+            var findings = entry.Flags.Select(FindingKind).ToHashSet(StringComparer.Ordinal);
+            stale.AddRange(entry.Reviews.Where(review => !findings.Contains(review.Finding)).Select(review => new StaleReview(entry.Type, review)));
+        }
+        return stale;
     }
 
     /// <summary>The finding kind of a flag: <c>back-reference:&lt;creator&gt;</c> is justified as <c>back-reference</c>.</summary>

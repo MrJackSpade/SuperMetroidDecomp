@@ -7,6 +7,8 @@ using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Chozo;
+using SuperMetroid.Core.Enemies.Chozo.Artwork;
 using SuperMetroid.Core.Enemies.Corpses.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
@@ -14,9 +16,10 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// <summary>
 /// The colourings each enemy whose encounter's code sets colours, rather than its graphics set's load, leaves before its
 /// frames first show (#1513): the shades its encounter lays, in the order they are laid, up to the moment its frames
-/// first show. Its sheets, and the spawned-object sheets holding its objects, are coloured in what those shades leave in
-/// the rows they write, so a frame that shows before any later shade does not show the zero colours its header palette
-/// or the room load leaves there.
+/// first show, by enemy or, for an enemy whose initialization chooses its colours by how its room places it, by placement
+/// (#1642). Its sheets, and the spawned-object sheets holding its objects, are coloured in what those shades leave in the
+/// rows they write, so a frame that shows before any later shade does not show the zero colours its header palette or
+/// the room load leaves there.
 /// </summary>
 internal static class EnemyFirstShownColourDefinitions
 {
@@ -67,5 +70,19 @@ internal static class EnemyFirstShownColourDefinitions
         [EnemyDefinitionId.GoldenTorizo] = [TorizoShades.Shared, TorizoShades.Body(new TorizoLook(TorizoLookKind.GoldenInitial))],
         [EnemyDefinitionId.SporeSpawn] = [SporeSpawnShades.Spores],
         [EnemyDefinitionId.MotherBrainBody] = [MotherBrainShades.RoomEntry, MotherBrainShades.PhaseTwo],
+    };
+
+    /// <summary>
+    /// The shades laid before an enemy's frames first show, by the placement its initialization chooses its colours by
+    /// (#1642); no enemy named by <see cref="Shades"/> is placed so. Each Chozo statue's initialization clears its palette
+    /// bits ($AA:E74C) and loads its site's statue colours into the two rows its parts name, before its first frame: the
+    /// Wrecked Ship statue's for the first site ($AA:E75E to $AA:E771), the Lower Norfair statue's for the second ($AA:E784
+    /// to $AA:E797). The statue shows them for its whole life, its body in the first row and its walking back leg in the
+    /// second, so its sheets show them, never the colours its graphics set's load leaves in those rows.
+    /// </summary>
+    internal static IReadOnlyDictionary<EnemySpawnSettings, PictureShade[]> ByPlacement { get; } = new Dictionary<EnemySpawnSettings, PictureShade[]>
+    {
+        [new ChozoStatueSpawnSettings(Site: ChozoStatueSite.WreckedShip)] = [ChozoAndTubeShades.WreckedShipStatue],
+        [new ChozoStatueSpawnSettings(Site: ChozoStatueSite.LowerNorfair)] = [ChozoAndTubeShades.LowerNorfairStatue],
     };
 }

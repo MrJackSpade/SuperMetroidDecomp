@@ -44,8 +44,8 @@ internal static class RoomBackgroundImageGeometry
 
     /// <summary>
     /// One period of what a library background shows (#1651), from the two BG2 pages <paramref name="pages"/> its list
-    /// leaves: the first page alone where the second holds the same tilemap, otherwise both pages, the first above the
-    /// second.
+    /// leaves: where the second page holds the same tilemap, the first page's rows down to their shortest period of whole
+    /// cells, the first page whole where its rows do not repeat; otherwise both pages, the first above the second.
     /// </summary>
     /// <remarks>
     /// The two pages are one layer that repeats beyond its edges: gameplay sets BG2's map to $4800 with two 32x32 pages side
@@ -62,6 +62,29 @@ internal static class RoomBackgroundImageGeometry
     internal static ushort[] OnePeriod(ushort[] pages)
     {
         Ensure.LengthEqual(Ensure.NotNull(pages), Words);
-        return pages.AsSpan(0, PageWords).SequenceEqual(pages.AsSpan(PageWords)) ? pages[..PageWords] : pages;
+        if (!pages.AsSpan(0, PageWords).SequenceEqual(pages.AsSpan(PageWords)))
+            return pages;
+        // The one page repeats down too: where its rows repeat with a shorter period of whole cells, the layer is those rows
+        // repeated, so they are the period (a tower's or a wall's repeating pattern).
+        for (int rows = CellSideTiles; rows < PageTiles; rows += CellSideTiles)
+        {
+            if (PageTiles % rows == 0 && RepeatsDown(pages, rows))
+                return pages[..(rows * PageTiles)];
+        }
+        return pages[..PageWords];
+    }
+
+    /// <summary>Tiles along a 16x16 cell's side: a period down is a whole number of cells, as the changing cells need.</summary>
+    private const int CellSideTiles = 2;
+
+    /// <summary>Whether every row of the first page of <paramref name="pages"/> equals the row <paramref name="rows"/> rows above it.</summary>
+    private static bool RepeatsDown(ushort[] pages, int rows)
+    {
+        for (int row = rows; row < PageTiles; row++)
+        {
+            if (!pages.AsSpan(row * PageTiles, PageTiles).SequenceEqual(pages.AsSpan((row - rows) * PageTiles, PageTiles)))
+                return false;
+        }
+        return true;
     }
 }

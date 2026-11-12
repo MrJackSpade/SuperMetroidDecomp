@@ -55,6 +55,36 @@ public sealed record InstalledPictureReferenceDocument
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? BlendMap { get; init; }
 
+    /// <summary>
+    /// Whether the picture is one period of what the frame shows (#1651): it starts at the rectangle's top-left pixel, its size
+    /// divides the rectangle's, and the frame shows it repeated across and down over the whole rectangle, as a turning floor
+    /// the game repeats beyond its edges shows a plane that repeats within it. Absent where the frame shows the picture once.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool Repeats { get; init; }
+
+    /// <summary>
+    /// The rectangles the picture fills on the sheet image of a frame whose rectangle is <paramref name="frame"/>: the one
+    /// place it lies (<see cref="PlacedIn"/>), or each period of the rectangle where it <see cref="Repeats"/>.
+    /// </summary>
+    internal IEnumerable<FrameRectangle> PlacesIn(FrameRectangle frame)
+    {
+        if (!Repeats)
+        {
+            yield return PlacedIn(frame.Corner);
+            yield break;
+        }
+        for (int y = 0; y < frame.Size.Y; y += Size.Y)
+        {
+            for (int x = 0; x < frame.Size.X; x += Size.X)
+                yield return new FrameRectangle(Position16<ImagePixels>.Of(frame.Corner.X + x, frame.Corner.Y + y), Size);
+        }
+    }
+
+    /// <summary>Whether a repeating picture tiles a frame rectangle of <paramref name="frameSize"/>: it starts at its corner and its size divides it.</summary>
+    internal bool TilesExactly(Extent16<ImagePixels> frameSize) =>
+        Offset == default && Size.X > 0 && Size.Y > 0 && frameSize.X % Size.X == 0 && frameSize.Y % Size.Y == 0;
+
     /// <summary>The picture's rectangle on its page.</summary>
     internal FrameRectangle OnPage() => new(Corner, Size);
 

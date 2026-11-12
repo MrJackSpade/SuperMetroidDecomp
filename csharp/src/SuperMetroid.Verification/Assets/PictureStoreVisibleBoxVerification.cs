@@ -57,7 +57,8 @@ internal static class PictureStoreVisibleBoxVerification
                 if (!whole)
                     continue;
                 shownWhole.Add(picture.Tag);
-                if (picture.Offset != default || picture.Size != entry.Size)
+                // A floor repeated beyond its edges is stored whole, or as one period it repeats over its rectangle (#1651).
+                if (picture.Repeats ? !picture.TilesExactly(entry.Size) : picture.Offset != default || picture.Size != entry.Size)
                     notWhole.Add($"{family}/{sheet} frame {frame} shows {picture.Tag}, {picture.Size.X}x{picture.Size.Y} at ({picture.Offset.X}, {picture.Offset.Y}) of its {entry.Size.X}x{entry.Size.Y} rectangle");
             }
         }
@@ -156,6 +157,40 @@ internal static class PictureStoreVisibleBoxVerification
 
     /// <summary>The title floor's scene, the part of its floor that shows anything, as the owner's report measured it (#1646).</summary>
     private static Extent16<ImagePixels> TitleFloorScene => new(256, 256);
+
+    /// <summary>
+    /// Fails unless each picture of a floor repeated beyond its edges is its frame's smallest period (#1651): the assembled
+    /// frame repeats with no smaller period than the stored picture's size, and the frame marks the picture repeated exactly
+    /// where that period is smaller than the frame, so no floor stores a repeated copy of itself.
+    /// </summary>
+    internal static void VerifyRepeatedFloorsStoreOnePeriod()
+    {
+        GameInstallation installation = RepositoryInstallation.Installation;
+        InstalledPictureStore store = InstalledPictureStore.Open(installation.PictureStoreDirectory);
+        HashSet<string> wholeSheets = ShownWholeSheets();
+        var wrong = new List<string>();
+        var repeated = new List<string>();
+        foreach ((string family, string sheet, InstalledSheetDocument document) in InstalledSheetManifests.Read(installation.ContentDirectory))
+        {
+            if (!wholeSheets.Contains($"{family}/{sheet}"))
+                continue;
+            var image = new InstalledImagePlanes(store.Assemble(sheet, document), document.Size);
+            foreach ((string frame, InstalledSheetFrameDocument entry) in document.Frames.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+            {
+                if (entry.Picture is not { } picture)
+                    continue;
+                var rectangle = new FrameRectangle(entry.Corner, entry.Size);
+                Extent16<ImagePixels> period = image.Period(rectangle);
+                if (picture.Size != period || picture.Repeats != (period != entry.Size))
+                    wrong.Add($"{family}/{sheet} frame {frame} stores {picture.Size.X}x{picture.Size.Y} (repeats: {picture.Repeats}) of a {entry.Size.X}x{entry.Size.Y} frame whose smallest period is {period.X}x{period.Y}");
+                else if (picture.Repeats)
+                    repeated.Add($"{sheet} {frame}: {period.X}x{period.Y} of {entry.Size.X}x{entry.Size.Y}");
+            }
+        }
+        AssertTrue(wrong.Count == 0, $"{wrong.Count} repeated floors do not store their smallest period:{Environment.NewLine}{string.Join(Environment.NewLine, wrong)}");
+        AssertTrue(repeated.Count > 0, "a floor repeated beyond its edges stores one period it repeats");
+        Console.WriteLine($"Picture store: {repeated.Count} repeated floors store one period each ({string.Join("; ", repeated)}).");
+    }
 
     /// <summary>
     /// The sheets shown whole, by family and name: each frontend and room turning floor the cartridge repeats beyond its edges
@@ -368,6 +403,7 @@ internal static class PictureStoreVisibleBoxVerification
     internal static int PictureStoreVisibleBoxCommand()
     {
         Suite(nameof(VerifyStoredPicturesAreTheirVisibleBoxes), VerifyStoredPicturesAreTheirVisibleBoxes);
+        Suite(nameof(VerifyRepeatedFloorsStoreOnePeriod), VerifyRepeatedFloorsStoreOnePeriod);
         return 0;
     }
 

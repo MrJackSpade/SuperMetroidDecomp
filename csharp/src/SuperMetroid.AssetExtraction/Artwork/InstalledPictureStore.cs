@@ -122,6 +122,10 @@ internal sealed class InstalledPictureStore
                 throw new InvalidDataException(
                     $"Sprite sheet {sheet} frame {name} names a {picture.Size.X}x{picture.Size.Y} picture at ({picture.Offset.X}, {picture.Offset.Y}) of its rectangle, " +
                     $"which does not lie inside the frame's {frame.Size.X}x{frame.Size.Y} rectangle.");
+            if (picture.Repeats && !picture.TilesExactly(frame.Size))
+                throw new InvalidDataException(
+                    $"Sprite sheet {sheet} frame {name} repeats a {picture.Size.X}x{picture.Size.Y} picture at ({picture.Offset.X}, {picture.Offset.Y}) over its " +
+                    $"{frame.Size.X}x{frame.Size.Y} rectangle: a repeated picture starts at the rectangle's corner and its size divides the rectangle's.");
             if (picture.Page < 0 || picture.Page >= pages.Length)
                 throw new InvalidDataException($"Sprite sheet {sheet} frame {name} names picture-store page {picture.Page}, which the store lacks.");
             FrameRectangle stored = picture.OnPage();
@@ -185,16 +189,19 @@ internal sealed class InstalledPictureStore
         foreach ((FrameRectangle rectangle, InstalledPictureReferenceDocument picture) in shown)
         {
             FrameRectangle stored = picture.OnPage();
-            FrameRectangle placed = picture.PlacedIn(rectangle.Corner);
             InstalledImagePlanes page = pages[picture.Page].Image;
             if (page.IsClear(stored))
                 throw new InvalidDataException($"Sprite sheet {sheet} frame {string.Join(", ", FramesAt(document, rectangle))} names rectangle {stored} of "
                     + $"picture-store page {PictureStoreFiles.PageFile(picture.Page)}, which shows nothing: an installed picture shows something.");
-            page.CopyPixelsTo(stored, image, placed.Corner);
-            if (picture.RecolourRegionMap is { } regionMap)
-                MapOf(recolourRegionMaps, regionMap, "recolour-region").CopyTo(Ensure.NotNull(regions), document.Size, placed);
-            if (picture.BlendMap is { } blendMap)
-                MapOf(blendMaps, blendMap, "blend").CopyTo(Ensure.NotNull(blending), document.Size, placed);
+            PictureMap<int>? regionMap = picture.RecolourRegionMap is { } regionTag ? MapOf(recolourRegionMaps, regionTag, "recolour-region") : null;
+            PictureMap<bool>? blendMap = picture.BlendMap is { } blendTag ? MapOf(blendMaps, blendTag, "blend") : null;
+            // A repeated picture is one period, copied to each period of the rectangle (#1651); any other lies once.
+            foreach (FrameRectangle placed in picture.PlacesIn(rectangle))
+            {
+                page.CopyPixelsTo(stored, image, placed.Corner);
+                regionMap?.CopyTo(Ensure.NotNull(regions), document.Size, placed);
+                blendMap?.CopyTo(Ensure.NotNull(blending), document.Size, placed);
+            }
         }
         return image.Planes;
     }

@@ -49,11 +49,12 @@ public sealed class RoomBackgroundImagePlacement
     }
 
     /// <summary>
-    /// How a room places its library background's image (#1514, #1651). An image as tall as it is wide is one period of
-    /// what the background shows: it lies whole on an area of its own size, which repeats across and down, so the period
-    /// is the image's own width and height. An image twice as tall as it is wide holds the background's two different
-    /// halves: one above the other where <paramref name="halvesStacked"/>, as the Tourian entrance's statues descend
-    /// through them, and side by side in every other room.
+    /// How a room places its library background's image (#1514, #1651). An image no taller than it is wide is one period of
+    /// what the background shows, one page or the rows of one page down to their period: it lies whole on an area of its
+    /// own size, which repeats across and down, so the period is the image's own width and height. An image twice as tall
+    /// as it is wide holds the background's two different halves: one above the other where
+    /// <paramref name="halvesStacked"/>, as the Tourian entrance's statues descend through them, and side by side in every
+    /// other room.
     /// </summary>
     /// <param name="image">The library background's image.</param>
     /// <param name="halvesStacked">Whether the room shows the background's two halves one above the other.</param>
@@ -61,11 +62,11 @@ public sealed class RoomBackgroundImagePlacement
     public static RoomBackgroundImagePlacement OfLibrary(RoomBackgroundImage image, bool halvesStacked)
     {
         Ensure.NotNull(image);
-        if (image.Size.Y == image.Size.X)
+        if (image.Size.Y <= image.Size.X)
             return Whole(image);
         if (image.Size.Y != 2 * image.Size.X)
             throw new ArgumentException(
-                $"Room background {image.Name} is {image.Size.X}x{image.Size.Y}: neither one period, as tall as it is wide, nor two halves, twice as tall.", nameof(image));
+                $"Room background {image.Name} is {image.Size.X}x{image.Size.Y}: neither one period, no taller than it is wide, nor two halves, twice as tall.", nameof(image));
         return halvesStacked ? Whole(image) : HalvesSideBySide(image);
     }
 

@@ -123,8 +123,13 @@ internal static class PictureStoreWriter
                 continue;
             }
             // Outside the box the rectangle holds only what an assembled image starts as, so the box alone lands every pixel,
-            // region and blend where the whole rectangle would (#1646).
-            FrameRectangle box = installed.ShownWhole ? rectangle.Key : image.ContentBox(rectangle.Key);
+            // region and blend where the whole rectangle would (#1646). A sheet shown whole is a turning floor the game shows
+            // repeated beyond its edges: its picture is the rectangle's smallest period, which tiling over the rectangle
+            // gives back, so the floor repeats the period with no copy of it stored (#1651).
+            FrameRectangle box = installed.ShownWhole
+                ? new FrameRectangle(rectangle.Key.Corner, image.Period(rectangle.Key))
+                : image.ContentBox(rectangle.Key);
+            bool repeats = installed.ShownWhole && box != rectangle.Key;
             InstalledPictureContent picture = box == rectangle.Key ? whole : new InstalledPictureContent(image, box);
             if (!store.PictureOf.TryGetValue(picture, out StoredPicture? copy))
             {
@@ -133,7 +138,7 @@ internal static class PictureStoreWriter
                 store.Pictures.Add(copy);
             }
             shownAt.Add(rectangle.Key, new ShownPicture(copy, box.Corner - rectangle.Key.Corner,
-                store.RecolourRegionMaps.Named(picture.RecolourRegions), store.BlendMaps.Named(picture.Blending)));
+                store.RecolourRegionMaps.Named(picture.RecolourRegions), store.BlendMaps.Named(picture.Blending), repeats));
         }
         return shownAt;
     }
@@ -328,7 +333,9 @@ internal static class PictureStoreWriter
     /// <param name="Offset">Where the picture's top-left pixel lies in the rectangle, from the rectangle's top-left pixel (#1646).</param>
     /// <param name="RecolourRegionMap">The tag of its recolour-region map, or null for none.</param>
     /// <param name="BlendMap">The tag of its blend map, or null for none.</param>
-    private sealed record ShownPicture(StoredPicture Picture, Offset16<ImagePixels> Offset, string? RecolourRegionMap, string? BlendMap)
+    /// <param name="Repeats">Whether the picture is one period the rectangle repeats over its whole area (#1651).</param>
+    private sealed record ShownPicture(StoredPicture Picture, Offset16<ImagePixels> Offset, string? RecolourRegionMap, string? BlendMap,
+        bool Repeats)
     {
         /// <summary>The reference the rectangle's frames name, once the picture is packed.</summary>
         internal InstalledPictureReferenceDocument Reference => new()
@@ -340,6 +347,7 @@ internal static class PictureStoreWriter
             Offset = Offset,
             RecolourRegionMap = RecolourRegionMap,
             BlendMap = BlendMap,
+            Repeats = Repeats,
         };
     }
 

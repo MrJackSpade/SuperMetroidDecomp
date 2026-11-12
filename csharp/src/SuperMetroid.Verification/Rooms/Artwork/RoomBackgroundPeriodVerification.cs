@@ -18,8 +18,9 @@ namespace SuperMetroid.Verification.Rooms.Artwork;
 internal static class RoomBackgroundPeriodVerification
 {
     /// <summary>
-    /// Fails unless every installed library background is one page, or two pages that differ: no background stores the same
-    /// page twice, in its part behind or its part in front.
+    /// Fails unless every installed library background is one period of what the room shows, or two pages that differ: no
+    /// background stores the same page twice, and no one-period background repeats down with a shorter period of whole
+    /// 16x16 cells, in its part behind or its part in front.
     /// </summary>
     internal static void VerifyLibraryBackgroundsStoreOnePeriod()
     {
@@ -27,7 +28,8 @@ internal static class RoomBackgroundPeriodVerification
         InstalledPictureStore store = InstalledPictureStore.Open(installation.PictureStoreDirectory);
         var repeated = new List<string>();
         var malformed = new List<string>();
-        int onePage = 0, twoPages = 0;
+        var shortened = new List<string>();
+        int onePeriod = 0, twoPages = 0;
         string[] parts = [RoomBackgroundImage.FrameName, PictureParts.InFront(RoomBackgroundImage.FrameName)];
         foreach ((string family, string sheet, InstalledSheetDocument document) in InstalledSheetManifests.Read(installation.ContentDirectory))
         {
@@ -38,9 +40,18 @@ internal static class RoomBackgroundPeriodVerification
             // The scrolling sky's rows are pictured whole: they are not a library background's pages.
             if (width != RoomBackgroundImageGeometry.PagePixels || height == RoomBackgroundImageGeometry.ImageSize(SkyTilemap.Rows * RoomBackgroundImageGeometry.PageTiles).Y)
                 continue;
-            if (height == RoomBackgroundImageGeometry.PagePixels)
+            if (height <= RoomBackgroundImageGeometry.PagePixels)
             {
-                onePage++;
+                onePeriod++;
+                if (height < RoomBackgroundImageGeometry.PagePixels)
+                    shortened.Add($"{sheet} {height} pixels tall");
+                var image = new InstalledImagePlanes(store.Assemble(sheet, document), document.Size);
+                foreach (string part in parts.Where(document.Frames.ContainsKey))
+                {
+                    InstalledSheetFrameDocument frame = document.Frames[part];
+                    if (ShorterCellPeriod(image, frame) is { } rows)
+                        repeated.Add($"{sheet} frame {part} repeats down every {rows} rows of its {frame.Size.Y}");
+                }
                 continue;
             }
             if (height != 2 * RoomBackgroundImageGeometry.PagePixels)
@@ -56,10 +67,12 @@ internal static class RoomBackgroundPeriodVerification
                 repeated.Add($"{sheet} stores one page twice");
         }
         AssertTrue(malformed.Count == 0, $"library backgrounds are one or two pages:{Environment.NewLine}{string.Join(Environment.NewLine, malformed)}");
-        AssertTrue(onePage > 0, "the installation holds library backgrounds installed as one page");
+        AssertTrue(onePeriod > 0, "the installation holds library backgrounds installed as one period");
+        AssertTrue(shortened.Count > 0, "the installation holds library backgrounds whose one page repeats down with a shorter period");
         AssertTrue(repeated.Count == 0,
             $"{repeated.Count} library backgrounds store one page twice:{Environment.NewLine}{string.Join(Environment.NewLine, repeated)}");
-        Console.WriteLine($"Room backgrounds: {onePage} library backgrounds are one page the room repeats; {twoPages} hold two different pages.");
+        Console.WriteLine($"Room backgrounds: {onePeriod} library backgrounds are one period the room repeats, {shortened.Count} of them shorter " +
+            $"than a page ({string.Join(", ", shortened)}); {twoPages} hold two different pages.");
     }
 
     /// <summary>
@@ -76,8 +89,32 @@ internal static class RoomBackgroundPeriodVerification
         differing[^1] ^= 1;
         AssertTrue(RoomBackgroundImageGeometry.OnePeriod(differing).AsSpan().SequenceEqual(differing),
             "two pages differing in one word stay two pages");
-        Console.WriteLine("Room backgrounds: two pages are one period only when every word matches.");
+        ushort[] band = [.. Enumerable.Range(0, 4 * RoomBackgroundImageGeometry.PageTiles).Select(word => (ushort)(word * 5))];
+        ushort[] banded = [.. Enumerable.Range(0, RoomBackgroundImageGeometry.PageWords / band.Length).SelectMany(_ => band)];
+        AssertTrue(RoomBackgroundImageGeometry.OnePeriod([.. banded, .. banded]).AsSpan().SequenceEqual(band),
+            "a page whose rows repeat every four rows is those four rows");
+        ushort[] row = [.. Enumerable.Range(0, RoomBackgroundImageGeometry.PageTiles).Select(word => (ushort)(word + 3))];
+        ushort[] striped = [.. Enumerable.Range(0, RoomBackgroundImageGeometry.PageTiles).SelectMany(_ => row)];
+        AssertTrue(RoomBackgroundImageGeometry.OnePeriod([.. striped, .. striped]).Length == 2 * RoomBackgroundImageGeometry.PageTiles,
+            "a page whose every row is one row is two rows, one 16x16 cell tall");
+        Console.WriteLine("Room backgrounds: two pages are one period only when every word matches, and one page shortens to its rows' period of whole cells.");
     }
+
+    /// <summary>
+    /// The shortest period down of whole 16x16 cells, shorter than <paramref name="frame"/>'s height, that its pixels and maps
+    /// repeat with; null where none does. Every period that divides the height is a multiple of the smallest one, so the
+    /// shortest period of whole cells is the least multiple of both, where it divides the height.
+    /// </summary>
+    private static int? ShorterCellPeriod(InstalledImagePlanes image, InstalledSheetFrameDocument frame)
+    {
+        int smallest = image.Period(new FrameRectangle(frame.Corner, frame.Size)).Y;
+        int cell = RoomBackgroundImage.CellPixels;
+        int cells = smallest * cell / Gcd(smallest, cell);
+        return cells < frame.Size.Y && frame.Size.Y % cells == 0 ? cells : null;
+    }
+
+    /// <summary>The greatest common divisor of two positive numbers.</summary>
+    private static int Gcd(int first, int second) => second == 0 ? first : Gcd(second, first % second);
 
     /// <summary>Whether the upper half of <paramref name="frame"/>'s rectangle on the assembled image equals its lower half.</summary>
     private static bool HalvesMatch(SpriteImagePixels assembled, int imageWidth, InstalledSheetFrameDocument frame)

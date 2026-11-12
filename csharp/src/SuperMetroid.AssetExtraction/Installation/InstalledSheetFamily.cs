@@ -27,7 +27,7 @@ internal sealed record InstalledSheetFamily(string Directory, string ProvenanceF
         {
             ComposedSpriteSheet sheet = Ensure.NotNull(sheets[index].Sheet);
             installed[index] = new NamedInstalledSheet(sheets[index].Name,
-                InstalledSheetConversion.Install(sheet.Manifest, sheet.Size, sheet.Pixels, sheet.PaletteIndices));
+                InstalledSheetConversion.Install(sheet.Manifest, sheet.Size, sheet.Pixels, sheet.PaletteIndices) with { ShownWhole = sheet.ShownWhole });
         });
         return new InstalledSheetFamily(directory, provenanceFileName, installed);
     }

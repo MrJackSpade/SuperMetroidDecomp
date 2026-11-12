@@ -19,7 +19,10 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// </summary>
 internal static class RoomFloorSheetComposer
 {
-    /// <summary>Composes <paramref name="tileset"/>'s floor sheet over the room as it has loaded.</summary>
+    /// <summary>
+    /// Composes <paramref name="tileset"/>'s floor sheet over the room as it has loaded, shown whole where a room of the
+    /// tileset repeats the floor beyond its edges (<see cref="RepeatingFloors"/>, #1646).
+    /// </summary>
     /// <exception cref="InvalidDataException">The installed palettes are invalid, no cell of the floor shows anything, or the floor's pictures overlap.</exception>
     internal static ComposedSpriteSheet Compose(RoomBlockSheetInputs inputs, TilesetDefinition tileset)
     {
@@ -34,7 +37,7 @@ internal static class RoomFloorSheetComposer
         var colours = new RgbColor[ImageColourGroup.ColourCountOf(SpriteImageColours.FullPalette)];
         background.CopyTo(colours, 0);
         RoomLoadPalettes.SpriteColours(inputs.Objects.Palettes).CopyTo(colours, background.Length);
-        return ComposeFloor(words, colours);
+        return ComposeFloor(words, colours) with { ShownWhole = RepeatingFloors.Repeats(tileset) };
     }
 
     /// <summary>

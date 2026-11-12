@@ -9,7 +9,8 @@ namespace SuperMetroid.DebugRunner.Assets;
 /// Developer review of an installation's pictures by tag (#1639). <see cref="Write"/> draws every stored picture exactly
 /// once, in the preview of the first sheet showing it (families, then sheets, in the order the store writes them): each
 /// picture upscaled by a whole number, boxed in its own margin and labelled with its tag beneath, packed in rows. A stored
-/// picture is its pixels only (#1644), so a picture frames show with different maps is still drawn once. A sheet showing no
+/// picture is its pixels only (#1644), so a picture frames show with different maps is still drawn once, and it is the box of
+/// what its frames show (#1646), so the preview draws no frame's clear margin. A sheet showing no
 /// picture an earlier sheet did not has no preview; the tag lookup names every sheet showing a picture. Transparent pixels
 /// show as a checkerboard. <see cref="Describe"/> prints everything a tag resolves to, with the maps each frame shows it
 /// with. Neither writes into the installation; a production load never reads a preview.
@@ -74,7 +75,8 @@ internal static class PicturePreview
 
     /// <summary>
     /// Prints where the store holds the picture tagged <paramref name="tag"/> and every sheet frame showing it, each group of
-    /// frames with the recolour-region and blend maps it shows the picture with (#1644).
+    /// frames with where the picture lies in their rectangle (#1646) and the recolour-region and blend maps they show it with
+    /// (#1644).
     /// </summary>
     /// <exception cref="InvalidDataException">The store does not list the tag, or the store or a sheet manifest is malformed.</exception>
     internal static void Describe(string content, string tag)
@@ -87,7 +89,7 @@ internal static class PicturePreview
         foreach ((string family, string sheet, InstalledSheetDocument document) in InstalledSheetManifests.Read(content))
         {
             IGrouping<string, string>[] frames = document.Frames.Where(frame => frame.Value.Picture?.Tag == tag)
-                .GroupBy(frame => MapsOf(frame.Value.Picture!), frame => frame.Key, StringComparer.Ordinal)
+                .GroupBy(frame => ShownAs(frame.Value), frame => frame.Key, StringComparer.Ordinal)
                 .OrderBy(maps => maps.Key, StringComparer.Ordinal)
                 .ToArray();
             if (frames.Length == 0)
@@ -99,9 +101,17 @@ internal static class PicturePreview
         Console.WriteLine($"  shown by {shown} sheet(s)");
     }
 
-    /// <summary>The maps <paramref name="reference"/> shows its picture with, as the lookup prints them.</summary>
-    private static string MapsOf(InstalledPictureReferenceDocument reference) =>
-        $"recolour regions {reference.RecolourRegionMap ?? "none"}, blending {reference.BlendMap ?? "none"}";
+    /// <summary>
+    /// Where <paramref name="frame"/>'s picture lies in its rectangle and the maps the frame shows it with, as the lookup
+    /// prints them.
+    /// </summary>
+    private static string ShownAs(InstalledSheetFrameDocument frame)
+    {
+        InstalledPictureReferenceDocument reference = frame.Picture
+            ?? throw new InvalidOperationException("The lookup describes only frames that show a picture.");
+        return $"at ({reference.Offset.X}, {reference.Offset.Y}) of a {frame.Size.X}x{frame.Size.Y} frame, " +
+            $"recolour regions {reference.RecolourRegionMap ?? "none"}, blending {reference.BlendMap ?? "none"}";
+    }
 
     /// <summary>The preview of <paramref name="tags"/>: each picture boxed, with its tag beneath, packed into rows.</summary>
     private static (Extent16<ImagePixels> Size, RgbaPixel[] Pixels) Draw(Store store, string sheet, string[] tags)

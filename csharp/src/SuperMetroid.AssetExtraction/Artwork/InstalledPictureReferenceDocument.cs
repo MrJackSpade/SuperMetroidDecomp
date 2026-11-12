@@ -4,10 +4,13 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>
-/// Where the installation's picture store holds one frame's picture (#1635), and the maps the frame shows it with (#1644):
-/// its tag, the page and the top-left pixel of a rectangle the frame's size, and the tags of its recolour-region and blend
-/// maps where it has them. Every frame showing the same pixels names the same tag and rectangle, so an edit to the picture
-/// changes it wherever it shows; frames showing it with different maps name different maps.
+/// Where the installation's picture store holds one frame's picture (#1635), the maps the frame shows it with (#1644), and
+/// where it lies in the frame's rectangle (#1646): its tag, the page, the top-left pixel and the size of its rectangle there,
+/// its place in the frame's rectangle, and the tags of its recolour-region and blend maps where it has them. A stored picture
+/// is the box of what its frame shows, and the frame's rectangle is clear outside it, so the frame keeps where the box lies
+/// and every pixel lands where it lies in the whole rectangle. Every frame showing the same pixels names the same tag and
+/// rectangle, so an edit to the picture changes it wherever it shows; frames showing it with different maps name different
+/// maps, and frames showing it at different places in their rectangles name different places.
 /// </summary>
 public sealed record InstalledPictureReferenceDocument
 {
@@ -25,6 +28,20 @@ public sealed record InstalledPictureReferenceDocument
     public required Position16<ImagePixels> Corner { get; init; }
 
     /// <summary>
+    /// The width and height of the picture's rectangle (#1646): the box of what the frame shows, inside the frame's rectangle,
+    /// or the frame's whole rectangle where the game shows every pixel of it, as a turning floor repeated beyond its edges is.
+    /// </summary>
+    public required Extent16<ImagePixels> Size { get; init; }
+
+    /// <summary>
+    /// Where the picture's top-left pixel lies in the frame's rectangle, counted from the rectangle's top-left pixel as the
+    /// frame's origin is (#1646); the rectangle is clear outside the picture. Absent where the picture starts at the
+    /// rectangle's top-left pixel.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public Offset16<ImagePixels> Offset { get; init; }
+
+    /// <summary>
     /// The tag of the recolour-region map the frame shows the picture with (<see cref="RecolourRegionMapFile"/>), such as
     /// <c>R0042</c>; absent where every pixel lies in region zero.
     /// </summary>
@@ -37,4 +54,18 @@ public sealed record InstalledPictureReferenceDocument
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? BlendMap { get; init; }
+
+    /// <summary>The picture's rectangle on its page.</summary>
+    internal FrameRectangle OnPage() => new(Corner, Size);
+
+    /// <summary>
+    /// The rectangle the picture fills on the sheet image of a frame whose rectangle's top-left pixel is
+    /// <paramref name="frameCorner"/>.
+    /// </summary>
+    internal FrameRectangle PlacedIn(Position16<ImagePixels> frameCorner) =>
+        new(Position16<ImagePixels>.Of(frameCorner.X + Offset.X, frameCorner.Y + Offset.Y), Size);
+
+    /// <summary>Whether the picture lies wholly inside a frame rectangle of <paramref name="frameSize"/>.</summary>
+    internal bool LiesInside(Extent16<ImagePixels> frameSize) =>
+        Offset.X >= 0 && Offset.Y >= 0 && new FrameRectangle(Position16<ImagePixels>.Of(Offset.X, Offset.Y), Size).LiesInside(frameSize);
 }

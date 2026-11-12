@@ -12,4 +12,11 @@ internal sealed record InstalledSheet(InstalledSheetDocument Manifest, SpriteIma
 {
     /// <summary>The sheet's pixels and maps with its size.</summary>
     internal InstalledImagePlanes Image => new(Pixels, Manifest.Size);
+
+    /// <summary>
+    /// Whether the game shows every pixel of each frame's rectangle, its clear margin as well, as
+    /// <see cref="ComposedSpriteSheet.ShownWhole"/> says of the sheet it was composed as: the picture store then keeps each
+    /// frame's whole rectangle as its picture, and otherwise the box of what the frame shows (#1646).
+    /// </summary>
+    internal bool ShownWhole { get; init; }
 }

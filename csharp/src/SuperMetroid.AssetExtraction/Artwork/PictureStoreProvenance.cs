@@ -21,9 +21,10 @@ internal sealed record PictureStoreProvenance(int Version, string SourceCartridg
     /// <summary>
     /// The format revision: 1 holds shelf-packed RGBA pages with their recolour-region and blend maps (#1635); 2 lists every
     /// stored picture under its tag (#1639); 3 stores each picture by its pixels only, and lists the maps the pictures are
-    /// shown with apart from the pages, each map once under its own tag (#1644).
+    /// shown with apart from the pages, each map once under its own tag (#1644); 4 stores each picture as the box of what its
+    /// frames show, its clear margin left out, and each map at the size of that box (#1646).
     /// </summary>
-    internal const int FormatVersion = 3;
+    internal const int FormatVersion = 4;
 
     /// <summary>Camel-case fields, indented; unknown fields are rejected.</summary>
     internal static readonly JsonSerializerOptions JsonOptions = new()

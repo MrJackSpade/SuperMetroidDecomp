@@ -12,8 +12,9 @@ namespace SuperMetroid.Verification.Assets;
 
 /// <summary>
 /// Confirms over the installation that a stored picture is its pixels only, stored once (#1644): no two pictures the store
-/// holds have identical RGBA pixels; every frame naming a picture resolves to a picture the store lists at the rectangle it
-/// names and to the recolour-region and blend maps it names, each of the frame's size; and pictures whose pixels were stored
+/// holds have identical RGBA pixels; every frame naming a picture resolves to a picture the store lists at the rectangle and
+/// size it names, placed inside the frame's rectangle (#1646), and to the recolour-region and blend maps it names, each of the
+/// picture's size; and pictures whose pixels were stored
 /// twice before, because frames showed them with different maps, are one stored picture the frames show through their own
 /// maps. The example is found by content: two frames naming one stored picture with different maps. Its two sheets are
 /// assembled by the store as the game loads them, and must show the stored pixels in both frames, each with the maps its
@@ -80,12 +81,13 @@ internal static class PictureStorePixelIdentityVerification
             {
                 SpriteImagePixels assembled = store.Assemble(reference.Sheet, reference.Document);
                 var image = new InstalledImagePlanes(assembled, reference.Document.Size);
-                AssertTrue(PixelsAt(image, reference.Rectangle).AsSpan().SequenceEqual(stored),
-                    $"{reference} shows the pixels of stored picture {first.Picture.Tag}");
-                AssertTrue(Equals(PictureMap<int>.Within(assembled.RecolourRegions, image.Size, reference.Rectangle),
+                FrameRectangle placed = reference.Picture.PlacedIn(reference.Rectangle.Corner);
+                AssertTrue(PixelsAt(image, placed).AsSpan().SequenceEqual(stored),
+                    $"{reference} shows the pixels of stored picture {first.Picture.Tag} where it places it");
+                AssertTrue(Equals(PictureMap<int>.Within(assembled.RecolourRegions, image.Size, placed),
                         reference.Picture.RecolourRegionMap is { } region ? regionMaps[region] : null),
                     $"{reference} shows {first.Picture.Tag} with recolour-region map {reference.Picture.RecolourRegionMap ?? "none"}");
-                AssertTrue(Equals(PictureMap<bool>.Within(assembled.Blending, image.Size, reference.Rectangle),
+                AssertTrue(Equals(PictureMap<bool>.Within(assembled.Blending, image.Size, placed),
                         reference.Picture.BlendMap is { } blend ? blendMaps[blend] : null),
                     $"{reference} shows {first.Picture.Tag} with blend map {reference.Picture.BlendMap ?? "none"}");
             }
@@ -156,12 +158,14 @@ internal static class PictureStorePixelIdentityVerification
         InstalledPictureReferenceDocument picture = reference.Picture;
         if (!provenance.Pictures.TryGetValue(picture.Tag, out StoredPictureDocument? listed))
             yield return $"{reference} names picture {picture.Tag}, which the store does not list";
-        else if (listed.Page != picture.Page || listed.Corner != picture.Corner || listed.Size != reference.Rectangle.Size)
+        else if (listed.Page != picture.Page || listed.Corner != picture.Corner || listed.Size != picture.Size)
             yield return $"{reference} names picture {picture.Tag} at another place or size than the store lists it";
-        if (picture.RecolourRegionMap is { } region && (!regionMaps.TryGetValue(region, out PictureMap<int>? regions) || regions.Size != reference.Rectangle.Size))
-            yield return $"{reference} names recolour-region map {region}, which the store does not hold at the frame's size";
-        if (picture.BlendMap is { } blend && (!blendMaps.TryGetValue(blend, out PictureMap<bool>? blending) || blending.Size != reference.Rectangle.Size))
-            yield return $"{reference} names blend map {blend}, which the store does not hold at the frame's size";
+        if (!picture.LiesInside(reference.Rectangle.Size))
+            yield return $"{reference} places picture {picture.Tag} outside its rectangle";
+        if (picture.RecolourRegionMap is { } region && (!regionMaps.TryGetValue(region, out PictureMap<int>? regions) || regions.Size != picture.Size))
+            yield return $"{reference} names recolour-region map {region}, which the store does not hold at the picture's size";
+        if (picture.BlendMap is { } blend && (!blendMaps.TryGetValue(blend, out PictureMap<bool>? blending) || blending.Size != picture.Size))
+            yield return $"{reference} names blend map {blend}, which the store does not hold at the picture's size";
     }
 
     /// <summary>

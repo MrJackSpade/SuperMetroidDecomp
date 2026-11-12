@@ -33,10 +33,11 @@ public sealed record InstalledSheetFrameDocument
     public bool Blends { get; init; }
 
     /// <summary>
-    /// Where the installation's picture store holds the frame's picture (#1635): a rectangle of the frame's size on one of
-    /// its pages, which the loader copies into the frame's rectangle, and the maps the frame shows it with (#1644). Frames
-    /// showing the same pixels, on this sheet or any other, name one rectangle, each with its own maps. Absent for a frame
-    /// whose rectangle shows nothing at all, which stays clear.
+    /// Where the installation's picture store holds the frame's picture (#1635): a rectangle on one of its pages, the box of
+    /// what the frame shows, which the loader copies to the place in the frame's rectangle the reference names, the rest of
+    /// the rectangle staying clear (#1646), and the maps the frame shows it with (#1644). Frames showing the same pixels, on
+    /// this sheet or any other, name one rectangle, each with its own place and maps. Absent for a frame whose rectangle shows
+    /// nothing at all, which stays clear.
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public InstalledPictureReferenceDocument? Picture { get; init; }

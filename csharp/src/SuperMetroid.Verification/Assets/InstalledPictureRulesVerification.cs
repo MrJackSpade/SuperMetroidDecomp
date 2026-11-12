@@ -77,7 +77,7 @@ internal static class InstalledPictureRulesVerification
                     Corner = default,
                     Size = PageSize,
                     Origin = default,
-                    Picture = new InstalledPictureReferenceDocument { Tag = EmptyTag, Page = 0, Corner = default },
+                    Picture = new InstalledPictureReferenceDocument { Tag = EmptyTag, Page = 0, Corner = default, Size = PageSize },
                 },
             },
         };
@@ -126,7 +126,7 @@ internal static class InstalledPictureRulesVerification
                     Corner = default,
                     Size = PageSize,
                     Origin = default,
-                    Picture = new InstalledPictureReferenceDocument { Tag = unlisted, Page = 0, Corner = default },
+                    Picture = new InstalledPictureReferenceDocument { Tag = unlisted, Page = 0, Corner = default, Size = PageSize },
                 },
             },
         };

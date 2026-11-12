@@ -32,6 +32,7 @@ internal static class PictureStoreSharingVerification
         InstalledPictureReferenceDocument alsoStored = StoredPictureOf(installation, refill, energyTank.FrameName);
         AssertEqual(stored.Page, alsoStored.Page, $"{ceres.Name} and {refill.Name} store their {energyTank.FrameName} picture on one page");
         AssertEqual(stored.Corner, alsoStored.Corner, $"{ceres.Name} and {refill.Name} store their {energyTank.FrameName} picture in one rectangle");
+        AssertEqual(stored.Size, alsoStored.Size, $"{ceres.Name} and {refill.Name} store their {energyTank.FrameName} picture at one size");
 
         string pagePath = Path.Combine(installation.PictureStoreDirectory, PictureStoreFiles.PageFile(stored.Page));
         RgbaPixel[] page;
@@ -42,10 +43,12 @@ internal static class PictureStoreSharingVerification
         {
             SpriteSheetFrame shown = messages.Picture(energyTank);
             AssertTrue(!shown.IsEmpty, $"loaded {messages.Name} pictures its {energyTank.FrameName} message box");
-            AssertTrue(stored.Corner.X + shown.Size.X <= pageSize.X && stored.Corner.Y + shown.Size.Y <= pageSize.Y,
+            InstalledPictureReferenceDocument named = StoredPictureOf(installation, messages, energyTank.FrameName);
+            AssertTrue(stored.Corner.X + stored.Size.X <= pageSize.X && stored.Corner.Y + stored.Size.Y <= pageSize.Y,
                 $"{messages.Name}'s {energyTank.FrameName} picture lies on store page {pagePath}");
-            AssertTrue(ShowsStoredPixels(shown, page, pageSize, stored.Corner),
-                $"loaded {messages.Name} shows the stored {energyTank.FrameName} picture's pixels");
+            AssertTrue(named.LiesInside(shown.Size), $"{messages.Name}'s {energyTank.FrameName} picture lies inside its frame");
+            AssertTrue(ShowsStoredPixels(shown, named, page, pageSize),
+                $"loaded {messages.Name} shows the stored {energyTank.FrameName} picture's pixels where its frame places them");
         }
         Console.WriteLine($"Picture store: {ceres.Name} and {refill.Name} show the {energyTank.FrameName} picture stored once, "
             + $"at ({stored.Corner.X}, {stored.Corner.Y}) of {PictureStoreFiles.PageFile(stored.Page)}.");
@@ -69,20 +72,27 @@ internal static class PictureStoreSharingVerification
     }
 
     /// <summary>
-    /// Whether every pixel of <paramref name="shown"/> is the pixel of the stored rectangle at <paramref name="corner"/> of
-    /// <paramref name="page"/>, a store page of <paramref name="pageSize"/> pixels.
+    /// Whether <paramref name="shown"/> shows the stored picture <paramref name="picture"/> names, of
+    /// <paramref name="page"/>, a store page of <paramref name="pageSize"/> pixels, at the place in the frame's rectangle the
+    /// reference names, and is clear black in the rest of its rectangle (#1646).
     /// </summary>
-    private static bool ShowsStoredPixels(SpriteSheetFrame shown, RgbaPixel[] page, Extent16<ImagePixels> pageSize,
-        Position16<ImagePixels> corner)
+    private static bool ShowsStoredPixels(SpriteSheetFrame shown, InstalledPictureReferenceDocument picture, RgbaPixel[] page,
+        Extent16<ImagePixels> pageSize)
     {
         ReadOnlySpan<RgbaPixel> pixels = shown.Sheet.Pixels;
         int width = shown.Sheet.Size.X;
         for (int row = 0; row < shown.Size.Y; row++)
         {
-            int sheetLine = (shown.Corner.Y + row) * width + shown.Corner.X;
-            int pageLine = (corner.Y + row) * pageSize.X + corner.X;
-            if (!pixels.Slice(sheetLine, shown.Size.X).SequenceEqual(page.AsSpan(pageLine, shown.Size.X)))
-                return false;
+            for (int column = 0; column < shown.Size.X; column++)
+            {
+                RgbaPixel sheetPixel = pixels[(shown.Corner.Y + row) * width + shown.Corner.X + column];
+                int x = column - picture.Offset.X, y = row - picture.Offset.Y;
+                RgbaPixel expected = x >= 0 && y >= 0 && x < picture.Size.X && y < picture.Size.Y
+                    ? page[(picture.Corner.Y + y) * pageSize.X + picture.Corner.X + x]
+                    : default;
+                if (sheetPixel != expected)
+                    return false;
+            }
         }
         return true;
     }

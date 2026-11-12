@@ -10,10 +10,13 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// <summary>
 /// Writes an installation's picture store (#1635, #1644), the one place pictures are written. Every family's sheets are
 /// walked in one fixed order: the families as given, each family's sheets by ordinal name, each sheet's frame rectangles by
-/// corner Y, then X. The first rectangle showing a picture's pixels stores it; every later rectangle showing the same pixels
-/// (<see cref="InstalledPictureContent"/>), on any sheet, names that copy, whatever recolour regions and blending it shows
-/// them with. Those maps are the rectangle's own (<see cref="PictureMap{T}"/>): each distinct map is stored once, under a
-/// tag of its own, in its own file apart from the pages, and every rectangle names the maps it shows its picture with. A
+/// corner Y, then X. A rectangle's picture is the box of what it shows (<see cref="InstalledImagePlanes.ContentBox"/>,
+/// #1646), its clear margin left out, and its frames name where the box lies in the rectangle; a sheet the game shows whole
+/// (<see cref="InstalledSheet.ShownWhole"/>) keeps each rectangle whole. The first rectangle showing a picture's pixels
+/// stores it; every later rectangle showing the same pixels (<see cref="InstalledPictureContent"/>), on any sheet and at any
+/// place in its rectangle, names that copy, whatever recolour regions and blending it shows them with. Those maps are the
+/// rectangle's own (<see cref="PictureMap{T}"/>), read over the same box: each distinct map is stored once, under a tag of
+/// its own, in its own file apart from the pages, and every rectangle names the maps it shows its picture with. A
 /// rectangle that shows nothing at all stores nothing. The stored pictures are shelf-packed onto pages in that order
 /// (<see cref="PicturePageShelves"/>), every picture admitted to the installation's <see cref="SheetPictureRegistry"/> as
 /// its page is written, so a second copy of the same pixels fails the install. The pages are encoded in parallel, each into
@@ -83,11 +86,11 @@ internal static class PictureStoreWriter
     }
 
     /// <summary>
-    /// Finds where the store holds the picture of each of <paramref name="sheet"/>'s frame rectangles and the maps the
-    /// rectangle shows it with, storing each picture and each map no earlier rectangle showed; a rectangle that shows nothing
-    /// has none.
+    /// Finds where the store holds the picture of each of <paramref name="sheet"/>'s frame rectangles, the box of what the
+    /// rectangle shows or, for a sheet shown whole, the whole rectangle, and the maps the rectangle shows it with over that
+    /// box, storing each picture and each map no earlier rectangle showed; a rectangle that shows nothing has none.
     /// </summary>
-    /// <returns>Each rectangle showing a picture, with the stored copy and the maps it names.</returns>
+    /// <returns>Each rectangle showing a picture, with the stored copy, where it lies in the rectangle, and the maps it names.</returns>
     /// <exception cref="InvalidDataException">A frame leaves the sheet, or shows a recolour region or blending but no pixel.</exception>
     private static Dictionary<FrameRectangle, ShownPicture> Store(InstalledSheetFamily family, NamedInstalledSheet sheet, StoreContents store)
     {
@@ -101,17 +104,17 @@ internal static class PictureStoreWriter
             .OrderBy(rectangle => rectangle.Key.Corner.Y).ThenBy(rectangle => rectangle.Key.Corner.X)
             .ThenBy(rectangle => rectangle.Key.Size.Y).ThenBy(rectangle => rectangle.Key.Size.X))
         {
-            InstalledPictureContent picture;
+            InstalledPictureContent whole;
             try
             {
-                picture = new InstalledPictureContent(image, rectangle.Key);
+                whole = new InstalledPictureContent(image, rectangle.Key);
             }
             catch (InvalidDataException error)
             {
                 throw new InvalidDataException($"Sheet {sheetName}: {error.Message}", error);
             }
             string frames = string.Join(", ", rectangle.Order(StringComparer.Ordinal));
-            if (picture.IsClear)
+            if (whole.IsClear)
             {
                 // A rectangle of clear black pixels shows nothing: the import keys no clear pixel, so it has no maps either.
                 if (!image.IsClear(rectangle.Key))
@@ -119,14 +122,18 @@ internal static class PictureStoreWriter
                         $"Sheet {sheetName} frame(s) [{frames}] at {rectangle.Key} show no pixel but a recolour region or blending.");
                 continue;
             }
+            // Outside the box the rectangle holds only what an assembled image starts as, so the box alone lands every pixel,
+            // region and blend where the whole rectangle would (#1646).
+            FrameRectangle box = installed.ShownWhole ? rectangle.Key : image.ContentBox(rectangle.Key);
+            InstalledPictureContent picture = box == rectangle.Key ? whole : new InstalledPictureContent(image, box);
             if (!store.PictureOf.TryGetValue(picture, out StoredPicture? copy))
             {
                 copy = new StoredPicture(picture, sheetName, frames);
                 store.PictureOf.Add(picture, copy);
                 store.Pictures.Add(copy);
             }
-            shownAt.Add(rectangle.Key, new ShownPicture(copy, store.RecolourRegionMaps.Named(picture.RecolourRegions),
-                store.BlendMaps.Named(picture.Blending)));
+            shownAt.Add(rectangle.Key, new ShownPicture(copy, box.Corner - rectangle.Key.Corner,
+                store.RecolourRegionMaps.Named(picture.RecolourRegions), store.BlendMaps.Named(picture.Blending)));
         }
         return shownAt;
     }
@@ -316,11 +323,12 @@ internal static class PictureStoreWriter
         internal string Tag { get; set; } = string.Empty;
     }
 
-    /// <summary>What one frame rectangle shows: a stored picture, with the maps the rectangle shows it with.</summary>
+    /// <summary>What one frame rectangle shows: a stored picture, where it lies in the rectangle, and the maps the rectangle shows it with.</summary>
     /// <param name="Picture">The stored picture.</param>
+    /// <param name="Offset">Where the picture's top-left pixel lies in the rectangle, from the rectangle's top-left pixel (#1646).</param>
     /// <param name="RecolourRegionMap">The tag of its recolour-region map, or null for none.</param>
     /// <param name="BlendMap">The tag of its blend map, or null for none.</param>
-    private sealed record ShownPicture(StoredPicture Picture, string? RecolourRegionMap, string? BlendMap)
+    private sealed record ShownPicture(StoredPicture Picture, Offset16<ImagePixels> Offset, string? RecolourRegionMap, string? BlendMap)
     {
         /// <summary>The reference the rectangle's frames name, once the picture is packed.</summary>
         internal InstalledPictureReferenceDocument Reference => new()
@@ -328,6 +336,8 @@ internal static class PictureStoreWriter
             Tag = Picture.Tag,
             Page = Picture.Page,
             Corner = Picture.Corner,
+            Size = Picture.Content.Rectangle.Size,
+            Offset = Offset,
             RecolourRegionMap = RecolourRegionMap,
             BlendMap = BlendMap,
         };

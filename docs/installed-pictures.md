@@ -1,9 +1,9 @@
 # Installed pictures
 
-This document describes how the installation stores the game's pre-coloured pictures (#1633, #1635, #1644): the picture
-store that holds every picture's pixels once, the two kinds of map a frame can show a picture with, each map stored once
-beside the store, and the sheet manifests that name where each frame's picture lies in the store and which maps the frame
-shows it with. The import writes these files once. A player may edit them in place, and the game reads them as edited.
+This document describes how the installation stores the game's pre-coloured pictures (#1633, #1635, #1644, #1646): the
+picture store that holds every picture's pixels once, each picture the box of what its frames show, the two kinds of map a
+frame can show a picture with, each map stored once beside the store, and the sheet manifests that name where each frame's
+picture lies in the store, where it lies in the frame, and which maps the frame shows it with. The import writes these files once. A player may edit them in place, and the game reads them as edited.
 
 ## Where the files are
 
@@ -28,7 +28,7 @@ Every picture any sheet shows is in the picture store, `game/pictures/`:
 | `game/recolour-regions/pictures.regions` | every recolour-region map a frame shows a picture with, each once |
 | `game/blend-maps/pictures.blendmap` | every blend map a frame shows a picture with, each once |
 
-The maps live apart from the pages, so the store's folder holds only pictures. The store's provenance (format revision 3)
+The maps live apart from the pages, so the store's folder holds only pictures. The store's provenance (format revision 4)
 keeps `pageSha256` for the pages and `pictures` for every stored picture's place by its tag, and apart from them
 `recolourRegionMaps` and `blendMaps`: each the map file's `sha256` and its `maps`, every map's tag with the size of the
 picture it is for. A kind of map is `null` exactly when no frame shows a picture with one, and then no file is written.
@@ -36,9 +36,22 @@ picture it is for. A kind of map is `null` exactly when no frame shows a picture
 ## The picture store
 
 A picture is the pixels one frame rectangle shows: its RGBA, including the RGB of pixels whose alpha is 0, and nothing
-else. Two frames show the same picture when their pixels match, pixel for pixel. The store holds each picture once per
-installation, however many frames of however many sheets show it: a message box that several tilesets show alike, for
+else. It is the box of what the rectangle shows (#1646): the smallest rectangle inside the frame's rectangle holding every
+pixel that is not clear black `(0, 0, 0, 0)`. An opaque pixel is in the box, and so is a clear pixel that keeps a colour of
+its own, since a layer drawn opaque shows that colour. Everything of the frame's rectangle outside the box is clear black,
+in region 0 and not blending, and the frame names where in its rectangle the box lies, so every pixel lands where it lies
+in the whole rectangle. Two frames show the same picture when their pixels match, pixel for pixel, wherever each lies in
+its own rectangle: two frames that differ only in their clear margins show one picture. The store holds each picture once
+per installation, however many frames of however many sheets show it: a message box that several tilesets show alike, for
 example, is one picture that each of their `Messages.<tileset>` sheets names.
+
+A turning floor the game repeats beyond its edges is stored whole: its picture is the floor's whole 1024 by 1024 pixels,
+clear margin and all, because every pixel of the floor comes into view and the floor repeats with its whole size. These
+are the floors whose scenes run with the cartridge's Mode 7 settings 0: the Ceres elevator shaft's floor
+(`room-block-sheets/Floor.<tileset>` for the shaft's tilesets), the ending's two escape scenes and the planet's explosion
+(`sprite-sheets/ending-escape-a-floor`, `ending-escape-b-floor` and `ending-planet-explosion-floor`). Every other turning
+floor (the title's, the Ceres cinematics', the gunship's flyaway, the reward icon's and Ceres Ridley's getaway) runs with
+settings `$80`, which show nothing beyond the floor, and is stored as the box of what it shows.
 
 Each pixel's recolour region and whether it blends are not part of the picture. They belong to the frame that shows it:
 the frame names the recolour-region map and the blend map it shows the picture with, and a frame needing neither names
@@ -65,8 +78,9 @@ but at least 1024 pixels, and at most 8192 pixels tall. Everything on a page out
 
 The game assembles each sheet's image from the store when the sheet is first drawn. The image is the size its manifest
 names. It starts clear: every pixel `(0, 0, 0, 0)`, in region 0 and not blending. Each frame's picture is then copied from
-its page into the frame's own rectangle, and the maps the frame names are written over the same rectangle. A frame naming
-a page the store lacks, a rectangle off its page, or a map the store does not list at the frame's size fails to load. A
+its page to the place in the frame's rectangle the frame names, and the maps the frame names are written over the same
+place; the rest of the rectangle stays clear. A frame naming a page the store lacks, a rectangle off its page, a place that
+does not lie inside its rectangle, or a map the store does not list at the picture's size fails to load. A
 frame naming a stored picture that shows nothing (every pixel clear black) fails to load too, naming the frame: an
 installed picture always shows something (#1636).
 
@@ -123,12 +137,12 @@ Every other sheet's clear pixels are black and keep no colour of their own.
 
 ## The manifest
 
-The manifest (`<sheet>.json`, revision 18) is camel-case JSON. Unknown fields are rejected. Every colour is written as
+The manifest (`<sheet>.json`, revision 19) is camel-case JSON. Unknown fields are rejected. Every colour is written as
 `#rrggbb`: two lowercase hexadecimal digits per 8-bit channel.
 
 ```json
 {
-  "version": 18,
+  "version": 19,
   "size": { "x": 64, "y": 24 },
   "backdrop": { "colour": "#000000", "region": 0 },
   "shades": {
@@ -144,7 +158,10 @@ The manifest (`<sheet>.json`, revision 18) is camel-case JSON. Unknown fields ar
     "Idle": {
       "corner": { "x": 0, "y": 0 }, "size": { "x": 32, "y": 24 }, "origin": { "x": 16, "y": 12 }, "depth": "InFront",
       "blends": true,
-      "picture": { "tag": "P3-0412", "page": 3, "corner": { "x": 512, "y": 1040 }, "recolourRegionMap": "R0042" }
+      "picture": {
+        "tag": "P3-0412", "page": 3, "corner": { "x": 512, "y": 1040 }, "size": { "x": 26, "y": 21 },
+        "offset": { "x": 3, "y": 2 }, "recolourRegionMap": "R0042"
+      }
     }
   },
   "blank": [ "Hidden" ]
@@ -160,10 +177,13 @@ The fields are:
 - `shades`: each shade the sheet is pre-coloured in, by shade name, as described in the next section. It is absent when
   the sheet has none.
 - `frames`: each frame's rectangle on the sheet's image, its origin, its depth among the room's layers, and its picture.
-  - `picture` names where the store holds the frame's picture: its `tag`, the page, counted from 0, and the pixel of the
-    page its top-left corner lies on. The picture is the frame's size. Every frame showing the same pixels, on this sheet
-    or any other, names the same place. `recolourRegionMap` and `blendMap` name the maps the frame shows the picture with,
-    by tag; each is absent where the frame needs no such map. A frame whose rectangle shows nothing at all has no
+  - `picture` names where the store holds the frame's picture: its `tag`, the page, counted from 0, the pixel of the
+    page its top-left corner lies on, and its `size`, the box of what the frame shows (#1646). `offset` is where the
+    picture's top-left pixel lies in the frame's rectangle, counted from the rectangle's top-left pixel as `origin` is; it
+    is absent where the picture starts at that pixel. The picture lies wholly inside the frame's rectangle, and the rest
+    of the rectangle is clear. Every frame showing the same pixels, on this sheet or any other, names the same place on
+    its page, each with its own `offset`. `recolourRegionMap` and `blendMap` name the maps the frame shows the picture
+    with, by tag; each is absent where the frame needs no such map. A frame whose rectangle shows nothing at all has no
     `picture`.
   - A frame drawn as a sprite whose every opaque pixel blends with what lies behind it has `"blends": true`. Otherwise
     `blends` is absent.
@@ -210,8 +230,8 @@ The file is `game/recolour-regions/pictures.regions`, format revision 2. It hold
 { "version": 2, "maps": { "R0000": { "size": { "x": 64, "y": 2 }, "rows": [ [0, 40, 1, 24], [0, 64] ] } } }
 ```
 
-- Each map's `size` is the width (`x`) and height (`y`) of the picture it is for, which is the size of every frame that
-  names it.
+- Each map's `size` is the width (`x`) and height (`y`) of the picture it is for, which is the `size` every frame naming
+  it names for its picture: the map covers the picture, placed where the frame places it.
 - `rows` holds one entry per pixel row, from the top.
 - Each row is a run-length list of `region, count` pairs, read from the left. A row's counts add up to exactly the map's
   width.
@@ -229,8 +249,8 @@ The file is `game/blend-maps/pictures.blendmap`, format revision 2. It holds eve
 { "version": 2, "maps": { "B0000": { "size": { "x": 32, "y": 2 }, "rows": [ [3, 5, 20, 2], [] ] } } }
 ```
 
-- Each map's `size` is the width (`x`) and height (`y`) of the picture it is for, which is the size of every frame that
-  names it.
+- Each map's `size` is the width (`x`) and height (`y`) of the picture it is for, which is the `size` every frame naming
+  it names for its picture: the map covers the picture, placed where the frame places it.
 - `rows` holds one entry per pixel row, from the top.
 - Each row lists its runs of blending pixels from the left as `start, count` pairs. The runs are in order, do not
   overlap, and stay inside the row.

@@ -15,8 +15,10 @@ internal static class AssembledSheetImages
     /// <summary>
     /// The image the loader assembles for <paramref name="converted"/>, of the size its manifest names: every pixel clear
     /// black, in recolour region zero and not blending, except each frame's rectangle, which shows the converted pixels,
-    /// regions and blending there, copied as the installation copies a picture (<see cref="InstalledImagePlanes.CopyTo"/>).
-    /// A rectangle that holds only clear black pixels in region zero, blending nowhere, is stored nowhere and stays as the
+    /// regions and blending there, copied whole (<see cref="InstalledImagePlanes.CopyTo"/>). The installation stores only the
+    /// box of what each rectangle holds (<see cref="InstalledImagePlanes.ContentBox"/>, #1646), and the rest of the rectangle
+    /// is as the image starts, so copying the whole rectangle leaves the image as the installation's copy of the box does. A
+    /// rectangle that holds only clear black pixels in region zero, blending nowhere, is stored nowhere and stays as the
     /// image starts, which copying it leaves alike.
     /// </summary>
     /// <exception cref="ArgumentException">The converted pixels are not one per pixel of the manifest's size, or a frame leaves the image.</exception>

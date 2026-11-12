@@ -4,7 +4,8 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>
 /// One picture the picture store holds, under its tag in the store's provenance manifest (#1639): its page, the top-left
-/// pixel of its rectangle there, and the rectangle's size. Every sheet frame showing the picture names it by the same tag.
+/// pixel of its rectangle there, and the rectangle's size, the box of what the frames showing it show (#1646). Every sheet
+/// frame showing the picture names it by the same tag.
 /// </summary>
 public sealed record StoredPictureDocument
 {

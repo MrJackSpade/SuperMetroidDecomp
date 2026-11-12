@@ -501,7 +501,9 @@ sheet, its origin, whether it blends, where the picture store holds its picture,
 pre-coloured in, each a list of colours shown in place of the sheet's own). Every picture any sheet shows is
 written once, to the picture store in `game/pictures`: RGBA PNG pages (`pictures-0000.png`, `pictures-0001.png`
 and so on, transparent where alpha is zero), each frame naming its page and the corner of its picture there,
-and the game assembles each sheet from the pages. A stored picture is its pixels only: a frame showing a picture
+and the game assembles each sheet from the pages. A stored picture is the box of what its frame shows, its clear
+margin left out, and the frame names where in its rectangle the box lies; a turning floor the game repeats beyond
+its edges is stored whole. A stored picture is its pixels only: a frame showing a picture
 whose pixels of one colour recolour differently, or that blends in some of its pixels, also names the map it shows the
 picture with, each map stored once in its own folder (`game/recolour-regions/pictures.regions`,
 `game/blend-maps/pictures.blendmap`); see `docs/installed-pictures.md`. A clear pixel keeps its colour under alpha zero,

@@ -17,9 +17,10 @@ public static class SpriteSheetFile
     /// the maps being the store's pages' (#1635); 16 installs no part of a picture that shows nothing, neither as a frame nor
     /// by name, naming as showing nothing only a picture neither part of which shows anything (#1636); 17 names each frame's
     /// picture by its tag as well (#1639); 18 names the recolour-region and blend maps each frame shows its picture with, the
-    /// stored picture being its pixels only (#1644).
+    /// stored picture being its pixels only (#1644); 19 names each frame's picture's size and its place in the frame's
+    /// rectangle, the stored picture being the box of what the frame shows (#1646).
     /// </summary>
-    public const int Version = 18;
+    public const int Version = 19;
 
     /// <summary>
     /// Camel-case manifest fields; unknown fields are rejected. The import writes manifests with the same settings, unindented:

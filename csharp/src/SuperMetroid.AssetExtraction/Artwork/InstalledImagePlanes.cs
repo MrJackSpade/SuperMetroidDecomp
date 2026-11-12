@@ -87,6 +87,61 @@ internal readonly record struct InstalledImagePlanes(SpriteImagePixels Planes, E
     /// <summary>Whether every pixel of <paramref name="rectangle"/> of this image is clear black, whatever its maps hold.</summary>
     internal bool ShowsNoPixel(FrameRectangle rectangle) => AllDefault(Planes.Pixels, rectangle);
 
+    /// <summary>
+    /// The box of what <paramref name="rectangle"/> of this image holds (#1646): the smallest rectangle inside it holding
+    /// every pixel that is not as an image starts before any picture is copied into it, that is, every pixel that is not clear
+    /// black (an opaque pixel, or a clear one keeping a colour of its own), lies in a recolour region other than zero, or
+    /// blends. Everything of <paramref name="rectangle"/> outside the box is as an image starts, so copying the box alone
+    /// into an image that starts clear leaves it as copying the whole rectangle does.
+    /// </summary>
+    /// <exception cref="ArgumentException">The rectangle reaches outside the image.</exception>
+    /// <exception cref="InvalidOperationException">The rectangle holds only what an image starts as, so it has no box.</exception>
+    internal FrameRectangle ContentBox(FrameRectangle rectangle)
+    {
+        Ensure.NotNull(Planes);
+        if (!rectangle.LiesInside(Size))
+            throw new ArgumentException($"Picture rectangle {rectangle} reaches outside its {Size.X}x{Size.Y} image.", nameof(rectangle));
+        int left = int.MaxValue, right = -1, top = -1, bottom = -1;
+        for (int row = 0; row < rectangle.Size.Y; row++)
+        {
+            int line = ((rectangle.Corner.Y + row) * Size.X) + rectangle.Corner.X;
+            int first = Earliest(Earliest(FirstHeld(Planes.Pixels, line, rectangle.Size.X), FirstHeld(Planes.RecolourRegions, line, rectangle.Size.X)),
+                FirstHeld(Planes.Blending, line, rectangle.Size.X));
+            if (first < 0)
+                continue;
+            int last = Math.Max(Math.Max(LastHeld(Planes.Pixels, line, rectangle.Size.X), LastHeld(Planes.RecolourRegions, line, rectangle.Size.X)),
+                LastHeld(Planes.Blending, line, rectangle.Size.X));
+            left = Math.Min(left, first);
+            right = Math.Max(right, last);
+            if (top < 0)
+                top = row;
+            bottom = row;
+        }
+        if (top < 0)
+            throw new InvalidOperationException($"Picture rectangle {rectangle} holds nothing, so it has no box of what it holds.");
+        return new FrameRectangle(Position16<ImagePixels>.Of(rectangle.Corner.X + left, rectangle.Corner.Y + top),
+            new Extent16<ImagePixels>(right - left + 1, bottom - top + 1));
+    }
+
+    /// <summary>The earlier of two places in a row, either of which is -1 where its plane holds nothing there.</summary>
+    private static int Earliest(int first, int second) => first < 0 ? second : second < 0 ? first : Math.Min(first, second);
+
+    /// <summary>
+    /// The place of the first of <paramref name="width"/> entries of <paramref name="plane"/> from <paramref name="line"/> that
+    /// is not the default; -1 where none is, and for a missing plane.
+    /// </summary>
+    private static int FirstHeld<T>(T[]? plane, int line, int width)
+        where T : struct, IEquatable<T> =>
+        plane is null ? -1 : plane.AsSpan(line, width).IndexOfAnyExcept(default(T));
+
+    /// <summary>
+    /// The place of the last of <paramref name="width"/> entries of <paramref name="plane"/> from <paramref name="line"/> that
+    /// is not the default; -1 where none is, and for a missing plane.
+    /// </summary>
+    private static int LastHeld<T>(T[]? plane, int line, int width)
+        where T : struct, IEquatable<T> =>
+        plane is null ? -1 : plane.AsSpan(line, width).LastIndexOfAnyExcept(default(T));
+
     /// <summary>Whether every entry of <paramref name="plane"/> in <paramref name="rectangle"/> is the default; a missing plane is.</summary>
     private bool AllDefault<T>(T[]? plane, FrameRectangle rectangle)
         where T : struct, IEquatable<T>

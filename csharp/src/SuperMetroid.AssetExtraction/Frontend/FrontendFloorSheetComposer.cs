@@ -37,12 +37,16 @@ internal static class FrontendFloorSheetComposer
         SpriteSheetId.EndingRewardIconFloor,
     ];
 
-    /// <summary>Composes floor sheet <paramref name="sheet"/> from the stock artwork <paramref name="sources"/> read.</summary>
+    /// <summary>
+    /// Composes floor sheet <paramref name="sheet"/> from the stock artwork <paramref name="sources"/> read, shown whole where
+    /// its scene repeats the floor beyond its edges (<see cref="RepeatingFloors"/>, #1646).
+    /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The sheet holds no frontend floor.</exception>
     internal static ComposedSpriteSheet Compose(SpriteSheetId sheet, ScreenTileSources sources)
     {
         Ensure.NotNull(sources);
-        return Composers.TryGetValue(sheet, out Func<ScreenTileSources, ComposedSpriteSheet>? compose) ? compose(sources)
+        return Composers.TryGetValue(sheet, out Func<ScreenTileSources, ComposedSpriteSheet>? compose)
+            ? compose(sources) with { ShownWhole = RepeatingFloors.Repeats(sheet) }
             : throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "The sheet holds no frontend floor.");
     }
 

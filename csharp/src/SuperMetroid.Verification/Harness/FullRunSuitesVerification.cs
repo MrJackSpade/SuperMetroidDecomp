@@ -573,6 +573,11 @@ internal static class FullRunSuitesVerification
         // A stored picture is its pixels only, stored once; the maps it is shown with are its frames' (#1644).
         new(nameof(SuperMetroid.Verification.Assets.PictureStorePixelIdentityVerification.VerifyStoredPicturesArePixelsOnly),
             SuperMetroid.Verification.Assets.PictureStorePixelIdentityVerification.VerifyStoredPicturesArePixelsOnly),
+        // A stored picture is the box of what its frames show, placed where the whole rectangle's pixels were (#1646).
+        new(nameof(SuperMetroid.Verification.Assets.PictureStoreVisibleBoxVerification.VerifyStoredPicturesAreTheirVisibleBoxes),
+            SuperMetroid.Verification.Assets.PictureStoreVisibleBoxVerification.VerifyStoredPicturesAreTheirVisibleBoxes),
+        new(nameof(SuperMetroid.Verification.Assets.PictureStoreVisibleBoxVerification.VerifyTrimmedPicturesLandWhereTheyWere),
+            SuperMetroid.Verification.Assets.PictureStoreVisibleBoxVerification.VerifyTrimmedPicturesLandWhereTheyWere),
         new(nameof(SuperMetroid.Verification.Assets.SheetPictureIdentitiesVerification.VerifyCellPicturesNamedByDomain),
             SuperMetroid.Verification.Assets.SheetPictureIdentitiesVerification.VerifyCellPicturesNamedByDomain),
         new(nameof(SuperMetroid.Verification.Frontend.TypedTextGlyphsVerification.VerifyTypedStepsNotPicturedWhole),

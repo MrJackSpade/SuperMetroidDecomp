@@ -25,6 +25,11 @@
 // about a file's unnecessary usings, only the usings every project reports are removed; other disagreeing findings
 // are left and counted as kept.
 //
+// A fix may change several files (a field and its property in different parts of a partial type). It is accepted only
+// when every file it changes belongs to an analyzed project that compiles, and when no other fix in the same pass has
+// touched one of those files; a file touched in this pass waits for the next. Every project compiling a file of such a
+// fix must still compile after it, or the run fails naming the fix.
+//
 // Fixes cascade (a removed cast can leave a using unnecessary), so the analysis repeats until a pass finds nothing to
 // apply. Each pass applies one rule per file, because the other findings' spans are stale once a file changes. The
 // loop fails, writing nothing, if a file returns to an earlier text (a cycle) or the passes exceed MaxPasses.
@@ -89,7 +94,8 @@ internal static class CodeFixRun
 /// <summary>What one run fixed and left, for the cleanup's log and commit message.</summary>
 /// <param name="Passes">The analysis passes run, the last of which found nothing to apply.</param>
 /// <param name="Fixed">Sites fixed per rule; for unused usings, the using directives removed.</param>
-/// <param name="Kept">Findings per rule left in files compiled by several projects that do not all report them.</param>
+/// <param name="Kept">Findings per rule left unapplied: in files compiled by several projects that do not all report
+/// them, or whose fix changes a file that a project with compiler errors compiles.</param>
 /// <param name="ChangedFiles">Repository-relative paths of the files written.</param>
 /// <param name="ProjectsWithCompilerErrors">Projects whose findings were not used because they do not compile.</param>
 internal sealed record CleanupSummary(
@@ -106,6 +112,17 @@ internal sealed record CleanupSummary(
 /// <param name="FixerOnly">Hidden findings an analyzer reports only for a rule's fixer to fix, by file path.</param>
 internal sealed record ProjectAnalysis(Project Project, List<Diagnostic> CompilerErrors, Dictionary<string, List<Diagnostic>> Findings,
     Dictionary<string, List<Diagnostic>> FixerOnly);
+
+/// <summary>One accepted fix: the solution after it and every file it changed.</summary>
+/// <param name="Solution">The solution with the fix applied in every project that compiles a changed file.</param>
+/// <param name="Paths">The full paths of the files the fix changed.</param>
+internal sealed record FileFix(Solution Solution, List<string> Paths);
+
+/// <summary>Whether a computed fix is applied now, left for the next pass, or kept unapplied.</summary>
+/// <param name="Fix">The accepted fix, or null when it is not applied in this pass.</param>
+/// <param name="Kept">Whether the findings are kept (a project compiling a changed file does not compile) rather
+/// than retried in the next pass.</param>
+internal sealed record FixDecision(FileFix? Fix, bool Kept);
 
 /// <summary>Loads a solution and applies the requested rules' fixes until none remain.</summary>
 internal sealed class SolutionFixer
@@ -188,26 +205,28 @@ internal sealed class SolutionFixer
                 return new CleanupSummary(pass, fixedCounts, keptCounts, [], [.. broken]);
             }
             var passKept = new SortedDictionary<string, int>(StringComparer.Ordinal);
+            var touched = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             int applied = 0;
             foreach (string path in analyses.Values.SelectMany(a => a.Findings.Keys).Distinct(StringComparer.OrdinalIgnoreCase)
                          .Order(StringComparer.OrdinalIgnoreCase).ToList())
             {
-                Solution? next = await FixFileAsync(solution, path, analyses, fixedCounts, passKept);
-                if (next is null)
+                if (touched.Contains(path))
                     continue;
-                solution = next;
+                FileFix? fix = await FixFileAsync(solution, path, analyses, fixedCounts, passKept, touched);
+                if (fix is null)
+                    continue;
+                solution = fix.Solution;
                 applied++;
-                changedSinceAnalysis.Add(path);
-                string text = (await solution.GetDocument(solution.GetDocumentIdsWithFilePath(path)[0])!.GetTextAsync()).ToString();
-                string hash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(text)));
-                if (!history.TryGetValue(path, out var seen))
+                foreach (string changedPath in fix.Paths)
                 {
-                    seen = [Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(
-                        (await original.GetDocument(original.GetDocumentIdsWithFilePath(path)[0])!.GetTextAsync()).ToString())))];
-                    history[path] = seen;
+                    touched.Add(changedPath);
+                    changedSinceAnalysis.Add(changedPath);
+                    string hash = Hash(await TextAtAsync(solution, changedPath));
+                    if (!history.TryGetValue(changedPath, out var seen))
+                        history[changedPath] = seen = [Hash(await TextAtAsync(original, changedPath))];
+                    if (!seen.Add(hash))
+                        throw new InvalidOperationException($"{Relative(changedPath)} returned to an earlier text in pass {pass}: the fixes cycle.");
                 }
-                if (!seen.Add(hash))
-                    throw new InvalidOperationException($"{Relative(path)} returned to an earlier text in pass {pass}: the fixes cycle.");
             }
             Console.WriteLine($"pass {pass}: fixed {applied} files; kept {Format(passKept)}");
             if (applied == 0)
@@ -302,9 +321,10 @@ internal sealed class SolutionFixer
         return new ProjectAnalysis(project, errors, findings, fixable);
     }
 
-    /// <summary>Applies one rule's agreed fixes to one file, or returns null when nothing in it may be fixed.</summary>
-    private async Task<Solution?> FixFileAsync(Solution solution, string path, Dictionary<ProjectId, ProjectAnalysis> analyses,
-        SortedDictionary<string, int> fixedCounts, SortedDictionary<string, int> kept)
+    /// <summary>Applies one rule's agreed fixes to one file, or returns null when nothing in it may be fixed in this
+    /// pass: a fix that would change a file another fix of this pass changed waits for the next pass.</summary>
+    private async Task<FileFix?> FixFileAsync(Solution solution, string path, Dictionary<ProjectId, ProjectAnalysis> analyses,
+        SortedDictionary<string, int> fixedCounts, SortedDictionary<string, int> kept, HashSet<string> touched)
     {
         var compilers = solution.GetDocumentIdsWithFilePath(path)
             .Select(id => analyses[id.ProjectId]).OrderBy(a => a.Project.Name, StringComparer.Ordinal).ToList();
@@ -325,15 +345,22 @@ internal sealed class SolutionFixer
             var diagnostics = own.Where(d => d.Id == rule && agreed.Contains(Key(d))).ToList();
             if (diagnostics.Count > 0)
             {
-                SourceText fixedText = rule == UnusedUsing
+                Solution changed = rule == UnusedUsing
                     ? await ApplyFixAllAsync(document, UnusedUsingFixable, chosen.FixerOnly.GetValueOrDefault(path)
                         ?? throw new InvalidOperationException($"{Relative(path)} reports {UnusedUsing} without {UnusedUsingFixable} in {chosen.Project.Name}."))
                     : await ApplyFixAllAsync(document, rule, diagnostics);
+                FixDecision decision = await AcceptAsync(solution, changed, document, rule, analyses, touched);
+                if (decision.Fix is not { } fix)
+                {
+                    if (decision.Kept)
+                        Count(kept, diagnostics);
+                    return null;
+                }
                 int count = rule == UnusedUsing
-                    ? CountUsings(await document.GetTextAsync()) - CountUsings(fixedText)
+                    ? CountUsings(await document.GetTextAsync()) - CountUsings(await RequiredTextAsync(fix.Solution, path))
                     : diagnostics.Count;
                 fixedCounts[rule] = fixedCounts.GetValueOrDefault(rule) + count;
-                return WithText(solution, path, fixedText);
+                return fix;
             }
             if (rule == UnusedUsing && compilers.Count > 1)
             {
@@ -344,14 +371,94 @@ internal sealed class SolutionFixer
                     continue;
                 SourceText text = await document.GetTextAsync();
                 fixedCounts[rule] = fixedCounts.GetValueOrDefault(rule) + lines.Count;
-                return WithText(solution, path, RemoveLines(text, lines, path));
+                return new FileFix(WithText(solution, path, RemoveLines(text, lines, path)), [path]);
             }
         }
         return null;
     }
 
-    /// <summary>Runs the rule's fixer over exactly the given findings of one document and returns the fixed text.</summary>
-    private async Task<SourceText> ApplyFixAllAsync(Document document, string rule, List<Diagnostic> diagnostics)
+    /// <summary>
+    /// Decides whether a fix computed in one project may be applied, and applies it to every project that compiles
+    /// a file it changed. A fix of one file is always accepted. A fix of several files is accepted only when every file
+    /// it changes is compiled by analyzed projects without compiler errors (otherwise its findings are kept) and when no
+    /// other fix of this pass touched one of them (otherwise it waits for the next pass); every project compiling one
+    /// of its files must then still compile, or the run fails.
+    /// </summary>
+    private async Task<FixDecision> AcceptAsync(Solution solution, Solution changed, Document document, string rule,
+        Dictionary<ProjectId, ProjectAnalysis> analyses, HashSet<string> touched)
+    {
+        string source = document.FilePath!;
+        var texts = new SortedDictionary<string, SourceText>(StringComparer.OrdinalIgnoreCase);
+        foreach (ProjectChanges project in changed.GetChanges(solution).GetProjectChanges())
+        {
+            if (project.GetAddedDocuments().Any() || project.GetRemovedDocuments().Any())
+                throw new InvalidOperationException($"The {rule} fix for {Relative(source)} adds or removes files, which this runner does not apply.");
+            foreach (DocumentId id in project.GetChangedDocuments())
+            {
+                Document fixedDocument = changed.GetDocument(id)!;
+                string path = fixedDocument.FilePath
+                    ?? throw new InvalidOperationException($"The {rule} fix for {Relative(source)} changed {fixedDocument.Name}, which has no file.");
+                SourceText text = await fixedDocument.GetTextAsync();
+                if (texts.TryGetValue(path, out SourceText? other) && !other.ContentEquals(text))
+                    throw new InvalidOperationException($"The {rule} fix for {Relative(source)} gave {Relative(path)} two different texts.");
+                texts[path] = text;
+            }
+        }
+        if (texts.Count == 0)
+            throw new InvalidOperationException($"The {rule} fix for {Relative(source)} changed nothing.");
+        if (texts.Count == 1 && texts.ContainsKey(source))
+            return new FixDecision(new FileFix(WithText(solution, source, texts[source]), [source]), false);
+
+        if (texts.Keys.Any(touched.Contains))
+            return new FixDecision(null, false);
+        foreach (string path in texts.Keys)
+        {
+            var ids = solution.GetDocumentIdsWithFilePath(path);
+            if (ids.IsEmpty)
+                throw new InvalidOperationException($"The {rule} fix for {Relative(source)} changed {Relative(path)}, which no project of the solution compiles.");
+            if (ids.Any(id => !analyses.TryGetValue(id.ProjectId, out var analysis) || analysis.CompilerErrors.Count > 0))
+                return new FixDecision(null, true);
+        }
+        Solution result = solution;
+        foreach (var (path, text) in texts)
+            result = WithText(result, path, text);
+        await RequireCompilesAsync(result, texts.Keys, $"The {rule} fix for {Relative(source)}");
+        return new FixDecision(new FileFix(result, [.. texts.Keys]), false);
+    }
+
+    /// <summary>Fails when a project compiling one of the files has a compiler error in the given solution.</summary>
+    private async Task RequireCompilesAsync(Solution solution, IEnumerable<string> paths, string fix)
+    {
+        var projects = paths.SelectMany(path => solution.GetDocumentIdsWithFilePath(path)).Select(id => id.ProjectId).Distinct();
+        foreach (ProjectId id in projects)
+        {
+            Project project = solution.GetProject(id)!;
+            Compilation compilation = await project.GetCompilationAsync()
+                ?? throw new InvalidOperationException($"{project.Name} produced no compilation.");
+            var errors = compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).ToList();
+            if (errors.Count > 0)
+                throw new InvalidOperationException($"{fix} leaves {project.Name} with compiler errors:\n" + string.Join('\n', errors.Take(20)));
+        }
+    }
+
+    /// <summary>A file's text in a solution, or null when no project compiles that file.</summary>
+    private static async Task<SourceText?> TextAtAsync(Solution solution, string path)
+    {
+        var ids = solution.GetDocumentIdsWithFilePath(path);
+        return ids.IsEmpty ? null : await solution.GetDocument(ids[0])!.GetTextAsync();
+    }
+
+    /// <summary>A file's text in a solution, which must compile it.</summary>
+    private async Task<SourceText> RequiredTextAsync(Solution solution, string path) =>
+        await TextAtAsync(solution, path) ?? throw new InvalidOperationException($"No project compiles {Relative(path)}.");
+
+    /// <summary>The SHA-256 of a file's text, or a marker for a file no project compiles.</summary>
+    private static string Hash(SourceText? text) =>
+        text is null ? "absent" : Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(text.ToString())));
+
+    /// <summary>Runs the rule's fixer over exactly the given findings of one document and returns the solution it
+    /// produces, which may change other documents too.</summary>
+    private async Task<Solution> ApplyFixAllAsync(Document document, string rule, List<Diagnostic> diagnostics)
     {
         var providers = FixersFor(document.Project, rule);
         if (providers.Count != 1)
@@ -368,12 +475,7 @@ internal sealed class SolutionFixer
         CodeAction action = await fixAll.GetFixAsync(context)
             ?? throw new InvalidOperationException($"{provider.GetType().Name} produced no fix-all action for {Relative(document.FilePath!)}.");
         var operations = await action.GetOperationsAsync(CancellationToken.None);
-        Solution changed = operations.OfType<ApplyChangesOperation>().Single().ChangedSolution;
-        var changedDocuments = changed.GetChanges(document.Project.Solution).GetProjectChanges()
-            .SelectMany(p => p.GetChangedDocuments()).ToList();
-        if (changedDocuments.Count != 1 || changedDocuments[0] != document.Id)
-            throw new InvalidOperationException($"The {rule} fix for {Relative(document.FilePath!)} changed other documents too.");
-        return await changed.GetDocument(document.Id)!.GetTextAsync();
+        return operations.OfType<ApplyChangesOperation>().Single().ChangedSolution;
     }
 
     /// <summary>The code fix providers for a rule, from the code-style fixer assemblies the project references.</summary>

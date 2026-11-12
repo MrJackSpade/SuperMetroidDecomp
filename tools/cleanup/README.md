@@ -87,6 +87,32 @@ commit body.
 The runner repeats its analysis until a pass finds nothing (one rule per file per pass, since other spans go stale
 once a file changes). A file that returns to an earlier text fails the run, and so do more than 20 passes.
 
+A fix may change several files, such as IDE0032 deleting a field in one part of a partial type and rewriting its
+property in another. The runner accepts it when every file it changes is compiled by analyzed projects that have no
+compiler errors (otherwise its findings are kept and counted), and when no other fix in the same pass touched one of
+those files (otherwise it waits for the next pass, since its spans would be stale). Every project compiling one of
+its files must still compile afterwards, or the run fails naming the fix. The cycle and pass checks cover every
+changed file, and the summary lists them all.
+
+## Fixtures
+
+`tools/cleanup/fixtures/<rule>/` confirms the runner on one rule: `input/` is a small project (`Fixture.csproj`) with
+the violating code of every shape the rule's ticket lists, and `expected/` is every file of that project after the
+fix, byte for byte.
+
+```powershell
+pwsh -File tools/cleanup/check-fixtures.ps1                  # every fixture
+pwsh -File tools/cleanup/check-fixtures.ps1 -Rule IDE0032    # only the named ones
+```
+
+It builds `SuperMetroid.EnsureAnalyzer.CodeFixes` (and so the analyzer) once in Debug, then for each fixture copies
+`input/` into a new temporary directory beside the repository's `csharp/.editorconfig` and a `Directory.Build.props`
+that imports `csharp/Directory.Build.props` and names the analyzer and code-fix assemblies (`$(CleanupAnalyzer)`,
+`$(CleanupCodeFixes)`) for the fixture's own `<Analyzer>` items. It restores the copy, runs the runner on it for that
+rule, compares every file (less `bin/`, `obj/` and the two added files) with `expected/`, including which files
+exist, and builds the fixed copy with `tools/build.ps1`. A failed fixture keeps its copy and prints where; the script
+exits nonzero when any fixture fails.
+
 **IDE0079 (unnecessary suppression) is in the automatically fixed group but nothing at the command line can apply
 it.** The code-style package the build and `dotnet format` load has no analyzer that reports it (only the IDE's
 suppression analysis does), so neither `dotnet format style` nor `dotnet format analyzers` changes an unnecessary

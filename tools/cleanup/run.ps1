@@ -263,7 +263,7 @@ try {
         $fixedPaths | ForEach-Object { $body.Add("  $_") }
     }
     if ($kept.Count -gt 0) {
-        $body.Add('Left in files compiled by several projects that do not all report them: ' +
+        $body.Add('Left in files compiled by several projects that do not all report them, or by a project that does not compile: ' +
             (($kept.GetEnumerator() | ForEach-Object { "$($_.Key) $($_.Value)" }) -join ', '))
     }
     if ($prunedPaths.Count -gt 0) {

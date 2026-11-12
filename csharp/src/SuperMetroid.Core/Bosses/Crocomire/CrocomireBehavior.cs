@@ -55,7 +55,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         Fight = new CrocomireFight(new CrocomireFightDependencies { Room = _room, Terrain = dependencies.Terrain, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, Presentation = dependencies.Presentation.Surfaces, Collision = dependencies.Collision, ZebetiteBehavior = dependencies.ZebetiteBehavior, RoomStatus = dependencies.RoomStatus, Access = Access });
         Combat = new CrocomireCombat(dependencies.Projectiles, dependencies.FrameContext, dependencies.Collision, dependencies.DeathsAndDrops, Access);
         BridgeCollapse = new CrocomireBridgeCollapse(_room, dependencies.Projectiles, dependencies.ZebetiteBehavior, BodyLayer, Access);
-        Melting = new CrocomireMelting(dependencies.Presentation.Surfaces, BodyLayer, Access, _bossArtwork);
+        Melting = new CrocomireMelting(BodyLayer, Access, _bossArtwork);
         Skeleton = new CrocomireSkeleton(_room, dependencies.Projectiles, dependencies.Presentation.Surfaces, dependencies.DeathsAndDrops, dependencies.ZebetiteBehavior, Access);
     }
 

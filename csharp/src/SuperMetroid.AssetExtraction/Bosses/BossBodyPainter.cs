@@ -59,7 +59,7 @@ internal sealed class BossBodyPainter(BossBodyOwner owner, BossRoomCharacters ro
         bool shows = ShowsAnything(frame);
         string? picture = shows ? AddPicture(frame) : null;
         BossBodyDepth? depth = shows ? DepthOf(frame) : null;
-        if (!frames.TryAdd(frame.Name, new ComposedBossBodyFrame(frame.Name, picture, CornerOf(frame.Cells), depth)))
+        if (!frames.TryAdd(frame.Name, new ComposedBossBodyFrame(frame.Name, picture, CornerOf(frame.Cells), depth) { Dissolving = frame.Dissolving }))
             throw new InvalidDataException($"{owner}'s body sheet repeats frame {frame.Name}.");
     }
 
@@ -171,7 +171,7 @@ internal sealed class BossBodyPainter(BossBodyOwner owner, BossRoomCharacters ro
     }
 
     /// <summary>The body pixel the top-left corner of the rectangle bounding <paramref name="cells"/> lies on.</summary>
-    private static Position16<BackgroundPixels> CornerOf(SortedDictionary<int, BackgroundTile> cells)
+    internal static Position16<BackgroundPixels> CornerOf(SortedDictionary<int, BackgroundTile> cells)
     {
         Position16<BackgroundPixels>[] corners = [.. cells.Keys.Select(PixelOf)];
         return new Position16<BackgroundPixels>(corners.Min(corner => corner.X), corners.Min(corner => corner.Y));

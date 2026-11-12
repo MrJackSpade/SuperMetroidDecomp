@@ -29,7 +29,7 @@ public sealed record BossBodyLayer(ImmutableArray<BossBodyFrame> Frames, int? Sh
                 ? Math.Min(picture.Size.Y, Math.Max(shownAbove, 0) - frame.Corner.Y)
                 : picture.Size.Y;
             if (height > 0)
-                parts.Add(new ShownBossBodyPart(picture, frame.Corner, new Extent16<BackgroundPixels>(picture.Size.X, height), depth));
+                parts.Add(new ShownBossBodyPart(picture, frame.Corner, new Extent16<BackgroundPixels>(picture.Size.X, height), depth, frame.Hidden));
         }
         return new(parts.ToImmutable());
     }

@@ -12,4 +12,8 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// <param name="Picture">The sheet frame of its whole picture, or null when it paints nothing.</param>
 /// <param name="Corner">The body pixel its picture's top-left corner lies on.</param>
 /// <param name="Depth">The depth its picture is drawn at, or null when it paints nothing.</param>
-internal sealed record ComposedBossBodyFrame(string Name, string? Picture, Position16<BackgroundPixels> Corner, BossBodyDepth? Depth);
+internal sealed record ComposedBossBodyFrame(string Name, string? Picture, Position16<BackgroundPixels> Corner, BossBodyDepth? Depth)
+{
+    /// <summary>The picture's cells a column dissolve erases (#1652): Crocomire's melt images'; empty for every other frame.</summary>
+    internal IReadOnlyList<DissolvingCell> Dissolving { get; init; } = [];
+}

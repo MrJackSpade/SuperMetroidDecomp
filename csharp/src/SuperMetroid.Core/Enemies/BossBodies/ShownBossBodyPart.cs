@@ -11,5 +11,6 @@ namespace SuperMetroid.Core.Enemies.BossBodies;
 /// <param name="Corner">The body pixel the picture's top-left corner lies on.</param>
 /// <param name="Size">How much of the picture shows, across and down from its top-left corner.</param>
 /// <param name="Depth">The depth the picture is drawn at.</param>
+/// <param name="Hidden">The picture's pixels that show nothing, as Crocomire's melt dissolve leaves them (#1652); null where all show.</param>
 public sealed record ShownBossBodyPart(SpriteSheetFrame Picture, Position16<BackgroundPixels> Corner, Extent16<BackgroundPixels> Size,
-    BossBodyDepth Depth);
+    BossBodyDepth Depth, HiddenPictureColumns? Hidden = null);

@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Enemies.BossBodies;
 
 namespace SuperMetroid.AssetExtraction.Bosses;
 
@@ -15,6 +16,12 @@ internal sealed record BossBodyFrameSource(string Name, SortedDictionary<int, Ba
     /// here shows them as the room loads them, as a frame shown before the animation selects any does.
     /// </summary>
     internal IReadOnlyDictionary<ArtworkAnimation, ArtworkFrame> Selected { get; init; } = new Dictionary<ArtworkAnimation, ArtworkFrame>();
+
+    /// <summary>
+    /// The frame's picture cells a column dissolve erases (#1652), in the picture's cells: Crocomire's melt images'. Empty
+    /// for every other frame.
+    /// </summary>
+    internal IReadOnlyList<DissolvingCell> Dissolving { get; init; } = [];
 
     /// <summary>The frame writing <paramref name="tiles"/> from layer cell <paramref name="firstCell"/> onward.</summary>
     internal static BossBodyFrameSource Written(string name, int firstCell, ReadOnlySpan<BackgroundTile> tiles)

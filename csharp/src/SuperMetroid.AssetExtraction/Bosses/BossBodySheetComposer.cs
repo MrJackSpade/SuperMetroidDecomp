@@ -8,6 +8,7 @@ using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.BossBodies;
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -130,46 +131,42 @@ internal static class BossBodySheetComposer
     }
 
     /// <summary>
-    /// Each state of Crocomire's melt image <paramref name="image"/> as his body shows it, whole (#1513): the image before
-    /// its dissolve erases a column and after each erase, every band of its characters at the dissolve step the band was
-    /// last shown at (<see cref="CrocomireMeltBandStepAfter"/>). The updates in which the image's bands are first shown,
-    /// one an update, show the unerased image whole; his body frames are replaced by the image before any band is shown, so
-    /// no body frame is pictured under a band.
+    /// Crocomire's melt image <paramref name="image"/> as his body shows it, once (#1652): the image before its dissolve
+    /// erases a column, every band of its characters unerased, with the cells of the picture the dissolve erases. Each step
+    /// of the dissolve hides columns of those cells as Core shows the image (CrocomireMeltMask), so no step is pictured.
     /// </summary>
     private static List<BossBodyFrameSource> CrocomireMeltStates(CrocomireMeltingArtwork melting, CrocomireMeltingIllustration image)
     {
-        int bands = CrocomireMelting.BandCount(image);
-        var states = new List<BossBodyFrameSource>();
-        for (int erased = 0; erased <= CrocomireMeltingDefinitions.ColumnCount; erased++)
-        {
-            var selected = new Dictionary<ArtworkAnimation, ArtworkFrame>();
-            for (int band = 0; band < bands; band++)
-            {
-                selected.Add(CrocomireMelting.MeltBandAnimation(band), CrocomireMelting.MeltBandFrame(
-                    new CrocomireMeltBandPicture(image, CrocomireMeltBandStepAfter(image, band, erased)), band));
-            }
-            states.Add(BossBodyFrameSource.Written(CrocomireMeltingFrameNames.Of(image, erased), BossBodySourceDefinitions.CrocomireMeltFirstCell,
-                melting.Tilemap(image)) with { Selected = selected });
-        }
-        return states;
+        var selected = new Dictionary<ArtworkAnimation, ArtworkFrame>();
+        for (int band = 0; band < CrocomireMelting.BandCount(image); band++)
+            selected.Add(CrocomireMelting.MeltBandAnimation(band), CrocomireMelting.MeltBandFrame(new CrocomireMeltBandPicture(image, 0), band));
+        BossBodyFrameSource source = BossBodyFrameSource.Written(CrocomireMeltingFrameNames.Of(image),
+            BossBodySourceDefinitions.CrocomireMeltFirstCell, melting.Tilemap(image));
+        return [source with { Selected = selected, Dissolving = DissolvingCells(source, image) }];
     }
 
     /// <summary>
-    /// The dissolve step at which band <paramref name="band"/> of <paramref name="pass"/>'s melt image was last shown once
-    /// the dissolve has erased <paramref name="erased"/> columns (#1513): each erase shows the next band in turn, the first
-    /// erase the first band, so a band shows the image at the last erase that showed it, and before any erase showed it the
-    /// unerased image its pass showed it with first.
+    /// The cells of melt image <paramref name="image"/>'s picture, written as <paramref name="source"/> writes them, that show
+    /// a character of one of the image's bands: each cell's place in the picture, the band, and the group of eight pixel
+    /// columns of the melt image the character holds, which the dissolve erases within (#1652).
     /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException">The band is not one of the pass's, or the count is not one of the dissolve's.</exception>
-    private static int CrocomireMeltBandStepAfter(CrocomireMeltingIllustration pass, int band, int erased)
+    /// <exception cref="InvalidDataException">A cell shows a band's character flipped, so its erased columns would lie mirrored.</exception>
+    private static List<DissolvingCell> DissolvingCells(BossBodyFrameSource source, CrocomireMeltingIllustration image)
     {
-        int bands = CrocomireMelting.BandCount(pass);
-        if ((uint)band >= (uint)bands)
-            throw new ArgumentOutOfRangeException(nameof(band), band, $"Crocomire's {pass} melt image has no such band.");
-        if ((uint)erased > CrocomireMeltingDefinitions.ColumnCount)
-            throw new ArgumentOutOfRangeException(nameof(erased), erased, "Crocomire's dissolve has no such step.");
-        // Erase k shows band (k - 1) modulo the bands, so band b was last shown at erase b + 1 plus a whole number of rounds.
-        return erased <= band ? 0 : band + 1 + (erased - band - 1) / bands * bands;
+        Position16<BackgroundPixels> corner = BossBodyPainter.CornerOf(source.Cells);
+        int bands = CrocomireMelting.BandCount(image);
+        var cells = new List<DissolvingCell>();
+        foreach ((int layerCell, BackgroundTile tile) in source.Cells)
+        {
+            int band = tile.Tile / CrocomireMeltDissolve.BandRowCharacters, group = tile.Tile % CrocomireMeltDissolve.BandRowCharacters;
+            if (band >= bands || group >= CrocomireMeltDissolve.BandCharacterCount)
+                continue;
+            if (tile.FlipHorizontally)
+                throw new InvalidDataException($"Crocomire's {image} melt image shows band {band} character {group} flipped at layer cell {layerCell}.");
+            Position16<BackgroundPixels> at = BossBodyPainter.PixelOf(layerCell);
+            cells.Add(new DissolvingCell((at.X - corner.X) / RoomTileCanvas.CharacterPixels, (at.Y - corner.Y) / RoomTileCanvas.CharacterPixels, band, group));
+        }
+        return cells;
     }
 
     /// <summary>

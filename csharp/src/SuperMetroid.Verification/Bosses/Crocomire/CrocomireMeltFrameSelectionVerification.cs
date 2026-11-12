@@ -66,13 +66,16 @@ internal static class CrocomireMeltFrameSelectionVerification
         Console.WriteLine($"  Crocomire melt: {updates} updates over both passes select each band's picture on the cartridge's schedule.");
     }
 
-    /// <summary>Asserts every band of <paramref name="fixture"/>'s melt shows the picture <paramref name="expected"/> holds for it.</summary>
+    /// <summary>
+    /// Asserts every band of <paramref name="fixture"/>'s melt shows the step <paramref name="expected"/> holds for it, a
+    /// band its pass has not shown yet showing none (#1652).
+    /// </summary>
     private static void AssertBands(EnemyEffectsFixtureVerification.CrocomireEffectFixture fixture,
         CrocomireMeltBandPicture?[] expected, string context)
     {
         for (int band = 0; band < expected.Length; band++)
-            AssertEqual(EnemyEffectsFixtureVerification.CrocomireEffectFixture.MeltBandFrame(expected[band], band), fixture.MeltBand(band),
-                $"{context}: band {band} picture");
+            AssertEqual(expected[band] is { } shown && shown.Pass == fixture.Effect.MeltPass ? shown.Step : 0, fixture.MeltBandStep(band),
+                $"{context}: band {band} step");
     }
 
     /// <summary>Runs the Crocomire melt frame selection check.</summary>

@@ -27,9 +27,10 @@ public static class BossBodySheetFiles
     /// The manifest's schema revision: 6 names each frame's one whole picture, where it lies on the body's area and the
     /// depth it is drawn at (#1634), a part drawn over the parts before it with no rectangles it covers (#1540), Kraid's body
     /// below his head and the head it rises with as one frame each; with no cell footprints, blank (#1515), pieces of
-    /// pictures laid over a frame (#1513) or frames pictured again to be drawn in front of the sprites.
+    /// pictures laid over a frame (#1513) or frames pictured again to be drawn in front of the sprites; 7 pictures each of
+    /// Crocomire's melt images once, with the cells its dissolve erases, and no step of it (#1652).
     /// </summary>
-    private const int ManifestVersion = 6;
+    private const int ManifestVersion = 7;
 
     /// <summary>
     /// Composes every boss's body sheet and writes their manifest; the sheets are returned for the picture store to write
@@ -86,7 +87,8 @@ public static class BossBodySheetFiles
     }
 
     /// <summary>The manifest entry of <paramref name="frame"/>.</summary>
-    private static FrameDocument Document(ComposedBossBodyFrame frame) => new(frame.Picture, frame.Corner, frame.Depth);
+    private static FrameDocument Document(ComposedBossBodyFrame frame) =>
+        new(frame.Picture, frame.Corner, frame.Depth, frame.Dissolving.Count == 0 ? null : [.. frame.Dissolving]);
 
     /// <summary>
     /// The frame named <paramref name="name"/> that <paramref name="document"/> describes, its picture cut from
@@ -102,7 +104,8 @@ public static class BossBodySheetFiles
             throw new InvalidDataException($"Boss body manifest {manifestPath} frame {name} is incomplete.");
         if (document.Picture is null != document.Depth is null || document.Depth is { } depth && !Enum.IsDefined(depth))
             throw new InvalidDataException($"Boss body manifest {manifestPath} frame {name} needs a defined depth exactly when it names a picture.");
-        return new BossBodyFrame(name, document.Picture is null ? null : sheet.Frame(document.Picture), corner, document.Depth);
+        return new BossBodyFrame(name, document.Picture is null ? null : sheet.Frame(document.Picture), corner, document.Depth,
+            document.Dissolving is null ? [] : [.. document.Dissolving]);
     }
 
     /// <summary>The manifest: each boss's sheet, by boss.</summary>
@@ -118,9 +121,11 @@ public static class BossBodySheetFiles
     /// <param name="Picture">The sheet frame of its picture, or null for a frame that paints nothing.</param>
     /// <param name="Corner">The body pixel its picture's top-left corner lies on.</param>
     /// <param name="Depth">The depth its picture is drawn at, by name (#1634), or null for a frame that paints nothing.</param>
+    /// <param name="Dissolving">The picture's cells a column dissolve erases (#1652), or null for a frame no dissolve erases.</param>
     private sealed record FrameDocument(string? Picture, Position16<BackgroundPixels>? Corner,
         [property: JsonConverter(typeof(JsonStringEnumConverter<BossBodyDepth>))]
-        [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] BossBodyDepth? Depth);
+        [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] BossBodyDepth? Depth,
+        [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] DissolvingCell[]? Dissolving = null);
 
     /// <summary>Stable camel-case manifest fields.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()

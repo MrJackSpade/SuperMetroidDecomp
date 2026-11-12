@@ -18,26 +18,6 @@ internal static class CrocomireMeltDissolve
     /// <summary>Characters a band shows from the start of its row.</summary>
     public const int BandCharacterCount = 11;
 
-    /// <summary>
-    /// <c>CrocomireMeltingXOffsetTable</c> at <c>$A4:9697-$A4:96C7</c>: the column each step erases.
-    /// </summary>
-    /// <remarks>
-    /// Retained under #1165's arbitrary-sequence exception: these are the fixed shuffled visitation identities of all
-    /// columns 0..48, not samples of motion or geometry. Replacing this order with a new shuffle changes the dissolve; a
-    /// switch or fitted polynomial would only encode the same arbitrary choices. The pinned C reference names this
-    /// kCrocoVlineRandomPos.
-    /// </remarks>
-    private static ReadOnlySpan<byte> ColumnOrder =>
-    [
-        43, 40, 33, 31, 44, 16, 22, 23,
-        15, 0, 6, 7, 11, 8, 1, 42,
-        12, 36, 46, 45, 26, 20, 29, 35,
-        30, 41, 37, 34, 19, 25, 21, 18,
-        48, 3, 9, 2, 27, 5, 24, 28,
-        17, 10, 4, 13, 47, 14, 32, 38,
-        39,
-    ];
-
     /// <summary>Pixel rows each step erases down its column: the whole height of a melt image's bands.</summary>
     private const int ColumnPixels = 48;
 
@@ -47,7 +27,7 @@ internal static class CrocomireMeltDissolve
     {
         if ((uint)step >= CrocomireMeltingDefinitions.ColumnCount)
             throw new ArgumentOutOfRangeException(nameof(step));
-        return ColumnOrder[step];
+        return CrocomireMeltDissolveDefinitions.ColumnOrder[step];
     }
 
     /// <summary>

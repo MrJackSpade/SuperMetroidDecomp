@@ -18,13 +18,10 @@ internal sealed class CrocomireMelting
     private readonly CrocomireEncounterAccess _access;
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork;
-    /// <summary>Sprite and background presentation, whose room's animation frames publish the picture each band shows.</summary>
-    private readonly EnemyPresentation _presentation;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal CrocomireMelting(EnemyPresentation presentation, CrocomireBodyLayer bodyLayer, CrocomireEncounterAccess access, BossArtworkBinding bossArtwork)
+    internal CrocomireMelting(CrocomireBodyLayer bodyLayer, CrocomireEncounterAccess access, BossArtworkBinding bossArtwork)
     {
-        _presentation = presentation;
         _bossArtwork = bossArtwork;
         _bodyLayer = bodyLayer;
         _access = access;
@@ -102,6 +99,7 @@ internal sealed class CrocomireMelting
         death.MeltPass = pass;
         death.MeltColumnsErased = 0;
         death.NextMeltBand = 0;
+        Array.Clear(death.MeltBandSteps);
     }
 
     /// <summary>
@@ -130,11 +128,10 @@ internal sealed class CrocomireMelting
     };
 
     /// <summary>
-    /// Selects, at this update, the picture <paramref name="band"/> shows (#1406): the pass's image after the columns erased
-    /// so far, which the band draws from the room's tile word sheet. A band keeps the picture until it is shown again.
+    /// Shows <paramref name="band"/> at this update (#1406, #1652): from now on the band shows the pass's image after the
+    /// columns erased so far, until it is shown again.
     /// </summary>
-    private void ShowMeltBand(CrocomireDeathState death, int band) =>
-        _presentation.ArtworkFrames.Select(MeltBandFrame(new CrocomireMeltBandPicture(death.MeltPass, death.MeltColumnsErased), band));
+    private static void ShowMeltBand(CrocomireDeathState death, int band) => death.MeltBandSteps[band] = death.MeltColumnsErased;
 
     /// <summary>The animation band <paramref name="band"/> of the melt image is, whose frames are its pictures (#1406).</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="band"/> is not a band of either melt image.</exception>
@@ -205,8 +202,9 @@ internal sealed class CrocomireMelting
         if (death.NextMeltBand == BandCount(death.MeltPass))
             death.NextMeltBand = 0;
         ShowMeltBand(death, death.NextMeltBand++);
-        _bodyLayer.ShowCrocomireBodyFrame(_bossArtwork.Body(BossBodyOwner.Crocomire)
-            .Frame(CrocomireMeltingFrameNames.Of(death.MeltPass, death.MeltColumnsErased)));
+        // The image is stored once; each band hides the columns its step had erased when it was last shown (#1652).
+        BossBodyFrame image = RequireCrocomireMeltingImage(death.MeltPass);
+        _bodyLayer.ShowCrocomireBodyFrame(image.Hiding(CrocomireMeltMask.Of(image, death.MeltBandSteps)));
     }
 
     /// <summary>

@@ -221,8 +221,9 @@ internal static class RoomBlockUploads
     }
 
     /// <summary>
-    /// What Crocomire's melt shows over his characters (#1392, #1406): each band of each melt image after every number of
-    /// columns erased, as the frame of the band's animation the runtime selects for it.
+    /// What Crocomire's melt image shows over his characters (#1392, #1406, #1652): each band of each melt image before its
+    /// dissolve erases a column, which his body pictures the image over once. Each step of the dissolve hides columns of
+    /// the image as Core shows it, so no step is pictured.
     /// </summary>
     private static IEnumerable<AnimatedCharacterPlacement> CrocomireMeltBandFrames(RoomBlockSheetInputs inputs)
     {
@@ -230,15 +231,11 @@ internal static class RoomBlockUploads
             ?? throw new InvalidDataException("Installed boss artwork has no Crocomire melting graphics.");
         foreach (CrocomireMeltingIllustration illustration in Enum.GetValues<CrocomireMeltingIllustration>())
         {
-            int step = 0;
-            foreach (byte[] image in CrocomireMeltDissolve.Steps(artwork, illustration))
+            byte[] image = artwork.Characters(illustration).ToArray();
+            for (int band = 0; band < CrocomireMelting.BandCount(illustration); band++)
             {
-                for (int band = 0; band < CrocomireMelting.BandCount(illustration); band++)
-                {
-                    yield return AnimatedCharacterPlacement.Of(CrocomireMelting.MeltBandFrame(new CrocomireMeltBandPicture(illustration, step), band),
-                        BgCharacterSet.Tiles, CrocomireMeltDissolve.BandFirstCharacter(band), CrocomireMeltDissolve.BandCharacters(image, band));
-                }
-                step++;
+                yield return AnimatedCharacterPlacement.Of(CrocomireMelting.MeltBandFrame(new CrocomireMeltBandPicture(illustration, 0), band),
+                    BgCharacterSet.Tiles, CrocomireMeltDissolve.BandFirstCharacter(band), CrocomireMeltDissolve.BandCharacters(image, band));
             }
         }
     }

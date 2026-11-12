@@ -54,7 +54,7 @@ internal static class EnemyEffectMechanicsVerification
                 AssertEqual(band == bands ? phase.Next() : phase, fixture.Actor.DeathPhase,
                     "only the update after the last band advances the phase");
                 if (band < bands)
-                    AssertEqual(CrocomireEffectFixture.MeltBandFrame(new CrocomireMeltBandPicture(pass, 0), band), fixture.MeltBand(band), "each band shows the unerased image on its own update");
+                    AssertEqual(0, fixture.MeltBandStep(band), "each band shows the unerased image on its own update");
             }
 
             fixture.Call(c => c.Melting.BeginCrocomireMelting);
@@ -86,11 +86,11 @@ internal static class EnemyEffectMechanicsVerification
                 AssertEqual(initialSmokeObjects + (call + 5) / 6,
                     fixture.Enemies.RoomSpriteObjects.Count(slot => slot.IsActive), "fixed acid-smoke cadence");
                 if (call <= CrocomireMeltingDefinitions.ColumnCount)
-                    AssertEqual(CrocomireEffectFixture.MeltBandFrame(new CrocomireMeltBandPicture(pass, call), (call - 1) % bands), fixture.MeltBand((call - 1) % bands), "each step shows the next band");
-                // His body shows the whole melt image as the step leaves it (#1513).
-                string meltState = CrocomireMeltingFrameNames.Of(pass, Math.Min(call, CrocomireMeltingDefinitions.ColumnCount));
-                AssertTrue(fixture.Enemies.Presentation.RequireBossBody().Publish().Frames.Any(frame => frame.Name == meltState),
-                    $"melt dissolve call {call} shows his body as {meltState}");
+                    AssertEqual(call, fixture.MeltBandStep((call - 1) % bands), "each step shows the next band");
+                // His body shows the melt image, stored once, hiding what the steps its bands last showed have erased (#1652).
+                string meltImage = CrocomireMeltingFrameNames.Of(pass);
+                AssertTrue(fixture.Enemies.Presentation.RequireBossBody().Publish().Frames.Any(frame => frame.Name == meltImage && frame.Hidden is not null),
+                    $"melt dissolve call {call} shows his body as {meltImage}, through the dissolve's hidden columns");
             }
             fixture.Call(c => c.Melting.FinishCrocomireMeltingPass);
         }

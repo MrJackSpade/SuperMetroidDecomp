@@ -363,7 +363,7 @@ uint PicturePixel(uint picture, uint2 pixel, out uint index)
 }
 // A boss body part's depth (D3D11RoomLevelBuffer.DepthWord, #1634): drawn behind the sprites, or in front of them.
 static const uint BossBodyBehindSprites = 0, BossBodyInFrontOfSprites = 1;
-static const uint BossBodyPartWords = 4;
+static const uint BossBodyPartWords = 5;
 // A boss body (ShownBossBody, #1466, #1514, #1540, #1609) at a scrolled position of its layer: its parts are placed on the
 // layer with nothing repeating beyond them, and layered in their table's order, each drawn over the parts before it. The
 // frontmost part whose picture is opaque at the position shows there, its pixel `within`; where none is, the frontmost part
@@ -371,9 +371,19 @@ static const uint BossBodyPartWords = 4;
 // depth (#1634): its picture is the layer's behind part (`part` PartBehind) for a boss part drawn behind the sprites and
 // its in-front part (PartInFront) for one drawn in front of them, so `picture` is the shown boss part's picture when its
 // depth is the one `part` asks for, and zero otherwise.
-// Each boss part is four words: its picture's offset, the body pixel the picture's top-left corner lies on, how much of
-// the picture shows across and down from that corner, each x below y, and its depth. Every background sampler reads the
-// boss through this, so a blending pass shows the same body as an ordinary one (#1426).
+// Each boss part is five words: its picture's offset, the body pixel the picture's top-left corner lies on, how much of
+// the picture shows across and down from that corner, each x below y, its depth, and the offset of the pixels it hides or
+// zero (#1652): its cells across below its cells down, then each 8x8 cell's hidden pixel columns, a byte a cell, four
+// cells a word. A hidden pixel shows nothing of the part, as a clear one does. Every background sampler reads the boss
+// through this, so a blending pass shows the same body as an ordinary one (#1426).
+bool BossBodyHides(uint hidden, uint2 offset)
+{
+    if (hidden == 0) return false;
+    uint columns = RoomLevels[hidden] & 65535;
+    uint cell = (offset.y >> 3) * columns + (offset.x >> 3);
+    uint bits = (RoomLevels[hidden + 1 + (cell >> 2)] >> ((cell & 3) * 8)) & 255;
+    return ((bits >> (offset.x & 7)) & 1) != 0;
+}
 void BossBodyPicture(uint2 scrolled, uint part, out uint2 within, out uint picture)
 {
     uint table = RoomLevels[RoomBossBodyWord];
@@ -389,6 +399,7 @@ void BossBodyPicture(uint2 scrolled, uint part, out uint2 within, out uint pictu
         uint shown = RoomLevels[record];
         uint index;
         PicturePixel(shown, offset, index);
+        if (BossBodyHides(RoomLevels[record + 4], offset)) index = 0;
         if (shownPicture == 0 || index != 0)
         {
             shownPicture = shown;

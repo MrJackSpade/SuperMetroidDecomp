@@ -45,13 +45,8 @@ internal static class EnemyEffectsFixtureVerification
         /// <summary>The installed boss body sheets the fixture draws from.</summary>
         internal static BossBodySheets Sheets => InstalledFixtures.BossBodySheets;
 
-        /// <summary>The frame band <paramref name="band"/>'s animation shows in the room, or null before any pass shows it.</summary>
-        internal ArtworkFrame? MeltBand(int band) =>
-            Enemies.Presentation.ArtworkFrames.TryShown(CrocomireMelting.MeltBandAnimation(band), out ArtworkFrame frame) ? frame : null;
-
-        /// <summary>The frame band <paramref name="band"/> shows <paramref name="picture"/> with, or null for no picture.</summary>
-        internal static ArtworkFrame? MeltBandFrame(CrocomireMeltBandPicture? picture, int band) =>
-            picture is { } shown ? CrocomireMelting.MeltBandFrame(shown, band) : null;
+        /// <summary>The dissolve step band <paramref name="band"/> of the melt last showed (#1652); a pass starts every band at none.</summary>
+        internal int MeltBandStep(int band) => Effect.MeltBandSteps[band];
 
         /// <summary>Seeds a reproducible Crocomire melt state with optional validated artwork.</summary>
         internal CrocomireEffectFixture(CrocomireMeltingArtwork? art = null)
@@ -107,7 +102,7 @@ internal static class EnemyEffectsFixtureVerification
         for (int spawned = 0; spawned < expected.Enemies.RoomSpriteObjects.Count; spawned++)
             AssertAnimationValues(expected.Enemies.RoomSpriteObjects[spawned], actual.Enemies.RoomSpriteObjects[spawned], context);
         for (int band = 0; band < CrocomireMeltingDefinitions.SecondPassBandCount; band++)
-            AssertEqual(expected.MeltBand(band), actual.MeltBand(band), context + " band " + band + " picture");
+            AssertEqual(expected.MeltBandStep(band), actual.MeltBandStep(band), context + " band " + band + " step");
         AssertEqual(expected.Effect.MeltDistortion, actual.Effect.MeltDistortion, context + " melt stretch");
         AssertSameBytes(expected.Memory.WorkRam, actual.Memory.WorkRam, context + " WRAM");
         AssertTrue(expected.Enemies.Audio.SoundRequests.SequenceEqual(actual.Enemies.Audio.SoundRequests), context + " audio");

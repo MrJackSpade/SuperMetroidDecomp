@@ -64,6 +64,7 @@ internal static class ClosedPresentationIdentityDefinitions
         ("TitleSpriteDrawing", "DrawSprite", "sprite") => TitleGraphicsFormat.Sprites.Select(sprite => (int)sprite).ToArray(),
         // A drawer does not reveal its family: a pose qualifies when some intro family owns it.
         ("CinematicSpriteSheet", "Draw", "pose.Index") => IntroCaretSpriteDefinitions.Frames
+            .Concat(IntroNextPageArrowSpriteDefinitions.Frames)
             .Concat(IntroMotherBrainSpriteDefinitions.Frames).Concat(IntroMotherBrainExplosionSpriteDefinitions.Frames)
             .Concat(IntroDiscoveryActorSpriteDefinitions.Frames).Concat(IntroEggEffectSpriteDefinitions.Frames)
             .Concat(IntroRinkaSpriteDefinitions.Frames).Concat(IntroScientistSpriteDefinitions.Frames)

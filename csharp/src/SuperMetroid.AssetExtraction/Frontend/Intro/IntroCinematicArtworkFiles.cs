@@ -26,9 +26,10 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 public static class IntroCinematicArtworkFiles
 {
     /// <summary>
-    /// Manifest revision for the complete opening and Ceres artwork resource set; 22 installs no character page (#1636).
+    /// Manifest revision for the complete opening and Ceres artwork resource set; 22 installs no character page (#1636), and
+    /// 23 installs the Japanese text's next-page arrow compositions (#1655).
     /// </summary>
-    private const int FormatVersion = 22;
+    private const int FormatVersion = 23;
 
     /// <summary>The component's character pages (#1636), which the extraction writes to its import-data directory; the manifest lists their hashes.</summary>
     private static readonly string[] PageFiles =
@@ -89,6 +90,7 @@ public static class IntroCinematicArtworkFiles
         WriteFinalLine();
         WriteEyeFrames();
         WriteCaretSprites();
+        WriteNextPageArrowSprites();
         WriteMotherBrainSprites();
         WriteMotherBrainExplosionSprites();
         WriteRinkaSprites();
@@ -277,6 +279,21 @@ public static class IntroCinematicArtworkFiles
             using (var output = new FileStream(Path.Combine(directory, name), FileMode.CreateNew, FileAccess.Write))
                 output.Write(encoded);
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
+        }
+
+        void WriteNextPageArrowSprites()
+        {
+            var frames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
+            foreach (CinematicSpriteFrameDefinition definition in IntroNextPageArrowSpriteDefinitions.Frames)
+                frames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(bus,
+                    CinematicSpritemapSources.Of(definition.Pose), definition.StockPartCount, definition.Name));
+            using var json = new MemoryStream();
+            IntroNextPageArrowSpritePresentation.Write(json, new IntroNextPageArrowSpriteDocument
+            {
+                Version = IntroNextPageArrowSpriteFormat.Version,
+                Frames = frames,
+            });
+            WriteFile(IntroNextPageArrowSpriteFormat.FileName, json.ToArray());
         }
 
         void WriteMotherBrainSprites()
@@ -511,7 +528,7 @@ public static class IntroCinematicArtworkFiles
         IntroBackdrops backdrops = LoadBackdrops();
         return new IntroCinematicArtworkParts { BackgroundPages = Enumerable.Range(0, IntroCinematicArtworkFormat.BackgroundPageCount)
                 .Select(page => LoadPage(IntroCinematicArtworkFormat.BackgroundPageFileName(page)))
-                .ToArray(), PortraitTilemap = LoadPage(IntroCinematicArtworkFormat.PortraitTilemapFileName), InitialNarrationTilemap = LoadPage(IntroCinematicArtworkFormat.InitialNarrationTilemapFileName), FinalLine = LoadFinalLine(), EyeFrames = LoadEyeFrames(), CaretSprites = LoadCaretSprites(), MotherBrainSprites = LoadMotherBrainSprites(), MotherBrainExplosionSprites = LoadMotherBrainExplosionSprites(), RinkaSprites = LoadRinkaSprites(), EggEffectSprites = LoadEggEffectSprites(), DiscoveryActorSprites = LoadDiscoveryActorSprites(), ScientistSprites = LoadScientistSprites(), Backdrop = backdrops.Opening, CeresFlight = LoadCeresFlight(), CeresDestruction = LoadCeresDestruction(), CeresDestructionMaps = LoadCeresDestructionMaps(), ZebesRevealMap = LoadZebesRevealMap(), CeresDestructionSprites = LoadCeresDestructionSprites() };
+                .ToArray(), PortraitTilemap = LoadPage(IntroCinematicArtworkFormat.PortraitTilemapFileName), InitialNarrationTilemap = LoadPage(IntroCinematicArtworkFormat.InitialNarrationTilemapFileName), FinalLine = LoadFinalLine(), EyeFrames = LoadEyeFrames(), CaretSprites = LoadCaretSprites(), NextPageArrowSprites = LoadNextPageArrowSprites(), MotherBrainSprites = LoadMotherBrainSprites(), MotherBrainExplosionSprites = LoadMotherBrainExplosionSprites(), RinkaSprites = LoadRinkaSprites(), EggEffectSprites = LoadEggEffectSprites(), DiscoveryActorSprites = LoadDiscoveryActorSprites(), ScientistSprites = LoadScientistSprites(), Backdrop = backdrops.Opening, CeresFlight = LoadCeresFlight(), CeresDestruction = LoadCeresDestruction(), CeresDestructionMaps = LoadCeresDestructionMaps(), ZebesRevealMap = LoadZebesRevealMap(), CeresDestructionSprites = LoadCeresDestructionSprites() };
 
         RoomBackgroundTilemapAtlas LoadPage(string name)
         {
@@ -596,6 +613,19 @@ public static class IntroCinematicArtworkFiles
             catch (InvalidDataException error)
             {
                 throw new InvalidDataException($"Invalid opening caret sprites {path}: {error.Message}", error);
+            }
+        }
+
+        IntroNextPageArrowSpritePresentation LoadNextPageArrowSprites()
+        {
+            (string path, byte[] selected) = ReadInstalled(IntroNextPageArrowSpriteFormat.FileName);
+            try
+            {
+                return IntroNextPageArrowSpritePresentation.Load(new MemoryStream(selected, writable: false));
+            }
+            catch (InvalidDataException error)
+            {
+                throw new InvalidDataException($"Invalid intro next-page arrow sprites {path}: {error.Message}", error);
             }
         }
 
@@ -767,6 +797,7 @@ public static class IntroCinematicArtworkFiles
         IntroFinalLineTilemapFormat.FileName,
         IntroEyeTilemapFormat.FileName,
         IntroCaretSpriteFormat.FileName,
+        IntroNextPageArrowSpriteFormat.FileName,
         IntroMotherBrainSpriteFormat.FileName,
         IntroMotherBrainExplosionSpriteFormat.FileName,
         IntroRinkaSpriteFormat.FileName,

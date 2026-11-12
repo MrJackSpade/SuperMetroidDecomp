@@ -17,6 +17,8 @@ public enum CinematicSpriteFamily
     IntroMotherBrainExplosion,
     /// <summary>The intro narration's caret.</summary>
     IntroCaret,
+    /// <summary>The intro narration's Japanese-text next-page arrow (#1655).</summary>
+    IntroNextPageArrow,
     /// <summary>The Ceres approach's stars and rear-view gunship and station.</summary>
     CeresFlight,
     /// <summary>The Ceres destruction scene's blasts, backdrop and Zebes reveal.</summary>

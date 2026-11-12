@@ -13,20 +13,20 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 namespace SuperMetroid.Verification.Frontend.Intro;
 
 /// <summary>
-/// Reproduces #1645 and #1654: each of the intro's cinematic sprite families is pictured in exactly the poses its own actors
+/// Reproduces #1645, #1654 and #1655: each of the intro's cinematic sprite families is pictured in exactly the poses its own actors
 /// draw. The family's actors are the cinematic sprite definitions the intro spawns and draws through that family, and each
 /// actor draws only the spritemaps its own instruction lists show.
 /// <para>
 /// The spritemaps are read here from the cartridge alone: an actor's lists run from the list its definition names up to the
 /// list the next definition names. The definitions are those of bank $8B from $8B:CE55: the intro Mother Brain ($CE55),
 /// the Metroid egg ($CE5B) and the confused baby Metroid ($CE79), the baby Metroid being delivered ($CE61) and being
-/// examined ($CE67), the intro text caret ($CE6D), the six egg particles ($CECD to $CEEB) and the slime drops ($CEF1),
-/// the Mother Brain explosions, big ($CF15) and small ($CF1B), and the intro Rinka ($CF21).
+/// examined ($CE67), the intro text caret ($CE6D), the Japanese text's next-page arrow ($CE73, lists $8B:CC0F to
+/// $8B:CC2B, #1655), the six egg particles ($CECD to $CEEB) and the slime drops ($CEF1), the Mother Brain explosions, big
+/// ($CF15) and small ($CF1B), and the intro Rinka ($CF21).
 /// </para>
 /// <para>
-/// No family holds the next-page arrow of the Japanese text ($CE73, lists $8B:CC0F to $8B:CC2B): none of the intro's
-/// actors draws it through a family. The list after the confused baby's, $8B:CC3F, is the Ceres station's large
-/// asteroids' ($CE7F), which only the Ceres destruction draws, over its own characters (#1645).
+/// The list after the confused baby's, $8B:CC3F, is the Ceres station's large asteroids' ($CE7F), which only the Ceres
+/// destruction draws, over its own characters (#1645).
 /// </para>
 /// <para>
 /// Every installed sprite sheet is then held to it: no sheet holds a family's frame whose spritemap the family's actors
@@ -66,6 +66,7 @@ internal static class IntroCinematicFamilyPosesVerification
         new(CinematicSpriteFamily.IntroScientist,
             [new("the baby Metroid being delivered", 0xCE61), new("the baby Metroid being examined", 0xCE67)]),
         new(CinematicSpriteFamily.IntroCaret, [new("the intro text caret", 0xCE6D)]),
+        new(CinematicSpriteFamily.IntroNextPageArrow, [new("the Japanese text's next-page arrow", 0xCE73)]),
         new(CinematicSpriteFamily.IntroEggEffect,
         [
             new("the Metroid egg's particle 1", 0xCECD),
@@ -212,7 +213,7 @@ internal static class IntroCinematicFamilyPosesVerification
     private static ushort Word(IImportCartridgeSource cartridge, int offset) =>
         cartridge.ReadCartridgeWordFixedBank((int)SnesAddress.InBank(ListBank, offset));
 
-    /// <summary>Runs the installed intro family frames against the poses each family's actors show (#1645, #1654).</summary>
+    /// <summary>Runs the installed intro family frames against the poses each family's actors show (#1645, #1654, #1655).</summary>
     [VerificationCommand("--intro-cinematic-family-poses")]
     internal static int IntroCinematicFamilyPosesCommand()
     {

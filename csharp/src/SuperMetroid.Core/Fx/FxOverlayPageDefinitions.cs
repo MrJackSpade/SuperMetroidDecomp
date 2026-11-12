@@ -3,13 +3,10 @@ namespace SuperMetroid.Core.Fx;
 /// <summary>
 /// Where the effect overlay shows the room effect's page (#1514), in overlay pixels: a liquid shows the whole page below
 /// a band of nothing and repeats down every two pages' height; an atmosphere shows the page from below its top eight
-/// pixels and repeats down every page. Both repeat across every page's width.
+/// pixels and repeats down every page. Both repeat across every page picture's width, one period across of the layer (#1675).
 /// </summary>
 public static class FxOverlayPageDefinitions
 {
-    /// <summary>The overlay's width before it repeats across.</summary>
-    public const int RepeatWidth = 256;
-
     /// <summary>The overlay pixel row a liquid's page's top edge lies on; the pixels above it show nothing.</summary>
     public const int LiquidPageTop = 248;
 

@@ -181,7 +181,8 @@ public static class GameplayEffectCapture
 
     /// <summary>
     /// What an atmosphere's effect overlay shows of <paramref name="page"/> (#1514), or nothing without a page: the page
-    /// from below its first row, repeating every page.
+    /// from below its first row, repeating every page down and across every page picture's width, which is one period
+    /// across of what the layer shows (#1675).
     /// </summary>
     private static OverlayPicture? AtmosphereOverlayOf(FxOverlayPage page)
     {
@@ -191,18 +192,19 @@ public static class GameplayEffectCapture
         int first = FxOverlayPageDefinitions.AtmosphereFirstPageRow;
         return new OverlayPicture(picture, new Position16<ImagePixels>(0, first),
             new Extent16<OverlayPixels>(size.X, size.Y - first), Position16<OverlayPixels>.Zero,
-            new Extent16<OverlayPixels>(FxOverlayPageDefinitions.RepeatWidth, FxOverlayPageDefinitions.AtmosphereRepeatHeight));
+            new Extent16<OverlayPixels>(size.X, FxOverlayPageDefinitions.AtmosphereRepeatHeight));
     }
 
     /// <summary>
     /// What a liquid's effect overlay shows of <paramref name="page"/> (#1514), or nothing without a page: its whole page
-    /// below a band of nothing, repeating down every two pages' height.
+    /// below a band of nothing, repeating down every two pages' height and across every page picture's width, which is one
+    /// period across of what the layer shows (#1675).
     /// </summary>
     private static OverlayPicture? LiquidOverlayOf(FxOverlayPage page) =>
         page.Picture is not { } picture ? null
             : new OverlayPicture(picture, Position16<ImagePixels>.Zero, new Extent16<OverlayPixels>(PageSize(picture).X, PageSize(picture).Y),
                 new Position16<OverlayPixels>(0, FxOverlayPageDefinitions.LiquidPageTop),
-                new Extent16<OverlayPixels>(FxOverlayPageDefinitions.RepeatWidth, FxOverlayPageDefinitions.LiquidRepeatHeight));
+                new Extent16<OverlayPixels>(PageSize(picture).X, FxOverlayPageDefinitions.LiquidRepeatHeight));
 
     /// <summary>The width and height of an effect's page picture (#1634).</summary>
     /// <exception cref="InvalidDataException">The page installs neither of its parts.</exception>

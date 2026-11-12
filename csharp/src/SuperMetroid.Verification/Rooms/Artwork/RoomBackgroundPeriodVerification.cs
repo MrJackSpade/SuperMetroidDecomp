@@ -2,6 +2,8 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.TestSupport.RepositoryInstallation;
@@ -74,6 +76,41 @@ internal static class RoomBackgroundPeriodVerification
             $"{repeated.Count} library backgrounds store one page twice:{Environment.NewLine}{string.Join(Environment.NewLine, repeated)}");
         Console.WriteLine($"Room backgrounds: {onePeriod} library backgrounds are one period the room repeats, {shortened.Count} of them shorter " +
             $"than a page ({string.Join(", ", shortened)}); {twoPages} hold two different pages.");
+    }
+
+    /// <summary>
+    /// Fails unless every installed effect page (#1675) is one period across of what BG3 shows: no page, in its part behind
+    /// or its part in front, repeats across with a shorter period of whole 16x16 cells.
+    /// </summary>
+    internal static void VerifyFxPagesStoreOnePeriodAcross()
+    {
+        GameInstallation installation = RepositoryInstallation.Installation;
+        InstalledPictureStore store = InstalledPictureStore.Open(installation.PictureStoreDirectory);
+        HashSet<string> pages = [.. Enum.GetValues<RoomFxType>().Select(FxOverlayPagePictures.PictureName).SelectMany(name => new[] { name, PictureParts.InFront(name) })];
+        var repeated = new List<string>();
+        var narrowed = new HashSet<string>(StringComparer.Ordinal);
+        int checkedPages = 0;
+        foreach ((string family, string sheet, InstalledSheetDocument document) in InstalledSheetManifests.Read(installation.ContentDirectory))
+        {
+            if (family != GameInstallationLayout.RoomBlockSheetDirectoryName)
+                continue;
+            string[] shown = [.. document.Frames.Keys.Where(pages.Contains)];
+            if (shown.Length == 0)
+                continue;
+            var image = new InstalledImagePlanes(store.Assemble(sheet, document), document.Size);
+            foreach (string frame in shown)
+            {
+                InstalledSheetFrameDocument entry = document.Frames[frame];
+                checkedPages++;
+                if (entry.Size.X < RoomBackgroundImageGeometry.PagePixels)
+                    narrowed.Add($"{frame} {entry.Size.X} wide");
+                if (ShorterCellPeriod(image, entry) is { } shorter && shorter.X < entry.Size.X)
+                    repeated.Add($"{sheet} frame {frame} repeats every {shorter.X} pixels across its {entry.Size.X}");
+            }
+        }
+        AssertTrue(checkedPages > 0, "the installation holds effect pages");
+        AssertTrue(repeated.Count == 0, $"{repeated.Count} effect pages repeat across:{Environment.NewLine}{string.Join(Environment.NewLine, repeated)}");
+        Console.WriteLine($"Effect pages: {checkedPages} page pictures are one period across ({string.Join(", ", narrowed.Order(StringComparer.Ordinal))}).");
     }
 
     /// <summary>
@@ -151,6 +188,7 @@ internal static class RoomBackgroundPeriodVerification
     {
         Suite(nameof(VerifyOnePeriodKeepsOnlyRepeatedPages), VerifyOnePeriodKeepsOnlyRepeatedPages);
         Suite(nameof(VerifyLibraryBackgroundsStoreOnePeriod), VerifyLibraryBackgroundsStoreOnePeriod);
+        Suite(nameof(VerifyFxPagesStoreOnePeriodAcross), VerifyFxPagesStoreOnePeriodAcross);
         return 0;
     }
 }

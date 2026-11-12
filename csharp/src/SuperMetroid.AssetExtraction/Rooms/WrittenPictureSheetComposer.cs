@@ -109,8 +109,9 @@ internal static class WrittenPictureSheetComposer
         Ensure.NotNull(uploads);
         HudSheetLayout hud = HudImageSheet.Layout(GameplayHudArtwork.Of(inputs.Maps.GameplayHud), HudImageSheet.Maps(inputs.Maps));
         // The game shows nothing where no effect's page lies (#1514), so the cell the effect area is cleared to is not pictured.
+        // A page whose every row repeats across is pictured as one period, which the overlay repeats at the picture's width (#1675).
         List<WrittenSubject> subjects = [.. uploads.FxTypes.Order().Select(type => new WrittenSubject(FxOverlayPagePictures.PictureName(type),
-                Rows(BackgroundTileWords.ToWords(InstalledAreaMapPresentation.RoomFxPagesOf(inputs.Maps).Resolve(type).Span))))];
+                OnePeriodAcross(BackgroundTileWords.ToWords(InstalledAreaMapPresentation.RoomFxPagesOf(inputs.Maps).Resolve(type).Span))))];
         return Compose(inputs, tileset, WrittenPictureLayer.FxOverlayAndHud, new WrittenSubjects(subjects, [.. HudShelves(hud)], [.. HudFrames(hud)]),
             uploads.Bg3Content ?? throw new InvalidDataException($"No room of {tileset} records what BG3 shows over."),
             new WrittenOptions(new AppearanceOptions(uploads.Bg3Options), BgCharacterSet.Layer3, []),
@@ -344,8 +345,45 @@ internal static class WrittenPictureSheetComposer
     }
 
     /// <summary><paramref name="words"/> laid out from the top-left, 32 to a row, each tile at its pixel.</summary>
-    private static SubjectWord[] Rows(ushort[] words) =>
-        [.. words.Select((word, index) => new SubjectWord(new(index % SheetTiles * TilePixels, index / SheetTiles * TilePixels), new SnesBgTilemapWord(word)))];
+    private static SubjectWord[] Rows(ushort[] words) => Rows(words, SheetTiles);
+
+    /// <summary>The words of rows <paramref name="width"/> tiles wide, each at its tile's pixel.</summary>
+    private static SubjectWord[] Rows(ushort[] words, int width) =>
+        [.. words.Select((word, index) => new SubjectWord(new(index % width * TilePixels, index / width * TilePixels), new SnesBgTilemapWord(word)))];
+
+    /// <summary>
+    /// The words of an effect's page, rows of <see cref="SheetTiles"/>, as one period across (#1675): where every row repeats
+    /// with a shorter period of whole 16x16 cells that divides the row, that period of each row; otherwise every row whole.
+    /// BG3 wraps the page across every row's width, so the period repeated shows what the whole row does.
+    /// </summary>
+    private static SubjectWord[] OnePeriodAcross(ushort[] words)
+    {
+        int rows = words.Length / SheetTiles;
+        for (int period = CellSideTiles; period < SheetTiles; period += CellSideTiles)
+        {
+            if (SheetTiles % period != 0 || !Enumerable.Range(0, rows).All(row => RepeatsAcross(words.AsSpan(row * SheetTiles, SheetTiles), period)))
+                continue;
+            var kept = new ushort[rows * period];
+            for (int row = 0; row < rows; row++)
+                words.AsSpan(row * SheetTiles, period).CopyTo(kept.AsSpan(row * period, period));
+            return Rows(kept, period);
+        }
+        return Rows(words);
+    }
+
+    /// <summary>Tiles along a 16x16 cell's side: a period across is whole cells.</summary>
+    private const int CellSideTiles = 2;
+
+    /// <summary>Whether <paramref name="row"/> repeats every <paramref name="period"/> tiles.</summary>
+    private static bool RepeatsAcross(ReadOnlySpan<ushort> row, int period)
+    {
+        for (int start = period; start < row.Length; start += period)
+        {
+            if (!row.Slice(start, period).SequenceEqual(row[..period]))
+                return false;
+        }
+        return true;
+    }
 
     /// <summary>One tile word a picture writes, at its tile's top-left pixel.</summary>
     /// <param name="Corner">The tile's top-left pixel, from the picture's own top-left.</param>

@@ -25650,6 +25650,19 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Rooms.PicturedLibraryBackgrounds",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Rooms/PicturedLibraryBackgrounds.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Rooms.RetailRoomHeaders",
       "kind": "static class",
       "scope": "product",
@@ -102894,6 +102907,58 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Rooms.Artwork.RoomLibraryBackgroundPicture",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/Artwork/RoomLibraryBackgroundPicture.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.Artwork.RoomLibraryBackgroundPicture.Drawn",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/Artwork/RoomLibraryBackgroundPicture.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.Artwork.RoomLibraryBackgroundPicture.NotLoaded",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/Artwork/RoomLibraryBackgroundPicture.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.Artwork.RoomLibraryBackgroundPicture.ShownOtherwise",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/Artwork/RoomLibraryBackgroundPicture.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Core.Rooms.Artwork.RoomSkyTilemapFixtures",
       "kind": "static class",
       "scope": "test",
@@ -103077,6 +103142,19 @@
       ],
       "partial": "generated-boundary",
       "disposition": "generated-boundary"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundView",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/Backgrounds/LibraryBackgroundView.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Rooms.Backgrounds.PlacedWrittenPicture",
@@ -125689,6 +125767,32 @@
       "disposition": "constructor-parameters"
     },
     {
+      "type": "SuperMetroid.Core.World.RoomStates.RoomTurningFloor",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/World/RoomStates/RoomTurningFloor.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.World.RoomStates.RoomTurningFloors",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/World/RoomStates/RoomTurningFloors.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.World.RoomStates.SelectedRoom",
       "kind": "record",
       "scope": "product",
@@ -138505,6 +138609,20 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.TestSupport.VerificationImporters.ImportedLibraryBackgroundList",
+      "kind": "record",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationImporters/ImportedLibraryBackgroundList.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.TestSupport.VerificationImporters.LibraryBackgroundNativeOperand",
@@ -161255,6 +161373,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Verification.Rooms.Artwork.RoomFloorSheetsVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Rooms/Artwork/RoomFloorSheetsVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Verification.Rooms.BackgroundMosaicVerification",
       "kind": "static class",
       "scope": "test",
@@ -161305,6 +161436,19 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Verification.Rooms.Backgrounds.LibraryBackgroundViewsVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Rooms/Backgrounds/LibraryBackgroundViewsVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Verification.Rooms.Backgrounds.LookupSkyChunkPointersVerification",

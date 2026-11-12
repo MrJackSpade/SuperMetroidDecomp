@@ -31,6 +31,7 @@ $FixedRuleWords = [ordered]@{
     CS0162 = 'unreachable code removed'
     CS0168 = 'unused variables removed'
     CS0219 = 'unread constant locals removed'
+    CS0414 = 'write-only private fields removed'
     IDE0004 = 'redundant casts removed'
     IDE0005 = 'unused usings removed'
     IDE0032 = 'auto-properties used'

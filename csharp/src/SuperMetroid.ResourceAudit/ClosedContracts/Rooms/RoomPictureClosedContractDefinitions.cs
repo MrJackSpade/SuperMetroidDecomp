@@ -33,6 +33,10 @@ internal static class RoomPictureClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Rooms/Artwork/RoomBlockSheet.cs"),
              new("csharp/src/SuperMetroid.Core/Rooms/Artwork/RoomBackgroundImage.cs"),
              new("csharp/src/SuperMetroid.Core/Rooms/Backgrounds/LibraryBackground.cs"),
+             // Only a background the player sees as its own picture is installed and looked up (#1649).
+             new("csharp/src/SuperMetroid.Core/Rooms/Backgrounds/LibraryBackgroundView.cs"),
+             new("csharp/src/SuperMetroid.Core/Rooms/Artwork/RoomLibraryBackgroundPicture.cs"),
+             new("csharp/src/SuperMetroid.AssetExtraction/Rooms/PicturedLibraryBackgrounds.cs"),
              new("csharp/src/SuperMetroid.Core/Fx/ScrollingSkyState.cs"),
              new("csharp/src/SuperMetroid.Core/World/RoomStates/LoadedRoomAssets.cs"),
              .. RetailStates, Uploads, Loader,

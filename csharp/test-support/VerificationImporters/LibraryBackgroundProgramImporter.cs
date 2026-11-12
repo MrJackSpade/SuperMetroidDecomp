@@ -15,7 +15,7 @@ namespace SuperMetroid.TestSupport.VerificationImporters;
 internal static class LibraryBackgroundProgramImporter
 {
     /// <summary>Decodes one bounded bank $8F list into typed transfer, decompression, and clear commands.</summary>
-    public static LibraryBackgroundProgram Read(ISnesAddressSpace source, ushort pointer) => Decode(source, pointer, out _);
+    public static ImportedLibraryBackgroundList Read(ISnesAddressSpace source, ushort pointer) => Decode(source, pointer, out _);
 
     /// <summary>The native encoded length of the list at <paramref name="pointer"/>, its two-byte terminator included.</summary>
     public static int ByteSpan(ISnesAddressSpace source, ushort pointer)
@@ -25,7 +25,7 @@ internal static class LibraryBackgroundProgramImporter
     }
 
     /// <summary>Decodes one list and measures its encoded length.</summary>
-    private static LibraryBackgroundProgram Decode(ISnesAddressSpace source, ushort pointer, out int byteSpan)
+    private static ImportedLibraryBackgroundList Decode(ISnesAddressSpace source, ushort pointer, out int byteSpan)
     {
         Ensure.NotNull(source);
         if ((short)pointer >= 0) throw new ArgumentOutOfRangeException(nameof(pointer));
@@ -39,7 +39,7 @@ internal static class LibraryBackgroundProgramImporter
             if (decoded is not { } command)
             {
                 byteSpan = (ushort)(cursor - pointer);
-                return new LibraryBackgroundProgram(new LibraryBackground($"$8F:{pointer:X4}", []), instructions.ToArray());
+                return new ImportedLibraryBackgroundList($"$8F:{pointer:X4}", instructions.ToArray());
             }
             ushort door = 0;
             if (command == LibraryBackgroundCommand.TransferForDoor)
@@ -84,8 +84,8 @@ internal static class LibraryBackgroundProgramImporter
     public static void ExecuteReference(ISnesAddressSpace source,
         SnesVram vram, ushort pointer, ushort activeDoorPointer)
     {
-        LibraryBackgroundProgram program = Read(source, pointer);
-        foreach (LibraryBackgroundInstruction instruction in program.Instructions)
+        ImportedLibraryBackgroundList list = Read(source, pointer);
+        foreach (LibraryBackgroundInstruction instruction in list.Instructions)
         {
             switch (instruction.Command)
             {

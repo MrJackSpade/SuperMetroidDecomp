@@ -40,6 +40,21 @@ public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool hasBa
     public static bool IsScrollingSkyRoomMain(RoomMainCallback callback) =>
         IsLandRoomMain(callback) || callback == RoomMainCallback.ScrollingSkyOcean;
 
+    /// <summary>
+    /// Whether a room state's setup callback spawns the sky's bands, whichever door the room is entered through; a room's
+    /// effect can spawn them too (<see cref="SpawnsBands"/>).
+    /// </summary>
+    public static bool SetupSpawnsBands(RoomSetupCallback setup) =>
+        setup is RoomSetupCallback.ScrollingSkyLand or RoomSetupCallback.ScrollingSkyOcean
+            or RoomSetupCallback.ShakeScreenAndCallScrollingSkyLandDuringEscape;
+
+    /// <summary>
+    /// Whether a room state spawns the sky's bands when entered with <paramref name="selectedFx"/> as its effect: the sky
+    /// effect or the state's setup callback spawns them; the room-main callback alone does not.
+    /// </summary>
+    public static bool SpawnsBands(RoomFxType? selectedFx, RoomSetupCallback setup) =>
+        selectedFx == RoomFxType.ScrollingSky || SetupSpawnsBands(setup);
+
     /// <summary>The chunk table a scrolling-sky room main reads its rows through.</summary>
     public static ScrollingSkyChunkTable VariantOf(RoomMainCallback callback) =>
         IsLandRoomMain(callback) ? ScrollingSkyChunkTable.Land

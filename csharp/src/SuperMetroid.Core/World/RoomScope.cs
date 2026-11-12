@@ -52,8 +52,11 @@ internal sealed record RoomScope
     /// <summary>Resolves the pre-coloured picture each block the room's planes show draws as (#1392).</summary>
     public required RoomBlockPictureResolver BlockPictures { get; init; }
 
-    /// <summary>Resolves what the room's library background shows on the background, or null for a room without one (#1392).</summary>
-    public required RoomBackgroundImageResolver? BackgroundImage { get; init; }
+    /// <summary>
+    /// What the room's background draws from its library background (#1392, #1649): its picture, or none, for a room that
+    /// loads none or whose library background the player sees as something else.
+    /// </summary>
+    public required RoomLibraryBackgroundPicture BackgroundImage { get; init; }
 
     /// <summary>Resolves what the room's scrolling sky shows on the background, or null for a room without one (#1392).</summary>
     public required RoomBackgroundImageResolver? SkyImage { get; init; }

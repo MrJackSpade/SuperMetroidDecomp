@@ -38,6 +38,9 @@ internal static class BossBodySheetComposer
         [BossBodyOwner.MotherBrain] = EnemyDefinitionId.MotherBrainBody,
     };
 
+    /// <summary>Whether <paramref name="enemy"/> is a boss whose body a body sheet pictures, drawn on its room's background.</summary>
+    internal static bool DrawsBodyOf(EnemyDefinitionId enemy) => Enemies.ContainsValue(enemy);
+
     /// <summary>Composes every boss's body sheet from the installed stock artwork.</summary>
     /// <exception cref="InvalidDataException">
     /// A boss's artwork is missing, no room shows the boss, or a frame reads a character its room rebinds after loading.
@@ -74,7 +77,7 @@ internal static class BossBodySheetComposer
                 .FirstOrDefault(candidate => candidate.EnemyPopulation.Records.Span.Any(record => record.DefinitionId == enemy));
             if (state is not null)
             {
-                characters = RoomBlockUploads.ShownUnderBoss(inputs, room, state);
+                characters = RoomBlockUploads.ShownUnderBoss(inputs, state);
                 break;
             }
         }

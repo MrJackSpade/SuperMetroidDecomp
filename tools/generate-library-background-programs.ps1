@@ -137,6 +137,12 @@ try {
         $lines.Add(('    /// <summary>The {0} library-background program.</summary>' -f $programName))
         $lines.Add(('    public static LibraryBackgroundProgram {0} {{ get; }} = new(LibraryBackgroundDefinitions.{0}, [' -f $programName))
         $terminated = $false
+        # What the player sees on the background of a room that loads the list (#1649): the tilemap it stages, the sky's
+        # rows (which the sky draws from its own image), the boss's body (the enemies' staging holds the boss's own layer,
+        # which its body sheet pictures), or nothing (the layer is cleared to its empty tile, or not shown at all).
+        $views = [Collections.Generic.HashSet[string]]::new()
+        $pages = @('LibraryBackgroundDestination.BackgroundFirstPage', 'LibraryBackgroundDestination.BackgroundSecondPage',
+            'LibraryBackgroundDestination.KraidBackgroundPages')
         for ($guard = 0; $guard -lt 128; $guard++) {
             $command = Read-Word $cursor
             $cursor += 2
@@ -168,17 +174,28 @@ try {
             }
             $lines.Add(('        new(LibraryBackgroundCommand.{0}, {1}, {2}, {3}, {4}),' -f
                 $name, $source, $destination, $byteCount, (Format-Door $door)))
+            if ($command -eq 10 -or $command -eq 12) { [void]$views.Add('Nothing') }
+            elseif ($pages -contains $destination) {
+                if ($source -eq 'LibraryBackgroundSource.TilemapStaging') { [void]$views.Add('Picture') }
+                elseif ($source -eq 'LibraryBackgroundSource.EnemyTilemapStaging') { [void]$views.Add('BossBody') }
+                elseif ($source.StartsWith('LibraryBackgroundSource.Sky(')) { [void]$views.Add('SkyRows') }
+                else { throw ('Library list ${0:X4} copies {1} to a background page.' -f $pointer, $source) }
+            }
             if ($command -eq 14 -and -not $pictureDoors.Contains((Format-Door $door))) {
                 $pictureDoors.Add((Format-Door $door))
             }
             $instructionCount++
         }
         if (-not $terminated) { throw ('Unterminated library list ${0:X4}.' -f $pointer) }
+        if ($views.Count -ne 1) {
+            throw ('Library list ${0:X4} leaves the background showing [{1}], not one view.' -f $pointer, ($views -join ', '))
+        }
+        $view = @($views)[0]
         $lines.Add('    ]);')
         $lines.Add('')
         $coreLines.Add(('    /// <summary>The {0} library background.</summary>' -f $programName))
-        $coreLines.Add(('    public static LibraryBackground {0} {{ get; }} = new(nameof({0}), [{1}]);' -f
-            $programName, ($pictureDoors -join ', ')))
+        $coreLines.Add(('    public static LibraryBackground {0} {{ get; }} = new(nameof({0}), LibraryBackgroundView.{1}, [{2}]);' -f
+            $programName, $view, ($pictureDoors -join ', ')))
         $coreLines.Add('')
     }
     $lines.Add('    /// <summary>Every library-background program, one for each library background, in command-list order.</summary>')

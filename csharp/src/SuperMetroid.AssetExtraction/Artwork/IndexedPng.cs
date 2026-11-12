@@ -1,5 +1,4 @@
 using System.Buffers.Binary;
-using System.Diagnostics.CodeAnalysis;
 using System.IO.Compression;
 using System.Text;
 
@@ -37,8 +36,6 @@ public static class IndexedPng
     }
 
     /// <summary>Checks PNG chunk framing, CRCs, palette order, transparency, and format before inflating indexed rows.</summary>
-    [SuppressMessage("Design", "SME6433", Justification =
-        "PNG chunk types are four-character ASCII names fixed by the PNG specification; this switch is the decoder that reads them off the wire, not an internal identity.")]
     private static IndexedPngImage ReadCore(Stream input, Extent16<ImagePixels> size)
     {
         Span<byte> signature = stackalloc byte[8];

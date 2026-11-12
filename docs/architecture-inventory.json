@@ -1386,6 +1386,19 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Artwork.BlendMapFile.MapDocument",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Artwork/BlendMapFile.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Artwork.CharacterCellConversions",
       "kind": "static class",
       "scope": "product",
@@ -1954,6 +1967,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Artwork.InstalledPictureStore.InstalledMaps\u003CT\u003E",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Artwork/InstalledPictureStore.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Artwork.InstalledPictureStore.InstalledPage",
       "kind": "class",
       "scope": "product",
@@ -2030,6 +2056,32 @@
       ],
       "partial": "none",
       "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Artwork.InstalledSheetManifest",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Artwork/InstalledSheetManifest.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Artwork.InstalledSheetManifests",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Artwork/InstalledSheetManifests.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Artwork.InstalledSheetPainter",
@@ -2162,6 +2214,19 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Artwork.PictureMap\u003CT\u003E",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Artwork/PictureMap.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Artwork.PicturePageShelves",
       "kind": "class",
       "scope": "product",
@@ -2224,7 +2289,7 @@
         "csharp/src/SuperMetroid.AssetExtraction/Artwork/PictureStoreProvenance.cs"
       ],
       "partial": "none",
-      "disposition": "constructor-parameters"
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Artwork.PictureStoreWriter",
@@ -2253,7 +2318,20 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Artwork.PictureStoreWriter.StoredPicture",
+      "type": "SuperMetroid.AssetExtraction.Artwork.PictureStoreWriter.ShownPicture",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Artwork/PictureStoreWriter.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Artwork.PictureStoreWriter.StoreContents",
       "kind": "class",
       "scope": "product",
       "assemblies": [
@@ -2266,8 +2344,8 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Artwork.PictureStoreWriter.WrittenPage",
-      "kind": "record",
+      "type": "SuperMetroid.AssetExtraction.Artwork.PictureStoreWriter.StoredMaps\u003CT\u003E",
+      "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.AssetExtraction"
@@ -2276,7 +2354,20 @@
         "csharp/src/SuperMetroid.AssetExtraction/Artwork/PictureStoreWriter.cs"
       ],
       "partial": "none",
-      "disposition": "record"
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Artwork.PictureStoreWriter.StoredPicture",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Artwork/PictureStoreWriter.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Artwork.PngRowFilter",
@@ -2306,6 +2397,19 @@
     },
     {
       "type": "SuperMetroid.AssetExtraction.Artwork.RecolourRegionMapFile.Document",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Artwork/RecolourRegionMapFile.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Artwork.RecolourRegionMapFile.MapDocument",
       "kind": "record",
       "scope": "product",
       "assemblies": [
@@ -3333,6 +3437,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Artwork.StoredMapsDocument",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Artwork/StoredMapsDocument.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Artwork.StoredPictureDocument",
@@ -128908,6 +129025,214 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.EnsureAnalyzer.CodeFixes.Cleanup.CleanupFailure",
+      "kind": "class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer.CodeFixes"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes/Cleanup/CleanupFailure.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.EnsureAnalyzer.CodeFixes.Cleanup.DocumentFixAll",
+      "kind": "class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer.CodeFixes"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes/Cleanup/DocumentFixAll.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.EnsureAnalyzer.CodeFixes.Cleanup.DocumentFixProvider",
+      "kind": "class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer.CodeFixes"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes/Cleanup/DocumentFixProvider.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.EnsureAnalyzer.CodeFixes.Cleanup.SolutionEdits",
+      "kind": "class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer.CodeFixes"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes/Cleanup/SolutionEdits.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.EnsureAnalyzer.CodeFixes.Cleanup.SourceEdits",
+      "kind": "class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer.CodeFixes"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes/Cleanup/SourceEdits.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.EnsureAnalyzer.CodeFixes.DeadCode.InitializerEvaluation",
+      "kind": "static class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer.CodeFixes"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes/DeadCode/InitializerEvaluation.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.EnsureAnalyzer.CodeFixes.DeadCode.KeptInitializer",
+      "kind": "record",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer.CodeFixes"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes/DeadCode/KeptInitializer.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.EnsureAnalyzer.CodeFixes.DeadCode.MemberReferences",
+      "kind": "static class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer.CodeFixes"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes/DeadCode/MemberReferences.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.EnsureAnalyzer.CodeFixes.DeadCode.SideEffects",
+      "kind": "static class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer.CodeFixes"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes/DeadCode/SideEffects.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.EnsureAnalyzer.CodeFixes.DeadCode.UnreachableCodeCodeFixProvider",
+      "kind": "class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer.CodeFixes"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes/DeadCode/UnreachableCodeCodeFixProvider.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.EnsureAnalyzer.CodeFixes.DeadCode.UnreadLocalCodeFixProvider",
+      "kind": "class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer.CodeFixes"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes/DeadCode/UnreadLocalCodeFixProvider.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.EnsureAnalyzer.CodeFixes.DeadCode.UnusedMemberCodeFixProvider",
+      "kind": "class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer.CodeFixes"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes/DeadCode/UnusedMemberCodeFixProvider.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.EnsureAnalyzer.CodeFixes.DeadCode.UnusedVariableCodeFixProvider",
+      "kind": "class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer.CodeFixes"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes/DeadCode/UnusedVariableCodeFixProvider.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.EnsureAnalyzer.CodeFixes.DeadCode.VariableDeclarations",
+      "kind": "static class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer.CodeFixes"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes/DeadCode/VariableDeclarations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.EnsureAnalyzer.CodeFixes.DeadCode.WriteOnlyMemberCodeFixProvider",
+      "kind": "class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer.CodeFixes"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes/DeadCode/WriteOnlyMemberCodeFixProvider.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.EnsureAnalyzer.CodeFixes.DeadCode.Writes",
+      "kind": "static class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer.CodeFixes"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes/DeadCode/Writes.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.EnsureAnalyzer.CodeFixes.EnsureCallKey",
       "kind": "record struct",
       "scope": "tool",
@@ -128955,6 +129280,45 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes/OneTypePerFileCodeFixProvider.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.EnsureAnalyzer.CodeFixes.PartialMergeCodeFixProvider",
+      "kind": "class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer.CodeFixes"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes/PartialMergeCodeFixProvider.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.EnsureAnalyzer.CodeFixes.Suppressions.UnnecessarySuppressionCodeFixProvider",
+      "kind": "class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer.CodeFixes"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes/Suppressions/UnnecessarySuppressionCodeFixProvider.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.EnsureAnalyzer.CodeFixes.TypeFileNameCodeFixProvider",
+      "kind": "class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer.CodeFixes"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes/TypeFileNameCodeFixProvider.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -129792,6 +130156,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.EnsureAnalyzer.Contracts.SpanAdapterAnalyzer",
+      "kind": "class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer/Contracts/SpanAdapterAnalyzer.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.EnsureAnalyzer.Contracts.SpatialClumpAnalyzer",
       "kind": "class",
       "scope": "tool",
@@ -130141,6 +130518,32 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.EnsureAnalyzer/SourceLayout/OneTypePerFileAnalyzer.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.EnsureAnalyzer.SourceLayout.PartialDeclarations",
+      "kind": "class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer/SourceLayout/PartialDeclarations.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.EnsureAnalyzer.SourceLayout.PartialSplitAnalyzer",
+      "kind": "class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer/SourceLayout/PartialSplitAnalyzer.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -131432,6 +131835,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.ReachabilityAudit.Removal.SymbolRelocator.StayingDeclaration",
+      "kind": "record",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.ReachabilityAudit"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.ReachabilityAudit/Removal/SymbolRelocator.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.ReachabilityAudit.Removal.SymbolRelocator.TargetFile",
@@ -140477,6 +140893,45 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Assets/PaletteJsonContractsVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Verification.Assets.PictureStorePixelIdentityVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Assets/PictureStorePixelIdentityVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Assets.PictureStorePixelIdentityVerification.ShownReference",
+      "kind": "record",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Assets/PictureStorePixelIdentityVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Verification.Assets.PictureStorePixelIdentityVerification.StorePage",
+      "kind": "record",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Assets/PictureStorePixelIdentityVerification.cs"
       ],
       "partial": "none",
       "disposition": "record"

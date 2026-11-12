@@ -13,14 +13,4 @@ internal static class InstalledSamusArmCannonArtworkTooling
         Ensure.NotNull(json);
         return SamusArmCannonSourceArtwork.FromPlacement(SamusArmCannonSourceArtwork.LoadPlacement(json));
     }
-
-    /// <summary>Combines validated placement JSON with the exact number of indexed cannon cover characters (#1636).</summary>
-    public static SamusArmCannonCoverCharacters LoadWithCover(Stream json, Stream tilePng)
-    {
-        Ensure.NotNull(tilePng);
-        RoomCharacterAtlas tiles = RoomCharacterAtlasPng.Read(tilePng,
-            SamusArmCannonArtworkFormat.CoverTileCount *
-                SamusArmCannonArtworkFormat.CoverTileByteCount);
-        return new SamusArmCannonCoverCharacters(Load(json), tiles);
-    }
 }

@@ -9,13 +9,6 @@ namespace SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
 /// </summary>
 public sealed class CeresEscapeTileArtwork
 {
-    /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create("CeresEscapeTileArtwork-v1", content =>
-        {
-            content.Append("pages", pages.Length);
-            foreach (RoomCharacterAtlas page in pages)
-                content.Append("tiles", page.Characters.Span);
-        });
 
     /// <summary>Validated, owned warning-text and door atlases in transfer order.</summary>
     private readonly RoomCharacterAtlas[] pages;

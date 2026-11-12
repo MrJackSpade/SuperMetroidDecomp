@@ -6,9 +6,6 @@ namespace SuperMetroid.AssetExtraction.Bosses.Crocomire;
 /// <summary>Editable 4-bpp characters for Crocomire's six ordered skeleton uploads.</summary>
 public sealed class CrocomireSkeletonArtwork
 {
-    /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create("enemy-crocomire-skeleton-v1",
-        content => content.Append("tiles", atlas.Characters.Span));
 
     /// <summary>Owned 4-bpp characters from which the six death-sequence uploads are sliced.</summary>
     private readonly RoomCharacterAtlas atlas;

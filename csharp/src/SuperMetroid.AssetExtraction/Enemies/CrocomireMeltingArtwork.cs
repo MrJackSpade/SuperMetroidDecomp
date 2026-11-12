@@ -14,23 +14,15 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// </summary>
 public sealed class CrocomireMeltingArtwork
 {
-    /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create("enemy-crocomire-melt-v2", content =>
-        {
-            content.Append("first", first.Characters.Span);
-            content.Append("second", second.Characters.Span);
-            content.AppendTiles("first-map", firstTilemap);
-            content.AppendTiles("second-map", secondTilemap);
-        });
 
     /// <summary>Installed planar character data for the first overlapping melt pass.</summary>
     internal readonly RoomCharacterAtlas first;
     /// <summary>Installed planar character data for the second, eroded melt pass.</summary>
     internal readonly RoomCharacterAtlas second;
     /// <summary>The installed BG2 references for the first illustration.</summary>
-    private readonly BackgroundTile[] firstTilemap;
+    internal readonly BackgroundTile[] firstTilemap;
     /// <summary>The installed BG2 references for the second illustration.</summary>
-    private readonly BackgroundTile[] secondTilemap;
+    internal readonly BackgroundTile[] secondTilemap;
 
     /// <summary>Keeps the installed sheets and both complete installed tilemaps.</summary>
     private CrocomireMeltingArtwork(RoomCharacterAtlas first, RoomCharacterAtlas second,

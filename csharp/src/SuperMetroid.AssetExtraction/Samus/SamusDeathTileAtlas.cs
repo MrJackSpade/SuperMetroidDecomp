@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 public sealed class SamusDeathTileAtlas
 {
     /// <summary>The installed explosion characters, in atlas order.</summary>
-    private readonly byte[] planar;
+    internal readonly byte[] planar;
 
     /// <summary>Validates the five pages and keeps every installed byte.</summary>
     private SamusDeathTileAtlas(byte[] planar)
@@ -15,10 +15,6 @@ public sealed class SamusDeathTileAtlas
             throw new InvalidDataException("Samus death tile atlas has the wrong size.");
         this.planar = planar;
     }
-
-    /// <summary>SHA-256 of all five selected death-explosion character pages.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create(nameof(SamusDeathTileAtlas),
-        content => content.Append("death characters", planar));
 
     /// <summary>Loads the 64-by-160 indexed PNG and encodes its palette indices as 4-bpp characters in atlas order.</summary>
     /// <param name="png">Caller-owned artwork stream; pixel indices are pens 0..15, not final colours.</param>

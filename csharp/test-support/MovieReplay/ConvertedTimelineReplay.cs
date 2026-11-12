@@ -286,8 +286,22 @@ internal sealed class ConvertedTimelineReplay : IConvertedMovieReplay
         pendingUpdate is { } update && exception is InvalidOperationException or NotSupportedException or InvalidDataException
             // Name the update a production failure happened on; the original stays the inner exception.
             ? new InvalidOperationException(
-                $"{movie.Name} movie update {update} (source frame {pendingSourceFrame}) failed in production code.", exception)
+                $"{movie.Name} movie update {update} (source frame {pendingSourceFrame}) failed in production code{RoomAtFailure()}.", exception)
             : null;
+
+    /// <summary>
+    /// The room state loaded when production code failed and the room objects active in it, each with its header, block
+    /// and behaviour, so a failure names what the room was doing (#1636); empty when no room is loaded.
+    /// </summary>
+    private string RoomAtFailure()
+    {
+        if (Game.RuntimeForVerification?.Room.Scope is not { } scope)
+            return string.Empty;
+        string[] objects = [.. scope.RoomObjects.SlotTable.Slots.Where(static slot => slot.Active)
+            .Select(slot => $"{slot.Header} at {slot.Block} ({slot.Behaviour?.GetType().Name ?? "no behaviour"}; terrain now " +
+                $"{scope.LevelData.GetCollisionBlock(slot.Block)}; restores {slot.RestoreTerrain?.ToString() ?? "nothing"})")];
+        return $" in room state {scope.Room.State.Name}; active room objects: {(objects.Length == 0 ? "none" : string.Join(", ", objects))}";
+    }
 
     /// <inheritdoc/>
     public void Dispose() => checkpoints.Dispose();

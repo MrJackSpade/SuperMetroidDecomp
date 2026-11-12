@@ -16,7 +16,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 public sealed class EnemyTileSourceArtwork
 {
     /// <summary>Each enemy's installed characters, by definition.</summary>
-    private readonly Dictionary<EnemyDefinitionId, RoomCharacterAtlas> sheets;
+    internal readonly Dictionary<EnemyDefinitionId, RoomCharacterAtlas> sheets;
 
     /// <summary>Each enemy's installed palette, by definition.</summary>
     private readonly Dictionary<EnemyDefinitionId, EnemyPaletteSheet> palettes;
@@ -38,37 +38,6 @@ public sealed class EnemyTileSourceArtwork
         GunshipLiftoff = parts.GunshipLiftoff;
         ProjectileSpritemaps = parts.ProjectileSpritemaps;
     }
-
-    /// <summary>
-    /// Complete installed enemy presentation, including display bindings, special uploads
-    /// and colors. Gameplay definitions are excluded.
-    /// This is computed from the installed content rather than kept with the game state.
-    /// </summary>
-    public string ContentIdentity =>
-        SelectedPresentationHash.Create("enemy-bundle-v1", content =>
-        {
-            foreach ((EnemyDefinitionId definition, RoomCharacterAtlas sheet, EnemyPaletteSheet palette) in SheetsInDefinitionOrder)
-            {
-                content.Append("definition", System.Text.Encoding.UTF8.GetBytes(definition.ToString()));
-                content.Append("tiles", sheet.Characters.Span);
-                content.AppendIdentity("palette", palette.ContentIdentity);
-            }
-            content.AppendIdentity("Spritemaps", Spritemaps?.ContentIdentity);
-            content.AppendIdentity("ExtendedFrames", ExtendedFrames?.ContentIdentity);
-            content.AppendIdentity("GunshipLiftoff", GunshipLiftoff?.ContentIdentity);
-            content.AppendIdentity("ProjectileSpritemaps", ProjectileSpritemaps?.ContentIdentity);
-            content.AppendIdentity("MagdollitePaletteCycle", MagdollitePaletteCycle?.ContentIdentity);
-            content.AppendIdentity("WorkRobotPaletteCycle", WorkRobotPaletteCycle?.ContentIdentity);
-            content.AppendIdentity("ChozoAndTubeColors", ChozoAndTubeColors?.ContentIdentity);
-            content.AppendIdentity("DachoraColors", DachoraColors?.ContentIdentity);
-            content.AppendIdentity("AuxiliaryColors", AuxiliaryColors?.ContentIdentity);
-        });
-
-    /// <summary>Each installed sheet with its palette, in definition order.</summary>
-    internal IEnumerable<EnemyInstalledSheet> SheetsInDefinitionOrder =>
-        sheets.OrderBy(pair => pair.Key).Select(pair => new EnemyInstalledSheet(pair.Key, pair.Value,
-            TryGetPalette(pair.Key, out EnemyPaletteSheet? palette) ? palette
-                : throw new InvalidDataException($"Installed enemy {pair.Key} has no palette.")));
 
     /// <summary>Finds the installed palette of <paramref name="enemy"/>.</summary>
     internal bool TryGetPalette(EnemyDefinitionId enemy, [NotNullWhen(true)] out EnemyPaletteSheet? palette) =>

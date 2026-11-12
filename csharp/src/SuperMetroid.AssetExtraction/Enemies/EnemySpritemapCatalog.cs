@@ -8,8 +8,6 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// </summary>
 public sealed class EnemySpritemapCatalog
 {
-    /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
-    public string ContentIdentity => EnemySpritemaps.ContentIdentity(this);
 
     /// <summary>The compiled frame compositions and display selections.</summary>
     internal readonly EnemySpritemapSelection selection;

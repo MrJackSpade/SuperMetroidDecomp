@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 public sealed class CeresDoorSourceArtwork
 {
     /// <summary>The door's validated four-bit characters.</summary>
-    private readonly RoomCharacterAtlas tiles;
+    internal readonly RoomCharacterAtlas tiles;
 
     /// <summary>Retains the door's characters, validating their count, beside its colours.</summary>
     /// <param name="tiles">The installed <c>ceres-door-tiles.png</c> characters, 32 of them.</param>
@@ -32,23 +32,4 @@ public sealed class CeresDoorSourceArtwork
 
     /// <summary>The door's 32 four-bit characters, which its second variant shows over the sprite characters.</summary>
     public ReadOnlyMemory<byte> Characters => tiles.Characters;
-
-    /// <summary>Canonical selected presentation data: the door's characters and every colour it shows.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create("enemy-ceres-door-v1", content =>
-    {
-        content.Append("tiles", tiles.Characters.Span);
-        Span<RgbColor> normalColors = stackalloc RgbColor[CeresDoorVisualDefinitions.SetupColorCount];
-        for (int color = 0; color < normalColors.Length; color++) normalColors[color] = Visuals.NormalColor(color);
-        content.AppendColors("normal", normalColors);
-        Span<RgbColor> escapeColors = stackalloc RgbColor[CeresDoorVisualDefinitions.SetupColorCount];
-        for (int color = 0; color < escapeColors.Length; color++) escapeColors[color] = Visuals.EscapeColor(color);
-        content.AppendColors("escape", escapeColors);
-        content.Append("animation", CeresDoorVisualDefinitions.AnimationStepCount);
-        Span<RgbColor> rowColors = stackalloc RgbColor[CeresDoorVisualDefinitions.AnimationColorCount];
-        for (int row = 0; row < CeresDoorVisualDefinitions.AnimationStepCount; row++)
-        {
-            for (int color = 0; color < rowColors.Length; color++) rowColors[color] = Visuals.AnimationColor(row, color);
-            content.AppendColors("row", rowColors);
-        }
-    });
 }

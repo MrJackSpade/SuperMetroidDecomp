@@ -8,8 +8,6 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// </summary>
 public sealed class DraygonBg2FrameCatalog
 {
-    /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
-    public string ContentIdentity => Writes.ContentIdentity;
 
     /// <summary>The frames' writes, compiled and indexed by native extended-frame roots.</summary>
     internal EnemyBg2FrameCatalog Writes { get; }

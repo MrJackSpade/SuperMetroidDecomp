@@ -64,48 +64,6 @@ public sealed class SamusBodyCharacterArtwork
         return new(new SamusBodySources(parts), top, bottom);
     }
 
-    /// <summary>SHA-256 of each numbered half picture's transfer sizes and characters, in record order (#1636: import data).</summary>
-    public string CharactersContentIdentity => field ??= ContentIdentityOf(Body.Source.TopSetStarts.ToArray(), Body.Source.BottomSetStarts.ToArray(), top, bottom);
-
-    /// <summary>SHA-256 of each numbered half picture's transfer sizes and characters, in record order.</summary>
-    /// <param name="topStarts">Each upper-body definition group's first record.</param>
-    /// <param name="bottomStarts">Each lower-body definition group's first record.</param>
-    /// <param name="top">Upper-body tile definitions grouped by pointer table entry.</param>
-    /// <param name="bottom">Lower-body tile definitions grouped by pointer table entry.</param>
-    public static string ContentIdentityOf(int[] topStarts, int[] bottomStarts, SamusBodyTileTransfer[][] top, SamusBodyTileTransfer[][] bottom)
-    {
-        Ensure.NotNull(topStarts);
-        Ensure.NotNull(bottomStarts);
-        Ensure.NotNull(top);
-        Ensure.NotNull(bottom);
-        var records = new SortedDictionary<int, SamusBodyTileTransfer>();
-        Add(topStarts, top);
-        Add(bottomStarts, bottom);
-        return SelectedPresentationHash.Create("samus-body-characters-v1", content =>
-        {
-            foreach ((int record, SamusBodyTileTransfer definition) in records)
-            {
-                content.Append("definition record", record);
-                content.Append("first transfer size", definition.FirstSize);
-                content.Append("second transfer size", definition.SecondSize);
-                content.Append("characters", definition.Planar.Span);
-            }
-        });
-
-        void Add(int[] starts, SamusBodyTileTransfer[][] groups)
-        {
-            if (starts.Length != groups.Length)
-                throw new InvalidDataException("Samus body selector tables have an invalid length.");
-            for (int set = 0; set < groups.Length; set++)
-            {
-                SamusBodyTileTransfer[] group = groups[set] ?? throw new InvalidDataException($"Samus body definition set {set} is missing.");
-                for (int position = 0; position < group.Length; position++)
-                    if (!records.TryAdd(starts[set] + position, group[position]))
-                        throw new InvalidDataException($"Samus body definition record {starts[set] + position} is duplicated.");
-            }
-        }
-    }
-
     /// <summary>
     /// Samus's 32 body characters as the selected definitions make them visible: each definition's first transfer
     /// fills one eight-character half row (top: characters 0-7, bottom: 8-15) and its second transfer the half row

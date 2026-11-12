@@ -53,8 +53,8 @@ internal static class RoomBlockInventoryVerification
         InventoriedRoomState other = State(lacking, AreaId.Crateria, new(RoomCollisionType.BombableBlock, BlockReaction.Common(8)));
         RoomBlockWriter[] writers =
         [
-            new("bomb blocks", new HashSet<int> { BombWrittenBlock }, state => state.HoldsBombBlocks),
-            new("Mother Brain's glass", new HashSet<int> { GlassWrittenBlock }, state => state.Headers.Contains(RoomObjectHeaderId.MotherBrainGlass)),
+            new(new HashSet<int> { BombWrittenBlock }, state => state.HoldsBombBlocks),
+            new(new HashSet<int> { GlassWrittenBlock }, state => state.Headers.Contains(RoomObjectHeaderId.MotherBrainGlass)),
         ];
         RoomBlockInventory inventory = RoomBlockInventory.Of([holder, other], writers);
         IReadOnlySet<int> held = inventory.Shown(holding);

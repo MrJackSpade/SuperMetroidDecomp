@@ -9,13 +9,6 @@ namespace SuperMetroid.AssetExtraction.Bosses.Torizo;
 /// </summary>
 public sealed class TorizoSwapArtwork
 {
-    /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create("TorizoInstructionVramArtwork-v1", content =>
-        {
-            content.Append("pages", pages.Length);
-            foreach (RoomCharacterAtlas page in pages)
-                content.Append("tiles", page.Characters.Span);
-        });
 
     /// <summary>Validated selected character transfers in tile-sheet definition order.</summary>
     internal readonly RoomCharacterAtlas[] pages;

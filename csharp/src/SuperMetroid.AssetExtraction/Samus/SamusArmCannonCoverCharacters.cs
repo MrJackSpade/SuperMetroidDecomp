@@ -45,11 +45,4 @@ public sealed class SamusArmCannonCoverCharacters
         return coverCharacters.GetOrAdd(index, key => new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.SamusArmCannonCover, key),
             TileCharacters(key).Span));
     }
-
-    /// <summary>SHA-256 of the cover placement's identity and the cover characters.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create("samus-arm-cannon-cover-v1", content =>
-    {
-        content.Append("placement", Convert.FromHexString(Cannon.ContentIdentity));
-        content.Append("characters", tiles.Characters.Span);
-    });
 }

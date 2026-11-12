@@ -198,27 +198,8 @@ public static class GameAssetInstaller
             : Task.CompletedTask, CancellationToken.None, TaskContinuationOptions.None, TaskScheduler.Default).Unwrap();
     }
 
-    /// <summary>
-    /// Extracts every extraction component from <paramref name="rom"/> into <paramref name="content"/>, all at once, with
-    /// their character and tile pages under its import-data directory (#1636), and nothing else: no audio, no sheets and no
-    /// picture store. Checks that compose pictures again read their characters from this cartridge-derived extraction,
-    /// never from a published installation, which holds none.
-    /// </summary>
-    /// <param name="rom">The validated cartridge image.</param>
-    /// <param name="content">The empty directory the components' directories are extracted into.</param>
-    /// <exception cref="AggregateException">A component failed; each failure is one of its inner exceptions.</exception>
-    internal static void ExtractImportSources(byte[] rom, string content)
-    {
-        Ensure.NotNull(rom);
-        ArgumentException.ThrowIfNullOrWhiteSpace(content);
-        Directory.CreateDirectory(content);
-        var families = new InstalledSheetFamilies();
-        Parallel.ForEach(Components.Where(component => component.Kind == InstallerComponentKind.Extraction),
-            component => InstallComponent(rom, content, component, families, CancellationToken.None, progress: null));
-    }
-
     /// <summary>Extracts each step of <paramref name="component"/> into its directory under <paramref name="staging"/>.</summary>
-    private static void InstallComponent(byte[] rom, string staging, InstallerComponent component, InstalledSheetFamilies families,
+    internal static void InstallComponent(byte[] rom, string staging, InstallerComponent component, InstalledSheetFamilies families,
         CancellationToken cancellationToken, IProgress<string>? progress)
     {
         string directory = Path.Combine(staging, component.DirectoryName);
@@ -250,7 +231,7 @@ public static class GameAssetInstaller
     private sealed record InstallationReceipt(int FormatVersion, string RomSha256);
 
     /// <summary>One extraction stage: its progress text and extractor.</summary>
-    private sealed record InstallerStep(
+    internal sealed record InstallerStep(
         string Progress,
         Action<CartridgeImportAddressSpace, string, InstalledSheetFamilies, CancellationToken> Extract);
 
@@ -259,7 +240,7 @@ public static class GameAssetInstaller
     /// deterministic, so its output is checked by verification, not by the installer. Every extraction extracts every
     /// component and publishes them atomically.
     /// </summary>
-    private sealed record InstallerComponent(string DirectoryName, InstallerComponentKind Kind, params InstallerStep[] Steps)
+    internal sealed record InstallerComponent(string DirectoryName, InstallerComponentKind Kind, params InstallerStep[] Steps)
     {
         /// <summary>An extraction component: it reads only the cartridge and its own directory, and composition reads it.</summary>
         internal InstallerComponent(string directoryName, params InstallerStep[] steps) : this(directoryName, InstallerComponentKind.Extraction, steps)
@@ -300,7 +281,7 @@ public static class GameAssetInstaller
     /// artwork every earlier component has installed beside them, and the picture store, after them, writes their pictures
     /// and manifests (#1635).
     /// </summary>
-    private static readonly InstallerComponent[] Components =
+    internal static readonly InstallerComponent[] Components =
     [
         new(GameInstallationLayout.AudioDirectoryName, InstallerComponentKind.Standalone,
             Step("Extracting audio…", (bus, d) => SpcAudioAssetExtractor.Extract(bus, d)),

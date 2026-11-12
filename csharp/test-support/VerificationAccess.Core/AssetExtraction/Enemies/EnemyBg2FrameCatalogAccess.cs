@@ -31,4 +31,11 @@ internal static class EnemyBg2FrameCatalogAccess
         writes = default;
         return false;
     }
+
+    /// <summary>Exposes <see cref="EnemyBg2FrameCatalog"/> state that only verification reads.</summary>
+    extension(EnemyBg2FrameCatalog self)
+    {
+        /// <summary>Canonical frames retain command order, destinations and each tile-run boundary.</summary>
+        internal string ContentIdentity => EnemyBg2FramesConstants.ContentIdentity(self.frames);
+    }
 }

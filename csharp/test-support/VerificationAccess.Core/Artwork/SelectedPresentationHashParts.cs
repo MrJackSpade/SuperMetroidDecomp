@@ -1,5 +1,4 @@
-
-namespace SuperMetroid.AssetExtraction.Artwork;
+﻿namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Hashes sprite part compositions into an installed content identity (#1463): only the import pipeline holds parts.</summary>
 internal static class SelectedPresentationHashParts

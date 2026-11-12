@@ -1,3 +1,5 @@
+using SuperMetroid.Core;
+using SuperMetroid.AssetExtraction.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.AssetExtraction.Bosses.Torizo;
@@ -33,5 +35,17 @@ internal static class TorizoSwapArtworkAccess
             characters = default;
             return false;
         }
+    }
+
+    /// <summary>Exposes <see cref="TorizoSwapArtwork"/> state that only verification reads.</summary>
+    extension(TorizoSwapArtwork self)
+    {
+        /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
+        public string ContentIdentity => SelectedPresentationHash.Create("TorizoInstructionVramArtwork-v1", content =>
+            {
+                content.Append("pages", self.pages.Length);
+                foreach (RoomCharacterAtlas page in self.pages)
+                    content.Append("tiles", page.Characters.Span);
+            });
     }
 }

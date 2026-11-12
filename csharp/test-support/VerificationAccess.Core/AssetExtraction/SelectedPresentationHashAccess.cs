@@ -1,3 +1,8 @@
+using System.Security.Cryptography;
+using System.Text;
+using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Assets;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Rooms.LevelData;
 
@@ -9,7 +14,7 @@ internal static class SelectedPresentationHashAccess
     /// <summary>Appends raw word rows with boundaries preserved, including empty rows.</summary>
     extension(SelectedPresentationHash hash)
     {
-        /// <summary>Ordered raw word rows retain their boundaries, including empty rows: the independent oracle of <see cref="SelectedPresentationHash.AppendColorFrames"/>.</summary>
+        /// <summary>Ordered raw word rows retain their boundaries, including empty rows: the independent oracle of <see cref="AppendColorFrames"/>.</summary>
         internal void AppendWordFrames(string label, IReadOnlyList<ushort[]> frames)
         {
             hash.Append(label, frames.Count);
@@ -57,5 +62,20 @@ internal static class SelectedPresentationHashAccess
                         content.AppendAppearances("blocks", run);
                 }
             });
+    }
+
+    /// <summary>Exposes <see cref="SelectedPresentationHash"/> state that only verification reads.</summary>
+    extension(SelectedPresentationHash self)
+    {
+        /// <summary>Ordered color rows retain their boundaries, including empty rows; each row hashes its encoded words.</summary>
+        public void AppendColorFrames(string label, IReadOnlyList<RgbColor[]> frames)
+        {
+            self.Append(label, frames.Count);
+            foreach (RgbColor[] frame in frames)
+                self.AppendColors("row", frame);
+        }
+        /// <summary>Null fixture domains differ from installed content without storing a derived hash.</summary>
+        public void AppendIdentity(string label, string? identity) =>
+            self.Append(label, identity is null ? ReadOnlySpan<byte>.Empty : Convert.FromHexString(identity));
     }
 }

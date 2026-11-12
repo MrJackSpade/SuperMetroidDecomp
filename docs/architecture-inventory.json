@@ -177,12 +177,15 @@
     {
       "type": "SuperMetroid.AssetExtraction.ActorColourContentIdentity",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/ActorColourContentIdentity.cs"
+        "csharp/test-support/VerificationAccess.Core/ActorColourContentIdentity.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -190,12 +193,15 @@
     {
       "type": "SuperMetroid.AssetExtraction.ActorColourContentIdentity.extension(SuperMetroid.AssetExtraction.Areas.Tourian.Artwork.TourianStatuePalettes)",
       "kind": "class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/ActorColourContentIdentity.cs"
+        "csharp/test-support/VerificationAccess.Core/ActorColourContentIdentity.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -203,12 +209,15 @@
     {
       "type": "SuperMetroid.AssetExtraction.ActorColourContentIdentity.extension(SuperMetroid.AssetExtraction.Enemies.Artwork.ChozoAndTubeColorCatalog)",
       "kind": "class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/ActorColourContentIdentity.cs"
+        "csharp/test-support/VerificationAccess.Core/ActorColourContentIdentity.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -216,12 +225,15 @@
     {
       "type": "SuperMetroid.AssetExtraction.ActorColourContentIdentity.extension(SuperMetroid.AssetExtraction.Enemies.Artwork.DachoraColorCatalog)",
       "kind": "class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/ActorColourContentIdentity.cs"
+        "csharp/test-support/VerificationAccess.Core/ActorColourContentIdentity.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -229,12 +241,15 @@
     {
       "type": "SuperMetroid.AssetExtraction.ActorColourContentIdentity.extension(SuperMetroid.AssetExtraction.Enemies.Artwork.EnemyAuxiliaryColorCatalog)",
       "kind": "class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/ActorColourContentIdentity.cs"
+        "csharp/test-support/VerificationAccess.Core/ActorColourContentIdentity.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -242,12 +257,15 @@
     {
       "type": "SuperMetroid.AssetExtraction.ActorColourContentIdentity.extension(SuperMetroid.AssetExtraction.Enemies.Artwork.EnemyPaletteSheet)",
       "kind": "class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/ActorColourContentIdentity.cs"
+        "csharp/test-support/VerificationAccess.Core/ActorColourContentIdentity.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -255,12 +273,15 @@
     {
       "type": "SuperMetroid.AssetExtraction.ActorColourContentIdentity.extension(SuperMetroid.AssetExtraction.Enemies.Artwork.MagdollitePaletteCycle)",
       "kind": "class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/ActorColourContentIdentity.cs"
+        "csharp/test-support/VerificationAccess.Core/ActorColourContentIdentity.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -268,12 +289,15 @@
     {
       "type": "SuperMetroid.AssetExtraction.ActorColourContentIdentity.extension(SuperMetroid.AssetExtraction.Enemies.Artwork.WorkRobotPaletteCycle)",
       "kind": "class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/ActorColourContentIdentity.cs"
+        "csharp/test-support/VerificationAccess.Core/ActorColourContentIdentity.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -383,6 +407,38 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Areas.Ceres.CeresDoorSourceArtworkAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Areas/Ceres/CeresDoorSourceArtworkAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Areas.Ceres.CeresDoorSourceArtworkAccess.extension(SuperMetroid.AssetExtraction.Areas.Ceres.CeresDoorSourceArtwork)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Areas/Ceres/CeresDoorSourceArtworkAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Areas.Ceres.CeresDoorVisualDocument",
       "kind": "record",
       "scope": "product",
@@ -485,6 +541,38 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Areas.Ceres.CeresEscapeOverlaysAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Areas/Ceres/CeresEscapeOverlaysAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Areas.Ceres.CeresEscapeOverlaysAccess.extension(SuperMetroid.AssetExtraction.Areas.Ceres.CeresEscapeOverlays)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Areas/Ceres/CeresEscapeOverlaysAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Areas.Ceres.CeresFlightArtworkExtractor",
@@ -595,6 +683,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Areas.Ceres.CeresFlightSourceArtwork",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Areas/Ceres/CeresFlightSourceArtwork.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Areas.Ceres.CeresFloorAtlasRun",
@@ -2245,12 +2346,15 @@
     {
       "type": "SuperMetroid.AssetExtraction.Artwork.SelectedPresentationHashParts",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Artwork/SelectedPresentationHashParts.cs"
+        "csharp/test-support/VerificationAccess.Core/Artwork/SelectedPresentationHashParts.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -2258,12 +2362,15 @@
     {
       "type": "SuperMetroid.AssetExtraction.Artwork.SelectedPresentationHashParts.extension(SuperMetroid.AssetExtraction.SelectedPresentationHash)",
       "kind": "class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Artwork/SelectedPresentationHashParts.cs"
+        "csharp/test-support/VerificationAccess.Core/Artwork/SelectedPresentationHashParts.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -5293,12 +5400,15 @@
     {
       "type": "SuperMetroid.AssetExtraction.BossColourContentIdentity",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/BossColourContentIdentity.cs"
+        "csharp/test-support/VerificationAccess.Core/BossColourContentIdentity.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -5306,12 +5416,15 @@
     {
       "type": "SuperMetroid.AssetExtraction.BossColourContentIdentity.extension(SuperMetroid.AssetExtraction.Bosses.Botwoon.Artwork.BotwoonColorCatalog)",
       "kind": "class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/BossColourContentIdentity.cs"
+        "csharp/test-support/VerificationAccess.Core/BossColourContentIdentity.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -5319,12 +5432,15 @@
     {
       "type": "SuperMetroid.AssetExtraction.BossColourContentIdentity.extension(SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork.CrocomireColorCatalog)",
       "kind": "class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/BossColourContentIdentity.cs"
+        "csharp/test-support/VerificationAccess.Core/BossColourContentIdentity.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -5332,12 +5448,15 @@
     {
       "type": "SuperMetroid.AssetExtraction.BossColourContentIdentity.extension(SuperMetroid.AssetExtraction.Bosses.Draygon.Artwork.DraygonColorCatalog)",
       "kind": "class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/BossColourContentIdentity.cs"
+        "csharp/test-support/VerificationAccess.Core/BossColourContentIdentity.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -5345,12 +5464,15 @@
     {
       "type": "SuperMetroid.AssetExtraction.BossColourContentIdentity.extension(SuperMetroid.AssetExtraction.Bosses.Kraid.Artwork.KraidColorCatalog)",
       "kind": "class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/BossColourContentIdentity.cs"
+        "csharp/test-support/VerificationAccess.Core/BossColourContentIdentity.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -5358,12 +5480,15 @@
     {
       "type": "SuperMetroid.AssetExtraction.BossColourContentIdentity.extension(SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.BabyMetroidCutsceneColorCatalog)",
       "kind": "class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/BossColourContentIdentity.cs"
+        "csharp/test-support/VerificationAccess.Core/BossColourContentIdentity.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -5371,12 +5496,15 @@
     {
       "type": "SuperMetroid.AssetExtraction.BossColourContentIdentity.extension(SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainDeathColorCatalog)",
       "kind": "class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/BossColourContentIdentity.cs"
+        "csharp/test-support/VerificationAccess.Core/BossColourContentIdentity.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -5384,12 +5512,15 @@
     {
       "type": "SuperMetroid.AssetExtraction.BossColourContentIdentity.extension(SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.ShitroidColorCatalog)",
       "kind": "class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/BossColourContentIdentity.cs"
+        "csharp/test-support/VerificationAccess.Core/BossColourContentIdentity.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -5397,12 +5528,15 @@
     {
       "type": "SuperMetroid.AssetExtraction.BossColourContentIdentity.extension(SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.ZebetiteColorCatalog)",
       "kind": "class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/BossColourContentIdentity.cs"
+        "csharp/test-support/VerificationAccess.Core/BossColourContentIdentity.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -5410,12 +5544,15 @@
     {
       "type": "SuperMetroid.AssetExtraction.BossColourContentIdentity.extension(SuperMetroid.AssetExtraction.Bosses.Phantoon.Artwork.PhantoonColorCatalog)",
       "kind": "class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/BossColourContentIdentity.cs"
+        "csharp/test-support/VerificationAccess.Core/BossColourContentIdentity.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -5423,12 +5560,15 @@
     {
       "type": "SuperMetroid.AssetExtraction.BossColourContentIdentity.extension(SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork.NorfairRidleyColorCatalog)",
       "kind": "class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/BossColourContentIdentity.cs"
+        "csharp/test-support/VerificationAccess.Core/BossColourContentIdentity.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -5436,12 +5576,15 @@
     {
       "type": "SuperMetroid.AssetExtraction.BossColourContentIdentity.extension(SuperMetroid.AssetExtraction.Bosses.SporeSpawn.Artwork.SporeSpawnColorCatalog)",
       "kind": "class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/BossColourContentIdentity.cs"
+        "csharp/test-support/VerificationAccess.Core/BossColourContentIdentity.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -5935,12 +6078,15 @@
     {
       "type": "SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork.CrocomireTransferLabel",
       "kind": "record struct",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Bosses/Crocomire/Artwork/CrocomireTransferLabel.cs"
+        "csharp/test-support/VerificationAccess.Core/Bosses/Crocomire/Artwork/CrocomireTransferLabel.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -10903,6 +11049,38 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Enemies.CrocomireMeltingArtworkAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/CrocomireMeltingArtworkAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.CrocomireMeltingArtworkAccess.extension(SuperMetroid.AssetExtraction.Enemies.CrocomireMeltingArtwork)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/CrocomireMeltingArtworkAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Enemies.CrocomireMeltingArtworkFormat",
       "kind": "static class",
       "scope": "product",
@@ -11338,6 +11516,22 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Enemies.EnemyBg2FramesConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/EnemyBg2FramesConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Enemies.EnemyBg2TilemapWrite",
       "kind": "record struct",
       "scope": "product",
@@ -11464,6 +11658,38 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Enemies.EnemyExtendedFrameCatalogAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/EnemyExtendedFrameCatalogAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.EnemyExtendedFrameCatalogAccess.extension(SuperMetroid.AssetExtraction.Enemies.EnemyExtendedFrameCatalog)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/EnemyExtendedFrameCatalogAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Enemies.EnemyExtendedFrameDocument",
       "kind": "record",
       "scope": "product",
@@ -11511,6 +11737,22 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.AssetExtraction/Enemies/EnemyExtendedFrames.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.EnemyExtendedFramesConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/EnemyExtendedFramesConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -11677,12 +11919,15 @@
     {
       "type": "SuperMetroid.AssetExtraction.Enemies.EnemyInstalledSheet",
       "kind": "record struct",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Enemies/EnemyInstalledSheet.cs"
+        "csharp/test-support/VerificationAccess.Core/Enemies/EnemyInstalledSheet.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -12002,6 +12247,38 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Enemies.EnemyProjectileSpritemapCatalogAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/EnemyProjectileSpritemapCatalogAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.EnemyProjectileSpritemapCatalogAccess.extension(SuperMetroid.AssetExtraction.Enemies.EnemyProjectileSpritemapCatalog)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/EnemyProjectileSpritemapCatalogAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Enemies.EnemyProjectileSpritemapDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -12075,6 +12352,22 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.AssetExtraction/Enemies/EnemyProjectileSpritemaps.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.EnemyProjectileSpritemapsConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/EnemyProjectileSpritemapsConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -12412,6 +12705,38 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Enemies.EnemySpritemapCatalogAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/EnemySpritemapCatalogAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.EnemySpritemapCatalogAccess.extension(SuperMetroid.AssetExtraction.Enemies.EnemySpritemapCatalog)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/EnemySpritemapCatalogAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Enemies.EnemySpritemapFiles",
       "kind": "static class",
       "scope": "product",
@@ -12472,6 +12797,22 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.AssetExtraction/Enemies/EnemySpritemaps.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.EnemySpritemapsConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/EnemySpritemapsConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -12828,6 +13169,54 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Enemies.GunshipLiftoffArtworkCatalogAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/GunshipLiftoffArtworkCatalogAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.GunshipLiftoffArtworkCatalogAccess.extension(SuperMetroid.AssetExtraction.Enemies.GunshipLiftoffArtworkCatalog)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/GunshipLiftoffArtworkCatalogAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.GunshipLiftoffArtworkConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/GunshipLiftoffArtworkConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Enemies.GunshipLiftoffCharacterDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -12867,8 +13256,21 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Enemies.InstalledEnemyArtwork",
+      "type": "SuperMetroid.AssetExtraction.Enemies.ImportEnemyArtwork",
       "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/ImportEnemyArtwork.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.InstalledEnemyArtwork",
+      "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.AssetExtraction"
@@ -12877,7 +13279,7 @@
         "csharp/src/SuperMetroid.AssetExtraction/Enemies/InstalledEnemyArtwork.cs"
       ],
       "partial": "none",
-      "disposition": "record"
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Enemies.InstalledEnemyArtworkAccess",
@@ -14584,6 +14986,23 @@
         "csharp/src/SuperMetroid.AssetExtraction/Frontend/Ending/Artwork/EndingObjectArtworkParts.cs"
       ],
       "partial": "none",
+      "disposition": "record",
+      "flags": [
+        "context-bag"
+      ],
+      "justified": true
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectCharacters",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Frontend/Ending/Artwork/EndingObjectCharacters.cs"
+      ],
+      "partial": "none",
       "disposition": "constructor-parameters"
     },
     {
@@ -14901,6 +15320,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.ImportEndingObjectArtwork",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Frontend/Ending/Artwork/ImportEndingObjectArtwork.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Frontend.Ending.CreditsInstruction",
@@ -16487,6 +16919,19 @@
       "justified": true
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.IntroCinematicCharacters",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Frontend/Intro/Artwork/IntroCinematicCharacters.cs"
+      ],
+      "partial": "none",
+      "disposition": "constructor-parameters"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.IntroCinematicPalette",
       "kind": "class",
       "scope": "product",
@@ -17845,6 +18290,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Frontend.Map.ImportPresentationCharacters",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Frontend/Map/ImportPresentationCharacters.cs"
+      ],
+      "partial": "none",
+      "disposition": "constructor-parameters"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Frontend.Map.ImportPresentationColours",
       "kind": "record",
       "scope": "product",
@@ -17900,7 +18358,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Frontend.Map.InstalledAreaMapPresentationAccess.extension(SuperMetroid.AssetExtraction.Frontend.Map.InstalledAreaMapPresentation)",
+      "type": "SuperMetroid.AssetExtraction.Frontend.Map.InstalledAreaMapPresentationAccess.extension(SuperMetroid.AssetExtraction.Frontend.Map.ImportAreaMapPresentation)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -17926,11 +18384,7 @@
         "csharp/src/SuperMetroid.AssetExtraction/Frontend/Map/InstalledPresentationSources.cs"
       ],
       "partial": "none",
-      "disposition": "record",
-      "flags": [
-        "context-bag"
-      ],
-      "justified": true
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Frontend.Map.MapArrowExtractor",
@@ -22981,6 +23435,22 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Installation.GameAssetInstallerConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Installation/GameAssetInstallerConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Installation.GameAssetInstallerTooling",
       "kind": "static class",
       "scope": "tool",
@@ -23165,6 +23635,19 @@
       "disposition": "contract"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Installation.ImportDataDirectory",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Installation/ImportDataDirectory.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Installation.InstalledArtworkIdentity",
       "kind": "static class",
       "scope": "product",
@@ -23173,6 +23656,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.AssetExtraction/Installation/InstalledArtworkIdentity.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Installation.InstalledPictureFiles",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Installation/InstalledPictureFiles.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -24603,6 +25099,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Rooms.InventoriedRoomState",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Rooms/InventoriedRoomState.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Rooms.LevelBlockTilemapExpander",
       "kind": "static class",
       "scope": "tool",
@@ -25384,6 +25893,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Rooms.RoomBlockInventory",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomBlockInventory.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Rooms.RoomBlockSheetComposer",
       "kind": "static class",
       "scope": "product",
@@ -25499,6 +26021,32 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Rooms.RoomBlockWriter",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomBlockWriter.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Rooms.RoomBlockWriters",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomBlockWriters.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Rooms.RoomCharacterArtworkFiles",
@@ -27102,11 +27650,7 @@
         "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectVisualCatalogSet.cs"
       ],
       "partial": "none",
-      "disposition": "record",
-      "flags": [
-        "context-bag"
-      ],
-      "justified": true
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Rooms.RoomObjectVisualIdDefinitions",
@@ -27418,6 +27962,19 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Rooms.RoomTerrainReaction",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomTerrainReaction.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Rooms.RoomTileCanvas",
@@ -28683,6 +29240,32 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Samus.ImportProjectileArtwork",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Samus/ImportProjectileArtwork.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Samus.InstalledGrapplePresentation",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Samus/InstalledGrapplePresentation.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Samus.InstalledGrappleSprites",
       "kind": "class",
       "scope": "product",
@@ -29407,6 +29990,19 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Samus.SamusArmCannonCoverCharacters",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Samus/SamusArmCannonCoverCharacters.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Samus.SamusArmCannonCoverTransfers",
       "kind": "static class",
       "scope": "test",
@@ -29423,7 +30019,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Samus.SamusArmCannonCoverTransfers.extension(SuperMetroid.AssetExtraction.Samus.SamusArmCannonSourceArtwork)",
+      "type": "SuperMetroid.AssetExtraction.Samus.SamusArmCannonCoverTransfers.extension(SuperMetroid.AssetExtraction.Samus.SamusArmCannonCoverCharacters)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -29463,38 +30059,6 @@
       ],
       "partial": "none",
       "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Samus.SamusArmCannonSourceArtworkAccess",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Samus/SamusArmCannonSourceArtworkAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Samus.SamusArmCannonSourceArtworkAccess.extension(SuperMetroid.AssetExtraction.Samus.SamusArmCannonSourceArtwork)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Samus/SamusArmCannonSourceArtworkAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Samus.SamusArtworkFile",
@@ -29749,6 +30313,22 @@
       ],
       "partial": "none",
       "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Samus.SamusBodyCharacterArtworkConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Samus/SamusBodyCharacterArtworkConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Samus.SamusBodyCharacterArtworkToolingExtensions",
@@ -30269,6 +30849,38 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Samus.SamusDeathTileAtlasAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Samus/SamusDeathTileAtlasAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Samus.SamusDeathTileAtlasAccess.extension(SuperMetroid.AssetExtraction.Samus.SamusDeathTileAtlas)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Samus/SamusDeathTileAtlasAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Samus.SamusDeathTileAtlasFormat",
@@ -114613,6 +115225,22 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Samus.Artwork.InstalledSamusArmCannonArtworkToolingConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Core/Samus/Artwork/InstalledSamusArmCannonArtworkToolingConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Samus.Artwork.InstalledSamusAtmosphericArtwork",
       "kind": "class",
       "scope": "product",
@@ -136726,6 +137354,22 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/RepositoryInstallation.Verification/CartridgeImportContent.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.TestSupport.RepositoryInstallation.Verification.ChargeFlareDrawAccess",
       "kind": "static class",
       "scope": "test",
@@ -139418,6 +140062,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Verification.Assets.InstalledPictureRulesVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Assets/InstalledPictureRulesVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Verification.Assets.InstalledSheetsHoldPicturesVerification",
       "kind": "static class",
       "scope": "test",
@@ -139504,6 +140161,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Assets/PictureStoreSharingVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Assets.PublishedInstallationPagesVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Assets/PublishedInstallationPagesVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -148178,19 +148848,6 @@
       ],
       "partial": "none",
       "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Verification.Enemies.EnemyContentIdentityVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/EnemyContentIdentityVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Verification.Enemies.EnemyDeathExplosionDefinitionsVerification",
@@ -160426,19 +161083,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Verification.Rooms.Artwork.CollectibleSlotLoadPictureVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Rooms/Artwork/CollectibleSlotLoadPictureVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Verification.Rooms.Artwork.RoomAnimatedCharacters",
       "kind": "class",
       "scope": "test",
@@ -160450,6 +161094,19 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Verification.Rooms.Artwork.RoomBlockInventoryVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Rooms/Artwork/RoomBlockInventoryVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Verification.Rooms.Artwork.RoomBlockPicturesVerification",

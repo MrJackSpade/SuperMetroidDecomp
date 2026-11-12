@@ -42,9 +42,6 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
     /// <summary>The crumble reactions special blocks select, entries zero through seven.</summary>
     private const int CrumbleReactionCount = 8;
 
-    /// <summary>The shot-block reactions whose blocks any weapon breaks and that grow back.</summary>
-    private static readonly HashSet<ShotBlockReaction> RespawningShotBreaks = [ShotBlockReaction.RespawningBreak];
-
     /// <summary>The shot-block reactions whose blocks a Power Bomb breaks.</summary>
     private static readonly HashSet<ShotBlockReaction> PowerBombBreaks =
         [ShotBlockReaction.RespawningPowerBombBreak, ShotBlockReaction.PermanentPowerBombBreak];
@@ -53,21 +50,11 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
     private static readonly HashSet<ShotBlockReaction> SuperMissileBreaks =
         [ShotBlockReaction.RespawningSuperMissileBreak, ShotBlockReaction.PermanentSuperMissileBreak];
 
-    /// <summary>The shot-block reactions whose blocks a weapon breaks: any break, a Power Bomb's or a Super Missile's.</summary>
-    private static readonly HashSet<ShotBlockReaction> ShotBreaks =
-        [ShotBlockReaction.RespawningBreak, ShotBlockReaction.PermanentBreak, .. PowerBombBreaks, .. SuperMissileBreaks];
-
     /// <summary>Whether the state's room lies in Ceres, whose rooms load no common room elements and place no room objects.</summary>
     internal bool InCeres => Area == AreaId.Ceres;
 
     /// <summary>Whether a block of the state's terrain collides as <paramref name="collision"/> and selects <paramref name="reaction"/>.</summary>
     internal bool Holds(RoomCollisionType collision, BlockReaction reaction) => Terrain.Contains(new(collision, reaction));
-
-    /// <summary>Whether the state's terrain holds a shot block that any weapon breaks and that grows back.</summary>
-    internal bool HoldsRespawningShotBlocks => HoldsShotBlocks(RespawningShotBreaks);
-
-    /// <summary>Whether the state's terrain holds a shot block a weapon breaks: any break, a Power Bomb's or a Super Missile's.</summary>
-    internal bool HoldsBreakableShotBlocks => HoldsShotBlocks(ShotBreaks);
 
     /// <summary>Whether the state's terrain holds a block a Power Bomb breaks.</summary>
     internal bool HoldsPowerBombBlocks => HoldsShotBlocks(PowerBombBreaks);
@@ -120,21 +107,9 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
         SpecialAirReactions.ResolveInside(Area, block.Reaction.Entry) is var inside &&
         (inside == SpecialAirReactionDefinitions.BrinstarFloorPlant || inside == SpecialAirReactionDefinitions.BrinstarCeilingPlant));
 
-    /// <summary>Whether the state's terrain holds a spike block an enemy breaks.</summary>
-    internal bool HoldsEnemyBreakableBlocks => Terrain.Any(block => block.Collision == RoomCollisionType.SpikeBlock &&
-        block.Reaction.Entry < EnemyBreakableTerrainDefinitions.ReactionCount &&
-        EnemyBreakableTerrain.IsEnemyBreakable(RoomBlockBehavior.Reacting(block.Reaction)));
-
     /// <summary>Whether the state's terrain holds a block that collides as another along a row or a column.</summary>
     internal bool HoldsExtensions => Terrain.Any(block =>
         block.Collision is RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension);
-
-    /// <summary>
-    /// Whether the state's terrain holds a block whose reaction breaks it up: a shot block a weapon breaks, a bomb block, a
-    /// crumble block, a Speed Booster block or a block an enemy breaks.
-    /// </summary>
-    internal bool HoldsBreakingBlocks => HoldsBreakableShotBlocks || HoldsBombBlocks || HoldsCrumbleBlocks || HoldsSpeedBoosterBlocks ||
-        HoldsEnemyBreakableBlocks;
 
     /// <summary>Whether the state's population places a collectible whose kind and presentation <paramref name="placed"/> accepts.</summary>
     internal bool PlacesCollectible(Func<InWorldCollectibleKind, CollectiblePresentation, bool> placed)

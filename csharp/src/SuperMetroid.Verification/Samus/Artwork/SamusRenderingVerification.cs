@@ -487,7 +487,7 @@ internal static void VerifySamusArmCannon()
     // The cover characters are import data no installation holds (#1636): the cartridge-derived extraction's are bound.
     using var tiles = File.OpenRead(Path.Combine(CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.SamusBodyDirectoryName),
         SamusArmCannonArtworkFormat.TileFileName));
-    SamusArmCannonCoverCharacters coverCharacters = InstalledSamusArmCannonArtworkTooling.LoadWithCover(placement, tiles);
+    SamusArmCannonCoverCharacters coverCharacters = InstalledSamusArmCannonArtworkToolingConstants.LoadWithCover(placement, tiles);
     SamusArmCannonSourceArtwork artwork = coverCharacters.Cannon;
     var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
     {

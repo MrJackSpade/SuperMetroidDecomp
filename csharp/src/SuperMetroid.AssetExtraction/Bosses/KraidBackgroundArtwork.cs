@@ -11,18 +11,6 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// </summary>
 public sealed class KraidBackgroundArtwork
 {
-    /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create("enemy-kraid-background-v3", content =>
-        {
-            content.AppendTiles("upper", Upper.Tiles.Span);
-            content.AppendTiles("lower", Lower.Tiles.Span);
-            content.Append("background-tiles", RoomBackgroundTiles.Characters.Span);
-            foreach ((int mouthStage, KraidHeadTilemapAtlas head) in heads.OrderBy(pair => pair.Key))
-            {
-                content.Append("head-mouth-stage", mouthStage);
-                content.AppendTiles("head-tiles", head.Tiles.Span);
-            }
-        });
 
     /// <summary>Immutable head tilemaps keyed by how far the head's mouth is open.</summary>
     private readonly Dictionary<int, KraidHeadTilemapAtlas> heads;

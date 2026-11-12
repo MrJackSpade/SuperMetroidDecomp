@@ -1,5 +1,4 @@
-
-namespace SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
+﻿namespace SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
 
 /// <summary>One of Crocomire's colour transfers and the label its content identity hashes it under.</summary>
 /// <param name="Band">The transfer.</param>

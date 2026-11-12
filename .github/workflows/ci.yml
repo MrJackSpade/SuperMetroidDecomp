@@ -42,18 +42,11 @@ jobs:
           dotnet-version: '10.0.401'
       - name: Build the solution
         run: dotnet build csharp/SuperMetroid.Full.slnx -c Release
-      - name: Fail on dead code
-        run: dotnet run --project csharp/src/SuperMetroid.ReachabilityAudit -c Release --no-build -- --solution csharp/SuperMetroid.Full.slnx --check --output out/reachability
+      # Dead code is not checked here: the asynchronous cleanup (tools/cleanup) prunes it after every push and pushes the
+      # result, so it never blocks a push (owner ruling, 2026-11-11).
       # Every type has a disposition; a flagged owner, locator, context bag or large class is justified on the type or fails.
       - name: Architecture audit (inventory current, every finding justified at its site)
-        if: always()
         run: dotnet run --project csharp/src/SuperMetroid.ArchitectureAudit -c Release --no-build -- --solution csharp/SuperMetroid.Full.slnx
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        if: always()
-        with:
-          name: reachability-audit
-          path: out/reachability
-          if-no-files-found: warn
 
   enemy-visuals:
     runs-on: windows-2025

@@ -8,8 +8,6 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// </summary>
 internal sealed class EnemyBg2FrameCatalog
 {
-    /// <summary>Canonical frames retain command order, destinations and each tile-run boundary.</summary>
-    internal string ContentIdentity => EnemyBg2Frames.ContentIdentity(frames);
 
     /// <summary>Validated ordered BG2 writes keyed by the extended frame that selects them.</summary>
     internal readonly Dictionary<EnemyFrameId, EnemyBg2TilemapWrite[]> frames;

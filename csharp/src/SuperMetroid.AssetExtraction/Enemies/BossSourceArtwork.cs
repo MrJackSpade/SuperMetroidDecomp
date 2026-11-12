@@ -93,35 +93,6 @@ public sealed record BossSourceArtwork
     /// <summary>Editable leg, Baby, attack-restoration and exploded-door OBJ pages.</summary>
     public MotherBrainSpecialSpriteArtworkCatalog? MotherBrainSpecialSprites { get; init; }
 
-    /// <summary>The selected boss presentation, computed from the installed content rather than kept with the game state.</summary>
-    /// <remarks>Hashes each boss artwork entry's identity, in a fixed order; absent entries hash as absent.</remarks>
-    public string ContentIdentity =>
-        SelectedPresentationHash.Create("boss-bundle-v1", content =>
-        {
-            content.AppendIdentity("CrocomireMelting", CrocomireMelting?.ContentIdentity);
-            content.AppendIdentity("CrocomireSkeleton", CrocomireSkeleton?.ContentIdentity);
-            content.AppendIdentity("CrocomireBg2Frames", CrocomireBg2Frames?.ContentIdentity);
-            content.AppendIdentity("CrocomireColors", CrocomireColors?.ContentIdentity);
-            content.AppendIdentity("TorizoInstructionVram", TorizoSwaps?.ContentIdentity);
-            content.AppendIdentity("PhantoonBg2Frames", PhantoonBg2Frames?.ContentIdentity);
-            content.AppendIdentity("PhantoonColors", PhantoonColors?.ContentIdentity);
-            content.AppendIdentity("DraygonBg2Frames", DraygonBg2Frames?.ContentIdentity);
-            content.AppendIdentity("DraygonColors", DraygonColors?.ContentIdentity);
-            content.AppendIdentity("KraidBackground", KraidBackground?.ContentIdentity);
-            content.AppendIdentity("KraidColors", KraidColors?.ContentIdentity);
-            content.AppendIdentity("MotherBrainBodyBg2Frames", MotherBrainBodyBg2Frames?.ContentIdentity);
-            content.AppendIdentity("MotherBrainCorpse", MotherBrainCorpse?.ContentIdentity);
-            content.AppendIdentity("MotherBrainEscapeText", MotherBrainEscapeText?.ContentIdentity);
-            content.AppendIdentity("MotherBrainSpecialSprites", MotherBrainSpecialSprites?.ContentIdentity);
-            content.AppendIdentity("MotherBrainDeathColors", MotherBrainDeathColors?.ContentIdentity);
-            content.AppendIdentity("BabyMetroidCutsceneColors", BabyMetroidCutsceneColors?.ContentIdentity);
-            content.AppendIdentity("ShitroidColors", ShitroidColors?.ContentIdentity);
-            content.AppendIdentity("ZebetiteColors", ZebetiteColors?.ContentIdentity);
-            content.AppendIdentity("SporeSpawnColors", SporeSpawnColors?.ContentIdentity);
-            content.AppendIdentity("BotwoonColors", BotwoonColors?.ContentIdentity);
-            content.AppendIdentity("NorfairRidleyColors", NorfairRidleyColors?.ContentIdentity);
-        });
-
     /// <summary>Returns installed boss artwork, which must carry the Torizo artwork swaps its sheets compose from.</summary>
     /// <exception cref="InvalidDataException">The Torizo artwork swaps are absent.</exception>
     public static BossSourceArtwork FromInstalledArtwork(BossSourceArtwork artwork)

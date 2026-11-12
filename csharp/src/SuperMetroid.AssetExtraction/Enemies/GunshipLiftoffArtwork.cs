@@ -7,14 +7,6 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// <summary>The gunship takeoff's installed frames: their validation, the frame each transfer uploads, and their identity.</summary>
 internal static class GunshipLiftoffArtwork
 {
-    /// <summary>Hashes the frame count and each frame's characters in takeoff order.</summary>
-    internal static string ContentIdentity(RoomCharacterAtlas[] frames) =>
-        SelectedPresentationHash.Create("enemy-gunship-liftoff-v1", content =>
-        {
-            content.Append("frames", frames.Length);
-            foreach (RoomCharacterAtlas frame in frames)
-                content.Append("tiles", frame.Characters.Span);
-        });
 
     /// <summary>A copy of five complete native-size atlases.</summary>
     /// <exception cref="InvalidDataException">The frames are not five complete character frames.</exception>

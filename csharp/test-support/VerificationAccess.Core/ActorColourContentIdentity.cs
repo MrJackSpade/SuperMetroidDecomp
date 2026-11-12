@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Enemies.Magdollite.Artwork;
+﻿using SuperMetroid.Core.Enemies.Magdollite.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Animals;

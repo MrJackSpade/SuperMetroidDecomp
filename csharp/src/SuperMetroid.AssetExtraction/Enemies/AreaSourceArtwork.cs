@@ -30,15 +30,6 @@ public sealed record AreaSourceArtwork
     /// </summary>
     public CeresEscapeOverlays? CeresEscapeOverlayTilemaps { get; init; }
 
-    /// <summary>The selected area presentation, computed from the installed content rather than kept with the game state.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create("area-bundle-v1", content =>
-    {
-        content.AppendIdentity("CeresDoorVisual", CeresDoor?.ContentIdentity);
-        content.AppendIdentity("CeresEscapeTiles", CeresEscapeTiles?.ContentIdentity);
-        content.AppendIdentity("CeresEscapeOverlayTilemaps", CeresEscapeOverlayTilemaps?.ContentIdentity);
-        content.AppendIdentity("TourianStatueColors", TourianStatueColors?.ContentIdentity);
-    });
-
     /// <summary>Returns installed area artwork, which must carry both Ceres transfer providers.</summary>
     /// <exception cref="InvalidDataException">Either Ceres transfer provider is absent.</exception>
     public static AreaSourceArtwork FromInstalledArtwork(AreaSourceArtwork artwork)

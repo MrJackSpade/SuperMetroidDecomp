@@ -6,14 +6,6 @@ namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 /// <summary>Installed editable pages for legs, Baby, attack restoration, and the exploded door.</summary>
 public sealed class MotherBrainSpecialSpriteArtworkCatalog
 {
-    /// <summary>Canonical selected presentation data, keyed by each sheet's place in <see cref="HashOrder"/>; no derived field is added to debugger states.</summary>
-    public string ContentIdentity => SelectedPresentationHash.FromTransfers(
-        "enemy-mother-brain-special-v1", sheets.ToDictionary(pair => HashOrder.PositionOf(pair.Key), pair => pair.Value), atlas => atlas.Characters);
-
-    /// <summary>The special sheets in the order that keys their content identity.</summary>
-    private static readonly IdentitySequence<MotherBrainSpriteSheet> HashOrder = new(
-        MotherBrainSpriteSheet.Legs, MotherBrainSpriteSheet.BabyMetroid,
-        MotherBrainSpriteSheet.Attack, MotherBrainSpriteSheet.ExplodedDoor);
 
     /// <summary>The four installed sheets, by the sheet each is.</summary>
     private readonly Dictionary<MotherBrainSpriteSheet, RoomCharacterAtlas> sheets;

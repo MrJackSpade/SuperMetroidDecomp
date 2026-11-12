@@ -17,8 +17,4 @@ public sealed class RoomCharacterAtlas
 
     /// <summary>Read-only view of the compiled, row-major 8x8 4-bpp characters, excluding unused PNG cells.</summary>
     public ReadOnlyMemory<byte> Characters => planar;
-
-    /// <summary>Identity of selected decoded pixels; PNG metadata and display padding do not participate.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create(nameof(RoomCharacterAtlas),
-        content => content.Append("characters", planar));
 }

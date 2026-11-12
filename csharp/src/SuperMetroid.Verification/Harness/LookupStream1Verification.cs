@@ -1397,7 +1397,7 @@ internal static class LookupStream1Verification
         string directory = RepositoryInstallation.Installation.SamusBodyDirectory;
         byte[] json = File.ReadAllBytes(Path.Combine(directory, SamusArmCannonArtworkFormat.JsonFileName));
         byte[] png = File.ReadAllBytes(Path.Combine(CartridgeImportContent.ImportData(GameInstallationLayout.SamusBodyDirectoryName), SamusArmCannonArtworkFormat.TileFileName));
-        SamusArmCannonCoverCharacters cover = InstalledSamusArmCannonArtworkTooling.LoadWithCover(new MemoryStream(json), new MemoryStream(png));
+        SamusArmCannonCoverCharacters cover = InstalledSamusArmCannonArtworkToolingConstants.LoadWithCover(new MemoryStream(json), new MemoryStream(png));
         SamusArmCannonSourceArtwork stock = cover.Cannon;
         AssertEqual(ReferenceIdentity(json), stock.ContentIdentity, "Calculated cannon selectors preserve canonical native content identity");
         Suite(nameof(VerifySelectors), () => VerifySelectors(stock));

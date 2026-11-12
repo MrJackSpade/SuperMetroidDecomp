@@ -10,8 +10,6 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// </summary>
 public sealed class EnemyExtendedFrameCatalog
 {
-    /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
-    public string ContentIdentity => EnemyExtendedFrames.ContentIdentity(this);
 
     /// <summary>The compiled frame components and display bindings.</summary>
     internal readonly EnemyExtendedFrameSelection selection;

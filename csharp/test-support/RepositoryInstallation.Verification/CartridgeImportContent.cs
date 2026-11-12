@@ -40,7 +40,7 @@ internal static class CartridgeImportContent
         byte[] rom;
         using (Stream source = File.OpenRead(Path.GetFullPath("Super Metroid.smc")))
             rom = SupportedCartridge.Read(source);
-        GameAssetInstaller.ExtractImportSources(rom, scratch.Root);
+        GameAssetInstallerConstants.ExtractImportSources(rom, scratch.Root);
         AppDomain.CurrentDomain.ProcessExit += (_, _) => scratch.Dispose();
         return scratch.Root;
     }

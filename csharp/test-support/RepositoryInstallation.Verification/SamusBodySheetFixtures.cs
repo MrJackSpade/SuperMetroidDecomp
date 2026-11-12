@@ -72,9 +72,9 @@ internal static class SamusBodySheetFixtures
     {
         ArgumentNullException.ThrowIfNull(body);
         SamusBodyCharacterArtwork shown = CharactersOf(body);
-        string identity = $"{body.ContentIdentity}-{shown.CharactersContentIdentity}";
+        string identity = $"{body.ContentIdentity}-{SamusBodyCharacterArtworkConstants.CharactersContentIdentityOf(shown)}";
         SamusBodyCharacterArtwork stock = inputs.Value.SamusBody;
-        return identity == $"{stock.Body.ContentIdentity}-{stock.CharactersContentIdentity}" ? InstalledFixtures.SpriteSheets
+        return identity == $"{stock.Body.ContentIdentity}-{SamusBodyCharacterArtworkConstants.CharactersContentIdentityOf(stock)}" ? InstalledFixtures.SpriteSheets
             : composed.GetOrAdd(identity, key => new(() => Compose(InstalledFixtures.SpriteSheets,
                 inputs.Value with { SamusBody = shown }, BodySheets, body.ArmCannon, $"fixture-{key}"))).Value;
     }
@@ -111,7 +111,7 @@ internal static class SamusBodySheetFixtures
         ArgumentNullException.ThrowIfNull(cannon);
         if (cannon.ContentIdentity == body.ArmCannon.ContentIdentity)
             return For(body);
-        return cannons.GetOrAdd($"{body.ContentIdentity}-{CharactersOf(body).CharactersContentIdentity}-{cannon.ContentIdentity}", key => new(() => Compose(For(body),
+        return cannons.GetOrAdd($"{body.ContentIdentity}-{SamusBodyCharacterArtworkConstants.CharactersContentIdentityOf(CharactersOf(body))}-{cannon.ContentIdentity}", key => new(() => Compose(For(body),
             inputs.Value with { SamusBody = CharactersOf(body) }, [SpriteSheetId.SamusOverlays], cannon, $"fixture-{key}"))).Value;
     }
 

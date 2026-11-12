@@ -31,19 +31,6 @@ internal sealed class SelectedPresentationHash
         return Convert.ToHexString(hash.GetHashAndReset());
     }
 
-    /// <summary>Hashes shared bytes and source-keyed transfer payloads in numeric source order.</summary>
-    public static string FromTransfers<T>(string domain, IReadOnlyDictionary<int, T> sources,
-        Func<T, ReadOnlyMemory<byte>> transfer, ReadOnlyMemory<byte> shared = default) =>
-        Create(domain, content =>
-        {
-            content.Append("shared", shared.Span);
-            foreach ((int source, T selected) in sources.OrderBy(pair => pair.Key))
-            {
-                content.Append("source", source);
-                content.Append("transfer", transfer(selected).Span);
-            }
-        });
-
     /// <summary>Adds a UTF-8 field label and byte payload with explicit lengths to prevent boundary ambiguity.</summary>
     public void Append(string label, ReadOnlySpan<byte> bytes)
     {
@@ -91,20 +78,8 @@ internal sealed class SelectedPresentationHash
         Append(label, bytes);
     }
 
-    /// <summary>Ordered color rows retain their boundaries, including empty rows; each row hashes its encoded words.</summary>
-    public void AppendColorFrames(string label, IReadOnlyList<RgbColor[]> frames)
-    {
-        Append(label, frames.Count);
-        foreach (RgbColor[] frame in frames)
-            AppendColors("row", frame);
-    }
-
     /// <summary>A name, such as a published artwork identity, hashes as its UTF-8 text.</summary>
     public void AppendName(string label, string name) => Append(label, Encoding.UTF8.GetBytes(name));
-
-    /// <summary>Null fixture domains differ from installed content without storing a derived hash.</summary>
-    public void AppendIdentity(string label, string? identity) =>
-        Append(label, identity is null ? ReadOnlySpan<byte>.Empty : Convert.FromHexString(identity));
 
     /// <summary>Frames a field or payload length as a little-endian 32-bit count.</summary>
     private void AppendLength(int value)

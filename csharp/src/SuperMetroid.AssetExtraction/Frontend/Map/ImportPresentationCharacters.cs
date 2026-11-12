@@ -24,7 +24,6 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// <param name="IntroFont">The opening narration's font, which the narration pictures are composed from (#1583).</param>
 /// <param name="EndingFont">The ending's font, which the credits, post-credits and explosion pictures are composed from (#1583).</param>
 /// <param name="TitleGraphics">The title's characters and compositions, which the title and title floor sheets are composed from (#1583).</param>
-[ArchitectureReview("context-bag", "The characters the import read with the map presentation; every member is immutable artwork data the import composes pictures from, not a service.")]
 internal sealed record ImportPresentationCharacters(
     MapCharacterArtwork Characters,
     MapSpriteCompositions Sprites,

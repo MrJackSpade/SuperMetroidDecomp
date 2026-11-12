@@ -9,8 +9,6 @@ namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 /// </summary>
 public sealed class MotherBrainBodyBg2FrameCatalog
 {
-    /// <summary>Canonical selected BG2 content identity in native pose-pointer order, retaining each write's destination, command order, and tile-run boundaries independently of JSON formatting.</summary>
-    public string ContentIdentity => Writes.ContentIdentity;
 
     /// <summary>The frames' writes, compiled and indexed by native extended-frame roots.</summary>
     internal EnemyBg2FrameCatalog Writes { get; }

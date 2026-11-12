@@ -19,4 +19,11 @@ internal static class MotherBrainBodyBg2FrameCatalogAccess
         /// <summary>The writes of <paramref name="frame"/>, if the catalog holds it.</summary>
         internal bool TryGet(EnemyFrameId frame, out ReadOnlyMemory<EnemyBg2TilemapWrite> writes) => self.Writes.TryGet(frame, out writes);
     }
+
+    /// <summary>Exposes <see cref="MotherBrainBodyBg2FrameCatalog"/> state that only verification reads.</summary>
+    extension(MotherBrainBodyBg2FrameCatalog self)
+    {
+        /// <summary>Canonical selected BG2 content identity in native pose-pointer order, retaining each write's destination, command order, and tile-run boundaries independently of JSON formatting.</summary>
+        public string ContentIdentity => self.Writes.ContentIdentity;
+    }
 }

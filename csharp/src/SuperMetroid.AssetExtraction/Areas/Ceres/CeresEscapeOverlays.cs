@@ -10,16 +10,6 @@ namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 /// <summary>Editable tiles for Ceres's five fixed warning overlays.</summary>
 public sealed class CeresEscapeOverlays
 {
-    /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create("enemy-ceres-escape-overlay-v2", content =>
-    {
-        content.Append("shared", ReadOnlySpan<byte>.Empty);
-        foreach (var page in CeresEscapeOverlayPages.All)
-        {
-            content.Append("source", Encoding.UTF8.GetBytes(page.Name));
-            content.AppendTiles("tiles", PageTiles(page));
-        }
-    });
 
     /// <summary>Every page's installed tiles in tilemap order, keyed by the page's installed name.</summary>
     private readonly Dictionary<string, BackgroundTile[]> pages;
@@ -27,7 +17,7 @@ public sealed class CeresEscapeOverlays
     private CeresEscapeOverlays(Dictionary<string, BackgroundTile[]> pages) => this.pages = pages;
 
     /// <summary>One page's installed tiles, in tilemap order.</summary>
-    private BackgroundTile[] PageTiles(CeresEscapeWarningPicture page) => pages[page.Name];
+    internal BackgroundTile[] PageTiles(CeresEscapeWarningPicture page) => pages[page.Name];
     /// <summary>Validates the five-page JSON document and keeps every page's tiles.</summary>
     internal static CeresEscapeOverlays Load(Stream json)
     {

@@ -1,4 +1,4 @@
-using SuperMetroid.AssetExtraction.Enemies.Artwork;
+﻿using SuperMetroid.AssetExtraction.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Botwoon;

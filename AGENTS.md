@@ -121,6 +121,11 @@ pinned local sources; reference annotations do not replace reproducing a reporte
 - The size of the work is never a reason to stop, ask, or excuse findings. A fix that
   touches a whole subsystem, every family or hundreds of sites is done, in committed
   batches, like any other fix.
+- Owner decision (2026-11-11): a rule whose every finding an existing code fix resolves
+  without changing behaviour or needing a choice is enforced by the asynchronous cleanup
+  that runs after each local commit, not by the local build. Only those rules sit at
+  `suggestion`, under the comment in `csharp/.editorconfig` that names the cleanup. Every
+  other rule stays a full-severity build error, and grandfathering stays forbidden.
 
 ## Recorded-movie acceptance scope
 

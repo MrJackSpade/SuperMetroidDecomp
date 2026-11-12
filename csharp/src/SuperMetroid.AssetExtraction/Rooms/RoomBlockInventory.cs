@@ -2,6 +2,7 @@ using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.AssetExtraction.World.RoomStates;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Doors;
@@ -45,7 +46,9 @@ internal sealed class RoomBlockInventory
         RoomLevelArtworks levels = RoomVisualLayoutFiles.Load(Path.Combine(content, GameInstallationLayout.RoomVisualLayoutDirectoryName));
         InstalledRoomLevelStreams terrain = RoomLevelStreamFiles.Load(Path.Combine(content, GameInstallationLayout.RoomLevelStreamDirectoryName));
         InstalledXrayReveals xray = XrayRevealVisualFiles.Load(Path.Combine(content, GameInstallationLayout.XrayRevealVisualDirectoryName));
-        return Of(RetailStates(levels, terrain), RoomBlockWriters.Of(RoomObjectVisualCatalogSet.Load(content), xray));
+        // The import's own decoding of the straddled terrain the game installs, which is not presentation the player edits.
+        StraddledTerrain<RoomTerrainBlock> straddled = StraddledTerrainFiles.Read(StraddledTerrainFiles.Decode());
+        return Of(RetailStates(levels, terrain, straddled), RoomBlockWriters.Of(RoomObjectVisualCatalogSet.Load(content), xray));
     }
 
     /// <summary>
@@ -77,18 +80,29 @@ internal sealed class RoomBlockInventory
         return new RoomBlockInventory(shown);
     }
 
-    /// <summary>Every retail room state, with the level layout it shows, its installed terrain and the doors into its room.</summary>
-    private static IEnumerable<InventoriedRoomState> RetailStates(RoomLevelArtworks levels, InstalledRoomLevelStreams terrain)
+    /// <summary>
+    /// Every retail room state, with the level layout it shows, its installed terrain, the shootable reactions a Wave
+    /// shot's straddled read sets off there through <paramref name="straddled"/> (read once for each level the states
+    /// share), and the doors into its room.
+    /// </summary>
+    private static IEnumerable<InventoriedRoomState> RetailStates(RoomLevelArtworks levels, InstalledRoomLevelStreams terrain,
+        StraddledTerrain<RoomTerrainBlock> straddled)
     {
         ILookup<RoomHeaderDefinition, DoorDefinition> entrances = RoomDoorListDefinitions.ByRoom.Values
             .SelectMany(list => list)
             .Select(entry => entry.Door)
             .OfType<DoorDefinition>()
             .ToLookup(door => door.DestinationRoom);
+        var straddledShots = new Dictionary<InstalledRoomLevel, IReadOnlySet<RoomTerrainReaction>>();
         foreach (RoomHeaderDefinition room in RetailRoomHeaders.All)
         {
             foreach (RoomStateSettings state in RoomStateLists.GetStates(room))
-                yield return InventoriedRoomState.Of(room, state, levels.Get(state.Level), terrain.Get(state.Level), entrances[room]);
+            {
+                InstalledRoomLevel installed = terrain.Get(state.Level);
+                if (!straddledShots.TryGetValue(installed, out IReadOnlySet<RoomTerrainReaction>? shots))
+                    straddledShots.Add(installed, shots = StraddledShotReactions.Of(installed, straddled));
+                yield return InventoriedRoomState.Of(room, state, levels.Get(state.Level), installed, shots, entrances[room]);
+            }
         }
     }
 }

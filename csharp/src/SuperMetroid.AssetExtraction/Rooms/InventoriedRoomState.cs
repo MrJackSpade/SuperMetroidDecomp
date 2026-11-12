@@ -14,7 +14,8 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// <summary>
 /// What of one room state decides the blocks it can show (#1636): the tileset whose block sheet pictures them, the blocks
 /// its level data places where the room shows it, and what its installed data holds that starts a writer of blocks: the
-/// reactions its terrain selects, the room objects and enemies its populations place, its setup and main routines, the
+/// reactions its terrain selects, including those a Wave shot's scan past the room's ceiling sets off where it reads
+/// halfway through a block (#1650), the room objects and enemies its populations place, its setup and main routines, the
 /// doors that lead into it and its X-ray overlay. A writer counts for the state only when one of these holds what starts
 /// it; nothing here follows what a writer goes on to trigger.
 /// </summary>
@@ -25,6 +26,11 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// state's background shows its level data.
 /// </param>
 /// <param name="Terrain">How each block of the state's installed terrain collides and the reaction it selects, each once.</param>
+/// <param name="StraddledShots">
+/// The shootable collision kinds and reactions a Wave shot's scan past the room's ceiling sets off in the state's installed
+/// terrain where it reads halfway through a block (<see cref="StraddledShotReactions"/>), each once. The shot is a beam, so
+/// a block among them that rejects a beam starts nothing.
+/// </param>
 /// <param name="Headers">The room objects the state's population places.</param>
 /// <param name="Enemies">The enemies the state's population places.</param>
 /// <param name="SetupCallback">The state's setup routine.</param>
@@ -32,15 +38,18 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// <param name="Entrances">The doors that lead into the state's room.</param>
 /// <param name="XrayOverlay">The X-ray reveal's overlay of the state, or null where it has none.</param>
 internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Area, IReadOnlySet<int> Placed,
-    IReadOnlySet<RoomTerrainReaction> Terrain, IReadOnlySet<RoomObjectHeaderId> Headers, IReadOnlySet<EnemyDefinitionId> Enemies,
-    RoomSetupCallback SetupCallback, RoomMainCallback MainCallback, IReadOnlySet<DoorDefinition> Entrances,
-    XrayRoomOverlayDefinition? XrayOverlay)
+    IReadOnlySet<RoomTerrainReaction> Terrain, IReadOnlySet<RoomTerrainReaction> StraddledShots, IReadOnlySet<RoomObjectHeaderId> Headers,
+    IReadOnlySet<EnemyDefinitionId> Enemies, RoomSetupCallback SetupCallback, RoomMainCallback MainCallback,
+    IReadOnlySet<DoorDefinition> Entrances, XrayRoomOverlayDefinition? XrayOverlay)
 {
     /// <summary>The bomb-block reactions bombable blocks select, entries zero through seven.</summary>
     private const int BombBlockReactionCount = 8;
 
     /// <summary>The crumble reactions special blocks select, entries zero through seven.</summary>
     private const int CrumbleReactionCount = 8;
+
+    /// <summary>The shot-block reactions whose blocks any weapon breaks and that grow back.</summary>
+    private static readonly HashSet<ShotBlockReaction> RespawningShotBreaks = [ShotBlockReaction.RespawningBreak];
 
     /// <summary>The shot-block reactions whose blocks a Power Bomb breaks.</summary>
     private static readonly HashSet<ShotBlockReaction> PowerBombBreaks =
@@ -50,6 +59,16 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
     private static readonly HashSet<ShotBlockReaction> SuperMissileBreaks =
         [ShotBlockReaction.RespawningSuperMissileBreak, ShotBlockReaction.PermanentSuperMissileBreak];
 
+    /// <summary>The shot-block reactions whose blocks a weapon breaks: any break, a Power Bomb's or a Super Missile's.</summary>
+    private static readonly HashSet<ShotBlockReaction> ShotBreaks =
+        [ShotBlockReaction.RespawningBreak, ShotBlockReaction.PermanentBreak, .. PowerBombBreaks, .. SuperMissileBreaks];
+
+    /// <summary>
+    /// The shot-block reactions a beam breaks, the only ones a Wave shot's straddled read sets off: a Power Bomb's and a
+    /// Super Missile's blocks reject a beam.
+    /// </summary>
+    private static readonly HashSet<ShotBlockReaction> BeamBreaks = [ShotBlockReaction.RespawningBreak, ShotBlockReaction.PermanentBreak];
+
     /// <summary>Whether the state's room lies in Ceres, whose rooms load no common room elements and place no room objects.</summary>
     internal bool InCeres => Area == AreaId.Ceres;
 
@@ -58,6 +77,15 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
 
     /// <summary>Whether a block of the state's terrain collides as <paramref name="collision"/> and selects <paramref name="reaction"/>.</summary>
     internal bool Holds(RoomCollisionType collision, BlockReaction reaction) => Terrain.Contains(new(collision, reaction));
+
+    /// <summary>Whether the state's terrain holds a shot block that any weapon breaks and that grows back, or a Wave shot's straddled read sets one off.</summary>
+    internal bool HoldsRespawningShotBlocks => HoldsShotBlocks(RespawningShotBreaks);
+
+    /// <summary>
+    /// Whether the state's terrain holds a shot block a weapon breaks: any break, a Power Bomb's or a Super Missile's; or a
+    /// Wave shot's straddled read sets off a break.
+    /// </summary>
+    internal bool HoldsBreakableShotBlocks => HoldsShotBlocks(ShotBreaks);
 
     /// <summary>Whether the state's terrain holds a block a Power Bomb breaks.</summary>
     internal bool HoldsPowerBombBlocks => HoldsShotBlocks(PowerBombBreaks);
@@ -90,13 +118,19 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
         (block.Reaction == GrappleBlockReactionDefinitions.RespawningBreakableAnchor ||
             block.Reaction == GrappleBlockReactionDefinitions.PermanentBreakableAnchor));
 
-    /// <summary>Whether the state's terrain holds a shootable block whose reaction selects a blue-door cap facing <paramref name="facing"/>.</summary>
-    internal bool HoldsBlueDoorCap(ColoredDoorOrientation facing) => Terrain.Any(block =>
+    /// <summary>
+    /// Whether the state's terrain holds a shootable block whose reaction selects a blue-door cap facing
+    /// <paramref name="facing"/>, or a Wave shot's straddled read sets one off, as a beam opens a blue cap.
+    /// </summary>
+    internal bool HoldsBlueDoorCap(ColoredDoorOrientation facing) => Terrain.Concat(StraddledShots).Any(block =>
         block.Collision is RoomCollisionType.ShootableBlock or RoomCollisionType.ShootableAir &&
         BlockReactionDefinitions.BlueDoorCaps.TryGetMeaning(block.Reaction, out ColoredDoorOrientation cap) && cap == facing);
 
-    /// <summary>Whether the state's terrain holds a shootable block whose reaction selects a downward gate's trigger.</summary>
-    internal bool HoldsDownwardGateTriggers => Terrain.Any(block =>
+    /// <summary>
+    /// Whether the state's terrain holds a shootable block whose reaction selects a downward gate's trigger, or a Wave
+    /// shot's straddled read sets one off, as a beam triggers a gate.
+    /// </summary>
+    internal bool HoldsDownwardGateTriggers => Terrain.Concat(StraddledShots).Any(block =>
         block.Collision is RoomCollisionType.ShootableBlock or RoomCollisionType.ShootableAir &&
         BlockReactionDefinitions.DownwardGateTriggers.TryGetMeaning(block.Reaction, out _));
 
@@ -110,9 +144,21 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
         SpecialAirReactions.ResolveInside(Area, block.Reaction.Entry) is var inside &&
         (inside == SpecialAirReactionDefinitions.BrinstarFloorPlant || inside == SpecialAirReactionDefinitions.BrinstarCeilingPlant));
 
+    /// <summary>Whether the state's terrain holds a spike block an enemy breaks.</summary>
+    internal bool HoldsEnemyBreakableBlocks => Terrain.Any(block => block.Collision == RoomCollisionType.SpikeBlock &&
+        block.Reaction.Entry < EnemyBreakableTerrainDefinitions.ReactionCount &&
+        EnemyBreakableTerrain.IsEnemyBreakable(RoomBlockBehavior.Reacting(block.Reaction)));
+
     /// <summary>Whether the state's terrain holds a block that collides as another along a row or a column.</summary>
     internal bool HoldsExtensions => Terrain.Any(block =>
         block.Collision is RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension);
+
+    /// <summary>
+    /// Whether the state's terrain holds a block whose reaction breaks it up, or a Wave shot's straddled read sets one off:
+    /// a shot block a weapon breaks, a bomb block, a crumble block, a Speed Booster block or a block an enemy breaks.
+    /// </summary>
+    internal bool HoldsBreakingBlocks => HoldsBreakableShotBlocks || HoldsBombBlocks || HoldsCrumbleBlocks || HoldsSpeedBoosterBlocks ||
+        HoldsEnemyBreakableBlocks;
 
     /// <summary>Whether the state's population places a collectible whose kind and presentation <paramref name="placed"/> accepts.</summary>
     internal bool PlacesCollectible(Func<InWorldCollectibleKind, CollectiblePresentation, bool> placed)
@@ -127,24 +173,35 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
         return false;
     }
 
-    /// <summary>Whether the state's terrain holds a shootable block whose reaction the shot-block dispatcher handles as one of <paramref name="kinds"/>.</summary>
-    private bool HoldsShotBlocks(HashSet<ShotBlockReaction> kinds) => Terrain.Any(block =>
+    /// <summary>
+    /// Whether the state's terrain holds a shootable block whose reaction the shot-block dispatcher handles as one of
+    /// <paramref name="kinds"/>, or a Wave shot's straddled read sets off one of them that a beam breaks.
+    /// </summary>
+    private bool HoldsShotBlocks(HashSet<ShotBlockReaction> kinds) =>
+        Terrain.Any(block => SelectsShotBlock(block, kinds)) ||
+        StraddledShots.Any(block => SelectsShotBlock(block, kinds) && SelectsShotBlock(block, BeamBreaks));
+
+    /// <summary>Whether <paramref name="block"/> collides as shootable and its reaction is a shot block of one of <paramref name="kinds"/>.</summary>
+    private static bool SelectsShotBlock(RoomTerrainReaction block, HashSet<ShotBlockReaction> kinds) =>
         block.Collision is RoomCollisionType.ShootableBlock or RoomCollisionType.ShootableAir &&
-        ShotBlockReactions.Of(block.Reaction) is { } reaction && kinds.Contains(reaction));
+        ShotBlockReactions.Of(block.Reaction) is { } reaction && kinds.Contains(reaction);
 
     /// <summary>
     /// What of <paramref name="state"/> of <paramref name="room"/> decides the blocks it can show: <paramref name="level"/>
-    /// is what its level data shows, <paramref name="terrain"/> its installed terrain and <paramref name="entrances"/> the
-    /// doors that lead into the room. Its background's blocks are shown only where its background scrolls over its level
-    /// data, as the room streams it; otherwise the background shows a library background or nothing of the level.
+    /// is what its level data shows, <paramref name="terrain"/> its installed terrain, <paramref name="straddledShots"/> the
+    /// shootable reactions a Wave shot's straddled read sets off in that terrain (<see cref="StraddledShotReactions"/>) and
+    /// <paramref name="entrances"/> the doors that lead into the room. Its background's blocks are shown only where its
+    /// background scrolls over its level data, as the room streams it; otherwise the background shows a library background
+    /// or nothing of the level.
     /// </summary>
     internal static InventoriedRoomState Of(RoomHeaderDefinition room, RoomStateSettings state, RoomLevelArtwork level,
-        InstalledRoomLevel terrain, IEnumerable<DoorDefinition> entrances)
+        InstalledRoomLevel terrain, IReadOnlySet<RoomTerrainReaction> straddledShots, IEnumerable<DoorDefinition> entrances)
     {
         Ensure.NotNull(room);
         Ensure.NotNull(state);
         Ensure.NotNull(level);
         Ensure.NotNull(terrain);
+        Ensure.NotNull(straddledShots);
         Ensure.NotNull(entrances);
         var placed = new HashSet<int>();
         foreach (RoomBlockAppearance block in level.Foreground.Span)
@@ -163,7 +220,7 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
         var enemies = new HashSet<EnemyDefinitionId>();
         foreach (RoomEnemyPopulationRecord record in state.EnemyPopulation.Records.Span)
             enemies.Add(record.DefinitionId);
-        return new InventoriedRoomState(RoomTilesets.Get(state.GraphicsSet), room.AreaIndex, placed, reactions, headers, enemies,
+        return new InventoriedRoomState(RoomTilesets.Get(state.GraphicsSet), room.AreaIndex, placed, reactions, straddledShots, headers, enemies,
             state.SetupCallback, state.MainCallback, entrances.ToHashSet(), state.XrayOverlay);
     }
 }

@@ -83,17 +83,19 @@ internal static class RoomBlockWriters
     }
 
     /// <summary>
-    /// Whether a shot block's frame <paramref name="draw"/> is written in a room state: every Zebes room state, for the
-    /// breakups, the restorations and (in <see cref="SetupBlockWrittenIn"/>) the shot-block parent. The breakup is the
-    /// animation every block-breaking path shares (weapons, enemies, Botwoon's wall, a Chozo statue's crumbling), and the
-    /// 100% replay showed Crocomire's arena breaking and restoring respawning shot blocks at blocks (99, 1) and (100, 1),
-    /// whose installed terrain is solid, so no installed terrain predicts where the family is written (#1636).
+    /// Whether a shot block's frame <paramref name="draw"/> is written in a room state: a breakup wherever a block breaks up
+    /// (a reaction of the terrain, a shot-block collectible, Botwoon's wall or a Chozo statue's crumbling), a restoration
+    /// wherever a shot block grows back. The terrain's reactions include those a Wave shot's scan past the room's ceiling
+    /// sets off where it reads halfway through a block (#1650): Crocomire's arena breaks and restores respawning shot
+    /// blocks that way at blocks (99, 1) and (100, 1), whose installed terrain is solid.
     /// </summary>
     /// <exception cref="InvalidDataException">The draw is not a shot block's breakup or restoration.</exception>
     private static Func<InventoriedRoomState, bool> ShotBlockFrameWrittenIn(RoomObjectDraw draw) => draw switch
     {
-        RoomObjectFrameDraw<ShotBlockObjectDraws.Draw> { Frame.Restore: true } => static _ => true,
-        RoomObjectFrameDraw<ShotBlockObjectDraws.Draw> => static _ => true,
+        RoomObjectFrameDraw<ShotBlockObjectDraws.Draw> { Frame.Restore: true } => static state => state.HoldsRespawningShotBlocks,
+        RoomObjectFrameDraw<ShotBlockObjectDraws.Draw> => static state => state.HoldsBreakingBlocks ||
+            state.PlacesCollectible(static (_, presentation) => presentation == CollectiblePresentation.ShotBlock) ||
+            state.Enemies.Contains(EnemyDefinitionId.Botwoon) || state.Enemies.Contains(EnemyDefinitionId.Chozo),
         _ => throw new InvalidDataException($"Shot-block frame {draw} is not a shot block's breakup or restoration."),
     };
 
@@ -113,8 +115,7 @@ internal static class RoomBlockWriters
         RoomObjectSetupBlock.BombBlockParent => static state => state.HoldsBombBlocks,
         RoomObjectSetupBlock.CrumbleBlockParent => static state => state.HoldsCrumbleBlocks,
         RoomObjectSetupBlock.SpeedBoosterBlockParent => static state => state.HoldsSpeedBoosterBlocks,
-        // The shot-block family is written in every Zebes room state; see ShotBlockFrameWrittenIn (#1636).
-        RoomObjectSetupBlock.ShotBlockParent => static _ => true,
+        RoomObjectSetupBlock.ShotBlockParent => static state => state.HoldsRespawningShotBlocks,
         RoomObjectSetupBlock.PowerBombBlockParent => static state => state.HoldsPowerBombBlocks,
         RoomObjectSetupBlock.SuperMissileBlockParent => static state => state.HoldsSuperMissileBlocks,
         RoomObjectSetupBlock.CritterWallStruck => BuildsEscapeAnimalWall,

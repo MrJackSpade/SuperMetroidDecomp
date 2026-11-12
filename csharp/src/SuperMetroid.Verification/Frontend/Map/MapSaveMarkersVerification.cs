@@ -1,6 +1,4 @@
-using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
-using SuperMetroid.Core;
 using static SuperMetroid.Verification.Frontend.InstalledFileSelectMapVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.FileSelect;
@@ -8,8 +6,6 @@ using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.TestSupport.CpuBusTestDoubles;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 
@@ -86,63 +82,27 @@ internal static class MapSaveMarkersVerification
         }
     }
 
-    /// <summary>Checks marker OAM and load handoff timing against native output.</summary>
+    /// <summary>
+    /// Checks which save markers the cartridge lets an area show (<see cref="VerifySaveMarkerEligibility"/>), that a marker
+    /// index no area shows, Ceres's, or one past the slots is rejected, and the whole file-select menu over the installed map.
+    /// </summary>
     internal static void VerifyMapSaveMarkers(ISnesAddressSpace bus, AreaMapPresentation original)
     {
-        var guard = NewSaveMarkerGuard(bus);
         Suite(nameof(VerifySaveMarkerEligibility), () => VerifySaveMarkerEligibility(bus));
-        int valid = 0;
+        int unused = 0;
         for (int area = 0; area < FileSelectMapDefinitions.AreaCount; area++)
         for (int index = 0; index < MapSaveMarkerDefinitions.SlotsPerArea; index++)
         {
             var typedArea = (AreaId)area;
-            if (!MapSaveMarkers.Indices(typedArea).Contains(index))
-            {
-                AssertThrows<InvalidDataException>(() => new FileSelectStationMarker(typedArea, index, original.SaveMarkers), "cartridge rejects unused marker index");
-                AssertThrows<InvalidDataException>(() => new FileSelectStationMarker(typedArea, index, original.SaveMarkers), "compiled definition rejects same unused marker index");
+            if (MapSaveMarkers.Indices(typedArea).Contains(index))
                 continue;
-            }
-            var native = new FileSelectStationMarker(typedArea, index,
-                original.SaveMarkers);
-            var installed = new FileSelectStationMarker(typedArea, index, original.SaveMarkers);
-            AssertEqual(native.MapPosition, installed.MapPosition, "stock selected marker coordinates");
-            for (int frame = 0; frame < 128; frame++)
-            {
-                native.Step(); installed.Step();
-                AssertTrue(Draw(native).SequenceEqual(Draw(installed)), "stock marker animation/backing OAM");
-            }
-            valid++;
+            AssertThrows<InvalidDataException>(() => new FileSelectStationMarker(typedArea, index, original.SaveMarkers), "an unused marker index is rejected");
+            unused++;
         }
         AssertThrows<ArgumentOutOfRangeException>(() => new FileSelectStationMarker(AreaId.Ceres, 0, original.SaveMarkers), "Ceres marker rejected");
         foreach (int invalid in new[] { -1, MapSaveMarkerDefinitions.SlotsPerArea })
             AssertThrows<ArgumentOutOfRangeException>(() => new FileSelectStationMarker(AreaId.Crateria, invalid, original.SaveMarkers), "out-of-range marker rejected");
         Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(original));
-        Console.WriteLine($"Save markers: {valid} coordinates/128-tick animations, unused indices and transitions with save-coordinate ROM reads blocked pass.");
-
-        byte[] Draw(FileSelectStationMarker marker)
-        {
-            var oam = ScreenSpritesFixtures.Blank(); oam.BeginFrame();
-            marker.Draw(oam, new(24, 8), MenuSheetFixtures.MapSprites(InstalledAreaMapPresentation.SpritesOf(original)));
-            oam.FinalizeFrame();
-            return oam.LowTable.ConcatToArray(oam.HighTable);
-        }
-    }
-
-    /// <summary>Blocks runtime reads of native area pointer and save-marker coordinate tables.</summary>
-    private static MutableCartridgeReadGuard NewSaveMarkerGuard(ISnesAddressSpace source)
-    {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(source);
-        var blocked = new HashSet<int>();
-        for (int area = 0; area < FileSelectMapDefinitions.AreaCount; area++)
-        {
-            int entry = (int)FrontendSourceDefinitions.SavePointMapPointers + area * 2;
-            int list = RomDataReader.ReadWordFixedBank(cartridge, entry);
-            blocked.Add(entry); blocked.Add(entry + 1);
-            for (int offset = 0; offset < MapSaveMarkerDefinitions.SlotsPerArea * 4; offset++)
-                blocked.Add(MapSourceDefinitions.Menu.ObjectBank | (list + offset));
-        }
-        var guard = new MutableCartridgeReadGuard(source);
-        guard.Forbid(blocked.Contains, _ => "Installed selected-save marker read cartridge coordinate table.");
-        return guard;
+        Console.WriteLine($"Save markers: eligibility, {unused} unused indices and out-of-range markers rejected, and the file-select menu pass.");
     }
 }

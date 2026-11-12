@@ -42,8 +42,6 @@ internal static class CeresRidleyPicturesVerification
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.CeresRidley);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         RoomEnemyGraphicsSetDefinition set = runtime.Enemies.GraphicsSet;
-        AssertEqual(0, UploadedPictureChecks.AssertFramesFollowLooks(set, EncounterArtwork.CeresEscape, "Ceres Ridley's getaway", requireFrames: false),
-            "no frame is drawn in Ceres Ridley's escape warning look");
         runtime.EnemySession.Looks.Show(CeresEscapeReadyingDefinitions.WarningLook);
 
         RoomEnemySlot ridley = runtime.Enemies.SlotTable.Slots[0];

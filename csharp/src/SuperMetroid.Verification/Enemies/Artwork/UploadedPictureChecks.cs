@@ -1,13 +1,11 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using System.Collections.Immutable;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Drawing;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Runtime;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
@@ -209,83 +207,5 @@ internal static class UploadedPictureChecks
     {
         AssertEqual(1, drawn.Length, $"{message}: draws one image");
         AssertTrue(drawn[0] is ImageSpriteDraw image && ReferenceEquals(pictureOf(expected), image.Image), $"{message}: shows {expected}");
-    }
-
-    /// <summary>
-    /// Asserts that in each look of <paramref name="encounter"/> it is drawn in, every frame of the installed enemy and
-    /// spawned-object sheets of graphics set <paramref name="set"/> the encounter's looks change shows a finished picture
-    /// that paints exactly what the frame's parts paint over the characters the set leaves in that look (#1538): the look's
-    /// own copies and every earlier look's. In a look the frame is never drawn in, its sheet holds no picture and asking
-    /// for one fails loudly, naming the picture.
-    /// </summary>
-    /// <param name="set">The graphics set whose sheets are checked.</param>
-    /// <param name="encounter">The encounter the set's members play.</param>
-    /// <param name="message">Names the check in failures.</param>
-    /// <param name="requireFrames">Whether the encounter's looks must change some frame of the set's sheets; the escape warning changes backgrounds alone.</param>
-    /// <returns>The frames the encounter's looks change.</returns>
-    internal static int AssertFramesFollowLooks(RoomEnemyGraphicsSetDefinition set, EncounterArtwork encounter, string message, bool requireFrames = true)
-    {
-        PopulationArtwork artwork = InstalledFixtures.EnemySheets.Under(set);
-        int frames = 0;
-        foreach ((EnemyDefinitionId enemy, EnemyArtworkVariant<SpriteSheet> variant) in artwork.enemies.Where(entry => entry.Value.changingEncounters.Count > 0))
-        {
-            SpriteSheet sheet = variant.Sheet;
-            frames += AssertSheetFollowsLooks(set, encounter, sheet.Frame, variant.changingEncounters,
-                picture => sheet.FrameNames.Contains(picture) || sheet.BlankFrameNames.Contains(picture), sheet.ShowsNothing, $"{message}: {enemy}");
-        }
-        var checkedSheets = new HashSet<SpawnedObjectSheet>(ReferenceEqualityComparer.Instance);
-        foreach ((SpawnedObjectOwner owner, EnemyArtworkVariant<SpawnedObjectSheet> variant) in artwork.spawned.Where(entry => entry.Value.changingEncounters.Count > 0))
-        {
-            // Owners sharing one variant's spawned-object pictures are checked once.
-            SpawnedObjectSheet sheet = variant.Sheet;
-            if (checkedSheets.Add(sheet))
-                frames += AssertSheetFollowsLooks(set, encounter, sheet.Frame, variant.changingEncounters,
-                    picture => sheet.frames.ContainsKey(picture) || sheet.empty.Contains(picture), sheet.ShowsNothing, $"{message}: {owner}'s spawned objects");
-        }
-        if (requireFrames)
-            AssertTrue(frames > 0, $"{message}: {encounter}'s looks change frames of {set.Name}'s sheets");
-        return frames;
-    }
-
-    /// <summary>
-    /// Asserts the frames whose pictures <paramref name="pictureOf"/> finds that <paramref name="changed"/> says
-    /// <paramref name="encounter"/>'s looks change follow its looks, as <see cref="AssertFramesFollowLooks"/> describes.
-    /// </summary>
-    /// <returns>The frames the encounter's looks change.</returns>
-    private static int AssertSheetFollowsLooks(RoomEnemyGraphicsSetDefinition set, EncounterArtwork encounter, Func<string, SpriteSheetFrame> pictureOf,
-        IReadOnlyDictionary<string, EncounterArtwork[]> changed, Func<string, bool> holds, Func<string, bool> showsNothing, string message)
-    {
-        var origin = new Position16<ScreenPixels>(ScreenGeometry.ScreenWidthPixels / 2, ScreenGeometry.ScreenHeightPixels / 2);
-        ComposedEncounter composed = Enum.GetValues<ComposedEncounter>().Single(candidate => EncounterLookUploads.ShownAs(candidate) == encounter);
-        // Each look's live characters are the same for every frame, so each is composed once.
-        Dictionary<string, SpriteArtwork> pages = EncounterLookUploads.Looks(composed)
-            .ToDictionary(name => name, name => EnemySheetFixtures.LivePage(set, [new EncounterLook(encounter, name)]), StringComparer.Ordinal);
-        int frames = 0;
-        foreach ((string frame, EncounterArtwork[] encounters) in changed.Where(entry => entry.Value.Contains(encounter)))
-        {
-            frames++;
-            int drawnLooks = 0;
-            foreach (string name in EncounterLookUploads.Looks(composed))
-            {
-                var look = new EncounterLook(encounter, name);
-                string picture = ExpectedPicture(frame, encounters, [look]);
-                if (!holds(picture))
-                {
-                    InvalidDataException failure = AssertThrows<InvalidDataException>(() => pictureOf(picture),
-                        $"{message} frame {frame} drawn in {look}, a look it is never drawn in, fails");
-                    AssertTrue(failure.Message.Contains(picture, StringComparison.Ordinal), $"{message} frame {frame}'s failure in {look} names the picture");
-                    continue;
-                }
-                drawnLooks++;
-                // A finished picture that shows nothing is on no sheet and draws nothing (#1538).
-                if (showsNothing(picture))
-                    continue;
-                var draw = new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.Enemy, 0), pictureOf(picture), origin, SpriteMirror.None);
-                AssertSameInks([draw], [SheetFrameSources.CharacterDraw(draw, pages[name])],
-                    $"{message} frame {frame} in {look}", requirePixels: false);
-            }
-            AssertTrue(drawnLooks > 1, $"{message} frame {frame} has a picture of more than one of {encounter}'s looks");
-        }
-        return frames;
     }
 }

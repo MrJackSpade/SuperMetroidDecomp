@@ -537,11 +537,12 @@ internal static class RoomBlockPicturesVerification
             rebound += AssertBackgroundPaintsTiles(runtime, animations, latched, $"{room.Name} frame {frame}");
         }
         AssertEqual(expectRebound, rebound > 0, $"{room.Name}'s background shows cells over artwork bound after its load");
-        Console.WriteLine($"Room background images: {room.Name} painted its two pages for {Frames} frames, {rebound} cell pictures over rebound artwork.");
+        Console.WriteLine($"Room background images: {room.Name} painted its pictured pages for {Frames} frames, {rebound} cell pictures over rebound artwork.");
     }
 
     /// <summary>
-    /// Asserts BG2's library background paints, pixel for pixel over both pages, in the part each tile's priority puts it in
+    /// Asserts BG2's library background paints, pixel for pixel over the pages it pictures (one period of what it shows,
+    /// #1651), in the part each tile's priority puts it in
     /// (#1634), the palette index and standard colour the image's tilemap tiles paint over the characters the cartridge would show, as <paramref name="animations"/>
     /// paint them in <paramref name="latched"/>'s frames; returns its rebound cells.
     /// </summary>
@@ -556,9 +557,9 @@ internal static class RoomBlockPicturesVerification
         string name = (runtime.Room.Scope?.BackgroundImage as RoomLibraryBackgroundPicture.Drawn
             ?? throw new InvalidOperationException($"{where}: the room selects no library background image.")).Image.Image.Name;
         ushort[] words = UploadsOf(runtime).Backgrounds.Single(background => background.Name == name).Words;
-        // A 32x64 map lays the two pages out one above the other, as the image does. Each tile's character is read once
-        // for the eight rows of eight pixels it paints.
-        for (int tileY = 0; tileY < RoomBackgroundImageGeometry.Pages * RoomBackgroundImageGeometry.PagePixels / CharacterPixels; tileY++)
+        // The image pictures one period of what the background shows (#1651): one page, or two pages laid out one above the
+        // other. Each tile's character is read once for the eight rows of eight pixels it paints.
+        for (int tileY = 0; tileY < words.Length / RoomBackgroundImageGeometry.PageTiles; tileY++)
         for (int tileX = 0; tileX < RoomBackgroundImageGeometry.PagePixels / CharacterPixels; tileX++)
         {
             var word = new SnesBgTilemapWord(words[tileY * RoomBackgroundImageGeometry.PageTiles + tileX]);
@@ -567,7 +568,7 @@ internal static class RoomBlockPicturesVerification
             AssertBackgroundTilePaints(plane, word, bytes, tileX, tileY, where);
         }
         int rebound = 0;
-        for (int cell = 0; cell < RoomBackgroundImageGeometry.Words / RoomBackgroundImageGeometry.CellTiles; cell++)
+        for (int cell = 0; cell < words.Length / RoomBackgroundImageGeometry.CellTiles; cell++)
         {
             if (plane.Cell(cell) is not null)
                 rebound++;

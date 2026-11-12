@@ -30,9 +30,11 @@ public static class RoomBlockSheetFiles
     /// <summary>
     /// The background manifest's schema revision: revision 2 records each image's changing cells (#1466); revision 3 no
     /// longer pictures a cell over a collectible's graphics (#1513); revision 4 installs only the library backgrounds the
-    /// player sees as their own pictures, none of the boss rooms', the sky rooms' or the cleared ones (#1649).
+    /// player sees as their own pictures, none of the boss rooms', the sky rooms' or the cleared ones (#1649); revision 5
+    /// records one period of what each library background shows, its one page where its two pages hold one tilemap, which
+    /// the room shows repeated across and down (#1651).
     /// </summary>
-    private const int BackgroundManifestVersion = 4;
+    private const int BackgroundManifestVersion = 5;
 
     /// <summary>The manifest naming each written picture sheet and the inputs each of its pictures depends on.</summary>
     public const string WrittenManifestFileName = "written-pictures.json";
@@ -202,7 +204,7 @@ public static class RoomBlockSheetFiles
 
     /// <summary>The background manifest: each image's name, the tilemap words it pictures and its changing cells.</summary>
     /// <param name="Version">The schema revision.</param>
-    /// <param name="Words">Each image's tilemap words, page by page.</param>
+    /// <param name="Words">Each image's tilemap words, page by page: one period of what it shows (#1651).</param>
     /// <param name="Cells">Each image's cells whose pictures change with appearance inputs.</param>
     private sealed record BackgroundManifest(int Version, Dictionary<string, ushort[]> Words, Dictionary<string, CellDocument[]> Cells);
 

@@ -9,8 +9,9 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// <summary>
 /// One installed pre-coloured room background (#1392, #1466, #1555): the picture a room shows on the background, coloured
 /// with its own colours, and the cells whose pictures change with the room's appearance inputs. A library background
-/// pictures its two halves, the first above the second, which a room places on the background
-/// (<see cref="RoomBackgroundImagePlacement"/>); the scrolling sky pictures all its rows.
+/// pictures one period of what it shows (#1651): its one picture, as tall as it is wide, where the background shows it
+/// over and over across and down, and otherwise its two different halves, the first above the second, which a room places
+/// on the background (<see cref="RoomBackgroundImagePlacement.OfLibrary"/>); the scrolling sky pictures all its rows.
 /// </summary>
 public sealed class RoomBackgroundImage
 {

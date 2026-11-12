@@ -248,7 +248,8 @@ internal static class RoomBlockUploads
 
     /// <summary>
     /// Replays <paramref name="program"/> as a room of <paramref name="tileset"/> entered through <paramref name="door"/>
-    /// runs it: the BG2 pages it leaves, over the characters the room loads.
+    /// runs it: one period of the BG2 pages it leaves (<see cref="RoomBackgroundImageGeometry.OnePeriod"/>, #1651), the
+    /// first page alone where both hold one tilemap, over the characters the room loads.
     /// </summary>
     private static RoomBackgroundMap Replay(RoomBlockSheetInputs inputs, RoomHeaderDefinition room, TilesetDefinition tileset,
         LibraryBackgroundProgram program, DoorDefinition? door)
@@ -267,7 +268,7 @@ internal static class RoomBlockUploads
                 CharacterArt = inputs.Characters,
             });
         ushort[] words = [.. Enumerable.Range(0, RoomBackgroundImageGeometry.Words).Select(word => vram.ReadWord(GameplayVramLayout.Bg2TilemapWord + word))];
-        return new RoomBackgroundMap(RoomBackgroundImage.NameOf(program.Background, door, tileset), words, content);
+        return new RoomBackgroundMap(RoomBackgroundImage.NameOf(program.Background, door, tileset), RoomBackgroundImageGeometry.OnePeriod(words), content);
     }
 
     /// <summary>What each enemy writes over its room's BG1 or BG2: the escape warnings Mother Brain and Ceres Ridley type.</summary>
@@ -591,9 +592,15 @@ internal static class RoomBlockUploads
         internal void AddAnimated(AnimatedCharacterPlacement frame) => Add(Ensure.NotNull(frame).Option);
     }
 
-    /// <summary>The BG2 pages a library background leaves, under its installed name, and what then shows at each character.</summary>
+    /// <summary>
+    /// One period of the BG2 pages a library background leaves (#1651), or the sky's rows, under its installed name, and what
+    /// then shows at each character.
+    /// </summary>
     /// <param name="Name">The background's installed name.</param>
-    /// <param name="Words">The pages' tilemap words.</param>
+    /// <param name="Words">
+    /// The tilemap words of one period of what the background shows: a library background's one page where its two pages
+    /// hold one tilemap, otherwise its two pages, the first above the second; or the sky's rows.
+    /// </param>
     /// <param name="Content">The bindings the room's load leaves.</param>
     internal sealed record RoomBackgroundMap(string Name, ushort[] Words, BgArtworkBindings Content);
 

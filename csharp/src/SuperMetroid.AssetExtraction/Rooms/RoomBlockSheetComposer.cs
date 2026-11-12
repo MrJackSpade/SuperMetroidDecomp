@@ -93,9 +93,9 @@ internal static class RoomBlockSheetComposer
     }
 
     /// <summary>
-    /// Composes a background's image: a library background's two pages, the first above the second, or the sky's rows, each
-    /// tile over what its character shows as the room has loaded; with the cells whose pictures change with the room's
-    /// appearance inputs.
+    /// Composes a background's image: one period of what a library background shows, its one page where its two pages hold
+    /// one tilemap (#1651) and otherwise its two pages, the first above the second, or the sky's rows, each tile over what
+    /// its character shows as the room has loaded; with the cells whose pictures change with the room's appearance inputs.
     /// </summary>
     /// <exception cref="InvalidDataException">A tile reads a character nothing the room loads is bound over.</exception>
     private static ComposedRoomBackground ComposeBackground(RoomBlockSheetInputs inputs, TilesetDefinition tileset,

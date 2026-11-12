@@ -1,6 +1,8 @@
 using System.Globalization;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Progression;
@@ -19,7 +21,8 @@ namespace SuperMetroid.Verification.Rooms.Artwork;
 /// <summary>
 /// Confirms #1636's room block sheets on the smallest synthetic fixtures, through the import's and the game's own code: the
 /// import's inventory of a tileset holds the blocks its rooms place and the blocks of each writer whose start a room state
-/// of it holds in its installed data, and no other block the tileset loads; a block picture's part that shows nothing is not installed, by frame or by name, and the
+/// of it holds in its installed data, and no other block the tileset loads; the shot-block family counts only where a
+/// state's terrain or a Wave shot's straddled read starts it (#1650); a block picture's part that shows nothing is not installed, by frame or by name, and the
 /// room reads its absence as nothing there; and a room showing a block its sheet has no picture of fails, naming the sheet
 /// and the block.
 /// </summary>
@@ -80,8 +83,122 @@ internal static class RoomBlockInventoryVerification
 
     /// <summary>A Zebes or Ceres room state of <paramref name="tileset"/> placing <see cref="PlacedBlock"/>, its terrain one block of <paramref name="terrain"/>, placing <paramref name="headers"/>.</summary>
     private static InventoriedRoomState State(TilesetDefinition tileset, AreaId area, RoomTerrainReaction terrain, params RoomObjectHeaderId[] headers) =>
-        new(tileset, area, new HashSet<int> { PlacedBlock }, new HashSet<RoomTerrainReaction> { terrain }, headers.ToHashSet(),
-            new HashSet<EnemyDefinitionId>(), RoomSetupCallback.None, RoomMainCallback.None, new HashSet<DoorDefinition>(), null);
+        new(tileset, area, new HashSet<int> { PlacedBlock }, new HashSet<RoomTerrainReaction> { terrain }, new HashSet<RoomTerrainReaction>(),
+            headers.ToHashSet(), new HashSet<EnemyDefinitionId>(), RoomSetupCallback.None, RoomMainCallback.None, new HashSet<DoorDefinition>(), null);
+
+    /// <summary>
+    /// A Brinstar room state of <paramref name="tileset"/> placing <see cref="PlacedBlock"/> and holding nothing else that
+    /// starts a writer, its terrain's blocks and its Wave shots' straddled reads selecting <paramref name="straddledShots"/>
+    /// alone, as Kraid's room, which places no shot block and is two screens wide, holds none.
+    /// </summary>
+    private static InventoriedRoomState Quiet(TilesetDefinition tileset, params RoomTerrainReaction[] straddledShots) =>
+        new(tileset, AreaId.Brinstar, new HashSet<int> { PlacedBlock }, new HashSet<RoomTerrainReaction>(), straddledShots.ToHashSet(),
+            new HashSet<RoomObjectHeaderId>(), new HashSet<EnemyDefinitionId>(), RoomSetupCallback.None, RoomMainCallback.None,
+            new HashSet<DoorDefinition>(), null);
+
+    /// <summary>The common shootable reaction whose entry selects <paramref name="reaction"/> first.</summary>
+    private static BlockReaction CommonShotReaction(ShotBlockReaction reaction)
+    {
+        int entry = ShotBlockReactionDefinitions.LeadingEntries.ToList().IndexOf(reaction);
+        if (entry < 0)
+            throw new InvalidOperationException($"Verification failed: no common shootable entry selects {reaction}.");
+        return BlockReaction.Common(entry);
+    }
+
+    /// <summary>
+    /// The installation's real writers, from its installed room-object catalogs and X-ray reveal (#1650): a room state
+    /// holding no shot-block start pictures none of the shot-block family (the parent, the breakups and the restorations),
+    /// where #1636 pictured it in every Zebes room state; a Wave shot's straddled read setting off a respawning shot block,
+    /// as Crocomire's arena's does, pictures the whole family; and one setting off a Super Missile block, which rejects a
+    /// beam, pictures none of it.
+    /// </summary>
+    internal static void VerifyShotBlockFamilyOnlyWhereStarted()
+    {
+        string content = SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation.Installation.ContentDirectory;
+        RoomObjectVisualCatalogSet catalogs = RoomObjectVisualCatalogSet.Load(content);
+        IReadOnlyList<RoomBlockWriter> writers = RoomBlockWriters.Of(catalogs,
+            XrayRevealVisualFiles.Load(Path.Combine(content, GameInstallationLayout.XrayRevealVisualDirectoryName)));
+        var family = new HashSet<int>(catalogs.ShotBlock.Images.All.Values.SelectMany(image => image.Cells.Values).Select(shown => shown.Block))
+        {
+            catalogs.SetupBlocks.Shown(RoomObjectSetupBlock.ShotBlockParent).Block,
+        };
+        TilesetDefinition tileset = RoomTilesets.Get(0);
+
+        IReadOnlySet<int> quiet = RoomBlockInventory.Of([Quiet(tileset)], writers).Shown(tileset);
+        AssertTrue(quiet.SetEquals([PlacedBlock]),
+            $"a room state holding no writer's start shows only the block it places, none of the shot-block family, not {Blocks(quiet)}");
+
+        IReadOnlySet<int> straddling = RoomBlockInventory.Of(
+            [Quiet(tileset, new RoomTerrainReaction(RoomCollisionType.ShootableAir, CommonShotReaction(ShotBlockReaction.RespawningBreak)))],
+            writers).Shown(tileset);
+        AssertTrue(family.IsSubsetOf(straddling),
+            $"a straddled read setting off a respawning shot block pictures the whole shot-block family {Blocks(family)}, not {Blocks(straddling)}");
+
+        IReadOnlySet<int> rejected = RoomBlockInventory.Of(
+            [Quiet(tileset, new RoomTerrainReaction(RoomCollisionType.ShootableAir, CommonShotReaction(ShotBlockReaction.RespawningSuperMissileBreak)))],
+            writers).Shown(tileset);
+        AssertTrue(!rejected.Overlaps(family),
+            $"a straddled read of a Super Missile block, which rejects a beam, pictures none of the shot-block family, not {Blocks(rejected)}");
+        Console.WriteLine("Shot-block family: pictured only where a room state's terrain or a Wave shot's straddled read starts it.");
+    }
+
+    /// <summary>
+    /// The import's inventory of a Wave shot's straddled reads (#1650), on synthetic levels holding Crocomire's arena's
+    /// pair of blocks: a solid block selecting the respawning shot block, followed by a block whose start makes the read
+    /// straddling the two collide as shootable air. In a level eight screens wide, as Crocomire's arena is, the pair at
+    /// (99, 1) and (100, 1) is the only shootable reaction such a read sets off; the same pair at (63, 1) and (64, 1) sets
+    /// off none, as the walk from above the ceiling reads whole blocks in the room's left half; and in a level two screens
+    /// wide, as Kraid's room is, no read straddles a block at all.
+    /// </summary>
+    internal static void VerifyStraddledShotReactions()
+    {
+        StraddledTerrain<RoomTerrainBlock> straddled = StraddledTerrainFiles.Read(StraddledTerrainFiles.Decode());
+        BlockReaction respawning = CommonShotReaction(ShotBlockReaction.RespawningBreak);
+        var first = RoomTerrainBlock.Of(0x321, BlockMirroring.None, RoomCollisionType.SolidBlock);
+        RoomTerrainBlock second = ShootableAirTail(straddled, first);
+
+        IReadOnlySet<RoomTerrainReaction> arena = StraddledShotReactions.Of(Level(new(128, 16), new(99, 1), first, second, respawning), straddled);
+        AssertTrue(arena.SetEquals([new RoomTerrainReaction(RoomCollisionType.ShootableAir, respawning)]),
+            $"an eight-screen-wide level's straddled read at (99, 1) sets off the respawning shot block as shootable air, and nothing else, not {Reactions(arena)}");
+
+        IReadOnlySet<RoomTerrainReaction> leftHalf = StraddledShotReactions.Of(Level(new(128, 16), new(63, 1), first, second, respawning), straddled);
+        AssertTrue(leftHalf.Count == 0, $"the same pair in the room's left half sets off nothing, not {Reactions(leftHalf)}");
+
+        IReadOnlySet<RoomTerrainReaction> narrow = StraddledShotReactions.Of(Level(new(32, 32), new(19, 1), first, second, respawning), straddled);
+        AssertTrue(narrow.Count == 0, $"a two-screen-wide level's reads never straddle a block, not {Reactions(narrow)}");
+        Console.WriteLine("Straddled shot reactions: only a level whose walk from above the ceiling wraps sets off a reaction over solid terrain.");
+    }
+
+    /// <summary>The first block, by number, whose start makes the read straddling <paramref name="first"/> and it collide as shootable air.</summary>
+    internal static RoomTerrainBlock ShootableAirTail(StraddledTerrain<RoomTerrainBlock> straddled, RoomTerrainBlock first)
+    {
+        for (int block = 0; block <= RoomBlockAppearance.LastBlock; block++)
+        {
+            var second = RoomTerrainBlock.Of(block, BlockMirroring.None, RoomCollisionType.Air);
+            if (straddled.Straddling(first, second).Collision == RoomCollisionType.ShootableAir)
+                return second;
+        }
+        throw new InvalidOperationException($"Verification failed: no block's start makes the read straddling {first} collide as shootable air.");
+    }
+
+    /// <summary>
+    /// A level of <paramref name="size"/> of air with no reaction, but for <paramref name="first"/> at <paramref name="at"/>,
+    /// selecting <paramref name="reaction"/>, and <paramref name="second"/> after it.
+    /// </summary>
+    private static InstalledRoomLevel Level(Extent16<RoomBlocks> size, Position16<RoomBlocks> at, RoomTerrainBlock first,
+        RoomTerrainBlock second, BlockReaction reaction)
+    {
+        var terrain = new RoomTerrainBlock[size.Area];
+        var behaviors = new RoomBlockBehavior[size.Area];
+        int index = (at.Y * size.X) + at.X;
+        terrain[index] = first;
+        terrain[index + 1] = second;
+        behaviors[index] = RoomBlockBehavior.Reacting(reaction);
+        return new InstalledRoomLevel(size, [.. terrain], [.. behaviors], [.. new RoomBlockAppearance[size.Area]], [], 0);
+    }
+
+    /// <summary>Names <paramref name="reactions"/> for a failure message.</summary>
+    private static string Reactions(IReadOnlySet<RoomTerrainReaction> reactions) => string.Join(", ", reactions);
 
     /// <summary>Names <paramref name="blocks"/> for a failure message.</summary>
     private static string Blocks(IReadOnlySet<int> blocks) =>
@@ -179,6 +296,8 @@ internal static class RoomBlockInventoryVerification
     internal static int RoomBlockInventoryCommand()
     {
         Suite(nameof(VerifyWriterCountsOnlyWhereHeld), VerifyWriterCountsOnlyWhereHeld);
+        Suite(nameof(VerifyShotBlockFamilyOnlyWhereStarted), VerifyShotBlockFamilyOnlyWhereStarted);
+        Suite(nameof(VerifyStraddledShotReactions), VerifyStraddledShotReactions);
         Suite(nameof(VerifyPartThatShowsNothingIsNotInstalled), VerifyPartThatShowsNothingIsNotInstalled);
         Suite(nameof(VerifyUnpicturedBlockFailsLoudly), VerifyUnpicturedBlockFailsLoudly);
         return 0;

@@ -439,8 +439,13 @@ internal sealed class SolutionFixer
         }
         else
         {
+            // Analysis runs serially. Run concurrently over Core with the whole analyzer set, it intermittently lost the
+            // repository analyzers' diagnostics: in one of four runs the suppressed SME6426 findings in StationObjectDraws
+            // did not come back, so their needed [SuppressMessage]s looked unused and IDE0079 removed them (the cleanup run
+            // at 549a352794 failed its build on this); five serial runs all reported them. A lost finding also skips a fix
+            // (the SME6391 fixture once found nothing).
             var withAnalyzers = compilation.WithAnalyzers(analyzers, new CompilationWithAnalyzersOptions(analyzerOptions,
-                onAnalyzerException: null, concurrentAnalysis: true, logAnalyzerExecutionTime: false, reportSuppressedDiagnostics: suppressions));
+                onAnalyzerException: null, concurrentAnalysis: false, logAnalyzerExecutionTime: false, reportSuppressedDiagnostics: suppressions));
             diagnostics = await withAnalyzers.GetAllDiagnosticsAsync();
             analyzed = withAnalyzers.Compilation;
         }

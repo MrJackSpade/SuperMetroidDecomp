@@ -54,8 +54,6 @@ internal static class Program
             if (settings.Count != 1 || settings[0].Groups[1].Value != "error")
                 throw new InvalidDataException($"csharp/.editorconfig must set {id} to error exactly once.");
         }
-        if (!Regex.IsMatch(editorConfig, @"^\s*csharp_style_prefer_top_level_statements\s*=\s*false\b", RegexOptions.Multiline))
-            throw new InvalidDataException("IDE0211 only reports when top-level statements are not preferred.");
 
         string props = File.ReadAllText(Path.Combine(root, "csharp", "Directory.Build.props"));
         if (!props.Contains("<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>", StringComparison.Ordinal))

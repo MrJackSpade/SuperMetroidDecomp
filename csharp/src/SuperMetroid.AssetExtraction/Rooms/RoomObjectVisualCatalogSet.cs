@@ -8,6 +8,7 @@ using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
+using SuperMetroid.AssetExtraction.Installation;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
@@ -98,4 +99,45 @@ public sealed record RoomObjectVisualCatalogSet
 
     /// <summary>The blocks room-object setups and block reactions write of their own accord.</summary>
     public required InstalledRoomObjectSetupBlocks SetupBlocks { get; init; }
+
+    /// <summary>
+    /// Every catalog as installed under the content directory <paramref name="content"/>, which the import reads to learn
+    /// the blocks the room objects write (#1636).
+    /// </summary>
+    /// <exception cref="InvalidDataException">A catalog's installed file is invalid.</exception>
+    internal static RoomObjectVisualCatalogSet Load(string content)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(content);
+        return new RoomObjectVisualCatalogSet
+        {
+            ShotBlock = RoomObjectShotBlockVisualFiles.Load(Path.Combine(content, GameInstallationLayout.RoomObjectShotBlockVisualDirectoryName)),
+            GrappleBlock = RoomObjectGrappleBlockVisualFiles.Load(Path.Combine(content, GameInstallationLayout.RoomObjectGrappleBlockVisualDirectoryName)),
+            Station = RoomObjectStationVisualFiles.Load(Path.Combine(content, GameInstallationLayout.RoomObjectStationVisualDirectoryName)),
+            BlueDoor = RoomObjectBlueDoorVisualFiles.Load(Path.Combine(content, GameInstallationLayout.RoomObjectBlueDoorVisualDirectoryName)),
+            ColoredDoor = RoomObjectColoredDoorVisualFiles.Load(Path.Combine(content, GameInstallationLayout.RoomObjectColoredDoorVisualDirectoryName)),
+            GreyDoor = RoomObjectGreyDoorVisualFiles.Load(Path.Combine(content, GameInstallationLayout.RoomObjectGreyDoorVisualDirectoryName)),
+            EyeDoor = RoomObjectEyeDoorVisualFiles.Load(Path.Combine(content, GameInstallationLayout.RoomObjectEyeDoorVisualDirectoryName)),
+            MotherBrainGlass = RoomObjectMotherBrainGlassVisualFiles.Load(Path.Combine(content, GameInstallationLayout.RoomObjectMotherBrainGlassVisualDirectoryName)),
+            NoobTube = RoomObjectNoobTubeVisualFiles.Load(Path.Combine(content, GameInstallationLayout.RoomObjectNoobTubeVisualDirectoryName)),
+            DownwardGate = RoomObjectDownwardGateVisualFiles.Load(Path.Combine(content, GameInstallationLayout.RoomObjectDownwardGateVisualDirectoryName)),
+            ElevatorPlatform = RoomObjectElevatorPlatformVisualFiles.Load(Path.Combine(content, GameInstallationLayout.RoomObjectElevatorPlatformVisualDirectoryName)),
+            EscapeGate = RoomObjectEscapeGateVisualFiles.Load(Path.Combine(content, GameInstallationLayout.RoomObjectEscapeGateVisualDirectoryName)),
+            BombTorizoHand = RoomObjectBombTorizoHandVisualFiles.Load(Path.Combine(content, GameInstallationLayout.RoomObjectBombTorizoHandVisualDirectoryName)),
+            DraygonCannon = RoomObjectDraygonCannonVisualFiles.Load(Path.Combine(content, GameInstallationLayout.RoomObjectDraygonCannonVisualDirectoryName)),
+            ChozoStatue = RoomObjectChozoStatueVisualFiles.Load(Path.Combine(content, GameInstallationLayout.RoomObjectChozoStatueVisualDirectoryName)),
+            LinkedRestore = RoomObjectLinkedRestoreVisualFiles.Load(Path.Combine(content, GameInstallationLayout.RoomObjectLinkedRestoreVisualDirectoryName)),
+            TourianAccess = RoomObjectTourianAccessVisualFiles.Load(Path.Combine(content, GameInstallationLayout.RoomObjectTourianAccessVisualDirectoryName)),
+            SpeedBooster = RoomObjectSpeedBoosterVisualFiles.Load(Path.Combine(content, GameInstallationLayout.RoomObjectSpeedBoosterVisualDirectoryName)),
+            MaridiaElevatube = RoomObjectMaridiaElevatubeVisualFiles.Load(Path.Combine(content, GameInstallationLayout.RoomObjectMaridiaElevatubeVisualDirectoryName)),
+            SporeSpawnCeiling = RoomObjectSporeSpawnCeilingVisualFiles.Load(Path.Combine(content, GameInstallationLayout.RoomObjectSporeSpawnCeilingVisualDirectoryName)),
+            SamusEater = RoomObjectSamusEaterVisualFiles.Load(Path.Combine(content, GameInstallationLayout.RoomObjectSamusEaterVisualDirectoryName)),
+            BotwoonWall = RoomObjectBotwoonWallVisualFiles.Load(Path.Combine(content, GameInstallationLayout.RoomObjectBotwoonWallVisualDirectoryName)),
+            Kraid = RoomObjectKraidVisualFiles.Load(Path.Combine(content, GameInstallationLayout.RoomObjectKraidVisualDirectoryName)),
+            Crocomire = RoomObjectCrocomireVisualFiles.Load(Path.Combine(content, GameInstallationLayout.RoomObjectCrocomireVisualDirectoryName)),
+            MotherBrainFakeDeath = RoomObjectMotherBrainFakeDeathVisualFiles.Load(Path.Combine(content, GameInstallationLayout.RoomObjectMotherBrainFakeDeathVisualDirectoryName)),
+            Collectible = RoomObjectCollectibleVisualFiles.Load(Path.Combine(content, GameInstallationLayout.RoomObjectCollectibleVisualDirectoryName)),
+            RevealAndWall = RoomObjectRevealAndWallVisualFiles.Load(Path.Combine(content, GameInstallationLayout.RoomObjectRevealAndWallVisualDirectoryName)),
+            SetupBlocks = RoomObjectSetupBlockFiles.Load(Path.Combine(content, GameInstallationLayout.RoomObjectSetupBlockDirectoryName)),
+        };
+    }
 }

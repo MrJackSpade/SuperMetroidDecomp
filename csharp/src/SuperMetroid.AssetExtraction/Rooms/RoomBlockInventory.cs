@@ -1,0 +1,78 @@
+using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.AssetExtraction.World.RoomStates;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Samus.Abilities.Artwork;
+using SuperMetroid.Core.World.RoomStates;
+
+namespace SuperMetroid.AssetExtraction.Rooms;
+
+/// <summary>
+/// The blocks each tileset's rooms can show (#1636): every block some room state of the tileset places in its level data
+/// where the room shows it, and every block a writer (<see cref="RoomBlockWriters"/>) writes while one of those states runs.
+/// A tileset's block sheet pictures these and no other, so tile graphics a room loads among its blocks' only for another
+/// actor (Ridley's in the Ceres Ridley arena, shown on the sprites' artwork) are not pictured as blocks. The inventory is
+/// the import's private knowledge, read once from the installed stock the sheets compose from: nothing installs it and
+/// nothing at run time recomputes it; a room that shows a block its sheet does not picture fails there, naming it.
+/// </summary>
+internal sealed class RoomBlockInventory
+{
+    /// <summary>The blocks each inventoried tileset's rooms can show, ascending.</summary>
+    private readonly Dictionary<TilesetDefinition, SortedSet<int>> shown;
+
+    /// <summary>Keeps the blocks each tileset's rooms can show.</summary>
+    private RoomBlockInventory(Dictionary<TilesetDefinition, SortedSet<int>> shown) => this.shown = shown;
+
+    /// <summary>The blocks the rooms of <paramref name="tileset"/> can show, ascending.</summary>
+    /// <exception cref="InvalidDataException">No inventoried room state loads the tileset.</exception>
+    internal IReadOnlySet<int> Shown(TilesetDefinition tileset) =>
+        shown.TryGetValue(tileset, out SortedSet<int>? blocks) ? blocks
+            : throw new InvalidDataException($"No inventoried room state loads tileset {RoomBlockSheet.NameOf(tileset)}.");
+
+    /// <summary>
+    /// The inventory of every retail room state, from the levels' installed layouts and the installed room-object catalogs
+    /// and X-ray reveal under the content directory <paramref name="content"/>.
+    /// </summary>
+    /// <exception cref="InvalidDataException">An installed layout, catalog or reveal is invalid, or a room state's level is not installed.</exception>
+    internal static RoomBlockInventory Load(string content)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(content);
+        RoomLevelArtworks levels = RoomVisualLayoutFiles.Load(Path.Combine(content, GameInstallationLayout.RoomVisualLayoutDirectoryName));
+        InstalledXrayReveals xray = XrayRevealVisualFiles.Load(Path.Combine(content, GameInstallationLayout.XrayRevealVisualDirectoryName));
+        return Of(RetailStates(levels), RoomBlockWriters.Of(RoomObjectVisualCatalogSet.Load(content), xray));
+    }
+
+    /// <summary>The inventory of <paramref name="states"/>, each showing what its level places and what <paramref name="writers"/> that run in it write.</summary>
+    internal static RoomBlockInventory Of(IEnumerable<InventoriedRoomState> states, IReadOnlyList<RoomBlockWriter> writers)
+    {
+        Ensure.NotNull(states);
+        Ensure.NotNull(writers);
+        var shown = new Dictionary<TilesetDefinition, SortedSet<int>>();
+        foreach (InventoriedRoomState state in states)
+        {
+            Ensure.NotNull(state);
+            if (!shown.TryGetValue(state.Tileset, out SortedSet<int>? blocks))
+                shown.Add(state.Tileset, blocks = []);
+            blocks.UnionWith(state.Placed);
+            foreach (RoomBlockWriter writer in writers)
+            {
+                if (writer.RunsIn(state))
+                    blocks.UnionWith(writer.Blocks);
+            }
+        }
+        return new RoomBlockInventory(shown);
+    }
+
+    /// <summary>Every retail room state, with the level layout it shows.</summary>
+    private static IEnumerable<InventoriedRoomState> RetailStates(RoomLevelArtworks levels)
+    {
+        foreach (RoomHeaderDefinition room in RetailRoomHeaders.All)
+        {
+            foreach (RoomStateSettings state in RoomStateLists.GetStates(room))
+                yield return InventoriedRoomState.Of(room, state, levels.Get(state.Level));
+        }
+    }
+}

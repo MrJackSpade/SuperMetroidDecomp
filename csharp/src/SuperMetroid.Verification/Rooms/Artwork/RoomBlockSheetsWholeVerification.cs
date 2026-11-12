@@ -41,6 +41,9 @@ internal static class RoomBlockSheetsWholeVerification
             HashSet<InWorldCollectibleKind> kinds = placed.TryGetValue(entry.Key, out HashSet<InWorldCollectibleKind>? known) ? known : [];
             for (int block = 0; block < sheet.Inputs.Count; block++)
             {
+                // A block no room of the tileset shows has no picture to depend on anything (#1636).
+                if (!sheet.Inputs.Shows(block))
+                    continue;
                 blocks++;
                 ImmutableArray<AppearanceInput> inputs = sheet.Inputs.Of(block, RoomBlockArtwork.Tileset);
                 foreach (AppearanceInput input in inputs.Where(input => input is not (AnimationAppearance or KraidBackdropAppearance or EncounterLookAppearance)))

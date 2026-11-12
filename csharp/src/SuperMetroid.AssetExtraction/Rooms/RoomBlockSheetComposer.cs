@@ -11,7 +11,8 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
-/// Pre-assembles and pre-colours each tileset's room blocks (#1392, #1431, #1466, #1513): every block its rooms load, once
+/// Pre-assembles and pre-colours each tileset's room blocks (#1392, #1431, #1466, #1513): every block its rooms show, as the
+/// import's inventory of them finds (#1636, <see cref="RoomBlockInventory"/>), and no other block its rooms load, once
 /// from its own tiles and again for each value each appearance input that shows other artwork over the characters it
 /// reads can take (an animation's frame, Kraid's backdrop, an encounter's look), and each frame of each collectible the
 /// tileset's rooms place that shows its own picture, pictured from the collectible's own graphics alone (#1538). No block
@@ -32,10 +33,11 @@ internal static class RoomBlockSheetComposer
     /// </summary>
     private const int RoomBackdropIndex = 0;
 
-    /// <summary>Composes every tileset's sheet.</summary>
-    internal static RoomSheetComposition Compose(RoomBlockSheetInputs inputs)
+    /// <summary>Composes every tileset's sheet, picturing the blocks <paramref name="inventory"/> finds its rooms show and no other (#1636).</summary>
+    internal static RoomSheetComposition Compose(RoomBlockSheetInputs inputs, RoomBlockInventory inventory)
     {
         Ensure.NotNull(inputs);
+        Ensure.NotNull(inventory);
         IReadOnlyDictionary<TilesetDefinition, RoomBlockUploads.TilesetUploads> tilesets = RoomBlockUploads.ByTileset(inputs);
         IReadOnlyDictionary<RoomBlockSet, RoomBlockComposition> blocks = RoomBlockComposition.Of(inputs, tilesets);
         // Each tileset's pictures compose on their own (#1530), and are gathered in tileset order, so what is written and
@@ -47,7 +49,7 @@ internal static class RoomBlockSheetComposer
         {
             (TilesetDefinition tileset, RoomBlockUploads.TilesetUploads uploads) = order[index];
             IReadOnlyList<SheetShade> shades = RoomSheetShades.Room(inputs, tileset);
-            ComposedBlocks composed = Compose(inputs, tileset, uploads, blocks[tileset.Blocks]);
+            ComposedBlocks composed = Compose(inputs, tileset, uploads, blocks[tileset.Blocks], inventory.Shown(tileset));
             composedTilesets[index] = new TilesetPictures(
                 ShadedSheets.With(composed.Sheet, shades),
                 composed.Appearances,
@@ -125,12 +127,15 @@ internal static class RoomBlockSheetComposer
     }
 
     /// <summary>
-    /// Composes one tileset's sheet, the inputs each of its blocks depends on, and the changing cells of each background its
-    /// rooms load.
+    /// Composes one tileset's sheet, picturing only the blocks <paramref name="shownBlocks"/> names (#1636), the inputs each of
+    /// those blocks depends on, and the changing cells of each background its rooms load.
     /// </summary>
-    /// <exception cref="InvalidDataException">An upload covers only part of a run of characters a block reads.</exception>
+    /// <exception cref="InvalidDataException">
+    /// An upload covers only part of a run of characters a block reads, or a block shown is not among those the tileset's
+    /// rooms load.
+    /// </exception>
     private static ComposedBlocks Compose(RoomBlockSheetInputs inputs, TilesetDefinition tileset, RoomBlockUploads.TilesetUploads uploads,
-        RoomBlockComposition blocks)
+        RoomBlockComposition blocks, IReadOnlySet<int> shownBlocks)
     {
         IReadOnlyList<BgCharacterUpload> load = RoomBlockUploads.LoadUploads(inputs, tileset);
         var loaded = new BgArtworkBindings();
@@ -157,12 +162,15 @@ internal static class RoomBlockSheetComposer
         RgbColor[] colours = RoomStaticPaletteImage.Colours(inputs.Palettes.Get(tileset.Palette));
 
         var pictures = new Dictionary<string, Picture>(StringComparer.Ordinal);
-        var tilesetInputs = new ImmutableArray<AppearanceInput>[blocks.Characters.Count];
-        ImmutableArray<AppearanceInput>[]? spriteInputs = objectPage is null ? null : new ImmutableArray<AppearanceInput>[blocks.Characters.Count];
-        for (int block = 0; block < blocks.Characters.Count; block++)
+        // Only the blocks some room of the tileset shows are pictured, over each artwork its rooms show them over; every other
+        // block it loads has no picture and depends on nothing (#1636).
+        ImmutableArray<AppearanceInput>[] tilesetInputs = NoInputs(blocks.Characters.Count);
+        ImmutableArray<AppearanceInput>[]? spriteInputs = objectPage is null ? null : NoInputs(blocks.Characters.Count);
+        foreach (int block in shownBlocks.Order())
         {
-            if (spriteInputs is not null)
-                spriteInputs[block] = [];
+            if ((uint)block >= (uint)blocks.Characters.Count)
+                throw new InvalidDataException(
+                    $"A room of tileset {RoomBlockSheet.NameOf(tileset)} shows block {block}, past the {blocks.Characters.Count} blocks its rooms load.");
             BackgroundTile[] tiles = blocks.TilesOf(block).ToArray();
             tilesetInputs[block] = AddBlock(block, RoomBlockArtwork.Tileset, blocks.Characters.RunsOf(block), tiles, options, loaded);
             if (spriteInputs is not null)
@@ -234,7 +242,7 @@ internal static class RoomBlockSheetComposer
         ComposedSpriteSheet sheet = canvas.ToSplitRoomSheet(colours, frames);
         // The tileset's rooms show its first background colour where nothing is drawn (#1544).
         return new ComposedBlocks(sheet with { Manifest = sheet.Manifest with { Backdrop = RoomBackdropIndex } },
-            new RoomBlockAppearances(tilesetInputs, spriteInputs), cells);
+            new RoomBlockAppearances(tilesetInputs, spriteInputs, shownBlocks), cells);
 
         // Adds a picture of block `block` over `artwork` for each assignment of values to the inputs `candidates` give the
         // runs of characters `runs` it reads, over what `over` shows where an input shows the load; returns those inputs. A
@@ -280,6 +288,14 @@ internal static class RoomBlockSheetComposer
                     pictures.TryAdd(AppearancePictureNames.Of(subject, cellInputs, values), new Picture([.. cellTiles], shown));
             }
         }
+    }
+
+    /// <summary>The inputs of <paramref name="count"/> blocks none of which depends on any.</summary>
+    private static ImmutableArray<AppearanceInput>[] NoInputs(int count)
+    {
+        var inputs = new ImmutableArray<AppearanceInput>[count];
+        Array.Fill(inputs, ImmutableArray<AppearanceInput>.Empty);
+        return inputs;
     }
 
     /// <summary>

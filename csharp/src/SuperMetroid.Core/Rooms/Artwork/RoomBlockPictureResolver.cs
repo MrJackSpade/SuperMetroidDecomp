@@ -46,7 +46,8 @@ public sealed class RoomBlockPictureResolver(RoomBlockSheet sheet)
     /// <param name="appearance">The values the room's appearance inputs take now.</param>
     /// <param name="alsoShown">Further blocks the frame shows, as the X-ray reveal's blocks; none when empty.</param>
     /// <exception cref="InvalidDataException">
-    /// A block is not among those the tileset loads, or the sheet holds no picture of a block for its inputs' values.
+    /// A block is not among those the tileset loads, or the sheet holds no picture of a block, or none for its inputs' values,
+    /// naming the sheet and the block (#1636).
     /// </exception>
     public RoomBlockPictureTable Resolve(RoomLevelPlane foreground, RoomLevelPlane? background, RoomBlockArtwork blockArtwork, RoomAppearanceView appearance,
         IEnumerable<int> alsoShown)
@@ -100,18 +101,22 @@ public sealed class RoomBlockPictureResolver(RoomBlockSheet sheet)
     }
 
     /// <summary>The inputs the picture <paramref name="definition"/> names depends on: none for a collectible's picture.</summary>
+    /// <exception cref="InvalidDataException">The sheet has no picture of the block (#1636).</exception>
     private ImmutableArray<AppearanceInput> InputsOf(int definition, RoomBlockArtwork blockArtwork) =>
-        CollectibleCellPictures.TryPictureOf(definition, out _) ? [] : Sheet.Inputs.Of(definition, blockArtwork);
+        CollectibleCellPictures.TryPictureOf(definition, out _) ? [] : Sheet.InputsOf(definition, blockArtwork);
 
     /// <summary>
     /// The picture <paramref name="definition"/> shows over <paramref name="blockArtwork"/> while its inputs take
     /// <paramref name="blockValues"/>: a collectible's is its kind's alone, which nothing the room shows changes (#1538).
     /// </summary>
-    /// <exception cref="InvalidDataException">A collectible shows in a room whose blocks show the sprites' artwork, where none lies.</exception>
+    /// <exception cref="InvalidDataException">
+    /// The sheet has no picture of the block for those values (#1636), or a collectible shows in a room whose blocks show the
+    /// sprites' artwork, where none lies.
+    /// </exception>
     private LayeredPicture PictureOf(int definition, RoomBlockArtwork blockArtwork, ImmutableArray<AppearanceInput> inputs, string[] blockValues)
     {
         if (!CollectibleCellPictures.TryPictureOf(definition, out CollectiblePicture collectible))
-            return Sheet.Picture(RoomBlockPictureNames.Of(definition, blockArtwork, inputs, blockValues));
+            return Sheet.BlockPicture(definition, blockArtwork, inputs, blockValues);
         return blockArtwork == RoomBlockArtwork.Tileset ? Sheet.PictureOf(collectible)
             : throw new InvalidDataException($"A room showing its blocks over {blockArtwork} shows collectible {collectible.Kind}.");
     }

@@ -106,7 +106,7 @@ internal sealed class SpriteSheetStore
         InstalledSheetDocument document = SpriteSheetFile.ReadDocument(
             new MemoryStream(File.ReadAllBytes(Path.Combine(directory, file)), writable: false), name);
         pictures.RequireHolds(name, document);
-        return SpriteSheetFile.Load(document, name, () => pictures.Assemble(document));
+        return SpriteSheetFile.Load(document, name, () => pictures.Assemble(name, document));
     }
 
     /// <summary>A sheet's manifest file name.</summary>

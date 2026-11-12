@@ -45,12 +45,13 @@ dotnet_diagnostic.CA2201.severity = error
 dotnet_diagnostic.IDE0078.severity = error
 dotnet_diagnostic.SYSLIB1054.severity = error
 # Owner decision (2026-11-11): Roslyn's own code fixes resolve these without a choice; the asynchronous cleanup enforces them.
-dotnet_diagnostic.IDE0004.severity = suggestion
-dotnet_diagnostic.IDE0005.severity = suggestion
-dotnet_diagnostic.IDE0044.severity = suggestion
-dotnet_diagnostic.IDE0076.severity = suggestion
-dotnet_diagnostic.IDE0077.severity = suggestion
-dotnet_diagnostic.IDE0079.severity = suggestion
+# At none the build skips their analyzers, so they cost no build time; tools/cleanup/run.ps1 reads this group from here.
+dotnet_diagnostic.IDE0004.severity = none
+dotnet_diagnostic.IDE0005.severity = none
+dotnet_diagnostic.IDE0044.severity = none
+dotnet_diagnostic.IDE0076.severity = none
+dotnet_diagnostic.IDE0077.severity = none
+dotnet_diagnostic.IDE0079.severity = none
 # #627: a primitive switched over named constants is a closed domain; model it as a type.
 dotnet_diagnostic.SME6270.severity = error
 # #627: closed-domain switches handle every member and fail loudly on undefined values.

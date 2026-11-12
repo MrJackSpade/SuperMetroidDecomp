@@ -2,12 +2,23 @@
 
 Every type declared in the repository's source is listed in
 [`architecture-inventory.json`](architecture-inventory.json) with its kind, scope (product, test or
-tool), assemblies, files, partial status and disposition. The inventory is generated, and CI fails
-when it is stale:
+tool), assemblies, files, partial status and disposition. The inventory is generated:
 
 ```
 dotnet run --project csharp/src/SuperMetroid.ArchitectureAudit -c Release -- --solution csharp/SuperMetroid.Full.slnx --write
 ```
+
+The audit has four modes, all taking `--solution <SuperMetroid.Full.slnx>`:
+
+| Mode | Does |
+| --- | --- |
+| (none) | The full check: fails on a stale inventory, a stale review, an unjustified finding, a review without a reason or a Core module cycle. |
+| `--write` | Regenerates both inventories, then fails on every other problem the full check reports, stale reviews included. |
+| `--findings` | Fails only on what needs judgment: an unjustified finding, a review without a reason, a Core module cycle. CI runs this mode. |
+| `--prune-stale-reviews` | Deletes every `[ArchitectureReview]` whose finding its type no longer has, writing nothing if any edit fails. |
+
+A stale inventory and a stale review are deterministic, so they never block a push: the asynchronous cleanup
+(`tools/cleanup/README.md`) prunes stale reviews and regenerates the inventories after each push.
 
 ## Dispositions
 
@@ -42,8 +53,9 @@ public sealed record EnemyTileArtworkParts
 ```
 
 The attribute names the finding kind (`back-reference`, `context-bag`, `service-locator`, `large`, `wide-dependencies`) and a reason
-specific to that type. The audit requires one per current finding and fails on a review whose finding is gone, so
-justifications cannot outlive the shape they excuse. There is no central list: nothing outside the type can
+specific to that type. The audit requires one per current finding, and a review whose finding is gone is stale: the
+full check fails on it and the cleanup deletes it, so justifications cannot outlive the shape they excuse. There is
+no central list: nothing outside the type can
 justify its finding, and the audit never accepts a finding in bulk.
 
 A justification is legitimate only when the site is intrinsic (a framework callback that must reach its host, a

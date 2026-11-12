@@ -10,11 +10,20 @@
 // the requested rules with the project's own configuration, and applies the fixes of Roslyn's code-style fixers, the
 // same fixers `dotnet format style` uses, from the code-style package the projects reference.
 //
+// csharp/.editorconfig sets the group to none, so the build skips their analyzers and they cost it no time. The runner
+// therefore enables exactly the requested rules, as warnings, in its own analysis: in the compilation's per-file
+// diagnostic options, where the .editorconfig severity would otherwise win over any compilation-wide setting, and in
+// the analyzer configuration the code-style analyzers read their own severity from. Every other rule keeps the
+// project's configuration. The caller (tools/cleanup/run.ps1) reads the group from csharp/.editorconfig.
+//
+// IDE0079 (unnecessary suppression) is in the group, but no command-line analyzer reports it (README.md), so the
+// runner refuses to be asked for it rather than report that it found nothing.
+//
 // A file compiled into several projects (test-support through .projitems, or a <Compile Link>) is edited only where
 // every project compiling it reports the same finding at the same place, and not at all while any of them has a
 // compiler error, because a semantic model with errors reads needed code as unnecessary. Where the projects disagree
-// about a file's unnecessary usings, only the usings every project reports are removed (the rule of
-// tools/remove-unused-usings.py); other disagreeing findings are left and counted as kept.
+// about a file's unnecessary usings, only the usings every project reports are removed; other disagreeing findings
+// are left and counted as kept.
 //
 // Fixes cascade (a removed cast can leave a using unnecessary), so the analysis repeats until a pass finds nothing to
 // apply. Each pass applies one rule per file, because the other findings' spans are stale once a file changes. The
@@ -107,7 +116,10 @@ internal sealed class SolutionFixer
 
     /// <summary>The order rules are applied in within a file: suppressions first, then code, then the usings that
     /// the other fixes can leave unnecessary.</summary>
-    private static readonly string[] RuleOrder = ["IDE0076", "IDE0077", "IDE0079", "IDE0004", "IDE0044", "IDE0005"];
+    private static readonly string[] RuleOrder = ["IDE0076", "IDE0077", "IDE0004", "IDE0044", "IDE0005"];
+
+    /// <summary>The rule of the automatically fixed group that no command-line analyzer reports (README.md).</summary>
+    private const string UnnecessarySuppression = "IDE0079";
 
     /// <summary>The unused-using rule, which reports one finding per file covering every unnecessary using.</summary>
     private const string UnusedUsing = "IDE0005";
@@ -129,6 +141,9 @@ internal sealed class SolutionFixer
         _rules = rules.ToHashSet(StringComparer.Ordinal);
         foreach (string rule in _rules)
         {
+            if (rule == UnnecessarySuppression)
+                throw new ArgumentException($"{rule} has no command-line analyzer: the code-style package reports no unnecessary " +
+                    "suppression outside the IDE, so this runner cannot find its sites (tools/cleanup/README.md).");
             if (!RuleOrder.Contains(rule))
                 throw new ArgumentException($"{rule} is not one of the rules this runner orders: {string.Join(", ", RuleOrder)}.");
         }
@@ -242,11 +257,19 @@ internal sealed class SolutionFixer
         }
     }
 
-    /// <summary>Compiles one project and runs its analyzers for the requested rules.</summary>
+    /// <summary>Compiles one project and runs its analyzers for the requested rules, enabled as warnings.</summary>
     private async Task<ProjectAnalysis> AnalyzeProjectAsync(Project project)
     {
-        Compilation compilation = await project.GetCompilationAsync()
+        Compilation configured = await project.GetCompilationAsync()
             ?? throw new InvalidOperationException($"{project.Name} produced no compilation.");
+        SyntaxTreeOptionsProvider treeOptions = configured.Options.SyntaxTreeOptionsProvider
+            ?? throw new InvalidOperationException($"{project.Name} has no per-file analyzer configuration; csharp/.editorconfig is not loaded.");
+        Compilation compilation = configured.WithOptions(configured.Options
+            .WithSpecificDiagnosticOptions(configured.Options.SpecificDiagnosticOptions.SetItems(
+                _rules.Select(rule => KeyValuePair.Create(rule, ReportDiagnostic.Warn))))
+            .WithSyntaxTreeOptionsProvider(new EnabledRuleTreeOptions(treeOptions, _rules)));
+        var analyzerOptions = new AnalyzerOptions(project.AnalyzerOptions.AdditionalFiles,
+            new EnabledRuleConfigOptions(project.AnalyzerOptions.AnalyzerConfigOptionsProvider, _rules));
         var analyzers = project.AnalyzerReferences
             .SelectMany(reference => reference.GetAnalyzers(project.Language))
             .Where(analyzer => analyzer.SupportedDiagnostics.Any(descriptor => _rules.Contains(descriptor.Id)))
@@ -256,7 +279,7 @@ internal sealed class SolutionFixer
         if (unsupported.Count > 0)
             throw new InvalidOperationException(
                 $"{project.Name} references no analyzer for {string.Join(", ", unsupported)}; the code-style analyzers are not loaded.");
-        var diagnostics = await compilation.WithAnalyzers(analyzers, project.AnalyzerOptions).GetAllDiagnosticsAsync();
+        var diagnostics = await compilation.WithAnalyzers(analyzers, analyzerOptions).GetAllDiagnosticsAsync();
         var errors = diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error && d.Id.StartsWith("CS", StringComparison.Ordinal)).ToList();
         var findings = new Dictionary<string, List<Diagnostic>>(StringComparer.OrdinalIgnoreCase);
         var fixable = new Dictionary<string, List<Diagnostic>>(StringComparer.OrdinalIgnoreCase);
@@ -487,6 +510,74 @@ internal sealed class SolutionFixer
         }
         return start;
     }
+}
+
+/// <summary>A compilation's per-file diagnostic options with the requested rules enabled as warnings. The per-file
+/// options carry csharp/.editorconfig's severities and win over the compilation-wide options, so the group's
+/// <c>none</c> is replaced here; every other rule and file reads the project's own configuration.</summary>
+internal sealed class EnabledRuleTreeOptions(SyntaxTreeOptionsProvider configured, IReadOnlySet<string> rules) : SyntaxTreeOptionsProvider
+{
+    /// <summary>The project's own answer: enabling a rule does not change which files are generated.</summary>
+    public override GeneratedKind IsGenerated(SyntaxTree tree, CancellationToken cancellationToken) =>
+        configured.IsGenerated(tree, cancellationToken);
+
+    /// <summary>Warning for a requested rule in every file; the project's configuration for any other.</summary>
+    public override bool TryGetDiagnosticValue(SyntaxTree tree, string diagnosticId, CancellationToken cancellationToken, out ReportDiagnostic severity)
+    {
+        if (rules.Contains(diagnosticId))
+        {
+            severity = ReportDiagnostic.Warn;
+            return true;
+        }
+        return configured.TryGetDiagnosticValue(tree, diagnosticId, cancellationToken, out severity);
+    }
+
+    /// <summary>Warning for a requested rule; the project's global configuration for any other.</summary>
+    public override bool TryGetGlobalDiagnosticValue(string diagnosticId, CancellationToken cancellationToken, out ReportDiagnostic severity)
+    {
+        if (rules.Contains(diagnosticId))
+        {
+            severity = ReportDiagnostic.Warn;
+            return true;
+        }
+        return configured.TryGetGlobalDiagnosticValue(diagnosticId, cancellationToken, out severity);
+    }
+}
+
+/// <summary>The analyzer configuration with <c>dotnet_diagnostic.&lt;rule&gt;.severity = warning</c> for each requested
+/// rule. The code-style analyzers read a rule's severity from this configuration to decide whether to analyze at all,
+/// so the compilation's options alone would leave them skipping the group's <c>none</c>.</summary>
+internal sealed class EnabledRuleConfigOptions(AnalyzerConfigOptionsProvider configured, IReadOnlySet<string> rules) : AnalyzerConfigOptionsProvider
+{
+    /// <summary>The severity keys of the requested rules, compared the way analyzer configuration keys are.</summary>
+    private readonly HashSet<string> _keys = rules.Select(rule => $"dotnet_diagnostic.{rule}.severity").ToHashSet(AnalyzerConfigOptions.KeyComparer);
+
+    /// <summary>The project's global options with the requested rules enabled.</summary>
+    public override AnalyzerConfigOptions GlobalOptions => new EnabledRuleConfig(configured.GlobalOptions, _keys);
+
+    /// <summary>A file's options with the requested rules enabled.</summary>
+    public override AnalyzerConfigOptions GetOptions(SyntaxTree tree) => new EnabledRuleConfig(configured.GetOptions(tree), _keys);
+
+    /// <summary>An additional file's options with the requested rules enabled.</summary>
+    public override AnalyzerConfigOptions GetOptions(AdditionalText textFile) => new EnabledRuleConfig(configured.GetOptions(textFile), _keys);
+}
+
+/// <summary>One set of analyzer options answering <c>warning</c> for the requested rules' severity keys.</summary>
+internal sealed class EnabledRuleConfig(AnalyzerConfigOptions configured, HashSet<string> keys) : AnalyzerConfigOptions
+{
+    /// <summary>Warning for a requested rule's severity key; the configured value for any other key.</summary>
+    public override bool TryGetValue(string key, [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out string? value)
+    {
+        if (keys.Contains(key))
+        {
+            value = "warning";
+            return true;
+        }
+        return configured.TryGetValue(key, out value);
+    }
+
+    /// <summary>The configured keys and the requested rules' severity keys.</summary>
+    public override IEnumerable<string> Keys => configured.Keys.Union(keys, KeyComparer);
 }
 
 /// <summary>Hands a fix-all exactly the findings chosen for one document, and nothing else.</summary>

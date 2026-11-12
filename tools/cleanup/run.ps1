@@ -2,9 +2,10 @@
 # runs the tree's own copy, so the fixes always match the code they clean. Everything it prints goes to the run's log.
 #
 # 1. Restores the solution and builds the reachability audit in Release (the prune runs it without building).
-# 2. Alternates the code fixes of the automatically fixed rules (CodeFixRunner.cs) with the reachability prune of dead
-#    code until one of each in a row changes nothing; a tree seen before means the steps cycle, and the run fails.
-# 3. Regenerates the architecture and module inventories as the pre-push gate does.
+# 2. Takes turns at the code fixes of the automatically fixed rules (CodeFixRunner.cs, the rules read from
+#    csharp/.editorconfig), the reachability prune of dead code and the architecture audit's prune of stale reviews,
+#    until one of each in a row changes nothing; a tree seen before means the steps cycle, and the run fails.
+# 3. Regenerates the architecture and module inventories.
 # 4. When anything changed: builds the solution once with tools/build.ps1, commits as "Cleanup: ..." and pushes with
 #    a plain fast-forward push. A failed build pushes nothing; its full output is kept with the run.
 #
@@ -22,10 +23,10 @@ Set-StrictMode -Version Latest
 $repository = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
 $solution = 'csharp/SuperMetroid.Full.slnx'
 
-# The rules csharp/.editorconfig places in the automatically fixed group that a command-line code fix can apply, with
-# the words the commit message uses for each. IDE0079 is in the group but no command-line analyzer reports it (the
-# code-style package has none; README.md), so the cleanup cannot find its sites.
-$FixedRules = [ordered]@{
+# The words the commit message uses for each rule of the automatically fixed group. The group itself is read from
+# csharp/.editorconfig (Get-FixedRules); a rule there with no words here, or words here for a rule not there, fails
+# the run, so the two never drift apart silently.
+$FixedRuleWords = [ordered]@{
     IDE0004 = 'redundant casts removed'
     IDE0005 = 'unused usings removed'
     IDE0044 = 'fields made read-only'
@@ -33,12 +34,22 @@ $FixedRules = [ordered]@{
     IDE0077 = 'legacy suppression targets updated'
 }
 
+# The group's rules that no command-line analyzer reports: the code-style package has none for IDE0079 (README.md),
+# so the cleanup cannot find its sites and CodeFixRunner.cs refuses it.
+$NoCommandLineAnalyzer = @('IDE0079')
+
 # The reachability prune's categories, source prefix and destination for dead code tests still use.
 $PruneCategories = 'unreachable-member,unreachable-type,unreferenced-field,unreferenced-enum-member,unreferenced-constant'
 
-# The bound on fix and prune steps. Each step either changes nothing or removes code, so real cascades settle in a few
-# steps; reaching this many means the steps keep undoing each other without repeating a tree exactly.
-$MaxSteps = 12
+# The steps the run takes turns at: code fixes, the dead-code prune and the stale-review prune.
+$StepKinds = @('fix', 'prune', 'reviews')
+
+# The bound on rounds of those steps. Each step either changes nothing or removes code, so real cascades settle in a
+# few rounds; reaching this many means the steps keep undoing each other without repeating a tree exactly.
+$MaxRounds = 6
+
+# The line the architecture audit's --prune-stale-reviews prints for each review it removes.
+$StaleReviewLine = 'Removed stale review: '
 
 function Write-Step([string]$Text) {
     Write-Host ''
@@ -95,6 +106,32 @@ function Save-Result([hashtable]$Outcome) {
     Write-AtomicText $Result ($Outcome | ConvertTo-Json -Depth 6)
 }
 
+function Get-FixedRules {
+    # The automatically fixed group: the `dotnet_diagnostic.<rule>.severity = none` lines directly under the comment in
+    # csharp/.editorconfig that names the asynchronous cleanup. Returns the rules a command-line code fix can apply.
+    $path = Join-Path $repository 'csharp/.editorconfig'
+    $lines = [IO.File]::ReadAllLines($path)
+    $comments = @(for ($index = 0; $index -lt $lines.Count; $index++) { if ($lines[$index] -match '^#.*\basynchronous cleanup\b') { $index } })
+    if ($comments.Count -ne 1) { throw "Expected one comment naming the asynchronous cleanup in $path, found $($comments.Count)." }
+    $line = $comments[0]
+    while ($line -lt $lines.Count -and $lines[$line].StartsWith('#')) { $line++ }
+    $group = [Collections.Generic.List[string]]::new()
+    while ($line -lt $lines.Count -and $lines[$line] -match '^dotnet_diagnostic\.(\w+)\.severity = none$') {
+        $group.Add($Matches[1])
+        $line++
+    }
+    if ($group.Count -eq 0) { throw "No 'dotnet_diagnostic.<rule>.severity = none' line follows the asynchronous cleanup's comment in $path." }
+    foreach ($rule in $group) {
+        if (-not $FixedRuleWords.Contains($rule) -and $NoCommandLineAnalyzer -notcontains $rule) {
+            throw "$path puts $rule in the automatically fixed group, but run.ps1 has no commit-message words for it."
+        }
+    }
+    foreach ($rule in @($FixedRuleWords.Keys) + $NoCommandLineAnalyzer) {
+        if (-not $group.Contains($rule)) { throw "run.ps1 names $rule, which $path does not put in the automatically fixed group." }
+    }
+    return @($group | Where-Object { $NoCommandLineAnalyzer -notcontains $_ })
+}
+
 try {
     Disable-ErrorDialogs
     Set-Location $repository
@@ -108,23 +145,27 @@ try {
     $audit = Invoke-Build 'reachability audit Release build' 'reachability-audit-build.log' @('csharp/src/SuperMetroid.ReachabilityAudit', '-c', 'Release')
     if ($audit.Exit -ne 0) { throw "The reachability audit does not build in Release; see $($audit.Log)." }
 
+    $fixedRules = Get-FixedRules
     $codeFixes = [ordered]@{}
     $kept = [ordered]@{}
     $prunedPaths = [Collections.Generic.SortedSet[string]]::new([StringComparer]::Ordinal)
     $prunedSummaries = [Collections.Generic.List[string]]::new()
     $retiredFields = [Collections.Generic.List[string]]::new()
     $fixedPaths = [Collections.Generic.SortedSet[string]]::new([StringComparer]::Ordinal)
+    $reviewPaths = [Collections.Generic.SortedSet[string]]::new([StringComparer]::Ordinal)
+    $staleReviews = [Collections.Generic.List[string]]::new()
     $seen = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
     $tree = Get-TreeId
     $null = $seen.Add($tree)
     $unchangedInARow = 0
-    for ($step = 1; $unchangedInARow -lt 2; $step++) {
-        if ($step -gt $MaxSteps) { throw "The fix and prune steps did not settle within $MaxSteps steps." }
-        $isFix = $step % 2 -eq 1
-        if ($isFix) {
-            Write-Step "step $step`: code fixes ($($FixedRules.Keys -join ', '))"
+    $maxSteps = $MaxRounds * $StepKinds.Count
+    for ($step = 1; $unchangedInARow -lt $StepKinds.Count; $step++) {
+        if ($step -gt $maxSteps) { throw "The fix and prune steps did not settle within $maxSteps steps." }
+        $kind = $StepKinds[($step - 1) % $StepKinds.Count]
+        if ($kind -eq 'fix') {
+            Write-Step "step $step`: code fixes ($($fixedRules -join ', '))"
             $summaryPath = Join-Path $Artifacts "code-fixes-$step.json"
-            Invoke-Checked 'code fixes' { dotnet run tools/cleanup/CodeFixRunner.cs -- $solution $summaryPath ($FixedRules.Keys -join ',') }
+            Invoke-Checked 'code fixes' { dotnet run tools/cleanup/CodeFixRunner.cs -- $solution $summaryPath ($fixedRules -join ',') }
             $summary = Get-Content -LiteralPath $summaryPath -Raw | ConvertFrom-Json
             foreach ($property in $summary.Fixed.PSObject.Properties) { $codeFixes[$property.Name] = [int]$codeFixes[$property.Name] + [int]$property.Value }
             $kept = [ordered]@{}
@@ -133,7 +174,7 @@ try {
                 Write-Output "projects with compiler errors, whose files were left alone: $($summary.ProjectsWithCompilerErrors -join ', ')"
             }
         }
-        else {
+        elseif ($kind -eq 'prune') {
             Write-Step "step $step`: reachability prune of dead code"
             $retired = Join-Path $Artifacts "retired-fields-$step.txt"
             [IO.File]::WriteAllText($retired, '')
@@ -147,6 +188,19 @@ try {
             $output | ForEach-Object { "$_" } | Where-Object { $_ -match '^(Removed|Moved|Relocated|Deleted)\b' } | ForEach-Object { $prunedSummaries.Add($_) }
             Get-Content -LiteralPath $retired | Where-Object { $_ } | ForEach-Object { $retiredFields.Add($_) }
         }
+        elseif ($kind -eq 'reviews') {
+            Write-Step "step $step`: stale architecture reviews (ArchitectureAudit --prune-stale-reviews)"
+            $output = & dotnet run --project csharp/src/SuperMetroid.ArchitectureAudit -c Release -- --solution $solution --prune-stale-reviews 2>&1
+            $exit = $LASTEXITCODE
+            $output | ForEach-Object { "$_" }
+            Write-Output "--- stale review prune exit $exit"
+            if ($exit -ne 0) { throw "The stale review prune failed (exit $exit)." }
+            $output | ForEach-Object { "$_" } | Where-Object { $_.StartsWith($StaleReviewLine) } |
+                ForEach-Object { $staleReviews.Add($_.Substring($StaleReviewLine.Length)) }
+        }
+        else {
+            throw "Unknown step kind $kind."
+        }
         $next = Get-TreeId
         if ($next -eq $tree) {
             $unchangedInARow++
@@ -154,14 +208,18 @@ try {
             continue
         }
         $paths = @(Get-ChangedPaths $tree $next)
-        foreach ($path in $paths) { $null = $(if ($isFix) { $fixedPaths.Add($path) } else { $prunedPaths.Add($path) }) }
+        foreach ($path in $paths) {
+            if ($kind -eq 'fix') { $null = $fixedPaths.Add($path) }
+            elseif ($kind -eq 'prune') { $null = $prunedPaths.Add($path) }
+            else { $null = $reviewPaths.Add($path) }
+        }
         Write-Output "changed $($paths.Count) files"
-        if (-not $seen.Add($next)) { throw "Step $step returned the tree to an earlier state ($next): the fixes and the prune undo each other." }
+        if (-not $seen.Add($next)) { throw "Step $step returned the tree to an earlier state ($next): the fixes and the prunes undo each other." }
         $tree = $next
         $unchangedInARow = 0
     }
 
-    Write-Step 'inventories (ArchitectureAudit --write, as the pre-push gate runs it)'
+    Write-Step 'inventories (ArchitectureAudit --write)'
     Invoke-Checked 'inventories' { dotnet run --project csharp/src/SuperMetroid.ArchitectureAudit -c Release -- --solution $solution --write }
     $final = Get-TreeId
     $inventoryPaths = @(Get-ChangedPaths $tree $final)
@@ -184,18 +242,17 @@ try {
     }
     $built = Get-TreeId
     if ($built -ne $final) {
-        $byBuild = @(Get-ChangedPaths $final $built)
-        Write-Output "the build script removed unused usings it reported in $($byBuild.Count) files"
-        foreach ($path in $byBuild) { $null = $fixedPaths.Add($path) }
+        throw "The build changed the tree, which tools/build.ps1 never does: $(@(Get-ChangedPaths $final $built) -join ', ')"
     }
 
     $parts = [Collections.Generic.List[string]]::new()
-    foreach ($rule in $FixedRules.Keys) {
-        if ($codeFixes[$rule]) { $parts.Add("$rule $($FixedRules[$rule]) $($codeFixes[$rule])") }
+    foreach ($rule in $fixedRules) {
+        if ($codeFixes[$rule]) { $parts.Add("$rule $($FixedRuleWords[$rule]) $($codeFixes[$rule])") }
     }
     if ($prunedPaths.Count -gt 0) { $parts.Add("dead code pruned in $($prunedPaths.Count) files") }
+    if ($staleReviews.Count -gt 0) { $parts.Add("stale architecture reviews removed $($staleReviews.Count)") }
     if ($inventoryPaths.Count -gt 0) { $parts.Add('inventories regenerated') }
-    if ($parts.Count -eq 0) { $parts.Add("tools/build.ps1 removed unused usings in $(@(Get-ChangedPaths $final $built).Count) files") }
+    if ($parts.Count -eq 0) { throw "The tree changed in $($changed.Count) files, but no step accounts for it: $($changed -join ', ')" }
     $subject = "Cleanup: $($parts -join '; ')"
     $body = [Collections.Generic.List[string]]::new()
     $body.Add("The asynchronous cleanup of $Tip (tools/cleanup/README.md).")
@@ -216,6 +273,10 @@ try {
     if ($retiredFields.Count -gt 0) {
         $body.Add('Retired instance fields:')
         $retiredFields | ForEach-Object { $body.Add("  $_") }
+    }
+    if ($staleReviews.Count -gt 0) {
+        $body.Add("Stale architecture reviews removed ($($staleReviews.Count), in $($reviewPaths.Count) files):")
+        $staleReviews | ForEach-Object { $body.Add("  $_") }
     }
     if ($inventoryPaths.Count -gt 0) { $body.Add("Inventories regenerated: $($inventoryPaths -join ', ')") }
     $body.Add("Built with tools/build.ps1 $solution.")

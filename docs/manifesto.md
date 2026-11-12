@@ -198,8 +198,10 @@ the `ushort` is already there, the hex is already there, the address switch is a
 So each design decision, once made, is written down as a Roslyn analyzer in `SuperMetroid.EnsureAnalyzer`, runs
 at **error** severity in every maintained project, and fails the build. The rules are the migration made
 executable. The one exception is the owner's (2026-11-11): rules whose every finding an existing fixer resolves with
-no choice and no change of behaviour are grouped in `csharp/.editorconfig` below error, and the asynchronous cleanup
-(`tools/cleanup/`) fixes them and pushes the fixes after each commit. `csharp/.editorconfig` and the analyzer sources
+no choice and no change of behaviour are grouped in `csharp/.editorconfig` at `none`, so the build spends no time on
+them, and the asynchronous cleanup (`tools/cleanup/`) fixes them and pushes the fixes after each commit. Dead code,
+stale inventories and stale architecture reviews never block a push either; the cleanup fixes them. Only findings that
+need judgment block. `csharp/.editorconfig` and the analyzer sources
 are the authoritative list; the families are:
 
 | Family | Enforces |

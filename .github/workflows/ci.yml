@@ -44,10 +44,11 @@ jobs:
         run: dotnet build csharp/SuperMetroid.Full.slnx -c Release
       - name: Fail on dead code
         run: dotnet run --project csharp/src/SuperMetroid.ReachabilityAudit -c Release --no-build -- --solution csharp/SuperMetroid.Full.slnx --check --output out/reachability
-      # Every type has a disposition; a flagged owner, locator, context bag or large class is justified on the type or fails.
-      - name: Architecture audit (inventory current, every finding justified at its site)
+      # A flagged owner, locator, context bag or large class is justified on the type or fails, and so does a Core module
+      # cycle. Stale inventories and stale reviews do not fail here: the asynchronous cleanup (tools/cleanup) fixes them.
+      - name: Architecture audit (every finding justified at its site)
         if: always()
-        run: dotnet run --project csharp/src/SuperMetroid.ArchitectureAudit -c Release --no-build -- --solution csharp/SuperMetroid.Full.slnx
+        run: dotnet run --project csharp/src/SuperMetroid.ArchitectureAudit -c Release --no-build -- --solution csharp/SuperMetroid.Full.slnx --findings
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:

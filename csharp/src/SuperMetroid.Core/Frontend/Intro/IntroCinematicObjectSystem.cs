@@ -6,7 +6,8 @@ namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
 /// The narration pages' persistent objects: the portrait eye running its typed <see cref="IntroEyeAnimations"/>
-/// program, the typewriter narration written from installed glyph records, and the text caret.
+/// program, the typewriter narration written from installed glyph records, the text caret, and the Japanese text's
+/// next-page arrow at each page's input wait.
 /// </summary>
 internal sealed class IntroCinematicObjectSystem
 {
@@ -40,6 +41,16 @@ internal sealed class IntroCinematicObjectSystem
     private bool narrationFinalHoldStarted;
     /// <summary>The persistent text-caret sprite object, running its typed program (#641); <see cref="Caret"/> places it.</summary>
     private readonly IntroDiscoverySprite caretSprite = new(default, IntroShades.Drawn(IntroSpriteColouring.CrossFadeObjects), CinematicSpriteProgram.IntroTextCaret);
+    /// <summary>
+    /// The Japanese text's next-page arrow (#1655), which each of pages one to five spawns with Japanese text as its text
+    /// ends; null while none shows.
+    /// </summary>
+    private IntroDiscoverySprite? nextPageArrow;
+    /// <summary>
+    /// Whether the press that turns the page has been accepted since the arrow's last update: the page-turn setup starts
+    /// the cross-fade, and the arrow deletes itself at its next update, in the same frame.
+    /// </summary>
+    private bool pageTurnAccepted;
     /// <summary>Alternates typewriter audio calls while letters appear.</summary>
     private bool typewriterSoundToggle;
     /// <summary>Created by the first glyph to animate per-character glow effects.</summary>
@@ -80,6 +91,16 @@ internal sealed class IntroCinematicObjectSystem
 
     /// <summary>The pose the text caret's program shows; null before its first frame.</summary>
     internal CinematicSpritePose? CaretPose => caretSprite.Pose;
+
+    /// <summary>The Japanese text's next-page arrow while it shows (#1655); null with English text and between input waits.</summary>
+    internal IntroDiscoverySprite? NextPageArrow => nextPageArrow;
+
+    /// <summary>
+    /// Records that a page's input wait accepted the press that turns the page (#1655). The page-turn setup starts the
+    /// page's cross-fade, and the next-page arrow, which watches for the cross-fade's start, deletes itself at its next
+    /// update: the same frame, before anything is drawn.
+    /// </summary>
+    public void AcceptPageTurn() => pageTurnAccepted = true;
 
     /// <summary>Current screen position of the persistent text caret object; Y=248 deliberately hides it below the viewport.</summary>
     public Position16<ScreenPixels> Caret { get; private set; } =
@@ -170,6 +191,7 @@ internal sealed class IntroCinematicObjectSystem
                 "Opening narration requires its installed presentation to be bound.");
         }
         caretSprite.Step();
+        StepNextPageArrow();
         subtitles.Step(newlyPressed, MarkAwaitingInput);
         StepEye();
         if (narrationProgram is not null)
@@ -282,9 +304,11 @@ internal sealed class IntroCinematicObjectSystem
             return;
         }
         // The page's blinking-markers-and-wait instruction first
-        // sets the caret blinking. Japanese pages two to five then wait for the press that
-        // shows their second subtitle, whose object selects the page's input wait.
+        // sets the caret blinking, and with Japanese text spawns the next-page arrow. Japanese pages two to five then
+        // wait for the press that shows their second subtitle, whose object selects the page's input wait.
         SetCaretBlinking();
+        if (subtitles.Enabled)
+            SpawnNextPageArrow();
         if (subtitles.FinishPage(page))
             MarkAwaitingInput(page);
     }
@@ -336,6 +360,42 @@ internal sealed class IntroCinematicObjectSystem
         // restoring its non-blinking list. Position is state, not a renderer constant.
         Caret = new(IntroCinematicDefinitions.ObjectSystem.CaretLeftX, IntroCinematicDefinitions.ObjectSystem.CaretFirstTextY);
         caretSprite.Start(CinematicSpriteProgram.IntroTextCaret);
+    }
+
+    /// <summary>
+    /// Spawns the next-page arrow at the screen's middle below the text, its looping animation primed to show its first
+    /// frame at its first update. The narration spawns it after this frame's sprite updates, so it first updates on the
+    /// next frame.
+    /// </summary>
+    private void SpawnNextPageArrow()
+    {
+        if (nextPageArrow is not null)
+            throw new InvalidOperationException("The narration spawned a next-page arrow while one was still showing.");
+        nextPageArrow = new IntroDiscoverySprite(
+            new(IntroCinematicDefinitions.ObjectSystem.NextPageArrowX, IntroCinematicDefinitions.ObjectSystem.NextPageArrowY),
+            IntroShades.Drawn(IntroSpriteColouring.CrossFadeObjects), CinematicSpriteProgram.IntroNextPageArrow);
+    }
+
+    /// <summary>
+    /// Runs the next-page arrow's update, its own checks first: the update after a page's second subtitle starts holding
+    /// the input wait, it restarts on its delayed animation, which shows nothing for the hold before the arrow loops
+    /// again; once the press that turns the page is accepted, it deletes itself.
+    /// </summary>
+    private void StepNextPageArrow()
+    {
+        bool turned = pageTurnAccepted;
+        pageTurnAccepted = false;
+        if (nextPageArrow is not { } arrow)
+            return;
+        if (subtitles.HoldFirstCounted)
+            arrow.Start(CinematicSpriteProgram.IntroNextPageArrowDelayed);
+        if (turned)
+        {
+            arrow.Delete();
+            nextPageArrow = null;
+            return;
+        }
+        arrow.Step();
     }
 
     /// <summary>Points the existing caret slot at its blinking list and primes its timer.</summary>

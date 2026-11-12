@@ -35,6 +35,12 @@ internal sealed class IntroJapaneseSubtitles
     /// <summary>Frames the second subtitle still holds the page's input wait; zero when the intro starts.</summary>
     public int Timer { get; private set; }
 
+    /// <summary>
+    /// True on the one update the input wait's hold has counted down once: the second subtitle showed on the update
+    /// before. The next-page arrow hides for the hold from then (#1655).
+    /// </summary>
+    public bool HoldFirstCounted => Timer == SecondSubtitleHoldFrames - 1;
+
     /// <summary>Begins <paramref name="page"/>'s text: Japanese text shows the page's first subtitle.</summary>
     public void BeginPage(IntroNarrationPageId page)
     {

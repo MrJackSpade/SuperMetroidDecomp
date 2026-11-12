@@ -357,6 +357,44 @@ internal sealed class SolutionFixer
         }
     }
 
+    /// <summary>The analyzer file names whose assemblies hold analyzers, so a reference to one that yields none failed to load.</summary>
+    private static readonly string[] AnalyzerAssemblyNames =
+        ["SuperMetroid.EnsureAnalyzer.dll", "Microsoft.CodeAnalysis.CSharp.CodeStyle.dll", "Microsoft.CodeAnalysis.CodeStyle.dll",
+            "Microsoft.CodeAnalysis.NetAnalyzers.dll", "Microsoft.CodeAnalysis.CSharp.NetAnalyzers.dll"];
+
+    /// <summary>
+    /// Every analyzer the project's references load, as its build loads them. Fails on a reference that does not resolve,
+    /// one whose assembly or analyzer types fail to load, and one of the known analyzer assemblies that yields no analyzer,
+    /// so that a rule missing from the result is outside the project rather than lost to a broken workspace.
+    /// </summary>
+    private static ImmutableArray<DiagnosticAnalyzer> LoadedAnalyzers(Project project)
+    {
+        var failures = new List<string>();
+        var analyzers = ImmutableArray.CreateBuilder<DiagnosticAnalyzer>();
+        foreach (AnalyzerReference reference in project.AnalyzerReferences)
+        {
+            if (reference is UnresolvedAnalyzerReference unresolved)
+            {
+                failures.Add($"{unresolved.Display} does not resolve");
+                continue;
+            }
+            void Failed(object? sender, AnalyzerLoadFailureEventArgs failure) =>
+                failures.Add($"{reference.Display}: {failure.ErrorCode} {failure.TypeName} {failure.Message}");
+            var file = reference as AnalyzerFileReference;
+            if (file is not null)
+                file.AnalyzerLoadFailed += Failed;
+            ImmutableArray<DiagnosticAnalyzer> found = reference.GetAnalyzers(project.Language);
+            if (file is not null)
+                file.AnalyzerLoadFailed -= Failed;
+            if (found.IsEmpty && file is not null && AnalyzerAssemblyNames.Contains(Path.GetFileName(file.FullPath), StringComparer.OrdinalIgnoreCase))
+                failures.Add($"{file.FullPath} loads no analyzer");
+            analyzers.AddRange(found);
+        }
+        if (failures.Count > 0)
+            throw new InvalidOperationException($"{project.Name}'s analyzers do not all load:\n" + string.Join('\n', failures));
+        return analyzers.ToImmutable();
+    }
+
     /// <summary>Compiles one project with the requested rules enabled as warnings where their scope allows, and runs
     /// its analyzers for the requested analyzer rules; the compiler's own rules come with the compilation. When
     /// IDE0079 is requested, every analyzer runs, with the whole cleanup group enabled and suppressed diagnostics
@@ -377,16 +415,18 @@ internal sealed class SolutionFixer
             new EnabledRuleConfigOptions(project.AnalyzerOptions.AnalyzerConfigOptionsProvider, scope));
         var analyzerRules = RuleOrder.Where(rule => rule.Findings == FindingSource.Analyzer && _rules.Contains(rule.Id))
             .Select(rule => rule.Id).ToHashSet(StringComparer.Ordinal);
-        var loaded = project.AnalyzerReferences.SelectMany(reference => reference.GetAnalyzers(project.Language)).ToImmutableArray();
+        var loaded = LoadedAnalyzers(project);
         var analyzers = suppressions
             ? loaded
             : loaded.Where(analyzer => analyzer.SupportedDiagnostics.Any(descriptor => analyzerRules.Contains(descriptor.Id))).ToImmutableArray();
-        var supported = analyzers.SelectMany(a => a.SupportedDiagnostics).Select(d => d.Id).ToHashSet(StringComparer.Ordinal);
-        var unsupported = analyzerRules.Where(rule => !supported.Contains(rule)).Order(StringComparer.Ordinal).ToList();
-        if (unsupported.Count > 0)
-            throw new InvalidOperationException(
-                $"{project.Name} references no analyzer for {string.Join(", ", unsupported)}; the code-style analyzers are not loaded, " +
-                "or the repository analyzer is not built in the configuration the workspace opens.");
+        var supported = loaded.SelectMany(a => a.SupportedDiagnostics).Select(d => d.Id).ToHashSet(StringComparer.Ordinal);
+        // A project is held to the rules its own analyzers report, as its build is: the analyzer projects do not load the
+        // repository analyzer (Directory.Build.targets) and, as netstandard2.0 projects, not the .NET analyzers either, so
+        // their builds never reported those rules. LoadedAnalyzers fails on any reference that does not load, so a rule
+        // missing here is outside the project, not lost to a misconfigured workspace.
+        var outside = analyzerRules.Where(rule => !supported.Contains(rule)).Order(StringComparer.Ordinal).ToList();
+        if (outside.Count > 0)
+            Console.WriteLine($"  {project.Name} has no analyzer for {string.Join(", ", outside)}; its build never reports them, so neither does this run");
         if (suppressions && analyzers.IsEmpty)
             throw new InvalidOperationException($"{project.Name} references no analyzer, so its suppressions' use cannot be seen.");
         // The compiler reports its own rules (CS0168, ...) while it binds; with the rule enabled in the per-file options

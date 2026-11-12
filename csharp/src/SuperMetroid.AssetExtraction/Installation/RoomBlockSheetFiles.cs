@@ -34,7 +34,7 @@ public static class RoomBlockSheetFiles
     /// records one period of what each library background shows, its one page where its two pages hold one tilemap, which
     /// the room shows repeated across and down (#1651).
     /// </summary>
-    private const int BackgroundManifestVersion = 5;
+    private const int BackgroundManifestVersion = 6;
 
     /// <summary>The manifest naming each written picture sheet and the inputs each of its pictures depends on.</summary>
     public const string WrittenManifestFileName = "written-pictures.json";
@@ -80,7 +80,8 @@ public static class RoomBlockSheetFiles
         var manifest = new BackgroundManifest(BackgroundManifestVersion,
             composition.Backgrounds.ToDictionary(entry => entry.Key, entry => entry.Value.Words, StringComparer.Ordinal),
             composition.Backgrounds.ToDictionary(entry => entry.Key, entry => entry.Value.Cells.Select(cell => new CellDocument(cell.Cell, cell.Picture,
-                [.. cell.Inputs.Select(input => input.Token)])).ToArray(), StringComparer.Ordinal));
+                [.. cell.Inputs.Select(input => input.Token)])).ToArray(), StringComparer.Ordinal),
+            composition.Backgrounds.ToDictionary(entry => entry.Key, entry => entry.Value.WidthTiles, StringComparer.Ordinal));
         File.WriteAllBytes(Path.Combine(directory, BackgroundManifestFileName), JsonSerializer.SerializeToUtf8Bytes(manifest, JsonOptions));
         return InstalledSheetFamily.Install(directory, ProvenanceFileName, [
             .. composition.BlockSheets.Select(entry => new NamedComposedSheet(RoomBlockSheet.NameOf(entry.Key), entry.Value)),
@@ -125,7 +126,8 @@ public static class RoomBlockSheetFiles
             tilesets.ToDictionary(tileset => tileset, tileset => new RoomBlockSheet(tileset, store.Read(RoomBlockSheet.NameOf(tileset)),
                 RoomBlockAppearanceFiles.Read(directory, tileset))),
             manifest.Words.ToDictionary(entry => entry.Key, entry => new RoomBackgroundImage(entry.Key, store.Read(entry.Key),
-                    RoomBackgroundImageGeometry.ImageSize(entry.Value.Length),
+                    RoomBackgroundImageGeometry.ImageSize(entry.Value.Length, manifest.Widths.TryGetValue(entry.Key, out int width) ? width
+                        : throw new InvalidDataException($"Room background manifest {manifestPath} records no width of {entry.Key}.")),
                     (manifest.Cells.TryGetValue(entry.Key, out CellDocument[]? cells) && cells is not null ? cells
                         : throw new InvalidDataException($"Room background manifest {manifestPath} records no cells of {entry.Key}."))
                     .Select(cell => new RoomBackgroundCell(cell.Cell, cell.Picture ?? throw new InvalidDataException($"Room background manifest {manifestPath} names no picture of a cell of {entry.Key}."),
@@ -206,7 +208,9 @@ public static class RoomBlockSheetFiles
     /// <param name="Version">The schema revision.</param>
     /// <param name="Words">Each image's tilemap words, page by page: one period of what it shows (#1651).</param>
     /// <param name="Cells">Each image's cells whose pictures change with appearance inputs.</param>
-    private sealed record BackgroundManifest(int Version, Dictionary<string, ushort[]> Words, Dictionary<string, CellDocument[]> Cells);
+    /// <param name="Widths">Each image's tiles across one row of its words: a page, or one period across of a page that repeats (#1675).</param>
+    private sealed record BackgroundManifest(int Version, Dictionary<string, ushort[]> Words, Dictionary<string, CellDocument[]> Cells,
+        Dictionary<string, int> Widths);
 
     /// <summary>One cell of a background image whose picture changes with appearance inputs.</summary>
     /// <param name="Cell">The cell.</param>

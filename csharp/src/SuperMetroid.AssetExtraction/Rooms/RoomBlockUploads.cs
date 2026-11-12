@@ -265,7 +265,8 @@ internal static class RoomBlockUploads
                 CharacterArt = inputs.Characters,
             });
         ushort[] words = [.. Enumerable.Range(0, RoomBackgroundImageGeometry.Words).Select(word => vram.ReadWord(GameplayVramLayout.Bg2TilemapWord + word))];
-        return new RoomBackgroundMap(RoomBackgroundImage.NameOf(program.Background, door, tileset), RoomBackgroundImageGeometry.OnePeriod(words), content);
+        RoomBackgroundPeriod period = RoomBackgroundImageGeometry.OnePeriod(words);
+        return new RoomBackgroundMap(RoomBackgroundImage.NameOf(program.Background, door, tileset), period.Words, content) { WidthTiles = period.WidthTiles };
     }
 
     /// <summary>What each enemy writes over its room's BG1 or BG2: the escape warnings Mother Brain and Ceres Ridley type.</summary>
@@ -599,7 +600,11 @@ internal static class RoomBlockUploads
     /// hold one tilemap, otherwise its two pages, the first above the second; or the sky's rows.
     /// </param>
     /// <param name="Content">The bindings the room's load leaves.</param>
-    internal sealed record RoomBackgroundMap(string Name, ushort[] Words, BgArtworkBindings Content);
+    internal sealed record RoomBackgroundMap(string Name, ushort[] Words, BgArtworkBindings Content)
+    {
+        /// <summary>Tiles across one row of <see cref="Words"/>: a page, or one period across of a page that repeats (#1675).</summary>
+        internal int WidthTiles { get; init; } = RoomBackgroundImageGeometry.PageTiles;
+    }
 
     /// <summary>What an OBJ character table holds at one place: the artwork and the character it starts at.</summary>
     /// <param name="Identity">The artwork.</param>

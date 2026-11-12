@@ -105,7 +105,7 @@ internal static class RoomBlockSheetComposer
         Dictionary<BgArtworkIdentity, ReadOnlyMemory<byte>> bytes = load.GroupBy(placement => placement.Identity)
             .ToDictionary(group => group.Key, group => group.First().Bytes);
         RgbColor[] colours = RoomStaticPaletteImage.Colours(inputs.Palettes.Get(tileset.Palette));
-        var canvas = new RoomTileCanvas(RoomBackgroundImageGeometry.ImageSize(background.Words.Length));
+        var canvas = new RoomTileCanvas(RoomBackgroundImageGeometry.ImageSize(background.Words.Length, background.WidthTiles));
         ImageColourGroups groups = ImageColourGroups.None;
         for (int index = 0; index < background.Words.Length; index++)
         {
@@ -113,8 +113,8 @@ internal static class RoomBlockSheetComposer
             int character = word.CharacterIndex;
             if (!background.Content.TryShowing(BgCharacterSet.Tiles, character, 1, out BgArtworkShown shown))
                 throw new InvalidDataException($"Room background {background.Name} reads tile character {character}, which its room loads nothing over.");
-            groups = groups.Union(canvas.PaintTile(index % RoomBackgroundImageGeometry.PageTiles * RoomTileCanvas.CharacterPixels,
-                index / RoomBackgroundImageGeometry.PageTiles * RoomTileCanvas.CharacterPixels, word,
+            groups = groups.Union(canvas.PaintTile(index % background.WidthTiles * RoomTileCanvas.CharacterPixels,
+                index / background.WidthTiles * RoomTileCanvas.CharacterPixels, word,
                 bytes[shown.Artwork].Span.Slice(shown.WordOffset * sizeof(ushort), RoomTileCanvas.CharacterBytes), colours));
         }
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal)
@@ -127,7 +127,7 @@ internal static class RoomBlockSheetComposer
                 ColourGroups = groups.ManifestMembers,
             },
         };
-        return new ComposedRoomBackground(canvas.ToSplitRoomSheet(colours, frames), background.Words, cells);
+        return new ComposedRoomBackground(canvas.ToSplitRoomSheet(colours, frames), background.Words, cells) { WidthTiles = background.WidthTiles };
     }
 
     /// <summary>
@@ -206,7 +206,7 @@ internal static class RoomBlockSheetComposer
         foreach (RoomBlockUploads.RoomBackgroundMap background in uploads.Backgrounds)
         {
             var changing = new List<RoomBackgroundCell>();
-            BackgroundTile[][] backgroundCells = [.. CellsOf(BackgroundTileWords.ToTiles(background.Words))];
+            BackgroundTile[][] backgroundCells = [.. CellsOf(BackgroundTileWords.ToTiles(background.Words), background.WidthTiles)];
             for (int cell = 0; cell < backgroundCells.Length; cell++)
             {
                 BackgroundTile[] cellTiles = backgroundCells[cell];
@@ -307,13 +307,13 @@ internal static class RoomBlockSheetComposer
     /// The 16x16 cells of 32-tile-wide <paramref name="tiles"/>, row by row, each its four tiles: top left, top right,
     /// bottom left, bottom right.
     /// </summary>
-    private static IEnumerable<BackgroundTile[]> CellsOf(BackgroundTile[] tiles)
+    private static IEnumerable<BackgroundTile[]> CellsOf(BackgroundTile[] tiles, int widthTiles)
     {
         for (int cell = 0; cell < tiles.Length / RoomBackgroundImageGeometry.CellTiles; cell++)
         {
-            // Sixteen cells to a pair of 32-tile rows.
-            int first = cell / (RoomBackgroundImageGeometry.PageTiles / 2) * 2 * RoomBackgroundImageGeometry.PageTiles + cell % (RoomBackgroundImageGeometry.PageTiles / 2) * 2;
-            yield return [tiles[first], tiles[first + 1], tiles[first + RoomBackgroundImageGeometry.PageTiles], tiles[first + RoomBackgroundImageGeometry.PageTiles + 1]];
+            // Half as many cells across as tiles, to a pair of rows.
+            int first = cell / (widthTiles / 2) * 2 * widthTiles + cell % (widthTiles / 2) * 2;
+            yield return [tiles[first], tiles[first + 1], tiles[first + widthTiles], tiles[first + widthTiles + 1]];
         }
     }
 

@@ -556,13 +556,15 @@ internal static class RoomBlockPicturesVerification
         // the import pipeline replays them (#1466).
         string name = (runtime.Room.Scope?.BackgroundImage as RoomLibraryBackgroundPicture.Drawn
             ?? throw new InvalidOperationException($"{where}: the room selects no library background image.")).Image.Image.Name;
-        ushort[] words = UploadsOf(runtime).Backgrounds.Single(background => background.Name == name).Words;
+        RoomBlockUploads.RoomBackgroundMap map = UploadsOf(runtime).Backgrounds.Single(background => background.Name == name);
+        ushort[] words = map.Words;
+        int width = map.WidthTiles;
         // The image pictures one period of what the background shows (#1651): one page, or two pages laid out one above the
         // other. Each tile's character is read once for the eight rows of eight pixels it paints.
-        for (int tileY = 0; tileY < words.Length / RoomBackgroundImageGeometry.PageTiles; tileY++)
-        for (int tileX = 0; tileX < RoomBackgroundImageGeometry.PagePixels / CharacterPixels; tileX++)
+        for (int tileY = 0; tileY < words.Length / width; tileY++)
+        for (int tileX = 0; tileX < width; tileX++)
         {
-            var word = new SnesBgTilemapWord(words[tileY * RoomBackgroundImageGeometry.PageTiles + tileX]);
+            var word = new SnesBgTilemapWord(words[tileY * width + tileX]);
             // A character an animation paints shows the frame it selected (#1406), which the composed VRAM never holds.
             ReadOnlySpan<byte> bytes = animations.Bytes(latched, word.CharacterIndex, vram, out _);
             AssertBackgroundTilePaints(plane, word, bytes, tileX, tileY, where);

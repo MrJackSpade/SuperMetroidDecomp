@@ -62,11 +62,9 @@ public sealed class RoomBackgroundImagePlacement
     public static RoomBackgroundImagePlacement OfLibrary(RoomBackgroundImage image, bool halvesStacked)
     {
         Ensure.NotNull(image);
-        if (image.Size.Y <= image.Size.X)
+        // Two different pages are a page wide and two tall; any other image is one period of what the background shows.
+        if (image.Size.X != RoomBackgroundImage.PagePixels || image.Size.Y != 2 * RoomBackgroundImage.PagePixels)
             return Whole(image);
-        if (image.Size.Y != 2 * image.Size.X)
-            throw new ArgumentException(
-                $"Room background {image.Name} is {image.Size.X}x{image.Size.Y}: neither one period, no taller than it is wide, nor two halves, twice as tall.", nameof(image));
         return halvesStacked ? Whole(image) : HalvesSideBySide(image);
     }
 

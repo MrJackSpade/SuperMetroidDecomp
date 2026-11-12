@@ -3,6 +3,7 @@ using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -38,23 +39,23 @@ internal static class RoomBackgroundPeriodVerification
             InstalledSheetFrameDocument behind = document.Frames[RoomBackgroundImage.FrameName];
             int width = behind.Size.X, height = behind.Size.Y;
             // The scrolling sky's rows are pictured whole: they are not a library background's pages.
-            if (width != RoomBackgroundImageGeometry.PagePixels || height == RoomBackgroundImageGeometry.ImageSize(SkyTilemap.Rows * RoomBackgroundImageGeometry.PageTiles).Y)
+            if (height == RoomBackgroundImageGeometry.ImageSize(SkyTilemap.Rows * RoomBackgroundImageGeometry.PageTiles).Y)
                 continue;
-            if (height <= RoomBackgroundImageGeometry.PagePixels)
+            if (width <= RoomBackgroundImageGeometry.PagePixels && height <= RoomBackgroundImageGeometry.PagePixels)
             {
                 onePeriod++;
-                if (height < RoomBackgroundImageGeometry.PagePixels)
-                    shortened.Add($"{sheet} {height} pixels tall");
+                if (height < RoomBackgroundImageGeometry.PagePixels || width < RoomBackgroundImageGeometry.PagePixels)
+                    shortened.Add($"{sheet} {width}x{height}");
                 var image = new InstalledImagePlanes(store.Assemble(sheet, document), document.Size);
                 foreach (string part in parts.Where(document.Frames.ContainsKey))
                 {
                     InstalledSheetFrameDocument frame = document.Frames[part];
-                    if (ShorterCellPeriod(image, frame) is { } rows)
-                        repeated.Add($"{sheet} frame {part} repeats down every {rows} rows of its {frame.Size.Y}");
+                    if (ShorterCellPeriod(image, frame) is { } shorter)
+                        repeated.Add($"{sheet} frame {part} repeats every {shorter.X}x{shorter.Y} of its {frame.Size.X}x{frame.Size.Y}");
                 }
                 continue;
             }
-            if (height != 2 * RoomBackgroundImageGeometry.PagePixels)
+            if (width != RoomBackgroundImageGeometry.PagePixels || height != 2 * RoomBackgroundImageGeometry.PagePixels)
             {
                 malformed.Add($"{sheet} is {width}x{height}: neither one page nor two");
                 continue;
@@ -83,35 +84,46 @@ internal static class RoomBackgroundPeriodVerification
     {
         ushort[] page = [.. Enumerable.Range(0, RoomBackgroundImageGeometry.PageWords).Select(word => (ushort)(word * 7))];
         ushort[] same = [.. page, .. page];
-        ushort[] period = RoomBackgroundImageGeometry.OnePeriod(same);
-        AssertTrue(period.AsSpan().SequenceEqual(page), "two pages holding one tilemap are one page");
+        RoomBackgroundPeriod period = RoomBackgroundImageGeometry.OnePeriod(same);
+        AssertTrue(period.Words.AsSpan().SequenceEqual(page) && period.WidthTiles == RoomBackgroundImageGeometry.PageTiles, "two pages holding one tilemap are one page");
         ushort[] differing = [.. page, .. page];
         differing[^1] ^= 1;
-        AssertTrue(RoomBackgroundImageGeometry.OnePeriod(differing).AsSpan().SequenceEqual(differing),
+        RoomBackgroundPeriod two = RoomBackgroundImageGeometry.OnePeriod(differing);
+        AssertTrue(two.Words.AsSpan().SequenceEqual(differing) && two.WidthTiles == RoomBackgroundImageGeometry.PageTiles,
             "two pages differing in one word stay two pages");
         ushort[] band = [.. Enumerable.Range(0, 4 * RoomBackgroundImageGeometry.PageTiles).Select(word => (ushort)(word * 5))];
         ushort[] banded = [.. Enumerable.Range(0, RoomBackgroundImageGeometry.PageWords / band.Length).SelectMany(_ => band)];
-        AssertTrue(RoomBackgroundImageGeometry.OnePeriod([.. banded, .. banded]).AsSpan().SequenceEqual(band),
+        AssertTrue(RoomBackgroundImageGeometry.OnePeriod([.. banded, .. banded]).Words.AsSpan().SequenceEqual(band),
             "a page whose rows repeat every four rows is those four rows");
         ushort[] row = [.. Enumerable.Range(0, RoomBackgroundImageGeometry.PageTiles).Select(word => (ushort)(word + 3))];
         ushort[] striped = [.. Enumerable.Range(0, RoomBackgroundImageGeometry.PageTiles).SelectMany(_ => row)];
-        AssertTrue(RoomBackgroundImageGeometry.OnePeriod([.. striped, .. striped]).Length == 2 * RoomBackgroundImageGeometry.PageTiles,
+        AssertTrue(RoomBackgroundImageGeometry.OnePeriod([.. striped, .. striped]).Words.Length == 2 * RoomBackgroundImageGeometry.PageTiles,
             "a page whose every row is one row is two rows, one 16x16 cell tall");
-        Console.WriteLine("Room backgrounds: two pages are one period only when every word matches, and one page shortens to its rows' period of whole cells.");
+        // Each row the same eight tiles four times over: one period across is those eight tiles, down two rows (#1675).
+        ushort[] eight = [.. Enumerable.Range(0, 8).Select(word => (ushort)(word + 11))];
+        ushort[] tiled = [.. Enumerable.Range(0, RoomBackgroundImageGeometry.PageWords / eight.Length).SelectMany(_ => eight)];
+        RoomBackgroundPeriod across = RoomBackgroundImageGeometry.OnePeriod([.. tiled, .. tiled]);
+        AssertTrue(across.WidthTiles == eight.Length && across.Words.Length == 2 * eight.Length && across.Words.AsSpan(0, eight.Length).SequenceEqual(eight),
+            "a page whose rows repeat every eight tiles across is eight tiles wide");
+        Console.WriteLine("Room backgrounds: two pages are one period only when every word matches, and one page shortens to its period of whole cells down and across.");
     }
 
     /// <summary>
-    /// The shortest period down of whole 16x16 cells, shorter than <paramref name="frame"/>'s height, that its pixels and maps
-    /// repeat with; null where none does. Every period that divides the height is a multiple of the smallest one, so the
-    /// shortest period of whole cells is the least multiple of both, where it divides the height.
+    /// The shortest period of whole 16x16 cells, across or down, shorter than <paramref name="frame"/>'s side, that its pixels
+    /// and maps repeat with; null where none does. Every period that divides a side is a multiple of the smallest one, so the
+    /// shortest period of whole cells is the least multiple of both, where it divides the side.
     /// </summary>
-    private static int? ShorterCellPeriod(InstalledImagePlanes image, InstalledSheetFrameDocument frame)
+    private static Extent16<ImagePixels>? ShorterCellPeriod(InstalledImagePlanes image, InstalledSheetFrameDocument frame)
     {
-        int smallest = image.Period(new FrameRectangle(frame.Corner, frame.Size)).Y;
-        int cell = RoomBackgroundImage.CellPixels;
-        int cells = smallest * cell / Gcd(smallest, cell);
-        return cells < frame.Size.Y && frame.Size.Y % cells == 0 ? cells : null;
+        Extent16<ImagePixels> smallest = image.Period(new FrameRectangle(frame.Corner, frame.Size));
+        int across = CellPeriod(smallest.X), down = CellPeriod(smallest.Y);
+        bool shorterAcross = across < frame.Size.X && frame.Size.X % across == 0, shorterDown = down < frame.Size.Y && frame.Size.Y % down == 0;
+        return shorterAcross || shorterDown
+            ? new Extent16<ImagePixels>(shorterAcross ? across : frame.Size.X, shorterDown ? down : frame.Size.Y) : null;
     }
+
+    /// <summary>The least multiple of <paramref name="period"/> that is whole 16x16 cells.</summary>
+    private static int CellPeriod(int period) => period * RoomBackgroundImage.CellPixels / Gcd(period, RoomBackgroundImage.CellPixels);
 
     /// <summary>The greatest common divisor of two positive numbers.</summary>
     private static int Gcd(int first, int second) => second == 0 ? first : Gcd(second, first % second);

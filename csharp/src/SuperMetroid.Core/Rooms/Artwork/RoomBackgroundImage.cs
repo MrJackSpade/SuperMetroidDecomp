@@ -21,6 +21,9 @@ public sealed class RoomBackgroundImage
     /// <summary>Pixels along a cell's side.</summary>
     public const int CellPixels = 16;
 
+    /// <summary>Pixels along one page of a library background (#1675): a background with two different pages is a page wide and two tall.</summary>
+    public const int PagePixels = 256;
+
     /// <summary>
     /// Checks the image is whole cells across and down, that each installed part of its picture (#1634) is the image's size,
     /// and that each changing cell lies in it once.

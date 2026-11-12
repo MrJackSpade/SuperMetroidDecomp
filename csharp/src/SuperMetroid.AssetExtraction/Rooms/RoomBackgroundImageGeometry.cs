@@ -31,21 +31,25 @@ internal static class RoomBackgroundImageGeometry
     private const int TilePixels = 8;
 
     /// <summary>
-    /// The width and height of the image that pictures <paramref name="words"/> tiles, one page wide and their rows down:
-    /// the size the installed image records apart from its picture's parts, either of which may show nothing (#1634).
+    /// The width and height of the image that pictures <paramref name="words"/> tiles in rows of
+    /// <paramref name="widthTiles"/>: a page wide, or one period across of a page that repeats (#1675). It is the size the
+    /// installed image records apart from its picture's parts, either of which may show nothing (#1634).
     /// </summary>
-    /// <exception cref="InvalidDataException">The tiles do not fill whole rows of a page.</exception>
-    internal static Extent16<ImagePixels> ImageSize(int words)
+    /// <exception cref="InvalidDataException">The width is not a whole number of cells, or the tiles do not fill whole rows of it.</exception>
+    internal static Extent16<ImagePixels> ImageSize(int words, int widthTiles = PageTiles)
     {
-        if (words <= 0 || words % PageTiles != 0)
-            throw new InvalidDataException($"A room background of {words} tiles does not fill whole rows of a {PageTiles}-tile page.");
-        return new Extent16<ImagePixels>(PagePixels, checked((ushort)(words / PageTiles * TilePixels)));
+        if (widthTiles <= 0 || widthTiles > PageTiles || widthTiles % CellSideTiles != 0)
+            throw new InvalidDataException($"A room background {widthTiles} tiles wide is not a whole number of cells of a {PageTiles}-tile page.");
+        if (words <= 0 || words % widthTiles != 0)
+            throw new InvalidDataException($"A room background of {words} tiles does not fill whole rows of {widthTiles} tiles.");
+        return new Extent16<ImagePixels>(checked((ushort)(widthTiles * TilePixels)), checked((ushort)(words / widthTiles * TilePixels)));
     }
 
     /// <summary>
     /// One period of what a library background shows (#1651), from the two BG2 pages <paramref name="pages"/> its list
-    /// leaves: where the second page holds the same tilemap, the first page's rows down to their shortest period of whole
-    /// cells, the first page whole where its rows do not repeat; otherwise both pages, the first above the second.
+    /// leaves: where the second page holds the same tilemap, the first page down to its shortest period of whole cells down
+    /// and then across (#1675), the first page whole where it does not repeat; otherwise both pages, the first above the
+    /// second.
     /// </summary>
     /// <remarks>
     /// The two pages are one layer that repeats beyond its edges: gameplay sets BG2's map to $4800 with two 32x32 pages side
@@ -59,19 +63,49 @@ internal static class RoomBackgroundImageGeometry
     /// statues', keeps both.
     /// </remarks>
     /// <exception cref="ArgumentException">The words are not two pages' tiles.</exception>
-    internal static ushort[] OnePeriod(ushort[] pages)
+    internal static RoomBackgroundPeriod OnePeriod(ushort[] pages)
     {
         Ensure.LengthEqual(Ensure.NotNull(pages), Words);
         if (!pages.AsSpan(0, PageWords).SequenceEqual(pages.AsSpan(PageWords)))
-            return pages;
-        // The one page repeats down too: where its rows repeat with a shorter period of whole cells, the layer is those rows
-        // repeated, so they are the period (a tower's or a wall's repeating pattern).
-        for (int rows = CellSideTiles; rows < PageTiles; rows += CellSideTiles)
+            return new RoomBackgroundPeriod(pages, PageTiles);
+        // The one page repeats down and across too: where its rows repeat with a shorter period of whole cells, or each row
+        // repeats across with one, the layer is that period repeated (a tower's, a wall's or a pattern's repeat, #1675).
+        int rows = PageTiles, columns = PageTiles;
+        for (int candidate = CellSideTiles; candidate < PageTiles; candidate += CellSideTiles)
         {
-            if (PageTiles % rows == 0 && RepeatsDown(pages, rows))
-                return pages[..(rows * PageTiles)];
+            if (PageTiles % candidate == 0 && RepeatsDown(pages, candidate))
+            {
+                rows = candidate;
+                break;
+            }
         }
-        return pages[..PageWords];
+        for (int candidate = CellSideTiles; candidate < PageTiles; candidate += CellSideTiles)
+        {
+            if (PageTiles % candidate == 0 && RepeatsAcross(pages, rows, candidate))
+            {
+                columns = candidate;
+                break;
+            }
+        }
+        var period = new ushort[rows * columns];
+        for (int row = 0; row < rows; row++)
+            pages.AsSpan(row * PageTiles, columns).CopyTo(period.AsSpan(row * columns, columns));
+        return new RoomBackgroundPeriod(period, columns);
+    }
+
+    /// <summary>Whether each of the first <paramref name="rows"/> rows of the first page repeats every <paramref name="columns"/> tiles across.</summary>
+    private static bool RepeatsAcross(ushort[] pages, int rows, int columns)
+    {
+        for (int row = 0; row < rows; row++)
+        {
+            ReadOnlySpan<ushort> line = pages.AsSpan(row * PageTiles, PageTiles);
+            for (int start = columns; start < PageTiles; start += columns)
+            {
+                if (!line.Slice(start, columns).SequenceEqual(line[..columns]))
+                    return false;
+            }
+        }
+        return true;
     }
 
     /// <summary>Tiles along a 16x16 cell's side: a period down is a whole number of cells, as the changing cells need.</summary>

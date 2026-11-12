@@ -77,6 +77,19 @@ try {
     $script:Command='next'; Assert ((Invoke-Queue).status -eq 'caught-up') 'queue finishes'
     $state=Get-Content (Join-Path $StateDirectory 'state.json') -Raw | ConvertFrom-Json
     Assert ($state.history.Count -eq 3 -and $script:sent.Count -eq 3) 'persist one receipt per commit'
+    # The asynchronous cleanup's commits are skipped explicitly, by their "Cleanup:" subject.
+    foreach ($subject in 'Cleanup: IDE0005 unused usings removed 2', 'Change 4', 'Cleanup: inventories regenerated') {
+        Set-Content (Join-Path $Repository 'change.txt') $subject
+        $null = Git @('add','change.txt')
+        $null = Git @('commit','--quiet','-m',$subject)
+        $shas += Git @('rev-parse','HEAD')
+    }
+    $script:Command='next'; Assert ((Invoke-Queue).commit -eq $shas[4]) 'skip a cleanup commit'
+    $script:Command='post'; $script:Commit=$shas[4]; Set-Content $SummaryFile 'Fourth change.'; $null=Invoke-Queue
+    $script:Command='next'; Assert ((Invoke-Queue).status -eq 'caught-up') 'a trailing cleanup commit leaves the queue caught up'
+    $script:CleanupCommits='post'
+    Assert ((Invoke-Queue).commit -eq $shas[5]) 'post cleanup commits when switched to post'
+    $script:CleanupCommits='skip'
     $null = Git @('checkout','--orphan','replacement')
     $null = Git @('commit','--quiet','-m','Replacement')
     $null = Git @('branch','-f','main','HEAD')

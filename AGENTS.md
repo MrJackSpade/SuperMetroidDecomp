@@ -308,6 +308,10 @@ pinned local sources; reference annotations do not replace reproducing a reporte
 - Commit and push every completed change as soon as it has passed its proportionate
   verification. Do not leave recoverable work only in the local working tree between
   handoffs.
+- Before every push, run `pwsh -File tools/cleanup/pull.ps1`: it rebases local commits onto
+  the asynchronous cleanup's `Cleanup:` commits and prints the cleanup's status. The cleanup
+  runs after each push, in its own clone, and never needs waiting for
+  ([tools/cleanup/README.md](tools/cleanup/README.md)).
 - Keep commits logically sized and scoped. A focused fix and its regression test belong
   together. Prefer one commit per reported ticket, containing that ticket's production fix
   and regression test. Use a shared commit only when multiple tickets have the same root

@@ -19,6 +19,8 @@ while read -r local_ref local_sha remote_ref remote_sha; do
         fi
     done
 done
+# The asynchronous cleanup (tools/cleanup/README.md) pushes without a model to remind.
+[ -n "${SUPERMETROID_CLEANUP_WORKER:-}" ] && exit 0
 printf '%s\n' '
 
 DISCORD UPDATES: AFTER this push succeeds, drain the published commit queue.

@@ -33,6 +33,11 @@ commit in first-parent order. Repeated calls return that same commit. Merge comm
 represent the merged version, so their side-branch commits are not announced again.
 There is no list-pending, skip, arbitrary-commit posting, or post-all command.
 
+Commits the asynchronous cleanup pushes (subject `Cleanup: ...`, see `tools/cleanup/README.md`) are
+not announced: `next` passes over them explicitly, by their subject. The choice is one switch at the
+top of `tools/discord-updates.ps1`: `$CleanupCommits = 'skip'`. Setting it to `'post'` exposes them
+like any other commit, to be announced as a short "Cleanup" note.
+
 Inspect the returned commit with `git show --first-parent <SHA>`. Write a short,
 plain-language description of what changed and what players will notice into a
 UTF-8 file (for example `.git/discord-updates/summary.txt`). Describe only that

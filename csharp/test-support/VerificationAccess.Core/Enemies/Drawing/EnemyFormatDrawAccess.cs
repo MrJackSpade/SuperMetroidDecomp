@@ -22,7 +22,12 @@ internal static class EnemyFormatDrawAccess
         /// </summary>
         internal void AppendDrawn(Action<SpriteFrameBuffer> draw)
         {
-            OamBuffer image = SpriteFrameBuffer.DrawnOam(draw);
+            var frame = new SpriteFrameBuffer();
+            frame.BeginFrame();
+            draw(frame);
+            OamBuffer image = frame.FinalizeAsOam();
+            // Which pictures were drawn where, so StandsFor can match each to the composition the native OAM uses (#1640).
+            DrawnRuns.GetOrCreateValue(target).Add(new DrawnRun(target.NextByteOffset, [.. frame.Draws.Cast<ImageSpriteDraw>()]));
             for (int index = 0; index < image.LastFinalizedSpriteCount; index++)
             {
                 int spriteIndex = target.NextByteOffset >> 2;
@@ -32,7 +37,71 @@ internal static class EnemyFormatDrawAccess
                 target.NextByteOffset = (target.NextByteOffset + 4) % OamBuffer.LowTableByteCount;
             }
         }
+
+        /// <summary>
+        /// Whether the records drawn into this buffer stand for <paramref name="native"/>'s (#1640). A picture several
+        /// compositions share (#1513, #1633, #1635) can stand for any of them: each graphics set loading its sheet composes it
+        /// at its own tile base and palette row, and the cartridge's OAM is one of those. Each drawn picture, in emission
+        /// order, is matched to the composition whose records equal the native records at its place; the buffer stands for
+        /// the native OAM when every picture matches one and every record then agrees.
+        /// </summary>
+        /// <param name="native">The cartridge's OAM.</param>
+        /// <param name="apartFromPriority">Whether the parts' priority bits are left out of the comparison.</param>
+        internal bool StandsFor(OamBuffer native, bool apartFromPriority = false)
+        {
+            Ensure.NotNull(native);
+            if (target.NextByteOffset != native.NextByteOffset || !target.HighTable.SequenceEqual(native.HighTable))
+                return false;
+            byte[] rebuilt = target.LowTable.ToArray();
+            foreach (DrawnRun run in DrawnRuns.TryGetValue(target, out List<DrawnRun>? runs) ? runs : [])
+            {
+                int offset = run.Offset;
+                foreach (ImageSpriteDraw drawn in run.Draws)
+                {
+                    byte[]? matched = null;
+                    foreach (CharacterSpriteDraw candidate in SuperMetroid.TestSupport.RepositoryInstallation.Verification.SheetFrameSources.CharacterDrawCandidates(drawn))
+                    {
+                        byte[] records = SpriteFrameBufferAccess.Assemble([candidate], parkUnused: false).LowTable[..(candidate.Frame.Parts.Length * 4)].ToArray();
+                        if (SameRecords(records, native.LowTable, offset, apartFromPriority))
+                        {
+                            matched = records;
+                            break;
+                        }
+                    }
+                    if (matched is null)
+                        return false;
+                    for (int index = 0; index < matched.Length; index++)
+                        rebuilt[(offset + index) % OamBuffer.LowTableByteCount] = matched[index];
+                    offset = (offset + matched.Length) % OamBuffer.LowTableByteCount;
+                }
+            }
+            return SameRecords(rebuilt, native.LowTable, 0, apartFromPriority);
+        }
     }
+
+    /// <summary>The attribute bits holding a part's priority, in the high byte of its OAM record's attribute word.</summary>
+    private const byte PriorityBits = 0x30;
+
+    /// <summary>Each OAM buffer's appended picture draws, by the byte offset their records start at.</summary>
+    private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<OamBuffer, List<DrawnRun>> DrawnRuns = new();
+
+    /// <summary>Whether <paramref name="records"/> equal <paramref name="native"/>'s low-table bytes from <paramref name="offset"/>, wrapping, priority aside when asked.</summary>
+    private static bool SameRecords(ReadOnlySpan<byte> records, ReadOnlySpan<byte> native, int offset, bool apartFromPriority)
+    {
+        for (int index = 0; index < records.Length; index++)
+        {
+            int at = (offset + index) % OamBuffer.LowTableByteCount;
+            byte mask = apartFromPriority && at % 4 == 3 ? unchecked((byte)~PriorityBits) : (byte)0xFF;
+            if ((records[index] & mask) != (native[at] & mask))
+                return false;
+        }
+        return true;
+    }
+
+    /// <summary>One append's picture draws and the byte offset their records start at.</summary>
+    /// <param name="Offset">The low-table byte offset of the run's first record.</param>
+    /// <param name="Draws">The picture draws, in emission order.</param>
+    private sealed record DrawnRun(int Offset, ImageSpriteDraw[] Draws);
 
     /// <summary>Runs one enemy layer range's advance and publish passes.</summary>
     extension(EnemyDrawList drawing)

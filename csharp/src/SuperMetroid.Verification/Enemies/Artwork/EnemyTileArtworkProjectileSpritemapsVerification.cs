@@ -488,8 +488,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 OamBuffer installedBurst = DrawBurst(artwork, program,
                     NewEnemyProjectileVisualGuard(bus));
                 AssertTrue(native.NextByteOffset > 0 &&
-                    native.NextByteOffset == installedBurst.NextByteOffset &&
-                    native.ImageEquals(installedBurst),
+                    installedBurst.StandsFor(native),
                     $"installed Skree/Metaree burst ${program:X4} draws stock OAM without visual ROM reads: records (x, y, tile, attributes) native {OamRecords(native)}, installed {OamRecords(installedBurst)}");
             }
         }

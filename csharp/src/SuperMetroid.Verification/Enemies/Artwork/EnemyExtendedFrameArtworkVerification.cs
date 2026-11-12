@@ -125,7 +125,7 @@ internal static class EnemyExtendedFrameArtworkVerification
                 // Mother Brain's initial body frame, drawn only while her body is hidden, reads only the head artwork her
                 // room loads, so it shows nothing (#1513), though the cartridge writes its records.
                 bool shownBlank = frame.Name == "mother_brain_body_oam_initial_dummy" && installed.NextByteOffset == 0;
-                if (!shownBlank && !SuperMetroid.Verification.Harness.OamPriorityComparison.SameApartFromPriority(native, installed))
+                if (!shownBlank && !installed.StandsFor(native, apartFromPriority: true))
                     differing.Add($"{frame.Name} at {x:X4},{y:X4}: native {Records(native)}, installed {Records(installed)}");
             }
         }

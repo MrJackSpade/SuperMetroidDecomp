@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.RenderVerification.Device;
 using SuperMetroid.Rendering.Direct3D11.Device;
@@ -129,6 +130,57 @@ internal static class OrdinarySmokeTests
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: ordinary {count}, BG1 overlay pictures");
         }
+        // A boss body part hiding pixels (#1652), as Crocomire's melt image hides its dissolve's erased columns: hiding none
+        // draws as hiding nothing does, and hiding a seeded set, or every pixel, draws as the part's picture with those pixels
+        // clear does.
+        ShownBossBody seeded = RoomBackgroundsFixtures.SeededBody(random, colors, 128, new Extent16<BackgroundPixels>(512, 512));
+        ShownBossBodyPart first = seeded.Parts[0];
+        int cellsAcross = first.Picture.Size.X / HiddenPictureColumns.CellPixels, cellsDown = first.Picture.Size.Y / HiddenPictureColumns.CellPixels;
+        HiddenPictureColumns none = new(cellsAcross, cellsDown, [.. Enumerable.Repeat(CellColumns.None, cellsAcross * cellsDown)]);
+        HiddenPictureColumns every = new(cellsAcross, cellsDown, [.. Enumerable.Repeat(HiddenPictureColumns.Columns.Aggregate((all, column) => all | column), cellsAcross * cellsDown)]);
+        HiddenPictureColumns some = new(cellsAcross, cellsDown, [.. Enumerable.Range(0, cellsAcross * cellsDown)
+            .Select(_ => HiddenPictureColumns.Columns.Where(_ => random.Next(2) == 0).Aggregate(CellColumns.None, (all, column) => all | column))]);
+        foreach ((string name, ShownBossBodyPart masked, ShownBossBodyPart expected) in new[]
+        {
+            ("hiding none", first with { Hidden = none }, first),
+            ("hiding a seeded set", first with { Hidden = some }, first with { Picture = WithPixelsCleared(first.Picture, some) }),
+            ("hiding every pixel", first with { Hidden = every }, first with { Picture = WithPixelsCleared(first.Picture, every) }),
+        })
+        {
+            var registers = new GameplaySceneView(new Position16<RoomPixels>(511, 255), new Position16<BackgroundPixels>(65535, 511),
+                ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
+            DisplayPacket Frame(ShownBossBodyPart part) => new(0, new LayeredScene(memory, new DisplayLayer[]
+            {
+                new GameplaySceneLayer(registers, rooms with { Background = null, BossBody = new ShownBossBody(seeded.Parts.SetItem(0, part)) }, default),
+            }, 15));
+            count++;
+            DisplayPacket frame = Frame(masked);
+            PixelComparison.Verify(frame, renderer.RenderForReadback(Frame(expected)), renderer.RenderForReadback(frame),
+                $"{device.Kind}: ordinary {count}, boss body part {name}");
+        }
         Console.WriteLine($"{device.Kind}: {device.AdapterDescription}; {count} exact ordinary gameplay comparisons passed.");
+    }
+
+    /// <summary>
+    /// <paramref name="picture"/> on a copy of its sheet whose pixels <paramref name="hidden"/> hides are clear, as a picture
+    /// that never had them shows (#1652).
+    /// </summary>
+    private static SpriteSheetFrame WithPixelsCleared(SpriteSheetFrame picture, HiddenPictureColumns hidden)
+    {
+        SpriteImage sheet = picture.Sheet;
+        RgbaPixel[] pixels = sheet.Pixels.ToArray();
+        for (int y = 0; y < picture.Size.Y; y++)
+        {
+            for (int x = 0; x < picture.Size.X; x++)
+            {
+                if (hidden.Hides(Position16<ImagePixels>.Of(x, y)))
+                    pixels[((picture.Corner.Y + y) * sheet.Size.X) + picture.Corner.X + x] = default;
+            }
+        }
+        int[]? regions = sheet.RecolourRegions.IsEmpty ? null : sheet.RecolourRegions.ToArray();
+        bool[]? blending = sheet.Blending.IsEmpty ? null : sheet.Blending.ToArray();
+        var cleared = new SpriteImage(sheet.Name + " cleared", sheet.Size, new PictureColours { Shades = sheet.Shades, Backdrop = sheet.Backdrop },
+            () => new SpriteImagePixels(pixels, regions, blending));
+        return new SpriteSheetFrame(cleared, picture.Corner, picture.Size, picture.Origin) { Depth = picture.Depth, Blends = picture.Blends };
     }
 }

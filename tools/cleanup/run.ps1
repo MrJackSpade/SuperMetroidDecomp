@@ -36,6 +36,7 @@ $FixedRuleWords = [ordered]@{
     IDE0076 = 'invalid suppression targets removed'
     IDE0077 = 'legacy suppression targets updated'
     IDE0079 = 'unnecessary suppressions removed'
+    IDE0330 = 'locks use System.Threading.Lock'
     SME6391 = 'span adapters before SequenceEqual removed'
 }
 

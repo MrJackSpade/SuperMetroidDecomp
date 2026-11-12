@@ -54,6 +54,7 @@ dotnet_diagnostic.IDE0044.severity = none
 dotnet_diagnostic.IDE0076.severity = none
 dotnet_diagnostic.IDE0077.severity = none
 dotnet_diagnostic.IDE0079.severity = none
+dotnet_diagnostic.IDE0330.severity = none
 dotnet_diagnostic.SME6391.severity = none
 # #627: a primitive switched over named constants is a closed domain; model it as a type.
 dotnet_diagnostic.SME6270.severity = error
@@ -86,8 +87,6 @@ dotnet_diagnostic.SME6283.severity = error
 dotnet_diagnostic.SME6330.severity = error
 dotnet_diagnostic.SME6331.severity = error
 dotnet_diagnostic.SME6332.severity = error
-
-dotnet_diagnostic.IDE0330.severity = error
 
 # #620/#677: reusable argument guards use Ensure; Ensure calls let it capture the value expression.
 dotnet_diagnostic.SME6201.severity = error

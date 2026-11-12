@@ -7,6 +7,6 @@ internal static class BuildPolicyDiagnostics
     internal static readonly string[] Gated =
     [
         "CA1512", "CA1822", "CA1859", "CA1826",
-        "IDE0060", "IDE0078", "SYSLIB1054", "IDE0330",
+        "IDE0060", "IDE0078", "SYSLIB1054",
     ];
 }

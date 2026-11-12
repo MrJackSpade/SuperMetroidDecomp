@@ -37,7 +37,7 @@ developer's checkout, with its own `bin`/`obj` and its own `temp\`), `config.jso
 1. **Restore** the solution, **build the reachability audit in Release** and **the repository's analyzer and code fixes`n   in Debug** (`csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes`) through `tools/build.ps1`. The code fixes load the
    repository's analyzer and fixers from the projects' Debug references, so they must be built first.
 2. **Fix and prune, taking turns, until one of each in a row changes nothing:**
-   - **Code fixes:** `dotnet run tools/cleanup/CodeFixRunner.cs -- csharp/SuperMetroid.Full.slnx <summary.json> CS0168,IDE0004,IDE0005,IDE0032,IDE0044,IDE0076,IDE0077,IDE0079,SME6391`.
+   - **Code fixes:** `dotnet run tools/cleanup/CodeFixRunner.cs -- csharp/SuperMetroid.Full.slnx <summary.json> CS0168,IDE0004,IDE0005,IDE0032,IDE0044,IDE0076,IDE0077,IDE0079,IDE0330,SME6391`.
      `run.ps1` reads the rules from `csharp/.editorconfig`: the `none` lines directly under the comment that names
      this cleanup. A rule there that `run.ps1` has no commit-message words for, or words for a
      rule not there, fails the run.

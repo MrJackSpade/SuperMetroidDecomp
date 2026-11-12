@@ -186,6 +186,7 @@ internal sealed class SolutionFixer
         new("IDE0079", FindingSource.UnnecessarySuppression, FixerSource.Repository),
         new("IDE0004", FindingSource.Analyzer, FixerSource.CodeStyle),
         new("CS0168", FindingSource.Compiler, FixerSource.Repository),
+        new("IDE0330", FindingSource.Analyzer, FixerSource.CodeStyle),
         new("IDE0032", FindingSource.Analyzer, FixerSource.CodeStyle),
         new("IDE0044", FindingSource.Analyzer, FixerSource.CodeStyle),
         new("SME6391", FindingSource.Analyzer, FixerSource.Repository),

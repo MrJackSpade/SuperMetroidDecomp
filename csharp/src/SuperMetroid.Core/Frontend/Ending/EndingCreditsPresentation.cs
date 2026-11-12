@@ -79,13 +79,13 @@ internal static class EndingCreditsPresentation
                 {
                     layers.Add(new TurningFloorLayer(FloorView.Turned(ending.Stage.FloorAngle, ending.Stage.FloorZoom,
                         CurrentFloorCenter(ending),
-                        ending.Stage.FloorPosition.Whole.AsSignedOffset(), AtmosphericMapWraps(ending) ? FloorOverflowMode.Wrap : FloorOverflowMode.Transparent),
-                        floor, AddsForeground: AtmosphericMapWraps(ending)));
+                        ending.Stage.FloorPosition.Whole.AsSignedOffset(), FloorRepeatsBeyondEdges(ending) ? FloorOverflowMode.Wrap : FloorOverflowMode.Transparent),
+                        floor, AddsForeground: ShowsAtmosphere(ending)));
                 }
         }
         // Over the atmosphere the clouds are drawn by the turning floor's own glow, which composes the frame's sprites
         // itself; every other scene draws its sprites in its sprite layers.
-        if (AtmosphericMapWraps(ending))
+        if (ShowsAtmosphere(ending))
             paint = FloorGlowPaint(ending, objectSheet);
         else if (EndingObjectsEnabled(ending) && !UsesFlyawayFloorPriority(ending))
         {
@@ -109,8 +109,14 @@ internal static class EndingCreditsPresentation
         ? EndingObjectSheet.Clouds : EndingObjectSheet.Explosion;
 
 
-    /// <summary>Whether the atmospheric scenes repeat their floor beyond its edges.</summary>
-    private static bool AtmosphericMapWraps(EndingCreditsState ending) => EndingCreditsPhaseGroups.BeforeZebesExplosion.Contains(ending.Stage.Phase);
+    /// <summary>Whether the phase shows the escape's atmospheric scenes, whose clouds the turning floor's own glow composes.</summary>
+    private static bool ShowsAtmosphere(EndingCreditsState ending) => EndingCreditsPhaseGroups.BeforeZebesExplosion.Contains(ending.Stage.Phase);
+
+    /// <summary>
+    /// Whether the floor repeats beyond its edges (#1674): from the escape's setup through the planet's explosion and the
+    /// music waits after it, until the gunship's planet escape shows nothing beyond its floor's edges.
+    /// </summary>
+    internal static bool FloorRepeatsBeyondEdges(EndingCreditsState ending) => EndingCreditsPhaseGroups.BeforePlanetEscape.Contains(ending.Stage.Phase);
 
     /// <summary>Whether the current explosion music wait renders a white screen.</summary>
     internal static bool ExplosionWhiteout(EndingCreditsState ending) => ending.Stage.Phase is EndingCreditsPhase.WaitForPlanetEscapeMusic

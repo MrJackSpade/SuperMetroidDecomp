@@ -7,14 +7,19 @@
 // way the asynchronous cleanup needs them applied (tools/cleanup/README.md).
 //
 // It loads every project of a .slnx (or one .csproj) into one MSBuildWorkspace, runs each project's own analyzers for
-// the requested rules with the project's own configuration, and applies the fixes of Roslyn's code-style fixers, the
-// same fixers `dotnet format style` uses, from the code-style package the projects reference.
+// the requested rules with the project's own configuration, and applies each rule's fixer from the assembly RuleOrder
+// names: Roslyn's code-style fixers (the same fixers `dotnet format style` uses) from the code-style package the
+// projects reference, or the repository's own fixers from SuperMetroid.EnsureAnalyzer.CodeFixes.dll, which the
+// projects reference as an analyzer and which must be built in the configuration the workspace opens (Debug; run.ps1
+// builds it first).
 //
 // csharp/.editorconfig sets the group to none, so the build skips their analyzers and they cost it no time. The runner
 // therefore enables exactly the requested rules, as warnings, in its own analysis: in the compilation's per-file
 // diagnostic options, where the .editorconfig severity would otherwise win over any compilation-wide setting, and in
-// the analyzer configuration the code-style analyzers read their own severity from. Every other rule keeps the
-// project's configuration. The caller (tools/cleanup/run.ps1) reads the group from csharp/.editorconfig.
+// the analyzer configuration the code-style analyzers read their own severity from. A rule is enabled only where the
+// project's own configuration would enable it if its line in the group said warning instead of none: a section that
+// turns the rule off for some files (the SME rules outside Core and AssetExtraction) keeps it off there. Every other
+// rule keeps the project's configuration. The caller (tools/cleanup/run.ps1) reads the group from csharp/.editorconfig.
 //
 // IDE0079 (unnecessary suppression) is in the group, but no command-line analyzer reports it (README.md), so the
 // runner refuses to be asked for it rather than report that it found nothing.
@@ -43,6 +48,7 @@ using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
@@ -124,6 +130,21 @@ internal sealed record FileFix(Solution Solution, List<string> Paths);
 /// than retried in the next pass.</param>
 internal sealed record FixDecision(FileFix? Fix, bool Kept);
 
+/// <summary>The assembly a rule's code fix provider comes from.</summary>
+internal enum FixerSource
+{
+    /// <summary>Roslyn's code-style fixers: an analyzer reference whose file name ends <c>.CodeStyle.Fixes.dll</c>.</summary>
+    CodeStyle,
+
+    /// <summary>The repository's own fixers: the analyzer reference <c>SuperMetroid.EnsureAnalyzer.CodeFixes.dll</c>.</summary>
+    Repository,
+}
+
+/// <summary>A rule the runner applies, and where its fixer comes from.</summary>
+/// <param name="Id">The diagnostic id.</param>
+/// <param name="Fixer">The assembly its one code fix provider is taken from.</param>
+internal sealed record CleanupRule(string Id, FixerSource Fixer);
+
 /// <summary>Loads a solution and applies the requested rules' fixes until none remain.</summary>
 internal sealed class SolutionFixer
 {
@@ -131,9 +152,21 @@ internal sealed class SolutionFixer
     /// in a few passes; reaching this many means the fixes are not converging.</summary>
     private const int MaxPasses = 20;
 
+    /// <summary>The file name of the repository's code fix assembly.</summary>
+    private const string RepositoryFixes = "SuperMetroid.EnsureAnalyzer.CodeFixes.dll";
+
     /// <summary>The order rules are applied in within a file: suppressions first, then code, then the usings that
     /// the other fixes can leave unnecessary.</summary>
-    private static readonly string[] RuleOrder = ["IDE0076", "IDE0077", "IDE0004", "IDE0032", "IDE0044", "IDE0005"];
+    private static readonly CleanupRule[] RuleOrder =
+    [
+        new("IDE0076", FixerSource.CodeStyle),
+        new("IDE0077", FixerSource.CodeStyle),
+        new("IDE0004", FixerSource.CodeStyle),
+        new("IDE0032", FixerSource.CodeStyle),
+        new("IDE0044", FixerSource.CodeStyle),
+        new("SME6391", FixerSource.Repository),
+        new("IDE0005", FixerSource.CodeStyle),
+    ];
 
     /// <summary>The rule of the automatically fixed group that no command-line analyzer reports (README.md).</summary>
     private const string UnnecessarySuppression = "IDE0079";
@@ -149,7 +182,7 @@ internal sealed class SolutionFixer
     private readonly HashSet<string> _rules;
     private readonly bool _dryRun;
     private readonly string _root;
-    private readonly Dictionary<string, Assembly> _fixerAssemblies = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, List<CodeFixProvider>> _fixerAssemblies = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>Creates a fixer for a solution or project file and the rules to fix.</summary>
     public SolutionFixer(string target, string[] rules, bool dryRun)
@@ -161,8 +194,8 @@ internal sealed class SolutionFixer
             if (rule == UnnecessarySuppression)
                 throw new ArgumentException($"{rule} has no command-line analyzer: the code-style package reports no unnecessary " +
                     "suppression outside the IDE, so this runner cannot find its sites (tools/cleanup/README.md).");
-            if (!RuleOrder.Contains(rule))
-                throw new ArgumentException($"{rule} is not one of the rules this runner orders: {string.Join(", ", RuleOrder)}.");
+            if (!RuleOrder.Any(ordered => ordered.Id == rule))
+                throw new ArgumentException($"{rule} is not one of the rules this runner orders: {string.Join(", ", RuleOrder.Select(r => r.Id))}.");
         }
         _dryRun = dryRun;
         _root = FindRepositoryRoot(Path.GetDirectoryName(target) ?? throw new ArgumentException($"{target} has no directory."));
@@ -283,12 +316,13 @@ internal sealed class SolutionFixer
             ?? throw new InvalidOperationException($"{project.Name} produced no compilation.");
         SyntaxTreeOptionsProvider treeOptions = configured.Options.SyntaxTreeOptionsProvider
             ?? throw new InvalidOperationException($"{project.Name} has no per-file analyzer configuration; csharp/.editorconfig is not loaded.");
+        RuleScope scope = await RuleScope.CreateAsync(project, _rules);
         Compilation compilation = configured.WithOptions(configured.Options
             .WithSpecificDiagnosticOptions(configured.Options.SpecificDiagnosticOptions.SetItems(
                 _rules.Select(rule => KeyValuePair.Create(rule, ReportDiagnostic.Warn))))
-            .WithSyntaxTreeOptionsProvider(new EnabledRuleTreeOptions(treeOptions, _rules)));
+            .WithSyntaxTreeOptionsProvider(new EnabledRuleTreeOptions(treeOptions, scope)));
         var analyzerOptions = new AnalyzerOptions(project.AnalyzerOptions.AdditionalFiles,
-            new EnabledRuleConfigOptions(project.AnalyzerOptions.AnalyzerConfigOptionsProvider, _rules));
+            new EnabledRuleConfigOptions(project.AnalyzerOptions.AnalyzerConfigOptionsProvider, scope));
         var analyzers = project.AnalyzerReferences
             .SelectMany(reference => reference.GetAnalyzers(project.Language))
             .Where(analyzer => analyzer.SupportedDiagnostics.Any(descriptor => _rules.Contains(descriptor.Id)))
@@ -297,7 +331,8 @@ internal sealed class SolutionFixer
         var unsupported = _rules.Where(rule => !supported.Contains(rule)).Order(StringComparer.Ordinal).ToList();
         if (unsupported.Count > 0)
             throw new InvalidOperationException(
-                $"{project.Name} references no analyzer for {string.Join(", ", unsupported)}; the code-style analyzers are not loaded.");
+                $"{project.Name} references no analyzer for {string.Join(", ", unsupported)}; the code-style analyzers are not loaded, " +
+                "or the repository analyzer is not built in the configuration the workspace opens.");
         var diagnostics = await compilation.WithAnalyzers(analyzers, analyzerOptions).GetAllDiagnosticsAsync();
         var errors = diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error && d.Id.StartsWith("CS", StringComparison.Ordinal)).ToList();
         var findings = new Dictionary<string, List<Diagnostic>>(StringComparer.OrdinalIgnoreCase);
@@ -340,15 +375,16 @@ internal sealed class SolutionFixer
         ProjectAnalysis chosen = compilers[0];
         Document document = solution.GetDocument(solution.GetDocumentIdsWithFilePath(path).Single(id => id.ProjectId == chosen.Project.Id))!;
         var own = reported[0];
-        foreach (string rule in RuleOrder)
+        foreach (CleanupRule cleanupRule in RuleOrder)
         {
+            string rule = cleanupRule.Id;
             var diagnostics = own.Where(d => d.Id == rule && agreed.Contains(Key(d))).ToList();
             if (diagnostics.Count > 0)
             {
                 Solution changed = rule == UnusedUsing
-                    ? await ApplyFixAllAsync(document, UnusedUsingFixable, chosen.FixerOnly.GetValueOrDefault(path)
+                    ? await ApplyFixAllAsync(document, cleanupRule, UnusedUsingFixable, chosen.FixerOnly.GetValueOrDefault(path)
                         ?? throw new InvalidOperationException($"{Relative(path)} reports {UnusedUsing} without {UnusedUsingFixable} in {chosen.Project.Name}."))
-                    : await ApplyFixAllAsync(document, rule, diagnostics);
+                    : await ApplyFixAllAsync(document, cleanupRule, rule, diagnostics);
                 FixDecision decision = await AcceptAsync(solution, changed, document, rule, analyses, touched);
                 if (decision.Fix is not { } fix)
                 {
@@ -456,13 +492,14 @@ internal sealed class SolutionFixer
     private static string Hash(SourceText? text) =>
         text is null ? "absent" : Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(text.ToString())));
 
-    /// <summary>Runs the rule's fixer over exactly the given findings of one document and returns the solution it
-    /// produces, which may change other documents too.</summary>
-    private async Task<Solution> ApplyFixAllAsync(Document document, string rule, List<Diagnostic> diagnostics)
+    /// <summary>Runs the rule's fixer, for the diagnostic id it fixes, over exactly the given findings of one document
+    /// and returns the solution it produces, which may change other documents too.</summary>
+    private async Task<Solution> ApplyFixAllAsync(Document document, CleanupRule cleanupRule, string rule, List<Diagnostic> diagnostics)
     {
-        var providers = FixersFor(document.Project, rule);
+        var providers = FixersFor(document.Project, cleanupRule.Fixer, rule);
         if (providers.Count != 1)
-            throw new InvalidOperationException($"{rule} has {providers.Count} code fix providers in {document.Project.Name}; expected exactly one.");
+            throw new InvalidOperationException(
+                $"{rule} has {providers.Count} {cleanupRule.Fixer} code fix providers in {document.Project.Name}; expected exactly one.");
         CodeFixProvider provider = providers[0];
         var actions = new List<CodeAction>();
         await provider.RegisterCodeFixesAsync(new CodeFixContext(document, diagnostics[0], (action, _) => actions.Add(action), CancellationToken.None));
@@ -478,27 +515,42 @@ internal sealed class SolutionFixer
         return operations.OfType<ApplyChangesOperation>().Single().ChangedSolution;
     }
 
-    /// <summary>The code fix providers for a rule, from the code-style fixer assemblies the project references.</summary>
-    private List<CodeFixProvider> FixersFor(Project project, string rule)
+    /// <summary>The code fix providers for a rule, from the fixer assemblies of the given source that the project
+    /// references.</summary>
+    private List<CodeFixProvider> FixersFor(Project project, FixerSource source, string rule)
     {
         var providers = new List<CodeFixProvider>();
         foreach (string path in project.AnalyzerReferences.Select(r => r.FullPath)
-                     .Where(p => p is not null && Path.GetFileName(p).EndsWith(".CodeStyle.Fixes.dll", StringComparison.OrdinalIgnoreCase))
+                     .Where(p => p is not null && IsFixerAssembly(Path.GetFileName(p), source))
                      .Select(p => p!))
         {
-            if (!_fixerAssemblies.TryGetValue(path, out var assembly))
-                _fixerAssemblies[path] = assembly = Assembly.LoadFrom(path);
-            foreach (Type type in assembly.GetTypes())
-            {
-                if (type.IsAbstract || !typeof(CodeFixProvider).IsAssignableFrom(type)
-                    || type.GetCustomAttribute<ExportCodeFixProviderAttribute>() is not { } export
-                    || !export.Languages.Contains(project.Language)
-                    || type.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, Type.EmptyTypes) is not { } constructor)
-                    continue;
-                var provider = (CodeFixProvider)constructor.Invoke(null);
-                if (provider.FixableDiagnosticIds.Contains(rule))
-                    providers.Add(provider);
-            }
+            if (!_fixerAssemblies.TryGetValue(path, out var loaded))
+                _fixerAssemblies[path] = loaded = LoadProviders(path, project.Language);
+            providers.AddRange(loaded.Where(provider => provider.FixableDiagnosticIds.Contains(rule)));
+        }
+        return providers;
+    }
+
+    /// <summary>Whether an analyzer reference's file name is a fixer assembly of the given source.</summary>
+    private static bool IsFixerAssembly(string fileName, FixerSource source) => source switch
+    {
+        FixerSource.CodeStyle => fileName.EndsWith(".CodeStyle.Fixes.dll", StringComparison.OrdinalIgnoreCase),
+        FixerSource.Repository => string.Equals(fileName, RepositoryFixes, StringComparison.OrdinalIgnoreCase),
+        _ => throw new ArgumentOutOfRangeException(nameof(source), source, "Unknown fixer source."),
+    };
+
+    /// <summary>Every exported code fix provider for the language in one fixer assembly, constructed once.</summary>
+    private static List<CodeFixProvider> LoadProviders(string path, string language)
+    {
+        var providers = new List<CodeFixProvider>();
+        foreach (Type type in Assembly.LoadFrom(path).GetTypes())
+        {
+            if (type.IsAbstract || !typeof(CodeFixProvider).IsAssignableFrom(type)
+                || type.GetCustomAttribute<ExportCodeFixProviderAttribute>() is not { } export
+                || !export.Languages.Contains(language)
+                || type.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, Type.EmptyTypes) is not { } constructor)
+                continue;
+            providers.Add((CodeFixProvider)constructor.Invoke(null));
         }
         return providers;
     }
@@ -614,30 +666,122 @@ internal sealed class SolutionFixer
     }
 }
 
-/// <summary>A compilation's per-file diagnostic options with the requested rules enabled as warnings. The per-file
-/// options carry csharp/.editorconfig's severities and win over the compilation-wide options, so the group's
-/// <c>none</c> is replaced here; every other rule and file reads the project's own configuration.</summary>
-internal sealed class EnabledRuleTreeOptions(SyntaxTreeOptionsProvider configured, IReadOnlySet<string> rules) : SyntaxTreeOptionsProvider
+/// <summary>The asynchronous cleanup's group in an analyzer configuration file: the
+/// <c>dotnet_diagnostic.&lt;rule&gt;.severity = none</c> lines directly under the comment that names the cleanup, read
+/// the same way tools/cleanup/run.ps1 reads it.</summary>
+internal static class CleanupGroup
+{
+    /// <summary>The comment that names the cleanup.</summary>
+    private static readonly Regex Comment = new(@"^#.*\basynchronous cleanup\b", RegexOptions.CultureInvariant);
+
+    /// <summary>One rule of the group.</summary>
+    private static readonly Regex Member = new(@"^dotnet_diagnostic\.(\w+)\.severity = none$", RegexOptions.CultureInvariant);
+
+    /// <summary>The configuration text with each requested rule's group line set to warning, adding those rules to
+    /// <paramref name="grouped"/>; a text without the cleanup's comment is returned unchanged.</summary>
+    public static string Enable(string text, IReadOnlySet<string> rules, HashSet<string> grouped, string path)
+    {
+        string[] lines = text.Split('\n');
+        int comment = -1;
+        for (int index = 0; index < lines.Length; index++)
+        {
+            if (!Comment.IsMatch(lines[index].TrimEnd('\r')))
+                continue;
+            if (comment >= 0)
+                throw new InvalidOperationException($"{path} has two comments naming the asynchronous cleanup.");
+            comment = index;
+        }
+        if (comment < 0)
+            return text;
+        int line = comment;
+        while (line < lines.Length && lines[line].StartsWith('#'))
+            line++;
+        for (; line < lines.Length && Member.Match(lines[line].TrimEnd('\r')) is { Success: true } match; line++)
+        {
+            string rule = match.Groups[1].Value;
+            if (!rules.Contains(rule))
+                continue;
+            grouped.Add(rule);
+            lines[line] = $"dotnet_diagnostic.{rule}.severity = warning" + (lines[line].EndsWith('\r') ? "\r" : "");
+        }
+        return string.Join('\n', lines);
+    }
+}
+
+/// <summary>
+/// Where a project's configuration enables each requested rule once its line in the cleanup's group says warning
+/// instead of none. The project's analyzer configuration files are read again with that one change, so a later section
+/// that turns the rule off for some files (the SME rules outside Core and AssetExtraction) keeps it off there.
+/// </summary>
+internal sealed class RuleScope
+{
+    private readonly AnalyzerConfigSet _configuration;
+    private readonly Dictionary<string, AnalyzerConfigOptionsResult> _byPath = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>Creates the scope from the project's configuration.</summary>
+    private RuleScope(AnalyzerConfigSet configuration, IReadOnlySet<string> rules)
+    {
+        _configuration = configuration;
+        Rules = rules;
+    }
+
+    /// <summary>The requested rules.</summary>
+    public IReadOnlySet<string> Rules { get; }
+
+    /// <summary>Reads the project's analyzer configuration with the requested rules' group lines enabled. Every
+    /// requested rule must be in the cleanup's group of one of them, or its scope is unknown and the run fails.</summary>
+    public static async Task<RuleScope> CreateAsync(Project project, IReadOnlySet<string> rules)
+    {
+        var configs = new List<AnalyzerConfig>();
+        var grouped = new HashSet<string>(StringComparer.Ordinal);
+        foreach (AnalyzerConfigDocument document in project.AnalyzerConfigDocuments)
+        {
+            string path = document.FilePath
+                ?? throw new InvalidOperationException($"{project.Name} has an analyzer configuration document without a file.");
+            string text = (await document.GetTextAsync()).ToString();
+            configs.Add(AnalyzerConfig.Parse(CleanupGroup.Enable(text, rules, grouped, path), path));
+        }
+        var outside = rules.Where(rule => !grouped.Contains(rule)).Order(StringComparer.Ordinal).ToList();
+        if (outside.Count > 0)
+            throw new InvalidOperationException($"No analyzer configuration of {project.Name} puts {string.Join(", ", outside)} in the " +
+                "asynchronous cleanup's group, so where the rule applies is unknown.");
+        return new RuleScope(AnalyzerConfigSet.Create(configs), rules);
+    }
+
+    /// <summary>Whether the requested rule is enabled in the file at <paramref name="path"/>.</summary>
+    public bool IsEnabled(string path, string rule)
+    {
+        if (!_byPath.TryGetValue(path, out AnalyzerConfigOptionsResult options))
+            _byPath[path] = options = _configuration.GetOptionsForSourcePath(path);
+        return options.TreeOptions.TryGetValue(rule, out ReportDiagnostic severity) && severity != ReportDiagnostic.Suppress;
+    }
+}
+
+/// <summary>A compilation's per-file diagnostic options with the requested rules enabled as warnings where their scope
+/// allows and off elsewhere. The per-file options carry csharp/.editorconfig's severities and win over the
+/// compilation-wide options, so the group's <c>none</c> is replaced here; every other rule reads the project's own
+/// configuration.</summary>
+internal sealed class EnabledRuleTreeOptions(SyntaxTreeOptionsProvider configured, RuleScope scope) : SyntaxTreeOptionsProvider
 {
     /// <summary>The project's own answer: enabling a rule does not change which files are generated.</summary>
     public override GeneratedKind IsGenerated(SyntaxTree tree, CancellationToken cancellationToken) =>
         configured.IsGenerated(tree, cancellationToken);
 
-    /// <summary>Warning for a requested rule in every file; the project's configuration for any other.</summary>
+    /// <summary>Warning or off for a requested rule, by its scope; the project's configuration for any other.</summary>
     public override bool TryGetDiagnosticValue(SyntaxTree tree, string diagnosticId, CancellationToken cancellationToken, out ReportDiagnostic severity)
     {
-        if (rules.Contains(diagnosticId))
+        if (scope.Rules.Contains(diagnosticId))
         {
-            severity = ReportDiagnostic.Warn;
+            severity = scope.IsEnabled(tree.FilePath, diagnosticId) ? ReportDiagnostic.Warn : ReportDiagnostic.Suppress;
             return true;
         }
         return configured.TryGetDiagnosticValue(tree, diagnosticId, cancellationToken, out severity);
     }
 
-    /// <summary>Warning for a requested rule; the project's global configuration for any other.</summary>
+    /// <summary>Warning for a requested rule, so its analyzer runs; the project's global configuration for any other.</summary>
     public override bool TryGetGlobalDiagnosticValue(string diagnosticId, CancellationToken cancellationToken, out ReportDiagnostic severity)
     {
-        if (rules.Contains(diagnosticId))
+        if (scope.Rules.Contains(diagnosticId))
         {
             severity = ReportDiagnostic.Warn;
             return true;
@@ -646,40 +790,52 @@ internal sealed class EnabledRuleTreeOptions(SyntaxTreeOptionsProvider configure
     }
 }
 
-/// <summary>The analyzer configuration with <c>dotnet_diagnostic.&lt;rule&gt;.severity = warning</c> for each requested
-/// rule. The code-style analyzers read a rule's severity from this configuration to decide whether to analyze at all,
-/// so the compilation's options alone would leave them skipping the group's <c>none</c>.</summary>
-internal sealed class EnabledRuleConfigOptions(AnalyzerConfigOptionsProvider configured, IReadOnlySet<string> rules) : AnalyzerConfigOptionsProvider
+/// <summary>The analyzer configuration with <c>dotnet_diagnostic.&lt;rule&gt;.severity</c> answered for each requested
+/// rule: warning where its scope enables it, none elsewhere. The code-style analyzers read a rule's severity from this
+/// configuration to decide whether to analyze at all, so the compilation's options alone would leave them skipping the
+/// group's <c>none</c>.</summary>
+internal sealed class EnabledRuleConfigOptions(AnalyzerConfigOptionsProvider configured, RuleScope scope) : AnalyzerConfigOptionsProvider
 {
-    /// <summary>The severity keys of the requested rules, compared the way analyzer configuration keys are.</summary>
-    private readonly HashSet<string> _keys = rules.Select(rule => $"dotnet_diagnostic.{rule}.severity").ToHashSet(AnalyzerConfigOptions.KeyComparer);
-
     /// <summary>The project's global options with the requested rules enabled.</summary>
-    public override AnalyzerConfigOptions GlobalOptions => new EnabledRuleConfig(configured.GlobalOptions, _keys);
+    public override AnalyzerConfigOptions GlobalOptions => new EnabledRuleConfig(configured.GlobalOptions, scope, null);
 
-    /// <summary>A file's options with the requested rules enabled.</summary>
-    public override AnalyzerConfigOptions GetOptions(SyntaxTree tree) => new EnabledRuleConfig(configured.GetOptions(tree), _keys);
+    /// <summary>A file's options with the requested rules enabled where their scope allows.</summary>
+    public override AnalyzerConfigOptions GetOptions(SyntaxTree tree) => new EnabledRuleConfig(configured.GetOptions(tree), scope, tree.FilePath);
 
     /// <summary>An additional file's options with the requested rules enabled.</summary>
-    public override AnalyzerConfigOptions GetOptions(AdditionalText textFile) => new EnabledRuleConfig(configured.GetOptions(textFile), _keys);
+    public override AnalyzerConfigOptions GetOptions(AdditionalText textFile) => new EnabledRuleConfig(configured.GetOptions(textFile), scope, null);
 }
 
-/// <summary>One set of analyzer options answering <c>warning</c> for the requested rules' severity keys.</summary>
-internal sealed class EnabledRuleConfig(AnalyzerConfigOptions configured, HashSet<string> keys) : AnalyzerConfigOptions
+/// <summary>One set of analyzer options answering the requested rules' severity keys: warning where the rule's scope
+/// enables it in the file (or always, for options that belong to no source file), none elsewhere.</summary>
+internal sealed class EnabledRuleConfig(AnalyzerConfigOptions configured, RuleScope scope, string? path) : AnalyzerConfigOptions
 {
-    /// <summary>Warning for a requested rule's severity key; the configured value for any other key.</summary>
+    /// <summary>The severity key prefix and suffix around a rule id.</summary>
+    private const string Prefix = "dotnet_diagnostic.", Suffix = ".severity";
+
+    /// <summary>The scope's answer for a requested rule's severity key; the configured value for any other key.</summary>
     public override bool TryGetValue(string key, [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out string? value)
     {
-        if (keys.Contains(key))
+        if (RuleOf(key) is { } rule)
         {
-            value = "warning";
+            value = path is null || scope.IsEnabled(path, rule) ? "warning" : "none";
             return true;
         }
         return configured.TryGetValue(key, out value);
     }
 
     /// <summary>The configured keys and the requested rules' severity keys.</summary>
-    public override IEnumerable<string> Keys => configured.Keys.Union(keys, KeyComparer);
+    public override IEnumerable<string> Keys => configured.Keys.Union(scope.Rules.Select(rule => Prefix + rule + Suffix), KeyComparer);
+
+    /// <summary>The requested rule a severity key names, or null for any other key.</summary>
+    private string? RuleOf(string key)
+    {
+        if (key.Length <= Prefix.Length + Suffix.Length || !key.StartsWith(Prefix, StringComparison.OrdinalIgnoreCase) ||
+            !key.EndsWith(Suffix, StringComparison.OrdinalIgnoreCase))
+            return null;
+        string id = key[Prefix.Length..^Suffix.Length];
+        return scope.Rules.FirstOrDefault(rule => string.Equals(rule, id, StringComparison.OrdinalIgnoreCase));
+    }
 }
 
 /// <summary>Hands a fix-all exactly the findings chosen for one document, and nothing else.</summary>

@@ -1,7 +1,8 @@
 # One cleanup run on the clone the service has just reset to the remote tip (tools/cleanup/README.md). The service
 # runs the tree's own copy, so the fixes always match the code they clean. Everything it prints goes to the run's log.
 #
-# 1. Restores the solution and builds the reachability audit in Release (the prune runs it without building).
+# 1. Restores the solution, builds the reachability audit in Release (the prune runs it without building) and the
+#    repository's analyzer and code fixes in Debug (CodeFixRunner.cs loads them from the projects' Debug references).
 # 2. Takes turns at the code fixes of the automatically fixed rules (CodeFixRunner.cs, the rules read from
 #    csharp/.editorconfig), the reachability prune of dead code and the architecture audit's prune of stale reviews,
 #    until one of each in a row changes nothing; a tree seen before means the steps cycle, and the run fails.
@@ -33,6 +34,7 @@ $FixedRuleWords = [ordered]@{
     IDE0044 = 'fields made read-only'
     IDE0076 = 'invalid suppression targets removed'
     IDE0077 = 'legacy suppression targets updated'
+    SME6391 = 'span adapters before SequenceEqual removed'
 }
 
 # The group's rules that no command-line analyzer reports: the code-style package has none for IDE0079 (README.md),
@@ -141,10 +143,12 @@ try {
     if ($head -ne $Tip) { throw "The clone is at $head, not at $Tip." }
     if (Invoke-Git @('status', '--porcelain')) { throw 'The clone has local changes before the run.' }
 
-    Write-Step 'restore and the reachability audit''s Release build'
+    Write-Step 'restore, the reachability audit''s Release build and the code fixes'' Debug build'
     Invoke-Checked 'restore' { dotnet restore $solution -v:q }
     $audit = Invoke-Build 'reachability audit Release build' 'reachability-audit-build.log' @('csharp/src/SuperMetroid.ReachabilityAudit', '-c', 'Release')
     if ($audit.Exit -ne 0) { throw "The reachability audit does not build in Release; see $($audit.Log)." }
+    $fixers = Invoke-Build 'repository analyzer and code fixes Debug build' 'code-fixes-build.log' @('csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes')
+    if ($fixers.Exit -ne 0) { throw "The repository analyzer and code fixes do not build in Debug; see $($fixers.Log)." }
 
     $fixedRules = Get-FixedRules
     $codeFixes = [ordered]@{}

@@ -153,7 +153,8 @@ The build analyzer reports conversions whose only purpose is to reach another op
   source; on a span or memory, use the `ReadOnlySpanQueries` query that reads it in place (`Any`, `All`, `Count`,
   `First`, `Single`, `Sum`, and the owned-result `SelectToArray`, `WhereToArray`, `ConcatToArray`, `ToDictionary`).
 - **SME6391**: a parameterless `AsSpan()` before an array's `SequenceEqual`; C# 14 binds the array to the span
-  comparison directly.
+  comparison directly. The build does not report it: the asynchronous cleanup removes the adapter with the
+  code fix after each push (`tools/cleanup/README.md`).
 
 A `ToArray()` that is stored, passed, compared through another overload, or that snapshots a reused buffer keeps an
 ownership purpose and is not reported. The code fix removes the adapter where that is unambiguous. Domain transforms

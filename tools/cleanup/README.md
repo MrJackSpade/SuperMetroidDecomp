@@ -34,9 +34,10 @@ developer's checkout, with its own `bin`/`obj` and its own `temp\`), `config.jso
 
 ### The run
 
-1. **Restore** the solution and **build the reachability audit in Release** through `tools/build.ps1`.
+1. **Restore** the solution, **build the reachability audit in Release** and **the repository's analyzer and code fixes`n   in Debug** (`csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes`) through `tools/build.ps1`. The code fixes load the
+   repository's analyzer and fixers from the projects' Debug references, so they must be built first.
 2. **Fix and prune, taking turns, until one of each in a row changes nothing:**
-   - **Code fixes:** `dotnet run tools/cleanup/CodeFixRunner.cs -- csharp/SuperMetroid.Full.slnx <summary.json> IDE0004,IDE0005,IDE0032,IDE0044,IDE0076,IDE0077`.
+   - **Code fixes:** `dotnet run tools/cleanup/CodeFixRunner.cs -- csharp/SuperMetroid.Full.slnx <summary.json> IDE0004,IDE0005,IDE0032,IDE0044,IDE0076,IDE0077,SME6391`.
      `run.ps1` reads the rules from `csharp/.editorconfig`: the `none` lines directly under the comment that names
      this cleanup, less IDE0079 (below). A rule there that `run.ps1` has no commit-message words for, or words for a
      rule not there, fails the run.
@@ -67,15 +68,25 @@ prompts are disabled (`GCM_INTERACTIVE=never`), so a missing credential fails th
 
 ### The code fixes
 
-`CodeFixRunner.cs` loads every project into one MSBuildWorkspace, runs each project's own code-style analyzers with
-its own configuration, and applies Roslyn's code-style fixers (the same fixers `dotnet format style` uses) through
-their fix-all providers, given exactly the findings chosen. On a fixture it produces byte-identical output to
-`dotnet format style --diagnostics IDE0004 IDE0005 IDE0032 IDE0044 IDE0076 IDE0077 --severity info`.
+`CodeFixRunner.cs` loads every project into one MSBuildWorkspace, runs each project's own analyzers for the requested
+rules with its own configuration, and applies each rule's fixer through its fix-all provider, given exactly the
+findings chosen. `RuleOrder` names where each rule's one fixer comes from: Roslyn's code-style fixers (the same
+fixers `dotnet format style` uses; on a fixture the runner's output for IDE0004, IDE0005, IDE0032, IDE0044, IDE0076
+and IDE0077 is byte-identical to `dotnet format style --diagnostics ... --severity info`), or the repository's own
+fixers in `SuperMetroid.EnsureAnalyzer.CodeFixes` (SME6391: `AdapterChainCodeFixProvider`). A finding its fixer offers
+no fix for fails the run, naming the site.
 
 Since the group is at `none`, the runner enables exactly the requested rules, as warnings, in its own analysis: in
 the compilation's per-file diagnostic options (where the `.editorconfig` severity would otherwise win over any
-compilation-wide setting) and in the analyzer configuration the code-style analyzers read their severity from. Every
-other rule keeps the project's configuration, and the build itself never runs these analyzers.
+compilation-wide setting) and in the analyzer configuration the code-style analyzers read their severity from. It
+enables each rule only where the project's configuration would, were the rule's group line `warning`: it reads the
+project's analyzer configuration files again with that one line changed, so the sections that turn the SME rules off
+outside Core and AssetExtraction keep SME6391 off there. Every other rule keeps the project's configuration, and the
+build itself never runs these analyzers.
+
+Roslyn skips an analyzer only when every rule it reports is off. A repository analyzer that reported a moved rule
+beside one that stays an error would still run in every build, so a moved rule gets an analyzer of its own:
+SME6391 is `SpanAdapterAnalyzer`, split from `AdapterChainAnalyzer` (SME6390).
 
 It is a runner rather than `dotnet format` because of shared files. A file compiled into several projects
 (`csharp/test-support` through `.projitems`, or a `<Compile Link>`) is edited only where every project compiling it

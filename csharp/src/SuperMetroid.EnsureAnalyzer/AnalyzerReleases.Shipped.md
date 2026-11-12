@@ -40,7 +40,7 @@ SME6372 | Architecture | Error | OwnedReflectionAnalyzer
 SME6373 | Architecture | Error | OwnedReflectionAnalyzer
 SME6380 | Nullability | Error | NullForgivingAnalyzer
 SME6390 | Collections | Error | AdapterChainAnalyzer
-SME6391 | Collections | Error | AdapterChainAnalyzer
+SME6391 | Collections | Error | SpanAdapterAnalyzer
 SME6400 | Architecture | Error | OneTypePerFileAnalyzer
 SME6401 | Architecture | Error | TypeFileNameAnalyzer
 SME6402 | Architecture | Error | ModuleLayoutAnalyzer

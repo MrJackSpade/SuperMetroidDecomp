@@ -18,7 +18,7 @@ public sealed class AdapterChainCodeFixProvider : CodeFixProvider
 {
     /// <inheritdoc />
     public override ImmutableArray<string> FixableDiagnosticIds =>
-        [AdapterChainAnalyzer.MaterializationId, AdapterChainAnalyzer.SpanAdapterId];
+        [AdapterChainAnalyzer.MaterializationId, SpanAdapterAnalyzer.SpanAdapterId];
 
     /// <inheritdoc />
     public override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;

@@ -80,7 +80,7 @@ function Test-Fixture([string]$Name) {
     foreach ($file in $expectedFiles | Where-Object { $actualFiles -ccontains $_ }) {
         $actualBytes = [IO.File]::ReadAllBytes((Join-Path $copy $file))
         $expectedBytes = [IO.File]::ReadAllBytes((Join-Path $expected $file))
-        if (-not [Linq.Enumerable]::SequenceEqual($actualBytes, $expectedBytes)) {
+        if ([Convert]::ToHexString($actualBytes) -cne [Convert]::ToHexString($expectedBytes)) {
             $failures.Add("$file differs; actual:`n$([Text.Encoding]::UTF8.GetString($actualBytes))")
         }
     }

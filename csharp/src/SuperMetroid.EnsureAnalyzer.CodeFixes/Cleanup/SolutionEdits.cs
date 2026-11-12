@@ -12,9 +12,6 @@ internal sealed class SolutionEdits
     /// <summary>Starts the edits of <paramref name="solution"/>.</summary>
     internal SolutionEdits(Solution solution) => _solution = solution;
 
-    /// <summary>The solution before the edits.</summary>
-    internal Solution Solution => _solution;
-
     /// <summary>The edits of the document holding <paramref name="tree"/>.</summary>
     internal async Task<SourceEdits> ForAsync(SyntaxTree tree, CancellationToken cancellationToken)
     {

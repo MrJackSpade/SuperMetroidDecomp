@@ -21,9 +21,11 @@ public static class EnemySheetFiles
     /// <summary>
     /// The manifest revision this build reads: 26 no longer records where a variant composed a picture held once from, as
     /// nothing installed names a palette index (#1633); 27 pictures the Ceres doors' rotating overlay once, over the
-    /// overlay's own characters, as the only door that draws it shows them before its first draw (#1641).
+    /// overlay's own characters, as the only door that draws it shows them before its first draw (#1641); 28 installs no
+    /// look an enemy's draws never select, so variants the player cannot tell apart, as the Chozo statue's of one site and
+    /// the elevator's, are one variant drawing one sheet (#1643).
     /// </summary>
-    public const int ManifestVersion = 27;
+    public const int ManifestVersion = 28;
 
     /// <summary>The manifest naming each variant's sheets and the variants each population draws.</summary>
     public const string ManifestFileName = "enemy-sheets.json";

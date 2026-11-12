@@ -241,13 +241,34 @@ internal sealed class EnemySheetShades
         return byShade;
     }
 
-    /// <summary>The selection shades every enemy and spawned-object sheet takes: the hit flash, the frozen look and the enemy projectiles' colours.</summary>
+    /// <summary>
+    /// The selection shades every spawned-object sheet takes, and every enemy sheet whose enemy's draws select them
+    /// (<see cref="SharedSelectedBy"/>): the hit flash, the frozen look and the enemy projectiles' colours.
+    /// </summary>
     internal IReadOnlyList<SheetRowShade> Shared() =>
     [
         new(EnemyShades.HurtFlash, EnemySheetRowDefinitions.Common, colours.SpriteColours),
         new(EnemyShades.Frozen, EnemySheetRowDefinitions.Beams, colours.With(EnemySheetRowDefinitions.Beams, 0, FrozenColours())),
         new(EnemyShades.ProjectileLook, EnemySheetRowDefinitions.EnemyProjectiles, colours.SpriteColours),
     ];
+
+    /// <summary>
+    /// The selection shades <paramref name="enemy"/>'s sheets take (#1643): the shared ones (<see cref="Shared"/>) but those
+    /// its draws never select (<see cref="EnemyUnselectedShadeDefinitions.NeverSelected"/>), which no draw of it shows.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The catalogue names a shade for the enemy that is no shared one.</exception>
+    internal IReadOnlyList<SheetRowShade> SharedSelectedBy(EnemyDefinitionId enemy)
+    {
+        IReadOnlyList<SheetRowShade> shared = Shared();
+        if (!EnemyUnselectedShadeDefinitions.NeverSelected.TryGetValue(enemy, out PictureShade[]? unselected))
+            return shared;
+        foreach (PictureShade shade in unselected)
+        {
+            if (!shared.Any(entry => entry.Shade == shade))
+                throw new InvalidDataException($"{enemy}'s draws are catalogued as never selecting shade {shade.Key}, which is no shared enemy shade.");
+        }
+        return [.. shared.Where(entry => !unselected.Contains(entry.Shade))];
+    }
 
     /// <summary>
     /// The shades of the effects <paramref name="enemy"/> shows by recolouring the row it draws in, <paramref name="row"/>

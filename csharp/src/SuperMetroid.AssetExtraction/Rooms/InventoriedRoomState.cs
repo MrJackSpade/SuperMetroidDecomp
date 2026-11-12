@@ -87,15 +87,13 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
     /// Whether the state's terrain holds a Speed Booster block: a special block whose reaction selects one in the state's
     /// area, or that a bomb reveals as one, or a special-air block whose area's collision reaction is one.
     /// </summary>
-    internal bool HoldsSpeedBoosterBlocks => Terrain.Any(block => block.Collision switch
-    {
-        RoomCollisionType.SpecialBlock => SpeedBoosterBlocks.TryResolve(RoomBlockBehavior.Reacting(block.Reaction), Area, out _) ||
-            (block.Reaction.IsCommonEntryBelow(BombSpecialBlockReactions.Count) &&
-                BombSpecialBlockReactions.ChangeAt(block.Reaction.Entry) == SpeedBoosterBlockObjectDefinitions.BombReveal),
-        RoomCollisionType.SpecialAir => block.Reaction.Entry < SpecialAirReactionDefinitions.EntriesPerArea &&
-            SpecialAirReactions.ResolveCollision(Area, block.Reaction.Entry).Setup == SpecialAirReactionSetup.SpeedBlock,
-        _ => false,
-    });
+    internal bool HoldsSpeedBoosterBlocks => Terrain.Any(block =>
+        (block.Collision == RoomCollisionType.SpecialBlock &&
+            (SpeedBoosterBlocks.TryResolve(RoomBlockBehavior.Reacting(block.Reaction), Area, out _) ||
+                (block.Reaction.IsCommonEntryBelow(BombSpecialBlockReactions.Count) &&
+                    BombSpecialBlockReactions.ChangeAt(block.Reaction.Entry) == SpeedBoosterBlockObjectDefinitions.BombReveal))) ||
+        (block.Collision == RoomCollisionType.SpecialAir && block.Reaction.Entry < SpecialAirReactionDefinitions.EntriesPerArea &&
+            SpecialAirReactions.ResolveCollision(Area, block.Reaction.Entry).Setup == SpecialAirReactionSetup.SpeedBlock));
 
     /// <summary>Whether the state's terrain holds a Grapple block that breaks under the beam.</summary>
     internal bool HoldsBreakableGrappleBlocks => Terrain.Any(block => block.Collision == RoomCollisionType.GrappleBlock &&

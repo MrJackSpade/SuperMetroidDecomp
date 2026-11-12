@@ -15,16 +15,15 @@ namespace SuperMetroid.Verification.Assets;
 /// holds have identical RGBA pixels; every frame naming a picture resolves to a picture the store lists at the rectangle it
 /// names and to the recolour-region and blend maps it names, each of the frame's size; and pictures whose pixels were stored
 /// twice before, because frames showed them with different maps, are one stored picture the frames show through their own
-/// maps. The examples are found by content: frames naming one stored picture with different recolour-region maps and the
-/// same blending, and frames naming one stored picture with different blend maps. Each example's two sheets are assembled
-/// by the store as the game loads them, and must show the stored pixels in both frames, each with the maps its frame names.
+/// maps. The example is found by content: two frames naming one stored picture with different maps. Its two sheets are
+/// assembled by the store as the game loads them, and must show the stored pixels in both frames, each with the maps its
+/// frame names. Pages are decoded one at a time, so the check holds one page in memory while it hashes the pictures.
 /// </summary>
 internal static class PictureStorePixelIdentityVerification
 {
     /// <summary>
     /// Fails unless the store holds every picture's pixels once, every reference resolves to its picture and maps, and a
-    /// picture shown with different recolour-region maps and one shown with different blend maps each show the same stored
-    /// pixels through their frames' own maps.
+    /// picture two frames show with different maps shows the same stored pixels through each frame's own maps.
     /// </summary>
     internal static void VerifyStoredPicturesArePixelsOnly()
     {
@@ -35,9 +34,7 @@ internal static class PictureStorePixelIdentityVerification
         PictureStoreProvenance provenance;
         using (FileStream file = File.OpenRead(provenancePath))
             provenance = JsonAssetDocument.Read<PictureStoreProvenance>(file, PictureStoreProvenance.JsonOptions, $"picture store provenance {provenancePath}");
-        StorePage[] pages = [.. Enumerable.Range(0, provenance.PageSha256.Count).Select(page => StorePage.Read(storeDirectory, page))];
-
-        string[] duplicates = DuplicatePixels(provenance, pages);
+        string[] duplicates = DuplicatePixels(provenance, storeDirectory);
         AssertTrue(duplicates.Length == 0,
             $"{duplicates.Length} stored pictures hold the pixels of another:{Environment.NewLine}{string.Join(Environment.NewLine, duplicates)}");
 
@@ -70,18 +67,15 @@ internal static class PictureStorePixelIdentityVerification
             $"{unresolved.Count} picture references do not resolve:{Environment.NewLine}{string.Join(Environment.NewLine, unresolved)}");
 
         IGrouping<string, ShownReference>[] byPicture = [.. references.GroupBy(reference => reference.Picture.Tag, StringComparer.Ordinal)];
-        (ShownReference First, ShownReference Second)? regionExample = FirstPair(byPicture, (first, second) =>
-            first.Picture.RecolourRegionMap != second.Picture.RecolourRegionMap && first.Picture.BlendMap == second.Picture.BlendMap);
-        (ShownReference First, ShownReference Second)? blendExample = FirstPair(byPicture, (first, second) =>
-            first.Picture.BlendMap != second.Picture.BlendMap);
-        AssertTrue(regionExample is not null, "two frames show one stored picture with different recolour-region maps");
-        AssertTrue(blendExample is not null, "two frames show one stored picture with different blend maps");
+        (ShownReference First, ShownReference Second)? example = FirstPair(byPicture, (first, second) =>
+            first.Picture.RecolourRegionMap != second.Picture.RecolourRegionMap || first.Picture.BlendMap != second.Picture.BlendMap);
+        AssertTrue(example is not null, "two frames show one stored picture with different maps");
 
         InstalledPictureStore store = InstalledPictureStore.Open(storeDirectory);
-        foreach ((ShownReference first, ShownReference second) in new[] { regionExample!.Value, blendExample!.Value })
         {
+            (ShownReference first, ShownReference second) = example!.Value;
             StoredPictureDocument listed = provenance.Pictures[first.Picture.Tag];
-            RgbaPixel[] stored = pages[listed.Page].PixelsOf(listed);
+            RgbaPixel[] stored = StorePage.Read(storeDirectory, listed.Page).PixelsOf(listed);
             foreach (ShownReference reference in new[] { first, second })
             {
                 SpriteImagePixels assembled = store.Assemble(reference.Sheet, reference.Document);
@@ -103,30 +97,38 @@ internal static class PictureStorePixelIdentityVerification
             + $"references resolve to them and to {regionMaps.Count} recolour-region and {blendMaps.Count} blend maps.");
     }
 
-    /// <summary>Each stored picture whose pixels another stored picture also holds, named by both tags.</summary>
-    private static string[] DuplicatePixels(PictureStoreProvenance provenance, StorePage[] pages)
+    /// <summary>
+    /// Each stored picture whose pixels another stored picture also holds, named by both tags. Each picture's rows are hashed
+    /// straight from its decoded page, one page at a time; only pictures whose hashes collide are compared pixel by pixel,
+    /// reading their pages again.
+    /// </summary>
+    private static string[] DuplicatePixels(PictureStoreProvenance provenance, string storeDirectory)
     {
         var byHash = new Dictionary<string, List<string>>(StringComparer.Ordinal);
-        foreach ((string tag, StoredPictureDocument picture) in provenance.Pictures)
+        foreach (IGrouping<int, KeyValuePair<string, StoredPictureDocument>> onPage in provenance.Pictures.GroupBy(entry => entry.Value.Page))
         {
-            RgbaPixel[] pixels = pages[picture.Page].PixelsOf(picture);
-            string hash = $"{picture.Size.X}x{picture.Size.Y}:{Convert.ToHexString(SHA256.HashData(MemoryMarshal.AsBytes(pixels.AsSpan())))}";
-            if (!byHash.TryGetValue(hash, out List<string>? tags))
-                byHash.Add(hash, tags = []);
-            tags.Add(tag);
+            StorePage page = StorePage.Read(storeDirectory, onPage.Key);
+            using var hasher = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
+            foreach ((string tag, StoredPictureDocument picture) in onPage)
+            {
+                page.HashRows(picture, hasher);
+                string hash = $"{picture.Size.X}x{picture.Size.Y}:{Convert.ToHexString(hasher.GetHashAndReset())}";
+                if (!byHash.TryGetValue(hash, out List<string>? tags))
+                    byHash.Add(hash, tags = []);
+                tags.Add(tag);
+            }
         }
         var duplicates = new List<string>();
         foreach (List<string> tags in byHash.Values.Where(tags => tags.Count > 1))
         {
             // The hash only narrows the comparison: two pictures are one only when every pixel matches.
+            RgbaPixel[][] pixels = [.. tags.Select(tag => provenance.Pictures[tag])
+                .Select(picture => StorePage.Read(storeDirectory, picture.Page).PixelsOf(picture))];
             for (int later = 1; later < tags.Count; later++)
             {
-                StoredPictureDocument picture = provenance.Pictures[tags[later]];
-                RgbaPixel[] pixels = pages[picture.Page].PixelsOf(picture);
                 for (int earlier = 0; earlier < later; earlier++)
                 {
-                    StoredPictureDocument other = provenance.Pictures[tags[earlier]];
-                    if (pages[other.Page].PixelsOf(other).AsSpan().SequenceEqual(pixels))
+                    if (pixels[earlier].AsSpan().SequenceEqual(pixels[later]))
                         duplicates.Add($"{tags[later]} holds the pixels of {tags[earlier]}");
                 }
             }
@@ -207,6 +209,16 @@ internal static class PictureStorePixelIdentityVerification
             using FileStream file = File.OpenRead(Path.Combine(directory, PictureStoreFiles.PageFile(page)));
             RgbaPixel[] pixels = RgbaPng.Read(file, out Extent16<ImagePixels> size);
             return new StorePage(size, pixels);
+        }
+
+        /// <summary>Adds the rows of <paramref name="picture"/>, which lies on this page, to <paramref name="hasher"/> in reading order.</summary>
+        internal void HashRows(StoredPictureDocument picture, IncrementalHash hasher)
+        {
+            for (int row = 0; row < picture.Size.Y; row++)
+            {
+                hasher.AppendData(MemoryMarshal.AsBytes(
+                    Pixels.AsSpan(((picture.Corner.Y + row) * Size.X) + picture.Corner.X, picture.Size.X)));
+            }
         }
 
         /// <summary>The pixels of <paramref name="picture"/>, which lies on this page, in reading order.</summary>

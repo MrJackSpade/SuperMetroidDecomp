@@ -170,18 +170,18 @@ public static class RgbaPng
             throw new InvalidDataException("The PNG has no header.");
         size = new Extent16<ImagePixels>(checked((ushort)width), checked((ushort)height));
         int stride = width * PixelBytes;
-        var raw = new byte[height * (stride + 1)];
         data.Position = 0;
-        using (var zlib = new ZLibStream(data, CompressionMode.Decompress, leaveOpen: true))
-            zlib.ReadExactly(raw);
+        // Each row is inflated and unfiltered as it is read, so the decoded image is the only image-sized allocation.
+        using var zlib = new ZLibStream(data, CompressionMode.Decompress, leaveOpen: true);
         var pixels = new RgbaPixel[width * height];
         var previous = new byte[stride];
         var current = new byte[stride];
+        Span<byte> filter = stackalloc byte[1];
         for (int row = 0; row < height; row++)
         {
-            int line = row * (stride + 1);
-            raw.AsSpan(line + 1, stride).CopyTo(current);
-            Unfilter(raw[line], current, previous);
+            zlib.ReadExactly(filter);
+            zlib.ReadExactly(current);
+            Unfilter(filter[0], current, previous);
             for (int column = 0; column < width; column++)
             {
                 int at = column * PixelBytes;

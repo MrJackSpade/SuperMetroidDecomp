@@ -125,6 +125,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
         BackgroundWrittenPictures = Assets.Pictures.Written.TryGetValue(Assets.Tileset, out WrittenPictureSheet? written) ? new WrittenPictureResolver(written) : null,
         ForegroundWrittenPictures = written is null ? null : new WrittenPictureResolver(written),
         FxOverlayPictures = new WrittenPictureResolver(Assets.Pictures.FxOverlay(Assets.Tileset)),
+        HudPictures = Assets.Pictures.Hud(Assets.Tileset),
         MessageBoxes = Assets.Pictures.MessageBox(Assets.Tileset),
         SkyImage = ScrollingSky is { } sky
             ? new RoomBackgroundImageResolver(Assets.Pictures.Sky(sky.Variant, Assets.Tileset),

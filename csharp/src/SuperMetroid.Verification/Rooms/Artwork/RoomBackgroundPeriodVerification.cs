@@ -100,7 +100,7 @@ internal static class RoomBackgroundPeriodVerification
         // Each effect picture's name, and the rows of the effect's transfer it shows, cut as the import cuts them.
         Dictionary<string, ushort[]> pages = [];
         const int rowWords = RoomBackgroundImageGeometry.PageTiles;
-        foreach (RoomFxType type in Enum.GetValues<RoomFxType>().Where(RoomFxOverlayState.ShowsPage))
+        foreach (RoomFxType type in Enum.GetValues<RoomFxType>().Where(RoomFxOverlayState.ShowsOnOverlay))
         {
             ushort[] transfer = BackgroundTileWords.ToWords(tilemaps.Resolve(type).Span);
             var shown = new List<(string Name, ushort[] Rows)>();

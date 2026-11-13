@@ -115,15 +115,26 @@ internal static class RoomSheetShades
         rooms.Any(room => room.State.EnemyPopulation.Records.Span.Any(record => record.DefinitionId == EnemyDefinitionId.PhantoonBody));
 
     /// <summary>
-    /// The shades of <paramref name="tileset"/>'s layer-3 pictures, the HUD's and the room effects' pages: the HUD's door
-    /// fades and the room effects' palette blends.
+    /// The shades of <paramref name="tileset"/>'s room effects' pictures on the effect overlay: the room effects' palette
+    /// blends and, where its rooms hold Phantoon, the Wrecked Ship's power coming on.
     /// </summary>
-    internal static IReadOnlyList<SheetShade> Layer3(RoomBlockSheetInputs inputs, TilesetDefinition tileset)
+    internal static IReadOnlyList<SheetShade> RoomEffects(RoomBlockSheetInputs inputs, TilesetDefinition tileset)
     {
         Ensure.NotNull(inputs);
         RgbColor[] standard = RoomStaticPaletteImage.Colours(inputs.Palettes.Get(tileset.Palette));
-        return [.. DoorFadeHudShades.Of(standard), .. RoomFxBlendSheetShades.Of(inputs.Maps.RoomFxPaletteBlends),
+        return [.. RoomFxBlendSheetShades.Of(inputs.Maps.RoomFxPaletteBlends),
             .. HoldsPhantoon(RoomsOf(tileset)) ? PhantoonSheetShades.PowerOn(inputs.Bosses, standard) : []];
+    }
+
+    /// <summary>
+    /// The shades of <paramref name="tileset"/>'s pictures of the HUD (#1731): a door's fades of the HUD and the room effects'
+    /// palette blends, which shade the HUD as they shade the effects.
+    /// </summary>
+    internal static IReadOnlyList<SheetShade> Hud(RoomBlockSheetInputs inputs, TilesetDefinition tileset)
+    {
+        Ensure.NotNull(inputs);
+        RgbColor[] standard = RoomStaticPaletteImage.Colours(inputs.Palettes.Get(tileset.Palette));
+        return [.. DoorFadeHudShades.Of(standard), .. RoomFxBlendSheetShades.Of(inputs.Maps.RoomFxPaletteBlends)];
     }
 
     /// <summary><paramref name="sheet"/>, also pre-coloured in <paramref name="shades"/>.</summary>

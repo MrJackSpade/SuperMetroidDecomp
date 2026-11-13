@@ -158,7 +158,7 @@ public static class GameplayEffectCapture
     /// <exception cref="InvalidDataException">The effect shows artwork but describes no blend, or its artwork is another kind of effect's.</exception>
     public static OverlayBlendLayer? CaptureRoomFxOverlay(RoomFxOverlayRenderSnapshot fx, FxOverlayArtwork artwork)
     {
-        if (!RoomFxOverlayState.ShowsPage(fx.Type))
+        if (!RoomFxOverlayState.ShowsOnOverlay(fx.Type))
             throw new NotSupportedException($"Room FX type {fx.Type} has no captured effect overlay compositor.");
         RoomEffectBlend blend = fx.Blend
             ?? throw new InvalidDataException($"Room FX type {fx.Type} shows artwork but describes no blend.");

@@ -12,11 +12,12 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// <param name="BlockAppearances">The appearance inputs each block depends on, by tileset (#1466).</param>
 /// <param name="Backgrounds">The background images by name.</param>
 /// <param name="Written">The sheets of pictures written over the room's layers, BG1 and BG2, by tileset.</param>
-/// <param name="OverlayPictures">The sheets of the effect overlay's pictures, BG3's, by tileset.</param>
+/// <param name="RoomEffects">The sheets of the effect overlay's pictures, each room effect's liquid or atmosphere, by tileset.</param>
+/// <param name="Hud">The sheets of the HUD's pictures, by tileset (#1731).</param>
 /// <param name="MessageBoxes">The message box images, by tileset.</param>
 /// <param name="Floors">The turning floors and the pictures drawn over them, by Ceres tileset (#1467).</param>
 internal sealed record RoomSheetComposition(IReadOnlyDictionary<TilesetDefinition, ComposedSpriteSheet> BlockSheets,
     IReadOnlyDictionary<TilesetDefinition, RoomBlockAppearances> BlockAppearances,
     IReadOnlyDictionary<string, ComposedRoomBackground> Backgrounds, IReadOnlyDictionary<TilesetDefinition, ComposedWrittenPictureSheet> Written,
-    IReadOnlyDictionary<TilesetDefinition, ComposedWrittenPictureSheet> OverlayPictures,
+    IReadOnlyDictionary<TilesetDefinition, ComposedWrittenPictureSheet> RoomEffects, IReadOnlyDictionary<TilesetDefinition, ComposedSpriteSheet> Hud,
     IReadOnlyDictionary<TilesetDefinition, ComposedSpriteSheet> MessageBoxes, IReadOnlyDictionary<TilesetDefinition, ComposedSpriteSheet> Floors);

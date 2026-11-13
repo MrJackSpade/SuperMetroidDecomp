@@ -7,11 +7,12 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// <summary>
 /// The installed pre-coloured pictures shown on one display layer of a tileset's rooms (#1392, #1466, #1601): for the
 /// room's layers, each picture an encounter writes over the foreground or the background (typed text, the Ceres warning);
-/// for the effect overlay, each room effect's page and the HUD's images. Each is coloured with its own standard colours,
+/// for the effect overlay, each room effect's liquid or atmosphere (#1706). The HUD's images are not written pictures: they
+/// are a sheet of their own (<see cref="HudPictureSheet"/>, #1731). Each is coloured with its own standard colours,
 /// pictured again for each value of the appearance inputs it depends on and named by <see cref="AppearancePictureNames"/>;
 /// with the inputs each picture depends on, which choose among them. A picture is placed in pixels, so it may be any size.
 /// Each picture is installed as its two parts (#1634, <see cref="PictureParts"/>): what of it lies behind the actors passing
-/// in front of the room's back tiles and what lies in front of them. The HUD's images are installed whole.
+/// in front of the room's back tiles and what lies in front of them.
 /// </summary>
 public sealed class WrittenPictureSheet
 {
@@ -67,8 +68,18 @@ public sealed class WrittenPictureSheet
 
     /// <summary>
     /// The installed name of the sheet of pictures shown on <paramref name="layer"/> in <paramref name="tileset"/>'s rooms:
-    /// the layer's role, then the tileset's name.
+    /// what the layer shows, then the tileset's name.
     /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The layer is undefined.</exception>
     public static string NameOf(WrittenPictureLayer layer, TilesetDefinition tileset) =>
-        $"{(layer == WrittenPictureLayer.FxOverlayAndHud ? "OverlayPictures" : "Written")}.{RoomBlockSheet.NameOf(tileset)}";
+        $"{ShownOn(layer)}.{RoomBlockSheet.NameOf(tileset)}";
+
+    /// <summary>What <paramref name="layer"/>'s sheets are named for: the pictures written over the room, or the room effects.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The layer is undefined.</exception>
+    private static string ShownOn(WrittenPictureLayer layer) => layer switch
+    {
+        WrittenPictureLayer.WrittenOverRoom => "Written",
+        WrittenPictureLayer.FxOverlay => "RoomEffects",
+        _ => throw new ArgumentOutOfRangeException(nameof(layer), layer, "Undefined written picture layer."),
+    };
 }

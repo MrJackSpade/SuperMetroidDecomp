@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Fx;
 /// </summary>
 /// <remarks>
 /// Every room effect shares the base/target position, packed 8.8 Y velocity, and
-/// timer the room-FX loader sets. This owner retains those values for every effect, including those that show no
-/// overlay page (the scrolling skies, the Fireflea darkness, Ceres's effects), so room objects make their shared-state
+/// timer the room-FX loader sets. This owner retains those values for every effect, including those that show nothing
+/// on the effect overlay (the scrolling skies, the Fireflea darkness, Ceres's effects), so room objects make their shared-state
 /// writes into one representation of the room effect's state.
 /// The modelled effect overlay effects are lava, acid, water, spores, Landing Site rain, and Climb fog.
 /// </remarks>
@@ -41,11 +41,11 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// </summary>
     public RoomVisorAnimation VisorAnimation { get; private set; }
 
-    /// <summary>The effect whose authored page the room's effect overlay shows, chosen when the room loaded; null when it shows none.</summary>
-    public RoomFxType? EffectPageType { get; private set; }
+    /// <summary>The effect whose pictures the room's effect overlay shows, chosen when the room loaded; null when it shows none.</summary>
+    public RoomFxType? OverlayEffect { get; private set; }
 
-    /// <summary>The effect overlay the room shows (#1348, #1466, #1601): its effect's page when it has one, otherwise nothing.</summary>
-    public FxOverlayPlane EffectPlane => FxOverlayPlane.Of(EffectPageType);
+    /// <summary>The effect overlay the room shows (#1348, #1466, #1601): its effect's liquid or atmosphere when it has one, otherwise nothing.</summary>
+    public FxOverlayPlane EffectPlane => FxOverlayPlane.Of(OverlayEffect);
 
     /// <summary>
     /// The palette blend the last FX record loaded selected for the effect overlay's blend colours (#1512), or null while no record
@@ -157,11 +157,11 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// </summary>
     public Position16<OverlayPixels> Scroll { get; private set; }
 
-    /// <summary>Whether the room's effect shows its page on the effect overlay over the gameplay area.</summary>
-    public bool IsRenderable => ShowsPage(Type);
+    /// <summary>Whether the room's effect shows its pictures on the effect overlay over the gameplay area.</summary>
+    public bool IsRenderable => ShowsOnOverlay(Type);
 
-    /// <summary>Whether a room of effect <paramref name="type"/> shows the effect's authored page on the effect overlay.</summary>
-    public static bool ShowsPage(RoomFxType type) => type is
+    /// <summary>Whether a room of effect <paramref name="type"/> shows the effect's liquid or atmosphere on the effect overlay.</summary>
+    public static bool ShowsOnOverlay(RoomFxType type) => type is
         RoomFxType.Lava or RoomFxType.Acid or RoomFxType.Water or RoomFxType.TourianEntranceStatue or
         RoomFxType.Rain or RoomFxType.Fog or RoomFxType.Spores;
 
@@ -240,8 +240,8 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         if (!IsRenderable)
             return;
 
-        // The room shows this effect's page until Samus leaves it.
-        EffectPageType = Type;
+        // The room shows this effect on its overlay until Samus leaves it.
+        OverlayEffect = Type;
 
         if (RoomFxTypes.UsesWater(Type))
         {
@@ -364,8 +364,8 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
             return;
 
         // The shared block animations run independently of the liquid motion's
-        // per-frame step. In particular, lava and acid select the animation frame their page
-        // shows here, before the surface step that follows.
+        // per-frame step. In particular, lava and acid select the animation frame their pictures
+        // show here, before the surface step that follows.
         animatedTiles.Step(frames);
 
         if (LiquidMotionStopped && MovesLiquidBeforeMainLoop)
@@ -497,8 +497,8 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     }
 
     /// <summary>
-    /// Lays the shade of the palette blend the last record selected over the effect-overlay pictures (#1512): the effect's
-    /// pages, and the HUD's, which show the same colours.
+    /// Lays the shade of the palette blend the last record selected over the room effect's pictures and over the HUD's
+    /// (#1512), each group pre-coloured in it on its own sheet (#1731).
     /// </summary>
     public void ShadeGameplay(GameplayShadingBuilder frame)
     {

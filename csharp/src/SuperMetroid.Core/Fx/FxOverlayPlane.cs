@@ -7,20 +7,20 @@ namespace SuperMetroid.Core.Fx;
 /// </summary>
 public sealed class FxOverlayPlane
 {
-    /// <summary>The overlay of a room whose effect shows no page: nothing.</summary>
+    /// <summary>The overlay of a room whose effect shows nothing on it.</summary>
     public static FxOverlayPlane Cleared { get; } = new(null);
 
-    /// <summary>The overlay showing each effect's page, shared so a frame showing the same page reuses its resolved picture.</summary>
-    private static readonly Dictionary<RoomFxType, FxOverlayPlane> Pages =
+    /// <summary>The overlay showing each effect, shared so a frame showing the same effect reuses its resolved picture.</summary>
+    private static readonly Dictionary<RoomFxType, FxOverlayPlane> ShowingEach =
         Enum.GetValues<RoomFxType>().ToDictionary(type => type, type => new FxOverlayPlane(type));
 
-    /// <summary>Takes the effect whose page the overlay shows.</summary>
-    private FxOverlayPlane(RoomFxType? effectPage) => EffectPage = effectPage;
+    /// <summary>Takes the effect whose pictures the overlay shows.</summary>
+    private FxOverlayPlane(RoomFxType? effect) => Effect = effect;
 
-    /// <summary>The overlay showing the page of <paramref name="effectPage"/>, or <see cref="Cleared"/> for none.</summary>
-    /// <param name="effectPage">The effect whose page the overlay shows, or null.</param>
-    public static FxOverlayPlane Of(RoomFxType? effectPage) => effectPage is { } type ? Pages[type] : Cleared;
+    /// <summary>The overlay showing the pictures of <paramref name="effect"/>, or <see cref="Cleared"/> for none.</summary>
+    /// <param name="effect">The effect whose pictures the overlay shows, or null.</param>
+    public static FxOverlayPlane Of(RoomFxType? effect) => effect is { } type ? ShowingEach[type] : Cleared;
 
-    /// <summary>The effect whose page the overlay shows; null when it shows none.</summary>
-    public RoomFxType? EffectPage { get; }
+    /// <summary>The effect whose pictures the overlay shows, its liquid or its atmosphere; null when it shows none.</summary>
+    public RoomFxType? Effect { get; }
 }

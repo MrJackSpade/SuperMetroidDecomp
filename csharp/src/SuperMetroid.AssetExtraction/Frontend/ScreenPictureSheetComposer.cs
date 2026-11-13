@@ -117,7 +117,6 @@ internal static class ScreenPictureSheetComposer
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(checked((ushort)(widest * TilePixels)), checked((ushort)(rows * TilePixels))));
         RgbColor[] colours = palette[..ImageColourGroup.HalfColours].ToArray();
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
-        WrittenPictureLayer depth = characters.Depth == TileInkDepth.SixteenColours ? WrittenPictureLayer.WrittenOverRoom : WrittenPictureLayer.FxOverlayAndHud;
         var paintedFrames = new SpriteSheetFrameDocument[pictured.Count];
         for (int index = 0; index < pictured.Count; index++)
         {
@@ -135,7 +134,7 @@ internal static class ScreenPictureSheetComposer
             }
             paintedFrames[index] = WrittenPictureSheetComposer.Frame(canvas,
                 new Position16<ImagePixels>(checked((ushort)(corner.X * TilePixels)), checked((ushort)(corner.Y * TilePixels))),
-                new Extent16<ImagePixels>(checked((ushort)(subject.Size.X * TilePixels)), checked((ushort)(subject.Size.Y * TilePixels))), depth);
+                new Extent16<ImagePixels>(checked((ushort)(subject.Size.X * TilePixels)), checked((ushort)(subject.Size.Y * TilePixels))), characters.Colours);
         }
         // Every subject names its picture's rectangle, placed from its own offset.
         for (int index = 0; index < subjects.Count; index++)

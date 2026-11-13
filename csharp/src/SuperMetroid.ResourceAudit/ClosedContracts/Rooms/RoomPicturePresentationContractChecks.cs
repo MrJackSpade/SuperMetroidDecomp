@@ -70,7 +70,7 @@ internal static class RoomPicturePresentationContractChecks
         CSharpCompilation forged = compilation.AddSyntaxTrees(CSharpSyntaxTree.ParseText("""
             using SuperMetroid.Core.Rooms.Artwork;
             class ArtworkForger {
-                InstalledRoomArtwork Forge() => new InstalledRoomArtwork(null!, null!, null!, null!, null!, null!);
+                InstalledRoomArtwork Forge() => new InstalledRoomArtwork(null!, null!, null!, null!, null!, null!, null!);
             }
             """, path: "fixture-room-artwork-forger.cs"));
         AuditReport revoked = Inspect(forged, calls, adapted: true);

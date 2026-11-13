@@ -83,7 +83,7 @@ internal static class RoomFxLayer3TilemapsVerification
         };
         RoomFxOverlayState state = RoomFxOverlayState.ForDefinition(stateSession, record, randomNumber: 0);
         AssertEqual(type, state.Type, "installed room-FX BG3 page preserves the selected FX type");
-        AssertEqual<RoomFxType?>(type, state.EffectPlane.EffectPage, "the room's BG3 plane shows the selected FX type's page");
+        AssertEqual<RoomFxType?>(type, state.EffectPlane.Effect, "the room's BG3 plane shows the selected FX type's page");
         return state.EffectPlane.WordsIn(catalog);
     }
 

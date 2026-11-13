@@ -90,7 +90,7 @@ internal static class ClosedPresentationIdentityDefinitions
         // A form's message is one the message box shows, which the import pictures in every form it takes (#1536).
         ("MessageBoxSheet", "Picture", "shown.Message") => GameplayMessageArtwork.Forms().Select(form => (int)form.Message).Distinct().ToArray(),
         // Only the effects that show artwork are pictured (#1536, #1706).
-        ("RoomEffectPictures", "Artwork", "type") => Enum.GetValues<RoomFxType>().Where(RoomFxOverlayState.ShowsPage)
+        ("RoomEffectPictures", "Artwork", "type") => Enum.GetValues<RoomFxType>().Where(RoomFxOverlayState.ShowsOnOverlay)
             .Select(type => (int)type).ToArray(),
         // A sky is installed for each variant some retail room state's scrolling-sky room main reads (#1536).
         ("InstalledRoomArtwork", "Sky", "variant") => RetailRooms.All.SelectMany(RoomStateLists.GetStates)

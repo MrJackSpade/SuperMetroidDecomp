@@ -19,7 +19,7 @@ internal static class FxOverlayPlaneWords
         {
             var tiles = new BackgroundTile[FxOverlayPlaneConstants.Columns * FxOverlayPlaneConstants.Rows];
             tiles.AsSpan().Fill(Layer3ClearedCellDefinitions.ClearedCell);
-            if (plane.EffectPage is { } type)
+            if (plane.Effect is { } type)
                 pages.Resolve(type).Span.CopyTo(tiles.AsSpan(FxOverlayPlaneConstants.EffectPageFirstRow * FxOverlayPlaneConstants.Columns));
             return tiles;
         }

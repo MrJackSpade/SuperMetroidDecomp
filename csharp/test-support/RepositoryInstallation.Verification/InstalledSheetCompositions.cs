@@ -34,7 +34,7 @@ internal static class InstalledSheetCompositions
         () => BossBodySheetComposer.Compose(RoomBlockSheetInputs.Load(CartridgeImportContent.Directory))
             .ToDictionary(sheet => BossBodySheetComposer.SheetNameOf(sheet.Owner), sheet => sheet.Sheet, StringComparer.Ordinal)));
 
-    /// <summary>Each room sheet (blocks, backgrounds, written and effect pictures, message boxes, floors), composed by its installed name.</summary>
+    /// <summary>Each room sheet (blocks, backgrounds, written and effect pictures, the HUD's pictures, message boxes, floors), composed by its installed name.</summary>
     private static readonly Lazy<Dictionary<string, ComposedSpriteSheet>> Rooms = new(() => SharedFixtureTiming.Load("Fixture: room sheet compositions", ComposeRooms));
 
     /// <summary>Every room sheet the installation holds, composed in-process by its installed name.</summary>
@@ -47,8 +47,10 @@ internal static class InstalledSheetCompositions
             sheets.Add(RoomBlockSheet.NameOf(tileset), sheet);
         foreach ((string name, ComposedRoomBackground background) in composition.Backgrounds)
             sheets.Add(name, background.Sheet);
-        foreach (ComposedWrittenPictureSheet written in composition.Written.Values.Concat(composition.OverlayPictures.Values))
+        foreach (ComposedWrittenPictureSheet written in composition.Written.Values.Concat(composition.RoomEffects.Values))
             sheets.Add(WrittenPictureSheet.NameOf(written.Layer, written.Tileset), written.Sheet);
+        foreach ((TilesetDefinition tileset, ComposedSpriteSheet sheet) in composition.Hud)
+            sheets.Add(HudPictureSheet.NameOf(tileset), sheet);
         foreach ((TilesetDefinition tileset, ComposedSpriteSheet sheet) in composition.MessageBoxes)
             sheets.Add(MessageBoxSheet.NameOf(tileset), sheet);
         foreach ((TilesetDefinition tileset, ComposedSpriteSheet sheet) in composition.Floors)

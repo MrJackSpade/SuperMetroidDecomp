@@ -70,7 +70,7 @@ internal static class FxOverlayFixtures
     /// </summary>
     internal static FxOverlayArtwork ArtworkOf(FxOverlayPlane plane, RoomFxLayer3Pages pages, ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette,
         int characterWord = GameplayVramLayout.HudCharacterWord) =>
-        Ensure.NotNull(plane).EffectPage is not { } type ? new FxOverlayArtwork(null)
+        Ensure.NotNull(plane).Effect is not { } type ? new FxOverlayArtwork(null)
             : ArtworkFromPlaneWords(type, plane.WordsIn(pages), image, palette, characterWord);
 
     /// <summary>
@@ -126,7 +126,7 @@ internal static class FxOverlayFixtures
             canvas.PaintTwoBppTile(cell % columns * TilePixels, cell / columns * TilePixels, word, character, colours);
         }
         var documents = frames.ToDictionary(frame => frame.Name,
-            frame => WrittenPictureSheetComposer.Frame(canvas, frame.FirstRow, frame.Rows, WrittenPictureLayer.FxOverlayAndHud) with { Origin = frame.Origin },
+            frame => WrittenPictureSheetComposer.Frame(canvas, frame.FirstRow, frame.Rows, SpriteImageColours.TwoBppBackground) with { Origin = frame.Origin },
             StringComparer.Ordinal);
         ComposedSpriteSheet composed = canvas.ToSplitRoomSheet(colours, documents, SpriteImageColours.TwoBppBackground);
         return SpriteSheetFileConstants.Load(composed.Manifest, "overlay-fixture", composed.Size, composed.Pixels, composed.PaletteIndices);

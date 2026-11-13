@@ -66,11 +66,11 @@ internal static class Layer3PlaneVerification
             candidate.Type == RoomFxType.Water && candidate.DoorPointer == 0) with { BaseYPosition = 0x0080 };
         var session = new RoomFxSession();
         RoomFxOverlayState water = RoomFxOverlayState.ForDefinition(session, record, 0);
-        AssertEqual<RoomFxType?>(RoomFxType.Water, water.EffectPageType, "the water room shows the water page");
+        AssertEqual<RoomFxType?>(RoomFxType.Water, water.OverlayEffect, "the water room shows the water page");
 
         // The plane names the water page (#1466); the installed pages spell the words the cartridge writes for it.
         FxOverlayPlane shownPlane = water.EffectPlane;
-        AssertEqual<RoomFxType?>(RoomFxType.Water, shownPlane.EffectPage, "the room's BG3 plane shows the water page");
+        AssertEqual<RoomFxType?>(RoomFxType.Water, shownPlane.Effect, "the room's BG3 plane shows the water page");
         RoomFxLayer3Pages pages = InstalledFixtures.ImportMaps.RoomFxPages;
         ushort[] plane = shownPlane.WordsIn(pages);
         ReadOnlySpan<byte> page = pages.ResolveBytes(RoomFxType.Water);

@@ -24,8 +24,8 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// BG3, shows (an effect's liquid or atmosphere, #1706), composed from the tile words the cartridge would write for it, coloured with the
 /// tileset's standard palette over the characters the room has loaded, and pictured again for each value of the appearance
 /// inputs that reach any of its characters, named by <see cref="AppearancePictureNames"/>; with the inputs each picture
-/// depends on. The effect overlay's sheet also pictures each of the HUD's images as its own frame. Every position here is a
-/// pixel of the sheet or of a picture: the tilemap's cells are decoded into pixels where its words are read.
+/// depends on. The HUD's images are pictured the same way on a sheet of their own, each as its own frame (#1731). Every
+/// position here is a pixel of the sheet or of a picture: the tilemap's cells are decoded into pixels where its words are read.
 /// </summary>
 internal static class WrittenPictureSheetComposer
 {
@@ -34,10 +34,6 @@ internal static class WrittenPictureSheetComposer
 
     /// <summary>The pixels along either side of a tile.</summary>
     private const int TilePixels = RoomTileCanvas.CharacterPixels;
-
-    /// <summary>How the pictures of <paramref name="layer"/> are composed: the effect overlay's from colour sets of four.</summary>
-    private static SpriteImageColours ColoursOf(WrittenPictureLayer layer) =>
-        layer == WrittenPictureLayer.FxOverlayAndHud ? SpriteImageColours.TwoBppBackground : SpriteImageColours.Background;
 
     /// <summary>
     /// Pixels across and down the largest sheet the installation can hold, which pictures are packed into: an effect overlay
@@ -59,9 +55,13 @@ internal static class WrittenPictureSheetComposer
         TileWordWriter[] ordered = [.. Ensure.NotNull(writers).Order()];
         List<WrittenSubject> subjects = [.. ordered.SelectMany(writer => Subjects(inputs, writer))];
         // Pictures over the sprites' artwork show only what its load and encounters place there, never the tileset's.
-        return Compose(inputs, tileset, WrittenPictureLayer.WrittenOverRoom, new WrittenSubjects(subjects, [], []), content, new WrittenOptions(
-            new AppearanceOptions(uploads.WordArtwork == RoomBlockArtwork.Sprites ? [] : uploads.Options), BgCharacterSet.Tiles, uploads.WordUploads),
+        const WrittenPictureLayer layer = WrittenPictureLayer.WrittenOverRoom;
+        ComposedPictures composed = Compose(inputs, tileset, WrittenPictureSheet.NameOf(layer, tileset), SpriteImageColours.Background,
+            new WrittenSubjects(subjects, [], []), new WrittenOptions(
+                new AppearanceOptions(uploads.WordArtwork == RoomBlockArtwork.Sprites ? [] : uploads.Options), BgCharacterSet.Tiles, uploads.WordUploads,
+                Ensure.NotNull(content)),
             WritersColours(ordered, RoomStaticPaletteImage.Colours(inputs.Palettes.Get(tileset.Palette))));
+        return new ComposedWrittenPictureSheet(layer, tileset, composed.Sheet, composed.Inputs);
     }
 
     /// <summary>
@@ -96,29 +96,52 @@ internal static class WrittenPictureSheetComposer
     };
 
     /// <summary>
-    /// Composes the sheet of the effect overlay's pictures a room of <paramref name="tileset"/> shows: each of the HUD's images as its own
-    /// frame (#1466) and the artwork of each room effect its rooms run (#1706), over the HUD's characters, and again
-    /// for each frame its rooms' effects animate over BG3's characters (#1406).
+    /// Composes the sheet of the effect overlay's pictures a room of <paramref name="tileset"/> shows: the artwork of each room
+    /// effect its rooms run (#1706), over the HUD's characters, and again for each frame its rooms' effects animate over
+    /// BG3's characters (#1406).
     /// </summary>
-    /// <exception cref="InvalidDataException">
-    /// A picture reads a character nothing the room loads is bound over, or a HUD image reads a character an appearance
-    /// input can show other artwork at.
-    /// </exception>
-    internal static ComposedWrittenPictureSheet ComposeOverlay(RoomBlockSheetInputs inputs, TilesetDefinition tileset, RoomBlockUploads.TilesetUploads uploads)
+    /// <exception cref="InvalidDataException">A picture reads a character nothing the room loads is bound over.</exception>
+    internal static ComposedWrittenPictureSheet ComposeRoomEffects(RoomBlockSheetInputs inputs, TilesetDefinition tileset, RoomBlockUploads.TilesetUploads uploads)
     {
         Ensure.NotNull(inputs);
         Ensure.NotNull(uploads);
-        HudSheetLayout hud = HudImageSheet.Layout(inputs.Maps.GameplayHud, HudImageSheet.Maps(inputs.Maps.Game));
         // The game shows nothing where no effect's artwork lies (#1514), so the cell the effect area is cleared to is not
         // pictured. Each effect's transfer is cut into the pictures its overlay shows (#1706); a picture whose every row
         // repeats across is pictured as one period, which the overlay repeats at the picture's width (#1675).
         List<WrittenSubject> subjects = [.. uploads.FxTypes.Order().SelectMany(type => EffectSubjects(type,
                 BackgroundTileWords.ToWords(inputs.Maps.RoomFxPages.Resolve(type).Span)))];
-        return Compose(inputs, tileset, WrittenPictureLayer.FxOverlayAndHud, new WrittenSubjects(subjects, [.. HudShelves(hud)], [.. HudFrames(hud)]),
-            uploads.Bg3Content ?? throw new InvalidDataException($"No room of {tileset} records what BG3 shows over."),
-            new WrittenOptions(new AppearanceOptions(uploads.Bg3Options), BgCharacterSet.Layer3, []),
+        const WrittenPictureLayer layer = WrittenPictureLayer.FxOverlay;
+        ComposedPictures composed = Compose(inputs, tileset, WrittenPictureSheet.NameOf(layer, tileset), SpriteImageColours.TwoBppBackground,
+            new WrittenSubjects(subjects, [], []), Bg3Options(tileset, uploads),
             RoomStaticPaletteImage.Colours(inputs.Palettes.Get(tileset.Palette)));
+        return new ComposedWrittenPictureSheet(layer, tileset, composed.Sheet, composed.Inputs);
     }
+
+    /// <summary>
+    /// Composes the sheet of the HUD's pictures a room of <paramref name="tileset"/> shows (#1466, #1731): each of the HUD's
+    /// images as its own frame, over the HUD's characters, in the tileset's standard colours.
+    /// </summary>
+    /// <exception cref="InvalidDataException">
+    /// A HUD image reads a character nothing the room loads is bound over, or one an appearance input can show other artwork at.
+    /// </exception>
+    internal static ComposedSpriteSheet ComposeHud(RoomBlockSheetInputs inputs, TilesetDefinition tileset, RoomBlockUploads.TilesetUploads uploads)
+    {
+        Ensure.NotNull(inputs);
+        Ensure.NotNull(uploads);
+        HudSheetLayout hud = HudImageSheet.Layout(inputs.Maps.GameplayHud, HudImageSheet.Maps(inputs.Maps.Game));
+        return Compose(inputs, tileset, HudPictureSheet.NameOf(tileset), SpriteImageColours.TwoBppBackground,
+            new WrittenSubjects([], [.. HudShelves(hud)], [.. HudFrames(hud)]), Bg3Options(tileset, uploads),
+            RoomStaticPaletteImage.Colours(inputs.Palettes.Get(tileset.Palette))).Sheet;
+    }
+
+    /// <summary>
+    /// What <paramref name="tileset"/>'s BG3 pictures are shown over: what its rooms show over BG3's characters after loading,
+    /// which the pictures are pictured again for, and what they bind there beyond their load.
+    /// </summary>
+    /// <exception cref="InvalidDataException">No room of the tileset records what BG3 shows over.</exception>
+    private static WrittenOptions Bg3Options(TilesetDefinition tileset, RoomBlockUploads.TilesetUploads uploads) =>
+        new(new AppearanceOptions(uploads.Bg3Options), BgCharacterSet.Layer3, [],
+            uploads.Bg3Content ?? throw new InvalidDataException($"No room of {tileset} records what BG3 shows over."));
 
     /// <summary>
     /// The pictures effect <paramref name="type"/> shows of its transfer <paramref name="words"/> (#1706): a liquid's surface
@@ -175,23 +198,22 @@ internal static class WrittenPictureSheetComposer
             HudImageSheet.Pixels(placed.Cell), HudImageSheet.Pixels(placed.Image.Size)));
 
     /// <summary>
-    /// Composes <paramref name="layer"/>'s sheet: <paramref name="written"/>'s fixed parts as the room loads them, each of
-    /// its part frames cut from within its part, and each of its subjects pictured once for each
-    /// value of the inputs whose options reach any of its characters, over <paramref name="content"/>, which binds the
-    /// options' bound artwork beyond the room's load, each word's character read in the options' set, coloured in
-    /// <paramref name="colours"/>.
+    /// Composes the sheet named <paramref name="sheetName"/>, coloured as <paramref name="kind"/>: <paramref name="written"/>'s
+    /// fixed parts as the room loads them, each of its part frames cut from within its part, and each of its subjects
+    /// pictured once for each value of the inputs whose options reach any of its characters, over the options' content,
+    /// which binds the options' bound artwork beyond the room's load, each word's character read in the options' set,
+    /// coloured in <paramref name="colours"/>; with the inputs each subject depends on.
     /// </summary>
     /// <exception cref="InvalidDataException">
     /// A picture reads a character nothing the room loads is bound over, or a fixed part reads a character an option shows
     /// other artwork at.
     /// </exception>
-    private static ComposedWrittenPictureSheet Compose(RoomBlockSheetInputs inputs, TilesetDefinition tileset, WrittenPictureLayer layer,
-        WrittenSubjects written, BgArtworkBindings content, WrittenOptions options, RgbColor[] colours)
+    private static ComposedPictures Compose(RoomBlockSheetInputs inputs, TilesetDefinition tileset, string sheetName, SpriteImageColours kind,
+        WrittenSubjects written, WrittenOptions options, RgbColor[] colours)
     {
-        Ensure.NotNull(content);
+        BgArtworkBindings content = options.Content;
         (List<WrittenSubject> subjects, List<WrittenSubject> fixedParts, IReadOnlyList<PartFrame> partFrames) = written;
-        string sheetName = WrittenPictureSheet.NameOf(layer, tileset);
-        int characterWords = CharacterWordsOf(layer);
+        int characterWords = options.Set.CharacterBytes() / sizeof(ushort);
         IReadOnlyList<BgCharacterUpload> load = RoomBlockUploads.LoadUploads(inputs, tileset);
         Dictionary<BgArtworkIdentity, ReadOnlyMemory<byte>> bytes = load.Append(RoomBlockUploads.HudCharacters(inputs))
             .Concat(options.Options.All.Select(option => option.Upload)).Concat(options.Bound)
@@ -263,12 +285,12 @@ internal static class WrittenPictureSheetComposer
             foreach (PictureWord word in picture.Words)
                 Paint(corner + word.Offset, word.Word);
             partCorners.Add(picture.Name, corner);
-            frames.Add(picture.Name, Frame(canvas, corner, picture.Size, layer) with { Origin = picture.Origin });
+            frames.Add(picture.Name, Frame(canvas, corner, picture.Size, kind) with { Origin = picture.Origin });
         }
         foreach (PartFrame frame in partFrames)
-            frames.Add(frame.Name, Frame(canvas, partCorners[frame.Part] + (frame.Corner - Position16<ImagePixels>.Zero), frame.Size, layer));
+            frames.Add(frame.Name, Frame(canvas, partCorners[frame.Part] + (frame.Corner - Position16<ImagePixels>.Zero), frame.Size, kind));
         // A written picture covers its layer wherever it lies, so one that inks nothing is still installed (#1634).
-        return new ComposedWrittenPictureSheet(layer, tileset, canvas.ToSplitRoomSheet(colours, frames, ColoursOf(layer), split, keepsEmpty: true), inputsOf);
+        return new ComposedPictures(canvas.ToSplitRoomSheet(colours, frames, kind, split, keepsEmpty: true), inputsOf);
 
         // `subject`'s words as they show while `depends` take `values`, named `name`, laid from its top-left written tile;
         // null where a word's character shows nothing for them.
@@ -293,27 +315,30 @@ internal static class WrittenPictureSheetComposer
         {
             ReadOnlySpan<byte> character = bytes[word.Shown.Artwork].Span.Slice(word.Shown.WordOffset * sizeof(ushort), characterWords * sizeof(ushort));
             int left = corner.X, top = corner.Y;
-            if (layer == WrittenPictureLayer.FxOverlayAndHud)
+            if (kind == SpriteImageColours.TwoBppBackground)
                 canvas.PaintTwoBppTile(left, top, word.Word, character, colours);
             else
                 canvas.PaintTile(left, top, word.Word, character, colours);
         }
     }
 
-    /// <summary>VRAM words in one of <paramref name="layer"/>'s characters: BG3's are two-bit, BG1's and BG2's four-bit.</summary>
-    private static int CharacterWordsOf(WrittenPictureLayer layer) =>
-        (layer == WrittenPictureLayer.FxOverlayAndHud ? BgCharacterSet.Layer3 : BgCharacterSet.Tiles).CharacterBytes() / sizeof(ushort);
-
-    /// <summary>The frame of <paramref name="rows"/> tile rows from row <paramref name="top"/>, across the sheet.</summary>
-    internal static SpriteSheetFrameDocument Frame(RoomTileCanvas canvas, int top, int rows, WrittenPictureLayer layer) =>
+    /// <summary>
+    /// The frame of <paramref name="rows"/> tile rows from row <paramref name="top"/>, across a sheet coloured as
+    /// <paramref name="kind"/>.
+    /// </summary>
+    internal static SpriteSheetFrameDocument Frame(RoomTileCanvas canvas, int top, int rows, SpriteImageColours kind) =>
         Frame(canvas, new Position16<ImagePixels>(0, (ushort)(top * RoomTileCanvas.CharacterPixels)),
-            new Extent16<ImagePixels>((ushort)canvas.Width, (ushort)(rows * RoomTileCanvas.CharacterPixels)), layer);
+            new Extent16<ImagePixels>((ushort)canvas.Width, (ushort)(rows * RoomTileCanvas.CharacterPixels)), kind);
 
-    /// <summary>The frame of the <paramref name="size"/> pixels from <paramref name="corner"/>, coloured from the inks it shows.</summary>
-    internal static SpriteSheetFrameDocument Frame(RoomTileCanvas canvas, Position16<ImagePixels> corner, Extent16<ImagePixels> size, WrittenPictureLayer layer)
+    /// <summary>
+    /// The frame of the <paramref name="size"/> pixels from <paramref name="corner"/> of a sheet coloured as
+    /// <paramref name="kind"/>, coloured from the inks it shows: a two-bit sheet's in colour sets of four, every other's in
+    /// sets of sixteen.
+    /// </summary>
+    internal static SpriteSheetFrameDocument Frame(RoomTileCanvas canvas, Position16<ImagePixels> corner, Extent16<ImagePixels> size, SpriteImageColours kind)
     {
         Ensure.NotNull(canvas);
-        int rowColours = layer == WrittenPictureLayer.FxOverlayAndHud ? 4 : 16;
+        int rowColours = kind == SpriteImageColours.TwoBppBackground ? 4 : 16;
         ImageColourGroups coloured = ImageColourGroups.None;
         for (int y = 0; y < size.Y; y++)
         for (int x = 0; x < size.X; x++)
@@ -437,7 +462,12 @@ internal static class WrittenPictureSheetComposer
     /// <param name="Word">The word as it shows.</param>
     private readonly record struct PictureWord(Offset16<ImagePixels> Offset, ShownWord Word);
 
-    /// <summary>What a layer's sheet pictures.</summary>
+    /// <summary>A composed sheet and the inputs each of its subjects depends on, by the name its pictures begin with.</summary>
+    /// <param name="Sheet">The sheet.</param>
+    /// <param name="Inputs">The inputs.</param>
+    private sealed record ComposedPictures(ComposedSpriteSheet Sheet, IReadOnlyDictionary<string, ImmutableArray<AppearanceInput>> Inputs);
+
+    /// <summary>What a sheet pictures.</summary>
     /// <param name="Subjects">The pictures gameplay writes, each pictured for every value of the inputs that reach it.</param>
     /// <param name="FixedParts">Parts pictured as the room loads them, such as the shelves of the HUD's images.</param>
     /// <param name="PartFrames">Frames cut from within the fixed parts.</param>
@@ -459,5 +489,6 @@ internal static class WrittenPictureSheetComposer
     /// <param name="Options">What the rooms show over the layer's characters after loading, each picture pictured again for.</param>
     /// <param name="Set">The character set the layer's words read.</param>
     /// <param name="Bound">Artwork the room binds beyond its load, which its pictures show over.</param>
-    private sealed record WrittenOptions(AppearanceOptions Options, BgCharacterSet Set, IReadOnlyList<BgCharacterUpload> Bound);
+    /// <param name="Content">What the room binds over its characters, the options' bound artwork beyond its load included.</param>
+    private sealed record WrittenOptions(AppearanceOptions Options, BgCharacterSet Set, IReadOnlyList<BgCharacterUpload> Bound, BgArtworkBindings Content);
 }

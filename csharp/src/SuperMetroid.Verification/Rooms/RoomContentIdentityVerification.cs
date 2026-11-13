@@ -71,7 +71,8 @@ internal static class RoomContentIdentityVerification
         var sheet = new RoomBlockSheet(default(TilesetDefinition), pictured.Sheet, new RoomBlockAppearances([[.. inputs]], null, [0]));
         return new InstalledRoomArtwork(new Dictionary<TilesetDefinition, RoomBlockSheet> { [default] = sheet },
             new Dictionary<string, RoomBackgroundImage>(), new Dictionary<TilesetDefinition, WrittenPictureSheet>(),
-            new Dictionary<TilesetDefinition, WrittenPictureSheet>(), new Dictionary<TilesetDefinition, MessageBoxSheet>(),
+            new Dictionary<TilesetDefinition, WrittenPictureSheet>(), new Dictionary<TilesetDefinition, HudPictureSheet>(),
+            new Dictionary<TilesetDefinition, MessageBoxSheet>(),
             new Dictionary<TilesetDefinition, RoomFloorSheet>()).ContentIdentity;
     }
 

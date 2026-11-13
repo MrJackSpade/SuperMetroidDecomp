@@ -777,13 +777,13 @@ reviewed rule whose key domain is either a typed identity the import enumerates 
 load. No lookup was excused.
 
 `room-artwork-complete-retail-selections` covers `InstalledRoomArtwork.Get`, `FloorOf`, `MessageBox`, `FxOverlay`,
-`Background` and `Sky`. A room selects them by the tileset its retail room state's graphics set names
+`Hud`, `Background` and `Sky`. A room selects them by the tileset its retail room state's graphics set names
 (`LoadedRoomAssets`), by its library background and the picture door it was entered through, by its scrolling sky's
 variant, and, only in a room whose state shows a turning floor (`RoomTurningFloors`, #1649), by its tileset's floor.
-`RoomBlockSheetFiles.Load` builds the block sheets and message boxes for every tileset `RoomBlockUploads.Tilesets`
+`RoomBlockSheetFiles.Load` builds the block sheets, the HUD's picture sheets and message boxes for every tileset `RoomBlockUploads.Tilesets`
 finds in the retail room states, and before it reads any sheet it requires, failing with `InvalidDataException`: an
-effect overlay picture sheet of every such tileset with the page of every effect its states run that shows one
-(`EffectPagesOf`), the turning floor of every tileset a retail state that shows one loads (`FloorTilesets`), and
+effect overlay picture sheet of every such tileset with the pictures of every effect its states run that shows one
+(`OverlayEffectsOf`), the turning floor of every tileset a retail state that shows one loads (`FloorTilesets`), and
 every background image a retail state shows (`BackgroundNames`: the ordinary picture of each library background the
 player sees as its own picture and the picture of each of its picture doors, and each scrolling sky's rows, in the
 state's tileset). A room selects `Background` only for a background whose `LibraryBackgroundView` is `Picture`

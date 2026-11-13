@@ -62,7 +62,8 @@ internal static class RoomBlockSheetComposer
                     ? RoomSheetShades.With(WrittenPictureSheetComposer.Compose(inputs, tileset, uploads, uploads.Writers, content),
                         RoomSheetShades.Written(inputs, uploads.Writers))
                     : null,
-                RoomSheetShades.With(WrittenPictureSheetComposer.ComposeOverlay(inputs, tileset, uploads), RoomSheetShades.Layer3(inputs, tileset)),
+                RoomSheetShades.With(WrittenPictureSheetComposer.ComposeRoomEffects(inputs, tileset, uploads), RoomSheetShades.RoomEffects(inputs, tileset)),
+                ShadedSheets.With(WrittenPictureSheetComposer.ComposeHud(inputs, tileset, uploads), RoomSheetShades.Hud(inputs, tileset)),
                 MessageBoxSheetComposer.Compose(inputs, tileset),
                 floored.Contains(tileset) ? ShadedSheets.With(RoomFloorSheetComposer.Compose(inputs, tileset), shades) : null);
         });
@@ -70,7 +71,8 @@ internal static class RoomBlockSheetComposer
         var appearances = new Dictionary<TilesetDefinition, RoomBlockAppearances>();
         var backgrounds = new Dictionary<string, ComposedRoomBackground>(StringComparer.Ordinal);
         var written = new Dictionary<TilesetDefinition, ComposedWrittenPictureSheet>();
-        var bg3 = new Dictionary<TilesetDefinition, ComposedWrittenPictureSheet>();
+        var roomEffects = new Dictionary<TilesetDefinition, ComposedWrittenPictureSheet>();
+        var hud = new Dictionary<TilesetDefinition, ComposedSpriteSheet>();
         var messageBoxes = new Dictionary<TilesetDefinition, ComposedSpriteSheet>();
         var floors = new Dictionary<TilesetDefinition, ComposedSpriteSheet>();
         for (int index = 0; index < order.Length; index++)
@@ -83,12 +85,13 @@ internal static class RoomBlockSheetComposer
                 backgrounds.Add(name, background);
             if (pictures.Written is { } wordWritten)
                 written.Add(tileset, wordWritten);
-            bg3.Add(tileset, pictures.Bg3);
+            roomEffects.Add(tileset, pictures.RoomEffects);
+            hud.Add(tileset, pictures.Hud);
             messageBoxes.Add(tileset, pictures.MessageBox);
             if (pictures.Floor is { } floor)
                 floors.Add(tileset, floor);
         }
-        return new RoomSheetComposition(sheets, appearances, backgrounds, written, bg3, messageBoxes, floors);
+        return new RoomSheetComposition(sheets, appearances, backgrounds, written, roomEffects, hud, messageBoxes, floors);
     }
 
     /// <summary>
@@ -358,10 +361,11 @@ internal static class RoomBlockSheetComposer
     /// <param name="Appearances">Its blocks' appearances.</param>
     /// <param name="Backgrounds">Its rooms' background images, by name.</param>
     /// <param name="Written">Its pictures written by words, or null when its rooms write none.</param>
-    /// <param name="Bg3">Its layer-3 pictures.</param>
+    /// <param name="RoomEffects">Its room effects' pictures on the effect overlay.</param>
+    /// <param name="Hud">Its pictures of the HUD.</param>
     /// <param name="MessageBox">Its message box sheet.</param>
     /// <param name="Floor">Its Ceres floor sheet, or null outside Ceres.</param>
     private sealed record TilesetPictures(ComposedSpriteSheet Blocks, RoomBlockAppearances Appearances,
-        KeyValuePair<string, ComposedRoomBackground>[] Backgrounds, ComposedWrittenPictureSheet? Written, ComposedWrittenPictureSheet Bg3,
+        KeyValuePair<string, ComposedRoomBackground>[] Backgrounds, ComposedWrittenPictureSheet? Written, ComposedWrittenPictureSheet RoomEffects, ComposedSpriteSheet Hud,
         ComposedSpriteSheet MessageBox, ComposedSpriteSheet? Floor);
 }

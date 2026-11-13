@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// <summary>
 /// The artwork each room effect shows on the effect overlay, drawn from a room's effect overlay picture sheet by the effect
 /// (#1466, #1514, #1536, #1706). The import pictures, in every tileset's sheet, the artwork of each effect a room state of
-/// the tileset runs that shows any (<see cref="RoomFxOverlayState.ShowsPage"/>): a liquid's surface strip and body under
+/// the tileset runs that shows any (<see cref="RoomFxOverlayState.ShowsOnOverlay"/>): a liquid's surface strip and body under
 /// <see cref="SurfaceName"/> and <see cref="BodyName"/>, an atmosphere's picture under <see cref="AtmosphereName"/>.
 /// </summary>
 public static class RoomEffectPictures

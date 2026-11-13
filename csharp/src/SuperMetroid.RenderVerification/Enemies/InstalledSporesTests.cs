@@ -70,7 +70,7 @@ internal static class InstalledSporesTests
                 "A compiled spores record describes another blend.");
             // Since #1348 the room's BG3 plane shows the effect's page directly instead of a copy written into VRAM.
             // The plane names the effect's page (#1466); the installed sheet pictures its words.
-            Require(baseline.EffectPageType == RoomFxType.Spores && baseline.EffectPlane.EffectPage == RoomFxType.Spores,
+            Require(baseline.OverlayEffect == RoomFxType.Spores && baseline.EffectPlane.Effect == RoomFxType.Spores,
                 "The spores room does not show the spores BG3 page.");
             int tick = 0;
             for (int frame = 0; frame < 1050; frame++)

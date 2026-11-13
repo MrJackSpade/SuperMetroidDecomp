@@ -27,16 +27,4 @@ internal static class EnemyDeathExplosions
         EnemyDeathExplosion.MiniKraid or EnemyDeathExplosion.Big => explosion,
         _ => throw new ArgumentOutOfRangeException(nameof(explosion), explosion, "Undefined enemy death explosion."),
     };
-
-    /// <summary>
-    /// The explosion a death started with a leftover number selects. A few deaths pass whatever number their routine
-    /// ends with as the explosion: a Fireflea the one its touch leaves (<see cref="FirefleaTouchDeathExplosion"/>),
-    /// Kraid's spit rock the shared health accumulator and a Powamp the one its spike burst selects
-    /// (<see cref="PowampBurstExplosion"/>). Zero through four select the explosions in their authored order and any higher
-    /// number the small explosion.
-    /// </summary>
-    internal static EnemyDeathExplosion ForLeftoverNumber(int number) =>
-        (uint)number < (uint)EnemyDeathExplosionDefinitions.ByLeftoverNumber.Length
-            ? EnemyDeathExplosionDefinitions.ByLeftoverNumber[number]
-            : EnemyDeathExplosion.Small;
 }

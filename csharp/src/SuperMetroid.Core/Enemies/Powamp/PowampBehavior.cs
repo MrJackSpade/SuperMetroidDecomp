@@ -339,7 +339,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         balloon.Slot.Presence = balloon.Slot.Presence.With(EnemyPresence.Deleted);
         int? lastSpikePlace = SpawnPowampSpikeBurst(body, body.Shading);
         _deathsAndDrops.StartGenericEnemyDeath(body,
-            EnemyDeathExplosions.ForLeftoverNumber(PowampBurstExplosion.AuthoredExplosionAfter(lastSpikePlace)));
+            PowampBurstExplosion.AfterBurst(lastSpikePlace, EnemyDeathExplosionDefinitions.AuthoredOrder));
     }
 
     /// <summary>Resolves the body-only private tail of a Powamp's touch.</summary>

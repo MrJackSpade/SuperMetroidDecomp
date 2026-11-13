@@ -33,10 +33,11 @@ internal static class EnemyDeathExplosionDefinitions
     internal static readonly RandomSampleField NarrowSpriteVerticalScatter = new(8, 5);
 
     /// <summary>
-    /// The explosion a death started with a leftover number starts for each number from zero: the explosions in their
-    /// authored order (<see cref="EnemyDeathExplosions.ForLeftoverNumber"/>).
+    /// The death explosions in their authored order, the small explosion first: the order the deaths that pick their
+    /// explosion by a number count in (<see cref="FirefleaTouchDeathExplosion"/>, <see cref="KraidNailTouchDeathExplosion"/>,
+    /// <see cref="PowampBurstExplosion"/>).
     /// </summary>
-    internal static readonly EnemyDeathExplosion[] ByLeftoverNumber =
+    internal static readonly IReadOnlyList<EnemyDeathExplosion> AuthoredOrder =
     [
         EnemyDeathExplosion.Small,
         EnemyDeathExplosion.SamusContact,

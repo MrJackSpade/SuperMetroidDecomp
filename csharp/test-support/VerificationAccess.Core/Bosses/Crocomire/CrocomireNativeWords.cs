@@ -106,9 +106,6 @@ internal static class CrocomireNativeWords
         [CrocomireFightFunction.UnwrittenTableEntry] = 42,
     });
 
-    /// <summary>The low four bits of body variable B: the mouth-hit count.</summary>
-    private const int HitCountMask = 0x000f;
-
     /// <summary>The bank-$A4 frame word naming each <see cref="CrocomireTongueFrame"/>.</summary>
     internal static readonly NativeWordIdentities<CrocomireTongueFrame> TongueFrames = new(new Dictionary<CrocomireTongueFrame, ushort>
     {
@@ -140,13 +137,10 @@ internal static class CrocomireNativeWords
         return flags;
     }
 
-    /// <summary>The mouth-hit count a recorded body variable B holds.</summary>
-    internal static int HitCount(ushort word) => word & HitCountMask;
-
-    /// <summary>The body variable B the cartridge stores for <paramref name="flags"/> and <paramref name="hitCount"/>.</summary>
-    internal static ushort FightWord(CrocomireFightFlags flags, int hitCount)
+    /// <summary>The body variable B the cartridge stores for <paramref name="flags"/> with no mouth hits counted.</summary>
+    internal static ushort FightWord(CrocomireFightFlags flags)
     {
-        int word = hitCount;
+        int word = 0;
         foreach ((CrocomireFightFlags flag, int bit) in FightFlagBits)
             if ((flags & flag) != 0)
                 word |= bit;

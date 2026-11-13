@@ -114,6 +114,14 @@ internal static class KraidNailSiblingVerification
             "a launch after its sibling was killed reads the sibling as stopped");
         AssertTrue(KraidNailLaunch.FromSiblingVelocity(0).Y.UnsignedWholePixels != KraidNailLaunch.FromSiblingVelocity(0x8000).Y.UnsignedWholePixels,
             "a stopped sibling launches its pair differently from one moving down");
+
+        // A killed sibling took no alternate spawn, whatever its mark last held, so a draw that allows it sends the launch
+        // to wait for the lint (#1620).
+        killedSibling.AlternateSpawn = true;
+        random = 1;
+        initialize(firstNail, enemies.KraidBehavior.Parts.NailStateOf(state, firstNail));
+        AssertEqual(KraidAiFunction.FingernailWaitForLint, enemies.KraidBehavior.Parts.NailStateOf(state, firstNail).Function,
+            "a launch after its sibling was killed reads the sibling as having taken no alternate spawn");
         Console.WriteLine("Kraid nail sibling: both slots, all RNG/sign words and both sibling spawn modes match native launch handoff without ROM access, and a killed sibling reads as stopped.");
     }
 

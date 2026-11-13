@@ -94,7 +94,7 @@ internal static class EnemyDefinitionsVerification
         // Kraid's post-hit mouth bound is a coordinate in Core (#1413); the ROM oracle confirms it is the word the
         // cartridge leaves: the native location of Kraid's vulnerability table.
         AssertEqual(RoomEnemyDefinitionNative.Of(EnemyDefinitionId.Kraid).VulnerabilityPointer,
-            unchecked((ushort)SuperMetroid.Core.Bosses.Kraid.KraidContactDefinitions.ShotUpperBoundAfterHit),
+            unchecked((ushort)KraidPassBounds.TopAfterMouthHit),
             "Kraid's post-hit mouth bound is the native location of its vulnerability table");
         foreach (EnemyDefinitionId pointer in auxiliaryPointers)
         {

@@ -6,8 +6,9 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <summary>
 /// The enemies of Ridley's two rooms that his encounters reach by name. Both rooms list his body first, which is the
 /// order the enemy pass runs them in; Ceres Ridley's room lists its door second, which his scene draws and his escape
-/// reads. Every reference reads the room's enemy in that place, whatever it currently holds, so an enemy that has died or
-/// been deleted is still the one reached, as the encounters expect.
+/// reads. He holds both by reference, each taken once from its place in his room's listing the first time an encounter
+/// reaches it, once the room's enemies are in place. A reference is the enemy's place, which outlives its occupant: his
+/// scene draws the Baby only while his place holds Ceres Ridley, and every other read reaches him while he lives.
 /// </summary>
 [RoomLifetime]
 internal sealed class RidleyParts
@@ -26,11 +27,17 @@ internal sealed class RidleyParts
         _enemies = Ensure.NotNull(enemies);
     }
 
+    /// <summary>His body, taken from the room's listing the first time it is reached; null until then.</summary>
+    private RoomEnemySlot? _body;
+
+    /// <summary>The door of Ceres Ridley's room, taken from the room's listing the first time it is reached; null until then.</summary>
+    private RoomEnemySlot? _ceresRoomDoor;
+
     /// <summary>His body, which runs first in both his rooms.</summary>
-    internal RoomEnemySlot Body => _enemies.Slots[BodyPlace];
+    internal RoomEnemySlot Body => _body ??= _enemies.Slots[BodyPlace];
 
     /// <summary>The door of Ceres Ridley's room, whose drawing his scene takes over while the door hands it to him.</summary>
-    internal RoomEnemySlot CeresRoomDoor => _enemies.Slots[CeresRoomDoorPlace];
+    internal RoomEnemySlot CeresRoomDoor => _ceresRoomDoor ??= _enemies.Slots[CeresRoomDoorPlace];
 
     /// <summary>Whether <paramref name="slot"/> is his body.</summary>
     internal bool IsBody(RoomEnemySlot slot) => ReferenceEquals(slot, Body);

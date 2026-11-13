@@ -58,15 +58,8 @@ public sealed class CrocomireEnemyState
     /// <summary>The phase of his death sequence; <see cref="CrocomireDeathPhase.Fighting"/> runs the fight and bridge checks, and <see cref="CrocomireDeathPhase.DefeatedRoomAdvance"/> displays an already-defeated corpse.</summary>
     public CrocomireDeathPhase DeathPhase { get; internal set; }
 
-    /// <summary>The fight latches. The original game keeps them in one value with <see cref="HitCount"/>; nothing reads that value another way.</summary>
+    /// <summary>The fight latches.</summary>
     public CrocomireFightFlags FightFlags { get; internal set; }
-
-    /// <summary>The saturating count of mouth hits, 0..<see cref="CrocomireMouthHits.MaximumCount"/>.</summary>
-    public int HitCount
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, CrocomireMouthHits.MaximumCount, value);
-    }
 
     /// <summary>The fight-AI function, run when the body program's fight-AI cue fires rather than once per main-AI frame.</summary>
     public CrocomireFightFunction FightFunction { get; internal set; }

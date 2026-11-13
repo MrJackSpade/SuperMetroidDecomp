@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -71,6 +71,8 @@ internal sealed class KraidProjectiles
         // A fingernail is set up at rest with its horizontal fraction primed: the room's first setup starts it at rest, and
         // a respawn follows the kill that stopped it (KilledFingernailStops).
         nailPart.NailVelocity = FixedVector<RoomPixels>.FromStoredParts(0, 40, 0, 0);
+        // A fingernail set up, at the room's first setup or a respawn, has taken no alternate spawn (KilledFingernailStops).
+        nailPart.AlternateSpawn = false;
         nail.Presence = nail.Presence.With(EnemyPresence.Hidden);
         nail.FrameHold = WrappingCountdown.Start(KraidBehavior.KraidStillPartTimer);
         _access.SetKraidPartProgram(nail, KraidPartProgram.NailLoop);
@@ -283,7 +285,8 @@ internal sealed class KraidProjectiles
         _access.SetKraidPartProgram(nail, KraidPartProgram.NailLoop);
         part.Function = KraidAiFunction.FingernailFire;
 
-        if (!KraidRandomDefinitions.NailWaitsForLint.IsSetIn(random) || siblingPart.AlternateSpawn)
+        if (!KraidRandomDefinitions.NailWaitsForLint.IsSetIn(random) ||
+            KilledFingernailStops.SiblingTookAlternateSpawn(siblingKilled ? null : siblingPart, static nail => nail.AlternateSpawn))
         {
             part.AlternateSpawn = false;
             RoomEnemySlot body = _parts.Body;
@@ -328,14 +331,11 @@ internal sealed class KraidProjectiles
     }
 
     /// <summary>
-    /// Horizontal wall/contour reflections and the nail's reflection negate
-    /// each part independently (<see cref="SignedSixteenSixteen.NegatedPartsSeparately"/>): the whole pixels change sign
-    /// and a nonzero fraction becomes its complement within the pixel. A nail with a fraction therefore rebounds one
-    /// pixel an update to the right of its true reversal, whichever way it arrived; the quirk is the original's and
-    /// changes the nail's path.
+    /// A wall or Kraid's contour reverses a flying nail's horizontal speed. A flying nail moves in whole pixels: its launch
+    /// and its wait for the lint set speeds with no fraction (<see cref="KraidNailLaunchDefinitions"/>), and a reversal
+    /// keeps a speed with no fraction one, so the reversal is the plain opposite speed (#1620).
     /// </summary>
-    private static SignedSixteenSixteen ReflectKraidNailHorizontalVelocity(SignedSixteenSixteen velocity) =>
-        velocity.NegatedPartsSeparately();
+    private static SignedSixteenSixteen ReflectKraidNailHorizontalVelocity(SignedSixteenSixteen velocity) => -velocity;
 
     /// <summary>Advances a lint part through idle, charge, fire, and reattachment states.</summary>
     internal void RunKraidLintMain(RoomEnemySlot lint, SamusState? samus)
@@ -533,9 +533,10 @@ internal sealed class KraidProjectiles
             context =>
             {
                 _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus);
-                // The callback passes the common routine's remaining-health accumulator to EnemyDeath as the explosion.
+                // A fingernail the touch left in its place dies in the explosion its remaining health names.
                 if (context.Slot.DefinitionId != EnemyDefinitionId.None)
-                    _deathsAndDrops.StartGenericEnemyDeath(context.Slot, EnemyDeathExplosions.ForLeftoverNumber(context.Slot.Health));
+                    _deathsAndDrops.StartGenericEnemyDeath(context.Slot,
+                        KraidNailTouchDeathExplosion.AfterTouch(context.Slot.Health, EnemyDeathExplosionDefinitions.AuthoredOrder));
             });
     }
 

@@ -151,14 +151,10 @@ internal sealed class CrocomireCombat
             throw new InvalidOperationException("Crocomire hitbox has no body owner.");
         RoomEnemySlot body = state.Body;
 
+        // A shot on his raised or high mouth or his lower body is absorbed: it neither hurts him nor raises dust. The
+        // original counted these and his mouth hits in a count nothing in the fight reads (#1620), so the count is gone.
         if (reaction == EnemyReaction.CrocomireHitCountShot)
-        {
-            // The count increments a temporary low-nibble value, then ORs it back into the
-            // flags word instead of replacing the nibble. Preserve that odd instruction
-            // sequence; changing it to an ordinary counter disagrees for several values.
-            state.HitCount |= CrocomireMouthHits.Next(state.HitCount);
             return;
-        }
 
         if (reaction is EnemyReaction.CrocomireDustHitboxShot or EnemyReaction.CrocomireAlternateDustHitboxShot)
         {
@@ -220,7 +216,6 @@ internal sealed class CrocomireCombat
         if (!bodyLeftEdgeIsOnScreen || stepCount != 0)
         {
             state.StepCounter += stepCount;
-            int hitCount = CrocomireMouthHits.Next(state.HitCount);
             if ((state.FightFlags & CrocomireFightFlags.DamageReactionPending) == CrocomireFightFlags.None)
             {
                 // Both regional constants are eight. Keep the branch
@@ -229,7 +224,6 @@ internal sealed class CrocomireCombat
                 body.FrameHold = body.FrameHold.AddFrames(
                     state.FightFunction == CrocomireFightFunction.ProjectileAttack ? 8 : 8);
             }
-            state.HitCount = hitCount;
             state.FightFlags = (state.FightFlags & ~(CrocomireFightFlags.DamageReactionPending | CrocomireFightFlags.ClawTouchedSamus)) |
                 CrocomireFightFlags.DamageReactionPending;
             state.ReactionTimer = 10;
@@ -261,7 +255,6 @@ internal sealed class CrocomireCombat
         if (state.FightFunction == CrocomireFightFunction.PowerBombCharge)
             return;
 
-        state.HitCount = 0;
         state.FightFlags = (state.FightFlags & ~(CrocomireFightFlags.ClawTouchedSamus | CrocomireFightFlags.Engaged)) |
             CrocomireFightFlags.Engaged;
         state.ReactionTimer = 10;

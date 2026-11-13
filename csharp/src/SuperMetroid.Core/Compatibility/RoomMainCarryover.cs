@@ -27,15 +27,15 @@ public sealed class RoomMainCarryover
     /// <summary>The value read as a countdown.</summary>
     public WrappingCountdown Countdown => WrappingCountdown.FromRaw(Held);
 
-    /// <summary>The value read as the fraction of a position, 0 through 65535.</summary>
+    /// <summary>The value read as the fraction of a position, 0 through <see cref="FixedCoordinate.LastFraction"/>.</summary>
     public int Fraction => Held;
 
     /// <summary>Leaves a countdown.</summary>
     public void LeaveCountdown(WrappingCountdown countdown) => Held = countdown.RemainingFrames;
 
     /// <summary>Leaves the fraction of a position.</summary>
-    /// <param name="fraction">The fraction, 0 through 65535.</param>
-    public void LeaveFraction(int fraction) => Held = Ensure.BetweenInclusive(0, ushort.MaxValue, fraction);
+    /// <param name="fraction">The fraction, 0 through <see cref="FixedCoordinate.LastFraction"/>.</param>
+    public void LeaveFraction(int fraction) => Held = Ensure.BetweenInclusive(0, FixedCoordinate.LastFraction, fraction);
 
     /// <summary>Leaves a step of a turn that sweeps forward and back.</summary>
     /// <param name="step">The step, 0 through 32767.</param>

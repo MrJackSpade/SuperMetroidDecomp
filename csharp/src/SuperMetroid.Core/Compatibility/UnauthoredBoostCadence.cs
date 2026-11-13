@@ -34,8 +34,11 @@ public sealed class UnauthoredBoostCadence
     /// <summary>The cadence countdown the boost restarts with on this cadence.</summary>
     public const int CountdownAfterAdvance = 0;
 
-    /// <summary>The longest delay, in ticks, one running frame of the cadence can take.</summary>
-    public const int LongestDelay = byte.MaxValue;
+    /// <summary>
+    /// The longest delay, in ticks, one running frame of the cadence can take: a running frame's delay is added to Samus's
+    /// animation frame timer, a countdown that takes any count up to its longest start (#1627).
+    /// </summary>
+    public const int LongestDelay = WrappingCountdown.LongestStart;
 
     /// <summary>The ten delays, by running frame: all zero until the getaway first draws its wings.</summary>
     private int[] delays = new int[FrameCount];

@@ -437,6 +437,7 @@ using static SuperMetroid.Verification.Samus.Projectiles.SamusBombCountVerificat
 using static SuperMetroid.Verification.Samus.Artwork.SamusArtOriginRangeVerification;
 using static SuperMetroid.Verification.Samus.SamusSuitDamageVerification;
 using static SuperMetroid.Verification.Rooms.RoomGridBoundsVerification;
+using static SuperMetroid.Verification.Compatibility.CompatibilitySubpixelInputsVerification;
 using static SuperMetroid.Verification.Rooms.Doors.DoorCapAbsentFramesVerification;
 using static SuperMetroid.Verification.Samus.SamusPreviousPositionWritesVerification;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -1148,6 +1149,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifySamusArtOriginRange), () => VerifySamusArtOriginRange()),
         new(nameof(VerifySamusSuitDamage), () => VerifySamusSuitDamage()),
         new(nameof(VerifyRoomGridBounds), () => VerifyRoomGridBounds()),
+        new(nameof(VerifyCompatibilitySubpixelInputs), () => VerifyCompatibilitySubpixelInputs()),
         new(nameof(VerifyDoorCapAbsentFrames), () => VerifyDoorCapAbsentFrames()),
         new(nameof(VerifySamusPreviousPositionWrites), () => VerifySamusPreviousPositionWrites()),
     ];

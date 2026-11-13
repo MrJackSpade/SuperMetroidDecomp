@@ -290,7 +290,7 @@ internal sealed class ProjectileTerrainCollision
             // Non-square slopes dispatch through the projectile's
             // perpendicular center block, not every row/column touched by its radius.
             int centerBlock = axis == Axis.Horizontal ? slot.Position.Y.Whole >> 4 : slot.Position.X.Whole >> 4;
-            int slopeBlock = axis == Axis.Horizontal ? block.Index / level.Size.X : block.Index % level.Size.X;
+            int slopeBlock = axis == Axis.Horizontal ? block.At.Y : block.At.X;
             if (centerBlock != slopeBlock) return false;
 
             int x = slot.Position.X.Whole & 15;
@@ -310,7 +310,7 @@ internal sealed class ProjectileTerrainCollision
         if (block.CollisionType == RoomCollisionType.ShootableBlock &&
             block.Behavior.Reaction == BlockReactionDefinitions.CollectibleTrigger)
         {
-            _ = roomObjects?.CollectibleObjects.TryNotifyCollectibleProjectileHit(level.BlockAt(block.Index));
+            _ = roomObjects?.CollectibleObjects.TryNotifyCollectibleProjectileHit(block.At);
             return true;
         }
 
@@ -319,7 +319,7 @@ internal sealed class ProjectileTerrainCollision
         if (block.CollisionType == RoomCollisionType.SolidBlock &&
             block.Behavior.Reaction == BlockReactionDefinitions.ResidentObjectTrigger)
         {
-            NotifyResidentProjectileHit(level, roomObjects, block, slot.Type);
+            NotifyResidentProjectileHit(roomObjects, block, slot.Type);
             return true;
         }
 
@@ -330,7 +330,7 @@ internal sealed class ProjectileTerrainCollision
                 // Gate setup ends the caller's span and forces its collision counter.
                 // A full room-object pool skips setup entirely, so it must not end the scan.
                 endSpan = roomObjects?.BlockReactions.TrySpawnProjectileShotBlock(
-                    level, level.BlockAt(block.Index), block.Behavior, slot.Type,
+                    level, block.At, block.Behavior, slot.Type,
                     block.CollisionType == RoomCollisionType.ShootableBlock) == true;
                 return block.CollisionType == RoomCollisionType.ShootableBlock;
             }
@@ -343,7 +343,10 @@ internal sealed class ProjectileTerrainCollision
         return block.CollisionType.IsSolidKind();
     }
 
-    /// <summary>Follows signed horizontal or vertical behaviour links to the actual reaction block, rejecting cycles and out-of-room targets.</summary>
+    /// <summary>
+    /// Follows signed horizontal or vertical behaviour links to the actual reaction block, each leading on in the room's
+    /// reading order (<see cref="RoomReadingOrder"/>), rejecting cycles and out-of-room targets.
+    /// </summary>
     private static RoomCollisionBlock? ResolveShotReactionExtension(
         RoomLevelData level,
         RoomCollisionBlock initialBlock)
@@ -351,20 +354,12 @@ internal sealed class ProjectileTerrainCollision
         RoomCollisionBlock block = initialBlock;
         for (int linkCount = 0; linkCount < 16; linkCount++)
         {
-            int offset = block.Behavior.ExtensionOffset;
-            int targetIndex;
             switch (block.CollisionType)
             {
                 case RoomCollisionType.HorizontalExtension:
-                    if (offset == 0)
-                        return null;
-                    targetIndex = block.Index + offset;
-                    break;
-
                 case RoomCollisionType.VerticalExtension:
-                    if (offset == 0)
+                    if (block.Behavior.ExtensionOffset == 0)
                         return null;
-                    targetIndex = block.Index + (offset * level.Size.X);
                     break;
 
                 case RoomCollisionType.Air:
@@ -386,17 +381,15 @@ internal sealed class ProjectileTerrainCollision
                     throw new InvalidOperationException($"Undefined RoomCollisionType {block.CollisionType}.");
             }
 
-            if (!level.IsLogicalBlockIndex(targetIndex))
-            {
+            Position16<RoomBlocks> target = level.GridBlockStepped(block.At, block.ExtensionLink) ??
                 throw new InvalidDataException(
-                    $"Projectile extension at block {block.Index} resolved outside the " +
+                    $"Projectile extension at block {block.Position} resolved outside the " +
                     $"{level.Size.Area}-block room grid.");
-            }
-            block = level.GetCollisionBlockByIndex(targetIndex);
+            block = level.GetCollisionBlock(target);
         }
 
         throw new InvalidDataException(
-            $"Projectile extension chain from block {initialBlock.Index} did not terminate.");
+            $"Projectile extension chain from block {initialBlock.Position} did not terminate.");
     }
 
     /// <summary>Routes a shootable behaviour to its downward gate, resident room object, blue door, or ordinary shot-block owner.</summary>
@@ -415,7 +408,7 @@ internal sealed class ProjectileTerrainCollision
         if (block.CollisionType == RoomCollisionType.ShootableBlock &&
             block.Behavior.TryGetDownwardGateTrigger(out _))
         {
-            roomObjects.Gates.TrySpawnDownwardGateTrigger(level, level.BlockAt(block.Index), block.Behavior, slot.Type);
+            roomObjects.Gates.TrySpawnDownwardGateTrigger(level, block.At, block.Behavior, slot.Type);
             return;
         }
 
@@ -424,7 +417,7 @@ internal sealed class ProjectileTerrainCollision
         // after the generic shot trigger publishes the projectile type.
         if (block.Behavior.Reaction == BlockReactionDefinitions.ResidentObjectTrigger)
         {
-            NotifyResidentProjectileHit(level, roomObjects, block, slot.Type);
+            NotifyResidentProjectileHit(roomObjects, block, slot.Type);
             return;
         }
 
@@ -437,7 +430,7 @@ internal sealed class ProjectileTerrainCollision
         {
             roomObjects.DoorObjects.TrySpawnBlueDoorOpening(
                 level,
-                level.BlockAt(block.Index),
+                block.At,
                 block.Behavior,
                 slot.Type);
             return;
@@ -457,7 +450,7 @@ internal sealed class ProjectileTerrainCollision
         {
             roomObjects.BlockReactions.TrySpawnProjectileShotBlock(
                 level,
-                level.BlockAt(block.Index),
+                block.At,
                 block.Behavior,
                 slot.Type,
                 solidBlock: block.CollisionType == RoomCollisionType.ShootableBlock);
@@ -466,19 +459,18 @@ internal sealed class ProjectileTerrainCollision
 
     /// <summary>Publishes the projectile type to the room object occupying a resident-trigger block and fails if none owns it.</summary>
     private static void NotifyResidentProjectileHit(
-        RoomLevelData level,
         ISamusRoomObjects? roomObjects,
         RoomCollisionBlock block,
         SamusProjectileType projectileType)
     {
         if (roomObjects is not null &&
-            roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(level.BlockAt(block.Index), projectileType))
+            roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(block.At, projectileType))
         {
             return;
         }
 
         throw new InvalidOperationException(
-            $"Projectile hit resident-trigger block {block.Index} with no active room-object owner.");
+            $"Projectile hit resident-trigger block {block.Position} with no active room-object owner.");
     }
 
     /// <summary>
@@ -592,14 +584,16 @@ internal sealed class ProjectileTerrainCollision
         for (int step = 0; step <= span; step++)
         {
             WaveScanRead read = WaveScanRead.At(Position16<RoomBlocks>.Of(targetX >> 4, top >> 4), level.Size.X, step);
-            if (!level.IsLogicalBlockIndex(read.Block))
+            Position16<RoomBlocks> readBlock = read.BlockIn(level.Size.X);
+            if (!level.Size.Contains(readBlock))
                 continue;
-            RoomCollisionBlock block = level.GetCollisionBlockByIndex(read.Block);
+            RoomCollisionBlock block = level.GetCollisionBlock(readBlock);
             if (read.StraddlesNext)
             {
-                if (!level.IsLogicalBlockIndex(read.Block + 1))
+                // The straddled block is the next one in the room's reading order, on the next row past a row's end.
+                Position16<RoomBlocks> nextBlock = level.GridBlockStepped(readBlock, Offset16<RoomBlocks>.Of(1, 0)) ??
                     throw new NotSupportedException("A straddled Wave collision read crosses the room's grid.");
-                RoomTerrainBlock next = level.GetCollisionBlockByIndex(read.Block + 1).Terrain;
+                RoomTerrainBlock next = level.GetCollisionBlock(nextBlock).Terrain;
                 // Dispatch consumes the straddled block; the behaviour and room-object setup
                 // still use the block the read starts in, as aligned reads do.
                 block = block with { Terrain = straddledTerrain.Straddling(block.Terrain, next) };

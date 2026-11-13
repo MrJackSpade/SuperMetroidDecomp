@@ -36,14 +36,24 @@ public static class BlockScanCycle
     /// <summary>The blocks a scan along the room's rows counts before it continues from the room's first block.</summary>
     private const int BlocksAlongRows = 32768;
 
+    /// <summary>The blocks an X-ray reveal's extension lookup counts before it continues from the room's first block.</summary>
+    private const int RevealLookupBlocks = 65536;
+
     /// <summary>The place of <paramref name="blocks"/> within the cycle, 0 through 255.</summary>
     /// <param name="blocks">A row or column number, which may lie outside the cycle or below zero.</param>
     public static int Within(int blocks) => (blocks % Places + Places) % Places;
 
-    /// <summary>The index of the first block of <paramref name="row"/>: the row's place in the cycle times the room's width.</summary>
-    /// <param name="row">The row number, which may lie outside the cycle.</param>
-    /// <param name="roomWidth">The room's width in blocks.</param>
-    public static int RowStart(int row, int roomWidth) => Within(row) * roomWidth;
+    /// <summary>
+    /// The block an X-ray reveal's extension lookup reads at <paramref name="block"/>: the row taken within the cycle of
+    /// 256 and the column added to that row's start in the room's reading order (<see cref="RoomReadingOrder"/>), the
+    /// blocks before it counted within a cycle of 65536, as the lookup's behaviour read indexes them with a sixteen-bit
+    /// word (<c>$91:CE5F</c>).
+    /// </summary>
+    /// <param name="block">The column and row the lookup names; the row may lie outside the cycle and the column past the room's width.</param>
+    /// <param name="roomWidth">The room's width in blocks, one or more.</param>
+    /// <returns>The block read, in the room's columns; a row past the room's height is a block beyond its grid.</returns>
+    public static Position16<RoomBlocks> RevealLookupBlock(Position16<RoomBlocks> block, int roomWidth) =>
+        RoomReadingOrder.BlockAt(RoomReadingOrder.PlaceOf(CycleStart(block), roomWidth) % RevealLookupBlocks, roomWidth);
 
     /// <summary>
     /// The block a scan reaches <paramref name="step"/> blocks along the room's rows after <paramref name="start"/>: the

@@ -328,7 +328,7 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
     {
         try
         {
-            _ = level.GetObjectBlockIndex(block);
+            _ = level.ObjectBlock(block);
         }
         catch (ArgumentOutOfRangeException error)
         {

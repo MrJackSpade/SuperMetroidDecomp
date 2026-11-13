@@ -131,7 +131,7 @@ internal static class QuicksandVerification
             SpecialAirCollisionOutcome outcome = SamusInsideBlockReactions.ReactCollision(
                 new(body, body.CollisionContactDamageIndex(null)),
                 new SamusTerrain { Level = level },
-                new RoomCollisionBlock(0, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpecialAir), RoomBlockBehaviorCodec.Decode(0x80 + index)),
+                new RoomCollisionBlock(Position16<RoomBlocks>.Zero, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpecialAir), RoomBlockBehaviorCodec.Decode(0x80 + index)),
                 axis: Axis.Vertical,
                 ref displacement,
                 out bool surfaceContact);
@@ -257,7 +257,7 @@ internal static class QuicksandVerification
             SamusInsideBlockReactions.ReactCollision(
                 new(body, body.CollisionContactDamageIndex(null)),
                 new SamusTerrain { Level = level },
-                new RoomCollisionBlock(0, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpecialAir), RoomBlockBehaviorCodec.Decode(0x80)),
+                new RoomCollisionBlock(Position16<RoomBlocks>.Zero, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpecialAir), RoomBlockBehaviorCodec.Decode(0x80)),
                 axis: Axis.Vertical,
                 ref displacement,
                 out bool surfaceContact,

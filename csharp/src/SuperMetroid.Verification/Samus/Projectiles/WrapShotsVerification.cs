@@ -79,7 +79,7 @@ internal static class WrapShotsVerification
                 for (int row = 0; row < 128; row++)
                 {
                     var block = level.GetCollisionBlock(new(checked((ushort)(left != 0 ? 63 : 0)), checked((ushort)row)));
-                    if (block.Terrain != RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.ShootableAir)) actual += $"{block.Index:X4}:{RoomLevelWordEncoder.Encode(block.Terrain):X4};";
+                    if (block.Terrain != RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.ShootableAir)) actual += $"{level.Size.RowMajorIndex(block.At):X4}:{RoomLevelWordEncoder.Encode(block.Terrain):X4};";
                 }
                 int target = left != 0 ? 0x123f : 0x0280;
                 if (firstRemoteHit < 0 && level.GetCollisionBlock(new(checked((ushort)(target % 64)), checked((ushort)(target / 64)))).Terrain == RoomTerrainBlock.Of(0x052, BlockMirroring.None, RoomCollisionType.Air))

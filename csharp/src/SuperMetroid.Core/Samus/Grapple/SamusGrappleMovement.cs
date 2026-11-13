@@ -756,22 +756,18 @@ public static class SamusGrappleMovement
     {
         int blockX = endpoint.X >> 4;
         int blockY = endpoint.Y >> 4;
-        RoomCollisionBlock initialBlock =
+        RoomCollisionBlock block =
             level.GetCollisionBlockOrEdgeSolid(new(CoordinateAxis.Wrap(blockX), CoordinateAxis.Wrap(blockY)));
-        if (initialBlock.Index < 0)
+        if (block.Position is null)
         {
             // The edge-solid block outside the room dispatches as an ordinary solid endpoint: it stops
             // the beam without connecting, which queues grapple cancellation.
             return GrappleBlockReaction.Solid;
         }
 
-        int index = initialBlock.Index;
+        // Each extension link leads on in the room's reading order; one that leads outside the grid reads the edge-solid block.
         for (int extensionDepth = 0; extensionDepth <= 16; extensionDepth++)
         {
-            RoomCollisionBlock block =
-                level.GetCollisionBlockByIndexOrEdgeSolid(index);
-            int resolvedX = block.Index < 0 ? -1 : block.Index % level.Size.X;
-            int resolvedY = block.Index < 0 ? -1 : block.Index / level.Size.X;
             switch (block.CollisionType)
             {
                 // These four dispatcher entries let the beam pass: it remains live.
@@ -808,18 +804,12 @@ public static class SamusGrappleMovement
                     return GrappleBlockReaction.Solid;
 
                 case RoomCollisionType.HorizontalExtension:
-                    // Horizontal extensions interpret behaviour as a signed block-index delta.
+                case RoomCollisionType.VerticalExtension:
+                    // Horizontal extensions lead their signed behaviour in blocks along the rows, vertical ones in rows.
                     // behaviour zero is the terminator and behaves as air.
                     if (block.Behavior.EndsExtension)
                         return GrappleBlockReaction.Passes;
-                    index += block.Behavior.ExtensionOffset;
-                    continue;
-
-                case RoomCollisionType.VerticalExtension:
-                    // Vertical extension uses the same signed behaviour but scales by room width.
-                    if (block.Behavior.EndsExtension)
-                        return GrappleBlockReaction.Passes;
-                    index += block.Behavior.ExtensionOffset * level.Size.X;
+                    block = level.LinkedBlockOrEdgeSolid(block);
                     continue;
 
                 case RoomCollisionType.GrappleBlock:
@@ -844,7 +834,7 @@ public static class SamusGrappleMovement
                             throw new InvalidOperationException(
                                 "Breakable grapple acquisition requires a ISamusRoomObjects.");
                         }
-                        if (!roomObjects.BlockReactions.TrySpawnBreakableGrappleBlock(level, level.BlockAt(block.Index), block.Behavior))
+                        if (!roomObjects.BlockReactions.TrySpawnBreakableGrappleBlock(level, block.At, block.Behavior))
                         {
                             throw new InvalidOperationException(
                                 "All 40 room-object slots are occupied during grapple acquisition.");
@@ -856,7 +846,7 @@ public static class SamusGrappleMovement
                     // Nonnegative behaviour values beyond the four authored grapple reactions
                     // would index outside the four grapple room objects in the selection table.
                     throw new InvalidDataException(
-                        $"Invalid grapple block behaviour ({block.Behavior}) at ({resolvedX},{resolvedY}).");
+                        $"Invalid grapple block behaviour ({block.Behavior}) at {block.Position}.");
 
                 case RoomCollisionType.ShootableAir:
                 case RoomCollisionType.ShootableBlock:
@@ -875,27 +865,27 @@ public static class SamusGrappleMovement
                     // blue door setup's power-bomb rejection; the ordinary opening owner
                     // supplies all four cap tiles, timing, collision changes, and sound.
                     if (block.Behavior.TryGetDownwardGateTrigger(out _))
-                        roomObjects.Gates.TrySpawnDownwardGateTrigger(level, level.BlockAt(block.Index), block.Behavior, projectileType: SamusProjectileType.None);
+                        roomObjects.Gates.TrySpawnDownwardGateTrigger(level, block.At, block.Behavior, projectileType: SamusProjectileType.None);
                     else if (block.Behavior.TryGetBlueDoorOrientation(out _))
-                        roomObjects.DoorObjects.TrySpawnBlueDoorOpening(level, level.BlockAt(block.Index), block.Behavior, projectileType: SamusProjectileType.None);
+                        roomObjects.DoorObjects.TrySpawnBlueDoorOpening(level, block.At, block.Behavior, projectileType: SamusProjectileType.None);
                     else if (block.Behavior.Reaction == BlockReactionDefinitions.ResidentObjectTrigger)
                     {
                         // Generic shot-trigger setup also belongs to the grapple table.
                         // Notify the resident actor with no weapon family; its own
                         // frame behaviour decides whether to reject the hit or wake up.
-                        if (!roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(level.BlockAt(block.Index), projectileType: SamusProjectileType.None))
+                        if (!roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(block.At, projectileType: SamusProjectileType.None))
                             throw new InvalidOperationException(
-                                $"Grapple trigger block {block.Index} at ({resolvedX},{resolvedY}) has no resident room-object owner.");
+                                $"Grapple trigger block {block.Position} has no resident room-object owner.");
                     }
                     else if (block.Behavior.Reaction == BlockReactionDefinitions.CollectibleTrigger)
-                        roomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(level.BlockAt(block.Index));
+                        roomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(block.At);
                     else
                     {
                         try
                         {
                             roomObjects.BlockReactions.TrySpawnProjectileShotBlock(
                                 level,
-                                level.BlockAt(block.Index),
+                                block.At,
                                 block.Behavior,
                                 projectileType: SamusProjectileType.None,
                                 solidBlock: block.CollisionType == RoomCollisionType.ShootableBlock);
@@ -905,7 +895,7 @@ public static class SamusGrappleMovement
                             throw new UnmodeledBehaviorException(
                                 $"grapple-shootable/type-{block.CollisionType}/behaviour-{block.Behavior.Reaction}",
                                 $"Grapple shootable dispatch type {block.CollisionType}/behaviour ({block.Behavior}) " +
-                                $"at block {block.Index} ({resolvedX},{resolvedY}) has no translated table entry.",
+                                $"at block {block.Position} has no translated table entry.",
                                 error);
                         }
                     }
@@ -926,7 +916,7 @@ public static class SamusGrappleMovement
                 default:
                     throw new InvalidDataException(
                         $"Grapple block type {block.CollisionType} escaped the complete " +
-                        $"sixteen-entry dispatcher at ({resolvedX},{resolvedY}).");
+                        $"sixteen-entry dispatcher at {block.Position}.");
             }
         }
 

@@ -32,10 +32,10 @@ internal sealed class SamusEaterObjects
             return;
 
         slot.Header = definition.Identity;
-        slot.Block = level.BlockAt(block.Index);
+        slot.Block = block.At;
         slot.Become(new SamusEaterObject(this, definition,
             new(samus.Position.X.Whole, CoordinateAxis.Wrap(samus.Position.Y.Whole + (definition.Ceiling ? 1 : -1)))));
-        level.SetTerrain(block.Index, block.Terrain.Deactivated());
+        level.SetTerrain(block.At, block.Terrain.Deactivated());
     }
 
     /// <summary>Requires the live Samus instance associated with the plant's room.</summary>

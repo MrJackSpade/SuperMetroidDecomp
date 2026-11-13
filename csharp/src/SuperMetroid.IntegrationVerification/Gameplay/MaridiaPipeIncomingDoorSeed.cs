@@ -15,18 +15,17 @@ internal static class MaridiaPipeIncomingDoorSeed
     {
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.PlasmaSpark);
         var level = runtime.Room.LoadedLevelData;
-        int entry = -1;
-        for (int index = 0; index < level.Size.Area; index++)
+        RoomCollisionBlock? entry = null;
+        for (int index = 0; index < level.Size.Area && entry is null; index++)
         {
-            var block = level.GetCollisionBlockByIndex(index);
+            var block = level.GetCollisionBlock(level.Size.CellAtRowMajorIndex(index));
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
             if (level.ResolveDoorCollision(block.Behavior, runtime.Player.IntroducedSamus.Pose.ForRoomCollision(), false).Pointer != door.Pointer) continue;
-            entry = index;
-            break;
+            entry = block;
         }
-        if (entry < 0) throw new InvalidDataException("Plasma Spark has no matching northern elevatube door block.");
+        if (entry is not { } entryBlock) throw new InvalidDataException("Plasma Spark has no matching northern elevatube door block.");
         ushort x = MaridiaPipeFixtureDefinitions.TubeCenterX;
-        ushort y = checked((ushort)((entry / level.Size.X) * 16 - 96));
+        ushort y = checked((ushort)(entryBlock.At.Y * 16 - 96));
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.PlasmaSpark,
             new Position16<RoomPixels>((ushort)(LittleEndianBytes.HighByteInPlace(x)), (ushort)(LittleEndianBytes.HighByteInPlace(y))));
         runtime.Player.IntroducedSamus.Kinematics.Position = runtime.Player.IntroducedSamus.Kinematics.Position.WithX(new FixedCoordinate(x, 0));

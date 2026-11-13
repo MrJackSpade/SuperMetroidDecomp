@@ -267,18 +267,13 @@ internal static void VerifySamusBlockCollision()
         "prefilled bottom room edge probe reads native $8000 word");
 
     // Grapple endpoint/body collision now consumes this same room-owned seam instead of
-    // maintaining a second interpretation of the native prefill. Check coordinate and
-    // already-linear forms because bank-$94 uses both during extension redispatch.
+    // maintaining a second interpretation of the native prefill.
     RoomCollisionBlock coordinatePrefill =
         level.GetCollisionBlockOrEdgeSolid(new(level.Size.X, 0));
-    AssertEqual(-1, coordinatePrefill.Index,
+    AssertTrue(coordinatePrefill.Position is null,
         "coordinate prefill is outside the logical room plane");
     AssertEqual(RoomTerrainBlocks.EdgeSolid, coordinatePrefill.Terrain,
         "coordinate prefill exposes native solid word");
-    RoomCollisionBlock linearPrefill =
-        level.GetCollisionBlockByIndexOrEdgeSolid(-1);
-    AssertEqual(RoomTerrainBlocks.EdgeSolid, linearPrefill.Terrain,
-        "linear extension prefill exposes native solid word");
 
     // Exercise every formerly open body-dispatch entry through the public movement seam.
     // Types 2/3/4/6/7 are non-solid for Samus's body.  Spike type A and special type B

@@ -35,13 +35,12 @@ internal sealed record RoomBlockSheetInputs(RoomCharacterAtlases Characters, Roo
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(content);
         string map = Path.Combine(content, GameInstallationLayout.MapDirectoryName);
-        string roomCharacters = Path.Combine(content, GameInstallationLayout.RoomCharacterDirectoryName);
         // The block compositions, background tilemaps and sky pages are import data (#1638), as the characters are (#1636).
         string backgrounds = ImportDataDirectory.Of(Path.Combine(content, GameInstallationLayout.RoomBackgroundTilemapDirectoryName));
         ImportAreaMapPresentation maps = MapPresentationFiles.LoadForImport(map, ImportDataDirectory.Of(map));
         EnemySheetInputs objects = EnemySheetInputs.Load(content);
         return new(
-            RoomCharacterArtworkFiles.LoadForImport(roomCharacters, ImportDataDirectory.Of(roomCharacters)),
+            RoomCharacterArtworkFiles.LoadForImport(ImportDataDirectory.Of(Path.Combine(content, GameInstallationLayout.RoomCharacterDirectoryName))),
             RoomMetatileArtworkFiles.LoadForImport(ImportDataDirectory.Of(Path.Combine(content, GameInstallationLayout.RoomMetatileDirectoryName))),
             RoomStaticPaletteArtworkFiles.LoadForImport(ImportDataDirectory.Of(Path.Combine(content, GameInstallationLayout.RoomPaletteDirectoryName))),
             maps.RoomFxAnimatedTiles,

@@ -24,16 +24,17 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 /// Installs and loads the opening-scene documents; its character pages (#1636), the opening's and the Ceres approach's
 /// colours (#1637) and its layouts and sprite compositions, whose entries are the original's packed tile and sprite
 /// placements (#1638), are import data, which the extraction writes to the component's import-data directory and only
-/// the import's read reads.
+/// the import's read reads. So is the manifest naming them and the installed documents (#1693): the game reads only the
+/// documents it binds.
 /// </summary>
 public static class IntroCinematicArtworkFiles
 {
     /// <summary>
     /// Manifest revision for the complete opening and Ceres artwork resource set; 22 installs no character page (#1636),
     /// 23 installs the Japanese text's next-page arrow compositions (#1655), 24 installs no palette (#1637), 25 installs no
-    /// layout (#1638), 26 installs neither, and 27 installs no sprite composition (#1638).
+    /// layout (#1638), 26 installs neither, 27 installs no sprite composition (#1638), and 28 installs no manifest (#1693).
     /// </summary>
-    private const int FormatVersion = 27;
+    private const int FormatVersion = 28;
 
     /// <summary>
     /// The component's character pages (#1636) and the colour documents only the import pre-colours sheets from (#1637),
@@ -74,7 +75,7 @@ public static class IntroCinematicArtworkFiles
 
     /// <summary>Creates the stock opening-cinematic, Ceres-flight, and destruction-scene PNG and JSON resources with their provenance manifest.</summary>
     /// <param name="bus">Non-null cartridge import address space supplying character graphics, tilemaps, palettes, sprites, and scene artwork.</param>
-    /// <param name="directory">Output directory, created if needed; each resource and the manifest require a previously absent filename. The character pages, palettes, layouts and compositions go to its import-data directory.</param>
+    /// <param name="directory">Output directory, created if needed; each resource and the manifest require a previously absent filename. The character pages, palettes, layouts, compositions and the manifest go to its import-data directory.</param>
     /// <param name="sourceCartridgeSha256">Nonempty source-cartridge SHA-256 recorded with the generated stock-resource hashes.</param>
     /// <remarks>Checks native transfer dimensions, eye-frame draw geometry, and palette representation. Scene timing and dispatch remain compiled.</remarks>
     /// <exception cref="InvalidDataException">Native artwork, geometry, or palettes fail validation.</exception>
@@ -153,7 +154,7 @@ public static class IntroCinematicArtworkFiles
         }
 
         var manifest = new IntroCinematicArtworkManifest(FormatVersion, sourceCartridgeSha256, hashes);
-        using var stream = new FileStream(Path.Combine(directory, IntroCinematicArtworkFormat.ManifestFileName),
+        using var stream = new FileStream(Path.Combine(importData, IntroCinematicArtworkFormat.ManifestFileName),
             FileMode.CreateNew, FileAccess.Write);
         JsonSerializer.Serialize(stream, manifest, JsonOptions);
         return;
@@ -457,23 +458,23 @@ public static class IntroCinematicArtworkFiles
     }
 
     /// <summary>
-    /// Checks the manifest's provenance and coverage, then loads the opening's source artwork, which only the import reads:
-    /// every installed document as installed. No character page (#1636) or palette (#1544, #1637) is read: they are import
-    /// data.
+    /// Loads the opening's source artwork, which only the import reads: every installed document as installed. No character
+    /// page (#1636), palette (#1544, #1637) or manifest (#1693) is read: they are import data.
     /// </summary>
     public static IntroCinematicSourceArtwork Load(string directory) => new(ReadParts(directory));
 
     /// <summary>
-    /// Checks the manifest's provenance and coverage, then loads the opening as the import composes from it: the game's
-    /// artwork with its characters from the component's import data <paramref name="importData"/> (#1636) and, from the
-    /// same import data (#1637), the opening's and the Ceres approach's colours, which only the import pre-colours sheets in
-    /// (#1544).
+    /// Checks the manifest's provenance and coverage in the component's import data <paramref name="importData"/> (#1693),
+    /// then loads the opening as the import composes from it: the game's artwork with its characters from the same import
+    /// data (#1636) and, from there too (#1637), the opening's and the Ceres approach's colours, which only the import
+    /// pre-colours sheets in (#1544).
     /// </summary>
-    /// <param name="directory">The component's directory, holding the manifest and the documents.</param>
-    /// <param name="importData">The component's import-data directory, holding the character pages and the palettes.</param>
+    /// <param name="directory">The component's directory, holding the documents.</param>
+    /// <param name="importData">The component's import-data directory, holding the manifest, the character pages and the palettes.</param>
     public static ImportIntroCinematicArtwork LoadForImport(string directory, string importData)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(importData);
+        RequireManifest(importData);
         IntroCinematicArtworkParts parts = ReadParts(directory);
         return new(parts, ReadSprites(importData), ReadLayouts(importData), ReadCharacters(importData, parts.CeresFlight),
             ReadColours(importData, IntroCinematicPaletteFile.FileName, "opening palette", IntroCinematicPaletteFile.Read),
@@ -582,13 +583,13 @@ public static class IntroCinematicArtworkFiles
     }
 
     /// <summary>
-    /// Checks the manifest's provenance and coverage, then loads what the game binds of the opening (#1616): its backdrops and
-    /// the Ceres scenes' actor placements, each read as installed. The game draws every picture from the installed sheets, so
-    /// it reads none of the artwork they are composed from.
+    /// Loads what the game binds of the opening (#1616): its backdrops and the Ceres scenes' actor placements, each read as
+    /// installed. The game draws every picture from the installed sheets, so it reads none of the artwork they are composed
+    /// from, nor the import's manifest of it (#1693).
     /// </summary>
     public static IntroCinematicArtwork LoadCinematic(string directory)
     {
-        RequireManifest(directory);
+        ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         IntroBackdrops backdrops = ReadBackdrops(directory);
         return new IntroCinematicArtwork(backdrops.Opening, new CeresFlightArtwork(backdrops.CeresFlight, ReadFlightActors(directory)),
             ReadCeresDestruction(directory));
@@ -609,12 +610,12 @@ public static class IntroCinematicArtworkFiles
         }
     }
 
-    /// <summary>Checks that the manifest in <paramref name="directory"/> names this cartridge and every installed file.</summary>
-    /// <exception cref="InvalidDataException">The manifest does not decode or does not describe this installation.</exception>
-    private static void RequireManifest(string directory)
+    /// <summary>Checks that the manifest in the import data <paramref name="importData"/> names this cartridge and every extracted file.</summary>
+    /// <exception cref="InvalidDataException">The manifest does not decode or does not describe this extraction.</exception>
+    private static void RequireManifest(string importData)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(directory);
-        string manifestPath = Path.Combine(directory, IntroCinematicArtworkFormat.ManifestFileName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(importData);
+        string manifestPath = Path.Combine(importData, IntroCinematicArtworkFormat.ManifestFileName);
         IntroCinematicArtworkManifest manifest;
         try
         {
@@ -635,10 +636,10 @@ public static class IntroCinematicArtworkFiles
             throw new InvalidDataException($"Intro artwork manifest {manifestPath} does not describe this installation.");
     }
 
-    /// <summary>Checks the manifest's provenance and coverage, then reads every installed document the import composes from as installed.</summary>
+    /// <summary>Reads every installed document the import composes from as installed.</summary>
     private static IntroCinematicArtworkParts ReadParts(string directory)
     {
-        RequireManifest(directory);
+        ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         IntroBackdrops backdrops = ReadBackdrops(directory);
         return new IntroCinematicArtworkParts { Backdrop = backdrops.Opening, CeresFlight = LoadCeresFlight(), CeresDestruction = ReadCeresDestruction(directory), CeresDestructionMaps = LoadCeresDestructionMaps() };
 

@@ -28,7 +28,7 @@ internal sealed record EnemySheetInputs(EnemyTileSourceArtwork Enemies, BossSour
         string enemyTiles = Path.Combine(content, GameInstallationLayout.EnemyTileDirectoryName);
         string standardObjects = Path.Combine(content, GameInstallationLayout.StandardObjectDirectoryName);
         string maps = Path.Combine(content, GameInstallationLayout.MapDirectoryName);
-        ImportEnemyArtwork installed = EnemyTileArtworkFiles.LoadForImport(enemyTiles, ImportDataDirectory.Of(enemyTiles));
+        ImportEnemyArtwork installed = EnemyTileArtworkFiles.LoadForImport(ImportDataDirectory.Of(enemyTiles));
         return new(
             installed.Enemies,
             installed.Bosses,

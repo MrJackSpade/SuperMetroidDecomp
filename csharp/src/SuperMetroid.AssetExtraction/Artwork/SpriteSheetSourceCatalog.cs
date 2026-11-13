@@ -50,12 +50,12 @@ internal sealed class SpriteSheetSourceCatalog
         // Each family composes from the documents extracted under content and the pages in their import data (#1636).
         string map = Path.Combine(content, GameInstallationLayout.MapDirectoryName);
         string introDirectory = Path.Combine(content, GameInstallationLayout.IntroCinematicDirectoryName);
-        string endingDirectory = Path.Combine(content, GameInstallationLayout.EndingObjectDirectoryName);
-        string endingMode7Directory = Path.Combine(content, GameInstallationLayout.EndingMode7DirectoryName);
+        string endingImportData = ImportDataDirectory.Of(Path.Combine(content, GameInstallationLayout.EndingObjectDirectoryName));
+        string endingMode7ImportData = ImportDataDirectory.Of(Path.Combine(content, GameInstallationLayout.EndingMode7DirectoryName));
         maps = new(() => MapPresentationFiles.LoadForImport(map, ImportDataDirectory.Of(map)));
         intro = new(() => IntroCinematicArtworkFiles.LoadForImport(introDirectory, ImportDataDirectory.Of(introDirectory)));
-        ending = new(() => EndingObjectArtworkFiles.LoadForImport(endingDirectory, ImportDataDirectory.Of(endingDirectory)));
-        endingMode7 = new(() => EndingMode7ArtworkFiles.LoadForImport(endingMode7Directory, ImportDataDirectory.Of(endingMode7Directory)));
+        ending = new(() => EndingObjectArtworkFiles.LoadForImport(endingImportData));
+        endingMode7 = new(() => EndingMode7ArtworkFiles.LoadForImport(endingMode7ImportData));
     }
 
     /// <summary>The OBJ palette row and priority of parts that choose neither, as the families' draws leave them.</summary>

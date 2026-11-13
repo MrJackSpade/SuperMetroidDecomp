@@ -39,6 +39,11 @@ internal static class ImportOnlyLayoutsVerification
         yield return (enemyTiles, EnemyProjectileSpritemapDefinitions.FileName);
         yield return (enemyTiles, SuperMetroid.AssetExtraction.World.Artwork.EnemySpritemapDefinitions.FileName);
         yield return (enemyTiles, SuperMetroid.AssetExtraction.World.Artwork.EnemyExtendedFrameDefinitions.FileName);
+        // The character-page manifests only the import reads (#1693).
+        yield return (enemyTiles, SuperMetroid.AssetExtraction.Enemies.Artwork.EnemyTileArtworkFormat.ManifestFileName);
+        yield return (GameInstallationLayout.RoomCharacterDirectoryName, SuperMetroid.AssetExtraction.Rooms.RoomCharacterArtworkFiles.ManifestFileName);
+        yield return (GameInstallationLayout.IntroCinematicDirectoryName, IntroCinematicArtworkFormat.ManifestFileName);
+        yield return (GameInstallationLayout.EndingObjectDirectoryName, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectArtworkFormat.ManifestFileName);
         string intro = GameInstallationLayout.IntroCinematicDirectoryName;
         for (int page = 0; page < IntroCinematicArtworkFormat.BackgroundPageCount; page++)
             yield return (intro, IntroCinematicArtworkFormat.BackgroundPageFileName(page));
@@ -70,6 +75,12 @@ internal static class ImportOnlyLayoutsVerification
         yield return (ending, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingCompletionTextSpriteFormat.FileName);
         yield return (ending, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingRewardSpriteFormat.FileName);
         yield return (ending, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingLogoSpriteFormat.FileName);
+        // The ending's Mode 7 cell maps and their manifest only compose the floors' sheets (#1693).
+        string endingMode7 = GameInstallationLayout.EndingMode7DirectoryName;
+        foreach (SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingFloorSceneId floor in Enum.GetValues<SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingFloorSceneId>())
+            yield return (endingMode7, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingFloorArtworkFormat.MapFileName(floor));
+        yield return (endingMode7, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingRewardIconArtworkFormat.MapFileName);
+        yield return (endingMode7, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingFloorArtworkFormat.ManifestFileName);
         string projectiles = GameInstallationLayout.ProjectileDirectoryName;
         yield return (projectiles, ProjectileSpriteDefinitions.FileName);
         yield return (projectiles, ChargeFlareSpriteExtractor.FileName);

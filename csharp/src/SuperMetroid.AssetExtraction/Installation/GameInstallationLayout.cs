@@ -17,9 +17,9 @@ public static class GameInstallationLayout
     public const string StandardObjectDirectoryName = "standard-objects";
     /// <summary>Content child directory for projectile artwork and presentation selectors.</summary>
     public const string ProjectileDirectoryName = "projectiles";
-    /// <summary>Content child directory for ordinary-enemy tile artwork.</summary>
+    /// <summary>Content child directory for the enemy documents the game binds: every enemy frame's display and Kraid's eye colours; the characters, colours, layouts, compositions and their manifest are its import data (#1636, #1693).</summary>
     public const string EnemyTileDirectoryName = "enemy-tiles";
-    /// <summary>Content child directory for room character-tile atlases.</summary>
+    /// <summary>Component directory whose import data holds the room character pages and their manifest, which only the import reads (#1636, #1693); nothing of it is installed.</summary>
     public const string RoomCharacterDirectoryName = "room-characters";
     /// <summary>Content child directory for the cartridge bytes Samus's glitch paths read.</summary>
     public const string SamusOverreadDirectoryName = "samus-overreads";
@@ -37,9 +37,9 @@ public static class GameInstallationLayout
     public const string SamusBodyDirectoryName = "samus-body";
     /// <summary>Content child directory for opening-cinematic artwork.</summary>
     public const string IntroCinematicDirectoryName = "intro-cinematic";
-    /// <summary>Content child directory for ending Mode 7 scene artwork.</summary>
+    /// <summary>Component directory whose import data holds the ending's Mode 7 cell maps and character pages, which only the import reads (#1636, #1693); nothing of it is installed.</summary>
     public const string EndingMode7DirectoryName = "ending-mode7";
-    /// <summary>Content child directory for ending OBJ artwork.</summary>
+    /// <summary>Component directory whose import data holds the ending's object pages, maps and compositions and their manifest, which only the import reads (#1636, #1638, #1693); nothing of it is installed.</summary>
     public const string EndingObjectDirectoryName = "ending-objects";
     /// <summary>Content child directory for the ending scenes' backdrops (#1544).</summary>
     public const string EndingBackdropDirectoryName = "ending-backdrops";
@@ -138,7 +138,7 @@ public static class GameInstallationLayout
     /// <summary>Receipt filename within stock content, recording the installation format and source cartridge digest.</summary>
     public const string ReceiptFileName = "installation.json";
     /// <summary>Current installation-receipt version; content whose receipt names another is extracted again before opening.</summary>
-    public const int FormatVersion = 326;
+    public const int FormatVersion = 328;
 
     /// <summary>Backup of the previously published stock game tree during an atomic install.</summary>
     internal const string PreviousDirectoryName = ".game.previous";

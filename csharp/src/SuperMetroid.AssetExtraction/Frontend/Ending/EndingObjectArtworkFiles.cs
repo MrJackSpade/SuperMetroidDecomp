@@ -17,14 +17,14 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
 /// <summary>
 /// Extracts the ending/reward character pages (#1636) and the maps and sprite compositions, whose entries are the original's
-/// packed tile and sprite placements (#1638), into the component's import data, which only the import reads; the
-/// installation holds only the provenance manifest and the pictures composed from them.
+/// packed tile and sprite placements (#1638), and their manifest (#1693), into the component's import data, which only the
+/// import reads; the installation holds only the pictures composed from them.
 /// </summary>
 public static class EndingObjectArtworkFiles
 {
     /// <summary>Creates ending/reward PNG transports, BG2 map JSON, sprite-composition JSON, and a hashed manifest.</summary>
     /// <param name="bus">Cartridge import source for compressed character/map streams and native cloud, explosion, text, reward, and logo spritemaps.</param>
-    /// <param name="directory">Destination directory, created if absent; artwork files and manifest must not already exist. The character pages, maps and compositions go to its import-data directory.</param>
+    /// <param name="directory">The component's directory; every file goes to its import-data directory, created if absent, and must not already exist there.</param>
     /// <param name="sourceCartridgeSha256">Source identity recorded in the manifest; installation loading requires the supported cartridge identity.</param>
     /// <exception cref="InvalidDataException">A native source is too short or a sprite composition is invalid.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory,
@@ -33,7 +33,6 @@ public static class EndingObjectArtworkFiles
         Ensure.NotNull(bus);
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         ArgumentException.ThrowIfNullOrWhiteSpace(sourceCartridgeSha256);
-        Directory.CreateDirectory(directory);
         string importData = SuperMetroid.AssetExtraction.Installation.ImportDataDirectory.Of(directory);
         Directory.CreateDirectory(importData);
         var hashes = new Dictionary<string, string>(StringComparer.Ordinal);
@@ -168,7 +167,7 @@ public static class EndingObjectArtworkFiles
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(file)));
         }
 
-        using var manifest = new FileStream(Path.Combine(directory,
+        using var manifest = new FileStream(Path.Combine(importData,
             EndingObjectArtworkFormat.ManifestFileName), FileMode.CreateNew,
             FileAccess.Write);
         JsonSerializer.Serialize(manifest,
@@ -210,15 +209,14 @@ public static class EndingObjectArtworkFiles
 
     /// <summary>
     /// Checks the manifest's provenance and coverage, then compiles the ending's maps and sprite compositions with its
-    /// object characters from the component's import data <paramref name="importData"/> (#1636).
+    /// object characters from the component's import data <paramref name="importData"/> (#1636, #1693).
     /// </summary>
-    /// <param name="directory">The component's directory, holding the manifest.</param>
-    /// <param name="importData">The component's import-data directory, holding the character pages, maps and sprite JSON.</param>
+    /// <param name="importData">The component's import-data directory, holding the manifest, the character pages, maps and sprite JSON.</param>
     /// <exception cref="InvalidDataException">Manifest provenance or coverage, or a page, map or sprite composition is invalid.</exception>
-    public static ImportEndingObjectArtwork LoadForImport(string directory, string importData)
+    public static ImportEndingObjectArtwork LoadForImport(string importData)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(importData);
-        EndingObjectArtworkParts parts = ReadParts(directory, importData);
+        EndingObjectArtworkParts parts = ReadParts(importData);
         return new ImportEndingObjectArtwork(parts, new EndingObjectCharacters(
             LoadSheet(EndingObjectArtworkFormat.CloudFileName, EndingObjectArtworkFormat.CloudByteCount),
             LoadSheet(EndingObjectArtworkFormat.ExplosionFileName, EndingObjectArtworkFormat.ExplosionByteCount),
@@ -243,14 +241,14 @@ public static class EndingObjectArtworkFiles
     }
 
     /// <summary>
-    /// Checks the manifest's provenance and coverage in <paramref name="directory"/>, then reads the maps and sprite
-    /// compositions from the import data <paramref name="importData"/> (#1638).
+    /// Checks the manifest's provenance and coverage, then reads the maps and sprite compositions, all from the import data
+    /// <paramref name="importData"/> (#1638, #1693).
     /// </summary>
     /// <exception cref="InvalidDataException">Manifest provenance or coverage, or a map or sprite composition is invalid.</exception>
-    private static EndingObjectArtworkParts ReadParts(string directory, string importData)
+    private static EndingObjectArtworkParts ReadParts(string importData)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(directory);
-        string manifestPath = Path.Combine(directory,
+        ArgumentException.ThrowIfNullOrWhiteSpace(importData);
+        string manifestPath = Path.Combine(importData,
             EndingObjectArtworkFormat.ManifestFileName);
         Manifest manifest;
         try

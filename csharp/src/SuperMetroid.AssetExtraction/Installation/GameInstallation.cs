@@ -117,11 +117,6 @@ public sealed record GameInstallation(string Root)
     /// <summary>Loads what the game binds of the installed opening cinematic: its backdrops and the Ceres scenes' placements (#1616).</summary>
     public IntroCinematicArtwork LoadIntroCinematic() =>
         IntroCinematicArtworkFiles.LoadCinematic(IntroCinematicDirectory);
-    /// <summary>
-    /// The ending object component's directory, which holds only its provenance manifest: its maps and compositions are
-    /// import data (#1638) and the installation holds the pictures composed from them.
-    /// </summary>
-    public string EndingObjectDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.EndingObjectDirectoryName);
     /// <summary>Installed ending scene backdrops, which the player edits in place (#1544).</summary>
     public string EndingBackdropDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.EndingBackdropDirectoryName);
     /// <summary>Loads the installed ending scene backdrops.</summary>

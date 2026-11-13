@@ -57,8 +57,7 @@ internal static class IntroRinkaDefinitionsVerification
             int expectedCount = frame < 74 ? 0 : frame < 202 ? 2 : 4;
             AssertEqual(expectedCount, system.LiveRinkas.Count,
                 $"intro Rinka two-wave spawn count at frame {frame}");
-            // The spawner holds slot 14 and its Rinkas take lower free slots, so the native
-            // descending walk steps each new Rinka in its spawn call (capture update 1793).
+            // The spawner updates before the Rinkas, so each new Rinka steps in its spawn call (capture update 1793).
             if (frame >= 74)
             {
                 int relative = frame - 74;

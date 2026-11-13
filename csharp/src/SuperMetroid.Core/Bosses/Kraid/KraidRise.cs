@@ -442,7 +442,7 @@ internal sealed class KraidRise
             case KraidPhase.None:
             default:
                 throw new InvalidDataException(
-                    $"Kraid body function {state.BodyState.Phase} is not translated.");
+                    $"Kraid body has no behaviour for phase {state.BodyState.Phase}.");
         }
     }
 

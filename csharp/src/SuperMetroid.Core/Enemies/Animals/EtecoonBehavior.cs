@@ -183,7 +183,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 break;
             default:
                 throw new InvalidDataException(
-                    $"Etecoon function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Etecoon has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
     }
 

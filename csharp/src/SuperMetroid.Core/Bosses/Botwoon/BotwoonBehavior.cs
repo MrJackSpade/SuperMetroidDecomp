@@ -187,7 +187,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Botwoon function {state.Phase} is not translated.");
+                    $"Botwoon has no behaviour for phase {state.Phase}.");
         }
 
         UpdateBotwoonHealthBand(head, state);
@@ -311,7 +311,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Botwoon movement {state.Movement} is not translated.");
+                    $"Botwoon has no behaviour for movement {state.Movement}.");
         }
     }
 
@@ -939,7 +939,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             default:
-                throw new InvalidOperationException($"Undefined BotwoonBodyFunction {phase}.");
+                throw new InvalidOperationException($"Botwoon's body has no behaviour for phase {phase}.");
         }
     }
 

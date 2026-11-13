@@ -201,7 +201,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Rio function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Rio has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
     }
 

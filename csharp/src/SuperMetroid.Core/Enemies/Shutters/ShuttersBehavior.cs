@@ -141,7 +141,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Growing shutter function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Growing shutter has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
     }
 
@@ -377,7 +377,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Horizontal shutter function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Horizontal shutter has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
 
         // An idle shutter reacts when one of Samus's four solid-enemy collisions
@@ -862,7 +862,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             case VerticalShutterAction.Initial:
             default:
                 throw new InvalidDataException(
-                    $"Vertical shutter function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Vertical shutter has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
 
         // An idle shutter reacts when one of Samus's four solid-enemy collisions

@@ -137,7 +137,7 @@ internal sealed class GrappleBehavior : IGrappleTargets
             case GrappleAiRoutine.ElevatorMainAi:
             default:
                 throw new InvalidDataException(
-                    $"Enemy {enemy.DefinitionId} grapple AI {enemy.Definition.GrappleAi} is not translated.");
+                    $"Enemy {enemy.DefinitionId} has no response to grapple reaction {enemy.Definition.GrappleAi}.");
         }
     }
 

@@ -89,7 +89,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Puyo function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Puyo has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
     }
 
@@ -226,8 +226,8 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Puyo airborne function {state.AirborneMovement?.ToString() ?? "none"} " +
-                    "is not translated.");
+                    $"Puyo has no behaviour for airborne movement " +
+                    $"{state.AirborneMovement?.ToString() ?? "none"}.");
         }
     }
 

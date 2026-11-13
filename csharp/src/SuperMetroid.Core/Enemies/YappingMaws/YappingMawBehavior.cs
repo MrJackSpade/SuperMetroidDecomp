@@ -166,7 +166,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
                 break;
             default:
                 throw new InvalidDataException(
-                    $"Yapping Maw function {state.Action} is not translated.");
+                    $"Yapping Maw has no behaviour for action {state.Action}.");
         }
 
         // The mouth actor owns the final point. The four projectiles own root, quarter, half,

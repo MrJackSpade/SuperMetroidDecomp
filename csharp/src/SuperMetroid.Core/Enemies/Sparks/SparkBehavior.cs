@@ -103,7 +103,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
             case null:
             default:
                 throw new InvalidDataException(
-                    $"Spark function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Spark has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
     }
 

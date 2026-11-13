@@ -97,7 +97,7 @@ internal sealed class MotherBrainHead
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Mother Brain brain function {state.BrainAction} is not translated.");
+                    $"Mother Brain has no behaviour for brain action {state.BrainAction}.");
         }
     }
 

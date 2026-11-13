@@ -212,7 +212,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Pipe Bug function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Pipe Bug has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
     }
 

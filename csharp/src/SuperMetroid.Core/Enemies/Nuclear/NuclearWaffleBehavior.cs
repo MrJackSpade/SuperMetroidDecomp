@@ -82,7 +82,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Nuclear Waffle function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Nuclear Waffle has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
     }
 

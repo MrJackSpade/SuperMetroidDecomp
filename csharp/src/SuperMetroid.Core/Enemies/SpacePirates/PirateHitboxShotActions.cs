@@ -24,7 +24,7 @@ internal static class PirateHitboxShotActions
                 EnemyReaction.GoldNinjaVulnerableHitboxShot or EnemyReaction.GoldNinjaInvincibleHitboxShot))
         {
             throw new InvalidDataException(
-                $"Space Pirate hitbox shot AI {hitboxShotAi?.ToString() ?? "(unnamed)"} is not translated.");
+                $"Space Pirate has no response to shot reaction {hitboxShotAi?.ToString() ?? "(unnamed)"}.");
         }
         if (enemy.DefinitionId != EnemyDefinitionId.PirateGoldNinja)
             return PirateHitboxShotAction.Normal;
@@ -79,7 +79,7 @@ internal static class PirateHitboxShotActions
                 EnemyReaction.GoldNinjaInvincibleHitboxShot))
         {
             throw new InvalidDataException(
-                $"Space Pirate normal-bomb hitbox AI {hitboxShotAi?.ToString() ?? "(unnamed)"} is not translated.");
+                $"Space Pirate has no response to normal-bomb reaction {hitboxShotAi?.ToString() ?? "(unnamed)"}.");
         }
 
         return enemy.DefinitionId == EnemyDefinitionId.PirateGoldNinja

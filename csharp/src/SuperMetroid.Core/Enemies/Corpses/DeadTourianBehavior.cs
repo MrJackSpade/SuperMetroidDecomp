@@ -118,7 +118,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Dead {state.Profile.Species} function {state.Phase?.ToString() ?? "none"} is not translated.");
+                    $"Dead {state.Profile.Species} has no behaviour for phase {state.Phase?.ToString() ?? "none"}.");
         }
     }
 

@@ -122,8 +122,8 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Escape Etecoon frame behaviour {state.FrameBehavior?.ToString() ?? "none"} " +
-                    "is not translated.");
+                    $"Escape Etecoon has no frame behaviour " +
+                    $"{state.FrameBehavior?.ToString() ?? "none"}.");
         }
     }
 

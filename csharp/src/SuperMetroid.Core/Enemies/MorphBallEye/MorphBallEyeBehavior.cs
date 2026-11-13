@@ -97,7 +97,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Morph-ball eye function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Morph-ball eye has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
     }
 

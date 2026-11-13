@@ -222,7 +222,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Mama Turtle main-AI function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Mama Turtle has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
     }
 
@@ -573,7 +573,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Baby Turtle main-AI function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Baby Turtle has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
     }
 

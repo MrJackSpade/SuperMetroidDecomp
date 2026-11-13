@@ -150,7 +150,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Alcoon function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Alcoon has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
     }
 

@@ -115,7 +115,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                 break;
             default:
                 throw new InvalidDataException(
-                    $"Maridia Large Snail function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Maridia Large Snail has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
 
         CarrySamusWithMaridiaLargeSnail(slot, state, samus);
@@ -268,8 +268,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
 
             default:
                 throw new InvalidDataException(
-                    $"Maridia Large Snail bounce function " +
-                    $"{state.BouncePhase?.ToString() ?? "none"} is not translated.");
+                    $"Maridia Large Snail has no behaviour for bounce phase " +
+                    $"{state.BouncePhase?.ToString() ?? "none"}.");
         }
     }
 
@@ -532,8 +532,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                 if (c.HitboxShotAi != EnemyReaction.MaridiaLargeSnailShot)
                 {
                     throw new InvalidDataException(
-                        $"Maridia Large Snail hitbox shot AI " +
-                        $"{c.HitboxShotAi?.ToString() ?? "(unnamed)"} is not translated.");
+                        $"Maridia Large Snail has no response to shot reaction " +
+                        $"{c.HitboxShotAi?.ToString() ?? "(unnamed)"}.");
                 }
                 return false;
             },
@@ -555,8 +555,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                         EnemyReaction.MaridiaLargeSnailNonDamagingTouch))
                 {
                     throw new InvalidDataException(
-                        $"Maridia Large Snail hitbox touch AI " +
-                        $"{context.HitboxTouchAi?.ToString() ?? "(unnamed)"} is not translated.");
+                        $"Maridia Large Snail has no response to touch reaction " +
+                        $"{context.HitboxTouchAi?.ToString() ?? "(unnamed)"}.");
                 }
 
                 // The damaging touch enters common touch damage and falls directly through the harmless touch's

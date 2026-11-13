@@ -120,7 +120,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Kzan function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Kzan has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
     }
 

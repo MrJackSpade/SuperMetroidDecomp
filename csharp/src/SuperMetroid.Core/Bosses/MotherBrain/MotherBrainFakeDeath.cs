@@ -220,7 +220,7 @@ internal sealed class MotherBrainFakeDeath
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Mother Brain tube function {state.TubeCollapseStep} is not translated.");
+                    $"Mother Brain tube has no behaviour for tube collapse step {state.TubeCollapseStep}.");
         }
     }
 
@@ -311,7 +311,7 @@ internal sealed class MotherBrainFakeDeath
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Mother Brain falling tube function {tubeState.Action} is not translated.");
+                    $"Mother Brain falling tube has no behaviour for action {tubeState.Action}.");
         }
     }
 

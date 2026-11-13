@@ -126,8 +126,8 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Shaktool frame behaviour {state.FrameBehavior?.ToString() ?? "none"} " +
-                    "is not translated.");
+                    $"Shaktool has no frame behaviour " +
+                    $"{state.FrameBehavior?.ToString() ?? "none"}.");
         }
     }
 

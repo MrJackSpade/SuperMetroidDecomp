@@ -153,7 +153,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Hopper function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Hopper has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
     }
 

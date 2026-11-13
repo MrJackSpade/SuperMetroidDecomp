@@ -104,7 +104,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Bull function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Bull has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
     }
 

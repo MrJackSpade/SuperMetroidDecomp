@@ -659,7 +659,7 @@ public static class SamusGrappleMovement
                 GrappleConnectionKind.WallGrab => GrapplePhase.WallGrab,
                 GrappleConnectionKind.Swinging => throw new InvalidDataException(
                     $"Grapple special connection {special} names the swinging function."),
-                _ => throw new InvalidOperationException($"Undefined GrappleConnectionFunction {kind}."),
+                _ => throw new InvalidOperationException($"The grapple has no connection {kind}."),
             };
 
             samus.Pose = special.Pose;

@@ -130,7 +130,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
 
             default:
                 throw new InvalidDataException(
-                    $"Wall Space Pirate function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Wall Space Pirate has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
 
         SamusState RequireSamus() => samus ?? throw new InvalidOperationException(
@@ -388,7 +388,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
                 if (context.UsesFrameHitboxes && context.HitboxTouchAi != EnemyReaction.SpacePirateTouch)
                 {
                     throw new InvalidDataException(
-                        $"Space Pirate hitbox touch AI {context.HitboxTouchAi?.ToString() ?? "(unnamed)"} is not translated.");
+                        $"Space Pirate has no response to touch reaction {context.HitboxTouchAi?.ToString() ?? "(unnamed)"}.");
                 }
                 // The shared Pirate touch returns before common touch AI while frozen. The overlap was
                 // still found, but neither Samus nor the Pirate receives contact damage.

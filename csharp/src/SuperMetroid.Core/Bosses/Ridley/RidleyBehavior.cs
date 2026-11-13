@@ -368,7 +368,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
             case RidleyPhase.CeresRetrieveBaby:
             default:
                 throw new InvalidDataException(
-                    $"Lower Norfair Ridley function {state.Phase} is not translated.");
+                    $"Lower Norfair Ridley has no behaviour for phase {state.Phase}.");
         }
     }
 

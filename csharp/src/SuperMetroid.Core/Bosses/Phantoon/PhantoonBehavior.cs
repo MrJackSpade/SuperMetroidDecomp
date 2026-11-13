@@ -252,7 +252,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 break;
             default:
                 throw new InvalidDataException(
-                    $"Phantoon function {state.BodyState.Phase} is not translated.");
+                    $"Phantoon has no behaviour for phase {state.BodyState.Phase}.");
         }
 
         // This synchronization runs only for the body's invocation, then copies the updated point into the three

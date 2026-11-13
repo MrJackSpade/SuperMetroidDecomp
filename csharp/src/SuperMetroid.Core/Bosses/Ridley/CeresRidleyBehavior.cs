@@ -315,7 +315,7 @@ internal sealed class CeresRidleyBehavior
             case RidleyPhase.NorfairDeathComplete:
             default:
                 throw new InvalidDataException(
-                    $"Ceres Ridley function {state.Phase} is not translated.");
+                    $"Ceres Ridley has no behaviour for phase {state.Phase}.");
         }
 
         // Once the eye fade enables composite animation, Ceres Ridley's main behaviour performs the

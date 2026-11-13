@@ -173,7 +173,7 @@ internal sealed class TorizoMovement
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Bomb Torizo frame behaviour {state.FrameBehavior} is not translated.");
+                    $"Bomb Torizo has no frame behaviour {state.FrameBehavior}.");
         }
     }
 

@@ -126,7 +126,7 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
             throw new ArgumentOutOfRangeException(
                 nameof(messageId),
                 messageId,
-                $"Gameplay message {messageId} from {sourceContext} is not translated by the ordinary coroutine.");
+                $"The ordinary message box shows no gameplay message {messageId} from {sourceContext}.");
         }
         if (IsActive)
             throw new InvalidOperationException("A gameplay message box is already active.");

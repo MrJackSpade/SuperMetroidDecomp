@@ -143,7 +143,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
                 break;
             default:
                 throw new InvalidDataException(
-                    $"Boulder function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Boulder has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
     }
 

@@ -114,7 +114,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Dragon function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Dragon has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
     }
 

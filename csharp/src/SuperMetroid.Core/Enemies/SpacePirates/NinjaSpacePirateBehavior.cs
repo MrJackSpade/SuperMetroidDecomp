@@ -183,7 +183,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Ninja Space Pirate function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Ninja Space Pirate has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
 
         SamusState RequireSamus() => samus ?? throw new InvalidOperationException(

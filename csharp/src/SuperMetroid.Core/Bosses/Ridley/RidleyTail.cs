@@ -515,7 +515,7 @@ internal sealed class RidleyTail
         RidleyTailAction action = state.TailAction;
         bool pointed = action is RidleyTailAction.PogoSetup or RidleyTailAction.PointDown or RidleyTailAction.Stab;
         if (!pointed && action is not (RidleyTailAction.Pogo or RidleyTailAction.StabSetup))
-            throw new InvalidDataException($"Ridley tail function {action} is not translated.");
+            throw new InvalidDataException($"Ridley tail has no behaviour for action {action}.");
 
         state.TailMinimumClockwiseAngle = RidleyTailReach.MinimumClockwise(state.FacingDirection);
         state.TailMaximumCounterClockwiseAngle = RidleyTailReach.MaximumCounterClockwise(state.FacingDirection);

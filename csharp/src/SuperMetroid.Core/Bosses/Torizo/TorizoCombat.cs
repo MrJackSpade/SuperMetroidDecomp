@@ -62,7 +62,7 @@ internal sealed class TorizoCombat
         if (!validShotReaction)
         {
             throw new InvalidDataException(
-                $"Torizo normal-bomb hitbox AI {selectedShotAi?.ToString() ?? "(unnamed)"} is not translated.");
+                $"Torizo has no response to normal-bomb reaction {selectedShotAi?.ToString() ?? "(unnamed)"}.");
         }
 
         // Both normal reactions return during the hurt flash. Bomb Torizo also uses its
@@ -158,7 +158,7 @@ internal sealed class TorizoCombat
                         EnemyReaction.BombTorizoShot or EnemyReaction.TorizoStandUpSitDownShot))
                 {
                     throw new InvalidDataException(
-                        $"Torizo hitbox shot AI {c.HitboxShotAi?.ToString() ?? "(unnamed)"} is not translated.");
+                        $"Torizo has no response to shot reaction {c.HitboxShotAi?.ToString() ?? "(unnamed)"}.");
                 }
                 return false;
             },
@@ -182,7 +182,7 @@ internal sealed class TorizoCombat
                 if (!context.UsesFrameHitboxes || context.HitboxTouchAi != EnemyReaction.BombTorizoTouch)
                 {
                     throw new InvalidDataException(
-                        $"Torizo hitbox touch AI {context.HitboxTouchAi?.ToString() ?? "(unnamed)"} is not translated.");
+                        $"Torizo has no response to touch reaction {context.HitboxTouchAi?.ToString() ?? "(unnamed)"}.");
                 }
                 _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
                 if (context.Slot.Health == 0)

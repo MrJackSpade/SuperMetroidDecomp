@@ -228,7 +228,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Rinka function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Rinka has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
     }
 

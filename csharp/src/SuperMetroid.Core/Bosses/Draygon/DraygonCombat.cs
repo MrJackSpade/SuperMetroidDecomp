@@ -80,7 +80,7 @@ internal sealed class DraygonCombat
                 if (context.HitboxTouchAi != EnemyReaction.DraygonTouch)
                 {
                     throw new InvalidDataException(
-                        $"Draygon hitbox touch AI {context.HitboxTouchAi?.ToString() ?? "(unnamed)"} is not translated.");
+                        $"Draygon has no response to touch reaction {context.HitboxTouchAi?.ToString() ?? "(unnamed)"}.");
                 }
                 _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
                 ResolveDraygonReaction(context.Slot, context.Samus);
@@ -215,7 +215,7 @@ internal sealed class DraygonCombat
                 if (c.HitboxShotAi != EnemyReaction.DraygonShot)
                 {
                     throw new InvalidDataException(
-                        $"Draygon hitbox shot AI {c.HitboxShotAi?.ToString() ?? "(unnamed)"} is not translated.");
+                        $"Draygon has no response to shot reaction {c.HitboxShotAi?.ToString() ?? "(unnamed)"}.");
                 }
                 return false;
             },

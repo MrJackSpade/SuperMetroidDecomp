@@ -143,7 +143,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
 
             default:
                 throw new InvalidDataException(
-                    $"Walking Space Pirate function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Walking Space Pirate has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
 
         // The slow-laser option enables the retail flinch detector after normal AI.

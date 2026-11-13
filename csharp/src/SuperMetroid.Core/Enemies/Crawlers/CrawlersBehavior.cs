@@ -170,7 +170,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             case CrawlerAction.CrawlingHorizontally:
             default:
                 throw new InvalidDataException(
-                    $"HZoomer function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"HZoomer has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
     }
 
@@ -316,7 +316,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             case CrawlerAction.HZoomerCrawlingHorizontally:
             default:
                 throw new InvalidDataException(
-                    $"Crawler function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Crawler has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
     }
 

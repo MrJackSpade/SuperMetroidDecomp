@@ -270,10 +270,10 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
                 return;
             case GunshipPhase.NoOperation:
                 throw new InvalidDataException(
-                    $"Gunship function {Part(top).Phase} is not translated.");
+                    $"Gunship has no behaviour for phase {Part(top).Phase}.");
             case GunshipPhase.None:
             default:
-                throw new InvalidOperationException($"Undefined GunshipFunction {phase}.");
+                throw new InvalidOperationException($"The gunship has no behaviour for phase {phase}.");
         }
     }
 

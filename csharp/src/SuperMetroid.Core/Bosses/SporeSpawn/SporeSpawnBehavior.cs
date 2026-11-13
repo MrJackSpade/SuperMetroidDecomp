@@ -175,7 +175,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Spore Spawn function {state.Movement} is not translated.");
+                    $"Spore Spawn has no behaviour for movement {state.Movement}.");
         }
     }
 
@@ -413,7 +413,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (c.HitboxShotAi != EnemyReaction.SporeSpawnShot)
                 {
                     throw new InvalidDataException(
-                        $"Spore Spawn hitbox shot AI {c.HitboxShotAi?.ToString() ?? "(unnamed)"} is not translated.");
+                        $"Spore Spawn has no response to shot reaction {c.HitboxShotAi?.ToString() ?? "(unnamed)"}.");
                 }
                 if (!SporeSpawnAcceptsProjectile(c.ProjectileType))
                 {
@@ -443,7 +443,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (context.HitboxTouchAi != EnemyReaction.SporeSpawnTouch)
                 {
                     throw new InvalidDataException(
-                        $"Spore Spawn hitbox touch AI {context.HitboxTouchAi?.ToString() ?? "(unnamed)"} is not translated.");
+                        $"Spore Spawn has no response to touch reaction {context.HitboxTouchAi?.ToString() ?? "(unnamed)"}.");
                 }
                 _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
                 ResolveSporeSpawnDeathAfterCommon(context.Slot);

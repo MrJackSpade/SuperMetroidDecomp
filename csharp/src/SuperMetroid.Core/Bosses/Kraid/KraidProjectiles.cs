@@ -262,7 +262,7 @@ internal sealed class KraidProjectiles
             case KraidPhase.None:
             default:
                 throw new InvalidDataException(
-                    $"Kraid fingernail function {_parts.NailStateOf(state, nail).Phase} is not translated.");
+                    $"Kraid fingernail has no behaviour for phase {_parts.NailStateOf(state, nail).Phase}.");
         }
     }
 
@@ -412,8 +412,8 @@ internal sealed class KraidProjectiles
             case KraidPhase.None:
             default:
                 throw new InvalidDataException(
-                    $"Kraid lint slot {lint.SlotIndex} function {_parts.LintStateOf(state, lint).Phase} " +
-                    "is not translated.");
+                    $"Kraid lint slot {lint.SlotIndex} has no behaviour for phase " +
+                    $"{_parts.LintStateOf(state, lint).Phase}.");
         }
     }
 

@@ -66,7 +66,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Choot function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Choot has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
     }
 

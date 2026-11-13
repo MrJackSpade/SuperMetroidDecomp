@@ -198,7 +198,7 @@ internal sealed class PhantoonCombat
             if (hitboxShotAi != EnemyReaction.PhantoonShot)
             {
                 throw new InvalidDataException(
-                    $"Phantoon hitbox shot AI {hitboxShotAi?.ToString() ?? "(unnamed)"} is not translated.");
+                    $"Phantoon has no response to shot reaction {hitboxShotAi?.ToString() ?? "(unnamed)"}.");
             }
 
             // The extended-hitbox walker marks the projectile before Phantoon's hitbox reaction.
@@ -629,7 +629,7 @@ internal sealed class PhantoonCombat
                 if (context.HitboxTouchAi != EnemyReaction.PhantoonTouch)
                 {
                     throw new InvalidDataException(
-                        $"Phantoon hitbox touch AI {context.HitboxTouchAi?.ToString() ?? "(unnamed)"} is not translated.");
+                        $"Phantoon has no response to touch reaction {context.HitboxTouchAi?.ToString() ?? "(unnamed)"}.");
                 }
                 _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
             });

@@ -141,7 +141,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
                 break;
             default:
                 throw new InvalidDataException(
-                    $"Zebetite function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Zebetite has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
     }
 

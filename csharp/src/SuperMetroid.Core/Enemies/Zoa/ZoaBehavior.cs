@@ -89,7 +89,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Zoa function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Zoa has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
     }
 

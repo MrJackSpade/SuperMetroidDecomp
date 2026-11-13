@@ -132,7 +132,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
             case PowampAction.BalloonNoOp:
             default:
                 throw new InvalidDataException(
-                    $"Powamp body function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Powamp body has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
     }
 

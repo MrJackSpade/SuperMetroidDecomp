@@ -147,7 +147,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Torizo main function {state.Phase} is not translated.");
+                    $"Torizo has no behaviour for phase {state.Phase}.");
         }
     }
 

@@ -288,7 +288,7 @@ internal sealed class KraidLimbs
             case KraidPhase.None:
             default:
                 throw new InvalidDataException(
-                    $"Kraid foot function {state.FootState.Phase} is not translated.");
+                    $"Kraid foot has no behaviour for phase {state.FootState.Phase}.");
         }
     }
 

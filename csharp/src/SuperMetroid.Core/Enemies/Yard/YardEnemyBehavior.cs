@@ -184,7 +184,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Yard function {state.Movement?.ToString() ?? "none"} is not translated.");
+                    $"Yard has no behaviour for movement {state.Movement?.ToString() ?? "none"}.");
         }
     }
 

@@ -194,7 +194,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Ki-Hunter function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Ki-Hunter has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
     }
 
@@ -496,7 +496,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Detached Ki-Hunter wing function {state.WingMovement} is not translated.");
+                    $"Detached Ki-Hunter has no behaviour for wing movement {state.WingMovement}.");
         }
     }
 

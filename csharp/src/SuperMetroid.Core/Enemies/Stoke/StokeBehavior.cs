@@ -110,7 +110,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Stoke main-AI function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Stoke has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
     }
 

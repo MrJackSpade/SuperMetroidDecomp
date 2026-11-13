@@ -129,7 +129,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
                 break;
             default:
                 throw new InvalidDataException(
-                    $"Boyon movement {state.BounceMovement} is not translated.");
+                    $"Boyon has no behaviour for bounce movement {state.BounceMovement}.");
         }
     }
 

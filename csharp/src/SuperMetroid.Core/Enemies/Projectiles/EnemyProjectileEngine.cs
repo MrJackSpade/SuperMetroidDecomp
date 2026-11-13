@@ -425,7 +425,7 @@ internal sealed class EnemyProjectileEngine
         if (!Handlers.TryGetFrameBehavior(id, out EnemyProjectileFrameBehaviorHandler? handler))
         {
             throw new InvalidDataException(
-                $"Enemy projectile frame behaviour {projectile.FrameBehavior} is not translated.");
+                $"Enemy projectile has no frame behaviour {projectile.FrameBehavior}.");
         }
         handler(new EnemyProjectileFrameBehaviorContext(projectile, level, samus, camera, frameCycle, samusBombs));
     }

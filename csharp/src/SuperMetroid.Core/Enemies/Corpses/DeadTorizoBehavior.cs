@@ -108,7 +108,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Dead Torizo function {state.Phase} is not translated.");
+                    $"Dead Torizo has no behaviour for phase {state.Phase}.");
         }
     }
 

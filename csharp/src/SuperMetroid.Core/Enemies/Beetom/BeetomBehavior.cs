@@ -219,7 +219,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
                 RunFlungBeetom(slot, state, level);
                 return;
             default:
-                throw new InvalidDataException($"Beetom function {state.Action?.ToString() ?? "none"} is not translated.");
+                throw new InvalidDataException($"Beetom has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
     }
 

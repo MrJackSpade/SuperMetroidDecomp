@@ -212,7 +212,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
                 return;
 
             default:
-                throw new InvalidOperationException($"Undefined CeresDoorFunction {action}.");
+                throw new InvalidOperationException($"A Ceres door has no behaviour for action {action}.");
         }
     }
 

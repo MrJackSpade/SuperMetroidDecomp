@@ -213,7 +213,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
 
             default:
                 throw new InvalidDataException(
-                    $"Dead sidehopper function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Dead sidehopper has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
     }
 

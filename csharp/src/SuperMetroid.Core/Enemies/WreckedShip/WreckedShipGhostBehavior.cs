@@ -102,7 +102,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
                 break;
             default:
                 throw new InvalidDataException(
-                    $"Wrecked Ship ghost function {state.Action?.ToString() ?? "none"} is not translated.");
+                    $"Wrecked Ship ghost has no behaviour for action {state.Action?.ToString() ?? "none"}.");
         }
     }
 

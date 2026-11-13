@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Deaths;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Elevator;
@@ -22,8 +22,8 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new ZebetiteEntity(this, slot, common);
 
-    /// <summary>Initializes newly spawned Zebetite slots through the common enemy dispatch path.</summary>
-    private readonly IEnemyDispatch _dispatch;
+    /// <summary>Initializes newly spawned Zebetite slots through the common enemy lifecycle.</summary>
+    private readonly IEnemyLifecycle _lifecycle;
     /// <summary>Supplies room artwork, data, and event services used by Zebetites.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Allocates the explosion projectile when a Zebetite half dies.</summary>
@@ -50,7 +50,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         _audio = dependencies.Audio;
         _collision = dependencies.Collision;
         _elevatorBehavior = dependencies.ElevatorBehavior;
-        _dispatch = dependencies.Dispatch;
+        _lifecycle = dependencies.Lifecycle;
         _room = dependencies.Room;
         _projectiles = dependencies.Projectiles;
         _earthquake = dependencies.Earthquake;
@@ -239,8 +239,8 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         RoomEnemyDefinition definition = _room.LoadedDefinitions.ReadEnemyDefinition(population.DefinitionId);
-        _dispatch.InitializeSlotFromDefinition(spawned, population, definition);
-        _dispatch.RunInitializationAi(spawned, EnemySpawnSurroundings.None);
+        _lifecycle.InitializeSlotFromDefinition(spawned, population, definition);
+        _lifecycle.RunInitializationAi(spawned, EnemySpawnSurroundings.None);
         _slotTable.CoverSpawn(spawned);
         return spawned;
     }

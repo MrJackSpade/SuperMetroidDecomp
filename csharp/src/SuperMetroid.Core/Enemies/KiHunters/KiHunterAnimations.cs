@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using K = SuperMetroid.Core.Enemies.KiHunters.KiHunterCueKind;
 using P = SuperMetroid.Core.Enemies.KiHunters.KiHunterSegment;
 using SuperMetroid.Core.Enemies.Artwork;

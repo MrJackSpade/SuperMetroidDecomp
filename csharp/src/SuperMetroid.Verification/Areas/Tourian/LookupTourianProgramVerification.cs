@@ -10,8 +10,8 @@ using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Fx.PaletteFx;
-using SuperMetroid.Core.Programs;
-using Beat = SuperMetroid.Core.Programs.AnimationBeat<
+using SuperMetroid.Core.Animation;
+using Beat = SuperMetroid.Core.Animation.AnimationBeat<
     SuperMetroid.Core.Fx.Artwork.TourianStatueTilePicture,
     SuperMetroid.Core.Areas.Tourian.TourianStatueTileCue>;
 

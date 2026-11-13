@@ -10,8 +10,8 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 [RoomLifetime]
 internal sealed record ZebetiteBehaviorDependencies
 {
-    /// <summary>Dispatch.</summary>
-    public required IEnemyDispatch Dispatch { get; init; }
+    /// <summary>Sets up enemies in their slots, spawns them and runs their AI.</summary>
+    public required IEnemyLifecycle Lifecycle { get; init; }
 
     /// <summary>Room.</summary>
     public required EnemyRoomBinding Room { get; init; }

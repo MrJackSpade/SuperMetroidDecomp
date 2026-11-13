@@ -4,16 +4,16 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Frontend;
 
-/// <summary>A game state's phase whose dispatch and status are supplied by its owner.</summary>
+/// <summary>A game state's phase whose update and status are supplied by its owner.</summary>
 /// <param name="state">The state.</param>
-/// <param name="randomStep">The random generator's step before the dispatch.</param>
-/// <param name="step">One dispatch.</param>
+/// <param name="randomStep">The random generator's step before the phase runs.</param>
+/// <param name="step">One update of the state.</param>
 /// <param name="name">The current status.</param>
 /// <param name="waitingOutDisplayFrame">Whether the state's current step is waiting out a frame of the display, so the next update finishes it; never when omitted.</param>
 /// <param name="audio">The prologue and epilogue audio handling.</param>
 internal sealed class GamePhase(
     SuperMetroidGameState state,
-    DispatchRandomStep randomStep,
+    PhaseRandomStep randomStep,
     Action<ControllerButton> step,
     Func<string> name,
     Func<bool>? waitingOutDisplayFrame = null,
@@ -23,7 +23,7 @@ internal sealed class GamePhase(
     public SuperMetroidGameState State { get; } = state;
 
     /// <inheritdoc/>
-    public DispatchRandomStep RandomStep { get; } = randomStep;
+    public PhaseRandomStep RandomStep { get; } = randomStep;
 
     /// <inheritdoc/>
     public GamePhaseAudio Audio { get; } = audio;

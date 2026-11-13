@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Elevator.Artwork;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;

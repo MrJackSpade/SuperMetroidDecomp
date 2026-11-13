@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using K = SuperMetroid.Core.Enemies.Owtch.OwtchCueKind;
 using P = SuperMetroid.Core.Enemies.Owtch.OwtchSegment;
 using SuperMetroid.Core.Enemies.Artwork;

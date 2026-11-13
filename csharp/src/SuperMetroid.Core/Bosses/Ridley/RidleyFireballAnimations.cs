@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using C = SuperMetroid.Core.Bosses.Ridley.RidleyFireballCue;
 using K = SuperMetroid.Core.Bosses.Ridley.RidleyFireballFrameKind;
 using P = SuperMetroid.Core.Bosses.Ridley.RidleyFireballSegment;

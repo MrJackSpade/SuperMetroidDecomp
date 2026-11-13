@@ -135,9 +135,9 @@ public sealed class GitHubErrorReporter : IDisposable
     /// <summary>Uses a typed dispatch key or recursively records exception type, message, managed stack methods, and inner errors without source locations.</summary>
     private static void AppendExceptionIdentity(StringBuilder identity, Exception exception)
     {
-        if (exception is UnmodeledBehaviorException dispatch)
+        if (exception is UnmodeledBehaviorException unmodeled)
         {
-            identity.Append(dispatch.GetType().FullName).Append('\n').Append(dispatch.DispatchIdentity);
+            identity.Append(unmodeled.GetType().FullName).Append('\n').Append(unmodeled.BehaviorIdentity);
             return;
         }
         identity.Append(exception.GetType().FullName)

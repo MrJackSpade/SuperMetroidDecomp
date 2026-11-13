@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Waver;
 
 /// <summary>The state of one Waver: its horizontal velocity, wave phase and animation selection.</summary>

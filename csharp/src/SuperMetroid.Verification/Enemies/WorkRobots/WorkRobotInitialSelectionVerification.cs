@@ -1,5 +1,5 @@
 using SuperMetroid.TestSupport.MovieReplay;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.WorkRobots;
 using SuperMetroid.AssetExtraction.Cartridge;

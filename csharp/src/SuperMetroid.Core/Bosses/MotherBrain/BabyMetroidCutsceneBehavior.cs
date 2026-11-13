@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus;
@@ -19,8 +19,8 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new BabyMetroidCutsceneEntity(this, slot, common);
 
-    /// <summary>Initializes the dynamically allocated Baby through ordinary enemy dispatch.</summary>
-    private readonly IEnemyDispatch _dispatch;
+    /// <summary>Initializes the dynamically allocated Baby through the ordinary enemy lifecycle.</summary>
+    private readonly IEnemyLifecycle _lifecycle;
     /// <summary>Supplies current room bus, RNG, and installed Baby artwork.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Queues healing, death, and cutscene cues with queue limits.</summary>
@@ -40,7 +40,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
     internal BabyMetroidCutsceneBehavior(BabyMetroidCutsceneBehaviorDependencies dependencies)
     {
         _motherBrainEncounter = dependencies.MotherBrainEncounter;
-        _dispatch = dependencies.Dispatch;
+        _lifecycle = dependencies.Lifecycle;
         _room = dependencies.Room;
         _audio = dependencies.Audio;
         _slotTable = dependencies.SlotTable;
@@ -71,8 +71,8 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         }
 
         RoomEnemyDefinition definition = _room.LoadedDefinitions.ReadEnemyDefinition(population.DefinitionId);
-        _dispatch.InitializeSlotFromDefinition(babySlot, population, definition);
-        _dispatch.RunInitializationAi(babySlot, EnemySpawnSurroundings.None);
+        _lifecycle.InitializeSlotFromDefinition(babySlot, population, definition);
+        _lifecycle.RunInitializationAi(babySlot, EnemySpawnSurroundings.None);
 
         // SpawnEnemy installs the canonical empty map after init when the Baby's hide-drawing property is set.
         // The actor's animation is still live and produces its first visible map on its first

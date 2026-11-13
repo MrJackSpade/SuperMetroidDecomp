@@ -243,10 +243,10 @@ internal static class SamusOverreadServicesReader
     private static SamusProjectileSegmentBeat Cursor(SamusOverreadDocument.Cursor cursor)
     {
         Ensure.NotNull(cursor);
-        SamusProjectileSegment program = Parse<SamusProjectileSegment>(cursor.Program, "animation position program");
-        return (uint)cursor.Position <= (uint)SamusProjectileAnimations.Segments.Beats(program).Count
-            ? new(program, cursor.Position)
-            : throw new InvalidDataException($"Samus overread file names step {cursor.Position} of {program}, which it does not have.");
+        SamusProjectileSegment animation = Parse<SamusProjectileSegment>(cursor.Animation, "animation position's animation");
+        return (uint)cursor.Position <= (uint)SamusProjectileAnimations.Segments.Beats(animation).Count
+            ? new(animation, cursor.Position)
+            : throw new InvalidDataException($"Samus overread file names step {cursor.Position} of {animation}, which it does not have.");
     }
 
     /// <summary>Whether each pose outside the transition table admits weapons.</summary>

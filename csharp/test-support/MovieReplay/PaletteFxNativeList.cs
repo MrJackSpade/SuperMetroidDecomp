@@ -37,4 +37,4 @@ internal sealed record PaletteFxNativeControl(PaletteFxNativeControlKind Kind, i
 /// <summary>Where a live object resumes (#1600): the animation it plays, named by its first segment, and its place in it.</summary>
 /// <param name="Animation">The first segment of the animation it plays.</param>
 /// <param name="Place">Its place in that animation.</param>
-internal readonly record struct PaletteFxImportedPlace(PaletteFxSegment Animation, SuperMetroid.Core.Programs.AnimationPlace Place);
+internal readonly record struct PaletteFxImportedPlace(PaletteFxSegment Animation, SuperMetroid.Core.Animation.AnimationPlace Place);

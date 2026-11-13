@@ -11,8 +11,8 @@ namespace SuperMetroid.Core.Frontend;
 /// <param name="session">The frontend session these phases run against.</param>
 internal sealed class CinematicGamePhases(FrontendSession session)
 {
-    /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.IntroCinematic"/>.</summary>
-    internal void DispatchIntroCinematic(ControllerButton controllerInput)
+    /// <summary>Runs one update of <see cref="SuperMetroidGameState.IntroCinematic"/>.</summary>
+    internal void RunIntroCinematic(ControllerButton controllerInput)
     {
         session.ActiveIntro.Step(controllerInput);
         session.display.PublishIntro(session.ActiveIntro);
@@ -27,8 +27,8 @@ internal sealed class CinematicGamePhases(FrontendSession session)
         }
     }
 
-    /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.WhitingOutFromTimeUp"/>.</summary>
-    internal void DispatchWhitingOutFromTimeUp(ControllerButton controllerInput)
+    /// <summary>Runs one update of <see cref="SuperMetroidGameState.WhitingOutFromTimeUp"/>.</summary>
+    internal void RunWhitingOutFromTimeUp(ControllerButton controllerInput)
     {
         // The time-up black-out runs no gameplay: it fades the whitened frame to black.
         session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
@@ -36,8 +36,8 @@ internal sealed class CinematicGamePhases(FrontendSession session)
             FinishTimeUpBlackOut();
     }
 
-    /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.CeresGoesBoomWithSamus"/>.</summary>
-    internal void DispatchCeresGoesBoomWithSamus(ControllerButton controllerInput)
+    /// <summary>Runs one update of <see cref="SuperMetroidGameState.CeresGoesBoomWithSamus"/>.</summary>
+    internal void RunCeresGoesBoomWithSamus(ControllerButton controllerInput)
     {
         session.Runtime?.FrameBoundary.BeginAcceptedFrame(controllerInput);
         CeresDestructionCinematicState fatalDestruction = session.ActiveCeresDestruction;
@@ -58,8 +58,8 @@ internal sealed class CinematicGamePhases(FrontendSession session)
         }
     }
 
-    /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.CeresGoesBoom"/>.</summary>
-    internal void DispatchCeresGoesBoom(ControllerButton controllerInput)
+    /// <summary>Runs one update of <see cref="SuperMetroidGameState.CeresGoesBoom"/>.</summary>
+    internal void RunCeresGoesBoom(ControllerButton controllerInput)
     {
         // Each update begins a frame. A gameplay owner kept from Ceres
         // counts it on the frame clock and latches input; without one the frontend counted it.
@@ -80,8 +80,8 @@ internal sealed class CinematicGamePhases(FrontendSession session)
         }
     }
 
-    /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.EndingAndCredits"/>.</summary>
-    internal void DispatchEndingAndCredits()
+    /// <summary>Runs one update of <see cref="SuperMetroidGameState.EndingAndCredits"/>.</summary>
+    internal void RunEndingAndCredits()
     {
         EndingCreditsPhase previousEndingPhase = session.ActiveEndingCredits.Stage.Phase;
         session.ActiveEndingCredits.Step();

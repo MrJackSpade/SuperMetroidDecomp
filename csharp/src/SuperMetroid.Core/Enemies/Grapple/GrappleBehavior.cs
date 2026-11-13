@@ -12,17 +12,17 @@ namespace SuperMetroid.Core.Enemies.Grapple;
 [RoomLifetime]
 internal sealed class GrappleBehavior : IGrappleTargets
 {
-    /// <summary>Provides interactive enemy order and wrapped main-AI dispatch.</summary>
-    private readonly IEnemyDispatch _dispatch;
+    /// <summary>Provides the interactive enemies in order and runs their main AI under the grapple's frame.</summary>
+    private readonly IEnemyLifecycle _lifecycle;
     /// <summary>Guards endpoint checks until a room is loaded.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Starts the full generic death and drop sequence for grapple-killed enemies.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
 
     /// <summary>Binds enemy ordering, room state and death handling.</summary>
-    internal GrappleBehavior(IEnemyDispatch dispatch, EnemyRoomBinding room, EnemyDeathsAndDrops deathsAndDrops)
+    internal GrappleBehavior(IEnemyLifecycle lifecycle, EnemyRoomBinding room, EnemyDeathsAndDrops deathsAndDrops)
     {
-        _dispatch = dispatch;
+        _lifecycle = lifecycle;
         _room = room;
         _deathsAndDrops = deathsAndDrops;
     }
@@ -35,7 +35,7 @@ internal sealed class GrappleBehavior : IGrappleTargets
     public GrappleEnemyCollision ResolveGrappleEndpoint(Position16<RoomPixels> endpoint)
     {
         _room.EnsureLoaded();
-        foreach (RoomEnemySlot enemy in _dispatch.InteractiveEnemies)
+        foreach (RoomEnemySlot enemy in _lifecycle.InteractiveEnemies)
         {
             if (enemy.InvincibilityTimer != 0)
                 continue;
@@ -124,7 +124,7 @@ internal sealed class GrappleBehavior : IGrappleTargets
                 // This common wrapper is Powamp's crucial distinction: it invokes the
                 // enemy's normal main behaviour while the grappled state remains observable, then
                 // clears that state after the actor has moved its grapple anchor.
-                _dispatch.RunMainAi(enemy, new GrappleWrappedAiFrame(frame));
+                _lifecycle.RunMainAi(enemy, new GrappleWrappedAiFrame(frame));
                 enemy.AiStates = EnemyAiStates.None;
                 return true;
 

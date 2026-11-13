@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.Metroids;
 using SuperMetroid.Core.Hardware;

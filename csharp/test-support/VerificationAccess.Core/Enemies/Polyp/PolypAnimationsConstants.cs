@@ -1,5 +1,5 @@
 ﻿using SuperMetroid.Core.Enemies.Polyp.Artwork;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Polyp;

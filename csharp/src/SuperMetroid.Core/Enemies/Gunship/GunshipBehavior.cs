@@ -3,7 +3,7 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Enemies.Gunship.Artwork;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;

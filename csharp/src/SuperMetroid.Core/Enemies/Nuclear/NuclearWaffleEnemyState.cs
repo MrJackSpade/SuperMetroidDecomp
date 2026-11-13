@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.SpriteObjects;
 
 namespace SuperMetroid.Core.Enemies.Nuclear;

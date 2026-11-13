@@ -3,7 +3,7 @@ using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Samus.Artwork;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.TestSupport.MovieReplay;

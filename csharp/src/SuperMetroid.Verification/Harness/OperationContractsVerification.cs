@@ -39,7 +39,7 @@ internal static class OperationContractsVerification
             ["Camera", "Clock", "ControllerInput", "Level", "NewlyPressedControllerInput", "Samus", "SamusProjectiles",
              "SharedProjectiles", "TurningFloor"]),
             "main AI's frame exposes only the nine values main AI reads");
-        AssertEqual(typeof(IEnemyAiFrame), MetadataShape.ParameterTypes(typeof(EnemySlotDispatch), nameof(EnemySlotDispatch.RunMainAi), shared)[1],
+        AssertEqual(typeof(IEnemyAiFrame), MetadataShape.ParameterTypes(typeof(EnemyLifecycle), nameof(EnemyLifecycle.RunMainAi), shared)[1],
             "main AI accepts its narrow frame, not the enemy pass's whole frame");
         AssertEqual(typeof(IEnemyAiFrame), MetadataShape.ParameterTypes(typeof(GrappleBehavior), nameof(GrappleBehavior.RunCommonGrappleAi), instance)[1],
             "the common grapple wrapper accepts main AI's frame");

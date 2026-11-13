@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Stoke;
 
 /// <summary>The state of one Stoke: its walking speeds, facing and behaviour.</summary>

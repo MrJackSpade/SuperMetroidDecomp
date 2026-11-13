@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.SpriteObjects;
 using K = SuperMetroid.Core.Enemies.Deaths.EnemyDeathProjectileCueKind;
 using P = SuperMetroid.Core.Enemies.Deaths.EnemyDeathProjectileSegment;

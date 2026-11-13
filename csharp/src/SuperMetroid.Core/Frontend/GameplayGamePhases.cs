@@ -18,8 +18,8 @@ namespace SuperMetroid.Core.Frontend;
 /// <param name="session">The frontend session these phases run against.</param>
 internal sealed class GameplayGamePhases(FrontendSession session)
 {
-    /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.MadeItToCeresElevator"/>.</summary>
-    internal void DispatchMadeItToCeresElevator(ControllerButton controllerInput)
+    /// <summary>Runs one update of <see cref="SuperMetroidGameState.MadeItToCeresElevator"/>.</summary>
+    internal void RunMadeItToCeresElevator(ControllerButton controllerInput)
     {
         session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AllowCeresElevatorDeparture = false }, Audio = GameplayFrameAudio.Gameplay(session.GameplayRuntime) });
         session.display.PublishGameplay(session.GameplayRuntime);
@@ -31,14 +31,14 @@ internal sealed class GameplayGamePhases(FrontendSession session)
             session.GameState = SuperMetroidGameState.BlackoutFromCeres;
     }
 
-    /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.MainGameplay"/>.</summary>
-    internal void DispatchMainGameplay(ControllerButton controllerInput)
+    /// <summary>Runs one update of <see cref="SuperMetroidGameState.MainGameplay"/>.</summary>
+    internal void RunMainGameplay(ControllerButton controllerInput)
     {
         RunMainGameplayState(controllerInput);
     }
 
-    /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.ReserveTanksAuto"/>.</summary>
-    internal void DispatchReserveTanksAuto(ControllerButton controllerInput)
+    /// <summary>Runs one update of <see cref="SuperMetroidGameState.ReserveTanksAuto"/>.</summary>
+    internal void RunReserveTanksAuto(ControllerButton controllerInput)
     {
         SamusReserveAutoRecoveryStep reserveStep = default;
         session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Audio = GameplayFrameAudio.Gameplay(session.GameplayRuntime), AfterFrameBoundary = () =>
@@ -69,8 +69,8 @@ internal sealed class GameplayGamePhases(FrontendSession session)
             session.GameplayRuntime.AudioRequests);
     }
 
-    /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.PausingDarkening"/>.</summary>
-    internal void DispatchPausingDarkening(ControllerButton controllerInput)
+    /// <summary>Runs one update of <see cref="SuperMetroidGameState.PausingDarkening"/>.</summary>
+    internal void RunPausingDarkening(ControllerButton controllerInput)
     {
         // The pausing state continues running ordinary gameplay while the screen darkens.
         // This matters for moving enemies/projectiles and is why pause cannot be
@@ -144,8 +144,8 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         _ => throw new InvalidOperationException($"Undefined game state {state}."),
     };
 
-    /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.Unpausing"/>.</summary>
-    internal void DispatchUnpausing(ControllerButton controllerInput)
+    /// <summary>Runs one update of <see cref="SuperMetroidGameState.Unpausing"/>.</summary>
+    internal void RunUnpausing(ControllerButton controllerInput)
     {
         // The fade-in state runs the whole main-gameplay update behind the screen fade, so
         // its out-of-health, pause, door and other publications all apply here.
@@ -158,8 +158,8 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         }
     }
 
-    /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.BlackoutFromCeres"/>.</summary>
-    internal void DispatchBlackoutFromCeres(ControllerButton controllerInput)
+    /// <summary>Runs one update of <see cref="SuperMetroidGameState.BlackoutFromCeres"/>.</summary>
+    internal void RunBlackoutFromCeres(ControllerButton controllerInput)
     {
         session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AllowCeresElevatorDeparture = false }, Audio = GameplayFrameAudio.Gameplay(session.GameplayRuntime) });
         session.display.PublishGameplay(session.GameplayRuntime);
@@ -187,8 +187,8 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         }
     }
 
-    /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.TimeUp"/>.</summary>
-    internal void DispatchTimeUp(ControllerButton controllerInput)
+    /// <summary>Runs one update of <see cref="SuperMetroidGameState.TimeUp"/>.</summary>
+    internal void RunTimeUp(ControllerButton controllerInput)
     {
         // The time-up state runs the whole main-gameplay update, then advances every palette
         // toward the white target with denominator eight.
@@ -201,8 +201,8 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         session.display.PublishGameplay(session.GameplayRuntime);
     }
 
-    /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.SamusEscapesFromZebes"/>.</summary>
-    internal void DispatchSamusEscapesFromZebes(ControllerButton controllerInput)
+    /// <summary>Runs one update of <see cref="SuperMetroidGameState.SamusEscapesFromZebes"/>.</summary>
+    internal void RunSamusEscapesFromZebes(ControllerButton controllerInput)
     {
         // The Zebes-escape state calls the complete main-gameplay coroutine before
         // the fade-out. The fleeing gunship, room animations, and sound publishers

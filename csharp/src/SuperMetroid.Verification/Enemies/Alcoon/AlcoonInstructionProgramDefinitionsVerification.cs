@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Samus.Drawing;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;

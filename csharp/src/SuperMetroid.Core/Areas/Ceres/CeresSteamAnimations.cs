@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using K = SuperMetroid.Core.Areas.Ceres.CeresSteamCueKind;
 using P = SuperMetroid.Core.Areas.Ceres.CeresSteamSegment;
 using SuperMetroid.Core.Enemies.Artwork;

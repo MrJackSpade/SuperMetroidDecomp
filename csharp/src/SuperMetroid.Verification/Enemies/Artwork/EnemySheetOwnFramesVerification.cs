@@ -27,7 +27,7 @@ using SuperMetroid.Core.Enemies.Skree;
 using SuperMetroid.Core.Enemies.Skree.Artwork;
 using SuperMetroid.Core.Enemies.WorkRobots;
 using SuperMetroid.Core.Enemies.WorkRobots.Artwork;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;

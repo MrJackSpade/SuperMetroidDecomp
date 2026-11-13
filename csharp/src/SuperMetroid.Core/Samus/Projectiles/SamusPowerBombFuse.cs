@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>The fuse transition, independent of which projectile array half owns the slot.</summary>

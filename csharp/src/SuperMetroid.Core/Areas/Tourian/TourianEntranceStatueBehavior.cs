@@ -2,7 +2,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.PaletteFx;
 

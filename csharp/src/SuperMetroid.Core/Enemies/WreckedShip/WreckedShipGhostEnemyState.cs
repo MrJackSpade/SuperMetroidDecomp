@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.WreckedShip;
 
 /// <summary>The state of the Wrecked Ship ghost, with its extra values.</summary>

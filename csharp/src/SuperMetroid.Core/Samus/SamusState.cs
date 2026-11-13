@@ -930,6 +930,6 @@ level, probe, this, amount, scanLeftToRight, roomObjects);
     /// </summary>
     internal void CommitPoseHistory()
     {
-        PoseHistory.CommitTransition(Pose, SamusPoseDispatch.ReadMovement(InitializedPose));
+        PoseHistory.CommitTransition(Pose, SamusPoseTraits.ReadMovement(InitializedPose));
     }
 }

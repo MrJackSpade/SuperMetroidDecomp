@@ -15,7 +15,7 @@ internal static class AudioQueuesAccess
         /// </summary>
         internal string MusicQueueForVerification() =>
             (self.PendingMusic is PendingMusicDispatch pending
-                ? $"wait={pending.Request}@{pending.CallsUntilDispatch:X}"
+                ? $"wait={pending.Request}@{pending.CallsUntilSent:X}"
                 : "wait=fetch") +
             (self.Music.TryPeek(out QueuedMusic? next) ? $" next={next.Request}@{next.Delay.Updates:X}" : " next=none") +
             $" queued={self.HasQueuedMusic}";

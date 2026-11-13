@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.SpriteObjects;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 

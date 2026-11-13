@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
@@ -19,8 +19,8 @@ internal sealed class NorfairRidleyDeath
     /// <summary>The gravity a breakup fragment's fall gains each update.</summary>
     private static readonly SignedEightEight BreakupFragmentGravity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(4);
 
-    /// <summary>Enemy dispatcher used for Ridley's registered behaviours.</summary>
-    private readonly IEnemyDispatch _dispatch;
+    /// <summary>Spawns the enemies Ridley's death releases into the room.</summary>
+    private readonly IEnemyLifecycle _lifecycle;
     /// <summary>Room services, level state, and RNG for the Norfair fight.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Handles common combat damage and enemy drops.</summary>
@@ -35,10 +35,10 @@ internal sealed class NorfairRidleyDeath
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal NorfairRidleyDeath(IEnemyDispatch dispatch, EnemyRoomBinding room, EnemyDeathsAndDrops deathsAndDrops, RidleyEncounter ridleyEncounter, RidleyProjectiles ridleyProjectiles, EnemyRoomFx roomFx, EnemyAudioQueue audio)
+    internal NorfairRidleyDeath(IEnemyLifecycle lifecycle, EnemyRoomBinding room, EnemyDeathsAndDrops deathsAndDrops, RidleyEncounter ridleyEncounter, RidleyProjectiles ridleyProjectiles, EnemyRoomFx roomFx, EnemyAudioQueue audio)
     {
         _audio = audio;
-        _dispatch = dispatch;
+        _lifecycle = lifecycle;
         _room = room;
         _deathsAndDrops = deathsAndDrops;
         _ridleyEncounter = ridleyEncounter;
@@ -211,7 +211,7 @@ internal sealed class NorfairRidleyDeath
                 CollidesByFrameHitboxes: false,
                 SpawnSettings: new RidleyExplosionSpawnSettings(part));
             // The explosion's initialization AI starts each part from the still-live shared Ridley joints.
-            if (_dispatch.SpawnEnemy(population) is null)
+            if (_lifecycle.SpawnEnemy(population) is null)
             {
                 throw new InvalidOperationException(
                     "Lower Norfair Ridley breakup exhausted the 32-slot enemy pool.");

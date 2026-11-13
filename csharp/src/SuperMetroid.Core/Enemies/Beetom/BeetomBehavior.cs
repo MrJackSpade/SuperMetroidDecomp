@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;

@@ -1,5 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.World;
 

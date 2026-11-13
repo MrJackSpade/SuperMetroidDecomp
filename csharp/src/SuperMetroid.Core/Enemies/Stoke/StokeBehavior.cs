@@ -1,6 +1,6 @@
 ﻿using SuperMetroid.Core.Enemies.Cacatac;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms;

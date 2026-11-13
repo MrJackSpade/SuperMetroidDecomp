@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using K = SuperMetroid.Core.Enemies.Boyon.BoyonCueKind;
 using P = SuperMetroid.Core.Enemies.Boyon.BoyonSegment;
 using SuperMetroid.Core.Enemies.Artwork;

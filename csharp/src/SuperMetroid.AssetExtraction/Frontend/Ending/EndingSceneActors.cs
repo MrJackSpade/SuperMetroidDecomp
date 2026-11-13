@@ -3,7 +3,7 @@ using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 

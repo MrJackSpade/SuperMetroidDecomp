@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.LavaJumpers;
 
 /// <summary>The state of one Squeept part, the jumping parent or its cosmetic follower.</summary>

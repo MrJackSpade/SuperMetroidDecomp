@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using K = SuperMetroid.Core.Enemies.LavaJumpers.NorfairLavaJumperCueKind;
 using P = SuperMetroid.Core.Enemies.LavaJumpers.NorfairLavaJumperSegment;
 using SuperMetroid.Core.Enemies.Artwork;

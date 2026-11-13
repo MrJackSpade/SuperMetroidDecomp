@@ -23,11 +23,11 @@ internal static class DeadCorpseCounterVerification
 
         state.Action = DeadSidehopperAction.PreRotDelay;
         for (int call = 1; call < 16; call++)
-            enemies.DeadSidehopperBehavior.DispatchDeadSidehopperState(slot, state, null, null, default);
+            enemies.DeadSidehopperBehavior.RunDeadSidehopperState(slot, state, null, null, default);
         AssertEqual(15, state.PreRotDelayCounter, "fifteen pre-rot calls");
         AssertEqual(DeadSidehopperAction.PreRotDelay, state.Action, "the delay holds below sixteen");
         AssertTrue(!slot.Contact.HasAny(EnemyContact.IgnoresSamus), "the delay keeps Samus collision");
-        enemies.DeadSidehopperBehavior.DispatchDeadSidehopperState(slot, state, null, null, default);
+        enemies.DeadSidehopperBehavior.RunDeadSidehopperState(slot, state, null, null, default);
         AssertEqual(16, state.PreRotDelayCounter, "the sixteenth call");
         AssertEqual(DeadSidehopperAction.Rotting, state.Action, "the sixteenth call starts rotting");
         AssertTrue(slot.Contact.HasAny(EnemyContact.IgnoresSamus), "rotting stops further Samus collision");

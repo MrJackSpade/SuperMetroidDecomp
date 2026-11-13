@@ -2,7 +2,7 @@
 using SuperMetroid.Tooling;
 using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 
 namespace SuperMetroid.Core.Enemies.OldTourianWall;
 

@@ -3,7 +3,7 @@ using static SuperMetroid.Verification.Enemies.Boulder.BoulderNativeListAddresse
 using SuperMetroid.Core.Enemies.Boulder;
 using SuperMetroid.Core.Enemies.Boulder.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 
 namespace SuperMetroid.Verification.Enemies.Boulder;
 

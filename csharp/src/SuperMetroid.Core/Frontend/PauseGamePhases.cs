@@ -10,8 +10,8 @@ namespace SuperMetroid.Core.Frontend;
 /// <param name="session">The frontend session these phases run against.</param>
 internal sealed class PauseGamePhases(FrontendSession session)
 {
-    /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.Pausing"/>.</summary>
-    internal void DispatchPausing(ControllerButton controllerInput)
+    /// <summary>Runs one update of <see cref="SuperMetroidGameState.Pausing"/>.</summary>
+    internal void RunPausing(ControllerButton controllerInput)
     {
         // The pause preparation runs on a blank display: pause tiles, base maps,
         // colours and inventory labels are installed before the pause fades in.
@@ -33,8 +33,8 @@ internal sealed class PauseGamePhases(FrontendSession session)
         session.GameState = SuperMetroidGameState.PauseScreenFadeIn;
     }
 
-    /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.PauseScreenFadeIn"/>.</summary>
-    internal void DispatchPauseScreenFadeIn(ControllerButton controllerInput)
+    /// <summary>Runs one update of <see cref="SuperMetroidGameState.PauseScreenFadeIn"/>.</summary>
+    internal void RunPauseScreenFadeIn(ControllerButton controllerInput)
     {
         session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
         session.AdvanceScreenFadeIn();
@@ -45,8 +45,8 @@ internal sealed class PauseGamePhases(FrontendSession session)
             session.GameState = SuperMetroidGameState.Paused;
     }
 
-    /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.Paused"/>.</summary>
-    internal void DispatchPaused(ControllerButton controllerInput)
+    /// <summary>Runs one update of <see cref="SuperMetroidGameState.Paused"/>.</summary>
+    internal void RunPaused(ControllerButton controllerInput)
     {
         session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
         session.ActivePauseMenu.SynchronizeAcceptedHud(session.GameplayRuntime.AcceptedHud);
@@ -69,8 +69,8 @@ internal sealed class PauseGamePhases(FrontendSession session)
         }
     }
 
-    /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.PauseScreenFadeOut"/>.</summary>
-    internal void DispatchPauseScreenFadeOut(ControllerButton controllerInput)
+    /// <summary>Runs one update of <see cref="SuperMetroidGameState.PauseScreenFadeOut"/>.</summary>
+    internal void RunPauseScreenFadeOut(ControllerButton controllerInput)
     {
         session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
         session.ActivePauseMenu.SynchronizeAcceptedHud(session.GameplayRuntime.AcceptedHud);
@@ -80,8 +80,8 @@ internal sealed class PauseGamePhases(FrontendSession session)
             session.GameState = SuperMetroidGameState.RestoringGameplayFromPause;
     }
 
-    /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.RestoringGameplayFromPause"/>.</summary>
-    internal void DispatchRestoringGameplayFromPause(ControllerButton controllerInput)
+    /// <summary>Runs one update of <see cref="SuperMetroidGameState.RestoringGameplayFromPause"/>.</summary>
+    internal void RunRestoringGameplayFromPause(ControllerButton controllerInput)
     {
         // Unpausing restores gameplay's layers, colours,
         // hooks, per-line effects and animated tiles on a blank display. Pause graphics live in a

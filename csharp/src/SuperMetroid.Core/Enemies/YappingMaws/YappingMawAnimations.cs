@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using K = SuperMetroid.Core.Enemies.YappingMaws.YappingMawCueKind;
 using P = SuperMetroid.Core.Enemies.YappingMaws.YappingMawSegment;
 using SuperMetroid.Core.Enemies.Artwork;

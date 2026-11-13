@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Boyon;
 
 /// <summary>The state of a Boyon: its bounce, its speed and its animation.</summary>

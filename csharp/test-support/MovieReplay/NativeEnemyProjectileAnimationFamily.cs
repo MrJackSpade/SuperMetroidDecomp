@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Enemies.Projectiles;
 

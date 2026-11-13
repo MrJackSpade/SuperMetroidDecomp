@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using F = SuperMetroid.Core.Bosses.Phantoon.PhantoonFlameFrameKind;
 using P = SuperMetroid.Core.Bosses.Phantoon.PhantoonFlameSegment;
 

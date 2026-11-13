@@ -1,6 +1,6 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;

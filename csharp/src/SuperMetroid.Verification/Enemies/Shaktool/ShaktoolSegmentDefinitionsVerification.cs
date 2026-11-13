@@ -1,6 +1,6 @@
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.MovieReplay;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Shaktool;

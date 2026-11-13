@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using K = SuperMetroid.Core.Enemies.Sparks.SparkCueKind;
 using P = SuperMetroid.Core.Enemies.Sparks.SparkSegment;
 using SuperMetroid.Core.Enemies.Artwork;

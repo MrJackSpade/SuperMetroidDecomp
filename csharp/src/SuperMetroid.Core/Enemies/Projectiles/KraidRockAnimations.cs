@@ -1,5 +1,5 @@
-using SuperMetroid.Core.Programs;
-using Beat = SuperMetroid.Core.Programs.AnimationBeat<SuperMetroid.Core.Enemies.Projectiles.KraidRockFrame, SuperMetroid.Core.Enemies.Projectiles.KraidRockCue>;
+using SuperMetroid.Core.Animation;
+using Beat = SuperMetroid.Core.Animation.AnimationBeat<SuperMetroid.Core.Enemies.Projectiles.KraidRockFrame, SuperMetroid.Core.Enemies.Projectiles.KraidRockCue>;
 
 namespace SuperMetroid.Core.Enemies.Projectiles;
 

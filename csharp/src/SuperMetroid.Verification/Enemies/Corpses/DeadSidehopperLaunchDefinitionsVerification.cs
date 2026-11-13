@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -16,7 +16,7 @@ internal static class DeadSidehopperLaunchDefinitionsVerification
     internal static void VerifyDeadSidehopperLaunchDefinitions(CartridgeImportAddressSpace rom)
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemySlot, DeadSidehopperEnemyState, SamusState?, RoomLevelData?, Position16<RoomPixels>> dispatch = enemies.DeadSidehopperBehavior.DispatchDeadSidehopperState;
+        Action<RoomEnemySlot, DeadSidehopperEnemyState, SamusState?, RoomLevelData?, Position16<RoomPixels>> dispatch = enemies.DeadSidehopperBehavior.RunDeadSidehopperState;
         var slot = enemies.SlotTable.Slots[0];
         var state = new DeadSidehopperEnemyState(slot, new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.RowCount));
         for (ushort phase = 0; phase < 4; phase++)

@@ -3,7 +3,7 @@ using static SuperMetroid.Verification.Enemies.Kzan.KzanNativeListAddresses;
 using SuperMetroid.Core.Enemies.Kzan;
 using SuperMetroid.Core.Enemies.Kzan.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 
 namespace SuperMetroid.Verification.Enemies.Kzan;
 

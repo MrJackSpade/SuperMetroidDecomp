@@ -3,7 +3,7 @@ using static SuperMetroid.Verification.Enemies.Atomic.AtomicNativeListAddresses;
 using SuperMetroid.Core.Enemies.Atomic;
 using SuperMetroid.Core.Enemies.Atomic.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 
 namespace SuperMetroid.Verification.Enemies.Atomic;
 

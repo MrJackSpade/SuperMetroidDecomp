@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Bosses.Kraid;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 namespace SuperMetroid.TestSupport.MovieReplay;
 
 /// <summary>One native Kraid head-list record, decoded from the cartridge for the ROM oracle and the snapshot import.</summary>

@@ -16,7 +16,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Enemies.Gunship;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Enemies.Artwork;

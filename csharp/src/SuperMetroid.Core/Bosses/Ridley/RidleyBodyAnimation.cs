@@ -1,5 +1,5 @@
 ﻿using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Rooms;

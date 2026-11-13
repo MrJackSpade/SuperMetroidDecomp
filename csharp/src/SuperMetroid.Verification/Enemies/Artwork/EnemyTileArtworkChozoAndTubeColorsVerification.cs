@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using System.Text.Json;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;

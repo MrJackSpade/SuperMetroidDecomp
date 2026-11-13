@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Corpses.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -136,11 +136,11 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         DeadSidehopperEnemyState state = RequireDeadSidehopperState(slot);
         _deadSidehopperLevel = level;
         _deadSidehopperCamera = camera;
-        DispatchDeadSidehopperState(slot, state, samus, level, camera);
+        RunDeadSidehopperState(slot, state, samus, level, camera);
     }
 
     /// <summary>Advances the authored hop, post-landing delay, drain, or collision-triggered decay state.</summary>
-    internal void DispatchDeadSidehopperState(
+    internal void RunDeadSidehopperState(
         RoomEnemySlot slot,
         DeadSidehopperEnemyState state,
         SamusState? samus,
@@ -367,7 +367,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         // Before the corpse is ready, the private power-bomb reaction literally invokes
         // the actor's main dispatcher once. Use the last scheduled room context because the
         // outer power-bomb pass does not carry level/camera arguments.
-        DispatchDeadSidehopperState(
+        RunDeadSidehopperState(
             slot,
             state,
             samus,

@@ -4,7 +4,7 @@ using B = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBodyCue;
 using H = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainHeadCue;
 using K = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainHeadCueKind;
 using SuperMetroid.Core.Bosses.MotherBrain;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;

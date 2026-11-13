@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using K = SuperMetroid.Core.Areas.Tourian.TourianStatueTileCueKind;
 using P = SuperMetroid.Core.Areas.Tourian.TourianStatueTileSegment;
 using F = SuperMetroid.Core.Fx.Artwork.TourianStatueTilePicture;

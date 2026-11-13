@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;

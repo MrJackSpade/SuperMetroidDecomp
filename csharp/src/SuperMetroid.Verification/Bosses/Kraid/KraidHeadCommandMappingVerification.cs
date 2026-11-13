@@ -2,7 +2,7 @@ using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidContourCaseMappingsVerification;
 

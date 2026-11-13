@@ -1,5 +1,5 @@
 using SuperMetroid.AssetExtraction.Enemies;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
 using SuperMetroid.Core.Enemies.SpacePirates;
 using SuperMetroid.Core.Enemies.Chozo.Artwork;

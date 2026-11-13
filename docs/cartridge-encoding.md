@@ -133,7 +133,7 @@ A subsystem migration decides what each raw value means:
 
 Botwoon is the reference migration:
 
-- `Core/Programs/AnimationTimeline.cs` models an animation as steps: show a frame for a duration, publish
+- `Core/Animation/AnimationSegments.cs` models an animation as beats: show a frame for a duration, publish
   a cue, hold, or loop. It is generic over the frame and cue types.
 - `Core/Bosses/Botwoon/BotwoonAnimations.cs` states Botwoon's semantics with no addresses:
   - facings and head and segment programs;

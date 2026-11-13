@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using F = SuperMetroid.Core.Enemies.SpriteObjects.RoomSpriteObjectFrame;
 using P = SuperMetroid.Core.Enemies.SpriteObjects.RoomSpriteObjectSegment;
 

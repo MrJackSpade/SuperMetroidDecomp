@@ -4,7 +4,7 @@ using static SuperMetroid.Verification.Areas.Tourian.TourianEntranceStatueNative
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 
 namespace SuperMetroid.Verification.Areas.Tourian;
 

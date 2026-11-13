@@ -12,8 +12,8 @@ internal sealed record MotherBrainFakeDeathDependencies
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     public required BossFrameResultBuilder FrameResults { get; init; }
 
-    /// <summary>Routes Mother Brain's AI and projectile handlers through the room dispatch tables.</summary>
-    public required IEnemyDispatch Dispatch { get; init; }
+    /// <summary>Spawns the enemies the fake death releases into the room.</summary>
+    public required IEnemyLifecycle Lifecycle { get; init; }
 
     /// <summary>Provides room services, tiles, palette state, and effects used by the encounter.</summary>
     public required EnemyRoomBinding Room { get; init; }

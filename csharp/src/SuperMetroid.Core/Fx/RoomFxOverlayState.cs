@@ -183,7 +183,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// <param name="room">The room, for rooms that suppress the earthquake sound.</param>
     public static RoomFxOverlayState ForRoom(
         RoomFxSession session,
-        RoomFxHeader? fx,
+        RoomFxSelection? fx,
         DoorDefinition? door,
         int randomNumber,
         RoomDefinition? room = null) =>

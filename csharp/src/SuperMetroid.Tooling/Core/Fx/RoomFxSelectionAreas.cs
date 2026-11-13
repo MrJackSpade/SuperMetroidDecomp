@@ -5,26 +5,26 @@ using SuperMetroid.Core.World.RoomStates;
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
-/// The area of the rooms that use each room-FX header (#1526): a record's effect bits select from its room's area's lists,
-/// so <see cref="RoomFxRecordCodec"/> decodes a header's records, and checks encode them back, in that area. Read from the
-/// retail rooms' state-selection programs, whose states name the headers they load.
+/// The area of the rooms that use each room effect selection (#1526): a record's effect bits select from its room's area's lists,
+/// so <see cref="RoomFxRecordCodec"/> decodes a selection's records, and checks encode them back, in that area. Read from the
+/// retail rooms' state-selection programs, whose states name the selections they load.
 /// </summary>
-internal static class RoomFxHeaderAreas
+internal static class RoomFxSelectionAreas
 {
-    /// <summary>Each header's area, by header instance.</summary>
-    private static readonly Dictionary<RoomFxHeader, AreaId> Areas = Index();
+    /// <summary>Each selection's area, by selection instance.</summary>
+    private static readonly Dictionary<RoomFxSelection, AreaId> Areas = Index();
 
     /// <summary>The area of every room whose states load <paramref name="fx"/>.</summary>
     /// <exception cref="InvalidDataException">No retail room state loads <paramref name="fx"/>.</exception>
-    internal static AreaId Of(RoomFxHeader fx) =>
+    internal static AreaId Of(RoomFxSelection fx) =>
         Areas.TryGetValue(Ensure.NotNull(fx), out AreaId area) ? area
             : throw new InvalidDataException($"No retail room state loads room FX {fx.Name}, so its area is unknown.");
 
-    /// <summary>Gives each header loaded by a retail room state the area of the rooms that load it.</summary>
-    /// <exception cref="InvalidDataException">Rooms of two areas load one header.</exception>
-    private static Dictionary<RoomFxHeader, AreaId> Index()
+    /// <summary>Gives each selection loaded by a retail room state the area of the rooms that load it.</summary>
+    /// <exception cref="InvalidDataException">Rooms of two areas load one selection.</exception>
+    private static Dictionary<RoomFxSelection, AreaId> Index()
     {
-        var areas = new Dictionary<RoomFxHeader, AreaId>(ReferenceEqualityComparer.Instance);
+        var areas = new Dictionary<RoomFxSelection, AreaId>(ReferenceEqualityComparer.Instance);
         foreach (KeyValuePair<RoomDefinition, RoomStateProgram> entry in RoomStateSelectionDefinitions.Programs)
         {
             RoomDefinition room = entry.Key;

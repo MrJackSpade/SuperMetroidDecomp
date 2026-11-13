@@ -12,7 +12,7 @@ public sealed record RoomStateSettings(
     RoomLevelId Level,
     RoomGraphicsSet GraphicsSet,
     RoomMusic Music,
-    SuperMetroid.Core.Fx.RoomFxHeader? Fx,
+    SuperMetroid.Core.Fx.RoomFxSelection? Fx,
     Enemies.RoomEnemyPopulationDefinition EnemyPopulation,
     SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes BackgroundScrollModes,
     SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinition Scroll,

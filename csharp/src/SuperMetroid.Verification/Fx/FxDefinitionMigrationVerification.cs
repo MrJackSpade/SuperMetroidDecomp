@@ -115,7 +115,7 @@ internal static class FxDefinitionMigrationVerification
         AssertEqual(RoomLiquidOptions.SurfaceDrift, climb.LiquidOptions, "Climb liquid options");
         AssertEqual("OldTourianRedFlashing, OldTourianBackgroundRailingsFlashYellow, OldTourianBackgroundPanelsFlashYellow",
             string.Join(", ", climb.PaletteEffects), "Climb palette effects");
-        AssertEqual(AreaId.Crateria, RoomFxHeaderAreas.Of(RoomFxDefinitions.ClimbWhenZebesTimebombSet), "Climb FX area");
+        AssertEqual(AreaId.Crateria, RoomFxSelectionAreas.Of(RoomFxDefinitions.ClimbWhenZebesTimebombSet), "Climb FX area");
         AssertEqual((byte)0x04, RoomFxRecordEncoding.TypeByte(climb.Type), "Climb type byte");
         AssertEqual((byte)0x38, RoomFxRecordEncoding.PaletteEffectsByte(climb.PaletteEffects, AreaId.Crateria), "Climb palette-effect byte");
         AssertEqual(0x2c, SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.Types.Word(RoomFxType.CeresHaze), "Ceres haze type byte");

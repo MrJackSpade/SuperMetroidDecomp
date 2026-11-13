@@ -333,11 +333,11 @@ namespace matches its path (`Core/Bosses/Kraid` is `SuperMetroid.Core.Bosses.Kra
 | `Areas/<Area>` | scripted gameplay sequences that belong to one place (Ceres, the escapes, Tourian, Maridia) |
 | `Gameplay` | the services every gameplay domain shares within a frame: the NMI clock and handler, time freeze, display state, host options and tester tools, runtime artwork, actor drawing, the game-state word, and the narrow contracts gameplay reads from the frontend (`IGameplayPresentationContent`, `IAttractDemoState`) |
 | `Map` | the area map model: layouts, tile words, exploration and explored-bit packing, the minimap, reveal modes and the map views (`IAreaMapSource`) |
-| `Hud`, `Saves`, `Progression`, `Programs` | the gameplay HUD and message boxes; save images; boss and event progression; the shared instruction-program machinery |
+| `Hud`, `Saves`, `Progression`, `Programs` | the gameplay HUD and message boxes; save images; boss and event progression; shared animation playback |
 | `Runtime` | the gameplay frame loop that composes the simulation, with `Attract` (demo playback), door transitions, checkpoint autosaves and the runtime's renderer and audio publication |
 | `Frontend/<Screen>` | the game-state dispatcher and host options, and one module per screen or cinematic (title, intro, `CeresCinematics`, file select, pause map, options, game over, ending, recordings) |
 | `Assets` | artwork infrastructure every domain shares: PNG and JSON documents (`ArtworkJson`), tile encoders, base palettes |
-| `Rendering`, `Audio`, `Spatial`, `Input` | renderers, the SPC driver, spatial and fixed-point types, and controller input. Hardware behaviour the game needs survives only as named compatibility services in `Compatibility` (`manifesto.md`), not as a model of the console |
+| `Rendering`, `Audio`, `Spatial`, `Input` | renderers, the clip library and sound request queues, spatial and fixed-point types, and controller input. Hardware behaviour the game needs survives only as named compatibility services in `Compatibility` (`manifesto.md`), not as a model of the console |
 
 A domain's installed-artwork layer (catalogs, presentations, formats and documents of extracted artwork) lives in
 its `Artwork` module, so gameplay code and the artwork it draws stay separable. The resource audit uses that layer

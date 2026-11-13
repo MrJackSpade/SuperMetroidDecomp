@@ -107,7 +107,7 @@ public static class GameplayEffectCapture
         Offset16<ScreenPixels> eye = beam.Origin.RelativeToCamera(cameraPosition);
         TrigonometryAngle angle = beam.Angle.ToTrigonometryAngle();
         var cone = new WindowCone(eye.WithY(eye.Y - EyeWindowRenderDefinitions.ApexYOffset),
-            angle.TurnedBySteps(-beam.AngularWidth), angle.TurnedBySteps(beam.AngularWidth));
+            angle - beam.AngularWidth, angle + beam.AngularWidth);
         return new(ScreenWindow.Of(cone, HudHeight), beam.Color);
     }
 
@@ -281,7 +281,7 @@ public static class GameplayEffectCapture
             (xray.Crouching ? XrayWindowRenderDefinitions.CrouchingEyeHeight : XrayWindowRenderDefinitions.StandingEyeHeight);
         TrigonometryAngle angle = xray.Angle.ToTrigonometryAngle();
         var cone = new WindowCone(Offset16<ScreenPixels>.Of(eyeX, eyeY),
-            angle.TurnedBySteps(-xray.AngularWidth), angle.TurnedBySteps(xray.AngularWidth));
+            angle - xray.AngularWidth, angle + xray.AngularWidth);
         return ScreenWindow.Of(cone, HudHeight);
     }
 

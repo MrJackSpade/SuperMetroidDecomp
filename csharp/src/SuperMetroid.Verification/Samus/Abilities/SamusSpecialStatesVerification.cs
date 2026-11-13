@@ -447,21 +447,26 @@ internal static void VerifySamusXray()
     // Fixed-point acceleration reaches 10.F800 after 26 widening calls and would cross
     // eleven on call 27; native clamps the whole width to ten, clears its fraction, and
     // advances to full-beam state two on that exact call.
-    for (int frame = 1; frame <= 26; frame++)
+    // #1684: every call against the 16.16 arithmetic the typed angles replace. The speed gains 2048/65536 of a step
+    // each call and the width gains the speed; the call whose whole width would reach eleven clamps it to exactly ten.
+    // A typed angle's 256ths of a step are the 16.16 value's 65536ths over 256: the 16.16 fraction's low byte stays zero.
+    const int sixteenSixteenStep = 2048;
+    int sixteenSixteenSpeed = 0;
+    int sixteenSixteenWidth = 0;
+    for (int call = 1; call <= 27; call++)
+    {
         standing.Xray.StepBeam(standing, ControllerButton.B);
-    AssertEqual(XrayBeamPhase.Widening, standing.Xray.BeamPhase,
-        "X-ray remains widening through call 26");
-    // After n widening calls the speed is n steps and the width is the triangular number n(n+1)/2 of steps.
-    const int wideningCalls = 26;
-    AssertEqual(10, standing.Xray.AngularWidth, "call 26 whole width");
-    AssertEqual(SixteenSixteenWords.ToDisplacement(wideningCalls * (wideningCalls + 1) / 2 *
-            XrayScopeDefinitions.Window.WideningStep.RawValue), standing.Xray.AngularHalfWidth,
-        "call 26 width is 351 widening steps, carrying into whole units exactly");
-    standing.Xray.StepBeam(standing, ControllerButton.B);
-    AssertEqual(XrayBeamPhase.Full, standing.Xray.BeamPhase, "call 27 reaches full beam");
-    AssertEqual(10, standing.Xray.AngularWidth, "full beam clamps width ten");
-    AssertEqual(SignedSixteenSixteen.FromParts(10, 0), standing.Xray.AngularHalfWidth,
-        "full beam clears width fraction");
+        sixteenSixteenSpeed += sixteenSixteenStep;
+        sixteenSixteenWidth += sixteenSixteenSpeed;
+        bool full = sixteenSixteenWidth >> 16 >= 11;
+        if (full)
+            sixteenSixteenWidth = 10 << 16;
+        AssertEqual(call == 27, full, $"only call 27 would carry the whole width to eleven (call {call})");
+        AssertEqual(full ? XrayBeamPhase.Full : XrayBeamPhase.Widening, standing.Xray.BeamPhase, $"X-ray phase after call {call}");
+        AssertEqual(sixteenSixteenSpeed, standing.Xray.AngularWideningSpeed.RawValue << 8, $"call {call} widening speed equals the 16.16 speed");
+        AssertEqual(sixteenSixteenWidth, standing.Xray.AngularHalfWidth.RawValue << 8, $"call {call} half-width equals the 16.16 width");
+        AssertEqual(new TrigonometryAngle(sixteenSixteenWidth >> 16), standing.Xray.AngularWidth, $"call {call} whole width");
+    }
 
     // The scope's cone (#1468): its apex three pixels ahead of this standing-right Samus at her standing eye height,
     // screen (103,184), sweeping the full half-width of ten either side of straight right, below the HUD. The cone stays

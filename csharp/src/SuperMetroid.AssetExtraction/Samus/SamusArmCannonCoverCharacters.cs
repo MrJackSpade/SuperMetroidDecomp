@@ -27,7 +27,7 @@ public sealed class SamusArmCannonCoverCharacters
             throw new InvalidDataException("Arm-cannon cover characters must be the twelve cover tiles.");
     }
 
-    /// <summary>The extracted layout, appearances and tile selections the characters are bound to.</summary>
+    /// <summary>The extracted descriptors, appearances and tile selections the characters are bound to.</summary>
     public SamusArmCannonSourceArtwork Cannon { get; }
 
     /// <summary>The characters of cover tile <paramref name="index"/>, 0 through 11.</summary>

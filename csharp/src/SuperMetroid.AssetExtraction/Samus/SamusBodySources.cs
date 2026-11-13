@@ -199,12 +199,12 @@ public sealed class SamusBodySources
 
     /// <summary>
     /// What the installation holds of this body for the game (#1638): each pose's art origin, every body frame the body sheet
-    /// pictures with where it places the body, her death steps and the arm cannon's layout.
+    /// pictures with where it places the body, her death steps and the arm cannon's placement at every frame each pose shows.
     /// </summary>
     /// <param name="continuation">What an animation frame past a pose's program reads, which decides the frames her body can show.</param>
     internal InstalledSamusBody InstalledBody(LaidOutProgramContinuation<SamusPoseId, SamusAnimationProgramStep> continuation) =>
         new(Placements.ToDictionary(pose => pose.Key, pose => pose.Value.GraphicsYOffset),
-            SheetFrames(originRises, Spritemaps, Ensure.NotNull(continuation)), DeathSteps, ArmCannon.Layout);
+            SheetFrames(originRises, Spritemaps, Ensure.NotNull(continuation)), DeathSteps, ArmCannon.Installed(continuation));
 
     /// <summary>
     /// Every whole picture the body sheet holds, in the cartridge's pose order and frame order: each frame

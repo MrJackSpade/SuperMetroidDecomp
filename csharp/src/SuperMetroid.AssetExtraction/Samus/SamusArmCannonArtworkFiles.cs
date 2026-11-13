@@ -11,8 +11,8 @@ using SuperMetroid.AssetExtraction.Rooms;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>
-/// Exports the native cannon-cover pose/OAM selectors and twelve character tiles: the installation holds the layout the
-/// game binds, and the extracted document and the cover page are import data (#1636, #1638).
+/// Exports the native cannon-cover pose/OAM selectors and twelve character tiles: the installation holds each pose's typed
+/// placement, which the game binds, and the extracted document and the cover page are import data (#1636, #1638).
 /// </summary>
 public static class SamusArmCannonArtworkFiles
 {
@@ -29,7 +29,7 @@ public static class SamusArmCannonArtworkFiles
 
     /// <summary>Exports each pose's selector by the pose's name, bounded bank-$90 drawing descriptors, ten direction styles/tile lists, and twelve cannon-cover characters.</summary>
     /// <param name="bus">Non-null import-capable cartridge source for cover placement/OBJ attributes and bank-$9A character pixels.</param>
-    /// <param name="directory">Artwork directory, created if absent; existing layout JSON and companion manifest are overwritten.</param>
+    /// <param name="directory">Artwork directory, created if absent; the companion manifest is overwritten, and <see cref="Install"/> writes the layout.</param>
     /// <param name="importData">The import-data directory receiving the extracted document (#1638) and the 96-by-8 indexed cover page (#1636), which only the import reads.</param>
     /// <param name="sourceCartridgeSha256">Caller-supplied provenance hash recorded verbatim.</param>
     /// <remarks>The sixteen-color PNG palette is diagnostic. Writes are separate and not rolled back if a later write fails.</remarks>
@@ -92,24 +92,32 @@ public static class SamusArmCannonArtworkFiles
         IndexedPng.Write(pngStream, size, pixels, SnesGraphics.DiagnosticPalette(16));
         byte[] png = pngStream.ToArray();
         byte[] json = SamusArmCannonSourceArtwork.Write(document);
-        // The game binds the layout alone; the appearances and tile selections stay with the import (#1638).
-        byte[] layout = SamusArmCannonLayout.Write(new SamusArmCannonLayoutDocument
-        {
-            Version = SamusArmCannonArtworkFormat.Version,
-            PoseDescriptors = descriptors,
-            DrawingData = drawingData,
-        });
         File.WriteAllBytes(Path.Combine(importData, SamusArmCannonArtworkFormat.TileFileName), png);
         File.WriteAllBytes(Path.Combine(importData, SamusArmCannonArtworkFormat.ArtworkFileName), json);
-        File.WriteAllBytes(Path.Combine(directory, SamusArmCannonArtworkFormat.JsonFileName), layout);
         File.WriteAllBytes(Path.Combine(directory, ManifestFileName),
             JsonSerializer.SerializeToUtf8Bytes(new Manifest(
                 SamusArmCannonArtworkFormat.Version, sourceCartridgeSha256), JsonOptions));
     }
 
     /// <summary>
+    /// Installs what the game binds of the arm cannon (#1638): each pose's typed placement, decoded by the import from the
+    /// extracted descriptors for the animation frames the pose shows. The descriptors, appearances and tile selections stay
+    /// with the import.
+    /// </summary>
+    /// <param name="directory">Artwork directory receiving <c>samus-arm-cannon.json</c>, which is overwritten.</param>
+    /// <param name="layout">The placements to install.</param>
+    /// <exception cref="IOException">Filesystem output fails.</exception>
+    internal static void Install(string directory, SamusArmCannonLayout layout)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(directory);
+        Ensure.NotNull(layout);
+        File.WriteAllBytes(Path.Combine(directory, SamusArmCannonArtworkFormat.JsonFileName), layout.Write());
+    }
+
+    /// <summary>
     /// Validates the manifest's provenance and loads what the game binds of the installed arm cannon, as the player may have
-    /// edited it: each pose's drawing descriptor and the drawing window (#1638). No appearance or character page is read.
+    /// edited it: each pose's drawing order, directions and displacements (#1638). No descriptor, appearance or character
+    /// page is read.
     /// </summary>
     /// <param name="directory">Artwork directory containing the required layout JSON and pinned-cartridge manifest.</param>
     /// <exception cref="InvalidDataException">Manifest compatibility, strict JSON or the tables are invalid; admission errors identify the offending filename.</exception>

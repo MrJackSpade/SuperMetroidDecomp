@@ -29,7 +29,7 @@ public sealed class InstalledSamusBody
     /// drawn point the frame's body origin sits. A pose the body sheet pictures no frame of has none.
     /// </param>
     /// <param name="deathSteps">The order her death sequence steps through and the room's whiteout colours.</param>
-    /// <param name="armCannon">Each pose's arm-cannon descriptor within the drawing window.</param>
+    /// <param name="armCannon">Each pose's arm-cannon placement.</param>
     /// <exception cref="InvalidDataException">
     /// The art origins or the frames do not cover exactly the poses with records, an animation frame is outside 0 through
     /// 255, or an art origin is outside -128 through 127.
@@ -71,7 +71,7 @@ public sealed class InstalledSamusBody
     /// <summary>The order her death sequence steps through and the room's whiteout colours (#1512).</summary>
     public SamusDeathSteps DeathSteps { get; }
 
-    /// <summary>Each pose's arm-cannon descriptor within the drawing window.</summary>
+    /// <summary>Each pose's arm-cannon placement.</summary>
     public SamusArmCannonLayout ArmCannon { get; }
 
     /// <summary>The art origin of <paramref name="pose"/>.</summary>

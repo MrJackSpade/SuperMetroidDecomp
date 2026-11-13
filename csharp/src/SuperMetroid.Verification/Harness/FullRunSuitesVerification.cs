@@ -1176,6 +1176,8 @@ internal static class FullRunSuitesVerification
         new(nameof(SuperMetroid.Verification.Frontend.Title.TitleColourFadesVerification.VerifyTitleColourFades),
             () => SuperMetroid.Verification.Frontend.Title.TitleColourFadesVerification.VerifyTitleColourFades(
                 SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")))),
+        new(nameof(SuperMetroid.Verification.Frontend.Title.TitleSkipWindowVerification.VerifyTitleSkipWindow),
+            SuperMetroid.Verification.Frontend.Title.TitleSkipWindowVerification.VerifyTitleSkipWindow),
         new(nameof(SuperMetroid.Verification.Frontend.Title.TitleGradientVerification.VerifyTitleGradientTables),
             () => SuperMetroid.Verification.Frontend.Title.TitleGradientVerification.VerifyTitleGradientTables(
                 SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")))),

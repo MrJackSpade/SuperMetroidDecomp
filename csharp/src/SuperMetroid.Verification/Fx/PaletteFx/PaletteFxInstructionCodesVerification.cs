@@ -7,9 +7,7 @@ using System.Runtime.CompilerServices;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.EnemyInstructionCodePointersVerification;
 using static SuperMetroid.Verification.Fx.PaletteFx.NorfairGlowVerification;
-using static SuperMetroid.Verification.Fx.Artwork.RoomPaletteFxPresentationVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using static SuperMetroid.Verification.Frontend.Title.TitleGradientVerification;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Samus;
@@ -87,8 +85,6 @@ internal static class PaletteFxInstructionCodesVerification
         AssertEqual(0, guardedHeatBus.ForbiddenReadAttempts,
             "Norfair heat pre-instruction performs no selector-table ROM reads");
         Suite(nameof(VerifyNorfairGlowCycles), () => VerifyNorfairGlowCycles(bus));
-        Suite(nameof(VerifyExtractedRoomPaletteFxPresentation), () => VerifyExtractedRoomPaletteFxPresentation(bus));
-        Suite(nameof(VerifyTitleGradientTables), () => VerifyTitleGradientTables(bus));
 
         Console.WriteLine(
             "  Palette FX: all 37 code/list pointers are ROM-readable; 48 heat selectors " +

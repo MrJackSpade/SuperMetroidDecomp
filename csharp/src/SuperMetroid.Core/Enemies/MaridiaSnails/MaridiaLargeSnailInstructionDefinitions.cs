@@ -1,16 +1,9 @@
 namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 
-/// <summary>Animation selectors for Maridia's large snail enemy, Oum.</summary>
+/// <summary>The program each of Oum's animations plays.</summary>
 internal static class MaridiaLargeSnailInstructionDefinitions
 {
-    /// <summary>The eight animations in the order the authored animation index counts them.</summary>
-    internal static readonly IdentitySequence<MaridiaLargeSnailAnimation> Animations = new(
-        MaridiaLargeSnailAnimation.FacingRightIdle, MaridiaLargeSnailAnimation.FacingLeftIdle,
-        MaridiaLargeSnailAnimation.FacingRightRollingForwards, MaridiaLargeSnailAnimation.FacingLeftRollingForwards,
-        MaridiaLargeSnailAnimation.FacingRightAttacking, MaridiaLargeSnailAnimation.FacingLeftAttacking,
-        MaridiaLargeSnailAnimation.FacingRightRollingBackwards, MaridiaLargeSnailAnimation.FacingLeftRollingBackwards);
-
-    /// <summary>The facing-specific program of each idle, roll and attack state.</summary>
+    /// <summary>The facing-specific program of each idle, roll and attack animation.</summary>
     internal static readonly Dictionary<MaridiaLargeSnailAnimation, MaridiaLargeSnailProgram> Programs = new()
     {
         [MaridiaLargeSnailAnimation.FacingRightIdle] = MaridiaLargeSnailProgram.FacingRightIdle,

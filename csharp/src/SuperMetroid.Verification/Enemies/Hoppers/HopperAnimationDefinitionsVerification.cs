@@ -15,8 +15,8 @@ namespace SuperMetroid.Verification.Enemies.Hoppers;
 internal static class HopperAnimationDefinitionsVerification
 {
     /// <summary>
-    /// The $A3:AAC2-AAE1 selector tables pick the same lists as <see cref="HopperPrograms.Program"/>. For
-    /// every species and orientation the real initializer, jump and landing start the selected programs; the jump turns
+    /// The $A3:AAC2-AAE1 selector tables pick the same lists as <see cref="HopperPrograms.Program"/> for the kind each
+    /// variant word names, and each hopper header's variant word names its definition's kind. For every kind and orientation the real initializer, jump and landing start the selected programs; the jump turns
     /// off-screen processing on and plays the airborne sound, and the landing turns it off, plays the landing sound,
     /// shows its four timed poses and then lets main AI hop again.
     /// </summary>
@@ -27,13 +27,25 @@ internal static class HopperAnimationDefinitionsVerification
         for (ushort variant = 0; variant < 4; variant++)
         for (int selector = 0; selector < tables.Length; selector++)
         {
+            HopperKind kind = HoppersNativeWords.HopperKinds.Decode(variant, "hopper variant");
             bool upsideDown = (selector & 1) != 0;
             bool jumping = (selector & 2) != 0;
             AssertEqual(ReadHopperAnimationWord(rom, tables[selector] + variant * 2),
                 NativeEnemyAnimationOracle.EntryOf(HopperNativeListAddresses.Entries,
-                    HopperPrograms.Program(variant, upsideDown ? HopperSurface.Ceiling : HopperSurface.Floor, jumping ? HopperPhase.Jumping : HopperPhase.Landed)),
+                    HopperPrograms.Program(kind, upsideDown ? HopperSurface.Ceiling : HopperSurface.Floor, jumping ? HopperPhase.Jumping : HopperPhase.Landed)),
                 $"hopper animation variant {variant}, selector {selector}");
         }
+        foreach (EnemyDefinitionId hopper in new[]
+                 {
+                     EnemyDefinitionId.Sidehopper, EnemyDefinitionId.SidehopperLarge, EnemyDefinitionId.SidehopperTourian,
+                     EnemyDefinitionId.DessgeegaLarge, EnemyDefinitionId.Dessgeega,
+                 })
+        {
+            int header = SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(hopper);
+            AssertEqual(HoppersNativeWords.HopperKinds.Decode(RoomEnemyDefinitionImporter.ReadWord(CartridgeImportSource.Require(rom), header, 42), "hopper variant"),
+                HopperPrograms.KindOf(hopper), $"{hopper}'s header names its kind");
+        }
+        AssertThrows<InvalidDataException>(() => HopperPrograms.KindOf(EnemyDefinitionId.Zoa), "a Zoa is no hopper");
 
         EnemyDefinitionId[] definitions =
         [
@@ -46,19 +58,21 @@ internal static class HopperAnimationDefinitionsVerification
         for (int orientation = 0; orientation < 2; orientation++)
         {
             bool upsideDown = orientation != 0;
-            string context = $"{variant}/{orientation}";
+            HopperKind kind = HoppersNativeWords.HopperKinds.Decode(variant, "hopper variant");
+            string context = $"{kind}/{orientation}";
             var enemies = new RoomEnemySystem((artwork is null ? EnemySessionFixtures.WithInstalledServices() : EnemySessionFixtures.WithInstalledServices(artwork.Enemies)), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { BossArtwork = artwork?.Bosses };
             enemies.VerificationServices().SeedRandom = _ => { };
             enemies.VerificationServices().NextRandom = () => 0;
 
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(definitions[variant], slot.Definition);
-            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with { VariantIndex = variant });
+            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
             slot.SetSpawnParameter1(EnemyDefinitionId.Sidehopper, upsideDown ? (ushort)1 : (ushort)0);
             enemies.HoppersBehavior.InitializeHopper(slot);
             HopperEnemyState state = enemies.HopperStates[0] ?? throw new InvalidOperationException("Verification requires enemies.HopperStates[0].");
-            HopperProgram landed = HopperPrograms.Program(variant, upsideDown ? HopperSurface.Ceiling : HopperSurface.Floor, HopperPhase.Landed);
-            HopperProgram jumping = HopperPrograms.Program(variant, upsideDown ? HopperSurface.Ceiling : HopperSurface.Floor, HopperPhase.Jumping);
+            AssertEqual(kind, state.Kind, $"hopper kind {context}");
+            HopperProgram landed = HopperPrograms.Program(kind, upsideDown ? HopperSurface.Ceiling : HopperSurface.Floor, HopperPhase.Landed);
+            HopperProgram jumping = HopperPrograms.Program(kind, upsideDown ? HopperSurface.Ceiling : HopperSurface.Floor, HopperPhase.Jumping);
             AssertEqual(new AnimationPlayback<HopperProgram>(HopperAnimations.StartingWith(landed), AnimationPlace.StartOfAnimation), state.Playback, $"hopper initial landed program {context}");
 
             state.XVelocity = 3;
@@ -87,14 +101,11 @@ internal static class HopperAnimationDefinitionsVerification
         }
 
         Suite(nameof(VerifyTourianSidehopperInstructionAlias), () => VerifyTourianSidehopperInstructionAlias(artwork));
-        AssertThrows<InvalidDataException>(
-            () => HopperPrograms.Program(4, HopperSurface.Floor, HopperPhase.Landed),
-            "hopper animation variant beyond authored table");
-        AssertThrows<InvalidDataException>(
-            () => HopperPrograms.Program(ushort.MaxValue, HopperSurface.Ceiling, HopperPhase.Jumping),
-            "restored hopper animation variant does not wrap into authored table");
+        foreach (ushort beyond in new ushort[] { 4, ushort.MaxValue })
+            AssertThrows<InvalidDataException>(() => HoppersNativeWords.HopperKinds.Decode(beyond, "hopper variant"),
+                "a variant word beyond the four-entry tables names no hopper kind");
         Console.WriteLine(artwork is null
-            ? "Hopper animations: the native selector tables, five production definitions and their sound, processing and readiness cues pass."
+            ? "Hopper animations: the native selector tables, five headers' kinds, the production definitions and their sound, processing and readiness cues pass."
             : "Installed Sidehopper/Dessgeega: sixteen floor/ceiling programs and the Tourian alias run with the installed artwork.");
     }
 
@@ -109,7 +120,7 @@ internal static class HopperAnimationDefinitionsVerification
 
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.SidehopperTourian, slot.Definition);
-        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with { VariantIndex = 1 });
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         slot.SetSpawnSettings(new HopperSpawnSettings(HopperMounting.Floor));
         enemies.HoppersBehavior.InitializeHopper(slot);
         EnemyInstructionRunner.ShownFrames(slot, 1);

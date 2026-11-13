@@ -48,7 +48,6 @@ internal static class RoomEnemyDefinitionImporterAccess
                 HurtAi: EnemyInteractionCallbacks.HurtRoutine(Word(28)),
                 DeathExplosion: EnemyDeathExplosionWords.Selectors.Decode(Word(34), "enemy death explosion"),
                 PowerBombReaction: EnemyInteractionCallbacks.DecodePowerBomb(bank, Word(40)),
-                VariantIndex: HopperVariant(Word(42)),
                 Touch: EnemyInteractionCallbacks.DecodeTouch(bank, Word(48)),
                 Shot: EnemyInteractionCallbacks.DecodeShot(bank, Word(50)),
                 TouchHitboxScan: EnemyInteractionCallbacks.HitboxScan(Word(48)),
@@ -61,9 +60,4 @@ internal static class RoomEnemyDefinitionImporterAccess
     /// <summary>The hurt flash a header's +$0D byte names: its frames, or the standard flash for zero.</summary>
     private static int HurtFlashFrames(int headerByte) => headerByte == 0 ? StandardHurtFlashFrames : headerByte;
 
-    /// <summary>
-    /// The hopper variant a header's +$2A word holds. Headers whose behaviour reads no variant keep leftover prototype
-    /// instruction-list pointers there, which all lie in their bank's ROM half; they are not variants and import as zero.
-    /// </summary>
-    private static int HopperVariant(int word) => word >= SnesBusLayout.RomWindowStart ? 0 : word;
 }

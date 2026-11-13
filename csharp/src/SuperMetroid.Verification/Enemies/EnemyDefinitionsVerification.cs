@@ -186,8 +186,8 @@ internal static class EnemyDefinitionsVerification
         ushort Word(int offset) => ReadVerificationWord(bus, address + offset);
         byte Byte(int offset) => bus.ReadCartridgeByte(address + offset);
         byte bank = Byte(12);
-        // The oracle decodes the header independently: a zero hurt byte is the standard four-frame flash; a +$2A word in the
-        // bank's ROM half is a leftover prototype pointer, not a variant. The tile word is the import's (#1513).
+        // The oracle decodes the header independently: a zero hurt byte is the standard four-frame flash. The +$2A word, a
+        // hopper's kind, is compared with the hopper's own catalog by the hopper check (#1624). The tile word is the import's (#1513).
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
         return new RoomEnemyDefinition(
             Word(4), Word(6), new(Word(8), Word(10)), Byte(13) == 0 ? 4 : Byte(13),
@@ -196,7 +196,6 @@ internal static class EnemyDefinitionsVerification
             GrappleAiRoutineWords.Routines.Decode(Word(26), "grapple AI routine"), EnemyInteractionCallbacks.HurtRoutine(Word(28)),
             EnemyDeathExplosionWords.Selectors.Decode(Word(34), "enemy death explosion"),
             EnemyInteractionCallbacks.DecodePowerBomb(bank, Word(40)),
-            Word(42) >= 0x8000 ? (ushort)0 : Word(42),
             EnemyInteractionCallbacks.DecodeTouch(bank, Word(48)),
             EnemyInteractionCallbacks.DecodeShot(bank, Word(50)),
             EnemyInteractionCallbacks.HitboxScan(Word(48)),

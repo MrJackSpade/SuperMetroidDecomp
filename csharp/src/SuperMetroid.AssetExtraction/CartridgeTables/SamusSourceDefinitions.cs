@@ -22,6 +22,12 @@ internal static class SamusSourceDefinitions
     /// <summary>$90:C487, where the charge flare's delay programs start.</summary>
     internal static readonly SnesAddress ChargeFlarePrograms = new(0x90, 0xc487);
 
+    /// <summary>
+    /// The bytes of a charge-flare delay program that are commands rather than waits: 254 loops the program back by the
+    /// following byte's count of places and 255 restarts it from its first place.
+    /// </summary>
+    internal static readonly IReadOnlySet<int> ChargeFlareCommandCodes = new HashSet<int> { 254, 255 };
+
     /// <summary>$90:C1A8: the charge flare's DefaultX offsets, by direction.</summary>
     internal static readonly SnesAddress ChargeFlareDefaultXOffsets = new(0x90, 0xc1a8);
 

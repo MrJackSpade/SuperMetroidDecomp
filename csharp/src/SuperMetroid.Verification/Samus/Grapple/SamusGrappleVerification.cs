@@ -673,7 +673,7 @@ firingLevel, cancelledSamus, controllerInput: 0);
     var grappleFlare = (ImageSpriteDraw)grappleFlareOamFrame.Draws.Single();
     AssertEqual(InstalledFixtures.SpriteSheets.Get(ProjectileSheetFrames.For(SuperMetroid.Core.Progression.SamusBeamCombinations.Of(samus.EquippedBeams)))
             .Frame(ProjectileSheetFrames.FlareFrame(
-            ChargeFlareSpriteSelection.Selectors[16 + ChargeFlareSpriteDefinitions.MainFlareSelectorOffset])), grappleFlare.Image,
+            ChargeFlarePictures.Of(SuperMetroid.Core.Samus.Projectiles.ChargeFlareComponent.MainFlare, facingLeft: false, 16) ?? throw new InvalidOperationException("Main flare picture sixteen shows a composition."))), grappleFlare.Image,
         "grapple flare shows main flare frame sixteen from the sheet of the beams she has equipped");
     AssertEqual(new Position16<ScreenPixels>(98, 103), grappleFlare.Origin, "grapple flare is placed at the flare origin");
 

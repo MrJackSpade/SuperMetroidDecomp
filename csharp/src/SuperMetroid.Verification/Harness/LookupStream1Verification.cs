@@ -928,7 +928,7 @@ internal static class LookupStream1Verification
         var compositions = ChargeFlareSprites.Load(new MemoryStream(ChargeFlareSpriteExtractor.Extract(rom)));
         var body = CreateSamusIdentityFixture();
         var system = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount));
-        var draw = new Action<SpriteFrameBuffer, SamusState, Position16<RoomPixels>, int, TurningFloorTransform?, ChargeFlareArtwork>(system.Animation.DrawFlareComponent);
+        var draw = new Action<SpriteFrameBuffer, SamusState, Position16<RoomPixels>, ChargeFlareComponent, TurningFloorTransform?, ChargeFlareArtwork>(system.Animation.DrawFlareComponent);
         ProjectileDrawArtwork flareObjects = InstalledFixtures.ProjectileArtwork();
         foreach (SamusPoseId pose in new[]
         {
@@ -946,7 +946,7 @@ internal static class LookupStream1Verification
             DrawImportedFlareSpritemap((SuperMetroidAddressSpace)rom, expected, 0, new((ushort)(100 + x), unchecked((ushort)(100 + y - unchecked((byte)body.Gameplay.GraphicsYOffset(pose))))));
             // The flare's picture may be laid out once for several projectile sheet frames whose pictures are identical
             // (#1513), so the draw is matched against each composition that picture stands for.
-            Action<SpriteFrameBuffer> drawFlare = frame => draw(frame, samus, Position16<RoomPixels>.Zero, 0, null,
+            Action<SpriteFrameBuffer> drawFlare = frame => draw(frame, samus, Position16<RoomPixels>.Zero, ChargeFlareComponent.MainFlare, null,
                 new ChargeFlareArtwork { Placement = stock, Objects = flareObjects });
             OamBuffer actual = SpriteFrameBuffer.DrawnOam(drawFlare);
             AssertTrue(actual.LastFinalizedSpriteCount > 0, "Focused flare placement fixture emits its native sprite");
@@ -1072,37 +1072,24 @@ internal static class LookupStream1Verification
     /// <summary>The patrol distance the import decodes from a Cacatac's travel selector.</summary>
     private static int CacatacTravelDistance(int selector) =>
         ((CacatacSpawnSettings)EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Cacatac, PopulationWords.Parameters(0, selector))).TravelDistance;
-    /// <summary>Checks charge-flare instruction bytes and related compiled cadence programs.</summary>
-    private static void VerifyLookupStream1CadencePrograms(ISnesAddressSpace rom)
+    /// <summary>Checks the installed waits below the charge flare's programs against the table naming the programs.</summary>
+    internal static void VerifyLookupStream1CadencePrograms(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => LittleEndianBytes.Word(LookupStream1CadenceProgramsRomByte(rom, address), LookupStream1CadenceProgramsRomByte(rom, address + 1));
-        for (int address = SamusSourceDefinitions.ChargeFlarePrograms.Value; address < 0x90c4b5; address++)
-        {
-            AssertEqual(LookupStream1CadenceProgramsRomByte(rom, address),
-                ChargeFlareAnimations.ReadCadence(address - SamusSourceDefinitions.ChargeFlarePrograms.Value), "stream1 original flare cadence byte");
-            if (address < 0x90c4b4)
-                AssertEqual(Word(address), ChargeFlareAnimationDefinitions.ReadWord(address - SamusSourceDefinitions.ChargeFlarePrograms.Value),
-                    "stream1 original flare unaligned word");
-        }
-        foreach (int invalid in new[] { int.MinValue, 0x90c486, 0x90c4b5, int.MaxValue })
-            AssertThrows<InvalidDataException>(() => ChargeFlareAnimations.ReadCadence(invalid - SamusSourceDefinitions.ChargeFlarePrograms.Value),
-                "stream1 flare byte domain");
-
-        // A frame wrapping below the programs reads the table naming them: the three program words, which hold each
-        // program's place in the bank. The installed delays must be those bytes, read through the production lookup.
+        // A main-flare place wrapping below its first picture reads the table naming the programs: the three program
+        // words, which hold each program's place in the bank. The installed waits must be those bytes.
         var below = InstalledFixtures.SamusOverreads.Projectiles.ChargeFlareDelays;
-        int[] programStarts = [ChargeFlareAnimationDefinitions.MainFlare, ChargeFlareAnimationDefinitions.SlowSparks, ChargeFlareAnimationDefinitions.FastSparks];
-        for (int distance = 1; distance <= ChargeFlareAnimationDefinitions.ProgramTableLength; distance++)
+        int[] programStarts = [0, 32, 39];
+        int places = SuperMetroid.Core.Compatibility.ChargeFlareDelaysBelowPrograms.Places;
+        for (int distance = 1; distance <= places; distance++)
         {
-            int tableByte = ChargeFlareAnimationDefinitions.ProgramTableLength - distance;
+            int tableByte = places - distance;
             ushort programWord = (ushort)(SamusSourceDefinitions.ChargeFlarePrograms.Offset + programStarts[tableByte / sizeof(ushort)]);
             byte expected = tableByte % sizeof(ushort) == 0 ? LittleEndianBytes.LowByte(programWord) : LittleEndianBytes.HighByte(programWord);
             AssertEqual(LookupStream1CadenceProgramsRomByte(rom, SamusSourceDefinitions.ChargeFlarePrograms.Value - distance), expected,
                 "stream1 flare program table names each program's place");
-            AssertEqual(expected, below.DelayBelow(distance), "stream1 installed flare delay below the programs");
-            AssertEqual(expected, ChargeFlareAnimations.ReadDelay(0, -distance, below), "stream1 main flare reads the table below its program");
+            AssertEqual(expected, below.DelayBelow(distance), "stream1 installed flare wait below the programs");
         }
-        AssertThrows<InvalidDataException>(() => ChargeFlareAnimations.ReadDelay(0, -(ChargeFlareAnimationDefinitions.ProgramTableLength + 1), below),
+        AssertThrows<ArgumentOutOfRangeException>(() => below.DelayBelow(places + 1),
             "stream1 flare read below the program table is rejected");
     }
 
@@ -1250,17 +1237,16 @@ internal static class LookupStream1Verification
     private static byte LookupStream1DeathDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks charge-flare sprite selectors and extracted visual records against native pointers.</summary>
-    private static void VerifyLookupStream1VisualCatalogs(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream1VisualCatalogs(ISnesAddressSpace rom)
     {
         ushort Word(int address) => LittleEndianBytes.Word(LookupStream1VisualCatalogsRomByte(rom, address), LookupStream1VisualCatalogsRomByte(rom, address + 1));
-        var selectors = ChargeFlareSpriteSelection.Selectors;
-        var nativePointers = new List<ushort>();
+       var nativePointers = new List<ushort>();
         byte[] json = ChargeFlareSpriteExtractor.Extract(rom);
         var stock = ChargeFlareSprites.Load(new MemoryStream(json));
         for (ushort selector = 0; selector < 54; selector++)
         {
             ushort pointer = Word(0x93a1a1 + selector * 2);
-            AssertEqual(pointer, ProjectileSpriteNative.Address(selectors[selector]), "native charge flare phased selector");
+            AssertEqual(pointer, ProjectileSpriteNative.Address(ChargeFlareSpriteDefinitions.NativeSelector(selector)), "native charge flare phased selector");
             if (!nativePointers.Contains(pointer)) nativePointers.Add(pointer);
             var expected = new OamBuffer();
             var actual = new OamBuffer();
@@ -1275,7 +1261,7 @@ internal static class LookupStream1Verification
         for (int index = 0; index < nativePointers.Count; index++)
             AssertEqual((ushort)(index < 3 ? 1 : index == 3 ? 4 : 3), Word(0x930000 | nativePointers[index]), "native flare object record sizes");
         foreach (int invalid in new[] { int.MinValue, -1, 54, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = selectors[invalid], "charge flare selector bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = ChargeFlareSpriteDefinitions.NativeSelector(invalid), "charge flare selector bounds");
         foreach (int invalid in new[] { int.MinValue, -1, 28, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => _ = ChargeFlareSpriteDefinitions.NativePointers[invalid], "flare pointer bounds");
         for (int digit = 0; digit < 10; digit++)

@@ -333,8 +333,8 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.SpeciesState<ZoaEnemyState>() is { } zoaRecord)
         {
             zoaRecord.SpawnPosition = new(words.A, words.B);
-            zoaRecord.AnimationScriptTableIndex = ZoaNativeWords.AnimationSelectorOf(words.C);
-            zoaRecord.PreviousAnimationScriptTableIndex = ZoaNativeWords.AnimationSelectorOf(words.D);
+            zoaRecord.RequestedAnimation = ZoaNativeWords.AnimationSelectorOf(words.C);
+            zoaRecord.InstalledAnimation = ZoaNativeWords.AnimationSelectorOf(words.D);
             zoaRecord.Function = words.F == 0 ? null : ZoaNativeWords.ZoaEnemyFunctions.Decode(words.F, "recorded ZoaEnemyFunction");
         }
         if (slot.SpeciesState<BabyTurtleEnemyState>() is { } babyTurtleRecord)

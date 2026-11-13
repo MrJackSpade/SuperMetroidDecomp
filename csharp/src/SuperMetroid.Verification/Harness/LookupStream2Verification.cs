@@ -316,11 +316,11 @@ internal static class LookupStream2Verification
             AssertTrue(native.ImageEquals(actual), "All417 installed identities extract and draw exact native OAM");
         }
         var flare = ChargeFlareSprites.Load(new MemoryStream(ChargeFlareSpriteExtractor.Extract(rom)));
-        for (ushort selector = 0; selector < ChargeFlareSpriteSelection.Selectors.Count; selector++)
+        for (ushort selector = 0; selector < ChargeFlareSpriteNative.NativeSelectorCount; selector++)
         {
             var native = new OamBuffer();
             var actual = new OamBuffer();
-            DrawImportedProjectileSpritemap(rom, native, ProjectileSpriteNative.Address(ChargeFlareSpriteSelection.Selectors[selector]), new(255, 255));
+            DrawImportedProjectileSpritemap(rom, native, ProjectileSpriteNative.Address(ChargeFlareSpriteDefinitions.NativeSelector(selector)), new(255, 255));
             flare.Draw(selector, actual, new(255, 255));
             AssertTrue(native.ImageEquals(actual), "Existing flare span caller preserves exact extracted OAM");
         }

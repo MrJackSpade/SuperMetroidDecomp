@@ -213,10 +213,20 @@ internal static class SamusOverreadDecoding
         return result;
     }
 
-    /// <summary>The bytes stored just before the charge flare's programs, nearest first: the table naming the programs.</summary>
-    private static int[] ChargeFlareDelaysBelowPrograms(IImportCartridgeSource cartridge) =>
-        [.. Enumerable.Range(1, ChargeFlareAnimationDefinitions.ProgramTableLength)
+    /// <summary>
+    /// The bytes stored just before the charge flare's programs, nearest first: the table naming the programs. The
+    /// original game would read a byte there that is one of its programs' loop or restart codes as that command; the
+    /// port holds every such place as a wait, so a cartridge whose table holds either code is rejected.
+    /// </summary>
+    /// <exception cref="InvalidDataException">A byte below the programs is the loop or restart code.</exception>
+    private static int[] ChargeFlareDelaysBelowPrograms(IImportCartridgeSource cartridge)
+    {
+        int[] delays = [.. Enumerable.Range(1, SuperMetroid.Core.Compatibility.ChargeFlareDelaysBelowPrograms.Places)
             .Select(distance => (int)cartridge.ReadCartridgeByte(SamusSourceDefinitions.ChargeFlarePrograms.Value - distance))];
+        if (delays.Any(SamusSourceDefinitions.ChargeFlareCommandCodes.Contains))
+            throw new InvalidDataException("A byte below the charge flare's programs reads as a loop or restart, which the port holds as waits.");
+        return delays;
+    }
 
     /// <summary>
     /// Whether the posture-transition admission admits weapons for each pose outside its table: it reads one byte per pose

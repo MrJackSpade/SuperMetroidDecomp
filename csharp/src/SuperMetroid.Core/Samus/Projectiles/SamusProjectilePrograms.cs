@@ -78,17 +78,14 @@ internal static class SamusProjectilePrograms
     }
 
     /// <summary>
-    /// The animation frame a trail reads from a projectile whose animation stands at <paramref name="playback"/>: the
-    /// animation frame of the record last installed, or for a freshly installed list the frame <paramref name="starts"/>
-    /// decoded for its program.
+    /// The animation frame of the record a projectile whose animation stands at <paramref name="playback"/> shows: the
+    /// record its animation last installed, or null before its list has installed one.
     /// </summary>
-    internal static int PrecedingAnimationFrame(AnimationPlayback<SamusProjectileProgram> playback,
-        TrailStartPastPlacements<SamusProjectileProgram, ProjectileTrailPlacementList, ProjectileTrailPlacement> starts)
+    internal static int? ShownAnimationFrame(AnimationPlayback<SamusProjectileProgram> playback)
     {
-        Ensure.NotNull(starts);
         SamusProjectileSegmentBeat at = BeatOf(playback);
         if (at.Beat == 0)
-            return starts.FrameAtListStart(at.Segment);
+            return null;
         if (SamusProjectileAnimations.Segments.Beats(at.Segment)[at.Beat - 1] is not AnimationBeat<SamusProjectileFrame, NoAnimationCue>.Frame frame)
             throw new InvalidOperationException($"Samus projectile segment {at.Segment} continues past a beat that is no record.");
         return SamusProjectileRecordDefinitions.Get(frame.Shown).AnimationFrame;

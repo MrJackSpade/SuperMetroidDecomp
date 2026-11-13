@@ -3,24 +3,25 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>Projectile trails: spawning a trail behind a shot, its animation frame, and drawing each side.</summary>
+/// <summary>
+/// The trails Samus's shots leave (#1625): presentation particles, each a pair of sparkles running its own programs until
+/// both end. A new trail never displaces one already shown, and nothing in gameplay reads a trail.
+/// </summary>
 internal sealed class ProjectileTrails
 {
-    /// <summary>Projectile-owned left and right trail pairs shared with the slot allocator.</summary>
-    private readonly ProjectileSlotTable _slotTable;
+    /// <summary>The live trails, oldest first.</summary>
+    internal readonly List<SamusProjectileTrail> trails = [];
 
-    /// <summary>Where a trail starts when its read passes its placement list.</summary>
-    private readonly TrailStartPastPlacements<SamusProjectileProgram, ProjectileTrailPlacementList, ProjectileTrailPlacement> _starts;
+    /// <summary>Removes every trail, as clearing Samus's shots does.</summary>
+    internal void Clear() => trails.Clear();
 
-    /// <summary>Uses the owning projectile table so trail allocation and drawing see the same slots.</summary>
-    internal ProjectileTrails(ProjectileSlotTable slotTable,
-        TrailStartPastPlacements<SamusProjectileProgram, ProjectileTrailPlacementList, ProjectileTrailPlacement> starts)
-    {
-        _slotTable = slotTable;
-        _starts = Ensure.NotNull(starts);
-    }
+    /// <summary>Adds a trail already under way, as a restored game does; a spawned trail is added the same way.</summary>
+    internal void Add(SamusProjectileTrail trail) => trails.Add(Ensure.NotNull(trail));
 
-    /// <summary>Selects trail animations and positions both sides from the shot's current animation record.</summary>
+    /// <summary>
+    /// Leaves a trail behind <paramref name="projectile"/>: selects both sparkles' programs from the shot's beams and
+    /// places them from the placement its shown animation frame selects in its trail list.
+    /// </summary>
     internal void SpawnTrail(SamusProjectile projectile)
     {
         switch (projectile.Type.Family)
@@ -33,7 +34,7 @@ internal sealed class ProjectileTrails
             case SamusProjectileFamily.Bomb:
             case SamusProjectileFamily.BeamExplosion:
             case SamusProjectileFamily.MissileExplosion:
-                // Other families do not consume a trail slot.
+                // Other families leave no trail.
                 return;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(SamusProjectileFamily)} {projectile.Type.Family}.");
@@ -42,57 +43,65 @@ internal sealed class ProjectileTrails
         // Beams select by their beams and charge, so charged plain power selects the charged trail, not ordinary power's.
         ProjectileTrailPrograms programs = ProjectileTrailSelection.Select(projectile.Type);
 
-        // Retail reads the previously installed record, even when the animation timer
-        // will expire later this frame. Reading ahead advances Spazer's trail spread early.
-        int animationFrame = GetTrailAnimationFrame(projectile, _starts);
         ProjectileTrailFamilyGroup group = projectile.Type.Echo is not null
             ? ProjectileTrailFamilyGroup.SpecialBeamAttack
             : projectile.Type.IsChargedBeam ? ProjectileTrailFamilyGroup.Charged : ProjectileTrailFamilyGroup.Uncharged;
         ProjectileTrailPlacementList? list = ProjectileTrailPlacements.List(
             group, projectile.Type.BeamCombination, projectile.Direction);
 
-        // A shot whose direction names no placement list draws no trail, and so does a row whose list would be
-        // left-over values: that appearance is not part of the game's design, so it is exempt (owner decision on #1318).
+        // A shot whose direction names no placement list leaves no trail, and neither does a shot whose list has shown no
+        // frame yet or whose frame lies past its list's placements: those placements are not part of the game's design
+        // (owner decision on #1318, #1625).
         if (list is not { } placements ||
-            ProjectileTrailPlacements.Start(placements, animationFrame, _starts) is not { } placement)
+            GetTrailAnimationFrame(projectile) is not { } animationFrame ||
+            ProjectileTrailPlacements.Start(placements, animationFrame) is not { } placement)
             return;
 
-        // The search tests only the left timer. A right stream can still be alive in malformed or debug-edited state and
-        // is overwritten when the left side is free; retain that asymmetric allocation rather than being "safer".
-        SamusProjectileTrailSlot? trail = _slotTable.TrailsInUpdateOrder.FirstOrDefault(
-            candidate => candidate.Left.FrameHold == 0);
-        if (trail is null)
-            return;
+        var trail = new SamusProjectileTrail(projectile.PicturedBeams);
+        StartSide(trail.Left, programs.Left, projectile.Position.Whole, placement.Left);
+        StartSide(trail.Right, programs.Right, projectile.Position.Whole, placement.Right);
+        Add(trail);
+    }
 
-        trail.PicturedBeams = projectile.PicturedBeams;
-        trail.Left.FrameHold = 1;
-        trail.Right.FrameHold = 1;
-        trail.Left.Cursor = new ProjectileTrailCursor(programs.Left, 0);
-        trail.Right.Cursor = new ProjectileTrailCursor(programs.Right, 0);
-        trail.Left.Position = trail.Left.Position.WithX(AddOffset(projectile.Position.X.Whole, placement.Left.X))
-            .WithY(AddOffset(projectile.Position.Y.Whole, placement.Left.Y));
-        trail.Right.Position = trail.Right.Position.WithX(AddOffset(projectile.Position.X.Whole, placement.Right.X))
-            .WithY(AddOffset(projectile.Position.Y.Whole, placement.Right.Y));
+    /// <summary>
+    /// Starts <paramref name="side"/> on <paramref name="program"/>, which it begins at its next update, placed
+    /// <paramref name="offset"/> from the shot at <paramref name="origin"/>.
+    /// </summary>
+    private static void StartSide(SamusProjectileTrailSide side, ProjectileTrailProgram program, Position16<RoomPixels> origin, Offset16<RoomPixels> offset)
+    {
+        side.FrameHold = 1;
+        side.Cursor = new ProjectileTrailCursor(program, 0);
+        side.Position = Position16<RoomPixels>.Of(AddOffset(origin.X, offset.X), AddOffset(origin.Y, offset.Y));
     }
 
     /// <summary>
     /// The animation frame a trail reads from <paramref name="projectile"/>: the frame of the record its animation last
-    /// installed, or for a list that has just started the frame <paramref name="starts"/> decoded for it.
+    /// installed, or null before its list has installed one.
     /// </summary>
-    internal static int GetTrailAnimationFrame(SamusProjectile projectile,
-        TrailStartPastPlacements<SamusProjectileProgram, ProjectileTrailPlacementList, ProjectileTrailPlacement> starts)
-    {
-        // The trail reads the record before the animation's next position, not a lookahead at the next phase.
-        return SamusProjectilePrograms.PrecedingAnimationFrame(projectile.Playback
-            ?? throw new InvalidOperationException("A trail read the animation frame of an inactive projectile."), starts);
-    }
+    internal static int? GetTrailAnimationFrame(SamusProjectile projectile) =>
+        SamusProjectilePrograms.ShownAnimationFrame(projectile.Playback
+            ?? throw new InvalidOperationException("A trail read the animation frame of an inactive projectile."));
 
     /// <summary>Places a sparkle <paramref name="offset"/> pixels from <paramref name="origin"/>, drawn four pixels up and left, with the position wrapping at 65536.</summary>
     private static int AddOffset(int origin, int offset) => CoordinateAxis.Wrap(origin + offset - 4);
 
+    /// <summary>
+    /// Advances every trail one update, left sparkle before right, unless time is frozen, and removes the trails whose
+    /// sparkles have both ended.
+    /// </summary>
+    internal void Advance(bool timeIsFrozen)
+    {
+        foreach (SamusProjectileTrail trail in trails)
+        {
+            AdvanceTrailSide(trail, timeIsFrozen, HorizontalDirection.Left);
+            AdvanceTrailSide(trail, timeIsFrozen, HorizontalDirection.Right);
+        }
+        _ = trails.RemoveAll(static trail => trail.IsFinished);
+    }
+
     /// <summary>Advances one side's instruction stream unless time is frozen.</summary>
-    internal static void AdvanceTrailSide(
-        SamusProjectileTrailSlot pair,
+    private static void AdvanceTrailSide(
+        SamusProjectileTrail pair,
         bool timeIsFrozen,
         HorizontalDirection direction)
     {
@@ -129,8 +138,8 @@ internal sealed class ProjectileTrails
                     ProjectileTrailInstruction movement = ((ProjectileTrailStep.Move)step).Movement;
                     switch (movement)
                     {
-                        // The instruction names its destination array. Both streams dispatch
-                        // the same handlers, including writes to their sibling's position.
+                        // The instruction names the side it moves. Both streams run the same moves, including
+                        // moves of their sibling.
                         case ProjectileTrailInstruction.MoveLeftDown:
                             pair.Left.Position = pair.Left.Position.WithY(CoordinateAxis.Wrap(pair.Left.Position.Y + 1));
                             break;
@@ -150,28 +159,44 @@ internal sealed class ProjectileTrails
         side.DisplayedPosition = side.Position;
     }
 
-    /// <summary>Publishes one live side at in-range screen coordinates only.</summary>
-    internal static void DrawTrailSide(
+    /// <summary>
+    /// Publishes every live sparkle, the newest trail first, so a newer trail draws in front where trails overlap, and
+    /// each trail's left sparkle before its right.
+    /// </summary>
+    internal void Draw(
         SpriteFrameBuffer sprites,
-        SamusProjectileTrailSlot pair,
-        int slotIndex,
+        Position16<RoomPixels> cameraPosition,
+        ProjectileDrawArtwork objects)
+    {
+        Ensure.NotNull(sprites);
+        for (int index = trails.Count - 1; index >= 0; index--)
+        {
+            DrawTrailSide(sprites, trails[index], index, cameraPosition, HorizontalDirection.Left, objects);
+            DrawTrailSide(sprites, trails[index], index, cameraPosition, HorizontalDirection.Right, objects);
+        }
+    }
+
+    /// <summary>Publishes one side wherever it lies, once it shows a pose and until its program ends.</summary>
+    private static void DrawTrailSide(
+        SpriteFrameBuffer sprites,
+        SamusProjectileTrail pair,
+        int trailIndex,
         Position16<RoomPixels> cameraPosition,
         HorizontalDirection direction,
         ProjectileDrawArtwork objects)
     {
         SamusProjectileTrailSide side = direction == HorizontalDirection.Left ? pair.Left : pair.Right;
-        // A finished side, including one that ended in this frame's advance, shows nothing.
-        if (side.FrameHold == 0)
+        // A finished side, including one that ended in this frame's advance, shows nothing, and so does a side whose
+        // program has shown no pose yet.
+        if (side.FrameHold == 0 || side.ShownPose is not { } pose)
             return;
 
         // The trail is published wherever it lies; the display clips it to the view (#1541).
         int screenX = CoordinateAxis.Wrap(side.DisplayedPosition.X - cameraPosition.X);
         int screenY = CoordinateAxis.Wrap(side.DisplayedPosition.Y - cameraPosition.Y);
 
-        // A side allocated over an earlier trail keeps showing that trail's last pose until its own first one.
-        SpriteSheetFrame image = objects.SheetOf(pair.PicturedBeams).Frame(side.ShownPose is { } pose
-            ? ProjectileSheetFrames.TrailFrame(pose) : ProjectileSheetDefinitions.UnshownTrailFrame);
-        sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusProjectileTrail, slotIndex * 2 + (direction == HorizontalDirection.Left ? 0 : 1)),
+        SpriteSheetFrame image = objects.SheetOf(pair.PicturedBeams).Frame(ProjectileSheetFrames.TrailFrame(pose));
+        sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusProjectileTrail, trailIndex * 2 + (direction == HorizontalDirection.Left ? 0 : 1)),
             image, Position16<ScreenPixels>.Of(screenX, screenY), SpriteMirror.None));
     }
 }

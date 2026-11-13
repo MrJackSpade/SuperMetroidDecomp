@@ -112,7 +112,7 @@ internal static class ProjectileRadiiVerification
             AssertEqual(expectedSprite, slot.SpritemapPointer, "Native artwork reference");
             AssertEqual(rom.ReadCartridgeByte(address), slot.Radius.X, "Published collision X independent of artwork");
             AssertEqual(rom.ReadCartridgeByte(address + 1), slot.Radius.Y, "Published collision Y independent of artwork");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2)), ProjectileTrails.GetTrailAnimationFrame(slot, InstalledFixtures.SamusOverreads.Projectiles.TrailStarts), "Trail frame unchanged");
+            AssertEqual<int?>(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2)), ProjectileTrails.GetTrailAnimationFrame(slot), "Trail frame unchanged");
             AssertEqual(unchecked((ushort)(pointer + 8)), slot.InstructionPointer, "Instruction progression unchanged");
 
             // The bomb owner deliberately rejects zero-duration records. Keep that

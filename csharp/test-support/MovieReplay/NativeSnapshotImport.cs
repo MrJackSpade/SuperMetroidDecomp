@@ -233,20 +233,26 @@ internal static class NativeSnapshotImport
         samus.MorphBallBounceState = SamusSnapshotWords.DecodeBallBounce(W(NativeSnapshotMemory.MorphBallBounceState));
         samus.BombJumpRequest = SuperMetroid.TestSupport.VerificationImporters.SamusBombJumpRequestImport.FromNative(W(NativeSnapshotMemory.BombJumpDirection));
 
-        // The checkpoint's trails show the pictures of the beams equipped there, which its projectile graphics hold (#1586).
-        foreach (var trail in runtime.Projectiles.TrailSlots)
+        // The checkpoint's live native trail places become trails, which show the pictures of the beams equipped there, as
+        // its projectile graphics hold them (#1586); a place whose sparkles have both ended holds no trail.
+        runtime.Projectiles.Trails.Clear();
+        for (int offset = 0; offset < NativeSnapshotMemory.TrailRightFrameHold - NativeSnapshotMemory.TrailLeftFrameHold; offset += 2)
         {
-            trail.PicturedBeams = SamusBeamCombinations.Of(samus.EquippedBeams);
-            trail.Left.FrameHold = W(NativeSnapshotMemory.TrailLeftFrameHold + trail.SlotTableOffset);
-            trail.Right.FrameHold = W(NativeSnapshotMemory.TrailRightFrameHold + trail.SlotTableOffset);
-            trail.Left.InstructionPointer = W(NativeSnapshotMemory.TrailLeftInstructionPointer + trail.SlotTableOffset);
-            trail.Right.InstructionPointer = W(NativeSnapshotMemory.TrailRightInstructionPointer + trail.SlotTableOffset);
-            trail.Left.ShownPose = ProjectileTrailNative.ShownPose(W(NativeSnapshotMemory.TrailLeftTileNumberAttributes + trail.SlotTableOffset));
-            trail.Right.ShownPose = ProjectileTrailNative.ShownPose(W(NativeSnapshotMemory.TrailRightTileNumberAttributes + trail.SlotTableOffset));
+            int leftHold = W(NativeSnapshotMemory.TrailLeftFrameHold + offset);
+            int rightHold = W(NativeSnapshotMemory.TrailRightFrameHold + offset);
+            if (leftHold == 0 && rightHold == 0)
+                continue;
+            var trail = runtime.Projectiles.AddTrail(SamusBeamCombinations.Of(samus.EquippedBeams));
+            trail.Left.FrameHold = leftHold;
+            trail.Right.FrameHold = rightHold;
+            trail.Left.InstructionPointer = W(NativeSnapshotMemory.TrailLeftInstructionPointer + offset);
+            trail.Right.InstructionPointer = W(NativeSnapshotMemory.TrailRightInstructionPointer + offset);
+            trail.Left.ShownPose = ProjectileTrailNative.ShownPose(W(NativeSnapshotMemory.TrailLeftTileNumberAttributes + offset));
+            trail.Right.ShownPose = ProjectileTrailNative.ShownPose(W(NativeSnapshotMemory.TrailRightTileNumberAttributes + offset));
             trail.Left.Position = new Position16<RoomPixels>(
-                W(NativeSnapshotMemory.TrailLeftXPosition + trail.SlotTableOffset), W(NativeSnapshotMemory.TrailLeftYPosition + trail.SlotTableOffset));
+                W(NativeSnapshotMemory.TrailLeftXPosition + offset), W(NativeSnapshotMemory.TrailLeftYPosition + offset));
             trail.Right.Position = new Position16<RoomPixels>(
-                W(NativeSnapshotMemory.TrailRightXPosition + trail.SlotTableOffset), W(NativeSnapshotMemory.TrailRightYPosition + trail.SlotTableOffset));
+                W(NativeSnapshotMemory.TrailRightXPosition + offset), W(NativeSnapshotMemory.TrailRightYPosition + offset));
         }
 
         // The native places become Samus's particles and the waits her breath bubbles and lava spray keep; an empty

@@ -52,31 +52,21 @@ internal static class ProjectileTrailCoordinatesVerification
         }
         AssertEqual(480, selections, "Three selector tables of sixteen rows by the ten directions a shot is fired in");
 
-        // Every frame a trail can read past a list's run: each record's animation frame and the word before each list, which a
-        // trail spawned at a list's start reads. The installed service must yield what the cartridge holds there.
-        var trailStarts = InstalledFixtures.SamusOverreads.Projectiles.TrailStarts;
+        // Every frame a shot's animation can show past a list's run of placements leaves no trail: what lies past a list is
+        // not part of the game's design (#1625).
         int[] frameDomain = [.. SamusProjectileRecordOrder.Frames.Select(record => SamusProjectileRecordDefinitions.Get(record).AnimationFrame)
-            .Concat(Enum.GetValues<SamusProjectileProgram>().Select(program => (int)SamusProjectileProgramAddresses.Prefix(program)))
             .Distinct()
             .Order()];
-        foreach (SamusProjectileProgram program in Enum.GetValues<SamusProjectileProgram>())
-            AssertEqual(SamusProjectileProgramAddresses.Prefix(program), trailStarts.FrameAtListStart(program),
-                $"A trail spawned at {program}'s start reads the word before its list");
         int overruns = 0;
         foreach (ProjectileTrailPlacementList list in Enum.GetValues<ProjectileTrailPlacementList>())
         foreach (int frame in frameDomain.Where(frame => frame >= ProjectileTrailPlacementDefinitions.Records[list].Length))
         {
-            int record = (starts[list] + frame * RecordByteCount) & ushort.MaxValue;
-            ProjectileTrailPlacement? expected = RecordIsCartridge(record) ? NativePlacement(bus, record) : null;
-            AssertEqual(expected, ProjectileTrailPlacements.Start(list, frame, trailStarts),
-                $"{list} at frame {frame} reads what the cartridge holds past its placements");
+            AssertEqual(null, ProjectileTrailPlacements.Start(list, frame), $"{list} at frame {frame}, past its placements, places no trail");
             overruns++;
         }
-        ProjectileTrailPlacementList shortest = ProjectileTrailPlacementList.UnchargedIcePlasmaUp;
-        AssertThrows<ArgumentOutOfRangeException>(() => ProjectileTrailPlacements.Start(shortest, ushort.MaxValue + 1, trailStarts),
-            "A frame no trail can read is rejected");
+        AssertTrue(overruns > 0, "Some shot frames lie past a list's placements");
         Suite(nameof(VerifyCoordinateSpawn), () => VerifyCoordinateSpawn(bus, lists));
-        Console.WriteLine($"Trail coordinates: {records} placements, {selections} selections and {overruns} reads past the placements match the cartridge.");
+        Console.WriteLine($"Trail coordinates: {records} placements and {selections} selections match the cartridge; {overruns} frames past the placements place no trail.");
     }
 
     /// <summary>The list the cartridge's selector row and direction entry name, or null where either names none.</summary>
@@ -89,9 +79,6 @@ internal static class ProjectileTrailCoordinatesVerification
         ushort list = ReadRetailTrailWord(bus, 0x9b0000 | unchecked((ushort)(family + direction * sizeof(ushort))));
         return lists.TryGetValue(list, out ProjectileTrailPlacementList named) ? named : null;
     }
-
-    /// <summary>Whether a bank-$9B offset and the three bytes after it lie in the cartridge half of the bank.</summary>
-    private static bool RecordIsCartridge(int offset) => offset is >= CartridgeHalfStart and <= ushort.MaxValue - (RecordByteCount - 1);
 
     /// <summary>The placement the cartridge stores at bank-$9B offset <paramref name="offset"/>.</summary>
     private static ProjectileTrailPlacement NativePlacement(ISnesAddressSpace bus, int offset)
@@ -130,56 +117,39 @@ internal static class ProjectileTrailCoordinatesVerification
                 Position = new(new(origin, 0), new(origin, 0)),
             };
             spawn(shot);
-            var actual = system.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1];
-            if (!TrailSpawnDraws(lists, offsets, y))
+            if (!TrailSpawnDraws(lists, offsets, frame))
             {
-                AssertTrue(actual.Left.FrameHold == 0, $"type ${type:X4} direction {direction} frame {frame} draws no trail");
+                AssertEqual(0, system.LiveTrails.Count, $"type ${type:X4} direction {direction} frame {frame} draws no trail");
                 cases++;
                 continue;
             }
+            SamusProjectileTrail actual = system.LiveTrails.Single();
             AssertEqual(NativeSpawn(bus, origin, y), new ProjectileTrailCoordinatesExpected(actual.Left.Position.X, actual.Left.Position.Y, actual.Right.Position.X, actual.Right.Position.Y),
                 "Real trail spawn matches four native high-byte operand reads");
             AssertEqual(1, actual.Left.FrameHold, "Trail placements retain spawn timing");
             cases++;
         }
-        // $90:BE17 reflects a projectile onto the start of its new direction's list. A trail
-        // spawned before that list's first record reads the preceding word as its frame; the
-        // 13% movie's reflected charged beam reads Grapple swing data at $9B:C1FB this way.
+        // $90:BE17 reflects a projectile onto the start of its new direction's list. A trail spawned before that list has
+        // shown a record has no frame to place it from, and leaves none (#1625).
         foreach ((ushort type, int dataTable, int index) in ReflectableTrailTypes())
         for (ushort direction = 0; direction < 10; direction++)
         {
             ushort data = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), dataTable + index * 2);
             ushort listStart = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x930000 | unchecked((ushort)(data + 2 + direction * 2)));
-            ushort frame = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x930000 | unchecked((ushort)(listStart - 2)));
-            // An empty special beam attack row's direction table lies in direct-page scratch: no list, no trail.
-            ushort? offsets = FamilyIsCartridge(bus, type) ? DirectionList(bus, type, direction) : null;
-            ushort y = unchecked((ushort)((offsets ?? 0) + frame * 4));
             system.Reset();
             var shot = new SamusProjectile(0)
             {
                 Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type), Direction = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(direction), Playback = SamusProjectileProgramAddresses.PlaybackAt(listStart), Position = new(new(0x0100, 0), new(0x0100, 0)),
             };
             spawn(shot);
-            var actual = system.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1];
-            if (offsets is not { } list || !TrailSpawnDraws(lists, list, y))
-            {
-                AssertTrue(actual.Left.FrameHold == 0, $"reflected type ${type:X4} direction {direction} draws no trail");
-                cases++;
-                continue;
-            }
-            AssertEqual(NativeSpawn(bus, 0x0100, y), new ProjectileTrailCoordinatesExpected(actual.Left.Position.X, actual.Left.Position.Y, actual.Right.Position.X, actual.Right.Position.Y),
-                $"reflected type ${type:X4} direction {direction} trail reads the word before its list start");
+            AssertEqual(0, system.LiveTrails.Count, $"reflected type ${type:X4} direction {direction} leaves no trail at its list's start");
             cases++;
         }
-        Console.WriteLine($"Trail spawn: {cases} beam/charged/SBA/missile direction/frame/origin and reflected list-start cases preserve all four native positions.");
+        Console.WriteLine($"Trail spawn: {cases} beam/charged/SBA/missile direction/frame/origin cases preserve all four native positions or leave no trail, and reflected list starts leave none.");
     }
 
     /// <summary>The bank-$9B selector table <paramref name="type"/> reads its family from.</summary>
     private static int SelectorTable(ushort type) => (type & 0x20) != 0 ? 0x9ba4e3 : (type & 0x10) != 0 ? 0x9ba4cb : 0x9ba4b3;
-
-    /// <summary>Whether <paramref name="type"/>'s selector row names a direction table in the cartridge half of bank $9B.</summary>
-    private static bool FamilyIsCartridge(ISnesAddressSpace bus, ushort type) =>
-        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SelectorTable(type) + (type & 15) * 2) >= CartridgeHalfStart;
 
     /// <summary>The bank-$9B list <paramref name="type"/>'s selector row and direction entry name.</summary>
     private static ushort DirectionList(ISnesAddressSpace bus, ushort type, ushort direction)
@@ -197,12 +167,12 @@ internal static class ProjectileTrailCoordinatesVerification
     }
 
     /// <summary>
-    /// Whether a trail draws from the record at <paramref name="y"/>: the direction entry names a placement list, and the
-    /// record lies in the cartridge. A read into direct-page scratch draws no trail instead (#1318). Every shot that
+    /// Whether a trail draws from frame <paramref name="frame"/> of the list at bank-$9B offset <paramref name="list"/>: the
+    /// direction entry names a placement list, and the frame lies within its placements (#1318, #1625). Every shot that
     /// trails selects both programs within the selector tables (#1500).
     /// </summary>
-    private static bool TrailSpawnDraws(Dictionary<ushort, ProjectileTrailPlacementList> lists, ushort list, ushort y) =>
-        lists.ContainsKey(list) && RecordIsCartridge(y);
+    private static bool TrailSpawnDraws(Dictionary<ushort, ProjectileTrailPlacementList> lists, ushort list, int frame) =>
+        lists.TryGetValue(list, out ProjectileTrailPlacementList named) && frame < ProjectileTrailPlacementDefinitions.Records[named].Length;
 
     /// <summary>Every projectile type $90:BE17 can reflect, with its bank-$93 data table and index.</summary>
     private static IEnumerable<ReflectableTrailTypesResult> ReflectableTrailTypes()

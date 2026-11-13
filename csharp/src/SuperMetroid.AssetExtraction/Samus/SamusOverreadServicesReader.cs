@@ -29,8 +29,6 @@ internal static class SamusOverreadServicesReader
         if (document.Version != SamusOverreadFormat.Version)
             throw new InvalidDataException("Samus overread file has an unsupported version.");
         var projectiles = new SamusProjectileOverreads(
-            TrailStarts(Require(document.TrailFramesAtListStart, nameof(document.TrailFramesAtListStart)),
-                Require(document.TrailPlacementsPastRecords, nameof(document.TrailPlacementsPastRecords))),
             SpaceTimeOverwrite(Require(document.SpaceTimeOverwrites, nameof(document.SpaceTimeOverwrites))),
             ChainsawFuseShift(Require(document.ChainsawFuseLandings, nameof(document.ChainsawFuseLandings))),
             ChargeFlareDelays(Require(document.ChargeFlareDelaysBelowPrograms, nameof(document.ChargeFlareDelaysBelowPrograms))),
@@ -135,36 +133,6 @@ internal static class SamusOverreadServicesReader
             SamusOverreadDocument.OperandStepKind.Restart => new SamusAnimationRestart(),
             _ => throw new InvalidDataException($"Samus overread file names operand step kind {kind}, which has no step."),
         };
-    }
-
-    /// <summary>Every program's fresh-list trail frame and every list's placements past its run.</summary>
-    private static TrailStartPastPlacements<SamusProjectileProgram, ProjectileTrailPlacementList, ProjectileTrailPlacement> TrailStarts(
-        IReadOnlyDictionary<string, int> framesAtListStart,
-        IReadOnlyDictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.Placement?>> pastRecords)
-    {
-        var frames = new Dictionary<SamusProjectileProgram, int>();
-        foreach (SamusProjectileProgram program in Enum.GetValues<SamusProjectileProgram>())
-        {
-            frames.Add(program, framesAtListStart.TryGetValue(program.ToString(), out int frame) && frame is >= 0 and <= ushort.MaxValue
-                ? frame
-                : throw new InvalidDataException($"Samus overread file has no valid fresh-list trail frame for {program}."));
-        }
-        if (framesAtListStart.Count != frames.Count)
-            throw new InvalidDataException($"Samus overread file holds {framesAtListStart.Count} fresh-list trail frames, not {frames.Count}.");
-        var placements = new Dictionary<ProjectileTrailPlacementList, IReadOnlyDictionary<int, ProjectileTrailPlacement?>>();
-        foreach (ProjectileTrailPlacementList list in Enum.GetValues<ProjectileTrailPlacementList>())
-        {
-            if (!pastRecords.TryGetValue(list.ToString(), out IReadOnlyDictionary<string, SamusOverreadDocument.Placement?>? byFrame))
-                throw new InvalidDataException($"Samus overread file has no trail placements past {list}'s records.");
-            placements.Add(list, byFrame.ToDictionary(
-                pair => ParseCount(pair.Key, $"{list} trail frame"),
-                pair => pair.Value is { } placement
-                    ? new ProjectileTrailPlacement(Sparkle(placement.Left), Sparkle(placement.Right))
-                    : (ProjectileTrailPlacement?)null));
-        }
-        if (pastRecords.Count != placements.Count)
-            throw new InvalidDataException($"Samus overread file holds trail placements for {pastRecords.Count} lists, not {placements.Count}.");
-        return new(frames, placements);
     }
 
     /// <summary>Every SpaceTime animation position's overwrite, by slot.</summary>
@@ -317,14 +285,6 @@ internal static class SamusOverreadServicesReader
         colours.Count == ChainsawBeamColours<RgbColor>.ColourCount
             ? new([.. colours.Select(colour => colour.ToRgbColor())])
             : throw new InvalidDataException($"Samus overread file holds {colours.Count} Chainsaw beam colours, not {ChainsawBeamColours<RgbColor>.ColourCount}.");
-
-    /// <summary>A sparkle's signed offset from its projectile, -128 through 127 pixels.</summary>
-    private static Offset16<RoomPixels> Sparkle(Offset16<RoomPixels> offset) => new(SparkleOffset(offset.X), SparkleOffset(offset.Y));
-
-    /// <summary>One sparkle offset component, which a trail record holds as a signed byte.</summary>
-    private static short SparkleOffset(int pixels) => pixels is >= sbyte.MinValue and <= sbyte.MaxValue
-        ? (short)pixels
-        : throw new InvalidDataException($"Samus overread trail placement offset {pixels} lies outside -128 through 127.");
 
     /// <summary>Requires a document member.</summary>
     private static T Require<T>(T? value, string name) where T : class =>

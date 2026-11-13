@@ -37,14 +37,13 @@ internal static class ProjectileSheetComposer
     /// <summary>
     /// Every frame projectile sheet <paramref name="sheet"/> holds: each composition its beam combination's projectiles
     /// show through <paramref name="bindings"/>, pictured or, when it inks no pixel over the combination's page, held as
-    /// showing nothing (#1513), each flare composition, each trail pose and the unshown trail. The empty composition an
-    /// invisible projectile shows draws nothing, so no sheet holds it.
+    /// showing nothing (#1513), each flare composition and each trail pose. The empty composition an invisible projectile
+    /// shows draws nothing, so no sheet holds it, and a trail sparkle that has shown no pose draws nothing (#1625).
     /// </summary>
     internal static IEnumerable<string> Frames(SpriteSheetId sheet, InstalledProjectileFrameBindings bindings) =>
         Compositions(Combination(sheet), bindings).Select(ProjectileSheetFrames.ProjectileFrame)
             .Concat(FlareCompositions.Select(ProjectileSheetFrames.FlareFrame))
-            .Concat(Enum.GetValues<ProjectileTrailFrame>().Select(ProjectileSheetFrames.TrailFrame))
-            .Append(ProjectileSheetDefinitions.UnshownTrailFrame);
+            .Concat(Enum.GetValues<ProjectileTrailFrame>().Select(ProjectileSheetFrames.TrailFrame));
 
     /// <summary>
     /// The compositions <paramref name="beams"/>'s projectiles show, in storage order: those of every record the
@@ -104,7 +103,6 @@ internal static class ProjectileSheetComposer
         }
         foreach (ProjectileTrailFrame pose in Enum.GetValues<ProjectileTrailFrame>())
             frames.Add(new(ProjectileSheetFrames.TrailFrame(pose), SpritePartFrames.SmallObject(projectiles.Trails.Resolve(pose), 0), page));
-        frames.Add(new(ProjectileSheetDefinitions.UnshownTrailFrame, SpritePartFrames.SmallObject(default, 0), page));
         return new SpriteSheetSources(frames, colours, ObjectSelectionCodec.GameplaySizes, Shades: inputs.Shades, Blank: blank);
     }
 

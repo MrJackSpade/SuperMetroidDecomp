@@ -1,23 +1,19 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>Samus's shot pool: the places her ordinary projectiles take, the trail slots and the shot count.</summary>
+/// <summary>Samus's shot pool: the places her ordinary projectiles take and the shot count.</summary>
 /// <remarks>
-/// Place order: Samus has <see cref="SamusProjectileSystem.SlotCount"/> shot places and
-/// <see cref="SamusProjectileSystem.TrailSlotCount"/> trail slots. A shot takes the lowest place no projectile holds; the
-/// projectile update and drawing run in update order, from the highest place down, and enemy collision from the lowest
-/// up. Gameplay names some places: a special attack's particles take the first four, pairing a Spazer particle with the
-/// one two places from it; the crash echoes take the last two; an unlinked Super Missile names the first
-/// (<see cref="UnlinkedSuperMissileLink"/>); and some enemies react to the first place's projectile or to the highest
-/// one. A trail takes the first free trail slot in update order.
+/// Place order: Samus has <see cref="SamusProjectileSystem.SlotCount"/> shot places. A shot takes the lowest place no
+/// projectile holds; the projectile update and drawing run in update order, from the highest place down, and enemy
+/// collision from the lowest up. Gameplay names some places: a special attack's particles take the first four, pairing a
+/// Spazer particle with the one two places from it; the crash echoes take the last two; an unlinked Super Missile names
+/// the first (<see cref="UnlinkedSuperMissileLink"/>); and some enemies react to the first place's projectile or to the
+/// highest one.
 /// </remarks>
 internal sealed class ProjectileSlotTable
 {
     /// <summary>Each place's projectile, live or the last one that ended there; occupancy does not replace the shot count.</summary>
     private readonly SamusProjectile[] _places =
         Enumerable.Range(0, SamusProjectileSystem.SlotCount).Select(place => new SamusProjectile(place)).ToArray();
-    /// <summary>The trail slots by ordinal, independent of the shot places.</summary>
-    private readonly SamusProjectileTrailSlot[] _trailSlots =
-        Enumerable.Range(0, SamusProjectileSystem.TrailSlotCount).Select(index => new SamusProjectileTrailSlot(index)).ToArray();
 
     /// <summary>Starts an empty pool whose places hand their sub-pixel positions on through <paramref name="muzzleCarry"/>.</summary>
     internal ProjectileSlotTable(LeftMuzzleSubpixelCarry muzzleCarry) => MuzzleCarry = Ensure.NotNull(muzzleCarry);
@@ -64,7 +60,7 @@ internal sealed class ProjectileSlotTable
 
     /// <summary>
     /// Clears Samus's shots all at once: each place a projectile holds keeps that projectile's horizontal sub-pixel
-    /// position for its next one, every projectile ends and every trail is cleared.
+    /// position for its next one, and every projectile ends.
     /// </summary>
     internal void ClearAll()
     {
@@ -74,8 +70,6 @@ internal sealed class ProjectileSlotTable
                 MuzzleCarry.Keep(projectile.Place, projectile.Position.X.Fraction);
             projectile.End();
         }
-        foreach (SamusProjectileTrailSlot trail in _trailSlots)
-            trail.ClearFields();
     }
 
     /// <summary>
@@ -96,16 +90,6 @@ internal sealed class ProjectileSlotTable
         {
             for (int place = _places.Length - 1; place >= 0; place--)
                 yield return _places[place];
-        }
-    }
-
-    /// <summary>The trail slots in update order, highest ordinal first; a new trail takes the first free one.</summary>
-    internal IEnumerable<SamusProjectileTrailSlot> TrailsInUpdateOrder
-    {
-        get
-        {
-            for (int ordinal = _trailSlots.Length - 1; ordinal >= 0; ordinal--)
-                yield return _trailSlots[ordinal];
         }
     }
 

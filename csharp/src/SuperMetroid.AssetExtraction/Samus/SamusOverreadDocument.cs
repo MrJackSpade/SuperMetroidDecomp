@@ -18,11 +18,6 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// instruction's operand rather than on a step of its own, by frame, in the program's own frame numbering (#1535). A place
 /// whose read would name a record no gameplay path gives Samus has no entry.
 /// </param>
-/// <param name="TrailFramesAtListStart">The animation frame a trail reads from a shot whose list has just started, by program name.</param>
-/// <param name="TrailPlacementsPastRecords">
-/// What each trail placement list yields past its run of placements, by list name, then by the frame read; null where
-/// the read reaches scratch memory.
-/// </param>
 /// <param name="SpaceTimeOverwrites">
 /// What SpaceTime's palette copy overwrites in progression, by program name, then by step position, then by slot
 /// ordinal; null where the copy stops before progression.
@@ -39,8 +34,6 @@ internal sealed record SamusOverreadDocument(
     int Version,
     IReadOnlyDictionary<string, SamusOverreadDocument.Continuation?> AnimationContinuations,
     IReadOnlyDictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.OperandStep>> AnimationOperandSteps,
-    IReadOnlyDictionary<string, int> TrailFramesAtListStart,
-    IReadOnlyDictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.Placement?>> TrailPlacementsPastRecords,
     IReadOnlyDictionary<string, IReadOnlyDictionary<string, IReadOnlyList<SamusOverreadDocument.Overwrite?>>> SpaceTimeOverwrites,
     IReadOnlyDictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.Cursor>> ChainsawFuseLandings,
     IReadOnlyList<int> ChargeFlareDelaysBelowPrograms,
@@ -111,11 +104,6 @@ internal sealed record SamusOverreadDocument(
         /// <summary>Goes back to the program's first frame.</summary>
         Restart,
     }
-
-    /// <summary>Where a trail's two sparkles start, as signed offsets from the projectile.</summary>
-    /// <param name="Left">The left sparkle's offset.</param>
-    /// <param name="Right">The right sparkle's offset.</param>
-    internal sealed record Placement(Offset16<RoomPixels> Left, Offset16<RoomPixels> Right);
 
     /// <summary>What the copy turns on or off in progress, and the loading state it leaves when it reaches it (#1475).</summary>
     /// <param name="Events">The story events, by number, the copy decides.</param>

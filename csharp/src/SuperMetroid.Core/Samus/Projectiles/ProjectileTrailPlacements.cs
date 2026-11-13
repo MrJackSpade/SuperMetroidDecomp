@@ -16,16 +16,13 @@ internal static class ProjectileTrailPlacements
             : null;
 
     /// <summary>
-    /// The placement a trail reads from <paramref name="list"/> at animation frame <paramref name="frame"/>: a placement
-    /// record, or past the run of records what <paramref name="starts"/> decoded there. Null where the read reaches
-    /// scratch memory, which draws no trail (#1318).
+    /// The placement a trail reads from <paramref name="list"/> at animation frame <paramref name="frame"/>, or null for a
+    /// frame past the list's placements, which leaves no trail: what lies past a list is not part of the game's design
+    /// (#1625).
     /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException">No trail reads past the list's records at that frame.</exception>
-    internal static ProjectileTrailPlacement? Start(ProjectileTrailPlacementList list, int frame,
-        TrailStartPastPlacements<SamusProjectileProgram, ProjectileTrailPlacementList, ProjectileTrailPlacement> starts)
+    internal static ProjectileTrailPlacement? Start(ProjectileTrailPlacementList list, int frame)
     {
-        Ensure.NotNull(starts);
         ProjectileTrailPlacement[] records = ProjectileTrailPlacementDefinitions.Records[list];
-        return frame < records.Length ? records[frame] : starts.PastRecords(list, frame);
+        return frame >= 0 && frame < records.Length ? records[frame] : null;
     }
 }

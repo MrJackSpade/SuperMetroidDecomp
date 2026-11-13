@@ -33,7 +33,7 @@ public sealed class SamusProjectileSystem
     /// <summary>Tracks held charge, flare components, and charge palette state across room transitions.</summary>
     internal BeamChargeState Charge { get; }
 
-    /// <summary>Holds the five ordinary projectile slots and eighteen two-sided trail slots.</summary>
+    /// <summary>Holds the five ordinary projectile places and the shot count.</summary>
     internal ProjectileSlotTable SlotTable { get; }
 
     /// <summary>Collects impact-driven earthquake requests from projectile and terrain reactions.</summary>
@@ -66,7 +66,7 @@ public sealed class SamusProjectileSystem
     /// <summary>Routes ordinary shots into enemy collision and damage callbacks.</summary>
     internal ProjectileEnemyImpacts EnemyImpacts { get; }
 
-    /// <summary>Allocates and advances the two-sided trail records left by moving projectiles.</summary>
+    /// <summary>The trails moving projectiles leave, which run and show until both their sparkles end.</summary>
     internal ProjectileTrails Trails { get; }
 
     /// <summary>
@@ -78,7 +78,7 @@ public sealed class SamusProjectileSystem
     /// <summary>The angles a Shinespark crash finishing in a drained pose releases its echoes into these slots at.</summary>
     internal DrainedCrashEchoDepartures<SamusPoseId, ShinesparkDepartureAngles> DrainedCrashDepartures { get; }
 
-    /// <summary>Creates one room's five projectile slots, eighteen trail slots and the owners that run them.</summary>
+    /// <summary>Creates one room's five projectile places, its trails and the owners that run them.</summary>
     /// <param name="charge">The held beam charge, flare and charge palette, which outlive each room's projectiles.</param>
     /// <param name="samusOverreads">The installed services reproducing Samus's glitch reads; the projectiles consult their own group of them.</param>
     /// <param name="muzzleCarry">
@@ -97,7 +97,7 @@ public sealed class SamusProjectileSystem
         Animation = new ProjectileAnimation(Charge, SlotTable, overreads.ChargeFlareDelays);
         TerrainCollision = new ProjectileTerrainCollision(Animation, Earthquakes, ImpactAudio, samusOverreads.StraddledTerrain);
         EnemyImpacts = new ProjectileEnemyImpacts(Animation, Earthquakes, SlotTable, TerrainCollision, overreads.UnauthoredBeamFiring);
-        Trails = new ProjectileTrails(SlotTable, overreads.TrailStarts);
+        Trails = new ProjectileTrails();
         Chainsaw = new ChainsawPowerBombCallback(Animation, overreads.ChainsawFuseShift);
         Shinespark = new ShinesparkEchoProjectile(Animation, SlotTable);
         Combos = new BeamCombos(Animation, Charge, SlotTable, Trails, overreads.SpaceTimeOverwrite);
@@ -125,9 +125,6 @@ public sealed class SamusProjectileSystem
 
     /// <summary>How many ordinary shots Samus can have out at once; bombs have their own slots.</summary>
     public const int SlotCount = 5;
-
-    /// <summary>How many projectile trails can be live at once.</summary>
-    public const int TrailSlotCount = 18;
 
     /// <summary>Each shot place's projectile, in place order: the live one, or the last one that ended there.</summary>
     public IReadOnlyList<SamusProjectile> Slots => SlotTable.Slots;
@@ -633,40 +630,23 @@ public sealed class SamusProjectileSystem
     }
 
     /// <summary>
-    /// Advances the eighteen projectile-trail slots as a simulation phase, after the ordinary
-    /// projectile pass. Each side owns its own timer, program position and position.
+    /// Advances every trail one update, after the ordinary projectile pass, and removes the trails that have ended. Each
+    /// side owns its own timer, program position and position.
     /// </summary>
     /// <param name="timeIsFrozen">
     /// Whether time is frozen. Frozen trails retain their current record and are still drawn;
     /// their timers and embedded position commands do not advance.
     /// </param>
-    public void AdvanceTrails(bool timeIsFrozen)
-    {
+    public void AdvanceTrails(bool timeIsFrozen) => Trails.Advance(timeIsFrozen);
 
-        // Trails advance in update order, the order a new trail searches for a free slot, left side before right.
-        foreach (SamusProjectileTrailSlot slot in SlotTable.TrailsInUpdateOrder)
-        {
-            ProjectileTrails.AdvanceTrailSide(slot, timeIsFrozen, direction: HorizontalDirection.Left);
-            ProjectileTrails.AdvanceTrailSide(slot, timeIsFrozen, direction: HorizontalDirection.Right);
-        }
-    }
-
-    /// <summary>Publishes every live trail side, in the advance's slot and side order.</summary>
+    /// <summary>Publishes every live trail side, the newest trail first.</summary>
     /// <param name="sprites">The frame's sprite description.</param>
     /// <param name="cameraPosition">Whole-pixel room camera origin subtracted from trail coordinates.</param>
     /// <param name="objects">The projectile sheet the trail poses are drawn from.</param>
     public void DrawTrails(
         SpriteFrameBuffer sprites,
         Position16<RoomPixels> cameraPosition,
-        ProjectileDrawArtwork objects)
-    {
-        Ensure.NotNull(sprites);
-        foreach (SamusProjectileTrailSlot slot in SlotTable.TrailsInUpdateOrder)
-        {
-            ProjectileTrails.DrawTrailSide(sprites, slot, slot.SlotIndex, cameraPosition, direction: HorizontalDirection.Left, objects);
-            ProjectileTrails.DrawTrailSide(sprites, slot, slot.SlotIndex, cameraPosition, direction: HorizontalDirection.Right, objects);
-        }
-    }
+        ProjectileDrawArtwork objects) => Trails.Draw(sprites, cameraPosition, objects);
 
     /// <summary>
     /// Draws beam explosions in enemy collision's earlier bomb/explosion phase.
@@ -721,6 +701,7 @@ public sealed class SamusProjectileSystem
         }
         Combos.ComboState = 0;
         SlotTable.ClearAll();
+        Trails.Clear();
         SlotTable.ProjectileCounter = 0;
         Firing.ProjectileInvincibilityTimer = 0;
         LastFrameResult = default;

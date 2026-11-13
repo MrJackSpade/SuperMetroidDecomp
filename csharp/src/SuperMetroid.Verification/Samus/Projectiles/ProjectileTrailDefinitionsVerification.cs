@@ -34,9 +34,8 @@ internal static class ProjectileTrailDefinitionsVerification
                 Position = new(new(100, 0), new(200, 0)),
             };
             projectiles.Trails.SpawnTrail(projectile);
-            var trail = projectiles.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1];
             // An empty trail family (programs, direction list or coordinates outside the compiled data) draws no trail (#1318).
-            if (trail.Left.FrameHold == 0)
+            if (projectiles.LiveTrails.SingleOrDefault() is not { } trail)
                 continue;
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), start + selection * 2), trail.Left.InstructionPointer, "Real spawn selects the left table's trail");
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusProjectileRomDataTrailsConstants.RightInstructionPointers + selection * 2), trail.Right.InstructionPointer, "Real spawn selects the right table's trail");

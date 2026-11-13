@@ -55,8 +55,6 @@ public static class IntroCinematicDefinitions
     /// <summary>The narration caret's positions and the text characters' size.</summary>
     public static class ObjectSystem
     {
-        /// <summary>The caret's row before narration begins.</summary>
-        public const int CaretInitialY = 248;
         /// <summary>The caret's leftmost column, in pixels.</summary>
         public const int CaretLeftX = 8;
         /// <summary>The caret's row on the first narration line.</summary>

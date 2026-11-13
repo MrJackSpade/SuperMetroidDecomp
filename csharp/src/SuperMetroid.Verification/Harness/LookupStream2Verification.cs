@@ -966,11 +966,13 @@ internal static class LookupStream2Verification
                 if (word < 0x8000) { encountered.Add(cursor); cursor += 4; }
                 else { cursor += 2; }
             }
-            var nativeSystem = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount)); var authoredSystem = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount));
+            var authoredSystem = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount));
+            // The native interpreter's own trail, run beside the port's.
+            var nativeTrail = new SamusProjectileTrail(SamusBeamCombination.Power);
+            SamusProjectileTrail authoredTrail = authoredSystem.AddTrail();
             nativeWords.Clear();
-            foreach (var system in new[] { nativeSystem, authoredSystem })
+            foreach (var pair in new[] { nativeTrail, authoredTrail })
             {
-                var pair = system.TrailSlots[0];
                 foreach (var side in new[] { pair.Left, pair.Right })
                 { side.InstructionPointer = start; side.FrameHold = 1; side.Position = side.Position.WithX(100).WithY(100); }
             }
@@ -978,15 +980,15 @@ internal static class LookupStream2Verification
             {
                 var nativeOam = new OamBuffer();
                 bool frozenFrame = frame % 5 == 0;
-                StepNative(nativeSystem.TrailSlots[0], nativeSystem.TrailSlots[0].Left, nativeOam, frozenFrame);
-                StepNative(nativeSystem.TrailSlots[0], nativeSystem.TrailSlots[0].Right, nativeOam, frozenFrame);
+                StepNative(nativeTrail, nativeTrail.Left, nativeOam, frozenFrame);
+                StepNative(nativeTrail, nativeTrail.Right, nativeOam, frozenFrame);
                 OamBuffer authoredOam = SpriteFrameBuffer.DrawnOam(frame =>
                 {
                     authoredSystem.AdvanceTrails(frozenFrame);
                     authoredSystem.DrawTrails(frame, Position16<RoomPixels>.Zero, InstalledFixtures.ProjectileArtwork());
                 });
                 AssertTrue(nativeOam.LowTable.SequenceEqual(authoredOam.LowTable), "Trail catalog preserves live command/termination/freeze frame output");
-                foreach (var sides in new[] { new VerifyLookupStream2TrailProgramsCase(nativeSystem.TrailSlots[0].Left, authoredSystem.TrailSlots[0].Left), new VerifyLookupStream2TrailProgramsCase(nativeSystem.TrailSlots[0].Right, authoredSystem.TrailSlots[0].Right) })
+                foreach (var sides in new[] { new VerifyLookupStream2TrailProgramsCase(nativeTrail.Left, authoredTrail.Left), new VerifyLookupStream2TrailProgramsCase(nativeTrail.Right, authoredTrail.Right) })
                 {
                     AssertEqual(sides.First.InstructionPointer, sides.Second.InstructionPointer, "Trail artwork cannot change instruction cursor");
                     AssertEqual(sides.First.FrameHold, sides.Second.FrameHold, "Trail artwork cannot change live timing");
@@ -1012,7 +1014,8 @@ internal static class LookupStream2Verification
         AssertEqual(67, programWords, "All 42 durations, 20 movement commands and five terminators are compiled");
         AssertThrows<InvalidDataException>(() => ProjectileTrailProgramDefinitions.Read(0x91b4c9), "Trail program rejects a wrong-bank alias");
         Console.WriteLine("Stream 2 trail programs: 67 native mechanics words,42 visual record addresses, all four actual paired trail lifetimes/freeze states and mutable alias pass.");
-        void StepNative(SamusProjectileTrailSlot pair, SamusProjectileTrailSide side, OamBuffer oam, bool frozen)
+        // A side that has read no tile word yet draws nothing, as the port's sparkle that has shown no pose (#1625).
+        void StepNative(SamusProjectileTrail pair, SamusProjectileTrailSide side, OamBuffer oam, bool frozen)
         {
             if (side.FrameHold == 0) return;
             if (!frozen && --side.FrameHold == 0)
@@ -1035,7 +1038,8 @@ internal static class LookupStream2Verification
                     else throw new InvalidDataException($"Unexpected native trail command {word:X4}.");
                 }
             }
-            oam.AddProjectileTrailSprite(new Position16<SpritePixels>((byte)side.Position.X, (byte)side.Position.Y), nativeWords.GetValueOrDefault(side));
+            if (nativeWords.TryGetValue(side, out ushort shown))
+                oam.AddProjectileTrailSprite(new Position16<SpritePixels>((byte)side.Position.X, (byte)side.Position.Y), shown);
         }
     }
 
@@ -1064,9 +1068,8 @@ internal static class LookupStream2Verification
                 Position = new(new(100, 0), new(200, 0)),
             };
             projectiles.Trails.SpawnTrail(projectile);
-            var trail = projectiles.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1];
             // An empty trail family (programs, direction list or coordinates outside the compiled data) draws no trail (#1318).
-            if (trail.Left.FrameHold == 0)
+            if (projectiles.LiveTrails.SingleOrDefault() is not { } trail)
                 continue;
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), start + selection * 2), trail.Left.InstructionPointer, "Real spawn selects the left table's trail");
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusProjectileRomDataTrailsConstants.RightInstructionPointers + selection * 2), trail.Right.InstructionPointer, "Real spawn selects the right table's trail");

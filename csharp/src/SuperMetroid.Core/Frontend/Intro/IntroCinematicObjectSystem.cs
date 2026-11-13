@@ -84,8 +84,17 @@ internal sealed class IntroCinematicObjectSystem
     /// <summary>Set after page six's final 128-frame hold.</summary>
     public bool IntroFinishRequested { get; private set; }
 
-    /// <summary>The pose the text caret's program shows; null before its first frame.</summary>
-    internal CinematicSpritePose? CaretPose => caretSprite.Pose;
+    /// <summary>
+    /// The pose the text caret shows: its program's pose, or null while the caret is hidden or before its program's first
+    /// frame, when nothing is drawn.
+    /// </summary>
+    internal CinematicSpritePose? CaretPose => caretHidden ? null : caretSprite.Pose;
+
+    /// <summary>
+    /// Whether the caret is hidden while an illustration owns the screen; its program keeps running, and the next page
+    /// shows it again (#1625).
+    /// </summary>
+    private bool caretHidden;
 
     /// <summary>The Japanese text's next-page arrow while it shows (#1655); null with English text and between input waits.</summary>
     internal IntroDiscoverySprite? NextPageArrow { get; private set; }
@@ -97,19 +106,15 @@ internal sealed class IntroCinematicObjectSystem
     /// </summary>
     public void AcceptPageTurn() => pageTurnAccepted = true;
 
-    /// <summary>Current screen position of the persistent text caret object; Y=248 deliberately hides it below the viewport.</summary>
+    /// <summary>Current screen position of the persistent text caret object.</summary>
     public Position16<ScreenPixels> Caret { get; private set; } =
         new(IntroCinematicDefinitions.ObjectSystem.CaretLeftX, IntroCinematicDefinitions.ObjectSystem.CaretFirstTextY);
 
     /// <summary>
-    /// Places the intro text caret off screen. The retail game keeps
-    /// the same object slot alive between narration pages and visibly moves it to Y=248
-    /// while a gameplay or scientist illustration owns the screen.
+    /// Takes the intro text caret off the screen while a gameplay or scientist illustration owns it: the caret is not
+    /// drawn until the next narration page restores it (#1625).
     /// </summary>
-    public void PlaceCaretOffScreen()
-    {
-        Caret = new(IntroCinematicDefinitions.ObjectSystem.CaretLeftX, IntroCinematicDefinitions.ObjectSystem.CaretInitialY);
-    }
+    public void PlaceCaretOffScreen() => caretHidden = true;
 
     /// <summary>
     /// Starts the letter-by-letter narration stream. The eye-blink
@@ -348,11 +353,10 @@ internal sealed class IntroCinematicObjectSystem
     /// <summary>Shows <paramref name="frame"/> on the portrait.</summary>
     internal void ShowEyeFrame(IntroEyeFrame frame) => EyeFrame = frame;
 
-    /// <summary>Moves the persistent caret onscreen and restarts its non-blinking sprite list.</summary>
+    /// <summary>Shows the persistent caret again at the first text line and restarts its non-blinking sprite list.</summary>
     private void ResetCaret()
     {
-        // Resting the intro text caret moves the persistent slot back from Y=248 before
-        // restoring its non-blinking list. Position is state, not a renderer constant.
+        caretHidden = false;
         Caret = new(IntroCinematicDefinitions.ObjectSystem.CaretLeftX, IntroCinematicDefinitions.ObjectSystem.CaretFirstTextY);
         caretSprite.Start(CinematicSpriteProgram.IntroTextCaret);
     }

@@ -12,84 +12,61 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// lists. Only Rinka zero is scripted to strike Samus; the other three deliberately miss.
 /// The hit routine does not subtract health in the retail cinematic. It publishes eleven
 /// frames of invincibility and knockback, which makes Samus flash and visibly react.
+/// The Rinkas are a list in spawn order with no cap (#1625): only the first one launched touches Samus, so the order the
+/// others step and draw in is not observable.
 /// </remarks>
 internal sealed class IntroRinkaSystem
 {
-    /// <summary>Highest freeable cinematic slot; the invisible spawner starts here while Mother Brain owns slot zero.</summary>
-    private const int SpawnerSlot = 14;
-    /// <summary>Lowest slot available to Rinkas; the pass visits slots 14 down through one.</summary>
-    private const int LowestSlot = 1;
-
-    /// <summary>
-    /// The Rinkas in the cinematic slots, by slot. The spawner holds the highest slot until its program ends, so no Rinka
-    /// takes that slot while the spawner lives.
-    /// </summary>
-    internal readonly IntroRinka?[] slots = new IntroRinka?[SpawnerSlot + 1];
+    /// <summary>The live Rinkas, in spawn order; a deleted Rinka leaves the list at the end of the pass that deletes it.</summary>
+    internal readonly List<IntroRinka> rinkas = [];
     /// <summary>Invisible actor whose program schedules the two spawn pairs.</summary>
     private readonly IntroDiscoverySprite spawner;
-    /// <summary>Prevents allocating Rinkas after Mother Brain's explosions occupy the shared slot range.</summary>
+    /// <summary>Whether Mother Brain's explosions have started, after which the spawner's program has no spawn left.</summary>
     private bool spawnsForbidden;
 
-    /// <summary>Creates the invisible spawner in the highest free slot before its timed animation runs.</summary>
+    /// <summary>Creates the invisible spawner before its timed animation runs.</summary>
     public IntroRinkaSystem()
     {
-        // The flashback's setup spawns the invisible spawner while slots 1..14 are all free. Reusing the
-        // focused animation interpreter preserves its exact 74 then 128 frame waits.
+        // Reusing the focused animation interpreter preserves the spawner's exact 74 then 128 frame waits.
         spawner = new(new(0, 0), IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors), IntroRinkaDefinitions.SpawnerActor.Program);
     }
 
-    /// <summary>Whether <paramref name="slot"/> holds the spawner or a Rinka.</summary>
-    private bool IsOccupied(int slot) =>
-        slots[slot] is not null || (slot == SpawnerSlot && spawner.IsActive);
-
-    /// <summary>One descending generic-handler pass over the spawner and Rinka slots.</summary>
+    /// <summary>One update of the spawner, then of every Rinka.</summary>
     /// <param name="samus">Samus, whose X position a hitting Rinka crosses before applying its knockback.</param>
     /// <param name="motherBrainExploding">True once Mother Brain's exploding routine deletes the Rinkas.</param>
     /// <param name="explosionsAllocated">
-    /// True once Mother Brain's explosions occupy cinematic slots. Their slots then share
-    /// this range, so a Rinka spawn would need the whole table to allocate faithfully.
+    /// True once Mother Brain's explosions have started. The spawner's program spawns every Rinka before then, so a
+    /// spawn after it is a fault in the cinematic's script.
     /// </param>
-    [IndependentFlag("Mother Brain exploding and explosion slots being allocated are separate intro states read each frame.")]
+    [IndependentFlag("Mother Brain exploding and her explosions having started are separate intro states read each frame.")]
     public void Step(SamusState samus, bool motherBrainExploding,
         bool explosionsAllocated)
     {
         Ensure.NotNull(samus);
 
         spawnsForbidden = explosionsAllocated;
-        // A slot below the one being processed is still ahead in this pass, so a Rinka the
-        // spawner allocates there runs its first frame behaviour and program step immediately.
-        for (int slot = SpawnerSlot; slot >= LowestSlot; slot--)
+        // The spawner updates before the Rinkas, so a Rinka it spawns runs its first frame behaviour and program step in
+        // this same update.
+        if (spawner.IsActive)
+            spawner.Step(HandleSpawnerCue);
+
+        foreach (IntroRinka rinka in rinkas)
         {
-            // Deletion clears the slot's program, freeing it for the next spawn: the spawner's once its program
-            // ends, a Rinka's as it is deleted.
-            if (slot == SpawnerSlot && spawner.IsActive)
-            {
-                spawner.Step(HandleSpawnerCue);
-                continue;
-            }
-
-            if (slots[slot] is not { } rinka)
-                continue;
-
             RunFrameBehavior(rinka, samus, motherBrainExploding);
             if (rinka.Sprite.IsActive)
             {
                 rinka.Sprite.Step(cue => HandleRinkaCue(rinka, cue));
             }
-
-            if (!rinka.Sprite.IsActive)
-                slots[slot] = null;
         }
+        _ = rinkas.RemoveAll(static rinka => !rinka.Sprite.IsActive);
     }
 
-    /// <summary>Adds each visible Rinka in descending slot order.</summary>
+    /// <summary>Adds each visible Rinka in spawn order.</summary>
     public void Draw(ScreenSprites objects,
         IIntroCinematicSpritePresentation? installedArt = null)
     {
-        for (int slot = SpawnerSlot; slot >= LowestSlot; slot--)
-        {
-            slots[slot]?.Sprite.Draw(objects, installedArt: installedArt);
-        }
+        foreach (IntroRinka rinka in rinkas)
+            rinka.Sprite.Draw(objects, installedArt: installedArt);
     }
 
     /// <summary>Handles the two spawner commands, allocating Rinkas zero and one or two and three.</summary>
@@ -159,22 +136,16 @@ internal sealed class IntroRinkaSystem
                 : CinematicSpriteFrameBehavior.IntroRinkaMovingMissesSamus);
     }
 
-    /// <summary>Allocates the Rinka of <paramref name="launch"/> in the highest available cinematic slot.</summary>
+    /// <summary>Spawns the Rinka of <paramref name="launch"/> after the Rinkas already live.</summary>
     private void Spawn(int launch)
     {
         if (spawnsForbidden)
         {
             throw new InvalidOperationException(
-                "An intro Rinka spawn while Mother Brain's explosions hold cinematic slots needs the shared slot table.");
+                "The intro Rinka spawner spawned a Rinka after Mother Brain's explosions started.");
         }
 
-        int slot = SpawnerSlot;
-        while (slot >= LowestSlot && IsOccupied(slot))
-            slot--;
-        if (slot < LowestSlot)
-            throw new InvalidOperationException("No free cinematic sprite slot for an intro Rinka.");
-
-        slots[slot] = new IntroRinka(launch);
+        rinkas.Add(new IntroRinka(launch));
     }
 
     /// <summary>Moves a Rinka, publishes Samus knockback on the hit route, or deletes it at its exit bounds.</summary>

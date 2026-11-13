@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 public static class CeresDestructionSpriteDefinitions
 {
     /// <summary>
-    /// The 23 poses the destruction family shows: the seven backdrops, six small blasts, four large blasts, then six
-    /// station blasts.
+    /// The 24 poses the destruction family shows: the seven backdrops, six small blasts, four large blasts, six station
+    /// blasts, then the Japanese PLANET ZEBES subtitle (#1733).
     /// </summary>
     public static IReadOnlyList<CinematicSpritePose> Poses { get; } =
     [
@@ -15,5 +15,6 @@ public static class CeresDestructionSpriteDefinitions
         new(41), new(42), new(43), new(44), new(45), new(46),
         new(47), new(48), new(49), new(50),
         new(76), new(77), new(78), new(79), new(80), new(81),
+        new(40),
     ];
 }

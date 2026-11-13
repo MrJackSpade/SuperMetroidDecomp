@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 public static class CeresDestructionArtworkFile
 {
     /// <summary>Loads the destruction's actor layouts, validating each.</summary>
-    /// <param name="revealActorsJson">Six ordered initial Zebes-reveal actor placements.</param>
+    /// <param name="revealActorsJson">Seven ordered initial Zebes-reveal placements: the six actors', then the Japanese subtitle's.</param>
     /// <param name="destructionActorsJson">Three ordered initial destruction-background actor placements.</param>
     /// <returns>The compiled placements; both input streams are consumed from their current positions and remain caller-owned.</returns>
     public static CeresDestructionArtwork Read(Stream revealActorsJson, Stream destructionActorsJson)

@@ -21,8 +21,11 @@ internal static class CeresDestructionActors
         _ => throw new ArgumentOutOfRangeException(nameof(index)),
     };
 
-    /// <summary>The installed layout id of each of the six reveal actors, in spawn order.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The index is outside the six actors.</exception>
+    /// <summary>
+    /// The installed layout id of each of the reveal's placements: the six reveal actors', in spawn order, then the Japanese
+    /// subtitle's (<see cref="CeresDestructionActorDefinitions.ZebesSubtitlePlacement"/>).
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside the reveal's placements.</exception>
     public static string ZebesPlacementId(int index) => index switch
     {
         0 => "planet",
@@ -31,6 +34,7 @@ internal static class CeresDestructionActors
         3 => "stars-lower-left",
         4 => "stars-lower-right",
         5 => "planet-zebes-title",
+        6 => "planet-zebes-subtitle",
         _ => throw new ArgumentOutOfRangeException(nameof(index)),
     };
 

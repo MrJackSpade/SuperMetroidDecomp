@@ -95,6 +95,15 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     private IntroDiscoverySprite? zebesCompletionStarActor;
     /// <summary>Title actor whose cue starts the turning-floor flight toward Zebes.</summary>
     private IntroDiscoverySprite? zebesTitleActor;
+    /// <summary>The Japanese subtitle, once the title has spawned it with Japanese text (#1733).</summary>
+    private IntroDiscoverySprite? zebesSubtitleActor;
+    /// <summary>
+    /// The Japanese subtitle the title's cue has just spawned, which runs on the same update, after the title, before it
+    /// joins the reveal's actors.
+    /// </summary>
+    private IntroDiscoverySprite? spawnedSubtitle;
+    /// <summary>The Japanese text option, which makes the PLANET ZEBES title spawn its Japanese subtitle (#1733).</summary>
+    private readonly bool japaneseText;
 
     /// <summary>Signed 16.16 camera offset applied to the turning-floor Ceres or Zebes scene.</summary>
     internal FixedPosition<FloorPixels> Background { get; private set; } = new(new(CoordinateAxis.Wrap(-44), 0), new(CoordinateAxis.Wrap(-112), 0));
@@ -143,13 +152,16 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// gunship never appears and the fade-out ends the game instead of flying to Zebes.
     /// </param>
     /// <param name="spriteSheets">Required installed sprite sheets the scene's actors draw from.</param>
+    /// <param name="japaneseText">The Japanese text option, which adds the PLANET ZEBES title's Japanese subtitle.</param>
     public CeresDestructionCinematicState(
         AudioQueues? audio = null,
         InstalledPowerBombGlowColors? glowColors = null,
         IntroCinematicArtwork? artwork = null,
         CeresDestructionOutcome outcome = CeresDestructionOutcome.SamusEscaped,
-        InstalledSpriteSheets? spriteSheets = null)
+        InstalledSpriteSheets? spriteSheets = null,
+        bool japaneseText = false)
     {
+        this.japaneseText = japaneseText;
         BindSpriteSheets(spriteSheets);
         WithSamus = outcome == CeresDestructionOutcome.SamusAboard;
         this.audio = audio;
@@ -539,6 +551,15 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         return CreateActor(CeresDestructionActors.ZebesActor(index), content.CeresDestruction.RevealActors[index].Position);
     }
 
+    /// <summary>Creates the Japanese PLANET ZEBES subtitle at its installed placement (#1733).</summary>
+    private IntroDiscoverySprite CreateZebesSubtitle()
+    {
+        IntroCinematicArtwork content = Artwork ?? throw new InvalidOperationException(
+            "The Zebes reveal requires installed cinematic artwork.");
+        return CreateActor(CeresDestructionActorDefinitions.ZebesSubtitle,
+            content.CeresDestruction.RevealActors[CeresDestructionActorDefinitions.ZebesSubtitlePlacement].Position);
+    }
+
 
     /// <summary>Spawns authored blast waves and advances live Ceres actors in descending slot order.</summary>
     private void StepCeresActors()
@@ -676,11 +697,13 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                         ? CeresDestructionActors.ZebesActor(4)
                         : ReferenceEquals(actor, zebesTitleActor)
                             ? CeresDestructionActors.ZebesActor(5)
-                            : CeresDestructionActors.ZebesActor(1);
+                            : ReferenceEquals(actor, zebesSubtitleActor)
+                                ? CeresDestructionActorDefinitions.ZebesSubtitle
+                                : CeresDestructionActors.ZebesActor(1);
                 if (definition.SlideFrameBehavior is null)
                 {
                     throw new InvalidDataException(
-                        "PLANET ZEBES title actor remained active when scene sliding began.");
+                        "A PLANET ZEBES caption actor remained active when scene sliding began.");
                 }
                 actor.InstallFrameBehavior(definition.SlideFrameBehavior);
                 // Zebes accelerates by 64 in 8.8; all four star sheets use 32. Star
@@ -713,6 +736,14 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             actor.Step(HandleZebesCue);
             if (!actor.IsActive)
                 actors.RemoveAt(index);
+            // A subtitle the title has just spawned takes the next free object slot, which the cinematic's object handling
+            // reaches after the title's on the same update: it runs once now and shows its first pose.
+            if (spawnedSubtitle is { } subtitle)
+            {
+                spawnedSubtitle = null;
+                subtitle.Step(HandleZebesCue);
+                actors.Add(subtitle);
+            }
         }
     }
 
@@ -732,6 +763,12 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 return;
 
             case CinematicSpriteCueKind.SpawnJapaneseZebesTextIfNeeded:
+                // With Japanese text the title spawns its Japanese subtitle as its first hold ends (#1733).
+                if (japaneseText)
+                {
+                    zebesSubtitleActor = CreateZebesSubtitle();
+                    spawnedSubtitle = zebesSubtitleActor;
+                }
                 return;
 
             case CinematicSpriteCueKind.StartFlyingToZebes:

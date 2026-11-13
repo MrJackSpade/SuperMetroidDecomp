@@ -22,8 +22,8 @@ internal sealed class IntroCeresFlightState
     /// <summary>The installed Ceres flight sheet the stars and rear-view actors draw from, rebound without restarting the scene.</summary>
     private SpriteSheet? flightSprites;
     /// <summary>
-    /// The flight's colour effects (#1733): the scene's setup clears them, and the rear view's setup starts the station's
-    /// navigation lights.
+    /// The flight's colour effects (#1733): the scene's setup clears them, and the rear view's setup starts the gunship
+    /// engine's flicker and the station's navigation lights.
     /// </summary>
     internal RoomPaletteFxSystem ColourEffects { get; } = new(new PaletteFxSessionState());
     /// <summary>Optional edited rear-view actor positions.</summary>
@@ -220,9 +220,7 @@ internal sealed class IntroCeresFlightState
             layers.Add(new TurningFloorLayer(FloorView.Turned(angle, zoom,
                 CeresFlightRenderDefinitions.FloorCenter, background.Whole.AsSignedOffset()),
                 CeresFloors.Of(floorSheets ?? throw new InvalidOperationException("The Ceres flight's floor requires the installed sprite sheets."),
-                    ShowsRearView ? CeresFloorShot.FlightRear : CeresFloorShot.FlightFront)
-                    // The flight shows no colour effect on its floor; it fades with the display's brightness (#1512).
-                    .Shaded(PictureShading.Standard)));
+                    ShowsRearView ? CeresFloorShot.FlightRear : CeresFloorShot.FlightFront).Shaded(FloorShading)));
         }
         if (Phase == IntroCeresFlightPhase.FlyingTowardCeres)
         {
@@ -230,6 +228,14 @@ internal sealed class IntroCeresFlightState
         }
         return new(new FramePaint(Backdrop), layers.ToArray(), brightness);
     }
+
+    /// <summary>
+    /// The shading of the turning floor (#1733): the shade of the record the gunship engine's flicker shows once the rear
+    /// view has started it, or the floor's standard colours before; the floor fades with the display's brightness (#1512).
+    /// </summary>
+    internal PictureShading FloorShading => ColourEffects.FrameOf(CeresFlightSceneDefinitions.EngineColours) is { } frame
+        ? PictureShading.Standard.With(PaletteFxShades.Of(CeresFlightSceneDefinitions.EngineColours, frame))
+        : PictureShading.Standard;
 
     /// <summary>Places the front stars or surviving rear-view actors as this frame's sprite entries.</summary>
     private void PrepareRenderSprites()
@@ -284,7 +290,8 @@ internal sealed class IntroCeresFlightState
         // white and takes one step off the wash per frame until black.
         flashIntensity = WhiteWash.Steps;
         Phase = IntroCeresFlightPhase.FlyingTowardCeres;
-        // The rear view's setup starts the station's blinking navigation lights (#1733).
+        // The rear view's setup starts the gunship engine's flicker, then the station's blinking navigation lights (#1733).
+        ColourEffects.Start(CeresFlightSceneDefinitions.GunshipEngineFlicker, 0);
         ColourEffects.Start(CeresFlightSceneDefinitions.NavigationLights, 0);
     }
 

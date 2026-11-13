@@ -26,7 +26,7 @@ public sealed class CeresDestructionSpritePresentation : ICinematicSpriteFrames
     private CeresDestructionSpritePresentation(Dictionary<CinematicSpritePose, SpriteComposition> frames) =>
         this.frames = frames;
 
-    /// <summary>Loads version-1 <c>ceres-destruction-sprites.json</c>, requiring all 23 named compositions and validating each ordered part's offset, atlas region, size, palette, and priority.</summary>
+    /// <summary>Loads version-2 <c>ceres-destruction-sprites.json</c>, requiring all 24 named compositions and validating each ordered part's offset, atlas region, size, palette, and priority.</summary>
     /// <param name="json">Caller-owned JSON stream consumed from its current position and left open; unknown and duplicate properties are rejected.</param>
     /// <returns>Every installed composition, compiled as installed.</returns>
     public static CeresDestructionSpritePresentation Load(Stream json)

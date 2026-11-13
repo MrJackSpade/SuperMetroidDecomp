@@ -64,10 +64,12 @@ internal sealed class CinematicGamePhases(FrontendSession session)
         // Each update begins a frame. A gameplay owner kept from Ceres
         // counts it on the frame clock and latches input; without one the frontend counted it.
         session.Runtime?.FrameBoundary.BeginAcceptedFrame(controllerInput);
+        // Without a gameplay owner no loaded game has selected Japanese text, and the game shows English text.
         CeresDestructionCinematicState destruction = session.ScreenAs<CeresDestructionCinematicState>() ??
             session.Show(new CeresDestructionCinematicState(
                 session.audio, session.Artwork.MapPresentation?.PowerBombGlowColors,
-                session.Artwork.IntroCinematicArt, spriteSheets: session.Artwork.SpriteSheets));
+                session.Artwork.IntroCinematicArt, spriteSheets: session.Artwork.SpriteSheets,
+                japaneseText: session.Runtime?.JapaneseText == true));
         destruction.Step();
         session.display.PublishCeresDestruction(destruction);
         if (destruction.Finished)
@@ -119,7 +121,7 @@ internal sealed class CinematicGamePhases(FrontendSession session)
         session.Show(new CeresDestructionCinematicState(
             session.audio, session.Artwork.MapPresentation?.PowerBombGlowColors,
             session.Artwork.IntroCinematicArt, outcome: CeresDestructionOutcome.SamusAboard,
-            spriteSheets: session.Artwork.SpriteSheets));
+            spriteSheets: session.Artwork.SpriteSheets, japaneseText: session.Runtime.JapaneseText));
         session.GameState = SuperMetroidGameState.CeresGoesBoomWithSamus;
     }
 

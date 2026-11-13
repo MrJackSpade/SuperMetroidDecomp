@@ -6,8 +6,9 @@ namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 public static class CeresDestructionSpriteFrameDefinitions
 {
     /// <summary>
-    /// The 23 published compositions, one for each destruction pose in order: the seven backdrops in their
-    /// drawing order, six small blasts, four large blasts, then six station blasts. Original
+    /// The 24 published compositions, one for each destruction pose in order: the seven backdrops in their
+    /// drawing order, six small blasts, four large blasts, six station blasts, then the Japanese PLANET ZEBES subtitle
+    /// (#1733). Original
     /// sprite part counts describe stock geometry without restricting edited compositions.
     /// </summary>
     public static IReadOnlyList<CeresDestructionSpriteFrameDefinition> Frames { get; } =
@@ -35,5 +36,6 @@ public static class CeresDestructionSpriteFrameDefinitions
         new("station-blast-3", Poses[20], 12),
         new("station-blast-4", Poses[21], 8),
         new("station-blast-5", Poses[22], 12),
+        new("planet-zebes-subtitle", Poses[23], 12),
     ];
 }

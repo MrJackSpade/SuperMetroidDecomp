@@ -172,6 +172,8 @@ internal static class CinematicSheetColouringsVerification
             CeresDestructionActorDefinition actor = CeresDestructionActors.ZebesActor(index);
             yield return new(actor.Animation, actor.Colouring);
         }
+        // The Japanese subtitle the title spawns with Japanese text (#1733).
+        yield return new(CeresDestructionActorDefinitions.ZebesSubtitle.Animation, CeresDestructionActorDefinitions.ZebesSubtitle.Colouring);
     }
 
     /// <summary>The sprite sets outside <paramref name="sets"/> that <paramref name="frame"/>'s shown pixels ink, in rising order.</summary>

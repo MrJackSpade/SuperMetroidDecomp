@@ -249,14 +249,13 @@ internal sealed class EnemyTerrain
     private bool EnemyHorizontalProbeIsSolid(
         RoomLevelData level,
         RoomEnemySlot slot,
-        int startBlock,
+        Position16<RoomBlocks> startBlock,
         int targetEdge,
         int remaining,
         int spanMinusOne,
         bool treatNonSquareSlopesAsWalls)
     {
-        RoomCollisionBlock block = ResolveEnemyMoverBlock(level, startBlock);
-        int blockIndex = block.Index;
+        RoomCollisionBlock block = ResolveEnemyMoverBlock(level, startBlock, out Position16<RoomBlocks> reached);
         return block.CollisionType switch
         {
             RoomCollisionType.Air or
@@ -275,7 +274,7 @@ internal sealed class EnemyTerrain
                 spanMinusOne),
             RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension =>
                 false, // A zero-offset extension resolves to air.
-            RoomCollisionType.SpikeBlock => ReactToEnemySpikeBlock(level, blockIndex, block),
+            RoomCollisionType.SpikeBlock => ReactToEnemySpikeBlock(level, reached, block),
             RoomCollisionType.SolidBlock or
             RoomCollisionType.DoorBlock or
             RoomCollisionType.SpecialBlock or
@@ -288,10 +287,9 @@ internal sealed class EnemyTerrain
     }
 
     /// <summary>Classifies the next vertical block and may align the enemy against a non-square slope.</summary>
-    private bool EnemyVerticalProbeIsSolid(RoomLevelData level, RoomEnemySlot slot, int startBlock, EnemyVerticalProbe probe)
+    private bool EnemyVerticalProbeIsSolid(RoomLevelData level, RoomEnemySlot slot, Position16<RoomBlocks> startBlock, EnemyVerticalProbe probe)
     {
-        RoomCollisionBlock block = ResolveEnemyMoverBlock(level, startBlock);
-        int blockIndex = block.Index;
+        RoomCollisionBlock block = ResolveEnemyMoverBlock(level, startBlock, out Position16<RoomBlocks> reached);
         return block.CollisionType switch
         {
             RoomCollisionType.Air or
@@ -302,9 +300,9 @@ internal sealed class EnemyTerrain
             RoomCollisionType.BombableAir => false,
             RoomCollisionType.Slope when block.Behavior.Slope.IsNonSquare =>
                 NonSquareVerticalSlopeIsSolid(
-                    level,
                     slot,
-                    block,
+                    reached,
+                    block.Behavior,
                     probe.TargetCenter.Y,
                     probe.MovingUp),
             RoomCollisionType.Slope => SquareVerticalSlopeIsSolid(
@@ -314,7 +312,7 @@ internal sealed class EnemyTerrain
                 probe.Remaining,
                 probe.SpanMinusOne),
             RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension => false,
-            RoomCollisionType.SpikeBlock => ReactToEnemySpikeBlock(level, blockIndex, block),
+            RoomCollisionType.SpikeBlock => ReactToEnemySpikeBlock(level, reached, block),
             RoomCollisionType.SolidBlock or
             RoomCollisionType.DoorBlock or
             RoomCollisionType.SpecialBlock or
@@ -332,44 +330,54 @@ internal sealed class EnemyTerrain
     /// <see cref="RoomLevelData.GetBlockBeyondRoom"/>). Extension links are followed
     /// as the reaction dispatcher repeats them, each counted by <see cref="BlockScanCycle.LinkedBlock"/>.
     /// </summary>
-    private static RoomCollisionBlock ResolveEnemyMoverBlock(RoomLevelData level, int startBlock)
+    /// <param name="level">The room's terrain.</param>
+    /// <param name="startBlock">The block the scan reached, in the room's columns (<see cref="BlockScanCycle"/>).</param>
+    /// <param name="reached">The block the extension links lead to, where a reaction to it takes place.</param>
+    /// <returns>The terrain and behaviour of <paramref name="reached"/>.</returns>
+    internal static RoomCollisionBlock ResolveEnemyMoverBlock(
+        RoomLevelData level,
+        Position16<RoomBlocks> startBlock,
+        out Position16<RoomBlocks> reached)
     {
-        int blockIndex = startBlock;
-        int maximumLinks = level.Size.X * level.Size.Y;
-        for (int link = 0; link <= maximumLinks; link++)
+        reached = startBlock;
+        for (int link = 0; link <= level.Size.Area; link++)
         {
-            if (!level.IsLogicalBlockIndex(blockIndex))
-                return ReadEnemyMoverAllocationTail(level, blockIndex);
-            RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
-            int offset = block.CollisionType switch
-            {
-                RoomCollisionType.HorizontalExtension when
-                    block.Behavior.EndsExtension is false => block.Behavior.ExtensionOffset,
-                RoomCollisionType.VerticalExtension when
-                    block.Behavior.EndsExtension is false =>
-                    block.Behavior.ExtensionOffset * level.Size.X,
-                RoomCollisionType.Air or RoomCollisionType.Slope or RoomCollisionType.SpikeAir or
-                    RoomCollisionType.SpecialAir or RoomCollisionType.ShootableAir or
-                    RoomCollisionType.HorizontalExtension or RoomCollisionType.UnusedAir or
-                    RoomCollisionType.BombableAir or RoomCollisionType.SolidBlock or RoomCollisionType.DoorBlock or
-                    RoomCollisionType.SpikeBlock or RoomCollisionType.SpecialBlock or
-                    RoomCollisionType.ShootableBlock or RoomCollisionType.VerticalExtension or
-                    RoomCollisionType.GrappleBlock or RoomCollisionType.BombableBlock => 0,
-                _ => throw new InvalidOperationException($"Undefined RoomCollisionType {block.CollisionType}."),
-            };
-            if (offset == 0)
+            if (!level.Size.Contains(reached))
+                return ReadEnemyMoverAllocationTail(level, reached);
+            RoomCollisionBlock block = level.GetCollisionBlock(reached);
+            if (ExtensionLink(block) is not { } extension)
                 return block;
-            blockIndex = BlockScanCycle.LinkedBlock(blockIndex, offset);
+            reached = BlockScanCycle.LinkedBlock(reached, extension, level.Size.X);
         }
 
         throw new InvalidDataException(
             $"Enemy collision extension chain from block {startBlock} is cyclic.");
     }
 
-    /// <summary>Reads a block beyond the authored room, rejecting kinds whose behaviour there is unbounded.</summary>
-    private static RoomCollisionBlock ReadEnemyMoverAllocationTail(RoomLevelData level, int blockIndex)
+    /// <summary>
+    /// The columns a horizontal extension or the rows a vertical one leads an enemy's lookup on by, as the reaction
+    /// dispatcher repeats them; none for an extension that ends its chain or a block of any other kind.
+    /// </summary>
+    private static Offset16<RoomBlocks>? ExtensionLink(RoomCollisionBlock block) => block.CollisionType switch
     {
-        RoomCollisionBlock block = level.GetBlockBeyondRoom(blockIndex);
+        RoomCollisionType.HorizontalExtension when block.Behavior.EndsExtension is false =>
+            Offset16<RoomBlocks>.Of(block.Behavior.ExtensionOffset, 0),
+        RoomCollisionType.VerticalExtension when block.Behavior.EndsExtension is false =>
+            Offset16<RoomBlocks>.Of(0, block.Behavior.ExtensionOffset),
+        RoomCollisionType.Air or RoomCollisionType.Slope or RoomCollisionType.SpikeAir or
+            RoomCollisionType.SpecialAir or RoomCollisionType.ShootableAir or
+            RoomCollisionType.HorizontalExtension or RoomCollisionType.UnusedAir or
+            RoomCollisionType.BombableAir or RoomCollisionType.SolidBlock or RoomCollisionType.DoorBlock or
+            RoomCollisionType.SpikeBlock or RoomCollisionType.SpecialBlock or
+            RoomCollisionType.ShootableBlock or RoomCollisionType.VerticalExtension or
+            RoomCollisionType.GrappleBlock or RoomCollisionType.BombableBlock => null,
+        _ => throw new InvalidOperationException($"Undefined RoomCollisionType {block.CollisionType}."),
+    };
+
+    /// <summary>Reads a block beyond the authored room, rejecting kinds whose behaviour there is unbounded.</summary>
+    private static RoomCollisionBlock ReadEnemyMoverAllocationTail(RoomLevelData level, Position16<RoomBlocks> beyond)
+    {
+        RoomCollisionBlock block = level.GetBlockBeyondRoom(beyond);
         // Slopes, extensions and spike blocks read their behaviour, and a block's behaviour
         // beyond the authored room is unbounded state left by earlier rooms.
         if (block.CollisionType is RoomCollisionType.Slope or
@@ -379,13 +387,14 @@ internal sealed class EnemyTerrain
         {
             throw new NotSupportedException(
                 $"Enemy collision reached behaviour-dependent type {block.CollisionType} at " +
-                $"block {blockIndex}, past the room plane; block behaviour there is unbounded.");
+                $"block {beyond}, past the room plane; block behaviour there is unbounded.");
         }
         return block;
     }
 
     /// <summary>
-    /// Resolves signed extension links exactly as the dispatcher repeats them.
+    /// Resolves signed extension links exactly as the dispatcher repeats them: each link leads on in the room's reading
+    /// order (<see cref="RoomReadingOrder"/>), so a horizontal link past a row's end continues on the next row.
     /// A guard converts corrupt cyclic room data into a useful exception instead of a host
     /// stack overflow; valid chains always terminate well before the room allocation size.
     /// </summary>
@@ -394,35 +403,15 @@ internal sealed class EnemyTerrain
         RoomLevelData level,
         Position16<RoomBlocks> start)
     {
-        if (!level.Size.Contains(start))
-            return null;
-
-        int blockIndex = level.Size.RowMajorIndex(start);
-        int maximumLinks = level.Size.X * level.Size.Y;
-        for (int link = 0; link <= maximumLinks; link++)
+        Position16<RoomBlocks>? reached = start;
+        for (int link = 0; link <= level.Size.Area; link++)
         {
-            if ((uint)blockIndex >= (uint)maximumLinks)
+            if (reached is not { } block || !level.Size.Contains(block))
                 return null;
-            RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
-            int offset = block.CollisionType switch
-            {
-                RoomCollisionType.HorizontalExtension when
-                    block.Behavior.EndsExtension is false => block.Behavior.ExtensionOffset,
-                RoomCollisionType.VerticalExtension when
-                    block.Behavior.EndsExtension is false =>
-                    block.Behavior.ExtensionOffset * level.Size.X,
-                RoomCollisionType.Air or RoomCollisionType.Slope or RoomCollisionType.SpikeAir or
-                    RoomCollisionType.SpecialAir or RoomCollisionType.ShootableAir or
-                    RoomCollisionType.HorizontalExtension or RoomCollisionType.UnusedAir or
-                    RoomCollisionType.BombableAir or RoomCollisionType.SolidBlock or RoomCollisionType.DoorBlock or
-                    RoomCollisionType.SpikeBlock or RoomCollisionType.SpecialBlock or
-                    RoomCollisionType.ShootableBlock or RoomCollisionType.VerticalExtension or
-                    RoomCollisionType.GrappleBlock or RoomCollisionType.BombableBlock => 0,
-                _ => throw new InvalidOperationException($"Undefined RoomCollisionType {block.CollisionType}."),
-            };
-            if (offset == 0)
-                return block;
-            blockIndex += offset;
+            RoomCollisionBlock collision = level.GetCollisionBlock(block);
+            if (ExtensionLink(collision) is not { } extension)
+                return collision;
+            reached = RoomReadingOrder.Step(block, extension, level.Size.X);
         }
 
         throw new InvalidDataException(
@@ -482,17 +471,22 @@ internal sealed class EnemyTerrain
     }
 
     /// <summary>Checks slope height under the enemy center and snaps its Y position to the floor or underside.</summary>
+    /// <param name="slot">The enemy moving.</param>
+    /// <param name="block">The slope block the enemy's vertical move reached, in the room's columns.</param>
+    /// <param name="behavior">The slope block's behaviour.</param>
+    /// <param name="targetCenter">The enemy's vertical center after the move.</param>
+    /// <param name="movingUp">Whether the enemy moves up.</param>
     private static bool NonSquareVerticalSlopeIsSolid(
-        RoomLevelData level,
         RoomEnemySlot slot,
-        RoomCollisionBlock block,
+        Position16<RoomBlocks> block,
+        RoomBlockBehavior behavior,
         int targetCenter,
         bool movingUp)
     {
-        if (block.Index % level.Size.X != slot.Position.X.Whole >> 4)
+        // Only the slope block in the enemy center's column shapes the move; the others the scan reaches are passed.
+        if (block.X != slot.Position.X.Whole >> 4)
             return false;
 
-        RoomBlockBehavior behavior = block.Behavior;
         int xWithinBlock = behavior.Slope.FlipsHorizontally
             ? RoomGridConversions.OffsetFromBlockEnd(slot.Position.X.Whole)
             : RoomGridConversions.OffsetWithinBlock(slot.Position.X.Whole);
@@ -593,11 +587,14 @@ internal sealed class EnemyTerrain
     private EnemyBreakableTerrainObjects? _collisionObjects;
 
     /// <summary>Spawns the breakable-block room object for an enemy spike reaction and clears collision even if its pool is full.</summary>
-    internal bool ReactToEnemySpikeBlock(RoomLevelData level, int blockIndex, RoomCollisionBlock block)
+    /// <param name="level">The room's terrain.</param>
+    /// <param name="position">The spike block the enemy's lookup reached.</param>
+    /// <param name="block">The spike block's terrain and behaviour.</param>
+    internal bool ReactToEnemySpikeBlock(RoomLevelData level, Position16<RoomBlocks> position, RoomCollisionBlock block)
     {
         if (!EnemyBreakableTerrain.IsEnemyBreakable(block.Behavior)) return true;
         var roomObjects = _collisionObjects ?? throw new InvalidOperationException("Enemy-breakable terrain requires the active room-object owner.");
-        roomObjects.TrySpawnEnemyBreakableBlock(level, level.BlockAt(blockIndex));
+        roomObjects.TrySpawnEnemyBreakableBlock(level, position);
         return false; // The block reaction reports no collision even if the room-object pool was full.
     }
 

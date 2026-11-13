@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Video;
@@ -17,7 +18,7 @@ internal static class CeresFlightScreenMemory
 {
     /// <summary>The image of <paramref name="artwork"/>'s front view, or its rear view once <c>$BE22</c> has queued it.</summary>
     [WholeImageFixture("the Ceres flight's memory image")]
-    internal static byte[] View(CeresFlightArtwork artwork, bool rear)
+    internal static byte[] View(CeresFlightCharacters artwork, bool rear)
     {
         var vram = new SnesVram();
         // $BCCD writes all $4000 character bytes to $2119, fills every corresponding low
@@ -26,7 +27,7 @@ internal static class CeresFlightScreenMemory
         mode7.LoadCharacters(artwork.FloorCharacters.Span[..CeresFlightArtworkFileFormat.FloorByteCount]);
         mode7.FillMap(CeresFloorShotDefinitions.BlankTile, FloorSheetComposer.CellCount);
         int slice = rear ? CeresFlightArtworkFileFormat.MapCellsPerView : 0;
-        mode7.LoadMap(CeresFlightSourceArtwork.Of(artwork).FloorMaps.Span.Slice(slice, CeresFlightArtworkFileFormat.MapCellsPerView));
+        mode7.LoadMap(artwork.FloorMaps.Span.Slice(slice, CeresFlightArtworkFileFormat.MapCellsPerView));
         new CeresVram(vram).ObjectCharacters.Load(artwork.ObjectCharacters.Span[..CeresFlightArtworkFileFormat.ObjectByteCount]);
         return vram.CaptureImage();
     }
@@ -44,7 +45,7 @@ internal static class CeresFlightScreenMemory
     /// <summary>The image <paramref name="flight"/> shows: its view with the SPACE COLONY caption over it.</summary>
     [WholeImageFixture("the Ceres flight's memory image")]
     internal static byte[] Compose(IntroCeresFlightState flight) =>
-        WithCaption(View(flight.Artwork ?? throw new InvalidOperationException("Ceres approach rendering requires installed cinematic artwork."),
+        WithCaption(View((flight.Artwork ?? throw new InvalidOperationException("Ceres approach rendering requires installed cinematic artwork.")).ImportSource,
             flight.ShowsRearView), BackgroundTileWordBytes.Words(CaptionTiles(flight)));
 
     /// <summary>

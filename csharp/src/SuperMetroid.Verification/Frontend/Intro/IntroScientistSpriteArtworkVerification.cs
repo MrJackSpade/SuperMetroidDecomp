@@ -24,7 +24,7 @@ internal static class IntroScientistSpriteArtworkVerification
 {
     /// <summary>Compares six frames and the live examination actor with native OAM, and checks missing-frame rejection.</summary>
     internal static void VerifyIntroScientistSpriteArtwork(SuperMetroidAddressSpace bus,
-        IntroCinematicArtwork stock, GameInstallation installation)
+        IntroCinematicSourceArtwork stock, GameInstallation installation)
     {
         const ushort x = 120;
         PictureShade palette = IntroShades.Drawn(IntroBabyActorDefinitions.DeliveredBaby.Colouring);
@@ -47,7 +47,7 @@ internal static class IntroScientistSpriteArtworkVerification
                 native.FinalizeFrame();
                 var installed = ScreenSpritesFixtures.Blank();
                 installed.BeginFrame();
-                CinematicSheetFixtures.Drawer(IntroCinematicSourceArtwork.Of(stock).ScientistSprites).Draw(definition.Pose, installed, new(x, y),
+                CinematicSheetFixtures.Drawer(stock.ScientistSprites).Draw(definition.Pose, installed, new(x, y),
                     palette);
                 installed.FinalizeFrame();
                 AssertTrue(installed.ImageEquals(native) &&
@@ -66,7 +66,7 @@ internal static class IntroScientistSpriteArtworkVerification
         examination.Step(0, introCrossfadeTimer: 0x007f);
         var installedExamination = ScreenSpritesFixtures.Blank();
         installedExamination.BeginFrame();
-        examination.Draw(installedExamination, CinematicSheetFixtures.Drawer(IntroCinematicSourceArtwork.Of(stock).ScientistSprites));
+        examination.Draw(installedExamination, CinematicSheetFixtures.Drawer(stock.ScientistSprites));
         installedExamination.FinalizeFrame();
         var nativeExamination = new OamBuffer();
         nativeExamination.BeginFrame();

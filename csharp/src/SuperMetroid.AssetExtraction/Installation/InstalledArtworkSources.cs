@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Installation;
 
@@ -8,6 +9,9 @@ namespace SuperMetroid.AssetExtraction.Installation;
 /// </summary>
 public sealed record InstalledArtworkSources
 {
+    /// <summary>The opening cinematic's and the Ceres scenes' maps and sprite compositions.</summary>
+    public required IntroCinematicSourceArtwork Intro { get; init; }
+
     /// <summary>The ending's object maps and sprite compositions.</summary>
     public required EndingObjectSourceArtwork EndingObjects { get; init; }
 }

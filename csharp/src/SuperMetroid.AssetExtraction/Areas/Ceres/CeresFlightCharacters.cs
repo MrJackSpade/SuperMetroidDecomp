@@ -21,11 +21,13 @@ public sealed class CeresFlightCharacters : CeresFlightSourceArtwork
     /// <param name="objectCharacters">The planar 4-bpp OBJ characters.</param>
     /// <param name="documents">The installed maps, backdrop, compositions and actor placements.</param>
     private CeresFlightCharacters(byte[] floorCharacters, byte[] objectCharacters, CeresFlightSourceArtwork documents)
-        : base(documents.FloorMaps.ToArray(), documents.Backdrop, documents.Sprites, documents.Actors)
+        : base(documents.FloorMaps.ToArray(), documents.Flight.Backdrop, documents.Sprites, documents.Flight.Actors)
     {
+        Flight = new CeresFlightArtwork(backdrop, actors);
         FloorCharacters = floorCharacters;
         ObjectCharacters = objectCharacters;
     }
+
 
     /// <summary>Owned $4000-byte stream of 256 chunky 8-bpp Mode-7 characters, imported from <c>Tiles_Gunship_Ceres_Mode7</c> at <c>$95:A82F</c>; also reused by the ending flyaway.</summary>
     public ReadOnlyMemory<byte> FloorCharacters { get; }
@@ -66,10 +68,6 @@ public sealed class CeresFlightCharacters : CeresFlightSourceArtwork
         return new CeresFlightCharacters(characters, objectCharacters, documents);
     }
 
-    /// <summary>The characters <paramref name="flight"/> was read with.</summary>
-    /// <exception cref="InvalidDataException">The flight artwork was not read for the import, which alone reads its characters.</exception>
-    public static new CeresFlightCharacters Of(CeresFlightArtwork flight) => flight as CeresFlightCharacters
-        ?? throw new InvalidDataException("The Ceres flight artwork was not read for the import, which alone reads its characters.");
 
     /// <summary>Reads both ordered 768-byte front and rear map slices from a version-one map document.</summary>
     /// <param name="mapJson">Version-one document containing both ordered 768-byte front/rear map slices.</param>

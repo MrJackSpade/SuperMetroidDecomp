@@ -21,7 +21,7 @@ internal static class CeresFlightSpriteArtworkVerification
 {
     /// <summary>Compares six retail frames with native OAM and checks that a document missing a frame is rejected.</summary>
     internal static void VerifyCeresFlightSpriteArtwork(GameInstallation installation,
-        SuperMetroidAddressSpace bus, CeresFlightArtwork stock)
+        SuperMetroidAddressSpace bus, CeresFlightCharacters stock)
     {
         foreach (CinematicSpriteFrameDefinition frame in CeresFlightSpriteDefinitions.Frames)
         {
@@ -40,7 +40,7 @@ internal static class CeresFlightSpriteArtworkVerification
                 native.FinalizeFrame();
                 var installed = ScreenSpritesFixtures.Blank();
                 installed.BeginFrame();
-                CinematicSheetFixtures.Drawer(CeresFlightSourceArtwork.Of(stock).Sprites).Draw(frame.Pose, installed, new(120, y), CeresShades.Drawn(CeresSpriteColouring.SpaceObjects));
+                CinematicSheetFixtures.Drawer(stock.Sprites).Draw(frame.Pose, installed, new(120, y), CeresShades.Drawn(CeresSpriteColouring.SpaceObjects));
                 installed.FinalizeFrame();
                 AssertTrue(installed.ImageEquals(native) &&
                         installed.LastFinalizedSpriteCount == native.LastFinalizedSpriteCount,

@@ -30,21 +30,21 @@ internal static class CeresDestructionArtworkVerification
     {
         // The Zebes reveal's characters are import data no installation holds: the cartridge-derived extraction's (#1636).
         ArgumentNullException.ThrowIfNull(installation);
-        IntroCinematicArtwork stock = InstalledFixtures.IntroArtwork;
+        ImportIntroCinematicArtwork stock = InstalledFixtures.IntroArtwork;
         byte[] nativeMaps = RomDataReader.Decompress(bus,
             CeresCinematicSourceDefinitions.CeresTilemaps,
             maximumOutputBytes: CeresCinematicSourceDefinitions.CompressedTilemapLimit);
-        AssertTrue(IntroCinematicSourceArtwork.Of(stock).CeresDestructionMaps.Views.Span.SequenceEqual(nativeMaps.AsSpan(
+        AssertTrue(stock.CeresDestructionMaps.Views.Span.SequenceEqual(nativeMaps.AsSpan(
                 2 * CeresFlightArtworkFileFormat.MapCellsPerView,
                 CeresDestructionMapFormat.MapByteCount)),
             "installed destruction JSON preserves the three remaining Ceres map slices");
         byte[] nativeZebesMap = RomDataReader.Decompress(bus,
             CeresCinematicSourceDefinitions.ZebesTilemap,
             maximumOutputBytes: CeresCinematicSourceDefinitions.CompressedTilemapLimit);
-        AssertTrue(ImportIntroCinematicArtwork.Imported(stock).ZebesReveal.Map.Bytes.Span.SequenceEqual(
+        AssertTrue(stock.ZebesReveal.Map.Bytes.Span.SequenceEqual(
                 nativeZebesMap.AsSpan(0, ZebesRevealArtworkFormat.MapByteCount)),
             "installed Zebes reveal JSON preserves every transferred BG word");
-        AssertTrue(ImportIntroCinematicArtwork.Imported(stock).ZebesReveal.Characters.Characters.Span.SequenceEqual(
+        AssertTrue(stock.ZebesReveal.Characters.Characters.Span.SequenceEqual(
                 RomDataReader.Decompress(bus,
                     CeresCinematicSourceDefinitions.ZebesCharacters,
                     maximumOutputBytes: ZebesRevealArtworkFormat.CharacterByteCount)),
@@ -68,7 +68,7 @@ internal static class CeresDestructionArtworkVerification
                 nativeOam.FinalizeFrame();
                 var installedOam = ScreenSpritesFixtures.Blank();
                 installedOam.BeginFrame();
-                CinematicSheetFixtures.Drawer(IntroCinematicSourceArtwork.Of(stock).CeresDestructionSprites).Draw(frame.Pose, installedOam,
+                CinematicSheetFixtures.Drawer(stock.CeresDestructionSprites).Draw(frame.Pose, installedOam,
                     new(120, y), CeresShades.Drawn(CeresSpriteColouring.SpaceObjects));
                 installedOam.FinalizeFrame();
                 AssertTrue(installedOam.ImageEquals(nativeOam) &&

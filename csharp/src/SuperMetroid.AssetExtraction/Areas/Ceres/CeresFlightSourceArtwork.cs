@@ -7,12 +7,12 @@ using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 
 /// <summary>
-/// The installed approach to Ceres (#1409, #1636): its Mode 7 floor maps and its compositions, beside the backdrop and
-/// actor placements the game binds, read from the installed documents. Its characters are import data the installation
+/// The installed approach to Ceres (#1409, #1616, #1636): its Mode 7 floor maps and its compositions, beside what the game
+/// binds of it (<see cref="Flight"/>), read from the installed documents. Its characters are import data the installation
 /// never holds (<see cref="CeresFlightCharacters"/>); its colours are a palette document only the import reads
 /// (<see cref="ImportIntroCinematicArtwork.FlightPalette"/>).
 /// </summary>
-public class CeresFlightSourceArtwork : CeresFlightArtwork
+public class CeresFlightSourceArtwork
 {
     /// <summary>Retains the selected maps, backdrop, compositions and actor placements.</summary>
     /// <param name="floorMaps">Front 768 map bytes followed by rear 768 map bytes.</param>
@@ -21,11 +21,14 @@ public class CeresFlightSourceArtwork : CeresFlightArtwork
     /// <param name="actors">The rear-view actors' placements.</param>
     private protected CeresFlightSourceArtwork(byte[] floorMaps, RgbColor backdrop, CeresFlightSpritePresentation sprites,
         CeresFlightActorPlacements actors)
-        : base(backdrop, actors)
     {
+        Flight = new CeresFlightArtwork(backdrop, actors);
         FloorMaps = Ensure.NotNull(floorMaps);
         Sprites = Ensure.NotNull(sprites);
     }
+
+    /// <summary>What the game binds of the approach: its backdrop and the rear-view actors' placements.</summary>
+    public CeresFlightArtwork Flight { get; }
 
     /// <summary>Selected six-frame compositions for stars, station, asteroids, and vortex, shared with the Ceres destruction scene's sheets.</summary>
     public CeresFlightSpritePresentation Sprites { get; }
@@ -37,9 +40,9 @@ public class CeresFlightSourceArtwork : CeresFlightArtwork
     public string ContentIdentity => SelectedPresentationHash.Create("CeresFlightArtworkCatalog-v2", content =>
     {
         content.Append("mode7-maps", FloorMaps.Span);
-        content.AppendColors("backdrop", [Backdrop]);
+        content.AppendColors("backdrop", [Flight.Backdrop]);
         content.Append("sprites", Convert.FromHexString(Sprites.ContentIdentity));
-        content.Append("actors", Convert.FromHexString(Actors.ContentIdentity));
+        content.Append("actors", Convert.FromHexString(Flight.Actors.ContentIdentity));
     });
 
     /// <summary>Compiles the installed Ceres approach documents into map and actor presentation data.</summary>
@@ -58,9 +61,4 @@ public class CeresFlightSourceArtwork : CeresFlightArtwork
         return new CeresFlightSourceArtwork(CeresFlightCharacters.ReadMaps(mapJson), backdrop,
             CeresFlightSpritePresentation.Load(spritesJson), CeresFlightActorLayoutFile.Read(actorsJson));
     }
-
-    /// <summary>The installed documents <paramref name="flight"/> was read with.</summary>
-    /// <exception cref="InvalidDataException">The flight artwork was not read from installed artwork.</exception>
-    public static CeresFlightSourceArtwork Of(CeresFlightArtwork flight) => flight as CeresFlightSourceArtwork
-        ?? throw new InvalidDataException("The Ceres flight artwork was not read from installed artwork.");
 }

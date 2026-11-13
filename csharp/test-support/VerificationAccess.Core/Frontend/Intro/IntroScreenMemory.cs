@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
@@ -18,9 +19,9 @@ internal static class IntroScreenMemory
 {
     /// <summary>The character image of <paramref name="artwork"/> and <paramref name="installedFont"/>, as `$8B:A469-$A529` upload them.</summary>
     [WholeImageFixture("the intro's character image")]
-    internal static byte[] Characters(IntroCinematicArtwork artwork, IntroFontCharacters installedFont, bool japaneseGlyphsBlanked)
+    internal static byte[] Characters(IntroCinematicSourceArtwork artwork, IntroFontCharacters installedFont, bool japaneseGlyphsBlanked)
     {
-        ImportIntroCinematicArtwork sources = ImportIntroCinematicArtwork.Imported(artwork);
+        ImportIntroCinematicArtwork sources = artwork;
         ReadOnlySpan<byte> font = Ensure.NotNull(installedFont).Characters.Span;
         var vram = new SnesVram();
         var intro = new IntroVram(vram);
@@ -44,14 +45,15 @@ internal static class IntroScreenMemory
     }
 
     /// <summary>
-    /// The memory image <paramref name="intro"/> shows: its bound characters and the installation's opening font, which the
-    /// intro's installed narration pictures are composed from (#1583), with its portrait and narration tilemaps over them.
+    /// The memory image <paramref name="intro"/> shows: the characters of the import's artwork its bound catalog came from
+    /// (#1616) and the installation's opening font, which the intro's installed narration pictures are composed from (#1583),
+    /// with its portrait and narration tilemaps over them.
     /// </summary>
     [WholeImageFixture("the intro's memory image")]
     internal static byte[] Compose(IntroCinematicState intro)
     {
-        IntroCinematicArtwork artwork = intro.CharacterArtwork ?? throw new InvalidOperationException(
-            "Opening cinematic rendering requires installed artwork.");
+        ImportIntroCinematicArtwork artwork = (intro.CharacterArtwork ?? throw new InvalidOperationException(
+            "Opening cinematic rendering requires installed artwork.")).ImportSource;
         IntroFontCharacters font = ImportAreaMapPresentation.IntroFontOf(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps);
         return Compose(Characters(artwork, font, intro.CurrentObjects is not null), PortraitTiles(artwork, intro.CurrentObjects?.EyeFrame),
             NarrationTiles(intro.narrationText, intro.CurrentObjects is null, artwork));
@@ -62,12 +64,12 @@ internal static class IntroScreenMemory
     /// shown; otherwise the cleared staging map's border and blank text rows, the installed final line and its blanked
     /// neighbours, with each shown text cell's letter, or the blank cell, in its colour variant.
     /// </summary>
-    internal static BackgroundTile[] NarrationTiles(IntroNarrationText text, bool firstCardShown, IntroCinematicArtwork artwork)
+    internal static BackgroundTile[] NarrationTiles(IntroNarrationText text, bool firstCardShown, IntroCinematicSourceArtwork artwork)
     {
         var tiles = new BackgroundTile[IntroCinematicDefinitionsPlanesConstants.TextTilemapWordCount];
         if (firstCardShown)
         {
-            IntroCinematicSourceArtwork.Of(artwork).InitialNarrationTilemap.Span[..IntroArtworkExtentDefinitions.NarrationTilemapCells].CopyTo(tiles);
+            artwork.InitialNarrationTilemap.Span[..IntroArtworkExtentDefinitions.NarrationTilemapCells].CopyTo(tiles);
             return tiles;
         }
         Array.Fill(tiles, IntroNarrationTilemapConstants.Blank);
@@ -76,7 +78,7 @@ internal static class IntroScreenMemory
             tiles[index] = IntroNarrationTilemapConstants.Margin;
             tiles[index + IntroNarrationTilemapConstants.JapaneseBlankBottomDelta] = IntroNarrationTilemapConstants.Margin;
         }
-        IntroCinematicSourceArtwork.Of(artwork).FinalLine.Tiles.Span[..IntroArtworkExtentDefinitions.FinalLineWordCount].CopyTo(tiles.AsSpan(IntroNarrationTilemapConstants.FinalLineFirstCell));
+        artwork.FinalLine.Tiles.Span[..IntroArtworkExtentDefinitions.FinalLineWordCount].CopyTo(tiles.AsSpan(IntroNarrationTilemapConstants.FinalLineFirstCell));
         tiles[IntroNarrationTilemapConstants.FinalBlankLeftIndex] = IntroNarrationTilemapConstants.FinalBlank;
         tiles[IntroNarrationTilemapConstants.FinalBlankRightIndex] = IntroNarrationTilemapConstants.FinalBlank;
         for (int row = IntroNarrationText.FirstTextRow; row < IntroNarrationText.FirstTextRow + IntroNarrationText.TextRows; row++)
@@ -95,9 +97,9 @@ internal static class IntroScreenMemory
     /// The portrait tilemap the cartridge holds for the eye frame <paramref name="eye"/> the portrait shows (#1467): the
     /// installed portrait with the frame's rectangle over its eye, or the portrait alone before the eye's first frame.
     /// </summary>
-    internal static BackgroundTile[] PortraitTiles(IntroCinematicArtwork artwork, IntroEyeFrame? eye)
+    internal static BackgroundTile[] PortraitTiles(IntroCinematicSourceArtwork artwork, IntroEyeFrame? eye)
     {
-        IntroCinematicSourceArtwork sources = IntroCinematicSourceArtwork.Of(artwork);
+        IntroCinematicSourceArtwork sources = artwork;
         BackgroundTile[] portrait = sources.PortraitTilemap.Span[..IntroCinematicDefinitionsArtworkConstants.SamusHeadTilemapCells].ToArray();
         if (eye is not { } frame)
             return portrait;

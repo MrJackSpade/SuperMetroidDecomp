@@ -40,7 +40,7 @@ internal static class CeresCinematicPictureSheetComposer
     /// engine's flicker shades only the gunship's floor.
     /// </summary>
     /// <exception cref="InvalidDataException">A picture's tile names a character the scene never loads.</exception>
-    internal static ComposedSpriteSheet Compose(IntroCinematicArtwork intro) =>
+    internal static ComposedSpriteSheet Compose(IntroCinematicSourceArtwork intro) =>
         Compose(Ensure.NotNull(intro).CeresFlight, intro);
 
     /// <summary>
@@ -48,15 +48,15 @@ internal static class CeresCinematicPictureSheetComposer
     /// artwork, as an installation whose flight artwork is replaced composes it.
     /// </summary>
     /// <exception cref="InvalidDataException">A picture's tile names a character the scene never loads.</exception>
-    internal static ComposedSpriteSheet Compose(CeresFlightArtwork ceresFlight, IntroCinematicArtwork intro)
+    internal static ComposedSpriteSheet Compose(CeresFlightCharacters ceresFlight, IntroCinematicSourceArtwork intro)
     {
         Ensure.NotNull(ceresFlight);
         Ensure.NotNull(intro);
-        byte[] flight = CeresFlightCharacters.Of(ceresFlight).ObjectCharacters.Span[..CeresFlightArtworkFileFormat.ObjectByteCount].ToArray();
+        byte[] flight = ceresFlight.ObjectCharacters.Span[..CeresFlightArtworkFileFormat.ObjectByteCount].ToArray();
         // The destruction loads the shared cinematic sheet over the start of the flight's objects; the reveal its own over them.
         byte[] zebes = (byte[])flight.Clone();
-        ImportIntroCinematicArtwork.Imported(intro).IntroObjectCharacters.Characters.Span[..CeresFlightArtworkFileFormat.SharedObjectCharacterBytes].CopyTo(zebes);
-        ImportIntroCinematicArtwork.Imported(intro).ZebesReveal.Characters.Characters.Span[..ZebesRevealArtworkFormat.CharacterByteCount].CopyTo(zebes);
+        intro.IntroObjectCharacters.Characters.Span[..CeresFlightArtworkFileFormat.SharedObjectCharacterBytes].CopyTo(zebes);
+        intro.ZebesReveal.Characters.Characters.Span[..ZebesRevealArtworkFormat.CharacterByteCount].CopyTo(zebes);
         int letters = SpaceColonyCaptionDefinitions.LetterCount;
         // Each caption letter's glyph is pictured once, however many of the caption's letters draw it (#1513).
         BackgroundTile[] glyphs = [.. Enumerable.Range(0, letters).Select(letter => Ensure.Listed(SpaceColonyCaptionTileDefinitions.Glyphs, CaptionCharacter(letter))).Distinct()];
@@ -82,7 +82,7 @@ internal static class CeresCinematicPictureSheetComposer
             japanese = japanese.Union(Paint(canvas, (glyphs.Length + cell % JapaneseWidth) * CharacterPixels,
                 cell / JapaneseWidth * CharacterPixels, japaneseTiles[cell], flight, colours));
         frames.Add(CeresCinematicPictures.JapaneseCaption, Frame(glyphs.Length * CharacterPixels, 0, JapaneseWidth, japaneseRows, japanese));
-        ReadOnlySpan<BackgroundTile> planet = ImportIntroCinematicArtwork.Imported(intro).ZebesReveal.Map.Tiles.Span[..(ZebesRevealArtworkFormat.MapByteCount / sizeof(ushort))];
+        ReadOnlySpan<BackgroundTile> planet = intro.ZebesReveal.Map.Tiles.Span[..(ZebesRevealArtworkFormat.MapByteCount / sizeof(ushort))];
         ImageColourGroups planetGroups = ImageColourGroups.None;
         for (int cell = 0; cell < planet.Length; cell++)
             planetGroups = planetGroups.Union(Paint(canvas, cell % PlanetCells * CharacterPixels, captionHeight + cell / PlanetCells * CharacterPixels,

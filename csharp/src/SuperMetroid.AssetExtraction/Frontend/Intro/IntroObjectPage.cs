@@ -13,9 +13,9 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 internal static class IntroObjectPage
 {
     /// <summary>The intro OBJ page of <paramref name="intro"/>.</summary>
-    internal static SpriteArtwork Of(IntroCinematicArtwork intro)
+    internal static SpriteArtwork Of(IntroCinematicSourceArtwork intro)
     {
-        ImportIntroCinematicArtwork sources = ImportIntroCinematicArtwork.Imported(Ensure.NotNull(intro));
+        ImportIntroCinematicArtwork sources = Ensure.NotNull(intro);
         var id = new SpriteArtworkId(SpriteArtworkKind.IntroObjects);
         return ObjCharacterPage.With(id, ObjCharacterPage.Create(id, sources.IntroObjectCharacters.Characters.Span),
             sources.CinematicObjectCharacters.Characters.Span, ProjectileObjectPageDefinitions.IntroCinematicObjectsFirstCharacter);

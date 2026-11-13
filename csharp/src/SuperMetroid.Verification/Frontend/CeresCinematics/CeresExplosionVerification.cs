@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using static SuperMetroid.Verification.Samus.Palettes.PowerBombFixedColorsVerification;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
@@ -17,10 +18,10 @@ internal static class CeresExplosionVerification
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var guarded = NewForbiddenPowerBombColorBus(bus);
-        IntroCinematicArtwork artwork = InstalledFixtures.IntroArtwork;
+        IntroCinematicSourceArtwork artwork = InstalledFixtures.IntroArtwork;
         InstalledPowerBombFixedColors stockColors = colors ?? PowerBombFixedColorFile.Read(
             new MemoryStream(PowerBombFixedColorExtractor.Extract(bus)));
-        var scene = new CeresDestructionCinematicState(fixedColors: stockColors, artwork: artwork,
+        var scene = new CeresDestructionCinematicState(fixedColors: stockColors, artwork: artwork.BoundCatalog,
             spriteSheets: CinematicSheetFixtures.WithIntro(artwork));
         var reference = new SamusPowerBombExplosionState { PresentationColors = stockColors };
         var phases = new HashSet<PowerBombExplosionPhase>();

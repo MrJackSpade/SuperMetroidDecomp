@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -24,7 +25,7 @@ internal static class CeresDestructionScreenMemory
     /// leaves with Samus still aboard, which clears both views and so shows no floor.
     /// </summary>
     [WholeImageFixture("the Ceres destruction's memory image")]
-    internal static byte[] Compose(IntroCinematicArtwork artwork, CeresFloorShot? floor, bool zebesRevealed, bool clearedWithSamusAboard = false)
+    internal static byte[] Compose(IntroCinematicSourceArtwork artwork, CeresFloorShot? floor, bool zebesRevealed, bool clearedWithSamusAboard = false)
     {
         if (clearedWithSamusAboard && floor is not null)
             throw new ArgumentException("The explosion with Samus aboard leaves no floor shot.", nameof(floor));
@@ -32,8 +33,8 @@ internal static class CeresDestructionScreenMemory
         var mode7 = new Mode7Vram(vram);
         var ceres = new CeresVram(vram);
         var views = new byte[CeresFloorShotDefinitions.MapCells];
-        CeresFlightSourceArtwork.Of(artwork.CeresFlight).FloorMaps.Span.CopyTo(views);
-        IntroCinematicSourceArtwork.Of(artwork).CeresDestructionMaps.Views.Span[..(views.Length - CeresFlightSourceArtwork.Of(artwork.CeresFlight).FloorMaps.Length)].CopyTo(views.AsSpan(CeresFlightSourceArtwork.Of(artwork.CeresFlight).FloorMaps.Length));
+        artwork.CeresFlight.FloorMaps.Span.CopyTo(views);
+        artwork.CeresDestructionMaps.Views.Span[..(views.Length - artwork.CeresFlight.FloorMaps.Length)].CopyTo(views.AsSpan(artwork.CeresFlight.FloorMaps.Length));
         if (floor is not null || clearedWithSamusAboard)
         {
             mode7.LoadCharacters(artwork.CeresFlight.FloorCharacters.Span[..CeresFlightArtworkFileFormat.FloorByteCount]);
@@ -51,17 +52,17 @@ internal static class CeresDestructionScreenMemory
             ceres.ObjectCharacters.Load(CeresDestructionObjectPage.Characters(artwork, zebesRevealed));
         }
         if (zebesRevealed)
-            ceres.ZebesTilemap.Load(ImportIntroCinematicArtwork.Imported(artwork).ZebesReveal.Map.Bytes.Span[..ZebesRevealArtworkFormat.MapByteCount]);
+            ceres.ZebesTilemap.Load(artwork.ZebesReveal.Map.Bytes.Span[..ZebesRevealArtworkFormat.MapByteCount]);
         return vram.CaptureImage();
     }
 
     /// <summary>
-    /// The image <paramref name="scene"/>'s state leaves over its bound artwork. A scene with Samus aboard that shows no
+    /// The image <paramref name="scene"/>'s state leaves over the import's artwork its bound catalog came from (#1616). A scene with Samus aboard that shows no
     /// floor after its final explosion has cleared it.
     /// </summary>
     [WholeImageFixture("the Ceres destruction's memory image")]
     internal static byte[] Compose(CeresDestructionCinematicState scene) =>
-        Compose(scene.Artwork ?? throw new InvalidOperationException("Ceres destruction rendering requires installed cinematic artwork."),
+        Compose((scene.Artwork ?? throw new InvalidOperationException("Ceres destruction rendering requires installed cinematic artwork.")).ImportSource,
             scene.FloorShot, scene.ZebesRevealed, scene.FloorShot is null && scene.WithSamus && scene.Phase is CeresDestructionPhase.FlyingAwayFromExplosion
                 or CeresDestructionPhase.HoldAfterExplosion or CeresDestructionPhase.FadeOutCeres or CeresDestructionPhase.Finished);
 }

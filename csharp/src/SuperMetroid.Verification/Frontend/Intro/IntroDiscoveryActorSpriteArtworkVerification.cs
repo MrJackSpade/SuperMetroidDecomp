@@ -25,7 +25,7 @@ internal static class IntroDiscoveryActorSpriteArtworkVerification
     /// <summary>Compares stock OAM at visible and wrapped origins, then renders the production
     /// discovery scene without cartridge artwork reads.</summary>
     internal static void VerifyIntroDiscoveryActorSpriteArtwork(SuperMetroidAddressSpace bus,
-        IntroCinematicArtwork stock, GameInstallation installation)
+        IntroCinematicSourceArtwork stock, GameInstallation installation)
     {
         const ushort x = 120;
         PictureShade palette = IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors);
@@ -48,7 +48,7 @@ internal static class IntroDiscoveryActorSpriteArtworkVerification
                 native.FinalizeFrame();
                 var installed = ScreenSpritesFixtures.Blank();
                 installed.BeginFrame();
-                CinematicSheetFixtures.Drawer(IntroCinematicSourceArtwork.Of(stock).DiscoveryActorSprites).Draw(definition.Pose, installed, new(x, y),
+                CinematicSheetFixtures.Drawer(stock.DiscoveryActorSprites).Draw(definition.Pose, installed, new(x, y),
                     palette);
                 installed.FinalizeFrame();
                 AssertTrue(installed.ImageEquals(native) &&

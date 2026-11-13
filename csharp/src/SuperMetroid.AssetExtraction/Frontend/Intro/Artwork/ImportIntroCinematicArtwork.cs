@@ -2,7 +2,6 @@ using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Frontend.Intro.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
@@ -25,6 +24,7 @@ public sealed class ImportIntroCinematicArtwork : IntroCinematicSourceArtwork
         CeresFlightPalette flightPalette)
         : base(Ensure.NotNull(parts) with { CeresFlight = Ensure.NotNull(characters).CeresFlight })
     {
+        FlightCharacters = characters.CeresFlight;
         BackgroundCharacters = Ensure.NotNull(characters.BackgroundCharacters);
         IntroObjectCharacters = Ensure.NotNull(characters.IntroObjectCharacters);
         CinematicObjectCharacters = Ensure.NotNull(characters.CinematicObjectCharacters);
@@ -32,6 +32,9 @@ public sealed class ImportIntroCinematicArtwork : IntroCinematicSourceArtwork
         Palette = Ensure.NotNull(palette);
         FlightPalette = Ensure.NotNull(flightPalette);
     }
+
+    /// <summary>The Ceres approach's documents with its floor and OBJ characters, which the Ceres scenes' pictures are composed from.</summary>
+    public CeresFlightCharacters FlightCharacters { get; }
 
     /// <summary>BG characters of the illustrated scenes.</summary>
     public RoomCharacterAtlas BackgroundCharacters { get; }
@@ -53,9 +56,4 @@ public sealed class ImportIntroCinematicArtwork : IntroCinematicSourceArtwork
     /// the Ceres scenes' pictures and actors in (#1512).
     /// </summary>
     public CeresFlightPalette FlightPalette { get; }
-
-    /// <summary>The import's read of <paramref name="intro"/>.</summary>
-    /// <exception cref="InvalidDataException">The opening artwork was not read for the import.</exception>
-    public static ImportIntroCinematicArtwork Imported(IntroCinematicArtwork intro) => intro as ImportIntroCinematicArtwork
-        ?? throw new InvalidDataException("The opening cinematic artwork was not read for the import, which alone reads its colours.");
 }

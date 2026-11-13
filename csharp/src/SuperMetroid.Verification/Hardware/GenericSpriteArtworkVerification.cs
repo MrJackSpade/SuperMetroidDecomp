@@ -40,7 +40,7 @@ internal static class GenericSpriteArtworkVerification
         var reference = CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
         // The title's and the intro's characters are import data no installation holds: the cartridge-derived extraction's (#1636).
         AreaMapPresentation maps = InstalledFixtures.Maps;
-        IntroCinematicArtwork introArtwork = InstalledFixtures.IntroArtwork;
+        ImportIntroCinematicArtwork introArtwork = InstalledFixtures.IntroArtwork;
         InstalledProjectilePresentation projectiles = installation.LoadProjectiles();
         InstalledSamusBodyArtwork body = installation.LoadSamusBody().Gameplay;
 
@@ -93,7 +93,7 @@ internal static class GenericSpriteArtworkVerification
         EqualSprites(expected, title.objects, "title copyright owner parity");
 
         var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve),
-            characterArtwork: introArtwork,
+            characterArtwork: introArtwork.BoundCatalog,
             samusBodyArtwork: body)
         {
             Random = new SharedRandom(),
@@ -136,7 +136,7 @@ internal static class GenericSpriteArtworkVerification
         explosions.SpawnFourthHitExplosions();
         explosions.Step(introCrossfadeTimer: 1);
         var actual = ScreenSpritesFixtures.Blank(); actual.BeginFrame();
-        explosions.Draw(actual, CinematicSheetFixtures.Drawer(IntroCinematicSourceArtwork.Of(introArtwork).MotherBrainExplosionSprites));
+        explosions.Draw(actual, CinematicSheetFixtures.Drawer(introArtwork.MotherBrainExplosionSprites));
         actual.FinalizeFrame();
         expected = new OamBuffer();
         expected.BeginFrame();

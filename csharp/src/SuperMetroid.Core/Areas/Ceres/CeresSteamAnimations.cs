@@ -30,12 +30,12 @@ internal static class CeresSteamAnimations
         [P.UpLoop2] =
         [
             Show(EnemyFrameId.CeresSteamUp, 3),
-            Show(EnemyFrameId.CeresSteamUpLoopTwoSecond, 3),
-            Show(EnemyFrameId.CeresSteamUpLoopTwoThird, 3),
-            Show(EnemyFrameId.CeresSteamUpLoopTwoFourth, 3),
-            Show(EnemyFrameId.CeresSteamUpLoopTwoFifth, 3),
-            Show(EnemyFrameId.CeresSteamUpLoopTwoSixth, 3),
-            Show(EnemyFrameId.CeresSteamUpLoopTwoSeventh, 3),
+            Show(EnemyFrameId.CeresSteamUpSecond, 3),
+            Show(EnemyFrameId.CeresSteamUpThird, 3),
+            Show(EnemyFrameId.CeresSteamUpFourth, 3),
+            Show(EnemyFrameId.CeresSteamUpFifth, 3),
+            Show(EnemyFrameId.CeresSteamUpSixth, 3),
+            Show(EnemyFrameId.CeresSteamUpSeventh, 3),
         ],
         [P.Left] =
         [
@@ -52,12 +52,12 @@ internal static class CeresSteamAnimations
         [P.LeftLoop2] =
         [
             Show(EnemyFrameId.CeresSteamLeft, 3),
-            Show(EnemyFrameId.CeresSteamLeftLoopTwoSecond, 3),
-            Show(EnemyFrameId.CeresSteamLeftLoopTwoThird, 3),
-            Show(EnemyFrameId.CeresSteamLeftLoopTwoFourth, 3),
-            Show(EnemyFrameId.CeresSteamLeftLoopTwoFifth, 3),
-            Show(EnemyFrameId.CeresSteamLeftLoopTwoSixth, 3),
-            Show(EnemyFrameId.CeresSteamLeftLoopTwoSeventh, 3),
+            Show(EnemyFrameId.CeresSteamLeftSecond, 3),
+            Show(EnemyFrameId.CeresSteamLeftThird, 3),
+            Show(EnemyFrameId.CeresSteamLeftFourth, 3),
+            Show(EnemyFrameId.CeresSteamLeftFifth, 3),
+            Show(EnemyFrameId.CeresSteamLeftSixth, 3),
+            Show(EnemyFrameId.CeresSteamLeftSeventh, 3),
         ],
         [P.Down] =
         [
@@ -74,12 +74,12 @@ internal static class CeresSteamAnimations
         [P.DownLoop2] =
         [
             Show(EnemyFrameId.CeresSteamDown, 3),
-            Show(EnemyFrameId.CeresSteamDownLoopTwoSecond, 3),
-            Show(EnemyFrameId.CeresSteamDownLoopTwoThird, 3),
-            Show(EnemyFrameId.CeresSteamDownLoopTwoFourth, 3),
-            Show(EnemyFrameId.CeresSteamDownLoopTwoFifth, 3),
-            Show(EnemyFrameId.CeresSteamDownLoopTwoSixth, 3),
-            Show(EnemyFrameId.CeresSteamDownLoopTwoSeventh, 3),
+            Show(EnemyFrameId.CeresSteamDownSecond, 3),
+            Show(EnemyFrameId.CeresSteamDownThird, 3),
+            Show(EnemyFrameId.CeresSteamDownFourth, 3),
+            Show(EnemyFrameId.CeresSteamDownFifth, 3),
+            Show(EnemyFrameId.CeresSteamDownSixth, 3),
+            Show(EnemyFrameId.CeresSteamDownSeventh, 3),
         ],
         [P.Right] =
         [
@@ -96,12 +96,12 @@ internal static class CeresSteamAnimations
         [P.RightLoop2] =
         [
             Show(EnemyFrameId.CeresSteamRight, 3),
-            Show(EnemyFrameId.CeresSteamRightLoopTwoSecond, 3),
-            Show(EnemyFrameId.CeresSteamRightLoopTwoThird, 3),
-            Show(EnemyFrameId.CeresSteamRightLoopTwoFourth, 3),
-            Show(EnemyFrameId.CeresSteamRightLoopTwoFifth, 3),
-            Show(EnemyFrameId.CeresSteamRightLoopTwoSixth, 3),
-            Show(EnemyFrameId.CeresSteamRightLoopTwoSeventh, 3),
+            Show(EnemyFrameId.CeresSteamRightSecond, 3),
+            Show(EnemyFrameId.CeresSteamRightThird, 3),
+            Show(EnemyFrameId.CeresSteamRightFourth, 3),
+            Show(EnemyFrameId.CeresSteamRightFifth, 3),
+            Show(EnemyFrameId.CeresSteamRightSixth, 3),
+            Show(EnemyFrameId.CeresSteamRightSeventh, 3),
         ],
     });
 

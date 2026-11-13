@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 public static class EnemyProjectileSpritemapDocuments
 {
     /// <summary>The document schema revision extraction writes and loading accepts.</summary>
-    public const int Version = 15;
+    public const int Version = 16;
     /// <summary>Maximum ordered sprite parts admitted per composition; empty compositions are valid.</summary>
     public const int MaximumParts = 128;
     /// <summary>Sixteen 8-pixel character columns per atlas row; row times 16 plus column forms the packed character index.</summary>

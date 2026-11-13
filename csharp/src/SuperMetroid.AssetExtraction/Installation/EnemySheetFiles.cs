@@ -27,7 +27,7 @@ public static class EnemySheetFiles
     /// objects nothing spawns, and keys every projectile frame by what it shows (#1623); 30 keys every enemy frame by the
     /// animation segment or table key that first shows it (#1623).
     /// </summary>
-    public const int ManifestVersion = 30;
+    public const int ManifestVersion = 31;
 
     /// <summary>The manifest naming each variant's sheets and the variants each population draws.</summary>
     public const string ManifestFileName = "enemy-sheets.json";

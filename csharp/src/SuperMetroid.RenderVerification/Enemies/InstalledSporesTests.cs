@@ -51,7 +51,7 @@ internal static class InstalledSporesTests
     }
 
     /// <summary>Checks the installed spores FX over freeze, scroll wrap, and animated transfers while guarding gameplay state.</summary>
-    private static void CheckOwners(InstalledAreaMapPresentation stock, List<DisplayPacket> packets)
+    private static void CheckOwners(ImportAreaMapPresentation stock, List<DisplayPacket> packets)
     {
         var mechanics = RoomFxAnimatedTileLoops.All.Single(
             value => value.AnimatedObject == AnimatedTileObject.Spores);

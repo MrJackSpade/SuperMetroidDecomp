@@ -273,7 +273,7 @@ public sealed class PlayableGameControl : UserControl
             selectedAudioAssets,
             mapPresentation,
             projectilePresentation,
-            InstalledArtworkIdentity.Create(artwork, enemyArtwork, samusBody, installation.LoadArtworkSources()));
+            InstalledArtworkIdentity.Create(artwork, enemyArtwork, installation.LoadArtworkSources(samusBody)));
         Console.WriteLine(
             $"Installed content: {installedContentIdentity.CompositeSha256}; " +
             $"definitions={installedContentIdentity.CompiledDefinitionsBuildId:D}, " +

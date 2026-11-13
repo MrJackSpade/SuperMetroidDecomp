@@ -95,8 +95,10 @@ public sealed record GameInstallation(string Root)
     /// <summary>Loads every installed enemy sheet.</summary>
     public InstalledEnemySheets LoadEnemySheets() => EnemySheetFiles.Load(EnemySheetDirectory);
     /// <summary>Loads the installed artwork only the import reads, which the installed content's identity covers (#1616).</summary>
-    public InstalledArtworkSources LoadArtworkSources() => new()
+    /// <param name="samusBody">The Samus body the host loaded once and bound the game's body catalog from.</param>
+    public InstalledArtworkSources LoadArtworkSources(SamusBodySources samusBody) => new()
     {
+        SamusBody = Ensure.NotNull(samusBody),
         Intro = LoadIntroCinematicArt(),
         EndingObjects = LoadEndingObjectArt(),
     };

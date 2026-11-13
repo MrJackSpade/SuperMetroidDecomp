@@ -52,7 +52,7 @@ internal static class MapPictureSheets
     /// cell a retail map stores explored to show alike in either shade under <paramref name="palette"/> (#1513).
     /// </summary>
     /// <exception cref="InvalidDataException">A cell's sources paint different pixels, or a stored-explored cell shows differently by shade.</exception>
-    internal static void RequireCellsPicturedOnce(InstalledAreaMapPresentation maps, ReadOnlySpan<RgbColor> palette)
+    internal static void RequireCellsPicturedOnce(ImportAreaMapPresentation maps, ReadOnlySpan<RgbColor> palette)
     {
         ScreenCharacters characters = MapCharacters(maps);
         MapCellCharacters.RequireOnePicturePerCell(characters);
@@ -60,7 +60,7 @@ internal static class MapPictureSheets
     }
 
     /// <summary>The map characters, from tile zero, as the room maps and the pause map name them.</summary>
-    internal static ScreenCharacters MapCharacters(InstalledAreaMapPresentation maps)
+    internal static ScreenCharacters MapCharacters(ImportAreaMapPresentation maps)
     {
         int bytes = MapScreenDefinitions.MapTileCount * RoomTileCanvas.CharacterBytes;
         return new ScreenCharacters(TileInkDepth.SixteenColours).Place(0, Ensure.NotNull(maps).Characters.Map.Characters[..bytes].ToArray());

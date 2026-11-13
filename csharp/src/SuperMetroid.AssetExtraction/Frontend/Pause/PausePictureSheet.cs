@@ -79,7 +79,7 @@ internal static class PausePictureSheet
     };
 
     /// <summary>The map characters and the pause interface characters after them.</summary>
-    internal static ScreenCharacters Characters(InstalledAreaMapPresentation maps)
+    internal static ScreenCharacters Characters(ImportAreaMapPresentation maps)
     {
         MapCharacterArtwork characters = Ensure.NotNull(maps).Characters;
         int bytes = MapScreenDefinitions.MapTileCount * RoomTileCanvas.CharacterBytes;

@@ -438,7 +438,7 @@ internal static class MapPresentationVerification
             JsonSerializer.Deserialize<MotherBrainRainbowPaletteDocument>(
                 File.ReadAllBytes(source), ArtworkJson.Options)
             ?? throw new InvalidDataException("Extracted Mother Brain rainbow palette is null.");
-        InstalledMotherBrainRainbowPalette rainbow = ImportAreaMapPresentation.MotherBrainRainbowColoursOf(original);
+        InstalledMotherBrainRainbowPalette rainbow = InstalledFixtures.ImportMaps.MotherBrainRainbowColours;
         Suite(nameof(VerifyMotherBrainFakeDeathPalette), () => VerifyMotherBrainFakeDeathPalette(bus, rainbow));
         for (int frame = 0; frame < MotherBrainRainbowPaletteFormat.RainbowFrameCount; frame++)
         {

@@ -26,7 +26,7 @@ internal static class MenuPictureSheet
     }
 
     /// <summary>The characters the menus' pages name: the world foreground's, then the map's after them.</summary>
-    internal static ScreenCharacters Characters(InstalledAreaMapPresentation maps)
+    internal static ScreenCharacters Characters(ImportAreaMapPresentation maps)
     {
         Ensure.NotNull(maps);
         int mapBytes = MapScreenDefinitions.MapTileCount * RoomTileCanvas.CharacterBytes;

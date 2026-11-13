@@ -16,7 +16,6 @@ public static class InstalledArtworkIdentity
     /// <summary>Fingerprints an already loaded set; nothing is read here. Every catalog must be bound.</summary>
     /// <param name="artwork">The bound artwork set.</param>
     /// <param name="enemies">The installed enemy directory the set's enemy frames and Kraid's colours were bound from.</param>
-    /// <param name="samusBody">The installed Samus body the set's body catalog was bound from, whose identity covers what only the import reads (#1616).</param>
     /// <param name="sources">The installed artwork only the import reads, which the game binds none of (#1616).</param>
     /// <remarks>
     /// The tilesets' colours and the starting and common sprite colours are palette documents only the import reads, to
@@ -24,16 +23,15 @@ public static class InstalledArtworkIdentity
     /// (#1636); the sheets' identities stand for them, and no host loads them.
     /// </remarks>
     public static IEnumerable<KeyValuePair<string, string>> Create(GameArtwork artwork, InstalledEnemyArtwork enemies,
-        SamusBodySources samusBody, InstalledArtworkSources sources)
+        InstalledArtworkSources sources)
     {
         Ensure.NotNull(artwork);
         Ensure.NotNull(enemies);
-        Ensure.NotNull(samusBody);
-        if (!ReferenceEquals(artwork.SamusBodyArt, samusBody.Gameplay))
-            throw new InvalidOperationException("The installed artwork set's Samus body was not bound from the body whose identity is asked for.");
         Ensure.NotNull(sources);
+        if (!ReferenceEquals(artwork.SamusBodyArt, sources.SamusBody.Gameplay))
+            throw new InvalidOperationException("The installed artwork set's Samus body was not bound from the body whose identity is asked for.");
         return RoomPresentationIdentity.Create(Require(artwork.RoomVisualLayouts))
-            .Append(KeyValuePair.Create(GameInstallationLayout.SamusBodyDirectoryName, samusBody.ContentIdentity))
+            .Append(KeyValuePair.Create(GameInstallationLayout.SamusBodyDirectoryName, sources.SamusBody.ContentIdentity))
             .Concat(RoomObjectPresentationIdentity.Create(new RoomObjectVisualCatalogSet
             {
                 ShotBlock = Require(artwork.RoomObjectShotBlockVisuals),

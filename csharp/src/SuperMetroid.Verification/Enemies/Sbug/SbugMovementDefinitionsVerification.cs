@@ -119,13 +119,13 @@ internal static class SbugMovementDefinitionsVerification
 
         enemies.SbugBehavior.RunSbugMain(slot, samus, null);
         AssertEqual(RotationAngle.FromSteps(16), state.CustomHeading, "the turn wraps the heading around the turn");
-        AssertEqual(SbugFacing.DownRight, state.CustomFacing, "heading 16 faces down-right");
+        AssertEqual(CompassDirection.DownRight, state.CustomFacing, "heading 16 faces down-right");
         AssertEqual(SbugEnemyFunction.MoveStraightAndReverseWhenFar, state.Function, "the chooser starts a reversal-aware leg");
 
         state.StraightMovementTimer = WrappingCountdown.Start(512);
         enemies.SbugBehavior.RunSbugMain(slot, samus, null);
-        AssertEqual(SbugFacing.UpRight, state.CustomFacing, "the reversal folds down-right into up-right");
-        AssertEqual(new AnimationPlayback<SbugSegment>(SbugAnimations.StartingWith(SbugMovement.FacingAnimation(SbugFacing.UpRight)), AnimationPlace.StartOfAnimation), state.Playback,
+        AssertEqual(CompassDirection.UpRight, state.CustomFacing, "the reversal folds down-right into up-right");
+        AssertEqual(new AnimationPlayback<SbugSegment>(SbugAnimations.StartingWith(SbugMovement.FacingAnimation(CompassDirection.UpRight)), AnimationPlace.StartOfAnimation), state.Playback,
             "the folded facing installs its loop");
 
         // Every random turn, less a quarter turn, carries around the turn and keeps the heading's fraction.
@@ -152,7 +152,7 @@ internal static class SbugMovementDefinitionsVerification
     {
         for (int place = 0; place < 8; place++)
         {
-            SbugFacing facing = SbugMovementDefinitions.Facings.InTurnOrder[place];
+            CompassDirection facing = SbugMovementDefinitions.Facings.InTurnOrder[place];
             AssertEqual(SbugMovementDefinitions.Facings.InTurnOrder[(place + 2) % 4], SbugMovement.ReversedFacing(facing),
                 $"Sbug reversal of {facing}");
         }

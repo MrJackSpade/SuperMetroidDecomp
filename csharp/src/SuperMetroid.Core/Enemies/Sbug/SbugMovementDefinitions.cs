@@ -13,37 +13,37 @@ internal static class SbugMovementDefinitions
     /// The facing a heading shows for each eighth of the turn it lies in: counter-clockwise from right, the first eighth
     /// opening at a heading of 48 steps.
     /// </summary>
-    internal static readonly TurnArcs<SbugFacing> Facings = new(new TrigonometryAngle(48),
-        SbugFacing.Right, SbugFacing.UpRight, SbugFacing.Up, SbugFacing.UpLeft,
-        SbugFacing.Left, SbugFacing.DownLeft, SbugFacing.Down, SbugFacing.DownRight);
+    internal static readonly TurnArcs<CompassDirection> Facings = new(new TrigonometryAngle(48),
+        CompassDirection.Right, CompassDirection.UpRight, CompassDirection.Up, CompassDirection.UpLeft,
+        CompassDirection.Left, CompassDirection.DownLeft, CompassDirection.Down, CompassDirection.DownRight);
 
     /// <summary>The directional loop each facing shows.</summary>
-    internal static readonly Dictionary<SbugFacing, SbugSegment> FacingAnimations = new()
+    internal static readonly Dictionary<CompassDirection, SbugSegment> FacingAnimations = new()
     {
-        [SbugFacing.Right] = SbugSegment.Right,
-        [SbugFacing.UpRight] = SbugSegment.UpRight,
-        [SbugFacing.Up] = SbugSegment.Up,
-        [SbugFacing.UpLeft] = SbugSegment.UpLeft,
-        [SbugFacing.Left] = SbugSegment.Left,
-        [SbugFacing.DownLeft] = SbugSegment.DownLeft,
-        [SbugFacing.Down] = SbugSegment.Down,
-        [SbugFacing.DownRight] = SbugSegment.DownRight,
+        [CompassDirection.Right] = SbugSegment.Right,
+        [CompassDirection.UpRight] = SbugSegment.UpRight,
+        [CompassDirection.Up] = SbugSegment.Up,
+        [CompassDirection.UpLeft] = SbugSegment.UpLeft,
+        [CompassDirection.Left] = SbugSegment.Left,
+        [CompassDirection.DownLeft] = SbugSegment.DownLeft,
+        [CompassDirection.Down] = SbugSegment.Down,
+        [CompassDirection.DownRight] = SbugSegment.DownRight,
     };
 
     /// <summary>
     /// The facing a reversal of the custom heading shows: not the opposite facing, but the facing a quarter turn
     /// counter-clockwise, folded into the four facings from right to up-left, as the game does.
     /// </summary>
-    internal static readonly Dictionary<SbugFacing, SbugFacing> ReversedFacings = new()
+    internal static readonly Dictionary<CompassDirection, CompassDirection> ReversedFacings = new()
     {
-        [SbugFacing.Right] = SbugFacing.Up,
-        [SbugFacing.UpRight] = SbugFacing.UpLeft,
-        [SbugFacing.Up] = SbugFacing.Right,
-        [SbugFacing.UpLeft] = SbugFacing.UpRight,
-        [SbugFacing.Left] = SbugFacing.Up,
-        [SbugFacing.DownLeft] = SbugFacing.UpLeft,
-        [SbugFacing.Down] = SbugFacing.Right,
-        [SbugFacing.DownRight] = SbugFacing.UpRight,
+        [CompassDirection.Right] = CompassDirection.Up,
+        [CompassDirection.UpRight] = CompassDirection.UpLeft,
+        [CompassDirection.Up] = CompassDirection.Right,
+        [CompassDirection.UpLeft] = CompassDirection.UpRight,
+        [CompassDirection.Left] = CompassDirection.Up,
+        [CompassDirection.DownLeft] = CompassDirection.UpLeft,
+        [CompassDirection.Down] = CompassDirection.Right,
+        [CompassDirection.DownRight] = CompassDirection.UpRight,
     };
 
     /// <summary>The function each of the seven population-selected activation behaviors starts.</summary>

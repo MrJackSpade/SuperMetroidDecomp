@@ -375,7 +375,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void SetSbugFacing(
         RoomEnemySlot slot,
         SbugEnemyState state,
-        SbugFacing facing)
+        CompassDirection facing)
     {
         state.RequestedAnimation = SbugMovement.FacingAnimation(facing);
         if (state.RequestedAnimation == state.InstalledAnimation)

@@ -69,13 +69,13 @@ public sealed class SbugEnemyState
     public SignedSixteenSixteen CustomYVelocity { get; internal set; }
 
     /// <summary>Spawn-computed facing for the spawn heading; selects the forward loop.</summary>
-    public SbugFacing ForwardFacing { get; internal set; }
+    public CompassDirection ForwardFacing { get; internal set; }
     /// <summary>Spawn-computed facing for the spawn heading less an eighth of a turn; used by the left zigzag leg.</summary>
-    public SbugFacing LeftFacing { get; internal set; }
+    public CompassDirection LeftFacing { get; internal set; }
     /// <summary>Spawn-computed facing for the spawn heading plus an eighth of a turn; used by the right zigzag leg.</summary>
-    public SbugFacing RightFacing { get; internal set; }
+    public CompassDirection RightFacing { get; internal set; }
     /// <summary>Facing for the custom heading; a reversal folds it into the four facings from right to up-left, as the game does.</summary>
-    public SbugFacing CustomFacing { get; internal set; }
+    public CompassDirection CustomFacing { get; internal set; }
 
     /// <summary>The loop most recently requested by direction-selection code.</summary>
     internal SbugSegment? RequestedAnimation { get; set; }

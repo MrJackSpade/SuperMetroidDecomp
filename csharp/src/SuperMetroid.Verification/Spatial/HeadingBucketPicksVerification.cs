@@ -47,10 +47,10 @@ internal static class HeadingBucketPicksVerification
     /// <summary>Sbug's facing for all 65536 headings against the replaced sector of the heading 48 steps back.</summary>
     private static void VerifySbugFacings()
     {
-        SbugFacing[] counterClockwiseFromRight =
+        CompassDirection[] counterClockwiseFromRight =
         [
-            SbugFacing.Right, SbugFacing.UpRight, SbugFacing.Up, SbugFacing.UpLeft,
-            SbugFacing.Left, SbugFacing.DownLeft, SbugFacing.Down, SbugFacing.DownRight,
+            CompassDirection.Right, CompassDirection.UpRight, CompassDirection.Up, CompassDirection.UpLeft,
+            CompassDirection.Left, CompassDirection.DownLeft, CompassDirection.Down, CompassDirection.DownRight,
         ];
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {

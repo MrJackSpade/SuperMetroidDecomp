@@ -665,9 +665,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
         (SamusBombProjectileSystem directionSystem, SamusState directionSamus) =
             MakeDirectionFixture(bus, floor);
         directionSamus.Position = directionSamus.Position.WithWholeX(samusX);
-        BombProjectileFrameResult timerEight = directionSystem.StepFrame(new SamusTerrain { Level = floor }, directionSamus, 0, 0);
-        AssertEqual(expectedDirection, timerEight.PublishedBombJumpDirection,
-            $"timer-eight bomb direction at Samus X {samusX}");
+        directionSystem.StepFrame(new SamusTerrain { Level = floor }, directionSamus, 0, 0);
         AssertEqual(SamusBombJumpRequest.Published(expectedDirection), directionSamus.BombJumpRequest,
             "bank-$A0 publishes the direction as a request pose handling has not accepted");
         AssertTrue(!directionSamus.BombJumpStarting,
@@ -698,7 +696,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     {
         // Each pass is an update of its own; the bombs' record keeps only its requests.
         bombs.AudioRequests.BeginUpdate();
-        _ = bombs.StepFrame(new SamusTerrain { Level = floor }, bombProjectileSamus, 0, 0);
+        bombs.StepFrame(new SamusTerrain { Level = floor }, bombProjectileSamus, 0, 0);
     }
     AssertTrue(bombs.Slots[0].IsExploding, "timer zero selects bomb explosion list");
     AssertEqual(SamusBombProjectileSystem.NormalBombType, bombs.Slots[0].Type, "the exploding bomb stays a bomb");
@@ -736,10 +734,10 @@ empty, spring, controllerInput: 0, frameCounter: 0);
         "held Down advances native bomb-spread timeout");
 
     spreadBombs.AudioRequests.BeginUpdate();
-    BombProjectileFrameResult spreadReleased = spreadBombs.StepFrame(new SamusTerrain { Level = empty }, spreadSamus, ControllerButton.X, 0);
+    bool spreadReleasedCharge = spreadBombs.StepFrameConsumingCharge(new SamusTerrain { Level = empty }, spreadSamus, ControllerButton.X, 0);
     AssertTrue(spreadBombs.Slots.All(slot => slot.IsActive && slot.IsBombSpread),
         "releasing Down while holding charged Shoot starts bomb spread");
-    AssertTrue(spreadReleased.BeamChargeConsumed,
+    AssertTrue(spreadReleasedCharge,
         "bomb spread publishes charge teardown to shared beam owner");
     AssertEqual(1, spreadBombs.AudioRequests.SoundRequests.Count,
         "bomb spread queues one charge-cancellation sound request");
@@ -848,8 +846,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
         EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
     }.WithBeamChargeCount(MorphBallBombDefinitions.RequiredChargeFrames);
     var cancelledSpreadBombs = CreateBombFixture();
-    BombProjectileFrameResult cancelledSpread = cancelledSpreadBombs.StepFrame(new SamusTerrain { Level = empty }, cancelledSpreadSamus, 0, 0);
-    AssertTrue(cancelledSpread.BeamChargeConsumed,
+    AssertTrue(cancelledSpreadBombs.StepFrameConsumingCharge(new SamusTerrain { Level = empty }, cancelledSpreadSamus, 0, 0),
         "released Shoot publishes carried-charge cancellation");
     AssertTrue(cancelledSpreadBombs.Slots.All(slot => !slot.IsActive),
         "charge cancellation does not place an ordinary bomb");
@@ -908,7 +905,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     while (!powerBombs.PowerBombExplosion.IsActive)
     {
         powerBombs.AudioRequests.BeginUpdate();
-        _ = powerBombs.StepFrame(new SamusTerrain { Level = floor }, powerBombSamus, 0, 0);
+        powerBombs.StepFrame(new SamusTerrain { Level = floor }, powerBombSamus, 0, 0);
     }
     AssertEqual(0, powerBombs.Slots[0].BombTimer.RawValue,
         "the fuse has run out once the explosion starts");

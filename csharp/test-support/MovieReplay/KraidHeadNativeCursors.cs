@@ -81,7 +81,7 @@ internal sealed class KraidHeadNativeCursors
     /// <summary>The native record <paramref name="playback"/> stands for.</summary>
     internal KraidHeadNativeRecord RecordAt(AnimationPlayback<KraidHeadSegment> playback)
     {
-        KraidHeadListPosition position = KraidHeadAnimations.PositionOf(playback);
-        return Records.Single(record => KraidHeadAnimations.PositionOf(record.Playback) == position);
+        KraidHeadSegmentPlace place = KraidHeadAnimations.PlaceOf(playback);
+        return Records.Single(record => KraidHeadAnimations.PlaceOf(record.Playback) == place);
     }
 }

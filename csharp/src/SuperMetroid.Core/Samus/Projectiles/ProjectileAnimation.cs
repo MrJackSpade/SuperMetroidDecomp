@@ -32,7 +32,7 @@ internal sealed class ProjectileAnimation
             return false;
         AnimationPlayback<SamusProjectileSegment> playback = slot.Playback
             ?? throw new InvalidOperationException("An inactive projectile has no list to run.");
-        if (SamusProjectilePlayback.RunToNextRecord(ref playback, out int duration) is not { } frame)
+        if (SamusProjectilePlayback.PlayToNextFrame(ref playback, out int duration) is not { } frame)
         {
             ClearProjectile(slot);
             return true;

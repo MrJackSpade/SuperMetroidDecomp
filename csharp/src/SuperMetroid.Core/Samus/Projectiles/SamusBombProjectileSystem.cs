@@ -1068,7 +1068,7 @@ public sealed class SamusBombProjectileSystem
 
         AnimationPlayback<SamusProjectileSegment> playback = slot.Playback
             ?? throw new InvalidOperationException("An inactive bomb has no list to run.");
-        if (SamusProjectilePlayback.RunToNextRecord(ref playback, out int duration) is not { } frame)
+        if (SamusProjectilePlayback.PlayToNextFrame(ref playback, out int duration) is not { } frame)
         {
             ClearProjectile(slot);
             return true;

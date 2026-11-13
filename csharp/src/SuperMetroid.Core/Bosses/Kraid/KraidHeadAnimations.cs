@@ -102,7 +102,7 @@ internal static class KraidHeadAnimations
     /// Where <paramref name="playback"/> stands in its head animation: the segment its one phase plays, and the step its play
     /// reaches next, the animation's end standing for a play that is done or holds there.
     /// </summary>
-    internal static KraidHeadListPosition PositionOf(AnimationPlayback<KraidHeadSegment> playback)
+    internal static KraidHeadSegmentPlace PlaceOf(AnimationPlayback<KraidHeadSegment> playback)
     {
         AnimationPhase<KraidHeadSegment> phase = playback.Animation.Phases[playback.Place.Phase];
         return new(phase.Segment, phase.FirstBeat + Math.Clamp(playback.Place.Beat, 0, phase.BeatCount));
@@ -161,11 +161,11 @@ internal static class KraidHeadAnimations
     {
         AnimationPlayback<KraidHeadSegment> started = playback ?? throw new InvalidDataException(
             "Kraid's head animation has not started, so its mouth and growth reads have no pose to look at.");
-        KraidHeadListPosition position = PositionOf(started);
-        KraidHeadCursorReads[] reads = Reads[position.Animation];
-        return (uint)position.Step < (uint)reads.Length
-            ? reads[position.Step]
-            : throw new InvalidOperationException($"Kraid head place {position} is outside its list.");
+        KraidHeadSegmentPlace place = PlaceOf(started);
+        KraidHeadCursorReads[] reads = Reads[place.Segment];
+        return (uint)place.Step < (uint)reads.Length
+            ? reads[place.Step]
+            : throw new InvalidOperationException($"Kraid head place {place} is outside its segment.");
     }
 
     /// <summary>The outer mouth shape body hits are tested against where <paramref name="playback"/> stands.</summary>
@@ -174,7 +174,7 @@ internal static class KraidHeadAnimations
         KraidMouthShapeRead read = ReadsAt(playback).Outer;
         return read.Kind == KraidMouthShapeReadKind.Shape
             ? read.Shape
-            : throw new InvalidDataException($"Kraid's outer mouth read at {(playback is { } head ? PositionOf(head).ToString() : "no place")} finds {read.Kind}, not a mouth shape.");
+            : throw new InvalidDataException($"Kraid's outer mouth read at {(playback is { } head ? PlaceOf(head).ToString() : "no place")} finds {read.Kind}, not a mouth shape.");
     }
 
     /// <summary>The inner mouth shape mouth hits are tested against where <paramref name="playback"/> stands, or null when the pose has none.</summary>
@@ -186,7 +186,7 @@ internal static class KraidHeadAnimations
             KraidMouthShapeReadKind.Shape => read.Shape,
             KraidMouthShapeReadKind.NoShape => null,
             KraidMouthShapeReadKind.OutsideHeadFrames => throw new InvalidDataException(
-                $"Kraid's inner mouth read at {(playback is { } head ? PositionOf(head).ToString() : "no place")} lands outside every head pose."),
+                $"Kraid's inner mouth read at {(playback is { } head ? PlaceOf(head).ToString() : "no place")} lands outside every head pose."),
             _ => throw new InvalidOperationException($"Undefined {nameof(KraidMouthShapeReadKind)} {read.Kind}."),
         };
     }

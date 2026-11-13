@@ -4,15 +4,15 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
 /// Plays the Samus projectiles' typed animations (#1301, #1600) as the game's projectile animation plays them: each
-/// timed record installs its duration, frame and radii.
+/// frame installs its duration, picture and radii.
 /// </summary>
 internal static class SamusProjectilePlayback
 {
     /// <summary>
-    /// Plays <paramref name="playback"/> on to the next timed record and returns it with its duration, leaving the
+    /// Plays <paramref name="playback"/> on to its next frame and returns it with its duration, leaving the
     /// playback past it; returns null when the animation ends, as the game's animation deletes the projectile.
     /// </summary>
-    internal static SamusProjectileFrame? RunToNextRecord(ref AnimationPlayback<SamusProjectileSegment> playback, out int duration)
+    internal static SamusProjectileFrame? PlayToNextFrame(ref AnimationPlayback<SamusProjectileSegment> playback, out int duration)
     {
         AnimationPlace place = playback.Place;
         // The projectiles' animations count no repeats.
@@ -72,14 +72,14 @@ internal static class SamusProjectilePlayback
             return Extent16<RoomPixels>.Zero;
         AnimationPhase<SamusProjectileSegment> first = SamusProjectileAnimations.StartingWith(selected).Phases[0];
         if (SamusProjectileAnimations.Segments.Beats(first.Segment)[first.FirstBeat] is not AnimationBeat<SamusProjectileFrame, NoAnimationCue>.Frame frame)
-            throw new InvalidDataException($"Samus projectile animation {selected} does not open with a timed record.");
+            throw new InvalidDataException($"Samus projectile animation {selected} does not open with a frame.");
         SamusProjectileRecord record = SamusProjectileRecordDefinitions.Get(frame.Shown);
         return record.Radius;
     }
 
     /// <summary>
-    /// The animation frame of the record a projectile whose animation stands at <paramref name="playback"/> shows: the
-    /// record its animation last installed, or null before its animation has installed one.
+    /// The animation frame of the picture a projectile whose animation stands at <paramref name="playback"/> shows: the
+    /// frame its animation last showed, or null before its animation has shown one.
     /// </summary>
     internal static int? ShownAnimationFrame(AnimationPlayback<SamusProjectileSegment> playback)
     {
@@ -87,7 +87,7 @@ internal static class SamusProjectilePlayback
         if (at.Beat == 0)
             return null;
         if (SamusProjectileAnimations.Segments.Beats(at.Segment)[at.Beat - 1] is not AnimationBeat<SamusProjectileFrame, NoAnimationCue>.Frame frame)
-            throw new InvalidOperationException($"Samus projectile segment {at.Segment} continues past a beat that is no record.");
+            throw new InvalidOperationException($"Samus projectile segment {at.Segment} continues past a beat that shows no frame.");
         return SamusProjectileRecordDefinitions.Get(frame.Shown).AnimationFrame;
     }
 }

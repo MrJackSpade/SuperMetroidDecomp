@@ -300,8 +300,8 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
     }
 
     /// <summary>
-    /// Consumes an animation pose-transition command's command-three pose operand for every animation route in
-    /// the current grounded/ordinary-air slice.
+    /// Installs the pose the current pose's animation names at its pose-transition cue, for every animation that ends
+    /// in one in the current grounded/ordinary-air slice.
     /// </summary>
     public static bool ApplyPendingVerifiedAnimationTransition(SamusState samus)
     {
@@ -309,9 +309,9 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
             return false;
 
         // The game's pose initialization computes its own local delay without replacing
-        // the buffer published by this frame's FX pass. Command three adds that live
+        // the buffer published by this frame's FX pass. The pose-transition cue adds that live
         // buffer once more after installing the new animation.
-        int commandAnimationBuffer = samus.AnimationFrameBuffer;
+        int cueAnimationBuffer = samus.AnimationFrameBuffer;
 
         bool verified = new SamusPoseChange(samus.Pose, targetPose) is
             (SamusPoseId.TurningRightToLeftPose, SamusPoseId.FacingLeftNormalPose) or
@@ -374,12 +374,12 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
             (SamusPoseId.LandingAimDiagonalUpLeftPose, SamusPoseId.StandingAimDiagonalUpLeftPose) or
             (SamusPoseId.LandingAimDiagonalDownRightPose, SamusPoseId.StandingAimDiagonalDownRightPose) or
             (SamusPoseId.LandingAimDiagonalDownLeftPose, SamusPoseId.StandingAimDiagonalDownLeftPose) or
-            // Is shared by ordinary and firing landings. The firing landings
-            // therefore execute the literal same terminal transitions to normal standing.
+            // Ordinary and firing landings share their animations, so the firing landings
+            // end in the same transitions to normal standing.
             (SamusPoseId.FiringLandingRightPose, SamusPoseId.FacingRightNormalPose) or
             (SamusPoseId.FiringLandingLeftPose, SamusPoseId.FacingLeftNormalPose) or
             // Every aerial-turn animation ends in a pose-transition cue. These pairs are the
-            // literal transitions of the aerial-turn animations, not inferred mirror poses.
+            // poses the aerial-turn animations name, not inferred mirror poses.
             (SamusPoseId.TurningRightToLeftJumpPose, SamusPoseId.NormalJumpForwardLeftPose) or
             (SamusPoseId.TurningLeftToRightJumpPose, SamusPoseId.NormalJumpForwardRightPose) or
             (SamusPoseId.TurningRightToLeftFallingPose, SamusPoseId.FallingLeftPose) or
@@ -407,17 +407,17 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
             // Its installed movement handler observes type zero on the following frame.
             (SamusPoseId.CrystalFlashRightPose, SamusPoseId.FacingRightNormalPose) or
             (SamusPoseId.CrystalFlashLeftPose, SamusPoseId.FacingLeftNormalPose) or
-            // All four drained release streams eventually publish ordinary standing art.
-            // These are literal transitions of the drained release animations.
+            // All four drained release animations end in ordinary standing art.
+            // These are the poses the drained release animations name.
             (SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedStandingRightPose, SamusPoseId.FacingRightNormalPose) or
             (SamusPoseId.DrainedCrouchingLeftPose or SamusPoseId.DrainedStandingLeftPose, SamusPoseId.FacingLeftNormalPose);
         if (!verified)
         {
-            // The allowlist above is the exhaustive set of pose-transition operands referenced
-            // by active retail animation streams. Anything else means the caller supplied
-            // a target that was not read from the current pose's animation.
+            // The list above is every pose a retail animation's pose-transition cue names.
+            // Anything else means the caller supplied a target that was not read from the
+            // current pose's animation.
             throw new InvalidOperationException(
-                $"Animation transition {samus.Pose} -> {targetPose} is not an active retail animation-command route.");
+                $"Animation transition {samus.Pose} -> {targetPose} is no retail animation's pose-transition cue.");
         }
 
         bool startsMoonwalkJump = SamusPoseMetadata.IsMoonwalkTurnJumpPose(samus.Pose) &&
@@ -425,7 +425,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         SamusPoseId sourcePose = samus.Pose;
         SamusMovementType previousMovementType = SamusPoseMetadata.ReadMovementType(sourcePose);
 
-        // Runs movement-type initialization after the animation command has
+        // Runs movement-type initialization after the pose-transition cue has
         // selected the new normal-jump pose but before it initializes that pose's frame.
         // A live stored shine replaces the target with the shinespark windup, so never briefly seed
         // neutral, aimed-up or diagonally-up normal-jump animation state in this branch.
@@ -434,7 +434,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
             previousMovementType);
         if (!beganShinespark)
         {
-            // Moonwalk turn animations end in a literal transition to the spin jump. That operand is still fed
+            // Moonwalk turn animations end in a transition to the spin jump. That pose still passes
             // through movement-type initialization, so equipment substitution occurs here
             // just as it does for an input-table jump from ordinary running.
             SamusPoseId installedPose = startsMoonwalkJump
@@ -446,22 +446,22 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
             // the turn finish before base speed reached zero. Do not clear that speed.
             if (SamusPoseMetadata.ReadMovementType(installedPose) is SamusMovementType.NormalJumping or SamusMovementType.Falling)
                 SamusAerialPoseTransitions.InitializeOrdinaryAerialAcceleration(samus);
-            SamusGroundedPoseTransitions.ApplySimpleGroundedPoseChange(samus, sourcePose, installedPose, "Animation command",
+            SamusGroundedPoseTransitions.ApplySimpleGroundedPoseChange(samus, sourcePose, installedPose, "Pose-transition cue",
                 refreshRadius: !SamusPoseMetadata.IsAerialTurnPose(sourcePose));
         }
         if (sourcePose is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose or
             SamusPoseId.DrainedStandingRightPose or SamusPoseId.DrainedStandingLeftPose)
         {
-            // The actor-owned release command has now reached its authored normal pose.
+            // The drained release animation has now reached its authored normal pose.
             // Clear only the host handler marker; pose initialization above already owns the
             // same radius and animation writes as the game's pose initializer.
             samus.Drained.CompleteRelease();
         }
-        // Super-special command three does not run the jump initializers. An input-table
+        // The pose-transition cue does not run the jump initializers. An input-table
         // transition out of the same turn art DOES initialize jump velocity; keeping
         // those two routes distinct preserves both ordinary jumping and Moonfall.
         samus.MorphBallBounceState = SamusBallBounceState.None;
-        samus.AnimationFrameTimer = samus.AnimationFrameTimer.AddFrames(commandAnimationBuffer);
+        samus.AnimationFrameTimer = samus.AnimationFrameTimer.AddFrames(cueAnimationBuffer);
         return true;
     }
 }

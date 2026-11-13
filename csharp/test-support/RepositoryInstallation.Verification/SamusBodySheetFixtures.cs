@@ -40,6 +40,15 @@ internal static class SamusBodySheetFixtures
     /// <summary>The characters each fixture body shows, registered or bound from the stock characters.</summary>
     private static readonly ConditionalWeakTable<SamusBodySources, SamusBodyCharacterArtwork> characters = new();
 
+    /// <summary>
+    /// Each character set's content identity, hashed once (#1680): a set's characters never change after it is built, so
+    /// a body bound again, or a presentation bound to it again, names its sheets without hashing its characters again.
+    /// </summary>
+    private static readonly ConditionalWeakTable<SamusBodyCharacterArtwork, string> characterIdentities = new();
+
+    /// <summary>The identity of the stock body and its characters, which name the installed sheets, hashed once per process.</summary>
+    private static readonly Lazy<string> stockSheetIdentity = new(() => SheetIdentityOf(inputs.Value.SamusBody));
+
     /// <summary>The body each fixture presentation was last bound to by <c>BindBodyFixture</c>.</summary>
     private static readonly ConditionalWeakTable<SamusPresentation, SamusBodySources> boundBodies = new();
 
@@ -73,12 +82,19 @@ internal static class SamusBodySheetFixtures
     {
         ArgumentNullException.ThrowIfNull(body);
         SamusBodyCharacterArtwork shown = CharactersOf(body);
-        string identity = $"{body.ContentIdentity}-{SamusBodyCharacterArtworkConstants.CharactersContentIdentityOf(shown)}";
-        SamusBodyCharacterArtwork stock = inputs.Value.SamusBody;
-        return identity == $"{stock.Body.ContentIdentity}-{SamusBodyCharacterArtworkConstants.CharactersContentIdentityOf(stock)}" ? InstalledFixtures.SpriteSheets
+        string identity = SheetIdentityOf(shown);
+        return identity == stockSheetIdentity.Value ? InstalledFixtures.SpriteSheets
             : composed.GetOrAdd(identity, key => new(() => Compose(InstalledFixtures.SpriteSheets,
                 inputs.Value with { SamusBody = shown }, BodySheets, body.ArmCannon, $"fixture-{key}"))).Value;
     }
+
+    /// <summary>The content identity of <paramref name="artwork"/>'s characters, hashed on its first use.</summary>
+    private static string CharactersIdentityOf(SamusBodyCharacterArtwork artwork) =>
+        characterIdentities.GetValue(artwork, SamusBodyCharacterArtworkConstants.CharactersContentIdentityOf);
+
+    /// <summary>The identity the body sheets <paramref name="shown"/> composes are kept by: its body's and its characters'.</summary>
+    private static string SheetIdentityOf(SamusBodyCharacterArtwork shown) =>
+        $"{shown.Body.ContentIdentity}-{CharactersIdentityOf(shown)}";
 
     /// <summary>Registers a fixture body's own characters, which its sheets compose from; returns the body.</summary>
     internal static SamusBodySources Register(SamusBodyCharacterArtwork artwork)
@@ -100,9 +116,17 @@ internal static class SamusBodySheetFixtures
             return registered;
         SamusBodyCharacterArtwork stock = registeredByGroups.TryGetValue(GroupsOf(body), out SamusBodyCharacterArtwork? named)
             ? named : inputs.Value.SamusBody;
-        return characters.GetValue(body, key => new SamusBodyCharacterArtwork(key,
-            [.. Enumerable.Range(0, SamusBodySources.TopSetCount).Select(set => stock.TopSet(set).ToArray())],
-            [.. Enumerable.Range(0, SamusBodySources.BottomSetCount).Select(set => stock.BottomSet(set).ToArray())]));
+        return characters.GetValue(body, key =>
+        {
+            var bound = new SamusBodyCharacterArtwork(key,
+                [.. Enumerable.Range(0, SamusBodySources.TopSetCount).Select(set => stock.TopSet(set).ToArray())],
+                [.. Enumerable.Range(0, SamusBodySources.BottomSetCount).Select(set => stock.BottomSet(set).ToArray())]);
+            // Each set is copied whole, so over the same group starts every record holds the source's definition and the
+            // characters' identity is the source's, already hashed (#1680).
+            if (GroupsOf(key) == GroupsOf(stock.Body))
+                characterIdentities.AddOrUpdate(bound, CharactersIdentityOf(stock));
+            return bound;
+        });
     }
 
     /// <summary>The sheets <paramref name="body"/> draws from, with the overlay sheet <paramref name="cannon"/> composes.</summary>
@@ -112,7 +136,7 @@ internal static class SamusBodySheetFixtures
         ArgumentNullException.ThrowIfNull(cannon);
         if (cannon.ContentIdentity == body.ArmCannon.ContentIdentity)
             return For(body);
-        return cannons.GetOrAdd($"{body.ContentIdentity}-{SamusBodyCharacterArtworkConstants.CharactersContentIdentityOf(CharactersOf(body))}-{cannon.ContentIdentity}", key => new(() => Compose(For(body),
+        return cannons.GetOrAdd($"{SheetIdentityOf(CharactersOf(body))}-{cannon.ContentIdentity}", key => new(() => Compose(For(body),
             inputs.Value with { SamusBody = CharactersOf(body) }, [SpriteSheetId.SamusOverlays], cannon, $"fixture-{key}"))).Value;
     }
 

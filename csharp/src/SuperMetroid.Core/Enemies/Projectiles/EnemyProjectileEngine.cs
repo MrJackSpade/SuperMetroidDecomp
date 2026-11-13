@@ -110,12 +110,6 @@ internal sealed class EnemyProjectileEngine
     /// <summary>The frame counter of 0 through 255 sampled by the current projectile pass; verification drives it to step animations.</summary>
     internal int CurrentFrame8 { get; set; }
 
-    /// <summary>The pixels along each axis of the cells a shot and an enemy projectile meet in: they meet only inside the same cell.</summary>
-    private const int CoarseContactCellPixels = 32;
-
-    /// <summary>The coarse contact cell, along one axis, holding an unsigned room pixel coordinate.</summary>
-    internal static int CoarseContactCell(int pixel) => Ensure.BetweenInclusive(0, ushort.MaxValue, pixel) / CoarseContactCellPixels;
-
     /// <summary>The pixel offset within a 16-pixel block.</summary>
     private const int BlockPixelMask = 15;
 
@@ -186,14 +180,8 @@ internal sealed class EnemyProjectileEngine
                     SamusProjectileFamily.BeamExplosion or SamusProjectileFamily.MissileExplosion)
                     continue;
 
-                // The path intentionally compares only 32-pixel cells. It does not
-                // run the radius overlap used by ordinary enemies, a coarse quirk preserved
-                // here instead of “fixing” shots near a cell corner.
-                if (CoarseContactCell(enemyProjectile.Position.X.Whole) != CoarseContactCell(shot.Position.X.Whole) ||
-                    CoarseContactCell(enemyProjectile.Position.Y.Whole) != CoarseContactCell(shot.Position.Y.Whole))
-                {
+                if (!ShotAndProjectileSquares.Meet(shot.Position.Whole, enemyProjectile.Position.Whole))
                     continue;
-                }
 
                 // The collision handler only marks non-plasma shots spent. It does not call the
                 // ordinary enemy impact and therefore cannot turn a freshly fired

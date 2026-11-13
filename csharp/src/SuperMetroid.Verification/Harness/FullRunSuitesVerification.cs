@@ -24,10 +24,12 @@ using static SuperMetroid.Verification.Bosses.Ridley.CeresRidleyFireballTargetVe
 using static SuperMetroid.Verification.Bosses.Torizo.BombTorizoInitialDroolVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.DrainingShitroidFallShiftVerification;
 using static SuperMetroid.Verification.Enemies.YappingMaws.YappingMawBendChainVerification;
+using static SuperMetroid.Verification.Enemies.YappingMaws.YappingMawRetractionHoldVerification;
 using static SuperMetroid.Verification.Enemies.MamaTurtles.MamaTurtleWallReversalVerification;
 using static SuperMetroid.Verification.Enemies.Kzan.KzanRiseStepVerification;
 using static SuperMetroid.Verification.Enemies.Crawlers.MultiviolaLeftOrUpSpeedVerification;
 using static SuperMetroid.Verification.Enemies.Yard.YardAirborneReversalVerification;
+using static SuperMetroid.Verification.Enemies.Yard.YardAirborneSlowingVerification;
 using static SuperMetroid.Verification.Enemies.Sbug.SbugReversalVerification;
 using static SuperMetroid.Verification.Enemies.Puyo.PuyoCeilingTurnVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidFatalBlowShakeVerification;
@@ -565,8 +567,8 @@ internal static class FullRunSuitesVerification
             SuperMetroid.Verification.Bosses.Draygon.DraygonBurialDriftVerification.VerifyDraygonBurialDrift),
         new(nameof(SuperMetroid.Verification.Bosses.Crocomire.CrocomireMouthShotHoldVerification.VerifyCrocomireMouthShotHold),
             SuperMetroid.Verification.Bosses.Crocomire.CrocomireMouthShotHoldVerification.VerifyCrocomireMouthShotHold),
-        new(nameof(SuperMetroid.Verification.Enemies.Projectiles.EnemyProjectileCoarseContactVerification.VerifyEnemyProjectileCoarseContactCells),
-            SuperMetroid.Verification.Enemies.Projectiles.EnemyProjectileCoarseContactVerification.VerifyEnemyProjectileCoarseContactCells),
+        new(nameof(SuperMetroid.Verification.Enemies.Projectiles.ShotAndProjectileSquaresVerification.VerifyShotAndProjectileSquares),
+            SuperMetroid.Verification.Enemies.Projectiles.ShotAndProjectileSquaresVerification.VerifyShotAndProjectileSquares),
         new(nameof(SuperMetroid.Verification.Enemies.YappingMaws.YappingMawBendStepVerification.VerifyYappingMawBendStep),
             SuperMetroid.Verification.Enemies.YappingMaws.YappingMawBendStepVerification.VerifyYappingMawBendStep),
         new(nameof(SuperMetroid.Verification.Bosses.Phantoon.PhantoonCounterPhasesVerification.VerifyPhantoonCounterPhases),
@@ -1025,10 +1027,12 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyBombTorizoInitialDrool), () => VerifyBombTorizoInitialDrool()),
         new(nameof(VerifyDrainingShitroidFallShift), () => VerifyDrainingShitroidFallShift()),
         new(nameof(VerifyYappingMawBendChain), () => VerifyYappingMawBendChain()),
+        new(nameof(VerifyYappingMawRetractionHold), () => VerifyYappingMawRetractionHold()),
         new(nameof(VerifyMamaTurtleWallReversal), () => VerifyMamaTurtleWallReversal()),
         new(nameof(VerifyKzanRiseStep), () => VerifyKzanRiseStep()),
         new(nameof(VerifyMultiviolaLeftOrUpSpeed), () => VerifyMultiviolaLeftOrUpSpeed()),
         new(nameof(VerifyYardAirborneReversal), () => VerifyYardAirborneReversal()),
+        new(nameof(VerifyYardAirborneSlowing), () => VerifyYardAirborneSlowing()),
         new(nameof(VerifySbugReversal), () => VerifySbugReversal()),
         new(nameof(VerifyPuyoCeilingTurn), () => VerifyPuyoCeilingTurn()),
         new(nameof(VerifyJumpNoXMovement), () => VerifyJumpNoXMovement()),

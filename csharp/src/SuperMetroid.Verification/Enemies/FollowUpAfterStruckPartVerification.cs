@@ -1,5 +1,7 @@
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.World.RoomStates;
+using SuperMetroid.Core.Enemies.Magdollite;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies;
 
@@ -40,7 +42,46 @@ internal static class FollowUpAfterStruckPartVerification
             "a follow-up past the final place is refused");
         AssertThrows<InvalidDataException>(() => FollowUpAfterStruckPart.Recipients(distance => table.ListedAfter(slots[last - 1], distance), reach: 2),
             "a two-place follow-up past the final place is refused");
-        Console.WriteLine("Follow-up after the struck part: Dragon and Evir follow-ups reach the places after the part hit, and none past the last.");
+        VerifyRetailMagdolliteFollowUps(table);
+        Console.WriteLine("Follow-up after the struck part: Dragon, Evir and Magdollite follow-ups reach the places after the part hit, and none past the last.");
+    }
+
+    /// <summary>
+    /// Every Magdollite part of every retail population, placed at its listing's place, reaches the two places after it, as
+    /// the original's follow-up writes the records one and two after the struck part (#1620). A Magdollite's rising body
+    /// and tracking overlay, which a power bomb kills, reach the enemies the room lists after their Magdollite: the Acid
+    /// Statue room's Holtz pair, the next Magdollite in the Magdollite Tunnel, and the Multiviolas after its last.
+    /// </summary>
+    private static void VerifyRetailMagdolliteFollowUps(EnemySlotTable table)
+    {
+        IReadOnlyList<RoomEnemySlot> slots = table.Slots;
+        var reachedPastTheirMagdollite = new SortedSet<EnemyDefinitionId>();
+        int parts = 0;
+        foreach (RoomEnemyPopulationDefinition population in RoomEnemyPopulationDefinitions.Definitions)
+        {
+            RoomEnemyPopulationRecord[] records = population.Records.ToArray();
+            int head = -1;
+            for (int place = 0; place < records.Length; place++)
+            {
+                if (records[place].DefinitionId != EnemyDefinitionId.Magdollite)
+                    continue;
+                parts++;
+                if (records[place].SpawnSettings is MagdolliteSpawnSettings { Part: MagdollitePart.Head })
+                    head = place;
+                int part = place;
+                IReadOnlyList<RoomEnemySlot?> recipients = FollowUpAfterStruckPart.Recipients(distance => table.ListedAfterOrNone(slots[part], distance), reach: 2);
+                AssertTrue(ReferenceEquals(slots[part + 1], recipients[0]) && ReferenceEquals(slots[part + 2], recipients[1]),
+                    $"{population.Name}'s Magdollite part at place {part} reaches the two places after it");
+                for (int distance = 1; distance <= 2; distance++)
+                {
+                    if (part + distance > head + 2 && part + distance < records.Length)
+                        reachedPastTheirMagdollite.Add(records[part + distance].DefinitionId);
+                }
+            }
+        }
+        AssertEqual(12, parts, "the retail populations list four Magdollites of three parts each");
+        AssertTrue(reachedPastTheirMagdollite.SetEquals([EnemyDefinitionId.Holtz, EnemyDefinitionId.Magdollite, EnemyDefinitionId.Multiviola]),
+            $"the Magdollites' trailing parts reach {string.Join(", ", reachedPastTheirMagdollite)}");
     }
 
     /// <summary>Runs the focused follow-up-after-struck-part check.</summary>

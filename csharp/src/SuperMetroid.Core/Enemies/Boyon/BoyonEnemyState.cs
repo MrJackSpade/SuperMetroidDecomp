@@ -28,64 +28,56 @@ public sealed class BoyonEnemyState
     }
 
     /// <summary>
-    /// The arc's target height in 256ths of a pixel, 12288 through 45056 from its spawn settings. It is compared with
-    /// <see cref="DistanceAccumulator"/> by the sign of their wrapped difference (<see cref="HasReachedJumpHeight"/>), so
-    /// heights of 32769 and above behave as the game's do.
+    /// The height of the arc, from its spawn settings: 48 to 96 pixels for retail Boyons, never more than
+    /// <see cref="BoyonSpeedDefinitions.LargestJumpHeight"/>, the height up to which the game's height test is a plain
+    /// comparison (<see cref="HasReachedJumpHeight"/>); a higher arc is refused.
     /// </summary>
-    public int JumpHeight { get; internal set; }
-
-    /// <summary>
-    /// The distance accumulated while deriving the initial curve index, in 256ths of a pixel, as the exact value the
-    /// game keeps (0 through 65535): it advances only through <see cref="AccumulateBounceDistance"/>, which wraps it.
-    /// </summary>
-    public int DistanceAccumulator { get; internal set; }
-
-    /// <summary>
-    /// The current entry of the triangular speed curve, as the exact value the game keeps. Rising retreats it with
-    /// <see cref="RetreatSpeedTableIndex"/>, which takes it from zero to <see cref="LargestSpeedTableIndex"/> at the
-    /// top of the arc; falling advances it with <see cref="AdvanceSpeedTableIndex"/>, which takes it from there back to
-    /// zero.
-    /// </summary>
-    public int SpeedTableIndex
+    public SignedSixteenSixteen JumpHeight
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, LargestSpeedTableIndex, value);
+        internal set => field = value.IsNegative || value.InTwoFiftySixths > SignedSixteenSixteen.FromWholePixels(BoyonSpeedDefinitions.LargestJumpHeight).InTwoFiftySixths
+            ? throw new ArgumentOutOfRangeException(nameof(value), value, "A Boyon's arc is no lower than nothing and no higher than 128 pixels.")
+            : value;
     }
 
-    /// <summary>The largest curve index the index holds: rising past entry zero leaves this value.</summary>
-    internal const int LargestSpeedTableIndex = 65535;
+    /// <summary>
+    /// The distance the arc covers from the top of the curve down to <see cref="CurvePlace"/>, accumulated entry by entry
+    /// while the first update derives the arc's baseline (<see cref="AccumulateArcDistance"/>).
+    /// </summary>
+    public SignedSixteenSixteen ArcDistance { get; internal set; }
 
     /// <summary>
-    /// Whether the accumulated distance has reached the jump height. The game subtracts the height from the
-    /// distance and tests the sign of the wrapped result, so any height above 32768 is reached by a zero distance.
+    /// Where the Boyon stands along its bounce curve: rising moves it up one entry an update (<see cref="RiseOneEntry"/>),
+    /// from the top entry to past the top, and falling moves it down one entry an update (<see cref="FallOneEntry"/>),
+    /// from past the top back to the top entry and on to the baseline.
     /// </summary>
-    internal bool HasReachedJumpHeight => !WrappingCounter.IsBehind(DistanceAccumulator, JumpHeight);
+    public BoyonCurvePlace CurvePlace { get; internal set; }
 
-    /// <summary>Adds one update's speed to the accumulated distance, wrapping as the game's addition does.</summary>
-    internal void AccumulateBounceDistance(int speed) =>
-        DistanceAccumulator = WrappingCounter.AddCount(DistanceAccumulator, speed);
+    /// <summary>Whether the accumulated arc distance has reached the jump height.</summary>
+    internal bool HasReachedJumpHeight => ArcDistance.InTwoFiftySixths >= JumpHeight.InTwoFiftySixths;
 
-    /// <summary>Moves one entry down the curve (falling), wrapping from <see cref="LargestSpeedTableIndex"/> to zero.</summary>
-    internal void AdvanceSpeedTableIndex() =>
-        SpeedTableIndex = WrappingCounter.IncrementCount(SpeedTableIndex);
+    /// <summary>Adds one entry's speed, in 256ths of a pixel, to the accumulated arc distance.</summary>
+    internal void AccumulateArcDistance(int speed) =>
+        ArcDistance += SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(Ensure.AtLeastZero(speed));
+
+    /// <summary>Moves one entry down the curve, as falling does: from past the top, to the top entry.</summary>
+    internal void FallOneEntry() => CurvePlace = CurvePlace.Lower;
 
     /// <summary>
-    /// Moves one entry up the curve (rising). The index wraps from zero to <see cref="LargestSpeedTableIndex"/>, and
-    /// the result reports whether the decremented index is negative, the game's signal that the top of the arc was
-    /// passed.
+    /// Moves one entry up the curve, as rising does, and reports whether the rise has passed the top of the arc: from the
+    /// top entry it leaves the Boyon past the top.
     /// </summary>
-    internal bool RetreatSpeedTableIndex()
+    internal bool RiseOneEntry()
     {
-        CountdownStep step = WrappingCounter.Decrement(SpeedTableIndex);
-        SpeedTableIndex = step.Remaining.RemainingFrames;
-        return step.IsNegative;
+        CurvePlace = CurvePlace.Higher;
+        return CurvePlace.IsPastTheTop;
     }
 
     /// <summary>Latch preventing a second animation restart mid-bounce.</summary>
     public bool Bouncing { get; internal set; }
 
-    /// <summary>Curve index at which falling reaches the spawn-height baseline; the derivation ends within the curve's first 200 entries.</summary>
-    public int InitialBounceSpeedTableIndex { get; internal set; }
+    /// <summary>The place along the curve at which falling reaches the spawn-height baseline, derived on the first update.</summary>
+    public BoyonCurvePlace BaselineCurvePlace { get; internal set; }
 
     /// <summary>Current indirect movement-table selection.</summary>
     public BoyonBounceMovement BounceMovement { get; internal set; }

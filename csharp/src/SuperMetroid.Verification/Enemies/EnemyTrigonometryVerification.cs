@@ -578,6 +578,8 @@ internal static class EnemyTrigonometryVerification
         new(nameof(VerifyCompiledBoyonSpeeds), () => VerifyCompiledBoyonSpeeds(LoadRepositoryRom())),
         new(nameof(BoyonAnimationsVerification.VerifyBoyonAnimations), () => BoyonAnimationsVerification.VerifyBoyonAnimations(LoadRepositoryRom())),
         new(nameof(BoyonBehaviorVerification.VerifyBoyonBehavior), () => BoyonBehaviorVerification.VerifyBoyonBehavior()),
+        new(nameof(BoyonBehaviorVerification.VerifyBoyonArcBaseline), () => BoyonBehaviorVerification.VerifyBoyonArcBaseline(LoadRepositoryRom())),
+        new(nameof(BoyonBehaviorVerification.VerifyBoyonArcFollowsTheOriginal), () => BoyonBehaviorVerification.VerifyBoyonArcFollowsTheOriginal(LoadRepositoryRom())),
         new(nameof(SkulteraAnimationsVerification.VerifySkulteraAnimations), () => SkulteraAnimationsVerification.VerifySkulteraAnimations(LoadRepositoryRom())),
         new(nameof(SkulteraBehaviorVerification.VerifySkulteraBehavior), () => SkulteraBehaviorVerification.VerifySkulteraBehavior()),
         new(nameof(VerifyCompiledSurfaceMotion), () => VerifyCompiledSurfaceMotion(LoadRepositoryRom())),

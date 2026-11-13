@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using K = SuperMetroid.Core.Bosses.Torizo.TorizoProjectileCueKind;
 using P = SuperMetroid.Core.Bosses.Torizo.TorizoProjectileSegment;
 using SuperMetroid.Core.Enemies.Projectiles;

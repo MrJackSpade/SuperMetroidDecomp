@@ -1,7 +1,7 @@
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.AssetExtraction.Enemies;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Bosses.SporeSpawn.SporeSpawnNativeListAddresses;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;

@@ -231,7 +231,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
     /// The beta handler installed for this beta: the first of death, the suit's empty beta, the stationary lock, the station lock,
     /// the attract demo, the gunship's handler and another lock that holds, otherwise the normal handler.
     /// </summary>
-    private SamusBetaHandler DispatchedBetaHandler(SamusHandlerFrame frame, SamusState samus)
+    private SamusBetaHandler SelectedBetaHandler(SamusHandlerFrame frame, SamusState samus)
     {
         if (frame.DeathOwnsSamus)
             return SamusBetaHandler.Fatal;
@@ -404,8 +404,8 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             _player.ProspectiveSamusPose = null;
             _player.ProspectiveSamusFallbackPose = null;
         }
-        // Actors' control setups replace beta before its dispatch in this same update.
-        frame.RedispatchBeta(DispatchedBetaHandler(frame, samus));
+        // Actors' control setups replace beta before it runs in this same update.
+        frame.ReplaceBeta(SelectedBetaHandler(frame, samus));
         if (!_freeze.TimeIsFrozen && !frame.DeathOwnsSamus)
             // Ceres Ridley's dedicated updated-beam adapter; ordinary projectiles collide before each enemy's AI.
             room.Enemies.Ceres.ResolveCeresRidleyProjectileHits(projectiles, bombProjectiles);
@@ -1183,7 +1183,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         // data and can appear to select nonsense transitions after several frames, so
         // suppressing only their application would be too late and observably wrong.
         frame.SampleDeathOwnership(samus.DeathSequence.IsActive);
-        SamusControlMode mode = new(samus.Control.Mode.Alpha, DispatchedBetaHandler(frame, samus));
+        SamusControlMode mode = new(samus.Control.Mode.Alpha, SelectedBetaHandler(frame, samus));
         // Sound queues persist across the whole game, but this typed control
         // publication is scoped to one frame's Samus handler. It opened before the per-line
         // effect pass, ahead of the landing sounds during collision.

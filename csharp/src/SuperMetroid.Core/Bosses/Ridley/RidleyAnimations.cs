@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using F = SuperMetroid.Core.Bosses.Ridley.RidleyCollisionDefinitions.BodyFrame;
 using K = SuperMetroid.Core.Bosses.Ridley.RidleyBodyCueKind;
 using P = SuperMetroid.Core.Bosses.Ridley.RidleyBodySegment;

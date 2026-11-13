@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using K = SuperMetroid.Core.Enemies.Kago.KagoBugProjectileCueKind;
 using P = SuperMetroid.Core.Enemies.Kago.KagoBugProjectileSegment;
 using SuperMetroid.Core.Enemies.Projectiles;

@@ -10,8 +10,8 @@ namespace SuperMetroid.Core.Frontend;
 /// <param name="session">The frontend session these phases run against.</param>
 internal sealed class AttractGamePhases(FrontendSession session)
 {
-    /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.LoadingDemo"/>, <see cref="SuperMetroidGameState.StartingDemo"/>, <see cref="SuperMetroidGameState.PlayingDemo"/>, <see cref="SuperMetroidGameState.UnloadingDemo"/>, <see cref="SuperMetroidGameState.RoutingAfterDemo"/>.</summary>
-    internal void DispatchAttractDemo(ControllerButton controllerInput)
+    /// <summary>Runs one update of <see cref="SuperMetroidGameState.LoadingDemo"/>, <see cref="SuperMetroidGameState.StartingDemo"/>, <see cref="SuperMetroidGameState.PlayingDemo"/>, <see cref="SuperMetroidGameState.UnloadingDemo"/>, <see cref="SuperMetroidGameState.RoutingAfterDemo"/>.</summary>
+    internal void RunAttractDemo(ControllerButton controllerInput)
     {
         StepAttractDemo(controllerInput);
     }

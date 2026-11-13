@@ -11,8 +11,8 @@ namespace SuperMetroid.Core.Frontend;
 /// <param name="session">The frontend session these phases run against.</param>
 internal sealed class DeathGamePhases(FrontendSession session)
 {
-    /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.DeathSequenceStart"/>.</summary>
-    internal void DispatchDeathSequenceStart(ControllerButton controllerInput)
+    /// <summary>Runs one update of <see cref="SuperMetroidGameState.DeathSequenceStart"/>.</summary>
+    internal void RunDeathSequenceStart(ControllerButton controllerInput)
     {
         // The death sequence's first state deliberately completes one final gameplay pass with the game clock held, then
         // begins fading the whole display to black, which Samus's own colours are spared (#1544).
@@ -29,8 +29,8 @@ internal sealed class DeathGamePhases(FrontendSession session)
         session.GameState = SuperMetroidGameState.DeathBlackOutSurroundings;
     }
 
-    /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.DeathBlackOutSurroundings"/>.</summary>
-    internal void DispatchDeathBlackOutSurroundings(ControllerButton controllerInput)
+    /// <summary>Runs one update of <see cref="SuperMetroidGameState.DeathBlackOutSurroundings"/>.</summary>
+    internal void RunDeathBlackOutSurroundings(ControllerButton controllerInput)
     {
         session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false }, Audio = GameplayFrameAudio.Gameplay(session.GameplayRuntime) });
         bool fadeComplete = StepDeathFade();
@@ -49,8 +49,8 @@ internal sealed class DeathGamePhases(FrontendSession session)
         }
     }
 
-    /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.DeathWaitForMusic"/>.</summary>
-    internal void DispatchDeathWaitForMusic(ControllerButton controllerInput)
+    /// <summary>Runs one update of <see cref="SuperMetroidGameState.DeathWaitForMusic"/>.</summary>
+    internal void RunDeathWaitForMusic(ControllerButton controllerInput)
     {
         session.GameplayRuntime.DeathSequence.DrawFatalSamusFrame(controllerInput);
         session.display.PublishGameplay(session.GameplayRuntime);
@@ -61,8 +61,8 @@ internal sealed class DeathGamePhases(FrontendSession session)
         }
     }
 
-    /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.DeathPreFlashing"/>, <see cref="SuperMetroidGameState.DeathFlashing"/>, <see cref="SuperMetroidGameState.DeathExplosionWhiteOut"/>.</summary>
-    internal void DispatchDeathFlashing(ControllerButton controllerInput)
+    /// <summary>Runs one update of <see cref="SuperMetroidGameState.DeathPreFlashing"/>, <see cref="SuperMetroidGameState.DeathFlashing"/>, <see cref="SuperMetroidGameState.DeathExplosionWhiteOut"/>.</summary>
+    internal void RunDeathFlashing(ControllerButton controllerInput)
     {
         SamusDeathSequenceStepResult deathStep =
             session.GameplayRuntime.DeathSequence.StepDeathSequenceFrame(controllerInput);
@@ -78,8 +78,8 @@ internal sealed class DeathGamePhases(FrontendSession session)
         }
     }
 
-    /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.DeathFinalBlackOut"/>.</summary>
-    internal void DispatchDeathFinalBlackOut(ControllerButton controllerInput)
+    /// <summary>Runs one update of <see cref="SuperMetroidGameState.DeathFinalBlackOut"/>.</summary>
+    internal void RunDeathFinalBlackOut(ControllerButton controllerInput)
     {
         session.GameplayRuntime.RunBlankGameplayFrame(controllerInput);
         session.display.PublishGameplay(session.GameplayRuntime);

@@ -129,10 +129,10 @@ internal sealed record SamusOverreadDocument(
     /// <param name="Set">The names of the decided members the overwrite leaves on; the other decided members it turns off.</param>
     internal sealed record DecidedMembers(IReadOnlyList<string> Decided, IReadOnlyList<string> Set);
 
-    /// <summary>An animation position: a program and its step.</summary>
-    /// <param name="Program">The program's name.</param>
-    /// <param name="Position">The step's position in the program.</param>
-    internal sealed record Cursor(string Program, int Position);
+    /// <summary>An animation position: an animation and its step.</summary>
+    /// <param name="Animation">The animation's name.</param>
+    /// <param name="Position">The step's position in the animation.</param>
+    internal sealed record Cursor(string Animation, int Position);
 
     /// <summary>The speeds a beam launches at, each a signed count of 256ths of a pixel per update.</summary>
     /// <param name="Cardinal">The horizontal and vertical speed.</param>

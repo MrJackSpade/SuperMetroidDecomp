@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using K = SuperMetroid.Core.Enemies.Hibashi.HibashiCueKind;
 using P = SuperMetroid.Core.Enemies.Hibashi.HibashiSegment;
 using SuperMetroid.Core.Enemies.Artwork;

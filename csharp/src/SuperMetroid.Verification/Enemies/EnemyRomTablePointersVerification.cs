@@ -1,5 +1,5 @@
 using SuperMetroid.TestSupport.MovieReplay;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Verification.Areas.Tourian;
 using SuperMetroid.Verification.Bosses.Torizo;
 using SuperMetroid.Tooling;

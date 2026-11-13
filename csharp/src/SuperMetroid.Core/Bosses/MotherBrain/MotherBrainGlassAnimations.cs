@@ -1,5 +1,5 @@
-using SuperMetroid.Core.Programs;
-using Beat = SuperMetroid.Core.Programs.AnimationBeat<SuperMetroid.Core.Bosses.MotherBrain.MotherBrainGlassFrame, SuperMetroid.Core.Bosses.MotherBrain.MotherBrainGlassCue>;
+using SuperMetroid.Core.Animation;
+using Beat = SuperMetroid.Core.Animation.AnimationBeat<SuperMetroid.Core.Bosses.MotherBrain.MotherBrainGlassFrame, SuperMetroid.Core.Bosses.MotherBrain.MotherBrainGlassCue>;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 

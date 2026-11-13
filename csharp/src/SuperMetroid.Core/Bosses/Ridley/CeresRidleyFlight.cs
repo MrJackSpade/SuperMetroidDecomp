@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms;
 
@@ -11,8 +11,8 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 [RoomLifetime]
 internal sealed class CeresRidleyFlight
 {
-    /// <summary>Runs Ridley's shared movement behaviours through the enemies' AI dispatch.</summary>
-    private readonly IEnemyDispatch _dispatch;
+    /// <summary>Sets up the enemies Ridley's flight spawns and runs their initialization.</summary>
+    private readonly IEnemyLifecycle _lifecycle;
     /// <summary>Provides room randomness and Ceres artwork state.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Offsets the scene's own Baby and door drawing during a room quake.</summary>
@@ -28,7 +28,7 @@ internal sealed class CeresRidleyFlight
     /// <summary>Builds the component from the collaborators it uses.</summary>
     internal CeresRidleyFlight(CeresRidleyFlightDependencies dependencies)
     {
-        _dispatch = dependencies.Dispatch;
+        _lifecycle = dependencies.Lifecycle;
         _room = dependencies.Room;
         _earthquake = dependencies.Earthquake;
         _audio = dependencies.Audio;
@@ -574,8 +574,8 @@ internal sealed class CeresRidleyFlight
             Presence: EnemyPresence.Hidden,
             CollidesByFrameHitboxes: false,
             SpawnSettings: new CeresDoorSpawnSettings(variant));
-        _dispatch.InitializeSlotFromDefinition(wall, population, definition);
-        _dispatch.RunInitializationAi(wall, EnemySpawnSurroundings.None);
+        _lifecycle.InitializeSlotFromDefinition(wall, population, definition);
+        _lifecycle.RunInitializationAi(wall, EnemySpawnSurroundings.None);
         _slotTable.CoverSpawn(wall);
     }
 }

@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using K = SuperMetroid.Core.Enemies.FuneNamihe.FuneNamiheCueKind;
 using P = SuperMetroid.Core.Enemies.FuneNamihe.FuneNamiheSegment;
 using SuperMetroid.Core.Enemies.Artwork;

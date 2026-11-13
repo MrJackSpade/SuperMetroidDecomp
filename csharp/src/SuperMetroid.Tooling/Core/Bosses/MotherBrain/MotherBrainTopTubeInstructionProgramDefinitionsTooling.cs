@@ -1,7 +1,7 @@
-﻿using static SuperMetroid.Core.Programs.InstructionItem;
+﻿using static SuperMetroid.Core.Animation.InstructionItem;
 using SuperMetroid.Tooling;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 

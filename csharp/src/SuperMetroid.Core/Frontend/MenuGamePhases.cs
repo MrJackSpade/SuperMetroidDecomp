@@ -14,8 +14,8 @@ namespace SuperMetroid.Core.Frontend;
 /// <param name="session">The frontend session these phases run against.</param>
 internal sealed class MenuGamePhases(FrontendSession session)
 {
-    /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.Reset"/>.</summary>
-    internal void DispatchReset()
+    /// <summary>Runs one update of <see cref="SuperMetroidGameState.Reset"/>.</summary>
+    internal void RunReset()
     {
         session.Demo.Reset();
         // The soft reset ultimately enters the opening cinematic and initializes
@@ -37,8 +37,8 @@ internal sealed class MenuGamePhases(FrontendSession session)
         session.display.PublishMenu(session.ActiveTitle);
     }
 
-    /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.OpeningCinematic"/>.</summary>
-    internal void DispatchOpeningCinematic(ControllerButton controllerInput)
+    /// <summary>Runs one update of <see cref="SuperMetroidGameState.OpeningCinematic"/>.</summary>
+    internal void RunOpeningCinematic(ControllerButton controllerInput)
     {
         session.ActiveTitle.Step(controllerInput);
         session.display.PublishMenu(session.ActiveTitle);
@@ -57,8 +57,8 @@ internal sealed class MenuGamePhases(FrontendSession session)
         }
     }
 
-    /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.FileSelectMenus"/>.</summary>
-    internal void DispatchFileSelectMenus(ControllerButton controllerInput)
+    /// <summary>Runs one update of <see cref="SuperMetroidGameState.FileSelectMenus"/>.</summary>
+    internal void RunFileSelectMenus(ControllerButton controllerInput)
     {
         session.ActiveFileSelect.Step(controllerInput);
         if (session.ActiveFileSelect.SavesChangedThisFrame)
@@ -102,8 +102,8 @@ internal sealed class MenuGamePhases(FrontendSession session)
         }
     }
 
-    /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.GameOptionsMenu"/>.</summary>
-    internal void DispatchGameOptionsMenu(ControllerButton controllerInput)
+    /// <summary>Runs one update of <see cref="SuperMetroidGameState.GameOptionsMenu"/>.</summary>
+    internal void RunGameOptionsMenu(ControllerButton controllerInput)
     {
         session.ActiveOptions.Step(controllerInput);
         session.display.PublishMenu(session.ActiveOptions);
@@ -179,8 +179,8 @@ internal sealed class MenuGamePhases(FrontendSession session)
         }
     }
 
-    /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.GameOverMenu"/>.</summary>
-    internal void DispatchGameOverMenu(ControllerButton controllerInput)
+    /// <summary>Runs one update of <see cref="SuperMetroidGameState.GameOverMenu"/>.</summary>
+    internal void RunGameOverMenu(ControllerButton controllerInput)
     {
         GameOverMenuState gameOver = session.ScreenAs<GameOverMenuState>() ?? session.Show(new GameOverMenuState(session.audio,
             session.Artwork.MapPresentation, session.Artwork.SpriteSheets, continueLoadsCeresArrival: session.saves.ReadSlot(session.SelectedSaveSlot)?.StartupRoute ==
@@ -214,8 +214,8 @@ internal sealed class MenuGamePhases(FrontendSession session)
         }
     }
 
-    /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.FileSelectMap"/>.</summary>
-    internal void DispatchFileSelectMap(ControllerButton controllerInput)
+    /// <summary>Runs one update of <see cref="SuperMetroidGameState.FileSelectMap"/>.</summary>
+    internal void RunFileSelectMap(ControllerButton controllerInput)
     {
         session.ContinueSavedGame();
         SuperMetroidSaveSlot mapSlot = session.saves.ReadSlot(session.SelectedSaveSlot)

@@ -54,7 +54,7 @@ internal static class SamusPoseMetadata
 
     /// <summary>The way an arbitrary current or prospective pose faces.</summary>
     public static SamusFacingDirection ReadFacingDirection(SamusPoseId pose) =>
-        SamusPoseDispatch.ReadFacing(pose);
+        SamusPoseTraits.ReadFacing(pose);
 
     /// <summary>Whether the current pose faces <paramref name="direction"/>.</summary>
     public static bool IsFacing(SamusState samus, SamusFacingDirection direction) =>
@@ -85,7 +85,7 @@ internal static class SamusPoseMetadata
     /// fail here, before they can be mistaken for a valid gameplay state downstream.
     /// </summary>
     public static SamusMovementType ReadMovementType(SamusPoseId pose) =>
-        SamusPoseDispatch.ReadMovement(pose);
+        SamusPoseTraits.ReadMovement(pose);
 
     /// <summary>Compatibility spelling for an arbitrary prospective pose.</summary>
     public static SamusMovementType ReadMovementKind(SamusPoseId pose) =>
@@ -97,7 +97,7 @@ internal static class SamusPoseMetadata
     /// </summary>
     public static SamusPoseId ReadNoInputFallbackPose(SamusState samus)
     {
-        return SamusPoseDispatch.ReadNoInputPose(samus.Pose);
+        return SamusPoseTraits.ReadNoInputPose(samus.Pose);
     }
 
     /// <summary>What Samus's pose does with her arm cannon.</summary>

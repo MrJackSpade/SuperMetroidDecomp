@@ -1,5 +1,5 @@
 using SuperMetroid.TestSupport.MovieReplay;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidArmCollisionDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidFootCollisionDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidNativeListAddresses;

@@ -1,7 +1,7 @@
 using SuperMetroid.TestSupport.Assertions;
 using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Fx.PaletteFx;

@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using P = SuperMetroid.Core.Areas.Ceres.CeresBabySegment;
 using F = SuperMetroid.Core.Areas.Ceres.CeresBabyPose;
 

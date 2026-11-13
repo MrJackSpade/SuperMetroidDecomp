@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using K = SuperMetroid.Core.Enemies.Yard.YardCueKind;
 using P = SuperMetroid.Core.Enemies.Yard.YardSegment;
 using SuperMetroid.Core.Enemies.Artwork;

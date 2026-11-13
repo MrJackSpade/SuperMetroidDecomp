@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using K = SuperMetroid.Core.Enemies.Animals.EscapeEtecoonCueKind;
 using P = SuperMetroid.Core.Enemies.Animals.EscapeEtecoonSegment;
 using SuperMetroid.Core.Enemies.Artwork;

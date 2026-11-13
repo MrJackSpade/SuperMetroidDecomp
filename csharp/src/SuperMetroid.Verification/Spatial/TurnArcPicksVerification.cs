@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.MorphBallEye;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 
 namespace SuperMetroid.Verification.Spatial;
 

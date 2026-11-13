@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using P = SuperMetroid.Core.Enemies.Stoke.StokeProjectileSegment;
 using SuperMetroid.Core.Enemies.Projectiles;
 

@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using K = SuperMetroid.Core.Bosses.Kraid.FakeKraidCueKind;
 using P = SuperMetroid.Core.Bosses.Kraid.FakeKraidSegment;
 using SuperMetroid.Core.Enemies.Artwork;

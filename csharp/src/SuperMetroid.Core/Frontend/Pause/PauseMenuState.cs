@@ -589,11 +589,11 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     private static PauseEquipmentBit ReadCategoryMask(PauseEquipmentCategoryDefinition category, int item) =>
         PauseEquipmentRules.Mask(category.Category, item);
 
-    /// <summary>Dispatches reserve input or moves and toggles equipment in the game's update order.</summary>
+    /// <summary>Handles reserve input or moves and toggles equipment in the game's update order.</summary>
     private void HandleEquipmentInput(ControllerButton pressed, SamusBombProjectileSystem? bombs)
     {
-        PauseEquipmentCategory dispatchedCategory = SelectedCategory;
-        if (dispatchedCategory == PauseEquipmentCategory.Reserves)
+        PauseEquipmentCategory handlingCategory = SelectedCategory;
+        if (handlingCategory == PauseEquipmentCategory.Reserves)
         {
             HandleReserveInput(pressed);
             MoveEquipmentSelector(pressed);
@@ -602,7 +602,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         MoveEquipmentSelector(pressed);
         if ((pressed & ControllerButton.A) == ControllerButton.None)
             return;
-        if (dispatchedCategory == PauseEquipmentCategory.Beams && samus.CollectedBeams == SamusBeamFlags.None)
+        if (handlingCategory == PauseEquipmentCategory.Beams && samus.CollectedBeams == SamusBeamFlags.None)
             return;
         // Moving into the reserve rows on the frame A is pressed toggles with the reserve category, whose equipment and
         // label tables hold no entries. On the first row the game repaints a fixed run of projectile values, of which
@@ -625,8 +625,9 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             return;
         }
 
-        // Dispatch precedes movement: the dispatched category's handler toggles the item the cursor has just moved onto.
-        // A press dispatched from the boots column onto Plasma therefore bypasses the beam handler's Spazer/Plasma
+        // The handler is chosen before movement: the handler of the category selected before the cursor moved toggles the item
+        // the cursor has just moved onto.
+        // A press handled from the boots column onto Plasma therefore bypasses the beam handler's Spazer/Plasma
         // exclusion. Do not use upstream C's 'Fixed var bug' category guard: it is absent from the retail game. The page
         // shows each label in its item's state every frame (#1515), so nothing here writes a label.
         SamusBeamFlags previousBeams = samus.EquippedBeams;
@@ -637,7 +638,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         samus.EquippedItems ^= mask.Item;
 
         audio?.QueueSound(SamusSound.MenuConfirm, priority: SoundRequestPriority.Normal);
-        if (dispatchedCategory == PauseEquipmentCategory.Beams)
+        if (handlingCategory == PauseEquipmentCategory.Beams)
         {
             SamusBeamFlags added = samus.EquippedBeams & ~previousBeams;
             if ((added & SamusBeamFlags.Spazer) != SamusBeamFlags.None &&

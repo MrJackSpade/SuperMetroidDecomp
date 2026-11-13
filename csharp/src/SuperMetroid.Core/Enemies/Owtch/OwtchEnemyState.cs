@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Owtch;
 
 /// <summary>The state of an Owtch: its patrol speeds, its patrol state and how deep it is buried.</summary>

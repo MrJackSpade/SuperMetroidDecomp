@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using K = SuperMetroid.Core.Enemies.Waver.WaverCueKind;
 using P = SuperMetroid.Core.Enemies.Waver.WaverSegment;
 using SuperMetroid.Core.Enemies.Artwork;

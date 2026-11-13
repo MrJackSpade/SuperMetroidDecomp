@@ -20,9 +20,10 @@ internal static class SamusOverreadFormat
     /// (#1624); revision eighteen names the story events, item locations, doors and used stations SpaceTime's overwrite
     /// decides, the Zebetite count it leaves and the startup route it saves, in place of the save image's flag numbering
     /// and the saved loading-state word (#1709); revision nineteen holds neither the Speed Booster's overrun colours nor the
-    /// Chainsaw beam's colours, which are import data (#1693).
+    /// Chainsaw beam's colours, which are import data (#1693); revision twenty names each animation position's animation
+    /// under <c>animation</c> (#1624).
     /// </summary>
-    internal const int Version = 19;
+    internal const int Version = 20;
     /// <summary>JSON filename holding the decoded over-read results.</summary>
     internal const string FileName = "samus-overreads.json";
     /// <summary>Supported revision of the import data's overrun colour document (<see cref="ColourFileName"/>).</summary>

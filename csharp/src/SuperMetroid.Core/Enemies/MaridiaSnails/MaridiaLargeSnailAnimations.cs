@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using K = SuperMetroid.Core.Enemies.MaridiaSnails.MaridiaLargeSnailCueKind;
 using P = SuperMetroid.Core.Enemies.MaridiaSnails.MaridiaLargeSnailSegment;
 using SuperMetroid.Core.Enemies.Artwork;

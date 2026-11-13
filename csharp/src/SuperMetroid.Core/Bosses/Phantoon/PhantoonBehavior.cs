@@ -2,7 +2,7 @@ using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.Phantoon.Artwork;
@@ -148,9 +148,9 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         Position16<RoomPixels> camera)
     {
         PhantoonEnemyState state = RequireCompletePhantoonState(body);
-        PhantoonPhase dispatched = state.BodyState.Phase;
+        PhantoonPhase phase = state.BodyState.Phase;
 
-        switch (dispatched)
+        switch (phase)
         {
             case PhantoonPhase.SpawnStartingFlames:
                 Opening.RunPhantoonStartingFlameSpawner(body, state);
@@ -257,7 +257,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // This synchronization runs only for the body's invocation, then copies the updated point into the three
         // drawing parts. The almost-dead phase skips the part sync and body-layer scroll entirely on that frame.
-        if (dispatched == PhantoonPhase.AlmostDead)
+        if (phase == PhantoonPhase.AlmostDead)
             return;
         state.Mouth.Position = state.Mouth.Position.WithWholeX(body.Position.X.Whole);
         state.Tentacles.Position = state.Tentacles.Position.WithWholeX(body.Position.X.Whole);

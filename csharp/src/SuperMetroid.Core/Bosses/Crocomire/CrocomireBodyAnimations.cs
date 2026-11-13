@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using K = SuperMetroid.Core.Bosses.Crocomire.CrocomireBodyCueKind;
 using P = SuperMetroid.Core.Bosses.Crocomire.CrocomireBodySegment;
 

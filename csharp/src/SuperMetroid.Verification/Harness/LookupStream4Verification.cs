@@ -43,7 +43,7 @@ using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Hud;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Enemies.EyeDoor;
 using SuperMetroid.Core.Rooms.LevelData;

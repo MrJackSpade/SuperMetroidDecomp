@@ -1,6 +1,6 @@
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.Assertions;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
 

@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using K = SuperMetroid.Core.Enemies.Beetom.BeetomCueKind;
 using P = SuperMetroid.Core.Enemies.Beetom.BeetomSegment;
 using SuperMetroid.Core.Enemies.Artwork;

@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using K = SuperMetroid.Core.Enemies.Animals.EscapeDachoraCueKind;
 using P = SuperMetroid.Core.Enemies.Animals.EscapeDachoraSegment;
 using SuperMetroid.Core.Enemies.Artwork;

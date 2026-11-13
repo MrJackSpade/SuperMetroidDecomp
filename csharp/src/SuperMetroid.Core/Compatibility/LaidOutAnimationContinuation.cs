@@ -95,7 +95,7 @@ public sealed class LaidOutAnimationContinuation<TAnimation, TStep>
     /// <exception cref="ArgumentException"><paramref name="animation"/> is not in the layout.</exception>
     public Read? ReadPast(TAnimation animation, int frame) =>
         !_successors.TryGetValue(animation, out Successor? successor)
-            ? throw new ArgumentException($"Program {animation} is not in the layout.", nameof(animation))
+            ? throw new ArgumentException($"Animation {animation} is not in the layout.", nameof(animation))
             : successor is not { } next || frame < next.Shift
                 ? null
                 : new Read(next.Animation, frame - next.Shift, next.Shift);
@@ -107,7 +107,7 @@ public sealed class LaidOutAnimationContinuation<TAnimation, TStep>
     /// <exception cref="ArgumentException"><paramref name="animation"/> is not in the layout.</exception>
     public TStep? CueValueStep(TAnimation animation, int frame) =>
         !_successors.ContainsKey(animation)
-            ? throw new ArgumentException($"Program {animation} is not in the layout.", nameof(animation))
+            ? throw new ArgumentException($"Animation {animation} is not in the layout.", nameof(animation))
             : _cueValueSteps.TryGetValue(animation, out IReadOnlyDictionary<int, TStep>? steps) && steps.TryGetValue(frame, out TStep? step)
                 ? step
                 : null;

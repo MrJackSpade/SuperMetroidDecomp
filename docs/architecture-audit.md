@@ -333,7 +333,7 @@ namespace matches its path (`Core/Bosses/Kraid` is `SuperMetroid.Core.Bosses.Kra
 | `Areas/<Area>` | scripted gameplay sequences that belong to one place (Ceres, the escapes, Tourian, Maridia) |
 | `Gameplay` | the services every gameplay domain shares within a frame: the NMI clock and handler, time freeze, display state, host options and tester tools, runtime artwork, actor drawing, the game-state word, and the narrow contracts gameplay reads from the frontend (`IGameplayPresentationContent`, `IAttractDemoState`) |
 | `Map` | the area map model: layouts, tile words, exploration and explored-bit packing, the minimap, reveal modes and the map views (`IAreaMapSource`) |
-| `Hud`, `Saves`, `Progression`, `Programs` | the gameplay HUD and message boxes; save images; boss and event progression; shared animation playback |
+| `Hud`, `Saves`, `Progression`, `Animation` | the gameplay HUD and message boxes; save images; boss and event progression; shared animation playback |
 | `Runtime` | the gameplay frame loop that composes the simulation, with `Attract` (demo playback), door transitions, checkpoint autosaves and the runtime's renderer and audio publication |
 | `Frontend/<Screen>` | the game-state dispatcher and host options, and one module per screen or cinematic (title, intro, `CeresCinematics`, file select, pause map, options, game over, ending, recordings) |
 | `Assets` | artwork infrastructure every domain shares: PNG and JSON documents (`ArtworkJson`), tile encoders, base palettes |
@@ -359,7 +359,7 @@ Every project receives the map as an additional file, and the build enforces it:
 | **SME6405** | a Verification file lives in the module of the Core domain it exercises, or in the shared `Harness` |
 | **SME6406** | every top-level Core module is assigned a layer |
 
-Core's layers, lowest first, are Geometry (`Spatial`), Foundation (`Compatibility`, `Input`, `Audio`, `Programs`,
+Core's layers, lowest first, are Geometry (`Spatial`), Foundation (`Compatibility`, `Input`, `Audio`, `Animation`,
 `Assets`), Simulation (`Gameplay`, `Map` and the gameplay domains), Presentation (`Rendering`), Runtime and Frontend.
 Code below the frontend reads frontend-owned content through narrow contracts that the frontend implements, never
 through the frontend's types; documentation crefs are not dependencies.

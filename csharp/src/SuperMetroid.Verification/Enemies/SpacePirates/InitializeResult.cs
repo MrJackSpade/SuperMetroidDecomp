@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.SpacePirates;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 
 namespace SuperMetroid.Verification.Enemies.SpacePirates;
 

@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Skree;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Enemies.Skree;

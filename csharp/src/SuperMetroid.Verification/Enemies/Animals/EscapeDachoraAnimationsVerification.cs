@@ -3,7 +3,7 @@ using static SuperMetroid.Verification.Enemies.Animals.EscapeDachoraNativeListAd
 using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Enemies.Animals.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Verification.Enemies.Animals;

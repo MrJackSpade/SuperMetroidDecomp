@@ -5,7 +5,7 @@ using static SuperMetroid.TestSupport.MovieReplay.RidleyNativeListAddresses;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.TestSupport.MovieReplay;

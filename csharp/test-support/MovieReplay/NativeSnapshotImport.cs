@@ -32,7 +32,7 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Fx.PaletteFx;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>
@@ -460,7 +460,7 @@ internal static class NativeSnapshotImport
     /// whose list runs on into it. A place with no frame before it, in its segment or any running on into it, has shown no
     /// frame yet: null.
     /// </summary>
-    private static PaletteFxFrame? LastShownFrame(SuperMetroid.Core.Programs.Animation<PaletteFxSegment> animation, SuperMetroid.Core.Programs.AnimationPlace place)
+    private static PaletteFxFrame? LastShownFrame(SuperMetroid.Core.Animation.Animation<PaletteFxSegment> animation, SuperMetroid.Core.Animation.AnimationPlace place)
     {
         AnimationPhase<PaletteFxSegment> phase = animation.Phases[place.Phase];
         PaletteFxSegment segment = phase.Segment;

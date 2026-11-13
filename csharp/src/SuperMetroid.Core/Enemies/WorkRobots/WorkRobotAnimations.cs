@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using K = SuperMetroid.Core.Enemies.WorkRobots.WorkRobotCueKind;
 using P = SuperMetroid.Core.Enemies.WorkRobots.WorkRobotSegment;
 using SuperMetroid.Core.Enemies.Artwork;

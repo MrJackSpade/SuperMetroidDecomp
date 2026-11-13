@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using P = SuperMetroid.Core.Bosses.Draygon.DraygonProjectileSegment;
 
 namespace SuperMetroid.Core.Bosses.Draygon;

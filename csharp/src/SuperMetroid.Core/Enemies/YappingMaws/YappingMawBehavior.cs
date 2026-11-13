@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus.Drawing;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Grapple;

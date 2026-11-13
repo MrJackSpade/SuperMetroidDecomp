@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.Cacatac;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Enemies.FuneNamihe;

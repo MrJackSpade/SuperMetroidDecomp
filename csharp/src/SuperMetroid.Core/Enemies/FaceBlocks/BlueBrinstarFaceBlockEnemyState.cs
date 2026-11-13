@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.FaceBlocks;
 
 /// <summary>The state of the Blue Brinstar face block.</summary>

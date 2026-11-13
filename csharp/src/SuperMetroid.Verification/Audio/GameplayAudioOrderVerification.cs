@@ -8,7 +8,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.KiHunters;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hud;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Samus;

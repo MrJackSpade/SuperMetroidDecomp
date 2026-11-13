@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.Core.Rooms.RoomObjects;
@@ -133,14 +133,14 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // Shitroid's private shot handler applies recoil but no health loss. The main AI
         // redundantly restores its health every processed frame, exactly as the game does.
         slot.Health = RestoredHealth;
-        DispatchShitroidState(slot, state, samus, sharedProjectiles);
+        RunShitroidState(slot, state, samus, sharedProjectiles);
         DeadTorizoBehavior.MoveWithEightEightVelocity(slot, state.Velocity);
         if (_zebetiteBehavior.PaletteChangeNumber == 0)
             StepShitroidMembranePulse(state);
     }
 
     /// <summary>Advances entrance, feeding, Samus chase and drain, remorse, or exit cutscene states.</summary>
-    private void DispatchShitroidState(
+    private void RunShitroidState(
         RoomEnemySlot slot,
         ShitroidEnemyState state,
         SamusState? samus,

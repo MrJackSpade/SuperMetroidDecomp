@@ -1,6 +1,6 @@
 using System.Collections.Frozen;
 using SuperMetroid.Core.Fx.PaletteFx;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 

@@ -21,8 +21,7 @@ public sealed class RoomEnemySlot : ISolidEnemy
 
     /// <summary>
     /// The slot's ordinal in <see cref="EnemySlotOrder"/>, 0 through <see cref="EnemySlotOrder.Capacity"/> minus one,
-    /// fixed for the slot's lifetime: the identity by which the game names "which enemy", such as the enemy Samus last
-    /// met solidly in each direction.
+    /// fixed for the slot's lifetime: the place's position in allocation and processing order.
     /// </summary>
     [IntegerQuantity("position of the slot in the enemy table")]
     public int SlotIndex { get; }
@@ -141,8 +140,6 @@ public sealed class RoomEnemySlot : ISolidEnemy
     /// <inheritdoc/>
     void ISolidEnemy.ShakeFromWallJumpLaunch() => ShakeTimer = EnemyDrawPhaseDefinitions.WallJumpLaunchShakeDraws;
 
-    /// <inheritdoc/>
-    int ISolidEnemy.ContactRecordPlace => SlotIndex;
     /// <summary>
     /// The enemy's own update count, 0 through 65535, wrapping; its behaviour and drawing read it, independently of the
     /// game's frame counter.

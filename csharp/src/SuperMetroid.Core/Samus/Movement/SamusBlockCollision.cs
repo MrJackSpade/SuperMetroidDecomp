@@ -101,7 +101,7 @@ public static class SamusBlockCollision
                 direction,
                 magnitude.Whole,
                 magnitude.Fraction);
-            state.RecordSolidEnemyCollision(direction, probe.Enemy?.ContactRecordPlace);
+            state.RecordSolidEnemyCollision(direction, probe.Enemy);
 
             if (probe.Collided)
             {
@@ -411,7 +411,7 @@ public static class SamusBlockCollision
                 direction,
                 magnitude.Whole,
                 magnitude.Fraction);
-            state.RecordSolidEnemyCollision(direction, probe.Enemy?.ContactRecordPlace);
+            state.RecordSolidEnemyCollision(direction, probe.Enemy);
 
             if (probe.Collided)
             {

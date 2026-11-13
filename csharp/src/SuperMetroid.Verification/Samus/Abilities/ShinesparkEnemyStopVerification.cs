@@ -23,8 +23,9 @@ internal static class ShinesparkEnemyStopVerification
             samus.Shinespark.BeginWindup(samus);
             samus.Shinespark.BeginDirectionalLaunch(samus, SamusPoseId.ShinesparkVerticalLeftPose);
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(ushort.MaxValue);
+            var enemy = new SolidEnemyFixture();
             samus.Kinematics.InteractiveEnemies =
-            [new SolidEnemyCollisionBody(Enemy: new SolidEnemyFixture(0), Position: new(100, (ushort)(100 - 19 - 8 - gap)),
+            [new SolidEnemyCollisionBody(Enemy: enemy, Position: new(100, (ushort)(100 - 19 - 8 - gap)),
                 Radius: new(8, 8), Solid: true)];
             uint initialY = samus.Kinematics.Position.Y.RawValue;
             samus.Shinespark.Step(new SamusTerrain { Level = level }, samus, new ShinesparkFrame { FrameCounter = 0, Projectiles = new SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem(new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem.SlotCount)) });
@@ -32,7 +33,7 @@ internal static class ShinesparkEnemyStopVerification
             {
                 AssertEqual(initialY, samus.Kinematics.Position.Y.RawValue, "spark enemy hit retains exact crash Y instead of advancing to boundary");
                 AssertEqual(0, unchecked((int)(samus.Kinematics.Position.Y.RawValue - initialY)), "spark solid-enemy stop accepts no vertical displacement");
-                AssertTrue(samus.Kinematics.DidCollideWithSolidEnemy(0), "spark stop retains enemy collision evidence");
+                AssertTrue(samus.Kinematics.DidCollideWithSolidEnemy(enemy), "spark stop retains enemy collision evidence");
                 AssertEqual(ShinesparkPhase.Crash, samus.Shinespark.Phase, "spark enemy hit starts crash");
             }
             else

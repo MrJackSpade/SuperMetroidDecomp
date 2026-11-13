@@ -36,6 +36,7 @@ using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.TestSupport.SamusNativeCodecs;
 using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.TestSupport.MovieReplay;
 
@@ -394,7 +395,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             Check("Samus slope adjustment", samus.Kinematics.PositionAdjustedBySlope ? (ushort)1 : (ushort)0,
                 NativeSnapshotMemory.SamusSlopeAdjusted);
             for (int direction = 0; direction < 4; direction++)
-                Check($"Samus solid enemy {direction}", SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.WordOf(samus.Kinematics.SolidEnemyCollisions[direction]),
+                Check($"Samus solid enemy {direction}", SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.WordOf(ContactPlace(runtime.Enemies, samus.Kinematics.SolidEnemyContacts[direction])),
                     NativeSnapshotMemory.SamusSolidEnemyIndices + direction * 2);
             byte[] inheritance = new ProjectileInheritanceRecordsAccess(samus.ProjectileInheritance).Capture();
             for (int offset = 0; offset < inheritance.Length; offset += 2)
@@ -1037,6 +1038,23 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
 
     /// <inheritdoc/>
     public Exception? NamedProductionFailure(Exception exception) => null;
+
+    /// <summary>
+    /// The place in <paramref name="enemies"/>'s room of the enemy Samus's contact record <paramref name="contact"/>
+    /// names, or null when it names none, for comparison with the recorded word (#1702).
+    /// </summary>
+    /// <exception cref="InvalidDataException">The record names an enemy that is not one of the room's places.</exception>
+    private static int? ContactPlace(RoomEnemySystem enemies, ISolidEnemy? contact)
+    {
+        if (contact is null)
+            return null;
+        foreach (RoomEnemySlot place in enemies.SlotTable.Slots)
+        {
+            if (ReferenceEquals(place, contact))
+                return place.SlotIndex;
+        }
+        throw new InvalidDataException("Samus's solid-enemy contact names an enemy that is not one of the room's places.");
+    }
 
     /// <inheritdoc/>
     /// <remarks>The frame sequence owns the trace it opens; ending or disposing the sequence closes it.</remarks>

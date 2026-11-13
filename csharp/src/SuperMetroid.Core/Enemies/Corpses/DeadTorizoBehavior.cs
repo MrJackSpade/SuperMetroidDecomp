@@ -85,7 +85,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.Function ?? throw new InvalidDataException("Dead Torizo has no corpse function."))
         {
             case DeadTorizoFunction.Wait:
-                if (samus?.Kinematics.DidCollideWithSolidEnemy(slot.SlotIndex) == true)
+                if (samus?.Kinematics.DidCollideWithSolidEnemy(slot) == true)
                     state.Function = DeadTorizoFunction.PreRot;
                 break;
 

@@ -45,7 +45,7 @@ internal static class DeadTorizoCollisionVerification
                 case "power bomb": enemies.DeadTorizoBehavior.TriggerDeadTorizoPowerBomb(slot); break;
                 default:
                     samus.Kinematics.Position = samus.Kinematics.Position.WithWholeX(500); // Exercise solid-contact delay independently of custom overlap.
-                    samus.Kinematics.RecordSolidEnemyCollision(SamusCollisionDirection.Right, slot.SlotIndex);
+                    samus.Kinematics.RecordSolidEnemyCollision(SamusCollisionDirection.Right, slot);
                     // The wait handler reads which enemies Samus met.
                     enemies.DeadTorizoBehavior.RunDeadTorizoMain(slot, samus);
                     for (int frame = 0; frame < 15; frame++) enemies.DeadTorizoBehavior.RunDeadTorizoMain(slot, null);

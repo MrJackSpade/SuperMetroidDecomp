@@ -100,7 +100,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.Function)
         {
             case DeadTourianCorpseFunction.Waiting:
-                if (samus?.Kinematics.DidCollideWithSolidEnemy(slot.SlotIndex) == true)
+                if (samus?.Kinematics.DidCollideWithSolidEnemy(slot) == true)
                     state.Function = DeadTourianCorpseFunction.PreRotDelay;
                 return;
             case DeadTourianCorpseFunction.PreRotDelay:

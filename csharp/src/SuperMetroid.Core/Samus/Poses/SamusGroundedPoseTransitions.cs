@@ -189,7 +189,7 @@ internal static class SamusGroundedPoseTransitions
                 : SamusCollisionDirection.Right;
             SolidEnemyCollisionResult enemyProbe = SamusSolidEnemyCollision.Probe(
                 samus.Kinematics, samus.Kinematics.InteractiveEnemies, direction, distance: 1, distanceSubposition: 0);
-            samus.Kinematics.RecordSolidEnemyCollision(direction, enemyProbe.Enemy?.ContactRecordPlace);
+            samus.Kinematics.RecordSolidEnemyCollision(direction, enemyProbe.Enemy);
             if (enemyProbe.Collided)
                 return SelectRanIntoWallPose(target);
         }

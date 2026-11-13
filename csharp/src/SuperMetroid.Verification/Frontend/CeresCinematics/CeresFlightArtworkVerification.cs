@@ -39,7 +39,7 @@ internal static class CeresFlightArtworkVerification
             maximumOutputBytes: 0x1000);
         AssertTrue(stock.FloorMaps.Span.SequenceEqual(nativeMaps.AsSpan(0,
                 CeresFlightArtworkFileFormat.MapCellCount)),
-            "installed front/rear Ceres maps preserve every consumed native byte");
+            "extracted front/rear Ceres maps preserve every consumed native byte");
         byte[] nativePalette = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
             CeresCinematicSourceDefinitions.FlightPalette, CgramPalettes.ByteCount);
         // The installed colours in the cartridge's colour order, compared with the native palette colour by colour.
@@ -58,8 +58,8 @@ internal static class CeresFlightArtworkVerification
         using var referencePalette = new MemoryStream(referenceFiles[CeresFlightPaletteFormat.FileName]);
         using var referenceSprites = new MemoryStream(referenceFiles[CeresFlightSpriteFormat.FileName]);
         using var referenceActors = new MemoryStream(referenceFiles[CeresFlightActorLayoutFormat.FileName]);
-        CeresFlightCharacters reference = CeresFlightCharacters.Read(referenceCharacters, referenceObjects, referenceSprites,
-            CeresFlightSourceArtwork.Read(referenceMaps, CeresFlightPaletteFile.Read(referencePalette).Backdrop, referenceActors));
+        CeresFlightCharacters reference = CeresFlightCharacters.Read(referenceCharacters, referenceObjects, referenceMaps, referenceSprites,
+            CeresFlightSourceArtwork.Read(CeresFlightPaletteFile.Read(referencePalette).Backdrop, referenceActors));
         var native = new IntroCeresFlightState(AudioQueues.Standalone(), reference.BoundCatalog, sheets: CinematicSheetFixtures.WithFlight(reference));
         var installed = new IntroCeresFlightState(AudioQueues.Standalone(), stock.BoundCatalog, sheets: CinematicSheetFixtures.WithFlight(stock));
         var phases = new HashSet<IntroCeresFlightPhase>();

@@ -22,8 +22,8 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 
 /// <summary>
 /// Installs and loads the opening-scene documents; its character pages (#1636), the opening's and the Ceres approach's
-/// colours (#1637) and its layouts and sprite compositions, whose entries are the original's packed tile and sprite
-/// placements (#1638), are import data, which the extraction writes to the component's import-data directory and only
+/// colours (#1637) and its layouts, Mode 7 maps (#1693) and sprite compositions, whose entries are the original's packed
+/// tile and sprite placements (#1638), are import data, which the extraction writes to the component's import-data directory and only
 /// the import's read reads. So is the manifest naming them and the installed documents (#1693): the game reads only the
 /// documents it binds.
 /// </summary>
@@ -32,9 +32,10 @@ public static class IntroCinematicArtworkFiles
     /// <summary>
     /// Manifest revision for the complete opening and Ceres artwork resource set; 22 installs no character page (#1636),
     /// 23 installs the Japanese text's next-page arrow compositions (#1655), 24 installs no palette (#1637), 25 installs no
-    /// layout (#1638), 26 installs neither, 27 installs no sprite composition (#1638), and 28 installs no manifest (#1693).
+    /// layout (#1638), 26 installs neither, 27 installs no sprite composition (#1638), 28 installs no manifest (#1693), and
+    /// 29 installs no Mode 7 map (#1693).
     /// </summary>
-    private const int FormatVersion = 28;
+    private const int FormatVersion = 29;
 
     /// <summary>
     /// The component's character pages (#1636) and the colour documents only the import pre-colours sheets from (#1637),
@@ -62,8 +63,9 @@ public static class IntroCinematicArtworkFiles
     ];
 
     /// <summary>
-    /// The component's layouts (#1638): the scene pages, portrait, first narration card, subtitle line, eye rectangles and
-    /// Zebes reveal map, whose entries are the original's packed tile placements. The extraction writes them to its import-data
+    /// The component's layouts (#1638): the scene pages, portrait, first narration card, subtitle line, eye rectangles, Zebes
+    /// reveal map and the Ceres approach's and destruction's Mode 7 maps (#1693), whose entries are the original's packed
+    /// tile placements. The extraction writes them to its import-data
     /// directory and only the import's read reads them; the manifest lists their hashes.
     /// </summary>
     private static readonly string[] LayoutFiles =
@@ -71,11 +73,12 @@ public static class IntroCinematicArtworkFiles
         IntroCinematicArtworkFormat.PortraitTilemapFileName, IntroCinematicArtworkFormat.InitialNarrationTilemapFileName,
         .. Enumerable.Range(0, IntroCinematicArtworkFormat.BackgroundPageCount).Select(IntroCinematicArtworkFormat.BackgroundPageFileName),
         IntroFinalLineTilemapFormat.FileName, IntroEyeTilemapFormat.FileName, ZebesRevealArtworkFormat.MapFileName,
+        CeresFlightArtworkFileFormat.MapFileName, CeresDestructionMapFormat.FileName,
     ];
 
     /// <summary>Creates the stock opening-cinematic, Ceres-flight, and destruction-scene PNG and JSON resources with their provenance manifest.</summary>
     /// <param name="bus">Non-null cartridge import address space supplying character graphics, tilemaps, palettes, sprites, and scene artwork.</param>
-    /// <param name="directory">Output directory, created if needed; each resource and the manifest require a previously absent filename. The character pages, palettes, layouts, compositions and the manifest go to its import-data directory.</param>
+    /// <param name="directory">Output directory, created if needed; each resource and the manifest require a previously absent filename. The character pages, palettes, layouts, Mode 7 maps, compositions and the manifest go to its import-data directory.</param>
     /// <param name="sourceCartridgeSha256">Nonempty source-cartridge SHA-256 recorded with the generated stock-resource hashes.</param>
     /// <remarks>Checks native transfer dimensions, eye-frame draw geometry, and palette representation. Scene timing and dispatch remain compiled.</remarks>
     /// <exception cref="InvalidDataException">Native artwork, geometry, or palettes fail validation.</exception>
@@ -88,7 +91,7 @@ public static class IntroCinematicArtworkFiles
         Directory.CreateDirectory(directory);
         string importData = SuperMetroid.AssetExtraction.Installation.ImportDataDirectory.Of(directory);
         Directory.CreateDirectory(importData);
-        // A page, a palette, a layout or a composition goes to the import data, which the installer deletes before it
+        // A page, a palette, a layout, a map or a composition goes to the import data, which the installer deletes before it
         // publishes; a document is installed.
         string PathOf(string name) => Path.Combine(
             ImportDataFiles.Contains(name) || LayoutFiles.Contains(name) || CompositionFiles.Contains(name) ? importData : directory, name);
@@ -459,23 +462,23 @@ public static class IntroCinematicArtworkFiles
 
     /// <summary>
     /// Loads the opening's source artwork, which only the import reads: every installed document as installed. No character
-    /// page (#1636), palette (#1544, #1637) or manifest (#1693) is read: they are import data.
+    /// page (#1636), palette (#1544, #1637), Mode 7 map or manifest (#1693) is read: they are import data.
     /// </summary>
     public static IntroCinematicSourceArtwork Load(string directory) => new(ReadParts(directory));
 
     /// <summary>
     /// Checks the manifest's provenance and coverage in the component's import data <paramref name="importData"/> (#1693),
-    /// then loads the opening as the import composes from it: the game's artwork with its characters from the same import
-    /// data (#1636) and, from there too (#1637), the opening's and the Ceres approach's colours, which only the import
+    /// then loads the opening as the import composes from it: the game's artwork with its characters and Mode 7 maps from the
+    /// same import data (#1636, #1693) and, from there too (#1637), the opening's and the Ceres approach's colours, which only the import
     /// pre-colours sheets in (#1544).
     /// </summary>
     /// <param name="directory">The component's directory, holding the documents.</param>
-    /// <param name="importData">The component's import-data directory, holding the manifest, the character pages and the palettes.</param>
+    /// <param name="importData">The component's import-data directory, holding the manifest, the character pages, the layouts, the Mode 7 maps, the compositions and the palettes.</param>
     public static ImportIntroCinematicArtwork LoadForImport(string directory, string importData)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(importData);
         RequireManifest(importData);
-        IntroCinematicArtworkParts parts = ReadParts(directory);
+        IntroCinematicSceneParts parts = ReadParts(directory);
         return new(parts, ReadSprites(importData), ReadLayouts(importData), ReadCharacters(importData, parts.CeresFlight),
             ReadColours(importData, IntroCinematicPaletteFile.FileName, "opening palette", IntroCinematicPaletteFile.Read),
             ReadColours(importData, CeresFlightPaletteFormat.FileName, "Ceres flight palette", CeresFlightPaletteFile.Read));
@@ -510,7 +513,7 @@ public static class IntroCinematicArtworkFiles
         }
     }
 
-    /// <summary>The opening's layouts from the import data <paramref name="importData"/> (#1638).</summary>
+    /// <summary>The opening's layouts and the destruction's Mode 7 maps from the import data <paramref name="importData"/> (#1638, #1693).</summary>
     /// <exception cref="InvalidDataException">A layout does not decode; the error names its file.</exception>
     private static IntroCinematicLayouts ReadLayouts(string importData)
     {
@@ -521,7 +524,8 @@ public static class IntroCinematicArtworkFiles
             Page(IntroCinematicArtworkFormat.InitialNarrationTilemapFileName, IntroCinematicArtworkFormat.BackgroundPageByteCount),
             Layout(IntroFinalLineTilemapFormat.FileName, "opening divider", IntroFinalLineTilemap.Load),
             Layout(IntroEyeTilemapFormat.FileName, "opening eye art", IntroEyeTilemapPresentation.Load),
-            Page(ZebesRevealArtworkFormat.MapFileName, ZebesRevealArtworkFormat.MapByteCount));
+            Page(ZebesRevealArtworkFormat.MapFileName, ZebesRevealArtworkFormat.MapByteCount),
+            Layout(CeresDestructionMapFormat.FileName, "destruction maps", CeresDestructionMaps.Load));
 
         RoomBackgroundTilemapAtlas Page(string name, int byteCount) =>
             Layout(name, "intro tilemap", stream => RoomBackgroundTilemapAtlas.Load(stream, byteCount));
@@ -541,25 +545,27 @@ public static class IntroCinematicArtworkFiles
     }
 
     /// <summary>
-    /// The opening's characters from the import's pages in <paramref name="importData"/>, the approach's, with its
-    /// compositions, bound to <paramref name="flight"/>.
+    /// The opening's characters from the import's pages in <paramref name="importData"/>, the approach's, with its Mode 7
+    /// maps and compositions, bound to <paramref name="flight"/>.
     /// </summary>
     /// <exception cref="InvalidDataException">A page does not decode; the error names its file.</exception>
     private static IntroCinematicCharacters ReadCharacters(string importData, CeresFlightSourceArtwork flight)
     {
         string floorPath = Path.Combine(importData, CeresFlightArtworkFileFormat.FloorFileName);
         string objectPath = Path.Combine(importData, CeresFlightArtworkFileFormat.ObjectFileName);
+        string mapPath = Path.Combine(importData, CeresFlightArtworkFileFormat.MapFileName);
         string spritesPath = Path.Combine(importData, CeresFlightSpriteFormat.FileName);
         CeresFlightCharacters ceresFlight;
         try
         {
             ceresFlight = CeresFlightCharacters.Read(new MemoryStream(File.ReadAllBytes(floorPath), writable: false),
                 new MemoryStream(File.ReadAllBytes(objectPath), writable: false),
+                new MemoryStream(File.ReadAllBytes(mapPath), writable: false),
                 new MemoryStream(File.ReadAllBytes(spritesPath), writable: false), flight);
         }
         catch (InvalidDataException error)
         {
-            throw new InvalidDataException($"Invalid Ceres flight characters ({floorPath}, {objectPath}, {spritesPath}): {error.Message}", error);
+            throw new InvalidDataException($"Invalid Ceres flight characters ({floorPath}, {objectPath}, {mapPath}, {spritesPath}): {error.Message}", error);
         }
         return new IntroCinematicCharacters(
             Sheet(IntroCinematicArtworkFormat.BackgroundFileName, IntroCinematicArtworkFormat.BackgroundByteCount),
@@ -637,48 +643,21 @@ public static class IntroCinematicArtworkFiles
     }
 
     /// <summary>Reads every installed document the import composes from as installed.</summary>
-    private static IntroCinematicArtworkParts ReadParts(string directory)
+    private static IntroCinematicSceneParts ReadParts(string directory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         IntroBackdrops backdrops = ReadBackdrops(directory);
-        return new IntroCinematicArtworkParts { Backdrop = backdrops.Opening, CeresFlight = LoadCeresFlight(), CeresDestruction = ReadCeresDestruction(directory), CeresDestructionMaps = LoadCeresDestructionMaps() };
-
-        CeresFlightSourceArtwork LoadCeresFlight()
+        (string actorsPath, byte[] actors) = ReadInstalledFile(directory, CeresFlightActorLayoutFormat.FileName);
+        CeresFlightSourceArtwork flight;
+        try
         {
-            (string mapPath, byte[] map) = ReadInstalled(CeresFlightArtworkFileFormat.MapFileName);
-            (string actorsPath, byte[] actors) = ReadInstalled(CeresFlightActorLayoutFormat.FileName);
-            try
-            {
-                return CeresFlightSourceArtwork.Read(
-                    new MemoryStream(map, writable: false),
-                    backdrops.CeresFlight,
-                    new MemoryStream(actors, writable: false));
-            }
-            catch (InvalidDataException error)
-            {
-                throw new InvalidDataException(
-                    $"Invalid Ceres flight artwork ({mapPath}, {actorsPath}): {error.Message}", error);
-            }
+            flight = CeresFlightSourceArtwork.Read(backdrops.CeresFlight, new MemoryStream(actors, writable: false));
         }
-
-        CeresDestructionMaps LoadCeresDestructionMaps()
+        catch (InvalidDataException error)
         {
-            (string path, byte[] selected) = ReadInstalled(CeresDestructionMapFormat.FileName);
-            try
-            {
-                return CeresDestructionMaps.Load(new MemoryStream(selected, writable: false));
-            }
-            catch (InvalidDataException error)
-            {
-                throw new InvalidDataException($"Invalid destruction maps {path}: {error.Message}", error);
-            }
+            throw new InvalidDataException($"Invalid Ceres flight artwork {actorsPath}: {error.Message}", error);
         }
-
-        SelectedArtworkFile ReadInstalled(string name)
-        {
-            string installedPath = Path.Combine(directory, name);
-            return new SelectedArtworkFile(installedPath, File.ReadAllBytes(installedPath));
-        }
+        return new IntroCinematicSceneParts { Backdrop = backdrops.Opening, CeresFlight = flight, CeresDestruction = ReadCeresDestruction(directory) };
     }
 
     /// <summary>The opening's and the Ceres scenes' installed backdrops.</summary>

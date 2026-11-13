@@ -13,7 +13,7 @@ public sealed record InstalledArtworkSources
     /// <summary>What the game binds of Samus's installed body, whose game catalog the installed artwork set binds (#1616, #1638).</summary>
     public required InstalledSamusBody SamusBody { get; init; }
 
-    /// <summary>The opening cinematic's and the Ceres scenes' maps and sprite compositions.</summary>
+    /// <summary>The opening cinematic's and the Ceres scenes' installed documents; their maps and sprite compositions are import data (#1638, #1693).</summary>
     public required IntroCinematicSourceArtwork Intro { get; init; }
 
 }

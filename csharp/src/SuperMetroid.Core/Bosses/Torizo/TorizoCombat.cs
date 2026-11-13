@@ -11,7 +11,7 @@ internal sealed class TorizoCombat
 {
     /// <summary>Applies shot, bomb, and touch damage through the shared collision rules.</summary>
     private readonly EnemyCollision _collision;
-    /// <summary>Bomb and Golden Torizo's body: its behaviour flags, palette, program start and the low-health drool it triggers.</summary>
+    /// <summary>Bomb and Golden Torizo's body: its behaviour flags, palette, animation start and the low-health drool it triggers.</summary>
     private readonly TorizoBody _body;
     /// <summary>Bomb and Golden Torizo's state lookups, facing, posture and the function their branches test.</summary>
     private readonly TorizoEncounterAccess _access;
@@ -204,7 +204,7 @@ internal sealed class TorizoCombat
         {
             // The transitional callback returns immediately in area zero. In nonzero areas it calls a guarded path, which admits common
             // no-death shot damage only while the flash timer is zero and the body's animation is unlocked. Crucially it
-            // never enters Golden's shot callback, so missiles are not caught, Supers are not reflected, and parameter-two
+            // never enters Golden's shot callback, so missiles are not caught, Supers are not reflected, and the
             // counterattack flags are not armed through these transitional body rectangles.
             if (isBombTorizo || enemy.FlashTimer != 0 || torizoState.AnimationLocked)
             {
@@ -273,7 +273,7 @@ internal sealed class TorizoCombat
     }
 
     /// <summary>
-    /// Adds the Torizo hurt reaction for each variant; the common program runner still
+    /// Adds the Torizo hurt reaction for each variant; the common animation runner still
     /// advances after the hurt callback, as the enemies' update does.
     /// </summary>
     internal void AddBombTorizoHurtAi(EnemySharedReactions table) =>

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Magdollite;
 
 /// <summary>
-/// The Magdollite head's idle, submerge and emerge animations, its body's pillar stacks and its overlay's throw and cap animations as typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// The Magdollite head's idle, submerge and emerge animations, its body's pillar stacks and its overlay's throw and cap animations (#641): one segment per animation a spawn, branch or resumed sleep enters, in authored order.
 /// Their steps are <see cref="MagdolliteAnimations"/>.
 /// </summary>
 internal enum MagdolliteSegment

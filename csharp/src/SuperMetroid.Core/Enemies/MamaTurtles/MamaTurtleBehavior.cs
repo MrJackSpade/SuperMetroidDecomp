@@ -147,7 +147,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         slot.SetSpeciesState(state);
 
-        // The population already supplies the animation-script property, but the initializer explicitly sets it again.
+        // The population already supplies the animating property, but the initializer explicitly sets it again.
         // Spell that write out because animation processing is essential to leaving shell.
         slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
         slot.Frame = EnemyFrameId.Empty;

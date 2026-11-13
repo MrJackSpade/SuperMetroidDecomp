@@ -56,7 +56,7 @@ internal sealed class GateObjects
             slot.Block));
     }
 
-    /// <summary>Installs a side trigger's selected program and its authored neighboring shot block.</summary>
+    /// <summary>Installs a side trigger's selected gate and its authored neighboring shot block.</summary>
     internal static void SetupDownwardGateShotBlock(RoomLevelData level, RoomObjectSlot slot)
     {
         DownwardGateShotBlockDefinition definition = DownwardGateShotBlock((slot.Argument as GateTriggerArgument

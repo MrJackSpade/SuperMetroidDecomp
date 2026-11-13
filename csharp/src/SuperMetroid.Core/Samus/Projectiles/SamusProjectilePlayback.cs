@@ -33,7 +33,7 @@ internal static class SamusProjectilePlayback
         }
     }
 
-    /// <summary>A playback of the animation starting at <paramref name="segment"/>; no program is a projectile with no list.</summary>
+    /// <summary>A playback of the animation starting at <paramref name="segment"/>; no animation is a projectile with no list.</summary>
     internal static AnimationPlayback<SamusProjectileSegment>? Start(SamusProjectileSegment? segment) =>
         segment is { } selected ? new AnimationPlayback<SamusProjectileSegment>(SamusProjectileAnimations.StartingWith(selected), AnimationPlace.StartOfAnimation) : null;
 

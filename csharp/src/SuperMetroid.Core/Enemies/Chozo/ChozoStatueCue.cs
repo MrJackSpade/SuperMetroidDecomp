@@ -1,6 +1,6 @@
 ﻿namespace SuperMetroid.Core.Enemies.Chozo;
 
-/// <summary>One cue of the Chozo statue's programs, with its typed operands.</summary>
+/// <summary>One cue of the Chozo statue's animations, with its typed operands.</summary>
 internal abstract record ChozoStatueCue
 {
     /// <summary>Closes the hierarchy to the cues declared here.</summary>

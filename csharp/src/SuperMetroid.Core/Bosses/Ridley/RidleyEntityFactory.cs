@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
 /// The factory for Lower Norfair Ridley, Ceres Ridley and the breakup explosion actor. The two Ridleys share the body
-/// program and drawing, while Ceres Ridley's initialization and main AI are the Ceres encounter's.
+/// animation and drawing, while Ceres Ridley's initialization and main AI are the Ceres encounter's.
 /// </summary>
 /// <param name="ridley">The Lower Norfair Ridley owner.</param>
 /// <param name="ceres">The Ceres Ridley owner.</param>

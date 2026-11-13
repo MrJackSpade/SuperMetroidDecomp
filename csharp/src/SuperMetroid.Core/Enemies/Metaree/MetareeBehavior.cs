@@ -188,7 +188,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + 1);
     }
 
-    /// <summary>Changes the program only when the requested animation phase differs from the installed one.</summary>
+    /// <summary>Changes the segment only when the requested animation phase differs from the installed one.</summary>
     internal static void StartRequestedMetareeAnimation(
         RoomEnemySlot slot,
         MetareeEnemyState state)

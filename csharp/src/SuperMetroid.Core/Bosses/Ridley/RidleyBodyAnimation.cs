@@ -6,7 +6,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>Runs Ridley's body and breakup programs and applies their cues.</summary>
+/// <summary>Runs Ridley's body and breakup animations and applies their cues.</summary>
 [RoomLifetime]
 internal sealed class RidleyBodyAnimation
 {
@@ -124,12 +124,12 @@ internal sealed class RidleyBodyAnimation
         }
     }
 
-    /// <summary>Runs Ceres and Lower Norfair Ridley's body as typed programs in place of their lists (#641).</summary>
+    /// <summary>Runs Ceres and Lower Norfair Ridley's body as typed animations in place of their lists (#641).</summary>
     internal void AdvanceRidleyBodyTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext context) =>
         AdvanceRidleyBodyAnimation(slot, context.Samus);
 
     /// <summary>
-    /// Runs a breakup fragment's program where the shared enemy animation runs: its pose shows for one update
+    /// Runs a breakup fragment's animation where the shared enemy animation runs: its pose shows for one update
     /// and then holds, raising the new-frame flag when shown.
     /// </summary>
     internal static void AdvanceRidleyBreakupAnimation(RoomEnemySlot fragment)

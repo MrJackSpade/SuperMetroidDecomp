@@ -6,7 +6,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.LavaJumpers;
 
 /// <summary>
-/// The Norfair lava jumper's hidden, jump and follower animations as typed programs (#641). Each
+/// The Norfair lava jumper's hidden, jump and follower animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="NorfairLavaJumperCue"/> with its typed operands.
 /// </summary>
 internal static class NorfairLavaJumperAnimations

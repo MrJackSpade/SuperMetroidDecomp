@@ -2,10 +2,10 @@ using SuperMetroid.Core.Enemies.Deaths;
 
 namespace SuperMetroid.Core.Enemies;
 
-/// <summary>Chooses the death program an enemy's death explosion starts.</summary>
+/// <summary>Chooses the death animation an enemy's death explosion starts.</summary>
 internal static class EnemyDeathExplosions
 {
-    /// <summary>The death program <paramref name="explosion"/> starts.</summary>
+    /// <summary>The death animation <paramref name="explosion"/> starts.</summary>
     internal static EnemyDeathProjectileSegment Animation(EnemyDeathExplosion explosion) => explosion switch
     {
         EnemyDeathExplosion.Small => EnemyDeathProjectileSegment.SmallExplosion,

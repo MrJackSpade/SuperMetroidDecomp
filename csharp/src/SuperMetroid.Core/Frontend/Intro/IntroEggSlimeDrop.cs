@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// <summary>One of four Baby-Metroid slime drops created when the confused baby first cries.</summary>
 internal sealed class IntroEggSlimeDrop
 {
-    /// <summary>Discovery sprite owning this drop's position and impact program.</summary>
+    /// <summary>Discovery sprite owning this drop's position and impact animation.</summary>
     internal readonly IntroDiscoverySprite sprite;
     /// <summary>
     /// The drop's trajectory, 0 through 3: it selects the horizontal velocity, and its parity the gravity curve; it never

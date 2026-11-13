@@ -6,7 +6,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>
-/// The dead Sidehopper's hop, idle and corpse animations and the dead Zoomer, Ripper and Skree corpse poses as typed programs (#641). Each
+/// The dead Sidehopper's hop, idle and corpse animations and the dead Zoomer, Ripper and Skree corpse poses as typed animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="DeadTourianCue"/> with its typed operands.
 /// </summary>
 internal static class DeadTourianAnimations

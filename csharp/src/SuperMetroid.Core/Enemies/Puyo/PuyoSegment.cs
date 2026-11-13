@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Puyo;
 
 /// <summary>
-/// Puyo's grounded loops and airborne hop poses as typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// Puyo's grounded loops and airborne hop poses as typed animations (#641): one segment per animation a spawn, branch or resumed sleep enters, in authored order.
 /// Their steps are <see cref="PuyoAnimations"/>.
 /// </summary>
 internal enum PuyoSegment

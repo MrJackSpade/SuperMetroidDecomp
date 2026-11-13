@@ -13,7 +13,7 @@ internal sealed class KraidBackground
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Applies Kraid palettes, background tiles, and sprite presentation.</summary>
     private readonly EnemyPresentation _presentation;
-    /// <summary>Kraid's state and part lookups, part programs, function timer, random numbers and the sound he last requested.</summary>
+    /// <summary>Kraid's state and part lookups, part animations, function timer, random numbers and the sound he last requested.</summary>
     private readonly KraidEncounterAccess _access;
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork;

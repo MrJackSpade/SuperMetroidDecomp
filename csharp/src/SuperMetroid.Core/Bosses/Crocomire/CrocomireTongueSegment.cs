@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
-/// <summary>Crocomire's tongue programs.</summary>
+/// <summary>Crocomire's tongue animations.</summary>
 public enum CrocomireTongueSegment
 {
     /// <summary>Four five-update frames, looping.</summary>

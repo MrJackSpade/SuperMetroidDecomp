@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Enemies.Boyon;
 
 /// <summary>
 /// One Boyon occupant: its initialization, bounce AI and typed animation, with the shared reactions. It owns the
-/// occupant's state; the initializer writes every value and the program before any is read, so a re-initialized
+/// occupant's state; the initializer writes every value and the animation before any is read, so a re-initialized
 /// occupant of the same slot never sees the previous one's values.
 /// </summary>
 /// <param name="species">The Boyon species owner, which publishes the bounce sound.</param>

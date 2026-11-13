@@ -71,10 +71,10 @@ public sealed class BotwoonEnemyState
     public int PathStep { get; internal set; }
     /// <summary>Which way <see cref="PathIndex"/> is walked: a backward walk takes the steps in reverse order, each reversed.</summary>
     public BotwoonPathTraversal PathTraversal { get; internal set; }
-    /// <summary>The head animation the AI last installed and where it stands; reinstalling the same program does not restart it.</summary>
+    /// <summary>The head animation the AI last installed and where it stands; reinstalling the same animation does not restart it.</summary>
     internal AnimationPlayback<BotwoonHeadAnimationSegment> HeadPlayback { get; set; } =
         new(BotwoonAnimations.HeadStartingWith(BotwoonHeadAnimationSegment.Hidden), AnimationPlace.StartOfAnimation);
-    /// <summary>The head program the AI last installed: the segment its animation's one phase plays.</summary>
+    /// <summary>The head animation the AI last installed: the segment its animation's one phase plays.</summary>
     internal BotwoonHeadAnimationSegment HeadAnimation => HeadPlayback.Animation.Phases[HeadPlayback.Place.Phase].Segment;
     /// <summary>The shading his head and body show: the last health band shown, or his own colours before any (#1512).</summary>
     internal PictureShading BodyShading => BotwoonHealthBands.LastBandShown(HealthBandsPassed) is { } band

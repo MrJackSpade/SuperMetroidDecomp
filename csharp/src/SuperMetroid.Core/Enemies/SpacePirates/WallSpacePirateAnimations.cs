@@ -6,7 +6,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>
-/// The wall Space Pirates' climb, jump and laser animations as typed programs (#641). Each
+/// The wall Space Pirates' climb, jump and laser animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="WallSpacePirateCue"/> with its typed operands.
 /// </summary>
 internal static class WallSpacePirateAnimations

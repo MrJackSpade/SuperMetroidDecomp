@@ -18,7 +18,7 @@ internal sealed class MotherBrainGlassObjects
     /// <summary>Room sound queue receiving the glass-shatter effect.</summary>
     private readonly RoomObjectSoundQueue _sounds;
 
-    /// <summary>Binds the glass program's handling to the room's room-object slots, event services, and sound queue.</summary>
+    /// <summary>Binds the glass animation's handling to the room's room-object slots, event services, and sound queue.</summary>
     internal MotherBrainGlassObjects(IAreaBossFlagReader? bosses, IGlobalEventFlags? events, RoomObjectSoundQueue sounds)
     {
         _bosses = bosses;

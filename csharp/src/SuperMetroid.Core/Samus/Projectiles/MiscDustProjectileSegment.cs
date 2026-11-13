@@ -3,8 +3,8 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// The thirty misc-dust explosion, smoke, dust, beam and drop programs (#641), one per list a spawn, branch or family step enters, in authored order.
-/// Generated from the verified animation scripts; see <see cref="MiscDustProjectileAnimations"/>.
+/// The thirty misc-dust explosion, smoke, dust, beam and drop animations (#641): one segment per animation a spawn, branch or family step enters, in authored order.
+/// Generated from the verified animations; see <see cref="MiscDustProjectileAnimations"/>.
 /// </summary>
 internal enum MiscDustProjectileSegment
 {

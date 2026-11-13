@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.Ending;
 
-/// <summary>The artwork and program family an ending sprite role belongs to.</summary>
+/// <summary>The artwork and animation family an ending sprite role belongs to.</summary>
 internal enum EndingSpriteFamily
 {
     /// <summary>Cloud lists advance with zoom-relative motion.</summary>

@@ -972,7 +972,7 @@ level, samus, frameCounter);
         }
 
         // Intro-demo state is not an animation shortcut. The intro-demo handler advances the same
-        // animation delay programs as gameplay, including every visible hurt/fall frame.
+        // animation delays as gameplay, including every visible hurt/fall frame.
         if (!groundedDemoStepped)
             SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { ControllerInput = demoInput, FrameCounter = frameCounter, Random = Random });
 
@@ -1033,7 +1033,7 @@ level, samus, frameCounter);
             throw new InvalidOperationException($"The Mother Brain flashback demo handles no {cue} cue.");
 
         // The flashback's end locks Samus in pose two, reinitializes the pose/animation bookkeeping,
-        // disables demo publication, and then returns to the demo's animation script. The next
+        // disables demo publication, and then returns to the demo's animation. The next
         // step is the shared delete, so the object is removed in the same
         // handler call. State handlers are not independently dispatched by
         // this scoped frontend yet; freezing input after the exact pose change has the same

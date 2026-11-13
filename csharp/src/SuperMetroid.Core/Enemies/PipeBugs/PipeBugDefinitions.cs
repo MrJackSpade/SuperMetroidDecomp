@@ -24,7 +24,7 @@ internal static class PipeBugDefinitions
     ];
 
     /// <summary>
-    /// The normal and strong rising and shooting programs for each Brinstar animation. Every value names its actual
+    /// The normal and strong rising and shooting segments for each Brinstar animation. Every value names its actual
     /// behavior and species.
     /// </summary>
     internal static readonly Dictionary<PipeBugAnimationKey, PipeBugSegment> BrinstarAnimations = new()

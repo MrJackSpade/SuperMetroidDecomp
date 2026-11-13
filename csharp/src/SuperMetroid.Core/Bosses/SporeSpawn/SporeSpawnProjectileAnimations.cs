@@ -4,7 +4,7 @@ using P = SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnProjectileSegment;
 
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
-/// <summary>Spore Spawn's typed projectile programs (#641).</summary>
+/// <summary>Spore Spawn's typed projectile animations (#641).</summary>
 internal static class SporeSpawnProjectileAnimations
 {
     /// <summary>The emitter's release poses' dwells.</summary>
@@ -16,7 +16,7 @@ internal static class SporeSpawnProjectileAnimations
     /// <summary>The falling spore's poses.</summary>
     internal const int SporePoseCount = 3;
 
-    /// <summary>Every projectile program.</summary>
+    /// <summary>Every projectile animation.</summary>
     internal static AnimationSegments<SporeSpawnProjectileSegment, SporeSpawnProjectileFrame, SporeSpawnProjectileCue> Segments { get; } = new(
         new Dictionary<SporeSpawnProjectileSegment, AnimationBeat<SporeSpawnProjectileFrame, SporeSpawnProjectileCue>[]>
     {

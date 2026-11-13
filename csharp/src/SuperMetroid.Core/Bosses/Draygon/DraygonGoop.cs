@@ -17,7 +17,7 @@ internal sealed class DraygonGoop
     private readonly EnemyFrameContext _frameContext;
     /// <summary>Applies common death and drop behavior after Draygon's special sequence.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
-    /// <summary>Draygon's body, eye and tail: their setup, programs and cues.</summary>
+    /// <summary>Draygon's body, eye and tail: their setup, animations and cues.</summary>
     private readonly DraygonParts _parts;
     /// <summary>The wall turrets' firing cadence during Draygon's fight.</summary>
     private readonly DraygonTurrets _turrets;
@@ -52,7 +52,7 @@ internal sealed class DraygonGoop
         state.SwoopVelocity = new UnsignedSixteenSixteen(1, 0);
         state.GoopYOscillationAngle = RotationAngle.Zero;
         // Retail's leftward setup briefly requests the right-facing apex arm list before
-        // the body's reset cue replaces all four programs. Preserve the literal write.
+        // the body's reset cue replaces all four animations. Preserve the literal write.
         _parts.StartDraygonAnimation(state.Arms, DraygonSegment.ArmsFacingRightNearSwoopApex);
         state.Function = direction == HorizontalDirection.Right
             ? DraygonAiFunction.GoopRight

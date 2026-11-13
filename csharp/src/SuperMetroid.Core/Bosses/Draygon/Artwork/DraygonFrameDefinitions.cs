@@ -4,7 +4,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Bosses.Draygon.Artwork;
 
 /// <summary>
-/// Draygon's presentation boundary (#641): the frames its typed programs show, in authored order.
+/// Draygon's presentation boundary (#641): the frames its typed animations show, in authored order.
 /// Gameplay animates <see cref="DraygonFrame"/> poses; only this catalog knows the frames they show.
 /// Each facing has 27 one-part poses (arms, body, eye), eight two-part tail poses, then the tail whip's poses in
 /// pairs of four, six and eight parts.

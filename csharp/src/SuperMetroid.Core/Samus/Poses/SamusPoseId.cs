@@ -39,7 +39,7 @@ public enum SamusPoseId
     /// <summary>This pose is the left-moving mirror of <see cref="MovingRightGunExtendedPose"/>.</summary>
     MovingLeftGunExtendedPose,
 
-    /// <summary>A right-facing compact airborne pose whose program repeats; with no input it falls facing right.</summary>
+    /// <summary>A right-facing compact airborne pose whose animation repeats; with no input it falls facing right.</summary>
     CompactAirborneFallingRightPose,
 
     /// <summary>The left-facing partner of <see cref="CompactAirborneFallingRightPose"/>; with no input it falls facing left.</summary>
@@ -112,7 +112,7 @@ public enum SamusPoseId
     /// <summary>Diagonal up-left shinespark.</summary>
     ShinesparkDiagonalLeftPose,
 
-    /// <summary>Right-facing Crystal Flash body and delay program.</summary>
+    /// <summary>Right-facing Crystal Flash body and delay animation.</summary>
     CrystalFlashRightPose,
 
     /// <summary>Left-facing Crystal Flash mirror.</summary>
@@ -719,7 +719,7 @@ public enum SamusPoseId
     /// <summary>The left-facing partner of <see cref="GlitchBallRightPose"/>.</summary>
     GlitchBallLeftPose,
 
-    /// <summary>A right-facing compact airborne pose whose program repeats and which keeps its pose without input.</summary>
+    /// <summary>A right-facing compact airborne pose whose animation repeats and which keeps its pose without input.</summary>
     CompactAirborneRightPose,
 
     /// <summary>The left-facing partner of <see cref="CompactAirborneRightPose"/>.</summary>
@@ -734,7 +734,7 @@ public enum SamusPoseId
     /// <summary>A right-facing grappling pose aimed diagonally down; with no input it falls aimed diagonally down.</summary>
     GrappleAirborneAimDiagonalDownRightPose,
 
-    /// <summary>A left-facing Draygon-held pose whose program ends grabbed by Draygon facing left.</summary>
+    /// <summary>A left-facing Draygon-held pose whose animation ends grabbed by Draygon facing left.</summary>
     DraygonGrabbingLeftPose,
 
     /// <summary>The first pose number past the definition table: its records read whatever follows the table.</summary>

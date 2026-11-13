@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>The sounds the Tourian Shitroid's programs queue.</summary>
+/// <summary>The sounds the Tourian Shitroid's animations queue.</summary>
 internal static class ShitroidSoundDefinitions
 {
     /// <summary>The remorse cry before the Shitroid leaves.</summary>

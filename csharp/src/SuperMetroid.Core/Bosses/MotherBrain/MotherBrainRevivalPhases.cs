@@ -3,7 +3,7 @@
 /// <summary>Mother Brain reviving and killing the Baby Metroid: signs of life, waking, walking up and the attacks on the baby.</summary>
 internal sealed class MotherBrainRevivalPhases
 {
-    /// <summary>The state every late-fight phase reads and writes: the body function and its timer, the neck and head programs and the brain's flags, with the walking and posture requests they share.</summary>
+    /// <summary>The state every late-fight phase reads and writes: the body function and its timer, the neck and head animations and the brain's flags, with the walking and posture requests they share.</summary>
     private readonly MotherBrainLateFightState _state;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -12,7 +12,7 @@ internal sealed class MotherBrainRevivalPhases
         _state = state;
     }
 
-    /// <summary>Records a body-AI write to the breath flag so a later brain-program cue can remain a separate writer.</summary>
+    /// <summary>Records a body-AI write to the breath flag so a later brain-animation cue can remain a separate writer.</summary>
     private void EnableSmallPurpleBreathGeneration()
     {
         _state.SmallPurpleBreathGenerationEnabled = true;
@@ -132,7 +132,7 @@ internal sealed class MotherBrainRevivalPhases
     internal bool RunSecondPhaseReviveWalkUpToBaby(MotherBrainRainbowBeamStepRequests requests)
     {
         // Once the 128-count timer underflows, the timer deliberately remains negative and the
-        // helper is retried after every body-program call until X has overshot 80.
+        // helper is retried after every body-animation call until X has overshot 80.
         if (--_state.FunctionTimer < 0)
         {
             requests.BodyWalkRequested = _state.RequestWalkForward(80, 4).Requested;

@@ -10,7 +10,7 @@ public sealed class FuneNamiheEnemyState
     /// <summary>Whether the spitting animation is selected rather than the idle one; waking selects it and the spit's finishing cue deselects it.</summary>
     public bool ShowsActiveAnimation { get; internal set; }
 
-    /// <summary>Whether the right-facing animations are selected, from population parameter one's facing bits.</summary>
+    /// <summary>Whether the right-facing animations are selected, from its spawn facing.</summary>
     public bool FacingRight { get; internal set; }
 
     /// <summary>The waiting or spitting behaviour.</summary>

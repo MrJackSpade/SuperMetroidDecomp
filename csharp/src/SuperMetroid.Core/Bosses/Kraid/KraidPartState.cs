@@ -3,7 +3,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// What every one of Kraid's parts runs: its typed program, the function it dispatches and the function timer that
+/// What every one of Kraid's parts runs: its typed animation, the function it dispatches and the function timer that
 /// installs its next function. Each part kind keeps its own state on top of this in its own type: his body (<see
 /// cref="KraidBodyState"/>), his arm (<see cref="KraidArmState"/>), each lint (<see cref="KraidLintState"/>), his foot
 /// (<see cref="KraidFootState"/>) and each fingernail (<see cref="KraidNailState"/>).

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Cacatac;
 
 /// <summary>
-/// Population parameter one's direction, its lower half. The idle animation treats either nonzero
+/// The way a Cacatac starts. The idle animation treats either nonzero
 /// value as right, but the initializer's three-entry table distinguishes the shipped
 /// value two as an initial stop.
 /// </summary>

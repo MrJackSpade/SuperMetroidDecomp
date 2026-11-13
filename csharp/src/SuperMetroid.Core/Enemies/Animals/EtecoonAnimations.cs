@@ -5,7 +5,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>
-/// The Etecoon's look, run, wall-jump, hop and flex animations as typed programs (#641). Each
+/// The Etecoon's look, run, wall-jump, hop and flex animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
 internal static class EtecoonAnimations
@@ -148,7 +148,7 @@ internal static class EtecoonAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<EtecoonSegment> StartingWith(EtecoonSegment segment) => StartingAt[segment];
 
-    /// <summary>The program a sleeping animation resumes into when its owner wakes it.</summary>
+    /// <summary>The segment a sleeping animation resumes into when its owner wakes it.</summary>
     internal static EtecoonSegment AfterSleep(EtecoonSegment segment) => segment switch
     {
         P.LookRightAtSamusAndRunLeft

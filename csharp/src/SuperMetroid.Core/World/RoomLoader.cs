@@ -726,7 +726,7 @@ internal sealed class RoomLoader
         // two after the destination room objects, door code, and setup code have been created. Our
         // room constructor initializes enemies in one host call, so publish that carried
         // status immediately before Enemies.Load: the destination elevator initializer
-        // must see two and place itself at parameter 2 instead of clearing the journey.
+        // must see two and place itself at its arrival height instead of clearing the journey.
         bool arrivingByElevator = _room.LoadedScope.Enemies.Elevator.ElevatorStatus == ElevatorActorStatus.Departing;
         if (arrivingByElevator)
             _room.LoadedScope.Enemies.Elevator.PrepareElevatorArrival();
@@ -737,7 +737,7 @@ internal sealed class RoomLoader
 
         // The door's scroll has already placed Samus before the destination room is
         // constructed. This ordering is observable for elevator arrivals:
-        // The elevator's initialization sees status two, moves the platform to parameter 2, and then pins
+        // The elevator's initialization sees status two, moves the platform to its arrival height, and then pins
         // Samus to it. Applying the generic placement after Enemies.Load used to overwrite
         // that attachment and exposed the upward arrival one row too low.
         _player.Samus.Position = placement.SamusPosition;
@@ -815,7 +815,7 @@ internal sealed class RoomLoader
         scope.EscapeDiagonalQuake = new EscapeDiagonalQuakeState(_room.RoomMainCarryover);
         // Ceres's elevator door setup levels the shaft about its centre before the fresh Ceres
         // elevator room becomes visible. Publishing the immutable transform here gives
-        // Samus, her projectiles, and parameter-four/five steam a single authoritative
+        // Samus, her projectiles, and the rotating elevator's steam a single authoritative
         // producer. Ordinary doors clear it so stale rotating-view math cannot leak across rooms.
         TurningFloorTransform? initialFloorTransform = door.EntersCeresElevatorShaft
             ? TurningFloorTransform.Level(CeresElevatorShaftRoomMainState.CeresShaftRotationCenter)
@@ -956,9 +956,9 @@ internal sealed class RoomLoader
         scope.Services = areaServices;
         roomObjects.PopulationLoader.LoadRoomPopulation(roomObjectRoom, room.State.ObjectPopulation, roomObjectBindings);
 
-        // The door transition runs the door program only after destination room objects
+        // The door transition runs the door setup code only after destination room objects
         // exist and before enemy initialization/initial viewport construction. Several of
-        // those programs rewrite the room scroll array, so postponing this call until the
+        // those setups rewrite the room scroll array, so postponing this call until the
         // first gameplay frame would already have streamed a viewport with wrong camera
         // limits.
         _doorTransition.RunDoorSetupCode(door, roomObjects, wreckedShipTreadmill, ceresElevatorShaft, maridiaElevatube);
@@ -1068,7 +1068,7 @@ internal sealed class RoomLoader
     /// </summary>
     /// <remarks>
     /// The fixed room definition still supplies the area needed to choose that
-    /// area's boss flags. The ordered selector program is application-owned definition data;
+    /// area's boss flags. The ordered state choice is application-owned definition data;
     /// no production path executes selector data. Keeping this at the shared loader
     /// boundary prevents doors, save stations, and attract scenes from choosing differently.
     /// </remarks>

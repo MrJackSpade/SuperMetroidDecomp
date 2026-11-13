@@ -49,13 +49,13 @@ public sealed class EnemyProjectile
     /// as they stand when that spawn takes the place (<see cref="EnemyProjectileHandOver"/>).
     /// </summary>
     internal EnemyProjectileHandOver LeftInPlace => new(Position.Whole, Velocity);
-    /// <summary>The typed program the projectile plays (#641), or null when it plays none.</summary>
+    /// <summary>The typed animation the projectile plays (#641), or null when it plays none.</summary>
     internal EnemyProjectileAnimation? Animation { get; private set; }
-    /// <summary>Gets the countdown to the program's next frame; a spawn starts it at one so the program's first frame shows on its first pass.</summary>
+    /// <summary>Gets the countdown to the animation's next frame; a spawn starts it at one so the animation's first frame shows on its first pass.</summary>
     public WrappingCountdown FrameHold { get; internal set; }
-    /// <summary>The frame the projectile shows: the blank frame from its spawn until its program shows one, none once it is gone.</summary>
+    /// <summary>The frame the projectile shows: the blank frame from its spawn until its animation shows one, none once it is gone.</summary>
     public EnemyProjectileFrameId? Frame { get; internal set; }
-    /// <summary>How the projectile moves itself on each pass, before its program advances.</summary>
+    /// <summary>How the projectile moves itself on each pass, before its animation advances.</summary>
     internal EnemyProjectileFrameBehavior FrameBehavior { get; set; }
     /// <summary>Gets the sheet and shading the projectile draws with, as its spawner supplied them.</summary>
     public SpriteGraphics Graphics { get; internal set; }
@@ -75,11 +75,11 @@ public sealed class EnemyProjectile
     }
     /// <summary>
     /// Whether the projectile is drawn in front of or behind Samus. Its definition sets the starting depth; Torizo's
-    /// programs move it in front. This is independent of the projectile's depth against the room's tiles.
+    /// animations move it in front. This is independent of the projectile's depth against the room's tiles.
     /// </summary>
     public EnemyProjectileDepth Depth { get; internal set; }
     /// <summary>
-    /// The count the projectile's program repeats its counted loops by: a set-counter step loads it and a
+    /// The count the projectile's animation repeats its counted loops by: a set-counter step loads it and a
     /// repeat-while-counting step counts it down. This is not the frame hold, and only those steps change it.
     /// </summary>
     public WrappingCountdown LoopCountdown { get; internal set; }
@@ -134,15 +134,15 @@ public sealed class EnemyProjectile
     }
 
     /// <summary>
-    /// Replaces the running program with <paramref name="animation"/> without touching the frame timer, as a
-    /// direct animation change does: the new program's first frame shows when the current frame expires.
+    /// Replaces the running animation with <paramref name="animation"/> without touching the frame timer, as a
+    /// direct animation change does: the new segment's first frame shows when the current frame expires.
     /// </summary>
     internal void InstallAnimation(EnemyProjectileAnimation animation) => Animation = Ensure.NotNull(animation);
 
     /// <summary>
     /// Frees the projectile's place without ending the projectile, for a power-bombed Draygon shot
     /// (<see cref="PowerBombedDraygonShotFinishesItsUpdate"/>): a later spawn may take the place, while the update that
-    /// freed it goes on with the projectile, which keeps its program, state and properties.
+    /// freed it goes on with the projectile, which keeps its animation, state and properties.
     /// </summary>
     internal void FreePlace() => Kind = RoomEnemyProjectileKind.None;
 

@@ -372,7 +372,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
 
             case EndingCreditsPhase.PostCreditsCopyright:
                 // The sprites keep animating while only the first background layer shows; hiding the actors
-                // must not reset their programs or their reveal palette state.
+                // must not reset their animations or their reveal palette state.
                 EscapeScenes.StepSprites();
                 if (--Stage.PhaseTimer <= 0)
                 {
@@ -434,7 +434,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
         Stage.FloorZoom = Stage.FloorZoom.Widened(zoomStep);
     }
 
-    /// <summary>The programs showing the clear-time digits, indexed by digit.</summary>
+    /// <summary>The animations showing the clear-time digits, indexed by digit.</summary>
     internal static readonly CinematicSpriteSegment[] ClearTimeDigitAnimations =
     [
         CinematicSpriteSegment.ClearTimeDigit0, CinematicSpriteSegment.ClearTimeDigit1, CinematicSpriteSegment.ClearTimeDigit2,

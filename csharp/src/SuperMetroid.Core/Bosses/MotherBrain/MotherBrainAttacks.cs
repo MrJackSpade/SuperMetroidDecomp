@@ -47,7 +47,7 @@ internal sealed class MotherBrainAttacks
                 return;
 
             case MotherBrainHandBeamPhase.Firing:
-                // The charge-beam function is intentionally empty. The body program owns the
+                // The charge-beam function is intentionally empty. The body animation owns the
                 // charge effects, projectile emission, 240-frame hold, and phase advance.
                 return;
 
@@ -134,7 +134,7 @@ internal sealed class MotherBrainAttacks
 
     /// <summary>
     /// Runs the three-entry body attack choice. The selected head
-    /// program is an ordinary enemy program, so attacks remain synchronized with its frame
+    /// animation is an ordinary enemy animation, so attacks remain synchronized with its frame
     /// durations instead of being represented by host timers.
     /// </summary>
     internal void RunMotherBrainSecondPhaseTryAttack(
@@ -406,7 +406,7 @@ internal sealed class MotherBrainAttacks
     /// <summary>
     /// Positions the head quickly for the laser. Both neck joints initially turn by two angle units
     /// per frame toward one of two authored target indices chosen from the head/Samus Y
-    /// ordering; the head program itself is deliberately left untouched here.
+    /// ordering; the head animation itself is deliberately left untouched here.
     /// </summary>
     internal static void PositionMotherBrainHeadQuicklyForLaser(
         MotherBrainEnemyState state,
@@ -429,7 +429,7 @@ internal sealed class MotherBrainAttacks
 
     /// <summary>
     /// Positions the head slowly and fires the laser. Its unsigned timer expires only after decrementing through
-    /// zero to -1, at which point neck rotation slows and the ordinary head program
+    /// zero to -1, at which point neck rotation slows and the ordinary head animation
     /// owns the muzzle animation and projectile spawn.
     /// </summary>
     internal static void PositionMotherBrainHeadSlowlyAndFireLaser(
@@ -466,7 +466,7 @@ internal sealed class MotherBrainAttacks
     private void HandleMotherBrainWalking(MotherBrainEnemyState state)
     {
         // The backward walk alters only the walk credit and installs an authored body list;
-        // actual displacement remains owned by the body program, which also keeps the background scroll aligned.
+        // actual displacement remains owned by the body animation, which also keeps the background scroll aligned.
         if (state.Pose != MotherBrainBodyPose.Standing)
             return;
         if (state.WalkCounter.IsEmpty)

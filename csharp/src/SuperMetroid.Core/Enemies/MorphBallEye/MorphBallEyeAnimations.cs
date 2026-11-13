@@ -5,7 +5,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.MorphBallEye;
 
 /// <summary>
-/// The Morph Ball eye's tracking, eyelid and mount animations as typed programs (#641). Each
+/// The Morph Ball eye's tracking, eyelid and mount animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
 internal static class MorphBallEyeAnimations

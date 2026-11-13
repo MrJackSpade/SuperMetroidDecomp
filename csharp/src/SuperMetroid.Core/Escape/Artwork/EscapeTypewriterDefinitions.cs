@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Escape.Artwork;
 
-/// <summary>Schema and identities for the two escape-warning text programs.</summary>
+/// <summary>Schema and identities for the two escape-warning messages.</summary>
 public static class EscapeTypewriterDefinitions
 {
     /// <summary>The key click the Zebes typewriter plays.</summary>
@@ -15,7 +15,7 @@ public static class EscapeTypewriterDefinitions
     /// </summary>
     internal static readonly UpdateCadence ClickEverySecondGlyph = new(2, 0);
 
-    /// <summary>The delay between typed characters; unchanged and outside the installed programs table payload. No timing exemption is claimed.</summary>
+    /// <summary>The delay between typed characters; unchanged and outside the installed messages table payload. No timing exemption is claimed.</summary>
     public const int CharacterDelayFrames = 2;
 
     /// <summary>Chosen English warning wording, retained as lexical content.</summary>
@@ -42,7 +42,7 @@ public static class EscapeTypewriterDefinitions
     /// <summary>Reviewed two-line grouping of the approved Zebes wording; selected line breaks are lexical composition.</summary>
     private const int ZebesLineCount = 2;
 
-    /// <summary>Each warning program's line count: Ceres uses three warning lines while Zebes uses two.</summary>
+    /// <summary>Each warning message's line count: Ceres uses three warning lines while Zebes uses two.</summary>
     internal static readonly IReadOnlyDictionary<EscapeTypewriterMessageId, int> LineCounts =
         new Dictionary<EscapeTypewriterMessageId, int>
         {
@@ -50,7 +50,7 @@ public static class EscapeTypewriterDefinitions
             [EscapeTypewriterMessageId.Zebes] = ZebesLineCount,
         };
 
-    /// <summary>The reviewed wording of each warning line, by program and line.</summary>
+    /// <summary>The reviewed wording of each warning line, by message and line.</summary>
     internal static readonly IReadOnlyDictionary<EscapeTypewriterLineKey, string> LineTexts =
         new Dictionary<EscapeTypewriterLineKey, string>
         {

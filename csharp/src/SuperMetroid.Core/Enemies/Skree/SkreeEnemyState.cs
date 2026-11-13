@@ -16,7 +16,7 @@ public sealed class SkreeEnemyState
     /// <summary>The animation phase requested by the current AI transition.</summary>
     public SkreeMetareeAnimationPhase RequestedAnimation { get; internal set; }
 
-    /// <summary>The animation phase whose program is currently installed.</summary>
+    /// <summary>The animation phase whose segment is currently installed.</summary>
     public SkreeMetareeAnimationPhase InstalledAnimation { get; internal set; }
 
     /// <summary>The wind-up cue's one-shot authorization to begin diving.</summary>

@@ -6,8 +6,8 @@ using SuperMetroid.Core.Fx.PaletteFx;
 namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>
-/// One Tourian boss statue's background animation: the named pictures it shows, the typed program the statue runs and
-/// the operands that program's cues act on.
+/// One Tourian boss statue's background animation: the named pictures it shows, the typed animation the statue runs and
+/// the operands that animation's cues act on.
 /// </summary>
 public sealed class TourianStatueAnimationDefinition
 {
@@ -17,7 +17,7 @@ public sealed class TourianStatueAnimationDefinition
     {
     }
 
-    /// <summary>The statue this program animates, as the shared statue animation state names it.</summary>
+    /// <summary>The statue this animation animates, as the shared statue animation state names it.</summary>
     public required TourianGreyStatues Statue { get; init; }
 
     /// <summary>The background animation whose frames are the statue's pictures.</summary>

@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
-/// The behaviours a projectile's program switches on and off. The projectile pass tests each on its
-/// own, so they compose: a program's property set turns on every named behaviour, and its property mask clears every
+/// The behaviours a projectile's animation switches on and off. The projectile pass tests each on its
+/// own, so they compose: an animation's property set turns on every named behaviour, and its property mask clears every
 /// behaviour the mask leaves out. How the game stores them is the import's knowledge.
 /// </summary>
 [Flags]

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// An elevator platform (#1554), which replaces the platform's program: from its first update it plays its loop
+/// An elevator platform (#1554), which replaces the platform's sequence: from its first update it plays its loop
 /// (<see cref="ElevatorPlatformObjectDefinitions.Cycle"/>) for as long as the room holds it.
 /// </summary>
 internal sealed class ElevatorPlatformObject : SequencedRoomObject<TerrainChangeFrame>

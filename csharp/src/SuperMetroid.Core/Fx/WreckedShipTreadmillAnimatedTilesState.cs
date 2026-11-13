@@ -26,11 +26,11 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
     /// <summary>Direction selected by the object definition passed when the object spawns.</summary>
     public WreckedShipTreadmillDirection Direction { get; private set; }
 
-    /// <summary>Index of the next entry in the four-frame animation script.</summary>
+    /// <summary>Index of the next entry in the four-frame animation.</summary>
     public int NextFrameIndex { get; private set; }
 
     /// <summary>
-    /// Spawns the animated-tiles object for either treadmill, as the game does. Both scripts begin
+    /// Spawns the animated-tiles object for either treadmill, as the game does. Both animations begin
     /// on the wait-for-area-boss step with a frame hold of one.
     /// </summary>
     public void Start(WreckedShipTreadmillDirection direction)

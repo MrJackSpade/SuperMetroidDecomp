@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
-/// <summary>Spore Spawn's typed body programs (#641), in the authored order of their lists.</summary>
+/// <summary>Spore Spawn's typed body animations (#641), in authored order.</summary>
 internal enum SporeSpawnBodySegment
 {
     /// <summary>A defeated room's hardened husk.</summary>

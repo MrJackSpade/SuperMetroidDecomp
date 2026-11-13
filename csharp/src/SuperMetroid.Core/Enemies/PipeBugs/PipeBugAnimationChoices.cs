@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Enemies.PipeBugs;
 
-/// <summary>Chooses a Brinstar Pipe Bug's program by its strength, facing and shooting.</summary>
+/// <summary>Chooses a Brinstar Pipe Bug's animation by its strength, facing and shooting.</summary>
 internal static class PipeBugAnimationChoices
 {
-    /// <summary>The rising or shooting program of a normal or strong Pipe Bug with <paramref name="selector"/>.</summary>
+    /// <summary>The rising or shooting animation of a normal or strong Pipe Bug with <paramref name="selector"/>.</summary>
     /// <exception cref="InvalidDataException"><paramref name="selector"/> is not one of the four animations.</exception>
     internal static PipeBugSegment BrinstarAnimation(bool strong, PipeBugAnimationSelector selector) =>
         PipeBugDefinitions.BrinstarAnimations.TryGetValue(new PipeBugAnimationKey(strong, selector), out PipeBugSegment segment)

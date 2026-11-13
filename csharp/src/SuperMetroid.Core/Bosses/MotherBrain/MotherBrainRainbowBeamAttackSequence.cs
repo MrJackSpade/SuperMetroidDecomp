@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// updates readying the Baby's arrival, spawn request, final-beam hold, painful stagger, live neck
 /// angles/brain coordinates, rear-room retreat, crouch, grey transition, and corpse handshake.
 /// Palette, beam-effect, projectile, earthquake, graphics, spawn, and sound writes are retained as
-/// inspectable requests; coordinate, resource, timer, program, and Samus-command
+/// inspectable requests; coordinate, resource, timer, animation, and Samus-command
 /// mutations execute directly.
 /// </remarks>
 public sealed class MotherBrainRainbowBeamAttackSequence
@@ -27,7 +27,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
 
     /// <summary>Owns the forced Samus movement during beam capture and the later drain sequence.</summary>
     private readonly MotherBrainRainbowBeamSamusMovement _movement = new();
-    /// <summary>The state every late-fight phase reads and writes: the body function and its timer, the neck and head programs and the brain's flags, with the walking and posture requests they share.</summary>
+    /// <summary>The state every late-fight phase reads and writes: the body function and its timer, the neck and head animations and the brain's flags, with the walking and posture requests they share.</summary>
     internal MotherBrainLateFightState State { get; }
 
     /// <summary>Mother Brain's rainbow-beam attack: charging, firing, pinning and draining Samus, letting her fall and deciding what comes next.</summary>
@@ -111,8 +111,8 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// <summary>
     /// Imports the physical room actor's state before one live scheduler call. The standalone
     /// verifier may continue to own <see cref="MotherBrainLateFightState.Body"/> directly; gameplay instead lets the
-    /// ordinary enemy program move the real body and feeds the resulting state back here.
-    /// This deliberately does not copy program positions or timers: there must be only
+    /// ordinary enemy animation move the real body and feeds the resulting state back here.
+    /// This deliberately does not copy animation positions or timers: there must be only
     /// one visible animation runner in a live room.
     /// </summary>
     internal void SynchronizeLiveActor(MotherBrainLiveActorSnapshot actor)
@@ -142,9 +142,9 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     }
 
     /// <summary>
-    /// The program most recently requested by the state machine's body helper. Gameplay copies
-    /// this program into its physical body slot only when the step result reports a walk or
-    /// posture request; it never advances this private mirror's program timer.
+    /// The animation most recently requested by the state machine's body helper. Gameplay copies
+    /// this animation into its physical body slot only when the step result reports a walk or
+    /// posture request; it never advances this private mirror's animation timer.
     /// </summary>
     internal MotherBrainBodySegment? RequestedBodyAnimation => State.Body.Animation;
 
@@ -169,14 +169,14 @@ public sealed class MotherBrainRainbowBeamAttackSequence
 
     /// <summary>
     /// Runs the Baby's cross-enemy write. Mother Brain installs one last
-    /// four-ring head program and then leaves her body function at the empty holding step.
+    /// four-ring head animation and then leaves her body function at the empty holding step.
     /// </summary>
     public void ExecuteFinalBabyMetroidAttack() =>
         State.Phase = MotherBrainBodyFunction.SecondPhaseExecuteFinalBabyAttack;
 
     /// <summary>
     /// Applies the head's attack-counter step. Live gameplay advances the ordinary
-    /// room animation script, while the reusable head verifier advances its private list;
+    /// room animation, while the reusable head verifier advances its private list;
     /// both must mutate this one saturating counter.
     /// </summary>
     internal void IncrementLiveBabyMetroidAttackCounter() =>

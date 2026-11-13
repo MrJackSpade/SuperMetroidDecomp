@@ -6,10 +6,10 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// <summary>Scripted Ceres laboratory vignette between intro pages three and four.</summary>
 internal sealed class IntroScientistCutsceneState
 {
-    /// <summary>Delivered or examined Baby actor whose program drives scene completion.</summary>
+    /// <summary>Delivered or examined Baby actor whose animation drives scene completion.</summary>
     internal readonly IntroDiscoverySprite baby;
 
-    /// <summary>Initializes the selected laboratory page, mirrored camera pan, and Baby actor program.</summary>
+    /// <summary>Initializes the selected laboratory page, mirrored camera pan, and Baby actor animation.</summary>
     private IntroScientistCutsceneState(IntroLaboratoryScene scene)
     {
         Scene = scene;
@@ -90,7 +90,7 @@ internal sealed class IntroScientistCutsceneState
         IIntroCinematicSpritePresentation? installedArt = null) =>
         baby.Draw(objects, installedArt: installedArt);
 
-    /// <summary>Requests the next intro page when the Baby's program reaches its page cue.</summary>
+    /// <summary>Requests the next intro page when the Baby's animation reaches its page cue.</summary>
     private void HandleCue(CinematicSpriteCueKind cue)
     {
         switch (cue)

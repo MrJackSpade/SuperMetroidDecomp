@@ -6,10 +6,10 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// <summary>One of the six authored shell fragments spawned when the egg hatches.</summary>
 internal sealed class IntroEggParticle
 {
-    /// <summary>The cinematic sprite showing the fragment: its position and program.</summary>
+    /// <summary>The cinematic sprite showing the fragment: its position and animation.</summary>
     internal readonly IntroDiscoverySprite sprite;
 
-    /// <summary>The fragment, 0 through 5: it selects the fragment's program and horizontal velocity, and never changes.</summary>
+    /// <summary>The fragment, 0 through 5: it selects the fragment's animation and horizontal velocity, and never changes.</summary>
     private readonly int fragment;
 
     /// <summary>The frames the fragment has fallen, 0 through 255: its gravity-table index.</summary>

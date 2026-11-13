@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>
 /// The animation frames the drained-Samus handlers and commands publish directly, outside the drained poses' own
-/// programs (#1513). They are frames of the asymmetrical drained programs as the game numbers them, so several name an
+/// animations (#1513). They are frames of the asymmetrical drained animations as the game numbers them, so several name an
 /// cue's place or a number between two runs of the pose they land in, which the game draws as it stands.
 /// </summary>
 internal static class SamusDrainedAnimationDefinitions

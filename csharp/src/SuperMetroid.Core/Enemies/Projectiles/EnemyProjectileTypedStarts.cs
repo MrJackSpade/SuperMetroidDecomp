@@ -25,12 +25,12 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
-/// The typed program each converted projectile kind starts in place of its definition's initial list (#641).
+/// The typed animation each converted projectile kind starts in place of its definition's initial list (#641).
 /// A kind absent here still starts its list.
 /// </summary>
 internal static class EnemyProjectileTypedStarts
 {
-    /// <summary>Each converted kind's typed initial program, as a factory for a new animation running it.</summary>
+    /// <summary>Each converted kind's typed initial segment, as a factory for a new animation running it.</summary>
     private static readonly Dictionary<RoomEnemyProjectileKind, Func<EnemyProjectileAnimation>> InitialAnimations = new()
     {
         [RoomEnemyProjectileKind.DragonFireball] = () => new DragonFireballAnimation(DragonFireballSegment.RisingLeft),
@@ -81,7 +81,7 @@ internal static class EnemyProjectileTypedStarts
         [RoomEnemyProjectileKind.MiscDustExplosion] = () => new MiscDustProjectileAnimation(MiscDustProjectileSegment.BeamCharge),
     };
 
-    /// <summary>A new animation running the typed initial program of <paramref name="kind"/>, or null when the kind has none.</summary>
+    /// <summary>A new animation running the typed initial segment of <paramref name="kind"/>, or null when the kind has none.</summary>
     internal static EnemyProjectileAnimation? Initial(RoomEnemyProjectileKind kind) =>
         InitialAnimations.TryGetValue(kind, out Func<EnemyProjectileAnimation>? start) ? start() : null;
 }

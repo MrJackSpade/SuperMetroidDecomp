@@ -13,10 +13,10 @@ public sealed class RoomObjectPopulation
 
     /// <summary>The population's name, or a fixture's description.</summary>
     public string Name { get; }
-    /// <summary>Validated placement records in allocation order; scroll programs are owned copies.</summary>
+    /// <summary>Validated placement records in allocation order; scroll changes are owned copies.</summary>
     public ReadOnlyMemory<RoomObjectPlacement> Placements => placements;
 
-    /// <summary>Copies an ordered decoded population and validates scroll programs before any room-object slots are allocated.</summary>
+    /// <summary>Copies an ordered decoded population and validates scroll changes before any room-object slots are allocated.</summary>
     /// <param name="name">The population's name, used in diagnostics.</param>
     /// <param name="records">
     /// The placements in order, any number of them (#1627): the room's places, not the population, bound how many objects
@@ -31,7 +31,7 @@ public sealed class RoomObjectPopulation
         placements = records.Select(CopyPlacement).ToArray();
     }
 
-    /// <summary>Builds a retail population from its compiled records, binding scroll triggers to their compiled program identities.</summary>
+    /// <summary>Builds a retail population from its compiled records, binding scroll triggers to their compiled scroll-change identities.</summary>
     /// <param name="name">The population's name.</param>
     /// <param name="records">Each record's room-object kind, block coordinates and room argument, in authored order.</param>
     internal static RoomObjectPopulation FromRecords(string name, RoomObjectPlacementDefinition[] records) =>
@@ -39,7 +39,7 @@ public sealed class RoomObjectPopulation
             RoomObjectKinds.RequirePlaced(record.Kind), record.Block, record.Argument, Cannon: record.Cannon)
             { CompiledScrollChange = record.ScrollChange }));
 
-    /// <summary>Copies one placement's scroll program and rejects a malformed one.</summary>
+    /// <summary>Copies one placement's scroll change and rejects a malformed one.</summary>
     private static RoomObjectPlacement CopyPlacement(RoomObjectPlacement placement)
     {
         Ensure.NotNull(placement);

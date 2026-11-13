@@ -46,7 +46,7 @@ public sealed class TitleSequenceState : IFrontendScreen
 
     /// <summary>Queues the opening music and title transitions when audio is available.</summary>
     private readonly AudioQueues? audio;
-    /// <summary>Runs the two console-light palette-FX programs during the title sequence.</summary>
+    /// <summary>Runs the two console-light palette-FX animations during the title sequence.</summary>
     private RoomPaletteFxSystem consolePaletteFx = new(new PaletteFxSessionState());
     /// <summary>The title and copyright sprite entries in drawing order, over the title sprite page (#1358).</summary>
     internal readonly ScreenSprites objects;
@@ -315,7 +315,7 @@ public sealed class TitleSequenceState : IFrontendScreen
 
         StepBabyMetroidAnimation();
         // The title runs the same colour effects as rooms. Its two console
-        // programs own their colors and timers; the host must not synthesize a blink.
+        // animations own their colors and timers; the host must not synthesize a blink.
         consolePaletteFx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false });
         // The skip reconstruction follows the palette effects for this frame. Restart
         // only here, not when the subsequent fade-in arms the title idle countdown.
@@ -323,7 +323,7 @@ public sealed class TitleSequenceState : IFrontendScreen
             ResetConsolePaletteFx();
     }
 
-    /// <summary>Restarts the slow and fast console-light palette programs at the title seam.</summary>
+    /// <summary>Restarts the slow and fast console-light palette animations at the title seam.</summary>
     private void ResetConsolePaletteFx()
     {
         consolePaletteFx = new RoomPaletteFxSystem(new PaletteFxSessionState());
@@ -465,7 +465,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         }
     }
 
-    /// <summary>Starts a title card's program with its sprites shown and the turning floor hidden.</summary>
+    /// <summary>Starts a title card's animation with its sprites shown and the turning floor hidden.</summary>
     private void BeginTextSequence(TitleTextSequenceDefinition definition)
     {
         Phase = definition.Phase;

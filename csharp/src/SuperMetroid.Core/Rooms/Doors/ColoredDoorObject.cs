@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
-/// A yellow, green or red door cap (#1554), which replaces the coloured caps' programs, their shot wake and their hit
+/// A yellow, green or red door cap (#1554), which replaces the coloured caps' sequences, their shot wake and their hit
 /// counter. On its first update the cap looks at its door: one opened for good turns into its closed blue cap
 /// (<see cref="BlueDoorCapObject"/>); otherwise it starts taking shots, shows its closed image and rests. While it takes
 /// shots, a shot pending at its block is consumed before its images count down: the colour's projectile counts a hit

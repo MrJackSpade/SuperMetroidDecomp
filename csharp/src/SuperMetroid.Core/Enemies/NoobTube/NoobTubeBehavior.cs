@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.NoobTube;
 [RoomLifetime]
 internal sealed class NoobTubeBehavior
 {
-    /// <summary>The program each shard of the burst runs, in burst order.</summary>
+    /// <summary>The animation each shard of the burst runs, in burst order.</summary>
     private static readonly NoobTubeProjectileSegment[] ShardAnimations =
     [
         NoobTubeProjectileSegment.Shard0, NoobTubeProjectileSegment.Shard1, NoobTubeProjectileSegment.Shard2,
@@ -324,11 +324,11 @@ internal sealed class NoobTubeBehavior
         table.AddFrameBehavior(context => MoveNoobTubeBubbleVertically(context.Projectile), EnemyProjectileFrameBehavior.NoobTubeBubbleFlying);
     }
 
-    /// <summary>Carries out the cues of the crack, shard and bubble programs.</summary>
+    /// <summary>Carries out the cues of the crack, shard and bubble animations.</summary>
     internal void AddNoobTubeProjectileCues(EnemyProjectileHandlerTable table) =>
         table.AddCue<NoobTubeProjectileCue>((context, cue) => ApplyNoobTubeProjectileCue(context.Projectile, cue));
 
-    /// <summary>Carries out one cue of the crack, shard and bubble programs.</summary>
+    /// <summary>Carries out one cue of the crack, shard and bubble animations.</summary>
     private void ApplyNoobTubeProjectileCue(EnemyProjectile projectile, NoobTubeProjectileCue cue)
     {
         bool atOwnColumn = NoobTubeCadenceDefinitions.DebrisAtOwnColumn.IsSetIn(_projectiles.CurrentFrame8);

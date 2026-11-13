@@ -10,13 +10,13 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// </summary>
 internal static class KraidHeadAnimations
 {
-    /// <summary>How long the attack roar's entry pose lasts before its program first advances, in updates.</summary>
+    /// <summary>How long the attack roar's entry pose lasts before its animation first advances, in updates.</summary>
     internal const int RoarEntryDuration = 10;
 
-    /// <summary>How long the eye glow's entry pose lasts before its program first advances, in updates.</summary>
+    /// <summary>How long the eye glow's entry pose lasts before its animation first advances, in updates.</summary>
     internal const int EyeGlowEntryDuration = 5;
 
-    /// <summary>How long the death cry's entry pose lasts before its program first advances, in updates.</summary>
+    /// <summary>How long the death cry's entry pose lasts before its animation first advances, in updates.</summary>
     internal const int DeathEntryDuration = 25;
 
     /// <summary>How long the attack roar's closing poses last, in updates; growth restarts the head with this delay.</summary>
@@ -99,7 +99,7 @@ internal static class KraidHeadAnimations
         new(StartingWith(segment), new AnimationPlace(0, position));
 
     /// <summary>
-    /// Where <paramref name="playback"/> stands in its head animation: the program its one phase plays, and the step its play
+    /// Where <paramref name="playback"/> stands in its head animation: the segment its one phase plays, and the step its play
     /// reaches next, the animation's end standing for a play that is done or holds there.
     /// </summary>
     internal static KraidHeadListPosition PositionOf(AnimationPlayback<KraidHeadSegment> playback)
@@ -110,7 +110,7 @@ internal static class KraidHeadAnimations
 
     /// <summary>
     /// What collision and growth read at each step of each animation, one entry per step, the last at the animation's end. The first entry of every
-    /// program but the roar looks into the end of the program authored before it, whose last pose is the closed mouth.
+    /// animation but the roar looks into the end of the animation authored before it, whose last pose is the closed mouth.
     /// </summary>
     private static readonly Dictionary<KraidHeadSegment, KraidHeadCursorReads[]> Reads = new()
     {
@@ -219,7 +219,7 @@ internal static class KraidHeadAnimations
         new(KraidMouthShapeRead.InvulnerableOf(frame), KraidMouthShapeRead.OutsideHeadFrames, growth);
 
     /// <summary>
-    /// The reads at a program's start, past the end of the program authored before it, whose last pose is
+    /// The reads at an animation's start, past the end of the animation authored before it, whose last pose is
     /// <paramref name="frame"/>: the outer read finds that pose's inner shape and the inner read finds no pose.
     /// </summary>
     private static KraidHeadCursorReads AfterPreviousAnimation(KraidHeadFrame frame, KraidHeadGrowthResume growth) =>

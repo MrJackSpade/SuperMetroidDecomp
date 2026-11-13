@@ -3,7 +3,7 @@
 /// <summary>Mother Brain drained by the Baby Metroid: taken aback, firing back, running out, retreating and turning gray.</summary>
 internal sealed class MotherBrainDrainedByBabyPhases
 {
-    /// <summary>The state every late-fight phase reads and writes: the body function and its timer, the neck and head programs and the brain's flags, with the walking and posture requests they share.</summary>
+    /// <summary>The state every late-fight phase reads and writes: the body function and its timer, the neck and head animations and the brain's flags, with the walking and posture requests they share.</summary>
     private readonly MotherBrainLateFightState _state;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -30,7 +30,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
     {
         // The game stores four separate functions (request forward, wait forward,
         // request backward, wait backward). Two booleans express the same state without
-        // hiding when a body program is actually installed.
+        // hiding when a body animation is actually installed.
         if (PainfulWalkingFunctionTimer != 0)
         {
             if (--PainfulWalkingFunctionTimer == 0)
@@ -152,7 +152,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
     {
         // The walk step does not reload Y before the shared walk helper. The surrounding
         // sequence's final painful-animation selector is ten, so the observable
-        // retail list is the really-slow backward program.
+        // retail list is the really-slow backward animation.
         MotherBrainWalkResult moveToBack = _state.RequestWalkBackwardReallySlow(targetX: 40);
         requests.BodyWalkRequested = moveToBack.Requested;
         if (moveToBack.ReachedTarget)

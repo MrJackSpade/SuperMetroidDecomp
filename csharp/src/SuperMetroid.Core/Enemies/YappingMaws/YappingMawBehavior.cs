@@ -103,7 +103,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             : YappingMawSegment.AttackingUp));
 
         // Projectile slots are searched from the last downward, and the body segments are
-        // spawned with parameters 3, 2, 1, 0, each recording its slot under its parameter.
+        // spawned as links 3, 2, 1, 0, each recording its slot under its link.
         // Allocate in that order, then keep the links in root-to-mouth order.
         for (int parameter = 3; parameter >= 0; parameter--)
         {
@@ -306,7 +306,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         state.GrabCooldown = WrappingCountdown.Start(YappingMawGrabCooldownFrames);
 
         // The six retracted lists are not one per aim. The right and left sectors have
-        // dedicated art, while every other sector shares its attack direction's list. Preserve parameter-zero's early-return quirk: on its shared-list branches it
+        // dedicated art, while every other sector shares its attack direction's list. Preserve the downward-reaching Maw's early-return quirk: on its shared-list branches it
         // skips the final held-Samus placement on this one transition frame.
         bool skipHeldPlacement = false;
         if (slot.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Up)

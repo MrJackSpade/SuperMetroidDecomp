@@ -16,7 +16,7 @@ internal sealed class KraidHead
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Kraid's eight parts in his room, in the order they run.</summary>
     private readonly KraidParts _parts;
-    /// <summary>Kraid's state and part lookups, part programs, function timer, random numbers and the sound he last requested.</summary>
+    /// <summary>Kraid's state and part lookups, part animations, function timer, random numbers and the sound he last requested.</summary>
     private readonly KraidEncounterAccess _access;
     /// <summary>Kraid's room background: its fade, color transitions and the ceiling rocks.</summary>
     private readonly KraidBackground _background;
@@ -131,8 +131,8 @@ internal sealed class KraidHead
     }
 
     /// <summary>
-    /// Counts the displayed head frame down and runs the head program on when it expires. A cleared timer holds the
-    /// head, as does a timer still counting; a timer reaching zero gives the program's result.
+    /// Counts the displayed head frame down and runs the head animation on when it expires. A cleared timer holds the
+    /// head, as does a timer still counting; a timer reaching zero gives the animation's result.
     /// </summary>
     internal KraidHeadAnimationResult AdvanceKraidHeadAnimation(KraidEnemyState state)
     {
@@ -175,7 +175,7 @@ internal sealed class KraidHead
         }
     }
 
-    /// <summary>Plays a head program's cry; a roar is also counted.</summary>
+    /// <summary>Plays a head animation's cry; a roar is also counted.</summary>
     private void PublishKraidHeadCue(KraidHeadCue cue, KraidEnemyState state)
     {
         switch (cue)

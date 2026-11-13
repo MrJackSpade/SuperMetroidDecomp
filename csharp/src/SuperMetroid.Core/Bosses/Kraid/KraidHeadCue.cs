@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>What a Kraid head program announces between poses.</summary>
+/// <summary>What a Kraid head animation announces between poses.</summary>
 internal enum KraidHeadCue
 {
     /// <summary>Kraid roars: the roar sound plays and the roar is counted.</summary>

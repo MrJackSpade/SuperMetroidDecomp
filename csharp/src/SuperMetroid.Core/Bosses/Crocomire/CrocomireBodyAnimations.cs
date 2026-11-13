@@ -592,7 +592,7 @@ internal static class CrocomireBodyAnimations
     private static CrocomireBodyFrame Skeleton(int index) => new(CrocomireBodyFrameSet.Skeleton, index);
 
     /// <summary>
-    /// Shows <paramref name="frame"/> for good (#1627): the body rests on it until its owner starts another program. A shot
+    /// Shows <paramref name="frame"/> for good (#1627): the body rests on it until its owner starts another animation. A shot
     /// that adds to or resets the body's frame timer only moves the update the rest is reached again, which plays nothing.
     /// </summary>
     private static AnimationBeat<CrocomireBodyFrame, CrocomireBodyCue> Hold(CrocomireBodyFrame frame) =>

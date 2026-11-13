@@ -17,7 +17,7 @@ public enum EnemyPresence
     Deleted = 1 << 1,
 
     /// <summary>
-    /// Enemy death keeps the slot occupied by the respawn placeholder, and the death-projectile program later rebuilds
+    /// Enemy death keeps the slot occupied by the respawn placeholder, and the death-projectile animation later rebuilds
     /// the enemy from its unchanged population entry. Rinka is the family that exercises this lifecycle.
     /// </summary>
     RespawnsIfKilled = 1 << 2,

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
 /// A cinematic sprite object: its position, colouring and frame behaviour, playing one of the typed cinematic sprite
-/// animations (#641, #1600) where the generic cinematic sprite handler ran its animation script.
+/// animations (#641, #1600) where the generic cinematic sprite handler ran its animation.
 /// </summary>
 /// <remarks>
 /// The shared frame-behaviour install is carried out here; every other cue goes to the owner that steps the actor, and
@@ -20,7 +20,7 @@ internal sealed class IntroDiscoverySprite
     /// </summary>
     private WrappingCountdown frameHold = WrappingCountdown.Start(1);
 
-    /// <summary>Creates an actor at a whole-pixel origin with the drawn shade of the colouring it starts drawing in (#1512) and its program.</summary>
+    /// <summary>Creates an actor at a whole-pixel origin with the drawn shade of the colouring it starts drawing in (#1512) and its animation.</summary>
     public IntroDiscoverySprite(
         Position16<ScreenPixels> position,
         PictureShade colouring,

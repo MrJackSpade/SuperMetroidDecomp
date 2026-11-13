@@ -142,7 +142,7 @@ internal sealed class TourianUnlockBehavior
         else projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + ParticleGravity);
     }
 
-    /// <summary>Registers the statue effects' movers and program cues.</summary>
+    /// <summary>Registers the statue effects' movers and animation cues.</summary>
     internal void AddTourianUnlockProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddFrameBehavior(context => HoldTourianStatueSplash(context.Projectile), EnemyProjectileFrameBehavior.TourianStatueSplashMotion);

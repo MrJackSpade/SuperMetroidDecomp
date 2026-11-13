@@ -10,7 +10,7 @@ internal static class EndingRewardActors
 {
     /// <summary>
     /// Resolves one complete initialization/frame-behaviour/animation record. The
-    /// selected program is a typed cinematic sprite program (#641).
+    /// selected animation is a typed cinematic sprite animation (#641).
     /// </summary>
     public static EndingRewardActorDefinition Get(EndingRewardActor definition) => definition switch
     {

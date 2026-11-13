@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// </summary>
 internal static class PaletteFxShownFrames
 {
-    /// <summary>Every colour group and frame <paramref name="starts"/> can show, each once, ordered by group, program and frame.</summary>
+    /// <summary>Every colour group and frame <paramref name="starts"/> can show, each once, ordered by group, animation and frame.</summary>
     /// <exception cref="InvalidOperationException">A segment holds a beat of no defined kind.</exception>
     internal static ShownPaletteFxFrame[] From(IEnumerable<PaletteFxSegment> starts)
     {
@@ -23,7 +23,7 @@ internal static class PaletteFxShownFrames
             .ThenBy(entry => entry.Frame.Frame)];
     }
 
-    /// <summary>The frames the initial programs of <paramref name="effects"/> can show, as <see cref="From"/> gives them.</summary>
+    /// <summary>The frames the initial animations of <paramref name="effects"/> can show, as <see cref="From"/> gives them.</summary>
     internal static ShownPaletteFxFrame[] ShownBy(IEnumerable<PaletteFxObject> effects) =>
         From(Ensure.NotNull(effects).Select(effect => RoomPaletteFxSelection.Get(effect).InitialAnimation));
 

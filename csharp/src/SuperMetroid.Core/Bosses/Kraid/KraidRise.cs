@@ -29,7 +29,7 @@ internal sealed class KraidRise
     private readonly EnemyPresentation _presentation;
     /// <summary>Coordinates Zebetite behavior registered alongside Kraid's room actors.</summary>
     private readonly ZebetiteBehavior _zebetiteBehavior;
-    /// <summary>Kraid's state and part lookups, part programs, function timer, random numbers and the sound he last requested.</summary>
+    /// <summary>Kraid's state and part lookups, part animations, function timer, random numbers and the sound he last requested.</summary>
     private readonly KraidEncounterAccess _access;
     /// <summary>Kraid's room background: its fade, color transitions and the ceiling rocks.</summary>
     private readonly KraidBackground _background;

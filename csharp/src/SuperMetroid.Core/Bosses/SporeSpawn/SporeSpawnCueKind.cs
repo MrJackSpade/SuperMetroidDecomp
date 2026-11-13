@@ -1,6 +1,6 @@
 ﻿namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
-/// <summary>What a cue of Spore Spawn's body programs does: one per kind of step its lists use.</summary>
+/// <summary>What a cue of Spore Spawn's body animations does: widen the sway, clear the damaged flag, harden at the death position, spawn the dying explosions and dust, or request the death drops.</summary>
 internal enum SporeSpawnCueKind
 {
     /// <summary>Widens the sway by eight pixels up to forty.</summary>

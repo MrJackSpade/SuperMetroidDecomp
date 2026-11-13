@@ -2,7 +2,7 @@ using SuperMetroid.Core.Enemies.Deaths;
 
 namespace SuperMetroid.Core.Enemies;
 
-/// <summary>The typed death programs shared by generic and family-specific enemy deaths.</summary>
+/// <summary>The typed death animations shared by generic and family-specific enemy deaths.</summary>
 internal static class EnemyDeathExplosionDefinitions
 {
     /// <summary>The blank-frame wait a drop runs after it is collected or expires.</summary>

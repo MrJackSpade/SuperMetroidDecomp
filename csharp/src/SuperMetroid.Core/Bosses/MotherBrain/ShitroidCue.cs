@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Gameplay cues of the Shitroid's programs.</summary>
+/// <summary>Gameplay cues of the Shitroid's animations.</summary>
 internal enum ShitroidCue
 {
     /// <summary>

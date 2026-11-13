@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
 /// A Torizo's colours (#1512, #1597): the colouring his body and belly last showed whole, the fade running from it toward
-/// the colours his program names, each step on the shared gradual colour change, and his belly's glow. His draws show the
+/// the colours his animation names, each step on the shared gradual colour change, and his belly's glow. His draws show the
 /// import's shade of each, over the orb, flame and statue-shading colours both Torizos show. He shows no common hurt
 /// flash: his own white colouring is his flash, which covers his belly's glow while it shows (#1544).
 /// </summary>
@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// The game moves each colour one step from the colour shown, so a fade starts from what is shown when it takes its
 /// first step. A hurt colouring written in the middle of a fade restarts it from that colouring at the counter value it
 /// stands at, which the fade keeps as the first value it stepped from there; the import pre-colours every such start and
-/// step. A program names a new target only while the colours rest on a whole colouring (his awakening and his death each
+/// step. An animation names a new target only while the colours rest on a whole colouring (his awakening and his death each
 /// name theirs before their steps, and the awakening's last call takes only the counter's zero step, which moves nothing),
 /// so a target named while a fade has moved the colours is not a state the game reaches and is refused.
 /// Once his fight starts, his belly glows: its glowing colours show the glow's current step over every colouring but his
@@ -25,7 +25,7 @@ internal sealed class TorizoColours
     /// <summary>The colouring last shown whole: loaded, written by a hurt, or reached by a completed fade.</summary>
     private TorizoLook settled = new(TorizoLookKind.BombStatue);
 
-    /// <summary>The colouring the program's fade runs toward, or null before it names one.</summary>
+    /// <summary>The colouring the animation's fade runs toward, or null before it names one.</summary>
     private TorizoLook? target;
 
     /// <summary>

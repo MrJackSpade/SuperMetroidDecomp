@@ -86,7 +86,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new BotwoonEnemyState();
         AttachBotwoon(head, state);
         head.SetSpeciesState(state);
-        // The initializer installs the hidden program: the head starts hidden in its hole.
+        // The initializer installs the hidden animation: the head starts hidden in its hole.
         state.HeadPlayback = EnemyAnimationPlayback.Start(head, BotwoonAnimations.HeadStartingWith(BotwoonHeadAnimationSegment.Hidden));
 
         // A previously defeated Botwoon does not allocate body actors. The room loader
@@ -564,7 +564,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.HeadHistory[0] = head.Position.Whole;
     }
 
-    /// <summary>Aims the spit program at Samus and selects delayed or immediate volley timing.</summary>
+    /// <summary>Aims the spit animation at Samus and selects delayed or immediate volley timing.</summary>
     internal void AimBotwoonAtSamus(
         RoomEnemySlot head,
         BotwoonEnemyState state,
@@ -580,7 +580,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         RunBotwoonHeadFunction(head, state, samus);
     }
 
-    /// <summary>Restarts the head animation timer only when its selected program changes.</summary>
+    /// <summary>Restarts the head animation timer only when its selected animation changes.</summary>
     private static void StartBotwoonHeadAnimation(
         RoomEnemySlot head,
         BotwoonEnemyState state,
@@ -955,7 +955,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Installs a segment program for its angle and applies the head's hurt flash.</summary>
+    /// <summary>Installs a segment animation for its angle and applies the head's hurt flash.</summary>
     internal void AnimateBotwoonBodySegment(
         EnemyProjectile segment,
         int randomEnemyCounter)

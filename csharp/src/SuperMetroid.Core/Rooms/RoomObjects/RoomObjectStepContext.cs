@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
 /// What one room-object handler pass reaches: the room-object owners, the room and the frame's inputs. Family steps, per-frame steps and
-/// typed programs all run against it.
+/// room-object behaviours all run against it.
 /// </summary>
 /// <param name="RoomObjects">The room's room-object owners.</param>
 /// <param name="Level">The room's level data, which draws and terrain commands change.</param>

@@ -485,7 +485,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidDataException("A landing Yard has no hiding animation to resume.")));
     }
 
-    /// <summary>Selects visible and hiding programs from Yard's airborne facing direction.</summary>
+    /// <summary>Selects visible and hiding animations from Yard's airborne facing direction.</summary>
     private static void SetYardAirborneLists(
         RoomEnemySlot slot,
         YardEnemyState state)

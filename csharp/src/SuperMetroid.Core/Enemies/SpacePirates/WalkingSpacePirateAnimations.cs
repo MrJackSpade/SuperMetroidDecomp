@@ -6,7 +6,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>
-/// The walking Space Pirates' walk, look, flinch and laser animations as typed programs (#641). Each
+/// The walking Space Pirates' walk, look, flinch and laser animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="WalkingSpacePirateCue"/> with its typed operands.
 /// </summary>
 internal static class WalkingSpacePirateAnimations

@@ -7,7 +7,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
-/// <summary>Crocomire's state lookups, body program start, room objects, dust and random numbers, and its sound and music requests.</summary>
+/// <summary>Crocomire's state lookups, body animation start, room objects, dust and random numbers, and its sound and music requests.</summary>
 [RoomLifetime]
 internal sealed class CrocomireEncounterAccess
 {

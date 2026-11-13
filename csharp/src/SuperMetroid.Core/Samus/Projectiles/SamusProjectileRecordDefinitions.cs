@@ -3,14 +3,14 @@ using P = SuperMetroid.Core.Samus.Projectiles.SamusProjectileSegment;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// The Samus projectiles' timed records (#1301, #1517), by the program that shows them, in the order it shows them: each
+/// The Samus projectiles' timed records (#1301, #1517), by the animation that shows them, in the order it shows them: each
 /// record's hitbox radii and the animation frame trails read. What a record pictures is installed only (#1596). A record
-/// is named by its program and its place there (<see cref="SamusProjectileFrame"/>), the identity installed frame
-/// bindings key on, so a program added or removed leaves every other record's identity alone.
+/// is named by its animation and its place there (<see cref="SamusProjectileFrame"/>), the identity installed frame
+/// bindings key on, so an animation added or removed leaves every other record's identity alone.
 /// </summary>
 internal static class SamusProjectileRecordDefinitions
 {
-    /// <summary>Every program's timed records, in the order it shows them.</summary>
+    /// <summary>Every animation's timed records, in the order it shows them.</summary>
     internal static readonly IReadOnlyDictionary<SamusProjectileSegment, SamusProjectileRecord[]> ByAnimation =
         new Dictionary<SamusProjectileSegment, SamusProjectileRecord[]>
     {

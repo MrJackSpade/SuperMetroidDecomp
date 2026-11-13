@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>The five trail programs as their steps: timed poses, one-pixel moves and the end.</summary>
+/// <summary>The five trail animations as their steps: timed poses, one-pixel moves and the end.</summary>
 internal static class ProjectileTrailAnimationDefinitions
 {
     /// <summary>Ends a trail without drawing another frame.</summary>
@@ -98,7 +98,7 @@ internal static class ProjectileTrailAnimationDefinitions
         new ProjectileTrailStep.End(),
     ];
 
-    /// <summary>Each program's steps.</summary>
+    /// <summary>Each animation's steps.</summary>
     internal static readonly IReadOnlyDictionary<ProjectileTrailSegment, ProjectileTrailStep[]> Animations =
         new Dictionary<ProjectileTrailSegment, ProjectileTrailStep[]>
     {

@@ -1,10 +1,10 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>One turret program: a turret's or bullet's still pose facing a direction, or a bullet's impact smoke.</summary>
-/// <param name="Animation">The turret, bullet or impact program.</param>
+/// <summary>One turret animation: a turret's or bullet's still pose facing a direction, or a bullet's impact smoke.</summary>
+/// <param name="Animation">The turret, bullet or impact animation.</param>
 /// <param name="Direction">The pose's direction; the impact smoke has none and uses <see cref="MotherBrainTurretDirection.Left"/>.</param>
 internal readonly record struct MotherBrainTurretPose(MotherBrainTurretSegment Animation, MotherBrainTurretDirection Direction)
 {
-    /// <summary>The impact smoke's program.</summary>
+    /// <summary>The impact smoke's animation.</summary>
     internal static MotherBrainTurretPose BulletImpact => new(MotherBrainTurretSegment.BulletImpact, MotherBrainTurretDirection.Left);
 }

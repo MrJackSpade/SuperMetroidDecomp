@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
-/// A blue door cap (#1554), which replaces the blue caps' programs: one a shot opens, one closing behind Samus, or one
+/// A blue door cap (#1554), which replaces the blue caps' sequences: one a shot opens, one closing behind Samus, or one
 /// a coloured, grey or eye door turns into once its door has been opened for good. A shot cap opens
 /// (<see cref="DoorCapSequenceDefinitions.BlueOpening"/>) and leaves the room. A closing cap closes
 /// (<see cref="DoorCapSequenceDefinitions.BlueClosing"/>), then, like a cap another door turns into, makes its block

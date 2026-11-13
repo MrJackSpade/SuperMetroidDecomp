@@ -1,6 +1,6 @@
 ﻿namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>The state every late-fight phase reads and writes: the body function and its timer, the neck and head programs and the brain's flags, with the walking and posture requests they share.</summary>
+/// <summary>The state every late-fight phase reads and writes: the body function and its timer, the neck and head animations and the brain's flags, with the walking and posture requests they share.</summary>
 internal sealed class MotherBrainLateFightState
 {
 
@@ -21,7 +21,7 @@ internal sealed class MotherBrainLateFightState
     /// <summary>Mother Brain brain-slot room position used by the final beam's aim vector.</summary>
     public Position16<RoomPixels> BrainPosition { get; set; }
 
-    /// <summary>Current brain program installed through the brain-program request, or null before the first request.</summary>
+    /// <summary>Current brain animation installed through the brain-animation request, or null before the first request.</summary>
     public MotherBrainHeadSegment? HeadAnimation { get; private set; }
 
     /// <summary>Neck angular speed in 8.8 angle units; every producer writes a positive speed of at most 2304.</summary>
@@ -92,11 +92,11 @@ internal sealed class MotherBrainLateFightState
     /// <summary>True once the final beam's Baby spawn has requested the cutscene Baby enemy population entry.</summary>
     public bool BabyMetroidSpawned { get; internal set; }
 
-    /// <summary>Restarts the separate brain program and publishes a new head-list request serial.</summary>
+    /// <summary>Restarts the separate brain animation and publishes a new head-list request serial.</summary>
     internal void SetHeadAnimation(MotherBrainHeadSegment segment)
     {
-        // The brain-program request restarts the separate brain program and its timer. Unlike ordinary
-        // enemy programs it has no loop-counter write here.
+        // The brain-animation request restarts the separate brain animation and its timer. Unlike ordinary
+        // enemy animations it has no loop-counter write here.
         HeadAnimation = segment;
         HeadAnimationRequestSerial++;
     }
@@ -234,6 +234,6 @@ internal sealed class MotherBrainLateFightState
     internal static bool AtLeastBySignedDifference(int value, int threshold) =>
         CoordinateAxis.Difference(value, threshold) >= 0;
 
-    /// <summary>How many head programs the phases have requested; a change marks a new request.</summary>
+    /// <summary>How many head animations the phases have requested; a change marks a new request.</summary>
     internal uint HeadAnimationRequestSerial { get; private set; }
 }

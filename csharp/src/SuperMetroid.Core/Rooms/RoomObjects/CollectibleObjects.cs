@@ -113,7 +113,7 @@ internal sealed class CollectibleObjects
             // The pickup message retains both the visible block and its physical owner.
             // On message return, movement can touch that block before the room-object update runs
             // the pending empty draw/delete. The touch setup matches the block index without
-            // filtering the program phase; acknowledge this owner without collecting
+            // filtering the item's phase; acknowledge this owner without collecting
             // again or disturbing its message-return continuation.
             if (item.Phase is CollectiblePhase.AwaitingMessage or CollectiblePhase.ResumeAfterMessage or
                 CollectiblePhase.EmptyAwaitingDelete)

@@ -6,7 +6,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.Zoa;
 
 /// <summary>
-/// Zoa's shooting and rising animations as typed programs (#641). Each
+/// Zoa's shooting and rising animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="ZoaCue"/> with its typed operands.
 /// </summary>
 internal static class ZoaAnimations

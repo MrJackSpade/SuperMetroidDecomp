@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// half walk right, each advancing the body by its stride phase's planted-foot movement.
 /// </summary>
 /// <remarks>
-/// Every walking cue in Golden Torizo's programs names one of these steps (0 to 19 here); a cue between two steps
+/// Every walking cue in Golden Torizo's animations names one of these steps (0 to 19 here); a cue between two steps
 /// reaches no retail path and is not reproduced (#1473).
 /// </remarks>
 public static class GoldenTorizoWalk

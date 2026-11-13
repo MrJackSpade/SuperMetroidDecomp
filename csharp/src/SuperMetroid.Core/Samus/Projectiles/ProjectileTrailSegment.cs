@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>A projectile-trail program one side of a trail runs.</summary>
+/// <summary>A projectile-trail animation one side of a trail runs.</summary>
 public enum ProjectileTrailSegment
 {
     /// <summary>Ends the trail without drawing another frame.</summary>

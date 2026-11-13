@@ -6,7 +6,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Enemies.Magdollite;
 
 /// <summary>
-/// The Magdollite's thrown-lava programs (#641). Each
+/// The Magdollite's thrown-lava animations (#641). Each
 /// frame shows a <see cref="EnemyProjectileFrameId"/> and each cue is a <see cref="MagdolliteLavaCue"/> with its typed operands.
 /// </summary>
 internal static class MagdolliteLavaAnimations

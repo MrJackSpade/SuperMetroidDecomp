@@ -8,7 +8,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>The branches Bomb and Golden Torizo's programs take on Samus's position, and their walk steps.</summary>
+/// <summary>The branches Bomb and Golden Torizo's animations take on Samus's position, and their walk steps.</summary>
 [RoomLifetime]
 internal sealed class TorizoChoices
 {

@@ -283,7 +283,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Creates one Dragon slot's state, selecting body or wing from population parameter one. A body finds its wing,
+    /// Creates one Dragon slot's state, selecting body or wing from its spawn part. A body finds its wing,
     /// which its room lists right after it, and every part finds the enemy its follow-up to a hit reaches.
     /// </summary>
     private DragonEnemyState CreateDragonState(RoomEnemySlot slot)

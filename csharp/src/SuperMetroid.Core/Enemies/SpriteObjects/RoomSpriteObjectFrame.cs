@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.SpriteObjects;
 
 /// <summary>
-/// The frames the room sprite-object programs show.
+/// The frames the room sprite-object animations show.
 /// </summary>
 internal enum RoomSpriteObjectFrame
 {

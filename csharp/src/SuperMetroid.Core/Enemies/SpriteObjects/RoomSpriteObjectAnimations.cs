@@ -5,13 +5,13 @@ using P = SuperMetroid.Core.Enemies.SpriteObjects.RoomSpriteObjectSegment;
 namespace SuperMetroid.Core.Enemies.SpriteObjects;
 
 /// <summary>
-/// Every room sprite-object animation the named object kinds reach, as a typed program: each timed beat shows a
-/// <see cref="RoomSpriteObjectFrame"/>, a hold keeps the last frame showing, deletion stops the program, and a jump
-/// continues at another program.
+/// Every room sprite-object animation the named object kinds reach, as a typed animation: each timed beat shows a
+/// <see cref="RoomSpriteObjectFrame"/>, a hold keeps the last frame showing, deletion stops the animation, and a jump
+/// continues at another animation.
 /// </summary>
 internal static class RoomSpriteObjectAnimations
 {
-    /// <summary>Every room sprite-object program.</summary>
+    /// <summary>Every room sprite-object animation.</summary>
     internal static AnimationSegments<RoomSpriteObjectSegment, RoomSpriteObjectFrame, NoAnimationCue> Segments { get; } = new(
         new Dictionary<RoomSpriteObjectSegment, AnimationBeat<RoomSpriteObjectFrame, NoAnimationCue>[]>
     {

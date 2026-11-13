@@ -7,11 +7,11 @@ internal static class EndingPaletteFxDefinitions
 {
     /// <summary>Fades the zoomed-out exploding Zebes.</summary>
     public const PaletteFxObject FadePlanet = PaletteFxObject.FadeOutZoomedOutExplodingZebes;
-    /// <summary>The initial supernova color program.</summary>
+    /// <summary>The initial supernova color animation.</summary>
     public const PaletteFxObject Supernova = PaletteFxObject.WidePartOfZebesExplosionForeground;
-    /// <summary>The final supernova color program.</summary>
+    /// <summary>The final supernova color animation.</summary>
     public const PaletteFxObject SupernovaFinale = PaletteFxObject.ZebesExplosionFinale;
-    /// <summary>The explosion color program, spawned with the initial supernova.</summary>
+    /// <summary>The explosion color animation, spawned with the initial supernova.</summary>
     public const PaletteFxObject Explosion = PaletteFxObject.WhiteOutSpaceDuringZebesExplosion;
     /// <summary>Exploding lava.</summary>
     public const PaletteFxObject Lava = PaletteFxObject.ExplodingZebesLava;

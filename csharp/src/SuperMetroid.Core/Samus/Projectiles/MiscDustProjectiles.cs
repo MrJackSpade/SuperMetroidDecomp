@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>The program and smoke placement of each miscellaneous dust projectile.</summary>
+/// <summary>The animation and smoke placement of each miscellaneous dust projectile.</summary>
 internal static class MiscDustProjectiles
 {
-    /// <summary>The program each of the thirty misc-dust selectors starts.</summary>
+    /// <summary>The animation each of the thirty misc-dust selectors starts.</summary>
     internal static MiscDustProjectileSegment Animation(MiscDustAnimation animation) => animation switch
     {
         MiscDustAnimation.UnusedBeamCharge => MiscDustProjectileSegment.BeamCharge,

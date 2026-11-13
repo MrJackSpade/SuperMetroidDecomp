@@ -21,7 +21,7 @@ internal enum CeresSelfDestructPhase
     /// <summary>Japanese text only: the typewriter runs while the subtitle's delay counts down, then the subtitle is drawn.</summary>
     JapaneseSubtitle,
 
-    /// <summary>The typewriter types the warning, one step per update, until its program ends.</summary>
+    /// <summary>The typewriter types the warning, one step per update, until its message ends.</summary>
     TypingWarning,
 
     /// <summary>The warning is complete: Ridley stops, the station's countdown starts and the area boss counts as beaten.</summary>

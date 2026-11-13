@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.World;
 /// <summary>
 /// The room services resident room objects use after load (#633). Samus and the area's boss flags are
 /// required. Every other service is an explicit optional capability: the room-object family that uses it
-/// checks for it where it previously checked its delegate, and a family whose program needs a missing
+/// checks for it where it previously checked its delegate, and a family whose steps need a missing
 /// service fails loudly.
 /// </summary>
 [RoomLifetime]

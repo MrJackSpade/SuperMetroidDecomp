@@ -5,7 +5,7 @@ internal static class ShaktoolAnimationDefinitions
 {
     /// <summary>
     /// The head animation of each eighth-turn
-    /// direction bucket. The direction buckets start at up; program storage starts two eighth-turns earlier at left.
+    /// direction bucket. The direction buckets start at up; animation storage starts two eighth-turns earlier at left.
     /// </summary>
     internal static readonly Dictionary<CompassDirection, ShaktoolSegment> OrientationAnimations = new()
     {

@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
-/// <summary>What a cue of Crocomire's body programs does.</summary>
+/// <summary>What a cue of Crocomire's body animations does.</summary>
 internal enum CrocomireBodyCueKind
 {
-    /// <summary>Runs the fight-AI function, which may start another program.</summary>
+    /// <summary>Runs the fight-AI function, which may start another animation.</summary>
     FightAi,
     /// <summary>Starts the projectile attack on a one-in-four random draw.</summary>
     MaybeStartProjectileAttack,

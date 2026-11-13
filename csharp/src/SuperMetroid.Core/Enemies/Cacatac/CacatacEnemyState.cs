@@ -38,7 +38,7 @@ public sealed class CacatacEnemyState
     public Position16<RoomPixels> RightPatrolLimit { get; internal set; }
 
     /// <summary>
-    /// Parameter one's presentation selector, its upper half. The game tests only zero versus nonzero, so this is a
+    /// Whether it hangs from a ceiling or stands on a floor, as its spawn mounting names. The game tests only zero versus nonzero, so this is a
     /// Boolean discriminator rather than a guessed flags enum.
     /// </summary>
     public bool UpsideUp { get; internal set; }

@@ -102,7 +102,7 @@ public sealed class RidleyEnemyState
     /// <summary>Ridley's playing body animation and where it stands (#641, #1600); before the first start, the initial animation.</summary>
     internal AnimationPlayback<RidleyBodySegment> BodyPlayback { get; set; } =
         new(RidleyAnimations.StartingWith(RidleyBodySegment.Initial), AnimationPlace.StartOfAnimation);
-    /// <summary>Gets the claw-height pose Ridley's body program last selected: zero standing, one legs half extended, two legs extended.</summary>
+    /// <summary>Gets the claw-height pose Ridley's body animation last selected: zero standing, one legs half extended, two legs extended.</summary>
     public int FeetDistanceIndex { get; internal set; }
     /// <summary>Gets the Ceres fireball attack's whole-pixel body anchor; firing motion aims at random jitter around this saved position.</summary>
     public Position16<RoomPixels> FireballBasePosition { get; internal set; }
@@ -158,13 +158,13 @@ public sealed class RidleyEnemyState
     /// <summary>The Ceres Baby's playing cutscene animation, standing after its current pose; owned separately from Ridley's body.</summary>
     internal AnimationPlayback<CeresBabySegment> BabyPlayback { get; set; } =
         new(CeresBabyAnimations.StartingWith(CeresBabySegment.Initial), AnimationPlace.StartOfAnimation);
-    /// <summary>How many draw updates the Baby's current pose lasts; zero before its program shows the first pose.</summary>
+    /// <summary>How many draw updates the Baby's current pose lasts; zero before its animation shows the first pose.</summary>
     internal int BabyPoseDuration { get; set; }
     /// <summary>Gets the Ceres Baby's elapsed draw-update count in its current pose, compared with the pose's duration and restarted at one.</summary>
     public int BabyFrameHold { get; internal set; }
     /// <summary>Gets the Ceres Baby's behavior selecting hand attachment, falling setup, falling motion, or idle.</summary>
     public CeresBabyFunction BabyFunction { get; internal set; }
-    /// <summary>The pose the Ceres Baby's program currently shows, or null before it has shown one.</summary>
+    /// <summary>The pose the Ceres Baby's animation currently shows, or null before it has shown one.</summary>
     internal CeresBabyPose? BabyCurrentPose { get; set; }
     /// <summary>
     /// Gets the Ceres Baby's wrapped room position. Its vertical fraction carries the falling integrator's subpixels and

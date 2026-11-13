@@ -26,7 +26,7 @@ internal static class CeresFlightActors
     /// station, small debris, vortex and rear stars select their own behavior and
     /// placement. The selected initializer parameters are not samples of a numerical curve.
     /// Named cases replace the earlier blanket retention claims; no output table or cache
-    /// is retained. Inputs outside 0..4 still throw. The animation programs have separate
+    /// is retained. Inputs outside 0..4 still throw. The animations have separate
     /// existing authored-data proofs shared across both Ceres scenes.</remarks>
     public static CeresFlightActorDefinition RearViewActor(int index) => index switch
     {

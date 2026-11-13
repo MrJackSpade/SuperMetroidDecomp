@@ -21,7 +21,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// by Kraid's background redraw. Created with each gameplay runtime, which hands it to its door transition, its death and
 /// time-up fades and every room's enemies, so the count outlives every room. Evidence:
 /// the original gradual colour change routines, which all read, advance and clear one shared step count and none clears it
-/// at its start; the Torizo programs' sixteen-step wake-up and fourteen-step death fade, which only complete in fourteen
+/// at its start; the Torizo animations' sixteen-step wake-up and fourteen-step death fade, which only complete in fourteen
 /// steps from the count the wake-up leaves.
 /// </para>
 /// </remarks>

@@ -19,7 +19,7 @@ internal sealed class CeresDoorEntity(CeresDoorBehavior species, RoomEnemySlot s
     public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => species.AdvanceCeresDoorTypedAnimation;
 
     /// <summary>
-    /// Whether the door's program has handed its drawing to Ridley's scene (<see cref="CeresDoorCueKind.HandDrawingToRidley"/>)
+    /// Whether the door's animation has handed its drawing to Ridley's scene (<see cref="CeresDoorCueKind.HandDrawingToRidley"/>)
     /// and not yet taken it back (<see cref="CeresDoorCueKind.MakeVisibleAndTakeDrawingBack"/>).
     /// </summary>
     public bool HandsDrawingToRidley => Slot.RequireSpeciesState<CeresDoorEnemyState>().HandsDrawingToRidley;

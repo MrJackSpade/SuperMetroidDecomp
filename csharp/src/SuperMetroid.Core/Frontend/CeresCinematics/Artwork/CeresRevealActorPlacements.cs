@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 
 /// <summary>
 /// The installed initial screen positions of the six Ceres-to-Zebes reveal actors, as the player left them; the
-/// installation is their only source (#1596). Their animation scripts, slide acceleration, deletion, and phase handoffs
+/// installation is their only source (#1596). Their animations, slide acceleration, deletion, and phase handoffs
 /// remain in compiled game mechanics.
 /// </summary>
 public sealed class CeresRevealActorPlacements
@@ -24,7 +24,7 @@ public sealed class CeresRevealActorPlacements
 
     /// <summary>The installed initial placement of one actor in the Zebes-reveal spawn order.</summary>
     /// <param name="actorIndex">Index 0..5: planet, upper-left stars, upper-right stars, lower-left stars, lower-right stars, then Planet Zebes title.</param>
-    /// <returns>Named screen-pixel placement used when creating the actor, without changing its program or motion policy.</returns>
+    /// <returns>Named screen-pixel placement used when creating the actor, without changing its animation or motion policy.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The actor index is outside 0..5.</exception>
     public CeresRevealActorPlacement this[int actorIndex] =>
         (uint)actorIndex < (uint)placements.Length ? placements[actorIndex] : throw new ArgumentOutOfRangeException(nameof(actorIndex));

@@ -5,7 +5,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Enemies.Dragon;
 
 /// <summary>
-/// Dragon's rising and falling fireball programs (#641). Each
+/// Dragon's rising and falling fireball animations (#641). Each
 /// frame shows a <see cref="EnemyProjectileFrameId"/> and each cue is a <see cref="EnemyProjectileCommonCue"/> with its typed operands.
 /// </summary>
 internal static class DragonFireballAnimations

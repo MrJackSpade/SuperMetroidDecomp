@@ -4,7 +4,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Fx.PaletteFx;
 
 /// <summary>
-/// Samus's heat shimmer's programs (#1298, #1598): a start per suit, which falls into the suit's heat pulse, and the place
+/// Samus's heat shimmer's animations (#1298, #1598): a start per suit, which falls into the suit's heat pulse, and the place
 /// in that pulse the shimmer restarts at when the heated room's glow publishes a new heat phase.
 /// </summary>
 public static class PaletteFxHeatAnimations

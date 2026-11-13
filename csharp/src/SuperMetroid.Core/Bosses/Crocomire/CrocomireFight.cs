@@ -15,7 +15,7 @@ using SuperMetroid.Core.Earthquakes;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
-/// <summary>Crocomire's setup, its body and tongue programs and their cues, and the invisible wall that holds Samus back.</summary>
+/// <summary>Crocomire's setup, its body and tongue animations and their cues, and the invisible wall that holds Samus back.</summary>
 [RoomLifetime]
 internal sealed class CrocomireFight
 {
@@ -35,7 +35,7 @@ internal sealed class CrocomireFight
     private readonly ZebetiteBehavior _zebetiteBehavior;
     /// <summary>Updates boss completion and room-state flags.</summary>
     private readonly EnemyRoomStatus _roomStatus;
-    /// <summary>Crocomire's state lookups, body program start, room objects, dust and random numbers, and the sound and music it last requested.</summary>
+    /// <summary>Crocomire's state lookups, body animation start, room objects, dust and random numbers, and the sound and music it last requested.</summary>
     private readonly CrocomireEncounterAccess _access;
 
 
@@ -164,7 +164,7 @@ internal sealed class CrocomireFight
     }
 
     /// <summary>
-    /// Runs Crocomire's body program where the shared enemy animation runs: the frame expires on the
+    /// Runs Crocomire's body animation where the shared enemy animation runs: the frame expires on the
     /// update its timer would, and a newly shown frame raises the new-frame flag exactly as an
     /// authored timed frame does.
     /// </summary>
@@ -214,10 +214,10 @@ internal sealed class CrocomireFight
     }
 
     /// <summary>
-    /// Carries out one body-program cue. Movement, wall, sound, shake and dust cues keep their authored order;
+    /// Carries out one body-animation cue. Movement, wall, sound, shake and dust cues keep their authored order;
     /// the fight AI and the spike-wall move may start another animation, which plays on at once.
     /// </summary>
-    /// <param name="state">The Crocomire encounter whose body runs the program.</param>
+    /// <param name="state">The Crocomire encounter whose body runs the animation.</param>
     /// <param name="samus">Samus, whom the fight AI measures against; null in fixtures without her.</param>
     /// <param name="level">The room's collision level, which the movement cues require.</param>
     /// <param name="cameraX">The camera's X, which the on-screen movement tests use.</param>

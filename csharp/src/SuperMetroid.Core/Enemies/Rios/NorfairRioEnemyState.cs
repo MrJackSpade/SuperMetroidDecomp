@@ -25,6 +25,6 @@ public sealed class NorfairRioEnemyState
     /// <summary>The behaviour shared by parent and flame-follower dispatch.</summary>
     public NorfairRioEnemyFunction? Function { get; internal set; }
 
-    /// <summary>Whether a negative population parameter 1 selects the flame follower instead of the parent; a follower must immediately follow a parent of this same enemy definition.</summary>
+    /// <summary>Whether this is the flame follower instead of the parent; a follower must immediately follow a parent of this same enemy definition.</summary>
     public bool IsFollower { get; internal set; }
 }

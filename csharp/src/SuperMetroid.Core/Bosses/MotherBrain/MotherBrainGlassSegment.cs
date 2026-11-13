@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Mother Brain's glass projectile programs: eight spinning shard loops by flight angle, and the sparkle.</summary>
+/// <summary>Mother Brain's glass projectile animations: eight spinning shard loops by flight angle, and the sparkle.</summary>
 public enum MotherBrainGlassSegment
 {
     /// <summary>Shard angle group 0.</summary>

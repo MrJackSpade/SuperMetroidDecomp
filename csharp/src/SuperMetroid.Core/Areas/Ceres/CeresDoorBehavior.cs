@@ -76,7 +76,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
         state.Playback = playback;
     }
 
-    /// <summary>Carries out one cue of a door's program, returning the program a branch continues at, or null to run on.</summary>
+    /// <summary>Carries out one cue of a door's animation, returning the segment a branch continues at, or null to run on.</summary>
     private CeresDoorSegment? ApplyCeresDoorCue(RoomEnemySlot slot, SamusState? samus, CeresDoorCue cue)
     {
         switch (cue.Kind)

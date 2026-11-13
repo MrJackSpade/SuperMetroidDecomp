@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Kago;
 
-/// <summary>What a cue of the Kago's bugs programs does.</summary>
+/// <summary>What a cue of the Kago's bugs animations does.</summary>
 internal enum KagoBugProjectileCueKind
 {
     /// <summary>Deletes the projectile.</summary>

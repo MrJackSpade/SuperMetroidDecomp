@@ -9,6 +9,6 @@ internal static class EndingRewardJumpDefinitions
     public static SignedSixteenSixteen Gravity { get; } = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(56);
     /// <summary>Crossing this height, above the screen, starts the body's fall and deletes the old head.</summary>
     public const int FallStartY = -80;
-    /// <summary>The body stops here before its landed program begins.</summary>
+    /// <summary>The body stops here before its landed animation begins.</summary>
     public const int LandingY = 136;
 }

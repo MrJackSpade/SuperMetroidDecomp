@@ -361,7 +361,7 @@ internal static class KraidAnimations
         new AnimationBeat<KraidPartFrame, KraidPartCue>.Frame(frame, duration);
 
     /// <summary>
-    /// Shows <paramref name="frame"/> for good (#1627): the part rests on it until its owner starts another program. The
+    /// Shows <paramref name="frame"/> for good (#1627): the part rests on it until its owner starts another animation. The
     /// feet's standing poses and the belly lints' poses are held: nothing reads a foot's frame timer, and a lint's behaviour
     /// reloads its timer every update, so the longest frame duration never runs out where gameplay sees it.
     /// </summary>

@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Enemies.Hoppers;
 /// <summary>Animation dispatch shared by Sidehoppers and Dessgeegas.</summary>
 internal static class HopperAnimationDefinitions
 {
-    /// <summary>Each kind of hopper's program for each orientation and movement phase.</summary>
+    /// <summary>Each kind of hopper's animation for each orientation and movement phase.</summary>
     internal static readonly Dictionary<HopperAnimationKey, HopperSegment> Animations = new()
     {
         [new(HopperKind.Sidehopper, HopperSurface.Floor, HopperPhase.Jumping)] = HopperSegment.SidehopperFloorJumping,

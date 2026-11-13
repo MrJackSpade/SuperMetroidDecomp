@@ -12,7 +12,7 @@ internal sealed class CeresDoorEnemyState
     internal AnimationPlayback<CeresDoorSegment> Playback { get; set; }
 
     /// <summary>
-    /// Whether the door's program has handed its drawing to Ridley's scene and not yet taken it back.
+    /// Whether the door's animation has handed its drawing to Ridley's scene and not yet taken it back.
     /// </summary>
     public bool HandsDrawingToRidley { get; internal set; }
 

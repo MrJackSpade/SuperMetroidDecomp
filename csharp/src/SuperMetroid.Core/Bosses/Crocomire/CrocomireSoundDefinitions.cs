@@ -9,7 +9,7 @@ internal static class CrocomireSoundDefinitions
     /// <summary>The acid burn, repeated every 32 frames while the body sinks.</summary>
     internal static readonly SoundEffectId AcidBurn = EnemySound.ShotPipeBug;
 
-    /// <summary>The big explosion of the body and skeleton programs and the spike-wall pieces.</summary>
+    /// <summary>The big explosion of the body and skeleton animations and the spike-wall pieces.</summary>
     internal static readonly SoundEffectId BigExplosion = EnemySound.BigExplosion;
 
     /// <summary>The crumble of the bridge and the hidden wall.</summary>

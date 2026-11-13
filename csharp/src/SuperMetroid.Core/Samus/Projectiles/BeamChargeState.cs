@@ -69,7 +69,7 @@ internal sealed class BeamChargeState
     internal SamusVisorPaletteStepResult LastVisorPaletteStep { get; set; }
 
     /// <summary>
-    /// The picture each flare component shows, in <see cref="ChargeFlareComponent"/> order: a place of its program, or,
+    /// The picture each flare component shows, in <see cref="ChargeFlareComponent"/> order: a place of its animation, or,
     /// after the Hyper Beam's backward count has run a component past its first picture, the 0 through 65535 place the
     /// count wrapped to.
     /// </summary>
@@ -96,7 +96,7 @@ internal sealed class BeamChargeState
         return step;
     }
 
-    /// <summary>The ordinary charge flare's first call: every component starts its program at its first picture.</summary>
+    /// <summary>The ordinary charge flare's first call: every component starts its animation at its first picture.</summary>
     internal void StartChargeFlare()
     {
         foreach (ChargeFlareComponent component in Enum.GetValues<ChargeFlareComponent>())

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
 /// Ordered physical components and touch/shot rectangles for all 106 Torizo frames selected
-/// by the compiled animation scripts. Sprite composition and pixels are not stored here.
+/// by the compiled animations. Sprite composition and pixels are not stored here.
 /// The blank frame has an empty hitbox list, rather than invented collision.
 /// </summary>
 /// <remarks>

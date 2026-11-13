@@ -43,7 +43,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         switch (cue)
         {
             case WalkingSpacePirateCue.SetFunction setFunction:
-                // The pirate program does not jump to the operand. It stores that function
+                // The pirate animation does not jump to the operand. It stores that function
                 // for main AI to dispatch next frame, then runs on.
                 RequireWalkingSpacePirateState(slot).Function = setFunction.Function;
                 return null;
@@ -306,7 +306,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         CoordinateAxis.Distance(samus.Position.Y.Whole, slot.Position.Y.Whole) <
             WalkingPirateFiringBandPixels;
 
-    /// <summary>Chooses a left or right laser program from Samus's current side.</summary>
+    /// <summary>Chooses a left or right laser animation from Samus's current side.</summary>
     private static void InstallWalkingSpacePirateAttack(
         RoomEnemySlot slot,
         WalkingSpacePirateEnemyState state,
@@ -318,7 +318,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
                 ? WalkingSpacePirateSegment.FireLasersRight
                 : WalkingSpacePirateSegment.FireLasersLeft);
 
-    /// <summary>Arms a newly selected program for processing on the next tick.</summary>
+    /// <summary>Arms a newly selected animation for processing on the next tick.</summary>
     private static void StartWalkingSpacePirateAnimation(
         RoomEnemySlot slot,
         WalkingSpacePirateEnemyState state,
@@ -343,7 +343,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
 
     /// <summary>
     /// Runs the common laser initializer. Wall and walking Pirates
-    /// use different actor program steps and muzzle offsets, but the allocated projectile is the
+    /// use different actor animation steps and muzzle offsets, but the allocated projectile is the
     /// same retail definition and therefore belongs in one shared implementation.
     /// </summary>
     internal bool SpawnSpacePirateLaser(
@@ -387,7 +387,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// <summary>
     /// Runs the common laser initializer after the caller has chosen
     /// its muzzle coordinate. Walking Pirates, wall Pirates, and Mother Brain enter through
-    /// different actor program steps, but the game deliberately funnels all of them through
+    /// different actor animation steps, but the game deliberately funnels all of them through
     /// this definition so animation, speed flags, collision damage, and disposal agree.
     /// </summary>
     /// <param name="source">The enemy firing the laser, whose damage the laser takes.</param>
@@ -415,7 +415,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             : SpacePirateProjectileSegment.LaserLeft));
 
         // Although the definition starts the laser flying left, the initializer holds it still: the three two-frame
-        // muzzle maps are stationary until the program installs the flight and runs it at once.
+        // muzzle maps are stationary until the animation installs the flight and runs it at once.
         projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
         projectile.State = new PirateLaserState(speed == PirateLaserSpeed.Slow);
 
@@ -477,7 +477,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         table.AddCue<SpacePirateProjectileCue>((context, cue) =>
         {
             context.Projectile.FrameBehavior = cue.Movement;
-            // The start-moving cue leaves the program where it was, so the common animation dispatches the installed
+            // The start-moving cue leaves the segment where it was, so the common animation dispatches the installed
             // movement once at once: the laser moves on the update it starts and may leave the screen then.
             if (cue.Kind == SpacePirateProjectileCueKind.StartMovingNow)
                 FlyPirateLaser(context.Projectile, context.Camera, LaserFlightDirection(cue.Movement));

@@ -80,7 +80,7 @@ public sealed class KraidEnemyState
     public int HurtFrame { get; internal set; }
     /// <summary>Gets the countdown pacing hurt-palette phases, normally reloaded to two and reused by background fades during death.</summary>
     public int HurtFrameTimer { get; internal set; }
-    /// <summary>The head pose Kraid is showing, which selects the head image; null until the head program shows its first pose.</summary>
+    /// <summary>The head pose Kraid is showing, which selects the head image; null until the head animation shows its first pose.</summary>
     internal KraidHeadFrame? DisplayedHeadFrame { get; set; }
 
     /// <summary>

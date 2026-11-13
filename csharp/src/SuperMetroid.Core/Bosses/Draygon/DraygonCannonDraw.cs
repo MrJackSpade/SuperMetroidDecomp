@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Draygon;
 
-/// <summary>The twelve draw lists selected by the reachable Draygon cannon room-object programs.</summary>
+/// <summary>The twelve draw lists selected by the reachable Draygon cannon room-object animations.</summary>
 internal enum DraygonCannonDraw
 {
     /// <summary>Right shield frame A.</summary>

@@ -114,7 +114,7 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
 
     /// <summary>
     /// Plays the animation as the other overloads do, also telling <paramref name="react"/> where the play stands just
-    /// past each event it raises: the place an owner's call saves, to return to later, as a script's call saves where it
+    /// past each event it raises: the place an owner's call saves, to return to later, as an animation's call saves where it
     /// resumes.
     /// </summary>
     /// <exception cref="InvalidOperationException">The animation passes every beat without showing a frame.</exception>

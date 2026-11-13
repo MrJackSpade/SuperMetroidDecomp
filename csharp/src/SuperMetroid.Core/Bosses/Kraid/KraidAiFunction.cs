@@ -51,7 +51,7 @@ public enum KraidAiFunction
     DecrementFunctionTimerAndStartWalk,
     /// <summary>The first-phase foot's thinking entry before its independently timed lunge.</summary>
     FootFirstPhaseThinking,
-    /// <summary>Processes Kraid's private head program and its timer.</summary>
+    /// <summary>Processes Kraid's private head animation and its timer.</summary>
     AdvanceHeadAnimationAndTimer,
     /// <summary>Counts the second-phase foot's think delay and selects a walking target.</summary>
     FootSecondPhaseThinking,
@@ -67,7 +67,7 @@ public enum KraidAiFunction
     MainAttackWithMouthOpen,
     /// <summary>Selects the fingernail's starting side, animation, and firing transition.</summary>
     FingernailInitialize,
-    /// <summary>Advances the fingernail's independent firing program.</summary>
+    /// <summary>Advances the fingernail's independent firing animation.</summary>
     FingernailFire,
     /// <summary>Prepares the first-phase foot's forward lunge.</summary>
     FootPrepareFirstPhaseLunge,

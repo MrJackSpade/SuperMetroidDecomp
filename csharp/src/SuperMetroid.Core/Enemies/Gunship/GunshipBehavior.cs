@@ -97,7 +97,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         _shipAnimations[slot] = new AnimationPlayback<GunshipSegment>(GunshipAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
     }
 
-    /// <summary>Runs a hull or pad piece's typed program where the shared enemy animation would.</summary>
+    /// <summary>Runs a hull or pad piece's typed animation where the shared enemy animation would.</summary>
     internal void AdvanceGunshipAnimation(RoomEnemySlot slot)
     {
         if (!slot.AnimationClock.Expire())

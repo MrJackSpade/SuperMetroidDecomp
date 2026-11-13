@@ -20,7 +20,7 @@ internal sealed class CrocomireCombat
     private readonly EnemyCollision _collision;
     /// <summary>Produces the distributed drops at skeleton collapse.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
-    /// <summary>Crocomire's state lookups, body program start, room objects, dust and random numbers, and the sound and music it last requested.</summary>
+    /// <summary>Crocomire's state lookups, body animation start, room objects, dust and random numbers, and the sound and music it last requested.</summary>
     private readonly CrocomireEncounterAccess _access;
 
 
@@ -381,7 +381,7 @@ internal sealed class CrocomireCombat
     }
 
     /// <summary>
-    /// Registers the mouth projectile's typed shot program and its cues: the drop is allocated with Crocomire's
+    /// Registers the mouth projectile's typed shot animation and its cues: the drop is allocated with Crocomire's
     /// chances before the deletion frees the exploding actor.
     /// </summary>
     internal void AddCrocomireDropProjectiles(EnemyProjectileHandlerTable table)

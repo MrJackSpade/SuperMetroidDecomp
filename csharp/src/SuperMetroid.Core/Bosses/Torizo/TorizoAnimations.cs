@@ -140,7 +140,7 @@ internal static class TorizoAnimations
             : playback.Animation.Phases[playback.Place.Phase].Segment;
 
     /// <summary>
-    /// The program a sleeping animation resumes into when the AI wakes it, as Bomb Torizo's wake
+    /// The segment a sleeping animation resumes into when the AI wakes it, as Bomb Torizo's wake
     /// and Golden Torizo's trigger do.
     /// </summary>
     internal static TorizoBodySegment AfterSleep(TorizoBodySegment segment) => segment switch

@@ -62,7 +62,7 @@ public sealed class SamusCrystalFlashState
     /// </summary>
     public Position16<RoomPixels> RaisedPosition { get; private set; }
 
-    /// <summary>Seeded to one for Samus's palette program.</summary>
+    /// <summary>Seeded to one for Samus's palette animation.</summary>
     public int CrystalPaletteTimer { get; private set; }
 
     /// <summary>
@@ -250,7 +250,7 @@ public sealed class SamusCrystalFlashState
         if (--RaiseTimer >= 0)
             return;
 
-        // The delay program is already on its raise loop, but the movement handler forces
+        // The delay animation is already on its raise loop, but the movement handler forces
         // frame six and timer three so main art begins on this precise transition frame.
         SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: 6, timer: 3);
         RaisedPosition = Position16<RoomPixels>.Zero.WithY(samus.Position.Y.Whole);

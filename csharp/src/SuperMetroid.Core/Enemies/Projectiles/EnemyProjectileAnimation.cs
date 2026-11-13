@@ -8,7 +8,7 @@ internal abstract class EnemyProjectileAnimation
 {
     /// <summary>
     /// Advances one projectile pass: the frame expires on the update its timer would. A cue published
-    /// on the way may end the animation (deleting the projectile or handing it to another program); the pass
+    /// on the way may end the animation (deleting the projectile or handing it to another segment); the pass
     /// then stops, as the cue that did so would.
     /// </summary>
     internal void Advance(EnemyProjectileCueContext context, EnemyProjectileHandlerTable handlers)

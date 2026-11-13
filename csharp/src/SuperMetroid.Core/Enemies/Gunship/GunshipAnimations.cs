@@ -5,7 +5,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.Gunship;
 
 /// <summary>
-/// The gunship hull's and entrance pad's typed programs (#641). Each
+/// The gunship hull's and entrance pad's typed animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
 internal static class GunshipAnimations

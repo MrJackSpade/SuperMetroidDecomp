@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Mother Brain's four falling ceiling tubes (#641), each a program showing its one pose; in authored order.</summary>
+/// <summary>Mother Brain's four falling ceiling tubes (#641), each an animation showing its one pose; in authored order.</summary>
 internal enum MotherBrainTopTubeSegment
 {
     /// <summary>The top-right tube.</summary>

@@ -11,7 +11,7 @@ public enum ElevatorActorStatus
     Inactive = 0,
     /// <summary>Status one, leaving the room, moves the departing platform and pins Samus to it at one-and-one-half pixels per actor update.</summary>
     Departing = 1,
-    /// <summary>Status two is entered after a door load; the arriving actor starts at population parameter 2's Y coordinate, then advances to the return state.</summary>
+    /// <summary>Status two is entered after a door load; the arriving actor starts at its arrival height, then advances to the return state.</summary>
     BeginArrivalReturn = 2,
     /// <summary>Status three, entering the room, moves toward the destination actor's saved resting Y, then clears travel globals and unlocks Samus input.</summary>
     ReturningToRest = 3,

@@ -9,10 +9,10 @@ namespace SuperMetroid.Core.Compatibility;
 /// </summary>
 /// <remarks>
 /// Consulted by the Chainsaw shot's frame behaviour during the projectile update, on the update its fuse reaches the
-/// fast stage. Evidence: the original fuse routine and the projectile list layout, which the projectile program check
+/// fast stage. Evidence: the original fuse routine and the projectile list layout, which the projectile animation check
 /// compares with this service's landings.
 /// </remarks>
-/// <typeparam name="TCursor">Where a shot's animation stands in its program.</typeparam>
+/// <typeparam name="TCursor">Where a shot stands in its animation.</typeparam>
 [CompatibilityService("the Chainsaw beam's Power Bomb fuse moves its animation as far as a bomb's fast animation lies")]
 public sealed class ChainsawFuseAnimationShift<TCursor>
     where TCursor : notnull

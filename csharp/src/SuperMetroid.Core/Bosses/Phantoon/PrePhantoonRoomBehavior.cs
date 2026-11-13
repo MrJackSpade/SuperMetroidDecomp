@@ -24,7 +24,7 @@ internal sealed class PrePhantoonRoomBehavior
     }
 
     /// <summary>
-    /// Runs the pre-Phantoon room's setup: holds its projectile place with a blank, harmless projectile until its program
+    /// Runs the pre-Phantoon room's setup: holds its projectile place with a blank, harmless projectile until its animation
     /// deletes it or a room load clears the pool.
     /// </summary>
     public void SpawnPrePhantoonRoomProjectile()

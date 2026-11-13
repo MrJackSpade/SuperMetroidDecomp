@@ -42,9 +42,9 @@ public enum RoomSpriteObjectKind
     MetroidOuterBodyA,
     /// <summary>Looping shell layer paired with the Metroid's electrical sprite object.</summary>
     MetroidOuterBodyB,
-    /// <summary>Held root art placed eight pixels above a parameter-two-zero Yapping Maw.</summary>
+    /// <summary>Held root art placed eight pixels above a Yapping Maw that reaches down.</summary>
     YappingMawRootVariantZero,
-    /// <summary>Held root art placed eight pixels below a nonzero-parameter-two Yapping Maw.</summary>
+    /// <summary>Held root art placed eight pixels below a Yapping Maw that reaches up.</summary>
     YappingMawRootVariantOne,
     /// <summary>Looping left-facing Evir art used for both Draygon's opening dance and burial.</summary>
     DraygonIntroEvir,

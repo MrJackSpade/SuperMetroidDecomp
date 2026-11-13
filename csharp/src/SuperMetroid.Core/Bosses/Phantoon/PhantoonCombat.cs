@@ -65,7 +65,7 @@ internal sealed class PhantoonCombat
         });
     }
 
-    /// <summary>Adds Phantoon's flame initializers, frame behaviours, and program steps.</summary>
+    /// <summary>Adds Phantoon's flame initializers, frame behaviours, and animation steps.</summary>
     internal void AddPhantoonProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddFrameBehavior(context =>
@@ -571,7 +571,7 @@ internal sealed class PhantoonCombat
         return angle.IsInSecondHalf ? -magnitude : magnitude;
     }
 
-    /// <summary>Switches a flame to its delete program after leaving the room bounds.</summary>
+    /// <summary>Switches a flame to its delete animation after leaving the room bounds.</summary>
     private static void DeletePhantoonFlameOutsideRoom(EnemyProjectile flame)
     {
         if (CoordinateAxis.AsSigned(flame.Position.X.Whole) < 0 || flame.Position.X.Whole >= 256 ||

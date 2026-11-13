@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Cacatac;
 
 /// <summary>
-/// The Cacatac's spike programs, one per launch direction (#641), one per animation a spawn, branch or family step enters, in authored order.
+/// The Cacatac's spike animations, one per launch direction (#641): one segment per animation a spawn, branch or family step enters, in authored order.
 /// Their steps are <see cref="CacatacProjectileAnimations"/>.
 /// </summary>
 internal enum CacatacProjectileSegment

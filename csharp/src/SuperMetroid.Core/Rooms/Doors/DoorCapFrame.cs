@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Rooms.Doors;
 
-/// <summary>What a coloured or grey cap's program shows (#1296); colour and facing come from the cap.</summary>
+/// <summary>What a coloured or grey cap's sequence shows (#1296); colour and facing come from the cap.</summary>
 internal enum DoorCapFrame
 {
     /// <summary>The cleared opening.</summary>

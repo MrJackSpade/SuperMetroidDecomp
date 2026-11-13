@@ -132,7 +132,7 @@ internal static class MotherBrainRandomDefinitions
     internal static readonly RandomChance EscapeDoorDustSmokes = RandomChance.Lowest(16384, RandomSampleField.Whole);
 
     /// <summary>
-    /// The program a mixed death explosion plays, as its projectile parameter, an index into
+    /// The animation a mixed death explosion plays, as its projectile parameter, an index into
     /// <see cref="MotherBrainDeathExplosionDefinitions.Animations"/>, read from the sample's top three bits: their lowest two
     /// values, every sample below 16384, the small explosion (zero), the next five smoke (one) and the top one, every sample
     /// from 57344, the big explosion (two).

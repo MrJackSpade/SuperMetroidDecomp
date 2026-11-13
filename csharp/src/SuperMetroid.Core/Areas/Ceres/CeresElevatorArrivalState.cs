@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// <remarks>
 /// These are not host-authored cutscene sprites. Construction consumes compiled copies of
 /// the authored definitions; frame stepping executes their
-/// animation scripts and frame behaviours. Keeping this tiny
+/// animations and frame behaviours. Keeping this tiny
 /// pair separate avoids pretending that the larger general enemy-projectile engine has
 /// already been modelled.
 /// </remarks>
@@ -97,7 +97,7 @@ public sealed class CeresElevatorArrivalState
     }
 
     /// <summary>
-    /// Emits the low-priority frames selected by the live programs.
+    /// Emits the low-priority frames selected by the live animations.
     /// </summary>
     /// <param name="sprites">The frame's sprite description.</param>
     /// <param name="presentation">Publishes the platforms from the room's enemy artwork.</param>
@@ -172,7 +172,7 @@ public sealed class CeresElevatorArrivalState
     /// <summary>Small per-slot state for the two Ceres arrival enemy projectiles.</summary>
     internal sealed class CeresElevatorProjectile
     {
-        /// <summary>Initializes a projectile's program, position, and graphics.</summary>
+        /// <summary>Initializes a projectile's animation, position, and graphics.</summary>
         public CeresElevatorProjectile(
             CeresElevatorArrivalSegment segment,
             Position16<RoomPixels> position,

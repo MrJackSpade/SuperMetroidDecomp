@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>What one of Kraid's mouth-collision reads finds where the head program's cursor stands.</summary>
+/// <summary>What one of Kraid's mouth-collision reads finds where the head animation's cursor stands.</summary>
 internal enum KraidMouthShapeReadKind
 {
     /// <summary>A mouth shape to test shots against.</summary>

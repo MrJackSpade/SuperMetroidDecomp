@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 internal static class CrocomirePowerBombReactionDefinitions
 {
     /// <summary>
-    /// The reaction program for each fight-body frame index: frames 25 and 35 show the mouth partly open, 26, 28-34
+    /// The reaction animation for each fight-body frame index: frames 25 and 35 show the mouth partly open, 26, 28-34
     /// and 37-41 fully open, and every other frame closed.
     /// </summary>
     internal static readonly CrocomireBodySegment[] ByBodyFrame =

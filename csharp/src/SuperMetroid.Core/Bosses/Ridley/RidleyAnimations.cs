@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <summary>Ridley's typed body animations (#641, #1600), shared by Ceres and Lower Norfair.</summary>
 internal static class RidleyAnimations
 {
-    /// <summary>How long the standing pose lasts before the program sleeps.</summary>
+    /// <summary>How long the standing pose lasts before the animation sleeps.</summary>
     private const int StandingDuration = 12;
     /// <summary>The lunge's full leg extension.</summary>
     private const int LungeExtendedDuration = 80;

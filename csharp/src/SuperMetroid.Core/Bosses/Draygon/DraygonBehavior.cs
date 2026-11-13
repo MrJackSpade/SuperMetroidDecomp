@@ -21,7 +21,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyRoomBinding _room;
     /// <summary>Supplies frame timing for the body and linked-part AI callbacks.</summary>
     private readonly EnemyFrameContext _frameContext;
-    /// <summary>Draygon's body, eye and tail: their setup, programs and cues.</summary>
+    /// <summary>Draygon's body, eye and tail: their setup, animations and cues.</summary>
     internal DraygonParts Parts { get; }
 
     /// <summary>The wall turrets' firing cadence during Draygon's fight.</summary>
@@ -187,10 +187,10 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Eye.Position = state.Eye.Position.WithWholeY(body.Position.Y.Whole);
     }
 
-    /// <summary>One side of Draygon's swoop: the direction it travels and the arm programs and functions that side uses.</summary>
+    /// <summary>One side of Draygon's swoop: the direction it travels and the arm animations and functions that side uses.</summary>
     /// <param name="Direction">The way the swoop travels; rightward adds its velocity to X.</param>
-    /// <param name="ArmsNearApex">The arms program started as the path nears its lowest point.</param>
-    /// <param name="ArmsIdle">The arms program restored as the ascent passes the same point.</param>
+    /// <param name="ArmsNearApex">The arms animation started as the path nears its lowest point.</param>
+    /// <param name="ArmsIdle">The arms animation restored as the ascent passes the same point.</param>
     /// <param name="Apex">The function that recalculates velocity at the bottom of the swoop.</param>
     /// <param name="Ascending">The function that climbs back up after the apex.</param>
     internal sealed record DraygonSwoopSide(HorizontalDirection Direction, DraygonSegment ArmsNearApex, DraygonSegment ArmsIdle,

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>
 /// Complete body-frame roots selected by the compiled Mother Brain locomotion,
-/// posture, initial-dummy and hand-beam programs. Roots interleave sprite
+/// posture, initial-dummy and hand-beam animations. Roots interleave sprite
 /// limbs and body-layer streams; their hitboxes never enter either visual asset.
 /// </summary>
 internal static class MotherBrainBodyVisualDefinitions

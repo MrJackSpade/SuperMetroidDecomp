@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies.SaveStation;
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// The save-station electricity's twenty eight-pose cycles (#1296), one per list a spawn or family step enters, in authored order. See
+/// The save-station electricity's twenty eight-pose cycles (#1296): one segment per animation a spawn or family step enters, in authored order. See
 /// <see cref="SaveStationElectricityAnimations"/>.
 /// </summary>
 internal enum SaveStationElectricitySegment

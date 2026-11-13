@@ -162,7 +162,7 @@ internal sealed class CeresRidleyFlight
     /// <summary>The least vertical speed Ridley keeps, either way, while he moves into his fireball position.</summary>
     private static readonly SignedEightEight FireballMoveMinimumSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(128);
 
-    /// <summary>Steers Ridley into his fireball position and installs the mouth/fireball program.</summary>
+    /// <summary>Steers Ridley into his fireball position and installs the mouth/fireball animation.</summary>
     internal void TickCeresRidleyFireballMove(RoomEnemySlot slot, RidleyEnemyState state)
     {
         // Every acceleration clamps Ridley to five pixels an update, so his speed always has a magnitude.
@@ -182,7 +182,7 @@ internal sealed class CeresRidleyFlight
             return;
 
         state.FireballBasePosition = slot.Position.Whole;
-        // The fireball function installs the complete retail mouth/fireball animation script.
+        // The fireball function installs the complete retail mouth/fireball animation.
         // Its fireball commands calculate and spawn actors; leaving this
         // assignment out produces correct boss motion with a conspicuously silent attack.
         StartRidleyAnimation(state, slot, RidleyBodySegment.Fireballing);

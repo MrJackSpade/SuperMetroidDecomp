@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
-/// Crocomire's fight-AI function: what his fight does each time his body program's fight cue fires. Its values are
+/// Crocomire's fight-AI function: what his fight does each time his body animation's fight cue fires. Its values are
 /// arbitrary; nothing reads or orders them.
 /// </summary>
 public enum CrocomireFightFunction

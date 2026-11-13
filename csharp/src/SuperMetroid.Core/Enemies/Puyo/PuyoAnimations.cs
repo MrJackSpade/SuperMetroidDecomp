@@ -5,7 +5,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.Puyo;
 
 /// <summary>
-/// Puyo's grounded loops and airborne hop poses as typed programs (#641). Each
+/// Puyo's grounded loops and airborne hop poses as typed animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
 internal static class PuyoAnimations

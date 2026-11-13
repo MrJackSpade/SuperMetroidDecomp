@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <summary>Mother Brain finishing Samus off: standing up, admiring, and charging and firing the final beam until the Baby Metroid arrives.</summary>
 internal sealed class MotherBrainFinishSamusOffPhases
 {
-    /// <summary>The state every late-fight phase reads and writes: the body function and its timer, the neck and head programs and the brain's flags, with the walking and posture requests they share.</summary>
+    /// <summary>The state every late-fight phase reads and writes: the body function and its timer, the neck and head animations and the brain's flags, with the walking and posture requests they share.</summary>
     private readonly MotherBrainLateFightState _state;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>

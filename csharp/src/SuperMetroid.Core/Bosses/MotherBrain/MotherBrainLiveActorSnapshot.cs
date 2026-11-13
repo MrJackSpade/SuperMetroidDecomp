@@ -15,7 +15,7 @@ internal sealed record MotherBrainLiveActorSnapshot
     /// <summary>How the body meets Samus and her shots; death makes it ignore Samus.</summary>
     public required SuperMetroid.Core.Enemies.EnemyContact BodyContact { get; init; }
 
-    /// <summary>What the enemy passes run for the body; fade completion stops its animation script.</summary>
+    /// <summary>What the enemy passes run for the body; fade completion stops its animation.</summary>
     public required SuperMetroid.Core.Enemies.EnemyProcessing BodyProcessing { get; init; }
 
     /// <summary>Whether the body is drawn and still occupies its slot; fade completion hides it.</summary>
@@ -36,7 +36,7 @@ internal sealed record MotherBrainLiveActorSnapshot
     /// <summary>How the brain meets Samus and her shots; death makes it ignore Samus.</summary>
     public required SuperMetroid.Core.Enemies.EnemyContact BrainContact { get; init; }
 
-    /// <summary>What the enemy passes run for the brain; the end of rotting stops its animation script.</summary>
+    /// <summary>What the enemy passes run for the brain; the end of rotting stops its animation.</summary>
     public required SuperMetroid.Core.Enemies.EnemyProcessing BrainProcessing { get; init; }
 
     /// <summary>Whether the brain is drawn and still occupies its slot; the end of rotting hides it.</summary>

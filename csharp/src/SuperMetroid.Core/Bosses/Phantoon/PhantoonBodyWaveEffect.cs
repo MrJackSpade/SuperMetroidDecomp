@@ -18,7 +18,7 @@ public sealed class PhantoonBodyWaveEffect
     /// zero-amplitude wave. Setup and ending the wave keep them.
     /// </summary>
     private PhantoonWaveShape _built;
-    /// <summary>Whether a setup has run and the wave has not since observed eye parameter one equal to zero; requesting it with Begin alone does not activate it.</summary>
+    /// <summary>Whether a setup has run and the wave has not since observed the eye's wave length cleared; requesting it with Begin alone does not activate it.</summary>
     public bool Active { get; private set; }
     /// <summary>
     /// The wave's phase: setup seeds <see cref="PhantoonWaveDefinitions.InitialPhase"/> (two before the cycle's

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Rios;
 
 /// <summary>
-/// The Rio's idle, swoop and cooldown animations as typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// The Rio's idle, swoop and cooldown animations (#641): one segment per animation a spawn, branch or resumed sleep enters, in authored order.
 /// Their steps are <see cref="RioAnimations"/>.
 /// </summary>
 internal enum RioSegment

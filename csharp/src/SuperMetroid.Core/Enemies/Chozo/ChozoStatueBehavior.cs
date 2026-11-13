@@ -125,7 +125,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>
     /// Represents the exact enemy-slot side effect produced by the Chozo hand
     /// trigger. Collision/pose/item admission remains the room object's responsibility; once
-    /// admitted, both trigger setups write parameter one and disable Samus controls.
+    /// admitted, both trigger setups mark the hand triggered and disable Samus controls.
     /// </summary>
     public void ActivateChozoStatueHandTrigger(RoomLevelData level, Position16<RoomBlocks>? handBlock = null)
     {

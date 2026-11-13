@@ -46,7 +46,7 @@ public sealed class DraygonEnemyState
 
     /// <summary>His eye, attached by its initializer; tracks Samus using coordinates copied from the body.</summary>
     public RoomEnemySlot Eye { get => field ?? throw new InvalidOperationException("Draygon's eye part is not attached; part initialization attaches it."); internal set; }
-    /// <summary>His tail, attached by its initializer; its animation scripts drive whips and the final release handshake.</summary>
+    /// <summary>His tail, attached by its initializer; its animations drive whips and the final release handshake.</summary>
     public RoomEnemySlot Tail { get => field ?? throw new InvalidOperationException("Draygon's tail part is not attached; part initialization attaches it."); internal set; }
     /// <summary>His arms, attached by their initializer; their animation follows the body's authoritative coordinates.</summary>
     public RoomEnemySlot Arms { get => field ?? throw new InvalidOperationException("Draygon's arms part is not attached; part initialization attaches it."); internal set; }

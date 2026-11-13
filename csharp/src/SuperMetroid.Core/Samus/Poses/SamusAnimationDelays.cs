@@ -2,37 +2,37 @@ using static SuperMetroid.Core.Samus.Poses.SamusAnimationDelayDefinitions;
 
 namespace SuperMetroid.Core.Samus.Poses;
 
-/// <summary>Which animation program each Samus pose animates by (#1473).</summary>
+/// <summary>Which animation each Samus pose animates by (#1473).</summary>
 internal static class SamusAnimationDelays
 {
-    /// <summary>The animation program <paramref name="pose"/> animates by.</summary>
+    /// <summary>The animation <paramref name="pose"/> animates by.</summary>
     /// <exception cref="ArgumentOutOfRangeException">
     /// The pose is one of the three numbers past the pose records, which no gameplay path gives Samus.
     /// </exception>
     internal static SamusPoseAnimation AnimationForPose(SamusPoseId pose) => AnimationOf(pose);
 
-    /// <summary>The step of <paramref name="pose"/>'s program at frame <paramref name="frame"/>.</summary>
-    /// <exception cref="InvalidDataException">No step of the pose's program is numbered <paramref name="frame"/>.</exception>
+    /// <summary>The step of <paramref name="pose"/>'s animation at frame <paramref name="frame"/>.</summary>
+    /// <exception cref="InvalidDataException">No step of the pose's animation is numbered <paramref name="frame"/>.</exception>
     /// <remarks>
-    /// A frame on a cue's operand reads the step the operand selects, and a frame past the program's end reads the
-    /// program laid out after it, both through <paramref name="continuation"/>, which names each program by a pose that
-    /// animates by it; frame targets that program names are shifted back to this pose's frames (#1535).
+    /// A frame on a cue's operand reads the step the operand selects, and a frame past the animation's end reads the
+    /// animation laid out after it, both through <paramref name="continuation"/>, which names each animation by a pose that
+    /// animates by it; frame targets that animation names are shifted back to this pose's frames (#1535).
     /// </remarks>
-    /// <param name="pose">The pose whose program is read.</param>
+    /// <param name="pose">The pose whose animation is read.</param>
     /// <param name="frame">Samus's animation frame.</param>
-    /// <param name="continuation">What a frame past a program's end reads.</param>
+    /// <param name="continuation">What a frame past an animation's end reads.</param>
     internal static SamusPoseAnimationStep StepFor(SamusPoseId pose, int frame, LaidOutAnimationContinuation<SamusPoseId, SamusPoseAnimationStep> continuation) =>
         TryStepFor(pose, frame, continuation) ?? throw new InvalidDataException(
             $"Samus animation frame {frame} is not a step of pose {pose}'s program nor of a program laid out after it.");
 
     /// <summary>
-    /// The step of <paramref name="pose"/>'s program at frame <paramref name="frame"/>, read as <see cref="StepFor"/> reads
-    /// it, or null when the frame reads past every program, or lands on an operand whose step would publish a record no
+    /// The step of <paramref name="pose"/>'s animation at frame <paramref name="frame"/>, read as <see cref="StepFor"/> reads
+    /// it, or null when the frame reads past every animation, or lands on an operand whose step would publish a record no
     /// gameplay path gives Samus, where the animation fails.
     /// </summary>
-    /// <param name="pose">The pose whose program is read.</param>
+    /// <param name="pose">The pose whose animation is read.</param>
     /// <param name="frame">Samus's animation frame.</param>
-    /// <param name="continuation">What a frame past a program's end reads.</param>
+    /// <param name="continuation">What a frame past an animation's end reads.</param>
     internal static SamusPoseAnimationStep? TryStepFor(SamusPoseId pose, int frame, LaidOutAnimationContinuation<SamusPoseId, SamusPoseAnimationStep> continuation)
     {
         Ensure.NotNull(continuation);
@@ -60,7 +60,7 @@ internal static class SamusAnimationDelays
         };
     }
 
-    /// <summary>The animation program of <paramref name="pose"/>.</summary>
+    /// <summary>The animation of <paramref name="pose"/>.</summary>
     private static SamusPoseAnimation AnimationOf(SamusPoseId pose)
     {
         return pose switch

@@ -1,6 +1,6 @@
 ﻿namespace SuperMetroid.Core.Enemies.Animals;
 
-/// <summary>One cue of the escaping Etecoons' programs, with its typed operands.</summary>
+/// <summary>One cue of the escaping Etecoons' animations, with its typed operands.</summary>
 internal abstract record EscapeEtecoonCue
 {
     /// <summary>Closes the hierarchy to the cues declared here.</summary>
@@ -9,7 +9,7 @@ internal abstract record EscapeEtecoonCue
     }
 
     /// <summary>Continues at the target once the rising acid is above Y 206.</summary>
-    /// <param name="Target">The program a branch continues at.</param>
+    /// <param name="Target">The segment a branch continues at.</param>
     internal sealed record GoToIfAcidHigh(EscapeEtecoonSegment Target) : EscapeEtecoonCue;
 
     /// <summary>Moves the Etecoon horizontally.</summary>

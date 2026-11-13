@@ -6,7 +6,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
-/// The Ceres steam vents' typed programs (#641). Each
+/// The Ceres steam vents' typed animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="CeresSteamCue"/> with its typed operands.
 /// </summary>
 internal static class CeresSteamAnimations

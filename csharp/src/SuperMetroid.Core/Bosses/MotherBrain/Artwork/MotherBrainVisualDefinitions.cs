@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>
 /// Ordinary sprite layouts selected by Mother Brain's brain draw and
-/// falling-tube programs. These identities name artwork, not encounter timing.
+/// falling-tube animations. These identities name artwork, not encounter timing.
 /// </summary>
 internal static class MotherBrainVisualDefinitions
 {

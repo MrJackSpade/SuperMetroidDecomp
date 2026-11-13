@@ -5,7 +5,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.Polyp;
 
 /// <summary>
-/// Polyp's stationary pose as a typed program (#641). Each
+/// Polyp's stationary pose as a typed animation (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
 internal static class PolypAnimations

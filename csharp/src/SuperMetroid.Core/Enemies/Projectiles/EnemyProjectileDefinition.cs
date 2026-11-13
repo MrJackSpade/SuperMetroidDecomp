@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// <param name="Damage">Samus contact damage, zero or more.</param>
 /// <param name="Properties">The Samus-damage, contact-persistence and shot-blocking behaviours.</param>
 /// <param name="Depth">Whether the projectile starts drawn in front of or behind Samus.</param>
-/// <param name="SamusTouch">What touching Samus does to the projectile's program.</param>
+/// <param name="SamusTouch">What touching Samus does to the projectile's animation.</param>
 internal readonly record struct EnemyProjectileDefinition(
     EnemyProjectileFrameBehavior FrameBehavior,
     Extent16<RoomPixels> Radius,

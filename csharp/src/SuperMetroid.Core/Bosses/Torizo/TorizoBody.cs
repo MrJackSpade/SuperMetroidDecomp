@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>Bomb and Golden Torizo's body: its behaviour flags, palette, program start and the low-health drool it triggers.</summary>
+/// <summary>Bomb and Golden Torizo's body: its behaviour flags, palette, animation start and the low-health drool it triggers.</summary>
 [RoomLifetime]
 internal sealed class TorizoBody
 {

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// <summary>
 /// The typed animations a Tourian boss statue's animated tiles play (#1600).
 /// All four statues share the layout; only the first idle frame's duration differs, and every other operand is read
-/// from the statue's <see cref="TourianStatueAnimationDefinition"/> when an event is reached. The Tourian program
+/// from the statue's <see cref="TourianStatueAnimationDefinition"/> when an event is reached. The Tourian animation
 /// lookup check matches each statue's segments beat by beat, and its animations' control flow, with the game's.
 /// </summary>
 internal static class TourianStatueTileAnimations

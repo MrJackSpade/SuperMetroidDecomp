@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal static class MotherBrainDoorFragments
 {
     /// <summary>
-    /// Returns the fragment selected by enemy-projectile parameter zero through seven. The
+    /// Returns door fragment zero through seven. The
     /// interleaved offsets are a zero X and a Y that steps eight
     /// pixels from 32 above the door.
     /// </summary>

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>
-/// The wall Space Pirates' climb, jump and laser animations as typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// The wall Space Pirates' climb, jump and laser animations (#641): one segment per animation a spawn, branch or resumed sleep enters, in authored order.
 /// Their steps are <see cref="WallSpacePirateAnimations"/>.
 /// </summary>
 internal enum WallSpacePirateSegment

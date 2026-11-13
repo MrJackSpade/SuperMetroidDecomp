@@ -94,9 +94,9 @@ public sealed class SamusState
     }
 
     /// <summary>
-    /// The animation frame shown: the number of the step of the pose's animation program the animation is on, which is
+    /// The animation frame shown: the number of the step of the pose's animation Samus is on, which is
     /// also the frame number of the pose's artwork. It is zero or more and never runs away: every frame the animation
-    /// reaches names a step of the pose's program or of the program laid out after it, and reading a frame that names no
+    /// reaches names a step of the pose's animation or of the animation laid out after it, and reading a frame that names no
     /// step fails (<see cref="AnimationStep"/>); the setter rejects a negative frame.
     /// </summary>
     [IntegerQuantity("frame index within the current pose animation")]
@@ -466,20 +466,20 @@ public sealed class SamusState
     public bool KnockbackActive { get; set; }
 
     /// <summary>
-    /// The pose the animation was last started for, whose program <see cref="AnimationFrame"/> steps through; none before
-    /// the animation is first started. Changing the pose to one with another program without restarting the animation
+    /// The pose the animation was last started for, whose animation <see cref="AnimationFrame"/> steps through; none before
+    /// the animation is first started. Changing the pose to one with another animation without restarting the animation
     /// is a defect the next animation tick reports.
     /// </summary>
     public SamusPoseId? AnimatedPose { get; internal set; }
 
-    /// <summary>The step of the animated pose's program that Samus's animation frame is on.</summary>
+    /// <summary>The step of the animated pose's animation that Samus's animation frame is on.</summary>
     /// <exception cref="InvalidOperationException">The animation has not been started.</exception>
     internal SamusPoseAnimationStep AnimationStep => SamusAnimationDelays.StepFor(
         AnimatedPose ?? throw new InvalidOperationException("Samus's animation has not been started for any pose."), AnimationFrame,
         AnimationContinuation);
 
     /// <summary>
-    /// What an animation frame past her pose's program reads, the session's installed service, which decides the frames her
+    /// What an animation frame past her pose's animation reads, the session's installed service, which decides the frames her
     /// body can show.
     /// </summary>
     internal LaidOutAnimationContinuation<SamusPoseId, SamusPoseAnimationStep> AnimationContinuation { get; }
@@ -530,7 +530,7 @@ public sealed class SamusState
 
     /// <summary>Creates independent player state and owned movement/special-sequence children, binding live kinematics back to this owner and seeding its collision pose with the standing-right default.</summary>
     /// <remarks>Construction reads no game data and does not initialize room position, pose-dependent radii, animation data, or installed artwork; gameplay setup supplies those separately.</remarks>
-    /// <param name="animationContinuation">What an animation frame past her pose's program reads, the session's installed service.</param>
+    /// <param name="animationContinuation">What an animation frame past her pose's animation reads, the session's installed service.</param>
     /// <param name="unauthoredBoostCadence">The session's unauthored Speed Booster cadence, which outlives her.</param>
     /// <param name="compatibility">The compatibility services she owns, created with her by whoever builds her.</param>
     /// <param name="beamCharge">The session's beam charge, which outlives her and which the projectile pass advances.</param>

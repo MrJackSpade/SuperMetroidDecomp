@@ -31,7 +31,7 @@ internal sealed class BlockReactionObjects
         _drawing = Ensure.NotNull(drawing);
     }
 
-    /// <summary>Starts a respawning or permanent grapple-block program while preserving its original terrain for restoration.</summary>
+    /// <summary>Starts a respawning or permanent grapple-block change while preserving its original terrain for restoration.</summary>
     public bool TrySpawnBreakableGrappleBlock(
         RoomLevelData level,
         Position16<RoomBlocks> position,
@@ -99,7 +99,7 @@ internal sealed class BlockReactionObjects
     /// </summary>
     /// <remarks>
     /// Only downward collision activates it: the setup keeps the block's collision kind and mirroring with the crumble
-    /// parent's block as the restore block, makes the live block solid, and delays the program for four room-object handler
+    /// parent's block as the restore block, makes the live block solid, and delays the change for four room-object handler
     /// passes. Crumble blocks that grow back reverse their animation and restore the parent; the others end on air. The
     /// collision dispatcher independently returns solid for the triggering frame, so allocation success is not a
     /// collision-result substitute.
@@ -323,7 +323,7 @@ internal sealed class BlockReactionObjects
                 }
 
                 // A power bomb keeps the collision kind with the power-bomb parent's appearance, deactivates the live
-                // block, and runs its definition's program. The respawning block uses the ordinary four-frame breakup; the
+                // block, and runs its definition's change. The respawning block uses the ordinary four-frame breakup; the
                 // permanent one its shorter 3/2/1-frame counterpart.
                 RestoreAsParent(level, slot, block, RoomObjectSetupBlock.PowerBombBlockParent,
                     new BlockReactionObject(reaction == ShotBlockReaction.RespawningPowerBombBreak
@@ -342,7 +342,7 @@ internal sealed class BlockReactionObjects
                 }
 
                 // Super Missiles keep the collision kind with the Super Missile parent's appearance; one definition owns the
-                // respawning program and the other the permanent one.
+                // respawning change and the other the permanent one.
                 RestoreAsParent(level, slot, block, RoomObjectSetupBlock.SuperMissileBlockParent,
                     new BlockReactionObject(reaction == ShotBlockReaction.RespawningSuperMissileBreak
                         ? BlockReactionChangeDefinitions.RespawningSuperMissileBlock

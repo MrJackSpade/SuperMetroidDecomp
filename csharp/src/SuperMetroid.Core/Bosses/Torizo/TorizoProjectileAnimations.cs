@@ -6,12 +6,12 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
-/// Bomb and Golden Torizo's typed projectile programs (#641): each frame is a <see cref="TorizoProjectileFrame"/>
-/// pose of its program, and each cue a <see cref="TorizoProjectileCue"/> with its typed operands.
+/// Bomb and Golden Torizo's typed projectile animations (#641): each frame is a <see cref="TorizoProjectileFrame"/>
+/// pose of its animation, and each cue a <see cref="TorizoProjectileCue"/> with its typed operands.
 /// </summary>
 internal static class TorizoProjectileAnimations
 {
-    /// <summary>Every projectile program.</summary>
+    /// <summary>Every projectile animation.</summary>
     internal static AnimationSegments<TorizoProjectileSegment, TorizoProjectileFrame, TorizoProjectileCue> Segments { get; } = new(
         new Dictionary<TorizoProjectileSegment, AnimationBeat<TorizoProjectileFrame, TorizoProjectileCue>[]>
     {
@@ -566,12 +566,12 @@ internal static class TorizoProjectileAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<TorizoProjectileSegment> StartingWith(TorizoProjectileSegment segment) => StartingAt[segment];
 
-    /// <summary>The program of statue fragment <paramref name="index"/>, of the sixteen the breaking statue hand emits.</summary>
+    /// <summary>The animation of statue fragment <paramref name="index"/>, of the sixteen the breaking statue hand emits.</summary>
     internal static TorizoProjectileSegment StatueFragment(int index) => (uint)index < (uint)StatueFragments.Length
         ? StatueFragments[index]
         : throw new ArgumentOutOfRangeException(nameof(index), index, "Bomb Torizo's statue hand emits sixteen fragments.");
 
-    /// <summary>The sixteen statue fragments' programs, indexed by fragment.</summary>
+    /// <summary>The sixteen statue fragments' animations, indexed by fragment.</summary>
     private static readonly TorizoProjectileSegment[] StatueFragments =
     [
         P.StatueFragment0, P.StatueFragment1, P.StatueFragment2, P.StatueFragment3,
@@ -580,7 +580,7 @@ internal static class TorizoProjectileAnimations
         P.StatueFragment12, P.StatueFragment13, P.StatueFragment14, P.StatueFragment15,
     ];
 
-    /// <summary>The program a sleeping egg resumes into when its hatch timer wakes it.</summary>
+    /// <summary>The animation a sleeping egg resumes into when its hatch timer wakes it.</summary>
     internal static TorizoProjectileSegment AfterSleep(TorizoProjectileSegment segment) => segment switch
     {
         P.EggBouncingLeft

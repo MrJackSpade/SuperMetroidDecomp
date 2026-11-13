@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>
 /// The behaviour an Etecoon's main AI runs each frame. The names describe the actor-side work of each
-/// behaviour; animation is owned by the Etecoon's typed programs.
+/// behaviour; animation is owned by the Etecoon's typed animations.
 /// Its values are arbitrary.
 /// </summary>
 public enum EtecoonAiFunction
@@ -23,7 +23,7 @@ public enum EtecoonAiFunction
     Airborne,
     /// <summary>Waits for the wall-pause timer, installs the opposite-facing wall-jump list, and launches with signed Y velocity -3 and X velocity -2 or +2.</summary>
     WallPause,
-    /// <summary>After the eleven-update landing wait, selects the left run-up, right run-up, or immediate top-room hop from population parameter two's route.</summary>
+    /// <summary>After the eleven-update landing wait, selects the left run-up, right run-up, or immediate top-room hop from its spawn route.</summary>
     RouteAfterLanding,
     /// <summary>Moves left until whole room X is below 537, then enters the top-room hopping countdown.</summary>
     MoveLeftToTeachingStart,

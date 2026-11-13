@@ -14,7 +14,7 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// Door transitions: the door setup programs (Wrecked Ship treadmill, Maridia elevatube, scroll writes) and the
+/// Door transitions: the door setup code (Wrecked Ship treadmill, Maridia elevatube, scroll writes) and the
 /// door sound-wait frames with their actor drawing.
 /// </summary>
 internal sealed class DoorTransitionRunner
@@ -40,7 +40,7 @@ internal sealed class DoorTransitionRunner
     /// <summary>Provides boss bits and advances main-loop random state.</summary>
     private readonly SharedGameState _system;
 
-    /// <summary>Captures the runtime services used by the door's setup programs and its wait updates.</summary>
+    /// <summary>Captures the runtime services used by the door's setup code and its wait updates.</summary>
     internal DoorTransitionRunner(DoorTransitionRunnerDependencies dependencies)
     {
         _actorDrawing = dependencies.ActorDrawing;
@@ -60,7 +60,7 @@ internal sealed class DoorTransitionRunner
     /// <remarks>
     /// The room load runs the door's setup between room-object
     /// construction and the first visible destination viewport. These setups are shared
-    /// programs, not room-name patches: every door that names a modelled
+    /// code, not room-name patches: every door that names a modelled
     /// setup receives the same writes. An unknown setup throws so missing camera
     /// boundary behavior can never masquerade as a successful room load.
     /// </remarks>
@@ -92,11 +92,11 @@ internal sealed class DoorTransitionRunner
                 return;
 
             case DoorSetupCode.DoorASM_FromCeresElevatorShaft:
-                // The paired exit program of the Ceres elevator shaft's entry: it returns
+                // The paired exit setup code of the Ceres elevator shaft's entry: it returns
                 // the screen from the turning floor to the ordinary room display, removing
                 // both the active and the shown transforms. Do this explicitly here rather
                 // than relying on the destination loader's defensive state reset: this is
-                // the door program that owns the transition back to the ordinary display.
+                // the door setup code that owns the transition back to the ordinary display.
                 _display.ActiveTurningFloor = null;
                 _display.PublishDoorElevatorFloor(null);
                 ceresElevatorShaft.Deactivate();
@@ -284,7 +284,7 @@ internal sealed class DoorTransitionRunner
     }
     /// <summary>
     /// Runs the enemy projectiles. Gameplay runs them every update, checking only the
-    /// suspension X-ray applies, so their programs keep running while time is frozen for
+    /// suspension X-ray applies, so their animations keep running while time is frozen for
     /// a reserve refill.
     /// </summary>
     internal void RunEnemyProjectileHandler(SamusBombProjectileSystem bombProjectiles, RoomScope room)

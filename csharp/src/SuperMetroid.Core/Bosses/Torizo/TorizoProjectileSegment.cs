@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
-/// Bomb and Golden Torizo's typed projectile programs (#641), one per animation a spawn, frame behaviour, branch
+/// Bomb and Golden Torizo's typed projectile animations (#641): one segment per animation a spawn, frame behaviour, branch
 /// or resumed sleep enters, in authored order. Generated from the verified animations; see
 /// <see cref="TorizoProjectileAnimations"/>.
 /// </summary>

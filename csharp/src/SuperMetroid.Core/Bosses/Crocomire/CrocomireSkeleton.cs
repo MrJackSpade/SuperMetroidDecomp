@@ -62,8 +62,8 @@ internal sealed class CrocomireSkeleton
             return;
 
         _access.RequestCrocomireMusic(MusicRequest.SelectTrack(MusicTrack.FirstSetSong), MusicQueueDelay.Shortest);
-        _room.Services.RoomScroll.Write(3, RoomScrollState.RedBoundary);
-        _room.Services.RoomScroll.Write(4, RoomScrollState.Blue);
+        _room.Services.RoomScroll.Write(3, RoomScrollState.Closed);
+        _room.Services.RoomScroll.Write(4, RoomScrollState.OpenAlignedToTop);
         _access.PublishCrocomireObject(new Position16<RoomBlocks>(48, 3), CrocomireArenaMutation.CreateInvisibleWall);
         _zebetiteBehavior.CameraDistance = CameraDistanceMode.RightEdge;
         RoomEnemySlot body = state.Body;
@@ -226,7 +226,7 @@ internal sealed class CrocomireSkeleton
     internal void FinishCrocomireArenaScrolls(CrocomireEnemyState state)
     {
         for (int index = 0; index < 4; index++)
-            _room.Services.RoomScroll.Write(index, RoomScrollState.Blue);
+            _room.Services.RoomScroll.Write(index, RoomScrollState.OpenAlignedToTop);
         _access.PublishCrocomireObject(new Position16<RoomBlocks>(30, 3), CrocomireArenaMutation.ClearInvisibleWall);
         state.DeathPhase = state.DeathPhase.Next();
     }

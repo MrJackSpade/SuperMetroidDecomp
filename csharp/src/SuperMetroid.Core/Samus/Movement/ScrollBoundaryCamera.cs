@@ -92,7 +92,7 @@ public sealed class ScrollBoundaryCamera
         PreviousSamusPoint = null;
         int maxX = RoomGridConversions.ScreenToPixels(Scrolls.Size.X - 1);
 
-        // The vertical maximum depends on blue/green scroll alignment. Starting with the
+        // The vertical maximum depends on whether the screen aligns the camera to its top. Starting with the
         // room-wide conservative +31 allowance matches the boundary check's largest legal result;
         // the first vertical movement applies the cell-specific exact maximum.
         int maxY = (RoomGridConversions.ScreenToPixels(Scrolls.Size.Y - 1)) + 31;
@@ -286,7 +286,7 @@ public sealed class ScrollBoundaryCamera
     /// </summary>
     /// <remarks>
     /// This step does not chase Samus. It gently pushes a camera that is sitting inside
-    /// a red (zero) scroll cell toward a legal adjacent cell, or back from a red cell on its
+    /// a closed scroll cell toward a legal adjacent cell, or back from a closed cell on its
     /// right. The extra two pixels are the game's, not an invented smoothing rule.
     /// </remarks>
     private void HandleHorizontalAutoscrolling(bool timeIsFrozen)
@@ -310,7 +310,7 @@ public sealed class ScrollBoundaryCamera
         int row = (EightEight.WholeOf(CoordinateAxis.Wrap(Position.Y.Whole + HalfScreen))) * Scrolls.Size.X;
         int currentCell = row + (EightEight.WholeOf(Position.X.Whole));
 
-        if (Scrolls.ReadCameraState(currentCell) == RoomScrollState.RedBoundary)
+        if (Scrolls.ReadCameraState(currentCell) == RoomScrollState.Closed)
         {
             // In a red current cell, drift right by camera speed + 2 toward its right edge.
             // If the next cell is also red, discard the fractional screen position and stay
@@ -325,17 +325,17 @@ public sealed class ScrollBoundaryCamera
 
             proposed = candidate;
             int candidateRightCell = row + RoomGridConversions.PixelToScreen(proposed) + 1;
-            SetWholeX(Scrolls.ReadCameraState(candidateRightCell) != RoomScrollState.RedBoundary
+            SetWholeX(Scrolls.ReadCameraState(candidateRightCell) != RoomScrollState.Closed
                 ? proposed
                 : ScreenStart(proposed));
             return;
         }
 
-        if (Scrolls.ReadCameraState(currentCell + 1) != RoomScrollState.RedBoundary)
+        if (Scrolls.ReadCameraState(currentCell + 1) != RoomScrollState.Closed)
             return;
 
-        // A legal current cell with a red cell to its right is the mirror case: drift left
-        // toward the current cell's left edge. If the candidate itself lands in red, round
+        // A legal current cell with a closed cell to its right is the mirror case: drift left
+        // toward the current cell's left edge. If the candidate itself lands in a closed cell, round
         // up to the next screen boundary. The comparison is signed.
         int leftBoundary = ScreenStart(Position.X.Whole);
         int leftCandidate = CoordinateAxis.Wrap(proposed - Speed.X.WholePixels - 2);
@@ -347,7 +347,7 @@ public sealed class ScrollBoundaryCamera
 
         proposed = leftCandidate;
         int candidateCell = row + RoomGridConversions.PixelToScreen(proposed);
-        SetWholeX(Scrolls.ReadCameraState(candidateCell) != RoomScrollState.RedBoundary
+        SetWholeX(Scrolls.ReadCameraState(candidateCell) != RoomScrollState.Closed
             ? proposed
             : NextScreenStart(proposed));
     }
@@ -363,10 +363,10 @@ public sealed class ScrollBoundaryCamera
         int centeredXScreen = EightEight.WholeOf(CoordinateAxis.Wrap(Position.X.Whole + HalfScreen));
         int preClampCell = (EightEight.WholeOf(Position.Y.Whole)) * Scrolls.Size.X + centeredXScreen;
 
-        // Blue scroll cells align the 224-line gameplay viewport to the top of the screen;
-        // red and green cells permit the game's 31-pixel lower alignment. Crucially, the
+        // Screens open with the camera aligned to the top align the 224-line gameplay viewport to
+        // the top of the screen; closed and open ones permit the game's 31-pixel lower alignment. Crucially, the
         // alignment is selected before Y is clamped and remains fixed for this invocation.
-        int verticalAlignment = Scrolls.ReadCameraState(preClampCell) == RoomScrollState.Blue
+        int verticalAlignment = Scrolls.ReadCameraState(preClampCell) == RoomScrollState.OpenAlignedToTop
             ? 0
             : 31;
         int proposed = Position.Y.Whole;
@@ -379,10 +379,10 @@ public sealed class ScrollBoundaryCamera
             SetWholeY(roomMaximum);
 
         int currentCell = (EightEight.WholeOf(Position.Y.Whole)) * Scrolls.Size.X + centeredXScreen;
-        if (Scrolls.ReadCameraState(currentCell) == RoomScrollState.RedBoundary)
+        if (Scrolls.ReadCameraState(currentCell) == RoomScrollState.Closed)
         {
-            // A red current cell pushes downward toward its bottom boundary. As in the X
-            // step, a second red cell beyond the candidate causes screen-edge rounding.
+            // A closed current cell pushes downward toward its bottom boundary. As in the X
+            // step, a second closed cell beyond the candidate causes screen-edge rounding.
             int bottomBoundary = NextScreenStart(Position.Y.Whole);
             int candidate = CoordinateAxis.Wrap(proposed + Speed.Y.WholePixels + 2);
             if (candidate >= bottomBoundary)
@@ -393,14 +393,14 @@ public sealed class ScrollBoundaryCamera
 
             proposed = candidate;
             int belowCandidate = (RoomGridConversions.PixelToScreen(candidate) + 1) * Scrolls.Size.X + centeredXScreen;
-            SetWholeY(Scrolls.ReadCameraState(belowCandidate) != RoomScrollState.RedBoundary
+            SetWholeY(Scrolls.ReadCameraState(belowCandidate) != RoomScrollState.Closed
                 ? proposed
                 : ScreenStart(proposed));
             return;
         }
 
         if (Scrolls.ReadCameraState(currentCell + Scrolls.Size.X) !=
-            RoomScrollState.RedBoundary)
+            RoomScrollState.Closed)
             return;
 
         int topBoundary = CoordinateAxis.Wrap(ScreenStart(Position.Y.Whole) + verticalAlignment);
@@ -419,12 +419,12 @@ public sealed class ScrollBoundaryCamera
 
         proposed = upwardCandidate;
         int candidateCell = RoomGridConversions.PixelToScreen(upwardCandidate) * Scrolls.Size.X + centeredXScreen;
-        SetWholeY(Scrolls.ReadCameraState(candidateCell) != RoomScrollState.RedBoundary
+        SetWholeY(Scrolls.ReadCameraState(candidateCell) != RoomScrollState.Closed
             ? proposed
             : NextScreenStart(proposed));
     }
 
-    /// <summary>Stops rightward travel at the ideal point, room edge, or red cell to the right.</summary>
+    /// <summary>Stops rightward travel at the ideal point, room edge, or closed cell to the right.</summary>
     internal void HandleScrollingRight()
     {
         int proposed = Position.X.Whole;
@@ -448,7 +448,7 @@ public sealed class ScrollBoundaryCamera
         // (Y plus half a screen), then the screen immediately to the right of the camera's screen column.
         int row = (EightEight.WholeOf(CoordinateAxis.Wrap(Position.Y.Whole + HalfScreen))) * Scrolls.Size.X;
         int rightCell = row + (EightEight.WholeOf(Position.X.Whole)) + 1;
-        if (Scrolls.ReadCameraState(rightCell) != RoomScrollState.RedBoundary)
+        if (Scrolls.ReadCameraState(rightCell) != RoomScrollState.Closed)
             return;
 
         int boundary = ScreenStart(Position.X.Whole);
@@ -458,7 +458,7 @@ public sealed class ScrollBoundaryCamera
         SetWholeX(candidate);
     }
 
-    /// <summary>Stops leftward travel at the ideal point, room edge, or current red cell.</summary>
+    /// <summary>Stops leftward travel at the ideal point, room edge, or current closed cell.</summary>
     internal void HandleScrollingLeft()
     {
         int proposed = Position.X.Whole;
@@ -476,7 +476,7 @@ public sealed class ScrollBoundaryCamera
 
         int row = (EightEight.WholeOf(CoordinateAxis.Wrap(Position.Y.Whole + HalfScreen))) * Scrolls.Size.X;
         int currentCell = row + (EightEight.WholeOf(Position.X.Whole));
-        if (Scrolls.ReadCameraState(currentCell) != RoomScrollState.RedBoundary)
+        if (Scrolls.ReadCameraState(currentCell) != RoomScrollState.Closed)
             return;
 
         int boundary = NextScreenStart(Position.X.Whole);
@@ -486,14 +486,14 @@ public sealed class ScrollBoundaryCamera
         SetWholeX(candidate);
     }
 
-    /// <summary>Applies blue versus red/green vertical alignment and blocks downward travel at room or scroll limits.</summary>
+    /// <summary>Applies the top-aligned versus closed/open vertical alignment and blocks downward travel at room or scroll limits.</summary>
     internal void HandleScrollingDown()
     {
         int proposed = Position.Y.Whole;
         int currentCell = VerticalCellIndex();
 
-        // Blue scrolls align the 224-line playfield at +0; red/green scrolls use +31.
-        int verticalAlignment = Scrolls.ReadCameraState(currentCell) == RoomScrollState.Blue
+        // Top-aligned screens align the 224-line playfield at +0; closed and open ones use +31.
+        int verticalAlignment = Scrolls.ReadCameraState(currentCell) == RoomScrollState.OpenAlignedToTop
             ? 0
             : 31;
 
@@ -512,7 +512,7 @@ public sealed class ScrollBoundaryCamera
             // exceeded, the boundary check branches before reading the cell below. This also prevents
             // a legitimate bottom-row/right-edge camera from indexing beyond the scroll grid.
             blockedBelow = Scrolls.ReadCameraState(currentCell + Scrolls.Size.X) ==
-                RoomScrollState.RedBoundary;
+                RoomScrollState.Closed;
             if (blockedBelow)
             {
                 boundary = CoordinateAxis.Wrap(ScreenStart(Position.Y.Whole) + verticalAlignment);
@@ -529,7 +529,7 @@ public sealed class ScrollBoundaryCamera
         }
     }
 
-    /// <summary>Stops upward travel at the ideal point, room top, or current red cell.</summary>
+    /// <summary>Stops upward travel at the ideal point, room top, or current closed cell.</summary>
     internal void HandleScrollingUp()
     {
         int proposed = Position.Y.Whole;
@@ -546,7 +546,7 @@ public sealed class ScrollBoundaryCamera
         }
 
         int currentCell = VerticalCellIndex();
-        if (Scrolls.ReadCameraState(currentCell) != RoomScrollState.RedBoundary)
+        if (Scrolls.ReadCameraState(currentCell) != RoomScrollState.Closed)
             return;
 
         int boundary = NextScreenStart(Position.Y.Whole);

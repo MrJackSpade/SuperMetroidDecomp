@@ -152,10 +152,10 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             // The Wrecked Ship hand opens two pairs of the room's screens before handing the statue to its carry: two
             // green, then the two below them blue. The slope access's opening then queues its terrain change.
-            foreach (Position16<RoomScreens> screen in ChozoStatueRoomDefinitions.WakingGreenScreens)
-                _room.Services.RoomScroll.Write(screen, RoomScrollState.Green);
-            foreach (Position16<RoomScreens> screen in ChozoStatueRoomDefinitions.WakingBlueScreens)
-                _room.Services.RoomScroll.Write(screen, RoomScrollState.Blue);
+            foreach (Position16<RoomScreens> screen in ChozoStatueRoomDefinitions.WakingOpenScreens)
+                _room.Services.RoomScroll.Write(screen, RoomScrollState.Open);
+            foreach (Position16<RoomScreens> screen in ChozoStatueRoomDefinitions.WakingTopAlignedScreens)
+                _room.Services.RoomScroll.Write(screen, RoomScrollState.OpenAlignedToTop);
             RequestChozoObject(ChozoStatueRoomObject.SlopeAccessOpening, ChozoStatueRoomDefinitions.WreckedShipSlopeAccessBlock);
         }
     }
@@ -326,9 +326,9 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         // The release's overlapping writes leave five screens of the second row closed, then the third row's second
         // screen blue and its third closed.
         foreach (Position16<RoomScreens> screen in ChozoStatueRoomDefinitions.ReleaseClosedScreens)
-            _room.Services.RoomScroll.Write(screen, RoomScrollState.RedBoundary);
-        _room.Services.RoomScroll.Write(ChozoStatueRoomDefinitions.ReleaseBlueScreen, RoomScrollState.Blue);
-        _room.Services.RoomScroll.Write(ChozoStatueRoomDefinitions.ReleaseClosedLastScreen, RoomScrollState.RedBoundary);
+            _room.Services.RoomScroll.Write(screen, RoomScrollState.Closed);
+        _room.Services.RoomScroll.Write(ChozoStatueRoomDefinitions.ReleaseTopAlignedScreen, RoomScrollState.OpenAlignedToTop);
+        _room.Services.RoomScroll.Write(ChozoStatueRoomDefinitions.ReleaseClosedLastScreen, RoomScrollState.Closed);
 
         RequestChozoObject(ChozoStatueRoomObject.SlopeAccessClosing, ChozoStatueRoomDefinitions.WreckedShipSlopeAccessBlock);
     }

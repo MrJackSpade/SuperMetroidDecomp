@@ -43,9 +43,9 @@ internal static class ScrollChangeNamesVerification
             RoomDefinition room = placedIn[change];
             AssertEqual(writes.Length, writes.Select(write => write.Index).Distinct().Count(), $"{change} writes each screen once");
             var name = new StringBuilder(room.Name);
-            AppendScreens(name, room, writes, RoomScrollState.RedBoundary, "Closes", "");
-            AppendScreens(name, room, writes, RoomScrollState.Green, "Opens", "");
-            AppendScreens(name, room, writes, RoomScrollState.Blue, "Opens", "TopAligned");
+            AppendScreens(name, room, writes, RoomScrollState.Closed, "Closes", "");
+            AppendScreens(name, room, writes, RoomScrollState.Open, "Opens", "");
+            AppendScreens(name, room, writes, RoomScrollState.OpenAlignedToTop, "Opens", "TopAligned");
             AssertEqual(name.ToString(), change.ToString(), $"{change} names the screens its writes change in {room.Name}");
         }
     }

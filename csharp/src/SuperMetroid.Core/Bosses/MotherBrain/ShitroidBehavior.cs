@@ -211,7 +211,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 {
                     state.Action = ShitroidAction.HoverNearSamus;
                     state.ReactsToSamus = true;
-                    SetShitroidScrollPair(RoomScrollState.Blue);
+                    SetShitroidScrollPair(RoomScrollState.OpenAlignedToTop);
                     QueueShitroidWallObjects(ShitroidWallMutation.Clear);
                 }
                 return;
@@ -360,10 +360,10 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         // Puts the camera at X 512 directly, then rescrolls the room's four screens as the wall entrance does: the second
-        // and fourth take the red boundary, the first and third keep the scroll they have. This is not ordinary camera
+        // and fourth are closed, the first and third keep the scroll they have. This is not ordinary camera
         // tracking.
         _frameResults.CameraXOverride = 512;
-        SetShitroidScrollPair(RoomScrollState.RedBoundary);
+        SetShitroidScrollPair(RoomScrollState.Closed);
         QueueShitroidWallObjects(ShitroidWallMutation.Create);
         state.Action = ShitroidAction.BeginEntranceDelay;
         state.CryEnabled = true;

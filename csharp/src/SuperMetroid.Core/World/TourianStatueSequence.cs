@@ -144,8 +144,8 @@ public sealed class TourianStatueSequence
         }
         else
         {
-            _room.LoadedCamera.Scrolls.SetLogicalState(new(0, 0), RoomScrollState.Blue);
-            _room.LoadedCamera.Scrolls.SetLogicalState(new(0, 1), RoomScrollState.RedBoundary);
+            _room.LoadedCamera.Scrolls.SetLogicalState(new(0, 0), RoomScrollState.OpenAlignedToTop);
+            _room.LoadedCamera.Scrolls.SetLogicalState(new(0, 1), RoomScrollState.Closed);
         }
     }
 
@@ -297,7 +297,7 @@ public sealed class TourianStatueSequence
     private void EnableScrolling()
     {
         _enemies.TourianStatue.Finished = true;
-        _room.LoadedCamera.Scrolls.SetLogicalState(new(0, 0), RoomScrollState.Green);
-        _room.LoadedCamera.Scrolls.SetLogicalState(new(0, 1), RoomScrollState.Green);
+        _room.LoadedCamera.Scrolls.SetLogicalState(new(0, 0), RoomScrollState.Open);
+        _room.LoadedCamera.Scrolls.SetLogicalState(new(0, 1), RoomScrollState.Open);
     }
 }

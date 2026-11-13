@@ -452,7 +452,7 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
     foreach ($pointer in $orderedScrollPrograms) {
         $change = $scrollChanges[$pointer]
         [string[]] $writes = @($change.Writes | ForEach-Object {
-            $stateName = switch ($_.State) { 0 { 'RedBoundary' } 1 { 'Blue' } 2 { 'Green' } }
+            $stateName = switch ($_.State) { 0 { 'Closed' } 1 { 'OpenAlignedToTop' } 2 { 'Open' } }
             'new({0}, RoomScrollState.{1})' -f $_.Cell, $stateName
         })
         $scrollLines.Add(('            [RoomScrollChange.{0}] = [{1}],' -f $change.Name, ($writes -join ', ')))

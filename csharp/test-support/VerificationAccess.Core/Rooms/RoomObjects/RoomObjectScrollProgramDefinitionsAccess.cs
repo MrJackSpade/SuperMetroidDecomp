@@ -25,7 +25,7 @@ internal static class RoomObjectScrollProgramDefinitionsAccess
         internal static ReadOnlyMemory<byte> Get(ushort pointer)
         {
             var bytes = new List<byte>();
-            RoomObjectScrollChangeDefinitions.ApplyAt(pointer, (index, state) => { bytes.Add((byte)index); bytes.Add((byte)state); });
+            RoomObjectScrollChangeDefinitions.ApplyAt(pointer, (index, state) => { bytes.Add((byte)index); bytes.Add(state.ToStorageByte()); });
             bytes.Add(0x80);
             return bytes.ToArray();
         }

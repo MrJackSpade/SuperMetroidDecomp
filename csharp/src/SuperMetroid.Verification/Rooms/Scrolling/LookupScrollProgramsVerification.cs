@@ -33,9 +33,9 @@ internal static class LookupScrollProgramsVerification
                 [compiled.Placements.Span[0] with { Argument = new GateTriggerArgument(ushort.MaxValue) }]);
             AssertEqual(retail, rebound.Placements.Span[0].CompiledScrollChange,"Copied placement preserves its bound program independently of argument");
             var customized = new RoomObjectPopulation($"$8F:{0x8230:X4}",
-                [compiled.Placements.Span[0] with { ScrollChange = [new(1, RoomScrollState.Green)] }]);
+                [compiled.Placements.Span[0] with { ScrollChange = [new(1, RoomScrollState.Open)] }]);
             AssertEqual(null, customized.Placements.Span[0].CompiledScrollChange,"Explicit custom writes replace the retail program");
-            AssertTrue(customized.Placements.Span[0].ScrollChange!.SequenceEqual([new RoomScrollWrite(1, RoomScrollState.Green)]),"Explicit custom writes survive placement copy");
+            AssertTrue(customized.Placements.Span[0].ScrollChange!.SequenceEqual([new RoomScrollWrite(1, RoomScrollState.Open)]),"Explicit custom writes survive placement copy");
             AssertThrows<InvalidDataException>(() => new RoomObjectPopulation($"$8F:{0x9000:X4}",
                 [new RoomObjectPlacement(RoomObjectKinds.RequirePlaced(RoomObjectKind.ScrollTrigger),new(0, 0),null)]),
                 "Constructed scroll still requires decoded program");

@@ -95,7 +95,7 @@ internal static class BotwoonWallObjectsVerification
             $"Botwoon {(clear ? "clear" : "crumble")} PLM allocates");
         var guarded = NewBotwoonWallSourceGuard(new TestAddressSpace());
         RoomScrollGrid scrolls = RoomScrollGrid.CreateImplicit(
-            RoomScrollGrid.PowerOnCells(), new Extent16<RoomScreens>(2, 1), RoomScrollState.RedBoundary);
+            RoomScrollGrid.PowerOnCells(), new Extent16<RoomScreens>(2, 1), RoomScrollState.Closed);
         int deletionFrame = -1;
         int soundCount = 0;
         for (int frame = 0; frame < 220 && roomObjects.SlotTable.ActiveCount != 0; frame++)
@@ -127,9 +127,9 @@ internal static class BotwoonWallObjectsVerification
                     $"Botwoon crumble frame {frame}, row {row}");
                 if (row == 0 && phase == 0)
                 {
-                    AssertEqual(RoomScrollState.Blue, scrolls.ReadState(0),
+                    AssertEqual(RoomScrollState.OpenAlignedToTop, scrolls.ReadState(0),
                         "Botwoon crumble opens first scroll cell");
-                    AssertEqual(RoomScrollState.Blue, scrolls.ReadState(1),
+                    AssertEqual(RoomScrollState.OpenAlignedToTop, scrolls.ReadState(1),
                         "Botwoon crumble opens second scroll cell");
                 }
             }

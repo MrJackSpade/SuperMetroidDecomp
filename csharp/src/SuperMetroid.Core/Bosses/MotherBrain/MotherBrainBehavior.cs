@@ -483,7 +483,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         // The arena lock is the stationary lock: its alpha handler places
         // no bombs and fires nothing new while the arena drains.
         requiredSamus.Control.LockStationary();
-        _room.Services.RoomScroll.Write(1, RoomScrollState.RedBoundary);
+        _room.Services.RoomScroll.Write(1, RoomScrollState.Closed);
 
         state.Phase = MotherBrainBodyPhase.FakeDeathDescentPauseBeforeMusic;
         state.PhaseTimer = 32;

@@ -16,9 +16,9 @@ internal static class DoorSetupNamesVerification
     /// <summary>Each scroll state a door setup gives a screen, in the order its name lists them, with the words that name it.</summary>
     private static readonly (RoomScrollState State, string Verb, string Suffix)[] NamedStates =
     [
-        (RoomScrollState.RedBoundary, "Closes", ""),
-        (RoomScrollState.Green, "Opens", ""),
-        (RoomScrollState.Blue, "Opens", "TopAligned"),
+        (RoomScrollState.Closed, "Closes", ""),
+        (RoomScrollState.Open, "Opens", ""),
+        (RoomScrollState.OpenAlignedToTop, "Opens", "TopAligned"),
     ];
 
     /// <summary>

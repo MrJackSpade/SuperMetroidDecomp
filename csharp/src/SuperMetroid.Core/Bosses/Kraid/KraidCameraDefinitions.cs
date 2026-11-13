@@ -10,10 +10,10 @@ internal static class KraidCameraDefinitions
 
     /// <summary>Scrolls[0..3] written: only the lower-left screen is open.</summary>
     public static readonly RoomScrollState[] InitialScrolls =
-        [RoomScrollState.RedBoundary, RoomScrollState.RedBoundary, RoomScrollState.Blue, RoomScrollState.RedBoundary];
+        [RoomScrollState.Closed, RoomScrollState.Closed, RoomScrollState.OpenAlignedToTop, RoomScrollState.Closed];
 
     /// <summary>Scrolls[0..3] written as Kraid grows and releases the camera.</summary>
     /// <remarks>The two-column room permits vertical scrolling on the upper row only.</remarks>
     public static readonly RoomScrollState[] GrownScrolls =
-        [RoomScrollState.Green, RoomScrollState.Green, RoomScrollState.Blue, RoomScrollState.Blue];
+        [RoomScrollState.Open, RoomScrollState.Open, RoomScrollState.OpenAlignedToTop, RoomScrollState.OpenAlignedToTop];
 }

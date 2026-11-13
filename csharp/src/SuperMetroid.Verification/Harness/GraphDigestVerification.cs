@@ -116,14 +116,141 @@ internal static class GraphDigestVerification
     /// </summary>
     internal static byte[] SerializeGraph(object value, params object[] content)
     {
-        using var stream = new MemoryStream();
+        using var stream = new ChunkedGraphStream();
         DebuggerObjectGraphSerializer.Serialize(stream, value, Bound(content));
         return stream.ToArray();
     }
 
-    /// <summary>Captures <paramref name="value"/> and restores it bound to <paramref name="content"/>, as a host's store does.</summary>
-    internal static T RoundTrip<T>(T value, params object[] content) where T : class =>
-        RestoreGraph<T>(SerializeGraph(value, content), content);
+    /// <summary>
+    /// Captures <paramref name="value"/> and restores it bound to <paramref name="content"/>, as a host's store does. The
+    /// capture is read back from the chunks it was written into, so a runtime's graph of a hundred megabytes and more is
+    /// neither regrown nor copied (#1680).
+    /// </summary>
+    internal static T RoundTrip<T>(T value, params object[] content) where T : class
+    {
+        using var stream = new ChunkedGraphStream();
+        DebuggerObjectGraphSerializer.Serialize(stream, value, Bound(content));
+        stream.Position = 0;
+        return DebuggerObjectGraphSerializer.Deserialize<T>(stream, Bound(content));
+    }
+
+    /// <summary>
+    /// A graph written into fixed-size chunks and read back from the start. A growing <see cref="MemoryStream"/> reallocates
+    /// and copies its whole buffer each time it doubles, so a graph of a hundred megabytes cost several hundred megabytes of
+    /// allocation before its final copy (#1680); a chunk, once written, is never moved.
+    /// </summary>
+    private sealed class ChunkedGraphStream : Stream
+    {
+        /// <summary>
+        /// The bytes each chunk holds: below the large-object threshold, so neither a small graph nor any chunk of a large
+        /// one lands on the large-object heap, whose allocations trigger collections of the whole heap.
+        /// </summary>
+        private const int ChunkSize = 1 << 16;
+
+        /// <summary>The chunks written, each full except the last.</summary>
+        private readonly List<byte[]> chunks = [];
+
+        /// <summary>How many bytes have been written.</summary>
+        private long length;
+
+        /// <summary>The next byte read or written.</summary>
+        private long position;
+
+        /// <summary>A written graph is read back.</summary>
+        public override bool CanRead => true;
+        /// <summary>Reading returns to the start of the graph.</summary>
+        public override bool CanSeek => true;
+        /// <summary>A graph is written once, in order.</summary>
+        public override bool CanWrite => true;
+        /// <summary>The bytes written.</summary>
+        public override long Length => length;
+
+        /// <summary>The next byte read or written; writes only append, so a write needs the position at the end.</summary>
+        public override long Position
+        {
+            get => position;
+            set => position = value >= 0 && value <= length ? value : throw new ArgumentOutOfRangeException(nameof(value), value, "The position lies outside the written graph.");
+        }
+
+        /// <summary>Writes are held in memory and need no flush.</summary>
+        public override void Flush() { }
+
+        /// <summary>Moves the position within the written graph.</summary>
+        public override long Seek(long offset, SeekOrigin origin) => Position = origin switch
+        {
+            SeekOrigin.Begin => offset,
+            SeekOrigin.Current => position + offset,
+            SeekOrigin.End => length + offset,
+            _ => throw new ArgumentOutOfRangeException(nameof(origin), origin, "Unknown seek origin."),
+        };
+
+        /// <summary>Rejects changing the graph's length.</summary>
+        public override void SetLength(long value) => throw new NotSupportedException();
+
+        /// <summary>Reads into an array segment from the current position.</summary>
+        public override int Read(byte[] buffer, int offset, int count) => Read(new Span<byte>(buffer, offset, count));
+
+        /// <summary>Reads one byte from the current position, or -1 at the end.</summary>
+        public override int ReadByte()
+        {
+            if (position == length)
+                return -1;
+            byte value = chunks[(int)(position / ChunkSize)][(int)(position % ChunkSize)];
+            position++;
+            return value;
+        }
+
+        /// <summary>Reads into a span from the current position, across chunk boundaries.</summary>
+        public override int Read(Span<byte> buffer)
+        {
+            int total = (int)Math.Min(buffer.Length, length - position);
+            for (int copied = 0; copied < total;)
+            {
+                int offset = (int)(position % ChunkSize);
+                int count = Math.Min(total - copied, ChunkSize - offset);
+                chunks[(int)(position / ChunkSize)].AsSpan(offset, count).CopyTo(buffer[copied..]);
+                copied += count;
+                position += count;
+            }
+            return total;
+        }
+
+        /// <summary>Appends an array segment.</summary>
+        public override void Write(byte[] buffer, int offset, int count) => Write(new ReadOnlySpan<byte>(buffer, offset, count));
+
+        /// <summary>Appends one byte.</summary>
+        public override void WriteByte(byte value) => Write(new ReadOnlySpan<byte>(in value));
+
+        /// <summary>Appends a span, starting a new chunk whenever the last one is full.</summary>
+        public override void Write(ReadOnlySpan<byte> buffer)
+        {
+            if (position != length)
+                throw new NotSupportedException("A graph is written once, in order.");
+            while (!buffer.IsEmpty)
+            {
+                int offset = (int)(length % ChunkSize);
+                if (offset == 0 && chunks.Count == length / ChunkSize)
+                    chunks.Add(new byte[ChunkSize]);
+                int count = Math.Min(buffer.Length, ChunkSize - offset);
+                buffer[..count].CopyTo(chunks[^1].AsSpan(offset));
+                buffer = buffer[count..];
+                length += count;
+            }
+            position = length;
+        }
+
+        /// <summary>The written graph as one array.</summary>
+        internal byte[] ToArray()
+        {
+            var bytes = new byte[length];
+            for (int chunk = 0; chunk < chunks.Count; chunk++)
+            {
+                int count = (int)Math.Min(ChunkSize, length - (long)chunk * ChunkSize);
+                chunks[chunk].AsSpan(0, count).CopyTo(bytes.AsSpan((int)((long)chunk * ChunkSize)));
+            }
+            return bytes;
+        }
+    }
 
     /// <summary>Restores a serialized graph bound to <paramref name="content"/>, as a host's store does.</summary>
     internal static T RestoreGraph<T>(byte[] graph, params object[] content) where T : class

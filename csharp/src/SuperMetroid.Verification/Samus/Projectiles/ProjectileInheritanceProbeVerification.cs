@@ -14,6 +14,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 
@@ -88,7 +89,7 @@ internal static class ProjectileInheritanceProbeVerification
         AssertEqual(0, failures, "Projectile initialization must inherit native movement/camera overlapping words");
         Suite(nameof(VerifyProjectileInheritanceRecordedWords), () => VerifyProjectileInheritanceRecordedWords());
         Suite(nameof(VerifyProjectileInheritanceMovement), () => VerifyProjectileInheritanceMovement());
-        for (ushort weapon = 0; weapon < 3; weapon++) VerifyProjectileInheritanceRuntime(weapon);
+        VerifyProjectileInheritanceRuntime();
         Console.WriteLine("Projectile inheritance: original 50 cases, live movement writes and preceding-frame runtime shot pass.");
     }
 
@@ -165,8 +166,14 @@ internal static class ProjectileInheritanceProbeVerification
             "Alpha reset clears exactly all eight directional words");
     }
 
-    /// <summary>Fires a beam, missile, or Super Missile after controller-driven movement and verifies the prior-frame record survives save restoration.</summary>
-    private static void VerifyProjectileInheritanceRuntime(ushort weapon)
+    /// <summary>
+    /// Fires a beam, a missile and a Super Missile after controller-driven movement and verifies the prior-frame record
+    /// survives save restoration. The room and the movement are prepared once and captured once (#1680): a runtime's
+    /// debugger graph is over a hundred megabytes, and capturing one per weapon allocated over a gigabyte. The live runtime
+    /// fires the beam it moved with; each weapon is then selected and fired by its own restore of the one capture, so
+    /// every weapon still launches from the same preceding-frame record, now from a resumed runtime for all three.
+    /// </summary>
+    private static void VerifyProjectileInheritanceRuntime()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture();
@@ -185,7 +192,7 @@ internal static class ProjectileInheritanceProbeVerification
         }
         var samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();
-        samus.SelectedHudItem = SuperMetroid.Diagnostics.Saves.SaveSlotNumbering.SavedHudItem(weapon);
+        samus.SelectedHudItem = SuperMetroid.Diagnostics.Saves.SaveSlotNumbering.SavedHudItem(0);
         samus.Missiles = samus.MaxMissiles = 10;
         samus.SuperMissiles = samus.MaxSuperMissiles = 10;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
@@ -197,18 +204,10 @@ internal static class ProjectileInheritanceProbeVerification
         var records = new ProjectileInheritanceRecordsAccess(samus.ProjectileInheritance);
         ushort inherited = records.WordBefore(SamusCollisionDirection.Right);
         AssertTrue((LittleEndianBytes.HighByteInPlace(inherited)) != 0, "Controller-driven beta publishes nonzero preceding-frame movement");
-        short expected = unchecked((short)(inherited +
-            (weapon == 0 ? ReadPowerBeamLaunchSpeedSum(bus) : 0x0100)));
-        var restored = SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(runtime, InstalledFixtures.BoundContent);
-        // The host binds a restored runtime to its content as it binds a new one.
-        BindRetailRuntimeFixture(restored);
+        byte[] captured = SuperMetroid.Verification.Harness.GraphDigestVerification.SerializeGraph(runtime, InstalledFixtures.BoundContent);
         runtime.StepFrame((ControllerButton.Right | runtime.Options.ControllerBindings.Shoot));
-        restored.StepFrame((ControllerButton.Right | restored.Options.ControllerBindings.Shoot));
-        var shot = runtime.Projectiles.Slots.First(slot => slot.IsActive);
-        AssertEqual(expected, shot.Velocity.X.InTwoHundredFiftySixthsOfPixel,
+        AssertEqual(unchecked((short)(inherited + ReadPowerBeamLaunchSpeedSum(bus))), runtime.Projectiles.Slots.First(slot => slot.IsActive).Velocity.X.InTwoHundredFiftySixthsOfPixel,
             "Next alpha fires using prior beta displacement before reset and this-frame movement");
-        AssertEqual(expected, restored.Projectiles.Slots.First(slot => slot.IsActive).Velocity.X.InTwoHundredFiftySixthsOfPixel,
-            "Debugger graph round trip retains native WRAM inheritance for resumed launch");
         AssertEqual(runtime.Room.LoadedCamera.Speed.Y.Fraction, records.CameraYSubspeed,
             "Runtime publishes camera Y subspeed into the native shared record");
         byte[] beforeFreeze = records.CaptureDistanceRecords();
@@ -221,6 +220,24 @@ internal static class ProjectileInheritanceProbeVerification
         runtime.StepFrame(0);
         AssertTrue(records.CaptureDistanceRecords().All(value => value == 0),
             "Input-locked projectile alpha still clears directional movement records");
+
+        foreach ((ushort weapon, SamusProjectileFamily family, int launchSpeed) in new[]
+        {
+            ((ushort)0, SamusProjectileFamily.Beam, ReadPowerBeamLaunchSpeedSum(bus)),
+            ((ushort)1, SamusProjectileFamily.Missile, 0x0100),
+            ((ushort)2, SamusProjectileFamily.SuperMissile, 0x0100),
+        })
+        {
+            var restored = SuperMetroid.Verification.Harness.GraphDigestVerification.RestoreGraph<SuperMetroidRuntime>(captured, InstalledFixtures.BoundContent);
+            // The host binds a restored runtime to its content as it binds a new one.
+            BindRetailRuntimeFixture(restored);
+            restored.Player.IntroducedSamus.SelectedHudItem = SuperMetroid.Diagnostics.Saves.SaveSlotNumbering.SavedHudItem(weapon);
+            restored.StepFrame((ControllerButton.Right | restored.Options.ControllerBindings.Shoot));
+            var shot = restored.Projectiles.Slots.First(slot => slot.IsActive);
+            AssertEqual(family, shot.Type.Family, "Each resumed runtime fires the weapon it selected");
+            AssertEqual(unchecked((short)(inherited + launchSpeed)), shot.Velocity.X.InTwoHundredFiftySixthsOfPixel,
+                "Debugger graph round trip retains native WRAM inheritance for resumed launch");
+        }
     }
 
     /// <summary>The two retail speed words the uncharged power beam adds to inherited launch velocity.</summary>

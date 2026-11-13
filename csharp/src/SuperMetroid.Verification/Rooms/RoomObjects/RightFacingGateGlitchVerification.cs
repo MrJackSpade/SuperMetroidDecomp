@@ -87,6 +87,11 @@ internal static class RightFacingGateGlitchVerification
         var background = new RoomBlockAppearance[original.Size.X * original.Size.Y];
         int firstX = gateX - 192;
         var activationsByColumn = new List<string>[gateX - firstX];
+        // Each column's positions share one game state instead of building forty kilobytes of progress and explored maps
+        // per position (#1680). A position writes only the Zebes-awake event, which the room's enemy-quota grey door sets
+        // when it unlocks, so each position clears it first and starts from a new state's progress. Once the columns have run,
+        // each column's state, that event cleared, is compared with a new one, so a position that wrote anything else fails.
+        var gameStateByColumn = new SharedGameState[gateX - firstX];
         // The shared installed fixtures every position's Samus, shots and bombs are built from load here, on the suite's
         // own thread, as timed shared fixture loads; the workers then only read them.
         SuperMetroid.Core.Compatibility.LaidOutAnimationContinuation<SamusPoseId, SamusPoseAnimationStep> animationContinuation = InstalledFixtures.AnimationContinuation;
@@ -100,6 +105,8 @@ internal static class RightFacingGateGlitchVerification
             var columnActivations = new List<string>();
             // PLM setup only uploads into VRAM; nothing below reads it, so every position of a column shares one image.
             var populationVram = new SnesVram();
+            var gameState = new SharedGameState(new SharedRandom());
+            gameStateByColumn[x - firstX] = gameState;
             // One pristine level and one working level restored from it per position. The
             // field-by-field check proves no state from the previous position survives.
             RoomLevelData NewLevel() => new RoomLevelData(original.Size, new RoomLevelPlanes(original.Terrain, original.Behaviors, background), RoomLevelData.NothingBeyondGrid());
@@ -119,10 +126,15 @@ internal static class RightFacingGateGlitchVerification
                 };
                 // Loading binds a new PLM system to this position's level, so every position starts from the same unbound one.
                 RoomObjectSystem roomObjects = unboundObjects;
-                RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(populationVram), new SharedGameState(new SharedRandom()), areaIndex), population, new RoomObjectServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+                gameState.ClearEvent(StoryEvent.ZebesAwake);
+                RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(populationVram), gameState, areaIndex), population, new RoomObjectServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
                 for (int warm = 0; warm < 2; warm++)
                     roomObjects.Step(level);
                 roomObjects.Gates.TakeDownwardGateProjectileRequests();
+                // The gate's own slot, found once per position: snapshotting every slot to find it each frame allocated
+                // over half a gigabyte across the matrix (#1680). Each frame still requires the slot to hold the gate.
+                RoomObjectSlot gateSlot = roomObjects.SlotTable.InProcessingOrder.Single(
+                    slot => slot.Active && slot.Kind == RoomObjectKind.DownwardGate);
 
                 var shots = CreateProjectileFixture();
                 var bombs = CreateBombFixture();
@@ -131,8 +143,9 @@ internal static class RightFacingGateGlitchVerification
                     ControllerButton input = frame == 0 ? ControllerButton.X : 0;
                     bombs.StepFrame(new SamusTerrain { Level = level }, samus, input, input);
                     shots.StepFrame(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new((ushort)cameraX, (ushort)cameraY), bombs);
-                    var gate = roomObjects.SinglePopulationSlot(RoomObjectKind.DownwardGate);
-                    if (gate.Behaviour is DownwardGateObject { Triggered: true })
+                    if (!gateSlot.Active || gateSlot.Kind != RoomObjectKind.DownwardGate)
+                        throw new InvalidOperationException($"The Pink Brinstar gate left its slot at ({x}, {y}), frame {frame}.");
+                    if (gateSlot.Behaviour is DownwardGateObject { Triggered: true })
                     {
                         SamusProjectile shot = shots.Slots[0];
                         columnActivations.Add($"{x},{y},{frame},{shot.Position.X.Whole},{shot.Position.Y.Whole}");
@@ -143,6 +156,12 @@ internal static class RightFacingGateGlitchVerification
             }
             activationsByColumn[x - firstX] = columnActivations;
         });
+        foreach (SharedGameState columnState in gameStateByColumn)
+            columnState.ClearEvent(StoryEvent.ZebesAwake);
+        // One comparison of every column's state with as many new states: a graph comparison per column took about as long
+        // as the whole sweep.
+        AssertTrue(SameGraph(gameStateByColumn, gameStateByColumn.Select(_ => new SharedGameState(new SharedRandom())).ToArray()),
+            "No gate-glitch position writes any other part of the game state its column's positions share");
         // Column by column and row by row within a column, the order the native matrix lists its positives in.
         List<string> actual = [.. activationsByColumn.SelectMany(column => column)];
 

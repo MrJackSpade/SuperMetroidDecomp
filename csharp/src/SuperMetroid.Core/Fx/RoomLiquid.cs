@@ -20,7 +20,7 @@ public abstract record RoomLiquid(LiquidTide Tide)
             RoomFxType.Water or RoomFxType.TourianEntranceStatue => liquid is RoomWater,
             RoomFxType.Lava or RoomFxType.Acid => liquid is RoomLavaOrAcid,
             RoomFxType.None or RoomFxType.Rain or RoomFxType.Fog or RoomFxType.Spores or RoomFxType.ScrollingSky or
-                RoomFxType.UnusedScrollingSky or RoomFxType.Fireflea or RoomFxType.CeresRidley or RoomFxType.CeresElevator or
+                RoomFxType.Fireflea or RoomFxType.CeresRidley or RoomFxType.CeresElevator or
                 RoomFxType.CeresHaze => liquid is null,
             _ => throw new ArgumentOutOfRangeException(nameof(type), type, "Unknown room effect."),
         };

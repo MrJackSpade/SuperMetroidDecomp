@@ -38,7 +38,7 @@ try {
         $programNames[[Convert]::ToInt32($match.Groups[1].Value, 16)] = $match.Groups[2].Value
     }
     $pointers = @($programNames.Keys | Sort-Object)
-    if ($pointers.Count -ne 68) { throw "Expected 68 library-background programs, found $($pointers.Count)." }
+    if ($pointers.Count -ne 67) { throw "Expected 67 library-background programs, found $($pointers.Count)." }
 
     function Read-Word([int]$pointer) {
         if ($pointer -lt 0x8000 -or $pointer -gt 0xFFFE) {
@@ -63,7 +63,7 @@ try {
     foreach ($match in [regex]::Matches($doorFile, '\[0x([0-9a-f]{4})\] = (\w*DoorDefinitions|DoorToolingDefinitions)\.(\w+),')) {
         $doorNames[[Convert]::ToInt32($match.Groups[1].Value, 16)] = $match.Groups[2].Value + '.' + $match.Groups[3].Value
     }
-    if ($doorNames.Count -ne 597) { throw "Expected 597 door names, found $($doorNames.Count)." }
+    if ($doorNames.Count -ne 596) { throw "Expected 596 door names, found $($doorNames.Count)." }
     function Format-Door([int]$door) {
         if ($door -eq 0) { return 'null' }
         if (-not $doorNames.ContainsKey($door)) { throw ('Library transfer names unknown door ${0:X4}.' -f $door) }
@@ -81,7 +81,7 @@ try {
     foreach ($match in [regex]::Matches($tilemapFile, '\[RoomBackgroundTilemap\.(\w+)\] = 0x([0-9a-f]{6}),')) {
         $tilemapNames[[Convert]::ToInt32($match.Groups[2].Value, 16)] = $match.Groups[1].Value
     }
-    if ($tilemapNames.Count -ne 58) { throw "Expected 58 background tilemaps, found $($tilemapNames.Count)." }
+    if ($tilemapNames.Count -ne 57) { throw "Expected 57 background tilemaps, found $($tilemapNames.Count)." }
     function Format-Tilemap([int]$source) {
         if (-not $tilemapNames.ContainsKey($source)) { throw ('Library decompression names unknown tilemap ${0:X6}.' -f $source) }
         return 'LibraryBackgroundSource.Compressed(RoomBackgroundTilemap.' + $tilemapNames[$source] + ')'

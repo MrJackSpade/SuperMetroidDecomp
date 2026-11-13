@@ -23,7 +23,6 @@ public static class RoomFxAtmosphereTilemapDefinitions
             RoomFxType.Water or
             RoomFxType.Spores or
             RoomFxType.ScrollingSky or
-            RoomFxType.UnusedScrollingSky or
             RoomFxType.Fireflea or
             RoomFxType.TourianEntranceStatue or
             RoomFxType.CeresRidley or

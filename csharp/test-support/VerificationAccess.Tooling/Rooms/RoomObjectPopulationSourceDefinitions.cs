@@ -166,7 +166,6 @@ internal static class RoomObjectPopulationSourceDefinitions
         [0x8e98] = RoomObjectPopulationDefinitions.Ridley,
         [0x8ea6] = RoomObjectPopulationDefinitions.LNFarming,
         [0x8eba] = RoomObjectPopulationDefinitions.FastPillarsSetup,
-        [0x8ed4] = RoomObjectPopulationDefinitions.UnusedNorfairRoom,
         [0x8ed6] = RoomObjectPopulationDefinitions.MickeyMouse,
         [0x8f38] = RoomObjectPopulationDefinitions.Pillar,
         [0x8f3a] = RoomObjectPopulationDefinitions.Plowerhouse,

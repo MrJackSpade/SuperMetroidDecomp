@@ -167,7 +167,6 @@ internal static class DoorDefinitionsAccess
         [0xb374] = RoomDefinitions.Ridley,
         [0xb3a1] = RoomDefinitions.LNFarming,
         [0xb3cc] = RoomDefinitions.FastPillarsSetup,
-        [0xb408] = RoomDefinitions.UnusedNorfairRoom,
         [0xb431] = RoomDefinitions.MickeyMouse,
         [0xb47e] = RoomDefinitions.Pillar,
         [0xb4a9] = RoomDefinitions.Plowerhouse,
@@ -309,7 +308,7 @@ internal static class DoorDefinitionsAccess
         internal static IReadOnlyList<DoorListEntry> ForListPointer(ushort listPointer) =>
             RoomByListPointer.TryGetValue(listPointer, out RoomDefinition? room)
                 ? RoomDoorListDefinitions.ByRoom[room]
-                : throw new ArgumentOutOfRangeException(nameof(listPointer), listPointer, "Pointer is not one of the 262 retail room door lists.");
+                : throw new ArgumentOutOfRangeException(nameof(listPointer), listPointer, "Pointer is not one of the 261 retail room door lists.");
 
         /// <summary>The bank-$8F pointer of <paramref name="room"/>'s door list.</summary>
         internal static ushort ListPointerOf(RoomDefinition room) =>

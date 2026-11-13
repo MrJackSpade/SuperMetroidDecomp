@@ -48,13 +48,13 @@ internal static class LookupRetailDoorHeadersVerification
         AssertEqual(SignedEightEight.Zero, DoorSamusSpeed.None.Step(DoorDirection.Left), "no push");
     }
 
-    /// <summary>Accepts exactly the 597 physical door headers and rejects pseudo-doors and interior bytes.</summary>
+    /// <summary>Accepts exactly the 596 physical door headers of the game and rejects pseudo-doors and interior bytes.</summary>
     private static void VerifyDoorHeaderIdentities()
     {
         // Original physical record regions are independently documented in bank83. The
         // 88FC and A18A elevator pseudo-doors are door-list entries, not headers.
         var original = EnumerateRetailDoorPointers().ToHashSet();
-        AssertEqual(597, original.Count, "Original physical header domain");
+        AssertEqual(596, original.Count, "Original physical header domain");
         for (int value = 0; value <= ushort.MaxValue; value++)
         {
             ushort pointer = (ushort)value;

@@ -759,7 +759,6 @@ internal static class EnemySpritemapDocumentOrder
         EnemyFrameId.ShutterGrowingTwentyPixels,
         EnemyFrameId.ShutterGrowingThirtyPixels,
         EnemyFrameId.ShutterFortyPixels,
-        EnemyFrameId.ShutterHorizontal,
         EnemyFrameId.MetroidChasingSamusFirst,
         EnemyFrameId.MetroidChasingSamusSecond,
         EnemyFrameId.MetroidChasingSamusThird,

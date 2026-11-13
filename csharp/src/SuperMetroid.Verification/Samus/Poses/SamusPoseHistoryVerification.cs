@@ -13,7 +13,7 @@ internal static class SamusPoseHistoryVerification
         // and distinct pose identities so every shifted field is observable.
         var history = new SamusPoseHistoryState
         {
-            PreviousPose = SamusPoseId.UnusedKnockbackLeftPose, PreviousMovement = SamusMovementType.SpinJumping,
+            PreviousPose = SamusPoseId.GlitchBallKnockbackLeftPose, PreviousMovement = SamusMovementType.SpinJumping,
             LastDifferentMovement = SamusMovementType.NormalJumping,
         };
         AssertTrue(!history.AllowsWallJumpProbe, "wall probe rejects normal-jump history");

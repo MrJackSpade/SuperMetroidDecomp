@@ -9,8 +9,6 @@ public enum PaletteFxColours
 {
     /// <summary>The Super Metroid title logo, faded in on the title screen.</summary>
     TitleLogo,
-    /// <summary>The Nintendo boot logo, faded in by the unused boot code.</summary>
-    NintendoBootLogo,
     /// <summary>The Nintendo copyright line, faded in under the title.</summary>
     NintendoCopyright,
     /// <summary>The light in the title screen's Baby Metroid tube.</summary>

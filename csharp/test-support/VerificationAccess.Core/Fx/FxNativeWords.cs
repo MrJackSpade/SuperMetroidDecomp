@@ -29,6 +29,15 @@ internal static class FxNativeWords
         word is >= 0 and <= ushort.MaxValue && SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.PaletteBlends.TryDecode((ushort)word, out RoomFxPaletteBlend blend)
             ? blend : UndefinedPaletteBlend;
 
+    /// <summary>
+    /// The bank-$87 object header an area's animated-tile bit names when it selects no object of the game (#1686): the
+    /// unused Crateria lava for Crateria's fourth bit, which no record sets, and the empty object for every other bit no
+    /// area uses.
+    /// </summary>
+    internal static ushort UnselectedAnimatedTileObject(int nativeAreaIndex, int bit) =>
+        nativeAreaIndex == SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(SuperMetroid.Core.Progression.AreaId.Crateria) && bit == 3
+            ? (ushort)0x8263 : (ushort)0x824b;
+
     /// <summary>The bank-$87 object header naming each <see cref="AnimatedTileObject"/>; zero names no object.</summary>
     internal static readonly NativeWordIdentities<AnimatedTileObject> AnimatedTileObjects = new(new Dictionary<AnimatedTileObject, ushort>
     {
@@ -37,11 +46,9 @@ internal static class FxNativeWords
         [AnimatedTileObject.TourianStatueRidley] = 0x8552,
         [AnimatedTileObject.TourianStatueKraid] = 0x8558,
         [AnimatedTileObject.TourianStatueDraygon] = 0x855e,
-        [AnimatedTileObject.Empty] = 0x824b,
         [AnimatedTileObject.HorizontalSpikes] = 0x8257,
         [AnimatedTileObject.VerticalSpikes] = 0x8251,
         [AnimatedTileObject.CrateriaLake] = 0x825d,
-        [AnimatedTileObject.UnusedCrateriaLava] = 0x8263,
         [AnimatedTileObject.BrinstarPlant] = 0x8281,
         [AnimatedTileObject.WreckedShipScreen] = 0x826f,
         [AnimatedTileObject.MaridiaSandCeiling] = 0x8287,

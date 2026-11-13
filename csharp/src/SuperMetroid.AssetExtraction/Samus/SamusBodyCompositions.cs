@@ -77,9 +77,9 @@ internal static class SamusBodyCompositions
               animationFrame >= 2));
         return movementType is not (
             SamusMovementType.MorphBallGround or
-            SamusMovementType.UnusedGlitchBall or
+            SamusMovementType.GlitchBall or
             SamusMovementType.MorphBallFalling or
-            SamusMovementType.UnusedGlitchBallAlternate or
+            SamusMovementType.GlitchBallKnockback or
             SamusMovementType.SpringBallGround or
             SamusMovementType.SpringBallInAir or
             SamusMovementType.SpringBallFalling) &&

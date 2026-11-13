@@ -78,7 +78,7 @@ internal static class RoomObjectPopulationInputBoundaryVerification
             count += RoomObjectPopulationDefinitions.Get(pointer).Placements.Length;
         AssertEqual(RoomObjectPopulationDefinitions.RetailRecordCount, count,
             "every compiled population converts to the typed contract before gameplay");
-        Console.WriteLine("PLM input boundary: 284 compiled populations/941 records, immutable writes, native slot reuse, RAM-only scroll execution, and bounded validation pass.");
+        Console.WriteLine("PLM input boundary: 283 compiled populations/941 records, immutable writes, native slot reuse, RAM-only scroll execution, and bounded validation pass.");
     }
 
     /// <summary>Runs the focused compiled-population conversion and scroll execution check.</summary>

@@ -16,7 +16,7 @@ public static class RoomObjectPopulationSources
     public static RoomObjectPopulation Population(ushort pointer) =>
         RoomObjectPopulationSourceDefinitions.ByPointer.TryGetValue(pointer, out RoomObjectPopulation? found)
             ? found
-            : throw new ArgumentOutOfRangeException(nameof(pointer), pointer, "Pointer is not one of the 284 retail room PLM populations.");
+            : throw new ArgumentOutOfRangeException(nameof(pointer), pointer, "Pointer is not one of the 283 retail room PLM populations.");
 
     /// <summary>Whether <paramref name="pointer"/> is exactly one of the compiled populations.</summary>
     public static bool Contains(ushort pointer) => RoomObjectPopulationSourceDefinitions.ByPointer.ContainsKey(pointer);

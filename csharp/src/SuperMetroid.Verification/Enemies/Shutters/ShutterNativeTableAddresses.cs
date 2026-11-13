@@ -8,6 +8,4 @@ internal static class ShutterNativeTableAddresses
     /// <summary>$A2:EDFB, the vertical shutter's five-entry initial function table.</summary>
     internal static readonly SnesAddress VerticalInitialFunctions = SnesAddress.FromBusAddress(0xa2edfb);
 
-    /// <summary>$A2:F107, the horizontal shutter's five-entry initial function table.</summary>
-    internal static readonly SnesAddress HorizontalInitialFunctions = SnesAddress.FromBusAddress(0xa2f107);
 }

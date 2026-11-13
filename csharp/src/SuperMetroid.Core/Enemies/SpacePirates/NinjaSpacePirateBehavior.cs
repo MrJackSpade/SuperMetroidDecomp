@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.PirateGoldNinja, EnemyDefinitionId.PirateGreenNinja, EnemyDefinitionId.PirateGreyNinja, EnemyDefinitionId.PirateMagentaNinja, EnemyDefinitionId.PirateRedNinja, EnemyDefinitionId.PirateSilverNinja];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.PirateGoldNinja, EnemyDefinitionId.PirateSilverNinja];
 
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new NinjaSpacePirateEntity(this, slot, common);
@@ -67,13 +67,9 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     /// <summary>Whole-pixel vertical step used by each spin-jump update.</summary>
     private const int NinjaPirateSpinVerticalPixels = 2;
 
-    /// <summary>Identifies all six ninja Space Pirate enemy definitions that share this AI.</summary>
+    /// <summary>Identifies the gold and silver ninja Space Pirate enemy definitions, which share this AI.</summary>
     internal static bool IsNinjaSpacePirateDefinition(EnemyDefinitionId definition) => definition is
-        EnemyDefinitionId.PirateGreyNinja or
-        EnemyDefinitionId.PirateGreenNinja or
-        EnemyDefinitionId.PirateRedNinja or
         EnemyDefinitionId.PirateGoldNinja or
-        EnemyDefinitionId.PirateMagentaNinja or
         EnemyDefinitionId.PirateSilverNinja;
 
     /// <summary>Initializes the Ninja Space Pirate.</summary>

@@ -163,7 +163,6 @@ internal static class RoomFxSourceDefinitions
         [0x87bc] = RoomFxDefinitions.Ridley,
         [0x87cc] = RoomFxDefinitions.LNFarming,
         [0x87dc] = RoomFxDefinitions.FastPillarsSetup,
-        [0x87ec] = RoomFxDefinitions.UnusedNorfairRoom,
         [0x87fc] = RoomFxDefinitions.MickeyMouse,
         [0x880c] = RoomFxDefinitions.Pillar,
         [0x881c] = RoomFxDefinitions.Plowerhouse,

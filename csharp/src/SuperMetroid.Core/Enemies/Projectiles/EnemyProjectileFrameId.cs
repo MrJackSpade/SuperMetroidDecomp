@@ -1611,14 +1611,6 @@ public enum EnemyProjectileFrameId
     MagdolliteLavaLeft,
     /// <summary><c>magdollite_lava_right</c>, an installed animation frame.</summary>
     MagdolliteLavaRight,
-    /// <summary><c>misc_dust_beam_charge_first</c>, an installed animation frame.</summary>
-    MiscDustBeamChargeFirst,
-    /// <summary><c>misc_dust_beam_charge_second</c>, an installed animation frame.</summary>
-    MiscDustBeamChargeSecond,
-    /// <summary><c>misc_dust_beam_charge_third</c>, an installed animation frame.</summary>
-    MiscDustBeamChargeThird,
-    /// <summary><c>misc_dust_beam_charge_fourth</c>, an installed animation frame.</summary>
-    MiscDustBeamChargeFourth,
     /// <summary><c>misc_dust_elbow_charge_particle_first</c>, an installed animation frame.</summary>
     MiscDustElbowChargeParticleFirst,
     /// <summary><c>misc_dust_elbow_charge_particle_second</c>, an installed animation frame.</summary>
@@ -1667,16 +1659,6 @@ public enum EnemyProjectileFrameId
     MiscDustRainbowBeamExplosionFourth,
     /// <summary><c>misc_dust_rainbow_beam_explosion_fifth</c>, an installed animation frame.</summary>
     MiscDustRainbowBeamExplosionFifth,
-    /// <summary><c>misc_dust_beam_trail_first</c>, an installed animation frame.</summary>
-    MiscDustBeamTrailFirst,
-    /// <summary><c>misc_dust_beam_trail_second</c>, an installed animation frame.</summary>
-    MiscDustBeamTrailSecond,
-    /// <summary><c>misc_dust_beam_trail_third</c>, an installed animation frame.</summary>
-    MiscDustBeamTrailThird,
-    /// <summary><c>misc_dust_beam_trail_fourth</c>, an installed animation frame.</summary>
-    MiscDustBeamTrailFourth,
-    /// <summary><c>misc_dust_beam_trail_fifth</c>, an installed animation frame.</summary>
-    MiscDustBeamTrailFifth,
     /// <summary><c>misc_dust_dud_shot_first</c>, an installed animation frame.</summary>
     MiscDustDudShotFirst,
     /// <summary><c>misc_dust_dud_shot_second</c>, an installed animation frame.</summary>
@@ -1689,16 +1671,6 @@ public enum EnemyProjectileFrameId
     MiscDustDudShotFifth,
     /// <summary><c>misc_dust_dud_shot_sixth</c>, an installed animation frame.</summary>
     MiscDustDudShotSixth,
-    /// <summary><c>misc_dust_power_bomb_first</c>, an installed animation frame.</summary>
-    MiscDustPowerBombFirst,
-    /// <summary><c>misc_dust_power_bomb_second</c>, an installed animation frame.</summary>
-    MiscDustPowerBombSecond,
-    /// <summary><c>misc_dust_power_bomb_third</c>, an installed animation frame.</summary>
-    MiscDustPowerBombThird,
-    /// <summary><c>misc_dust_elevator_pad_first</c>, an installed animation frame.</summary>
-    MiscDustElevatorPadFirst,
-    /// <summary><c>misc_dust_elevator_pad_second</c>, an installed animation frame.</summary>
-    MiscDustElevatorPadSecond,
     /// <summary><c>misc_dust_small_dust_cloud_first</c>, an installed animation frame.</summary>
     MiscDustSmallDustCloudFirst,
     /// <summary><c>misc_dust_small_dust_cloud_second</c>, an installed animation frame.</summary>
@@ -1733,10 +1705,6 @@ public enum EnemyProjectileFrameId
     MiscDustSmokeThird,
     /// <summary><c>misc_dust_smoke_fourth</c>, an installed animation frame.</summary>
     MiscDustSmokeFourth,
-    /// <summary><c>misc_dust_looping_elevator_pad_first</c>, an installed animation frame.</summary>
-    MiscDustLoopingElevatorPadFirst,
-    /// <summary><c>misc_dust_looping_elevator_pad_second</c>, an installed animation frame.</summary>
-    MiscDustLoopingElevatorPadSecond,
     /// <summary><c>misc_dust_big_explosion_first</c>, an installed animation frame.</summary>
     MiscDustBigExplosionFirst,
     /// <summary><c>misc_dust_big_explosion_second</c>, an installed animation frame.</summary>
@@ -1749,36 +1717,6 @@ public enum EnemyProjectileFrameId
     MiscDustBigExplosionFifth,
     /// <summary><c>misc_dust_big_explosion_sixth</c>, an installed animation frame.</summary>
     MiscDustBigExplosionSixth,
-    /// <summary><c>misc_dust_small_energy_drop_first</c>, an installed animation frame.</summary>
-    MiscDustSmallEnergyDropFirst,
-    /// <summary><c>misc_dust_small_energy_drop_second</c>, an installed animation frame.</summary>
-    MiscDustSmallEnergyDropSecond,
-    /// <summary><c>misc_dust_small_energy_drop_third</c>, an installed animation frame.</summary>
-    MiscDustSmallEnergyDropThird,
-    /// <summary><c>misc_dust_small_energy_drop_fourth</c>, an installed animation frame.</summary>
-    MiscDustSmallEnergyDropFourth,
-    /// <summary><c>misc_dust_big_energy_drop_first</c>, an installed animation frame.</summary>
-    MiscDustBigEnergyDropFirst,
-    /// <summary><c>misc_dust_big_energy_drop_second</c>, an installed animation frame.</summary>
-    MiscDustBigEnergyDropSecond,
-    /// <summary><c>misc_dust_big_energy_drop_third</c>, an installed animation frame.</summary>
-    MiscDustBigEnergyDropThird,
-    /// <summary><c>misc_dust_big_energy_drop_fourth</c>, an installed animation frame.</summary>
-    MiscDustBigEnergyDropFourth,
-    /// <summary><c>misc_dust_bomb_first</c>, an installed animation frame.</summary>
-    MiscDustBombFirst,
-    /// <summary><c>misc_dust_bomb_second</c>, an installed animation frame.</summary>
-    MiscDustBombSecond,
-    /// <summary><c>misc_dust_bomb_third</c>, an installed animation frame.</summary>
-    MiscDustBombThird,
-    /// <summary><c>misc_dust_bomb_fourth</c>, an installed animation frame.</summary>
-    MiscDustBombFourth,
-    /// <summary><c>misc_dust_weird_energy_drop_first</c>, an installed animation frame.</summary>
-    MiscDustWeirdEnergyDropFirst,
-    /// <summary><c>misc_dust_weird_energy_drop_second</c>, an installed animation frame.</summary>
-    MiscDustWeirdEnergyDropSecond,
-    /// <summary><c>misc_dust_weird_energy_drop_third</c>, an installed animation frame.</summary>
-    MiscDustWeirdEnergyDropThird,
     /// <summary><c>misc_dust_rock_particles_first</c>, an installed animation frame.</summary>
     MiscDustRockParticlesFirst,
     /// <summary><c>misc_dust_rock_particles_second</c>, an installed animation frame.</summary>
@@ -1819,32 +1757,6 @@ public enum EnemyProjectileFrameId
     MiscDustShortBigDustCloudThird,
     /// <summary><c>misc_dust_short_big_dust_cloud_fourth</c>, an installed animation frame.</summary>
     MiscDustShortBigDustCloudFourth,
-    /// <summary><c>misc_dust_short_beam_cloud_first</c>, an installed animation frame.</summary>
-    MiscDustShortBeamCloudFirst,
-    /// <summary><c>misc_dust_short_beam_cloud_second</c>, an installed animation frame.</summary>
-    MiscDustShortBeamCloudSecond,
-    /// <summary><c>misc_dust_short_beam_cloud_third</c>, an installed animation frame.</summary>
-    MiscDustShortBeamCloudThird,
-    /// <summary><c>misc_dust_short_beam_cloud_fourth</c>, an installed animation frame.</summary>
-    MiscDustShortBeamCloudFourth,
-    /// <summary><c>misc_dust_short_beam_cloud_fifth</c>, an installed animation frame.</summary>
-    MiscDustShortBeamCloudFifth,
-    /// <summary><c>misc_dust_short_beam_cloud_sixth</c>, an installed animation frame.</summary>
-    MiscDustShortBeamCloudSixth,
-    /// <summary><c>misc_dust_medium_beam_cloud_first</c>, an installed animation frame.</summary>
-    MiscDustMediumBeamCloudFirst,
-    /// <summary><c>misc_dust_medium_beam_cloud_second</c>, an installed animation frame.</summary>
-    MiscDustMediumBeamCloudSecond,
-    /// <summary><c>misc_dust_medium_beam_cloud_third</c>, an installed animation frame.</summary>
-    MiscDustMediumBeamCloudThird,
-    /// <summary><c>misc_dust_medium_beam_cloud_fourth</c>, an installed animation frame.</summary>
-    MiscDustMediumBeamCloudFourth,
-    /// <summary><c>misc_dust_medium_beam_cloud_fifth</c>, an installed animation frame.</summary>
-    MiscDustMediumBeamCloudFifth,
-    /// <summary><c>misc_dust_medium_beam_cloud_sixth</c>, an installed animation frame.</summary>
-    MiscDustMediumBeamCloudSixth,
-    /// <summary><c>misc_dust_medium_beam_cloud_seventh</c>, an installed animation frame.</summary>
-    MiscDustMediumBeamCloudSeventh,
     /// <summary><c>misc_dust_big_dust_cloud_first</c>, an installed animation frame.</summary>
     MiscDustBigDustCloudFirst,
     /// <summary><c>misc_dust_big_dust_cloud_second</c>, an installed animation frame.</summary>
@@ -1861,74 +1773,6 @@ public enum EnemyProjectileFrameId
     MiscDustBigDustCloudSeventh,
     /// <summary><c>misc_dust_big_dust_cloud_eighth</c>, an installed animation frame.</summary>
     MiscDustBigDustCloudEighth,
-    /// <summary><c>misc_dust_long_beam_first</c>, an installed animation frame.</summary>
-    MiscDustLongBeamFirst,
-    /// <summary><c>misc_dust_long_beam_second</c>, an installed animation frame.</summary>
-    MiscDustLongBeamSecond,
-    /// <summary><c>misc_dust_long_beam_third</c>, an installed animation frame.</summary>
-    MiscDustLongBeamThird,
-    /// <summary><c>misc_dust_long_beam_fourth</c>, an installed animation frame.</summary>
-    MiscDustLongBeamFourth,
-    /// <summary><c>misc_dust_long_beam_fifth</c>, an installed animation frame.</summary>
-    MiscDustLongBeamFifth,
-    /// <summary><c>misc_dust_long_beam_sixth</c>, an installed animation frame.</summary>
-    MiscDustLongBeamSixth,
-    /// <summary><c>misc_dust_long_beam_seventh</c>, an installed animation frame.</summary>
-    MiscDustLongBeamSeventh,
-    /// <summary><c>misc_dust_long_beam_eighth</c>, an installed animation frame.</summary>
-    MiscDustLongBeamEighth,
-    /// <summary><c>misc_dust_long_beam_ninth</c>, an installed animation frame.</summary>
-    MiscDustLongBeamNinth,
-    /// <summary><c>misc_dust_long_beam_tenth</c>, an installed animation frame.</summary>
-    MiscDustLongBeamTenth,
-    /// <summary><c>misc_dust_long_beam_eleventh</c>, an installed animation frame.</summary>
-    MiscDustLongBeamEleventh,
-    /// <summary><c>misc_dust_long_beam_twelfth</c>, an installed animation frame.</summary>
-    MiscDustLongBeamTwelfth,
-    /// <summary><c>misc_dust_long_beam_thirteenth</c>, an installed animation frame.</summary>
-    MiscDustLongBeamThirteenth,
-    /// <summary><c>misc_dust_long_beam_fourteenth</c>, an installed animation frame.</summary>
-    MiscDustLongBeamFourteenth,
-    /// <summary><c>misc_dust_long_beam_fifteenth</c>, an installed animation frame.</summary>
-    MiscDustLongBeamFifteenth,
-    /// <summary><c>misc_dust_long_beam_sixteenth</c>, an installed animation frame.</summary>
-    MiscDustLongBeamSixteenth,
-    /// <summary><c>misc_dust_long_beam_seventeenth</c>, an installed animation frame.</summary>
-    MiscDustLongBeamSeventeenth,
-    /// <summary><c>misc_dust_long_beam_eighteenth</c>, an installed animation frame.</summary>
-    MiscDustLongBeamEighteenth,
-    /// <summary><c>misc_dust_long_beam_nineteenth</c>, an installed animation frame.</summary>
-    MiscDustLongBeamNineteenth,
-    /// <summary><c>misc_dust_long_beam_twentieth</c>, an installed animation frame.</summary>
-    MiscDustLongBeamTwentieth,
-    /// <summary><c>misc_dust_long_beam_twenty_first</c>, an installed animation frame.</summary>
-    MiscDustLongBeamTwentyFirst,
-    /// <summary><c>misc_dust_long_beam_twenty_second</c>, an installed animation frame.</summary>
-    MiscDustLongBeamTwentySecond,
-    /// <summary><c>misc_dust_long_beam_twenty_third</c>, an installed animation frame.</summary>
-    MiscDustLongBeamTwentyThird,
-    /// <summary><c>misc_dust_long_beam_twenty_fourth</c>, an installed animation frame.</summary>
-    MiscDustLongBeamTwentyFourth,
-    /// <summary><c>misc_dust_long_beam_twenty_fifth</c>, an installed animation frame.</summary>
-    MiscDustLongBeamTwentyFifth,
-    /// <summary><c>misc_dust_long_beam_twenty_sixth</c>, an installed animation frame.</summary>
-    MiscDustLongBeamTwentySixth,
-    /// <summary><c>misc_dust_long_beam_twenty_seventh</c>, an installed animation frame.</summary>
-    MiscDustLongBeamTwentySeventh,
-    /// <summary><c>misc_dust_long_beam_twenty_eighth</c>, an installed animation frame.</summary>
-    MiscDustLongBeamTwentyEighth,
-    /// <summary><c>misc_dust_long_beam_twenty_ninth</c>, an installed animation frame.</summary>
-    MiscDustLongBeamTwentyNinth,
-    /// <summary><c>misc_dust_long_beam_thirtieth</c>, an installed animation frame.</summary>
-    MiscDustLongBeamThirtieth,
-    /// <summary><c>misc_dust_long_beam_thirty_first</c>, an installed animation frame.</summary>
-    MiscDustLongBeamThirtyFirst,
-    /// <summary><c>misc_dust_flickering_long_beam_first</c>, an installed animation frame.</summary>
-    MiscDustFlickeringLongBeamFirst,
-    /// <summary><c>misc_dust_flickering_long_beam_second</c>, an installed animation frame.</summary>
-    MiscDustFlickeringLongBeamSecond,
-    /// <summary><c>misc_dust_flickering_long_beam_third</c>, an installed animation frame.</summary>
-    MiscDustFlickeringLongBeamThird,
     /// <summary><c>misc_dust_draygon_breath_bubbles_first</c>, an installed animation frame.</summary>
     MiscDustDraygonBreathBubblesFirst,
     /// <summary><c>misc_dust_draygon_breath_bubbles_second</c>, an installed animation frame.</summary>
@@ -1947,54 +1791,6 @@ public enum EnemyProjectileFrameId
     MiscDustDraygonBreathBubblesEighth,
     /// <summary><c>misc_dust_draygon_breath_bubbles_ninth</c>, an installed animation frame.</summary>
     MiscDustDraygonBreathBubblesNinth,
-    /// <summary><c>misc_dust_save_station_electricity_first</c>, an installed animation frame.</summary>
-    MiscDustSaveStationElectricityFirst,
-    /// <summary><c>misc_dust_save_station_electricity_second</c>, an installed animation frame.</summary>
-    MiscDustSaveStationElectricitySecond,
-    /// <summary><c>misc_dust_save_station_electricity_third</c>, an installed animation frame.</summary>
-    MiscDustSaveStationElectricityThird,
-    /// <summary><c>misc_dust_save_station_electricity_fourth</c>, an installed animation frame.</summary>
-    MiscDustSaveStationElectricityFourth,
-    /// <summary><c>misc_dust_save_station_electricity_fifth</c>, an installed animation frame.</summary>
-    MiscDustSaveStationElectricityFifth,
-    /// <summary><c>misc_dust_save_station_electricity_sixth</c>, an installed animation frame.</summary>
-    MiscDustSaveStationElectricitySixth,
-    /// <summary><c>misc_dust_save_station_electricity_seventh</c>, an installed animation frame.</summary>
-    MiscDustSaveStationElectricitySeventh,
-    /// <summary><c>misc_dust_save_station_electricity_eighth</c>, an installed animation frame.</summary>
-    MiscDustSaveStationElectricityEighth,
-    /// <summary><c>misc_dust_expanding_gate_first</c>, an installed animation frame.</summary>
-    MiscDustExpandingGateFirst,
-    /// <summary><c>misc_dust_expanding_gate_second</c>, an installed animation frame.</summary>
-    MiscDustExpandingGateSecond,
-    /// <summary><c>misc_dust_expanding_gate_third</c>, an installed animation frame.</summary>
-    MiscDustExpandingGateThird,
-    /// <summary><c>misc_dust_expanding_gate_fourth</c>, an installed animation frame.</summary>
-    MiscDustExpandingGateFourth,
-    /// <summary><c>misc_dust_expanding_gate_fifth</c>, an installed animation frame.</summary>
-    MiscDustExpandingGateFifth,
-    /// <summary><c>misc_dust_expanding_gate_sixth</c>, an installed animation frame.</summary>
-    MiscDustExpandingGateSixth,
-    /// <summary><c>misc_dust_expanding_gate_seventh</c>, an installed animation frame.</summary>
-    MiscDustExpandingGateSeventh,
-    /// <summary><c>misc_dust_expanding_gate_eighth</c>, an installed animation frame.</summary>
-    MiscDustExpandingGateEighth,
-    /// <summary><c>misc_dust_contracting_gate_first</c>, an installed animation frame.</summary>
-    MiscDustContractingGateFirst,
-    /// <summary><c>misc_dust_contracting_gate_second</c>, an installed animation frame.</summary>
-    MiscDustContractingGateSecond,
-    /// <summary><c>misc_dust_contracting_gate_third</c>, an installed animation frame.</summary>
-    MiscDustContractingGateThird,
-    /// <summary><c>misc_dust_contracting_gate_fourth</c>, an installed animation frame.</summary>
-    MiscDustContractingGateFourth,
-    /// <summary><c>misc_dust_contracting_gate_fifth</c>, an installed animation frame.</summary>
-    MiscDustContractingGateFifth,
-    /// <summary><c>misc_dust_contracting_gate_sixth</c>, an installed animation frame.</summary>
-    MiscDustContractingGateSixth,
-    /// <summary><c>misc_dust_contracting_gate_seventh</c>, an installed animation frame.</summary>
-    MiscDustContractingGateSeventh,
-    /// <summary><c>misc_dust_contracting_gate_eighth</c>, an installed animation frame.</summary>
-    MiscDustContractingGateEighth,
     /// <summary><c>downward_gate_moving</c>, an installed animation frame.</summary>
     DownwardGateMoving,
     /// <summary><c>downward_gate_third_moving_step</c>, an installed animation frame.</summary>

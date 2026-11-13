@@ -79,7 +79,7 @@ internal static class LibraryBackgroundProgramsVerification
         AssertEqual(LibraryBackgroundProgramDefinitionsConstants.RetailProgramCount,
             LibraryBackgroundSourceDefinitions.All.Count,
             "compiled library BG program count");
-        AssertEqual(193, instructionCount, "compiled library BG instruction count");
+        AssertEqual(190, instructionCount, "compiled library BG instruction count");
         Console.WriteLine($"  Library BG programs: {instructionCount} commands in " +
             $"{LibraryBackgroundSourceDefinitions.All.Count} lists match every native operand.");
 

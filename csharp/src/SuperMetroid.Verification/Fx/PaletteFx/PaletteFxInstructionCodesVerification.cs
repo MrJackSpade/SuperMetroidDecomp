@@ -132,15 +132,13 @@ internal static class PaletteFxInstructionCodesVerification
     }
 
 
-    /// <summary>Checks the boot-logo fade through its copyright goto against bank-$8D words.</summary>
+    /// <summary>Checks the copyright fade through its goto against bank-$8D words.</summary>
     private static void VerifyNintendoLogoFadePaletteFxColorDefinitions(
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
     {
 
         NintendoLogoEntry[] nintendoLogoEntries =
         [
-            new NintendoLogoEntry("BootLogo",
-                NintendoLogoFadePaletteFxColorDefinitions.BootLogoDefinitionPointer),
             new NintendoLogoEntry("Copyright",
                 NintendoLogoFadePaletteFxColorDefinitions.CopyrightDefinitionPointer),
         ];

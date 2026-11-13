@@ -35,8 +35,12 @@ internal static class LookupAnimatedAreasVerification
                     ushort expected = ReadVerificationWord(rom, 0x830000 | (pointer + 2 * bit));
                     AssertEqual(expected, AreaAnimatedTileObjectDefinitions.NativeObjectPointer(area, bit),
                         "Original native animation area/bit selection");
+                    // A bit no record of the area sets selects no object of the game (#1686): the cartridge's word there is
+                    // its empty object, or Crateria's unused lava.
                     if (area < 7)
-                        AssertEqual(expected, FxNativeWords.AnimatedTileObjects.Word(AreaAnimatedTileObjects.Read((AreaId)area, bit)),
+                        AssertEqual(expected, AreaAnimatedTileObjects.Read((AreaId)area, bit) is { } selected
+                                ? FxNativeWords.AnimatedTileObjects.Word(selected)
+                                : FxNativeWords.UnselectedAnimatedTileObject(area, bit),
                             "Retail view shares original selection");
                 }
                 else

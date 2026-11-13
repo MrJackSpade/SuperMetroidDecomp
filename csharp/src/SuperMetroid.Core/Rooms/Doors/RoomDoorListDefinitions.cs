@@ -158,7 +158,6 @@ public static class RoomDoorListDefinitions
         [RoomDefinitions.Ridley] = [DoorListEntry.Physical(NorfairDoorDefinitions.Ridley0), DoorListEntry.Physical(NorfairDoorDefinitions.Ridley1)],
         [RoomDefinitions.LNFarming] = [DoorListEntry.Physical(NorfairDoorDefinitions.LNFarming0), DoorListEntry.Physical(NorfairDoorDefinitions.LNFarming1)],
         [RoomDefinitions.FastPillarsSetup] = [DoorListEntry.Physical(NorfairDoorDefinitions.FastPillarsSetup0), DoorListEntry.Physical(NorfairDoorDefinitions.FastPillarsSetup1), DoorListEntry.Physical(NorfairDoorDefinitions.FastPillarsSetup2), DoorListEntry.Physical(NorfairDoorDefinitions.FastPillarsSetup3), DoorListEntry.Physical(NorfairDoorDefinitions.FastPillarsSetup4)],
-        [RoomDefinitions.UnusedNorfairRoom] = [DoorListEntry.Physical(DoorDefinitions.UnusedNorfairRoom0)],
         [RoomDefinitions.MickeyMouse] = [DoorListEntry.Physical(NorfairDoorDefinitions.MickeyMouse0), DoorListEntry.Physical(NorfairDoorDefinitions.MickeyMouse1)],
         [RoomDefinitions.Pillar] = [DoorListEntry.Physical(NorfairDoorDefinitions.Pillar0), DoorListEntry.Physical(NorfairDoorDefinitions.Pillar1)],
         [RoomDefinitions.Plowerhouse] = [DoorListEntry.Physical(NorfairDoorDefinitions.Plowerhouse0), DoorListEntry.Physical(NorfairDoorDefinitions.Plowerhouse1)],

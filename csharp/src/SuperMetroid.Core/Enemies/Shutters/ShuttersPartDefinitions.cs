@@ -9,7 +9,6 @@ internal static class ShuttersPartDefinitions
         [EnemyDefinitionId.Kamer] = ShuttersPart.Kamer,
         [EnemyDefinitionId.ShutterDestroyable] = ShuttersPart.ShutterDestroyable,
         [EnemyDefinitionId.ShutterGrowing] = ShuttersPart.ShutterGrowing,
-        [EnemyDefinitionId.ShutterHorizShootable] = ShuttersPart.ShutterHorizShootable,
         [EnemyDefinitionId.ShutterShootable] = ShuttersPart.ShutterShootable,
     };
 }

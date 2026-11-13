@@ -60,7 +60,7 @@ internal static class SamusPoseMirrorDefinitions
         new SamusPoseMirrorPair(SamusPoseId.MorphBallGroundRightPose, SamusPoseId.MorphBallGroundLeftPose),
         new SamusPoseMirrorPair(SamusPoseId.MorphBallMovingRightPose, SamusPoseId.MorphBallMovingLeftPose),
         new SamusPoseMirrorPair(SamusPoseId.MorphBallFallingRightPose, SamusPoseId.MorphBallFallingLeftPose),
-        new SamusPoseMirrorPair(SamusPoseId.UnusedKnockbackRightPose, SamusPoseId.UnusedKnockbackLeftPose),
+        new SamusPoseMirrorPair(SamusPoseId.GlitchBallKnockbackRightPose, SamusPoseId.GlitchBallKnockbackLeftPose),
         new SamusPoseMirrorPair(SamusPoseId.GlitchBallRightPose, SamusPoseId.GlitchBallLeftPose),
         new SamusPoseMirrorPair(SamusPoseId.CompactAirborneRightPose, SamusPoseId.CompactAirborneLeftPose),
         new SamusPoseMirrorPair(SamusPoseId.CompactAirborneFallingRightPose, SamusPoseId.CompactAirborneFallingLeftPose),

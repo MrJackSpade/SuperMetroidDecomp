@@ -12,7 +12,6 @@ internal sealed class ShuttersEntity(ShuttersBehavior species, RoomEnemySlot slo
     {
         ShuttersPart.ShutterGrowing => ShuttersBehavior.InitializeGrowingShutter,
         ShuttersPart.ShutterShootable or ShuttersPart.ShutterDestroyable or ShuttersPart.Kamer => ShuttersBehavior.InitializeVerticalShutter,
-        ShuttersPart.ShutterHorizShootable => ShuttersBehavior.InitializeHorizontalShutter,
         _ => throw new InvalidOperationException($"Shutters entity bound to {Slot.DefinitionId}."),
     };
 
@@ -21,7 +20,6 @@ internal sealed class ShuttersEntity(ShuttersBehavior species, RoomEnemySlot slo
     {
         ShuttersPart.ShutterGrowing => species.RunShutterGrowingMainAi,
         ShuttersPart.ShutterShootable or ShuttersPart.ShutterDestroyable or ShuttersPart.Kamer => species.RunShutterShootableMainAi,
-        ShuttersPart.ShutterHorizShootable => species.RunShutterHorizShootableMainAi,
         _ => throw new InvalidOperationException($"Shutters entity bound to {Slot.DefinitionId}."),
     };
 
@@ -30,17 +28,14 @@ internal sealed class ShuttersEntity(ShuttersBehavior species, RoomEnemySlot slo
     {
         ShuttersPart.ShutterGrowing => ShuttersBehavior.AdvanceShutterGrowingTypedAnimation,
         ShuttersPart.ShutterShootable or ShuttersPart.ShutterDestroyable or ShuttersPart.Kamer => ShuttersBehavior.AdvanceShutterShootableTypedAnimation,
-        ShuttersPart.ShutterHorizShootable => ShuttersBehavior.AdvanceShutterHorizShootableTypedAnimation,
         _ => throw new InvalidOperationException($"Shutters entity bound to {Slot.DefinitionId}."),
     };
 
     /// <summary>
-    /// The shootable and destroyable vertical shutters' and the horizontal shutter's shot reactions, which normal bombs
-    /// dispatch like the common one.
+    /// The shootable and destroyable vertical shutters' shot reactions, which normal bombs dispatch like the common one.
     /// </summary>
     /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>
     public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
         Slot.DefinitionId is EnemyDefinitionId.ShutterShootable or EnemyDefinitionId.Kamer && reaction == EnemyReaction.ShootableVerticalShutterShot ||
-        Slot.DefinitionId == EnemyDefinitionId.ShutterDestroyable && reaction == EnemyReaction.DestroyableVerticalShutterShot ||
-        Slot.DefinitionId == EnemyDefinitionId.ShutterHorizShootable && reaction == EnemyReaction.HorizontalShutterShot;
+        Slot.DefinitionId == EnemyDefinitionId.ShutterDestroyable && reaction == EnemyReaction.DestroyableVerticalShutterShot;
 }

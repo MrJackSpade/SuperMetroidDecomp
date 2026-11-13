@@ -214,7 +214,7 @@ internal sealed class CrocomireBridgeCollapse
     internal void RunCrocomireSink(CrocomireEnemyState state)
     {
         _bodyLayer.LevelCrocomireMeltDistortion(_bodyLayer.Placement.Y);
-        state.FightFlags &= ~CrocomireFightFlags.DamageReactionPending;
+        state.DamageReactionPending = false;
         _bodyLayer.PlaceCrocomireBodyLayer(state);
         RoomEnemySlot body = state.Body;
 

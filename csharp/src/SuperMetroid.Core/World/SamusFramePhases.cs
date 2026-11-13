@@ -202,9 +202,9 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             case SamusMovementType.MorphBallGround:
             case SamusMovementType.Crouching:
             case SamusMovementType.Falling:
-            case SamusMovementType.UnusedGlitchBall:
+            case SamusMovementType.GlitchBall:
             case SamusMovementType.MorphBallFalling:
-            case SamusMovementType.UnusedGlitchBallAlternate:
+            case SamusMovementType.GlitchBallKnockback:
             case SamusMovementType.Knockback:
             case SamusMovementType.CompactAirborne:
             case SamusMovementType.TurningOnGround:
@@ -966,8 +966,8 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
                 // Both hold Samus where the over-read installed them (#1535).
                 samus.SolidVerticalCollisionResult = SamusVerticalCollisionResult.None;
                 break;
-            case SamusPoseId.UnusedKnockbackRightPose:
-            case SamusPoseId.UnusedKnockbackLeftPose:
+            case SamusPoseId.GlitchBallKnockbackRightPose:
+            case SamusPoseId.GlitchBallKnockbackLeftPose:
                 // The glitch-ball knockback's movement type has an empty normal entry: once its knockback
                 // ends, Samus holds still in it (#1535).
                 break;

@@ -36,9 +36,9 @@ internal static class GrappleConnections
             SamusMovementType.MorphBallGround or
             SamusMovementType.Crouching or
             SamusMovementType.Falling or
-            SamusMovementType.UnusedGlitchBall or
+            SamusMovementType.GlitchBall or
             SamusMovementType.MorphBallFalling or
-            SamusMovementType.UnusedGlitchBallAlternate or
+            SamusMovementType.GlitchBallKnockback or
             SamusMovementType.Knockback or
             SamusMovementType.CompactAirborne or
             SamusMovementType.TurningOnGround or

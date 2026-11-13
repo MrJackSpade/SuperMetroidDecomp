@@ -18,12 +18,12 @@ using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Enemies.Projectiles;
 
-/// <summary>#1292: the thirty misc-dust animations and the eye door's smoke run typed programs through the room interpreter.</summary>
+/// <summary>#1292: the misc-dust animations and the eye door's smoke run typed programs through the room interpreter.</summary>
 internal static class MiscDustProjectileBehaviorVerification
 {
     /// <summary>
-    /// Every misc-dust selector spawned by the room-graphics dust producer starts its typed program and plays to deletion
-    /// (the looping elevator pad loops), and the eye door's smoke reaches deletion, each shown frame keeping its native
+    /// Every misc-dust selector spawned by the room-graphics dust producer starts its typed program and plays to deletion,
+    /// and the eye door's smoke reaches deletion, each shown frame keeping its native
     /// duration, with both the misc-dust and Mother Brain list bytes forbidden.
     /// </summary>
     internal static void VerifyMiscDustProjectileBehavior(CartridgeImportAddressSpace rom)
@@ -39,14 +39,6 @@ internal static class MiscDustProjectileBehaviorVerification
             MiscDustProjectileSegment program = MiscDustProjectiles.Animation(animation);
             AssertTrue(dust.Animation is MiscDustProjectileAnimation started && started.PlayingSegment == program,
                 $"misc-dust animation {animation} starts {program}");
-
-            if (animation == MiscDustAnimation.UnusedLoopingElevatorPad)
-            {
-                RunForcedTicks(rom, enemies, dust, samus, 4);
-                AssertTrue(dust.IsActive && dust.Animation is MiscDustProjectileAnimation { PlayingSegment: MiscDustProjectileSegment.LoopingElevatorPad },
-                    "room-system looping misc-dust animation keeps looping its program");
-                continue;
-            }
 
             int calls = 0;
             while (dust.IsActive && calls < 40)
@@ -83,7 +75,7 @@ internal static class MiscDustProjectileBehaviorVerification
         }
 
         AssertEqual(0, guard.ForbiddenReadAttempts, "production reads none of the shared misc-dust or Mother Brain list bytes");
-        Console.WriteLine("  Misc-dust behavior: all thirty selectors and the eye door's smoke run their typed programs to their native ends.");
+        Console.WriteLine("  Misc-dust behavior: all fourteen selectors and the eye door's smoke run their typed programs to their native ends.");
     }
 
     /// <summary>A guard rejecting every byte of the misc-dust and Mother Brain effect lists, which share their explosions.</summary>

@@ -29,7 +29,7 @@ internal static class RoomVisualLayoutsVerification
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
     {
         RoomLevelArtworks stock = InstalledFixtures.RoomAssets.VisualLayouts;
-        AssertEqual(246, RoomVisualLayoutFiles.RetailLevels.Count,
+        AssertEqual(245, RoomVisualLayoutFiles.RetailLevels.Count,
             "distinct pinned room levels");
         InstalledRoomLevelStreams levelStreams = InstalledFixtures.RoomAssets.LevelStreams;
         AssertEqual(RoomVisualLayoutFiles.RetailLevels.Count, levelStreams.Count,

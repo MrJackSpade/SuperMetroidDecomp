@@ -95,12 +95,6 @@ public enum SamusSound
     WaveSpecialAttackEnd,
     /// <summary>A save file selected on the file-select screen, before the helmet turns.</summary>
     FileSelected,
-    /// <summary>The library's first empty sound; it plays nothing.</summary>
-    Empty1,
-    /// <summary>The library's second empty sound; it plays nothing.</summary>
-    Empty2,
-    /// <summary>The library's third empty sound; it plays nothing.</summary>
-    Empty3,
     /// <summary>The game being saved, at a save station or the gunship.</summary>
     Saving,
     /// <summary>Space Jump under water without the Gravity Suit.</summary>
@@ -125,8 +119,6 @@ public enum SamusSound
     MenuConfirm,
     /// <summary>A HUD weapon selected.</summary>
     HudWeaponSelect,
-    /// <summary>The library's fourth empty sound; it plays nothing.</summary>
-    Empty4,
     /// <summary>The map expanding from the area map to the room map.</summary>
     MapExpand,
     /// <summary>The map returning from the room map to the area map.</summary>
@@ -141,6 +133,4 @@ public enum SamusSound
     MotherBrainRainbowBeam,
     /// <summary>The Charge Beam's charging sound resumed.</summary>
     ResumeChargingBeam,
-    /// <summary>An unused sound that needs a music data set's instrument.</summary>
-    Unused,
 }

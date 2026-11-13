@@ -29,7 +29,6 @@ internal static class SamusLiquidPhysicsStateAccess
                     RoomFxType.Rain or
                     RoomFxType.Fog or
                     RoomFxType.ScrollingSky or
-                    RoomFxType.UnusedScrollingSky or
                     RoomFxType.Fireflea or
                     RoomFxType.TourianEntranceStatue or
                     RoomFxType.CeresRidley or

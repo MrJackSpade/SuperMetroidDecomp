@@ -763,7 +763,6 @@ internal static class EnemyFrameNameDefinitions
         [EnemyFrameId.ShutterGrowingTwentyPixels] = "shutter_growing_twenty_pixels",
         [EnemyFrameId.ShutterGrowingThirtyPixels] = "shutter_growing_thirty_pixels",
         [EnemyFrameId.ShutterFortyPixels] = "shutter_forty_pixels",
-        [EnemyFrameId.ShutterHorizontal] = "shutter_horizontal",
         [EnemyFrameId.MetroidChasingSamusFirst] = "metroid_chasing_samus_first",
         [EnemyFrameId.MetroidChasingSamusSecond] = "metroid_chasing_samus_second",
         [EnemyFrameId.MetroidChasingSamusThird] = "metroid_chasing_samus_third",

@@ -8,9 +8,7 @@ public enum PaletteFxSegment
 {
     /// <summary>The fade in Super Metroid title logo animation.</summary>
     FadeInSuperMetroidTitleLogo,
-    /// <summary>The fade in Nintendo boot logo animation.</summary>
-    FadeInNintendoBootLogo,
-    /// <summary>The shared fade in logo animation its variants continue into.</summary>
+    /// <summary>The fade in logo animation the copyright's fade continues into.</summary>
     CommonFadeInLogo,
     /// <summary>The fade in Nintendo copyright animation.</summary>
     FadeInNintendoCopyright,

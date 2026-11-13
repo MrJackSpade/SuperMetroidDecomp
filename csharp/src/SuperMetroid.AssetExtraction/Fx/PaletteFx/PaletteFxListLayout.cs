@@ -11,7 +11,6 @@ internal static class PaletteFxListLayout
     /// <summary>The segments whose list runs on into the next authored list.</summary>
     internal static IReadOnlySet<PaletteFxSegment> RunOnIntoNext { get; } = new HashSet<PaletteFxSegment>
     {
-        PaletteFxSegment.FadeInNintendoBootLogo,
         PaletteFxSegment.TitleScreenBabyMetroidTubeLight0,
         PaletteFxSegment.TitleScreenFlickeringDisplays0,
         PaletteFxSegment.CutsceneGunshipEngineFlicker0,

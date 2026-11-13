@@ -114,7 +114,7 @@ internal sealed record PartFrameConfiguration(
             },
             null, null, []),
         // A vertical shutter runs its forty-pixel program, Kamer its platform loop; a growing shutter grows through its
-        // three growth programs to the forty-pixel one; the horizontal shutter runs its own.
+        // three growth programs to the forty-pixel one.
         new("ShuttersBehavior", null, null, "ShutterAnimations", null, [],
             new Dictionary<string, string[]>(StringComparer.Ordinal)
             {
@@ -122,7 +122,6 @@ internal sealed record PartFrameConfiguration(
                 ["ShutterDestroyable"] = ["FortyPixels"],
                 ["ShutterShootable"] = ["FortyPixels"],
                 ["ShutterGrowing"] = ["GrowingTenPixels", "GrowingTwentyPixels", "GrowingThirtyPixels", "FortyPixels"],
-                ["ShutterHorizShootable"] = ["Horizontal"],
             },
             new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, []),
         // Each crawler starts in its family's surface program and takes its later surfaces from its surface family:

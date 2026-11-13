@@ -190,7 +190,6 @@ internal static class RoomStateSourceDefinitions
         [0xb35a] = NorfairRoomStateDefinitions.RidleyWhenAreaBossDead,
         [0xb387] = NorfairRoomStateDefinitions.LNFarming,
         [0xb3b2] = NorfairRoomStateDefinitions.FastPillarsSetup,
-        [0xb3ee] = NorfairRoomStateDefinitions.UnusedNorfairRoom,
         [0xb417] = NorfairRoomStateDefinitions.MickeyMouse,
         [0xb464] = NorfairRoomStateDefinitions.Pillar,
         [0xb48f] = NorfairRoomStateDefinitions.Plowerhouse,

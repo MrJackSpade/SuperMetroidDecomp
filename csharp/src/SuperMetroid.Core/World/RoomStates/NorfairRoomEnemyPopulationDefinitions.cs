@@ -314,9 +314,6 @@ internal static class NorfairRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Multiviola, new(120, 88), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new MultiviolaSpawnSettings(Heading: new TrigonometryAngle(96), Speed: 2)),
             new(EnemyDefinitionId.Multiviola, new(572, 93), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new MultiviolaSpawnSettings(Heading: new TrigonometryAngle(48), Speed: 2)),
         ], 3),
-        new(nameof(RoomEnemyPopulationDefinitions.UnusedNorfairRoom),
-        [
-        ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.LavaDive),
         [
             new(EnemyDefinitionId.Namihe, new(496, 264), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new FuneNamiheSpawnSettings(Variant: FuneNamiheVariant.Namihe, Facing: HorizontalDirection.Left, CooldownTime: 16, LaunchSpeed: new SignedEightEight(384), YProximity: 128)),

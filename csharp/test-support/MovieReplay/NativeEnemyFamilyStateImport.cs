@@ -221,7 +221,7 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.SpeciesState<CrocomireEnemyState>() is { } crocomireRecord)
         {
             crocomireRecord.DeathPhase = CrocomireNativeWords.DeathPhases.Decode(words.A, "recorded Crocomire death phase");
-            crocomireRecord.FightFlags = CrocomireNativeWords.FightFlags(words.B);
+            crocomireRecord.DamageReactionPending = CrocomireNativeWords.DamageReactionPending(words.B);
             crocomireRecord.Phase = CrocomireNativeWords.Phases.Decode(words.C, "recorded Crocomire fight function");
             // The cartridge keeps several of the body's values in each of words D, E and F; the phase says which.
             CrocomireNativeWords.ImportSharedWords(crocomireRecord, words.D, words.E, words.F);
@@ -392,13 +392,6 @@ internal static class NativeEnemyFamilyStateImport
             verticalShutterRecord.ActionTimer = WrappingCountdown.Start(words.B);
             verticalShutterRecord.DownVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.D), words.C);
             verticalShutterRecord.UpVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.F), words.E);
-        }
-        if (slot.SpeciesState<HorizontalShutterEnemyState>() is { } horizontalShutterRecord)
-        {
-            horizontalShutterRecord.Action = words.A == 0 ? null : ShuttersNativeWords.HorizontalShutterActions.Decode(words.A, "recorded HorizontalShutterAction");
-            horizontalShutterRecord.ActionTimer = WrappingCountdown.Start(words.B);
-            horizontalShutterRecord.RightVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.D), words.C);
-            horizontalShutterRecord.LeftVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.F), words.E);
         }
         if (slot.SpeciesState<CacatacEnemyState>() is { } cacatacRecord)
         {

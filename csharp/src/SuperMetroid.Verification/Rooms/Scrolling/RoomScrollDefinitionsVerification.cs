@@ -89,7 +89,7 @@ internal static class RoomScrollDefinitionsVerification
             "compiled scroll audit reaches every room state");
         AssertEqual(200, explicitStateCount,
             "retail states selecting explicit scroll allocations");
-        AssertEqual(123, implicitStateCount,
+        AssertEqual(122, implicitStateCount,
             "retail states selecting implicit scroll allocations");
         AssertEqual(RoomScrollDefinitionsConstants.ExplicitDefinitionCount, explicitPointers.Count,
             "compiled scroll catalog contains every distinct explicit allocation");
@@ -120,7 +120,7 @@ internal static class RoomScrollDefinitionsVerification
             "production Ceres entry installs compiled scroll storage");
 
         Console.WriteLine(
-            "Room scrolls: all 323 states (200 explicit/123 implicit), 159 distinct " +
+            "Room scrolls: all 322 states (200 explicit/122 implicit), 159 distinct " +
             "allocations and Ceres match without native scroll reads.");
     }
 

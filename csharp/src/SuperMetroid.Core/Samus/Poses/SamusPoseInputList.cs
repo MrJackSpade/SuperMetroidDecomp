@@ -63,10 +63,10 @@ internal enum SamusPoseInputList
     MorphBallFallingRightPoseList,
     /// <summary>The input-transition list of the morph ball falling left poses.</summary>
     MorphBallFallingLeftPoseList,
-    /// <summary>The input-transition list of <see cref="SamusPoseId.UnusedKnockbackRightPose"/>: diagnostic list identity.</summary>
-    UnusedKnockbackRightPoseList,
-    /// <summary>The input-transition list of <see cref="SamusPoseId.UnusedKnockbackLeftPose"/>: diagnostic list identity.</summary>
-    UnusedKnockbackLeftPoseList,
+    /// <summary>The input-transition list of <see cref="SamusPoseId.GlitchBallKnockbackRightPose"/>: diagnostic list identity.</summary>
+    GlitchBallKnockbackRightPoseList,
+    /// <summary>The input-transition list of <see cref="SamusPoseId.GlitchBallKnockbackLeftPose"/>: diagnostic list identity.</summary>
+    GlitchBallKnockbackLeftPoseList,
     /// <summary>The input-transition list of the moonwalk facing left poses.</summary>
     MoonwalkFacingLeftPoseList,
     /// <summary>The input-transition list of the moonwalk facing right poses.</summary>

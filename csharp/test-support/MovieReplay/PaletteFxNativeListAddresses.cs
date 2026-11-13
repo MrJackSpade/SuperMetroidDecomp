@@ -15,7 +15,6 @@ internal static class PaletteFxNativeListAddresses
     internal static readonly PaletteFxNativeListAddressesEntry[] Entries =
     [
         new PaletteFxNativeListAddressesEntry(PaletteFxSegment.FadeInSuperMetroidTitleLogo, 0xc696),
-        new PaletteFxNativeListAddressesEntry(PaletteFxSegment.FadeInNintendoBootLogo, 0xc7ac),
         new PaletteFxNativeListAddressesEntry(PaletteFxSegment.CommonFadeInLogo, 0xc7b0),
         new PaletteFxNativeListAddressesEntry(PaletteFxSegment.FadeInNintendoCopyright, 0xc7f2),
         new PaletteFxNativeListAddressesEntry(PaletteFxSegment.TitleScreenBabyMetroidTubeLight0, 0xc7fa),

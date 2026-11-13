@@ -32,8 +32,8 @@ internal static class MotherBrainFakeDeathObjectsVerification
         Suite(nameof(VerifyMotherBrainBoundaryGeometry), () => VerifyMotherBrainBoundaryGeometry(rom));
         Suite(nameof(VerifyMotherBrainBoundaryCollision), () => VerifyMotherBrainBoundaryCollision(rom));
 
-        AssertEqual(22, RoomObjectMotherBrainFakeDeathVisualFiles.Family.Layouts.Count,
-            "Mother Brain fake death owns twenty-two physical draws");
+        AssertEqual(20, RoomObjectMotherBrainFakeDeathVisualFiles.Family.Layouts.Count,
+            "Mother Brain fake death owns twenty physical draws");
         foreach (MotherBrainRoomMutation mutation in Enum.GetValues<MotherBrainRoomMutation>())
         {
             TerrainChange change = MotherBrainRoomMutationDefinitions.Changes[mutation];

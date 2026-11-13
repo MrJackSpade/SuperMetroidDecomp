@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Audio;
 
 /// <summary>
 /// Renders the audio's import data, the extracted catalog, into installed clips (#1305, #1693): every music track in every
-/// bank, and every sound effect in every bank context, written as content-addressed 16-bit stereo
+/// bank, and every sound effect the game requests in every bank context, written as content-addressed 16-bit stereo
 /// WAV files at the native S-DSP rate with an <see cref="AudioClipManifest"/>. Tracks and effects
 /// render in parallel; an effect renders once per distinct start, and a bank context whose start
 /// agrees on every input an earlier context's render read takes that render (#1503). Identical
@@ -69,15 +69,20 @@ internal static class AudioClipExporter
         return keys;
     }
 
-    /// <summary>Every effect of every library in the common context and after each music bank's upload.</summary>
+    /// <summary>
+    /// Every effect a sound of the game requests, of every library, in the common context and after each music bank's
+    /// upload. A library's other effects, which no sound of the game requests (#1686), stay in the catalog and get no clip.
+    /// </summary>
     internal static IReadOnlyList<SoundEffectKey> AllSoundEffects(ExtractedAudioAssetCatalog catalog)
     {
         var contexts = new List<AudioBank?> { null };
         contexts.AddRange(AudioAssetCatalogDefinitions.Music.Select(bank => (AudioBank?)bank.AudioSet));
         return [.. from library in catalog.SoundLibraries
+                   let sounds = SoundLibraryNumbers.Decode(library.Library)
                    from effect in library.Effects
+                   where SoundEffectCommands.Names(sounds, effect.Command)
                    from context in contexts
-                   select new SoundEffectKey(context, SoundLibraryNumbers.Decode(library.Library), effect.Command)];
+                   select new SoundEffectKey(context, sounds, effect.Command)];
     }
 
     /// <summary>Renders the given tracks and effects into <paramref name="audioDirectory"/> and writes the manifest.</summary>

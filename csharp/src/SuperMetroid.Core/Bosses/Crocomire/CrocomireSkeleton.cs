@@ -79,7 +79,7 @@ internal sealed class CrocomireSkeleton
         death.RumbleYOffset = 0;
         death.RumbleCooldown = 10;
         death.RumbleDelta = 1;
-        state.FightFlags = 0;
+        state.DamageReactionPending = false;
         body.Radius = body.Radius.WithY(56);
         state.DeathPhase = state.DeathPhase.Next();
     }

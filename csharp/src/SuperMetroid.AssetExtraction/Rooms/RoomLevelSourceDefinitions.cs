@@ -150,7 +150,6 @@ internal static class RoomLevelSourceDefinitions
         [RoomLevelDefinitions.Ridley] = 0xC8EBFD,
         [RoomLevelDefinitions.LNFarming] = 0xC8EDCE,
         [RoomLevelDefinitions.FastPillarsSetup] = 0xC8F01F,
-        [RoomLevelDefinitions.UnusedNorfairRoom] = 0xC8F40B,
         [RoomLevelDefinitions.MickeyMouse] = 0xC8F58B,
         [RoomLevelDefinitions.Pillar] = 0xC8FCC5,
         [RoomLevelDefinitions.Plowerhouse] = 0xC98222,

@@ -107,8 +107,8 @@ internal static class RidleySamusDrawReference
 
         bool bottom = movement switch
         {
-            SamusMovementType.MorphBallGround or SamusMovementType.UnusedGlitchBall or
-                SamusMovementType.MorphBallFalling or SamusMovementType.UnusedGlitchBallAlternate or
+            SamusMovementType.MorphBallGround or SamusMovementType.GlitchBall or
+                SamusMovementType.MorphBallFalling or SamusMovementType.GlitchBallKnockback or
                 SamusMovementType.SpringBallGround or SamusMovementType.SpringBallInAir or
                 SamusMovementType.SpringBallFalling => false,
             SamusMovementType.SpinJumping => frame == 0 || frame >= 11 ||

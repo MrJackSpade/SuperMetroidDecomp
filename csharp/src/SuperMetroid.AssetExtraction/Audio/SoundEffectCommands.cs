@@ -29,6 +29,16 @@ internal static class SoundEffectCommands
     internal static int Command(SoundEffectId sound) => Commands.TryGetValue(sound, out int command)
         ? command : throw new InvalidOperationException("The default sound identity names no sound.");
 
+    /// <summary>Whether <paramref name="library"/>'s request <paramref name="command"/> names a sound the game asks for.</summary>
+    /// <exception cref="InvalidDataException">The library is no sound library.</exception>
+    internal static bool Names(SoundEffectLibrary library, int command) => library switch
+    {
+        SoundEffectLibrary.Samus => Library1Sounds.ContainsKey(command),
+        SoundEffectLibrary.Enemies => Library2Sounds.ContainsKey(command),
+        SoundEffectLibrary.Room => Library3Sounds.ContainsKey(command),
+        _ => throw new InvalidDataException($"Unknown sound-effect library {library}."),
+    };
+
     /// <summary>The sound <paramref name="library"/>'s request <paramref name="command"/> names.</summary>
     /// <exception cref="InvalidDataException">The library has no such request.</exception>
     internal static SoundEffectId Decode(SoundEffectLibrary library, int command)

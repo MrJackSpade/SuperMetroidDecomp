@@ -26,10 +26,6 @@ internal static class PaletteFxSegments
             F(6, 3),
             F(7, 3),
         ],
-        [P.FadeInNintendoBootLogo] =
-        [
-            E(new PaletteFxCue.SetColours(PaletteFxColours.NintendoBootLogo)),
-        ],
         [P.CommonFadeInLogo] =
         [
             F(0, 3),

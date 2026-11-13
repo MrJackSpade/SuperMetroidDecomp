@@ -162,7 +162,6 @@ internal static class PipeBugBehaviorVerification
             case EnemyDefinitionId.Dragon:
             case EnemyDefinitionId.ShutterGrowing:
             case EnemyDefinitionId.ShutterShootable:
-            case EnemyDefinitionId.ShutterHorizShootable:
             case EnemyDefinitionId.ShutterDestroyable:
             case EnemyDefinitionId.Kamer:
             case EnemyDefinitionId.Waver:
@@ -175,7 +174,6 @@ internal static class PipeBugBehaviorVerification
             case EnemyDefinitionId.Tripper:
             case EnemyDefinitionId.Kamer2:
             case EnemyDefinitionId.Sbug:
-            case EnemyDefinitionId.Sbug2:
             case EnemyDefinitionId.Mochtroid:
             case EnemyDefinitionId.Sidehopper:
             case EnemyDefinitionId.Dessgeega:
@@ -277,16 +275,10 @@ internal static class PipeBugBehaviorVerification
             case EnemyDefinitionId.EtecoonEscape:
             case EnemyDefinitionId.DachoraEscape:
             case EnemyDefinitionId.PirateGreyWall:
-            case EnemyDefinitionId.PirateGreenWall:
-            case EnemyDefinitionId.PirateRedWall:
             case EnemyDefinitionId.PirateGoldWall:
             case EnemyDefinitionId.PirateMagentaWall:
             case EnemyDefinitionId.PirateSilverWall:
-            case EnemyDefinitionId.PirateGreyNinja:
-            case EnemyDefinitionId.PirateGreenNinja:
-            case EnemyDefinitionId.PirateRedNinja:
             case EnemyDefinitionId.PirateGoldNinja:
-            case EnemyDefinitionId.PirateMagentaNinja:
             case EnemyDefinitionId.PirateSilverNinja:
             case EnemyDefinitionId.PirateGreyWalking:
             case EnemyDefinitionId.PirateGreenWalking:

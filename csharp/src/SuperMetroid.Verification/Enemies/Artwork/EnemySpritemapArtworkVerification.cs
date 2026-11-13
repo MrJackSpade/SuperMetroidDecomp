@@ -595,8 +595,7 @@ internal static class EnemySpritemapArtworkVerification
                         ? TripperKamerVisualDefinitions.Bank
                     : definition is EnemyDefinitionId.ShutterGrowing or
                         EnemyDefinitionId.ShutterShootable or
-                        EnemyDefinitionId.ShutterDestroyable or
-                        EnemyDefinitionId.ShutterHorizShootable
+                        EnemyDefinitionId.ShutterDestroyable
                         ? ShutterVisualDefinitions.Bank
                     : definition is EnemyDefinitionId.HZoomer or
                         EnemyDefinitionId.Sciser or
@@ -605,8 +604,7 @@ internal static class EnemySpritemapArtworkVerification
                         EnemyDefinitionId.Zoomer or
                         EnemyDefinitionId.MZoomer
                         ? EnemySpritemapDefinitions.HZoomerBank
-                    : definition is EnemyDefinitionId.Sbug or
-                        EnemyDefinitionId.Sbug2
+                    : definition is EnemyDefinitionId.Sbug
                         ? EnemySpritemapDefinitions.SbugBank
                         : definition is EnemyDefinitionId.Elevator or
                           EnemyDefinitionId.Skultera or

@@ -31,10 +31,6 @@ internal enum MotherBrainFakeDeathDraw
     MuralRow11,
     /// <summary>The twelfth row of the mural behind her tank.</summary>
     MuralRow12,
-    /// <summary>A solid row nothing in the game draws.</summary>
-    UnusedFirstSolidRow,
-    /// <summary>A second solid row nothing in the game draws.</summary>
-    UnusedSecondSolidRow,
     /// <summary>Clear ceiling block.</summary>
     ClearCeilingBlock,
     /// <summary>Clear ceiling tube.</summary>

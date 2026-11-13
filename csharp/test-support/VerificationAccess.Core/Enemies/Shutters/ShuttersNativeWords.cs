@@ -19,21 +19,6 @@ internal static class ShuttersNativeWords
         [GrowingShutterAction.GrowUp] = 0xec13,
     });
 
-    /// <summary>The routine word naming each <see cref="HorizontalShutterAction"/>.</summary>
-    internal static readonly NativeWordIdentities<HorizontalShutterAction> HorizontalShutterActions = new(new Dictionary<HorizontalShutterAction, ushort>
-    {
-        [HorizontalShutterAction.Initial] = 0xf224,
-        [HorizontalShutterAction.WaitForTimer] = 0xf230,
-        [HorizontalShutterAction.WaitForHorizontalProximity] = 0xf243,
-        [HorizontalShutterAction.Activate] = 0xf254,
-        [HorizontalShutterAction.InitialNoOp] = 0xf25b,
-        [HorizontalShutterAction.MovingLeft] = 0xf272,
-        [HorizontalShutterAction.MovingRight] = 0xf2e4,
-        [HorizontalShutterAction.StoppedAfterMovingLeft] = 0xf38c,
-        [HorizontalShutterAction.StoppedAfterMovingRight] = 0xf3b0,
-        [HorizontalShutterAction.PermanentNoOp] = 0xf3d4,
-    });
-
     /// <summary>The routine word naming each <see cref="VerticalShutterAction"/>.</summary>
     internal static readonly NativeWordIdentities<VerticalShutterAction> VerticalShutterActions = new(new Dictionary<VerticalShutterAction, ushort>
     {

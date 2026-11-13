@@ -28,7 +28,7 @@ internal static class SbugReversalVerification
     {
         SbugSpawnSettings[] placements = [.. RoomEnemyPopulationDefinitions.Definitions
             .SelectMany(list => list.Records.ToArray())
-            .Where(placement => placement.DefinitionId is EnemyDefinitionId.Sbug or EnemyDefinitionId.Sbug2)
+            .Where(placement => placement.DefinitionId is EnemyDefinitionId.Sbug)
             .Select(placement => (SbugSpawnSettings)placement.SpawnSettings)];
         if (placements.Length == 0)
             throw new InvalidOperationException("No authored Sbug was found.");

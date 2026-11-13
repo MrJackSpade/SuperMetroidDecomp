@@ -13,7 +13,6 @@ internal static class PaletteFxScreenColourDefinitions
     internal static ImmutableHashSet<PaletteFxColours> FrontendScreenGroups { get; } =
     [
         PaletteFxColours.TitleLogo,
-        PaletteFxColours.NintendoBootLogo,
         PaletteFxColours.NintendoCopyright,
         PaletteFxColours.BabyMetroidTubeLight,
         PaletteFxColours.TitleScreenDisplays,

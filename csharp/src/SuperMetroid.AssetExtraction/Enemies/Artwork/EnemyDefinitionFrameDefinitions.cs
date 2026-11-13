@@ -2036,12 +2036,6 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.ShutterFortyPixels,
     ];
 
-    /// <summary>The frames <c>Enemies/Shutters/ShuttersBehavior.cs</c> shows for <c>ShutterHorizShootable</c>.</summary>
-    private static readonly EnemyFrameId[] ShutterHorizShootableFrames =
-    [
-        EnemyFrameId.ShutterHorizontal,
-    ];
-
     /// <summary>The frames <c>Enemies/Skree/SkreeBehavior.cs</c> shows.</summary>
     private static readonly EnemyFrameId[] Skree =
     [
@@ -2593,20 +2587,14 @@ internal static class EnemyDefinitionFrameDefinitions
             [EnemyDefinitionId.Ripper] = RipperFrames,
             [EnemyDefinitionId.Ripper2] = GRipperFrames,
             [EnemyDefinitionId.Sbug] = Sbug,
-            [EnemyDefinitionId.Sbug2] = Sbug,
             [EnemyDefinitionId.Shaktool] = Shaktool,
             [EnemyDefinitionId.Kamer] = KamerFrames,
             [EnemyDefinitionId.ShutterDestroyable] = ShutterDestroyableFrames,
             [EnemyDefinitionId.ShutterGrowing] = ShutterGrowingFrames,
-            [EnemyDefinitionId.ShutterHorizShootable] = ShutterHorizShootableFrames,
             [EnemyDefinitionId.ShutterShootable] = ShutterDestroyableFrames,
             [EnemyDefinitionId.Skree] = Skree,
             [EnemyDefinitionId.Skultera] = Skultera,
             [EnemyDefinitionId.PirateGoldNinja] = NinjaSpacePirate,
-            [EnemyDefinitionId.PirateGreenNinja] = NinjaSpacePirate,
-            [EnemyDefinitionId.PirateGreyNinja] = NinjaSpacePirate,
-            [EnemyDefinitionId.PirateMagentaNinja] = NinjaSpacePirate,
-            [EnemyDefinitionId.PirateRedNinja] = NinjaSpacePirate,
             [EnemyDefinitionId.PirateSilverNinja] = NinjaSpacePirate,
             [EnemyDefinitionId.PirateGoldWalking] = WalkingSpacePirate,
             [EnemyDefinitionId.PirateGreenWalking] = WalkingSpacePirate,
@@ -2615,10 +2603,8 @@ internal static class EnemyDefinitionFrameDefinitions
             [EnemyDefinitionId.PirateRedWalking] = WalkingSpacePirate,
             [EnemyDefinitionId.PirateSilverWalking] = WalkingSpacePirate,
             [EnemyDefinitionId.PirateGoldWall] = WallSpacePirate,
-            [EnemyDefinitionId.PirateGreenWall] = WallSpacePirate,
             [EnemyDefinitionId.PirateGreyWall] = WallSpacePirate,
             [EnemyDefinitionId.PirateMagentaWall] = WallSpacePirate,
-            [EnemyDefinitionId.PirateRedWall] = WallSpacePirate,
             [EnemyDefinitionId.PirateSilverWall] = WallSpacePirate,
             [EnemyDefinitionId.Spark] = Spark,
             [EnemyDefinitionId.Stoke] = Stoke,

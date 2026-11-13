@@ -68,12 +68,6 @@ internal static class EnemyAiRoutineDefinitions
         public static readonly SnesAddress DestroyableVerticalShutterShot = new(Bank, 0xf0aa);
         /// <summary>Vertical shutter Power Bomb callback at $A2:F0B6.</summary>
         public static readonly SnesAddress VerticalShutterPowerBomb = new(Bank, 0xf0b6);
-        /// <summary>Horizontal shutter touch callback at $A2:F3D8.</summary>
-        public static readonly SnesAddress HorizontalShutterTouch = new(Bank, 0xf3d8);
-        /// <summary>Horizontal shutter shot callback at $A2:F40E.</summary>
-        public static readonly SnesAddress HorizontalShutterShot = new(Bank, 0xf40e);
-        /// <summary>Horizontal shutter Power Bomb callback at $A2:F41A.</summary>
-        public static readonly SnesAddress HorizontalShutterPowerBomb = new(Bank, 0xf41a);
     }
 
     /// <summary>Bank-$A3 enemy interaction callbacks.</summary>

@@ -239,7 +239,7 @@ public static class SamusAerialMovement
         }
         else if (speed.AccelerationMode == SamusAccelerationMode.Accelerating)
         {
-            // Mode two is not ordinary deceleration here. The aerial speed calculation tests only bit zero,
+            // Mode two is not ordinary deceleration here. The aerial speed calculation tests only whether Samus is turning,
             // so mode two continues accelerating on subsequent airborne frames.
             speed.AccelerationMode = SamusAccelerationMode.Decelerating;
         }

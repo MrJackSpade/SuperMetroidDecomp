@@ -740,7 +740,7 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>
     /// Calculates the horizontal base speed with deceleration disallowed.
-    /// Despite the name, acceleration-mode bit zero still selects the
+    /// Despite the name, the turning acceleration mode still selects the
     /// turning/deceleration branch; modes zero and two both accelerate toward the table
     /// maximum. The returned reached-maximum result is important to spin
     /// jump's decision to retain horizontal motion.

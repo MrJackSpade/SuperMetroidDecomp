@@ -269,7 +269,7 @@ public sealed class SamusShinesparkState
             SamusPoseId.ShinesparkDiagonalRightPose or
             SamusPoseId.ShinesparkDiagonalLeftPose => ShinesparkPhase.Diagonal,
             // The launch is reached only from the six table-selected shinespark poses.
-            // Any other pose is a caller contract violation, not another untranslated arm.
+            // Any other pose is a caller contract violation, not another launch the game has.
             SamusPoseId.ForwardFacingPowerSuitPose or
                 SamusPoseId.ForwardFacingSuitedPose or
                 SamusPoseId.FacingRightNormalPose or

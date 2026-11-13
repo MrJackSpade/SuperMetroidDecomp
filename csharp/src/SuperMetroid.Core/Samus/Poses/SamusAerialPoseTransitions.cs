@@ -952,7 +952,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         {
             // This helper models one same-facing pose family, not the general pose dispatcher.
             // A cross-family request therefore violates the method contract rather than
-            // identifying an untranslated member of the admitted family.
+            // identifying an unsupported member of the admitted family.
             throw new InvalidOperationException(
                 $"Aerial aim/fire/forward transition {samus.Pose} -> {targetPose} is outside the same-facing family handled by this operation.");
         }

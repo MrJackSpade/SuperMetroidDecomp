@@ -13,7 +13,7 @@ namespace SuperMetroid.Verification.Bosses.Torizo;
 internal static class LookupBombTorizoHandStockVerification
 {
     /// <summary>Compares both frames' pictures with the cartridge, rejects other draws, then checks the import and its rejections.</summary>
-    internal static void VerifyBombTorizoHandStockMapping(SuperMetroidAddressSpace rom,
+    internal static void VerifyBombTorizoHandStockMapping(CartridgeImportAddressSpace rom,
         InstalledRoomObjectBombTorizoHandVisuals installed)
     {
         LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0x9877,"intact"),new LookupEscapeGateStockFrame(0x989d,"cleared")];

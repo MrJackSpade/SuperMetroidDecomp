@@ -59,7 +59,7 @@ internal static class CeresExplosionDefinitionsVerification
             "  Ceres explosion definitions: 70 native words and the complete production cinematic pass with actor, placement, timing and callback metadata reads forbidden.");
 
         static void VerifyActor(
-            SuperMetroidAddressSpace source,
+            CartridgeImportAddressSpace source,
             ushort definitionPointer,
             CinematicActorDefinition definition,
             string name)

@@ -15,7 +15,7 @@ namespace SuperMetroid.Verification.Enemies;
 internal static class EnemyQuadraticSpeedsVerification
 {
     /// <summary>Compares every row and its coarse speeds with the cartridge, then focused production integrations.</summary>
-    internal static void VerifyCompiledQuadraticEnemySpeeds(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
+    internal static void VerifyCompiledQuadraticEnemySpeeds(CartridgeImportAddressSpace rom, bool definitionsOnly = false)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         EnemySpeedSign[] signs = [EnemySpeedSign.Positive, EnemySpeedSign.Negative];

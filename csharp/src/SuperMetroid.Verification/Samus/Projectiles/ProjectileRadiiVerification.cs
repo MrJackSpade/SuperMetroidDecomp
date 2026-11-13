@@ -12,7 +12,7 @@ using SuperMetroid.Verification.Harness;
 internal static class ProjectileRadiiVerification
 {
     /// <summary>Compares 795 bank 93 radius pairs and checks projectile and bomb frames under the stock sprite bindings.</summary>
-    internal static void VerifyProjectileRadii(SuperMetroidAddressSpace rom)
+    internal static void VerifyProjectileRadii(CartridgeImportAddressSpace rom)
     {
         // Independent address inventory from the pinned disassembly's timed-record fields.
         // Expected values are read from the cartridge, never from the compiled catalog.

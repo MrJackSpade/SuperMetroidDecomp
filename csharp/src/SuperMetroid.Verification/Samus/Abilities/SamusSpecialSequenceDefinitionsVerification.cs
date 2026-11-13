@@ -27,7 +27,7 @@ internal static class SamusSpecialSequenceDefinitionsVerification
             return;
         }
 
-        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+        CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         TouchRange(bus, SuitPickupBeamDefinitions.BeamCurve,
             SuitPickupBeamDefinitions.BeamLines / 2,
             "suit-pickup symmetric beam curve");

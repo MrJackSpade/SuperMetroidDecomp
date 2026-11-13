@@ -8,7 +8,7 @@ namespace SuperMetroid.Verification.Bosses.Kraid;
 internal static class KraidPaletteDefinitionsVerification
 {
     /// <summary>Reads five indexed-load operands from bank $A7 and confirms each compiled Kraid palette source address and invalid-identity rejection.</summary>
-    internal static void VerifyKraidPaletteSourceAddresses(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidPaletteSourceAddresses(CartridgeImportAddressSpace rom)
     {
         NativeLoad[] nativeLoads =
         [

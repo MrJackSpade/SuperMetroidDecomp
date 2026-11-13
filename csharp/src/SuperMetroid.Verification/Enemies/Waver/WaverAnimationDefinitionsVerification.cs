@@ -12,7 +12,7 @@ namespace SuperMetroid.Verification.Enemies.Waver;
 internal static class WaverAnimationDefinitionsVerification
 {
     /// <summary>Compares four native pointers and confirms timer reset without rereading their table.</summary>
-    internal static void VerifyWaverAnimationDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyWaverAnimationDefinitions(CartridgeImportAddressSpace rom)
     {
         for (int index = 0; index < 4; index++)
         {

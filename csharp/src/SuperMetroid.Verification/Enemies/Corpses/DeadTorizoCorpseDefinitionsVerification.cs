@@ -16,7 +16,7 @@ internal static class DeadTorizoCorpseDefinitionsVerification
     private const ushort ConfigurationPointer = 0xdd58;
 
     /// <summary>Compares the decoded native configuration with the definition and the slot state.</summary>
-    internal static void VerifyDeadTorizoCorpseDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyDeadTorizoCorpseDefinitions(CartridgeImportAddressSpace rom)
     {
         CorpseRottingConfiguration configuration = CorpseRottingConfigurationCodec.Decode(rom, ConfigurationPointer);
         AssertEqual(DeadTorizoCorpseDefinitions.RowCount, configuration.RowCount, "dead Torizo corpse height");

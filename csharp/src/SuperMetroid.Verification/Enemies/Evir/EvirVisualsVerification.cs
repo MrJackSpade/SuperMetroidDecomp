@@ -22,7 +22,7 @@ internal static class EvirVisualsVerification
     /// that running each program with the stock artwork shows exactly its authored poses.
     /// </summary>
     internal static void VerifyInstalledEvirVisuals(
-        SuperMetroidAddressSpace rom, ImportEnemyArtwork stock)
+        CartridgeImportAddressSpace rom, ImportEnemyArtwork stock)
     {
         var shownFrames = EvirAnimationsConstants.Spritemaps(Enum.GetValues<EvirProgram>()).ToHashSet();
         foreach (ushort pointer in shownFrames)

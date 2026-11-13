@@ -606,7 +606,6 @@ firingLevel, cancelledSamus, controllerInput: 0);
 
     BindGrapplePresentation(samus);
     SamusGrappleMovement.ConnectUnobstructedSwing(
-        bus,
         samus,
         anchor: new Position16<RoomPixels>(200, 100),
         ropeLength: 50,
@@ -791,7 +790,6 @@ firingLevel, cancelledSamus, controllerInput: 0);
     var angularCollisionSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
     BindGrapplePresentation(angularCollisionSamus);
     SamusGrappleMovement.ConnectUnobstructedSwing(
-        bus,
         angularCollisionSamus,
         anchor: new Position16<RoomPixels>(128, 128),
         ropeLength: 32,
@@ -829,7 +827,6 @@ firingLevel, cancelledSamus, controllerInput: 0);
         var spikeBlockSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
         BindGrapplePresentation(spikeBlockSamus);
         SamusGrappleMovement.ConnectUnobstructedSwing(
-            bus,
             spikeBlockSamus,
             anchor: new Position16<RoomPixels>(128, 128),
             ropeLength: 32,
@@ -868,7 +865,6 @@ firingLevel, cancelledSamus, controllerInput: 0);
         var spikeAirSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
         BindGrapplePresentation(spikeAirSamus);
         SamusGrappleMovement.ConnectUnobstructedSwing(
-            bus,
             spikeAirSamus,
             anchor: new Position16<RoomPixels>(128, 128),
             ropeLength: 32,
@@ -927,7 +923,6 @@ firingLevel, cancelledSamus, controllerInput: 0);
     var ropeCollisionSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
     BindGrapplePresentation(ropeCollisionSamus);
     SamusGrappleMovement.ConnectUnobstructedSwing(
-        bus,
         ropeCollisionSamus,
         anchor: new Position16<RoomPixels>(128, 128),
         ropeLength: 32,
@@ -949,7 +944,6 @@ firingLevel, cancelledSamus, controllerInput: 0);
     var disconnectedAnchorSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
     BindGrapplePresentation(disconnectedAnchorSamus);
     SamusGrappleMovement.ConnectUnobstructedSwing(
-        bus,
         disconnectedAnchorSamus,
         anchor: new Position16<RoomPixels>(128, 128),
         ropeLength: 32,
@@ -977,7 +971,6 @@ firingLevel, cancelledSamus, controllerInput: 0);
     var wallGrabSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
     BindGrapplePresentation(wallGrabSamus);
     SamusGrappleMovement.ConnectUnobstructedSwing(
-        bus,
         wallGrabSamus,
         anchor: new Position16<RoomPixels>(128, 128),
         ropeLength: 8,
@@ -1060,7 +1053,6 @@ firingLevel, cancelledSamus, controllerInput: 0);
     var expiredWallGrabSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
     BindGrapplePresentation(expiredWallGrabSamus);
     SamusGrappleMovement.ConnectUnobstructedSwing(
-        bus,
         expiredWallGrabSamus,
         anchor: new Position16<RoomPixels>(128, 128),
         ropeLength: 8,
@@ -1099,7 +1091,6 @@ firingLevel, cancelledSamus, controllerInput: 0);
     var lockedSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
     BindGrapplePresentation(lockedSamus);
     SamusGrappleMovement.ConnectUnobstructedSwing(
-        bus,
         lockedSamus,
         anchor: new Position16<RoomPixels>(128, 128),
         ropeLength: 8,
@@ -1135,7 +1126,7 @@ firingLevel, cancelledSamus, controllerInput: 0);
 
     AssertThrows<ArgumentOutOfRangeException>(
         () => SamusGrappleMovement.ConnectUnobstructedSwing(
-            bus, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()), Position16<RoomPixels>.Zero, ropeLength: 7, angle: RotationAngle.Zero, angularVelocity: 0, faceRight: true),
+            new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()), Position16<RoomPixels>.Zero, ropeLength: 7, angle: RotationAngle.Zero, angularVelocity: 0, faceRight: true),
         "grapple rejects a rope shorter than retail connected minimum");
 
     Console.WriteLine("  Samus grapple: firing, swing collision, locked/wall-grab specials, wall jump, dropped pose, beam OAM, and release agree.");

@@ -11,7 +11,7 @@ using SuperMetroid.Core.World;
 internal static class CrocomireBridgeFragmentDefinitionsVerification
 {
     /// <summary>Compares native X positions with real allocations, movement seeds, cursor advance, and cutoff.</summary>
-    internal static void VerifyCrocomireBridgeFragmentDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyCrocomireBridgeFragmentDefinitions(CartridgeImportAddressSpace rom)
     {
         const int sourceAddress = 0xa49156;
         // The cartridge table holds one X word per fragment, in launch order.

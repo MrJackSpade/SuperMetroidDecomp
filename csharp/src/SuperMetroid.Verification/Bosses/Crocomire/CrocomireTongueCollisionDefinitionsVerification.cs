@@ -40,7 +40,7 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
     }
 
     /// <summary>Compares all nine instruction operands with the compiled frame-pointer order.</summary>
-    internal static void VerifyCrocomireTongueFramePositions(SuperMetroidAddressSpace rom)
+    internal static void VerifyCrocomireTongueFramePositions(CartridgeImportAddressSpace rom)
     {
         ushort[] operands = [0xbe58, 0xbe5c, 0xbe60, 0xbe64, 0xbf9a, 0xbf9e, 0xbfa2, 0xbfa6, 0xbfaa];
         AssertEqual(9, CrocomireTongueCollisionDefinitionsConstants.FrameCount, "tongue frame count");
@@ -54,7 +54,7 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
     }
 
     /// <summary>Checks each frame's single component and its empty native hitbox list.</summary>
-    internal static void VerifyCrocomireTongueComponentCases(SuperMetroidAddressSpace rom)
+    internal static void VerifyCrocomireTongueComponentCases(CartridgeImportAddressSpace rom)
     {
         ushort[] frames = [0xc65e, 0xc668, 0xc672, 0xc67c, 0xcace, 0xcad8, 0xcae2, 0xcaec, 0xcaf6];
         foreach (ushort frame in frames)

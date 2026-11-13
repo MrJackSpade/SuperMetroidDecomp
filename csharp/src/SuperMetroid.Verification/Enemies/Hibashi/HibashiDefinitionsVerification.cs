@@ -15,7 +15,7 @@ using SuperMetroid.Core.World;
 internal static class HibashiDefinitionsVerification
 {
     /// <summary>Exercises all 22 rising hitbox frames, both instruction programs through their terminal sleeps, and compiled mechanics lookup without allocations.</summary>
-    internal static void VerifyHibashiDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyHibashiDefinitions(CartridgeImportAddressSpace rom)
     {
         const int yOffsetTable = 0xa68dbb;
         const int yRadiusTable = 0xa68de7;

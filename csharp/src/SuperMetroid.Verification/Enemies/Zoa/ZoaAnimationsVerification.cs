@@ -10,7 +10,7 @@ namespace SuperMetroid.Verification.Enemies.Zoa;
 internal static class ZoaAnimationsVerification
 {
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
-    internal static void VerifyZoaAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyZoaAnimations(CartridgeImportAddressSpace rom)
     {
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             ZoaAnimations.Segments, ZoaAnimations.StartingAt, ZoaFrameToolingDefinitions.Spritemap,

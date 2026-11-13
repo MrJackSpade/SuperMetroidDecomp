@@ -10,7 +10,7 @@ namespace SuperMetroid.Verification.Enemies.Animals;
 internal static class EscapeEtecoonAnimationsVerification
 {
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
-    internal static void VerifyEscapeEtecoonAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyEscapeEtecoonAnimations(CartridgeImportAddressSpace rom)
     {
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             EscapeEtecoonAnimations.Segments, EscapeEtecoonAnimations.StartingAt, EscapeEtecoonFrameToolingDefinitions.Spritemap,

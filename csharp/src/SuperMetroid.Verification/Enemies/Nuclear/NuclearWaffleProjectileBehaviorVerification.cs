@@ -13,7 +13,7 @@ namespace SuperMetroid.Verification.Enemies.Nuclear;
 internal static class NuclearWaffleProjectileBehaviorVerification
 {
     /// <summary>The initializer's four body links start the typed loop, which matches the native list update for update.</summary>
-    internal static void VerifyNuclearWaffleProjectileBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyNuclearWaffleProjectileBehavior(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, NuclearWaffleProjectileNativeListAddresses.Extent, "Nuclear Waffle body");
@@ -42,7 +42,7 @@ internal static class NuclearWaffleProjectileBehaviorVerification
     [VerificationCommand("--nuclear-waffle-projectile-programs")]
     internal static int NuclearWaffleProjectileProgramsCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(NuclearWaffleProjectileAnimationsVerification.VerifyNuclearWaffleProjectileAnimations), () => NuclearWaffleProjectileAnimationsVerification.VerifyNuclearWaffleProjectileAnimations(rom));
         Suite(nameof(VerifyNuclearWaffleProjectileBehavior), () => VerifyNuclearWaffleProjectileBehavior(rom));
         return 0;

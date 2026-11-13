@@ -9,7 +9,7 @@ using SuperMetroid.Verification.Enemies;
 internal static class MotherBrainNeckSineVerification
 {
     /// <summary>Compares every byte angle and distance product, then a complete geometry for each lower-neck angle.</summary>
-    internal static void VerifyMotherBrainNeckSine(SuperMetroidAddressSpace rom)
+    internal static void VerifyMotherBrainNeckSine(CartridgeImportAddressSpace rom)
     {
         for (int angle = byte.MinValue; angle <= byte.MaxValue; angle++)
         {
@@ -49,7 +49,7 @@ internal static class MotherBrainNeckSineVerification
 
     /// <summary>Builds five neck joints using native body offsets and ROM-backed signed sine products.</summary>
     private static Position16<RoomPixels>[] ReferenceMotherBrainNeckGeometry(
-        SuperMetroidAddressSpace rom,
+        CartridgeImportAddressSpace rom,
         Position16<RoomPixels> body,
         ushort lowerAngle,
         ushort upperAngle)
@@ -85,7 +85,7 @@ internal static class MotherBrainNeckSineVerification
 
     /// <summary>Reads the native signed sine word and applies SNES 8.8 multiplication for the reference component.</summary>
     private static short ReferenceMotherBrainNeckComponent(
-        SuperMetroidAddressSpace rom,
+        CartridgeImportAddressSpace rom,
         byte angle,
         ushort distance)
     {

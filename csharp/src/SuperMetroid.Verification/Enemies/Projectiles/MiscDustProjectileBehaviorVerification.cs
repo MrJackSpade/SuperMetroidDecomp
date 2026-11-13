@@ -26,7 +26,7 @@ internal static class MiscDustProjectileBehaviorVerification
     /// (the looping elevator pad loops), and the eye door's smoke reaches deletion, each shown frame keeping its native
     /// duration, with both the misc-dust and Mother Brain list bytes forbidden.
     /// </summary>
-    internal static void VerifyMiscDustProjectileBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyMiscDustProjectileBehavior(CartridgeImportAddressSpace rom)
     {
         CartridgeReadGuard guard = ForbiddingSharedLists(rom);
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = FixedPosition<RoomPixels>.FromWhole(new(16384, 16384)) };
@@ -132,7 +132,7 @@ internal static class MiscDustProjectileBehaviorVerification
     [VerificationCommand("--misc-dust-programs")]
     internal static int MiscDustProgramsCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(MiscDustProjectileAnimationsVerification.VerifyMiscDustProjectileAnimations), () => MiscDustProjectileAnimationsVerification.VerifyMiscDustProjectileAnimations(rom));
         Suite(nameof(VerifyMiscDustProjectileBehavior), () => VerifyMiscDustProjectileBehavior(rom));
         return 0;

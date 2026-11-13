@@ -11,7 +11,7 @@ namespace SuperMetroid.Verification.Enemies;
 internal static class EnemyFireballLaunchDefinitionsVerification
 {
     /// <summary>Checks Alcoon's upward, level and downward launches against the three authored vertical velocities.</summary>
-    private static void VerifyAlcoonVerticalLaunchMapping(SuperMetroidAddressSpace rom)
+    private static void VerifyAlcoonVerticalLaunchMapping(CartridgeImportAddressSpace rom)
     {
         AlcoonFireballLaunch[] launches =
             [AlcoonFireballLaunchDefinitions.Upward, AlcoonFireballLaunchDefinitions.Level, AlcoonFireballLaunchDefinitions.Downward];
@@ -21,18 +21,18 @@ internal static class EnemyFireballLaunchDefinitionsVerification
     }
 
     /// <summary>Checks NamiFune's leftward velocity member across all high-byte aliases.</summary>
-    private static void VerifyNamiFuneLeftLaunchMapping(SuperMetroidAddressSpace rom) =>
+    private static void VerifyNamiFuneLeftLaunchMapping(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyNamiFuneLaunchField), () => VerifyNamiFuneLaunchField(rom, left: true));
 
     /// <summary>Checks NamiFune's rightward velocity member across all high-byte aliases.</summary>
-    private static void VerifyNamiFuneRightLaunchMapping(SuperMetroidAddressSpace rom) =>
+    private static void VerifyNamiFuneRightLaunchMapping(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyNamiFuneLaunchField), () => VerifyNamiFuneLaunchField(rom, left: false));
 
     /// <summary>
     /// Compares the launch speed the import decodes from each of the eight selectors, and its reversal, with the native
     /// velocity pairs whatever the wake distance beside it; the import rejects a selector past them.
     /// </summary>
-    private static void VerifyNamiFuneLaunchField(SuperMetroidAddressSpace rom, bool left)
+    private static void VerifyNamiFuneLaunchField(CartridgeImportAddressSpace rom, bool left)
     {
         for (int high = 0; high < 256; high++)
         {
@@ -50,7 +50,7 @@ internal static class EnemyFireballLaunchDefinitionsVerification
     }
 
     /// <summary>Runs the independent Alcoon and NamiFune launch mapping checks.</summary>
-    internal static void VerifyCompiledEnemyFireballLaunches(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledEnemyFireballLaunches(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyAlcoonVerticalLaunchMapping), () => VerifyAlcoonVerticalLaunchMapping(rom));
         Suite(nameof(VerifyNamiFuneLeftLaunchMapping), () => VerifyNamiFuneLeftLaunchMapping(rom));

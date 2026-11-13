@@ -22,7 +22,7 @@ namespace SuperMetroid.Verification.Rooms.Doors;
 internal static class BlueDoorObjectDrawDefinitionsVerification
 {
     /// <summary>Runs all four door orientations through opening, closing, and closed lists with native source reads denied.</summary>
-    internal static void VerifyBlueDoorObjectDrawDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyBlueDoorObjectDrawDefinitions(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyBlueDoorProgramDefinitions), () => VerifyBlueDoorProgramDefinitions(rom));
 
@@ -114,11 +114,11 @@ internal static class BlueDoorObjectDrawDefinitionsVerification
     }
 
     /// <summary>Compares the blue caps' typed programs with their bank-$84 lists.</summary>
-    private static void VerifyBlueDoorProgramDefinitions(SuperMetroidAddressSpace rom) =>
+    private static void VerifyBlueDoorProgramDefinitions(CartridgeImportAddressSpace rom) =>
         Suite(nameof(RoomObjectProgramsVerification.VerifyBlueDoorPrograms), () => RoomObjectProgramsVerification.VerifyBlueDoorPrograms(rom));
 
     /// <summary>Checks the extracted stock visuals and that a malformed installed visual file fails loudly where it is read.</summary>
-    private static void VerifyBlueDoorVisualInstallation(SuperMetroidAddressSpace rom)
+    private static void VerifyBlueDoorVisualInstallation(CartridgeImportAddressSpace rom)
     {
         using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomObjectBlueDoorVisualDirectory);
         GameInstallation installation = copy.Installation;

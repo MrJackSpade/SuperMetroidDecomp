@@ -10,7 +10,7 @@ namespace SuperMetroid.Verification.Rooms.Backgrounds;
 internal static class LookupSkySectionsVerification
 {
     /// <summary>Compares all 23 native bands and every camera Y's rendered band selection.</summary>
-    internal static void VerifySkySectionTopPositions(SuperMetroidAddressSpace rom)
+    internal static void VerifySkySectionTopPositions(CartridgeImportAddressSpace rom)
     {
         int originalCount = ReadVerificationWord(rom, 0x88adef) / 8;
         AssertEqual(23, originalCount, "Native sky loop bound");
@@ -60,7 +60,7 @@ internal static class LookupSkySectionsVerification
     }
 
     /// <summary>Compares all 23 fractional section speeds, including band 17.</summary>
-    internal static void VerifySkySectionSubspeeds(SuperMetroidAddressSpace rom)
+    internal static void VerifySkySectionSubspeeds(CartridgeImportAddressSpace rom)
     {
         for (int index = 0; index < 23; index++)
             AssertEqual(ReadVerificationWord(rom, 0x88aec3 + index * 8),
@@ -68,7 +68,7 @@ internal static class LookupSkySectionsVerification
     }
 
     /// <summary>Compares each native section's whole-pixel speed word.</summary>
-    internal static void VerifySkySectionSpeeds(SuperMetroidAddressSpace rom)
+    internal static void VerifySkySectionSpeeds(CartridgeImportAddressSpace rom)
     {
         for (int index = 0; index < 23; index++)
             AssertEqual(ReadVerificationWord(rom, 0x88aec5 + index * 8),
@@ -76,7 +76,7 @@ internal static class LookupSkySectionsVerification
     }
 
     /// <summary>Checks the HDMA slot mapping, including the duplicate slot at band 8.</summary>
-    internal static void VerifySkySectionDataSlots(SuperMetroidAddressSpace rom)
+    internal static void VerifySkySectionDataSlots(CartridgeImportAddressSpace rom)
     {
         for (int index = 0; index < 23; index++)
             AssertEqual((ReadVerificationWord(rom, 0x88aec7 + index * 8) - 0x9f80) / 4,

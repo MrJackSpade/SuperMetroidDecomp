@@ -21,7 +21,7 @@ internal static class PowerBombShapeVerification
     /// width is the blast's widest extent and whose first top offset is its tallest, has that aspect to within one part
     /// in a hundred.
     /// </summary>
-    internal static void VerifyPowerBombOvalAspect(SuperMetroidAddressSpace rom)
+    internal static void VerifyPowerBombOvalAspect(CartridgeImportAddressSpace rom)
     {
         int widest = rom.ReadCartridgeByte(PowerBombShapeReferenceData.Width + UnscaledCurveEntries - 1);
         int tallest = rom.ReadCartridgeByte(PowerBombShapeReferenceData.TopOffset);
@@ -34,7 +34,7 @@ internal static class PowerBombShapeVerification
     /// Checks each walked oval's radius against the cartridge's pre-scaled shape it replaces: the shape's middle line is
     /// 255/256 of the radius wide on each side. Also rejects a cursor past the end of either stream.
     /// </summary>
-    internal static void VerifyPowerBombPreScaledShapes(SuperMetroidAddressSpace rom)
+    internal static void VerifyPowerBombPreScaledShapes(CartridgeImportAddressSpace rom)
     {
         AssertEqual(17, PowerBombShapeCursor.CountOf(PowerBombShapeStream.White), "seventeen white shapes");
         AssertEqual(4, PowerBombShapeCursor.CountOf(PowerBombShapeStream.Yellow), "four yellow shapes");
@@ -61,7 +61,7 @@ internal static class PowerBombShapeVerification
     /// three quarters of it tall, below the HUD, or nothing for a radius too small to show. Then draws blasts on and off
     /// the screen and checks the centre is lit, the HUD and the pixels well beyond the oval are not.
     /// </summary>
-    internal static void VerifyCompiledPowerBombShape(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledPowerBombShape(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyPowerBombOvalAspect), () => VerifyPowerBombOvalAspect(rom));
         Suite(nameof(VerifyPowerBombPreScaledShapes), () => VerifyPowerBombPreScaledShapes(rom));

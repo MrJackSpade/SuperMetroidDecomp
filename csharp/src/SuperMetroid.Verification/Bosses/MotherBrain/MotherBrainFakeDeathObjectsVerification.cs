@@ -50,7 +50,7 @@ internal static class MotherBrainFakeDeathObjectsVerification
     /// Checks one spawned PLM's exact blocks, drawn from its installed picture, against the terrain the cartridge's draw
     /// list writes, and its draw-frame lifetime, deletion and source-read guard.
     /// </summary>
-    private static void VerifyMotherBrainFakeDeathMutation(SuperMetroidAddressSpace rom,
+    private static void VerifyMotherBrainFakeDeathMutation(CartridgeImportAddressSpace rom,
         MotherBrainRoomMutation mutation, TerrainChange change)
     {
         const int width = 32;

@@ -13,14 +13,14 @@ namespace SuperMetroid.Verification.Rooms.Doors;
 internal static class LookupGreyCapVerification
 {
     /// <summary>Checks pointer ownership, native run geometry, and visual identity mapping.</summary>
-    internal static void VerifyGreyCapGeometry(SuperMetroidAddressSpace rom) => VerifyGreyCapField(rom, 0);
+    internal static void VerifyGreyCapGeometry(CartridgeImportAddressSpace rom) => VerifyGreyCapField(rom, 0);
     /// <summary>Checks each frame's compiled collision nibble against native draw words.</summary>
-    internal static void VerifyGreyCapCollision(SuperMetroidAddressSpace rom) => VerifyGreyCapField(rom, 1);
+    internal static void VerifyGreyCapCollision(CartridgeImportAddressSpace rom) => VerifyGreyCapField(rom, 1);
     /// <summary>Checks each frame's compiled metatile and flip bits against native draw words.</summary>
-    internal static void VerifyGreyCapVisuals(SuperMetroidAddressSpace rom) => VerifyGreyCapField(rom, 2);
+    internal static void VerifyGreyCapVisuals(CartridgeImportAddressSpace rom) => VerifyGreyCapField(rom, 2);
 
     /// <summary>Compares the selected frame field across all stock pointers and rejects unsupported identities.</summary>
-    private static void VerifyGreyCapField(SuperMetroidAddressSpace rom, int field)
+    private static void VerifyGreyCapField(CartridgeImportAddressSpace rom, int field)
     {
         ushort[] pointers = [0xa677,0xa683,0xa68f,0xa69b,0xa6a7,0xa6b3,0xa6bf,0xa6cb,0xa6d7,0xa6e3,0xa6ef,0xa6fb,0xa707,0xa713,0xa71f,0xa72b,0xa737,0xa743,0xa74f,0xa75b];
         string[] ids = ["clear-left","clear-right","clear-up","clear-down","grey-left-frame-0","grey-left-frame-1","grey-left-frame-2","grey-left-frame-3","grey-right-frame-0","grey-right-frame-1","grey-right-frame-2","grey-right-frame-3","grey-up-frame-0","grey-up-frame-1","grey-up-frame-2","grey-up-frame-3","grey-down-frame-0","grey-down-frame-1","grey-down-frame-2","grey-down-frame-3"];

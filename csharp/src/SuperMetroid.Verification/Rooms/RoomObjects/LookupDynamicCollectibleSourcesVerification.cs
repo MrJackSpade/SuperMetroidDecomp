@@ -9,7 +9,7 @@ namespace SuperMetroid.Verification.Rooms.RoomObjects;
 internal static class LookupDynamicCollectibleSourcesVerification
 {
     /// <summary>Confirms each of seventeen native PLM graphics programs selects the compiled source and that its 256 artwork bytes retain that source identity.</summary>
-    internal static void VerifyDynamicCollectibleSourcePointers(SuperMetroidAddressSpace rom)
+    internal static void VerifyDynamicCollectibleSourcePointers(CartridgeImportAddressSpace rom)
     {
         var exported = DynamicCollectibleGraphicsConstants.All.ToArray();
         for (int raw = 0; raw <= byte.MaxValue; raw++)

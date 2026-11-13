@@ -27,7 +27,7 @@ internal static class PowerBombCallbackDefinitionsVerification
     }
 
     /// <summary>Checks each native header's callback opcode and every bank/pointer pair against the compiled no-op set.</summary>
-    internal static void VerifyPowerBombCallbackDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyPowerBombCallbackDefinitions(CartridgeImportAddressSpace rom)
     {
         int headers = 0;
         var literalCallbacks = new HashSet<int>();

@@ -16,7 +16,7 @@ namespace SuperMetroid.Verification.Fx.PaletteFx;
 internal static class PaletteFxProgramsVerification
 {
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
-    internal static void VerifyPaletteFxPrograms(SuperMetroidAddressSpace rom)
+    internal static void VerifyPaletteFxPrograms(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         AssertEqual(Enum.GetValues<PaletteFxProgram>().Length, PaletteFxNativeListAddresses.Entries.Length, "every typed palette-FX program has a native entry");
@@ -45,7 +45,7 @@ internal static class PaletteFxProgramsVerification
     [VerificationCommand("--palette-fx-programs")]
     internal static int PaletteFxProgramsCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyPaletteFxPrograms), () => VerifyPaletteFxPrograms(rom));
         return 0;
     }

@@ -13,7 +13,7 @@ internal static class FallingSparkLaunchDefinitionsVerification
     /// Compares every RNG selection with the cartridge's launch words: the seven authored launches with the compiled
     /// table, and the selection past them with the installed <see cref="FallingSparkUnauthoredLaunch"/> service (#1500).
     /// </summary>
-    internal static void VerifyFallingSparkLaunchDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyFallingSparkLaunchDefinitions(CartridgeImportAddressSpace rom)
     {
         ushort Word(int address) => LittleEndianBytes.Word(FallingSparkLaunchDefinitionsRomByte(rom, address), FallingSparkLaunchDefinitionsRomByte(rom, address + 1));
         FallingSparkUnauthoredLaunch unauthored = InstalledFixtures.EnemyOverreads.FallingSparkUnauthoredLaunch;

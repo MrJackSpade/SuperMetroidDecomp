@@ -11,7 +11,7 @@ namespace SuperMetroid.Verification.Enemies.Nuclear;
 internal static class NuclearWaffleAnimationsVerification
 {
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
-    internal static void VerifyNuclearWaffleAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyNuclearWaffleAnimations(CartridgeImportAddressSpace rom)
     {
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             NuclearWaffleAnimations.Segments, NuclearWaffleAnimations.StartingAt, NuclearWaffleFrameToolingDefinitions.Spritemap,

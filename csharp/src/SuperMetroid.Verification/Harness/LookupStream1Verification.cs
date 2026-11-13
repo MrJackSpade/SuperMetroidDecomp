@@ -943,7 +943,7 @@ internal static class LookupStream1Verification
             short x = Word((running ? 0x90c1dc : 0x90c1a8) + direction * 2);
             short y = Word((running ? 0x90c1f0 : 0x90c1c2) + direction * 2);
             var expected = new OamBuffer();
-            DrawImportedFlareSpritemap((SuperMetroidAddressSpace)rom, expected, 0, new((ushort)(100 + x), unchecked((ushort)(100 + y - unchecked((byte)body.Gameplay.GraphicsYOffset(pose))))));
+            DrawImportedFlareSpritemap((CartridgeImportAddressSpace)rom, expected, 0, new((ushort)(100 + x), unchecked((ushort)(100 + y - unchecked((byte)body.Gameplay.GraphicsYOffset(pose))))));
             // The flare's picture may be laid out once for several projectile sheet frames whose pictures are identical
             // (#1513), so the draw is matched against each composition that picture stands for.
             Action<SpriteFrameBuffer> drawFlare = frame => draw(frame, samus, Position16<RoomPixels>.Zero, 0, null,
@@ -1264,7 +1264,7 @@ internal static class LookupStream1Verification
             if (!nativePointers.Contains(pointer)) nativePointers.Add(pointer);
             var expected = new OamBuffer();
             var actual = new OamBuffer();
-            DrawImportedFlareSpritemap((SuperMetroidAddressSpace)rom, expected, selector, new(100, 100));
+            DrawImportedFlareSpritemap((CartridgeImportAddressSpace)rom, expected, selector, new(100, 100));
             stock.Draw(selector, actual, new(100, 100));
             AssertTrue(expected.ImageEquals(actual),
                 "calculated flare selector draws exact native composition");

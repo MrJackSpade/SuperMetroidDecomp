@@ -34,7 +34,7 @@ internal static class ElevatorBehaviorVerification
     [VerificationCommand("--elevator-instruction-mechanics")]
     internal static int ElevatorBehaviorCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyElevatorBehavior), () => VerifyElevatorBehavior());
         Suite(nameof(ElevatorAnimationsVerification.VerifyElevatorAnimations), () => ElevatorAnimationsVerification.VerifyElevatorAnimations(rom));
         return 0;

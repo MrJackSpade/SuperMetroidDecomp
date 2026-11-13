@@ -10,7 +10,7 @@ namespace SuperMetroid.Verification.Rooms.Doors;
 internal static class LookupRetailDoorListsVerification
 {
     /// <summary>Derives list lengths independently, then compares 262 identities and every BTS value, including shared elevator insertions and unknown lists.</summary>
-    internal static void VerifyRetailDoorListMapping(SuperMetroidAddressSpace rom)
+    internal static void VerifyRetailDoorListMapping(CartridgeImportAddressSpace rom)
     {
         ushort[] rooms = File.ReadLines(Path.GetFullPath(Path.Combine("upstream-sm", "assets", "names.txt")))
             .Select(TryParseRoomHeaderPointer).Where(pointer => pointer.HasValue)

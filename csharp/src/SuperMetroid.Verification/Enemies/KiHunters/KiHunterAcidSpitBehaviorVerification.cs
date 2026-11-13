@@ -19,7 +19,7 @@ internal static class KiHunterAcidSpitBehaviorVerification
     /// movement routine it installs and its terminal sleep; a floor collision starts the splash, which clears the
     /// movement and deletes the spit on the native update.
     /// </summary>
-    internal static void VerifyKiHunterAcidSpitBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyKiHunterAcidSpitBehavior(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, KiHunterAcidSpitNativeListAddresses.Extent, "Ki-Hunter acid");
@@ -68,7 +68,7 @@ internal static class KiHunterAcidSpitBehaviorVerification
     [VerificationCommand("--kihunter-acid-spit-programs")]
     internal static int KiHunterAcidSpitProgramsCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(KiHunterAcidSpitAnimationsVerification.VerifyKiHunterAcidSpitAnimations), () => KiHunterAcidSpitAnimationsVerification.VerifyKiHunterAcidSpitAnimations(rom));
         Suite(nameof(VerifyKiHunterAcidSpitBehavior), () => VerifyKiHunterAcidSpitBehavior(rom));
         return 0;

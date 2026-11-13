@@ -41,7 +41,7 @@ internal static class LookupRetailPopulationsVerification
     ];
 
     /// <summary>Checks 284 population identities and all 941 placement records field by field.</summary>
-    internal static void VerifyRetailPopulationMappings(SuperMetroidAddressSpace rom)
+    internal static void VerifyRetailPopulationMappings(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyRetailPopulationIdentities), () => VerifyRetailPopulationIdentities());
         Suite(nameof(VerifyRetailPopulationHeaders), () => VerifyRetailPopulationHeaders(rom));
@@ -73,18 +73,18 @@ internal static class LookupRetailPopulationsVerification
     }
 
     /// <summary>Checks the PLM header selected by each native placement.</summary>
-    private static void VerifyRetailPopulationHeaders(SuperMetroidAddressSpace rom) => VerifyRetailPopulationField(rom, 0);
+    private static void VerifyRetailPopulationHeaders(CartridgeImportAddressSpace rom) => VerifyRetailPopulationField(rom, 0);
     /// <summary>Checks each placement's room-block X coordinate.</summary>
-    private static void VerifyRetailPopulationX(SuperMetroidAddressSpace rom) => VerifyRetailPopulationField(rom, 1);
+    private static void VerifyRetailPopulationX(CartridgeImportAddressSpace rom) => VerifyRetailPopulationField(rom, 1);
     /// <summary>Checks each placement's room-block Y coordinate.</summary>
-    private static void VerifyRetailPopulationY(SuperMetroidAddressSpace rom) => VerifyRetailPopulationField(rom, 2);
+    private static void VerifyRetailPopulationY(CartridgeImportAddressSpace rom) => VerifyRetailPopulationField(rom, 2);
     /// <summary>Checks each placement's native room argument word.</summary>
-    private static void VerifyRetailPopulationArguments(SuperMetroidAddressSpace rom) => VerifyRetailPopulationField(rom, 3);
+    private static void VerifyRetailPopulationArguments(CartridgeImportAddressSpace rom) => VerifyRetailPopulationField(rom, 3);
     /// <summary>Checks that every compiled population ends at its native zero header.</summary>
-    private static void VerifyRetailPopulationTermination(SuperMetroidAddressSpace rom) => VerifyRetailPopulationField(rom, 4);
+    private static void VerifyRetailPopulationTermination(CartridgeImportAddressSpace rom) => VerifyRetailPopulationField(rom, 4);
 
     /// <summary>Walks each native list and compares one selected field or terminator length.</summary>
-    private static void VerifyRetailPopulationField(SuperMetroidAddressSpace rom, int field)
+    private static void VerifyRetailPopulationField(CartridgeImportAddressSpace rom, int field)
     {
         int total = 0;
         foreach (ushort pointer in OriginalRetailPopulationPointers)

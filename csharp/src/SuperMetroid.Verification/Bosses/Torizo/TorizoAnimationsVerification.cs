@@ -27,7 +27,7 @@ internal static class TorizoAnimationsVerification
     private const int TileTransferBytes = 9;
 
     /// <summary>Every body segment matches its native list, and every animation its lists' control flow.</summary>
-    internal static void VerifyTorizoAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyTorizoAnimations(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         AssertEqual(Enum.GetValues<TorizoBodyProgram>().Length, BodyEntries.Length, "every typed Torizo body segment has a native entry");

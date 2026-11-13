@@ -10,7 +10,7 @@ namespace SuperMetroid.Verification.Enemies.Beetom;
 internal static class BeetomAnimationsVerification
 {
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
-    internal static void VerifyBeetomAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyBeetomAnimations(CartridgeImportAddressSpace rom)
     {
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             BeetomAnimations.Segments, BeetomAnimations.StartingAt, BeetomFrameToolingDefinitions.Spritemap,

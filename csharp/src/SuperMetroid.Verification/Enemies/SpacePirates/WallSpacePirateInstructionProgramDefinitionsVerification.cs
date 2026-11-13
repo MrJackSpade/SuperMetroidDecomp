@@ -23,7 +23,7 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
 
     /// <summary>Checks attack, wall climb, collision reversal, and visual selection with source reads forbidden.</summary>
     internal static void VerifyWallSpacePirateInstructionProgramDefinitions(
-        SuperMetroidAddressSpace rom)
+        CartridgeImportAddressSpace rom)
     {
         Suite(nameof(WallSpacePirateAnimationsVerification.VerifyWallSpacePirateAnimations), () => WallSpacePirateAnimationsVerification.VerifyWallSpacePirateAnimations(rom));
         RoomLevelData level = CreateOpenWallPirateRoom();

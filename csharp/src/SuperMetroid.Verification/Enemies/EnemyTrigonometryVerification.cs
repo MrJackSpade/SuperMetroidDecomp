@@ -729,7 +729,7 @@ internal static class EnemyTrigonometryVerification
     }
 
     /// <summary>Checks signed sine samples, then every tide phase and option combination against retail words.</summary>
-    internal static void VerifyCompiledSignedTrigonometry(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
+    internal static void VerifyCompiledSignedTrigonometry(CartridgeImportAddressSpace rom, bool definitionsOnly = false)
     {
         short Reference(int index)
         {

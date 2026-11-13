@@ -11,7 +11,7 @@ namespace SuperMetroid.Verification.Enemies.Bull;
 internal static class BullAnimationsVerification
 {
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
-    internal static void VerifyBullAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyBullAnimations(CartridgeImportAddressSpace rom)
     {
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             BullAnimations.Segments, BullAnimations.StartingAt, BullFrameToolingDefinitions.Spritemap,

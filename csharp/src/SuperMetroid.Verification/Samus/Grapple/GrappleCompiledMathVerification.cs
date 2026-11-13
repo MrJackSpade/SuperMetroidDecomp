@@ -12,7 +12,7 @@ internal static class GrappleCompiledMathVerification
 {
     /// <summary>Independent cartridge samples exercise the production radial and
     /// release helpers, including anchor bias, 16-bit wrap and phase-dependent speed.</summary>
-    internal static void VerifyCompiledGrappleMath(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledGrappleMath(CartridgeImportAddressSpace rom)
     {
         var native = new short[320];
         for (int i = 0; i < native.Length; i++)

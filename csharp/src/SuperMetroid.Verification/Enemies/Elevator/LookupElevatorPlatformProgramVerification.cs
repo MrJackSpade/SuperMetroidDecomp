@@ -9,14 +9,14 @@ namespace SuperMetroid.Verification.Enemies.Elevator;
 internal static class LookupElevatorPlatformProgramVerification
 {
     /// <summary>Checks the five engine-control words selected from the platform program.</summary>
-    internal static void VerifyElevatorPlatformControls(SuperMetroidAddressSpace rom) => VerifyElevatorPlatformProgramField(rom, 0);
+    internal static void VerifyElevatorPlatformControls(CartridgeImportAddressSpace rom) => VerifyElevatorPlatformProgramField(rom, 0);
     /// <summary>Checks the four draw selectors shared with the room PLM interpreter.</summary>
-    internal static void VerifyElevatorPlatformDrawSelection(SuperMetroidAddressSpace rom) => VerifyElevatorPlatformProgramField(rom, 1);
+    internal static void VerifyElevatorPlatformDrawSelection(CartridgeImportAddressSpace rom) => VerifyElevatorPlatformProgramField(rom, 1);
     /// <summary>Checks the final loop target and its ownership by the shared interpreter.</summary>
-    internal static void VerifyElevatorPlatformLoopTarget(SuperMetroidAddressSpace rom) => VerifyElevatorPlatformProgramField(rom, 2);
+    internal static void VerifyElevatorPlatformLoopTarget(CartridgeImportAddressSpace rom) => VerifyElevatorPlatformProgramField(rom, 2);
 
     /// <summary>Checks each expected word, every 16-bit address for admission, and zero output on rejection.</summary>
-    private static void VerifyElevatorPlatformProgramField(SuperMetroidAddressSpace rom, int field)
+    private static void VerifyElevatorPlatformProgramField(CartridgeImportAddressSpace rom, int field)
     {
         ushort[] addresses = field switch
         {

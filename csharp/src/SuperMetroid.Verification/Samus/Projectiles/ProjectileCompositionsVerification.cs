@@ -31,7 +31,7 @@ using SuperMetroid.Core.Gameplay;
 internal static class ProjectileCompositionsVerification
 {
     /// <summary>Compares extracted bank-$93 sprites across coordinate wraps without draw-time ROM access, and rejects malformed compositions.</summary>
-    internal static void VerifyProjectileCompositions(SuperMetroidAddressSpace rom,
+    internal static void VerifyProjectileCompositions(CartridgeImportAddressSpace rom,
         bool compositionOnly = false)
     {
         byte[] json = ProjectileSpriteExtractor.Extract(rom);

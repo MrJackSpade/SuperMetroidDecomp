@@ -11,20 +11,26 @@ namespace SuperMetroid.TestSupport.VerificationImporters;
 /// Import-only decoding of bank-$8F background lists. Gameplay executes compiled
 /// instructions and never interprets cartridge commands or decompresses ROM data.
 /// </summary>
+/// <remarks>
+/// The cartridge stages decompressed and cleared tilemaps in work RAM before transferring them. The reference keeps
+/// that staging in its own <see cref="ReferenceWorkMemory"/>, fresh for each list, so the address space it is handed
+/// only has to supply cartridge bytes (#1688).
+/// </remarks>
 internal static class LibraryBackgroundProgramImporter
 {
     /// <summary>Decodes one bounded bank $8F list into typed transfer, decompression, and clear commands.</summary>
-    public static ImportedLibraryBackgroundList Read(ISnesAddressSpace source, ushort pointer) => Decode(source, pointer, out _);
+    public static ImportedLibraryBackgroundList Read(ISnesAddressSpace source, ushort pointer) =>
+        Decode(new ReferenceWorkMemory(source), pointer, out _);
 
     /// <summary>The native encoded length of the list at <paramref name="pointer"/>, its two-byte terminator included.</summary>
     public static int ByteSpan(ISnesAddressSpace source, ushort pointer)
     {
-        Decode(source, pointer, out int byteSpan);
+        Decode(new ReferenceWorkMemory(source), pointer, out int byteSpan);
         return byteSpan;
     }
 
     /// <summary>Decodes one list and measures its encoded length.</summary>
-    private static ImportedLibraryBackgroundList Decode(ISnesAddressSpace source, ushort pointer, out int byteSpan)
+    private static ImportedLibraryBackgroundList Decode(ReferenceWorkMemory source, ushort pointer, out int byteSpan)
     {
         Ensure.NotNull(source);
         if ((short)pointer >= 0) throw new ArgumentOutOfRangeException(nameof(pointer));
@@ -83,7 +89,8 @@ internal static class LibraryBackgroundProgramImporter
     public static void ExecuteReference(ISnesAddressSpace source,
         SnesVram vram, ushort pointer, ushort activeDoorPointer)
     {
-        ImportedLibraryBackgroundList list = Read(source, pointer);
+        var staging = new ReferenceWorkMemory(source);
+        ImportedLibraryBackgroundList list = Decode(staging, pointer, out _);
         foreach (LibraryBackgroundInstruction instruction in list.Instructions)
         {
             switch (instruction.Command)
@@ -96,7 +103,7 @@ internal static class LibraryBackgroundProgramImporter
                     if (instruction.ByteCount == 0) throw new InvalidDataException("Import background DMA has a zero size.");
                     var bytes = new byte[instruction.ByteCount];
                     SnesAddress start = SnesAddress.FromBusAddress(LibraryBackgroundOperandDecoding.Address(instruction.Source));
-                    for (int i = 0; i < bytes.Length; i++) bytes[i] = ReadImportByte(source, (int)start.AddWithinBank(i));
+                    for (int i = 0; i < bytes.Length; i++) bytes[i] = ReadImportByte(staging, (int)start.AddWithinBank(i));
                     vram.ExecuteQueuedAssetWrite(bytes, LibraryBackgroundOperands.DestinationWord(instruction.Destination));
                     break;
                 case LibraryBackgroundCommand.Decompress:
@@ -104,7 +111,7 @@ internal static class LibraryBackgroundProgramImporter
                     if (LibraryBackgroundOperandDecoding.TilemapStagingOffset + expanded.Length > LibraryBackgroundListConstants.BankByteCount)
                         throw new InvalidDataException("Imported background decompression crosses bank $7E.");
                     for (int i = 0; i < expanded.Length; i++)
-                        source.WriteByte(LibraryBackgroundOperandDecoding.TilemapStaging + i, expanded[i]);
+                        staging.WriteByte(LibraryBackgroundOperandDecoding.TilemapStaging + i, expanded[i]);
                     break;
                 case LibraryBackgroundCommand.ClearFxTilemap:
                     ClearAndTransfer(LibraryBackgroundStagingDefinitions.ClearFx, false);
@@ -124,23 +131,58 @@ internal static class LibraryBackgroundProgramImporter
             for (int i = 0; i < transfer.ByteCount; i += 2)
             {
                 int address = LibraryBackgroundListConstants.WorkRamBank | (transfer.WorkRamDestination + i);
-                source.WriteByte(address, LittleEndianBytes.LowByte(transfer.FillValue.Raw));
-                source.WriteByte(address + 1, LittleEndianBytes.HighByte(transfer.FillValue.Raw));
+                staging.WriteByte(address, LittleEndianBytes.LowByte(transfer.FillValue.Raw));
+                staging.WriteByte(address + 1, LittleEndianBytes.HighByte(transfer.FillValue.Raw));
             }
-            ISnesMutableMemory memory = source as ISnesMutableMemory ?? throw new InvalidOperationException("Import staging requires WRAM.");
-            if (includeKraidPage) vram.ExecuteQueuedMemoryWrite(memory, transfer.WorkRamSourceAddress,
+            if (includeKraidPage) vram.ExecuteQueuedMemoryWrite(staging, transfer.WorkRamSourceAddress,
                 transfer.ByteCount, LibraryBackgroundStagingDefinitions.KraidBg2VramDestinationWord);
-            vram.ExecuteQueuedMemoryWrite(memory, transfer.WorkRamSourceAddress, transfer.ByteCount, transfer.VramDestination.Encoded);
+            vram.ExecuteQueuedMemoryWrite(staging, transfer.WorkRamSourceAddress, transfer.ByteCount, transfer.VramDestination.Encoded);
         }
     }
 
-    /// <summary>Routes an import source byte through cartridge, work RAM, or save RAM according to DMA mapping.</summary>
-    private static byte ReadImportByte(ISnesAddressSpace source, int address) =>
+    /// <summary>Routes an import source byte through the cartridge or the reference's staging according to DMA mapping.</summary>
+    private static byte ReadImportByte(ReferenceWorkMemory source, int address) =>
         SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(address)) switch
         {
-            SnesDmaSourceKind.Cartridge => CartridgeImportSource.Require(source).ReadCartridgeByte(address),
-            SnesDmaSourceKind.WorkRam => (source as ISnesMutableMemory ?? throw new InvalidOperationException("Import list requires WRAM.")).ReadWorkRamByte(address),
+            SnesDmaSourceKind.Cartridge => source.ReadCartridgeByte(address),
+            SnesDmaSourceKind.WorkRam => source.ReadWorkRamByte(address),
             SnesDmaSourceKind.Unmapped => throw new InvalidDataException($"Import background byte ${address:X6} is unmapped."),
             _ => throw new InvalidDataException($"Import background byte ${address:X6} is unmapped."),
         };
+
+    /// <summary>
+    /// The work RAM one reference list execution stages its tilemaps in, read through the cartridge's bank $7E/$7F
+    /// addresses and the system banks' low-window mirrors, beside the cartridge it decodes from. It starts cleared.
+    /// </summary>
+    /// <param name="cartridge">The address space supplying the list's cartridge bytes.</param>
+    private sealed class ReferenceWorkMemory(ISnesAddressSpace cartridge) : ISnesMemoryBus, IImportCartridgeSource
+    {
+        /// <summary>Both work-RAM banks, bank $7E first.</summary>
+        private readonly byte[] _bytes = new byte[2 * SnesBusLayout.BankBytes];
+
+        /// <summary>The cartridge source this staging sits beside.</summary>
+        private readonly IImportCartridgeSource _cartridge = CartridgeImportSource.Require(cartridge);
+
+        /// <inheritdoc />
+        public byte ReadCartridgeByte(int cpuAddress) => _cartridge.ReadCartridgeByte(cpuAddress);
+
+        /// <inheritdoc />
+        public byte ReadWorkRamByte(int cpuAddress) => _bytes[Offset(cpuAddress)];
+
+        /// <inheritdoc />
+        public void WriteByte(int address, byte value) => _bytes[Offset(address)] = value;
+
+        /// <summary>The staging offset of a work-RAM address or one of its low-window mirrors.</summary>
+        private static int Offset(int cpuAddress)
+        {
+            int bank = SnesAddressMath.BankNumber(cpuAddress);
+            int offset = SnesAddressMath.OffsetInBank(cpuAddress);
+            if ((uint)cpuAddress <= SnesBusLayout.MaximumAddress && SnesBusLayout.IsWorkRamBank(bank))
+                return (bank - SnesBusLayout.FirstWorkRamBank) * SnesBusLayout.BankBytes + offset;
+            if ((uint)cpuAddress <= SnesBusLayout.MaximumAddress && SnesBusLayout.IsSystemBank(bank) && offset < SnesBusLayout.WorkRamMirrorEnd)
+                return offset;
+            throw new ArgumentOutOfRangeException(nameof(cpuAddress), cpuAddress,
+                "Library-background staging is work RAM: bank $7E/$7F or a low-window system-bank mirror.");
+        }
+    }
 }

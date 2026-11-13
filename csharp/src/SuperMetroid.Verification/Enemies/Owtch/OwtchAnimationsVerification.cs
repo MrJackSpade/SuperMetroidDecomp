@@ -10,7 +10,7 @@ namespace SuperMetroid.Verification.Enemies.Owtch;
 internal static class OwtchAnimationsVerification
 {
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
-    internal static void VerifyOwtchAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyOwtchAnimations(CartridgeImportAddressSpace rom)
     {
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             OwtchAnimations.Segments, OwtchAnimations.StartingAt, OwtchFrameToolingDefinitions.Spritemap,

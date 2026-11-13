@@ -7,7 +7,7 @@ namespace SuperMetroid.Verification.Enemies.Skree;
 internal static class SkreeMetareeParticleAnimationsVerification
 {
     /// <summary>Every program matches its native list.</summary>
-    internal static void VerifySkreeMetareeParticleAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifySkreeMetareeParticleAnimations(CartridgeImportAddressSpace rom)
     {
         int steps = Family.CompareAll(CartridgeImportSource.Require(rom));
         Console.WriteLine($"  Skree/Metaree particle programs: {Entries.Length} programs ({steps} steps) match bank $86.");

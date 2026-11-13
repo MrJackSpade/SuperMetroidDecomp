@@ -48,7 +48,7 @@ internal static class MultiviolaBehaviorVerification
     [VerificationCommand("--multiviola-instruction-mechanics")]
     internal static int MultiviolaBehaviorCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyMultiviolaBehavior), () => VerifyMultiviolaBehavior());
         Suite(nameof(VerifyMultiviolaBounce), () => VerifyMultiviolaBounce());
         Suite(nameof(MultiviolaAnimationsVerification.VerifyMultiviolaAnimations), () => MultiviolaAnimationsVerification.VerifyMultiviolaAnimations(rom));

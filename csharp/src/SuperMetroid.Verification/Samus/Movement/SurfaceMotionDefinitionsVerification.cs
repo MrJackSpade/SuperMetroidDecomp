@@ -8,7 +8,7 @@ namespace SuperMetroid.Verification.Samus.Movement;
 internal static class SurfaceMotionDefinitionsVerification
 {
     /// <summary>Checks 32 slope multipliers, every signed 16-bit speed, and all Yard kick selectors.</summary>
-    internal static void VerifyCompiledSurfaceMotion(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledSurfaceMotion(CartridgeImportAddressSpace rom)
     {
         for (int shape = 0; shape < 32; shape++)
         {

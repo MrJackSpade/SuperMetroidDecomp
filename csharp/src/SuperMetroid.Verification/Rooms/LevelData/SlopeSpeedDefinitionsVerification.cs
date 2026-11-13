@@ -9,7 +9,7 @@ namespace SuperMetroid.Verification.Rooms.LevelData;
 internal static class SlopeSpeedDefinitionsVerification
 {
     /// <summary>Compares all slope shapes and BTS orientations, including signed byte packing and airborne early return.</summary>
-    internal static void VerifyCompiledSlopeSpeeds(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledSlopeSpeeds(CartridgeImportAddressSpace rom)
     {
         var multipliers = new ushort[32];
         for (int shape = 0; shape < multipliers.Length; shape++)

@@ -116,7 +116,7 @@ internal static class SamusOperandPlaceReadsVerification
     internal static int SamusOperandPlaceReadsCommand()
     {
         string sourceRom = Path.GetFullPath("Super Metroid.smc");
-        SuperMetroidAddressSpace bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
+        CartridgeImportAddressSpace bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
         Suite(nameof(VerifySamusOperandPlaceReads), () => VerifySamusOperandPlaceReads(bus));
         return 0;
     }

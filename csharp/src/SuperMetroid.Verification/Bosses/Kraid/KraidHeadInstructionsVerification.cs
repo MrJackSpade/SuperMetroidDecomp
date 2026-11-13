@@ -18,7 +18,7 @@ using SuperMetroid.Core.World;
 internal static class KraidHeadInstructionsVerification
 {
     /// <summary>Checks the head programs against the cartridge, production interpretation, and the timer and growth consumers.</summary>
-    internal static void VerifyKraidHeadInstructionDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidHeadInstructionDefinitions(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyKraidHeadCommandMapping), () => VerifyKraidHeadCommandMapping(rom));
         Suite(nameof(VerifyKraidGrowthResumeCases), () => VerifyKraidGrowthResumeCases(rom));
@@ -35,7 +35,7 @@ internal static class KraidHeadInstructionsVerification
     }
 
     /// <summary>Executes the head program from every native cursor and checks poses, durations, image uploads, cries and the resting cursor.</summary>
-    private static void VerifyProductionInterpreter(SuperMetroidAddressSpace rom)
+    private static void VerifyProductionInterpreter(CartridgeImportAddressSpace rom)
     {
         var native = new KraidHeadNativeCursors(CartridgeImportSource.Require(rom));
         foreach (KraidHeadNativeRecord record in native.Records)
@@ -81,7 +81,7 @@ internal static class KraidHeadInstructionsVerification
     }
 
     /// <summary>Checks roar, glow, death, and all 16-bit growth-resume timer inputs against native selection.</summary>
-    private static void VerifyTimerAndGrowthConsumers(SuperMetroidAddressSpace rom)
+    private static void VerifyTimerAndGrowthConsumers(CartridgeImportAddressSpace rom)
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = InstalledFixtures.BossArtwork };
         var state = new KraidEnemyState();

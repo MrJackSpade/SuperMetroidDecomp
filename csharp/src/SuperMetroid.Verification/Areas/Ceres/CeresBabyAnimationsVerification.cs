@@ -15,7 +15,7 @@ namespace SuperMetroid.Verification.Areas.Ceres;
 internal static class CeresBabyAnimationsVerification
 {
     /// <summary>Both segments match their native lists, and both animations the lists' control flow.</summary>
-    internal static void VerifyCeresBabyAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyCeresBabyAnimations(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         AssertEqual(Enum.GetValues<CeresBabyProgram>().Length, Entries.Length, "every Ceres Baby segment has a native entry");

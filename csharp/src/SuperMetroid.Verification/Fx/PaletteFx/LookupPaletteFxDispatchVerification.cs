@@ -37,7 +37,7 @@ internal static class LookupPaletteFxDispatchVerification
     }
 
     /// <summary>Compares how each compiled effect starts with the setup routine the first word of its retail object record names.</summary>
-    internal static void VerifyPaletteFxSetupSelection(SuperMetroidAddressSpace rom)
+    internal static void VerifyPaletteFxSetupSelection(CartridgeImportAddressSpace rom)
     {
         foreach (ushort pointer in OriginalPaletteFxObjects())
             AssertEqual(FxNativeWords.StartOf(FxNativeWords.PaletteFxSetups.Decode(ReadVerificationWord(rom, 0x8d0000 | pointer), "palette-FX setup")),
@@ -45,7 +45,7 @@ internal static class LookupPaletteFxDispatchVerification
     }
 
     /// <summary>Compares each compiled initial instruction pointer with the record's second word.</summary>
-    internal static void VerifyPaletteFxInitialListSelection(SuperMetroidAddressSpace rom)
+    internal static void VerifyPaletteFxInitialListSelection(CartridgeImportAddressSpace rom)
     {
         foreach (ushort pointer in OriginalPaletteFxObjects())
             AssertEqual(ReadVerificationWord(rom, (0x8d0000 | pointer) + 2),
@@ -53,7 +53,7 @@ internal static class LookupPaletteFxDispatchVerification
     }
 
     /// <summary>Runs identity, setup, list, and spawn checks while guarding compiled definition bytes.</summary>
-    internal static void VerifyPaletteFxDispatch(SuperMetroidAddressSpace rom)
+    internal static void VerifyPaletteFxDispatch(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyPaletteFxDispatchDomain), () => VerifyPaletteFxDispatchDomain());
         Suite(nameof(VerifyPaletteFxSetupSelection), () => VerifyPaletteFxSetupSelection(rom));

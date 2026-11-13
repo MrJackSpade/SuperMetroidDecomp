@@ -12,7 +12,7 @@ namespace SuperMetroid.Verification.Areas.Tourian;
 internal static class TourianEntranceStatueAnimationsVerification
 {
     /// <summary>Every segment matches its native list and every animation the lists' control flow.</summary>
-    internal static void VerifyTourianEntranceStatueAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyTourianEntranceStatueAnimations(CartridgeImportAddressSpace rom)
     {
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, TourianEntranceStatueAnimations.Segments,
             TourianEntranceStatueAnimations.StartingAt,

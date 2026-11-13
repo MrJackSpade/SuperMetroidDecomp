@@ -9,7 +9,7 @@ using SuperMetroid.Verification.Harness;
 internal static class SaveStationAnimationDefinitionsVerification
 {
     /// <summary>Compares the native 21-loop operand, then exercises the sequential station population loader.</summary>
-    internal static void VerifySaveStationAnimationDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifySaveStationAnimationDefinitions(CartridgeImportAddressSpace rom)
     {
         AssertEqual(
             rom.ReadCartridgeByte(SaveStationAnimationDefinitions.NativeSaveAnimationLoopsAddress),

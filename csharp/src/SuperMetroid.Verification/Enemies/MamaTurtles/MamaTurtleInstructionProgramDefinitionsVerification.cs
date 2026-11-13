@@ -15,7 +15,7 @@ internal static class MamaTurtleInstructionProgramDefinitionsVerification
 
     /// <summary>Checks the turtles' typed programs, cues and shown frames against the cartridge lists.</summary>
     internal static void VerifyMamaTurtleInstructionProgramDefinitions(
-        SuperMetroidAddressSpace rom)
+        CartridgeImportAddressSpace rom)
     {
         Suite(nameof(MamaTurtleAnimationsVerification.VerifyMamaTurtleAnimations), () => MamaTurtleAnimationsVerification.VerifyMamaTurtleAnimations(rom));
         Console.WriteLine("Mama Turtle: crawl, spin, shell and sleep programs with their cues match the cartridge.");

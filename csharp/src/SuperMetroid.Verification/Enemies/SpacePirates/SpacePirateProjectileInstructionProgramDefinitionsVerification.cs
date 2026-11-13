@@ -26,7 +26,7 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
 
     /// <summary>Executes both laser and claw facings through callbacks, loops, and deletion while checking migrated word ownership.</summary>
     internal static void VerifySpacePirateProjectileInstructionProgramDefinitions(
-        SuperMetroidAddressSpace rom)
+        CartridgeImportAddressSpace rom)
     {
         for (int index = 0;
              index < SpacePirateProjectileInstructionProgramDefinitionsTooling.MechanicsWordCount;

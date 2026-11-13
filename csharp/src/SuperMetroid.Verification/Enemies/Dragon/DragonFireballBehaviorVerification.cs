@@ -18,7 +18,7 @@ internal static class DragonFireballBehaviorVerification
     /// Spawning selects each facing's rising program, which loops update for update beside the native list; the zero
     /// crossing switches to the facing's falling program on the same pass; the shared shot list still deletes the fireball.
     /// </summary>
-    internal static void VerifyDragonFireballBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyDragonFireballBehavior(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, DragonFireballNativeListAddresses.Extent, "Dragon-fireball");
@@ -78,7 +78,7 @@ internal static class DragonFireballBehaviorVerification
     [VerificationCommand("--dragon-fireball-programs")]
     internal static int DragonFireballProgramsCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(DragonFireballAnimationsVerification.VerifyDragonFireballAnimations), () => DragonFireballAnimationsVerification.VerifyDragonFireballAnimations(rom));
         Suite(nameof(VerifyDragonFireballBehavior), () => VerifyDragonFireballBehavior(rom));
         return 0;

@@ -10,7 +10,7 @@ namespace SuperMetroid.Verification.Enemies.Choot;
 internal static class ChootAnimationsVerification
 {
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
-    internal static void VerifyChootAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyChootAnimations(CartridgeImportAddressSpace rom)
     {
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             ChootAnimations.Segments, ChootAnimations.StartingAt, ChootFrameToolingDefinitions.Spritemap,

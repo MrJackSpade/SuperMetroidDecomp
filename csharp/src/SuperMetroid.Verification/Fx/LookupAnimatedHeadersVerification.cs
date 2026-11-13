@@ -38,17 +38,17 @@ internal static class LookupAnimatedHeadersVerification
     }
 
     /// <summary>Compares the seven compiled instruction-start pointers with native headers.</summary>
-    internal static void VerifySimpleAnimationInstructionStarts(SuperMetroidAddressSpace rom) =>
+    internal static void VerifySimpleAnimationInstructionStarts(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifySimpleAnimationHeaderField), () => VerifySimpleAnimationHeaderField(rom, 0, definition => definition.InstructionPointer));
     /// <summary>Compares the import's picture size of each loop with the transfer size of its native header.</summary>
-    internal static void VerifySimpleAnimationTransferSizes(SuperMetroidAddressSpace rom) =>
+    internal static void VerifySimpleAnimationTransferSizes(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifySimpleAnimationHeaderField), () => VerifySimpleAnimationHeaderField(rom, 2, definition => definition.PictureByteCount));
     /// <summary>Compares each encoded VRAM destination with its native header.</summary>
-    internal static void VerifySimpleAnimationVramDestinations(SuperMetroidAddressSpace rom) =>
+    internal static void VerifySimpleAnimationVramDestinations(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifySimpleAnimationHeaderField), () => VerifySimpleAnimationHeaderField(rom, 4, definition => AnimatedTileVramDestinations.WordOf(definition.AnimatedObject)));
 
     /// <summary>Checks a header word through lookup, enumeration, and mechanics-word views.</summary>
-    private static void VerifySimpleAnimationHeaderField(SuperMetroidAddressSpace rom, int offset,
+    private static void VerifySimpleAnimationHeaderField(CartridgeImportAddressSpace rom, int offset,
         Func<RoomFxAnimatedTileLoop, int> field)
     {
         var enumerated = RoomFxAnimatedTileLoops.All.ToDictionary(x => x.AnimatedObject);

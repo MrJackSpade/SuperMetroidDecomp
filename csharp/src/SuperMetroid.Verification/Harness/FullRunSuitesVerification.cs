@@ -597,7 +597,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyGrappleDemoTrajectory), () => VerifyGrappleDemoTrajectory()),
         new(nameof(VerifyFrameRuntime), () => VerifyFrameRuntime()),
         new(nameof(VerifyGameTimeState), () => VerifyGameTimeState()),
-        new(nameof(VerifySuperMetroidAddressSpace), () => VerifySuperMetroidAddressSpace()),
+        new(nameof(VerifyCartridgeImportAddressSpace), () => VerifyCartridgeImportAddressSpace()),
         new(nameof(VerifyCartridgeAudioQueues), () => VerifyCartridgeAudioQueues()),
         new(nameof(VerifyManagedSnesDsp), () => VerifyManagedSnesDsp()),
         new(nameof(VerifyTypedNativeWords), () => VerifyTypedNativeWords()),

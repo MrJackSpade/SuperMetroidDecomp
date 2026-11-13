@@ -13,14 +13,14 @@ namespace SuperMetroid.Verification.Rooms.Doors;
 internal static class LookupColoredCapVerification
 {
     /// <summary>Compares all 48 cap-frame pointers and their one-run geometry with the cartridge draw lists.</summary>
-    internal static void VerifyColoredCapGeometry(SuperMetroidAddressSpace rom) => VerifyColoredCapField(rom, 0);
+    internal static void VerifyColoredCapGeometry(CartridgeImportAddressSpace rom) => VerifyColoredCapField(rom, 0);
     /// <summary>Checks the collision nibble of each exported cap tile against its native level word.</summary>
-    internal static void VerifyColoredCapCollision(SuperMetroidAddressSpace rom) => VerifyColoredCapField(rom, 1);
+    internal static void VerifyColoredCapCollision(CartridgeImportAddressSpace rom) => VerifyColoredCapField(rom, 1);
     /// <summary>Checks the visual tile bits of each exported cap frame against its native level word.</summary>
-    internal static void VerifyColoredCapVisuals(SuperMetroidAddressSpace rom) => VerifyColoredCapField(rom, 2);
+    internal static void VerifyColoredCapVisuals(CartridgeImportAddressSpace rom) => VerifyColoredCapField(rom, 2);
 
     /// <summary>Checks the selected geometry, collision, or visual field across yellow, green, and red caps in all four directions.</summary>
-    private static void VerifyColoredCapField(SuperMetroidAddressSpace rom, int field)
+    private static void VerifyColoredCapField(CartridgeImportAddressSpace rom, int field)
     {
         LookupColoredCapFamily[] families = [
             new LookupColoredCapFamily(0xa767,"yellow-left"),new LookupColoredCapFamily(0xa797,"yellow-right"),new LookupColoredCapFamily(0xa7c7,"yellow-up"),new LookupColoredCapFamily(0xa7f7,"yellow-down"),

@@ -118,7 +118,7 @@ internal static class CacatacBehaviorVerification
     [VerificationCommand("--cacatac-instruction-mechanics")]
     internal static int CacatacBehaviorCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyCacatacBehavior), () => VerifyCacatacBehavior());
         Suite(nameof(VerifyCacatacPatrolLimits), () => VerifyCacatacPatrolLimits());
         Suite(nameof(CacatacAnimationsVerification.VerifyCacatacAnimations), () => CacatacAnimationsVerification.VerifyCacatacAnimations(rom));

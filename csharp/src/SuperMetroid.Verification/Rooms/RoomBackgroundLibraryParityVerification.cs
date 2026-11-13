@@ -22,7 +22,7 @@ internal static class RoomBackgroundLibraryParityVerification
     internal static void VerifyLibraryBackgroundInstalledParity(
         string sourceRom)
     {
-        SuperMetroidAddressSpace inventoryBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
+        CartridgeImportAddressSpace inventoryBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
         Suite(nameof(VerifyCompiledLibraryBackgroundPrograms), () => VerifyCompiledLibraryBackgroundPrograms(inventoryBus));
         IReadOnlyList<LibraryBackgroundNativeOperand> sources =
             LibraryBackgroundSourceInventory.Scan(inventoryBus);
@@ -42,7 +42,7 @@ internal static class RoomBackgroundLibraryParityVerification
             foreach (ushort door in list.Where(source => source.DoorPointer.HasValue)
                 .Select(source => (source.DoorPointer ?? throw new InvalidOperationException("Verification requires source.DoorPointer."))).Append((ushort)0).Distinct())
             {
-                SuperMetroidAddressSpace nativeBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
+                CartridgeImportAddressSpace nativeBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
                 var nativeVram = new SnesVram();
                 LibraryBackgroundProgramImporter.ExecuteReference(
                     nativeBus, nativeVram, program.Pointer, door);

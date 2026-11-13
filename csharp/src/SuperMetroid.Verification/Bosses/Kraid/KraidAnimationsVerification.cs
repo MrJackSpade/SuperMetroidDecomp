@@ -31,7 +31,7 @@ internal static class KraidAnimationsVerification
     /// Every part segment's beats equal its native list and every part animation follows the lists' control flow, the
     /// arm switches to its slow swing below half health, and the arm and foot collision tables still cover every typed frame.
     /// </summary>
-    internal static void VerifyKraidPartAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidPartAnimations(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         AssertEqual(Enum.GetValues<KraidPartProgram>().Length, PartEntries.Length, "every typed Kraid part program has a native entry");
@@ -237,7 +237,7 @@ internal static class KraidAnimationsVerification
     /// The real rock producers start typed programs that match their native lists, and the spat rock's burst sets
     /// its palette pre-instruction and deletes on the native updates. The Kago bug shares the rocks' pose.
     /// </summary>
-    internal static void VerifyKraidRockAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidRockAnimations(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         AssertEqual(Enum.GetValues<KraidRockProgram>().Length, RockEntries.Length, "every typed rock program has a native entry");

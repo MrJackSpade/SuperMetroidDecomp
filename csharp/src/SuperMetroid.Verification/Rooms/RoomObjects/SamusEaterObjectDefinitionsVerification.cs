@@ -11,7 +11,7 @@ namespace SuperMetroid.Verification.Rooms.RoomObjects;
 internal static class SamusEaterObjectDefinitionsVerification
 {
     /// <summary>Compares native header and program data and checks aligned floor and ceiling plant activation.</summary>
-    internal static void VerifySamusEaterObjectDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifySamusEaterObjectDefinitions(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifySamusEaterHeaderInstructionMapping), () => VerifySamusEaterHeaderInstructionMapping(rom));
         Suite(nameof(VerifySamusEaterMountingMapping), () => VerifySamusEaterMountingMapping(rom));
@@ -51,18 +51,18 @@ internal static class SamusEaterObjectDefinitionsVerification
     }
 
     /// <summary>Checks both plant headers' native initial instruction pointers.</summary>
-    private static void VerifySamusEaterHeaderInstructionMapping(SuperMetroidAddressSpace rom) =>
+    private static void VerifySamusEaterHeaderInstructionMapping(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifySamusEaterHeaderField), () => VerifySamusEaterHeaderField(rom, false));
 
     /// <summary>Checks floor versus ceiling mounting against native setup and held-Y direction.</summary>
-    private static void VerifySamusEaterMountingMapping(SuperMetroidAddressSpace rom) =>
+    private static void VerifySamusEaterMountingMapping(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifySamusEaterHeaderField), () => VerifySamusEaterHeaderField(rom, true));
 
     /// <summary>The two plants, floor first.</summary>
     private static readonly SamusEaterObjectDefinition[] Plants = [SamusEaterObjectDefinitions.Floor, SamusEaterObjectDefinitions.Ceiling];
 
     /// <summary>Checks each plant's native header: its program, or its mounting against the native setup and held-Y direction.</summary>
-    private static void VerifySamusEaterHeaderField(SuperMetroidAddressSpace rom, bool mounting)
+    private static void VerifySamusEaterHeaderField(CartridgeImportAddressSpace rom, bool mounting)
     {
         foreach (SamusEaterObjectDefinition actual in Plants)
         {
@@ -87,6 +87,6 @@ internal static class SamusEaterObjectDefinitionsVerification
     }
 
     /// <summary>Reads a native bank-$84 PLM word for independent header and program comparison.</summary>
-    internal static ushort ReadSamusEaterObjectWord(SuperMetroidAddressSpace bus, int address) =>
+    internal static ushort ReadSamusEaterObjectWord(CartridgeImportAddressSpace bus, int address) =>
         CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
 }

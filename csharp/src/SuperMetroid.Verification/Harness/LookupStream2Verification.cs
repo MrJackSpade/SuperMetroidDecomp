@@ -82,7 +82,7 @@ internal static class LookupStream2Verification
     }
 
     /// <summary>Checks Chozo statue foot spritemap geometry and the compiled stock views.</summary>
-    internal static void VerifyLookupStream2ChozoFootGeometry(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream2ChozoFootGeometry(CartridgeImportAddressSpace rom)
     {
         int[] nativeIdentities = [0xaae943, 0xaae9ae, 0xaaea1e, 0xaaea8e, 0xaaeafe, 0xaaeb69, 0xaaebd9, 0xaaec49];
         var definitions = EnemySpritemapDefinitions.Frames.ToArray();
@@ -157,7 +157,7 @@ internal static class LookupStream2Verification
     /// Checks Wrecked Ship ghost palette phases against native colour words: the fade the ghost keeps, the shade its slot
     /// shows for each step, and the colours the import pre-colours that shade in.
     /// </summary>
-    internal static void VerifyLookupStream2GhostPalette(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream2GhostPalette(CartridgeImportAddressSpace rom)
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
@@ -364,7 +364,7 @@ internal static class LookupStream2Verification
         Console.WriteLine("Environmental catalogs:six native definition/color/loop bindings,292mechanics words,16heat phase bytes,actual complete/repeating cycles,live colors,enumeration/order and bounds pass; accent timing and independent colors remain pending.");
     }
     /// <summary>Checks extracted pause backdrop geometry and VRAM tile output.</summary>
-    internal static void VerifyLookupStream2BackdropGeometry(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream2BackdropGeometry(CartridgeImportAddressSpace rom)
     {
         byte[] json = PauseBackdropExtractor.Extract(rom);
         var stock = PauseBackdropPresentation.Load(new MemoryStream(json));
@@ -405,7 +405,7 @@ internal static class LookupStream2Verification
         }
     }
     /// <summary>Checks pause equipment base cells and layout geometry.</summary>
-    internal static void VerifyLookupStream2EquipmentBaseGeometry(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream2EquipmentBaseGeometry(CartridgeImportAddressSpace rom)
     {
         byte[] json = PauseEquipmentBaseExtractor.Extract(rom);
         var stock = PauseEquipmentBasePresentation.Load(new MemoryStream(json));
@@ -422,7 +422,7 @@ internal static class LookupStream2Verification
     }
 
     /// <summary>Checks pause wireframe mirror relationships against the native cells.</summary>
-    internal static void VerifyLookupStream2WireframeMirrors(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream2WireframeMirrors(CartridgeImportAddressSpace rom)
     {
         byte[] json = PauseWireframeExtractor.Extract(rom);
         var stock = PauseWireframePresentation.Load(new MemoryStream(json));
@@ -451,7 +451,7 @@ internal static class LookupStream2Verification
     }
 
     /// <summary>Checks extracted reserve UI labels and placement.</summary>
-    internal static void VerifyLookupStream2ReserveLabels(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream2ReserveLabels(CartridgeImportAddressSpace rom)
     {
         byte[] json = PauseReserveUiExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<PauseReserveUiDocument>(json,
@@ -484,7 +484,7 @@ internal static class LookupStream2Verification
     }
 
     /// <summary>Checks equipment label text geometry and native cells.</summary>
-    internal static void VerifyLookupStream2EquipmentLabels(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream2EquipmentLabels(CartridgeImportAddressSpace rom)
     {
         byte[] json = PauseEquipmentLabelExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<PauseEquipmentLabelDocument>(json,
@@ -528,7 +528,7 @@ internal static class LookupStream2Verification
     }
 
     /// <summary>Checks pause equipment blank cells against native art and the stock label boundaries.</summary>
-    internal static void VerifyLookupStream2EquipmentBlank(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream2EquipmentBlank(CartridgeImportAddressSpace rom)
     {
         byte[] nativeJson = PauseEquipmentLabelExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<PauseEquipmentLabelDocument>(
@@ -568,7 +568,7 @@ internal static class LookupStream2Verification
     }
 
     /// <summary>Checks Dead Torizo corpse-tile geometry and native OAM composition.</summary>
-    internal static void VerifyLookupStream2DeadTorizoGeometry(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream2DeadTorizoGeometry(CartridgeImportAddressSpace rom)
     {
         var expected = new byte[0x1000];
         for (int row = 0; row < 12; row++)
@@ -657,7 +657,7 @@ internal static class LookupStream2Verification
         Enumerable.Range(0, count).Select(offset => rom.ReadCartridgeByte(address + offset)).ToArray();
 
     /// <summary>Checks native crawler/Yard speed ramps through actual velocity resets.</summary>
-    internal static void VerifyLookupStream2CrawlerRamps(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream2CrawlerRamps(CartridgeImportAddressSpace rom)
     {
         Func<CrawlerSurfaceOrientation, SignedEightEight?, EightEightVector<RoomPixels>, EightEightVector<RoomPixels>> reset = CrawlersBehavior.ResetCrawlerVelocities;
         Action<YardEnemyState, YardDirection> setYard = YardEnemyBehavior.SetYardCrawlingVelocities;
@@ -693,14 +693,14 @@ internal static class LookupStream2Verification
         Console.WriteLine("Crawler speed ramps: both 32 native words and 384 actual crawler/Yard velocity resets pass; irregular gaps/terminal choices remain pending.");
     }
     /// <summary>Checks lava-jumper control and visual selectors, parent/follower programs, and handshake.</summary>
-    internal static void VerifyLookupStream2LavaJumperLayout(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream2LavaJumperLayout(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(NorfairLavaJumperBehaviorVerification.VerifyNorfairLavaJumperBehavior), () => NorfairLavaJumperBehaviorVerification.VerifyNorfairLavaJumperBehavior());
         Suite(nameof(NorfairLavaJumperAnimationsVerification.VerifyNorfairLavaJumperAnimations), () => NorfairLavaJumperAnimationsVerification.VerifyNorfairLavaJumperAnimations(rom));
     }
 
     /// <summary>Checks Chozo statue instruction controls, visuals, and list boundaries.</summary>
-    internal static void VerifyLookupStream2ChozoLayout(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream2ChozoLayout(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyChozoStatueInstructionProgramDefinitions), () => VerifyChozoStatueInstructionProgramDefinitions(rom));
         Console.WriteLine("Chozo layouts: the four native lists and their 52 poses are checked through the typed programs.");
@@ -810,7 +810,7 @@ internal static class LookupStream2Verification
     }
 
     /// <summary>Checks Kraid lint initialization's source values and live actor state.</summary>
-    internal static void VerifyLookupStream2KraidLintInitialization(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream2KraidLintInitialization(CartridgeImportAddressSpace rom)
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
         var state = new KraidEnemyState();
@@ -849,7 +849,7 @@ internal static class LookupStream2Verification
     }
 
     /// <summary>Checks enemy drop cumulative weights, RNG reroll, and resource eligibility.</summary>
-    internal static void VerifyLookupStream2DropSelection(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream2DropSelection(CartridgeImportAddressSpace rom)
     {
         // Native first record weights60,60,60,5,60,10 yield cumulative thresholds
         //60,120,180,185,245,255 when all resources are eligible.
@@ -876,7 +876,7 @@ internal static class LookupStream2Verification
         Console.WriteLine("Enemy drop selection:six native identities and actual cumulative selections, RNG-zero reroll, energy hysteresis and full-resource eligibility pass.");
     }
     /// <summary>Checks Brinstar, Norfair, and yellow Pipe Bug visual program geometry.</summary>
-    internal static void VerifyLookupStream2PipeBugVisualGeometry(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream2PipeBugVisualGeometry(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(PipeBugBehaviorVerification.VerifyPipeBugBehavior), () => PipeBugBehaviorVerification.VerifyPipeBugBehavior());
         Suite(nameof(PipeBugAnimationsVerification.VerifyPipeBugAnimations), () => PipeBugAnimationsVerification.VerifyPipeBugAnimations(rom));
@@ -887,7 +887,7 @@ internal static class LookupStream2Verification
     }
 
     /// <summary>Checks five-member Pipe Bug formation positions and native spawn data.</summary>
-    internal static void VerifyLookupStream2PipeBugFormation(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream2PipeBugFormation(CartridgeImportAddressSpace rom)
     {
         for (int member = 0; member < 5; member++)
         {
@@ -1522,7 +1522,7 @@ internal static class LookupStream2Verification
     }
 
     /// <summary>Checks Golden Torizo foot extended frames and OAM geometry.</summary>
-    internal static void VerifyLookupStream2GoldenTorizoFootGeometry(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream2GoldenTorizoFootGeometry(CartridgeImportAddressSpace rom)
     {
         var definitions = EnemyExtendedFrameDefinitions.Frames.ToArray();
         var document = new EnemyIdentityFixture().ExtendedDocument();

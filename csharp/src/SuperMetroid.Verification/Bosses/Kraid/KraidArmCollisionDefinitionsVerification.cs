@@ -13,7 +13,7 @@ internal static class KraidArmCollisionDefinitionsVerification
 {
     /// <summary>Runs callback, frame-selection, and hitbox-list comparisons for the selected Kraid arm records.</summary>
     internal static void VerifyKraidArmCollisionDefinitions(
-        SuperMetroidAddressSpace rom)
+        CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyKraidArmComponentHitboxes), () => VerifyKraidArmComponentHitboxes(rom));
         Suite(nameof(VerifyKraidArmTouchCallbacks), () => VerifyKraidArmTouchCallbacks(rom));
@@ -30,7 +30,7 @@ internal static class KraidArmCollisionDefinitionsVerification
     }
 
     /// <summary>Compares all sixteen selected arm lists and twenty-four rectangles while rejecting other pointer identities.</summary>
-    internal static void VerifyKraidArmHitboxListSelection(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidArmHitboxListSelection(CartridgeImportAddressSpace rom)
     {
         // Native arm-list identities, independently transcribed from bank_A7.asm.
         // Counts, ordering and selected geometry are checked against the ROM;
@@ -80,7 +80,7 @@ internal static class KraidArmCollisionDefinitionsVerification
 
     /// <summary>Reads a bank-$A7 arm word from the retail cartridge for selector comparisons.</summary>
     internal static ushort ReadKraidArmInstructionWord(
-        SuperMetroidAddressSpace source,
+        CartridgeImportAddressSpace source,
         ushort address) =>
         CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(0xa70000 | address);
 }

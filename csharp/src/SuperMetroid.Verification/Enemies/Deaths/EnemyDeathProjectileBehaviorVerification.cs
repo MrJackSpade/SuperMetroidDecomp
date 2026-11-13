@@ -66,7 +66,7 @@ internal static class EnemyDeathProjectileBehaviorVerification
     [VerificationCommand("--enemy-death-projectile-programs")]
     internal static int EnemyDeathProjectileProgramsCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(EnemyDeathProjectileAnimationsVerification.VerifyEnemyDeathProjectileAnimations),
             () => EnemyDeathProjectileAnimationsVerification.VerifyEnemyDeathProjectileAnimations(rom));
         Suite(nameof(VerifyEnemyDeathProjectileBehavior), VerifyEnemyDeathProjectileBehavior);

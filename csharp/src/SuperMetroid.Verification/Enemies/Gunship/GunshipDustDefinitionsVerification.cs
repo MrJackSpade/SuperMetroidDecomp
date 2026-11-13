@@ -13,7 +13,7 @@ namespace SuperMetroid.Verification.Enemies.Gunship;
 internal static class GunshipDustDefinitionsVerification
 {
     /// <summary>Compares all six dust definitions and wrapped spawn positions, then checks full-pool behavior.</summary>
-    internal static void VerifyCompiledGunshipDust(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledGunshipDust(CartridgeImportAddressSpace rom)
     {
         ushort Word(int address) => LittleEndianBytes.Word(CompiledGunshipDustRomByte(rom, address), CompiledGunshipDustRomByte(rom, address + 1));
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);

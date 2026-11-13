@@ -19,7 +19,7 @@ internal static class DownwardGateProjectileBehaviorVerification
     /// program after the sleep, and the whole chain, through the closed gate's descent and deletion, matches the native
     /// list the two-byte advance walks.
     /// </summary>
-    internal static void VerifyDownwardGateProjectileBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyDownwardGateProjectileBehavior(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, DownwardGateProjectileNativeListAddresses.Extent, "downward gate");
@@ -60,7 +60,7 @@ internal static class DownwardGateProjectileBehaviorVerification
     [VerificationCommand("--downward-gate-projectile-programs")]
     internal static int DownwardGateProjectileProgramsCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(DownwardGateProjectileAnimationsVerification.VerifyDownwardGateProjectileAnimations), () => DownwardGateProjectileAnimationsVerification.VerifyDownwardGateProjectileAnimations(rom));
         Suite(nameof(VerifyDownwardGateProjectileBehavior), () => VerifyDownwardGateProjectileBehavior(rom));
         return 0;

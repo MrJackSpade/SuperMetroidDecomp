@@ -29,7 +29,7 @@ internal static class MotherBrainGlassObjectDrawDefinitionsVerification
 {
     /// <summary>Compares eleven physical draw lists with cartridge data and verifies guarded production draws write the collision blocks intact.</summary>
     internal static void VerifyMotherBrainGlassObjectDrawDefinitions(
-        SuperMetroidAddressSpace rom)
+        CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyMotherBrainGlassObjectProgram), () => VerifyMotherBrainGlassObjectProgram(rom));
         Suite(nameof(VerifyGlassLayoutGeometry), () => VerifyGlassLayoutGeometry(rom));
@@ -54,7 +54,7 @@ internal static class MotherBrainGlassObjectDrawDefinitionsVerification
     /// cartridge payload, and requires the room to hold the terrain the cartridge's draw list writes.
     /// </summary>
     private static void VerifyMotherBrainGlassNativeDrawPath(
-        SuperMetroidAddressSpace rom,
+        CartridgeImportAddressSpace rom,
         byte[] bank84,
         RoomObjectFrameLayout[] lists,
         RoomObjectFrameLayout selected)
@@ -94,7 +94,7 @@ internal static class MotherBrainGlassObjectDrawDefinitionsVerification
 
     /// <summary>Checks the extracted stock visuals and that a malformed installed visual file fails loudly where it is read.</summary>
     private static void VerifyMotherBrainGlassVisualInstallation(
-        SuperMetroidAddressSpace rom)
+        CartridgeImportAddressSpace rom)
     {
         // A private installation copy, whose stock file is tampered below.
         using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomObjectMotherBrainGlassVisualDirectory))

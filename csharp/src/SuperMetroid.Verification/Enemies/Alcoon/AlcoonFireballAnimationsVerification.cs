@@ -11,7 +11,7 @@ namespace SuperMetroid.Verification.Enemies.Alcoon;
 internal static class AlcoonFireballAnimationsVerification
 {
     /// <summary>Every program matches its native list.</summary>
-    internal static void VerifyAlcoonFireballAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyAlcoonFireballAnimations(CartridgeImportAddressSpace rom)
     {
         int steps = Family.CompareAll(CartridgeImportSource.Require(rom));
         for (int pose = 0; pose < AlcoonFireballFrameToolingDefinitions.PoseCount; pose++)

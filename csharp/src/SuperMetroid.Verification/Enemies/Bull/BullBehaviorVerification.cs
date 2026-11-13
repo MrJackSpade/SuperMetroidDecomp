@@ -77,7 +77,7 @@ internal static class BullBehaviorVerification
     [VerificationCommand("--bull-instruction-mechanics")]
     internal static int BullInstructionMechanicsCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyBullBehavior), () => VerifyBullBehavior());
         Suite(nameof(VerifyBullDecelerationOvershoot), () => VerifyBullDecelerationOvershoot());
         Suite(nameof(BullAnimationsVerification.VerifyBullAnimations), () => BullAnimationsVerification.VerifyBullAnimations(rom));

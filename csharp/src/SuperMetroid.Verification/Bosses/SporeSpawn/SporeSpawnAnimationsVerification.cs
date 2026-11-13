@@ -29,7 +29,7 @@ using SuperMetroid.TestSupport.MovieReplay.Verification;
 internal static class SporeSpawnAnimationsVerification
 {
     /// <summary>Every body program matches its native list, and every projectile program its bank-$86 list.</summary>
-    internal static void VerifySporeSpawnAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifySporeSpawnAnimations(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         AssertEqual(Enum.GetValues<SporeSpawnBodyProgram>().Length, BodyEntries.Length, "every typed Spore Spawn body program has a native entry");
@@ -116,7 +116,7 @@ internal static class SporeSpawnAnimationsVerification
     /// Runs every projectile program on a real spore beside its native list, comparing timer, frame, deletion, the
     /// drop request and the harmless impact properties each update; returns the updates compared.
     /// </summary>
-    private static int VerifyProjectilePrograms(SuperMetroidAddressSpace rom)
+    private static int VerifyProjectilePrograms(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         int updates = 0;
@@ -200,7 +200,7 @@ internal static class SporeSpawnAnimationsVerification
     }
 
     /// <summary>Reads one native bank-$A5 word for the independent reference trace.</summary>
-    internal static ushort ReadSporeSpawnProgramWord(SuperMetroidAddressSpace source, ushort address) =>
+    internal static ushort ReadSporeSpawnProgramWord(CartridgeImportAddressSpace source, ushort address) =>
         CartridgeImportSource.Require(source).ReadCartridgeWord((BodyBankNumber << 16) | address);
 
     /// <summary>A guard over the cartridge that rejects any production read of Spore Spawn's native body lists.</summary>

@@ -11,7 +11,7 @@ namespace SuperMetroid.Verification.Enemies.Crawlers;
 internal static class MultiviolaAnimationsVerification
 {
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
-    internal static void VerifyMultiviolaAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyMultiviolaAnimations(CartridgeImportAddressSpace rom)
     {
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             MultiviolaAnimations.Segments, MultiviolaAnimations.StartingAt, MultiviolaFrameToolingDefinitions.Spritemap,

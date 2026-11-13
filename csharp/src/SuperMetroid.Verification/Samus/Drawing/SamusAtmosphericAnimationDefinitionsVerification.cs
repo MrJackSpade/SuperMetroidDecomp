@@ -19,7 +19,7 @@ internal static class SamusAtmosphericAnimationDefinitionsVerification
 {
     /// <summary>Compares all active frame timers and liquid-damage words with the cartridge, then exercises their consumers.</summary>
     internal static void VerifySamusAtmosphericAnimationDefinitions(
-        SuperMetroidAddressSpace rom)
+        CartridgeImportAddressSpace rom)
     {
 
         AssertEqual(0, CartridgeImportSource.Require(rom).ReadCartridgeWord(0x908b93), "inactive atmospheric timer pointer");

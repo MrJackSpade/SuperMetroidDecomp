@@ -30,8 +30,6 @@ internal static class EnemyEffectsFixtureVerification
     /// <summary>Known melt phases, pure RAM and authored PNG/JSON; no cartridge capability.</summary>
     internal sealed class CrocomireEffectFixture
     {
-        /// <summary>Cartridge-free WRAM and SRAM used to detect unintended mutation.</summary>
-        internal SuperMetroidAddressSpace Memory { get; } = SuperMetroidAddressSpace.CreateWithoutCartridge();
         /// <summary>Destination graphics memory checked after melt operations.</summary>
         internal SnesVram Vram { get; } = new();
         /// <summary>Enemy owner hosting the Crocomire body, tongue, and behavior.</summary>
@@ -103,7 +101,6 @@ internal static class EnemyEffectsFixtureVerification
         for (int band = 0; band < CrocomireMeltingDefinitions.SecondPassBandCount; band++)
             AssertEqual(expected.MeltBandStep(band), actual.MeltBandStep(band), context + " band " + band + " step");
         AssertEqual(expected.Effect.MeltDistortion, actual.Effect.MeltDistortion, context + " melt stretch");
-        AssertSameBytes(expected.Memory.WorkRam, actual.Memory.WorkRam, context + " WRAM");
         AssertTrue(expected.Enemies.Audio.SoundRequests.SequenceEqual(actual.Enemies.Audio.SoundRequests), context + " audio");
         AssertTrue(expected.Enemies.Audio.MusicRequests.SequenceEqual(actual.Enemies.Audio.MusicRequests), context + " music");
         AssertTrue(expected.Enemies.LastEnemyFrame.RoomEffects.CrocomireObjects.SequenceEqual(actual.Enemies.LastEnemyFrame.RoomEffects.CrocomireObjects), context + " room changes");

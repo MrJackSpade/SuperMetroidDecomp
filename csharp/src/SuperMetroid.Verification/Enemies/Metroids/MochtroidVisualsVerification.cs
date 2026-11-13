@@ -14,7 +14,7 @@ internal static class MochtroidVisualsVerification
 {
     /// <summary>Checks the six frames the two loops show are editable and draw pixel-identically to the cartridge.</summary>
     internal static void VerifyInstalledMochtroidVisuals(
-        SuperMetroidAddressSpace rom, EnemyTileSourceArtwork stock)
+        CartridgeImportAddressSpace rom, EnemyTileSourceArtwork stock)
     {
         ushort[] poses = [.. MochtroidAnimationsConstants.Spritemaps(MochtroidProgram.FreeFlight, MochtroidProgram.Attached).Distinct()];
         AssertEqual(MochtroidVisualDefinitions.FrameCount, poses.Length, "the two loops show six distinct editable OAM frames");

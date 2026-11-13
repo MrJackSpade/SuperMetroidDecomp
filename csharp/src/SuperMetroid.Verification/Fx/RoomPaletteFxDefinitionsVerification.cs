@@ -20,7 +20,7 @@ using SuperMetroid.Core.Progression;
 internal static class RoomPaletteFxDefinitionsVerification
 {
     /// <summary>Audits 63 entries and eight area lists, then checks spawns and room loads without metadata reads.</summary>
-    internal static void VerifyRoomPaletteFxDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyRoomPaletteFxDefinitions(CartridgeImportAddressSpace rom)
     {
 
         ushort[] pointers =

@@ -7,7 +7,7 @@ using SuperMetroid.Verification.Enemies;
 internal static class HalfWaveAlgorithmsVerification
 {
     /// <summary>Checks all 128 byte samples, precise rounding bounds, and out-of-range indices.</summary>
-    internal static void VerifyEightBitHalfWaveAlgorithm(SuperMetroidAddressSpace rom)
+    internal static void VerifyEightBitHalfWaveAlgorithm(CartridgeImportAddressSpace rom)
     {
         for (int index = 0; index < 128; index++)
         {
@@ -28,7 +28,7 @@ internal static class HalfWaveAlgorithmsVerification
     private static byte EightBitHalfWaveAlgorithmRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks all 128 unsigned word samples, precise rounding bounds, and invalid indices.</summary>
-    internal static void VerifyUnsignedHalfWaveAlgorithm(SuperMetroidAddressSpace rom)
+    internal static void VerifyUnsignedHalfWaveAlgorithm(CartridgeImportAddressSpace rom)
     {
         for (int index = 0; index < 128; index++)
         {

@@ -62,8 +62,6 @@ internal static class InstalledSporesTests
         foreach (var definition in CoreAccess.AllRoomFxRecords().Where(record => record.Type == RoomFxType.Spores))
         {
             records++;
-            var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-            byte[] initialRam = memory.WorkRam.ToArray();
             var baselineFrames = new ArtworkFrameSelections();
             RoomFxOverlayState baseline = RoomFxOverlayState.ForDefinition(new RoomFxSession(), definition, 0);
             Require(baseline.Type == RoomFxType.Spores && baseline.CaptureForDisplay() is not null,
@@ -124,8 +122,6 @@ internal static class InstalledSporesTests
                 }
                 comparisons++;
             }
-            Require(memory.WorkRam.SequenceEqual(initialRam),
-                "Spore presentation mutated active game RAM.");
         }
         Require(records > 0, "Source-selected spore records were not exercised.");
         Console.WriteLine($"{records} compiled spores records: {comparisons} control steps; signed wrap and freeze verified.");

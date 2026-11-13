@@ -25,7 +25,7 @@ internal static class NoobTubeProjectileBehaviorVerification
     /// list, every shown frame draws as its native spritemap does, each shard flicker picks the pose and column its frame
     /// parity selects, and all ninety poses are shown with the lists' bytes forbidden.
     /// </summary>
-    internal static void VerifyNoobTubeProjectileBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyNoobTubeProjectileBehavior(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var spriteArtwork = InstalledFixtures.EnemyTiles.ProjectileSpritemaps
@@ -267,7 +267,7 @@ internal static class NoobTubeProjectileBehaviorVerification
     [VerificationCommand("--noob-tube-projectile-programs")]
     internal static int NoobTubeProjectileProgramsCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(NoobTubeProjectileAnimationsVerification.VerifyNoobTubeProjectileAnimations), () => NoobTubeProjectileAnimationsVerification.VerifyNoobTubeProjectileAnimations(rom));
         Suite(nameof(VerifyNoobTubeProjectileBehavior), () => VerifyNoobTubeProjectileBehavior(rom));
         return 0;

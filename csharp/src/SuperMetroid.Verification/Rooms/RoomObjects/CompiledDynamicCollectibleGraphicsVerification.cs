@@ -25,7 +25,7 @@ internal static class CompiledDynamicCollectibleGraphicsVerification
     /// blocking compiled graphics ROM reads (#1466); the item shows its kind's own picture (#1538).
     /// </summary>
     internal static void VerifyCompiledDynamicCollectibleGraphics(
-        SuperMetroidAddressSpace rom)
+        CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyDynamicCollectibleSourcePointers), () => VerifyDynamicCollectibleSourcePointers(rom));
         Suite(nameof(VerifyDynamicCollectibleKindIdentity), () => VerifyDynamicCollectibleKindIdentity());

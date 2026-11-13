@@ -20,7 +20,7 @@ internal static class TourianEntranceStatueInstructionProgramDefinitionsVerifica
 
     /// <summary>Compares three native words and executes each statue variant with mechanics reads blocked.</summary>
     internal static void VerifyTourianEntranceStatueInstructionProgramDefinitions(
-        SuperMetroidAddressSpace rom)
+        CartridgeImportAddressSpace rom)
     {
         foreach (ushort parameter in new ushort[] { 0, 2, 4 })
         {

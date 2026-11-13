@@ -87,7 +87,7 @@ internal static class KzanBehaviorVerification
     [VerificationCommand("--single-frame-enemy-visuals")]
     internal static int SingleFrameEnemyVisualsCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyKzanBehavior), () => VerifyKzanBehavior());
         Suite(nameof(VerifyKzanTargetsWrap), () => VerifyKzanTargetsWrap());
         Suite(nameof(KzanAnimationsVerification.VerifyKzanAnimations), () => KzanAnimationsVerification.VerifyKzanAnimations(rom));

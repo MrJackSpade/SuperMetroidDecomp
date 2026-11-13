@@ -15,7 +15,7 @@ using SuperMetroid.Core.World;
 internal static class AtomicMovementDefinitionsVerification
 {
     /// <summary>Matches four initial direction selectors against the retail table and rejects out-of-range values.</summary>
-    private static void VerifyAtomicInitialProgramSelection(SuperMetroidAddressSpace rom)
+    private static void VerifyAtomicInitialProgramSelection(CartridgeImportAddressSpace rom)
     {
         for (ushort selector = 0; selector < 4; selector++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa80000 | ((ushort)(0xe380 + 2 * selector))),
@@ -31,7 +31,7 @@ internal static class AtomicMovementDefinitionsVerification
         ((AtomicSpawnSettings)EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Atomic, PopulationWords.Parameters(parameter1, 0))).Spin;
 
     /// <summary>Runs the initializers and all four spinning loops with the selector table forbidden, checking native speeds.</summary>
-    internal static void VerifyAtomicMovementDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyAtomicMovementDefinitions(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyAtomicInitialProgramSelection), () => VerifyAtomicInitialProgramSelection(rom));
 
@@ -70,7 +70,7 @@ internal static class AtomicMovementDefinitionsVerification
     [VerificationCommand("--atomic-instruction-mechanics")]
     internal static int AtomicInstructionMechanicsCommand()
     {
-        SuperMetroidAddressSpace rom =
+        CartridgeImportAddressSpace rom =
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyAtomicMovementDefinitions), () => VerifyAtomicMovementDefinitions(rom));
         Suite(nameof(AtomicAnimationsVerification.VerifyAtomicAnimations), () => AtomicAnimationsVerification.VerifyAtomicAnimations(rom));

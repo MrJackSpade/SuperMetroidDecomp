@@ -21,7 +21,7 @@ internal static class DemoInputProgramsVerification
     };
 
     /// <summary>Every object and program matches bank $91.</summary>
-    internal static void VerifyDemoInputPrograms(SuperMetroidAddressSpace rom)
+    internal static void VerifyDemoInputPrograms(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         ushort Word(int address) => cartridge.ReadCartridgeWord(DemoInputListWords.ListBank | address);
@@ -97,7 +97,7 @@ internal static class DemoInputProgramsVerification
     [VerificationCommand("--demo-input-programs")]
     internal static int DemoInputProgramsCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyDemoInputPrograms), () => VerifyDemoInputPrograms(rom));
         return 0;
     }

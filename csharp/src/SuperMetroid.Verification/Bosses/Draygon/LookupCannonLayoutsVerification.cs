@@ -17,7 +17,7 @@ internal static class LookupCannonLayoutsVerification
         new(0xa18d, "left-damaged-c"), new(0xa1a1, "left-damaged-d")];
 
     /// <summary>Checks which draws are the cannon's, each frame's runs and continuations against the cartridge, and that each shape covers its frame's four cells only.</summary>
-    internal static void VerifyCannonLayoutGeometry(SuperMetroidAddressSpace rom)
+    internal static void VerifyCannonLayoutGeometry(CartridgeImportAddressSpace rom)
     {
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
@@ -38,6 +38,6 @@ internal static class LookupCannonLayoutsVerification
     }
 
     /// <summary>Compares how every shield and damaged-frame cell collides with the cartridge.</summary>
-    internal static void VerifyCannonLayoutCollision(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyCannonLayoutCollision(CartridgeImportAddressSpace rom) =>
         AssertLayoutsAsNative(rom, RoomObjectDraygonCannonVisualFiles.Family, Frames, collision: true);
 }

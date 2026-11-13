@@ -11,7 +11,7 @@ namespace SuperMetroid.Verification.Areas.Escape;
 internal static class LookupEscapeGateStockVerification
 {
     /// <summary>Compares the open, half-closed and closed frames' pictures with the cartridge, then the import and its rejections.</summary>
-    internal static void VerifyEscapeGateStockMapping(SuperMetroidAddressSpace rom, InstalledEscapeGateFrames installed)
+    internal static void VerifyEscapeGateStockMapping(CartridgeImportAddressSpace rom, InstalledEscapeGateFrames installed)
     {
         LookupEscapeGateStockFrame[] frames = [new(0x9473, "open"), new(0x947f, "half-closed"), new(0x948b, "closed")];
         foreach (InstalledEscapeGateFrames pictures in new[] { InstalledEscapeGateFrames.Stock(), installed })

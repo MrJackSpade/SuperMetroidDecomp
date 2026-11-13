@@ -24,7 +24,7 @@ internal static class RidleySupplementalArtworkVerification
 
     /// <summary>Compares all wing phases and tail directions with native selectors and rendered OAM.</summary>
     internal static void VerifyInstalledRidleySupplementalArtwork(
-        SuperMetroidAddressSpace rom, ImportEnemyArtwork stock)
+        CartridgeImportAddressSpace rom, ImportEnemyArtwork stock)
     {
         AssertEqual(20, RidleySupplementalVisualDefinitionsConstants.WingPointerCount,
             "Ridley wing table retains twenty animation selections");

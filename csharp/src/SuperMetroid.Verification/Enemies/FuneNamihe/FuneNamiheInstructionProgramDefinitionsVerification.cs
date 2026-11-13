@@ -26,7 +26,7 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
             return;
         }
 
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         Suite(nameof(VerifyFuneNamiheInstructionProgramDefinitions), () => VerifyFuneNamiheInstructionProgramDefinitions(rom));
     }
 
@@ -35,7 +35,7 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
     /// the spit sound and hands main AI back to waiting, while an idle program spits nothing; the program oracle matches
     /// bank $A8.
     /// </summary>
-    internal static void VerifyFuneNamiheInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyFuneNamiheInstructionProgramDefinitions(CartridgeImportAddressSpace rom)
     {
         FuneNamiheProgramCase[] programs =
         [

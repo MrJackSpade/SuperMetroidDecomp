@@ -32,7 +32,7 @@ internal static class DeadTorizoBehaviorVerification
     [VerificationCommand("--dead-torizo-instruction-mechanics")]
     internal static int DeadTorizoBehaviorCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyDeadTorizoBehavior), () => VerifyDeadTorizoBehavior());
         Suite(nameof(DeadTorizoAnimationsVerification.VerifyDeadTorizoAnimations), () => DeadTorizoAnimationsVerification.VerifyDeadTorizoAnimations(rom));
         return 0;

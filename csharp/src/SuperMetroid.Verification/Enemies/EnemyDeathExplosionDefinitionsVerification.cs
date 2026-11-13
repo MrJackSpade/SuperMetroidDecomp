@@ -16,7 +16,7 @@ using SuperMetroid.Core.World;
 internal static class EnemyDeathExplosionDefinitionsVerification
 {
     /// <summary>Compares cartridge pointers, live explosion placement, and the out-of-range small-explosion clamp.</summary>
-    internal static void VerifyEnemyDeathExplosionDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyEnemyDeathExplosionDefinitions(CartridgeImportAddressSpace rom)
     {
         var guarded = NewEnemyDeathExplosionReadGuard(rom);
 

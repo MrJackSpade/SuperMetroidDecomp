@@ -7,7 +7,7 @@ namespace SuperMetroid.Verification.Enemies.Shaktool;
 internal static class ShaktoolProjectileAnimationsVerification
 {
     /// <summary>Every program matches its native list.</summary>
-    internal static void VerifyShaktoolProjectileAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyShaktoolProjectileAnimations(CartridgeImportAddressSpace rom)
     {
         int steps = Family.CompareAll(CartridgeImportSource.Require(rom));
         Console.WriteLine($"  Shaktool attack circle programs: {Entries.Length} programs ({steps} steps) match bank $86.");

@@ -11,7 +11,7 @@ namespace SuperMetroid.Verification.Enemies.Corpses;
 internal static class DeadTorizoAnimationsVerification
 {
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
-    internal static void VerifyDeadTorizoAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyDeadTorizoAnimations(CartridgeImportAddressSpace rom)
     {
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             DeadTorizoAnimations.Segments, DeadTorizoAnimations.StartingAt, DeadTorizoFrameToolingDefinitions.Spritemap,

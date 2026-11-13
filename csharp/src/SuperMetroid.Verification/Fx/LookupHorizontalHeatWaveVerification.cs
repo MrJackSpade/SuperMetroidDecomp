@@ -9,7 +9,7 @@ namespace SuperMetroid.Verification.Fx;
 internal static class LookupHorizontalHeatWaveVerification
 {
     /// <summary>Compares 16 retail offsets, bounds rejection, camera-phase addition, and 16-bit scroll wrap.</summary>
-    internal static void VerifyHorizontalHeatWave(SuperMetroidAddressSpace rom)
+    internal static void VerifyHorizontalHeatWave(CartridgeImportAddressSpace rom)
     {
         short Original(int index) => unchecked((short)ReadVerificationWord(rom, 0x88b589 + 2 * index));
         for (int index = 0; index < 16; index++)

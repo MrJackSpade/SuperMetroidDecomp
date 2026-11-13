@@ -121,7 +121,7 @@ internal static class DeadTorizoArtworkVerification
     /// Independently transcribes <c>Torizo_CorpseRottingInitFunc</c> at $A9:DE18 from pinned
     /// <c>sm_a9.c</c>; expected copies must remain independent of runtime definitions.
     /// </summary>
-    private static void ReferenceDeadTorizoCorpseGraphics(SuperMetroidAddressSpace bus, NativeEnemyStaging staging)
+    private static void ReferenceDeadTorizoCorpseGraphics(CartridgeImportAddressSpace bus, NativeEnemyStaging staging)
     {
         StagingByteView tiles = staging.CorpseTiles;
         tiles.Fill(0);
@@ -140,7 +140,7 @@ internal static class DeadTorizoArtworkVerification
     }
 
     /// <summary>Copies eighteen sand words from the sheet using the two native $A9:D5EA offset tables.</summary>
-    private static void ReferenceDeadTorizoSandLine(SuperMetroidAddressSpace bus, NativeEnemyStaging staging, ushort line)
+    private static void ReferenceDeadTorizoSandLine(CartridgeImportAddressSpace bus, NativeEnemyStaging staging, ushort line)
     {
         (int destination, int source) = ReadNativeDeadTorizoSandLineOffsets(bus, line);
         StagingByteView sand = staging.DeadTorizoSand;

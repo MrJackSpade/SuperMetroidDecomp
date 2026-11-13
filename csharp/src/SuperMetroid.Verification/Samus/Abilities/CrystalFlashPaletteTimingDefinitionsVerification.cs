@@ -14,7 +14,7 @@ internal static class CrystalFlashPaletteTimingDefinitionsVerification
 {
     /// <summary>Compares ten native timer words and checks 100 palette updates without runtime timer reads.</summary>
     internal static void VerifyCrystalFlashPaletteTimingDefinitions(
-        SuperMetroidAddressSpace rom)
+        CartridgeImportAddressSpace rom)
     {
         for (ushort record = 0;
              record < CrystalFlashPaletteTimingDefinitions.RecordCount;

@@ -13,7 +13,7 @@ using SuperMetroid.Core.Assets;
 internal static class GeneratedBossBg2CatalogsVerification
 {
     /// <summary>Checks Phantoon identities, multi-component tentacles, and loaded BG2 streams.</summary>
-    internal static void VerifyPhantoonGeneratedBg2Catalog(SuperMetroidAddressSpace rom)
+    internal static void VerifyPhantoonGeneratedBg2Catalog(CartridgeImportAddressSpace rom)
     {
         SpritemapFrameDefinition[] expected =
         [
@@ -49,7 +49,7 @@ internal static class GeneratedBossBg2CatalogsVerification
                 "Phantoon generated catalog loads native stream");
     }
     /// <summary>Checks Draygon identities, selector coverage, and loaded BG2 streams.</summary>
-    internal static void VerifyDraygonGeneratedBg2Catalog(SuperMetroidAddressSpace rom)
+    internal static void VerifyDraygonGeneratedBg2Catalog(CartridgeImportAddressSpace rom)
     {
         SpritemapFrameDefinition[] expected =
         [
@@ -101,7 +101,7 @@ internal static class GeneratedBossBg2CatalogsVerification
     /// before #1465 is read by <paramref name="nameBefore1465"/>: Phantoon's BG2 frames kept theirs, while Draygon's took
     /// their extended compositions' semantic names.
     /// </summary>
-    private static byte[] VerifyGeneratedBg2Catalog(SuperMetroidAddressSpace rom, byte bank, string family, SpritemapFrameDefinition[] expected, ImmutableArray<EnemyFrameName> frames, Func<EnemyFrameName, string> nameBefore1465, Bg2CatalogAccess access)
+    private static byte[] VerifyGeneratedBg2Catalog(CartridgeImportAddressSpace rom, byte bank, string family, SpritemapFrameDefinition[] expected, ImmutableArray<EnemyFrameName> frames, Func<EnemyFrameName, string> nameBefore1465, Bg2CatalogAccess access)
     {
         ushort Word(int address) => LittleEndianBytes.Word(GeneratedBg2CatalogRomByte(rom, address), GeneratedBg2CatalogRomByte(rom, address + 1));
         AssertEqual(expected.Length, frames.Length, $"{family} catalog count");

@@ -16,14 +16,14 @@ namespace SuperMetroid.Verification.Rooms.RoomObjects;
 internal static class InstalledFramePictureAssertions
 {
     /// <summary>The picture the cartridge's draw list at <paramref name="pointer"/> draws, and how many cells it writes.</summary>
-    internal static Dictionary<Offset16<RoomBlocks>, RoomBlockAppearance> NativePicture(SuperMetroidAddressSpace rom, int pointer, out int written) =>
+    internal static Dictionary<Offset16<RoomBlocks>, RoomBlockAppearance> NativePicture(CartridgeImportAddressSpace rom, int pointer, out int written) =>
         NativeTerrain(rom, pointer, out written).ToDictionary(cell => cell.Key, cell => cell.Value.Appearance);
 
     /// <summary>
     /// The terrain the cartridge's draw list at <paramref name="pointer"/> leaves at each cell from the object's origin,
     /// and how many cells it writes; a cell written twice keeps its last write.
     /// </summary>
-    internal static Dictionary<Offset16<RoomBlocks>, RoomTerrainBlock> NativeTerrain(SuperMetroidAddressSpace rom, int pointer, out int written)
+    internal static Dictionary<Offset16<RoomBlocks>, RoomTerrainBlock> NativeTerrain(CartridgeImportAddressSpace rom, int pointer, out int written)
     {
         var cells = new Dictionary<Offset16<RoomBlocks>, RoomTerrainBlock>();
         Offset16<RoomBlocks> start = Offset16<RoomBlocks>.Zero;
@@ -78,7 +78,7 @@ internal static class InstalledFramePictureAssertions
     /// cartridge's: the frame's address and published name, each run's header, the start of the run after it and, when
     /// <paramref name="collision"/> is set, how each cell collides.
     /// </summary>
-    internal static void AssertLayoutsAsNative<TFrame>(SuperMetroidAddressSpace rom, RoomObjectFrameFamily<TFrame> family,
+    internal static void AssertLayoutsAsNative<TFrame>(CartridgeImportAddressSpace rom, RoomObjectFrameFamily<TFrame> family,
         IReadOnlyList<LookupEscapeGateStockFrame> frames, bool collision) where TFrame : notnull
     {
         AssertEqual(family.Ids.Count, family.Layouts.Count, family.Name + " names every frame it lays out");
@@ -114,7 +114,7 @@ internal static class InstalledFramePictureAssertions
     /// <param name="family">The object's frames as the import pictures them.</param>
     /// <param name="frames">Each frame's draw-list address and published name.</param>
     /// <param name="writtenCells">The number of cells the frames' draw lists write in all.</param>
-    internal static void AssertPicturedAsNative<TFrame>(SuperMetroidAddressSpace rom, RoomObjectFrameImages<TFrame> images,
+    internal static void AssertPicturedAsNative<TFrame>(CartridgeImportAddressSpace rom, RoomObjectFrameImages<TFrame> images,
         RoomObjectFrameFamily<TFrame> family, IReadOnlyList<LookupEscapeGateStockFrame> frames, int writtenCells) where TFrame : notnull
     {
         AssertEqual(frames.Count, images.All.Count, family.Name + " pictures every frame");
@@ -141,7 +141,7 @@ internal static class InstalledFramePictureAssertions
     /// Requires <paramref name="shown"/>, the picture a frame's second identity shows, to be what the cartridge's draw list
     /// at <paramref name="pointer"/> draws: the same cells, each showing the cartridge's block and mirroring.
     /// </summary>
-    internal static void AssertAliasPicturedAsNative(SuperMetroidAddressSpace rom, RoomObjectFrameImage shown, int pointer, string label)
+    internal static void AssertAliasPicturedAsNative(CartridgeImportAddressSpace rom, RoomObjectFrameImage shown, int pointer, string label)
     {
         Dictionary<Offset16<RoomBlocks>, RoomBlockAppearance> native = NativePicture(rom, pointer, out _);
         AssertEqual(native.Count, shown.Cells.Count, label + " covers the cartridge's cells");
@@ -157,7 +157,7 @@ internal static class InstalledFramePictureAssertions
     /// <param name="installed">The family's installed pictures.</param>
     /// <param name="family">The family's frames and installed file.</param>
     /// <param name="installedDirectory">The repository installation's directory of the family's pictures.</param>
-    internal static void AssertImportAndRejections<TFrame>(SuperMetroidAddressSpace rom, RoomObjectFrameImages<TFrame> installed,
+    internal static void AssertImportAndRejections<TFrame>(CartridgeImportAddressSpace rom, RoomObjectFrameImages<TFrame> installed,
         RoomObjectFrameFamily<TFrame> family, string installedDirectory) where TFrame : notnull
     {
         foreach (TFrame frame in family.Layouts.Keys)

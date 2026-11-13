@@ -10,7 +10,7 @@ namespace SuperMetroid.Verification.Enemies.Chozo;
 internal static class ChozoStatueAnimationsVerification
 {
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
-    internal static void VerifyChozoStatueAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyChozoStatueAnimations(CartridgeImportAddressSpace rom)
     {
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             ChozoStatueAnimations.Segments, ChozoStatueAnimations.StartingAt, ChozoStatueFrameToolingDefinitions.Spritemap,

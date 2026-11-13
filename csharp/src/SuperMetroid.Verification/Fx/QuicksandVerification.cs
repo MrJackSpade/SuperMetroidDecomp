@@ -68,7 +68,7 @@ internal static class QuicksandVerification
     }
 
     /// <summary>Compares quicksand and special-air definition fields with the retail cartridge.</summary>
-    internal static void VerifyQuicksandDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyQuicksandDefinitions(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifySpecialAirInsideHeaderMapping), () => VerifySpecialAirInsideHeaderMapping(rom));
         Suite(nameof(VerifySpecialAirInsideSetupMapping), () => VerifySpecialAirInsideSetupMapping(rom));
@@ -151,11 +151,11 @@ internal static class QuicksandVerification
     }
 
     /// <summary>Checks each quicksand PLM header's setup pointer.</summary>
-    private static void VerifyQuicksandSetupMapping(SuperMetroidAddressSpace rom) =>
+    private static void VerifyQuicksandSetupMapping(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyQuicksandReactionField), () => VerifyQuicksandReactionField(rom, false));
 
     /// <summary>Checks each quicksand PLM header's instruction-list pointer.</summary>
-    private static void VerifyQuicksandInstructionMapping(SuperMetroidAddressSpace rom) =>
+    private static void VerifyQuicksandInstructionMapping(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyQuicksandReactionField), () => VerifyQuicksandReactionField(rom, true));
 
     /// <summary>
@@ -163,7 +163,7 @@ internal static class QuicksandVerification
     /// and that header's setup or list matches, the list playing as the sand object's typed change (it ends on its first
     /// update).
     /// </summary>
-    private static void VerifyQuicksandReactionField(SuperMetroidAddressSpace rom, bool instruction)
+    private static void VerifyQuicksandReactionField(CartridgeImportAddressSpace rom, bool instruction)
     {
         // Original non-clone sand PLM headers, independent of the replacement's named cases.
         ushort[] headers = [0xb713, 0xb71f, 0xb723, 0xb727, 0xb72b, 0xb737, 0xb73b, 0xb73f];
@@ -190,22 +190,22 @@ internal static class QuicksandVerification
     }
 
     /// <summary>Checks the two native suit-dependent moving displacement words.</summary>
-    private static void VerifyQuicksandMovingDisplacement(SuperMetroidAddressSpace rom) =>
+    private static void VerifyQuicksandMovingDisplacement(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyQuicksandPhysicsField), () => VerifyQuicksandPhysicsField(rom, 0x84b48b, physics => physics.MovingDisplacement));
 
     /// <summary>Checks the two native suit-dependent stationary sinking words.</summary>
-    private static void VerifyQuicksandStationaryDisplacement(SuperMetroidAddressSpace rom) =>
+    private static void VerifyQuicksandStationaryDisplacement(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyQuicksandPhysicsField), () => VerifyQuicksandPhysicsField(rom, 0x84b48f, physics => physics.StationaryDisplacement));
 
     /// <summary>Checks the two native quicksand upward-speed limits.</summary>
-    private static void VerifyQuicksandUpwardLimit(SuperMetroidAddressSpace rom) =>
+    private static void VerifyQuicksandUpwardLimit(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyQuicksandPhysicsField), () => VerifyQuicksandPhysicsField(rom, 0x84b493, physics => physics.UpwardSpeedLimit));
 
     /// <summary>
     /// Compares a selected surface-physics field for both Gravity and ordinary suits. The cartridge stores each as
     /// an unsigned 8.8 word; the oracle widens it to 16.16 exactly as the surface reaction consumes it.
     /// </summary>
-    private static void VerifyQuicksandPhysicsField(SuperMetroidAddressSpace rom, int address,
+    private static void VerifyQuicksandPhysicsField(CartridgeImportAddressSpace rom, int address,
         Func<QuicksandSurfacePhysics, SignedSixteenSixteen> field)
     {
         for (int suit = 0; suit < 2; suit++)
@@ -268,22 +268,22 @@ internal static class QuicksandVerification
     }
 
     /// <summary>Checks the special-air inside-reaction header for each area and BTS index.</summary>
-    private static void VerifySpecialAirInsideHeaderMapping(SuperMetroidAddressSpace rom) =>
+    private static void VerifySpecialAirInsideHeaderMapping(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifySpecialAirField), () => VerifySpecialAirField(rom, SpecialAirReactions.InsideOf,
             SpecialAirReactionNativeWords.InsideHeaders, SpecialAirReactionNativeWords.InsideSetups, SpecialAirInsideReaction.Nothing, 0x949b06, false));
 
     /// <summary>Checks the setup pointer selected by each special-air inside reaction.</summary>
-    private static void VerifySpecialAirInsideSetupMapping(SuperMetroidAddressSpace rom) =>
+    private static void VerifySpecialAirInsideSetupMapping(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifySpecialAirField), () => VerifySpecialAirField(rom, SpecialAirReactions.InsideOf,
             SpecialAirReactionNativeWords.InsideHeaders, SpecialAirReactionNativeWords.InsideSetups, SpecialAirInsideReaction.Nothing, 0x949b06, true));
 
     /// <summary>Checks the special-air collision header for each area and BTS index.</summary>
-    private static void VerifySpecialAirCollisionHeaderMapping(SuperMetroidAddressSpace rom) =>
+    private static void VerifySpecialAirCollisionHeaderMapping(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifySpecialAirField), () => VerifySpecialAirField(rom, SpecialAirReactions.CollisionOf,
             SpecialAirReactionNativeWords.CollisionHeaders, SpecialAirReactionNativeWords.CollisionSetups, SpecialAirCollisionReaction.Nothing, 0x9492d9, false));
 
     /// <summary>Checks the setup pointer selected by each special-air collision reaction.</summary>
-    private static void VerifySpecialAirCollisionSetupMapping(SuperMetroidAddressSpace rom) =>
+    private static void VerifySpecialAirCollisionSetupMapping(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifySpecialAirField), () => VerifySpecialAirField(rom, SpecialAirReactions.CollisionOf,
             SpecialAirReactionNativeWords.CollisionHeaders, SpecialAirReactionNativeWords.CollisionSetups, SpecialAirCollisionReaction.Nothing, 0x9492d9, true));
 
@@ -292,7 +292,7 @@ internal static class QuicksandVerification
     /// reaction's header and setup are the ones the cartridge's table selects; every other area, a common reaction and
     /// every later area reaction are rejected, the area first.
     /// </summary>
-    private static void VerifySpecialAirField<TReaction>(SuperMetroidAddressSpace rom,
+    private static void VerifySpecialAirField<TReaction>(CartridgeImportAddressSpace rom,
         Func<AreaId, BlockReaction, TReaction> resolve, IReadOnlyDictionary<TReaction, ushort> headers,
         IReadOnlyDictionary<TReaction, ushort> setups, TReaction nothing, int nativePointers, bool setup)
         where TReaction : struct, Enum

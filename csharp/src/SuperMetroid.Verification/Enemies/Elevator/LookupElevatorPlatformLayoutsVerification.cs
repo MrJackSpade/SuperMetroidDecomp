@@ -22,14 +22,14 @@ using SuperMetroid.Core.World;
 internal static class LookupElevatorPlatformLayoutsVerification
 {
     /// <summary>Checks draw run positions, continuation offsets, and resulting room block placement.</summary>
-    internal static void VerifyElevatorPlatformLayoutGeometry(SuperMetroidAddressSpace rom) => VerifyElevatorPlatformLayoutDrawField(rom, 0);
+    internal static void VerifyElevatorPlatformLayoutGeometry(CartridgeImportAddressSpace rom) => VerifyElevatorPlatformLayoutDrawField(rom, 0);
     /// <summary>Checks the collision kind of each exported block against the decoded native draw lists.</summary>
-    internal static void VerifyElevatorPlatformLayoutCollision(SuperMetroidAddressSpace rom) => VerifyElevatorPlatformLayoutDrawField(rom, 1);
+    internal static void VerifyElevatorPlatformLayoutCollision(CartridgeImportAddressSpace rom) => VerifyElevatorPlatformLayoutDrawField(rom, 1);
     /// <summary>Checks the appearance of each exported block against the decoded native draw lists.</summary>
-    internal static void VerifyElevatorPlatformLayoutVisuals(SuperMetroidAddressSpace rom) => VerifyElevatorPlatformLayoutDrawField(rom, 2);
+    internal static void VerifyElevatorPlatformLayoutVisuals(CartridgeImportAddressSpace rom) => VerifyElevatorPlatformLayoutDrawField(rom, 2);
 
     /// <summary>Checks the requested word field across the calculated shape, DTO exports, and native PLM list.</summary>
-    private static void VerifyElevatorPlatformLayoutDrawField(SuperMetroidAddressSpace rom, int field)
+    private static void VerifyElevatorPlatformLayoutDrawField(CartridgeImportAddressSpace rom, int field)
     {
         ushort[] pointers = [0xaa97,0xaaaf,0xaac7];
         string[] ids = ["first-frame","second-frame","third-frame"];

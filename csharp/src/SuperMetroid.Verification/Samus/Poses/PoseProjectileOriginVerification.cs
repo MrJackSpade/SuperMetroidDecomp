@@ -19,7 +19,7 @@ using SuperMetroid.Verification.Harness;
 internal static class PoseProjectileOriginVerification
 {
     /// <summary>Compares every pose and direction across signed graphics-offset classes for beams and Grapple.</summary>
-    internal static void VerifyPoseProjectileOrigin(SuperMetroidAddressSpace rom)
+    internal static void VerifyPoseProjectileOrigin(CartridgeImportAddressSpace rom)
     {
         short Word(int a) => unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(a));
         var initialize = new Action<SamusState, SamusProjectile>(BeamFiring.InitializePosition);

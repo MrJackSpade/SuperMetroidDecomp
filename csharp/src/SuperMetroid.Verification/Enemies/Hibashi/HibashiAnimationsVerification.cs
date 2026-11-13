@@ -10,7 +10,7 @@ namespace SuperMetroid.Verification.Enemies.Hibashi;
 internal static class HibashiAnimationsVerification
 {
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
-    internal static void VerifyHibashiAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyHibashiAnimations(CartridgeImportAddressSpace rom)
     {
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             HibashiAnimations.Segments, HibashiAnimations.StartingAt, HibashiFrameToolingDefinitions.Spritemap,

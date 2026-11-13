@@ -12,7 +12,7 @@ using SuperMetroid.Core.World;
 internal static class PhantoonSoundDefinitionsVerification
 {
     /// <summary>Compares native sound words and confirms two callback cycles advance the index without rereading the table.</summary>
-    internal static void VerifyPhantoonSoundDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyPhantoonSoundDefinitions(CartridgeImportAddressSpace rom)
     {
         const int sourceAddress = 0xa7cded;
         AssertEqual(3, PhantoonSoundDefinitions.MaterializationSoundCount, "Phantoon materialization cycle length");

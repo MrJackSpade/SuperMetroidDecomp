@@ -8,7 +8,7 @@ namespace SuperMetroid.Verification.Enemies.Fireflea;
 internal static class FirefleaMovementDefinitionsVerification
 {
     /// <summary>Compares all eight native radii and rejects selectors outside the authored table.</summary>
-    internal static void VerifyFirefleaMovementDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyFirefleaMovementDefinitions(CartridgeImportAddressSpace rom)
     {
         const ushort radiusTable = 0x8d1d;
 

@@ -17,7 +17,7 @@ internal static class ChozoTourianDustBehaviorVerification
     /// Each dust kind's definition starts its typed program, which matches the native list update for update until it
     /// deletes the dust; the descent dust returns to its origin every loop.
     /// </summary>
-    internal static void VerifyChozoTourianDustBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyChozoTourianDustBehavior(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, ChozoTourianDustNativeListAddresses.Extent, "Chozo/Tourian dust");
@@ -48,7 +48,7 @@ internal static class ChozoTourianDustBehaviorVerification
     [VerificationCommand("--chozo-tourian-dust-programs")]
     internal static int ChozoTourianDustProgramsCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(ChozoTourianDustAnimationsVerification.VerifyChozoTourianDustAnimations), () => ChozoTourianDustAnimationsVerification.VerifyChozoTourianDustAnimations(rom));
         Suite(nameof(VerifyChozoTourianDustBehavior), () => VerifyChozoTourianDustBehavior(rom));
         return 0;

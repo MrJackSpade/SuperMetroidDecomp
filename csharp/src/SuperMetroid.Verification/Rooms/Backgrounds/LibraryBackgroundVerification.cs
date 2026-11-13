@@ -158,8 +158,9 @@ internal static void VerifyLibraryBackgroundLoader()
         0xe000, activeDoorPointer: 0);
     AssertTrue(nativeVram.ImageEquals(vram),
         "typed native library-background reads preserve the complete VRAM result");
-    AssertTrue(typed.CartridgeReads > 0 && typed.WorkRamReads > 0,
-        "native library-background command and decompression reads use typed ROM/WRAM");
+    // The reference stages tilemaps in its own work memory (#1688), so only the cartridge reads reach the guard.
+    AssertTrue(typed.CartridgeReads > 0,
+        "native library-background command and decompression reads use the typed cartridge reader");
 
     VerifyLibraryBackgroundBankEndWrap(rom);
 
@@ -176,7 +177,7 @@ internal static void VerifyLibraryBackgroundLoader()
     AssertEqual(0x0338, vram.ReadWord(0x4fff), "library background clear final word");
 
     Console.WriteLine(
-        "  Library BG: typed ROM/WRAM command reads, decompression, Ceres BG2 pages, and native clear agree.");
+        "  Library BG: typed ROM command reads, staged decompression, Ceres BG2 pages, and native clear agree.");
 }
 
 /// <summary>
@@ -194,30 +195,30 @@ private static SnesVram Replay(LibraryBackgroundProgram program, LibraryBackgrou
 /// The list cursor is sixteen-bit: a command word at $8F:FFFF takes its high byte from the
 /// $8F:0000 low-WRAM mirror, not from the next ROM bank.
 /// </summary>
+/// <remarks>
+/// The next ROM bank's first byte is nonzero, so a high byte read from it would not end the list. The mirror is the
+/// reference's own cleared staging (#1688): the guard sees the low byte's cartridge read alone.
+/// </remarks>
 private static void VerifyLibraryBackgroundBankEndWrap(byte[] rom)
 {
     WriteLibraryByte(rom, 0xffff, 0);
+    rom[CartridgeImportAddressSpace.ToRomOffset(0x908000)] = 0x01;
     var wrappedBus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
-    wrappedBus.WriteByte(0x8f0000, 0);
     var wrapped = new LibraryBackgroundTypedReadGuard(wrappedBus);
     SuperMetroid.TestSupport.VerificationImporters.LibraryBackgroundProgramImporter.ExecuteReference(
         wrapped, new SnesVram(), 0xffff, activeDoorPointer: 0);
     AssertEqual(1, SuperMetroid.TestSupport.VerificationImporters.LibraryBackgroundProgramImporter.Read(wrappedBus, 0xffff).Instructions.Count + 1,
         "bank-end native library-background terminator executes once");
     AssertEqual(1, wrapped.CartridgeReads,
-        "bank-end command low byte comes from cartridge");
-    AssertEqual(1, wrapped.WorkRamReads,
-        "bank-end command high byte comes from the WRAM mirror");
+        "bank-end command low byte comes from cartridge, and its high byte from the WRAM mirror");
 }
 
-/// <summary>Counts cartridge and WRAM reads separately to verify library-background source routing.</summary>
-internal sealed class LibraryBackgroundTypedReadGuard(SuperMetroidAddressSpace source) :
-    ISnesMemoryBus, IImportCartridgeSource
+/// <summary>Counts cartridge reads to verify library-background source routing.</summary>
+internal sealed class LibraryBackgroundTypedReadGuard(CartridgeImportAddressSpace source) :
+    ISnesAddressSpace, IImportCartridgeSource
 {
     /// <summary>Counts source bytes fetched through the cartridge-only bus path.</summary>
     public int CartridgeReads { get; private set; }
-    /// <summary>Counts bytes fetched through the low-WRAM mirror or decompression workspace.</summary>
-    public int WorkRamReads { get; private set; }
 
     /// <summary>Fails if a library-background operation bypasses typed memory reads.</summary>
     public static byte ReadByte(int address) => throw new InvalidOperationException(
@@ -228,14 +229,6 @@ internal sealed class LibraryBackgroundTypedReadGuard(SuperMetroidAddressSpace s
         CartridgeReads++;
         return source.ReadCartridgeByte(address);
     }
-    /// <summary>Forwards a WRAM read while recording that the typed workspace path was used.</summary>
-    public byte ReadWorkRamByte(int address)
-    {
-        WorkRamReads++;
-        return source.ReadWorkRamByte(address);
-    }
-    /// <summary>Forwards writes so fixture setup retains the source bus's address mapping.</summary>
-    public void WriteByte(int address, byte value) => source.WriteByte(address, value);
 }
 
 /// <summary>Writes a little-endian command word at a bank-$8F pointer, wrapping the offset at 16 bits.</summary>

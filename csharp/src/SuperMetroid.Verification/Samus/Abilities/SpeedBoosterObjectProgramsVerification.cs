@@ -20,7 +20,7 @@ using SuperMetroid.Core.Progression;
 internal static class SpeedBoosterObjectProgramsVerification
 {
     /// <summary>Checks the bomb-reveal draw identity, one-run geometry, physical word, and continuation bytes.</summary>
-    private static void VerifySpeedBlockRevealDrawMapping(SuperMetroidAddressSpace rom)
+    private static void VerifySpeedBlockRevealDrawMapping(CartridgeImportAddressSpace rom)
     {
         const ushort pointer = 0xa4f3;
         var exported = RoomObjectSpeedBoosterVisualFiles.All.ToArray();
@@ -61,15 +61,15 @@ internal static class SpeedBoosterObjectProgramsVerification
     }
 
     /// <summary>Checks BTS and area selection of the native Speed Booster PLM headers.</summary>
-    private static void VerifySpeedBlockHeaderSelection(SuperMetroidAddressSpace rom) =>
+    private static void VerifySpeedBlockHeaderSelection(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifySpeedBlockSelectionField), () => VerifySpeedBlockSelectionField(rom, instruction: false));
 
     /// <summary>Checks BTS and area selection of each header's initial instruction pointer.</summary>
-    private static void VerifySpeedBlockInstructionSelection(SuperMetroidAddressSpace rom) =>
+    private static void VerifySpeedBlockInstructionSelection(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifySpeedBlockSelectionField), () => VerifySpeedBlockSelectionField(rom, instruction: true));
 
     /// <summary>Compares the complete BTS/area selector domain with original bank-94 entry records.</summary>
-    private static void VerifySpeedBlockSelectionField(SuperMetroidAddressSpace rom, bool instruction)
+    private static void VerifySpeedBlockSelectionField(CartridgeImportAddressSpace rom, bool instruction)
     {
         // Original bank-94 speed-entry locations, independent of named C# results.
         SpeedBoosterObjectProgramsEntry[] entries =
@@ -106,7 +106,7 @@ internal static class SpeedBoosterObjectProgramsVerification
     /// <summary>Runs static mappings and live boosted-contact and bomb-reveal PLM paths without source reads.</summary>
     internal static void VerifyCompiledSpeedBoosterObjectPrograms()
     {
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+        CartridgeImportAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifySpeedBlockHeaderSelection), () => VerifySpeedBlockHeaderSelection(rom));
         Suite(nameof(VerifySpeedBlockInstructionSelection), () => VerifySpeedBlockInstructionSelection(rom));

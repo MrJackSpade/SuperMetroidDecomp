@@ -11,7 +11,7 @@ namespace SuperMetroid.Verification.Enemies.Shutters;
 internal static class ShutterAnimationsVerification
 {
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
-    internal static void VerifyShutterAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyShutterAnimations(CartridgeImportAddressSpace rom)
     {
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             ShutterAnimations.Segments, ShutterAnimations.StartingAt, ShutterFrameToolingDefinitions.Spritemap,

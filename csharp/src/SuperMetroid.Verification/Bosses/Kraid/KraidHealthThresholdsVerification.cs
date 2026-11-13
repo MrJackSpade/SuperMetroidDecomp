@@ -8,15 +8,15 @@ namespace SuperMetroid.Verification.Bosses.Kraid;
 internal static class KraidHealthThresholdsVerification
 {
     /// <summary>Checks eight thresholds generated from one-eighth initial-health increments.</summary>
-    internal static void VerifyKraidHealthEighths(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyKraidHealthEighths(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyKraidHealthFraction), () => VerifyKraidHealthFraction(rom, 0xa7aa05, 3, 8, (state, index) => state.HealthEighthThreshold(index)));
 
     /// <summary>Checks four thresholds generated from one-quarter initial-health increments.</summary>
-    internal static void VerifyKraidHealthQuarters(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyKraidHealthQuarters(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyKraidHealthFraction), () => VerifyKraidHealthFraction(rom, 0xa7aa26, 2, 4, (state, index) => state.HealthQuarterThreshold(index)));
 
     /// <summary>Runs the native right-shift and wrapped addition recurrence over every 16-bit starting health.</summary>
-    private static void VerifyKraidHealthFraction(SuperMetroidAddressSpace rom, int shiftAddress,
+    private static void VerifyKraidHealthFraction(CartridgeImportAddressSpace rom, int shiftAddress,
         int shifts, int count, Func<KraidEnemyState, int, int> actual)
     {
         for (int instruction = 0; instruction < shifts; instruction++)

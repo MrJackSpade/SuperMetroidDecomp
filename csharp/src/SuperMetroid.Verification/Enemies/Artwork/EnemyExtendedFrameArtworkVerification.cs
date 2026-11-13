@@ -60,7 +60,7 @@ internal static class EnemyExtendedFrameArtworkVerification
 
     /// <summary>Compares installed Pirate and boss extended frames to native OAM.</summary>
     internal static void VerifyInstalledEnemyExtendedFrames(
-        SuperMetroidAddressSpace rom,
+        CartridgeImportAddressSpace rom,
         ImportEnemyArtwork stock)
     {
         AssertTrue(stock.Enemies.ExtendedFrames is not null,

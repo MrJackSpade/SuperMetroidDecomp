@@ -90,7 +90,7 @@ internal static class SkreeMetareeBehaviorVerification
     [VerificationCommand("--skree-metaree-instruction-mechanics")]
     internal static int SkreeMetareeBehaviorCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifySkreeMetareeBehavior), () => VerifySkreeMetareeBehavior());
         Suite(nameof(SkreeMetareeAnimationsVerification.VerifySkreeMetareeAnimations), () => SkreeMetareeAnimationsVerification.VerifySkreeMetareeAnimations(rom));
         return 0;

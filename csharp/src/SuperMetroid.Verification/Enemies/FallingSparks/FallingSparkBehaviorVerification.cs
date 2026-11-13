@@ -17,7 +17,7 @@ internal static class FallingSparkBehaviorVerification
     /// A spawned spark starts its falling program and loops it update for update beside the native list; the floor
     /// impact starts the impact program, which blinks through its eleven frames and deletes the spark on the native update.
     /// </summary>
-    internal static void VerifyFallingSparkBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyFallingSparkBehavior(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, FallingSparkNativeListAddresses.Extent, "falling-spark");
@@ -54,7 +54,7 @@ internal static class FallingSparkBehaviorVerification
     [VerificationCommand("--falling-spark-programs")]
     internal static int FallingSparkProgramsCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(FallingSparkAnimationsVerification.VerifyFallingSparkAnimations), () => FallingSparkAnimationsVerification.VerifyFallingSparkAnimations(rom));
         Suite(nameof(VerifyFallingSparkBehavior), () => VerifyFallingSparkBehavior(rom));
         return 0;

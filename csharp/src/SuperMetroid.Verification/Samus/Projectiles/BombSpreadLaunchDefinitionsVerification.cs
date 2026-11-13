@@ -10,7 +10,7 @@ namespace SuperMetroid.Verification.Samus.Projectiles;
 internal static class BombSpreadLaunchDefinitionsVerification
 {
     /// <summary>Compares five native fuse, X, Y, and subvelocity records and verifies hold-modified launches without reading migrated ROM tables.</summary>
-    internal static void VerifyBombSpreadLaunchDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyBombSpreadLaunchDefinitions(CartridgeImportAddressSpace rom)
     {
         var reference = Enumerable.Range(0,MorphBallBombDefinitions.SlotCount).Select(i =>
             new BombSpreadLaunchDefinition(CartridgeImportSource.Require(rom).ReadCartridgeWord((MorphBallBombDefinitions.FuseTimers+i*2)),
@@ -102,7 +102,7 @@ internal static class BombSpreadLaunchDefinitionsVerification
     [SuperMetroid.Verification.Harness.VerificationCommand("--bomb-spread-launch")]
     internal static int BombSpreadLaunchCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         SuperMetroid.Verification.Harness.SuiteTimingVerification.Suite(
             nameof(VerifyBombSpreadLaunchDefinitions), () => VerifyBombSpreadLaunchDefinitions(rom));
         return 0;

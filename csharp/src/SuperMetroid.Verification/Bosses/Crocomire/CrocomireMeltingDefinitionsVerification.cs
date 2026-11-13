@@ -35,7 +35,7 @@ internal static class CrocomireMeltingDefinitionsVerification
     private const ushort Terminator = 0xffff;
 
     /// <summary>Compares the melt's columns, masks, passes and dissolve with the ROM.</summary>
-    internal static void VerifyCrocomireMeltingDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyCrocomireMeltingDefinitions(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyCrocomireMaskAlgorithm), () => VerifyCrocomireMaskAlgorithm(rom));
         Suite(nameof(VerifyCrocomireMeltHeaders), () => VerifyCrocomireMeltHeaders(rom));
@@ -48,7 +48,7 @@ internal static class CrocomireMeltingDefinitionsVerification
     }
 
     /// <summary>Checks the eight repeating erase masks at every dissolve step.</summary>
-    internal static void VerifyCrocomireMaskAlgorithm(SuperMetroidAddressSpace rom)
+    internal static void VerifyCrocomireMaskAlgorithm(CartridgeImportAddressSpace rom)
     {
         for (int step = 0; step < CrocomireMeltingDefinitions.ColumnCount; step++)
             AssertEqual(rom.ReadCartridgeByte(MaskTableAddress + (step & 7)),
@@ -67,7 +67,7 @@ internal static class CrocomireMeltingDefinitionsVerification
         HeaderAddress(pass) + 8 + 4 * CrocomireMelting.BandCount(pass) + 2;
 
     /// <summary>Checks each pass's header: its distortion rows, its copy length and its graphics bank.</summary>
-    internal static void VerifyCrocomireMeltHeaders(SuperMetroidAddressSpace rom)
+    internal static void VerifyCrocomireMeltHeaders(CartridgeImportAddressSpace rom)
     {
         var source = CartridgeImportSource.Require(rom);
         foreach (CrocomireMeltingIllustration pass in Enum.GetValues<CrocomireMeltingIllustration>())
@@ -88,7 +88,7 @@ internal static class CrocomireMeltingDefinitionsVerification
     }
 
     /// <summary>Checks every band copy each pass makes: its graphics source and where in the image it lands.</summary>
-    internal static void VerifyCrocomireMeltCopies(SuperMetroidAddressSpace rom)
+    internal static void VerifyCrocomireMeltCopies(CartridgeImportAddressSpace rom)
     {
         var source = CartridgeImportSource.Require(rom);
         foreach (CrocomireMeltingIllustration pass in Enum.GetValues<CrocomireMeltingIllustration>())
@@ -108,7 +108,7 @@ internal static class CrocomireMeltingDefinitionsVerification
     }
 
     /// <summary>Checks every band upload each pass makes: its size, the characters it shows over and its row of the image.</summary>
-    internal static void VerifyCrocomireMeltUploads(SuperMetroidAddressSpace rom)
+    internal static void VerifyCrocomireMeltUploads(CartridgeImportAddressSpace rom)
     {
         var source = CartridgeImportSource.Require(rom);
         foreach (CrocomireMeltingIllustration pass in Enum.GetValues<CrocomireMeltingIllustration>())
@@ -131,7 +131,7 @@ internal static class CrocomireMeltingDefinitionsVerification
     }
 
     /// <summary>Compares all 49 extraction erase steps with an independently calculated bitplane silhouette.</summary>
-    internal static void VerifyCrocomireMeltingProductionSequence(SuperMetroidAddressSpace rom)
+    internal static void VerifyCrocomireMeltingProductionSequence(CartridgeImportAddressSpace rom)
     {
         var image = Enumerable.Repeat((byte)0xff, CrocomireMeltingArtworkFormat.SecondByteCount).ToArray();
         var expected = (byte[])image.Clone();
@@ -168,7 +168,7 @@ internal static class CrocomireMeltingDefinitionsVerification
 
     /// <summary>Loads one installed BG2 melt tilemap and compares the words his shown body shows with native words (#1515).</summary>
     internal static ushort[] VerifyInstalledCrocomireMeltingTilemap(
-        SuperMetroidAddressSpace rom, ImportEnemyArtwork artwork,
+        CartridgeImportAddressSpace rom, ImportEnemyArtwork artwork,
         CrocomireMeltingIllustration source, CrocomireBodyProgram bodyProgram, bool compareRom = true)
     {
         int sourceAddress = CrocomireMeltingSources.Tilemap(source);

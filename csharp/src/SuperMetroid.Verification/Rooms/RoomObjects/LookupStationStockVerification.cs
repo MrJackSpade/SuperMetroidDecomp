@@ -11,7 +11,7 @@ namespace SuperMetroid.Verification.Rooms.RoomObjects;
 internal static class LookupStationStockVerification
 {
     /// <summary>Compares the twenty station frames' pictures with the cartridge, rejects other draws, then checks the import and its rejections (#1557).</summary>
-    internal static void VerifyStationStockMapping(SuperMetroidAddressSpace rom,
+    internal static void VerifyStationStockMapping(CartridgeImportAddressSpace rom,
         InstalledRoomObjectStationVisuals installed)
     {
         LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0x9f25,"map-frame-0"),new LookupEscapeGateStockFrame(0x9f6d,"energy-frame-0"),new LookupEscapeGateStockFrame(0x9f91,"missile-frame-0"),

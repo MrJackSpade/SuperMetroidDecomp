@@ -36,7 +36,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
             return;
         }
 
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+        CartridgeImportAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         Dictionary<EnemyDefinitionId, List<RoomEnemyPopulationRecord>> populations =
             ReadRetailEnemyPopulationRecords(rom);
         EnemyDefinitionId[] definitions = ReadNamedRetailEnemyDefinitions();

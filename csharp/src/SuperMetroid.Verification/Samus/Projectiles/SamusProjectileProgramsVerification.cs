@@ -21,7 +21,7 @@ namespace SuperMetroid.Verification.Samus.Projectiles;
 internal static class SamusProjectileProgramsVerification
 {
     /// <summary>Every program, record and header matches bank $93.</summary>
-    internal static void VerifySamusProjectilePrograms(SuperMetroidAddressSpace rom)
+    internal static void VerifySamusProjectilePrograms(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         ushort Word(int address) => cartridge.ReadCartridgeWord(SamusSourceDefinitions.ProjectileDataBank.Value | (ushort)address);
@@ -185,7 +185,7 @@ internal static class SamusProjectileProgramsVerification
     [VerificationCommand("--samus-projectile-programs")]
     internal static int SamusProjectileProgramsCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifySamusProjectilePrograms), () => VerifySamusProjectilePrograms(rom));
         return 0;
     }

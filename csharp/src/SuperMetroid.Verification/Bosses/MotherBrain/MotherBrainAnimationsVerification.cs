@@ -27,7 +27,7 @@ using SuperMetroid.TestSupport.MovieReplay.Verification;
 internal static class MotherBrainAnimationsVerification
 {
     /// <summary>Every typed slot and brain program equals its native list, and the runners keep the native cadence.</summary>
-    internal static void VerifyMotherBrainAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyMotherBrainAnimations(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         int body = CompareBody(cartridge).Values.Sum(list => list.BeatAddresses.Length);
@@ -166,7 +166,7 @@ internal static class MotherBrainAnimationsVerification
     /// The glass shards and sparkle, the hand beam, and the turrets' poses and impact smoke match their bank-$86 lists
     /// update by update through the real projectile engine.
     /// </summary>
-    internal static void VerifyMotherBrainProjectileAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyMotherBrainProjectileAnimations(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         int compared = 0;

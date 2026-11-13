@@ -11,7 +11,7 @@ namespace SuperMetroid.Verification.Areas.Maridia;
 internal static class LookupElevatubeStockVerification
 {
     /// <summary>Compares the stock and installed pictures with the cartridge, then the import and its rejections.</summary>
-    internal static void VerifyElevatubeStockMapping(SuperMetroidAddressSpace rom,
+    internal static void VerifyElevatubeStockMapping(CartridgeImportAddressSpace rom,
         InstalledRoomObjectMaridiaElevatubeVisuals installed)
     {
         LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0x9367, "elevatube-block")];

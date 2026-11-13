@@ -103,7 +103,7 @@ internal static class DeadTourianCorpseArtworkVerification
     /// <remarks>Independent copy spans from the pinned sm_a9.c corpse initializers $A9:DEC1-$E052. Keep these separate
     /// from the runtime's layout definitions.</remarks>
     private static DeadTorizoArtworkCopy[] ReferenceDeadTourianCorpseGraphics(
-        SuperMetroidAddressSpace bus, NativeEnemyStaging staging, EnemyDefinitionId definition, int variant)
+        CartridgeImportAddressSpace bus, NativeEnemyStaging staging, EnemyDefinitionId definition, int variant)
     {
         DeadTorizoArtworkCopy[] copies = new DeadTourianCorpseArtworkCopy(definition, variant) switch
         {

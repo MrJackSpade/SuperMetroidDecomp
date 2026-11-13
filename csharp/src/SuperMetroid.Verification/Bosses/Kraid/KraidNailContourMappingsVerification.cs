@@ -29,7 +29,7 @@ internal static class KraidNailContourMappingsVerification
     }
 
     /// <summary>Checks the four ledges' left offsets and every relative Y the ledges select against the native contour walk.</summary>
-    internal static void VerifyKraidNailLeftOffsets(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidNailLeftOffsets(CartridgeImportAddressSpace rom)
     {
         ushort Word(int address) => LittleEndianBytes.Word(KraidNailLeftOffsetsRomByte(rom, address), KraidNailLeftOffsetsRomByte(rom, address + 1));
         AssertEqual(4, KraidNailContourDefinitions.LedgeCount, "Nail contour ledge count");
@@ -54,7 +54,7 @@ internal static class KraidNailContourMappingsVerification
     private static byte KraidNailLeftOffsetsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks the four ledges' top boundaries and rejects out-of-range ledges.</summary>
-    internal static void VerifyKraidNailTopBoundaries(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidNailTopBoundaries(CartridgeImportAddressSpace rom)
     {
         for (int ledge = 0; ledge < KraidNailContourDefinitions.LedgeCount; ledge++)
         {
@@ -74,7 +74,7 @@ internal static class KraidNailContourMappingsVerification
     /// installed <see cref="KraidNailPastLedges"/> (#1500): every relative Y the original walk settles on that record for
     /// is pushed back at its left word, and every relative Y the walk carries further is rejected.
     /// </summary>
-    internal static void VerifyKraidNailPastLedges(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidNailPastLedges(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         ushort Word(int address) => cartridge.ReadCartridgeWord(address);

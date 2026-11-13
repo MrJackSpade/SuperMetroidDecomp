@@ -10,7 +10,7 @@ namespace SuperMetroid.Verification.Enemies.YappingMaws;
 internal static class YappingMawAnimationsVerification
 {
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
-    internal static void VerifyYappingMawAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyYappingMawAnimations(CartridgeImportAddressSpace rom)
     {
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             YappingMawAnimations.Segments, YappingMawAnimations.StartingAt, YappingMawFrameToolingDefinitions.Spritemap,

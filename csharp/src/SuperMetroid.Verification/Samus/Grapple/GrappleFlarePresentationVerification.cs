@@ -24,7 +24,7 @@ namespace SuperMetroid.Verification.Samus.Grapple;
 internal static class GrappleFlarePresentationVerification
 {
     /// <summary>Compares flare drawing across phases and coordinates with native cadence, then checks the real actor's sheet binding.</summary>
-    internal static void VerifyGrappleFlarePresentation(SuperMetroidAddressSpace bus,
+    internal static void VerifyGrappleFlarePresentation(CartridgeImportAddressSpace bus,
         SamusBodySources body, MapPresentationInstalledRoomAssets roomAssets,
         AreaMapPresentation maps, InstalledGrapplePresentation grappleArtwork)
     {

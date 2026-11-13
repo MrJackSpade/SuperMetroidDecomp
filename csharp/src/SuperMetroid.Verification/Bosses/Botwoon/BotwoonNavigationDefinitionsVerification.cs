@@ -24,7 +24,7 @@ internal static class BotwoonNavigationDefinitionsVerification
     private const int BackwardRewindBytes = 4;
 
     /// <summary>Checks each hole's exclusive right edge through the production detection routine and rejects invalid hole indices.</summary>
-    internal static void VerifyBotwoonHoleRightBounds(SuperMetroidAddressSpace rom)
+    internal static void VerifyBotwoonHoleRightBounds(CartridgeImportAddressSpace rom)
     {
         Action<RoomEnemySlot, BotwoonEnemyState> detect = BotwoonBehavior.DetectBotwoonHole;
         for (int offset = 0; offset < 32; offset += 8)
@@ -47,7 +47,7 @@ internal static class BotwoonNavigationDefinitionsVerification
     }
 
     /// <summary>Checks each hole's exclusive bottom edge through the production detection routine.</summary>
-    internal static void VerifyBotwoonHoleBottomBounds(SuperMetroidAddressSpace rom)
+    internal static void VerifyBotwoonHoleBottomBounds(CartridgeImportAddressSpace rom)
     {
         Action<RoomEnemySlot, BotwoonEnemyState> detect = BotwoonBehavior.DetectBotwoonHole;
         for (int offset = 0; offset < 32; offset += 8)
@@ -67,7 +67,7 @@ internal static class BotwoonNavigationDefinitionsVerification
     }
 
     /// <summary>Matches all 32 native path descriptors and checks their installation into live Botwoon movement state.</summary>
-    internal static void VerifyBotwoonPathDescriptorMappings(SuperMetroidAddressSpace rom)
+    internal static void VerifyBotwoonPathDescriptorMappings(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyBotwoonPathStartMapping), () => VerifyBotwoonPathStartMapping(rom));
         Suite(nameof(VerifyBotwoonPathDirectionMapping), () => VerifyBotwoonPathDirectionMapping(rom));
@@ -101,7 +101,7 @@ internal static class BotwoonNavigationDefinitionsVerification
     /// Checks the table's separators, including the distinct early terminator, and that each descriptor's sample
     /// pointer starts its walk on the path and step the typed descriptor names.
     /// </summary>
-    private static void VerifyBotwoonPathStartMapping(SuperMetroidAddressSpace rom)
+    private static void VerifyBotwoonPathStartMapping(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         ushort[] boundaries = [0xa058,0xa328,0xa6ba,0xaa22,0xadfc,0xb168,0xb554,0xb954,
@@ -124,7 +124,7 @@ internal static class BotwoonNavigationDefinitionsVerification
     }
 
     /// <summary>Checks forward and reverse traversal words for every authored path choice.</summary>
-    private static void VerifyBotwoonPathDirectionMapping(SuperMetroidAddressSpace rom)
+    private static void VerifyBotwoonPathDirectionMapping(CartridgeImportAddressSpace rom)
     {
         for (int offset = 0; offset < 256; offset += 8)
             AssertEqual((short)ReadRomWord(rom, 0xb3e152 + offset) < 0 ? BotwoonPathTraversal.Backward : BotwoonPathTraversal.Forward,
@@ -132,7 +132,7 @@ internal static class BotwoonNavigationDefinitionsVerification
     }
 
     /// <summary>Checks destination holes, including the repeated hidden choice in the native table.</summary>
-    private static void VerifyBotwoonPathDestinationMapping(SuperMetroidAddressSpace rom)
+    private static void VerifyBotwoonPathDestinationMapping(CartridgeImportAddressSpace rom)
     {
         for (int offset = 0; offset < 256; offset += 8)
             AssertEqual(ReadRomWord(rom, 0xb3e154 + offset),
@@ -143,7 +143,7 @@ internal static class BotwoonNavigationDefinitionsVerification
     /// Compares hole rectangles, the authored paths and every step's production movement in both directions against
     /// the retail tables.
     /// </summary>
-    internal static void VerifyBotwoonNavigationDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyBotwoonNavigationDefinitions(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyBotwoonHoleRightBounds), () => VerifyBotwoonHoleRightBounds(rom));
         Suite(nameof(VerifyBotwoonHoleBottomBounds), () => VerifyBotwoonHoleBottomBounds(rom));

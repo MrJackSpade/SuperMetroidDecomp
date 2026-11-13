@@ -13,7 +13,7 @@ namespace SuperMetroid.Verification.Enemies.Corpses;
 internal static class DeadSidehopperLaunchDefinitionsVerification
 {
     /// <summary>Checks every phase and timer with the migrated velocity tables forbidden to production reads.</summary>
-    internal static void VerifyDeadSidehopperLaunchDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyDeadSidehopperLaunchDefinitions(CartridgeImportAddressSpace rom)
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot, DeadSidehopperEnemyState, SamusState?, RoomLevelData?, Position16<RoomPixels>> dispatch = enemies.DeadSidehopperBehavior.DispatchDeadSidehopperState;

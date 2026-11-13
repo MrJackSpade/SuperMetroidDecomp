@@ -16,7 +16,7 @@ using SuperMetroid.Core.World;
 internal static class DraygonIntroDanceDefinitionsVerification
 {
     /// <summary>The cartridge record of path step <paramref name="step"/>: its X and Y bytes.</summary>
-    private static NativeIntroRecord ReadRecord(SuperMetroidAddressSpace rom, int step)
+    private static NativeIntroRecord ReadRecord(CartridgeImportAddressSpace rom, int step)
     {
         int address = DraygonIntroDanceDefinitionsConstants.NativeMovementStreamAddress +
             step * DraygonIntroDanceDefinitionsConstants.NativeMovementRecordBytes;
@@ -24,7 +24,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
     }
 
     /// <summary>Runs delay, path, and complete production trajectory comparisons.</summary>
-    internal static void VerifyDraygonIntroDanceDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyDraygonIntroDanceDefinitions(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyDraygonIntroLatencyDefinitions), () => VerifyDraygonIntroLatencyDefinitions(rom));
         Suite(nameof(VerifyDraygonIntroMovementDefinitions), () => VerifyDraygonIntroMovementDefinitions(rom));
@@ -43,7 +43,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
     private static int NativeDancerSlot(int dancer) => 31 - dancer;
 
     /// <summary>Compares all four Evir start delays with the native byte latencies and checks the dancer bounds.</summary>
-    internal static void VerifyDraygonIntroLatencyDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyDraygonIntroLatencyDefinitions(CartridgeImportAddressSpace rom)
     {
         const int source = DraygonIntroDanceDefinitionsConstants.NativeMovementLatencyAddress;
         for (int dancer = 0; dancer < DraygonIntroDanceDefinitions.EvirCount; dancer++)
@@ -67,7 +67,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
     }
 
     /// <summary>Compares every step of the traced path, deletes included, and rejects steps outside it.</summary>
-    internal static void VerifyDraygonIntroMovementDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyDraygonIntroMovementDefinitions(CartridgeImportAddressSpace rom)
     {
         int deletes = 0;
         for (int step = 0; step < DraygonIntroDanceDefinitions.TracedPath.Length; step++)
@@ -95,7 +95,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
     }
 
     /// <summary>Compares every Evir slot's position and lifetime across the full intro, including the fight handoff.</summary>
-    private static void VerifyCompleteDraygonIntroTrajectory(SuperMetroidAddressSpace rom)
+    private static void VerifyCompleteDraygonIntroTrajectory(CartridgeImportAddressSpace rom)
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => 0;

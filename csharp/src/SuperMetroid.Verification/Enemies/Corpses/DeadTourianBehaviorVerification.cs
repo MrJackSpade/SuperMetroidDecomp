@@ -51,7 +51,7 @@ internal static class DeadTourianBehaviorVerification
     [VerificationCommand("--dead-sidehopper-instruction-mechanics")]
     internal static int DeadSidehopperBehaviorCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyDeadSidehopperBehavior), () => VerifyDeadSidehopperBehavior());
         Suite(nameof(DeadTourianAnimationsVerification.VerifyDeadTourianAnimations), () => DeadTourianAnimationsVerification.VerifyDeadTourianAnimations(rom));
         return 0;

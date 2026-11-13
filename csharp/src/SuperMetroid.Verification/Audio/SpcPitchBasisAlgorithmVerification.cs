@@ -10,7 +10,7 @@ internal static class SpcPitchBasisAlgorithmVerification
 {
     /// <summary>Brackets the twelfth root of two, compares all thirteen native
     /// frequencies, and confirms invalid semitone indices are rejected.</summary>
-    internal static void VerifySpcPitchBasisAlgorithm(SuperMetroidAddressSpace rom)
+    internal static void VerifySpcPitchBasisAlgorithm(CartridgeImportAddressSpace rom)
     {
         BigInteger scale = BigInteger.Pow(10, 28);
         BigInteger lowerRoot = BigInteger.Parse("10594630943592952645618252949");

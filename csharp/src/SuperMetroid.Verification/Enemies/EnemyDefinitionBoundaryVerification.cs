@@ -58,7 +58,6 @@ internal static class EnemyDefinitionBoundaryVerification
         // The enemy artwork every fixture shares, as the import reads it from the cartridge-derived extraction (#1430, #1636).
         ImportEnemyArtwork artwork = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemyArtwork;
         AssertTrue(artwork.Enemies.AuxiliaryColors is not null, "complete installation supplies auxiliary palettes");
-        var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
         int drawCases = 0;
         foreach (ushort frame in TorizoCollisionDefinitions.FramePointers)
         foreach ((ushort x, ushort y) in new VerifyEnemyDefinitionBoundaryCase[] { new VerifyEnemyDefinitionBoundaryCase(128, 96), new VerifyEnemyDefinitionBoundaryCase(0, 0), new VerifyEnemyDefinitionBoundaryCase(511, 252) })

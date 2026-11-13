@@ -103,7 +103,7 @@ internal static class DragonBehaviorVerification
     [VerificationCommand("--dragon-instruction-mechanics")]
     internal static int DragonBehaviorCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyDragonBehavior), () => VerifyDragonBehavior());
         Suite(nameof(DragonAnimationsVerification.VerifyDragonAnimations), () => DragonAnimationsVerification.VerifyDragonAnimations(rom));
         return 0;

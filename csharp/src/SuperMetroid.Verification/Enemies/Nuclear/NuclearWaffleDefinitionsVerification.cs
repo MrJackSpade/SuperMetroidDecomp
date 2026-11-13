@@ -18,7 +18,7 @@ internal static class NuclearWaffleDefinitionsVerification
     /// Compares the sweep each decoded direction selects, and the full body loop, with retail data; the import rejects a
     /// direction past the two sweeps.
     /// </summary>
-    internal static void VerifyNuclearWaffleDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyNuclearWaffleDefinitions(CartridgeImportAddressSpace rom)
     {
         const int endpointTable = 0xa695f6;
         const int spacingTable = 0xa695fe;
@@ -159,7 +159,7 @@ internal static class NuclearWaffleDefinitionsVerification
     [VerificationCommand("--nuclear-waffle-instruction-mechanics")]
     internal static int NuclearWaffleInstructionMechanicsCommand()
     {
-        SuperMetroidAddressSpace rom =
+        CartridgeImportAddressSpace rom =
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyNuclearWaffleDefinitions), () => VerifyNuclearWaffleDefinitions(rom));
         Suite(nameof(VerifyNuclearWaffleSweep), () => VerifyNuclearWaffleSweep());

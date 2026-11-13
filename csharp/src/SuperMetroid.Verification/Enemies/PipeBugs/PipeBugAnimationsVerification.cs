@@ -11,7 +11,7 @@ namespace SuperMetroid.Verification.Enemies.PipeBugs;
 internal static class PipeBugAnimationsVerification
 {
     /// <summary>Every segment matches its native list and every animation the lists' control flow.</summary>
-    internal static void VerifyPipeBugAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyPipeBugAnimations(CartridgeImportAddressSpace rom)
     {
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, PipeBugAnimations.Segments,
             PipeBugAnimations.StartingAt, PipeBugFrameToolingDefinitions.Spritemap,

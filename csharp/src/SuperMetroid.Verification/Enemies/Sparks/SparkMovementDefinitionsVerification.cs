@@ -18,7 +18,7 @@ internal static class SparkMovementDefinitionsVerification
     /// Flicker-on makes the Spark tangible and runs into the active loop; flicker-out makes it intangible and holds; both
     /// loops run on time.
     /// </summary>
-    internal static void VerifySparkMovementDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifySparkMovementDefinitions(CartridgeImportAddressSpace rom)
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: new TestAddressSpace(), services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().IsAreaBossDefeated = () => true;
@@ -92,7 +92,7 @@ internal static class SparkMovementDefinitionsVerification
     [VerificationCommand("--spark-instruction-mechanics")]
     internal static int SparkInstructionMechanicsCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifySparkMovementDefinitions), () => VerifySparkMovementDefinitions(rom));
         Suite(nameof(SparkAnimationsVerification.VerifySparkAnimations), () => SparkAnimationsVerification.VerifySparkAnimations(rom));
         return 0;

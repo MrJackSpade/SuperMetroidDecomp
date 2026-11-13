@@ -23,7 +23,7 @@ internal static class RoomObjectPopulationDefinitionsVerification
 {
     /// <summary>Runs the grouped cartridge comparisons for room PLM definitions and loading behavior.</summary>
     internal static void VerifyCompiledRoomObjectPopulationDefinitions(
-        SuperMetroidAddressSpace rom)
+        CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyRetailPopulationMappings), () => VerifyRetailPopulationMappings(rom));
 
@@ -35,7 +35,7 @@ internal static class RoomObjectPopulationDefinitionsVerification
     }
 
     /// <summary>Compares native and compiled population slots and setup results while guarding source population and header reads.</summary>
-    internal static void VerifyCompiledRoomObjectHeaderLoad(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledRoomObjectHeaderLoad(CartridgeImportAddressSpace rom)
     {
         const ushort populatedPointer = 0x8000;
         int sourceLength = RoomObjectPopulationDefinitions.Get(populatedPointer).Placements.Length * 6 + 2;

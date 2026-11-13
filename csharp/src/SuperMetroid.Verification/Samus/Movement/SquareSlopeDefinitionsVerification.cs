@@ -12,7 +12,7 @@ namespace SuperMetroid.Verification.Samus.Movement;
 internal static class SquareSlopeDefinitionsVerification
 {
     /// <summary>Runs separate missile-point and enemy-quadrant comparisons.</summary>
-    internal static void VerifyCompiledSquareSlopes(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledSquareSlopes(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifySamusSquareSlopeAlgorithm), () => VerifySamusSquareSlopeAlgorithm(rom));
         Suite(nameof(VerifyEnemySquareSlopeAlgorithm), () => VerifyEnemySquareSlopeAlgorithm(rom));
@@ -35,7 +35,7 @@ internal static class SquareSlopeDefinitionsVerification
     private static bool SolidAtNativeIndex(int index) => SquareSlopes.IsSolid(NativeShapeOrder[index / 4], NativeQuadrant(index));
 
     /// <summary>Checks all native Samus quadrant bytes and actual missile reactions for five shapes and BTS orientations.</summary>
-    private static void VerifySamusSquareSlopeAlgorithm(SuperMetroidAddressSpace rom)
+    private static void VerifySamusSquareSlopeAlgorithm(CartridgeImportAddressSpace rom)
     {
         var native = new byte[20];
         for (int i = 0; i < native.Length; i++)
@@ -79,7 +79,7 @@ internal static class SquareSlopeDefinitionsVerification
     }
 
     /// <summary>Compares both native enemy quadrant copies and rejects indices outside their twenty-byte range.</summary>
-    private static void VerifyEnemySquareSlopeAlgorithm(SuperMetroidAddressSpace rom)
+    private static void VerifyEnemySquareSlopeAlgorithm(CartridgeImportAddressSpace rom)
     {
         for (int index = 0; index < 20; index++)
         {

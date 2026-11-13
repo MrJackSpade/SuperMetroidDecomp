@@ -114,7 +114,7 @@ internal static class TorizoProjectileAnimationsVerification
         EndsList: cue => cue is TorizoProjectileCue.Command { Kind: TorizoProjectileCueKind.Delete or TorizoProjectileCueKind.Hatch });
 
     /// <summary>Every projectile segment and animation matches its native lists.</summary>
-    internal static void VerifyTorizoProjectileAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyTorizoProjectileAnimations(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         int beats = NativeEnemyProjectileProgramOracle.CompareAll(cartridge, SegmentEntries, TorizoProjectileAnimations.Segments,

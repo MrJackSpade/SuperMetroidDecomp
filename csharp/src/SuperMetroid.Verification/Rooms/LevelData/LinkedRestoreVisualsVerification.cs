@@ -19,7 +19,7 @@ internal static class LinkedRestoreVisualsVerification
         ? NativeObjectDraws.At<BombBlockRestoreDraw>(pointer) : NativeObjectDraws.At<ContactCrumbleRestoreDraw>(pointer);
 
     /// <summary>Compares the six restoration frames' pictures with the cartridge, rejects other draws, then checks the import and its rejections (#1557).</summary>
-    private static void VerifyLinkedRestoreStockMapping(SuperMetroidAddressSpace rom)
+    private static void VerifyLinkedRestoreStockMapping(CartridgeImportAddressSpace rom)
     {
         LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0xa4c7,"bomb-horizontal"), new LookupEscapeGateStockFrame(0xa4cf,"bomb-vertical"),
             new LookupEscapeGateStockFrame(0xa4d7,"bomb-square"), new LookupEscapeGateStockFrame(0xa4a1,"crumble-horizontal"), new LookupEscapeGateStockFrame(0xa4a9,"crumble-vertical"), new LookupEscapeGateStockFrame(0xa4b1,"crumble-square")];
@@ -33,7 +33,7 @@ internal static class LinkedRestoreVisualsVerification
 
     /// <summary>Checks the extracted stock visuals and that a malformed installed visual file fails loudly where it is read.</summary>
     internal static void VerifyLinkedRestoreVisualInstallation(
-        SuperMetroidAddressSpace rom)
+        CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyLinkedRestoreStockMapping), () => VerifyLinkedRestoreStockMapping(rom));
         using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomObjectLinkedRestoreVisualDirectory);

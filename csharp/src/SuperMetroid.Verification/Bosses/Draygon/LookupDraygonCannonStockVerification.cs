@@ -12,7 +12,7 @@ namespace SuperMetroid.Verification.Bosses.Draygon;
 internal static class LookupDraygonCannonStockVerification
 {
     /// <summary>Compares the twelve shield and damage frames' pictures with the cartridge, then the import and its rejections.</summary>
-    internal static void VerifyDraygonCannonStockMapping(SuperMetroidAddressSpace rom, InstalledDraygonCannonFrames installed)
+    internal static void VerifyDraygonCannonStockMapping(CartridgeImportAddressSpace rom, InstalledDraygonCannonFrames installed)
     {
         LookupEscapeGateStockFrame[] frames = [new(0x9fcd, "right-shield-a"), new(0x9fdd, "right-shield-b"), new(0xa02d, "right-damaged-a"),
             new(0xa03d, "right-damaged-b"), new(0xa04d, "right-damaged-c"), new(0xa05d, "right-damaged-d"), new(0xa0ed, "left-shield-a"),

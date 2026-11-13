@@ -14,7 +14,7 @@ using SuperMetroid.Core.World;
 internal static class TorizoInitializationDefinitionsVerification
 {
     /// <summary>Matches twelve compiled record words to ROM, then verifies live initialization preserves population state and skips defeated actors.</summary>
-    internal static void VerifyCompiledTorizoInitialization(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledTorizoInitialization(CartridgeImportAddressSpace rom)
     {
         for (int variant = 0; variant < 2; variant++)
         {

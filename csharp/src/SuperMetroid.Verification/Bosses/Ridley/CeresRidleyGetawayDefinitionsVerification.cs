@@ -13,7 +13,7 @@ namespace SuperMetroid.Verification.Bosses.Ridley;
 internal static class CeresRidleyGetawayDefinitionsVerification
 {
     /// <summary>Compares zoom and both velocity components through the terminal frame.</summary>
-    internal static void VerifyCompiledCeresRidleyGetaway(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledCeresRidleyGetaway(CartridgeImportAddressSpace rom)
     {
         for (int index = 0; index <= 112; index++)
         {
@@ -43,7 +43,7 @@ internal static class CeresRidleyGetawayDefinitionsVerification
     /// Checks the seven floor animation lists (#1467): the import's runs write exactly the cells and tiles the cartridge's
     /// lists write. The delays the wing frames leave behind are checked by the stage-five residue suite (#1479).
     /// </summary>
-    internal static void VerifyCompiledCeresRidleyMode7Transfers(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledCeresRidleyMode7Transfers(CartridgeImportAddressSpace rom)
     {
         int checkedTransfers = 0;
         foreach (CeresFloorAnimationFrame pointer in Enum.GetValues<CeresFloorAnimationFrame>())

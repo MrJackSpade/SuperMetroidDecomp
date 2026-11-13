@@ -15,7 +15,7 @@ namespace SuperMetroid.Verification.Enemies.Skree;
 internal static class SkreeMetareeAnimationDefinitionsVerification
 {
     /// <summary>Compares both compiled phase tables with ROM and exercises all install and attack transitions with table reads forbidden.</summary>
-    internal static void VerifySkreeMetareeAnimationDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifySkreeMetareeAnimationDefinitions(CartridgeImportAddressSpace rom)
     {
         for (int index = 0; index < 4; index++)
         {

@@ -10,7 +10,7 @@ using SuperMetroid.Core.World;
 internal static class NorfairLavaJumpDefinitionsVerification
 {
     /// <summary>Compares all RNG values through production jump setup while forbidding runtime reads of the migrated velocity table.</summary>
-    internal static void VerifyNorfairLavaJumpDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyNorfairLavaJumpDefinitions(CartridgeImportAddressSpace rom)
     {
 
         for (ushort selector = 0; selector < 4; selector++)

@@ -70,7 +70,7 @@ internal static class NorfairLavaJumperBehaviorVerification
     [VerificationCommand("--norfair-lava-jumper-instruction-mechanics")]
     internal static int NorfairLavaJumperBehaviorCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyNorfairLavaJumperBehavior), () => VerifyNorfairLavaJumperBehavior());
         Suite(nameof(NorfairLavaJumperAnimationsVerification.VerifyNorfairLavaJumperAnimations), () => NorfairLavaJumperAnimationsVerification.VerifyNorfairLavaJumperAnimations(rom));
         return 0;

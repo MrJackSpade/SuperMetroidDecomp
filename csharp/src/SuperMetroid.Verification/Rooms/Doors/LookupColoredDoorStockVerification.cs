@@ -12,7 +12,7 @@ namespace SuperMetroid.Verification.Rooms.Doors;
 internal static class LookupColoredDoorStockVerification
 {
     /// <summary>Compares each four-cell colored-door frame's picture with the cartridge, then the import and its rejections.</summary>
-    internal static void VerifyColoredDoorStockMapping(SuperMetroidAddressSpace rom,
+    internal static void VerifyColoredDoorStockMapping(CartridgeImportAddressSpace rom,
         InstalledRoomObjectColoredDoorVisuals installed)
     {
         LookupColoredCapFamily[] families = [

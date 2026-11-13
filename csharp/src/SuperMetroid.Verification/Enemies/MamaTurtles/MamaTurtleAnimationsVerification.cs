@@ -10,7 +10,7 @@ namespace SuperMetroid.Verification.Enemies.MamaTurtles;
 internal static class MamaTurtleAnimationsVerification
 {
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
-    internal static void VerifyMamaTurtleAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyMamaTurtleAnimations(CartridgeImportAddressSpace rom)
     {
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             MamaTurtleAnimations.Segments, MamaTurtleAnimations.StartingAt, MamaTurtleFrameToolingDefinitions.Spritemap,

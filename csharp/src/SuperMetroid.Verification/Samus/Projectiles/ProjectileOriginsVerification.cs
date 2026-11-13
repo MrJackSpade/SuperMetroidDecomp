@@ -11,7 +11,7 @@ namespace SuperMetroid.Verification.Samus.Projectiles;
 internal static class ProjectileOriginsVerification
 {
     /// <summary>Exercises authored and adjacent table words through physical projectile initialization.</summary>
-    internal static void VerifyProjectileOrigins(SuperMetroidAddressSpace rom)
+    internal static void VerifyProjectileOrigins(CartridgeImportAddressSpace rom)
     {
         short Word(int address) => unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
         var initialize = new Action<SamusState, SamusProjectile>(BeamFiring.InitializePosition);

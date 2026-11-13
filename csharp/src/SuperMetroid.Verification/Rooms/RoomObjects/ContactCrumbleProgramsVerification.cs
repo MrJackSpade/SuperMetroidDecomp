@@ -20,7 +20,7 @@ internal static class ContactCrumbleProgramsVerification
          new ContactCrumbleNativeLayoutsResult(0xca8b,4,0xcaa0),new ContactCrumbleNativeLayoutsResult(0xcaa0,4,0xcab5),new ContactCrumbleNativeLayoutsResult(0xcab5,4,0xcaca),new ContactCrumbleNativeLayoutsResult(0xcaca,4,0xcadf)];
 
     /// <summary>Compares compiled timing, restoration and deletion words over the full native address domain.</summary>
-    private static void VerifyContactCrumbleControlMapping(SuperMetroidAddressSpace rom)
+    private static void VerifyContactCrumbleControlMapping(CartridgeImportAddressSpace rom)
     {
         var addresses = new List<ushort>();
         foreach (var layout in ContactCrumbleNativeLayouts())
@@ -46,7 +46,7 @@ internal static class ContactCrumbleProgramsVerification
     }
 
     /// <summary>Checks every timed draw operand and rejects ownership of non-draw bank-$84 words.</summary>
-    private static void VerifyContactCrumbleDrawMapping(SuperMetroidAddressSpace rom)
+    private static void VerifyContactCrumbleDrawMapping(CartridgeImportAddressSpace rom)
     {
         var addresses = new HashSet<ushort>();
         foreach (var layout in ContactCrumbleNativeLayouts())
@@ -63,7 +63,7 @@ internal static class ContactCrumbleProgramsVerification
     }
 
     /// <summary>Compares packed sound bytes at the eight list starts against native bank-$84 data.</summary>
-    private static void VerifyContactCrumbleSoundMapping(SuperMetroidAddressSpace rom)
+    private static void VerifyContactCrumbleSoundMapping(CartridgeImportAddressSpace rom)
     {
         ushort[] addresses = [0xc9fb,0xca1e,0xca43,0xca68,0xca8d,0xcaa2,0xcab7,0xcacc];
         AssertTrue(addresses.SequenceEqual(RoomObjectContactCrumbleProgramDefinitions.MechanicsByteAddresses()),
@@ -79,7 +79,7 @@ internal static class ContactCrumbleProgramsVerification
     }
 
     /// <summary>Checks the three native restoration lists and their exact draw-pointer ownership.</summary>
-    private static void VerifyContactCrumbleRestorationMapping(SuperMetroidAddressSpace rom)
+    private static void VerifyContactCrumbleRestorationMapping(CartridgeImportAddressSpace rom)
     {
         ushort[] pointers = [0xa4a1, 0xa4a9, 0xa4b1];
         AssertTrue(pointers.SequenceEqual(RoomObjectLinkedRestoreVisualFiles.AllOf(LinkedRestoreObjectFamily.ContactCrumble).Select(draw => RoomObjectDrawAddressCodec.Of(draw.Draw))),
@@ -139,7 +139,7 @@ internal static class ContactCrumbleProgramsVerification
     /// <summary>Runs all eight BTS timelines against retail behavior with compiled source bytes blocked, then checks the stock breakup and restored art.</summary>
     internal static void VerifyContactCrumblePrograms()
     {
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+        CartridgeImportAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyContactCrumbleControlMapping), () => VerifyContactCrumbleControlMapping(rom));
         Suite(nameof(VerifyContactCrumbleDrawMapping), () => VerifyContactCrumbleDrawMapping(rom));
@@ -211,7 +211,7 @@ internal static class ContactCrumbleProgramsVerification
 
     /// <summary>Confirms the stock breakup frame's physical word and tile, and the native restored parent.</summary>
     private static void VerifyContactCrumbleVisualSeparation(
-        SuperMetroidAddressSpace rom, HashSet<int> forbidden)
+        CartridgeImportAddressSpace rom, HashSet<int> forbidden)
     {
         RenderBreakResult RenderBreak(
             InstalledRoomObjectShotBlockVisuals visuals)

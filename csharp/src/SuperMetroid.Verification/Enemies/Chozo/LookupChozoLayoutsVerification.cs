@@ -16,14 +16,14 @@ namespace SuperMetroid.Verification.Enemies.Chozo;
 internal static class LookupChozoLayoutsVerification
 {
     /// <summary>Checks draw-domain ownership, continuation offsets, and physical block placement.</summary>
-    internal static void VerifyChozoLayoutGeometry(SuperMetroidAddressSpace rom) => VerifyChozoLayoutDrawField(rom, 0);
+    internal static void VerifyChozoLayoutGeometry(CartridgeImportAddressSpace rom) => VerifyChozoLayoutDrawField(rom, 0);
     /// <summary>Compares the collision kind of all Chozo layout cells with the decoded native draw blocks.</summary>
-    internal static void VerifyChozoLayoutCollision(SuperMetroidAddressSpace rom) => VerifyChozoLayoutDrawField(rom, 1);
+    internal static void VerifyChozoLayoutCollision(CartridgeImportAddressSpace rom) => VerifyChozoLayoutDrawField(rom, 1);
     /// <summary>Compares the appearance of all Chozo layout cells with the decoded native draw blocks.</summary>
-    internal static void VerifyChozoLayoutVisuals(SuperMetroidAddressSpace rom) => VerifyChozoLayoutDrawField(rom, 2);
+    internal static void VerifyChozoLayoutVisuals(CartridgeImportAddressSpace rom) => VerifyChozoLayoutDrawField(rom, 2);
 
     /// <summary>Checks the selected geometry or cell field across pointer and visual-ID views.</summary>
-    private static void VerifyChozoLayoutDrawField(SuperMetroidAddressSpace rom, int field)
+    private static void VerifyChozoLayoutDrawField(CartridgeImportAddressSpace rom, int field)
     {
         ushort[] pointers = [0xa2b5,0x9cc5,0x9d0f];
         string[] ids = ["lower-norfair-cleared-hand","wrecked-ship-clear-slope-access","wrecked-ship-block-slope-access"];

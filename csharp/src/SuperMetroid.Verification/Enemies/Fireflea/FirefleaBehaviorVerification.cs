@@ -67,7 +67,7 @@ internal static class FirefleaBehaviorVerification
     [VerificationCommand("--fireflea-instruction-program-definitions")]
     internal static int FirefleaBehaviorCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyFirefleaBehavior), () => VerifyFirefleaBehavior());
         Suite(nameof(VerifyFirefleaVerticalExtentsWrap), () => VerifyFirefleaVerticalExtentsWrap());
         Suite(nameof(FirefleaAnimationsVerification.VerifyFirefleaAnimations), () => FirefleaAnimationsVerification.VerifyFirefleaAnimations(rom));

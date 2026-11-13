@@ -17,7 +17,7 @@ internal static class PowampBehaviorVerification
     /// animations, the phase the AI reads matches the native pointer it stands for: that sequence's first list plus four
     /// bytes per shown pose.
     /// </summary>
-    internal static void VerifyPowampBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyPowampBehavior(CartridgeImportAddressSpace rom)
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot balloon = enemies.SlotTable.Slots[0];
@@ -75,7 +75,7 @@ internal static class PowampBehaviorVerification
     [VerificationCommand("--powamp-instruction-mechanics")]
     internal static int PowampBehaviorCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyPowampBehavior), () => VerifyPowampBehavior(rom));
         Suite(nameof(PowampAnimationsVerification.VerifyPowampAnimations), () => PowampAnimationsVerification.VerifyPowampAnimations(rom));
         return 0;

@@ -14,7 +14,7 @@ namespace SuperMetroid.Verification.Enemies.Dragon;
 internal static class DragonAnimationDefinitionsVerification
 {
     /// <summary>Compares the selector table with the cartridge, then exercises installs and both facings.</summary>
-    internal static void VerifyDragonAnimationDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyDragonAnimationDefinitions(CartridgeImportAddressSpace rom)
     {
         for (int index = 0; index < 6; index++)
         {

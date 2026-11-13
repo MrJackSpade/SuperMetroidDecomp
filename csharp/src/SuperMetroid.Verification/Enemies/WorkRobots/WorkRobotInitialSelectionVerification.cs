@@ -19,7 +19,7 @@ internal static class WorkRobotInitialSelectionVerification
     /// installs; the native overrun selector three fails to decode, and selectors the range check refuses hold the
     /// neutral pose.
     /// </summary>
-    internal static void VerifyWorkRobotInitialSelection(SuperMetroidAddressSpace rom)
+    internal static void VerifyWorkRobotInitialSelection(CartridgeImportAddressSpace rom)
     {
         for (ushort parameter = 0; parameter < 3; parameter++)
         {

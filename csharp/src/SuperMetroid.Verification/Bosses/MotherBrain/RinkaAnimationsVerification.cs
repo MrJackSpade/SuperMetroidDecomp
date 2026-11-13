@@ -10,7 +10,7 @@ namespace SuperMetroid.Verification.Bosses.MotherBrain;
 internal static class RinkaAnimationsVerification
 {
     /// <summary>Every segment matches its native list and every animation the lists' control flow.</summary>
-    internal static void VerifyRinkaAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyRinkaAnimations(CartridgeImportAddressSpace rom)
     {
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, RinkaAnimations.Segments,
             RinkaAnimations.StartingAt, RinkaFrameToolingDefinitions.Spritemap,

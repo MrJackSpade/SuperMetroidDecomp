@@ -12,7 +12,7 @@ namespace SuperMetroid.Verification.Areas.Maridia;
 internal static class LookupElevatubeVerification
 {
     /// <summary>Compares the single installed elevatube draw with its native run, tile, and displacement.</summary>
-    internal static void VerifyElevatubePhysicalDraw(SuperMetroidAddressSpace rom)
+    internal static void VerifyElevatubePhysicalDraw(CartridgeImportAddressSpace rom)
     {
         // What the block shows is its installed picture, which the elevatube picture check compares with the cartridge.
         AssertEqual(RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, 0x849369)).Collision, MaridiaElevatubeObjectDefinitions.Collision, "Elevatube native collision");
@@ -38,12 +38,12 @@ internal static class LookupElevatubeVerification
     private static byte ElevatubePhysicalDrawRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks the elevatube's three compiled control words.</summary>
-    internal static void VerifyElevatubeProgramControls(SuperMetroidAddressSpace rom) => VerifyElevatubeProgramField(rom, false);
+    internal static void VerifyElevatubeProgramControls(CartridgeImportAddressSpace rom) => VerifyElevatubeProgramField(rom, false);
     /// <summary>Checks the elevatube's one drawing word.</summary>
-    internal static void VerifyElevatubeProgramDraw(SuperMetroidAddressSpace rom) => VerifyElevatubeProgramField(rom, true);
+    internal static void VerifyElevatubeProgramDraw(CartridgeImportAddressSpace rom) => VerifyElevatubeProgramField(rom, true);
 
     /// <summary>Compares either control or draw words over the complete program lookup domain.</summary>
-    private static void VerifyElevatubeProgramField(SuperMetroidAddressSpace rom, bool draw)
+    private static void VerifyElevatubeProgramField(CartridgeImportAddressSpace rom, bool draw)
     {
         ushort[] controls = [0xb8f0,0xb8f4,0xb8f7];
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
@@ -59,7 +59,7 @@ internal static class LookupElevatubeVerification
     }
 
     /// <summary>Checks the sole sound byte and rejection of every other sixteen-bit address.</summary>
-    internal static void VerifyElevatubeProgramSound(SuperMetroidAddressSpace rom)
+    internal static void VerifyElevatubeProgramSound(CartridgeImportAddressSpace rom)
     {
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {

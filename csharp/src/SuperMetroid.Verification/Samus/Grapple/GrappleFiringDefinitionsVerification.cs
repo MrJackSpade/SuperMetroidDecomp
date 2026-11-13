@@ -21,7 +21,7 @@ using SuperMetroid.Verification.Harness;
 internal static class GrappleFiringDefinitionsVerification
 {
     /// <summary>Compares launch and draw origins across authored poses, input directions, wrap boundaries, and trajectory frames.</summary>
-    internal static void VerifyGrappleFiringDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyGrappleFiringDefinitions(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyGrappleLaunchXSelection), () => VerifyGrappleLaunchXSelection(rom));
         Suite(nameof(VerifyGrappleLaunchYSelection), () => VerifyGrappleLaunchYSelection(rom));
@@ -183,7 +183,7 @@ internal static class GrappleFiringDefinitionsVerification
     private static byte GrappleFiringDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks normal and running X-origin aliases across all ten directions.</summary>
-    internal static void VerifyGrappleOriginXSelection(SuperMetroidAddressSpace rom)
+    internal static void VerifyGrappleOriginXSelection(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyGrappleOriginField), () => VerifyGrappleOriginField(rom, GrappleFiringDefinitions.OriginXReferenceAddress,
             false, origin => origin.X, "default X alias"));
@@ -192,17 +192,17 @@ internal static class GrappleFiringDefinitionsVerification
     }
 
     /// <summary>Checks the ordinary Y-origin table across all Grapple directions.</summary>
-    internal static void VerifyGrappleOriginDefaultYSelection(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyGrappleOriginDefaultYSelection(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyGrappleOriginField), () => VerifyGrappleOriginField(rom, GrappleFiringDefinitions.OriginYReferenceAddress,
             false, origin => origin.Y, "default Y"));
 
     /// <summary>Checks the running Y-origin table across all Grapple directions.</summary>
-    internal static void VerifyGrappleOriginRunningYSelection(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyGrappleOriginRunningYSelection(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyGrappleOriginField), () => VerifyGrappleOriginField(rom, GrappleFiringDefinitions.RunningOriginYReferenceAddress,
             true, origin => origin.Y, "running Y"));
 
     /// <summary>Compares one origin component with native words for every direction.</summary>
-    private static void VerifyGrappleOriginField(SuperMetroidAddressSpace rom, int address,
+    private static void VerifyGrappleOriginField(CartridgeImportAddressSpace rom, int address,
         bool running, Func<Offset16<RoomPixels>, short> select, string label)
     {
         for (byte direction = 0; direction < 10; direction++)
@@ -217,22 +217,22 @@ internal static class GrappleFiringDefinitionsVerification
     /// <summary>Reads a native Grapple origin byte for the comparison oracle.</summary>
     private static byte GrappleOriginFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     /// <summary>Checks launch X velocity for every direction.</summary>
-    internal static void VerifyGrappleLaunchXSelection(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyGrappleLaunchXSelection(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyGrappleLaunchField), () => VerifyGrappleLaunchField(rom, GrappleFiringDefinitions.XVelocityReferenceAddress,
             direction => GrappleFiring.Launch(SamusProjectileDirectionCodec.FromAimIndex(direction)).Velocity.X.RawValue, "X velocity"));
 
     /// <summary>Checks launch Y velocity for every direction.</summary>
-    internal static void VerifyGrappleLaunchYSelection(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyGrappleLaunchYSelection(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyGrappleLaunchField), () => VerifyGrappleLaunchField(rom, GrappleFiringDefinitions.YVelocityReferenceAddress,
             direction => GrappleFiring.Launch(SamusProjectileDirectionCodec.FromAimIndex(direction)).Velocity.Y.RawValue, "Y velocity"));
 
     /// <summary>Checks initial Grapple angle for every direction.</summary>
-    internal static void VerifyGrappleLaunchAngleAlgorithm(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyGrappleLaunchAngleAlgorithm(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyGrappleLaunchField), () => VerifyGrappleLaunchField(rom, GrappleFiringDefinitions.AngleReferenceAddress,
             direction => GrappleFiring.Launch(SamusProjectileDirectionCodec.FromAimIndex(direction)).Angle.RawValue, "angle"));
 
     /// <summary>Compares one launch field with all native table entries.</summary>
-    private static void VerifyGrappleLaunchField(SuperMetroidAddressSpace rom, int source,
+    private static void VerifyGrappleLaunchField(CartridgeImportAddressSpace rom, int source,
         Func<byte, ushort> select, string label)
     {
         for (byte direction = 0; direction < 10; direction++)

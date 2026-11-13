@@ -25,17 +25,17 @@ internal static class KraidSinkScheduleVerification
     }
 
     /// <summary>Checks platform column immediates encoded in each nonempty sink callback.</summary>
-    private static void VerifyKraidSinkObjectColumns(SuperMetroidAddressSpace rom, IEnumerable<ushort> callbacks) =>
+    private static void VerifyKraidSinkObjectColumns(CartridgeImportAddressSpace rom, IEnumerable<ushort> callbacks) =>
         Suite(nameof(VerifyKraidSinkObjectField), () => VerifyKraidSinkObjectField(rom, callbacks, 17, request => request.Block.X));
     /// <summary>Checks platform row immediates encoded in each nonempty sink callback.</summary>
-    private static void VerifyKraidSinkObjectRows(SuperMetroidAddressSpace rom, IEnumerable<ushort> callbacks) =>
+    private static void VerifyKraidSinkObjectRows(CartridgeImportAddressSpace rom, IEnumerable<ushort> callbacks) =>
         Suite(nameof(VerifyKraidSinkObjectField), () => VerifyKraidSinkObjectField(rom, callbacks, 18, request => request.Block.Y));
     /// <summary>Checks native PLM header words selected by the sink callbacks.</summary>
-    private static void VerifyKraidSinkObjectHeaders(SuperMetroidAddressSpace rom, IEnumerable<ushort> callbacks) =>
+    private static void VerifyKraidSinkObjectHeaders(CartridgeImportAddressSpace rom, IEnumerable<ushort> callbacks) =>
         Suite(nameof(VerifyKraidSinkObjectField), () => VerifyKraidSinkObjectField(rom, callbacks, 19, request => KraidNativeWords.RoomMutations.Word(request.RoomObject)));
 
     /// <summary>Compares one inline PLM field across the six mutating callbacks and excludes the empty RTS.</summary>
-    private static void VerifyKraidSinkObjectField(SuperMetroidAddressSpace rom, IEnumerable<ushort> callbacks,
+    private static void VerifyKraidSinkObjectField(CartridgeImportAddressSpace rom, IEnumerable<ushort> callbacks,
         int offset, Func<RoomObjectSpawnRequest<KraidRoomMutation>, ushort> field)
     {
         int count = 0;
@@ -64,7 +64,7 @@ internal static class KraidSinkScheduleVerification
     private static byte KraidSinkObjectFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Exercises each production callback and checks its rock X, PLM request count, and event count.</summary>
-    private static void VerifyKraidSinkRockPlacement(SuperMetroidAddressSpace rom,
+    private static void VerifyKraidSinkRockPlacement(CartridgeImportAddressSpace rom,
         Dictionary<ushort, ushort> callbacks)
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
@@ -95,7 +95,7 @@ internal static class KraidSinkScheduleVerification
     private static byte KraidSinkRockPlacementRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks native schedule rows and optionally runs all 65,536 body Y values through production sinking behavior.</summary>
-    internal static void VerifyKraidSinkSchedule(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
+    internal static void VerifyKraidSinkSchedule(CartridgeImportAddressSpace rom, bool definitionsOnly = false)
     {
         ushort Word(int a) => LittleEndianBytes.Word(KraidSinkScheduleRomByte(rom, a), KraidSinkScheduleRomByte(rom, a + 1));
         var callbacks = new Dictionary<ushort, ushort>();

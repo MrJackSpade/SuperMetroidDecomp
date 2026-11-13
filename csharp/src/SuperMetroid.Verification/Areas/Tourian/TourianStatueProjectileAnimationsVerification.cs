@@ -7,7 +7,7 @@ namespace SuperMetroid.Verification.Areas.Tourian;
 internal static class TourianStatueProjectileAnimationsVerification
 {
     /// <summary>Every program matches its native list.</summary>
-    internal static void VerifyTourianStatueProjectileAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyTourianStatueProjectileAnimations(CartridgeImportAddressSpace rom)
     {
         int steps = Family.CompareAll(CartridgeImportSource.Require(rom));
         Console.WriteLine($"  Tourian statue projectile programs: {Entries.Length} programs ({steps} steps) match bank $86.");

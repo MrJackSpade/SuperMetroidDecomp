@@ -24,7 +24,7 @@ internal static class IntroDiscoveryActorSpriteArtworkVerification
 {
     /// <summary>Compares stock OAM at visible and wrapped origins, then renders the production
     /// discovery scene without cartridge artwork reads.</summary>
-    internal static void VerifyIntroDiscoveryActorSpriteArtwork(SuperMetroidAddressSpace bus,
+    internal static void VerifyIntroDiscoveryActorSpriteArtwork(CartridgeImportAddressSpace bus,
         ImportIntroCinematicArtwork stock)
     {
         const ushort x = 120;

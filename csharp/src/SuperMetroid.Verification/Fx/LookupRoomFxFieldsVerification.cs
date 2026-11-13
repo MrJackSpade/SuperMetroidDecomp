@@ -47,7 +47,7 @@ internal static class LookupRoomFxFieldsVerification
     private static readonly int[] BlendOffsets = [10, 11];
 
     /// <summary>Checks all record identities and each field's native offset and width.</summary>
-    internal static void VerifyRoomFxFields(SuperMetroidAddressSpace rom,
+    internal static void VerifyRoomFxFields(CartridgeImportAddressSpace rom,
         SortedDictionary<ushort, RoomFxRecordDefinition> originals, SortedSet<ushort> originalEnds)
     {
         Suite(nameof(VerifyRoomFxIdentities), () => VerifyRoomFxIdentities(originals, originalEnds));
@@ -95,23 +95,23 @@ internal static class LookupRoomFxFieldsVerification
     }
 
     /// <summary>Checks the door selector word at record offset zero.</summary>
-    private static void VerifyRoomFxDoorPointer(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 0, 2, record => record.DoorPointer);
+    private static void VerifyRoomFxDoorPointer(CartridgeImportAddressSpace rom) => VerifyRoomFxField(rom, 0, 2, record => record.DoorPointer);
     /// <summary>Checks the liquid base-height word at offset two.</summary>
-    private static void VerifyRoomFxBaseYPosition(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 2, 2, record => RoomFxRecordEncoding.SurfaceWord(record.BaseYPosition));
+    private static void VerifyRoomFxBaseYPosition(CartridgeImportAddressSpace rom) => VerifyRoomFxField(rom, 2, 2, record => RoomFxRecordEncoding.SurfaceWord(record.BaseYPosition));
     /// <summary>Checks the liquid target-height word at offset four.</summary>
-    private static void VerifyRoomFxTargetYPosition(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 4, 2, record => RoomFxRecordEncoding.SurfaceWord(record.TargetYPosition));
+    private static void VerifyRoomFxTargetYPosition(CartridgeImportAddressSpace rom) => VerifyRoomFxField(rom, 4, 2, record => RoomFxRecordEncoding.SurfaceWord(record.TargetYPosition));
     /// <summary>Checks the packed vertical velocity word at offset six.</summary>
-    private static void VerifyRoomFxPackedYVelocity(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 6, 2, record => record.YVelocity.RawValue);
+    private static void VerifyRoomFxPackedYVelocity(CartridgeImportAddressSpace rom) => VerifyRoomFxField(rom, 6, 2, record => record.YVelocity.RawValue);
     /// <summary>Checks the FX countdown byte at offset eight.</summary>
-    private static void VerifyRoomFxTimer(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 8, 1, record => record.Timer);
+    private static void VerifyRoomFxTimer(CartridgeImportAddressSpace rom) => VerifyRoomFxField(rom, 8, 1, record => record.Timer);
     /// <summary>Checks the effect discriminator byte at offset nine.</summary>
-    private static void VerifyRoomFxType(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 9, 1, record => RoomFxRecordEncoding.TypeByte(record.Type));
+    private static void VerifyRoomFxType(CartridgeImportAddressSpace rom) => VerifyRoomFxField(rom, 9, 1, record => RoomFxRecordEncoding.TypeByte(record.Type));
     /// <summary>
     /// Checks that each record holds the visor animation and the effect blend the import reads from its blend bytes at
     /// offsets ten and eleven (#1545); the record holds no byte there, as several bytes read alike. A terminator is no
     /// record (#1546).
     /// </summary>
-    private static void VerifyRoomFxBlends(SuperMetroidAddressSpace rom)
+    private static void VerifyRoomFxBlends(CartridgeImportAddressSpace rom)
     {
         foreach (ushort pointer in OriginalFxRecordPointers)
         {
@@ -129,21 +129,21 @@ internal static class LookupRoomFxFieldsVerification
     }
 
     /// <summary>Checks liquid rendering flags at offset twelve.</summary>
-    private static void VerifyRoomFxLiquidOptions(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 12, 1, record => RoomFxRecordCodec.LiquidOptionsByte(record.LiquidOptions));
+    private static void VerifyRoomFxLiquidOptions(CartridgeImportAddressSpace rom) => VerifyRoomFxField(rom, 12, 1, record => RoomFxRecordCodec.LiquidOptionsByte(record.LiquidOptions));
     /// <summary>Checks the palette effects, encoded through the header's area's list, against the bits at offset thirteen.</summary>
-    private static void VerifyRoomFxPaletteFxBitset(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 13, 1,
+    private static void VerifyRoomFxPaletteFxBitset(CartridgeImportAddressSpace rom) => VerifyRoomFxField(rom, 13, 1,
         record => RoomFxRecordEncoding.PaletteEffectsByte(record.PaletteEffects, record.HeaderArea));
     /// <summary>Checks the animated tiles, encoded through the header's area's list, against the bits at offset fourteen.</summary>
-    private static void VerifyRoomFxAnimatedTileBitset(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 14, 1,
+    private static void VerifyRoomFxAnimatedTileBitset(CartridgeImportAddressSpace rom) => VerifyRoomFxField(rom, 14, 1,
         record => RoomFxRecordEncoding.AnimatedTilesByte(record.AnimatedTiles, record.HeaderArea));
     /// <summary>Checks the palette blend selector at offset fifteen.</summary>
-    private static void VerifyRoomFxPaletteBlend(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 15, 1, record => RoomFxRecordEncoding.PaletteBlendByte(record.PaletteBlend));
+    private static void VerifyRoomFxPaletteBlend(CartridgeImportAddressSpace rom) => VerifyRoomFxField(rom, 15, 1, record => RoomFxRecordEncoding.PaletteBlendByte(record.PaletteBlend));
     /// <summary>
     /// Compares a compiled field and overlapping byte and word views with the original record. The typed fields are
     /// encoded back through the record codec (#1415), so each check asserts the import decodes the cartridge byte to the
     /// typed value. A terminator is no record (#1546), so its word is checked as a header's end instead.
     /// </summary>
-    private static void VerifyRoomFxField(SuperMetroidAddressSpace rom, int offset, int width,
+    private static void VerifyRoomFxField(CartridgeImportAddressSpace rom, int offset, int width,
         Func<RoomFxRecordDefinition, int> field)
     {
         var enumerated = RoomFxDefinitions.RecordPointers.ToDictionary(pointer => pointer, pointer => RoomFxDefinitions.RecordAt(pointer));
@@ -173,7 +173,7 @@ internal static class LookupRoomFxFieldsVerification
     private static byte RoomFxFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Compares every accepted list root and door value with a first-match native byte walk.</summary>
-    internal static void VerifyRoomFxListSelection(SuperMetroidAddressSpace rom)
+    internal static void VerifyRoomFxListSelection(CartridgeImportAddressSpace rom)
     {
         // Native $89:AB99..ABB7: zero loads, FFFF returns, then compare door.
         // Build a first-match map from original bytes; this oracle does not replay

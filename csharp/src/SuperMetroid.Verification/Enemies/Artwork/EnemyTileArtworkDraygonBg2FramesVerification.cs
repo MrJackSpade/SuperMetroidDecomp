@@ -32,7 +32,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
 
     /// <summary>Compares 34 installed frames and 102 ordered tilemap writes with ROM, then checks guarded rendering.</summary>
     internal static void VerifyInstalledDraygonBg2Frames(
-        SuperMetroidAddressSpace rom, string extractedDirectory,
+        CartridgeImportAddressSpace rom, string extractedDirectory,
         ImportEnemyArtwork stock)
     {
         AssertTrue(stock.Bosses.DraygonBg2Frames is not null,
@@ -113,7 +113,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
 
     /// <summary>Compares native frame roots and hitbox lists, then runs the production overlap walker with cartridge reads denied.</summary>
     internal static void VerifyCompiledDraygonBg2Collision(
-        SuperMetroidAddressSpace rom)
+        CartridgeImportAddressSpace rom)
     {
         var nativeLists = new Dictionary<ushort, IReadOnlyList<EnemyCollisionHitbox>>();
         foreach (EnemyFrameName frame in DraygonBg2FrameDefinitions.Frames)

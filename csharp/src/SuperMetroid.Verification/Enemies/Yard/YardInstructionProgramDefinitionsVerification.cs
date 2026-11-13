@@ -22,7 +22,7 @@ internal static class YardInstructionProgramDefinitionsVerification
     /// Every program runs for 80 forced updates; a hiding Yard's repeat cue keeps re-showing the pose before it, while a
     /// visible Yard with an even random draw runs on into the hidden animation; the program oracle matches bank $A3.
     /// </summary>
-    internal static void VerifyYardInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyYardInstructionProgramDefinitions(CartridgeImportAddressSpace rom)
     {
         RoomEnemySystem enemies = CreateYardInstructionSystem(out RoomEnemySlot yard);
         YardEnemyState state = enemies.SlotTable.Slots[0].EntityState<YardEntity, YardEnemyState>() ?? throw new InvalidOperationException("The Yard has no state.");

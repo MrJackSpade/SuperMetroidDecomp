@@ -12,7 +12,7 @@ internal static class BoyonSpeedDefinitionsVerification
 {
     /// <summary>Compares all authored initializer rows and effective byte-width
     /// multipliers, including out-of-range inputs and saturated curve indexes.</summary>
-    internal static void VerifyCompiledBoyonSpeeds(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledBoyonSpeeds(CartridgeImportAddressSpace rom)
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         Action<RoomEnemySlot> initialize = BoyonBehavior.InitializeBoyon;

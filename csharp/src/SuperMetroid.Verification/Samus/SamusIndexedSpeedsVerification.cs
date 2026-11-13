@@ -6,7 +6,7 @@ namespace SuperMetroid.Verification.Samus;
 internal static class SamusIndexedSpeedsVerification
 {
     /// <summary>Compares authored speed words with ROM through every table and movement type, rejecting overreads past the tables.</summary>
-    internal static void VerifySamusIndexedSpeeds(SuperMetroidAddressSpace rom)
+    internal static void VerifySamusIndexedSpeeds(CartridgeImportAddressSpace rom)
     {
         SpeedTableEntry Read(int a)
         {

@@ -75,7 +75,7 @@ internal static class BoulderBehaviorVerification
     [VerificationCommand("--boulder-instruction-mechanics")]
     internal static int BoulderBehaviorCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyBoulderBehavior), () => VerifyBoulderBehavior());
         Suite(nameof(VerifyBoulderReboundClock), () => VerifyBoulderReboundClock());
         Suite(nameof(BoulderAnimationsVerification.VerifyBoulderAnimations), () => BoulderAnimationsVerification.VerifyBoulderAnimations(rom));

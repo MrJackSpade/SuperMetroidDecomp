@@ -7,7 +7,7 @@ namespace SuperMetroid.Verification.Enemies.Chozo;
 internal static class ChozoTourianDustAnimationsVerification
 {
     /// <summary>Every program matches its native list.</summary>
-    internal static void VerifyChozoTourianDustAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyChozoTourianDustAnimations(CartridgeImportAddressSpace rom)
     {
         int steps = Family.CompareAll(CartridgeImportSource.Require(rom));
         Console.WriteLine($"  Chozo/Tourian dust programs: {Entries.Length} programs ({steps} steps) match bank $86.");

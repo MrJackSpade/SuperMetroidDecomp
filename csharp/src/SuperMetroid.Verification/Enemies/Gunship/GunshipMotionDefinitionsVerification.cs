@@ -14,7 +14,7 @@ using SuperMetroid.Core.World;
 internal static class GunshipMotionDefinitionsVerification
 {
     /// <summary>Compares seventeen brake offsets and four hover phases while source reads are forbidden.</summary>
-    internal static void VerifyGunshipMotionDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyGunshipMotionDefinitions(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyGunshipBrakeAlgorithm), () => VerifyGunshipBrakeAlgorithm(rom));
         Suite(nameof(VerifyGunshipHoverTimerAlgorithm), () => VerifyGunshipHoverTimerAlgorithm(rom));
@@ -91,7 +91,7 @@ internal static class GunshipMotionDefinitionsVerification
     private static byte GunshipMotionDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks the complete brake displacement sequence and rejects indices past its final frame.</summary>
-    private static void VerifyGunshipBrakeAlgorithm(SuperMetroidAddressSpace rom)
+    private static void VerifyGunshipBrakeAlgorithm(CartridgeImportAddressSpace rom)
     {
         for (ushort frame = 0; frame < 17; frame++)
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((GunshipMotionDefinitions.BrakeReferenceAddress + 2 * frame))),
@@ -101,7 +101,7 @@ internal static class GunshipMotionDefinitionsVerification
     }
 
     /// <summary>Checks all four idle-bob timer reloads and invalid phase rejection.</summary>
-    private static void VerifyGunshipHoverTimerAlgorithm(SuperMetroidAddressSpace rom)
+    private static void VerifyGunshipHoverTimerAlgorithm(CartridgeImportAddressSpace rom)
     {
         for (ushort phase = 0; phase < 4; phase++)
             AssertEqual(GunshipHoverTimerAlgorithmRomByte(rom, GunshipMotionDefinitions.HoverTimerReferenceAddress + 2 * phase),
@@ -114,7 +114,7 @@ internal static class GunshipMotionDefinitionsVerification
     private static byte GunshipHoverTimerAlgorithmRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks the signed vertical movement selected in each idle-bob phase.</summary>
-    private static void VerifyGunshipHoverDeltaSelection(SuperMetroidAddressSpace rom)
+    private static void VerifyGunshipHoverDeltaSelection(CartridgeImportAddressSpace rom)
     {
         for (ushort phase = 0; phase < 4; phase++)
             AssertEqual(unchecked((sbyte)GunshipHoverDeltaSelectionRomByte(rom, GunshipMotionDefinitions.HoverDeltaReferenceAddress + 2 * phase)),

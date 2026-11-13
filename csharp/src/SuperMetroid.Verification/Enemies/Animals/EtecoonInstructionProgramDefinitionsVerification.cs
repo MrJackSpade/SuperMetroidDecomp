@@ -25,7 +25,7 @@ internal static class EtecoonInstructionProgramDefinitionsVerification
     /// The real initializer starts the initial loop; every looping program runs on time; the four flex cycles count
     /// down; the programs show exactly the installed Etecoon frames; the program oracle matches bank $A7.
     /// </summary>
-    internal static void VerifyEtecoonInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyEtecoonInstructionProgramDefinitions(CartridgeImportAddressSpace rom)
     {
         foreach (EtecoonProgram program in Enum.GetValues<EtecoonProgram>())
         {

@@ -7,7 +7,7 @@ namespace SuperMetroid.Verification.Rooms.RoomObjects;
 internal static class NoobTubeProjectileAnimationsVerification
 {
     /// <summary>Every program matches its native list.</summary>
-    internal static void VerifyNoobTubeProjectileAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyNoobTubeProjectileAnimations(CartridgeImportAddressSpace rom)
     {
         int steps = Family.CompareAll(CartridgeImportSource.Require(rom));
         Console.WriteLine($"  n00b tube projectile programs: {Entries.Length} programs ({steps} steps) match bank $86.");

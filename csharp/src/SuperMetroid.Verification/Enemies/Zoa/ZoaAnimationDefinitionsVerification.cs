@@ -17,7 +17,7 @@ internal static class ZoaAnimationDefinitionsVerification
     private const ZoaAnimationSelector UnnamedSelector = ~(ZoaAnimationSelector.Rising | ZoaAnimationSelector.FacingRight);
 
     /// <summary>Compares four native animation pointers and optionally exercises live state transitions.</summary>
-    internal static void VerifyZoaAnimationDefinitions(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
+    internal static void VerifyZoaAnimationDefinitions(CartridgeImportAddressSpace rom, bool definitionsOnly = false)
     {
         for (int index = 0; index < 4; index++)
         {

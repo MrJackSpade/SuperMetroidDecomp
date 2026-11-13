@@ -9,23 +9,23 @@ namespace SuperMetroid.Verification.Bosses.Kraid;
 internal static class KraidFootCoordinateMappingsVerification
 {
     /// <summary>Checks the first foot component's horizontal offset.</summary>
-    internal static void VerifyKraidFootFirstX(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyKraidFootFirstX(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyKraidFootCoordinate), () => VerifyKraidFootCoordinate(rom, 0, false, KraidFootCollision.FirstX));
     /// <summary>Checks the first foot component's vertical offset.</summary>
-    internal static void VerifyKraidFootFirstY(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyKraidFootFirstY(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyKraidFootCoordinate), () => VerifyKraidFootCoordinate(rom, 0, true, KraidFootCollision.FirstY));
     /// <summary>Checks the second foot component's horizontal offset.</summary>
-    internal static void VerifyKraidFootSecondX(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyKraidFootSecondX(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyKraidFootCoordinate), () => VerifyKraidFootCoordinate(rom, 1, false, KraidFootCollision.SecondX));
     /// <summary>Checks the second foot component's vertical offset.</summary>
-    internal static void VerifyKraidFootSecondY(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyKraidFootSecondY(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyKraidFootCoordinate), () => VerifyKraidFootCoordinate(rom, 1, true, KraidFootCollision.SecondY));
 
     /// <summary>$A7:8F35, ExtendedSpritemap_KraidFoot_21, which no instruction list shows.</summary>
     private const ushort UnshownFrame = 0x8f35;
 
     /// <summary>Compares 35 animation frames and the shared frame with native foot-component offsets.</summary>
-    private static void VerifyKraidFootCoordinate(SuperMetroidAddressSpace rom, int component, bool vertical, Func<int, int> calculate)
+    private static void VerifyKraidFootCoordinate(CartridgeImportAddressSpace rom, int component, bool vertical, Func<int, int> calculate)
     {
         ushort Word(int pointer) => LittleEndianBytes.Word(KraidFootCoordinateRomByte(rom, 0xa70000 | pointer), KraidFootCoordinateRomByte(rom, 0xa70000 | (pointer + 1)));
         for (int ordinal = 0; ordinal <= 35; ordinal++)
@@ -52,7 +52,7 @@ internal static class KraidFootCoordinateMappingsVerification
     private static byte KraidFootCoordinateRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks the shared foot rectangle and exhaustive native component-frame membership.</summary>
-    internal static void VerifyKraidFootSharedHitbox(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidFootSharedHitbox(CartridgeImportAddressSpace rom)
     {
         ushort Word(int pointer) => LittleEndianBytes.Word(KraidFootSharedHitboxRomByte(rom, 0xa70000 | pointer), KraidFootSharedHitboxRomByte(rom, 0xa70000 | (pointer + 1)));
         var boxes = KraidFootCollisionDefinitionsConstants.HitboxesAt(0x9453);

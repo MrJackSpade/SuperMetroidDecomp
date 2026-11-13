@@ -18,7 +18,7 @@ internal static class RipperBehaviorVerification
     /// production enemy system: the loop it selects shows its four frames on the native 8/7/8/7 cadence and returns to
     /// its first frame, and the six loops together show all twelve walking frames.
     /// </summary>
-    internal static void VerifyRipperBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyRipperBehavior(CartridgeImportAddressSpace rom)
     {
         foreach ((int record, EnemyDefinitionId definition) in new[]
                  {
@@ -133,7 +133,7 @@ internal static class RipperBehaviorVerification
     [VerificationCommand("--ripper-behavior")]
     internal static int RipperBehaviorCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyRipperBehavior), () => VerifyRipperBehavior(rom));
         Suite(nameof(RipperAnimationsVerification.VerifyRipperAnimations), () => RipperAnimationsVerification.VerifyRipperAnimations(rom));
         return 0;

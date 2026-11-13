@@ -39,7 +39,7 @@ internal static class FlyBehaviorVerification
     [VerificationCommand("--fly-instruction-mechanics")]
     internal static int FlyInstructionMechanicsCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyFlyBehavior), () => VerifyFlyBehavior());
         Suite(nameof(FlyAnimationsVerification.VerifyFlyAnimations), () => FlyAnimationsVerification.VerifyFlyAnimations(rom));
         return 0;

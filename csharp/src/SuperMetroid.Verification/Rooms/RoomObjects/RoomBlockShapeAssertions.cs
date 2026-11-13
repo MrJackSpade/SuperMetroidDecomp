@@ -17,7 +17,7 @@ internal static class RoomBlockShapeAssertions
     /// <param name="shape">The frame's block shape.</param>
     /// <param name="pointer">Where the cartridge stores the frame's draw list.</param>
     /// <param name="name">The frame's published name, for messages.</param>
-    internal static void AssertShapeAsNative(SuperMetroidAddressSpace rom, RoomBlockShape shape, int pointer, string name)
+    internal static void AssertShapeAsNative(CartridgeImportAddressSpace rom, RoomBlockShape shape, int pointer, string name)
     {
         Dictionary<Offset16<RoomBlocks>, RoomTerrainBlock> native = NativeTerrain(rom, pointer, out int written);
         AssertEqual(native.Count, written, $"{name} draw list writes each cell once");

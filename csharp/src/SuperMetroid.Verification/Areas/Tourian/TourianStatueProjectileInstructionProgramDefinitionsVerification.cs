@@ -27,7 +27,7 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
 
     /// <summary>Checks compiled words and eye, particle, tail, splash, soul, and entrance-statue instruction paths.</summary>
     internal static void VerifyTourianStatueProjectileInstructionProgramDefinitions(
-        SuperMetroidAddressSpace rom)
+        CartridgeImportAddressSpace rom)
     {
         for (int index = 0;
              index < TourianStatueProjectileInstructionProgramDefinitionsTooling.MechanicsWordCount;

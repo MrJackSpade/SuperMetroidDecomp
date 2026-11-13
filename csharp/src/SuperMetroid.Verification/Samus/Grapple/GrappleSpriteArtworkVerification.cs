@@ -13,7 +13,7 @@ using SuperMetroid.Verification.Harness;
 internal static class GrappleSpriteArtworkVerification
 {
     /// <summary>Compares native appearances with the composed grapple sheet frames and rejects malformed documents.</summary>
-    internal static void VerifyGrappleSpriteArtwork(SuperMetroidAddressSpace bus)
+    internal static void VerifyGrappleSpriteArtwork(CartridgeImportAddressSpace bus)
     {
         byte[] json = GrappleSpriteExtractor.Extract(bus);
         var catalog = InstalledGrappleSprites.Load(new MemoryStream(json));

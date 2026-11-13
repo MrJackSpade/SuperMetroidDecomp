@@ -22,7 +22,7 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
     internal static void VerifyEnemyProjectileInstructionOwnerCoverage()
     {
         var forbiddenBus = NewEnemyProjectileMechanicsFallbackForbiddenBus();
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
 
         int definitionCount = 0;
         int reactionCount = 0;

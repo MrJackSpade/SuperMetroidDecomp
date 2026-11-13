@@ -15,7 +15,7 @@ namespace SuperMetroid.Verification.Enemies.Chozo;
 internal static class StatueWalkDefinitionsVerification
 {
     /// <summary>Compares Torizo walking steps and Chozo carry words, then checks production movement and Samus offsets without a bus.</summary>
-    internal static void VerifyCompiledStatueWalking(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledStatueWalking(CartridgeImportAddressSpace rom)
     {
         // The cartridge's walking table holds one signed word per step; every walking cue reads a whole entry.
         for (int step = 0; step < GoldenTorizoWalk.StepCount; step++)

@@ -26,7 +26,7 @@ internal static class MotherBrainEffectBehaviorVerification
     /// its three fired beams, the onion ring grows to its final radii and its touched impact plays out, each drool releases
     /// and splashes, and the subtitle sleeps; every shown frame keeps its native duration, with the lists' bytes forbidden.
     /// </summary>
-    internal static void VerifyMotherBrainEffectBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyMotherBrainEffectBehavior(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         CartridgeReadGuard guard = ForbiddingSharedLists(rom);
@@ -264,7 +264,7 @@ internal static class MotherBrainEffectBehaviorVerification
     [VerificationCommand("--mother-brain-effect-programs")]
     internal static int MotherBrainEffectProgramsCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(MotherBrainEffectAnimationsVerification.VerifyMotherBrainEffectAnimations), () => MotherBrainEffectAnimationsVerification.VerifyMotherBrainEffectAnimations(rom));
         Suite(nameof(VerifyMotherBrainEffectBehavior), () => VerifyMotherBrainEffectBehavior(rom));
         return 0;

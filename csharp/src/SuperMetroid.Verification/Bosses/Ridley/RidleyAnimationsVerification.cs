@@ -22,7 +22,7 @@ using SuperMetroid.Core.World;
 internal static class RidleyAnimationsVerification
 {
     /// <summary>Every body, breakup and fireball program matches its native list, and the body's branches redirect natively.</summary>
-    internal static void VerifyRidleyAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyRidleyAnimations(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         AssertEqual(Enum.GetValues<RidleyBodyProgram>().Length, BodyEntries.Length, "every typed Ridley body program has a native entry");

@@ -1026,8 +1026,8 @@ internal static class LookupStream3Verification
             AssertThrows<IndexOutOfRangeException>(() => _ = escapePrograms[invalid], "stream 3 escape lightning owner bounds");
         foreach (int invalid in new[] { -1, 11, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => CrateriaEscapeLightningPaletteFxColorDefinitionsConstants.Duration(invalid), "stream 3 escape lightning duration bounds");
-        Suite(nameof(VerifyGrappleConnectionDefinitions), () => VerifyGrappleConnectionDefinitions((SuperMetroidAddressSpace)rom));
-        Suite(nameof(VerifyMotherBrainTurretDefinitions), () => VerifyMotherBrainTurretDefinitions((SuperMetroidAddressSpace)rom));
+        Suite(nameof(VerifyGrappleConnectionDefinitions), () => VerifyGrappleConnectionDefinitions((CartridgeImportAddressSpace)rom));
+        Suite(nameof(VerifyMotherBrainTurretDefinitions), () => VerifyMotherBrainTurretDefinitions((CartridgeImportAddressSpace)rom));
         foreach (MotherBrainContactPart part in Enum.GetValues<MotherBrainContactPart>())
         {
             var regions = MotherBrainContacts.Get(part);

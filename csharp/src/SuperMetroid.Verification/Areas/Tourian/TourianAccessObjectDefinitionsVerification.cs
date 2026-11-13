@@ -11,7 +11,7 @@ using SuperMetroid.Verification.Harness;
 internal static class TourianAccessObjectDefinitionsVerification
 {
     /// <summary>Compares native spawn operands, then confirms both states allocate the highest free slot at the fixed access block.</summary>
-    internal static void VerifyTourianAccessObjectDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyTourianAccessObjectDefinitions(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyTourianAccessSpawnField), () => VerifyTourianAccessSpawnField(rom));
         Suite(nameof(VerifyDefinition), () => VerifyDefinition(clear: false));
@@ -47,7 +47,7 @@ internal static class TourianAccessObjectDefinitionsVerification
     /// each starts the list of the floor state the port spawns for it. The port gives the access objects no identity (#1622),
     /// so the native header is identified by the list it starts rather than compared with a Core identity.
     /// </summary>
-    private static void VerifyTourianAccessSpawnField(SuperMetroidAddressSpace rom)
+    private static void VerifyTourianAccessSpawnField(CartridgeImportAddressSpace rom)
     {
         // Native spawn operands: completed descent crumbles; already-unlocked room clears.
         TourianAccessObjectDefinitionsCase[] cases = [new TourianAccessObjectDefinitionsCase(false,0x88dc9f), new TourianAccessObjectDefinitionsCase(true,0x88db99)];

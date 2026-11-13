@@ -62,7 +62,7 @@ internal static class ElevatorPlatformVisualsVerification
         using (PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomObjectElevatorPlatformVisualDirectory))
         {
             GameInstallation installation = copy.Installation;
-            SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+            CartridgeImportAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
                 Path.GetFullPath("Super Metroid.smc"));
             RoomObjectElevatorPlatformVisualFilesConstants.ValidateStock(
                 installation.RoomObjectElevatorPlatformVisualDirectory);

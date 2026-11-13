@@ -15,16 +15,16 @@ namespace SuperMetroid.Verification.Rooms.RoomObjects;
 internal static class LookupCollectibleDrawsVerification
 {
     /// <summary>Checks each draw record's one-cell geometry and complete pointer domain.</summary>
-    internal static void VerifyCollectibleDrawGeometry(SuperMetroidAddressSpace rom) => VerifyCollectibleDrawField(rom, 0);
+    internal static void VerifyCollectibleDrawGeometry(CartridgeImportAddressSpace rom) => VerifyCollectibleDrawField(rom, 0);
     /// <summary>Compares collision bits in each collectible's level word with the cartridge.</summary>
-    internal static void VerifyCollectibleDrawCollision(SuperMetroidAddressSpace rom) => VerifyCollectibleDrawField(rom, 1);
+    internal static void VerifyCollectibleDrawCollision(CartridgeImportAddressSpace rom) => VerifyCollectibleDrawField(rom, 1);
     /// <summary>Compares visual tile bits in each collectible's level word with the cartridge.</summary>
-    internal static void VerifyCollectibleDrawVisuals(SuperMetroidAddressSpace rom) => VerifyCollectibleDrawField(rom, 2);
+    internal static void VerifyCollectibleDrawVisuals(CartridgeImportAddressSpace rom) => VerifyCollectibleDrawField(rom, 2);
     /// <summary>Checks published names, reverse lookup, and ordinal identity rejection.</summary>
-    internal static void VerifyCollectibleDrawIdentity(SuperMetroidAddressSpace rom) => VerifyCollectibleDrawField(rom, 3);
+    internal static void VerifyCollectibleDrawIdentity(CartridgeImportAddressSpace rom) => VerifyCollectibleDrawField(rom, 3);
 
     /// <summary>Checks one requested draw field across all exported pointers and unsupported inputs.</summary>
-    private static void VerifyCollectibleDrawField(SuperMetroidAddressSpace rom, int field)
+    private static void VerifyCollectibleDrawField(CartridgeImportAddressSpace rom, int field)
     {
         // Original exported pointer/name contract; physical values come from the ROM.
         LookupEscapeGateStockFrame[] expected = [new LookupEscapeGateStockFrame(0xa2b5,"empty"),new LookupEscapeGateStockFrame(0xa2c7,"chozo-orb-0"),new LookupEscapeGateStockFrame(0xa2cd,"chozo-orb-1"),new LookupEscapeGateStockFrame(0xa2d3,"chozo-orb-2"),new LookupEscapeGateStockFrame(0xa2d9,"chozo-orb-burst"),new LookupEscapeGateStockFrame(0xa2df,"energy-tank-0"),new LookupEscapeGateStockFrame(0xa2e5,"energy-tank-1"),new LookupEscapeGateStockFrame(0xa2eb,"missile-tank-0"),new LookupEscapeGateStockFrame(0xa2f1,"missile-tank-1"),new LookupEscapeGateStockFrame(0xa2f7,"super-missile-tank-0"),new LookupEscapeGateStockFrame(0xa2fd,"super-missile-tank-1"),new LookupEscapeGateStockFrame(0xa303,"power-bomb-tank-0"),new LookupEscapeGateStockFrame(0xa309,"power-bomb-tank-1"),new LookupEscapeGateStockFrame(0xa30f,"block-pair-0-frame-0"),new LookupEscapeGateStockFrame(0xa315,"block-pair-0-frame-1"),new LookupEscapeGateStockFrame(0xa31b,"block-pair-1-frame-0"),new LookupEscapeGateStockFrame(0xa321,"block-pair-1-frame-1"),new LookupEscapeGateStockFrame(0xa327,"block-pair-2-frame-0"),new LookupEscapeGateStockFrame(0xa32d,"block-pair-2-frame-1"),new LookupEscapeGateStockFrame(0xa333,"block-pair-3-frame-0"),new LookupEscapeGateStockFrame(0xa339,"block-pair-3-frame-1"),new LookupEscapeGateStockFrame(0xa3dd,"shot-reveal-0"),new LookupEscapeGateStockFrame(0xa3e3,"shot-reveal-1"),new LookupEscapeGateStockFrame(0xa3e9,"shot-reveal-2")];

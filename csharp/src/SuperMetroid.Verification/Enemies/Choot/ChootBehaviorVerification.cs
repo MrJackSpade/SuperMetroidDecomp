@@ -60,7 +60,7 @@ internal static class ChootBehaviorVerification
     [VerificationCommand("--choot-instruction-mechanics")]
     internal static int ChootInstructionMechanicsCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyChootBehavior), () => VerifyChootBehavior());
         Suite(nameof(ChootAnimationsVerification.VerifyChootAnimations), () => ChootAnimationsVerification.VerifyChootAnimations(rom));
         return 0;

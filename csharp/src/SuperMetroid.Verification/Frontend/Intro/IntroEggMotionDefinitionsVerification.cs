@@ -19,7 +19,7 @@ internal static class IntroEggMotionDefinitionsVerification
     /// with the installed <see cref="ShellFragmentFallPastCurve"/> (#1500): every step the fragments read past the curve,
     /// and the rejection of the first step no fragment reads.
     /// </summary>
-    internal static void VerifyShellFragmentFallPastCurve(SuperMetroidAddressSpace rom)
+    internal static void VerifyShellFragmentFallPastCurve(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         ShellFragmentFallPastCurve installed = InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve;
@@ -44,7 +44,7 @@ internal static class IntroEggMotionDefinitionsVerification
     }
 
     /// <summary>Compares position and velocity words, then checks fixed-point motion through each actor's landing and deletion.</summary>
-    internal static void VerifyCompiledIntroEggMotion(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledIntroEggMotion(CartridgeImportAddressSpace rom)
     {
         ShellFragmentFallPastCurve pastCurve = InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve;
         ushort Word(int address) => LittleEndianBytes.Word(CompiledIntroEggMotionRomByte(rom, address), CompiledIntroEggMotionRomByte(rom, address + 1));

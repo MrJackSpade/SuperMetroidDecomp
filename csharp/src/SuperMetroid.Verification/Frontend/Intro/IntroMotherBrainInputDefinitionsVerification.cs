@@ -12,7 +12,7 @@ namespace SuperMetroid.Verification.Frontend.Intro;
 internal static class IntroMotherBrainInputDefinitionsVerification
 {
     /// <summary>Compares every demo input edge, timer and list position with the native interpreter, then the live intro owner's first record.</summary>
-    internal static void VerifyIntroMotherBrainDemoInput(SuperMetroidAddressSpace bus,
+    internal static void VerifyIntroMotherBrainDemoInput(CartridgeImportAddressSpace bus,
         ImportIntroCinematicArtwork stock)
     {
         ushort ReferenceWord(ushort pointer) => CartridgeImportSource.Require(bus).ReadCartridgeWord(DemoInputRomData.BankBase | pointer);

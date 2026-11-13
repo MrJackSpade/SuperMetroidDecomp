@@ -18,7 +18,7 @@ internal static class MagdolliteLavaBehaviorVerification
     /// Each facing's lava starts its program and holds its frame update for update beside the native list; the shot
     /// program requests the drop at the lava's position and deletes the lava on the same pass, as the native list does.
     /// </summary>
-    internal static void VerifyMagdolliteLavaBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyMagdolliteLavaBehavior(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, MagdolliteLavaNativeListAddresses.Extent, "Magdollite-lava");
@@ -58,7 +58,7 @@ internal static class MagdolliteLavaBehaviorVerification
     [VerificationCommand("--magdollite-lava-programs")]
     internal static int MagdolliteLavaProgramsCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(MagdolliteLavaAnimationsVerification.VerifyMagdolliteLavaAnimations), () => MagdolliteLavaAnimationsVerification.VerifyMagdolliteLavaAnimations(rom));
         Suite(nameof(VerifyMagdolliteLavaBehavior), () => VerifyMagdolliteLavaBehavior(rom));
         return 0;

@@ -10,7 +10,7 @@ namespace SuperMetroid.Verification.Enemies.Owtch;
 internal static class OwtchMovementDefinitionsVerification
 {
     /// <summary>Checks the decoded tables against the cartridge and 144 wrapped initial positions they give.</summary>
-    internal static void VerifyOwtchMovementDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyOwtchMovementDefinitions(CartridgeImportAddressSpace rom)
     {
 
         Suite(nameof(VerifyOwtchTravelDistanceAlgorithm), () => VerifyOwtchTravelDistanceAlgorithm(rom));
@@ -51,7 +51,7 @@ internal static class OwtchMovementDefinitionsVerification
     }
 
     /// <summary>Compares the eight decoded travel distances with their cartridge words; the import rejects a selector past them.</summary>
-    private static void VerifyOwtchTravelDistanceAlgorithm(SuperMetroidAddressSpace rom)
+    private static void VerifyOwtchTravelDistanceAlgorithm(CartridgeImportAddressSpace rom)
     {
         AssertThrows<InvalidDataException>(() => EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Owtch, PopulationWords.Parameters(0, 8 << 8)),
             "the import rejects Owtch distance selector eight");
@@ -67,7 +67,7 @@ internal static class OwtchMovementDefinitionsVerification
     }
 
     /// <summary>Compares the six decoded underground waits with their cartridge words; the import rejects a selector past them.</summary>
-    private static void VerifyOwtchUndergroundTimerAlgorithm(SuperMetroidAddressSpace rom)
+    private static void VerifyOwtchUndergroundTimerAlgorithm(CartridgeImportAddressSpace rom)
     {
         AssertThrows<InvalidDataException>(() => EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Owtch, PopulationWords.Parameters(6 << 8, 0)),
             "the import rejects Owtch underground-wait selector six");

@@ -17,7 +17,7 @@ using SuperMetroid.Core.Progression;
 internal static class BombBlockProgramsVerification
 {
     /// <summary>Checks the three native restoration draws and their exact bank-$84 pointer ownership.</summary>
-    private static void VerifyBombBlockRestorationMapping(SuperMetroidAddressSpace rom)
+    private static void VerifyBombBlockRestorationMapping(CartridgeImportAddressSpace rom)
     {
         ushort[] pointers = [0xa4c7, 0xa4cf, 0xa4d7];
         InstalledRoomObjectLinkedRestoreVisuals pictures = InstalledRoomObjectLinkedRestoreVisuals.Stock();
@@ -82,7 +82,7 @@ internal static class BombBlockProgramsVerification
          new BombBlockNativeLayoutsResult(0xcd1b,0xcd22,0xcd25,4,0xcd37), new BombBlockNativeLayoutsResult(0xcd37,0xcd3e,0xcd41,4,0xcd53)];
 
     /// <summary>Checks every queue, branch, timer, restoration and deletion word over the complete native address domain.</summary>
-    private static void VerifyBombBlockControlMapping(SuperMetroidAddressSpace rom)
+    private static void VerifyBombBlockControlMapping(CartridgeImportAddressSpace rom)
     {
         var addresses = new List<ushort>();
         foreach (var layout in BombBlockNativeLayouts())
@@ -110,7 +110,7 @@ internal static class BombBlockProgramsVerification
     }
 
     /// <summary>Checks the 47 forward, reverse and restoration draw operands in the eight compiled lists.</summary>
-    private static void VerifyBombBlockDrawMapping(SuperMetroidAddressSpace rom)
+    private static void VerifyBombBlockDrawMapping(CartridgeImportAddressSpace rom)
     {
         var addresses = new HashSet<ushort>();
         foreach (var layout in BombBlockNativeLayouts())
@@ -127,7 +127,7 @@ internal static class BombBlockProgramsVerification
     }
 
     /// <summary>Checks packed collision and projectile sound bytes at both entry points of each native shape list.</summary>
-    private static void VerifyBombBlockSoundMapping(SuperMetroidAddressSpace rom)
+    private static void VerifyBombBlockSoundMapping(CartridgeImportAddressSpace rom)
     {
         ushort[] addresses = [0xcc37,0xcc3e,0xcc61,0xcc68,0xcc8d,0xcc94,0xccb9,0xccc0,
             0xcce5,0xccec,0xcd01,0xcd08,0xcd1d,0xcd24,0xcd39,0xcd40];
@@ -144,7 +144,7 @@ internal static class BombBlockProgramsVerification
     /// <summary>Runs every bomb-block producer and BTS timeline with compiled source bytes blocked, then checks the stock breakup and restored art.</summary>
     internal static void VerifyBombBlockPrograms()
     {
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+        CartridgeImportAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyBombBlockControlMapping), () => VerifyBombBlockControlMapping(rom));
         Suite(nameof(VerifyBombBlockDrawMapping), () => VerifyBombBlockDrawMapping(rom));
@@ -217,7 +217,7 @@ internal static class BombBlockProgramsVerification
 
     /// <summary>Confirms the stock breakup frame's physical word and tile, and the native restored parent.</summary>
     private static void VerifyBombBlockVisualSeparation(
-        SuperMetroidAddressSpace rom, HashSet<int> forbidden)
+        CartridgeImportAddressSpace rom, HashSet<int> forbidden)
     {
         BombBlockProgramsRenderResult Render(
             InstalledRoomObjectShotBlockVisuals visuals)

@@ -34,7 +34,7 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
 
     /// <summary>Runs a real Alcoon room until reachable frames and both fire directions execute without source reads.</summary>
     internal static void VerifyAlcoonInstructionProgramDefinitions(
-        SuperMetroidAddressSpace rom, ImportEnemyArtwork? installedArt = null)
+        CartridgeImportAddressSpace rom, ImportEnemyArtwork? installedArt = null)
     {
         SelectedRoom room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(rom, AlcoonInstructionAuditRoom);
         var installation = RepositoryInstallation.Installation;

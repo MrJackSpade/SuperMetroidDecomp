@@ -10,7 +10,7 @@ namespace SuperMetroid.Verification.Enemies.Rios;
 internal static class NorfairRioAnimationsVerification
 {
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
-    internal static void VerifyNorfairRioAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyNorfairRioAnimations(CartridgeImportAddressSpace rom)
     {
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             NorfairRioAnimations.Segments, NorfairRioAnimations.StartingAt, NorfairRioFrameToolingDefinitions.Spritemap,

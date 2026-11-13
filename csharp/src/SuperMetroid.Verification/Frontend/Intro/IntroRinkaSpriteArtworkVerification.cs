@@ -38,7 +38,7 @@ internal static class IntroRinkaSpriteArtworkVerification
             originIsOnScreen: y < 256);
     }
     /// <summary>Compares installed Rinka OAM with native art, live actors included, without rereading cartridge maps.</summary>
-    internal static void VerifyIntroRinkaSpriteArtwork(SuperMetroidAddressSpace bus,
+    internal static void VerifyIntroRinkaSpriteArtwork(CartridgeImportAddressSpace bus,
         ImportIntroCinematicArtwork stock)
     {
         const ushort x = 120;

@@ -7,7 +7,7 @@ namespace SuperMetroid.Verification.Enemies.Projectiles;
 internal static class MiscDustProjectileAnimationsVerification
 {
     /// <summary>Every segment matches its native list and every animation the lists' control flow.</summary>
-    internal static void VerifyMiscDustProjectileAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyMiscDustProjectileAnimations(CartridgeImportAddressSpace rom)
     {
         int beats = Family.CompareAll(CartridgeImportSource.Require(rom));
         Console.WriteLine($"  misc dust animations: {Entries.Length} segments ({beats} beats) match bank $86.");

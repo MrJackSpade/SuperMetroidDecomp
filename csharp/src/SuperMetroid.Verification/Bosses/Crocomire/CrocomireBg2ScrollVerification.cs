@@ -8,14 +8,14 @@ namespace SuperMetroid.Verification.Bosses.Crocomire;
 internal static class CrocomireBg2ScrollVerification
 {
     /// <summary>Runs the pointer-order and body-position correction checks for all seventeen BG2 entries.</summary>
-    internal static void VerifyCrocomireBg2ScrollDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyCrocomireBg2ScrollDefinitions(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyCrocomireBg2FramePositions), () => VerifyCrocomireBg2FramePositions(rom));
         Suite(nameof(VerifyCrocomireBg2PoseCorrections), () => VerifyCrocomireBg2PoseCorrections(rom));
     }
 
     /// <summary>Confirms all seventeen native BG2 spritemap pointers are unique and remain in authored order.</summary>
-    private static void VerifyCrocomireBg2FramePositions(SuperMetroidAddressSpace rom)
+    private static void VerifyCrocomireBg2FramePositions(CartridgeImportAddressSpace rom)
     {
         AssertEqual(17, CrocomireBodyLayerAlignment.EntryCount, "all native BG2 frame pointers");
         var seen = new HashSet<ushort>();
@@ -31,7 +31,7 @@ internal static class CrocomireBg2ScrollVerification
     }
 
     /// <summary>Compares per-pose offsets and wrapped body-Y scroll, including all unselected or misaligned pointers in the 16-bit domain.</summary>
-    private static void VerifyCrocomireBg2PoseCorrections(SuperMetroidAddressSpace rom)
+    private static void VerifyCrocomireBg2PoseCorrections(CartridgeImportAddressSpace rom)
     {
         var originalOffsets = new Dictionary<ushort, ushort>();
         for (int index = 0; index < 17; index++)

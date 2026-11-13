@@ -11,7 +11,7 @@ internal static class SamusDeathExplosionTimingDefinitionsVerification
 {
     /// <summary>Compares all nine authored durations and rejects a restored index beyond the final record.</summary>
     internal static void VerifySamusDeathExplosionTimingDefinitions(
-        SuperMetroidAddressSpace rom)
+        CartridgeImportAddressSpace rom)
     {
         for (ushort index = 0;
              index < SamusDeathExplosionTimingDefinitions.RecordCount;

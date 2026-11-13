@@ -11,7 +11,7 @@ namespace SuperMetroid.Verification.Samus.Movement;
 internal static class SamusBallBounceDefinitionsVerification
 {
     /// <summary>Exercises signed landing speed, bounce phase, facing, and spring-ball branches while guarding physics ROM reads.</summary>
-    internal static void VerifySamusBallBounceDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifySamusBallBounceDefinitions(CartridgeImportAddressSpace rom)
     {
         ushort whole = CartridgeImportSource.Require(rom).ReadCartridgeWord(SamusMovementDefinitionsVerticalMotionConstants.BallBounceSpeed);
         ushort fraction = CartridgeImportSource.Require(rom).ReadCartridgeWord(SamusMovementDefinitionsVerticalMotionConstants.BallBounceSubspeed);

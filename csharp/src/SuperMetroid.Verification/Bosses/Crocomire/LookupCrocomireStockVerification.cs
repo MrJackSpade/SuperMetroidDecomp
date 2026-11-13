@@ -13,7 +13,7 @@ namespace SuperMetroid.Verification.Bosses.Crocomire;
 internal static class LookupCrocomireStockVerification
 {
     /// <summary>Compares the five arena frames' pictures with the cartridge, rejects other draws, then checks the import and its rejections.</summary>
-    internal static void VerifyCrocomireStockMapping(SuperMetroidAddressSpace rom,
+    internal static void VerifyCrocomireStockMapping(CartridgeImportAddressSpace rom,
         InstalledRoomObjectCrocomireVisuals installed)
     {
         LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0x9b5b,"clear-bridge"), new LookupEscapeGateStockFrame(0x9b73,"crumble-bridge-block"),

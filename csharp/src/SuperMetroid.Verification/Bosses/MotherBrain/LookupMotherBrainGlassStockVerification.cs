@@ -12,7 +12,7 @@ namespace SuperMetroid.Verification.Bosses.MotherBrain;
 internal static class LookupMotherBrainGlassStockVerification
 {
     /// <summary>Compares the eleven glass frames' pictures with the cartridge, then the import and its rejections.</summary>
-    internal static void VerifyMotherBrainGlassStockMapping(SuperMetroidAddressSpace rom, InstalledMotherBrainGlassFrames installed)
+    internal static void VerifyMotherBrainGlassStockMapping(CartridgeImportAddressSpace rom, InstalledMotherBrainGlassFrames installed)
     {
         LookupEscapeGateStockFrame[] frames = [new(0x9717, "initial"), new(0x971d, "pane-damage-1"), new(0x9731, "pane-damage-2"),
             new(0x9745, "pane-transition"), new(0x974f, "shifted-pane-1"), new(0x9769, "shifted-pane-2"), new(0x9781, "shifted-pane-3"),

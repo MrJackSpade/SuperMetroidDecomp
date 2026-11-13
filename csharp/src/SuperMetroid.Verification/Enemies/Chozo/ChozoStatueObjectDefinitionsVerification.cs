@@ -23,7 +23,7 @@ namespace SuperMetroid.Verification.Enemies.Chozo;
 internal static class ChozoStatueObjectDefinitionsVerification
 {
     /// <summary>Runs the Chozo terrain, instruction, draw, layout, and visual checks as separate suites.</summary>
-    internal static void VerifyChozoStatueObjectDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyChozoStatueObjectDefinitions(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyChozoTerrainHeaders), () => VerifyChozoTerrainHeaders(rom));
         Suite(nameof(VerifyLowerNorfairHandTrigger), () => VerifyLowerNorfairHandTrigger());
@@ -45,7 +45,7 @@ internal static class ChozoStatueObjectDefinitionsVerification
     /// ways, plays each one's native list against its typed object (#1554), and checks what each spawn leaves at its
     /// place: the plug's two spawns leave their own blocks (#1622).
     /// </summary>
-    private static void VerifyChozoTerrainHeaders(SuperMetroidAddressSpace rom)
+    private static void VerifyChozoTerrainHeaders(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         ChozoStatueRoomObject[] statueObjects = Enum.GetValues<ChozoStatueRoomObject>();

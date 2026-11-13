@@ -15,7 +15,7 @@ internal static class LookupBlueDoorStockVerification
     /// Compares all four orientations' sixteen frames and their four closed caps with the cartridge, then the import and
     /// its rejections.
     /// </summary>
-    internal static void VerifyBlueDoorStockMapping(SuperMetroidAddressSpace rom,
+    internal static void VerifyBlueDoorStockMapping(CartridgeImportAddressSpace rom,
         InstalledRoomObjectBlueDoorVisuals installed)
     {
         LookupEscapeGateStockFrame[] frames = [

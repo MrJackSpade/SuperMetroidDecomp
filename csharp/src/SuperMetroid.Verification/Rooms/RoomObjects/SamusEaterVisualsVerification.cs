@@ -46,7 +46,7 @@ internal static class SamusEaterVisualsVerification
     }
 
     /// <summary>Compares the eight plant frames' pictures with the cartridge, rejects other draws, then checks the import and its rejections (#1557).</summary>
-    private static void VerifySamusEaterStockVisualMapping(SuperMetroidAddressSpace rom,
+    private static void VerifySamusEaterStockVisualMapping(CartridgeImportAddressSpace rom,
         InstalledRoomObjectSamusEaterVisuals installed)
     {
         LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0x9e0d,"floor-idle"), new LookupEscapeGateStockFrame(0x9e45,"floor-chew-1"),
@@ -63,15 +63,15 @@ internal static class SamusEaterVisualsVerification
     }
 
     /// <summary>Checks the run sizes and signed offsets of each compiled Samus Eater draw.</summary>
-    private static void VerifySamusEaterDrawGeometry(SuperMetroidAddressSpace rom) =>
+    private static void VerifySamusEaterDrawGeometry(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifySamusEaterDrawField), () => VerifySamusEaterDrawField(rom, false));
 
     /// <summary>Checks every compiled physical level word against its cartridge draw list.</summary>
-    private static void VerifySamusEaterDrawWords(SuperMetroidAddressSpace rom) =>
+    private static void VerifySamusEaterDrawWords(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifySamusEaterDrawField), () => VerifySamusEaterDrawField(rom, true));
 
     /// <summary>Scans pointer ownership and compares either draw geometry or level words for all eight native lists.</summary>
-    private static void VerifySamusEaterDrawField(SuperMetroidAddressSpace rom, bool words)
+    private static void VerifySamusEaterDrawField(CartridgeImportAddressSpace rom, bool words)
     {
         ushort[] pointers = [0x9e0d, 0x9e45, 0x9e61, 0x9e7d, 0x9e99, 0x9ed1, 0x9eed, 0x9f09];
         var exported = RoomObjectSamusEaterVisualFiles.All.ToArray();

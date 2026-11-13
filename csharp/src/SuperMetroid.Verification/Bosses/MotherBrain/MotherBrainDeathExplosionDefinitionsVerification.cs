@@ -14,7 +14,7 @@ namespace SuperMetroid.Verification.Bosses.MotherBrain;
 internal static class MotherBrainDeathExplosionDefinitionsVerification
 {
     /// <summary>Compares bank $86 selector words and body-relative projectile placement without runtime table reads.</summary>
-    internal static void VerifyMotherBrainDeathExplosionDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyMotherBrainDeathExplosionDefinitions(CartridgeImportAddressSpace rom)
     {
         for (ushort parameter = 0; parameter < 3; parameter++)
         {

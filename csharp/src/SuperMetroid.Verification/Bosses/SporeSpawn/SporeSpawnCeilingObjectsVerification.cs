@@ -36,7 +36,7 @@ internal static class SporeSpawnCeilingObjectsVerification
     }
 
     /// <summary>Bounds the three-frame crumble selector against the native program's draw operands.</summary>
-    private static void VerifySporeSpawnCeilingFrameSelector(SuperMetroidAddressSpace rom)
+    private static void VerifySporeSpawnCeilingFrameSelector(CartridgeImportAddressSpace rom)
     {
         ushort[] originalOperands = [0xab17,0xab1b,0xab1f];
         for (int frame = 0; frame < originalOperands.Length; frame++)
@@ -51,7 +51,7 @@ internal static class SporeSpawnCeilingObjectsVerification
     /// Compares the four frames' two-by-two block shapes and the import's run form with the cartridge, checking exact
     /// pointer ownership, that each shape covers exactly the square's four cells, and that it rejects a cell outside.
     /// </summary>
-    private static void VerifySporeSpawnCeilingDrawMapping(SuperMetroidAddressSpace rom)
+    private static void VerifySporeSpawnCeilingDrawMapping(CartridgeImportAddressSpace rom)
     {
         RoomObjectShotBlockDrawDefinitions.DrawList[] draws =
             RoomObjectSporeSpawnCeilingVisualFiles.All.ToArray();

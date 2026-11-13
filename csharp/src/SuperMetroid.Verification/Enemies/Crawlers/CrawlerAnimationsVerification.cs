@@ -10,7 +10,7 @@ namespace SuperMetroid.Verification.Enemies.Crawlers;
 internal static class CrawlerAnimationsVerification
 {
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
-    internal static void VerifyCrawlerAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyCrawlerAnimations(CartridgeImportAddressSpace rom)
     {
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             CrawlerAnimations.Segments, CrawlerAnimations.StartingAt, CrawlerFrameToolingDefinitions.Spritemap,

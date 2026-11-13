@@ -10,7 +10,7 @@ namespace SuperMetroid.Verification.Bosses.Kraid;
 internal static class KraidFootFrameGeometryVerification
 {
     /// <summary>Traverses native presentation operands and compares ordered frame keys and bounds.</summary>
-    internal static void VerifyKraidFootFrameGeometry(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidFootFrameGeometry(CartridgeImportAddressSpace rom)
     {
         // The typed foot programs match bank $A7 (--kraid-part-animations).
         var selected = new SortedSet<ushort>(KraidAnimationsTooling.Spritemaps(KraidPartProgram.FootInitial, KraidPartProgram.FootNeutral, KraidPartProgram.FootWalkingForward,

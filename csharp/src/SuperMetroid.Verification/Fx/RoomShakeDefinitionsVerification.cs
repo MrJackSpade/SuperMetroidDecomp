@@ -16,7 +16,7 @@ namespace SuperMetroid.Verification.Fx;
 internal static class RoomShakeDefinitionsVerification
 {
     /// <summary>Compares all shown shakes, frozen behavior, sustained and continuous shaking.</summary>
-    internal static void VerifyRoomShakeDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyRoomShakeDefinitions(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyRoomShakeBg1Algorithm), () => VerifyRoomShakeBg1Algorithm(rom));
         Suite(nameof(VerifyRoomShakeBg2Algorithm), () => VerifyRoomShakeBg2Algorithm(rom));
@@ -110,22 +110,22 @@ internal static class RoomShakeDefinitionsVerification
     }
 
     /// <summary>Compares BG1 displacement pairs with their native table entries.</summary>
-    private static void VerifyRoomShakeBg1Algorithm(SuperMetroidAddressSpace rom) =>
+    private static void VerifyRoomShakeBg1Algorithm(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyRoomShakeVector), () => VerifyRoomShakeVector(rom, NativeEarthquakeTypes.Bg1ReferenceAddress, 8,
             definition => new OctantVector(definition.Foreground.X, definition.Foreground.Y), "BG1"));
 
     /// <summary>Compares BG2 displacement pairs with their native table entries.</summary>
-    private static void VerifyRoomShakeBg2Algorithm(SuperMetroidAddressSpace rom) =>
+    private static void VerifyRoomShakeBg2Algorithm(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyRoomShakeVector), () => VerifyRoomShakeVector(rom, NativeEarthquakeTypes.Bg2ReferenceAddress, 8,
             definition => new OctantVector(definition.Background.X, definition.Background.Y), "BG2"));
 
     /// <summary>Compares enemy-projectile displacement pairs with their native table entries.</summary>
-    private static void VerifyRoomShakeProjectileAlgorithm(SuperMetroidAddressSpace rom) =>
+    private static void VerifyRoomShakeProjectileAlgorithm(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyRoomShakeVector), () => VerifyRoomShakeVector(rom, NativeEarthquakeTypes.ProjectileReferenceAddress, 4,
             definition => new OctantVector(definition.Projectile.X, definition.Projectile.Y), "projectile"));
 
     /// <summary>Checks one displacement of every shake against the native row its type number indexes.</summary>
-    private static void VerifyRoomShakeVector(SuperMetroidAddressSpace rom, int source, int stride,
+    private static void VerifyRoomShakeVector(CartridgeImportAddressSpace rom, int source, int stride,
         Func<RoomShakeDefinition, OctantVector> select, string label)
     {
         short Word(int address) => unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));

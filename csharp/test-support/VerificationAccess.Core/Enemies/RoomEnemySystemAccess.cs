@@ -91,11 +91,9 @@ internal static class RoomEnemySystemAccess
         /// <c>MainAI_Kraid</c> itself interleaves palette handling between the two passes.
         /// </summary>
         internal int ResolveKraidProjectileHits(
-            ISnesAddressSpace bus,
             SamusProjectileSystem projectiles,
             SamusBombProjectileSystem sharedProjectiles)
         {
-            Ensure.NotNull(bus);
             Ensure.NotNull(projectiles);
             Ensure.NotNull(sharedProjectiles);
             var kraid = self.KraidBehavior.Access.Kraid;

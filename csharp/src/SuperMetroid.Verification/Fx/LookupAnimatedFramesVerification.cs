@@ -8,7 +8,7 @@ namespace SuperMetroid.Verification.Fx;
 internal static class LookupAnimatedFramesVerification
 {
     /// <summary>Enumerates each retail timed-frame span up to its terminal control instruction.</summary>
-    internal static IEnumerable<OriginalSimpleAnimationLoopsResult> OriginalSimpleAnimationLoops(SuperMetroidAddressSpace rom)
+    internal static IEnumerable<OriginalSimpleAnimationLoopsResult> OriginalSimpleAnimationLoops(CartridgeImportAddressSpace rom)
     {
         foreach (ushort header in new ushort[] { 0x8257, 0x8287, 0x828d, 0x82ab, 0x82c9, 0x82e7, 0x82fd })
         {
@@ -25,7 +25,7 @@ internal static class LookupAnimatedFramesVerification
     }
 
     /// <summary>Checks frame pointer enumeration, artwork operand offsets, Goto words, and index bounds.</summary>
-    internal static void VerifySimpleAnimationFrameCursors(SuperMetroidAddressSpace rom)
+    internal static void VerifySimpleAnimationFrameCursors(CartridgeImportAddressSpace rom)
     {
         int total = 0;
         foreach (var original in OriginalSimpleAnimationLoops(rom))
@@ -54,7 +54,7 @@ internal static class LookupAnimatedFramesVerification
     }
 
     /// <summary>Compares indexed and enumerated frame durations with native bank-$87 words.</summary>
-    internal static void VerifySimpleAnimationFrameDurations(SuperMetroidAddressSpace rom)
+    internal static void VerifySimpleAnimationFrameDurations(CartridgeImportAddressSpace rom)
     {
         foreach (var original in OriginalSimpleAnimationLoops(rom))
         {

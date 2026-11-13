@@ -12,7 +12,7 @@ using SuperMetroid.AssetExtraction.Rooms;
 internal static class LookupQuakeSoundSuppressionVerification
 {
     /// <summary>Matches six ROM room comparisons and checks suppression through room FX initialization.</summary>
-    internal static void VerifyQuakeSoundSuppression(SuperMetroidAddressSpace rom)
+    internal static void VerifyQuakeSoundSuppression(CartridgeImportAddressSpace rom)
     {
         var nativeRooms = new HashSet<ushort>();
         for (int instruction = 0x8882cd; instruction <= 0x8882e6; instruction += 5)

@@ -19,7 +19,7 @@ internal static class EyeDoorProjectileBehaviorVerification
     /// The shot's definition starts its typed flight, which aims at Samus and loops as the native list does; its impact
     /// program plays out and deletes the shot on the native update.
     /// </summary>
-    internal static void VerifyEyeDoorProjectileBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyEyeDoorProjectileBehavior(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, EyeDoorProjectileNativeListAddresses.Extent, "eye-door shot");
@@ -49,7 +49,7 @@ internal static class EyeDoorProjectileBehaviorVerification
     [VerificationCommand("--eye-door-projectile-programs")]
     internal static int EyeDoorProjectileProgramsCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(EyeDoorProjectileAnimationsVerification.VerifyEyeDoorProjectileAnimations), () => EyeDoorProjectileAnimationsVerification.VerifyEyeDoorProjectileAnimations(rom));
         Suite(nameof(VerifyEyeDoorProjectileBehavior), () => VerifyEyeDoorProjectileBehavior(rom));
         return 0;

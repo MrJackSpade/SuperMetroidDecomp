@@ -24,7 +24,6 @@ internal static class SpeedPaletteOverrunVerification
         var colors = SamusFullBodyCycleColorFile.Read(new MemoryStream(SamusFullBodyCycleColorExtractor.Extract(rom)));
         // Samus names shades (#1512); the import resolves them from the extracted cycles.
         var overrunSources = InstalledFixtures.SamusShadeSources with { FullBodyCycles = colors.ToColours() };
-        var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
         string[] nativeTrace = File.ReadAllLines("csharp/test-fixtures/issue-1254-speed-palette/native.csv");
         AssertEqual(3, nativeTrace.Length, "bounded native CPU palette trace contains both overrun cases");
         AssertEqual("phase,nextPhase,timer,colors", nativeTrace[0], "native trace schema");

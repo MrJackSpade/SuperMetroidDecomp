@@ -13,7 +13,7 @@ namespace SuperMetroid.Verification.Enemies.YappingMaws;
 internal static class YappingMawBodyProjectileBehaviorVerification
 {
     /// <summary>Each facing's initializer starts all four body links on that facing's program, matching the native list.</summary>
-    internal static void VerifyYappingMawBodyProjectileBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyYappingMawBodyProjectileBehavior(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, YappingMawBodyProjectileNativeListAddresses.Extent, "Yapping Maw body");
@@ -44,7 +44,7 @@ internal static class YappingMawBodyProjectileBehaviorVerification
     [VerificationCommand("--yapping-maw-body-programs")]
     internal static int YappingMawBodyProjectileProgramsCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(YappingMawBodyProjectileAnimationsVerification.VerifyYappingMawBodyProjectileAnimations), () => YappingMawBodyProjectileAnimationsVerification.VerifyYappingMawBodyProjectileAnimations(rom));
         Suite(nameof(VerifyYappingMawBodyProjectileBehavior), () => VerifyYappingMawBodyProjectileBehavior(rom));
         return 0;

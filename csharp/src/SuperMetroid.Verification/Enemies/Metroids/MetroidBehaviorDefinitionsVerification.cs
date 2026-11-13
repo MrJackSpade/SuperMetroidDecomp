@@ -18,7 +18,7 @@ using SuperMetroid.Core.Audio;
 internal static class MetroidBehaviorDefinitionsVerification
 {
     /// <summary>Compares source tables and exercises the production escape and cry consumers with those reads forbidden.</summary>
-    internal static void VerifyMetroidBehaviorDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyMetroidBehaviorDefinitions(CartridgeImportAddressSpace rom)
     {
         for (ushort frame = 0; frame < 4; frame++)
         {
@@ -87,7 +87,7 @@ internal static class MetroidBehaviorDefinitionsVerification
     }
 
     /// <summary>Checks all eight random cry selections through the real instruction interpreter.</summary>
-    private static void VerifyMetroidCryConsumer(SuperMetroidAddressSpace rom)
+    private static void VerifyMetroidCryConsumer(CartridgeImportAddressSpace rom)
     {
         var guarded = NewMetroidBehaviorReadGuard(rom);
 

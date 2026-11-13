@@ -29,7 +29,7 @@ internal static class BeetomInstructionProgramDefinitionsVerification
     /// exactly the installed Beetom frames, with optional installed artwork; the program oracle matches bank $A8.
     /// </summary>
     internal static void VerifyBeetomInstructionProgramDefinitions(
-        SuperMetroidAddressSpace rom, ImportEnemyArtwork? artwork = null)
+        CartridgeImportAddressSpace rom, ImportEnemyArtwork? artwork = null)
     {
         Suite(nameof(VerifyBeetomNativeMaps), () => VerifyBeetomNativeMaps(rom));
         Suite(nameof(VerifyBeetomDistantActionMapping), () => VerifyBeetomDistantActionMapping(rom));
@@ -103,7 +103,7 @@ internal static class BeetomInstructionProgramDefinitionsVerification
     }
 
     /// <summary>Checks every RNG word against the native eight-pointer action table and verifies one random consumption per choice.</summary>
-    private static void VerifyBeetomDistantActionMapping(SuperMetroidAddressSpace rom)
+    private static void VerifyBeetomDistantActionMapping(CartridgeImportAddressSpace rom)
     {
         ushort random = 0;
         int randomCalls = 0;
@@ -141,7 +141,7 @@ internal static class BeetomInstructionProgramDefinitionsVerification
         }
     }
     /// <summary>Checks the native entry counts of the Beetom's five- and six-entry maps.</summary>
-    private static void VerifyBeetomNativeMaps(SuperMetroidAddressSpace rom)
+    private static void VerifyBeetomNativeMaps(CartridgeImportAddressSpace rom)
     {
         foreach (ushort pointer in new ushort[] {0xbed3,0xbeee,0xbf09,0xbf24,0xbf3f,0xbf5a,0xbf75,0xbf90,
             0xc00b,0xc026,0xc041,0xc05c,0xc077,0xc092,0xc0ad,0xc0c8})
@@ -177,7 +177,7 @@ internal static class BeetomInstructionProgramDefinitionsVerification
 
     /// <summary>Reads a native Beetom instruction word from bank A8 solely for comparison with compiled definitions.</summary>
     internal static ushort ReadBeetomInstructionWord(
-        SuperMetroidAddressSpace source,
+        CartridgeImportAddressSpace source,
         ushort address) =>
         CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(0xa80000 | address);
 

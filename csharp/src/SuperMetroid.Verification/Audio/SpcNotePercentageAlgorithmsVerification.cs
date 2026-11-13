@@ -7,7 +7,7 @@ namespace SuperMetroid.Verification.Audio;
 internal static class SpcNotePercentageAlgorithmsVerification
 {
     /// <summary>Compares operand counts for opcodes $E0-$FE and rejects indices outside the table.</summary>
-    internal static void VerifySpcEffectOperandSelection(SuperMetroidAddressSpace rom)
+    internal static void VerifySpcEffectOperandSelection(CartridgeImportAddressSpace rom)
     {
         for (int opcode = 0xe0; opcode <= 0xfe; opcode++)
         {
@@ -21,7 +21,7 @@ internal static class SpcNotePercentageAlgorithmsVerification
     }
 
     /// <summary>Checks that all timing and volume commands use the low nibble to select volume.</summary>
-    internal static void VerifySpcNoteVolumeAlgorithm(SuperMetroidAddressSpace rom)
+    internal static void VerifySpcNoteVolumeAlgorithm(CartridgeImportAddressSpace rom)
     {
         // Every possible timing/volume command byte: the decoder uses its low nibble.
         for (int command = 0; command < 128; command++)
@@ -35,7 +35,7 @@ internal static class SpcNotePercentageAlgorithmsVerification
     }
 
     /// <summary>Checks that bits 4 through 6 select the gate-off percentage for note commands.</summary>
-    internal static void VerifySpcNoteGateAlgorithm(SuperMetroidAddressSpace rom)
+    internal static void VerifySpcNoteGateAlgorithm(CartridgeImportAddressSpace rom)
     {
         // The high command bit is clear; bits4..6 select the gate fraction.
         for (int command = 0; command < 128; command++)

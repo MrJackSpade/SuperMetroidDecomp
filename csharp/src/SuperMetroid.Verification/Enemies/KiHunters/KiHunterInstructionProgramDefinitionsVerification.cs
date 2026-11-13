@@ -24,7 +24,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
 
     /// <summary>Exercises thirteen flight, swoop, wing, ground, and spit lists while forbidding migrated bank-$A8 reads.</summary>
     internal static void VerifyKiHunterInstructionProgramDefinitions(
-        SuperMetroidAddressSpace rom)
+        CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyFlying), () => VerifyFlying(KiHunterProgram.FlyingLeft, movingRight: false));
         Suite(nameof(VerifyFlying), () => VerifyFlying(KiHunterProgram.FlyingRight, movingRight: true));

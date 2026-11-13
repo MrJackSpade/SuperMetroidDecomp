@@ -12,7 +12,7 @@ namespace SuperMetroid.Verification.Enemies.Cacatac;
 internal static class CacatacProjectileDefinitionsVerification
 {
     /// <summary>Compares ten retail instruction selectors, both speed components, and copied source position.</summary>
-    internal static void VerifyCacatacProjectileDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyCacatacProjectileDefinitions(CartridgeImportAddressSpace rom)
     {
         const int instructionTable = 0x86d96a;
 

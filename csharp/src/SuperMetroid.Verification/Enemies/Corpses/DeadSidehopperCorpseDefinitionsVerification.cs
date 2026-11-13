@@ -13,7 +13,7 @@ using SuperMetroid.Core.World;
 internal static class DeadSidehopperCorpseDefinitionsVerification
 {
     /// <summary>Compares both native configuration records and initialized rotting state without metadata rereads.</summary>
-    internal static void VerifyDeadSidehopperCorpseDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyDeadSidehopperCorpseDefinitions(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyDefinition), () => VerifyDefinition(
             rom,
@@ -40,7 +40,7 @@ internal static class DeadSidehopperCorpseDefinitionsVerification
     /// extraction finds the corpse's characters by, and the corpse's height.
     /// </summary>
     private static void VerifyDefinition(
-        SuperMetroidAddressSpace rom,
+        CartridgeImportAddressSpace rom,
         ushort configurationPointer,
         int graphicsVariant)
     {

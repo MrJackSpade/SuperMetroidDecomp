@@ -31,7 +31,7 @@ internal static class LookupMotherBrainBackgroundVerification
     /// together), the twelve rows' order, their one thirteen-cell run against the cartridge, and that each row's shape
     /// covers exactly the cells its draw list writes.
     /// </summary>
-    internal static void VerifyMotherBrainBackgroundGeometry(SuperMetroidAddressSpace rom)
+    internal static void VerifyMotherBrainBackgroundGeometry(CartridgeImportAddressSpace rom)
     {
         LookupEscapeGateStockFrame[] family = [.. Rows, .. LookupMotherBrainBoundaryVerification.Boundaries,
             .. LookupMotherBrainRegularDrawsVerification.Regular];
@@ -54,6 +54,6 @@ internal static class LookupMotherBrainBackgroundVerification
     }
 
     /// <summary>Checks that every mural cell collides as the cartridge's does: slopes on the border rows, air between.</summary>
-    internal static void VerifyMotherBrainBackgroundCollision(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyMotherBrainBackgroundCollision(CartridgeImportAddressSpace rom) =>
         AssertLayoutsAsNative(rom, RoomObjectMotherBrainFakeDeathVisualFiles.Family, Rows, collision: true);
 }

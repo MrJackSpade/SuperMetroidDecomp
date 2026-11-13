@@ -128,7 +128,7 @@ internal static class LookupStream5Verification
     }
 
     /// <summary>Compares Ceres rumble and falling debris emissions with the native room routine.</summary>
-    internal static void VerifyLookupStream5CeresRumble(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5CeresRumble(CartridgeImportAddressSpace rom)
     {
         AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes("Super Metroid.smc"))), "Rumble native revision");
@@ -176,7 +176,7 @@ internal static class LookupStream5Verification
         Console.WriteLine("Ceres rumble: eight native words, bounds, 98 actual calls, 20 emitted native positions/order/animations, wrap and expiry pass.");
     }
     /// <summary>Checks Phantoon's rain-phase wait against the cartridge countdown.</summary>
-    internal static void VerifyLookupStream5PhantoonRainWait(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5PhantoonRainWait(CartridgeImportAddressSpace rom)
     {
         int totalTicks = 0;
         const int nextPattern = 3;
@@ -236,7 +236,7 @@ internal static class LookupStream5Verification
         Console.WriteLine("Phantoon rain wait:30/60/120 holds,210actual countdown calls,fade-gated selection/exact expiry RNG-placement and24real rain spawns pass.");
     }
     /// <summary>Checks the closed-eye countdown and its actual expiry producer while casual-flame hold remains valid.</summary>
-    internal static void VerifyLookupStream5PhantoonClosedEye(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5PhantoonClosedEye(CartridgeImportAddressSpace rom)
     {
         int totalTicks = 0;
         foreach (int bucket in new[] { 1, 2, 0 })
@@ -295,7 +295,7 @@ internal static class LookupStream5Verification
     /// Compares the Ceres platform's strips against retail words (#1467): the platform actor draws the light or dark strip's
     /// picture by its phase, and the import pictures each strip from exactly the cartridge's four cells.
     /// </summary>
-    internal static void VerifyLookupStream5CeresPlatform(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5CeresPlatform(CartridgeImportAddressSpace rom)
     {
         var document = new CeresDoorVisualDocument
         {
@@ -345,7 +345,7 @@ internal static class LookupStream5Verification
         static ushort Pack(PaletteRgb5 color) => (ushort)(color.Red | color.Green<<5 | color.Blue<<10);
     }
     /// <summary>Checks Phantoon's exposed-body phase and related authored visual state.</summary>
-    internal static void VerifyLookupStream5PhantoonExposure(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5PhantoonExposure(CartridgeImportAddressSpace rom)
     {
         int ticks = 0;
         foreach (int bucket in new[] { 2, 1, 0 })
@@ -401,7 +401,7 @@ internal static class LookupStream5Verification
         Console.WriteLine("Phantoon exposure: three native window lengths,210 actual countdown calls, exact collision/shot/close transitions and separate swoop hold pass.");
     }
     /// <summary>Compares Ceres overlay tile words and their installed draw order with retail data.</summary>
-    internal static void VerifyLookupStream5CeresOverlayWords(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5CeresOverlayWords(CartridgeImportAddressSpace rom)
     {
         byte[] json = SuperMetroid.AssetExtraction.Areas.Ceres.CeresEscapeOverlayTilemapFiles.Extract(rom);
         var document = RequiredJson.Deserialize<CeresEscapeOverlayTilemapDocument>(json, new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web));
@@ -457,7 +457,7 @@ internal static class LookupStream5Verification
         }
     }
     /// <summary>Checks Crocomire wall and spike palette transfers where their CGRAM destinations overlap.</summary>
-    internal static void VerifyLookupStream5CrocomireSharedPaint(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5CrocomireSharedPaint(CartridgeImportAddressSpace rom)
     {
         int[] sources = [CrocomireSourceDefinitions.FightBodyColors, CrocomireSourceDefinitions.InitialWallColors,
             CrocomireSourceDefinitions.InitialProjectileColors, CrocomireSourceDefinitions.SkeletonArmColors, CrocomireSourceDefinitions.WallSpikesColors];
@@ -551,7 +551,7 @@ internal static class LookupStream5Verification
         static Position16<PlanePixels> CornerOfWord(int word) => SuperMetroid.Core.Rooms.Backgrounds.TwoScreenTilemapCells.CornerAt(word);
     }
     /// <summary>Checks authored area-map landmark tiles and their native reveal cases.</summary>
-    internal static void VerifyLookupStream5MapLandmarkCases(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5MapLandmarkCases(CartridgeImportAddressSpace rom)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.Frontend.Map.MapLandmarkExtractor.Extract(rom);
         MapLandmarkPositions layout = MapLandmarkFile.Read(new MemoryStream(extracted));
@@ -657,7 +657,7 @@ internal static class LookupStream5Verification
         Console.WriteLine("Map landmark cases: eight native boss slots, seventeen destinations, extraction/schema, 23 ordered IDs, bounds and 28 stock ordered OAM/state cases pass.");
     }
     /// <summary>Checks Phantoon's vulnerable collision state against its native phase data.</summary>
-    internal static void VerifyLookupStream5PhantoonCollision(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5PhantoonCollision(CartridgeImportAddressSpace rom)
     {
         int componentCount = 0;
         var lists = new HashSet<ushort>();
@@ -708,7 +708,7 @@ internal static class LookupStream5Verification
         Console.WriteLine("Phantoon collision: 22 native frames, 25 components, all seven rectangles/callbacks, actual full-body/eye selection and bounds pass.");
     }
     /// <summary>Compares Phantoon fade color rows and transition timing with cartridge palettes.</summary>
-    internal static void VerifyLookupStream5PhantoonFade(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5PhantoonFade(CartridgeImportAddressSpace rom)
     {
         byte[] bytes = SuperMetroid.AssetExtraction.Bosses.PhantoonColorExtractor.Extract(rom);
         PhantoonColorDocument document = RequiredJson.Deserialize<PhantoonColorDocument>(bytes,
@@ -762,7 +762,7 @@ internal static class LookupStream5Verification
         }
     }
     /// <summary>Checks map screen button prompts and tile choices against retail definitions.</summary>
-    internal static void VerifyLookupStream5MapButtons(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5MapButtons(CartridgeImportAddressSpace rom)
     {
         var native = new ControllerButton[4];
         for (int i = 0; i < native.Length; i++)
@@ -813,7 +813,7 @@ internal static class LookupStream5Verification
     }
 
     /// <summary>Compares Zebes starfield sprite positions and attributes with the native OAM composition.</summary>
-    internal static void VerifyLookupStream5ZebesStarFields(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5ZebesStarFields(CartridgeImportAddressSpace rom)
     {
         var frames = new Dictionary<string, SpriteVisualPart[]>();
         foreach (var definition in CeresDestructionSpriteFrameDefinitions.Frames)
@@ -872,7 +872,7 @@ internal static class LookupStream5Verification
         }
     }
     /// <summary>Checks Tourian statue palette ramps and their CGRAM destinations against native colors.</summary>
-    internal static void VerifyLookupStream5StatueRamps(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5StatueRamps(CartridgeImportAddressSpace rom)
     {
         byte[] nativeJson = SuperMetroid.AssetExtraction.TourianStatueColorExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<TourianStatueColorDocument>(nativeJson,
@@ -920,7 +920,7 @@ internal static class LookupStream5Verification
     }
 
     /// <summary>Compares Phantoon marker addresses and visual selectors with cartridge data.</summary>
-    internal static void VerifyLookupStream5PhantoonMarkers(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5PhantoonMarkers(CartridgeImportAddressSpace rom)
     {
         AssertEqual(SuperMetroid.AssetExtraction.Cartridge.SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes("Super Metroid.smc"))), "Marker reference ROM revision");
@@ -956,7 +956,7 @@ internal static class LookupStream5Verification
     }
 
     /// <summary>Checks Magdollite's palette pulse frames and the eight-frame update cadence.</summary>
-    internal static void VerifyLookupStream5MagdollitePulse(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5MagdollitePulse(CartridgeImportAddressSpace rom)
     {
         byte[] json = SuperMetroid.AssetExtraction.Enemies.MagdollitePaletteCycleExtractor.Extract(rom);
         var native = RequiredJson.Deserialize<MagdollitePaletteCycleDocument>(json,
@@ -986,7 +986,7 @@ internal static class LookupStream5Verification
         }
     }
     /// <summary>Checks Zebetite color pulses against the installed frame sequence and CGRAM positions.</summary>
-    internal static void VerifyLookupStream5ZebetitePulse(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5ZebetitePulse(CartridgeImportAddressSpace rom)
     {
         byte[] json = SuperMetroid.AssetExtraction.Bosses.MotherBrain.ZebetiteColorExtractor.Extract(rom);
         var native = RequiredJson.Deserialize<ZebetiteColorDocument>(json,
@@ -1015,7 +1015,7 @@ internal static class LookupStream5Verification
     }
 
     /// <summary>Compares Yapping Maw's animation offsets with native address and displacement tables.</summary>
-    internal static void VerifyLookupStream5YappingMawOffsets(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5YappingMawOffsets(CartridgeImportAddressSpace rom)
     {
         Action<RoomEnemySlot,YappingMawEnemyState> begin = YappingMawBehavior.BeginYappingMawExtension;
         Action<YappingMawEnemyState,int> set = YappingMawBehavior.SetYappingMawHeldOffset;
@@ -1050,7 +1050,7 @@ internal static class LookupStream5Verification
     }
 
     /// <summary>Checks eye-door geometry and active hitbox dimensions against retail records.</summary>
-    internal static void VerifyLookupStream5EyeGeometry(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5EyeGeometry(CartridgeImportAddressSpace rom)
     {
         for (int direction = 0; direction < 4; direction++)
         {
@@ -1106,7 +1106,7 @@ internal static class LookupStream5Verification
     }
 
     /// <summary>Checks the map highlight cycle's holds and highlight colours against the cartridge's.</summary>
-    internal static void VerifyLookupStream5MapHighlight(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5MapHighlight(CartridgeImportAddressSpace rom)
     {
         var frames = Enumerable.Range(0, 14).Select(frame => new MapPaletteCycleFrame
         {
@@ -1157,7 +1157,7 @@ internal static class LookupStream5Verification
     }
 
     /// <summary>Compares the Sidehopper corpse's native staging copies with the staging oracle's, over installed artwork.</summary>
-    internal static void VerifyLookupStream5SidehopperGeometry(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5SidehopperGeometry(CartridgeImportAddressSpace rom)
     {
         ushort Word(int address) => ReadVerificationWord(rom, address);
         foreach (ushort variant in new ushort[] { 0, 2, ushort.MaxValue })
@@ -1199,7 +1199,7 @@ internal static class LookupStream5Verification
         Enumerable.Range(0, count).Select(offset => rom.ReadCartridgeByte(address + offset)).ToArray();
 
     /// <summary>Builds a corpse-art fixture with cartridge Sidehopper palette and tile bytes.</summary>
-    internal static EnemyTileSourceArtwork LookupStream5CorpseFixtureArtwork(SuperMetroidAddressSpace rom)
+    internal static EnemyTileSourceArtwork LookupStream5CorpseFixtureArtwork(CartridgeImportAddressSpace rom)
     {
         byte[] planar = Enumerable.Range(0,CorpseSheets.DeadMonsterSheetByteCount)
             .Select(index => rom.ReadCartridgeByte(SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileDataSource(rom, CorpseSheets.DeadMonsterSheet)+index)).ToArray();
@@ -1220,7 +1220,7 @@ internal static class LookupStream5Verification
     }
 
     /// <summary>Checks Phantoon rain sprites and their room-state timing against retail sources.</summary>
-    internal static void VerifyLookupStream5PhantoonRain(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5PhantoonRain(CartridgeImportAddressSpace rom)
     {
         for (int i = 0; i < 8; i++)
         {
@@ -1299,7 +1299,7 @@ internal static class LookupStream5Verification
     }
 
     /// <summary>Checks Ceres door alarm ramp colors and their physical CGRAM slots.</summary>
-    internal static void VerifyLookupStream5CeresDoorRamp(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5CeresDoorRamp(CartridgeImportAddressSpace rom)
     {
         var document = new CeresDoorVisualDocument
         {
@@ -1563,7 +1563,7 @@ internal static class LookupStream5Verification
     }
 
     /// <summary>Checks the Ceres door quake's offsets against the authored ROM words.</summary>
-    internal static void VerifyLookupStream5DoorQuakeDecoding(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5DoorQuakeDecoding(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyCeresDoorQuakeDefinitions), () => VerifyCeresDoorQuakeDefinitions(rom));
         byte[] stockJson = SuperMetroid.AssetExtraction.Enemies.EnemySpritemapFiles.Extract(rom);
@@ -1601,7 +1601,7 @@ internal static class LookupStream5Verification
     }
 
     /// <summary>Checks the Ceres flight scene's transferred colors and CGRAM destinations.</summary>
-    internal static void VerifyLookupStream5CeresFlightPalette(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5CeresFlightPalette(CartridgeImportAddressSpace rom)
     {
         var colors = new PaletteRgb5[SnesCgram.ColorCount];
         for (int index = 0; index < colors.Length; index++)
@@ -1658,7 +1658,7 @@ internal static class LookupStream5Verification
     }
 
     /// <summary>Checks Ceres normal room paint against native colors in their actual CGRAM positions.</summary>
-    internal static void VerifyLookupStream5CeresNormalPaint(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5CeresNormalPaint(CartridgeImportAddressSpace rom)
     {
         PaletteRgb5[] Colors(int source, int count) => Enumerable.Range(0, count).Select(i =>
         {
@@ -1702,7 +1702,7 @@ internal static class LookupStream5Verification
     }
 
     /// <summary>Checks Ceres escape paint's highlights, edges and outlines after palette composition.</summary>
-    internal static void VerifyLookupStream5CeresEscapePaint(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5CeresEscapePaint(CartridgeImportAddressSpace rom)
     {
         PaletteRgb5[] Colors(int source, int count) => Enumerable.Range(0, count).Select(i =>
         {
@@ -1746,7 +1746,7 @@ internal static class LookupStream5Verification
     }
 
     /// <summary>Checks Ceres beacon light colors against the native palette ramp.</summary>
-    internal static void VerifyLookupStream5CeresBeaconPaint(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5CeresBeaconPaint(CartridgeImportAddressSpace rom)
     {
         PaletteRgb5[] Colors(int source, int count) => Enumerable.Range(0, count).Select(i =>
         {

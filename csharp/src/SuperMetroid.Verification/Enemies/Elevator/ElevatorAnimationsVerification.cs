@@ -11,7 +11,7 @@ namespace SuperMetroid.Verification.Enemies.Elevator;
 internal static class ElevatorAnimationsVerification
 {
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
-    internal static void VerifyElevatorAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyElevatorAnimations(CartridgeImportAddressSpace rom)
     {
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             ElevatorAnimations.Segments, ElevatorAnimations.StartingAt, ElevatorFrameToolingDefinitions.Spritemap,

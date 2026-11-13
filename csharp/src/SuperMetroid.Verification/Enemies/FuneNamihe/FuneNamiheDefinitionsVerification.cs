@@ -12,7 +12,7 @@ namespace SuperMetroid.Verification.Enemies.FuneNamihe;
 internal static class FuneNamiheDefinitionsVerification
 {
     /// <summary>Checks all species/facing/activity selectors while forbidding migrated selector reads in production.</summary>
-    internal static void VerifyFuneNamiheDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyFuneNamiheDefinitions(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyFuneNamiheProgramSelection), () => VerifyFuneNamiheProgramSelection(rom));
         for (int variant = 0; variant < 4; variant++)
@@ -50,7 +50,7 @@ internal static class FuneNamiheDefinitionsVerification
     /// For each of the eight native selector entries, the production selection for that entry's species, activity and
     /// facing names the program the native pointer lists; the selector decode rejects adjacent or wrapped cursors.
     /// </summary>
-    private static void VerifyFuneNamiheProgramSelection(SuperMetroidAddressSpace rom)
+    private static void VerifyFuneNamiheProgramSelection(CartridgeImportAddressSpace rom)
     {
         ushort[] cursors = [0x96d3, 0x96d5, 0x96d7, 0x96d9, 0x96db, 0x96dd, 0x96df, 0x96e1];
         foreach (ushort cursor in cursors)

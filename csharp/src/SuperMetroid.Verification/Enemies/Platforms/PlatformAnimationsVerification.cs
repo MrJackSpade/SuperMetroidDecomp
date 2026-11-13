@@ -10,7 +10,7 @@ namespace SuperMetroid.Verification.Enemies.Platforms;
 internal static class PlatformAnimationsVerification
 {
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
-    internal static void VerifyPlatformAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyPlatformAnimations(CartridgeImportAddressSpace rom)
     {
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             PlatformAnimations.Segments, PlatformAnimations.StartingAt, PlatformFrameToolingDefinitions.Spritemap,

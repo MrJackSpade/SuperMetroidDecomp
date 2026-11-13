@@ -25,7 +25,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 internal static class DownwardGateObjectsVerification
 {
     /// <summary>Compares native selection tables, then proves every production setup row works without reading those source tables.</summary>
-    internal static void VerifyDownwardGateShotBlockDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyDownwardGateShotBlockDefinitions(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyDownwardGateListSelection), () => VerifyDownwardGateListSelection(rom));
         Suite(nameof(VerifyDownwardGateLeftSelection), () => VerifyDownwardGateLeftSelection(rom));

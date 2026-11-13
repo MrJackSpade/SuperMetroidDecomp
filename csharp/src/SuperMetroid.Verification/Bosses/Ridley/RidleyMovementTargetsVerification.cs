@@ -15,7 +15,7 @@ using SuperMetroid.Core.World;
 internal static class RidleyMovementTargetsVerification
 {
     /// <summary>Compares 23 native words and exact carry, pogo, side, release, and grab acceleration.</summary>
-    internal static void VerifyRidleyMovementTargets(SuperMetroidAddressSpace rom)
+    internal static void VerifyRidleyMovementTargets(CartridgeImportAddressSpace rom)
     {
         ushort[] Facings(int address, Func<RidleyFacing, int> compiled)
         {

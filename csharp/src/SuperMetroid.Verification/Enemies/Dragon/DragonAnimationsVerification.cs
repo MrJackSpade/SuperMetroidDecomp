@@ -10,7 +10,7 @@ namespace SuperMetroid.Verification.Enemies.Dragon;
 internal static class DragonAnimationsVerification
 {
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
-    internal static void VerifyDragonAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyDragonAnimations(CartridgeImportAddressSpace rom)
     {
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             DragonAnimations.Segments, DragonAnimations.StartingAt, DragonFrameToolingDefinitions.Spritemap,

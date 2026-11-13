@@ -12,7 +12,7 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
 {
     /// <summary>Compares eight five-word tuples with the cartridge and checks RNG-adjusted projectiles.</summary>
     internal static void VerifyTorizoRandomizedProjectileDefinitions(
-        SuperMetroidAddressSpace rom)
+        CartridgeImportAddressSpace rom)
     {
         TorizoRandomizedProjectileDefinitionsDefinition[] definitions =
         [

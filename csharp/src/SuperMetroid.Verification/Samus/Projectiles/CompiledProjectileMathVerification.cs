@@ -18,7 +18,7 @@ using SuperMetroid.Core.Spatial;
 internal static class CompiledProjectileMathVerification
 {
     /// <summary>Checks signed sine products, and native vector and arc arithmetic.</summary>
-    internal static void VerifyCompiledProjectileMath(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledProjectileMath(CartridgeImportAddressSpace rom)
     {
         var native = new short[320];
         for (int i = 0; i < native.Length; i++)

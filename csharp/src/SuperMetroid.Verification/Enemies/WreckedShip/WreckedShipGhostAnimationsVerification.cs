@@ -11,7 +11,7 @@ namespace SuperMetroid.Verification.Enemies.WreckedShip;
 internal static class WreckedShipGhostAnimationsVerification
 {
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
-    internal static void VerifyWreckedShipGhostAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyWreckedShipGhostAnimations(CartridgeImportAddressSpace rom)
     {
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             WreckedShipGhostAnimations.Segments, WreckedShipGhostAnimations.StartingAt, WreckedShipGhostFrameToolingDefinitions.Spritemap,

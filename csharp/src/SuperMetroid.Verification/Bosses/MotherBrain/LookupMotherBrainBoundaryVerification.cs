@@ -19,7 +19,7 @@ internal static class LookupMotherBrainBoundaryVerification
     /// that each shape covers exactly the cells its draw list writes. Which other draws are the room's is checked with the
     /// mural rows (<see cref="LookupMotherBrainBackgroundVerification.VerifyMotherBrainBackgroundGeometry"/>).
     /// </summary>
-    internal static void VerifyMotherBrainBoundaryGeometry(SuperMetroidAddressSpace rom)
+    internal static void VerifyMotherBrainBoundaryGeometry(CartridgeImportAddressSpace rom)
     {
         foreach (LookupEscapeGateStockFrame frame in Boundaries)
         {
@@ -31,6 +31,6 @@ internal static class LookupMotherBrainBoundaryVerification
     }
 
     /// <summary>Compares how every cell of both boundary records collides with the decoded native blocks.</summary>
-    internal static void VerifyMotherBrainBoundaryCollision(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyMotherBrainBoundaryCollision(CartridgeImportAddressSpace rom) =>
         AssertLayoutsAsNative(rom, RoomObjectMotherBrainFakeDeathVisualFiles.Family, Boundaries, collision: true);
 }

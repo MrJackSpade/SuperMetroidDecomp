@@ -7,7 +7,7 @@ namespace SuperMetroid.Verification.Enemies.Polyp;
 internal static class PolypLaunchDefinitionsVerification
 {
     /// <summary>Compares cooldown, initial Y index, and signed X velocity against their native bank-$A2 table selections.</summary>
-    internal static void VerifyCompiledPolypLaunchDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledPolypLaunchDefinitions(CartridgeImportAddressSpace rom)
     {
         for (int random = 0; random <= ushort.MaxValue; random++)
         {

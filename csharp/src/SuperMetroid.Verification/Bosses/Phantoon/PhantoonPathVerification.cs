@@ -10,7 +10,7 @@ namespace SuperMetroid.Verification.Bosses.Phantoon;
 internal static class PhantoonPathVerification
 {
     /// <summary>Checks all 534 path steps plus reverse, speed, cursor-wrap, and world-coordinate cases.</summary>
-    internal static void VerifyCompiledPhantoonPath(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledPhantoonPath(CartridgeImportAddressSpace rom)
     {
         for (int index = 0; index < 534; index++)
         {

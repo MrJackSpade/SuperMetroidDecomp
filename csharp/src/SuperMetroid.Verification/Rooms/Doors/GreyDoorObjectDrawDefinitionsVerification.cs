@@ -28,7 +28,7 @@ using SuperMetroid.Core.World;
 internal static class GreyDoorObjectDrawDefinitionsVerification
 {
     /// <summary>Checks native program words, five door lifecycles, physical draw ownership and installed visuals.</summary>
-    internal static void VerifyGreyDoorObjectDrawDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyGreyDoorObjectDrawDefinitions(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyGreyDoorProgramDefinitions), () => VerifyGreyDoorProgramDefinitions(rom));
         static ushort ReadWord(ISnesAddressSpace bus, int address) =>
@@ -233,12 +233,12 @@ internal static class GreyDoorObjectDrawDefinitionsVerification
     }
 
     /// <summary>Compares every grey cap's typed programs, Bomb Torizo's included, with their bank-$84 lists.</summary>
-    private static void VerifyGreyDoorProgramDefinitions(SuperMetroidAddressSpace rom) =>
+    private static void VerifyGreyDoorProgramDefinitions(CartridgeImportAddressSpace rom) =>
         Suite(nameof(RoomObjectProgramsVerification.VerifyGreyDoorPrograms), () => RoomObjectProgramsVerification.VerifyGreyDoorPrograms(rom));
 
 
     /// <summary>Checks the extracted stock visuals and that a malformed installed visual file fails loudly where it is read.</summary>
-    private static void VerifyGreyDoorVisualInstallation(SuperMetroidAddressSpace rom)
+    private static void VerifyGreyDoorVisualInstallation(CartridgeImportAddressSpace rom)
     {
         using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomObjectGreyDoorVisualDirectory);
         GameInstallation installation = copy.Installation;

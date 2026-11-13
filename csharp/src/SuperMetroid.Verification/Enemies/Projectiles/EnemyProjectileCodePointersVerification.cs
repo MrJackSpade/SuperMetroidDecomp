@@ -31,7 +31,7 @@ internal static class EnemyProjectileCodePointersVerification
             .Count(), "enemy projectile callback addresses are unique");
 
         string romPath = Path.GetFullPath("Super Metroid.smc");
-        SuperMetroidAddressSpace? bus = File.Exists(romPath)
+        CartridgeImportAddressSpace? bus = File.Exists(romPath)
             ? SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath)
             : null;
         foreach ((string name, ushort pointer) in callbacks)

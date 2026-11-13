@@ -31,7 +31,6 @@ internal static class EnemySpriteArtworkBoundaryVerification
     internal static void VerifyEnemySpriteArtworkBoundary(string sourceRom)
     {
         var source = CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
-        var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
         ImportEnemyArtwork artwork = InstalledFixtures.EnemyArtwork;
         EnemyProjectileSpritemapCatalog projectileArtwork = (artwork.Enemies.ProjectileSpritemaps ?? throw new InvalidOperationException("Verification requires artwork.ProjectileSpritemaps."));
         int enemyCases = 0, projectileCases = 0;

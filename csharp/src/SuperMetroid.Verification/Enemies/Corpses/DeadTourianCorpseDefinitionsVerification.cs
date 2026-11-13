@@ -38,7 +38,7 @@ internal static class DeadTourianCorpseDefinitionsVerification
         CartridgeImportSource.Require(rom).ReadCartridgeWord(Families.Single(family => family.Species == species).ConfigurationTable + variantIndex * 2);
 
     /// <summary>Compares eight variant selectors and configurations and exercises their production initializers.</summary>
-    internal static void VerifyDeadTourianCorpseDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyDeadTourianCorpseDefinitions(CartridgeImportAddressSpace rom)
     {
         foreach (var family in Families)
         {
@@ -74,7 +74,7 @@ internal static class DeadTourianCorpseDefinitionsVerification
     /// schedule in one shared heap, but the ten records of the dead monsters, which the Shitroid room holds together, place
     /// their schedules in pairwise disjoint heap bytes, so no corpse's rot reaches another's.
     /// </summary>
-    private static void VerifyCoexistingDeadMonsterSchedulesShareNoHeapBytes(SuperMetroidAddressSpace rom)
+    private static void VerifyCoexistingDeadMonsterSchedulesShareNoHeapBytes(CartridgeImportAddressSpace rom)
     {
         var schedules = new List<CorpseRottingConfiguration>
         {
@@ -102,7 +102,7 @@ internal static class DeadTourianCorpseDefinitionsVerification
     /// upload list it names, the corpse's height and its wrap.
     /// </summary>
     private static void VerifyDeadTourianCorpseConfiguration(
-        SuperMetroidAddressSpace rom,
+        CartridgeImportAddressSpace rom,
         DeadTourianCorpseSpecies species,
         int variantIndex,
         DeadTourianCorpseDefinition definition)
@@ -115,7 +115,7 @@ internal static class DeadTourianCorpseDefinitionsVerification
 
     /// <summary>Checks one corpse initializer's installed instruction, rot table, callbacks, and row limits.</summary>
     private static void VerifyDeadTourianCorpseProductionInitialization(
-        SuperMetroidAddressSpace rom,
+        CartridgeImportAddressSpace rom,
         DeadTourianCorpseSpecies species,
         EnemyDefinitionId enemyDefinition,
         int variantIndex,

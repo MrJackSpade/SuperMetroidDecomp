@@ -24,7 +24,7 @@ internal static class IntroEggEffectSpriteArtworkVerification
 {
     /// <summary>Compares stock frames at visible and wrapped origins, then
     /// checks live particles draw the installed art without rereading cartridge maps.</summary>
-    internal static void VerifyIntroEggEffectSpriteArtwork(SuperMetroidAddressSpace bus,
+    internal static void VerifyIntroEggEffectSpriteArtwork(CartridgeImportAddressSpace bus,
         ImportIntroCinematicArtwork stock)
     {
         const ushort x = 120;

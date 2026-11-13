@@ -14,7 +14,7 @@ internal static class NinjaSpacePirateAnimationsVerification
     private const int NinjaStanceRow = 1;
 
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
-    internal static void VerifyNinjaSpacePirateAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyNinjaSpacePirateAnimations(CartridgeImportAddressSpace rom)
     {
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             NinjaSpacePirateAnimations.Segments, NinjaSpacePirateAnimations.StartingAt, NinjaSpacePirateFrameToolingDefinitions.Spritemap,

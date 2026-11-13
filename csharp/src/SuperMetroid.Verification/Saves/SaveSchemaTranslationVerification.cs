@@ -29,7 +29,6 @@ internal static class SaveSchemaTranslationVerification
     internal static void VerifySaveSchemaTranslation()
     {
         // Isolated arrays only; no player save file is read or changed.
-        var bus = SuperMetroidAddressSpace.CreateWithoutCartridge();
         var ram = new SaveSlotStore(RetailPresentationFixture());
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
         {
@@ -58,7 +57,6 @@ internal static class SaveSchemaTranslationVerification
             json.Contains("\"reserveMissiles\": 27", StringComparison.Ordinal) &&
             json.Contains("\"loadedItemCount\": 65535", StringComparison.Ordinal) &&
             json.Contains("\"japaneseText\": true", StringComparison.Ordinal), "schema two contains named missing state and no SRAM blob");
-        var target = SuperMetroidAddressSpace.CreateWithoutCartridge();
         SaveSlotStore targetSaves = GameSaveJsonCodec.ToStore(GameSaveJsonCodec.Deserialize(json), RetailPresentationFixture());
         AssertSameBytes(SaveRamCodec.Encode(targetSaves, RetailPresentationFixture()), SaveRamCodec.Encode(ram, RetailPresentationFixture()),
             "named schema rebuilds the canonical SRAM image");

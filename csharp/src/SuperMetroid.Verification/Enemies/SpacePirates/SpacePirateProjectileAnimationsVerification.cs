@@ -7,7 +7,7 @@ namespace SuperMetroid.Verification.Enemies.SpacePirates;
 internal static class SpacePirateProjectileAnimationsVerification
 {
     /// <summary>Every program matches its native list.</summary>
-    internal static void VerifySpacePirateProjectileAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifySpacePirateProjectileAnimations(CartridgeImportAddressSpace rom)
     {
         int steps = Family.CompareAll(CartridgeImportSource.Require(rom));
         Console.WriteLine($"  Pirate laser and claw programs: {Entries.Length} programs ({steps} steps) match bank $86.");

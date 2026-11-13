@@ -10,7 +10,7 @@ namespace SuperMetroid.Verification.Enemies.FuneNamihe;
 internal static class FuneNamiheAnimationsVerification
 {
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
-    internal static void VerifyFuneNamiheAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyFuneNamiheAnimations(CartridgeImportAddressSpace rom)
     {
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             FuneNamiheAnimations.Segments, FuneNamiheAnimations.StartingAt, FuneNamiheFrameToolingDefinitions.Spritemap,

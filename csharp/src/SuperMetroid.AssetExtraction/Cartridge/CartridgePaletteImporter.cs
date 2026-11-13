@@ -5,14 +5,14 @@ using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.AssetExtraction.Cartridge;
 
 /// <summary>
-/// Resolves cartridge-backed palette DMA while importing assets. Runtime CGRAM only
-/// accepts mutable memory sources; ROM colors must become installed asset bytes first.
+/// Resolves cartridge-backed palette DMA while importing assets. ROM colors become installed asset bytes; the import
+/// maps no work RAM, so a palette transfer whose source reaches work RAM is rejected (#1688).
 /// </summary>
 public static class CartridgePaletteImporter
 {
-    /// <summary>Copies native little-endian color words from a cartridge, WRAM, or SRAM DMA source into a bounded CGRAM range during asset import.</summary>
+    /// <summary>Copies native little-endian color words from a cartridge DMA source into a bounded CGRAM range during asset import.</summary>
     /// <param name="destination">Mutable CGRAM receiving decoded BGR555 words.</param>
-    /// <param name="bus">Import address space; WRAM or SRAM sources additionally require mutable-memory access.</param>
+    /// <param name="bus">Import address space supplying the cartridge bytes.</param>
     /// <param name="sourceAddress">Initial SNES bus address, advanced within its bank for each source byte.</param>
     /// <param name="colorCount">Number of consecutive color words to copy.</param>
     /// <param name="destinationIndex">First zero-based CGRAM color slot to replace.</param>
@@ -32,8 +32,8 @@ public static class CartridgePaletteImporter
         byte ReadImportSource(SnesAddress address) => SnesDmaSourceMap.Classify(address) switch
         {
             SnesDmaSourceKind.Cartridge => CartridgeImportSource.Require(bus).ReadCartridgeByte((int)address),
-            SnesDmaSourceKind.WorkRam => (bus as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Import palette transfer requires WRAM.")).ReadWorkRamByte((int)address),
+            SnesDmaSourceKind.WorkRam => throw new InvalidOperationException(
+                $"Import palette source {address} is work RAM, which the import does not map."),
             SnesDmaSourceKind.Unmapped => throw new InvalidOperationException($"Import palette source {address} is unmapped."),
             _ => throw new InvalidOperationException($"Import palette source {address} is unmapped."),
         };

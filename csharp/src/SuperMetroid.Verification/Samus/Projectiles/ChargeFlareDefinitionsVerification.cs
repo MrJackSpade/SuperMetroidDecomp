@@ -13,7 +13,7 @@ namespace SuperMetroid.Verification.Samus.Projectiles;
 internal static class ChargeFlareDefinitionsVerification
 {
     /// <summary>Compares every compiled byte, rejects adjacent addresses, and checks repeated loop and timer-boundary transitions for all three flare components.</summary>
-    internal static void VerifyChargeFlareDefinitions(SuperMetroidAddressSpace bus)
+    internal static void VerifyChargeFlareDefinitions(CartridgeImportAddressSpace bus)
     {
         for (int address = SamusSourceDefinitions.ChargeFlarePrograms.Value; address < 0x90c4b5; address++)
         {

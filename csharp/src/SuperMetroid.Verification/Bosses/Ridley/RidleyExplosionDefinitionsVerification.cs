@@ -17,7 +17,7 @@ internal static class RidleyExplosionDefinitionsVerification
         [0xa6c710, 0xa6c728, 0xa6c740, 0xa6c758, 0xa6c770, 0xa6c788];
 
     /// <summary>Compares spawn order, fragment lifetimes and lists, and death scatter with cartridge data.</summary>
-    internal static void VerifyRidleyExplosionDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyRidleyExplosionDefinitions(CartridgeImportAddressSpace rom)
     {
 
         ReadOnlySpan<ushort> spawnPointerOperands =
@@ -132,7 +132,7 @@ internal static class RidleyExplosionDefinitionsVerification
 
     /// <summary>Checks all ten cyclic death-effect positions, timer reloads, and emitted actors.</summary>
     private static void VerifyRidleyDeathExplosionProductionSpawns(
-        SuperMetroidAddressSpace rom)
+        CartridgeImportAddressSpace rom)
     {
         for (int selectedIndex = 0; selectedIndex < 10; selectedIndex++)
         {
@@ -169,7 +169,7 @@ internal static class RidleyExplosionDefinitionsVerification
 
     /// <summary>Checks fragment initialization across tail orientations and body facings.</summary>
     private static void VerifyRidleyExplosionProductionInitializer(
-        SuperMetroidAddressSpace rom)
+        CartridgeImportAddressSpace rom)
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => 0x8130;

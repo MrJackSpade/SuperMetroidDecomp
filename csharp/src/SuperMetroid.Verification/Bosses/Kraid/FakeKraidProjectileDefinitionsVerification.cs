@@ -14,7 +14,7 @@ namespace SuperMetroid.Verification.Bosses.Kraid;
 internal static class FakeKraidProjectileDefinitionsVerification
 {
     /// <summary>Compares native velocities and rows, then checks both spit facings and spike spawns without source reads.</summary>
-    internal static void VerifyFakeKraidProjectileDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyFakeKraidProjectileDefinitions(CartridgeImportAddressSpace rom)
     {
 
         Suite(nameof(VerifyFakeKraidSpitHorizontalVelocity), () => VerifyFakeKraidSpitHorizontalVelocity(rom));

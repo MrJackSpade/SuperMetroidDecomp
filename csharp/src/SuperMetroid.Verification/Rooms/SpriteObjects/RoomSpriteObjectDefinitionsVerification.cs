@@ -18,7 +18,7 @@ internal static class RoomSpriteObjectDefinitionsVerification
     /// list ends or holds; a held list shows its frame for good, which the object's hold reproduces without the native
     /// list's countdown reload.
     /// </summary>
-    internal static void VerifyRoomSpriteObjectDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyRoomSpriteObjectDefinitions(CartridgeImportAddressSpace rom)
     {
         int kinds = 0, updates = 0;
         foreach (RoomSpriteObjectKind kind in Enum.GetValues<RoomSpriteObjectKind>().Distinct())

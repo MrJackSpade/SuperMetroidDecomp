@@ -16,7 +16,7 @@ using SuperMetroid.Core.World;
 internal static class ElevatorInputDefinitionsVerification
 {
     /// <summary>Confirms both direction offsets and departure paths while forbidding migrated mask reads at runtime.</summary>
-    internal static void VerifyElevatorInputDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyElevatorInputDefinitions(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyElevatorDirectionInputMapping), () => VerifyElevatorDirectionInputMapping(rom));
         var bodyArtwork = InstalledFixtures.SamusBody;
@@ -66,7 +66,7 @@ internal static class ElevatorInputDefinitionsVerification
     }
 
     /// <summary>Checks both directions' inputs against the two-entry mask table at $A3:94E2.</summary>
-    private static void VerifyElevatorDirectionInputMapping(SuperMetroidAddressSpace rom)
+    private static void VerifyElevatorDirectionInputMapping(CartridgeImportAddressSpace rom)
     {
         ElevatorTravelDirection[] tableOrder = [ElevatorTravelDirection.Down, ElevatorTravelDirection.Up];
         for (int entry = 0; entry < tableOrder.Length; entry++)

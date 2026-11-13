@@ -12,12 +12,12 @@ namespace SuperMetroid.Verification.Areas.Escape;
 internal static class LookupEscapeGateVerification
 {
     /// <summary>Checks escape-gate control opcodes and operands over the complete program domain.</summary>
-    internal static void VerifyEscapeGateProgramControls(SuperMetroidAddressSpace rom) => VerifyEscapeGateProgramField(rom, false);
+    internal static void VerifyEscapeGateProgramControls(CartridgeImportAddressSpace rom) => VerifyEscapeGateProgramField(rom, false);
     /// <summary>Checks escape-gate draw operands over the complete program domain.</summary>
-    internal static void VerifyEscapeGateProgramDraws(SuperMetroidAddressSpace rom) => VerifyEscapeGateProgramField(rom, true);
+    internal static void VerifyEscapeGateProgramDraws(CartridgeImportAddressSpace rom) => VerifyEscapeGateProgramField(rom, true);
 
     /// <summary>Compares control or draw bytes and overlapping words with bank-$84 instructions.</summary>
-    private static void VerifyEscapeGateProgramField(SuperMetroidAddressSpace rom, bool draw)
+    private static void VerifyEscapeGateProgramField(CartridgeImportAddressSpace rom, bool draw)
     {
         ushort[] controls = [0xbb34,0xbb38,0xbb3a,0xbb3e,0xbb42,0xbb44,0xbb48,0xbb4c,0xbb50];
         ushort[] draws = [0xbb36,0xbb3c,0xbb40,0xbb46,0xbb4a,0xbb4e];
@@ -57,7 +57,7 @@ internal static class LookupEscapeGateVerification
     /// Checks which draws are the gate's, each frame's one vertical run against the cartridge, and that each frame's shape
     /// covers exactly the four cells its draw list writes.
     /// </summary>
-    internal static void VerifyEscapeGateDrawGeometry(SuperMetroidAddressSpace rom)
+    internal static void VerifyEscapeGateDrawGeometry(CartridgeImportAddressSpace rom)
     {
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
@@ -80,6 +80,6 @@ internal static class LookupEscapeGateVerification
     }
 
     /// <summary>Checks that every cell of every gate frame collides as the cartridge's does.</summary>
-    internal static void VerifyEscapeGateDrawCollision(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyEscapeGateDrawCollision(CartridgeImportAddressSpace rom) =>
         AssertLayoutsAsNative(rom, RoomObjectEscapeGateVisualFiles.Family, Frames, collision: true);
 }

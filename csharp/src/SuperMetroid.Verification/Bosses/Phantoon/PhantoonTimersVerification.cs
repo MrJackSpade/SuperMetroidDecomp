@@ -12,7 +12,7 @@ internal static class PhantoonTimersVerification
 {
     /// <summary>Compares all twenty-four timer words, full-word RNG masking,
     /// first-round NMI selection, and RNG call counts without a runtime bus.</summary>
-    internal static void VerifyCompiledPhantoonTimers(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledPhantoonTimers(CartridgeImportAddressSpace rom)
     {
         for (int i = 0; i < 8; i++)
         {

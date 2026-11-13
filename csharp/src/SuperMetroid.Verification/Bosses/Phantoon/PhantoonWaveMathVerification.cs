@@ -19,7 +19,7 @@ internal static class PhantoonWaveMathVerification
     /// phase can hold, shows the even phase's angle below it; the cartridge's read straddling two samples there is a
     /// presentation quirk the description does not keep.
     /// </summary>
-    internal static void VerifyPhantoonWaveMath(SuperMetroidAddressSpace rom)
+    internal static void VerifyPhantoonWaveMath(CartridgeImportAddressSpace rom)
     {
         var samples = new short[512];
         for (int offset = 0; offset < samples.Length; offset += 2)

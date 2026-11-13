@@ -10,7 +10,7 @@ namespace SuperMetroid.Verification.Enemies.Magdollite;
 internal static class MagdollitePhaseDefinitionsVerification
 {
     /// <summary>Compares 27 native words and the live head, body, and overlay consumers.</summary>
-    internal static void VerifyMagdollitePhaseDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyMagdollitePhaseDefinitions(CartridgeImportAddressSpace rom)
     {
         const int thresholdTable = 0xa8af55;
         const int instructionTable = 0xa8af67;
@@ -119,7 +119,7 @@ internal static class MagdollitePhaseDefinitionsVerification
     }
 
     /// <summary>Reads one native threshold, instruction, or overlay word for the independent oracle.</summary>
-    internal static ushort ReadMagdolliteWord(SuperMetroidAddressSpace bus, int address) =>
+    internal static ushort ReadMagdolliteWord(CartridgeImportAddressSpace bus, int address) =>
         CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
 
 }

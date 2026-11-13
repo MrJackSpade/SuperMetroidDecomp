@@ -11,7 +11,7 @@ namespace SuperMetroid.Verification.Bosses.Ridley;
 internal static class RidleyDeathAccelerationVerification
 {
     /// <summary>Confirms index zero and boost sixteen from retail code, then checks both axes across 126 distance/velocity cases.</summary>
-    internal static void VerifyRidleyDeathAcceleration(SuperMetroidAddressSpace rom)
+    internal static void VerifyRidleyDeathAcceleration(CartridgeImportAddressSpace rom)
     {
         // $A6:C60E LDY #0, $C611 LDA #16: index and extra deceleration are
         // distinct native arguments, not an out-of-table index of sixteen.

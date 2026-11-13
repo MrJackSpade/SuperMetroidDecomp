@@ -15,7 +15,7 @@ namespace SuperMetroid.Verification.Samus;
 internal static class SamusImpulseDefinitionsVerification
 {
     /// <summary>Compares bomb launches and knockback transitions across liquid edges, equipment, pose, and direction with physics reads blocked.</summary>
-    internal static void VerifySamusImpulseDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifySamusImpulseDefinitions(CartridgeImportAddressSpace rom)
     {
         // Bomb jumps start in morph ball. Since #1258 the medium test samples the current pose's
         // native collision radius, so the liquid threshold is that pose's bottom edge.

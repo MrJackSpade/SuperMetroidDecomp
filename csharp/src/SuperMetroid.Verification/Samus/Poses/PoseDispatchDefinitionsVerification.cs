@@ -18,7 +18,7 @@ using SuperMetroid.Verification.Harness;
 internal static class PoseDispatchDefinitionsVerification
 {
     /// <summary>Compares all 256 pose records with the ROM while forbidding live pose-table reads.</summary>
-    internal static void VerifyPoseDispatchDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyPoseDispatchDefinitions(CartridgeImportAddressSpace rom)
     {
         var forbidden = NewSlopeHeightNoReadBus();
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());

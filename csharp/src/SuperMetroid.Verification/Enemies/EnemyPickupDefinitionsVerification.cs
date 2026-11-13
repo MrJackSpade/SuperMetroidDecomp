@@ -12,7 +12,7 @@ namespace SuperMetroid.Verification.Enemies;
 internal static class EnemyPickupDefinitionsVerification
 {
     /// <summary>Compares compiled pickup programs with bank-$86, then confirms production spawn timing, pre-instruction, lifetime, and contact behavior.</summary>
-    internal static void VerifyEnemyPickupDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyEnemyPickupDefinitions(CartridgeImportAddressSpace rom)
     {
         for (int index = 0; index < 6; index++)
         {

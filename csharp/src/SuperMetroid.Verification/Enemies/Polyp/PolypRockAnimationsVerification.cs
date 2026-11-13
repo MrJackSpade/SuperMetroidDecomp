@@ -11,7 +11,7 @@ namespace SuperMetroid.Verification.Enemies.Polyp;
 internal static class PolypRockAnimationsVerification
 {
     /// <summary>Every program matches its native list.</summary>
-    internal static void VerifyPolypRockAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyPolypRockAnimations(CartridgeImportAddressSpace rom)
     {
         int steps = Family.CompareAll(CartridgeImportSource.Require(rom));
         for (int pose = 0; pose < PolypRockFrameToolingDefinitions.PoseCount; pose++)

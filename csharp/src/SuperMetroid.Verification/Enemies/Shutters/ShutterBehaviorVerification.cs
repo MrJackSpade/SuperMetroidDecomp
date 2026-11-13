@@ -82,7 +82,7 @@ internal static class ShutterBehaviorVerification
     }
 
     /// <summary>Checks native vertical shutter function selection and invalid trigger-mode rejection.</summary>
-    internal static void VerifyVerticalShutterInitialFunctionSelection(SuperMetroidAddressSpace rom)
+    internal static void VerifyVerticalShutterInitialFunctionSelection(CartridgeImportAddressSpace rom)
     {
         Func<VerticalShutterEnemyState, VerticalShutterFunction> select = ShuttersBehavior.SelectInitialVerticalShutterFunction;
         var state = new VerticalShutterEnemyState()
@@ -103,7 +103,7 @@ internal static class ShutterBehaviorVerification
     }
 
     /// <summary>Checks horizontal shutter function installation and invalid trigger-mode rejection.</summary>
-    internal static void VerifyHorizontalShutterInitialFunctionSelection(SuperMetroidAddressSpace rom)
+    internal static void VerifyHorizontalShutterInitialFunctionSelection(CartridgeImportAddressSpace rom)
     {
         Action<HorizontalShutterEnemyState> select = ShuttersBehavior.SelectInitialHorizontalShutterFunction;
         var state = new HorizontalShutterEnemyState();
@@ -124,7 +124,7 @@ internal static class ShutterBehaviorVerification
     /// The five exported shutter compositions are the poses the growing, forty-pixel and horizontal programs show, and the
     /// native growing maps between them hold the sprite counts their calculated addresses assume.
     /// </summary>
-    internal static void VerifyShutterExportFrames(SuperMetroidAddressSpace rom)
+    internal static void VerifyShutterExportFrames(CartridgeImportAddressSpace rom)
     {
         ShutterProgram[] programs =
         [
@@ -146,7 +146,7 @@ internal static class ShutterBehaviorVerification
     }
 
     /// <summary>Reads a native bank-$A2 shutter word for the oracles above.</summary>
-    private static ushort ReadShutterWord(SuperMetroidAddressSpace bus, SnesAddress address) =>
+    private static ushort ReadShutterWord(CartridgeImportAddressSpace bus, SnesAddress address) =>
         CartridgeImportSource.Require(bus).ReadCartridgeWord(address.Value);
 
     /// <summary>
@@ -285,7 +285,7 @@ internal static class ShutterBehaviorVerification
     [VerificationCommand("--shutter-behavior")]
     internal static int ShutterBehaviorCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyShutterBehavior), () => VerifyShutterBehavior());
         Suite(nameof(VerifyGrowingShutterActivationTimer), () => VerifyGrowingShutterActivationTimer());
         Suite(nameof(VerifyGrowingShutterUpwardVelocity), () => VerifyGrowingShutterUpwardVelocity());

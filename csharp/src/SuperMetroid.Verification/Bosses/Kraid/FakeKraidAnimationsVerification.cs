@@ -10,7 +10,7 @@ namespace SuperMetroid.Verification.Bosses.Kraid;
 internal static class FakeKraidAnimationsVerification
 {
     /// <summary>Every segment matches its native list and every animation the lists' control flow.</summary>
-    internal static void VerifyFakeKraidAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyFakeKraidAnimations(CartridgeImportAddressSpace rom)
     {
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, FakeKraidAnimations.Segments, FakeKraidAnimations.StartingAt,
             FakeKraidFrameToolingDefinitions.Spritemap,

@@ -15,7 +15,7 @@ using SuperMetroid.Verification.Harness;
 internal static class SpeedBoosterVisualsVerification
 {
     /// <summary>Compares the reveal's installed picture with the cartridge, rejects every other draw, then checks the import and its rejections (#1557).</summary>
-    private static void VerifySpeedBoosterStockVisualMapping(SuperMetroidAddressSpace rom)
+    private static void VerifySpeedBoosterStockVisualMapping(CartridgeImportAddressSpace rom)
     {
         const ushort pointer = 0xa4f3;
         LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(pointer, "bomb-reveal")];
@@ -30,7 +30,7 @@ internal static class SpeedBoosterVisualsVerification
     /// <summary>Checks the extracted stock visuals and that a malformed installed visual file fails loudly where it is read.</summary>
     internal static void VerifySpeedBoosterVisuals()
     {
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+        CartridgeImportAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifySpeedBoosterStockVisualMapping), () => VerifySpeedBoosterStockVisualMapping(rom));
         using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopyOf(layout => layout.RoomObjectSpeedBoosterVisualDirectory);

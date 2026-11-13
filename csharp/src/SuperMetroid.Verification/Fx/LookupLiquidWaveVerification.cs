@@ -10,7 +10,7 @@ namespace SuperMetroid.Verification.Fx;
 internal static class LookupLiquidWaveVerification
 {
     /// <summary>Compares 16 retail displacements and signed scroll wrap across phases and camera offsets.</summary>
-    internal static void VerifyMirroredLiquidWave(SuperMetroidAddressSpace rom)
+    internal static void VerifyMirroredLiquidWave(CartridgeImportAddressSpace rom)
     {
         short Water(int index) => unchecked((short)ReadVerificationWord(rom, 0x88c46e + 2 * index));
         short Heat(int index) => unchecked((short)ReadVerificationWord(rom, 0x88b60a + 2 * index));

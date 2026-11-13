@@ -13,7 +13,7 @@ internal static class LookupRetailObjectHeadersVerification
     /// check now asserts that the compiled headers are exactly the words the retail populations place, translated
     /// through the native-word table, and that every other word is rejected.
     /// </summary>
-    internal static void VerifyRetailObjectHeaders(SuperMetroidAddressSpace rom)
+    internal static void VerifyRetailObjectHeaders(CartridgeImportAddressSpace rom)
     {
         ushort[] headers = [0xb63b,0xb63f,0xb643,0xb647,0xb6d3,0xb6df,0xb6eb,0xb703,0xb70b,
             0xb76f,0xb8ac,0xbaf4,0xbb05,0xc82a,0xc836,0xc842,0xc848,0xc84e,0xc854,0xc85a,

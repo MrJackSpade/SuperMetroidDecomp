@@ -18,7 +18,7 @@ internal static class EnemyTileArtworkDraygonOamCollisionVerification
     /// 60 bank $A5 roots under Draygon, but the final twelve belong to Spore Spawn and must be excluded.
     /// </summary>
     internal static void VerifyCompiledDraygonOamCollision(
-        SuperMetroidAddressSpace rom)
+        CartridgeImportAddressSpace rom)
     {
         // VerifySporeSpawnAnimations confirms each typed Spore Spawn frame's spritemap equals its native operand.
         var sporePointers = SuperMetroid.Verification.Bosses.SporeSpawn.SporeSpawnAnimationsVerification.BodySpritemaps();

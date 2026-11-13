@@ -20,14 +20,14 @@ using SuperMetroid.Core.World;
 internal static class LookupEyeDoorLayoutsVerification
 {
     /// <summary>Checks exact pointer ownership, run direction, and physical placement for 24 layouts.</summary>
-    internal static void VerifyEyeDoorLayoutGeometry(SuperMetroidAddressSpace rom) => VerifyEyeDoorLayoutField(rom,0);
+    internal static void VerifyEyeDoorLayoutGeometry(CartridgeImportAddressSpace rom) => VerifyEyeDoorLayoutField(rom,0);
     /// <summary>Checks the collision nibbles of all forty native eye-door cells.</summary>
-    internal static void VerifyEyeDoorLayoutCollision(SuperMetroidAddressSpace rom) => VerifyEyeDoorLayoutField(rom,1);
+    internal static void VerifyEyeDoorLayoutCollision(CartridgeImportAddressSpace rom) => VerifyEyeDoorLayoutField(rom,1);
     /// <summary>Checks metatile and flip bits through direct, exported, and named draw views.</summary>
-    internal static void VerifyEyeDoorLayoutVisuals(SuperMetroidAddressSpace rom) => VerifyEyeDoorLayoutField(rom,2);
+    internal static void VerifyEyeDoorLayoutVisuals(CartridgeImportAddressSpace rom) => VerifyEyeDoorLayoutField(rom,2);
 
     /// <summary>Walks native eye-door lists independently and compares one selected field class with compiled descriptors.</summary>
-    private static void VerifyEyeDoorLayoutField(SuperMetroidAddressSpace rom, int field)
+    private static void VerifyEyeDoorLayoutField(CartridgeImportAddressSpace rom, int field)
     {
         ushort[] pointers = [0x9bf7,0x9c03,0x9c0b,0x9c13,0x9c1b,0x9c23,0x9c2b,0x9c31,0x9c37,0x9c3d,0x9c43,0x9c49,
             0x9c4f,0x9c5b,0x9c63,0x9c6b,0x9c73,0x9c7b,0x9c83,0x9c89,0x9c8f,0x9c95,0x9c9b,0x9ca1];

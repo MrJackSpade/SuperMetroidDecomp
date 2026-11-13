@@ -10,7 +10,7 @@ namespace SuperMetroid.Verification.Enemies.LavaJumpers;
 internal static class NorfairLavaJumperAnimationsVerification
 {
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
-    internal static void VerifyNorfairLavaJumperAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyNorfairLavaJumperAnimations(CartridgeImportAddressSpace rom)
     {
         int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
             NorfairLavaJumperAnimations.Segments, NorfairLavaJumperAnimations.StartingAt, NorfairLavaJumperFrameToolingDefinitions.Spritemap,

@@ -21,7 +21,7 @@ internal static class PolypRockBehaviorVerification
     /// A spawned rock starts its typed program, shows its frame and sleeps update for update beside the native list; the
     /// shared shot list still deletes it; its selector is its native spritemap.
     /// </summary>
-    internal static void VerifyPolypRockBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyPolypRockBehavior(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, PolypRockNativeListAddresses.Extent, "Polyp-rock");
@@ -51,7 +51,7 @@ internal static class PolypRockBehaviorVerification
     [VerificationCommand("--polyp-rock-programs")]
     internal static int PolypRockProgramsCommand()
     {
-        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(PolypRockAnimationsVerification.VerifyPolypRockAnimations), () => PolypRockAnimationsVerification.VerifyPolypRockAnimations(rom));
         Suite(nameof(VerifyPolypRockBehavior), () => VerifyPolypRockBehavior(rom));
         return 0;

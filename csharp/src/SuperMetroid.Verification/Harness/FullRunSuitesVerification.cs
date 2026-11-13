@@ -315,7 +315,7 @@ using static SuperMetroid.Verification.Rooms.RoomEnemiesVerification;
 using static SuperMetroid.Verification.Enemies.RoomEnemyLoadContractsVerification;
 using static SuperMetroid.Verification.Fx.RoomFxRomDataVerification;
 using static SuperMetroid.Verification.Fx.RoomFxSnapshotTestsVerification;
-using static SuperMetroid.Verification.Rooms.RoomHeaderDefinitionsVerification;
+using static SuperMetroid.Verification.Rooms.RoomDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.RoomMainCodeCatalogVerification;
 using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectHeaderCatalogVerification;
 using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectAnimationScriptCatalogVerification;
@@ -886,7 +886,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyLevelBlockTilemapExpansion), () => VerifyLevelBlockTilemapExpansion()),
         new(nameof(VerifyRoomLevelData), () => VerifyRoomLevelData()),
         new(nameof(VerifyCartridgeRoomStateSelection), () => VerifyCartridgeRoomStateSelection()),
-        new(nameof(VerifyCompiledRoomHeaderDefinitions), () => VerifyCompiledRoomHeaderDefinitions()),
+        new(nameof(VerifyCompiledRoomDefinitions), () => VerifyCompiledRoomDefinitions()),
         new(nameof(VerifyCompiledRoomStateDefinitions), () => VerifyCompiledRoomStateDefinitions()),
         new(nameof(VerifyCompiledRoomStateSelectionDefinitions), () => VerifyCompiledRoomStateSelectionDefinitions()),
         new(nameof(VerifyCompiledLoadStationDefinitions), () => VerifyCompiledLoadStationDefinitions()),

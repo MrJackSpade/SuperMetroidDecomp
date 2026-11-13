@@ -37,7 +37,7 @@ internal sealed class RoomEnemyRuntimeServices(
     public IRoomObjectPresence RoomObjects => this;
     /// <summary>Exposes the room camera's scroll-zone storage.</summary>
     public IRoomScrollZoneAccess RoomScroll => this;
-    /// <summary>Exposes Samus's script control lock to enemy commands.</summary>
+    /// <summary>Exposes Samus's script control lock to enemy AI.</summary>
     public ISamusControlLock SamusControls => this;
     /// <summary>Exposes Mother Brain's glass, blending, and the background room effects.</summary>
     public IMotherBrainRoomEffects MotherBrain => this;
@@ -74,9 +74,9 @@ internal sealed class RoomEnemyRuntimeServices(
         player.GroundedSamusMovementEnabled = false;
     }
 
-    /// <summary>The Samus actor a Chozo control command acts on.</summary>
+    /// <summary>The Samus actor a Chozo statue's control lock acts on.</summary>
     private SamusState ControlledSamus => player.Samus ?? throw new InvalidOperationException(
-        "Chozo control command requires an active Samus actor.");
+        "Chozo control lock requires an active Samus actor.");
 
     /// <summary>Advances the Mother Brain glass room-object argument after an enemy-driven phase event.</summary>
     public void IncrementGlassRoomArgument() => roomObjects.MotherBrainGlass.IncrementMotherBrainGlassRoomArgument();

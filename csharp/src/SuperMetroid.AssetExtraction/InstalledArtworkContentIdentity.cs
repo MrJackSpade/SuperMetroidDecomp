@@ -252,15 +252,15 @@ internal static class InstalledArtworkContentIdentity
         /// <summary>Identity of every selected drawable rule and its installed overlays, excluding command mechanics.</summary>
         public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledXrayReveals), content =>
         {
-            // Each visual is identified by its kind's collision nibble times the 256 behaviour bytes, plus its reaction's
-            // byte, in that order.
-            static int VisualIndex(XrayRevealVisualKey key) =>
-                RoomLevelWordCodec.KindsByNibble.IndexOf(key.Type) * (byte.MaxValue + 1) +
-                RoomBlockBehaviorCodec.Encode(RoomBlockBehavior.Reacting(key.Reaction));
-            foreach (KeyValuePair<XrayRevealVisualKey, XrayRevealVisualBlocks> pair in reveals.blocks.OrderBy(entry => VisualIndex(entry.Key)))
+            // Each visual is identified by its collision kind's and its reaction list's names and its reaction's entry, in
+            // that order.
+            foreach (KeyValuePair<XrayRevealVisualKey, XrayRevealVisualBlocks> pair in reveals.blocks
+                .OrderBy(entry => entry.Key.Type).ThenBy(entry => entry.Key.Reaction.Scope).ThenBy(entry => entry.Key.Reaction.Entry))
             {
                 XrayRevealVisualBlocks visual = pair.Value;
-                content.Append("kind and behaviour", VisualIndex(pair.Key));
+                content.AppendName("kind", pair.Key.Type.ToString());
+                content.AppendName("reaction list", pair.Key.Reaction.Scope.ToString());
+                content.Append("reaction entry", pair.Key.Reaction.Entry);
                 content.Append("top left", visual.TopLeft);
                 content.Append("top right", visual.TopRight);
                 content.Append("bottom left", visual.BottomLeft);

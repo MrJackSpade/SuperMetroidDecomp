@@ -5,7 +5,7 @@ internal static class MetroidReactions
 {
     /// <summary>The escape displacement at <paramref name="countdown"/>'s phase.</summary>
     internal static Offset16<RoomPixels> EscapeDisplacement(int countdown) =>
-        MetroidBehaviorDefinitions.EscapeDisplacements[countdown & 3];
+        MetroidBehaviorDefinitions.EscapeDisplacements[MetroidCadenceDefinitions.EscapeDisplacementStep.Of(countdown)];
 
     /// <summary>The cry <paramref name="random"/>'s <see cref="MetroidBehaviorDefinitions.CrySlot"/> selects.</summary>
     internal static SoundEffectId RandomCrySoundEffect(int random) =>

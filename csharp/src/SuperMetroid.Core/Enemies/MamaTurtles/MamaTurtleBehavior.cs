@@ -304,9 +304,9 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 
         mama.Position = mama.Position.WithWrappedWholeY(mama.Position.Y.Whole - 1);
         mama.Radius = mama.Radius.WithY(16);
-        mama.Position = mama.Position.WithWholeX((mama.Position.Y.Whole & 1) == 0
-            ? CoordinateAxis.Wrap(mama.Position.X.Whole + 1)
-            : CoordinateAxis.Wrap(mama.Position.X.Whole - 1));
+        mama.Position = mama.Position.WithWholeX(MamaTurtleCadenceDefinitions.LeavingShellSidestepsLeft.IsSetIn(mama.Position.Y.Whole)
+            ? CoordinateAxis.Wrap(mama.Position.X.Whole - 1)
+            : CoordinateAxis.Wrap(mama.Position.X.Whole + 1));
 
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, mama, SignedSixteenSixteen.FromWholePixels(1)))
             return;

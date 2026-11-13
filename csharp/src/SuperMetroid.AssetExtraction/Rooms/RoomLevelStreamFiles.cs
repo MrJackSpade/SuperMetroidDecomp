@@ -21,15 +21,21 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// and how many blocks the level space holds past the grid (all four as 32-bit integers); then each foreground block as
 /// its collision kind, block number, mirroring and behaviour; each background block as its block number and mirroring;
 /// and each following block as its collision kind, block number and mirroring. A collision kind is written as its
-/// position in the manifest's <c>collisionKinds</c>, which names the kinds; mirroring is written as
+/// position in the collision-kind document's <c>collisionKinds</c>, which names the kinds; mirroring is written as
 /// <see cref="MirroringCodes"/>'s position of its value.
 /// </remarks>
 public static class RoomLevelStreamFiles
 {
-    /// <summary>Stock manifest filename recording provenance, the collision kinds' names and each level's file, byte count and SHA-256.</summary>
-    public const string ManifestFileName = "room-level-streams.json";
-    /// <summary>Manifest schema version this loader accepts; version 3 installs typed blocks instead of decompressed level data.</summary>
-    private const int FormatVersion = 3;
+    /// <summary>
+    /// The family's document naming the collision kinds, in the order the level files write them by position; the levels
+    /// are the retail rooms' (#1693), each in its own file.
+    /// </summary>
+    public const string CollisionKindsFileName = "room-level-streams.json";
+    /// <summary>
+    /// Collision-kind document schema version this loader accepts; version 3 installs typed blocks instead of decompressed
+    /// level data, and 4 names the collision kinds alone, with no level list, hash or cartridge digest (#1693).
+    /// </summary>
+    private const int FormatVersion = 4;
 
     /// <summary>The collision kinds in the order the level files write them by position.</summary>
     private static readonly ImmutableArray<RoomCollisionType> CollisionKinds = [.. Enum.GetValues<RoomCollisionType>()];
@@ -38,7 +44,7 @@ public static class RoomLevelStreamFiles
     private static readonly ImmutableArray<BlockMirroring> MirroringCodes =
         [BlockMirroring.None, BlockMirroring.Horizontal, BlockMirroring.Vertical, BlockMirroring.Horizontal | BlockMirroring.Vertical];
 
-    /// <summary>Serializer settings shared by manifest writes and reads.</summary>
+    /// <summary>Serializer settings shared by the collision-kind document's writes and reads.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -55,72 +61,56 @@ public static class RoomLevelStreamFiles
 
     /// <summary>Decompresses and decodes every distinct retail room level and writes each as typed blocks.</summary>
     /// <param name="bus">Non-null import-capable cartridge source for the compressed levels identified by <see cref="RoomVisualLayoutFiles.RetailLevels"/>.</param>
-    /// <param name="directory">Family directory, created if absent; receives new per-level files and the required manifest.</param>
-    /// <param name="sourceCartridgeSha256">Nonblank caller-supplied provenance hash, recorded without recomputation and checked against the supported identity on load.</param>
+    /// <param name="directory">Family directory, created if absent; receives new per-level files and the collision-kind document.</param>
     /// <remarks>Create-new writes refuse existing files and do not roll back earlier outputs.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
-    /// <exception cref="ArgumentException">The directory/source hash is blank or the address space lacks cartridge import access.</exception>
+    /// <exception cref="ArgumentException">The directory is blank or the address space lacks cartridge import access.</exception>
     /// <exception cref="InvalidDataException">A compressed level is invalid or malformed.</exception>
     /// <exception cref="IOException">An output exists or filesystem access fails.</exception>
-    public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
+    public static void Extract(ISnesAddressSpace bus, string directory)
     {
         Ensure.NotNull(bus);
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
-        ArgumentException.ThrowIfNullOrWhiteSpace(sourceCartridgeSha256);
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
         Directory.CreateDirectory(directory);
-        var entries = new Dictionary<string, LevelFileEntry>();
         foreach ((RoomLevelId level, int width) in RoomVisualLayoutFiles.RetailLevels.OrderBy(item => item.Key.Name, StringComparer.Ordinal))
         {
             byte[] stream = RomDataReader.Decompress(cartridge, RoomLevelSourceDefinitions.Addresses[level]);
             byte[] file = Encode(RoomLevelStreamDecoder.Decode(level, stream, width));
-            string name = LevelFileName(level);
-            using (var output = new FileStream(Path.Combine(directory, name), FileMode.CreateNew, FileAccess.Write))
-                output.Write(file);
-            entries.Add(name, new LevelFileEntry(level.Name, file.Length, Convert.ToHexString(SHA256.HashData(file))));
+            using var output = new FileStream(Path.Combine(directory, LevelFileName(level)), FileMode.CreateNew, FileAccess.Write);
+            output.Write(file);
         }
-        using var manifest = new FileStream(Path.Combine(directory, ManifestFileName),
-            FileMode.CreateNew, FileAccess.Write);
-        JsonSerializer.Serialize(manifest,
-            new LevelFileManifest(FormatVersion, sourceCartridgeSha256, [.. CollisionKinds.Select(kind => kind.ToString())], entries),
+        using var kinds = new FileStream(Path.Combine(directory, CollisionKindsFileName), FileMode.CreateNew, FileAccess.Write);
+        JsonSerializer.Serialize(kinds, new CollisionKindDocument(FormatVersion, [.. CollisionKinds.Select(kind => kind.ToString())]),
             JsonOptions);
     }
 
-    /// <summary>Checks the complete retail-level manifest and every file's length and hash, then builds the stock catalog.</summary>
-    /// <param name="directory">Family directory containing all per-level files and the required provenance manifest.</param>
+    /// <summary>Reads the collision kinds the level files name, then every retail level's file, and builds the catalog.</summary>
+    /// <param name="directory">Family directory containing every retail level's file and the collision-kind document.</param>
     /// <returns>A ROM-independent catalog of every level's typed terrain.</returns>
     /// <exception cref="ArgumentException"><paramref name="directory"/> is null, empty, or whitespace.</exception>
-    /// <exception cref="InvalidDataException">The version, provenance, collision kinds, coverage, a file's identity, length, hash or contents are invalid; the message names the file.</exception>
-    /// <exception cref="IOException">The manifest or a level file cannot be read.</exception>
+    /// <exception cref="InvalidDataException">The version or collision kinds are invalid, or a level's file is missing or its contents are invalid; the message names the file.</exception>
+    /// <exception cref="IOException">The collision-kind document or a level file cannot be read.</exception>
     public static InstalledRoomLevelStreams Load(string directory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
-        string manifestPath = Path.Combine(directory, ManifestFileName);
-        if (!File.Exists(manifestPath))
-            throw new InvalidDataException($"Room-level manifest {manifestPath} is missing.");
-        LevelFileManifest manifest;
-        using (FileStream manifestStream = File.OpenRead(manifestPath))
-            manifest = JsonAssetDocument.Read<LevelFileManifest>(
-                manifestStream, JsonOptions, $"room-level manifest {manifestPath}");
-        if (manifest.Version != FormatVersion)
+        string kindsPath = Path.Combine(directory, CollisionKindsFileName);
+        if (!File.Exists(kindsPath))
+            throw new InvalidDataException($"Room-level collision kinds {kindsPath} are missing.");
+        CollisionKindDocument document;
+        using (FileStream kindsStream = File.OpenRead(kindsPath))
+            document = JsonAssetDocument.Read<CollisionKindDocument>(
+                kindsStream, JsonOptions, $"room-level collision kinds {kindsPath}");
+        if (document.Version != FormatVersion)
             throw new InvalidDataException(
-                $"Room-level manifest {manifestPath} has unsupported version {manifest.Version}.");
-        if (!string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
-                StringComparison.OrdinalIgnoreCase))
-            throw new InvalidDataException(
-                $"Room-level manifest {manifestPath} was not extracted from the supported cartridge.");
-        if (manifest.Entries is null)
-            throw new InvalidDataException($"Room-level manifest {manifestPath} has no entries.");
-        RoomCollisionType[] kinds = ReadKinds(manifest.CollisionKinds, manifestPath);
+                $"Room-level collision kinds {kindsPath} have unsupported version {document.Version}.");
+        RoomCollisionType[] kinds = ReadKinds(document.CollisionKinds, kindsPath);
 
-        var levels = new Dictionary<RoomLevelId, InstalledRoomLevel>(manifest.Entries.Count);
-        foreach ((string name, LevelFileEntry entry) in manifest.Entries)
+        // The levels are the retail rooms' (#1693): no manifest lists them.
+        var levels = new Dictionary<RoomLevelId, InstalledRoomLevel>(RoomVisualLayoutFiles.RetailLevels.Count);
+        foreach ((RoomLevelId level, int width) in RoomVisualLayoutFiles.RetailLevels.OrderBy(item => item.Key.Name, StringComparer.Ordinal))
         {
-            string path = Path.Combine(directory, name);
-            if (entry?.Level is null || name != LevelFileName(entry.Id) ||
-                !RoomVisualLayoutFiles.RetailLevels.TryGetValue(entry.Id, out int width))
-                throw new InvalidDataException(
-                    $"Room-level manifest {manifestPath} names unknown level file {path}.");
+            string path = Path.Combine(directory, LevelFileName(level));
             if (!File.Exists(path))
                 throw new InvalidDataException($"Room-level file {path} is missing.");
             // The level file describes its own size and is read to its end (#1532): an edited room's level may hold more or
@@ -129,13 +119,8 @@ public static class RoomLevelStreamFiles
             InstalledRoomLevel installed = Decode(file, kinds, path);
             if (installed.Size.X != width)
                 throw new InvalidDataException($"Room-level file {path} is {installed.Size.X} blocks wide; its rooms are {width}.");
-            if (!levels.TryAdd(entry.Id, installed))
-                throw new InvalidDataException($"Room-level manifest {manifestPath} repeats {path}.");
+            levels.Add(level, installed);
         }
-        foreach (RoomLevelId level in RoomVisualLayoutFiles.RetailLevels.Keys.OrderBy(candidate => candidate.Name, StringComparer.Ordinal))
-            if (!levels.ContainsKey(level))
-                throw new InvalidDataException(
-                    $"Room-level manifest {manifestPath} lacks {Path.Combine(directory, LevelFileName(level))}.");
         return new InstalledRoomLevelStreams(levels, RoomVisualLayoutSourceDefinitions.All);
     }
 
@@ -218,7 +203,7 @@ public static class RoomLevelStreamFiles
     {
         int kind = reader.ReadByte();
         if (kind >= kinds.Length)
-            throw new InvalidDataException($"Collision kind {kind} is not among the manifest's {kinds.Length} kinds.");
+            throw new InvalidDataException($"Collision kind {kind} is not among the {kinds.Length} kinds the collision-kind document names.");
         return new RoomTerrainBlock(ReadAppearance(reader), kinds[kind]);
     }
 
@@ -232,30 +217,22 @@ public static class RoomLevelStreamFiles
         return new RoomBlockAppearance(block, MirroringCodes[mirroring]);
     }
 
-    /// <summary>Reads the manifest's collision kinds by name, requiring every kind exactly once.</summary>
-    private static RoomCollisionType[] ReadKinds(string[]? names, string manifestPath)
+    /// <summary>Reads the document's collision kinds by name, requiring every kind exactly once.</summary>
+    private static RoomCollisionType[] ReadKinds(string[]? names, string kindsPath)
     {
         if (names is null || names.Length != CollisionKinds.Length)
-            throw new InvalidDataException($"Room-level manifest {manifestPath} does not name the {CollisionKinds.Length} collision kinds.");
+            throw new InvalidDataException($"Room-level collision kinds {kindsPath} do not name the {CollisionKinds.Length} collision kinds.");
         var kinds = new RoomCollisionType[names.Length];
         for (int index = 0; index < names.Length; index++)
         {
             if (!Enum.TryParse(names[index], ignoreCase: false, out kinds[index]) || !Enum.IsDefined(kinds[index]))
-                throw new InvalidDataException($"Room-level manifest {manifestPath} names unknown collision kind '{names[index]}'.");
+                throw new InvalidDataException($"Room-level collision kinds {kindsPath} name unknown collision kind '{names[index]}'.");
         }
         if (kinds.Distinct().Count() != kinds.Length)
-            throw new InvalidDataException($"Room-level manifest {manifestPath} repeats a collision kind.");
+            throw new InvalidDataException($"Room-level collision kinds {kindsPath} repeat a collision kind.");
         return kinds;
     }
 
-    /// <summary>One retail room level: its name, file byte count and SHA-256 digest.</summary>
-    private sealed record LevelFileEntry(string Level, int ByteCount, string Sha256)
-    {
-        /// <summary>The level the entry names.</summary>
-        [JsonIgnore]
-        public RoomLevelId Id => new(Level);
-    }
-    /// <summary>Records schema and source-ROM identity, the collision kinds by file position, and every level file entry.</summary>
-    private sealed record LevelFileManifest(int Version, string SourceCartridgeSha256, string[] CollisionKinds,
-        Dictionary<string, LevelFileEntry> Entries);
+    /// <summary>The collision kinds by the position the level files write them at, under the document's schema revision.</summary>
+    private sealed record CollisionKindDocument(int Version, string[] CollisionKinds);
 }

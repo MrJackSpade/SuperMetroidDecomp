@@ -28,18 +28,17 @@ public static class RoomObjectCollectibleVisualFiles
     /// </summary>
     /// <param name="bus">The cartridge, whose selectors and draw lists are checked against the frames the game draws.</param>
     /// <param name="directory">The installed directory, created if absent; the file must not already exist.</param>
-    /// <param name="sourceCartridgeSha256">The cartridge's identity, recorded in the file.</param>
     /// <exception cref="InvalidDataException">A selector, a draw list's geometry or a block pair's terrain differs from what the game draws.</exception>
-    public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
+    public static void Extract(ISnesAddressSpace bus, string directory)
     {
         Ensure.NotNull(bus);
         VerifyBlockPairs(bus);
-        RoomObjectFrameImageFiles.Extract(bus, directory, sourceCartridgeSha256, Family);
+        RoomObjectFrameImageFiles.Extract(bus, directory, Family);
     }
 
     /// <summary>Loads the installed collectible pictures as the player left them, without the cartridge.</summary>
     /// <param name="directory">The installed directory.</param>
-    /// <exception cref="InvalidDataException">The file's format or source is not this importer's, or a frame's picture is missing or misshapen.</exception>
+    /// <exception cref="InvalidDataException">The file's format is not this importer's, or a frame's picture is missing or misshapen.</exception>
     public static InstalledRoomObjectCollectibleVisuals Load(string directory) =>
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 

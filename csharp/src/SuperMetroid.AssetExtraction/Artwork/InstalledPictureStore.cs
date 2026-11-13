@@ -12,8 +12,8 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// pictures are shown with, each kind decoded when a sheet showing a picture with one is first drawn, and each sheet's image
 /// assembled from them: every frame's picture from its page, placed where the frame names in its rectangle (#1646) and shown
 /// with the maps the frame names. One store is open per
-/// installation in a process, so every family's sheets read one decoded copy of each page and map; a store whose provenance
-/// manifest changed is opened again. A page or map a player edited in place is used as edited, and fails only where it is
+/// installation in a process, so every family's sheets read one decoded copy of each page and map; a store whose index
+/// changed is opened again. A page or map a player edited in place is used as edited, and fails only where it is
 /// decoded, when it does not decode.
 /// </summary>
 internal sealed class InstalledPictureStore
@@ -24,8 +24,8 @@ internal sealed class InstalledPictureStore
     /// <summary>The store open for each installation, by the store directory's full path.</summary>
     private static readonly Dictionary<string, InstalledPictureStore> opened = new(StringComparer.Ordinal);
 
-    /// <summary>The provenance manifest's bytes the store was opened from.</summary>
-    private readonly byte[] provenance;
+    /// <summary>The index's bytes the store was opened from.</summary>
+    private readonly byte[] index;
 
     /// <summary>The store's pages, in page order.</summary>
     private readonly InstalledPage[] pages;
@@ -39,32 +39,25 @@ internal sealed class InstalledPictureStore
     /// <summary>The blend maps the pictures are shown with, or null where the store lists none.</summary>
     private readonly InstalledMaps<bool>? blendMaps;
 
-    /// <summary>Opens the store in <paramref name="directory"/> from its provenance manifest, reading each page's size from its header.</summary>
-    /// <exception cref="InvalidDataException">The provenance does not describe this installation's store, or a page's header is invalid.</exception>
-    private InstalledPictureStore(string directory, byte[] provenance)
+    /// <summary>Opens the store in <paramref name="directory"/> from its index, reading each page's size from its header.</summary>
+    /// <exception cref="InvalidDataException">The index does not describe a store of this format, or a page's header is invalid.</exception>
+    private InstalledPictureStore(string directory, byte[] index)
     {
-        this.provenance = provenance;
-        string provenancePath = Path.Combine(directory, PictureStoreFiles.ProvenanceFileName);
-        PictureStoreProvenance manifest = JsonAssetDocument.Read<PictureStoreProvenance>(new MemoryStream(provenance, writable: false),
-            PictureStoreProvenance.JsonOptions, $"picture store provenance {provenancePath}");
-        if (manifest.Version != PictureStoreProvenance.FormatVersion ||
-            !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256, StringComparison.OrdinalIgnoreCase) ||
-            manifest.PageSha256 is null || manifest.Pictures is null ||
+        this.index = index;
+        string indexPath = Path.Combine(directory, PictureStoreFiles.IndexFileName);
+        PictureStoreIndex manifest = JsonAssetDocument.Read<PictureStoreIndex>(new MemoryStream(index, writable: false),
+            PictureStoreIndex.JsonOptions, $"picture store index {indexPath}");
+        if (manifest.Version != PictureStoreIndex.FormatVersion || manifest.PageCount < 0 || manifest.Pictures is null ||
             manifest.RecolourRegionMaps is { Maps: null } || manifest.BlendMaps is { Maps: null })
-            throw new InvalidDataException($"Picture store provenance {provenancePath} does not describe this installation.");
+            throw new InvalidDataException($"Picture store index {indexPath} does not describe a store of format {PictureStoreIndex.FormatVersion}.");
         tagged = manifest.Pictures;
         string content = Path.GetDirectoryName(directory)
             ?? throw new ArgumentException($"Picture store directory {directory} has no installation above it.", nameof(directory));
         // The store's pages are the installation's only pictures (#1636): a picture file anywhere else rejects the installation.
         InstalledPictureFiles.RequireOnlyStorePictures(content);
-        pages = new InstalledPage[manifest.PageSha256.Count];
+        pages = new InstalledPage[manifest.PageCount];
         for (int page = 0; page < pages.Length; page++)
-        {
-            string file = PictureStoreFiles.PageFile(page);
-            if (!manifest.PageSha256.ContainsKey(file))
-                throw new InvalidDataException($"Picture store provenance {provenancePath} lists {pages.Length} pages but not {file}.");
-            pages[page] = new InstalledPage(Path.Combine(directory, file));
-        }
+            pages[page] = new InstalledPage(Path.Combine(directory, PictureStoreFiles.PageFile(page)));
         recolourRegionMaps = manifest.RecolourRegionMaps is { } regions
             ? new InstalledMaps<int>(PictureStoreFiles.RecolourRegionMapsFile(content), regions.Maps, RecolourRegionMapFile.Decode, "recolour-region")
             : null;
@@ -74,20 +67,20 @@ internal sealed class InstalledPictureStore
     }
 
     /// <summary>
-    /// The store in <paramref name="directory"/>: the one already open there, unless its provenance manifest has changed
-    /// since, when the store is opened again.
+    /// The store in <paramref name="directory"/>: the one already open there, unless its index has changed since, when the
+    /// store is opened again.
     /// </summary>
-    /// <exception cref="InvalidDataException">The provenance does not describe this installation's store, or a page's header is invalid.</exception>
+    /// <exception cref="InvalidDataException">The index does not describe a store of this format, or a page's header is invalid.</exception>
     internal static InstalledPictureStore Open(string directory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         string full = Path.TrimEndingDirectorySeparator(Path.GetFullPath(directory));
-        byte[] provenance = File.ReadAllBytes(Path.Combine(full, PictureStoreFiles.ProvenanceFileName));
+        byte[] index = File.ReadAllBytes(Path.Combine(full, PictureStoreFiles.IndexFileName));
         lock (gate)
         {
-            if (opened.TryGetValue(full, out InstalledPictureStore? store) && store.provenance.SequenceEqual(provenance))
+            if (opened.TryGetValue(full, out InstalledPictureStore? store) && store.index.SequenceEqual(index))
                 return store;
-            store = new InstalledPictureStore(full, provenance);
+            store = new InstalledPictureStore(full, index);
             opened[full] = store;
             return store;
         }
@@ -270,7 +263,7 @@ internal sealed class InstalledPictureStore
     }
 
     /// <summary>
-    /// One kind of map the store's pictures are shown with (#1644): the maps the provenance lists, by tag with their sizes,
+    /// One kind of map the store's pictures are shown with (#1644): the maps the index lists, by tag with their sizes,
     /// and the map file holding them, decoded when a map is first read.
     /// </summary>
     /// <typeparam name="T">The value each pixel of a map holds.</typeparam>
@@ -311,14 +304,14 @@ internal sealed class InstalledPictureStore
             foreach ((string tag, Extent16<ImagePixels> size) in Listed)
             {
                 if (!decoded.TryGetValue(tag, out PictureMap<T>? map))
-                    throw new InvalidDataException($"The picture store's {kind} maps {path} hold no map {tag}, which its provenance lists.");
+                    throw new InvalidDataException($"The picture store's {kind} maps {path} hold no map {tag}, which its index lists.");
                 if (map.Size != size)
                     throw new InvalidDataException(
-                        $"The picture store's {kind} map {tag} in {path} is {map.Size.X}x{map.Size.Y}, but its provenance lists it as {size.X}x{size.Y}.");
+                        $"The picture store's {kind} map {tag} in {path} is {map.Size.X}x{map.Size.Y}, but its index lists it as {size.X}x{size.Y}.");
             }
             string[] unlisted = [.. decoded.Keys.Where(tag => !Listed.ContainsKey(tag)).Order(StringComparer.Ordinal)];
             if (unlisted.Length > 0)
-                throw new InvalidDataException($"The picture store's {kind} maps {path} hold maps its provenance does not list: {string.Join(", ", unlisted)}.");
+                throw new InvalidDataException($"The picture store's {kind} maps {path} hold maps its index does not list: {string.Join(", ", unlisted)}.");
             return decoded;
         }
     }

@@ -72,7 +72,8 @@ Within either platform's application-data root:
 - `game/audio/`: extracted audio streams, WAVs, and metadata catalog.
 - `game/maps/gameplay-hud.json`: the HUD's layout, the screen pixel each of its pictures shows at; the HUD's
   tiles, whose cells are the original's packed tile placements, are import data the import pictures the HUD from.
-- `game/pictures/`: the picture store, the pre-coloured pictures every sheet below names, edited in place.
+- `game/pictures/`: the picture store, the pre-coloured pictures every sheet below names, edited in place, and
+  its index (`pictures.json`): the pages, every picture's place and every map's tag.
 - `game/sprite-sheets/`, `game/enemy-sheets/`, `game/boss-body-sheets/` and `game/room-block-sheets/`: the
   sheets the import composes, each naming its frames' pictures in the picture store.
 - `game/samus-body/`: what the game binds of Samus's body: each pose's art origin and the body frames her body
@@ -88,7 +89,9 @@ Within either platform's application-data root:
 - `game/room-level-streams/`: stock-only native level allocations (collision, BTS and
   streaming baseline) for every room level source. These files are not artwork.
 - `game/xray-reveals/`: stock visual metatile choices for X-ray block reveals.
-- `game/installation.json`: extraction format version and ROM identity.
+- `game/installation.json`: extraction format version and ROM identity. Outside the audio directory, no installed
+  document records the cartridge's digest or the hashes of the files beside it (#1693): the manifests that list
+  the import data's hashes stay with the import data.
 - `SuperMetroid.ini`, `SuperMetroid.save.json`, `debug-states/`, and
   `input-recordings/`: player data, outside the replaceable game directory.
 
@@ -133,8 +136,9 @@ This covers area maps and labels, pause layouts, HUD and message boxes, file sel
 options, narration and ending text/credits, title compositions and scanline gradients.
 Repeating even an identical value is an error, not a last-value-wins edit. Existing
 schema versions, required fields and field-name casing rules are unchanged. The
-stock map manifest and station-reveal document use the same validation boundary;
-they are required stock metadata, not editable exploration rules.
+station-reveal document uses the same validation boundary; it is required stock
+metadata, not an editable exploration rule. The map manifest, which lists the
+import data's hashes, is import data and is not installed (#1693).
 
 Room background/sky and metatile manifests, room visual layouts and X-ray reveal
 documents reject unknown fields, duplicate names and missing required fields.
@@ -681,8 +685,9 @@ allocation. Subsequent PLM draws apply their own visual bindings where installed
 Invalid values fail with the offending path.
 For all 246 retail level sources, that collision/BTS and streaming baseline is
 extracted at installation into `game/room-level-streams/` as one
-`level-*.bin` file per level: the complete, unmodified decompressor output,
-listed with its length and SHA-256 in `room-level-streams.json`. These files are
+`level-*.bin` file per level: the complete, unmodified decompressor output, one
+file per retail level, whose collision kinds `room-level-streams.json` names by
+the position the files write them at (#1693). These files are
 not artwork, and a missing or corrupt file fails with its path. Installed desktop and Android room loads do not decompress these
 level streams from the ROM. The room-layout JSON changes only rendered
 visual words; it cannot modify the installed physical allocation or the native
@@ -971,7 +976,8 @@ palette.
 Restart to load edits. Loading a debugger state retains the current session's
 projectile catalogs rather than restoring old artwork from the state.
 Startup logs the projectile content hash. An invalid file fails loudly with its path,
-retaining the underlying exception. All required manifest fields must be present.
+retaining the underlying exception. All required document fields must be present;
+the projectile directory installs no manifest (#1693).
 Core rendering has no ROM fallback; explicit native image decoding remains
 import/reference tooling only.
 

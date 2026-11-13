@@ -71,7 +71,7 @@ internal sealed record SamusSheetInputs(ImportProjectileArtwork Projectiles, Spr
             palettes,
             intro,
             body,
-            SamusDeathTileArtworkFiles.LoadForImport(samusBody, samusBodyImportData),
+            SamusDeathTileArtworkFiles.LoadForImport(samusBodyImportData),
             SamusArmCannonArtworkFiles.LoadCoverCharacters(body.Body.ArmCannon, samusBodyImportData),
             sources,
             SamusOverreadFiles.LoadAnimationContinuation(overreads));
@@ -82,7 +82,7 @@ internal sealed record SamusSheetInputs(ImportProjectileArtwork Projectiles, Spr
     {
         string standardObjects = Path.Combine(content, GameInstallationLayout.StandardObjectDirectoryName);
         return ObjCharacterPage.Create(new SpriteArtworkId(SpriteArtworkKind.StandardObjects),
-            StandardObjectArtworkFiles.LoadForImport(standardObjects, ImportDataDirectory.Of(standardObjects)).Characters.Span);
+            StandardObjectArtworkFiles.LoadForImport(ImportDataDirectory.Of(standardObjects)).Characters.Span);
     }
 
     /// <summary>The shades every one of Samus's sheets is pre-coloured in (#1512), computed once.</summary>

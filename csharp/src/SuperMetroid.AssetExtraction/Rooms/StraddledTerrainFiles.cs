@@ -32,33 +32,25 @@ public static class StraddledTerrainFiles
     private static readonly Dictionary<string, RoomCollisionType> KindsByName =
         Enum.GetValues<RoomCollisionType>().ToDictionary(kind => kind.ToString(), StringComparer.Ordinal);
 
-    /// <summary>Decodes the straddled terrain and writes it as JSON with its manifest.</summary>
-    /// <param name="directory">Destination directory, created if absent; an existing file and manifest are replaced.</param>
-    /// <param name="sourceCartridgeSha256">Identity written into the manifest.</param>
-    public static void Extract(string directory, string sourceCartridgeSha256)
+    /// <summary>
+    /// Decodes the straddled terrain and writes it as JSON. No manifest is written (#1693): the document names its own
+    /// format, and it is decoded from the level-word codec, not read from the cartridge.
+    /// </summary>
+    /// <param name="directory">Destination directory, created if absent; an existing file is replaced.</param>
+    public static void Extract(string directory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
-        ArgumentException.ThrowIfNullOrWhiteSpace(sourceCartridgeSha256);
         Directory.CreateDirectory(directory);
         File.WriteAllBytes(Path.Combine(directory, StraddledTerrainFormat.FileName),
             JsonSerializer.SerializeToUtf8Bytes(Decode(), StraddledTerrainFormat.JsonOptions));
-        File.WriteAllBytes(Path.Combine(directory, StraddledTerrainFormat.ManifestFileName),
-            JsonSerializer.SerializeToUtf8Bytes(
-                new Manifest(StraddledTerrainFormat.Version, sourceCartridgeSha256), StraddledTerrainFormat.JsonOptions));
     }
 
-    /// <summary>Validates the installed file's schema and provenance, then builds the straddled terrain from it.</summary>
-    /// <param name="directory">Installed straddled-terrain directory holding the file and its manifest.</param>
-    /// <exception cref="InvalidDataException">The manifest, provenance or file shape is invalid.</exception>
+    /// <summary>Builds the straddled terrain from the installed file, as the player may have edited it.</summary>
+    /// <param name="directory">Installed straddled-terrain directory holding the file.</param>
+    /// <exception cref="InvalidDataException">The file's format or shape is invalid.</exception>
     public static StraddledTerrain<RoomTerrainBlock> Load(string directory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
-        string manifestPath = Path.Combine(directory, StraddledTerrainFormat.ManifestFileName);
-        Manifest manifest = JsonAssetDocument.Read<Manifest>(
-            File.ReadAllBytes(manifestPath), StraddledTerrainFormat.JsonOptions);
-        if (manifest.Version != StraddledTerrainFormat.Version ||
-            !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidDataException($"Straddled-terrain manifest {manifestPath} does not match this installation.");
         string path = Path.Combine(directory, StraddledTerrainFormat.FileName);
         StraddledTerrainDocument document = JsonAssetDocument.Read<StraddledTerrainDocument>(
             new MemoryStream(File.ReadAllBytes(path), writable: false), StraddledTerrainFormat.JsonOptions,
@@ -192,7 +184,4 @@ public static class StraddledTerrainFiles
 
     /// <summary>A row of <paramref name="count"/> entries, none of them decoded yet.</summary>
     private static int[] Unset(int count) => Enumerable.Repeat(-1, count).ToArray();
-
-    /// <summary>Records the schema and cartridge identity checked on load.</summary>
-    private sealed record Manifest(int Version, string SourceCartridgeSha256);
 }

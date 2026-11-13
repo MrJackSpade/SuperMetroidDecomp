@@ -67,6 +67,8 @@ internal static class ImportOnlyLayoutsVerification
         yield return (intro, CeresDestructionSpriteFormat.FileName);
         foreach (string document in MapPresentationFiles.ImportDocumentFiles)
             yield return (GameInstallationLayout.MapDirectoryName, document);
+        // The map manifest lists the import data's hashes, and only the import's read opens it (#1693).
+        yield return (GameInstallationLayout.MapDirectoryName, AreaMapCatalogFormat.ManifestFile);
         string ending = GameInstallationLayout.EndingObjectDirectoryName;
         for (int fragment = 0; fragment < SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectArtworkFormat.FragmentCount; fragment++)
             yield return (ending, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectArtworkFormat.FragmentFileName(fragment));
@@ -97,8 +99,38 @@ internal static class ImportOnlyLayoutsVerification
     }
 
     /// <summary>
+    /// Each manifest no extraction writes any more (#1693), by the component directory it was installed in and its file
+    /// name: it recorded the format, the source cartridge or hashes of the files beside it, which the installation receipt
+    /// records or nothing reads.
+    /// </summary>
+    private static IEnumerable<(string Component, string File)> Retired()
+    {
+        // The standard OBJ page's manifest named the format and the cartridge only.
+        yield return (GameInstallationLayout.StandardObjectDirectoryName, "standard-object-artwork.json");
+        // The overread manifests named the format and the cartridge only; each document names its own format.
+        yield return (GameInstallationLayout.BossAndIntroOverreadDirectoryName, "boss-intro-overreads-manifest.json");
+        yield return (GameInstallationLayout.EnemyOverreadDirectoryName, "enemy-overreads-manifest.json");
+        yield return (GameInstallationLayout.SamusOverreadDirectoryName, "samus-overreads-manifest.json");
+        yield return (GameInstallationLayout.StraddledTerrainDirectoryName, "straddled-terrain-manifest.json");
+        yield return (GameInstallationLayout.XrayRevealVisualDirectoryName, "manifest.json");
+        yield return (GameInstallationLayout.ProjectileDirectoryName, "projectile-manifest.json");
+        yield return (GameInstallationLayout.SamusBodyDirectoryName, "samus-arm-cannon-manifest.json");
+        yield return (GameInstallationLayout.SamusBodyDirectoryName, "samus-death-explosion-manifest.json");
+        yield return (GameInstallationLayout.SamusBodyDirectoryName, "samus-death-palettes-manifest.json");
+        // The sheet families' provenance listed each sheet manifest's hash; the families' catalogs and manifests name the sheets.
+        yield return (GameInstallationLayout.SpriteSheetDirectoryName, "sprite-sheets.json");
+        yield return (GameInstallationLayout.EnemySheetDirectoryName, "enemy-sheets-provenance.json");
+        yield return (GameInstallationLayout.RoomBlockSheetDirectoryName, "room-block-sheets-provenance.json");
+        yield return (GameInstallationLayout.BossBodySheetDirectoryName, "boss-body-sheets-provenance.json");
+        // The picture store's provenance held its pages' and maps' hashes; its index, pictures.json, holds the rest.
+        yield return (PictureStoreFiles.DirectoryName, "pictures-provenance.json");
+        // The room layouts' manifest listed each level's name, size and hash; the retail rooms name the levels.
+        yield return (GameInstallationLayout.RoomVisualLayoutDirectoryName, "room-layouts.json");
+    }
+
+    /// <summary>
     /// Every import-only layout is in the cartridge-derived extraction's import data and absent from the shared repository
-    /// installation's component directory.
+    /// installation's component directory, and every retired manifest is in neither.
     /// </summary>
     internal static void VerifyImportOnlyLayouts()
     {
@@ -112,7 +144,17 @@ internal static class ImportOnlyLayoutsVerification
                 $"a published installation does not hold the import-only layout {component}/{file}");
             count++;
         }
-        Console.WriteLine($"  Import-only layouts: {count} layouts are import data and none is installed.");
+        int retired = 0;
+        foreach ((string component, string file) in Retired())
+        {
+            AssertTrue(!File.Exists(Path.Combine(CartridgeImportContent.Component(component), file)) &&
+                    !File.Exists(Path.Combine(CartridgeImportContent.ImportData(component), file)),
+                $"the extraction writes no {component}/{file}");
+            AssertTrue(!File.Exists(Path.Combine(content, component, file)),
+                $"a published installation does not hold the retired manifest {component}/{file}");
+            retired++;
+        }
+        Console.WriteLine($"  Import-only layouts: {count} layouts are import data and none is installed; {retired} retired manifests are written nowhere.");
     }
 
     /// <summary>Runs the import-only layout check over the shared repository installation.</summary>

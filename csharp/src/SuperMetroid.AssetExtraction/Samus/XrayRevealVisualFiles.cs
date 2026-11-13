@@ -23,8 +23,6 @@ public static class XrayRevealVisualFiles
 {
     /// <summary>Family-relative version-five installed JSON filename for reveal-rule operands, the extension exit block, four tank metatiles, and special-room overlay records.</summary>
     public const string VisualFileName = "reveals.json";
-    /// <summary>Stock manifest filename containing version-five format, caller-supplied cartridge provenance, and the reveal JSON's SHA-256.</summary>
-    public const string ManifestFileName = "manifest.json";
     /// <summary>
     /// Schema revision that includes rule operands, tank metatiles, and room-overlay records: revision 3 holds the four tanks'
     /// reveal blocks alone, every other item being revealed as its kind's own picture (#1538); revision 4 holds the block an
@@ -56,19 +54,16 @@ public static class XrayRevealVisualFiles
     /// overlays.
     /// </summary>
     /// <param name="bus">Cartridge source for bank-$91 reveal records, eight bank-$84 item draw pointers at $84:839D, and bank-$8F special-X-ray lists referenced by compiled room states.</param>
-    /// <param name="directory">Family directory, created before native validation; receives new <see cref="VisualFileName"/> and <see cref="ManifestFileName"/> files.</param>
-    /// <param name="sourceCartridgeSha256">Nonblank caller-supplied provenance hash, recorded without recomputation; loading requires the supported cartridge identity.</param>
-    /// <remarks>Drawable rules are grouped by collision kind and definition. Item and room-overlay level words are decoded to appearances by <see cref="RoomLevelWordCodec"/>; room coordinates are unsigned 16-pixel block positions. Create-new writes refuse existing outputs and are not an atomic JSON/manifest transaction.</remarks>
+    /// <param name="directory">Family directory, created before native validation; receives a new <see cref="VisualFileName"/> file and no manifest (#1693), the document naming its own format and the installation receipt the cartridge.</param>
+    /// <remarks>Drawable rules are grouped by collision kind and definition. Item and room-overlay level words are decoded to appearances by <see cref="RoomLevelWordCodec"/>; room coordinates are unsigned 16-pixel block positions. The create-new write refuses an existing output.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
-    /// <exception cref="ArgumentException">The directory or source hash is null, empty, or whitespace.</exception>
+    /// <exception cref="ArgumentException">The directory is null, empty, or whitespace.</exception>
     /// <exception cref="InvalidDataException">A native rule's command differs from the compiled commands, a pointer/command is invalid, the X-ray reveals an item showing its own picture other than by its block pair's first frame, or a room overlay is empty, unterminated, or contains nonvisual words.</exception>
     /// <exception cref="IOException">An output exists or filesystem access fails.</exception>
-    public static void Extract(ISnesAddressSpace bus, string directory,
-        string sourceCartridgeSha256)
+    public static void Extract(ISnesAddressSpace bus, string directory)
     {
         Ensure.NotNull(bus);
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
-        ArgumentException.ThrowIfNullOrWhiteSpace(sourceCartridgeSha256);
         Directory.CreateDirectory(directory);
 
         var groups = new Dictionary<XrayRevealGroupKey,
@@ -114,31 +109,20 @@ public static class XrayRevealVisualFiles
         byte[] json = JsonSerializer.SerializeToUtf8Bytes(
             new XrayRevealVisualDocument(FormatVersion, entries, ExtensionExitBlock, tankMetatiles, rooms),
             JsonOptions);
-        using (var file = new FileStream(Path.Combine(directory, VisualFileName),
-                   FileMode.CreateNew, FileAccess.Write))
-            file.Write(json);
-        using var manifest = new FileStream(Path.Combine(directory, ManifestFileName),
-            FileMode.CreateNew, FileAccess.Write);
-        JsonSerializer.Serialize(manifest,
-            new XrayRevealVisualManifest(FormatVersion, sourceCartridgeSha256), JsonOptions);
+        using var file = new FileStream(Path.Combine(directory, VisualFileName), FileMode.CreateNew, FileAccess.Write);
+        file.Write(json);
     }
 
     /// <summary>Validates the installed version-five X-ray presentation as the player left it, retaining native rule selection, copy geometry, extensions, and area gating.</summary>
-    /// <param name="directory">Family directory containing the installed reveal JSON and its provenance manifest.</param>
+    /// <param name="directory">Family directory containing the installed reveal JSON.</param>
     /// <returns>A ROM-independent catalog with copied rule operands, the extension exit block, four tank reveals, and ordered special-room tile lists.</returns>
     /// <remarks>Loading does not repeat cartridge reads. Strict JSON rejects unknown/missing constructor properties. Every entry must name a compiled drawable rule with its shape, every drawable rule must be covered once, and the special rooms keep their identities; blocks, appearances, tile lists and byte-range room coordinates may change.</remarks>
     /// <exception cref="ArgumentException"><paramref name="directory"/> is null, empty, or whitespace.</exception>
-    /// <exception cref="InvalidDataException">Manifest provenance, strict JSON schema, rule coverage/shape, unused operands, or overlay identities are invalid.</exception>
-    /// <exception cref="IOException">The installed manifest or reveal JSON cannot be read.</exception>
+    /// <exception cref="InvalidDataException">The format, strict JSON schema, rule coverage/shape, unused operands, or overlay identities are invalid.</exception>
+    /// <exception cref="IOException">The installed reveal JSON cannot be read.</exception>
     public static InstalledXrayReveals Load(string directory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
-        string manifestPath = Path.Combine(directory, ManifestFileName);
-        XrayRevealVisualManifest manifest = ReadJson<XrayRevealVisualManifest>(manifestPath);
-        if (manifest.Version != FormatVersion ||
-            !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
-                StringComparison.OrdinalIgnoreCase))
-            throw new InvalidDataException($"X-ray manifest {manifestPath} is incompatible.");
         string path = Path.Combine(directory, VisualFileName);
         XrayRevealVisualDocument document = ReadJson<XrayRevealVisualDocument>(path);
         ValidateStructure(document, path);
@@ -326,8 +310,6 @@ public static class XrayRevealVisualFiles
         return JsonAssetDocument.Read<T>(stream, JsonOptions, $"X-ray {path}");
     }
 
-    /// <summary>Stock provenance and SHA-256 of the exact reveal JSON bytes.</summary>
-    private sealed record XrayRevealVisualManifest(int Version, string SourceCartridgeSha256);
     /// <summary>Complete editable rule, extension exit, tank, and room-overlay families for the installed format.</summary>
     /// <param name="Version">The schema revision.</param>
     /// <param name="Entries">Every drawable rule's blocks.</param>

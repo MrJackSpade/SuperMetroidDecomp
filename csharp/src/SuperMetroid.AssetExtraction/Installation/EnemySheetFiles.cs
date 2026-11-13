@@ -13,8 +13,8 @@ namespace SuperMetroid.AssetExtraction.Installation;
 /// <summary>
 /// Installs the pre-coloured enemy sheets (#1392, #1599, #1633, #1635): each distinct sheet's manifest, its pictures held in
 /// the installation's picture store, the manifest
-/// naming every variant of each enemy and of each owner's spawned objects and the variants each population draws, and the
-/// provenance of their hashes. A player edits a sheet's installed files in place.
+/// naming every variant of each enemy and of each owner's spawned objects and the variants each population draws, which
+/// names the sheets (#1693). A player edits a sheet's installed files in place.
 /// </summary>
 public static class EnemySheetFiles
 {
@@ -36,9 +36,6 @@ public static class EnemySheetFiles
     /// <summary>The installation directory holding the sheets and their manifest.</summary>
     public const string DirectoryName = "enemy-sheets";
 
-    /// <summary>The provenance manifest's file name.</summary>
-    public const string ProvenanceFileName = "enemy-sheets-provenance.json";
-
     /// <summary>
     /// Composes every enemy sheet and writes the variant manifest; the sheets are returned for the picture store to write
     /// (<see cref="PictureStoreFiles"/>, #1635).
@@ -51,7 +48,7 @@ public static class EnemySheetFiles
         Directory.CreateDirectory(directory);
         File.WriteAllBytes(Path.Combine(directory, ManifestFileName),
             JsonSerializer.SerializeToUtf8Bytes(composition.Manifest, JsonOptions));
-        return new InstalledSheetFamily(directory, ProvenanceFileName,
+        return new InstalledSheetFamily(directory,
             [.. composition.Sheets.Select(sheet => new NamedInstalledSheet(sheet.Key, sheet.Value))]);
     }
 
@@ -74,7 +71,7 @@ public static class EnemySheetFiles
             .Concat(manifest.SpawnedVariants.Values.SelectMany(entry =>
                 entry.Sheet is { } own ? entry.CommonPictures.Keys.Append(own) : entry.CommonPictures.Keys))
             .Distinct(StringComparer.Ordinal)];
-        SpriteSheetStore store = SpriteSheetStore.Open(directory, ProvenanceFileName, names.Length);
+        SpriteSheetStore store = SpriteSheetStore.Open(directory);
         var loaded = names.ToDictionary(name => name, store.Read, StringComparer.Ordinal);
         // The sheets' frames are named from the display bindings installed beside them, without a character (#1636) or a
         // composition (#1638).

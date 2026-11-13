@@ -23,7 +23,7 @@ internal sealed record PhantoonDeathDependencies
     /// <summary>Handles Phantoon's damage, death, and flame drops.</summary>
     public required EnemyDeathsAndDrops DeathsAndDrops { get; init; }
 
-    /// <summary>Phantoon's fades, health colors, wave amplitude, programs and function timer, shared by every phase of the fight.</summary>
+    /// <summary>Phantoon's fades, health colors, wave amplitude, animations and function timer, shared by every phase of the fight.</summary>
     public required PhantoonPresentation PhantoonPresentation { get; init; }
 
     /// <summary>Phantoon's attack rounds: figure eights, eye tracking, swoops, flame rain and rage.</summary>

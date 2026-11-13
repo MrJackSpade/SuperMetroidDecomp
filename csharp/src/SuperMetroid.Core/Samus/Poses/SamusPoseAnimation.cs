@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>
-/// A Samus pose's animation program (#1473): runs of frames, each frame a picture held for its delay or the cue
+/// A Samus pose's animation (#1473): runs of frames, each frame a picture held for its delay or the cue
 /// that ends its run. Samus's animation frame is the number of the step it is on; frame numbers are the pose's artwork
 /// frame numbers, so a number between two runs names no step, and reaching one fails.
 /// </summary>
@@ -31,9 +31,9 @@ internal sealed class SamusPoseAnimation
         }
     }
 
-    /// <summary>How many frame numbers the program spans, its last step's included.</summary>
+    /// <summary>How many frame numbers the animation spans, its last step's included.</summary>
     internal int FrameCount => steps.Length;
 
-    /// <summary>The step at frame <paramref name="frame"/>, or null when no step of the program has that number.</summary>
+    /// <summary>The step at frame <paramref name="frame"/>, or null when no step of the animation has that number.</summary>
     internal SamusPoseAnimationStep? TryStepAt(int frame) => (uint)frame < (uint)steps.Length ? steps[frame] : null;
 }

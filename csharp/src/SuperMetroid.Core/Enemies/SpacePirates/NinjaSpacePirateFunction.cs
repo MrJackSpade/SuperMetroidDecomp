@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// </summary>
 public enum NinjaSpacePirateFunction
 {
-    /// <summary>Shared return stub used while the animation program owns the actor.</summary>
+    /// <summary>Shared return stub used while the animation owns the actor.</summary>
     NoOperation = 1,
     /// <summary>Waits for Samus to enter activation range.</summary>
     Initial,

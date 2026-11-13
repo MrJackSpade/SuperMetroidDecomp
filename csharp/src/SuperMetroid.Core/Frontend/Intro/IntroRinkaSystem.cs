@@ -19,9 +19,9 @@ internal sealed class IntroRinkaSystem
 {
     /// <summary>The live Rinkas, in spawn order; a deleted Rinka leaves the list at the end of the pass that deletes it.</summary>
     internal readonly List<IntroRinka> rinkas = [];
-    /// <summary>Invisible actor whose program schedules the two spawn pairs.</summary>
+    /// <summary>Invisible actor whose animation schedules the two spawn pairs.</summary>
     private readonly IntroDiscoverySprite spawner;
-    /// <summary>Whether Mother Brain's explosions have started, after which the spawner's program has no spawn left.</summary>
+    /// <summary>Whether Mother Brain's explosions have started, after which the spawner's animation has no spawn left.</summary>
     private bool spawnsForbidden;
 
     /// <summary>Creates the invisible spawner before its timed animation runs.</summary>
@@ -35,7 +35,7 @@ internal sealed class IntroRinkaSystem
     /// <param name="samus">Samus, whose X position a hitting Rinka crosses before applying its knockback.</param>
     /// <param name="motherBrainExploding">True once Mother Brain's exploding step deletes the Rinkas.</param>
     /// <param name="explosionsAllocated">
-    /// True once Mother Brain's explosions have started. The spawner's program spawns every Rinka before then, so a
+    /// True once Mother Brain's explosions have started. The spawner's animation spawns every Rinka before then, so a
     /// spawn after it is a fault in the cinematic's script.
     /// </param>
     [IndependentFlag("Mother Brain exploding and her explosions having started are separate intro states read each frame.")]
@@ -45,7 +45,7 @@ internal sealed class IntroRinkaSystem
         Ensure.NotNull(samus);
 
         spawnsForbidden = explosionsAllocated;
-        // The spawner updates before the Rinkas, so a Rinka it spawns runs its first frame behaviour and program step in
+        // The spawner updates before the Rinkas, so a Rinka it spawns runs its first frame behaviour and animation step in
         // this same update.
         if (spawner.IsActive)
             spawner.Step(HandleSpawnerCue);

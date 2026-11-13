@@ -5,7 +5,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.Powamp;
 
 /// <summary>
-/// Powamp's body pulses and balloon inflate and sink animations as typed programs (#641). Each
+/// Powamp's body pulses and balloon inflate and sink animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
 internal static class PowampAnimations

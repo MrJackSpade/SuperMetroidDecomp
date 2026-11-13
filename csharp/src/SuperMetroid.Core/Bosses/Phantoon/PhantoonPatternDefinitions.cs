@@ -36,7 +36,7 @@ public static class PhantoonPatternDefinitions
     /// </remarks>
     public static ReadOnlySpan<int> ShotEyeMarkers => [6, 6, 8, 8, 6, 8, 6, 8];
 
-    /// <summary>The eye's gaze program for each direction it looks toward Samus in.</summary>
+    /// <summary>The eye's gaze animation for each direction it looks toward Samus in.</summary>
     internal static readonly IReadOnlyDictionary<CompassDirection, PhantoonPartSegment> EyeGazeAnimations =
         new Dictionary<CompassDirection, PhantoonPartSegment>
         {

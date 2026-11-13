@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.MorphBallEye;
 
 /// <summary>
-/// The Morph Ball eye's tracking, eyelid and mount animations as typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// The Morph Ball eye's tracking, eyelid and mount animations (#641): one segment per animation a spawn, branch or resumed sleep enters, in authored order.
 /// Their steps are <see cref="MorphBallEyeAnimations"/>.
 /// </summary>
 internal enum MorphBallEyeSegment

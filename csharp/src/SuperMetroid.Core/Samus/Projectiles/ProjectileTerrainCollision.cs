@@ -488,7 +488,7 @@ internal sealed class ProjectileTerrainCollision
         KillBeam(slot);
     }
 
-    /// <summary>Moves a beam explosion to its directional leading edge and installs the explosion program.</summary>
+    /// <summary>Moves a beam explosion to its directional leading edge and installs the explosion animation.</summary>
     internal static void KillBeam(SamusProjectile slot)
     {
         // Killing the beam moves the explosion anchor to the leading edge before the explosion

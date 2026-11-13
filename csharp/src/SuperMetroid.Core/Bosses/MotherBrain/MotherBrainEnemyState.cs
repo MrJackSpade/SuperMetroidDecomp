@@ -38,7 +38,7 @@ public sealed class MotherBrainEnemyState
     public int FunctionTimer { get; internal set; }
 
     /// <summary>
-    /// Body-animation state written by private program cues. The body AI reads this
+    /// Body-animation state written by private animation cues. The body AI reads this
     /// pose independently of the current frame, notably while waiting for the slow
     /// post-ascent uncrouch to publish <see cref="MotherBrainBodyPose.Standing"/>.
     /// </summary>
@@ -74,14 +74,14 @@ public sealed class MotherBrainEnemyState
 
     /// <summary>
     /// The brain's own animation (#641, #1600), separate from the head enemy's dummy animation: its place rests on the
-    /// frame being shown, which its next beat is. Null means the brain is not live and not drawn. Only the program
+    /// frame being shown, which its next beat is. Null means the brain is not live and not drawn. Only the animation
     /// setter and the draw-time runner write it.
     /// </summary>
     internal AnimationPlayback<MotherBrainHeadSegment>? BrainPlayback { get; set; }
 
     /// <summary>
     /// How long the brain's frame has shown. It counts draws up from one
-    /// and the program advances once it exceeds the frame's duration, so each frame shows for
+    /// and the animation advances once it exceeds the frame's duration, so each frame shows for
     /// its duration plus one draw.
     /// </summary>
     public int BrainFrameTimer { get; internal set; }
@@ -180,14 +180,14 @@ public sealed class MotherBrainEnemyState
     /// <summary>Zero-based colour step used while leaving fake-death grey.</summary>
     public int GrayTransitionCounter { get; internal set; }
 
-    /// <summary>Allows the head program's mouth-drool generation, enabled during live combat and cleared by low-power/death transitions.</summary>
+    /// <summary>Allows the head animation's mouth-drool generation, enabled during live combat and cleared by low-power/death transitions.</summary>
     public bool DroolGenerationEnabled { get; internal set; }
     /// <summary>Allows the head's small purple breath/dust producer, enabled after stretching and disabled for the drained corpse interval.</summary>
     public bool SmallPurpleBreathGenerationEnabled { get; internal set; }
 
     /// <summary>
     /// Set by the small breath's
-    /// initializer and cleared by its last program step, so at most one
+    /// initializer and cleared by its last animation step, so at most one
     /// small breath is alive.
     /// </summary>
     public bool SmallPurpleBreathActive { get; internal set; }
@@ -195,7 +195,7 @@ public sealed class MotherBrainEnemyState
     /// <summary>
     /// Attached-mouth offset selector used by the drool step. The game
     /// increments before spawning and wraps at six, so a zero-initialized encounter emits
-    /// parameter one first.
+    /// drool at mouth offset one first.
     /// </summary>
     public int DroolProjectileParameter { get; internal set; }
 
@@ -262,7 +262,7 @@ public sealed class MotherBrainEnemyState
     /// <summary>
     /// The already verified rainbow/finish-off/Baby/phase-three state machine, attached to
     /// the real body/head pair only after phase-two health reaches zero. Physical actor
-    /// coordinates and programs remain owned by this room system; this object owns the long
+    /// coordinates and animations remain owned by this room system; this object owns the long
     ///  function chain and forced-Samus calculations.
     /// </summary>
     public MotherBrainRainbowBeamAttackSequence? RainbowBeamSequence
@@ -288,7 +288,7 @@ public sealed class MotherBrainEnemyState
 
 
     /// <summary>
-    /// Last Baby program copied into its physical slot. The slot's cursor advances
+    /// Last Baby animation copied into its physical slot. The slot's cursor advances
     /// independently, so this latch changes only when Baby AI explicitly invokes the
     /// set-list helper.
     /// </summary>
@@ -314,11 +314,11 @@ public sealed class MotherBrainEnemyState
     public RotationAngle RainbowBeamAngularWidth { get; internal set; }
 
     /// <summary>
-    /// Last brain program copied from the rainbow state machine into the brain.
-    /// The brain cursor advances away from the program start, so comparing against it
-    /// would reinstall the program and reset its timer every frame. This separate
-    /// producer-owned latch mirrors the fact that the brain-program request runs only when body AI
-    /// explicitly requests a different brain program.
+    /// Last brain animation copied from the rainbow state machine into the brain.
+    /// The brain cursor advances away from the animation start, so comparing against it
+    /// would reinstall the animation and reset its timer every frame. This separate
+    /// producer-owned latch mirrors the fact that the brain-animation request runs only when body AI
+    /// explicitly requests a different brain animation.
     /// </summary>
     internal MotherBrainHeadSegment? RainbowAppliedHeadAnimation { get; set; }
 

@@ -33,7 +33,7 @@ public sealed class PlatformEnemyState
     /// <summary>The rider-selected vertical movement, recomputed each actor update before horizontal then vertical motion.</summary>
     public PlatformVerticalMovement YMovement { get; internal set; }
 
-    /// <summary>The patrol direction: initialized from population parameter 1 and changed by wall collisions or animation cues.</summary>
+    /// <summary>The patrol direction: initialized from its spawn movement and changed by wall collisions or animation cues.</summary>
     public PlatformHorizontalMovement XMovement { get; internal set; }
 
     /// <summary>Whether moving art has been installed for the current vertical phase.</summary>

@@ -16,7 +16,7 @@ public sealed class MagdolliteEnemyState
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<MagdolliteSegment> Playback { get; set; }
 
-    /// <summary>The immutable head, arm, or hand role decoded from this physical enemy slot's population parameter one.</summary>
+    /// <summary>The immutable head, arm, or hand role its spawn names.</summary>
     public MagdollitePart Part { get; }
     /// <summary>The current AI function.</summary>
     public MagdolliteEnemyFunction? Function { get; internal set; }
@@ -31,10 +31,10 @@ public sealed class MagdolliteEnemyState
     /// <summary>Whether the hand throws its lava rightward, chosen from Samus's side at the apex.</summary>
     public bool ThrowsRight { get; internal set; }
 
-    /// <summary>The program last installed; null until a part's initializer installs its first.</summary>
+    /// <summary>The animation last installed; null until a part's initializer installs its first.</summary>
     internal MagdolliteSegment? InstalledAnimation { get; set; }
 
-    /// <summary>The program the part's AI wants shown.</summary>
+    /// <summary>The animation the part's AI wants shown.</summary>
     internal MagdolliteSegment DesiredAnimation { get; set; }
 
     /// <summary>
@@ -43,7 +43,7 @@ public sealed class MagdolliteEnemyState
     /// </summary>
     public Offset16<RoomPixels> RiseDisplacement { get; internal set; }
 
-    /// <summary>Whether an animation is active, set and cleared by program callbacks to gate head transitions and completion of the hand's throw.</summary>
+    /// <summary>Whether an animation is active, set and cleared by animation cues to gate head transitions and completion of the hand's throw.</summary>
     public bool AnimationBusy { get; internal set; }
     /// <summary>Whether the head is not yet ready to emerge: set by the head after submerging and cleared by the arm on landing so the head may emerge.</summary>
     public bool HeadWaitsForBodyLanding { get; internal set; }

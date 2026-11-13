@@ -516,7 +516,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             RunPowampSpikeFrameBehavior(context.Projectile, context.Level);
         }, EnemyProjectileFrameBehavior.PowampSpikeFlight);
-        // A shot spike runs the same private delete program its definition names as its shot list.
+        // A shot spike runs the same private delete animation its definition names as its shot list.
         table.AddShotAnimation(RoomEnemyProjectileKind.PowampSpike, () => new PowampSpikeAnimation(PowampSpikeSegment.Delete));
     }
 
@@ -631,7 +631,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Marks a spike for its deletion list after its movement phase ends.</summary>
     internal static void BeginPowampSpikeDeletion(EnemyProjectile spike)
     {
-        // The program deletes the spike as its first command; starting it at timer one lets the
+        // The animation deletes the spike as its first command; starting it at timer one lets the
         // animation pass carry that out later in this same frame.
         spike.StartAnimation(new PowampSpikeAnimation(PowampSpikeSegment.Delete));
     }

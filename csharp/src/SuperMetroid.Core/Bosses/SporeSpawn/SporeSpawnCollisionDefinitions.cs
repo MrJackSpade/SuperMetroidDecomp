@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// <summary>
 /// The twelve Spore Spawn frames and
 /// their fixed gameplay hitboxes. Version 6 mislabeled their visual keys as
-/// Draygon, but collision always follows the actual Spore Spawn program.
+/// Draygon, but collision always follows the actual Spore Spawn animation.
 /// </summary>
 internal static class SporeSpawnCollisionDefinitions
 {

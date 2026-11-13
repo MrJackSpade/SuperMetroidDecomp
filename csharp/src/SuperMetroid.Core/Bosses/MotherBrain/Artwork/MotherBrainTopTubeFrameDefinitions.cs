@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>
-/// The presentation boundary of the ceiling-tube programs (#641): the projectile frame each tube's pose shows.
+/// The presentation boundary of the ceiling-tube animations (#641): the projectile frame each tube's pose shows.
 /// </summary>
 internal static class MotherBrainTopTubeFrameDefinitions
 {

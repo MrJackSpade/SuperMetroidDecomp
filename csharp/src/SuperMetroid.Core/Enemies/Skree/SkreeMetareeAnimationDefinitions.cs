@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Enemies.Skree;
 /// <summary>Fixed animation selectors for Skree and Metaree.</summary>
 internal static class SkreeMetareeAnimationDefinitions
 {
-    /// <summary>The Metaree program for each named animation phase.</summary>
+    /// <summary>The Metaree segment for each named animation phase.</summary>
     internal static readonly Dictionary<SkreeMetareeAnimationPhase, SkreeMetareeSegment> MetareeAnimations = new()
     {
         [SkreeMetareeAnimationPhase.Idling] = SkreeMetareeSegment.MetareeIdling,
@@ -12,7 +12,7 @@ internal static class SkreeMetareeAnimationDefinitions
         [SkreeMetareeAnimationPhase.StopAnimating] = SkreeMetareeSegment.MetareeStopAnimating,
     };
 
-    /// <summary>The Skree program for each named animation phase.</summary>
+    /// <summary>The Skree segment for each named animation phase.</summary>
     internal static readonly Dictionary<SkreeMetareeAnimationPhase, SkreeMetareeSegment> SkreeAnimations = new()
     {
         [SkreeMetareeAnimationPhase.Idling] = SkreeMetareeSegment.SkreeIdling,

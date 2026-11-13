@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Choot;
 
-/// <summary>What a cue of Choot's programs does: one per kind of step its lists use.</summary>
+/// <summary>What a cue of Choot's animations does: keep or stop processing it off screen.</summary>
 internal enum ChootCueKind
 {
     /// <summary>Keeps processing the enemy while it is off screen.</summary>

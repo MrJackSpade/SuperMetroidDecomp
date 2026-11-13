@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Gunship;
 
-/// <summary>The gunship liftoff dust clouds' typed programs (#641): three cloud shapes on each side of the ship.</summary>
+/// <summary>The gunship liftoff dust clouds' typed animations (#641): three cloud shapes on each side of the ship.</summary>
 internal enum GunshipDustSegment
 {
     /// <summary>Loads the cloud's single pass.</summary>

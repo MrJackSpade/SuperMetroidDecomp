@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>One mouth-collision read at a head-program cursor: a shape, the closed mouth's missing shape, or no pose at all.</summary>
+/// <summary>One mouth-collision read at a head-animation cursor: a shape, the closed mouth's missing shape, or no pose at all.</summary>
 /// <param name="Kind">What the read finds.</param>
 /// <param name="Shape">The shape found, for <see cref="KraidMouthShapeReadKind.Shape"/>.</param>
 internal readonly record struct KraidMouthShapeRead(KraidMouthShapeReadKind Kind, KraidMouthHitbox Shape)

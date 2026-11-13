@@ -28,6 +28,6 @@ internal sealed record MotherBrainFakeDeathDependencies
     public required MotherBrainEncounter MotherBrainEncounter { get; init; }
 
 
-    /// <summary>Mother Brain's state lookups, body and brain program setters, timers and room-object requests.</summary>
+    /// <summary>Mother Brain's state lookups, body and brain animation setters, timers and room-object requests.</summary>
     public required MotherBrainEncounterAccess Access { get; init; }
 }

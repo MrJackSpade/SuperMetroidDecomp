@@ -76,7 +76,7 @@ internal sealed class SamusPresentation
     }
 
     /// <summary>
-    /// Restarts the animation's program after a scripted controller writes Pose and
+    /// Restarts the pose's animation after a scripted controller writes Pose and
     /// literal animation values without calling ordinary pose initialization.
     /// </summary>
     /// <remarks>
@@ -172,7 +172,7 @@ internal sealed class SamusPresentation
 
     /// <summary>
     /// Publishes an animation frame/timer pair written directly by an installed special
-    /// movement handler instead of by the generic delay program.
+    /// movement handler instead of by the generic delay animation.
     /// </summary>
     /// <remarks>
     /// Crystal Flash writes the frame and timer directly. This narrow internal
@@ -210,7 +210,7 @@ internal sealed class SamusPresentation
             (controllerInput & ControllerButton.B) != ControllerButton.None;
         if (activeDashAnimation)
         {
-            // An active Dash takes the cue that closes the run before the pose's program does. Without the
+            // An active Dash takes the cue that closes the run before the pose's animation does. Without the
             // Speed Booster the run restarts at frame zero on the ordinary cadence, and nothing else runs.
             if (samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster))
             {
@@ -232,7 +232,7 @@ internal sealed class SamusPresentation
                     return;
                 }
 
-                // A boost cadence countdown still running leaves the cue to the pose's program below.
+                // A boost cadence countdown still running leaves the cue to the pose's animation below.
             }
             else
             {
@@ -328,7 +328,7 @@ internal sealed class SamusPresentation
         samus.AnimationFrameTimer = WrappingCountdown.Start(samus.AnimationFrameBuffer).AddFrames(selected.Ticks);
     }
 
-    /// <summary>Rejects animation updates after a pose change that did not restart the animation for the new pose's program.</summary>
+    /// <summary>Rejects animation updates after a pose change that did not restart the animation for the new pose's animation.</summary>
     private static void EnsureAnimationInitialized(SamusState samus)
     {
         if (samus.AnimatedPose is not { } animated ||

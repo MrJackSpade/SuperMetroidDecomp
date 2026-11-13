@@ -199,7 +199,7 @@ internal sealed class RidleyProjectiles
             source.Velocity);
     }
 
-    /// <summary>Switches a collided branch to its final five-frame program without clearing its velocity or damage fields.</summary>
+    /// <summary>Switches a collided branch to its final five-frame animation without clearing its velocity or damage fields.</summary>
     internal static void BeginAfterburnFinalAnimation(EnemyProjectile projectile)
     {
         projectile.StartAnimation(new RidleyFireballAnimation(RidleyFireballSegment.AfterburnFinal));
@@ -252,7 +252,7 @@ internal sealed class RidleyProjectiles
         }, EnemyProjectileFrameBehavior.VerticalAfterburnFlight);
     }
 
-    /// <summary>Carries out the cues of the fireball and afterburn programs: motion, the afterburn spawns and deletion.</summary>
+    /// <summary>Carries out the cues of the fireball and afterburn animations: motion, the afterburn spawns and deletion.</summary>
     internal void AddFireballCues(EnemyProjectileHandlerTable table)
     {
         table.AddCue<RidleyFireballCue>((context, cue) =>

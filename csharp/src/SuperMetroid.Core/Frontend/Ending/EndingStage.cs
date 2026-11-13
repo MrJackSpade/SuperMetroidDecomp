@@ -91,7 +91,7 @@ internal sealed class EndingStage
     /// </summary>
     private static int SoleActorRank(EndingSpriteRole role) => Array.IndexOf(EndingCastOrderDefinitions.SoleActorsLast, role);
 
-    /// <summary>Installs a sprite from its authored position, attributes and program.</summary>
+    /// <summary>Installs a sprite from its authored position, attributes and animation.</summary>
     /// <returns>The actor added.</returns>
     internal EndingSprite SpawnSprite(EndingSpriteDefinition definition, EndingSpriteRole role) =>
         SpawnSprite(
@@ -142,7 +142,7 @@ internal sealed class EndingStage
             case EndingSpriteRole.ExplosionGlow:
             case EndingSpriteRole.ExplosionStars:
             case EndingSpriteRole.ExplosionLava:
-                // The layers follow the planet actor's program, not a
+                // The layers follow the planet actor's animation, not a
                 // cinematic timer. These subordinate layers disappear with that actor.
                 if (!sprites.Any(actor => actor.Role == EndingSpriteRole.ExplodingZebes && actor.Sprite.IsActive))
                     sprite.Delete();

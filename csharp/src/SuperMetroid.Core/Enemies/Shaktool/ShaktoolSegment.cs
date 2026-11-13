@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Shaktool;
 
 /// <summary>
-/// The Shaktool's saw-hand, arm and head animations as typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// The Shaktool's saw-hand, arm and head animations (#641): one segment per animation a spawn, branch or resumed sleep enters, in authored order.
 /// Their steps are <see cref="ShaktoolAnimations"/>.
 /// </summary>
 internal enum ShaktoolSegment

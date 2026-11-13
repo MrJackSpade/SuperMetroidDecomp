@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>
 /// The Tourian statue room's shared animation state (#1549): which boss statues are still animating, whether one statue
-/// is playing its release, and whether all four have released. The statue tile programs and the descent set and clear
+/// is playing its release, and whether all four have released. The statue tile animations and the descent set and clear
 /// each part independently.
 /// </summary>
 public sealed class TourianStatueAnimation

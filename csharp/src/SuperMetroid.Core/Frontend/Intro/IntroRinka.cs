@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// <summary>One of the four Rinkas of the Mother Brain flashback: the sprite it shows and what its launch chose.</summary>
 internal sealed class IntroRinka
 {
-    /// <summary>Creates the Rinka of <paramref name="launch"/> at its authored place, running the Rinka program.</summary>
+    /// <summary>Creates the Rinka of <paramref name="launch"/> at its authored place, running the Rinka animation.</summary>
     /// <param name="launch">The launch, 0 through 3, in spawn order.</param>
     public IntroRinka(int launch)
     {
@@ -19,7 +19,7 @@ internal sealed class IntroRinka
         Sprite.InstallFrameBehavior(IntroRinkaDefinitions.RinkaActor.FrameBehavior);
     }
 
-    /// <summary>The sprite showing the Rinka: its position and program.</summary>
+    /// <summary>The sprite showing the Rinka: its position and animation.</summary>
     internal IntroDiscoverySprite Sprite { get; }
 
     /// <summary>Whether the Rinka takes the route that strikes Samus; only the first launch does, the others miss.</summary>

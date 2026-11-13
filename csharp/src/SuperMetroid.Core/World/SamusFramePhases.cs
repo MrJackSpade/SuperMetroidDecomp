@@ -636,7 +636,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         // The controller-held standing/crouching phases last only while Samus keeps a
         // drained body: a pose the movement installs (a wall jump out of a drained
         // spin) returns her to the ordinary movement and input dispatch. So does the landing of a drained fall that an
-        // ordinary pose's animation installed by reading into a drained crouch's program (#1535): the landing restores the
+        // ordinary pose's animation installed by reading into a drained crouch's animation (#1535): the landing restores the
         // normal movement handler, which only a drained pose's special movement leaves empty.
         else if (samus.Drained.Phase != DrainedSamusPhase.Inactive &&
             !(samus.Drained.Phase is DrainedSamusPhase.Standing or DrainedSamusPhase.Crouching or DrainedSamusPhase.OnFloor &&

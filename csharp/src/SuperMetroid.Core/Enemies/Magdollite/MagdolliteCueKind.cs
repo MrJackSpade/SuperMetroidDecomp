@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Magdollite;
 
-/// <summary>What a cue of the Magdollite's programs does: one per kind of step its lists use.</summary>
+/// <summary>What a cue of the Magdollite's animations does: move its parts, place the head and body for the throw, throw lava, mark the animation busy or idle, record a sound, or start the attack cooldown.</summary>
 internal enum MagdolliteCueKind
 {
     /// <summary>Clears the animation-busy flag.</summary>

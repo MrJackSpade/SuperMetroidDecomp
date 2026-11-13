@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
-/// <summary>The random field a projectile program's random branch reads.</summary>
+/// <summary>The random field a projectile animation's random branch reads.</summary>
 internal static class EnemyProjectileRandomBranchDefinitions
 {
     /// <summary>The random field the one-in-four branch reads: the sample divided by 16384.</summary>

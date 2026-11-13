@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Areas.Tourian;
 
-/// <summary>The Tourian statue projectile programs (#641), in authored order.</summary>
+/// <summary>The Tourian statue projectile animations (#641), in authored order.</summary>
 internal enum TourianStatueProjectileSegment
 {
     /// <summary>The private delete list.</summary>

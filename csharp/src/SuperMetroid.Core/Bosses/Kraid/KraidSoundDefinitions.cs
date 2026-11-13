@@ -15,10 +15,10 @@ internal static class KraidSoundDefinitions
     /// <summary>A belly lint fires.</summary>
     internal static SoundEffectId LintFire { get; } = RoomSound.KraidLint;
 
-    /// <summary>Kraid's roar, cried by the attack and dying roars of the head program.</summary>
+    /// <summary>Kraid's roar, cried by the attack and dying roars of the head animation.</summary>
     internal static SoundEffectId HeadRoar { get; } = EnemySound.KraidRoar;
 
-    /// <summary>Kraid's death cry, cried by the death head program.</summary>
+    /// <summary>Kraid's death cry, cried by the death head animation.</summary>
     internal static SoundEffectId HeadDyingCry { get; } = EnemySound.KraidDyingCry;
 
     /// <summary>A heavy footstep.</summary>

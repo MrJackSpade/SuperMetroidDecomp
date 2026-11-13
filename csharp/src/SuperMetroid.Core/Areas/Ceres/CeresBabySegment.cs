@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Areas.Ceres;
 
-/// <summary>The Ceres Baby Metroid's cutscene programs, in authored order.</summary>
+/// <summary>The Ceres Baby Metroid's cutscene animations, in authored order.</summary>
 internal enum CeresBabySegment
 {
     /// <summary>The idle squish, two squish cycles that each first check whether the baby moves.</summary>

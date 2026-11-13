@@ -115,7 +115,7 @@ internal sealed class CeresRidleyBehavior
                     CeresRidleyFlight.StartRidleyAnimation(state, slot, RidleyBodySegment.TransitionToFlying);
                     // Ridley's roar before flying primes the wing
                     // timer, enables every tail segment, and selects neutral tail AI in
-                    // the same transition that installs the flying animation script.
+                    // the same transition that installs the flying animation.
                     state.WingAnimationTimer = 8;
                     state.WingAnimationTimerDelta = 8;
                     foreach (RidleyTailSegment segment in state.TailSegments)

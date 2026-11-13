@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// <summary>Immutable ending-sprite constructor data.</summary>
 /// <param name="Position">Origin in pixels; an offscreen origin left of or above the screen is held as its coordinate's wrap.</param>
 /// <param name="Colouring">The colouring the actor's palette-inheriting parts start drawing in (#1512).</param>
-/// <param name="Animation">The cinematic sprite program the actor runs.</param>
+/// <param name="Animation">The cinematic sprite animation the actor runs.</param>
 internal readonly record struct EndingSpriteDefinition(
     Position16<ScreenPixels> Position,
     EndingSpriteColouring Colouring,

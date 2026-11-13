@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// One draw a room object makes on the room's level data, identified by what it draws: its family's frame (#1402). Programs hand
+/// One draw a room object makes on the room's level data, identified by what it draws: its family's frame (#1402). Room objects hand
 /// draws to <see cref="IRoomObjectDrawing"/>, which dispatches on the frame's type; a family's visual catalog keys its authored
 /// blocks by the draw. Where the game stored each draw is known only to the import pipeline.
 /// </summary>

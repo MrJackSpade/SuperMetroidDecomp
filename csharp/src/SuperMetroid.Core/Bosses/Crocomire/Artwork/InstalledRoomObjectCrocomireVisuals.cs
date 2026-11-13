@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
 
 /// <summary>
-/// The installed pictures of Crocomire's bridge and invisible-wall frames (#1557). The frames' terrain, programs and draw
+/// The installed pictures of Crocomire's bridge and invisible-wall frames (#1557). The frames' terrain, animations and draw
 /// geometry stay the game's.
 /// </summary>
 public sealed class InstalledRoomObjectCrocomireVisuals

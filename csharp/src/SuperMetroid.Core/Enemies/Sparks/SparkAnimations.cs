@@ -6,7 +6,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.Sparks;
 
 /// <summary>
-/// The Wrecked Ship Spark's flicker, active and emitter animations as typed programs (#641). Each
+/// The Wrecked Ship Spark's flicker, active and emitter animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="SparkCue"/> with its typed operands.
 /// </summary>
 internal static class SparkAnimations

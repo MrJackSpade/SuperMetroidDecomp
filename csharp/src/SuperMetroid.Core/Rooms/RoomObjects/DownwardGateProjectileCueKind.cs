@@ -1,6 +1,6 @@
 ﻿namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>What a cue of the downward shot gate's programs does: one per command its lists use.</summary>
+/// <summary>What a cue of the downward shot gate's animations does: stop or delete the projectile.</summary>
 internal enum DownwardGateProjectileCueKind
 {
     /// <summary>Stops the projectile's movement.</summary>

@@ -54,7 +54,7 @@ internal sealed class MotherBrainEncounter
         _audio.QueueEnemySound(sound, SoundRequestPriority.Normal);
 
     /// <summary>
-    /// Queues a sound a Mother Brain program cue or explosion makes. Mother Brain's explosion competes at low priority;
+    /// Queues a sound a Mother Brain animation cue or explosion makes. Mother Brain's explosion competes at low priority;
     /// every other cue sound at normal priority.
     /// </summary>
     internal void RequestCueSound(SoundEffectId sound) =>

@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>The twenty draw lists selected by station animation programs.</summary>
+/// <summary>The twenty draw lists selected by station animations.</summary>
 internal enum StationDraw
 {
     /// <summary>First map-station frame draw list.</summary>

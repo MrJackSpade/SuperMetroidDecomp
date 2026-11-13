@@ -156,7 +156,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
             segment.Position = owner.Position.WithWhole(state.InitialHead);
             // The initializer writes collision option one for these four links. Their
             // shot-blocking property admits the beam overlap; this independent flag selects the persistent
-            // dud response rather than the definition's delete-on-shot program.
+            // dud response rather than the definition's delete-on-shot animation.
             segment.CollisionOption = EnemyProjectileCollisionOption.IndestructibleDud;
             state.ProjectileSegments[segmentIndex] = segment;
         }

@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
 /// What a Samus projectile is: a beam shot, missile, bomb, special attack particle or echo. The kind sets the damage the
-/// projectile starts with and the program it starts in each direction it is fired in.
+/// projectile starts with and the animation it starts in each direction it is fired in.
 /// </summary>
 internal enum SamusProjectileKind
 {

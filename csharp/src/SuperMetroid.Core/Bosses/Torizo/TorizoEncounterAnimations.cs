@@ -6,7 +6,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>The encounter programs both Torizos share: the gut and face blow-ups, the death sequence and the opening.</summary>
+/// <summary>The encounter animations both Torizos share: the gut and face blow-ups, the death sequence and the opening.</summary>
 internal static class TorizoEncounterAnimations
 {
     /// <summary>Each segment and its beats.</summary>

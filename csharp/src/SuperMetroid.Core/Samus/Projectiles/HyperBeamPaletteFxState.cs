@@ -10,13 +10,13 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// installed when Samus receives the Hyper Beam.
 /// </summary>
 /// <remarks>
-/// The state retains the program position and timer. Fixed program control is
+/// The state retains the animation position and timer. Fixed animation control is
 /// compiled separately from the live colours so presentation replacement cannot
 /// silently change engine cadence or route restored state into adjacent game data.
 /// </remarks>
 public sealed class HyperBeamPaletteFxState
 {
-    /// <summary>The colours the Hyper Beam palette program names, which its object checks the program against.</summary>
+    /// <summary>The colours the Hyper Beam palette animation names, which its object checks the animation against.</summary>
     private const PaletteFxColours AnimationColours = PaletteFxColours.HyperBeam;
 
     /// <summary>Where the Hyper Beam's colour animation resumes between updates.</summary>

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.MorphBallEye;
 /// <summary>Where the Morph Ball surveillance eye mounts, and its beam's intensity.</summary>
 internal static class MorphBallEyeGeometry
 {
-    /// <summary>The offset and program of the mount on <paramref name="side"/> of the eye's centre.</summary>
+    /// <summary>The offset and animation of the mount on <paramref name="side"/> of the eye's centre.</summary>
     internal static MorphBallEyeMountDefinition Mount(MorphBallEyeMountSide side) => side switch
     {
         MorphBallEyeMountSide.Left => MorphBallEyeGeometryDefinitions.LeftMount,

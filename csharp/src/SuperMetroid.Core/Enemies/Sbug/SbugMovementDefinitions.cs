@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Sbug;
 
-/// <summary>Facing-program and activation-function selection for Sbug movement.</summary>
+/// <summary>Facing-animation and activation-function selection for Sbug movement.</summary>
 internal static class SbugMovementDefinitions
 {
     /// <summary>

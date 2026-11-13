@@ -23,7 +23,7 @@ internal sealed class KraidProjectiles
     private readonly EnemyCollision _collision;
     /// <summary>Applies contact damage, death state, and resulting drops.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
-    /// <summary>Kraid's state and part lookups, part programs, function timer, random numbers and the sound he last requested.</summary>
+    /// <summary>Kraid's state and part lookups, part animations, function timer, random numbers and the sound he last requested.</summary>
     private readonly KraidEncounterAccess _access;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -126,7 +126,7 @@ internal sealed class KraidProjectiles
         InitializeKraidNail(slot, _parts.SecondNail);
     }
 
-    /// <summary>Registers the spat rock's typed burst and the rock programs' cues.</summary>
+    /// <summary>Registers the spat rock's typed burst and the rock animations' cues.</summary>
     internal static void AddKraidRockAnimations(EnemyProjectileHandlerTable table)
     {
         table.AddShotAnimation(RoomEnemyProjectileKind.KraidSpitRock,

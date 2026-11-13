@@ -6,7 +6,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.KiHunters;
 
 /// <summary>
-/// The Ki-Hunter body's flight, swoop, hop, landing and spit animations and its wings' animations as typed programs (#641). Each
+/// The Ki-Hunter body's flight, swoop, hop, landing and spit animations and its wings' animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="KiHunterCue"/> with its typed operands.
 /// </summary>
 internal static class KiHunterAnimations

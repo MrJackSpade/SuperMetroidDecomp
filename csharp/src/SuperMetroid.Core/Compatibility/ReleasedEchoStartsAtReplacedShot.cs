@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </summary>
 /// <remarks>
 /// Consulted once per echo, when the crash's finish releases it onto its place. Evidence: the original echo setup writes
-/// the echo's kind, pictures, program and angle but not its position, which stays as the place's previous shot left it
+/// the echo's kind, pictures, animation and angle but not its position, which stays as the place's previous shot left it
 /// until the echo's update recalculates it.
 /// </remarks>
 [CompatibilityService("a released crash echo stands where the shot it replaced was until its first update")]

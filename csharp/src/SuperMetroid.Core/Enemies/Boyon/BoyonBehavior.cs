@@ -211,7 +211,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
         _audio.QueueEnemySound(BoyonBounceSound, priority: SoundRequestPriority.Normal);
     }
 
-    /// <summary>Runs Boyon's idle and bouncing loops as typed programs (#641).</summary>
+    /// <summary>Runs Boyon's idle and bouncing loops (#641).</summary>
     internal void AdvanceBoyonAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
         EnemyAnimationPlayback.Advance(slot, BoyonAnimations.Segments,
             static (BoyonEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,

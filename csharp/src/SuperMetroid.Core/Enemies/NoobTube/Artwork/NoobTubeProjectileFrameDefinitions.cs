@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Enemies.NoobTube.Artwork;
 
 /// <summary>
-/// The presentation boundary of the n00b tube's crack, shards and bubbles programs (#641): the projectile frame each
+/// The presentation boundary of the n00b tube's crack, shards and bubbles animations (#641): the projectile frame each
 /// <see cref="NoobTubeProjectileFrame"/> pose shows.
 /// </summary>
 internal static class NoobTubeProjectileFrameDefinitions

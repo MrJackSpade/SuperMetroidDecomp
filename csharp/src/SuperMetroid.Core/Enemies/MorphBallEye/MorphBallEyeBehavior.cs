@@ -37,7 +37,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The room-global beam an eye body casts.</summary>
     public MorphBallEyeBeamState MorphBallEyeBeam { get; } = new();
 
-    /// <summary>Initializes a closed body from parameter-one facing, or offsets a mount and resets the room-global beam for negative parameter two.</summary>
+    /// <summary>Initializes a closed body from its spawn facing, or offsets a beam mount and resets the room-global beam.</summary>
     internal void InitializeMorphBallEye(RoomEnemySlot slot)
     {
         var state = new MorphBallEyeEnemyState();

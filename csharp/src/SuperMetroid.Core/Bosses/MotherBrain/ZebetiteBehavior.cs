@@ -97,7 +97,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.SetSpeciesState(state);
 
         // One more processing property is still unnamed: its wider meaning is not proven. Keep it as
-        // loaded while naming only the verified animation-script property.
+        // loaded while naming only the verified animating property.
         slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
         slot.Contact = slot.Contact.With(EnemyContact.SolidToSamus);
         slot.AnimationClock.Restart();
@@ -277,7 +277,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Runs a half's health program where the shared enemy animation runs: its pose shows on the update the
+    /// Runs a half's health animation where the shared enemy animation runs: its pose shows on the update the
     /// timer expires, raising the new-frame flag, and the script's sleep then keeps it.
     /// </summary>
     internal static void AdvanceZebetiteAnimation(RoomEnemySlot slot)

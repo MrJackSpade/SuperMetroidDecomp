@@ -67,7 +67,7 @@ internal static class MotherBrainAnimations
         ],
     });
 
-    /// <summary>Each body program's animation: its segment played once, then held as the script's sleep holds it.</summary>
+    /// <summary>Each body segment's animation: its segment played once, then held as its sleep holds it.</summary>
     internal static IReadOnlyDictionary<B, Animation<B>> BodyStartingAt { get; } =
         Enum.GetValues<B>().ToDictionary(segment => segment, segment => new Animation<B>([Whole(segment)], AnimationEnd.Holds));
 
@@ -307,7 +307,7 @@ internal static class MotherBrainAnimations
     });
 
     /// <summary>
-    /// The brain animation that starts at each brain program: each plays on through the programs it runs on into or
+    /// The brain animation that starts at each brain segment: each plays on through the segments it runs on into or
     /// continues at, looping from the first one it reaches again.
     /// </summary>
     internal static IReadOnlyDictionary<H, Animation<H>> HeadStartingAt { get; } = new Dictionary<H, Animation<H>>

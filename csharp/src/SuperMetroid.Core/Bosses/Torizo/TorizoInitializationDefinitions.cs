@@ -6,15 +6,15 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 internal static class TorizoInitializationDefinitions
 {
     /// <summary>
-    /// The Torizo initializer's positions, programs, processing and radii.
-    /// First entries select Bomb Torizo, including its first initial body program.
+    /// The Torizo initializer's positions, animations, processing and radii.
+    /// First entries select Bomb Torizo, including its first initial body animation.
     /// The processing flags are added to the population's existing processing.
     /// </summary>
     internal static TorizoInitializationDefinition Bomb => new(new(219, 179), TorizoBodySegment.BombTorizoInitial0, EnemyProcessing.OffScreen | EnemyProcessing.Animates, new(18, 48));
 
     /// <summary>
     /// The second initialization entries select Golden Torizo, including
-    /// its first initial body program. Its shorter Y radius is authored data.
+    /// its first initial body animation. Its shorter Y radius is authored data.
     /// </summary>
     internal static TorizoInitializationDefinition Golden => new(new(424, 144), TorizoBodySegment.GoldenInitial0, EnemyProcessing.OffScreen | EnemyProcessing.Animates, new(18, 41));
 }

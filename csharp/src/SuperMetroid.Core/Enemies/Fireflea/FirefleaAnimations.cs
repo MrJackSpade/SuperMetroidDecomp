@@ -5,7 +5,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.Fireflea;
 
 /// <summary>
-/// Fireflea's 52-frame glow loop as a typed program (#641). Each
+/// Fireflea's 52-frame glow loop as a typed animation (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
 internal static class FirefleaAnimations

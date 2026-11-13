@@ -5,7 +5,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.Nuclear;
 
 /// <summary>
-/// Puromi/Nuclear Waffle's body animation as a typed program (#641). Each
+/// Puromi/Nuclear Waffle's body animation as a typed animation (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
 internal static class NuclearWaffleAnimations

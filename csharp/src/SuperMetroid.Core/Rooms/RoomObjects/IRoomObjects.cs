@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
 /// The room's room-object owners that the room module and the domains below the room composition reach (#1395): the room-level
-/// families, the shared sound queue and drawing, and the hooks a scripted program uses. The room composition implements
+/// families, the shared sound queue and drawing, and the hooks the scripted room objects use. The room composition implements
 /// it over every family; a domain above the room module reaches its own families through its own view.
 /// </summary>
 internal interface IRoomObjects

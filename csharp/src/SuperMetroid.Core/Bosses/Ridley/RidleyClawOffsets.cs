@@ -17,7 +17,7 @@ public static class RidleyClawOffsets
     /// standing, one legs half extended, two legs extended), advancing 10.5 pixels per pose rounded upward.
     /// </summary>
     /// <remarks>
-    /// Ridley's body programs select only these three poses, so no other pose reaches the claw. A larger index has no
+    /// Ridley's body animations select only these three poses, so no other pose reaches the claw. A larger index has no
     /// offset; it is unreachable and is rejected.
     /// </remarks>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="footPose"/> is not one of the three poses.</exception>

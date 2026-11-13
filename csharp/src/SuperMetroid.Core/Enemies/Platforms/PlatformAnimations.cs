@@ -6,7 +6,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.Platforms;
 
 /// <summary>
-/// The Tripper's and Kamer's vertically moving and still platform loops as typed programs (#641). Each
+/// The Tripper's and Kamer's vertically moving and still platform loops (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="PlatformCue"/> with its typed operands.
 /// </summary>
 internal static class PlatformAnimations

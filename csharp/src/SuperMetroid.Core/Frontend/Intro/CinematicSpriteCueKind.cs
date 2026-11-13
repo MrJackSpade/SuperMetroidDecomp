@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.Intro;
 
-/// <summary>What a cue of a cinematic sprite program does: the shared frame-behaviour install and each owner cue the programs use.</summary>
+/// <summary>What a cue of a cinematic sprite animation does: the shared frame-behaviour install and each owner cue the animations use.</summary>
 internal enum CinematicSpriteCueKind
 {
     /// <summary>Installs <see cref="CinematicSpriteCue.FrameBehavior"/> (the shared frame-behaviour install).</summary>

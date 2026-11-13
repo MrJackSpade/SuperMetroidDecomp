@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>The charge flare's three animated parts, each playing its own program of pictures.</summary>
+/// <summary>The charge flare's three animated parts, each playing its own animation of pictures.</summary>
 public enum ChargeFlareComponent
 {
     /// <summary>The flare at the arm cannon's muzzle.</summary>

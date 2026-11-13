@@ -31,6 +31,6 @@ internal sealed class MotherBrainFallingTubeState
         internal set => field = Ensure.BetweenInclusive(0, 3, value);
     }
 
-    /// <summary>The main tube's wait before it falls (parameter two), counted down past zero.</summary>
+    /// <summary>The main tube's wait before it falls, counted down past zero.</summary>
     public int FallDelay { get; internal set; }
 }

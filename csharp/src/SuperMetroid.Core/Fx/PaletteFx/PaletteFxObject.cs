@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 
 /// <summary>
 /// The colour effects, named by what each shows. Each names how it starts
-/// and an initial program (<see cref="RoomPaletteFxSelection"/>); a running <see cref="RoomColourEffect"/> shows one.
+/// and an initial animation (<see cref="RoomPaletteFxSelection"/>); a running <see cref="RoomColourEffect"/> shows one.
 /// </summary>
 public enum PaletteFxObject
 {

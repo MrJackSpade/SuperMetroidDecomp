@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Hoppers;
 
 /// <summary>
-/// The Sidehoppers' and Dessgeegas' floor and ceiling hop and landing animations as typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// The Sidehoppers' and Dessgeegas' floor and ceiling hop and landing animations (#641): one segment per animation a spawn, branch or resumed sleep enters, in authored order.
 /// Their steps are <see cref="HopperAnimations"/>.
 /// </summary>
 internal enum HopperSegment

@@ -28,7 +28,7 @@ internal sealed class CrocomireEntity(CrocomireBehavior species, RoomEnemySlot s
     public EnemyMainAiHandler? FindMain() => CrocomirePartDefinitions.Parts[Slot.DefinitionId] switch
     {
         CrocomirePart.Crocomire => species.RunCrocomireMainAi,
-        // The tongue's main AI is an empty step; the tongue follows the body through its animation script and extended map.
+        // The tongue's main AI is an empty step; the tongue follows the body through its animation and extended map.
         CrocomirePart.Tongue => EnemyNoOpAi.Main,
         _ => throw new InvalidOperationException($"Crocomire entity bound to {Slot.DefinitionId}."),
     };

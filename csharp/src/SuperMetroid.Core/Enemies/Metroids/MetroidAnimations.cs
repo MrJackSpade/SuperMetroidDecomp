@@ -6,7 +6,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.Metroids;
 
 /// <summary>
-/// The Metroid's chasing and draining pulse loops as typed programs (#641). Each
+/// The Metroid's chasing and draining pulse loops (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="MetroidCue"/> with its typed operands.
 /// </summary>
 internal static class MetroidAnimations

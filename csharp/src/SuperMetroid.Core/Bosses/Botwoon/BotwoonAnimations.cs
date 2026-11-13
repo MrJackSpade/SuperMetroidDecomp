@@ -45,21 +45,21 @@ internal static class BotwoonAnimations
         BotwoonBodyAnimationSegment.Spit,
     ];
 
-    /// <summary>The head's segments: each head program's beats.</summary>
+    /// <summary>The head's segments: each head animation's beats.</summary>
     internal static AnimationSegments<BotwoonHeadAnimationSegment, BotwoonHeadFrame, BotwoonHeadCue> HeadSegments { get; } = new(
         HeadAnimationKeys.ToDictionary(segment => segment, HeadBeats), HeadAnimationKeys);
 
-    /// <summary>The head animation that starts at each head program: it plays the program's beats once and holds its last frame.</summary>
+    /// <summary>The head animation that starts at each of the head's segments: it plays that segment's beats once and holds its last frame.</summary>
     internal static IReadOnlyDictionary<BotwoonHeadAnimationSegment, Animation<BotwoonHeadAnimationSegment>> HeadStartingAt { get; } =
         HeadAnimationKeys.ToDictionary(segment => segment, segment => new Animation<BotwoonHeadAnimationSegment>(
             [new(segment, 0, HeadSegments.Beats(segment).Count, 1)], AnimationEnd.Holds));
 
-    /// <summary>The segments a body segment or spit plays: each segment program's beats.</summary>
+    /// <summary>The segments a body segment or spit plays: each segment animation's beats.</summary>
     internal static AnimationSegments<BotwoonBodyAnimationSegment, BotwoonProjectileFrame, NoAnimationCue> ProjectileSegments { get; } = new(
         SegmentAnimationKeys.ToDictionary(segment => segment, ProjectileBeats), SegmentAnimationKeys);
 
     /// <summary>
-    /// The projectile animation that starts at each segment program: a body link and the spit cycle their frames for good,
+    /// The projectile animation that starts at each of those segments: a body link and the spit cycle their frames for good,
     /// and a tail cap or hidden segment shows its one frame and holds it.
     /// </summary>
     internal static IReadOnlyDictionary<BotwoonBodyAnimationSegment, Animation<BotwoonBodyAnimationSegment>> ProjectileStartingAt { get; } =
@@ -84,7 +84,7 @@ internal static class BotwoonAnimations
         _ => throw new ArgumentOutOfRangeException(nameof(facing), facing, "Undefined Botwoon facing."),
     };
 
-    /// <summary>How a segment program's animation ends: a body link and the spit cycle, a tail cap or hidden segment holds.</summary>
+    /// <summary>How a body segment's animation ends: a body link and the spit cycle, a tail cap or hidden segment holds.</summary>
     private static AnimationEnd ProjectileEnd(BotwoonBodyAnimationSegmentKind kind) => kind switch
     {
         BotwoonBodyAnimationSegmentKind.Body or BotwoonBodyAnimationSegmentKind.Spit => AnimationEnd.LoopsFrom(0),
@@ -92,7 +92,7 @@ internal static class BotwoonAnimations
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Undefined Botwoon segment program kind."),
     };
 
-    /// <summary>The beats of head program <paramref name="segment"/>.</summary>
+    /// <summary>The beats of head animation <paramref name="segment"/>.</summary>
     private static AnimationBeat<BotwoonHeadFrame, BotwoonHeadCue>[] HeadBeats(BotwoonHeadAnimationSegment segment) => segment.Kind switch
     {
         BotwoonHeadAnimationSegmentKind.Hidden => HiddenHead(),
@@ -101,7 +101,7 @@ internal static class BotwoonAnimations
         _ => throw new ArgumentOutOfRangeException(nameof(segment), segment, "Undefined Botwoon head program."),
     };
 
-    /// <summary>The beats of segment program <paramref name="segment"/>.</summary>
+    /// <summary>The beats of segment animation <paramref name="segment"/>.</summary>
     private static AnimationBeat<BotwoonProjectileFrame, NoAnimationCue>[] ProjectileBeats(BotwoonBodyAnimationSegment segment) => segment.Kind switch
     {
         BotwoonBodyAnimationSegmentKind.Body => BodyLink(segment.Facing),

@@ -15,7 +15,7 @@ internal static class CeresFlightActorDefinitions
     public static readonly Position16<ScreenPixels> FrontStarsStart = new(112, 87);
 
     /// <summary>
-    /// The star definition with initializer parameter zero: opening star field and the speed its rush starts at, four
+    /// The front star definition: opening star field and the speed its rush starts at, four
     /// pixels an update toward the top-left.
     /// </summary>
     /// <remarks>
@@ -58,14 +58,14 @@ internal static class CeresFlightActorDefinitions
         new(CinematicSpriteFrameBehavior.CeresSmallAsteroid, CinematicSpriteSegment.CeresSmallAsteroid,
             CeresSpriteColouring.SpaceObjects, SignedEightEight.Zero, SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(8), true);
 
-    /// <summary>The purple space vortex, parameter1.
+    /// <summary>The moving purple space vortex.
     /// Its initializer takes the nonzero branch, palette0800, preserving the moving callback;
-    /// its animation alternates two frames. Parameter0 is the stationary destruction-scene variant.</summary>
+    /// its animation alternates two frames. The stationary destruction-scene vortex is its other variant.</summary>
     internal static CeresFlightActorDefinition MovingVortex =>
         new(CinematicSpriteFrameBehavior.CeresPurpleSpaceVortex, CinematicSpriteSegment.CeresVortex,
             CeresSpriteColouring.SpaceObjects, SignedEightEight.Zero, VortexHorizontalDelta, false);
 
-    /// <summary>The stars around Ceres, parameter1.
+    /// <summary>The stars around Ceres, the rear view's variant.
     /// Its initializer takes the nonzero branch: palette0800, timer remains cleared;
     /// it replaces the star-field callback with the drifting one. The definition and animation alias FrontStars.</summary>
     internal static CeresFlightActorDefinition RearStars => FrontStars with

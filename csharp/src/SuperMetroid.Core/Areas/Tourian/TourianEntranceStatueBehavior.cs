@@ -129,7 +129,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     /// </summary>
     public int TourianEntranceStatueVerticalOffset { get; internal set; }
 
-    /// <summary>The statues' shared animation state, set and cleared by the statue tile programs and the descent.</summary>
+    /// <summary>The statues' shared animation state, set and cleared by the statue tile animations and the descent.</summary>
     public TourianStatueAnimation TourianEntranceStatueAnimation { get; } = new();
 
 

@@ -110,7 +110,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         _collision.ResolveNormalEnemyTouch(slot, samus);
 
         // The touch kills the Fireflea whatever it left, in the explosion FirefleaTouchDeathExplosion names. Queue that
-        // death program before clearing the actor so its artwork and sound can run.
+        // death animation before clearing the actor so its artwork and sound can run.
         if (slot.DefinitionId != EnemyDefinitionId.None)
             _deathsAndDrops.StartGenericEnemyDeath(slot, deathAnimation:
                 FirefleaTouchDeathExplosion.AfterSurvivedTouch(slot.Health, EnemyDeathExplosionDefinitions.AuthoredOrder));

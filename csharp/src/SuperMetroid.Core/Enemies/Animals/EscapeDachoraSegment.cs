@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>
-/// The escaping Dachora's typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// The escaping Dachora's typed animations (#641): one segment per animation a spawn, branch or resumed sleep enters, in authored order.
 /// Their steps are <see cref="EscapeDachoraAnimations"/>.
 /// </summary>
 internal enum EscapeDachoraSegment

@@ -17,7 +17,7 @@ internal sealed class PhantoonPatterns
     private readonly EnemyAudioQueue _audio;
     /// <summary>Supplies Samus state for eye tracking and attack selection.</summary>
     private readonly EnemyFrameContext _frameContext;
-    /// <summary>Phantoon's fades, health colors, wave amplitude, programs and function timer, shared by every phase of the fight.</summary>
+    /// <summary>Phantoon's fades, health colors, wave amplitude, animations and function timer, shared by every phase of the fight.</summary>
     private readonly PhantoonPresentation _phantoonPresentation;
 
 
@@ -765,7 +765,7 @@ internal sealed class PhantoonPatterns
         return true;
     }
 
-    /// <summary>Allocates a destroyable flame and gives it the idle program and a still, whole-pixel start.</summary>
+    /// <summary>Allocates a destroyable flame and gives it the idle animation and a still, whole-pixel start.</summary>
     /// <returns>The flame, or null when every enemy projectile slot is in use.</returns>
     private EnemyProjectile? AllocateDestroyableFlame(RoomEnemySlot body)
     {

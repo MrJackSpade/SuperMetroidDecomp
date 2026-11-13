@@ -102,7 +102,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
 
     /// <summary>
     /// Establishes the globals carried through an elevator door load. The destination
-    /// actor's initializer recognizes status two and starts at its parameter-2 Y position.
+    /// actor's initializer recognizes status two and starts at its arrival height.
     /// </summary>
     public void PrepareElevatorArrival(ElevatorJourneyFlag doorFlags = ElevatorJourneyFlag.DoorLoad)
     {

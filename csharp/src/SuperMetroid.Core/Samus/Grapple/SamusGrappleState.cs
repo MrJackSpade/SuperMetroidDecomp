@@ -178,7 +178,7 @@ public sealed class SamusGrappleState
 
     /// <summary>
     /// The main-flare picture the grapple's flare shows, one of the main flare's pictures: the flare restarts at the
-    /// main flare's loop when fired and plays its program on from there.
+    /// main flare's loop when fired and plays its animation on from there.
     /// </summary>
     public ChargeFlarePhase FlarePicture
     {

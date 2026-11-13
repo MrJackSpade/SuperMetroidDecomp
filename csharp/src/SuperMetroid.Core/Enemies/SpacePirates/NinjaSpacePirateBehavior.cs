@@ -28,7 +28,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     /// <summary>Spawns paired landing dust sprites.</summary>
     private readonly RoomSpriteObjects _spriteObjects;
 
-    /// <summary>Receives sound requests from shared Space Pirate program steps.</summary>
+    /// <summary>Receives sound requests from shared Space Pirate animation steps.</summary>
     private readonly WalkingSpacePirateBehavior _walkingSpacePirateBehavior;
 
     /// <summary>Captures the room, collision, projectile, sprite, and sound owners for ninja AI.</summary>
@@ -478,7 +478,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         SpawnNinjaPirateLandingDust(slot);
     }
 
-    /// <summary>Walks back to the selected post and restores its landing program.</summary>
+    /// <summary>Walks back to the selected post and restores its landing animation.</summary>
     private static void StepNinjaPirateWalkToPost(
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state,

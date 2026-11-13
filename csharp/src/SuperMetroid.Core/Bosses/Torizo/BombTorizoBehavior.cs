@@ -31,11 +31,11 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyAudioQueue _audio;
     /// <summary>Exposes the two live colour sets occupied by Torizo's body.</summary>
     private readonly EnemyPresentation _presentation;
-    /// <summary>Provides the frame counter used by Torizo program choices.</summary>
+    /// <summary>Provides the frame counter used by Torizo animation choices.</summary>
     private readonly EnemyFrameContext _frameContext;
     /// <summary>Spawns the orb drops and the death scatter after the authored sequences.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
-    /// <summary>Bomb and Golden Torizo's body: its behaviour flags, palette, program start and the low-health drool it triggers.</summary>
+    /// <summary>Bomb and Golden Torizo's body: its behaviour flags, palette, animation start and the low-health drool it triggers.</summary>
     internal TorizoBody Body { get; }
 
     /// <summary>Bomb and Golden Torizo's setup and movement: walking, jumps, falls and air transitions under gravity.</summary>
@@ -47,7 +47,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Bomb and Golden Torizo's projectiles: drool, swipes, sonic booms, Chozo orbs, eggs, super missiles, eye beams and explosions.</summary>
     internal TorizoAttacks Attacks { get; }
 
-    /// <summary>The branches Bomb and Golden Torizo's programs take on Samus's position, and their walk steps.</summary>
+    /// <summary>The branches Bomb and Golden Torizo's animations take on Samus's position, and their walk steps.</summary>
     internal TorizoChoices Choices { get; }
 
     /// <summary>Bomb and Golden Torizo's hitboxes, touch and hurt, and what Samus's weapons do to them.</summary>
@@ -188,7 +188,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         RequestBombTorizoMusic(MusicRequest.SelectTrack(MusicTrack.Elevator));
     }
 
-    /// <summary>Replaces Torizo's posture bits, keeping parameter 1's low thirteen bits.</summary>
+    /// <summary>Replaces Torizo's posture, keeping the rest of its state.</summary>
     private void SetPosture(RoomEnemySlot torizo, TorizoPostureFlags posture) =>
         Access.RequireBombTorizoState(torizo).Posture = posture;
 
@@ -222,7 +222,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         AdvanceTorizoAnimation(slot, new TorizoCueInputs { Samus = context.Samus, Level = context.Level, ControllerInput = context.ControllerInput, FrameCounter = _frameContext.FrameCounter });
     }
-    /// <summary>Runs Bomb or Golden Torizo's body program where the shared enemy animation would.</summary>
+    /// <summary>Runs Bomb or Golden Torizo's body animation where the shared enemy animation would.</summary>
     internal void AdvanceTorizoAnimation(RoomEnemySlot torizo, TorizoCueInputs inputs)
     {
         if (!torizo.AnimationClock.Expire())
@@ -342,13 +342,13 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             case TorizoCue.LowHealthExplosions explosions:
                 for (int explosion = 0; explosion < 6; explosion++)
                     Attacks.SpawnBombTorizoLowHealthExplosion(torizo, explosions.Site);
-                // The program then waits forty updates, as the callback's sleep does.
+                // The animation then waits forty updates, as the callback's sleep does.
                 torizo.FlashTimer = 40;
                 return null;
 
             case TorizoCue.Command { Kind: TorizoCueKind.SpawnDeathExplosion }:
                 Attacks.SpawnBombTorizoDeathExplosion(torizo);
-                // The program then waits one update, as the callback's sleep does.
+                // The animation then waits one update, as the callback's sleep does.
                 torizo.FlashTimer = 1;
                 return null;
 
@@ -587,7 +587,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Requires the active Samus actor for distance and attack decisions in Golden Torizo's program.</summary>
+    /// <summary>Requires the active Samus actor for distance and attack decisions in Golden Torizo's animation.</summary>
     private static SamusState RequireGoldenTorizoSamus(SamusState? samus) =>
         samus ?? throw new InvalidOperationException(
             "Golden Torizo instruction selection requires the active Samus actor.");

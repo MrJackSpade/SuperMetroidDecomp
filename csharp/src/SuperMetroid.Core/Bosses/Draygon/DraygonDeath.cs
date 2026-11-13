@@ -15,7 +15,7 @@ internal sealed class DraygonDeath
     private readonly RoomSpriteObjects _spriteObjects;
     /// <summary>Applies common death and drop behavior after Draygon's special sequence.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
-    /// <summary>Draygon's body, eye and tail: their setup, programs and cues.</summary>
+    /// <summary>Draygon's body, eye and tail: their setup, animations and cues.</summary>
     private readonly DraygonParts _parts;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>

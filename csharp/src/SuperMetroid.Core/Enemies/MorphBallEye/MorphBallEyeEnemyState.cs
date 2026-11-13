@@ -2,7 +2,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.MorphBallEye;
 
 /// <summary>
-/// The state of the Morph Ball eye. The mount and eye body share a definition, but parameter two's sign selects their
+/// The state of the Morph Ball eye. The mount and eye body share a definition, but their spawn part selects their
 /// role.
 /// </summary>
 public sealed class MorphBallEyeEnemyState

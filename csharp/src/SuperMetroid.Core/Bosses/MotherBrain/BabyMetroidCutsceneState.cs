@@ -45,7 +45,7 @@ public sealed class BabyMetroidCutsceneState
     /// <summary>How the actor meets Samus and her shots, after initialization makes it block the Plasma Beam.</summary>
     public EnemyContact Contact { get; private set; }
 
-    /// <summary>What the room's enemy passes run for the actor, after initialization starts its animation script.</summary>
+    /// <summary>What the room's enemy passes run for the actor, after initialization starts its animation.</summary>
     public EnemyProcessing Processing { get; private set; }
 
     /// <summary>Whether the actor is drawn and still occupies its slot.</summary>
@@ -57,10 +57,10 @@ public sealed class BabyMetroidCutsceneState
     /// </summary>
     public bool HurtFlashShown { get; private set; }
 
-    /// <summary>The Baby's current program.</summary>
+    /// <summary>The Baby's current animation.</summary>
     public MotherBrainBabySegment Animation { get; private set; }
 
-    /// <summary>The current frame's remaining hold, restarted at one whenever the program changes.</summary>
+    /// <summary>The current frame's remaining hold, restarted at one whenever the animation changes.</summary>
     public int FrameHold { get; private set; }
 
     /// <summary>
@@ -834,7 +834,7 @@ public sealed class BabyMetroidCutsceneState
             SoundEffect: MotherBrainSoundDefinitions.Explosion);
     }
 
-    /// <summary>Switches the Baby's program and restarts its frame timer.</summary>
+    /// <summary>Switches the Baby's animation and restarts its frame timer.</summary>
     private void SetAnimation(MotherBrainBabySegment segment)
     {
         Animation = segment;

@@ -58,7 +58,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // An escaping animal runs its animation script, is left out of the ordinary touch pass against Samus and
+        // An escaping animal runs its animation, is left out of the ordinary touch pass against Samus and
         // stands solid to her.
         slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
         slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus | EnemyContact.SolidToSamus);
@@ -83,7 +83,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // Dachora's population already supplies both properties, but the initializer sets the animation-script property again.
+        // Dachora's population already supplies both properties, but the initializer sets the animating property again.
         // Expressing the idempotent write documents the initializer and keeps a
         // synthetic/debug population faithful to retail initialization.
         slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
@@ -157,7 +157,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         _ = _terrain.MoveEnemyVertically(level, slot, EscapeEtecoonGravity);
     }
 
-    /// <summary>Runs an escaping Etecoon's or Dachora's typed program where the shared enemy animation would.</summary>
+    /// <summary>Runs an escaping Etecoon's or Dachora's typed animation where the shared enemy animation would.</summary>
     private void AdvanceEscapeAnimal(RoomEnemySlot slot, SamusState? samus)
     {
         if (!slot.AnimationClock.Expire())
@@ -180,7 +180,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         dachora.Playback = dachoraPlayback;
     }
 
-    /// <summary>Carries out one cue of an Etecoon's program, returning the program a branch continues at, or null to run on.</summary>
+    /// <summary>Carries out one cue of an Etecoon's animation, returning the segment a branch continues at, or null to run on.</summary>
     private static EscapeEtecoonSegment? ApplyEscapeEtecoonCue(RoomEnemySlot slot, EscapeEtecoonEnemyState state, SamusState? samus, EscapeEtecoonCue cue)
     {
         switch (cue)
@@ -221,7 +221,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Samples the critters-escaped event for Dachora's program branch and room revisit handling.</summary>
+    /// <summary>Samples the critters-escaped event for Dachora's animation branch and room revisit handling.</summary>
     private bool HasCrittersEscaped() => _room.Services.Events.Has(StoryEvent.CrittersEscaped);
 
     /// <summary>

@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
-/// A grey door cap (#1554), which replaces the grey caps' programs, their condition and shot wakes and their hit
+/// A grey door cap (#1554), which replaces the grey caps' sequences, their condition and shot wakes and their hit
 /// counter. On its first update the cap looks at its door: one opened for good turns into its closed blue cap
 /// (<see cref="BlueDoorCapObject"/>); otherwise it locks, shows its closed image and rests. While locked it tests its
 /// condition on each update before its images count down: until the condition holds a shot pending at its block makes

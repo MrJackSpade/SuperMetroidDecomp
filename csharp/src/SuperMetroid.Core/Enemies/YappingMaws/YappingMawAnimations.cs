@@ -6,7 +6,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.YappingMaws;
 
 /// <summary>
-/// The Yapping Maw's eight attack bites and six cooldown animations as typed programs (#641). Each
+/// The Yapping Maw's eight attack bites and six cooldown animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="YappingMawCue"/> with its typed operands.
 /// </summary>
 internal static class YappingMawAnimations

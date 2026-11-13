@@ -32,7 +32,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Phantoon's flames as projectiles, its hitboxes and body touch, and what Samus's weapons do to it.</summary>
     internal PhantoonCombat Combat { get; }
 
-    /// <summary>Phantoon's fades, health colors, wave amplitude, programs and function timer, shared by every phase of the fight.</summary>
+    /// <summary>Phantoon's fades, health colors, wave amplitude, animations and function timer, shared by every phase of the fight.</summary>
     internal PhantoonPresentation Presentation { get; }
 
     /// <summary>Phantoon's attack rounds: figure eights, eye tracking, swoops, flame rain and rage.</summary>
@@ -93,7 +93,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void InitializePhantoonPart(RoomEnemySlot part)
     {
         PhantoonEnemyState state = Combat.RequirePhantoonState(part);
-        // Each part is its own enemy, so the part's identity selects its program and its own state, and attaches it.
+        // Each part is its own enemy, so the part's identity selects its animation and its own state, and attaches it.
         if (part.DefinitionId == EnemyDefinitionId.PhantoonEye)
         {
             state.Eye = part;
@@ -121,7 +121,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         ResetPhantoonMouthControls(state);
     }
 
-    /// <summary>Copies body presentation state into a physical part and starts its chosen program.</summary>
+    /// <summary>Copies body presentation state into a physical part and starts its chosen animation.</summary>
     private void StartPhantoonPart(RoomEnemySlot part, PhantoonPartSegment segment)
     {
         PhantoonEnemyState state = Combat.Phantoon ??
@@ -315,7 +315,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal const int PhantoonDeathWaveMaximum = 61440;
 
     /// <summary>
-    /// Runs a Phantoon part's program where the shared enemy animation runs: the frame expires on the update
+    /// Runs a Phantoon part's animation where the shared enemy animation runs: the frame expires on the update
     /// its timer would, and a newly shown frame raises the new-frame flag.
     /// </summary>
     internal void AdvancePhantoonPartAnimation(RoomEnemySlot part)
@@ -335,7 +335,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.PartPlayback(part) = playback;
     }
 
-    /// <summary>Carries out one cue of a Phantoon part program.</summary>
+    /// <summary>Carries out one cue of a Phantoon part animation.</summary>
     internal void ApplyPhantoonPartCue(
         RoomEnemySlot part,
         PhantoonPartCue cue)
@@ -354,8 +354,8 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case PhantoonPartCue.BeginEyeTracking:
                 BeginPhantoonEyeTracking(state);
-                // The advance resumes its own cursor after the cue, so the program's hold overwrites the
-                // eye program this installs, as the Sleep does; the body's program survives.
+                // The advance resumes its own cursor after the cue, so the animation's hold overwrites the
+                // eye animation this installs, as the Sleep does; the body's animation survives.
                 return;
 
             case PhantoonPartCue.PickNewPattern:

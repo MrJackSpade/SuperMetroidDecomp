@@ -111,7 +111,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     private void InitiatePuyoHop(RoomEnemySlot slot, PuyoEnemyState state, SamusState samus)
     {
         // Normal follow-up hops are promoted from type zero to type one when Samus is
-        // strictly inside parameter-two's horizontal radius. Giant/dropping/dropped types
+        // strictly inside its horizontal hop distance. Giant/dropping/dropped types
         // deliberately bypass this proximity rewrite.
         if (IsNormalHop(state.HopType))
         {

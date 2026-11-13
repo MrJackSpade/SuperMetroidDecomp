@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Programs;
 
 /// <summary>
-/// Which segment a resting animation stands in (#1600), for owners whose gameplay compares it. A list that runs
-/// on into the list authored after it, directly after its last beat, hands its play to that list there, so a play resting
-/// after its last beat already stands in the next list, as the game's script position then rests at its entry.
+/// Which segment a resting animation stands in (#1600), for owners whose gameplay compares it. A segment that runs
+/// on into the segment authored after it, directly after its last beat, hands its play to that segment there, so a play resting
+/// after its last beat already stands in the next segment, as the game's animation then rests at its entry.
 /// </summary>
 internal static class AnimationResidence
 {

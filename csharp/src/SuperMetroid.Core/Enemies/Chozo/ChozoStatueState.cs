@@ -13,9 +13,9 @@ public sealed class ChozoStatueState
     /// <summary>The frame behaviour the statue runs, or none.</summary>
     public ChozoStatueFrameBehavior? FrameBehavior { get; internal set; }
 
-    /// <summary>Whether this is the Wrecked Ship statue (parameter two zero) rather than Lower Norfair's (two).</summary>
+    /// <summary>Whether this is the Wrecked Ship statue rather than Lower Norfair's.</summary>
     public bool IsWreckedShip { get; internal set; }
 
-    /// <summary>Whether Samus has triggered the statue's hand (parameter one), which its waiting phase wakes on.</summary>
+    /// <summary>Whether Samus has triggered the statue's hand, which its waiting phase wakes on.</summary>
     public bool HandTriggered { get; internal set; }
 }

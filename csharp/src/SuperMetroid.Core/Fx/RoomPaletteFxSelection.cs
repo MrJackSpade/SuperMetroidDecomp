@@ -3,12 +3,12 @@ using SuperMetroid.Core.Fx.PaletteFx;
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
-/// Selects how each colour effect starts and the program it starts.
+/// Selects how each colour effect starts and the animation it starts.
 /// </summary>
 internal static class RoomPaletteFxSelection
 {
-    /// <summary>How <paramref name="paletteFxObject"/> starts, and the program it starts.</summary>
-    /// <remarks>Distinct effects may share a program. The intro's start only watched a condition that does nothing, so
+    /// <summary>How <paramref name="paletteFxObject"/> starts, and the animation it starts.</summary>
+    /// <remarks>Distinct effects may share an animation. The intro's start only watched a condition that does nothing, so
     /// the Mother Brain fight scene's lights start plainly (#1554). Both fields are independently checked against
     /// supported NTSC J/U v1.0 and the pinned reference sources (362be646929cf8e483f692b73a6561cfc2dc1d0d).</remarks>
     internal static RoomPaletteFxDefinition Get(PaletteFxObject paletteFxObject) => paletteFxObject switch

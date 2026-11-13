@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Escape.Artwork;
 
 /// <summary>
-/// Lays out the escape warnings (<see cref="EscapeTypewriterDefinitions"/>): how many lines each program types, and
+/// Lays out the escape warnings (<see cref="EscapeTypewriterDefinitions"/>): how many lines each message types, and
 /// each line's wording and the pixel of the layer its first character is typed at.
 /// </summary>
 internal static class EscapeTypewriterLines

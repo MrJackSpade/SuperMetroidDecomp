@@ -6,7 +6,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.Chozo;
 
 /// <summary>
-/// The Lower Norfair and Wrecked Ship Chozo statues' idle and activation animations as typed programs (#641). Each
+/// The Lower Norfair and Wrecked Ship Chozo statues' idle and activation animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="ChozoStatueCue"/> with its typed operands.
 /// </summary>
 internal static class ChozoStatueAnimations

@@ -98,7 +98,7 @@ public sealed class BoyonEnemyState
     /// <summary>Per-frame copy of <see cref="SpeedMultiplier"/> restored before movement.</summary>
     public int SpeedMultiplierMirror { get; internal set; }
 
-    /// <summary>Prevents the idle program from being reinstalled every frame.</summary>
+    /// <summary>Prevents the idle animation from being reinstalled every frame.</summary>
     public bool IdleDisabled { get; internal set; }
 
     /// <summary>One-time gate for the initial curve-index calculation.</summary>

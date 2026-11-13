@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 internal static class BombTorizoStatueFragments
 {
     /// <summary>Returns the definition of <paramref name="fragment"/>, from zero to <see cref="FragmentCount"/> minus one.
-    /// The initializer reads each fragment's program, X offset
+    /// The initializer reads each fragment's animation, X offset
     /// and eight wrapping Y/velocity/acceleration rows.</summary>
     internal static BombTorizoStatueFragmentDefinition ForFragment(int fragment)
     {

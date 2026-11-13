@@ -2,7 +2,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Powamp;
 
 /// <summary>
-/// The state of one half of a Powamp: a nonzero population parameter one makes the balloon, while zero is the
+/// The state of one half of a Powamp: one placement is the balloon, and the
 /// immediately following moving body. Each half's values have their own members.
 /// </summary>
 public sealed class PowampEnemyState
@@ -10,7 +10,7 @@ public sealed class PowampEnemyState
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<PowampSegment> Playback { get; set; }
 
-    /// <summary>Whether this half is the balloon (population parameter one nonzero) rather than the moving body.</summary>
+    /// <summary>Whether this half is the balloon rather than the moving body.</summary>
     public bool IsBalloon { get; internal set; }
 
     /// <summary>The body's vertical displacement per AI update; negative values move upward.</summary>
@@ -38,8 +38,8 @@ public sealed class PowampEnemyState
     public PowampEnemyFunction? Function { get; internal set; }
 
     /// <summary>
-    /// Whether touch and shot AI are refused (parameter two is nonzero): set for a body once a lethal shot starts its
-    /// death, and from spawn for a balloon, whose parameter two is its grapple travel distance.
+    /// Whether touch and shot AI are refused: set for a body once a lethal shot starts its
+    /// death, and from spawn for a balloon with a nonzero grapple travel distance.
     /// </summary>
     public bool RefusesContact { get; internal set; }
 }

@@ -289,7 +289,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = PipeBugEnemyFunction.BrinstarRespawnDelay;
     }
 
-    /// <summary>Installs a strong or ordinary Brinstar program only when the selected animation changes.</summary>
+    /// <summary>Installs a strong or ordinary Brinstar segment only when the selected animation changes.</summary>
     internal static void SelectBrinstarPipeBugAnimation(
         RoomEnemySlot slot,
         PipeBugEnemyState state)

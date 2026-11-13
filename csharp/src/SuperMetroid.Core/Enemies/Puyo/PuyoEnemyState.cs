@@ -21,7 +21,7 @@ public sealed class PuyoEnemyState
     internal static readonly EnemyQuadraticSpeedIndex LargestYSpeedTableIndex =
         EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(short.MaxValue);
 
-    /// <summary>Grounded-frame countdown copied from population parameter one.</summary>
+    /// <summary>Grounded-frame countdown copied from its spawn hop cooldown.</summary>
     public int HopCooldownTimer { get; internal set; }
 
     /// <summary>Whether the Puyo is grounded or airborne.</summary>

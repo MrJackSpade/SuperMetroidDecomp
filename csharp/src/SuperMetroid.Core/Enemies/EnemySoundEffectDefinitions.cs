@@ -92,7 +92,7 @@ internal static class EnemySoundEffectDefinitions
     /// <summary>Enemy-library splash sound emitted at the water collision.</summary>
     internal static readonly SoundEffectId MaridiaLargeSnailSplashSound = EnemySound.SplashOut;
 
-    /// <summary>Enemy-library sound selected by Metroid's private animation program.</summary>
+    /// <summary>Enemy-library sound selected by Metroid's private animation.</summary>
     internal static readonly SoundEffectId MetroidAnimationSoundEffect = EnemySound.MetroidDrain;
 
     /// <summary>Enemy-library sound queued when an unfrozen Metroid recoils.</summary>
@@ -113,13 +113,13 @@ internal static class EnemySoundEffectDefinitions
     /// <summary>Enemy-library sound queued when an on-screen shutter begins moving.</summary>
     internal static readonly SoundEffectId ShutterActivationSound = EnemySound.SplashOut;
 
-    /// <summary>Enemy-library cue requested by the wall-jump program step.</summary>
+    /// <summary>Enemy-library cue requested by the wall-jump animation step.</summary>
     internal static readonly SoundEffectId WallPirateJumpSound = EnemySound.ShotSpacePirate;
 
     /// <summary>Enemy-library cue requested after a successful laser allocation.</summary>
     internal static readonly SoundEffectId WallPirateLaserSound = EnemySound.Laser;
 
-    /// <summary>Enemy-library cue requested by the footstep program step.</summary>
+    /// <summary>Enemy-library cue requested by the footstep animation step.</summary>
     internal static readonly SoundEffectId WorkRobotFootstepSound = EnemySound.WorkRobot;
 
     /// <summary>Enemy-library cue requested after a robot laser projectile is allocated.</summary>

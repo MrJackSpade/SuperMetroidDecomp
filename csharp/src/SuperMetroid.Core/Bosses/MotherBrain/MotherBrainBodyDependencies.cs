@@ -31,7 +31,7 @@ internal sealed record MotherBrainBodyDependencies
     /// <summary>Mother Brain's projectiles: bombs, onion rings, drool, lasers, hand beams, turret shots and the tank's glass.</summary>
     public required MotherBrainProjectiles ProjectileAttacks { get; init; }
 
-    /// <summary>Mother Brain's state lookups, body and brain program setters, timers and room-object requests.</summary>
+    /// <summary>Mother Brain's state lookups, body and brain animation setters, timers and room-object requests.</summary>
     public required MotherBrainEncounterAccess Access { get; init; }
 
     /// <summary>Holds the body her body frames show on.</summary>

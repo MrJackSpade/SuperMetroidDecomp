@@ -7,9 +7,9 @@ namespace SuperMetroid.Core.Enemies.FuneNamihe;
 /// </summary>
 public enum FuneNamiheEnemyFunction
 {
-    /// <summary>Increments the wrapping cooldown before a signed comparison with parameter one's target (the parameter divided by 256); on expiry it clears the counter, selects the active mouth animation, and parks at <see cref="FuneActivityNoOp"/>.</summary>
+    /// <summary>Increments the wrapping cooldown before a signed comparison with its cooldown time; on expiry it clears the counter, selects the active mouth animation, and parks at <see cref="FuneActivityNoOp"/>.</summary>
     FuneWaitForCooldown = 1,
-    /// <summary>Selects the active mouth animation only when Samus's modular vertical distance is strictly below parameter two's whole-pixel threshold (the parameter divided by 256), then parks at <see cref="NamiheActivityNoOp"/> without a cooldown.</summary>
+    /// <summary>Selects the active mouth animation only when Samus's modular vertical distance is strictly below its whole-pixel vertical proximity, then parks at <see cref="NamiheActivityNoOp"/> without a cooldown.</summary>
     NamiheWaitForSamus,
     /// <summary>Fune's inert main-AI target while animation cues own mouth motion, projectile/sound production, and the finish callback that restores its cooldown wait.</summary>
     FuneActivityNoOp,

@@ -5,13 +5,13 @@ using P = SuperMetroid.Core.Frontend.Intro.CinematicSpriteSegment;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
-/// Every cinematic sprite animation script as typed segments and animations (#641, #1600), generated from the verified
-/// animation scripts: each frame shows a <see cref="CinematicSpritePose"/>, each owner cue becomes a
+/// Every cinematic sprite animation as typed segments and animations (#641, #1600):
+/// each frame shows a <see cref="CinematicSpritePose"/>, each owner cue becomes a
 /// <see cref="CinematicSpriteCue"/>, and the shared delete ends the animation.
 /// </summary>
 internal static class CinematicSpriteAnimations
 {
-    /// <summary>Every cinematic sprite program.</summary>
+    /// <summary>Every cinematic sprite animation.</summary>
     internal static AnimationSegments<CinematicSpriteSegment, CinematicSpritePose, CinematicSpriteCue> Segments { get; } = new(
         new Dictionary<CinematicSpriteSegment, AnimationBeat<CinematicSpritePose, CinematicSpriteCue>[]>
     {

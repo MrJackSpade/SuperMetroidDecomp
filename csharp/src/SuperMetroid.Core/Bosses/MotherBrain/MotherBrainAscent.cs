@@ -237,7 +237,7 @@ internal sealed class MotherBrainAscent
         FinishMotherBrainStretching(state);
     }
 
-    /// <summary>Switches the head to its neutral phase-two program.</summary>
+    /// <summary>Switches the head to its neutral phase-two animation.</summary>
     internal static void FinishMotherBrainStretching(MotherBrainEnemyState state)
     {
         if (!MotherBrainEncounterAccess.DecrementMotherBrainTimerPastZero(state))

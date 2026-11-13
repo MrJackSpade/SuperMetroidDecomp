@@ -1,132 +1,132 @@
 namespace SuperMetroid.Core.Fx.PaletteFx;
 
 /// <summary>
-/// The colour effects' programs (#1298), one per entry point an effect, a start, a condition or a branch
-/// enters, in authored order. Generated from the verified animation scripts; see <see cref="PaletteFxAnimations"/>.
+/// The colour effects' animations (#1298), one per entry point an effect, a start, a condition or a branch
+/// enters, in authored order. Generated from the verified animations; see <see cref="PaletteFxAnimations"/>.
 /// </summary>
 public enum PaletteFxSegment
 {
-    /// <summary>The fade in Super Metroid title logo program.</summary>
+    /// <summary>The fade in Super Metroid title logo animation.</summary>
     FadeInSuperMetroidTitleLogo,
-    /// <summary>The fade in Nintendo boot logo program.</summary>
+    /// <summary>The fade in Nintendo boot logo animation.</summary>
     FadeInNintendoBootLogo,
-    /// <summary>The shared fade in logo program its variants continue into.</summary>
+    /// <summary>The shared fade in logo animation its variants continue into.</summary>
     CommonFadeInLogo,
-    /// <summary>The fade in Nintendo copyright program.</summary>
+    /// <summary>The fade in Nintendo copyright animation.</summary>
     FadeInNintendoCopyright,
-    /// <summary>The title screen Baby Metroid tube light program, step 0.</summary>
+    /// <summary>The title screen Baby Metroid tube light animation, step 0.</summary>
     TitleScreenBabyMetroidTubeLight0,
-    /// <summary>The title screen Baby Metroid tube light program, step 1.</summary>
+    /// <summary>The title screen Baby Metroid tube light animation, step 1.</summary>
     TitleScreenBabyMetroidTubeLight1,
-    /// <summary>The title screen flickering displays program, step 0.</summary>
+    /// <summary>The title screen flickering displays animation, step 0.</summary>
     TitleScreenFlickeringDisplays0,
-    /// <summary>The title screen flickering displays program, step 1.</summary>
+    /// <summary>The title screen flickering displays animation, step 1.</summary>
     TitleScreenFlickeringDisplays1,
-    /// <summary>The cutscene gunship engine flicker program, step 0.</summary>
+    /// <summary>The cutscene gunship engine flicker animation, step 0.</summary>
     CutsceneGunshipEngineFlicker0,
-    /// <summary>The cutscene gunship engine flicker program, step 1.</summary>
+    /// <summary>The cutscene gunship engine flicker animation, step 1.</summary>
     CutsceneGunshipEngineFlicker1,
-    /// <summary>The cutscene Ceres navigation light sprite program.</summary>
+    /// <summary>The cutscene Ceres navigation light sprite animation.</summary>
     CutsceneCeresNavigationLightSprite,
-    /// <summary>The shared Ceres navigation lights program its variants continue into.</summary>
+    /// <summary>The shared Ceres navigation lights animation its variants continue into.</summary>
     CommonCeresNavigationLights,
-    /// <summary>The cutscene Ceres navigation lights background program.</summary>
+    /// <summary>The cutscene Ceres navigation lights background animation.</summary>
     CutsceneCeresNavigationLightsBG,
-    /// <summary>The fade in Planet Zebes text program.</summary>
+    /// <summary>The fade in Planet Zebes text animation.</summary>
     FadeInPlanetZebesText,
-    /// <summary>The fade out Planet Zebes text program.</summary>
+    /// <summary>The fade out Planet Zebes text animation.</summary>
     FadeOutPlanetZebesText,
-    /// <summary>The old Mother Brain fight background lights program, step 0.</summary>
+    /// <summary>The old Mother Brain fight background lights animation, step 0.</summary>
     OldMotherBrainFightBGLights0,
-    /// <summary>The old Mother Brain fight background lights program, step 1.</summary>
+    /// <summary>The old Mother Brain fight background lights animation, step 1.</summary>
     OldMotherBrainFightBGLights1,
-    /// <summary>The gunship glow program, step 0.</summary>
+    /// <summary>The gunship glow animation, step 0.</summary>
     GunshipGlow0,
-    /// <summary>The gunship glow program, step 1.</summary>
+    /// <summary>The gunship glow animation, step 1.</summary>
     GunshipGlow1,
-    /// <summary>The fade out zoomed out exploding Zebes program.</summary>
+    /// <summary>The fade out zoomed out exploding Zebes animation.</summary>
     FadeOutZoomedOutExplodingZebes,
-    /// <summary>The wide part of Zebes explosion foreground program.</summary>
+    /// <summary>The wide part of Zebes explosion foreground animation.</summary>
     WidePartOfZebesExplosionForeground,
-    /// <summary>The Zebes explosion finale program.</summary>
+    /// <summary>The Zebes explosion finale animation.</summary>
     ZebesExplosionFinale,
-    /// <summary>The wide part of Zebes explosion background program.</summary>
+    /// <summary>The wide part of Zebes explosion background animation.</summary>
     WidePartOfZebesExplosionBackground,
-    /// <summary>The white out Space during Zebes explosion program.</summary>
+    /// <summary>The white out Space during Zebes explosion animation.</summary>
     WhiteOutSpaceDuringZebesExplosion,
-    /// <summary>The shared Zebes explosion program its variants continue into.</summary>
+    /// <summary>The shared Zebes explosion animation its variants continue into.</summary>
     CommonZebesExplosion,
-    /// <summary>The Zebes explosion Planet after glow program, step 0.</summary>
+    /// <summary>The Zebes explosion Planet after glow animation, step 0.</summary>
     ZebesExplosionPlanetAfterGlow0,
-    /// <summary>The Zebes explosion Planet after glow program, step 1.</summary>
+    /// <summary>The Zebes explosion Planet after glow animation, step 1.</summary>
     ZebesExplosionPlanetAfterGlow1,
-    /// <summary>The exploding Zebes lava program, step 0.</summary>
+    /// <summary>The exploding Zebes lava animation, step 0.</summary>
     ExplodingZebesLava0,
-    /// <summary>The exploding Zebes lava program, step 1.</summary>
+    /// <summary>The exploding Zebes lava animation, step 1.</summary>
     ExplodingZebesLava1,
-    /// <summary>The fade out exploding Zebes crust program.</summary>
+    /// <summary>The fade out exploding Zebes crust animation.</summary>
     FadeOutExplodingZebesCrust,
-    /// <summary>The fade out exploding Zebes grey clouds program.</summary>
+    /// <summary>The fade out exploding Zebes grey clouds animation.</summary>
     FadeOutExplodingZebesGreyClouds,
-    /// <summary>The gunship emerging from Zebes explosion program.</summary>
+    /// <summary>The gunship emerging from Zebes explosion animation.</summary>
     GunshipEmergingFromZebesExplosion,
-    /// <summary>The Hyper Beam program, step 0.</summary>
+    /// <summary>The Hyper Beam animation, step 0.</summary>
     HyperBeam0,
-    /// <summary>The Hyper Beam program, step 1.</summary>
+    /// <summary>The Hyper Beam animation, step 1.</summary>
     HyperBeam1,
     /// <summary>The unused cinematic fade, which no scene starts.</summary>
     UnusedCinematicFade,
-    /// <summary>The Samus loading Power suit program, step 0.</summary>
+    /// <summary>The Samus loading Power suit animation, step 0.</summary>
     SamusLoadingPowerSuit0,
-    /// <summary>The Samus loading Power suit program, step 1.</summary>
+    /// <summary>The Samus loading Power suit animation, step 1.</summary>
     SamusLoadingPowerSuit1,
-    /// <summary>The Samus loading Power suit program, step 2.</summary>
+    /// <summary>The Samus loading Power suit animation, step 2.</summary>
     SamusLoadingPowerSuit2,
-    /// <summary>The Samus loading Power suit program, step 3.</summary>
+    /// <summary>The Samus loading Power suit animation, step 3.</summary>
     SamusLoadingPowerSuit3,
-    /// <summary>The Samus loading Power suit program, step 4.</summary>
+    /// <summary>The Samus loading Power suit animation, step 4.</summary>
     SamusLoadingPowerSuit4,
-    /// <summary>The Samus loading Varia suit program, step 0.</summary>
+    /// <summary>The Samus loading Varia suit animation, step 0.</summary>
     SamusLoadingVairaSuit0,
-    /// <summary>The Samus loading Varia suit program, step 1.</summary>
+    /// <summary>The Samus loading Varia suit animation, step 1.</summary>
     SamusLoadingVairaSuit1,
-    /// <summary>The Samus loading Varia suit program, step 2.</summary>
+    /// <summary>The Samus loading Varia suit animation, step 2.</summary>
     SamusLoadingVairaSuit2,
-    /// <summary>The Samus loading Varia suit program, step 3.</summary>
+    /// <summary>The Samus loading Varia suit animation, step 3.</summary>
     SamusLoadingVairaSuit3,
-    /// <summary>The Samus loading Varia suit program, step 4.</summary>
+    /// <summary>The Samus loading Varia suit animation, step 4.</summary>
     SamusLoadingVairaSuit4,
-    /// <summary>The Samus loading Gravity suit program, step 0.</summary>
+    /// <summary>The Samus loading Gravity suit animation, step 0.</summary>
     SamusLoadingGravitySuit0,
-    /// <summary>The Samus loading Gravity suit program, step 1.</summary>
+    /// <summary>The Samus loading Gravity suit animation, step 1.</summary>
     SamusLoadingGravitySuit1,
-    /// <summary>The Samus loading Gravity suit program, step 2.</summary>
+    /// <summary>The Samus loading Gravity suit animation, step 2.</summary>
     SamusLoadingGravitySuit2,
-    /// <summary>The Samus loading Gravity suit program, step 3.</summary>
+    /// <summary>The Samus loading Gravity suit animation, step 3.</summary>
     SamusLoadingGravitySuit3,
-    /// <summary>The Samus loading Gravity suit program, step 4.</summary>
+    /// <summary>The Samus loading Gravity suit animation, step 4.</summary>
     SamusLoadingGravitySuit4,
-    /// <summary>The post credits Super Metroid icon glare program.</summary>
+    /// <summary>The post credits Super Metroid icon glare animation.</summary>
     PostCreditsSuperMetroidIconGlare,
-    /// <summary>The nothing program.</summary>
+    /// <summary>The nothing animation.</summary>
     Nothing,
-    /// <summary>The grey out Tourian statue Draygon program.</summary>
+    /// <summary>The grey out Tourian statue Draygon animation.</summary>
     GreyOutTourianStatueDraygon,
-    /// <summary>The grey out Tourian statue Kraid program.</summary>
+    /// <summary>The grey out Tourian statue Kraid animation.</summary>
     GreyOutTourianStatueKraid,
-    /// <summary>The grey out Tourian statue Ridley program.</summary>
+    /// <summary>The grey out Tourian statue Ridley animation.</summary>
     GreyOutTourianStatueRidley,
-    /// <summary>The grey out Tourian statue Phantoon program.</summary>
+    /// <summary>The grey out Tourian statue Phantoon animation.</summary>
     GreyOutTourianStatuePhantoon,
-    /// <summary>The shared grey out Tourian statue program its variants continue into.</summary>
+    /// <summary>The shared grey out Tourian statue animation its variants continue into.</summary>
     CommonGreyOutTourianStatue,
-    /// <summary>The Bomb Torizo belly program, step 0.</summary>
+    /// <summary>The Bomb Torizo belly animation, step 0.</summary>
     BombTorizoBelly0,
-    /// <summary>The Bomb Torizo belly program, step 1.</summary>
+    /// <summary>The Bomb Torizo belly animation, step 1.</summary>
     BombTorizoBelly1,
-    /// <summary>The Golden Torizo belly program, step 0.</summary>
+    /// <summary>The Golden Torizo belly animation, step 0.</summary>
     GoldenTorizoBelly0,
-    /// <summary>The Golden Torizo belly program, step 1.</summary>
+    /// <summary>The Golden Torizo belly animation, step 1.</summary>
     GoldenTorizoBelly1,
     /// <summary>Samus's heat shimmer in the Power Suit: watches the heat, names her suit's colours, then runs its pulse.</summary>
     SamusInHeatPowerSuit,

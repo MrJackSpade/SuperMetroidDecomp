@@ -43,7 +43,7 @@ public sealed class SamusPowerBombExplosionState
     /// </summary>
     public PowerBombShapeCursor? RenderedShape { get; private set; }
 
-    /// <summary>Current semantic phase of the explosion's sleeping program.</summary>
+    /// <summary>Current semantic phase of the explosion's sleeping animation.</summary>
     public PowerBombExplosionPhase Phase { get; private set; }
 
     /// <summary>
@@ -156,7 +156,7 @@ public sealed class SamusPowerBombExplosionState
             return false;
 
         // Every frame behaviour first builds this frame's window and only then
-        // mutates its radius/shape position or advances the sleeping program. Record
+        // mutates its radius/shape position or advances the sleeping animation. Record
         // that input phase here so post-logic desktop composition sees the generated
         // frame rather than the state prepared for the following one.
         RenderedPhase = Phase;
@@ -361,7 +361,7 @@ public sealed class SamusPowerBombExplosionState
     /// </summary>
     private bool StepAfterglow()
     {
-        // A count reaching one advances the program without one final color decrement.
+        // A count reaching one advances the animation without one final color decrement.
         ConsumeAfterglowStep();
         if (_afterglowStepsRemaining == 0)
         {

@@ -75,7 +75,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Frame-local drop publications from boss death and individual spores.</summary>
     internal readonly List<SporeSpawnDropRequest> SporeSpawnDropRequests = new();
 
-    /// <summary>Queues a sound from the boss or one of its programs as it makes it, after the update's earlier requests.</summary>
+    /// <summary>Queues a sound from the boss or one of its animations as it makes it, after the update's earlier requests.</summary>
     private void RequestSporeSpawnSound(SoundEffectId sound) =>
         _audio.QueueEnemySound(sound, SoundRequestPriority.Normal);
 
@@ -540,7 +540,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         PublishSporeSpawnObject(SporeSpawnCeilingMutation.Crumble);
     }
 
-    /// <summary>Carries out one cue of Spore Spawn's body program.</summary>
+    /// <summary>Carries out one cue of Spore Spawn's body animation.</summary>
     internal void ApplySporeSpawnCue(RoomEnemySlot body, SporeSpawnEnemyState state, SporeSpawnCue cue)
     {
         switch (cue)

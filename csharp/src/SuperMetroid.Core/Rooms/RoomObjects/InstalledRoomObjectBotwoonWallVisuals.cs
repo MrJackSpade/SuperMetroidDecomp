@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// The installed picture of the Botwoon wall's nine-block clear (#1557). The clear's air terrain and the crumble program
+/// The installed picture of the Botwoon wall's nine-block clear (#1557). The clear's air terrain and the crumble sequence
 /// stay the game's; the crumble frames are shot-block frames.
 /// </summary>
 public sealed class InstalledRoomObjectBotwoonWallVisuals

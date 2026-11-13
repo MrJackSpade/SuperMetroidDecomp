@@ -42,13 +42,13 @@ public sealed class SporeSpawnEnemyState
     /// </summary>
     public int MaximumXRadius { get; internal set; }
     /// <summary>
-    /// Signed sway step per movement update in 256ths of a turn: one from the program, doubled to two below 400
+    /// Signed sway step per movement update in 256ths of a turn: one from the animation, doubled to two below 400
     /// health with its sign kept, and negated by the first damaging hit of an open phase, so it stays within -2..2.
     /// </summary>
     public int AngleDelta { get; internal set; }
-    /// <summary>Whether the ceiling spore emitters are stopped: the program sets it during protected phases and clears it, and death clears it.</summary>
+    /// <summary>Whether the ceiling spore emitters are stopped: the animation sets it during protected phases and clears it, and death clears it.</summary>
     public bool SporeGenerationSuppressed { get; internal set; }
-    /// <summary>One-hit guard for an open phase: once set, further hits neither reverse the sway nor close the head until the program clears it.</summary>
+    /// <summary>One-hit guard for an open phase: once set, further hits neither reverse the sway nor close the head until the animation clears it.</summary>
     public bool Damaged { get; internal set; }
     /// <summary>Health value last recorded by the guarded damaging-hit palette update; used to avoid reloading an unchanged health palette.</summary>
     public int PreviousHealth { get; internal set; }
@@ -62,7 +62,7 @@ public sealed class SporeSpawnEnemyState
     public FixedVector<RoomPixels> DeathVelocityMagnitude { get; internal set; }
     /// <summary>Whether the live fight's scrolling-finished hook still enforces the arena's minimum camera Y; cleared at death and never installed for an already defeated load.</summary>
     public bool ScrollClampHookActive { get; internal set; }
-    /// <summary>Host guard recording that zero health has already triggered projectile cleanup, the defeated flag, the death program, and the ceiling-crumble request.</summary>
+    /// <summary>Host guard recording that zero health has already triggered projectile cleanup, the defeated flag, the death animation, and the ceiling-crumble request.</summary>
     public bool DeathStarted { get; internal set; }
     /// <summary>Whether the death cue has published its sixteen boss item-drop attempts; separate from individual destroyed-spore drops and actual drop-pool allocation success.</summary>
     public bool DeathDropRequested { get; internal set; }

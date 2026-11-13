@@ -1,12 +1,12 @@
 namespace SuperMetroid.Core.Frontend.GameOver;
 
-/// <summary>One step of the game-over Baby pose program.</summary>
+/// <summary>One step of the game-over Baby pose animation.</summary>
 /// <param name="Step">Ordinal of this step in play order, zero through <see cref="GameOverBabyAnimation.StepCount"/> minus one.</param>
 /// <param name="Duration">Menu updates this pose is held, two through ten.</param>
 /// <param name="Frame">Semantic pose selecting editable Baby sprite artwork.</param>
 /// <param name="Palette">Semantic phase selecting an editable sixteen-color Baby palette.</param>
 /// <param name="SoundAfter">Cry queued when this step's countdown expires, or None when no cry follows.</param>
-/// <param name="RestartAfter">Whether this is the final step, after which the program restarts at step zero.</param>
+/// <param name="RestartAfter">Whether this is the final step, after which the animation restarts at step zero.</param>
 public readonly record struct GameOverBabyScriptStep(
     int Step,
     int Duration,

@@ -4,13 +4,13 @@ using static SuperMetroid.Core.Samus.Projectiles.ChargeFlareAnimationDefinitions
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// How a charge-flare component moves through its program (#1624): which picture it shows next and the wait it holds
+/// How a charge-flare component moves through its animation (#1624): which picture it shows next and the wait it holds
 /// that picture for. A component holds a picture for the wait and one update more: it counts the wait down each update
 /// and shows the next picture on the update its count passes below zero.
 /// </summary>
 internal static class ChargeFlareAnimations
 {
-    /// <summary>The picture <paramref name="component"/>'s program starts at, with its wait.</summary>
+    /// <summary>The picture <paramref name="component"/>'s animation starts at, with its wait.</summary>
     internal static ChargeFlareStep First(ChargeFlareComponent component)
     {
         AnimationPlace place = AnimationPlace.StartOfAnimation;
@@ -22,13 +22,13 @@ internal static class ChargeFlareAnimations
 
     /// <summary>The picture <paramref name="component"/> shows after picture <paramref name="phase"/>, with its wait.</summary>
     /// <param name="component">The component.</param>
-    /// <param name="phase">The picture shown, one of the program's: only the Hyper Beam's backward count leaves a component
-    /// outside its program, and the ordinary flare never plays again once Samus has the Hyper Beam.</param>
-    /// <exception cref="InvalidOperationException">The phase is outside the program.</exception>
+    /// <param name="phase">The picture shown, one of the animation's: only the Hyper Beam's backward count leaves a component
+    /// outside its animation, and the ordinary flare never plays again once Samus has the Hyper Beam.</param>
+    /// <exception cref="InvalidOperationException">The phase is outside the animation.</exception>
     internal static ChargeFlareStep Next(ChargeFlareComponent component, int phase) => After(component, phase);
 
-    /// <summary>The main flare's picture after <paramref name="picture"/>, one of its program's, as the grapple beam's flare plays it.</summary>
-    /// <exception cref="InvalidOperationException">The phase is outside the main flare's program.</exception>
+    /// <summary>The main flare's picture after <paramref name="picture"/>, one of its animation's, as the grapple beam's flare plays it.</summary>
+    /// <exception cref="InvalidOperationException">The phase is outside the main flare's animation.</exception>
     internal static ChargeFlareStep NextMainFlare(ChargeFlarePhase picture) => After(ChargeFlareComponent.MainFlare, picture.Index);
 
     /// <summary>Every component's first picture, where a cleared flare stands.</summary>
@@ -41,8 +41,8 @@ internal static class ChargeFlareAnimations
     internal static bool IsPicture(ChargeFlareComponent component, int phase) =>
         phase >= 0 && phase < Segments.Beats(component).Count;
 
-    /// <summary>The picture <paramref name="component"/>'s program plays after picture <paramref name="phase"/>.</summary>
-    /// <exception cref="InvalidOperationException">The phase is not one of the program's pictures.</exception>
+    /// <summary>The picture <paramref name="component"/>'s animation plays after picture <paramref name="phase"/>.</summary>
+    /// <exception cref="InvalidOperationException">The phase is not one of the animation's pictures.</exception>
     private static ChargeFlareStep After(ChargeFlareComponent component, int phase)
     {
         if (!IsPicture(component, phase))
@@ -52,7 +52,7 @@ internal static class ChargeFlareAnimations
         return Play(component, ref place);
     }
 
-    /// <summary>Plays <paramref name="component"/>'s program on from <paramref name="place"/> to its next picture.</summary>
+    /// <summary>Plays <paramref name="component"/>'s animation on from <paramref name="place"/> to its next picture.</summary>
     private static ChargeFlareStep Play(ChargeFlareComponent component, ref AnimationPlace place)
     {
         WrappingCountdown repeats = WrappingCountdown.Start(0);

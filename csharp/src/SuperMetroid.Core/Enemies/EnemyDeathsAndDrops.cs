@@ -22,7 +22,7 @@ internal sealed class EnemyDeathsAndDrops
     private readonly EnemyRoomBinding _room;
     /// <summary>Reinitializes a respawned enemy from its saved population record.</summary>
     private readonly IEnemyDispatch _dispatch;
-    /// <summary>Receives the pickup and death sounds, each queued as the drop or death program makes it.</summary>
+    /// <summary>Receives the pickup and death sounds, each queued as the drop or death animation makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Connects death animation, pickup, and respawn processing to the room systems.</summary>
@@ -55,7 +55,7 @@ internal sealed class EnemyDeathsAndDrops
         _audio.QueueEnemySound(sound, priority: SoundRequestPriority.WhenIdle);
 
     /// <summary>
-    /// Requests a death program's sound (the enemy-killed cry, the small explosion or the contact-killed sound); it joins
+    /// Requests a death animation's sound (the enemy-killed cry, the small explosion or the contact-killed sound); it joins
     /// the queue only when the sound queue is idle.
     /// </summary>
     private void RequestDeathSound(SoundEffectId sound) =>
@@ -242,7 +242,7 @@ internal sealed class EnemyDeathsAndDrops
     }
 
     /// <summary>
-    /// Converts a completed enemy-death explosion in place and returns the program it continues at: its drop's, or the
+    /// Converts a completed enemy-death explosion in place and returns the animation it continues at: its drop's, or the
     /// respawn tail's. Keeping the actor in its existing place keeps both its retained killed enemy and whether it drops
     /// at all: an explosion in the first place never converts (<see cref="FirstPlaceExplosionLeavesNoPickup"/>).
     /// </summary>
@@ -254,7 +254,7 @@ internal sealed class EnemyDeathsAndDrops
             : ConfigurePickup(projectile, kind);
     }
 
-    /// <summary>Gives the projectile the selected pickup's identity, 400-frame life and collision callback, and returns its program.</summary>
+    /// <summary>Gives the projectile the selected pickup's identity, 400-frame life and collision callback, and returns its animation.</summary>
     internal static EnemyDeathProjectileSegment ConfigurePickup(EnemyProjectile projectile, EnemyPickupKind kind)
     {
         EnemyPickupAnimationDefinition animation = EnemyPickups.Animation(kind);
@@ -576,12 +576,12 @@ internal sealed class EnemyDeathsAndDrops
     /// <summary>Queues the enemy-killed sound, as the death explosion's cue does.</summary>
     internal void QueueEnemyKilledSound() => RequestDeathSound(EnemyKilledSound);
 
-    /// <summary>Connects the death and drop programs' cues: sprite spawns, sounds, drop conversion and respawn.</summary>
+    /// <summary>Connects the death and drop animations' cues: sprite spawns, sounds, drop conversion and respawn.</summary>
     internal void ConnectDeathExplosionCues(EnemyProjectileHandlerTable table) =>
         table.AddBranchingCue<EnemyDeathProjectileSegment, EnemyDeathProjectileCue>((context, cue) => ApplyEnemyDeathProjectileCue(context.Projectile, cue));
 
     /// <summary>
-    /// Carries out one cue of the death and drop programs, returning the program a converted explosion continues at, or
+    /// Carries out one cue of the death and drop animations, returning the segment a converted explosion continues at, or
     /// null to run on.
     /// </summary>
     private EnemyDeathProjectileSegment? ApplyEnemyDeathProjectileCue(EnemyProjectile projectile, EnemyDeathProjectileCue cue)

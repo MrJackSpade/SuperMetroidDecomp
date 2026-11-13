@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Draygon;
 
-/// <summary>Gameplay cues of Draygon's projectile programs.</summary>
+/// <summary>Gameplay cues of Draygon's projectile animations.</summary>
 internal enum DraygonProjectileCue
 {
     /// <summary>Sticks the goop to Samus.</summary>

@@ -10,7 +10,7 @@ public sealed class DragonEnemyState
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<DragonSegment> Playback { get; set; }
 
-    /// <summary>Population parameter one: false is a body; true is its cosmetic wing.</summary>
+    /// <summary>Whether this is a body's cosmetic wing rather than the body.</summary>
     public bool IsWing { get; internal set; }
 
     /// <summary>Whether the body last turned to face left, toward a Samus on its left; the fireball spawns on that side.</summary>

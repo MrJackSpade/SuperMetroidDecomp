@@ -3,12 +3,12 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// The downward shot gate's moving and closed programs (#641), one per list a spawn, branch or family step enters, in authored order.
+/// The downward shot gate's moving and closed animations (#641): one segment per animation a spawn, branch or family step enters, in authored order.
 /// Generated from the verified lists; see <see cref="DownwardGateProjectileAnimations"/>.
 /// </summary>
 internal enum DownwardGateProjectileSegment
 {
-    /// <summary>Enemy projectile animation script: shot gate, spawned downwards.</summary>
+    /// <summary>Enemy projectile animation: shot gate, spawned downwards.</summary>
     Moving,
     /// <summary>The animation's repeating part.</summary>
     MovingStep2,
@@ -18,7 +18,7 @@ internal enum DownwardGateProjectileSegment
     MovingStep4,
     /// <summary>The animation's repeating part.</summary>
     MovingStep5,
-    /// <summary>Enemy projectile animation script: shot gate, initial closed downwards.</summary>
+    /// <summary>Enemy projectile animation: shot gate, initial closed downwards.</summary>
     Closed,
     /// <summary>The animation's repeating part.</summary>
     ClosedStep2,

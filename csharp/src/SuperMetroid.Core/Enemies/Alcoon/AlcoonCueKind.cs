@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Alcoon;
 
-/// <summary>What a cue of the Alcoon's programs does: one per kind of step its lists use.</summary>
+/// <summary>What a cue of the Alcoon's animations does: spit a fireball down, ahead or up, move, count a step of its walk, or start walking.</summary>
 internal enum AlcoonCueKind
 {
     /// <summary>Spits a fireball downward and plays the fire sound.</summary>

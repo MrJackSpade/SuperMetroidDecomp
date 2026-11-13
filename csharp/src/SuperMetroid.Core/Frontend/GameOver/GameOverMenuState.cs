@@ -33,13 +33,13 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     private int brightness;
     /// <summary>The selection missile's frame cycle, shared by the Yes and No positions.</summary>
     internal readonly MenuMissileAnimation missile = new();
-    /// <summary>Current step of the Baby pose program, or null before the first animation update of this visit.</summary>
+    /// <summary>Current step of the Baby pose animation, or null before the first animation update of this visit.</summary>
     internal int? BabyStep { get; private set; }
     /// <summary>Remaining duration of the current Baby pose or accepted-answer hold.</summary>
     internal int BabyFrameHold { get; private set; }
     /// <summary>
-    /// The colours the Baby shows (#1512): those of the pose program's current step, which the step loads as it runs, or
-    /// its idle colours before the program's first step.
+    /// The colours the Baby shows (#1512): those of the pose animation's current step, which the step loads as it runs, or
+    /// its idle colours before the animation's first step.
     /// </summary>
     internal GameOverBabyPalette BabyColours => BabyStep is int step ? GameOverBabyAnimation.Get(step).Palette : GameOverBabyPalette.Idle;
     /// <summary>Routes Yes directly to the Ceres loader for the saved arrival state.</summary>
@@ -248,7 +248,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
         sprites.FinishFrame();
     }
 
-    /// <summary>Runs the game-over Baby Metroid's pose program.</summary>
+    /// <summary>Runs the game-over Baby Metroid's pose animation.</summary>
     private void StepBabyMetroid()
     {
         StepCompiledBabyMetroid();

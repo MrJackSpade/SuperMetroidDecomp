@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Evir;
 
-/// <summary>What a cue of the Evir's programs does: one per kind of step its lists use.</summary>
+/// <summary>What a cue of the Evir's animations does: start, move or end the regenerating projectile, or queue the spit sound.</summary>
 internal enum EvirCueKind
 {
     /// <summary>Moves the regenerating projectile's X offset one pixel toward the body's facing.</summary>

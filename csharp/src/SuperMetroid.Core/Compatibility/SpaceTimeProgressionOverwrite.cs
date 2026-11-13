@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// SpaceTime's progression overwrite (#1318, #1330, #1474, #1475). An uncharged SpaceTime shot's callback starts inside a
 /// long store and falls back into the beam palette's copy loop with the position its update loop left behind: the copy
 /// starts one colour past the shot's slot in the beam palette and reads from the place its animation has reached. Its
-/// bound is a signed test of that read position, so a shot animating from a list late in its program data copies on through the
+/// bound is a signed test of that read position, so a shot animating from a list late in its animation data copies on through the
 /// rest of that data, past the palette and on through saved progress, before the read position wraps and the loop ends.
 /// Which story events, area bosses, item locations, doors, used stations and area maps it turns on or off,
 /// and the loading state it leaves, therefore depend only on the shot's slot and where its animation stands; the import
@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// copy over the cartridge for every position and slot, requiring this service's overwrite to leave every flag of
 /// progress as the copy does.
 /// </remarks>
-/// <typeparam name="TCursor">Where a shot's animation stands in its program.</typeparam>
+/// <typeparam name="TCursor">Where a shot stands in its animation.</typeparam>
 /// <typeparam name="TOverwrite">What one copy does to progress, in the progress's own terms.</typeparam>
 [CompatibilityService("SpaceTime's palette copy runs past the palette and overwrites saved progression")]
 public sealed class SpaceTimeProgressionOverwrite<TCursor, TOverwrite>

@@ -6,7 +6,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.Owtch;
 
 /// <summary>
-/// Owtch's left and right shell-cycling animations as typed programs (#641). Each
+/// Owtch's left and right shell-cycling animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="OwtchCue"/> with its typed operands.
 /// </summary>
 internal static class OwtchAnimations

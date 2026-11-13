@@ -517,7 +517,7 @@ internal static class SamusPoseMetadata
     /// Every pose some path of the game gives Samus: each pose except the three past the authored poses
     /// (<see cref="SamusUnauthoredPoseDefinitions.Poses"/>) and <see cref="SamusUnreachablePoseDefinitions.Poses"/> (#1513).
     /// Among them are the glitch balls, their knockbacks, the Draygon-held ball and its stand-up, which the Baby's Hyper
-    /// Beam freeze and rainbow stop reach by a frame read past a transition's program (#1535).
+    /// Beam freeze and rainbow stop reach by a frame read past a transition's animation (#1535).
     /// </summary>
     internal static IReadOnlyList<SamusPoseId> ReachablePoses { get; } =
         [.. Enum.GetValues<SamusPoseId>().Where(pose => !SamusUnauthoredPoseDefinitions.Poses.TryRead(pose, out _))

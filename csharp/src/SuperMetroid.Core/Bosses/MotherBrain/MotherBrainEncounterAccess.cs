@@ -5,7 +5,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Mother Brain's state lookups, body and brain program setters, timers and room-object requests.</summary>
+/// <summary>Mother Brain's state lookups, body and brain animation setters, timers and room-object requests.</summary>
 [RoomLifetime]
 internal sealed class MotherBrainEncounterAccess
 {
@@ -28,7 +28,7 @@ internal sealed class MotherBrainEncounterAccess
     /// <summary>Restarts the brain on <paramref name="segment"/>.</summary>
     internal static void SetMotherBrainBrainAnimation(MotherBrainEnemyState state, MotherBrainHeadSegment segment)
     {
-        // The brain's place rests on its next beat: the program's first, entered at once.
+        // The brain's place rests on its next beat: the animation's first, entered at once.
         state.BrainPlayback = new(MotherBrainAnimations.HeadStartingWith(segment), AnimationPlace.StartOf(0));
         state.BrainFrameTimer = 1;
     }

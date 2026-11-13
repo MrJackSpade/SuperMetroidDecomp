@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.World.RoomStates;
 
 /// <summary>
-/// Runs a retail room's state-selection program (<see cref="RoomStateSelectionDefinitions"/>) with first-match
+/// Runs a retail room's state choice (<see cref="RoomStateSelectionDefinitions"/>) with first-match
 /// precedence. Only the 262 retail rooms are accepted.
 /// </summary>
 public static class RoomStateSelection
@@ -20,7 +20,7 @@ public static class RoomStateSelection
         return animation.Default;
     }
 
-    /// <summary>The program of <paramref name="room"/>, which must be a compiled retail room.</summary>
+    /// <summary>The state choice of <paramref name="room"/>, which must be a compiled retail room.</summary>
     internal static RoomStateChoice ChoiceFor(RoomDefinition room) =>
         RoomStateSelectionDefinitions.Choices.TryGetValue(room, out RoomStateChoice? animation) ? animation
             : throw new ArgumentOutOfRangeException(nameof(room), room.Name, "Room is not one of the 262 compiled retail rooms.");

@@ -5,7 +5,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Enemies.Nuclear;
 
 /// <summary>
-/// The Nuclear Waffle's body program (#641). Each
+/// The Nuclear Waffle's body animation (#641). Each
 /// frame shows a <see cref="EnemyProjectileFrameId"/> and each cue is a <see cref="EnemyProjectileCommonCue"/> with its typed operands.
 /// </summary>
 internal static class NuclearWaffleProjectileAnimations

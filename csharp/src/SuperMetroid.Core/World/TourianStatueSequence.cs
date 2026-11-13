@@ -11,7 +11,7 @@ using SuperMetroid.Core.Fx.Artwork;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// Owns the four statue tile programs and the descending background's
+/// Owns the four statue tile animations and the descending background's
 /// per-frame steps. Boss victories and grey-statue events are deliberately separate:
 /// visiting the room must play each release before opening the elevator route.
 /// </summary>
@@ -36,7 +36,7 @@ public sealed class TourianStatueSequence
     /// <summary>Pauses quarter-pixel descent while gameplay time is frozen.</summary>
     private readonly GameplayTimeFreeze _freeze;
 
-    /// <summary>Builds one room's statue sequence over the session services that run its tile and the background descent programs.</summary>
+    /// <summary>Builds one room's statue sequence over the session services that run its tile and the background descent animations.</summary>
     /// <param name="dependencies">The session owners the sequence reads and writes.</param>
     /// <param name="roomFxOverlay">The room's effect overlay FX, whose earthquake sound the descent publishes.</param>
     /// <param name="roomPaletteFx">The room's palette FX.</param>
@@ -125,7 +125,7 @@ public sealed class TourianStatueSequence
         Begin(roomObjects);
     }
 
-    /// <summary>Begins the room's statue sequence, enabling the four statue tile programs only for the statue-unlocking room setup.</summary>
+    /// <summary>Begins the room's statue sequence, enabling the four statue tile animations only for the statue-unlocking room setup.</summary>
     /// <remarks>
     /// A prior unlock event or the open-statues assist starts at the fully descended offset, clears the access obstruction through its room object, and enables vertical scrolling.
     /// Otherwise the sequence starts raised and constrains scrolling until the authored release and descent finish. Disabled rooms retain no tile objects.
@@ -161,7 +161,7 @@ public sealed class TourianStatueSequence
         Spawn(TourianGreyStatues.Draygon);
         Spawn(TourianGreyStatues.Ridley);
 
-        // Resolve each statue's definition and start it at its program entry.
+        // Resolve each statue's definition and start it at its animation entry.
         void Spawn(TourianGreyStatues statue)
         {
             if (!TourianStatueAnimationDefinitions.Statues.TryGetValue(statue, out TourianStatueAnimationDefinition? definition))

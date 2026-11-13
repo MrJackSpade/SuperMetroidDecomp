@@ -114,6 +114,6 @@ public sealed class DachoraEnemyState
     /// <summary>The main-AI behaviour.</summary>
     public DachoraAiFunction? Function { get; internal set; }
 
-    /// <summary>Whether the Dachora faces right (parameter one is nonzero); a wall or the ceiling turns it.</summary>
+    /// <summary>Whether the Dachora faces right; a wall or the ceiling turns it.</summary>
     public bool FacingRight { get; internal set; }
 }

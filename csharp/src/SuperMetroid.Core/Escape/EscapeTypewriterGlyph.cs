@@ -3,7 +3,7 @@ using SuperMetroid.Core.Escape.Artwork;
 namespace SuperMetroid.Core.Escape;
 
 /// <summary>
-/// One glyph the escape typewriter typed (#1348): the pixel of the layer its program places it at, and the name of its
+/// One glyph the escape typewriter typed (#1348): the pixel of the layer its message places it at, and the name of its
 /// picture in the room's written picture sheet (#1466), which the owner writes over its layer.
 /// </summary>
 /// <param name="Corner">The pixel of the layer, from its top-left, the glyph's top-left corner shows at (#1406, #1514, #1601).</param>

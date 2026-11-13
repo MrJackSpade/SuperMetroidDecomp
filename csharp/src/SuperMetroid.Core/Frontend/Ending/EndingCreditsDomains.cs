@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 internal static class EndingCreditsDomains
 {
 
-    /// <summary>The artwork and program family of a sprite role.</summary>
+    /// <summary>The artwork and animation family of a sprite role.</summary>
     internal static EndingSpriteFamily Family(this EndingSpriteRole role) => role switch
     {
         EndingSpriteRole.CloudRightA or EndingSpriteRole.CloudLeftA or EndingSpriteRole.CloudRightB or

@@ -1,6 +1,6 @@
 ﻿namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>What a cue of Mother Brain's onion rings, bombs, breath, drool, door fragments and subtitle programs does: one per command its lists use.</summary>
+/// <summary>What a cue of Mother Brain's onion rings, bombs, breath, drool, door fragments and subtitle animations does: stop or delete the projectile, lower the drool, end the purple breath, or draw from the room's shared sheet.</summary>
 internal enum MotherBrainEffectCueKind
 {
     /// <summary>Stops the projectile's movement.</summary>

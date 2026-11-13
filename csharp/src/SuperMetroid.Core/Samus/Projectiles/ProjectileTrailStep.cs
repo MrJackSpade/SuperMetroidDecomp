@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>One step of a trail program. Each kind of step is its own sealed record holding only what that step needs.</summary>
+/// <summary>One step of a trail animation. Each kind of step is its own sealed record holding only what that step needs.</summary>
 public abstract record ProjectileTrailStep
 {
     /// <summary>Closes the hierarchy to the steps declared here.</summary>

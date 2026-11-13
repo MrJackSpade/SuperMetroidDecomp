@@ -2,10 +2,10 @@ using A = SuperMetroid.Core.Enemies.MaridiaSnails.MaridiaLargeSnailAnimation;
 
 namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 
-/// <summary>Chooses Oum's animation by its facing and action (#1624), and the program each animation plays.</summary>
+/// <summary>Chooses Oum's animation by its facing and action (#1624), and the segment each animation plays.</summary>
 internal static class MaridiaLargeSnailAnimationChoices
 {
-    /// <summary>The program of <paramref name="animation"/>.</summary>
+    /// <summary>The segment of <paramref name="animation"/>.</summary>
     internal static MaridiaLargeSnailSegment Animation(A animation) =>
         MaridiaLargeSnailAnimationDefinitions.Animations.TryGetValue(animation, out MaridiaLargeSnailSegment segment)
             ? segment

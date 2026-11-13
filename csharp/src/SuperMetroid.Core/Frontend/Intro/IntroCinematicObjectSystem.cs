@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
 /// The narration pages' persistent objects: the portrait eye running its typed <see cref="IntroEyeAnimations"/>
-/// program, the typewriter narration written from installed glyph records, the text caret, and the Japanese text's
+/// animation, the typewriter narration written from installed glyph records, the text caret, and the Japanese text's
 /// next-page arrow at each page's input wait.
 /// </summary>
 internal sealed class IntroCinematicObjectSystem
@@ -18,7 +18,7 @@ internal sealed class IntroCinematicObjectSystem
     /// <summary>The persistent portrait eye's animation and where it stands in it, played on when its frame expires (#1600).</summary>
     internal AnimationPlayback<IntroEyeSegment> EyePlayback { get; private set; } =
         new(IntroEyeAnimations.StartingWith(IntroEyeSegment.Blinking), AnimationPlace.StartOfAnimation);
-    /// <summary>Countdown before the eye shows its program's next frame.</summary>
+    /// <summary>Countdown before the eye shows its animation's next frame.</summary>
     internal int EyeFrameHold { get; private set; } = 1;
     /// <summary>Countdown for initial marker, glyph, or final page hold.</summary>
     private int textFrameHold;
@@ -39,7 +39,7 @@ internal sealed class IntroCinematicObjectSystem
     private bool narrationInitialMarkerPending;
     /// <summary>Whether page six entered its final 128-frame caret hold.</summary>
     private bool narrationFinalHoldStarted;
-    /// <summary>The persistent text-caret sprite object, running its typed program (#641); <see cref="Caret"/> places it.</summary>
+    /// <summary>The persistent text-caret sprite object, running its typed animation (#641); <see cref="Caret"/> places it.</summary>
     private readonly IntroDiscoverySprite caretSprite = new(default, IntroShades.Drawn(IntroSpriteColouring.CrossFadeObjects), CinematicSpriteSegment.IntroTextCaret);
     /// <summary>
     /// Whether the press that turns the page has been accepted since the arrow's last update: the page-turn setup starts
@@ -85,13 +85,13 @@ internal sealed class IntroCinematicObjectSystem
     public bool IntroFinishRequested { get; private set; }
 
     /// <summary>
-    /// The pose the text caret shows: its program's pose, or null while the caret is hidden or before its program's first
+    /// The pose the text caret shows: its animation's pose, or null while the caret is hidden or before its animation's first
     /// frame, when nothing is drawn.
     /// </summary>
     internal CinematicSpritePose? CaretPose => caretHidden ? null : caretSprite.Pose;
 
     /// <summary>
-    /// Whether the caret is hidden while an illustration owns the screen; its program keeps running, and the next page
+    /// Whether the caret is hidden while an illustration owns the screen; its animation keeps running, and the next page
     /// shows it again (#1625).
     /// </summary>
     private bool caretHidden;
@@ -400,7 +400,7 @@ internal sealed class IntroCinematicObjectSystem
     /// <summary>Points the existing caret slot at its blinking list and primes its timer.</summary>
     internal void SetCaretBlinking()
     {
-        // The caret-blink cue starts the existing slot's blinking program and primes timer
+        // The caret-blink cue starts the existing slot's blinking animation and primes timer
         // one, allowing the generic sprite handler to select the first frame now.
         caretSprite.Start(CinematicSpriteSegment.IntroTextCaretBlink);
     }

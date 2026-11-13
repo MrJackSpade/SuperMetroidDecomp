@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
-/// <summary>What a Crocomire projectile program shows.</summary>
+/// <summary>What a Crocomire projectile animation shows.</summary>
 public enum CrocomireProjectileFrameKind
 {
     /// <summary>The mouth projectile in flight.</summary>

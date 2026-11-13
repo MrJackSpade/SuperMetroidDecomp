@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
-/// <summary>What a laser or claw program cue does.</summary>
+/// <summary>What a laser or claw animation cue does.</summary>
 internal enum SpacePirateProjectileCueKind
 {
     /// <summary>Installs the movement behaviour.</summary>

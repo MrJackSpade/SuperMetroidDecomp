@@ -49,7 +49,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.SetSpeciesState(state);
 
         // Kago's placement already authors its other processing properties. The initializer
-        // sets only the animation-script property so the shared enemy animation animates the shell.
+        // sets only the animating property so the shared enemy animation animates the shell.
         slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
         state.Playback = EnemyAnimationPlayback.Start(slot, KagoAnimations.StartingWith(KagoSegment.Slow));
         state.Function = KagoEnemyFunction.InstallNoOp;
@@ -137,11 +137,11 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         }, EnemyProjectileFrameBehavior.KagoBugFall);
 
         table.AddCue<KagoBugProjectileCue>((context, cue) => ApplyKagoBugCue(context.Projectile, cue));
-        // A shot bug runs its typed shot program, the list its definition names.
+        // A shot bug runs its typed shot animation, the list its definition names.
         table.AddShotAnimation(RoomEnemyProjectileKind.KagoBug, () => new KagoBugProjectileAnimation(KagoBugProjectileSegment.Shot));
     }
 
-    /// <summary>Carries out one cue of the bugs' programs.</summary>
+    /// <summary>Carries out one cue of the bugs' animations.</summary>
     private void ApplyKagoBugCue(EnemyProjectile projectile, KagoBugProjectileCue cue)
     {
         switch (cue.Kind)

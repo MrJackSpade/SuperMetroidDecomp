@@ -11,7 +11,7 @@ internal sealed class EscapeDachoraEntity(EscapeAnimalsBehavior species, RoomEne
     public EnemyInitializationAiHandler? FindInitialization() => species.InitializeEscapeDachora;
 
     /// <inheritdoc/>
-    /// <remarks>The escape Dachora has no main behaviour; it moves through its animation program.</remarks>
+    /// <remarks>The escape Dachora has no main behaviour; it moves through its animation.</remarks>
     public EnemyMainAiHandler? FindMain() => EnemyNoOpAi.Main;
 
     /// <inheritdoc/>

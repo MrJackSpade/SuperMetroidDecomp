@@ -51,7 +51,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
                 SpawnFuneNamiheFireball(slot, direction: HorizontalDirection.Right, RoomEnemyProjectileKind.FuneFireball);
                 break;
             case FuneNamiheCueKind.FinishActivity:
-                // Left/right programs use duplicate steps with identical state effects.
+                // Left/right animations use duplicate steps with identical state effects.
                 FinishFuneNamiheActivity(state);
                 break;
             default:
@@ -142,7 +142,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Installs the animation the species, activity and facing select. Both
-    /// program timers are reset together.
+    /// animation timers are reset together.
     /// </summary>
     private static void StartFuneNamiheAnimation(
         RoomEnemySlot slot,

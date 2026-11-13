@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Fx.PaletteFx;
 
 /// <summary>
-/// What a running colour effect watches each update before its countdown runs (#1554). A program step names the
+/// What a running colour effect watches each update before its countdown runs (#1554). An animation step names the
 /// condition (<see cref="PaletteFxCue.Watch"/>); an effect watches nothing until one does, and watches it until it ends.
 /// </summary>
 public abstract record ColourEffectCondition
@@ -13,11 +13,11 @@ public abstract record ColourEffectCondition
 
     /// <summary>
     /// While Samus stands higher in the room than <see cref="Height"/>, the effect restarts <see cref="Restart"/> on
-    /// every update, so it shows that program's first record each update instead of its flashes: the Crateria
+    /// every update, so it shows that animation's first record each update instead of its flashes: the Crateria
     /// lightning stays calm while Samus is high on the surface.
     /// </summary>
     /// <param name="Height">The room height, in whole pixels, Samus must be above.</param>
-    /// <param name="Restart">The program the effect restarts while she is.</param>
+    /// <param name="Restart">The animation the effect restarts while she is.</param>
     public sealed record RestartsWhileSamusIsHigh(int Height, PaletteFxSegment Restart) : ColourEffectCondition;
 
     /// <summary>

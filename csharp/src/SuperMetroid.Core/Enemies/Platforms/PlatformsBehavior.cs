@@ -156,8 +156,8 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         // A wall collision reverses the dispatcher and immediately installs the opposite
-        // vertically-still program. The first step of that program republishes the same index
-        // when the programs run later in this enemy frame.
+        // vertically-still animation. The first step of that animation republishes the same index
+        // when the animations run later in this enemy frame.
         state.XMovement = movingLeft
             ? PlatformHorizontalMovement.Right
             : PlatformHorizontalMovement.Left;

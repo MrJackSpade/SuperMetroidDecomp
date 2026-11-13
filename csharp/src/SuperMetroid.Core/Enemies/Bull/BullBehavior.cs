@@ -207,7 +207,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         state.ShotReactionDisabled = true;
     }
 
-    /// <summary>Runs Bull's normal and immune-shot animations as typed programs (#641).</summary>
+    /// <summary>Runs Bull's normal and immune-shot animations (#641).</summary>
     internal static void AdvanceBullAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
         EnemyAnimationPlayback.Advance(slot, BullAnimations.Segments,
             static (BullEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,

@@ -91,7 +91,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.Powered = true;
 
-        // The initializer sets the animation-script property and one more unnamed but observable property.
+        // The initializer sets the animating property and one more unnamed but observable property.
         // Population records already carry process-off-screen in retail rooms.
         slot.Contact = slot.Contact.With(EnemyContact.SolidToSamus);
         slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
@@ -153,7 +153,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Carries out one cue of the Work Robot's animations. Steps that meet a wall or ledge, the two walk redirections, and
-    /// a laser that fires continue the animation elsewhere, as the cues replace the program.
+    /// a laser that fires continue the animation elsewhere, as the cues replace the segment.
     /// </summary>
     private WorkRobotSegment? ApplyWorkRobotCue(RoomEnemySlot slot, WorkRobotEnemyState state, EnemyAnimationCueContext context, WorkRobotCue cue)
     {

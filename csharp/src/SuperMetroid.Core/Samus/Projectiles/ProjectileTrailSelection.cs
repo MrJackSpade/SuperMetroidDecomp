@@ -2,10 +2,10 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>The trail programs a trailing projectile's two sides run.</summary>
+/// <summary>The trail animations a trailing projectile's two sides run.</summary>
 public static class ProjectileTrailSelection
 {
-    /// <summary>The programs the left and right trails behind <paramref name="trailing"/> run.</summary>
+    /// <summary>The animations the left and right trails behind <paramref name="trailing"/> run.</summary>
     /// <remarks>
     /// Only the ordinary beam updates, the missile and Super Missile updates and the Ice, Wave and Spazer special attacks
     /// spawn trails (#1500): a beam shot or special-attack particle by its beams and charge, a missile or Super Missile,

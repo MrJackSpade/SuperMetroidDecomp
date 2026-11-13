@@ -46,7 +46,7 @@ public sealed class ChootEnemyState
     public EnemyQuadraticSpeedIndex InitialYSpeedTableIndex { get; internal set; }
 
     /// <summary>
-    /// Parameter-two countdown. The jump begins only after decrementing through zero to
+    /// The jump delay's countdown. The jump begins only after decrementing through zero to
     /// below zero, so a population delay of zero launches on the first preparation frame.
     /// </summary>
     public int JumpDelayTimer { get; internal set; }

@@ -52,7 +52,7 @@ public sealed class SamusBombProjectileSlot
     }
     /// <summary>The slot's projectile animation and where it stands in it (#1600); null marks an inactive slot, and a consumed timed frame plays it past that record.</summary>
     internal AnimationPlayback<SamusProjectileSegment>? Playback { get; set; }
-    /// <summary>Wrapping duration countdown, decremented once per unfrozen projectile update; reaching zero runs the next program cue.</summary>
+    /// <summary>Wrapping duration countdown, decremented once per unfrozen projectile update; reaching zero runs the next animation cue.</summary>
     public WrappingCountdown FrameHold { get; internal set; }
     /// <summary>The composition the bomb shows, selected by the timed-frame animation or installed frame binding; none before its first frame.</summary>
     public ProjectileSpriteId? Sprite { get; internal set; }
@@ -74,7 +74,7 @@ public sealed class SamusBombProjectileSlot
     /// <summary>The bomb's fuse, and after detonation its explosion phase counter.</summary>
     public WrappingCountdown BombTimer { get; internal set; }
 
-    /// <summary>Whether the bomb is live: a placed bomb runs its program until it ends.</summary>
+    /// <summary>Whether the bomb is live: a placed bomb runs its animation until it ends.</summary>
     public bool IsActive => Playback is not null;
 
     /// <summary>

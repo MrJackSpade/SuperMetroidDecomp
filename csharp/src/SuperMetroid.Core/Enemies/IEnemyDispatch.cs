@@ -17,7 +17,7 @@ internal interface IEnemyDispatch
 
     /// <summary>
     /// Installs <paramref name="population"/> in the first free slot, runs its
-    /// initialization AI, starts its program when it runs one and extends the live enemy range.
+    /// initialization AI, starts its animation when it runs one and extends the live enemy range.
     /// Returns null without spawning when every slot is occupied.
     /// </summary>
     RoomEnemySlot? SpawnEnemy(RoomEnemyPopulationRecord population);

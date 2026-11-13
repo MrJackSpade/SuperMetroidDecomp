@@ -10,7 +10,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// <summary>The corpse rotting away after the final death, with its own rot schedule.</summary>
     internal readonly MotherBrainCorpseRottingState CorpseRotting = new();
 
-    /// <summary>The state every late-fight phase reads and writes: the body function and its timer, the neck and head programs and the brain's flags, with the walking and posture requests they share.</summary>
+    /// <summary>The state every late-fight phase reads and writes: the body function and its timer, the neck and head animations and the brain's flags, with the walking and posture requests they share.</summary>
     private readonly MotherBrainLateFightState _state;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -22,7 +22,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// <summary>How the body meets Samus and her shots; death makes it ignore Samus.</summary>
     public EnemyContact BodyContact { get; internal set; }
 
-    /// <summary>What the enemy passes run for the body; fade completion stops its animation script.</summary>
+    /// <summary>What the enemy passes run for the body; fade completion stops its animation.</summary>
     public EnemyProcessing BodyProcessing { get; internal set; }
 
     /// <summary>Whether the body is drawn and still occupies its slot; fade completion hides it.</summary>
@@ -37,7 +37,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// <summary>How the brain meets Samus and her shots; death makes it ignore Samus.</summary>
     public EnemyContact BrainContact { get; internal set; }
 
-    /// <summary>What the enemy passes run for the brain; the end of rotting stops its animation script.</summary>
+    /// <summary>What the enemy passes run for the brain; the end of rotting stops its animation.</summary>
     public EnemyProcessing BrainProcessing { get; internal set; }
 
     /// <summary>Whether the brain is drawn and still occupies its slot; the end of rotting hides it.</summary>
@@ -254,7 +254,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     internal bool RunThirdPhaseDeathStumbleToMiddleOfRoom(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
     {
         // The stumble emits smoke before asking for a really-fast forward walk to 96.
-        // Equality still starts a complete body program; only signed overshoot or the
+        // Equality still starts a complete body animation; only signed overshoot or the
         // independent 128 arena clamp reports the target reached and advances the death script.
         GenerateDeathExplosions(
             style: MotherBrainDeathExplosionStyle.Smoky, frame.NextRandomNumber, requests.DeathExplosions);
@@ -636,7 +636,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     internal bool RunThirdPhaseDeathBlowUpEscapeDoor(MotherBrainRainbowBeamStepRequests requests)
     {
         // The door explosion invokes the ordinary highest-free-slot allocator eight times with
-        // parameters zero through seven. Allocation success is intentionally decided
+        // door fragments zero through seven. Allocation success is intentionally decided
         // by the shared enemy-projectile system, not assumed by the boss actor.
         for (int parameter = 0; parameter < 8; parameter++)
             requests.EscapeDoorParticleSpawns.Add(new(parameter));

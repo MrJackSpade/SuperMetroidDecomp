@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>The sounds Mother Brain's programs and encounter queue.</summary>
+/// <summary>The sounds Mother Brain's animations and encounter queue.</summary>
 internal static class MotherBrainSoundDefinitions
 {
     /// <summary>The roar of the neck stretch, the Hyper Beam recoil and the dying drool.</summary>

@@ -30,7 +30,7 @@ internal sealed class IntroBabyDiscoveryState
     private readonly SharedRandom random;
     /// <summary>The installed steps the egg's shell fragments fall by past their gravity curve.</summary>
     private readonly ShellFragmentFallPastCurve shellFallPastCurve;
-    /// <summary>The egg actor whose program controls the hatch sequence.</summary>
+    /// <summary>The egg actor whose animation controls the hatch sequence.</summary>
     internal readonly IntroDiscoverySprite egg;
     /// <summary>The baby actor that waits for the egg's completed frame before moving.</summary>
     internal readonly IntroDiscoverySprite confusedBaby;
@@ -142,7 +142,7 @@ internal sealed class IntroBabyDiscoveryState
         }
 
         // The egg's delete behaviour replaces the egg with the shared delete animation only when page three's reverse
-        // crossfade reaches zero. The egg's program installs it after starting page three.
+        // crossfade reaches zero. The egg's animation installs it after starting page three.
         if (egg.ListFrameBehavior == CinematicSpriteFrameBehavior.MetroidEggDeleteAfterCrossFade &&
             introCrossfadeTimer == 0)
         {
@@ -230,7 +230,7 @@ internal sealed class IntroBabyDiscoveryState
         {
             case CinematicSpriteCueKind.SpawnParticles:
                 // The six particle spawns use six consecutive definitions
-                // and init parameters zero through five, in this exact order.
+                // and fragments zero through five, in this exact order.
                 for (int index = 0; index < IntroEggEffectDefinitions.ParticleCount; index++)
                     eggParticles.Add(new IntroEggParticle(index, shellFallPastCurve));
                 audio?.QueueSound(
@@ -289,7 +289,7 @@ internal sealed class IntroBabyDiscoveryState
         {
             case CinematicSpriteFrameBehavior.ConfusedBabyWaitingForHatch:
                 // The confused baby watches the egg's *next* animation step reach the first fully-hatched frame:
-                // the egg's program is then MetroidEggHatchedFrame2 or a later one, so the baby starts moving on that
+                // the egg's animation is then MetroidEggHatchedFrame2 or a later one, so the baby starts moving on that
                 // exact handoff.
                 if (egg.CurrentAnimation is CinematicSpriteSegment.MetroidEggHatchedFrame2 or
                     CinematicSpriteSegment.MetroidEggHatched or CinematicSpriteSegment.Delete)
@@ -476,7 +476,7 @@ internal sealed class IntroBabyDiscoveryState
             : sprite.Position.WithY(IntroCinematicMotion.AddEightEight(sprite.Position.Y, velocity));
     }
 
-    /// <summary>Instantiates a cinematic actor with its authored position, palette, program, and frame behaviour.</summary>
+    /// <summary>Instantiates a cinematic actor with its authored position, palette, animation, and frame behaviour.</summary>
     private static IntroDiscoverySprite CreateActor(IntroBabyActorDefinition definition)
     {
         var actor = new IntroDiscoverySprite(

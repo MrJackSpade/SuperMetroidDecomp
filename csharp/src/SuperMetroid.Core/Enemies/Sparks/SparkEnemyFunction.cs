@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Sparks;
 /// </summary>
 public enum SparkEnemyFunction
 {
-    /// <summary>Returns immediately, leaving the continuously active program in control.</summary>
+    /// <summary>Returns immediately, leaving the continuously active animation in control.</summary>
     AlwaysActive = 1,
 
     /// <summary>Counts down the intangible interval before installing the flicker-on list.</summary>

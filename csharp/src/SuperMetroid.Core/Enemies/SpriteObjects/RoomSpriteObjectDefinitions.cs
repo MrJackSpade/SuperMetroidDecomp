@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Enemies.SpriteObjects;
 
-/// <summary>The program each room sprite-object kind starts, as the sprite-object spawn selects it.</summary>
+/// <summary>The animation each room sprite-object kind starts, as the sprite-object spawn selects it.</summary>
 internal static class RoomSpriteObjectDefinitions
 {
-    /// <summary>The program each kind an owner spawns starts.</summary>
+    /// <summary>The animation each kind an owner spawns starts.</summary>
     internal static IReadOnlyDictionary<RoomSpriteObjectKind, RoomSpriteObjectSegment> Animations { get; } =
         new Dictionary<RoomSpriteObjectKind, RoomSpriteObjectSegment>
     {

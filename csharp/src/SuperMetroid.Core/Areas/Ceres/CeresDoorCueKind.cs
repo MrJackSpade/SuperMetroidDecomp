@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Areas.Ceres;
 
-/// <summary>What a cue of the Ceres door's programs does: one per kind of step its lists use.</summary>
+/// <summary>What a cue of the Ceres door's animations does: wait on Ceres Ridley, his escape or Samus's approach, show or hide the door, hand it to Ridley's scene, switch its collision with Samus, or queue its opening sound.</summary>
 internal enum CeresDoorCueKind
 {
     /// <summary>Continues at the target while the area boss is alive.</summary>

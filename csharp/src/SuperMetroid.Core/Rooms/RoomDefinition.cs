@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms;
 
 /// <summary>
 /// A room of the game: its name, its place in its area and on the map, its size, the camera's scroll offsets
-/// and how door transitions into or out of it draw the screen. Its states are selected by the room's own program.
+/// and how door transitions into or out of it draw the screen. Its states are selected by the room's own state choice.
 /// </summary>
 /// <param name="Name">The room's name.</param>
 /// <param name="RoomIndex">The room's index within its area, 0 through 255.</param>

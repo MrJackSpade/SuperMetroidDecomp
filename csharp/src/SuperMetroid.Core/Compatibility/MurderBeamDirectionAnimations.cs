@@ -13,8 +13,8 @@ namespace SuperMetroid.Core.Compatibility;
 /// <remarks>
 /// A rule with no state, held by the projectile selection catalog. Consulted when the Murder Beam's shot is fired and when
 /// an enemy reflects it. Evidence: the
-/// fire routines index the selected kind's program list by the shot's direction, one entry per direction, and the
-/// projectile program check compares each such entry past the Power Bomb's list with the original's.
+/// fire routines index the selected kind's animation list by the shot's direction, one entry per direction, and the
+/// projectile animation check compares each such entry past the Power Bomb's list with the original's.
 /// </remarks>
 /// <typeparam name="TDirection">A shot direction.</typeparam>
 /// <typeparam name="TAnimation">An animation.</typeparam>

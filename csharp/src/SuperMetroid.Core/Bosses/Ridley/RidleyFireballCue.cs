@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>The cues Ridley's fireball and afterburn programs publish.</summary>
+/// <summary>The cues Ridley's fireball and afterburn animations publish.</summary>
 internal enum RidleyFireballCue
 {
     /// <summary>Stops the projectile's motion.</summary>

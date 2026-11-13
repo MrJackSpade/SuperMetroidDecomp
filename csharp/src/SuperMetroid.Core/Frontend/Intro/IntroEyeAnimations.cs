@@ -5,13 +5,13 @@ using P = SuperMetroid.Core.Frontend.Intro.IntroEyeSegment;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
-/// The portrait-eye animations of the narration pages as typed programs, in place of the game's background-object
-/// animation scripts for the eye: each step shows one <see cref="IntroEyeFrame"/> for its duration in
-/// cinematic updates. The intro eye check walks the authored scripts as the oracle.
+/// The portrait-eye animations of the narration pages as typed animations of the eye's background object:
+/// each step shows one <see cref="IntroEyeFrame"/> for its duration in
+/// cinematic updates. The intro eye check walks the authored animations as the oracle.
 /// </summary>
 internal static class IntroEyeAnimations
 {
-    /// <summary>Every portrait-eye program.</summary>
+    /// <summary>Every portrait-eye animation.</summary>
     internal static AnimationSegments<IntroEyeSegment, IntroEyeFrame, NoAnimationCue> Segments { get; } = new(
         new Dictionary<IntroEyeSegment, AnimationBeat<IntroEyeFrame, NoAnimationCue>[]>
     {

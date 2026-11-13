@@ -15,7 +15,7 @@ using SuperMetroid.Core.Earthquakes;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Mother Brain's body and tank: their setup, programs, movement, footsteps and the first phase.</summary>
+/// <summary>Mother Brain's body and tank: their setup, animations, movement, footsteps and the first phase.</summary>
 [RoomLifetime]
 internal sealed class MotherBrainBody
 {
@@ -37,7 +37,7 @@ internal sealed class MotherBrainBody
 
     /// <summary>Mother Brain's projectiles: bombs, onion rings, drool, lasers, hand beams, turret shots and the tank's glass.</summary>
     private readonly MotherBrainProjectiles _projectileAttacks;
-    /// <summary>Mother Brain's state lookups, body and brain program setters, timers and room-object requests.</summary>
+    /// <summary>Mother Brain's state lookups, body and brain animation setters, timers and room-object requests.</summary>
     private readonly MotherBrainEncounterAccess _access;
     /// <summary>Holds the body her body frames show on.</summary>
     private readonly EnemyPresentation _presentation;
@@ -59,7 +59,7 @@ internal sealed class MotherBrainBody
     }
 
     /// <summary>
-    /// Runs a falling tube's program where the shared enemy animation runs: its pose shows on the update the
+    /// Runs a falling tube's animation where the shared enemy animation runs: its pose shows on the update the
     /// timer expires, raising the new-frame flag, and the script's sleep then keeps it.
     /// </summary>
     internal static void AdvanceMotherBrainTubeAnimation(RoomEnemySlot tube)
@@ -162,18 +162,18 @@ internal sealed class MotherBrainBody
             state.HeadSlotPlayback = playback;
     }
 
-    /// <summary>Carries out one cue of a body program.</summary>
+    /// <summary>Carries out one cue of a body animation.</summary>
     private void ApplyMotherBrainBodyCue(MotherBrainEnemyState state, SamusState? samus, MotherBrainBodyCue cue)
     {
         switch (cue)
         {
             // Pose is shared encounter state, not a property of the displayed map. Body AI
-            // waits on these exact values while the program continues independently.
+            // waits on these exact values while the animation continues independently.
             case MotherBrainBodyCue.SetPose setPose:
                 state.Pose = setPose.Pose;
                 return;
             // The walking steps' visible motion is occasionally opposite their signed Y
-            // addition. The programs keep the additions the walking steps perform.
+            // addition. The animations keep the additions the walking steps perform.
             case MotherBrainBodyCue.Move move:
                 MoveMotherBrainBody(move.Offset);
                 return;

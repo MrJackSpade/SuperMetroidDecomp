@@ -2,10 +2,10 @@ using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>The Zebetites' typed health-tier programs (#641).</summary>
+/// <summary>The Zebetites' typed health-tier animations (#641).</summary>
 internal static class ZebetiteAnimations
 {
-    /// <summary>The health-tier programs in the order their frames are numbered.</summary>
+    /// <summary>The health-tier animations in the order their frames are numbered.</summary>
     private static readonly IdentitySequence<ZebetiteSegment> FrameOrder = new(
         ZebetiteSegment.LargeAtLeast800, ZebetiteSegment.LargeAtLeast600, ZebetiteSegment.LargeAtLeast400,
         ZebetiteSegment.LargeAtLeast200, ZebetiteSegment.LargeBelow200, ZebetiteSegment.SplitAtLeast800,
@@ -30,7 +30,7 @@ internal static class ZebetiteAnimations
         new(StartingAt[segment], AnimationPlace.StartOfAnimation);
 
     /// <summary>
-    /// The program for a barrier's form and health: large or split, then one tier for each 200 health below 1000,
+    /// The animation for a barrier's form and health: large or split, then one tier for each 200 health below 1000,
     /// the last covering everything under 200.
     /// </summary>
     internal static ZebetiteSegment HealthAnimation(bool linkedPair, int health)

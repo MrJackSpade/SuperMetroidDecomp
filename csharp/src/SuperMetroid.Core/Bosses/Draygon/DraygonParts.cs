@@ -14,7 +14,7 @@ using SuperMetroid.Core.Earthquakes;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
 
-/// <summary>Draygon's body, eye and tail: their setup, programs and cues.</summary>
+/// <summary>Draygon's body, eye and tail: their setup, animations and cues.</summary>
 [RoomLifetime]
 internal sealed class DraygonParts
 {
@@ -30,7 +30,7 @@ internal sealed class DraygonParts
     private readonly EnemyPresentation _presentation;
     /// <summary>Supplies frame timing for the body and linked-part AI callbacks.</summary>
     private readonly EnemyFrameContext _frameContext;
-    /// <summary>Receives the sounds Draygon's programs and death request.</summary>
+    /// <summary>Receives the sounds Draygon's animations and death request.</summary>
     private readonly EnemyAudioQueue _audio;
 
 
@@ -134,7 +134,7 @@ internal sealed class DraygonParts
         }
     }
 
-    /// <summary>Restarts a linked Draygon part's program on its next update, as a list install does.</summary>
+    /// <summary>Restarts a linked Draygon part's animation on its next update, as a list install does.</summary>
     internal void StartDraygonAnimation(RoomEnemySlot part, DraygonSegment segment)
     {
         DraygonEnemyState state = Draygon ??
@@ -144,7 +144,7 @@ internal sealed class DraygonParts
     }
 
     /// <summary>
-    /// Runs a Draygon part's program where the shared enemy animation runs: the frame expires on the update
+    /// Runs a Draygon part's animation where the shared enemy animation runs: the frame expires on the update
     /// its timer would, a new frame raises the new-frame flag, waits keep the frame, and a stop deletes the
     /// part. The part's loop counter is its frame timer.
     /// </summary>
@@ -191,8 +191,8 @@ internal sealed class DraygonParts
     }
 
     /// <summary>
-    /// Carries out one cue of a Draygon program run by <paramref name="part"/>. Animation starts write the parts'
-    /// stored playbacks, so the running part's own write is replaced when its update ends, as the program runner's
+    /// Carries out one cue of a Draygon animation run by <paramref name="part"/>. Animation starts write the parts'
+    /// stored playbacks, so the running part's own write is replaced when its update ends, as the animation runner's
     /// final store of the running part's position replaces it.
     /// </summary>
     /// <remarks>Draygon's cues never continue the running part's play elsewhere.</remarks>
@@ -250,7 +250,7 @@ internal sealed class DraygonParts
     internal static RoomEnemySlot RequirePart(RoomEnemySlot? part) =>
         part ?? throw new InvalidDataException("A Draygon program ran before all four parts loaded.");
 
-    /// <summary>Queues a sound from one of Draygon's programs as the program makes it, after the update's earlier requests.</summary>
+    /// <summary>Queues a sound from one of Draygon's animations as the animation makes it, after the update's earlier requests.</summary>
     private void RequestDraygonSound(SoundEffectId sound) =>
         _audio.QueueEnemySound(sound, SoundRequestPriority.Normal);
 
@@ -337,7 +337,7 @@ internal sealed class DraygonParts
             graphics: default);
     }
 
-    /// <summary>Spawns a goop as either of the body program's two goop cues does.</summary>
+    /// <summary>Spawns a goop as either of the body animation's two goop cues does.</summary>
     internal void SpawnDraygonGoop(DraygonEnemyState state, bool movingRight)
     {
         EnemyProjectile? goop = _projectiles.AllocateEnemyProjectile();

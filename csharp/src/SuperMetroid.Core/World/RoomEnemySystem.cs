@@ -895,7 +895,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     }
 
     /// <summary>
-    /// Runs one enemy pass over the processing list the frame already built: executes selected AI and animation scripts,
+    /// Runs one enemy pass over the processing list the frame already built: executes selected AI and animations,
     /// publishes live collision bodies and frame requests, and builds queues for the later draw phase.
     /// </summary>
     /// <param name="frame">What one enemy pass reads from the rest of the frame: the camera, Samus and her projectiles, controller input, clocks and the room systems enemies touch (#633).</param>
@@ -1007,7 +1007,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
                 if (ranActorAi)
                 {
                     slot.FrameCounter = WrappingCounter.IncrementCount(slot.FrameCounter);
-                    // The enemy pass skips the animation script whenever the enemy is
+                    // The enemy pass skips the animation whenever the enemy is
                     // frozen, even if the hurt state, tried first, selected an
                     // enemy-specific hurt callback above. Testing only `ranActorAi` here
                     // incorrectly advanced a Metroid's body animation while its frozen

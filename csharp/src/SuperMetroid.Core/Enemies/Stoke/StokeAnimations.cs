@@ -6,7 +6,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.Stoke;
 
 /// <summary>
-/// Stoke's walking and fire-spitting animations as typed programs (#641). Each
+/// Stoke's walking and fire-spitting animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="StokeCue"/> with its typed operands.
 /// </summary>
 internal static class StokeAnimations

@@ -90,8 +90,8 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.InstallSpawnSettings(slot.SpawnSettings<EtecoonSpawnSettings>());
         slot.SetSpeciesState(state);
 
-        // The initializer sets the animation-script property. The host scheduler also uses the
-        // same bit to admit the authored animation script, so retain the authored
+        // The initializer sets the animating property. The host scheduler also uses the
+        // same bit to admit the authored animation, so retain the authored
         // bit instead of inferring animation activity from the population record.
         slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
         slot.Frame = EnemyFrameId.Empty;

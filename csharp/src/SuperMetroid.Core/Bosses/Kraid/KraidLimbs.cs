@@ -8,7 +8,7 @@ using SuperMetroid.Core.Earthquakes;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>Kraid's arm and foot: their setup, programs, lunges, retreats and walks.</summary>
+/// <summary>Kraid's arm and foot: their setup, animations, lunges, retreats and walks.</summary>
 [RoomLifetime]
 internal sealed class KraidLimbs
 {
@@ -18,7 +18,7 @@ internal sealed class KraidLimbs
     private readonly RoomEarthquake _earthquake;
     /// <summary>Kraid's eight parts in his room, in the order they run.</summary>
     private readonly KraidParts _parts;
-    /// <summary>Kraid's state and part lookups, part programs, function timer, random numbers and the sound he last requested.</summary>
+    /// <summary>Kraid's state and part lookups, part animations, function timer, random numbers and the sound he last requested.</summary>
     private readonly KraidEncounterAccess _access;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -30,7 +30,7 @@ internal sealed class KraidLimbs
         _access = access;
     }
 
-    /// <summary>Installs the arm part in its slot with the rising-or-sinking program.</summary>
+    /// <summary>Installs the arm part in its slot with the rising-or-sinking animation.</summary>
     internal void InitializeKraidArm(RoomEnemySlot arm)
     {
         KraidEnemyState state = _access.RequireKraidState(arm);
@@ -73,7 +73,7 @@ internal sealed class KraidLimbs
             _access.Part(part).Playback);
 
     /// <summary>
-    /// Runs a Kraid part's program where the shared enemy animation runs: the frame expires on the update
+    /// Runs a Kraid part's animation where the shared enemy animation runs: the frame expires on the update
     /// its timer would, and a newly shown frame raises the new-frame flag.
     /// </summary>
     internal void AdvanceKraidPartAnimation(RoomEnemySlot part)
@@ -89,8 +89,8 @@ internal sealed class KraidLimbs
         partState.Playback = playback;
     }
 
-    /// <summary>Carries out one cue of a Kraid part program.</summary>
-    /// <returns>The slow arm program when the speed cue switches the arm; otherwise null.</returns>
+    /// <summary>Carries out one cue of a Kraid part animation.</summary>
+    /// <returns>The slow arm animation when the speed cue switches the arm; otherwise null.</returns>
     private KraidPartSegment? ApplyKraidPartCue(KraidPartCue cue)
     {
         RoomEnemySlot body = _parts.Body;
@@ -157,8 +157,8 @@ internal sealed class KraidLimbs
     }
 
     /// <summary>
-    /// Below half health the arm switches to its slow swing, unless its stored program is
-    /// already the slow one or a later program.
+    /// Below half health the arm switches to its slow swing, unless its stored animation is
+    /// already the slow one or a later animation.
     /// </summary>
     private KraidPartSegment? SelectKraidArmSpeedAnimation()
     {

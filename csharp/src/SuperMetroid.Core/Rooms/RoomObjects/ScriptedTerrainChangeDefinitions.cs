@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// The terrain changes of the room objects that once ran scripted programs (#1554): a block an enemy breaks, the
+/// The terrain changes of the scripted room objects (#1554): a block an enemy breaks, the
 /// critters' wall breaking open, Crateria's main-street escape passage and the Maridia elevatube's start.
 /// </summary>
 internal static class ScriptedTerrainChangeDefinitions

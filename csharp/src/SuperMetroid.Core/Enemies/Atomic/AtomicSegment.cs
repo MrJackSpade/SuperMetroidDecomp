@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Atomic;
 
 /// <summary>
-/// Atomic's four spinning animations as typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// Atomic's four spinning animations (#641): one segment per animation a spawn, branch or resumed sleep enters, in authored order.
 /// Their steps are <see cref="AtomicAnimations"/>.
 /// </summary>
 internal enum AtomicSegment

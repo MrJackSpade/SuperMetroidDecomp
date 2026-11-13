@@ -159,7 +159,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
             MotherBrainCadenceDefinitions.BabyHealSoundEveryEighthEnemyPass.IsDue(_frameContext.RandomEnemyCounter))
             _audio.QueueEnemySound(RoomSound.IncrementalEnergy, priority: SoundRequestPriority.Low);
 
-        // The Baby's drain step writes the body enemy's animation script from this later Baby slot.
+        // The Baby's drain step writes the body enemy's animation from this later Baby slot.
         // The reusable sequence retains the requested list, but the physical body already
         // completed its AI and animation pass earlier this frame; install the list here so it
         // begins on the next increasing-slot enemy pass exactly like the cross-actor write.

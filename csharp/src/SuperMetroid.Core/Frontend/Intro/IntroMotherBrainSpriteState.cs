@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// </remarks>
 internal sealed class IntroMotherBrainSpriteState
 {
-    /// <summary>The cinematic sprite object running the Mother Brain's typed program (#641).</summary>
+    /// <summary>The cinematic sprite object running the Mother Brain's typed animation (#641).</summary>
     private readonly IntroDiscoverySprite actor =
         new(IntroMotherBrainDefinitions.MotherBrainOrigin, Colouring,
             IntroMotherBrainDefinitions.MotherBrain.Animation);
@@ -23,12 +23,12 @@ internal sealed class IntroMotherBrainSpriteState
     private int hurtFlashTimer;
     /// <summary>
     /// Updates since the fourth hit began the explosion phase: zero at the hit, counted up once per update to the
-    /// 128 that starts the page-two program, after which it is no longer advanced.
+    /// 128 that starts the page-two animation, after which it is no longer advanced.
     /// </summary>
     private int explodingTimer;
-    /// <summary>Whether explosion timing has entered the page-two program.</summary>
+    /// <summary>Whether explosion timing has entered the page-two animation.</summary>
     private bool pageTwoAnimationStarted;
-    /// <summary>Whether the page-two program's frame behaviour has replaced hit flashing.</summary>
+    /// <summary>Whether the page-two animation's frame behaviour has replaced hit flashing.</summary>
     private bool CrossfadingToPageTwo =>
         actor.ListFrameBehavior == CinematicSpriteFrameBehavior.IntroMotherBrainCrossFading;
 
@@ -48,7 +48,7 @@ internal sealed class IntroMotherBrainSpriteState
     public PictureShading Shading(PictureShading drawn) =>
         FlashesWhite ? Ensure.NotNull(drawn).With(new ColourFlash(RgbColor.White)) : Ensure.NotNull(drawn);
 
-    /// <summary>The pose Mother Brain's program shows; null before its first frame and after deletion.</summary>
+    /// <summary>The pose Mother Brain's animation shows; null before its first frame and after deletion.</summary>
     public CinematicSpritePose? Pose => actor.Pose;
 
     /// <summary>Number of missiles consumed by Mother Brain's hit test; the fourth starts the explosion.</summary>
@@ -68,7 +68,7 @@ internal sealed class IntroMotherBrainSpriteState
     public bool IsVisible { get; private set; } = true;
 
     /// <summary>
-    /// Runs the actor's frame behaviour that precedes its program's timer decrement.
+    /// Runs the actor's frame behaviour that precedes its animation's timer decrement.
     /// </summary>
     public void RunFrameBehavior(
         int cinematicFrameCounter,
@@ -93,7 +93,7 @@ internal sealed class IntroMotherBrainSpriteState
         explodingTimer++;
         if (explodingTimer >= 128)
         {
-            // The exploding behaviour starts the page-two program. The generic handler below runs its page request and
+            // The exploding behaviour starts the page-two animation. The generic handler below runs its page request and
             // frame behaviour install during this same cinematic-object call.
             actor.Start(CinematicSpriteSegment.IntroMotherBrainStartPage2);
             pageTwoAnimationStarted = true;

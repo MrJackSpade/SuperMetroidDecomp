@@ -3,14 +3,14 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.SpriteObjects;
 
 /// <summary>
-/// One room sprite object: a program-driven decorative effect (dust, an explosion, a Metroid's shell, a Nuclear Waffle
+/// One room sprite object: an animation-driven decorative effect (dust, an explosion, a Metroid's shell, a Nuclear Waffle
 /// link, one of Draygon's Evirs), created fresh each time one is spawned (#1591). Its spawner holds it when it moves,
 /// recolours, freezes or ends it; the room's <see cref="RoomSpriteObjects"/> steps and draws it until it ends.
 /// </summary>
 public sealed class RoomSpriteObject
 {
-    /// <summary>Spawns an object of <paramref name="kind"/> at <paramref name="position"/>, showing its program's first frame.</summary>
-    /// <param name="kind">What the object is, which selects the program it plays.</param>
+    /// <summary>Spawns an object of <paramref name="kind"/> at <paramref name="position"/>, showing its animation's first frame.</summary>
+    /// <param name="kind">What the object is, which selects the animation it plays.</param>
     /// <param name="position">Where it stands, in whole room pixels.</param>
     /// <param name="graphics">The artwork and colours it draws with.</param>
     internal RoomSpriteObject(RoomSpriteObjectKind kind, Position16<RoomPixels> position, SpriteGraphics graphics)
@@ -25,7 +25,7 @@ public sealed class RoomSpriteObject
     /// <summary>What the object is, as its spawner chose it.</summary>
     public RoomSpriteObjectKind Kind { get; }
 
-    /// <summary>Whether the object still runs its program; once it ends it never runs or shows again.</summary>
+    /// <summary>Whether the object still runs its animation; once it ends it never runs or shows again.</summary>
     public bool IsActive => Playback is not null;
 
     /// <summary>
@@ -41,22 +41,22 @@ public sealed class RoomSpriteObject
     /// <summary>The animation the object plays and where it stands in it (#1600), or null once it has ended.</summary>
     internal AnimationPlayback<RoomSpriteObjectSegment>? Playback { get; private set; }
 
-    /// <summary>Updates left showing <see cref="Frame"/> before the program moves on; not counted while the object <see cref="Holds"/>.</summary>
+    /// <summary>Updates left showing <see cref="Frame"/> before the animation moves on; not counted while the object <see cref="Holds"/>.</summary>
     public int Timer { get; private set; }
 
-    /// <summary>Whether the program has reached its hold: the object shows <see cref="Frame"/> from then on until it ends.</summary>
+    /// <summary>Whether the animation has reached its hold: the object shows <see cref="Frame"/> from then on until it ends.</summary>
     public bool Holds { get; private set; }
 
     /// <summary>The frame the object shows.</summary>
     internal RoomSpriteObjectFrame Frame { get; private set; }
 
-    /// <summary>Suppresses program updates but leaves drawing intact.</summary>
+    /// <summary>Suppresses animation updates but leaves drawing intact.</summary>
     public bool UpdatesDisabled { get; internal set; }
 
     /// <summary>Ends the object: it stops running and showing.</summary>
     internal void End() => Playback = null;
 
-    /// <summary>Counts one update off the shown frame and moves the program on when it runs out, unless updates are disabled or the object holds.</summary>
+    /// <summary>Counts one update off the shown frame and moves the animation on when it runs out, unless updates are disabled or the object holds.</summary>
     internal void Step()
     {
         if (!IsActive || UpdatesDisabled || Holds)

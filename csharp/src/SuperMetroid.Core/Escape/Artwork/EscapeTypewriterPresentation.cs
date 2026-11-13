@@ -16,9 +16,9 @@ public sealed class EscapeTypewriterPresentation
     }
 
     /// <summary>Returns the installed warning text and placement for one escape scenario.</summary>
-    /// <param name="id">Ceres or Zebes program identity; None does not denote an installed program.</param>
-    /// <returns>The retained program with its read-only ordered line sequence and source identity.</returns>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="id"/> is None or another undefined program value.</exception>
+    /// <param name="id">Ceres or Zebes message identity; None does not denote an installed message.</param>
+    /// <returns>The retained message with its read-only ordered line sequence and source identity.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="id"/> is None or another undefined message value.</exception>
     public EscapeTypewriterMessage Get(EscapeTypewriterMessageId id) => id switch
     {
         EscapeTypewriterMessageId.Ceres => ceres,
@@ -33,7 +33,7 @@ public sealed class EscapeTypewriterPresentation
     internal sealed class LineSequence(EscapeTypewriterMessageId id, int count,
         Dictionary<int, EscapeTypewriterLine> differences) : IReadOnlyList<EscapeTypewriterLine>
     {
-        /// <summary>Edited or added lines that differ from the selected warning program.</summary>
+        /// <summary>Edited or added lines that differ from the selected warning message.</summary>
         internal readonly Dictionary<int, EscapeTypewriterLine> overrides = differences;
         /// <summary>Number of lines selected by the editable document for this warning.</summary>
         public int Count => count;

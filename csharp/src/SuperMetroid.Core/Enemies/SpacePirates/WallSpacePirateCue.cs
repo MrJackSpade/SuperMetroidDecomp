@@ -1,6 +1,6 @@
 ﻿namespace SuperMetroid.Core.Enemies.SpacePirates;
 
-/// <summary>One cue of the wall Space Pirates' programs, with its typed operands.</summary>
+/// <summary>One cue of the wall Space Pirates' animations, with its typed operands.</summary>
 internal abstract record WallSpacePirateCue
 {
     /// <summary>Closes the hierarchy to the cues declared here.</summary>

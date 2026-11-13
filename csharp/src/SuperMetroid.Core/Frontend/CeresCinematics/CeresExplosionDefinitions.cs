@@ -39,22 +39,22 @@ internal static class CeresExplosionDefinitions
     /// <summary>The cinematic function's countdown seed when the initial fade completes.</summary>
     internal const int RepeatingCountdownSeed = 1;
     /// <summary>First delayed small-explosion actor.</summary>
-    /// <remarks>Its animation displays six duration-3 small-explosion frames, then deletes. It runs as a typed cinematic sprite program.</remarks>
+    /// <remarks>Its animation displays six duration-3 small-explosion frames, then deletes. It runs as a typed cinematic sprite animation.</remarks>
     public static CinematicActorDefinition InitialActor =>
         new(CinematicSpriteFrameBehavior.CeresExplosion, CinematicSpriteSegment.CeresSmallExplosion);
 
     /// <summary>Cyclic repeating small-explosion actor.</summary>
-    /// <remarks>Its animation repeats six duration-3 frames and a duration-16 blank six times, then deletes. It runs as a typed cinematic sprite program.</remarks>
+    /// <remarks>Its animation repeats six duration-3 frames and a duration-16 blank six times, then deletes. It runs as a typed cinematic sprite animation.</remarks>
     public static CinematicActorDefinition RepeatingActor =>
         new(CinematicSpriteFrameBehavior.CeresExplosion, CinematicSpriteSegment.CeresRepeatingSmallExplosion);
 
     /// <summary>Final delayed large-explosion actor.</summary>
-    /// <remarks>Its animation repeats four duration-5 frames and a duration-8 blank seven times, then deletes. It runs as a typed cinematic sprite program.</remarks>
+    /// <remarks>Its animation repeats four duration-5 frames and a duration-8 blank seven times, then deletes. It runs as a typed cinematic sprite animation.</remarks>
     public static CinematicActorDefinition FinalWaveActor =>
         new(CinematicSpriteFrameBehavior.CeresExplosion, CinematicSpriteSegment.CeresLargeExplosion);
 
     /// <summary>Final station blast actor created as the station explodes.</summary>
-    /// <remarks>Its animation displays six duration-5 station-blast frames, then deletes. It runs as a typed cinematic sprite program.</remarks>
+    /// <remarks>Its animation displays six duration-5 station-blast frames, then deletes. It runs as a typed cinematic sprite animation.</remarks>
     public static CinematicActorDefinition StationBlastActor =>
         new(CinematicSpriteFrameBehavior.CeresExplosion, CinematicSpriteSegment.CeresStationBlast);
 

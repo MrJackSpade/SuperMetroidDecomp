@@ -3,7 +3,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 
 /// <summary>
-/// Cinematic texts typed one glyph per step (#1513): each typing program shows its poses in order, each pose the one before
+/// Cinematic texts typed one glyph per step (#1513): each typing animation shows its poses in order, each pose the one before
 /// it and one more glyph. A sheet pictures each text's glyphs once, and a typed pose is drawn as the glyphs typed so far,
 /// so no step is pictured whole.
 /// </summary>
@@ -12,7 +12,7 @@ internal sealed class CinematicTypedTexts
     /// <summary>Each typed pose's step, text by text in typing order.</summary>
     internal readonly Dictionary<CinematicSpritePose, CinematicTypedStep> steps = [];
 
-    /// <summary>The texts <paramref name="segments"/> type, each pose its program shows a step of it.</summary>
+    /// <summary>The texts <paramref name="segments"/> type, each pose its animation shows a step of it.</summary>
     /// <exception cref="InvalidDataException">Two texts show one pose.</exception>
     internal CinematicTypedTexts(IEnumerable<CinematicSpriteSegment> segments)
     {

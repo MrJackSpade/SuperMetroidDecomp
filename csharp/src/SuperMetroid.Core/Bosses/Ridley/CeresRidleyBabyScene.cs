@@ -164,7 +164,7 @@ internal sealed class CeresRidleyBabyScene
 
     /// <summary>
     /// Draws the Baby and door over every enemy once Ceres Ridley's reveal has started his
-    /// animation: the same private Baby animation script, after the ordinary enemy layer loop.
+    /// animation: the same private Baby animation, after the ordinary enemy layer loop.
     /// </summary>
     public void DrawCeresRidleyBabyAndDoorOverEnemies(
         SpriteFrameBuffer sprites,
@@ -199,7 +199,7 @@ internal sealed class CeresRidleyBabyScene
 
         // The room's door hands its drawing to Ridley's scene in its hiding step, when the common
         // enemy pass intentionally hides the actor; the Baby and door draw then draws this fixed overlay
-        // after the Baby. This draws the door for it; it does not replace the door actor's own program.
+        // after the Baby. This draws the door for it; it does not replace the door actor's own animation.
         RoomEnemySlot door = _ridleyEncounter.Parts.CeresRoomDoor;
         if (door.Entity is IDrawnByCeresRidleyScene { HandsDrawingToRidley: true })
         {
@@ -214,7 +214,7 @@ internal sealed class CeresRidleyBabyScene
     }
 
     /// <summary>
-    /// Runs the Baby's typed cutscene program one draw update and returns its current frame. The Baby's draw counts the
+    /// Runs the Baby's typed cutscene animation one draw update and returns its current frame. The Baby's draw counts the
     /// elapsed updates up and advances once they reach the pose's duration; the next pose starts at one.
     /// </summary>
     internal EnemyFrameId? AdvanceCeresBabyDrawAnimation(RidleyEnemyState state)

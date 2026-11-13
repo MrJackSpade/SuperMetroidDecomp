@@ -510,7 +510,7 @@ internal sealed class SamusPoseTransitionPhase
                      SamusPoseMetadata.IsDraygonGrabbedPose(target):
                 // Both transition tables stay within one facing. The helper makes
                 // that invariant explicit and initializes the target's real
-                // animation list.
+                // animation.
                 SamusPoseMetadata.ApplyDraygonGrabbedPoseChange(samus, 
                     targetPose);
                 return true;
@@ -602,7 +602,7 @@ internal sealed class SamusPoseTransitionPhase
                      !(SamusPoseMetadata.IsGroundedSpringBallPose(source) &&
                        target is SamusPoseId.SpringBallJumpRightPose or
                            SamusPoseId.SpringBallJumpLeftPose):
-                // These six poses all share one delay list.
+                // These six poses all share one animation.
                 // The initializer preserves frame/timer and applies mode-one
                 // reversal momentum only when direction actually changes.
                 SamusPosturePoseTransitions.ApplyMorphBallPoseChange(samus, target);
@@ -1069,7 +1069,7 @@ internal sealed class SamusPoseTransitionPhase
                  _player.ProspectiveSamusFallbackPose is { } wallFallback)
         {
             // The aimed ran-into-wall poses name the plain ran-into-wall poses as their fallback poses. The stable
-            // target shares radius, animation list, and ran-into-wall cleanup physics.
+            // target shares radius, animation, and ran-into-wall cleanup physics.
             SamusGroundedPoseTransitions.ApplyGroundedAimTransition(samus, 
                 unchecked(wallFallback));
         }

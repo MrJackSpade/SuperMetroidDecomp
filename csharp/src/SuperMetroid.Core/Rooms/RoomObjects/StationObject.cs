@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// A map, energy, missile or save station (#1554), which replaces the stations' family state and step. The station holds
+/// A map, energy, missile or save station (#1554). The station holds
 /// its appearance, its access arm's phase and countdown, and its save handshake as domain values, and advances them on
 /// each update: an access Samus triggered starts the arm (or asks to save), the arm extends, holds, activates the
 /// station, holds and retracts by its authored timing (<see cref="StationAccessTimingDefinitions"/>), the accepted save

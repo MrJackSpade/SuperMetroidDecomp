@@ -20,7 +20,7 @@ internal static class RoomObjectPopulationImporter
             throw new ArgumentException("PLM import requires an explicit cartridge-import source.", nameof(source));
         var records = new List<RoomObjectPlacement>();
         ushort cursor = pointer;
-        for (int index = 0; index < RoomObjectPopulationFormat.MaximumParserIterations; index++)
+        for (int index = 0; index < RoomObjectPopulationFormatConstants.MaximumParserIterations; index++)
         {
             ushort headerWord = Word(0x8f, cursor);
             if (headerWord == 0)

@@ -66,8 +66,8 @@ internal static class RoomObjectPopulationInputBoundaryVerification
         AssertThrows<InvalidDataException>(() => new RoomObjectPopulation($"$8F:{0x9000:X4}",
             [trigger with { ScrollProgram = [new(0, (RoomScrollState)3)] }]), "invalid decoded scroll states are rejected");
         AssertThrows<InvalidDataException>(() => new RoomObjectPopulation($"$8F:{0x9000:X4}",
-            Enumerable.Repeat(second, RoomObjectPopulationFormat.MaximumParserIterations)),
-            "typed records cannot evade the native bounded terminator limit");
+            Enumerable.Repeat(second, RoomObjectPopulation.MaximumPlacementCount + 1)),
+            "a population cannot hold more placements than a room's population holds");
         AssertThrows<InvalidDataException>(() => new RoomObjectPopulation($"$8F:{0x9000:X4}",
             [extension with { ScrollProgram = Array.Empty<RoomScrollWrite>() }]), "an extension cannot own a resident scroll program");
 

@@ -6,7 +6,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Sbug;
 
-/// <summary>The Sbug species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Sbug species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -51,8 +51,8 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.SetSpeciesState(state);
 
         // The forward velocity uses the game-derived unsigned quarter-circle magnitudes and lets
-        // the shared helper apply signs later from the original angle. The side velocities instead use the signed,
-        // intentionally imperfect short multiply routine.
+        // the shared helper apply signs later from the initial angle. The side velocities instead use the signed,
+        // intentionally imperfect short multiply.
         int speed = state.Speed;
         RotationAngle leftAngle = state.InitialAngle.TurnedBySteps(-EnemyTrigonometryAngleDefinitions.EighthTurn);
         RotationAngle rightAngle = state.InitialAngle.TurnedBySteps(EnemyTrigonometryAngleDefinitions.EighthTurn);
@@ -272,7 +272,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         AddSbugVelocity(slot, state.CustomXVelocity, state.CustomYVelocity);
     }
 
-    /// <summary>Offsets the current angle by a random byte, then begins a 32-frame movement leg.</summary>
+    /// <summary>Offsets the current angle by a random value below 256, then begins a 32-frame movement leg.</summary>
     private void ChooseSbugRandomDirection(
         RoomEnemySlot slot,
         SbugEnemyState state,
@@ -286,7 +286,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = movement;
     }
 
-    /// <summary>Rebuilds signed velocity words and facing animation from the chosen custom angle.</summary>
+    /// <summary>Rebuilds signed velocities and facing animation from the chosen custom angle.</summary>
     private static void RecalculateSbugCustomDirection(RoomEnemySlot slot, SbugEnemyState state)
     {
         CalculateSignedSbugVelocities(
@@ -300,10 +300,10 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         SetSbugFacing(slot, state, state.CustomFacing);
     }
 
-    /// <summary>Preserves the independent word negation and the folded facing on reversal.</summary>
+    /// <summary>Preserves the separate whole and fraction negation and the folded facing on reversal.</summary>
     private static void ReverseSbugCustomDirection(RoomEnemySlot slot, SbugEnemyState state)
     {
-        // The original negates whole pixels and subpixels separately. For a nonzero subpixel
+        // The Sbug negates whole pixels and subpixels separately. For a nonzero subpixel
         // that is off by exactly 1.0 compared with a proper negation; this
         // visible drift is part of retail behavior and must not be “fixed.”
         state.CustomXVelocity = NegateSbugPartsIndependently(state.CustomXVelocity);
@@ -315,15 +315,15 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         SetSbugFacing(slot, state, state.CustomFacing);
     }
 
-    /// <summary>Negates pixel and subpixel words separately, retaining the game's fractional error.</summary>
+    /// <summary>Negates pixel and subpixel parts separately, retaining the game's fractional error.</summary>
     private static SignedSixteenSixteen NegateSbugPartsIndependently(SignedSixteenSixteen value) =>
         value.NegatedPartsSeparately();
 
-    /// <summary>Applies unsigned quarter-wave magnitudes with signs from the original angle.</summary>
+    /// <summary>Applies unsigned quarter-wave magnitudes with signs from the initial angle.</summary>
     private static void MoveSbugForward(RoomEnemySlot slot, SbugEnemyState state)
     {
         // Moving the enemy by its angle and speeds applies signs to the unsigned magnitudes by
-        // testing the original mathematical angle independently for X and Y.
+        // testing the initial angle independently for X and Y.
         TrigonometryAngle initialAngle = state.InitialAngle.ToTrigonometryAngle();
         bool subtractX = initialAngle.TurnedBySteps(EnemyTrigonometryAngleDefinitions.QuarterTurn).IsInSecondHalf;
         bool subtractY = initialAngle.TurnedBySteps(EnemyTrigonometryAngleDefinitions.HalfTurn).IsInSecondHalf;
@@ -331,7 +331,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Position = slot.Position.WithY(slot.Position.Y.MovedBy(ForwardDisplacement(state.ForwardYVelocity, subtractY)));
     }
 
-    /// <summary>Adds both signed 16.16 custom velocity words to the actor position.</summary>
+    /// <summary>Adds both signed 16.16 custom velocities to the actor position.</summary>
     private static void AddSbugVelocity(
         RoomEnemySlot slot,
         SignedSixteenSixteen xVelocity,
@@ -407,7 +407,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
             static (SbugEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"Sbug's cue-free animation raised {cue}."));
 
-    /// <summary>Ports Sbug's main AI.</summary>
+    /// <summary>Runs Sbug's main AI.</summary>
     internal void RunSbugMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunSbugMain(slot, frame.Samus, frame.Level);

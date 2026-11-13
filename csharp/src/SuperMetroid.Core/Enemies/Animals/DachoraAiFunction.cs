@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>
-/// The routine Dachora's main AI runs each frame.
+/// The behaviour Dachora's main AI runs each frame.
 /// Its values are arbitrary.
 /// </summary>
 public enum DachoraAiFunction

@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Enemies;
 public sealed class EnemySession
 {
     /// <summary>
-    /// Creates the enemy words a fresh power-on holds, bound to the compatibility services its enemies consult.
+    /// Creates the enemy state a fresh power-on holds, bound to the compatibility services its enemies consult.
     /// </summary>
     /// <param name="overreads">The installation's services reproducing what enemies read past their authored data (#1500).</param>
     /// <param name="bossOverreads">
@@ -60,7 +60,7 @@ public sealed class EnemySession
     public bool JapaneseText { get; set; }
 
     /// <summary>
-    /// Enemy-pass random counter read by AI and projectile routines, 0 through 65535. Its one advance wraps
+    /// Enemy-pass random counter read by AI and projectiles, 0 through 65535. Its one advance wraps
     /// from 65535 back to zero, and every reader takes it modulo a power of two or copies it whole, so a wider store holds exactly
     /// the counter the game keeps.
     /// </summary>

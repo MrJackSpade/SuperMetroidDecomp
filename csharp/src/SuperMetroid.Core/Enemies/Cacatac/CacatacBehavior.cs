@@ -6,7 +6,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Cacatac;
 
-/// <summary>The Cacatac species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Cacatac species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -106,7 +106,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Moves the Cacatac along its patrol: the 16.16 velocity is added to X with the
-    /// fraction's carry into the whole, then the wrapped signed distance to the patrol limit decides the turn.
+    /// fraction's overflow into the whole, then the wrapped signed distance to the patrol limit decides the turn.
     /// </summary>
     private static void MoveCacatac(
         RoomEnemySlot slot,
@@ -140,7 +140,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         SetCacatacProgram(slot, state, state.UpsideUp ? CacatacProgram.UpsideUpAttack : CacatacProgram.UpsideDownAttack);
     }
 
-    /// <summary>Animation cue: restore patrol from the direction word.</summary>
+    /// <summary>Animation cue: restore patrol from the stored direction.</summary>
     private static void RestoreCacatacPatrol(CacatacEnemyState state)
     {
         // The game tests the direction against zero, not against one. Its special initial direction two therefore
@@ -154,7 +154,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     private void PlayCacatacSpikeSound() =>
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.CacatacSpikeSound, priority: SoundRequestPriority.Normal);
 
-    /// <summary>Starts a patrol or attack animation on the next instruction tick.</summary>
+    /// <summary>Starts a patrol or attack animation on the next animation tick.</summary>
     internal static void SetCacatacProgram(RoomEnemySlot slot, CacatacEnemyState state, CacatacProgram program)
     {
         state.Playback = new(CacatacAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
@@ -172,7 +172,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         }, EnemyProjectileFrameBehavior.CacatacSpikeFlight);
     }
 
-    /// <summary>Ports Cacatac's main AI.</summary>
+    /// <summary>Runs Cacatac's main AI.</summary>
     internal void RunCacatacMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
     {
         RunCacatacMain(slot, slot.RequireSpeciesState<CacatacEnemyState>());

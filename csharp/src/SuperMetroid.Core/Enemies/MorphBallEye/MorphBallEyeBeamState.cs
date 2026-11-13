@@ -33,7 +33,7 @@ public sealed class MorphBallEyeBeamState
     /// The colour the beam adds inside its cone: red and green only, never blue; black before the beam appears and once
     /// it has faded. A compatibility value (#1544): the beam fades one level of the game's authored levels
     /// (<see cref="FadeLevelColour"/>) a channel an update and is removed on the update its green is found at none, so the
-    /// beam's lifetime depends on those levels, as the original's beam fade tests the colour's green before darkening it.
+    /// beam's lifetime depends on those levels, as the beam fade tests the colour's green before darkening it.
     /// </summary>
     public RgbColor Color { get; internal set; }
 

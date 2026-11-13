@@ -1,8 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Atomic;
 
 /// <summary>
-/// Atomic's horizontal movement routine. The original symbol calls this the Y movement function even
-/// though both targets update X.
+/// Atomic's horizontal movement behaviour; both targets update X.
 /// Its values are arbitrary.
 /// </summary>
 public enum AtomicHorizontalMovement

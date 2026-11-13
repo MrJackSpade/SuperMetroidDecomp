@@ -1,12 +1,12 @@
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>
-/// The routine a ninja Space Pirate's main AI runs.
+/// The behaviour a ninja Space Pirate's main AI runs.
 /// Its values are arbitrary.
 /// </summary>
 public enum NinjaSpacePirateFunction
 {
-    /// <summary>Shared return stub used while animation bytecode owns the actor.</summary>
+    /// <summary>Shared return stub used while the animation program owns the actor.</summary>
     NoOperation = 1,
     /// <summary>Waits for Samus to enter activation range.</summary>
     Initial,

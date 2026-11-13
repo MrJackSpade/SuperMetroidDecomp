@@ -9,10 +9,10 @@ namespace SuperMetroid.Core.Enemies;
 internal sealed class EnemyRoomStatus
 {
     /// <summary>Binds the room's status to the session that holds the language flag.</summary>
-    /// <param name="session">The enemy words that outlive each room.</param>
+    /// <param name="session">The enemy state that outlives each room.</param>
     internal EnemyRoomStatus(EnemySession session) => _session = Ensure.NotNull(session);
 
-    /// <summary>The enemy words that outlive each room.</summary>
+    /// <summary>The enemy state that outlives each room.</summary>
     private readonly EnemySession _session;
 
     /// <summary>
@@ -25,7 +25,7 @@ internal sealed class EnemyRoomStatus
     /// The room's kill count, zero or more: reset at load and incremented by death paths through
     /// <see cref="RecordKill"/>; it counts their publications rather than enumerating remaining or uniquely defeated
     /// slots. Its readers compare it with the room's kill quota, at most 255, on every room-object update from the room's
-    /// load, so the count meets the quota long before a count kept to the game's word could pass 65535 and start again;
+    /// load, so the count meets the quota long before a count kept to the game's range could pass 65535 and start again;
     /// once met, the grey door has opened and the cleared event is set for good, so no reader sees where a count past
     /// that would stand.
     /// </summary>

@@ -6,7 +6,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Enemies.NoobTube;
 
-/// <summary>The Noob tube species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Noob tube species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class NoobTubeBehavior
 {

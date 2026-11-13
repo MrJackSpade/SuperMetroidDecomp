@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.WorkRobots;
 
-/// <summary>What a cue of the Work Robot's programs does: one per instruction its lists use.</summary>
+/// <summary>What a cue of the Work Robot's programs does: one per kind of step its lists use.</summary>
 internal enum WorkRobotCueKind
 {
     /// <summary>Counts the laser cooldown down.</summary>

@@ -7,7 +7,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Rios;
 
-/// <summary>The Lower Norfair rio species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Lower Norfair rio species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
 {

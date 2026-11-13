@@ -5,7 +5,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Boyon;
 
-/// <summary>The Boyon species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Boyon species owner: its per-room state, behaviour and the interactions it registers.</summary>
 internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
@@ -54,7 +54,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Initialization writes the ordinary empty frame before selecting the
         // idle list. RoomEnemySystem's load tail intentionally restores the same transient
-        // empty map; the first processed instruction frame installs real art.
+        // empty frame; the first processed animation frame installs real art.
         slot.Frame = EnemyFrameId.Empty;
 
         var state = new BoyonEnemyState
@@ -199,7 +199,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
         return CoordinateAxis.Precedes(distance, slot.SpawnSettings<BoyonSpawnSettings>().TriggerDistance);
     }
 
-    /// <summary>Starts the idle or bounce animation and restarts its instruction and auxiliary timers.</summary>
+    /// <summary>Starts the idle or bounce animation and restarts its frame and auxiliary timers.</summary>
     private static void SetBoyonProgram(RoomEnemySlot slot, BoyonEnemyState state, BoyonProgram program)
     {
         state.Playback = new(BoyonAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);

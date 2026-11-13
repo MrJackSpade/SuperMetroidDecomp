@@ -4,7 +4,7 @@ using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Enemies.Zoa;
 
-/// <summary>The Zoa species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Zoa species owner: its per-room state, behaviour and the interactions it registers.</summary>
 internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
@@ -13,7 +13,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new ZoaEntity(slot, common);
 
-    /// <summary>Advances Zoa's typed animation (#641) where the interpreter would run its list.</summary>
+    /// <summary>Advances Zoa's typed animation (#641) where the shared enemy animation would run its list.</summary>
     internal static void AdvanceZoaAnimation(RoomEnemySlot slot)
     {
         if (!EnemyProgramAnimation.Expire(slot))
@@ -108,7 +108,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         // Odd indexes are rising lists: one faces left and three faces right. The sign test
-        // uses the same wrapped Samus-minus-enemy word as the common helper.
+        // uses the same wrapped Samus-minus-enemy distance as the common helper.
         state.AnimationScriptTableIndex = ZoaAnimationSelector.Rising |
             (CoordinateAxis.AsSigned(signedDistance) < 0
                 ? ZoaAnimationSelector.None
@@ -147,7 +147,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
             ZoaSpeedDefinitions.StageSpeedEighths[state.ShotSpeedStage] * SixteenthsPerEighth);
 
         // Shooting list zero travels left by subtraction; list two travels right by
-        // addition. The instruction bytecode changes speed at 64-, 8-, and 48-frame marks.
+        // addition. The animation program changes speed at 64-, 8-, and 48-frame marks.
         SignedSixteenSixteen xDisplacement = state.AnimationScriptTableIndex == ZoaAnimationSelector.None
             ? -speed
             : speed;
@@ -180,7 +180,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Timer = WrappingCountdown.Start(0);
     }
 
-    /// <summary>Ports Zoa's main AI.</summary>
+    /// <summary>Runs Zoa's main AI.</summary>
     internal static void RunZoaMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunZoaMain(slot, slot.RequireSpeciesState<ZoaEnemyState>(), frame.Samus, frame.Camera);

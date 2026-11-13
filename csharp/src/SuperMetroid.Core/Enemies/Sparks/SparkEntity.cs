@@ -25,7 +25,7 @@ internal sealed class SparkEntity(SparkBehavior species, RoomEnemySlot slot, Ene
         context.SelectedShotAi == EnemyReaction.SparkShot ? ProjectilePassThrough.Bomb : base.FindBombSpecialAfterNoOp(context);
 
     /// <summary>The Spark's own shot reaction, which normal bombs dispatch like the common one.</summary>
-    /// <param name="reaction">The reaction the header or the selected hitbox names, or null.</param>
+    /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>
     public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
         reaction == EnemyReaction.SparkShot;
 }

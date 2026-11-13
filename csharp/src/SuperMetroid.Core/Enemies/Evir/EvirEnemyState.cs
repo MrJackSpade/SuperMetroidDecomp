@@ -29,7 +29,7 @@ public sealed class EvirEnemyState
     public bool MovingDown { get; internal set; }
     /// <summary>The last installed animation, not its advancing cursor; none forces installation of the requested one.</summary>
     internal EvirProgram? InstalledProgram { get; set; }
-    /// <summary>The animation requested by the actor's current facing or projectile phase; a changed request restarts the instruction timer at one.</summary>
+    /// <summary>The animation requested by the actor's current facing or projectile phase; a changed request restarts the frame timer at one.</summary>
     internal EvirProgram RequestedProgram { get; set; }
     /// <summary>The animation this actor plays and where it stands in it (#1600), once one is installed.</summary>
     internal AnimationPlayback<EvirProgram>? Playback { get; set; }

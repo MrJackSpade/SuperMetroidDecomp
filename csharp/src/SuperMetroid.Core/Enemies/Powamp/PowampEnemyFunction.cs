@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Powamp;
 
 /// <summary>
-/// The routine a Powamp body's main AI runs. The balloon half uses <see cref="BalloonNoOp"/> and never
+/// The behaviour a Powamp body's main AI runs. The balloon half uses <see cref="BalloonNoOp"/> and never
 /// owns vertical movement.
 /// Its values are arbitrary.
 /// </summary>

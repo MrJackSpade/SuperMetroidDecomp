@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Shutters;
 
 /// <summary>
-/// The growing shutter's routines: four initialization waits and two growth directions.
+/// The growing shutter's behaviours: four initialization waits and two growth directions.
 /// Its values are arbitrary.
 /// </summary>
 public enum GrowingShutterFunction

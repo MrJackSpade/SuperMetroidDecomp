@@ -9,7 +9,7 @@ using SuperMetroid.Core.Enemies.SpriteObjects;
 
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
-/// <summary>The ninja space pirate species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The ninja space pirate species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -601,7 +601,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
                     ? NinjaSpacePirateProgram.ActiveFacingRight
                     : NinjaSpacePirateProgram.ActiveFacingLeft;
                 slot.FrameHold = WrappingCountdown.Start(1);
-                // The instruction returns the selected list, not its next word.
+                // The cue returns the selected list, not its next step.
                 // Re-entering that list runs its function cue and restores decision AI
                 // after the idle animation explicitly installed the no-op function.
                 return state.ActiveProgram;

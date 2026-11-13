@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Skree;
 
 /// <summary>
-/// The routine a Skree's main AI runs.
+/// The behaviour a Skree's main AI runs.
 /// Its values are arbitrary.
 /// </summary>
 public enum SkreeEnemyFunction
@@ -9,7 +9,7 @@ public enum SkreeEnemyFunction
     /// <summary>Waits until Samus is within 48 horizontal pixels.</summary>
     Idling = 1,
 
-    /// <summary>Waits for the wind-up instruction to authorize the dive.</summary>
+    /// <summary>Waits for the wind-up cue to authorize the dive.</summary>
     PreparingAttack,
 
     /// <summary>Descends six pixels and steers one pixel toward Samus until floor collision.</summary>

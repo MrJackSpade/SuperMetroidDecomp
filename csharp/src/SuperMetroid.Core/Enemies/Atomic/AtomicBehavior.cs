@@ -4,7 +4,7 @@ using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Enemies.Atomic;
 
-/// <summary>The Atomic species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Atomic species owner: its per-room state, behaviour and the interactions it registers.</summary>
 internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
@@ -90,7 +90,7 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
             static (AtomicEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Atomic animation raised {cue}."));
 
-    /// <summary>Ports Atomic's main AI.</summary>
+    /// <summary>Runs Atomic's main AI.</summary>
     internal static void RunAtomicMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunAtomicMain(slot, slot.RequireSpeciesState<AtomicEnemyState>(), frame.Samus);

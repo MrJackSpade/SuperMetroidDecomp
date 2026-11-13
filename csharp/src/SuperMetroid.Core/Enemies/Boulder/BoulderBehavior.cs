@@ -8,7 +8,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Boulder;
 
-/// <summary>The Boulder species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Boulder species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -63,7 +63,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Largest travel clock while rolling: quadratic-speed record 64.</summary>
     private static readonly EnemyQuadraticSpeedIndex MaximumRollingTravelSpeed = EnemyQuadraticSpeedIndex.FromRows(64);
 
-    /// <summary>Interprets both spawn parameters as direction, trigger windows, vertical compensation, and initial height; a zero offset starts rolling without bounces.</summary>
+    /// <summary>Reads both spawn parameters as direction, trigger windows, vertical compensation, and initial height; a zero offset starts rolling without bounces.</summary>
     internal static void InitializeBoulder(RoomEnemySlot slot)
     {
         var state = new BoulderEnemyState();
@@ -239,7 +239,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // The falling clock is not capped: its next read selects the following quadratic record, and the table
-        // rejects record 95 before the clock could approach the word limit.
+        // rejects record 95 before the clock could approach the limit of its range.
         state.BounceSpeedAccumulator += BounceSpeedStep;
         AddBoulderHorizontalVelocity(slot, state);
         state.TravelSpeedAccumulator = AddAndCap(
@@ -300,7 +300,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Advances an acceleration clock and caps it. The game compares the sum with the cap by the sign of their
-    /// word difference; both stay within 0 through 24576 here, so that is the ordinary comparison.
+    /// difference; both stay within 0 through 24576 here, so that is the ordinary comparison.
     /// </summary>
     private static EnemyQuadraticSpeedIndex AddAndCap(
         EnemyQuadraticSpeedIndex value, EnemyQuadraticSpeedIndex increment, EnemyQuadraticSpeedIndex maximum) =>
@@ -312,7 +312,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
             static (BoulderEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Boulder animation raised {cue}."));
 
-    /// <summary>Ports Boulder's main AI.</summary>
+    /// <summary>Runs Boulder's main AI.</summary>
     internal void RunBoulderMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunBoulderMain(slot, slot.RequireSpeciesState<BoulderEnemyState>(), frame.Samus, frame.Level);

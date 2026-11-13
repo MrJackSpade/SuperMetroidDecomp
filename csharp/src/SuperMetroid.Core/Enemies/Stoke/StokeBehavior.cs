@@ -8,7 +8,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Stoke;
 
-/// <summary>The Stoke species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Stoke species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -77,7 +77,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Initialization writes the common empty map, then picks the left list by default.
         // A right-moving Stoke takes the right-facing branch. The room-loader tail later
-        // restores the transient empty map, and the first instruction tick supplies art.
+        // restores the transient empty frame, and the first animation tick supplies art.
         slot.Frame = EnemyFrameId.Empty;
         SetStokeProgram(slot, state, StokeProgram.MovingLeft);
         if (settings.Direction == StokeDirection.Right)
@@ -99,7 +99,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case StokeAiFunction.Moving:
                 // A nonzero spawn direction other than one takes the right-facing branch, so only the left
-                // word walks left.
+                // value walks left.
                 bool left = state.Direction == StokeDirection.Left;
                 RunMovingStoke(
                     slot,
@@ -162,15 +162,15 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Turns Stoke around.</summary>
     private static void TurnStokeAround(RoomEnemySlot slot, StokeEnemyState state)
     {
-        // The routine always selects the left wrapper first, then replaces it with right
+        // The turn always selects the left wrapper first, then replaces it with right
         // only when the old direction was not one. It does not update direction/function;
-        // the wrapper command executes later in this same enemy instruction phase.
+        // the wrapper command executes later in this same enemy animation phase.
         SetStokeProgram(slot, state, StokeProgram.MovingLeft);
         if (state.Direction != StokeDirection.Right)
             SetStokeProgram(slot, state, StokeProgram.MovingRight);
     }
 
-    /// <summary>Switches the active animation so its first step runs on the next instruction tick.</summary>
+    /// <summary>Switches the active animation so its first step runs on the next animation tick.</summary>
     private static void SetStokeProgram(RoomEnemySlot slot, StokeEnemyState state, StokeProgram program)
     {
         state.Playback = new(StokeAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
@@ -195,7 +195,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
         }, EnemyProjectileFrameBehavior.StokeFireballFlight);
     }
 
-    /// <summary>Ports Stoke's main AI.</summary>
+    /// <summary>Runs Stoke's main AI.</summary>
     internal void RunStokeMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunStokeMain(slot, slot.RequireSpeciesState<StokeEnemyState>(), frame.Level);
@@ -238,7 +238,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         projectile.Position = projectile.Position.AdvanceX(projectile.Velocity.X.ToSixteenSixteenDelta());
 
-        // Stoke's projectile cull is a byte-for-byte clone of Cacatac's.
+        // Stoke's projectile cull is identical to Cacatac's.
         CacatacBehavior.DeleteEnemyProjectileIfOutsideInclusiveViewport(projectile, camera);
     }
 }

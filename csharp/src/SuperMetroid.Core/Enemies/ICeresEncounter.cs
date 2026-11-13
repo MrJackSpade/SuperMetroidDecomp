@@ -22,6 +22,6 @@ internal interface ICeresEncounter
     /// <summary>Draws the Baby and door sprite over every enemy, once his animation has started.</summary>
     void DrawCeresRidleyBabyAndDoorOverEnemies(SpriteFrameBuffer sprites, Position16<RoomPixels> camera);
 
-    /// <summary>Runs the getaway room's main routine.</summary>
+    /// <summary>Runs the getaway room's main step.</summary>
     void RunCeresRidleyGetawayRoomMain(SamusState? samus, int frameCounter);
 }

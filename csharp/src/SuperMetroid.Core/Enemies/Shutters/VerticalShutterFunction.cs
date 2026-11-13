@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Shutters;
 
 /// <summary>
-/// The routines the three vertical shutter definitions share.
+/// The behaviours the three vertical shutter definitions share.
 /// Its values are arbitrary.
 /// </summary>
 public enum VerticalShutterFunction

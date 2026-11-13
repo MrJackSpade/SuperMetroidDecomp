@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Shutters;
 
 /// <summary>
-/// The routines of the unused horizontal shutter.
+/// The behaviours of the unused horizontal shutter.
 /// Its values are arbitrary.
 /// </summary>
 public enum HorizontalShutterFunction

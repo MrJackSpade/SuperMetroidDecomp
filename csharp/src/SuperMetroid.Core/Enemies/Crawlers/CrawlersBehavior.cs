@@ -9,7 +9,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Crawlers;
 
-/// <summary>The Crawlers species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Crawlers species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -284,7 +284,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
                 : CrawlerSurfaceAnimations.ProgramFor(
                     CrawlerAnimationFamily.HZoomer, CrawlerSurfaceOrientation.UpsideLeft));
 
-    /// <summary>Starts the chosen orange-Zoomer animation with fresh instruction and loop timers.</summary>
+    /// <summary>Starts the chosen orange-Zoomer animation with fresh frame and loop timers.</summary>
     private static void SetHZoomerProgram(
         RoomEnemySlot slot,
         CrawlerEnemyState state,
@@ -354,7 +354,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // Outside corner: reverse the tangent for up to three frames while the instruction
+        // Outside corner: reverse the tangent for up to three frames while the
         // list rotates the actor around the exposed block edge.
         state.Velocity = state.Velocity.ReversedY();
         SetCrawlerVerticalSurfaceInstruction(slot, state);
@@ -418,7 +418,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.ApplyFallingGravity();
 
-        // The routine contains this zero-velocity escape even though ordinary falls
+        // The fall contains this zero-velocity escape even though ordinary falls
         // immediately gain gravity. Retain it for modified parameter/state combinations.
         if (state.FallingYVelocity == SignedSixteenSixteen.Zero)
             state.Function = CrawlerEnemyFunction.CrawlingVertically;
@@ -514,26 +514,26 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
 
-    /// <summary>Ports Sciser's initializer wrapper.</summary>
+    /// <summary>Runs Sciser's initializer wrapper.</summary>
     internal static void InitializeSciserAi(RoomEnemySlot slot) =>
         InitializeCrawler(slot, CrawlerAnimationFamily.Sciser, speciesSurfaceFamily: CrawlerAnimationFamily.Sciser);
 
-    /// <summary>Ports Zero's initializer wrapper.</summary>
+    /// <summary>Runs Zero's initializer wrapper.</summary>
     internal static void InitializeZeroAi(RoomEnemySlot slot) =>
         InitializeCrawler(slot, CrawlerAnimationFamily.Zero, speciesSurfaceFamily: CrawlerAnimationFamily.Zero);
 
-    /// <summary>Ports Viola's initializer wrapper.</summary>
+    /// <summary>Runs Viola's initializer wrapper.</summary>
     internal static void InitializeViolaAi(RoomEnemySlot slot) =>
         InitializeCrawler(slot, CrawlerAnimationFamily.Viola, speciesSurfaceFamily: CrawlerAnimationFamily.Viola);
 
-    /// <summary>Ports the shared initializer wrapper Zeela, Sova, Zoomer and MZoomer use.</summary>
+    /// <summary>Runs the shared initializer wrapper Zeela, Sova, Zoomer and MZoomer use.</summary>
     internal static void InitializeSharedCrawlerAi(RoomEnemySlot slot) =>
         InitializeCrawler(slot, CrawlerAnimationFamily.Shared);
 
-    /// <summary>Ports the shared crawler main AI.</summary>
+    /// <summary>Runs the shared crawler main AI.</summary>
     internal void RunCrawlerMainAi(RoomEnemySlot slot, IEnemyAiFrame frame) => RunCrawlerMain(slot, frame.Level);
 
-    /// <summary>Ports orange Zoomer's Samus-tracking main AI.</summary>
+    /// <summary>Runs orange Zoomer's Samus-tracking main AI.</summary>
     internal void RunHZoomerMainAi(RoomEnemySlot slot, IEnemyAiFrame frame) =>
         RunHZoomerMain(slot, frame.Samus, frame.Level);
 

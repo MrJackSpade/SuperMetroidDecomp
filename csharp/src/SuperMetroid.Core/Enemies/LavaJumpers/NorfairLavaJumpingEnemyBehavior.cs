@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies.LavaJumpers.Artwork;
 using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Enemies.LavaJumpers;
 
-/// <summary>The Norfair lava-jumping enemy species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Norfair lava-jumping enemy species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -13,7 +13,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new NorfairLavaJumpingEnemyEntity(this, slot, common);
 
-    /// <summary>Supplies one random word per parent and follower AI frame.</summary>
+    /// <summary>Supplies one random number per parent and follower AI frame.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>The room's enemy places, where each follower finds its parent when it is placed.</summary>
     private readonly EnemySlotTable _slotTable;
@@ -63,7 +63,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
         }
 
         // The jumping parent returns to exactly these population coordinates after every
-        // arc. Subpositions are deliberately not saved or cleared by the retail routine.
+        // arc. Subpositions are deliberately not saved or cleared by the retail jump.
         state.SpawnPosition = slot.Position.Whole;
         state.Playback = new(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperProgram.Hidden), AnimationPlace.StartOfAnimation);
         state.Function = NorfairLavaJumpingEnemyFunction.BeginJump;
@@ -72,7 +72,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
     /// <summary>
     /// Runs the lava jumper's main behaviour and
     /// its rising, flipping and falling functions. Main advances the shared enemy RNG once for every parent and follower
-    /// frame; even the follower discards the word, which still affects later room actors.
+    /// frame; even the follower discards the number, which still affects later room actors.
     /// </summary>
     internal void RunNorfairLavaJumpingEnemyMain(
         RoomEnemySlot slot,
@@ -97,7 +97,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
                 MoveNorfairLavaJumpingEnemyVertically(slot, state);
                 state.ApplyGravity(NorfairLavaJumpingEnemyGravity);
 
-                // The game compares the velocity word unsigned, which holds only for a rising velocity of -1024 or
+                // The game compares the velocity unsigned, which holds only for a rising velocity of -1024 or
                 // slower: starting jump velocities are near -2048, so the switch comes before the arc apex.
                 if (state.YVelocity.IsNegative && state.YVelocity >= NorfairLavaJumpingEnemyAnimationSwitchVelocity)
                 {

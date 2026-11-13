@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Alcoon;
 
 /// <summary>
-/// The routine Alcoon's main AI runs each frame.
+/// The behaviour Alcoon's main AI runs each frame.
 /// Its values are arbitrary.
 /// </summary>
 public enum AlcoonEnemyFunction

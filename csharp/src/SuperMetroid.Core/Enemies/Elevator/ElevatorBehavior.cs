@@ -8,7 +8,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Elevator;
 
-/// <summary>The Elevator species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Elevator species owner: its per-room state, behaviour and the interactions it registers.</summary>
 internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IElevatorJourney
 {
     /// <inheritdoc/>
@@ -295,13 +295,13 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
             static (ElevatorEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Elevator animation raised {cue}."));
 
-    /// <summary>Ports Elevator's initialization AI.</summary>
+    /// <summary>Runs Elevator's initialization AI.</summary>
     internal void RunElevatorInitializationAi(RoomEnemySlot slot, EnemySpawnSurroundings surroundings)
     {
         InitializeElevator(slot, surroundings.Samus);
     }
 
-    /// <summary>Ports Elevator's main AI.</summary>
+    /// <summary>Runs Elevator's main AI.</summary>
     internal void RunElevatorMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunElevatorMain(

@@ -59,7 +59,7 @@ internal sealed class EnemySharedReactions
     internal void AddTouch(Func<RoomEnemySlot, bool> matches, EnemyTouchHandler handler) =>
         _touch.Add(new EnemyTouchRule(Ensure.NotNull(matches), Ensure.NotNull(handler)));
 
-    /// <summary>The translated touch reaction of <paramref name="slot"/>, or null when it has none.</summary>
+    /// <summary>The touch reaction of <paramref name="slot"/>, or null when it has none.</summary>
     internal EnemyTouchHandler? FindTouch(RoomEnemySlot slot)
     {
         foreach (var (matches, handler) in _touch)
@@ -76,7 +76,7 @@ internal sealed class EnemySharedReactions
     /// <summary>Adds a shot reaction; the first registered reaction that matches the enemy runs.</summary>
     internal void AddShot(EnemyShotReaction reaction) => _shot.Add(Ensure.NotNull(reaction));
 
-    /// <summary>The translated shot reaction of <paramref name="enemy"/>, or null when it has none.</summary>
+    /// <summary>The shot reaction of <paramref name="enemy"/>, or null when it has none.</summary>
     internal EnemyShotReaction? FindShot(RoomEnemySlot enemy)
     {
         foreach (EnemyShotReaction reaction in _shot)
@@ -140,7 +140,7 @@ internal sealed class EnemySharedReactions
     /// <summary>Adds a power-bomb reaction; the first registered reaction that matches the enemy runs.</summary>
     internal void AddPowerBomb(EnemyPowerBombReaction reaction) => _powerBomb.Add(Ensure.NotNull(reaction));
 
-    /// <summary>The translated power-bomb reaction of <paramref name="enemy"/>, or null when it has none.</summary>
+    /// <summary>The power-bomb reaction of <paramref name="enemy"/>, or null when it has none.</summary>
     internal EnemyPowerBombReaction? FindPowerBomb(RoomEnemySlot enemy)
     {
         foreach (EnemyPowerBombReaction reaction in _powerBomb)

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Boyon;
 /// <summary>A Boyon's bounce curve: the sample its multiplier scales at each curve index.</summary>
 public static class BoyonBounceCurve
 {
-    /// <summary>The curve is k(k+1)/2, with explicit byte saturation beyond its stored samples.</summary>
+    /// <summary>The curve is k(k+1)/2, with explicit saturation at 255 beyond its stored samples.</summary>
     /// <remarks>
     /// #625 / #643 exact proof: each of the 23 authored samples
     /// equals k*(k+1)/2 for authored index k in 0..22, ending at 253.

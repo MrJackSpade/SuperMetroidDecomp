@@ -7,7 +7,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Platforms;
 
-/// <summary>The Platforms species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Platforms species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -33,7 +33,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (cue.Kind)
         {
             case PlatformCueKind.MoveLeft:
-                // The ordinary and duplicate commands are byte-for-byte equivalent: both publish horizontal
+                // The ordinary and duplicate commands are equivalent: both publish horizontal
                 // dispatcher index zero before the next frame.
                 SetPlatformHorizontalMovementFromInstruction(slot, PlatformHorizontalMovement.Left);
                 break;
@@ -58,7 +58,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.SetSpeciesState(state);
 
         state.IsSuspensorPlatform = isKamer;
-        // Main AI dispatches the complete word through a two-entry table, so a value outside it is corrupt room
+        // Main AI dispatches the complete value through a two-entry table, so a value outside it is corrupt room
         // data and is rejected here rather than normalized to rightward movement.
         PlatformSpawnSettings settings = slot.SpawnSettings<PlatformSpawnSettings>();
         state.XMovement = settings.Movement;
@@ -111,7 +111,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.PreviousYMovement = state.YMovement;
     }
 
-    /// <summary>Exact wrapped-word test of Samus riding the platform from above.</summary>
+    /// <summary>Exact wrapped-coordinate test of Samus riding the platform from above.</summary>
     internal static bool IsSamusRidingPlatform(RoomEnemySlot slot, SamusState samus)
     {
         int xDistance = CoordinateAxis.Wrap(samus.Position.X.Whole - slot.Position.X.Whole);
@@ -255,7 +255,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Steps the quadratic-speed table index without crossing its variant-specific cap. The index stays within
-    /// 0 through the cap (at most 255) and one step can only reach 256, so the game's signed word comparison
+    /// 0 through the cap (at most 255) and one step can only reach 256, so the game's signed comparison
     /// is an ordinary one.
     /// </summary>
     internal static void IncrementAndClampPlatformYSpeed(PlatformEnemyState state)
@@ -312,7 +312,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
             state.IsSuspensorPlatform, axis: Axis.Horizontal, state.XMovement));
     }
 
-    /// <summary>Starts the selected animation with a one-tick instruction timer.</summary>
+    /// <summary>Starts the selected animation with a one-tick frame timer.</summary>
     private static void InstallPlatformProgram(RoomEnemySlot slot, PlatformEnemyState state, PlatformProgram program)
     {
         state.Playback = new(PlatformAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
@@ -342,7 +342,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         });
     }
 
-    /// <summary>Ports Platforms's main AI.</summary>
+    /// <summary>Runs Platforms's main AI.</summary>
     internal void RunPlatformsMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunPlatformMain(slot, slot.RequireSpeciesState<PlatformEnemyState>(), frame.Samus, frame.Level);
@@ -385,7 +385,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// The frozen Tripper's frame. The frozen draw tests the complete X-movement word for zero: every nonzero value shows
+    /// The frozen Tripper's frame. The frozen draw tests the complete X-movement value for zero: every nonzero value shows
     /// the right-moving frame, including values outside the normal dispatcher domain.
     /// </summary>
     private static EnemyFrameId TripperFrozenFrame(PlatformHorizontalMovement direction) =>

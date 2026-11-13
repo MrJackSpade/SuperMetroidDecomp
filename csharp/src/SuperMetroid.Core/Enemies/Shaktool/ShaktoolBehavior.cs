@@ -6,7 +6,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Shaktool;
 
-/// <summary>The Shaktool species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Shaktool species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -91,9 +91,9 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         // The segment's definition names the animation it starts.
         state.Playback = new(ShaktoolAnimations.StartingWith(definition.InitialProgram), AnimationPlace.StartOfAnimation);
 
-        // The leading saw is the chain's fixed anchor. Every later segment's curious drawing-queue
-        // read aliases the preceding enemy record's X/sub-X/Y/sub-Y words. Express
-        // that alias structurally instead of treating queue scratch as an unrelated center.
+        // The leading saw is the chain's fixed anchor. Every later segment centers on the preceding segment's
+        // position, subpixels included. Express that link structurally instead of treating queue scratch as an
+        // unrelated center.
         if (definition != ShaktoolSegmentDefinitions.LeadingSaw)
             PositionShaktoolAroundPreviousSegment(slot, state);
     }
@@ -516,7 +516,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         }, EnemyProjectileFrameBehavior.ShaktoolTrailingCircleFlight);
     }
 
-    /// <summary>Ports Shaktool's main AI.</summary>
+    /// <summary>Runs Shaktool's main AI.</summary>
     internal void RunShaktoolMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunShaktoolMain(slot, RequireShaktoolState(slot), frame.Level);

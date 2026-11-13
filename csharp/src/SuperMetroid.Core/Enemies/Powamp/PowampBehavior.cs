@@ -10,7 +10,7 @@ using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Enemies.Powamp;
 
-/// <summary>The Powamp species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Powamp species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -64,7 +64,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.SetSpeciesState(state);
 
         // The initializer forces animation processing for both halves and clears the
-        // instruction interpreter's loop counter before choosing the half-specific list.
+        // animation's loop counter before choosing the half-specific list.
         slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
         slot.Frame = EnemyFrameId.Empty;
         slot.FrameHold = WrappingCountdown.Start(1);
@@ -177,8 +177,8 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level,
         PowampHold hold)
     {
-        // The ordinary rise changes dispatch and executes the grappled routine immediately
-        // on the frame common grapple AI publishes bit one.
+        // The ordinary rise changes dispatch and runs the grappled behaviour immediately
+        // on the frame common grapple AI publishes the grappled state.
         bool grappleAiActive = (body.AiStates & EnemyAiStates.Grappled) != EnemyAiStates.None;
         if (hold != PowampHold.Grappled && grappleAiActive)
         {
@@ -478,7 +478,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Recognizes the two zero-offset points in the twelve-phase wiggle table.</summary>
     private static bool IsPowampCentered(int wiggleIndex) => wiggleIndex is 0 or 6;
 
-    /// <summary>Restarts a body or balloon animation on the next interpreter pass.</summary>
+    /// <summary>Restarts a body or balloon animation on the next animation pass.</summary>
     private static void SetPowampProgram(RoomEnemySlot slot, PowampEnemyState state, PowampProgram program)
     {
         state.Playback = new(PowampAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
@@ -530,7 +530,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
             static (PowampEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"Powamp's cue-free animation raised {cue}."));
 
-    /// <summary>Ports Powamp's main AI.</summary>
+    /// <summary>Runs Powamp's main AI.</summary>
     internal void RunPowampMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunPowampMain(slot, slot.RequireSpeciesState<PowampEnemyState>(), frame.Level);
@@ -636,7 +636,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void BeginPowampSpikeDeletion(EnemyProjectile spike)
     {
         // The program deletes the spike as its first command; starting it at timer one lets the
-        // instruction pass carry that out later in this same frame.
+        // animation pass carry that out later in this same frame.
         spike.StartAnimation(new PowampSpikeAnimation(PowampSpikeProgram.Delete));
     }
 }

@@ -7,7 +7,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Rios;
 
-/// <summary>The Rio species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Rio species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -65,7 +65,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
         Position16<RoomPixels> camera)
     {
         // The Rio's main behaviour advances the global enemy RNG even though this particular family never
-        // consumes the returned word. Omitting that apparently-useless call changes every
+        // consumes the returned number. Omitting that apparently-useless call changes every
         // later random enemy in the room, so it is part of Rio's observable behavior.
         _room.Random.Generate();
 
@@ -253,7 +253,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidOperationException("Rio movement requires the current room level data.");
     }
 
-    /// <summary>Ports Rio's main AI.</summary>
+    /// <summary>Runs Rio's main AI.</summary>
     internal void RunRioMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunRioMain(

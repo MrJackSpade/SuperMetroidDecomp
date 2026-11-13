@@ -28,8 +28,8 @@ public sealed class WorkRobotEnemyState
     public Position16<RoomPixels> BackupPosition { get; internal set; }
 
     /// <summary>
-    /// Variables E (fraction) and F (whole pixels): an unpowered robot's signed 16.16 falling speed in pixels per
-    /// update, which gravity accumulates with the game's carry and wraparound.
+    /// An unpowered robot's signed 16.16 falling speed in pixels per update, which gravity accumulates with the
+    /// fraction's overflow into the whole part and wraparound.
     /// </summary>
     public SignedSixteenSixteen FallVelocity { get; internal set; }
 }

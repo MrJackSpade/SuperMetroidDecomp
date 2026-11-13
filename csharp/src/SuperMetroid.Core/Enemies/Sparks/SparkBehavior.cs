@@ -5,7 +5,7 @@ using SuperMetroid.Core.Enemies.FallingSparks;
 
 namespace SuperMetroid.Core.Enemies.Sparks;
 
-/// <summary>The Spark species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Spark species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -63,7 +63,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.FrameHold = WrappingCountdown.Start(1);
         state.Playback = new(SparkAnimations.StartingWith(definition.Program), AnimationPlace.StartOfAnimation);
         slot.Timer = WrappingCountdown.Start(0);
-        // Spark keeps its population properties: the original initializer's extra property change before Phantoon's
+        // Spark keeps its population properties: the initializer's extra property change before Phantoon's
         // defeat is exempt under the emulation scope limits (owner decision on #1318).
     }
 
@@ -134,7 +134,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.FrameHold = WrappingCountdown.Start(1);
     }
 
-    /// <summary>Ports Spark's main AI.</summary>
+    /// <summary>Runs Spark's main AI.</summary>
     internal void RunSparkMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
     {
         RunSparkMain(slot, slot.RequireSpeciesState<SparkEnemyState>());

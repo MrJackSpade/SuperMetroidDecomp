@@ -8,7 +8,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
-/// <summary>The walking space pirate species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The walking space pirate species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -43,7 +43,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         switch (cue)
         {
             case WalkingSpacePirateCue.SetFunction setFunction:
-                // Pirate bytecode does not jump to the operand. It stores that function
+                // The pirate program does not jump to the operand. It stores that function
                 // for main AI to dispatch next frame, then runs on.
                 RequireWalkingSpacePirateState(slot).Function = setFunction.Function;
                 return null;
@@ -188,9 +188,8 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
 
         if (floorAhead)
         {
-            // The ignored horizontal probe checks raw level-word bit 15 at -9 pixels. Its
-            // only mutable result is the DP displacement pair, which the following move
-            // immediately overwrites. It therefore has no persistent actor-side effect.
+            // The ignored horizontal probe has one mutable result, a displacement pair the following move
+            // immediately overwrites, so it leaves no persistent actor-side effect.
             bool hitWall = _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 slot,
@@ -478,7 +477,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         table.AddCue<SpacePirateProjectileCue>((context, cue) =>
         {
             context.Projectile.FrameBehavior = cue.Movement;
-            // The start-moving cue leaves the program where it was, so the common interpreter dispatches the installed
+            // The start-moving cue leaves the program where it was, so the common animation dispatches the installed
             // movement once at once: the laser moves on the update it starts and may leave the screen then.
             if (cue.Kind == SpacePirateProjectileCueKind.StartMovingNow)
                 FlyPirateLaser(context.Projectile, context.Camera, LaserFlightDirection(cue.Movement));

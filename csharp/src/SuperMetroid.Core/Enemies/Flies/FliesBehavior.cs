@@ -5,7 +5,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Flies;
 
-/// <summary>The Flies species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Flies species owner: its per-room state, behaviour and the interactions it registers.</summary>
 internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
@@ -26,7 +26,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Maximum horizontal Samus distance, in pixels, that triggers an attack from circular flight.</summary>
     private const int FlyAttackHorizontalRange = 112;
 
-    /// <summary>Starts a newly loaded fly at angle zero with its flight instruction and clockwise motion.</summary>
+    /// <summary>Starts a newly loaded fly at angle zero with its flight program and clockwise motion.</summary>
     internal static void InitializeFly(RoomEnemySlot slot)
     {
         var state = new FlyEnemyState
@@ -47,7 +47,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidOperationException("Fly AI requires the active Samus actor.");
 
         // The flies advance the global RNG even though this family does not consume the
-        // returned word. The side effect matters when several random enemies share a room.
+        // returned number. The side effect matters when several random enemies share a room.
         _room.Random.Generate();
         FlyEnemyState state = slot.RequireSpeciesState<FlyEnemyState>();
         switch (state.Function)
@@ -174,7 +174,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = playback;
     }
 
-    /// <summary>Ports Flies's main AI.</summary>
+    /// <summary>Runs Flies's main AI.</summary>
     internal void RunFliesMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunFlyMain(slot, frame.Samus);

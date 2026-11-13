@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// The compatibility services that reproduce what enemies read past the data the original game meant them to read
+/// The compatibility services that reproduce what enemies read past the end of their own data
 /// (#1500), as the import pipeline decoded them from the player's game data. The host installs them on the enemy
 /// session with the rest of the installed content; an enemy consults its service only on the path that reads past its
 /// data. Lifetime: the installation's, shared by every room of the session.

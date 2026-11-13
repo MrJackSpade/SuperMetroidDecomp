@@ -11,14 +11,12 @@ public sealed class AtomicEnemyState
     internal AnimationPlayback<AtomicProgram> Playback { get; set; }
 
     /// <summary>
-    /// The vertical movement chosen this update (named for X in the original; the selected routine changes the actor's
-    /// Y coordinate).
+    /// The vertical movement chosen this update; the selected behaviour changes the actor's Y coordinate.
     /// </summary>
     public AtomicVerticalMovement? VerticalMovement { get; internal set; }
 
     /// <summary>
-    /// The horizontal movement chosen this update (named for Y in the original; the selected routine changes the
-    /// actor's X coordinate).
+    /// The horizontal movement chosen this update; the selected behaviour changes the actor's X coordinate.
     /// </summary>
     public AtomicHorizontalMovement? HorizontalMovement { get; internal set; }
 

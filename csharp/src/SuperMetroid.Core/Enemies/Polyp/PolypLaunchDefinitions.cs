@@ -3,10 +3,10 @@ namespace SuperMetroid.Core.Enemies.Polyp;
 /// <summary>Fixed launch/cooldown mechanics selected by three independent RNG draws.</summary>
 public static class PolypLaunchDefinitions
 {
-    /// <summary>The RNG bits 1..3 that select the cooldown; bit zero and the upper bits do not select a record.</summary>
+    /// <summary>The random number divided by two, modulo 8, selects the cooldown.</summary>
     internal static readonly RandomSampleField CooldownSelector = new(1, 3);
 
-    /// <summary>The RNG bits 1..4 that select the launch speed and the horizontal velocity.</summary>
+    /// <summary>The random number divided by two, modulo 16, selects the launch speed and the horizontal velocity.</summary>
     internal static readonly RandomSampleField LaunchSelector = new(1, 4);
 
     /// <summary>The cooldown each RNG selector chooses: sixteen frames, eight longer per selector.</summary>

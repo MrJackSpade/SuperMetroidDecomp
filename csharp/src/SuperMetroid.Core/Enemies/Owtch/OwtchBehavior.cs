@@ -2,7 +2,7 @@
 using SuperMetroid.Core.Enemies.Owtch.Artwork;
 namespace SuperMetroid.Core.Enemies.Owtch;
 
-/// <summary>The Owtch species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Owtch species owner: its per-room state, behaviour and the interactions it registers.</summary>
 internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
 {
 
@@ -89,7 +89,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
             case OwtchBehaviorState.Sinking:
                 slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + 1);
                 // Sinking starts from zero, so the depth stays within one through sixteen and the game's signed
-                // word comparison is an ordinary one.
+                // comparison is an ordinary one.
                 state.BurialDepth++;
                 if (state.BurialDepth >= OwtchMaximumBurialDepth)
                 {
@@ -104,7 +104,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
                 {
                     // The underground wait samples the current random number without advancing the RNG. The
                     // gameplay runtime supplies that read seam; isolated callers without it
-                    // retain the established advancing fallback used by other translated AI.
+                    // retain the established advancing fallback used by other AI.
                     int random = _room.Random.Read();
                     state.Behavior = OwtchMovementDefinitions.MoveRightChoice.IsSetIn(random)
                         ? OwtchBehaviorState.MovingRight
@@ -138,13 +138,13 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
         _ => throw new ArgumentOutOfRangeException(nameof(initial), initial, "Undefined Owtch behaviour."),
     };
 
-    /// <summary>Moves the Owtch with the game's carry-sensitive additions.</summary>
+    /// <summary>Moves the Owtch with the game's 16.16 additions.</summary>
     private static void MoveOwtch(
         RoomEnemySlot slot,
         OwtchEnemyState state,
         HorizontalDirection direction)
     {
-        // The fraction's carry and the whole pixels' wraparound match the game's paired additions.
+        // The fraction's overflow and the whole pixels' wraparound match the game's paired additions.
         slot.Position = slot.Position.AdvanceX(direction == HorizontalDirection.Right ? state.RightVelocity : state.LeftVelocity);
 
         if (direction != HorizontalDirection.Right)
@@ -198,7 +198,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
         });
     }
 
-    /// <summary>Ports Owtch's main AI.</summary>
+    /// <summary>Runs Owtch's main AI.</summary>
     internal void RunOwtchMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
     {
         RunOwtchMain(slot, slot.RequireSpeciesState<OwtchEnemyState>());

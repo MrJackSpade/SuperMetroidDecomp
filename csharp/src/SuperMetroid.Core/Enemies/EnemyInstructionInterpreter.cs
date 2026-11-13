@@ -7,7 +7,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// The enemy instruction interpreter: common instructions, owner-private instruction dispatch,
+/// The enemy animation player: common cues, owner-private cue dispatch,
 /// visual selectors and mechanics, the artwork animations show, and the body frames bosses show on their bodies.
 /// </summary>
 [RoomLifetime]
@@ -16,12 +16,12 @@ internal sealed class EnemyInstructionInterpreter
     /// <summary>Holds the body the room's boss shows its parts' frames on.</summary>
     private readonly EnemyPresentation _presentation;
 
-    /// <summary>Captures the presentation for instruction execution.</summary>
+    /// <summary>Captures the presentation for cue execution.</summary>
     internal EnemyInstructionInterpreter(EnemyPresentation presentation) => _presentation = presentation;
 
     /// <summary>
     /// Shows the body frame the already resolved visual frame shows on its boss's body (#1466, #1515, #1540), on the update its
-    /// instruction selects a new frame: from then on it is the frame the slot's part of the boss shows. The common writer draws
+    /// cue selects a new frame: from then on it is the frame the slot's part of the boss shows. The common writer draws
     /// its sprite half, which may be empty for a pose shown only on the body. Selecting a pose with no body frame leaves
     /// the part's frame as it was.
     /// </summary>
@@ -41,7 +41,7 @@ internal sealed class EnemyInstructionInterpreter
     }
 
     /// <summary>
-    /// Advances one enemy's typed animation (#641). Every enemy that processes instructions runs a typed program; one
+    /// Advances one enemy's typed animation (#641). Every enemy that runs an animation script runs a typed program; one
     /// without is a missing conversion and fails here.
     /// </summary>
     internal static void RunsAnimationScript(

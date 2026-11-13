@@ -19,7 +19,7 @@ public sealed class DachoraEnemyState
 
     /// <summary>
     /// The signed 16.16 speed in pixels per update while running, falling or shinesparking, horizontal while running and
-    /// vertical after the launch. It accumulates with the game's carry and 32-bit wraparound.
+    /// vertical after the launch. It accumulates with the fraction's overflow into the whole part and 16.16 wraparound.
     /// </summary>
     public SignedSixteenSixteen Speed { get; internal set; }
 
@@ -31,7 +31,7 @@ public sealed class DachoraEnemyState
 
     /// <summary>
     /// On the body during the shinespark: the signed 16.16 vertical acceleration per update, which gravity accumulates
-    /// into with the game's carry and 32-bit wraparound.
+    /// into with the fraction's overflow into the whole part and 16.16 wraparound.
     /// </summary>
     public SignedSixteenSixteen VerticalAcceleration { get; internal set; }
 

@@ -25,10 +25,10 @@ internal static class MetroidBehaviorDefinitions
     /// <summary>The random field that picks which of the eight <see cref="RandomCries"/> slots a chasing Metroid plays: bits zero to two.</summary>
     internal static readonly RandomSampleField CrySlot = new(0, 3);
 
-    /// <summary>A sixteenth of a health point, in the units of the drain accumulator.</summary>
+    /// <summary>A sixteenth of a health point, in the units of the drain counter.</summary>
     private const int SixteenthHealth = 4096;
 
-    /// <summary>Gravity Suit Samus loses one health each time this fraction underflows the drain accumulator: three sixteenths.</summary>
+    /// <summary>Gravity Suit Samus loses one health each time this fraction underflows the drain counter: three sixteenths.</summary>
     internal const int GravityDrainFraction = 3 * SixteenthHealth;
 
     /// <summary>Varia Suit Samus's drain fraction: six sixteenths.</summary>

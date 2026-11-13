@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>
-/// The routines the dead Torizo corpse's main AI dispatches.
+/// The behaviours the dead Torizo corpse's main AI dispatches.
 /// Its values are arbitrary.
 /// </summary>
 internal enum DeadTorizoFunction

@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies.Hibashi.Artwork;
 using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Enemies.Hibashi;
 
-/// <summary>The Hibashi species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Hibashi species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -36,7 +36,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
                 PlayHibashiEruptionSound();
                 break;
             case HibashiCueKind.ActivityFrame:
-                // Each of the 22 routines selects the correspondingly indexed Y-offset/radius pair.
+                // Each of the 22 activity cues selects the correspondingly indexed Y-offset/radius pair.
                 ApplyHibashiActivityFrame(slot, cue.Value);
                 break;
             case HibashiCueKind.FinishActivity:
@@ -59,7 +59,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.SetSpeciesState(state);
 
         // Every part starts with the one-frame hitbox map. Only part zero replaces it with
-        // the eruption animation and initializes the state-machine words below.
+        // the eruption animation and initializes the state-machine values below.
         state.Playback = new(HibashiAnimations.StartingWith(HibashiProgram.Hitbox), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
@@ -71,8 +71,8 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = HibashiEnemyFunction.Inactive;
         state.SpawnHeight = new Position16<RoomPixels>(0, slot.Position.Y.Whole);
 
-        // The visible graphics record must never participate through its header radius.
-        // Its following part receives the dynamic radius from instruction commands.
+        // The visible graphics record must never participate through its definition's radius.
+        // Its following part receives the dynamic radius from animation cues.
         slot.Radius = slot.Radius.WithX(0);
     }
 
@@ -174,7 +174,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The hitbox part the visible geyser found when it was placed; retail populations always list one right after it.</summary>
     private RoomEnemySlot GetFollowingHibashiPart(RoomEnemySlot graphics) => _hitboxes.Of(graphics);
 
-    /// <summary>Ports Hibashi's main AI.</summary>
+    /// <summary>Runs Hibashi's main AI.</summary>
     internal void RunHibashiMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
     {
         RunHibashiMain(slot, slot.RequireSpeciesState<HibashiEnemyState>());

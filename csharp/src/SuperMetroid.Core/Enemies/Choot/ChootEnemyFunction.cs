@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Choot;
 
 /// <summary>
-/// The routine a Choot's main AI runs each frame.
+/// The behaviour a Choot's main AI runs each frame.
 /// Its values are arbitrary.
 /// </summary>
 public enum ChootEnemyFunction

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.LavaJumpers;
 
 /// <summary>
-/// The routine the Norfair lava-jumping enemy's main AI runs; the authored name record spells the internal name
+/// The behaviour the Norfair lava-jumping enemy's main AI runs; the authored name record spells the internal name
 /// <c>SQUEEWPT</c>. Its values are arbitrary.
 /// </summary>
 public enum NorfairLavaJumpingEnemyFunction
@@ -14,6 +14,6 @@ public enum NorfairLavaJumpingEnemyFunction
     RiseBeforeAnimationSwitch,
     /// <summary>Continue the signed 8.8 arc until the flip animation's cue signals completion, then clear the handshake and enter final falling.</summary>
     MoveUntilAnimationSignal,
-    /// <summary>Continue descent until Y bits 4..7 equal $F, then restore spawn whole coordinates, install the hidden/rising list, and disable offscreen processing without clearing subpositions.</summary>
+    /// <summary>Continue descent until Y modulo 256 reaches 240, then restore spawn whole coordinates, install the hidden/rising list, and disable offscreen processing without clearing subpositions.</summary>
     FallBackIntoLava,
 }

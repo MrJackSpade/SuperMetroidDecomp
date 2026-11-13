@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Boulder;
 
 /// <summary>
-/// The six routines Boulder's main AI dispatches.
+/// The six behaviours Boulder's main AI dispatches.
 /// Its values are arbitrary.
 /// </summary>
 public enum BoulderAiFunction

@@ -7,7 +7,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Alcoon;
 
-/// <summary>The Alcoon species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Alcoon species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -95,7 +95,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = AlcoonEnemyFunction.WaitingForSamus;
         SetupAlcoonJumpMovement(state);
 
-        // The original initializer really executes every half-pixel-accelerated ascent
+        // The initializer really executes every half-pixel-accelerated ascent
         // step, then every collision-aware descent step. It ultimately restores only the
         // whole Y coordinate; the collision-produced subposition deliberately survives.
         int iterations = 0;
@@ -302,7 +302,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // Like the original, the reset snaps only whole coordinates. Both subpositions and
+        // The reset snaps only whole coordinates. Both subpositions and
         // the last animation map remain live while the actor waits underground.
         slot.Position = slot.Position.WithWhole(state.SpawnPosition);
         state.Function = AlcoonEnemyFunction.WaitingForSamus;
@@ -313,7 +313,6 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.Velocity = new FixedVector<RoomPixels>(
             SignedSixteenSixteen.Zero, SignedSixteenSixteen.FromParts(-12, 0));
-        // The game also clears a record word here that nothing reads.
         state.YAcceleration = SignedSixteenSixteen.FromParts(0, 32768);
     }
 
@@ -393,13 +392,13 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         }, EnemyProjectileFrameBehavior.AlcoonFireballFlight);
     }
 
-    /// <summary>Ports Alcoon's initialization AI.</summary>
+    /// <summary>Runs Alcoon's initialization AI.</summary>
     internal void RunAlcoonInitializationAi(RoomEnemySlot slot, EnemySpawnSurroundings surroundings)
     {
         InitializeAlcoon(slot, surroundings.Level);
     }
 
-    /// <summary>Ports Alcoon's main AI.</summary>
+    /// <summary>Runs Alcoon's main AI.</summary>
     internal void RunAlcoonMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunAlcoonMain(slot, slot.RequireSpeciesState<AlcoonEnemyState>(), frame.Samus, frame.Level);
@@ -451,7 +450,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         // Unlike Ridley's fireball, this definition checks vertical collision first. If
-        // either axis collides, the routine clears the projectile ID immediately and
+        // either axis collides, the projectile clears its ID immediately and
         // never applies horizontal deceleration on that frame.
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical) ||
             EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal))

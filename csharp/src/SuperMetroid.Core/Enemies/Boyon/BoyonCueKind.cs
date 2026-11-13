@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Boyon;
 
-/// <summary>What a cue of Boyon's programs does: one per instruction its lists use.</summary>
+/// <summary>What a cue of Boyon's programs does: one per kind of step its lists use.</summary>
 internal enum BoyonCueKind
 {
     /// <summary>Keeps processing the enemy while it is off screen.</summary>

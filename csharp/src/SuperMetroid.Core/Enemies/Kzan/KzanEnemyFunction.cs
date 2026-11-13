@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Kzan;
 
 /// <summary>
-/// The routine Kzan's top part runs each frame.
+/// The behaviour Kzan's top part runs each frame.
 /// Its values are arbitrary.
 /// </summary>
 public enum KzanEnemyFunction

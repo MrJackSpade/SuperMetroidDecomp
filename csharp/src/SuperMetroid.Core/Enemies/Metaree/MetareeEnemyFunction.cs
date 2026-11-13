@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Metaree;
 
 /// <summary>
-/// The routine a Metaree's main AI runs.
+/// The behaviour a Metaree's main AI runs.
 /// Its values are arbitrary.
 /// </summary>
 public enum MetareeEnemyFunction

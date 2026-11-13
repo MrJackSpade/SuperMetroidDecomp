@@ -7,7 +7,7 @@ using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Enemies.Skree;
 
-/// <summary>The Skree species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Skree species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -48,7 +48,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = new(SkreeMetareeAnimations.StartingWith(SkreeMetareeProgram.SkreeIdling), AnimationPlace.StartOfAnimation);
     }
 
-    /// <summary>Winds up near Samus, dives when the instruction callback is ready, then burrows after floor contact.</summary>
+    /// <summary>Winds up near Samus, dives when the wind-up cue is ready, then burrows after floor contact.</summary>
     internal void RunSkreeMain(RoomEnemySlot slot, SamusState? samus, RoomLevelData? level)
     {
         if (samus is null)
@@ -74,7 +74,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
                 InstallRequestedSkreeInstruction(slot, state);
                 state.Function = SkreeEnemyFunction.Diving;
                 // The dive queues its dive sound on the exact frame the wind-up
-                // instruction releases the dive. Publishing it as a frame event retains
+                // cue releases the dive. Publishing it as a frame event retains
                 // the game's timing without coupling enemy AI to a particular audio backend.
                 _audio.QueueEnemySound(EnemySound.SkreeDive, priority: SoundRequestPriority.Normal);
                 return;
@@ -149,7 +149,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Timer = WrappingCountdown.Start(0);
     }
 
-    /// <summary>Ports Skree's main AI.</summary>
+    /// <summary>Runs Skree's main AI.</summary>
     internal void RunSkreeMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunSkreeMain(slot, frame.Samus, frame.Level);

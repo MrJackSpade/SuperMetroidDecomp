@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
-/// <summary>Screen-relative bounds used by enemy projectile deletion routines.</summary>
+/// <summary>Screen-relative bounds used by enemy projectile deletion checks.</summary>
 public static class EnemyProjectileOffScreenDefinitions
 {
     /// <summary>

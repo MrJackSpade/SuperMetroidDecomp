@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Owtch;
 
 /// <summary>
-/// What Owtch is doing this AI update. Besides the walking, burrowing and surfacing states, the original game spends one
+/// What Owtch is doing this AI update. Besides the walking, burrowing and surfacing states, Owtch spends one
 /// update turning around at the left patrol bound before it walks right again; that frame is observable (Owtch accepts
 /// ordinary shots during it and restarts its right-facing animation), so it is a state of its own.
 /// </summary>

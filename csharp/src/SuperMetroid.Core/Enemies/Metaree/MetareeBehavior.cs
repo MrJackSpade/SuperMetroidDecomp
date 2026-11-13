@@ -9,7 +9,7 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Enemies.Metaree;
 
-/// <summary>The Metaree species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Metaree species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -45,7 +45,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Burrow countdown value that spawns the particle burst.</summary>
     private const int MetareeParticleFrameNtsc = 8;
 
-    /// <summary>Starts the idle list directly and initializes the slot's dive, burrow, and instruction-change state.</summary>
+    /// <summary>Starts the idle list directly and initializes the slot's dive, burrow, and animation-change state.</summary>
     internal static void InitializeMetaree(RoomEnemySlot slot)
     {
         var state = new MetareeEnemyState
@@ -165,7 +165,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // Unlike common movement, Metaree applies whole-pixel words directly and leaves
+        // Unlike common movement, Metaree applies whole-pixel speeds directly and leaves
         // both subpositions untouched. Horizontal steering re-evaluates Samus every frame.
         slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + state.YVelocity);
         bool metareeIsLeftOfSamus =
@@ -205,7 +205,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Timer = WrappingCountdown.Start(0);
     }
 
-    /// <summary>Ports Metaree's main AI.</summary>
+    /// <summary>Runs Metaree's main AI.</summary>
     internal void RunMetareeMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunMetareeMain(slot, slot.RequireSpeciesState<MetareeEnemyState>(), frame.Samus, frame.Level);
@@ -235,7 +235,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         });
     }
 
-    /// <summary>After a lethal bomb, spawns debris while the body's graphics words are intact, then clears both indexes on the retained host record.</summary>
+    /// <summary>After a lethal bomb, spawns debris while the body's graphics state is intact, then clears both indexes on the retained host record.</summary>
     internal void AddMetareeBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Metaree &&

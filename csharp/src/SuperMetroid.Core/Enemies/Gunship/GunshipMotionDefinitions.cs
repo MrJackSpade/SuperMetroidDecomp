@@ -6,9 +6,9 @@ internal static class GunshipMotionDefinitions
 
     /// <summary>The landing brake's signed whole-pixel Y delta for each of its 17 frames: +1 for frames 0..5, zero for 6..10, and -1 for 11..16.</summary>
     /// <remarks>
-    /// Independently reviewed for #1165 against all NTSC J/U v1.0 words and pinned
-    /// original data. These are explicit six/five/six braking intervals, not a sampled
-    /// physical acceleration curve. Callers add the signed whole-pixel delta with word wrapping, then advance.
+    /// Independently reviewed for #1165 against the pinned retail data. These are explicit six/five/six braking
+    /// intervals, not a sampled physical acceleration curve. Callers add the signed whole-pixel delta with coordinate
+    /// wrapping, then advance.
     /// </remarks>
     internal static readonly int[] LandingBrakeYDeltas = [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1];
 

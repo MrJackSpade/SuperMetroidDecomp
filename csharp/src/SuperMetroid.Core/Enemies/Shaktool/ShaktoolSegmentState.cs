@@ -36,7 +36,7 @@ public sealed class ShaktoolSegmentState
     /// <summary>The chain's reversal, straightening and orbit-direction flags, written to every segment together.</summary>
     internal ShaktoolMotionFlags MotionFlags { get; set; }
 
-    /// <summary>Empties the orientation, curl progress and reversal together, as the game does by zeroing their shared record word.</summary>
+    /// <summary>Empties the orientation, curl progress and reversal together, as the game clears them together.</summary>
     internal void ResetOrientation()
     {
         OrientationBucket = 0;

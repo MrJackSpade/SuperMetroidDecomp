@@ -8,7 +8,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Animals;
 
-/// <summary>The escape animals species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The escape animals species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -37,7 +37,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Whole-pixel horizontal step used by each Dachora movement-list callback.</summary>
     private const int EscapeDachoraPixelsPerCallback = 6;
-    /// <summary>Lava Y threshold tested by both families' acid-height branch instructions.</summary>
+    /// <summary>Lava Y threshold tested by both families' acid-height branch cues.</summary>
     private const int EscapeAnimalLavaBranchY = 206;
     /// <summary>One unit of 16.16 downward acceleration applied during Etecoon's exit.</summary>
     private static readonly SignedSixteenSixteen EscapeEtecoonGravity = SignedSixteenSixteen.FromWholePixels(1);
@@ -85,7 +85,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // Dachora's population already supplies both properties, but the initializer sets the animation-script property again.
-        // Expressing the idempotent write documents the executable routine and keeps a
+        // Expressing the idempotent write documents the initializer and keeps a
         // synthetic/debug population faithful to retail initialization.
         slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
         slot.Frame = EnemyFrameId.Empty;
@@ -159,7 +159,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         _ = _terrain.MoveEnemyVertically(level, slot, EscapeEtecoonGravity);
     }
 
-    /// <summary>Runs an escaping Etecoon's or Dachora's typed program where the enemy instruction interpreter would.</summary>
+    /// <summary>Runs an escaping Etecoon's or Dachora's typed program where the shared enemy animation would.</summary>
     private void AdvanceEscapeAnimal(RoomEnemySlot slot, SamusState? samus)
     {
         if (!EnemyProgramAnimation.Expire(slot))
@@ -237,7 +237,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void AddEscapeAnimalX(RoomEnemySlot slot, SignedSixteenSixteen displacement) =>
         slot.Position = slot.Position.WithX(slot.Position.X.MovedBy(displacement));
 
-    /// <summary>Ports the escape Etecoon's main AI.</summary>
+    /// <summary>Runs the escape Etecoon's main AI.</summary>
     internal void RunEscapeEtecoonMainAi(RoomEnemySlot slot, IEnemyAiFrame frame) =>
         RunEscapeEtecoonMain(slot, slot.RequireSpeciesState<EscapeEtecoonEnemyState>(), frame.Level);
 

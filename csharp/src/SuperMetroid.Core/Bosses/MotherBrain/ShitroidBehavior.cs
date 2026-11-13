@@ -482,17 +482,16 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         sharedProjectiles?.SetSharedCooldown(8);
         sharedProjectiles?.SetSharedBombCounter(5);
         samus.XSpeedDivisor = 2;
-        // An unsigned Y speed of four or more moves the X step one extra pixel: the original speed clamp's
-        // comparison passes through the clamp and the shake-table loads into the X step's addition. The sign test reads only the sign of the difference.
-        // A speed slowed past zero at the apex reads as below four by that sign, so it keeps its value (#1562).
+        // A speed slowed past zero at the apex reads as below four by the clamp's sign test, so it keeps its value
+        // (#1562); the Shitroid sits a pixel right while the speed reads four or more (DrainingShitroidFallShift).
         int ySpeed = samus.Kinematics.YSpeed.Whole;
-        int xCarry = ySpeed >= 4 ? 1 : 0;
+        int rightOfShake = DrainingShitroidFallShift.PixelsRightOfShake(ySpeed);
         if (SamusSpeedMagnitude.IsAtLeast(ySpeed, 4))
             samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithWhole(2);
 
         int shakeIndex = MotherBrainCadenceDefinitions.ShitroidShakeStep.Of(slot.FrameCounter);
         slot.Position = slot.Position.WithWhole(
-            samus.Position.Whole + ShitroidShakeOffsets[shakeIndex] + new Offset16<RoomPixels>(xCarry, -20));
+            samus.Position.Whole + ShitroidShakeOffsets[shakeIndex] + new Offset16<RoomPixels>(rightOfShake, -20));
 
         // The drain step subtracts four without Varia and two with it. The original
         // expression is written as `health + (equipped & 1) + (-4 or -3)`, so reducing

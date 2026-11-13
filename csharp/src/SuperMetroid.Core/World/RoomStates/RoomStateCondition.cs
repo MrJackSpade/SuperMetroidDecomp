@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.World.RoomStates;
 
 /// <summary>
-/// One test a room's state-selection program makes before offering a state: a persistent event, a defeated boss of the
+/// One test a room's state choice makes before offering a state: a persistent event, a defeated boss of the
 /// room's area, or the equipment Samus carries.
 /// </summary>
 internal abstract record RoomStateCondition

@@ -956,9 +956,9 @@ internal sealed class RoomLoader
         scope.Services = areaServices;
         roomObjects.PopulationLoader.LoadRoomPopulation(roomObjectRoom, room.State.ObjectPopulation, roomObjectBindings);
 
-        // The door transition runs the door program only after destination room objects
+        // The door transition runs the door setup code only after destination room objects
         // exist and before enemy initialization/initial viewport construction. Several of
-        // those programs rewrite the room scroll array, so postponing this call until the
+        // those setups rewrite the room scroll array, so postponing this call until the
         // first gameplay frame would already have streamed a viewport with wrong camera
         // limits.
         _doorTransition.RunDoorSetupCode(door, roomObjects, wreckedShipTreadmill, ceresElevatorShaft, maridiaElevatube);
@@ -1068,7 +1068,7 @@ internal sealed class RoomLoader
     /// </summary>
     /// <remarks>
     /// The fixed room definition still supplies the area needed to choose that
-    /// area's boss flags. The ordered selector program is application-owned definition data;
+    /// area's boss flags. The ordered state choice is application-owned definition data;
     /// no production path executes selector data. Keeping this at the shared loader
     /// boundary prevents doors, save stations, and attract scenes from choosing differently.
     /// </remarks>

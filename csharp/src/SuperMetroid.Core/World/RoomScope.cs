@@ -119,7 +119,7 @@ internal sealed record RoomScope
     /// <summary>The Wrecked Ship entrance treadmill tiles a door's setup code may start.</summary>
     public required WreckedShipTreadmillAnimatedTilesState WreckedShipTreadmill { get; init; }
 
-    /// <summary>The room's Tourian statue tile programs and descent, enabled only in the statue room.</summary>
+    /// <summary>The room's Tourian statue tile animations and descent, enabled only in the statue room.</summary>
     public required TourianStatueSequence TourianStatues { get; init; }
 
     /// <summary>The room's Maridia elevatube room main, active only in the elevatube.</summary>

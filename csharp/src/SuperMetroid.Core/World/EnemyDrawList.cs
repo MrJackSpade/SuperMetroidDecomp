@@ -107,8 +107,8 @@ internal sealed class EnemyDrawList
                 continue;
             }
             // Resolve the sprite picture and the body frame through one presentation binding. Validate the
-            // frame before the body is shown; physical selectors continue to belong to compiled animation
-            // and collision programs. The empty frame draws nothing and is on no sheet (#1513).
+            // frame before the body is shown; physical selectors continue to belong to the compiled animations
+            // and collision definitions. The empty frame draws nothing and is on no sheet (#1513).
             EnemyFrameDisplays displays = _room.FrameDisplays;
             if (!displays.TryGetDisplay(shown, out bool pictured))
                 throw new InvalidDataException($"Enemy {slot.DefinitionId} frame {shown} has no installed presentation.");

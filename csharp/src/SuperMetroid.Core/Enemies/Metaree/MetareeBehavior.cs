@@ -50,7 +50,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new MetareeEnemyState
         {
             BurrowTimer = 0,
-            Function = MetareeEnemyFunction.Idling,
+            Action = MetareeAction.Idling,
             RequestedAnimation = SkreeMetareeAnimationPhase.Idling,
             InstalledAnimation = SkreeMetareeAnimationPhase.Idling,
             AttackReady = false,
@@ -73,17 +73,17 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         if (samus is null)
             throw new InvalidOperationException("Metaree AI requires the active Samus actor.");
 
-        switch (state.Function)
+        switch (state.Action)
         {
-            case MetareeEnemyFunction.Idling:
+            case MetareeAction.Idling:
                 RunMetareeIdle(slot, state, samus);
                 return;
 
-            case MetareeEnemyFunction.PreparingAttack:
+            case MetareeAction.PreparingAttack:
                 RunMetareePreparation(slot, state);
                 return;
 
-            case MetareeEnemyFunction.LaunchedAttack:
+            case MetareeAction.LaunchedAttack:
                 if (level is null)
                 {
                     throw new InvalidOperationException(
@@ -92,13 +92,13 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
                 RunMetareeDive(slot, state, samus, level);
                 return;
 
-            case MetareeEnemyFunction.Burrowing:
+            case MetareeAction.Burrowing:
                 RunMetareeBurrow(slot, state);
                 return;
 
             default:
                 throw new InvalidDataException(
-                    $"Metaree function {state.Function?.ToString() ?? "none"} is not translated.");
+                    $"Metaree function {state.Action?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -123,7 +123,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         state.YVelocity = verticalDifference / MetareeDiveDivisorNtsc + MetareeMinimumYVelocity;
         state.RequestedAnimation = SkreeMetareeAnimationPhase.PreparingAttack;
         StartRequestedMetareeAnimation(slot, state);
-        state.Function = MetareeEnemyFunction.PreparingAttack;
+        state.Action = MetareeAction.PreparingAttack;
     }
 
     /// <summary>Consumes the preparation animation's ready flag, starts the dive animation, and publishes the dive sound.</summary>
@@ -135,7 +135,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         state.AttackReady = false;
         state.RequestedAnimation = SkreeMetareeAnimationPhase.Diving;
         StartRequestedMetareeAnimation(slot, state);
-        state.Function = MetareeEnemyFunction.LaunchedAttack;
+        state.Action = MetareeAction.LaunchedAttack;
 
         // The dive sound is requested as the attack launches.
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.DiveSound, priority: SoundRequestPriority.Normal);
@@ -158,7 +158,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
                 SignedSixteenSixteen.FromWholePixels(state.YVelocity)))
         {
             slot.AnimationClock.Restart();
-            state.Function = MetareeEnemyFunction.Burrowing;
+            state.Action = MetareeAction.Burrowing;
             _audio.QueueEnemySound(EnemySoundEffectDefinitions.BurrowSound, priority: SoundRequestPriority.Normal);
             return;
         }

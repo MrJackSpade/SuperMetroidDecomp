@@ -25,7 +25,7 @@ public sealed class PuyoEnemyState
     public int HopCooldownTimer { get; internal set; }
 
     /// <summary>Whether the Puyo is grounded or airborne.</summary>
-    public PuyoEnemyFunction? Function { get; internal set; }
+    public PuyoAction? Action { get; internal set; }
 
     /// <summary>The current hop's airborne behaviour.</summary>
     public PuyoAirborneFunction? AirborneFunction { get; internal set; }

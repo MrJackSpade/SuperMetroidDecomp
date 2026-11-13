@@ -61,8 +61,8 @@ public sealed class CrocomireEnemyState
     /// <summary>The fight latches.</summary>
     public CrocomireFightFlags FightFlags { get; internal set; }
 
-    /// <summary>The fight-AI function, run when the body animation's fight-AI cue fires rather than once per main-AI frame.</summary>
-    public CrocomireFightFunction FightFunction { get; internal set; }
+    /// <summary>The fight's phase, run when the body animation's fight-AI cue fires rather than once per main-AI frame.</summary>
+    public CrocomirePhase Phase { get; internal set; }
 
     /// <summary>
     /// During combat: queued backward steps (and the unused attacks' move counts). Producers store an authored count of
@@ -114,10 +114,10 @@ public sealed class CrocomireEnemyState
     public int ShotsSpat { get; internal set; }
 
     /// <summary>
-    /// In the unused claw attack: the fight function restored when the claws stop. The game parks it in the
+    /// In the unused claw attack: the fight phase resumed when the claws stop. The game parks it in the
     /// projectile counter's value; only that unused attack writes or reads it, so it is kept apart.
     /// </summary>
-    internal CrocomireFightFunction SavedFightFunction { get; set; }
+    internal CrocomirePhase PhaseToResume { get; set; }
 
     /// <summary>
     /// While the body sinks or rises: the vertical position below a whole pixel carried between frames, in 256ths of a

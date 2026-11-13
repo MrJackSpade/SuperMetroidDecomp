@@ -98,7 +98,7 @@ internal static class KraidNailSiblingVerification
             AssertEqual(!diagonal, part.AlternateSpawn, "Nail spawn mode consults sibling flag, writes own flag");
             AssertEqual(siblingAlternate, enemies.KraidBehavior.Parts.NailStateOf(state, sibling).AlternateSpawn, "Sibling flag remains unchanged");
             AssertEqual((ushort)raw, enemies.KraidBehavior.Parts.NailStateOf(state, sibling).NailVelocity.Y.UnsignedWholePixels, "Sibling velocity remains unchanged");
-            AssertEqual((diagonal ? KraidAiFunction.FingernailFire : KraidAiFunction.FingernailWaitForLint), enemies.KraidBehavior.Parts.NailStateOf(state, nail).Function, "Sibling choice selects actual launch phase");
+            AssertEqual((diagonal ? KraidPhase.FingernailFire : KraidPhase.FingernailWaitForLint), enemies.KraidBehavior.Parts.NailStateOf(state, nail).Phase, "Sibling choice selects actual launch phase");
         }
 
         // A killed sibling has stopped: the launch reads no speed from it, whatever speed it last moved at.
@@ -120,7 +120,7 @@ internal static class KraidNailSiblingVerification
         killedSibling.AlternateSpawn = true;
         random = 1;
         initialize(firstNail, enemies.KraidBehavior.Parts.NailStateOf(state, firstNail));
-        AssertEqual(KraidAiFunction.FingernailWaitForLint, enemies.KraidBehavior.Parts.NailStateOf(state, firstNail).Function,
+        AssertEqual(KraidPhase.FingernailWaitForLint, enemies.KraidBehavior.Parts.NailStateOf(state, firstNail).Phase,
             "a launch after its sibling was killed reads the sibling as having taken no alternate spawn");
         Console.WriteLine("Kraid nail sibling: both slots, all RNG/sign words and both sibling spawn modes match native launch handoff without ROM access, and a killed sibling reads as stopped.");
     }

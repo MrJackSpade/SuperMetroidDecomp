@@ -17,7 +17,7 @@ internal static class CrocomireMouthShotHoldVerification
     /// <summary>The frames the body's hold starts at before each shot.</summary>
     private const int StartingHold = 5;
 
-    /// <summary>Shoots the mouth from off screen and with an on-screen Super Missile in every fight function.</summary>
+    /// <summary>Shoots the mouth from off screen and with an on-screen Super Missile in every fight phase.</summary>
     internal static void VerifyCrocomireMouthShotHold()
     {
         int expected = WrappingCountdown.Start(StartingHold).AddFrames(8).RemainingFrames;
@@ -27,21 +27,21 @@ internal static class CrocomireMouthShotHoldVerification
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.Crocomire, body.Definition);
         body.Position = body.Position.WithWhole(new(576, 144));
-        foreach (CrocomireFightFunction function in Enum.GetValues<CrocomireFightFunction>())
+        foreach (CrocomirePhase phase in Enum.GetValues<CrocomirePhase>())
         {
             foreach ((string place, int cameraX) in new[] { ("off screen", 0), ("on screen", 400) })
             {
-                var state = new CrocomireEnemyState(body) { FightFunction = function, Camera = new(cameraX, 0) };
+                var state = new CrocomireEnemyState(body) { Phase = phase, Camera = new(cameraX, 0) };
                 enemies.CrocomireBehavior.Access.Crocomire = state;
                 body.AnimationClock.HoldFor(StartingHold);
                 body.FlashTimer = 0;
 
                 SamusProjectileType superMissile = SamusProjectileType.Of(SamusProjectileFamily.SuperMissile);
                 enemies.CrocomireBehavior.Combat.ResolveCrocomireMouthShot(state, body, superMissile, body.Position.Whole);
-                AssertEqual(expected, body.AnimationClock.Hold.RemainingFrames, $"a {place} mouth shot during {function} holds the frame eight more");
+                AssertEqual(expected, body.AnimationClock.Hold.RemainingFrames, $"a {place} mouth shot during {phase} holds the frame eight more");
 
                 enemies.CrocomireBehavior.Combat.ResolveCrocomireMouthShot(state, body, superMissile, body.Position.Whole);
-                AssertEqual(expected, body.AnimationClock.Hold.RemainingFrames, $"a {place} mouth shot during {function}'s pending reaction adds no hold");
+                AssertEqual(expected, body.AnimationClock.Hold.RemainingFrames, $"a {place} mouth shot during {phase}'s pending reaction adds no hold");
                 cases++;
             }
         }

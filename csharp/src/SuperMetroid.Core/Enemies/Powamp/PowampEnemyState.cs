@@ -35,7 +35,7 @@ public sealed class PowampEnemyState
     public int FunctionTimer { get; internal set; }
 
     /// <summary>The main-AI behaviour; balloons keep the no-op.</summary>
-    public PowampEnemyFunction? Function { get; internal set; }
+    public PowampAction? Action { get; internal set; }
 
     /// <summary>
     /// Whether touch and shot AI are refused: set for a body once a lethal shot starts its

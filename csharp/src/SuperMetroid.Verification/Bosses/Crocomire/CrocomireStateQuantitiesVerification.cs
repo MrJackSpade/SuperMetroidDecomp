@@ -59,7 +59,7 @@ internal static class CrocomireStateQuantitiesVerification
         foreach (int start in new[] { 3, 2, 0 })
         {
             (RoomEnemySystem enemies, CrocomireEnemyState state) = NewCrocomire();
-            state.FightFunction = CrocomireFightFunction.PowerBombCharge;
+            state.Phase = CrocomirePhase.PowerBombCharge;
             state.StepCounter = start;
             state.BodyPlayback = new AnimationPlayback<CrocomireBodySegment>(CrocomireBodyAnimations.StartingWith(CrocomireBodySegment.Initial), AnimationPlace.StartOfAnimation);
             state.Body.AnimationClock.StepOnNextUpdate();
@@ -75,12 +75,12 @@ internal static class CrocomireStateQuantitiesVerification
                     nativeSteps = 0;
                 Pass(enemies, state);
                 AssertEqual(nativeSteps, state.StepCounter, $"charge from {start} steps, cue {cue}: steps left");
-                AssertEqual(nativeEnds ? CrocomireFightFunction.SteppingForward : CrocomireFightFunction.PowerBombCharge,
-                    state.FightFunction, $"charge from {start} steps, cue {cue}: fight function");
+                AssertEqual(nativeEnds ? CrocomirePhase.SteppingForward : CrocomirePhase.PowerBombCharge,
+                    state.Phase, $"charge from {start} steps, cue {cue}: fight function");
                 if (nativeEnds)
                     break;
             }
-            AssertEqual(CrocomireFightFunction.SteppingForward, state.FightFunction, $"charge from {start} steps ends");
+            AssertEqual(CrocomirePhase.SteppingForward, state.Phase, $"charge from {start} steps ends");
         }
     }
 

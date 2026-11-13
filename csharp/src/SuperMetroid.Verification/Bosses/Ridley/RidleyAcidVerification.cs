@@ -50,10 +50,10 @@ internal static class RidleyAcidVerification
             "Norfair Ridley never advances an uninitialized Ceres Baby program");
         // Enter the native palette-reveal phase, then let its real ROM table reach
         // the terminator. This does not inject a liquid command into the fixture.
-        state.Function = RidleyAiFunction.WaitBeforeLiftoff;
+        state.Phase = RidleyPhase.WaitBeforeLiftoff;
         state.FunctionTimer = 0;
         state.FadeStep = 0;
-        for (int frame = 0; frame < 200 && state.Function == RidleyAiFunction.WaitBeforeLiftoff; frame++)
+        for (int frame = 0; frame < 200 && state.Phase == RidleyPhase.WaitBeforeLiftoff; frame++)
             runtime.Enemies.StepStandaloneFrame(runtime.Enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = new(0, 256), TimeIsFrozen = false, Samus = runtime.Player.Samus, SharedProjectiles = runtime.BombProjectiles });
         AssertEqual(440, fx.NamedTargetSurface, "native reveal writes acid rise target to shared FX");
         AssertEqual(unchecked((ushort)-96), fx.YVelocity.RawValue, "native reveal writes rising velocity");
@@ -61,7 +61,7 @@ internal static class RidleyAcidVerification
         for (int frame = 0; frame < 400; frame++) fx.Step(runtime.Room.LoadedScope.ArtworkFrames, new RoomFxOverlayFrame { Camera = new Position16<RoomPixels>(0, 256), TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
         AssertEqual((ushort)440, fx.NamedBaseY.Whole, "acid reaches native visible battle height");
         AssertAcidVisible(true);
-        state.Function = RidleyAiFunction.NorfairDeathExplosions;
+        state.Phase = RidleyPhase.NorfairDeathExplosions;
         state.FunctionTimer = 0;
         runtime.Enemies.StepStandaloneFrame(runtime.Enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = new(0, 256), TimeIsFrozen = false, Samus = runtime.Player.Samus, SharedProjectiles = runtime.BombProjectiles });
         AssertEqual(528, fx.NamedTargetSurface, "native death roar writes acid drain target");

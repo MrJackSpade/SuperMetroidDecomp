@@ -52,23 +52,23 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         // sets only the animating property so the shared enemy animation animates the shell.
         slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
         state.Playback = EnemyAnimationPlayback.Start(slot, KagoAnimations.StartingWith(KagoSegment.Slow));
-        state.Function = KagoEnemyFunction.InstallNoOp;
+        state.Action = KagoAction.InstallNoOp;
         state.HitCounter = slot.SpawnSettings<KagoSpawnSettings>().HitCount;
     }
 
     /// <summary>Runs a Kago's per-frame behaviour and its one useful function.</summary>
     private static void RunKagoMain(KagoEnemyState state)
     {
-        switch (state.Function)
+        switch (state.Action)
         {
-            case KagoEnemyFunction.InstallNoOp:
-                state.Function = KagoEnemyFunction.NoOp;
+            case KagoAction.InstallNoOp:
+                state.Action = KagoAction.NoOp;
                 return;
-            case KagoEnemyFunction.NoOp:
+            case KagoAction.NoOp:
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Kago main function {state.Function?.ToString() ?? "none"} is not translated.");
+                    $"Kago main function {state.Action?.ToString() ?? "none"} is not translated.");
         }
     }
 

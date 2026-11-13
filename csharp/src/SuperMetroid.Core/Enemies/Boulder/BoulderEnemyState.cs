@@ -8,7 +8,7 @@ public sealed class BoulderEnemyState
     internal AnimationPlayback<BoulderSegment> Playback { get; set; }
 
     /// <summary>Current indirect AI target.</summary>
-    public BoulderAiFunction? Function { get; internal set; }
+    public BoulderAction? Action { get; internal set; }
 
     /// <summary>
     /// The largest travel clock: its larger cap.

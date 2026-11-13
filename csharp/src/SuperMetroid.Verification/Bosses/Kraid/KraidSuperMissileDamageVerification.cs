@@ -37,7 +37,7 @@ internal static class KraidSuperMissileDamageVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Kraid);
         var body=runtime.Enemies.SlotTable.Slots[0];
         var state= runtime.Enemies.KraidBehavior.Access.Kraid ?? throw new InvalidOperationException("Verification requires runtime.Enemies.KraidBehavior.Kraid.");
-        state.BodyState.Function=KraidAiFunction.MainAttackWithMouthOpen;
+        state.BodyState.Phase=KraidPhase.MainAttackWithMouthOpen;
         state.HeadPlayback=RoarPastOpenPose;state.BodyState.HeadTimer=64;
         state.DisplayedHeadFrame = FullyOpenRoarFrame();
         var scope = runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.");
@@ -147,7 +147,7 @@ internal static class KraidSuperMissileDamageVerification
             projectiles.SlotTable.ProjectileCounter = count;
             body.Position = body.Position.WithWhole(new(176, 592));
             body.Health = 1000;
-            state.BodyState.Function = KraidAiFunction.MainAttackWithMouthOpen;
+            state.BodyState.Phase = KraidPhase.MainAttackWithMouthOpen;
             state.HeadPlayback = RoarPastOpenPose;
             state.DisplayedHeadFrame = FullyOpenRoarFrame();
         }

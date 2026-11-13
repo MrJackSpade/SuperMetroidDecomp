@@ -42,9 +42,9 @@ internal sealed class KraidLimbs
         KraidParts.Require(arm, _parts.Arm, "arm");
         _access.AttachKraidPart(arm, state);
         arm.Shading = _parts.Body.Shading;
-        state.ArmState.Function = KraidAiFunction.NoOperation;
+        state.ArmState.Phase = KraidPhase.NoOperation;
         _access.StartKraidPartAnimation(arm, KraidPartSegment.ArmRisingOrSinking);
-        state.ArmState.NextFunction = KraidAiFunction.NoOperation;
+        state.ArmState.PhaseToResume = KraidPhase.NoOperation;
     }
 
     /// <summary>Installs a foot part with its initial animation and shared body state.</summary>
@@ -60,8 +60,8 @@ internal sealed class KraidLimbs
         _access.AttachKraidPart(foot, state);
         foot.Shading = _parts.Body.Shading;
         _access.StartKraidPartAnimation(foot, KraidPartSegment.FootInitial);
-        state.FootState.Function = KraidAiFunction.NoOperation;
-        state.FootState.NextFunction = 0;
+        state.FootState.Phase = KraidPhase.NoOperation;
+        state.FootState.PhaseToResume = 0;
     }
 
     /// <summary>
@@ -124,7 +124,7 @@ internal sealed class KraidLimbs
     {
         if (state.ThinkingTimer != 0 && --state.ThinkingTimer == 0)
         {
-            state.BodyState.Function = KraidAiFunction.MouthOpenReaction;
+            state.BodyState.Phase = KraidPhase.MouthOpenReaction;
             state.HeadPlayback = KraidHeadAnimations.RoarAfterEntryFrame;
             state.BodyState.HeadTimer = KraidHeadAnimations.RoarEntryDuration;
         }
@@ -136,9 +136,9 @@ internal sealed class KraidLimbs
         if (body.Health >= state.HealthEighthThreshold(6))
             return false;
 
-        state.BodyState.Function = KraidAiFunction.AdvanceHeadAnimationAndTimer;
+        state.BodyState.Phase = KraidPhase.AdvanceHeadAnimationAndTimer;
         state.BodyState.FunctionTimer = 180;
-        state.BodyState.NextFunction = KraidAiFunction.GrowReleaseCamera;
+        state.BodyState.PhaseToResume = KraidPhase.GrowReleaseCamera;
 
         KraidHeadGrowthResume resume = KraidHeadAnimations.ReadsAt(state.HeadPlayback).Growth;
         state.HeadPlayback = KraidHeadAnimations.GrowthResumePlayback(resume);
@@ -147,7 +147,7 @@ internal sealed class KraidLimbs
 
         RoomEnemySlot foot = _parts.Foot;
         _access.StartKraidPartAnimation(foot, KraidPartSegment.FootInitial);
-        state.FootState.Function = KraidAiFunction.NoOperation;
+        state.FootState.Phase = KraidPhase.NoOperation;
         RoomEnemySlot arm = _parts.Arm;
         _access.StartKraidPartAnimation(arm, KraidPartSegment.ArmNormal);
         foreach (RoomEnemySlot lint in _parts.Lints)
@@ -165,7 +165,7 @@ internal sealed class KraidLimbs
         RoomEnemySlot body = _parts.Body;
         RoomEnemySlot arm = _parts.Arm;
         int halfHealth = _access.RequireKraidState(body).HealthEighthThreshold(3);
-        return body.Health < halfHealth && KraidFunctionGroups.BeforeArmSlow.Contains(KraidPartResidentAnimation(arm))
+        return body.Health < halfHealth && KraidPhaseGroups.BeforeArmSlow.Contains(KraidPartResidentAnimation(arm))
             ? KraidPartSegment.ArmSlow
             : null;
     }
@@ -204,91 +204,91 @@ internal sealed class KraidLimbs
             : foot.Presence.With(EnemyPresence.Hidden);
 
         KraidFootState part = state.FootState;
-        switch (state.FootState.Function)
+        switch (state.FootState.Phase)
         {
-            case KraidAiFunction.NoOperation:
+            case KraidPhase.NoOperation:
                 return;
-            case KraidAiFunction.FootFirstPhaseThinking:
+            case KraidPhase.FootFirstPhaseThinking:
                 if (TryBeginKraidGrowth(body, state))
                     return;
                 KraidEncounterAccess.TickKraidFunctionTimer(part);
                 return;
-            case KraidAiFunction.FootPrepareFirstPhaseLunge:
+            case KraidPhase.FootPrepareFirstPhaseLunge:
                 PrepareKraidFirstPhaseLunge(body, foot);
                 return;
-            case KraidAiFunction.FootFirstPhaseLunge:
+            case KraidPhase.FootFirstPhaseLunge:
                 RunKraidFirstPhaseLunge(body, foot, part);
                 return;
-            case KraidAiFunction.DecrementFunctionTimerAndStartWalk:
+            case KraidPhase.DecrementFunctionTimerAndStartWalk:
                 TickKraidFootTransitionTimer(foot, part);
                 return;
-            case KraidAiFunction.HandleFunctionTimer:
+            case KraidPhase.HandleFunctionTimer:
                 KraidEncounterAccess.TickKraidFunctionTimer(part);
                 return;
-            case KraidAiFunction.FootFirstPhaseRetreat:
+            case KraidPhase.FootFirstPhaseRetreat:
                 RunKraidFirstPhaseRetreat(body, foot, part);
                 return;
-            case KraidAiFunction.FootSecondPhaseWalkToStart:
+            case KraidPhase.FootSecondPhaseWalkToStart:
                 RunKraidSecondPhaseWalkToStart(body, foot, part);
                 return;
-            case KraidAiFunction.FootSecondPhaseInitialize:
+            case KraidPhase.FootSecondPhaseInitialize:
                 SetKraidWalking(foot, part, targetX: 352, thinkTimer: 180, rightward: true);
                 return;
-            case KraidAiFunction.FootSecondPhaseThinking:
+            case KraidPhase.FootSecondPhaseThinking:
                 RunKraidSecondPhaseThinking(body, foot, part);
                 return;
-            case KraidAiFunction.FootSecondPhaseWalkingRight:
+            case KraidPhase.FootSecondPhaseWalkingRight:
                 RunKraidSecondPhaseWalkingRight(body, foot);
                 return;
-            case KraidAiFunction.FootSecondPhaseWalkingLeft:
+            case KraidPhase.FootSecondPhaseWalkingLeft:
                 RunKraidSecondPhaseWalkingLeft(body, foot);
                 return;
-            case KraidAiFunction.GrowBreakCeilingPlatforms:
-            case KraidAiFunction.GrowBringBodyInFront:
-            case KraidAiFunction.GrowShowLowerBodyInFront:
-            case KraidAiFunction.GrowDrawRoomBackground:
-            case KraidAiFunction.GrowFadeInRoomBackground:
-            case KraidAiFunction.MainloopThinking:
-            case KraidAiFunction.SecondPhaseThinking:
-            case KraidAiFunction.MouthOpenReaction:
-            case KraidAiFunction.InitializeEyeGlow:
-            case KraidAiFunction.GlowEye:
-            case KraidAiFunction.UnglowEye:
-            case KraidAiFunction.LintInactive:
-            case KraidAiFunction.LintProduce:
-            case KraidAiFunction.LintCharge:
-            case KraidAiFunction.LintFire:
-            case KraidAiFunction.FingernailWaitForLint:
-            case KraidAiFunction.AlignPartToKraid:
-            case KraidAiFunction.AdvanceHeadAnimationAndTimer:
-            case KraidAiFunction.MainAttackWithMouthOpen:
-            case KraidAiFunction.FingernailInitialize:
-            case KraidAiFunction.FingernailFire:
-            case KraidAiFunction.GrowReleaseCamera:
-            case KraidAiFunction.DeathInitialize:
-            case KraidAiFunction.DeathFadeOut:
-            case KraidAiFunction.DeathShowUpperBody:
-            case KraidAiFunction.DeathShowLowerBody:
-            case KraidAiFunction.DeathSink:
-            case KraidAiFunction.DeathHideUpperBody:
-            case KraidAiFunction.DeathHideLowerBody:
-            case KraidAiFunction.DeathWaitBeforeFadeIn1:
-            case KraidAiFunction.DeathWaitBeforeFadeIn2:
-            case KraidAiFunction.DeathWaitBeforeFadeIn3:
-            case KraidAiFunction.DeathWaitBeforeFadeIn4:
-            case KraidAiFunction.DeathFadeInBackground:
-            case KraidAiFunction.DeathFinishedWasAlive:
-            case KraidAiFunction.DeathFinishedWasDead:
-            case KraidAiFunction.RestrictSamusToFirstScreen:
-            case KraidAiFunction.RaiseKraidThroughFloor:
-            case KraidAiFunction.RaiseShowLowerBody:
-            case KraidAiFunction.RaiseRocksEvery16Frames:
-            case KraidAiFunction.RaiseRocksEvery8Frames:
-            case KraidAiFunction.RaiseBody:
-            case KraidAiFunction.None:
+            case KraidPhase.GrowBreakCeilingPlatforms:
+            case KraidPhase.GrowBringBodyInFront:
+            case KraidPhase.GrowShowLowerBodyInFront:
+            case KraidPhase.GrowDrawRoomBackground:
+            case KraidPhase.GrowFadeInRoomBackground:
+            case KraidPhase.MainloopThinking:
+            case KraidPhase.SecondPhaseThinking:
+            case KraidPhase.MouthOpenReaction:
+            case KraidPhase.InitializeEyeGlow:
+            case KraidPhase.GlowEye:
+            case KraidPhase.UnglowEye:
+            case KraidPhase.LintInactive:
+            case KraidPhase.LintProduce:
+            case KraidPhase.LintCharge:
+            case KraidPhase.LintFire:
+            case KraidPhase.FingernailWaitForLint:
+            case KraidPhase.AlignPartToKraid:
+            case KraidPhase.AdvanceHeadAnimationAndTimer:
+            case KraidPhase.MainAttackWithMouthOpen:
+            case KraidPhase.FingernailInitialize:
+            case KraidPhase.FingernailFire:
+            case KraidPhase.GrowReleaseCamera:
+            case KraidPhase.DeathInitialize:
+            case KraidPhase.DeathFadeOut:
+            case KraidPhase.DeathShowUpperBody:
+            case KraidPhase.DeathShowLowerBody:
+            case KraidPhase.DeathSink:
+            case KraidPhase.DeathHideUpperBody:
+            case KraidPhase.DeathHideLowerBody:
+            case KraidPhase.DeathWaitBeforeFadeIn1:
+            case KraidPhase.DeathWaitBeforeFadeIn2:
+            case KraidPhase.DeathWaitBeforeFadeIn3:
+            case KraidPhase.DeathWaitBeforeFadeIn4:
+            case KraidPhase.DeathFadeInBackground:
+            case KraidPhase.DeathFinishedWasAlive:
+            case KraidPhase.DeathFinishedWasDead:
+            case KraidPhase.RestrictSamusToFirstScreen:
+            case KraidPhase.RaiseKraidThroughFloor:
+            case KraidPhase.RaiseShowLowerBody:
+            case KraidPhase.RaiseRocksEvery16Frames:
+            case KraidPhase.RaiseRocksEvery8Frames:
+            case KraidPhase.RaiseBody:
+            case KraidPhase.None:
             default:
                 throw new InvalidDataException(
-                    $"Kraid foot function {state.FootState.Function} is not translated.");
+                    $"Kraid foot function {state.FootState.Phase} is not translated.");
         }
     }
 
@@ -298,11 +298,11 @@ internal sealed class KraidLimbs
         if (TryBeginKraidGrowth(body, _access.RequireKraidState(body)))
             return;
         RoomEnemySlot arm = _parts.Arm;
-        if (KraidFunctionGroups.BeforeArmNormalPause.Contains(KraidPartResidentAnimation(arm)))
+        if (KraidPhaseGroups.BeforeArmNormalPause.Contains(KraidPartResidentAnimation(arm)))
             return;
         _access.StartKraidPartAnimation(arm, KraidPartSegment.ArmDyingOrPreparingToLunge);
         _access.StartKraidPartAnimation(foot, KraidPartSegment.FootLungeForward);
-        _access.Part(foot).Function = KraidAiFunction.FootFirstPhaseLunge;
+        _access.Part(foot).Phase = KraidPhase.FootFirstPhaseLunge;
         _access.Part(foot).FunctionTimer = 0;
     }
 
@@ -320,8 +320,8 @@ internal sealed class KraidLimbs
             return;
         if (body.Position.X.Whole == 92)
         {
-            part.NextFunction = KraidAiFunction.FootFirstPhaseRetreat;
-            _access.Part(foot).Function = KraidAiFunction.DecrementFunctionTimerAndStartWalk;
+            part.PhaseToResume = KraidPhase.FootFirstPhaseRetreat;
+            _access.Part(foot).Phase = KraidPhase.DecrementFunctionTimerAndStartWalk;
             _access.Part(foot).FunctionTimer = 1;
             _access.SetKraidPartAnimation(foot, KraidPartSegment.FootNeutral);
         }
@@ -340,7 +340,7 @@ internal sealed class KraidLimbs
             return;
         if (--footState.FunctionTimer == 0)
         {
-            _access.Part(foot).Function = part.NextFunction;
+            _access.Part(foot).Phase = part.PhaseToResume;
             _access.StartKraidPartAnimation(foot, KraidPartSegment.FootWalkingBackward);
         }
     }
@@ -355,16 +355,16 @@ internal sealed class KraidLimbs
             return;
         if (CoordinateAxis.Difference(body.Position.X.Whole, 176) >= 0)
             body.Position = body.Position.WithWholeX(176);
-        if (KraidFunctionGroups.BeforeFootWalkingBackwardLoop.Contains(KraidPartResidentAnimation(foot)))
+        if (KraidPhaseGroups.BeforeFootWalkingBackwardLoop.Contains(KraidPartResidentAnimation(foot)))
             return;
         if (body.Position.X.Whole == 176)
         {
             RoomEnemySlot arm = _parts.Arm;
             _access.StartKraidPartAnimation(arm, KraidPartSegment.ArmNormal);
             _access.StartKraidPartAnimation(foot, KraidPartSegment.FootNeutral);
-            _access.Part(foot).Function = KraidAiFunction.FootFirstPhaseThinking;
+            _access.Part(foot).Phase = KraidPhase.FootFirstPhaseThinking;
             _access.Part(foot).FunctionTimer = 300;
-            part.NextFunction = KraidAiFunction.FootPrepareFirstPhaseLunge;
+            part.PhaseToResume = KraidPhase.FootPrepareFirstPhaseLunge;
         }
         else
         {
@@ -385,11 +385,11 @@ internal sealed class KraidLimbs
                 return;
             body.Position = body.Position.WithWholeX(target.X);
         }
-        if (KraidFunctionGroups.BeforeFootWalkingBackwardLoop.Contains(KraidPartResidentAnimation(foot)))
+        if (KraidPhaseGroups.BeforeFootWalkingBackwardLoop.Contains(KraidPartResidentAnimation(foot)))
             return;
-        _access.Part(foot).Function = KraidAiFunction.HandleFunctionTimer;
+        _access.Part(foot).Phase = KraidPhase.HandleFunctionTimer;
         _access.Part(foot).FunctionTimer = 180;
-        part.NextFunction = KraidAiFunction.FootSecondPhaseInitialize;
+        part.PhaseToResume = KraidPhase.FootSecondPhaseInitialize;
         _access.StartKraidPartAnimation(foot, KraidPartSegment.FootNeutral);
     }
 
@@ -419,7 +419,7 @@ internal sealed class KraidLimbs
     {
         _access.RequireKraidState(foot).WalkTarget = new Position16<RoomPixels>(targetX, 0);
         part.ThinkTimer = thinkTimer;
-        _access.Part(foot).Function = rightward ? KraidAiFunction.FootSecondPhaseWalkingRight : KraidAiFunction.FootSecondPhaseWalkingLeft;
+        _access.Part(foot).Phase = rightward ? KraidPhase.FootSecondPhaseWalkingRight : KraidPhase.FootSecondPhaseWalkingLeft;
         _access.StartKraidPartAnimation(foot, rightward ? KraidPartSegment.FootWalkingBackward : KraidPartSegment.FootWalkingForward);
     }
 
@@ -433,9 +433,9 @@ internal sealed class KraidLimbs
                 return;
             body.Position = body.Position.WithWholeX(target.X);
         }
-        if (!KraidFunctionGroups.BeforeFootWalkingBackwardLoop.Contains(KraidPartResidentAnimation(foot)))
+        if (!KraidPhaseGroups.BeforeFootWalkingBackwardLoop.Contains(KraidPartResidentAnimation(foot)))
         {
-            _access.Part(foot).Function = KraidAiFunction.FootSecondPhaseThinking;
+            _access.Part(foot).Phase = KraidPhase.FootSecondPhaseThinking;
             _access.StartKraidPartAnimation(foot, KraidPartSegment.FootNeutral);
         }
     }
@@ -455,7 +455,7 @@ internal sealed class KraidLimbs
         body.Position = body.Position.WithWholeX(target.X);
         if (KraidPartResidentAnimation(foot) == KraidPartSegment.FootWalkingForwardFinished)
         {
-            _access.Part(foot).Function = KraidAiFunction.FootSecondPhaseThinking;
+            _access.Part(foot).Phase = KraidPhase.FootSecondPhaseThinking;
             _access.StartKraidPartAnimation(foot, KraidPartSegment.FootNeutral);
         }
     }

@@ -91,12 +91,12 @@ internal static class KraidHeadInstructionsVerification
         var glow = new Action<KraidEnemyState>(enemies.KraidBehavior.Head.InitializeKraidEyeGlow);
         var death = new Action<KraidEnemyState>(enemies.KraidBehavior.Death.InitializeKraidDeath);
         var combat = new Action<RoomEnemySlot, KraidEnemyState, ushort>((combatBody, combatState, cameraX) =>
-            enemies.KraidBehavior.RunKraidCombatFunction(combatBody, combatState, cameraX));
+            enemies.KraidBehavior.RunKraidCombatPhase(combatBody, combatState, cameraX));
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         state.InitialHealth = 1000;
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
-            state.BodyState.Function = KraidAiFunction.MainloopThinking;
+            state.BodyState.Phase = KraidPhase.MainloopThinking;
             state.ThinkingTimer = raw;
             state.BodyState.HeadTimer = 999;
             combat(body, state, 0);
@@ -105,7 +105,7 @@ internal static class KraidHeadInstructionsVerification
                     : (ushort)999,
                 state.BodyState.HeadTimer, "Roar timer loads only on thinker expiry");
 
-            state.BodyState.Function = KraidAiFunction.SecondPhaseThinking;
+            state.BodyState.Phase = KraidPhase.SecondPhaseThinking;
             state.ThinkingTimer = raw;
             state.BodyState.HeadTimer = 999;
             combat(body, state, 0);

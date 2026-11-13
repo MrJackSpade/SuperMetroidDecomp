@@ -17,5 +17,5 @@ public sealed class StokeEnemyState
     public StokeDirection Direction { get; internal set; }
 
     /// <summary>The current walking or attacking behaviour.</summary>
-    public StokeAiFunction? Function { get; internal set; }
+    public StokeAction? Action { get; internal set; }
 }

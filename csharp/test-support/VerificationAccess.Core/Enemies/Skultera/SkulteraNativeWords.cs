@@ -8,12 +8,12 @@ namespace SuperMetroid.Core.Enemies.Skultera;
 /// </summary>
 internal static class SkulteraNativeWords
 {
-    /// <summary>The routine word naming each <see cref="SkulteraEnemyFunction"/>.</summary>
-    internal static readonly NativeWordIdentities<SkulteraEnemyFunction> SkulteraEnemyFunctions = new(new Dictionary<SkulteraEnemyFunction, ushort>
+    /// <summary>The routine word naming each <see cref="SkulteraAction"/>.</summary>
+    internal static readonly NativeWordIdentities<SkulteraAction> SkulteraActions = new(new Dictionary<SkulteraAction, ushort>
     {
-        [SkulteraEnemyFunction.SwimmingLeft] = 0x9132,
-        [SkulteraEnemyFunction.SwimmingRight] = 0x91ab,
-        [SkulteraEnemyFunction.TurningRight] = 0x9224,
-        [SkulteraEnemyFunction.TurningLeft] = 0x9256,
+        [SkulteraAction.SwimmingLeft] = 0x9132,
+        [SkulteraAction.SwimmingRight] = 0x91ab,
+        [SkulteraAction.TurningRight] = 0x9224,
+        [SkulteraAction.TurningLeft] = 0x9256,
     });
 }

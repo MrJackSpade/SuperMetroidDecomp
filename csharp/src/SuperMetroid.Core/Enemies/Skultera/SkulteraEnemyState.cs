@@ -10,7 +10,7 @@ public sealed class SkulteraEnemyState
     internal AnimationPlayback<SkulteraSegment> Playback { get; set; }
 
     /// <summary>The swimming or turning behaviour dispatched by main AI.</summary>
-    public SkulteraEnemyFunction? Function { get; internal set; }
+    public SkulteraAction? Action { get; internal set; }
 
     /// <summary>Signed 16.16 room-pixel displacement per swimming update to the right, from the positive half of the population's linear-speed record.</summary>
     public SignedSixteenSixteen RightVelocity { get; internal set; }

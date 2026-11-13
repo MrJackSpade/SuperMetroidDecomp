@@ -8,24 +8,24 @@ namespace SuperMetroid.Core.Enemies.Hoppers;
 /// </summary>
 internal static class HoppersNativeWords
 {
-    /// <summary>The routine word naming each <see cref="HopperEnemyFunction"/>.</summary>
-    internal static readonly NativeWordIdentities<HopperEnemyFunction> HopperEnemyFunctions = new(new Dictionary<HopperEnemyFunction, ushort>
+    /// <summary>The routine word naming each <see cref="HopperAction"/>.</summary>
+    internal static readonly NativeWordIdentities<HopperAction> HopperActions = new(new Dictionary<HopperAction, ushort>
     {
-        [HopperEnemyFunction.ChooseHopSize] = 0xabd6,
-        [HopperEnemyFunction.PrepareSmallHop] = 0xabe6,
-        [HopperEnemyFunction.PrepareBigHop] = 0xac13,
-        [HopperEnemyFunction.ChooseDirectionUpsideUp] = 0xac40,
-        [HopperEnemyFunction.ChooseDirectionUpsideDown] = 0xac56,
-        [HopperEnemyFunction.StartBackwardHopUpsideUp] = 0xac6c,
-        [HopperEnemyFunction.StartForwardHopUpsideUp] = 0xac8f,
-        [HopperEnemyFunction.StartBackwardHopUpsideDown] = 0xaca8,
-        [HopperEnemyFunction.StartForwardHopUpsideDown] = 0xaccb,
-        [HopperEnemyFunction.Landed] = 0xace4,
-        [HopperEnemyFunction.JumpingUpsideUpBackward] = 0xad0e,
-        [HopperEnemyFunction.JumpingUpsideUpForward] = 0xad20,
-        [HopperEnemyFunction.JumpingUpsideDownBackward] = 0xad32,
-        [HopperEnemyFunction.JumpingUpsideDownForward] = 0xad44,
-        [HopperEnemyFunction.WaitToHop] = 0xad56,
+        [HopperAction.ChooseHopSize] = 0xabd6,
+        [HopperAction.PrepareSmallHop] = 0xabe6,
+        [HopperAction.PrepareBigHop] = 0xac13,
+        [HopperAction.ChooseDirectionUpsideUp] = 0xac40,
+        [HopperAction.ChooseDirectionUpsideDown] = 0xac56,
+        [HopperAction.StartBackwardHopUpsideUp] = 0xac6c,
+        [HopperAction.StartForwardHopUpsideUp] = 0xac8f,
+        [HopperAction.StartBackwardHopUpsideDown] = 0xaca8,
+        [HopperAction.StartForwardHopUpsideDown] = 0xaccb,
+        [HopperAction.Landed] = 0xace4,
+        [HopperAction.JumpingUpsideUpBackward] = 0xad0e,
+        [HopperAction.JumpingUpsideUpForward] = 0xad20,
+        [HopperAction.JumpingUpsideDownBackward] = 0xad32,
+        [HopperAction.JumpingUpsideDownForward] = 0xad44,
+        [HopperAction.WaitToHop] = 0xad56,
     });
 
     /// <summary>

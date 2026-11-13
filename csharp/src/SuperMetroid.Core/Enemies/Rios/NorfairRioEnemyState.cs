@@ -23,7 +23,7 @@ public sealed class NorfairRioEnemyState
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>The behaviour shared by parent and flame-follower dispatch.</summary>
-    public NorfairRioEnemyFunction? Function { get; internal set; }
+    public NorfairRioAction? Action { get; internal set; }
 
     /// <summary>Whether this is the flame follower instead of the parent; a follower must immediately follow a parent of this same enemy definition.</summary>
     public bool IsFollower { get; internal set; }

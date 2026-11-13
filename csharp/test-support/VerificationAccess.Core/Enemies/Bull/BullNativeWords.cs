@@ -8,12 +8,12 @@ namespace SuperMetroid.Core.Enemies.Bull;
 /// </summary>
 internal static class BullNativeWords
 {
-    /// <summary>The routine word naming each <see cref="BullEnemyFunction"/>.</summary>
-    internal static readonly NativeWordIdentities<BullEnemyFunction> BullEnemyFunctions = new(new Dictionary<BullEnemyFunction, ushort>
+    /// <summary>The routine word naming each <see cref="BullAction"/>.</summary>
+    internal static readonly NativeWordIdentities<BullAction> BullActions = new(new Dictionary<BullAction, ushort>
     {
-        [BullEnemyFunction.MovementDelay] = 0xd92b,
-        [BullEnemyFunction.TargetSamus] = 0xd940,
-        [BullEnemyFunction.Accelerating] = 0xd963,
-        [BullEnemyFunction.Decelerating] = 0xd97c,
+        [BullAction.MovementDelay] = 0xd92b,
+        [BullAction.TargetSamus] = 0xd940,
+        [BullAction.Accelerating] = 0xd963,
+        [BullAction.Decelerating] = 0xd97c,
     });
 }

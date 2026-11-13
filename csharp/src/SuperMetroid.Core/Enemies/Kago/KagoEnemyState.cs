@@ -8,7 +8,7 @@ public sealed class KagoEnemyState
     internal AnimationPlayback<KagoSegment> Playback { get; set; }
 
     /// <summary>The current behaviour, installed at initialization and replaced on the first AI update.</summary>
-    public KagoEnemyFunction? Function { get; internal set; }
+    public KagoAction? Action { get; internal set; }
 
     /// <summary>Whether the shell runs its three-frame loop rather than its ten-frame one.</summary>
     public bool UsesFastAnimation { get; internal set; }

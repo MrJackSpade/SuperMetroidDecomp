@@ -8,7 +8,7 @@ public sealed class PolypEnemyState
     internal AnimationPlayback<PolypSegment> Playback { get; set; }
 
     /// <summary>The current Polyp behaviour.</summary>
-    public PolypEnemyFunction? Function { get; internal set; }
+    public PolypAction? Action { get; internal set; }
 
     /// <summary>The launch cooldown, decremented through -1 before the Polyp rearms.</summary>
     public int CooldownTimer { get; internal set; }

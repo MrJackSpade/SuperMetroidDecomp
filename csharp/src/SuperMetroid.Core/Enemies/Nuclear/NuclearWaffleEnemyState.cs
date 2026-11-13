@@ -13,7 +13,7 @@ public sealed class NuclearWaffleEnemyState
     internal AnimationPlayback<NuclearWaffleSegment> Playback { get; set; }
 
     /// <summary>The current waiting or sweeping behaviour.</summary>
-    public NuclearWaffleEnemyFunction? Function { get; internal set; }
+    public NuclearWaffleAction? Action { get; internal set; }
 
     /// <summary>Wrapping wait countdown in enemy AI calls, expiring only after decrement produces a negative value and reloaded from the population reset.</summary>
     public int WaitingTimer { get; internal set; }

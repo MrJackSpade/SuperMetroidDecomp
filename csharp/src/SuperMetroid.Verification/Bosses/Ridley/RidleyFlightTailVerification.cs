@@ -54,12 +54,12 @@ internal static class RidleyFlightTailVerification
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().ReadRandom = () => 0;
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?> tail = enemies.RidleyTail.TickRidleyTail;
-        Action<RoomEnemySlot, RidleyEnemyState, SamusState?, ControllerButton, RoomLevelData?> run = enemies.RidleyBehavior.RunNorfairRidleyFunction;
+        Action<RoomEnemySlot, RidleyEnemyState, SamusState?, ControllerButton, RoomLevelData?> run = enemies.RidleyBehavior.RunNorfairRidleyPhase;
         var slot = enemies.SlotTable.Slots[0];
         slot.Position = slot.Position.WithWhole(new(128, 128));
         state = new RidleyEnemyState
         {
-            Function = RidleyAiFunction.NorfairFireballMoveToHeight, FunctionTimer = 0,
+            Phase = RidleyPhase.NorfairFireballMoveToHeight, FunctionTimer = 0,
             TailSegments = Enumerable.Range(0, 7).Select(index => new RidleyTailSegment
             {
                 Active = true, StaggerAngle = null, Clockwise = false,
@@ -82,7 +82,7 @@ internal static class RidleyFlightTailVerification
         tail(slot, state, null);
         AssertEqual(RidleyTailFunction.Stab, state.TailFunctionIndex, "stab setup activates downward stab");
         AssertTrue(state.TailSegments.All(segment => segment.TargetDistance == SignedEightEight.FromParts(10, 0)), "stab sets every segment extension target");
-        state.Function = RidleyAiFunction.NorfairFireballRecover;
+        state.Phase = RidleyPhase.NorfairFireballRecover;
         run(slot, state, null, 0, null);
         AssertEqual(RidleyTailFunction.Neutral, state.TailFunctionIndex, "leaving pogo restores neutral tail");
         AssertEqual(1, state.TailAngleDelta, "leaving pogo restores native delta");

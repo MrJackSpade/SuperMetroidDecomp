@@ -18,8 +18,8 @@ public sealed class MagdolliteEnemyState
 
     /// <summary>The immutable head, arm, or hand role its spawn names.</summary>
     public MagdollitePart Part { get; }
-    /// <summary>The current AI function.</summary>
-    public MagdolliteEnemyFunction? Function { get; internal set; }
+    /// <summary>The current action.</summary>
+    public MagdolliteAction? Action { get; internal set; }
 
     /// <summary>
     /// The arm's rise phase, 0 through 8, selecting its pillar stack, threshold and overlay offset from the nine

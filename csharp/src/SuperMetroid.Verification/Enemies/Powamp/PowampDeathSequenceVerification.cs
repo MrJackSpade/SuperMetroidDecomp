@@ -30,7 +30,7 @@ internal static class PowampDeathSequenceVerification
         var state = body.RequireSpeciesState<PowampEnemyState>();
 
         body.Health = 0;
-        state.Function = PowampEnemyFunction.DeathSequence;
+        state.Action = PowampAction.DeathSequence;
         state.FunctionTimer = 1;
         runtime.Enemies.PowampBehavior.RunPowampMain(body, state, runtime.Room.LevelData);
 

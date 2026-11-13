@@ -32,12 +32,12 @@ internal static class PowampOwnedStateVerification
         AssertTrue(balloonState.IsBalloon && !bodyState.IsBalloon, "parameter one selects the balloon half");
         AssertEqual(new Position16<RoomPixels>(0x0180, 0x0020), balloonState.BalloonSpawn, "the balloon keeps its spawn");
         AssertEqual(65535, balloonState.BalloonGrappleTravelDistance, "the grapple rise keeps parameter two's full word");
-        AssertEqual(PowampEnemyFunction.DeflatedResting, bodyState.Function, "the body starts resting");
+        AssertEqual(PowampAction.DeflatedResting, bodyState.Action, "the body starts resting");
 
-        bodyState.Function = PowampEnemyFunction.Inflating;
+        bodyState.Action = PowampAction.Inflating;
         bodyState.FunctionTimer = 1;
         enemies.PowampBehavior.RunPowampMain(body, bodyState, null);
-        AssertEqual(PowampEnemyFunction.InflatedRiseToTargetHeight, bodyState.Function, "inflation finishes");
+        AssertEqual(PowampAction.InflatedRiseToTargetHeight, bodyState.Action, "inflation finishes");
         AssertEqual(SignedSixteenSixteen.FromParts(-1, 0x8000), bodyState.YVelocity, "the body rises half a pixel per update");
         Console.WriteLine("Powamp owned state: both halves' values match.");
     }

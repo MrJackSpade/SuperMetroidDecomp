@@ -865,7 +865,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     AssertEqual(EnemyProcessing.OffScreen | EnemyProcessing.Animates, ridley.Processing, "Ceres Ridley native initialized processing");
     AssertEqual(EnemyPresence.None, ridley.Presence, "Ceres Ridley native initialized presence");
     AssertEqual(0x804f, ridley.SpritemapPointer, "Ceres Ridley post-init empty extended map");
-    AssertEqual((ushort)RidleyAiFunction.WaitForDoorTransition, (ushort)state.Function,
+    AssertEqual((ushort)RidleyPhase.WaitForDoorTransition, (ushort)state.Phase,
         "Ceres Ridley initial dispatcher function");
     AssertEqual(0x2000, Shown()[0xa0], "Ceres Ridley first added palette color");
     AssertEqual(0x201f, Shown()[0xbf], "Ceres Ridley final added palette color");
@@ -873,7 +873,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     AssertEqual(0, Shown()[0xff], "Ceres Ridley hidden body palette ends black");
 
     enemies.StepStandaloneFrame(enemies.StandaloneFrame(openRoom) with { Camera = new(0, 0), TimeIsFrozen = false });
-    AssertEqual((ushort)RidleyAiFunction.InitialDelay, (ushort)state.Function,
+    AssertEqual((ushort)RidleyPhase.InitialDelay, (ushort)state.Phase,
         "Ceres Ridley door-clear transition");
     AssertEqual(511, state.FunctionTimer, "Ceres Ridley first delay decrement");
     var nativeRidleyRom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -885,12 +885,12 @@ internal static void VerifyCeresRidleyRoomEntry()
 
     for (int frame = 0; frame < 512; frame++)
         enemies.StepStandaloneFrame(enemies.StandaloneFrame(openRoom) with { Camera = new(0, 0), TimeIsFrozen = false });
-    AssertEqual((ushort)RidleyAiFunction.FadeInEyes, (ushort)state.Function,
+    AssertEqual((ushort)RidleyPhase.FadeInEyes, (ushort)state.Phase,
         "Ceres Ridley 512-counter underflow starts eye fade");
 
     for (int frame = 0; frame < 65; frame++)
         enemies.StepStandaloneFrame(enemies.StandaloneFrame(openRoom) with { Camera = new(0, 0), TimeIsFrozen = false });
-    AssertEqual((ushort)RidleyAiFunction.FadeInBody, (ushort)state.Function,
+    AssertEqual((ushort)RidleyPhase.FadeInBody, (ushort)state.Phase,
         "Ceres Ridley eye table terminator starts body fade");
     AssertTrue(state.MovementAnimationEnabled,
         "Ceres Ridley eye fade enables composite animation");
@@ -907,7 +907,7 @@ internal static void VerifyCeresRidleyRoomEntry()
 
     for (int frame = 0; frame < 32; frame++)
         enemies.StepStandaloneFrame(enemies.StandaloneFrame(openRoom) with { Camera = new(0, 0), TimeIsFrozen = false });
-    AssertEqual((ushort)RidleyAiFunction.WaitBeforeRoar, (ushort)state.Function,
+    AssertEqual((ushort)RidleyPhase.WaitBeforeRoar, (ushort)state.Phase,
         "Ceres Ridley body fade completes");
     AssertEqual(4, state.FunctionTimer, "Ceres Ridley pre-roar timer");
     AssertEqual(0x5000 + 0x14a / 2, Shown()[0x91],
@@ -929,14 +929,14 @@ internal static void VerifyCeresRidleyRoomEntry()
     };
     int battleEntryFrames = 0;
     bool observedRoarSound = false;
-    while (state.Function != RidleyAiFunction.CeresHovering && battleEntryFrames < 1024)
+    while (state.Phase != RidleyPhase.CeresHovering && battleEntryFrames < 1024)
     {
         enemies.StepStandaloneFrame(enemies.StandaloneFrame(openRoom) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
         observedRoarSound |= enemies.Audio.SoundRequests.Contains(
             new SoundRequest(EnemySound.RidleyRoar, Priority: SoundRequestPriority.Normal));
         battleEntryFrames++;
     }
-    AssertEqual((ushort)RidleyAiFunction.CeresHovering, (ushort)state.Function,
+    AssertEqual((ushort)RidleyPhase.CeresHovering, (ushort)state.Phase,
         "Ceres Ridley liftoff reaches hover dispatcher");
     AssertEqual(RidleyFightMode.Fighting, state.FightMode, "Ceres Ridley liftoff enables battle mode");
     AssertTrue(ridley.Position.Y.Whole < 80,
@@ -949,22 +949,22 @@ internal static void VerifyCeresRidleyRoomEntry()
     currentRandom = 0x4529;
     generatedRandom = 0x5ade;
     int hoverFrames = 0;
-    while (state.Function == RidleyAiFunction.CeresHovering && hoverFrames < 256)
+    while (state.Phase == RidleyPhase.CeresHovering && hoverFrames < 256)
     {
         enemies.StepStandaloneFrame(enemies.StandaloneFrame(openRoom) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
         hoverFrames++;
     }
-    AssertEqual((ushort)RidleyAiFunction.CeresFireballMoveToPosition, (ushort)state.Function,
+    AssertEqual((ushort)RidleyPhase.CeresFireballMoveToPosition, (ushort)state.Phase,
         "Ceres Ridley hover chooses its attack from the current random number");
     // $A6:A7F9 jitters the fireball hover target from the same seed, again without generating.
     int callsBeforeFireballs = generatedRandomCalls;
     int fireballFrames = 0;
-    while (state.Function == RidleyAiFunction.CeresFireballMoveToPosition && fireballFrames < 256)
+    while (state.Phase == RidleyPhase.CeresFireballMoveToPosition && fireballFrames < 256)
     {
         enemies.StepStandaloneFrame(enemies.StandaloneFrame(openRoom) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
         fireballFrames++;
     }
-    AssertEqual((ushort)RidleyAiFunction.CeresFireballShooting, (ushort)state.Function,
+    AssertEqual((ushort)RidleyPhase.CeresFireballShooting, (ushort)state.Phase,
         "Ceres Ridley reaches its fireball hover");
     for (int frame = 0; frame < 8; frame++)
         enemies.StepStandaloneFrame(enemies.StandaloneFrame(openRoom) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
@@ -975,12 +975,12 @@ internal static void VerifyCeresRidleyRoomEntry()
     int savedHealth = samus.Health;
     samus.Health = 20;
     int lowEnergyFrames = 0;
-    while (state.Function == RidleyAiFunction.CeresFireballShooting && lowEnergyFrames < 224)
+    while (state.Phase == RidleyPhase.CeresFireballShooting && lowEnergyFrames < 224)
     {
         enemies.StepStandaloneFrame(enemies.StandaloneFrame(openRoom) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
         lowEnergyFrames++;
     }
-    AssertEqual((ushort)RidleyAiFunction.CeresHovering, (ushort)state.Function,
+    AssertEqual((ushort)RidleyPhase.CeresHovering, (ushort)state.Phase,
         "Ceres Ridley low-energy fireball branch returns to hovering");
     AssertTrue(lowEnergyFrames < 120,
         $"Ceres Ridley low-energy branch shortens the fireball hover (took {lowEnergyFrames} frames)");
@@ -1001,10 +1001,10 @@ internal static void VerifyCeresRidleyRoomEntry()
     state.TailSegments[0].Angle = RidleyTailAngle.StraightDown;
     state.ClockwiseWhipTarget = null;
     state.CounterClockwiseWhipTarget = null;
-    state.Function = RidleyAiFunction.CeresLungeSetup;
+    state.Phase = RidleyPhase.CeresLungeSetup;
     samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(ridley.Position.X.Whole - 64)), unchecked((ushort)(ridley.Position.Y.Whole + 68))));
     enemies.StepStandaloneFrame(enemies.StandaloneFrame(openRoom) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
-    AssertEqual((ushort)RidleyAiFunction.CeresLungeMain, (ushort)state.Function,
+    AssertEqual((ushort)RidleyPhase.CeresLungeMain, (ushort)state.Phase,
         "Ceres Ridley enters lunge main");
     AssertTrue(state.ClockwiseWhipTarget is not null,
         "Ceres Ridley lunge installs cartridge tail-whip target");
@@ -1082,22 +1082,22 @@ internal static void VerifyCeresRidleyRoomEntry()
         enemies.StepStandaloneFrame(enemies.StandaloneFrame(openRoom) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
         // $A6:A9E3 writes BG palette five as the retreat delay expires; the next frame's
         // first getaway step replaces it with the Mode-7 zoom palette from $51.
-        if (state.Function == RidleyAiFunction.CeresPublishEscapeHandoff)
+        if (state.Phase == RidleyPhase.CeresPublishEscapeHandoff)
             retreatBackgroundColor ??= RgbColor.FromWord(Shown()[0x51]);
         // Room main follows enemy AI, so the handoff frame also takes getaway step zero.
         enemies.CeresRidleyBehavior.Getaway.RunCeresRidleyGetawayRoomMain(samus, 0);
-        observedFakeRetreat |= state.Function is
-            RidleyAiFunction.CeresFakeRetreatMoveToPosition or
-            RidleyAiFunction.CeresFakeRetreatRising or
-            RidleyAiFunction.CeresWaitBeforeRetrievingBaby or
-            RidleyAiFunction.CeresRetrieveBaby;
+        observedFakeRetreat |= state.Phase is
+            RidleyPhase.CeresFakeRetreatMoveToPosition or
+            RidleyPhase.CeresFakeRetreatRising or
+            RidleyPhase.CeresWaitBeforeRetrievingBaby or
+            RidleyPhase.CeresRetrieveBaby;
         retreatFrames++;
     }
     AssertTrue(observedFakeRetreat,
         "Ceres Ridley returns from current attack through fake retreat/Baby retrieval");
     AssertEqual(RidleyFightMode.NotFighting, state.FightMode, "Ceres Ridley retreat disables battle mode");
     AssertEqual(CeresEscapeStatus.RidleyEscaped, enemies.RidleyEncounter.CeresStatus, "Ceres Ridley publishes escape handoff status");
-    AssertEqual((ushort)RidleyAiFunction.CeresInactive, (ushort)state.Function,
+    AssertEqual((ushort)RidleyPhase.CeresInactive, (ushort)state.Phase,
         "Ceres Ridley installs null dispatcher after battle");
     AssertTrue(ridley.Presence.HasAny(EnemyPresence.Hidden),
         "Ceres Ridley ordinary actor yields to getaway presentation");
@@ -1136,7 +1136,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     }
     GetawayFrame();
     AssertTrue(state.GetawayFinished, "Ceres Ridley consumes the Mode-7 terminator");
-    AssertEqual((ushort)RidleyAiFunction.CeresActivateSelfDestruct, (ushort)state.Function,
+    AssertEqual((ushort)RidleyPhase.CeresActivateSelfDestruct, (ushort)state.Phase,
         "Ceres Ridley Mode-7 terminator installs shared self-destruct dispatcher");
     AssertEqual(CeresEscapeReadyingStage.None, state.CeresEscapeReadying.Stage,
         "Mode-7 terminator does not run the new actor function in the same enemy frame");
@@ -1232,7 +1232,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         "Ceres warning writes the C in COLONY on its third line over BG1");
     AssertEqual(CeresEscapeStatus.SelfDestructStarted, enemies.RidleyEncounter.CeresStatus,
         "Ceres escape publishes status two for door destruction");
-    AssertEqual((ushort)RidleyAiFunction.CeresSelfDestructPaletteOnly, (ushort)state.Function,
+    AssertEqual((ushort)RidleyPhase.CeresSelfDestructPaletteOnly, (ushort)state.Phase,
         "Ceres escape retains the native palette-only actor function");
 
     Console.WriteLine(

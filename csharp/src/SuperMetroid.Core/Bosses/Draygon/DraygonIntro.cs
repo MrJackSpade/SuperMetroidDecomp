@@ -47,7 +47,7 @@ internal sealed class DraygonIntro
             return;
         }
 
-        state.Function = DraygonAiFunction.IntroDance;
+        state.Phase = DraygonPhase.IntroDance;
         state.IntroFrames = 0;
         state.LeftSideReset = state.Body.Position.Whole;
         state.RightSideReset = state.LeftSideReset + DraygonBehavior.DraygonRightSideResetDistance;
@@ -64,7 +64,7 @@ internal sealed class DraygonIntro
         _turrets.ObserveDraygonTurretCadence(state, samus, frameCounter);
         if (state.IntroFrames >= DraygonIntroDanceDefinitions.DurationFrames)
         {
-            state.Function = DraygonAiFunction.SwoopRightSetup;
+            state.Phase = DraygonPhase.SwoopRightSetup;
             state.IntroFrames = 0;
             return;
         }

@@ -41,13 +41,13 @@ internal static class PhantoonTimersVerification
             int priorCalls = calls;
             open(state);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cd41 + (raw & 7) * 2)), state.BodyState.FunctionTimer, "Real open-window timer masks full RNG word");
-            AssertEqual(PhantoonAiFunction.EyeTracksSamus, state.BodyState.Function, "Open-window phase handoff");
+            AssertEqual(PhantoonPhase.EyeTracksSamus, state.BodyState.Phase, "Open-window phase handoff");
             second(state);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cd53 + (raw & 7) * 2)), state.EyeState.ClosedTimer, "Real second-round timer masks full RNG word");
             state.EyeState.FadeComplete = true; // Completed fade; retain the actual fade-to-rain transition.
             rain(state);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cd63 + (raw & 7) * 2)), state.BodyState.FunctionTimer, "Real rain hiding timer masks full RNG word");
-            AssertEqual(PhantoonAiFunction.SpawnFlameRain, state.BodyState.Function, "Rain timer phase handoff");
+            AssertEqual(PhantoonPhase.SpawnFlameRain, state.BodyState.Phase, "Rain timer phase handoff");
             AssertEqual(priorCalls + 3, calls, "Each selection consumes exactly one RNG call");
         }
         // $A7:D5A6 indexes the eye-closed timers with the 16-bit NMI_FrameCounter.

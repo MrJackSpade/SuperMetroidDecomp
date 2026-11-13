@@ -8,12 +8,12 @@ namespace SuperMetroid.Core.Enemies.YappingMaws;
 /// </summary>
 internal static class YappingMawsNativeWords
 {
-    /// <summary>The routine word naming each <see cref="YappingMawAiFunction"/>.</summary>
-    internal static readonly NativeWordIdentities<YappingMawAiFunction> YappingMawAiFunctions = new(new Dictionary<YappingMawAiFunction, ushort>
+    /// <summary>The routine word naming each <see cref="YappingMawAction"/>.</summary>
+    internal static readonly NativeWordIdentities<YappingMawAction> YappingMawActions = new(new Dictionary<YappingMawAction, ushort>
     {
-        [YappingMawAiFunction.WaitingForSamus] = 0xa235,
-        [YappingMawAiFunction.BeginExtension] = 0xa28c,
-        [YappingMawAiFunction.ExtendingOrRetracting] = 0xa445,
-        [YappingMawAiFunction.RetractedDelay] = 0xa68a,
+        [YappingMawAction.WaitingForSamus] = 0xa235,
+        [YappingMawAction.BeginExtension] = 0xa28c,
+        [YappingMawAction.ExtendingOrRetracting] = 0xa445,
+        [YappingMawAction.RetractedDelay] = 0xa68a,
     });
 }

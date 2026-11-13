@@ -8,13 +8,13 @@ namespace SuperMetroid.Core.Enemies.Choot;
 /// </summary>
 internal static class ChootNativeWords
 {
-    /// <summary>The routine word naming each <see cref="ChootEnemyFunction"/>.</summary>
-    internal static readonly NativeWordIdentities<ChootEnemyFunction> ChootEnemyFunctions = new(new Dictionary<ChootEnemyFunction, ushort>
+    /// <summary>The routine word naming each <see cref="ChootAction"/>.</summary>
+    internal static readonly NativeWordIdentities<ChootAction> ChootActions = new(new Dictionary<ChootAction, ushort>
     {
-        [ChootEnemyFunction.WaitingForSamus] = 0xe035,
-        [ChootEnemyFunction.PreparingJump] = 0xe04f,
-        [ChootEnemyFunction.Jumping] = 0xe06a,
-        [ChootEnemyFunction.Falling] = 0xe0cd,
+        [ChootAction.WaitingForSamus] = 0xe035,
+        [ChootAction.PreparingJump] = 0xe04f,
+        [ChootAction.Jumping] = 0xe06a,
+        [ChootAction.Falling] = 0xe0cd,
     });
 
     /// <summary>The routine word naming each <see cref="ChootFallingPath"/>.</summary>

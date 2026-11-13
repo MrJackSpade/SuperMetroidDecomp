@@ -96,7 +96,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
         slot.Frame = EnemyFrameId.Empty;
         state.Playback = EnemyAnimationPlayback.Start(slot, EtecoonAnimations.StartingWith(EtecoonSegment.Initial));
-        state.Function = EtecoonAiFunction.WaitingForSamus;
+        state.Action = EtecoonAction.WaitingForSamus;
         state.AwaitingSamus = true;
     }
 
@@ -119,71 +119,71 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData activeLevel = level ?? throw new InvalidOperationException(
             "Etecoon AI requires active room collision data.");
 
-        switch (state.Function)
+        switch (state.Action)
         {
-            case EtecoonAiFunction.WaitingForSamus:
+            case EtecoonAction.WaitingForSamus:
                 RunEtecoonWaiting(slot, state, activeSamus);
                 break;
-            case EtecoonAiFunction.PreJumpCountdown:
+            case EtecoonAction.PreJumpCountdown:
                 RunEtecoonPreJumpCountdown(slot, state, activeSamus);
                 break;
-            case EtecoonAiFunction.InitialJump:
+            case EtecoonAction.InitialJump:
                 RunEtecoonInitialJump(slot, state, activeSamus, activeLevel);
                 break;
-            case EtecoonAiFunction.FaceSamusPause:
+            case EtecoonAction.FaceSamusPause:
                 RunEtecoonFaceSamusPause(slot, state);
                 break;
-            case EtecoonAiFunction.RunLeftToWall:
+            case EtecoonAction.RunLeftToWall:
                 RunEtecoonLeftToWall(slot, state, activeLevel);
                 break;
-            case EtecoonAiFunction.RunRightToWall:
+            case EtecoonAction.RunRightToWall:
                 RunEtecoonRightToWall(slot, state, activeLevel);
                 break;
-            case EtecoonAiFunction.Airborne:
+            case EtecoonAction.Airborne:
                 RunEtecoonAirborne(slot, state, activeSamus, activeLevel);
                 break;
-            case EtecoonAiFunction.WallPause:
+            case EtecoonAction.WallPause:
                 RunEtecoonWallPause(slot, state);
                 break;
-            case EtecoonAiFunction.RouteAfterLanding:
+            case EtecoonAction.RouteAfterLanding:
                 RunEtecoonRouteAfterLanding(slot, state);
                 break;
-            case EtecoonAiFunction.MoveLeftToTeachingStart:
+            case EtecoonAction.MoveLeftToTeachingStart:
                 RunEtecoonMoveLeftToTeachingStart(slot, state, activeLevel);
                 break;
-            case EtecoonAiFunction.MoveRightToTeachingStart:
+            case EtecoonAction.MoveRightToTeachingStart:
                 RunEtecoonMoveRightToTeachingStart(slot, state, activeLevel);
                 break;
-            case EtecoonAiFunction.RunRightToLongJump:
+            case EtecoonAction.RunRightToLongJump:
                 RunEtecoonRightToLongJump(slot, state, activeLevel);
                 break;
-            case EtecoonAiFunction.LongJump:
+            case EtecoonAction.LongJump:
                 RunEtecoonLongJump(slot, state, activeSamus, activeLevel);
                 break;
-            case EtecoonAiFunction.RunRightAfterLongJump:
+            case EtecoonAction.RunRightAfterLongJump:
                 RunEtecoonRightAfterLongJump(slot, state, activeLevel);
                 break;
-            case EtecoonAiFunction.LongJumpLanding:
+            case EtecoonAction.LongJumpLanding:
                 RunEtecoonLongJumpLanding(slot, state, activeSamus, activeLevel);
                 break;
-            case EtecoonAiFunction.TeachingJump:
+            case EtecoonAction.TeachingJump:
                 RunEtecoonTeachingJump(slot, state, activeSamus, activeLevel);
                 break;
-            case EtecoonAiFunction.IdleBetweenTeachingJumps:
+            case EtecoonAction.IdleBetweenTeachingJumps:
                 RunEtecoonIdleBetweenTeachingJumps(slot, state, activeSamus);
                 break;
-            case EtecoonAiFunction.WaitForSamusBeforeLongRun:
+            case EtecoonAction.WaitForSamusBeforeLongRun:
                 RunEtecoonWaitForSamusBeforeLongRun(slot, state, activeSamus);
                 break;
-            case EtecoonAiFunction.RunRightToReturnJump:
+            case EtecoonAction.RunRightToReturnJump:
                 RunEtecoonRightToReturnJump(slot, state, activeLevel);
                 break;
-            case EtecoonAiFunction.ReturnJump:
+            case EtecoonAction.ReturnJump:
                 RunEtecoonReturnJump(slot, state, activeSamus, activeLevel);
                 break;
             default:
                 throw new InvalidDataException(
-                    $"Etecoon function {state.Function?.ToString() ?? "none"} is not translated.");
+                    $"Etecoon function {state.Action?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -202,7 +202,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             if (DecrementEtecoonTimerAndTestExpired(state))
             {
                 StartEtecoonAnimation(slot, state, EtecoonSegment.HoppingFacingLeft);
-                state.Function = EtecoonAiFunction.PreJumpCountdown;
+                state.Action = EtecoonAction.PreJumpCountdown;
                 state.FunctionTimer = WrappingCountdown.Start(11);
             }
             return;
@@ -230,7 +230,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity);
         state.Playback = new(EtecoonAnimations.StartingWith(EtecoonAnimations.AfterSleep(Playing(state.Playback))), AnimationPlace.StartOfAnimation);
         slot.AnimationClock.StepOnNextUpdate();
-        state.Function = EtecoonAiFunction.InitialJump;
+        state.Action = EtecoonAction.InitialJump;
         if (CoordinateAxis.Difference(samus.Position.X.Whole, 256) >= 0)
             _audio.QueueEnemySound(EtecoonJumpSound, priority: SoundRequestPriority.Normal);
     }
@@ -261,12 +261,12 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
                     state.Head(side: HorizontalDirection.Right);
                 }
                 state.FunctionTimer = WrappingCountdown.Start(32);
-                state.Function = EtecoonAiFunction.FaceSamusPause;
+                state.Action = EtecoonAction.FaceSamusPause;
             }
             else
             {
                 state.FunctionTimer = WrappingCountdown.Start(11);
-                state.Function = EtecoonAiFunction.PreJumpCountdown;
+                state.Action = EtecoonAction.PreJumpCountdown;
                 StartEtecoonAnimation(slot, state, EtecoonSegment.HoppingFacingLeft);
             }
             return;
@@ -290,12 +290,12 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.HeadingRight)
         {
             SetEtecoonHorizontalVelocity(state, EtecoonRightVelocity);
-            state.Function = EtecoonAiFunction.RunRightToWall;
+            state.Action = EtecoonAction.RunRightToWall;
         }
         else
         {
             SetEtecoonHorizontalVelocity(state, EtecoonLeftVelocity);
-            state.Function = EtecoonAiFunction.RunLeftToWall;
+            state.Action = EtecoonAction.RunLeftToWall;
         }
         SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity);
     }
@@ -310,7 +310,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         SetEtecoonHorizontalVelocity(state, EtecoonRightVelocity);
-        state.Function = EtecoonAiFunction.RunRightToWall;
+        state.Action = EtecoonAction.RunRightToWall;
         StartEtecoonAnimation(slot, state, EtecoonSegment.RunningRight);
         state.Head(side: HorizontalDirection.Right);
     }
@@ -327,7 +327,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 EtecoonRightWallProbe))
         {
             StartEtecoonAnimation(slot, state, EtecoonSegment.JumpingRight);
-            state.Function = EtecoonAiFunction.Airborne;
+            state.Action = EtecoonAction.Airborne;
             return;
         }
 
@@ -354,7 +354,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 StartEtecoonAnimation(slot, state, EtecoonSegment.WallJumpRightEligible);
                 state.Head(side: HorizontalDirection.Right);
             }
-            state.Function = EtecoonAiFunction.WallPause;
+            state.Action = EtecoonAction.WallPause;
             state.FunctionTimer = WrappingCountdown.Start(8);
             if (CoordinateAxis.Difference(samus.Position.X.Whole, 256) >= 0)
                 _audio.QueueEnemySound(EtecoonWallSound, priority: SoundRequestPriority.Normal);
@@ -371,7 +371,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 ? EtecoonSegment.HoppingFacingLeft
                 : EtecoonSegment.HoppingFacingRight);
         state.FunctionTimer = WrappingCountdown.Start(11);
-        state.Function = EtecoonAiFunction.RouteAfterLanding;
+        state.Action = EtecoonAction.RouteAfterLanding;
         SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity);
     }
 
@@ -392,7 +392,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             StartEtecoonAnimation(slot, state, EtecoonSegment.WallJumpLeft);
             SetEtecoonHorizontalVelocity(state, EtecoonLeftVelocity);
         }
-        state.Function = EtecoonAiFunction.Airborne;
+        state.Action = EtecoonAction.Airborne;
         SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity);
     }
 
@@ -408,17 +408,17 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.Route)
         {
             case EtecoonRoute.RunLeftToTeachingStart:
-                state.Function = EtecoonAiFunction.MoveLeftToTeachingStart;
+                state.Action = EtecoonAction.MoveLeftToTeachingStart;
                 state.Playback = new(EtecoonAnimations.StartingWith(EtecoonSegment.RunningLeft), AnimationPlace.StartOfAnimation);
                 SetEtecoonHorizontalVelocity(state, EtecoonLeftVelocity);
                 break;
             case EtecoonRoute.RunRightToTeachingStart:
-                state.Function = EtecoonAiFunction.MoveRightToTeachingStart;
+                state.Action = EtecoonAction.MoveRightToTeachingStart;
                 state.Playback = new(EtecoonAnimations.StartingWith(EtecoonSegment.RunningRight), AnimationPlace.StartOfAnimation);
                 SetEtecoonHorizontalVelocity(state, EtecoonRightVelocity);
                 break;
             case EtecoonRoute.TeachAtOnce:
-                state.Function = EtecoonAiFunction.TeachingJump;
+                state.Action = EtecoonAction.TeachingJump;
                 state.Playback = new(EtecoonAnimations.StartingWith(EtecoonAnimations.AfterSleep(Playing(state.Playback))), AnimationPlace.StartOfAnimation);
                 SetEtecoonHorizontalVelocity(state, EtecoonRightVelocity);
                 break;
@@ -439,7 +439,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.FunctionTimer = WrappingCountdown.Start(11);
-        state.Function = EtecoonAiFunction.IdleBetweenTeachingJumps;
+        state.Action = EtecoonAction.IdleBetweenTeachingJumps;
         StartEtecoonAnimation(slot, state, EtecoonSegment.HoppingFacingLeft);
     }
 
@@ -454,7 +454,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.FunctionTimer = WrappingCountdown.Start(11);
-        state.Function = EtecoonAiFunction.IdleBetweenTeachingJumps;
+        state.Action = EtecoonAction.IdleBetweenTeachingJumps;
         StartEtecoonAnimation(slot, state, EtecoonSegment.HoppingFacingLeft);
     }
 
@@ -468,7 +468,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (CoordinateAxis.Difference(slot.Position.X.Whole, EtecoonRunStartX) < 0)
             return;
 
-        state.Function = EtecoonAiFunction.LongJump;
+        state.Action = EtecoonAction.LongJump;
         SetEtecoonVerticalVelocity(state, EtecoonLongJumpYVelocity);
         StartEtecoonAnimation(slot, state, EtecoonSegment.JumpingRight);
     }
@@ -486,7 +486,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         StartEtecoonAnimation(slot, state, EtecoonSegment.RunningRight);
-        state.Function = EtecoonAiFunction.RunRightAfterLongJump;
+        state.Action = EtecoonAction.RunRightAfterLongJump;
     }
 
     /// <summary>Continues the long route to X=840 before installing its landing hop.</summary>
@@ -500,7 +500,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         StartEtecoonAnimation(slot, state, EtecoonSegment.JumpingRight);
-        state.Function = EtecoonAiFunction.LongJumpLanding;
+        state.Action = EtecoonAction.LongJumpLanding;
         SetEtecoonVerticalVelocity(state, EtecoonLongJumpLandingYVelocity);
     }
 
@@ -517,7 +517,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.FunctionTimer = WrappingCountdown.Start(11);
         StartEtecoonAnimation(slot, state, EtecoonSegment.HoppingFacingLeft);
-        state.Function = EtecoonAiFunction.IdleBetweenTeachingJumps;
+        state.Action = EtecoonAction.IdleBetweenTeachingJumps;
     }
 
     /// <summary>Handles ceiling and floor contact for a demonstration hop, selecting another hop or Samus wait.</summary>
@@ -535,10 +535,10 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.FunctionTimer = WrappingCountdown.Start(11);
             StartEtecoonAnimation(slot, state, EtecoonSegment.HoppingFacingLeft);
-            state.Function = state.Route == EtecoonRoute.TeachAtOnce &&
+            state.Action = state.Route == EtecoonRoute.TeachAtOnce &&
                 CoordinateAxis.Difference(slot.Position.X.Whole, EtecoonLongRunMaximumX) < 0
-                    ? EtecoonAiFunction.WaitForSamusBeforeLongRun
-                    : EtecoonAiFunction.IdleBetweenTeachingJumps;
+                    ? EtecoonAction.WaitForSamusBeforeLongRun
+                    : EtecoonAction.IdleBetweenTeachingJumps;
             return;
         }
 
@@ -569,12 +569,12 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         if (fewerThanFourTeachingJumps || state.Route == EtecoonRoute.TeachAtOnce)
         {
-            state.Function = EtecoonAiFunction.TeachingJump;
+            state.Action = EtecoonAction.TeachingJump;
             state.Playback = new(EtecoonAnimations.StartingWith(EtecoonAnimations.AfterSleep(Playing(state.Playback))), AnimationPlace.StartOfAnimation);
         }
         else
         {
-            state.Function = EtecoonAiFunction.RunRightToReturnJump;
+            state.Action = EtecoonAction.RunRightToReturnJump;
             state.Playback = new(EtecoonAnimations.StartingWith(EtecoonSegment.RunningRight), AnimationPlace.StartOfAnimation);
             SetEtecoonHorizontalVelocity(state, EtecoonRightVelocity);
         }
@@ -598,13 +598,13 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             EtecoonIsWithinX(slot, samus, EtecoonLongRunTriggerDistance))
         {
             state.Playback = new(EtecoonAnimations.StartingWith(EtecoonSegment.RunningRight), AnimationPlace.StartOfAnimation);
-            state.Function = EtecoonAiFunction.RunRightToLongJump;
+            state.Action = EtecoonAction.RunRightToLongJump;
         }
         else
         {
             SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity);
             state.Playback = new(EtecoonAnimations.StartingWith(EtecoonAnimations.AfterSleep(Playing(state.Playback))), AnimationPlace.StartOfAnimation);
-            state.Function = EtecoonAiFunction.TeachingJump;
+            state.Action = EtecoonAction.TeachingJump;
             if (CoordinateAxis.Difference(samus.Position.X.Whole, 256) >= 0)
                 _audio.QueueEnemySound(EtecoonJumpSound, priority: SoundRequestPriority.Normal);
         }
@@ -621,7 +621,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (CoordinateAxis.Difference(slot.Position.X.Whole, EtecoonRunStartX) < 0)
             return;
 
-        state.Function = EtecoonAiFunction.ReturnJump;
+        state.Action = EtecoonAction.ReturnJump;
         StartEtecoonAnimation(slot, state, EtecoonSegment.JumpingRight);
     }
 
@@ -637,7 +637,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         SetEtecoonHorizontalVelocity(state, EtecoonLeftVelocity);
-        state.Function = EtecoonAiFunction.RunLeftToWall;
+        state.Action = EtecoonAction.RunLeftToWall;
         SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity);
         StartEtecoonAnimation(slot, state, EtecoonSegment.RunningLeft);
     }

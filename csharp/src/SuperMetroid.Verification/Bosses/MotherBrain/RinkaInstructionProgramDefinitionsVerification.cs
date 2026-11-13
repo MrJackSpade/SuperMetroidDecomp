@@ -30,7 +30,7 @@ internal static class RinkaInstructionProgramDefinitionsVerification
 
         CartridgeImportAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         (RoomEnemySystem ordinarySystem, RoomEnemySlot ordinary) = RunRinkaProgram(RinkaSegment.Ordinary, special: false);
-        AssertEqual(RinkaEnemyFunction.AimDelay, (ordinarySystem.RinkaStates[0] ?? throw new InvalidOperationException("Verification requires ordinarySystem.RinkaStates[0].")).Function,
+        AssertEqual(RinkaAction.AimDelay, (ordinarySystem.RinkaStates[0] ?? throw new InvalidOperationException("Verification requires ordinarySystem.RinkaStates[0].")).Action,
             "ordinary Rinka fire callback selects aim-delay AI");
         AssertTrue(!ordinary.Presence.HasAny(EnemyPresence.Hidden),
             "ordinary Rinka fire callback makes the actor visible");
@@ -38,7 +38,7 @@ internal static class RinkaInstructionProgramDefinitionsVerification
             "ordinary Rinka program does not enable off-screen processing");
 
         (RoomEnemySystem specialSystem, RoomEnemySlot special) = RunRinkaProgram(RinkaSegment.Special, special: true);
-        AssertEqual(RinkaEnemyFunction.AimDelay, (specialSystem.RinkaStates[0] ?? throw new InvalidOperationException("Verification requires specialSystem.RinkaStates[0].")).Function,
+        AssertEqual(RinkaAction.AimDelay, (specialSystem.RinkaStates[0] ?? throw new InvalidOperationException("Verification requires specialSystem.RinkaStates[0].")).Action,
             "special Rinka fire callback selects aim-delay AI");
         AssertTrue(!special.Presence.HasAny(EnemyPresence.Hidden),
             "special Rinka fire callback makes the actor visible");
@@ -63,7 +63,7 @@ internal static class RinkaInstructionProgramDefinitionsVerification
 
         var state = new RinkaEnemyState()
         {
-            Function = RinkaEnemyFunction.WatchForLeavingViewport,
+            Action = RinkaAction.WatchForLeavingViewport,
             Playback = new(RinkaAnimations.StartingWith(program), AnimationPlace.StartOfAnimation),
         };
         enemies.SlotTable.Slots[0].SetSpeciesState(state);

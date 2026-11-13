@@ -59,13 +59,13 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
             ValidateLowerNorfairRioParent(slot);
             state.InstalledAnimation = LowerNorfairRioSegment.Flames;
             state.Playback = new(LowerNorfairRioAnimations.StartingWith(LowerNorfairRioSegment.Flames), AnimationPlace.StartOfAnimation);
-            state.Function = LowerNorfairRioEnemyFunction.FollowParent;
+            state.Action = LowerNorfairRioAction.FollowParent;
             return;
         }
 
         state.InstalledAnimation = LowerNorfairRioSegment.Idle;
         state.Playback = new(LowerNorfairRioAnimations.StartingWith(LowerNorfairRioSegment.Idle), AnimationPlace.StartOfAnimation);
-        state.Function = LowerNorfairRioEnemyFunction.WaitForAttackOpportunity;
+        state.Action = LowerNorfairRioAction.WaitForAttackOpportunity;
     }
 
     /// <summary>
@@ -80,13 +80,13 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
     {
         int random = _room.Random.Generate();
 
-        switch (state.Function)
+        switch (state.Action)
         {
-            case LowerNorfairRioEnemyFunction.FollowParent:
+            case LowerNorfairRioAction.FollowParent:
                 FollowLowerNorfairRioParent(slot);
                 return;
 
-            case LowerNorfairRioEnemyFunction.WaitForAttackOpportunity:
+            case LowerNorfairRioAction.WaitForAttackOpportunity:
                 if (samus is null ||
                     (!RioLaunchDefinitions.AttackChanceLowBit.IsSetIn(random) && !RioLaunchDefinitions.AttackChanceHighBit.IsSetIn(random)) ||
                     !EnemyMath.IsWithinStrictModularDistance(
@@ -114,10 +114,10 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
                     slot,
                     state,
                     LowerNorfairRioSegment.PrepareToSwoop);
-                state.Function = LowerNorfairRioEnemyFunction.WaitForTakeoffAnimation;
+                state.Action = LowerNorfairRioAction.WaitForTakeoffAnimation;
                 return;
 
-            case LowerNorfairRioEnemyFunction.WaitForTakeoffAnimation:
+            case LowerNorfairRioAction.WaitForTakeoffAnimation:
                 if (!state.AnimationSignal)
                     return;
                 state.AnimationSignal = false;
@@ -125,10 +125,10 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
                     slot,
                     state,
                     LowerNorfairRioSegment.Descending);
-                state.Function = LowerNorfairRioEnemyFunction.Dive;
+                state.Action = LowerNorfairRioAction.Dive;
                 return;
 
-            case LowerNorfairRioEnemyFunction.Dive:
+            case LowerNorfairRioAction.Dive:
                 RequireLowerNorfairRioLevel(level);
                 MoveLowerNorfairRioHorizontally(level, slot, state);
                 if (_terrain.MoveEnemyVertically(
@@ -145,7 +145,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
                     BeginLowerNorfairRioReturn(slot, state);
                 return;
 
-            case LowerNorfairRioEnemyFunction.ReturnToPerch:
+            case LowerNorfairRioAction.ReturnToPerch:
                 RequireLowerNorfairRioLevel(level);
                 MoveLowerNorfairRioHorizontally(level, slot, state);
                 if (_terrain.MoveEnemyVertically(
@@ -157,7 +157,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
                         slot,
                         state,
                         LowerNorfairRioSegment.Cooldown);
-                    state.Function = LowerNorfairRioEnemyFunction.WaitForLandingAnimation;
+                    state.Action = LowerNorfairRioAction.WaitForLandingAnimation;
                     return;
                 }
 
@@ -172,7 +172,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
                 }
                 return;
 
-            case LowerNorfairRioEnemyFunction.WaitForLandingAnimation:
+            case LowerNorfairRioAction.WaitForLandingAnimation:
                 if (!state.AnimationSignal)
                     return;
                 state.AnimationSignal = false;
@@ -180,12 +180,12 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
                     slot,
                     state,
                     LowerNorfairRioSegment.Cooldown);
-                state.Function = LowerNorfairRioEnemyFunction.WaitForAttackOpportunity;
+                state.Action = LowerNorfairRioAction.WaitForAttackOpportunity;
                 return;
 
             default:
                 throw new InvalidDataException(
-                    $"Lower Norfair Rio function {state.Function?.ToString() ?? "none"} is not translated.");
+                    $"Lower Norfair Rio function {state.Action?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -244,7 +244,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
             slot,
             state,
             LowerNorfairRioSegment.AscendingPart1);
-        state.Function = LowerNorfairRioEnemyFunction.ReturnToPerch;
+        state.Action = LowerNorfairRioAction.ReturnToPerch;
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.LowerNorfairRioReturnSound, priority: SoundRequestPriority.Normal);
     }
 

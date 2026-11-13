@@ -118,11 +118,11 @@ internal static class NativeEnemyFamilyStateImport
             phantoonBody.FigureEightStage = PhantoonFigureEightStageWords.Decode(words.D);
             phantoonBody.FunctionTimer = CoordinateAxis.AsSigned(words.E);
             if (words.F != 0)
-                phantoonBody.Function = PhantoonNativeWords.AiFunctions.Decode(words.F, "recorded PhantoonAiFunction");
+                phantoonBody.Phase = PhantoonNativeWords.Phases.Decode(words.F, "recorded PhantoonPhase");
         }
         if (slot.SpeciesState<KraidPartState>() is { } kraidPartRecord)
         {
-            kraidPartRecord.Function = (KraidAiFunction)words.A;
+            kraidPartRecord.Phase = (KraidPhase)words.A;
             // Words B and C hold the body's head timer, a lint's travel and X offset, or a nail's horizontal velocity;
             // each part's own state takes its own.
             if (kraidPartRecord is KraidNailState kraidNail)
@@ -136,7 +136,7 @@ internal static class NativeEnemyFamilyStateImport
             if (kraidPartRecord is KraidBodyState kraidBody)
             {
                 kraidBody.HeadTimer = words.C;
-                if (kraidBody.Function == KraidAiFunction.GrowBreakCeilingPlatforms)
+                if (kraidBody.Phase == KraidPhase.GrowBreakCeilingPlatforms)
                     kraidBody.CeilingRock = words.F / sizeof(ushort);
                 else
                     kraidBody.FunctionTimer = words.F;
@@ -193,8 +193,8 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (slot.SpeciesState<DraygonEnemyState>() is { } draygonRecord)
         {
-            draygonRecord.Function = (DraygonAiFunction)words.A;
-            switch (DraygonNativeWords.MeaningOfSharedValue(draygonRecord.Function))
+            draygonRecord.Phase = (DraygonPhase)words.A;
+            switch (DraygonNativeWords.MeaningOfSharedValue(draygonRecord.Phase))
             {
                 case DraygonNativeWords.SharedValue.IntroFrames:
                     draygonRecord.IntroFrames = words.B;
@@ -206,7 +206,7 @@ internal static class NativeEnemyFamilyStateImport
                     draygonRecord.SwoopEntry = words.B / DraygonNativeWords.SwoopEntryBytes;
                     break;
                 default:
-                    throw new InvalidOperationException($"Undefined Draygon shared value meaning for {draygonRecord.Function}.");
+                    throw new InvalidOperationException($"Undefined Draygon shared value meaning for {draygonRecord.Phase}.");
             }
             // The swoop path's length (word C) is read with the path's heights from the cartridge's table by the snapshot
             // import, which holds the memory the table lies in.
@@ -222,7 +222,7 @@ internal static class NativeEnemyFamilyStateImport
         {
             crocomireRecord.DeathPhase = CrocomireNativeWords.DeathPhases.Decode(words.A, "recorded Crocomire death phase");
             crocomireRecord.FightFlags = CrocomireNativeWords.FightFlags(words.B);
-            crocomireRecord.FightFunction = CrocomireNativeWords.FightFunctions.Decode(words.C, "recorded Crocomire fight function");
+            crocomireRecord.Phase = CrocomireNativeWords.Phases.Decode(words.C, "recorded Crocomire fight function");
             // The cartridge keeps several of the body's values in each of words D, E and F; the phase says which.
             CrocomireNativeWords.ImportSharedWords(crocomireRecord, words.D, words.E, words.F);
         }
@@ -230,19 +230,19 @@ internal static class NativeEnemyFamilyStateImport
             crocomireTongueRecord.BodyXOffset = words.A;
         if (slot.SpeciesState<DeadSidehopperEnemyState>() is { } deadSidehopperRecord)
         {
-            deadSidehopperRecord.Function = words.A == 0 ? null : CorpsesNativeWords.DeadSidehopperAiFunctions.Decode(words.A, "recorded DeadSidehopperAiFunction");
+            deadSidehopperRecord.Action = words.A == 0 ? null : CorpsesNativeWords.DeadSidehopperActions.Decode(words.A, "recorded DeadSidehopperAction");
             deadSidehopperRecord.PreRotDelayCounter = words.B;
             deadSidehopperRecord.StateTimer = unchecked((short)words.F);
         }
         if (slot.SpeciesState<BotwoonEnemyState>() is { } botwoonRecord)
         {
-            botwoonRecord.Function = words.D == 0 ? null : (BotwoonEnemyFunction)words.D;
+            botwoonRecord.Phase = words.D == 0 ? null : (BotwoonPhase)words.D;
             botwoonRecord.MovementFunction = words.E == 0 ? null : (BotwoonMovementFunction)words.E;
             botwoonRecord.HeadFunction = words.F == 0 ? null : (BotwoonHeadFunction)words.F;
         }
         if (slot.SpeciesState<ShitroidEnemyState>() is { } shitroidRecord)
         {
-            shitroidRecord.Function = words.A == 0 ? null : MotherBrainNativeWords.ShitroidAiFunctions.Decode(words.A, "recorded ShitroidAiFunction");
+            shitroidRecord.Action = words.A == 0 ? null : MotherBrainNativeWords.ShitroidActions.Decode(words.A, "recorded ShitroidAction");
             shitroidRecord.Velocity = new(new SignedEightEight(words.B), new SignedEightEight(words.C));
             shitroidRecord.MembranePulsePhase = LittleEndianBytes.LowByte(words.D);
             shitroidRecord.PaletteTimer = LittleEndianBytes.HighByte(words.D);
@@ -252,15 +252,15 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.SpeciesState<DachoraEnemyState>() is { } dachoraRecord)
         {
             dachoraRecord.SetGlowCycle(frame: LittleEndianBytes.HighByte(words.E), ticks: LittleEndianBytes.LowByte(words.E));
-            dachoraRecord.Function = words.F == 0 ? null : AnimalsNativeWords.DachoraAiFunctions.Decode(words.F, "recorded DachoraAiFunction");
+            dachoraRecord.Action = words.F == 0 ? null : AnimalsNativeWords.DachoraActions.Decode(words.F, "recorded DachoraAction");
             // The cartridge keeps the speed's whole pixels and the countdowns in variable A, and the acceleration's
             // fraction and an echo's lifetime in variable D; each is read here as the meaning the recorded phase gives it.
-            if (dachoraRecord.Function == DachoraAiFunction.Echo)
+            if (dachoraRecord.Action == DachoraAction.Echo)
             {
                 dachoraRecord.EchoPositionTimer = unchecked((short)words.A);
                 dachoraRecord.EchoLifetime = unchecked((short)words.D);
             }
-            else if (dachoraRecord.Function is DachoraAiFunction.BlinkingBeforeRun or DachoraAiFunction.ChargingShinespark)
+            else if (dachoraRecord.Action is DachoraAction.BlinkingBeforeRun or DachoraAction.ChargingShinespark)
             {
                 dachoraRecord.PhaseTimer = unchecked((short)words.A);
                 dachoraRecord.Speed = SignedSixteenSixteen.FromParts(0, words.B);
@@ -275,12 +275,12 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.SpeciesState<PipeBugEnemyState>() is { } pipeBugRecord)
         {
             ushort pipeBugFunction = pipeBugRecord.IsBrinstar ? words.F : words.A;
-            pipeBugRecord.Function = pipeBugFunction == 0 ? null : PipeBugsNativeWords.PipeBugEnemyFunctions.Decode(pipeBugFunction, "recorded PipeBugEnemyFunction");
+            pipeBugRecord.Action = pipeBugFunction == 0 ? null : PipeBugsNativeWords.PipeBugActions.Decode(pipeBugFunction, "recorded PipeBugAction");
             pipeBugRecord.BrinstarFliesLeft = pipeBugRecord.IsBrinstar && CoordinateAxis.AsSigned(words.A) < 0;
         }
         if (slot.SpeciesState<MagdolliteEnemyState>() is { } magdolliteRecord)
         {
-            magdolliteRecord.Function = words.F == 0 ? null : MagdolliteNativeWords.MagdolliteEnemyFunctions.Decode(words.F, "recorded MagdolliteEnemyFunction");
+            magdolliteRecord.Action = words.F == 0 ? null : MagdolliteNativeWords.MagdolliteActions.Decode(words.F, "recorded MagdolliteAction");
             magdolliteRecord.BodyPhase = words.B / 2;
             magdolliteRecord.ThrowsRight = words.B != 0;
             magdolliteRecord.RiseDisplacement = new(0, unchecked((short)words.E));
@@ -288,13 +288,13 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.SpeciesState<SbugEnemyState>() is { } sbugRecord)
         {
             sbugRecord.StraightMovementTimer = WrappingCountdown.Start(words.A);
-            sbugRecord.Function = words.B == 0 ? null : SbugNativeWords.SbugEnemyFunctions.Decode(words.B, "recorded SbugEnemyFunction");
+            sbugRecord.Action = words.B == 0 ? null : SbugNativeWords.SbugActions.Decode(words.B, "recorded SbugAction");
             sbugRecord.FaceCustomHeading(RotationAngle.FromSteps(LittleEndianBytes.LowByte(words.C)));
             sbugRecord.MovementTimer = unchecked((short)words.F);
         }
         if (slot.SpeciesState<KiHunterEnemyState>() is { } kiHunterRecord)
         {
-            kiHunterRecord.Function = words.A == 0 ? null : KiHuntersNativeWords.KiHunterEnemyFunctions.Decode(words.A, "recorded KiHunterEnemyFunction");
+            kiHunterRecord.Action = words.A == 0 ? null : KiHuntersNativeWords.KiHunterActions.Decode(words.A, "recorded KiHunterAction");
             kiHunterRecord.SwoopTarget = new(words.B, 0);
             kiHunterRecord.DetachedSpeedIndex = EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(words.B);
             kiHunterRecord.SwoopOrigin = new(0, words.C);
@@ -305,7 +305,7 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (slot.SpeciesState<ZebetiteEnemyState>() is { } zebetiteRecord)
         {
-            zebetiteRecord.Function = words.A == 0 ? null : MotherBrainNativeWords.ZebetiteAiFunctions.Decode(words.A, "recorded ZebetiteAiFunction");
+            zebetiteRecord.Action = words.A == 0 ? null : MotherBrainNativeWords.ZebetiteActions.Decode(words.A, "recorded ZebetiteAction");
             zebetiteRecord.Generation = words.D;
             zebetiteRecord.GenerationFlags = MotherBrainNativeWords.DecodeGenerationFlags(words.F);
         }
@@ -333,11 +333,11 @@ internal static class NativeEnemyFamilyStateImport
             zoaRecord.SpawnPosition = new(words.A, words.B);
             zoaRecord.RequestedAnimation = ZoaNativeWords.AnimationSelectorOf(words.C);
             zoaRecord.InstalledAnimation = ZoaNativeWords.AnimationSelectorOf(words.D);
-            zoaRecord.Function = words.F == 0 ? null : ZoaNativeWords.ZoaEnemyFunctions.Decode(words.F, "recorded ZoaEnemyFunction");
+            zoaRecord.Action = words.F == 0 ? null : ZoaNativeWords.ZoaActions.Decode(words.F, "recorded ZoaAction");
         }
         if (slot.SpeciesState<BabyTurtleEnemyState>() is { } babyTurtleRecord)
         {
-            babyTurtleRecord.Function = words.A == 0 ? null : MamaTurtlesNativeWords.BabyTurtleAiFunctions.Decode(words.A, "recorded BabyTurtleAiFunction");
+            babyTurtleRecord.Action = words.A == 0 ? null : MamaTurtlesNativeWords.BabyTurtleActions.Decode(words.A, "recorded BabyTurtleAction");
             // Every Baby Turtle's parent is the room's Mama Turtle, the first enemy her room lists.
             if (SlotIndex(words.B, "Baby Turtle parent offset") != 0)
                 throw new InvalidDataException($"Recorded Baby Turtle parent offset ${words.B:X4} does not name the first enemy, where Mama Turtle is placed.");
@@ -354,7 +354,7 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (slot.SpeciesState<BullEnemyState>() is { } bullRecord)
         {
-            bullRecord.Function = words.A == 0 ? null : BullNativeWords.BullEnemyFunctions.Decode(words.A, "recorded BullEnemyFunction");
+            bullRecord.Action = words.A == 0 ? null : BullNativeWords.BullActions.Decode(words.A, "recorded BullAction");
             bullRecord.Acceleration = new SignedEightEight(words.B);
             bullRecord.AccelerationDelta = new SignedEightEight(words.C);
             bullRecord.Speed = new SignedEightEight(words.D);
@@ -405,7 +405,7 @@ internal static class NativeEnemyFamilyStateImport
             cacatacRecord.RightVelocity = cacatacRecord.RightVelocity.WithWholePixels(unchecked((short)words.A));
             cacatacRecord.LeftVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.C), words.B);
             cacatacRecord.Direction = (CacatacDirection)words.D;
-            cacatacRecord.Function = words.E == 0 ? null : CacatacNativeWords.CacatacEnemyFunctions.Decode(words.E, "recorded CacatacEnemyFunction");
+            cacatacRecord.Action = words.E == 0 ? null : CacatacNativeWords.CacatacActions.Decode(words.E, "recorded CacatacAction");
         }
         if (slot.SpeciesState<WorkRobotEnemyState>() is { } workRobotRecord)
         {
@@ -416,7 +416,7 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (slot.SpeciesState<KzanEnemyState>() is { } kzanRecord)
         {
-            kzanRecord.Function = words.A == 0 ? null : KzanNativeWords.KzanEnemyFunctions.Decode(words.A, "recorded KzanEnemyFunction");
+            kzanRecord.Action = words.A == 0 ? null : KzanNativeWords.KzanActions.Decode(words.A, "recorded KzanAction");
             kzanRecord.FallWaitTimer = WrappingCountdown.Start(words.B);
             kzanRecord.RisingTarget = new(0, words.C);
             kzanRecord.FallingTarget = new(0, words.D);
@@ -425,7 +425,7 @@ internal static class NativeEnemyFamilyStateImport
         {
             metroidRecord.Velocity = FixedVector<RoomPixels>.FromStoredParts(words.B, words.A, words.D, words.C);
             metroidRecord.EscapeTimer = unchecked((short)words.E);
-            metroidRecord.Function = (MetroidAiFunction)words.F;
+            metroidRecord.Movement = (MetroidMovement)words.F;
         }
         if (slot.SpeciesState<FakeKraidEnemyState>() is { } fakeKraidRecord)
         {
@@ -436,7 +436,7 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (slot.SpeciesState<MaridiaLargeSnailEnemyState>() is { } maridiaLargeSnailRecord)
         {
-            maridiaLargeSnailRecord.Function = words.A == 0 ? null : MaridiaSnailsNativeWords.MaridiaLargeSnailEnemyFunctions.Decode(words.A, "recorded MaridiaLargeSnailEnemyFunction");
+            maridiaLargeSnailRecord.Action = words.A == 0 ? null : MaridiaSnailsNativeWords.MaridiaLargeSnailActions.Decode(words.A, "recorded MaridiaLargeSnailAction");
             maridiaLargeSnailRecord.YSpeedTableIndex = EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(unchecked((short)words.B));
             maridiaLargeSnailRecord.AttackCooldown = unchecked((short)words.C);
             maridiaLargeSnailRecord.MovingLeft = words.D != 0;
@@ -460,14 +460,14 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.SpeciesState<SkreeEnemyState>() is { } skreeRecord)
         {
             skreeRecord.BurrowTimer = unchecked((short)words.A);
-            skreeRecord.Function = words.B == 0 ? null : SkreeNativeWords.SkreeEnemyFunctions.Decode(words.B, "recorded SkreeEnemyFunction");
+            skreeRecord.Action = words.B == 0 ? null : SkreeNativeWords.SkreeActions.Decode(words.B, "recorded SkreeAction");
             skreeRecord.RequestedAnimation = (SkreeMetareeAnimationPhase)words.C;
             skreeRecord.InstalledAnimation = (SkreeMetareeAnimationPhase)words.D;
             skreeRecord.AttackReady = words.E != 0;
         }
         if (slot.SpeciesState<BoulderEnemyState>() is { } boulderRecord)
         {
-            boulderRecord.Function = words.A == 0 ? null : BoulderNativeWords.BoulderAiFunctions.Decode(words.A, "recorded BoulderAiFunction");
+            boulderRecord.Action = words.A == 0 ? null : BoulderNativeWords.BoulderActions.Decode(words.A, "recorded BoulderAction");
             boulderRecord.TravelSpeedAccumulator = EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(words.B);
             boulderRecord.BounceSpeedAccumulator = EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(words.C);
             boulderRecord.BounceCounter = unchecked((short)words.D);
@@ -481,7 +481,7 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (slot.SpeciesState<RinkaEnemyState>() is { } rinkaRecord)
         {
-            rinkaRecord.Function = words.A == 0 ? null : MotherBrainNativeWords.RinkaEnemyFunctions.Decode(words.A, "recorded RinkaEnemyFunction");
+            rinkaRecord.Action = words.A == 0 ? null : MotherBrainNativeWords.RinkaActions.Decode(words.A, "recorded RinkaAction");
             rinkaRecord.Velocity = new(new SignedEightEight(words.B), new SignedEightEight(words.C));
             rinkaRecord.HeldSpawnPoint = words.D == 0 ? null : MotherBrainNativeWords.RinkaSpawnPoints.Decode(words.D, "recorded RinkaSpawnPoint");
             rinkaRecord.DelayTimer = CoordinateAxis.AsSigned(words.F);
@@ -490,9 +490,9 @@ internal static class NativeEnemyFamilyStateImport
         {
             etecoonRecord.Velocity = FixedVector<RoomPixels>.FromStoredParts(words.C, words.D, words.A, words.B);
             etecoonRecord.FunctionTimer = WrappingCountdown.Start(words.E);
-            etecoonRecord.Function = words.F == 0 ? null : AnimalsNativeWords.EtecoonAiFunctions.Decode(words.F, "recorded EtecoonAiFunction");
+            etecoonRecord.Action = words.F == 0 ? null : AnimalsNativeWords.EtecoonActions.Decode(words.F, "recorded EtecoonAction");
             // A dormant Etecoon's record holds its countdown below zero while it waits for Samus.
-            etecoonRecord.AwaitingSamus = etecoonRecord.Function == EtecoonAiFunction.WaitingForSamus && etecoonRecord.FunctionTimer.IsNegative;
+            etecoonRecord.AwaitingSamus = etecoonRecord.Action == EtecoonAction.WaitingForSamus && etecoonRecord.FunctionTimer.IsNegative;
         }
         if (slot.SpeciesState<MochtroidEnemyState>() is { } mochtroidRecord)
         {
@@ -505,11 +505,11 @@ internal static class NativeEnemyFamilyStateImport
             morphBallEyeRecord.IsActivated = words.C != 0;
             morphBallEyeRecord.Angle = RotationAngle.FromSteps(unchecked((byte)words.D));
             morphBallEyeRecord.FunctionTimer = unchecked((short)words.E);
-            morphBallEyeRecord.Function = words.F == 0 ? null : MorphBallEyeNativeWords.MorphBallEyeAiFunctions.Decode(words.F, "recorded MorphBallEyeAiFunction");
+            morphBallEyeRecord.Action = words.F == 0 ? null : MorphBallEyeNativeWords.MorphBallEyeActions.Decode(words.F, "recorded MorphBallEyeAction");
         }
         if (slot.SpeciesState<HopperEnemyState>() is { } hopperRecord)
         {
-            hopperRecord.Function = words.A == 0 ? null : HoppersNativeWords.HopperEnemyFunctions.Decode(words.A, "recorded HopperEnemyFunction");
+            hopperRecord.Action = words.A == 0 ? null : HoppersNativeWords.HopperActions.Decode(words.A, "recorded HopperAction");
             hopperRecord.YSpeedTableIndex = EnemyQuadraticSpeedIndex.FromRows(words.B);
             hopperRecord.XVelocity = unchecked((short)words.C);
             hopperRecord.YSpeedTableIndexDelta = words.D;
@@ -524,7 +524,7 @@ internal static class NativeEnemyFamilyStateImport
         if (enemies.BeetomStates[index] is { } beetom)
         {
             beetom.YSpeedTableIndex = EnemyQuadraticSpeedIndex.FromRows(Index(words.B, short.MaxValue, "Beetom speed index"));
-            beetom.Function = words.C == 0 ? null : BeetomNativeWords.BeetomEnemyFunctions.Decode(words.C, "recorded BeetomEnemyFunction");
+            beetom.Action = words.C == 0 ? null : BeetomNativeWords.BeetomActions.Decode(words.C, "recorded BeetomAction");
             beetom.FunctionTimer = unchecked((short)words.D);
             beetom.ButtonCounter = unchecked((short)words.E);
             beetom.PreviousController1Input = ControllerWordCodec.FromJoypadWord(words.F, "native Beetom previous controller input");
@@ -542,7 +542,7 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemies.ChootStates[index] is { } choot)
         {
-            choot.Function = words.A == 0 ? null : ChootNativeWords.ChootEnemyFunctions.Decode(words.A, "recorded ChootEnemyFunction");
+            choot.Action = words.A == 0 ? null : ChootNativeWords.ChootActions.Decode(words.A, "recorded ChootAction");
             // The ascent cursor is 8.8 and moves by whole records, so its signed high byte is the record index.
             choot.YSpeedTableIndex = EnemyQuadraticSpeedIndex.FromRows(unchecked((short)words.B) >> 8);
             choot.FallingPatternFrame = (words.C & 0xff) == 0
@@ -557,20 +557,20 @@ internal static class NativeEnemyFamilyStateImport
             stoke.RightVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.B), words.A);
             stoke.LeftVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.D), words.C);
             stoke.Direction = (StokeDirection)words.E;
-            stoke.Function = words.F switch
+            stoke.Action = words.F switch
             {
                 0 => null,
-                0x8a75 => StokeAiFunction.IdleDuringAttack,
+                0x8a75 => StokeAction.IdleDuringAttack,
                 // The two moving routines must agree with the direction word, which alone carries the side.
-                0x8a43 when stoke.Direction == StokeDirection.Left => StokeAiFunction.Moving,
-                0x8a5c when stoke.Direction != StokeDirection.Left => StokeAiFunction.Moving,
+                0x8a43 when stoke.Direction == StokeDirection.Left => StokeAction.Moving,
+                0x8a5c when stoke.Direction != StokeDirection.Left => StokeAction.Moving,
                 _ => throw new InvalidDataException(
                     $"Recorded Stoke function ${words.F:X4} does not agree with direction word ${words.E:X4}."),
             };
         }
         if (enemies.SkulteraStates[index] is { } skultera)
         {
-            skultera.Function = words.A == 0 ? null : SkulteraNativeWords.SkulteraEnemyFunctions.Decode(words.A, "recorded SkulteraEnemyFunction");
+            skultera.Action = words.A == 0 ? null : SkulteraNativeWords.SkulteraActions.Decode(words.A, "recorded SkulteraAction");
             skultera.RightVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.C), words.B);
             skultera.LeftVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.E), words.D);
             // Only the angle word's low byte is ever read; movement discards its high byte.
@@ -578,12 +578,12 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (slot.EntityState<KagoEntity, KagoEnemyState>() is { } kago)
         {
-            kago.Function = words.A == 0 ? null : KagoNativeWords.KagoEnemyFunctions.Decode(words.A, "recorded KagoEnemyFunction");
+            kago.Action = words.A == 0 ? null : KagoNativeWords.KagoActions.Decode(words.A, "recorded KagoAction");
             kago.UsesFastAnimation = words.B != 0;
         }
         if (slot.DefinitionId == EnemyDefinitionId.Coven && slot.SpeciesState<WreckedShipGhostEnemyState>() is { } ghost)
         {
-            ghost.Function = words.A == 0 ? null : WreckedShipNativeWords.WreckedShipGhostAiFunctions.Decode(words.A, "recorded WreckedShipGhostAiFunction");
+            ghost.Action = words.A == 0 ? null : WreckedShipNativeWords.WreckedShipGhostActions.Decode(words.A, "recorded WreckedShipGhostAction");
             ghost.PhaseTimer = unchecked((short)words.B);
             ghost.NextFlickerStep = WreckedShipGhostFlickerStepOf(words.C);
         }
@@ -598,12 +598,12 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.EntityState<CrawlerEntity, CrawlerEnemyState>() is { } crawler)
         {
             crawler.Velocity = new(new SignedEightEight(words.A), new SignedEightEight(words.B));
-            crawler.Function = words.F == 0 ? null : CrawlersNativeWords.CrawlerEnemyFunctions.Decode(words.F, "recorded CrawlerEnemyFunction");
+            crawler.Action = words.F == 0 ? null : CrawlersNativeWords.CrawlerActions.Decode(words.F, "recorded CrawlerAction");
         }
         if (slot.DefinitionId == EnemyDefinitionId.Holtz && slot.SpeciesState<LowerNorfairRioEnemyState>() is { } holtz)
         {
             holtz.Velocity = new(new SignedEightEight(words.D), new SignedEightEight(words.C));
-            holtz.Function = words.F == 0 ? null : RiosNativeWords.LowerNorfairRioEnemyFunctions.Decode(words.F, "recorded LowerNorfairRioEnemyFunction");
+            holtz.Action = words.F == 0 ? null : RiosNativeWords.LowerNorfairRioActions.Decode(words.F, "recorded LowerNorfairRioAction");
             holtz.IsFollower = slot.SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower;
         }
         if (slot.DefinitionId == EnemyDefinitionId.EtecoonEscape && slot.SpeciesState<EscapeEtecoonEnemyState>() is { } escape)
@@ -617,12 +617,12 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (slot.DefinitionId == EnemyDefinitionId.Puromi && slot.SpeciesState<NuclearWaffleEnemyState>() is { } waffle)
         {
-            waffle.Function = words.A == 0 ? null : NuclearNativeWords.NuclearWaffleEnemyFunctions.Decode(words.A, "recorded NuclearWaffleEnemyFunction");
+            waffle.Action = words.A == 0 ? null : NuclearNativeWords.NuclearWaffleActions.Decode(words.A, "recorded NuclearWaffleAction");
             waffle.WaitingTimer = unchecked((short)words.B);
         }
         if (slot.DefinitionId == EnemyDefinitionId.LavaRocks && slot.SpeciesState<PolypEnemyState>() is { } polyp)
         {
-            polyp.Function = words.A == 0 ? null : PolypNativeWords.PolypEnemyFunctions.Decode(words.A, "recorded PolypEnemyFunction");
+            polyp.Action = words.A == 0 ? null : PolypNativeWords.PolypActions.Decode(words.A, "recorded PolypAction");
             polyp.CooldownTimer = unchecked((short)words.B);
         }
         if (slot.DefinitionId == EnemyDefinitionId.Powamp && slot.SpeciesState<PowampEnemyState>() is { } powamp)
@@ -640,18 +640,18 @@ internal static class NativeEnemyFamilyStateImport
                 powamp.WiggleTimer = unchecked((short)words.D);
                 powamp.FunctionTimer = unchecked((short)words.E);
             }
-            powamp.Function = words.F == 0 ? null : PowampNativeWords.PowampEnemyFunctions.Decode(words.F, "recorded PowampEnemyFunction");
+            powamp.Action = words.F == 0 ? null : PowampNativeWords.PowampActions.Decode(words.F, "recorded PowampAction");
         }
         if (slot.DefinitionId == EnemyDefinitionId.MamaTurtle && slot.SpeciesState<MamaTurtleEnemyState>() is { } mama)
         {
-            mama.Function = words.A == 0 ? null : MamaTurtlesNativeWords.MamaTurtleAiFunctions.Decode(words.A, "recorded MamaTurtleAiFunction");
+            mama.Action = words.A == 0 ? null : MamaTurtlesNativeWords.MamaTurtleActions.Decode(words.A, "recorded MamaTurtleAction");
             // Only the horizontal velocity's whole pixels live in the record; its fraction and the vertical velocity do not.
             mama.Velocity = mama.Velocity.WithX(mama.Velocity.X.WithWholePixels(unchecked((short)words.E)));
             mama.AsleepFlag = unchecked((short)words.F);
         }
         if (enemies.HibashiStates[index] is { } hibashi)
         {
-            hibashi.Function = words.A == 0 ? null : HibashiNativeWords.HibashiEnemyFunctions.Decode(words.A, "recorded HibashiEnemyFunction");
+            hibashi.Action = words.A == 0 ? null : HibashiNativeWords.HibashiActions.Decode(words.A, "recorded HibashiAction");
             hibashi.InactiveTimer = unchecked((short)words.B);
             hibashi.ActivityFinished = words.C != 0;
             hibashi.SpawnHeight = new Position16<RoomPixels>(0, words.D);
@@ -663,7 +663,7 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemies.AlcoonStates[index] is { } alcoon)
         {
-            alcoon.Function = words.A == 0 ? null : AlcoonNativeWords.AlcoonEnemyFunctions.Decode(words.A, "recorded AlcoonEnemyFunction");
+            alcoon.Action = words.A == 0 ? null : AlcoonNativeWords.AlcoonActions.Decode(words.A, "recorded AlcoonAction");
             alcoon.Velocity = FixedVector<RoomPixels>.FromStoredParts(words.D, 0, words.B, words.C);
             alcoon.SpawnPosition = alcoon.SpawnPosition.WithY(words.F);
         }
@@ -675,14 +675,14 @@ internal static class NativeEnemyFamilyStateImport
         if (enemies.RioStates[index] is { } rio)
         {
             rio.SavedHorizontalVelocity = new SignedEightEight(words.A);
-            rio.Function = words.B == 0 ? null : RiosNativeWords.RioEnemyFunctions.Decode(words.B, "recorded RioEnemyFunction");
+            rio.Action = words.B == 0 ? null : RiosNativeWords.RioActions.Decode(words.B, "recorded RioAction");
             rio.Velocity = new(new SignedEightEight(words.D), new SignedEightEight(words.C));
             rio.AnimationFinished = words.E != 0;
         }
         if (slot.EntityState<NorfairRioEntity, NorfairRioEnemyState>() is { } norfairRio)
         {
             norfairRio.Velocity = new(new SignedEightEight(words.B), new SignedEightEight(words.A));
-            norfairRio.Function = words.F == 0 ? null : RiosNativeWords.NorfairRioEnemyFunctions.Decode(words.F, "recorded NorfairRioEnemyFunction");
+            norfairRio.Action = words.F == 0 ? null : RiosNativeWords.NorfairRioActions.Decode(words.F, "recorded NorfairRioAction");
         }
         if (enemies.WaverStates[index] is { } waver)
         {
@@ -702,7 +702,7 @@ internal static class NativeEnemyFamilyStateImport
             fly.Angle = words.E % 2 == 0
                 ? RotationAngle.FromSteps(checked((byte)(Index(words.E, 510, "fly phase") / 2)))
                 : throw new InvalidDataException($"Recorded fly phase ${words.E:X4} is odd.");
-            fly.Function = words.F == 0 ? null : FliesNativeWords.FlyEnemyFunctions.Decode(words.F, "recorded FlyEnemyFunction");
+            fly.Action = words.F == 0 ? null : FliesNativeWords.FlyActions.Decode(words.F, "recorded FlyAction");
         }
         if (enemies.DragonStates[index] is { } dragon)
         {
@@ -711,13 +711,13 @@ internal static class NativeEnemyFamilyStateImport
             // One record word serves the motion timer and the shot counter in turn; whichever phase is current reads it.
             dragon.FunctionTimer = unchecked((short)words.D);
             dragon.AttackCounter = unchecked((short)words.D);
-            dragon.Function = words.F == 0 ? null : DragonNativeWords.DragonEnemyFunctions.Decode(words.F, "recorded DragonEnemyFunction");
+            dragon.Action = words.F == 0 ? null : DragonNativeWords.DragonActions.Decode(words.F, "recorded DragonAction");
         }
         if (enemies.ElevatorStates[index] is { } elevator)
             elevator.RestingHeight = new Position16<RoomPixels>(0, words.A);
         if (enemies.FuneNamiheStates[index] is { } funeNamihe)
         {
-            funeNamihe.Function = words.B == 0 ? null : FuneNamiheNativeWords.FuneNamiheEnemyFunctions.Decode(words.B, "recorded FuneNamiheEnemyFunction");
+            funeNamihe.Action = words.B == 0 ? null : FuneNamiheNativeWords.FuneNamiheActions.Decode(words.B, "recorded FuneNamiheAction");
             funeNamihe.YProximity = Index(words.C, byte.MaxValue, "Namihe wake distance");
             funeNamihe.Variant = Index(words.D, 15, "Fune/Namihe variant") == 0 ? FuneNamiheVariant.Fune : FuneNamiheVariant.Namihe;
             funeNamihe.CooldownTimer = words.E;
@@ -738,12 +738,12 @@ internal static class NativeEnemyFamilyStateImport
         {
             lavaJumper.YVelocity = new SignedEightEight(words.C);
             lavaJumper.SpawnPosition = new Position16<RoomPixels>(words.D, words.E);
-            lavaJumper.Function = words.F == 0 ? null : LavaJumpersNativeWords.NorfairLavaJumpingEnemyFunctions.Decode(words.F, "recorded NorfairLavaJumpingEnemyFunction");
+            lavaJumper.Action = words.F == 0 ? null : LavaJumpersNativeWords.NorfairLavaJumpingEnemyActions.Decode(words.F, "recorded NorfairLavaJumpingEnemyAction");
         }
         if (enemies.MetareeStates[index] is { } metaree)
         {
             metaree.BurrowTimer = unchecked((short)words.A);
-            metaree.Function = words.B == 0 ? null : MetareeNativeWords.MetareeEnemyFunctions.Decode(words.B, "recorded MetareeEnemyFunction");
+            metaree.Action = words.B == 0 ? null : MetareeNativeWords.MetareeActions.Decode(words.B, "recorded MetareeAction");
             metaree.RequestedAnimation = (SkreeMetareeAnimationPhase)words.C;
             metaree.InstalledAnimation = (SkreeMetareeAnimationPhase)words.D;
             metaree.AttackReady = words.E != 0;
@@ -751,7 +751,7 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemies.SparkStates[index] is { } spark)
         {
-            spark.Function = words.B == 0 ? null : SparksNativeWords.SparkEnemyFunctions.Decode(words.B, "recorded SparkEnemyFunction");
+            spark.Action = words.B == 0 ? null : SparksNativeWords.SparkActions.Decode(words.B, "recorded SparkAction");
             spark.BaseFunctionTime = words.E;
             spark.FunctionTimer = unchecked((short)words.F);
         }
@@ -759,7 +759,7 @@ internal static class NativeEnemyFamilyStateImport
         {
             puyo.YSpeedTableIndex = EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(Index(words.A, short.MaxValue, "Puyo speed index"));
             puyo.HopCooldownTimer = unchecked((short)words.B);
-            puyo.Function = words.C == 0 ? null : PuyoNativeWords.PuyoEnemyFunctions.Decode(words.C, "recorded PuyoEnemyFunction");
+            puyo.Action = words.C == 0 ? null : PuyoNativeWords.PuyoActions.Decode(words.C, "recorded PuyoAction");
             puyo.AirborneFunction = words.D == 0 ? null : PuyoNativeWords.PuyoAirborneFunctions.Decode(words.D, "recorded PuyoAirborneFunction");
             puyo.CurrentHop = PuyoNativeWords.HopRecordOffsets.Decode(words.E, "recorded Puyo hop record offset");
         }

@@ -15,12 +15,12 @@ internal static class MaridiaSnailsNativeWords
         [MaridiaLargeSnailBounceFunction.Rising] = 0xcfa9,
     });
 
-    /// <summary>The routine word naming each <see cref="MaridiaLargeSnailEnemyFunction"/>.</summary>
-    internal static readonly NativeWordIdentities<MaridiaLargeSnailEnemyFunction> MaridiaLargeSnailEnemyFunctions = new(new Dictionary<MaridiaLargeSnailEnemyFunction, ushort>
+    /// <summary>The routine word naming each <see cref="MaridiaLargeSnailAction"/>.</summary>
+    internal static readonly NativeWordIdentities<MaridiaLargeSnailAction> MaridiaLargeSnailActions = new(new Dictionary<MaridiaLargeSnailAction, ushort>
     {
-        [MaridiaLargeSnailEnemyFunction.Idle] = 0xcde6,
-        [MaridiaLargeSnailEnemyFunction.Rolling] = 0xce2b,
-        [MaridiaLargeSnailEnemyFunction.Attacking] = 0xcf40,
+        [MaridiaLargeSnailAction.Idle] = 0xcde6,
+        [MaridiaLargeSnailAction.Rolling] = 0xce2b,
+        [MaridiaLargeSnailAction.Attacking] = 0xcf40,
     });
 
     /// <summary>

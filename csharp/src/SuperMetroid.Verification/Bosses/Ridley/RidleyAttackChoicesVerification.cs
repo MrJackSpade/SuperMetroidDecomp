@@ -16,7 +16,7 @@ internal static class RidleyAttackChoicesVerification
     /// <summary>Compares all 48 native choices and verifies RNG consumption, branch priority, and chosen-action setup.</summary>
     internal static void VerifyRidleyAttackChoices(CartridgeImportAddressSpace rom)
     {
-        RidleyAiFunction Table(int row, int choice) => RidleyAttackChoices.Resolve(row switch
+        RidleyPhase Table(int row, int choice) => RidleyAttackChoices.Resolve(row switch
         {
             0 => RidleyAttackSituation.BelowHalfHealth,
             1 => RidleyAttackSituation.AboveHalfHealth,
@@ -25,12 +25,12 @@ internal static class RidleyAttackChoicesVerification
             4 => RidleyAttackSituation.SpinJumping,
             _ => RidleyAttackSituation.ZeroHealth,
         }, choice);
-        var native = new RidleyAiFunction[6, 8];
+        var native = new RidleyPhase[6, 8];
         for (int row = 0; row < 6; row++)
         for (int choice = 0; choice < 8; choice++)
         {
             int address = 0xa6b38c + row * 16 + choice * 2;
-            native[row, choice] = RidleyNativeWords.AiFunctions.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(address),
+            native[row, choice] = RidleyNativeWords.Phases.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(address),
                 "Ridley action");
             AssertEqual(native[row, choice], Table(row, choice), "Every native Ridley action pointer");
         }
@@ -38,7 +38,7 @@ internal static class RidleyAttackChoicesVerification
         var actual = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         var reference = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?, ControllerButton, RoomLevelData?> select = actual.RidleyBehavior.SelectNorfairRidleyAttack;
-        Action<RoomEnemySlot, RidleyEnemyState, SamusState?, ControllerButton, RoomLevelData?> runReference = reference.RidleyBehavior.RunNorfairRidleyFunction;
+        Action<RoomEnemySlot, RidleyEnemyState, SamusState?, ControllerButton, RoomLevelData?> runReference = reference.RidleyBehavior.RunNorfairRidleyPhase;
         ushort random = 0;
         int advances = 0, actualReads = 0, referenceReads = 0;
         actual.VerificationServices().NextRandom = () => { advances++; return random; };
@@ -61,10 +61,10 @@ internal static class RidleyAttackChoicesVerification
         {
             random = (ushort)raw;
             advances = actualReads = referenceReads = 0;
-            var state = new RidleyEnemyState { Function = RidleyAiFunction.NorfairSelectAttack, ZeroHealthLungeCount = 0 };
+            var state = new RidleyEnemyState { Phase = RidleyPhase.NorfairSelectAttack, ZeroHealthLungeCount = 0 };
             var expected = new RidleyEnemyState
             {
-                Function = native[sample.Row, raw & 7],
+                Phase = native[sample.Row, raw & 7],
                 ZeroHealthLungeCount = sample.Row == 5 ? 1 : 0,
             };
             foreach (var slot in new[] { actual.SlotTable.Slots[0], reference.SlotTable.Slots[0] })
@@ -76,7 +76,7 @@ internal static class RidleyAttackChoicesVerification
             select(actual.SlotTable.Slots[0], state, sample.Samus, 0, null);
             AssertEqual(1, advances, "Selector advances RNG exactly once");
             AssertEqual(referenceReads, actualReads, "Chosen setup reads the same current RNG word");
-            AssertEqual(expected.Function, state.Function, "Native chosen callback executes on the selection frame");
+            AssertEqual(expected.Phase, state.Phase, "Native chosen callback executes on the selection frame");
             AssertEqual(expected.FunctionTimer, state.FunctionTimer, "Same-frame selected timer");
             AssertEqual(expected.Velocity.X.RawValue, state.Velocity.X.RawValue, "Same-frame selected X motion");
             AssertEqual(expected.Velocity.Y.RawValue, state.Velocity.Y.RawValue, "Same-frame selected Y motion");

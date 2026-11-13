@@ -29,7 +29,7 @@ internal static class MetareeDiveSpeedVerification
             };
             MetareeBehavior.RunMetareeIdle(slot, state, samus);
             AssertEqual(expected, state.YVelocity, $"Samus {samusOffset} pixels below gives a dive of {expected}");
-            AssertEqual(MetareeEnemyFunction.PreparingAttack, state.Function, "the Metaree prepares its attack");
+            AssertEqual(MetareeAction.PreparingAttack, state.Action, "the Metaree prepares its attack");
         }
         Console.WriteLine("Metaree dive speed: the ordinary and wrapped dives match.");
     }

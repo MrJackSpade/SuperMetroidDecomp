@@ -60,6 +60,19 @@ internal static class CoreVocabularyAnalyzerTests
         // (two words: TileMap) are the game's own.
         Expect("class P { int Sprite; int MapSpriteId; int SpriteSheets; int ScanLeftToRight; int Scanned; int Scanner; int FirstLine; int HudLines; }");
         Expect("class P { int Tile; int Tiles; int Metatile; int MapTiles; int TileMap; int TileMapLayer; }");
+        // The enemy record's AI function field, in each kind of declaration a renamed behaviour state used it in (#1701).
+        Expect("public enum KraidAiFunction { None }", "'KraidAiFunction' names the hardware ('AiFunction')");
+        Expect("public enum BeetomEnemyFunction { DecideAction = 1 }", "'BeetomEnemyFunction' names the hardware ('EnemyFunction')");
+        Expect("class P { int FightFunction { get; set; } }", "'FightFunction' names the hardware ('FightFunction')");
+        Expect("class P { int SavedFightFunction { get; set; } }", "'SavedFightFunction' names the hardware ('FightFunction')");
+        Expect("static class PipeBugCodes { internal static readonly int[] PipeBugEnemyFunctions = []; }",
+            "'PipeBugEnemyFunctions' names the hardware ('EnemyFunction')");
+        Expect("class P { void Run(int aiFunction) { } }", "'aiFunction' names the hardware ('AiFunction')");
+        Expect("class P { void Run() { int enemyFunctionTimer = 0; _ = enemyFunctionTimer; } }",
+            "'enemyFunctionTimer' names the hardware ('EnemyFunction')");
+        Expect("class P { int AIFunction; }", "'AIFunction' names the hardware ('AiFunction')");
+        // Each word alone, and the words apart or in another order, are the game's own: a phase, an action, a fight, an enemy.
+        Expect("class P { int Function; int NextFunction; int FunctionTimer; int EnemyState; int FightPhase; int AiState; int FunctionalEnemy; int EnemyFunctional; int FunctionEnemy; int AidFunction; }");
         Expect("class P { int Banked; }", "'Banked' names the hardware ('Bank')");
         Expect("class P { int[] Pointers = []; }", "'Pointers' names the hardware ('Pointer')");
         Expect("class P { void Run() { try { } catch (System.Exception addressing) { _ = addressing; } } }", "'addressing' names the hardware ('Address')");

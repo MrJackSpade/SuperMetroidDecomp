@@ -134,7 +134,7 @@ internal sealed class CeresRidleyGetaway
             // The getaway's end hands the same extended actor workspace to the escape-text sequence. Samus's
             // special push/fall handler remains responsible for restoring normal input;
             // ending the rotating view itself does not unlock her in the game.
-            state.Function = RidleyAiFunction.CeresActivateSelfDestruct;
+            state.Phase = RidleyPhase.CeresActivateSelfDestruct;
             state.CeresSelfDestructPhase = CeresSelfDestructPhase.Start;
             return;
         }
@@ -281,7 +281,7 @@ internal sealed class CeresRidleyGetaway
             case CeresSelfDestructPhase.Finishing:
                 UpdateCeresSelfDestructAlarm(state, _ridleyEncounter.Parts.Body.FrameCounter);
                 state.Velocity = EightEightVector<RoomPixels>.Zero;
-                state.Function = RidleyAiFunction.CeresSelfDestructPaletteOnly;
+                state.Phase = RidleyPhase.CeresSelfDestructPaletteOnly;
                 _ridleyEncounter.CeresStatus = CeresEscapeStatus.SelfDestructStarted;
                 // The escape-text sequence sets the area-boss bit inside Ridley's AI, so later slots (the
                 // room's exit door) observe it in this same enemy update.

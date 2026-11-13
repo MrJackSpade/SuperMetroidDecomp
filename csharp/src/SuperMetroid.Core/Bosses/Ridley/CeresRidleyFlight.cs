@@ -60,7 +60,7 @@ internal sealed class CeresRidleyFlight
 
         _ridleyEncounter.Ridley = new RidleyEnemyState
         {
-            Function = RidleyAiFunction.WaitForDoorTransition,
+            Phase = RidleyPhase.WaitForDoorTransition,
             FightMode = RidleyFightMode.NotFighting,
             HitCounter = 0,
             MovementAnimationEnabled = false,
@@ -108,7 +108,7 @@ internal sealed class CeresRidleyFlight
         state.Velocity = state.Velocity.WithY(state.Velocity.Y + SignedEightEight.FromTwoHundredFiftySixthsOfPixel(20));
         if (CoordinateAxis.Difference(slot.Position.Y.Whole, 80) < 0)
         {
-            state.Function = RidleyAiFunction.CeresHovering;
+            state.Phase = RidleyPhase.CeresHovering;
             state.FightMode = RidleyFightMode.Fighting;
         }
     }
@@ -124,7 +124,7 @@ internal sealed class CeresRidleyFlight
         if (state.HitCounter >= 100)
         {
             state.FightMode = RidleyFightMode.NotFighting;
-            state.Function = RidleyAiFunction.CeresFakeRetreatMoveToPosition;
+            state.Phase = RidleyPhase.CeresFakeRetreatMoveToPosition;
             TickCeresRidleyFakeRetreatMoveToPosition(slot, state);
             return;
         }
@@ -155,7 +155,7 @@ internal sealed class CeresRidleyFlight
                 return;
         }
 
-        state.Function = CeresRidleyAttackDefinitions.SelectAttack(_room.Random.Read());
+        state.Phase = CeresRidleyAttackDefinitions.SelectAttack(_room.Random.Read());
         state.HoverCounter = 0;
     }
 
@@ -175,7 +175,7 @@ internal sealed class CeresRidleyFlight
         {
             state.HoverCounter++;
             if (state.HoverCounter >= 48)
-                state.Function = RidleyAiFunction.CeresSwoopSetup;
+                state.Phase = RidleyPhase.CeresSwoopSetup;
             return;
         }
         if (CoordinateAxis.Difference(slot.Position.Y.Whole, 128) >= 0)
@@ -186,7 +186,7 @@ internal sealed class CeresRidleyFlight
         // Its fireball commands calculate and spawn actors; leaving this
         // assignment out produces correct boss motion with a conspicuously silent attack.
         StartRidleyAnimation(state, slot, RidleyBodySegment.Fireballing);
-        state.Function = RidleyAiFunction.CeresFireballShooting;
+        state.Phase = RidleyPhase.CeresFireballShooting;
         state.FunctionTimer = 224;
         TickCeresRidleyFireballShooting(slot, state);
     }
@@ -204,7 +204,7 @@ internal sealed class CeresRidleyFlight
         if (--state.FunctionTimer < 0)
         {
             state.HoverCounter = 0;
-            state.Function = RidleyAiFunction.CeresHovering;
+            state.Phase = RidleyPhase.CeresHovering;
         }
     }
 
@@ -226,7 +226,7 @@ internal sealed class CeresRidleyFlight
         if (reached || state.FunctionTimer < 0)
         {
             state.HoverCounter = 0;
-            state.Function = RidleyAiFunction.CeresHovering;
+            state.Phase = RidleyPhase.CeresHovering;
         }
     }
 
@@ -238,7 +238,7 @@ internal sealed class CeresRidleyFlight
         AccelerateRidleyToward(slot, state, new(192, 80), 15);
         if (CoordinateAxis.Difference(slot.Position.Y.Whole, 96) < 0)
         {
-            state.Function = RidleyAiFunction.CeresSwoopDescendingAimingDown;
+            state.Phase = RidleyPhase.CeresSwoopDescendingAimingDown;
             state.FunctionTimer = 10;
             state.SwoopAngleAccumulator = RotationAngle.Zero;
         }
@@ -250,13 +250,13 @@ internal sealed class CeresRidleyFlight
         int angleDelta,
         RotationAngle targetAngle,
         int targetMagnitude,
-        RidleyAiFunction nextFunction,
+        RidleyPhase nextPhase,
         int nextTimer)
     {
         UpdateRidleySwoopVelocity(state, angleDelta, targetAngle, targetMagnitude);
         if (--state.FunctionTimer < 0)
         {
-            state.Function = nextFunction;
+            state.Phase = nextPhase;
             state.FunctionTimer = nextTimer;
         }
     }
@@ -294,7 +294,7 @@ internal sealed class CeresRidleyFlight
     /// <summary>Switches the encounter into the initial scripted retreat.</summary>
     private static void BeginCeresRidleyRetreat(RidleyEnemyState state)
     {
-        state.Function = RidleyAiFunction.CeresRealRetreatRising;
+        state.Phase = RidleyPhase.CeresRealRetreatRising;
         state.MovementMinimum = state.MovementMinimum.WithY(CoordinateAxis.Wrap(-192));
     }
 
@@ -307,7 +307,7 @@ internal sealed class CeresRidleyFlight
         // the 100-shot "fake retreat"; the low-energy branch bypasses the Baby retrieval.
         AccelerateRidleyToward(slot, state, new(192, 128), 15);
         if (CoordinateAxis.Difference(slot.Position.X.Whole, 192) >= 0)
-            state.Function = RidleyAiFunction.CeresFakeRetreatRising;
+            state.Phase = RidleyPhase.CeresFakeRetreatRising;
     }
 
     /// <summary>Raises Ridley above Y=32 before releasing the Baby into its independent fall.</summary>
@@ -323,7 +323,7 @@ internal sealed class CeresRidleyFlight
         if (CoordinateAxis.Difference(slot.Position.Y.Whole, 32) < 0)
         {
             state.BabyFunction = CeresBabyFunction.Drop;
-            state.Function = RidleyAiFunction.CeresWaitBeforeRetrievingBaby;
+            state.Phase = RidleyPhase.CeresWaitBeforeRetrievingBaby;
             state.FunctionTimer = 21;
         }
     }
@@ -355,7 +355,7 @@ internal sealed class CeresRidleyFlight
         AccelerateRidleyToward(slot, state, Position16<RoomPixels>.Wrapped(192, -128), 15);
         if (CoordinateAxis.AsSigned(slot.Position.Y.Whole + 128) < 0)
         {
-            state.Function = RidleyAiFunction.CeresRetreatDelay;
+            state.Phase = RidleyPhase.CeresRetreatDelay;
             state.FunctionTimer = 64;
             TickCeresRidleyRetreatDelay(state);
         }
@@ -372,7 +372,7 @@ internal sealed class CeresRidleyFlight
         SpawnCeresRidleyGetawayWalls();
         state.Velocity = EightEightVector<RoomPixels>.Zero;
         state.TailFunctionIndex = RidleyTailFunction.None;
-        state.Function = RidleyAiFunction.CeresPublishEscapeHandoff;
+        state.Phase = RidleyPhase.CeresPublishEscapeHandoff;
 
         // The retreat recolours the chamber: its walls and its first tiles. The game also copied the first tiles'
         // colours into Ridley's own sprite colours; his sprites here keep their own colours (#1544).
@@ -510,7 +510,7 @@ internal sealed class CeresRidleyFlight
         if (--state.FunctionTimer >= 0)
             return;
 
-        state.Function = RidleyAiFunction.FadeInEyes;
+        state.Phase = RidleyPhase.FadeInEyes;
         state.FadeStep = 0;
         state.FunctionTimer = 0;
     }

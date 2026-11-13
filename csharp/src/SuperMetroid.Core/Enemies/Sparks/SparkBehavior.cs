@@ -55,7 +55,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.SetSpeciesState(state);
 
         SparkMovementDefinition definition = slot.SpawnSettings<SparkSpawnSettings>().Start;
-        state.Function = definition.Function;
+        state.Action = definition.Action;
         state.BaseFunctionTime = slot.SpawnSettings<SparkSpawnSettings>().BaseFunctionTime;
         SetSparkFunctionTimer(state, additionalTime: 0);
 
@@ -69,30 +69,30 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the indirect main dispatcher.</summary>
     private void RunSparkMain(RoomEnemySlot slot, SparkEnemyState state)
     {
-        switch (state.Function)
+        switch (state.Action)
         {
-            case SparkEnemyFunction.AlwaysActive:
+            case SparkAction.AlwaysActive:
                 return;
 
-            case SparkEnemyFunction.IntermittentInactive:
+            case SparkAction.IntermittentInactive:
                 if (!DecrementSparkTimerAndTestExpired(state))
                     return;
 
-                state.Function = SparkEnemyFunction.IntermittentActive;
+                state.Action = SparkAction.IntermittentActive;
                 StartSparkAnimation(slot, state, SparkSegment.FlickerOn);
                 SetSparkFunctionTimer(state, additionalTime: 0);
                 return;
 
-            case SparkEnemyFunction.IntermittentActive:
+            case SparkAction.IntermittentActive:
                 if (!DecrementSparkTimerAndTestExpired(state))
                     return;
 
-                state.Function = SparkEnemyFunction.IntermittentInactive;
+                state.Action = SparkAction.IntermittentInactive;
                 StartSparkAnimation(slot, state, SparkSegment.FlickerOut);
                 SetSparkFunctionTimer(state, additionalTime: 8);
                 return;
 
-            case SparkEnemyFunction.EmitFallingSparks:
+            case SparkAction.EmitFallingSparks:
                 if (!DecrementSparkTimerAndTestExpired(state))
                     return;
 
@@ -103,7 +103,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
             case null:
             default:
                 throw new InvalidDataException(
-                    $"Spark function {state.Function?.ToString() ?? "none"} is not translated.");
+                    $"Spark function {state.Action?.ToString() ?? "none"} is not translated.");
         }
     }
 

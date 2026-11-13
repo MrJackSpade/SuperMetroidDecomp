@@ -21,13 +21,13 @@ internal static class DraygonEscapeDragVerification
         samus.DraygonGrabbed.Begin(samus, draygonFacingRight: false);
         samus.DraygonGrabbed.Release(samus);
 
-        var state = new DraygonEnemyState(enemies.SlotTable.Slots[0]) { Function = DraygonAiFunction.CarrySamus };
+        var state = new DraygonEnemyState(enemies.SlotTable.Slots[0]) { Phase = DraygonPhase.CarrySamus };
         state.Body.Position = state.Body.Position.WithWhole(new(0x013b, 0x0176));
         enemies.DraygonBehavior.Grab.MoveSamusWithDraygon(state, samus);
 
         AssertEqual((ushort)(0x013b - 8), samus.Position.X.Whole, "the escaped Samus is placed eight pixels left of Draygon");
         AssertEqual((ushort)(0x0176 + 0x28), samus.Position.Y.Whole, "the escaped Samus is placed 40 pixels below Draygon");
-        AssertEqual(DraygonAiFunction.FlyStraightUp, state.Function, "Draygon then sees the escape and flies up");
+        AssertEqual(DraygonPhase.FlyStraightUp, state.Phase, "Draygon then sees the escape and flies up");
         AssertTrue(!samus.DraygonGrabbed.ConsumeOwnerReleaseSignal(), "the placement consumed the escape bit");
         Console.WriteLine("  Draygon escape drag: the first carry call after an escape still places Samus.");
     }

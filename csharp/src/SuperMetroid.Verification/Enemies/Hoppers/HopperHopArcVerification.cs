@@ -39,7 +39,7 @@ internal static class HopperHopArcVerification
             slot.Radius = new(8, 8);
             var state = new HopperEnemyState
             {
-                Function = HopperEnemyFunction.JumpingUpsideUpForward,
+                Action = HopperAction.JumpingUpsideUpForward,
                 Falling = falling,
                 XVelocity = 0,
                 YSpeedTableIndex = EnemyQuadraticSpeedIndex.FromRows(start),

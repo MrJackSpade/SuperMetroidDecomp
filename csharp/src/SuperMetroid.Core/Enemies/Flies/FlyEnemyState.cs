@@ -23,7 +23,7 @@ public sealed class FlyEnemyState
     public RotationAngle Angle { get; internal set; }
 
     /// <summary>The current circling, attacking or retreating behaviour.</summary>
-    public FlyEnemyFunction? Function { get; internal set; }
+    public FlyAction? Action { get; internal set; }
 
     /// <summary>One circling update's phase advance: sixteen table units one way or the other, wrapping after a full turn.</summary>
     /// <param name="clockwise">Whether the fly circles clockwise.</param>

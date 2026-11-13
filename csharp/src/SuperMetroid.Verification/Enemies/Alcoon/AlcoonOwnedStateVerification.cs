@@ -10,7 +10,7 @@ internal static class AlcoonOwnedStateVerification
     {
         var state = new AlcoonEnemyState
         {
-            Function = AlcoonEnemyFunction.WalkingAndFiring,
+            Action = AlcoonAction.WalkingAndFiring,
             Velocity = new(SignedSixteenSixteen.FromParts(-2, 0), SignedSixteenSixteen.FromParts(-4, 0x8000)),
             SpawnPosition = new(0x0300, 0x0180),
             LandingPosition = new(0x0300, 0x01a0),

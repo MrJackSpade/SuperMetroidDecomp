@@ -8,20 +8,20 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 /// </summary>
 internal static class MagdolliteNativeWords
 {
-    /// <summary>The routine word naming each <see cref="MagdolliteEnemyFunction"/>.</summary>
-    internal static readonly NativeWordIdentities<MagdolliteEnemyFunction> MagdolliteEnemyFunctions = new(new Dictionary<MagdolliteEnemyFunction, ushort>
+    /// <summary>The routine word naming each <see cref="MagdolliteAction"/>.</summary>
+    internal static readonly NativeWordIdentities<MagdolliteAction> MagdolliteActions = new(new Dictionary<MagdolliteAction, ushort>
     {
-        [MagdolliteEnemyFunction.HeadWaiting] = 0xb11a,
-        [MagdolliteEnemyFunction.HeadWaitingForAttackAnimation] = 0xb175,
-        [MagdolliteEnemyFunction.HeadWaitingForBodyLanding] = 0xb193,
-        [MagdolliteEnemyFunction.HeadWaitingForReturnAnimation] = 0xb1b8,
-        [MagdolliteEnemyFunction.BodyDormant] = 0xb1dd,
-        [MagdolliteEnemyFunction.BodyRising] = 0xb204,
-        [MagdolliteEnemyFunction.NoOpAtApex] = 0xb291,
-        [MagdolliteEnemyFunction.BodyFalling] = 0xb295,
-        [MagdolliteEnemyFunction.OverlayWaitingForAttack] = 0xb30d,
-        [MagdolliteEnemyFunction.OverlayWaitingForThrowAnimation] = 0xb31f,
-        [MagdolliteEnemyFunction.OverlayTrackingRisingBody] = 0xb356,
-        [MagdolliteEnemyFunction.OverlayTrackingFallingBody] = 0xb3a7,
+        [MagdolliteAction.HeadWaiting] = 0xb11a,
+        [MagdolliteAction.HeadWaitingForAttackAnimation] = 0xb175,
+        [MagdolliteAction.HeadWaitingForBodyLanding] = 0xb193,
+        [MagdolliteAction.HeadWaitingForReturnAnimation] = 0xb1b8,
+        [MagdolliteAction.BodyDormant] = 0xb1dd,
+        [MagdolliteAction.BodyRising] = 0xb204,
+        [MagdolliteAction.NoOpAtApex] = 0xb291,
+        [MagdolliteAction.BodyFalling] = 0xb295,
+        [MagdolliteAction.OverlayWaitingForAttack] = 0xb30d,
+        [MagdolliteAction.OverlayWaitingForThrowAnimation] = 0xb31f,
+        [MagdolliteAction.OverlayTrackingRisingBody] = 0xb356,
+        [MagdolliteAction.OverlayTrackingFallingBody] = 0xb3a7,
     });
 }

@@ -42,12 +42,12 @@ internal static class BoulderBehaviorVerification
     internal static void VerifyBoulderReboundClock()
     {
         RoomLevelData level = VerificationHelpersVerification.CreateEmptyRoom(new(8, 8));
-        foreach ((int start, int expected, BoulderAiFunction function) in new VerifyBoulderReboundClockCase[]
+        foreach ((int start, int expected, BoulderAction action) in new VerifyBoulderReboundClockCase[]
                  {
-                     new VerifyBoulderReboundClockCase(200, 0, BoulderAiFunction.Falling),
-                     new VerifyBoulderReboundClockCase(255, 0, BoulderAiFunction.Falling),
-                     new VerifyBoulderReboundClockCase(256, 0, BoulderAiFunction.Rebound),
-                     new VerifyBoulderReboundClockCase(8192, 7936, BoulderAiFunction.Rebound),
+                     new VerifyBoulderReboundClockCase(200, 0, BoulderAction.Falling),
+                     new VerifyBoulderReboundClockCase(255, 0, BoulderAction.Falling),
+                     new VerifyBoulderReboundClockCase(256, 0, BoulderAction.Rebound),
+                     new VerifyBoulderReboundClockCase(8192, 7936, BoulderAction.Rebound),
                  })
         {
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
@@ -57,7 +57,7 @@ internal static class BoulderBehaviorVerification
             slot.SetSpawnWords(EnemyDefinitionId.Boulder, words => words);
             BoulderBehavior.InitializeBoulder(slot);
             BoulderEnemyState state = slot.RequireSpeciesState<BoulderEnemyState>();
-            state.Function = BoulderAiFunction.Rebound;
+            state.Action = BoulderAction.Rebound;
             state.BounceSpeedAccumulator = EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(start);
             var frame = new ClockedEnemyAiFrame(
                 RoomEnemyFrameFixtures.Standalone(level, 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) },
@@ -66,7 +66,7 @@ internal static class BoulderBehaviorVerification
             enemies.BoulderBehavior.RunBoulderMainAi(slot, frame);
 
             AssertEqual(expected, state.BounceSpeedAccumulator.InTwoHundredFiftySixthsOfRow, $"Boulder rebound clock from {start}");
-            AssertEqual(function, state.Function, $"Boulder rebound from {start} selects its next function");
+            AssertEqual(action, state.Action, $"Boulder rebound from {start} selects its next function");
         }
         Console.WriteLine("  Boulder rebound: a clock below one record clamps to zero and falls; one record reaches zero and keeps rebounding.");
     }

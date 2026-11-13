@@ -3,8 +3,8 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// What every one of Kraid's parts runs: its typed animation, the function it dispatches and the function timer that
-/// installs its next function. Each part kind keeps its own state on top of this in its own type: his body (<see
+/// What every one of Kraid's parts runs: its typed animation, the phase it runs and the function timer that
+/// resumes its next phase. Each part kind keeps its own state on top of this in its own type: his body (<see
 /// cref="KraidBodyState"/>), his arm (<see cref="KraidArmState"/>), each lint (<see cref="KraidLintState"/>), his foot
 /// (<see cref="KraidFootState"/>) and each fingernail (<see cref="KraidNailState"/>).
 /// </summary>
@@ -15,16 +15,16 @@ public abstract class KraidPartState
         new(KraidAnimations.StartingWith(KraidPartSegment.FootInitial), AnimationPlace.StartOfAnimation);
 
     /// <summary>
-    /// Gets the function a part's function timer installs when it expires. The game keeps the foot's in the
+    /// Gets the phase a part resumes when its function timer expires. The game keeps the foot's in the
     /// same value as its think timer (<see cref="KraidFootState.ThinkTimer"/>); the foot never reads one after writing the
-    /// other (it writes its think timer whenever it starts a second-phase walk and its next function whenever it starts a
+    /// other (it writes its think timer whenever it starts a second-phase walk and its phase to resume whenever it starts a
     /// timed phase), so each is held on its own.
     /// </summary>
-    public KraidAiFunction NextFunction { get; internal set; }
+    public KraidPhase PhaseToResume { get; internal set; }
 
-    /// <summary>The function the part dispatches.</summary>
-    public KraidAiFunction Function { get; internal set; }
+    /// <summary>The phase the part runs.</summary>
+    public KraidPhase Phase { get; internal set; }
 
-    /// <summary>The updates before the part's function timer installs <see cref="NextFunction"/>.</summary>
+    /// <summary>The updates before the part's function timer installs <see cref="PhaseToResume"/>.</summary>
     public int FunctionTimer { get; internal set; }
 }

@@ -184,9 +184,9 @@ internal sealed class PhantoonCombat
             }
 
             if (hitboxShotAi == EnemyReaction.Ignore ||
-                state.BodyState.Function is PhantoonAiFunction.DyingFadeInOut or PhantoonAiFunction.DyingExplosions or
-                    PhantoonAiFunction.BeginFinalWavyDeath or PhantoonAiFunction.DyingFadeOut or PhantoonAiFunction.AlmostDead or
-                    PhantoonAiFunction.Dead or PhantoonAiFunction.NoOperation)
+                state.BodyState.Phase is PhantoonPhase.DyingFadeInOut or PhantoonPhase.DyingExplosions or
+                    PhantoonPhase.BeginFinalWavyDeath or PhantoonPhase.DyingFadeOut or PhantoonPhase.AlmostDead or
+                    PhantoonPhase.Dead or PhantoonPhase.NoOperation)
             {
                 projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(
                     projectile,
@@ -271,11 +271,11 @@ internal sealed class PhantoonCombat
 
         _audio.RequestPhantoonCombatSound(PhantoonSoundDefinitions.ShotCry);
         SamusProjectileFamily family = projectileType.Family;
-        PhantoonAiFunction function = state.BodyState.Function;
-        bool vulnerableWindow = function is
-            PhantoonAiFunction.EyeTracksSamus or
-            PhantoonAiFunction.TrackSamusDuringFlameRain;
-        bool swooping = function == PhantoonAiFunction.Swooping;
+        PhantoonPhase phase = state.BodyState.Phase;
+        bool vulnerableWindow = phase is
+            PhantoonPhase.EyeTracksSamus or
+            PhantoonPhase.TrackSamusDuringFlameRain;
+        bool swooping = phase == PhantoonPhase.Swooping;
 
         if (vulnerableWindow || swooping)
         {
@@ -284,7 +284,7 @@ internal sealed class PhantoonCombat
             if (damage >= PhantoonBehavior.PhantoonDamageThreshold &&
                 family == SamusProjectileFamily.SuperMissile)
             {
-                ClosePhantoonAfterDamage(body, state, PhantoonAiFunction.FadeOutBeforeRage);
+                ClosePhantoonAfterDamage(body, state, PhantoonPhase.FadeOutBeforeRage);
                 return;
             }
 
@@ -296,7 +296,7 @@ internal sealed class PhantoonCombat
                 if (swooping)
                     state.BodyState.FunctionTimer = 1;
                 else
-                    ClosePhantoonAfterDamage(body, state, PhantoonAiFunction.FadeOutWhileSwooping);
+                    ClosePhantoonAfterDamage(body, state, PhantoonPhase.FadeOutWhileSwooping);
                 state.TentaclesState.RearmHurtFlash();
                 return;
             }
@@ -325,9 +325,9 @@ internal sealed class PhantoonCombat
     private static void ClosePhantoonAfterDamage(
         RoomEnemySlot body,
         PhantoonEnemyState state,
-        PhantoonAiFunction fadeOut)
+        PhantoonPhase fadeOut)
     {
-        state.BodyState.Function = fadeOut;
+        state.BodyState.Phase = fadeOut;
         state.BodyState.FunctionTimer = 0;
         RoomEnemySlot eye = state.Eye;
         state.TentaclesState.SwoopRequested = false;
@@ -344,11 +344,11 @@ internal sealed class PhantoonCombat
     private static void BeginPhantoonDeathSequence(
         PhantoonEnemyState state)
     {
-        state.BodyState.Function = state.BodyState.Function is
-            PhantoonAiFunction.Swooping or
-            PhantoonAiFunction.FadeOutWhileSwooping
-                ? PhantoonAiFunction.FinishFatalSwoop
-                : PhantoonAiFunction.DyingFadeInOut;
+        state.BodyState.Phase = state.BodyState.Phase is
+            PhantoonPhase.Swooping or
+            PhantoonPhase.FadeOutWhileSwooping
+                ? PhantoonPhase.FinishFatalSwoop
+                : PhantoonPhase.DyingFadeInOut;
         state.EyeState.FigureEightReversed = false;
         state.EyeState.FadeComplete = false;
         state.BodyWave.InitializeDeathScroll(state.BodyLayerPlacement.X);

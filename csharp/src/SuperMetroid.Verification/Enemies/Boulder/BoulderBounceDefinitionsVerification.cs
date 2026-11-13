@@ -29,12 +29,12 @@ internal static class BoulderBounceDefinitionsVerification
             actor.Position = actor.Position.WithY(new(55, 0));
             state.BounceCounter = counter;
             state.BounceSpeedAccumulator = EnemyQuadraticSpeedIndex.FromRows(32);
-            state.Function = BoulderAiFunction.Falling;
+            state.Action = BoulderAction.Falling;
             fall(actor, state, level);
             AssertEqual((int)expected, state.BounceSpeedAccumulator.InTwoHundredFiftySixthsOfRow, "Boulder real collision installs compiled sample without bus");
             AssertEqual(counter - 1, state.BounceCounter, "Boulder bounce count after the impact, minus one after the last");
-            AssertEqual(counter == 0 ? BoulderAiFunction.Rolling : BoulderAiFunction.Rebound,
-                state.Function, "Boulder last collision enters rolling");
+            AssertEqual(counter == 0 ? BoulderAction.Rolling : BoulderAction.Rebound,
+                state.Action, "Boulder last collision enters rolling");
             if (counter == 0)
             {
                 AssertEqual(actor.Position.Y, state.PreviousY, "Boulder rolling Y and subpixel handoff");

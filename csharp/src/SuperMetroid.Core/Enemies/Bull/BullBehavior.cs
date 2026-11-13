@@ -45,7 +45,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         state.AccelerationIntervalTimer = state.AccelerationIntervalTimerReset;
         state.DecelerationIntervalTimerReset = intervals.Deceleration;
         state.ActivationTimer = BullMovementDelayFrames;
-        state.Function = BullEnemyFunction.MovementDelay;
+        state.Action = BullAction.MovementDelay;
         state.MaxSpeed = settings.MaximumSpeed;
     }
 
@@ -61,26 +61,26 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
             state.ShotReactionDisabled = false;
         }
 
-        switch (state.Function)
+        switch (state.Action)
         {
-            case BullEnemyFunction.MovementDelay:
+            case BullAction.MovementDelay:
                 if (--state.ActivationTimer == 0)
                 {
                     state.ActivationTimer = BullMovementDelayFrames;
-                    state.Function = BullEnemyFunction.TargetSamus;
+                    state.Action = BullAction.TargetSamus;
                 }
                 return;
 
-            case BullEnemyFunction.TargetSamus:
+            case BullAction.TargetSamus:
                 if (samus is null)
                     throw new InvalidOperationException("Bull targeting requires the active Samus actor.");
                 state.AngleToSamus = CalculateBullAngleToSamus(slot, samus);
                 state.Angle = state.AngleToSamus.ToTrigonometryAngle();
-                state.Function = BullEnemyFunction.Accelerating;
+                state.Action = BullAction.Accelerating;
                 state.AccelerationDelta = BullAccelerationDelta;
                 return;
 
-            case BullEnemyFunction.Accelerating:
+            case BullAction.Accelerating:
                 if (samus is null)
                     throw new InvalidOperationException("Bull steering requires the active Samus actor.");
                 if (state.IsBelowMaximumSpeed)
@@ -89,10 +89,10 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
                 TriggerBullDecelerationIfOffTarget(slot, state, samus);
                 return;
 
-            case BullEnemyFunction.Decelerating:
+            case BullAction.Decelerating:
                 if (state.HasStopped)
                 {
-                    state.Function = BullEnemyFunction.MovementDelay;
+                    state.Action = BullAction.MovementDelay;
                     state.Acceleration = SignedEightEight.Zero;
                     state.AccelerationDelta = SignedEightEight.Zero;
                     state.Speed = SignedEightEight.Zero;
@@ -104,7 +104,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Bull function {state.Function?.ToString() ?? "none"} is not translated.");
+                    $"Bull function {state.Action?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -147,7 +147,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         if (BullOffTargetTurn.Of(state.Angle, state.AngleToSamus.ToTrigonometryAngle()) < 48)
             return;
 
-        state.Function = BullEnemyFunction.Decelerating;
+        state.Action = BullAction.Decelerating;
         state.AccelerationDelta = BullAccelerationDelta;
     }
 
@@ -202,7 +202,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Angle = BullMotion.ShotAngle(projectileDirection);
         state.Acceleration = ShotKickAcceleration;
         state.Speed = ShotKickSpeed;
-        state.Function = BullEnemyFunction.Decelerating;
+        state.Action = BullAction.Decelerating;
         state.ShotReactionDisableTimer = WrappingCountdown.Start(48);
         state.ShotReactionDisabled = true;
     }

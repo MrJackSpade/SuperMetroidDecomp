@@ -27,7 +27,7 @@ public sealed class DeadSidehopperEnemyState
     internal RottingCorpseRows Rows { get; }
 
     /// <summary>The current dead-sidehopper AI behaviour.</summary>
-    public DeadSidehopperAiFunction? Function { get; internal set; }
+    public DeadSidehopperAction? Action { get; internal set; }
 
     /// <summary>Position 0..3 in the four-hop launch cycle, selecting the next launch velocity; each landing advances it modulo four.</summary>
     public int JumpPhase { get; internal set; }

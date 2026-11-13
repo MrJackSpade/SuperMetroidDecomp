@@ -113,12 +113,12 @@ internal static class BeetomInstructionProgramDefinitionsVerification
         for (int value = 0; value <= ushort.MaxValue; value++)
         {
             random = (ushort)value;
-            fixture.State.Function = BeetomEnemyFunction.DecideActionSamusNotInProximity;
+            fixture.State.Action = BeetomAction.DecideActionSamusNotInProximity;
             fixture.State.FunctionTimer = 0x1234;
             AnimationPlayback<BeetomSegment> program = fixture.State.Playback;
             fixture.Choose(fixture.State);
             ushort expected = ReadBeetomInstructionWord(rom, (ushort)(0xb74e + 2 * (value & 7)));
-            AssertEqual(expected, BeetomNativeWords.BeetomEnemyFunctions.Word(fixture.State.Function ?? throw new InvalidOperationException("Beetom chose no action.")), "Beetom distant action matches native pointer for every RNG word");
+            AssertEqual(expected, BeetomNativeWords.BeetomActions.Word(fixture.State.Action ?? throw new InvalidOperationException("Beetom chose no action.")), "Beetom distant action matches native pointer for every RNG word");
             AssertEqual(0x1234, fixture.State.FunctionTimer, "Beetom choice preserves timer until setup runs");
             AssertEqual(program, fixture.State.Playback, "Beetom choice preserves program until setup runs");
             AssertEqual(value + 1, randomCalls, "Beetom consumes exactly one random value per choice");

@@ -10,10 +10,10 @@ internal static class PipeBugFormation
             ? PipeBugDefinitions.NorfairStaggerTargets[member]
             : throw new ArgumentOutOfRangeException(nameof(member));
 
-    /// <summary>The movement function of formation slot <paramref name="member"/> after it rises.</summary>
+    /// <summary>The movement action of formation slot <paramref name="member"/> after it rises.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="member"/> is outside the five slots.</exception>
-    internal static PipeBugEnemyFunction NorfairPostRiseFunction(int member) =>
-        (uint)member < (uint)PipeBugDefinitions.NorfairPostRiseFunctions.Length
-            ? PipeBugDefinitions.NorfairPostRiseFunctions[member]
+    internal static PipeBugAction NorfairPostRiseAction(int member) =>
+        (uint)member < (uint)PipeBugDefinitions.NorfairPostRiseActions.Length
+            ? PipeBugDefinitions.NorfairPostRiseActions[member]
             : throw new ArgumentOutOfRangeException(nameof(member));
 }

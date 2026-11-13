@@ -11,7 +11,7 @@ public sealed class EvirEnemyState
     public EvirFacing Facing { get; internal set; }
 
     /// <summary>The per-update behaviour this actor runs.</summary>
-    public EvirAiFunction? Function { get; internal set; }
+    public EvirAction? Action { get; internal set; }
 
     /// <summary>
     /// The body's bobbing countdown, decremented every update and expiring when it steps below zero, which reverses

@@ -67,11 +67,11 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
             RightVelocity = settings.Speed,
             LeftVelocity = SignedSixteenSixteen.Zero - settings.Speed,
             Direction = direction,
-            Function = direction switch
+            Action = direction switch
             {
-                CacatacDirection.Left => CacatacEnemyFunction.MovingLeft,
-                CacatacDirection.Right => CacatacEnemyFunction.MovingRight,
-                CacatacDirection.InitialStop => CacatacEnemyFunction.Stopped,
+                CacatacDirection.Left => CacatacAction.MovingLeft,
+                CacatacDirection.Right => CacatacAction.MovingRight,
+                CacatacDirection.InitialStop => CacatacAction.Stopped,
                 _ => throw new InvalidOperationException($"Undefined Cacatac direction {direction}."),
             },
             RightPatrolLimit = spawn + travel,
@@ -85,21 +85,21 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs a Cacatac's per-frame behaviour through its three functions.</summary>
     private void RunCacatacMain(RoomEnemySlot slot, CacatacEnemyState state)
     {
-        switch (state.Function)
+        switch (state.Action)
         {
-            case CacatacEnemyFunction.MovingLeft:
+            case CacatacAction.MovingLeft:
                 MoveCacatac(slot, state, direction: HorizontalDirection.Left);
                 MaybeStartCacatacAttack(slot, state);
                 return;
-            case CacatacEnemyFunction.MovingRight:
+            case CacatacAction.MovingRight:
                 MoveCacatac(slot, state, direction: HorizontalDirection.Right);
                 MaybeStartCacatacAttack(slot, state);
                 return;
-            case CacatacEnemyFunction.Stopped:
+            case CacatacAction.Stopped:
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Cacatac function {state.Function?.ToString() ?? "none"} is not translated.");
+                    $"Cacatac function {state.Action?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -118,14 +118,14 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             if ((slot.Position.Whole - state.LeftPatrolLimit).X >= 0)
                 return;
-            state.Function = CacatacEnemyFunction.MovingRight;
+            state.Action = CacatacAction.MovingRight;
             state.Direction = CacatacDirection.Right;
             return;
         }
 
         if ((slot.Position.Whole - state.RightPatrolLimit).X < 0)
             return;
-        state.Function = CacatacEnemyFunction.MovingLeft;
+        state.Action = CacatacAction.MovingLeft;
         state.Direction = CacatacDirection.Left;
     }
 
@@ -135,7 +135,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!CacatacAttackDefinitions.Attacks.IsTakenBy(_room.Random.Generate(), advancedBy: slot.FrameCounter))
             return;
 
-        state.Function = CacatacEnemyFunction.Stopped;
+        state.Action = CacatacAction.Stopped;
         SetCacatacAnimation(slot, state, state.UpsideUp ? CacatacSegment.UpsideUpAttack : CacatacSegment.UpsideDownAttack);
     }
 
@@ -144,9 +144,9 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // The game tests the direction against zero, not against one. Its special initial direction two therefore
         // becomes moving-right once the first idle step executes.
-        state.Function = state.Direction == CacatacDirection.Left
-            ? CacatacEnemyFunction.MovingLeft
-            : CacatacEnemyFunction.MovingRight;
+        state.Action = state.Direction == CacatacDirection.Left
+            ? CacatacAction.MovingLeft
+            : CacatacAction.MovingRight;
     }
 
     /// <summary>Animation cue: publish the spike sound.</summary>

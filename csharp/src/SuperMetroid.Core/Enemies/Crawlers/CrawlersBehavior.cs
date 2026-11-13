@@ -37,7 +37,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (cue.Kind)
         {
             case CrawlerCueKind.SetFunction:
-                state.Function = cue.Function;
+                state.Action = cue.Action;
                 return null;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(CrawlerCueKind)} {cue.Kind}.");
@@ -88,7 +88,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             animationFamily, orientation)), AnimationPlace.StartOfAnimation);
         slot.Frame = EnemyFrameId.Empty;
         slot.AnimationClock.StepOnNextUpdate();
-        state.Function = CrawlerEnemyFunction.AwaitingAnimationCue;
+        state.Action = CrawlerAction.AwaitingAnimationCue;
 
         state.Velocity = ResetCrawlerVelocities(blockSide, crawlSpeed, state.Velocity);
     }
@@ -126,7 +126,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
 
         var state = new CrawlerEnemyState
         {
-            Function = CrawlerEnemyFunction.HZoomerAwaitingAnimationCue,
+            Action = CrawlerAction.HZoomerAwaitingAnimationCue,
             SurfaceFamily = settings.SurfaceFamily,
         };
         Bind(slot, state);
@@ -152,25 +152,25 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         if (level is null)
             throw new InvalidOperationException("HZoomer movement requires room collision data.");
         CrawlerEnemyState state = slot.RequireSpeciesState<CrawlerEnemyState>();
-        switch (state.Function)
+        switch (state.Action)
         {
-            case CrawlerEnemyFunction.HZoomerAwaitingAnimationCue:
+            case CrawlerAction.HZoomerAwaitingAnimationCue:
                 return;
-            case CrawlerEnemyFunction.HZoomerCrawlingVertically:
+            case CrawlerAction.HZoomerCrawlingVertically:
                 RunHZoomerVertical(slot, state, samus, level);
                 return;
-            case CrawlerEnemyFunction.HZoomerCrawlingHorizontally:
+            case CrawlerAction.HZoomerCrawlingHorizontally:
                 RunHZoomerHorizontal(slot, state, samus, level);
                 return;
-            case CrawlerEnemyFunction.Falling:
+            case CrawlerAction.Falling:
                 RunCrawlerFalling(slot, state, level);
                 return;
-            case CrawlerEnemyFunction.AwaitingAnimationCue:
-            case CrawlerEnemyFunction.CrawlingVertically:
-            case CrawlerEnemyFunction.CrawlingHorizontally:
+            case CrawlerAction.AwaitingAnimationCue:
+            case CrawlerAction.CrawlingVertically:
+            case CrawlerAction.CrawlingHorizontally:
             default:
                 throw new InvalidDataException(
-                    $"HZoomer function {state.Function?.ToString() ?? "none"} is not translated.");
+                    $"HZoomer function {state.Action?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -298,25 +298,25 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         if (level is null)
             throw new InvalidOperationException("Crawler movement requires active room collision data.");
         CrawlerEnemyState state = slot.RequireSpeciesState<CrawlerEnemyState>();
-        switch (state.Function)
+        switch (state.Action)
         {
-            case CrawlerEnemyFunction.AwaitingAnimationCue:
+            case CrawlerAction.AwaitingAnimationCue:
                 return;
-            case CrawlerEnemyFunction.CrawlingVertically:
+            case CrawlerAction.CrawlingVertically:
                 RunCrawlerVertical(slot, state, level);
                 return;
-            case CrawlerEnemyFunction.Falling:
+            case CrawlerAction.Falling:
                 RunCrawlerFalling(slot, state, level);
                 return;
-            case CrawlerEnemyFunction.CrawlingHorizontally:
+            case CrawlerAction.CrawlingHorizontally:
                 RunCrawlerHorizontal(slot, state, level);
                 return;
-            case CrawlerEnemyFunction.HZoomerAwaitingAnimationCue:
-            case CrawlerEnemyFunction.HZoomerCrawlingVertically:
-            case CrawlerEnemyFunction.HZoomerCrawlingHorizontally:
+            case CrawlerAction.HZoomerAwaitingAnimationCue:
+            case CrawlerAction.HZoomerCrawlingVertically:
+            case CrawlerAction.HZoomerCrawlingHorizontally:
             default:
                 throw new InvalidDataException(
-                    $"Crawler function {state.Function?.ToString() ?? "none"} is not translated.");
+                    $"Crawler function {state.Action?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -409,7 +409,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             }
             state.FallingYVelocity = SignedSixteenSixteen.Zero;
             state.ConsecutiveTurnCounter = 0;
-            state.Function = state.NonFallingFunction;
+            state.Action = state.NonFallingAction;
             return;
         }
 
@@ -418,14 +418,14 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         // The fall contains this zero-velocity escape even though ordinary falls
         // immediately gain gravity. Retain it for modified parameter/state combinations.
         if (state.FallingYVelocity == SignedSixteenSixteen.Zero)
-            state.Function = CrawlerEnemyFunction.CrawlingVertically;
+            state.Action = CrawlerAction.CrawlingVertically;
     }
 
     /// <summary>Remembers the attached surface function before entering gravity-controlled falling.</summary>
     private static void BeginCrawlerFall(CrawlerEnemyState state)
     {
-        state.NonFallingFunction = state.Function;
-        state.Function = CrawlerEnemyFunction.Falling;
+        state.NonFallingAction = state.Action;
+        state.Action = CrawlerAction.Falling;
     }
 
     /// <summary>Chooses a shared crawler's wall animation from its vertical tangent direction.</summary>

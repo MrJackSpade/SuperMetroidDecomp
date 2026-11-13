@@ -11,7 +11,7 @@ public sealed class KiHunterEnemyState
     internal AnimationPlayback<KiHunterSegment> Playback { get; set; }
 
     /// <summary>Main-AI dispatcher.</summary>
-    public KiHunterEnemyFunction? Function { get; internal set; }
+    public KiHunterAction? Action { get; internal set; }
 
     /// <summary>
     /// A body's swoop target: Samus's room position when the swoop begins, around which the dive's ellipse is centred.

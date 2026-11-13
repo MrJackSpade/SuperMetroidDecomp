@@ -8,9 +8,9 @@ public sealed class WreckedShipGhostEnemyState
     internal AnimationPlayback<WreckedShipGhostSegment> Playback { get; set; }
 
     /// <summary>The current behaviour.</summary>
-    public WreckedShipGhostAiFunction? Function { get; internal set; }
+    public WreckedShipGhostAction? Action { get; internal set; }
 
-    /// <summary>Initial/reappearance delay, flicker interval, or visible lifetime, depending on <see cref="Function"/>.</summary>
+    /// <summary>Initial/reappearance delay, flicker interval, or visible lifetime, depending on <see cref="Action"/>.</summary>
     public int PhaseTimer { get; internal set; }
 
     /// <summary>

@@ -1,4 +1,4 @@
-using static SuperMetroid.Core.Bosses.Ridley.RidleyAiFunction;
+using static SuperMetroid.Core.Bosses.Ridley.RidleyPhase;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
@@ -16,7 +16,7 @@ public static class RidleyAttackChoices
     /// <returns>The AI entry; this lookup does not draw RNG or execute the selected action.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The choice is outside 0..7, including for a distribution whose entries are identical.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The situation is not a defined distribution.</exception>
-    public static RidleyAiFunction Resolve(RidleyAttackSituation situation, int choice)
+    public static RidleyPhase Resolve(RidleyAttackSituation situation, int choice)
     {
         if ((uint)choice >= 8) throw new ArgumentOutOfRangeException(nameof(choice));
         return situation switch

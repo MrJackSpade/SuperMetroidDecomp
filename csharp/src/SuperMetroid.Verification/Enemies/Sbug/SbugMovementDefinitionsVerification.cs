@@ -38,10 +38,10 @@ internal static class SbugMovementDefinitionsVerification
         for (int behavior = 0; behavior < SbugActivationBehaviorCount; behavior++)
         {
             int address = activationTable + behavior * 2;
-            var native = SbugNativeWords.SbugEnemyFunctions.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(address), "Sbug activation function");
+            var native = SbugNativeWords.SbugActions.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(address), "Sbug activation function");
             var placed = (SbugSpawnSettings)SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Decode(
                 EnemyDefinitionId.Sbug, SuperMetroid.AssetExtraction.Enemies.PopulationWords.Parameters(0, behavior << 8));
-            AssertEqual(native, SbugMovement.ActivationFunction(placed.Behavior),
+            AssertEqual(native, SbugMovement.ActivationAction(placed.Behavior),
                 $"compiled Sbug activation selector {behavior}");
         }
         AssertThrows<InvalidDataException>(
@@ -78,17 +78,17 @@ internal static class SbugMovementDefinitionsVerification
         for (int behavior = 0; behavior < SbugActivationBehaviorCount; behavior++)
         {
             SbugEnemyState state = (enemies.SbugStates[0] ?? throw new InvalidOperationException("Verification requires enemies.SbugStates[0]."));
-            state.Function = SbugEnemyFunction.WaitForSamus;
+            state.Action = SbugAction.WaitForSamus;
             slot.SetSpawnParameter2(EnemyDefinitionId.Sbug, (ushort)(behavior << 8 | 1));
             runMain(slot, samus, null);
 
             int address = activationTable + behavior * 2;
-            var native = SbugNativeWords.SbugEnemyFunctions.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(address), "Sbug activation function");
-            AssertEqual(native, state.Function, $"Sbug production activation {behavior}");
+            var native = SbugNativeWords.SbugActions.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(address), "Sbug activation function");
+            AssertEqual(native, state.Action, $"Sbug production activation {behavior}");
         }
 
         AssertThrows<InvalidDataException>(
-            () => SbugMovement.ActivationFunction((SbugActivationBehavior)7),
+            () => SbugMovement.ActivationAction((SbugActivationBehavior)7),
             "Sbug activation selector beyond authored table");
 
         Console.WriteLine(
@@ -114,13 +114,13 @@ internal static class SbugMovementDefinitionsVerification
         SbugBehavior.InitializeSbug(slot);
         SbugEnemyState state = slot.RequireSpeciesState<SbugEnemyState>();
         state.FaceCustomHeading(RotationAngle.FromSteps(240));
-        state.Function = SbugEnemyFunction.ChooseRandomDirectionAndReverseWhenFar;
+        state.Action = SbugAction.ChooseRandomDirectionAndReverseWhenFar;
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = FixedPosition<RoomPixels>.FromWhole(Position16<RoomPixels>.Zero) };
 
         enemies.SbugBehavior.RunSbugMain(slot, samus, null);
         AssertEqual(RotationAngle.FromSteps(16), state.CustomHeading, "the turn wraps the heading around the turn");
         AssertEqual(CompassDirection.DownRight, state.CustomFacing, "heading 16 faces down-right");
-        AssertEqual(SbugEnemyFunction.MoveStraightAndReverseWhenFar, state.Function, "the chooser starts a reversal-aware leg");
+        AssertEqual(SbugAction.MoveStraightAndReverseWhenFar, state.Action, "the chooser starts a reversal-aware leg");
 
         state.StraightMovementTimer = WrappingCountdown.Start(512);
         enemies.SbugBehavior.RunSbugMain(slot, samus, null);
@@ -135,7 +135,7 @@ internal static class SbugMovementDefinitionsVerification
             ushort turn = checked((ushort)random);
             enemies.VerificationServices().NextRandom = () => turn;
             state.FaceCustomHeading(start);
-            state.Function = SbugEnemyFunction.ChooseRandomDirectionAndReverseWhenFar;
+            state.Action = SbugAction.ChooseRandomDirectionAndReverseWhenFar;
             enemies.SbugBehavior.RunSbugMain(slot, samus, null);
             AssertEqual(RotationAngle.FromRaw(unchecked((ushort)(start.RawValue + (random - 64) * 256))), state.CustomHeading,
                 $"Sbug random turn {random}");

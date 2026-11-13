@@ -17,7 +17,7 @@ internal static class CrawlerAnimations
     {
         [P.SciserUpsideRight] =
         [
-            Cue(new(K.SetFunction, Function: CrawlerEnemyFunction.CrawlingVertically)),
+            Cue(new(K.SetFunction, Action: CrawlerAction.CrawlingVertically)),
         ],
         [P.SciserUpsideRightLoop] =
         [
@@ -28,7 +28,7 @@ internal static class CrawlerAnimations
         ],
         [P.SciserUpsideLeft] =
         [
-            Cue(new(K.SetFunction, Function: CrawlerEnemyFunction.CrawlingVertically)),
+            Cue(new(K.SetFunction, Action: CrawlerAction.CrawlingVertically)),
         ],
         [P.SciserUpsideLeftLoop] =
         [
@@ -39,7 +39,7 @@ internal static class CrawlerAnimations
         ],
         [P.SciserUpsideDown] =
         [
-            Cue(new(K.SetFunction, Function: CrawlerEnemyFunction.CrawlingHorizontally)),
+            Cue(new(K.SetFunction, Action: CrawlerAction.CrawlingHorizontally)),
         ],
         [P.SciserUpsideDownLoop] =
         [
@@ -50,7 +50,7 @@ internal static class CrawlerAnimations
         ],
         [P.SciserUpsideUp] =
         [
-            Cue(new(K.SetFunction, Function: CrawlerEnemyFunction.CrawlingHorizontally)),
+            Cue(new(K.SetFunction, Action: CrawlerAction.CrawlingHorizontally)),
         ],
         [P.SciserUpsideUpLoop] =
         [
@@ -61,7 +61,7 @@ internal static class CrawlerAnimations
         ],
         [P.ZeroUpsideRight] =
         [
-            Cue(new(K.SetFunction, Function: CrawlerEnemyFunction.CrawlingVertically)),
+            Cue(new(K.SetFunction, Action: CrawlerAction.CrawlingVertically)),
         ],
         [P.ZeroUpsideRightLoop] =
         [
@@ -74,7 +74,7 @@ internal static class CrawlerAnimations
         ],
         [P.ZeroUpsideLeft] =
         [
-            Cue(new(K.SetFunction, Function: CrawlerEnemyFunction.CrawlingVertically)),
+            Cue(new(K.SetFunction, Action: CrawlerAction.CrawlingVertically)),
         ],
         [P.ZeroUpsideLeftLoop] =
         [
@@ -87,7 +87,7 @@ internal static class CrawlerAnimations
         ],
         [P.ZeroUpsideDown] =
         [
-            Cue(new(K.SetFunction, Function: CrawlerEnemyFunction.CrawlingHorizontally)),
+            Cue(new(K.SetFunction, Action: CrawlerAction.CrawlingHorizontally)),
         ],
         [P.ZeroUpsideDownLoop] =
         [
@@ -100,7 +100,7 @@ internal static class CrawlerAnimations
         ],
         [P.ZeroUpsideUp] =
         [
-            Cue(new(K.SetFunction, Function: CrawlerEnemyFunction.CrawlingHorizontally)),
+            Cue(new(K.SetFunction, Action: CrawlerAction.CrawlingHorizontally)),
         ],
         [P.ZeroUpsideUpLoop] =
         [
@@ -113,19 +113,19 @@ internal static class CrawlerAnimations
         ],
         [P.ViolaUpsideDown] =
         [
-            Cue(new(K.SetFunction, Function: CrawlerEnemyFunction.CrawlingHorizontally)),
+            Cue(new(K.SetFunction, Action: CrawlerAction.CrawlingHorizontally)),
         ],
         [P.ViolaUpsideUp] =
         [
-            Cue(new(K.SetFunction, Function: CrawlerEnemyFunction.CrawlingHorizontally)),
+            Cue(new(K.SetFunction, Action: CrawlerAction.CrawlingHorizontally)),
         ],
         [P.ViolaUpsideRight] =
         [
-            Cue(new(K.SetFunction, Function: CrawlerEnemyFunction.CrawlingVertically)),
+            Cue(new(K.SetFunction, Action: CrawlerAction.CrawlingVertically)),
         ],
         [P.ViolaUpsideLeft] =
         [
-            Cue(new(K.SetFunction, Function: CrawlerEnemyFunction.CrawlingVertically)),
+            Cue(new(K.SetFunction, Action: CrawlerAction.CrawlingVertically)),
         ],
         [P.ViolaNormal] =
         [
@@ -146,7 +146,7 @@ internal static class CrawlerAnimations
         ],
         [P.HZoomerUpsideRight] =
         [
-            Cue(new(K.SetFunction, Function: CrawlerEnemyFunction.HZoomerCrawlingVertically)),
+            Cue(new(K.SetFunction, Action: CrawlerAction.HZoomerCrawlingVertically)),
         ],
         [P.HZoomerUpsideRightLoop] =
         [
@@ -158,7 +158,7 @@ internal static class CrawlerAnimations
         ],
         [P.HZoomerUpsideLeft] =
         [
-            Cue(new(K.SetFunction, Function: CrawlerEnemyFunction.HZoomerCrawlingVertically)),
+            Cue(new(K.SetFunction, Action: CrawlerAction.HZoomerCrawlingVertically)),
         ],
         [P.HZoomerUpsideLeftLoop] =
         [
@@ -170,7 +170,7 @@ internal static class CrawlerAnimations
         ],
         [P.HZoomerUpsideDown] =
         [
-            Cue(new(K.SetFunction, Function: CrawlerEnemyFunction.HZoomerCrawlingHorizontally)),
+            Cue(new(K.SetFunction, Action: CrawlerAction.HZoomerCrawlingHorizontally)),
         ],
         [P.HZoomerUpsideDownLoop] =
         [
@@ -182,7 +182,7 @@ internal static class CrawlerAnimations
         ],
         [P.HZoomerUpsideUp] =
         [
-            Cue(new(K.SetFunction, Function: CrawlerEnemyFunction.HZoomerCrawlingHorizontally)),
+            Cue(new(K.SetFunction, Action: CrawlerAction.HZoomerCrawlingHorizontally)),
         ],
         [P.HZoomerUpsideUpLoop] =
         [
@@ -194,7 +194,7 @@ internal static class CrawlerAnimations
         ],
         [P.SharedUpsideRight] =
         [
-            Cue(new(K.SetFunction, Function: CrawlerEnemyFunction.CrawlingVertically)),
+            Cue(new(K.SetFunction, Action: CrawlerAction.CrawlingVertically)),
         ],
         [P.SharedUpsideRightLoop] =
         [
@@ -206,7 +206,7 @@ internal static class CrawlerAnimations
         ],
         [P.SharedUpsideLeft] =
         [
-            Cue(new(K.SetFunction, Function: CrawlerEnemyFunction.CrawlingVertically)),
+            Cue(new(K.SetFunction, Action: CrawlerAction.CrawlingVertically)),
         ],
         [P.SharedUpsideLeftLoop] =
         [
@@ -218,7 +218,7 @@ internal static class CrawlerAnimations
         ],
         [P.SharedUpsideDown] =
         [
-            Cue(new(K.SetFunction, Function: CrawlerEnemyFunction.CrawlingHorizontally)),
+            Cue(new(K.SetFunction, Action: CrawlerAction.CrawlingHorizontally)),
         ],
         [P.SharedUpsideDownLoop] =
         [
@@ -230,7 +230,7 @@ internal static class CrawlerAnimations
         ],
         [P.SharedUpsideUp] =
         [
-            Cue(new(K.SetFunction, Function: CrawlerEnemyFunction.CrawlingHorizontally)),
+            Cue(new(K.SetFunction, Action: CrawlerAction.CrawlingHorizontally)),
         ],
         [P.SharedUpsideUpLoop] =
         [

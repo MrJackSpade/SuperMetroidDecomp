@@ -37,7 +37,7 @@ internal static class NorfairLavaJumpDefinitionsVerification
         {
             nextRandom = unchecked((ushort)random);
             advances = 0;
-            state.Function = NorfairLavaJumpingEnemyFunction.BeginJump;
+            state.Action = NorfairLavaJumpingEnemyAction.BeginJump;
             state.YVelocity = default;
             slot.Contact = EnemyContact.None;
             slot.Processing = EnemyProcessing.None;
@@ -46,8 +46,8 @@ internal static class NorfairLavaJumpDefinitionsVerification
 
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2be86 + ((LittleEndianBytes.HighByte(unchecked((ushort)random))) & 6))), state.YVelocity.RawValue,
                 $"Norfair lava jumper production velocity {random:X4}");
-            AssertEqual(NorfairLavaJumpingEnemyFunction.RiseBeforeAnimationSwitch,
-                state.Function, $"Norfair lava jumper production handoff {random:X4}");
+            AssertEqual(NorfairLavaJumpingEnemyAction.RiseBeforeAnimationSwitch,
+                state.Action, $"Norfair lava jumper production handoff {random:X4}");
             AssertTrue(slot.Processing.HasAny(EnemyProcessing.OffScreen),
                 $"Norfair lava jumper off-screen processing {random:X4}");
             AssertEqual((SoundEffectId?)EnemySound.SplashIn, enemies.Audio.LatestSound,

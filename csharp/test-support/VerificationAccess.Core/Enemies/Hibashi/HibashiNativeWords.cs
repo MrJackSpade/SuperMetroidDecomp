@@ -8,10 +8,10 @@ namespace SuperMetroid.Core.Enemies.Hibashi;
 /// </summary>
 internal static class HibashiNativeWords
 {
-    /// <summary>The routine word naming each <see cref="HibashiEnemyFunction"/>.</summary>
-    internal static readonly NativeWordIdentities<HibashiEnemyFunction> HibashiEnemyFunctions = new(new Dictionary<HibashiEnemyFunction, ushort>
+    /// <summary>The routine word naming each <see cref="HibashiAction"/>.</summary>
+    internal static readonly NativeWordIdentities<HibashiAction> HibashiActions = new(new Dictionary<HibashiAction, ushort>
     {
-        [HibashiEnemyFunction.Inactive] = 0x902f,
-        [HibashiEnemyFunction.Active] = 0x9062,
+        [HibashiAction.Inactive] = 0x902f,
+        [HibashiAction.Active] = 0x9062,
     });
 }

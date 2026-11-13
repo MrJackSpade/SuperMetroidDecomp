@@ -27,12 +27,12 @@ internal static class SparkMovementDefinitionsVerification
         for (ushort selector = 0; selector < 3; selector++)
         {
             ushort nativeList = CartridgeImportSource.Require(rom).ReadCartridgeWord(SparkNativeValues.AnimationScriptTable + selector * 2);
-            var nativeFunction = SparksNativeWords.SparkEnemyFunctions.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(SparkNativeValues.FunctionTable + selector * 2),
+            var nativeAction = SparksNativeWords.SparkActions.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(SparkNativeValues.FunctionTable + selector * 2),
                 $"Spark selector {selector}'s function");
             SparkMovementDefinition definition = SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.SparkStart(selector);
             AssertEqual(nativeList, NativeEnemyAnimationOracle.EntryOf(SparkNativeListAddresses.Entries, definition.Animation),
                 $"Spark list selector {selector}");
-            AssertEqual(nativeFunction, definition.Function, $"Spark function selector {selector}");
+            AssertEqual(nativeAction, definition.Action, $"Spark function selector {selector}");
 
             slot.SetSpawnParameter1(EnemyDefinitionId.Spark, selector);
             slot.SetSpawnParameter2(EnemyDefinitionId.Spark, 5);
@@ -40,7 +40,7 @@ internal static class SparkMovementDefinitionsVerification
             SparkEnemyState state = enemies.SparkStates[0] ?? throw new InvalidOperationException("Spark has no state.");
             AssertEqual(new AnimationPlayback<SparkSegment>(SparkAnimations.StartingWith(definition.Animation), AnimationPlace.StartOfAnimation),
                 state.Playback, $"Spark production animation selector {selector}");
-            AssertEqual(nativeFunction, state.Function, $"Spark production function selector {selector}");
+            AssertEqual(nativeAction, state.Action, $"Spark production function selector {selector}");
         }
         foreach (int unauthored in new[] { 3, 4, 0xffff })
             AssertThrows<InvalidDataException>(

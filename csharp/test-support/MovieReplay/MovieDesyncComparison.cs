@@ -106,7 +106,7 @@ internal static class MovieDesyncComparison
             // $7E:2020: seven ten-word tail records; X/Y at +12/+14.
             string Port(int index) => $"{ridley.TailSegments[index].Position.X:X4}/{ridley.TailSegments[index].Position.Y:X4}";
             string NativeTail(int index) => $"{Native(0x2020 + index * 20 + 12)}/{Native(0x2020 + index * 20 + 14)}";
-            Console.WriteLine("  tail port   " + string.Join(" ", Enumerable.Range(0, 7).Select(Port)) + $" fn={ridley.Function} tailfn={(int)ridley.TailFunctionIndex:X4} v={ridley.Velocity.X.RawValue:X4}/{ridley.Velocity.Y.RawValue:X4} getaway-frame={ridley.GetawayFrameIndex}");
+            Console.WriteLine("  tail port   " + string.Join(" ", Enumerable.Range(0, 7).Select(Port)) + $" fn={ridley.Phase} tailfn={(int)ridley.TailFunctionIndex:X4} v={ridley.Velocity.X.RawValue:X4}/{ridley.Velocity.Y.RawValue:X4} getaway-frame={ridley.GetawayFrameIndex}");
             // $7E:8026 holds the getaway frame as a byte offset into its word-sized tables: twice the frame.
             Console.WriteLine("  tail native " + string.Join(" ", Enumerable.Range(0, 7).Select(NativeTail)) + $" fn={Native(0x0fa8)} tailfn={Native(0x2000)} v={Native(0x0faa)}/{Native(0x0fac)} getaway-frame={Word(memory, 0x8026) / 2}");
         }

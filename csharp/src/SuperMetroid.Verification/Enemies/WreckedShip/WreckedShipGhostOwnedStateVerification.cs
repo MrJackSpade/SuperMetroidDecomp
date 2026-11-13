@@ -12,7 +12,7 @@ internal static class WreckedShipGhostOwnedStateVerification
     {
         var state = new WreckedShipGhostEnemyState
         {
-            Function = WreckedShipGhostAiFunction.BobbingWhileVisible,
+            Action = WreckedShipGhostAction.BobbingWhileVisible,
             PhaseTimer = 120,
             NextFlickerStep = WreckedShipGhostAppearanceDefinitions.FlickerSteps.Count,
             BobbingOrigin = new(0, 96),

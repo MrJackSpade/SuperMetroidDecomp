@@ -55,7 +55,7 @@ internal sealed class PhantoonDeath
         PhantoonPatterns.PointPhantoonEyeAtSamus(body, state, samus);
         PhantoonPatterns.MovePhantoonInSwoop(body, state, samus, target: PhantoonSwoopTarget.DeathHeight);
         if (body.Position.X.Whole is >= 96 and < 160)
-            state.BodyState.Function = PhantoonAiFunction.DyingFadeInOut;
+            state.BodyState.Phase = PhantoonPhase.DyingFadeInOut;
     }
 
     /// <summary>Alternates five fade-outs and five fade-ins.</summary>
@@ -75,7 +75,7 @@ internal sealed class PhantoonDeath
         if (state.EyeState.DyingFadeCycles < 10)
             return;
 
-        state.BodyState.Function = PhantoonAiFunction.DyingExplosions;
+        state.BodyState.Phase = PhantoonPhase.DyingExplosions;
         state.BodyState.FunctionTimer = 15;
         state.TentaclesState.ExplosionIndex = 0;
         state.BodyState.ExplosionPass = 0;
@@ -105,7 +105,7 @@ internal sealed class PhantoonDeath
         state.TentaclesState.ExplosionIndex = PhantoonDeathExplosionDefinitions.RepeatStart;
         state.BodyState.ExplosionPass = WrappingCounter.IncrementCount(state.BodyState.ExplosionPass);
         if (state.BodyState.ExplosionPass >= PhantoonDeathExplosionDefinitions.PassCount)
-            state.BodyState.Function = PhantoonAiFunction.BeginFinalWavyDeath;
+            state.BodyState.Phase = PhantoonPhase.BeginFinalWavyDeath;
     }
 
     /// <summary>Starts the distorted background and mosaic stages after the fatal swoop.</summary>
@@ -118,7 +118,7 @@ internal sealed class PhantoonDeath
         state.MouthState.WaveAmplitudeShrinking = false;
         state.MouthState.WavyPhaseDelta = PhantoonBehavior.PhantoonWavyPhaseDelta;
         state.BodyWave.Begin(PhantoonWaveDefinitions.DeathLength);
-        state.BodyState.Function = PhantoonAiFunction.DyingFadeOut;
+        state.BodyState.Phase = PhantoonPhase.DyingFadeOut;
         state.EyeState.DeathMosaicSize = PhantoonDeathDefinitions.InitialMosaicSize;
         state.EyeState.DeathMosaicFinished = false;
         state.MosaicBlockSize = PhantoonDeathDefinitions.InitialMosaicSize;
@@ -169,7 +169,7 @@ internal sealed class PhantoonDeath
 
         _patterns.AdvancePhantoonFadeOut(state, denominator: 12);
         if (state.EyeState.FadeComplete)
-            state.BodyState.Function = PhantoonAiFunction.AlmostDead;
+            state.BodyState.Phase = PhantoonPhase.AlmostDead;
     }
 
 
@@ -182,7 +182,7 @@ internal sealed class PhantoonDeath
         state.EyeState.WaveLength = null;
         state.Translucent = false;
         state.MouthState.BodyLayer = PhantoonBodyLayer.Cleared;
-        state.BodyState.Function = PhantoonAiFunction.Dead;
+        state.BodyState.Phase = PhantoonPhase.Dead;
         state.BodyState.FunctionTimer = 60;
         state.EyeState.FadeComplete = false;
         body.Position = body.Position.WithWhole(new(384, 128));

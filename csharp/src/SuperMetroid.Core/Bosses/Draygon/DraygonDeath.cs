@@ -61,7 +61,7 @@ internal sealed class DraygonDeath
         }
 
         SpawnDraygonDeathEvirs(state);
-        state.Function = DraygonAiFunction.DyingSink;
+        state.Phase = DraygonPhase.DyingSink;
         _parts.RequestDraygonMusic(MusicRequest.SelectTrack(MusicTrack.Elevator));
         state.BurialWait = DraygonBehavior.DraygonDeathWaitFramesUs;
         _parts.StartDraygonAnimation(body, DraygonSegment.Sleep);
@@ -91,7 +91,7 @@ internal sealed class DraygonDeath
         SpawnDyingDraygonSmoke(frameCounter);
         if (--state.BurialWait == 0)
         {
-            state.Function = DraygonAiFunction.DyingFinish;
+            state.Phase = DraygonPhase.DyingFinish;
             return;
         }
 

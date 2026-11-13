@@ -8,4 +8,4 @@ namespace SuperMetroid.Verification.Enemies.Metroids;
 /// <param name="State">The state.</param>
 /// <param name="Timer">The timer.</param>
 /// <param name="Health">The health.</param>
-internal readonly record struct MetroidBombPlacementExpected(ushort X, ushort Y, MetroidAiFunction State, ushort Timer, ushort Health);
+internal readonly record struct MetroidBombPlacementExpected(ushort X, ushort Y, MetroidMovement State, ushort Timer, ushort Health);

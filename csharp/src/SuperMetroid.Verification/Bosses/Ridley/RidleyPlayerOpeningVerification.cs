@@ -76,7 +76,7 @@ internal static class RidleyPlayerOpeningVerification
             random = W(expected, 0x5e5);
             enemies.StepStandaloneFrame(enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = new(W(expected, 0x911), W(expected, 0x915)), TimeIsFrozen = false, Samus = samus, ControllerInput = ControllerWordCodec.FromJoypadWord(W(expected, 0x8b), "native Ridley opening held input"), SamusProjectiles = runtime.Projectiles, SharedProjectiles = runtime.BombProjectiles });
             // The AI function is an identity; the native table's routine word for it lines up with the recorded word.
-            string actual = $"{RidleyNativeWords.AiFunctions.Word((state ?? throw new InvalidOperationException("Verification requires state.")).Function):X4},{body.Position.X.Whole:X4},{body.Position.X.Fraction:X4},{body.Position.Y.Whole:X4},{body.Position.Y.Fraction:X4},{state.Velocity.X.RawValue:X4},{state.Velocity.Y.RawValue:X4}";
+            string actual = $"{RidleyNativeWords.Phases.Word((state ?? throw new InvalidOperationException("Verification requires state.")).Phase):X4},{body.Position.X.Whole:X4},{body.Position.X.Fraction:X4},{body.Position.Y.Whole:X4},{body.Position.Y.Fraction:X4},{state.Velocity.X.RawValue:X4},{state.Velocity.Y.RawValue:X4}";
             string native = string.Join(",", ComparedRidleyStateAddresses.Select(a => W(expected,a).ToString("X4")));
             if (actual != native)
                 throw new InvalidDataException($"Ridley movie first divergence at frame {frame}: native {native}; port {actual}; instructions native={W(expected,0xf92):X4}/{W(expected,0xf94)} port={pointers.Body(state):X4}/{body.AnimationClock.Hold.RawValue}; timer={state.FunctionTimer} native={W(expected,0xfb2)}");

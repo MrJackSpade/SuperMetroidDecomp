@@ -44,8 +44,8 @@ public sealed class MaridiaLargeSnailEnemyState
     /// </summary>
     public bool StopMovementNextFrame { get; internal set; }
 
-    /// <summary>Outer behavior function.</summary>
-    public MaridiaLargeSnailEnemyFunction? Function { get; internal set; }
+    /// <summary>The outer action.</summary>
+    public MaridiaLargeSnailAction? Action { get; internal set; }
 
     /// <summary>
     /// The bounce arc's place along the quadratic speed table, stepped by a record and a half per update. Falling caps it

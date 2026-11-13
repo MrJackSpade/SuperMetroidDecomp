@@ -853,11 +853,11 @@ internal static class LookupStream3Verification
         {
             int offset = 2 * parameter;
             ushort list = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa8e682 + offset);
-            var function = SparksNativeWords.SparkEnemyFunctions.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa8e688 + offset), "Spark function");
+            var action = SparksNativeWords.SparkActions.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa8e688 + offset), "Spark function");
             SparkMovementDefinition definition = SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.SparkStart(parameter);
             AssertEqual(list, NativeEnemyAnimationOracle.EntryOf(SparkNativeListAddresses.Entries, definition.Animation),
                 "stream 3 native Spark list selector");
-            AssertEqual(function, definition.Function, "stream 3 native Spark function selector");
+            AssertEqual(action, definition.Action, "stream 3 native Spark function selector");
         }
         // The cartridge keys the head's lists by bucket, the bearing of the direction it aims.
         for (int bucket = 0; bucket <= 224; bucket += 32)

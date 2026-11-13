@@ -8,13 +8,13 @@ namespace SuperMetroid.Core.Enemies.MorphBallEye;
 /// </summary>
 internal static class MorphBallEyeNativeWords
 {
-    /// <summary>The routine word naming each <see cref="MorphBallEyeAiFunction"/>.</summary>
-    internal static readonly NativeWordIdentities<MorphBallEyeAiFunction> MorphBallEyeAiFunctions = new(new Dictionary<MorphBallEyeAiFunction, ushort>
+    /// <summary>The routine word naming each <see cref="MorphBallEyeAction"/>.</summary>
+    internal static readonly NativeWordIdentities<MorphBallEyeAction> MorphBallEyeActions = new(new Dictionary<MorphBallEyeAction, ushort>
     {
-        [MorphBallEyeAiFunction.WaitForSamus] = 0x90f1,
-        [MorphBallEyeAiFunction.Activating] = 0x912e,
-        [MorphBallEyeAiFunction.Active] = 0x9160,
-        [MorphBallEyeAiFunction.Deactivating] = 0x91ce,
-        [MorphBallEyeAiFunction.MountNoOp] = 0x91dc,
+        [MorphBallEyeAction.WaitForSamus] = 0x90f1,
+        [MorphBallEyeAction.Activating] = 0x912e,
+        [MorphBallEyeAction.Active] = 0x9160,
+        [MorphBallEyeAction.Deactivating] = 0x91ce,
+        [MorphBallEyeAction.MountNoOp] = 0x91dc,
     });
 }

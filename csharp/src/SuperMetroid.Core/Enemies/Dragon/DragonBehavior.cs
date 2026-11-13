@@ -73,7 +73,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Playback = new(DragonAnimations.StartingWith(DragonPhases.Animation(
                 DragonAnimationSelector.WingsFacingLeft)), AnimationPlace.StartOfAnimation);
             slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
-            state.Function = DragonEnemyFunction.WingNoOp;
+            state.Action = DragonAction.WingNoOp;
             return;
         }
 
@@ -81,40 +81,40 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.InstalledAnimation = DragonAnimationSelector.IdleFacingLeft;
         state.Playback = new(DragonAnimations.StartingWith(DragonPhases.Animation(
             DragonAnimationSelector.IdleFacingLeft)), AnimationPlace.StartOfAnimation);
-        state.Function = DragonEnemyFunction.WaitToRise;
+        state.Action = DragonAction.WaitToRise;
     }
 
     /// <summary>Runs the Dragon's main AI and its five body functions.</summary>
     private void RunDragonMain(RoomEnemySlot slot, DragonEnemyState state, SamusState? samus)
     {
-        switch (state.Function)
+        switch (state.Action)
         {
-            case DragonEnemyFunction.WingNoOp:
+            case DragonAction.WingNoOp:
                 return;
 
-            case DragonEnemyFunction.WaitToRise:
+            case DragonAction.WaitToRise:
                 RunDragonWaitToRise(slot, state, samus);
                 return;
 
-            case DragonEnemyFunction.Rising:
+            case DragonAction.Rising:
                 RunDragonRising(slot, state);
                 return;
 
-            case DragonEnemyFunction.Attacking:
+            case DragonAction.Attacking:
                 RunDragonAttacking(slot, state);
                 return;
 
-            case DragonEnemyFunction.WaitToSink:
+            case DragonAction.WaitToSink:
                 RunDragonWaitToSink(slot, state);
                 return;
 
-            case DragonEnemyFunction.Sinking:
+            case DragonAction.Sinking:
                 RunDragonSinking(slot, state);
                 return;
 
             default:
                 throw new InvalidDataException(
-                    $"Dragon function {state.Function?.ToString() ?? "none"} is not translated.");
+                    $"Dragon function {state.Action?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -132,7 +132,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot wing = GetDragonWing(body);
         DragonEnemyState wingState = wing.RequireSpeciesState<DragonEnemyState>();
         bodyState.FunctionTimer = DragonRiseOrSinkFrames;
-        bodyState.Function = DragonEnemyFunction.Rising;
+        bodyState.Action = DragonAction.Rising;
 
         // The wait records the sign of (Samus X - body X) as the body's facing. The following animation
         // choices use that sign to select even/odd left/right table entries for both physical records.
@@ -157,7 +157,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
                 DragonPhases.AttackingWithSameFacing(
                     bodyState.RequestedAnimation);
             bodyState.AttackCounter = DragonShotCount;
-            bodyState.Function = DragonEnemyFunction.Attacking;
+            bodyState.Action = DragonAction.Attacking;
         }
 
         // The 16.16 constant is exactly -1.0, so both
@@ -189,7 +189,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
             DragonPhases.IdleWithSameFacing(
                 bodyState.RequestedAnimation);
         bodyState.FunctionTimer = DragonWaitBeforeSinkFrames;
-        bodyState.Function = DragonEnemyFunction.WaitToSink;
+        bodyState.Action = DragonAction.WaitToSink;
     }
 
     /// <summary>Waits before sinking.</summary>
@@ -201,7 +201,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         bodyState.FunctionTimer = DragonRiseOrSinkFrames;
-        bodyState.Function = DragonEnemyFunction.Sinking;
+        bodyState.Action = DragonAction.Sinking;
         StartDragonAnimation(body, bodyState);
     }
 
@@ -211,7 +211,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (--bodyState.FunctionTimer < 0)
         {
             bodyState.FunctionTimer = DragonWaitBeforeRiseFrames;
-            bodyState.Function = DragonEnemyFunction.WaitToRise;
+            bodyState.Action = DragonAction.WaitToRise;
         }
 
         // As with rising, the regionalized 16.16 displacement is exactly one pixel.

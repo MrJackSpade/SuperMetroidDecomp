@@ -42,7 +42,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new PolypEnemyState
         {
             Playback = new(PolypAnimations.StartingWith(PolypSegment.Stationary), AnimationPlace.StartOfAnimation),
-            Function = PolypEnemyFunction.WaitingForSamus,
+            Action = PolypAction.WaitingForSamus,
             CooldownTimer = 0,
         };
         slot.SetSpeciesState(state);
@@ -59,9 +59,9 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         PolypEnemyState state,
         SamusState? samus)
     {
-        switch (state.Function)
+        switch (state.Action)
         {
-            case PolypEnemyFunction.WaitingForSamus:
+            case PolypAction.WaitingForSamus:
                 if (samus is null)
                 {
                     throw new InvalidOperationException(
@@ -73,22 +73,22 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
                 {
                     // The game only installs the shoot function here. The rock is emitted
                     // on the next enemy frame, a one-frame tell preserved deliberately.
-                    state.Function = PolypEnemyFunction.ShootingRock;
+                    state.Action = PolypAction.ShootingRock;
                 }
                 return;
 
-            case PolypEnemyFunction.ShootingRock:
+            case PolypAction.ShootingRock:
                 ShootPolypRock(slot, state);
                 return;
 
-            case PolypEnemyFunction.Cooldown:
+            case PolypAction.Cooldown:
                 if (--state.CooldownTimer < 0)
-                    state.Function = PolypEnemyFunction.WaitingForSamus;
+                    state.Action = PolypAction.WaitingForSamus;
                 return;
 
             default:
                 throw new InvalidDataException(
-                    $"Polyp function {state.Function?.ToString() ?? "none"} is not translated.");
+                    $"Polyp function {state.Action?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -100,7 +100,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         int initialYSpeed = PolypLaunches.InitialYIndex(_room.Random.Generate());
         SpawnPolypRock(slot, initialYSpeed, xVelocity);
 
-        state.Function = PolypEnemyFunction.Cooldown;
+        state.Action = PolypAction.Cooldown;
         state.CooldownTimer = PolypLaunches.Cooldown(_room.Random.Generate());
     }
 

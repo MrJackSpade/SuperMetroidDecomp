@@ -26,10 +26,10 @@ internal static class DeadSidehopperCorpseDefinitionsVerification
 
         Suite(nameof(VerifyProductionInitialization), () => VerifyProductionInitialization(
             parameter1: 0,
-            DeadSidehopperAiFunction.AliveWaitForCamera));
+            DeadSidehopperAction.AliveWaitForCamera));
         Suite(nameof(VerifyProductionInitialization), () => VerifyProductionInitialization(
             parameter1: 2,
-            DeadSidehopperAiFunction.WaitForSamusCollision));
+            DeadSidehopperAction.WaitForSamusCollision));
 
         Console.WriteLine(
             "Dead sidehopper corpse definitions: both decoded configuration records' upload lists and heights, and both production initializers' own fresh rot schedules pass.");
@@ -57,7 +57,7 @@ internal static class DeadSidehopperCorpseDefinitionsVerification
     /// </summary>
     private static void VerifyProductionInitialization(
         ushort parameter1,
-        DeadSidehopperAiFunction startingFunction)
+        DeadSidehopperAction startingAction)
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = InstalledFixtures.BossArtwork };
         Action<RoomEnemySlot> initialize = enemies.DeadSidehopperBehavior.InitializeDeadSidehopper;
@@ -68,7 +68,7 @@ internal static class DeadSidehopperCorpseDefinitionsVerification
         initialize(slot);
 
         DeadSidehopperEnemyState state = (enemies.DeadSidehoppers[0] ?? throw new InvalidOperationException("Verification requires enemies.DeadSidehoppers[0]."));
-        AssertEqual<DeadSidehopperAiFunction?>(startingFunction, state.Function,
+        AssertEqual<DeadSidehopperAction?>(startingAction, state.Action,
             $"dead sidehopper parameter {parameter1} starting function");
         CorpseRotScheduleChecks.AssertFreshSchedule(DeadSidehopperCorpseDefinitions.RowCount, state.Rot, $"dead sidehopper parameter {parameter1}");
     }

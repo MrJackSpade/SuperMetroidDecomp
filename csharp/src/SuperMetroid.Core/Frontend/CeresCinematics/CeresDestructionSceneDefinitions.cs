@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 
 namespace SuperMetroid.Core.Frontend.CeresCinematics;
 
@@ -8,8 +9,37 @@ internal static class CeresDestructionSceneDefinitions
     /// <summary>Updates the scene waits before it sets up the station.</summary>
     internal const int InitialFrameWaits = 9;
 
-    /// <summary>The gunship engine's flickering colours, started when the approach to Zebes is set up.</summary>
+    /// <summary>
+    /// The gunship engine's flickering colours, started when the approach to Zebes is set up, which ends the station's
+    /// navigation lights.
+    /// </summary>
     internal const PaletteFxObject GunshipEngineFlicker = PaletteFxObject.CutsceneGunshipEngineFlicker;
+
+    /// <summary>The station's blinking navigation lights on the turning floor, started as the station is set up (#1733).</summary>
+    internal const PaletteFxObject NavigationLights = PaletteFxObject.CutsceneCeresNavigationLightsBackground;
+
+    /// <summary>The PLANET ZEBES caption's fade in from black, started as the caption first shows (#1733).</summary>
+    internal const PaletteFxObject ZebesTextFadeIn = PaletteFxObject.FadeInPlanetZebesText;
+
+    /// <summary>The PLANET ZEBES caption's fade out to black, started as its hold ends; it stays black once faded (#1733).</summary>
+    internal const PaletteFxObject ZebesTextFadeOut = PaletteFxObject.FadeOutPlanetZebesText;
+
+    /// <summary>
+    /// The colour groups the turning floor shows the records of (#1733): the station's navigation lights over Ceres, and the
+    /// gunship engine's flicker on the approach to Zebes.
+    /// </summary>
+    internal static IReadOnlyList<PaletteFxColours> FloorColours { get; } =
+        [PaletteFxColours.CeresNavigationLightsBackground, PaletteFxColours.CutsceneGunshipEngine];
+
+    /// <summary>
+    /// The colour group of each actor colouring a colour effect animates (#1733): an actor drawn in the colouring shows the
+    /// record the effect last showed over its drawn colours.
+    /// </summary>
+    internal static IReadOnlyDictionary<CeresSpriteColouring, PaletteFxColours> FadedColours { get; } =
+        new Dictionary<CeresSpriteColouring, PaletteFxColours>
+        {
+            [CeresSpriteColouring.ZebesTitle] = PaletteFxColours.PlanetZebesText,
+        };
 
     /// <summary>
     /// The floor point, in floor pixels, the Ceres explosion's floor turns about before its fade-out; the station's

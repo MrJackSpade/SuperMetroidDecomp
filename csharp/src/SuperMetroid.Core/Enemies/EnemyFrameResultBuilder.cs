@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Enemies.Gunship;
+using SuperMetroid.Core.Fx.PaletteFx;
 
 namespace SuperMetroid.Core.Enemies;
 
@@ -18,11 +19,18 @@ internal sealed class EnemyFrameResultBuilder
     /// <summary>The gunship lifecycle event, if any.</summary>
     internal GunshipFrameEvent Gunship { get; set; }
 
+    /// <summary>
+    /// The colour effect an enemy's placement or AI started for the room's colour effects to run, or none: the gunship's
+    /// top hull starts its lights' glow as it is placed (#1733).
+    /// </summary>
+    internal PaletteFxObject? ColourEffect { get; set; }
+
     /// <summary>Clears every result before a pass or a room load.</summary>
     internal void Begin()
     {
         Elevator = ElevatorFrameEvent.None;
         ElevatorClearedProjectileData = false;
         Gunship = GunshipFrameEvent.None;
+        ColourEffect = null;
     }
 }

@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Enemies.Shutters;
 using SuperMetroid.Core.Fx.PaletteFx;
 
@@ -10,10 +11,12 @@ namespace SuperMetroid.Core.World;
 /// <param name="bombTorizo">The Bomb and Golden Torizo, whose bellies glow.</param>
 /// <param name="statue">Tourian's entrance statue, whose sprite statues grey out.</param>
 /// <param name="slots">The room's enemy places, whose destroyable shutters show the escape's shutter flash.</param>
+/// <param name="gunship">The gunship, whose lights glow (#1733).</param>
 internal sealed class EnemyPaletteFxShows(
     BombTorizoBehavior bombTorizo,
     TourianEntranceStatueBehavior statue,
-    EnemySlotTable slots) : IEnemyPaletteFxShows
+    EnemySlotTable slots,
+    GunshipBehavior gunship) : IEnemyPaletteFxShows
 {
     /// <inheritdoc/>
     /// <remarks>
@@ -36,6 +39,9 @@ internal sealed class EnemyPaletteFxShows(
                 // The flash recolours the destroyable shutters in the first escape room, whose FX record also starts it.
                 ShuttersBehavior.ShowEscapeShutterFlash(slots.Slots, record);
                 return;
+            case PaletteFxColours.GunshipGlow:
+                gunship.ShowGlow(record);
+                return;
             case PaletteFxColours.TitleLogo:
             case PaletteFxColours.NintendoBootLogo:
             case PaletteFxColours.NintendoCopyright:
@@ -46,7 +52,6 @@ internal sealed class EnemyPaletteFxShows(
             case PaletteFxColours.CeresNavigationLightsBackground:
             case PaletteFxColours.PlanetZebesText:
             case PaletteFxColours.OldMotherBrainBackgroundLights:
-            case PaletteFxColours.GunshipGlow:
             case PaletteFxColours.ZoomedOutExplodingZebes:
             case PaletteFxColours.WideZebesExplosionForeground:
             case PaletteFxColours.WideZebesExplosionBackground:

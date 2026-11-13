@@ -30,7 +30,7 @@ public static class EnemySheetFiles
     /// bomb shows at an enemy it hurts on every set's shared spawned-object sheet (#1713); 34 no longer records the palette row a
     /// spawned-object variant's pictures were coloured in, which only the composition reads (#1728).
     /// </summary>
-    public const int ManifestVersion = 34;
+    public const int ManifestVersion = 35;
 
     /// <summary>The manifest naming each variant's sheets and the variants each population draws.</summary>
     public const string ManifestFileName = "enemy-sheets.json";

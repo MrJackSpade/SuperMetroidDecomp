@@ -22,7 +22,6 @@ internal static class PaletteFxScreenColourDefinitions
         PaletteFxColours.CeresNavigationLightsBackground,
         PaletteFxColours.PlanetZebesText,
         PaletteFxColours.OldMotherBrainBackgroundLights,
-        PaletteFxColours.GunshipGlow,
         PaletteFxColours.ZoomedOutExplodingZebes,
         PaletteFxColours.WideZebesExplosionForeground,
         PaletteFxColours.WideZebesExplosionBackground,

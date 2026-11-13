@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Bosses;
+using SuperMetroid.Core.Fx.PaletteFx;
 
 namespace SuperMetroid.Core.World;
 
@@ -16,6 +17,7 @@ namespace SuperMetroid.Core.World;
 /// <param name="StopLiquidMotion">Mother Brain's tube landed, stopping the liquid surface's motion from the next frame.</param>
 /// <param name="Gunship">The gunship lifecycle event, if any.</param>
 /// <param name="RoomEffects">The hardcoded room objects and room writes enemy AI requested.</param>
+/// <param name="ColourEffect">The colour effect an enemy's placement or AI started, if any: the gunship's glow (#1733).</param>
 [IndependentFlag("independent events one enemy frame reports to the runtime")]
 public readonly record struct EnemyFrameResult(
     ElevatorFrameEvent Elevator,
@@ -25,4 +27,5 @@ public readonly record struct EnemyFrameResult(
     int? CameraXOverride,
     bool StopLiquidMotion,
     GunshipFrameEvent Gunship,
-    EnemyRoomEffectRequests RoomEffects);
+    EnemyRoomEffectRequests RoomEffects,
+    PaletteFxObject? ColourEffect);

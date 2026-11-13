@@ -11,8 +11,9 @@ namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
 /// <summary>
 /// Where the Ceres cinematics' colours lie among their sheets' inks (#1512): the sprite set each Ceres actor colouring draws
-/// in, and the background inks the gunship engine's flicker recolours on the gunship's floor. A colour is its set's place
-/// times sixteen plus its colour within the set, as the Ceres flight loads its palette.
+/// in, the background inks the gunship engine's flicker and the station's navigation lights recolour on the turning floor,
+/// and the sprite inks the navigation lights and the PLANET ZEBES caption's fades recolour (#1733). A colour is its set's
+/// place times sixteen plus its colour within the set, as the Ceres flight loads its palette.
 /// </summary>
 internal static class CeresSheetInks
 {
@@ -35,6 +36,18 @@ internal static class CeresSheetInks
     /// <summary>The ink after the last the engine's flicker may write: the end of its background set.</summary>
     internal const int EngineEnd = 6 * SetColours;
 
+    /// <summary>
+    /// The colour within its set the station's navigation lights write first, on the floor's seventh background set and
+    /// on the station sprite's set alike; they may write to the set's end.
+    /// </summary>
+    private const int NavigationLightsColour = 13;
+
+    /// <summary>The background set the station's navigation lights blink in on the turning floor.</summary>
+    private const int NavigationLightsBackgroundSet = 6;
+
+    /// <summary>The colour within the caption's set the PLANET ZEBES caption's fades write first: the one after its transparent one.</summary>
+    private const int ZebesTitleFadeColour = 1;
+
     /// <summary>The sprite set <paramref name="colouring"/> draws in.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The colouring is not a Ceres actor colouring.</exception>
     internal static int SpriteSet(CeresSpriteColouring colouring) => Sets.TryGetValue(colouring, out int set)
@@ -49,6 +62,36 @@ internal static class CeresSheetInks
     internal static IReadOnlyList<SheetShade> EngineShades(IPaletteFxColorSource colours) =>
         PaletteFxScreenShades.Of([CeresDestructionSceneDefinitions.GunshipEngineFlicker], PaletteFxColours.CutsceneGunshipEngine,
             new InkRange(EngineFirst, EngineEnd), Ensure.NotNull(colours));
+
+    /// <summary>
+    /// The shade of every record the Ceres destruction's navigation lights show (#1733), coloured from
+    /// <paramref name="colours"/> over the background inks they recolour, which the turning floor shows them in.
+    /// </summary>
+    /// <exception cref="InvalidDataException">A record has no installed colour, or writes past the lights' set.</exception>
+    internal static IReadOnlyList<SheetShade> FloorNavigationLightShades(IPaletteFxColorSource colours) =>
+        PaletteFxScreenShades.Of([CeresDestructionSceneDefinitions.NavigationLights], PaletteFxColours.CeresNavigationLightsBackground,
+            RunToSetEnd(NavigationLightsBackgroundSet, NavigationLightsColour), Ensure.NotNull(colours));
+
+    /// <summary>
+    /// The shade of every record the Ceres flight's navigation lights show (#1733), coloured from <paramref name="colours"/>
+    /// over the station sprite's inks they recolour.
+    /// </summary>
+    /// <exception cref="InvalidDataException">A record has no installed colour, or writes past the station's set.</exception>
+    internal static IReadOnlyList<SheetShade> StationNavigationLightShades(IPaletteFxColorSource colours) =>
+        PaletteFxScreenShades.Of([CeresFlightSceneDefinitions.NavigationLights], PaletteFxColours.CeresNavigationLightsSprite,
+            RunToSetEnd(SpriteSet(CeresSpriteColouring.Station), NavigationLightsColour), Ensure.NotNull(colours));
+
+    /// <summary>
+    /// The shade of every record the PLANET ZEBES caption's fades show (#1733), coloured from <paramref name="colours"/> over
+    /// the caption sprite's inks they recolour.
+    /// </summary>
+    /// <exception cref="InvalidDataException">A record has no installed colour, or writes past the caption's set.</exception>
+    internal static IReadOnlyList<SheetShade> ZebesTitleFadeShades(IPaletteFxColorSource colours) =>
+        PaletteFxScreenShades.Of([CeresDestructionSceneDefinitions.ZebesTextFadeIn, CeresDestructionSceneDefinitions.ZebesTextFadeOut],
+            PaletteFxColours.PlanetZebesText, RunToSetEnd(SpriteSet(CeresSpriteColouring.ZebesTitle), ZebesTitleFadeColour), Ensure.NotNull(colours));
+
+    /// <summary>The inks from colour <paramref name="colour"/> of set <paramref name="set"/> to that set's end.</summary>
+    private static InkRange RunToSetEnd(int set, int colour) => new(set * SetColours + colour, (set + 1) * SetColours);
 
     /// <summary>
     /// The drawn shade of every Ceres actor colouring (#1513): its sprite set's colours from <paramref name="sprites"/> over

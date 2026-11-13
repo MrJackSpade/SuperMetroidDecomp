@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>
 /// The shades of the palette-FX colour groups that recolour an enemy's sprite row (#1512): the Ridley and Phantoon sprite
-/// statues' grey-out and the escape's shutter flash. Each record an object's program shows is pre-coloured over the row
+/// statues' grey-out, the escape's shutter flash and the landed gunship's glow (#1733). Each record an object's program shows is pre-coloured over the row
 /// from the group's first colour, as the handler wrote it there; the enemy that shows the group lays the record's shade.
 /// </summary>
 internal static class PaletteFxSpriteShades
@@ -22,6 +22,7 @@ internal static class PaletteFxSpriteShades
         [PaletteFxColours.RidleyStatue] = 0,
         [PaletteFxColours.PhantoonStatue] = 0,
         [PaletteFxColours.TourianShutters] = 9,
+        [PaletteFxColours.GunshipGlow] = 15,
     }.ToImmutableDictionary();
 
     /// <summary>

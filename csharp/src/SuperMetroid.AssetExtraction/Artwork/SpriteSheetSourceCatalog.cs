@@ -73,7 +73,7 @@ internal sealed class SpriteSheetSourceCatalog
         : FrontendFloorSheetComposer.Sheets.Contains(sheet) ? FrontendFloorSheetComposer.Compose(sheet, ScreenTiles())
         : EndingPictureSheetComposer.Sheets.Contains(sheet) ? EndingPictureSheetComposer.Compose(sheet, ScreenTiles())
         : sheet == SpriteSheetId.CeresCinematicPictures ? CeresCinematicPictureSheetComposer.Compose(intro.Value)
-        : sheet == SpriteSheetId.IntroScenePictures ? IntroScenePictureSheetComposer.Compose(intro.Value)
+        : sheet == SpriteSheetId.IntroScenePictures ? IntroScenePictureSheetComposer.Compose(intro.Value, maps.Value.RoomPaletteFx)
         : sheet == SpriteSheetId.IntroNarrationPictures ? IntroNarrationPictureSheetComposer.Compose(intro.Value, maps.Value.IntroFont)
         : SpriteSheetComposer.Compose(For(sheet), DefaultPalette, DefaultPriority);
 
@@ -98,9 +98,9 @@ internal sealed class SpriteSheetSourceCatalog
         SpriteSheetId.Title => TitleSheetComposer.Sources(maps.Value),
         SpriteSheetId.IntroSprites => IntroSpriteSheetComposer.Sources(intro.Value),
         SpriteSheetId.CeresFlightSprites => IntroSpriteSheetComposer.CeresFlightSources(intro.Value.FlightCharacters,
-            intro.Value.FlightPalette),
+            intro.Value.FlightPalette, maps.Value.RoomPaletteFx),
         SpriteSheetId.CeresDestructionSprites => IntroSpriteSheetComposer.CeresDestructionSources(intro.Value),
-        SpriteSheetId.ZebesRevealSprites => IntroSpriteSheetComposer.ZebesRevealSources(intro.Value),
+        SpriteSheetId.ZebesRevealSprites => IntroSpriteSheetComposer.ZebesRevealSources(intro.Value, maps.Value.RoomPaletteFx),
         SpriteSheetId.EndingCloudSprites or SpriteSheetId.EndingExplosionSprites or
             SpriteSheetId.EndingSuitedRewardSprites or SpriteSheetId.EndingSuitlessRewardSprites or
             SpriteSheetId.EndingShootingSprites =>

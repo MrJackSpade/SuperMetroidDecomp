@@ -145,7 +145,8 @@ internal static class FrontendFloorSheetComposer
     /// <summary>
     /// The Ceres cinematics' floor in each shot, under the flight's palette: each shot's views over the start of a floor of
     /// the blank tile, as the flight and the destruction load them, showing the flight's characters, with a shade for each
-    /// record the gunship engine's flicker shows, coloured from <paramref name="paletteFx"/> (#1512).
+    /// record the gunship engine's flicker (#1512) and the station's navigation lights (#1733) show, coloured from
+    /// <paramref name="paletteFx"/>.
     /// </summary>
     /// <exception cref="InvalidDataException">The installed views or characters are shorter than the scenes load.</exception>
     internal static ComposedSpriteSheet Ceres(ImportIntroCinematicArtwork intro, IPaletteFxColorSource paletteFx) =>
@@ -154,7 +155,8 @@ internal static class FrontendFloorSheetComposer
 
     /// <summary>
     /// The Ceres cinematics' floor in each shot from the flight's installed artwork and the destruction's maps, coloured
-    /// in the flight's colours <paramref name="colours"/>, with the engine flicker's shades coloured from <paramref name="paletteFx"/>.
+    /// in the flight's colours <paramref name="colours"/>, with the engine flicker's and the navigation lights' shades coloured
+    /// from <paramref name="paletteFx"/>.
     /// </summary>
     /// <exception cref="InvalidDataException">The installed views or characters are shorter than the scenes load.</exception>
     internal static ComposedSpriteSheet Ceres(CeresFlightCharacters flight, CeresDestructionMaps destruction, CeresFlightPalette colours,
@@ -190,8 +192,15 @@ internal static class FrontendFloorSheetComposer
             FloorSheetComposer.Whole(CeresFloors.FrameName(CeresFloorShot.Explosion), explosion, pixels),
             FloorSheetComposer.Whole(CeresFloors.FrameName(CeresFloorShot.ZebesApproach), zebes, pixels),
         ], colours.Colours.AsSpan());
-        // The floor shows each record the gunship engine's flicker shows over the engine's colour (#1512).
-        return floor with { Manifest = floor.Manifest with { Shades = SheetShade.Documents(CeresSheetInks.EngineShades(paletteFx)) } };
+        // The floor shows each record the gunship engine's flicker shows over the engine's colour (#1512), and each record the
+        // station's navigation lights show over their colours (#1733).
+        return floor with
+        {
+            Manifest = floor.Manifest with
+            {
+                Shades = SheetShade.Documents([.. CeresSheetInks.EngineShades(paletteFx), .. CeresSheetInks.FloorNavigationLightShades(paletteFx)]),
+            },
+        };
 
         // A floor of the blank tile.
         static byte[] Blank()

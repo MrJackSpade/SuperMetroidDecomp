@@ -1194,6 +1194,18 @@ internal static class FullRunSuitesVerification
         new(nameof(SuperMetroid.Verification.Frontend.Title.TitleColourFadesVerification.VerifyTitleColourFades),
             () => SuperMetroid.Verification.Frontend.Title.TitleColourFadesVerification.VerifyTitleColourFades(
                 SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")))),
+        new(nameof(SuperMetroid.Verification.Frontend.CeresCinematics.CeresColourEffectsVerification.VerifyCeresNavigationLights),
+            () => SuperMetroid.Verification.Frontend.CeresCinematics.CeresColourEffectsVerification.VerifyCeresNavigationLights(
+                SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")))),
+        new(nameof(SuperMetroid.Verification.Frontend.CeresCinematics.CeresColourEffectsVerification.VerifyPlanetZebesTextFades),
+            () => SuperMetroid.Verification.Frontend.CeresCinematics.CeresColourEffectsVerification.VerifyPlanetZebesTextFades(
+                SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")))),
+        new(nameof(SuperMetroid.Verification.Frontend.Intro.IntroFightLightsVerification.VerifyOldMotherBrainFightLights),
+            () => SuperMetroid.Verification.Frontend.Intro.IntroFightLightsVerification.VerifyOldMotherBrainFightLights(
+                SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")))),
+        new(nameof(SuperMetroid.Verification.Enemies.Gunship.GunshipGlowVerification.VerifyGunshipGlow),
+            () => SuperMetroid.Verification.Enemies.Gunship.GunshipGlowVerification.VerifyGunshipGlow(
+                SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")))),
         new(nameof(SuperMetroid.Verification.Frontend.Title.TitleSkipWindowVerification.VerifyTitleSkipWindow),
             SuperMetroid.Verification.Frontend.Title.TitleSkipWindowVerification.VerifyTitleSkipWindow),
         new(nameof(SuperMetroid.Verification.Frontend.Title.TitleSkipFadeVerification.VerifyTitleSkipFade),

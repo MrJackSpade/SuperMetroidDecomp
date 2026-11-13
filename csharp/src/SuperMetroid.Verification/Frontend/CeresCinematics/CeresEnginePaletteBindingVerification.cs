@@ -65,7 +65,7 @@ internal static class CeresEnginePaletteBindingVerification
         {
             game.Step(0);
             restored.Step(0);
-            AssertEqual(scene.EngineShading, restoredScene.EngineShading, "palette rebind preserves the flicker's record");
+            AssertEqual(scene.FloorShading, restoredScene.FloorShading, "palette rebind preserves the flicker's record");
             AssertEqual(EngineColour(scene, CinematicSheetFixtures.CeresFloor(InstalledFixtures.ImportOf(stock).RoomPaletteFx)),
                 EngineColour(restoredScene, CinematicSheetFixtures.CeresFloor(InstalledFixtures.ImportOf(stock).RoomPaletteFx)),
                 $"#1150 the restored scene shows the running scene's engine colour, tick {frame}");
@@ -75,14 +75,7 @@ internal static class CeresEnginePaletteBindingVerification
             AssertEqual(scene.Background.Y.Whole, restoredScene.Background.Y.Whole, "palette rebind preserves camera Y");
             AssertEqual(game.FrameNumber, restored.FrameNumber, "palette rebind preserves frame clock");
         }
-
-        // Earlier debugger graphs can lack the lazily created palette owner.
-        // Its reconstruction must receive the rebound provider too.
-        restoredScene.PaletteFx = null;
-        restored.Step(0);
-        AssertEqual(nativeColors[0], EngineColour(restoredScene, CinematicSheetFixtures.CeresFloor(InstalledFixtures.ImportOf(stock).RoomPaletteFx)),
-            "#1150 reconstructed palette owner shows the program's first record again");
-        Console.WriteLine("#1150: stock engine flicker record cadence, restored-state rebind, unchanged scene clock/camera and legacy-owner reconstruction pass.");
+        Console.WriteLine("#1150: stock engine flicker record cadence, restored-state rebind and unchanged scene clock/camera pass.");
 
         static CeresDestructionCinematicState Scene(SuperMetroidGame owner) =>
             (owner.Session.ScreenAs<CeresDestructionCinematicState>() ?? throw new InvalidOperationException("Verification requires owner.ceresDestruction."));
@@ -91,7 +84,7 @@ internal static class CeresEnginePaletteBindingVerification
         // pre-coloured the floor's engine ink in for it.
         static RgbColor EngineColour(CeresDestructionCinematicState owner, SpriteSheet floor)
         {
-            PictureShade shade = owner.EngineShading.Shades.Single();
+            PictureShade shade = owner.FloorShading.Shades.Single();
             AssertEqual(PaletteFxShades.Of(PaletteFxColours.CutsceneGunshipEngine, new PaletteFxFrame(PaletteFxSegment.CutsceneGunshipEngineFlicker1, 0)).Effect, shade.Effect,
                 "the floor's shading names the gunship engine flicker's record");
             return floor.Image.Shade(shade).Substitutions.Single().Shown;

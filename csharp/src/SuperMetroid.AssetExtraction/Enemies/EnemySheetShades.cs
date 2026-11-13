@@ -13,6 +13,7 @@ using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.Core.Enemies.Corpses.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.FaceBlocks.Artwork;
+using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Enemies.Magdollite.Artwork;
 using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
 using SuperMetroid.Core.Enemies.WorkRobots;
@@ -34,7 +35,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// <summary>
 /// The shades the import pre-colours one graphics set's enemy and spawned-object sheets in (#1512), from the cartridge's
 /// colour data for each effect: every enemy's hit flash, frozen look and enemy-projectile colours; each enemy's own
-/// effects, which recolour the row it draws in (glows, the ghost's fade, the dead Sidehopper's drain); and the effects
+/// effects, which recolour the row it draws in (glows, the gunship's lights, the ghost's fade, the dead Sidehopper's drain); and the effects
 /// that recolour fixed rows or select another row (the statue scenes, the Ninja Pirates' gold wall, the Ceres doors, the
 /// drained corpses and the n00b tube's cracks).
 /// </summary>
@@ -330,6 +331,11 @@ internal sealed class EnemySheetShades
                 shades.AddRange(PaletteFxSpriteShades.Of(PaletteFxObject.TourianShutterRedFlashing, PaletteFxColours.TourianShutters,
                     first, (inputs.Maps ?? throw Missing("Tourian shutter flash colours")).RoomPaletteFx));
                 break;
+            case EnemyDefinitionId.ShipTop or EnemyDefinitionId.ShipBottomEntrance:
+                // The gunship's pieces show its lights' glow, which its placement starts, over their own row (#1733).
+                shades.AddRange(PaletteFxSpriteShades.Of(GunshipLightDefinitions.Glow, PaletteFxColours.GunshipGlow,
+                    first, (inputs.Maps ?? throw Missing("gunship glow colours")).RoomPaletteFx));
+                break;
             case EnemyDefinitionId.Coven:
                 foreach (ShadeColours step in GhostFadeSteps())
                     shades.Add(SheetShade.Run(step.Shade, first, step.Colours));
@@ -379,7 +385,7 @@ internal sealed class EnemySheetShades
             }
             case EnemyDefinitionId.None or EnemyDefinitionId.Boyon or EnemyDefinitionId.Stoke or EnemyDefinitionId.MamaTurtle
                 or EnemyDefinitionId.BabyTurtle or EnemyDefinitionId.Puyo or EnemyDefinitionId.Cacatac or EnemyDefinitionId.Owtch
-                or EnemyDefinitionId.ShipTop or EnemyDefinitionId.ShipBottomEntrance or EnemyDefinitionId.Mellow or EnemyDefinitionId.Mella
+                or EnemyDefinitionId.Mellow or EnemyDefinitionId.Mella
                 or EnemyDefinitionId.Menu or EnemyDefinitionId.Multiviola or EnemyDefinitionId.LavaRocks or EnemyDefinitionId.Rinka
                 or EnemyDefinitionId.Rio or EnemyDefinitionId.Squeept or EnemyDefinitionId.Geruta or EnemyDefinitionId.Holtz or EnemyDefinitionId.Oum
                 or EnemyDefinitionId.Choot or EnemyDefinitionId.GRipper or EnemyDefinitionId.Ripper2 or EnemyDefinitionId.Ripper

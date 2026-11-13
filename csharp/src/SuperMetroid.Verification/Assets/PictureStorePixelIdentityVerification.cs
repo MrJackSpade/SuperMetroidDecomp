@@ -1,5 +1,3 @@
-using System.Runtime.InteropServices;
-using System.Security.Cryptography;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
@@ -11,20 +9,20 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 namespace SuperMetroid.Verification.Assets;
 
 /// <summary>
-/// Confirms over the installation that a stored picture is its pixels only, stored once (#1644): no two pictures the store
-/// holds have identical RGBA pixels; every frame naming a picture resolves to a picture the store lists at the rectangle and
-/// size it names, placed inside the frame's rectangle (#1646), and to the recolour-region and blend maps it names, each of the
-/// picture's size; and pictures whose pixels were stored
-/// twice before, because frames showed them with different maps, are one stored picture the frames show through their own
-/// maps. The example is found by content: two frames naming one stored picture with different maps. Its two sheets are
-/// assembled by the store as the game loads them, and must show the stored pixels in both frames, each with the maps its
-/// frame names. Pages are decoded one at a time, so the check holds one page in memory while it hashes the pictures.
+/// Confirms over the installation that a stored picture is its pixels only (#1644): every frame naming a picture resolves to
+/// a picture the store lists at the rectangle and size it names, placed inside the frame's rectangle (#1646), and to the
+/// recolour-region and blend maps it names, each of the picture's size; and pictures whose pixels were stored twice before,
+/// because frames showed them with different maps, are one stored picture the frames show through their own maps. The
+/// example is found by content: two frames naming one stored picture with different maps. Its two sheets are assembled by
+/// the store as the game loads them, and must show the stored pixels in both frames, each with the maps its frame names.
+/// That no two stored pictures hold the same pixels is the store writer's own guard (<see cref="SheetPictureRegistry"/>),
+/// which refuses a second copy at every install, so the check does not decode every page to look for one (#1680).
 /// </summary>
 internal static class PictureStorePixelIdentityVerification
 {
     /// <summary>
-    /// Fails unless the store holds every picture's pixels once, every reference resolves to its picture and maps, and a
-    /// picture two frames show with different maps shows the same stored pixels through each frame's own maps.
+    /// Fails unless every reference resolves to its picture and maps, and a picture two frames show with different maps
+    /// shows the same stored pixels through each frame's own maps.
     /// </summary>
     internal static void VerifyStoredPicturesArePixelsOnly()
     {
@@ -35,9 +33,6 @@ internal static class PictureStorePixelIdentityVerification
         PictureStoreIndex index;
         using (FileStream file = File.OpenRead(indexPath))
             index = JsonAssetDocument.Read<PictureStoreIndex>(file, PictureStoreIndex.JsonOptions, $"picture store index {indexPath}");
-        string[] duplicates = DuplicatePixels(index, storeDirectory);
-        AssertTrue(duplicates.Length == 0,
-            $"{duplicates.Length} stored pictures hold the pixels of another:{Environment.NewLine}{string.Join(Environment.NewLine, duplicates)}");
 
         StoredMapsDocument regionListing = index.RecolourRegionMaps
             ?? throw new InvalidOperationException("Verification failed: the picture store lists no recolour-region maps.");
@@ -95,47 +90,8 @@ internal static class PictureStorePixelIdentityVerification
                 + $"(recolour regions {first.Picture.RecolourRegionMap ?? "none"} and {second.Picture.RecolourRegionMap ?? "none"}, "
                 + $"blending {first.Picture.BlendMap ?? "none"} and {second.Picture.BlendMap ?? "none"}).");
         }
-        Console.WriteLine($"Picture store: {index.Pictures.Count} pictures each hold pixels no other holds; {references.Count} frame "
-            + $"references resolve to them and to {regionMaps.Count} recolour-region and {blendMaps.Count} blend maps.");
-    }
-
-    /// <summary>
-    /// Each stored picture whose pixels another stored picture also holds, named by both tags. Each picture's rows are hashed
-    /// straight from its decoded page, one page at a time; only pictures whose hashes collide are compared pixel by pixel,
-    /// reading their pages again.
-    /// </summary>
-    private static string[] DuplicatePixels(PictureStoreIndex index, string storeDirectory)
-    {
-        var byHash = new Dictionary<string, List<string>>(StringComparer.Ordinal);
-        foreach (IGrouping<int, KeyValuePair<string, StoredPictureDocument>> onPage in index.Pictures.GroupBy(entry => entry.Value.Page))
-        {
-            StorePage page = StorePage.Read(storeDirectory, onPage.Key);
-            using var hasher = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
-            foreach ((string tag, StoredPictureDocument picture) in onPage)
-            {
-                page.HashRows(picture, hasher);
-                string hash = $"{picture.Size.X}x{picture.Size.Y}:{Convert.ToHexString(hasher.GetHashAndReset())}";
-                if (!byHash.TryGetValue(hash, out List<string>? tags))
-                    byHash.Add(hash, tags = []);
-                tags.Add(tag);
-            }
-        }
-        var duplicates = new List<string>();
-        foreach (List<string> tags in byHash.Values.Where(tags => tags.Count > 1))
-        {
-            // The hash only narrows the comparison: two pictures are one only when every pixel matches.
-            RgbaPixel[][] pixels = [.. tags.Select(tag => index.Pictures[tag])
-                .Select(picture => StorePage.Read(storeDirectory, picture.Page).PixelsOf(picture))];
-            for (int later = 1; later < tags.Count; later++)
-            {
-                for (int earlier = 0; earlier < later; earlier++)
-                {
-                    if (pixels[earlier].AsSpan().SequenceEqual(pixels[later]))
-                        duplicates.Add($"{tags[later]} holds the pixels of {tags[earlier]}");
-                }
-            }
-        }
-        return [.. duplicates];
+        Console.WriteLine($"Picture store: {references.Count} frame references resolve to {index.Pictures.Count} stored pictures "
+            + $"and to {regionMaps.Count} recolour-region and {blendMaps.Count} blend maps.");
     }
 
     /// <summary>Fails unless the map file holds exactly the maps the index lists, each of its listed size.</summary>
@@ -213,16 +169,6 @@ internal static class PictureStorePixelIdentityVerification
             using FileStream file = File.OpenRead(Path.Combine(directory, PictureStoreFiles.PageFile(page)));
             RgbaPixel[] pixels = RgbaPng.Read(file, out Extent16<ImagePixels> size);
             return new StorePage(size, pixels);
-        }
-
-        /// <summary>Adds the rows of <paramref name="picture"/>, which lies on this page, to <paramref name="hasher"/> in reading order.</summary>
-        internal void HashRows(StoredPictureDocument picture, IncrementalHash hasher)
-        {
-            for (int row = 0; row < picture.Size.Y; row++)
-            {
-                hasher.AppendData(MemoryMarshal.AsBytes(
-                    Pixels.AsSpan(((picture.Corner.Y + row) * Size.X) + picture.Corner.X, picture.Size.X)));
-            }
         }
 
         /// <summary>The pixels of <paramref name="picture"/>, which lies on this page, in reading order.</summary>

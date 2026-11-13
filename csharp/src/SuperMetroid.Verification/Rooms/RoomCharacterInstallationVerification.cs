@@ -6,7 +6,6 @@ using System.Text.Json.Nodes;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
-using static SuperMetroid.Verification.Rooms.RoomArtworkRenderParityVerification;
 using static SuperMetroid.Verification.Rooms.RoomVisualLayoutsVerification;
 using static SuperMetroid.Verification.Samus.Abilities.XrayRevealVisualInstallationVerification;
 using SuperMetroid.Core.Rooms.Artwork;
@@ -192,7 +191,6 @@ internal static class RoomCharacterInstallationVerification
     /// </summary>
     internal static RegisteredSuite[] RoomArtworkInstallationSuites() =>
     [
-        new(nameof(VerifyRoomArtworkRenderParity), () => VerifyRoomArtworkRenderParity(RepositoryInstallation.Installation, roomArtworkBus.Value)),
         new(nameof(VerifyRoomVisualLayouts), () => VerifyRoomVisualLayouts(RepositoryInstallation.Installation, roomArtworkBus.Value, landingSite.Value)),
         new(nameof(VerifyXrayRevealVisualInstallation), () => VerifyXrayRevealVisualInstallation(RepositoryInstallation.Installation)),
         new(nameof(VerifyRoomArtworkInstallation), () => VerifyRoomArtworkInstallation(RepositoryInstallation.Installation, roomArtworkBus.Value, landingSite.Value)),

@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Boulder;
 
-/// <summary>The state of a Boulder, with its otherwise anonymous words.</summary>
+/// <summary>The state of a Boulder.</summary>
 public sealed class BoulderEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
@@ -33,7 +33,7 @@ public sealed class BoulderEnemyState
     }
 
     /// <summary>
-    /// The bounce acceleration clock along the quadratic speed table: the accumulator for the initial fall and the
+    /// The bounce acceleration clock along the quadratic speed table: the running sum for the initial fall and the
     /// rebound arcs, with its own steps, caps and resets. A rebound that would take it below the start clamps it to the
     /// start, and the uncapped falling increment cannot pass record 95 because the quadratic table rejects that record
     /// before another increment, so it stays within the start through record 95.
@@ -71,7 +71,7 @@ public sealed class BoulderEnemyState
     public FixedCoordinate PreviousY { get; internal set; }
     /// <summary>
     /// Original population position in room pixels: X retained
-    /// (the translated movement does not subsequently consume it), and Y before
+    /// (the movement does not consume it later), and Y before
     /// the initial upward offset, which the first fall snaps to before rebounding.
     /// </summary>
     public Position16<RoomPixels> InitialPosition { get; internal set; }

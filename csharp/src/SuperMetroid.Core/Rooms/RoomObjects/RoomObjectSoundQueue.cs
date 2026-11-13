@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
 /// How the room objects queue their sound and music requests. A request joins the update's <see cref="GameplayAudioRequests"/> as the room object makes it, after every
-/// request made before it by any system, as the room-object routines call the game's sound queue routines directly.
+/// request made before it by any system, as the room objects call the game's sound queue directly.
 /// </summary>
 internal sealed class RoomObjectSoundQueue
 {

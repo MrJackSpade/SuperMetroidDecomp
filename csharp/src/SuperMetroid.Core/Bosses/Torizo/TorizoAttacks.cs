@@ -18,9 +18,9 @@ internal sealed class TorizoAttacks
     private readonly EnemyAudioQueue _audio;
     /// <summary>Spawns the orb drops and the death scatter after the authored sequences.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
-    /// <summary>Drop requests published by the Chozo-orb projectile instruction.</summary>
+    /// <summary>Drop requests published by the Chozo-orb projectile cue.</summary>
     internal readonly List<TorizoOrbDropRequest> TorizoOrbDropRequests = new();
-    /// <summary>Bomb and Golden Torizo's state lookups, facing, posture and the function word their branches test.</summary>
+    /// <summary>Bomb and Golden Torizo's state lookups, facing, posture and the function their branches test.</summary>
     private readonly TorizoEncounterAccess _access;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -217,13 +217,13 @@ internal sealed class TorizoAttacks
         }
         if (kind == RoomEnemyProjectileKind.BombTorizoInitialDrool)
         {
-            // The drool's initializer chains the carry: it adds Y and the lift, then the Y velocity's
-            // addition adds that second addition's carry, which is set whenever the lift does not wrap.
+            // The drool's initializer adds one more 256th of a pixel to the fall speed whenever lifting the jittered height
+            // does not wrap it below zero.
             int jitteredY = TorizoRandomDefinitions.InitialDroolYJitter.Of(random) + torizo.Position.Y.Whole;
-            int liftCarry = jitteredY >= TorizoMotionDefinitions.InitialDroolLift ? 1 : 0;
+            int unwrappedLiftSpeedBonus = jitteredY >= TorizoMotionDefinitions.InitialDroolLift ? 1 : 0;
             projectile.Position = projectile.Position.WithWrappedWholeY(jitteredY - TorizoMotionDefinitions.InitialDroolLift);
             // The jitter is five bits, so the fall speed lies between 48 and 80 256ths of a pixel.
-            projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(TorizoRandomDefinitions.DroolFallJitter.Of(random) + 48 + liftCarry));
+            projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(TorizoRandomDefinitions.DroolFallJitter.Of(random) + 48 + unwrappedLiftSpeedBonus));
             // A jitter that carries the drool past the last pixel of the coordinate space moves
             // its side offset one pixel further right. Every branch stores a zero X velocity.
             int jitteredX = _room.Random.Next(TorizoRandomDefinitions.InitialDroolXJitter) + torizo.Position.X.Whole;
@@ -239,7 +239,7 @@ internal sealed class TorizoAttacks
         projectile.Position = projectile.Position.WithWrappedWholeY(torizo.Position.Y.Whole - 5);
 
         // The recurring low-health drool chooses a random direction. The
-        // turning branch's angle is a random turning angle; the X velocity is the sign-extended
+        // turning branch's angle is a random turning angle; the X velocity is the signed
         // sine and the Y velocity the negative cosine of that angle.
         TrigonometryAngle angle;
         if (_access.Posture(torizo).HasFlag(TorizoPostureFlags.TurningAround))
@@ -307,7 +307,7 @@ internal sealed class TorizoAttacks
         projectile.State = new AnchoredProjectileState(projectile.Position.Whole);
     }
 
-    /// <summary>Starts a death explosion at the statue center and stores that center for its later instruction frames.</summary>
+    /// <summary>Starts a death explosion at the statue center and stores that center for its later animation frames.</summary>
     internal void SpawnBombTorizoDeathExplosion(RoomEnemySlot torizo)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
@@ -479,7 +479,7 @@ internal sealed class TorizoAttacks
             definition.BaseVelocity.Y + VelocityJitter(_room.Random.Generate()));
     }
 
-    /// <summary>A randomized projectile's jitter on one axis: the random number's lower byte less 128, in 256ths of a pixel.</summary>
+    /// <summary>A randomized projectile's jitter on one axis: the random number modulo 256, less 128, in 256ths of a pixel.</summary>
     private static SignedEightEight VelocityJitter(int random) =>
         SignedEightEight.FromTwoHundredFiftySixthsOfPixel(TorizoRandomDefinitions.VelocityJitter.Of(random) - 128);
 
@@ -754,9 +754,8 @@ internal sealed class TorizoAttacks
     }
 
     /// <summary>
-    /// Runs the orb's drop step. Its two inline header operands are Bomb Torizo's area-zero orb and Golden
-    /// Torizo's nonzero-area orb, which the cue carries as its typed meaning. This runtime already identifies the
-    /// concrete loaded variant, which is the exact room-scoped equivalent of consulting the global area byte.
+    /// Runs the orb's drop step. The cue names two drop definitions, Bomb Torizo's area-zero orb and Golden Torizo's
+    /// nonzero-area orb; the loaded variant selects between them, the room-scoped equivalent of consulting the area.
     /// </summary>
     internal void RequestTorizoChozoOrbDrop(EnemyProjectile projectile)
     {
@@ -833,14 +832,13 @@ internal sealed class TorizoAttacks
     }
     /// <summary>
     /// Whether a falling projectile has run away: its raw 8.8 speed is at least sixteen pixels per frame and below
-    /// thirty-two, the range whose top four bits the original game compares with one.
+    /// thirty-two.
     /// </summary>
     private static bool IsRunaway(SignedEightEight speed) =>
         speed >= TorizoMotionDefinitions.RunawaySpeed && speed < TorizoMotionDefinitions.TwiceRunawaySpeed;
 
     /// <summary>
-    /// Whether a bounced Chozo orb's rebound has settled: an upward speed under half a pixel per frame, the range whose
-    /// top nine bits the original game tests all set.
+    /// Whether a bounced Chozo orb's rebound has settled: an upward speed under half a pixel per frame.
     /// </summary>
     private static bool HasSettled(SignedEightEight speed) =>
         speed.IsNegative && speed >= -TorizoMotionDefinitions.SettledBounceSpeed;

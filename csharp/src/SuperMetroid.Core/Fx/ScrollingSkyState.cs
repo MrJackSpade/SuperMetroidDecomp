@@ -28,7 +28,7 @@ public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool hasBa
         new FixedCoordinate[ScrollingSkyBandDefinitions.DataSlotCount];
 
     /// <summary>
-    /// Returns whether a room-state callback dispatches to the translated land-sky
+    /// Returns whether a room-state callback dispatches to the land-sky
     /// implementation. This is the same room-main dispatch decision the game makes;
     /// callers must not infer it from a room number, area, door, or camera position.
     /// </summary>
@@ -118,7 +118,7 @@ public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool hasBa
             _fixedHorizontalScrolls[section.DataSlot] = _fixedHorizontalScrolls[section.DataSlot].MovedBy(section.Velocity);
         }
 
-        // The sky clears the final fractional and integer words after all 23
+        // The sky clears the final fraction and whole pixels after all 23
         // additions, keeping the bottommost section stationary.
         _fixedHorizontalScrolls[ScrollingSkyBandDefinitions.DataSlotCount - 1] = default;
     }

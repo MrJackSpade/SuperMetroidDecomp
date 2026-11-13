@@ -13,9 +13,9 @@ namespace SuperMetroid.Core.Fx;
 /// <remarks>
 /// Every room effect shares the base/target position, packed 8.8 Y velocity, and
 /// timer the room-FX loader sets. This owner retains those values even when that effect's
-/// renderer is not translated yet, allowing room objects to make their shared-state
+/// renderer is not modelled yet, allowing room objects to make their shared-state
 /// writes without inventing another representation for the corresponding room-effect state.
-/// The translated effect overlay effects are lava, acid, water, spores, Landing Site rain, and Climb fog.
+/// The modelled effect overlay effects are lava, acid, water, spores, Landing Site rain, and Climb fog.
 /// </remarks>
 [RoomLifetime]
 public sealed class RoomFxOverlayState : IGameplayShadingSource
@@ -53,7 +53,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// </summary>
     public RoomFxPaletteBlend? PaletteBlend { get; private set; }
     /// <summary>
-    /// Rain, fog, and spores texture drift: one 8.8 accumulator per axis. Its signed whole
+    /// Rain, fog, and spores texture drift: one 8.8 running sum per axis. Its signed whole
     /// pixels shift the effect overlay's scroll before the next velocity step.
     /// </summary>
     private Offset16<OverlaySubpixels> drift;
@@ -74,7 +74,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// <summary>How far the tide displaces the liquid surface from its base line, in pixels and subpixels.</summary>
     internal SignedSixteenSixteen TideOffset { get; set; }
     /// <summary>
-    /// Water's effect overlay surface drift: an 8.8 horizontal accumulator whose signed whole pixels offset the surface
+    /// Water's effect overlay surface drift: an 8.8 horizontal running sum whose signed whole pixels offset the surface
     /// texture. Only X moves.
     /// </summary>
     private Offset16<OverlaySubpixels> waterDrift;
@@ -87,7 +87,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// <summary>Selected background water displacement frame.</summary>
     private int waterBackgroundWavePhase;
     /// <summary>
-    /// Liquid surface relative to the camera, used to clip the effect plane: the signed word of the wrapped difference, or
+    /// Liquid surface relative to the camera, used to clip the effect plane: the signed value of the wrapped difference, or
     /// null while the liquid has no surface or none has been placed on the screen yet.
     /// </summary>
     private int? waterSurfaceScreenY;
@@ -120,7 +120,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// <summary>Position in the room earthquake sound sequence.</summary>
     internal int EarthquakeSoundSequenceIndex { get; set; }
 
-    /// <summary>The literal FX type byte selected from the active room/door record.</summary>
+    /// <summary>The FX type the active room/door record selects.</summary>
     public RoomFxType Type { get; internal set; }
 
     /// <summary>
@@ -139,7 +139,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// <summary>The liquid's signed 8.8 vertical velocity in room pixels per update while it moves toward its target.</summary>
     public SignedEightEight YVelocity { get; private set; }
 
-    /// <summary>Zero-extended FX timer byte loaded from record offset eight.</summary>
+    /// <summary>The FX timer, 0 through 255, the active record supplies.</summary>
     public WrappingCountdown Timer { get; private set; }
 
     /// <summary>How the effect's overlay blends with the room (#1545), as the FX record describes it, or null when it shows no overlay.</summary>
@@ -285,7 +285,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// <summary>
     /// Runs liquid motion and shared-state writes for lava, acid and water before
     /// main-loop random-number generation. Their setup installs the callback on the
-    /// first per-line effect pass; lava/acid's callback then swaps the shared random bytes on
+    /// first per-line effect pass; lava/acid's callback then swaps the shared random state on
     /// subsequent unfrozen passes, even off screen. Rising/tidal motion also runs during
     /// door fades and pause entry. Visual updates remain in <see cref="Step"/>,
     /// which must not advance that motion twice.
@@ -379,7 +379,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
 
         if (Type == RoomFxType.Spores)
         {
-            // Spores sample each signed accumulator before adding its velocity.
+            // Spores sample each signed running sum before adding its velocity.
             // Unlike rain, spores are anchored to the current camera, not its delta.
             Scroll = frame.Camera.AsOverlayScroll() + drift.WholePixels();
             drift = Offset16<OverlaySubpixels>.Wrapped(drift.X, drift.Y - AtmosphereDriftDefinitions.SporesVerticalVelocity);
@@ -439,7 +439,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         SignedEightEight? yVelocity = null,
         int? timer = null)
     {
-        // Each value is a line or word the writer copies; the checks reject anything outside a room's lines or wider.
+        // Each value is a line or cell the writer copies; the checks reject anything outside a room's lines or wider.
         if (baseYPosition is int baseY)
             BaseY = SurfaceAt(baseY);
         if (targetYPosition is int targetY)
@@ -492,7 +492,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
 
     /// <summary>
     /// Runs the observable static-water path of the water effect and both circular wave
-    /// clocks. Rising/tidal rooms retain their loaded surface words; the presently reported
+    /// clocks. Rising/tidal rooms retain their loaded surfaces; the presently reported
     /// room has zero velocity and therefore exercises the game's normal static branch.
     /// </summary>
     private void StepWater(
@@ -538,8 +538,8 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
 
     /// <summary>
     /// Runs the visible outputs of the lava/acid effect and its heat haze. The liquid
-    /// surface and the effect overlay follow the room camera, while one of two sixteen-scanline background
-    /// waveforms rotates at the cadence selected by the record's liquid-options byte.
+    /// surface and the effect overlay follow the room camera, while one of two sixteen-row background
+    /// waveforms rotates at the cadence selected by the record's liquid options.
     /// </summary>
     private void StepLavaAcid(
         Position16<RoomPixels> camera,
@@ -827,7 +827,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     private static readonly Offset16<OverlaySubpixels> WaterDriftVelocity =
         new(WaterWaveDefinitions.HorizontalSubscrollVelocity, 0);
 
-    /// <summary>The mutually exclusive callbacks installed in the rise-function word.</summary>
+    /// <summary>The mutually exclusive callbacks installed as the rise function.</summary>
     private enum LiquidRisePhase
     {
         /// <summary>Waits until signed velocity points from the current base toward the target.</summary>

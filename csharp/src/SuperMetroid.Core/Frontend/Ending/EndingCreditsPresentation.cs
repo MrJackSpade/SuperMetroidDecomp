@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// scene, drawn from the scene state it belongs to. The ending's stars lie behind the planet, the gunship and the
 /// backdrops they shine through; its other sprites lie in front of the scene's pictures. The per-tile and
 /// per-sprite-part priority tiers that once interleaved them, and the single pixel that blended where a sprite overlapped
-/// a glow, are presentation quirks the port does not keep.
+/// a glow, are presentation quirks the model does not keep.
 /// </summary>
 internal static class EndingCreditsPresentation
 {
@@ -40,7 +40,7 @@ internal static class EndingCreditsPresentation
         }
         if (ending.Stage.Phase == EndingCreditsPhase.Credits)
         {
-            // Credits intentionally do not run the sprite draw routine.
+            // Credits intentionally do not run the sprite draw step.
             layers.Add(new PicturedPlaneLayer(ending.CreditsPlane(), Offset16<PlanePixels>.Of(0, ending.Credits.ScrolledPixels)));
             return new(paint, layers.ToArray(), ending.Stage.Brightness);
         }

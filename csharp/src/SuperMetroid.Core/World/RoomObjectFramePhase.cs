@@ -60,14 +60,14 @@ internal sealed class RoomObjectFramePhase
     {
         // The explicit transition-time call still enters the common handler,
         // whose first step returns while the room-object handler is disabled.
-        // Indirect G-Mode deliberately carries that disabled word across the door.
+        // Indirect G-Mode deliberately carries that disabled flag across the door.
         if (_player.Samus?.Xray.AreObjectsSuspended == true)
             return;
 
         RunObjectHandlerCore(controllerNewInput: 0, roomObjects, bombProjectiles, room);
 
         // Setup-time room objects do not have Samus contact/input available. If a future
-        // translation publishes a player-facing event here, fail at the exact ownership
+        // change publishes a player-facing event here, fail at the exact ownership
         // boundary instead of silently discarding it.
         if (roomObjects.CollectibleObjects.CollectiblePickupEvents.Count != 0 || roomObjects.Stations.StationActivationEvents.Count != 0)
         {

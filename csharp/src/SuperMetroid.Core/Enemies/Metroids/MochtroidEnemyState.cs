@@ -15,7 +15,7 @@ public sealed class MochtroidEnemyState
     /// <summary>Gets the one-update movement selector cleared before each main-AI dispatch.</summary>
     public MochtroidMovementMode MovementMode { get; internal set; }
 
-    /// <summary>Parallel word used by the animation change detector: the installed animation, or none for the cleared word.</summary>
+    /// <summary>Parallel value used by the animation change detector: the installed animation, or none for the cleared value.</summary>
     internal MochtroidProgram? InstalledProgram { get; set; }
 
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
@@ -23,16 +23,16 @@ public sealed class MochtroidEnemyState
 
     /// <summary>
     /// Attached updates counted since the last contact damage, 0 through 65535: contact damage occurs once the count,
-    /// compared as a signed word difference, reaches the damage period. Updates with Samus's own contact damage count
-    /// without the check, so the count can grow past the sign bit and wrap (<see cref="CountAttachedUpdate"/>).
+    /// compared as a signed difference, reaches the damage period. Updates with Samus's own contact damage count
+    /// without the check, so the count can grow past 32767 and wrap (<see cref="CountAttachedUpdate"/>).
     /// </summary>
     public int AttachmentDamageTimer { get; internal set; }
 
-    /// <summary>Counts one attached update, wrapping after 65535 as the game's word does.</summary>
+    /// <summary>Counts one attached update, wrapping after 65535 as the game's counter does.</summary>
     internal void CountAttachedUpdate() =>
         AttachmentDamageTimer = WrappingCounter.IncrementCount(AttachmentDamageTimer);
 
-    /// <summary>Whether the count has reached <paramref name="period"/>, compared as the game's signed word difference.</summary>
+    /// <summary>Whether the count has reached <paramref name="period"/>, compared as the game's signed difference.</summary>
     /// <param name="period">The damage period in attached updates.</param>
     internal bool HasReachedDamagePeriod(int period) => !WrappingCounter.IsBehind(AttachmentDamageTimer, period);
 }

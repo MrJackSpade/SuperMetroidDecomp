@@ -27,7 +27,7 @@ internal sealed class EndingStage
     /// <summary>What the ending's colours show (#1512).</summary>
     internal EndingColours Colours => screen.Colours;
 
-    /// <summary>Countdown interpreted by the currently installed cinematic function.</summary>
+    /// <summary>Countdown read by the currently installed cinematic function.</summary>
     internal int PhaseTimer { get; set; }
 
     /// <summary>Shared fade progression through scene and palette handoffs.</summary>
@@ -37,7 +37,7 @@ internal sealed class EndingStage
     [IntegerQuantity("screen brightness level, zero through fifteen")]
     internal int Brightness { get; set; }
 
-    /// <summary>Turning-floor translation; only X uses a subpixel because the game's Y has no fractional word.</summary>
+    /// <summary>Turning-floor translation; only X uses a subpixel because the game's Y has no fraction.</summary>
     internal FixedPosition<FloorPixels> FloorPosition { get; set; }
 
     /// <summary>
@@ -46,7 +46,7 @@ internal sealed class EndingStage
     /// </summary>
     internal FloorZoom FloorZoom { get; set; } = FloorZoom.OwnSize;
 
-    /// <summary>Turning-floor byte-angle shared by the escape and planet scenes.</summary>
+    /// <summary>Turning-floor angle, in 256ths of a turn, shared by the escape and planet scenes.</summary>
     internal RotationAngle FloorAngle { get; set; }
 
     /// <summary>Current cinematic-function replacement, including terminal display states.</summary>
@@ -142,7 +142,7 @@ internal sealed class EndingStage
             case EndingSpriteRole.ExplosionGlow:
             case EndingSpriteRole.ExplosionStars:
             case EndingSpriteRole.ExplosionLava:
-                // The layers follow the original planet actor's program, not a
+                // The layers follow the planet actor's program, not a
                 // cinematic timer. These subordinate layers disappear with that actor.
                 if (!sprites.Any(actor => actor.Role == EndingSpriteRole.ExplodingZebes && actor.Sprite.IsActive))
                     sprite.Delete();

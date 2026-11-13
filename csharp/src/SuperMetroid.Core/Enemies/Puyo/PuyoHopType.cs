@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Puyo;
 
 /// <summary>
-/// The seven hops a Puyo makes. This is a discriminant, not a flags word: every member selects one height, speed and
+/// The seven hops a Puyo makes. This is a discriminant, not a set of flags: every member selects one height, speed and
 /// airborne-behaviour definition in <see cref="PuyoHopDefinitions.Hops"/>.
 /// </summary>
 public enum PuyoHopType
@@ -12,7 +12,7 @@ public enum PuyoHopType
     NormalBig,
     /// <summary>The third ordinary hop, reached only by chance once Samus is within the proximity radius.</summary>
     NormalHigh,
-    /// <summary>128-pixel height and 8.8 X speed 1.25, whose fractional byte is discarded by NTSC movement; selected after a post-drop bounce.</summary>
+    /// <summary>128-pixel height and 8.8 X speed 1.25, whose fraction is discarded by NTSC movement; selected after a post-drop bounce.</summary>
     Giant,
     /// <summary>No horizontal motion and 8.8 downward speed 1.0; wall or ceiling collision selects this fall before a recovery bounce.</summary>
     Dropping,

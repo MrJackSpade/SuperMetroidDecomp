@@ -62,8 +62,8 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     }
 
     /// <summary>
-    /// Current byte angle of the rainbow beam's per-line effect.
-    /// Exposing the translated movement owner's word lets the live room adapter publish the
+    /// Current angle, in 256ths of a turn, of the rainbow beam's per-line effect.
+    /// Exposing the movement owner's angle lets the live room adapter publish the
     /// real beam geometry without maintaining a second aim calculation.
     /// </summary>
     public RotationAngle RainbowBeamAngle => _movement.RainbowBeamAngle;
@@ -88,7 +88,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// </remarks>
     public int BombCounter { get; private set; }
 
-    /// <summary>Reads and writes <paramref name="walk"/> from now on, the word of the encounter attaching this sequence.</summary>
+    /// <summary>Reads and writes <paramref name="walk"/> from now on, the walk credit of the encounter attaching this sequence.</summary>
     internal void ShareWalkCounter(MotherBrainWalkCounter walk) => ThirdPhaseFight.ShareWalkCounter(Ensure.NotNull(walk));
 
     /// <summary>
@@ -160,7 +160,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     }
 
     /// <summary>
-    /// Ports the Baby's cross-enemy write. The routine does not
+    /// Runs the Baby's cross-enemy write. It does not
     /// wait for Mother Brain's stand-up animation before repeatedly requesting the backward
     /// walk; the later Baby route decides when to replace this function with the final attack.
     /// </summary>
@@ -168,7 +168,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         State.Phase = MotherBrainBodyFunction.SecondPhasePrepareForFinalBabyAttack;
 
     /// <summary>
-    /// Ports the Baby's cross-enemy write. Mother Brain installs one last
+    /// Runs the Baby's cross-enemy write. Mother Brain installs one last
     /// four-ring head program and then leaves her body function at the empty holding step.
     /// </summary>
     public void ExecuteFinalBabyMetroidAttack() =>
@@ -186,7 +186,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     internal void ResetLiveBabyMetroidAttackCounter() => Revival.BabyMetroidAttackCounter = 0;
 
     /// <summary>
-    /// Ports the Baby's final cross-enemy write. The body does
+    /// Runs the Baby's final cross-enemy write. The body does
     /// not execute the recovery inside the Baby's slot; increasing-slot enemy order makes
     /// this installed phase visible on Mother Brain's following frame.
     /// </summary>
@@ -201,9 +201,9 @@ public sealed class MotherBrainRainbowBeamAttackSequence
 
     /// <summary>
     /// Applies the movement/recoil half of Mother Brain's shared phase-two/three shot
-    /// reaction. The ordinary enemy-shot routine owns damage,
+    /// reaction. The ordinary enemy-shot reaction owns damage,
     /// projectile deletion, and flash time; this method intentionally does not duplicate
-    /// any of those separately translated systems.
+    /// any of those separate systems.
     /// </summary>
     public void ApplyPhase2Or3ShotReaction(MotherBrainProjectileType projectileType)
     {

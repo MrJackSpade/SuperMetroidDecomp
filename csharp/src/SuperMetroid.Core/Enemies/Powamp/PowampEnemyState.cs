@@ -3,8 +3,7 @@ namespace SuperMetroid.Core.Enemies.Powamp;
 
 /// <summary>
 /// The state of one half of a Powamp: a nonzero population parameter one makes the balloon, while zero is the
-/// immediately following moving body. The game reuses the same record words for different values in each half; here
-/// each half's values have their own members.
+/// immediately following moving body. Each half's values have their own members.
 /// </summary>
 public sealed class PowampEnemyState
 {

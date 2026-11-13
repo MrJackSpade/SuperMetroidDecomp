@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies;
 
-/// <summary>The AI handlers of a routine that does nothing: running it changes nothing.</summary>
+/// <summary>The AI handlers of a behaviour that does nothing: running it changes nothing.</summary>
 internal static class EnemyNoOpAi
 {
     /// <summary>An initialization AI that does nothing.</summary>

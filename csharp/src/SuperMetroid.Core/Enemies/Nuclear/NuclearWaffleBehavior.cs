@@ -5,7 +5,7 @@ using SuperMetroid.Core.Enemies.SpriteObjects;
 
 namespace SuperMetroid.Core.Enemies.Nuclear;
 
-/// <summary>The nuclear waffle species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The nuclear waffle species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -234,7 +234,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Clamps a link angle and reports whether the sweep finished. Every angle the sweep produces stays far inside a signed word, so
+    /// Clamps a link angle and reports whether the sweep finished. Every angle the sweep produces stays far inside the signed range, so
     /// the signed differences are ordinary comparisons.
     /// </summary>
     private static NuclearWaffleAngleClamp ClampNuclearWaffleAngle(

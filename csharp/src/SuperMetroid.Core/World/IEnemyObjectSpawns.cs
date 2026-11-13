@@ -22,7 +22,7 @@ internal interface IEnemyObjectSpawns
     /// <summary>Disables the Draygon cannon a room object identifies.</summary>
     void DisableDraygonCannon(DraygonWallCannon cannon);
 
-    /// <summary>Spawns a projectile Mother Brain's glass bytecode requested.</summary>
+    /// <summary>Spawns a projectile Mother Brain's glass program requested.</summary>
     void SpawnMotherBrainGlassProjectile(MotherBrainGlassProjectileRequest request);
 
     /// <summary>Spawns a fragment of Bomb Torizo's breaking statue.</summary>

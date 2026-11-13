@@ -2,7 +2,7 @@ using SuperMetroid.Core.Rooms.Scrolling;
 
 namespace SuperMetroid.Core.Rooms.Doors;
 
-/// <summary>Scroll-cell portion of translated door setup programs.</summary>
+/// <summary>Scroll-cell portion of door setup programs.</summary>
 internal static class DoorSetupCodeInterpreter
 {
     /// <summary>Applies only the scroll-cell effects of a door setup program; non-scroll setup remains with the runtime.</summary>
@@ -22,13 +22,13 @@ internal static class DoorSetupCodeInterpreter
             case DoorSetupCode.DoorASM_SetupElevatubeFromSouth:
             case DoorSetupCode.DoorASM_SetupElevatubeFromNorth:
             case DoorSetupCode.DoorASM_ResetElevatubeOnNorthExit:
-                // The two Ceres routines change the rotating-room view, not room scroll cells.
-                // The treadmill and first three elevatube routines likewise own only
+                // The two Ceres setups change the rotating-room view, not room scroll cells.
+                // The treadmill and first three elevatube setups likewise own only
                 // object/Samus state. Their non-scroll effects are applied by the runtime.
                 return;
 
             case DoorSetupCode.DoorASM_ResetElevatubeOnSouthExit:
-                // The routine sets the first two cells together; the grid
+                // The setup sets the first two cells together; the grid
                 // takes both as green before Samus is unlocked.
                 scrolls.SetCell(0, RoomScrollState.Green);
                 scrolls.SetCell(1, RoomScrollState.Green);

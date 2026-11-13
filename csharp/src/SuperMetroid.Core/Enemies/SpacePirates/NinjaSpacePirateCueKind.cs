@@ -1,6 +1,6 @@
 ﻿namespace SuperMetroid.Core.Enemies.SpacePirates;
 
-/// <summary>What a cue of the ninja Space Pirates' programs does: one per instruction its lists use.</summary>
+/// <summary>What a cue of the ninja Space Pirates' programs does: one per kind of step its lists use.</summary>
 internal enum NinjaSpacePirateCueKind
 {
     /// <summary>Resets the speed.</summary>

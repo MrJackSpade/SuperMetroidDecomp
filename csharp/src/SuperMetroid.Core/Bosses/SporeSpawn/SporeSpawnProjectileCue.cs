@@ -11,6 +11,6 @@ internal enum SporeSpawnProjectileCue
     QueueKilledSound,
     /// <summary>Requests a shot spore's drop.</summary>
     RequestDrop,
-    /// <summary>Deletes the projectile, as the shot list's goto into the common deletion list does.</summary>
+    /// <summary>Deletes the projectile, as the shot list's jump into the common deletion list does.</summary>
     Delete,
 }

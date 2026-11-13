@@ -14,7 +14,7 @@ internal static class SamusAnimationDelays
     /// <summary>The step of <paramref name="pose"/>'s program at frame <paramref name="frame"/>.</summary>
     /// <exception cref="InvalidDataException">No step of the pose's program is numbered <paramref name="frame"/>.</exception>
     /// <remarks>
-    /// A frame on an instruction's operand reads the step the operand selects, and a frame past the program's end reads the
+    /// A frame on a cue's operand reads the step the operand selects, and a frame past the program's end reads the
     /// program laid out after it, both through <paramref name="continuation"/>, which names each program by a pose that
     /// animates by it; frame targets that program names are shifted back to this pose's frames (#1535).
     /// </remarks>

@@ -93,7 +93,7 @@ internal sealed class MotherBrainRevivalPhases
     {
         // The standing helper reports her standing only when the standing pose was already visible at entry.
         // A corpse pose therefore installs the stand-up list and waits for the ordinary body
-        // instruction stage to publish standing before setting the neck/timer words.
+        // animation stage to publish standing before setting the neck and timer values.
         bool stoodUp = _state.MakeBodyStandUp(out bool postureRequested);
         requests.BodyPostureRequested = postureRequested;
         if (stoodUp)
@@ -155,7 +155,7 @@ internal sealed class MotherBrainRevivalPhases
     internal bool RunSecondPhaseRevivePrepareNeckForBabyDeath()
     {
         // The walk-up setup is a one-call setup function which immediately falls into the walk.
-        // The separate body instruction stage may still be finishing the last walk.
+        // The separate body animation stage may still be finishing the last walk.
         BabyMetroidAttackCounter = 0;
         _state.NeckMovementEnabled = true;
         _state.LowerNeckMovement = MotherBrainNeckMovement.BobDown;
@@ -192,7 +192,7 @@ internal sealed class MotherBrainRevivalPhases
         if (frame.RandomNumberSeed.IsNegative)
         {
             // A nonzero Baby enemy index selects the Baby-targeted volley; zero instead targets Samus.
-            // This translated cutscene owns a spawned Baby, so retain the live actor
+            // This cutscene owns a spawned Baby, so retain the live actor
             // condition instead of unconditionally substituting the desired list.
             _state.SetHeadProgram(_state.BabyMetroidSpawned
                 ? MotherBrainHeadProgram.AttackingBabyMetroid

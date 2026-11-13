@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms;
 
 /// <summary>
 /// Logical room identity formed by the mutually exclusive area and per-area
-/// room index. This deliberately does not contain where the room's header is stored:
+/// room index. This deliberately does not contain where the room's definition is stored:
 /// storage is the import pipeline's, while this value identifies the room as understood by game logic.
 /// </summary>
 public readonly record struct RoomIdentity
@@ -15,7 +15,7 @@ public readonly record struct RoomIdentity
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="area"/> is outside the retail domain.</exception>
     public RoomIdentity(AreaId area, int roomIndex)
     {
-        // Enum casts can manufacture arbitrary bytes. Validate at construction so a room
+        // Enum casts can manufacture arbitrary values. Validate at construction so a room
         // identity can safely cross table and dispatcher boundaries without another guard.
         _ = AreaIds.Require(area);
         Area = area;

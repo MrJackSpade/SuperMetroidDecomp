@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies.EyeDoor;
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
-/// The eye door projectile's flight, impact and shot programs (#641), one per animation script a spawn, branch or family routine enters, in authored order.
+/// The eye door projectile's flight, impact and shot programs (#641), one per animation script a spawn, branch or family step enters, in authored order.
 /// Generated from the verified authored scripts; see <see cref="EyeDoorProjectileAnimations"/>.
 /// </summary>
 internal enum EyeDoorProjectileProgram

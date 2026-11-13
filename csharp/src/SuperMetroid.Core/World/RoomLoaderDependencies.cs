@@ -40,7 +40,7 @@ internal sealed record RoomLoaderDependencies
     /// <summary>Door transition.</summary>
     public required DoorTransitionRunner DoorTransition { get; init; }
 
-    /// <summary>The enemy words and installed enemy artwork that outlive each room; each room's enemies are built over it.</summary>
+    /// <summary>The enemy state and installed enemy artwork that outlive each room; each room's enemies are built over it.</summary>
     public required EnemySession EnemySession { get; init; }
 
     /// <summary>The session's installed boss artwork, which each room's bosses read.</summary>

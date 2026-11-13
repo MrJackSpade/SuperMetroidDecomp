@@ -4,7 +4,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// Runs an enemy's typed program (#641) where the enemy instruction interpreter would run its list: the
+/// Runs an enemy's typed program (#641) as the shared enemy animation runs its list: the
 /// frame expires on the update its timer would, a newly shown frame raises the new-frame flag, a wait reloads
 /// the timer without changing the frame, and a hold is the sleep, whose timer wraps from zero. Owners keep
 /// the cursor and perform their cues: <c>if (Expire(slot)) { ...; Run(...); }</c>.
@@ -108,7 +108,7 @@ internal static class EnemyProgramAnimation
     /// Plays <paramref name="playback"/> on to its next frame after the slot's frame expired (#1600): a frame becomes the
     /// slot's frame for its duration, a held frame becomes it for good (#1607), a pause holds the slot's frame for its own, a
     /// hold leaves the slot as it is, and the
-    /// animation's end deletes the enemy. The enemy's timer word is the animation's repeat counter, which only its counted
+    /// animation's end deletes the enemy. The enemy's frame timer is the animation's repeat counter, which only its counted
     /// phases load and count down.
     /// </summary>
     /// <exception cref="InvalidOperationException">The animation passes every beat without showing a frame.</exception>
@@ -146,7 +146,7 @@ internal static class EnemyProgramAnimation
         Ensure.NotNull(frame);
         Animation<TSegment> animation = playback.Animation;
         AnimationPlace place = playback.Place;
-        // The enemy's timer word is read and written in place, as the load and countdown instructions do, so a write a cue's
+        // The enemy's frame timer is read and written in place, as the load and countdown cues do, so a write a cue's
         // reaction makes to it in between stands.
         var timer = new EnemyTimerRepeats(slot);
         AnimationShown<TSegment, TFrame> shown = segments.PlayToNextFrame(ref animation, ref place, ref timer, react);
@@ -179,7 +179,7 @@ internal static class EnemyProgramAnimation
 
     /// <summary>
     /// Installs <paramref name="program"/> unless it is already the installed one: <paramref name="install"/> records it
-    /// on the species state, and its first instruction runs on the next frame.
+    /// on the species state, and its first cue runs on the next frame.
     /// </summary>
     /// <param name="slot">The enemy.</param>
     /// <param name="installed">The program the species state last installed, or null before the first.</param>

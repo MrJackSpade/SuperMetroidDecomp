@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 internal static class CeresDestructionActors
 {
     /// <summary>Stable presentation roles of the three persistent explosion-scene actors.</summary>
-    /// <remarks>Named roles follow spawn order. #1165 verifies the original identity
+    /// <remarks>Named roles follow spawn order. #1165 verifies the authored identity
     /// mapping; invalid indices throw ArgumentOutOfRangeException.</remarks>
     public static string InitialPlacementId(int index) => index switch
     {
@@ -41,7 +41,7 @@ internal static class CeresDestructionActors
     /// vortex aliases flight row3 with the parameter-zero initializer overrides.
     /// Its initializer installs an empty callback, so this vortex has no horizontal
     /// movement or wrap. The definition still names the moving callback before initialization. No slide
-    /// policy applies to these actors. One proof against the original data covers the complete mapping,
+    /// policy applies to these actors. One proof against the authored data covers the complete mapping,
     /// initializer operands, shared aliases and invalid-index rejection. The prior authored-
     /// identity retention claim is superseded by verified semantic case selection; no table
     /// or generated cache remains. Animation programs have their separate existing proofs.</remarks>
@@ -71,12 +71,11 @@ internal static class CeresDestructionActors
     /// <remarks>
     /// #1165: the reveal's spawns select these six roles. Star quadrant q=index-1 is bounded to 0..3. The star
     /// initializers give all four sheets the same palette and acceleration; where each starts is installed (#1615).
-    /// Their definitions are six bytes apart, initializers twenty bytes apart (including
-    /// each leading NOP), and single-frame loop programs eight bytes apart. Only the
+    /// Their definitions, initializers and single-frame loop programs follow one another at fixed spacing. Only the
     /// lower-right sheet installs the completion callback. Planet and title are separate
     /// named roles with their own initializer operands and programs, not curve exceptions.
-    /// One metadata proof against the original data checks every field and invalid-index rejection.
-    /// Instruction programs have their existing separate byte/interpreter proofs.
+    /// One metadata proof against the authored data checks every field and invalid-index rejection.
+    /// Animation programs have their existing separate proofs.
     /// </remarks>
     public static CeresDestructionActorDefinition ZebesActor(int index) => index switch
     {

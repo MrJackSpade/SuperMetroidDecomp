@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Progression;
 
 /// <summary>
 /// The story and progression events the game keeps, in the order it lists them. Their values are arbitrary and nothing
-/// reads them; the number the original game gives each event is known only to the import pipeline's progression codec.
+/// reads them; the number the game gives each event is known only to the import pipeline's progression codec.
 /// </summary>
 /// <remarks>
 /// These are story events, not composable masks: <see cref="PersistentProgress.Events"/> records which have happened,

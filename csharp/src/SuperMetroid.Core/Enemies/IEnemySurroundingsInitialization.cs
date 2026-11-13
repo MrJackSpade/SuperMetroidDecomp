@@ -6,6 +6,6 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 internal interface IEnemySurroundingsInitialization : IEnemyEntity
 {
-    /// <summary>The initialization handler, or null when the header names none this build translates.</summary>
+    /// <summary>The initialization handler, or null when the definition names none this build models.</summary>
     EnemySurroundingsInitializationAiHandler? FindSurroundingsInitialization();
 }

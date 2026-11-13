@@ -15,7 +15,7 @@ internal enum TourianStatueProjectileProgram
     /// <summary>An unlocking particle.</summary>
     /// <remarks>
     /// Its loop counter is never set, so it wraps from zero; the particle leaves the screen long before the counter runs
-    /// out, which on the game would run the list on into routine code.
+    /// out, which on the game would run the list on into unrelated data.
     /// </remarks>
     Particle,
 

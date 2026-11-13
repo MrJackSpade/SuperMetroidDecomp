@@ -24,8 +24,8 @@ public sealed class FuneNamiheEnemyState
 
     /// <summary>
     /// Fune's incrementing cooldown count of waiting updates, 0 through 65535, compared with <see cref="CooldownTime"/>
-    /// as a signed word difference and reset to zero when the wait ends; the waiting routine's increment wraps it at
-    /// the word boundary.
+    /// as a signed difference and reset to zero when the wait ends; the waiting step's increment wraps it past
+    /// 65535.
     /// </summary>
     public int CooldownTimer { get; internal set; }
 

@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
 /// Compiled physical hitboxes for Mother Brain's body, brain, and three tested neck joints.
-/// These definitions remain application-owned when visual spritemaps become editable.
+/// These definitions remain application-owned when visual frames become editable.
 /// </summary>
 internal static class MotherBrainContactHitboxDefinitions
 {

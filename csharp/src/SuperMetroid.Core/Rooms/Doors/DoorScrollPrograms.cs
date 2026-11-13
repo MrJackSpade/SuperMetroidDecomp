@@ -2,13 +2,13 @@ using SuperMetroid.Core.Rooms.Scrolling;
 
 namespace SuperMetroid.Core.Rooms.Doors;
 
-/// <summary>Runs the translated straight-line door callbacks that write the room scroll grid.</summary>
+/// <summary>Runs the straight-line door callbacks that write the room scroll grid.</summary>
 internal static class DoorScrollPrograms
 {
-    /// <summary>True when the setup code selects a translated pure scroll callback.</summary>
+    /// <summary>True when the setup code selects a pure scroll callback.</summary>
     public static bool Contains(DoorSetupCode setupCode) => Writes(setupCode) is not null;
 
-    /// <summary>Executes ordered scroll writes; setup routines without scroll writes leave the grid unchanged.</summary>
+    /// <summary>Executes ordered scroll writes; setups without scroll writes leave the grid unchanged.</summary>
     public static bool TryApply(DoorSetupCode setupCode, RoomScrollGrid scrolls)
     {
         Ensure.NotNull(scrolls);
@@ -20,7 +20,7 @@ internal static class DoorScrollPrograms
     }
 
     /// <summary>
-    /// The ordered scroll writes of <paramref name="code"/>, or <see langword="null"/> for a setup routine that
+    /// The ordered scroll writes of <paramref name="code"/>, or <see langword="null"/> for a setup that
     /// writes no scroll cells. An undefined setup code throws.
     /// </summary>
     private static IReadOnlyList<DoorScrollWrite>? Writes(DoorSetupCode code)

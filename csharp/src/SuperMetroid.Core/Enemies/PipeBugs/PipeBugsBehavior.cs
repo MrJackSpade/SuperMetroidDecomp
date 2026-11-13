@@ -5,7 +5,7 @@ using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Enemies.PipeBugs;
 
-/// <summary>The pipe bugs species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The pipe bugs species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -43,7 +43,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Wait before an offscreen Brinstar bug may emerge again.</summary>
     private const int BrinstarPipeBugRespawnFrames = 48;
 
-    /// <summary>Leader plus four consecutive followers driven by Norfair's routine.</summary>
+    /// <summary>Leader plus four consecutive followers driven by Norfair's behaviour.</summary>
     private const int NorfairFormationSize = 5;
 
     /// <summary>Forward horizontal range that wakes a yellow pipe bug.</summary>
@@ -112,7 +112,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.ArcCompleted = false;
     }
 
-    /// <summary>Dispatches the three main routines and every indirect target.</summary>
+    /// <summary>Dispatches the three main behaviours and every function they select.</summary>
     private void RunPipeBugMain(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
@@ -251,8 +251,8 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         PipeBugEnemyState state,
         SamusState samus)
     {
-        // The rise decrements the subposition as a separate word, then subtracts either one
-        // or two pixels according to the old word. This is deliberately not normal 16.16
+        // The rise decrements the subposition as a separate value, then subtracts either one
+        // or two pixels according to the old value. This is deliberately not normal 16.16
         // subtraction; preserving the oddity prevents a one-pixel/frame timing drift.
         FixedCoordinate y = slot.Position.Y;
         bool oldSubpositionWasNonzero = y.Fraction != 0;
@@ -283,8 +283,8 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         slot.Position = slot.Position.WithWhole(state.SpawnPosition).WithFractionX(0);
-        // This apparently strange assignment is literal game behavior: the original
-        // stores the integer spawn Y into both halves rather than clearing the fraction.
+        // This apparently strange assignment is literal game behaviour: the game
+        // stores the integer spawn Y as both whole and fraction rather than clearing the fraction.
         slot.Position = slot.Position.WithFractionY(state.SpawnPosition.Y);
         state.RequestedAnimation = PipeBugAnimationSelector.RisingFacingLeft;
         SelectBrinstarPipeBugAnimation(slot, state);
@@ -325,7 +325,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Launches the five-bug rise when Samus enters the leader's trigger, retaining follower instruction timers.</summary>
+    /// <summary>Launches the five-bug rise when Samus enters the leader's trigger, retaining follower frame timers.</summary>
     internal void RunNorfairPipeBugSamusWait(
         RoomEnemySlot leader,
         PipeBugEnemyState leaderState,
@@ -678,7 +678,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             static (PipeBugEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A Pipe Bug animation raised {cue}, though its lists raise no events."));
 
-    /// <summary>Ports PipeBugs's main AI.</summary>
+    /// <summary>Runs PipeBugs's main AI.</summary>
     internal void RunPipeBugsMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunPipeBugMain(

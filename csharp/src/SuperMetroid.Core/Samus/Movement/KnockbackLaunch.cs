@@ -11,8 +11,8 @@ public sealed record KnockbackLaunch
 
     /// <summary>
     /// The launch a damage producer left pending on Samus: the direction its contact published and the hurt
-    /// countdown still running. Samus still stores the direction as the game's left/right word, zero
-    /// for left and one for right; any other word is corrupt state.
+    /// countdown still running. Samus still stores the direction as zero for left and one for right; any other value is
+    /// corrupt state.
     /// </summary>
     internal static KnockbackLaunch FromPendingHit(SamusState samus)
     {

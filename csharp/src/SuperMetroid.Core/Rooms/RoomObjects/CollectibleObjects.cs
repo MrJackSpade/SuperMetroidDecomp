@@ -18,7 +18,7 @@ internal sealed class CollectibleObjects
     private readonly IRoomSamusAccess? _samus;
     /// <summary>The room's effect overlay FX.</summary>
     private readonly IRoomFxMotion? _roomFx;
-    /// <summary>Updates level blocks and queues their tilemap draws.</summary>
+    /// <summary>Updates level blocks and queues their draws.</summary>
     private readonly IRoomObjectDrawing _drawing;
     /// <summary>Enumerates active item room objects by slot ordinal.</summary>
     private readonly RoomObjectSlotTable _slotTable;
@@ -113,7 +113,7 @@ internal sealed class CollectibleObjects
             // The pickup message retains both the visible block and its physical owner.
             // On message return, movement can touch that block before the room-object update runs
             // the pending empty draw/delete. The touch setup matches the block index without
-            // filtering the instruction phase; acknowledge this owner without collecting
+            // filtering the program phase; acknowledge this owner without collecting
             // again or disturbing its message-return continuation.
             if (item.Phase is CollectiblePhase.AwaitingMessage or CollectiblePhase.ResumeAfterMessage or
                 CollectiblePhase.EmptyAwaitingDelete)
@@ -157,7 +157,7 @@ internal sealed class CollectibleObjects
 
     /// <summary>
     /// Runs one permanent-item setup on the slot selected by the shared room
-    /// loader. The setup remains table-driven by the original game header and presentation.
+    /// loader. The setup remains table-driven by the game's definition and presentation.
     /// </summary>
     internal void SetupCollectibleSlot(
         RoomObjectRoom room,
@@ -240,7 +240,7 @@ internal sealed class CollectibleObjects
             item.Kind,
             GetMessageBoxIndex(item.Kind));
         _collectiblePickupEvents.Add(pickup);
-        // The item's instruction starts the fanfare as it runs, before its message box opens.
+        // The item's cue starts the fanfare as it runs, before its message box opens.
         _sounds.QueuePermanentItemFanfare();
         _pendingSpeedBoosterPickupContinuation =
             item.Kind == InWorldCollectibleKind.SpeedBooster &&

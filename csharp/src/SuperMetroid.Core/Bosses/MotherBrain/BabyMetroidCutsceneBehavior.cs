@@ -9,7 +9,7 @@ using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>The Baby Metroid cutscene species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Baby Metroid cutscene species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
 {
@@ -162,7 +162,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
 
         // The Baby's drain step writes the body enemy's animation script from this later Baby slot.
         // The reusable sequence retains the requested list, but the physical body already
-        // completed its AI/instruction pass earlier this frame; install the list here so it
+        // completed its AI and animation pass earlier this frame; install the list here so it
         // begins on the next increasing-slot enemy pass exactly like the cross-actor write.
         if (step.BodyStumbleRequested)
         {
@@ -251,14 +251,14 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         _motherBrainEncounter.Colours.ShowBabyFade(shade);
     }
 
-    /// <summary>Ports BabyMetroidCutscene's main AI.</summary>
+    /// <summary>Runs BabyMetroidCutscene's main AI.</summary>
     internal void RunBabyMetroidCutsceneMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunMotherBrainBabyMetroidMain(slot, frame.Samus, frame.Camera);
     }
 
     /// <summary>
-    /// Plays the Baby's animation where the enemy instruction interpreter would: the frame expires on the update its
+    /// Plays the Baby's animation where the shared enemy animation runs: the frame expires on the update its
     /// timer would, and a newly shown frame raises the new-frame flag. A held pose is the script's sleep: the timer
     /// wraps from zero and the last frame stays.
     /// </summary>

@@ -10,7 +10,7 @@ internal sealed class GameplayHudSetup
     /// <summary>Selects installed HUD artwork.</summary>
     private readonly RuntimeArtwork _artwork;
 
-    /// <summary>Owns the live HUD tilemap and its palette or map presentation binding.</summary>
+    /// <summary>Owns the live HUD picture and its palette or map presentation binding.</summary>
     private readonly HudState _hud;
 
     /// <summary>Binds the runtime owners HUD initialization selects artwork for.</summary>

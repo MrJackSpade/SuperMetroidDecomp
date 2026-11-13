@@ -8,7 +8,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Animals;
 
-/// <summary>The Dachora species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Dachora species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -128,7 +128,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         int frameCycle)
     {
         // Echo AI needs only the frame counter's parity. Every body state needs both the active
-        // Samus gravity words and authentic room collision, so fail loudly if a caller
+        // Samus gravity values and authentic room collision, so fail loudly if a caller
         // attempts to run the family without the state that code reads globally.
         if (state.Function == DachoraAiFunction.Echo)
         {
@@ -301,8 +301,8 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         // The collision result is discarded; the probe keeps Dachora glued to room slopes.
         _terrain.MoveEnemyVertically(level, slot, SignedSixteenSixteen.FromWholePixels(1));
 
-        // The game compares the whole and fraction words separately, each by the sign of its difference
-        // from the cap's; a fraction with its top bit set therefore also counts as below the cap.
+        // The game compares the whole and fraction parts separately, each by the sign of its difference
+        // from the cap's; a fraction of half a pixel or more therefore also counts as below the cap.
         SignedSixteenSixteen speed = state.Speed;
         bool belowMaximum = speed.WholePixels < DachoraMaximumSpeed.WholePixels ||
             WrappingCounter.IsBehind(speed.Fraction, DachoraMaximumSpeed.Fraction);
@@ -557,7 +557,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             static (DachoraEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Dachora animation raised {cue}."));
 
-    /// <summary>Ports Dachora's main AI.</summary>
+    /// <summary>Runs Dachora's main AI.</summary>
     internal void RunDachoraMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunDachoraMain(

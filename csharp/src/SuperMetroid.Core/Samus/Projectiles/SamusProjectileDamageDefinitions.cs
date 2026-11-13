@@ -2,7 +2,7 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>Projectile damage by header, independent of the headers' direction programs.</summary>
+/// <summary>Projectile damage by definition, independent of the definitions' direction programs.</summary>
 internal static class SamusProjectileDamageDefinitions
 {
     /// <summary>The damage a Shinespark echo starts with.</summary>

@@ -49,8 +49,8 @@ public sealed class PhantoonBodyState
     public bool FlameRainRequested { get; internal set; }
 
     /// <summary>
-    /// Starts the body as a Phantoon part: no flame rain is requested. The original copied the part's number into the
-    /// value that holds the request, which no reader consumes before a phase overwrites it (#1472).
+    /// Starts the body as a Phantoon part: no flame rain is requested. No reader consumes this value before a phase
+    /// sets it (#1472).
     /// </summary>
     internal void StartPart() => FlameRainRequested = false;
 }

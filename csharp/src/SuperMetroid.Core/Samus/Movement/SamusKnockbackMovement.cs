@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// Enemy damage calculation is deliberately not invented here: a caller supplies only the
 /// collision result that enemy collision would have published, namely whether the source lies to
 /// Samus's left or right. Every pose, speed-table entry, timer value, and subsequent input
-/// transition is then taken from the original game's definitions.
+/// transition is then taken from the game's definitions.
 /// </remarks>
 public static class SamusKnockbackMovement
 {
@@ -25,7 +25,7 @@ public static class SamusKnockbackMovement
     /// </summary>
     /// <remarks>
     /// Block collision deliberately does not install a hurt pose itself. It writes the shared
-    /// knockback timer and horizontal direction; the later hit-interruption routine admits
+    /// knockback timer and horizontal direction; the later hit interruption admits
     /// or suppresses that request according to the current movement type. Keeping this as
     /// a shared handoff prevents spike blocks and spike-air from inventing bespoke motion.
     /// </remarks>
@@ -42,7 +42,7 @@ public static class SamusKnockbackMovement
         Ensure.NotNull(samus);
 
         // Requires a live producer timer, unfrozen time, and zero in the
-        // installed direction word. A nonzero direction means a previous request already
+        // installed direction. A nonzero direction means a previous request already
         // owns the special movement handler; it must finish instead of being restarted.
         if (samus.KnockbackTimer == 0 ||
             timeIsFrozen ||
@@ -113,9 +113,9 @@ public static class SamusKnockbackMovement
             SamusMovementType.Special;
         if (!morphed && !humanoid && !unusedMovementSeven && !suppressesKnockback)
         {
-            // The knockback check contains exactly 28 entries, indexed by the low movement byte.
+            // The knockback check contains exactly 28 entries, indexed by the movement type.
             // A larger value cannot name another game behavior; it means the caller supplied
-            // corrupt pose metadata rather than an untranslated movement family.
+            // corrupt pose metadata rather than an unmodelled movement family.
             throw new InvalidDataException(
                 $"Movement type {sourceMovementType} lies outside the 28-entry knockback table.");
         }
@@ -247,15 +247,15 @@ level, targetPose, frameCounter, roomObjects))
             ? MoveWithSharedVerticalSpeedCalculation(level, samus, frameCounter, roomObjects)
             : MoveDownWithoutSpeedCalculation(level, samus, frameCounter, roomObjects);
 
-        // Observes these words inside downward collision, before the landing
+        // Observes these values inside downward collision, before the landing
         // clears them. Preserve the impact snapshot in the typed result so the runtime can
-        // execute the shared landing-presentation routine at the same logical seam.
+        // execute the shared landing-presentation step at the same logical seam.
         bool landed = samus.KnockbackDirection is SamusKnockbackDirection.DownLeft or SamusKnockbackDirection.DownRight && vertical.Collided;
 
         if (vertical.Collided)
         {
             // Is reached only after the vertical helper, so horizontal wall
-            // contact alone does not clear these vertical words. Bottom alignment is already
+            // contact alone does not clear these vertical values. Bottom alignment is already
             // represented by the block collision's accepted displacement against the current radius.
             speed.AccelerationMode = SamusAccelerationMode.Accelerating;
             speed.BaseSpeed = default;
@@ -290,7 +290,7 @@ level, targetPose, frameCounter, roomObjects))
 
         // Restores only the normal movement handler. The conditional jump
         // reset in the pose handling does not run for a merely prospective type change.
-        // Preserve velocity and hurt words until the common expiry handoff consumes them.
+        // Preserve velocity and hurt values until the common expiry handoff consumes them.
         samus.Pose = targetPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         samus.KnockbackActive = false;
@@ -387,7 +387,7 @@ level, targetPose, frameCounter, roomObjects))
         return FinishKnockback(samus);
     }
 
-    /// <summary>Restores ordinary input and movement ownership and clears hurt motion words after expiry.</summary>
+    /// <summary>Restores ordinary input and movement ownership and clears hurt motion values after expiry.</summary>
     private static KnockbackMovementResult FinishKnockback(SamusState samus)
     {
         // The expiry command restores the normal input handler as well as
@@ -400,7 +400,7 @@ level, targetPose, frameCounter, roomObjects))
             samus.Shinespark.RelinquishMovementHandler();
         // The exact knockback-end cleanup shared by humanoid and morphed completion. The falling
         // flag has no independent host field yet; Y-direction two is its movement-visible
-        // publication and is consumed by every translated normal/ball dispatcher.
+        // publication and is consumed by every normal/ball dispatcher.
         samus.KnockbackDirection = SamusKnockbackDirection.None;
         samus.KnockbackActive = false;
         samus.MorphBallBounceState = SamusBallBounceState.None;
@@ -417,11 +417,11 @@ level, targetPose, frameCounter, roomObjects))
         int frameCounter,
         ISamusRoomObjects? roomObjects)
     {
-        // Calls the exact same vertical routine as ordinary aerial
-        // movement, so reuse that translated owner instead of maintaining a subtly narrower
+        // Calls the exact same vertical step as ordinary aerial
+        // movement, so reuse that owner instead of maintaining a subtly narrower
         // copy. The retail Rinka timer expires while Samus is still rising; her reported
         // midair hang came from failing to dispatch ordinary falling after that expiry, not
-        // from this calculation. Sharing the routine still preserves the real direction-
+        // from this calculation. Sharing the step still preserves the real direction-
         // reversal behavior for any longer knockback stimulus without inventing a new path.
         return SamusAerialMovement.StepVerticalWithSpeedCalculations(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, frameCounter, out _, out _);
     }

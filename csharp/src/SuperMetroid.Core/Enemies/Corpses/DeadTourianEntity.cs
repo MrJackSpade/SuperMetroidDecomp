@@ -20,8 +20,8 @@ internal sealed class DeadTourianEntity(DeadTourianBehavior species, RoomEnemySl
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => DeadTourianBehavior.AdvanceDeadTourianTypedAnimation;
 
-    /// <summary>The corpse's rot trigger, when its header names it as the shot reaction.</summary>
-    /// <param name="reaction">The reaction the header or the selected hitbox names, or null.</param>
+    /// <summary>The corpse's rot trigger, when its definition names it as the shot reaction.</summary>
+    /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>
     public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
         DeadTourianBehavior.HasDeadTourianCorpseShotCallback(Slot) && reaction == EnemyCollision.ShotAi(Slot);
 }

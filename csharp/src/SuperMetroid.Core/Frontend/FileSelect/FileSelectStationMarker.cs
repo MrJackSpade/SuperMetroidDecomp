@@ -32,9 +32,9 @@ public sealed class FileSelectStationMarker
 
     /// <summary>Station's area-map drawing anchor in whole pixels before scroll subtraction, independent of its compiled load coordinates.</summary>
     public Position16<MapPixels> MapPosition { get; private set; }
-    /// <summary>Current marker spritemap identity, following its pulse; querying does not advance the timer.</summary>
+    /// <summary>Current marker frame identity, following its pulse; querying does not advance the timer.</summary>
     public MapSpriteId SpritemapId => PauseMapIndicatorAnimation.SpritemapId(frame);
-    /// <summary>Whether the marker's backing spritemap is drawn before the marker: visible on even four-frame animation loops, including the initial loop, and hidden on odd loops.</summary>
+    /// <summary>Whether the marker's backing frame is drawn before the marker: visible on even four-frame animation loops, including the initial loop, and hidden on odd loops.</summary>
     public bool ShowBacking { get; private set; } = true;
 
     /// <summary>One menu tick, before drawing; the initial zero timer advances immediately to frame one.</summary>

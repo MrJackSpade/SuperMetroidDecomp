@@ -23,7 +23,7 @@ internal sealed class EndingRewardGesture
             Spawn(actor);
     }
 
-    /// <summary>Advances active gesture actors once and records any instruction-triggered jump handoff.</summary>
+    /// <summary>Advances active gesture actors once and records any cue-triggered jump handoff.</summary>
     public void Step()
     {
         if (JumpRequested) throw new InvalidOperationException("Reward gesture handoff must be consumed before advancing again.");

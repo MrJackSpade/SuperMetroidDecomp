@@ -180,7 +180,7 @@ internal sealed class BlockReactionObjects
         return true;
     }
 
-    /// <summary>Selects the normal-bomb or Power Bomb reaction list; only the latter executes its packed sound instruction.</summary>
+    /// <summary>Selects the normal-bomb or Power Bomb reaction list; only the latter runs its packed sound cue.</summary>
     public bool TrySpawnBombReactionBlock(
         RoomLevelData level,
         Position16<RoomBlocks> position,
@@ -323,7 +323,7 @@ internal sealed class BlockReactionObjects
                 }
 
                 // A power bomb keeps the collision kind with the power-bomb parent's appearance, deactivates the live
-                // block, and runs its header's program. The respawning block uses the ordinary four-frame breakup; the
+                // block, and runs its definition's program. The respawning block uses the ordinary four-frame breakup; the
                 // permanent one its shorter 3/2/1-frame counterpart.
                 RestoreAsParent(level, slot, block, RoomObjectSetupBlock.PowerBombBlockParent,
                     new BlockReactionObject(reaction == ShotBlockReaction.RespawningPowerBombBreak
@@ -341,7 +341,7 @@ internal sealed class BlockReactionObjects
                     return true;
                 }
 
-                // Super Missiles keep the collision kind with the Super Missile parent's appearance; one header owns the
+                // Super Missiles keep the collision kind with the Super Missile parent's appearance; one definition owns the
                 // respawning program and the other the permanent one.
                 RestoreAsParent(level, slot, block, RoomObjectSetupBlock.SuperMissileBlockParent,
                     new BlockReactionObject(reaction == ShotBlockReaction.RespawningSuperMissileBreak

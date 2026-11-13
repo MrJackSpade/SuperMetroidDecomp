@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// </summary>
 /// <remarks>
 /// The definition's initializer fixes the actor at (56,111) in her own colouring,
-/// in front of the scene. Its animation cycles four authored spritemaps at
+/// in front of the scene. Its animation cycles four authored frames at
 /// sixteen frames apiece. The actor also retains the hit counter, eight-frame palette
 /// flash, and the 128-frame exploding state and the room picture's shake.
 /// </remarks>
@@ -64,7 +64,7 @@ internal sealed class IntroMotherBrainSpriteState
     /// <summary>True when the exploding behaviour switches the actor to its page-two animation.</summary>
     public bool PageTwoRequested { get; private set; }
 
-    /// <summary>Whether the actor still contributes its spritemap to the cinematic sprites.</summary>
+    /// <summary>Whether the actor still contributes its frame to the cinematic sprites.</summary>
     public bool IsVisible { get; private set; } = true;
 
     /// <summary>

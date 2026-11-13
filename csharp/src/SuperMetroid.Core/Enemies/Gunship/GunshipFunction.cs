@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Gunship;
 
 /// <summary>
-/// The Landing Site gunship's routines, run by its top hull.
+/// The Landing Site gunship's functions, run by its top hull.
 /// Its values are arbitrary.
 /// </summary>
 internal enum GunshipFunction

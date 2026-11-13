@@ -7,7 +7,7 @@ public enum CeresDeparturePhase
     Inactive,
     /// <summary>Samus has made it to the Ceres elevator: gameplay continues, then the 60-call hold decrements after each update before the blackout.</summary>
     HoldingOnElevator,
-    /// <summary>The blackout from Ceres: gameplay continues, then one brightness step fades the screen per call with the fade-delay words zero.</summary>
+    /// <summary>The blackout from Ceres: gameplay continues, then one brightness step fades the screen per call with the fade-delay counters zero.</summary>
     FadingToBlack,
     /// <summary>The screen has gone black; the outer game owner may save the Ceres departure checkpoint and enter the destruction cinematic, without restarting this timer.</summary>
     Complete,

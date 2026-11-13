@@ -40,7 +40,7 @@ internal sealed class IntroMotherBrainExplosionSystem
             actor.Step(introCrossfadeTimer);
     }
 
-    /// <summary>Adds each visible spritemap in actor order to the cinematic sprites.</summary>
+    /// <summary>Adds each visible frame in actor order to the cinematic sprites.</summary>
     internal void Draw(ScreenSprites objects, CinematicSpriteSheet installedArt)
     {
         Ensure.NotNull(objects);

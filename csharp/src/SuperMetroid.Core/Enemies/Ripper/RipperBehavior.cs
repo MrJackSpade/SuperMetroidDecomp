@@ -6,7 +6,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Ripper;
 
-/// <summary>The Ripper species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Ripper species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -112,13 +112,13 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void InitializeRipper(RoomEnemySlot slot)
     {
         // The spawn's direction chooses the positive speed and the right-facing list, or the negative speed and the
-        // left-facing list. Unlike a reversal, initialization keeps the population's instruction timer.
+        // left-facing list. Unlike a reversal, initialization keeps the population's frame timer.
         bool movingRight = slot.SpawnSettings<RipperSpawnSettings>().Direction == HorizontalDirection.Right;
         RipperEnemyState state = CreateRipperState(slot);
         state.Playback = new(RipperAnimations.StartingWith(
             movingRight ? RipperProgram.RipperMovingRight : RipperProgram.RipperMovingLeft), AnimationPlace.StartOfAnimation);
 
-        // The state retains the speed row because the reversal routine reuses it.
+        // The state retains the speed row because the reversal reuses it.
         state.Speeds = EnemyLinearSpeedRow.Moving(slot.SpawnSettings<RipperSpawnSettings>().Speed);
         LoadRipperVelocity(state, movingRight);
     }
@@ -222,19 +222,19 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         });
     }
 
-    /// <summary>Ports GRipper's main AI.</summary>
+    /// <summary>Runs GRipper's main AI.</summary>
     internal void RunGRipperMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunGRipperMain(slot, slot.RequireSpeciesState<RipperEnemyState>(), frame.Level);
     }
 
-    /// <summary>Ports Ripper2's main AI.</summary>
+    /// <summary>Runs Ripper2's main AI.</summary>
     internal void RunRipper2MainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunRipper2Main(slot, slot.RequireSpeciesState<RipperEnemyState>(), frame.Level);
     }
 
-    /// <summary>Ports Ripper's main AI.</summary>
+    /// <summary>Runs Ripper's main AI.</summary>
     internal void RunRipperMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunRipperMain(slot, frame.Level);

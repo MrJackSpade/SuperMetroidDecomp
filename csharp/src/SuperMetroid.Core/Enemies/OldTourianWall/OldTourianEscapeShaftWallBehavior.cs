@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Enemies.OldTourianWall;
 
-/// <summary>The old Tourian escape-shaft wall species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The old Tourian escape-shaft wall species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class OldTourianEscapeShaftWallBehavior
 {
@@ -13,7 +13,7 @@ internal sealed class OldTourianEscapeShaftWallBehavior
     /// <summary>Eighteen-slot enemy projectile allocator for the wall explosion.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
-    /// <summary>Enemy sound queue used by the wall explosion's instruction.</summary>
+    /// <summary>Enemy sound queue used by the wall explosion's cue.</summary>
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Binds room, projectile, and audio owners needed by the old Tourian fake-wall controller.</summary>

@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Audio;
 
-/// <summary>One 60-Hz update's audio instructions for an <see cref="ClipAudioBackend"/> (#1304).</summary>
+/// <summary>One 60-Hz update's audio events for an <see cref="ClipAudioBackend"/> (#1304).</summary>
 /// <remarks>
 /// <see cref="Events"/> is ordered: first the update's music data set changes and track selections,
 /// in the order the game made them, then each clock step in time order, each immediately followed

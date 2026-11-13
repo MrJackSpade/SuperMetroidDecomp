@@ -2,9 +2,8 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Dragon;
 
 /// <summary>
-/// The state of one Dragon body or cosmetic wing. The game reuses one record word first as the body's motion timer and
-/// then as its three-shot counter; here each role has its own countdown, since every phase starts its own before
-/// reading it.
+/// The state of one Dragon body or cosmetic wing. The body's motion timer and its three-shot counter are separate
+/// countdowns here, since every phase starts its own before reading it.
 /// </summary>
 public sealed class DragonEnemyState
 {

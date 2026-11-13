@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 [RoomLifetime]
 internal sealed class PhantoonCombat
 {
-    /// <summary>Room services and tilemap state used by the Wrecked Ship encounter.</summary>
+    /// <summary>Room services and background state used by the Wrecked Ship encounter.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Owns the starting, casual, rain, rage, and spiral flame actors.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -44,16 +44,16 @@ internal sealed class PhantoonCombat
     {
         // Common bomb damage. Rinka, Skree, and Powamp deliberately call the no-death-animation form of common shot
         // AI; their private callbacks own slot cleanup or a staged death. Gameplay-enemy callbacks reuse the same
-        // translated post-common routines as beams. Normal bombs cannot freeze, but their damage, staged-death,
+        // post-common steps as beams. Normal bombs cannot freeze, but their damage, staged-death,
         // child synchronization, recoil, release, and attack side effects are otherwise the same callback tails.
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.PhantoonBody &&
                                                        c.SelectedShotAi == EnemyReaction.PhantoonShot)
         {
             RunsGenericDeath = false,
-            // Phantoon's hitbox callback enters the same no-death common-damage routine for bombs as it
+            // Phantoon's hitbox callback enters the same no-death common damage for bombs as it
             // does for beams and missiles, then consumes the exact damage delta in its encounter reaction state
             // machine. A lethal hit begins the authored death sequence, while sub-threshold damage feeds the
-            // eye-close/rage accumulator instead of deleting a slot.
+            // eye-close/rage counter instead of deleting a slot.
             AfterCommon = c =>
             {
                 PhantoonEnemyState phantoon = Phantoon ??
@@ -292,7 +292,7 @@ internal sealed class PhantoonCombat
                 return;
             }
 
-            // The round's damage shares its word with other parts' state, so a sum past the word wraps as the game's does.
+            // The round's damage wraps when a sum passes its counter's range, as the game's does.
             state.TentaclesState.RoundDamage = WrappingCounter.AddCount(
                 state.TentaclesState.RoundDamage, damage);
             if (state.TentaclesState.RoundDamage >= PhantoonBehavior.PhantoonDamageThreshold)
@@ -583,10 +583,9 @@ internal sealed class PhantoonCombat
     }
 
     /// <summary>
-    /// Runs the flame's drop step. The original game forwards the flame's
-    /// exact position and the Phantoon-eye enemy header to the enemy drop spawner; the
-    /// translated pickup owner is still an outer subsystem, so publish the same semantic
-    /// request with the header-derived item table rather than silently discarding the drop.
+    /// Runs the flame's drop step: the flame's exact position and the Phantoon eye's enemy definition go to the
+    /// enemy drop spawner. The pickup owner is an outer subsystem, so publish the same request with the
+    /// definition's item table rather than silently discarding the drop.
     /// </summary>
     internal void RequestPhantoonFlameDrop(EnemyProjectile flame)
     {
@@ -651,7 +650,7 @@ internal sealed class PhantoonCombat
             return null;
 
         // Phantoon's frames include hitbox lists,
-        // but its editable background tilemap writes must never become collision
+        // but its editable background changes must never become collision
         // data. Preserve the component and rectangle order from
         // the compiled definitions, including point no-ops.
         foreach (EnemyCollisionComponent component in

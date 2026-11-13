@@ -11,13 +11,13 @@ internal static class CeresEscapeReadyingDefinitions
 {
     /// <summary>
     /// The updates the self-destruct spends bringing up the escape timer and warning, one update each for the timer's two
-    /// parts and the warning's five, as the original game's warning setup takes: the warning look shows from the last.
+    /// parts and the warning's five, as the game's warning setup takes: the warning look shows from the last.
     /// </summary>
     internal const int WarningReadyingDuration = 7;
 
     /// <summary>
     /// The updates the self-destruct then spends readying the arena's backgrounds for the warning text and the doors, one
-    /// each for eight, as the original game's warning setup takes; the arena shows nothing of them.
+    /// each for eight, as the game's warning setup takes; the arena shows nothing of them.
     /// </summary>
     internal const int BackgroundReadyingDuration = 8;
 

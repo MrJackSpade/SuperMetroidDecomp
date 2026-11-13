@@ -1,10 +1,10 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// A species' power-bomb reaction, from its header. The power-bomb pass runs its stages around common power-bomb
+/// A species' power-bomb reaction, from its definition. The power-bomb pass runs its stages around common power-bomb
 /// damage at the game's positions; a reaction sets only the stages it has.
 /// </summary>
-/// <param name="matches">Whether an enemy uses this reaction (its definition and header reaction callback).</param>
+/// <param name="matches">Whether an enemy uses this reaction (its definition and the definition's reaction callback).</param>
 internal sealed class EnemyPowerBombReaction(Func<RoomEnemySlot, bool> matches)
 {
     /// <summary>Whether an enemy uses this reaction.</summary>

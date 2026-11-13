@@ -12,7 +12,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Chozo;
 
-/// <summary>The Chozo statue species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Chozo statue species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -28,7 +28,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyTerrain _terrain;
     /// <summary>Allocates the Wrecked Ship statue's spike-footstep projectile.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>Queues enemy-library footstep and walking sounds from instructions.</summary>
+    /// <summary>Queues enemy-library footstep and walking sounds from cues.</summary>
     private readonly EnemyAudioQueue _audio;
     /// <summary>Receives statue-authored effect overlay motion writes.</summary>
     private readonly EnemyRoomFx _roomFx;
@@ -142,7 +142,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         Position16<RoomBlocks> triggerPosition = handBlock ?? level.GridBlock(new(CoordinateAxis.Wrap(triggerBlockX), CoordinateAxis.Wrap(triggerBlockY)));
         RoomCollisionBlock triggerBlock = level.GetCollisionBlock(triggerPosition);
 
-        // Both setup routines clear only the block's collision kind. Its behaviour and
+        // Both setup steps clear only the block's collision kind. Its behaviour and
         // appearance survive until the room object the statue then spawns runs.
         level.SetTerrain(
             triggerPosition,
@@ -222,7 +222,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case ChozoStatueCue.Command { Kind: ChozoStatueCueKind.StartLoweringAcid }:
                 ChozoStatueAcidLoweringStarted = true;
-                // The cue writes the liquid words consumed by the liquid handler once, when
+                // The cue writes the liquid motion values consumed by the liquid handler once, when
                 // it runs; the liquid owns them from then on.
                 _roomFx.FxOverlay?.SetLiquidMotion(
                     timer: ChozoStatueFxData.LoweringDelay, yVelocity: ChozoStatueFxData.LoweringVelocity);
@@ -293,7 +293,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
             SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(Math.Abs(signedVelocity)));
         EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, statue);
 
-        // The two 32-word tables are joint offsets indexed by the same record.
+        // The two 32-entry tables are joint offsets indexed by the same record.
         // Writing Samus after collision reproduces the cutscene's absolute ownership.
         samus.Position = samus.Position.WithWhole(new(CoordinateAxis.Wrap(statue.Position.X.Whole + motion.SamusOffset.X), CoordinateAxis.Wrap(statue.Position.Y.Whole + motion.SamusOffset.Y)));
     }
@@ -372,7 +372,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         level ?? throw new InvalidOperationException(
             "Chozo statue movement requires the active room level.");
 
-    /// <summary>Ports ChozoStatue's main AI.</summary>
+    /// <summary>Runs ChozoStatue's main AI.</summary>
     internal void RunChozoStatueMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
     {
         RunChozoStatueMain(slot, slot.RequireSpeciesState<ChozoStatueState>());

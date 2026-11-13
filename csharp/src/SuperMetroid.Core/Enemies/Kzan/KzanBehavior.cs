@@ -4,7 +4,7 @@ using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Enemies.Kzan;
 
-/// <summary>The Kzan species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Kzan species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -251,7 +251,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
             static (KzanEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Kzan animation raised {cue}."));
 
-    /// <summary>Ports KzanTop's main AI.</summary>
+    /// <summary>Runs KzanTop's main AI.</summary>
     internal void RunKzanTopMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunKzanTopMain(slot, slot.RequireSpeciesState<KzanEnemyState>(), frame.Samus);

@@ -8,7 +8,7 @@ internal sealed class SamusScrollCap
 {
     /// <summary>
     /// The camera's frame-start Samus checkpoint for this enemy frame. The live previous-position
-    /// words are this point plus the frame's writes so far. Null when no camera
+    /// position is this point plus the frame's writes so far. Null when no camera
     /// owns them, as in standalone enemy fixtures.
     /// </summary>
     private FixedPosition<RoomPixels>? _samusPreviousPositionCheckpoint;
@@ -30,7 +30,7 @@ internal sealed class SamusScrollCap
     /// </remarks>
     internal void CapSamusScrollingSpeed(SamusState samus)
     {
-        // Only the camera reads these words; without one there is nothing to cap.
+        // Only the camera reads this position; without one there is nothing to cap.
         if (_samusPreviousPositionCheckpoint is not { } checkpoint)
             return;
 
@@ -41,7 +41,7 @@ internal sealed class SamusScrollCap
             samus.WritePreviousXPosition(cappedX);
     }
 
-    /// <summary>Returns a previous-position word twelve pixels from Samus when the signed-distance comparison reaches the camera cap.</summary>
+    /// <summary>Returns a previous position twelve pixels from Samus when the signed-distance comparison reaches the camera cap.</summary>
     private static int? CappedPreviousPosition(int position, int previous)
     {
         int delta = CoordinateAxis.Difference(position, previous);

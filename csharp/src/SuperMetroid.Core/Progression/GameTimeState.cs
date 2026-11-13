@@ -37,7 +37,7 @@ public sealed class GameTimeState
     public void Step()
     {
         // The comparisons read 32,768 and above as negative, but every component stays inside the save-field range, and the
-        // wrapping increment keeps a loaded corrupt value stepping exactly as the original clock does.
+        // wrapping increment keeps a loaded corrupt value stepping exactly as the game's clock does.
         Frames = IncrementWrapping(Frames);
         if (Frames >= UnitsPerNextUnit)
         {

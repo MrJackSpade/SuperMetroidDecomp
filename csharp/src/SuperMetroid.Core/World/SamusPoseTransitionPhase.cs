@@ -53,7 +53,7 @@ internal sealed class SamusPoseTransitionPhase
         if (samus.KnockbackTimer == 0 && samus.KnockbackDirection == SuperMetroid.Core.Samus.Movement.SamusKnockbackDirection.None)
             SamusPoseMetadata.RejectUnsupportedPublishedBombJump(samus, _freeze.TimeIsFrozen);
 
-        // The turn-transition animation instruction's command-three “super-special” transition wins at this seam.
+        // The turn-transition animation cue's command-three “super-special” transition wins at this seam.
         // It publishes a turn-completion pose only if alpha did not select one
         // of its four jump exceptions. When published, it still wins here.
         // The hurt-expiry check samples hurt expiry before the pose update applies a queued
@@ -109,7 +109,7 @@ internal sealed class SamusPoseTransitionPhase
         // The pose-history shift runs after consuming any transition slot,
         // including a self-transition. A frame with no selected transition
         // does not shift it. Keep this after final collision/pose selection.
-        // The translated grapple launch applies its transitional
+        // The grapple launch applies its transitional
         // slot early and clears ordinary alpha input. It still reaches this
         // same history epilogue, once, after the forced launch pose.
         // X-ray setup applies interrupted-slot command five early and clears
@@ -204,8 +204,8 @@ internal sealed class SamusPoseTransitionPhase
 
         // Bomb overlap is published between alpha and beta, but the game's
         // interruption dispatcher considers it only AFTER movement/animation.
-        // Active hurt words retain the request without arming or rejecting it;
-        // expiry owns this frame even after clearing those words. This permits
+        // Active hurt values retain the request without arming or rejecting it;
+        // expiry owns this frame even after clearing those values. This permits
         // a later bomb launch to retain the damaged pose, with input locked by
         // special command three rather than an early speculative pose change.
         if (!animationTransitionApplied && samus.KnockbackTimer == 0 &&
@@ -948,7 +948,7 @@ internal sealed class SamusPoseTransitionPhase
                  _player.ProspectiveSamusFallbackPose is { } boostFallback &&
                  boostFallback != frame.PoseAtFrameStart)
         {
-            // Releasing every boost chord reaches definition byte two, the neutral jump poses:
+            // Releasing every boost chord reaches definition entry two, the neutral jump poses:
             // the same initializer as the table's held-Jump exit.
             SamusKnockbackMovement.ApplyDamageBoostPoseTransition(
                 samus,
@@ -1007,7 +1007,7 @@ internal sealed class SamusPoseTransitionPhase
                      SamusPoseId.SpringBallMovingLeftPose) &&
                  _player.ProspectiveSamusFallbackPose == frame.PoseAtFrameStart)
         {
-            // Prospective command one rechecks the post-movement base words. A
+            // Prospective command one rechecks the post-movement base speeds. A
             // residue selects mode two deceleration; exact zero falls through to
             // command two's stopped mode and definition fallback on the next frame.
             samus.HorizontalSpeed.AccelerationMode =
@@ -1085,7 +1085,7 @@ internal sealed class SamusPoseTransitionPhase
         {
             // Only the input fallback path above populates this value.
             // Validate and apply it through the same radius/animation seam as
-            // held-input aim changes; never assign the authored byte directly to Pose.
+            // held-input aim changes; never assign the authored value directly to Pose.
             SamusGroundedPoseTransitions.ApplyGroundedAimTransition(samus, 
                 unchecked(aimFallback));
         }

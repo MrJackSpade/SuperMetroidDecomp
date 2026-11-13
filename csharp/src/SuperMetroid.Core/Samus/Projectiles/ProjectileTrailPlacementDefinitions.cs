@@ -13,7 +13,7 @@ internal static class ProjectileTrailPlacementDefinitions
     /// <summary>
     /// The family each selector row names. Uncharged and charged rows twelve to fifteen read the following table's first
     /// rows. Null is a row that names no family: an empty row, whose direction table is left-over values, or a row
-    /// past the special beam attack table's ten, which reads list data whose words name no trail list.
+    /// past the special beam attack table's ten, which reads list data whose values name no trail list.
     /// </summary>
     internal static readonly FrozenDictionary<ProjectileTrailSelectorRow, ProjectileTrailFamily?> Families =
         new Dictionary<ProjectileTrailSelectorRow, ProjectileTrailFamily?>

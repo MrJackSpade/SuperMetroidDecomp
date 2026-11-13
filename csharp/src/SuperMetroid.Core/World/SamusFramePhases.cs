@@ -21,7 +21,7 @@ internal sealed class SamusFramePhases
 {
     /// <summary>Supplies Samus's installed death steps.</summary>
     private readonly RuntimeArtwork _artwork;
-    /// <summary>Opens the attract demo's Samus input window and selects the demo's new-input word.</summary>
+    /// <summary>Opens the attract demo's Samus input window and selects the demo's new-input state.</summary>
     private readonly IAttractSamusInput _attractDemo;
     /// <summary>Supplies held and newly pressed controller bits to Samus phase handlers.</summary>
     private readonly ControllerInputState _controller1;
@@ -277,7 +277,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             throw new InvalidOperationException("Grounded Samus movement requires active room level data.");
 
         // Frame-handler alpha refreshes the liquid-gravity values after pose input/radius setup and
-        // before beta movement. Refreshing the split gravity words every frame is
+        // before beta movement. Refreshing the split gravity values every frame is
         // essential at a liquid surface: a jump can cross from water to air without
         // any pose transition that would otherwise reinitialize acceleration.
         SamusAerialMovement.ConfigureEnvironmentGravity(samus);
@@ -348,7 +348,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
 
             // X-ray's freeze disables enemy room.Projectiles, room objects, animated tiles,
             // and palette FX while time is frozen. Normal bombs cannot be placed or
-            // advanced through this translated producer during the X-ray interval.
+            // advanced through this producer during the X-ray interval.
             // The bombs' share of the HUD handler runs the shared cooldown, then the morph ball's producer.
             if (room.BombProjectiles.RunHudProducer(samus, _controller1.Current, _controller1.NewlyPressed))
             {
@@ -585,7 +585,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
                 _player.ProspectiveSamusFallbackPose = null;
             }
 
-            // The shared alpha environment pass above already selected these words;
+            // The shared alpha environment pass above already selected these values;
             // repeat the explicit special-handler publication here to preserve the
             // old diagnostic seam while allowing water/lava instead of forcing air.
             SamusAerialMovement.ConfigureEnvironmentGravity(samus);
@@ -624,12 +624,12 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             }
         }
         // Drained controller functions install special-movement-type poses whose normal
-        // beta dispatcher is empty. Only the drained-fall animation instruction replaces the handler
+        // beta dispatcher is empty. Only the drained-fall animation cue replaces the handler
         // with the drained-falling mover; the other phases stay motionless while enemy AI controls
         // pose/timing. This branch is reached only when no independently retained
         // Crystal Flash handler still owns Samus's movement handler.
         // Controller zero changes only the pose, so a crashing spark keeps
-        // its handler and finishes below; the drained-fall instruction relinquishes the spark itself.
+        // its handler and finishes below; the drained-fall cue relinquishes the spark itself.
         // The rainbow-beam lock is the beta lock itself: once command one restores
         // the normal beta during enemy AI, this same frame's beta dispatches the knockback
         // pose's knockback mover below, as the movement table does.
@@ -683,7 +683,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         }
         // Samus's lock command installs an alpha handler which advances existing
         // room.Projectiles but a beta handler which performs no movement at all. All
-        // translated special movement owners above take priority; an otherwise
+        // special movement owners above take priority; an otherwise
         // locked standing body must not run generic ground collision or drift while
         // the game waits at the Ceres elevator.
         else if (samus.Control.AlphaLocked &&
@@ -1023,10 +1023,10 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             case SamusPoseId.GrappleAirborneAimDiagonalDownRightPose:
             case SamusPoseId.DraygonGrabbingLeftPose:
             default:
-                // Every pose reachable from the translated retail input, animation,
+                // Every pose reachable from the retail input, animation,
                 // enemy-grab, death, drained, grapple, Morph Ball, and shinespark
                 // producers has an explicit branch above. Reaching this point means
-                // the pose byte no longer agrees with the original game-backed producer
+                // the pose no longer agrees with the game-backed producer
                 // set; it is corrupt state, not a recoverable movement family.
                 throw new InvalidDataException(
                     $"Runtime movement dispatcher received invalid pose {samus.Pose}.");
@@ -1056,14 +1056,14 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
                     room.Enemies.Elevator.ElevatorStatus));
     }
 
-    /// <summary>Runs a turn pose's movement through its movement-type byte: ground turning, or turning in the air.</summary>
+    /// <summary>Runs a turn pose's movement through its movement type: ground turning, or turning in the air.</summary>
     private void StepTurningPoseMovement(SamusState samus, ISamusRoomObjects roomObjects)
     {
         if (_room.LevelData is null)
             throw new InvalidOperationException("Grounded Samus movement requires active room level data.");
 
         // The movement table dispatches strictly through the pose definition's
-        // movement-type byte. Y direction is data consumed by the selected
+        // movement type. Y direction is data consumed by the selected
         // handler, never a replacement dispatcher. In particular, crouched
         // left-to-right turn can retain downward direction while its type remains
         // turning on the ground; treating it as turning while jumping sent it into the aerial turn's handler
@@ -1150,7 +1150,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         frame.SampleCameraPoint(camera.PreviousSamusPoint ?? cameraPointAtFrameStart ??
             throw new InvalidOperationException("A gameplay frame with Samus samples her camera point at its start."));
 
-        // Retain the dispatch pose because the turn-transition animation instruction can replace Samus.Pose during
+        // Retain the dispatch pose because the turn-transition animation cue can replace Samus.Pose during
         // animation later in this same frame. Alpha/beta/transition phases all
         // agree on that order; using the mutable value afterward would apply an input
         // match selected for the old pose to the newly installed one.
@@ -1244,7 +1244,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         // function and before animation/pose transitions. Every fourth gameplay frame
         // at boost stage four, it alternates between two exact world-position snapshots.
         // Keeping this producer here means the draw handler below consumes post-motion
-        // coordinates with the same frame ordering as the original game.
+        // coordinates with the same frame ordering as the game.
         if (frame.Mode.Beta != SamusBetaHandler.SuitPickup && _player.LastShinesparkMovement is null)
         {
             samus.HorizontalSpeed.CaptureSpeedEchoPosition(_gameTime.Frames, samus.Position.Whole);
@@ -1299,7 +1299,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
 
         // Normal gameplay advances animation during frame-handler beta, before the
         // pose-transition handler, draw handler, and next frame's tile selection.
-        // Animation sees the same held-input word as movement. Ordinary Dash uses B
+        // Animation sees the same held input as movement. Ordinary Dash uses B
         // both to accumulate the running delay and to intercept the running delay-list
         // command; passing a reconstructed input later would skew art.
         if (frame.Mode.Beta == SamusBetaHandler.Fatal)
@@ -1342,7 +1342,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
 
     /// <summary>
     /// Advances the saved-game appearance owner. The ordinary Samus
-    /// animation and palette interpreter have already run earlier in this frame;
+    /// animation and palette steps have already run earlier in this frame;
     /// this tail owns only the exact 360-call fanfare lifetime and handler restoration.
     /// </summary>
     internal void StepSamusLoadAppearance(RoomScope room)

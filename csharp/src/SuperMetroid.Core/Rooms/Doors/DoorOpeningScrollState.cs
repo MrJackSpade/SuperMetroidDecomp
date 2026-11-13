@@ -28,7 +28,7 @@ internal sealed class DoorOpeningScrollState
         FinalSamusPosition = setup.FinalSamusPosition;
     }
 
-    /// <summary>Travel axis and sign selected by the destination door header.</summary>
+    /// <summary>Travel axis and sign selected by the destination door definition.</summary>
     public DoorDirection Direction { get; }
 
     /// <summary>Samus's signed 16.16 displacement for one scroll update, along the travel axis.</summary>
@@ -113,7 +113,7 @@ internal sealed class DoorOpeningScrollState
 
     /// <summary>
     /// The door setup replaces both whole coordinates with the foreground plus the
-    /// low position byte, preserving the fractions and deferring final nudges.
+    /// position modulo 256, preserving the fractions and deferring final nudges.
     /// </summary>
     internal static FixedPosition<RoomPixels> RebaseSamus(DoorDefinition door, FixedPosition<RoomPixels> setup)
     {
@@ -145,7 +145,7 @@ internal sealed class DoorOpeningScrollState
 
     /// <summary>
     /// Applies setup's first directional call before the door setup replaces the
-    /// whole position words. Downward setup stages a row without moving Samus.
+    /// whole position. Downward setup stages a row without moving Samus.
     /// </summary>
     internal static FixedPosition<RoomPixels> ApplySetupMovement(
         DoorDefinition door, FixedPosition<RoomPixels> source) =>

@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>One cue of Torizo's body programs, with the operands its instruction carries.</summary>
+/// <summary>One cue of Torizo's body programs, with the operands it carries.</summary>
 internal abstract record TorizoCue
 {
     /// <summary>Closes the hierarchy to the cues declared here.</summary>

@@ -4,7 +4,7 @@ using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Enemies.Bull;
 
-/// <summary>The Bull species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Bull species owner: its per-room state, behaviour and the interactions it registers.</summary>
 internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
@@ -166,7 +166,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Speed));
     }
 
-    /// <summary>Reads the game's signed sine sample for one byte-sized Bull heading.</summary>
+    /// <summary>Reads the game's signed sine sample for one Bull heading, in 256ths of a turn.</summary>
     internal static int ReadBullSignedSine(TrigonometryAngle angle) =>
         Trigonometry.SignedSixteenBitSine(angle);
 

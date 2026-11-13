@@ -9,7 +9,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>The Ridley species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Ridley species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class RidleyBehavior : IEnemySpecies
 {
@@ -34,7 +34,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
     /// <summary>Norfair Ridley's arrival and fight: hovering, swoops, pogo and ground attacks, and grabbing Samus.</summary>
     internal NorfairRidleyCombat Combat { get; }
 
-    /// <summary>How Norfair Ridley accelerates and moves toward a target, and the function timer its routines count down.</summary>
+    /// <summary>How Norfair Ridley accelerates and moves toward a target, and the function timer its steps count down.</summary>
     internal NorfairRidleyMovement Movement { get; }
 
     /// <summary>Norfair Ridley's death: the roar, breakup, explosions and the drop.</summary>
@@ -59,8 +59,8 @@ internal sealed class RidleyBehavior : IEnemySpecies
 
     /// <summary>
     /// Runs Norfair Ridley's per-frame behaviour and the area-two half of the shared reveal
-    /// dispatcher. Composition is advanced after the selected function, exactly like the
-    /// original game, so a velocity change affects the same rendered frame.
+    /// dispatcher. Composition is advanced after the selected function, so a velocity change affects the same rendered
+    /// frame.
     /// </summary>
     private void RunNorfairRidleyMain(
         RoomEnemySlot slot,
@@ -418,12 +418,12 @@ internal sealed class RidleyBehavior : IEnemySpecies
         int choice = _room.Random.Next(RidleyRandomDefinitions.AttackChoice);
         state.Function = RidleyAttackChoices.Resolve(situation, choice);
 
-        // The selector tail-calls the chosen routine. Retain that same-frame setup
-        // so timers, instruction changes, and velocity all begin on the selected frame.
+        // The selector runs the chosen function at once. Retain that same-frame setup
+        // so timers, program changes, and velocity all begin on the selected frame.
         RunNorfairRidleyFunction(slot, state, samus, controllerInput, level);
     }
 
-    /// <summary>Ports Lower Norfair Ridley's main AI.</summary>
+    /// <summary>Runs Lower Norfair Ridley's main AI.</summary>
     internal void RunRidleyMainAi(RoomEnemySlot slot, IEnemyAiFrame frame) =>
         RunNorfairRidleyMain(
             slot,

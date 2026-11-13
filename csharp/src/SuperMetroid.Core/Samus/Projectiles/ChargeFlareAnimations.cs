@@ -28,7 +28,7 @@ internal static class ChargeFlareAnimations
     internal static int DrawnFrame(int frame) => Ensure.BetweenInclusive(0, FramePlaces - 1, frame) % DrawnFramePlaces;
 
     /// <summary>
-    /// The delay or command byte at <paramref name="frame"/> of charge-flare <paramref name="component"/>'s program: zero
+    /// The delay or command at <paramref name="frame"/> of charge-flare <paramref name="component"/>'s program: zero
     /// the main flare, one the slow sparks, two the fast sparks. The program's place and the frame add within the cycle
     /// of places, so a frame past a program's end reads the following programs, and one rewound below the first
     /// program's start reads the delays <paramref name="below"/> decoded there.
@@ -45,7 +45,7 @@ internal static class ChargeFlareAnimations
         return Ensure.BetweenInclusive(0, byte.MaxValue, below.DelayBelow(distanceBelow));
     }
 
-    /// <summary>The main flare's delay or command byte at <paramref name="frame"/>, read without wrapping, as the grapple flare reads it.</summary>
+    /// <summary>The main flare's delay or command at <paramref name="frame"/>, read without wrapping, as the grapple flare reads it.</summary>
     internal static int ReadMainFlareDelay(int frame) => ReadCadence(MainFlare + frame);
 
     /// <summary>The place of <paramref name="position"/> within the cycle of flare places.</summary>

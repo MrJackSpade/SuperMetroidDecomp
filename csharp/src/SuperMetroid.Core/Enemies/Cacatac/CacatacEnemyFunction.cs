@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Cacatac;
 
 /// <summary>
-/// The routine Cacatac's main AI runs each frame. Initialization selects one of the first three by its authored
+/// The behaviour Cacatac's main AI runs each frame. Initialization selects one of the first three by its authored
 /// direction (moving left, moving right, or stopped while an attack animation owns the actor); no other start is
 /// authored.
 /// Its values are arbitrary.

@@ -79,7 +79,7 @@ public sealed class AreaMapPresentation : IGameplayPresentationContent
     public PauseReserveTankPresentation PauseReserveTanks { get; }
     /// <summary>Escape countdown visual layout and digit presentation.</summary>
     public EscapeTimerPresentation EscapeTimer { get; }
-    /// <summary>Gameplay HUD tilemap and display presentation, separate from the standard HUD character atlas.</summary>
+    /// <summary>Gameplay HUD picture and display presentation, separate from the standard HUD character atlas.</summary>
     public GameplayHudPresentation GameplayHud { get; }
     /// <summary>Selected game-over screen presentation resources.</summary>
     public GameOverPresentation GameOver { get; }

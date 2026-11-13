@@ -27,7 +27,7 @@ public static class FileSelectMapDefinitions
     /// <summary>Steps the entry fade divides its colour change into.</summary>
     public const int EntryPaletteDenominator = 15;
 
-    /// <summary>The entry window's upper margin when it opens, in scanlines.</summary>
+    /// <summary>The entry window's upper margin when it opens, in screen rows.</summary>
     public const int EntryWindowTop = 111;
 
     /// <summary>The entry window's inclusive left edge when it opens.</summary>

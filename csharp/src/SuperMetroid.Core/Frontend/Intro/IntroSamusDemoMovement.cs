@@ -40,7 +40,7 @@ internal static class IntroSamusDemoMovement
             if (SamusPoseMetadata.IsLeftFacingRunningPose(samus.Pose))
             {
                 // Running deceleration preserves the running pose and consults
-                // definition byte two only once both base-speed halves reach exact zero.
+                // definition entry two only once both base-speed halves reach exact zero.
                 fallback = samus.HorizontalSpeed.HasBaseSpeed
                     ? samus.Pose
                     : SamusPoseMetadata.ReadNoInputFallbackPose(samus);
@@ -66,7 +66,7 @@ internal static class IntroSamusDemoMovement
         }
         else if (SamusPoseMetadata.IsLeftFacingStandingPose(poseAtFrameStart))
         {
-            // The demo handler has written its held word into the controller input that
+            // The demo handler has written its held buttons into the controller input that
             // the standing animation tests, so a held shot holds the standing animation here too.
             movement = SamusGroundedMovement.StepStanding(level, samus, frameCounter,
                 heldInput);

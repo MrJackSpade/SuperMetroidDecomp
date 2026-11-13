@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Fx;
 /// The liquid options a room-FX record selects. Each liquid tests the options one at a time, and records combine
 /// them (a tide with a drifting surface, a wave with a tide), so they are composable. Two options mean different
 /// things to water and to lava or acid; their names say both. Options no liquid tests are kept as loaded. The values
-/// are arbitrary and nothing reads them: the record's options byte is the import's room-FX record codec's.
+/// are arbitrary and nothing reads them: the record's stored options are the import's room-FX record codec's.
 /// </summary>
 [Flags]
 public enum RoomLiquidOptions

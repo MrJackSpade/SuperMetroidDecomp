@@ -5,8 +5,7 @@ public static class CrawlerSlopeDefinitions
 {
     /// <summary>
     /// The tangent multiplier, in 256ths, of each of the 32 slope shapes: square shapes keep the full speed, and
-    /// the gentle and steep shapes scale it down. The unused additive words are not consumed by the enemy movement
-    /// routine.
+    /// the gentle and steep shapes scale it down. The unused additive values are not consumed by the enemy movement.
     /// </summary>
     internal static readonly int[] Multipliers =
     [

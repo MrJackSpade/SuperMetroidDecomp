@@ -14,7 +14,7 @@ public sealed record ScrollingSkyLayer(int VerticalScroll, ImmutableArray<int> B
     /// <summary>The world rows a row position covers before it wraps to row 0.</summary>
     private const int WorldRows = ushort.MaxValue + 1;
 
-    /// <summary>The world row the first gameplay scanline shows, before it wraps past row 65535.</summary>
+    /// <summary>The world row the first gameplay screen row shows, before it wraps past row 65535.</summary>
     public int FirstGameplayRow => VerticalScroll + ScrollingSkyBandDefinitions.GameplayFirstScanline;
 
     /// <summary>

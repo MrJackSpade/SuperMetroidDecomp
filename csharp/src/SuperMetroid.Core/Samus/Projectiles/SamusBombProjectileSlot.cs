@@ -52,9 +52,9 @@ public sealed class SamusBombProjectileSlot
     }
     /// <summary>The slot's projectile animation and where it stands in it (#1600); null marks an inactive slot, and a consumed timed frame plays it past that record.</summary>
     internal AnimationPlayback<SamusProjectileProgram>? Playback { get; set; }
-    /// <summary>Wrapping duration countdown, decremented once per unfrozen projectile update; reaching zero runs the next program instruction.</summary>
+    /// <summary>Wrapping duration countdown, decremented once per unfrozen projectile update; reaching zero runs the next program cue.</summary>
     public WrappingCountdown FrameHold { get; internal set; }
-    /// <summary>The composition the bomb shows, selected by the timed-frame interpreter or installed frame binding; none before its first frame.</summary>
+    /// <summary>The composition the bomb shows, selected by the timed-frame animation or installed frame binding; none before its first frame.</summary>
     public ProjectileSpriteId? Sprite { get; internal set; }
     /// <summary>Collision half-extents in whole pixels, loaded from the timed frames; not the global Power Bomb blast radius.</summary>
     public Extent16<RoomPixels> Radius { get; internal set; }

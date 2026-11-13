@@ -6,9 +6,8 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
 /// Shared state behind Mother Brain's two retail enemy records, the body and the brain.
-/// The original stores most of these values in named extended memory rather than in either common
-/// enemy slot. A dedicated object therefore preserves both the physical slot
-/// boundary and the original one-owner/two-record relationship.
+/// Most of these values belong to neither enemy slot. A dedicated object therefore preserves both the physical slot
+/// boundary and the one-owner/two-record relationship.
 /// </summary>
 public sealed class MotherBrainEnemyState
 {
@@ -40,7 +39,7 @@ public sealed class MotherBrainEnemyState
 
     /// <summary>
     /// Body-animation state written by private program cues. The body AI reads this
-    /// pose independently of the current spritemap, notably while waiting for the slow
+    /// pose independently of the current frame, notably while waiting for the slow
     /// post-ascent uncrouch to publish <see cref="MotherBrainBodyPose.Standing"/>.
     /// </summary>
     public MotherBrainBodyPose Pose { get; internal set; }
@@ -95,7 +94,7 @@ public sealed class MotherBrainEnemyState
     internal AnimationPlayback<MotherBrainBodyProgram> HeadSlotPlayback { get; set; } =
         new(MotherBrainAnimations.BodyStartingWith(MotherBrainBodyProgram.InitialDummy), AnimationPlace.StartOfAnimation);
 
-    /// <summary>Earthquake timer copied into the head-shake word after the glass event.</summary>
+    /// <summary>Earthquake timer copied into the head-shake timer after the glass event.</summary>
     public int BrainMainShakeTimer { get; internal set; }
 
     /// <summary>Shared flag that asks Mother Brain Rinkas and turrets to remove themselves.</summary>
@@ -181,7 +180,7 @@ public sealed class MotherBrainEnemyState
     /// <summary>Zero-based colour step used while leaving fake-death grey.</summary>
     public int GrayTransitionCounter { get; internal set; }
 
-    /// <summary>Allows head bytecode's mouth-drool generation, enabled during live combat and cleared by low-power/death transitions.</summary>
+    /// <summary>Allows the head program's mouth-drool generation, enabled during live combat and cleared by low-power/death transitions.</summary>
     public bool DroolGenerationEnabled { get; internal set; }
     /// <summary>Allows the head's small purple breath/dust producer, enabled after stretching and disabled for the drained corpse interval.</summary>
     public bool SmallPurpleBreathGenerationEnabled { get; internal set; }
@@ -200,7 +199,7 @@ public sealed class MotherBrainEnemyState
     /// </summary>
     public int DroolProjectileParameter { get; internal set; }
 
-    /// <summary>The walk-credit word this encounter owns and an attached sequence shares.</summary>
+    /// <summary>The walk credit this encounter owns and an attached sequence shares.</summary>
     internal MotherBrainWalkCounter Walk { get; } = new();
 
     /// <summary>Walk credit: standing turns earn it toward a forward step and the player's hits spend it.</summary>
@@ -263,7 +262,7 @@ public sealed class MotherBrainEnemyState
     /// <summary>
     /// The already verified rainbow/finish-off/Baby/phase-three state machine, attached to
     /// the real body/head pair only after phase-two health reaches zero. Physical actor
-    /// coordinates and bytecode remain owned by this room system; this object owns the long
+    /// coordinates and programs remain owned by this room system; this object owns the long
     ///  function chain and forced-Samus calculations.
     /// </summary>
     public MotherBrainRainbowBeamAttackSequence? RainbowBeamSequence
@@ -271,7 +270,7 @@ public sealed class MotherBrainEnemyState
         get;
         internal set
         {
-            // An attached sequence reads and writes the encounter's own walk-credit word.
+            // An attached sequence reads and writes the encounter's own walk credit.
             value?.ShareWalkCounter(Walk);
             field = value;
         }
@@ -311,7 +310,7 @@ public sealed class MotherBrainEnemyState
     public MotherBrainRainbowBeamEffect RainbowBeam { get; } = new();
     /// <summary>Current angular aim published from the beam's forced-movement owner and consumed by the rainbow beam effect.</summary>
     public RotationAngle RainbowBeamAngle { get; internal set; }
-    /// <summary>Rainbow-beam angular width, published by body AI as the beam widens or narrows; independent of pixel width at a given scanline.</summary>
+    /// <summary>Rainbow-beam angular width, published by body AI as the beam widens or narrows; independent of pixel width at a given screen row.</summary>
     public RotationAngle RainbowBeamAngularWidth { get; internal set; }
 
     /// <summary>

@@ -27,7 +27,7 @@ internal enum EndingSpriteRole
     ExplosionGlow,
     /// <summary>Initial star layer deleted with the primary planet actor.</summary>
     ExplosionStars,
-    /// <summary>Silhouette spawned by the explosion instruction stream.</summary>
+    /// <summary>Silhouette spawned by the explosion cue stream.</summary>
     ExplosionSilhouette,
     /// <summary>Right starfield in its fixed slot during flyaway.</summary>
     ExplosionStarsRight,

@@ -2,7 +2,7 @@
 
 /// <summary>The bounded step domains of Samus's charge and Hyper-shot colour cycles.</summary>
 /// <remarks>
-/// These domains are verified against every top-level and nested list entry in the original data. The colors they
+/// These domains are verified against every top-level and nested list entry in the authored data. The colors they
 /// select remain authored presentation data, which the import pre-colours Samus in (#1512).
 /// </remarks>
 public static class SamusChargePaletteDefinitions

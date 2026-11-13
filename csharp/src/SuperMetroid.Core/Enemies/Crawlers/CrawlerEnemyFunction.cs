@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Crawlers;
 
 /// <summary>
-/// The routine a creepy-crawly enemy's main AI runs each frame.
+/// The behaviour a creepy-crawly enemy's main AI runs each frame.
 /// Its values are arbitrary.
 /// </summary>
 public enum CrawlerEnemyFunction
@@ -14,10 +14,10 @@ public enum CrawlerEnemyFunction
     HZoomerCrawlingHorizontally,
     /// <summary>Return-only shared-crawler initial state, awaiting the surface animation's command to install the crawling function.</summary>
     InstructionPending,
-    /// <summary>Shared wall-crawling routine that probes horizontal attachment, advances vertically, and rotates the surface animation at inside or outside corners.</summary>
+    /// <summary>Shared wall-crawling behaviour that probes horizontal attachment, advances vertically, and rotates the surface animation at inside or outside corners.</summary>
     CrawlingVertically,
     /// <summary>Shared detachment fall with half-pixel downward acceleration until the whole velocity reaches four pixels per update; landing clears fall motion and restores the saved attached function.</summary>
     Falling,
-    /// <summary>Shared floor/ceiling-crawling routine that probes vertical attachment, advances horizontally with slope adjustment, and rotates the surface animation at corners.</summary>
+    /// <summary>Shared floor/ceiling-crawling behaviour that probes vertical attachment, advances horizontally with slope adjustment, and rotates the surface animation at corners.</summary>
     CrawlingHorizontally,
 }

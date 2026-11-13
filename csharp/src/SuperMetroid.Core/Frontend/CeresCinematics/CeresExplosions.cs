@@ -33,7 +33,7 @@ internal static class CeresExplosions
         FinalWave,
     }
 
-    /// <summary>Maps the initial and final instruction milestones to their exact host-frame numbers.</summary>
+    /// <summary>Maps the initial and final cue milestones to their exact host-frame numbers.</summary>
     private static int FrameOf(SpawnerMilestone milestone) => milestone switch
     {
         SpawnerMilestone.InitialWave => InitialSpawnFrame,
@@ -56,7 +56,7 @@ internal static class CeresExplosions
     ///
     /// Issues #625 and #993: the separate signed X offsets are
     /// +16, -16, +16, -16, 0 for i=0..4, matching the
-    /// original data. The outer
+    /// authored data. The outer
     /// four follow 16*(1-2*(i&amp;1)); the fifth is the center blast at zero.
     /// Each blast starts at the floor's centre X minus its scroll X, then
     /// adds this signed offset, wrapping past 65535. The bounded
@@ -65,7 +65,7 @@ internal static class CeresExplosions
     ///
     /// Issues #625 and #994: the separate signed Y offsets are
     /// -16, +16, +16, -16, 0 for i=0..4, matching the
-    /// original data. For the outer
+    /// authored data. For the outer
     /// four, Y is the negative of the matching X offset when i&lt;2, then
     /// equals X when i=2..3; the fifth is the center at zero. Initializer
     /// Each blast starts at the floor's centre Y minus its scroll Y before adding this
@@ -94,7 +94,7 @@ internal static class CeresExplosions
     /// <summary>Returns one of the four timer/X/Y rows of the final wave.</summary>
     /// <remarks>
     /// Issues #625 and #997: the four final-wave delays are
-    /// 1, 4, 8, 16, matching the original
+    /// 1, 4, 8, 16, matching the authored
     /// data. For bounded blast index i=0..3 this is i=0 ? 1 :
     /// 1&lt;&lt;(i+1). The final wave spawns these four indices, and each
     /// initializer installs its delay as the first frame hold.
@@ -103,15 +103,15 @@ internal static class CeresExplosions
     ///
     /// Issues #625 and #998: the separate signed X offsets are
     /// +8, +12, -8, -12 for i=0..3, matching
-    /// the original data. Their magnitude is
+    /// the authored data. Their magnitude is
     /// 8+4*(i&amp;1), positive for i&lt;2 and negative otherwise.
     /// Each initializer adds this X after the floor's centre X minus its scroll X
     /// wrapping past 65535. The bounded sign/magnitude rule exactly
-    /// covers the four spawned actors, without reading adjacent Y words.
+    /// covers the four spawned actors, without reading adjacent Y values.
     ///
     /// Issues #625 and #999: the separate signed Y offsets are
     /// -4, +8, -10, +12 for i=0..3, matching
-    /// the original data. Each initializer adds Y
+    /// the authored data. Each initializer adds Y
     /// after the floor's centre Y minus its scroll Y, wrapping past 65535.
     /// These particular vertical placements are retained spatial choreography; see
     /// FinalBurstHeights for the narrowly scoped nonsense disposition under #1165.

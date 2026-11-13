@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// cinematic is skipped, and the ending reads a chosen clear time. <see cref="None"/> is the unassisted game.
 /// </summary>
 /// <remarks>
-/// Every assist works at one seam around the game's own routines, so damage, firing, timers and room setup keep their
+/// Every assist works at one seam around the game's own behaviour, so damage, firing, timers and room setup keep their
 /// ordinary side effects. Attract-demo playback always runs unassisted.
 /// </remarks>
 public sealed record GameplayAssists

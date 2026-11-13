@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Title;
 /// The thirty-one title-sequence sprite compositions: each title card's reveal frames, the Super Metroid logo and the
 /// Nintendo copyright. Each reveal shows one more letter than the frame before it, except the penultimate Metroid 3
 /// frame, which adds the space before the numeral. Values are arbitrary; installed title artwork is keyed by these
-/// names, and only the extraction pipeline knows which original spritemap each one came from.
+/// names, and only the extraction pipeline knows which game frame each one came from.
 /// </summary>
 public enum TitleSprite
 {

@@ -3,8 +3,8 @@ using SuperMetroid.Core.Enemies.Elevator;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// The elevator journey words the runtime reads and the operations it performs on them at fixed phase points. Reads are
-/// live: alpha, beta and the door transition see the words after their own updates within the frame.
+/// The elevator journey state the runtime reads and the operations it performs on it at fixed phase points. Reads are
+/// live: alpha, beta and the door transition see the state after their own updates within the frame.
 /// </summary>
 internal interface IElevatorJourney
 {
@@ -26,7 +26,7 @@ internal interface IElevatorJourney
     /// <summary>Returns and clears the slot of the arriving elevator that placed Samus during the room load.</summary>
     int? ConsumeElevatorArrivalPlacementSlot();
 
-    /// <summary>Publishes type-$9 pseudo-door collision.</summary>
+    /// <summary>Publishes the elevator's pseudo-door collision.</summary>
     void PublishElevatorDoorContact();
 
     /// <summary>Clears the flags when gameplay resumes.</summary>

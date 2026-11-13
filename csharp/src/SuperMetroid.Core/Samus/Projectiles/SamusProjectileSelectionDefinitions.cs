@@ -3,12 +3,12 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// Which projectile header each shot, bomb, special attack and echo starts from, by what fires it: a beam combination and
+/// Which projectile definition each shot, bomb, special attack and echo starts from, by what fires it: a beam combination and
 /// whether the shot was charged, a projectile family, or an echo.
 /// </summary>
 internal static class SamusProjectileSelectionDefinitions
 {
-    /// <summary>The header each retail beam combination's uncharged shot starts from.</summary>
+    /// <summary>The definition each retail beam combination's uncharged shot starts from.</summary>
     internal static readonly IReadOnlyDictionary<SamusBeamCombination, SamusProjectileHeader> UnchargedBeamShots =
         new Dictionary<SamusBeamCombination, SamusProjectileHeader>
         {
@@ -26,7 +26,7 @@ internal static class SamusProjectileSelectionDefinitions
             [SamusBeamCombination.PlasmaIceWave] = SamusProjectileHeader.UnchargedPlasmaIceWave,
         };
 
-    /// <summary>The header each retail beam combination's charged shot starts from.</summary>
+    /// <summary>The definition each retail beam combination's charged shot starts from.</summary>
     internal static readonly IReadOnlyDictionary<SamusBeamCombination, SamusProjectileHeader> ChargedBeamShots =
         new Dictionary<SamusBeamCombination, SamusProjectileHeader>
         {
@@ -69,7 +69,7 @@ internal static class SamusProjectileSelectionDefinitions
 
     /// <summary>
     /// The animation the Murder Beam's shot runs in each direction whose read names one, or none fired left; the four
-    /// directions left out read a damage word as their animation.
+    /// directions left out read a damage value as their animation.
     /// </summary>
     internal static readonly IReadOnlyDictionary<SamusProjectileDirection, SamusProjectileProgram?> MurderBeamDirectionAnimations =
         new Dictionary<SamusProjectileDirection, SamusProjectileProgram?>
@@ -86,7 +86,7 @@ internal static class SamusProjectileSelectionDefinitions
     internal static readonly MurderBeamDirectionPrograms<SamusProjectileDirection, SamusProjectileProgram> MurderBeamPrograms =
         new(MurderBeamDirectionAnimations);
 
-    /// <summary>The header each fired missile and placed bomb starts from, by its projectile family.</summary>
+    /// <summary>The definition each fired missile and placed bomb starts from, by its projectile family.</summary>
     internal static readonly IReadOnlyDictionary<SamusProjectileFamily, SamusProjectileHeader> NonBeamProjectiles =
         new Dictionary<SamusProjectileFamily, SamusProjectileHeader>
         {
@@ -97,8 +97,8 @@ internal static class SamusProjectileSelectionDefinitions
         };
 
     /// <summary>
-    /// The header each special attack's particles start from, by the retail beam combination that fires it; the Ice
-    /// attack's particles start from the charged Ice shot instead, and the other combinations have no particle header.
+    /// The definition each special attack's particles start from, by the retail beam combination that fires it; the Ice
+    /// attack's particles start from the charged Ice shot instead, and the other combinations have no particle definition.
     /// </summary>
     internal static readonly IReadOnlyDictionary<SamusBeamCombination, SamusProjectileHeader> SpecialAttacks =
         new Dictionary<SamusBeamCombination, SamusProjectileHeader>
@@ -110,7 +110,7 @@ internal static class SamusProjectileSelectionDefinitions
             [SamusBeamCombination.PlasmaWave] = SamusProjectileHeader.PlasmaSBA,
         };
 
-    /// <summary>The header each echo starts from.</summary>
+    /// <summary>The definition each echo starts from.</summary>
     internal static readonly IReadOnlyDictionary<SamusBeamEcho, SamusProjectileHeader> Echoes =
         new Dictionary<SamusBeamEcho, SamusProjectileHeader>
         {

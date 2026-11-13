@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
 /// How a door is passed: the direction Samus travels through it and what closes behind her on arrival. The import
-/// pipeline decodes the door data's orientation byte into these two fields.
+/// pipeline decodes the door data's orientation into these two fields.
 /// </summary>
 public readonly record struct DoorOrientation
 {

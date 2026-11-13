@@ -47,7 +47,7 @@ internal sealed class EnemyProcessingWindow
     /// endpoint scan therefore sees this frame's interactive list, including an actor that
     /// a death explosion respawned at the end of the previous frame. The per-line display effects run
     /// earlier still, at the start of the update: that order is observable on spawn (one-frame pending
-    /// initialization) and shutdown (the full beam sees the body's cleared activation word on
+    /// initialization) and shutdown (the full beam sees the body's cleared activation flag on
     /// the following frame).
     /// </remarks>
     /// <param name="camera">Camera position (viewport top-left) in whole room pixels.</param>

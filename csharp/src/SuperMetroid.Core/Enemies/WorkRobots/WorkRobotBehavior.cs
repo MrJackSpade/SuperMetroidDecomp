@@ -9,7 +9,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.WorkRobots;
 
-/// <summary>The work robot species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The work robot species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -19,7 +19,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new WorkRobotEntity(this, slot, common);
 
-    /// <summary>Checks Phantoon's defeat flag and samples the room random word for laser timing.</summary>
+    /// <summary>Checks Phantoon's defeat flag and samples the room random number for laser timing.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Moves the robot along floors and probes its next foothold.</summary>
     private readonly EnemyTerrain _terrain;
@@ -59,7 +59,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Enemy-library sound queued by a robot laser.</summary>
     private static readonly SoundEffectId WorkRobotLaserSound =
         EnemySoundEffectDefinitions.WorkRobotLaserSound;
-    /// <summary>Pixels advanced by one robot walk instruction.</summary>
+    /// <summary>Pixels advanced by one robot walk cue.</summary>
     private const int WorkRobotStepPixels = 4;
 
     /// <summary>Updates left before the powered robots' glow steps; zero while the glow is stopped.</summary>
@@ -91,8 +91,8 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.Powered = true;
 
-        // The initializer sets the animation-script bit and the unknown-but-observable high
-        // bit. Population records already carry process-off-screen in retail rooms.
+        // The initializer sets the animation-script property and one more unnamed but observable property.
+        // Population records already carry process-off-screen in retail rooms.
         slot.Contact = slot.Contact.With(EnemyContact.SolidToSamus);
         slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
         slot.FrameHold = WrappingCountdown.Start(4);
@@ -146,7 +146,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_terrain.MoveEnemyVertically(level, slot, state.FallVelocity))
             return;
 
-        // Enemy instruction processing will decrement the timer later in this same frame.
+        // Enemy animation processing will decrement the timer later in this same frame.
         // Incrementing here cancels that tick, freezing the current art while airborne.
         slot.FrameHold = slot.FrameHold.AddFrames(1);
         // The fraction carries into the whole pixels, which wrap, as the game's paired additions do.
@@ -155,7 +155,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Carries out one cue of the Work Robot's animations. Steps that meet a wall or ledge, the two walk redirections, and
-    /// a laser that fires continue the animation elsewhere, as the routines replace the program.
+    /// a laser that fires continue the animation elsewhere, as the cues replace the program.
     /// </summary>
     private WorkRobotProgram? ApplyWorkRobotCue(RoomEnemySlot slot, WorkRobotEnemyState state, EnemyInstructionContext context, WorkRobotCue cue)
     {
@@ -275,7 +275,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         CoordinateAxis.Difference(robot.Position.Y.Whole, camera.Y) > 0 &&
         CoordinateAxis.AsSigned(camera.Y + 224 - robot.Position.Y.Whole) >= 0;
 
-    /// <summary>Uses the existing random word to reset cooldown and enters the firing list when ready.</summary>
+    /// <summary>Uses the existing random number to reset cooldown and enters the firing list when ready.</summary>
     private WorkRobotProgram? TryFireWorkRobotLaser(
         RoomEnemySlot robot,
         WorkRobotEnemyState state,
@@ -387,7 +387,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         }, EnemyProjectileFrameBehavior.WorkRobotLaserFlight);
     }
 
-    /// <summary>Ports WorkRobot's main AI.</summary>
+    /// <summary>Runs WorkRobot's main AI.</summary>
     internal void RunWorkRobotMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunWorkRobotMain(slot, slot.RequireSpeciesState<WorkRobotEnemyState>(), frame.Level);
@@ -458,7 +458,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.Position = new(new(CoordinateAxis.Wrap(robot.Position.X.Whole +
             (state.LaserVelocity.X.IsNegative ? -4 : 4)), 0), new(CoordinateAxis.Wrap(robot.Position.Y.Whole - 16), 0));
 
-        // Preserve the original laser viewport bug. Its final Y comparison omits
+        // Preserve the laser viewport bug. Its final Y comparison omits
         // the camera's Y, so lasers only request sound while their owner's absolute
         // top edge is less than 224 pixels from the room's top, even when a lower room row is on screen.
         bool horizontallyVisible =

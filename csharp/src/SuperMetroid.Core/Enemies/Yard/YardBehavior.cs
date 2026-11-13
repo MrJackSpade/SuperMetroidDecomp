@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Yard;
 
 /// <summary>
-/// Yard behavior word (<c>Yard.behavior</c>). The game stores
+/// Yard's behavior. The game uses
 /// only these six values and compares them for look-at, solidity, touch and airborne decisions.
 /// </summary>
 public enum YardBehavior

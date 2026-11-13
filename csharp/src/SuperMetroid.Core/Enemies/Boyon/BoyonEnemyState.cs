@@ -29,19 +29,19 @@ public sealed class BoyonEnemyState
 
     /// <summary>
     /// The arc's target height in 256ths of a pixel, 12288 through 45056 from its spawn settings. It is compared with
-    /// <see cref="DistanceAccumulator"/> by the sign of their word difference (<see cref="HasReachedJumpHeight"/>), so
+    /// <see cref="DistanceAccumulator"/> by the sign of their wrapped difference (<see cref="HasReachedJumpHeight"/>), so
     /// heights of 32769 and above behave as the game's do.
     /// </summary>
     public int JumpHeight { get; internal set; }
 
     /// <summary>
-    /// The distance accumulated while deriving the initial curve index, in 256ths of a pixel, as the exact word the
+    /// The distance accumulated while deriving the initial curve index, in 256ths of a pixel, as the exact value the
     /// game keeps (0 through 65535): it advances only through <see cref="AccumulateBounceDistance"/>, which wraps it.
     /// </summary>
     public int DistanceAccumulator { get; internal set; }
 
     /// <summary>
-    /// The current entry of the triangular speed curve, as the exact word the game keeps. Rising retreats it with
+    /// The current entry of the triangular speed curve, as the exact value the game keeps. Rising retreats it with
     /// <see cref="RetreatSpeedTableIndex"/>, which takes it from zero to <see cref="LargestSpeedTableIndex"/> at the
     /// top of the arc; falling advances it with <see cref="AdvanceSpeedTableIndex"/>, which takes it from there back to
     /// zero.
@@ -52,16 +52,16 @@ public sealed class BoyonEnemyState
         internal set => field = Ensure.BetweenInclusive(0, LargestSpeedTableIndex, value);
     }
 
-    /// <summary>The largest curve index the word holds: rising past entry zero leaves this value.</summary>
+    /// <summary>The largest curve index the index holds: rising past entry zero leaves this value.</summary>
     internal const int LargestSpeedTableIndex = 65535;
 
     /// <summary>
     /// Whether the accumulated distance has reached the jump height. The game subtracts the height from the
-    /// distance and tests the sign of the word result, so any height above 32768 is reached by a zero distance.
+    /// distance and tests the sign of the wrapped result, so any height above 32768 is reached by a zero distance.
     /// </summary>
     internal bool HasReachedJumpHeight => !WrappingCounter.IsBehind(DistanceAccumulator, JumpHeight);
 
-    /// <summary>Adds one update's speed to the accumulated distance, wrapping as the game's word addition does.</summary>
+    /// <summary>Adds one update's speed to the accumulated distance, wrapping as the game's addition does.</summary>
     internal void AccumulateBounceDistance(int speed) =>
         DistanceAccumulator = WrappingCounter.AddCount(DistanceAccumulator, speed);
 
@@ -71,7 +71,7 @@ public sealed class BoyonEnemyState
 
     /// <summary>
     /// Moves one entry up the curve (rising). The index wraps from zero to <see cref="LargestSpeedTableIndex"/>, and
-    /// the result reports whether the decremented word is negative, the game's signal that the top of the arc was
+    /// the result reports whether the decremented index is negative, the game's signal that the top of the arc was
     /// passed.
     /// </summary>
     internal bool RetreatSpeedTableIndex()
@@ -81,7 +81,7 @@ public sealed class BoyonEnemyState
         return step.IsNegative;
     }
 
-    /// <summary>One-word latch preventing a second animation restart mid-bounce.</summary>
+    /// <summary>Latch preventing a second animation restart mid-bounce.</summary>
     public bool Bouncing { get; internal set; }
 
     /// <summary>Curve index at which falling reaches the spawn-height baseline; the derivation ends within the curve's first 200 entries.</summary>

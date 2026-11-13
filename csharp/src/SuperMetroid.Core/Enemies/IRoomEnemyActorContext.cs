@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// The actors and input enemy initialization and AI read: room terrain, Samus, the held controller
-/// mask and the camera. Terrain and Samus are absent only in fixtures without them; an AI routine that
+/// mask and the camera. Terrain and Samus are absent only in fixtures without them; an AI that
 /// needs one fails where it reads it.
 /// </summary>
 public interface IRoomEnemyActorContext

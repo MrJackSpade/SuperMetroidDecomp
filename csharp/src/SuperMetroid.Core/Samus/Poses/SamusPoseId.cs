@@ -46,7 +46,7 @@ public enum SamusPoseId
     CompactAirborneFallingLeftPose,
 
     /// <summary>
-    /// This pose visually faces left while moonwalking right. Its pose-X byte is deliberately
+    /// This pose visually faces left while moonwalking right. Its pose X direction is deliberately
     /// eight: horizontal movement follows travel direction, not the artwork's facing.
     /// </summary>
     MoonwalkFacingLeftPose,

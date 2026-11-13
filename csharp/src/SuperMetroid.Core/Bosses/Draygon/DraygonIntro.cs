@@ -21,7 +21,7 @@ internal sealed class DraygonIntro
         _turrets = turrets;
     }
 
-    /// <summary>Ports the opening 256-frame delay.</summary>
+    /// <summary>Runs the opening 256-frame delay.</summary>
     internal void RunDraygonIntroInitialDelay(
         DraygonEnemyState state,
         SamusState? samus,
@@ -55,7 +55,7 @@ internal sealed class DraygonIntro
         state.SwoopAcceleration = DraygonBehavior.DraygonInitialSwoopAcceleration;
     }
 
-    /// <summary>Ports the 1,232-frame Evir dance.</summary>
+    /// <summary>Runs the 1,232-frame Evir dance.</summary>
     internal void RunDraygonIntroDance(
         DraygonEnemyState state,
         SamusState? samus,

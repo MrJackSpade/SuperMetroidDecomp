@@ -69,13 +69,13 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         // The pose refresh dispatches the new falling movement type through the falling initializer
         // before command five initializes the downward state. That initializer derives
         // the mode from extra dash speed; it must not retain the grounded release mode.
-        // Base speed itself survives until the next aerial movement routine consumes it.
+        // Base speed itself survives until the next aerial movement behaviour consumes it.
         SamusAerialPoseTransitions.InitializeOrdinaryAerialAcceleration(samus);
         SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
     }
 
     /// <summary>
-    /// Ports the facing lookup used by the walk-off transition for a grounded walk-off.
+    /// Runs the facing lookup used by the walk-off transition for a grounded walk-off.
     /// </summary>
     public static SamusPoseId SelectFallingPoseForCurrentAim(SamusState samus)
     {
@@ -415,7 +415,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         {
             // The allowlist above is the exhaustive set of pose-transition operands referenced
             // by active retail animation streams. Anything else means the caller supplied
-            // a target that was not read from the current pose's animation bytecode.
+            // a target that was not read from the current pose's animation program.
             throw new InvalidOperationException(
                 $"Animation transition {samus.Pose} -> {targetPose} is not an active retail animation-command route.");
         }

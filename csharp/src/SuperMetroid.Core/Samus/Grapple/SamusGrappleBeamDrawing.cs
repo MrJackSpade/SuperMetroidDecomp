@@ -83,7 +83,7 @@ public static class SamusGrappleBeamDrawing
         int screenY = CoordinateAxis.Wrap(grapple.BeamStart.Y - cameraPosition.Y);
         // The flare is published wherever it lies; the display clips it to the view (#1541).
 
-        // The first word of both facing rows is zero. Grapple uses the
+        // The first entry of both facing rows is zero. Grapple uses the
         // shared main flare only; charge-spark direction offsets do not apply.
         int tableIndex = CoordinateAxis.Wrap(
             grapple.FlareAnimationFrame + SuperMetroid.Core.Samus.Artwork.ChargeFlareSpriteDefinitions.MainFlareSelectorOffset);
@@ -182,7 +182,7 @@ public static class SamusGrappleBeamDrawing
         // is observably different from merely reversing EndAngle while firing, and it also
         // keeps the rope visually attached after pose-specific art-origin correction.
         RotationAngle drawAngle = SamusGrappleMovement.CalculateAngleFromXY(grapple.Anchor - grapple.BeamStart);
-        // Preserve the fractional word across segments. Rounding each individual
+        // Preserve the fraction across segments. Rounding each individual
         // displacement shortens diagonals and rounds negative steps incorrectly.
         int stepX = SamusGrappleSwing.ReadSignedSine(drawAngle + RotationAngle.QuarterTurn)
             * GrappleBeamDefinitions.Rendering.SegmentSampleToFixedPoint;
@@ -245,11 +245,11 @@ public static class SamusGrappleBeamDrawing
         (phase + RopeCycle - 1 - segment % RopeCycle) % RopeCycle;
 
 
-    /// <summary>Clears the three charge-flare words shared by grapple cancellation and connection cleanup.</summary>
+    /// <summary>Clears the three charge-flare values shared by grapple cancellation and connection cleanup.</summary>
     internal static void ClearFlareAnimation(SamusGrappleState grapple)
     {
         // Every grapple teardown clears these same shared charge/grapple
-        // words before restoring the ordinary draw handler and projectile palette.
+        // values before restoring the ordinary draw handler and projectile palette.
         grapple.FlareStage = GrappleFlareStage.None;
         grapple.FlareAnimationFrame = 0;
         grapple.FlareAnimationTimer = WrappingCountdown.Start(0);

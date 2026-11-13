@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Samus;
 /// calls <c>MoveSamusWithDraygon</c>. This object deliberately accepts that actor position
 /// as an explicit input. It does not fabricate an enemy trajectory inside Samus physics.
 /// Everything after that boundary—the signed claw offset, pose family, escape counter,
-/// release pose, velocity cleanup, and movement-type side effect—is translated here.
+/// release pose, velocity cleanup, and movement-type side effect—is modelled here.
 /// </remarks>
 public sealed class SamusDraygonGrabbedState
 {
@@ -49,15 +49,15 @@ public sealed class SamusDraygonGrabbedState
     public int EscapeButtonCounter => _escapePresses.EscapePresses;
 
     /// <summary>
-    /// Whether a counted press reached the target. The game compares the shared word with a signed subtraction,
-    /// so a word of 32828 or more, left by another owner, reads as below it.
+    /// Whether a counted press reached the target. The game compares the shared count with a signed subtraction,
+    /// so a count of 32828 or more, left by another owner, reads as below it.
     /// </summary>
     private static bool ReachedEscapeTarget(int counter) =>
         CoordinateAxis.Difference(counter, EscapeButtonCounterTarget) >= 0;
 
     /// <summary>
     /// The D-pad input of Draygon's escape. The game stores the entire masked D-pad
-    /// nibble, not merely one direction, so a different diagonal chord is also a new input.
+    /// directions, not merely one, so a different diagonal chord is also a new input.
     /// </summary>
     public ControllerButton PreviousDpadInput { get; private set; }
 
@@ -70,7 +70,7 @@ public sealed class SamusDraygonGrabbedState
     /// <summary>Most recently supplied whole-pixel Draygon body position.</summary>
     public Position16<RoomPixels> OwnerPosition { get; private set; }
 
-    /// <summary>Direction word used by Draygon's AI: false/zero left, true/nonzero right.</summary>
+    /// <summary>Direction used by Draygon's AI: false/zero left, true/nonzero right.</summary>
     public bool OwnerFacingRight { get; private set; }
 
     /// <summary>
@@ -90,7 +90,7 @@ public sealed class SamusDraygonGrabbedState
         MovementHandlerReplaced = false;
         _escapePresses.ClearEscapePresses();
         // Grab installs an empty movement handler, but leaves the Flash palette and its shared
-        // shine-timer word alive. A later release must not resume Flash draining.
+        // shine timer alive. A later release must not resume Flash draining.
         samus.CrystalFlash.RelinquishMovementHandler();
         PreviousDpadInput = 0;
         ReleasePublishedToOwner = false;
@@ -103,10 +103,10 @@ public sealed class SamusDraygonGrabbedState
     }
 
     /// <summary>
-    /// Ports <c>MoveSamusWithDraygon</c> after enemy AI has updated the
+    /// Runs <c>MoveSamusWithDraygon</c> after enemy AI has updated the
     /// boss body. Facing left places Samus eight pixels left; facing right places her eight
     /// pixels right; both place her 40 pixels below the body center. Draygon also places a
-    /// Samus who has just escaped, until it consumes the escape bit right after this placement.
+    /// Samus who has just escaped, until it consumes the escape flag right after this placement.
     /// </summary>
     public DraygonOwnerPlacement ApplyOwnerPosition(
         SamusState samus,
@@ -125,14 +125,14 @@ public sealed class SamusDraygonGrabbedState
 
         samus.Position = samus.Position.WithWhole(ownerPosition + new Offset16<RoomPixels>(draygonFacingRight ? 8 : -8, 40));
 
-        // The routine writes whole positions only. It does not clear subpositions,
+        // The placement writes whole positions only. It does not clear subpositions,
         // so preserving the subpositions is intentional even though the actor overwrites
         // the visible whole coordinates on every owner update.
         return new DraygonOwnerPlacement();
     }
 
     /// <summary>
-    /// Ports <see cref="SamusMovementType.DraygonHeld"/> movement for every pose of that movement type: the grabbed poses,
+    /// Runs <see cref="SamusMovementType.DraygonHeld"/> movement for every pose of that movement type: the grabbed poses,
     /// whose position enemy AI has already supplied through <see cref="ApplyOwnerPosition"/>, and the Draygon-held ball the
     /// Baby's Hyper Beam freeze can install without Draygon (#1535), which therefore stays where it is. Its entire normal
     /// beta handler clears one result.
@@ -146,7 +146,7 @@ public sealed class SamusDraygonGrabbedState
     }
 
     /// <summary>
-    /// Ports the escape handler: optionally suppress the already-selected input transition while a
+    /// Runs the escape handler: optionally suppress the already-selected input transition while a
     /// grapple is locked in place, then count a newly pressed D-pad pattern only when it is
     /// nonzero and different from the last counted pattern.
     /// </summary>
@@ -179,7 +179,7 @@ public sealed class SamusDraygonGrabbedState
     }
 
     /// <summary>
-    /// Ports the release. The release keeps extra run speed exactly as the game does,
+    /// Runs the release. The release keeps extra run speed exactly as the game does,
     /// but clears base X speed, all vertical velocity, bounce state, and acceleration mode.
     /// </summary>
     public void Release(SamusState samus)

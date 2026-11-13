@@ -93,7 +93,7 @@ using SuperMetroid.Core.Enemies.Grapple;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// Room-enemy loader, scheduler, instruction interpreter, and draw queues. Retail
+/// Room-enemy loader, scheduler, shared animation, and draw queues. Retail
 /// gameplay definitions are compiled; installed artwork supplies pixels and colors.
 /// </summary>
 /// <remarks>
@@ -502,7 +502,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     /// <summary>The Ceres encounter's status and runtime operations.</summary>
     internal ICeresEncounter Ceres => field ??= new CeresEncounter(RidleyEncounter, CeresRidleyBehavior);
 
-    /// <summary>The state and hooks the room main routines and scrolling use.</summary>
+    /// <summary>The state and hooks the room main behaviours and scrolling use.</summary>
     internal IEnemyRoomMainHooks RoomMainHooks => field ??= new EnemyRoomMainHooks(CrocomireBehavior, SporeSpawnBehavior, ZebetiteBehavior);
 
     /// <summary>The operations the room loader runs.</summary>
@@ -603,13 +603,13 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     /// Creates a room's enemy system: every enemy slot, each with its stable ordinal, with the door-transition gates
     /// clear, without loading a population or binding memory, graphics, random-number, or gameplay services.
     /// </summary>
-    /// <param name="session">The enemy words and installed artwork that outlive each room.</param>
+    /// <param name="session">The enemy state and installed artwork that outlive each room.</param>
     /// <param name="compatibility">
     /// The compatibility services the room's enemies consult: the room's own, created with the system by its builder, and
     /// those that outlive every room, which the builder hands on.
     /// </param>
     /// <param name="definitions">The room's enemy definition source, or null for an enemy system with no population.</param>
-    /// <param name="services">The original game-state services the room's AI calls, or null when none is supplied.</param>
+    /// <param name="services">The game-state services the room's AI calls, or null when none is supplied.</param>
     /// <param name="bossArtwork">The session's installed boss artwork, or null for a system with its own, empty binding.</param>
     internal RoomEnemySystem(EnemySession session, RoomEnemyCompatibility compatibility,
         IRoomEnemyDefinitionSource? definitions = null, IRoomEnemyServices? services = null,
@@ -737,7 +737,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         BeetomBehavior = new BeetomBehavior(Room, Terrain, Audio, FrameContext, Collision, compatibility.BeetomInheritance);
         AtomicBehavior = new AtomicBehavior();
         AlcoonBehavior = new AlcoonBehavior(Room, Terrain, Projectiles, Audio);
-        // Every species with room or frame lifecycle state, in the original game reset order.
+        // Every species with room or frame lifecycle state, in the game's reset order.
         _species =
         [
             ShitroidBehavior,
@@ -845,7 +845,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         ElevatorBehavior.ElevatorDoorTransitionActive = gates.ElevatorDoorTransitionActive;
     }
 
-    /// <summary>Collision words read from the current slots after their AI has run.</summary>
+    /// <summary>Collision values read from the current slots after their AI has run.</summary>
     public IReadOnlyList<SolidEnemyCollisionBody> InteractiveCollisionBodies =>
         _interactiveCollisionBodies;
 
@@ -966,7 +966,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
                 {
                     // Rinka's termination tail clears/replaces the current actor record.
                     // The active-index array was frozen before AI, so skip the remainder
-                    // of this stale entry exactly as the private routine's death call does.
+                    // of this stale entry exactly as its own death call does.
                     var frozen = slot.Entity as IEnemyFrozenAi;
                     if (frozen?.FindFrozenPreemption() is { } preemption && preemption(slot))
                         continue;
@@ -995,7 +995,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
                     foreach (Action<RoomEnemySlot> handler in frozen?.FrozenHandlers() ?? [])
                         handler(slot);
                     // The frame clock advances after every selected AI call,
-                    // including frozen AI. Instruction gating below remains separate.
+                    // including frozen AI. Animation gating below remains separate.
                     ranActorAi = true;
                 }
                 else if (!ranActorAi)
@@ -1076,7 +1076,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     public RoomShakeFrameResult HandleRoomShaking(bool timeIsFrozen)
     {
         Room.EnsureLoaded();
-        // This runs after drawing on the original game, so the two-frame actor timer becomes visible
+        // This runs after drawing in the game, so the two-frame actor timer becomes visible
         // on the following frame rather than retroactively changing already-emitted sprites.
         if (Earthquake.Advance(timeIsFrozen))
         {
@@ -1101,7 +1101,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         return table;
     }
 
-    /// <summary>Maps each enemy definition's bomb reaction to its translated handler.</summary>
+    /// <summary>Maps each enemy definition's bomb reaction to its handler.</summary>
     /// <remarks>Each species registers its own run of reactions; first match wins, so the interleaving below is the
     /// established precedence between species and shared registrations.</remarks>
     private void AddBombReactions(EnemySharedReactions table)
@@ -1159,10 +1159,10 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     /// <summary>Maps the species' own power-bomb reactions for each supported species.</summary>
     /// <remarks>Each species registers its own run of reactions; first match wins, so the interleaving below is the
     /// established precedence between species and shared registrations. Matches are mutually exclusive: each names its
-    /// definition and header reaction.</remarks>
+    /// definition and the definition's reaction.</remarks>
     private void AddPowerBombReactions(EnemySharedReactions table)
     {
-        // These headers name their own reactions instead of falling through common power-bomb damage. The ignoring
+        // These definitions name their own reactions instead of falling through common power-bomb damage. The ignoring
         // reaction intentionally does nothing; the shutter reactions only run their trigger state machines. All still
         // receive the process-off-screen bit after a qualifying ellipse overlap.
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy =>
@@ -1274,7 +1274,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     /// <summary>Maps shot responses, including species-specific damage behavior.</summary>
     /// <remarks>Each species registers its own run of reactions; first match wins, so the interleaving below is the
     /// established precedence between species and shared registrations. Matches are mutually exclusive. Kraid's parts
-    /// precede the generic ignoring header and the ordinary normal-shot reaction is last, because Crocomire's
+    /// precede the generic ignoring definition and the ordinary normal-shot reaction is last, because Crocomire's
     /// tongue also uses NormalEnemyShot.</remarks>
     private void AddShotReactions(EnemySharedReactions table)
     {
@@ -1299,7 +1299,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         MetroidBehavior.AddMetroidShotReactions(table);
         YardBehavior.AddYardShotReactions(table);
 
-        // The metal-debris shot handler saves these graphics words around common shot AI, uses them for four metal debris actors on
+        // The metal-debris shot handler saves these graphics values around common shot AI, uses them for four metal debris actors on
         // death, then clears the dead body. Spawning before the clears preserves that exact graphics index.
         MetareeBehavior.AddMetareeShotReactions(table);
 
@@ -1335,10 +1335,10 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         table.AddShot(new EnemyShotReaction(enemy => EnemyCollision.ShotAi(enemy) == EnemyReaction.NormalEnemyShot));
 }
 
-    /// <summary>Registers Samus-contact handlers after species instruction registrations.</summary>
+    /// <summary>Registers Samus-contact handlers after species animation registrations.</summary>
     /// <remarks>Each species registers its own run of reactions; first match wins, so the interleaving below is the
     /// established precedence between species and shared registrations. Matches are mutually exclusive (each names its
-    /// definition and header callback); the ordinary normal-touch handler is last because Crocomire's tongue also uses
+    /// definition and the definition's callback); the ordinary normal-touch handler is last because Crocomire's tongue also uses
     /// NormalEnemyTouch.</remarks>
     private void AddTouchHandlers(EnemySharedReactions table)
     {
@@ -1361,7 +1361,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         MaridiaLargeSnailBehavior.AddMaridiaLargeSnailTouch(table);
         PlatformsBehavior.AddPlatformsTouch(table);
 
-        // Headers that ignore Samus's touch: the collision is still reported, but the reaction performs no damage,
+        // Definitions that ignore Samus's touch: the collision is still reported, but the reaction performs no damage,
         // knockback, or actor reaction.
         table.AddTouch(slot => EnemyCollision.TouchAi(slot) == EnemyReaction.Ignore,
             static _ => { });

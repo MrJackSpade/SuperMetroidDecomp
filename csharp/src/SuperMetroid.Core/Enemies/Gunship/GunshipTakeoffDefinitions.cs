@@ -13,7 +13,7 @@ internal static class GunshipTakeoffDefinitions
 
     /// <summary>
     /// The updates the takeoff spends readying the engines before they fire up and the rumble begins: the escape takeoff's
-    /// readying phase runs on five updates, the last of which hands over to the rumble, as the original game's takeoff does.
+    /// readying phase runs on five updates, the last of which hands over to the rumble.
     /// </summary>
     internal const int EngineReadyingDuration = 5;
 

@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// </summary>
 /// <remarks>
 /// A block whose collision kind changes keeps its behaviour, and the new kind reads it through its own reading, so every
-/// behaviour holds all four. The installation decodes them once from the original data; a behaviour a room object writes
+/// behaviour holds all four. The installation decodes them once from the game data; a behaviour a room object writes
 /// is written as the reading it is meant for, and carries the others as <see cref="BlockParameterCarryOver"/> states.
 /// </remarks>
 public readonly record struct RoomBlockBehavior

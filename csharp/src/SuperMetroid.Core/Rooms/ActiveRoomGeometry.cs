@@ -2,7 +2,7 @@
 
 namespace SuperMetroid.Core.Rooms;
 
-/// <summary>Room-header fields shared by camera tracking and minimap publication.</summary>
+/// <summary>Room-definition fields shared by camera tracking and minimap publication.</summary>
 /// <param name="AreaIndex">The room's area.</param>
 /// <param name="MapPosition">The room's top-left area-map tile.</param>
 /// <param name="UpScroller">The room's up-scroller distance in pixels, 0 through 255.</param>

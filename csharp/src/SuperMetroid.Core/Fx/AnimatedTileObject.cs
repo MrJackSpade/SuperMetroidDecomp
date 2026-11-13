@@ -17,17 +17,17 @@ public enum AnimatedTileObject
     TourianStatueDraygon,
     /// <summary>The empty object an unused area bit selects.</summary>
     Empty,
-    /// <summary>Horizontal spikes, common area bit0.</summary>
+    /// <summary>Horizontal spikes, gated by the common area flag set's first flag.</summary>
     HorizontalSpikes,
-    /// <summary>Vertical spikes, common area bit1.</summary>
+    /// <summary>Vertical spikes, gated by the common area flag set's second flag.</summary>
     VerticalSpikes,
-    /// <summary>The Crateria lake, Crateria bit2.</summary>
+    /// <summary>The Crateria lake, gated by a Crateria area flag.</summary>
     CrateriaLake,
-    /// <summary>The unused Crateria lava object, preserved for area bit3.</summary>
+    /// <summary>The unused Crateria lava object, preserved for its Crateria area flag.</summary>
     UnusedCrateriaLava,
-    /// <summary>The Brinstar plant, Brinstar bit2.</summary>
+    /// <summary>The Brinstar plant, gated by a Brinstar area flag.</summary>
     BrinstarPlant,
-    /// <summary>The Wrecked Ship screen, Wrecked Ship bit4.</summary>
+    /// <summary>The Wrecked Ship screen, gated by a Wrecked Ship area flag.</summary>
     WreckedShipScreen,
     /// <summary>The Maridia sand ceiling, selected by room FX animation bits.</summary>
     MaridiaSandCeiling,

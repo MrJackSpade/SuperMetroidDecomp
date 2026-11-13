@@ -204,7 +204,7 @@ internal sealed class RidleyProjectiles
     {
         projectile.StartAnimation(new RidleyFireballAnimation(RidleyFireballProgram.AfterburnFinal));
         // The afterburns replace the list; its clear-frame-behaviour step stops motion.
-        // Velocity words and contact properties remain unchanged. The final list
+        // Velocity and contact properties remain unchanged. The final list
         // clears movement, draws five frames, then deletes; it never disables damage.
     }
 

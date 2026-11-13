@@ -24,6 +24,6 @@ public sealed class MorphBallEyeEnemyState
     /// <summary>Activation/deactivation countdown.</summary>
     public int FunctionTimer { get; internal set; }
 
-    /// <summary>Indirect function word.</summary>
+    /// <summary>The function the eye runs.</summary>
     public MorphBallEyeAiFunction? Function { get; internal set; }
 }

@@ -8,7 +8,7 @@ using SuperMetroid.Core.Fx.PaletteFx;
 
 namespace SuperMetroid.Core.Enemies.Shutters;
 
-/// <summary>The Shutters species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Shutters species owner: its per-room state, behaviour and the interactions it registers.</summary>
 internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
@@ -382,8 +382,8 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
                     $"Horizontal shutter function {state.Function?.ToString() ?? "none"} is not translated.");
         }
 
-        // An idle shutter reacts when Samus's four solid-enemy collision
-        // words AND to this enemy's index and she has contact damage (e.g. screw attack).
+        // An idle shutter reacts when one of Samus's four solid-enemy collisions
+        // names this enemy and she has contact damage (e.g. screw attack).
         if (state.Function is not (HorizontalShutterFunction.MovingLeft or HorizontalShutterFunction.MovingRight) &&
             SamusContactsIdleShutter(slot, samus))
         {
@@ -577,7 +577,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Tests whether the shutter is on screen for sound. Its bottom edge is 256 pixels, deliberately not the 224-line visible
-    /// viewport, because the original sound admission test uses a square screen window.
+    /// viewport, because the sound admission test uses a square screen window.
     /// </summary>
     private static bool IsShutterCenterOnScreen(
         RoomEnemySlot slot,
@@ -651,7 +651,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = PlayShutterAnimation(slot, state.Playback);
     }
 
-    /// <summary>Ports ShutterGrowing's main AI.</summary>
+    /// <summary>Runs ShutterGrowing's main AI.</summary>
     internal void RunShutterGrowingMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunGrowingShutterMain(
@@ -661,7 +661,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             frame.Camera);
     }
 
-    /// <summary>Ports ShutterShootable's main AI.</summary>
+    /// <summary>Runs ShutterShootable's main AI.</summary>
     internal void RunShutterShootableMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunVerticalShutterMain(
@@ -671,7 +671,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             frame.Camera);
     }
 
-    /// <summary>Ports ShutterHorizShootable's main AI.</summary>
+    /// <summary>Runs ShutterHorizShootable's main AI.</summary>
     internal static void RunShutterHorizShootableMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunHorizontalShutterMain(
@@ -869,8 +869,8 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
                     $"Vertical shutter function {state.Function?.ToString() ?? "none"} is not translated.");
         }
 
-        // An idle shutter reacts when Samus's four solid-enemy collision
-        // words AND to this enemy's index and she has contact damage (e.g. screw attack).
+        // An idle shutter reacts when one of Samus's four solid-enemy collisions
+        // names this enemy and she has contact damage (e.g. screw attack).
         if (state.Function is not (VerticalShutterFunction.MovingUp or VerticalShutterFunction.MovingDown) &&
             SamusContactsIdleShutter(slot, samus ?? throw new InvalidOperationException(
                 "Vertical-shutter AI requires Samus state for its contact reaction.")))

@@ -14,8 +14,8 @@ internal abstract record TourianStatueProjectileCue
     /// <param name="Pixels">How far a <see cref="MoveDown"/> cue moves the projectile.</param>
     internal sealed record MoveDown(int Pixels) : TourianStatueProjectileCue;
 
-    /// <summary>Installs its cue's movement routine.</summary>
-    /// <param name="Movement">The routine a <see cref="StartMoving"/> cue installs.</param>
+    /// <summary>Installs its cue's movement behaviour.</summary>
+    /// <param name="Movement">The behaviour a <see cref="StartMoving"/> cue installs.</param>
     internal sealed record StartMoving(EnemyProjectileFrameBehavior Movement) : TourianStatueProjectileCue;
 
     /// <summary>A cue that carries no operand.</summary>

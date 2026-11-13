@@ -14,7 +14,7 @@ public sealed record RoomFxOverlayFrame
 
     /// <summary>
     /// The shared random number this frame, 0 through 65535, sampled without advancing it: its low two bits lengthen
-    /// the next rising-liquid earthquake-sound delay. Values outside the random word's range are rejected.
+    /// the next rising-liquid earthquake-sound delay. Values outside the random number's range are rejected.
     /// </summary>
     public int RandomNumber { get; init => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value); }
 

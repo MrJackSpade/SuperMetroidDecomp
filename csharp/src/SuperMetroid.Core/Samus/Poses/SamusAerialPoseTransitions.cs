@@ -781,7 +781,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         samus.Shinespark.BeginWindup(samus);
 
         // Checks the PREVIOUS movement type, lifts Samus one pixel and
-        // stores the result in both Y words, so this frame's vertical scroll sees no motion.
+        // stores the result as both current and previous Y, so this frame's vertical scroll sees no motion.
         if (previousMovementType == SamusMovementType.NormalJumping)
         {
             samus.Kinematics.Position -= new Offset16<RoomPixels>(0, 1);
@@ -795,7 +795,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
 
     /// <summary>
     /// Applies a shinespark windup's directional input-table match and installs its exact special
-    /// movement handler. No ordinary jump velocity or grounded momentum routine runs.
+    /// movement handler. No ordinary jump velocity or grounded momentum step runs.
     /// </summary>
     public static void ApplyShinesparkDirectionTransition(SamusState samus, SamusPoseId targetPose)
     {
@@ -898,7 +898,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
 
 
     /// <summary>
-    /// Ports the unconditional current-state epilogue clear that follows the
+    /// Runs the unconditional current-state epilogue clear that follows the
     /// HUD/projectile handler. A failed cooldown/slot allocation must lose the bridge too;
     /// it is deliberately not retained until some later shot succeeds.
     /// </summary>
@@ -934,7 +934,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
 
     /// <summary>
     /// Applies a same-facing input/fallback transition within normal-jump type two or
-    /// falling type six without replacing the live 16.16 velocity words. The horizontal
+    /// falling type six without replacing the live 16.16 velocities. The horizontal
     /// gun-extended jumping and falling records use this same initialization seam;
     /// “aim” survives in the historical method name only because that was the first slice.
     /// </summary>

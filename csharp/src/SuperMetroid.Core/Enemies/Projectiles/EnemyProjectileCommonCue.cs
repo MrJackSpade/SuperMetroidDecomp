@@ -15,8 +15,8 @@ internal abstract record EnemyProjectileCommonCue
     /// <param name="Spread">The random repositioning a <see cref="Scatter"/> cue performs.</param>
     internal sealed record Scatter(EnemyProjectileScatter Spread) : EnemyProjectileCommonCue;
 
-    /// <summary>Installs a movement routine.</summary>
-    /// <param name="FrameBehavior">The movement routine a <see cref="SetFrameBehavior"/> cue installs.</param>
+    /// <summary>Installs a movement behaviour.</summary>
+    /// <param name="FrameBehavior">The movement behaviour a <see cref="SetFrameBehavior"/> cue installs.</param>
     internal sealed record SetFrameBehavior(EnemyProjectileFrameBehavior FrameBehavior) : EnemyProjectileCommonCue;
 
     /// <summary>A cue that carries no operand.</summary>

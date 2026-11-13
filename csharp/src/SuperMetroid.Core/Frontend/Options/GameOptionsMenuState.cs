@@ -25,7 +25,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
 
     /// <summary>Receives cursor and confirmation sounds when available.</summary>
     private readonly AudioQueues? audio;
-    /// <summary>The menu screen the options menu draws: its artwork, tilemaps, palette and sprite entries.</summary>
+    /// <summary>The menu screen the options menu draws: its artwork, pictures, palette and sprite entries.</summary>
     internal readonly MenuScreen screen;
     /// <summary>Holds the heading and animated selection missile for rendering.</summary>
     /// <summary>Derives newly pressed buttons from the held controller buttons.</summary>
@@ -335,8 +335,8 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
         if (pressed == ControllerButton.None)
             return;
 
-        // The game queues the confirmation sound for any newly pressed word on this page,
-        // even when an action row cannot find an assignable button in that word.
+        // The game queues the confirmation sound for any newly pressed button on this page,
+        // even when an action row cannot find an assignable button among them.
         QueueSelectSound();
         GameOptionsControllerRowKind kind = GameOptionsPositions.ControllerRowKind(SelectedItem);
         if (kind == GameOptionsControllerRowKind.Action)

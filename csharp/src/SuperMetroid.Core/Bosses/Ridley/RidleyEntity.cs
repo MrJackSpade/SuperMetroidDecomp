@@ -50,7 +50,7 @@ internal sealed class RidleyEntity(
 
     /// <summary>
     /// Both Ridley bodies use a hand-authored extended body plus a separately solved tail tip, resolved by their own
-    /// contact after the ordinary pass; the ordinary touch pass must not flatten either to the header's 8x8 radius.
+    /// contact after the ordinary pass; the ordinary touch pass must not flatten either to the definition's 8x8 radius.
     /// </summary>
     public bool OwnsSamusTouch => IsBody;
 
@@ -87,7 +87,7 @@ internal sealed class RidleyEntity(
         Slot.DefinitionId == EnemyDefinitionId.Ridley ? EnemyCapabilities.ProjectileFrameHitboxes : EnemyCapabilities.None;
 
     /// <summary>Both Ridley bodies' shot reaction, which normal bombs dispatch like the common one.</summary>
-    /// <param name="reaction">The reaction the header or the selected hitbox names, or null.</param>
+    /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>
     public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
         IsBody && reaction == EnemyReaction.RidleyShot;
 }

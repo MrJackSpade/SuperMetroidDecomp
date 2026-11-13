@@ -8,7 +8,7 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Enemies.Metroids;
 
-/// <summary>The Mochtroid species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Mochtroid species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -46,8 +46,8 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Mochtroid.</summary>
     internal static void InitializeMochtroid(RoomEnemySlot slot)
     {
-        // Room clearing initializes both parallel words to zero. Installing the
-        // first nonzero list is important: the original's equality shortcut is also the
+        // Room clearing initializes both parallel values to zero. Installing the
+        // first nonzero list is important: the equality shortcut is also the
         // source of its documented respawning-Mochtroid crash when stale extension state is
         // retained. Ordinary room loads start clean and therefore take the safe path.
         var state = new MochtroidEnemyState
@@ -176,7 +176,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Velocity = state.Velocity.WithY(velocity);
     }
 
-    /// <summary>Installs a changed flight or attachment animation and restarts its instruction timers.</summary>
+    /// <summary>Installs a changed flight or attachment animation and restarts its frame timers.</summary>
     internal static void SetMochtroidProgram(
         RoomEnemySlot slot,
         MochtroidEnemyState state,
@@ -201,7 +201,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         bool applyCommonTouch = samus.HorizontalSpeed.ContactDamageIndex != SamusContactDamageIndex.None;
         if (!applyCommonTouch)
         {
-            // Every overlapping actor invokes the queue routine independently. Using the
+            // Every overlapping actor queues its sound independently. Using the
             // legacy one-value family field here collapsed a room full of attached actors
             // into one request and erased the game's sound-backlog processing delay.
             if (MetroidCadenceDefinitions.DrainSoundEveryEighthEnemyPass.IsDue(_frameContext.RandomEnemyCounter) && samus.Health >= 30)
@@ -219,7 +219,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (samus.HorizontalSpeed.ContactDamageIndex == SamusContactDamageIndex.None)
         {
-            // Common touch would publish 96/5 here, but the Mochtroid's touch clears both words before
+            // Common touch would publish 96/5 here, but the Mochtroid's touch clears both values before
             // Samus's movement phase can consume them. Apply only the suit-divided health
             // change; starting the host knockback state and trying to undo its pose would
             // introduce side effects the game never reaches.
@@ -252,7 +252,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
             static (MochtroidEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (state, cue) => throw new InvalidOperationException($"Mochtroid's cue-free animation raised {cue}."));
 
-    /// <summary>Ports Mochtroid's main AI.</summary>
+    /// <summary>Runs Mochtroid's main AI.</summary>
     internal void RunMochtroidMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunMochtroidMain(slot, frame.Samus, frame.Level);

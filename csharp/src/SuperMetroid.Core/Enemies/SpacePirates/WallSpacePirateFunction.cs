@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>
-/// The routine a wall Space Pirate's main AI runs.
+/// The behaviour a wall Space Pirate's main AI runs.
 /// Its values are arbitrary.
 /// </summary>
 public enum WallSpacePirateFunction

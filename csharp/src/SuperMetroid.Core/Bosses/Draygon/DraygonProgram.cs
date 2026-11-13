@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>
-/// Draygon's body, eye, tail and arms programs, in the order the original game authors them. The four parts
+/// Draygon's body, eye, tail and arms programs, in authored order. The four parts
 /// run programs of one set: a body cue starts all four, and the arms' dying program runs on into the body's.
 /// </summary>
 public enum DraygonProgram

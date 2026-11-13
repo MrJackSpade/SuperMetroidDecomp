@@ -4,7 +4,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Enemies.Dragon;
 
-/// <summary>The Dragon species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Dragon species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -134,7 +134,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         bodyState.FunctionTimer = DragonRiseOrSinkFrames;
         bodyState.Function = DragonEnemyFunction.Rising;
 
-        // The wait records the sign of (Samus X - body X) as the body's facing. The following byte-sized list
+        // The wait records the sign of (Samus X - body X) as the body's facing. The following list
         // edits use that sign to select even/odd left/right table entries for both physical records.
         bool facingLeft = CoordinateAxis.Difference(samus.Position.X.Whole, body.Position.X.Whole) < 0;
         bodyState.FacingLeft = facingLeft;
@@ -234,7 +234,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Runs the shared tail after touch, shot, or power-bomb common AI. A dead
-    /// body deletes its wing; a surviving body mirrors every timer/handler word that affects
+    /// body deletes its wing; a surviving body mirrors every timer and handler that affects
     /// visible hurt and freeze rendering into that cosmetic record.
     /// </summary>
     private void ResolveDragonCombatAfterCommon(RoomEnemySlot actor)
@@ -255,7 +255,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         following.AiStates = actor.AiStates;
     }
 
-    /// <summary>Installs a newly requested animation list once and resets its instruction and loop timers.</summary>
+    /// <summary>Installs a newly requested animation list once and resets its frame and loop timers.</summary>
     internal static void InstallDragonAnimationScript(
         RoomEnemySlot slot,
         DragonEnemyState state)
@@ -318,7 +318,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         }, EnemyProjectileFrameBehavior.DragonFireballArc);
     }
 
-    /// <summary>Ports Dragon's main AI.</summary>
+    /// <summary>Runs Dragon's main AI.</summary>
     internal void RunDragonMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunDragonMain(slot, slot.RequireSpeciesState<DragonEnemyState>(), frame.Samus);
@@ -413,7 +413,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             // The exact zero crossing switches from the rising pair of two-frame loops to
-            // the falling pair and forces an instruction tick on this same projectile pass.
+            // the falling pair and forces an animation tick on this same projectile pass.
             projectile.StartAnimation(new DragonFireballAnimation(projectile.Velocity.X.IsNegative
                 ? DragonFireballProgram.FallingLeft
                 : DragonFireballProgram.FallingRight));

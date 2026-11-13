@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// crumbling ceiling, wall, platform or spikes, a bridge or wall clear, a row of Mother Brain's mural. It waits its
 /// change's first delay, then draws each frame in turn for that frame's updates, moving its origin and requesting the
 /// frame's sound as it draws, and leaves the room on the update after its last frame. Each draw lands on the same
-/// update, and the object leaves on the same update, as the original game's timed draws and its delete did.
+/// update, and the object leaves on the same update, as the game's timed draws and its delete did.
 /// </summary>
 /// <param name="change">The change's authored timing.</param>
 internal class TerrainChangeObject(TerrainChange change) : RoomObjectBehaviour

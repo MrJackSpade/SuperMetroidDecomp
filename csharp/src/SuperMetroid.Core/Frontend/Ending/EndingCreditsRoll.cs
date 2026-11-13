@@ -89,7 +89,7 @@ internal sealed class EndingCreditsRoll
         screen.Colours.Fade(EndingFade.SuitlessSamus, rewardPaletteStep);
         if (_stage.EndingReward == EndingReward.Helmetless)
             screen.Colours.Fade(EndingFade.SuitedSamus, rewardPaletteStep);
-        // The fade saves the post-credits colours as its target, then runs the shared component accumulator 32 times.
+        // The fade saves the post-credits colours as its target, then runs the shared colour component step 32 times.
         // Each increment is eight times the component in 256ths and composing keeps only whole units, so step S of 32 shows
         // each target channel times S over 32, rounded down: the level the import pre-colours (#1512).
     }
@@ -123,7 +123,7 @@ internal sealed class EndingCreditsRoll
         _stage.Phase = EndingCreditsPhase.PostCreditsLogo;
     }
 
-    /// <summary>Advances logo instructions and starts the item-percentage text once the logo completes.</summary>
+    /// <summary>Advances logo cues and starts the item-percentage text once the logo completes.</summary>
     internal void StepPostCreditsLogo()
     {
         EndingLogo.Step(screen.Colours);

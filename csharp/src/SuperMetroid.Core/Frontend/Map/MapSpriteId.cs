@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Frontend.Map;
 
 /// <summary>
 /// The map screens' sprites: arrows, markers, station icons, the position indicator and the elevator and world labels.
-/// Values are arbitrary (#1416); extraction names the original spritemap each one is read from.
+/// Values are arbitrary (#1416); extraction names the game frame each one is read from.
 /// </summary>
 public enum MapSpriteId
 {

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 
 /// <summary>
-/// The behaviour routine Oum's main AI runs.
+/// The behaviour Oum's main AI runs.
 /// Its values are arbitrary.
 /// </summary>
 public enum MaridiaLargeSnailEnemyFunction

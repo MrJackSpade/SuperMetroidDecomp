@@ -7,6 +7,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 public sealed class MotherBrainWalkCounter
 {
-    /// <summary>The credit the word holds.</summary>
+    /// <summary>The credit the counter holds.</summary>
     public MotherBrainWalkCredit Credit { get; internal set; }
 }

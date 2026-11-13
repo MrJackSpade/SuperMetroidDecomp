@@ -21,7 +21,7 @@ internal static class TorizoRandomizedProjectileDefinitions
         new(TorizoProjectileProgram.ChozoOrbMovingLeft, new(-27, -40),
             EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-256, -448));
 
-    /// <summary>Golden Torizo's rightward egg record; actor parameter bit 15 selects it.</summary>
+    /// <summary>Golden Torizo's rightward egg record; the actor parameter's rightward flag selects it.</summary>
     internal static readonly TorizoRandomizedProjectileDefinition GoldenEggRight =
         new(TorizoProjectileProgram.EggBouncingRight, new(16, -1),
             EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(128, -384));
@@ -32,7 +32,7 @@ internal static class TorizoRandomizedProjectileDefinitions
 
     /// <summary>
     /// Golden Torizo's right-facing eye-beam record. The caller subsequently replaces both
-    /// velocity words with its aimed launch.
+    /// velocities with its aimed launch.
     /// </summary>
     internal static readonly TorizoRandomizedProjectileDefinition GoldenEyeBeamRight =
         new(TorizoProjectileProgram.EyeBeamNormal, new(20, -30),

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// </remarks>
 public static class XrayScopeDefinitions
 {
-    /// <summary>Palette words copied into Samus's visor colors while X-ray is active.</summary>
+    /// <summary>Palette colours copied into Samus's visor colors while X-ray is active.</summary>
     public static class Palette
     {
         /// <summary>The last widening visor shade, held while the beam widens.</summary>

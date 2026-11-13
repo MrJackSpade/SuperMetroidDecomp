@@ -10,8 +10,8 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 internal sealed class EnemyRoomBinding
 {
-    /// <summary>Binds the room to its enemy definitions and services and to the session whose enemy words outlive it.</summary>
-    /// <param name="session">The enemy words and installed artwork that outlive each room.</param>
+    /// <summary>Binds the room to its enemy definitions and services and to the session whose enemy state outlives it.</summary>
+    /// <param name="session">The enemy state and installed artwork that outlive each room.</param>
     /// <param name="definitions">The room's enemy definition source, or null for an enemy system with no population.</param>
     /// <param name="services">The game-state services the room's AI calls, or null when none is supplied.</param>
     internal EnemyRoomBinding(EnemySession session, IRoomEnemyDefinitionSource? definitions, IRoomEnemyServices? services)
@@ -21,7 +21,7 @@ internal sealed class EnemyRoomBinding
         InstalledServices = services;
     }
 
-    /// <summary>The enemy words and installed artwork that outlive each room.</summary>
+    /// <summary>The enemy state and installed artwork that outlive each room.</summary>
     internal EnemySession Session { get; }
 
     /// <summary>The room's enemy definition source; null for an enemy system built without one.</summary>

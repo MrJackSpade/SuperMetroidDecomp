@@ -6,7 +6,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Puyo;
 
-/// <summary>The Puyo species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Puyo species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -231,7 +231,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports the common body of short, big, and nominally-unused long hops.</summary>
+    /// <summary>Runs the common body of short, big, and nominally-unused long hops.</summary>
     private void RunNormalPuyoHop(
         RoomEnemySlot slot,
         PuyoEnemyState state,
@@ -402,7 +402,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
             $"Puyo direction {direction} is neither of the two directions."),
     };
 
-    /// <summary>Starts a selected pose or hop animation with a one-tick instruction countdown.</summary>
+    /// <summary>Starts a selected pose or hop animation with a one-tick frame countdown.</summary>
     private static void SetPuyoProgram(RoomEnemySlot slot, PuyoEnemyState state, PuyoProgram program)
     {
         state.Playback = new(PuyoAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
@@ -416,7 +416,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
             static (PuyoEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"Puyo's cue-free animation raised {cue}."));
 
-    /// <summary>Ports Puyo's main AI.</summary>
+    /// <summary>Runs Puyo's main AI.</summary>
     internal void RunPuyoMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunPuyoMain(slot, slot.RequireSpeciesState<PuyoEnemyState>(), frame.Samus, frame.Level);

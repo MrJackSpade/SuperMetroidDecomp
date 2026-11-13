@@ -16,7 +16,7 @@ internal sealed class StationObjects
     private readonly SharedGameState? _system;
     /// <summary>Samus as the room reads and changes her.</summary>
     private readonly IRoomSamusAccess? _samus;
-    /// <summary>Applies the station and access-arm draw lists to the room tilemap.</summary>
+    /// <summary>Applies the station and access-arm draw lists to the room's blocks.</summary>
     private readonly IRoomObjectDrawing _drawing;
     /// <summary>Locates resident station room objects when collision or frontend confirmation arrives.</summary>
     private readonly RoomObjectSlotTable _slotTable;

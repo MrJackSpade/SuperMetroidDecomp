@@ -36,7 +36,7 @@ internal sealed class MotherBrainAscent
         _motherBrainEncounter = motherBrainEncounter;
     }
 
-    /// <summary>Reveals her body and requests its first artwork transfer.</summary>
+    /// <summary>Reveals her body and requests her first artwork.</summary>
     internal void SetupMotherBrainPhaseTwoGraphics(MotherBrainEnemyState state)
     {
         // The ascent installs the attack and back-leg palettes' colours, all but the backdrop colour,
@@ -111,8 +111,8 @@ internal sealed class MotherBrainAscent
 
         state.Function = MotherBrainBodyFunction.FakeDeathAscentContinuePausing;
 
-        // The final transfer has no return between the state write and the next step; the still-256 timer
-        // loses its first tick on the final transfer frame.
+        // The final artwork step runs straight into the next step; the still-256 timer
+        // loses its first tick on the final artwork frame.
         ContinueMotherBrainAscentPause(state);
     }
 
@@ -166,7 +166,7 @@ internal sealed class MotherBrainAscent
     /// <summary>Moves the body upward through the authored rise while updating its head attachment.</summary>
     internal void RaiseMotherBrain(MotherBrainEnemyState state)
     {
-        // The rise gates on the frame counter, not the separate byte-wide frame counter; the
+        // The rise gates on the frame counter, not the separate 256-step frame counter; the
         // two advance together but are not aligned, so their places in the cadence differ.
         if (!MotherBrainCadenceDefinitions.AscentStepEveryFourthUpdate.IsDue(_frameContext.FrameCounter))
             return;

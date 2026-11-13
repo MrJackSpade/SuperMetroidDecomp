@@ -4,12 +4,12 @@ namespace SuperMetroid.Core.Rooms;
 
 /// <summary>The fixed configuration of the 262 non-debug retail rooms.</summary>
 /// <remarks>Each entry holds a room's room/area indexes, map position, dimensions,
-/// scrolling thresholds and whether its door transitions are isolated, with the unsigned byte/word
-/// interpretation of the eleven-byte room header. The developer area-seven room is not compiled.</remarks>
+/// scrolling thresholds and whether its door transitions are isolated, as the room's fixed metadata defines
+/// them. The developer area-seven room is not compiled.</remarks>
 [NumberedIdentities("Rooms such as Metroids1-4 and TourianEscape1-4 are distinct rooms with their own headers; the number is part of each room's name, not a position callers index.")]
 public static class RoomHeaderDefinitions
 {
-    /// <summary>Retail rooms in their authored header order.</summary>
+    /// <summary>Retail rooms in their authored order.</summary>
     internal static readonly RoomHeaderDefinition[] Retail =
     [
         new(nameof(LandingSite), 0, AreaId.Crateria, new(23, 0), new(9, 5), 112, 160, RoomDoorTransitionStyle.Standard),

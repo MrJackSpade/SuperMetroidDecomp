@@ -19,7 +19,7 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// a restart, the breathing loop, the wall-jump spin selection and the drained fall's handover move it on to the delay they
 /// select; a selected frame that is no delay, or one past every program, fails the game's animation there, so nothing
 /// shows. A transition ends the pose: the pose update that follows the animation in the same update replaces it before the
-/// draw. A frame on an instruction's operand reads the step the operand selects, and a frame past the end of a program
+/// draw. A frame on a cue's operand reads the step the operand selects, and a frame past the end of a program
 /// reads the program laid out after it (#1535).
 /// </para>
 /// <para>
@@ -42,7 +42,7 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// </para>
 /// <para>
 /// Every frame the body shows that is not one of the pose's picture frames, whether an authored path wrote it on an
-/// instruction's place or past the program or an unauthored path wrote it, draws the pose's nearest picture frame at or
+/// cue's place or past the program or an unauthored path wrote it, draws the pose's nearest picture frame at or
 /// before it: the picture the pose's own animation last showed before that frame in its program. This is a drawing
 /// decision, authorised by the owner's ruling on #1513 that every Samus body frame is a whole Samus of its pose; the
 /// animation frame itself, its timing and everything gameplay reads from it stay as the game computes them.
@@ -198,8 +198,8 @@ internal sealed class SamusShownFrames
 
     /// <summary>
     /// The frames the animation shows on reaching <paramref name="frame"/> of <paramref name="pose"/>: the frame when it is a
-    /// delay, or a hold reached by advancing; the delays an instruction there selects; or none where the animation fails or
-    /// the pose ends. <paramref name="reach"/> says whether an instruction selected the frame, which must then be a delay.
+    /// delay, or a hold reached by advancing; the delays a cue there selects; or none where the animation fails or
+    /// the pose ends. <paramref name="reach"/> says whether a cue selected the frame, which must then be a delay.
     /// </summary>
     /// <exception cref="InvalidDataException">A program holds a step the animation has no handler for.</exception>
     private int[] Reach(SamusPoseId pose, int frame, FrameReach reach)
@@ -243,7 +243,7 @@ internal sealed class SamusShownFrames
     /// <summary>
     /// The frames the paths made for <paramref name="pose"/> publish for it, given the frames it shows so far, each as
     /// <see cref="SamusDrainedState"/> or the spin's wall contact writes it. Their frames are the pose's own animation; a
-    /// frame they write on an instruction's place or past the program draws the pose's nearest picture frame before it.
+    /// frame they write on a cue's place or past the program draws the pose's nearest picture frame before it.
     /// </summary>
     private List<SamusPublishedFrame> AuthoredPublications(SamusPoseId pose)
     {
@@ -260,14 +260,14 @@ internal sealed class SamusShownFrames
         {
             // The Baby Metroid's Hyper Beam and rainbow-stop commands write the frame during enemy AI, after the animation, so
             // the draw shows it as written. The Baby puts Samus crouching at the ceiling before either. The left-facing
-            // crouch's Hyper Beam frame, and both crouches' rainbow-stop frame, land on an instruction's place, and the
+            // crouch's Hyper Beam frame, and both crouches' rainbow-stop frame, land on a cue's place, and the
             // right-facing crouch's Hyper Beam frame past its program: the game's tables hold no composition there, so the
-            // body vanishes; the port draws the crouch's picture before it.
+            // body vanishes; the model draws the crouch's picture before it.
             publications.Add(new(SamusDrainedAnimationDefinitions.HyperBeamAcquisitionFrame, PublishedFrameDrawing.AsWritten));
             publications.Add(new(SamusDrainedAnimationDefinitions.RainbowStopFrame, PublishedFrameDrawing.AsWritten));
             // The drained fall lands on its landing frame for eight ticks; the release moves the crouch on during enemy AI.
             // The release follows the Tourian Metroid's drain, whose fall leaves Samus crouching, so it never meets a
-            // drained standing pose. The right-facing crouch's landing frame is an instruction's place, drawn as the
+            // drained standing pose. The right-facing crouch's landing frame is a cue's place, drawn as the
             // crouch's picture before it, the same picture the game's tables hold there.
             publications.Add(new(SamusDrainedAnimationDefinitions.LandingFrame, PublishedFrameDrawing.AsWritten));
             publications.Add(new(SamusDrainedAnimationDefinitions.ReleaseCrouchingFrame, PublishedFrameDrawing.AsWritten));
@@ -431,7 +431,7 @@ internal sealed class SamusShownFrames
         /// <summary>A delay ran out and the animation moved on to the next frame.</summary>
         Advancing,
 
-        /// <summary>An instruction selected the frame, which must be a delay.</summary>
+        /// <summary>A cue selected the frame, which must be a delay.</summary>
         Selection,
     }
 }

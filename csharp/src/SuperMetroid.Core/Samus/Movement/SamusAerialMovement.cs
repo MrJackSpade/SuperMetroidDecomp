@@ -12,11 +12,11 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// </summary>
 /// <remarks>
 /// This deliberately retains the game's split 16.16 magnitudes and separate vertical
-/// direction word. It does not use floating point, host elapsed time, or a guessed gravity
+/// direction. It does not use floating point, host elapsed time, or a guessed gravity
 /// curve. Live enemy production and external displacement remain explicit boundaries. Ordinary
 /// Dash and equipped Speed Booster momentum are retained through environment-selected
 /// jumps, including the equipped vertical bonus. Terrain and solid/frozen-enemy wall jumps
-/// plus all three liquid launch-table entries are translated as distinct results.
+/// plus all three liquid launch-table entries are distinct results.
 /// </remarks>
 public static class SamusAerialMovement
 {
@@ -85,7 +85,7 @@ public static class SamusAerialMovement
 
     /// <summary>
     /// Chooses Samus's vertical acceleration. The three adjacent
-    /// words are indexed by the exact bottom-boundary medium.
+    /// accelerations are indexed by the exact bottom-boundary medium.
     /// </summary>
     public static void ConfigureEnvironmentGravity(SamusState samus)
     {
@@ -199,7 +199,7 @@ public static class SamusAerialMovement
 
         // Screw Attack's damaging body is republished every eligible dry-air spin frame.
         // A fully charged ordinary/Space-Jump spin instead publishes index four, but only
-        // outside full liquid physics. The common runtime clears the word before movement,
+        // outside full liquid physics. The common runtime clears the damage mode before movement,
         // mirroring the gameplay tail, so neither stale damage mode can leak into another pose.
         if (!fullySubmergedWithoutGravity && SamusPoseMetadata.IsScrewAttackPose(samus.Pose))
             samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.ScrewAttack;
@@ -283,7 +283,7 @@ public static class SamusAerialMovement
 
     /// <summary>
     /// Executes wall-jumping movement, including its animation-frame/charge-
-    /// selected contact damage before the ordinary jumping routine.
+    /// selected contact damage before the ordinary jumping movement.
     /// </summary>
     internal static AerialMovementResult StepWallJump(
 
@@ -363,7 +363,7 @@ public static class SamusAerialMovement
 
     /// <summary>
     /// Executes the jumping and falling turns. Unlike ordinary aerial
-    /// motion this calls the deceleration-ALLOWED X routine and does not apply variable-jump
+    /// motion this calls the deceleration-ALLOWED X movement and does not apply variable-jump
     /// release; the three-frame turn animation therefore preserves reversal momentum.
     /// </summary>
     internal static AerialMovementResult StepTurningInAir(
@@ -401,7 +401,7 @@ public static class SamusAerialMovement
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
 
-        // The simple vertical movement calls this before the shared gravity routine. A signed
+        // The simple vertical movement calls this before the shared gravity step. A signed
         // underflow at the apex becomes a stationary downward state on this same frame.
         if (samus.Kinematics.YDirection == SamusVerticalDirection.Up && SamusSpeedMagnitude.HasPassedZero(samus.Kinematics.YSpeed.Whole))
         {
@@ -428,7 +428,7 @@ public static class SamusAerialMovement
         // processing can stop the jump. Keep gravity and physical clipping, but
         // preserve upward velocity even while the head is touching the ceiling.
 
-        // Cancel speed boost and explicitly clear both extra words.
+        // Cancel speed boost and explicitly clear both extra speeds.
         speed.CancelRunningMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
         speed.ExtraRunSpeed = default;
         return result with { Landed = false, HitCeiling = false };
@@ -463,7 +463,7 @@ public static class SamusAerialMovement
             roomObjects);
 
         // Converts an underflowed upward magnitude to a stationary downward state
-        // before the common vertical routine can turn the negative word into moonfall-like
+        // before the common vertical movement can turn the negative speed into moonfall-like
         // motion. An ordinary walk-off already enters with direction two.
         if (samus.Kinematics.YDirection == SamusVerticalDirection.Up &&
             SamusSpeedMagnitude.HasPassedZero(samus.Kinematics.YSpeed.Whole))
@@ -540,7 +540,7 @@ public static class SamusAerialMovement
         BlockMoveResult horizontal;
         if (speed.AccelerationMode == SamusAccelerationMode.Accelerating && !horizontalInput)
         {
-            // Clears both persistent base words and the frame displacement.
+            // Clears both persistent base speeds and the frame displacement.
             speed.BaseSpeed = default;
             // This branch bypasses the speed calculation; retain the previous total-speed pair.
             SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, state, samus, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.Zero });
@@ -627,7 +627,7 @@ public static class SamusAerialMovement
     /// </summary>
     /// <remarks>
     /// Ordinary jump/fall handlers call this after their X pass, but the drained-Samus
-    /// handler calls this routine directly. Keeping one implementation
+    /// handler calls this directly. Keeping one implementation
     /// is important: the old-speed displacement, equality-only terminal-speed check, and
     /// ceiling response are observable game behavior, not general-purpose host physics.
     /// </remarks>
@@ -661,7 +661,7 @@ public static class SamusAerialMovement
         downwardDisplacement = !displacement.IsNegative;
         BlockMoveResult vertical = SamusBlockCollision.MoveVertical(terrain, state, samus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
 
-        // (down) and the upward mover (up) publish this word after every move. A
+        // (down) and the upward mover (up) publish this result after every move. A
         // downward pass is never zero: 1 on a landing, otherwise 2 unless a wall jump's 5 is retained.
         if (downwardDisplacement)
         {
@@ -715,7 +715,7 @@ public static class SamusAerialMovement
             : (controllerInput & ControllerButton.Right) != ControllerButton.None;
 
     /// <summary>
-    /// Ports the wall-jump check's block and solid-enemy wall probes, including enemy-shake publication.
+    /// Runs the wall-jump check's block and solid-enemy wall probes, including enemy-shake publication.
     /// </summary>
     private static WallJumpCheckResult CheckBlockWallJump(
 
@@ -748,8 +748,8 @@ public static class SamusAerialMovement
         if (!probe.Collided)
             return default;
 
-        // The accepted whole travel is a signed word, so its magnitude is at most 32768 and the
-        // distance holds the exact value the unsigned word would.
+        // The accepted whole travel is signed, so its magnitude is at most 32768 and the
+        // distance holds the exact unsigned value.
         int distance = Math.Abs(probe.AcceptedDisplacement.WholePixels);
         int firstEligibleFrame = SamusPoseMetadata.IsScrewAttackPose(samus.Pose)
             ? 27
@@ -766,7 +766,7 @@ public static class SamusAerialMovement
         {
             // Both successful exits converge on the same result: the solid-enemy
             // branch writes five, and the terrain branch repeats that write
-            // too. This is not merely an internal boolean. The shared word
+            // too. This is not merely an internal boolean. The shared result
             // state, so retain the publication even though the host result below also tells
             // the runtime to install the wall-jump pose explicitly.
             samus.SolidVerticalCollisionResult = SamusVerticalCollisionResult.WallJump;
@@ -814,7 +814,7 @@ public static class SamusAerialMovement
         }
 
         // This is the same jump start used by a grounded launch: authored initial
-        // magnitude, Speed Booster's split-word bonus, dry-air gravity, and upward direction.
+        // magnitude, Speed Booster's split bonus, dry-air gravity, and upward direction.
         SamusAerialMovement.InitializeJump(samus);
         return true;
     }

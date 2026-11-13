@@ -11,7 +11,7 @@ using SuperMetroid.Core.Earthquakes;
 
 namespace SuperMetroid.Core.Enemies.MamaTurtles;
 
-/// <summary>The mama turtle species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The mama turtle species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -248,7 +248,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = MamaTurtleAiFunction.Asleep;
     }
 
-    /// <summary>Runs the sleeping shell height/carry routine.</summary>
+    /// <summary>Runs the sleeping shell's height and carry step.</summary>
     internal static void RunMamaTurtleAsleep(
         RoomEnemySlot mama,
         MamaTurtleEnemyState state,
@@ -267,7 +267,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         if (distance >= 24)
             return;
 
-        // The first 24 contour words describe Samus to the left; the second 24 describe
+        // The first 24 contour entries describe Samus to the left; the second 24 describe
         // Samus to the right. This asymmetry is visible around the sleeping shell's lip.
         int contourOffset = MamaTurtleShell.GetOffset(signedDifference);
         mama.Radius = mama.Radius.WithY(CoordinateAxis.Wrap(-contourOffset));
@@ -284,7 +284,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         samus.Kinematics.ExtraDisplacement -= new Offset16<RoomPixels>(0, CoordinateAxis.AsSigned(overlap));
     }
 
-    /// <summary>Runs the deliberately jittery shell-opening routine.</summary>
+    /// <summary>Runs the deliberately jittery shell-opening step.</summary>
     private void RunMamaTurtleLeavingShell(
         RoomEnemySlot mama,
         MamaTurtleEnemyState state,
@@ -315,9 +315,8 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             state,
             MamaTurtleProgram.MamaLeaveShellLeft);
 
-        // The original store here writes 32 to an unrelated low memory word rather than to the enemy,
-        // and does not alter the enemy. Reproducing that unrelated write
-        // would be harmful; importantly, we do not invent an enemy-field meaning for it.
+        // The game's store at this point does not reach the enemy, so nothing is stored here; no enemy field is
+        // invented for it.
         state.Function = MamaTurtleAiFunction.Idle;
     }
 
@@ -397,19 +396,19 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(result.WholePixels < -16 ? result.WithWholePixels(-16) : result);
     }
 
-    /// <summary>Adds signed 16.16 hover acceleration with carry and caps whole speed using the old velocity's sign.</summary>
+    /// <summary>Adds signed 16.16 hover acceleration as one 16.16 sum and caps whole speed using the old velocity's sign.</summary>
     internal static void AddAndClampMamaTurtleHorizontalAcceleration(
         MamaTurtleEnemyState state)
     {
         SignedSixteenSixteen velocity = state.Velocity.X;
-        // One 16.16 add: the fraction's carry reaches the whole pixels.
+        // One 16.16 add: the fraction's overflow reaches the whole pixels.
         SignedSixteenSixteen sum = velocity + state.XAcceleration;
         int oldWhole = velocity.WholePixels;
         int newWhole = sum.WholePixels;
 
         int cappedWhole = Math.Abs(newWhole) < MamaTurtleMaximumHoveringSpeed
             ? newWhole
-            // Chooses the cap's sign from the old velocity word, before storing the
+            // Chooses the cap's sign from the old velocity, before storing the
             // just-computed result. Preserve that one-frame zero-crossing behavior.
             : oldWhole < 0
                 ? -MamaTurtleMaximumHoveringSpeed
@@ -512,7 +511,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidOperationException("Baby Turtle AI requires the active Samus actor.");
 
         // The prologue requires the child's parent to be a Mama Turtle. The game also clears and republishes a
-        // carried-height word on the parent here, which nothing reads.
+        // carried-height value on the parent here, which nothing reads.
         _ = RequireMamaTurtleParent();
         switch (state.Function)
         {
@@ -834,14 +833,14 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
                 ? MamaTurtleProgram.BabyCrawlingLeft
                 : MamaTurtleProgram.BabyCrawlingRight);
 
-    /// <summary>Starts a Mama Turtle animation with its instruction timer set to one.</summary>
+    /// <summary>Starts a Mama Turtle animation with its frame timer set to one.</summary>
     private static void InstallTurtleInstruction(RoomEnemySlot slot, MamaTurtleEnemyState state, MamaTurtleProgram program)
     {
         state.Playback = new(MamaTurtleAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
     }
 
-    /// <summary>Starts a baby turtle animation with its instruction timer set to one.</summary>
+    /// <summary>Starts a baby turtle animation with its frame timer set to one.</summary>
     private static void InstallTurtleInstruction(RoomEnemySlot slot, BabyTurtleEnemyState state, MamaTurtleProgram program)
     {
         state.Playback = new(MamaTurtleAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
@@ -865,7 +864,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         });
     }
 
-    /// <summary>Ports MamaTurtle's main AI.</summary>
+    /// <summary>Runs MamaTurtle's main AI.</summary>
     internal void RunMamaTurtleMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunMamaTurtleMain(
@@ -876,7 +875,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             frame.Clock.ShortCounter);
     }
 
-    /// <summary>Ports BabyTurtle's main AI.</summary>
+    /// <summary>Runs BabyTurtle's main AI.</summary>
     internal void RunBabyTurtleMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunBabyTurtleMain(slot, slot.RequireSpeciesState<BabyTurtleEnemyState>(), frame.Samus, frame.Level);

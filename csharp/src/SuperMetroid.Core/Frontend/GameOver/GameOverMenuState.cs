@@ -24,7 +24,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
 
     /// <summary>Shared music and sound queue advanced by the menu scene.</summary>
     private readonly AudioQueues audio;
-    /// <summary>The menu screen game over draws: its artwork, tilemaps, palette and sprite entries.</summary>
+    /// <summary>The menu screen game over draws: its artwork, pictures, palette and sprite entries.</summary>
     internal readonly MenuScreen screen;
     /// <summary>Accumulates Baby, egg, and cursor sprites for each rendered frame.</summary>
     /// <summary>Detects newly pressed answer-navigation and confirmation buttons.</summary>
@@ -72,7 +72,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
         Phase = GameOverMenuPhase.ConfigureGraphics;
     }
 
-    /// <summary>Zero selects Yes; one selects No, matching <c>file_select_map_area_index</c>.</summary>
+    /// <summary>Zero selects Yes; one selects No, numbered as the file-select map numbers its area choice.</summary>
     public YesNoChoice SelectedItem { get; private set; }
 
     /// <summary>Current menu step; these enum ordinals are not the game's step numbers.</summary>

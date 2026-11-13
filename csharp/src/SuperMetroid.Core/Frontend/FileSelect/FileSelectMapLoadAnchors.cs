@@ -16,7 +16,7 @@ public static class FileSelectMapLoadAnchors
     /// counts, so the result is an ordinary map pixel and nothing wraps. The thirty-four supported station identities retain the
     /// existing marker-validity guard.
     /// Only fixed compiled room metadata is needed, never room-state selection,
-    /// original data access, editable marker art, or a generated coordinate cache.
+    /// game data access, editable marker art, or a generated coordinate cache.
     /// </remarks>
     public static Position16<MapPixels> Get(LoadStation station)
     {

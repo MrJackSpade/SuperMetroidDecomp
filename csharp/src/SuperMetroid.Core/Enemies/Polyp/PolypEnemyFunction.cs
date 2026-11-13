@@ -10,6 +10,6 @@ public enum PolypEnemyFunction
     WaitingForSamus = 1,
     /// <summary>Consumes separate shared-RNG samples for horizontal velocity, initial quadratic Y-speed selector, and cooldown; requests one lava rock and enters cooldown even if the projectile pool is full.</summary>
     ShootingRock,
-    /// <summary>Decrements the word once per AI update and rearms proximity checking only when the signed result is negative, so an initial nonnegative count N waits N+1 updates.</summary>
+    /// <summary>Decrements the cooldown once per AI update and rearms proximity checking only when the signed result is negative, so an initial nonnegative count N waits N+1 updates.</summary>
     Cooldown,
 }

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Rios;
 
 /// <summary>
-/// The routines Lower Norfair Rio's main AI dispatches.
+/// The behaviours Lower Norfair Rio's main AI dispatches.
 /// Its values are arbitrary.
 /// </summary>
 public enum LowerNorfairRioEnemyFunction
@@ -10,7 +10,7 @@ public enum LowerNorfairRioEnemyFunction
     FollowParent = 1,
     /// <summary>Admits an attack when either half of the random sample is odd and Samus is strictly within 112 horizontal room pixels.</summary>
     WaitForAttackOpportunity,
-    /// <summary>Waits for the animation instruction's completion signal before clearing it and starting downward motion.</summary>
+    /// <summary>Waits for the animation cue's completion signal before clearing it and starting downward motion.</summary>
     WaitForTakeoffAnimation,
     /// <summary>Moves horizontally and downward, reverses X velocity on walls, and transitions to return on vertical collision or a negative vertical velocity.</summary>
     Dive,

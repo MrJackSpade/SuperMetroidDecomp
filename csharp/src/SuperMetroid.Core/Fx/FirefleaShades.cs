@@ -10,7 +10,7 @@ internal static class FirefleaShades
 {
     /// <summary>Returns the triangular flashing shade level 6-abs(index-6), index 0..11.</summary>
     /// <remarks>Independently checked for #1165 against every original NTSC J/U v1.0
-    /// word and the pinned reference sources. The six-frame timer and phase wrap are caller-owned;
+    /// value and the pinned reference sources. The six-frame timer and phase wrap are caller-owned;
     /// this exact integer wave requires no sampled floating-point construction.</remarks>
     internal static int FlashingShade(int index)
     {

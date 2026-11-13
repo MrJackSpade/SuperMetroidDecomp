@@ -2,10 +2,10 @@ using P = SuperMetroid.Core.Samus.Projectiles.SamusProjectileProgram;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>The program each projectile header's shots start: one for each direction a shot is fired in, or one whatever its direction.</summary>
+/// <summary>The program each projectile definition's shots start: one for each direction a shot is fired in, or one whatever its direction.</summary>
 internal static class SamusProjectileHeaderDefinitions
 {
-    /// <summary>The program a shot from each directional header starts in each direction it is fired in.</summary>
+    /// <summary>The program a shot from each directional definition starts in each direction it is fired in.</summary>
     internal static readonly IReadOnlyDictionary<SamusProjectileHeader, SamusProjectileDirectionMap<P>> DirectionalPrograms =
         new Dictionary<SamusProjectileHeader, SamusProjectileDirectionMap<P>>
         {
@@ -40,7 +40,7 @@ internal static class SamusProjectileHeaderDefinitions
         };
 
     /// <summary>
-    /// The one program each of the other headers starts: the Super Missile link's, the bombs' and the special attacks'
+    /// The one program each of the other definitions starts: the Super Missile link's, the bombs' and the special attacks'
     /// particles', which start it whatever their direction.
     /// </summary>
     internal static readonly IReadOnlyDictionary<SamusProjectileHeader, P> SolePrograms =

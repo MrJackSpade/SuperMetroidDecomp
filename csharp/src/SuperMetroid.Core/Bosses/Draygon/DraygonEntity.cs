@@ -58,7 +58,7 @@ internal sealed class DraygonEntity(DraygonBehavior species, RoomEnemySlot slot,
         Slot.DefinitionId == EnemyDefinitionId.DraygonBody ? EnemyCapabilities.SamusFrameHitboxes | EnemyCapabilities.ProjectileFrameHitboxes : EnemyCapabilities.None;
 
     /// <summary>The body's shot reaction and its dud shot, which normal bombs dispatch like the common one.</summary>
-    /// <param name="reaction">The reaction the header or the selected hitbox names, or null.</param>
+    /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>
     public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
         Slot.DefinitionId == EnemyDefinitionId.DraygonBody && reaction is EnemyReaction.DraygonShot or EnemyReaction.DudShot;
 }

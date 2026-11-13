@@ -24,7 +24,7 @@ internal sealed class IntroBabyDiscoveryState
     internal IntroBabyDiscoveryDemoPhase DemoPhase { get; private set; } = IntroBabyDiscoveryDemoPhase.RunningLeft;
     /// <summary>Particles emitted when the egg begins hatching.</summary>
     internal readonly List<IntroEggParticle> eggParticles = [];
-    /// <summary>Drops emitted as the baby rises past the hatch scanline.</summary>
+    /// <summary>Drops emitted as the baby rises past the hatch row.</summary>
     private readonly List<IntroEggSlimeDrop> slimeDrops = [];
     /// <summary>The session's random number generator, which the demo's Samus animation draws from.</summary>
     private readonly SharedRandom random;
@@ -112,7 +112,7 @@ internal sealed class IntroBabyDiscoveryState
             SamusAerialPoseTransitions.DropPendingTransitionShot(Samus);
             Samus.ProjectileInheritance.ClearMovement();
 
-            // An end instruction read above already replaced the new-state handler, so this
+            // An end cue read above already replaced the new-state handler, so this
             // dispatch skips Samus's movement and animation.
             if (!samusHandlersEnded)
             {
@@ -210,7 +210,7 @@ internal sealed class IntroBabyDiscoveryState
         }
     }
 
-    /// <summary>Runs the discovery list's end routine, disabling input and both Samus handlers for subsequent dispatches.</summary>
+    /// <summary>Runs the discovery list's end step, disabling input and both Samus handlers for subsequent dispatches.</summary>
     private void HandleDemoCue(DemoInputCue cue)
     {
         if (cue != DemoInputCue.EndIntroBabyDiscovery)
@@ -365,11 +365,11 @@ internal sealed class IntroBabyDiscoveryState
     /// <summary>The frames the baby has danced, counted up to 128; it cries as the count reaches 64 and 128.</summary>
     private int BabyDanceFrames { get; set; }
 
-    /// <summary>Spawns slime at the authored scanline and accelerates the baby toward its hover point.</summary>
+    /// <summary>Spawns slime at the authored row and accelerates the baby toward its hover point.</summary>
     private void StepHatchedBaby()
     {
         // Equality is intentional: the hatched baby tests for equality, and the actor's subpixel integration
-        // reaches this scanline once. Four init parameters select four distinct arcs.
+        // reaches this row once. Four init parameters select four distinct arcs.
         if (confusedBaby.WholePosition.Y == 145 && slimeDrops.Count == 0)
         {
             for (int index = 0; index < IntroEggEffectDefinitions.SlimeDropCount; index++)

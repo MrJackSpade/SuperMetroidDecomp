@@ -100,7 +100,7 @@ public static class StockAttractDemoScenes
 
     /// <summary>
     /// The chosen staging of each demonstration. Screen origins, upgrade capacities,
-    /// and composable equipment words calculate from their domain units; choosing each scene's
+    /// and composable equipment flags calculate from their domain units; choosing each scene's
     /// starting configuration and editorial cutoff defines this recorded performance.
     /// </summary>
     private static AttractDemoScene Stage(Demonstration demonstration) => demonstration switch

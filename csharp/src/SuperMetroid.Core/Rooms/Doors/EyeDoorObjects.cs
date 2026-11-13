@@ -30,7 +30,7 @@ internal sealed class EyeDoorObjects
         _sounds = sounds;
     }
 
-    /// <summary>Recognizes the eye, middle, and bottom headers for either door orientation.</summary>
+    /// <summary>Recognizes the eye, middle, and bottom definitions for either door orientation.</summary>
     internal static bool IsEyeDoorHeader(RoomObjectHeaderId header) => EyeDoorPartDefinitions.Parts.ContainsKey(header);
 
     /// <summary>

@@ -17,10 +17,10 @@ public static class SamusSlopePhysics
     /// Reacts to a non-square slope during horizontal block collision.
     /// </summary>
     /// <param name="behavior">
-    /// The slope block's behaviour. Bits 0–4 choose the profile; bit 7 marks a ceiling slope.
+    /// The slope block's behaviour: its profile and whether it is a ceiling slope.
     /// </param>
     /// <param name="displacement">The horizontal displacement.</param>
-    /// <param name="verticalSpeed">Samus's vertical speed. Any motion suppresses grounded slope scaling exactly as the routine does.</param>
+    /// <param name="verticalSpeed">Samus's vertical speed. Any motion suppresses grounded slope scaling exactly as the game does.</param>
     public static SignedSixteenSixteen ScaleGroundedHorizontalDisplacement(
         RoomBlockBehavior behavior,
         SignedSixteenSixteen displacement,
@@ -28,7 +28,7 @@ public static class SamusSlopePhysics
     {
 
         // Ceiling slopes and airborne Samus leave the incoming amount untouched. This is
-        // the routine's complete early-return condition, not a host-side policy choice.
+        // the game's complete early-return condition, not a host-side policy choice.
         if (behavior.Slope.FlipsVertically || !verticalSpeed.IsZero)
             return displacement;
 
@@ -58,9 +58,9 @@ public static class SamusSlopePhysics
     /// for non-square floor and ceiling slopes.
     /// </summary>
     /// <remarks>
-    /// This routine does not perform the preceding horizontal collision scan. It consumes
+    /// This alignment does not perform the preceding horizontal collision scan. It consumes
     /// the position that scan accepted and adjusts only whole-pixel Y, exactly like the
-    /// original call immediately after a move without solid-enemy collision.
+    /// game's call immediately after a move without solid-enemy collision.
     /// </remarks>
     public static SlopeAlignmentResult AlignYPosition(
         RoomLevelData level,

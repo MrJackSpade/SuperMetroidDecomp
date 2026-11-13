@@ -12,7 +12,7 @@ internal static class IntroEggMotion
     /// <remarks>
     /// Issues #625 and #979: the odd-actor table has
     /// 62 signed 16.16 records matching
-    /// the original data. For f=0..13, g=f/7 and r=f%7
+    /// the authored data. For f=0..13, g=f/7 and r=f%7
     /// give whole=g-2 and fraction=0 for r=0, otherwise (7-r) eighths of a pixel.
     /// For f=14..61 the signed value is (f-14) eighths of a pixel, ending at five and seven eighths.
     /// The slime motion chooses this table when the actor timer is odd,
@@ -20,17 +20,17 @@ internal static class IntroEggMotion
     /// In the 96-pixel start fixture, fractional starts from zero to just under a
     /// whole pixel all ground at frame 51, inside the table. The method rejects
     /// frame 62 and negative frames instead of reading the adjacent even
-    /// table; fractional addition and the carry into the whole part stay exact.
+    /// table; fractional addition and the overflow into the whole part stay exact.
     ///
     /// Issues #625 and #980: the separate even-actor table
-    /// has 69 signed 16.16 records matching the original data. For
+    /// has 69 signed 16.16 records matching the authored data. For
     /// f=0..20, g=f/7 and r=f%7 give whole=g-3 and fraction=0 for r=0,
     /// otherwise (7-r) eighths of a pixel. For f=21..68 the signed value is
     /// (f-21) eighths of a pixel, ending at five and seven eighths. An even timer selects
     /// this table for ordinary actor IDs 0 and 2, and the timer over 256 indexes
     /// the records. The 96-pixel start fixture with fractions from zero to just
     /// under a whole pixel grounds at frame 62, within the table. Frame 69 and
-    /// negative frames throw instead of reading the adjacent routine.
+    /// negative frames throw instead of reading adjacent data.
     /// </remarks>
     public static SignedSixteenSixteen SlimeY(int frame, bool odd) => Curve(frame, odd ? 62 : 69, odd ? 2 : 3);
 
@@ -63,7 +63,7 @@ internal static class IntroEggMotion
     /// <remarks>
     /// Issues #625 and #975: the fragment spawn reads six X/Y
     /// origin pairs, then adds 16 and 59
-    /// respectively. The original data
+    /// respectively. The authored data
     /// gives source pairs (92,88), (99,88), (89,93),
     /// (96,91), (102,94), and (99,96); all twelve values match this
     /// selector after the biases. The spawn step creates exactly indices
@@ -75,7 +75,7 @@ internal static class IntroEggMotion
 
     /// <summary>Six signed 16.16 shell-fragment horizontal velocities.</summary>
     /// <remarks>
-    /// Issues #625 and #976: the original data
+    /// Issues #625 and #976: the authored data
     /// match all six velocities, in pixels per frame:
     /// -0.75, 0.25, -0.5, -0.875, 0.5
     /// and 0.125. The fragment motion indexes them by the immutable fragment number
@@ -88,7 +88,7 @@ internal static class IntroEggMotion
 
     /// <summary>Five authored horizontal slime records; four actors are normally spawned.</summary>
     /// <remarks>
-    /// Issues #625 and #978: the original data
+    /// Issues #625 and #978: the authored data
     /// match all five signed 16.16 speeds, in pixels per frame:
     /// -1, -0.5, 1, 0.5, -0.5.
     /// The slime motion indexes them by the actor timer's count within its

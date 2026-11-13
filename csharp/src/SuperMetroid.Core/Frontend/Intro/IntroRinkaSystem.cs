@@ -8,9 +8,9 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// The four Rinkas (the ring-shaped “Cheerios”) fired during the Mother Brain flashback.
 /// </summary>
 /// <remarks>
-/// This translates the Rinka and spawner definitions and their animation
+/// This models the Rinka and spawner definitions and their animation
 /// lists. Only Rinka zero is scripted to strike Samus; the other three deliberately miss.
-/// The hit routine does not subtract health in the retail cinematic. It publishes eleven
+/// The hit step does not subtract health in the retail cinematic. It publishes eleven
 /// frames of invincibility and knockback, which makes Samus flash and visibly react.
 /// The Rinkas are a list in spawn order with no cap (#1625): only the first one launched touches Samus, so the order the
 /// others step and draw in is not observable.
@@ -27,13 +27,13 @@ internal sealed class IntroRinkaSystem
     /// <summary>Creates the invisible spawner before its timed animation runs.</summary>
     public IntroRinkaSystem()
     {
-        // Reusing the focused animation interpreter preserves the spawner's exact 74 then 128 frame waits.
+        // Reusing the focused animation playback preserves the spawner's exact 74 then 128 frame waits.
         spawner = new(new(0, 0), IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors), IntroRinkaDefinitions.SpawnerActor.Program);
     }
 
     /// <summary>One update of the spawner, then of every Rinka.</summary>
     /// <param name="samus">Samus, whose X position a hitting Rinka crosses before applying its knockback.</param>
-    /// <param name="motherBrainExploding">True once Mother Brain's exploding routine deletes the Rinkas.</param>
+    /// <param name="motherBrainExploding">True once Mother Brain's exploding step deletes the Rinkas.</param>
     /// <param name="explosionsAllocated">
     /// True once Mother Brain's explosions have started. The spawner's program spawns every Rinka before then, so a
     /// spawn after it is a fault in the cinematic's script.
@@ -166,7 +166,7 @@ internal sealed class IntroRinkaSystem
                 MoveHalfPixelY(sprite);
 
                 // The Rinka compares (Rinka X + 8) against (Samus X - 5). Until that crossing,
-                // the actor survives unless Mother Brain has entered her exploding routine.
+                // the actor survives unless Mother Brain has entered her exploding step.
                 if (CoordinateAxis.AsSigned(sprite.WholePosition.X + 8) <
                     CoordinateAxis.Difference(samus.Position.X.Whole, 5))
                 {

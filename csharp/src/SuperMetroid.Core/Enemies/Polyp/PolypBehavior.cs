@@ -6,7 +6,7 @@ using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Enemies.Polyp;
 
-/// <summary>The Polyp species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Polyp species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -115,7 +115,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         return CoordinateAxis.Distance(samusCoordinate, enemyCoordinate) < PolypProximity;
     }
 
-    /// <summary>Routes Polyp rock projectiles through their rise, fall, and viewport-culling routine.</summary>
+    /// <summary>Routes Polyp rock projectiles through their rise, fall, and viewport-culling behaviour.</summary>
     internal static void AddPolypProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddFrameBehavior(context =>
@@ -131,7 +131,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
             static (PolypEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"The Polyp's cue-free animation raised {cue}."));
 
-    /// <summary>Ports Polyp's main AI.</summary>
+    /// <summary>Runs Polyp's main AI.</summary>
     internal void RunPolypMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunPolypMain(slot, slot.RequireSpeciesState<PolypEnemyState>(), frame.Samus);
@@ -205,7 +205,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // The routine integrates two adjacent quadratic samples per frame, first
+        // The rock integrates two adjacent quadratic samples per frame, first
         // index velocity+1 and then velocity. This is why the table index changes by two
         // while the visual arc still advances at gameplay-frame rate.
         AddPolypRockQuadraticStep(projectile, rock.SpeedIndex + 1, sign: EnemySpeedSign.Negative);

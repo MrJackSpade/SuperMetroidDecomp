@@ -1,6 +1,6 @@
 ﻿namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>What a cue of Torizo's body programs does: one per Torizo instruction its lists use.</summary>
+/// <summary>What a cue of Torizo's body programs does: one per kind of step its lists use.</summary>
 internal enum TorizoCueKind
 {
     /// <summary>Clears the body's frame behaviour.</summary>

@@ -140,7 +140,7 @@ internal static class EyeDoorObjectsVerification
         };
         var effects = new List<EyeDoorProjectileRequest>();
         var roomObjects = RoomObjectFixtures.Unbound();
-        AssertEqual(3, RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Brinstar), RoomObjectPopulationImporter.Read(bus, pointer: 0x9000), new RoomObjectServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Enemies = new FixtureObjectEnemyEffects { EyeDoorProjectile = effects.Add } }),
+        AssertEqual(3, RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, system, AreaId.Brinstar), RoomObjectPopulationImporter.Read(bus, pointer: 0x9000), new RoomObjectServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Enemies = new FixtureObjectEnemyEffects { EyeDoorProjectile = effects.Add } }),
             $"{orientation} eye-door population record count");
 
         AssertEqual(3, roomObjects.SlotTable.ActiveCount, $"{orientation} eye door retains three PLM slots");

@@ -123,7 +123,7 @@ internal sealed class KraidHead
         if (state.DisplayedHeadFrame is { MouthStage: KraidHeadFrame.FullyOpenMouthStage } &&
             KraidCadenceDefinitions.SpitRockEverySixteenthMouthUpdate.IsDue(state.BodyState.HeadTimer))
         {
-            _ = SpawnKraidSpitRock(body);
+            SpawnKraidSpitRock(body);
             _access.RequestKraidSound(KraidSoundDefinitions.RockSpit);
         }
     }
@@ -244,11 +244,11 @@ internal sealed class KraidHead
     }
 
     /// <summary>Emits a mouth rock when a projectile slot is available.</summary>
-    internal bool SpawnKraidSpitRock(RoomEnemySlot body)
+    internal void SpawnKraidSpitRock(RoomEnemySlot body)
     {
         EnemyProjectile? rock = _projectiles.AllocateEnemyProjectile();
         if (rock is null)
-            return false;
+            return;
 
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             rock,
@@ -260,7 +260,6 @@ internal sealed class KraidHead
         rock.Velocity = rock.Velocity.WithX(KraidRockLaunchDefinitions.FromRandom(random));
         rock.Velocity = rock.Velocity.WithY(SignedEightEight.FromPixels(-4));
         rock.Graphics = SpriteGraphics.SharedIn(KraidColours.RocksShading);
-        return true;
     }
 
     /// <summary>Derives a nonzero multiple-of-64 thinking delay from the room RNG.</summary>

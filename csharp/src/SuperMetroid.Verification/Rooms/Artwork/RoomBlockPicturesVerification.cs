@@ -105,7 +105,7 @@ internal static class RoomBlockPicturesVerification
     {
         SuperMetroidRuntime runtime = LoadRoom(RoomDefinitions.Phantoon);
         runtime.StepFrame(0);
-        AssertEqual<RoomLibraryBackgroundPicture>(new RoomLibraryBackgroundPicture.ShownOtherwise(LibraryBackgroundView.BossBody),
+        AssertEqual(RoomLibraryBackgroundPicture.SeenOtherwise,
             RoomScopeOf(runtime).BackgroundImage, "Phantoon's room binds no background picture");
         RoomBackgrounds rooms = runtime.Display.Latched.Rooms ?? throw new InvalidOperationException("Phantoon's room shows no room backgrounds.");
         AssertTrue(rooms.BackgroundImage is null, "Phantoon's room draws no background picture");

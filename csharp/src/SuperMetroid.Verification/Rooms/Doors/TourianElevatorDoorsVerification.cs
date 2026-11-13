@@ -40,7 +40,7 @@ internal static class TourianElevatorDoorsVerification
             {
                 ushort pointer = ReadVerificationWord(bus, 0x8f0000 | (listPointer + index * 2));
                 DoorListEntry resolved = DoorDefinitions.Resolve(listPointer, index);
-                AssertEqual(pointer, resolved.Pointer, "native door-list pointer");
+                AssertEqual(DoorDefinitionsAccess.DoorPointerOf(pointer), resolved.Pointer, "native door-list pointer");
                 // $94:938B: a zero destination word is the elevator pseudo-door.
                 if (ReadVerificationWord(bus, 0x830000 | pointer) == 0)
                     AssertTrue(resolved.IsElevatorPseudoDoor, "zero destination resolves as the elevator pseudo-door");

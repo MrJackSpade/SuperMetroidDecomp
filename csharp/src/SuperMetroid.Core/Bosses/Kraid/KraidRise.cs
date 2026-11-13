@@ -158,7 +158,7 @@ internal sealed class KraidRise
                     state.BodyState.CeilingRock < KraidCeilingRocks.Count)
                 {
                     int rock = state.BodyState.CeilingRock;
-                    _ = _background.SpawnKraidCeilingRock(KraidCeilingRocks.X(rock));
+                    _background.SpawnKraidCeilingRock(KraidCeilingRocks.X(rock));
                     _frameResults.KraidObjects.Add(KraidObjectDefinitions.GrowthCeiling[rock]);
                     state.BodyState.CeilingRock = rock + 1;
                 }

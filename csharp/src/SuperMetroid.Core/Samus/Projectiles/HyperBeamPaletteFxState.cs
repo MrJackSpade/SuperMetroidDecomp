@@ -50,13 +50,13 @@ public sealed class HyperBeamPaletteFxState
     }
 
     /// <summary>Runs one call of the palette effect handler for the Hyper Beam object.</summary>
-    public HyperBeamPaletteFxStepResult Step(SamusColours colours)
+    public void Step(SamusColours colours)
     {
         Ensure.NotNull(colours);
 
         if (!IsActive)
         {
-            return new HyperBeamPaletteFxStepResult();
+            return;
         }
 
         RoomPaletteFxDefinition definition = HyperBeamDefinition();
@@ -73,7 +73,7 @@ public sealed class HyperBeamPaletteFxState
         FrameHold--;
         if (FrameHold != 0)
         {
-            return new HyperBeamPaletteFxStepResult();
+            return;
         }
 
         AnimationPlace place = Place;
@@ -98,7 +98,6 @@ public sealed class HyperBeamPaletteFxState
 
         FrameHold = shown.Duration;
         CurrentFrameIndex = frameIndex;
-        return new HyperBeamPaletteFxStepResult();
     }
 
     /// <summary>The palette-FX object definition the Hyper Beam spawns.</summary>

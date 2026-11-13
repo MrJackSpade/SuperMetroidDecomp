@@ -23,9 +23,6 @@ internal sealed record EnemyCollisionDependencies
     /// <summary>Frame context.</summary>
     public required EnemyFrameContext FrameContext { get; init; }
 
-    /// <summary>Presentation.</summary>
-    public required EnemyPresentation Presentation { get; init; }
-
     /// <summary>Projectiles.</summary>
     public required EnemyProjectileEngine Projectiles { get; init; }
 

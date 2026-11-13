@@ -111,7 +111,7 @@ public static class SaveRamLayout
     public const int ReserveMissilesOffset = 0x0036;
     /// <summary>$09E2, saved alternate/Japanese text setting.</summary>
     public const int JapaneseTextOffset = 0x0040;
-    /// <summary>$7E:D91A, cumulative item-PLM setup count, not item percentage.</summary>
+    /// <summary>$7E:D91A, cumulative item-PLM setup count, not item percentage; see <see cref="LoadedItemCountSavedWord"/>.</summary>
     public const int LoadedItemCountOffset = 0x015a;
     /// <summary>$70:1FE0-$1FEB, global completed-game signature used by $80:8261.</summary>
     public const int CompletionMarkerOffset = 0x1fe0;
@@ -166,6 +166,14 @@ public static class SaveRamLayout
     /// one a new file stored into every save the game writes.
     /// </summary>
     public const ushort NewFileMarkerSavedWord = 0x0001;
+
+    /// <summary>
+    /// The word an exported save stores at <see cref="LoadedItemCountOffset"/>. The cartridge counts item-PLM set-ups there
+    /// (<c>$84:EE64</c>, <c>$84:EE8E</c>) and no routine reads the count, so the port keeps none (#1691). <c>NewSaveFile</c>
+    /// leaves the word alone, and the boot code's clear of bank <c>$7E</c> zeroes it, so zero is the count a new file
+    /// saved from power-on before any item room has loaded holds. An imported save's count is not decoded.
+    /// </summary>
+    public const ushort LoadedItemCountSavedWord = 0x0000;
 
     /// <summary>Slot-relative offset of the Boolean HUD item-cancel option at WRAM <c>$7E:D808</c>.</summary>
     public const int IconCancelOffset = 0x0048;

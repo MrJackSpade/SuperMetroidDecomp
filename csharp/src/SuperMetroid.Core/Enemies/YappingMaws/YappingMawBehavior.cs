@@ -266,8 +266,6 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             int correctionY = CoordinateAxis.Wrap(
                 CalculateYappingMawY(state.CurlAngle.ToTrigonometryAngle(), rawX) -
                 CalculateYappingMawY(RotationAngle.Zero.ToTrigonometryAngle(), rawX));
-            state.Corrections[segment] = new Offset16<RoomPixels>(
-                CoordinateAxis.AsSigned(correctionX), CoordinateAxis.AsSigned(correctionY));
             int segmentX = chain.Corrected(rawX, correctionX);
             int segmentY = chain.Corrected(rawY, correctionY);
             state.SegmentOffsets[segment] = new Offset16<RoomPixels>(

@@ -138,7 +138,7 @@ internal sealed class DoorObjects
         if (place.Argument is DoorBitArgument { Persists: true } cap)
         {
             RequireSystem().OpenDoor(cap.Door);
-            place.Argument = new SpentDoorArgument(cap.Door);
+            place.Argument = SpentDoorArgument.Instance;
         }
     }
 

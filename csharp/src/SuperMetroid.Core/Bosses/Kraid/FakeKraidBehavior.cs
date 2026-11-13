@@ -229,20 +229,22 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             EightEightVector<RoomPixels> launch =
                 FakeKraidProjectiles.SpitLaunch(direction == HorizontalDirection.Right, projectile);
-            _ = SpawnFakeKraidSpit(slot, xOffset, launch);
+            SpawnFakeKraidSpit(slot, xOffset, launch);
         }
     }
 
-    /// <summary>Allocates one spit projectile above and just ahead of Mini-Kraid's body with its authored velocity.</summary>
-    /// <returns>False when the enemy projectile pool is full.</returns>
-    internal bool SpawnFakeKraidSpit(
+    /// <summary>
+    /// Allocates one spit projectile above and just ahead of Mini-Kraid's body with its authored velocity; a full enemy
+    /// projectile pool spawns none.
+    /// </summary>
+    internal void SpawnFakeKraidSpit(
         RoomEnemySlot source,
         int xOffset,
         EightEightVector<RoomPixels> velocity)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
-            return false;
+            return;
 
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
@@ -252,7 +254,6 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(
             source.Position.Whole + new Offset16<RoomPixels>(CoordinateAxis.AsSigned(xOffset), -16));
         projectile.Velocity = velocity;
-        return true;
     }
 
     /// <summary>Allocates a facing-specific spike at an authored body row.</summary>

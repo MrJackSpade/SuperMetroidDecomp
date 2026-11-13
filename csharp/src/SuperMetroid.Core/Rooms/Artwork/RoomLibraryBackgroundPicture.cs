@@ -5,7 +5,8 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// <summary>
 /// What a room state's background draws from its library background (#1466, #1649): the background's installed picture,
 /// or no picture, because the state loads no library background or because the player sees something else there (the
-/// boss's body, the sky's rows, or nothing), which its own owner draws. Each kind is its own record.
+/// boss's body, the sky's rows, or nothing), which its own owner draws. Each kind is its own record; the background draws
+/// nothing of a background seen otherwise, whatever is seen there instead.
 /// </summary>
 public abstract record RoomLibraryBackgroundPicture
 {
@@ -16,6 +17,9 @@ public abstract record RoomLibraryBackgroundPicture
 
     /// <summary>The state loads no library background, so its background draws none.</summary>
     public static RoomLibraryBackgroundPicture NoneLoaded { get; } = new NotLoaded();
+
+    /// <summary>The state's library background is seen as something else, so its background draws none of it.</summary>
+    public static RoomLibraryBackgroundPicture SeenOtherwise { get; } = new ShownOtherwise();
 
     /// <summary>
     /// What a state loading <paramref name="background"/> draws from it: its picture, which <paramref name="picture"/>
@@ -31,7 +35,7 @@ public abstract record RoomLibraryBackgroundPicture
         {
             null => NoneLoaded,
             { View: LibraryBackgroundView.Picture } pictured => new Drawn(picture(pictured)),
-            { } shown => new ShownOtherwise(shown.View),
+            { } => SeenOtherwise,
         };
     }
 
@@ -51,18 +55,7 @@ public abstract record RoomLibraryBackgroundPicture
 
     /// <summary>
     /// The state's library background is not seen as its own picture, so the background draws none of it: the player sees
-    /// what <see cref="View"/> names, which the boss's body or the sky draws, or nothing.
+    /// what its view names, which the boss's body or the sky draws, or nothing.
     /// </summary>
-    public sealed record ShownOtherwise : RoomLibraryBackgroundPicture
-    {
-        /// <summary>Records what the player sees instead of the background's picture.</summary>
-        /// <param name="view">What the player sees on the background instead: any view but the background's own picture.</param>
-        /// <exception cref="ArgumentOutOfRangeException">The view is the background's own picture, or undefined.</exception>
-        public ShownOtherwise(LibraryBackgroundView view) =>
-            View = view != LibraryBackgroundView.Picture && Enum.IsDefined(view) ? view
-                : throw new ArgumentOutOfRangeException(nameof(view), view, "A background seen as its own picture draws that picture.");
-
-        /// <summary>What the player sees on the background instead.</summary>
-        public LibraryBackgroundView View { get; }
-    }
+    public sealed record ShownOtherwise : RoomLibraryBackgroundPicture;
 }

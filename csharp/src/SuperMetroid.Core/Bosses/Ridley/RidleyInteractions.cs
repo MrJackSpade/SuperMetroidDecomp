@@ -4,8 +4,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>Ridley's hitboxes, weapon reactions, intangibility and health palette.</summary>
-[RoomLifetime]
-internal sealed class RidleyInteractions
+internal static class RidleyInteractions
 {
     /// <summary>Includes both Ceres and Lower Norfair Ridley definition records.</summary>
     internal static bool IsRidleyDefinition(EnemyDefinitionId definitionId) =>

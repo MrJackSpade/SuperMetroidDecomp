@@ -240,13 +240,14 @@ internal static class RoomBlockInventoryVerification
     /// </summary>
     internal static void VerifyPartThatShowsNothingIsNotInstalled()
     {
-        RoomBlockPictureTable table = RoomBlockFixtures.Pictures([
+        RoomBlockFixtures.PicturedBlocks blocks = RoomBlockFixtures.Pictured([
             .. Tiles(highPriority: false, false, false, false),
             .. Tiles(highPriority: true, true, true, true),
             .. Tiles(highPriority: false, true, false, true),
             .. Enumerable.Repeat(new BackgroundTile(ClearCharacter, 0, highPriority: false), 4),
         ], Characters(), Palette());
-        SpriteSheet sheet = table.Sheet.Sheet;
+        RoomBlockPictureTable table = blocks.Pictures;
+        SpriteSheet sheet = blocks.Sheet.Sheet;
         AssertParts(table, sheet, 0, behind: true, inFront: false);
         AssertParts(table, sheet, 1, behind: false, inFront: true);
         AssertParts(table, sheet, 2, behind: true, inFront: true);
@@ -262,7 +263,7 @@ internal static class RoomBlockInventoryVerification
     /// </summary>
     internal static void VerifyUnpicturedBlockFailsLoudly()
     {
-        RoomBlockPictureTable painted = RoomBlockFixtures.Pictures([.. Tiles(highPriority: false, false, false, false),
+        RoomBlockFixtures.PicturedBlocks painted = RoomBlockFixtures.Pictured([.. Tiles(highPriority: false, false, false, false),
             .. Tiles(highPriority: false, false, false, false)], Characters(), Palette());
         var sheet = new RoomBlockSheet(default, painted.Sheet.Sheet, new RoomBlockAppearances([[], []], null, [0]));
         var resolver = new RoomBlockPictureResolver(sheet);

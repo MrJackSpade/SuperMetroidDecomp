@@ -293,7 +293,7 @@ internal static class CollectiblesVerification
         };
         var roomObjects = RoomObjectFixtures.Unbound();
         RoomAppearance appearance = BgArtworkFixtures.For(new SnesVram());
-        int loaded = RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, appearance, system, AreaId.Crateria), RoomObjectPopulationImporter.Read(bus, population), new RoomObjectServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, RoomFx = roomFx is { } fx ? new RoomObjectFx(fx, () => samus) : null });
+        int loaded = RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, system, AreaId.Crateria), RoomObjectPopulationImporter.Read(bus, population), new RoomObjectServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, RoomFx = roomFx is { } fx ? new RoomObjectFx(fx, () => samus) : null });
         AssertEqual(1, loaded, "one-item room population load count");
         return new CollectibleFixture(roomObjects, level, system, samus, blockIndex, appearance);
     }

@@ -28,14 +28,8 @@ internal sealed class RidleyBehavior : IEnemySpecies
     /// <summary>Runs Ridley's body and breakup animations and applies their cues.</summary>
     internal RidleyBodyAnimation Animation { get; }
 
-    /// <summary>Ridley's hitboxes, weapon reactions, intangibility and health palette.</summary>
-    internal RidleyInteractions Interactions { get; }
-
     /// <summary>Norfair Ridley's arrival and fight: hovering, swoops, pogo and ground attacks, and grabbing Samus.</summary>
     internal NorfairRidleyCombat Combat { get; }
-
-    /// <summary>How Norfair Ridley accelerates and moves toward a target, and the function timer its steps count down.</summary>
-    internal NorfairRidleyMovement Movement { get; }
 
     /// <summary>Norfair Ridley's death: the roar, breakup, explosions and the drop.</summary>
     internal NorfairRidleyDeath Death { get; }
@@ -50,9 +44,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         _room = dependencies.Room;
         _ridleyEncounter = dependencies.RidleyEncounter;
         Animation = new RidleyBodyAnimation(dependencies.Audio, _ridleyEncounter, dependencies.RidleyProjectiles);
-        Interactions = new RidleyInteractions();
         Combat = new NorfairRidleyCombat(new NorfairRidleyCombatDependencies { Room = _room, Earthquake = dependencies.Earthquake, Audio = dependencies.Audio, RidleyEncounter = _ridleyEncounter, RidleyTail = _ridleyTail, RidleyProjectiles = dependencies.RidleyProjectiles, RoomFx = dependencies.RoomFx, FrameContext = dependencies.FrameContext });
-        Movement = new NorfairRidleyMovement();
         Death = new NorfairRidleyDeath(dependencies.Dispatch, _room, dependencies.DeathsAndDrops, _ridleyEncounter, dependencies.RidleyProjectiles, dependencies.RoomFx, dependencies.Audio);
         _roomStatus = dependencies.RoomStatus;
     }

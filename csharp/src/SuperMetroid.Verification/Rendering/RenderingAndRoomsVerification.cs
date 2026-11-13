@@ -161,7 +161,7 @@ internal static void VerifyHudState()
     var mapSystem = new SharedGameState(new SharedRandom());
     mapSystem.SetAreaMapAcquired(0);
     hud.UpdateMinimap(mapSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(0x17, 0), RoomSize = new(9 * 16, 5 * 16), Samus = new(0x0440, 0x04bb), FrameCounter = 8, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
-    AssertEqual(new Position16<MapTiles>(27, 5), hud.MinimapCenter, "minimap Landing Site absolute tile");
+    AssertTrue(mapSystem.IsMapTileExplored(AreaId.Crateria, new(27, 5)), "the minimap update explores the Landing Site's absolute tile Samus stands in");
     AssertEqual(SyntheticHudWord(new(25, 4), explored: false), hud.TileWords(hudArtwork)[26], "minimap top-left unvisited map-station tile");
     AssertEqual(SyntheticHudWord(new(27, 5), explored: true), hud.TileWords(hudArtwork)[60], "minimap explored center tile");
 
@@ -170,8 +170,7 @@ internal static void VerifyHudState()
     var wideMapSystem = new SharedGameState(new SharedRandom());
     wideMapSystem.SetAreaMapAcquired(0);
     hud.UpdateMinimap(wideMapSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(0x17 + 256, 0), RoomSize = new(9 * 16, 5 * 16), Samus = new(0x0440, 0x04bb), FrameCounter = 8, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
-    AssertEqual(new Position16<MapTiles>(27, 5), hud.MinimapCenter, "a map column past 255 continues across the area map's columns");
-    AssertTrue(wideMapSystem.IsMapTileExplored(AreaId.Crateria, new(27, 5)), "the wrapped column explores the cell Samus stands in");
+    AssertTrue(wideMapSystem.IsMapTileExplored(AreaId.Crateria, new(27, 5)), "a map column past 255 continues across the area map's columns: it explores the cell Samus stands in");
     var deepMapSystem = new SharedGameState(new SharedRandom());
     hud.UpdateMinimap(deepMapSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(0x17, 300), RoomSize = new(9 * 16, 5 * 16), Samus = new(0x0440, 0x04bb), FrameCounter = 8, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
     AssertTrue(!deepMapSystem.IsMapTileExplored(AreaId.Crateria, new(27, 5)), "a map row below the area map explores nothing");
@@ -254,7 +253,7 @@ internal static void VerifyHudState()
     var rightPageSystem = new SharedGameState(new SharedRandom());
     rightPageSystem.SetAreaMapAcquired(AreaId.Crateria);
     hud.UpdateMinimap(rightPageSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(34, 18), RoomSize = new(2 * 16, 16), Samus = new(0x0080, 0x0080), FrameCounter = 8, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
-    AssertEqual(new Position16<MapTiles>(34, rightPageCenterY), hud.MinimapCenter, "right-page minimap absolute tile");
+    AssertTrue(rightPageSystem.IsMapTileExplored(AreaId.Crateria, new(34, rightPageCenterY)), "the right-page minimap update explores its absolute tile");
     AssertEqual(SyntheticHudWord(new(rightPageNeighborX, rightPageCenterY), explored: false), hud.TileWords(hudArtwork)[61],
         "right-page minimap reads the same eastern cell as pause map");
     AssertEqual(0x2c1f, hud.TileWords(hudArtwork)[59],

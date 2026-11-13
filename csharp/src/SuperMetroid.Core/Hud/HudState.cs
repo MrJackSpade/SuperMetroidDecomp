@@ -53,9 +53,6 @@ public sealed class HudState
     /// <summary>Whether the HUD has been set up from an inventory.</summary>
     public bool IsInitialized { get; private set; }
 
-    /// <summary>Absolute area-map tile (X 0-63, Y 0-31) selected by the latest minimap update.</summary>
-    public Position16<MapTiles> MinimapCenter { get; private set; }
-
     /// <summary>The minimap's cell count: its columns times its rows.</summary>
     private static int MinimapCellCount => GameplayHudPresentation.MinimapSize.X * GameplayHudPresentation.MinimapSize.Y;
 
@@ -137,7 +134,6 @@ public sealed class HudState
         int centerY = frame.RoomMap.Y + RoomGridConversions.PixelToScreen(frame.Samus.Y) + 1;
         if ((uint)centerY >= 32)
             return;
-        MinimapCenter = new(CoordinateAxis.Wrap(centerX), CoordinateAxis.Wrap(centerY));
 
         // Exploration is persistent game state, not HUD-local rendering state. Earlier
         // builds kept this bit in HudState, which made the minimap look correct until a

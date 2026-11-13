@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 
@@ -36,11 +37,11 @@ internal static class BombChargeRejectionVerification
             // Down postpones a valid full-charge spread. The no-edge rejection below
             // therefore belongs only to the ordinary-bomb/Power-Bomb helper, not to
             // releasing a spread. Equipment guards that skip that helper preserve charge.
-            var result = bombs.StepFrame(new SamusTerrain { Level = level }, samus, (ControllerButton.X | ControllerButton.Down), freshShoot ? ControllerButton.X : 0);
+            bool chargeConsumed = bombs.StepFrameConsumingCharge(new SamusTerrain { Level = level }, samus, (ControllerButton.X | ControllerButton.Down), freshShoot ? ControllerButton.X : 0);
             bool helperRuns = powerBombSelected || bombsEquipped && charge < 60;
             bool cancelled = helperRuns && !freshShoot && charge != 0;
             string context = $"charge={charge}, Bombs={bombsEquipped}, PB={powerBombSelected}, edge={freshShoot}";
-            AssertEqual(cancelled, result.BeamChargeConsumed, $"native bomb rejection charge bridge: {context}");
+            AssertEqual(cancelled, chargeConsumed, $"native bomb rejection charge bridge: {context}");
             var cancellations = bombs.AudioRequests.SoundRequests.Where(sound => sound ==
                 new SoundRequest(SamusSound.Silence, SoundRequestPriority.High)).ToArray();
             AssertEqual(cancelled ? 1 : 0, cancellations.Length, $"single native charge cancellation sound: {context}");
@@ -62,9 +63,9 @@ internal static class BombChargeRejectionVerification
                 SelectedHudItem = SuperMetroid.Diagnostics.Saves.SaveSlotNumbering.SavedHudItem(selection), PowerBombs = 2,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(80, 80)) }.WithBeamChargeCount(charge);
             var bombs = CreateBombFixture();
-            var result = bombs.StepFrame(new SamusTerrain { Level = level }, samus, ControllerButton.Down, 0);
+            bool chargeConsumed = bombs.StepFrameConsumingCharge(new SamusTerrain { Level = level }, samus, ControllerButton.Down, 0);
             string context = $"Shoot released, charge {charge}, HUD selection {selection}";
-            AssertEqual(charge != 0, result.BeamChargeConsumed, $"outer native cancellation command: {context}");
+            AssertEqual(charge != 0, chargeConsumed, $"outer native cancellation command: {context}");
             AssertEqual(charge != 0 ? 1 : 0, bombs.AudioRequests.SoundRequests.Count(sound => sound ==
                 new SoundRequest(SamusSound.Silence, SoundRequestPriority.High)), $"charge cancellation sound: {context}");
             AssertEqual(0, bombs.BombCounter, $"release never places a bomb: {context}");

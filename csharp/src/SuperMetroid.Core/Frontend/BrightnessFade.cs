@@ -16,7 +16,7 @@ internal sealed class BrightnessFade
     [IntegerQuantity("screen brightness level the fade steps")]
     internal int Brightness { get; private set; }
 
-    /// <summary>Restarts the fade at <paramref name="brightness"/>, with both counter words loaded with <paramref name="delay"/>.</summary>
+    /// <summary>Restarts the fade at <paramref name="brightness"/>, with both counters loaded with <paramref name="delay"/>.</summary>
     internal void Start(int brightness, int delay)
     {
         Brightness = Ensure.BetweenInclusive(0, Pause.PauseFadeTiming.FullyLit, brightness);

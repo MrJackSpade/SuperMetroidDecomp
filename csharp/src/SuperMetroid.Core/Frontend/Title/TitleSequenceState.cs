@@ -52,7 +52,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     internal readonly ScreenSprites objects;
     /// <summary>Preserves newly pressed input edges for title skip and file-select entry.</summary>
     private readonly ControllerInputState controller = new();
-    /// <summary>Installed scanline gradient, bound when the game is bound to its installed content.</summary>
+    /// <summary>Installed row gradient, bound when the game is bound to its installed content.</summary>
     private TitleGradientPresentation? titleGradientPresentation;
     /// <summary>
     /// The installed title backdrop (#1512), bound when the game is bound to its installed content; the title's other colours
@@ -65,11 +65,11 @@ public sealed class TitleSequenceState : IFrontendScreen
     private TitleSequencePhase textCard = TitleSequencePhase.YearText;
     /// <summary>The next step of the running title card.</summary>
     private int textCardStep;
-    /// <summary>Frames left before the next title text list entry is interpreted.</summary>
+    /// <summary>Frames left before the next title text list entry is read.</summary>
     private int sequenceEntryTimer;
     /// <summary>Composition selected by the active title text or logo entry, or null while nothing is shown.</summary>
     internal TitleSprite? ActiveSprite { get; set; }
-    /// <summary>Screen origin used when drawing the active title spritemap.</summary>
+    /// <summary>Screen origin used when drawing the active title frame.</summary>
     internal Position16<ScreenPixels> ActiveOrigin { get; set; }
     /// <summary>What the title shows every part of the active composition as (#1512).</summary>
     internal TitleSpriteColouring ActiveObjectColouring { get; set; }
@@ -170,7 +170,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         return title;
     }
 
-    /// <summary>Binds the installed scanline gradient when the game is bound to its installed content.</summary>
+    /// <summary>Binds the installed row gradient when the game is bound to its installed content.</summary>
     internal void BindTitleGradient(TitleGradientPresentation? presentation) =>
         titleGradientPresentation = presentation;
 
@@ -386,7 +386,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         return titleGradientPresentation.Resolve(Zoom);
     }
 
-    /// <summary>Places the active title spritemap and stage-dependent copyright as the frame's sprite entries.</summary>
+    /// <summary>Places the active title frame and stage-dependent copyright as the frame's sprite entries.</summary>
     internal void PrepareRenderSprites()
     {
         SpriteSheet sheet = spriteSheets.Get(SpriteSheetId.Title);

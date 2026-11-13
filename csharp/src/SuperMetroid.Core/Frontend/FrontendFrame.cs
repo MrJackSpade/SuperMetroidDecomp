@@ -14,6 +14,6 @@ public readonly record struct FrontendFrame(
     string Phase,
     int FrameNumber)
 {
-    /// <summary>Visible non-overscan frame height in pixels: 224 scanlines.</summary>
+    /// <summary>Visible non-overscan frame height in pixels: 224 rows.</summary>
     public const int Height = ScreenGeometry.ScreenHeightPixels;
 }

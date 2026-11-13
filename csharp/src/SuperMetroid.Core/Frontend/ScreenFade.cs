@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend;
 /// Each call is one dispatch. A nonnegative decremented counter consumes the call
 /// without changing brightness; otherwise the counter reloads from the delay and brightness
 /// moves one step. A delay of one therefore changes brightness on every second dispatch.
-/// The brightness stays with its screen owner; this type owns only the timing words.
+/// The brightness stays with its screen owner; this type owns only the timing values.
 /// </remarks>
 public sealed class ScreenFade
 {
@@ -32,7 +32,7 @@ public sealed class ScreenFade
     /// </summary>
     public WrappingCountdown Counter { get; private set; }
 
-    /// <summary>Stores both fade words, as menu setup code does before a fade.</summary>
+    /// <summary>Stores both fade counters, as menu setup does before a fade.</summary>
     /// <param name="delay">The dispatches each brightness step waits, 0 through 65535.</param>
     /// <param name="counter">The dispatches before the first brightness step, 0 through 65535.</param>
     public void SetTiming(int delay, int counter)

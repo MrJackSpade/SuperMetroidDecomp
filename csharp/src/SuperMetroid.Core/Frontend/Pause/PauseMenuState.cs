@@ -21,8 +21,8 @@ namespace SuperMetroid.Core.Frontend.Pause;
 /// <remarks>
 /// This object deliberately owns only the pause-menu-local display image. The outer
 /// <see cref="SuperMetroidGame"/> dispatcher retains the pause game states, while the
-/// live <see cref="SamusState"/> remains the sole owner of inventory words. Consequently an
-/// equipment-screen A press changes the same bits consumed by movement, rendering, and saving;
+/// live <see cref="SamusState"/> remains the sole owner of inventory. Consequently an
+/// equipment-screen A press changes the same flags consumed by movement, rendering, and saving;
 /// there is no host-only copy that can diverge from gameplay.
 /// </remarks>
 internal sealed class PauseMenuState : IMenuFrontendScreen
@@ -55,13 +55,13 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     private readonly SharedGameState system;
     /// <summary>Area whose map and pause backdrop are displayed.</summary>
     internal readonly AreaId area;
-    /// <summary>Room header map origin used to locate Samus on the area map.</summary>
+    /// <summary>Room definition map origin used to locate Samus on the area map.</summary>
     private readonly Position16<MapTiles> roomMapPosition;
     /// <summary>Visibility rule for the installed map and its scroll bounds.</summary>
     private readonly MapRevealMode mapRevealMode;
     /// <summary>Installed map artwork, bound when the game is bound to its installed content.</summary>
     private AreaMapPresentation? mapPresentation;
-    /// <summary>The pause screen: its artwork, tilemaps (including the retained gameplay HUD rows), palette and sprite entries (#1358).</summary>
+    /// <summary>The pause screen: its artwork, pictures (including the retained gameplay HUD rows), palette and sprite entries (#1358).</summary>
     internal readonly PauseScreen screen;
     /// <summary>
     /// What the equipment page shows this frame (#1467, #1515): each label in its item's state now, the wireframe of the
@@ -137,7 +137,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             ? entry.MapRevealMode
             : throw new ArgumentOutOfRangeException(nameof(entry.MapRevealMode));
 
-        // The pause's setup uploads the map, pause interface, menu sprites and HUD characters; the
+        // The pause's setup loads the map, pause interface, menu sprites and HUD characters; the
         // screen binds that artwork and its capture places the characters.
         screen = new PauseScreen(entry.MapPresentation, entry.SpriteSheets);
         BindSpriteSheets(entry.SpriteSheets);
@@ -225,7 +225,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
 
     /// <summary>
     /// The pause screen's Start-button handling, run last on both stable
-    /// pages. It reads the delayed-held word: a fresh press is excluded for three frames by
+    /// pages. It reads the delayed-held buttons: a fresh press is excluded for three frames by
     /// the controller's delayed-held filter before becoming menu input. True requests the unpause state.
     /// </summary>
     private bool HandleStartButton(ControllerButton delayedPressed)
@@ -242,7 +242,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// </summary>
     /// <remarks>
     /// Rendering itself is intentionally pure. The game advances these counters from its
-    /// draw routines, but a host may draw the same frame more than once while paused
+    /// draw steps, but a host may draw the same frame more than once while paused
     /// (for example, a screen capture). The dispatcher calls this exactly
     /// once per frame so extra draws cannot change game-visible timing.
     /// </remarks>
@@ -284,7 +284,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         var hud = new HudLayer(screen.ShownHudPictures(), DrawsOpaque: false);
         // Back to front (#1514): the area's frame, the page inside it, the page's markers, cursors and labels, and the
         // retained HUD over the top band. Each picture and sprite is drawn whole at its layer's place; the per-tile and
-        // per-sprite-part priority tiers that once interleaved them are a presentation quirk the port does not keep.
+        // per-sprite-part priority tiers that once interleaved them are a presentation quirk the model does not keep.
         DisplayLayer[] layers = [frame, page, screen.Sprites(), hud];
         return new(screen.Paint(), layers, Transition == PauseMenuTransition.None ? 15 : TransitionBrightness);
     }
@@ -471,7 +471,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
 
         // Every value below is a map pixel or a difference of two, within a few hundred pixels of the 512 by 256 map:
         // the scans keep the left column at or before the right and the top row at or above the bottom, so the
-        // halved spans are never negative and no value comes near a word's range. Only a negative result (Maridia's
+        // halved spans are never negative and no value comes near the coordinate range. Only a negative result (Maridia's
         // margin left of the first column, a scroll above the map) is stored as its wrapped coordinate.
         int minimumX = left * 8 - (area == AreaId.Maridia ? 24 : 0);
         int maximumX = right * 8;
@@ -620,7 +620,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         if (dispatchedCategory == PauseEquipmentCategory.Beams && samus.CollectedBeams == SamusBeamFlags.None)
             return;
         // Moving into the reserve rows on the frame A is pressed toggles with the reserve category, whose equipment and
-        // label tables hold no entries. On the first row the game repaints a fixed run of projectile words, of which
+        // label tables hold no entries. On the first row the game repaints a fixed run of projectile values, of which
         // play reads only the last spread bomb's vertical speed (#1505); it changes no equipment or label. The other
         // rows take their tables from scratch left by unrelated code, which only full memory emulation could reproduce,
         // so they stay rejected under the emulation scope limit (#1500).
@@ -898,7 +898,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         }
 
         // Retail exhausts ALL reserves even when only a small top-up was needed.
-        // Preserve that behavior and clear both bytes of the packed selector.
+        // Preserve that behavior and clear the whole packed selector.
         samus.ReserveEnergy = 0;
         ReserveTransferSoundDelay = WrappingCountdown.Start(0);
         SelectedCategory = PauseEquipmentCategory.Reserves;

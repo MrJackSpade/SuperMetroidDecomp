@@ -37,7 +37,7 @@ internal enum EndingCreditsPhase
     PlanetEscapeSlow,
     /// <summary>Accelerates the planet off screen before the gunship completion text.</summary>
     PlanetEscapeAccelerating,
-    /// <summary>Lets completion-text sprite instructions trigger the credits transition.</summary>
+    /// <summary>Lets completion-text sprite cues trigger the credits transition.</summary>
     OperationSuccessfulText,
     /// <summary>Blanks the planet and completion text before staff credits.</summary>
     FadeOutToCredits,

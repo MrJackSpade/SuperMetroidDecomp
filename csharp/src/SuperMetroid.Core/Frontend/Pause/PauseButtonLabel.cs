@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.Pause;
 
-/// <summary>Distinct pause-button label identities in the game's recoloring routines.</summary>
+/// <summary>Distinct pause-button label identities in the game's recoloring steps.</summary>
 internal enum PauseButtonLabel
 {
     /// <summary>MAP label at the left of the button row.</summary>

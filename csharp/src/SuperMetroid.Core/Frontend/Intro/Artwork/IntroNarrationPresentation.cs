@@ -35,7 +35,7 @@ public sealed class IntroNarrationPresentation
         return result.ToArray();
     }
 
-    /// <summary>One page's installed lines, in ascending tilemap-row order.</summary>
+    /// <summary>One page's installed lines, in ascending text-row order.</summary>
     internal sealed class NarrationPage : IReadOnlyList<IntroNarrationLine>
     {
         /// <summary>The page's installed lines.</summary>
@@ -51,7 +51,7 @@ public sealed class IntroNarrationPresentation
         public IntroNarrationLine this[int index] =>
             (uint)index < lines.Length ? lines[index] : throw new ArgumentOutOfRangeException(nameof(index));
 
-        /// <summary>Visits the installed lines in ascending tilemap-row order.</summary>
+        /// <summary>Visits the installed lines in ascending text-row order.</summary>
         public IEnumerator<IntroNarrationLine> GetEnumerator() => ((IEnumerable<IntroNarrationLine>)lines).GetEnumerator();
         /// <summary>Exposes the same row order to non-generic enumeration.</summary>
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

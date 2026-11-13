@@ -21,8 +21,8 @@ internal static class CeresFlightActorDefinitions
     /// <remarks>
     /// Issues #625 and #1014: front stars and RearViewActor(4) alias the
     /// same star definition and animation. Its four
-    /// steps match the original data: duration
-    /// 10, the star spritemap, then a goto back to the start.
+    /// steps match the authored data: duration
+    /// 10, the star frame, then a jump back to the start.
     /// The initializer parameter changes actor motion, not this list.
     /// The exact bounded rule displays the same authored star sheet for
     /// ten handler calls and repeats while its scene owns the actor.

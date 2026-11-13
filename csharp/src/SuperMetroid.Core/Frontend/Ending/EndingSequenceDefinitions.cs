@@ -12,7 +12,7 @@ public static class EndingSequenceDefinitions
         /// <summary>The loaded set's first own song, selected with both the escape and ending music sets.</summary>
         public const MusicTrack Track = MusicTrack.FirstSetSong;
 
-        /// <summary>The delayed-music argument fourteen, which the music queue's delay conversion interprets rather than counting frames.</summary>
+        /// <summary>The delayed-music argument fourteen, which the music queue's delay conversion reads rather than counting frames.</summary>
         public const int DelayArgument = 14;
     }
 

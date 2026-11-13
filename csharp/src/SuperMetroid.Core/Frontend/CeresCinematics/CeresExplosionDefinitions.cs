@@ -32,7 +32,7 @@ internal static class CeresExplosionDefinitions
     /// <summary>First host frame on which the newly installed repeating callback runs.</summary>
     public const int RepeatingFirstFrame = InitialWaitFrames + RepeatingStartWaitFrames + 2;
 
-    /// <summary>Last host frame owned by the spawner and its final-wave instruction.</summary>
+    /// <summary>Last host frame owned by the spawner and its final-wave cue.</summary>
     public const int SpawnerFinalFrame =
         InitialWaitFrames + RepeatingStartWaitFrames + RepeatingLifetimeFrames + 1;
 
@@ -66,7 +66,7 @@ internal static class CeresExplosionDefinitions
     /// motion, actor dispatch, or hull attachment points: the offsets stay in screen space
     /// while the underlying turning-floor image changes scale. A per-index switch or fitted curve
     /// would just encode this same layout. The initial square/center layout, final X rule,
-    /// instruction delays and shared actor motion are calculated separately.
+    /// animation delays and shared actor motion are calculated separately.
     /// </remarks>
     internal static readonly Offset16<SpritePixels>[] RepeatingBurstLayout =
     [

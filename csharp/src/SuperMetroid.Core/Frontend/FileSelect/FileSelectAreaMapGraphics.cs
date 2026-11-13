@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 
 /// <summary>
 /// Picture and backdrop owners for the saved-game world map: each area's pictures are pre-coloured in its world-map colours
-/// by the import (#1512). Labels and transition windows are separate owners; this renders the unmasked BGs.
+/// by the import (#1512). Labels and transition windows are separate owners; this renders the unmasked map layers.
 /// </summary>
 public sealed class FileSelectAreaMapGraphics
 {

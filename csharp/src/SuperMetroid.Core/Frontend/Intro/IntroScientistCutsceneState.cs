@@ -36,10 +36,10 @@ internal sealed class IntroScientistCutsceneState
     /// </summary>
     public IntroLaboratoryScene Scene { get; }
 
-    /// <summary>Set when delivery's actor instruction hands the intro to page four.</summary>
+    /// <summary>Set when delivery's actor cue hands the intro to page four.</summary>
     public bool PageFourRequested { get; private set; }
 
-    /// <summary>Set when examination's actor instruction hands the intro to page five.</summary>
+    /// <summary>Set when examination's actor cue hands the intro to page five.</summary>
     public bool PageFiveRequested { get; private set; }
 
     /// <summary>Starts the delivered-Baby page with a leftward camera pan and page-four handoff.</summary>

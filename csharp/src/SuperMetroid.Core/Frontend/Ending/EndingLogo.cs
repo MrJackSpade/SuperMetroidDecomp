@@ -16,7 +16,7 @@ internal sealed class EndingLogo
     private readonly int[] speeds = [EndingLogoDefinitions.InitialSpeed, EndingLogoDefinitions.InitialSpeed];
     /// <summary>Stops each half at its respective landing point.</summary>
     private readonly bool[] settled = new bool[2];
-    /// <summary>Becomes true when the grey-out instruction begins paired background and sprite transfers.</summary>
+    /// <summary>Becomes true when the grey-out cue begins paired background and sprite changes.</summary>
     public bool CrossfadeStarted { get; internal set; }
     /// <summary>Number of crossfade steps already shown.</summary>
     public int PaletteStep { get; internal set; }
@@ -42,12 +42,12 @@ internal sealed class EndingLogo
         stage.LoadColours(EndingColourLoad.LogoInitial);
     }
 
-    /// <summary>Shows the pending crossfade step before moving actors and interpreting their next instructions.</summary>
+    /// <summary>Shows the pending crossfade step before moving actors and running their next cues.</summary>
     /// <param name="colours">The ending's colours, which show the crossfade's step.</param>
     public void Step(EndingColours colours)
     {
         if (Completed) throw new InvalidOperationException("Completed logo must hand off to percentage text.");
-        // The cinematic function runs before sprite instructions, so the first palette
+        // The cinematic function runs before sprite cues, so the first palette
         // pair is copied on the call after the request, not during the call that requests it.
         if (CrossfadeStarted)
         {

@@ -28,7 +28,7 @@ internal sealed class IntroEggParticle
         fragment = index;
         // The spawn indexes interleaved (X-10h,Y-3Bh) pairs with parameter*4, then restores
         // the two fixed biases. The compiled catalog is independently checked against all
-        // twelve original words so this physical spawn does not read the original data.
+        // twelve authored values so this physical spawn does not read game data.
         sprite = new IntroDiscoverySprite(
             IntroEggMotion.FragmentInitialPosition(index),
             colouring: IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors),
@@ -51,13 +51,13 @@ internal sealed class IntroEggParticle
         }
 
         // The fragment motion indexes the horizontal velocities by fragment and the gravity table by the
-        // frames fallen. Each velocity is a signed 16.16 pair stored high-word first,
+        // frames fallen. Each velocity is a signed 16.16 pair stored whole part first,
         // exactly matching the actor's whole/subposition addition order.
         AddSixteenSixteenVelocity(sprite, axis: Axis.Horizontal, IntroEggMotion.FragmentX(fragment));
         AddSixteenSixteenVelocity(sprite, axis: Axis.Vertical, IntroEggMotion.FragmentY(framesFallen, fallPastCurve));
         if (CoordinateAxis.Difference(sprite.WholePosition.Y, IntroEggMotionDefinitions.FragmentFloorY) >= 0)
         {
-            // The game primes the shared one-word delete animation, which the generic handler
+            // The game primes the shared one-step delete animation, which the generic handler
             // consumes later in this same object call.
             sprite.Start(CinematicSpriteProgram.Delete);
         }

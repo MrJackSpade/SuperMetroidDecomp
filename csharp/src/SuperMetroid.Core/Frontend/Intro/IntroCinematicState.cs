@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// The opening cinematic state, beginning with “The last Metroid is in captivity”.
 /// </summary>
 /// <remarks>
-/// Construction ports the complete graphics setup. The visible state machine
+/// Construction runs the complete graphics setup. The visible state machine
 /// continues through the first narration card, the complete first illustrated/typewriter
 /// page, and the palette transition into the Mother Brain gameplay flashback.
 /// </remarks>
@@ -198,7 +198,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     private WrappingCountdown introCrossfadeCounter;
     /// <summary>
     /// The shared Samus systems' frame counter: the updates the cinematic has run, counted from zero at its creation. The
-    /// intro reaches the title long before the original counter's 65536-update wrap, so it is a plain count.
+    /// intro reaches the title long before the game counter's 65536-update wrap, so it is a plain count.
     /// </summary>
     private int frameCounter;
     /// <summary>How bright the narration screen is; the intro starts blanked and fades each narration page in and out.</summary>
@@ -261,11 +261,11 @@ public sealed class IntroCinematicState : IFrontendScreen
     public bool CeresFlightFinished => CurrentCeresFlight?.Finished ?? false;
 
     /// <summary>Advances the opening cinematic by one gameplay update.</summary>
-    /// <param name="controllerInput">The current raw controller-held word.</param>
+    /// <param name="controllerInput">The current raw held controller buttons.</param>
     public void Step(ControllerButton controllerInput)
     {
         flashbackProjectiles.ImpactAudio.BeginImpactAudioFrame(context: ImpactAudioContext.Cinematic);
-        // Cinematic functions consume joypad1_newkeys, not the raw held word. Latching at
+        // Cinematic functions consume the newly pressed buttons, not the raw held ones. Latching at
         // this state boundary preserves a one-frame edge and prevents a held A/Start from
         // skipping both the options menu and the first narration page.
         controller.Latch(controllerInput);
@@ -285,7 +285,7 @@ public sealed class IntroCinematicState : IFrontendScreen
                 // A request queued with the shortest delay waits eight updates before HasQueuedMusic clears.
                 if (MusicQueueFinished())
                 {
-                    // The fade-in seeds both fade words with two.
+                    // The fade-in seeds both fade counters with two.
                     Phase = IntroCinematicPhase.FadeInFirstNarration;
                     fade.SetTiming(IntroCinematicDefinitions.Fade.NarrationSlowFade, IntroCinematicDefinitions.Fade.NarrationSlowFade);
                 }
@@ -336,7 +336,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             case IntroCinematicPhase.FourSecondHold:
                 if (--timer <= 0)
                 {
-                    // The fade-out seeds both fade words with two.
+                    // The fade-out seeds both fade counters with two.
                     Phase = IntroCinematicPhase.FadeOutFirstNarration;
                     fade.SetTiming(IntroCinematicDefinitions.Fade.NarrationSlowFade, IntroCinematicDefinitions.Fade.NarrationSlowFade);
                 }
@@ -358,7 +358,7 @@ public sealed class IntroCinematicState : IFrontendScreen
                 if (MusicQueueFinished())
                 {
                     Objects.StartEnglishPageOne();
-                    // Page one seeds both fade words with two.
+                    // Page one seeds both fade counters with two.
                     Phase = IntroCinematicPhase.FadeInPageOne;
                     fade.SetTiming(IntroCinematicDefinitions.Fade.NarrationSlowFade, IntroCinematicDefinitions.Fade.NarrationSlowFade);
                 }
@@ -562,7 +562,7 @@ public sealed class IntroCinematicState : IFrontendScreen
                 explosionsAllocated: FlashbackMotherBrainExplosions is not null);
         }
 
-        // This ordering makes a newly spawned timer-one object select its first spritemap
+        // This ordering makes a newly spawned timer-one object select its first frame
         // on the same accepted frame as the page-one input transition.
         CurrentFlashbackMotherBrain?.Step();
         if (explosionsExistedBeforeThisFrame)
@@ -599,7 +599,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             Missiles = 900,
             MaxMissiles = 900,
         };
-        // Shared Samus handlers read the nonzero cinematic-function word to select
+        // Shared Samus handlers read the active cinematic function to select
         // intro palette restoration and suppress gameplay-only sound/landing effects.
         CurrentFlashbackSamus.LiquidPhysics.CinematicFunctionActive = true;
         CurrentFlashbackSamus.Presentation.BindArtwork(samusBodyArtwork);
@@ -625,8 +625,8 @@ public sealed class IntroCinematicState : IFrontendScreen
         // The scene setup starts the crossfade from the narration into the flashback, which starts black.
         crossfade = new IntroCrossfade(IntroCrossfadeScene.Narration, IntroCrossfadeScene.Flashback);
 
-        // The sprite setup stored 127 in both cinematic_var13 and (through sprite object
-        // object's setup) cinematic_var4. The crossfade tests the old counter, then decrements it.
+        // The sprite setup stored 127 in both the intro crossfade counter and (through the sprite
+        // object's setup) the scene's own copy. The crossfade tests the old counter, then decrements it.
         crossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Crossfade.InitialCounter);
         Phase = IntroCinematicPhase.MotherBrainCrossfade;
     }
@@ -645,7 +645,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         if (!crossfadeCounter.IsNegative)
             return;
 
-        // Transition completion selects the visible layers and clears English words 128..767 to tile
+        // Transition completion selects the visible layers and clears English text cells 128..767 to tile
         // 47. The top/bottom ornamental rows survive because the loop starts at 128.
         ClearVisibleNarrationText();
         Phase = IntroCinematicPhase.MotherBrainFlashback;
@@ -655,7 +655,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     private void SetupPageTwoCrossfade()
     {
         // Page two spawns its narration object, selects the reverse gameplay-to-
-        // text palette routine, and restores the already allocated caret object.
+        // text palette step, and restores the already allocated caret object.
         Objects.StartEnglishPageTwo();
         crossfade = new IntroCrossfade(IntroCrossfadeScene.Flashback, IntroCrossfadeScene.Narration);
         crossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Crossfade.InitialCounter);
@@ -734,7 +734,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     {
         // The egg's page-three step selects page three. On the next cinematic-function call page three
         // spawns its narration object and enters the same gameplay-to-text palette
-        // routine used after Mother Brain. The SR388 actors continue running beneath it.
+        // step used after Mother Brain. The SR388 actors continue running beneath it.
         Objects.StartEnglishPageThree();
         crossfade = new IntroCrossfade(IntroCrossfadeScene.Flashback, IntroCrossfadeScene.Narration);
         crossfadeCounter = WrappingCountdown.Start(IntroCinematicDefinitions.Crossfade.InitialCounter);
@@ -759,7 +759,7 @@ public sealed class IntroCinematicState : IFrontendScreen
 
         // The delivery setup shows the laboratory page, starts it 32 pixels right with vertical scroll eight,
         // seeds the intro crossfade counter, and spawns the delivered baby before configuring the
-        // scientist palette transition. Its tilemap is already in the intro's artwork.
+        // scientist palette transition. Its picture is already in the intro's artwork.
         CurrentScientistCutscene = IntroScientistCutsceneState.CreateDelivery();
         CurrentBabyDiscovery = null;
 
@@ -800,7 +800,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     private void SetupPageFourCrossfade()
     {
         // The baby's page-four step selects page four. Page four starts its text stream and seeds the
-        // cinematic-function counter, while the reverse routine deliberately consumes the
+        // cinematic-function counter, while the reverse step deliberately consumes the
         // still-127 intro crossfade counter set by the delivery scene.
         Objects.StartEnglishPageFour();
         crossfade = new IntroCrossfade(IntroCrossfadeScene.Laboratory, IntroCrossfadeScene.Narration);
@@ -922,7 +922,7 @@ public sealed class IntroCinematicState : IFrontendScreen
 
         // Each frame shows the definitions selected by the previous Samus draw. This
         // is what makes pose/frame changes use their corresponding artwork rather than
-        // interpreting stale standing tiles as a hurt body on the next visible frame.
+        // reading stale standing tiles as a hurt body on the next visible frame.
 
         AerialMovementResult? fallingMovement = null;
         BlockMoveResult? hurtEndingProbe = null;
@@ -962,7 +962,7 @@ level, samus, frameCounter);
         {
             // When knockback ends humanoid knockback it selects the right or left falling pose and restores
             // normal movement. The following frames therefore execute the ordinary type-6
-            // fall until the room's collision reports the original laboratory floor.
+            // fall until the room's collision reports the laboratory floor.
             fallingMovement = SamusAerialMovement.StepFalling(
 
                 level,
@@ -1026,7 +1026,7 @@ level, samus, frameCounter);
         samus.DecrementHurtTimers();
     }
 
-    /// <summary>Runs the Mother Brain demo's end routine, freezing input after its prescribed Samus pose change.</summary>
+    /// <summary>Runs the Mother Brain demo's end step, freezing input after its prescribed Samus pose change.</summary>
     private void HandleMotherBrainDemoCue(DemoInputCue cue)
     {
         if (cue != DemoInputCue.EndIntroMotherBrainFlashback)
@@ -1261,7 +1261,7 @@ level, samus, frameCounter);
         var text = new PicturedPlaneLayer(IntroNarrationPictures.PagesPlane(SceneSheets, narrationText, crossfade.SceneShading, crossfade.NarrationShading), default);
         // Back to front (#1514): the page's room, the flashback's actors over it, and the narration over both. Each picture
         // and sprite is drawn whole at its layer's place; the per-tile and per-sprite-part priority tiers that once
-        // interleaved them are a presentation quirk the port does not keep.
+        // interleaved them are a presentation quirk the model does not keep.
         return new(new FramePaint(Backdrop), new DisplayLayer[]
         {
             room, new SpritesLayer(FlashbackDraws(sprites.Draws)), text,

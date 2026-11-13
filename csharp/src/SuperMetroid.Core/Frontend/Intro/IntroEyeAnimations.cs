@@ -5,9 +5,9 @@ using P = SuperMetroid.Core.Frontend.Intro.IntroEyeProgram;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
-/// The portrait-eye animations of the narration pages as typed programs, in place of the original background-object
+/// The portrait-eye animations of the narration pages as typed programs, in place of the game's background-object
 /// animation scripts for the eye: each step shows one <see cref="IntroEyeFrame"/> for its duration in
-/// cinematic updates. The intro eye check walks the original scripts as the oracle.
+/// cinematic updates. The intro eye check walks the authored scripts as the oracle.
 /// </summary>
 internal static class IntroEyeAnimations
 {

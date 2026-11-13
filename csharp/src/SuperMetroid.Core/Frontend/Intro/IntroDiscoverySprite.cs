@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 internal sealed class IntroDiscoverySprite
 {
     /// <summary>
-    /// Countdown before the next sprite instruction is decoded; setup may stagger the first frame. A hold leaves it at
+    /// Countdown before the next sprite cue is read; setup may stagger the first frame. A hold leaves it at
     /// zero, so it keeps counting past zero and the animation resumes when the countdown comes round to zero again.
     /// </summary>
     private WrappingCountdown frameHold = WrappingCountdown.Start(1);
@@ -34,10 +34,10 @@ internal sealed class IntroDiscoverySprite
     /// <summary>Cleared when the animation's end retires the actor.</summary>
     public bool IsActive { get; private set; } = true;
 
-    /// <summary>The whole and subpixel words of the sprite's position on both axes.</summary>
+    /// <summary>The whole and subpixel parts of the sprite's position on both axes.</summary>
     public FixedPosition<ScreenPixels> Position { get; set; }
 
-    /// <summary>The whole-pixel words of <see cref="Position"/>; assigning replaces them and keeps both subpixel words.</summary>
+    /// <summary>The whole pixels of <see cref="Position"/>; assigning replaces them and keeps both subpixel parts.</summary>
     public Position16<ScreenPixels> WholePosition
     {
         get => Position.Whole;
@@ -84,12 +84,12 @@ internal sealed class IntroDiscoverySprite
 
     /// <summary>
     /// Seeds the private frame hold used by the next generic sprite-handler
-    /// call. Cinematic object setup routines write this word directly when several actors
+    /// call. Cinematic object setups write this hold directly when several actors
     /// share one list but must begin on staggered frames.
     /// </summary>
     /// <remarks>
     /// This is deliberately not <see cref="LoopCountdown"/>, which only the animation's counted phases use; conflating the
-    /// two makes a delayed actor interpret its first frame immediately while merely changing an unrelated loop count.
+    /// two makes a delayed actor show its first frame immediately while merely changing an unrelated loop count.
     /// </remarks>
     public void DelayFirstInstruction(int frames)
     {

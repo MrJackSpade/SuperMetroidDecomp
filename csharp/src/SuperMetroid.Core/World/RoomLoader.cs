@@ -1221,17 +1221,17 @@ internal sealed class RoomLoader
                 "Room loading requires installed visual-layout, level-stream and block-sheet assets.");
 
 
-    /// <summary>The 16-pixel block a coordinate lies in within its 256-pixel screen.</summary>
-    private static int BlockInScreen(int pixel) => (pixel >> 4) & 15;
-
     /// <summary>
-    /// The doorway nudge the door transition and room load apply: a coordinate in its screen's second block moves
-    /// to eight pixels past that block.
+    /// The doorway nudge the door transition and room load apply: a room coordinate in its screen's second block moves
+    /// to eight pixels past that block; any other stays.
     /// </summary>
     private static int NudgeOffScreenLeftEdge(int pixel) =>
-        BlockInScreen(pixel) == 1 ? CoordinateAxis.Wrap((pixel | 15) + 8) : Ensure.BetweenInclusive(0, ushort.MaxValue, pixel);
+        RoomGridConversions.BlockRowWithinScreen(pixel) == 1 ? CoordinateAxis.Wrap(RoomGridConversions.BlockEnd(pixel) + 8) : pixel;
 
-    /// <summary>The doorway nudge's other edge: a coordinate in its screen's fifteenth block moves to eight pixels before it.</summary>
+    /// <summary>
+    /// The doorway nudge's other edge: a room coordinate in its screen's fifteenth block moves to eight pixels before it;
+    /// any other stays.
+    /// </summary>
     private static int NudgeOffScreenRightEdge(int pixel) =>
-        BlockInScreen(pixel) == 14 ? CoordinateAxis.Wrap((pixel & ~15) - 8) : Ensure.BetweenInclusive(0, ushort.MaxValue, pixel);
+        RoomGridConversions.BlockRowWithinScreen(pixel) == 14 ? CoordinateAxis.Wrap(RoomGridConversions.BlockStart(pixel) - 8) : pixel;
 }

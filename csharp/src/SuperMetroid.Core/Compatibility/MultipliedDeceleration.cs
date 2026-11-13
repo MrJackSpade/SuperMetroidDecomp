@@ -22,8 +22,11 @@ public static class MultipliedDeceleration
     /// <summary>The steps the multiplier counts a whole deceleration in, and the fraction steps one scaled step of the fraction covers.</summary>
     private const int ScaleSteps = 256;
 
-    /// <summary>The largest multiplier.</summary>
-    private const int LargestMultiplier = 255;
+    /// <summary>
+    /// The largest multiplier: one 256th short of a whole deceleration, as the multiplier counts 256ths of one below a whole
+    /// and a whole would leave the table's deceleration as it is, which a zero multiplier already selects.
+    /// </summary>
+    public const int LargestMultiplier = ScaleSteps - 1;
 
     /// <summary>
     /// The speed one decelerating update removes for <paramref name="deceleration"/> at <paramref name="multiplier"/>,

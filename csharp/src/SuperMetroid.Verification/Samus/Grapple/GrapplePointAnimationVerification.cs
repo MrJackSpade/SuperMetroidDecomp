@@ -33,10 +33,11 @@ internal static class GrapplePointAnimationVerification
             AssertEqual(0x9a0000 | expectedPointer, GrapplePointAnimationDefinitions.SourceAddress(grapple.PointAnimationFrame),
                 $"Grapple endpoint follows four-frame native stride at tick {tick}");
         }
+        // Every frame of the cycle against every timer boundary: the endpoint's frames are the cycle's only frames (#1627).
         foreach (ushort timer in new ushort[] { 0, 1, 5, 32768, 32769, 65535 })
-        for (int frame = 0; frame < 256; frame++)
+        for (int frame = 0; frame < GrapplePointAnimationDefinitions.FrameCount; frame++)
         {
-            grapple.PointAnimationFrame = (byte)frame; grapple.PointAnimationTimer = WrappingCountdown.FromRaw(timer);
+            grapple.PointAnimationFrame = frame; grapple.PointAnimationTimer = WrappingCountdown.FromRaw(timer);
             expectedPointer = unchecked((ushort)(begin + frame * 512));
             CountdownStep expectedStep = WrappingCounter.Decrement(timer);
             expectedTimer = expectedStep.Value;
@@ -45,13 +46,11 @@ internal static class GrapplePointAnimationVerification
                 expectedTimer = 5; expectedPointer = unchecked((ushort)(expectedPointer + 512));
                 if (unchecked((short)(expectedPointer - end)) >= 0) expectedPointer = begin;
             }
-            // Restored frames past the four installed endpoint tiles exist only in corrupted state; drawing them
-            // fails loudly, so this checks the animation arithmetic itself.
             GrapplePointAnimation.Advance(grapple);
             AssertEqual(expectedTimer, grapple.PointAnimationTimer.RawValue, "Endpoint boundary timer matches native signed decrement");
             AssertEqual(0x9a0000 | expectedPointer, GrapplePointAnimationDefinitions.SourceAddress(grapple.PointAnimationFrame),
                 "Endpoint ordinal retains native wrapped pointer arithmetic");
         }
-        Console.WriteLine("Grapple endpoint animation: two four-frame cycles and 1536 restored frame/timer boundaries preserve native endpoint selection and six-call cadence.");
+        Console.WriteLine("Grapple endpoint animation: two four-frame cycles and every frame at each timer boundary preserve native endpoint selection and six-call cadence.");
     }
 }

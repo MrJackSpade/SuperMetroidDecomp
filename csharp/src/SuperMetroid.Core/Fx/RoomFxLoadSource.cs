@@ -14,9 +14,10 @@ internal sealed record RoomFxLoadSource
 
     /// <summary>
     /// The shared random number when the room's FX loads; rain reads two of its bits to choose its drift. A copy of
-    /// the generator's value (0 through 65535) that nothing does arithmetic on, so values outside it are rejected.
+    /// the shared random sequence's value (0 through <see cref="SharedRandomState.LargestValue"/>, the values that
+    /// sequence wraps through) that nothing does arithmetic on, so a value it never holds is rejected (#1627).
     /// </summary>
-    public required int RandomNumber { get; init => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value); }
+    public required int RandomNumber { get; init => field = Ensure.BetweenInclusive(0, SharedRandomState.LargestValue, value); }
 
     /// <summary>The room being entered, or null for a load outside a room.</summary>
     public required RoomHeaderDefinition? Room { get; init; }

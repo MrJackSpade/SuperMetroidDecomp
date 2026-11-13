@@ -15,12 +15,15 @@ internal sealed class GradualFadeSteps
     private readonly SharedFadeStepCount counter;
 
     /// <summary>Starts a fade of length <paramref name="denominator"/> on <paramref name="counter"/>.</summary>
-    /// <param name="denominator">The fade's length, one through 65534; step denominator plus one reaches the far colour.</param>
+    /// <param name="denominator">
+    /// The fade's length, one step or more (#1627); step denominator plus one reaches the far colour, so that step is
+    /// still a count.
+    /// </param>
     /// <param name="counter">The shared step counter.</param>
     internal GradualFadeSteps(int denominator, SharedFadeStepCount counter)
     {
         this.counter = Ensure.NotNull(counter);
-        Denominator = Ensure.BetweenInclusive(1, ushort.MaxValue - 1, denominator);
+        Denominator = Ensure.BetweenInclusive(1, GradualColourFade.LongestDenominator, denominator);
     }
 
     /// <summary>The fade's length.</summary>

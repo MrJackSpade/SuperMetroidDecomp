@@ -23,7 +23,7 @@ public sealed class InstalledSamusBody
     private readonly Dictionary<SamusPoseId, SortedDictionary<int, int>> frames;
 
     /// <summary>Validates and holds the body the game binds.</summary>
-    /// <param name="graphicsYOffsets">Each pose with a record's art origin, -128 through 127.</param>
+    /// <param name="graphicsYOffsets">Each pose with a record's art origin.</param>
     /// <param name="frames">
     /// Each pose with a record's pictured body frames, by animation frame from 0 through 255: how many pixels above Samus's
     /// drawn point the frame's body origin sits. A pose the body sheet pictures no frame of has none.
@@ -31,8 +31,8 @@ public sealed class InstalledSamusBody
     /// <param name="deathSteps">The order her death sequence steps through and the room's whiteout colours.</param>
     /// <param name="armCannon">Each pose's arm-cannon placement.</param>
     /// <exception cref="InvalidDataException">
-    /// The art origins or the frames do not cover exactly the poses with records, an animation frame is outside 0 through
-    /// 255, or an art origin is outside -128 through 127.
+    /// The art origins or the frames do not cover exactly the poses with records, or an animation frame is outside 0 through
+    /// 255.
     /// </exception>
     internal InstalledSamusBody(IReadOnlyDictionary<SamusPoseId, int> graphicsYOffsets,
         IReadOnlyDictionary<SamusPoseId, IReadOnlyDictionary<int, int>> frames, SamusDeathSteps deathSteps, SamusArmCannonLayout armCannon)

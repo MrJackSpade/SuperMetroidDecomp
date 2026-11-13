@@ -8,9 +8,9 @@ public sealed record PaletteFxConditions
     /// <summary>
     /// Samus's whole-pixel room height this update, which the lightning compares with
     /// <see cref="CrateriaLightningDefinitions.SamusHighOnSurfaceHeight"/>; a smaller value is higher in
-    /// the room. It holds 0 through 65535, and values outside that range are rejected.
+    /// the room. It is a copy of her position's height, which her position holds to the room's coordinates (#1627).
     /// </summary>
-    public required int SamusY { get; init => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value); }
+    public required int SamusY { get; init; }
 
     /// <summary>Equipped items.</summary>
     public required SuperMetroid.Core.Progression.SamusEquipmentFlags EquippedItems { get; init; }
@@ -28,8 +28,9 @@ public sealed record PaletteFxConditions
     public IRoomSamus? Samus { get; init; } = null;
 
     /// <summary>
-    /// The frame counter this update, 0 through 65535: the heat shimmer plays its damage sound on every eighth update of
-    /// it. Values outside the counter's range are rejected.
+    /// The long frame counter this update (<see cref="FrameClock.Counter"/>), 0 through one short of
+    /// <see cref="FrameClock.CounterPeriod"/>: the heat shimmer plays its damage sound on every eighth update of it. Values
+    /// the counter never holds are rejected (#1627).
     /// </summary>
-    public int FrameCounter { get; init => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value); }
+    public int FrameCounter { get; init => field = Ensure.BetweenInclusive(0, FrameClock.CounterPeriod - 1, value); }
 }

@@ -3,20 +3,25 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Installation;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
-/// <summary>Installed RGB5 room palettes, which a player edits in place.</summary>
+/// <summary>
+/// The rooms' base colours as import data (#1637): only the import reads them, to pre-colour the room, block and boss body
+/// sheets, so the palettes and their manifest go to the component's import-data directory
+/// (<see cref="ImportDataDirectory.Of"/>), which the installer deletes before it publishes. The installation holds none of them.
+/// </summary>
 public static class RoomStaticPaletteArtworkFiles
 {
-    /// <summary>Stock room-palette manifest filename recording cartridge provenance and hashes for all distinct palette JSON sources.</summary>
+    /// <summary>Import-data room-palette manifest filename recording cartridge provenance and hashes for all distinct palette JSON sources.</summary>
     public const string ManifestFileName = "room-palettes.json";
-    /// <summary>The schema version required by the installed palette provenance manifest.</summary>
-    private const int FormatVersion = 2;
+    /// <summary>The schema version required by the palette provenance manifest.</summary>
+    private const int FormatVersion = 3;
 
     /// <summary>Creates one stock RGB5 JSON palette per distinct room graphics-set color source and writes their provenance manifest.</summary>
     /// <param name="bus">Non-null cartridge import address space supplying compressed native room palettes.</param>
-    /// <param name="directory">Output directory, created if needed; palette and manifest filenames must not already exist.</param>
+    /// <param name="directory">The component's directory; the palettes and manifest go to its import-data directory, created if needed, where their filenames must not already exist.</param>
     /// <param name="sourceCartridgeSha256">Nonempty cartridge SHA-256 recorded with the generated palette-file hashes.</param>
     /// <remarks>Exports 128 base BG colors per source, checks equivalent CGRAM colors after recompilation, and reads no installed palette.</remarks>
     /// <exception cref="IOException">An output file already exists or filesystem output fails.</exception>
@@ -25,30 +30,31 @@ public static class RoomStaticPaletteArtworkFiles
         Ensure.NotNull(bus);
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         ArgumentException.ThrowIfNullOrWhiteSpace(sourceCartridgeSha256);
-        Directory.CreateDirectory(directory);
+        string importData = ImportDataDirectory.Of(directory);
+        Directory.CreateDirectory(importData);
         IReadOnlyDictionary<string, byte[]> files = RoomStaticPaletteExtractor.Extract(bus);
         var hashes = new Dictionary<string, string>();
         foreach ((string name, byte[] bytes) in files)
         {
-            using (var output = new FileStream(Path.Combine(directory, name), FileMode.CreateNew, FileAccess.Write))
+            using (var output = new FileStream(Path.Combine(importData, name), FileMode.CreateNew, FileAccess.Write))
                 output.Write(bytes);
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(bytes)));
         }
-        using var manifest = new FileStream(Path.Combine(directory, ManifestFileName),
+        using var manifest = new FileStream(Path.Combine(importData, ManifestFileName),
             FileMode.CreateNew, FileAccess.Write);
         JsonSerializer.Serialize(manifest,
             new RoomPaletteFileManifest(FormatVersion, sourceCartridgeSha256, hashes), JsonOptions);
     }
 
-    /// <summary>Checks installed room-palette provenance and compiles each installed RGB5 palette document as the player left it.</summary>
-    /// <param name="directory">Directory containing the supported-cartridge manifest and every installed palette JSON file.</param>
-    /// <returns>A catalog owning each installed 128-color base BG transfer, keyed by its native palette source address.</returns>
-    /// <remarks>An installed palette edited in place loads as edited; it fails only when it does not decode. Loading needs no cartridge.</remarks>
+    /// <summary>Checks the room-palette provenance and compiles each palette document of the component's import data.</summary>
+    /// <param name="importData">The component's import-data directory, holding the manifest and every palette JSON file.</param>
+    /// <returns>A catalog owning each room palette's 128 base background colours, keyed by its palette.</returns>
+    /// <remarks>Loading needs no cartridge.</remarks>
     /// <exception cref="InvalidDataException">The manifest, source coverage, schema, color count, or RGB5 values are invalid.</exception>
-    public static RoomStaticPalettes Load(string directory)
+    public static RoomStaticPalettes LoadForImport(string importData)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(directory);
-        string manifestPath = Path.Combine(directory, ManifestFileName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(importData);
+        string manifestPath = Path.Combine(importData, ManifestFileName);
         RoomPaletteFileManifest manifest;
         try
         {
@@ -66,12 +72,12 @@ public static class RoomStaticPaletteArtworkFiles
                 StringComparison.OrdinalIgnoreCase) ||
             manifest.Sha256 is null || manifest.Sha256.Count != sources.Count ||
             sources.Keys.Any(name => !manifest.Sha256.ContainsKey(name)))
-            throw new InvalidDataException($"Room palette manifest {manifestPath} does not describe this installation.");
+            throw new InvalidDataException($"Room palette manifest {manifestPath} does not describe this import.");
 
         var palettes = new Dictionary<RoomPaletteSet, RoomStaticPalette>();
         foreach ((string name, RoomPaletteSet set) in sources)
         {
-            string path = Path.Combine(directory, name);
+            string path = Path.Combine(importData, name);
             byte[] bytes = File.ReadAllBytes(path);
             try
             {
@@ -105,7 +111,7 @@ public static class RoomStaticPaletteArtworkFiles
         WriteIndented = true,
     };
 
-    /// <summary>Records the cartridge revision and hashes of all installed stock room palette files.</summary>
+    /// <summary>Records the cartridge revision and hashes of all extracted room palette files.</summary>
     private sealed record RoomPaletteFileManifest(
         int Version, string SourceCartridgeSha256, Dictionary<string, string> Sha256);
 }

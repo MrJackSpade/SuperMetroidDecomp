@@ -23,9 +23,7 @@ internal static class GameplayGrapplePaletteVerification
     /// <summary>Checks normal fire, pose-change refire, fixed flare color, and cancellation for two equipped beams.</summary>
     internal static void VerifyGameplayGrapplePalette()
     {
-        var installation=RepositoryInstallation.Installation;
         var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
-        var projectiles=installation.LoadProjectiles();
         InstalledFixtures.BindGame(game);
         game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
         var runtime = game.Session.GameplayRuntime;
@@ -42,7 +40,8 @@ internal static class GameplayGrapplePaletteVerification
         var level = Harness.VerificationHelpersVerification.CreateRoom(new Extent16<RoomBlocks>(32, 16), words, new RoomBlockBehavior[512]);
         runtime.Room.Adopt(scope with { LevelData = level });
         var samus = runtime.Player.IntroducedSamus;
-        var palettes = projectiles.BeamPalettes;
+        // The beam colours are import data (#1637): the import's read holds them.
+        var palettes = InstalledFixtures.ImportProjectiles.BeamPalettes;
         // Grapple firing names the Ice beam's shade and the flare's (#1512); the import resolves both.
         var sources = InstalledFixtures.SamusShadeSources with { BeamPalettes = palettes };
         foreach (ushort beam in new ushort[] { 0, 4 })

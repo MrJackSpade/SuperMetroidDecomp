@@ -26,8 +26,12 @@ internal static class MapPresentationJsonContractVerification
             foreach (string source in Directory.GetFiles(installation.MapDirectory))
                 File.Copy(source, Path.Combine(stock, Path.GetFileName(source)));
             Dictionary<string, string> originalHashes = HashFiles(stock);
-            // The pages are import data no installation holds (#1636): the cartridge-derived extraction's are read beside the copy.
-            string pages = SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.MapDirectoryName);
+            // The pages (#1636) and the colour documents only the import reads (#1637) are import data no installation holds:
+            // a copy of the cartridge-derived extraction's is read beside the copy, and its documents are edited like the rest.
+            string pages = Directory.CreateDirectory(Path.Combine(temporary, "import-data")).FullName;
+            foreach (string source in Directory.GetFiles(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.MapDirectoryName)))
+                File.Copy(source, Path.Combine(pages, Path.GetFileName(source)));
+            Dictionary<string, string> originalImportHashes = HashFiles(pages);
             string expected = MapPresentationFiles.LoadForImport(stock, pages).Game.ContentIdentity;
             string manifestPath = Path.Combine(stock, AreaMapCatalogFormat.ManifestFile);
             byte[] manifest = File.ReadAllBytes(manifestPath);
@@ -39,7 +43,11 @@ internal static class MapPresentationJsonContractVerification
             // in that finite registry, not just the initially defective formats.
             foreach (string file in files)
             {
-                string path = Path.Combine(stock, file);
+                // Each listed document is in the copy of the installed directory or in the copy of the import data, never both.
+                bool installedDocument = File.Exists(Path.Combine(stock, file));
+                bool importDocument = File.Exists(Path.Combine(pages, file));
+                Require(installedDocument != importDocument, $"{file} is in exactly one of the installed directory and the import data");
+                string path = Path.Combine(installedDocument ? stock : pages, file);
                 byte[] original = File.ReadAllBytes(path);
                 using JsonDocument document = JsonDocument.Parse(original);
                 foreach (byte[] corrupt in DuplicateDocuments(document.RootElement))
@@ -58,6 +66,8 @@ internal static class MapPresentationJsonContractVerification
             File.WriteAllBytes(manifestPath, manifest);
             Require(HashFiles(stock).OrderBy(pair => pair.Key).SequenceEqual(originalHashes.OrderBy(pair => pair.Key)),
                 "the diagnostics put every installed file back as it was");
+            Require(HashFiles(pages).OrderBy(pair => pair.Key).SequenceEqual(originalImportHashes.OrderBy(pair => pair.Key)),
+                "the diagnostics put every import-data file back as it was");
             Require(MapPresentationFiles.LoadForImport(stock, pages).Game.ContentIdentity == expected,
                 "the restored files load with their original identity");
             Require(accepted.Count == 0, "silently accepted ambiguous JSON:\n" + string.Join('\n', accepted));

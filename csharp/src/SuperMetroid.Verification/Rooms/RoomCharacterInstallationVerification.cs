@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Tooling;
+using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.FullRunSuitesVerification;
@@ -37,9 +37,12 @@ internal static class RoomCharacterInstallationVerification
         AssertTrue(File.Exists(Path.Combine(installed.EnemyTileDirectory,
                 EnemyTileArtworkFormat.ManifestFileName)),
             "enemy-tile stock manifest is installed");
+        // The enemies' palettes only pre-colour their sheets: they are import data (#1637), which the installation never holds.
+        AssertEqual(0, Directory.GetFiles(installed.EnemyTileDirectory, "*-colors.json").Length,
+            "the installation holds no enemy, boss or area colour document");
         AssertEqual(EnemyTileArtworkFormat.RetailDefinitionCount,
-            Directory.GetFiles(installed.EnemyTileDirectory, "enemy-????-colors.json").Length,
-            "full installer publishes all retail enemy palettes");
+            Directory.GetFiles(CartridgeImportContent.ImportData(GameInstallationLayout.EnemyTileDirectoryName), "enemy-????-colors.json").Length,
+            "the import extracts every retail enemy palette into its import data");
         _ = installed.LoadEnemyTiles();
         // Room characters are the import's input (#1466) and import data no installation holds (#1636): they are read
         // from the cartridge-derived extraction, and rooms show pre-composed pictures, which a player edits in the
@@ -73,10 +76,10 @@ internal static class RoomCharacterInstallationVerification
         AssertTrue(nativeGhostVram.ImageEquals(installedGhostVram),
             "installed statue-ghost library upload matches the native one apart from the characters only the ghost would draw");
 
-        string roomPalettes = Path.Combine(installed.ContentDirectory, GameInstallationLayout.RoomPaletteDirectoryName);
-        AssertTrue(File.Exists(Path.Combine(roomPalettes, RoomStaticPaletteArtworkFiles.ManifestFileName)),
-            "room-palette stock manifest is installed");
-        _ = RoomStaticPaletteArtworkFiles.Load(roomPalettes);
+        // The room palettes are import data (#1637): the installation holds none, and the import reads them where it extracted them.
+        AssertTrue(!Directory.Exists(Path.Combine(installed.ContentDirectory, GameInstallationLayout.RoomPaletteDirectoryName)),
+            "the installation holds no room palette");
+        _ = RoomStaticPaletteArtworkFiles.LoadForImport(CartridgeImportContent.ImportData(GameInstallationLayout.RoomPaletteDirectoryName));
 
         AssertTrue(File.Exists(Path.Combine(installed.RoomMetatileDirectory,
                 RoomMetatileArtworkFiles.ManifestFileName)),

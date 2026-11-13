@@ -289,7 +289,7 @@ public static class GameAssetInstaller
             new InstallerStep("Extracting map presentation...",
                 (bus, d, _, cancellation) => MapPresentationExtractor.Extract(bus, d, SupportedCartridge.Sha256, cancellation))),
         new(GameInstallationLayout.GameplayBasePaletteDirectoryName,
-            Step("Extracting gameplay base palettes...", (bus, d) => GameplayBasePaletteFiles.Extract(bus, d, SupportedCartridge.Sha256))),
+            Step("Extracting gameplay base palettes...", (bus, d) => GameplayBasePaletteFiles.Extract(bus, d))),
         new(GameInstallationLayout.SamusOverreadDirectoryName,
             Step("Extracting Samus overread bytes...", (bus, d) => SamusOverreadFiles.Extract(bus, d, SupportedCartridge.Sha256))),
         new(GameInstallationLayout.EnemyOverreadDirectoryName,

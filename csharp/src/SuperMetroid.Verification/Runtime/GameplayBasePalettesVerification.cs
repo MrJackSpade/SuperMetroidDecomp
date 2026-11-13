@@ -21,10 +21,12 @@ internal static class GameplayBasePalettesVerification
     /// <summary>Compares cartridge colors and exercises ROM-free runtime construction.</summary>
     internal static void VerifyGameplayBasePalettes(string sourceRom)
     {
-        // Only the import reads the base palette (#1544); the check reads it where the import does.
-        string installed = Path.Combine(RepositoryInstallation.Installation.ContentDirectory, GameInstallationLayout.GameplayBasePaletteDirectoryName);
+        // Only the import reads the base palette (#1544), from its import data (#1637); the check reads it where the import does.
+        string importData = CartridgeImportContent.ImportData(GameInstallationLayout.GameplayBasePaletteDirectoryName);
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
-        GameplayBasePalette baseline = GameplayBasePaletteFiles.Load(installed);
+        GameplayBasePalette baseline = GameplayBasePaletteFiles.LoadForImport(importData);
+        AssertTrue(!Directory.Exists(Path.Combine(RepositoryInstallation.Installation.ContentDirectory, GameInstallationLayout.GameplayBasePaletteDirectoryName)),
+            "the installation holds no gameplay base palette");
         // The starting image holds the background colours, then the sprite colours, in the cartridge's order.
         for (int color = 0; color < SnesCgram.ColorCount; color++)
             AssertEqual(ReadWord(bus, GameplayBasePaletteSourceDefinitions.InitialPalette + color * 2),

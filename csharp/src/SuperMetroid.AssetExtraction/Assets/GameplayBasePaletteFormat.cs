@@ -7,10 +7,8 @@ public static class GameplayBasePaletteFormat
 {
     /// <summary>Supported gameplay base-palette schema revision.</summary>
     public const int Version = 1;
-    /// <summary>JSON filename containing the initial and common-sprite colors.</summary>
+    /// <summary>Import-data JSON filename containing the initial and common-sprite colors (#1637).</summary>
     public const string ArtworkFileName = "gameplay-base-palettes.json";
-    /// <summary>Manifest filename selecting the installed gameplay base-palette asset.</summary>
-    public const string ManifestFileName = "gameplay-base-palettes-manifest.json";
     /// <summary>Number of colors in one complete sprite palette.</summary>
     public const int SpriteColorCount = 16;
     /// <summary>Shared camel-case, case-insensitive JSON options that reject unknown fields.</summary>

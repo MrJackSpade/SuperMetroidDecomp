@@ -100,6 +100,9 @@ internal static class CompiledProjectileMathVerification
                 int expected = angle < 128 ? magnitude : -magnitude;
                 AssertEqual(expected, phantoon((ushort)angle, (ushort)radius),
                     "Phantoon word peak and restored sign");
+                // A flame's radius grows past 255 as a plain count; the product keeps its place within 256 (#1627).
+                AssertEqual(expected, phantoon((ushort)angle, (ushort)(radius + ShortCircleProduct.RadiusSpan)),
+                    "a Phantoon flame's radius of 256 or more places it as its remainder within 256 does");
             }
         }
 

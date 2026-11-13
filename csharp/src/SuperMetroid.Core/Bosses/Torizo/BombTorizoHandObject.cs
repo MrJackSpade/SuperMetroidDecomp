@@ -23,8 +23,8 @@ internal sealed class BombTorizoHandObject(BombTorizoHandObjects owner) : RoomOb
     /// <summary>Whether Samus's Bombs wake the hand: from its second update until they do.</summary>
     internal bool WakeArmed { get; private set; }
 
-    /// <summary>The crumble step the hand shows, or -1 before its crumble starts.</summary>
-    internal int CrumbleStep { get; private set; } = -1;
+    /// <summary>The crumble step the hand shows; none before its crumble starts (#1627).</summary>
+    internal int? CrumbleStep { get; private set; }
 
     /// <summary>The updates left before the hand's next step.</summary>
     private int _updatesBeforeNextStep = 1;
@@ -57,14 +57,15 @@ internal sealed class BombTorizoHandObject(BombTorizoHandObjects owner) : RoomOb
                 _updatesBeforeNextStep = 1;
                 return;
             case BombTorizoHandPhase.Crumbling:
-                CrumbleStep++;
-                if (CrumbleStep == BombTorizoHandCrumbleDefinitions.Crumble.Count)
+                int next = CrumbleStep is { } shown ? shown + 1 : 0;
+                CrumbleStep = next;
+                if (next == BombTorizoHandCrumbleDefinitions.Crumble.Count)
                 {
                     _owner.QueueMusic();
                     context.RoomObjects.DeleteObject(place);
                     return;
                 }
-                BombTorizoHandCrumbleStep step = BombTorizoHandCrumbleDefinitions.Crumble[CrumbleStep];
+                BombTorizoHandCrumbleStep step = BombTorizoHandCrumbleDefinitions.Crumble[next];
                 if (step.FragmentBefore is { } fragment)
                     _owner.SpawnFragment(place, fragment);
                 context.Draw(place, RoomObjectDraw.Of(step.Image));

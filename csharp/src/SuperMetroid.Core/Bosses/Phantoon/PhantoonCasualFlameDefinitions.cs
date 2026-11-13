@@ -3,11 +3,6 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// <summary>Phantoon's casual-flame bursts.</summary>
 public static class PhantoonCasualFlameDefinitions
 {
-    /// <summary>
-    /// The mouth's remaining-flame count when no schedule is active: the next expiry picks a new pattern.
-    /// </summary>
-    public const int NoActiveSchedule = -1;
-
     /// <summary>Mouth-scheduler updates every burst waits after its last flame.</summary>
     private const int BurstCooldown = 180;
 

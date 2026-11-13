@@ -42,7 +42,6 @@ internal static class PhantoonDefinitionMigrationVerification
         AssertEqual(0xf801, PhantoonMotionDefinitions.SwoopNegativeXThreshold.RawValue, "horizontal swoop threshold word");
         AssertEqual(0xfa01, PhantoonMotionDefinitions.SwoopNegativeYThreshold.RawValue, "vertical swoop threshold word");
         AssertEqual(0xffc0, unchecked((ushort)PhantoonMotionDefinitions.SwoopMinimumX), "swoop minimum X word");
-        AssertEqual(0xffff, unchecked((ushort)PhantoonCasualFlameDefinitions.NoActiveSchedule), "no-schedule flame count word");
 
         // The death mosaic's sizes are the MOSAIC values the cartridge writes.
         AssertEqual(0x02, PhantoonNativeWords.DeathMosaicWord(PhantoonDeathDefinitions.InitialMosaicSize), "first death mosaic word");

@@ -140,7 +140,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void ResetPhantoonMouthControls(PhantoonEnemyState state)
     {
         state.MouthState.BodyLayer = PhantoonBodyLayer.Hidden;
-        state.MouthState.CasualFlameCount = PhantoonCasualFlameDefinitions.NoActiveSchedule;
+        state.MouthState.CasualFlameCount = null;
     }
 
     /// <summary>Runs Phantoon's per-frame behaviour.</summary>

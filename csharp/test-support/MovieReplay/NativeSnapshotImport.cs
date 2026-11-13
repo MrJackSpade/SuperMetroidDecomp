@@ -339,6 +339,9 @@ internal static class NativeSnapshotImport
             // A free native slot's family words are its last occupant's, which no family state of this slot holds (#1435).
             if (W(address) != 0)
                 NativeEnemyFamilyStateImport.Import(runtime.Enemies, slot, words);
+            // A recorded swoop path's length is word C; before Draygon plans his first swoop it is zero and he has none.
+            if (W(address) != 0 && slot.SpeciesState<SuperMetroid.Core.Bosses.Draygon.DraygonEnemyState>() is { } draygon && words.C != 0)
+                draygon.SwoopPath = SuperMetroid.Core.Bosses.Draygon.DraygonNativeWords.SwoopPathAt(W, words.C);
             // Kraid's head program is typed and kept in the encounter state; the recorded body word is its native cursor,
             // which only this import translates. Before the first attack the word names no head record and the head stays unstarted.
             if (slot.DefinitionId == EnemyDefinitionId.Kraid && runtime.Enemies.KraidBehavior.Access.Kraid is { } kraid)

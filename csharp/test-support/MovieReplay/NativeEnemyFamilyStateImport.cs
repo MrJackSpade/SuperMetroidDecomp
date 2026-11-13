@@ -102,7 +102,9 @@ internal static class NativeEnemyFamilyStateImport
         {
             phantoonMouth.CasualFlamePattern = words.A;
             phantoonMouth.CasualFlameHold = CoordinateAxis.AsSigned(words.B);
-            phantoonMouth.CasualFlameCount = unchecked((short)words.C);
+            // The record's count reads below zero while no burst is under way, which the mouth holds as no count.
+            short casualFlames = unchecked((short)words.C);
+            phantoonMouth.CasualFlameCount = casualFlames < 0 ? null : casualFlames;
             phantoonMouth.WaveAmplitude = words.D;
             phantoonMouth.WaveAmplitudeShrinking = words.E != 0;
             phantoonMouth.WavyPhaseDelta = words.F;
@@ -207,7 +209,8 @@ internal static class NativeEnemyFamilyStateImport
                 default:
                     throw new InvalidOperationException($"Undefined Draygon shared value meaning for {draygonRecord.Function}.");
             }
-            draygonRecord.SwoopPathEntryCount = words.C / DraygonNativeWords.SwoopEntryBytes;
+            // The swoop path's length (word C) is read with the path's heights from the cartridge's table by the snapshot
+            // import, which holds the memory the table lies in.
             draygonRecord.SwoopVelocity = UnsignedSixteenSixteen.FromRaw(SixteenSixteenWords.Compose(words.D, words.E));
         }
         if (slot.SpeciesState<DraygonEyeState>() is { } draygonEyeRecord)

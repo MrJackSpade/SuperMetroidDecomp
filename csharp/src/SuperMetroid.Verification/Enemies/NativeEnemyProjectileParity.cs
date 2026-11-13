@@ -34,11 +34,7 @@ internal static class NativeEnemyProjectileParity
             AssertEqual(!native.Deleted, projectile.IsActive, $"{at}: deletion");
             if (native.Deleted)
                 return new CompareResult(true, update + 1);
-            // A frame the typed animation holds for good (#1607) rests on the hold's timer, counting on from zero, while
-            // the native list counts its longest frame down before resting on the same frame: within the updates a check
-            // runs, the two stay the longest frame's duration apart.
-            bool restsOnHeldFrame = projectile.FrameHold.RawValue == unchecked((ushort)(native.Timer - NativeHeldFrameDuration));
-            if (!restsOnHeldFrame)
+            if (!RestsOnHeldFrame(native.Timer, projectile.FrameHold))
                 AssertEqual(native.Timer, projectile.FrameHold.RawValue, $"{at}: timer");
             AssertEqual(native.Operand, projectile.PresentationOperandAddress, $"{at}: frame");
             if (native.FrameBehaviorCleared)
@@ -48,4 +44,13 @@ internal static class NativeEnemyProjectileParity
         }
         return new CompareResult(false, update);
     }
+
+    /// <summary>
+    /// Whether <paramref name="hold"/> is the timer of a frame the typed animation holds for good (#1607) beside a native
+    /// list at <paramref name="nativeTimer"/>: the held frame rests on the hold's timer, counting on from zero, while the
+    /// native list counts its longest frame down before resting on the same frame, so within the updates a check runs the
+    /// two stay the longest frame's duration apart.
+    /// </summary>
+    internal static bool RestsOnHeldFrame(ushort nativeTimer, WrappingCountdown hold) =>
+        hold.RawValue == unchecked((ushort)(nativeTimer - NativeHeldFrameDuration));
 }

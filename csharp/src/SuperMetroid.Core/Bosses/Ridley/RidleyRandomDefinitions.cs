@@ -24,12 +24,27 @@ internal static class RidleyRandomDefinitions
     /// <summary>Ceres Ridley's new tail curliness, 0 through 15 added to eight: the sample's bits 0-3.</summary>
     internal static readonly RandomSampleField TailCurliness = new(0, 4);
 
-    /// <summary>Norfair Ridley's roll for fireballing out of his pogo, taken at 128 or more: 0 through 255 from the sample.</summary>
-    internal static readonly RandomSampleField PogoFireballRoll = new(0, 8);
+    /// <summary>
+    /// Norfair Ridley fireballing out of his pogo (#1619): the top 128 of the 256 rolls of the sample's bits 0-7, half of
+    /// them, start the fireballs.
+    /// </summary>
+    internal static readonly RandomChance PogoFireballs = RandomChance.Highest(128, new RandomSampleField(0, 8));
 
-    /// <summary>Ridley's roll for a tail whip, taken at 240 or more: 0 through 255 from the sample.</summary>
-    internal static readonly RandomSampleField TailWhipRoll = new(0, 8);
+    /// <summary>
+    /// Ridley's unrequested tail whip (#1619): the top 16 of the 256 rolls of the sample's bits 0-7, 240 and over, whip.
+    /// </summary>
+    internal static readonly RandomChance TailWhips = RandomChance.Highest(16, new RandomSampleField(0, 8));
 
-    /// <summary>Ceres Ridley's roll for changing his tail's curliness, taken only at 255: the sample's bits 8-15.</summary>
-    internal static readonly RandomSampleField TailCurlinessRoll = new(8, 8);
+    /// <summary>
+    /// Ceres Ridley changing his tail's curliness (#1619): only the top one of the 256 rolls of the sample's bits 8-15,
+    /// 255, changes it.
+    /// </summary>
+    internal static readonly RandomChance TailCurlinessChanges = RandomChance.Highest(1, new RandomSampleField(8, 8));
+
+    /// <summary>
+    /// Whether Norfair Ridley's next pogo bounce heads away from Samus (#1619): the lowest 1365 of the 65536 samples, about
+    /// one in 48, turn him round if he heads toward her and keep his heading if he heads away; every other sample sends him
+    /// toward her.
+    /// </summary>
+    internal static readonly RandomChance PogoBounceHeadsAwayFromSamus = RandomChance.Lowest(1365, RandomSampleField.Whole);
 }

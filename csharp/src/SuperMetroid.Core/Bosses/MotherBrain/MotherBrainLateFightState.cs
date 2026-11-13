@@ -183,13 +183,12 @@ internal sealed class MotherBrainLateFightState
         return MotherBrainWalkResult.WalkInstalled;
     }
 
-    /// <summary>Uses a random roll of 0 through 255, at or above 192, to toggle a standing or leaning body list.</summary>
+    /// <summary>Takes the posture chance (<see cref="MotherBrainRandomDefinitions.PostureChanges"/>) to toggle a standing or leaning body list.</summary>
     internal bool MaybeRequestStandUpOrLeanDown(MotherBrainRandomSample randomNumberSeed)
     {
-        // The lean helper ignores every pose except standing (zero) and leaning (six), and its
-        // roll's threshold is inclusive at 192. A request still executes as body
+        // The lean helper ignores every pose except standing (zero) and leaning (six). A request still executes as body
         // instruction bytecode later in the enemy-processing stage.
-        if (randomNumberSeed.LowPart < 192)
+        if (!randomNumberSeed.Takes(MotherBrainRandomDefinitions.PostureChanges))
             return false;
 
         if (Body.Pose == MotherBrainBodyPose.Standing)

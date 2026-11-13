@@ -7,10 +7,10 @@ internal static class DraygonRandomDefinitions
     internal static readonly RandomSampleField SwoopRatherThanGoop = new(0, 1);
 
     /// <summary>
-    /// The goop volley's step check, the sample's bits 0-3: only a zero, one sample in sixteen, counts the volley down
-    /// and fires the next goop.
+    /// The goop volley's step (#1619): only the lowest of the 16 rolls of the sample's bits 0-3, a zero, one sample in
+    /// sixteen, counts the volley down and fires the next goop.
     /// </summary>
-    internal static readonly RandomSampleField GoopVolleyStep = new(0, 4);
+    internal static readonly RandomChance GoopVolleySteps = RandomChance.Lowest(1, new RandomSampleField(0, 4));
 
     /// <summary>A goop's angle within its quarter turn, 0 through 63 table angles: the sample's bits 0-5.</summary>
     internal static readonly RandomSampleField GoopAngleSpread = new(0, 6);
@@ -33,6 +33,9 @@ internal static class DraygonRandomDefinitions
     /// </summary>
     internal static readonly RandomSampleField DyingScatterY = new(8, 7);
 
-    /// <summary>The roll that inserts a tail whip while Draygon holds Samus, which a zero value does: 0 through 255 from the sample.</summary>
-    internal static readonly RandomSampleField TailWhipRoll = new(0, 8);
+    /// <summary>
+    /// The tail whip Draygon inserts while he holds Samus (#1619): only the lowest of the 256 rolls of the sample's bits
+    /// 0-7, a zero, whips.
+    /// </summary>
+    internal static readonly RandomChance TailWhips = RandomChance.Lowest(1, new RandomSampleField(0, 8));
 }

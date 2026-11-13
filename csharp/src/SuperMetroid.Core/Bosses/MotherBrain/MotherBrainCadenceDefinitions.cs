@@ -70,6 +70,13 @@ internal static class MotherBrainCadenceDefinitions
     internal static readonly UpdateCounterField NeckShakeStep = new(1, 2);
 
     /// <summary>
+    /// The phase of Mother Brain's brain shake count that steps her brain's shake (#1619): four steps, each held for two
+    /// updates, indexing her shake offsets. The count is her brain's own shake timer while it runs, or else her hurt flash
+    /// timer, or else her shake timer.
+    /// </summary>
+    internal static readonly UpdateCounterField BrainShakeStep = new(1, 2);
+
+    /// <summary>
     /// The phase of Mother Brain's body's own update count on which the rainbow beam steps its colours: set for two
     /// updates of every four, while the colours hold for the other two.
     /// </summary>

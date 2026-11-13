@@ -102,8 +102,9 @@ internal sealed class MotherBrainFakeDeath
 
         // The tube dust reads the current random number and never draws a new one. A host random
         // call here would desynchronize every later Rinka and phase-two attack decision.
-        int sampledRandom = _room.Random.Read();
-        MiscDustAnimation animation = sampledRandom < 16384 ? MiscDustAnimation.Smoke : MiscDustAnimation.SmallExplosion;
+        MiscDustAnimation animation = MotherBrainRandomDefinitions.FakeDeathDustSmokes.IsTakenBy(_room.Random.Read())
+            ? MiscDustAnimation.Smoke
+            : MiscDustAnimation.SmallExplosion;
         _projectiles.SpawnRoomGraphicsDustExplosion(explosion, animation);
         _motherBrainEncounter.RequestBodySound(EnemySound.SmallExplosion);
     }
@@ -383,7 +384,7 @@ internal sealed class MotherBrainFakeDeath
             return;
 
         tubeState.SmokeDelay = 8;
-        tubeState.SmokePositionIndex = (tubeState.SmokePositionIndex + 1) & 3;
+        tubeState.SmokePositionIndex = (tubeState.SmokePositionIndex + 1) % MotherBrainBehavior.MotherBrainFallingTubeSmokeXOffsets.Length;
         _projectiles.SpawnRoomGraphicsDustExplosion(
             new(CoordinateAxis.Wrap(tube.Position.X.Whole + MotherBrainBehavior.MotherBrainFallingTubeSmokeXOffsets[tubeState.SmokePositionIndex]), 208),
             MiscDustAnimation.SmallDustCloud);

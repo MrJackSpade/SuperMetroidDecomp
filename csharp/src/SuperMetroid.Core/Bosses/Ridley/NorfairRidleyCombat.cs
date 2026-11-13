@@ -208,7 +208,7 @@ internal sealed class NorfairRidleyCombat
         }
 
         // The pogo choice uses the current random number; it does not draw a new one.
-        if (RidleyRandomDefinitions.PogoFireballRoll.Of(_room.Random.Read()) >= 128 && !state.Roaring && state.FacingDirection != RidleyFacing.Turning)
+        if (RidleyRandomDefinitions.PogoFireballs.IsTakenBy(_room.Random.Read()) && !state.Roaring && state.FacingDirection != RidleyFacing.Turning)
             CeresRidleyFlight.StartRidleyProgram(state, slot, RidleyBodyProgram.Fireballing);
 
         if (!NorfairRidleyMovement.TickRidleyFunctionTimer(state))
@@ -625,8 +625,9 @@ internal sealed class NorfairRidleyCombat
         else if (CoordinateAxis.Difference(slot.Position.X.Whole, state.MovementMaximum.X) >= 0) reverse = !negative;
         else
         {
-            bool oppositeSigns = CoordinateAxis.Difference(slot.Position.X.Whole, samus?.Position.X.Whole ?? 0) < 0 != state.Velocity.X.IsNegative;
-            reverse = oppositeSigns ? _room.Random.Read() < 1365 : _room.Random.Read() >= 1365;
+            bool headsTowardSamus = CoordinateAxis.Difference(slot.Position.X.Whole, samus?.Position.X.Whole ?? 0) < 0 != state.Velocity.X.IsNegative;
+            bool headsAway = RidleyRandomDefinitions.PogoBounceHeadsAwayFromSamus.IsTakenBy(_room.Random.Read());
+            reverse = headsTowardSamus ? headsAway : !headsAway;
         }
         if (reverse) state.Velocity = state.Velocity.WithX(state.Velocity.X.Negated());
     }

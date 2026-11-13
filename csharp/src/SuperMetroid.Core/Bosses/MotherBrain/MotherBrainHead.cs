@@ -185,8 +185,7 @@ internal sealed class MotherBrainHead
             shake = head.FlashTimer != 0 ? head.FlashTimer : head.ShakeTimer;
         }
 
-        int index = (shake & 6) >> 1;
-        return MotherBrainBehavior.MotherBrainShakeOffsets[index];
+        return MotherBrainBehavior.MotherBrainShakeOffsets[MotherBrainCadenceDefinitions.BrainShakeStep.Of(shake)];
     }
 
     /// <summary>Moves neck segments toward the head and updates their attachment to Samus's position.</summary>
@@ -336,17 +335,17 @@ internal sealed class MotherBrainHead
             case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.SpawnRainbowBeamChargeParticle }:
                 SpawnMotherBrainRainbowChargingProjectile();
                 return null;
-            // The neutral hold holds the phase-two neutral pose again unless the random word reaches 61,440 (15 in 16).
+            // The neutral hold holds the phase-two neutral pose again on fifteen samples in sixteen.
             case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.MaybeHoldNeutralPhase2 }:
-                return _room.Random.Read() < 61440 ? MotherBrainHeadProgram.NeutralPhase2Hold : null;
+                return MotherBrainRandomDefinitions.NeutralPhase2Holds.IsTakenBy(_room.Random.Read()) ? MotherBrainHeadProgram.NeutralPhase2Hold : null;
             // Retail contains an unconditional branch where the adjacent commentary might suggest a
-            // carry branch: low-twelve random values below 3776 hold the phase-three pose again.
+            // carry branch: the hold's chance alone decides whether the phase-three pose holds again.
             case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.MaybeHoldNeutralPhase3 }:
-                return MotherBrainRandomDefinitions.NeutralPhase3HoldRoll.Of(_room.Random.Read()) < 3776 ? MotherBrainHeadProgram.NeutralPhase3Hold : null;
-            // The drool hold returns its destination: only low-twelve random values
-            // 4064 through 4095 burst into more drool; every other value keeps the one-frame loop.
+                return MotherBrainRandomDefinitions.NeutralPhase3Holds.IsTakenBy(_room.Random.Read()) ? MotherBrainHeadProgram.NeutralPhase3Hold : null;
+            // The drool hold returns its destination: only the burst's chance bursts into more drool; every other sample
+            // keeps the one-frame loop.
             case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.MaybeDroolAgain }:
-                return MotherBrainRandomDefinitions.DroolBurstRoll.Of(_room.Random.Read()) >= 4064 ? MotherBrainHeadProgram.DyingDroolBurst : null;
+                return MotherBrainRandomDefinitions.DroolBursts.IsTakenBy(_room.Random.Read()) ? MotherBrainHeadProgram.DyingDroolBurst : null;
             default:
                 throw new InvalidOperationException($"Undefined Mother Brain head cue {cue}.");
         }

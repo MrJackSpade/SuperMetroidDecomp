@@ -313,8 +313,7 @@ internal sealed class CrocomireFight
 
     /// <summary>Whether Crocomire's one-in-four spit roll starts a spit attack where his walk offers one.</summary>
     /// <param name="sample">The random sample, 0 through 65535.</param>
-    private static bool RollsProjectileAttack(int sample) =>
-        CrocomireRandomDefinitions.ProjectileAttackRoll.Of(sample) < CrocomireRandomDefinitions.ProjectileAttackRolls;
+    private static bool RollsProjectileAttack(int sample) => CrocomireRandomDefinitions.ProjectileAttack.IsTakenBy(sample);
 
     /// <summary>Whether the body's left edge lies within 260 pixels right of the camera: the step-back moves' on-screen test.</summary>
     private static bool CrocomireBodyIsOnScreen(RoomEnemySlot body, int cameraX) =>

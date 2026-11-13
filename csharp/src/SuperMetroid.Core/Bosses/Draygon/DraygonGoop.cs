@@ -104,8 +104,7 @@ internal sealed class DraygonGoop
             return;
         }
 
-        int random = _room.Random.Read();
-        if (DraygonRandomDefinitions.GoopVolleyStep.Of(random) == 0)
+        if (DraygonRandomDefinitions.GoopVolleySteps.IsTakenBy(_room.Random.Read()))
         {
             if (--state.GoopCounter == 0)
             {

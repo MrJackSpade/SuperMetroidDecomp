@@ -60,7 +60,7 @@ internal sealed class PhantoonDeath
         RoomEnemySlot body,
         PhantoonEnemyState state)
     {
-        if ((state.EyeState.DyingFadeCycles & 1) != 0)
+        if (PhantoonCadenceDefinitions.DyingFadeIn.IsSetIn(state.EyeState.DyingFadeCycles))
             _phantoonPresentation.AdvancePhantoonFadeIn(body, state, denominator: 12);
         else
             _patterns.AdvancePhantoonFadeOut(state, denominator: 12);

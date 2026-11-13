@@ -114,7 +114,7 @@ internal sealed class RidleyTail
             {
                 // Read the existing seed; this branch never advances the original game RNG.
                 // An idle random whip with no request pending aims one whole turn short of a requested one.
-                if (RidleyRandomDefinitions.TailWhipRoll.Of(_room.Random.Read()) >= 240)
+                if (RidleyRandomDefinitions.TailWhips.IsTakenBy(_room.Random.Read()))
                     AimCeresRidleyTailWhip(state, samus, turnsBeyond: state.TailWhipRequest - 1);
                 else if (samus is not null && CoordinateAxis.Distance(samus.Position.X.Whole, slot.Position.X.Whole) < 128)
                     AimCeresRidleyTailWhip(state, samus, turnsBeyond: 0);
@@ -375,7 +375,7 @@ internal sealed class RidleyTail
     internal void RandomlyUpdateCeresRidleyTailCurliness(RidleyEnemyState state)
     {
         int random = _room.Random.Read();
-        if (RidleyRandomDefinitions.TailCurlinessRoll.Of(random) != RidleyRandomDefinitions.TailCurlinessRoll.Outcomes - 1)
+        if (!RidleyRandomDefinitions.TailCurlinessChanges.IsTakenBy(random))
             return;
         state.IdealInterSegmentTailAngle = RidleyRandomDefinitions.TailCurliness.Of(random) + 8;
     }
@@ -541,7 +541,7 @@ internal sealed class RidleyTail
     private void HandleRidleyPogoTailControl(RoomEnemySlot slot, RidleyEnemyState state, SamusState? samus, bool stabbing)
     {
         if (state.TailSegments.All(segment => segment.Active) &&
-            (RidleyRandomDefinitions.TailWhipRoll.Of(_room.Random.Read()) >= 240 ||
+            (RidleyRandomDefinitions.TailWhips.IsTakenBy(_room.Random.Read()) ||
              samus is not null && CoordinateAxis.Distance(samus.Position.X.Whole, slot.Position.X.Whole) < 128) &&
             state.ClockwiseWhipTarget is null && state.CounterClockwiseWhipTarget is null)
         {

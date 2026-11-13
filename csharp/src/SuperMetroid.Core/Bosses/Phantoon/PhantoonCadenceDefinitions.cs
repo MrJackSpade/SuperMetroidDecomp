@@ -53,4 +53,16 @@ internal static class PhantoonCadenceDefinitions
     /// update of the frame counter, on its first place.
     /// </summary>
     internal static readonly UpdateCadence PowerReturnStepEveryFourthUpdate = new(4, 0);
+
+    /// <summary>
+    /// The phase of Phantoon's rage wave count on which a wave is an odd wave of eight flames (#1619): set on its odd
+    /// counts; the even waves, from the first, fire seven.
+    /// </summary>
+    internal static readonly UpdateCounterField OddRageWave = new(0, 1);
+
+    /// <summary>
+    /// The phase of the dying Phantoon's fade cycle count on which he fades back in (#1619): set on its odd counts; on the
+    /// even ones, from the first, he fades out.
+    /// </summary>
+    internal static readonly UpdateCounterField DyingFadeIn = new(0, 1);
 }

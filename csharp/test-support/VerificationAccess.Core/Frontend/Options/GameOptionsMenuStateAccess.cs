@@ -15,7 +15,7 @@ internal static class GameOptionsMenuStateAccess
         /// pictures it places (#1467): the page with its language rows, controller labels or toggle choices as shown, read
         /// from <paramref name="maps"/>, the import's read of the presentation the menu was built with (#1616).
         /// </summary>
-        internal byte[] ShownPageBytes(SuperMetroid.AssetExtraction.Frontend.Map.InstalledAreaMapPresentation maps)
+        internal byte[] ShownPageBytes(SuperMetroid.AssetExtraction.Frontend.Map.ImportAreaMapPresentation maps)
         {
             GameOptionsSourcePresentation presentation = Ensure.NotNull(maps).GameOptions;
             ShownOptionsPage shown = self.ShownPage;

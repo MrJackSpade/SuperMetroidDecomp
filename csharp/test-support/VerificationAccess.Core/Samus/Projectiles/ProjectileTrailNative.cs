@@ -98,7 +98,7 @@ internal static class ProjectileTrailNative
     /// <summary>The cartridge's retained tile word for a side's shown pose: the pose's stock appearance, or zero once cleared.</summary>
     internal static ushort NativeWord(ProjectileTrailFrame? shownPose) =>
         shownPose is { } pose
-            ? SnesObjAttributeWord.From(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Projectiles.Trails.Resolve(pose)).Raw
+            ? SnesObjAttributeWord.From(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.ImportProjectiles.Compositions.Trails.Resolve(pose)).Raw
             : (ushort)0;
 
     /// <summary>

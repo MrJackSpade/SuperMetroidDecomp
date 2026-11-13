@@ -100,7 +100,6 @@ public sealed record GameInstallation(string Root)
     {
         SamusBody = Ensure.NotNull(samusBody),
         Intro = LoadIntroCinematicArt(),
-        EndingObjects = LoadEndingObjectArt(),
     };
     /// <summary>Installed projectile artwork and presentation selectors, which the player edits in place.</summary>
     public string ProjectileDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.ProjectileDirectoryName);
@@ -116,11 +115,11 @@ public sealed record GameInstallation(string Root)
     /// <summary>Loads what the game binds of the installed opening cinematic: its backdrops and the Ceres scenes' placements (#1616).</summary>
     public IntroCinematicArtwork LoadIntroCinematic() =>
         IntroCinematicArtworkFiles.LoadCinematic(IntroCinematicDirectory);
-    /// <summary>Installed ending sprite artwork, which the player edits in place.</summary>
+    /// <summary>
+    /// The ending object component's directory, which holds only its provenance manifest: its maps and compositions are
+    /// import data (#1638) and the installation holds the pictures composed from them.
+    /// </summary>
     public string EndingObjectDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.EndingObjectDirectoryName);
-    /// <summary>Loads the installed ending OBJ artwork, which only the import reads.</summary>
-    public EndingObjectSourceArtwork LoadEndingObjectArt() =>
-        EndingObjectArtworkFiles.Load(EndingObjectDirectory);
     /// <summary>Installed ending scene backdrops, which the player edits in place (#1544).</summary>
     public string EndingBackdropDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.EndingBackdropDirectoryName);
     /// <summary>Loads the installed ending scene backdrops.</summary>

@@ -39,7 +39,7 @@ internal static class IntroRinkaSpriteArtworkVerification
     }
     /// <summary>Compares installed Rinka OAM with native art, live actors included, without rereading cartridge maps.</summary>
     internal static void VerifyIntroRinkaSpriteArtwork(SuperMetroidAddressSpace bus,
-        IntroCinematicSourceArtwork stock, GameInstallation installation)
+        ImportIntroCinematicArtwork stock)
     {
         const ushort x = 120;
         PictureShade palette = IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors);
@@ -61,7 +61,7 @@ internal static class IntroRinkaSpriteArtworkVerification
                 native.FinalizeFrame();
                 var installed = ScreenSpritesFixtures.Blank();
                 installed.BeginFrame();
-                CinematicSheetFixtures.Drawer(stock.RinkaSprites).Draw(definition.Pose, installed, new(x, y), palette);
+                CinematicSheetFixtures.Drawer(stock.Sprites.Rinka).Draw(definition.Pose, installed, new(x, y), palette);
                 installed.FinalizeFrame();
                 AssertTrue(installed.ImageEquals(native) &&
                         installed.LastFinalizedSpriteCount == native.LastFinalizedSpriteCount,
@@ -70,7 +70,7 @@ internal static class IntroRinkaSpriteArtworkVerification
         }
 
         IntroRinkaSpriteDocument document = RequiredJson.Deserialize<IntroRinkaSpriteDocument>(
-            File.ReadAllBytes(Path.Combine(installation.IntroCinematicDirectory, IntroRinkaSpriteFormat.FileName)),
+            File.ReadAllBytes(Path.Combine(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.IntroCinematicDirectoryName), IntroRinkaSpriteFormat.FileName)),
             new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
         var guarded = NewIntroArtworkSourceReadGuard(bus, IntroArtworkSources.IntroRinkas);
@@ -82,7 +82,7 @@ internal static class IntroRinkaSpriteArtworkVerification
             "intro Rinka first two-wave actors exist for installed artwork test");
         var stockOam = ScreenSpritesFixtures.Blank();
         stockOam.BeginFrame();
-        rinkas.Draw(stockOam, CinematicSheetFixtures.Drawer(stock.RinkaSprites));
+        rinkas.Draw(stockOam, CinematicSheetFixtures.Drawer(stock.Sprites.Rinka));
         stockOam.FinalizeFrame();
         var nativeLiveOam = new OamBuffer();
         nativeLiveOam.BeginFrame();

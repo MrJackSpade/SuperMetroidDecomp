@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 public static class EndingObjectArtworkFormat
 {
     /// <summary>Required ending-artwork manifest schema revision, including all selected character, map, and sprite-composition resources.</summary>
-    public const int ManifestVersion = 12;
+    public const int ManifestVersion = 13;
     /// <summary>Installation manifest containing the supported source identity and stock-resource hashes.</summary>
     public const string ManifestFileName = "ending-object-artwork.json";
     /// <summary>Indexed PNG filename for the atmospheric-cloud OBJ characters.</summary>

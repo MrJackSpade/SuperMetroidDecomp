@@ -85,14 +85,17 @@ internal static class EndingContentIdentityVerification
     /// <summary>Checks domain-specific digest changes, canonical frame order, and encoding invariance.</summary>
     internal static void VerifyEndingContentIdentity()
     {
-        IReadOnlyDictionary<string, string> baseline = CreateEndingIdentityFixture();
-        IReadOnlyDictionary<string, string> reordered = CreateEndingIdentityFixture(reverse: true);
+        EndingIdentityFixture baselineFixture = CreateEndingIdentityFixture();
+        EndingIdentityFixture reorderedFixture = CreateEndingIdentityFixture(reverse: true);
+        IReadOnlyDictionary<string, string> baseline = baselineFixture.Installed;
+        AssertEqual(baselineFixture.Objects, reorderedFixture.Objects, "ending objects canonical frame lookup order");
         foreach ((string component, string digest) in baseline)
-            AssertEqual(digest, reordered[component], component + " canonical frame lookup order");
+            AssertEqual(digest, reorderedFixture.Installed[component], component + " canonical frame lookup order");
 
-        var edits = new List<EndingContentIdentityEdit>();
-        foreach (string edit in new[]
-        {
+        // The ending's maps and compositions are import data (#1638): each edit changes the identity of the objects the
+        // ending's sheets are composed from, which the sheets carry, and none of the installed content's identity.
+        string[] objectEdits =
+        [
             "fragment-0", "fragment-1",
             "fragment-2", "fragment-3", "fragment-order", "post-fragment-b",
             "logo-map", "cloud-sprites", "explosion-sprites", "text-sprites",
@@ -100,7 +103,16 @@ internal static class EndingContentIdentityVerification
             "part-size", "part-priority", "part-palette", "part-flip-x", "part-flip-y",
             "part-order", "part-count", "map-column", "map-row", "map-palette", "map-priority",
             "map-flip-x", "map-flip-y",
-        }) edits.Add(new EndingContentIdentityEdit(edit, GameInstallationLayout.EndingObjectDirectoryName));
+        ];
+        foreach (string edit in objectEdits)
+        {
+            EndingIdentityFixture changed = CreateEndingIdentityFixture(edit);
+            AssertTrue(baselineFixture.Objects != changed.Objects, edit + " invalidates the ending objects' identity");
+            foreach ((string component, string digest) in baseline)
+                AssertEqual(digest, changed.Installed[component], edit + " preserves installed " + component);
+        }
+
+        var edits = new List<EndingContentIdentityEdit>();
         foreach (string edit in BackdropScenes)
             edits.Add(new EndingContentIdentityEdit("backdrop-" + edit, GameInstallationLayout.EndingBackdropDirectoryName));
         edits.Add(new EndingContentIdentityEdit("backdrop-order", GameInstallationLayout.EndingBackdropDirectoryName));
@@ -109,7 +121,7 @@ internal static class EndingContentIdentityVerification
 
         foreach ((string edit, string component) in edits)
         {
-            IReadOnlyDictionary<string, string> changed = CreateEndingIdentityFixture(edit);
+            IReadOnlyDictionary<string, string> changed = CreateEndingIdentityFixture(edit).Installed;
             AssertTrue(baseline[component] != changed[component], edit + " invalidates selected content");
             foreach (string other in baseline.Keys.Where(name => name != component))
                 AssertEqual(baseline[other], changed[other], edit + " preserves unrelated " + other);
@@ -122,9 +134,12 @@ internal static class EndingContentIdentityVerification
                 .Contains(component, StringComparison.Ordinal), edit + " reports its specific domain");
         }
         foreach (string cosmeticEdit in new[] { "json-indent" })
-        foreach ((string component, string digest) in baseline)
-            AssertEqual(digest, CreateEndingIdentityFixture(cosmeticEdit)[component],
-                cosmeticEdit + " preserves decoded " + component);
+        {
+            AssertEqual(baselineFixture.Objects, CreateEndingIdentityFixture(cosmeticEdit).Objects, cosmeticEdit + " preserves decoded ending objects");
+            foreach ((string component, string digest) in baseline)
+                AssertEqual(digest, CreateEndingIdentityFixture(cosmeticEdit).Installed[component],
+                    cosmeticEdit + " preserves decoded " + component);
+        }
 
         // These identities are derived from existing installed fields. Persisting an extra cached
         // digest would needlessly change the exact debugger-object layout of older save states.
@@ -138,12 +153,20 @@ internal static class EndingContentIdentityVerification
             AssertTrue(!MetadataShape.DeclaresField(type, "<ContentIdentity>k__BackingField",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance),
                 type.Name + " adds no serialized derived-identity field");
-        Console.WriteLine($"  Ending content: {edits.Count} independent map/composition/backdrop edits, " +
+        Console.WriteLine($"  Ending content: {objectEdits.Length} map/composition edits and {edits.Count} backdrop edits, " +
             "ordered transfers and parts, canonical frames, encoding invariance and host warnings pass without a ROM.");
     }
 
+    /// <summary>
+    /// The identities of a synthetic ending with one controlled edit: of its object maps and compositions, which are import
+    /// data, and of the installed content the host identity covers.
+    /// </summary>
+    /// <param name="Objects">The object maps' and compositions' identity.</param>
+    /// <param name="Installed">The installed domains' identities.</param>
+    private sealed record EndingIdentityFixture(string Objects, IReadOnlyDictionary<string, string> Installed);
+
     /// <summary>Builds ending catalogs with one controlled edit across objects, Mode 7 scenes, or palettes.</summary>
-    private static IReadOnlyDictionary<string, string> CreateEndingIdentityFixture(
+    private static EndingIdentityFixture CreateEndingIdentityFixture(
         string? edit = null, bool reverse = false)
     {
         MemoryStream Json(object document) => new(JsonSerializer.SerializeToUtf8Bytes(document,
@@ -231,8 +254,8 @@ internal static class EndingContentIdentityVerification
             .Select(frame => new FadeLevelColour(frame, frame, edit == "backdrop-space" && frame == 0 ? 1 : frame).ToColour())];
         if (edit == "backdrop-space-order")
             space = [space[1], space[0], .. space[2..]];
-        return EndingPresentationIdentity.Create(objects, new EndingBackdrops(backdrops[0], backdrops[1], backdrops[2], backdrops[3],
-            EndingSpaceBackdropColours.FromFrameOrder(space)));
+        return new EndingIdentityFixture(objects.ContentIdentity, EndingPresentationIdentity.Create(new EndingBackdrops(backdrops[0], backdrops[1],
+            backdrops[2], backdrops[3], EndingSpaceBackdropColours.FromFrameOrder(space))));
     }
 
     /// <summary>The scenes whose backdrops the identity fixture edits, in the backdrops' order.</summary>

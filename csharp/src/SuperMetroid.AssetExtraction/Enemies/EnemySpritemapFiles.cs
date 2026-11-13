@@ -31,9 +31,7 @@ internal static class EnemySpritemapFiles
         {
             Version = EnemySpritemapSchema.Revision,
             Frames = frames,
-            DisplayFrames = EnemySpritemapDefinitions.Frames
-                .ToDictionary(frame => frame.Name, frame => frame.Name,
-                    StringComparer.Ordinal),
+            DisplayFrames = EnemyFrameBindingRules.Identity(EnemySpritemapDefinitions.Frames),
         }, CamelCaseIndentedJson);
         return json;
     }

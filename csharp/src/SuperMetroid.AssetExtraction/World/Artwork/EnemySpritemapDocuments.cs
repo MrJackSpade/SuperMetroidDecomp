@@ -9,14 +9,12 @@ using SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 namespace SuperMetroid.AssetExtraction.World.Artwork;
 
-/// <summary>Reads installed enemy OAM composition documents against the enemy-bank frame schema (#1395).</summary>
+/// <summary>
+/// Reads the enemy OAM composition documents against the enemy-bank frame schema (#1395): import data whose parts are the
+/// original's packed sprite placements (#1638), which only the import composes the enemy sheets from.
+/// </summary>
 public static class EnemySpritemapDocuments
 {
-    /// <summary>The enemies showing each frame.</summary>
-    private static readonly Lazy<ILookup<EnemyFrameId, EnemyDefinitionId>> Showing = new(() =>
-        EnemyDefinitionFrameDefinitions.Frames.SelectMany(entry => entry.Value, (entry, frame) => KeyValuePair.Create(frame, entry.Key))
-            .ToLookup(shown => shown.Key, shown => shown.Value));
-
     /// <summary>Validates authored frames and compiles visual-only fields into OAM parts.</summary>
     /// <param name="json">Caller-owned JSON stream, left open; duplicate and unknown properties are rejected.</param>
     /// <returns>Compiled visual parts and display bindings within the enemies showing each frame; collision, AI frame identity, and instruction timing are not imported from the artwork document.</returns>
@@ -32,7 +30,6 @@ public static class EnemySpritemapDocuments
                 "Enemy compositions require the current version and every named frame.");
 
         var frames = new Dictionary<EnemyFrameId, EnemySpritemapParts>();
-        var identities = new Dictionary<string, EnemyFrameId>(StringComparer.Ordinal);
         foreach (EnemyFrameName frame in expected)
         {
             string authoredName = frame.Name;
@@ -44,27 +41,7 @@ public static class EnemySpritemapDocuments
             if (!frames.TryAdd(frame.Frame, parts))
                 throw new InvalidDataException(
                     $"Enemy composition {frame.Name} repeats a visual identity.");
-            identities.Add(authoredName, frame.Frame);
         }
-        var displayFrames = new Dictionary<EnemyFrameId, EnemyFrameId>();
-        if (document.DisplayFrames is null ||
-            document.DisplayFrames.Count != identities.Count)
-            throw new InvalidDataException(
-                "Enemy display bindings require every named native frame.");
-        foreach ((string name, EnemyFrameId identity) in identities)
-        {
-            if (!document.DisplayFrames.TryGetValue(name, out string? selectedName) ||
-                selectedName is null ||
-                !identities.TryGetValue(selectedName, out EnemyFrameId selected))
-                throw new InvalidDataException(
-                    $"Enemy display binding {name} must select a named frame.");
-            // Each enemy's sheet composes the selected frame over that enemy's own characters, which only the
-            // frames it shows were authored against (#1392).
-            if (Showing.Value[identity].Except(Showing.Value[selected]).Any())
-                throw new InvalidDataException(
-                    $"Enemy display binding {name} must select a frame every enemy showing it shows.");
-            displayFrames.Add(identity, selected);
-        }
-        return new EnemySpritemapCatalog(frames, displayFrames);
+        return new EnemySpritemapCatalog(frames, EnemyFrameBindingRules.Ordinary(document.DisplayFrames));
     }
 }

@@ -20,7 +20,7 @@ internal static class PauseEquipmentPageLayout
     internal const int Columns = PauseEquipmentBaseDefinitions.Columns;
 
     /// <summary>The equipment page's tiles, row by row, as the cartridge writes them for <paramref name="page"/>.</summary>
-    internal static BackgroundTile[] LayOut(InstalledAreaMapPresentation maps, ShownEquipmentPage page)
+    internal static BackgroundTile[] LayOut(ImportAreaMapPresentation maps, ShownEquipmentPage page)
     {
         Ensure.NotNull(maps);
         Ensure.NotNull(page);
@@ -79,7 +79,7 @@ internal static class PauseEquipmentPageLayout
     /// The installed artwork places two parts over each other, or a part within another's bounds, in a way the pictures
     /// cannot keep apart.
     /// </exception>
-    internal static IEnumerable<ScreenPictureSubject> Subjects(InstalledAreaMapPresentation maps)
+    internal static IEnumerable<ScreenPictureSubject> Subjects(ImportAreaMapPresentation maps)
     {
         Ensure.NotNull(maps);
         PageFootprints parts = PageFootprints.Of(maps);
@@ -143,6 +143,33 @@ internal static class PauseEquipmentPageLayout
     }
 
     /// <summary>
+    /// The name of every picture of the equipment page, in <see cref="Subjects"/> order: the names alone, which the game
+    /// needs to check the installed pause sheet and which no installed document holds (#1638).
+    /// </summary>
+    internal static IEnumerable<string> SubjectNames()
+    {
+        yield return PauseEquipmentPictures.BaseFrame;
+        foreach (PauseEquipmentLabelKey key in PauseEquipmentLabelTiles.Labels())
+        foreach (PauseEquipmentLabelState state in Enum.GetValues<PauseEquipmentLabelState>())
+            yield return PauseEquipmentPictures.LabelFrame(key.Label, state);
+        yield return PauseEquipmentPictures.HyperBeamsFrame;
+        foreach (PauseWireframeKind kind in Enum.GetValues<PauseWireframeKind>())
+            yield return PauseEquipmentPictures.WireframeFrame(kind);
+        yield return PauseEquipmentPictures.ReserveAbsentFrame;
+        foreach (ReserveTankMode mode in Enum.GetValues<ReserveTankMode>())
+        {
+            yield return PauseEquipmentPictures.ReserveModeFrame(mode);
+            if (mode == ReserveTankMode.None)
+                yield return PauseEquipmentPictures.ReserveTankFrame;
+        }
+        for (int place = 0; place < PauseReserveUiDefinitions.SupplyDigitPlaces; place++)
+        for (int digit = 0; digit < PauseReserveUiDefinitions.DigitCount; digit++)
+            yield return PauseEquipmentPictures.ReserveDigitFrame(place, digit);
+        foreach (ShownReserveArrow arrow in Enum.GetValues<ShownReserveArrow>())
+            yield return PauseEquipmentPictures.ReserveArrowFrame(arrow);
+    }
+
+    /// <summary>
     /// The cells each part of the page writes (#1467), checked to keep the parts apart: no two parts share a cell, and
     /// Hyper's label lies within the beam column it blanks.
     /// </summary>
@@ -157,7 +184,7 @@ internal static class PauseEquipmentPageLayout
     {
         /// <summary>The footprints of <paramref name="maps"/>' equipment artwork.</summary>
         /// <exception cref="InvalidDataException">Two parts overlap in a way the pictures cannot keep apart.</exception>
-        internal static PageFootprints Of(InstalledAreaMapPresentation maps)
+        internal static PageFootprints Of(ImportAreaMapPresentation maps)
         {
             PauseEquipmentLabelPresentation labels = maps.Pause.EquipmentLabels;
             PauseReserveUiPresentation ui = maps.Pause.ReserveUi;

@@ -1,9 +1,12 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Frontend.Menus;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.Core.Frontend.GameOver.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend;
 
@@ -15,7 +18,7 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 internal static class MenuPictureSheet
 {
     /// <summary>Every picture the sheet holds, in sheet order.</summary>
-    internal static IReadOnlyList<ScreenPictureSubject> Subjects(InstalledAreaMapPresentation maps)
+    internal static IReadOnlyList<ScreenPictureSubject> Subjects(ImportAreaMapPresentation maps)
     {
         Ensure.NotNull(maps);
         return [maps.GameOverSource.PageSubject(), .. maps.GameOptions.Subjects(), .. maps.FileSelect.Subjects()];
@@ -32,9 +35,18 @@ internal static class MenuPictureSheet
     }
 
     /// <summary>Composes the sheet.</summary>
-    internal static ComposedSpriteSheet Compose(ImportAreaMapPresentation maps) =>
-        ScreenPictureSheetComposer.Compose(Subjects(maps), Characters(maps), maps.Palettes.FileSelect);
+    internal static ComposedSpriteSheet Compose(ImportAreaMapPresentation maps)
+    {
+        IReadOnlyList<ScreenPictureSubject> subjects = Subjects(maps);
+        if (!subjects.Select(subject => subject.Name).SequenceEqual(FrameNames()))
+            throw new InvalidDataException("The menus' sheet's pictures are not the frames the game names it by.");
+        return ScreenPictureSheetComposer.Compose(subjects, Characters(maps), maps.Palettes.FileSelect);
+    }
 
-    /// <summary>The frames the sheet must hold: one per picture.</summary>
-    internal static IEnumerable<string> FrameNames(InstalledAreaMapPresentation maps) => Subjects(maps).Select(subject => subject.Name);
+    /// <summary>
+    /// The frames the sheet must hold: one per picture, in <see cref="Subjects"/> order. The pictures' names are their own, as
+    /// their artwork is import data the installation never holds (#1638).
+    /// </summary>
+    internal static IEnumerable<string> FrameNames() =>
+        [GameOverPresentationDefinitions.PageFrame, .. GameOptionsSourcePresentation.SubjectNames(), .. FileSelectSourcePresentation.SubjectNames()];
 }

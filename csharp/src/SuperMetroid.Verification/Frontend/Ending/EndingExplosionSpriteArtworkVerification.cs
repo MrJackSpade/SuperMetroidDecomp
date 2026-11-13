@@ -121,11 +121,11 @@ internal static class EndingExplosionSpriteArtworkVerification
     }
 
     /// <summary>Checks that an explosion sprite document missing a named frame is rejected on read.</summary>
-    internal static void VerifyEndingExplosionSpritesRejectMissingFrame(GameInstallation installation)
+    internal static void VerifyEndingExplosionSpritesRejectMissingFrame()
     {
         EndingExplosionSpriteDocument document =
             JsonSerializer.Deserialize<EndingExplosionSpriteDocument>(
-                File.ReadAllBytes(Path.Combine(installation.EndingObjectDirectory, EndingExplosionSpriteFormat.FileName)), ArtworkJson.Options) ??
+                File.ReadAllBytes(Path.Combine(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.EndingObjectDirectoryName), EndingExplosionSpriteFormat.FileName)), ArtworkJson.Options) ??
             throw new InvalidDataException("Stock ending explosion sprite JSON is empty.");
         document.Frames.Remove("starfield");
         AssertThrows<InvalidDataException>(() =>

@@ -13,10 +13,14 @@ namespace SuperMetroid.Verification.Hud;
 /// <summary>Builds message artwork with altered title, panel, and notice documents.</summary>
 internal static class PermanentMessageFixtureVerification
 {
-    /// <summary>Loads installed message documents, changes their border and sample content, and compiles all three presentations.</summary>
+    /// <summary>
+    /// Loads the extracted message documents, import data (#1638), changes their border and sample content, and compiles all
+    /// three presentations.
+    /// </summary>
     internal static GameplayMessageArtwork CreatePermanentMessageFixture()
     {
-        string directory = RepositoryInstallation.Installation.MapDirectory;
+        string directory = SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(
+            SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.MapDirectoryName);
         JsonNode Read(string name) => RequiredJson.Parse(File.ReadAllText(Path.Combine(directory, name)));
         // Documents store tiles; each cell here is the tile the cartridge word it names places.
         static JsonNode Cell(int word) => JsonSerializer.SerializeToNode(BackgroundTileWordBytes.Tile(word), ArtworkJson.Options)

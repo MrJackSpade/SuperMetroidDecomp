@@ -8,11 +8,13 @@ public static class AreaMapCatalogFormat
     /// <summary>
     /// Supported extracted map-catalog schema version; other manifest versions are rejected. 82 installs no colour document
     /// only the import reads (#1637); 83 makes Mother Brain's rainbow colours and the palette-effect colours import data,
-    /// installs her beam backdrop's colours by purpose, and states each highlight frame's look as its highlight colour (#1637).
+    /// installs her beam backdrop's colours by purpose, and states each highlight frame's look as its highlight colour (#1637);
+    /// 84 also installs no document of packed tile placements only the import reads (#1638); 85 installs the menus' and the
+    /// ending text's layouts alone, their extracted documents and the map screens being import data (#1638).
     /// </summary>
-    public const int Version = 83;
-    /// <summary>Manifest-bound non-area artwork files, including Ceres Mode-7 colors, the scene colours (#1544) and Mother Brain's beam colours (#1637).</summary>
-    public const int SharedResourceCount = 64;
+    public const int Version = 85;
+    /// <summary>Manifest-bound non-area artwork files, including Ceres Mode-7 colors, the scene colours (#1544), Mother Brain's beam colours (#1637) and the file-select, HUD, menu and ending-text artwork (#1638).</summary>
+    public const int SharedResourceCount = 71;
     /// <summary>Bundled authored reveal mask: logical row-major cell indexes, not SRAM offsets or editable engine code.</summary>
     public const string StationRevealFile = "station-reveal.json";
     /// <summary>Stock manifest filename containing extraction provenance and the SHA-256 digest of every catalog resource.</summary>

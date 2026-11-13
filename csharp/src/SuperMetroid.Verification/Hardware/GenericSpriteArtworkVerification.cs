@@ -50,7 +50,8 @@ internal static class GenericSpriteArtworkVerification
         var title = new TitleSequenceState(titleGradientPresentation: maps.TitleGradient,
             titleBackdrop: maps.TitleBackdrop, spriteSheets: MenuSheetFixtures.WithTitle(installedMaps.TitleGraphics));
         var document = RequiredJson.Deserialize<TitleFloorMapDocument>(File.ReadAllBytes(
-            Path.Combine(installation.MapDirectory, TitleGraphicsFormat.FloorMapFile)),
+            Path.Combine(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(
+                SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.MapDirectoryName), TitleGraphicsFormat.FloorMapFile)),
             ArtworkJson.Options);
         OamBuffer expected;
         int titleCases = 0;
@@ -137,7 +138,7 @@ internal static class GenericSpriteArtworkVerification
         explosions.SpawnFourthHitExplosions();
         explosions.Step(introCrossfadeTimer: 1);
         var actual = ScreenSpritesFixtures.Blank(); actual.BeginFrame();
-        explosions.Draw(actual, CinematicSheetFixtures.Drawer(introArtwork.MotherBrainExplosionSprites));
+        explosions.Draw(actual, CinematicSheetFixtures.Drawer(introArtwork.Sprites.MotherBrainExplosion));
         actual.FinalizeFrame();
         expected = new OamBuffer();
         expected.BeginFrame();

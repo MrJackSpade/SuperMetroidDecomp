@@ -24,7 +24,7 @@ internal static class IntroScientistSpriteArtworkVerification
 {
     /// <summary>Compares six frames and the live examination actor with native OAM, and checks missing-frame rejection.</summary>
     internal static void VerifyIntroScientistSpriteArtwork(SuperMetroidAddressSpace bus,
-        IntroCinematicSourceArtwork stock, GameInstallation installation)
+        ImportIntroCinematicArtwork stock)
     {
         const ushort x = 120;
         PictureShade palette = IntroShades.Drawn(IntroBabyActorDefinitions.DeliveredBaby.Colouring);
@@ -47,7 +47,7 @@ internal static class IntroScientistSpriteArtworkVerification
                 native.FinalizeFrame();
                 var installed = ScreenSpritesFixtures.Blank();
                 installed.BeginFrame();
-                CinematicSheetFixtures.Drawer(stock.ScientistSprites).Draw(definition.Pose, installed, new(x, y),
+                CinematicSheetFixtures.Drawer(stock.Sprites.Scientist).Draw(definition.Pose, installed, new(x, y),
                     palette);
                 installed.FinalizeFrame();
                 AssertTrue(installed.ImageEquals(native) &&
@@ -58,7 +58,7 @@ internal static class IntroScientistSpriteArtworkVerification
 
         IntroScientistSpriteDocument document =
             RequiredJson.Deserialize<IntroScientistSpriteDocument>(
-                File.ReadAllBytes(Path.Combine(installation.IntroCinematicDirectory, IntroScientistSpriteFormat.FileName)),
+                File.ReadAllBytes(Path.Combine(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.IntroCinematicDirectoryName), IntroScientistSpriteFormat.FileName)),
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
         var guarded = NewIntroArtworkSourceReadGuard(bus, IntroArtworkSources.IntroScientistSprites);
@@ -66,7 +66,7 @@ internal static class IntroScientistSpriteArtworkVerification
         examination.Step(0, introCrossfadeTimer: 0x007f);
         var installedExamination = ScreenSpritesFixtures.Blank();
         installedExamination.BeginFrame();
-        examination.Draw(installedExamination, CinematicSheetFixtures.Drawer(stock.ScientistSprites));
+        examination.Draw(installedExamination, CinematicSheetFixtures.Drawer(stock.Sprites.Scientist));
         installedExamination.FinalizeFrame();
         var nativeExamination = new OamBuffer();
         nativeExamination.BeginFrame();

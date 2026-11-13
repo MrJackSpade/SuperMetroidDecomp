@@ -70,8 +70,8 @@ Within either platform's application-data root:
 - `game/SuperMetroid.smc`: validated, unheadered ROM copy retained by default;
   optional only while all extracted assets remain complete and valid.
 - `game/audio/`: extracted audio streams, WAVs, and metadata catalog.
-- `game/maps/gameplay-hud.json`: editable HUD tilemap and icons, including the
-  32-cell immutable BG3 top row.
+- `game/maps/gameplay-hud.json`: the HUD's layout, the screen pixel each of its pictures shows at; the HUD's
+  tiles, whose cells are the original's packed tile placements, are import data the import pictures the HUD from.
 - `game/room-characters/`: stock indexed room-character PNGs and their manifest.
 - `game/samus-body/`: 24 indexed Samus upper/lower-body PNG atlases and editable
   pose/frame/transfer-definition JSON.
@@ -230,31 +230,20 @@ debugger state rebinds the current sheets. Palette colors, scene tilemaps, sprit
 compositions, scrolling, and timing are not changed by these PNGs. An invalid file fails
 with its path; running the extractor again restores the originals.
 
-The same directory also contains `intro-background-page-0.json` through
-`intro-background-page-3.json`. Each file describes one ordered 32x32 BG tilemap page
-with tile column/row, palette, priority and flip fields. Edit a page in place to change
-its placement without changing character
-pixels or scene timing. These pages are reloaded after debugger-state restoration.
-`intro-portrait-tilemap.json` and `intro-initial-narration-tilemap.json` use the same
-32x32 schema. The initial narration page applies only before the first illustrated
-page begins; restoring a later debugger state preserves its live typewriter text.
+The opening's layouts are import data, never installed: the four scene pages
+`intro-background-page-0.json` through `intro-background-page-3.json`, the portrait
+`intro-portrait-tilemap.json`, the first narration card `intro-initial-narration-tilemap.json`,
+the subtitle line `intro-final-text-divider.json`, the portrait's four blinking-eye rectangles
+`intro-samus-eye-frames.json` and the Zebes reveal's `zebes-reveal-tilemap.json`. Their cells are
+the original's packed tile placements; the import composes the scene, narration and planet
+pictures from them, and the installation holds those pictures, which a player edits in place.
+The cartridge's blink script, frame durations and portrait placement remain compiled behavior.
 `intro-narration-palette.json` in the same directory contains the opening scene's
 256 native-precision RGB5 colors, which only the import reads to pre-colour the opening's
 sheets; edit it and reinstall to recolor them without changing narration timing or scene
 transitions. `intro-backdrops.json` holds the colours the opening shows where nothing is
 drawn: the narration's `opening` backdrop and the Ceres scenes' `ceresFlight` backdrop. The
 game reads these colours and neither palette document; edit them in place, each channel 0–31.
-`intro-final-text-divider.json` contains the 32-by-4 ordered BG3 tile references
-beneath the illustrated text pages. Edit it in place to change
-tile positions, palette selections, priority, or flips. Live text, caret
-motion, and page timing stay in code; a restored illustrated page replaces only
-those four divider rows.
-`intro-samus-eye-frames.json` contains four ordered 3-by-2 BG2 tile rectangles
-for the portrait's blinking eye. Each cell can change its tile, palette,
-priority, or flips. The cartridge's blink
-script, frame durations, and portrait placement remain compiled behavior; a
-restored illustrated page reapplies the active rectangle without restarting
-its blink timer.
 `intro-caret-sprites.json` contains the illustrated-page text caret's visible
 OAM composition. Its blink alternates this one frame with no sprite; the three
 nearby ROM spritemaps are not caret frames. Sprite offsets, tile regions,
@@ -288,10 +277,8 @@ instruction timing, and scene handoffs remain compiled.
 
 Ceres destruction reuses those character sheets and the approach's front/rear maps.
 Its two station views and clear-map slice are in `ceres-destruction-mode7-maps.json`
-(three ordered 32x24 views). The following planet reveal uses
-`zebes-reveal-tilemap.json` (one 32x32 BG page) and
-`zebes-reveal-characters.png` (256x128 indexed). Each can be edited separately in
-place; restored debugger states rebind these visuals
+(three ordered 32x24 views). The following planet reveal's picture is composed by the import
+from its layout and characters, both import data; restored debugger states rebind these visuals
 without restarting the destruction or descent timeline. Explosion, actor and
 camera behavior remain compiled cartridge logic.
 `ceres-destruction-sprites.json` adds the 23 distinct station-blast, explosion,
@@ -416,8 +403,9 @@ transfers use the installed art rather than reading bank $87. Adding spores does
 existing character or statue transfer alias.
 
 Spores use a ten-tick three-frame loop and camera-anchored quarter-pixel
-vertical scroll. Their installed `room-fx-layer3-tilemaps.json` page and
-`room-fx-blend-palettes.json` colors can also be edited in place. Native source-aware
+vertical scroll. Their `room-fx-layer3-tilemaps.json` page is import data, whose cells are the original's packed tile
+placements: the import composes the effect pictures from it, and the installation holds the pictures. The
+`room-fx-blend-palettes.json` colors can be edited in place. Native source-aware
 color math keeps the effect behind BG1 terrain and excludes OBJ palettes
 zero through three; it never tints the HUD or enables liquid physics.
 Malformed FX artwork/tilemap/palette files fail with the exact path.
@@ -624,7 +612,8 @@ program still chooses rows using the cartridge's animation cadence; palette
 edits do not change movement, collisions, or timing. The sixteen `alarm` rows
 are edited the same way; their cadence and wrap remain engine behavior. Only the
 current document version loads; re-run the extractor to restore the original file.
-The separate `enemy-projectile-compositions.json` contains the Ceres elevator
+The separate `enemy-projectile-compositions.json`, import data whose parts are the original's packed sprite placements
+(the import composes the spawned-object sheets from it, and the installation holds their pictures), contains the Ceres elevator
 platform/pad, Skree/Metaree debris, and named timed-frame OAM compositions for
 translated Mother Brain, dust, Ceres Ridley, Phantoon, Crocomire, Draygon,
 Alcoon fireballs, Golden Torizo eggs/missiles/eye beams, and Bomb/Golden Torizo
@@ -667,16 +656,16 @@ control/selector records with the pinned import source. It is not a whole-game
 playthrough or proof of every boss effect's parity.
 
 Phantoon's stock body, eye, tentacles, and mouth use BG2 tilemap writes rather than
-ordinary OAM parts: `game/enemy-tiles/phantoon-bg2-frames.json` holds its 22 named visual frames. Each ordered write
-has `x` and `y` coordinates in the 32-by-64 BG2 tilemap and a horizontal `tiles`
-array of cells, each naming its character-sheet `tileColumn` and `tileRow`, its
-`palette`, `priority`, `flipX` and `flipY`, as the room background tilemaps do. Its multipart `displayFrames` bindings select the
+ordinary OAM parts: `phantoon-bg2-frames.json` holds its 22 named visual frames. Like Draygon's, Crocomire's and Mother
+Brain's BG2 frames below, it is import data in the enemy-tile component's import data: each write's cells are the
+original's packed tile placements, the import composes the boss body sheets from them, and the installation holds the
+pictures. Its multipart `displayFrames` bindings select the
 matching BG2 pose and any authored OAM components together. Physical frame
 selection and write timing stay in the engine;
 the JSON contains no hitbox, damage, or instruction data. Invalid or missing
 frames fail during load.
 Draygon's 34 BG2 frames use the same visual-only tilemap format in
-`game/enemy-tiles/draygon-bg2-frames.json`: the ordered tiles and their 32-by-64
+`draygon-bg2-frames.json`: the ordered tiles and their 32-by-64
 tilemap positions. Its native frame selectors, producer timing, hitboxes, and damage
 callbacks remain outside the appearance file. A malformed file fails during load.
 Crocomire's fifty fight-body poses use multipart OAM and, for 42 mixed poses,
@@ -707,11 +696,12 @@ body instruction state through both walks and a crouch. The separate
 checks they load. These are focused checks of
 the source-identified conversion, not a battle playthrough or a search for reads.
 Other unsupported frames fail explicitly; there is no runtime ROM fallback.
-Crocomire's first and second melting images are the separate indexed files
-`crocomire-melt-first.png` and `crocomire-melt-second.png` in the same directory.
-Their matching 16×16 BG2 layouts are `crocomire-melt-first-tiles.json` and
-`crocomire-melt-second-tiles.json`. Edit the PNG's indexed pixels or a JSON cell's
-`tileIndex`, `palette`, `priority`, `flipX`, or `flipY` in place. The erase order,
+Crocomire's first and second melting images, `crocomire-melt-first.png` and
+`crocomire-melt-second.png`, and their 16×16 BG2 layouts, `crocomire-melt-first-tiles.json`
+and `crocomire-melt-second-tiles.json`, are import data: the import composes the melt
+pictures of Crocomire's body sheet from them, and the installation holds those pictures, which
+a player edits in place. The layouts' cells are the original's packed tile placements, so no
+installed file holds them. The erase order,
 distortion timing, the update each band of the image is shown on, and collision
 stay fixed; extraction pictures every band at every dissolve step and the death
 sequence selects which picture each band shows (`--crocomire-melt-frames`).
@@ -732,12 +722,11 @@ Crocomire's six skeleton-character uploads share the indexed 4-bpp
 `crocomire-skeleton-tiles.png` sheet in `game/enemy-tiles/`, the pixels used during
 his death sequence. The upload sequence and VRAM destinations remain fixed. A
 malformed sheet fails when the artwork loads.
-Kraid's private BG2 body sources are `kraid-upper-bg2.json` and
-`kraid-lower-bg2.json` in `game/enemy-tiles/`. Each has two ordered 32×32 pages.
-The four animated head layouts are `kraid-head-97C8.json`,
-`kraid-head-9AC8.json`, `kraid-head-9DC8.json`, and `kraid-head-A0C8.json`,
-each with 32×11 ordered cells. Each cell names `tileColumn`,
-`tileRow`, `palette`, `priority`, `flipX`, and `flipY`. Kraid's engine still
+Kraid's BG2 body sources, `kraid-upper-bg2.json` and `kraid-lower-bg2.json`, and his
+four animated head layouts, `kraid-head-0.json` to `kraid-head-3.json` by mouth stage, are
+import data: the import composes Kraid's body sheet from them, and the installation holds its
+pictures. Each body source has two ordered 32×32 pages and each head layout 32×11 ordered
+cells, every cell one of the original's packed tile placements. Kraid's engine still
 owns frame selection and duration, growth, collision, and VRAM transfer timing.
 The head and body-map loaders reject unknown fields and duplicate properties,
 including differently cased aliases. Historical single-field casing remains

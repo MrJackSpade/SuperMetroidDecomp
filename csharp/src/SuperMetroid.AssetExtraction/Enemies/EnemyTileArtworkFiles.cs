@@ -41,8 +41,10 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// Extracts every retail room-enemy graphics sheet (#1636): the characters and tile pages, and the enemy, boss and area
 /// colour documents only the import pre-colours sheets from (#1637), go to the component's import data
 /// (<see cref="SuperMetroid.AssetExtraction.Installation.ImportDataDirectory"/>), which the sheets compose from and the
-/// installer deletes before it publishes; the other documents, Kraid's eye colours among them, are installed, and the player
-/// edits them in place.
+/// installer deletes before it publishes. So do the boss layouts and the enemy compositions only the import composes the
+/// body and enemy sheets from (#1638), whose entries are the original's packed placements; the installation holds the
+/// pictures they compose and the enemy frames' display bindings. The other documents, Kraid's eye colours among them, are
+/// installed, and the player edits them in place.
 /// </summary>
 public static class EnemyTileArtworkFiles
 {
@@ -140,9 +142,10 @@ public static class EnemyTileArtworkFiles
             CrocomireMeltingSources.Tilemap(CrocomireMeltingIllustration.Second));
         File.WriteAllBytes(Path.Combine(importData, CrocomireMeltingArtworkFormat.FirstFileName), firstMelt);
         File.WriteAllBytes(Path.Combine(importData, CrocomireMeltingArtworkFormat.SecondFileName), secondMelt);
-        File.WriteAllBytes(Path.Combine(directory,
+        // The melt layouts, like Kraid's, only compose the boss body sheets, whose pictures the installation holds (#1638).
+        File.WriteAllBytes(Path.Combine(importData,
             CrocomireMeltingArtworkFormat.FirstTilemapFileName), firstMeltTilemap);
-        File.WriteAllBytes(Path.Combine(directory,
+        File.WriteAllBytes(Path.Combine(importData,
             CrocomireMeltingArtworkFormat.SecondTilemapFileName), secondMeltTilemap);
         byte[] skeletonPlanar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
             CrocomireSourceDefinitions.SkeletonChunk(0),
@@ -156,14 +159,19 @@ public static class EnemyTileArtworkFiles
         byte[] skeletonPng = skeletonImage.ToArray();
         File.WriteAllBytes(Path.Combine(importData,
             CrocomireSkeletonCharacterDefinitions.FileName), skeletonPng);
+        // The enemy compositions only compose the enemy sheets: their parts are packed sprite placements (#1638). The game
+        // reads only their display bindings, which are installed.
         byte[] spritemapJson = EnemySpritemapFiles.Extract(bus);
-        File.WriteAllBytes(Path.Combine(directory, EnemySpritemapDefinitions.FileName),
+        File.WriteAllBytes(Path.Combine(importData, EnemySpritemapDefinitions.FileName),
             spritemapJson);
+        byte[] frameDisplaysJson = EnemyFrameDisplayFiles.Extract();
+        File.WriteAllBytes(Path.Combine(directory, EnemyFrameDisplayFiles.FileName), frameDisplaysJson);
         byte[] projectileSpritemapJson = EnemyProjectileSpritemapFiles.Extract(bus);
-        File.WriteAllBytes(Path.Combine(directory,
+        // The enemy projectiles' compositions only compose the spawned-object sheets: their parts are packed sprite placements (#1638).
+        File.WriteAllBytes(Path.Combine(importData,
             EnemyProjectileSpritemapDefinitions.FileName), projectileSpritemapJson);
         byte[] extendedJson = EnemyExtendedFrameFiles.Extract(bus);
-        File.WriteAllBytes(Path.Combine(directory, EnemyExtendedFrameDefinitions.FileName),
+        File.WriteAllBytes(Path.Combine(importData, EnemyExtendedFrameDefinitions.FileName),
             extendedJson);
         var torizoInstructionHashes = new Dictionary<string, string>(StringComparer.Ordinal);
         foreach (TorizoTileSheet page in
@@ -185,19 +193,19 @@ public static class EnemyTileArtworkFiles
                 Convert.ToHexString(SHA256.HashData(png)));
         }
         byte[] ceresEscapeOverlay = CeresEscapeOverlayTilemapFiles.Extract(bus);
-        File.WriteAllBytes(Path.Combine(directory,
+        File.WriteAllBytes(Path.Combine(importData,
             CeresWarningGlyphDefinitions.FileName), ceresEscapeOverlay);
         byte[] phantoonBg2Json = PhantoonBg2FrameFiles.Extract(bus);
-        File.WriteAllBytes(Path.Combine(directory, PhantoonBg2FrameDefinitions.FileName),
+        File.WriteAllBytes(Path.Combine(importData, PhantoonBg2FrameDefinitions.FileName),
             phantoonBg2Json);
         byte[] draygonBg2Json = DraygonBg2FrameFiles.Extract(bus);
-        File.WriteAllBytes(Path.Combine(directory, DraygonBg2FrameDefinitions.FileName),
+        File.WriteAllBytes(Path.Combine(importData, DraygonBg2FrameDefinitions.FileName),
             draygonBg2Json);
         byte[] crocomireBg2Json = CrocomireBg2FrameFiles.Extract(bus);
-        File.WriteAllBytes(Path.Combine(directory, CrocomireBg2FrameDefinitions.FileName),
+        File.WriteAllBytes(Path.Combine(importData, CrocomireBg2FrameDefinitions.FileName),
             crocomireBg2Json);
         byte[] motherBrainBodyBg2Json = MotherBrainBodyBg2FrameFiles.Extract(bus);
-        File.WriteAllBytes(Path.Combine(directory, MotherBrainBodyBg2FrameDefinitions.FileName),
+        File.WriteAllBytes(Path.Combine(importData, MotherBrainBodyBg2FrameDefinitions.FileName),
             motherBrainBodyBg2Json);
         var gunshipLiftoffHashes = new Dictionary<int, string>();
         for (int index = 0; index < GunshipLiftoffTransferDefinitions.Frames.Length; index++)
@@ -256,9 +264,9 @@ public static class EnemyTileArtworkFiles
         }
         byte[] upperKraid = ExtractKraidTilemap(bus, KraidSourceDefinitions.UpperBodyTilemap);
         byte[] lowerKraid = ExtractKraidTilemap(bus, KraidSourceDefinitions.LowerBodyTilemap);
-        File.WriteAllBytes(Path.Combine(directory, KraidBackgroundArtworkFormat.UpperFileName),
+        File.WriteAllBytes(Path.Combine(importData, KraidBackgroundArtworkFormat.UpperFileName),
             upperKraid);
-        File.WriteAllBytes(Path.Combine(directory, KraidBackgroundArtworkFormat.LowerFileName),
+        File.WriteAllBytes(Path.Combine(importData, KraidBackgroundArtworkFormat.LowerFileName),
             lowerKraid);
         var kraidHeadHashes = new Dictionary<int, string>();
         foreach (KraidHeadFrame head in KraidHeadTilemapFormat.HeadsByMouthStage)
@@ -267,7 +275,7 @@ public static class EnemyTileArtworkFiles
                 KraidSourceDefinitions.CodeBank | KraidHeadArtworkDefinitions.Address(head.MouthStage),
                 KraidWorkingMapDefinitions.HeadImageCells * sizeof(ushort));
             byte[] json = KraidHeadTilemapFiles.Encode(native);
-            File.WriteAllBytes(Path.Combine(directory,
+            File.WriteAllBytes(Path.Combine(importData,
                 KraidBackgroundArtworkFormat.HeadFileName(head.MouthStage)), json);
             kraidHeadHashes.Add(head.MouthStage, Convert.ToHexString(SHA256.HashData(json)));
         }
@@ -339,6 +347,7 @@ public static class EnemyTileArtworkFiles
             Convert.ToHexString(SHA256.HashData(spritemapJson)),
             Convert.ToHexString(SHA256.HashData(projectileSpritemapJson)),
             Convert.ToHexString(SHA256.HashData(extendedJson)),
+            Convert.ToHexString(SHA256.HashData(frameDisplaysJson)),
             Convert.ToHexString(SHA256.HashData(phantoonBg2Json)),
             Convert.ToHexString(SHA256.HashData(draygonBg2Json)),
             Convert.ToHexString(SHA256.HashData(crocomireBg2Json)),
@@ -565,6 +574,7 @@ public static class EnemyTileArtworkFiles
         string CrocomireFirstTilemapSha256, string CrocomireSecondTilemapSha256,
         string EnemyCompositionsSha256, string EnemyProjectileCompositionsSha256,
         string EnemyExtendedCompositionsSha256,
+        string EnemyFrameDisplaysSha256,
         string PhantoonBg2FramesSha256,
         string DraygonBg2FramesSha256,
         string CrocomireBg2FramesSha256,

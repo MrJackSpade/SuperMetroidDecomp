@@ -15,13 +15,9 @@ internal static class GameOptionsPresentationVerification
     /// <summary>Compares menu frames, audio, and controller changes with native output.</summary>
     internal static void VerifyGameOptionsPresentationAssets(
         ISnesAddressSpace bus,
-        string stock,
         AreaMapPresentation original)
     {
-        string stockPath = Path.Combine(stock, GameOptionsPresentationFormat.FileName);
         byte[] extracted = SuperMetroid.AssetExtraction.Frontend.GameOptionsPresentationExtractor.Extract(bus);
-        AssertTrue(extracted.SequenceEqual(File.ReadAllBytes(stockPath)),
-            "installed options JSON is the deterministic cartridge extraction");
         _ = GameOptionsSourcePresentation.Load(new MemoryStream(extracted));
 
         var nativeAudio = AudioQueues.Standalone();

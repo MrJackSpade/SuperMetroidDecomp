@@ -27,17 +27,22 @@ internal static class IntroContentIdentityVerification
     internal static void VerifyIntroContentIdentity()
     {
         string baseline = CreateIntroIdentityFixture().ContentIdentity;
-        AssertEqual(baseline, CreateIntroIdentityFixture(reverse: true).ContentIdentity,
-            "opening sprite frame-key insertion order is canonical");
+        // The compositions are import data (#1638): the installed bundle's identity leaves them out, and the import's
+        // composition identity, which the sheets composed from them carry, covers each family.
+        string spriteBaseline = CreateIntroSpritesIdentity(null, reverse: false);
+        AssertEqual(spriteBaseline, CreateIntroSpritesIdentity(null, reverse: true), "opening sprite frame-key insertion order is canonical");
+        string[] spriteEdits =
+        [
+            "caret-sprites", "next-page-arrow-sprites", "mother-brain-sprites", "mb-explosion-sprites", "rinka-sprites", "egg-sprites",
+            "discovery-sprites", "scientist-sprites", "flight-sprites", "destruction-sprites",
+        ];
+        foreach (string edit in spriteEdits)
+            AssertTrue(spriteBaseline != CreateIntroSpritesIdentity(edit, reverse: false), edit + " changes the opening's composition identity");
         var edits = new List<string>
         {
-            "page-0", "page-1", "page-2", "page-3",
-            "page-order", "portrait", "narration-map", "divider", "eye-0", "eye-1", "eye-2", "eye-3",
-            "caret-sprites", "next-page-arrow-sprites", "mother-brain-sprites", "mb-explosion-sprites", "rinka-sprites", "egg-sprites",
-            "discovery-sprites", "scientist-sprites", "opening-backdrop",
-            "flight-front-map", "flight-rear-map", "flight-backdrop", "flight-sprites",
+            "opening-backdrop",
+            "flight-front-map", "flight-rear-map", "flight-backdrop",
             "destruction-map-0", "destruction-map-1", "destruction-map-2", "destruction-map-order",
-            "zebes-map", "destruction-sprites",
         };
         foreach ((string family, int count) in new[]
         {
@@ -77,7 +82,7 @@ internal static class IntroContentIdentityVerification
             AssertTrue(!MetadataShape.DeclaresField(type, "<ContentIdentity>k__BackingField",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance),
                 type.Name + " adds no serialized derived-identity field");
-        Console.WriteLine($"  Opening content: {edits.Count} independent bundle edits, all actor coordinates, " +
+        Console.WriteLine($"  Opening content: {edits.Count} independent bundle edits, {spriteEdits.Length} composition edits, all actor coordinates, " +
             "canonical frames, encoding invariance and host warnings pass without a ROM.");
 
         // Place an opening-bundle digest into a host identity for compatibility-warning checks.
@@ -87,32 +92,23 @@ internal static class IntroContentIdentityVerification
     }
 
     /// <summary>
-    /// Builds a complete synthetic opening asset bundle of installed documents with one selected edit or encoding-only
-    /// change; its characters are import data no identity covers (#1636).
+    /// The composition identity of a complete synthetic set of the opening's and the Ceres scenes' compositions with one
+    /// selected edit, optionally reversing each family's key insertion: the opening's and the approach's together.
     /// </summary>
-    private static IntroCinematicSourceArtwork CreateIntroIdentityFixture(string? edit = null, bool reverse = false)
+    private static string CreateIntroSpritesIdentity(string? edit, bool reverse)
     {
-        // Serialize a fixture document, optionally changing only whitespace formatting.
-        MemoryStream Json(object document) => new(JsonSerializer.SerializeToUtf8Bytes(document,
-            (edit == "json-indent" ? CamelCaseIndentedJson : CamelCaseJson)));
-        // Build a page of visual cells with an optional edit in its last tile column.
-        RoomBackgroundTilemapCell[] Cells(string name, int count, int seed = 0) => Enumerable.Range(0, count)
-            .Select(index => new RoomBackgroundTilemapCell
-            {
-                TileColumn = index == count - 1 && edit == name ? seed + 1 : seed,
-                TileRow = 0, Palette = 0, Priority = false, FlipX = false, FlipY = false,
-            }).ToArray();
-        // Wrap visual cells in a one-page tilemap document.
-        MemoryStream MapJson(string name, int seed = 0) => Json(new RoomBackgroundTilemapDocument
-        {
-            Version = RoomBackgroundTilemapFormat.Version,
-            Pages = [new RoomBackgroundTilemapPage { Cells = Cells(name, RoomBackgroundTilemapFormat.CellsPerPage, seed) }],
-        });
-        // Load a generated page through the production background-tilemap codec.
-        RoomBackgroundTilemapAtlas Map(string name, int seed = 0) => RoomBackgroundTilemapAtlas.Load(
-            MapJson(name, seed), RoomBackgroundTilemapFormat.BytesPerPage);
-        // A black backdrop with an optional red-channel edit; the colours behind the backdrops are the import's alone (#1544).
-        RgbColor Backdrop(string name) => new FadeLevelColour(edit == name ? 1 : 0, 0, 0).ToColour();
+        var sprites = new IntroCinematicSprites(
+            IntroCaretSpritePresentation.Load(Sprites("caret", IntroCaretSpriteDefinitions.Frames.Select(frame => frame.Name), IntroCaretSpriteVersion.Current.Revision)),
+            IntroNextPageArrowSpritePresentation.Load(Sprites("next-page-arrow", IntroNextPageArrowSpriteDefinitions.Frames.Select(frame => frame.Name), IntroNextPageArrowSpriteFormat.Version)),
+            IntroMotherBrainSpritePresentation.Load(Sprites("mother-brain", IntroMotherBrainSpriteDefinitions.Frames.Select(frame => frame.Name))),
+            IntroMotherBrainExplosionSpritePresentation.Load(Sprites("mb-explosion", IntroMotherBrainExplosionSpriteDefinitions.Frames.Select(frame => frame.Name))),
+            IntroRinkaSpritePresentation.Load(Sprites("rinka", IntroRinkaSpriteDefinitions.Frames.Select(frame => frame.Name))),
+            IntroEggEffectSpritePresentation.Load(Sprites("egg", IntroEggEffectSpriteDefinitions.Frames.Select(frame => frame.Name))),
+            IntroDiscoveryActorSpritePresentation.Load(Sprites("discovery", IntroDiscoveryActorSpriteDefinitions.Frames.Select(frame => frame.Name), IntroDiscoveryActorSpriteFormat.Version)),
+            IntroScientistSpritePresentation.Load(Sprites("scientist", IntroScientistSpriteDefinitions.Frames.Select(frame => frame.Name), IntroScientistSpriteFormat.Version)),
+            CeresDestructionSpritePresentation.Load(Sprites("destruction", CeresDestructionSpriteFrameDefinitions.Frames.Select(frame => frame.Name))));
+        CeresFlightSpritePresentation flight = CeresFlightSpritePresentation.Load(Sprites("flight", CeresFlightSpriteDefinitions.Frames.Select(frame => frame.Name)));
+        return sprites.ContentIdentity + flight.ContentIdentity;
 
         // Build semantic sprite frames, optionally reversing key insertion.
         MemoryStream Sprites(string family, IEnumerable<string> sourceNames, int version = 1)
@@ -126,8 +122,21 @@ internal static class IntroContentIdentityVerification
             var frames = new Dictionary<string, SpriteVisualPart[]>();
             foreach (string name in reverse ? names.Reverse() : names)
                 frames.Add(name, [part with { OffsetX = name == names[^1] && edit == family + "-sprites" ? 1 : 0 }]);
-            return Json(new { Version = version, Frames = frames });
+            return new(JsonSerializer.SerializeToUtf8Bytes(new { Version = version, Frames = frames }, CamelCaseJson));
         }
+    }
+
+    /// <summary>
+    /// Builds a complete synthetic opening asset bundle of installed documents with one selected edit or encoding-only
+    /// change; its characters, layouts and compositions are import data no installed identity covers (#1636, #1638).
+    /// </summary>
+    private static IntroCinematicSourceArtwork CreateIntroIdentityFixture(string? edit = null)
+    {
+        // Serialize a fixture document, optionally changing only whitespace formatting.
+        MemoryStream Json(object document) => new(JsonSerializer.SerializeToUtf8Bytes(document,
+            (edit == "json-indent" ? CamelCaseIndentedJson : CamelCaseJson)));
+        // A black backdrop with an optional red-channel edit; the colours behind the backdrops are the import's alone (#1544).
+        RgbColor Backdrop(string name) => new FadeLevelColour(edit == name ? 1 : 0, 0, 0).ToColour();
 
         var flightActors = Enumerable.Range(0, CeresFlightActorDefinitions.RearViewActorCount).Select(index =>
             new CeresFlightActorPlacement
@@ -150,7 +159,6 @@ internal static class IntroContentIdentityVerification
                 FrontViewTiles = FlightMap("flight-front-map"), RearViewTiles = FlightMap("flight-rear-map"),
             }),
             Backdrop("flight-backdrop"),
-            Sprites("flight", CeresFlightSpriteDefinitions.Frames.Select(frame => frame.Name)),
             Json(new CeresFlightActorLayoutDocument { Version = CeresFlightActorLayoutFormat.Version, Actors = flightActors }));
 
         var revealActors = Enumerable.Range(0, CeresDestructionActorDefinitions.ZebesActorCount).Select(index =>
@@ -181,22 +189,8 @@ internal static class IntroContentIdentityVerification
         var destruction = CeresDestructionArtworkFile.Read(
             Json(new CeresRevealActorLayoutDocument { Version = CeresRevealActorLayoutFormat.Version, Actors = revealActors }),
             Json(new CeresDestructionActorLayoutDocument { Version = CeresDestructionActorLayoutFormat.Version, Actors = destructionActors }));
-        RoomBackgroundTilemapAtlas zebesRevealMap = RoomBackgroundTilemapAtlas.Load(MapJson("zebes-map"), ZebesRevealArtworkFormat.MapByteCount);
 
-        RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, IntroCinematicArtworkFormat.BackgroundPageCount)
-            .Select(index => Map("page-" + index, index)).ToArray();
-        if (edit == "page-order") Array.Reverse(pages);
-        return new IntroCinematicSourceArtwork(new IntroCinematicArtworkParts { BackgroundPages = pages, PortraitTilemap = Map("portrait"), InitialNarrationTilemap = Map("narration-map"), FinalLine = IntroFinalLineTilemap.Load(Json(new IntroFinalLineTilemapDocument
-            {
-                Version = IntroFinalLineTilemapFormat.Version, Cells = Cells("divider", IntroFinalLineTilemapFormat.CellCount),
-            })), EyeFrames = IntroEyeTilemapPresentation.Load(Json(new IntroEyeTilemapDocument
-            {
-                Version = IntroEyeTilemapFormat.Version,
-                Frames = Enumerable.Range(0, IntroEyeTilemapFormat.FrameCount).Select(index => new IntroEyeTilemapFrame
-                {
-                    Id = IntroEyeTilemapFormat.FrameId(index), Cells = Cells("eye-" + index, IntroEyeTilemapFormat.CellsPerFrame),
-                }).ToArray(),
-            })), CaretSprites = IntroCaretSpritePresentation.Load(Sprites("caret", IntroCaretSpriteDefinitions.Frames.Select(frame => frame.Name), IntroCaretSpriteVersion.Current.Revision)), NextPageArrowSprites = IntroNextPageArrowSpritePresentation.Load(Sprites("next-page-arrow", IntroNextPageArrowSpriteDefinitions.Frames.Select(frame => frame.Name), IntroNextPageArrowSpriteFormat.Version)), MotherBrainSprites = IntroMotherBrainSpritePresentation.Load(Sprites("mother-brain", IntroMotherBrainSpriteDefinitions.Frames.Select(frame => frame.Name))), MotherBrainExplosionSprites = IntroMotherBrainExplosionSpritePresentation.Load(Sprites("mb-explosion", IntroMotherBrainExplosionSpriteDefinitions.Frames.Select(frame => frame.Name))), RinkaSprites = IntroRinkaSpritePresentation.Load(Sprites("rinka", IntroRinkaSpriteDefinitions.Frames.Select(frame => frame.Name))), EggEffectSprites = IntroEggEffectSpritePresentation.Load(Sprites("egg", IntroEggEffectSpriteDefinitions.Frames.Select(frame => frame.Name))), DiscoveryActorSprites = IntroDiscoveryActorSpritePresentation.Load(Sprites("discovery", IntroDiscoveryActorSpriteDefinitions.Frames.Select(frame => frame.Name), IntroDiscoveryActorSpriteFormat.Version)), ScientistSprites = IntroScientistSpritePresentation.Load(Sprites("scientist", IntroScientistSpriteDefinitions.Frames.Select(frame => frame.Name), IntroScientistSpriteFormat.Version)), Backdrop = Backdrop("opening-backdrop"), CeresFlight = flight, CeresDestruction = destruction, CeresDestructionMaps = destructionMaps, ZebesRevealMap = zebesRevealMap, CeresDestructionSprites = CeresDestructionSpritePresentation.Load(Sprites("destruction", CeresDestructionSpriteFrameDefinitions.Frames.Select(frame => frame.Name))) });
+        return new IntroCinematicSourceArtwork(new IntroCinematicArtworkParts { Backdrop = Backdrop("opening-backdrop"), CeresFlight = flight, CeresDestruction = destruction, CeresDestructionMaps = destructionMaps });
     }
 
     /// <summary>Runs selected-content identity checks for opening and Ceres assets.</summary>

@@ -99,7 +99,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
 
     /// <summary>Checks imported projectile maps and representative animated effects against cartridge OAM at ordinary and wrapped screen coordinates.</summary>
     internal static void VerifyInstalledEnemyProjectileSpritemaps(
-        ISnesAddressSpace bus, string directory, ImportEnemyArtwork stock)
+        ISnesAddressSpace bus, string extractedDirectory, ImportEnemyArtwork stock)
     {
         EnemyProjectileSpritemapCatalog installed = stock.Enemies.ProjectileSpritemaps
             ?? throw new InvalidDataException("Installed enemy-projectile compositions are missing.");
@@ -379,7 +379,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
 
         EnemyProjectileSpritemapDocument document =
             RequiredJson.Deserialize<EnemyProjectileSpritemapDocument>(
-                File.ReadAllBytes(Path.Combine(directory,
+                File.ReadAllBytes(Path.Combine(extractedDirectory,
                     EnemyProjectileSpritemapDefinitions.FileName)),
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         EnemyProjectilePresentationFrameDefinition omittedProgramFrame =

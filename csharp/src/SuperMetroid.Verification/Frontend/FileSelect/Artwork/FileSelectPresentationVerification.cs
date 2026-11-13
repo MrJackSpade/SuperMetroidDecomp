@@ -16,14 +16,9 @@ internal static class FileSelectPresentationVerification
     /// <summary>Compares native and installed COPY/CLEAR flows frame by frame.</summary>
     internal static void VerifyFileSelectPresentationAssets(
         ISnesAddressSpace bus,
-        string stock,
         AreaMapPresentation original)
     {
-        string stockPath = Path.Combine(stock, FileSelectPresentationFormat.FileName);
-        byte[] extracted = SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(bus);
-        AssertTrue(extracted.SequenceEqual(File.ReadAllBytes(stockPath)),
-            "installed file-select JSON is the deterministic cartridge extraction");
-        _ = FileSelectSourcePresentation.Load(new MemoryStream(extracted));
+        _ = FileSelectSourcePresentation.Load(SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(bus));
 
         var saveRam = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         saveRam.SaveSlot(0, new SuperMetroidSaveSnapshot

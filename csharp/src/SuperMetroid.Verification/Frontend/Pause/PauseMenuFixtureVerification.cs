@@ -32,11 +32,10 @@ internal static class PauseMenuFixtureVerification
     {
         ImportAreaMapPresentation stock = RetailImportPresentationFixture();
         AreaMapPresentation game = stock.Game;
-        var installation = RepositoryInstallation.Installation;
         byte[] Read(int address, int count) => RomDataReader.ReadFixedBank(
             CartridgeImportSource.Require(bus), address, count);
-        T Document<T>(string name) => JsonSerializer.Deserialize<T>(
-            File.ReadAllBytes(Path.Combine(installation.MapDirectory, name)),
+        T ImportDocument<T>(string name) => JsonSerializer.Deserialize<T>(
+            File.ReadAllBytes(Path.Combine(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.MapDirectoryName), name)),
             ArtworkJson.Options) ?? throw new InvalidDataException(name);
         MemoryStream Json<T>(T document) => new(JsonSerializer.SerializeToUtf8Bytes(
             document, ArtworkJson.Options));
@@ -58,13 +57,18 @@ internal static class PauseMenuFixtureVerification
         var singlePart = new SpriteVisualPart { OffsetX = 0, OffsetY = 0,
             TileColumn = 0, TileRow = 0, Size = 8, Priority = 0, Palette = null,
             FlipX = false, FlipY = false };
-        var sprites = Document<MapSpriteDocument>(MapSpriteFormat.JsonFile);
+        // The map sprites' compositions are import data (#1638): the cartridge-derived extraction's.
+        var sprites = JsonSerializer.Deserialize<MapSpriteDocument>(File.ReadAllBytes(Path.Combine(
+            SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(
+                SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.MapDirectoryName), MapSpriteFormat.JsonFile)),
+            ArtworkJson.Options) ?? throw new InvalidDataException(MapSpriteFormat.JsonFile);
         foreach (string name in new[] { "Indicator.Frame0", "Indicator.Frame1", "Indicator.Frame2" })
             sprites.Frames[name] = [singlePart];
         using var spriteJson = Json(sprites);
         // The map sprites' page is import data no installation holds: the cartridge-derived extraction's (#1636).
         using var spritePng = File.OpenRead(Path.Combine(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.MapDirectoryName), MapSpriteFormat.PngFile));
-        var selectors = Document<PauseSelectorDocument>(PauseSelectorFormat.FileName);
+        // The selectors' and the reserve strip's documents are import data (#1638): the cartridge-derived extraction's.
+        var selectors = ImportDocument<PauseSelectorDocument>(PauseSelectorFormat.ArtworkFileName);
         selectors.Anchors[PauseSelectorAnchors.Anchor(PauseEquipmentCategory.Suits, 2)] = new(0x90, 0x70);
         selectors.Anchors[PauseSelectorAnchors.Anchor(PauseEquipmentCategory.Suits, 3)] = new(0xa0, 0x80);
         foreach (string name in selectors.Frames.Keys.ToArray()) selectors.Frames[name] = [singlePart];
@@ -72,7 +76,7 @@ internal static class PauseMenuFixtureVerification
         PauseSelectorSourcePresentation constructedSelectors = PauseSelectorSourcePresentation.Load(selectorJson);
         // The original synthetic ROM supplied zero-part reserve-strip maps. Keep
         // that fixture isolation while reserve state and digits still execute.
-        var reserveTanks = Document<PauseReserveTankDocument>(PauseReserveTankFormat.FileName);
+        var reserveTanks = ImportDocument<PauseReserveTankDocument>(PauseReserveTankFormat.ArtworkFileName);
         foreach (string name in reserveTanks.Frames.Keys.ToArray()) reserveTanks.Frames[name] = [];
         using var reserveJson = Json(reserveTanks);
         PauseReserveTankSourcePresentation constructedTanks = PauseReserveTankSourcePresentation.Load(reserveJson);
@@ -107,11 +111,7 @@ internal static class PauseMenuFixtureVerification
         };
         // The screens and the HUD are pictured from the constructed ROM's characters (#1466).
         return InstalledFixtures.Record(new ImportAreaMapPresentation(new AreaMapPresentation(parts), new InstalledPresentationSources(
-            stock.Messages, stock.RoomFxPages, stock.StaffCredits, stock.EndingTextPresentation, stock.Screens,
-            new PauseScreenArtwork(backdrops, stock.Pause.Wireframes, stock.Pause.EquipmentBase, stock.Pause.EquipmentLabels,
-                stock.Pause.ReserveUi),
-            stock.HighlightColours, constructedSelectors, constructedTanks, stock.GameplayHud, stock.GameOptions, stock.FileSelect)
-            { GameOver = stock.GameOverSource },
+            stock.StaffCredits, stock.HighlightColours),
             new ImportPresentationCharacters(new MapCharacterArtwork(
                 new MapTileCharacters(Read(MapSourceDefinitions.Artwork.MapCharacters, MapTileAtlasFormat.ByteCount)), new HudTileAtlas(hud),
                 new MapTileCharacters(Read(MapSourceDefinitions.Artwork.PauseInterfaceCharacters, PauseTileAtlasFormat.ByteCount))),
@@ -120,6 +120,10 @@ internal static class PauseMenuFixtureVerification
             new ImportPresentationColours(stock.SamusColours, stock.TitlePalette,
                 palettes, stock.CeresRidleyColors, stock.CeresRidleyFloorColors,
                 stock.MotherBrainHealthPalette, stock.MotherBrainRoomColors,
-                stock.RoomFxPaletteBlends, stock.RoomPaletteFx, stock.MotherBrainRainbowColours)));
+                stock.RoomFxPaletteBlends, stock.RoomPaletteFx, stock.MotherBrainRainbowColours),
+            new ImportPresentationDocuments(stock.FileSelect,
+                new PauseScreenArtwork(backdrops, stock.Pause.Wireframes, stock.Pause.EquipmentBase, stock.Pause.EquipmentLabels,
+                    stock.Pause.ReserveUi), stock.RoomFxPages, stock.Messages, stock.GameplayHud, stock.Screens,
+                new ImportMenuDocuments(constructedSelectors, constructedTanks, stock.GameOverSource, stock.GameOptions, stock.EndingTextPresentation))));
     }
 }

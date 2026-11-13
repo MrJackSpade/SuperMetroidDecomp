@@ -10,8 +10,8 @@ using SuperMetroid.AssetExtraction.Frontend.Map;
 namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>
-/// The installed gameplay HUD as the import reads it (#1466): the layout the game places the HUD's images by, and the
-/// tiles each image is pictured from. The HUD's writers lay those tiles out as the cartridge's HUD routines write them;
+/// The gameplay HUD as the import reads it (#1466, #1638): the layout the game places the HUD's images by, and the tiles each
+/// image is pictured from, which are import data. The HUD's writers lay those tiles out as the cartridge's HUD routines write them;
 /// the import pictures every image the game can place from them, and verification compares them with the cartridge's. The
 /// game receives only the layout (<see cref="Presentation"/>), never the tiles (#1616).
 /// </summary>
@@ -24,12 +24,16 @@ public sealed class GameplayHudArtwork
     /// <exception cref="ArgumentException">The parts do not hold one tile for each cell.</exception>
     internal GameplayHudArtwork(GameplayHudArtworkParts parts)
     {
-        Presentation = new GameplayHudPresentation(Layout(parts));
+        LayoutParts = Layout(parts);
+        Presentation = new GameplayHudPresentation(LayoutParts);
         this.parts = parts;
     }
 
     /// <summary>The layout the game places the HUD's images by; the tiles they are pictured from stay with the import (#1616).</summary>
     public GameplayHudPresentation Presentation { get; }
+
+    /// <summary>The layout's parts, which the extraction installs as the HUD's layout document (#1638).</summary>
+    internal GameplayHudPresentationParts LayoutParts { get; }
 
     /// <summary>Gets the tile used to clear mutable HUD cells.</summary>
     internal BackgroundTile Blank => parts.Blank;

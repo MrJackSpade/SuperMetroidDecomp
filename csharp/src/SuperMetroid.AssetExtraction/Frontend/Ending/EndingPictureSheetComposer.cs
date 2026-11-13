@@ -29,6 +29,9 @@ internal static class EndingPictureSheetComposer
     /// <summary>The pixels of one screen.</summary>
     private static readonly Extent16<ImagePixels> ScreenSize = new(ScreenCells * CharacterPixels, ScreenCells * CharacterPixels);
 
+    /// <summary>The rows of each explosion map that lie above the screen's top as the explosion shows the map.</summary>
+    private const int ExplosionRowsAboveScreen = 1;
+
     /// <summary>The character numbers a background's map words name.</summary>
     private const int CharacterNumbers = SnesBgTilemapWord.CharacterIndices;
 
@@ -241,7 +244,10 @@ internal static class EndingPictureSheetComposer
         for (int index = 0; index < maps.Length; index++)
         {
             PaintMap(canvas, index * ScreenSize.Y, objects.Fragment(maps[index]).Tiles.Span, characters, colours);
-            frames.Add(EndingPictureNames.ExplosionMap(maps[index]), WrittenPictureSheetComposer.Frame(canvas, index * ScreenCells, ScreenCells, WrittenPictureLayer.WrittenOverRoom));
+            // Each picture starts at the map's row the screen's top shows, so Core places it whole at the top-left (#1626).
+            frames.Add(EndingPictureNames.ExplosionMap(maps[index]), WrittenPictureSheetComposer.Frame(canvas,
+                new Position16<ImagePixels>(0, index * ScreenSize.Y + ExplosionRowsAboveScreen),
+                new Extent16<ImagePixels>(ScreenSize.X, ScreenSize.Y - ExplosionRowsAboveScreen), WrittenPictureLayer.WrittenOverRoom));
         }
         return canvas.ToSheet(colours, frames, SpriteImageColours.Background);
     }

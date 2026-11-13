@@ -53,7 +53,7 @@ internal static class EndingShootingStarsTests
                     "Delay expires on underflow, skips motion, and joins the drawing timer on that call");
             if (frame == 32)
             {
-                var oam = ScreenSpritesFixtures.Blank(); oam.BeginFrame(); stars.Draw(oam, InstalledFixtures.SpriteSheets.Get(SpriteSheetId.EndingShootingSprites), PictureShading.Shaded(EndingShades.Drawn(EndingSpriteColouring.ShootingStars))); oam.FinishFrame();
+                var oam = ScreenSpritesFixtures.Blank(); oam.BeginFrame(); stars.Draw(oam, InstalledFixtures.SpriteSheets.Get(SpriteSheetId.EndingSuitedRewardSprites), PictureShading.Shaded(EndingShades.Drawn(EndingSpriteColouring.ShootingStars))); oam.FinishFrame();
                 Require(oam.LastFinalizedSpriteCount > 0, "Stars publish visible OAM after the 32-call lead-in");
                 Require(oam.LowTable[..4].SequenceEqual(new byte[] {148,121,0xf0,0x09}), "First star's exact native position and attributes");
             }
@@ -90,8 +90,7 @@ internal static class EndingShootingStarsTests
             bool hidden = scene.Stage.Phase == EndingCreditsPhase.PostCreditsWaitingSamus;
             Require(hidden || snapshot.SpriteDraws.Length > 0, "Post-credits owner emits its stars where they show");
             // The stars are their own sprite layer behind the waiting backdrop and share the actors' layer otherwise (#1514).
-            SpriteDraw[] starDraws = [.. EndingCreditsPresentation.PrepareSprites(scene, EndingCreditsPresentation.CurrentRewardObjectSheet(scene),
-                EndingSpriteLayer.Stars).Draws];
+            SpriteDraw[] starDraws = [.. EndingCreditsPresentation.PrepareSprites(scene, EndingSpriteLayer.Stars).Draws];
             Require(starDraws.Length > 0, "Post-credits owner draws its stars");
             var withoutStars = snapshot.WithoutDraws(starDraws);
             var pixels = scene.Render();

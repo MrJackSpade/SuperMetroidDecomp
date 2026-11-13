@@ -1,4 +1,4 @@
-﻿using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -178,10 +178,10 @@ internal static class EndingSnapshotTestsVerification
                     else
                         (referenceJump ?? throw new InvalidOperationException("Verification requires referenceJump.")).Step();
                     var jumpFrame = Live();
-                    // The reference jump draws from the sheet the live ending draws the page it selects from.
-                    var rewardArt = EndingSheetFixtures.Drawer(legacy, referenceJump.FallingSheetSelected
-                        ? EndingObjectSheet.RewardFalling : EndingObjectSheet.Reward, CinematicSpriteFamily.EndingReward);
-                    var expectedOam = ScreenSpritesFixtures.Frame(objects => referenceJump.Draw(objects, rewardArt));
+                    // The reference jump draws the jumping Samus from the reward's sheet and the falling Samus from hers (#1626).
+                    var rewardArt = EndingSheetFixtures.Drawer(legacy, EndingSpriteSheets.Reward(legacy.Stage.EndingReward), CinematicSpriteFamily.EndingReward);
+                    var fallingArt = EndingSheetFixtures.Drawer(legacy, EndingSpriteSheets.FallingSamusAndLogo, CinematicSpriteFamily.EndingReward);
+                    var expectedOam = ScreenSpritesFixtures.Frame(objects => referenceJump.Draw(objects, rewardArt, fallingArt));
                     // The live ending also appends the restored shooting stars after the reference jump actors.
                     PlacedSpritePart[] jumpParts = PlacedSpritePart.Of(expectedOam.Draws);
                     PlacedSpritePart[] liveParts = [.. jumpFrame.SpriteParts().Take(jumpParts.Length)];
@@ -326,8 +326,8 @@ internal static class EndingSnapshotTestsVerification
                     var stars = legacy.CreditsRoll.ShootingStars;
                     var starOnlyOam = ScreenSpritesFixtures.Blank();
                     starOnlyOam.BeginFrame();
-                    // The stars draw from the shooting scene's sheet, which the logo's scenes draw from.
-                    stars?.Draw(starOnlyOam, InstalledFixtures.SpriteSheets.Get(SpriteSheetId.EndingShootingSprites), legacy.screen.Colours.Drawn(EndingShades.Drawn(EndingSpriteColouring.ShootingStars)));
+                    // The stars draw from the reward's sheet, whatever scene shows them (#1626).
+                    stars?.Draw(starOnlyOam, InstalledFixtures.SpriteSheets.Get(EndingSpriteSheets.Reward(legacy.Stage.EndingReward)), legacy.screen.Colours.Drawn(EndingShades.Drawn(EndingSpriteColouring.ShootingStars)));
                     starOnlyOam.FinalizeFrame();
                     var actual = Live();
                     AssertTrue(PlacedSpritePart.Of(starOnlyOam.Draws).SequenceEqual(actual.SpriteParts()),

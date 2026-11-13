@@ -19,7 +19,6 @@ internal static class EndingCreditsPresentation
     {
         if (ending.UsesExplosionFinaleDisplay) return ending.CaptureExplosionFinale();
         var layers = new List<DisplayLayer>();
-        EndingObjectSheet objectSheet = CurrentEscapeObjectSheet(ending);
         FramePaint paint = Paint(ending);
         if (ending.InstalledArtwork.CurrentEndingLogo is not null)
         {
@@ -27,16 +26,15 @@ internal static class EndingCreditsPresentation
             if (crossfading)
                 layers.Add(new PicturedPlaneLayer(ending.ScreenPicture(SpriteSheetId.EndingPostCreditsPictures, EndingPictureNames.Logo, EndingScenery.LogoPicture),
                     Offset16<PlanePixels>.Zero));
-            // While the logo's picture fades in, its sprites glow over it. The logo is drawn from the shooting scene's
-            // sheet, which holds it.
-            layers.Add(Sprites(ending, EndingObjectSheet.RewardFalling, blend: crossfading ? SpriteBlend.Glows : SpriteBlend.Drawn));
+            // While the logo's picture fades in, its sprites glow over it.
+            layers.Add(Sprites(ending, blend: crossfading ? SpriteBlend.Glows : SpriteBlend.Drawn));
             layers.Add(PostCreditsLayer(ending));
             return new(paint, layers.ToArray(), ending.Stage.Brightness);
         }
         if (ending.CreditsRoll.CurrentPostShot is not null)
         {
             // The reward's shot scene lies behind the turning planet, which darkens where the sprites lie behind it.
-            layers.Add(Sprites(ending, CurrentRewardObjectSheet(ending)));
+            layers.Add(Sprites(ending));
             if (ending.Floor() is { } floor) layers.Add(new TurningFloorLayer(PostShotTransform(ending), floor, true));
             return new(paint, layers.ToArray(), ending.Stage.Brightness);
         }
@@ -50,10 +48,9 @@ internal static class EndingCreditsPresentation
         RgbColor? skyWhite = FlyawaySkyWhite(ending);
         if (EndingCreditsPhaseGroups.PostCredits.Contains(ending.Stage.Phase))
         {
-            objectSheet = CurrentRewardObjectSheet(ending);
             // The shooting stars cross the sky behind the waiting backdrop.
             if (waiting)
-                layers.Add(Sprites(ending, objectSheet, EndingSpriteLayer.Stars));
+                layers.Add(Sprites(ending, EndingSpriteLayer.Stars));
             if (PostCreditsBackgroundEnabled(ending))
                 layers.Add(PostCreditsLayer(ending));
             if (waiting)
@@ -71,10 +68,10 @@ internal static class EndingCreditsPresentation
         {
             // The flyaway's white brightens the sky and the sprites, not the gunship's floor: it is added before any
             // other layer, so it reaches only the backdrop, and the sprite layers carry it as their tint.
-            if (ending.Flyaway.FlyawayFixedColor is { } backdropWhite) layers.Add(backdropWhite);
+            if (ending.Flyaway.FlyawayWhiteWash is { } backdropWhite) layers.Add(backdropWhite);
             // During the flyaway the exploding planet's afterglow and the starfields lie behind the departing gunship's
             // floor, which every one of them passes behind.
-            if (UsesFlyawayFloorPriority(ending) && EndingObjectsEnabled(ending)) layers.Add(Sprites(ending, objectSheet, tint: skyWhite));
+            if (UsesFlyawayFloorPriority(ending) && EndingObjectsEnabled(ending)) layers.Add(Sprites(ending, tint: skyWhite));
             if (ending.Floor() is { } floor)
                 {
                     layers.Add(new TurningFloorLayer(FloorView.Turned(ending.Stage.FloorAngle, ending.Stage.FloorZoom,
@@ -86,12 +83,12 @@ internal static class EndingCreditsPresentation
         // Over the atmosphere the clouds are drawn by the turning floor's own glow, which composes the frame's sprites
         // itself; every other scene draws its sprites in its sprite layers.
         if (ShowsAtmosphere(ending))
-            paint = FloorGlowPaint(ending, objectSheet);
+            paint = FloorGlowPaint(ending);
         else if (EndingObjectsEnabled(ending) && !UsesFlyawayFloorPriority(ending))
         {
             if (waiting)
-                layers.Add(Sprites(ending, objectSheet, EndingSpriteLayer.Actors));
-            else layers.Add(Sprites(ending, objectSheet, blend: RewardSpritesGlow(ending) ? SpriteBlend.Glows : SpriteBlend.Drawn));
+                layers.Add(Sprites(ending, EndingSpriteLayer.Actors));
+            else layers.Add(Sprites(ending, blend: RewardSpritesGlow(ending) ? SpriteBlend.Glows : SpriteBlend.Drawn));
         }
         if (ending.Stage.Phase == EndingCreditsPhase.PostCreditsWhiteFlash)
             layers.Add(WhiteWash.Layer(ending.CreditsRoll.WhiteFlashColor));
@@ -103,11 +100,6 @@ internal static class EndingCreditsPresentation
         ending.PostShot.Scale,
         new Offset16<FloorPixels>(EndingPostShotDefinitions.CenterX, EndingPostShotDefinitions.CenterY),
         new Offset16<FloorPixels>(EndingPostShotDefinitions.OffsetX, EndingPostShotDefinitions.OffsetY));
-
-    /// <summary>Selects the cloud sheet before the explosion and the explosion sheet afterward.</summary>
-    internal static EndingObjectSheet CurrentEscapeObjectSheet(EndingCreditsState ending) => EndingCreditsPhaseGroups.BeforeZebesExplosion.Contains(ending.Stage.Phase)
-        ? EndingObjectSheet.Clouds : EndingObjectSheet.Explosion;
-
 
     /// <summary>Whether the phase shows the escape's atmospheric scenes, whose clouds the turning floor's own glow composes.</summary>
     private static bool ShowsAtmosphere(EndingCreditsState ending) => EndingCreditsPhaseGroups.BeforeZebesExplosion.Contains(ending.Stage.Phase);
@@ -154,23 +146,21 @@ internal static class EndingCreditsPresentation
     internal static FramePaint Paint(EndingCreditsState ending) => new(ending.screen.Colours.Backdrop(ending.InstalledArtwork.SpaceBackdrops));
 
     /// <summary>
-    /// The backdrop with this frame's sprite entries drawn from <paramref name="objectSheet"/>, which the atmosphere's
-    /// turning floor composes in its own glow (#1514).
+    /// The backdrop with this frame's sprite entries, which the atmosphere's turning floor composes in its own glow (#1514).
     /// </summary>
-    private static FramePaint FloorGlowPaint(EndingCreditsState ending, EndingObjectSheet objectSheet) =>
-        new(ending.screen.Colours.Backdrop(ending.InstalledArtwork.SpaceBackdrops), PrepareSprites(ending, objectSheet).Draws);
+    private static FramePaint FloorGlowPaint(EndingCreditsState ending) =>
+        new(ending.screen.Colours.Backdrop(ending.InstalledArtwork.SpaceBackdrops), PrepareSprites(ending).Draws);
 
     /// <summary>
-    /// The sprite layer of this frame's sprites drawn from <paramref name="objectSheet"/> (#1514): those of
-    /// <paramref name="only"/>'s layer, or all of them when it is null, shown as <paramref name="blend"/> says and
-    /// tinted by <paramref name="tint"/>.
+    /// The sprite layer of this frame's sprites (#1514): those of <paramref name="only"/>'s layer, or all of them when it
+    /// is null, shown as <paramref name="blend"/> says and tinted by <paramref name="tint"/>.
     /// </summary>
-    internal static SpritesLayer Sprites(EndingCreditsState ending, EndingObjectSheet objectSheet, EndingSpriteLayer? only = null,
+    internal static SpritesLayer Sprites(EndingCreditsState ending, EndingSpriteLayer? only = null,
         SpriteBlend blend = SpriteBlend.Drawn, RgbColor? tint = null) =>
-        new(PrepareSprites(ending, objectSheet, only).Draws, blend, tint);
+        new(PrepareSprites(ending, only).Draws, blend, tint);
 
     /// <summary>The colour the flyaway's white sky tints the sprites with, or null while it shows none.</summary>
-    private static RgbColor? FlyawaySkyWhite(EndingCreditsState ending) => ending.Flyaway.FlyawayFixedColor?.Colour;
+    private static RgbColor? FlyawaySkyWhite(EndingCreditsState ending) => ending.Flyaway.FlyawayWhiteWash?.Colour;
 
     /// <summary>The sprite layer <paramref name="role"/>'s sprite shows on (#1514): the starfields lie behind, every other sprite in front.</summary>
     /// <exception cref="InvalidOperationException">The role is undefined.</exception>
@@ -187,11 +177,11 @@ internal static class EndingCreditsPresentation
     };
 
     /// <summary>
-    /// Places the scene's sprite entries at the simulation display boundary without advancing sprite state, each drawn
-    /// from the sheet of the characters <paramref name="objectSheet"/>'s page holds now (#1392), in the ending's colours
-    /// under its colouring (#1512): those of <paramref name="only"/>'s sprite layer, or all of them when it is null (#1514).
+    /// Places the scene's sprite entries at the simulation display boundary without advancing sprite state, each actor's
+    /// frames drawn from its own sheet (#1392, #1626), in the ending's colours under its colouring (#1512): those of
+    /// <paramref name="only"/>'s sprite layer, or all of them when it is null (#1514).
     /// </summary>
-    internal static ScreenSprites PrepareSprites(EndingCreditsState ending, EndingObjectSheet objectSheet, EndingSpriteLayer? only = null)
+    internal static ScreenSprites PrepareSprites(EndingCreditsState ending, EndingSpriteLayer? only = null)
     {
         var objects = new ScreenSprites();
         objects.BeginFrame();
@@ -208,7 +198,8 @@ internal static class EndingCreditsPresentation
         else if (ending.CreditsRoll.CurrentRewardJump is not null)
         {
             if (Shows(EndingSpriteLayer.Actors))
-                ending.CreditsRoll.CurrentRewardJump.Draw(objects, Family(CinematicSpriteFamily.EndingReward));
+                ending.CreditsRoll.CurrentRewardJump.Draw(objects, Family(CinematicSpriteFamily.EndingReward),
+                    new CinematicSpriteSheet(Sheet(EndingSpriteSheets.FallingSamusAndLogo), CinematicSpriteFamily.EndingReward, ending.screen.Colours.Drawn));
         }
         else
         {
@@ -229,24 +220,24 @@ internal static class EndingCreditsPresentation
             }
         }
         if (EndingCreditsPhaseGroups.PostCredits.Contains(ending.Stage.Phase) && Shows(EndingSpriteLayer.Stars))
-            ending.CreditsRoll.ShootingStars?.Draw(objects, Sheet(), ending.screen.Colours.Drawn(EndingShades.Drawn(EndingShootingStarDefinitions.Colouring)));
+            ending.CreditsRoll.ShootingStars?.Draw(objects, Sheet(EndingSpriteSheets.Reward(ending.Stage.EndingReward)),
+                ending.screen.Colours.Drawn(EndingShades.Drawn(EndingShootingStarDefinitions.Colouring)));
         objects.FinishFrame();
         return objects;
 
         // Whether the sprites of `layer` are placed.
         bool Shows(EndingSpriteLayer layer) => only is null || only == layer;
 
-        // A family's frames, drawn in the ending's colours under the colouring each actor names; the result text's typed
-        // texts are drawn as the glyphs typed so far (#1513).
-        IIntroCinematicSpritePresentation Family(CinematicSpriteFamily family) => family == EndingTypedTexts.Family
-            ? new TypedTextSpriteSheet(Sheet(), family, ending.screen.Colours.Drawn, EndingTypedTexts.Texts)
-            : new CinematicSpriteSheet(Sheet(), family, ending.screen.Colours.Drawn);
+        // A family's frames from the sheet they lie on, drawn in the ending's colours under the colouring each actor names;
+        // the result text's typed texts are drawn as the glyphs typed so far (#1513).
+        IIntroCinematicSpritePresentation Family(CinematicSpriteFamily family)
+        {
+            SpriteSheet sheet = Sheet(EndingSpriteSheets.Of(family, ending.Stage.EndingReward));
+            return family == EndingTypedTexts.Family
+                ? new TypedTextSpriteSheet(sheet, family, ending.screen.Colours.Drawn, EndingTypedTexts.Texts)
+                : new CinematicSpriteSheet(sheet, family, ending.screen.Colours.Drawn);
+        }
 
-        // A frame that draws nothing needs no sheet.
-        SpriteSheet Sheet() => ending.InstalledArtwork.SpriteSheet(EndingSpriteSheets.For(objectSheet, ending.Stage.EndingReward));
+        SpriteSheet Sheet(SpriteSheetId sheet) => ending.InstalledArtwork.SpriteSheet(sheet);
     }
-
-    /// <summary>The falling reward sheet once the jumping Samus has switched to it, otherwise the reward sheet.</summary>
-    internal static EndingObjectSheet CurrentRewardObjectSheet(EndingCreditsState ending) => ending.CreditsRoll.CurrentRewardJump?.FallingSheetSelected == true
-        ? EndingObjectSheet.RewardFalling : EndingObjectSheet.Reward;
 }

@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
-/// <summary>The four explosion tilemap fragments, shown on successive background pages.</summary>
+/// <summary>The four one-screen explosion pictures the ending's Zebes explosion shows.</summary>
 public enum EndingObjectFragmentId
 {
     /// <summary>The wide explosion map.</summary>

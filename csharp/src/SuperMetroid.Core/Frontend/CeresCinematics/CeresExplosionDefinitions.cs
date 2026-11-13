@@ -29,7 +29,7 @@ internal static class CeresExplosionDefinitions
     /// <summary>First host frame on which the initial wait has expired.</summary>
     public const int InitialSpawnFrame = InitialWaitFrames + 1;
 
-    /// <summary>First host frame on which the newly installed repeating callback runs.</summary>
+    /// <summary>First host frame on which the newly installed repeating behaviour runs.</summary>
     public const int RepeatingFirstFrame = InitialWaitFrames + RepeatingStartWaitFrames + 2;
 
     /// <summary>Last host frame owned by the spawner and its final-wave cue.</summary>

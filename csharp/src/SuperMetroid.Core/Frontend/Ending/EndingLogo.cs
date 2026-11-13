@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// <summary>Logo actors followed by sixteen palette loads.</summary>
 internal sealed class EndingLogo
 {
-    /// <summary>Scene callback fired when the top logo half reaches its landing point.</summary>
+    /// <summary>Scene cue fired when the top logo half reaches its landing point.</summary>
     private readonly Action landed;
     /// <summary>Two moving halves and two supporting logo sprites.</summary>
     private readonly IntroDiscoverySprite[] actors = new IntroDiscoverySprite[4];

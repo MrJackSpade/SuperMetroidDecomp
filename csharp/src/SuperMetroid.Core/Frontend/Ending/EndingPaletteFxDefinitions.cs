@@ -2,7 +2,7 @@ using SuperMetroid.Core.Fx.PaletteFx;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
-/// <summary>Palette objects spawned by the ending's callbacks.</summary>
+/// <summary>Palette objects spawned by the ending's scene steps.</summary>
 internal static class EndingPaletteFxDefinitions
 {
     /// <summary>Fades the zoomed-out exploding Zebes.</summary>

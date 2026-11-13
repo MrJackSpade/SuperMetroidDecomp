@@ -119,7 +119,6 @@ internal static class EnemySheetComposer
                 {
                     Sheet = own,
                     CommonPictures = commonPictures,
-                    Palette = plan.Palette,
                     Owner = SpawnedObjectOwnerNames.Name(plan.Owner),
                     Spawners = [.. plan.Spawners.Select(enemy => enemy.ToString())],
                     SharedSpawners = [.. plan.SharedSpawners.Select(enemy => enemy.ToString())],

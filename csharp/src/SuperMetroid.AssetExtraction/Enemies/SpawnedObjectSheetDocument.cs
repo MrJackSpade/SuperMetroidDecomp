@@ -16,9 +16,6 @@ internal sealed record SpawnedObjectSheetDocument
     /// </summary>
     public required Dictionary<string, List<string>> CommonPictures { get; init; }
 
-    /// <summary>The palette row its frames were coloured in.</summary>
-    public required int Palette { get; init; }
-
     /// <summary>The enemies whose spawned objects it holds, by definition name.</summary>
     public required List<string> Spawners { get; init; }
 

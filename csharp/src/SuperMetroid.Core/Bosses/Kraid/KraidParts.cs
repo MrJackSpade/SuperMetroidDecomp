@@ -52,6 +52,7 @@ internal sealed class KraidParts
     /// <param name="Foot">His foot.</param>
     /// <param name="FirstNail">His first fingernail.</param>
     /// <param name="SecondNail">His second fingernail.</param>
+    [ArchitectureReview("context-bag", "Kraid's eight parts, each the enemy place his room lists it in; the members are his body's parts, not services.")]
     private sealed record Held(
         RoomEnemySlot Body, RoomEnemySlot Arm, RoomEnemySlot TopLint, RoomEnemySlot MiddleLint, RoomEnemySlot BottomLint,
         RoomEnemySlot Foot, RoomEnemySlot FirstNail, RoomEnemySlot SecondNail);

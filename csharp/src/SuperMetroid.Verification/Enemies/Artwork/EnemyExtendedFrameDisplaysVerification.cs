@@ -1,5 +1,10 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using System.Text;
+using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.AssetExtraction.Enemies.Artwork;
+using SuperMetroid.AssetExtraction.World.Artwork;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -44,6 +49,7 @@ internal static class EnemyExtendedFrameDisplaysVerification
         }
         AssertTrue(installed > 0 && pictured > 0, "the installation holds pictured enemy frames");
         VerifyDisplayBindingsAreComplete();
+        VerifyEditedBindingsLoadWhereverTheFrameWasStored();
         Console.WriteLine($"  Enemy frame displays: {installed} frames, {pictured} pictured, match their compositions; every binding displays an installed frame.");
     }
 
@@ -60,6 +66,37 @@ internal static class EnemyExtendedFrameDisplaysVerification
             "a bound frame is displayed through the installed frame its binding names");
         AssertThrows<InvalidDataException>(() => new EnemyFrameDisplays([shown], [shown], new() { [shown] = missing }),
             "a binding naming a frame the installation does not hold is rejected, even when the bound frame is installed");
+    }
+
+    /// <summary>
+    /// The installed display bindings keep the rules of the enemies showing each frame, not where the original stored a frame
+    /// (#1710): an edited binding selecting a frame every enemy showing the edited frame shows loads and displays it, though
+    /// the original stores the two frames in different banks.
+    /// </summary>
+    private static void VerifyEditedBindingsLoadWhereverTheFrameWasStored()
+    {
+        ILookup<EnemyFrameId, EnemyDefinitionId> showing = EnemyDefinitionFrameDefinitions.Frames
+            .SelectMany(entry => entry.Value, (entry, frame) => KeyValuePair.Create(frame, entry.Key))
+            .ToLookup(shown => shown.Key, shown => shown.Value);
+        EnemyFrameName[] frames = [.. EnemySpritemapDefinitions.Frames.Where(frame => !CommonEnemyEmptyFrames.DrawsNothing(frame.Frame))];
+        // The frames fewest enemies show come first: any frame those enemies all show may stand in for them.
+        (EnemyFrameName Edited, EnemyFrameName Selected)? pair = frames.OrderBy(frame => showing[frame.Frame].Count())
+            .SelectMany(edited => frames, (edited, selected) => (Edited: edited, Selected: selected))
+            .Where(candidate => candidate.Edited.Frame != candidate.Selected.Frame
+                && EnemyFrameCartridgeLookup.Of(candidate.Edited.Frame).Bank != EnemyFrameCartridgeLookup.Of(candidate.Selected.Frame).Bank
+                && !showing[candidate.Edited.Frame].Except(showing[candidate.Selected.Frame]).Any())
+            .Select(candidate => ((EnemyFrameName, EnemyFrameName)?)candidate)
+            .FirstOrDefault();
+        AssertTrue(pair is not null, "an ordinary frame may select a frame of another bank by the enemies showing it");
+        (EnemyFrameName edited, EnemyFrameName selected) = pair!.Value;
+        JsonObject document = JsonNode.Parse(EnemyFrameDisplayFiles.Extract())?.AsObject()
+            ?? throw new InvalidOperationException("Verification requires the stock enemy display bindings.");
+        JsonObject bindings = document["displayFrames"]?.AsObject()
+            ?? throw new InvalidOperationException("Verification requires the stock ordinary display bindings.");
+        bindings[edited.Name] = selected.Name;
+        InstalledEnemyFrameDisplays loaded = EnemyFrameDisplayFiles.Load(new MemoryStream(Encoding.UTF8.GetBytes(document.ToJsonString()), writable: false));
+        AssertEqual(selected.Frame, loaded.Displays().GetDisplayFrame(edited.Frame),
+            $"edited binding {edited.Name} displays {selected.Name}, which the original stores in another bank");
     }
 
     /// <summary>Runs the focused enemy frame display check.</summary>

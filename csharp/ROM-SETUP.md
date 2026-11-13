@@ -494,7 +494,7 @@ compositions are import data the import composes the enemy sheets from, and none
 edit a frame's picture in the enemy sheets instead.
 The installed `game/enemy-tiles/enemy-frame-displays.json` holds what the game reads of them:
 its `displayFrames` table binds each named native
-frame to a different named frame in the same bank, letting an artist rearrange
+frame to a named frame every enemy showing it shows, letting an artist rearrange
 the visible sequence without moving its native frame boundaries. For example,
 setting `"boyon_idle_loop_first": "boyon_idle_loop_second"` displays the second Boyon composition
 whenever the first is selected by gameplay. Native frame duration, collision

@@ -13,23 +13,17 @@ internal static class EnemyFrameCartridgeLookup
         : throw new ArgumentOutOfRangeException(nameof(frame), frame, "The cartridge stores no composition for this enemy frame.");
 
     /// <summary>
-    /// Rejects a display binding that selects a frame from another enemy bank: the cartridge draws an enemy's frames from
-    /// its own bank, so an ordinary composition may only stand in for one stored alongside it.
+    /// Rejects a binding of the import's compositions <paramref name="catalog"/> that selects a frame from another enemy bank:
+    /// the cartridge draws an enemy's frames from its own bank, so a composition the import decodes may only stand in for one
+    /// stored alongside it. The installed display bindings the game reads keep the rules of the enemies showing each frame
+    /// instead (<see cref="EnemyFrameDisplayFiles"/>, #1710).
     /// </summary>
     /// <exception cref="InvalidDataException">A binding selects a frame stored in another bank.</exception>
     internal static EnemySpritemapCatalog RequireSameBankDisplayBindings(EnemySpritemapCatalog catalog)
     {
-        RequireSameBankDisplayBindings(catalog.selection.DisplayFrames);
-        return catalog;
-    }
-
-    /// <summary>Rejects an ordinary frame's binding in <paramref name="bindings"/> that selects a frame from another enemy bank.</summary>
-    /// <exception cref="InvalidDataException">A binding selects a frame stored in another bank.</exception>
-    internal static Dictionary<EnemyFrameId, EnemyFrameId> RequireSameBankDisplayBindings(Dictionary<EnemyFrameId, EnemyFrameId> bindings)
-    {
-        foreach ((EnemyFrameId shown, EnemyFrameId selected) in bindings)
+        foreach ((EnemyFrameId shown, EnemyFrameId selected) in catalog.selection.DisplayFrames)
             if (Of(shown).Bank != Of(selected).Bank)
-                throw new InvalidDataException($"Enemy display binding {shown} must select a named frame in the same bank.");
-        return bindings;
+                throw new InvalidDataException($"Enemy composition binding {shown} must select a named frame in the same bank.");
+        return catalog;
     }
 }

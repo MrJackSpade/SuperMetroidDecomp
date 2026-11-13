@@ -533,6 +533,13 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         CoordinateAxis.Difference(slot.Position.Y.Whole, camera.Y) < 0 ||
         CoordinateAxis.AsSigned(camera.Y + 256 - slot.Position.Y.Whole) < 0;
 
+    /// <summary>
+    /// The axis distance, in pixels, from which the Maw's target distance is that axis's distance alone, kept exact
+    /// (#1627): nearer on both axes, the distance is the sum of two short products, which the original forms only below it,
+    /// and the Maw's reach follows whichever it measures.
+    /// </summary>
+    private const int ShortProductReach = 255;
+
     /// <summary>Calculates the Maw's target, a shared enemy helper only this family consumes.</summary>
     private static YappingMawTarget CalculateYappingMawTarget(
         Position16<RoomPixels> origin,
@@ -541,15 +548,15 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         int deltaX = CoordinateAxis.Difference(samus.X, origin.X);
         int absoluteX = Math.Abs(deltaX);
         // The farthest difference's magnitude, 32768, is compared as the game's signed word reads it.
-        if (CoordinateAxis.Difference(absoluteX, 255) >= 0)
+        if (CoordinateAxis.Difference(absoluteX, ShortProductReach) >= 0)
             return new YappingMawTarget(absoluteX, default);
 
         int deltaY = CoordinateAxis.Difference(samus.Y, origin.Y);
         int absoluteY = Math.Abs(deltaY);
-        if (CoordinateAxis.Difference(absoluteY, 255) >= 0)
+        if (CoordinateAxis.Difference(absoluteY, ShortProductReach) >= 0)
             return new YappingMawTarget(absoluteY, default);
 
-        // Both magnitudes are below 255 here, so each short product is below 255 pixels and their sum below 510:
+        // Both magnitudes are below the reach here, so each short product is below 255 pixels and their sum below 510:
         // neither the products' magnitudes nor their sum reach 32768, where the sum would read as negative.
         TrigonometryAngle positiveQuadrantAngle = EnemyMath.CalculateBearing(new(absoluteX, absoluteY)).ToMirroredTableAngle();
         int distance =

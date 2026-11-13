@@ -64,6 +64,18 @@ internal static class EnemyQuadraticSpeedsVerification
         // Only report inputs that the native loop resolves inside the authored
         // table. Out-of-table instruction-byte reads are not a fabricated math API.
         AssertTrue(initialIndexCases > 100000, "wide signed-height hop corpus is exercised");
+        // #1627: the climb is bounded by the table's rows, not a pass count. Fifty rows at a time, a climb row fifty settles
+        // is taken there; one 256th taller runs on past the table's last row and is rejected; a delta of zero settles on
+        // its first pass or never.
+        int fiftiethRow = EnemySpeedTableCodec.QuadraticCoarseSpeed(cartridge, 50, EnemySpeedSign.Positive);
+        AssertEqual(50, beetom(fiftiethRow, 50), "Beetom's climb settled by row fifty ends there");
+        AssertEqual(50, hopper(fiftiethRow, 50), "Hopper's climb settled by row fifty ends there");
+        AssertThrows<InvalidDataException>(() => beetom(fiftiethRow + 1, 50), "Beetom's climb past the table's last row is rejected");
+        AssertThrows<InvalidDataException>(() => hopper(fiftiethRow + 1, 50), "Hopper's climb past the table's last row is rejected");
+        AssertEqual(0, beetom(0, 0), "Beetom's climb of no height with no delta settles on the first row");
+        AssertEqual(0, hopper(0, 0), "Hopper's climb of no height with no delta settles on the first row");
+        AssertThrows<InvalidDataException>(() => beetom(1, 0), "Beetom's climb with no delta never reaches a height");
+        AssertThrows<InvalidDataException>(() => hopper(1, 0), "Hopper's climb with no delta never reaches a height");
 
         var wings = new Func<EnemyQuadraticSpeedIndex, EnemySpeedSign, RotationAngle>(KiHunterBehavior.ReadKiHunterQuadraticAngleDelta);
         for (int index = 0; index < EnemyQuadraticSpeedDefinitions.RowCount; index++)

@@ -78,8 +78,10 @@ List:FakeKraidProjectileInstructionProgramDefinitionsConstants.SpikeRight),
             RunForcedTick(projectile);
             ushort operand = unchecked((ushort)(testCase.List + 2));
             AssertEqual(operand, projectile.PresentationOperandAddress, $"{testCase.Kind} shows its native pose operand");
-            AssertEqual(ReadFakeKraidProjectileInstructionWord(rom, testCase.List), projectile.FrameHold.RawValue,
-                $"{testCase.Kind} pose lasts the native duration");
+            // The pose is held for good (#1627): its timer rests apart from the native list's longest frame.
+            AssertTrue(SuperMetroid.Verification.Enemies.NativeEnemyProjectileParity.RestsOnHeldFrame(
+                    ReadFakeKraidProjectileInstructionWord(rom, testCase.List), projectile.FrameHold),
+                $"{testCase.Kind} holds its pose where the native list shows its longest frame");
 
             RunForcedTick(projectile);
             AssertEqual((ushort)NativeEnemyProjectileInstruction.Sleep, ReadFakeKraidProjectileInstructionWord(rom, unchecked((ushort)(testCase.List + 4))),

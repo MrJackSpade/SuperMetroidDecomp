@@ -69,8 +69,6 @@ internal static class BossSheetShades
     /// <summary>The sprite row Botwoon's head and body draw in, which his health bands recolour.</summary>
     private const int BotwoonRow = 7;
 
-    /// <summary>The hurt flash's band, before the health bands in Kraid's health colours.</summary>
-    private const int KraidHurtBand = -1;
 
     /// <summary>Kraid's sprite parts, which draw in his row and show his health band.</summary>
     private static readonly HashSet<EnemyDefinitionId> KraidParts =
@@ -108,7 +106,7 @@ internal static class BossSheetShades
         HashSet<int> used = [.. paletteIndices.ToArray().Select(index => (int)index)];
         // Every band's shade shows his eyes in the colours gameplay's eye glow replaces, whatever the band gives them (#1512).
         ReadOnlySpan<RgbColor> shadedEyes = kraid.Eyes().Shaded;
-        for (int band = KraidHurtBand; band < KraidHealthThresholdDefinitions.EighthCount; band++)
+        foreach (KraidColourBand band in KraidColourBand.All)
         {
             RgbColor[] colours = Band(kraid, KraidPaletteSource.Health, band);
             shadedEyes.CopyTo(colours.AsSpan(KraidPalettes.FirstEyeColour, KraidEyeGlow.Eyes));
@@ -140,7 +138,7 @@ internal static class BossSheetShades
         if (!KraidParts.Contains(enemy))
             return [];
         KraidColorCatalog kraid = bosses.KraidColors ?? throw new InvalidDataException("Kraid's parts are shaded from the installed Kraid colours.");
-        return [.. Enumerable.Range(KraidHurtBand, KraidHealthThresholdDefinitions.EighthCount - KraidHurtBand)
+        return [.. KraidColourBand.All
             .Select(band => SheetShade.Run(KraidShades.Health(band), firstInk, Band(kraid, KraidPaletteSource.Secondary, band)))];
     }
 
@@ -246,16 +244,16 @@ internal static class BossSheetShades
         }
     }
 
-    /// <summary>Health band <paramref name="band"/>'s sixteen colours of <paramref name="source"/>, minus one for the hurt flash's.</summary>
-    private static RgbColor[] Band(KraidColorCatalog kraid, KraidPaletteSource source, int band) =>
-        [.. Enumerable.Range(0, KraidPalettes.BandColors).Select(colour => kraid.Resolve(source, KraidPalettes.BandColors * (band + 1) + colour))];
+    /// <summary><paramref name="band"/>'s sixteen colours of <paramref name="source"/>: a health band's, or the hurt flash's.</summary>
+    private static RgbColor[] Band(KraidColorCatalog kraid, KraidPaletteSource source, KraidColourBand band) =>
+        [.. Enumerable.Range(0, KraidPalettes.BandColors).Select(colour => kraid.Resolve(source, KraidPalettes.BandColors * band.ColourGroup + colour))];
 
     /// <summary>
     /// Requires the eye colours <paramref name="band"/>'s shade <paramref name="colours"/> show to differ from each other and
     /// from every other colour his body's picture shows under it, so gameplay's substitution of his eyes recolours only them.
     /// </summary>
     /// <exception cref="InvalidDataException">An eye colour repeats on the picture.</exception>
-    private static void RequireUniqueEyes(ReadOnlySpan<RgbColor> standard, HashSet<int> used, RgbColor[] colours, int band)
+    private static void RequireUniqueEyes(ReadOnlySpan<RgbColor> standard, HashSet<int> used, RgbColor[] colours, KraidColourBand band)
     {
         var eyeInks = Enumerable.Range(KraidBodyFirstInk + KraidPalettes.FirstEyeColour, KraidEyeGlow.Eyes).ToHashSet();
         RgbColor[] shown = standard.ToArray();

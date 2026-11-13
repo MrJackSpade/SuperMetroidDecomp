@@ -1,6 +1,6 @@
-﻿namespace SuperMetroid.Core.Bosses.Kraid;
+namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>Development-tool members of <see cref="FakeKraidProjectileInstructionProgramDefinitions"/>; never linked by player hosts.</summary>
+/// <summary>Development-tool members of <see cref="FakeKraidProjectileAnimation"/>'s programs; never linked by player hosts.</summary>
 internal static class FakeKraidProjectileInstructionProgramToolingDefinitions
 {
     /// <summary>The spit pose's installed visual operand, two bytes into its list at $86:9DDC.</summary>

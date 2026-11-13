@@ -1,6 +1,6 @@
-﻿namespace SuperMetroid.Core.Bosses.Kraid;
+namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>Cartridge values and helpers of <see cref="FakeKraidProjectileInstructionProgramDefinitions"/> that only verification reads.</summary>
+/// <summary>Cartridge values and helpers of <see cref="FakeKraidProjectileAnimation"/>'s programs that only verification reads.</summary>
 internal static class FakeKraidProjectileInstructionProgramDefinitionsConstants
 {
     /// <summary><c>InstList_EnemyProjectile_MiniKraidSpikes_Left</c> at $86:9DE0.</summary>

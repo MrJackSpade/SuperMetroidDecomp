@@ -55,11 +55,11 @@ internal static class EnemyTileArtworkKraidColorsVerification
         // reads back. They are the installed health colours at the eyes' inks.
         var eyeReaderOwner = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = stock.Bosses };
         KraidEyeColours eyes = eyeReaderOwner.KraidBehavior.Background.EyeColours;
-        for (int band = -1; band < KraidHealthThresholdDefinitions.EighthCount; band++)
+        foreach (KraidColourBand band in KraidColourBand.All)
         {
-            RgbColor[] shown = (band < 0 ? eyes.Hurt : eyes.HealthBand(band)).ToArray();
+            RgbColor[] shown = eyes.Of(band).ToArray();
             for (int eye = 0; eye < KraidEyeGlow.Eyes; eye++)
-                AssertEqual(catalog.Resolve(KraidPaletteSource.Health, KraidPalettes.BandColors * (band + 1) + KraidPalettes.FirstEyeColour + eye),
+                AssertEqual(catalog.Resolve(KraidPaletteSource.Health, KraidPalettes.BandColors * band.ColourGroup + KraidPalettes.FirstEyeColour + eye),
                     shown[eye], $"Kraid band {band} eye {eye} installed production colour");
         }
         AssertThrows<ArgumentOutOfRangeException>(() => eyes.HealthBand(KraidHealthThresholdDefinitions.EighthCount).ToArray(),
@@ -69,9 +69,10 @@ internal static class EnemyTileArtworkKraidColorsVerification
         AssertTrue(!File.Exists(Path.Combine(installation.EnemyTileDirectory, KraidColorFormat.FileName)),
             "the installation holds none of Kraid's colours but his eyes'");
         KraidEyeColours installedEyes = installation.LoadEnemyTiles().KraidEyes;
-        for (int band = -1; band < KraidHealthThresholdDefinitions.EighthCount; band++)
-            AssertTrue((band < 0 ? installedEyes.Hurt : installedEyes.HealthBand(band)).ToArray()
-                    .SequenceEqual((band < 0 ? eyes.Hurt : eyes.HealthBand(band)).ToArray()),
+        AssertEqual(KraidHealthThresholdDefinitions.EighthCount + 1, KraidColourBand.All.Count, "his colour bands are the hurt flash and the eight health bands");
+        AssertEqual(0, KraidColourBand.HurtFlash.ColourGroup, "the hurt flash's colours come first among his health colours");
+        foreach (KraidColourBand band in KraidColourBand.All)
+            AssertTrue(installedEyes.Of(band).ToArray().SequenceEqual(eyes.Of(band).ToArray()),
                 $"Kraid band {band}'s installed eye colours are the eyes' colours of his health colours");
         AssertEqual(0, guardForAllColors.ForbiddenReadAttempts,
             "all installed Kraid palette rows avoid their ROM sources");
@@ -399,7 +400,8 @@ internal static class EnemyTileArtworkKraidColorsVerification
                 state.HurtFrame = consumer == KraidPaletteConsumer.HealthFlash
                     ? (ushort)1 : (ushort)0;
                 new Action<RoomEnemySlot, KraidEnemyState>(enemies.KraidBehavior.Head.UpdateKraidHealthColours)(body, state);
-                int band = state.Colours.Band ?? throw new InvalidOperationException("Kraid's health update names no band.");
+                KraidColourBand band = state.Colours.Band ?? throw new InvalidOperationException("Kraid's health update names no band.");
+                AssertEqual(consumer == KraidPaletteConsumer.HealthFlash, band == KraidColourBand.HurtFlash, $"Kraid's {consumer} update shows the hurt flash only on its flash");
                 AssertEqual(PictureShading.Shaded(KraidShades.Health(band)), body.Shading, $"Kraid's body slot draws in band {band}");
                 // His body shows the band's shade over its sixth tile colours, his parts over their sprite row.
                 Lay(colours, BossSheetShades.Body(BossBodyOwner.Kraid, artwork.Bosses, [], new RgbColor[ImageColourGroup.HalfColours]),

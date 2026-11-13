@@ -11,8 +11,8 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// </summary>
 internal sealed class KraidColours : IGameplayShadingSource
 {
-    /// <summary>The band shown, minus one for the hurt flash, or null while he shows his room's own colours.</summary>
-    internal int? Band { get; private set; }
+    /// <summary>The band shown, a health band or the hurt flash, or null while he shows his room's own colours.</summary>
+    internal KraidColourBand? Band { get; private set; }
 
     /// <summary>Whether his body shows his death colours.</summary>
     internal bool ShowsDeathArm { get; private set; }
@@ -30,10 +30,10 @@ internal sealed class KraidColours : IGameplayShadingSource
     internal PictureShading Parts => Band is { } band ? PictureShading.Shaded(KraidShades.Health(band)) : PictureShading.Standard;
 
     /// <summary>
-    /// Shows health band <paramref name="band"/>, or the hurt flash for minus one, with <paramref name="bandEyes"/> as its
-    /// eyes; its shade shows the eyes in <paramref name="shaded"/>, which the eyes' colours are shown in place of.
+    /// Shows <paramref name="band"/>, a health band or the hurt flash, with <paramref name="bandEyes"/> as its eyes; its
+    /// shade shows the eyes in <paramref name="shaded"/>, which the eyes' colours are shown in place of.
     /// </summary>
-    internal void ShowBand(int band, ReadOnlySpan<RgbColor> bandEyes, ReadOnlySpan<RgbColor> shaded)
+    internal void ShowBand(KraidColourBand band, ReadOnlySpan<RgbColor> bandEyes, ReadOnlySpan<RgbColor> shaded)
     {
         Band = band;
         shadedEyes = Ensure.LengthEqual(shaded, KraidEyeGlow.Eyes).ToArray();

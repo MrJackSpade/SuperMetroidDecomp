@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 /// <summary>Reads and writes the installed rear-view Ceres approach actor layout.</summary>
 public static class CeresFlightActorLayoutFile
 {
-    /// <summary>Loads the supported layout schema, requiring all five fixed actor IDs in spawn order and unsigned sixteen-bit starting coordinates.</summary>
+    /// <summary>Loads the supported layout schema, requiring all five fixed actor IDs in spawn order and signed screen-pixel starting coordinates.</summary>
     /// <param name="json">Readable JSON stream, left open after deserialization.</param>
     /// <returns>Validated starting visual placements without changing instruction programs, physical motion, or the front-view star field.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
@@ -37,10 +37,10 @@ public static class CeresFlightActorLayoutFile
             CeresFlightActorPlacement placement = document.Actors[index];
             if (placement is null ||
                 placement.Id != CeresFlightActors.RearViewPlacementId(index) ||
-                placement.X is < 0 or > ushort.MaxValue ||
-                placement.Y is < 0 or > ushort.MaxValue)
+                !CeresActorScreenCoordinate.IsSigned(placement.X) ||
+                !CeresActorScreenCoordinate.IsSigned(placement.Y))
                 throw new InvalidDataException(
-                    $"Ceres flight actor {index} must retain its identity and 16-bit coordinates.");
+                    $"Ceres flight actor {index} must retain its identity and signed screen-pixel coordinates.");
         }
         return new CeresFlightActorPlacements(document.Actors);
     }

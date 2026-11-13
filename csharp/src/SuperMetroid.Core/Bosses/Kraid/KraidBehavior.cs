@@ -67,7 +67,11 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         Combat = new KraidCombat(dependencies.Projectiles, dependencies.Audio, dependencies.SpriteObjects, Parts, dependencies.Collision, Access);
     }
 
-    /// <summary>The maximum timer the still lint and fingernail parts wait behind before their first frame.</summary>
+    /// <summary>
+    /// The longest wait a part's timer is loaded with, kept exact (#1627). The lint and fingernail frame timers wait behind
+    /// it so their programs never advance before their routines start them, and a dying Kraid's lints wait behind it as
+    /// their function timer, changing function when it runs out, which gameplay sees.
+    /// </summary>
     internal const int KraidStillPartTimer = 32767;
 
     /// <summary>

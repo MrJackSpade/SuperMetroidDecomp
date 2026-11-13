@@ -24,7 +24,7 @@ public sealed class BotwoonEnemyState
     /// </summary>
     public BotwoonHeadFunction? HeadFunction { get; internal set; }
 
-    /// <summary>Cursor 0-255 into the X/Y history ring; each moving frame writes its head position and advances modulo 256.</summary>
+    /// <summary>The trail ring's next place, 0 through 255 (<see cref="BotwoonTrailRing"/>); each moving update writes the head's position there and moves on one place.</summary>
     public int RingIndex { get; internal set; }
     /// <summary>History-entry distance between successive body samples, selected inversely to movement speed: 6, 4, or 3.</summary>
     public int SegmentSpacingEntries { get; internal set; }
@@ -142,8 +142,8 @@ public sealed class BotwoonEnemyState
     /// </summary>
     internal BotwoonBodyFunction[] SegmentFunctions { get; } = new BotwoonBodyFunction[13];
 
-    /// <summary>One kilobyte of position history, represented as 256 whole-pixel positions.</summary>
-    internal Position16<RoomPixels>[] History { get; } = new Position16<RoomPixels>[256];
+    /// <summary>The head's last moving positions, one for each of the trail ring's places (<see cref="BotwoonTrailRing"/>), cleared as the room's enemies load.</summary>
+    internal Position16<RoomPixels>[] History { get; } = new Position16<RoomPixels>[BotwoonTrailRing.Places];
 
     /// <summary>Four delayed head positions used to choose the visible head orientation.</summary>
     internal Position16<RoomPixels>[] HeadHistory { get; } = new Position16<RoomPixels>[4];

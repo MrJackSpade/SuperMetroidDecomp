@@ -102,7 +102,7 @@ internal static class CeresFlightArtworkExtractor
                 CeresCinematicSourceDefinitions.PlacementBank | source.SecondOperand);
             placements[index] = new CeresFlightActorPlacement
             {
-                Id = source.Id, X = x, Y = y,
+                Id = source.Id, X = CoordinateAxis.AsSigned(x), Y = CoordinateAxis.AsSigned(y),
             };
         }
         using var actorsJson = new MemoryStream();

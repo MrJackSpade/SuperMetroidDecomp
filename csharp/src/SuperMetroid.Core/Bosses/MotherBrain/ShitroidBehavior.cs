@@ -115,6 +115,12 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Shading = state.Shading;
     }
 
+    /// <summary>
+    /// The health the Shitroid's main AI restores every update, kept exact (#1627): a hit later in the update takes its
+    /// damage from this count, and what remains is the health the rest of that update reads.
+    /// </summary>
+    private const int RestoredHealth = 32767;
+
     /// <summary>Runs the Shitroid's per-frame behaviour.</summary>
     internal void RunShitroidMain(
         RoomEnemySlot slot,
@@ -126,8 +132,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         _shitroidCamera = camera;
 
         // Shitroid's private shot handler applies recoil but no health loss. The main AI
-        // redundantly restores 32,767 health every processed frame, exactly as the original game does.
-        slot.Health = short.MaxValue;
+        // redundantly restores its health every processed frame, exactly as the original game does.
+        slot.Health = RestoredHealth;
         DispatchShitroidState(slot, state, samus, sharedProjectiles);
         DeadTorizoBehavior.MoveWithEightEightVelocity(slot, state.Velocity);
         if (_zebetiteBehavior.PaletteChangeNumber == 0)

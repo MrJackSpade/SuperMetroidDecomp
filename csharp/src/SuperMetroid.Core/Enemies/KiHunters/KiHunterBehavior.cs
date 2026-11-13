@@ -255,7 +255,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.MaximumAngularVelocity = -2;
             state.AngularAcceleration = KiHunterMotionDefinitions.LeftSwoopAcceleration;
-            state.SwoopAngle = 255;
+            // A leftward swoop starts one step short of the whole turn, as the original's does, and steps down to the half turn.
+            state.SwoopAngle = RotationAngle.StepsPerTurn - 1;
             state.AnimationChangeAngle = 240;
             state.Velocity = state.Velocity.WithWholeX(-1);
         }

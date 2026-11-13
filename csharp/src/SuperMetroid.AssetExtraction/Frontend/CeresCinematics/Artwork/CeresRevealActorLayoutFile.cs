@@ -12,7 +12,7 @@ public static class CeresRevealActorLayoutFile
     /// <param name="json">UTF-8 JSON source read from its current position and left open.</param>
     /// <returns>The six installed placements of the reveal.</returns>
     /// <exception cref="ArgumentNullException">The source stream is null.</exception>
-    /// <exception cref="InvalidDataException">The JSON, schema version, six-entry order, actor identity, or unsigned 16-bit coordinate is invalid.</exception>
+    /// <exception cref="InvalidDataException">The JSON, schema version, six-entry order, actor identity, or signed screen-pixel coordinate is invalid.</exception>
     public static CeresRevealActorPlacements Read(Stream json)
     {
         Ensure.NotNull(json);
@@ -36,10 +36,10 @@ public static class CeresRevealActorLayoutFile
             CeresRevealActorPlacement placement = document.Actors[index];
             if (placement is null ||
                 placement.Id != CeresDestructionActors.ZebesPlacementId(index) ||
-                placement.X is < 0 or > ushort.MaxValue ||
-                placement.Y is < 0 or > ushort.MaxValue)
+                !CeresActorScreenCoordinate.IsSigned(placement.X) ||
+                !CeresActorScreenCoordinate.IsSigned(placement.Y))
                 throw new InvalidDataException(
-                    $"Ceres reveal actor {index} must retain its identity and 16-bit coordinates.");
+                    $"Ceres reveal actor {index} must retain its identity and signed screen-pixel coordinates.");
         }
         return new CeresRevealActorPlacements(document.Actors);
     }

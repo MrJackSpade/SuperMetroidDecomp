@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 /// <summary>Reads and writes the installed layout of the persistent actors behind Ceres's explosion.</summary>
 public static class CeresDestructionActorLayoutFile
 {
-    /// <summary>Loads the supported layout schema, requiring the three persistent actor IDs in spawn order and unsigned sixteen-bit starting coordinates.</summary>
+    /// <summary>Loads the supported layout schema, requiring the three persistent actor IDs in spawn order and signed screen-pixel starting coordinates.</summary>
     /// <param name="json">Readable JSON stream, left open after deserialization.</param>
     /// <returns>Validated persistent-actor placements, without changing asteroid motion/wrap, vortex behavior, explosion spawn events, or later Zebes artwork.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
@@ -37,10 +37,10 @@ public static class CeresDestructionActorLayoutFile
             CeresDestructionActorPlacement placement = document.Actors[index];
             if (placement is null ||
                 placement.Id != CeresDestructionActors.InitialPlacementId(index) ||
-                placement.X is < 0 or > ushort.MaxValue ||
-                placement.Y is < 0 or > ushort.MaxValue)
+                !CeresActorScreenCoordinate.IsSigned(placement.X) ||
+                !CeresActorScreenCoordinate.IsSigned(placement.Y))
                 throw new InvalidDataException(
-                    $"Ceres destruction actor {index} must retain its identity and 16-bit coordinates.");
+                    $"Ceres destruction actor {index} must retain its identity and signed screen-pixel coordinates.");
         }
         return new CeresDestructionActorPlacements(document.Actors);
     }

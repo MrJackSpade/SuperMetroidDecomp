@@ -13,10 +13,10 @@ public static class KraidShades
     public const int BackdropFadeShades = 14;
 
     /// <summary>
-    /// Kraid's colours for health band <paramref name="band"/>, zero through seven, or the hurt flash's for minus one: his
-    /// body's on the background and his sprite parts' (#1512).
+    /// Kraid's colours for <paramref name="band"/>, a health band or the hurt flash: his body's on the background and his
+    /// sprite parts' (#1512). The shade's step is the band's place among his health colours' groups.
     /// </summary>
-    public static PictureShade Health(int band) => new("kraid-health", band + 1);
+    public static PictureShade Health(KraidColourBand band) => new("kraid-health", band.ColourGroup);
 
     /// <summary>His body's colours as he dies, with his arm drawn into them.</summary>
     public static PictureShade DeathArm { get; } = new("kraid-death-arm", 0);

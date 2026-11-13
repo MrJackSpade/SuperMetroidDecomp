@@ -50,7 +50,7 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
         bool lowerNorfair = _area == AreaId.Norfair &&
             behavior == ChozoStatueRoomDefinitions.LowerNorfairHandBehavior;
         if (!wreckedShip && !lowerNorfair) return;
-        // Both setups return SEC regardless of admission. The morph-left pose
+        // Both setups report the block solid regardless of admission. The morph-left pose
         // is deliberately absent: the game explicitly lists these three poses.
         bool eligible = movingDown && collisionPose is
             (SamusPoseId.MorphBallGroundRightPose or

@@ -1620,14 +1620,14 @@ internal static class LookupStream4Verification
     /// select ($86:B65B shot origins at operands 0 and 20, $86:B6B1 sweat velocities at operands 0 and 4) equal them,
     /// rather than comparing every word of the tables, whose other entries no retail eye door selects.
     /// </summary>
-    private static void VerifyLookupStream4GeometryLayout(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream4GeometryLayout(ISnesAddressSpace rom)
     {
         short NativeWord(int address) => unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
         // The attack initializer adds eight pixels to the table's X before placing the shot.
         AssertEqual(new Offset16<RoomPixels>(checked((short)(8 + NativeWord(0x86b65b))), NativeWord(0x86b65d)), EyeDoorEffectDefinitions.LeftShotOrigin, "left eye-door shot origin");
         AssertEqual(new Offset16<RoomPixels>(checked((short)(8 + NativeWord(0x86b65b + 20))), NativeWord(0x86b65b + 22)), EyeDoorEffectDefinitions.RightShotOrigin, "right eye-door shot origin");
-        AssertEqual(new EightEightVector<RoomPixels>(NativeWord(0x86b6b1), NativeWord(0x86b6b3)), EyeDoorEffectDefinitions.LeftSweatLaunch, "left eye-door sweat launch");
-        AssertEqual(new EightEightVector<RoomPixels>(NativeWord(0x86b6b1 + 4), NativeWord(0x86b6b1 + 6)), EyeDoorEffectDefinitions.RightSweatLaunch, "right eye-door sweat launch");
+        AssertEqual(EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(NativeWord(0x86b6b1), NativeWord(0x86b6b3)), EyeDoorEffectDefinitions.LeftSweatLaunch, "left eye-door sweat launch");
+        AssertEqual(EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(NativeWord(0x86b6b1 + 4), NativeWord(0x86b6b1 + 6)), EyeDoorEffectDefinitions.RightSweatLaunch, "right eye-door sweat launch");
         for (int index = 0; index < 4; index++)
         {
             var target = DraygonCannonData.FiringTarget(DraygonCannonData.FiringOrder[index]);

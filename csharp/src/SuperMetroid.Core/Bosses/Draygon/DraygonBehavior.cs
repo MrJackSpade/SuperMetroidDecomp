@@ -214,10 +214,10 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static readonly Offset16<RoomPixels> DraygonRightSideResetDistance = new(672, 0);
 
     /// <summary>The swoop acceleration a fight starts with and a tail-whip hit restores: 24/256 pixel per frame per frame downward.</summary>
-    internal static readonly EightEightVector<RoomPixels> DraygonInitialSwoopAcceleration = new(0, 24);
+    internal static readonly EightEightVector<RoomPixels> DraygonInitialSwoopAcceleration = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 24);
 
     /// <summary>The swoop acceleration each eye hit adds, 8/256 pixel per frame per frame, while below the limit.</summary>
-    internal static readonly EightEightVector<RoomPixels> DraygonShotSwoopAccelerationStep = new(0, 8);
+    internal static readonly EightEightVector<RoomPixels> DraygonShotSwoopAccelerationStep = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 8);
 
     /// <summary>The swoop acceleration, 160/256 pixel per frame per frame, an eye hit may not reach.</summary>
     internal static readonly SignedEightEight DraygonSwoopAccelerationLimit = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(160);

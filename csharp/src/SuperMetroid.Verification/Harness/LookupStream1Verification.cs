@@ -1015,7 +1015,7 @@ internal static class LookupStream1Verification
     /// <summary>Reads source bytes for the broad pose and gameplay lookup comparison.</summary>
     private static byte LookupStream1RomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     /// <summary>Checks Powamp wiggle offsets and balloon/body motion tables.</summary>
-    private static void VerifyLookupStream1PowampMotion(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream1PowampMotion(ISnesAddressSpace rom)
     {
         short Word(int address) => unchecked((short)(LittleEndianBytes.Word(LookupStream1PowampMotionRomByte(rom, address), LookupStream1PowampMotionRomByte(rom, address + 1))));
         for (int phase = 0; phase < 12; phase++)
@@ -1044,7 +1044,7 @@ internal static class LookupStream1Verification
     /// <summary>Reads Powamp native wiggle and balloon offset words.</summary>
     private static byte LookupStream1PowampMotionRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     /// <summary>Checks compiled Bull movement intervals and other enemy motion values.</summary>
-    private static void VerifyLookupStream1EnemyMovement(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream1EnemyMovement(ISnesAddressSpace rom)
     {
         ushort Word(int address) => LittleEndianBytes.Word(LookupStream1EnemyMovementRomByte(rom, address), LookupStream1EnemyMovementRomByte(rom, address + 1));
         for (ushort index = 0; index < 13; index++)

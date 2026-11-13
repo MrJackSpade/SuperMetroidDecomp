@@ -49,7 +49,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         state.DecelerationIntervalTimerReset = intervals.Deceleration;
         state.ActivationTimer = BullMovementDelayFrames;
         state.Function = BullEnemyFunction.MovementDelay;
-        state.MaxSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(settings.MaximumSpeed);
+        state.MaxSpeed = settings.MaximumSpeed;
     }
 
     /// <summary>Runs a Bull's per-frame behaviour through all four of its functions.</summary>

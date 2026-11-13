@@ -279,7 +279,7 @@ internal sealed class CrocomireCombat
         EnemyProjectile projectile,
         RoomLevelData level)
     {
-        // The setup performs one horizontal collision move and deliberately ignores carry.
+        // The setup performs one horizontal collision move and deliberately ignores whether it hit terrain.
         EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal);
 
         // The last shot reads the gradient after the authored ones, which the installed service holds; do not clamp

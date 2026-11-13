@@ -12,8 +12,18 @@ internal static class RoomObjectHeaders
             ? new(header)
             : throw new InvalidDataException($"Compiled room-object headers lack retail header {header}.");
 
-    /// <summary>The contact-crumble header that special-block reaction <paramref name="index"/> places.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is not one of the eight reactions.</exception>
-    public static RoomObjectHeaderId ContactCrumbleByReactionIndex(int index) =>
-        Ensure.Element(RoomObjectHeaderDefinitions.ContactCrumbleHeaders, index);
+    /// <summary>The room object that breaks up <paramref name="crumble"/> once Samus lands on it.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="crumble"/> names no crumble block.</exception>
+    internal static RoomObjectHeaderId ContactCrumbleOf(ContactCrumbleBlock crumble) => crumble switch
+    {
+        ContactCrumbleBlock.Respawning1x1 => RoomObjectHeaderId.ContactCrumble1x1Respawning,
+        ContactCrumbleBlock.Respawning2x1 => RoomObjectHeaderId.ContactCrumble2x1Respawning,
+        ContactCrumbleBlock.Respawning1x2 => RoomObjectHeaderId.ContactCrumble1x2Respawning,
+        ContactCrumbleBlock.Respawning2x2 => RoomObjectHeaderId.ContactCrumble2x2Respawning,
+        ContactCrumbleBlock.Permanent1x1 => RoomObjectHeaderId.ContactCrumble1x1Permanent,
+        ContactCrumbleBlock.Permanent2x1 => RoomObjectHeaderId.ContactCrumble2x1Permanent,
+        ContactCrumbleBlock.Permanent1x2 => RoomObjectHeaderId.ContactCrumble1x2Permanent,
+        ContactCrumbleBlock.Permanent2x2 => RoomObjectHeaderId.ContactCrumble2x2Permanent,
+        _ => throw new ArgumentOutOfRangeException(nameof(crumble), crumble, "Undefined contact crumble block."),
+    };
 }

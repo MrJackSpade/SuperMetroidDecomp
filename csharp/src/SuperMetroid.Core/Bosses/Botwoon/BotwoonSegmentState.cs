@@ -1,8 +1,12 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
-/// <summary>What one of Botwoon's body segments keeps: the pose its angle to the segment ahead selects, and its delay before it falls when Botwoon dies.</summary>
+/// <summary>
+/// What one of Botwoon's body segments keeps: the pose its angle to the segment ahead selects, its delay before it falls
+/// when Botwoon dies, and its place along the quadratic speed table as it falls.
+/// </summary>
 /// <param name="pose">The pose the segment starts in.</param>
 internal sealed class BotwoonSegmentState(BotwoonSegmentProgram pose) : EnemyProjectileState
 {
@@ -21,4 +25,10 @@ internal sealed class BotwoonSegmentState(BotwoonSegmentProgram pose) : EnemyPro
 
     /// <summary>The count at which a dying segment falls.</summary>
     internal const int FallAt = 256;
+
+    /// <summary>
+    /// The falling segment's place along the quadratic speed table: its whole rows choose the speed it falls at, and it
+    /// starts at the first row and moves on each update the segment has not yet landed.
+    /// </summary>
+    internal EnemyQuadraticSpeedIndex FallPlace { get; set; }
 }

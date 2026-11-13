@@ -11,9 +11,9 @@ internal static class EscapeEtecoonDefinitions
     internal static readonly Dictionary<EscapeEtecoonRole, EscapeEtecoonInitialization> Initializations = new()
     {
         [EscapeEtecoonRole.LeftWalker] = new(new(128, 200), EscapeEtecoonFrameBehavior.WalkAndFall,
-            EscapeEtecoonProgram.RunningLeftLowTide, new(-512, 0)),
+            EscapeEtecoonProgram.RunningLeftLowTide, EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-512, 0)),
         [EscapeEtecoonRole.RightWalker] = new(new(160, 200), EscapeEtecoonFrameBehavior.WalkAndFall,
-            EscapeEtecoonProgram.RunningRightLowTide, new(640, 0)),
+            EscapeEtecoonProgram.RunningRightLowTide, EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(640, 0)),
         [EscapeEtecoonRole.WaitForEscapeEvent] = new(new(232, 200), EscapeEtecoonFrameBehavior.WaitForEscapeEvent,
             EscapeEtecoonProgram.Stationary, default),
     };

@@ -91,6 +91,12 @@ internal static class CrocomireStateQuantitiesVerification
     /// </summary>
     private static void VerifySinkMatchesNativeBytes()
     {
+        // Every sink starts from rest at the cartridge's starting acceleration word, whatever motion preceded it.
+        (_, CrocomireEnemyState started) = NewCrocomire();
+        started.VerticalSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(300);
+        started.VerticalSubpixel = 77;
+        started.StartVerticalMotion(CrocomireBehavior.SinkStartingAcceleration);
+        AssertMotionWords(started, LittleEndianBytes.Word(0, 8), 0, 0, started.Body.Position.Y.Whole, "a started sink");
         CompareSink(LittleEndianBytes.Word(0, 8), 0, 0, 144, "resting sink");
         CompareSink(LittleEndianBytes.Word(200, 47), LittleEndianBytes.Word(250, 3), LittleEndianBytes.Word(77, 250), 150,
             "clamped sink");

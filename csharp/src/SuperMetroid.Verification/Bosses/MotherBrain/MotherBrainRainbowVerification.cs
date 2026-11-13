@@ -40,7 +40,7 @@ internal static void VerifyMotherBrainRainbowBeamSamusMovement()
     movement.BeginFallingAfterRainbowBeam();
     MotherBrainForcedSamusMovementResult first =
         movement.StepFallingAfterRainbowBeam(samus, cameraCheckpoint);
-    AssertEqual(new EightEightVector<RoomPixels>(unchecked((short)0xff02), 0x0018), movement.CustomVelocity,
+    AssertEqual(EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-254, 24), movement.CustomVelocity,
         "rainbow fall first eased X and accelerated Y velocity");
     AssertEqual(100, samus.Position.X.Whole, "rainbow fall signed X plus fractional carry");
     AssertEqual(0x01aa, samus.Kinematics.Position.X.Fraction, "rainbow fall preserves X low sub-byte");

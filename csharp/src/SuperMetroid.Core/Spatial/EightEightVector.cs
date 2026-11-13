@@ -10,15 +10,6 @@ namespace SuperMetroid.Core.Spatial;
 public readonly record struct EightEightVector<TSpace>(SignedEightEight X, SignedEightEight Y)
     where TSpace : ISpatialSpace
 {
-    /// <summary>
-    /// The velocity of <paramref name="x"/> and <paramref name="y"/> 256ths of a pixel an update, each -32768 through 32767,
-    /// as the definition tables state their launch and step velocities.
-    /// </summary>
-    public EightEightVector(int x, int y)
-        : this(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(x), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(y))
-    {
-    }
-
     /// <summary>No velocity on either axis.</summary>
     public static EightEightVector<TSpace> Zero => default;
 

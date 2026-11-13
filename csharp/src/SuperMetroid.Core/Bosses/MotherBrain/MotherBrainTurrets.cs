@@ -48,7 +48,7 @@ internal static class MotherBrainTurrets
         double angle = index * Math.PI / 4;
         int muzzleY = MuzzleYs.TryGetValue(direction, out int y) ? y : throw new ArgumentOutOfRangeException(nameof(direction));
         return new(new((int)Math.Round(-MuzzleRadius * Math.Cos(angle)), muzzleY),
-            new((int)Math.Round(-BulletSpeed * Math.Cos(angle)), (int)Math.Round(BulletSpeed * Math.Sin(angle))));
+            EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel((int)Math.Round(-BulletSpeed * Math.Cos(angle)), (int)Math.Round(BulletSpeed * Math.Sin(angle))));
     }
 
     /// <summary>Whether turret <paramref name="turret"/> may rotate to <paramref name="direction"/>.</summary>

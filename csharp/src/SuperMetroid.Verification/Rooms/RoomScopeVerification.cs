@@ -43,7 +43,7 @@ internal static class RoomScopeVerification
         runtime.EnemySession.CeresStatus = CeresEscapeStatus.RidleyEscaped;
         EnemyProjectile sourceProjectile = source.Enemies.Projectiles.EnemyProjectiles[3];
         sourceProjectile.Position = FixedPosition<RoomPixels>.FromStoredParts(0x0140, 0x1234, 0x0090, 0x5678);
-        sourceProjectile.Velocity = new EightEightVector<RoomPixels>(0x0200, unchecked((short)0xFE00));
+        sourceProjectile.Velocity = new(SignedEightEight.FromPixels(2), SignedEightEight.FromPixels(-2));
         SamusProjectile sourceShot = source.Projectiles.SlotTable.Slots[2];
         sourceShot.Damage = 1;
         sourceShot.Position = FixedPosition<RoomPixels>.FromStoredParts(0x0120, 0x4321, 0x0080, 0x8765);

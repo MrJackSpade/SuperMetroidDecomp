@@ -15,19 +15,23 @@ internal static class PuyoOwnedStateVerification
     /// </summary>
     internal static void VerifyPuyoOwnedState()
     {
-        var hop = new PuyoEnemyState { YSpeedTableIndex = 0x0200 };
-        hop.StepAirborneIndex(0x0200);
-        AssertEqual(new VerifyPuyoOwnedStateCase(0, false), new VerifyPuyoOwnedStateCase(hop.YSpeedTableIndex, hop.Falling), "a rising step landing on zero keeps rising");
-        hop.StepAirborneIndex(0x0200);
-        AssertEqual(new VerifyPuyoOwnedStateCase(0, true), new VerifyPuyoOwnedStateCase(hop.YSpeedTableIndex, hop.Falling), "a rising step below zero is the apex");
-        hop.StepAirborneIndex(0x01c0);
-        AssertEqual(new VerifyPuyoOwnedStateCase(0x01c0, true), new VerifyPuyoOwnedStateCase(hop.YSpeedTableIndex, hop.Falling), "a falling step accumulates");
-        hop.YSpeedTableIndex = 0x7f00;
-        hop.StepAirborneIndex(0x0100);
-        AssertEqual(new VerifyPuyoOwnedStateCase(0, true), new VerifyPuyoOwnedStateCase(hop.YSpeedTableIndex, hop.Falling), "a falling step reaching the sign bit restarts the fall");
-        hop.YSpeedTableIndex = 0x7e00;
-        hop.StepAirborneIndex(0x0100);
-        AssertEqual(new VerifyPuyoOwnedStateCase(0x7f00, true), new VerifyPuyoOwnedStateCase(hop.YSpeedTableIndex, hop.Falling), "a falling step below the sign bit keeps falling");
+        static EnemyQuadraticSpeedIndex Index(int twoHundredFiftySixths) => EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(twoHundredFiftySixths);
+        var hop = new PuyoEnemyState { YSpeedTableIndex = Index(0x0200) };
+        hop.StepAirborneIndex(Index(0x0200));
+        AssertEqual(new VerifyPuyoOwnedStateCase(0, false), new VerifyPuyoOwnedStateCase(hop.YSpeedTableIndex.InTwoHundredFiftySixthsOfRow, hop.Falling), "a rising step landing on zero keeps rising");
+        hop.StepAirborneIndex(Index(0x0200));
+        AssertEqual(new VerifyPuyoOwnedStateCase(0, true), new VerifyPuyoOwnedStateCase(hop.YSpeedTableIndex.InTwoHundredFiftySixthsOfRow, hop.Falling), "a rising step below zero is the apex");
+        hop.StepAirborneIndex(Index(0x01c0));
+        AssertEqual(new VerifyPuyoOwnedStateCase(0x01c0, true), new VerifyPuyoOwnedStateCase(hop.YSpeedTableIndex.InTwoHundredFiftySixthsOfRow, hop.Falling), "a falling step accumulates");
+        hop.YSpeedTableIndex = Index(0x7f00);
+        hop.StepAirborneIndex(Index(0x0100));
+        AssertEqual(new VerifyPuyoOwnedStateCase(0, true), new VerifyPuyoOwnedStateCase(hop.YSpeedTableIndex.InTwoHundredFiftySixthsOfRow, hop.Falling), "a falling step reaching the sign bit restarts the fall");
+        hop.YSpeedTableIndex = Index(0x7e00);
+        hop.StepAirborneIndex(Index(0x0100));
+        AssertEqual(new VerifyPuyoOwnedStateCase(0x7f00, true), new VerifyPuyoOwnedStateCase(hop.YSpeedTableIndex.InTwoHundredFiftySixthsOfRow, hop.Falling), "a falling step below the sign bit keeps falling");
+        hop.YSpeedTableIndex = Index(0x7f00);
+        hop.StepAirborneIndex(Index(0x00ff));
+        AssertEqual(new VerifyPuyoOwnedStateCase(0x7fff, true), new VerifyPuyoOwnedStateCase(hop.YSpeedTableIndex.InTwoHundredFiftySixthsOfRow, hop.Falling), "a falling step to the last place before the sign bit keeps falling");
 
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];

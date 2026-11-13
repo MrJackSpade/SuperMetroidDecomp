@@ -29,15 +29,45 @@ internal static class SamusProjectileMotionDefinitions
     internal static readonly FrozenDictionary<SamusProjectileDirection, SamusDirectionAccelerations> Accelerations =
         new Dictionary<SamusProjectileDirection, SamusDirectionAccelerations>
         {
-            [SamusProjectileDirection.UpFacingRight] = new(new(0, -16), new(0, -64), new(0, -256)),
-            [SamusProjectileDirection.UpRight] = new(new(16, -16), new(54, -54), new(182, -182)),
-            [SamusProjectileDirection.Right] = new(new(16, 0), new(64, 0), new(256, 0)),
-            [SamusProjectileDirection.DownRight] = new(new(16, 16), new(54, 54), new(182, 182)),
-            [SamusProjectileDirection.DownFacingRight] = new(new(0, 16), new(0, 64), new(0, 256)),
-            [SamusProjectileDirection.DownFacingLeft] = new(new(0, 16), new(0, 64), new(0, 256)),
-            [SamusProjectileDirection.DownLeft] = new(new(-16, 16), new(-54, 54), new(-182, 182)),
-            [SamusProjectileDirection.Left] = new(new(-16, 0), new(-64, 0), new(-256, 0)),
-            [SamusProjectileDirection.UpLeft] = new(new(-16, -16), new(-54, -54), new(-182, -182)),
-            [SamusProjectileDirection.UpFacingLeft] = new(new(0, -16), new(0, -64), new(0, -256)),
+            [SamusProjectileDirection.UpFacingRight] = new(
+                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, -16),
+                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, -64),
+                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, -256)),
+            [SamusProjectileDirection.UpRight] = new(
+                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(16, -16),
+                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(54, -54),
+                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(182, -182)),
+            [SamusProjectileDirection.Right] = new(
+                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(16, 0),
+                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(64, 0),
+                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(256, 0)),
+            [SamusProjectileDirection.DownRight] = new(
+                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(16, 16),
+                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(54, 54),
+                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(182, 182)),
+            [SamusProjectileDirection.DownFacingRight] = new(
+                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 16),
+                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 64),
+                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 256)),
+            [SamusProjectileDirection.DownFacingLeft] = new(
+                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 16),
+                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 64),
+                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 256)),
+            [SamusProjectileDirection.DownLeft] = new(
+                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-16, 16),
+                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-54, 54),
+                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-182, 182)),
+            [SamusProjectileDirection.Left] = new(
+                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-16, 0),
+                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-64, 0),
+                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-256, 0)),
+            [SamusProjectileDirection.UpLeft] = new(
+                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-16, -16),
+                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-54, -54),
+                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-182, -182)),
+            [SamusProjectileDirection.UpFacingLeft] = new(
+                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, -16),
+                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, -64),
+                EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, -256)),
         }.ToFrozenDictionary();
 }

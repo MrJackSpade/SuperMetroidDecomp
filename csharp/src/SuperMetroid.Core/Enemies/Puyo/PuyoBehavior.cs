@@ -40,8 +40,8 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         _ceilingTurn = ceilingTurn;
     }
 
-    /// <summary>Upper bound applied to the airborne speed-table index.</summary>
-    private const int MaximumPuyoYSpeedTableIndex = 16384;
+    /// <summary>Upper bound applied to the airborne speed-table index when it selects a speed.</summary>
+    private static readonly EnemyQuadraticSpeedIndex MaximumPuyoYSpeedTableIndex = EnemyQuadraticSpeedIndex.FromRows(64);
 
     /// <summary>Initializes the Puyo.</summary>
     internal static void InitializePuyo(RoomEnemySlot slot)
@@ -51,7 +51,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
 
         var state = new PuyoEnemyState
         {
-            YSpeedTableIndex = 0,
+            YSpeedTableIndex = EnemyQuadraticSpeedIndex.Start,
             HopCooldownTimer = slot.SpawnSettings<PuyoSpawnSettings>().HopCooldown,
             Function = PuyoEnemyFunction.Grounded,
             // The initialization AI never writes the airborne function or the inactive extra values. The room loader's
@@ -65,8 +65,8 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
             Falling = false,
             InvertDirection = false,
             InvertedDirection = PuyoDirection.Right,
-            InitialYSpeedTableIndexThreeQuarters = 0,
-            InitialYSpeedTableIndexHalf = 0,
+            InitialYSpeedTableIndexThreeQuarters = EnemyQuadraticSpeedIndex.Start,
+            InitialYSpeedTableIndexHalf = EnemyQuadraticSpeedIndex.Start,
         };
         slot.SetSpeciesState(state);
         SetPuyoProgram(slot, state, PuyoProgram.GroundedFast);
@@ -176,10 +176,11 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
             if (!WrappingCounter.IsBehind(swappedJumpHeight, distanceAccumulator))
                 continue;
 
-            state.YSpeedTableIndex = timeAccumulator;
+            state.YSpeedTableIndex = EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(timeAccumulator);
             state.Falling = false;
-            state.InitialYSpeedTableIndexHalf = timeAccumulator >> 1;
-            state.InitialYSpeedTableIndexThreeQuarters = (timeAccumulator >> 2) + state.InitialYSpeedTableIndexHalf;
+            state.InitialYSpeedTableIndexHalf = EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(timeAccumulator >> 1);
+            state.InitialYSpeedTableIndexThreeQuarters =
+                EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(timeAccumulator >> 2) + state.InitialYSpeedTableIndexHalf;
             return;
         }
 
@@ -307,8 +308,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Moves the Puyo.</summary>
     private void MovePuyo(RoomEnemySlot slot, PuyoEnemyState state, RoomLevelData level)
     {
-        int cappedIndex = Math.Min(state.YSpeedTableIndex, MaximumPuyoYSpeedTableIndex);
-        EnemyQuadraticSpeedRow speedRow = EnemyQuadraticSpeeds.Row(EightEight.WholeOf(cappedIndex));
+        EnemyQuadraticSpeedRow speedRow = EnemyQuadraticSpeedIndex.Min(state.YSpeedTableIndex, MaximumPuyoYSpeedTableIndex).Row;
         SignedSixteenSixteen verticalDisplacement = speedRow.Toward(state.Falling ? EnemySpeedSign.Positive : EnemySpeedSign.Negative);
         bool verticalCollision = _terrain.MoveEnemyVertically(level, slot, verticalDisplacement);
         if (verticalCollision)
@@ -335,7 +335,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         // squash/stretch thresholds in the authored rather than interpolating sprite frames.
         SetPuyoAirborneProgram(slot, state);
 
-        state.StepAirborneIndex(Hop(state).YIndexDelta);
+        state.StepAirborneIndex(EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(Hop(state).YIndexDelta));
 
         // X speed is authored as 8.8, but NTSC movement moves by the whole pixels only
         // and zeroes the subspeed; only the PAL build uses the fraction. The giant

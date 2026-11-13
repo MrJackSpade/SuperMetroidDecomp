@@ -327,15 +327,7 @@ internal sealed class DraygonParts
             throw new InvalidOperationException("Draygon's tail-hit instruction requires Samus state.");
 
         state.SwoopAcceleration = DraygonBehavior.DraygonInitialSwoopAcceleration;
-        int rawDamage = state.Body.Definition.Damage;
-        int damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
-            ? rawDamage >> 2
-            : samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
-                ? rawDamage >> 1
-                : rawDamage;
-        samus.Health = samus.Health <= damage
-            ? 0
-            : samus.Health - damage;
+        SamusSuitDamage.Hurt(samus, state.Body.Definition.Damage);
 
         // The tail hit also publishes the same 32-frame, type-seven quake used by the
         // game's grabbed-tail impact. Keeping it on the shared room-enemy surface lets

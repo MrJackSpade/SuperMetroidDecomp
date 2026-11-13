@@ -498,14 +498,7 @@ public static class SamusGrappleMovement
         ControllerButton controllerInput,
         int damageBeforeSuit)
     {
-        int damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
-            ? damageBeforeSuit / 4
-            : samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
-                ? damageBeforeSuit / 2
-                : damageBeforeSuit;
-        samus.Health = samus.Health <= damage
-            ? 0
-            : samus.Health - damage;
+        SamusSuitDamage.Hurt(samus, damageBeforeSuit);
         samus.InvincibilityTimer = WrappingCountdown.Start(96);
 
         // Facing left is knocked right and facing right is knocked left. Start owns the

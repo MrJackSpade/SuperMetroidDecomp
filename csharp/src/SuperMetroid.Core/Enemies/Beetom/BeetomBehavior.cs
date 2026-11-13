@@ -511,14 +511,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         // subtraction directly, then reproduce those two clearing stores.
         if (!BeetomCadenceDefinitions.DrainDamageEverySixtyFourthUpdate.IsDue(slot.FrameCounter))
             return;
-        int damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
-            ? slot.Definition.Damage >> 2
-            : samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
-                ? slot.Definition.Damage >> 1
-                : slot.Definition.Damage;
-        samus.Health = samus.Health <= damage
-            ? 0
-            : samus.Health - damage;
+        SamusSuitDamage.Hurt(samus, slot.Definition.Damage);
         samus.InvincibilityTimer = WrappingCountdown.Start(0);
         samus.KnockbackTimer = 0;
     }

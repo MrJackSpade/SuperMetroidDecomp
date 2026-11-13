@@ -625,14 +625,7 @@ internal sealed class MotherBrainProjectiles
         if (samus is not null && MotherBrainOnionRingOverlapsSamus(ring, samus))
         {
             Position16<RoomPixels> ringPosition = ring.Position.Whole;
-            int damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
-                ? 80 >> 2
-                : samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
-                    ? 80 >> 1
-                    : 80;
-            samus.Health = samus.Health <= damage
-                ? 0
-                : samus.Health - damage;
+            SamusSuitDamage.Hurt(samus, 80);
             samus.InvincibilityTimer = WrappingCountdown.Start(96);
             samus.KnockbackTimer = 5;
             samus.KnockbackXDirection = CoordinateAxis.Difference(samus.Position.X.Whole, ringPosition.X) >= 0

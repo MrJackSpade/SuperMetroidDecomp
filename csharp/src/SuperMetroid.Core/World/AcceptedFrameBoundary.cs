@@ -269,11 +269,8 @@ internal sealed class AcceptedFrameBoundary
         if (rooms.Background is null && sky is null && latched.Bosses.Body is null
             && scope.BackgroundImage is RoomLibraryBackgroundPicture.Drawn { Image: var background })
         {
-            // A background whose image is one period of what it shows repeats it across and down (#1651); of one with two
-            // different halves, the Tourian entrance's statues descend through the halves lying one above the other, and
-            // every other room shows them side by side.
-            image = background.Resolve(appearance, RoomBackgroundImagePlacement.OfLibrary(background.Image,
-                halvesStacked: latched.Scene.FxType == RoomFxType.TourianEntranceStatue));
+            // The image is one period of what the background shows, as its room shows it, repeated across and down (#1651, #1617).
+            image = background.Resolve(appearance, RoomBackgroundImagePlacement.Whole(background.Image));
         }
         // A boss body shows each part's whole picture (#1466, #1513).
         ShownBossBody? shownBody = latched.Bosses.Body?.Show();

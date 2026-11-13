@@ -34,7 +34,7 @@ public static class RoomBlockSheetFiles
     /// records one period of what each library background shows, its one page where its two pages hold one tilemap, which
     /// the room shows repeated across and down (#1651).
     /// </summary>
-    private const int BackgroundManifestVersion = 6;
+    private const int BackgroundManifestVersion = 7;
 
     /// <summary>The manifest naming each written picture sheet and the inputs each of its pictures depends on.</summary>
     public const string WrittenManifestFileName = "written-pictures.json";
@@ -208,7 +208,7 @@ public static class RoomBlockSheetFiles
     /// <param name="Version">The schema revision.</param>
     /// <param name="Words">Each image's tilemap words, page by page: one period of what it shows (#1651).</param>
     /// <param name="Cells">Each image's cells whose pictures change with appearance inputs.</param>
-    /// <param name="Widths">Each image's tiles across one row of its words: a page, or one period across of a page that repeats (#1675).</param>
+    /// <param name="Widths">Each image's tiles across one row of its words: a page, one period across of a page that repeats (#1675), or two pages side by side (#1617).</param>
     private sealed record BackgroundManifest(int Version, Dictionary<string, ushort[]> Words, Dictionary<string, CellDocument[]> Cells,
         Dictionary<string, int> Widths);
 

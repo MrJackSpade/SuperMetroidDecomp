@@ -33,6 +33,8 @@ internal static class RoomBackgroundPeriodVerification
         var malformed = new List<string>();
         var shortened = new List<string>();
         int onePeriod = 0, twoPages = 0;
+        var stacked = new List<string>();
+        var besideEachOther = new List<string>();
         string[] parts = [RoomBackgroundImage.FrameName, PictureParts.InFront(RoomBackgroundImage.FrameName)];
         foreach ((string family, string sheet, InstalledSheetDocument document) in InstalledSheetManifests.Read(installation.ContentDirectory))
         {
@@ -57,15 +59,18 @@ internal static class RoomBackgroundPeriodVerification
                 }
                 continue;
             }
-            if (width != RoomBackgroundImageGeometryConstants.PagePixels || height != 2 * RoomBackgroundImageGeometryConstants.PagePixels)
+            // Two different pages are laid out as their room shows them (#1617): side by side, or one above the other.
+            bool sideBySide = width == 2 * RoomBackgroundImageGeometryConstants.PagePixels && height == RoomBackgroundImageGeometryConstants.PagePixels;
+            if (!sideBySide && (width != RoomBackgroundImageGeometryConstants.PagePixels || height != 2 * RoomBackgroundImageGeometryConstants.PagePixels))
             {
                 malformed.Add($"{sheet} is {width}x{height}: neither one page nor two");
                 continue;
             }
             twoPages++;
+            (sideBySide ? besideEachOther : stacked).Add(sheet);
             SpriteImagePixels assembled = store.Assemble(sheet, document);
             bool samePages = parts.Where(document.Frames.ContainsKey).All(part =>
-                HalvesMatch(assembled, document.Size.X, document.Frames[part]));
+                HalvesMatch(assembled, document.Size.X, document.Frames[part], sideBySide));
             if (samePages)
                 repeated.Add($"{sheet} stores one page twice");
         }
@@ -75,7 +80,10 @@ internal static class RoomBackgroundPeriodVerification
         AssertTrue(repeated.Count == 0,
             $"{repeated.Count} library backgrounds store one page twice:{Environment.NewLine}{string.Join(Environment.NewLine, repeated)}");
         Console.WriteLine($"Room backgrounds: {onePeriod} library backgrounds are one period the room repeats, {shortened.Count} of them shorter " +
-            $"than a page ({string.Join(", ", shortened)}); {twoPages} hold two different pages.");
+            $"than a page ({string.Join(", ", shortened)}); {twoPages} hold two different pages, {besideEachOther.Count} side by side " +
+            $"({string.Join(", ", besideEachOther)}) and {stacked.Count} one above the other ({string.Join(", ", stacked)}).");
+        // Every room but the Tourian entrance shows two pages side by side; the entrance's statues descend through them (#1617).
+        AssertTrue(besideEachOther.Count > 0 && stacked.Count > 0, "the installation holds two-page backgrounds laid out side by side and one above the other");
     }
 
     /// <summary>
@@ -188,18 +196,19 @@ internal static class RoomBackgroundPeriodVerification
     /// <summary>The greatest common divisor of two positive numbers.</summary>
     private static int Gcd(int first, int second) => second == 0 ? first : Gcd(second, first % second);
 
-    /// <summary>Whether the upper half of <paramref name="frame"/>'s rectangle on the assembled image equals its lower half.</summary>
-    private static bool HalvesMatch(SpriteImagePixels assembled, int imageWidth, InstalledSheetFrameDocument frame)
+    /// <summary>Whether the two pages of <paramref name="frame"/>'s rectangle on the assembled image match: its left and right halves where <paramref name="sideBySide"/>, otherwise its upper and lower.</summary>
+    private static bool HalvesMatch(SpriteImagePixels assembled, int imageWidth, InstalledSheetFrameDocument frame, bool sideBySide)
     {
-        int half = frame.Size.Y / 2;
-        for (int row = 0; row < half; row++)
+        int rows = sideBySide ? frame.Size.Y : frame.Size.Y / 2, width = sideBySide ? frame.Size.X / 2 : frame.Size.X;
+        for (int row = 0; row < rows; row++)
         {
-            int upper = ((frame.Corner.Y + row) * imageWidth) + frame.Corner.X, lower = upper + (half * imageWidth);
-            if (!assembled.Pixels.AsSpan(upper, frame.Size.X).SequenceEqual(assembled.Pixels.AsSpan(lower, frame.Size.X)))
+            int first = ((frame.Corner.Y + row) * imageWidth) + frame.Corner.X;
+            int second = sideBySide ? first + width : first + (rows * imageWidth);
+            if (!assembled.Pixels.AsSpan(first, width).SequenceEqual(assembled.Pixels.AsSpan(second, width)))
                 return false;
-            if (assembled.RecolourRegions is { } regions && !regions.AsSpan(upper, frame.Size.X).SequenceEqual(regions.AsSpan(lower, frame.Size.X)))
+            if (assembled.RecolourRegions is { } regions && !regions.AsSpan(first, width).SequenceEqual(regions.AsSpan(second, width)))
                 return false;
-            if (assembled.Blending is { } blending && !blending.AsSpan(upper, frame.Size.X).SequenceEqual(blending.AsSpan(lower, frame.Size.X)))
+            if (assembled.Blending is { } blending && !blending.AsSpan(first, width).SequenceEqual(blending.AsSpan(second, width)))
                 return false;
         }
         return true;

@@ -29,14 +29,15 @@ internal static class RoomBackgroundImageGeometry
 
     /// <summary>
     /// The width and height of the image that pictures <paramref name="words"/> tiles in rows of
-    /// <paramref name="widthTiles"/>: a page wide, or one period across of a page that repeats (#1675). It is the size the
+    /// <paramref name="widthTiles"/>: a page wide, one period across of a page that repeats (#1675), or two different pages
+    /// side by side (#1617). It is the size the
     /// installed image records apart from its picture's parts, either of which may show nothing (#1634).
     /// </summary>
     /// <exception cref="InvalidDataException">The width is not a whole number of cells, or the tiles do not fill whole rows of it.</exception>
     internal static Extent16<ImagePixels> ImageSize(int words, int widthTiles = PageTiles)
     {
-        if (widthTiles <= 0 || widthTiles > PageTiles || widthTiles % CellSideTiles != 0)
-            throw new InvalidDataException($"A room background {widthTiles} tiles wide is not a whole number of cells of a {PageTiles}-tile page.");
+        if (widthTiles <= 0 || widthTiles > Pages * PageTiles || widthTiles % CellSideTiles != 0)
+            throw new InvalidDataException($"A room background {widthTiles} tiles wide is not a whole number of cells of at most {Pages} {PageTiles}-tile pages.");
         if (words <= 0 || words % widthTiles != 0)
             throw new InvalidDataException($"A room background of {words} tiles does not fill whole rows of {widthTiles} tiles.");
         return new Extent16<ImagePixels>(checked((ushort)(widthTiles * TilePixels)), checked((ushort)(words / widthTiles * TilePixels)));
@@ -46,7 +47,7 @@ internal static class RoomBackgroundImageGeometry
     /// One period of what a library background shows (#1651), from the two BG2 pages <paramref name="pages"/> its list
     /// leaves: where the second page holds the same tilemap, the first page down to its shortest period of whole cells down
     /// and then across (#1675), the first page whole where it does not repeat; otherwise both pages, the first above the
-    /// second.
+    /// second, which <see cref="AsShown"/> lays out as the room shows them (#1617).
     /// </summary>
     /// <remarks>
     /// The two pages are one layer that repeats beyond its edges: gameplay sets BG2's map to $4800 with two 32x32 pages side
@@ -88,6 +89,25 @@ internal static class RoomBackgroundImageGeometry
         for (int row = 0; row < rows; row++)
             pages.AsSpan(row * PageTiles, columns).CopyTo(period.AsSpan(row * columns, columns));
         return new RoomBackgroundPeriod(period, columns);
+    }
+
+    /// <summary>
+    /// <paramref name="period"/> as the room's background layer shows it (#1617): a period of one page as it is, and two
+    /// different pages one above the other where <paramref name="pagesStacked"/>, as the Tourian entrance's layer holds them,
+    /// otherwise side by side, each row the first page's row then the second's.
+    /// </summary>
+    internal static RoomBackgroundPeriod AsShown(RoomBackgroundPeriod period, bool pagesStacked)
+    {
+        Ensure.NotNull(period);
+        if (period.Words.Length != Words || pagesStacked)
+            return period;
+        var sideBySide = new ushort[Words];
+        for (int row = 0; row < PageTiles; row++)
+        {
+            period.Words.AsSpan(row * PageTiles, PageTiles).CopyTo(sideBySide.AsSpan(row * 2 * PageTiles, PageTiles));
+            period.Words.AsSpan(PageWords + (row * PageTiles), PageTiles).CopyTo(sideBySide.AsSpan((row * 2 * PageTiles) + PageTiles, PageTiles));
+        }
+        return new RoomBackgroundPeriod(sideBySide, Pages * PageTiles);
     }
 
     /// <summary>Whether each of the first <paramref name="rows"/> rows of the first page repeats every <paramref name="columns"/> tiles across.</summary>

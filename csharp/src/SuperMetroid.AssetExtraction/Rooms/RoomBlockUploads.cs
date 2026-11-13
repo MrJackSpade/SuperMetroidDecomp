@@ -128,7 +128,7 @@ internal static class RoomBlockUploads
                 if (PicturedLibraryBackgrounds.TryProgramOf(state, out LibraryBackgroundProgram? library))
                 {
                     foreach (DoorDefinition? door in DoorVariants(library))
-                        uploads.AddBackground(Replay(inputs, room, tileset, library, door));
+                        uploads.AddBackground(Replay(inputs, room, tileset, library, door, StacksBackgroundPages(state)));
                 }
                 // BG3 shows the HUD over the layer-3 characters the room's load binds, and its effects' pages over their
                 // frames.
@@ -246,10 +246,11 @@ internal static class RoomBlockUploads
     /// <summary>
     /// Replays <paramref name="program"/> as a room of <paramref name="tileset"/> entered through <paramref name="door"/>
     /// runs it: one period of the BG2 pages it leaves (<see cref="RoomBackgroundImageGeometry.OnePeriod"/>, #1651), the
-    /// first page alone where both hold one tilemap, over the characters the room loads.
+    /// first page alone where both hold one tilemap, over the characters the room loads. Two different pages are laid out
+    /// as the room shows them (#1617): one above the other where <paramref name="pagesStacked"/>, otherwise side by side.
     /// </summary>
     private static RoomBackgroundMap Replay(RoomBlockSheetInputs inputs, RoomHeaderDefinition room, TilesetDefinition tileset,
-        LibraryBackgroundProgram program, DoorDefinition? door)
+        LibraryBackgroundProgram program, DoorDefinition? door, bool pagesStacked)
     {
         BgArtworkBindings content = Loaded(inputs, tileset);
         var vram = new SnesVram();
@@ -265,9 +266,16 @@ internal static class RoomBlockUploads
                 CharacterArt = inputs.Characters,
             });
         ushort[] words = [.. Enumerable.Range(0, RoomBackgroundImageGeometry.Words).Select(word => vram.ReadWord(GameplayVramLayout.Bg2TilemapWord + word))];
-        RoomBackgroundPeriod period = RoomBackgroundImageGeometry.OnePeriod(words);
+        RoomBackgroundPeriod period = RoomBackgroundImageGeometry.AsShown(RoomBackgroundImageGeometry.OnePeriod(words), pagesStacked);
         return new RoomBackgroundMap(RoomBackgroundImage.NameOf(program.Background, door, tileset), period.Words, content) { WidthTiles = period.WidthTiles };
     }
+
+    /// <summary>
+    /// Whether a room in <paramref name="state"/> shows its background's two pages one above the other (#1617): the Tourian
+    /// entrance's statues descend through them; every other room's layer lays them side by side.
+    /// </summary>
+    private static bool StacksBackgroundPages(RoomStateSettings state) =>
+        (state.Fx?.Records ?? []).Any(record => record.Type == RoomFxType.TourianEntranceStatue);
 
     /// <summary>What each enemy writes over its room's BG1 or BG2: the escape warnings Mother Brain and Ceres Ridley type.</summary>
     private static readonly Dictionary<EnemyDefinitionId, TileWordWriter[]> EnemyWriters = new()
@@ -442,8 +450,14 @@ internal static class RoomBlockUploads
         /// <summary>The library backgrounds the tileset's rooms load.</summary>
         internal IEnumerable<RoomBackgroundMap> Backgrounds => backgrounds.Values;
 
-        /// <summary>Adds a library background unless one of its name is known.</summary>
-        internal void AddBackground(RoomBackgroundMap background) => backgrounds.TryAdd(background.Name, background);
+        /// <summary>Adds a library background unless one of its name is known, which must picture the same.</summary>
+        /// <exception cref="InvalidDataException">A background of the name is known and pictures something else.</exception>
+        internal void AddBackground(RoomBackgroundMap background)
+        {
+            if (!backgrounds.TryAdd(background.Name, background) && (backgrounds[background.Name].WidthTiles != background.WidthTiles
+                || !backgrounds[background.Name].Words.AsSpan().SequenceEqual(background.Words)))
+                throw new InvalidDataException($"Rooms show library background {background.Name} in two ways; it has one picture.");
+        }
 
         /// <summary>What writes tile words over the tileset's rooms.</summary>
         internal HashSet<TileWordWriter> Writers { get; } = [];
@@ -597,7 +611,7 @@ internal static class RoomBlockUploads
     /// <param name="Name">The background's installed name.</param>
     /// <param name="Words">
     /// The tilemap words of one period of what the background shows: a library background's one page where its two pages
-    /// hold one tilemap, otherwise its two pages, the first above the second; or the sky's rows.
+    /// hold one tilemap, otherwise its two pages as the room shows them (#1617); or the sky's rows.
     /// </param>
     /// <param name="Content">The bindings the room's load leaves.</param>
     internal sealed record RoomBackgroundMap(string Name, ushort[] Words, BgArtworkBindings Content)

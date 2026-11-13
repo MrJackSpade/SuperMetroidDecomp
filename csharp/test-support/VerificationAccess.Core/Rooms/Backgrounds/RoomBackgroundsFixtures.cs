@@ -257,13 +257,16 @@ internal static class RoomBackgroundsFixtures
         SeededImage(random, scene, SuperMetroid.AssetExtraction.Rooms.SkyTilemap.Rows, sky: true);
 
     /// <summary>
-    /// A seeded background image <paramref name="tileRows"/> 32-tile rows tall, about one cell in four rebound: its pages in
-    /// one column for a sky, side by side otherwise. Its picture's part behind and part in front are seeded apart (#1634).
+    /// A seeded background image of <paramref name="tileRows"/> 32-tile rows, about one cell in four rebound: in one column for
+    /// a sky's rows, otherwise two pages side by side, as the import lays a library background out (#1617). Its picture's
+    /// part behind and part in front are seeded apart (#1634).
     /// </summary>
     private static RoomBackgroundImagePlane SeededImage(Random random, RgbColor[] scene, int tileRows, bool sky = false)
     {
         RoomBlockPictureTable blocks = SeededPictures(random, scene);
-        var size = new Extent16<ImagePixels>(RoomBackgroundImageGeometryConstants.PagePixels, (ushort)(tileRows * 8));
+        Extent16<ImagePixels> size = sky
+            ? new(RoomBackgroundImageGeometryConstants.PagePixels, (ushort)(tileRows * 8))
+            : new(RoomBackgroundImageGeometry.Pages * RoomBackgroundImageGeometryConstants.PagePixels, (ushort)(tileRows * 8 / RoomBackgroundImageGeometry.Pages));
         SpriteSheet sheet = SeededSheet(random, scene, new Extent16<ImagePixels>(size.X, checked((ushort)(2 * size.Y))),
             new Dictionary<string, Position16<ImagePixels>>
             {
@@ -274,7 +277,7 @@ internal static class RoomBackgroundsFixtures
         var cells = new LayeredPicture?[image.CellCount];
         for (int cell = 0; cell < cells.Length; cell++)
             cells[cell] = random.Next(4) == 0 ? blocks.Picture(random.Next(Definitions)) : null;
-        return new RoomBackgroundImagePlane(image, cells, sky ? RoomBackgroundImagePlacement.Whole(image) : RoomBackgroundImagePlacement.HalvesSideBySide(image));
+        return new RoomBackgroundImagePlane(image, cells, RoomBackgroundImagePlacement.Whole(image));
     }
 
     /// <summary>Block pictures on one seeded sheet.</summary>

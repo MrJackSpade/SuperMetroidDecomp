@@ -9,9 +9,8 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// <summary>
 /// One installed pre-coloured room background (#1392, #1466, #1555): the picture a room shows on the background, coloured
 /// with its own colours, and the cells whose pictures change with the room's appearance inputs. A library background
-/// pictures one period of what it shows (#1651): its one picture, as tall as it is wide, where the background shows it
-/// over and over across and down, and otherwise its two different halves, the first above the second, which a room places
-/// on the background (<see cref="RoomBackgroundImagePlacement.OfLibrary"/>); the scrolling sky pictures all its rows.
+/// pictures one period of what it shows (#1651), laid out as its room shows it (#1617), which the background shows over and
+/// over across and down; the scrolling sky pictures all its rows.
 /// </summary>
 public sealed class RoomBackgroundImage
 {
@@ -20,9 +19,6 @@ public sealed class RoomBackgroundImage
 
     /// <summary>Pixels along a cell's side.</summary>
     public const int CellPixels = 16;
-
-    /// <summary>Pixels along one page of a library background (#1675): a background with two different pages is a page wide and two tall.</summary>
-    public const int PagePixels = 256;
 
     /// <summary>
     /// Checks the image is whole cells across and down, that each installed part of its picture (#1634) is the image's size,

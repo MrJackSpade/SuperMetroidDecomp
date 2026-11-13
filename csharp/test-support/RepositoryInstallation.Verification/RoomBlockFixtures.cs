@@ -116,13 +116,17 @@ internal static class RoomBlockFixtures
     /// The library background a fixture loaded into BG2 (#1403): the two tilemap pages at <paramref name="tilemapWord"/> in
     /// <paramref name="image"/>, the first above the second, each word painted from the four-bit characters at
     /// <paramref name="characterWord"/> and coloured from <paramref name="palette"/>, as extraction paints a room's
-    /// background image, its pages shown in one column when <paramref name="pagesInOneColumn"/> is set, otherwise side by side.
+    /// background image, its pages laid out in one column when <paramref name="pagesInOneColumn"/> is set, otherwise side by side,
+    /// as the import lays them out as rooms show them (#1617).
     /// </summary>
     internal static RoomBackgroundImagePlane LoadedBackground(ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette, int tilemapWord,
         int characterWord = 0, bool pagesInOneColumn = false)
     {
         const int tile = 8, characterWords = 16, pageWords = RoomBackgroundImageGeometry.PageTiles * RoomBackgroundImageGeometry.PageTiles;
-        var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(RoomBackgroundImageGeometryConstants.PagePixels, RoomBackgroundImageGeometry.Pages * RoomBackgroundImageGeometryConstants.PagePixels));
+        Extent16<ImagePixels> size = pagesInOneColumn
+            ? new(RoomBackgroundImageGeometryConstants.PagePixels, RoomBackgroundImageGeometry.Pages * RoomBackgroundImageGeometryConstants.PagePixels)
+            : new(RoomBackgroundImageGeometry.Pages * RoomBackgroundImageGeometryConstants.PagePixels, RoomBackgroundImageGeometryConstants.PagePixels);
+        var canvas = new RoomTileCanvas(size);
         RgbColor[] colours = palette[..ImageColourGroup.HalfColours].ToArray();
         var character = new byte[characterWords * sizeof(ushort)];
         var words = new ushort[RoomBackgroundImageGeometry.Words];
@@ -139,15 +143,18 @@ internal static class RoomBlockFixtures
                 character[part * 2 + 1] = image[from + 1];
             }
             int page = index / pageWords, within = index % pageWords;
-            coloured = coloured.Union(canvas.PaintTile(within % RoomBackgroundImageGeometry.PageTiles * tile,
-                page * RoomBackgroundImageGeometryConstants.PagePixels + within / RoomBackgroundImageGeometry.PageTiles * tile, word, character, colours));
+            int across = within % RoomBackgroundImageGeometry.PageTiles * tile, down = within / RoomBackgroundImageGeometry.PageTiles * tile;
+            int pageOffset = page * RoomBackgroundImageGeometryConstants.PagePixels;
+            coloured = coloured.Union(pagesInOneColumn
+                ? canvas.PaintTile(across, pageOffset + down, word, character, colours)
+                : canvas.PaintTile(pageOffset + across, down, word, character, colours));
         }
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal)
         {
             [RoomBackgroundImage.FrameName] = new SpriteSheetFrameDocument
             {
                 Corner = default,
-                Size = new Extent16<ImagePixels>(RoomBackgroundImageGeometryConstants.PagePixels, RoomBackgroundImageGeometry.Pages * RoomBackgroundImageGeometryConstants.PagePixels),
+                Size = size,
                 Origin = default,
                 ColourGroups = coloured.ManifestMembers,
             },
@@ -158,6 +165,6 @@ internal static class RoomBlockFixtures
             composed.Size, composed.Pixels, composed.PaletteIndices);
         var background = new RoomBackgroundImage("loaded-background-fixture", sheet, canvas.Size, []);
         return new RoomBackgroundImagePlane(background, new LayeredPicture?[background.CellCount],
-            pagesInOneColumn ? RoomBackgroundImagePlacement.Whole(background) : RoomBackgroundImagePlacement.HalvesSideBySide(background));
+            RoomBackgroundImagePlacement.Whole(background));
     }
 }

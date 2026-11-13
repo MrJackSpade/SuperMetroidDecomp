@@ -155,7 +155,7 @@ internal static class RoomBlockPicturesVerification
     private static (LayeredPicture Picture, Position16<ImagePixels> Pixel) PictureAt(RoomBackgroundImagePlane image, int x, int y)
     {
         const int cell = 16;
-        return image.Cell(y / cell * (RoomBackgroundImageGeometryConstants.PagePixels / cell) + x / cell) is { } picture
+        return image.Cell(y / cell * (image.Size.X / cell) + x / cell) is { } picture
             ? (picture, new Position16<ImagePixels>((ushort)(x % cell), (ushort)(y % cell)))
             : (image.Picture, new Position16<ImagePixels>((ushort)x, (ushort)y));
     }
@@ -561,7 +561,7 @@ internal static class RoomBlockPicturesVerification
         RoomBlockUploads.RoomBackgroundMap map = UploadsOf(runtime).Backgrounds.Single(background => background.Name == name);
         ushort[] words = map.Words;
         int width = map.WidthTiles;
-        // The image pictures one period of what the background shows (#1651): one page, or two pages laid out one above the
+        // The image pictures one period of what the background shows (#1651): one page, or two pages laid out as the room shows them (#1617), side by side or one above the
         // other. Each tile's character is read once for the eight rows of eight pixels it paints.
         for (int tileY = 0; tileY < words.Length / width; tileY++)
         for (int tileX = 0; tileX < width; tileX++)

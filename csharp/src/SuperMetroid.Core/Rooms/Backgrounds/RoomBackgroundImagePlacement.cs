@@ -38,52 +38,13 @@ public sealed class RoomBackgroundImagePlacement
     public Extent16<BackgroundPixels> Area { get; }
 
     /// <summary>
-    /// The whole image on an area of its own size: a scrolling sky's rows, the Tourian entrance's background (#1514), or a
-    /// library background that is one period of what it shows (#1651).
+    /// The whole image on an area of its own size: a scrolling sky's rows, or a library background, which the import pictures
+    /// as one period of what it shows, laid out as its room shows it (#1651, #1617).
     /// </summary>
     public static RoomBackgroundImagePlacement Whole(RoomBackgroundImage image)
     {
         Ensure.NotNull(image);
         var size = new Extent16<BackgroundPixels>(image.Size.X, image.Size.Y);
         return new(image, [new RoomBackgroundImagePiece(default, default, size)], size);
-    }
-
-    /// <summary>
-    /// How a room places its library background's image (#1514, #1651). An image no taller than it is wide is one period of
-    /// what the background shows, one page or the rows of one page down to their period: it lies whole on an area of its
-    /// own size, which repeats across and down, so the period is the image's own width and height. An image twice as tall
-    /// as it is wide holds the background's two different halves: one above the other where
-    /// <paramref name="halvesStacked"/>, as the Tourian entrance's statues descend through them, and side by side in every
-    /// other room.
-    /// </summary>
-    /// <param name="image">The library background's image.</param>
-    /// <param name="halvesStacked">Whether the room shows the background's two halves one above the other.</param>
-    /// <exception cref="ArgumentException">The image is neither one period nor two halves.</exception>
-    public static RoomBackgroundImagePlacement OfLibrary(RoomBackgroundImage image, bool halvesStacked)
-    {
-        Ensure.NotNull(image);
-        // Two different pages are a page wide and two tall; any other image is one period of what the background shows.
-        if (image.Size.X != RoomBackgroundImage.PagePixels || image.Size.Y != 2 * RoomBackgroundImage.PagePixels)
-            return Whole(image);
-        return halvesStacked ? Whole(image) : HalvesSideBySide(image);
-    }
-
-    /// <summary>
-    /// A library background's two halves, the image's upper half on the left and its lower half on the right, as every
-    /// room but the Tourian entrance shows them (#1514).
-    /// </summary>
-    /// <exception cref="ArgumentException">The image's height does not split into two halves of whole cells.</exception>
-    public static RoomBackgroundImagePlacement HalvesSideBySide(RoomBackgroundImage image)
-    {
-        Ensure.NotNull(image);
-        int width = image.Size.X, half = image.Size.Y / 2;
-        if (half == 0 || half % RoomBackgroundImage.CellPixels != 0)
-            throw new ArgumentException($"Room background {image.Name} has no two halves of whole cells.", nameof(image));
-        var size = new Extent16<BackgroundPixels>(width, half);
-        return new(image,
-        [
-            new RoomBackgroundImagePiece(default, default, size),
-            new RoomBackgroundImagePiece(new Position16<BackgroundPixels>(width, 0), new Position16<ImagePixels>(0, half), size),
-        ], new Extent16<BackgroundPixels>(2 * width, half));
     }
 }

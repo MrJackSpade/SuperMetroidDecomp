@@ -95,7 +95,7 @@ public sealed class SharedGameState
     public ControllerButton HeldInputPrevious { get; private set; }
 
     /// <summary>
-    /// Held-input countdown. A signed underflow from zero to 65,535
+    /// Held-input countdown. A step past zero to 65,535
     /// causes the held input to become active.
     /// </summary>
     public WrappingCountdown TimedHeldInputTimer { get; internal set; }
@@ -110,7 +110,7 @@ public sealed class SharedGameState
 
     /// <summary>
     /// Filtered input. Bits appear after their buttons have remained
-    /// stable long enough for the timer to underflow.
+    /// stable long enough for the timer to pass zero.
     /// </summary>
     public ControllerButton TimedHeldInput { get; internal set; }
 
@@ -163,7 +163,7 @@ public sealed class SharedGameState
             else
             {
                 // The game pins the expired timer to zero. Continued stable input therefore
-                // underflows again on every update, keeping TimedHeldInput active.
+                // passes zero again on every update, keeping TimedHeldInput active.
                 TimedHeldInputTimer = WrappingCountdown.Start(0);
                 TimedHeldInput = heldInput;
             }

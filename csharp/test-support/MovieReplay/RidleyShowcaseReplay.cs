@@ -261,7 +261,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     mismatches.Add($"Cannon flags: native={recordedCannonFlags:X4} port open={samus.ArmCannon.IsOpen} transitioning={samus.ArmCannon.IsTransitioning}");
                 Check("Cannon frame", samus.ArmCannon.Frame, NativeSnapshotMemory.CannonFrame);
                 Check("Cannon toggle", samus.ArmCannon.StableSelectionUpdates, NativeSnapshotMemory.CannonToggle);
-                SamusArmCannonDrawOrder recordedDrawOrder = SamusArmCannonState.DrawOrderOf(W(NativeSnapshotMemory.CannonDrawingMode));
+                SamusArmCannonDrawOrder recordedDrawOrder = SuperMetroid.AssetExtraction.Samus.SamusArmCannonDrawOrderCodec.FromDrawingMode(W(NativeSnapshotMemory.CannonDrawingMode));
                 if (samus.ArmCannon.DrawOrder != recordedDrawOrder)
                     mismatches.Add($"Cannon draw order: native={recordedDrawOrder} port={samus.ArmCannon.DrawOrder}");
                 Check("Minimap disabled", runtime.Hud.MinimapDisabled ? (ushort)1 : (ushort)0, NativeSnapshotMemory.MinimapDisabled);

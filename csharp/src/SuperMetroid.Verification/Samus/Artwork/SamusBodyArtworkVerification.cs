@@ -414,7 +414,7 @@ internal static class SamusBodyArtworkVerification
             bool frameDependent = (direction & 0x80) != 0;
             if (!SamusPoseNumbering.NamesPose(pose)) continue;
             SamusArmCannonPlacement placement = body.ArmCannon.Gameplay.Placement(SamusPoseNumbering.FromNumber(pose));
-            AssertEqual(SuperMetroid.Core.Samus.Drawing.SamusArmCannonState.DrawOrderOf(bus.ReadCartridgeByte(descriptor + 1)),
+            AssertEqual(SuperMetroid.AssetExtraction.Samus.SamusArmCannonDrawOrderCodec.FromDrawingMode(bus.ReadCartridgeByte(descriptor + 1)),
                 placement.DrawOrder, $"arm-cannon pose {pose:X2} drawing mode");
             AssertEqual(SuperMetroid.AssetExtraction.Samus.SamusProjectileDirectionCodec.FromAimIndex(direction & 0x7f),
                 placement.FirstDirection, $"arm-cannon pose {pose:X2} first direction");

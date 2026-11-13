@@ -89,7 +89,7 @@ internal static class SamusArmCannonDefinitionsVerification
             SamusArmCannonDrawOrder expected = lowNibble == 0 ? SamusArmCannonDrawOrder.Hidden
                 : lowNibble == 2 ? SamusArmCannonDrawOrder.AfterBody
                 : SamusArmCannonDrawOrder.BeforeBody;
-            AssertEqual(expected, SamusArmCannonState.DrawOrderOf(mode), $"arm-cannon drawing mode {mode} draw order");
+            AssertEqual(expected, SuperMetroid.AssetExtraction.Samus.SamusArmCannonDrawOrderCodec.FromDrawingMode(mode), $"arm-cannon drawing mode {mode} draw order");
         }
         Console.WriteLine("Arm-cannon draw order: all 256 drawing-mode bytes select hidden, before-body or after-body by their low nibble.");
     }

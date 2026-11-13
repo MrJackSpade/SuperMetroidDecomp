@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Frontend;
 internal sealed class GamePhase(
     SuperMetroidGameState state,
     DispatchRandomStep randomStep,
-    Action<ControllerButton, GameplayAudioFramePublication> step,
+    Action<ControllerButton> step,
     Func<string> name,
     Func<bool>? waitingOutDisplayFrame = null,
     GamePhaseAudio audio = GamePhaseAudio.Ordinary) : IGamePhase
@@ -35,5 +35,5 @@ internal sealed class GamePhase(
     public bool IsWaitingOutDisplayFrame => waitingOutDisplayFrame?.Invoke() == true;
 
     /// <inheritdoc/>
-    public void Step(ControllerButton controllerInput, GameplayAudioFramePublication gameplayAudio) => step(controllerInput, gameplayAudio);
+    public void Step(ControllerButton controllerInput) => step(controllerInput);
 }

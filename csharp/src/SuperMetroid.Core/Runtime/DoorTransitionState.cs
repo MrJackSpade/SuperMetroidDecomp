@@ -95,8 +95,7 @@ internal sealed class DoorTransitionState
         SuperMetroidRuntime runtime,
         AudioQueues audio,
         ControllerButton controllerInput,
-        IRoomLoadProgress loaderProgress,
-        Action? publishSoundWaitAudio = null)
+        IRoomLoadProgress loaderProgress)
     {
         Ensure.NotNull(runtime);
         Ensure.NotNull(audio);
@@ -131,7 +130,6 @@ internal sealed class DoorTransitionState
         {
             case DoorTransitionPhase.WaitForSoundQueues:
                 runtime.DoorTransition.RunDoorSoundWaitFrame(controllerInput, runtime.Room.LoadedScope);
-                publishSoundWaitAudio?.Invoke();
                 if (!audio.HasQueuedSounds)
                     Phase = DoorTransitionPhase.FadeOutSourcePalette;
                 break;

@@ -13,6 +13,16 @@ clip-set switch; the downtime the original upload imposed on sound requests is a
 clock (`docs/compatibility-layer.md`), not an upload of bytes. When each library accepts a request, and what it reports
 back, is the clock's business, written in its own types.
 
+## Where gameplay's requests go
+
+Every gameplay system queues each sound or music request the moment it makes it, into the update's
+`GameplayAudioRequests`, which the runtime owns and every room system and Samus are pointed at. A session's record goes
+straight on into the session's sound and music queues, so the queues receive the requests in the update's run order
+across every system, as the original's callers each call its queue routines while they run (#1620). Nothing holds a
+request for the end of a pass or the end of the update, and nothing joins requests by system afterwards: the frontend
+queues only the audio of its own boundaries (room music, the music a loading room's enemies start, a message box's
+one-shot sounds). The record is cleared when the next update begins and is what a check reads.
+
 ## The rule
 
 `AudioRequestAnalyzer` reports, in the `SuperMetroid.Core` assembly only, every instance field or property of an audio

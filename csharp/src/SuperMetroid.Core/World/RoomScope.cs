@@ -160,4 +160,18 @@ internal sealed record RoomScope
             throw new InvalidOperationException("This room's Ceres elevator arrival has already begun.");
         CeresElevatorArrival = Ensure.NotNull(arrival);
     }
+
+    /// <summary>
+    /// Points every system of the room that makes sounds or music at <paramref name="requests"/>: its effect overlay, its
+    /// colour effects, Samus's projectiles and bombs, its room objects and its enemies.
+    /// </summary>
+    internal void BindAudioRequests(GameplayAudioRequests requests)
+    {
+        FxOverlay.BindAudioRequests(requests);
+        PaletteFx.BindAudioRequests(requests);
+        Projectiles.BindAudioRequests(requests);
+        BombProjectiles.BindAudioRequests(requests);
+        RoomObjects.Sounds.BindAudioRequests(requests);
+        Enemies.Audio.BindAudioRequests(requests);
+    }
 }

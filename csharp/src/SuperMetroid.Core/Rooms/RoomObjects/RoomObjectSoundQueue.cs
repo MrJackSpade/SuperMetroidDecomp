@@ -1,22 +1,29 @@
 ﻿namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>Room-object sound requests for the frame, each stamped with the power-bomb guard at the moment the room object queued it.</summary>
+/// <summary>
+/// How the room objects queue their sound and music requests, each sound stamped with the power-bomb guard at the moment the room object
+/// queued it. A request joins the update's <see cref="GameplayAudioRequests"/> as the room object makes it, after every
+/// request made before it by any system, as the room-object routines call the game's sound queue routines directly.
+/// </summary>
 internal sealed class RoomObjectSoundQueue
 {
-    /// <summary>Retains room-object sound requests from the current handler pass until frame publication.</summary>
-    private readonly List<SoundRequest> _soundRequests = new();
+    /// <summary>
+    /// The update's audio requests the room objects' requests join: the runtime's, once it points the room's systems at it;
+    /// the room objects' own record before that.
+    /// </summary>
+    internal GameplayAudioRequests Requests { get; private set; } = new();
 
-    /// <summary>Queues <paramref name="soundEffect"/> at <paramref name="Priority"/>.</summary>
-    internal void Queue(SoundEffectId soundEffect, SoundRequestPriority Priority) => _soundRequests.Add(CreateSoundRequest(soundEffect, Priority));
+    /// <summary>Points the room objects' requests at <paramref name="requests"/>, the update's audio requests of the runtime running them.</summary>
+    internal void BindAudioRequests(GameplayAudioRequests requests) => Requests = Ensure.NotNull(requests);
 
-    /// <summary>Queues requests built earlier, in order.</summary>
-    internal void QueueAll(IEnumerable<SoundRequest> requests) => _soundRequests.AddRange(requests);
+    /// <summary>Queues <paramref name="soundEffect"/> at <paramref name="Priority"/> now.</summary>
+    internal void Queue(SoundEffectId soundEffect, SoundRequestPriority Priority) => Requests.QueueSound(CreateSoundRequest(soundEffect, Priority));
 
-    /// <summary>Frame start and room reset: drops the previous pass's requests.</summary>
-    internal void Clear() => _soundRequests.Clear();
+    /// <summary>Schedules <paramref name="request"/>'s music now, after the update's earlier music requests.</summary>
+    internal void ScheduleMusic(DelayedMusicRequest request) => Requests.ScheduleMusic(request);
 
-    /// <summary>Sound commands emitted during the most recent handler pass.</summary>
-    public IReadOnlyList<SoundRequest> SoundRequests => _soundRequests;
+    /// <summary>Starts the permanent-item fanfare's music sequence now, after the update's earlier music requests.</summary>
+    internal void QueuePermanentItemFanfare() => Requests.QueuePermanentItemFanfare();
 
     /// <summary>Live explosion state consulted when each request is created, then rebound after restores.</summary>
     private IActivePowerBomb? _audioPowerBomb;
@@ -25,8 +32,8 @@ internal sealed class RoomObjectSoundQueue
     public void BindPowerBombAudio(IActivePowerBomb powerBomb) => _audioPowerBomb = powerBomb;
 
     /// <summary>
-    /// Captures the explosion guard when the room object queues a sound, as the game's sound queue does;
-    /// a later change to that guard cannot alter the pending gate sound.
+    /// Captures the explosion guard when the room object makes the request, as the game's sound queue does; a later change
+    /// to that guard cannot alter a request the room object holds until its sound is due (the save station's).
     /// </summary>
     internal SoundRequest CreateSoundRequest(SoundEffectId soundEffect, SoundRequestPriority Priority) =>
         new(soundEffect, Priority, SoundSuppressed: _audioPowerBomb?.IsActive == true);

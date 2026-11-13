@@ -1,3 +1,4 @@
+using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hud;
@@ -79,11 +80,13 @@ internal static class GameplayHudPresentationVerification
             ReserveEnergy = 25,
             ReserveTankMode = ReserveTankMode.Auto,
         };
-        native.UpdateGameplayCounters(samus);
-        installed.UpdateGameplayCounters(samus);
+        var nativeAudio = new GameplayAudioRequests();
+        var installedAudio = new GameplayAudioRequests();
+        native.UpdateGameplayCounters(samus, nativeAudio);
+        installed.UpdateGameplayCounters(samus, installedAudio);
         AssertTrue(native.Tiles(presentation).SequenceEqual(installed.Tiles(presentation)),
             "installed live HUD updates match native without presentation ROM reads");
-        AssertEqual(native.SelectionSoundRequestedThisFrame, installed.SelectionSoundRequestedThisFrame,
+        AssertSequenceEqual(nativeAudio.SoundRequests, installedAudio.SoundRequests,
             "installed HUD retains selection-sound mechanics");
 
         var nativeSystem = new SharedGameState(new SharedRandom());

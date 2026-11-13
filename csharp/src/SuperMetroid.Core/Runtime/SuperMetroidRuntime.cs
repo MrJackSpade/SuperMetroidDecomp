@@ -84,6 +84,17 @@ internal sealed class SuperMetroidRuntime
     /// <summary>Retains scripted demo input and progression across runtime frames.</summary>
     internal AttractDemoSession AttractSession { get; } = new();
 
+    /// <summary>
+    /// The sound and music requests the current update makes, in the order its systems make them (#1620): every room
+    /// system and Samus queue theirs here as they run, and a session's go straight on into its queues.
+    /// </summary>
+    internal GameplayAudioRequests AudioRequests { get; }
+
+    /// <summary>Sends the runtime's later audio requests straight on into <paramref name="audio"/>, the queues of the session running it.</summary>
+    /// <exception cref="InvalidOperationException">The runtime's requests already reach a session's queues.</exception>
+    internal void AttachSessionAudio(AudioQueues audio) =>
+        AudioRequests.AttachTo(new SessionGameplayAudioQueues(audio, AttractSession));
+
     /// <summary>The <see cref="GameplayDisplayState"/> owner of this SuperMetroidRuntime.</summary>
     internal GameplayDisplayState Display { get; }
 
@@ -183,6 +194,9 @@ internal sealed class SuperMetroidRuntime
         Room = new ActiveRoomState();
         Clock = Ensure.NotNull(clock);
         Options = new GameplayOptions();
+        AudioRequests = new GameplayAudioRequests();
+        if (session.Audio is { } audio)
+            AttachSessionAudio(audio);
         EnemySession = new EnemySession(
             artwork.EnemyOverreads ?? throw new InvalidOperationException("Gameplay requires the installed enemy overread services."),
             artwork.BossAndIntroOverreads ?? throw new InvalidOperationException("Gameplay requires the installed boss and intro overread services."),
@@ -207,10 +221,10 @@ internal sealed class SuperMetroidRuntime
         DoorTransition = new DoorTransitionRunner(new DoorTransitionRunnerDependencies { ActorDrawing = ActorDrawing,  Display = Display, EnemyPhase = EnemyPhase, LiquidWaveAndStatueDescent = LiquidWaveAndStatueDescent, Clock = Clock, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room, System = System});
         EscapeEffects = new EscapeRoomEffects(Freeze, Clock, Room, System);
         ShotBlockVisuals = new RoomObjectVisuals();
-        RoomLoader = new RoomLoader(new RoomLoaderDependencies { EnemySession = EnemySession, BossArtwork = BossArtwork, RoomFx = RoomFx, PaletteFxSession = PaletteFxSession, TourianStatueDependencies = TourianStatueDependencies, ShotBlockVisuals = ShotBlockVisuals, BeamCharge = BeamCharge, Artwork = Artwork, BackgroundScroll = BackgroundScroll, Controller1 = Controller1, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, Clock = Clock, DoorFrameCounting = DoorFrameCounting, Options = Options, Player = Player, Room = Room, System = System, Assists = Assists, SamusOverreads = SamusOverreads, UnauthoredBoostCadence = UnauthoredBoostCadence, FadeStepCount = FadeStepCount });
+        RoomLoader = new RoomLoader(new RoomLoaderDependencies { AudioRequests = AudioRequests, EnemySession = EnemySession, BossArtwork = BossArtwork, RoomFx = RoomFx, PaletteFxSession = PaletteFxSession, TourianStatueDependencies = TourianStatueDependencies, ShotBlockVisuals = ShotBlockVisuals, BeamCharge = BeamCharge, Artwork = Artwork, BackgroundScroll = BackgroundScroll, Controller1 = Controller1, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, Clock = Clock, DoorFrameCounting = DoorFrameCounting, Options = Options, Player = Player, Room = Room, System = System, Assists = Assists, SamusOverreads = SamusOverreads, UnauthoredBoostCadence = UnauthoredBoostCadence, FadeStepCount = FadeStepCount });
         AttractDemo = new AttractDemoDriver(new AttractDemoDriverDependencies { UnauthoredBoostCadence = UnauthoredBoostCadence, Artwork = Artwork, AttractSession = AttractSession, Controller1 = Controller1, HudSetup = HudSetup, FrameBoundary = FrameBoundary, Player = Player, Room = Room, RoomLoader = RoomLoader, System = System, AnimationContinuation = SamusOverreads.AnimationContinuation, BeamCharge = BeamCharge });
         DeathSequence = new DeathSequenceRunner(new DeathSequenceRunnerDependencies { Artwork = Artwork, Display = Display, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room});
-        MessageBoxes = new MessageBoxFlow(new MessageBoxFlowDependencies { Freeze = Freeze, Hud = Hud, MessageBox = MessageBox, Player = Player, Room = Room, SuitPickup = SuitPickup, System = System });
+        MessageBoxes = new MessageBoxFlow(new MessageBoxFlowDependencies { AudioRequests = AudioRequests, Freeze = Freeze, Hud = Hud, MessageBox = MessageBox, Player = Player, Room = Room, SuitPickup = SuitPickup, System = System });
         RoomObjectPhase = new RoomObjectFramePhase(new RoomObjectFramePhaseDependencies { Controller1 = Controller1, EnemyRoomEffects = EnemyRoomEffects, Freeze = Freeze, MessageBox = MessageBox, MessageBoxes = MessageBoxes, Player = Player, Room = Room, SuitPickup = SuitPickup});
         RoomMains = new RoomMainRoutines(new RoomMainRoutinesDependencies { BackgroundScroll = BackgroundScroll, Player = Player, Room = Room, System = System});
         SamusPhases = new SamusFramePhases(new SamusFramePhasesDependencies { Artwork = Artwork, AttractDemo = AttractDemo, Controller1 = Controller1, Freeze = Freeze, GameTime = GameTime, Clock = Clock, Options = Options, Assists = Assists, Player = Player, Room = Room, System = System });
@@ -454,6 +468,8 @@ internal sealed class SuperMetroidRuntime
         RuntimeFrameRequest frameRequest,
         AmmoLoanGuard infiniteAmmoGuard)
     {
+        // The update's audio record starts empty, so an update that skips a system records nothing of an earlier one.
+        AudioRequests.BeginUpdate();
         RebindRoutingReferences();
         // An open message box runs its own updates inside the suspended gameplay update:
         // the frame boundary latches no input and no random number is drawn nor owner run.
@@ -480,7 +496,7 @@ internal sealed class SuperMetroidRuntime
         }
         if (SuspendTailForMessageBox(context))
             return Snapshot(infiniteAmmoGuard);
-        return FinishGameplayFrame(context.Tail, frameRequest.Policy, infiniteAmmoGuard, entry: GameplayFrameEntry.Fresh);
+        return FinishGameplayFrame(context.Tail, frameRequest.Policy, infiniteAmmoGuard);
     }
 
     /// <summary>Points the cross-owner routing at this frame's room owners and Samus, then applies pending Chozo statue room objects.</summary>
@@ -494,10 +510,12 @@ internal sealed class SuperMetroidRuntime
         scope.Projectiles.Earthquakes.BindRoomEarthquake(scope.Enemies.Earthquake);
         scope.RoomObjects.Sounds.BindPowerBombAudio(scope.BombProjectiles.PowerBombExplosion.Activity);
         Player.Samus?.Shinespark.BindProjectileOwners(scope.BombProjectiles.PowerBombExplosion);
+        scope.BindAudioRequests(AudioRequests);
+        Player.Samus?.BindAudioRequests(AudioRequests);
         EnemyRoomEffects.ApplyPendingChozoStatueObjects(scope.RoomObjects, scope.FxOverlay, Room.LoadedScope.Enemies);
     }
 
-    /// <summary>Opens the frame's impact-audio window, runs the accepted-frame boundary and the host's post-boundary work, and chooses the screen layers.</summary>
+    /// <summary>Marks the frame's impacts as gameplay's, runs the accepted-frame boundary and the host's post-boundary work, and chooses the screen layers.</summary>
     private void BeginAcceptedGameplayFrame(ControllerButton controller1Input, RuntimeFrameRequest frameRequest)
     {
         Room.LoadedScope.Projectiles.ImpactAudio.BeginImpactAudioFrame(context: ImpactAudioContext.Gameplay);
@@ -517,10 +535,10 @@ internal sealed class SuperMetroidRuntime
         // The power bomb blast belongs to the outer frame, not Samus alpha. A statue carry
         // replaces her handlers while the already-spawned blast continues normally.
         // Its cleanup runs a Samus command, which can queue sounds before the Samus
-        // handler; the frame's Samus sound window therefore opens here.
+        // handler; the live explosion that silences her sounds is therefore bound here.
         if (Player.Samus is { } samus && !MessageBox.IsActive)
         {
-            samus.LiquidPhysics.BeginFrameSoundRequests(Room.LoadedScope.BombProjectiles.PowerBombExplosion);
+            samus.LiquidPhysics.BindPowerBombAudio(Room.LoadedScope.BombProjectiles.PowerBombExplosion);
             Room.LoadedScope.BombProjectiles.AdvancePowerBombExplosion(samus, Controller1.Current, DispatchGameState);
         }
     }
@@ -704,9 +722,6 @@ internal sealed class SuperMetroidRuntime
         if (context.Tail is not { } suspendedTail || !MessageBox.IsActive)
             return false;
         _suspendedFrameTail = suspendedTail;
-        // Producers up to the room-object handler queued their sounds before the message box's
-        // entry cancel; the frontend publishes this frame's requests at that boundary.
-        FrameBoundary.CompletedGameplayAudioPublication++;
         return true;
     }
 
@@ -717,8 +732,7 @@ internal sealed class SuperMetroidRuntime
     internal RuntimeFrameResult FinishGameplayFrame(
         SuspendedGameplayFrameTail? frameTail,
         RuntimeFramePolicy policy,
-        AmmoLoanGuard infiniteAmmoGuard,
-        GameplayFrameEntry entry)
+        AmmoLoanGuard infiniteAmmoGuard)
     {
         if (frameTail is { } tail && Player.Samus is not null && Room.Camera is not null)
         {
@@ -747,10 +761,6 @@ internal sealed class SuperMetroidRuntime
             Room.LoadedScope.Enemies.HandleRoomShaking(Freeze.TimeIsFrozen);
 
         DecrementHurtTimers();
-
-        // A resumed tail's frame already published its audio when it suspended.
-        if (entry != GameplayFrameEntry.ResumedAfterMessageBox)
-            FrameBoundary.CompletedGameplayAudioPublication++;
         return Snapshot(infiniteAmmoGuard);
     }
 
@@ -928,7 +938,7 @@ internal sealed class SuperMetroidRuntime
             // The room-object handler has not returned while a pickup message is open.
             // Its newly granted inventory reaches the HUD only after that return.
             if (Player.Samus is not null && !Room.LoadedScope.RoomObjects.CollectibleObjects.HasPendingCollectibleMessage)
-                Hud.UpdateGameplayCounters(Player.Samus, Freeze.TimeIsFrozen,
+                Hud.UpdateGameplayCounters(Player.Samus, AudioRequests, Freeze.TimeIsFrozen,
                     soundSuppressed: Room.LoadedScope.BombProjectiles.PowerBombExplosion.IsActive);
         }
     }
@@ -1135,7 +1145,7 @@ internal sealed class SuperMetroidRuntime
         if (!MessageBox.IsActive && _suspendedFrameTail is { } tail)
         {
             _suspendedFrameTail = null;
-            return FinishGameplayFrame(tail, policy, infiniteAmmoGuard, entry: GameplayFrameEntry.ResumedAfterMessageBox);
+            return FinishGameplayFrame(tail, policy, infiniteAmmoGuard);
         }
         return Snapshot(infiniteAmmoGuard);
     }

@@ -143,12 +143,12 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects
         SpeedBoosterEscape = new SpeedBoosterEscapeObjects(services.Samus, services.Events, services.RoomFx, services.Earthquake);
         ChozoStatue = new ChozoStatueObjects(room.System, room.AreaIndex, SlotTable);
         DraygonCannons = new DraygonCannonObjects(services.Enemies);
-        BombTorizoHand = new BombTorizoHandObjects(services.Samus);
+        BombTorizoHand = new BombTorizoHandObjects(services.Samus, Sounds);
         NoobTube = new NoobTubeObjects(services.Samus, services.Events, services.RoomFx, services.Earthquake, services.Enemies);
         Gates = new GateObjects(services.Samus, SlotTable, Sounds);
         MotherBrainGlass = new MotherBrainGlassObjects(services.Bosses, services.Events, Sounds);
         Stations = new StationObjects(room.System, services.Samus, Drawing, SlotTable, Sounds);
-        CollectibleObjects = new CollectibleObjects(room.System, services.Samus, services.RoomFx, Drawing, SlotTable, collectibleBlockPairs);
+        CollectibleObjects = new CollectibleObjects(room.System, services.Samus, services.RoomFx, Drawing, SlotTable, collectibleBlockPairs, Sounds);
         EyeDoors = new EyeDoorObjects(room.System, services.Samus, services.Enemies, Sounds);
         DoorObjects = new DoorObjects(room.System, SlotTable, Sounds);
         GreyDoors = new GreyDoorObjects(room.System, room.AreaIndex, services.TourianStatue, Sounds);
@@ -169,8 +169,6 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects
     public void Step(RoomLevelData level, RoomObjectFrameInputs frame)
     {
         Ensure.NotNull(level);
-        Sounds.Clear();
-        Gates.PublishPendingDownwardGateSounds();
         Stations.BeginFrame();
         MotherBrainGlass.BeginMotherBrainGlassFrame();
         CollectibleObjects.BeginCollectibleFrame();

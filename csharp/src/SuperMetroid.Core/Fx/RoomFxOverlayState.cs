@@ -110,8 +110,11 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     private int lavaSoundTimer;
     /// <summary>Current liquid rise or fall state selected by the FX record.</summary>
     private LiquidRisePhase liquidRisePhase;
-    /// <summary>Audio requests emitted in the game's order during the current effect pass.</summary>
-    private readonly List<SoundRequest> soundRequests = [];
+    /// <summary>
+    /// The update's audio requests the effect's sounds join as it makes them: the runtime's, once it points the room's
+    /// systems at it; the effect's own record before that.
+    /// </summary>
+    internal GameplayAudioRequests AudioRequests { get; private set; } = new();
     /// <summary>The room's power-bomb explosion, which suppresses effect sounds while it is active.</summary>
     private IActivePowerBomb? audioPowerBomb;
     /// <summary>Countdown between quake sound requests in earthquake FX rooms.</summary>
@@ -165,11 +168,8 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// <summary>The liquid options the FX record selected, as room objects have since changed them.</summary>
     public RoomLiquidOptions LiquidOptions { get; internal set; }
 
-    /// <summary>
-    /// Sound requests emitted by the current effect pass in queue order.
-    /// The list is cleared at the beginning of every <see cref="Step"/> call.
-    /// </summary>
-    public IReadOnlyList<SoundRequest> SoundRequests => soundRequests;
+    /// <summary>Points the effect's sounds at <paramref name="requests"/>, the update's audio requests of the runtime running it.</summary>
+    internal void BindAudioRequests(GameplayAudioRequests requests) => AudioRequests = Ensure.NotNull(requests);
 
     /// <summary>
     /// The earthquake the current effect pass sustains (<see cref="RoomEarthquake.Sustain"/>), if any: rising lava's or
@@ -299,7 +299,6 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
             return;
         bool lavaOrAcid = Type is RoomFxType.Lava or RoomFxType.Acid;
         SustainedEarthquake = null;
-        soundRequests.Clear();
         if (!LavaAcidOverlayFrameBehaviorInstalled)
         {
             LavaAcidOverlayFrameBehaviorInstalled = true;
@@ -334,7 +333,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         if (--lavaSoundTimer != 0)
             return;
         lavaSoundTimer = LavaAcidWaveDefinitions.AmbientSoundPeriod;
-        soundRequests.Add(new SoundRequest(
+        AudioRequests.QueueSound(new SoundRequest(
             LiquidEffects.LavaAmbientSound(random),
             LavaAcidWaveDefinitions.AmbientSoundPriority,
             SoundSuppressed: audioPowerBomb?.IsActive == true));
@@ -346,10 +345,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         Ensure.NotNull(frames);
         audioPowerBomb = frame.PowerBomb;
         if (!frame.LiquidMotionAlreadyAdvanced)
-        {
-            soundRequests.Clear();
             SustainedEarthquake = null;
-        }
         if (Type == RoomFxType.Fireflea)
         {
             Fireflea.Step(frame.TimeIsFrozen, frame.FirefleaDarknessStep);
@@ -663,7 +659,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         if ((uint)EarthquakeSoundSequenceIndex >= (uint)baseDelays.Count)
             EarthquakeSoundSequenceIndex = 0;
 
-        soundRequests.Add(new SoundRequest(
+        AudioRequests.QueueSound(new SoundRequest(
             EnemySound.Lavaquake,
             Priority: SoundRequestPriority.Normal,
             SoundSuppressed: audioPowerBomb?.IsActive == true));

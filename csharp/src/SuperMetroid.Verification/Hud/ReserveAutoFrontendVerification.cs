@@ -91,12 +91,12 @@ internal static class ReserveAutoFrontendVerification
         AssertTrue(runtime.Player.LastGroundedSamusMovement is not null,
             "native $82:DC18 unfreezes BEFORE the completion frame gameplay/movement pass");
         var audio = game.Session.audio;
-        samus.HealthWarning.Update(99, audio);
+        samus.HealthWarning.Update(99, runtime.AudioRequests);
         samus.Health = 0; samus.ReserveEnergy = 33;
         // Seed the display at the pre-transfer health. Each subsequent gameplay
         // pass updates the HUD for the next accepted NMI to latch, including while
         // automatic recovery freezes movement. Inspect presentation, not just HP.
-        runtime.Hud.UpdateGameplayCounters(samus);
+        runtime.Hud.UpdateGameplayCounters(samus, runtime.AudioRequests);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var digitImages = new Dictionary<int, RgbaPixel[]>();
         recovery.Begin(samus); runtime.Freeze.GameplayTimeFrozen = true;
@@ -150,7 +150,7 @@ internal static class ReserveAutoFrontendVerification
             AssertEqual(ReadRetailEmptyAutoReserveTile(bus, offset), runtime.AcceptedHudWords[FxOverlayPlaneConstants.Columns + index],
                 "completed automatic refill publishes the native empty AUTO indicator");
         }
-        samus.HealthWarning.Update(30, audio);
+        samus.HealthWarning.Update(30, runtime.AudioRequests);
         // The capture names the installed content by path, as a host's store does, instead of copying it (#1532).
         AssertTrue(SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(samus).HealthWarning.IsActive,
             "Samus debugger graph retains warning latch");
@@ -176,7 +176,7 @@ internal static class ReserveAutoFrontendVerification
         GunshipPartState shipPart = GunshipPartState.Of(ship);
         shipPart.Function = GunshipFunction.WaitForEntranceToOpen;
         shipPart.FunctionTimer = 100;
-        (samus ?? throw new InvalidOperationException("Verification requires samus.")).HealthWarning.Update(99, audio);
+        (samus ?? throw new InvalidOperationException("Verification requires samus.")).HealthWarning.Update(99, runtime.AudioRequests);
         samus.Health = 30; samus.Control.EnterGunship();
         audio.Reset();
         SoundRequestsMark gunshipMark = audio.MarkSoundRequestsForVerification(SoundEffectLibrary.Room);

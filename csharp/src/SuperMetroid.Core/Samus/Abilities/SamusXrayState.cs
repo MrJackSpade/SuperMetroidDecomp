@@ -115,27 +115,6 @@ public sealed class SamusXrayState
     /// <summary>The shared five-frame palette cadence timer.</summary>
     public int CommonPaletteTimer { get; private set; }
 
-    /// <summary>Set by command five when the scope's start sound would be queued.</summary>
-    public bool ActivationSoundRequested { get; private set; }
-
-    /// <summary>Set by state five when the scope's end sound would be queued.</summary>
-    public bool DeactivationSoundRequested { get; private set; }
-
-    /// <summary>Consumes visor startup's normal-priority sound request.</summary>
-    public bool ConsumeActivationSoundRequest()
-    {
-        bool requested = ActivationSoundRequested;
-        ActivationSoundRequested = false;
-        return requested;
-    }
-
-    /// <summary>Consumes the sound the cone effect's teardown queues.</summary>
-    public bool ConsumeDeactivationSoundRequest()
-    {
-        bool requested = DeactivationSoundRequested;
-        DeactivationSoundRequested = false;
-        return requested;
-    }
 
     /// <summary>
     /// Runs the admission tests and pose selection of the X-ray setup.
@@ -231,8 +210,6 @@ public sealed class SamusXrayState
         SuspendedSubsystems = XraySuspendedSubsystems.All;
         IsActive = true;
         OwnsSamusControl = false;
-        ActivationSoundRequested = false;
-        DeactivationSoundRequested = false;
     }
 
     /// <summary>
@@ -262,7 +239,7 @@ public sealed class SamusXrayState
         samus.CrystalFlash.RelinquishPaletteHandler();
         VisorShade = 0;
         CommonPaletteTimer = 1;
-        ActivationSoundRequested = true;
+        samus.AudioRequests.QueueSound(SamusSound.XrayStart, SoundRequestPriority.Normal);
         OwnsSamusControl = true;
     }
 
@@ -674,7 +651,7 @@ public sealed class SamusXrayState
         AngularHalfWidth = SignedSixteenSixteen.Zero;
         AngularWideningSpeed = SignedSixteenSixteen.Zero;
         VisorPaletteMode = XrayVisorPaletteMode.RestoreSuitPalette;
-        DeactivationSoundRequested = true;
+        samus.AudioRequests.QueueSound(SamusSound.XrayEnd, SoundRequestPriority.Normal);
     }
 
     /// <summary>Commits a frozen X-ray turn pose with refreshed radii, animation, and history.</summary>

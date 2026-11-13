@@ -453,7 +453,12 @@ internal static class RoomObjectSystemAccess
             RoomScrollGrid? scrolls = null,
             ushort enemyDeaths = 0,
             byte enemyDeathQuota = 0)
-            => self.Step(level, new RoomObjectFrameInputs { Scrolls = scrolls, EnemyDeaths = enemyDeaths, EnemyDeathQuota = enemyDeathQuota, ControllerNewInput = 0 });
+        {
+            // A check's pass is an update of its own: it begins the record the room objects' sounds join, as the runtime's
+            // update begins its own.
+            self.Sounds.Requests.BeginUpdate();
+            self.Step(level, new RoomObjectFrameInputs { Scrolls = scrolls, EnemyDeaths = enemyDeaths, EnemyDeathQuota = enemyDeathQuota, ControllerNewInput = 0 });
+        }
     }
 
     /// <summary>The room's occupied places, the last in update order first, as the checks have always listed them.</summary>

@@ -9,6 +9,9 @@ namespace SuperMetroid.Core.World;
 /// <summary>The collaborators a <see cref="MessageBoxFlow"/> is constructed with, built once by the owner that creates it (#621).</summary>
 internal sealed record MessageBoxFlowDependencies
 {
+    /// <summary>The runtime's audio requests, which the HUD update after a message box queues its selection sound into.</summary>
+    public required GameplayAudioRequests AudioRequests { get; init; }
+
     /// <summary>Freeze.</summary>
     public required GameplayTimeFreeze Freeze { get; init; }
 

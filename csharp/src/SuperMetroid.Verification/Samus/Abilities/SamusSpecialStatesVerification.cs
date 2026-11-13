@@ -197,10 +197,9 @@ internal static void VerifySamusCrystalFlash()
     AssertEqual(6, samus.AnimationFrame, "raise transition forces animation frame six");
     AssertTrue(samus.CrystalFlash.BubbleEffectRequested,
         "raise transition publishes Crystal Flash HDMA spawn seam");
-    AssertTrue(samus.CrystalFlash.ConsumeActivationSoundRequest(),
-        "Crystal Flash activation sound is consumable exactly once");
-    AssertTrue(!samus.CrystalFlash.ConsumeActivationSoundRequest(),
-        "consumed Crystal Flash sound cannot replay while ammo drains");
+    AssertSequenceEqual(new[] { new SoundRequest(RoomSound.Silence, SoundRequestPriority.Essential) },
+        samus.AudioRequests.SoundRequests.Where(request => request.SoundEffect == RoomSound.Silence),
+        "the raise's end queues the Crystal Flash activation sound once, at essential priority");
 
     var crystalWindow = new SamusPowerBombExplosionState
     {
@@ -418,11 +417,7 @@ internal static void VerifySamusXray()
         "right X-ray initial angle");
     AssertEqual(XrayWarmUp.Started, standing.Xray.WarmUp, "X-ray starts its warm-up");
     AssertTrue(standing.Xray.TimeIsFrozen, "X-ray freezes time");
-    AssertTrue(standing.Xray.ActivationSoundRequested, "X-ray activation sound requested");
-    AssertTrue(standing.Xray.ConsumeActivationSoundRequest(),
-        "X-ray startup sound is consumable exactly once");
-    AssertTrue(!standing.Xray.ConsumeActivationSoundRequest(),
-        "consumed X-ray startup sound cannot replay");
+    AssertEqual(1, standing.AudioRequests.CountOf(SamusSound.XrayStart), "X-ray startup queues its sound once");
 
     AssertEqual(2, (standing.Xray.StepMovement(standing) ?? throw new InvalidOperationException("Verification requires standing.Xray.StepMovement(bus, standing).")),
         "angle 40 selects forward X-ray frame");
@@ -544,11 +539,7 @@ internal static void VerifySamusXray()
     AssertEqual(SamusPoseId.FacingLeftNormalPose, standing.Pose, "left X-ray exits to ordinary standing");
     AssertEqual(XrayVisorPaletteMode.RestoreSuitPalette, standing.Xray.VisorPaletteMode,
         "X-ray teardown requests palette restoration");
-    AssertTrue(standing.Xray.DeactivationSoundRequested, "X-ray deactivation sound requested");
-    AssertTrue(standing.Xray.ConsumeDeactivationSoundRequest(),
-        "X-ray teardown sound is consumable exactly once");
-    AssertTrue(!standing.Xray.ConsumeDeactivationSoundRequest(),
-        "consumed X-ray teardown sound cannot replay");
+    AssertEqual(1, standing.AudioRequests.CountOf(SamusSound.XrayEnd), "X-ray teardown queues its sound once");
     AssertTrue(standing.Xray.UpdatePalette(xrayColours, standing.EquippedItems),
         "X-ray teardown restores normal suit palette");
     AssertEqual(0x0104, xrayColours.ShownSuit(xraySources)[4], "normal palette replaces visor color");
@@ -607,7 +598,7 @@ internal static void VerifySamusXray()
         "deferred left-facing setup publishes native angle C0");
     AssertEqual(SamusSpecialPaletteType.None, interrupted.Xray.SpecialPaletteKind,
         "deferred setup does not install command-five palette ownership early");
-    AssertTrue(!interrupted.Xray.ActivationSoundRequested,
+    AssertEqual(0, interrupted.AudioRequests.CountOf(SamusSound.XrayStart),
         "deferred setup does not queue command-five activation sound early");
 
     interrupted.Pose = SamusPoseId.MovingLeftNormalPose;
@@ -774,7 +765,7 @@ internal static void VerifySamusDeathSequence()
         samus.PoseHistory.PreviousMovement, "death commits right metadata");
     AssertEqual(5, samus.AnimationFrame, "ordinary death starts unmorphed frame five");
     AssertEqual(new Position16<ScreenPixels>(0x00a0, 0x00c0), samus.DeathSequence.ScreenPosition, "death captures screen position");
-    AssertTrue(!samus.DeathSequence.SpinJumpSoundRequested, "ordinary death does not request spin SFX");
+    AssertEqual(0, samus.AudioRequests.CountOf(SamusSound.SpinJumpEnd), "ordinary death does not request spin SFX");
     AssertEqual(2, samus.AnimationFrameTimer.RawValue, "death pose retains two-tick delay");
 
     var samusColours = new SamusColours();
@@ -854,11 +845,9 @@ internal static void VerifySamusDeathSequence()
     SamusPresentation.InitializeAnimation(spinning);
     spinning.DeathSequence.Begin(
         spinning, cameraPosition: new(0, 0));
-    AssertTrue(spinning.DeathSequence.SpinJumpSoundRequested, "spin death requests sound $32");
-    AssertTrue(spinning.DeathSequence.ConsumeSpinJumpSoundRequest(),
-        "spin-death sound is consumable exactly once");
-    AssertTrue(!spinning.DeathSequence.ConsumeSpinJumpSoundRequest(),
-        "consumed spin-death sound cannot replay during death animation");
+    AssertSequenceEqual(new[] { new SoundRequest(SamusSound.SpinJumpEnd, SoundRequestPriority.Normal) },
+        spinning.AudioRequests.SoundRequests.Where(request => request.SoundEffect == SamusSound.SpinJumpEnd),
+        "spin death queues the spin's end once, at normal priority, as it begins");
     AssertEqual(5, spinning.AnimationFrame, "spin death begins unmorphed frame five");
 
     Console.WriteLine(

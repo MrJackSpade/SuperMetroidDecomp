@@ -399,7 +399,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             // The flicker's records are shades the import pre-colours the scene's pictures in (#1512); the scene names the
             // record its running engine program shows (#1597).
             PaletteFx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false });
-            if (PaletteFx.SoundRequests.Count != 0)
+            if (PaletteFx.AudioRequests.SoundRequests.Count != 0)
                 throw new InvalidDataException("Ceres engine palette program unexpectedly requested audio.");
         }
 

@@ -1,6 +1,6 @@
 using static SuperMetroid.Verification.Audio.AudioUploadCatalogVerification;
 using static SuperMetroid.Verification.Rooms.Doors.DoorSoundDisableVerification;
-using static SuperMetroid.Verification.Audio.GameplayAudioPublicationVerification;
+using static SuperMetroid.Verification.Audio.GameplayAudioOrderVerification;
 using static SuperMetroid.Verification.Audio.SoundQueueReturnVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
@@ -74,7 +74,9 @@ internal static class AudioVerification
         WriteAudioRomByte(rom, 0x918002, 0x00);
         var bus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
         Suite(nameof(VerifySoundQueueAccumulator), () => VerifySoundQueueAccumulator());
-        Suite(nameof(VerifyGameplayAudioPublication), () => VerifyGameplayAudioPublication());
+        Suite(nameof(VerifyEchoFollowsTheUpdatesEarlierSounds), () => VerifyEchoFollowsTheUpdatesEarlierSounds());
+        Suite(nameof(VerifyGameplaySoundsQueueInRunOrder), () => VerifyGameplaySoundsQueueInRunOrder());
+        Suite(nameof(VerifyLaterUpdateQueuesNothingStale), () => VerifyLaterUpdateQueuesNothingStale());
 
         var audio = AudioQueues.Standalone();
         audio.QueueMusic(MusicRequest.LoadDataSet(MusicDataSet.TitleSequence));

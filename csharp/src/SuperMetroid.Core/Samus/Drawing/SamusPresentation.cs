@@ -222,7 +222,10 @@ internal sealed class SamusPresentation
                     samus.AnimationFrameBuffer,
                     ref stagedFrame,
                     out int stagedTimer,
-                    queueEchoSound))
+                    // The frame's own echo call answers with its queue; otherwise the echo joins Samus's audio requests.
+                    queueEchoSound is { } queueFrameEcho
+                        ? () => queueFrameEcho()
+                        : () => samus.AudioRequests.QueueSound(RoomSound.SpeedBooster, SoundRequestPriority.Normal)))
                 {
                     samus.AnimationFrame = stagedFrame;
                     samus.AnimationFrameTimer = WrappingCountdown.FromRaw(stagedTimer);

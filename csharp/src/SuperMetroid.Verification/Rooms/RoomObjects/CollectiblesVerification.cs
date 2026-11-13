@@ -104,12 +104,8 @@ internal static class CollectiblesVerification
                 $"{kind} publishes exactly one acquisition");
             AssertEqual(kind, fixture.RoomObjects.CollectibleObjects.CollectiblePickupEvents[0].Kind,
                 $"{kind} acquisition identity");
-            AssertTrue(
-                fixture.RoomObjects.CollectibleObjects.ConsumeCollectibleFanfareRequest(),
-                $"{kind} publishes one shared permanent-item fanfare edge");
-            AssertTrue(
-                !fixture.RoomObjects.CollectibleObjects.ConsumeCollectibleFanfareRequest(),
-                $"{kind} fanfare edge cannot repeat during its synchronous message");
+            AssertEqual(1, fixture.RoomObjects.Sounds.Requests.PermanentItemFanfares,
+                $"{kind} starts the shared permanent-item fanfare once, as it is picked up");
             AssertPermanentCollectibleEffect(kind, fixture.Samus);
 
             AssertEqual(visibleItemWord, fixture.Level.GetCollisionBlockByIndex(fixture.BlockIndex).Terrain,

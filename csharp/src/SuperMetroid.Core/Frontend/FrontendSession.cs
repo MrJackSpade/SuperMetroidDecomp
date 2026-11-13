@@ -203,20 +203,10 @@ internal sealed class FrontendSession
     internal IReadOnlyList<AudioEvent> LastAudioEvents { get; private set; } = Array.Empty<AudioEvent>();
     /// <summary>Advances the audio session by this update's commands and keeps the events it publishes.</summary>
     internal void AdvanceAudio(IReadOnlyList<AudioRequest> requests) => LastAudioEvents = audioSession.Advance(requests);
-    /// <summary>
-    /// Runtime publication number last copied into the frontend audio queue. A runtime counts its completed gameplay
-    /// publications from one, so zero means none has been copied and a runtime that has not completed one has nothing
-    /// to copy.
-    /// </summary>
-    private ulong lastAudioRuntimeGameplayPublication;
-    /// <summary>Room state associated with the last copied audio publication.</summary>
+    /// <summary>The room state whose music was last queued.</summary>
     internal RoomStateSettings? LastAudioRoomState { get; set; }
-    /// <summary>Forgets the publication and room whose audio was last queued, so the next runtime's queue from scratch.</summary>
-    internal void ForgetQueuedAudio()
-    {
-        lastAudioRuntimeGameplayPublication = 0;
-        LastAudioRoomState = null;
-    }
+    /// <summary>Forgets the room whose music was last queued, so the next runtime's room music is queued from scratch.</summary>
+    internal void ForgetQueuedAudio() => LastAudioRoomState = null;
     /// <summary>
     /// Raised after the game changed its saves. The handlers belong to the host, not the game: a saved session leaves
     /// them out, and the host subscribes again when it binds a game to its save storage.
@@ -232,18 +222,18 @@ internal sealed class FrontendSession
     /// <summary>How far room loading has progressed; see <see cref="IRoomLoadProgress"/>.</summary>
     internal IRoomLoadProgress RoomLoadProgress => HostServices.RoomLoadProgress;
     /// <summary>
-    /// Moves the update's published sound and music requests into the audio queues.
+    /// Queues the audio the frontend's own boundaries request after the update's phase: the room's music when the room
+    /// changed, the music the room's enemies start, and the one-shot sounds of a closing message box.
     /// </summary>
     /// <remarks>
-    /// This is intentionally a collection seam, not sound policy. Samus, projectiles, and
-    /// room objects own the sound and priority of each request; the frontend merely queues the
-    /// requests those producers published, in their order.
+    /// Gameplay's own sound and music requests are not collected here: every system queues each one into the session's
+    /// queues as it makes it, through the runtime's <see cref="GameplayAudioRequests"/> (#1620).
     /// </remarks>
-    internal void CollectTranslatedAudioRequests(GameplayAudioFramePublication gameplayAudio)
+    internal void CollectTranslatedAudioRequests()
     {
         // Demo loading suppresses room music; the demo's sound switch suppresses
-        // scene SFX while the title track continues. Do not let runtime publishers
-        // replace it with each demo room's normal area music.
+        // scene SFX while the title track continues. Do not replace it with each
+        // demo room's normal area music.
         if (runtime?.AttractDemo.IsAttractDemo == true)
             return;
         if (runtime?.Room.ActiveRoom?.State is { } roomState &&
@@ -263,9 +253,8 @@ internal sealed class FrontendSession
             foreach (MusicRequest request in scope.Enemies.Audio.ConsumeRoomEnemyStartMusic())
                 audio.QueueMusic(request);
 
-        // The message-box save choice runs outside gameplay, not part of the gameplay
-        // publication generation below. It has explicit consume semantics so its one-shot
-        // request remains audible without making stale enemy and room-object lists eligible again.
+        // The message-box save choice runs outside gameplay. Its one-shot request is consumed
+        // once, so updates that only show the box cannot repeat it.
         if (runtime?.MessageBoxes.ConsumeMessageBoxSelectionSoundRequest() == true)
             audio.QueueSound(SamusSound.MenuCursor, priority: SoundRequestPriority.Normal);
         if (runtime?.MessageBox.ConsumeSavingSoundRequest() == true)
@@ -275,97 +264,11 @@ internal sealed class FrontendSession
         // An accepted save station resumes from the message close boundary too.
         if (runtime?.Room.Scope?.RoomObjects.Stations.ConsumeSavingSoundRequest() is { } saving)
             audio.QueueSound(saving);
-        // Suit setup resumes from the message close boundary, outside normal gameplay
-        // publication generations. Consume once so updates without gameplay cannot repeat it.
+        // Suit setup resumes from the message close boundary, outside gameplay. Consume once so
+        // updates without gameplay cannot repeat it.
         if (runtime?.SuitPickup.ConsumeTransformationSoundRequest() == true)
             audio.QueueSound(EnemySound.SuitAcquired, priority: SoundRequestPriority.Normal,
                 soundSuppressed: runtime.SuitPickup.TransformationSoundSuppressed);
-
-        // Frontend states sometimes run updates without running gameplay.
-        // In particular, the door coroutine waits for all unread sound-ring entries to
-        // drain. The update count cannot guard this handoff: re-reading the last enemy or room-object
-        // publication during each waiting update perpetually refills that ring. Consume only a
-        // newly completed gameplay publication instead.
-        if (runtime is null ||
-            runtime.FrameBoundary.CompletedGameplayAudioPublication ==
-                lastAudioRuntimeGameplayPublication)
-            return;
-        lastAudioRuntimeGameplayPublication =
-            runtime.FrameBoundary.CompletedGameplayAudioPublication;
-
-        // Room-effect actors and palette objects run before Samus,
-        // projectiles, room objects, and enemies in main gameplay. Queue their calls first so a full
-        // sound ring retains the same higher-priority request the game would retain
-        // when several producers fire during one frame.
-        gameplayAudio.PublishPrefix(runtime);
-
-        if (runtime.Player.Samus is { } samus)
-        {
-            // These state machines predate the shared SoundRequest list. Consume their
-            // one-shot publications here, retaining the exact library and queue-limit entry.
-            if (samus.HorizontalSpeed.ConsumeEchoSoundRequest())
-                audio.QueueSound(RoomSound.SpeedBooster, priority: SoundRequestPriority.Normal);
-            if (samus.Shinespark.ConsumeStoredShineWarningSoundRequest())
-                audio.QueueSound(RoomSound.StoredShinespark, SoundRequestPriority.High,
-                    soundSuppressed: samus.Shinespark.StoredShineWarningSoundSuppressed);
-            if (samus.Shinespark.ConsumeChargeCancellationSoundRequest())
-                audio.QueueSound(SamusSound.Silence, SoundRequestPriority.High,
-                    soundSuppressed: samus.Shinespark.ChargeCancellationSoundSuppressed);
-            if (samus.Shinespark.ConsumeLaunchSoundRequest())
-                audio.QueueSound(RoomSound.Shinespark, SoundRequestPriority.High,
-                    soundSuppressed: samus.Shinespark.LaunchSoundSuppressed);
-            if (samus.Shinespark.ConsumeCrashSoundRequest())
-            {
-                audio.QueueSound(SamusSound.SamusDamaged, SoundRequestPriority.Normal,
-                    soundSuppressed: samus.Shinespark.CrashSoundSuppressed);
-                audio.QueueSound(RoomSound.ShinesparkEnd, SoundRequestPriority.Normal,
-                    soundSuppressed: samus.Shinespark.CrashSoundSuppressed);
-            }
-            if (samus.CrystalFlash.ConsumeActivationSoundRequest())
-                audio.QueueSound(RoomSound.Silence, priority: SoundRequestPriority.Essential);
-            if (samus.Xray.ConsumeActivationSoundRequest())
-                audio.QueueSound(SamusSound.XrayStart, priority: SoundRequestPriority.Normal);
-            if (samus.Xray.ConsumeDeactivationSoundRequest())
-                audio.QueueSound(SamusSound.XrayEnd, priority: SoundRequestPriority.Normal);
-            if (samus.DeathSequence.ConsumeSpinJumpSoundRequest())
-                audio.QueueSound(SamusSound.SpinJumpEnd, priority: SoundRequestPriority.Normal);
-        }
-
-        if (runtime.Room.LoadedScope.Projectiles.LastFrameResult.QueuedSoundEffect is { } projectileSound)
-        {
-            audio.QueueSound(
-                projectileSound,
-                runtime.Room.LoadedScope.Projectiles.LastFrameResult.QueuedSoundMaximum
-                    ?? throw new InvalidDataException("A projectile sound was queued without its queue limit."),
-                soundSuppressed: runtime.Room.LoadedScope.Projectiles.LastFrameResult.QueuedSoundSuppressed);
-        }
-
-        foreach (SoundRequest request in
-            runtime.Room.LoadedScope.Projectiles.LastFrameResult.AdditionalSoundRequests ?? [])
-        {
-            audio.QueueSound(request);
-        }
-
-        foreach (SoundRequest request in runtime.Room.LoadedScope.Projectiles.ImpactAudio.ImpactSoundRequests)
-            audio.QueueSound(request);
-
-        foreach (SoundRequest request in
-            runtime.Room.LoadedScope.BombProjectiles.LastFrameResult.SoundRequests ?? [])
-        {
-            audio.QueueSound(request);
-        }
-
-        foreach (SoundRequest request in runtime.Room.LoadedScope.RoomObjects.Sounds.SoundRequests)
-            audio.QueueSound(request);
-        foreach (DelayedMusicRequest request in runtime.Room.LoadedScope.RoomObjects.BombTorizoHand.MusicRequests)
-            audio.ScheduleMusic(request.Request, request.Delay);
-        if (runtime.Room.LoadedScope.RoomObjects.CollectibleObjects.ConsumeCollectibleFanfareRequest())
-            audio.QueuePermanentItemFanfare();
-
-        foreach (SoundRequest request in runtime.Room.LoadedScope.Enemies.Audio.SoundRequests)
-            audio.QueueSound(request);
-        foreach (DelayedMusicRequest request in runtime.Room.LoadedScope.Enemies.Audio.MusicRequests)
-            audio.ScheduleMusic(request.Request, request.Delay);
     }
     /// <summary>
     /// The state-publication half of Samus running out of health and the game timer. The
@@ -415,6 +318,7 @@ internal sealed class FrontendSession
                 EarthquakeSoundDelay = earthquakeSoundDelay,
                 SaveChoiceInput = saveChoiceInput,
                 StoredExploredMaps = storedExploredMaps,
+                Audio = audio,
             },
             MenuCamera = menuCamera,
             Artwork = Artwork,

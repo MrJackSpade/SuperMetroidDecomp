@@ -102,11 +102,11 @@ internal static class BombTorizoHandVerification
         AssertEqual(RoomTerrainBlock.Of(0xff, BlockMirroring.None, RoomCollisionType.Air),
             level.GetCollisionBlock(handOrigin).Terrain,
             "five-run cleared hand removes its physical origin block");
-        AssertEqual(1, roomObjects.BombTorizoHand.MusicRequests.Count,
+        AssertEqual(1, roomObjects.Sounds.MusicRequests.Count,
             "terminal hand pass queues one music command");
         AssertEqual(
             new DelayedMusicRequest(MusicRequest.SelectTrack(MusicTrack.SecondSetSong), MusicQueueDelay.Shortest),
-            roomObjects.BombTorizoHand.MusicRequests[0],
+            roomObjects.Sounds.MusicRequests[0],
             "terminal hand music request");
 
         var defeated = RoomObjectFixtures.Unbound();

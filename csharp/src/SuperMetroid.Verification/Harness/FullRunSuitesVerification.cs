@@ -359,6 +359,7 @@ using static SuperMetroid.Verification.Fx.SandAnimatedTilesVerification;
 using static SuperMetroid.Verification.Rooms.RoomObjects.SaveConfirmationCadenceVerification;
 using static SuperMetroid.Verification.Saves.SaveRamLayoutVerification;
 using static SuperMetroid.Verification.Rooms.Scrolling.ScrollObjectsVerification;
+using static SuperMetroid.Verification.Rooms.Scrolling.ScrollChangeNamesVerification;
 using static SuperMetroid.Verification.Samus.Movement.ShallowWaterJumpVerification;
 using static SuperMetroid.Verification.Samus.Abilities.ShinesparkEnemyStopVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.ShitroidGradualAccelerationVerification;
@@ -867,6 +868,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyHudState), () => VerifyHudState()),
         new(nameof(VerifyRoomScrollGridAndBoundaryCamera), () => VerifyRoomScrollGridAndBoundaryCamera()),
         new(nameof(VerifyRoomScrollObjects), () => VerifyRoomScrollObjects()),
+        new(nameof(VerifyScrollChangeNamesDescribeTheirScreens), () => VerifyScrollChangeNamesDescribeTheirScreens()),
         new(nameof(VerifyRoomObjectHeaderCatalog), () => VerifyRoomObjectHeaderCatalog()),
         new(nameof(VerifyRoomObjectAnimationScriptCatalog), () => VerifyRoomObjectAnimationScriptCatalog()),
         new(nameof(VerifySequentialRoomObjectPopulationLoader), () => VerifySequentialRoomObjectPopulationLoader()),

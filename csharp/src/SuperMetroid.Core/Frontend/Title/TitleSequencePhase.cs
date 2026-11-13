@@ -17,11 +17,15 @@ public enum TitleSequencePhase
     SceneTwoPan,
     /// <summary>Runs the progressive Metroid 3 title card, including its 120-update final hold, before triggering the final zoom.</summary>
     MetroidThreeText,
-    /// <summary>Enables the title gradient and zooms out by increasing the 8.8 turning-floor scale from 67/256 to unity on alternating updates.</summary>
+    /// <summary>
+    /// Enables the title gradient and zooms out by increasing the turning floor's zoom from 67/256 to its own size on
+    /// alternating updates; the next alternating update after reaching its own size completes the zoom. The last step
+    /// that accepts the skip.
+    /// </summary>
     SceneThreeZoom,
-    /// <summary>Displays the title logo at the completed turning-floor transform for the 32-update logo stage before showing the copyright.</summary>
+    /// <summary>Displays the title logo at the completed turning-floor transform for the 32-update logo stage before showing the copyright; refuses the skip.</summary>
     TitleLogoFade,
-    /// <summary>Displays the logo and Nintendo copyright for the 32-update copyright stage before starting the idle-title demo countdown.</summary>
+    /// <summary>Displays the logo and Nintendo copyright for the 32-update copyright stage before starting the idle-title demo countdown; refuses the skip.</summary>
     CopyrightFade,
     /// <summary>The skip fade: lowers brightness by two levels per update, then installs the immediate title objects and queues the immediate title song at black.</summary>
     SkipFadeOut,

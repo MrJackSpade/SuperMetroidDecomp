@@ -483,7 +483,7 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.MorphEntryDo
 
         // All ordinary ball poses share one animation program, and the change keeps the frame and timer running.
         // Assert the shared program instead of depending on that fact silently.
-        if (!ReferenceEquals(SamusAnimationDelays.ProgramForPose(sourcePose), SamusAnimationDelays.ProgramForPose(targetPose)))
+        if (!ReferenceEquals(SamusAnimationDelays.AnimationForPose(sourcePose), SamusAnimationDelays.AnimationForPose(targetPose)))
         {
             throw new InvalidDataException(
                 $"Morph-Ball transition {sourcePose} -> {targetPose} selected different animation programs.");

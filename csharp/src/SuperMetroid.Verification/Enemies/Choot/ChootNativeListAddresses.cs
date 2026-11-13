@@ -14,11 +14,11 @@ internal static class ChootNativeListAddresses
     internal const byte Bank = 0xa2;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<ChootProgram>[] Entries =
+    internal static readonly NativeProgramEntry<ChootSegment>[] Entries =
     [
-        new NativeProgramEntry<ChootProgram>(ChootProgram.Idle, 0xd82c),
-        new NativeProgramEntry<ChootProgram>(ChootProgram.Jumping, 0xd834),
-        new NativeProgramEntry<ChootProgram>(ChootProgram.Falling, 0xd840),
+        new NativeProgramEntry<ChootSegment>(ChootSegment.Idle, 0xd82c),
+        new NativeProgramEntry<ChootSegment>(ChootSegment.Jumping, 0xd834),
+        new NativeProgramEntry<ChootSegment>(ChootSegment.Falling, 0xd840),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>

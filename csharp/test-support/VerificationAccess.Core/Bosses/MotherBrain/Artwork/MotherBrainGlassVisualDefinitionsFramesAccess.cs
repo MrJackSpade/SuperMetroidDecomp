@@ -9,11 +9,11 @@ internal static class MotherBrainGlassVisualDefinitionsFramesAccess
         /// <summary>Every frame in installed-artwork order: the shard groups in turn, then the sparkle.</summary>
         internal static IReadOnlyList<MotherBrainGlassFrame> ProjectileFrames =>
         [
-            .. Enum.GetValues<MotherBrainGlassProgram>().Where(program => program != MotherBrainGlassProgram.Sparkle)
+            .. Enum.GetValues<MotherBrainGlassSegment>().Where(program => program != MotherBrainGlassSegment.Sparkle)
                 .SelectMany(program => Enumerable.Range(0, MotherBrainGlassAnimations.ShardPhaseCount)
                     .Select(phase => new MotherBrainGlassFrame(program, phase))),
             .. Enumerable.Range(0, MotherBrainGlassAnimations.SparklePhaseCount)
-                .Select(phase => new MotherBrainGlassFrame(MotherBrainGlassProgram.Sparkle, phase)),
+                .Select(phase => new MotherBrainGlassFrame(MotherBrainGlassSegment.Sparkle, phase)),
         ];
 
         /// <summary>Distinct frames: eight per shard group, then the sparkle's four.</summary>

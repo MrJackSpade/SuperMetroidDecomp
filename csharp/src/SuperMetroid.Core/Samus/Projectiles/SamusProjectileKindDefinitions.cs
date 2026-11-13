@@ -1,4 +1,4 @@
-using P = SuperMetroid.Core.Samus.Projectiles.SamusProjectileProgram;
+using P = SuperMetroid.Core.Samus.Projectiles.SamusProjectileSegment;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 internal static class SamusProjectileKindDefinitions
 {
     /// <summary>The program a shot of each directional kind starts in each direction it is fired in.</summary>
-    internal static readonly IReadOnlyDictionary<SamusProjectileKind, SamusProjectileDirectionMap<P>> DirectionalPrograms =
+    internal static readonly IReadOnlyDictionary<SamusProjectileKind, SamusProjectileDirectionMap<P>> DirectionalAnimations =
         new Dictionary<SamusProjectileKind, SamusProjectileDirectionMap<P>>
         {
             [SamusProjectileKind.UnchargedPower] = new(P.PowerUpFacingRight, P.PowerUpRight, P.PowerRight, P.PowerDownRight, P.PowerDownFacingRight, P.PowerDownFacingRight, P.PowerDownLeft, P.PowerLeft, P.PowerUpLeft, P.PowerUpFacingRight),
@@ -43,7 +43,7 @@ internal static class SamusProjectileKindDefinitions
     /// The one program each of the other kinds starts: the Super Missile link's, the bombs' and the special attacks'
     /// particles', which start it whatever their direction.
     /// </summary>
-    internal static readonly IReadOnlyDictionary<SamusProjectileKind, P> SolePrograms =
+    internal static readonly IReadOnlyDictionary<SamusProjectileKind, P> SoleAnimations =
         new Dictionary<SamusProjectileKind, P>
         {
             [SamusProjectileKind.SuperMissileLink] = P.SuperMissileLink,

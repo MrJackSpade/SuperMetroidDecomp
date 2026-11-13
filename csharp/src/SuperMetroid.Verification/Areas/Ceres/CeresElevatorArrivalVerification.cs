@@ -164,14 +164,14 @@ internal static class CeresElevatorArrivalVerification
         {
             int address = CeresElevatorArrivalDefinitions.BankBase | definitionPointer;
             VerificationAssertions.AssertEqual(cartridge.ReadCartridgeWord(address + 4),
-                NativeEnemyAnimationOracle.EntryOf(CeresElevatorArrivalNativeListAddresses.Entries, definition.Program),
+                NativeEnemyAnimationOracle.EntryOf(CeresElevatorArrivalNativeListAddresses.Entries, definition.Animation),
                 "Ceres elevator definition names its program's native list");
         }
 
-        foreach ((CeresElevatorArrivalProgram program, ushort entry) in CeresElevatorArrivalNativeListAddresses.Entries)
+        foreach ((CeresElevatorArrivalSegment program, ushort entry) in CeresElevatorArrivalNativeListAddresses.Entries)
         {
             IReadOnlyList<AnimationBeat<CeresElevatorArrivalPose, NoAnimationCue>> beats = CeresElevatorArrivalAnimations.Segments.Beats(program);
-            Animation<CeresElevatorArrivalProgram> animation = CeresElevatorArrivalAnimations.StartingWith(program);
+            Animation<CeresElevatorArrivalSegment> animation = CeresElevatorArrivalAnimations.StartingWith(program);
             ushort cursor = entry;
             int index = 0;
             while (true)
@@ -201,8 +201,8 @@ internal static class CeresElevatorArrivalVerification
             }
             VerificationAssertions.AssertEqual(beats.Count, index, $"Ceres elevator {program} ends where its native list does");
             VerificationAssertions.AssertTrue(animation.Phases.SequenceEqual(index == 0
-                    ? Array.Empty<AnimationPhase<CeresElevatorArrivalProgram>>()
-                    : new[] { new AnimationPhase<CeresElevatorArrivalProgram>(program, 0, index, 1) }),
+                    ? Array.Empty<AnimationPhase<CeresElevatorArrivalSegment>>()
+                    : new[] { new AnimationPhase<CeresElevatorArrivalSegment>(program, 0, index, 1) }),
                 $"Ceres elevator {program} plays its list once per pass");
         }
     }

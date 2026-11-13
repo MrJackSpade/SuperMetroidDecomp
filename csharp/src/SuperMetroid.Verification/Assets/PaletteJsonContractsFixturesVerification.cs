@@ -80,7 +80,7 @@ internal static class PaletteJsonContractsFixturesVerification
         yield return new("Mother Brain room", PaletteContractDocument(new MotherBrainRoomColorDocument
         {
             Version = MotherBrainRoomColorFormat.Version,
-            Flash = PaletteContractRows(MotherBrainRoomPaletteProgramDefinitions.FlashFrameCount, MotherBrainRoomColorGeometry.SliceColors * 2),
+            Flash = PaletteContractRows(MotherBrainRoomPaletteAnimationDefinitions.FlashFrameCount, MotherBrainRoomColorGeometry.SliceColors * 2),
             FinalRoom = PaletteContractColors(MotherBrainRoomColorGeometry.SliceColors * 2),
             PhaseTwoAttack = PaletteContractColors(MotherBrainRoomColorGeometry.PhaseTwoColors),
             PhaseTwoRearLeg = PaletteContractColors(MotherBrainRoomColorGeometry.PhaseTwoColors),

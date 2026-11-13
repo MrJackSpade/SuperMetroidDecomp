@@ -19,7 +19,7 @@ internal static class EnemyPickupDefinitionsVerification
             EnemyPickupKind kind = EnemyPickupNativeWords.Selectors.Decode(index, "enemy pickup selector");
             EnemyPickupAnimationDefinition animation = EnemyPickups.Animation(kind);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86ef04 + index * 2)),
-                animation.Program is { } program ? EnemyDeathProjectileNativeListAddresses.Entry(program) : (ushort)0,
+                animation.Animation is { } program ? EnemyDeathProjectileNativeListAddresses.Entry(program) : (ushort)0,
                 $"enemy pickup program {kind}");
         }
 
@@ -36,7 +36,7 @@ internal static class EnemyPickupDefinitionsVerification
             EnemyPickupAnimationDefinition expected = EnemyPickups.Animation(kind);
             AssertEqual(kind, projectile.StateOf<EnemyPickupState>().Kind,
                 $"production pickup kind {kind}");
-            AssertEqual(expected.Program, ProgramOf(projectile),
+            AssertEqual(expected.Animation, ProgramOf(projectile),
                 $"production pickup program {kind}");
             AssertEqual(1, projectile.FrameHold.RawValue,
                 $"production pickup instruction timer {kind}");

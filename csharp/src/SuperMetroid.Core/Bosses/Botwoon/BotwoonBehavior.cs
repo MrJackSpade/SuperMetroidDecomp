@@ -87,9 +87,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         AttachBotwoon(head, state);
         head.SetSpeciesState(state);
         // The initializer installs the hidden program: the head starts hidden in its hole.
-        state.HeadPlayback = new(BotwoonAnimations.HeadStartingWith(BotwoonHeadProgram.Hidden), AnimationPlace.StartOfAnimation);
-        head.FrameHold = WrappingCountdown.Start(1);
-        head.Timer = WrappingCountdown.Start(0);
+        state.HeadPlayback = EnemyAnimationPlayback.Start(head, BotwoonAnimations.HeadStartingWith(BotwoonHeadAnimationSegment.Hidden));
 
         // A previously defeated Botwoon does not allocate body actors. The room loader
         // installs the permanent open wall and makes both one-screen scroll entries blue.
@@ -466,11 +464,11 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
             EnemyProjectile segment = state.Segment(segmentIndex);
             EnemyProjectile? leader = segmentIndex == lastSegment ? null : state.Segment(segmentIndex + 1);
             Offset16<RoomPixels> toLeader = (leader?.Position.Whole ?? head.Position.Whole) - segment.Position.Whole;
-            BotwoonSegmentProgramKind kind = state.SegmentInsideHole[segmentIndex] ? BotwoonSegmentProgramKind.Hidden
-                : segmentIndex == 0 ? BotwoonSegmentProgramKind.Tail
-                : BotwoonSegmentProgramKind.Body;
+            BotwoonBodyAnimationSegmentKind kind = state.SegmentInsideHole[segmentIndex] ? BotwoonBodyAnimationSegmentKind.Hidden
+                : segmentIndex == 0 ? BotwoonBodyAnimationSegmentKind.Tail
+                : BotwoonBodyAnimationSegmentKind.Body;
             segment.StateOf<BotwoonSegmentState>().Pose =
-                BotwoonSegmentProgram.Toward(kind, EnemyMath.CalculateBearing(toLeader));
+                BotwoonBodyAnimationSegment.Toward(kind, EnemyMath.CalculateBearing(toLeader));
         }
     }
 
@@ -543,20 +541,20 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         Offset16<RoomPixels> moved = head.Position.Whole - state.HeadHistory[3];
         if (moved.X != 0 || moved.Y != 0)
         {
-            BotwoonHeadProgram program;
+            BotwoonHeadAnimationSegment segment;
             if (state.InsideHole)
             {
                 // The head becomes intangible while it travels inside the wall.
                 head.Contact = head.Contact.With(EnemyContact.IgnoresSamus);
-                program = BotwoonHeadProgram.Hidden;
+                segment = BotwoonHeadAnimationSegment.Hidden;
             }
             else
             {
                 // Collision is restored once the head is outside.
                 head.Contact = head.Contact.Without(EnemyContact.IgnoresSamus);
-                program = BotwoonHeadProgram.MovingToward(EnemyMath.CalculateBearing(moved));
+                segment = BotwoonHeadAnimationSegment.MovingToward(EnemyMath.CalculateBearing(moved));
             }
-            InstallBotwoonHeadProgram(head, state, program);
+            StartBotwoonHeadAnimation(head, state, segment);
         }
 
         for (int index = 3; index > 0; index--)
@@ -574,7 +572,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         Bearing bearing = EnemyMath.CalculateBearing(
             new(CoordinateAxis.Difference(samus.Position.X.Whole, head.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, head.Position.Y.Whole)));
-        InstallBotwoonHeadProgram(head, state, BotwoonHeadProgram.SpittingToward(bearing));
+        StartBotwoonHeadAnimation(head, state, BotwoonHeadAnimationSegment.SpittingToward(bearing));
         state.SpitAngle = bearing.ToTableAngle().ToAngle();
         state.HeadFunction = state.Function == BotwoonEnemyFunction.SpitWhileHidden
             ? BotwoonHeadFunction.WaitForSpitFrame
@@ -583,20 +581,18 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Restarts the head animation timer only when its selected program changes.</summary>
-    private static void InstallBotwoonHeadProgram(
+    private static void StartBotwoonHeadAnimation(
         RoomEnemySlot head,
         BotwoonEnemyState state,
-        BotwoonHeadProgram program)
+        BotwoonHeadAnimationSegment segment)
     {
-        if (program == state.HeadProgram)
+        if (segment == state.HeadAnimation)
             return;
-        state.HeadPlayback = new(BotwoonAnimations.HeadStartingWith(program), AnimationPlace.StartOfAnimation);
-        head.FrameHold = WrappingCountdown.Start(1);
-        head.Timer = WrappingCountdown.Start(0);
+        state.HeadPlayback = EnemyAnimationPlayback.Start(head, BotwoonAnimations.HeadStartingWith(segment));
     }
 
     /// <summary>Advances Botwoon's typed animation.</summary>
-    internal void AdvanceBotwoonTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    internal void AdvanceBotwoonTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _)
     {
         AdvanceBotwoonHeadAnimation(slot, RequireBotwoonState(slot));
     }
@@ -608,28 +604,22 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal void AdvanceBotwoonHeadAnimation(RoomEnemySlot head, BotwoonEnemyState state)
     {
-        CountdownStep frameHold = head.FrameHold.Decrement();
-        head.FrameHold = frameHold.Remaining;
-        if (!frameHold.IsZero)
-        {
-            head.NewInstructionFrame = false;
+        if (!head.AnimationClock.Expire())
             return;
-        }
 
         AnimationPlace place = state.HeadPlayback.Place;
         // No head animation counts its plays, so nothing reads or writes this counter.
         WrappingCountdown uncounted = default;
-        AnimationShown<BotwoonHeadProgram, BotwoonHeadFrame> advance = BotwoonAnimations.HeadSegments.PlayToNextFrame(
+        AnimationShown<BotwoonHeadAnimationSegment, BotwoonHeadFrame> advance = BotwoonAnimations.HeadSegments.PlayToNextFrame(
             state.HeadPlayback.Animation, ref place, ref uncounted, cue => ApplyBotwoonHeadCue(head, state, cue));
         state.HeadPlayback = state.HeadPlayback with { Place = place };
         // A hold is the script's sleep: the timer wraps from zero and the last frame stays.
-        if (advance is AnimationShown<BotwoonHeadProgram, BotwoonHeadFrame>.Held)
+        if (advance is AnimationShown<BotwoonHeadAnimationSegment, BotwoonHeadFrame>.Held)
             return;
-        if (advance is not AnimationShown<BotwoonHeadProgram, BotwoonHeadFrame>.Frame shown)
+        if (advance is not AnimationShown<BotwoonHeadAnimationSegment, BotwoonHeadFrame>.Frame shown)
             throw new InvalidOperationException($"Botwoon's head animation ended an update with {advance}.");
-        head.FrameHold = WrappingCountdown.FromRaw(shown.Duration);
         head.Frame = BotwoonVisualDefinitions.HeadFrames.Of(shown.Shown);
-        head.NewInstructionFrame = true;
+        head.AnimationClock.Show(shown.Duration);
     }
 
     /// <summary>Applies frame cues for facing radius, spit audio, or the volley trigger.</summary>
@@ -638,7 +628,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (cue)
         {
             case BotwoonHeadCue.ApplyFacingRadius:
-                head.Radius = BotwoonAnimations.HeadRadius(state.HeadProgram.Facing);
+                head.Radius = BotwoonAnimations.HeadRadius(state.HeadAnimation.Facing);
                 return;
             case BotwoonHeadCue.QueueSpitSound:
                 RequestBotwoonSound(BotwoonSoundDefinitions.Spit);
@@ -901,7 +891,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         segment.Position = FixedPosition<RoomPixels>.FromWhole(head.Position.Whole);
 
         // Every segment, the tail cap included, starts hidden inside the wall.
-        BotwoonSegmentProgram pose = BotwoonSegmentProgram.Hidden;
+        BotwoonBodyAnimationSegment pose = BotwoonBodyAnimationSegment.Hidden;
         segment.StartAnimation(BotwoonProjectileAnimation.ForSegment(pose));
         segment.State = new BotwoonSegmentState(pose);
 
@@ -1009,7 +999,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         segment.Position = segment.Position.WithWholeY(200);
         state.SegmentFunctions[segmentIndex] = BotwoonBodyFunction.Landed;
         // The landed segment hands its animation to the shared big-explosion list.
-        segment.StartAnimation(new MiscDustProjectileAnimation(MiscDustProjectileProgram.BigExplosion));
+        segment.StartAnimation(new MiscDustProjectileAnimation(MiscDustProjectileSegment.BigExplosion));
         segment.Graphics = SpriteGraphics.SharedIn(EnemyShades.InProjectileLook);
         segment.CanDamageSamus = false;
         segment.CollisionOption = EnemyProjectileCollisionOption.NoCollision;

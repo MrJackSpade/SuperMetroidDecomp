@@ -60,14 +60,14 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
             _parents.Place(slot, _slotTable.ListedBefore(slot, 1));
             ValidateNorfairRioParent(slot);
             _parentStates.Place(slot, GetPrecedingNorfairRioSlot(slot).RequireSpeciesState<NorfairRioEnemyState>());
-            state.InstalledProgram = NorfairRioProgram.FlamesAscending;
-            state.Playback = new(NorfairRioAnimations.StartingWith(NorfairRioProgram.FlamesAscending), AnimationPlace.StartOfAnimation);
+            state.InstalledAnimation = NorfairRioSegment.FlamesAscending;
+            state.Playback = new(NorfairRioAnimations.StartingWith(NorfairRioSegment.FlamesAscending), AnimationPlace.StartOfAnimation);
             state.Function = NorfairRioEnemyFunction.FollowParent;
             return;
         }
 
-        state.InstalledProgram = NorfairRioProgram.Idle;
-        state.Playback = new(NorfairRioAnimations.StartingWith(NorfairRioProgram.Idle), AnimationPlace.StartOfAnimation);
+        state.InstalledAnimation = NorfairRioSegment.Idle;
+        state.Playback = new(NorfairRioAnimations.StartingWith(NorfairRioSegment.Idle), AnimationPlace.StartOfAnimation);
         state.Function = NorfairRioEnemyFunction.WaitForAttackOpportunity;
     }
 
@@ -103,10 +103,10 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                     if (state.AnimationSignal)
                     {
                         state.AnimationSignal = false;
-                        InstallNorfairRioAnimationScript(
+                        StartNorfairRioAnimation(
                             slot,
                             state,
-                            NorfairRioProgram.Idle);
+                            NorfairRioSegment.Idle);
                     }
                     return;
                 }
@@ -117,10 +117,10 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                     RioLaunches.NorfairYVelocity(random));
                 if (CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0)
                     state.Velocity = state.Velocity.ReversedX();
-                InstallNorfairRioAnimationScript(
+                StartNorfairRioAnimation(
                     slot,
                     state,
-                    NorfairRioProgram.StartDescending);
+                    NorfairRioSegment.StartDescending);
                 state.Function = NorfairRioEnemyFunction.WaitForTakeoffAnimation;
                 return;
 
@@ -128,10 +128,10 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (!state.AnimationSignal)
                     return;
                 state.AnimationSignal = false;
-                InstallNorfairRioAnimationScript(
+                StartNorfairRioAnimation(
                     slot,
                     state,
-                    NorfairRioProgram.Descending);
+                    NorfairRioSegment.Descending);
                 state.Function = NorfairRioEnemyFunction.Dive;
                 _audio.QueueEnemySound(EnemySoundEffectDefinitions.NorfairRioDiveSound, priority: SoundRequestPriority.Normal);
                 return;
@@ -169,10 +169,10 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (state.AnimationSignal)
                 {
                     state.AnimationSignal = false;
-                    InstallNorfairRioAnimationScript(
+                    StartNorfairRioAnimation(
                         slot,
                         state,
-                        NorfairRioProgram.Ascending);
+                        NorfairRioSegment.Ascending);
                 }
                 return;
 
@@ -240,7 +240,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
             parent.SpeciesState<NorfairRioEnemyState>(), _parentStates.Of(follower));
         follower.FrozenTimer = parent.FrozenTimer;
         if (parent.FrozenTimer != 0 ||
-            parentState.InstalledProgram == NorfairRioProgram.Idle)
+            parentState.InstalledAnimation == NorfairRioSegment.Idle)
         {
             follower.Presence = follower.Presence.With(EnemyPresence.Hidden);
             return;
@@ -248,10 +248,10 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The follower's spawn reads the parent's own state: its installed list and its signed
         // follower Y offset. Its drawing position follows the parent's live position.
-        NorfairRioProgram followerList = parentState.FollowerOffset.Y < 0
-            ? NorfairRioProgram.FlamesDescending
-            : NorfairRioProgram.FlamesAscending;
-        InstallNorfairRioAnimationScript(follower, followerState, followerList);
+        NorfairRioSegment followerList = parentState.FollowerOffset.Y < 0
+            ? NorfairRioSegment.FlamesDescending
+            : NorfairRioSegment.FlamesAscending;
+        StartNorfairRioAnimation(follower, followerState, followerList);
         follower.Presence = follower.Presence.Without(EnemyPresence.Hidden);
         follower.Position = follower.Position.WithWhole(parent.Position.Whole + parentState.FollowerOffset);
     }
@@ -262,10 +262,10 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
         NorfairRioEnemyState state)
     {
         state.Velocity = state.Velocity.WithY(-SignedEightEight.FromParts(0, 1));
-        InstallNorfairRioAnimationScript(
+        StartNorfairRioAnimation(
             slot,
             state,
-            NorfairRioProgram.StartAscending);
+            NorfairRioSegment.StartAscending);
         state.Function = NorfairRioEnemyFunction.ReturnToPerch;
     }
 
@@ -285,13 +285,13 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Restarts an animation only when it changes.</summary>
-    private static void InstallNorfairRioAnimationScript(
+    private static void StartNorfairRioAnimation(
         RoomEnemySlot slot,
         NorfairRioEnemyState state,
-        NorfairRioProgram program) =>
-        EnemyProgramAnimation.InstallOnce(slot, state.InstalledProgram, program, installed =>
+        NorfairRioSegment segment) =>
+        EnemyAnimationPlayback.StartOnce(slot, state.InstalledAnimation, segment, installed =>
         {
-            state.InstalledProgram = installed;
+            state.InstalledAnimation = installed;
             state.Playback = new(NorfairRioAnimations.StartingWith(installed), AnimationPlace.StartOfAnimation);
         });
 
@@ -329,8 +329,8 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances the Norfair Rio's typed animation.</summary>
-    internal static void AdvanceNorfairRioTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, NorfairRioAnimations.Segments,
+    internal static void AdvanceNorfairRioTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(slot, NorfairRioAnimations.Segments,
             static (NorfairRioEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

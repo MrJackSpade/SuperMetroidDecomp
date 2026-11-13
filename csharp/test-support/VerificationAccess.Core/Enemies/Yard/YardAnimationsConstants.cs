@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Yard;
 internal static class YardAnimationsConstants
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params YardProgram[] programs) =>
+    internal static IEnumerable<ushort> Spritemaps(params YardSegment[] programs) =>
         programs.SelectMany(program => YardAnimations.Segments.Beats(program))
             .OfType<AnimationBeat<EnemyFrameId, YardCue>.Frame>()
             .Select(frame => YardFrameToolingDefinitions.Spritemap(frame.Shown));

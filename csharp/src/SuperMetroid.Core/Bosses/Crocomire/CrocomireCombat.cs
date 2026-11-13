@@ -204,7 +204,7 @@ internal sealed class CrocomireCombat
             {
                 if (!projectileType.IsChargedBeam)
                 {
-                    body.FrameHold = WrappingCountdown.Start(8);
+                    body.AnimationClock.HoldFor(8);
                     SpawnCrocomireShotDust(projectileType, projectile);
                     return;
                 }
@@ -225,7 +225,7 @@ internal sealed class CrocomireCombat
             state.StepCounter += stepCount;
             if ((state.FightFlags & CrocomireFightFlags.DamageReactionPending) == CrocomireFightFlags.None)
             {
-                body.FrameHold = body.FrameHold.AddFrames(MouthShotReactionHoldFrames);
+                body.AnimationClock.Extend(MouthShotReactionHoldFrames);
             }
             state.FightFlags = (state.FightFlags & ~(CrocomireFightFlags.DamageReactionPending | CrocomireFightFlags.ClawTouchedSamus)) |
                 CrocomireFightFlags.DamageReactionPending;
@@ -265,17 +265,17 @@ internal sealed class CrocomireCombat
         body.AiStates |= EnemyAiStates.Hurt;
         state.FightFunction = CrocomireFightFunction.PowerBombCharge;
 
-        CrocomireEncounterAccess.StartCrocomireBodyProgram(state, SelectCrocomirePowerBombProgram(state));
+        CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, SelectCrocomirePowerBombAnimation(state));
     }
 
     /// <summary>
     /// Selects the fully-open, part-open or closed reaction from the mouth of the frame shown, as the power-bomb reaction does
     /// by reading the frame's mouth. Before any frame is shown the body has no frame and reacts closed.
     /// </summary>
-    private static CrocomireBodyProgram SelectCrocomirePowerBombProgram(CrocomireEnemyState state) =>
+    private static CrocomireBodySegment SelectCrocomirePowerBombAnimation(CrocomireEnemyState state) =>
         state.BodyFrame is { } frame
             ? CrocomirePowerBombReactions.ForFrame(frame)
-            : CrocomireBodyProgram.PowerBombReactionMouthNotOpen;
+            : CrocomireBodySegment.PowerBombReactionMouthNotOpen;
 
     /// <summary>Runs the one-frame vector setup.</summary>
     internal void StartCrocomireProjectileFlight(

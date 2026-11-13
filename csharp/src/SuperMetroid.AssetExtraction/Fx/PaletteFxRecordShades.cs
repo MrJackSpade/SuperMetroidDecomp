@@ -19,9 +19,9 @@ internal static class PaletteFxRecordShades
     /// Every colour group and frame <paramref name="starts"/> can show, each once, ordered by group, then by program and
     /// frame, the order of the cartridge's records (<see cref="PaletteFxShownFrames"/>).
     /// </summary>
-    internal static ShownPaletteFxFrame[] Shown(IEnumerable<PaletteFxProgram> starts) => PaletteFxShownFrames.From(starts);
+    internal static ShownPaletteFxFrame[] Shown(IEnumerable<PaletteFxSegment> starts) => PaletteFxShownFrames.From(starts);
 
-    /// <summary>The frames the initial programs of <paramref name="objects"/> can show, as <see cref="Shown(IEnumerable{PaletteFxProgram})"/> gives them.</summary>
+    /// <summary>The frames the initial programs of <paramref name="objects"/> can show, as <see cref="Shown(IEnumerable{PaletteFxSegment})"/> gives them.</summary>
     internal static ShownPaletteFxFrame[] ShownBy(IEnumerable<PaletteFxObject> objects) => PaletteFxShownFrames.ShownBy(objects);
 
     /// <summary>

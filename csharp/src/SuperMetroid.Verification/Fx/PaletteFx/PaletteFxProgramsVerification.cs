@@ -19,13 +19,13 @@ internal static class PaletteFxProgramsVerification
     internal static void VerifyPaletteFxPrograms(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
-        AssertEqual(Enum.GetValues<PaletteFxProgram>().Length, PaletteFxNativeListAddresses.Entries.Length, "every typed palette-FX program has a native entry");
-        Dictionary<PaletteFxProgram, PaletteFxNativeList> lists = PaletteFxNativeProgramOracle.Lists(cartridge);
+        AssertEqual(Enum.GetValues<PaletteFxSegment>().Length, PaletteFxNativeListAddresses.Entries.Length, "every typed palette-FX program has a native entry");
+        Dictionary<PaletteFxSegment, PaletteFxNativeList> lists = PaletteFxNativeProgramOracle.Lists(cartridge);
         // Every animation plays the phases its native lists' control flow plays (#1600).
         PaletteFxNativeProgramOracle.VerifyAnimations(lists);
         // Each segment's frames are numbered from zero in the order it shows them, and each shows its own record (#1598).
         HashSet<int> records = [];
-        foreach (PaletteFxProgram segment in Enum.GetValues<PaletteFxProgram>())
+        foreach (PaletteFxSegment segment in Enum.GetValues<PaletteFxSegment>())
         {
             int next = 0;
             foreach (AnimationBeat<int, PaletteFxCue> beat in PaletteFxSegments.All.Beats(segment))

@@ -16,8 +16,8 @@ internal sealed class IntroCinematicObjectSystem
     /// <summary>The narration text the typewriter types into and its glows recolour (#1467).</summary>
     private readonly IntroNarrationText text;
     /// <summary>The persistent portrait eye's animation and where it stands in it, played on when its frame expires (#1600).</summary>
-    internal AnimationPlayback<IntroEyeProgram> EyePlayback { get; private set; } =
-        new(IntroEyeAnimations.StartingWith(IntroEyeProgram.Blinking), AnimationPlace.StartOfAnimation);
+    internal AnimationPlayback<IntroEyeSegment> EyePlayback { get; private set; } =
+        new(IntroEyeAnimations.StartingWith(IntroEyeSegment.Blinking), AnimationPlace.StartOfAnimation);
     /// <summary>Countdown before the eye shows its program's next frame.</summary>
     internal int EyeFrameHold { get; private set; } = 1;
     /// <summary>Countdown for initial marker, glyph, or final page hold.</summary>
@@ -27,9 +27,9 @@ internal sealed class IntroCinematicObjectSystem
     /// <summary>The eye frame the portrait shows, as an installed picture over it (#1467); null before the first frame.</summary>
     internal IntroEyeFrame? EyeFrame { get; private set; }
     /// <summary>The page glyphs, compiled from the installed presentation when it is bound.</summary>
-    private IntroNarrationCharacter[]? narrationProgram;
+    private IntroNarrationCharacter[]? narrationAnimation;
     /// <summary>The bound narration page's characters.</summary>
-    private IntroNarrationCharacter[] NarrationProgram => narrationProgram ??
+    private IntroNarrationCharacter[] NarrationAnimation => narrationAnimation ??
         throw new InvalidOperationException("No narration page is bound.");
     /// <summary>Page whose glyph stream and Japanese subtitle markers are active.</summary>
     private IntroNarrationPageId? narrationPage;
@@ -40,7 +40,7 @@ internal sealed class IntroCinematicObjectSystem
     /// <summary>Whether page six entered its final 128-frame caret hold.</summary>
     private bool narrationFinalHoldStarted;
     /// <summary>The persistent text-caret sprite object, running its typed program (#641); <see cref="Caret"/> places it.</summary>
-    private readonly IntroDiscoverySprite caretSprite = new(default, IntroShades.Drawn(IntroSpriteColouring.CrossFadeObjects), CinematicSpriteProgram.IntroTextCaret);
+    private readonly IntroDiscoverySprite caretSprite = new(default, IntroShades.Drawn(IntroSpriteColouring.CrossFadeObjects), CinematicSpriteSegment.IntroTextCaret);
     /// <summary>
     /// Whether the press that turns the page has been accepted since the arrow's last update: the page-turn setup starts
     /// the cross-fade, and the arrow deletes itself at its next update, in the same frame.
@@ -177,7 +177,7 @@ internal sealed class IntroCinematicObjectSystem
 
         // The eye's frame behaviour observes the page-six cinematic function and permanently changes the eye
         // object to its closed/half-open/deadpan animation.
-        EyePlayback = new AnimationPlayback<IntroEyeProgram>(IntroEyeAnimations.StartingWith(IntroEyeProgram.FinalPageClosing), AnimationPlace.StartOfAnimation);
+        EyePlayback = new AnimationPlayback<IntroEyeSegment>(IntroEyeAnimations.StartingWith(IntroEyeSegment.FinalPageClosing), AnimationPlace.StartOfAnimation);
         EyeFrameHold = 1;
     }
 
@@ -185,7 +185,7 @@ internal sealed class IntroCinematicObjectSystem
     /// <param name="newlyPressed">This frame's controller rising edges, read by the Japanese subtitles.</param>
     public void Step(ControllerButton newlyPressed)
     {
-        if (narrationPage is not null && narrationProgram is null)
+        if (narrationPage is not null && narrationAnimation is null)
         {
             throw new InvalidOperationException(
                 "Opening narration requires its installed presentation to be bound.");
@@ -194,7 +194,7 @@ internal sealed class IntroCinematicObjectSystem
         StepNextPageArrow();
         subtitles.Step(newlyPressed, MarkAwaitingInput);
         StepEye();
-        if (narrationProgram is not null)
+        if (narrationAnimation is not null)
             StepInstalledNarration();
         textGlow?.Step(text);
     }
@@ -203,10 +203,10 @@ internal sealed class IntroCinematicObjectSystem
     public void BindNarration(IntroNarrationPresentation? presentation)
     {
         narrationPresentation = presentation;
-        narrationProgram = narrationPage is { } page && presentation is not null
+        narrationAnimation = narrationPage is { } page && presentation is not null
             ? presentation.Compile(page)
             : null;
-        if (narrationProgram is not null && narrationCharacterIndex > narrationProgram.Length)
+        if (narrationAnimation is not null && narrationCharacterIndex > narrationAnimation.Length)
         {
             throw new InvalidDataException(
                 $"Saved narration cursor {narrationCharacterIndex} exceeds the rebound {narrationPage} program.");
@@ -225,7 +225,7 @@ internal sealed class IntroCinematicObjectSystem
                 "Opening narration requires installed text presentation assets.");
 
         narrationPage = page;
-        narrationProgram = narrationPresentation.Compile(page);
+        narrationAnimation = narrationPresentation.Compile(page);
     }
 
     /// <summary>Advances marker, glyph, typewriter sound, caret, and final-hold timing.</summary>
@@ -243,12 +243,12 @@ internal sealed class IntroCinematicObjectSystem
             return;
         }
 
-        IntroNarrationCharacter[] program = NarrationProgram;
-        if (narrationCharacterIndex < program.Length)
+        IntroNarrationCharacter[] animation = NarrationAnimation;
+        if (narrationCharacterIndex < animation.Length)
         {
-            IntroNarrationCharacter character = program[narrationCharacterIndex];
-            IntroNarrationCharacter? next = narrationCharacterIndex + 1 < program.Length
-                ? program[narrationCharacterIndex + 1]
+            IntroNarrationCharacter character = animation[narrationCharacterIndex];
+            IntroNarrationCharacter? next = narrationCharacterIndex + 1 < animation.Length
+                ? animation[narrationCharacterIndex + 1]
                 : null;
             (textGlow ??= new()).Spawn(character.Column, character.Row);
             if (next is { } following)
@@ -291,7 +291,7 @@ internal sealed class IntroCinematicObjectSystem
 
         FinishInstalledNarration(narrationPage ?? throw new InvalidDataException(
             "Installed narration completed without an active page identity."));
-        narrationProgram = null;
+        narrationAnimation = null;
         narrationPage = null;
     }
 
@@ -340,11 +340,11 @@ internal sealed class IntroCinematicObjectSystem
         // The eye animations play no counted phase; the play still takes a repeat counter.
         WrappingCountdown repeats = default;
         AnimationPlace place = EyePlayback.Place;
-        AnimationShown<IntroEyeProgram, IntroEyeFrame> shown = IntroEyeAnimations.Segments.PlayToNextFrame(
+        AnimationShown<IntroEyeSegment, IntroEyeFrame> shown = IntroEyeAnimations.Segments.PlayToNextFrame(
             EyePlayback.Animation, ref place, ref repeats,
             static cue => throw new InvalidOperationException($"The intro eye animations raise no event; got {cue}."));
         EyePlayback = EyePlayback with { Place = place };
-        if (shown is not AnimationShown<IntroEyeProgram, IntroEyeFrame>.Frame frame)
+        if (shown is not AnimationShown<IntroEyeSegment, IntroEyeFrame>.Frame frame)
             throw new InvalidOperationException($"The intro eye animation ended an update with {shown}.");
         EyeFrameHold = frame.Duration;
         ShowEyeFrame(frame.Shown);
@@ -358,7 +358,7 @@ internal sealed class IntroCinematicObjectSystem
     {
         caretHidden = false;
         Caret = new(IntroCinematicDefinitions.ObjectSystem.CaretLeftX, IntroCinematicDefinitions.ObjectSystem.CaretFirstTextY);
-        caretSprite.Start(CinematicSpriteProgram.IntroTextCaret);
+        caretSprite.Start(CinematicSpriteSegment.IntroTextCaret);
     }
 
     /// <summary>
@@ -372,7 +372,7 @@ internal sealed class IntroCinematicObjectSystem
             throw new InvalidOperationException("The narration spawned a next-page arrow while one was still showing.");
         NextPageArrow = new IntroDiscoverySprite(
             new(IntroCinematicDefinitions.ObjectSystem.NextPageArrowX, IntroCinematicDefinitions.ObjectSystem.NextPageArrowY),
-            IntroShades.Drawn(IntroSpriteColouring.CrossFadeObjects), CinematicSpriteProgram.IntroNextPageArrow);
+            IntroShades.Drawn(IntroSpriteColouring.CrossFadeObjects), CinematicSpriteSegment.IntroNextPageArrow);
     }
 
     /// <summary>
@@ -387,7 +387,7 @@ internal sealed class IntroCinematicObjectSystem
         if (NextPageArrow is not { } arrow)
             return;
         if (subtitles.HoldFirstCounted)
-            arrow.Start(CinematicSpriteProgram.IntroNextPageArrowDelayed);
+            arrow.Start(CinematicSpriteSegment.IntroNextPageArrowDelayed);
         if (turned)
         {
             arrow.Delete();
@@ -402,7 +402,7 @@ internal sealed class IntroCinematicObjectSystem
     {
         // The caret-blink cue starts the existing slot's blinking program and primes timer
         // one, allowing the generic sprite handler to select the first frame now.
-        caretSprite.Start(CinematicSpriteProgram.IntroTextCaretBlink);
+        caretSprite.Start(CinematicSpriteSegment.IntroTextCaretBlink);
     }
 
 }

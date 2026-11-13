@@ -99,7 +99,7 @@ internal static class TorizoSwapArtworkVerification
         goldenSlot.Bind(EnemyDefinitionId.GoldenTorizo, goldenSlot.Definition);
         goldenSlot.Bind(goldenSlot.DefinitionId, installedSlot.Definition);
         // Golden Torizo's initial program shows its awakening sheet first.
-        TorizoArtworkSwap goldenSwap = TorizoAnimations.Segments.Beats(TorizoBodyProgram.GoldenInitial0)
+        TorizoArtworkSwap goldenSwap = TorizoAnimations.Segments.Beats(TorizoBodySegment.GoldenInitial0)
             .OfType<AnimationBeat<EnemyFrameId, TorizoCue>.Event>().Select(beat => beat.Raised).OfType<TorizoCue.ShowArtwork>().First().Swap;
         int goldenUpload = goldenSwap.Ordinal;
         AssertEqual(golden.SourceAddress, TorizoArtworkSwapDefinitions.All[goldenUpload].SourceAddress,
@@ -135,8 +135,8 @@ internal static class TorizoSwapArtworkVerification
     private static void ShowTorizoArtwork(RoomEnemySystem enemies, RoomEnemySlot slot, TorizoArtworkSwap swap) =>
         AssertTrue(enemies.BombTorizoBehavior.ApplyTorizoCue(slot,
                 new TorizoEnemyState(slot, isGolden: LookOf(swap).Encounter == EncounterArtwork.GoldenTorizo),
-                new TorizoInstructionInputs { Samus = null, Level = null, ControllerInput = 0, FrameCounter = 0 },
+                new TorizoCueInputs { Samus = null, Level = null, ControllerInput = 0, FrameCounter = 0 },
                 new TorizoCue.ShowArtwork(swap),
-                TorizoAnimations.Start(TorizoBodyProgram.GoldenInitial0)) is null,
+                TorizoAnimations.Start(TorizoBodySegment.GoldenInitial0)) is null,
             $"Torizo artwork swap {swap.Ordinal} runs on");
 }

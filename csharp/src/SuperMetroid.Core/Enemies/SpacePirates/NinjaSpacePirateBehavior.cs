@@ -85,11 +85,11 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         NinjaSpacePirateSpawnSettings settings = slot.SpawnSettings<NinjaSpacePirateSpawnSettings>();
         bool startsAtLeft = (settings.Options &
             NinjaSpacePirateOptions.StartsAtLeftPostFacingRight) != NinjaSpacePirateOptions.None;
-        NinjaSpacePirateProgram initial = startsAtLeft
-            ? NinjaSpacePirateProgram.InitialFacingRight
-            : NinjaSpacePirateProgram.InitialFacingLeft;
+        NinjaSpacePirateSegment initial = startsAtLeft
+            ? NinjaSpacePirateSegment.InitialFacingRight
+            : NinjaSpacePirateSegment.InitialFacingLeft;
         state.Playback = new(NinjaSpacePirateAnimations.StartingWith(initial), AnimationPlace.StartOfAnimation);
-        state.ActiveProgram = initial;
+        state.ActiveAnimation = initial;
 
         // The post distance describes the requested distance between posts. The setup
         // first establishes those requested posts around the population X coordinate, then
@@ -205,11 +205,11 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             return;
         }
 
-        NinjaSpacePirateProgram active = CoordinateAxis.Difference(slot.Position.X.Whole, samus.Position.X.Whole) < 0
-            ? NinjaSpacePirateProgram.ActiveFacingRight
-            : NinjaSpacePirateProgram.ActiveFacingLeft;
-        state.ActiveProgram = active;
-        InstallNinjaPirateInstruction(slot, state, active);
+        NinjaSpacePirateSegment active = CoordinateAxis.Difference(slot.Position.X.Whole, samus.Position.X.Whole) < 0
+            ? NinjaSpacePirateSegment.ActiveFacingRight
+            : NinjaSpacePirateSegment.ActiveFacingLeft;
+        state.ActiveAnimation = active;
+        StartNinjaPirateAnimation(slot, state, active);
     }
 
     /// <summary>Checks flinch, standing kick, spin jump, then periodic claw attack in priority order.</summary>
@@ -251,12 +251,12 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             return false;
         }
 
-        InstallNinjaPirateInstruction(
+        StartNinjaPirateAnimation(
             slot,
             state,
             CoordinateAxis.Difference(slot.Position.X.Whole, samus.Position.X.Whole) < 0
-                ? NinjaSpacePirateProgram.FlinchFacingRight
-                : NinjaSpacePirateProgram.FlinchFacingLeft);
+                ? NinjaSpacePirateSegment.FlinchFacingRight
+                : NinjaSpacePirateSegment.FlinchFacingLeft);
         return true;
     }
 
@@ -271,12 +271,12 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             return false;
         }
 
-        InstallNinjaPirateInstruction(
+        StartNinjaPirateAnimation(
             slot,
             state,
             CoordinateAxis.Difference(slot.Position.X.Whole, samus.Position.X.Whole) < 0
-                ? NinjaSpacePirateProgram.KickFacingRight
-                : NinjaSpacePirateProgram.KickFacingLeft);
+                ? NinjaSpacePirateSegment.KickFacingRight
+                : NinjaSpacePirateSegment.KickFacingLeft);
         return true;
     }
 
@@ -292,12 +292,12 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             return false;
         }
 
-        InstallNinjaPirateInstruction(
+        StartNinjaPirateAnimation(
             slot,
             state,
             slot.Position.X.Whole == state.LeftPost.X
-                ? NinjaSpacePirateProgram.SpinJumpRight
-                : NinjaSpacePirateProgram.SpinJumpLeft);
+                ? NinjaSpacePirateSegment.SpinJumpRight
+                : NinjaSpacePirateSegment.SpinJumpLeft);
         return true;
     }
 
@@ -314,19 +314,19 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         {
             if (CoordinateAxis.Difference(slot.Position.X.Whole, samus.Position.X.Whole) < 0)
                 return;
-            InstallNinjaPirateInstruction(
+            StartNinjaPirateAnimation(
                 slot,
                 state,
-                NinjaSpacePirateProgram.ClawAttackLeft);
+                NinjaSpacePirateSegment.ClawAttackLeft);
             return;
         }
 
         if (CoordinateAxis.Difference(slot.Position.X.Whole, samus.Position.X.Whole) >= 0)
             return;
-        InstallNinjaPirateInstruction(
+        StartNinjaPirateAnimation(
             slot,
             state,
-            NinjaSpacePirateProgram.ClawAttackRight);
+            NinjaSpacePirateSegment.ClawAttackRight);
     }
 
     /// <summary>Retries RNG until a nonzero dive choice after higher-priority reactions fail.</summary>
@@ -356,12 +356,12 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             choice = _room.Random.Next(SpacePirateDecisions.DivekickChoice);
         while (choice == 0);
 
-        InstallNinjaPirateInstruction(
+        StartNinjaPirateAnimation(
             slot,
             state,
             slot.Position.X.Whole == state.LeftPost.X
-                ? NinjaSpacePirateProgram.DivekickRightJump
-                : NinjaSpacePirateProgram.DivekickLeftJump);
+                ? NinjaSpacePirateSegment.DivekickRightJump
+                : NinjaSpacePirateSegment.DivekickLeftJump);
     }
 
     /// <summary>Moves through a rising and falling arc between patrol posts, then emits landing dust.</summary>
@@ -397,12 +397,12 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
 
         state.Function = NinjaSpacePirateFunction.NoOperation;
         slot.Position = slot.Position.WithWholeX((direction == HorizontalDirection.Right ? state.RightPost : state.LeftPost).X);
-        InstallNinjaPirateInstruction(
+        StartNinjaPirateAnimation(
             slot,
             state,
             direction == HorizontalDirection.Right
-                ? NinjaSpacePirateProgram.LandFacingRight
-                : NinjaSpacePirateProgram.LandFacingLeft);
+                ? NinjaSpacePirateSegment.LandFacingRight
+                : NinjaSpacePirateSegment.LandFacingLeft);
         SpawnNinjaPirateLandingDust(slot);
     }
 
@@ -427,12 +427,12 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         state.Function = direction == HorizontalDirection.Right
             ? NinjaSpacePirateFunction.DivekickRightDive
             : NinjaSpacePirateFunction.DivekickLeftDive;
-        InstallNinjaPirateInstruction(
+        StartNinjaPirateAnimation(
             slot,
             state,
             direction == HorizontalDirection.Right
-                ? NinjaSpacePirateProgram.DivekickRightDive
-                : NinjaSpacePirateProgram.DivekickLeftDive);
+                ? NinjaSpacePirateSegment.DivekickRightDive
+                : NinjaSpacePirateSegment.DivekickLeftDive);
         state.Speed = NinjaPirateInitialDiveSpeed;
     }
 
@@ -467,12 +467,12 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         state.Function = direction == HorizontalDirection.Right
             ? NinjaSpacePirateFunction.DivekickRightWalkToPost
             : NinjaSpacePirateFunction.DivekickLeftWalkToPost;
-        InstallNinjaPirateInstruction(
+        StartNinjaPirateAnimation(
             slot,
             state,
             direction == HorizontalDirection.Right
-                ? NinjaSpacePirateProgram.WalkToRightPost
-                : NinjaSpacePirateProgram.WalkToLeftPost);
+                ? NinjaSpacePirateSegment.WalkToRightPost
+                : NinjaSpacePirateSegment.WalkToLeftPost);
         // Landing at either post stores the spawn row's whole Y only; the dive's Y fraction stays.
         slot.Position = slot.Position.WithWholeY(state.SpawnPosition.Y);
         SpawnNinjaPirateLandingDust(slot);
@@ -493,12 +493,12 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             return;
 
         slot.Position = slot.Position.WithWholeX((direction == HorizontalDirection.Right ? state.RightPost : state.LeftPost).X);
-        InstallNinjaPirateInstruction(
+        StartNinjaPirateAnimation(
             slot,
             state,
             direction == HorizontalDirection.Right
-                ? NinjaSpacePirateProgram.LandFacingRight
-                : NinjaSpacePirateProgram.LandFacingLeft);
+                ? NinjaSpacePirateSegment.LandFacingRight
+                : NinjaSpacePirateSegment.LandFacingLeft);
         state.Function = NinjaSpacePirateFunction.NoOperation;
     }
 
@@ -536,8 +536,8 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             SpriteGraphics.SpawnedBy(source));
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(source.Position.Whole + spawnOffset);
         projectile.StartAnimation(new SpacePirateProjectileAnimation(throwsRight
-            ? SpacePirateProjectileProgram.ClawRight
-            : SpacePirateProjectileProgram.ClawLeft));
+            ? SpacePirateProjectileSegment.ClawRight
+            : SpacePirateProjectileSegment.ClawLeft));
         projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
         projectile.State = new NinjaPirateClawState(NinjaPirateClawLaunchSpeed);
         state.SpawnedClawCount++;
@@ -573,7 +573,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     /// Carries out one cue of the ninja Space Pirates' animations. Becoming active continues at the active stance facing
     /// Samus, as the cue returns that animation; every other cue runs on.
     /// </summary>
-    private NinjaSpacePirateProgram? ApplyNinjaSpacePirateCue(RoomEnemySlot slot, NinjaSpacePirateCue cue, SamusState? samus)
+    private NinjaSpacePirateSegment? ApplyNinjaSpacePirateCue(RoomEnemySlot slot, NinjaSpacePirateCue cue, SamusState? samus)
     {
         NinjaSpacePirateEnemyState state = slot.RequireSpeciesState<NinjaSpacePirateEnemyState>();
         switch (cue)
@@ -597,14 +597,14 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
                     throw new InvalidOperationException(
                         "Ninja Space Pirate facing selection requires the active Samus actor.");
                 }
-                state.ActiveProgram = CoordinateAxis.Difference(slot.Position.X.Whole, samus.Position.X.Whole) < 0
-                    ? NinjaSpacePirateProgram.ActiveFacingRight
-                    : NinjaSpacePirateProgram.ActiveFacingLeft;
-                slot.FrameHold = WrappingCountdown.Start(1);
+                state.ActiveAnimation = CoordinateAxis.Difference(slot.Position.X.Whole, samus.Position.X.Whole) < 0
+                    ? NinjaSpacePirateSegment.ActiveFacingRight
+                    : NinjaSpacePirateSegment.ActiveFacingLeft;
+                slot.AnimationClock.StepOnNextUpdate();
                 // The cue returns the selected list, not its next step.
                 // Re-entering that list runs its function cue and restores decision AI
                 // after the idle animation explicitly installed the no-op function.
-                return state.ActiveProgram;
+                return state.ActiveAnimation;
             case NinjaSpacePirateCue.Command { Kind: NinjaSpacePirateCueKind.ResetSpeed }:
                 state.Speed = default;
                 return null;
@@ -620,13 +620,13 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>Installs an animation and restarts its frame timer.</summary>
-    private static void InstallNinjaPirateInstruction(
+    private static void StartNinjaPirateAnimation(
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state,
-        NinjaSpacePirateProgram program)
+        NinjaSpacePirateSegment segment)
     {
-        state.Playback = new(NinjaSpacePirateAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
+        state.Playback = new(NinjaSpacePirateAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
+        slot.AnimationClock.StepOnNextUpdate();
     }
 
     /// <summary>Binds both claw throws to the outbound-and-return flight in their direction.</summary>
@@ -652,11 +652,11 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>Advances the ninja Space Pirate's typed animation.</summary>
-    internal void AdvanceNinjaSpacePirateTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context) =>
-        EnemyProgramAnimation.Advance(slot, NinjaSpacePirateAnimations.Segments,
+    internal void AdvanceNinjaSpacePirateTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext context) =>
+        EnemyAnimationPlayback.Advance(slot, NinjaSpacePirateAnimations.Segments,
             static (NinjaSpacePirateEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyNinjaSpacePirateCue(slot, cue, context.Samus) is { } continuesAt
-                ? new AnimationContinuation<NinjaSpacePirateProgram>(NinjaSpacePirateAnimations.StartingWith(continuesAt), AnimationPlace.StartOfAnimation)
+                ? new AnimationContinuation<NinjaSpacePirateSegment>(NinjaSpacePirateAnimations.StartingWith(continuesAt), AnimationPlace.StartOfAnimation)
                 : null);
 
 

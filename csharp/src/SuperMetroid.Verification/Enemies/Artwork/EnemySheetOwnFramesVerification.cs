@@ -98,9 +98,9 @@ internal static class EnemySheetOwnFramesVerification
         new Dictionary<EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>
         {
             [EnemyDefinitionId.Skree] = Reach(SkreeMetareeAnimations.Segments, SkreeMetareeAnimations.StartingAt,
-                SkreeMetareeAnimationDefinitions.SkreePrograms.Values),
+                SkreeMetareeAnimationDefinitions.SkreeAnimations.Values),
             [EnemyDefinitionId.Metaree] = Reach(SkreeMetareeAnimations.Segments, SkreeMetareeAnimations.StartingAt,
-                SkreeMetareeAnimationDefinitions.MetareePrograms.Values),
+                SkreeMetareeAnimationDefinitions.MetareeAnimations.Values),
         });
 
     /// <summary>Each Sidehopper and Dessgeega runs the programs of the variant its header names, on either surface.</summary>
@@ -113,8 +113,8 @@ internal static class EnemySheetOwnFramesVerification
         ];
         return new("Sidehopper and Dessgeega", HopperAnimations.Segments.Frames.ToHashSet(),
             hoppers.ToDictionary<EnemyDefinitionId, EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>(definition => definition, definition => Reach(HopperAnimations.Segments, HopperAnimations.StartingAt,
-                HopperAnimationDefinitions.Programs
-                    .Where(entry => entry.Key.Kind == HopperPrograms.KindOf(definition))
+                HopperAnimationDefinitions.Animations
+                    .Where(entry => entry.Key.Kind == HopperAnimationChoices.KindOf(definition))
                     .Select(entry => entry.Value))));
     }
 
@@ -138,13 +138,13 @@ internal static class EnemySheetOwnFramesVerification
         });
 
     /// <summary>The programs every room placement of <paramref name="definition"/> can select.</summary>
-    private static IEnumerable<FuneNamiheProgram> PlacedFuneNamihePrograms(EnemyDefinitionId definition)
+    private static IEnumerable<FuneNamiheSegment> PlacedFuneNamihePrograms(EnemyDefinitionId definition)
     {
         FuneNamiheSpawnSettings[] placements = [.. Placements(definition).Select(placement => placement.SpawnSettingsOf<FuneNamiheSpawnSettings>())];
         AssertTrue(placements.Length > 0, $"a room places {definition}");
         bool[] both = [false, true];
         return placements.SelectMany(settings => both.SelectMany(active => both.Select(right =>
-            FuneNamiheBehavior.SelectFuneNamiheProgram(new FuneNamiheEnemyState { Variant = settings.Variant, ShowsActiveAnimation = active, FacingRight = right }))));
+            FuneNamiheBehavior.SelectFuneNamiheAnimation(new FuneNamiheEnemyState { Variant = settings.Variant, ShowsActiveAnimation = active, FacingRight = right }))));
     }
 
     /// <summary>
@@ -158,9 +158,9 @@ internal static class EnemySheetOwnFramesVerification
             new Dictionary<EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>
             {
                 [EnemyDefinitionId.Kamer2] = Reach(PlatformAnimations.Segments, PlatformAnimations.StartingAt,
-                    PlatformAnimationDefinitions.Programs.Where(entry => entry.Key.Kamer).Select(entry => entry.Value)),
+                    PlatformAnimationDefinitions.Animations.Where(entry => entry.Key.Kamer).Select(entry => entry.Value)),
                 [EnemyDefinitionId.Tripper] = With(Reach(PlatformAnimations.Segments, PlatformAnimations.StartingAt,
-                    PlatformAnimationDefinitions.Programs.Where(entry => !entry.Key.Kamer).Select(entry => entry.Value)), frozen),
+                    PlatformAnimationDefinitions.Animations.Where(entry => !entry.Key.Kamer).Select(entry => entry.Value)), frozen),
             });
     }
 
@@ -169,18 +169,18 @@ internal static class EnemySheetOwnFramesVerification
         new Dictionary<EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>
         {
             [EnemyDefinitionId.Evir] = Reach(EvirAnimations.Segments, EvirAnimations.StartingAt,
-                [EvirProgram.BodyFacingLeft, EvirProgram.BodyFacingRight, EvirProgram.ArmsFacingLeft, EvirProgram.ArmsFacingRight]),
+                [EvirSegment.BodyFacingLeft, EvirSegment.BodyFacingRight, EvirSegment.ArmsFacingLeft, EvirSegment.ArmsFacingRight]),
             [EnemyDefinitionId.EvirProjectile] = Reach(EvirAnimations.Segments, EvirAnimations.StartingAt,
-                [EvirProgram.ProjectileNormal, EvirProgram.ProjectileRegenerating]),
+                [EvirSegment.ProjectileNormal, EvirSegment.ProjectileRegenerating]),
         });
 
     /// <summary>The gunship's top is its top hull; its bottom is the bottom hull or the entrance pad, which opens and closes.</summary>
     private static EnemySheetOwnFrameFamily GunshipFamily() => new("gunship", GunshipAnimations.Segments.Frames.ToHashSet(),
         new Dictionary<EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>
         {
-            [EnemyDefinitionId.ShipTop] = Reach(GunshipAnimations.Segments, GunshipAnimations.StartingAt, [GunshipProgram.TopHull]),
+            [EnemyDefinitionId.ShipTop] = Reach(GunshipAnimations.Segments, GunshipAnimations.StartingAt, [GunshipSegment.TopHull]),
             [EnemyDefinitionId.ShipBottomEntrance] = Reach(GunshipAnimations.Segments, GunshipAnimations.StartingAt,
-                [GunshipProgram.BottomHull, GunshipProgram.BottomEntrancePad, GunshipProgram.EntrancePadOpening, GunshipProgram.EntrancePadClosing]),
+                [GunshipSegment.BottomHull, GunshipSegment.BottomEntrancePad, GunshipSegment.EntrancePadOpening, GunshipSegment.EntrancePadClosing]),
         });
 
     /// <summary>The Mama Turtle sleeps, leaves and enters her shell and spins; the baby crawls, hides, leaves its shell and spins.</summary>
@@ -189,14 +189,14 @@ internal static class EnemySheetOwnFramesVerification
         {
             [EnemyDefinitionId.MamaTurtle] = Reach(MamaTurtleAnimations.Segments, MamaTurtleAnimations.StartingAt,
             [
-                MamaTurtleProgram.MamaAsleep, MamaTurtleProgram.MamaLeaveShellLeft, MamaTurtleProgram.MamaLeaveShellRight,
-                MamaTurtleProgram.MamaEnterShellLeft, MamaTurtleProgram.MamaEnterShellRight, MamaTurtleProgram.MamaSpinning,
+                MamaTurtleSegment.MamaAsleep, MamaTurtleSegment.MamaLeaveShellLeft, MamaTurtleSegment.MamaLeaveShellRight,
+                MamaTurtleSegment.MamaEnterShellLeft, MamaTurtleSegment.MamaEnterShellRight, MamaTurtleSegment.MamaSpinning,
             ]),
             [EnemyDefinitionId.BabyTurtle] = Reach(MamaTurtleAnimations.Segments, MamaTurtleAnimations.StartingAt,
             [
-                MamaTurtleProgram.BabyCrawlingLeft, MamaTurtleProgram.BabyCrawlingRight, MamaTurtleProgram.BabyHidingLeft,
-                MamaTurtleProgram.BabyHidingRight, MamaTurtleProgram.BabySpinning, MamaTurtleProgram.BabyLeaveShellLeft,
-                MamaTurtleProgram.BabyLeaveShellRight,
+                MamaTurtleSegment.BabyCrawlingLeft, MamaTurtleSegment.BabyCrawlingRight, MamaTurtleSegment.BabyHidingLeft,
+                MamaTurtleSegment.BabyHidingRight, MamaTurtleSegment.BabySpinning, MamaTurtleSegment.BabyLeaveShellLeft,
+                MamaTurtleSegment.BabyLeaveShellRight,
             ]),
         });
 
@@ -211,24 +211,24 @@ internal static class EnemySheetOwnFramesVerification
             new Dictionary<EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>
             {
                 [EnemyDefinitionId.GRipper] = With(Reach(RipperAnimations.Segments, RipperAnimations.StartingAt,
-                    [RipperProgram.GRipperMovingLeft, RipperProgram.GRipperMovingRight]), frozen),
+                    [RipperSegment.GRipperMovingLeft, RipperSegment.GRipperMovingRight]), frozen),
                 [EnemyDefinitionId.Ripper2] = With(Reach(RipperAnimations.Segments, RipperAnimations.StartingAt,
-                    [RipperProgram.Ripper2MovingLeft, RipperProgram.Ripper2MovingRight]), frozen),
+                    [RipperSegment.Ripper2MovingLeft, RipperSegment.Ripper2MovingRight]), frozen),
                 [EnemyDefinitionId.Ripper] = Reach(RipperAnimations.Segments, RipperAnimations.StartingAt,
-                    [RipperProgram.RipperMovingLeft, RipperProgram.RipperMovingRight]),
+                    [RipperSegment.RipperMovingLeft, RipperSegment.RipperMovingRight]),
             });
     }
 
     /// <summary>A Ki-Hunter's body flies, swoops, hops, lands and spits; its wings follow, or fly off detached.</summary>
     private static EnemySheetOwnFrameFamily KiHuntersFamily()
     {
-        KiHunterProgram[] body =
+        KiHunterSegment[] body =
         [
-            KiHunterProgram.FlyingLeft, KiHunterProgram.FlyingRight, KiHunterProgram.SwoopLeft, KiHunterProgram.SwoopRight,
-            KiHunterProgram.JumpLeft, KiHunterProgram.JumpRight, KiHunterProgram.LandLeft, KiHunterProgram.LandRight,
-            KiHunterProgram.SpitLeft, KiHunterProgram.SpitRight,
+            KiHunterSegment.FlyingLeft, KiHunterSegment.FlyingRight, KiHunterSegment.SwoopLeft, KiHunterSegment.SwoopRight,
+            KiHunterSegment.JumpLeft, KiHunterSegment.JumpRight, KiHunterSegment.LandLeft, KiHunterSegment.LandRight,
+            KiHunterSegment.SpitLeft, KiHunterSegment.SpitRight,
         ];
-        KiHunterProgram[] wings = [KiHunterProgram.WingsLeft, KiHunterProgram.WingsRight, KiHunterProgram.DetachedWings];
+        KiHunterSegment[] wings = [KiHunterSegment.WingsLeft, KiHunterSegment.WingsRight, KiHunterSegment.DetachedWings];
         return new("Ki-Hunter", KiHunterAnimations.Segments.Frames.ToHashSet(),
             KiHunterPartDefinitions.Parts.Keys.ToDictionary<EnemyDefinitionId, EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>(definition => definition, definition => Reach(KiHunterAnimations.Segments, KiHunterAnimations.StartingAt,
                 KiHunterBehavior.IsKiHunterBodyDefinition(definition) ? body
@@ -244,9 +244,9 @@ internal static class EnemySheetOwnFramesVerification
         new Dictionary<EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>
         {
             [EnemyDefinitionId.RobotNoPower] = Reach(WorkRobotAnimations.Segments, WorkRobotAnimations.StartingAt,
-                [WorkRobotProgram.NoPowerNeutral, WorkRobotProgram.NoPowerLeaningLeft, WorkRobotProgram.NoPowerLeaningRight]),
+                [WorkRobotSegment.NoPowerNeutral, WorkRobotSegment.NoPowerLeaningLeft, WorkRobotSegment.NoPowerLeaningRight]),
             [EnemyDefinitionId.Robot] = Reach(WorkRobotAnimations.Segments, WorkRobotAnimations.StartingAt,
-                Enum.GetValues<WorkRobotProgram>()),
+                Enum.GetValues<WorkRobotSegment>()),
         });
 
     /// <summary>
@@ -255,22 +255,22 @@ internal static class EnemySheetOwnFramesVerification
     /// </summary>
     private static EnemySheetOwnFrameFamily TorizosFamily()
     {
-        TorizoBodyProgram bomb = TorizoInitializationDefinitions.Bomb.Program;
-        TorizoBodyProgram golden = TorizoInitializationDefinitions.Golden.Program;
-        TorizoBodyProgram[] bombStarts =
+        TorizoBodySegment bomb = TorizoInitializationDefinitions.Bomb.Animation;
+        TorizoBodySegment golden = TorizoInitializationDefinitions.Golden.Animation;
+        TorizoBodySegment[] bombStarts =
         [
-            bomb, TorizoAnimations.AfterSleep(bomb), TorizoBodyProgram.SpecialCallableBlowUpBombTorizosGut, TorizoBodyProgram.CallableBlowUpBombTorizosFace,
-            TorizoBodyProgram.FacingLeftFacelessTurningLeft, TorizoBodyProgram.FacingRightFacelessTurningRight, TorizoBodyProgram.FacingLeftTurningLeft,
-            TorizoBodyProgram.FacingRightTurningRight, TorizoBodyProgram.FacingLeftFalling0, TorizoBodyProgram.FacingRightFalling0,
-            TorizoBodyProgram.DeathSequence0,
+            bomb, TorizoAnimations.AfterSleep(bomb), TorizoBodySegment.SpecialCallableBlowUpBombTorizosGut, TorizoBodySegment.CallableBlowUpBombTorizosFace,
+            TorizoBodySegment.FacingLeftFacelessTurningLeft, TorizoBodySegment.FacingRightFacelessTurningRight, TorizoBodySegment.FacingLeftTurningLeft,
+            TorizoBodySegment.FacingRightTurningRight, TorizoBodySegment.FacingLeftFalling0, TorizoBodySegment.FacingRightFalling0,
+            TorizoBodySegment.DeathSequence0,
         ];
-        TorizoBodyProgram[] goldenStarts =
+        TorizoBodySegment[] goldenStarts =
         [
-            golden, TorizoAnimations.AfterSleep(golden), TorizoBodyProgram.GoldenTurningLeft, TorizoBodyProgram.GoldenTurningRight,
-            TorizoBodyProgram.GoldenDodgeTurningLeft, TorizoBodyProgram.GoldenDodgeTurningRight, TorizoBodyProgram.GoldenCaughtSuperFacingLeftLeftLegFwd,
-            TorizoBodyProgram.GoldenCaughtSuperFacingLeftRightLegFwd, TorizoBodyProgram.GoldenCaughtSuperFacingRightLeftLegFwd,
-            TorizoBodyProgram.GoldenCaughtSuperFacingRightRightLegFwd, TorizoBodyProgram.FacingLeftFalling0, TorizoBodyProgram.FacingRightFalling0,
-            TorizoBodyProgram.DeathSequence0,
+            golden, TorizoAnimations.AfterSleep(golden), TorizoBodySegment.GoldenTurningLeft, TorizoBodySegment.GoldenTurningRight,
+            TorizoBodySegment.GoldenDodgeTurningLeft, TorizoBodySegment.GoldenDodgeTurningRight, TorizoBodySegment.GoldenCaughtSuperFacingLeftLeftLegFwd,
+            TorizoBodySegment.GoldenCaughtSuperFacingLeftRightLegFwd, TorizoBodySegment.GoldenCaughtSuperFacingRightLeftLegFwd,
+            TorizoBodySegment.GoldenCaughtSuperFacingRightRightLegFwd, TorizoBodySegment.FacingLeftFalling0, TorizoBodySegment.FacingRightFalling0,
+            TorizoBodySegment.DeathSequence0,
         ];
         return new("Torizo", TorizoAnimations.Segments.Frames.ToHashSet(),
             new Dictionary<EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>
@@ -281,7 +281,7 @@ internal static class EnemySheetOwnFramesVerification
     }
 
     /// <summary>The body programs a Torizo cue branches, calls or links to.</summary>
-    private static IEnumerable<TorizoBodyProgram> TorizoCueTargets(TorizoCue cue) => cue switch
+    private static IEnumerable<TorizoBodySegment> TorizoCueTargets(TorizoCue cue) => cue switch
     {
         TorizoCue.Branch branch => [branch.Target],
         TorizoCue.Choice choice => [choice.Target, choice.Alternate],
@@ -297,19 +297,19 @@ internal static class EnemySheetOwnFramesVerification
         {
             [EnemyDefinitionId.Ridley] = Reach(RidleyAnimations.Segments, RidleyAnimations.StartingAt, RidleyBodyFrameDefinitions.ShownFrames.Of,
             [
-                RidleyBodyProgram.Initial, RidleyBodyProgram.OpeningRoar, RidleyBodyProgram.TransitionToFlying, RidleyBodyProgram.Fireballing,
-                RidleyBodyProgram.TurnFromLeftToRight, RidleyBodyProgram.TurnFromRightToLeft, RidleyBodyProgram.DeathRoar,
+                RidleyBodySegment.Initial, RidleyBodySegment.OpeningRoar, RidleyBodySegment.TransitionToFlying, RidleyBodySegment.Fireballing,
+                RidleyBodySegment.TurnFromLeftToRight, RidleyBodySegment.TurnFromRightToLeft, RidleyBodySegment.DeathRoar,
             ], RidleyCueTargets),
             [EnemyDefinitionId.RidleyCeres] = Reach(RidleyAnimations.Segments, RidleyAnimations.StartingAt, RidleyBodyFrameDefinitions.ShownFrames.Of,
             [
-                RidleyBodyProgram.Initial, RidleyBodyProgram.OpeningRoar, RidleyBodyProgram.TransitionToFlying, RidleyBodyProgram.CeresLunge,
-                RidleyBodyProgram.RetrieveBabyMetroid, RidleyBodyProgram.Fireballing,
+                RidleyBodySegment.Initial, RidleyBodySegment.OpeningRoar, RidleyBodySegment.TransitionToFlying, RidleyBodySegment.CeresLunge,
+                RidleyBodySegment.RetrieveBabyMetroid, RidleyBodySegment.Fireballing,
             ], RidleyCueTargets),
             [EnemyDefinitionId.RidleyExplosion] = new HashSet<EnemyFrameId>(),
         });
 
     /// <summary>The body segment whose animation a Ridley cue redirects to.</summary>
-    private static IEnumerable<RidleyBodyProgram> RidleyCueTargets(RidleyBodyCue cue) => cue switch
+    private static IEnumerable<RidleyBodySegment> RidleyCueTargets(RidleyBodyCue cue) => cue switch
     {
         RidleyBodyCue.GoToUnlessFacingLeft redirect => [redirect.Target],
         RidleyBodyCue.GoToIfCeresAndSamusLowEnergy redirect => [redirect.Target],

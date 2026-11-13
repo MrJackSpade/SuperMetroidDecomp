@@ -24,9 +24,9 @@ internal static class PaletteFxNativeProgramOracle
     /// Reads every segment's native list, comparing its beats with the segment's: each beat's native address, and each
     /// control instruction with the beat it follows.
     /// </summary>
-    internal static Dictionary<PaletteFxProgram, PaletteFxNativeList> Lists(IImportCartridgeSource cartridge)
+    internal static Dictionary<PaletteFxSegment, PaletteFxNativeList> Lists(IImportCartridgeSource cartridge)
     {
-        Dictionary<ushort, PaletteFxProgram> byEntry = PaletteFxNativeListAddresses.Entries.ToDictionary(entry => entry.Entry, entry => entry.Program);
+        Dictionary<ushort, PaletteFxSegment> byEntry = PaletteFxNativeListAddresses.Entries.ToDictionary(entry => entry.Entry, entry => entry.Program);
         return PaletteFxNativeListAddresses.Entries.ToDictionary(entry => entry.Program, entry => Read(cartridge, byEntry, entry.Program, entry.Entry));
     }
 
@@ -34,20 +34,20 @@ internal static class PaletteFxNativeProgramOracle
     /// Checks that every typed animation plays the phases the native lists' control flow plays from its first segment:
     /// counters set before a list, counted repeats, runs on into the next list, gotos forward and back, and deletes.
     /// </summary>
-    internal static void VerifyAnimations(IReadOnlyDictionary<PaletteFxProgram, PaletteFxNativeList> lists)
+    internal static void VerifyAnimations(IReadOnlyDictionary<PaletteFxSegment, PaletteFxNativeList> lists)
     {
         Ensure.NotNull(lists);
-        HashSet<PaletteFxProgram> bodies = [.. lists.Values.SelectMany(list => list.Controls)
+        HashSet<PaletteFxSegment> bodies = [.. lists.Values.SelectMany(list => list.Controls)
             .Where(control => control.Kind == PaletteFxNativeControlKind.Repeat).Select(control => control.Target!.Value)];
-        foreach (PaletteFxProgram start in Enum.GetValues<PaletteFxProgram>())
+        foreach (PaletteFxSegment start in Enum.GetValues<PaletteFxSegment>())
         {
             if (bodies.Contains(start))
             {
                 VerificationAssertions.AssertTrue(!PaletteFxAnimations.StartingAt.ContainsKey(start), $"no animation starts in counted body {start}");
                 continue;
             }
-            (List<AnimationPhase<PaletteFxProgram>> phases, AnimationEnd end) = Linearize(lists, start);
-            Animation<PaletteFxProgram> typed = PaletteFxAnimations.StartingWith(start);
+            (List<AnimationPhase<PaletteFxSegment>> phases, AnimationEnd end) = Linearize(lists, start);
+            Animation<PaletteFxSegment> typed = PaletteFxAnimations.StartingWith(start);
             VerificationAssertions.AssertTrue(typed.Phases.SequenceEqual(phases), $"{start}'s phases follow its native lists");
             VerificationAssertions.AssertEqual(end, typed.End, $"{start}'s end follows its native lists");
         }
@@ -60,15 +60,15 @@ internal static class PaletteFxNativeProgramOracle
     /// </summary>
     /// <exception cref="InvalidDataException">No candidate animation plays the beat or control at the pointer.</exception>
     internal static PaletteFxImportedPlace PlaceAt(
-        IReadOnlyDictionary<PaletteFxProgram, PaletteFxNativeList> lists, IEnumerable<PaletteFxProgram> candidates, ushort nativePointer)
+        IReadOnlyDictionary<PaletteFxSegment, PaletteFxNativeList> lists, IEnumerable<PaletteFxSegment> candidates, ushort nativePointer)
     {
         Ensure.NotNull(lists);
-        foreach (PaletteFxProgram candidate in Ensure.NotNull(candidates))
+        foreach (PaletteFxSegment candidate in Ensure.NotNull(candidates))
         {
-            Animation<PaletteFxProgram> animation = PaletteFxAnimations.StartingWith(candidate);
+            Animation<PaletteFxSegment> animation = PaletteFxAnimations.StartingWith(candidate);
             for (int index = 0; index < animation.Phases.Count; index++)
             {
-                AnimationPhase<PaletteFxProgram> phase = animation.Phases[index];
+                AnimationPhase<PaletteFxSegment> phase = animation.Phases[index];
                 PaletteFxNativeList list = lists[phase.Segment];
                 // A pointer at a list's entry stands at its first beat, before any deleted inspection the list opens with.
                 if (phase.FirstBeat == 0 && PaletteFxNativeListAddresses.Entry(phase.Segment) == nativePointer)
@@ -87,13 +87,13 @@ internal static class PaletteFxNativeProgramOracle
     }
 
     /// <summary>The phases and end the native lists play from <paramref name="start"/>, by the typed animations' rules.</summary>
-    private static (List<AnimationPhase<PaletteFxProgram>> Phases, AnimationEnd End) Linearize(
-        IReadOnlyDictionary<PaletteFxProgram, PaletteFxNativeList> lists, PaletteFxProgram start)
+    private static (List<AnimationPhase<PaletteFxSegment>> Phases, AnimationEnd End) Linearize(
+        IReadOnlyDictionary<PaletteFxSegment, PaletteFxNativeList> lists, PaletteFxSegment start)
     {
-        var phases = new List<AnimationPhase<PaletteFxProgram>>();
+        var phases = new List<AnimationPhase<PaletteFxSegment>>();
         bool counted = false;
-        var entered = new Dictionary<PaletteFxProgram, int> { [start] = 0 };
-        PaletteFxProgram segment = start;
+        var entered = new Dictionary<PaletteFxSegment, int> { [start] = 0 };
+        PaletteFxSegment segment = start;
         int runStart = 0, plays = 1;
         int? pending = null;
         for (int guard = 0; guard < 100000; guard++)
@@ -117,7 +117,7 @@ internal static class PaletteFxNativeProgramOracle
                         return (phases, AnimationEnd.Stops);
                     case PaletteFxNativeControlKind.Goto:
                     case PaletteFxNativeControlKind.RunOnIntoNext:
-                        PaletteFxProgram target = control.Target!.Value;
+                        PaletteFxSegment target = control.Target!.Value;
                         if (entered.TryGetValue(target, out int loop))
                             return (phases, AnimationEnd.LoopsFrom(loop));
                         entered[target] = phases.Count;
@@ -137,7 +137,7 @@ internal static class PaletteFxNativeProgramOracle
     }
 
     /// <summary>Reads one segment's native list, comparing its beats with the segment's.</summary>
-    private static PaletteFxNativeList Read(IImportCartridgeSource cartridge, Dictionary<ushort, PaletteFxProgram> byEntry, PaletteFxProgram program, ushort entry)
+    private static PaletteFxNativeList Read(IImportCartridgeSource cartridge, Dictionary<ushort, PaletteFxSegment> byEntry, PaletteFxSegment program, ushort entry)
     {
         IReadOnlyList<AnimationBeat<int, PaletteFxCue>> beats = PaletteFxSegments.All.Beats(program);
         var addresses = new List<ushort>();
@@ -148,7 +148,7 @@ internal static class PaletteFxNativeProgramOracle
             cursor = PastDeletedInspection(cursor);
             int beat = addresses.Count;
             string at = $"palette-FX {program} beat {beat} at $8D:{cursor:X4}";
-            if (cursor != entry && byEntry.TryGetValue(cursor, out PaletteFxProgram next))
+            if (cursor != entry && byEntry.TryGetValue(cursor, out PaletteFxSegment next))
             {
                 controls.Add(new(PaletteFxNativeControlKind.RunOnIntoNext, beat, cursor, next, null));
                 return Finish();
@@ -177,7 +177,7 @@ internal static class PaletteFxNativeProgramOracle
                     controls.Add(new(PaletteFxNativeControlKind.Delete, beat, cursor, null, null));
                     return Finish();
                 case PaletteFxInstruction.DecrementTimerAndGoto:
-                    PaletteFxProgram repeated = byEntry[PastDeletedInspection(operandWord)];
+                    PaletteFxSegment repeated = byEntry[PastDeletedInspection(operandWord)];
                     VerificationAssertions.AssertEqual(program, repeated, $"{at}: a counted repeat replays its own list");
                     controls.Add(new(PaletteFxNativeControlKind.Repeat, beat, cursor, repeated, null));
                     cursor = unchecked((ushort)(cursor + 4));

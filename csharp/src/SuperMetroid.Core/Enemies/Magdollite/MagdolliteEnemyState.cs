@@ -14,7 +14,7 @@ public sealed class MagdolliteEnemyState
     }
 
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<MagdolliteProgram> Playback { get; set; }
+    internal AnimationPlayback<MagdolliteSegment> Playback { get; set; }
 
     /// <summary>The immutable head, arm, or hand role decoded from this physical enemy slot's population parameter one.</summary>
     public MagdollitePart Part { get; }
@@ -32,10 +32,10 @@ public sealed class MagdolliteEnemyState
     public bool ThrowsRight { get; internal set; }
 
     /// <summary>The program last installed; null until a part's initializer installs its first.</summary>
-    internal MagdolliteProgram? InstalledProgram { get; set; }
+    internal MagdolliteSegment? InstalledAnimation { get; set; }
 
     /// <summary>The program the part's AI wants shown.</summary>
-    internal MagdolliteProgram DesiredProgram { get; set; }
+    internal MagdolliteSegment DesiredAnimation { get; set; }
 
     /// <summary>
     /// The arm's whole-pixel displacement from where it started rising; only Y is meaningful, negative while the arm is

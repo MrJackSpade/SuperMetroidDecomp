@@ -1,4 +1,4 @@
-﻿using P = SuperMetroid.Core.Bosses.Torizo.TorizoProjectileProgram;
+﻿using P = SuperMetroid.Core.Bosses.Torizo.TorizoProjectileSegment;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 internal static class TorizoProjectileAnimationsConstants
 {
     /// <summary>The family whose projectiles run <paramref name="program"/>.</summary>
-    internal static TorizoProjectileFamily Family(TorizoProjectileProgram program) => program switch
+    internal static TorizoProjectileFamily Family(TorizoProjectileSegment program) => program switch
     {
         P.ExplosionLowHealthInitial or P.ExplosionLowHealthInitialLoop or P.ExplosionDeathInitial or P.ExplosionDeathInitialLoop or P.ExplosionDeathSmokeSetup or P.ExplosionDeathSmokeSetupLoop => TorizoProjectileFamily.Explosion,
         P.DroolFourFrameDelay or P.DroolTwoFrameDelay or P.DroolNoDelay or P.DroolFallingLoop or P.DroolWallImpact or P.DroolFloorImpact => TorizoProjectileFamily.Drool,

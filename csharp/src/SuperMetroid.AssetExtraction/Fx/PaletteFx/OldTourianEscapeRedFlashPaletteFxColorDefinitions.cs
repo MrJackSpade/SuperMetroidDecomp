@@ -15,5 +15,5 @@ public static class OldTourianEscapeRedFlashPaletteFxColorDefinitions
     public const int ColorsPerFrame = 8;
 
     /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
-    public static PaletteFxColorFrames ColorFrames { get; } = PaletteFxColorFrames.Of(PaletteFxProgram.OldTourianRedFlashingCycle, ColorsPerFrame);
+    public static PaletteFxColorFrames ColorFrames { get; } = PaletteFxColorFrames.Of(PaletteFxSegment.OldTourianRedFlashingCycle, ColorsPerFrame);
 }

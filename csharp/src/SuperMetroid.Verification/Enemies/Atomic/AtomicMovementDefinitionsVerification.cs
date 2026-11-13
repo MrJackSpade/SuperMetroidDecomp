@@ -27,7 +27,7 @@ internal static class AtomicMovementDefinitionsVerification
     }
 
     /// <summary>The spinning animation the import decodes from a first parameter word.</summary>
-    private static AtomicProgram DecodedSpin(int parameter1) =>
+    private static AtomicSegment DecodedSpin(int parameter1) =>
         ((AtomicSpawnSettings)EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Atomic, PopulationWords.Parameters(parameter1, 0))).Spin;
 
     /// <summary>Runs the initializers and all four spinning loops with the selector table forbidden, checking native speeds.</summary>
@@ -46,15 +46,15 @@ internal static class AtomicMovementDefinitionsVerification
             slot.SetSpawnParameter2(EnemyDefinitionId.Atomic, (ushort)(selector * 7));
             AtomicBehavior.InitializeAtomic(slot);
             AtomicEnemyState state = enemies.AtomicStates[0] ?? throw new InvalidOperationException("Verification requires enemies.AtomicStates[0].");
-            AtomicProgram program = DecodedSpin(selector);
-            AssertEqual(new AnimationPlayback<AtomicProgram>(AtomicAnimations.StartingWith(program), AnimationPlace.StartOfAnimation), state.Playback,
+            AtomicSegment program = DecodedSpin(selector);
+            AssertEqual(new AnimationPlayback<AtomicSegment>(AtomicAnimations.StartingWith(program), AnimationPlace.StartOfAnimation), state.Playback,
                 $"Atomic initializer animation {selector}");
 
             EnemyLinearSpeedRow speeds = EnemyLinearSpeeds.Row(selector * 7);
             AssertEqual(speeds.Positive, state.Speed, $"Atomic positive speed {selector}");
             AssertEqual(speeds.Negative, state.NegativeSpeed, $"Atomic negative speed {selector}");
 
-            slot.FrameHold = WrappingCountdown.Start(1);
+            slot.AnimationClock.StepOnNextUpdate();
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(AtomicAnimations.Segments, program, AtomicFrameToolingDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(AtomicAnimations.Segments, program)),
                 $"Atomic spinning loop {selector}");

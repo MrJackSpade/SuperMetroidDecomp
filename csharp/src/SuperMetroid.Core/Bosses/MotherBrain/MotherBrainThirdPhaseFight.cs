@@ -177,14 +177,14 @@ internal sealed class MotherBrainThirdPhaseFight
 
                 // A decrement of zero branches negative without storing -1, so the readable
                 // timer remains zero while the four-ring recovery list is installed.
-                _state.SetHeadProgram(MotherBrainHeadProgram.AttackingSamusFourOnionRingsPhase3);
+                _state.SetHeadAnimation(MotherBrainHeadSegment.AttackingSamusFourOnionRingsPhase3);
                 Phase3NeckPhase = MotherBrainPhase3NeckPhase.Normal;
                 return;
 
             case MotherBrainPhase3NeckPhase.SetupHyperBeamRecoil:
                 _state.NeckMovementEnabled = true;
                 Phase3DisableAttacks = true;
-                _state.SetHeadProgram(MotherBrainHeadProgram.HyperBeamRecoil);
+                _state.SetHeadAnimation(MotherBrainHeadSegment.HyperBeamRecoil);
                 _state.BrainMainShakeTimer = 50;
                 _state.NeckAngleDelta = 2304;
                 _state.LowerNeckMovement = MotherBrainNeckMovement.Raise;
@@ -279,11 +279,11 @@ internal sealed class MotherBrainThirdPhaseFight
 
         if (frame.RandomNumberSeed.Takes(MotherBrainRandomDefinitions.ThirdPhaseBombs))
         {
-            _state.SetHeadProgram(MotherBrainHeadProgram.BombPhase3);
+            _state.SetHeadAnimation(MotherBrainHeadSegment.BombPhase3);
         }
         else
         {
-            _state.SetHeadProgram(MotherBrainHeadProgram.AttackingSamusFourOnionRingsPhase3);
+            _state.SetHeadAnimation(MotherBrainHeadSegment.AttackingSamusFourOnionRingsPhase3);
         }
 
         _state.Phase = MotherBrainBodyFunction.ThirdPhaseFightingAttackCooldown;

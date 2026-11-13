@@ -109,7 +109,7 @@ internal static class RoomObjectRoomArgumentWords
     /// The native word of an argument: the hit count for a cannon or the glass once set up, the scroll program's place for
     /// a scroll trigger, the fixed or filler word of a placement that carries nothing, else zero.
     /// </summary>
-    internal static ushort Encode(RoomObjectKind header, RoomObjectRoomArgument? argument, int? hitCounter, RoomScrollProgram? scroll)
+    internal static ushort Encode(RoomObjectKind header, RoomObjectRoomArgument? argument, int? hitCounter, RoomScrollChange? scroll)
     {
         if (hitCounter is { } hits && (DraygonCannonObjects.IsDraygonCannonKind(header) || header == RoomObjectKind.MotherBrainGlass))
             return unchecked((ushort)hits);
@@ -153,13 +153,13 @@ internal static class RoomObjectRoomArgumentWords
     {
         /// <summary>The word native work RAM holds for the slot's argument.</summary>
         internal ushort NativeRoomArgument => Encode(slot.Kind, slot.Argument, HitWord(slot),
-            (slot.Behaviour as ScrollTriggerObject)?.Program);
+            (slot.Behaviour as ScrollTriggerObject)?.Change);
     }
 
     /// <summary>The native room-argument word of a placement.</summary>
     extension(RoomObjectPlacement placement)
     {
         /// <summary>The word the cartridge stores for the placement's argument.</summary>
-        internal ushort NativeRoomArgument => Encode(placement.Kind, placement.Argument, null, placement.CompiledScrollProgram);
+        internal ushort NativeRoomArgument => Encode(placement.Kind, placement.Argument, null, placement.CompiledScrollChange);
     }
 }

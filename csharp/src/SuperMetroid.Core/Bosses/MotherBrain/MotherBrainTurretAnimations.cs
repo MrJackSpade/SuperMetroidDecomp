@@ -12,8 +12,8 @@ internal static class MotherBrainTurretAnimations
     /// <summary>Every turret segment: each turret and bullet pose by direction, and the impact smoke.</summary>
     private static readonly MotherBrainTurretPose[] Poses =
     [
-        .. new[] { MotherBrainTurretProgram.TurretPose, MotherBrainTurretProgram.BulletPose }
-            .SelectMany(program => Enum.GetValues<MotherBrainTurretDirection>().Select(direction => new MotherBrainTurretPose(program, direction))),
+        .. new[] { MotherBrainTurretSegment.TurretPose, MotherBrainTurretSegment.BulletPose }
+            .SelectMany(segment => Enum.GetValues<MotherBrainTurretDirection>().Select(direction => new MotherBrainTurretPose(segment, direction))),
         MotherBrainTurretPose.BulletImpact,
     ];
 
@@ -30,7 +30,7 @@ internal static class MotherBrainTurretAnimations
 
     /// <summary>Shows the pose for one update.</summary>
     private static Beat[] StillPose(MotherBrainTurretPose pose) =>
-        [new Beat.Frame(new(pose.Program, MotherBrainTurretDefinitions.Ring.PositionOf(pose.Direction)), 1)];
+        [new Beat.Frame(new(pose.Animation, MotherBrainTurretDefinitions.Ring.PositionOf(pose.Direction)), 1)];
 
     /// <summary>The impact smoke's beats.</summary>
     private static Beat[] BulletImpact() =>
@@ -38,7 +38,7 @@ internal static class MotherBrainTurretAnimations
         new Beat.Event(MotherBrainTurretCue.DrawFromSharedSheet),
         new Beat.Event(MotherBrainTurretCue.ClearFrameBehavior),
         .. Enumerable.Range(0, ImpactPhaseCount).Select(phase =>
-            new Beat.Frame(new(MotherBrainTurretProgram.BulletImpact, phase), phase == ImpactPhaseCount - 1 ? 32 : 8)),
+            new Beat.Frame(new(MotherBrainTurretSegment.BulletImpact, phase), phase == ImpactPhaseCount - 1 ? 32 : 8)),
         new Beat.Event(MotherBrainTurretCue.Delete),
     ];
 }

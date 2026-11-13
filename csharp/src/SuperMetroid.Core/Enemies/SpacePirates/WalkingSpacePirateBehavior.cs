@@ -38,7 +38,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// Carries out one cue of the walking Space Pirates' animations. Choosing a movement continues at the walk or laser
     /// animation it selects, as the cue returns that animation; every other cue runs on.
     /// </summary>
-    private WalkingSpacePirateProgram? ApplyWalkingSpacePirateCue(RoomEnemySlot slot, WalkingSpacePirateCue cue, SamusState? samus)
+    private WalkingSpacePirateSegment? ApplyWalkingSpacePirateCue(RoomEnemySlot slot, WalkingSpacePirateCue cue, SamusState? samus)
     {
         switch (cue)
         {
@@ -109,8 +109,8 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         WalkingSpacePirateOptions options = settings.Options;
         state.Playback = new(WalkingSpacePirateAnimations.StartingWith(
             (options & WalkingSpacePirateOptions.StartsFacingRight) != WalkingSpacePirateOptions.None
-            ? WalkingSpacePirateProgram.WalkingRight
-            : WalkingSpacePirateProgram.WalkingLeft), AnimationPlace.StartOfAnimation);
+            ? WalkingSpacePirateSegment.WalkingRight
+            : WalkingSpacePirateSegment.WalkingLeft), AnimationPlace.StartOfAnimation);
         state.Function = WalkingSpacePirateFunction.NoOperation;
 
         // The game's additions wrap past 65535. A modded patrol radius can therefore straddle the
@@ -201,10 +201,10 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             }
         }
 
-        InstallWalkingSpacePirateInstruction(
+        StartWalkingSpacePirateAnimation(
             slot,
             state,
-            WalkingSpacePirateProgram.LookingFacingLeft);
+            WalkingSpacePirateSegment.LookingFacingLeft);
     }
 
     /// <summary>Runs the right-walk function.</summary>
@@ -239,10 +239,10 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             return;
         }
 
-        InstallWalkingSpacePirateInstruction(
+        StartWalkingSpacePirateAnimation(
             slot,
             state,
-            WalkingSpacePirateProgram.LookingFacingRight);
+            WalkingSpacePirateSegment.LookingFacingRight);
     }
 
     /// <summary>Flinches when the one shot the flinch tests (<see cref="PirateFlinchFromHighestShot"/>) is close on both axes.</summary>
@@ -266,14 +266,14 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             return;
         }
 
-        WalkingSpacePirateProgram list = CoordinateAxis.Difference(slot.Position.X.Whole, samus.Position.X.Whole) < 0
-            ? WalkingSpacePirateProgram.FlinchFacingRight
-            : WalkingSpacePirateProgram.FlinchFacingLeft;
-        InstallWalkingSpacePirateInstruction(slot, state, list);
+        WalkingSpacePirateSegment list = CoordinateAxis.Difference(slot.Position.X.Whole, samus.Position.X.Whole) < 0
+            ? WalkingSpacePirateSegment.FlinchFacingRight
+            : WalkingSpacePirateSegment.FlinchFacingLeft;
+        StartWalkingSpacePirateAnimation(slot, state, list);
     }
 
     /// <summary>Runs the movement cue's direct animation selection.</summary>
-    private static WalkingSpacePirateProgram SelectWalkingSpacePirateMovement(
+    private static WalkingSpacePirateSegment SelectWalkingSpacePirateMovement(
         RoomEnemySlot slot,
         SamusState? samus)
     {
@@ -288,15 +288,15 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         if (WalkingSpacePirateIsVerticallyClose(slot, samus))
         {
             return samusIsRightOrAligned
-                ? WalkingSpacePirateProgram.FireLasersRight
-                : WalkingSpacePirateProgram.FireLasersLeft;
+                ? WalkingSpacePirateSegment.FireLasersRight
+                : WalkingSpacePirateSegment.FireLasersLeft;
         }
 
         // When Samus is not in the firing band, the Pirate walks toward the opposite side:
         // Samus right selects leftward walking, Samus left selects rightward walking.
         return samusIsRightOrAligned
-            ? WalkingSpacePirateProgram.WalkingLeft
-            : WalkingSpacePirateProgram.WalkingRight;
+            ? WalkingSpacePirateSegment.WalkingLeft
+            : WalkingSpacePirateSegment.WalkingRight;
     }
 
     /// <summary>Tests signed vertical separation against the sixteen-pixel firing band.</summary>
@@ -311,21 +311,21 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         RoomEnemySlot slot,
         WalkingSpacePirateEnemyState state,
         SamusState samus) =>
-        InstallWalkingSpacePirateInstruction(
+        StartWalkingSpacePirateAnimation(
             slot,
             state,
             CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) >= 0
-                ? WalkingSpacePirateProgram.FireLasersRight
-                : WalkingSpacePirateProgram.FireLasersLeft);
+                ? WalkingSpacePirateSegment.FireLasersRight
+                : WalkingSpacePirateSegment.FireLasersLeft);
 
     /// <summary>Arms a newly selected program for processing on the next tick.</summary>
-    private static void InstallWalkingSpacePirateInstruction(
+    private static void StartWalkingSpacePirateAnimation(
         RoomEnemySlot slot,
         WalkingSpacePirateEnemyState state,
-        WalkingSpacePirateProgram program)
+        WalkingSpacePirateSegment segment)
     {
-        state.Playback = new(WalkingSpacePirateAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
+        state.Playback = new(WalkingSpacePirateAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
+        slot.AnimationClock.StepOnNextUpdate();
     }
 
     /// <summary>Runs the firing cues and the laser initializer.</summary>
@@ -411,8 +411,8 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
 
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(muzzle);
         projectile.StartAnimation(new SpacePirateProjectileAnimation(movingRight
-            ? SpacePirateProjectileProgram.LaserRight
-            : SpacePirateProjectileProgram.LaserLeft));
+            ? SpacePirateProjectileSegment.LaserRight
+            : SpacePirateProjectileSegment.LaserLeft));
 
         // Although the definition starts the laser flying left, the initializer holds it still: the three two-frame
         // muzzle maps are stationary until the program installs the flight and runs it at once.
@@ -496,15 +496,15 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     }
 
     /// <summary>Advances the walking Space Pirate's typed animation.</summary>
-    internal void AdvanceWalkingSpacePirateTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context)
+    internal void AdvanceWalkingSpacePirateTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext context)
     {
-        if (!EnemyProgramAnimation.Expire(slot))
+        if (!slot.AnimationClock.Expire())
             return;
         var state = RequireWalkingSpacePirateState(slot);
-        AnimationPlayback<WalkingSpacePirateProgram> playback = state.Playback;
-        EnemyProgramAnimation.Play(slot, WalkingSpacePirateAnimations.Segments, ref playback,
+        AnimationPlayback<WalkingSpacePirateSegment> playback = state.Playback;
+        EnemyAnimationPlayback.Play(slot, WalkingSpacePirateAnimations.Segments, ref playback,
             cue => ApplyWalkingSpacePirateCue(slot, cue, context.Samus) is { } continuesAt
-                ? new AnimationContinuation<WalkingSpacePirateProgram>(WalkingSpacePirateAnimations.StartingWith(continuesAt), AnimationPlace.StartOfAnimation)
+                ? new AnimationContinuation<WalkingSpacePirateSegment>(WalkingSpacePirateAnimations.StartingWith(continuesAt), AnimationPlace.StartOfAnimation)
                 : null);
         state.Playback = playback;
     }

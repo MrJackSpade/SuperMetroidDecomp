@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Bosses.MotherBrain.RinkaCueKind;
-using P = SuperMetroid.Core.Bosses.MotherBrain.RinkaProgram;
+using P = SuperMetroid.Core.Bosses.MotherBrain.RinkaSegment;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal static class RinkaAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<RinkaProgram, EnemyFrameId, RinkaCue> Segments { get; } = new(
-        new Dictionary<RinkaProgram, AnimationBeat<EnemyFrameId, RinkaCue>[]>
+    internal static AnimationSegments<RinkaSegment, EnemyFrameId, RinkaCue> Segments { get; } = new(
+        new Dictionary<RinkaSegment, AnimationBeat<EnemyFrameId, RinkaCue>[]>
     {
         [P.Ordinary] =
         [
@@ -52,7 +52,7 @@ internal static class RinkaAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<RinkaProgram, Animation<RinkaProgram>> StartingAt { get; } = new Dictionary<RinkaProgram, Animation<RinkaProgram>>
+    internal static IReadOnlyDictionary<RinkaSegment, Animation<RinkaSegment>> StartingAt { get; } = new Dictionary<RinkaSegment, Animation<RinkaSegment>>
     {
         [P.Ordinary] = new([new(P.Ordinary, 0, 3, 1), new(P.OrdinaryLoop, 0, 8, 1)], AnimationEnd.LoopsFrom(1)),
         [P.OrdinaryLoop] = new([new(P.OrdinaryLoop, 0, 8, 1)], AnimationEnd.LoopsFrom(0)),
@@ -61,7 +61,7 @@ internal static class RinkaAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<RinkaProgram> StartingWith(RinkaProgram segment) => StartingAt[segment];
+    internal static Animation<RinkaSegment> StartingWith(RinkaSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, RinkaCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, RinkaCue>.Frame(frame, duration);

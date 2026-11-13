@@ -13,7 +13,7 @@ internal sealed class FirefleaEntity(RoomEnemySlot slot, EnemyCommonParticipatio
     public EnemyMainAiHandler? FindMain() => FirefleaBehavior.RunFirefleaMainAi;
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => FirefleaBehavior.AdvanceFirefleaTypedAnimation;
+    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => FirefleaBehavior.AdvanceFirefleaTypedAnimation;
 
     /// <summary>The Fireflea's own shot reaction, which normal bombs dispatch like the common one.</summary>
     /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>

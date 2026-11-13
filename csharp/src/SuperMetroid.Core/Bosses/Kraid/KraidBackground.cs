@@ -67,7 +67,7 @@ internal sealed class KraidBackground
             rock,
             RoomEnemyProjectileKind.KraidCeilingRock,
             graphics: SpriteGraphics.SharedIn(KraidColours.RocksShading));
-        rock.StartAnimation(new KraidRockAnimation(KraidRockProgram.SharedPose));
+        rock.StartAnimation(new KraidRockAnimation(KraidRockSegment.SharedPose));
         rock.Position = FixedPosition<RoomPixels>.FromWhole(new(xPosition, 312));
         rock.Velocity = rock.Velocity.WithX(SignedEightEight.Zero);
         rock.Velocity = rock.Velocity.WithY(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(

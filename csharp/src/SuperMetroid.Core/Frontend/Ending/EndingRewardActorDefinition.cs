@@ -5,4 +5,4 @@ namespace SuperMetroid.Core.Frontend.Ending;
 internal readonly record struct EndingRewardActorDefinition(
     EndingRewardInitialization Initialization,
     CinematicSpriteFrameBehavior FrameBehavior,
-    CinematicSpriteProgram Program);
+    CinematicSpriteSegment Animation);

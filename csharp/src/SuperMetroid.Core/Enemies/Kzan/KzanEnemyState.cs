@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.Kzan;
 public sealed class KzanEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<KzanProgram> Playback { get; set; }
+    internal AnimationPlayback<KzanSegment> Playback { get; set; }
 
     /// <summary>The current AI behaviour.</summary>
     public KzanEnemyFunction? Function { get; internal set; }

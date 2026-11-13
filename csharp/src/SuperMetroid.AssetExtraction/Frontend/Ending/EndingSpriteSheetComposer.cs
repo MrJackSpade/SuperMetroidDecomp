@@ -136,7 +136,7 @@ internal static class EndingSpriteSheetComposer
         if (family.Family != EndingTypedTexts.Family)
             return;
         // Each typed text's glyphs, each the parts its step adds, drawn in every colouring a later step is drawn in.
-        foreach (CinematicSpriteProgram text in EndingTypedTexts.Texts.Texts)
+        foreach (CinematicSpriteSegment text in EndingTypedTexts.Texts.Texts)
         {
             IReadOnlyList<CinematicSpritePose> steps = EndingTypedTexts.Texts.Steps(text);
             SpriteFramePart[][] glyphs = TypedTextGlyphs.Of(text.ToString(), [.. steps.Select(pose => family.Frames[pose].ToFrame(text.ToString(), 0, sizes))],

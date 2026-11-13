@@ -13,11 +13,11 @@ internal static class BullNativeListAddresses
     internal const byte Bank = 0xa8;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<BullProgram>[] Entries =
+    internal static readonly NativeProgramEntry<BullSegment>[] Entries =
     [
-        new NativeProgramEntry<BullProgram>(BullProgram.Normal, 0xd841),
-        new NativeProgramEntry<BullProgram>(BullProgram.Shot, 0xd855),
-        new NativeProgramEntry<BullProgram>(BullProgram.ShotLoop, 0xd859),
+        new NativeProgramEntry<BullSegment>(BullSegment.Normal, 0xd841),
+        new NativeProgramEntry<BullSegment>(BullSegment.Shot, 0xd855),
+        new NativeProgramEntry<BullSegment>(BullSegment.ShotLoop, 0xd859),
     ];
 
 }

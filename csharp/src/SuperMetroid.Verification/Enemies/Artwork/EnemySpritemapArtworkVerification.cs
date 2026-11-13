@@ -99,16 +99,16 @@ internal static class EnemySpritemapArtworkVerification
             [bull, null, null, Position16<RoomPixels>.Zero, ControllerButton.None];
         for (int frame = 0; frame < 41; frame++)
             EnemyInstructionRunner.Process(arguments);
-        AssertEqual(BullAnimationsConstants.Spritemaps(BullProgram.Normal).First(), bull.SpritemapPointer,
+        AssertEqual(BullAnimationsConstants.Spritemaps(BullSegment.Normal).First(), bull.SpritemapPointer,
             "installed Bull normal animation loops back to its first frame on time");
         BullEnemyState state = enemies.BullStates[0] ?? throw new InvalidDataException(
             "Bull initializer did not publish typed state.");
         BullBehavior.ResolveBullImmuneShot(bull, state, SamusProjectileDirection.Right);
         for (int frame = 0; frame < 61; frame++)
             EnemyInstructionRunner.Process(arguments);
-        AssertEqual(BullAnimationsConstants.Spritemaps(BullProgram.Normal).First(), bull.SpritemapPointer,
+        AssertEqual(BullAnimationsConstants.Spritemaps(BullSegment.Normal).First(), bull.SpritemapPointer,
             "installed Bull immune-shot program returns to the normal loop");
-        AssertEqual((ushort)0, bull.Timer.RawValue,
+        AssertEqual((ushort)0, bull.AnimationClock.Repeats.RawValue,
             "installed Bull immune-shot loop exhausts its native repeat timer");
     }
 
@@ -301,7 +301,7 @@ internal static class EnemySpritemapArtworkVerification
             .Where(frame => frame.LegacyName.StartsWith("ki_hunter_a8_", StringComparison.Ordinal))
             .Select(frame => frame.Pointer)
             .ToHashSet();
-        AssertTrue(KiHunterAnimationsConstants.Spritemaps(Enum.GetValues<KiHunterProgram>()).ToHashSet().SetEquals(
+        AssertTrue(KiHunterAnimationsConstants.Spritemaps(Enum.GetValues<KiHunterSegment>()).ToHashSet().SetEquals(
                 installedHunterPointers),
             "the Ki-Hunter's programs show exactly its installed frames");
         AssertEqual(41, installedHunterPointers.Count, "KiHunter's programs show 41 distinct OAM frames");
@@ -310,7 +310,7 @@ internal static class EnemySpritemapArtworkVerification
             .Where(frame => frame.LegacyName.StartsWith("yapping_maw_a8_", StringComparison.Ordinal))
             .Select(frame => frame.Pointer)
             .ToHashSet();
-        AssertTrue(YappingMawAnimationsConstants.Spritemaps(Enum.GetValues<YappingMawProgram>()).ToHashSet().SetEquals(installedMawPointers),
+        AssertTrue(YappingMawAnimationsConstants.Spritemaps(Enum.GetValues<YappingMawSegment>()).ToHashSet().SetEquals(installedMawPointers),
             "every installed Yapping Maw frame is shown by a program, and every shown pose is installed");
         AssertEqual(24, installedMawPointers.Count, "Yapping Maw's programs show 24 distinct frames");
         AssertEqual(123, EnemySpritemapDefinitions.Frames.Count(
@@ -327,17 +327,17 @@ internal static class EnemySpritemapArtworkVerification
         foreach (RoomSpriteObjectFrame frame in Enum.GetValues<RoomSpriteObjectFrame>())
             AssertTrue(installedSpritePointers.Contains(RoomSpriteObjectVisualDefinitionsConstants.Spritemap(frame)),
                 $"room sprite-object frame {frame} has installed art");
-        AssertTrue(FuneNamiheAnimationsConstants.Spritemaps(Enum.GetValues<FuneNamiheProgram>()).ToHashSet().SetEquals(
+        AssertTrue(FuneNamiheAnimationsConstants.Spritemaps(Enum.GetValues<FuneNamiheSegment>()).ToHashSet().SetEquals(
                 EnemySpritemapDefinitions.Frames.Where(frame => frame.Name.StartsWith("fune_", StringComparison.Ordinal) ||
                     frame.Name.StartsWith("namihe_", StringComparison.Ordinal)).Select(frame => frame.Pointer)),
             "the Fune's and Namihe's programs show exactly their installed frames");
-        AssertTrue(RioAnimationsConstants.Spritemaps(Enum.GetValues<RioProgram>()).ToHashSet().SetEquals(
+        AssertTrue(RioAnimationsConstants.Spritemaps(Enum.GetValues<RioSegment>()).ToHashSet().SetEquals(
                 EnemySpritemapDefinitions.Frames.Where(frame => frame.LegacyName.StartsWith("rio_", StringComparison.Ordinal)).Select(frame => frame.Pointer)),
             "the Rio's programs show exactly its eight installed frames");
-        AssertTrue(LowerNorfairRioAnimationsConstants.Spritemaps(Enum.GetValues<LowerNorfairRioProgram>()).ToHashSet().SetEquals(
+        AssertTrue(LowerNorfairRioAnimationsConstants.Spritemaps(Enum.GetValues<LowerNorfairRioSegment>()).ToHashSet().SetEquals(
                 EnemySpritemapDefinitions.Frames.Where(frame => frame.LegacyName.StartsWith("lower_norfair_rio_", StringComparison.Ordinal)).Select(frame => frame.Pointer)),
             "the Lower Norfair Rio's programs show exactly its installed frames");
-        AssertTrue(NorfairRioAnimationsConstants.Spritemaps(Enum.GetValues<NorfairRioProgram>()).ToHashSet().SetEquals(
+        AssertTrue(NorfairRioAnimationsConstants.Spritemaps(Enum.GetValues<NorfairRioSegment>()).ToHashSet().SetEquals(
                 EnemySpritemapDefinitions.Frames.Where(frame => frame.LegacyName.StartsWith("norfair_rio_", StringComparison.Ordinal)).Select(frame => frame.Pointer)),
             "the Norfair Rio's programs show exactly its installed frames");
         Suite(nameof(VerifyInstalledPuyoInstructionFrames), () => VerifyInstalledPuyoInstructionFrames(stock));
@@ -354,19 +354,19 @@ internal static class EnemySpritemapArtworkVerification
         Suite(nameof(VerifyInstalledHZoomerInstructionFrames), () => VerifyInstalledHZoomerInstructionFrames(stock));
         Suite(nameof(VerifyInstalledSharedCrawlerFrames), () => VerifyInstalledSharedCrawlerFrames(stock.Enemies));
         AssertTrue(MorphBallEyeVisualDefinitions.Frames().Select(frame => frame.Pointer).ToHashSet().SetEquals(
-                MorphBallEyeAnimationsConstants.Spritemaps(Enum.GetValues<MorphBallEyeProgram>())),
+                MorphBallEyeAnimationsConstants.Spritemaps(Enum.GetValues<MorphBallEyeSegment>())),
             "the installed Morph Ball eye frames are exactly the poses its programs show");
         HashSet<ushort> shaktoolFrames = ShaktoolVisualDefinitions.Frames()
             .Select(frame => frame.Pointer).ToHashSet();
         AssertEqual(15, shaktoolFrames.Count,
             "Shaktool's visual frame identities are distinct");
-        AssertTrue(ShaktoolAnimationsConstants.Spritemaps(Enum.GetValues<ShaktoolProgram>()).ToHashSet().SetEquals(shaktoolFrames),
+        AssertTrue(ShaktoolAnimationsConstants.Spritemaps(Enum.GetValues<ShaktoolSegment>()).ToHashSet().SetEquals(shaktoolFrames),
             "the Shaktool's programs show exactly its installed frames");
         HashSet<ushort> platformFramePointers = TripperKamerVisualDefinitions.Frames()
             .Select(frame => frame.Pointer).ToHashSet();
         AssertEqual(18, platformFramePointers.Count,
             "Tripper/Kamer visual frame identities are distinct");
-        HashSet<ushort> shownPlatformFrames = PlatformAnimationsConstants.Spritemaps(Enum.GetValues<PlatformProgram>()).ToHashSet();
+        HashSet<ushort> shownPlatformFrames = PlatformAnimationsConstants.Spritemaps(Enum.GetValues<PlatformSegment>()).ToHashSet();
         AssertEqual(16, shownPlatformFrames.Count, "platform programs show sixteen distinct animated compositions");
         AssertTrue(platformFramePointers.Except(shownPlatformFrames).ToHashSet()
                 .SetEquals(new[]
@@ -379,13 +379,13 @@ internal static class EnemySpritemapArtworkVerification
             .Select(frame => frame.Pointer).ToHashSet();
         AssertEqual(12, dragonFrames.Count,
             "Dragon has twelve distinct installed body and wing frames");
-        AssertTrue(dragonFrames.SetEquals(DragonAnimationsConstants.Spritemaps(Enum.GetValues<DragonProgram>())),
+        AssertTrue(dragonFrames.SetEquals(DragonAnimationsConstants.Spritemaps(Enum.GetValues<DragonSegment>())),
             "every installed Dragon body and wing frame is a pose its programs show");
         HashSet<ushort> multiviolaFrames = MultiviolaVisualDefinitions.Frames()
             .Select(frame => frame.Pointer).ToHashSet();
         AssertEqual(MultiviolaVisualDefinitions.FrameCount, multiviolaFrames.Count,
             "Multiviola's fourteen-frame loop selects eight distinct OAM frames");
-        AssertTrue(MultiviolaAnimationsConstants.Spritemaps(MultiviolaProgram.Flying).ToHashSet().SetEquals(multiviolaFrames),
+        AssertTrue(MultiviolaAnimationsConstants.Spritemaps(MultiviolaSegment.Flying).ToHashSet().SetEquals(multiviolaFrames),
             "every installed Multiviola composition is shown by its loop");
         HashSet<ushort> lavaJumperFrames = NorfairLavaJumperVisualDefinitions.Frames()
             .Select(frame => frame.Pointer).ToHashSet();
@@ -394,25 +394,25 @@ internal static class EnemySpritemapArtworkVerification
             "Norfair lava jumper has eleven distinct installed identities");
         AssertTrue(lavaJumperFrames.Contains(CommonEnemyEmptyFrameToolingDefinitions.EmptySpritemap),
             "Norfair lava jumper retains its native bank-local empty frame");
-        AssertTrue(NorfairLavaJumperAnimationsConstants.Spritemaps(Enum.GetValues<NorfairLavaJumperProgram>()).ToHashSet().SetEquals(lavaJumperFrames),
+        AssertTrue(NorfairLavaJumperAnimationsConstants.Spritemaps(Enum.GetValues<NorfairLavaJumperSegment>()).ToHashSet().SetEquals(lavaJumperFrames),
             "every installed lava-jumper frame is shown by a typed program");
         HashSet<ushort> chozoFrames = ChozoStatueVisualDefinitions.Frames()
             .Select(frame => frame.Pointer).ToHashSet();
         AssertEqual(ChozoStatueVisualDefinitions.FrameCount, chozoFrames.Count,
             "the two Chozo sequences select twenty-six distinct installed frames");
-        AssertTrue(ChozoStatueAnimationsConstants.Spritemaps(Enum.GetValues<ChozoStatueProgram>()).ToHashSet().SetEquals(chozoFrames),
+        AssertTrue(ChozoStatueAnimationsConstants.Spritemaps(Enum.GetValues<ChozoStatueSegment>()).ToHashSet().SetEquals(chozoFrames),
             "every installed Chozo composition is shown by a typed program");
         HashSet<ushort> violaFrames = ViolaVisualDefinitions.Frames()
             .Select(frame => frame.Pointer).ToHashSet();
         AssertEqual(ViolaVisualDefinitions.FrameCount, violaFrames.Count,
             "Viola's fourteen-frame loop selects eight distinct OAM frames");
-        AssertTrue(CrawlerAnimationsConstants.Spritemaps(CrawlerProgram.ViolaNormal).ToHashSet().SetEquals(violaFrames),
+        AssertTrue(CrawlerAnimationsConstants.Spritemaps(CrawlerSegment.ViolaNormal).ToHashSet().SetEquals(violaFrames),
             "every installed Viola composition is shown by its normal loop");
         HashSet<ushort> rinkaFrames = RinkaVisualDefinitions.Frames()
             .Select(frame => frame.Pointer).ToHashSet();
         AssertEqual(RinkaVisualDefinitions.FrameCount, rinkaFrames.Count,
             "both Rinka loops select five distinct OAM frames");
-        AssertTrue(RinkaAnimationsConstants.Spritemaps(Enum.GetValues<RinkaProgram>()).ToHashSet().SetEquals(rinkaFrames),
+        AssertTrue(RinkaAnimationsConstants.Spritemaps(Enum.GetValues<RinkaSegment>()).ToHashSet().SetEquals(rinkaFrames),
             "every installed Rinka composition is shown by a Rinka program");
         var differing = new List<string>();
         foreach (EnemyFrameName frame in EnemySpritemapDefinitions.Frames)
@@ -619,8 +619,8 @@ internal static class EnemySpritemapArtworkVerification
             slot.Frame = RoomEnemySlotFrameAccess.FrameAt(frameBank, pointer);
             if (slot.Frame is { } shown)
                 SpawnedObjectFixtures.ShowDrawnLooks(enemies, SuperMetroid.AssetExtraction.Enemies.FrameDrawings.Of(shown));
-            slot.FrameHold = WrappingCountdown.Start(7);
-            slot.Timer = WrappingCountdown.Start(9);
+            slot.AnimationClock.HoldFor(7);
+            slot.AnimationClock.Repeats = WrappingCountdown.Start(9);
             slot.Position = slot.Position.WithWhole(new(0x0040, 0x0080));
             var oam = new OamBuffer();
             enemies.Drawing.DrawAsOam(oam, new(0, 0));

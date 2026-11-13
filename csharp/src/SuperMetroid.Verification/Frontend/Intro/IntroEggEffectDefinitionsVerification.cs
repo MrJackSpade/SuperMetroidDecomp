@@ -76,7 +76,7 @@ internal static class IntroEggEffectDefinitionsVerification
         int address = IntroEggEffectDefinitions.NativeDefinitionBank | definitionPointer;
         AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((address + 2)), actual.FrameBehavior.NativeAddress,
             $"{name} pre-instruction callback");
-        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Entry(actual.Program),
+        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Entry(actual.Animation),
             $"{name} instruction list");
     }
 

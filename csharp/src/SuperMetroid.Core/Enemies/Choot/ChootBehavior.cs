@@ -27,7 +27,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new ChootEnemyState();
         slot.SetSpeciesState(state);
 
-        SetChootProgram(slot, state, ChootProgram.Idle);
+        SetChootAnimation(slot, state, ChootSegment.Idle);
         state.Function = ChootEnemyFunction.WaitingForSamus;
         state.SpawnPosition = slot.Position.Whole;
 
@@ -95,7 +95,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         if (--state.JumpDelayTimer >= 0)
             return;
 
-        SetChootProgram(slot, state, ChootProgram.Jumping);
+        SetChootAnimation(slot, state, ChootSegment.Jumping);
         state.Function = ChootEnemyFunction.Jumping;
     }
 
@@ -118,7 +118,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         state.FallingPatternFrame = 0;
         // A population loop count of zero starts below zero, so the fall ends at the first loop's end as a count of one does.
         state.FallingPatternLoopCounter = slot.SpawnSettings<ChootSpawnSettings>().PatternLoops - 1;
-        SetChootProgram(slot, state, ChootProgram.Falling);
+        SetChootAnimation(slot, state, ChootSegment.Falling);
         state.Function = ChootEnemyFunction.Falling;
     }
 
@@ -140,7 +140,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
             // the idle program, and rearms the same calculated ascent for the next activation.
             state.YSpeedTableIndex = state.InitialYSpeedTableIndex;
             slot.Position = FixedPosition<RoomPixels>.FromWhole(state.SpawnPosition);
-            SetChootProgram(slot, state, ChootProgram.Idle);
+            SetChootAnimation(slot, state, ChootSegment.Idle);
             state.Function = ChootEnemyFunction.WaitingForSamus;
             return;
         }
@@ -171,26 +171,24 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Installs the idle, jumping, or falling program and restarts its frame timers.</summary>
-    private static void SetChootProgram(
+    private static void SetChootAnimation(
         RoomEnemySlot slot,
         ChootEnemyState state,
-        ChootProgram program)
+        ChootSegment segment)
     {
-        state.Playback = new(ChootAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        state.Playback = EnemyAnimationPlayback.Start(slot, ChootAnimations.StartingWith(segment));
     }
 
     /// <summary>Advances Choot's typed animation.</summary>
-    internal static void AdvanceChootTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, ChootAnimations.Segments,
+    internal static void AdvanceChootTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(slot, ChootAnimations.Segments,
             static (ChootEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyChootCue(slot, cue) is { } target
-                ? new AnimationContinuation<ChootProgram>(ChootAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
+                ? new AnimationContinuation<ChootSegment>(ChootAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
 
     /// <summary>Carries out one cue of Choot's animation: each switches off-screen processing on or off.</summary>
-    private static ChootProgram? ApplyChootCue(RoomEnemySlot slot, ChootCue cue)
+    private static ChootSegment? ApplyChootCue(RoomEnemySlot slot, ChootCue cue)
     {
         slot.Processing = cue.Kind switch
         {

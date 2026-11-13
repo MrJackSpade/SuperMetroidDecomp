@@ -34,19 +34,19 @@ internal static class KraidAnimationsVerification
     internal static void VerifyKraidPartAnimations(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
-        AssertEqual(Enum.GetValues<KraidPartProgram>().Length, PartEntries.Length, "every typed Kraid part program has a native entry");
+        AssertEqual(Enum.GetValues<KraidPartSegment>().Length, PartEntries.Length, "every typed Kraid part program has a native entry");
         for (int index = 0; index < PartEntries.Length; index++)
-            AssertEqual((KraidPartProgram)index, PartEntries[index].Program, "the Kraid part programs are declared in authored order");
+            AssertEqual((KraidPartSegment)index, PartEntries[index].Program, "the Kraid part programs are declared in authored order");
         AssertTrue(PartEntriesAscend, "native Kraid part entries ascend");
 
-        Dictionary<KraidPartProgram, NativeEnemyList<KraidPartProgram>> lists =
+        Dictionary<KraidPartSegment, NativeEnemyList<KraidPartSegment>> lists =
             PartEntries.ToDictionary(item => item.Program, item => ReadPartList(cartridge, item.Program, item.Entry));
         NativeEnemyAnimationOracle.CompareAnimations(lists, KraidAnimations.StartingAt);
-        HashSet<KraidPartProgram> runOn = NativeEnemyAnimationOracle.RunsOnIntoNextAfterLastBeat(lists);
+        HashSet<KraidPartSegment> runOn = NativeEnemyAnimationOracle.RunsOnIntoNextAfterLastBeat(lists);
         AssertTrue(runOn.SetEquals(KraidAnimations.RunsOnInto.Keys), "the run-on segments are the lists that run on into the next after their last beat");
-        foreach (KraidPartProgram segment in runOn)
+        foreach (KraidPartSegment segment in runOn)
         {
-            AssertEqual(lists[segment].Controls.Single(control => control.Kind == NativeEnemyControlKind.RunOnIntoNext).Target, (KraidPartProgram?)KraidAnimations.RunsOnInto[segment],
+            AssertEqual(lists[segment].Controls.Single(control => control.Kind == NativeEnemyControlKind.RunOnIntoNext).Target, (KraidPartSegment?)KraidAnimations.RunsOnInto[segment],
                 $"{segment} runs on into the list authored next");
         }
 
@@ -63,11 +63,11 @@ internal static class KraidAnimationsVerification
     /// native address and the list's gotos, sleeps and runs on into the next authored list. The no-operation callback
     /// has no beat.
     /// </summary>
-    private static NativeEnemyList<KraidPartProgram> ReadPartList(IImportCartridgeSource cartridge, KraidPartProgram segment, ushort entry)
+    private static NativeEnemyList<KraidPartSegment> ReadPartList(IImportCartridgeSource cartridge, KraidPartSegment segment, ushort entry)
     {
         IReadOnlyList<AnimationBeat<KraidPartFrame, KraidPartCue>> beats = KraidAnimations.Segments.Beats(segment);
         var addresses = new List<ushort>();
-        var controls = new List<NativeEnemyControl<KraidPartProgram>>();
+        var controls = new List<NativeEnemyControl<KraidPartSegment>>();
         ushort cursor = entry;
         for (int command = 0; command < 512; command++)
         {
@@ -129,10 +129,10 @@ internal static class KraidAnimationsVerification
         }
         throw new InvalidDataException($"Kraid {segment} ran past its native list.");
 
-        NativeEnemyList<KraidPartProgram> Finish()
+        NativeEnemyList<KraidPartSegment> Finish()
         {
             AssertEqual(beats.Count, addresses.Count, $"Kraid {segment}: its native list holds each of its beats");
-            return new NativeEnemyList<KraidPartProgram>([.. addresses], [.. controls]);
+            return new NativeEnemyList<KraidPartSegment>([.. addresses], [.. controls]);
         }
 
         AnimationBeat<KraidPartFrame, KraidPartCue> Beat(int beat, string at) => beat < beats.Count
@@ -161,28 +161,28 @@ internal static class KraidAnimationsVerification
     {
         (_, KraidEnemyState state, RoomEnemySlot body, RoomEnemySlot arm) = NewKraid();
         body.Health = 104;
-        state.ArmState.Playback = Started(KraidPartProgram.ArmNormalPause);
-        arm.FrameHold = WrappingCountdown.Start(1);
+        state.ArmState.Playback = Started(KraidPartSegment.ArmNormalPause);
+        arm.AnimationClock.StepOnNextUpdate();
         Pass(arm);
         Pass(arm, forceExpiry: true);
-        AssertEqual(KraidAnimations.StartingWith(KraidPartProgram.ArmNormalPause), state.ArmState.Playback.Animation, "a healthy arm plays on in its pause's loop");
-        AssertEqual(KraidPartProgram.ArmNormal, PlayingSegment(state.ArmState.Playback), "a healthy arm loops its normal swing");
+        AssertEqual(KraidAnimations.StartingWith(KraidPartSegment.ArmNormalPause), state.ArmState.Playback.Animation, "a healthy arm plays on in its pause's loop");
+        AssertEqual(KraidPartSegment.ArmNormal, PlayingSegment(state.ArmState.Playback), "a healthy arm loops its normal swing");
 
         body.Health = 51;
-        state.ArmState.Playback = Started(KraidPartProgram.ArmNormalPause);
-        arm.FrameHold = WrappingCountdown.Start(1);
+        state.ArmState.Playback = Started(KraidPartSegment.ArmNormalPause);
+        arm.AnimationClock.StepOnNextUpdate();
         Pass(arm);
         Pass(arm, forceExpiry: true);
-        AssertEqual(KraidAnimations.StartingWith(KraidPartProgram.ArmSlow), state.ArmState.Playback.Animation, "below half health the pause starts the slow swing");
+        AssertEqual(KraidAnimations.StartingWith(KraidPartSegment.ArmSlow), state.ArmState.Playback.Animation, "below half health the pause starts the slow swing");
         AssertEqual(KraidPartFrameToolingDefinitions.Spritemap(new KraidPartFrame(KraidPartFrameKind.Arm, 0)), arm.SpritemapPointer, "the slow swing's first frame shows at once");
-        AssertEqual((ushort)8, arm.FrameHold.RawValue, "the slow swing's first frame lasts eight updates");
+        AssertEqual((ushort)8, arm.AnimationClock.Hold.RawValue, "the slow swing's first frame lasts eight updates");
 
-        state.ArmState.Playback = new(KraidAnimations.StartingWith(KraidPartProgram.ArmSlow),
-            new AnimationPlace(0, KraidAnimations.Segments.Beats(KraidPartProgram.ArmSlow).Count - 2));
-        arm.FrameHold = WrappingCountdown.Start(1);
+        state.ArmState.Playback = new(KraidAnimations.StartingWith(KraidPartSegment.ArmSlow),
+            new AnimationPlace(0, KraidAnimations.Segments.Beats(KraidPartSegment.ArmSlow).Count - 2));
+        arm.AnimationClock.StepOnNextUpdate();
         Pass(arm);
         Pass(arm, forceExpiry: true);
-        AssertEqual(KraidAnimations.StartingWith(KraidPartProgram.ArmSlow), state.ArmState.Playback.Animation, "a slow arm's callback keeps the slow swing");
+        AssertEqual(KraidAnimations.StartingWith(KraidPartSegment.ArmSlow), state.ArmState.Playback.Animation, "a slow arm's callback keeps the slow swing");
     }
 
     /// <summary>
@@ -195,42 +195,42 @@ internal static class KraidAnimationsVerification
         (RoomEnemySystem enemies, KraidEnemyState state, _, RoomEnemySlot arm) = NewKraid();
         RoomEnemySlot foot = enemies.SlotTable.Slots[5];
         foot.Bind(EnemyDefinitionId.KraidFoot, foot.Definition);
-        state.FootState.Playback = Started(KraidPartProgram.FootNeutral);
-        foot.FrameHold = WrappingCountdown.Start(1);
+        state.FootState.Playback = Started(KraidPartSegment.FootNeutral);
+        foot.AnimationClock.StepOnNextUpdate();
         Pass(foot);
         ushort neutral = KraidPartFrameToolingDefinitions.Spritemap(new KraidPartFrame(KraidPartFrameKind.Foot, 0));
         AssertEqual(neutral, foot.SpritemapPointer, "the neutral foot shows its pose");
-        AssertTrue(foot.NewInstructionFrame, "the held pose raises the new-frame flag as it shows");
+        AssertTrue(foot.AnimationClock.ShowsNewFrame, "the held pose raises the new-frame flag as it shows");
         // Past one whole wrap of the frame timer: the held pose never plays on, shows anew or raises the flag again.
         for (int update = 0; update < 70000; update++)
         {
             Pass(foot);
-            if (foot.SpritemapPointer != neutral || foot.NewInstructionFrame)
+            if (foot.SpritemapPointer != neutral || foot.AnimationClock.ShowsNewFrame)
                 throw new InvalidOperationException($"Verification failed: the held neutral foot changed at update {update}.");
         }
 
-        state.ArmState.Playback = Started(KraidPartProgram.ArmDyingOrPreparingToLunge);
+        state.ArmState.Playback = Started(KraidPartSegment.ArmDyingOrPreparingToLunge);
         for (int beat = 0; beat < 3; beat++)
             Pass(arm, forceExpiry: true);
         AssertEqual(KraidPartFrameToolingDefinitions.Spritemap(new KraidPartFrame(KraidPartFrameKind.Arm, 21)), arm.SpritemapPointer,
             "the arm shows its last lunge-ready pose");
-        AssertEqual((ushort)32767, arm.FrameHold.RawValue, "the last lunge-ready pose keeps the longest frame's exact count");
+        AssertEqual((ushort)32767, arm.AnimationClock.Hold.RawValue, "the last lunge-ready pose keeps the longest frame's exact count");
     }
 
     /// <summary>The part animation starting at <paramref name="segment"/>, before its first play.</summary>
-    private static AnimationPlayback<KraidPartProgram> Started(KraidPartProgram segment) =>
+    private static AnimationPlayback<KraidPartSegment> Started(KraidPartSegment segment) =>
         new(KraidAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
 
     /// <summary>The segment <paramref name="playback"/>'s playing phase plays.</summary>
-    private static KraidPartProgram PlayingSegment(AnimationPlayback<KraidPartProgram> playback) =>
+    private static KraidPartSegment PlayingSegment(AnimationPlayback<KraidPartSegment> playback) =>
         playback.Animation.Phases[playback.Place.Phase].Segment;
 
     /// <summary>Runs one arm update, optionally expiring the current frame first.</summary>
     private static void Pass(RoomEnemySlot part, bool forceExpiry = false)
     {
         if (forceExpiry)
-            part.FrameHold = WrappingCountdown.Start(1);
-        EnemyInstructionInterpreter.RunsAnimationScript(part, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
+            part.AnimationClock.StepOnNextUpdate();
+        EnemyAnimationPlayer.AdvanceAnimation(part, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
     }
 
     /// <summary>
@@ -240,9 +240,9 @@ internal static class KraidAnimationsVerification
     internal static void VerifyKraidRockAnimations(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
-        AssertEqual(Enum.GetValues<KraidRockProgram>().Length, RockEntries.Length, "every typed rock program has a native entry");
+        AssertEqual(Enum.GetValues<KraidRockSegment>().Length, RockEntries.Length, "every typed rock program has a native entry");
         VerifyRockProducers();
-        foreach ((KraidRockProgram program, ushort entry) in RockEntries)
+        foreach ((KraidRockSegment program, ushort entry) in RockEntries)
         {
             (RoomEnemySystem enemies, _, _, _) = NewKraid();
             enemies.VerificationServices().ReadRandom = () => 32;
@@ -252,7 +252,7 @@ internal static class KraidAnimationsVerification
             var native = new NativeEnemyProjectileListReader(entry, rock.FrameHold.RawValue);
             for (int update = 0; update < 40 && !native.Deleted; update++)
             {
-                enemies.Projectiles.ProcessEnemyProjectileInstructions(rock, null, Position16<RoomPixels>.Zero);
+                enemies.Projectiles.AdvanceEnemyProjectileAnimations(rock, null, Position16<RoomPixels>.Zero);
                 native.Step(cartridge);
                 string at = $"Kraid rock {program} update {update}";
                 AssertEqual(!native.Deleted, rock.IsActive, $"{at}: deletion");
@@ -265,7 +265,7 @@ internal static class KraidAnimationsVerification
                 if (native.FrameBehavior is { } frameBehavior)
                     AssertEqual(EnemyProjectileFrameBehaviorAccess.FromWord(frameBehavior), rock.FrameBehavior, $"{at}: pre-instruction");
             }
-            AssertEqual(program == KraidRockProgram.SpitRockShot, native.Deleted, $"Kraid rock {program}: only the burst deletes its rock");
+            AssertEqual(program == KraidRockSegment.SpitRockShot, native.Deleted, $"Kraid rock {program}: only the burst deletes its rock");
         }
 
         AssertEqual(KraidRockVisualDefinitions.ProjectileFrameCount, KraidRockVisualDefinitions.ProjectileFrames.Count, "the rock catalog lists every frame");
@@ -297,13 +297,13 @@ internal static class KraidAnimationsVerification
         enemies.KraidBehavior.Rise.RequestKraidRisingRock(source, state);
         random = 2;
         AssertTrue(enemies.KagoBehavior.SpawnKagoBug(source), "the real Kago producer allocates its bug");
-        foreach ((RoomEnemyProjectileKind kind, KraidRockProgram program) in new[]
+        foreach ((RoomEnemyProjectileKind kind, KraidRockSegment program) in new[]
                  {
-                     new VerifyRockProducersCase(RoomEnemyProjectileKind.KraidSpitRock, KraidRockProgram.SharedPose),
-                     new VerifyRockProducersCase(RoomEnemyProjectileKind.KraidCeilingRock, KraidRockProgram.SharedPose),
-                     new VerifyRockProducersCase(RoomEnemyProjectileKind.KraidRisingRockLeft, KraidRockProgram.SharedPose),
-                     new VerifyRockProducersCase(RoomEnemyProjectileKind.KraidRisingRockRight, KraidRockProgram.RisingRightPose),
-                     new VerifyRockProducersCase(RoomEnemyProjectileKind.KagoBug, KraidRockProgram.SharedPose),
+                     new VerifyRockProducersCase(RoomEnemyProjectileKind.KraidSpitRock, KraidRockSegment.SharedPose),
+                     new VerifyRockProducersCase(RoomEnemyProjectileKind.KraidCeilingRock, KraidRockSegment.SharedPose),
+                     new VerifyRockProducersCase(RoomEnemyProjectileKind.KraidRisingRockLeft, KraidRockSegment.SharedPose),
+                     new VerifyRockProducersCase(RoomEnemyProjectileKind.KraidRisingRockRight, KraidRockSegment.RisingRightPose),
+                     new VerifyRockProducersCase(RoomEnemyProjectileKind.KagoBug, KraidRockSegment.SharedPose),
                  })
         {
             EnemyProjectile projectile = enemies.Projectiles.EnemyProjectiles.Single(item => item.Kind == kind);

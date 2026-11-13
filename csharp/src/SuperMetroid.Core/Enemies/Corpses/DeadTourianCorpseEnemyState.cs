@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 public sealed class DeadTourianCorpseEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<DeadTourianProgram> Playback { get; set; }
+    internal AnimationPlayback<DeadTourianSegment> Playback { get; set; }
 
     /// <summary>Captures the selected corpse variant's callback profile and its own rot schedule for one slot, and starts its own rows.</summary>
     internal DeadTourianCorpseEnemyState(RoomEnemySlot slot, DeadTourianCorpseSpecies species, int variantIndex, DeadTourianBehavior.DeadTourianCorpseProfile profile, CorpseRotSchedule rot)

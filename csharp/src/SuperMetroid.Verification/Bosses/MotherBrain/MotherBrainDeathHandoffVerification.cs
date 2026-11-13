@@ -21,7 +21,7 @@ internal static class MotherBrainDeathHandoffVerification
     {
         var vram = new SnesVram();
         // The installed program keeps the same glyphs and destination; delay two is engine-owned.
-        var program = new EscapeTypewriterProgram(EscapeTypewriterProgramId.Zebes,
+        var program = new EscapeTypewriterMessage(EscapeTypewriterMessageId.Zebes,
             [new EscapeTypewriterLine(default, "A !")]);
         var text = new EscapeTypewriterState(program);
         AssertTrue(!text.StepInto(vram), "typewriter first glyph is not completion");

@@ -23,7 +23,7 @@ public sealed class GrowingShutterEnemyState
     internal GrowingShutterEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<ShutterProgram> Playback { get; set; }
+    internal AnimationPlayback<ShutterSegment> Playback { get; set; }
 
     /// <summary>
     /// The dispatcher behaviour; initialization selects a wait function and activation replaces it with a growth

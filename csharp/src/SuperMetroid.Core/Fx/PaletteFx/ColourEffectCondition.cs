@@ -18,7 +18,7 @@ public abstract record ColourEffectCondition
     /// </summary>
     /// <param name="Height">The room height, in whole pixels, Samus must be above.</param>
     /// <param name="Restart">The program the effect restarts while she is.</param>
-    public sealed record RestartsWhileSamusIsHigh(int Height, PaletteFxProgram Restart) : ColourEffectCondition;
+    public sealed record RestartsWhileSamusIsHigh(int Height, PaletteFxSegment Restart) : ColourEffectCondition;
 
     /// <summary>
     /// The effect ends on the first update the Torizo whose belly it lights, the room's first enemy, has no health left.

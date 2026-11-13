@@ -474,7 +474,7 @@ public sealed class SamusState
 
     /// <summary>The step of the animated pose's program that Samus's animation frame is on.</summary>
     /// <exception cref="InvalidOperationException">The animation has not been started.</exception>
-    internal SamusAnimationProgramStep AnimationStep => SamusAnimationDelays.StepFor(
+    internal SamusPoseAnimationStep AnimationStep => SamusAnimationDelays.StepFor(
         AnimatedPose ?? throw new InvalidOperationException("Samus's animation has not been started for any pose."), AnimationFrame,
         AnimationContinuation);
 
@@ -482,7 +482,7 @@ public sealed class SamusState
     /// What an animation frame past her pose's program reads, the session's installed service, which decides the frames her
     /// body can show.
     /// </summary>
-    internal LaidOutProgramContinuation<SamusPoseId, SamusAnimationProgramStep> AnimationContinuation { get; }
+    internal LaidOutAnimationContinuation<SamusPoseId, SamusPoseAnimationStep> AnimationContinuation { get; }
 
     /// <summary>
     /// Operand published by the animation's pose-transition command through the “super-special
@@ -534,7 +534,7 @@ public sealed class SamusState
     /// <param name="unauthoredBoostCadence">The session's unauthored Speed Booster cadence, which outlives her.</param>
     /// <param name="compatibility">The compatibility services she owns, created with her by whoever builds her.</param>
     /// <param name="beamCharge">The session's beam charge, which outlives her and which the projectile pass advances.</param>
-    internal SamusState(LaidOutProgramContinuation<SamusPoseId, SamusAnimationProgramStep> animationContinuation, UnauthoredBoostCadence unauthoredBoostCadence,
+    internal SamusState(LaidOutAnimationContinuation<SamusPoseId, SamusPoseAnimationStep> animationContinuation, UnauthoredBoostCadence unauthoredBoostCadence,
         SamusCompatibility compatibility, SuperMetroid.Core.Samus.Projectiles.BeamChargeState beamCharge)
     {
         BeamCharge = Ensure.NotNull(beamCharge);

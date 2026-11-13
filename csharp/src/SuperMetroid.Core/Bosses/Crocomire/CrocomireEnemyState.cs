@@ -28,8 +28,8 @@ public sealed class CrocomireEnemyState
     /// <summary>Physical body record owning the fight and death state and room-pixel coordinates; his body layer follows this actor.</summary>
     public RoomEnemySlot Body { get; }
     /// <summary>The body's playing animation and where it stands; before the first start, the initial animation.</summary>
-    internal AnimationPlayback<CrocomireBodyProgram> BodyPlayback { get; set; } =
-        new(CrocomireBodyAnimations.StartingWith(CrocomireBodyProgram.Initial), AnimationPlace.StartOfAnimation);
+    internal AnimationPlayback<CrocomireBodySegment> BodyPlayback { get; set; } =
+        new(CrocomireBodyAnimations.StartingWith(CrocomireBodySegment.Initial), AnimationPlace.StartOfAnimation);
 
     /// <summary>The body frame shown last, or null before the first frame.</summary>
     internal CrocomireBodyFrame? BodyFrame { get; set; }
@@ -38,19 +38,19 @@ public sealed class CrocomireEnemyState
     /// The segment the body's animation rests in. Resting after the last beat of a list that runs on into the next, it
     /// already rests in the next, as the body's animation position then lies inside it.
     /// </summary>
-    internal CrocomireBodyProgram BodyResidentProgram =>
+    internal CrocomireBodySegment BodyResidentAnimation =>
         ResidentSegment(BodyPlayback);
 
     /// <summary>The segment <paramref name="playback"/>, a body animation, rests in.</summary>
-    internal static CrocomireBodyProgram ResidentSegment(AnimationPlayback<CrocomireBodyProgram> playback) =>
+    internal static CrocomireBodySegment ResidentSegment(AnimationPlayback<CrocomireBodySegment> playback) =>
         AnimationResidence.ResidentSegment(CrocomireBodyAnimations.Segments, CrocomireBodyAnimations.StartingAt, CrocomireBodyAnimations.RunsOnInto, playback);
 
     /// <summary>The camera position the last main update saw; its X places his body layer and decides whether the body is on screen.</summary>
     internal Position16<RoomPixels> Camera { get; set; }
 
     /// <summary>The tongue's playing animation and where it stands; before the first start, the fight loop.</summary>
-    internal AnimationPlayback<CrocomireTongueProgram> TonguePlayback { get; set; } =
-        new(CrocomireAnimations.TongueStartingWith(CrocomireTongueProgram.Fight), AnimationPlace.StartOfAnimation);
+    internal AnimationPlayback<CrocomireTongueSegment> TonguePlayback { get; set; } =
+        new(CrocomireAnimations.TongueStartingWith(CrocomireTongueSegment.Fight), AnimationPlace.StartOfAnimation);
 
     /// <summary>Physical tongue record, attached during initialization; bridge collapse sleeps and hides it, while later melting phases reuse its actor.</summary>
     public RoomEnemySlot? Tongue { get; internal set; }

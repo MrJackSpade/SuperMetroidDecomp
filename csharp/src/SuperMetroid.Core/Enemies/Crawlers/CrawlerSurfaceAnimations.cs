@@ -5,7 +5,7 @@ internal static class CrawlerSurfaceAnimations
 {
     /// <summary>The animation <paramref name="family"/> shows on the surface <paramref name="orientation"/> names.</summary>
     /// <exception cref="InvalidDataException"><paramref name="family"/> has no authored animations.</exception>
-    internal static CrawlerProgram ProgramFor(
+    internal static CrawlerSegment AnimationFor(
         CrawlerAnimationFamily family,
         CrawlerSurfaceOrientation orientation) => ForOrientation(Family(family), orientation);
 
@@ -17,7 +17,7 @@ internal static class CrawlerSurfaceAnimations
                 $"Crawler animation family {family} exceeds five authored tables.");
 
     /// <summary>Selects an animation by one of the four physical surface orientations.</summary>
-    private static CrawlerProgram ForOrientation(CrawlerAnimationDefinition definition, CrawlerSurfaceOrientation orientation) =>
+    private static CrawlerSegment ForOrientation(CrawlerAnimationDefinition definition, CrawlerSurfaceOrientation orientation) =>
         orientation switch
         {
             CrawlerSurfaceOrientation.UpsideRight => definition.UpsideRight,

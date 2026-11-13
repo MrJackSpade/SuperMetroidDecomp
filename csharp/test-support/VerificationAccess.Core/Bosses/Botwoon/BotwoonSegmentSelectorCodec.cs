@@ -24,7 +24,7 @@ internal static class BotwoonSegmentSelectorCodec
 
     /// <summary>The segment program selector <paramref name="byteOffset"/> names.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The selector is odd or outside the table.</exception>
-    public static BotwoonSegmentProgram Program(int byteOffset)
+    public static BotwoonBodyAnimationSegment Program(int byteOffset)
     {
         if (byteOffset % EntryBytes != 0 || byteOffset is < 0 or >= SelectorEnd)
         {
@@ -33,8 +33,8 @@ internal static class BotwoonSegmentSelectorCodec
         }
         int entry = byteOffset / EntryBytes;
         if ((entry & 8) != 0)
-            return BotwoonSegmentProgram.Hidden;
-        return new((entry & 16) != 0 ? BotwoonSegmentProgramKind.Tail : BotwoonSegmentProgramKind.Body,
+            return BotwoonBodyAnimationSegment.Hidden;
+        return new((entry & 16) != 0 ? BotwoonBodyAnimationSegmentKind.Tail : BotwoonBodyAnimationSegmentKind.Body,
             DirectionsClockwise[entry & 7]);
     }
 }

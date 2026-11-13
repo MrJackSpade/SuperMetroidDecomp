@@ -76,7 +76,7 @@ internal static class PaletteFxColoursPositions
         {
             get
             {
-                PaletteFxColours[] named = [.. NamedColours(RoomPaletteFxSelection.Get(self).InitialProgram).Distinct()];
+                PaletteFxColours[] named = [.. NamedColours(RoomPaletteFxSelection.Get(self).InitialAnimation).Distinct()];
                 return named.Length == 1
                     ? named[0]
                     : throw new InvalidOperationException($"Palette-FX object {self} names {named.Length} colour groups.");
@@ -93,7 +93,7 @@ internal static class PaletteFxColoursPositions
     {
         if (running is not { } paletteFxObject)
             return null;
-        PaletteFxColours[] matching = [.. NamedColours(RoomPaletteFxSelection.Get(paletteFxObject).InitialProgram)
+        PaletteFxColours[] matching = [.. NamedColours(RoomPaletteFxSelection.Get(paletteFxObject).InitialAnimation)
             .Distinct().Where(colours => colours.CartridgeColour == position)];
         return matching.Length switch
         {
@@ -108,15 +108,15 @@ internal static class PaletteFxColoursPositions
     /// Every colour group the animation starting at <paramref name="start"/> names, and those of the animations its
     /// conditions restart it at.
     /// </summary>
-    private static IEnumerable<PaletteFxColours> NamedColours(PaletteFxProgram start)
+    private static IEnumerable<PaletteFxColours> NamedColours(PaletteFxSegment start)
     {
-        var seen = new HashSet<PaletteFxProgram>();
-        var pending = new Stack<PaletteFxProgram>([start]);
-        while (pending.TryPop(out PaletteFxProgram animation))
+        var seen = new HashSet<PaletteFxSegment>();
+        var pending = new Stack<PaletteFxSegment>([start]);
+        while (pending.TryPop(out PaletteFxSegment animation))
         {
             if (!seen.Add(animation))
                 continue;
-            foreach (AnimationPhase<PaletteFxProgram> phase in PaletteFxAnimations.StartingWith(animation).Phases)
+            foreach (AnimationPhase<PaletteFxSegment> phase in PaletteFxAnimations.StartingWith(animation).Phases)
             {
                 IReadOnlyList<AnimationBeat<int, PaletteFxCue>> beats = PaletteFxSegments.All.Beats(phase.Segment);
                 for (int beat = phase.FirstBeat; beat < phase.FirstBeat + phase.BeatCount; beat++)

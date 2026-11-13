@@ -66,19 +66,19 @@ internal static class ProjectileTrailArtworkVerification
         int programWords = 0;
         for (int address = 0x90b4c8; address <= 0x90b5b3; address++)
         {
-            if (ProjectileTrailProgramDefinitions.TryRead(address, out _))
+            if (ProjectileTrailAnimationDefinitions.TryRead(address, out _))
             {
-                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address), ProjectileTrailProgramDefinitions.Read(address), "Compiled trail program preserves every authored mechanics word");
+                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address), ProjectileTrailAnimationDefinitions.Read(address), "Compiled trail program preserves every authored mechanics word");
                 programWords++;
             }
             else
             {
                 int rejectedAddress = address;
-                AssertThrows<InvalidDataException>(() => ProjectileTrailProgramDefinitions.Read(rejectedAddress), "Trail program rejects presentation gaps, odd addresses and unrelated high-bank words");
+                AssertThrows<InvalidDataException>(() => ProjectileTrailAnimationDefinitions.Read(rejectedAddress), "Trail program rejects presentation gaps, odd addresses and unrelated high-bank words");
             }
         }
         AssertEqual(67, programWords, "All 42 durations, 20 movement commands and five terminators are compiled");
-        AssertThrows<InvalidDataException>(() => ProjectileTrailProgramDefinitions.Read(0x91b4c9), "Trail program rejects a wrong-bank alias");
+        AssertThrows<InvalidDataException>(() => ProjectileTrailAnimationDefinitions.Read(0x91b4c9), "Trail program rejects a wrong-bank alias");
         int draws = 0;
         foreach (ProjectileTrailFrame pose in ProjectileTrailVisualDefinitions.Frames)
         foreach (ushort coordinate in new ushort[] { 0, 1, 255, 256, 65535 })

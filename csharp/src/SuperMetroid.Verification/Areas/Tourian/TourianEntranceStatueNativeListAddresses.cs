@@ -13,11 +13,11 @@ internal static class TourianEntranceStatueNativeListAddresses
     internal const byte Bank = 0xaa;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<TourianEntranceStatueProgram>[] Entries =
+    internal static readonly NativeProgramEntry<TourianEntranceStatueSegment>[] Entries =
     [
-        new NativeProgramEntry<TourianEntranceStatueProgram>(TourianEntranceStatueProgram.Ridley, 0xd7a5),
-        new NativeProgramEntry<TourianEntranceStatueProgram>(TourianEntranceStatueProgram.Phantoon, 0xd7af),
-        new NativeProgramEntry<TourianEntranceStatueProgram>(TourianEntranceStatueProgram.BaseDecoration, 0xd7b9),
+        new NativeProgramEntry<TourianEntranceStatueSegment>(TourianEntranceStatueSegment.Ridley, 0xd7a5),
+        new NativeProgramEntry<TourianEntranceStatueSegment>(TourianEntranceStatueSegment.Phantoon, 0xd7af),
+        new NativeProgramEntry<TourianEntranceStatueSegment>(TourianEntranceStatueSegment.BaseDecoration, 0xd7b9),
     ];
 
 }

@@ -24,7 +24,7 @@ internal sealed class ChozoStatueEntity(ChozoStatueBehavior species, RoomEnemySl
     };
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => ChozoStatuePartDefinitions.Parts[Slot.DefinitionId] switch
+    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => ChozoStatuePartDefinitions.Parts[Slot.DefinitionId] switch
     {
         ChozoStatuePart.Chozo => species.AdvanceChozoStatueTypedAnimation,
         ChozoStatuePart.NoobTubeCrack => null,

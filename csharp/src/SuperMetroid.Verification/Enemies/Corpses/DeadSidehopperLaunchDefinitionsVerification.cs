@@ -34,9 +34,9 @@ internal static class DeadSidehopperLaunchDefinitionsVerification
                 state.DrainStage = drainStage;
                 state.JumpPhase = phase;
                 state.Velocity = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(4660, 4660);
-                state.Playback = new(DeadTourianAnimations.StartingWith(DeadTourianProgram.SidehopperCorpse), AnimationPlace.StartOfAnimation);
-                slot.FrameHold = WrappingCountdown.Start(9);
-                slot.Timer = WrappingCountdown.Start(17);
+                state.Playback = new(DeadTourianAnimations.StartingWith(DeadTourianSegment.SidehopperCorpse), AnimationPlace.StartOfAnimation);
+                slot.AnimationClock.HoldFor(9);
+                slot.AnimationClock.Repeats = WrappingCountdown.Start(17);
                 dispatch(slot, state, null, null, default);
                 int timer = raw - 1;
                 bool expired = timer < 0;
@@ -46,10 +46,10 @@ internal static class DeadSidehopperLaunchDefinitionsVerification
                 AssertEqual(launch ? vy : (ushort)0x1234, state.Velocity.Y.RawValue, "Timer and drain gates control Y launch");
                 AssertEqual(expired ? (launch ? DeadSidehopperAiFunction.ActivatedMovement : DeadSidehopperAiFunction.Draining) : DeadSidehopperAiFunction.PostLandingDelay,
                     state.Function, "Exact launch versus transformation handoff");
-                AssertEqual(new AnimationPlayback<DeadTourianProgram>(DeadTourianAnimations.StartingWith(launch ? DeadTourianProgram.SidehopperIdle : DeadTourianProgram.SidehopperCorpse), AnimationPlace.StartOfAnimation),
+                AssertEqual(new AnimationPlayback<DeadTourianSegment>(DeadTourianAnimations.StartingWith(launch ? DeadTourianSegment.SidehopperIdle : DeadTourianSegment.SidehopperCorpse), AnimationPlace.StartOfAnimation),
                     state.Playback, "Launch restarts the alive-idle animation");
-                AssertEqual(launch ? (ushort)1 : (ushort)9, slot.FrameHold.RawValue, "Launch instruction timer");
-                AssertEqual(launch ? (ushort)0 : (ushort)17, slot.Timer.RawValue, "Launch clears instruction loop timer");
+                AssertEqual(launch ? (ushort)1 : (ushort)9, slot.AnimationClock.Hold.RawValue, "Launch instruction timer");
+                AssertEqual(launch ? (ushort)0 : (ushort)17, slot.AnimationClock.Repeats.RawValue, "Launch clears instruction loop timer");
                 AssertEqual(phase, state.JumpPhase, "Launch does not advance landing-owned phase");
             }
         }

@@ -7,4 +7,4 @@ namespace SuperMetroid.Verification.Enemies.Skultera;
 /// <param name="Swim">The swim.</param>
 /// <param name="Loop">The loop.</param>
 /// <param name="Turn">The turn.</param>
-internal readonly record struct VerifySkulteraBehaviorCase(bool StartsLeft, SkulteraProgram Swim, SkulteraProgram Loop, SkulteraProgram Turn);
+internal readonly record struct VerifySkulteraBehaviorCase(bool StartsLeft, SkulteraSegment Swim, SkulteraSegment Loop, SkulteraSegment Turn);

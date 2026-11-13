@@ -8,31 +8,27 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// pictures are the same either way; each spark ring shows its own facing's six compositions.
 /// </summary>
 /// <remarks>
-/// The flare's draw lays its pictures out one run after another, the main flare's thirty, then the right-facing slow and
-/// fast sparks and the left-facing slow and fast sparks, and takes a component's picture within a cycle of 256. A place
-/// past the component's own run, which only the Hyper Beam's backward count wrapped past a first picture reaches, shows
-/// the picture laid out there, and a place past the last run shows nothing.
+/// A component shows only its own pictures. A place outside them, which only the Hyper Beam's backward count reaches
+/// once it has run a component past its first picture, shows nothing: the port does not draw the neighbouring run's
+/// picture there, which was a presentation quirk (owner decision, 2026-10-12).
 /// </remarks>
 public static class ChargeFlarePictures
 {
-    /// <summary>Every picture in the order the flare's draw lays them out.</summary>
-    private static readonly ProjectileSpriteId[] LaidOut =
-    [
-        .. MainFlarePictures.Select(main => new ProjectileSpriteId(ProjectileSpriteGroup.FlareMain, main)),
-        .. SparkRuns.SelectMany(run => Groups.Single(group => group.Group == run).Members),
-    ];
+    /// <summary>The main flare's compositions, by picture.</summary>
+    private static readonly ProjectileSpriteId[] MainFlare =
+        [.. MainFlarePictures.Select(main => new ProjectileSpriteId(ProjectileSpriteGroup.FlareMain, main))];
 
     /// <summary>
     /// The composition <paramref name="component"/> shows at picture <paramref name="phase"/> facing left or right, or
-    /// null when the place shows no flare picture.
+    /// null when the place is none of the component's pictures.
     /// </summary>
     /// <param name="component">The component.</param>
     /// <param name="facingLeft">Whether Samus faces left.</param>
     /// <param name="phase">The component's picture, 0 through 65535.</param>
     public static ProjectileSpriteId? Of(ChargeFlareComponent component, bool facingLeft, int phase)
     {
-        int place = RunStart(component, facingLeft) + Ensure.BetweenInclusive(0, WrappingCounter.LargestCount, phase) % DrawnPictureCycle;
-        return place < LaidOut.Length ? LaidOut[place] : null;
+        ProjectileSpriteId[] pictures = PicturesOf(component, facingLeft);
+        return Ensure.BetweenInclusive(0, WrappingCounter.LargestCount, phase) < pictures.Length ? pictures[phase] : null;
     }
 
     /// <summary>The sprite source instance that tells the flare's three components' draws apart.</summary>
@@ -44,15 +40,16 @@ public static class ChargeFlarePictures
         _ => throw new ArgumentOutOfRangeException(nameof(component), component, $"Undefined {nameof(ChargeFlareComponent)}."),
     };
 
-    /// <summary>Where <paramref name="component"/>'s run of pictures starts for the facing.</summary>
-    private static int RunStart(ChargeFlareComponent component, bool facingLeft) => component switch
+    /// <summary><paramref name="component"/>'s compositions for the facing, by picture.</summary>
+    private static ProjectileSpriteId[] PicturesOf(ChargeFlareComponent component, bool facingLeft) => component switch
     {
-        ChargeFlareComponent.MainFlare => 0,
-        ChargeFlareComponent.SlowSparks => StartOf(facingLeft ? ProjectileSpriteGroup.FlareSlowSparksLeft : ProjectileSpriteGroup.FlareSlowSparksRight),
-        ChargeFlareComponent.FastSparks => StartOf(facingLeft ? ProjectileSpriteGroup.FlareFastSparksLeft : ProjectileSpriteGroup.FlareFastSparksRight),
+        ChargeFlareComponent.MainFlare => MainFlare,
+        ChargeFlareComponent.SlowSparks => Sparks[facingLeft ? ProjectileSpriteGroup.FlareSlowSparksLeft : ProjectileSpriteGroup.FlareSlowSparksRight],
+        ChargeFlareComponent.FastSparks => Sparks[facingLeft ? ProjectileSpriteGroup.FlareFastSparksLeft : ProjectileSpriteGroup.FlareFastSparksRight],
         _ => throw new ArgumentOutOfRangeException(nameof(component), component, $"Undefined {nameof(ChargeFlareComponent)}."),
     };
 
-    /// <summary>Where spark family <paramref name="group"/>'s run starts among the laid-out pictures.</summary>
-    private static int StartOf(ProjectileSpriteGroup group) => Array.IndexOf(LaidOut, new ProjectileSpriteId(group, 0));
+    /// <summary>Each spark family's compositions, by picture.</summary>
+    private static readonly Dictionary<ProjectileSpriteGroup, ProjectileSpriteId[]> Sparks =
+        Groups.Where(sparks => sparks.Group != ProjectileSpriteGroup.FlareMain).ToDictionary(sparks => sparks.Group, sparks => sparks.Members.ToArray());
 }

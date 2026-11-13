@@ -35,7 +35,7 @@ internal sealed class ChainsawPowerBombCallback
         // On a beam the fuse's switch to the fast animation moves the beam's own animation as far as a bomb's fast
         // animation lies from its slow one, which lands wherever the game's animations lie there.
         if (fuse.FastAnimation && slot.Playback is { } live)
-            slot.Playback = SamusProjectilePrograms.PlaybackAt(_fuseShift.Shift(SamusProjectilePrograms.BeatOf(live)));
+            slot.Playback = SamusProjectilePlayback.PlaybackAt(_fuseShift.Shift(SamusProjectilePlayback.BeatOf(live)));
 
         // The borrowed fuse starts the explosion as a Power Bomb's does, its sound included.
         if (fuse.SpawnExplosion)

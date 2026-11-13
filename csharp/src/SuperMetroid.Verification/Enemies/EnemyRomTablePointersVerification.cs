@@ -98,10 +98,10 @@ internal static class EnemyRomTablePointersVerification
     {
 
         AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.SuperMissileInstructionPointers),
-            TorizoNativeListAddresses.ProjectileEntry(TorizoProjectileProgram.SuperMissileLeftInitial),
+            TorizoNativeListAddresses.ProjectileEntry(TorizoProjectileSegment.SuperMissileLeftInitial),
             "Golden Torizo left reflected-Super list");
         AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointersTorizo.SuperMissileInstructionPointers + 2)),
-            TorizoNativeListAddresses.ProjectileEntry(TorizoProjectileProgram.SuperMissileRightInitial),
+            TorizoNativeListAddresses.ProjectileEntry(TorizoProjectileSegment.SuperMissileRightInitial),
             "Golden Torizo right reflected-Super list");
         Suite(nameof(VerifyWorkRobotInitialSelection), () => VerifyWorkRobotInitialSelection(rom));
         foreach (ushort parameter in new ushort[] { 0, 2, 4 })
@@ -122,7 +122,7 @@ internal static class EnemyRomTablePointersVerification
             slot.Bind(EnemyDefinitionId.TourianStatue, slot.Definition);
             system.TourianEntranceStatueBehavior.InitializeTourianEntranceStatue(slot);
             // The statues' animations stop at once and so compare equal; the one started is told apart by identity.
-            AnimationPlayback<TourianEntranceStatueProgram> started = slot.RequireSpeciesState<TourianEntranceStatueState>().Playback;
+            AnimationPlayback<TourianEntranceStatueSegment> started = slot.RequireSpeciesState<TourianEntranceStatueState>().Playback;
             AssertTrue(ReferenceEquals(TourianEntranceStatueAnimations.StartingWith(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.TourianStatue(parameter)), started.Animation)
                 && started.Place == AnimationPlace.StartOfAnimation,
                 $"Tourian statue production initializer {parameter} avoids selector ROM");
@@ -140,7 +140,7 @@ internal static class EnemyRomTablePointersVerification
             EnemyProjectile projectile = system.Projectiles.EnemyProjectiles.Single(
                 candidate => candidate.IsActive);
             AssertEqual(
-                facingRight ? TorizoProjectileProgram.SuperMissileRightInitial : TorizoProjectileProgram.SuperMissileLeftInitial,
+                facingRight ? TorizoProjectileSegment.SuperMissileRightInitial : TorizoProjectileSegment.SuperMissileLeftInitial,
                 (projectile.Animation as TorizoProjectileAnimation)?.PlayingSegment,
                 $"Golden Torizo production reflected-Super selector {facingRight} avoids ROM");
         }

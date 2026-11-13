@@ -35,11 +35,11 @@ internal static class TurnArcPicksVerification
     /// <summary>The eye's tracking place for all 65536 angles against the place of the pose its sixteenth numbers.</summary>
     private static void VerifyMorphBallEyeTrackingPlaces()
     {
-        Animation<MorphBallEyeProgram> tracking = MorphBallEyeAnimations.StartingWith(MorphBallEyeProgram.Active);
+        Animation<MorphBallEyeSegment> tracking = MorphBallEyeAnimations.StartingWith(MorphBallEyeSegment.Active);
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             RotationAngle angle = RotationAngle.FromRaw(raw);
-            AssertEqual(AnimationSegments<MorphBallEyeProgram, EnemyFrameId, NoAnimationCue>.PlaceOf(tracking, MorphBallEyeProgram.Active, angle.Sector(16)),
+            AssertEqual(AnimationSegments<MorphBallEyeSegment, EnemyFrameId, NoAnimationCue>.PlaceOf(tracking, MorphBallEyeSegment.Active, angle.Sector(16)),
                 MorphBallEyeAnimations.TrackingPlaces.At(angle), $"Morph Ball eye angle {raw} tracking place");
         }
     }

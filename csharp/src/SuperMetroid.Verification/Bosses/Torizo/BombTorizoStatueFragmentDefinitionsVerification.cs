@@ -39,7 +39,7 @@ internal static class BombTorizoStatueFragmentDefinitionsVerification
             AssertEqual(RoomEnemyProjectileKind.BombTorizoStatueBreaking,
                 projectile.Kind,
                 $"Bomb Torizo statue fragment {index} projectile kind");
-            AssertEqual<TorizoProjectileProgram?>(expected.Program, (projectile.Animation as TorizoProjectileAnimation)?.PlayingSegment,
+            AssertEqual<TorizoProjectileSegment?>(expected.Animation, (projectile.Animation as TorizoProjectileAnimation)?.PlayingSegment,
                 $"Bomb Torizo statue fragment {index} production program");
             AssertEqual(unchecked((ushort)(10 * 16 + expected.Offset.X)),
                 projectile.Position.X.Whole,
@@ -62,7 +62,7 @@ internal static class BombTorizoStatueFragmentDefinitionsVerification
     {
         for (int fragment = 0, parameter = 0; fragment < BombTorizoStatueFragmentDefinitions.FragmentCount; fragment++, parameter += 2)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86a7ab + parameter)),
-                TorizoNativeListAddresses.ProjectileEntry(BombTorizoStatueFragments.ForFragment(fragment).Program), "statue native program field");
+                TorizoNativeListAddresses.ProjectileEntry(BombTorizoStatueFragments.ForFragment(fragment).Animation), "statue native program field");
     }
     /// <summary>Checks signed horizontal offsets, including the mirrored fragment set.</summary>
     private static void VerifyStatueFragmentXField(ISnesAddressSpace rom)

@@ -15,7 +15,7 @@ namespace SuperMetroid.Verification.Enemies.Hoppers;
 internal static class HopperAnimationDefinitionsVerification
 {
     /// <summary>
-    /// The $A3:AAC2-AAE1 selector tables pick the same lists as <see cref="HopperPrograms.Program"/> for the kind each
+    /// The $A3:AAC2-AAE1 selector tables pick the same lists as <see cref="HopperAnimationChoices.Animation"/> for the kind each
     /// variant word names, and each hopper header's variant word names its definition's kind. For every kind and orientation the real initializer, jump and landing start the selected programs; the jump turns
     /// off-screen processing on and plays the airborne sound, and the landing turns it off, plays the landing sound,
     /// shows its four timed poses and then lets main AI hop again.
@@ -32,7 +32,7 @@ internal static class HopperAnimationDefinitionsVerification
             bool jumping = (selector & 2) != 0;
             AssertEqual(ReadHopperAnimationWord(rom, tables[selector] + variant * 2),
                 NativeEnemyAnimationOracle.EntryOf(HopperNativeListAddresses.Entries,
-                    HopperPrograms.Program(kind, upsideDown ? HopperSurface.Ceiling : HopperSurface.Floor, jumping ? HopperPhase.Jumping : HopperPhase.Landed)),
+                    HopperAnimationChoices.Animation(kind, upsideDown ? HopperSurface.Ceiling : HopperSurface.Floor, jumping ? HopperPhase.Jumping : HopperPhase.Landed)),
                 $"hopper animation variant {variant}, selector {selector}");
         }
         foreach (EnemyDefinitionId hopper in new[]
@@ -43,9 +43,9 @@ internal static class HopperAnimationDefinitionsVerification
         {
             int header = SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(hopper);
             AssertEqual(HoppersNativeWords.HopperKinds.Decode(RoomEnemyDefinitionImporter.ReadWord(CartridgeImportSource.Require(rom), header, 42), "hopper variant"),
-                HopperPrograms.KindOf(hopper), $"{hopper}'s header names its kind");
+                HopperAnimationChoices.KindOf(hopper), $"{hopper}'s header names its kind");
         }
-        AssertThrows<InvalidDataException>(() => HopperPrograms.KindOf(EnemyDefinitionId.Zoa), "a Zoa is no hopper");
+        AssertThrows<InvalidDataException>(() => HopperAnimationChoices.KindOf(EnemyDefinitionId.Zoa), "a Zoa is no hopper");
 
         EnemyDefinitionId[] definitions =
         [
@@ -71,13 +71,13 @@ internal static class HopperAnimationDefinitionsVerification
             enemies.HoppersBehavior.InitializeHopper(slot);
             HopperEnemyState state = enemies.HopperStates[0] ?? throw new InvalidOperationException("Verification requires enemies.HopperStates[0].");
             AssertEqual(kind, state.Kind, $"hopper kind {context}");
-            HopperProgram landed = HopperPrograms.Program(kind, upsideDown ? HopperSurface.Ceiling : HopperSurface.Floor, HopperPhase.Landed);
-            HopperProgram jumping = HopperPrograms.Program(kind, upsideDown ? HopperSurface.Ceiling : HopperSurface.Floor, HopperPhase.Jumping);
-            AssertEqual(new AnimationPlayback<HopperProgram>(HopperAnimations.StartingWith(landed), AnimationPlace.StartOfAnimation), state.Playback, $"hopper initial landed program {context}");
+            HopperSegment landed = HopperAnimationChoices.Animation(kind, upsideDown ? HopperSurface.Ceiling : HopperSurface.Floor, HopperPhase.Landed);
+            HopperSegment jumping = HopperAnimationChoices.Animation(kind, upsideDown ? HopperSurface.Ceiling : HopperSurface.Floor, HopperPhase.Jumping);
+            AssertEqual(new AnimationPlayback<HopperSegment>(HopperAnimations.StartingWith(landed), AnimationPlace.StartOfAnimation), state.Playback, $"hopper initial landed program {context}");
 
             state.XVelocity = 3;
             HoppersBehavior.StartHopperJump(slot, state, upsideDown ? HopperSurface.Ceiling : HopperSurface.Floor, HopperHopDirection.Forward);
-            AssertEqual(new AnimationPlayback<HopperProgram>(HopperAnimations.StartingWith(jumping), AnimationPlace.StartOfAnimation), state.Playback, $"hopper jumping program {context}");
+            AssertEqual(new AnimationPlayback<HopperSegment>(HopperAnimations.StartingWith(jumping), AnimationPlace.StartOfAnimation), state.Playback, $"hopper jumping program {context}");
             ushort airborne = HopperAnimationsConstants.Spritemaps(jumping).Single();
             AssertEqual(EnemyInstructionRunner.ExpectedFrames([airborne, airborne], [1, 1]),
                 EnemyInstructionRunner.ShownFrames(slot, 2), $"hopper airborne pose {context}");
@@ -87,7 +87,7 @@ internal static class HopperAnimationDefinitionsVerification
                 $"hopper jumping sound {context}");
 
             HoppersBehavior.LandHopper(slot, state);
-            AssertEqual(new AnimationPlayback<HopperProgram>(HopperAnimations.StartingWith(landed), AnimationPlace.StartOfAnimation), state.Playback, $"hopper landed handoff {context}");
+            AssertEqual(new AnimationPlayback<HopperSegment>(HopperAnimations.StartingWith(landed), AnimationPlace.StartOfAnimation), state.Playback, $"hopper landed handoff {context}");
             int[] holds = [2, 5, 2, 3];
             AssertEqual(EnemyInstructionRunner.ExpectedFrames(HopperAnimationsConstants.Spritemaps(landed), holds),
                 EnemyInstructionRunner.ShownFrames(slot, holds.Sum()), $"hopper landing poses {context}");

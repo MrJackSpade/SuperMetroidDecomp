@@ -56,7 +56,7 @@ internal static class GoldenTorizoCartridgeFallbackVerification
                     $"playback={state.BodyPlayback.Place}.", error);
             }
             // The awakening hands off to the walking-left lists; every later Golden Torizo list is combat.
-            enteredCombat |= TorizoAnimations.SegmentOf(state.BodyPlayback) >= TorizoBodyProgram.GoldenWalkingLeftLeftLegMoving;
+            enteredCombat |= TorizoAnimations.SegmentOf(state.BodyPlayback) >= TorizoBodySegment.GoldenWalkingLeftLeftLegMoving;
         }
         AssertTrue(enteredCombat,
             "cartridge-backed installed-art Golden Torizo reaches walking combat; " +

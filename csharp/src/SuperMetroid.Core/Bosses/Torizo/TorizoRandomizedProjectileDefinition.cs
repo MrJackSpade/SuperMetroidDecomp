@@ -6,6 +6,6 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// holds X offset, X velocity, Y offset and Y velocity.
 /// </summary>
 internal readonly record struct TorizoRandomizedProjectileDefinition(
-    TorizoProjectileProgram Program,
+    TorizoProjectileSegment Animation,
     Offset16<RoomPixels> Offset,
     EightEightVector<RoomPixels> BaseVelocity);

@@ -14,5 +14,5 @@ internal sealed class FuneNamiheEntity(FuneNamiheBehavior species, RoomEnemySlot
     public EnemyMainAiHandler? FindMain() => FuneNamiheBehavior.RunFuneNamiheMainAi;
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => species.AdvanceFuneNamiheTypedAnimation;
+    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => species.AdvanceFuneNamiheTypedAnimation;
 }

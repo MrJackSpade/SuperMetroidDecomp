@@ -21,7 +21,7 @@ internal sealed class EnemyDrawList
     /// <summary>Supplies the shared enemy frame counter that phases the hit flash.</summary>
     private readonly EnemyFrameContext _frameContext;
     /// <summary>Shows a reached enemy's boss body frame before its picture is drawn.</summary>
-    private readonly EnemyInstructionInterpreter _instructions;
+    private readonly EnemyAnimationPlayer _instructions;
     /// <summary>Draws Mother Brain's late parts after the queued enemies.</summary>
     private readonly MotherBrainBehavior _motherBrainBehavior;
     /// <summary>Publishes each enemy's frame picture to the frame's sprites.</summary>
@@ -36,7 +36,7 @@ internal sealed class EnemyDrawList
     {
         _deadTorizoBehavior = dependencies.DeadTorizoBehavior;
         _frameContext = dependencies.FrameContext;
-        _instructions = dependencies.Instructions;
+        _instructions = dependencies.AnimationPlayer;
         _motherBrainBehavior = dependencies.MotherBrainBehavior;
         _presentation = dependencies.Presentation;
         _room = dependencies.Room;

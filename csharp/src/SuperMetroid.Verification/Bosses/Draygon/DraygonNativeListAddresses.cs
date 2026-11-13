@@ -19,54 +19,54 @@ internal static class DraygonNativeListAddresses
     /// <summary>Each typed program's native entry point in bank $A5, in authored order.</summary>
     internal static readonly DraygonNativeListAddressesEntry[] Entries =
     [
-        new DraygonNativeListAddressesEntry(DraygonProgram.Sleep, 0x97b9),
-        new DraygonNativeListAddressesEntry(DraygonProgram.BodyFacingLeftReset, 0x97bb),
-        new DraygonNativeListAddressesEntry(DraygonProgram.BodyFacingRightReset, 0x97d1),
-        new DraygonNativeListAddressesEntry(DraygonProgram.ArmsFacingLeftIdle, 0x97e7),
-        new DraygonNativeListAddressesEntry(DraygonProgram.ArmsFacingLeftNearSwoopApex, 0x9813),
-        new DraygonNativeListAddressesEntry(DraygonProgram.ArmsFacingLeftGrab, 0x9845),
-        new DraygonNativeListAddressesEntry(DraygonProgram.ArmsFacingLeftDying, 0x9867),
-        new DraygonNativeListAddressesEntry(DraygonProgram.BodyFacingLeftIdle, 0x9889),
-        new DraygonNativeListAddressesEntry(DraygonProgram.BodyDying, 0x989b),
-        new DraygonNativeListAddressesEntry(DraygonProgram.BodyDyingExplosions, 0x98a5),
-        new DraygonNativeListAddressesEntry(DraygonProgram.BodyDyingExplosionsLoop, 0x98bf),
-        new DraygonNativeListAddressesEntry(DraygonProgram.Delete, 0x98ed),
-        new DraygonNativeListAddressesEntry(DraygonProgram.BodyFacingLeftFireGoop, 0x98fe),
-        new DraygonNativeListAddressesEntry(DraygonProgram.BodyFacingLeftRoar, 0x9922),
-        new DraygonNativeListAddressesEntry(DraygonProgram.EyeFacingLeftIdle, 0x9944),
-        new DraygonNativeListAddressesEntry(DraygonProgram.EyeFacingLeftDying, 0x997a),
-        new DraygonNativeListAddressesEntry(DraygonProgram.EyeFacingLeftDyingLoop, 0x997e),
-        new DraygonNativeListAddressesEntry(DraygonProgram.EyeFacingLeftDead, 0x999c),
-        new DraygonNativeListAddressesEntry(DraygonProgram.EyeFacingLeftLookingLeft, 0x99ae),
-        new DraygonNativeListAddressesEntry(DraygonProgram.EyeFacingLeftLookingRight, 0x99b4),
-        new DraygonNativeListAddressesEntry(DraygonProgram.EyeFacingLeftLookingUp, 0x99ba),
-        new DraygonNativeListAddressesEntry(DraygonProgram.EyeFacingLeftLookingDown, 0x99c0),
-        new DraygonNativeListAddressesEntry(DraygonProgram.TailFacingLeftIdle, 0x99c6),
-        new DraygonNativeListAddressesEntry(DraygonProgram.TailFacingLeftInitialFakeWhip, 0x99fc),
-        new DraygonNativeListAddressesEntry(DraygonProgram.TailFacingLeftFinalWhips, 0x9a68),
-        new DraygonNativeListAddressesEntry(DraygonProgram.TailFacingLeftFinalWhipsLoop, 0x9a6c),
-        new DraygonNativeListAddressesEntry(DraygonProgram.TailFacingLeftWhip, 0x9ae8),
-        new DraygonNativeListAddressesEntry(DraygonProgram.TailFacingLeftFlail, 0x9b5a),
-        new DraygonNativeListAddressesEntry(DraygonProgram.ArmsFacingRightIdle, 0x9bda),
-        new DraygonNativeListAddressesEntry(DraygonProgram.ArmsFacingRightNearSwoopApex, 0x9c06),
-        new DraygonNativeListAddressesEntry(DraygonProgram.ArmsFacingRightGrab, 0x9c38),
-        new DraygonNativeListAddressesEntry(DraygonProgram.ArmsFacingRightDying, 0x9c5a),
-        new DraygonNativeListAddressesEntry(DraygonProgram.BodyFacingRightIdle, 0x9c7e),
-        new DraygonNativeListAddressesEntry(DraygonProgram.BodyFacingRightFireGoop, 0x9c90),
-        new DraygonNativeListAddressesEntry(DraygonProgram.BodyFacingRightRoar, 0x9cb4),
-        new DraygonNativeListAddressesEntry(DraygonProgram.EyeFacingRightIdle, 0x9cd6),
-        new DraygonNativeListAddressesEntry(DraygonProgram.EyeFacingRightDying, 0x9d1c),
-        new DraygonNativeListAddressesEntry(DraygonProgram.EyeFacingRightDyingLoop, 0x9d20),
-        new DraygonNativeListAddressesEntry(DraygonProgram.EyeFacingRightDead, 0x9d3e),
-        new DraygonNativeListAddressesEntry(DraygonProgram.EyeFacingRightLookingRight, 0x9d50),
-        new DraygonNativeListAddressesEntry(DraygonProgram.EyeFacingRightLookingLeft, 0x9d56),
-        new DraygonNativeListAddressesEntry(DraygonProgram.EyeFacingRightLookingUp, 0x9d5c),
-        new DraygonNativeListAddressesEntry(DraygonProgram.EyeFacingRightLookingDown, 0x9d62),
-        new DraygonNativeListAddressesEntry(DraygonProgram.TailFacingRightIdle, 0x9d68),
-        new DraygonNativeListAddressesEntry(DraygonProgram.TailFacingRightFinalWhips, 0x9e21),
-        new DraygonNativeListAddressesEntry(DraygonProgram.TailFacingRightFinalWhipsLoop, 0x9e25),
-        new DraygonNativeListAddressesEntry(DraygonProgram.TailFacingRightWhip, 0x9ea1),
-        new DraygonNativeListAddressesEntry(DraygonProgram.TailFacingRightFlail, 0x9f15),
+        new DraygonNativeListAddressesEntry(DraygonSegment.Sleep, 0x97b9),
+        new DraygonNativeListAddressesEntry(DraygonSegment.BodyFacingLeftReset, 0x97bb),
+        new DraygonNativeListAddressesEntry(DraygonSegment.BodyFacingRightReset, 0x97d1),
+        new DraygonNativeListAddressesEntry(DraygonSegment.ArmsFacingLeftIdle, 0x97e7),
+        new DraygonNativeListAddressesEntry(DraygonSegment.ArmsFacingLeftNearSwoopApex, 0x9813),
+        new DraygonNativeListAddressesEntry(DraygonSegment.ArmsFacingLeftGrab, 0x9845),
+        new DraygonNativeListAddressesEntry(DraygonSegment.ArmsFacingLeftDying, 0x9867),
+        new DraygonNativeListAddressesEntry(DraygonSegment.BodyFacingLeftIdle, 0x9889),
+        new DraygonNativeListAddressesEntry(DraygonSegment.BodyDying, 0x989b),
+        new DraygonNativeListAddressesEntry(DraygonSegment.BodyDyingExplosions, 0x98a5),
+        new DraygonNativeListAddressesEntry(DraygonSegment.BodyDyingExplosionsLoop, 0x98bf),
+        new DraygonNativeListAddressesEntry(DraygonSegment.Delete, 0x98ed),
+        new DraygonNativeListAddressesEntry(DraygonSegment.BodyFacingLeftFireGoop, 0x98fe),
+        new DraygonNativeListAddressesEntry(DraygonSegment.BodyFacingLeftRoar, 0x9922),
+        new DraygonNativeListAddressesEntry(DraygonSegment.EyeFacingLeftIdle, 0x9944),
+        new DraygonNativeListAddressesEntry(DraygonSegment.EyeFacingLeftDying, 0x997a),
+        new DraygonNativeListAddressesEntry(DraygonSegment.EyeFacingLeftDyingLoop, 0x997e),
+        new DraygonNativeListAddressesEntry(DraygonSegment.EyeFacingLeftDead, 0x999c),
+        new DraygonNativeListAddressesEntry(DraygonSegment.EyeFacingLeftLookingLeft, 0x99ae),
+        new DraygonNativeListAddressesEntry(DraygonSegment.EyeFacingLeftLookingRight, 0x99b4),
+        new DraygonNativeListAddressesEntry(DraygonSegment.EyeFacingLeftLookingUp, 0x99ba),
+        new DraygonNativeListAddressesEntry(DraygonSegment.EyeFacingLeftLookingDown, 0x99c0),
+        new DraygonNativeListAddressesEntry(DraygonSegment.TailFacingLeftIdle, 0x99c6),
+        new DraygonNativeListAddressesEntry(DraygonSegment.TailFacingLeftInitialFakeWhip, 0x99fc),
+        new DraygonNativeListAddressesEntry(DraygonSegment.TailFacingLeftFinalWhips, 0x9a68),
+        new DraygonNativeListAddressesEntry(DraygonSegment.TailFacingLeftFinalWhipsLoop, 0x9a6c),
+        new DraygonNativeListAddressesEntry(DraygonSegment.TailFacingLeftWhip, 0x9ae8),
+        new DraygonNativeListAddressesEntry(DraygonSegment.TailFacingLeftFlail, 0x9b5a),
+        new DraygonNativeListAddressesEntry(DraygonSegment.ArmsFacingRightIdle, 0x9bda),
+        new DraygonNativeListAddressesEntry(DraygonSegment.ArmsFacingRightNearSwoopApex, 0x9c06),
+        new DraygonNativeListAddressesEntry(DraygonSegment.ArmsFacingRightGrab, 0x9c38),
+        new DraygonNativeListAddressesEntry(DraygonSegment.ArmsFacingRightDying, 0x9c5a),
+        new DraygonNativeListAddressesEntry(DraygonSegment.BodyFacingRightIdle, 0x9c7e),
+        new DraygonNativeListAddressesEntry(DraygonSegment.BodyFacingRightFireGoop, 0x9c90),
+        new DraygonNativeListAddressesEntry(DraygonSegment.BodyFacingRightRoar, 0x9cb4),
+        new DraygonNativeListAddressesEntry(DraygonSegment.EyeFacingRightIdle, 0x9cd6),
+        new DraygonNativeListAddressesEntry(DraygonSegment.EyeFacingRightDying, 0x9d1c),
+        new DraygonNativeListAddressesEntry(DraygonSegment.EyeFacingRightDyingLoop, 0x9d20),
+        new DraygonNativeListAddressesEntry(DraygonSegment.EyeFacingRightDead, 0x9d3e),
+        new DraygonNativeListAddressesEntry(DraygonSegment.EyeFacingRightLookingRight, 0x9d50),
+        new DraygonNativeListAddressesEntry(DraygonSegment.EyeFacingRightLookingLeft, 0x9d56),
+        new DraygonNativeListAddressesEntry(DraygonSegment.EyeFacingRightLookingUp, 0x9d5c),
+        new DraygonNativeListAddressesEntry(DraygonSegment.EyeFacingRightLookingDown, 0x9d62),
+        new DraygonNativeListAddressesEntry(DraygonSegment.TailFacingRightIdle, 0x9d68),
+        new DraygonNativeListAddressesEntry(DraygonSegment.TailFacingRightFinalWhips, 0x9e21),
+        new DraygonNativeListAddressesEntry(DraygonSegment.TailFacingRightFinalWhipsLoop, 0x9e25),
+        new DraygonNativeListAddressesEntry(DraygonSegment.TailFacingRightWhip, 0x9ea1),
+        new DraygonNativeListAddressesEntry(DraygonSegment.TailFacingRightFlail, 0x9f15),
     ];
 
     /// <summary>The operand words each bank-$A5 Draygon callback takes.</summary>
@@ -90,11 +90,11 @@ internal static class DraygonNativeListAddresses
             : throw new InvalidDataException($"Draygon callback ${callback:X4} is not a known callback.");
 
     /// <summary>The program whose native list starts at <paramref name="address"/>, if one does.</summary>
-    internal static DraygonProgram? ProgramAt(ushort address) =>
-        Entries.Where(item => item.Entry == address).Select(item => (DraygonProgram?)item.Program).SingleOrDefault();
+    internal static DraygonSegment? ProgramAt(ushort address) =>
+        Entries.Where(item => item.Entry == address).Select(item => (DraygonSegment?)item.Program).SingleOrDefault();
 
     /// <summary>The native entry point of <paramref name="program"/>.</summary>
-    internal static ushort Entry(DraygonProgram program) => Entries.Single(item => item.Program == program).Entry;
+    internal static ushort Entry(DraygonSegment program) => Entries.Single(item => item.Program == program).Entry;
 
     /// <summary>Whether the native entries ascend, so the typed declaration order is the authored order.</summary>
     internal static bool EntriesAscend => Entries.Zip(Entries.Skip(1), (first, second) => first.Entry < second.Entry).All(ascends => ascends);
@@ -108,7 +108,7 @@ internal static class DraygonNativeListAddresses
     /// <summary>The cue a native callback with <paramref name="operands"/> must become.</summary>
     internal static DraygonCue CueOf(ushort callback, ushort[] operands) => callback switch
     {
-        0x94dd => new DraygonCue.StartPartPrograms(Program(operands[0]), Program(operands[1]), Program(operands[2]), Program(operands[3])),
+        0x94dd => new DraygonCue.StartPartAnimations(Program(operands[0]), Program(operands[1]), Program(operands[2]), Program(operands[3])),
         0xc47b => new DraygonCue.SetEyeFunction(DraygonNativeWords.EyeFunctions.Decode(operands[0], "Draygon eye function")),
         0x9736 => new DraygonCue.SetOwnEyeFunction(DraygonNativeWords.EyeFunctions.Decode(operands[0], "Draygon eye function")),
         0x9e0a => new DraygonCue.DisplaceBodyGraphics(new(unchecked((short)operands[0]), unchecked((short)operands[1]))),
@@ -128,17 +128,17 @@ internal static class DraygonNativeListAddresses
     };
 
     /// <summary>The program a callback operand names.</summary>
-    private static DraygonProgram Program(ushort address) =>
+    private static DraygonSegment Program(ushort address) =>
         ProgramAt(address) ?? throw new InvalidDataException($"Draygon list ${address:X4} is not a typed program.");
 
     /// <summary>Each typed projectile program's native entry point in bank $86.</summary>
     internal static readonly ProjectileEntry[] ProjectileEntries =
     [
-        new ProjectileEntry(DraygonProjectileProgram.GoopTouch, 0x8c38),
-        new ProjectileEntry(DraygonProjectileProgram.Goop, 0x8c3a),
-        new ProjectileEntry(DraygonProjectileProgram.GoopShot, 0x8c58),
-        new ProjectileEntry(DraygonProjectileProgram.WallTurretBloom, 0x8ca4),
-        new ProjectileEntry(DraygonProjectileProgram.WallTurretFlight, 0x8ce6),
+        new ProjectileEntry(DraygonProjectileSegment.GoopTouch, 0x8c38),
+        new ProjectileEntry(DraygonProjectileSegment.Goop, 0x8c3a),
+        new ProjectileEntry(DraygonProjectileSegment.GoopShot, 0x8c58),
+        new ProjectileEntry(DraygonProjectileSegment.WallTurretBloom, 0x8ca4),
+        new ProjectileEntry(DraygonProjectileSegment.WallTurretFlight, 0x8ce6),
     ];
 
     /// <summary>The bank-$86 callbacks the projectile lists use and the cue each must become.</summary>
@@ -151,8 +151,8 @@ internal static class DraygonNativeListAddresses
     };
 
     /// <summary>The projectile program whose native list starts at <paramref name="address"/>, if one does.</summary>
-    internal static DraygonProjectileProgram? ProjectileProgramAt(ushort address) =>
-        ProjectileEntries.Where(item => item.Entry == address).Select(item => (DraygonProjectileProgram?)item.Program).SingleOrDefault();
+    internal static DraygonProjectileSegment? ProjectileProgramAt(ushort address) =>
+        ProjectileEntries.Where(item => item.Entry == address).Select(item => (DraygonProjectileSegment?)item.Program).SingleOrDefault();
 
     /// <summary>Whether a bank-$86 word is the projectile goto.</summary>
     internal static bool IsProjectileGoTo(ushort word) => ProjectileGoTo.Contains(word);

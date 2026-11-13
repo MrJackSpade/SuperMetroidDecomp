@@ -41,9 +41,9 @@ internal sealed class OldTourianEscapeShaftWallBehavior
             projectile,
             RoomEnemyProjectileKind.OldTourianEscapeShaftFakeWallExplosion,
             graphics: default);
-        projectile.StartAnimation(new OldTourianWallExplosionAnimation(OldTourianWallExplosionProgram.Start));
-        projectile.Position = projectile.Position.WithWholeX(OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.XPosition);
-        projectile.Position = projectile.Position.WithWholeY(OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.YPosition);
+        projectile.StartAnimation(new OldTourianWallExplosionAnimation(OldTourianWallExplosionSegment.Start));
+        projectile.Position = projectile.Position.WithWholeX(OldTourianEscapeShaftWallExplosionAnimationDefinitions.XPosition);
+        projectile.Position = projectile.Position.WithWholeY(OldTourianEscapeShaftWallExplosionAnimationDefinitions.YPosition);
     }
 
 
@@ -60,12 +60,12 @@ internal sealed class OldTourianEscapeShaftWallBehavior
                 projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
                 break;
             case OldTourianWallExplosionCue.Scatter:
-                _projectiles.Scatter(projectile, OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.Scatter);
+                _projectiles.Scatter(projectile, OldTourianEscapeShaftWallExplosionAnimationDefinitions.Scatter);
                 break;
             case OldTourianWallExplosionCue.ExplosionSound:
                 _audio.QueueEnemySound(
-                    OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.ExplosionSound,
-                    OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.ExplosionSoundPriority);
+                    OldTourianEscapeShaftWallExplosionAnimationDefinitions.ExplosionSound,
+                    OldTourianEscapeShaftWallExplosionAnimationDefinitions.ExplosionSoundPriority);
                 break;
             case OldTourianWallExplosionCue.Delete:
                 projectile.Delete();

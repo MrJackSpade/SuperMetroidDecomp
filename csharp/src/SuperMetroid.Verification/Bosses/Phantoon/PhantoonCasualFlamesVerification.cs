@@ -62,8 +62,8 @@ internal static class PhantoonCasualFlamesVerification
             for (int frame = 0; frame < 2048; frame++)
             {
                 // The mouth rests closed before each update; only the casual trigger installs its flame-spitting animation.
-                state.PartPlayback(mouth) = PhantoonEnemyState.Starting(PhantoonPartProgram.MouthInitial);
-                mouth.FrameHold = WrappingCountdown.Start(0);
+                state.PartPlayback(mouth) = PhantoonEnemyState.Starting(PhantoonPartSegment.MouthInitial);
+                mouth.AnimationClock.HoldFor(0);
                 bool draw = false;
                 timer = WrappingCounter.Decrement(timer).Value;
                 if ((short)timer <= 0)
@@ -91,9 +91,9 @@ internal static class PhantoonCasualFlamesVerification
                 // mouth holds as no count (#1627).
                 AssertEqual(unchecked((short)count) < 0 ? null : (int?)unchecked((short)count), state.MouthState.CasualFlameCount,
                     "Actual casual frame remaining count");
-                AssertEqual(PhantoonEnemyState.Starting(draw ? PhantoonPartProgram.MouthSpawnFlame : PhantoonPartProgram.MouthInitial), state.PartPlayback(mouth),
+                AssertEqual(PhantoonEnemyState.Starting(draw ? PhantoonPartSegment.MouthSpawnFlame : PhantoonPartSegment.MouthInitial), state.PartPlayback(mouth),
                     "Exact casual mouth animation trigger frame");
-                AssertEqual(draw ? (ushort)1 : (ushort)0, mouth.FrameHold.RawValue, "Exact casual instruction timer reset");
+                AssertEqual(draw ? (ushort)1 : (ushort)0, mouth.AnimationClock.Hold.RawValue, "Exact casual instruction timer reset");
             }
         }
         Console.WriteLine("Phantoon casual schedules: 30 native words, 65536 RNG selections and 8192 frame-exact mouth transitions match without a bus.");

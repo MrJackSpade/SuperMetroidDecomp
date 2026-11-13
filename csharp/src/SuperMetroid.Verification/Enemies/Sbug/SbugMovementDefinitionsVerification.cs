@@ -31,7 +31,7 @@ internal static class SbugMovementDefinitionsVerification
             int address = instructionTable + facing * 2;
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             AssertEqual(native, NativeEnemyAnimationOracle.EntryOf(SbugNativeListAddresses.Entries,
-                    SbugMovement.FacingProgram(SbugMovementDefinitions.Facings.InTurnOrder[facing])),
+                    SbugMovement.FacingAnimation(SbugMovementDefinitions.Facings.InTurnOrder[facing])),
                 $"compiled Sbug facing selector {facing}");
         }
 
@@ -60,7 +60,7 @@ internal static class SbugMovementDefinitionsVerification
             SbugEnemyState state = (enemies.SbugStates[0] ?? throw new InvalidOperationException("Verification requires enemies.SbugStates[0]."));
             AssertEqual(SbugMovementDefinitions.Facings.InTurnOrder[selector], state.ForwardFacing,
                 $"Sbug production facing {selector}");
-            AssertEqual(new AnimationPlayback<SbugProgram>(SbugAnimations.StartingWith(SbugMovement.FacingProgram(state.ForwardFacing)), AnimationPlace.StartOfAnimation), state.Playback,
+            AssertEqual(new AnimationPlayback<SbugSegment>(SbugAnimations.StartingWith(SbugMovement.FacingAnimation(state.ForwardFacing)), AnimationPlace.StartOfAnimation), state.Playback,
                 $"Sbug production facing animation {selector}");
             AssertEqual(native, NativeEnemyAnimationOracle.EntryOf(SbugNativeListAddresses.Entries, state.Playback.Animation.Phases[0].Segment),
                 $"Sbug production facing list {selector}");
@@ -125,7 +125,7 @@ internal static class SbugMovementDefinitionsVerification
         state.StraightMovementTimer = WrappingCountdown.Start(512);
         enemies.SbugBehavior.RunSbugMain(slot, samus, null);
         AssertEqual(SbugFacing.UpRight, state.CustomFacing, "the reversal folds down-right into up-right");
-        AssertEqual(new AnimationPlayback<SbugProgram>(SbugAnimations.StartingWith(SbugMovement.FacingProgram(SbugFacing.UpRight)), AnimationPlace.StartOfAnimation), state.Playback,
+        AssertEqual(new AnimationPlayback<SbugSegment>(SbugAnimations.StartingWith(SbugMovement.FacingAnimation(SbugFacing.UpRight)), AnimationPlace.StartOfAnimation), state.Playback,
             "the folded facing installs its loop");
 
         // Every random turn, less a quarter turn, carries around the turn and keeps the heading's fraction.

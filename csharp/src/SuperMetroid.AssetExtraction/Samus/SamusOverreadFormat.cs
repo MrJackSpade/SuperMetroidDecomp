@@ -15,9 +15,10 @@ internal static class SamusOverreadFormat
     /// renamed identities and holds no entry for a record no gameplay path reaches (#1517); revision thirteen adds the step
     /// the animation reads at each place of a program that lands on an instruction's operand (#1535); revision fourteen
     /// holds no Chozo orbs, which nothing in the game reads (#1553); revision fifteen holds no trail start past a placement
-    /// list, which leaves no trail (#1625).
+    /// list, which leaves no trail (#1625); revision sixteen holds no waits below the charge flare's animations, which no
+    /// runtime reaches (#1624).
     /// </summary>
-    internal const int Version = 15;
+    internal const int Version = 16;
     /// <summary>JSON filename holding the decoded over-read results.</summary>
     internal const string FileName = "samus-overreads.json";
     /// <summary>Manifest filename recording the overread file's cartridge identity and digest.</summary>

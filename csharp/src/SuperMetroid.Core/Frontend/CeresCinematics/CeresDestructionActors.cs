@@ -56,12 +56,12 @@ internal static class CeresDestructionActors
         };
         return index switch
         {
-            0 => new(                flight.ActiveFrameBehavior, CinematicSpriteProgram.CeresDestructionLargeAsteroid, flight.Colouring,
+            0 => new(                flight.ActiveFrameBehavior, CinematicSpriteSegment.CeresDestructionLargeAsteroid, flight.Colouring,
                 flight.HorizontalDelta, flight.WrapX, SignedEightEight.Zero, null, false),
-            1 => new(                flight.ActiveFrameBehavior, flight.Program,
+            1 => new(                flight.ActiveFrameBehavior, flight.Animation,
                 flight.Colouring, flight.HorizontalDelta, flight.WrapX, SignedEightEight.Zero, null, false),
             // Parameter zero makes the vortex's setup replace its moving callback with the no-op.
-            2 => new(                CinematicSpriteFrameBehavior.CeresStationaryVortexNoOp, flight.Program, flight.Colouring,
+            2 => new(                CinematicSpriteFrameBehavior.CeresStationaryVortexNoOp, flight.Animation, flight.Colouring,
                 SignedSixteenSixteen.Zero, false, SignedEightEight.Zero, null, false),
             _ => throw new InvalidOperationException("Validated Ceres actor index became invalid."),
         };

@@ -14,7 +14,7 @@ internal sealed class MetroidEntity(MetroidBehavior species, RoomEnemySlot slot,
     public EnemyMainAiHandler? FindMain() => species.RunMetroidMainAi;
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => species.AdvanceMetroidTypedAnimation;
+    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => species.AdvanceMetroidTypedAnimation;
 
     /// <summary>The Metroid's own shot reaction, which normal bombs dispatch like the common one.</summary>
     /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>

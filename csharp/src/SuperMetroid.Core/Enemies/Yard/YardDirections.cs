@@ -19,8 +19,8 @@ internal static class YardDirections
 
     /// <summary>The visible and hidden airborne animations of <paramref name="facing"/>.</summary>
     /// <exception cref="InvalidDataException"><paramref name="facing"/> is neither facing.</exception>
-    internal static YardAirborneInstructionDefinition ForAirborneFacing(YardAirborneFacing facing) =>
-        YardDirectionDefinitions.AirborneFacings.TryGetValue(facing, out YardAirborneInstructionDefinition airborne)
+    internal static YardAirborneAnimationDefinition ForAirborneFacing(YardAirborneFacing facing) =>
+        YardDirectionDefinitions.AirborneFacings.TryGetValue(facing, out YardAirborneAnimationDefinition airborne)
             ? airborne
             : throw new InvalidDataException(
                 $"Yard airborne facing {facing} exceeds its two airborne facings.");

@@ -5,13 +5,13 @@ namespace SuperMetroid.Core.Enemies.Waver;
 public sealed class WaverEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<WaverProgram> Playback { get; set; }
+    internal AnimationPlayback<WaverSegment> Playback { get; set; }
 
     /// <summary>Signed 16.16 horizontal displacement per update, one and a half pixels either way; a wall negates it.</summary>
     public SignedSixteenSixteen XVelocity { get; internal set; }
 
     /// <summary>The animation currently installed; a request for it installs nothing.</summary>
-    internal WaverProgram InstalledAnimation { get; set; }
+    internal WaverSegment InstalledAnimation { get; set; }
 
     /// <summary>
     /// The vertical wave's phase; only its table index is read, so it wraps after a full turn. It advances two table
@@ -23,7 +23,7 @@ public sealed class WaverEnemyState
     public bool SpinFinished { get; internal set; }
 
     /// <summary>The animation main AI asks for: steady or spinning, facing left or right.</summary>
-    internal WaverProgram RequestedAnimation { get; set; }
+    internal WaverSegment RequestedAnimation { get; set; }
 
     /// <summary>Advances the wave phase two table units, wrapping after a full turn.</summary>
     internal void AdvanceWave() => Angle = Angle.TurnedBySteps(2);

@@ -20,5 +20,5 @@ internal sealed class PipeBugsEntity(PipeBugsBehavior species, RoomEnemySlot slo
     public EnemyMainAiHandler? FindMain() => species.RunPipeBugsMainAi;
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => PipeBugsBehavior.AdvancePipeBugsTypedAnimation;
+    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => PipeBugsBehavior.AdvancePipeBugsTypedAnimation;
 }

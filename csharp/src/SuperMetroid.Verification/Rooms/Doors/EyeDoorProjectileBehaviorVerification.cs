@@ -31,15 +31,15 @@ internal static class EyeDoorProjectileBehaviorVerification
         EnemyProjectile shot = enemies.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.EyeDoorProjectile);
         shot.Position = shot.Position.WithWhole(new(64, 32));
-        AssertTrue(shot.Animation is EyeDoorProjectileAnimation { PlayingSegment: EyeDoorProjectileProgram.Initial }, "the shot starts its flight");
+        AssertTrue(shot.Animation is EyeDoorProjectileAnimation { PlayingSegment: EyeDoorProjectileSegment.Initial }, "the shot starts its flight");
         (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, shot,
-            EyeDoorProjectileNativeListAddresses.Entry(EyeDoorProjectileProgram.Initial), 60, "eye-door flight");
+            EyeDoorProjectileNativeListAddresses.Entry(EyeDoorProjectileSegment.Initial), 60, "eye-door flight");
         AssertTrue(!deleted, "the flight loops");
         AssertTrue(shot.Velocity.X.RawValue != 0 || shot.Velocity.Y.RawValue != 0, "the aim cue launches the shot toward Samus");
 
-        shot.StartAnimation(new EyeDoorProjectileAnimation(EyeDoorProjectileProgram.Impact));
+        shot.StartAnimation(new EyeDoorProjectileAnimation(EyeDoorProjectileSegment.Impact));
         (deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, shot,
-            EyeDoorProjectileNativeListAddresses.Entry(EyeDoorProjectileProgram.Impact), 30, "eye-door impact");
+            EyeDoorProjectileNativeListAddresses.Entry(EyeDoorProjectileSegment.Impact), 30, "eye-door impact");
         AssertTrue(deleted, "the impact deletes the shot");
         AssertEqual(0, guard.ForbiddenReadAttempts, "production reads none of the shot's native list bytes");
         Console.WriteLine("  Eye-door shot behavior: the aimed flight loop and the impact match their native lists.");

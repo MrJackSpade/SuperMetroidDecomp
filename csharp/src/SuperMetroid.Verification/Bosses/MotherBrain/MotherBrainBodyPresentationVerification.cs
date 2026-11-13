@@ -35,7 +35,7 @@ internal static class MotherBrainBodyPresentationVerification
         EnemyExtendedFrameDocument stockOam = BodyOam();
         EnemyBg2FrameDocument stockBg2 = BodyBg2();
         var baseline = new MotherBrainPresentationFixture(Build(stockOam, stockBg2));
-        var physicalFrames = Enum.GetValues<MotherBrainBodyProgram>()
+        var physicalFrames = Enum.GetValues<MotherBrainBodySegment>()
             .SelectMany(program => MotherBrainAnimations.BodySegments.Beats(program))
             .OfType<AnimationBeat<MotherBrainBodyFrame, MotherBrainBodyCue>.Frame>()
             .Select(beat => MotherBrainBodyVisualDefinitionsConstants.Frame(beat.Shown.Index).Pointer).ToHashSet();
@@ -56,8 +56,8 @@ internal static class MotherBrainBodyPresentationVerification
                 "repeat OAM draws do not rewrite BG2 without the native new-frame bit");
         }
         int steps = 0;
-        foreach (MotherBrainBodyProgram program in new[] { MotherBrainBodyProgram.WalkForwardMedium,
-                     MotherBrainBodyProgram.WalkBackwardFast, MotherBrainBodyProgram.CrouchSlow })
+        foreach (MotherBrainBodySegment program in new[] { MotherBrainBodySegment.WalkForwardMedium,
+                     MotherBrainBodySegment.WalkBackwardFast, MotherBrainBodySegment.CrouchSlow })
         {
             baseline.SetProgram(program);
             for (int frame = 0; frame < 100; frame++, steps++)

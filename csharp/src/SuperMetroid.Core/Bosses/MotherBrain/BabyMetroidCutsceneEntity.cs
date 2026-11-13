@@ -16,5 +16,5 @@ internal sealed class BabyMetroidCutsceneEntity(BabyMetroidCutsceneBehavior spec
     public EnemyMainAiHandler? FindMain() => species.RunBabyMetroidCutsceneMainAi;
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => (enemy, _) => species.AdvanceBabyMetroidCutsceneAnimation(enemy);
+    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => (enemy, _) => species.AdvanceBabyMetroidCutsceneAnimation(enemy);
 }

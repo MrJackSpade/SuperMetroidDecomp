@@ -20,7 +20,7 @@ public static class TourianEscapeRedFlashPaletteFxColorDefinitions
             Object = PaletteFxObject.TourianShutterRedFlashing,
             Duration = 2,
             ColorsPerFrame = 6,
-            ColorFrames = PaletteFxColorFrames.Of(PaletteFxProgram.TourianShutterRedFlashingCycle, 6),
+            ColorFrames = PaletteFxColorFrames.Of(PaletteFxSegment.TourianShutterRedFlashingCycle, 6),
         },
         new()
         {
@@ -28,7 +28,7 @@ public static class TourianEscapeRedFlashPaletteFxColorDefinitions
             Object = PaletteFxObject.TourianBackgroundRedFlashing,
             Duration = 4,
             ColorsPerFrame = 4,
-            ColorFrames = PaletteFxColorFrames.Of(PaletteFxProgram.TourianBackgroundRedFlashingCycle, 4),
+            ColorFrames = PaletteFxColorFrames.Of(PaletteFxSegment.TourianBackgroundRedFlashingCycle, 4),
         },
     ];
 

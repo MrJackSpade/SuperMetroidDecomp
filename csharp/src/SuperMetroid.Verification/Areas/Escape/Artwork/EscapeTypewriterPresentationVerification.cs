@@ -26,10 +26,10 @@ internal static class EscapeTypewriterPresentationVerification
             new MemoryStream(extracted, writable: false));
 
         int comparedFrames = 0;
-        foreach (EscapeTypewriterProgramId id in new[]
-            { EscapeTypewriterProgramId.Ceres, EscapeTypewriterProgramId.Zebes })
+        foreach (EscapeTypewriterMessageId id in new[]
+            { EscapeTypewriterMessageId.Ceres, EscapeTypewriterMessageId.Zebes })
         {
-            EscapeTypewriterProgram program = presentation.Get(id);
+            EscapeTypewriterMessage program = presentation.Get(id);
             // The installed program runs to completion without any cartridge text read;
             // extraction copied its stream from the ROM at program.SourceAddress.
             var installed = new EscapeTypewriterState(program);
@@ -44,19 +44,19 @@ internal static class EscapeTypewriterPresentationVerification
         }
 
         var saved = new EscapeTypewriterState(
-            presentation.Get(EscapeTypewriterProgramId.Zebes));
+            presentation.Get(EscapeTypewriterMessageId.Zebes));
         var savedVram = new SnesVram();
         saved.StepInto(savedVram);
         // A debugger state names the bound warning text by its path in the installed presentation.
         var restored = GraphDigestVerification.RoundTrip(saved, presentation);
-        AssertEqual(EscapeTypewriterProgramId.Zebes, restored.ProgramId,
+        AssertEqual(EscapeTypewriterMessageId.Zebes, restored.MessageId,
             "debugger state retains compiled escape program identity");
         restored.StepInto(savedVram);
         AssertEqual((ushort)(EscapeTypewriterTileDefinitions.ZebesTileBase.PackedWord + 'I' - 'A'),
             savedVram.ReadWord(0x106), "restored escape text resumes at its saved character");
 
         JsonObject malformedDocument = RequiredJson.Parse(extracted).AsObject();
-        malformedDocument.Required("programs").Required(EscapeTypewriterProgramId.Zebes.ToString())
+        malformedDocument.Required("programs").Required(EscapeTypewriterMessageId.Zebes.ToString())
             .Required("lines").Required(0)["text"] = "test!";
         byte[] malformed = Encoding.UTF8.GetBytes(malformedDocument.ToJsonString(ArtworkJson.Options));
         AssertThrows<InvalidDataException>(() => EscapeTypewriterPresentationFile.Load(

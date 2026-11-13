@@ -63,7 +63,7 @@ internal static class DeadTorizoArtworkVerification
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         // The typed oracle ties the pose to its native list; the export must publish the pose the program shows.
-        ushort nativePointer = DeadTorizoAnimationsConstants.Spritemaps(DeadTorizoProgram.Stationary).Single();
+        ushort nativePointer = DeadTorizoAnimationsConstants.Spritemaps(DeadTorizoSegment.Stationary).Single();
         AssertEqual(DeadTorizoArtworkDefinitionsConstants.StationarySpritemap, nativePointer,
             "Dead Torizo stationary export is the pose its program shows");
         AssertTrue((stock.Spritemaps ?? throw new InvalidOperationException("Verification requires stock.Spritemaps.")).TryGetDisplay(

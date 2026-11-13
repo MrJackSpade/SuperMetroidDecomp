@@ -14,14 +14,14 @@ internal static class SkulteraNativeListAddresses
     internal const byte Bank = 0xa3;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<SkulteraProgram>[] Entries =
+    internal static readonly NativeProgramEntry<SkulteraSegment>[] Entries =
     [
-        new NativeProgramEntry<SkulteraProgram>(SkulteraProgram.SwimmingLeft, 0x902a),
-        new NativeProgramEntry<SkulteraProgram>(SkulteraProgram.SwimmingLeftLoop, 0x902c),
-        new NativeProgramEntry<SkulteraProgram>(SkulteraProgram.TurningRight, 0x903c),
-        new NativeProgramEntry<SkulteraProgram>(SkulteraProgram.SwimmingRight, 0x9060),
-        new NativeProgramEntry<SkulteraProgram>(SkulteraProgram.SwimmingRightLoop, 0x9062),
-        new NativeProgramEntry<SkulteraProgram>(SkulteraProgram.TurningLeft, 0x9072),
+        new NativeProgramEntry<SkulteraSegment>(SkulteraSegment.SwimmingLeft, 0x902a),
+        new NativeProgramEntry<SkulteraSegment>(SkulteraSegment.SwimmingLeftLoop, 0x902c),
+        new NativeProgramEntry<SkulteraSegment>(SkulteraSegment.TurningRight, 0x903c),
+        new NativeProgramEntry<SkulteraSegment>(SkulteraSegment.SwimmingRight, 0x9060),
+        new NativeProgramEntry<SkulteraSegment>(SkulteraSegment.SwimmingRightLoop, 0x9062),
+        new NativeProgramEntry<SkulteraSegment>(SkulteraSegment.TurningLeft, 0x9072),
     ];
 
     /// <summary>

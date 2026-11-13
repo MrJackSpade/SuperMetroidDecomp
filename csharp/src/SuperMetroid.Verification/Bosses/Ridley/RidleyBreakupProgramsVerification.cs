@@ -30,7 +30,7 @@ internal static class RidleyBreakupProgramsVerification
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => 1;
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?> death = enemies.RidleyBehavior.Death.TickNorfairRidleyDeathExplosions;
-        var process = new Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, ControllerButton>(EnemyInstructionInterpreter.RunsAnimationScript);
+        var process = new Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, ControllerButton>(EnemyAnimationPlayer.AdvanceAnimation);
         var body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.Ridley, body.Definition);
         var state = new RidleyEnemyState
@@ -64,7 +64,7 @@ internal static class RidleyBreakupProgramsVerification
             var fragment = fragments[0];
             RidleyExplosionFragmentState fragmentState = fragment.RequireSpeciesState<RidleyExplosionFragmentState>();
             fragmentState.Playback = new AnimationPlayback<RidleyBreakupFrame>(RidleyBreakupAnimations.StartingWith(frame), AnimationPlace.StartOfAnimation);
-            fragment.FrameHold = WrappingCountdown.Start(1);
+            fragment.AnimationClock.StepOnNextUpdate();
             process(fragment, null, null, Position16<RoomPixels>.Zero, 0);
             AssertEqual(expectedPointer, fragment.SpritemapPointer, "breakup selects native sprite");
             process(fragment, null, null, Position16<RoomPixels>.Zero, 0);
@@ -90,7 +90,7 @@ internal static class RidleyBreakupProgramsVerification
         AssertEqual(deathX, explosion.Position.X.Whole, "fragment death effect retains final X");
         AssertEqual(deathY, explosion.Position.Y.Whole, "fragment death effect retains final Y");
         AssertEqual(EnemyDefinitionId.RidleyExplosion, explosion.DropDefinitionId, "fragment drop retains native header");
-        AssertEqual(EnemyDeathProjectileProgram.SmallExplosion,
+        AssertEqual(EnemyDeathProjectileSegment.SmallExplosion,
             ProgramOf(explosion), "fragment expiry selects native small death animation");
         AssertEqual(1, enemies.RoomStatus.EnemiesKilled, "fragment death updates shared kill count");
         Console.WriteLine("Ridley breakup: death while grabbing releases Samus and runs all twelve fragment programs without cartridge access.");

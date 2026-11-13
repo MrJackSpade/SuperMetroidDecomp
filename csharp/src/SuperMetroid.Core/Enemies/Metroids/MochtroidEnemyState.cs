@@ -16,10 +16,10 @@ public sealed class MochtroidEnemyState
     public MochtroidMovementMode MovementMode { get; internal set; }
 
     /// <summary>Parallel value used by the animation change detector: the installed animation, or none for the cleared value.</summary>
-    internal MochtroidProgram? InstalledProgram { get; set; }
+    internal MochtroidSegment? InstalledAnimation { get; set; }
 
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<MochtroidProgram> Playback { get; set; }
+    internal AnimationPlayback<MochtroidSegment> Playback { get; set; }
 
     /// <summary>
     /// Attached updates counted since the last contact damage, 0 through 65535: contact damage occurs once the count,

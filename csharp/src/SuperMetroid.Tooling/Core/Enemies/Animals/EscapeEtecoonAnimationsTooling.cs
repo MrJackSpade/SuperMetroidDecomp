@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Animals;
 internal static class EscapeEtecoonAnimationsTooling
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params EscapeEtecoonProgram[] programs) =>
+    internal static IEnumerable<ushort> Spritemaps(params EscapeEtecoonSegment[] programs) =>
         programs.SelectMany(program => EscapeEtecoonAnimations.Segments.Beats(program))
             .OfType<AnimationBeat<EnemyFrameId, EscapeEtecoonCue>.Frame>()
             .Select(frame => EscapeEtecoonFrameToolingDefinitions.Spritemap(frame.Shown));

@@ -74,7 +74,7 @@ internal sealed class KraidDeath
                 return;
 
             case KraidAiFunction.DeathFadeOut:
-                _ = _head.ProcessKraidHeadInstruction(state);
+                _ = _head.AdvanceKraidHeadAnimation(state);
                 if (_background.AdvanceKraidRoomBackgroundFade(fade: KraidBackdropFade.ToBlack))
                 {
                     state.BodyState.Function = KraidAiFunction.DeathShowUpperBody;
@@ -85,7 +85,7 @@ internal sealed class KraidDeath
                 return;
 
             case KraidAiFunction.DeathShowUpperBody:
-                _ = _head.ProcessKraidHeadInstruction(state);
+                _ = _head.AdvanceKraidHeadAnimation(state);
                 state.BodyState.Function = KraidAiFunction.DeathShowLowerBody;
                 foreach (RoomEnemySlot lint in _parts.Lints)
                 {
@@ -96,13 +96,13 @@ internal sealed class KraidDeath
                 return;
 
             case KraidAiFunction.DeathShowLowerBody:
-                _ = _head.ProcessKraidHeadInstruction(state);
+                _ = _head.AdvanceKraidHeadAnimation(state);
                 state.BodyState.Function = KraidAiFunction.DeathSink;
                 state.DeathSoundTimer = 43;
                 body.Contact = body.Contact.With(EnemyContact.SolidToSamus);
                 _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), 256);
-                _access.StartKraidPartProgram(_parts.Arm, KraidPartProgram.ArmRisingOrSinking);
-                _access.StartKraidPartProgram(_parts.Foot, KraidPartProgram.FootInitial);
+                _access.StartKraidPartAnimation(_parts.Arm, KraidPartSegment.ArmRisingOrSinking);
+                _access.StartKraidPartAnimation(_parts.Foot, KraidPartSegment.FootInitial);
                 state.FootState.Function = KraidAiFunction.NoOperation;
                 return;
 
@@ -173,7 +173,7 @@ internal sealed class KraidDeath
             case KraidAiFunction.HandleFunctionTimer:
             case KraidAiFunction.DecrementFunctionTimerAndStartWalk:
             case KraidAiFunction.FootFirstPhaseThinking:
-            case KraidAiFunction.ProcessHeadInstructionAndTimer:
+            case KraidAiFunction.AdvanceHeadAnimationAndTimer:
             case KraidAiFunction.FootSecondPhaseThinking:
             case KraidAiFunction.FootSecondPhaseWalkingRight:
             case KraidAiFunction.FootSecondPhaseWalkToStart:
@@ -215,7 +215,7 @@ internal sealed class KraidDeath
         if (state.HurtFrame != 0)
             return;
         state.Colours.ShowDeathArm();
-        _access.StartKraidPartProgram(_parts.Arm, KraidPartProgram.ArmDyingOrPreparingToLunge);
+        _access.StartKraidPartAnimation(_parts.Arm, KraidPartSegment.ArmDyingOrPreparingToLunge);
         state.BodyState.Function = KraidAiFunction.DeathFadeOut;
         state.HeadPlayback = KraidHeadAnimations.DeathAfterEntryFrame;
         state.BodyState.HeadTimer = KraidHeadAnimations.DeathEntryDuration;
@@ -236,7 +236,7 @@ internal sealed class KraidDeath
     /// <summary>Moves the body downward through the authored sink sequence.</summary>
     private void RunKraidDeathSink(RoomEnemySlot body, KraidEnemyState state)
     {
-        _ = _head.ProcessKraidHeadInstruction(state);
+        _ = _head.AdvanceKraidHeadAnimation(state);
         if (--state.DeathSoundTimer == 0)
         {
             _access.RequestKraidSound(KraidSoundDefinitions.RockSpit);
@@ -254,7 +254,7 @@ internal sealed class KraidDeath
         // The lints and the foot take the arm's new properties, no longer solid and without animation or off-screen
         // processing.
         EnemyContact otherContact = arm.Contact.Without(EnemyContact.SolidToSamus);
-        EnemyProcessing otherProcessing = arm.Processing.Without(EnemyProcessing.AnimationScript | EnemyProcessing.OffScreen);
+        EnemyProcessing otherProcessing = arm.Processing.Without(EnemyProcessing.Animates | EnemyProcessing.OffScreen);
         foreach (RoomEnemySlot lint in _parts.Lints)
         {
             lint.Contact = otherContact;

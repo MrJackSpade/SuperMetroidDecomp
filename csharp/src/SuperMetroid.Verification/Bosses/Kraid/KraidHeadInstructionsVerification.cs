@@ -26,7 +26,7 @@ internal static class KraidHeadInstructionsVerification
         Suite(nameof(VerifyTimerAndGrowthConsumers), () => VerifyTimerAndGrowthConsumers(rom));
 
         var unstarted = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = InstalledFixtures.BossArtwork };
-        Func<KraidEnemyState, KraidHeadProgramResult> run = unstarted.KraidBehavior.Head.ExecuteKraidHeadInstruction;
+        Func<KraidEnemyState, KraidHeadAnimationResult> run = unstarted.KraidBehavior.Head.RunKraidHeadAnimationStep;
         AssertThrows<InvalidDataException>(() => run(new KraidEnemyState()),
             "an unstarted Kraid head program fails loudly, as an unset native cursor did");
 
@@ -43,14 +43,14 @@ internal static class KraidHeadInstructionsVerification
             var guard = new KraidHeadProgramReadGuard(rom);
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = InstalledFixtures.BossArtwork };
             enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
-            Func<KraidEnemyState, KraidHeadProgramResult> execute = enemies.KraidBehavior.Head.ExecuteKraidHeadInstruction;
+            Func<KraidEnemyState, KraidHeadAnimationResult> execute = enemies.KraidBehavior.Head.RunKraidHeadAnimationStep;
             RoomEnemySlot body = enemies.SlotTable.Slots[0];
             var state = new KraidEnemyState { HeadPlayback = record.Playback };
 
-            KraidHeadProgramResult result = execute(state);
+            KraidHeadAnimationResult result = execute(state);
             if (record.IsTerminator)
             {
-                AssertEqual(KraidHeadProgramResult.ProgramEnded, result, $"Kraid terminator ${record.Pointer:X4} result");
+                AssertEqual(KraidHeadAnimationResult.AnimationEnded, result, $"Kraid terminator ${record.Pointer:X4} result");
                 AssertEqual(record.Playback, state.HeadPlayback, $"Kraid terminator ${record.Pointer:X4} keeps its holding place");
             }
             else
@@ -59,7 +59,7 @@ internal static class KraidHeadInstructionsVerification
                 KraidHeadNativeRecord displayed = record.IsPose
                     ? record
                     : native.RecordAt(native.PlaybackAt(unchecked((ushort)(record.Pointer + 2))));
-                AssertEqual(KraidHeadProgramResult.PoseShown, result, $"Kraid command ${record.Pointer:X4} reaches timed frame");
+                AssertEqual(KraidHeadAnimationResult.PoseShown, result, $"Kraid command ${record.Pointer:X4} reaches timed frame");
                 AssertEqual(displayed.Opcode, state.BodyState.HeadTimer, $"Kraid command ${record.Pointer:X4} installs duration");
                 KraidHeadFrame shown = state.DisplayedHeadFrame
                     ?? throw new InvalidOperationException("Verification requires a displayed Kraid head pose.");

@@ -152,7 +152,7 @@ internal static class AttractDemoSceneVerification
                 reference.Step(gameState, movement);
                 compiled.StepStock(gameState, movement);
                 AssertEqual(reference.Script.Snapshot(), NativeDemoInputReference.Of(compiled.Script, DemoInputNativeListAddresses.WatchAddress(compiled.Watch)),
-                    $"compiled attract {scene.Input.Program}, leave {leaveFrame}, frame {frame}");
+                    $"compiled attract {scene.Input.Animation}, leave {leaveFrame}, frame {frame}");
             }
         }
     }

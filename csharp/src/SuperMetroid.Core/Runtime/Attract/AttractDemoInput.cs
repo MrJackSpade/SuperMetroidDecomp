@@ -22,7 +22,7 @@ public sealed class AttractDemoInput
     {
         Ensure.NotNull(scene);
         Watch = scene.Input.FirstWatch;
-        Script.Load(scene.Input.Program);
+        Script.Load(scene.Input.Animation);
         Script.Enable();
     }
 

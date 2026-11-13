@@ -1,10 +1,10 @@
 namespace SuperMetroid.Core.Rooms.Doors;
 
-/// <summary>Verification access to <see cref="DoorScrollPrograms"/> members production does not use.</summary>
+/// <summary>Verification access to <see cref="DoorScrollChanges"/> members production does not use.</summary>
 internal static class DoorScrollProgramsAccess
 {
     /// <summary>Enumerates the door setup codes that own scroll-change programs.</summary>
-    extension(DoorScrollPrograms)
+    extension(DoorScrollChanges)
     {
         /// <summary>Original callback catalog order, generated without a stored registration table.</summary>
         internal static IEnumerable<DoorSetupCode> Pointers

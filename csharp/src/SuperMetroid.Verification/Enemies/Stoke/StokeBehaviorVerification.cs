@@ -19,10 +19,10 @@ internal static class StokeBehaviorVerification
     /// </summary>
     internal static void VerifyStokeBehavior()
     {
-        foreach ((StokeDirection direction, StokeProgram walk, StokeProgram loop, StokeProgram attack, StokeAiFunction function, ushort fireball) in new[]
+        foreach ((StokeDirection direction, StokeSegment walk, StokeSegment loop, StokeSegment attack, StokeAiFunction function, ushort fireball) in new[]
                  {
-                     new VerifyStokeBehaviorCase(StokeDirection.Left, StokeProgram.MovingLeft, StokeProgram.MovingLeftLoop, StokeProgram.AttackingLeft, StokeAiFunction.Moving, 0),
-                     new VerifyStokeBehaviorCase(StokeDirection.Right, StokeProgram.MovingRight, StokeProgram.MovingRightLoop, StokeProgram.AttackingRight, StokeAiFunction.Moving, 1),
+                     new VerifyStokeBehaviorCase(StokeDirection.Left, StokeSegment.MovingLeft, StokeSegment.MovingLeftLoop, StokeSegment.AttackingLeft, StokeAiFunction.Moving, 0),
+                     new VerifyStokeBehaviorCase(StokeDirection.Right, StokeSegment.MovingRight, StokeSegment.MovingRightLoop, StokeSegment.AttackingRight, StokeAiFunction.Moving, 1),
                  })
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, StokeEnemyState state) = Create(direction == StokeDirection.Left ? StokeDirection.Right : StokeDirection.Left);

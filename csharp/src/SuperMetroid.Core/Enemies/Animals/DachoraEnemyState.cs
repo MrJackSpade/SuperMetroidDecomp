@@ -15,7 +15,7 @@ public sealed class DachoraEnemyState
     private DachoraGlowCycle _glowCycle;
 
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<DachoraProgram> Playback { get; set; }
+    internal AnimationPlayback<DachoraSegment> Playback { get; set; }
 
     /// <summary>
     /// The signed 16.16 speed in pixels per update while running, falling or shinesparking, horizontal while running and

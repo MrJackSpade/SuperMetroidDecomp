@@ -38,20 +38,20 @@ internal sealed class KraidEncounterAccess
     internal static void MarkKraidPartDead(RoomEnemySlot slot)
     {
         slot.Contact = slot.Contact.Replace(EnemyContact.SolidToSamus | EnemyContact.IgnoresSamus, EnemyContact.IgnoresSamus);
-        slot.Processing = slot.Processing.Without(EnemyProcessing.AnimationScript | EnemyProcessing.OffScreen);
+        slot.Processing = slot.Processing.Without(EnemyProcessing.Animates | EnemyProcessing.OffScreen);
         slot.Presence = slot.Presence.With(EnemyPresence.Deleted | EnemyPresence.Hidden);
     }
 
-    /// <summary>Installs <paramref name="program"/> as the part's program, from its start; the caller sets the timer.</summary>
-    internal void SetKraidPartProgram(RoomEnemySlot part, KraidPartProgram program) =>
+    /// <summary>Installs <paramref name="segment"/> as the part's program, from its start; the caller sets the timer.</summary>
+    internal void SetKraidPartAnimation(RoomEnemySlot part, KraidPartSegment segment) =>
         _parts.StateOf(RequireKraidState(part), part).Playback =
-            new AnimationPlayback<KraidPartProgram>(KraidAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
+            new AnimationPlayback<KraidPartSegment>(KraidAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
 
     /// <summary>Sets a part's program and runs its first step on the next frame.</summary>
-    internal void StartKraidPartProgram(RoomEnemySlot part, KraidPartProgram program)
+    internal void StartKraidPartAnimation(RoomEnemySlot part, KraidPartSegment segment)
     {
-        SetKraidPartProgram(part, program);
-        part.FrameHold = WrappingCountdown.Start(1);
+        SetKraidPartAnimation(part, segment);
+        part.AnimationClock.StepOnNextUpdate();
     }
 
     /// <summary>Consumes one value from the room RNG for Kraid's next decision.</summary>

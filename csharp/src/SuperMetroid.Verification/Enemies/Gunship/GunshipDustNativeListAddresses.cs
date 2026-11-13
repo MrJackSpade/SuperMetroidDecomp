@@ -9,20 +9,20 @@ internal static class GunshipDustNativeListAddresses
     /// Each spawned program's <c>InstList_EnemyProjectile_GunshipLiftoffDustClouds_Index*_0</c> list; the spawn table at
     /// $86:A2E2 names these.
     /// </summary>
-    internal static ushort Entry(GunshipDustProgram program) => program switch
+    internal static ushort Entry(GunshipDustSegment program) => program switch
     {
-        GunshipDustProgram.RightInner => 0xa197,
-        GunshipDustProgram.RightMiddle => 0xa1c1,
-        GunshipDustProgram.RightOuter => 0xa1eb,
-        GunshipDustProgram.LeftInner => 0xa211,
-        GunshipDustProgram.LeftMiddle => 0xa23b,
-        GunshipDustProgram.LeftOuter => 0xa265,
-        GunshipDustProgram.RightInnerLoop or
-            GunshipDustProgram.RightMiddleLoop or
-            GunshipDustProgram.RightOuterLoop or
-            GunshipDustProgram.LeftInnerLoop or
-            GunshipDustProgram.LeftMiddleLoop or
-            GunshipDustProgram.LeftOuterLoop => throw new ArgumentOutOfRangeException(nameof(program), program, "Not a spawned gunship dust program."),
+        GunshipDustSegment.RightInner => 0xa197,
+        GunshipDustSegment.RightMiddle => 0xa1c1,
+        GunshipDustSegment.RightOuter => 0xa1eb,
+        GunshipDustSegment.LeftInner => 0xa211,
+        GunshipDustSegment.LeftMiddle => 0xa23b,
+        GunshipDustSegment.LeftOuter => 0xa265,
+        GunshipDustSegment.RightInnerLoop or
+            GunshipDustSegment.RightMiddleLoop or
+            GunshipDustSegment.RightOuterLoop or
+            GunshipDustSegment.LeftInnerLoop or
+            GunshipDustSegment.LeftMiddleLoop or
+            GunshipDustSegment.LeftOuterLoop => throw new ArgumentOutOfRangeException(nameof(program), program, "Not a spawned gunship dust program."),
         _ => throw new ArgumentOutOfRangeException(nameof(program), program, "Not a spawned gunship dust program."),
     };
 

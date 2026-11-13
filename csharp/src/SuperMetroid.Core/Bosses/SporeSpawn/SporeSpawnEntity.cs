@@ -16,7 +16,7 @@ internal sealed class SporeSpawnEntity(SporeSpawnBehavior species, RoomEnemySlot
     public EnemyMainAiHandler? FindMain() => species.RunSporeSpawnMainAi;
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => (enemy, _) => species.AdvanceSporeSpawnAnimation(enemy);
+    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => (enemy, _) => species.AdvanceSporeSpawnAnimation(enemy);
 
     /// <inheritdoc/>
     public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction)

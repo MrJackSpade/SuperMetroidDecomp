@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Programs;
-using P = SuperMetroid.Core.Fx.PaletteFx.PaletteFxProgram;
+using P = SuperMetroid.Core.Fx.PaletteFx.PaletteFxSegment;
 
 namespace SuperMetroid.Core.Fx.PaletteFx;
 
@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 internal static class PaletteFxAnimations
 {
     /// <summary>The animation that starts at each segment.</summary>
-    internal static IReadOnlyDictionary<PaletteFxProgram, Animation<PaletteFxProgram>> StartingAt { get; } = new Dictionary<PaletteFxProgram, Animation<PaletteFxProgram>>
+    internal static IReadOnlyDictionary<PaletteFxSegment, Animation<PaletteFxSegment>> StartingAt { get; } = new Dictionary<PaletteFxSegment, Animation<PaletteFxSegment>>
     {
         [P.FadeInSuperMetroidTitleLogo] = new([new(P.FadeInSuperMetroidTitleLogo, 0, 9, 1)], AnimationEnd.Stops),
         [P.FadeInNintendoBootLogo] = new([new(P.FadeInNintendoBootLogo, 0, 1, 1), new(P.CommonFadeInLogo, 0, 8, 1)], AnimationEnd.Stops),
@@ -121,5 +121,5 @@ internal static class PaletteFxAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<PaletteFxProgram> StartingWith(PaletteFxProgram segment) => StartingAt[segment];
+    internal static Animation<PaletteFxSegment> StartingWith(PaletteFxSegment segment) => StartingAt[segment];
 }

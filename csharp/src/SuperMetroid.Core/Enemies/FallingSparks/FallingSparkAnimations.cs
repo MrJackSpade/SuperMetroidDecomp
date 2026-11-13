@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using CK = SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileCommonCueKind;
-using P = SuperMetroid.Core.Enemies.FallingSparks.FallingSparkProgram;
+using P = SuperMetroid.Core.Enemies.FallingSparks.FallingSparkSegment;
 using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Core.Enemies.FallingSparks;
@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Enemies.FallingSparks;
 internal static class FallingSparkAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<FallingSparkProgram, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
-        new Dictionary<FallingSparkProgram, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>
+    internal static AnimationSegments<FallingSparkSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
+        new Dictionary<FallingSparkSegment, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>
     {
         [P.Falling] =
         [
@@ -39,14 +39,14 @@ internal static class FallingSparkAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<FallingSparkProgram, Animation<FallingSparkProgram>> StartingAt { get; } = new Dictionary<FallingSparkProgram, Animation<FallingSparkProgram>>
+    internal static IReadOnlyDictionary<FallingSparkSegment, Animation<FallingSparkSegment>> StartingAt { get; } = new Dictionary<FallingSparkSegment, Animation<FallingSparkSegment>>
     {
         [P.Falling] = new([new(P.Falling, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
         [P.HitFloor] = new([new(P.HitFloor, 0, 12, 1)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<FallingSparkProgram> StartingWith(FallingSparkProgram segment) => StartingAt[segment];
+    internal static Animation<FallingSparkSegment> StartingWith(FallingSparkSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);

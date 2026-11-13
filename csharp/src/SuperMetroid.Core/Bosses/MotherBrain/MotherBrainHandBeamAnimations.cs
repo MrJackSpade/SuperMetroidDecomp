@@ -13,10 +13,10 @@ internal static class MotherBrainHandBeamAnimations
     /// Three stages, each spawning the next beam after its first frame and fading over seven frames held 3, 3, 2, 2,
     /// 1, 1 and 1 updates, then the deletion. The charging beam and every fired beam play it.
     /// </summary>
-    internal static AnimationSegments<MotherBrainHandBeamProgram, MotherBrainHandBeamFrame, MotherBrainHandBeamCue> Segments { get; } = new(
-        new Dictionary<MotherBrainHandBeamProgram, Beat[]>
+    internal static AnimationSegments<MotherBrainHandBeamSegment, MotherBrainHandBeamFrame, MotherBrainHandBeamCue> Segments { get; } = new(
+        new Dictionary<MotherBrainHandBeamSegment, Beat[]>
         {
-            [MotherBrainHandBeamProgram.Beam] =
+            [MotherBrainHandBeamSegment.Beam] =
             [
                 .. Enumerable.Range(0, StageCount).SelectMany(Stage),
                 new Beat.Event(MotherBrainHandBeamCue.Delete),
@@ -24,11 +24,11 @@ internal static class MotherBrainHandBeamAnimations
         });
 
     /// <summary>The beam's animation: its stages and deletion, played once; the deleted beam then rests.</summary>
-    internal static IReadOnlyDictionary<MotherBrainHandBeamProgram, Animation<MotherBrainHandBeamProgram>> StartingAt { get; } =
-        new Dictionary<MotherBrainHandBeamProgram, Animation<MotherBrainHandBeamProgram>>
+    internal static IReadOnlyDictionary<MotherBrainHandBeamSegment, Animation<MotherBrainHandBeamSegment>> StartingAt { get; } =
+        new Dictionary<MotherBrainHandBeamSegment, Animation<MotherBrainHandBeamSegment>>
         {
-            [MotherBrainHandBeamProgram.Beam] = new(
-                [new(MotherBrainHandBeamProgram.Beam, 0, Segments.Beats(MotherBrainHandBeamProgram.Beam).Count, 1)], AnimationEnd.Holds),
+            [MotherBrainHandBeamSegment.Beam] = new(
+                [new(MotherBrainHandBeamSegment.Beam, 0, Segments.Beats(MotherBrainHandBeamSegment.Beam).Count, 1)], AnimationEnd.Holds),
         };
 
     /// <summary>The beats of stage <paramref name="stage"/>.</summary>

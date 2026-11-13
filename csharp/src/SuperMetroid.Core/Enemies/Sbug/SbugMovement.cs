@@ -15,9 +15,9 @@ internal static class SbugMovement
 
     /// <summary>The directional loop of <paramref name="facing"/>.</summary>
     /// <exception cref="InvalidDataException"><paramref name="facing"/> is not one of the eight facings.</exception>
-    internal static SbugProgram FacingProgram(SbugFacing facing) =>
-        SbugMovementDefinitions.FacingPrograms.TryGetValue(facing, out SbugProgram program)
-            ? program
+    internal static SbugSegment FacingAnimation(SbugFacing facing) =>
+        SbugMovementDefinitions.FacingAnimations.TryGetValue(facing, out SbugSegment segment)
+            ? segment
             : throw new InvalidDataException($"Sbug facing {facing} is not one of the eight facings.");
 
     /// <summary>The function <paramref name="behavior"/> starts.</summary>

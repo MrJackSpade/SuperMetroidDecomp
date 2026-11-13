@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 internal static class GunshipAnimationsConstants
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params GunshipProgram[] programs) =>
+    internal static IEnumerable<ushort> Spritemaps(params GunshipSegment[] programs) =>
         programs.SelectMany(program => GunshipAnimations.Segments.Beats(program))
             .OfType<AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame>()
             .Select(frame => GunshipFrameDefinitionsConstants.Spritemap(frame.Shown));

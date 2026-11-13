@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Choot.ChootCueKind;
-using P = SuperMetroid.Core.Enemies.Choot.ChootProgram;
+using P = SuperMetroid.Core.Enemies.Choot.ChootSegment;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Choot;
@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Enemies.Choot;
 internal static class ChootAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<ChootProgram, EnemyFrameId, ChootCue> Segments { get; } = new(
-        new Dictionary<ChootProgram, AnimationBeat<EnemyFrameId, ChootCue>[]>
+    internal static AnimationSegments<ChootSegment, EnemyFrameId, ChootCue> Segments { get; } = new(
+        new Dictionary<ChootSegment, AnimationBeat<EnemyFrameId, ChootCue>[]>
     {
         [P.Idle] =
         [
@@ -35,7 +35,7 @@ internal static class ChootAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<ChootProgram, Animation<ChootProgram>> StartingAt { get; } = new Dictionary<ChootProgram, Animation<ChootProgram>>
+    internal static IReadOnlyDictionary<ChootSegment, Animation<ChootSegment>> StartingAt { get; } = new Dictionary<ChootSegment, Animation<ChootSegment>>
     {
         [P.Idle] = new([new(P.Idle, 0, 2, 1)], AnimationEnd.Holds),
         [P.Jumping] = new([new(P.Jumping, 0, 3, 1)], AnimationEnd.Holds),
@@ -43,7 +43,7 @@ internal static class ChootAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<ChootProgram> StartingWith(ChootProgram segment) => StartingAt[segment];
+    internal static Animation<ChootSegment> StartingWith(ChootSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, ChootCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, ChootCue>.Frame(frame, duration);

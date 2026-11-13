@@ -8,10 +8,10 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 /// when Botwoon dies, and its place along the quadratic speed table as it falls.
 /// </summary>
 /// <param name="pose">The pose the segment starts in.</param>
-internal sealed class BotwoonSegmentState(BotwoonSegmentProgram pose) : EnemyProjectileState
+internal sealed class BotwoonSegmentState(BotwoonBodyAnimationSegment pose) : EnemyProjectileState
 {
     /// <summary>The pose the segment's angle to the segment ahead selects; the segment shows it while Botwoon lives.</summary>
-    internal BotwoonSegmentProgram Pose { get; set; } = pose;
+    internal BotwoonBodyAnimationSegment Pose { get; set; } = pose;
 
     /// <summary>
     /// The segment's count toward falling once Botwoon dies: it starts by the segment's projectile place

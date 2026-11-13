@@ -14,18 +14,18 @@ internal static class WalkingSpacePirateNativeListAddresses
     internal const byte Bank = 0xb2;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<WalkingSpacePirateProgram>[] Entries =
+    internal static readonly NativeProgramEntry<WalkingSpacePirateSegment>[] Entries =
     [
-        new NativeProgramEntry<WalkingSpacePirateProgram>(WalkingSpacePirateProgram.FlinchFacingLeft, 0xfb4c),
-        new NativeProgramEntry<WalkingSpacePirateProgram>(WalkingSpacePirateProgram.FlinchFacingRight, 0xfb58),
-        new NativeProgramEntry<WalkingSpacePirateProgram>(WalkingSpacePirateProgram.WalkingLeft, 0xfb64),
-        new NativeProgramEntry<WalkingSpacePirateProgram>(WalkingSpacePirateProgram.WalkingLeftLoop, 0xfb68),
-        new NativeProgramEntry<WalkingSpacePirateProgram>(WalkingSpacePirateProgram.FireLasersLeft, 0xfb8c),
-        new NativeProgramEntry<WalkingSpacePirateProgram>(WalkingSpacePirateProgram.LookingFacingLeft, 0xfbc6),
-        new NativeProgramEntry<WalkingSpacePirateProgram>(WalkingSpacePirateProgram.WalkingRight, 0xfbe6),
-        new NativeProgramEntry<WalkingSpacePirateProgram>(WalkingSpacePirateProgram.WalkingRightLoop, 0xfbea),
-        new NativeProgramEntry<WalkingSpacePirateProgram>(WalkingSpacePirateProgram.FireLasersRight, 0xfc0e),
-        new NativeProgramEntry<WalkingSpacePirateProgram>(WalkingSpacePirateProgram.LookingFacingRight, 0xfc48),
+        new NativeProgramEntry<WalkingSpacePirateSegment>(WalkingSpacePirateSegment.FlinchFacingLeft, 0xfb4c),
+        new NativeProgramEntry<WalkingSpacePirateSegment>(WalkingSpacePirateSegment.FlinchFacingRight, 0xfb58),
+        new NativeProgramEntry<WalkingSpacePirateSegment>(WalkingSpacePirateSegment.WalkingLeft, 0xfb64),
+        new NativeProgramEntry<WalkingSpacePirateSegment>(WalkingSpacePirateSegment.WalkingLeftLoop, 0xfb68),
+        new NativeProgramEntry<WalkingSpacePirateSegment>(WalkingSpacePirateSegment.FireLasersLeft, 0xfb8c),
+        new NativeProgramEntry<WalkingSpacePirateSegment>(WalkingSpacePirateSegment.LookingFacingLeft, 0xfbc6),
+        new NativeProgramEntry<WalkingSpacePirateSegment>(WalkingSpacePirateSegment.WalkingRight, 0xfbe6),
+        new NativeProgramEntry<WalkingSpacePirateSegment>(WalkingSpacePirateSegment.WalkingRightLoop, 0xfbea),
+        new NativeProgramEntry<WalkingSpacePirateSegment>(WalkingSpacePirateSegment.FireLasersRight, 0xfc0e),
+        new NativeProgramEntry<WalkingSpacePirateSegment>(WalkingSpacePirateSegment.LookingFacingRight, 0xfc48),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>

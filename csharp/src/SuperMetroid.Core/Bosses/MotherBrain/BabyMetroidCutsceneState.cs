@@ -58,7 +58,7 @@ public sealed class BabyMetroidCutsceneState
     public bool HurtFlashShown { get; private set; }
 
     /// <summary>The Baby's current program.</summary>
-    public MotherBrainBabyProgram Program { get; private set; }
+    public MotherBrainBabySegment Animation { get; private set; }
 
     /// <summary>The current frame's remaining hold, restarted at one whenever the program changes.</summary>
     public int FrameHold { get; private set; }
@@ -171,14 +171,14 @@ public sealed class BabyMetroidCutsceneState
     public void Initialize(
         FixedPosition<RoomPixels> previousOccupant,
         EnemyContact populationContact = EnemyContact.None,
-        EnemyProcessing populationProcessing = EnemyProcessing.AnimationScript | EnemyProcessing.OffScreen,
+        EnemyProcessing populationProcessing = EnemyProcessing.Animates | EnemyProcessing.OffScreen,
         EnemyPresence populationPresence = EnemyPresence.None)
     {
         Contact = populationContact.With(EnemyContact.BlocksPlasmaBeam);
-        Processing = populationProcessing.With(EnemyProcessing.AnimationScript);
+        Processing = populationProcessing.With(EnemyProcessing.Animates);
         Presence = populationPresence;
         HurtFlashShown = false;
-        SetProgram(MotherBrainBabyProgram.Initial);
+        SetAnimation(MotherBrainBabySegment.Initial);
         CrySoundEnabled = true;
         RouteLeg = 0;
         Health = 3200;
@@ -327,7 +327,7 @@ public sealed class BabyMetroidCutsceneState
                     // its returned target coordinate. The drain step performs the exact pin.
                     Velocity = default;
                     Position = Position.WithWhole(target);
-                    SetProgram(MotherBrainBabyProgram.DrainingMotherBrain);
+                    SetAnimation(MotherBrainBabySegment.DrainingMotherBrain);
                     Phase = BabyMetroidCutscenePhase.WaitForMotherBrainToTurnToCorpse;
                     motherBrain.InterruptFinalBeamForBabyDrain();
                     latchSoundQueued = true; // The rainbow-drain sound starts as the Baby latches on.
@@ -353,7 +353,7 @@ public sealed class BabyMetroidCutsceneState
                 Position = Position.WithWhole(head + BrainLatchOffset);
                 if (--FunctionTimer < 0)
                 {
-                    SetProgram(MotherBrainBabyProgram.Initial);
+                    SetAnimation(MotherBrainBabySegment.Initial);
                     Phase = BabyMetroidCutscenePhase.LetGoAndSpawnDustClouds;
                     FunctionTimer = 32;
                     Velocity = default;
@@ -576,7 +576,7 @@ public sealed class BabyMetroidCutsceneState
                     // The fatal-blow step changes graphics/list state, freezes the body AI,
                     // clears velocity, remembers the shake origin, and falls through into
                     // the first of 17 fatal-blow shake calls.
-                    SetProgram(MotherBrainBabyProgram.TakingFatalBlow);
+                    SetAnimation(MotherBrainBabySegment.TakingFatalBlow);
                     Velocity = default;
                     Phase = BabyMetroidCutscenePhase.TakeFinalBlow;
                     FunctionTimer = 16;
@@ -835,9 +835,9 @@ public sealed class BabyMetroidCutsceneState
     }
 
     /// <summary>Switches the Baby's program and restarts its frame timer.</summary>
-    private void SetProgram(MotherBrainBabyProgram program)
+    private void SetAnimation(MotherBrainBabySegment segment)
     {
-        Program = program;
+        Animation = segment;
         FrameHold = 1;
     }
 

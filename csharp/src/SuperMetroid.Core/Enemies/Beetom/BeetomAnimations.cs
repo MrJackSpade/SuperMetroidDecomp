@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Beetom.BeetomCueKind;
-using P = SuperMetroid.Core.Enemies.Beetom.BeetomProgram;
+using P = SuperMetroid.Core.Enemies.Beetom.BeetomSegment;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Beetom;
@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Enemies.Beetom;
 internal static class BeetomAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<BeetomProgram, EnemyFrameId, BeetomCue> Segments { get; } = new(
-        new Dictionary<BeetomProgram, AnimationBeat<EnemyFrameId, BeetomCue>[]>
+    internal static AnimationSegments<BeetomSegment, EnemyFrameId, BeetomCue> Segments { get; } = new(
+        new Dictionary<BeetomSegment, AnimationBeat<EnemyFrameId, BeetomCue>[]>
     {
         [P.CrawlingLeft] =
         [
@@ -86,7 +86,7 @@ internal static class BeetomAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<BeetomProgram, Animation<BeetomProgram>> StartingAt { get; } = new Dictionary<BeetomProgram, Animation<BeetomProgram>>
+    internal static IReadOnlyDictionary<BeetomSegment, Animation<BeetomSegment>> StartingAt { get; } = new Dictionary<BeetomSegment, Animation<BeetomSegment>>
     {
         [P.CrawlingLeft] = new([new(P.CrawlingLeft, 0, 1, 1), new(P.CrawlingLeftLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
         [P.CrawlingLeftLoop] = new([new(P.CrawlingLeftLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
@@ -101,7 +101,7 @@ internal static class BeetomAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<BeetomProgram> StartingWith(BeetomProgram segment) => StartingAt[segment];
+    internal static Animation<BeetomSegment> StartingWith(BeetomSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, BeetomCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, BeetomCue>.Frame(frame, duration);

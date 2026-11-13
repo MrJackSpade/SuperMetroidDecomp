@@ -9,7 +9,7 @@ internal static class EndingAnimalEscapeDefinitions
     /// <summary>The colouring the pod draws in.</summary>
     internal const EndingSpriteColouring Colouring = EndingSpriteColouring.AnimalEscape;
     /// <summary>The program the pod runs.</summary>
-    internal const CinematicSpriteProgram Program = CinematicSpriteProgram.EndingAnimalEscape;
+    internal const CinematicSpriteSegment Animation = CinematicSpriteSegment.EndingAnimalEscape;
     /// <summary>Both pod coordinates start at 128.</summary>
     internal const int Origin = 128;
     /// <summary>The pod adds 1/512 of a pixel to its Y each actor call.</summary>

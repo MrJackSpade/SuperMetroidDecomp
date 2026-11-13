@@ -15,5 +15,5 @@ public static class ProjectileFrameBindingFormat
     /// <param name="record">The timed record; formatting does not validate that it names one.</param>
     /// <returns>The record's program, an underscore and its place among the program's records.</returns>
     internal static string FrameName(SamusProjectileFrame record) =>
-        $"{record.Program}_{record.Show.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
+        $"{record.Animation}_{record.Show.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
 }

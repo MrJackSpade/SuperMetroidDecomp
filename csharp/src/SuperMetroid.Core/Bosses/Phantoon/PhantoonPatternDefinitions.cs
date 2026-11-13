@@ -37,16 +37,16 @@ public static class PhantoonPatternDefinitions
     public static ReadOnlySpan<int> ShotEyeMarkers => [6, 6, 8, 8, 6, 8, 6, 8];
 
     /// <summary>The eye's gaze program for each direction it looks toward Samus in.</summary>
-    internal static readonly IReadOnlyDictionary<CompassDirection, PhantoonPartProgram> EyeGazePrograms =
-        new Dictionary<CompassDirection, PhantoonPartProgram>
+    internal static readonly IReadOnlyDictionary<CompassDirection, PhantoonPartSegment> EyeGazeAnimations =
+        new Dictionary<CompassDirection, PhantoonPartSegment>
         {
-            [CompassDirection.Up] = PhantoonPartProgram.EyeLookingUp,
-            [CompassDirection.UpRight] = PhantoonPartProgram.EyeLookingUpRight,
-            [CompassDirection.Right] = PhantoonPartProgram.EyeLookingRight,
-            [CompassDirection.DownRight] = PhantoonPartProgram.EyeLookingDownRight,
-            [CompassDirection.Down] = PhantoonPartProgram.EyeLookingDown,
-            [CompassDirection.DownLeft] = PhantoonPartProgram.EyeLookingDownLeft,
-            [CompassDirection.Left] = PhantoonPartProgram.EyeLookingLeft,
-            [CompassDirection.UpLeft] = PhantoonPartProgram.EyeLookingUpLeft,
+            [CompassDirection.Up] = PhantoonPartSegment.EyeLookingUp,
+            [CompassDirection.UpRight] = PhantoonPartSegment.EyeLookingUpRight,
+            [CompassDirection.Right] = PhantoonPartSegment.EyeLookingRight,
+            [CompassDirection.DownRight] = PhantoonPartSegment.EyeLookingDownRight,
+            [CompassDirection.Down] = PhantoonPartSegment.EyeLookingDown,
+            [CompassDirection.DownLeft] = PhantoonPartSegment.EyeLookingDownLeft,
+            [CompassDirection.Left] = PhantoonPartSegment.EyeLookingLeft,
+            [CompassDirection.UpLeft] = PhantoonPartSegment.EyeLookingUpLeft,
         };
 }

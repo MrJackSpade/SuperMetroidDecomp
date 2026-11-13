@@ -19,7 +19,7 @@ internal sealed class KiHunterEntity(KiHunterBehavior species, RoomEnemySlot slo
     public EnemyMainAiHandler? FindMain() => species.RunKiHunterMainAi;
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => species.AdvanceKiHunterTypedAnimation;
+    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => species.AdvanceKiHunterTypedAnimation;
 
     /// <summary>The Ki-Hunter body's own shot reaction, which normal bombs dispatch like the common one; the wings own none.</summary>
     /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>

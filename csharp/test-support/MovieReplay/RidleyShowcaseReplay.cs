@@ -116,7 +116,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             foreach (var actor in runtime.Enemies.SlotTable.Slots)
                 words.AddRange([SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(actor.DefinitionId), actor.Position.X.Whole, actor.Position.X.Fraction,
                     actor.Position.Y.Whole, actor.Position.Y.Fraction, checked((ushort)actor.Health), actor.SpritemapPointer,
-                    actor.FrameHold.RawValue]);
+                    actor.AnimationClock.Hold.RawValue]);
             return words.ToArray();
         }
         int pairedBodyDraws = 0, phaseShiftedBodyDraws = 0, retainedHiddenBodyRecords = 0;
@@ -505,7 +505,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 // Only actors whose animation cursor translates to a native pointer are compared on it (#1471).
                 if (pointers.TranslatedEnemy(runtime.Enemies, actor) is { } instruction)
                     Check(owner + " instruction", instruction, address + 26);
-                Check(owner + " instruction timer", actor.FrameHold.RawValue, address + 28);
+                Check(owner + " instruction timer", actor.AnimationClock.Hold.RawValue, address + 28);
                 Check(owner + " XRadius", actor.Radius.X, address + 10);
                 Check(owner + " YRadius", actor.Radius.Y, address + 12);
                 // The native words also hold species bits that species code writes and nothing reads (#1472); the port
@@ -516,7 +516,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 CheckValue(owner + " ExtraProperties", SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.EncodeExtraPropertyWord(actor),
                     SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.EncodeExtraPropertyWord(nativeProperties));
                 Check(owner + " AiStates", SuperMetroid.AssetExtraction.Enemies.EnemyAiStatesWordCodec.Encode(actor.AiStates), address + 18);
-                Check(owner + " Timer", actor.Timer.RawValue, address + 24);
+                Check(owner + " Timer", actor.AnimationClock.Repeats.RawValue, address + 24);
                 // The port holds the colouring; the row holding it is compared as the native palette word that row is stored as.
                 Check(owner + " PaletteRow", NativeSpriteGraphicsWords.PaletteBits(actor.PaletteRowIn(runtime.Enemies)), address + 30);
                 // The port's slots carry no tile index (#1513); the index the import composes the occupant's sheet at is compared.

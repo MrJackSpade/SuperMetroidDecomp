@@ -15,26 +15,26 @@ internal static class MotherBrainGlassAnimations
     /// Every glass segment: a shard spins through its eight frames with the symmetric 4, 3, 2, 3 cadence twice; the
     /// sparkle alternates six and eight updates over four frames, then deletes itself.
     /// </summary>
-    internal static AnimationSegments<MotherBrainGlassProgram, MotherBrainGlassFrame, MotherBrainGlassCue> Segments { get; } = new(
-        Enum.GetValues<MotherBrainGlassProgram>().ToDictionary(program => program, Build));
+    internal static AnimationSegments<MotherBrainGlassSegment, MotherBrainGlassFrame, MotherBrainGlassCue> Segments { get; } = new(
+        Enum.GetValues<MotherBrainGlassSegment>().ToDictionary(segment => segment, Build));
 
     /// <summary>Each glass animation: a shard's spin loops for good, and the deleted sparkle rests.</summary>
-    internal static IReadOnlyDictionary<MotherBrainGlassProgram, Animation<MotherBrainGlassProgram>> StartingAt { get; } =
-        Enum.GetValues<MotherBrainGlassProgram>().ToDictionary(program => program, program => new Animation<MotherBrainGlassProgram>(
-            [new(program, 0, Segments.Beats(program).Count, 1)],
-            program == MotherBrainGlassProgram.Sparkle ? AnimationEnd.Holds : AnimationEnd.LoopsFrom(0)));
+    internal static IReadOnlyDictionary<MotherBrainGlassSegment, Animation<MotherBrainGlassSegment>> StartingAt { get; } =
+        Enum.GetValues<MotherBrainGlassSegment>().ToDictionary(segment => segment, segment => new Animation<MotherBrainGlassSegment>(
+            [new(segment, 0, Segments.Beats(segment).Count, 1)],
+            segment == MotherBrainGlassSegment.Sparkle ? AnimationEnd.Holds : AnimationEnd.LoopsFrom(0)));
 
-    /// <summary>The beats of <paramref name="program"/>.</summary>
-    private static Beat[] Build(MotherBrainGlassProgram program) =>
-        program == MotherBrainGlassProgram.Sparkle
+    /// <summary>The beats of <paramref name="segment"/>.</summary>
+    private static Beat[] Build(MotherBrainGlassSegment segment) =>
+        segment == MotherBrainGlassSegment.Sparkle
             ?
             [
-                .. Enumerable.Range(0, SparklePhaseCount).Select(phase => new Beat.Frame(new(program, phase), phase % 2 == 0 ? 6 : 8)),
+                .. Enumerable.Range(0, SparklePhaseCount).Select(phase => new Beat.Frame(new(segment, phase), phase % 2 == 0 ? 6 : 8)),
                 new Beat.Event(MotherBrainGlassCue.Delete),
             ]
             :
             [
-                .. Enumerable.Range(0, ShardPhaseCount).Select(phase => new Beat.Frame(new(program, phase), ShardDuration(phase))),
+                .. Enumerable.Range(0, ShardPhaseCount).Select(phase => new Beat.Frame(new(segment, phase), ShardDuration(phase))),
             ];
 
     /// <summary>The 4, 3, 2, 3 cadence of a shard's spin.</summary>
@@ -49,13 +49,13 @@ internal static class MotherBrainGlassAnimations
     /// The spin a shard launched at each sixteenth of the turn plays, in turn order: the groups span one, two, three and two
     /// sixteenths, and repeat so in the opposite half-turn.
     /// </summary>
-    internal static TurnArcs<MotherBrainGlassProgram> ShardPrograms { get; } = new(TrigonometryAngle.Zero,
-        MotherBrainGlassProgram.ShardGroup0,
-        MotherBrainGlassProgram.ShardGroup1, MotherBrainGlassProgram.ShardGroup1,
-        MotherBrainGlassProgram.ShardGroup2, MotherBrainGlassProgram.ShardGroup2, MotherBrainGlassProgram.ShardGroup2,
-        MotherBrainGlassProgram.ShardGroup3, MotherBrainGlassProgram.ShardGroup3,
-        MotherBrainGlassProgram.ShardGroup4,
-        MotherBrainGlassProgram.ShardGroup5, MotherBrainGlassProgram.ShardGroup5,
-        MotherBrainGlassProgram.ShardGroup6, MotherBrainGlassProgram.ShardGroup6, MotherBrainGlassProgram.ShardGroup6,
-        MotherBrainGlassProgram.ShardGroup7, MotherBrainGlassProgram.ShardGroup7);
+    internal static TurnArcs<MotherBrainGlassSegment> ShardAnimations { get; } = new(TrigonometryAngle.Zero,
+        MotherBrainGlassSegment.ShardGroup0,
+        MotherBrainGlassSegment.ShardGroup1, MotherBrainGlassSegment.ShardGroup1,
+        MotherBrainGlassSegment.ShardGroup2, MotherBrainGlassSegment.ShardGroup2, MotherBrainGlassSegment.ShardGroup2,
+        MotherBrainGlassSegment.ShardGroup3, MotherBrainGlassSegment.ShardGroup3,
+        MotherBrainGlassSegment.ShardGroup4,
+        MotherBrainGlassSegment.ShardGroup5, MotherBrainGlassSegment.ShardGroup5,
+        MotherBrainGlassSegment.ShardGroup6, MotherBrainGlassSegment.ShardGroup6, MotherBrainGlassSegment.ShardGroup6,
+        MotherBrainGlassSegment.ShardGroup7, MotherBrainGlassSegment.ShardGroup7);
 }

@@ -14,6 +14,6 @@ public enum EnemyProcessing
     /// <summary>Allows enemy AI and animation to run when the enemy lies outside the active screen bounds.</summary>
     OffScreen = 1 << 0,
 
-    /// <summary>Runs the enemy's timed animation program.</summary>
-    AnimationScript = 1 << 1,
+    /// <summary>Plays the enemy's animation each update.</summary>
+    Animates = 1 << 1,
 }

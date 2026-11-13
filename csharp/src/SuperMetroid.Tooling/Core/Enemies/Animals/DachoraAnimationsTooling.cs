@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Animals;
 internal static class DachoraAnimationsTooling
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params DachoraProgram[] programs) =>
+    internal static IEnumerable<ushort> Spritemaps(params DachoraSegment[] programs) =>
         programs.SelectMany(program => DachoraAnimations.Segments.Beats(program))
             .OfType<AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame>()
             .Select(frame => DachoraFrameToolingDefinitions.Spritemap(frame.Shown));

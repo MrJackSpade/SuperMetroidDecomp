@@ -21,10 +21,10 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
         {
             var phase = (SkreeMetareeAnimationPhase)index;
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3894e + index * 2)),
-                NativeEnemyAnimationOracle.EntryOf(SkreeMetareeNativeListAddresses.Entries, SkreeMetareePrograms.MetareeProgram(phase)),
+                NativeEnemyAnimationOracle.EntryOf(SkreeMetareeNativeListAddresses.Entries, SkreeMetareeAnimationChoices.MetareeAnimation(phase)),
                 $"Metaree animation phase {phase}");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3c69c + index * 2)),
-                NativeEnemyAnimationOracle.EntryOf(SkreeMetareeNativeListAddresses.Entries, SkreeMetareePrograms.SkreeProgram(phase)),
+                NativeEnemyAnimationOracle.EntryOf(SkreeMetareeNativeListAddresses.Entries, SkreeMetareeAnimationChoices.SkreeAnimation(phase)),
                 $"Skree animation phase {phase}");
         }
 
@@ -34,10 +34,10 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
 
         var invalid = (SkreeMetareeAnimationPhase)4;
         AssertThrows<InvalidDataException>(
-            () => SkreeMetareePrograms.MetareeProgram(invalid),
+            () => SkreeMetareeAnimationChoices.MetareeAnimation(invalid),
             "Metaree animation phase past table");
         AssertThrows<InvalidDataException>(
-            () => SkreeMetareePrograms.SkreeProgram(invalid),
+            () => SkreeMetareeAnimationChoices.SkreeAnimation(invalid),
             "Skree animation phase past table");
         Console.WriteLine(
             "Skree/Metaree animation definitions: eight native selectors, all eight install handoffs, and both live attack transitions per family pass with pointer tables forbidden.");
@@ -53,31 +53,31 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
             var metareeSlot = NewSkreeMetareeAnimationSlot();
             var metareeState = new MetareeEnemyState
             {
-                RequestedAnimationScriptIndex = phase,
-                InstalledAnimationScriptIndex = DifferentSkreeMetareePhase(phase),
+                RequestedAnimation = phase,
+                InstalledAnimation = DifferentSkreeMetareePhase(phase),
             };
-            MetareeBehavior.InstallRequestedMetareeInstruction(metareeSlot, metareeState);
+            MetareeBehavior.StartRequestedMetareeAnimation(metareeSlot, metareeState);
             AssertSkreeMetareeHandoff(
                 metareeSlot,
-                metareeState.InstalledAnimationScriptIndex,
+                metareeState.InstalledAnimation,
                 phase,
                 metareeState.Playback,
-                SkreeMetareePrograms.MetareeProgram(phase),
+                SkreeMetareeAnimationChoices.MetareeAnimation(phase),
                 $"Metaree {phase}");
 
             var skreeSlot = NewSkreeMetareeAnimationSlot();
             var skreeState = new SkreeEnemyState()
             {
-                RequestedInstructionIndex = phase,
-                InstalledInstructionIndex = DifferentSkreeMetareePhase(phase),
+                RequestedAnimation = phase,
+                InstalledAnimation = DifferentSkreeMetareePhase(phase),
             };
-            SkreeBehavior.InstallRequestedSkreeInstruction(skreeSlot, skreeState);
+            SkreeBehavior.StartRequestedSkreeAnimation(skreeSlot, skreeState);
             AssertSkreeMetareeHandoff(
                 skreeSlot,
-                skreeState.InstalledInstructionIndex,
+                skreeState.InstalledAnimation,
                 phase,
                 skreeState.Playback,
-                SkreeMetareePrograms.SkreeProgram(phase),
+                SkreeMetareeAnimationChoices.SkreeAnimation(phase),
                 $"Skree {phase}");
         }
     }
@@ -100,20 +100,20 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
         MetareeBehavior.RunMetareeIdle(slot, (state), samus);
         AssertSkreeMetareeHandoff(
                 slot,
-                state.InstalledAnimationScriptIndex,
+                state.InstalledAnimation,
                 SkreeMetareeAnimationPhase.PreparingAttack,
                 state.Playback,
-                SkreeMetareePrograms.MetareeProgram(SkreeMetareeAnimationPhase.PreparingAttack),
+                SkreeMetareeAnimationChoices.MetareeAnimation(SkreeMetareeAnimationPhase.PreparingAttack),
             "live Metaree preparation");
 
         state.AttackReady = true;
         enemies.MetareeBehavior.RunMetareePreparation(slot, state);
         AssertSkreeMetareeHandoff(
                 slot,
-                state.InstalledAnimationScriptIndex,
+                state.InstalledAnimation,
                 SkreeMetareeAnimationPhase.Diving,
                 state.Playback,
-                SkreeMetareePrograms.MetareeProgram(SkreeMetareeAnimationPhase.Diving),
+                SkreeMetareeAnimationChoices.MetareeAnimation(SkreeMetareeAnimationPhase.Diving),
             "live Metaree dive");
     }
 
@@ -135,20 +135,20 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
         enemies.SkreeBehavior.RunSkreeMain(slot, samus, null);
         AssertSkreeMetareeHandoff(
                 slot,
-                state.InstalledInstructionIndex,
+                state.InstalledAnimation,
                 SkreeMetareeAnimationPhase.PreparingAttack,
                 state.Playback,
-                SkreeMetareePrograms.SkreeProgram(SkreeMetareeAnimationPhase.PreparingAttack),
+                SkreeMetareeAnimationChoices.SkreeAnimation(SkreeMetareeAnimationPhase.PreparingAttack),
             "live Skree preparation");
 
         state.AttackReady = true;
         enemies.SkreeBehavior.RunSkreeMain(slot, samus, null);
         AssertSkreeMetareeHandoff(
                 slot,
-                state.InstalledInstructionIndex,
+                state.InstalledAnimation,
                 SkreeMetareeAnimationPhase.Diving,
                 state.Playback,
-                SkreeMetareePrograms.SkreeProgram(SkreeMetareeAnimationPhase.Diving),
+                SkreeMetareeAnimationChoices.SkreeAnimation(SkreeMetareeAnimationPhase.Diving),
             "live Skree dive");
     }
 
@@ -161,11 +161,8 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
     }
 
     /// <summary>Seeds nondefault instruction and timer values so installation must visibly replace them.</summary>
-    private static RoomEnemySlot NewSkreeMetareeAnimationSlot() => new(0, EnemySlotFixtures.Registry)
-    {
-        FrameHold = WrappingCountdown.Start(0x2222),
-        Timer = WrappingCountdown.Start(0x3333),
-    };
+    private static RoomEnemySlot NewSkreeMetareeAnimationSlot() =>
+        new RoomEnemySlot(0, EnemySlotFixtures.Registry).WithAnimationClock(hold: 0x2222, repeats: 0x3333);
 
     /// <summary>Chooses an installed phase distinct from the requested one for each handoff fixture.</summary>
     private static SkreeMetareeAnimationPhase DifferentSkreeMetareePhase(
@@ -179,15 +176,15 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
         RoomEnemySlot slot,
         SkreeMetareeAnimationPhase installed,
         SkreeMetareeAnimationPhase expectedPhase,
-        AnimationPlayback<SkreeMetareeProgram> playback,
-        SkreeMetareeProgram expectedProgram,
+        AnimationPlayback<SkreeMetareeSegment> playback,
+        SkreeMetareeSegment expectedProgram,
         string context)
     {
         AssertEqual(expectedPhase, installed, $"{context} installed phase");
         AssertTrue(ReferenceEquals(SkreeMetareeAnimations.StartingWith(expectedProgram), playback.Animation) &&
             playback.Place == AnimationPlace.StartOfAnimation, $"{context} animation");
-        AssertEqual(1, slot.FrameHold.RawValue, $"{context} instruction timer");
-        AssertEqual(0, slot.Timer.RawValue, $"{context} loop timer");
+        AssertEqual(1, slot.AnimationClock.Hold.RawValue, $"{context} instruction timer");
+        AssertEqual(0, slot.AnimationClock.Repeats.RawValue, $"{context} loop timer");
     }
 
 }

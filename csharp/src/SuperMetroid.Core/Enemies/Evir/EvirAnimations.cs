@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Evir.EvirCueKind;
-using P = SuperMetroid.Core.Enemies.Evir.EvirProgram;
+using P = SuperMetroid.Core.Enemies.Evir.EvirSegment;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Evir;
@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Enemies.Evir;
 internal static class EvirAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<EvirProgram, EnemyFrameId, EvirCue> Segments { get; } = new(
-        new Dictionary<EvirProgram, AnimationBeat<EnemyFrameId, EvirCue>[]>
+    internal static AnimationSegments<EvirSegment, EnemyFrameId, EvirCue> Segments { get; } = new(
+        new Dictionary<EvirSegment, AnimationBeat<EnemyFrameId, EvirCue>[]>
     {
         [P.BodyFacingLeft] =
         [
@@ -92,7 +92,7 @@ internal static class EvirAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<EvirProgram, Animation<EvirProgram>> StartingAt { get; } = new Dictionary<EvirProgram, Animation<EvirProgram>>
+    internal static IReadOnlyDictionary<EvirSegment, Animation<EvirSegment>> StartingAt { get; } = new Dictionary<EvirSegment, Animation<EvirSegment>>
     {
         [P.BodyFacingLeft] = new([new(P.BodyFacingLeft, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
         [P.ArmsFacingLeft] = new([new(P.ArmsFacingLeft, 0, 17, 1)], AnimationEnd.LoopsFrom(0)),
@@ -103,7 +103,7 @@ internal static class EvirAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<EvirProgram> StartingWith(EvirProgram segment) => StartingAt[segment];
+    internal static Animation<EvirSegment> StartingWith(EvirSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, EvirCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, EvirCue>.Frame(frame, duration);

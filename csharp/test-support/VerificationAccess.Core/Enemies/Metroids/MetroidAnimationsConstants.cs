@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 internal static class MetroidAnimationsConstants
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params MetroidProgram[] programs) =>
+    internal static IEnumerable<ushort> Spritemaps(params MetroidSegment[] programs) =>
         programs.SelectMany(program => MetroidAnimations.Segments.Beats(program))
             .OfType<AnimationBeat<EnemyFrameId, MetroidCue>.Frame>()
             .Select(frame => MetroidFrameToolingDefinitions.Spritemap(frame.Shown));

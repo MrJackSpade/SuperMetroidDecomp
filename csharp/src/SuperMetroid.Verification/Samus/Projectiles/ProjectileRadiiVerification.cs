@@ -91,7 +91,7 @@ internal static class ProjectileRadiiVerification
             AssertEqual(rom.ReadCartridgeByte(address), (byte)radius.X, "Native X radius");
             AssertEqual(rom.ReadCartridgeByte(address + 1), (byte)radius.Y, "Native Y radius");
         }
-        AssertEqual(Extent16<RoomPixels>.Zero, SamusProjectilePrograms.InitialRadius(null), "bounded Murder Beam zero-list radii");
+        AssertEqual(Extent16<RoomPixels>.Zero, SamusProjectilePlayback.InitialRadius(null), "bounded Murder Beam zero-list radii");
 
         byte[] stockJson = ProjectileFrameBindingExtractor.Extract(rom);
         var stock = ProjectileFrameBindingFile.Load(new MemoryStream(stockJson));
@@ -107,7 +107,7 @@ internal static class ProjectileRadiiVerification
             int activeRecord = 0x930000 | pointer;
             ushort expectedSprite = CartridgeImportSource.Require(rom).ReadCartridgeWord((activeRecord + 2));
             var slot = new SamusProjectile(0) { FrameHold = WrappingCountdown.Start(1), Playback = SamusProjectileProgramAddresses.PlaybackAt(pointer), Damage = 30 };
-            AssertEqual(false, projectiles.Animation.RunProjectileInstructionHandler(slot), "Timed projectile record survives");
+            AssertEqual(false, projectiles.Animation.AdvanceProjectileAnimation(slot), "Timed projectile record survives");
             AssertEqual(duration, slot.FrameHold.RawValue, "Frame duration unchanged");
             AssertEqual(expectedSprite, slot.SpritemapPointer, "Native artwork reference");
             AssertEqual(rom.ReadCartridgeByte(address), slot.Radius.X, "Published collision X independent of artwork");
@@ -119,7 +119,7 @@ internal static class ProjectileRadiiVerification
             // existing contract instead of treating arbitrary beam records as bombs.
             if (duration == 0) continue;
             var bomb = new SamusBombProjectileSlot(0) { FrameHold = WrappingCountdown.Start(1), Playback = SamusProjectileProgramAddresses.PlaybackAt(pointer), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500) };
-            AssertEqual(false, bombs.RunProjectileInstructionHandler(bomb), "Bomb timed record survives");
+            AssertEqual(false, bombs.AdvanceProjectileAnimation(bomb), "Bomb timed record survives");
             AssertEqual(duration, bomb.FrameHold.RawValue, "Bomb duration unchanged");
             AssertEqual(expectedSprite, bomb.SpritemapPointer, "Bomb native artwork reference");
             AssertEqual(rom.ReadCartridgeByte(address), bomb.Radius.X, "Bomb physical X independent of artwork");

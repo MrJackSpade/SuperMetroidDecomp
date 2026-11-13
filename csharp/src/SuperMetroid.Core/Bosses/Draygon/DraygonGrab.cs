@@ -74,11 +74,11 @@ internal sealed class DraygonGrab
             return;
         }
 
-        _parts.StartDraygonProgram(
+        _parts.StartDraygonAnimation(
             state.Arms,
             state.FacingRight
-                ? DraygonProgram.ArmsFacingRightGrab
-                : DraygonProgram.ArmsFacingLeftGrab);
+                ? DraygonSegment.ArmsFacingRightGrab
+                : DraygonSegment.ArmsFacingLeftGrab);
 
         // Samus's grapple query returns nonzero whenever the grapple-beam function is anything
         // other than its inactive entry. In that case Draygon drops the beam and retreats;
@@ -131,11 +131,11 @@ internal sealed class DraygonGrab
         if (reachedTarget)
         {
             state.Function = DraygonAiFunction.FlailWithSamus;
-            _parts.StartDraygonProgram(
+            _parts.StartDraygonAnimation(
                 body,
                 state.FacingRight
-                    ? DraygonProgram.BodyFacingRightRoar
-                    : DraygonProgram.BodyFacingLeftRoar);
+                    ? DraygonSegment.BodyFacingRightRoar
+                    : DraygonSegment.BodyFacingLeftRoar);
             body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
             return;
         }
@@ -215,11 +215,11 @@ internal sealed class DraygonGrab
 
         if (state.TailWhipTimer == DraygonBehavior.DraygonTailWhipStartFrame)
         {
-            _parts.StartDraygonProgram(
+            _parts.StartDraygonAnimation(
                 state.Tail,
                 state.FacingRight
-                    ? DraygonProgram.TailFacingRightWhip
-                    : DraygonProgram.TailFacingLeftWhip);
+                    ? DraygonSegment.TailFacingRightWhip
+                    : DraygonSegment.TailFacingLeftWhip);
         }
     }
 
@@ -227,11 +227,11 @@ internal sealed class DraygonGrab
     internal void BeginDraygonFinalTailWhips(DraygonEnemyState state, SamusState? samus)
     {
         MoveSamusWithDraygon(state, RequireDraygonGrabbedSamus(samus));
-        _parts.StartDraygonProgram(
+        _parts.StartDraygonAnimation(
             state.Tail,
             state.FacingRight
-                ? DraygonProgram.TailFacingRightFinalWhips
-                : DraygonProgram.TailFacingLeftFinalWhips);
+                ? DraygonSegment.TailFacingRightFinalWhips
+                : DraygonSegment.TailFacingLeftFinalWhips);
         state.Function = DraygonAiFunction.FinalTailWhipsWait;
     }
 
@@ -261,11 +261,11 @@ internal sealed class DraygonGrab
 
         state.Function = DraygonAiFunction.FlyStraightUp;
         state.Body.Contact = state.Body.Contact.Without(EnemyContact.IgnoresSamus);
-        _parts.StartDraygonProgram(
+        _parts.StartDraygonAnimation(
             state.Tail,
             state.FacingRight
-                ? DraygonProgram.TailFacingRightFlail
-                : DraygonProgram.TailFacingLeftFlail);
+                ? DraygonSegment.TailFacingRightFlail
+                : DraygonSegment.TailFacingLeftFlail);
     }
 
     /// <summary>

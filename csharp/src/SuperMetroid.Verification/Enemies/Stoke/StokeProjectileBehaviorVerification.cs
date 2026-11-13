@@ -22,9 +22,9 @@ internal static class StokeProjectileBehaviorVerification
         EnemyProjectile projectile = enemies.Projectiles.EnemyProjectiles[0];
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, RoomEnemyProjectileKind.StokeProjectile,
             SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard);
-        AssertTrue(projectile.Animation is StokeProjectileAnimation { PlayingSegment: StokeProjectileProgram.Initial }, "the projectile starts its loop");
+        AssertTrue(projectile.Animation is StokeProjectileAnimation { PlayingSegment: StokeProjectileSegment.Initial }, "the projectile starts its loop");
         (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, projectile,
-            StokeProjectileNativeListAddresses.Entry(StokeProjectileProgram.Initial), 60, "Stoke projectile");
+            StokeProjectileNativeListAddresses.Entry(StokeProjectileSegment.Initial), 60, "Stoke projectile");
         AssertTrue(!deleted, "the projectile loops");
         AssertEqual(0, guard.ForbiddenReadAttempts, "production reads none of the projectile's native list bytes");
         Console.WriteLine("  Stoke projectile behavior: the loop matches the native list.");

@@ -16,23 +16,23 @@ internal static class FriendlyAnimalResourceChecks
         {
             case "Etecoon":
                 EnemyCompositionResourceChecks.RunSpritemaps(family, FriendlyAnimalVisualDefinitions.NormalBank,
-                    EtecoonAnimationsTooling.Spritemaps(Enum.GetValues<EtecoonProgram>()),
+                    EtecoonAnimationsTooling.Spritemaps(Enum.GetValues<EtecoonSegment>()),
                     FriendlyAnimalVisualDefinitions.EtecoonFrameCount, previousCount, previousCount);
                 return;
             case "Dachora":
                 EnemyCompositionResourceChecks.RunSpritemaps(family, FriendlyAnimalVisualDefinitions.NormalBank,
-                    DachoraAnimationsTooling.Spritemaps(Enum.GetValues<DachoraProgram>()),
+                    DachoraAnimationsTooling.Spritemaps(Enum.GetValues<DachoraSegment>()),
                     FriendlyAnimalVisualDefinitions.DachoraFrameCount, previousCount,
                     previousCount + FriendlyAnimalVisualDefinitions.EtecoonFrameCount);
                 return;
             case "EscapeEtecoon":
                 EnemyCompositionResourceChecks.RunSpritemaps(family, FriendlyAnimalVisualDefinitions.EscapeBank,
-                    EscapeEtecoonAnimationsTooling.Spritemaps(Enum.GetValues<EscapeEtecoonProgram>()),
+                    EscapeEtecoonAnimationsTooling.Spritemaps(Enum.GetValues<EscapeEtecoonSegment>()),
                     FriendlyAnimalVisualDefinitions.EscapeEtecoonFrameCount, previousCount, escapeStart);
                 return;
             case "EscapeDachora":
                 EnemyCompositionResourceChecks.RunSpritemaps(family, FriendlyAnimalVisualDefinitions.EscapeBank,
-                    EscapeDachoraAnimationsTooling.Spritemaps(Enum.GetValues<EscapeDachoraProgram>()),
+                    EscapeDachoraAnimationsTooling.Spritemaps(Enum.GetValues<EscapeDachoraSegment>()),
                     FriendlyAnimalVisualDefinitions.EscapeDachoraFrameCount, previousCount,
                     escapeStart + FriendlyAnimalVisualDefinitions.EscapeEtecoonFrameCount);
                 return;

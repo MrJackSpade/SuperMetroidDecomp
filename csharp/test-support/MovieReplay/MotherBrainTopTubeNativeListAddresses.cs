@@ -12,12 +12,12 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 internal static class MotherBrainTopTubeNativeListAddresses
 {
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<MotherBrainTopTubeProgram>[] Entries =
+    internal static readonly NativeProgramEntry<MotherBrainTopTubeSegment>[] Entries =
     [
-        new NativeProgramEntry<MotherBrainTopTubeProgram>(MotherBrainTopTubeProgram.TopRight, MotherBrainTopTubeInstructionProgramDefinitions.TopRight),
-        new NativeProgramEntry<MotherBrainTopTubeProgram>(MotherBrainTopTubeProgram.TopLeft, MotherBrainTopTubeInstructionProgramDefinitions.TopLeft),
-        new NativeProgramEntry<MotherBrainTopTubeProgram>(MotherBrainTopTubeProgram.TopMiddleLeft, MotherBrainTopTubeInstructionProgramDefinitions.TopMiddleLeft),
-        new NativeProgramEntry<MotherBrainTopTubeProgram>(MotherBrainTopTubeProgram.TopMiddleRight, MotherBrainTopTubeInstructionProgramDefinitions.TopMiddleRight),
+        new NativeProgramEntry<MotherBrainTopTubeSegment>(MotherBrainTopTubeSegment.TopRight, MotherBrainTopTubeInstructionProgramDefinitions.TopRight),
+        new NativeProgramEntry<MotherBrainTopTubeSegment>(MotherBrainTopTubeSegment.TopLeft, MotherBrainTopTubeInstructionProgramDefinitions.TopLeft),
+        new NativeProgramEntry<MotherBrainTopTubeSegment>(MotherBrainTopTubeSegment.TopMiddleLeft, MotherBrainTopTubeInstructionProgramDefinitions.TopMiddleLeft),
+        new NativeProgramEntry<MotherBrainTopTubeSegment>(MotherBrainTopTubeSegment.TopMiddleRight, MotherBrainTopTubeInstructionProgramDefinitions.TopMiddleRight),
     ];
 
     /// <summary>The ceiling-tube lists use no family commands.</summary>

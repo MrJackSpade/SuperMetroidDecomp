@@ -1,4 +1,4 @@
-using P = SuperMetroid.Core.Enemies.Puyo.PuyoProgram;
+using P = SuperMetroid.Core.Enemies.Puyo.PuyoSegment;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Artwork;
 
@@ -11,8 +11,8 @@ namespace SuperMetroid.Core.Enemies.Puyo;
 internal static class PuyoAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<PuyoProgram, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
-        new Dictionary<PuyoProgram, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
+    internal static AnimationSegments<PuyoSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<PuyoSegment, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
     {
         [P.GroundedFast] =
         [
@@ -58,7 +58,7 @@ internal static class PuyoAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<PuyoProgram, Animation<PuyoProgram>> StartingAt { get; } = new Dictionary<PuyoProgram, Animation<PuyoProgram>>
+    internal static IReadOnlyDictionary<PuyoSegment, Animation<PuyoSegment>> StartingAt { get; } = new Dictionary<PuyoSegment, Animation<PuyoSegment>>
     {
         [P.GroundedFast] = new([new(P.GroundedFast, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
         [P.GroundedMedium] = new([new(P.GroundedMedium, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
@@ -71,7 +71,7 @@ internal static class PuyoAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<PuyoProgram> StartingWith(PuyoProgram segment) => StartingAt[segment];
+    internal static Animation<PuyoSegment> StartingWith(PuyoSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);

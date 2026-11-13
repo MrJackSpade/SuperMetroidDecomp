@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Yard;
 public sealed class YardEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<YardProgram> Playback { get; set; }
+    internal AnimationPlayback<YardSegment> Playback { get; set; }
 
     /// <summary>
     /// Signed 8.8 horizontal and vertical crawl velocity, each axis used either tangentially or as a normal-axis
@@ -20,7 +20,7 @@ public sealed class YardEnemyState
     public YardAirborneFacing AirborneFacingDirection { get; internal set; }
 
     /// <summary>The hidden-shell animation for the current orientation; none, the empty-behaviour sentinel, suppresses the look-at hiding transition.</summary>
-    internal YardProgram? HidingProgram { get; set; }
+    internal YardSegment? HidingAnimation { get; set; }
 
     /// <summary>The missing-surface probes in a row that drop Yard.</summary>
     internal const int MissedProbesBeforeFalling = 4;

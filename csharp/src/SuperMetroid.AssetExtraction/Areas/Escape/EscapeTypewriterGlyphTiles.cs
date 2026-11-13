@@ -13,11 +13,11 @@ internal static class EscapeTypewriterGlyphTiles
 {
     /// <summary>The tile of the letter A <paramref name="program"/>'s typewriter types from.</summary>
     /// <exception cref="ArgumentOutOfRangeException">No escape typewriter types <paramref name="program"/>.</exception>
-    internal static BackgroundTile TileBaseOf(EscapeTypewriterProgramId program) => program switch
+    internal static BackgroundTile TileBaseOf(EscapeTypewriterMessageId program) => program switch
     {
-        EscapeTypewriterProgramId.Ceres => EscapeTypewriterTileDefinitions.CeresTileBase,
-        EscapeTypewriterProgramId.Zebes => EscapeTypewriterTileDefinitions.ZebesTileBase,
-        EscapeTypewriterProgramId.None => throw new ArgumentOutOfRangeException(nameof(program), program, "No escape typewriter types this program."),
+        EscapeTypewriterMessageId.Ceres => EscapeTypewriterTileDefinitions.CeresTileBase,
+        EscapeTypewriterMessageId.Zebes => EscapeTypewriterTileDefinitions.ZebesTileBase,
+        EscapeTypewriterMessageId.None => throw new ArgumentOutOfRangeException(nameof(program), program, "No escape typewriter types this program."),
         _ => throw new ArgumentOutOfRangeException(nameof(program), program, "No escape typewriter types this program."),
     };
 

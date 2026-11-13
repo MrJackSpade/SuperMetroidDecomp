@@ -25,7 +25,7 @@ internal sealed record MotherBrainLiveActorSnapshot
     public required bool BodyCollidesByFrameHitboxes { get; init; }
 
     /// <summary>Whether the body's animation just installed a frame; cleared when the faded body becomes non-interactive.</summary>
-    public required bool BodyNewInstructionFrame { get; init; }
+    public required bool BodyShowsNewFrame { get; init; }
 
     /// <summary>Mother Brain brain-slot room position used by the final beam's aim vector.</summary>
     public required Position16<RoomPixels> Brain { get; init; }
@@ -46,7 +46,7 @@ internal sealed record MotherBrainLiveActorSnapshot
     public required bool BrainCollidesByFrameHitboxes { get; init; }
 
     /// <summary>Whether the brain's animation just installed a frame; cleared when the rot animation completes.</summary>
-    public required bool BrainNewInstructionFrame { get; init; }
+    public required bool BrainShowsNewFrame { get; init; }
 
     /// <summary>Lower neck angle updated by the brain-slot handler. The final beam has already lowered it to three sixteenths of a turn before the Baby interrupts the body.</summary>
     public required RotationAngle LowerNeckAngle { get; init; }

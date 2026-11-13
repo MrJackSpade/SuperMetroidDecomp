@@ -1594,7 +1594,7 @@ internal static class PaletteFxInstructionCodesVerification
             "$F781 beacon sound uses library two");
         AssertEqual<SoundEffectId>(EnemySound.Beacon, soundRequest.SoundEffect,
             "$F781 beacon sound is the beacon (operand $18)");
-        AssertEqual(PaletteFxSoundPriorities.InstructionSound, soundRequest.Priority,
+        AssertEqual(PaletteFxSoundPriorities.CueSound, soundRequest.Priority,
             "$F781 beacon sound uses the palette-effect instruction priority");
 
         // The next call must parse the timed palette record immediately after the byte

@@ -24,5 +24,5 @@ internal sealed class GunshipEntity(GunshipBehavior species, RoomEnemySlot slot,
     };
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => (enemy, _) => species.AdvanceGunshipAnimation(enemy);
+    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => (enemy, _) => species.AdvanceGunshipAnimation(enemy);
 }

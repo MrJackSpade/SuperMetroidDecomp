@@ -147,13 +147,13 @@ internal sealed class BeamCombos
             _ => throw new ArgumentOutOfRangeException(nameof(comboData), comboData, "Undefined combo data."),
         };
         slot.Damage = SamusProjectileDamage.Read(projectileKind);
-        SamusProjectileProgram program = comboData == BeamComboData.Combo
-            ? SamusProjectileKinds.SoleProgram(projectileKind)
-            : SamusProjectileKinds.Program(projectileKind, slot.Direction);
-        slot.Playback = SamusProjectilePrograms.Start(program);
+        SamusProjectileSegment segment = comboData == BeamComboData.Combo
+            ? SamusProjectileKinds.SoleAnimation(projectileKind)
+            : SamusProjectileKinds.Animation(projectileKind, slot.Direction);
+        slot.Playback = SamusProjectilePlayback.Start(segment);
         slot.FrameHold = WrappingCountdown.Start(1);
         if (comboData == BeamComboData.Charged)
-            slot.Radius = SamusProjectilePrograms.InitialRadius(program);
+            slot.Radius = SamusProjectilePlayback.InitialRadius(segment);
     }
 
     /// <summary>Runs one Ice combo slot and returns its optional Samus-library sound request.</summary>
@@ -264,7 +264,7 @@ internal sealed class BeamCombos
         Ensure.NotNull(slot);
         if (slot.Sprite is null || slot.Playback is not { } playback)
             return;
-        if (_spaceTimeOverwrite.For(SamusProjectilePrograms.BeatOf(playback), slot.Place) is { } overwrite)
+        if (_spaceTimeOverwrite.For(SamusProjectilePlayback.BeatOf(playback), slot.Place) is { } overwrite)
             (progression ?? throw new InvalidOperationException(
                 "SpaceTime's palette-copy overwrite writes progression; the frame must pass it.")).Overwrite(overwrite);
     }

@@ -198,7 +198,7 @@ internal static class FrontendSheetColouringsVerification
             EndingActorDefinitions.EscapeACloudLeftTop, EndingActorDefinitions.EscapeACloudRightBottom,
             EndingActorDefinitions.EscapeACloudLeftBottom, EndingActorDefinitions.EscapeBCloudTopA,
             EndingActorDefinitions.EscapeBCloudTopB, EndingActorDefinitions.EscapeBCloudBottomA, EndingActorDefinitions.EscapeBCloudBottomB])
-            AddProgram(sets, CinematicSpriteFamily.EndingCloud, cloud.Program, cloud.Colouring);
+            AddProgram(sets, CinematicSpriteFamily.EndingCloud, cloud.Animation, cloud.Colouring);
     }
 
     /// <summary>The explosion's actors, the completion text, the clear time and the animals' escape pod.</summary>
@@ -208,24 +208,24 @@ internal static class FrontendSheetColouringsVerification
             EndingActorDefinitions.ExplosionLava, EndingActorDefinitions.ExplosionGlow, EndingActorDefinitions.ExplosionStars,
             EndingActorDefinitions.ExplosionSilhouette, EndingActorDefinitions.ExplosionStarsRight,
             EndingActorDefinitions.ExplosionStarsLeft, EndingActorDefinitions.ExplosionAfterglow])
-            AddProgram(sets, CinematicSpriteFamily.EndingExplosion, explosion.Program, explosion.Colouring);
+            AddProgram(sets, CinematicSpriteFamily.EndingExplosion, explosion.Animation, explosion.Colouring);
         foreach (EndingSpriteDefinition text in (EndingSpriteDefinition[])[EndingActorDefinitions.OperationWasText,
             EndingActorDefinitions.CompletedSuccessfullyText, EndingActorDefinitions.ClearTimeText, EndingActorDefinitions.ClearTimeColon])
         {
-            AddProgram(sets, CinematicSpriteFamily.EndingCompletionText, text.Program, text.Colouring);
+            AddProgram(sets, CinematicSpriteFamily.EndingCompletionText, text.Animation, text.Colouring);
             // A typed text is drawn as the glyphs typed so far, each glyph in the text's colouring; the colon is drawn whole.
-            if (text.Program == EndingActorDefinitions.ClearTimeColon.Program)
+            if (text.Animation == EndingActorDefinitions.ClearTimeColon.Animation)
                 continue;
-            int glyphs = CinematicSpriteAnimations.Segments.Beats(text.Program)
+            int glyphs = CinematicSpriteAnimations.Segments.Beats(text.Animation)
                 .OfType<AnimationBeat<CinematicSpritePose, CinematicSpriteCue>.Frame>()
                 .Select(frame => frame.Shown).Where(pose => pose != CinematicSpritePose.Blank).Distinct().Count();
             for (int glyph = 0; glyph < glyphs; glyph++)
-                Add(sets, TypedTextSpriteSheet.GlyphFrameName(CinematicSpriteFamily.EndingCompletionText, text.Program, glyph), EndingScreenInks.SpriteSet(text.Colouring));
+                Add(sets, TypedTextSpriteSheet.GlyphFrameName(CinematicSpriteFamily.EndingCompletionText, text.Animation, glyph), EndingScreenInks.SpriteSet(text.Colouring));
         }
-        foreach (CinematicSpriteProgram digit in EndingCreditsState.ClearTimeDigitPrograms)
+        foreach (CinematicSpriteSegment digit in EndingCreditsState.ClearTimeDigitAnimations)
             AddProgram(sets, CinematicSpriteFamily.EndingCompletionText, digit, EndingSpriteColouring.ClearTimeDigits);
         // The flyaway spawns the animals' escape pod in its own colouring (EndingFlyaway).
-        AddProgram(sets, CinematicSpriteFamily.EndingAnimalEscape, CinematicSpriteProgram.EndingAnimalEscape, EndingSpriteColouring.AnimalEscape);
+        AddProgram(sets, CinematicSpriteFamily.EndingAnimalEscape, CinematicSpriteSegment.EndingAnimalEscape, EndingSpriteColouring.AnimalEscape);
     }
 
     /// <summary>The suited rewards' actors and the stars.</summary>
@@ -234,7 +234,7 @@ internal static class FrontendSheetColouringsVerification
         // The armored and helmetless rewards: their idle Samus, their gestures and their jump until it falls.
         foreach (EndingSpriteDefinition idle in (EndingSpriteDefinition[])[EndingActorDefinitions.ArmoredRewardBody,
             EndingActorDefinitions.ArmoredRewardHead, EndingActorDefinitions.HelmetlessRewardHead])
-            AddProgram(sets, CinematicSpriteFamily.EndingReward, idle.Program, idle.Colouring);
+            AddProgram(sets, CinematicSpriteFamily.EndingReward, idle.Animation, idle.Colouring);
         AddRewardActors(sets, EndingRewardActor.HelmetedHead, EndingRewardActor.HelmetlessHead, EndingRewardActor.SuitedBody,
             EndingRewardActor.SuitedArm, EndingRewardActor.JumpSuitedBody, EndingRewardActor.JumpHelmetedHead,
             EndingRewardActor.JumpHelmetlessHead);
@@ -246,7 +246,7 @@ internal static class FrontendSheetColouringsVerification
     {
         foreach (EndingSpriteDefinition idle in (EndingSpriteDefinition[])[EndingActorDefinitions.SuitlessRewardBody,
             EndingActorDefinitions.SuitlessRewardLegs])
-            AddProgram(sets, CinematicSpriteFamily.EndingReward, idle.Program, idle.Colouring);
+            AddProgram(sets, CinematicSpriteFamily.EndingReward, idle.Animation, idle.Colouring);
         AddRewardActors(sets, EndingRewardActor.SuitlessUpper, EndingRewardActor.SuitlessLower, EndingRewardActor.JumpSuitlessBody);
         AddStars(sets);
     }
@@ -256,10 +256,10 @@ internal static class FrontendSheetColouringsVerification
     {
         // The falling body falls and lands as falling Samus, and the shoot cue turns it to shooting Samus
         // (EndingRewardJump); the logo's four actors draw in the logo's colouring (EndingLogo).
-        AddProgram(sets, CinematicSpriteFamily.EndingReward, CinematicSpriteProgram.Falling, EndingSpriteColouring.FallingSamus);
+        AddProgram(sets, CinematicSpriteFamily.EndingReward, CinematicSpriteSegment.Falling, EndingSpriteColouring.FallingSamus);
         EndingSpriteColouring landing = EndingSpriteColouring.FallingSamus;
         foreach (AnimationBeat<CinematicSpritePose, CinematicSpriteCue> beat in
-            CinematicSpriteAnimations.Segments.Beats(CinematicSpriteProgram.Landing))
+            CinematicSpriteAnimations.Segments.Beats(CinematicSpriteSegment.Landing))
         {
             if (beat is AnimationBeat<CinematicSpritePose, CinematicSpriteCue>.Event { Raised.Kind: CinematicSpriteCueKind.Shoot })
                 landing = EndingSpriteColouring.ShootingSamus;
@@ -268,7 +268,7 @@ internal static class FrontendSheetColouringsVerification
                 Add(sets, $"{CinematicSpriteFamily.EndingReward}.{shown.Shown.Index}", EndingScreenInks.SpriteSet(landing));
         }
         for (int actor = 0; actor < EndingLogoDefinitions.ActorKinds.Length; actor++)
-            AddProgram(sets, CinematicSpriteFamily.EndingLogo, EndingLogoActors.Actor(actor).Program, EndingSpriteColouring.Logo);
+            AddProgram(sets, CinematicSpriteFamily.EndingLogo, EndingLogoActors.Actor(actor).Animation, EndingSpriteColouring.Logo);
     }
 
     /// <summary>Records each reward actor's poses in the colouring its initialization gives it.</summary>
@@ -277,7 +277,7 @@ internal static class FrontendSheetColouringsVerification
         foreach (EndingRewardActor actor in actors)
         {
             EndingRewardActorDefinition record = EndingRewardActors.Get(actor);
-            AddProgram(sets, CinematicSpriteFamily.EndingReward, record.Program, EndingRewardActors.GetInitialization(record.Initialization).Colouring);
+            AddProgram(sets, CinematicSpriteFamily.EndingReward, record.Animation, EndingRewardActors.GetInitialization(record.Initialization).Colouring);
         }
     }
 
@@ -289,7 +289,7 @@ internal static class FrontendSheetColouringsVerification
     }
 
     /// <summary>Records every pose <paramref name="program"/> shows, through every program it goes or falls into, in <paramref name="colouring"/>.</summary>
-    private static void AddProgram(Dictionary<string, HashSet<int>> sets, CinematicSpriteFamily family, CinematicSpriteProgram program,
+    private static void AddProgram(Dictionary<string, HashSet<int>> sets, CinematicSpriteFamily family, CinematicSpriteSegment program,
         EndingSpriteColouring colouring)
     {
         foreach (CinematicSpritePose pose in CinematicSpriteAnimations.Segments.FramesOf(CinematicSpriteAnimations.StartingWith(program)))

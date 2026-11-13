@@ -6,10 +6,10 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 internal static class MetroidOuterBodyDefinitions
 {
     /// <summary>The first outer body's frozen program, the Metroid's electricity.</summary>
-    internal const RoomSpriteObjectProgram OuterBodyAFrozenProgram = RoomSpriteObjectProgram.MetroidElectricity;
+    internal const RoomSpriteObjectSegment OuterBodyAFrozenAnimation = RoomSpriteObjectSegment.MetroidElectricity;
 
     /// <summary>The second outer body's frozen program, the Metroid's shell.</summary>
-    internal const RoomSpriteObjectProgram OuterBodyBFrozenProgram = RoomSpriteObjectProgram.MetroidShell;
+    internal const RoomSpriteObjectSegment OuterBodyBFrozenAnimation = RoomSpriteObjectSegment.MetroidShell;
 
     /// <summary>The frozen outer bodies' graphics: the shared sheet in the frozen colours.</summary>
     internal static SpriteGraphics FrozenGraphics { get; } = SpriteGraphics.SharedIn(EnemyShades.FrozenLook);

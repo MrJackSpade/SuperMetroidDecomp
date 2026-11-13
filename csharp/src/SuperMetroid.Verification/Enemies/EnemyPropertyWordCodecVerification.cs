@@ -20,7 +20,7 @@ internal static class EnemyPropertyWordCodecVerification
             AssertRoundTrips(EnemyPropertyState.None with { Contact = flag }, $"contact {flag}");
             AssertEqual(flag, flag.With(EnemyContact.BlocksPlasmaBeam).Without(EnemyContact.BlocksPlasmaBeam).With(flag), $"flag operations keep {flag}");
         }
-        foreach (EnemyProcessing flag in new[] { EnemyProcessing.OffScreen, EnemyProcessing.AnimationScript })
+        foreach (EnemyProcessing flag in new[] { EnemyProcessing.OffScreen, EnemyProcessing.Animates })
         {
             AssertRoundTrips(EnemyPropertyState.None with { Processing = flag }, $"processing {flag}");
             AssertEqual(flag, flag.With(EnemyProcessing.OffScreen).Without(EnemyProcessing.OffScreen).With(flag), $"flag operations keep {flag}");

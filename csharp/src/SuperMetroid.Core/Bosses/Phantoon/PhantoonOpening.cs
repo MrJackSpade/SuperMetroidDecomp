@@ -114,7 +114,7 @@ internal sealed class PhantoonOpening
             flame,
             RoomEnemyProjectileKind.PhantoonStartingFlame,
             SpriteGraphics.SpawnedBy(body));
-        flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameProgram.StartingFlame));
+        flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameSegment.StartingFlame));
         flame.Position = flame.Position.WithFractionX(0).WithFractionY(0);
         flame.Velocity = EightEightVector<RoomPixels>.Zero;
         var orbit = new PhantoonOrbitingFlameState(start);

@@ -71,19 +71,19 @@ internal static class SamusProjectileSelectionDefinitions
     /// The animation the Murder Beam's shot runs in each direction whose read names one, or none fired left; the four
     /// directions left out read a damage value as their animation.
     /// </summary>
-    internal static readonly IReadOnlyDictionary<SamusProjectileDirection, SamusProjectileProgram?> MurderBeamDirectionAnimations =
-        new Dictionary<SamusProjectileDirection, SamusProjectileProgram?>
+    internal static readonly IReadOnlyDictionary<SamusProjectileDirection, SamusProjectileSegment?> MurderBeamDirectionAnimations =
+        new Dictionary<SamusProjectileDirection, SamusProjectileSegment?>
         {
-            [SamusProjectileDirection.UpFacingRight] = SamusProjectileProgram.PowerBomb,
-            [SamusProjectileDirection.Right] = SamusProjectileProgram.Bomb,
-            [SamusProjectileDirection.DownFacingRight] = SamusProjectileProgram.BeamExplosion,
-            [SamusProjectileDirection.DownLeft] = SamusProjectileProgram.MissileExplosion,
+            [SamusProjectileDirection.UpFacingRight] = SamusProjectileSegment.PowerBomb,
+            [SamusProjectileDirection.Right] = SamusProjectileSegment.Bomb,
+            [SamusProjectileDirection.DownFacingRight] = SamusProjectileSegment.BeamExplosion,
+            [SamusProjectileDirection.DownLeft] = SamusProjectileSegment.MissileExplosion,
             [SamusProjectileDirection.Left] = null,
-            [SamusProjectileDirection.UpLeft] = SamusProjectileProgram.BombExplosion,
+            [SamusProjectileDirection.UpLeft] = SamusProjectileSegment.BombExplosion,
         };
 
     /// <summary>The Murder Beam's shot's animation by direction (<see cref="MurderBeamDirectionAnimations"/>).</summary>
-    internal static readonly MurderBeamDirectionPrograms<SamusProjectileDirection, SamusProjectileProgram> MurderBeamPrograms =
+    internal static readonly MurderBeamDirectionAnimations<SamusProjectileDirection, SamusProjectileSegment> MurderBeamAnimations =
         new(MurderBeamDirectionAnimations);
 
     /// <summary>The kind of each fired missile and placed bomb, by its projectile family.</summary>

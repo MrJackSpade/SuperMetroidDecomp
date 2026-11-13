@@ -124,14 +124,14 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         ThirdPhaseDeath.BodyProcessing = actor.BodyProcessing;
         ThirdPhaseDeath.BodyPresence = actor.BodyPresence;
         ThirdPhaseDeath.BodyCollidesByFrameHitboxes = actor.BodyCollidesByFrameHitboxes;
-        ThirdPhaseDeath.BodyNewInstructionFrame = actor.BodyNewInstructionFrame;
+        ThirdPhaseDeath.BodyShowsNewFrame = actor.BodyShowsNewFrame;
         State.BrainPosition = actor.Brain;
         State.BrainHealth = actor.BrainHealth;
         ThirdPhaseDeath.BrainContact = actor.BrainContact;
         ThirdPhaseDeath.BrainProcessing = actor.BrainProcessing;
         ThirdPhaseDeath.BrainPresence = actor.BrainPresence;
         ThirdPhaseDeath.BrainCollidesByFrameHitboxes = actor.BrainCollidesByFrameHitboxes;
-        ThirdPhaseDeath.BrainNewInstructionFrame = actor.BrainNewInstructionFrame;
+        ThirdPhaseDeath.BrainShowsNewFrame = actor.BrainShowsNewFrame;
         LowerNeckAngle = actor.LowerNeckAngle;
         UpperNeckAngle = actor.UpperNeckAngle;
         State.NeckMovementEnabled = actor.NeckMovementEnabled;
@@ -146,7 +146,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// this program into its physical body slot only when the step result reports a walk or
     /// posture request; it never advances this private mirror's program timer.
     /// </summary>
-    internal MotherBrainBodyProgram? RequestedBodyProgram => State.Body.Program;
+    internal MotherBrainBodySegment? RequestedBodyAnimation => State.Body.Animation;
 
     /// <summary>
     /// Carries out the cross-enemy function write. The Baby actor
@@ -229,7 +229,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     public bool RequestBabyStumbleBackward()
     {
         int targetX = CoordinateAxis.Wrap(State.Body.Position.X - 1);
-        return State.MakeBodyWalkBackwards(targetX, MotherBrainBodyProgram.WalkBackwardReallyFast).Requested;
+        return State.MakeBodyWalkBackwards(targetX, MotherBrainBodySegment.WalkBackwardReallyFast).Requested;
     }
 
     /// <summary>Executes one call through the current Mother Brain body function.</summary>
@@ -240,7 +240,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
             throw new InvalidOperationException("The active rainbow-beam sequence has not started.");
 
         MotherBrainBodyFunction? phaseBefore = State.Phase;
-        uint headAnimationScriptRequestSerialBefore = State.HeadAnimationScriptRequestSerial;
+        uint headAnimationScriptRequestSerialBefore = State.HeadAnimationRequestSerial;
         var requests = new MotherBrainRainbowBeamStepRequests();
 
         bool handsOver;
@@ -501,6 +501,6 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         }
         while (handsOver);
 
-        return requests.ToResult(phaseBefore, State.Phase, State.HeadAnimationScriptRequestSerial != headAnimationScriptRequestSerialBefore);
+        return requests.ToResult(phaseBefore, State.Phase, State.HeadAnimationRequestSerial != headAnimationScriptRequestSerialBefore);
     }
 }

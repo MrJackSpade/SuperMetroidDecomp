@@ -46,8 +46,6 @@ public enum RoomSound
     ShinesparkEnd,
     /// <summary>A shorter shinespark end.</summary>
     ShinesparkEndShort,
-    /// <summary>The library's first empty sound; a high-priority sound that plays nothing.</summary>
-    Empty1,
     /// <summary>
     /// A projectile of Mother Brain or a Torizo striking a surface, also the Baby Metroid and Mother Brain exploding.
     /// </summary>
@@ -60,12 +58,8 @@ public enum RoomSound
     MotherBrainFootstep,
     /// <summary>Mother Brain's blue rings.</summary>
     MotherBrainBlueRings,
-    /// <summary>The library's second empty sound; it plays nothing.</summary>
-    Empty2,
     /// <summary>The Baby Metroid dying; a high-priority sound.</summary>
     BabyMetroidDeath,
-    /// <summary>The library's third empty sound; it plays nothing.</summary>
-    Empty3,
     /// <summary>Draygon's dying cry; a high-priority sound.</summary>
     DraygonDyingCry,
     /// <summary>Crocomire spitting.</summary>
@@ -76,8 +70,6 @@ public enum RoomSound
     KraidEarthquake,
     /// <summary>Kraid firing lint.</summary>
     KraidLint,
-    /// <summary>The library's fourth empty sound; a high-priority sound that plays nothing.</summary>
-    Empty4,
     /// <summary>Ridley whipping its tail; a high-priority sound.</summary>
     RidleyTailWhip,
     /// <summary>Crocomire's acid damage.</summary>
@@ -106,6 +98,4 @@ public enum RoomSound
     IncrementalEnergy,
     /// <summary>Mother Brain's glass shattering; a high-priority sound.</summary>
     MotherBrainGlassShatter,
-    /// <summary>The library's fifth empty sound; it plays nothing.</summary>
-    Empty5,
 }

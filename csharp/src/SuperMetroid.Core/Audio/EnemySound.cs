@@ -132,14 +132,10 @@ public enum EnemySound
     ShotRipper,
     /// <summary>An Alcoon spitting, Fake Kraid's lint, or a ninja pirate's spin jump.</summary>
     AlcoonSpit,
-    /// <summary>The library's first empty sound; it plays nothing.</summary>
-    Empty1,
     /// <summary>A boulder bouncing.</summary>
     BoulderBounce,
     /// <summary>A boulder exploding.</summary>
     BoulderExplosion,
-    /// <summary>The library's second empty sound; it plays nothing.</summary>
-    Empty2,
     /// <summary>A typewriter stroke of Ceres's self-destruct sequence.</summary>
     CeresTypewriter,
     /// <summary>A lavaquake, also the Tourian reveal's rumble; a high-priority sound.</summary>

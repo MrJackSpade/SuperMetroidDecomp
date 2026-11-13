@@ -416,7 +416,7 @@ internal static void VerifySamusXray()
     AssertEqual(0x3f, standing.AnimationFrameTimer.RawValue, "command five X-ray timer");
     AssertEqual(RotationAngle.QuarterTurn.ToTrigonometryAngle().RawValue, standing.Xray.Angle.ToTrigonometryAngle().RawValue,
         "right X-ray initial angle");
-    AssertEqual(XraySetupStage.FreezeTimeSaveBackground, standing.Xray.SetupStage, "X-ray starts setup stage one");
+    AssertEqual(XrayWarmUp.Started, standing.Xray.WarmUp, "X-ray starts its warm-up");
     AssertTrue(standing.Xray.TimeIsFrozen, "X-ray freezes time");
     AssertTrue(standing.Xray.ActivationSoundRequested, "X-ray activation sound requested");
     AssertTrue(standing.Xray.ConsumeActivationSoundRequest(),
@@ -440,11 +440,11 @@ internal static void VerifySamusXray()
     AssertEqual(XrayScopeDefinitions.Palette.FrameDelay, standing.Xray.CommonPaletteTimer,
         "widening palette timer reload");
 
-    // Eight instruction-list setup functions execute before the main bank-$88 preinstruction.
-    // The eighth call clears SetupStage; the next call changes X-ray state zero to one.
-    for (int stage = 1; stage <= 8; stage++)
+    // Eight instruction-list setup functions execute before the main bank-$88 preinstruction: the warm-up's
+    // eight updates. The eighth ends the warm-up; the next call changes X-ray state zero to one.
+    for (int update = 1; update <= 8; update++)
         standing.Xray.StepBeam(standing, ControllerButton.B);
-    AssertEqual(XraySetupStage.Complete, standing.Xray.SetupStage, "eight X-ray setup stages complete");
+    AssertTrue(standing.Xray.WarmUp.IsOver, "X-ray's eight warm-up updates complete");
     AssertEqual(XrayBeamPhase.NoBeam, standing.Xray.BeamPhase, "setup retains state zero");
     standing.Xray.StepBeam(standing, ControllerButton.B);
     AssertEqual(XrayBeamPhase.Widening, standing.Xray.BeamPhase, "state zero starts widening");
@@ -619,11 +619,11 @@ internal static void VerifySamusXray()
         "interrupted X-Mode retains beam lifecycle and frozen time");
     AssertTrue(!interrupted.Xray.OwnsSamusControl,
         "interrupted X-Mode retains normal Samus handler ownership");
-    AssertEqual(XraySetupStage.FreezeTimeSaveBackground, interrupted.Xray.SetupStage,
-        "interrupted X-Mode retains first HDMA setup stage");
+    AssertEqual(XrayWarmUp.Started, interrupted.Xray.WarmUp,
+        "interrupted X-Mode retains the beam's unspent warm-up");
     interrupted.Xray.StepBeam(interrupted, ControllerButton.B);
-    AssertEqual(XraySetupStage.ReadForegroundSecondScreen, interrupted.Xray.SetupStage,
-        "interrupted X-Mode continues the independent beam setup program");
+    AssertEqual(XrayWarmUp.Updates - 1, interrupted.Xray.WarmUp.UpdatesLeft,
+        "interrupted X-Mode continues the independent beam warm-up");
 
     // Admission failures are kept independent so no broad host-side `grounded` boolean can
     // accidentally replace the native previous/current type, landing, velocity, and rare

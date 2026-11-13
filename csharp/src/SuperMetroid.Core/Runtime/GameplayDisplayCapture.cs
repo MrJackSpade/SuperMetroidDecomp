@@ -304,8 +304,8 @@ public static class GameplayDisplayCapture
     {
         if (frame.FrameEnd.Xray is not { } xray) return null;
         bool finishedThisFrame = xray.FinishedThisFrame;
-        if (!xray.SetupStage.ShowsBlendedRoom()) return null;
-        bool settingUp = xray.SetupStage != XraySetupStage.Complete;
+        if (!xray.WarmUp.ShowsBlendedRoom) return null;
+        bool warmingUp = !xray.WarmUp.IsOver;
         if (basis.Layers[0] is not GameplaySceneLayer ordinary)
             throw new NotSupportedException("X-ray display requires ordinary gameplay layers.");
         GameplayDisplayLatch latched = frame.Latched;
@@ -358,12 +358,12 @@ public static class GameplayDisplayCapture
         };
         if (finishedThisFrame && mode != XrayRoomBlendMode.Fireflea) level = 0;
         bool restoring = finishedThisFrame || xray.BeamPhase is XrayBeamPhase.RestoreSecondHalf or XrayBeamPhase.Finish;
-        FramePaint paint = settingUp ? basis.Paint
+        FramePaint paint = warmingUp ? basis.Paint
             : basis.Paint.WithBackdrop(restoring ? RgbColor.Black : XrayRoomDisplayRules.ActiveBackdrop);
         // Releasing Run merely advances the beam to phase three. That
         // phase closes the beam's window on the NEXT call and clears the backdrop;
         // restoration keeps ownership until phase five finally unfreezes gameplay.
-        bool closed = settingUp || restoring || xray.BeamPhase == XrayBeamPhase.NoBeam;
+        bool closed = warmingUp || restoring || xray.BeamPhase == XrayBeamPhase.NoBeam;
         ScreenWindow window = closed ? ScreenWindow.Closed : GameplayEffectCapture.CaptureXrayWindow(xray, scrolls.ForegroundPosition);
         var layer = new GameplayBlendLayer(gameplay, window, reveal, new GameplayBlend
         {

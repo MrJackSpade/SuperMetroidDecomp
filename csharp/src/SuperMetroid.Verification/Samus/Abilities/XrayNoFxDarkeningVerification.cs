@@ -37,8 +37,9 @@ internal static class XrayNoFxDarkeningVerification
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         AssertTrue(samus.Xray.TryBegin(samus, SamusMovementType.Standing, new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }), "fixture enters X-ray");
-        // The closed-beam setup state makes the selected pixels unambiguously outside.
-        samus.Xray.SetupStage = XraySetupStage.ReadForegroundFirstScreen;
+        // The warm-up's third update shows the blended room with the beam's window still closed, so the selected pixels are
+        // unambiguously outside.
+        samus.Xray.WarmUp = XrayWarmUp.Started.Spend().Spend();
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         // The room's own foreground is the main screen colour math works on (#1433): it draws from the room's block
         // pictures, so each expectation is derived from the colour the frame shows before blending.

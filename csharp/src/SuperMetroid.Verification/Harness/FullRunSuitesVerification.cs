@@ -398,7 +398,7 @@ using static SuperMetroid.Verification.Samus.Abilities.XrayInputVerification;
 using static SuperMetroid.Verification.Samus.Abilities.XrayOverlaysVerification;
 using static SuperMetroid.Verification.Samus.Abilities.XrayRevealVerification;
 using static SuperMetroid.Verification.Samus.Abilities.XrayRoomDisplayVerification;
-using static SuperMetroid.Verification.Samus.Abilities.XraySetupStageDomainVerification;
+using static SuperMetroid.Verification.Samus.Abilities.XrayWarmUpVerification;
 using static SuperMetroid.Verification.Samus.Abilities.XraySetupVerification;
 using static SuperMetroid.Verification.Samus.Abilities.XrayTilemapVerification;
 using static SuperMetroid.Verification.Enemies.YappingMaws.YappingMawGrappleReleaseVerification;
@@ -895,7 +895,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyMotherBrainRingBabyHealth), () => VerifyMotherBrainRingBabyHealth()),
         new(nameof(VerifyBabyMetroidWrongWaySpeed), () => VerifyBabyMetroidWrongWaySpeed()),
         new(nameof(VerifyMotherBrainGlitchMechanics), () => VerifyMotherBrainGlitchMechanics()),
-        new(nameof(VerifyXraySetupStageDomain), () => VerifyXraySetupStageDomain()),
+        new(nameof(VerifyXrayWarmUp), () => VerifyXrayWarmUp()),
         new(nameof(VerifyDoorOrientationDomain), () => VerifyDoorOrientationDomain()),
         new(nameof(VerifyRgbColorDomain), () => VerifyRgbColorDomain()),
         new(nameof(VerifyBabyMetroidFatalBlowShake), () => VerifyBabyMetroidFatalBlowShake()),

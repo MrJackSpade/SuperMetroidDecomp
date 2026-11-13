@@ -134,10 +134,10 @@ internal static class ReserveModeVerification
         return samus;
     }
 
-    /// <summary>Advances the live X-Ray object through setup and beam phases to its cleanup entry.</summary>
+    /// <summary>Advances the live X-Ray object through its warm-up and beam phases to its cleanup entry.</summary>
     private static void AdvanceXrayToFinish(SamusState samus)
     {
-        while (samus.Xray.SetupStage != XraySetupStage.Complete)
+        while (!samus.Xray.WarmUp.IsOver)
             samus.Xray.StepBeam(samus, controllerInput: 0);
         while (samus.Xray.BeamPhase != XrayBeamPhase.Finish)
             samus.Xray.StepBeam(samus, controllerInput: 0);

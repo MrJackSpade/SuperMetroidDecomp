@@ -406,12 +406,11 @@ public sealed class SamusHorizontalSpeedState
 
         SpecialPaletteTimer = 4;
 
-        SpeedBoosterPaletteSource source = SamusFullBodyCyclePalettes.ReadActiveSpeedBoosterPalette(
-            suit, CyclePaletteStep);
-        SamusSpeedBoosterPalette.Apply(colours, source);
+        SamusSpeedBoosterPalette.Apply(colours, SamusFullBodyCyclePalettes.ReadActiveSpeedBoosterPalette(
+            suit, CyclePaletteStep));
 
-        // The clamp is AFTER the copy. Screw Attack can leave step four or five in
-        // this shared step; retain that one bounded overrun before pinning the last step.
+        // The clamp is AFTER the copy. A step of four or five inherited from Screw Attack's
+        // share of this step is held on the suit's own last Speed Booster shade, then pinned to the last step.
         CyclePaletteStep = CyclePaletteStep >= SamusPaletteDefinitions.FullBodyCycles.SpeedBoosterLastStep
             ? SamusPaletteDefinitions.FullBodyCycles.SpeedBoosterLastStep
             : CyclePaletteStep + 1;

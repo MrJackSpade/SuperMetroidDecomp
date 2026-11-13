@@ -33,9 +33,9 @@ public static class SamusFullBodyCyclePalettes
     /// <param name="suit">The suit Samus shows.</param>
     /// <param name="step">The cycle step, counted from the suit's first entry.</param>
     /// <exception cref="ArgumentOutOfRangeException">The step is outside the six steps the shared cycle step takes.</exception>
-    internal static SpeedBoosterPaletteSource ReadActiveSpeedBoosterPalette(SamusSuit suit, int step) =>
-        new(new SamusFullBodyCyclePalette(SamusFullBodyCycleFamily.SpeedBooster, suit,
-            Math.Min(Ensure.BetweenInclusive(0, ScrewAttackSteps - 1, step), SpeedBoosterLastStep)));
+    internal static SamusFullBodyCyclePalette ReadActiveSpeedBoosterPalette(SamusSuit suit, int step) =>
+        new(SamusFullBodyCycleFamily.SpeedBooster, suit,
+            Math.Min(Ensure.BetweenInclusive(0, ScrewAttackSteps - 1, step), SpeedBoosterLastStep));
 
     /// <summary>Resolves a stored-shine cycle step of the suit's own list to a cycle palette.</summary>
     public static bool TryStoredShinePalette(SamusSuit suit, int step, out SamusFullBodyCyclePalette palette) =>

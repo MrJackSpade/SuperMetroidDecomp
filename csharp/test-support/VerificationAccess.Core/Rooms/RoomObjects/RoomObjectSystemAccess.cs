@@ -299,14 +299,14 @@ internal static class RoomObjectSystemAccess
             SamusProjectileType projectileType)
         {
             Ensure.NotNull(level);
-            bool areaDependent = bts.Reaction.IsAreaSpecific;
-            if (areaDependent && !bts.Reaction.IsAreaEntryBelow(8))
+            bool areaDependent = ShotBlockReactions.IsArea(bts.Shootable);
+            if (bts.Shootable == ShootableReaction.PastAreaTable)
             {
                 throw new ArgumentOutOfRangeException(
                     nameof(bts),
                     "Area-dependent shootable BTS must address one of its eight native entries.");
             }
-            if (!areaDependent && !bts.Reaction.IsCommonEntryBelow(16))
+            if (!areaDependent && !ShotBlockReactions.IsLeading(bts.Shootable))
             {
                 throw new ArgumentOutOfRangeException(
                     nameof(bts),
@@ -335,14 +335,14 @@ internal static class RoomObjectSystemAccess
                 return true;
             }
 
-            ShotBlockReaction? reaction = ShotBlockReactions.Of(bts.Reaction);
+            ShotBlockReaction? reaction = ShotBlockReactions.Of(bts.Shootable);
             if (reaction == ShotBlockReaction.RespawningBreak)
             {
                 // The setup throws away the original appearance. The shot-block parent with the block's collision kind
                 // is both the restore block and the source of the deactivated live block.
                 RoomTerrainBlock restore = block.Terrain.WithAppearance(self.Drawing.SetupBlock(RoomObjectSetupBlock.ShotBlockParent));
                 slot.RestoreTerrain = restore;
-                slot.Become(new BlockReactionObject(BlockReactionChanges.RespawningShot(ShotBlockReactions.BreakShape(bts.Reaction))));
+                slot.Become(new BlockReactionObject(BlockReactionChanges.RespawningShot(bts.Shootable)));
                 level.SetTerrain(position, restore.Deactivated());
                 return true;
             }
@@ -352,7 +352,7 @@ internal static class RoomObjectSystemAccess
                 // The deactivating setup does not synthesize a restore block. Deactivation turns shootable air into
                 // ordinary air and a shootable block into a solid block until the same-frame program draws its first
                 // breaking frame.
-                slot.Become(new BlockReactionObject(BlockReactionChanges.PermanentShot(ShotBlockReactions.BreakShape(bts.Reaction))));
+                slot.Become(new BlockReactionObject(BlockReactionChanges.PermanentShot(bts.Shootable)));
                 level.SetTerrain(position, block.Terrain.Deactivated());
                 return true;
             }
@@ -361,7 +361,7 @@ internal static class RoomObjectSystemAccess
             {
                 // CF2E sees projectile family `$0500` and replaces the entry's normal
                 // power-bomb animation pointer with the one-frame visible `$C057` reveal.
-                slot.Become(new BlockReactionObject(BlockReactionChangeDefinitions.BombedPowerBombBlockUnused));
+                slot.Become(new BlockReactionObject(BlockReactionChangeDefinitions.BombedPowerBombBlockReveal));
                 return true;
             }
 
@@ -369,7 +369,7 @@ internal static class RoomObjectSystemAccess
             {
                 // CF67 performs the analogous redirect to visible super-missile word
                 // `$C09F`; it neither clears collision nor queues the shot-block sound.
-                slot.Become(new BlockReactionObject(BlockReactionChangeDefinitions.BombedSuperMissileBlockUnused));
+                slot.Become(new BlockReactionObject(BlockReactionChangeDefinitions.BombedSuperMissileBlockReveal));
                 return true;
             }
 

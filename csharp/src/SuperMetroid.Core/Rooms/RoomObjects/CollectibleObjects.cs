@@ -175,7 +175,7 @@ internal sealed class CollectibleObjects
         RoomTerrainBlock setup = original.Terrain.WithCollision(
             presentation == CollectiblePresentation.ShotBlock ? RoomCollisionType.ShootableBlock : RoomCollisionType.Air);
         level.SetTerrain(slot.Block, setup);
-        level.SetBehavior(slot.Block, RoomBlockBehavior.Reacting(BlockReactionDefinitions.CollectibleTrigger));
+        level.SetBehavior(slot.Block, RoomBlockBehavior.Reacting(ShootableReaction.CollectibleTrigger));
         slot.RestoreTerrain = setup;
 
         CollectiblePhase phase = collected

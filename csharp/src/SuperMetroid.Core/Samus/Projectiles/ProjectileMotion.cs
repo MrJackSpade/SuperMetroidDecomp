@@ -510,7 +510,7 @@ internal sealed class ProjectileMotion
         if (!SamusBlockCollision.TryResolveExtension(level, ref block))
             return false;
         if (block.CollisionType == RoomCollisionType.ShootableBlock &&
-            block.Behavior.Reaction == BlockReactionDefinitions.CollectibleTrigger)
+            block.Behavior.Shootable == ShootableReaction.CollectibleTrigger)
         {
             _ = roomObjects?.CollectibleObjects.TryNotifyCollectibleProjectileHit(block.At);
             return true;
@@ -539,7 +539,7 @@ internal sealed class ProjectileMotion
             RoomCollisionType.Air or
             RoomCollisionType.SpikeAir or
             RoomCollisionType.SpecialAir or
-            RoomCollisionType.UnusedAir => false,
+            RoomCollisionType.UnrevealedAir => false,
 
             // These categories stop the missile immediately and therefore kill it.
             RoomCollisionType.SolidBlock or

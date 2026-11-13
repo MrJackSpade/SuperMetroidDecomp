@@ -47,7 +47,7 @@ public static class SamusTerrainHazardCollision
             return;
 
         // Every other spike-block reaction is harmless.
-        if (!SpikeHazardDefinitions.DamagingSpikeBlocks.TryGetValue(block.Behavior.Reaction, out SpikeBlockBehavior behavior))
+        if (!SpikeHazardDefinitions.DamagingSpikeBlocks.TryGetValue(block.Behavior.Spike, out SpikeBlockBehavior behavior))
             return;
         int damage = behavior switch
         {

@@ -11,7 +11,7 @@ public sealed class InstalledXrayReveals
 {
     /// <summary>Installed reveal blocks keyed by collision kind and reaction.</summary>
     /// <remarks>
-    /// Issue #1037: of every collision kind's reading of every reaction, the game's data has 305 drawable pairs; the
+    /// Issue #1037: of every collision kind and each reaction it reads (#1722), the game's data has 42 drawable pairs; the
     /// constructor requires exactly those pairs and rejects duplicates. The player edits the blocks in reveals.json while
     /// the shape and copy dimensions remain fixed, so no single formula can reproduce every valid installation: retain
     /// this bounded indexed store for the installed visual data.
@@ -31,9 +31,9 @@ public sealed class InstalledXrayReveals
         Overlays = Ensure.NotNull(overlays);
         _ = RoomBlockAppearance.Of(extensionExitBlock);
         ExtensionExitBlock = extensionExitBlock;
-        foreach ((RoomCollisionType type, BlockReaction reaction, XrayRevealVisualBlocks visual) in entries)
+        foreach ((RoomCollisionType type, Enum? reaction, XrayRevealVisualBlocks visual) in entries)
         {
-            if (XrayRevealTable.Find(type, RoomBlockBehavior.Reacting(reaction)) is not { } shape || !IsDrawable(shape))
+            if (!IsReadingOf(type, reaction) || XrayReveals.Find(type, reaction) is not { } shape || !IsDrawable(shape))
                 throw new InvalidDataException(
                     $"X-ray visual {type}/reaction {reaction} has no drawable reveal rule.");
             ValidateBlocks(visual);
@@ -43,9 +43,9 @@ public sealed class InstalledXrayReveals
         }
 
         foreach (RoomCollisionType type in Enum.GetValues<RoomCollisionType>())
-        foreach (BlockReaction reaction in BlockReaction.All)
+        foreach (Enum? reaction in BlockReactionFamilies.ReadingsOf(type))
         {
-            bool drawable = XrayRevealTable.Find(type, RoomBlockBehavior.Reacting(reaction)) is { } shape &&
+            bool drawable = XrayReveals.Find(type, reaction) is { } shape &&
                 IsDrawable(shape);
             if (drawable != blocks.ContainsKey(new XrayRevealVisualKey(type, reaction)))
                 throw new InvalidDataException(
@@ -68,10 +68,13 @@ public sealed class InstalledXrayReveals
     {
         if (XrayRevealTable.Find(type, behavior) is not { } shape) return null;
         if (!IsDrawable(shape)) return new XrayRevealDefinition(shape, 0, 0, 0, 0);
-        if (!blocks.TryGetValue(new XrayRevealVisualKey(type, behavior.Reaction), out XrayRevealVisualBlocks visual))
+        if (!blocks.TryGetValue(new XrayRevealVisualKey(type, behavior.ReactionUnder(type)), out XrayRevealVisualBlocks visual))
             throw new InvalidDataException($"Missing X-ray visual {type}/behaviour {behavior}.");
         return new XrayRevealDefinition(shape, visual.TopLeft, visual.TopRight, visual.BottomLeft, visual.BottomRight);
     }
+
+    /// <summary>Whether <paramref name="reaction"/> is a reaction <paramref name="type"/> reads, or null for a kind that reads none.</summary>
+    private static bool IsReadingOf(RoomCollisionType type, Enum? reaction) => BlockReactionFamilies.ReadingsOf(type).Contains(reaction);
 
     /// <summary>Rejects reveal blocks outside the tileset's block set, as an appearance of each would.</summary>
     private static void ValidateBlocks(XrayRevealVisualBlocks visual)

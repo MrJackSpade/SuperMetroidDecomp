@@ -8,7 +8,7 @@ internal static class DownwardGateDefinitions
     /// <summary>Five room blocks are marked solid while the closed gate occupies its column.</summary>
     public const int GateHeightInBlocks = 5;
     /// <summary>The block behaviour written to every block in the closed gate column: the shot-block collision probe.</summary>
-    public static readonly RoomBlockBehavior ClosedGateBehavior = RoomBlockBehavior.Reacting(ShotBlockReactionDefinitions.CollisionProbe);
+    public static readonly RoomBlockBehavior ClosedGateBehavior = RoomBlockBehavior.Reacting(ShootableReaction.CollisionProbe);
     /// <summary>The sound queued for a rejected non-blue gate trigger shot.</summary>
     public static readonly SoundEffectId RejectedShotSound = EnemySound.DudShotOnDoor;
     /// <summary>The sound the gate's movement plays.</summary>

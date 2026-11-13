@@ -19,8 +19,8 @@ public enum RoomCollisionType
     ShootableAir,
     /// <summary>Horizontal extension: the block collides as the block its behaviour's displacement names.</summary>
     HorizontalExtension,
-    /// <summary>Unused non-solid kind.</summary>
-    UnusedAir,
+    /// <summary>Non-solid air that reacts to nothing and that the X-ray scope, unlike plain air, does not reveal.</summary>
+    UnrevealedAir,
     /// <summary>Non-solid bombable-air behavior.</summary>
     BombableAir,
     /// <summary>Ordinary fully solid block.</summary>

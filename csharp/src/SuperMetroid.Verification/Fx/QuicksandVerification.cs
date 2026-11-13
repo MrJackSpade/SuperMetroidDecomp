@@ -292,15 +292,16 @@ internal static class QuicksandVerification
     /// every later area reaction are rejected, the area first.
     /// </summary>
     private static void VerifySpecialAirField<TReaction>(CartridgeImportAddressSpace rom,
-        Func<AreaId, BlockReaction, TReaction> resolve, IReadOnlyDictionary<TReaction, ushort> headers,
+        Func<AreaId, SpecialAirReaction, TReaction> resolve, IReadOnlyDictionary<TReaction, ushort> headers,
         IReadOnlyDictionary<TReaction, ushort> setups, TReaction nothing, int nativePointers, bool setup)
         where TReaction : struct, Enum
     {
         for (int rawArea = 0; rawArea <= byte.MaxValue; rawArea++)
-        foreach (BlockReaction reaction in BlockReaction.All)
+        for (int value = 0; value < RoomBlockBehaviorCodec.ByteCount; value++)
         {
             var area = (AreaId)rawArea;
-            if (rawArea >= 7 || !reaction.IsAreaEntryBelow(SpecialAirReactions.EntriesPerArea))
+            SpecialAirReaction reaction = RoomBlockBehaviorCodec.Decode(value).SpecialAir;
+            if (rawArea >= 7 || (value & 0x80) == 0 || (value & 0x7f) >= 16)
             {
                 try
                 {
@@ -316,13 +317,12 @@ internal static class QuicksandVerification
             }
 
             // Follow the original area pointer and header, independently of the production cases.
-            int index = reaction.Entry;
+            int index = value & 0x7f;
             ushort table = ReadRomWord(rom, nativePointers + rawArea * 2);
             ushort header = ReadRomWord(rom, 0x940000 | (table + index * 2));
             ushort nativeSetup = ReadRomWord(rom, 0x840000 | header);
-            var bts = RoomBlockBehaviorCodec.Decode((byte)(0x80 | index));
-            AssertEqual(reaction, bts.Reaction, "special-air BTS sign selects its area's reaction");
-            TReaction actual = resolve(area, bts.Reaction);
+            AssertTrue(SpecialAirReactions.IsAreaTableReaction(reaction), "special-air BTS sign selects its area's reaction");
+            TReaction actual = resolve(area, reaction);
             AssertEqual(nativeSetup, setups[actual], $"special-air {nativePointers:X6} area {rawArea} index {index} setup");
             // The cartridge gives Norfair's first three inside entries headers of their own that do nothing; the game has
             // one no-op reaction, so an entry resolving to it is compared by the setup its native header names alone.

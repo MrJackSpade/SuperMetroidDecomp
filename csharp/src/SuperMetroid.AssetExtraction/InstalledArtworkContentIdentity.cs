@@ -253,15 +253,13 @@ internal static class InstalledArtworkContentIdentity
         /// <summary>Identity of every selected drawable rule and its installed overlays, excluding command mechanics.</summary>
         public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledXrayReveals), content =>
         {
-            // Each visual is identified by its collision kind's and its reaction list's names and its reaction's entry, in
-            // that order.
+            // Each visual is identified by its collision kind's and its reaction's names, in that order (#1722).
             foreach (KeyValuePair<XrayRevealVisualKey, XrayRevealVisualBlocks> pair in reveals.blocks
-                .OrderBy(entry => entry.Key.Type).ThenBy(entry => entry.Key.Reaction.Scope).ThenBy(entry => entry.Key.Reaction.Entry))
+                .OrderBy(entry => entry.Key.Type).ThenBy(entry => entry.Key.Reaction?.ToString() ?? string.Empty, StringComparer.Ordinal))
             {
                 XrayRevealVisualBlocks visual = pair.Value;
                 content.AppendName("kind", pair.Key.Type.ToString());
-                content.AppendName("reaction list", pair.Key.Reaction.Scope.ToString());
-                content.Append("reaction entry", pair.Key.Reaction.Entry);
+                content.AppendName("reaction", pair.Key.Reaction?.ToString() ?? string.Empty);
                 content.Append("top left", visual.TopLeft);
                 content.Append("top right", visual.TopRight);
                 content.Append("bottom left", visual.BottomLeft);

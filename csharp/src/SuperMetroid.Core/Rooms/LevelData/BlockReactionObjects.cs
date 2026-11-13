@@ -38,8 +38,8 @@ internal sealed class BlockReactionObjects
         RoomBlockBehavior behavior)
     {
         Ensure.NotNull(level);
-        bool respawning = behavior.Reaction == GrappleBlockReactionDefinitions.RespawningBreakableAnchor;
-        if (!respawning && behavior.Reaction != GrappleBlockReactionDefinitions.PermanentBreakableAnchor)
+        bool respawning = behavior.Grapple == GrappleReaction.RespawningBreakableAnchor;
+        if (!respawning && behavior.Grapple != GrappleReaction.PermanentBreakableAnchor)
             throw new ArgumentOutOfRangeException(nameof(behavior), "The behaviour is not a breakable grapple block.");
 
         // Spawning searches the room-object slots from the last down to the first. Matching it matters if multiple
@@ -68,11 +68,11 @@ internal sealed class BlockReactionObjects
         RoomBlockBehavior behavior)
     {
         Ensure.NotNull(level);
-        if (!behavior.Reaction.IsCommonEntryBelow(8))
+        if (!BombableReactions.IsBreak(behavior.Bombable))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(behavior),
-                "Collision bomb-block behaviour must be one of the eight bomb-block behaviours, zero through seven.");
+                "Collision bomb-block behaviour must be one of the eight bomb-block breaks.");
         }
 
         // The reaction spawn searches the same descending slot order used by every other
@@ -88,7 +88,7 @@ internal sealed class BlockReactionObjects
         // bomb-block parent; multi-block restorations then add extension blocks around this parent.
         RoomBlockAppearance parent = _drawing.SetupBlock(RoomObjectSetupBlock.BombBlockParent);
         slot.RestoreTerrain = new RoomTerrainBlock(parent, block.CollisionType);
-        slot.Become(new BlockReactionObject(BlockReactionChanges.CollisionBomb(behavior.Reaction.Entry)));
+        slot.Become(new BlockReactionObject(BlockReactionChanges.CollisionBomb(behavior.Bombable)));
         level.SetTerrain(position, new RoomTerrainBlock(parent, RoomCollisionType.Air));
         return true;
     }
@@ -185,11 +185,11 @@ internal sealed class BlockReactionObjects
         SamusProjectileType projectileType)
     {
         Ensure.NotNull(level);
-        if (!behavior.Reaction.IsCommonEntryBelow(16))
+        if (behavior.Bombable is BombableReaction.PastTable or BombableReaction.AreaIgnored)
         {
             throw new ArgumentOutOfRangeException(
                 nameof(behavior),
-                "Bomb-reaction behaviour must be one of the sixteen bomb reactions, zero through fifteen.");
+                "Bomb-reaction behaviour must be one of the bomb table's breaks or its empty reaction.");
         }
 
         SamusProjectileFamily projectileFamily = projectileType.Family;
@@ -208,9 +208,9 @@ internal sealed class BlockReactionObjects
         RoomCollisionBlock block = level.GetCollisionBlock(position);
         slot.Block = position;
 
-        if (!behavior.Reaction.IsCommonEntryBelow(8))
+        if (behavior.Bombable == BombableReaction.Nothing)
         {
-            // Table entries 8..15 are all the empty reaction, whose setup does nothing and which leaves on its first update.
+            // The empty reaction's setup does nothing, and it leaves on its first update.
             slot.Become(new BlockReactionObject(BlockReactionChange.MadeAtSpawn));
             return true;
         }
@@ -221,8 +221,8 @@ internal sealed class BlockReactionObjects
         slot.RestoreTerrain = restore;
         // Only normal bombs skip the reaction sound: a normal bomb starts the shared break tail.
         slot.Become(new BlockReactionObject(projectileFamily == SamusProjectileFamily.Bomb
-            ? BlockReactionChanges.BombBreak(behavior.Reaction.Entry)
-            : BlockReactionChanges.ReactionBomb(behavior.Reaction.Entry)));
+            ? BlockReactionChanges.BombBreak(behavior.Bombable)
+            : BlockReactionChanges.ReactionBomb(behavior.Bombable)));
 
         level.SetTerrain(position, restore.Deactivated());
         return true;
@@ -239,14 +239,14 @@ internal sealed class BlockReactionObjects
         Ensure.NotNull(level);
         if (behavior == EscapeAnimalWallDefinitions.ReactionBehavior)
             return _escapeAnimals.TrySpawnCrittersEscapeReaction(level, position, projectileType);
-        bool areaDependent = behavior.Reaction.IsAreaSpecific;
-        if (areaDependent && !behavior.Reaction.IsAreaEntryBelow(8))
+        bool areaDependent = ShotBlockReactions.IsArea(behavior.Shootable);
+        if (behavior.Shootable == ShootableReaction.PastAreaTable)
         {
             throw new UnsupportedShotBlockReactionException(
                 nameof(behavior),
                 "Area-dependent shootable behaviour must name one of its area's eight shootable entries.");
         }
-        ShotBlockReaction? reaction = ShotBlockReactions.Of(behavior.Reaction);
+        ShotBlockReaction? reaction = ShotBlockReactions.Of(behavior.Shootable);
         if (!areaDependent && reaction is null)
         {
             throw new UnsupportedShotBlockReactionException(
@@ -299,13 +299,13 @@ internal sealed class BlockReactionObjects
                 // The setup keeps the collision kind with the shot-block parent's appearance for the 384-frame
                 // restoration, and deactivates the live block immediately.
                 RestoreAsParent(level, slot, block, RoomObjectSetupBlock.ShotBlockParent,
-                    new BlockReactionObject(BlockReactionChanges.RespawningShot(ShotBlockReactions.BreakShape(behavior.Reaction))));
+                    new BlockReactionObject(BlockReactionChanges.RespawningShot(behavior.Shootable)));
                 return true;
 
             case ShotBlockReaction.PermanentBreak:
                 // The deactivating setup keeps no restore block: these breaks are permanent. The current block loses its
                 // shootable collision before the first animated breaking frame runs later in this pass.
-                slot.Become(new BlockReactionObject(BlockReactionChanges.PermanentShot(ShotBlockReactions.BreakShape(behavior.Reaction))));
+                slot.Become(new BlockReactionObject(BlockReactionChanges.PermanentShot(behavior.Shootable)));
                 level.SetTerrain(position, block.Terrain.Deactivated());
                 return true;
 
@@ -315,7 +315,7 @@ internal sealed class BlockReactionObjects
                 {
                     // A normal bomb does not break this block. The setup redirects to the one-frame visible power-bomb
                     // reveal without touching collision.
-                    slot.Become(new BlockReactionObject(BlockReactionChangeDefinitions.BombedPowerBombBlockUnused));
+                    slot.Become(new BlockReactionObject(BlockReactionChangeDefinitions.BombedPowerBombBlockReveal));
                     return true;
                 }
 
@@ -334,7 +334,7 @@ internal sealed class BlockReactionObjects
                 {
                     // Ordinary bombs get the analogous one-frame Super Missile reveal. It deliberately leaves the live
                     // block untouched.
-                    slot.Become(new BlockReactionObject(BlockReactionChangeDefinitions.BombedSuperMissileBlockUnused));
+                    slot.Become(new BlockReactionObject(BlockReactionChangeDefinitions.BombedSuperMissileBlockReveal));
                     return true;
                 }
 
@@ -347,8 +347,7 @@ internal sealed class BlockReactionObjects
                 return true;
 
             case ShotBlockReaction.Nothing:
-            case ShotBlockReaction.Unused:
-                // The empty reaction and the unused entries leave the block alone, and the object leaves on its first
+                // The empty reaction and the empty entries leave the block alone, and the object leaves on its first
                 // update.
                 slot.Become(new BlockReactionObject(BlockReactionChange.MadeAtSpawn));
                 return true;
@@ -378,24 +377,25 @@ internal sealed class BlockReactionObjects
         }
 
         BlockReactionChange change;
-        if (!behavior.Reaction.IsAreaSpecific)
+        SpecialBlockReaction special = behavior.Special;
+        if (!BombSpecialBlockReactions.IsArea(special))
         {
-            if (!behavior.Reaction.IsCommonEntryBelow(BombSpecialBlockReactions.Count))
+            if (special == SpecialBlockReaction.PastTable)
                 throw new ArgumentOutOfRangeException(nameof(behavior),
                     "Area-independent special-block behaviour has no special-block reaction.");
 
-            change = BombSpecialBlockReactions.ChangeAt(behavior.Reaction.Entry);
+            change = BombSpecialBlockReactions.ChangeFor(special);
         }
         else
         {
-            if (!behavior.Reaction.IsAreaEntryBelow(8))
+            if (special == SpecialBlockReaction.PastAreaTable)
             {
                 throw new ArgumentOutOfRangeException(
                     nameof(behavior),
                     "Area-dependent bomb-special behaviour must name one of its area's eight bomb-special entries.");
             }
 
-            change = areaIndex == AreaId.Brinstar && SpeedBoosterBlockObjectDefinitions.BrinstarBlocks.ContainsKey(behavior.Reaction)
+            change = areaIndex == AreaId.Brinstar && SpeedBoosterBlockObjectDefinitions.BrinstarBlocks.ContainsKey(special)
                 ? SpeedBoosterBlockObjectDefinitions.BombReveal
                 : BlockReactionChange.MadeAtSpawn;
         }

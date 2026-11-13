@@ -64,7 +64,7 @@ internal static class GameplayContentIdentityVerification
         foreach (XrayRevealVisualDefinition entry in XrayRevealFixtures.EveryDrawable(_ => new XrayRevealVisualBlocks(10, 11, 12, 13)))
         {
             XrayRevealVisualBlocks visual = entry.Visual;
-            if (!editedOperands && XrayRevealTable.Find(entry.Type, RoomBlockBehavior.Reacting(entry.Reaction)) == XrayRevealShape.CopySquare &&
+            if (!editedOperands && XrayRevealTable.Find(entry.Type, entry.Reaction) == XrayRevealShape.CopySquare &&
                 edit?.StartsWith("xray-", StringComparison.Ordinal) == true)
             {
                 visual = visual with
@@ -78,7 +78,7 @@ internal static class GameplayContentIdentityVerification
             }
             entries.Add(entry with { Visual = visual });
         }
-        AssertEqual(305, entries.Count, "complete compiled drawable rule fixture");
+        AssertEqual(42, entries.Count, "complete compiled drawable rule fixture");
         var items = new RoomBlockAppearance[InstalledXrayOverlays.TankCount];
         if (edit == "xray-item") items[^1] = RoomBlockAppearance.Of(1);
         XrayRoomOverlayVisual[] tiles =

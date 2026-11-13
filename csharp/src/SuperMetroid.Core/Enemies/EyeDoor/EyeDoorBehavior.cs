@@ -463,7 +463,7 @@ internal sealed class EyeDoorBehavior
                 RoomCollisionType.SpikeAir or
                 RoomCollisionType.SpecialAir or
                 RoomCollisionType.ShootableAir or
-                RoomCollisionType.UnusedAir or
+                RoomCollisionType.UnrevealedAir or
                 RoomCollisionType.BombableAir or
                 RoomCollisionType.HorizontalExtension or
                 RoomCollisionType.VerticalExtension or

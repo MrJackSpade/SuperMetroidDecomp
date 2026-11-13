@@ -204,7 +204,7 @@ internal sealed class EnemyTerrainFixtureRoom
                 return new(false, failure);
             if (resolved.Place is not { } reached || terrain[reached].Collision is not (
                     RoomCollisionType.Air or RoomCollisionType.SpikeAir or RoomCollisionType.SpecialAir or
-                    RoomCollisionType.ShootableAir or RoomCollisionType.UnusedAir or RoomCollisionType.BombableAir or
+                    RoomCollisionType.ShootableAir or RoomCollisionType.UnrevealedAir or RoomCollisionType.BombableAir or
                     RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension or RoomCollisionType.GrappleBlock))
                 return new(true, null);
         }

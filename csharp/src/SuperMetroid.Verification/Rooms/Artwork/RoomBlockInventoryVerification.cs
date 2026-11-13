@@ -1,4 +1,5 @@
 using System.Globalization;
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
@@ -51,9 +52,9 @@ internal static class RoomBlockInventoryVerification
     {
         TilesetDefinition holding = RoomTilesets.Get(RoomGraphicsSet.UpperCrateria);
         TilesetDefinition lacking = RoomTilesets.Get(RoomGraphicsSet.RedCrateria);
-        InventoriedRoomState holder = State(holding, AreaId.Crateria, new(RoomCollisionType.BombableBlock, BlockReaction.Common(0)),
+        InventoriedRoomState holder = State(holding, AreaId.Crateria, new(RoomCollisionType.BombableBlock, RoomBlockBehavior.Reacting(BombableReaction.RespawningBreak1x1)),
             RoomObjectKind.MotherBrainGlass);
-        InventoriedRoomState other = State(lacking, AreaId.Crateria, new(RoomCollisionType.BombableBlock, BlockReaction.Common(8)));
+        InventoriedRoomState other = State(lacking, AreaId.Crateria, new(RoomCollisionType.BombableBlock, RoomBlockBehavior.Reacting(BombableReaction.Nothing)));
         RoomBlockWriter[] writers =
         [
             new(new HashSet<int> { BombWrittenBlock }, state => state.HoldsBombBlocks),
@@ -92,19 +93,17 @@ internal static class RoomBlockInventoryVerification
         TilesetDefinition tileset = RoomTilesets.Get(RoomGraphicsSet.UpperCrateria);
         for (int entry = 0; entry < 6; entry++)
         {
-            InventoriedRoomState area = State(tileset, AreaId.Brinstar, new(RoomCollisionType.SpecialAir, BlockReaction.AreaSpecific(entry)));
-            InventoriedRoomState common = State(tileset, AreaId.Brinstar, new(RoomCollisionType.SpecialAir, BlockReaction.Common(entry)));
+            InventoriedRoomState area = State(tileset, AreaId.Brinstar, new(RoomCollisionType.SpecialAir, RoomBlockBehaviorCodec.Decode(0x80 | entry)));
+            InventoriedRoomState common = State(tileset, AreaId.Brinstar, new(RoomCollisionType.SpecialAir, RoomBlockBehaviorCodec.Decode(entry)));
             AssertEqual(entry < 2, area.HoldsSamusEaterPlants, $"Brinstar special-air area reaction {entry} holds a plant exactly when it is a plant");
             AssertEqual(entry >= 2, area.HoldsSpeedBoosterBlocks, $"Brinstar special-air area reaction {entry} holds a Speed Booster block exactly when it is one");
             AssertTrue(!common.HoldsSamusEaterPlants && !common.HoldsSpeedBoosterBlocks,
                 $"Brinstar special-air common reaction {entry} holds neither a plant nor a Speed Booster block");
         }
-        for (int entry = 0; entry <= BlockReaction.LastEntry; entry++)
+        for (int value = 0; value < RoomBlockBehaviorCodec.ByteCount; value++)
         {
-            AssertEqual(entry < 8, State(tileset, AreaId.Crateria, new(RoomCollisionType.SpecialBlock, BlockReaction.Common(entry))).HoldsCrumbleBlocks,
-                $"a special block with common reaction {entry} holds a crumble block exactly when it is one of the first eight");
-            AssertTrue(!State(tileset, AreaId.Crateria, new(RoomCollisionType.SpecialBlock, BlockReaction.AreaSpecific(entry))).HoldsCrumbleBlocks,
-                $"a special block with area reaction {entry} holds no crumble block");
+            AssertEqual(value < 8, State(tileset, AreaId.Crateria, new(RoomCollisionType.SpecialBlock, RoomBlockBehaviorCodec.Decode(value))).HoldsCrumbleBlocks,
+                $"a special block with BTS {value:X2} holds a crumble block exactly when it is one of the first eight common reactions");
         }
         Console.WriteLine("Room block inventory: special-air area reactions alone start the area's plants and Speed Booster blocks; the first eight common special-block reactions start the crumble blocks.");
     }
@@ -123,15 +122,6 @@ internal static class RoomBlockInventoryVerification
         new(tileset, AreaId.Brinstar, new HashSet<int> { PlacedBlock }, new HashSet<RoomTerrainReaction>(), straddledShots.ToHashSet(),
             new HashSet<RoomObjectKind>(), new HashSet<EnemyDefinitionId>(), RoomSetupBehavior.None, RoomMainBehavior.None,
             new HashSet<DoorDefinition>(), null);
-
-    /// <summary>The common shootable reaction whose entry selects <paramref name="reaction"/> first.</summary>
-    private static BlockReaction CommonShotReaction(ShotBlockReaction reaction)
-    {
-        int entry = ShotBlockReactionDefinitions.LeadingEntries.ToList().IndexOf(reaction);
-        if (entry < 0)
-            throw new InvalidOperationException($"Verification failed: no common shootable entry selects {reaction}.");
-        return BlockReaction.Common(entry);
-    }
 
     /// <summary>
     /// The installation's real writers, from its installed room-object catalogs and X-ray reveal (#1650): a room state
@@ -157,13 +147,13 @@ internal static class RoomBlockInventoryVerification
             $"a room state holding no writer's start shows only the block it places, none of the shot-block family, not {Blocks(quiet)}");
 
         IReadOnlySet<int> straddling = RoomBlockInventory.Of(
-            [Quiet(tileset, new RoomTerrainReaction(RoomCollisionType.ShootableAir, CommonShotReaction(ShotBlockReaction.RespawningBreak)))],
+            [Quiet(tileset, new RoomTerrainReaction(RoomCollisionType.ShootableAir, RoomBlockBehavior.Reacting(ShootableReaction.RespawningBreak1x1)))],
             writers).Shown(tileset);
         AssertTrue(family.IsSubsetOf(straddling),
             $"a straddled read setting off a respawning shot block pictures the whole shot-block family {Blocks(family)}, not {Blocks(straddling)}");
 
         IReadOnlySet<int> rejected = RoomBlockInventory.Of(
-            [Quiet(tileset, new RoomTerrainReaction(RoomCollisionType.ShootableAir, CommonShotReaction(ShotBlockReaction.RespawningSuperMissileBreak)))],
+            [Quiet(tileset, new RoomTerrainReaction(RoomCollisionType.ShootableAir, RoomBlockBehavior.Reacting(ShootableReaction.RespawningSuperMissileBlock)))],
             writers).Shown(tileset);
         AssertTrue(!rejected.Overlaps(family),
             $"a straddled read of a Super Missile block, which rejects a beam, pictures none of the shot-block family, not {Blocks(rejected)}");
@@ -181,7 +171,7 @@ internal static class RoomBlockInventoryVerification
     internal static void VerifyStraddledShotReactions()
     {
         StraddledTerrain<RoomTerrainBlock> straddled = StraddledTerrainFiles.Read(StraddledTerrainFiles.Decode());
-        BlockReaction respawning = CommonShotReaction(ShotBlockReaction.RespawningBreak);
+        RoomBlockBehavior respawning = RoomBlockBehavior.Reacting(ShootableReaction.RespawningBreak1x1);
         var first = RoomTerrainBlock.Of(0x321, BlockMirroring.None, RoomCollisionType.SolidBlock);
         RoomTerrainBlock second = ShootableAirTail(straddled, first);
 
@@ -214,14 +204,14 @@ internal static class RoomBlockInventoryVerification
     /// selecting <paramref name="reaction"/>, and <paramref name="second"/> after it.
     /// </summary>
     private static InstalledRoomLevel Level(Extent16<RoomBlocks> size, Position16<RoomBlocks> at, RoomTerrainBlock first,
-        RoomTerrainBlock second, BlockReaction reaction)
+        RoomTerrainBlock second, RoomBlockBehavior reaction)
     {
         var terrain = new RoomTerrainBlock[size.Area];
         var behaviors = new RoomBlockBehavior[size.Area];
         int index = (at.Y * size.X) + at.X;
         terrain[index] = first;
         terrain[index + 1] = second;
-        behaviors[index] = RoomBlockBehavior.Reacting(reaction);
+        behaviors[index] = reaction;
         return new InstalledRoomLevel(size, [.. terrain], [.. behaviors], [.. new RoomBlockAppearance[size.Area]], [], 0);
     }
 

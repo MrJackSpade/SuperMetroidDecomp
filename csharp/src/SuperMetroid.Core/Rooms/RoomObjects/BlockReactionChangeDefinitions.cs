@@ -1,5 +1,6 @@
 using D = SuperMetroid.Core.Rooms.RoomObjects.BlockReactionObjectDrawDefinitions;
 using F = SuperMetroid.Core.Rooms.RoomObjects.BlockReactionObjectFrame;
+using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
@@ -37,13 +38,13 @@ internal static class BlockReactionChangeDefinitions
     ]);
 
     /// <summary>A normal bomb's one-update reveal of a Power Bomb block, which it does not break.</summary>
-    internal static BlockReactionChange BombedPowerBombBlockUnused { get; } = new(1,
+    internal static BlockReactionChange BombedPowerBombBlockReveal { get; } = new(1,
     [
         new(D.DrawLists[F.PowerBombReveal], 1),
     ]);
 
     /// <summary>A normal bomb's one-update reveal of a Super Missile block, which it does not break.</summary>
-    internal static BlockReactionChange BombedSuperMissileBlockUnused { get; } = new(1,
+    internal static BlockReactionChange BombedSuperMissileBlockReveal { get; } = new(1,
     [
         new(D.DrawLists[F.SuperMissileReveal], 1),
     ]);
@@ -556,69 +557,79 @@ internal static class BlockReactionChangeDefinitions
         new(D.DrawLists[F.GrappleBlank], 1),
     ]);
 
-    /// <summary>The collision bomb blocks by reaction index: 1x1, 2x1, 1x2, 2x2 respawning, then permanent.</summary>
-    internal static IReadOnlyList<BlockReactionChange> CollisionBomb { get; } =
-    [
-        CollisionBombBlock1x1Respawning,
-        CollisionBombBlock2x1Respawning,
-        CollisionBombBlock1x2Respawning,
-        CollisionBombBlock2x2Respawning,
-        CollisionBombBlock1x1Permanent,
-        CollisionBombBlock2x1Permanent,
-        CollisionBombBlock1x2Permanent,
-        CollisionBombBlock2x2Permanent,
-    ];
+    /// <summary>The collision bomb block each bomb block's break sets off.</summary>
+    internal static IReadOnlyDictionary<BombableReaction, BlockReactionChange> CollisionBomb { get; } =
+        new Dictionary<BombableReaction, BlockReactionChange>
+        {
+            [BombableReaction.RespawningBreak1x1] = CollisionBombBlock1x1Respawning,
+            [BombableReaction.RespawningBreak2x1] = CollisionBombBlock2x1Respawning,
+            [BombableReaction.RespawningBreak1x2] = CollisionBombBlock1x2Respawning,
+            [BombableReaction.RespawningBreak2x2] = CollisionBombBlock2x2Respawning,
+            [BombableReaction.PermanentBreak1x1] = CollisionBombBlock1x1Permanent,
+            [BombableReaction.PermanentBreak2x1] = CollisionBombBlock2x1Permanent,
+            [BombableReaction.PermanentBreak1x2] = CollisionBombBlock1x2Permanent,
+            [BombableReaction.PermanentBreak2x2] = CollisionBombBlock2x2Permanent,
+        };
 
-    /// <summary>The bomb reaction blocks a Power Bomb sets off, by reaction index.</summary>
-    internal static IReadOnlyList<BlockReactionChange> ReactionBomb { get; } =
-    [
-        ReactionBombBlock1x1Respawning,
-        ReactionBombBlock2x1Respawning,
-        ReactionBombBlock1x2Respawning,
-        ReactionBombBlock2x2Respawning,
-        ReactionBombBlock1x1Permanent,
-        ReactionBombBlock2x1Permanent,
-        ReactionBombBlock1x2Permanent,
-        ReactionBombBlock2x2Permanent,
-    ];
+    /// <summary>The bomb reaction block a Power Bomb sets off for each bomb block's break.</summary>
+    internal static IReadOnlyDictionary<BombableReaction, BlockReactionChange> ReactionBomb { get; } =
+        new Dictionary<BombableReaction, BlockReactionChange>
+        {
+            [BombableReaction.RespawningBreak1x1] = ReactionBombBlock1x1Respawning,
+            [BombableReaction.RespawningBreak2x1] = ReactionBombBlock2x1Respawning,
+            [BombableReaction.RespawningBreak1x2] = ReactionBombBlock1x2Respawning,
+            [BombableReaction.RespawningBreak2x2] = ReactionBombBlock2x2Respawning,
+            [BombableReaction.PermanentBreak1x1] = ReactionBombBlock1x1Permanent,
+            [BombableReaction.PermanentBreak2x1] = ReactionBombBlock2x1Permanent,
+            [BombableReaction.PermanentBreak1x2] = ReactionBombBlock1x2Permanent,
+            [BombableReaction.PermanentBreak2x2] = ReactionBombBlock2x2Permanent,
+        };
 
-    /// <summary>The bomb blocks a normal bomb sets off, by reaction index.</summary>
-    internal static IReadOnlyList<BlockReactionChange> BombBreak { get; } =
-    [
-        BombBlock1x1RespawningBreak,
-        BombBlock2x1RespawningBreak,
-        BombBlock1x2RespawningBreak,
-        BombBlock2x2RespawningBreak,
-        BombBlock1x1PermanentBreak,
-        BombBlock2x1PermanentBreak,
-        BombBlock1x2PermanentBreak,
-        BombBlock2x2PermanentBreak,
-    ];
+    /// <summary>The bomb block a normal bomb sets off for each bomb block's break.</summary>
+    internal static IReadOnlyDictionary<BombableReaction, BlockReactionChange> BombBreak { get; } =
+        new Dictionary<BombableReaction, BlockReactionChange>
+        {
+            [BombableReaction.RespawningBreak1x1] = BombBlock1x1RespawningBreak,
+            [BombableReaction.RespawningBreak2x1] = BombBlock2x1RespawningBreak,
+            [BombableReaction.RespawningBreak1x2] = BombBlock1x2RespawningBreak,
+            [BombableReaction.RespawningBreak2x2] = BombBlock2x2RespawningBreak,
+            [BombableReaction.PermanentBreak1x1] = BombBlock1x1PermanentBreak,
+            [BombableReaction.PermanentBreak2x1] = BombBlock2x1PermanentBreak,
+            [BombableReaction.PermanentBreak1x2] = BombBlock1x2PermanentBreak,
+            [BombableReaction.PermanentBreak2x2] = BombBlock2x2PermanentBreak,
+        };
 
-    /// <summary>The crumble reveals by size: 1x1, 2x1, 1x2, 2x2.</summary>
-    internal static IReadOnlyList<BlockReactionChange> CrumbleReveal { get; } =
-    [
-        CrumbleReveal1x1,
-        CrumbleReveal2x1,
-        CrumbleReveal1x2,
-        CrumbleReveal2x2,
-    ];
+    /// <summary>The crumble reveal a normal bomb sets off for each crumble block, by its size.</summary>
+    internal static IReadOnlyDictionary<SpecialBlockReaction, BlockReactionChange> CrumbleReveal { get; } =
+        new Dictionary<SpecialBlockReaction, BlockReactionChange>
+        {
+            [SpecialBlockReaction.RespawningCrumble1x1] = CrumbleReveal1x1,
+            [SpecialBlockReaction.RespawningCrumble2x1] = CrumbleReveal2x1,
+            [SpecialBlockReaction.RespawningCrumble1x2] = CrumbleReveal1x2,
+            [SpecialBlockReaction.RespawningCrumble2x2] = CrumbleReveal2x2,
+            [SpecialBlockReaction.PermanentCrumble1x1] = CrumbleReveal1x1,
+            [SpecialBlockReaction.PermanentCrumble2x1] = CrumbleReveal2x1,
+            [SpecialBlockReaction.PermanentCrumble1x2] = CrumbleReveal1x2,
+            [SpecialBlockReaction.PermanentCrumble2x2] = CrumbleReveal2x2,
+        };
 
-    /// <summary>The respawning shot blocks by size.</summary>
-    internal static IReadOnlyList<BlockReactionChange> RespawningShot { get; } =
-    [
-        RespawningShotBlock1x1,
-        RespawningShotBlock2x1,
-        RespawningShotBlock1x2,
-        RespawningShotBlock2x2,
-    ];
+    /// <summary>The respawning shot block each respawning break sets off, by its size.</summary>
+    internal static IReadOnlyDictionary<ShootableReaction, BlockReactionChange> RespawningShot { get; } =
+        new Dictionary<ShootableReaction, BlockReactionChange>
+        {
+            [ShootableReaction.RespawningBreak1x1] = RespawningShotBlock1x1,
+            [ShootableReaction.RespawningBreak2x1] = RespawningShotBlock2x1,
+            [ShootableReaction.RespawningBreak1x2] = RespawningShotBlock1x2,
+            [ShootableReaction.RespawningBreak2x2] = RespawningShotBlock2x2,
+        };
 
-    /// <summary>The permanent shot blocks by size.</summary>
-    internal static IReadOnlyList<BlockReactionChange> PermanentShot { get; } =
-    [
-        PermanentShotBlock1x1,
-        PermanentShotBlock2x1,
-        PermanentShotBlock1x2,
-        PermanentShotBlock2x2,
-    ];
+    /// <summary>The permanent shot block each permanent break sets off, by its size.</summary>
+    internal static IReadOnlyDictionary<ShootableReaction, BlockReactionChange> PermanentShot { get; } =
+        new Dictionary<ShootableReaction, BlockReactionChange>
+        {
+            [ShootableReaction.PermanentBreak1x1] = PermanentShotBlock1x1,
+            [ShootableReaction.PermanentBreak2x1] = PermanentShotBlock2x1,
+            [ShootableReaction.PermanentBreak1x2] = PermanentShotBlock1x2,
+            [ShootableReaction.PermanentBreak2x2] = PermanentShotBlock2x2,
+        };
 }

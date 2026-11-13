@@ -76,10 +76,9 @@ internal static class XrayRevealVisualInstallationVerification
         JsonObject tall = document.Required("entries").AsArray().RequiredElements().Select(node => node.AsObject()).Single(entry =>
             entry.Required("collisionType").GetValue<string>() == nameof(RoomCollisionType.ShootableBlock) &&
             entry.Required("reactions").AsArray().RequiredElements().Any(reaction =>
-                reaction.Required("scope").GetValue<string>() == nameof(BlockReactionScope.Common) &&
-                reaction.Required("entry").GetValue<int>() == 2));
+                reaction.GetValue<string>() == nameof(ShootableReaction.RespawningBreak1x2)));
         AssertEqual("tall", tall.Required("shape").GetValue<string>(),
-            "shot-block common reaction 2 uses the native tall copy command");        // The installed rooms name their overlays; the pointer of each list stays the import's own knowledge (#1623).
+            "the two-tall respawning shot block uses the native tall copy command");        // The installed rooms name their overlays; the pointer of each list stays the import's own knowledge (#1623).
         JsonObject[] rooms = [.. document.Required("rooms").AsArray().RequiredElements().Select(node => node.AsObject())];
         AssertTrue(rooms.Select(room => room.Required("overlay").GetValue<string>())
                 .SequenceEqual(SuperMetroid.Core.Rooms.Xray.XrayRoomOverlayDefinitions.All.Select(overlay => overlay.Name)),

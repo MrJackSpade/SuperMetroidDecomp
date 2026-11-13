@@ -71,7 +71,7 @@ internal sealed class GreyDoorObjects
         // Preserve the authored appearance while replacing only collision and behaviour.
         level.SetTerrain(block,
             level.GetCollisionBlock(block).Terrain.WithCollision(RoomCollisionType.ShootableBlock));
-        level.SetBehavior(block, RoomBlockBehavior.Reacting(BlockReactionDefinitions.ResidentObjectTrigger));
+        level.SetBehavior(block, RoomBlockBehavior.Reacting(ShootableReaction.ResidentObjectTrigger));
     }
 
     /// <summary>

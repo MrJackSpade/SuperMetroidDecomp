@@ -81,7 +81,7 @@ internal static class NoobTubeObjectVerification
         AssertEqual(new RoomTerrainBlock(originShown, RoomCollisionType.SolidBlock),
             level.GetCollisionBlock(new(blockX, blockY)).Terrain,
             "n00b-tube setup makes its origin solid and keeps what it shows");
-        AssertEqual(RoomBlockBehaviorCodec.Encode(RoomBlockBehavior.Reacting(BlockReactionDefinitions.ResidentObjectTrigger)),
+        AssertEqual(RoomBlockBehaviorCodec.Encode(RoomBlockBehavior.Reacting(ShootableReaction.ResidentObjectTrigger)),
             RoomBlockBehaviorCodec.Encode(level.GetCollisionBlock(new(blockX, blockY)).Behavior),
             "n00b-tube setup installs BTS $44");
 
@@ -143,7 +143,7 @@ internal static class NoobTubeObjectVerification
             "Power Bomb boundary visits the live n00b-tube origin");
         AssertEqual(RoomCollisionType.ShootableBlock, level.GetCollisionBlockByIndex(blockIndex).CollisionType,
             "Power Bomb observes the intact tube's type-$C collision");
-        AssertEqual(RoomBlockBehavior.Reacting(BlockReactionDefinitions.ResidentObjectTrigger),
+        AssertEqual(RoomBlockBehavior.Reacting(ShootableReaction.ResidentObjectTrigger),
             level.GetCollisionBlockByIndex(blockIndex).Behavior,
             "Power Bomb observes the intact tube's BTS-$44 trigger");
         AssertEqual(new ResidentObjectProjectileHit(SamusProjectileFamily.PowerBomb), PendingTubeHit(roomObjects),

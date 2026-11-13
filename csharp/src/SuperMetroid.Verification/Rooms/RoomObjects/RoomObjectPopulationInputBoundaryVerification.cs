@@ -49,7 +49,7 @@ internal static class RoomObjectPopulationInputBoundaryVerification
             "typed population runs the real sequential allocator using a RAM-only bus");
         AssertTrue(roomObjects.PopulationSlots.Select(slot => slot.ProcessingPosition).SequenceEqual(ReusedPopulationSlots),
             "extension deletion lets the next record reuse the first slot in processing order, in authored order");
-        AssertEqual(RoomBlockBehaviorCodec.Encode(RoomBlockBehavior.Reacting(BlockReactionDefinitions.ScrollTrigger)), RoomBlockBehaviorCodec.Encode(level.GetCollisionBlock(new(3, 3)).Behavior),
+        AssertEqual(RoomBlockBehaviorCodec.Encode(RoomBlockBehavior.Reacting(SpecialAirReaction.ScrollTrigger)), RoomBlockBehaviorCodec.Encode(level.GetCollisionBlock(new(3, 3)).Behavior),
             "typed trigger setup publishes its native collision behavior");
         AssertEqual((int)RoomCollisionType.HorizontalExtension, (int)level.GetCollisionBlock(new(4, 3)).CollisionType,
             "typed extension setup publishes its native collision type");

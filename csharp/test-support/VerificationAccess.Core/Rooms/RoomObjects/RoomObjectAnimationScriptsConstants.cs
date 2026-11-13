@@ -44,9 +44,9 @@ internal static class RoomObjectAnimationScriptsConstants
     /// <summary>Permanent 2x2 contact-crumble list at <c>$84:CACA</c>.</summary>
     public const ushort ContactCrumble2x2Permanent = 0xcaca;
     /// <summary><c>$84:C91C UNUSED_InstList_PLM_PowerBombBlockBombed_84C91C</c>: bomb setup uses this one-frame reveal/delete list despite its unused native name.</summary>
-    public const ushort BombedPowerBombBlockUnused = 0xc91c;
+    public const ushort BombedPowerBombBlockReveal = 0xc91c;
     /// <summary><c>$84:C922 UNUSED_InstList_PLM_SuperMissileBlockBombed_84C922</c>: bomb setup reveals the gated Super Missile parent without breaking it, then deletes.</summary>
-    public const ushort BombedSuperMissileBlockUnused = 0xc922;
+    public const ushort BombedSuperMissileBlockReveal = 0xc922;
     /// <summary><c>$84:CADF InstList_PLM_1x1RespawningShotBlock</c>: sounds and animates a single block's break, waits 384 ticks, then restores its saved level word.</summary>
     public const ushort RespawningShotBlock1x1 = 0xcadf;
     /// <summary><c>$84:CB02 InstList_PLM_2x1RespawningShotBlock</c>: breaks a horizontal pair, waits 384 ticks, and restores its linked two-block layout.</summary>

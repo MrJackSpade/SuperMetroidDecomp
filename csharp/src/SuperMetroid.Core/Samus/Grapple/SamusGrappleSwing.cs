@@ -508,7 +508,7 @@ public static class SamusGrappleSwing
                 case RoomCollisionType.Air:
                 case RoomCollisionType.SpecialAir:
                 case RoomCollisionType.ShootableAir:
-                case RoomCollisionType.UnusedAir:
+                case RoomCollisionType.UnrevealedAir:
                 case RoomCollisionType.BombableAir:
                     return false;
 
@@ -518,7 +518,7 @@ public static class SamusGrappleSwing
                     // 60-frame invulnerability and 10-frame knockback timers. The timer
                     // check must precede the behaviour lookup so a second radial probe in this
                     // same six-point sweep cannot queue damage again.
-                    ApplySwingSpikeDamage(samus, block.Behavior.Reaction, block: SwingSpikeBlock.Plain);
+                    ApplySwingSpikeDamage(samus, block.Behavior.Spike, block: SwingSpikeBlock.Plain);
                     return false;
 
                 // Slopes are unconditional collision in this grapple-specific dispatcher.
@@ -535,7 +535,7 @@ public static class SamusGrappleSwing
                     // The solid spike reaction always reports collision. Before reporting it, it applies
                     // 60 damage for behaviour zero or 16 for behaviour one; every other entry is
                     // literally zero. A negative behaviour skips the table entirely.
-                    ApplySwingSpikeDamage(samus, block.Behavior.Reaction, block: SwingSpikeBlock.Solid);
+                    ApplySwingSpikeDamage(samus, block.Behavior.Spike, block: SwingSpikeBlock.Solid);
                     return true;
 
                 case RoomCollisionType.HorizontalExtension:
@@ -575,20 +575,20 @@ public static class SamusGrappleSwing
     /// <summary>Applies behaviour-specific spike damage once per invincibility window and starts knockback.</summary>
     private static void ApplySwingSpikeDamage(
         SamusState samus,
-        BlockReaction reaction,
+        SpikeReaction reaction,
         SwingSpikeBlock block)
     {
         // Both handlers return immediately while the invincibility timer is nonzero or for an area reaction. This shared
         // guard is observable because one sweep can sample the same damaging block up to six times, yet only its first
         // sample may publish damage.
-        if (!samus.InvincibilityTimer.IsZero || reaction.IsAreaSpecific)
+        if (!samus.InvincibilityTimer.IsZero || SpikeReactions.IsArea(reaction))
             return;
 
         int damage = block == SwingSpikeBlock.Solid
-            ? reaction == SpikeHazardDefinitions.HeavySpikeReaction ? 60
-                : reaction == SpikeHazardDefinitions.LightSpikeReaction ? 16
+            ? reaction == SpikeReaction.HeavySpike ? 60
+                : reaction == SpikeReaction.LightSpike ? 16
                 : 0
-            : reaction == SpikeHazardDefinitions.DamagingSpikeAirReaction
+            : reaction == SpikeReaction.DamagingSpikeAir
                 ? 16
                 : 0;
         if (damage == 0)

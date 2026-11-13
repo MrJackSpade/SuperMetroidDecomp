@@ -755,7 +755,7 @@ public sealed class SamusBombProjectileSystem
                 RoomCollisionType.Air or
                 RoomCollisionType.SpikeAir or
                 RoomCollisionType.SpecialAir or
-                RoomCollisionType.UnusedAir or
+                RoomCollisionType.UnrevealedAir or
                 RoomCollisionType.BombableAir);
         }
 
@@ -874,8 +874,8 @@ public sealed class SamusBombProjectileSystem
         // The item-trigger collision behaviour routes to the already-loaded item object rather than
         // indexing the ordinary bomb/special-block tables. Visible special-block frames need no
         // additional response; concealed shootable/orb frames publish the generic trigger.
-        if (block.Behavior.Reaction == BlockReactionDefinitions.CollectibleTrigger &&
-            block.CollisionType is RoomCollisionType.SpecialBlock or RoomCollisionType.ShootableBlock)
+        if (block.CollisionType == RoomCollisionType.SpecialBlock && block.Behavior.Special == SpecialBlockReaction.CollectibleTrigger ||
+            block.CollisionType == RoomCollisionType.ShootableBlock && block.Behavior.Shootable == ShootableReaction.CollectibleTrigger)
         {
             _ = roomObjects?.CollectibleObjects.TryNotifyCollectibleProjectileHit(block.At);
             return;
@@ -887,7 +887,7 @@ public sealed class SamusBombProjectileSystem
         // projectile. The n00b tube begins as a solid block but its intact draw changes the live origin
         // to a shootable block, so narrowing this seam to colored doors strands the progression room object.
         if (block.CollisionType is RoomCollisionType.SolidBlock or RoomCollisionType.ShootableBlock &&
-            block.Behavior.Reaction == BlockReactionDefinitions.ResidentObjectTrigger)
+            block.Behavior.Shootable == ShootableReaction.ResidentObjectTrigger)
         {
             if (roomObjects is null ||
                 !roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(block.At, projectileType))
@@ -928,7 +928,7 @@ public sealed class SamusBombProjectileSystem
             RoomCollisionType.Slope or
             RoomCollisionType.SpikeAir or
             RoomCollisionType.SpecialAir or
-            RoomCollisionType.UnusedAir or
+            RoomCollisionType.UnrevealedAir or
             RoomCollisionType.SolidBlock or
             RoomCollisionType.DoorBlock or
             RoomCollisionType.SpikeBlock or
@@ -940,9 +940,9 @@ public sealed class SamusBombProjectileSystem
             // Both bombable-air and bombable-solid handlers use the bomb-block table. Negative
             // behaviour takes the duplicate/area-dependent early return and therefore
             // neither allocates a room object nor mutates terrain.
-            if (block.Behavior.Reaction.IsAreaSpecific)
+            if (block.Behavior.Bombable == BombableReaction.AreaIgnored)
                 return;
-            if (!block.Behavior.Reaction.IsCommonEntryBelow(16))
+            if (block.Behavior.Bombable == BombableReaction.PastTable)
             {
                 // The bomb-block table is a literal sixteen-entry table. Retail room data must keep a
                 // nonnegative bombable behaviour within that table; a larger value would make
@@ -995,19 +995,17 @@ public sealed class SamusBombProjectileSystem
             // A shootable block instead indexes one of eight area tables; every retail entry is
             // the empty room object, but spawning it still consumes a slot for one pass.
             if (block.CollisionType == RoomCollisionType.ShootableAir &&
-                block.Behavior.Reaction.IsAreaSpecific)
+                ShotBlockReactions.IsArea(block.Behavior.Shootable))
                 return;
-            if (!block.Behavior.Reaction.IsAreaSpecific &&
-                block.Behavior != EscapeAnimalWallDefinitions.ReactionBehavior &&
-                !block.Behavior.Reaction.IsCommonEntryBelow(16) &&
-                !block.Behavior.Reaction.IsShotCollisionProbe)
+            if (!ShotBlockReactions.IsArea(block.Behavior.Shootable) &&
+                block.Behavior.Shootable is not (ShootableReaction.AnimalEscape or ShootableReaction.CollisionProbe) &&
+                !ShotBlockReactions.IsLeading(block.Behavior.Shootable))
             {
                 throw new InvalidDataException(
                     $"Shootable block {block.Position} has behaviour ({block.Behavior}) outside " +
                     "the translated bomb-reaction table range.");
             }
-            if (block.Behavior.Reaction.IsAreaSpecific &&
-                !block.Behavior.Reaction.IsAreaEntryBelow(8))
+            if (block.Behavior.Shootable == ShootableReaction.PastAreaTable)
             {
                 throw new InvalidDataException(
                     $"Area-dependent shootable block {block.Position} has behaviour " +

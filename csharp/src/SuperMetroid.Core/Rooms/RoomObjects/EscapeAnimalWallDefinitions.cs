@@ -12,7 +12,7 @@ public static class EscapeAnimalWallDefinitions
     public const int WallY = 10;
 
     /// <summary>The block behaviour of the rescue wall's shootable origin block, which selects the critters-escape reaction.</summary>
-    public static readonly RoomBlockBehavior ReactionBehavior = RoomBlockBehavior.Reacting(BlockReaction.Common(79));
+    public static readonly RoomBlockBehavior ReactionBehavior = RoomBlockBehavior.Reacting(ShootableReaction.AnimalEscape);
 
     /// <summary>The collision type the setup gives the wall's origin block, keeping its artwork.</summary>
     public const RoomCollisionType OriginCollisionType = RoomCollisionType.ShootableBlock;

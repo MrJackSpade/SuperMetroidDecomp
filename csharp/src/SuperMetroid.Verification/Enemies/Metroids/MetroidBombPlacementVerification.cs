@@ -24,12 +24,6 @@ using SuperMetroid.Core.World.RoomStates;
 /// <summary>Checks a placed bomb detaching a Metroid and its subsequent escape motion.</summary>
 internal static class MetroidBombPlacementVerification
 {
-    /// <summary>A plain solid block showing block zero: the fixture's floor.</summary>
-    private static readonly RoomTerrainBlock Solid = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
-
-    /// <summary>Open air showing block zero: everything above the floor.</summary>
-    private static readonly RoomTerrainBlock OpenAir = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.Air);
-
     /// <summary>Checks natural bomb detonation, four native jitter updates, and return to homing.</summary>
     internal static void VerifyMetroidBombPlacement()
     {
@@ -102,7 +96,8 @@ internal static class MetroidBombPlacementVerification
         for (int x = 0; x < level.Size.X; x++)
         {
             int index = level.GetBlockIndex(new(checked((ushort)x), checked((ushort)y)));
-            level.SetTerrain(index, y >= 10 ? Solid : OpenAir);
+            // Each block keeps the picture the room shows there, which the tileset's sheet holds (#1676); only its collision changes.
+            level.SetTerrain(index, level.Terrain[index].WithCollision(y >= 10 ? RoomCollisionType.SolidBlock : RoomCollisionType.Air));
             level.SetBehavior(index, RoomBlockBehavior.None);
         }
         runtime.InitializeDebugGroundedSamus(128, 100, 10);

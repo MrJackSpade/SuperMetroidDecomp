@@ -53,6 +53,12 @@ A name that also says what it sends (`CoreVocabularyAnalyzer.SentThingWords`: mu
 or an event) uses the English verb of sending and keeps the word (`PendingMusicDispatch`, `DispatchSoundRequests`), and
 words that only share its letters stay the game's own (`Dispatchable`).
 
+Three two-word names of the original's routines are reported too (#1721, `CoreVocabularyAnalyzer.RoutinePhrases`),
+matched like the hardware phrases: `AlphaHandler` and `BetaHandler`, the two halves of Samus's frame the control
+setups installed, and `SetupCode`, the routine a door record pointed at, which an interpreter replayed. Core names the
+phase or the setup instead (`SamusInputMode`, `SamusMovementMode`, `DoorSetup` with its screen changes and room event).
+Each word alone stays the game's own (`Alpha`, `Handler`, `Setup`, `Code`, `GrappleBeamHandler`).
+
 A name that says `Function` names the enemy record's AI function field and is reported under the same delegate
 allowance (#1701, `CoreVocabularyAnalyzer.BehaviourFieldWords`): the cartridge stored an enemy's or a boss's behaviour
 state, a part's wait and the state a cue installs as the routine its record's function field held, and Core names what

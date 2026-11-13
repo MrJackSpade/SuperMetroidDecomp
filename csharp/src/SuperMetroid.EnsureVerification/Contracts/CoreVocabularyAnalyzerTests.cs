@@ -190,6 +190,26 @@ internal static class CoreVocabularyAnalyzerTests
         ExpectFile("delegate void PhaseDispatch();", "PhaseDispatch.cs");
         ExpectFile("enum DispatchRandomStep { Reseed }", "DispatchRandomStep.cs",
             $"'DispatchRandomStep' {routine} ('Dispatch')", $"'DispatchRandomStep' {routine} ('Dispatch')");
+        // The original's routine names, in each kind of declaration a renamed Core identifier used them in (#1721): Samus's
+        // alpha and beta handler enums, a plural, a door's setup-code enum, its interpreter, its property and positional
+        // parameter, the runner's method, a parameter, a local and the enum's file.
+        const string original = "names the original's routine";
+        Expect("enum SamusAlphaHandler { Normal }", $"'SamusAlphaHandler' {original} ('AlphaHandler')");
+        Expect("enum SamusBetaHandler { Normal }", $"'SamusBetaHandler' {original} ('BetaHandler')");
+        Expect("class P { int[] BetaHandlers = []; }", $"'BetaHandlers' {original} ('BetaHandler')");
+        Expect("public enum DoorSetupCode { None }", $"'DoorSetupCode' {original} ('SetupCode')");
+        Expect("static class DoorSetupCodeInterpreter { }", $"'DoorSetupCodeInterpreter' {original} ('SetupCode')");
+        Expect("class P { int SetupCode { get; } }", $"'SetupCode' {original} ('SetupCode')");
+        Expect("record DoorDefinition(int SetupCode);", $"'SetupCode' {original} ('SetupCode')");
+        Expect("class P { void RunDoorSetupCode() { } }", $"'RunDoorSetupCode' {original} ('SetupCode')");
+        Expect("class P { void Run(int setupCode) { } }", $"'setupCode' {original} ('SetupCode')");
+        Expect("class P { void Run() { int alphaHandler = 0; _ = alphaHandler; } }", $"'alphaHandler' {original} ('AlphaHandler')");
+        ExpectFile("enum DoorSetupCode { None }", "DoorSetupCode.cs",
+            $"'DoorSetupCode' {original} ('SetupCode')", $"'DoorSetupCode' {original} ('SetupCode')");
+        // The words alone, apart, in another order or sharing only their letters are the game's own: an alpha, a beta, a
+        // handler, a setup, a code, Samus's input and movement modes, a door's setup.
+        Expect("class P { int Alpha; int Beta; int Handler; int Setup; int Code; int AlphaBetaHandling; int HandlerAlpha; int CodeSetup; }");
+        Expect("class P { int SamusInputMode; int SamusMovementMode; int DoorSetup; int SetupCoder; int SetupBehavior; int GrappleBeamHandler; }");
         Expect("class P { int Banked; }", "'Banked' names the hardware ('Bank')");
         Expect("class P { int[] Pointers = []; }", "'Pointers' names the hardware ('Pointer')");
         Expect("class P { void Run() { try { } catch (System.Exception addressing) { _ = addressing; } } }", "'addressing' names the hardware ('Address')");

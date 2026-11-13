@@ -8,7 +8,7 @@ public static class ShotBlockReactionDefinitions
     /// the Power Bomb and Super Missile blocks, the empty reactions and the collision probe. The empty entries past the
     /// probe set off the same one-update object as the empty reaction.
     /// </summary>
-    public static readonly IReadOnlyDictionary<ShootableReaction, ShotBlockReaction> Dispatched =
+    public static readonly IReadOnlyDictionary<ShootableReaction, ShotBlockReaction> Handled =
         new Dictionary<ShootableReaction, ShotBlockReaction>
         {
             [ShootableReaction.RespawningBreak1x1] = ShotBlockReaction.RespawningBreak,

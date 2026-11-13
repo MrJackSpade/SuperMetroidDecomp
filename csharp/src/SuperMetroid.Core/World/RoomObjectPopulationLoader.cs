@@ -122,7 +122,6 @@ internal sealed class RoomObjectPopulationLoader
         if (_slotTable.Spawn() is not { } slot)
             return null;
 
-        slot.Kind = record.Kind;
         slot.Block = block;
         slot.Argument = record.Argument;
         return slot;

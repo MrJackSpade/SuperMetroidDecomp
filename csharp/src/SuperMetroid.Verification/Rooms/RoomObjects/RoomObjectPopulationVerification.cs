@@ -154,8 +154,6 @@ internal static class RoomObjectPopulationVerification
             if (expectedHeader == 0)
                 continue;
             RoomObjectSlotSnapshot slot = roomObjects.PopulationSlots.Single();
-            AssertEqual(expectedHeader, RoomObjectNativeWords.Word(slot.Kind),
-                $"door-closing direction {direction} installs compiled header");
             AssertEqual(expectedList, TypedDoorObjectOracle.StartListOf(slot.Behaviour),
                 $"door-closing direction {direction} starts the closing of its compiled initial list");
         }
@@ -316,11 +314,11 @@ internal static class RoomObjectPopulationVerification
         RoomObjectSlotSnapshot[] slots = roomObjects.PopulationSlots.ToArray();
         AssertEqual(3, slots.Length, "extension setup deletes its preallocated actor");
         AssertEqual(0, slots[0].ProcessingPosition, "first record is processed first");
-        AssertEqual(0xb703, RoomObjectNativeWords.Word(slots[0].Kind), "first resident preserves record identity");
+        AssertTrue(slots[0].Behaviour is ScrollTriggerObject, "first resident holds its record's scroll trigger");
         AssertEqual(1, slots[1].ProcessingPosition, "post-delete record reuses the next slot in processing order");
-        AssertEqual(0xb70b, RoomObjectNativeWords.Word(slots[1].Kind), "elevator follows ROM order, not family order");
+        AssertTrue(slots[1].Behaviour is ElevatorPlatformObject, "elevator follows ROM order, not family order");
         AssertEqual(2, slots[2].ProcessingPosition, "later station is processed after them");
-        AssertEqual(0xb6df, RoomObjectNativeWords.Word(slots[2].Kind), "station header remains observable");
+        AssertTrue(slots[2].Behaviour is StationObject { Kind: StationKind.Energy }, "the later record's energy station is resident");
         AssertEqual(1, roomObjects.ElevatorPlatforms.Count, "elevator platform family is resident");
         AssertEqual(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.Air), level.GetCollisionBlock(new(12, 8)).Terrain,
             "elevator setup clears collision bits through shared setup dispatcher");
@@ -924,9 +922,9 @@ internal static class RoomObjectPopulationVerification
         var fallback = RoomObjectFixtures.Unbound();
         AssertTrue(fallback.DoorObjects.TrySpawnDoorClosingObject(fallbackLevel, motherBrainExit, system),
             "special door without a resident cap spawns C8D0 fallback");
-        AssertEqual(RoomObjectKind.MotherBrainEscapeRoomGateClosing,
-            fallback.PopulationSlots.Single().Kind,
-            "fallback actor uses the cartridge's dedicated C8D0 header");
+        AssertTrue(fallback.PopulationSlots.Single().Behaviour is MotherBrainEscapeGateObject { Change: var closing }
+                && closing == MotherBrainEscapeGateDefinitions.Closing,
+            "fallback actor is the escape gate closing behind Samus");
         AssertEqual(deactivatedGateWord, fallbackLevel.GetCollisionBlockByIndex(gateBlock).Terrain,
             "fallback C8D0 executes the shared deactivate setup");
 

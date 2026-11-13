@@ -209,22 +209,9 @@ internal static class CoreAccess
         internal bool SamusLoadAppearanceActive => runtime.SamusLoadAppearanceFramesRemaining != 0;
     }
 
-    /// <summary>Finds a unique population PLM and snapshots active stations in processing order.</summary>
+    /// <summary>Snapshots active stations in processing order.</summary>
     extension(RoomObjectSystem roomObjects)
     {
-
-        /// <summary>The one active slot running <paramref name="headerPointer"/>; throws unless exactly one does.</summary>
-        internal RoomObjectSlotSnapshot SinglePopulationSlot(RoomObjectKind headerPointer)
-        {
-            RoomObjectSlotSnapshot[] matches = roomObjects.PopulationSlots
-                .Where(slot => slot.Kind == headerPointer).ToArray();
-            return matches.Length switch
-            {
-                1 => matches[0],
-                0 => throw new InvalidOperationException($"No active PLM uses header {headerPointer}."),
-                _ => throw new InvalidOperationException($"More than one active PLM uses header {headerPointer}."),
-            };
-        }
 
         /// <summary>Active station PLMs, in processing order.</summary>
         internal IReadOnlyList<StationObjectSnapshot> StationSnapshots

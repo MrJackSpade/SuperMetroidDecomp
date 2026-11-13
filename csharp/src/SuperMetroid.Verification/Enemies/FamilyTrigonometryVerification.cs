@@ -54,20 +54,23 @@ internal static class FamilyTrigonometryVerification
             return unchecked((ushort)(((ushort)-product / 256 * 2) | 65280));
         }
         // Each boundary-class word in either parameter, with every low byte in the other.
-        // This verifies angle negation/subtraction and length truncation independently.
-        foreach (int word in WordBoundarySamples())
-        for (int low = 0; low <= byte.MaxValue; low++)
+        // This verifies angle negation/subtraction and length truncation independently. The products are pure, so each
+        // boundary word's lows run on one worker (#1677).
+        int[] boundaryWords = [.. WordBoundarySamples()];
+        ParallelSweep.For(0, boundaryWords.Length, sample =>
         {
-            ushort angle = (ushort)word, length = (ushort)(65280 | low);
-            if (mawY(angle, length) != MawReference(angle, length) ||
-                mawX(angle, length) != MawReference(angle - 64, length) ||
-                mawY((ushort)low, (ushort)word) != MawReference(low, word) ||
-                mawX((ushort)low, (ushort)word) != MawReference(low - 64, word))
-                throw new InvalidDataException($"Yapping Maw product differs: word={word:X4}, low={low:X2}.");
-        }
+            int word = boundaryWords[sample];
+            for (int low = 0; low <= byte.MaxValue; low++)
+            {
+                ushort angle = (ushort)word, length = (ushort)(65280 | low);
+                if (mawY(angle, length) != MawReference(angle, length) ||
+                    mawX(angle, length) != MawReference(angle - 64, length) ||
+                    mawY((ushort)low, (ushort)word) != MawReference(low, word) ||
+                    mawX((ushort)low, (ushort)word) != MawReference(low - 64, word))
+                    throw new InvalidDataException($"Yapping Maw product differs: word={word:X4}, low={low:X2}.");
+            }
+        });
 
-        var bull = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
-        var bullState = new BullEnemyState(previous: null);
         static uint BullReference(uint initial, short sample, int speed)
         {
             int product = (Math.Abs((int)sample) / 256) * speed;
@@ -76,31 +79,39 @@ internal static class FamilyTrigonometryVerification
                 displacement = -product - (SixteenSixteen.FractionOf(product) == 0 ? 1 : 0);
             return unchecked(initial + (uint)displacement);
         }
-        foreach (uint initial in new uint[] { 0, 0xffffff37 })
-        for (int angle = 0; angle < 256; angle++)
-        foreach (int speed in WordBoundarySamples())
+        // Each origin and heading runs every speed class on one worker, with a Bull of its own: a move reads and writes
+        // only its own slot and state (#1677).
+        uint[] bullOrigins = [0, 0xffffff37];
+        ParallelSweep.For(0, bullOrigins.Length * 256, heading =>
         {
-            bull.Position = new(new(FixedCoordinate.WholeOf(unchecked((int)initial)), unchecked((ushort)initial)), new(FixedCoordinate.WholeOf(unchecked((int)initial)), unchecked((ushort)initial)));
-            bullState.Angle = new TrigonometryAngle(angle);
-            bullState.Speed = (ushort)speed;
-            bullMove(bull, bullState);
-            uint x = bull.Position.X.RawValue;
-            uint y = bull.Position.Y.RawValue;
-            if (x != BullReference(initial, native[unchecked((byte)(angle + 64))], speed) ||
-                y != BullReference(initial, native[angle], speed))
-                throw new InvalidDataException($"Bull movement differs: angle={angle}, speed={speed}, origin={initial:X8}.");
-        }
+            uint initial = bullOrigins[heading / 256];
+            int angle = heading % 256;
+            var bull = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
+            var bullState = new BullEnemyState(previous: null);
+            foreach (int speed in boundaryWords)
+            {
+                bull.Position = new(new(FixedCoordinate.WholeOf(unchecked((int)initial)), unchecked((ushort)initial)), new(FixedCoordinate.WholeOf(unchecked((int)initial)), unchecked((ushort)initial)));
+                bullState.Angle = new TrigonometryAngle(angle);
+                bullState.Speed = (ushort)speed;
+                bullMove(bull, bullState);
+                uint x = bull.Position.X.RawValue;
+                uint y = bull.Position.Y.RawValue;
+                if (x != BullReference(initial, native[unchecked((byte)(angle + 64))], speed) ||
+                    y != BullReference(initial, native[angle], speed))
+                    throw new InvalidDataException($"Bull movement differs: angle={angle}, speed={speed}, origin={initial:X8}.");
+            }
+        });
 
         // A real linked-slot placement with no loaded bus verifies the production
         // caller, low angular byte, preceding segment subpixels and signed carry/wrap.
-        // Each origin's angles run in sixteen blocks, each on one worker with a room of its own: a placement reads and
-        // writes only its own room's two slots and segment state.
+        // The angles run in eight blocks, each on one worker with a room of its own, which places every origin at each of
+        // its angles: a placement reads and writes only its own room's two slots and segment state. Building a room is the
+        // sweep's dominant cost, so each block builds one for all three origins (#1677).
         uint[] origins = [0, 0x0080ff37, 0xffffff37];
-        const int AngleBlocks = 16;
+        const int AngleBlocks = 8;
         const int AnglesPerBlock = (ushort.MaxValue + 1) / AngleBlocks;
-        ParallelSweep.For(0, origins.Length * AngleBlocks, block =>
+        ParallelSweep.For(0, AngleBlocks, block =>
         {
-            uint initial = origins[block / AngleBlocks];
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
             var previous = enemies.SlotTable.Slots[0];
             var segment = enemies.SlotTable.Slots[1];
@@ -111,7 +122,8 @@ internal static class FamilyTrigonometryVerification
             enemies.ShaktoolBehavior.InitializeShaktool(segment);
             var segmentState = new ShaktoolSegmentState();
             Action<RoomEnemySlot, ShaktoolSegmentState> place = enemies.ShaktoolBehavior.PositionShaktoolAroundPreviousSegment;
-            int firstAngle = block % AngleBlocks * AnglesPerBlock;
+            int firstAngle = block * AnglesPerBlock;
+            foreach (uint initial in origins)
             for (int angle = firstAngle; angle < firstAngle + AnglesPerBlock; angle++)
             {
                 previous.Position = new(new(FixedCoordinate.WholeOf(unchecked((int)initial)), unchecked((ushort)initial)), new(FixedCoordinate.WholeOf(unchecked((int)initial)), unchecked((ushort)initial)));

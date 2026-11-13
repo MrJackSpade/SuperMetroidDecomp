@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Artwork;
 
@@ -60,11 +60,11 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             BounceMovement = BoyonBounceMovement.Rising,
             SpeedMultiplier = settings.SpeedMultiplier,
-            JumpHeight = settings.JumpHeight,
-            DistanceAccumulator = 0,
-            SpeedTableIndex = 0,
+            JumpHeight = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(settings.JumpHeight),
+            ArcDistance = SignedSixteenSixteen.Zero,
+            CurvePlace = BoyonCurvePlace.Top,
             Bouncing = false,
-            InitialBounceSpeedTableIndex = 0,
+            BaselineCurvePlace = BoyonCurvePlace.Top,
             BounceDisabled = false,
             SpeedMultiplierMirror = 0,
             IdleDisabled = false,
@@ -80,12 +80,12 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (samus is null)
             throw new InvalidOperationException("Boyon proximity AI requires the active Samus actor.");
 
-        // The game spends Boyon's first active AI frame deriving the curve index and
+        // The game spends Boyon's first active AI frame deriving the arc's baseline and
         // returns without moving or testing proximity. Preserving that frame is important:
         // animation and main AI otherwise become one frame early immediately after a load.
         if (!state.BounceSpeedCalculated)
         {
-            CalculateInitialBoyonBounceSpeed(state);
+            DeriveBoyonArcBaseline(state);
             state.BounceSpeedCalculated = true;
             return;
         }
@@ -133,41 +133,38 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Runs the one-time loop.</summary>
-    private static void CalculateInitialBoyonBounceSpeed(BoyonEnemyState state)
+    /// <summary>
+    /// Derives the arc's baseline: from the place it stands, the Boyon moves down its curve one entry at a time, adding
+    /// each entry's scaled sample to the arc's distance, until the distance reaches the jump height; the place it then
+    /// stands at is where every fall ends. Each entry past the top adds at least one 256th of a pixel, so the derivation
+    /// ends; a multiplier outside 1 through <see cref="BoyonSpeedDefinitions.LargestArcMultiplier"/> is refused.
+    /// </summary>
+    internal static void DeriveBoyonArcBaseline(BoyonEnemyState state)
     {
-        // Every iteration multiplies two values of 0 through 255,
-        // adds the product, wrapping past 65535, then compares by the result's sign.
-        // The curve saturates at 255 once its 23 stored samples are exhausted.
-        for (int guard = 0; guard < BoyonEnemyState.LargestSpeedTableIndex; guard++)
+        _ = Ensure.BetweenInclusive(1, BoyonSpeedDefinitions.LargestArcMultiplier, state.SpeedMultiplier);
+        do
         {
             state.Speed = MultiplyBoyonCurveEntry(state);
-            state.AccumulateBounceDistance(state.Speed);
-            state.AdvanceSpeedTableIndex();
-
-            if (state.HasReachedJumpHeight)
-            {
-                state.InitialBounceSpeedTableIndex = state.SpeedTableIndex;
-                state.BounceDisabled = true;
-                state.IdleDisabled = true;
-                return;
-            }
+            state.AccumulateArcDistance(state.Speed);
+            state.FallOneEntry();
         }
+        while (!state.HasReachedJumpHeight);
 
-        throw new InvalidDataException(
-            "Boyon initial bounce-speed calculation did not reach its authored jump height.");
+        state.BaselineCurvePlace = state.CurvePlace;
+        state.BounceDisabled = true;
+        state.IdleDisabled = true;
     }
 
     /// <summary>Runs falling movement.</summary>
     private static void MoveBoyonFalling(RoomEnemySlot slot, BoyonEnemyState state)
     {
-        state.AdvanceSpeedTableIndex();
+        state.FallOneEntry();
         state.Speed = MultiplyBoyonCurveEntry(state);
 
         // Taking the product's whole pixels discards its fraction. Boyon has no Y subposition
         // integration here: each frame moves by exactly the product's whole pixels.
         slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + (EightEight.WholeOf(state.Speed)));
-        if (WrappingCounter.IsBehind(state.SpeedTableIndex, state.InitialBounceSpeedTableIndex))
+        if (state.CurvePlace < state.BaselineCurvePlace)
             return;
 
         state.BounceMovement = BoyonBounceMovement.Rising;
@@ -180,16 +177,16 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.Speed = MultiplyBoyonCurveEntry(state);
         slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole - (EightEight.WholeOf(state.Speed)));
-        if (state.RetreatSpeedTableIndex())
+        if (state.RiseOneEntry())
             state.BounceMovement = BoyonBounceMovement.Falling;
     }
 
     /// <summary>
-    /// The curve sample at the current index scaled by the multiplier. Indexes after the stored curve use the explicit
+    /// The curve sample at the Boyon's place scaled by its multiplier. Entries after the stored curve use the explicit
     /// saturated sample rather than reading past it.
     /// </summary>
     internal static int MultiplyBoyonCurveEntry(BoyonEnemyState state) =>
-        BoyonBounceCurve.Multiply(state.SpeedTableIndex, state.SpeedMultiplier);
+        BoyonBounceCurve.Multiply(state.CurvePlace, state.SpeedMultiplier);
 
     /// <summary>Whether Samus lies within Boyon's authored horizontal reach, in pixel columns, of the enemy.</summary>
     private static bool IsBoyonSamusWithinHorizontalRange(RoomEnemySlot slot, SamusState samus)

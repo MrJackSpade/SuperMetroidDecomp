@@ -81,6 +81,34 @@ internal static class RoomBlockInventoryVerification
         Console.WriteLine("Room block inventory: a writer's blocks count for the room states whose installed data holds its start, and for no other.");
     }
 
+    /// <summary>
+    /// #1630: a Brinstar special-air block reaches its area's plants and Speed Booster blocks only through an area reaction
+    /// (area reactions zero and one are the plants, two through five the Speed Booster blocks); the same entries as common
+    /// reactions, which the game reads through the reactions every area shares, start neither. A special block starts the
+    /// crumble blocks' writer exactly for the first eight common reactions.
+    /// </summary>
+    internal static void VerifySpecialAirAndCrumbleStartsByReaction()
+    {
+        TilesetDefinition tileset = RoomTilesets.Get(RoomGraphicsSet.UpperCrateria);
+        for (int entry = 0; entry < 6; entry++)
+        {
+            InventoriedRoomState area = State(tileset, AreaId.Brinstar, new(RoomCollisionType.SpecialAir, BlockReaction.AreaSpecific(entry)));
+            InventoriedRoomState common = State(tileset, AreaId.Brinstar, new(RoomCollisionType.SpecialAir, BlockReaction.Common(entry)));
+            AssertEqual(entry < 2, area.HoldsSamusEaterPlants, $"Brinstar special-air area reaction {entry} holds a plant exactly when it is a plant");
+            AssertEqual(entry >= 2, area.HoldsSpeedBoosterBlocks, $"Brinstar special-air area reaction {entry} holds a Speed Booster block exactly when it is one");
+            AssertTrue(!common.HoldsSamusEaterPlants && !common.HoldsSpeedBoosterBlocks,
+                $"Brinstar special-air common reaction {entry} holds neither a plant nor a Speed Booster block");
+        }
+        for (int entry = 0; entry <= BlockReaction.LastEntry; entry++)
+        {
+            AssertEqual(entry < 8, State(tileset, AreaId.Crateria, new(RoomCollisionType.SpecialBlock, BlockReaction.Common(entry))).HoldsCrumbleBlocks,
+                $"a special block with common reaction {entry} holds a crumble block exactly when it is one of the first eight");
+            AssertTrue(!State(tileset, AreaId.Crateria, new(RoomCollisionType.SpecialBlock, BlockReaction.AreaSpecific(entry))).HoldsCrumbleBlocks,
+                $"a special block with area reaction {entry} holds no crumble block");
+        }
+        Console.WriteLine("Room block inventory: special-air area reactions alone start the area's plants and Speed Booster blocks; the first eight common special-block reactions start the crumble blocks.");
+    }
+
     /// <summary>A Zebes or Ceres room state of <paramref name="tileset"/> placing <see cref="PlacedBlock"/>, its terrain one block of <paramref name="terrain"/>, placing <paramref name="headers"/>.</summary>
     private static InventoriedRoomState State(TilesetDefinition tileset, AreaId area, RoomTerrainReaction terrain, params RoomObjectHeaderId[] headers) =>
         new(tileset, area, new HashSet<int> { PlacedBlock }, new HashSet<RoomTerrainReaction> { terrain }, new HashSet<RoomTerrainReaction>(),
@@ -296,6 +324,7 @@ internal static class RoomBlockInventoryVerification
     internal static int RoomBlockInventoryCommand()
     {
         Suite(nameof(VerifyWriterCountsOnlyWhereHeld), VerifyWriterCountsOnlyWhereHeld);
+        Suite(nameof(VerifySpecialAirAndCrumbleStartsByReaction), VerifySpecialAirAndCrumbleStartsByReaction);
         Suite(nameof(VerifyShotBlockFamilyOnlyWhereStarted), VerifyShotBlockFamilyOnlyWhereStarted);
         Suite(nameof(VerifyStraddledShotReactions), VerifyStraddledShotReactions);
         Suite(nameof(VerifyPartThatShowsNothingIsNotInstalled), VerifyPartThatShowsNothingIsNotInstalled);

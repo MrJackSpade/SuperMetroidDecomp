@@ -94,40 +94,35 @@ internal sealed class BlockReactionObjects
     }
 
     /// <summary>
-    /// Spawns the crumble actor selected when downward Samus collision reaches a special block with a crumble behaviour,
-    /// zero through seven.
+    /// Spawns the room object that breaks up <paramref name="crumble"/> when Samus's downward collision reaches the special
+    /// block that selects it.
     /// </summary>
     /// <remarks>
     /// Only downward collision activates it: the setup keeps the block's collision kind and mirroring with the crumble
     /// parent's block as the restore block, makes the live block solid, and delays the program for four room-object handler
-    /// passes. Behaviours zero through three reverse their animation and restore the parent; four through seven end on
-    /// air. The collision dispatcher independently returns solid for the triggering frame, so allocation success is not
-    /// a collision-result substitute.
+    /// passes. Crumble blocks that grow back reverse their animation and restore the parent; the others end on air. The
+    /// collision dispatcher independently returns solid for the triggering frame, so allocation success is not a
+    /// collision-result substitute.
     /// </remarks>
     public bool TrySpawnSamusContactCrumbleBlock(
         RoomLevelData level,
         Position16<RoomBlocks> position,
-        RoomBlockBehavior behavior)
+        ContactCrumbleBlock crumble)
     {
         Ensure.NotNull(level);
-        if (!behavior.Reaction.IsCommonEntryBelow(8))
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(behavior),
-                "Samus-contact crumble behaviour must be one of the eight crumble behaviours, zero through seven.");
-        }
+        RoomObjectHeaderId header = RoomObjectHeaders.ContactCrumbleOf(crumble);
+        BlockReactionChange change = BlockReactionChanges.ContactCrumble(crumble);
 
         if (_slotTable.Spawn() is not { } slot)
             return false;
 
         RoomCollisionBlock block = level.GetCollisionBlock(position);
-        slot.Header =
-            RoomObjectHeaders.ContactCrumbleByReactionIndex(behavior.Reaction.Entry);
+        slot.Header = header;
         slot.Block = position;
         // The struck block keeps only its collision; the parent shows unmirrored, whatever the block's mirroring (#1581).
         RoomTerrainBlock restore = block.Terrain.WithAppearance(_drawing.SetupBlock(RoomObjectSetupBlock.CrumbleBlockParent));
         slot.RestoreTerrain = restore;
-        slot.Become(new BlockReactionObject(BlockReactionChanges.ContactCrumble(behavior.Reaction.Entry)));
+        slot.Become(new BlockReactionObject(change));
         level.SetTerrain(position, restore.WithCollision(RoomCollisionType.SolidBlock));
         return true;
     }

@@ -171,11 +171,7 @@ public static class SamusGrappleBeamDrawing
         int stepY = SamusGrappleSwing.ReadSignedSine(drawAngle)
             * GrappleBeamDefinitions.Rendering.SegmentSampleToFixedPoint;
 
-        // The rope's pictures mirror by the quarter of the turn the grapple angle lies in: horizontally in the second half
-        // of the turn, vertically in the first and last quarters.
-        int quarter = grapple.Angle.Sector(4);
-        SpriteMirror mirror = (quarter >= 2 ? SpriteMirror.Horizontal : SpriteMirror.None) |
-            (quarter is 0 or 3 ? SpriteMirror.Vertical : SpriteMirror.None);
+        SpriteMirror mirror = RopeMirror(grapple.Angle);
         AdvanceRopeAnimation(grapple);
 
         // Each rope picture is placed by its centre, the first at the muzzle and each after it one segment's spacing on
@@ -217,6 +213,14 @@ public static class SamusGrappleBeamDrawing
         }
         grapple.RopeAnimationTimer = remaining;
     }
+
+    /// <summary>
+    /// How the rope's pictures mirror at the grapple angle <paramref name="angle"/>: horizontally in the second half of
+    /// the turn, and vertically within a quarter turn either side of the angle zero.
+    /// </summary>
+    internal static SpriteMirror RopeMirror(RotationAngle angle) =>
+        (angle >= RotationAngle.HalfTurn ? SpriteMirror.Horizontal : SpriteMirror.None) |
+        (angle < RotationAngle.QuarterTurn || angle >= RotationAngle.ThreeQuarterTurn ? SpriteMirror.Vertical : SpriteMirror.None);
 
 
     /// <summary>

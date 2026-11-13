@@ -50,22 +50,22 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (cue.Kind)
         {
             case YappingMawCueKind.HoldSamusUpRight:
-                SetYappingMawHeldOffset(state, directionIndex: 1);
+                SetYappingMawHeldOffset(state, YappingMawAim.UpRight);
                 break;
             case YappingMawCueKind.HoldSamusUpLeft:
-                SetYappingMawHeldOffset(state, directionIndex: 7);
+                SetYappingMawHeldOffset(state, YappingMawAim.UpLeft);
                 break;
             case YappingMawCueKind.HoldSamusDownRight:
-                SetYappingMawHeldOffset(state, directionIndex: 3);
+                SetYappingMawHeldOffset(state, YappingMawAim.DownRight);
                 break;
             case YappingMawCueKind.HoldSamusDownLeft:
-                SetYappingMawHeldOffset(state, directionIndex: 5);
+                SetYappingMawHeldOffset(state, YappingMawAim.DownLeft);
                 break;
             case YappingMawCueKind.HoldSamusUp:
-                SetYappingMawHeldOffset(state, directionIndex: 0);
+                SetYappingMawHeldOffset(state, YappingMawAim.Up);
                 break;
             case YappingMawCueKind.HoldSamusDown:
-                SetYappingMawHeldOffset(state, directionIndex: 4);
+                SetYappingMawHeldOffset(state, YappingMawAim.Down);
                 break;
             case YappingMawCueKind.PlayBiteSound:
                 PlayYappingMawAttackSound(state);
@@ -225,14 +225,13 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             CalculateYappingMawX(TrigonometryAngle.HalfTurn, state.SegmentRadius),
             CalculateYappingMawY(TrigonometryAngle.HalfTurn, state.SegmentRadius / 2));
 
-        int direction = AimSector(state.AimAngle);
-        YappingMawAim aim = YappingMawAnimationDefinitions.Aims.At(direction);
+        YappingMawAim aim = AimOf(state.AimAngle);
         state.Aim = aim;
         state.Playback = new(YappingMawAnimations.StartingWith(YappingMawBites.AttackForDirection(aim)), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
 
-        state.HeldSamusOffset = YappingMawAttackGeometry.HeldSamusOffset(direction);
+        state.HeldSamusOffset = YappingMawAttackGeometry.HeldSamusOffset(aim);
         state.Function = YappingMawAiFunction.ExtendingOrRetracting;
     }
 
@@ -489,9 +488,9 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Animation callback used by all six held-Samus offset cues.</summary>
     internal static void SetYappingMawHeldOffset(
         YappingMawEnemyState state,
-        int directionIndex)
+        YappingMawAim aim)
     {
-        state.HeldSamusOffset = YappingMawAttackGeometry.HeldSamusOffset(directionIndex);
+        state.HeldSamusOffset = YappingMawAttackGeometry.HeldSamusOffset(aim);
     }
 
     /// <summary>Publishes the attack sound only when this Maw is visible.</summary>
@@ -559,12 +558,12 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Which of the eight directions, numbered clockwise from up, the aim <paramref name="aim"/> points in: eight equal
-    /// sectors, each centred on its direction, so the aim is turned on half a sector before its sector is read. The
+    /// Which of the eight aims the bearing <paramref name="aim"/> points in: eight equal sectors in the aims' clockwise
+    /// order from up, each centred on its direction, so the aim is turned on half a sector before its sector is read. The
     /// bearing's units are read through its mirrored table angle, which counts the same units.
     /// </summary>
-    internal static int AimSector(Bearing aim) =>
-        aim.ToMirroredTableAngle().ToAngle().TurnedBySteps(EnemyTrigonometryAngleDefinitions.EighthTurn / 2).Sector(8);
+    internal static YappingMawAim AimOf(Bearing aim) => YappingMawAnimationDefinitions.Aims.At(
+        aim.ToMirroredTableAngle().ToAngle().TurnedBySteps(EnemyTrigonometryAngleDefinitions.EighthTurn / 2).Sector(8));
 
     /// <summary>X is the Y helper a quarter turn behind.</summary>
     internal static int CalculateYappingMawX(TrigonometryAngle angle, int length) =>

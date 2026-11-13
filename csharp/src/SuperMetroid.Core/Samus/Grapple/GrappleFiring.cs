@@ -13,8 +13,8 @@ internal static class GrappleFiring
     /// facing right (0), through down, facing right (4), duplicated down (5), to up (9).
     /// Fixed cardinal/diagonal cases avoid runtime trigonometry. Quantization precedes
     /// scaling: 255 and 181 times twelve, not a rounded radius-3072 circle.
-    /// The angle starts at a half turn for up and advances an eighth of a turn per octant clockwise; both downward
-    /// directions share the down octant.
+    /// The angle is a half turn for up and turns on an eighth of a turn for each eighth of the compass clockwise; both
+    /// upward and both downward directions share their angle.
     /// </remarks>
     internal static GrappleLaunchDefinition Launch(SamusProjectileDirection direction)
     {
@@ -37,20 +37,19 @@ internal static class GrappleFiring
             SamusProjectileDirection.Right or SamusProjectileDirection.Left => 0,
             _ => throw new InvalidOperationException($"Undefined {nameof(SamusProjectileDirection)} {direction}."),
         };
-        int octant = direction switch
+        RotationAngle angle = direction switch
         {
-            SamusProjectileDirection.UpFacingRight => 0,
-            SamusProjectileDirection.UpRight => 1,
-            SamusProjectileDirection.Right => 2,
-            SamusProjectileDirection.DownRight => 3,
-            SamusProjectileDirection.DownFacingRight or SamusProjectileDirection.DownFacingLeft => 4,
-            SamusProjectileDirection.DownLeft => 5,
-            SamusProjectileDirection.Left => 6,
-            SamusProjectileDirection.UpLeft => 7,
-            SamusProjectileDirection.UpFacingLeft => 8,
+            SamusProjectileDirection.UpFacingRight or SamusProjectileDirection.UpFacingLeft => RotationAngle.HalfTurn,
+            SamusProjectileDirection.UpRight => RotationAngle.HalfTurn + RotationAngle.EighthTurn,
+            SamusProjectileDirection.Right => RotationAngle.ThreeQuarterTurn,
+            SamusProjectileDirection.DownRight => RotationAngle.ThreeQuarterTurn + RotationAngle.EighthTurn,
+            SamusProjectileDirection.DownFacingRight or SamusProjectileDirection.DownFacingLeft => RotationAngle.Zero,
+            SamusProjectileDirection.DownLeft => RotationAngle.EighthTurn,
+            SamusProjectileDirection.Left => RotationAngle.QuarterTurn,
+            SamusProjectileDirection.UpLeft => RotationAngle.QuarterTurn + RotationAngle.EighthTurn,
             _ => throw new InvalidOperationException($"Undefined {nameof(SamusProjectileDirection)} {direction}."),
         };
-        return new(EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(x, y), RotationAngle.HalfTurn.TurnedBySteps(RotationAngle.StepsPerTurn / 8 * octant));
+        return new(EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(x, y), angle);
     }
 
     /// <summary>X and Y hand anchors selected by firing pose.

@@ -249,7 +249,11 @@ internal static class ProjectileDamageVerification
             };
             AssertTrue(projectiles.Combos.TryActivateCombo(samus, shared, out _),
                 $"{pose} Plasma special attack activates");
-            AssertEqual(step, projectiles.Combos.ComboState, $"{pose} Plasma special attack angle step");
+            // The cartridge stores the signed step; the typed turn is the same step taken round the circle.
+            AssertEqual(TrigonometryAngle.Wrapped(step), projectiles.Combos.OrbitTurnPerUpdate, $"{pose} Plasma special attack orbit turn");
+            for (int angle = 0; angle < 256; angle++)
+                AssertEqual(TrigonometryAngle.Wrapped(angle + step), new TrigonometryAngle(angle) + projectiles.Combos.OrbitTurnPerUpdate,
+                    $"{pose} orbit turn from angle {angle} matches the signed step {step}");
             SamusProjectile first = projectiles.Slots[0];
             first.ComboAngle = new TrigonometryAngle(checked((byte)from));
             projectiles.Combos.StepPlasmaCombo(samus, first, shared, Position16<RoomPixels>.Zero);

@@ -1024,20 +1024,21 @@ internal static class LookupStream1Verification
             AssertEqual(Word(0xa8c277 + 2 * pose), PowampMotion.BalloonOffset(pose, false), "Powamp native rising balloon offset");
             AssertEqual(Word(0xa8c27d + 2 * pose), PowampMotion.BalloonOffset(pose, true), "Powamp native sinking balloon offset");
         }
-        for (int direction = 0; direction < 8; direction++)
+        CompassDirection[] spikeDirections = SuperMetroid.Verification.Enemies.Powamp.PowampSpikeCartridgeOrder.Directions;
+        for (int place = 0; place < spikeDirections.Length; place++)
         {
-            AssertEqual(Word(0x86d21a + 2 * direction), PowampMotion.SpikeAcceleration(direction).X.InTwoHundredFiftySixthsOfPixel, "Powamp native spike X acceleration");
-            AssertEqual(Word(0x86d22a + 2 * direction), PowampMotion.SpikeAcceleration(direction).Y.InTwoHundredFiftySixthsOfPixel, "Powamp native spike Y acceleration");
+            CompassDirection direction = spikeDirections[place];
+            AssertEqual(Word(0x86d21a + 2 * place), PowampMotion.SpikeAcceleration(direction).X.InTwoHundredFiftySixthsOfPixel, $"Powamp native spike {direction} X acceleration");
+            AssertEqual(Word(0x86d22a + 2 * place), PowampMotion.SpikeAcceleration(direction).Y.InTwoHundredFiftySixthsOfPixel, $"Powamp native spike {direction} Y acceleration");
         }
+        AssertTrue(PowampMotionDefinitions.SpikeFiringOrder.SequenceEqual(spikeDirections.Reverse()),
+            "Powamp fires its spikes from the cartridge table's last direction back to its first");
         foreach (int invalid in new[] { int.MinValue, -1, 12, int.MaxValue })
             AssertThrows<InvalidDataException>(() => PowampMotion.WiggleOffset(invalid), "Powamp wiggle domain");
         foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
             for (int sinking = 0; sinking < 2; sinking++)
                 AssertThrows<ArgumentOutOfRangeException>(() => PowampMotion.BalloonOffset(invalid, sinking != 0), "Powamp balloon pose domain");
-        foreach (int invalid in new[] { int.MinValue, -1, 8, int.MaxValue })
-        {
-            AssertThrows<InvalidDataException>(() => PowampMotion.SpikeAcceleration(invalid), "Powamp spike direction domain");
-        }
+        AssertThrows<InvalidDataException>(() => PowampMotion.SpikeAcceleration((CompassDirection)spikeDirections.Length), "Powamp spike direction domain");
     }
 
     /// <summary>Reads Powamp native wiggle and balloon offset words.</summary>

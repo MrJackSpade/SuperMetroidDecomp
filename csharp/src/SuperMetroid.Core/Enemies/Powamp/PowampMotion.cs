@@ -18,8 +18,10 @@ public static class PowampMotion
         return (uint)pose < (uint)offsets.Length ? offsets[pose] : throw new ArgumentOutOfRangeException(nameof(pose));
     }
 
-    /// <summary>A spike's signed 8.8 acceleration in compass <paramref name="direction"/>.</summary>
-    /// <exception cref="InvalidDataException"><paramref name="direction"/> is outside the eight directions.</exception>
-    public static EightEightVector<RoomPixels> SpikeAcceleration(int direction) =>
-        (uint)direction < SpikeDirectionCount ? SpikeAccelerations[direction] : throw new InvalidDataException($"Invalid Powamp spike direction {direction}.");
+    /// <summary>The signed 8.8 acceleration of a spike flying in <paramref name="direction"/>.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="direction"/> is not one of the eight directions.</exception>
+    public static EightEightVector<RoomPixels> SpikeAcceleration(CompassDirection direction) =>
+        SpikeAccelerations.TryGetValue(direction, out EightEightVector<RoomPixels> acceleration)
+            ? acceleration
+            : throw new InvalidDataException($"Invalid Powamp spike direction {direction}.");
 }

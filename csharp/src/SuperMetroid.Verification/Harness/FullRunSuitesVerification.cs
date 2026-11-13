@@ -631,6 +631,8 @@ internal static class FullRunSuitesVerification
         // The typed angle steps, the X-ray aim, the combo orbit and the Crystal Flash radius (#1684).
         new(nameof(SuperMetroid.Verification.Spatial.TypedAngleStepsVerification.VerifyTypedAngleSteps),
             SuperMetroid.Verification.Spatial.TypedAngleStepsVerification.VerifyTypedAngleSteps),
+        new(nameof(SuperMetroid.Verification.Spatial.TypedDirectionBucketsVerification.VerifyTypedDirectionBuckets),
+            SuperMetroid.Verification.Spatial.TypedDirectionBucketsVerification.VerifyTypedDirectionBuckets),
         new(nameof(SuperMetroid.Verification.Samus.Abilities.XrayAimClampVerification.VerifyXrayAimClamp),
             SuperMetroid.Verification.Samus.Abilities.XrayAimClampVerification.VerifyXrayAimClamp),
         new(nameof(SuperMetroid.Verification.Samus.Projectiles.ComboSineOffsetVerification.VerifyComboSineOffset),

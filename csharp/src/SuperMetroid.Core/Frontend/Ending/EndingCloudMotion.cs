@@ -18,7 +18,7 @@ internal static class EndingCloudMotion
             throw new ArgumentException("Actor is not an escape cloud.", nameof(wrapper));
         if (!wrapper.CloudMoving)
         {
-            // Changing a frame behaviour does not execute the new callback immediately.
+            // Changing a frame behaviour does not run the new behaviour immediately.
             // Once activated, movement no longer tests the zoom threshold.
             wrapper.CloudMoving = side ? zoom >= EndingMotionDefinitions.CloudMotionStartZoom
                 : zoom < EndingMotionDefinitions.CloudSceneBZoomLimit;

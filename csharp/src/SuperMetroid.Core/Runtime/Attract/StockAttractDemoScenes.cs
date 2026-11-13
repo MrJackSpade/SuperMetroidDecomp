@@ -492,7 +492,7 @@ public static class StockAttractDemoScenes
         return CoordinateAxis.AsSigned(floorRow * 16 - SamusPoseCollisionRadii.ReadVerticalRadius(pose));
     }
 
-    /// <summary>Landing Site entries select their sky, the charge-beam-room demonstration selects its scroll correction, and the two boss scenarios select their explicit room setup. All other staged rooms use the empty callback.</summary>
+    /// <summary>Landing Site entries select their sky, the charge-beam-room demonstration selects its scroll correction, and the two boss scenarios select their explicit room setup. All other staged rooms use the empty setup.</summary>
     private static AttractDemoRoomSetup RoomSetupFor(Demonstration demonstration) => demonstration switch
     {
         Demonstration.LandingSite or Demonstration.DiagonalShinespark or Demonstration.GauntletEntrance or
@@ -509,7 +509,7 @@ public static class StockAttractDemoScenes
         _ => throw new ArgumentOutOfRangeException(nameof(demonstration), demonstration, "Undefined attract demonstration."),
     };
 
-    /// <summary>Selected actor setup roles for the recorded demonstrations. Shared standing directions dispatch once; the front-facing, morph, fall, spark and low-health performances keep their distinct callbacks.</summary>
+    /// <summary>Selected actor setup roles for the recorded demonstrations. Shared standing directions dispatch once; the front-facing, morph, fall, spark and low-health performances keep their distinct setups.</summary>
     private static AttractDemoSamusSetup SamusSetupFor(Demonstration demonstration) => demonstration switch
     {
         Demonstration.LandingSite => AttractDemoSamusSetup.LandingSite,

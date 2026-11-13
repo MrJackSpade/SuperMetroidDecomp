@@ -46,7 +46,7 @@ public sealed class BeetomEnemyState
     public EnemyQuadraticSpeedIndex InitialLungeYSpeedIndex { get; internal set; }
     /// <summary>Arc phase: false uses the rising speed-table half; passing the apex switches to the falling half at index zero.</summary>
     public bool Falling { get; internal set; }
-    /// <summary>Attachment latch set on first touch and cleared after escape or the common-shot callback; it prevents repeated attachment setup.</summary>
+    /// <summary>Attachment latch set on first touch and cleared after escape or the common shot reaction; it prevents repeated attachment setup.</summary>
     public bool AttachedToSamus { get; internal set; }
     /// <summary>Whether the Beetom faces right rather than left, inherited from the slot's previous Beetom; collision reverses it, while the flung state moves opposite this facing.</summary>
     public bool FacingRight { get; internal set; }

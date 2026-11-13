@@ -104,7 +104,7 @@ internal sealed record RoomScope
     /// <summary>The room's palette-FX objects.</summary>
     public required RoomPaletteFxSystem PaletteFx { get; init; }
 
-    /// <summary>The room's Ceres haze, enabled only where the setup callback spawns it.</summary>
+    /// <summary>The room's Ceres haze, enabled only where the room's setup spawns it.</summary>
     public required CeresHazeState CeresHaze { get; init; }
 
     /// <summary>The room's sand animated tiles.</summary>

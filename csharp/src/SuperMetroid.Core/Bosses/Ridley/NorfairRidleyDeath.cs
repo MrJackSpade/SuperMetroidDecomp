@@ -19,7 +19,7 @@ internal sealed class NorfairRidleyDeath
     /// <summary>The gravity a breakup fragment's fall gains each update.</summary>
     private static readonly SignedEightEight BreakupFragmentGravity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(4);
 
-    /// <summary>Enemy dispatcher used for Ridley's registered callbacks.</summary>
+    /// <summary>Enemy dispatcher used for Ridley's registered behaviours.</summary>
     private readonly IEnemyDispatch _dispatch;
     /// <summary>Room services, level state, and RNG for the Norfair fight.</summary>
     private readonly EnemyRoomBinding _room;

@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Mutually exclusive room-setup behaviors selected by a retail room state. Only the import oracle relates each to the game.</summary>
 public enum RoomSetupCallback
 {
-    /// <summary>No room-specific setup callback runs.</summary>
+    /// <summary>No room-specific setup behaviour runs.</summary>
     None,
     /// <summary>Clears the rescued animals' exit blocks and starts shaking.</summary>
     ClearBlocksAfterSavingAnimalsAndShakeScreen,
@@ -31,29 +31,29 @@ public enum RoomSetupCallback
     ReturnBeforeStatueSetupB,
     /// <summary>Starts the statue-unlocking animations during room setup.</summary>
     RunStatueUnlockingAnimations,
-    /// <summary>The shared no-op setup callback.</summary>
+    /// <summary>The shared no-op setup behaviour.</summary>
     SharedReturn,
-    /// <summary>A distinct room-authored no-op setup callback.</summary>
+    /// <summary>A distinct room-authored no-op setup behaviour.</summary>
     SharedReturnB,
-    /// <summary>A distinct room-authored no-op setup callback.</summary>
+    /// <summary>A distinct room-authored no-op setup behaviour.</summary>
     SharedReturnC,
-    /// <summary>A distinct room-authored no-op setup callback.</summary>
+    /// <summary>A distinct room-authored no-op setup behaviour.</summary>
     SharedReturnD,
-    /// <summary>The ordinary shared no-op setup callback.</summary>
+    /// <summary>The ordinary shared no-op setup behaviour.</summary>
     OrdinaryReturn,
     /// <summary>Spawns the pre-Phantoon room's setup projectile.</summary>
     SpawnPrePhantoonRoomEnemyProjectile,
-    /// <summary>The shared boss-room no-op setup callback.</summary>
+    /// <summary>The shared boss-room no-op setup behaviour.</summary>
     BossRoomReturn,
-    /// <summary>A distinct boss-room no-op setup callback.</summary>
+    /// <summary>A distinct boss-room no-op setup behaviour.</summary>
     BossRoomReturnB,
-    /// <summary>A distinct boss-room no-op setup callback.</summary>
+    /// <summary>A distinct boss-room no-op setup behaviour.</summary>
     BossRoomReturnC,
     /// <summary>Creates Shaktool's room-setup room object.</summary>
     SetupShaktoolRoomObject,
     /// <summary>The no-op setup entry preceding Draygon setup.</summary>
     ReturnBeforeDraygonSetup,
-    /// <summary>Installs Draygon's pause-related room callbacks.</summary>
+    /// <summary>Installs Draygon's pause-related room behaviours.</summary>
     SetPausingCodeForDraygon,
     /// <summary>Marks the room's area map as collected.</summary>
     SetCollectedMap,

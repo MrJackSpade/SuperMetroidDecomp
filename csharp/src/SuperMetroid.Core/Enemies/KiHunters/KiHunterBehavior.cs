@@ -50,14 +50,14 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Carries out one cue of the Ki-Hunter body's animations. Returning to flight continues at the flying animation for
-    /// the current direction, as the callback returns that animation; every other cue runs on.
+    /// the current direction, as the cue returns that animation; every other cue runs on.
     /// </summary>
     private KiHunterSegment? ApplyKiHunterCue(RoomEnemySlot slot, KiHunterCue cue)
     {
         switch (cue.Kind)
         {
             case KiHunterCueKind.ReturnToFlying:
-                // The callback returns the body's flying animation while separately restarting the attached wings.
+                // The cue returns the body's flying animation while separately restarting the attached wings.
                 return ReturnKiHunterToSteadyAnimation(slot);
             case KiHunterCueKind.StartHop:
                 StartKiHunterGroundJumpFromCue(slot.RequireSpeciesState<KiHunterEnemyState>());
@@ -743,22 +743,22 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     private static KiHunterEnemyState? WingsInPlace(RoomEnemySlot wings) => wings.SpeciesState<KiHunterEnemyState>();
 
     /// <summary>
-    /// Returns the next physical slot, the alias used by every body-to-wing access in
-    /// the Ki-Hunter's behaviour. The matching definitions are authoritative while the pair is being
+    /// Returns the enemy listed after the body, which every body-to-wing access in
+    /// the Ki-Hunter's behaviour reads. The matching definitions are authoritative while the pair is being
     /// initialized. Afterward, however, the processing pass clears only a deleted wing's definition;
-    /// the rest of its state stays, and the game deliberately continues reading or writing it through this alias.
+    /// the rest of its state stays, and the game deliberately continues reading or writing it through that place.
     /// A permanently ground-bound red Ki-Hunter therefore has a live body followed by enemy
     /// definition zero on its second frame. Requiring the definition to remain the wing's changed
-    /// valid game behavior into a host exception whenever that body was shot.
+    /// valid game behavior into a thrown error whenever that body was shot.
     /// </summary>
     private RoomEnemySlot GetKiHunterWings(RoomEnemySlot body)
     {
         // The normal enemy shot AI clears the complete body record before returning to Ki-Hunter's
         // private shot tail on a fatal hit. The game nevertheless keeps the
-        // dead body's physical slot and accesses the next slot to delete its wings. Once the
+        // dead body's place in the room's listing and reaches the enemy listed after it to delete its wings. Once the
         // typed state has established this slot as a body, a cleared definition is
-        // therefore valid until the callback finishes; revalidating only the mutable definition
-        // converts the ordinary fatal-shot path into a host exception. A place the room set up as a body stays one.
+        // therefore valid until the shot reaction finishes; revalidating only the mutable definition
+        // converts the ordinary fatal-shot path into a thrown error. A place the room set up as a body stays one.
         bool initializedBody = _wingsOfBody.IsPlaced(body);
         if (!IsKiHunterBodyDefinition(body.DefinitionId) && !initializedBody)
             throw new InvalidDataException($"Enemy slot {body.SlotIndex} is not a Ki-Hunter body.");
@@ -802,7 +802,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         return body;
     }
 
-    /// <summary>Installs typed body or wing state at the physical enemy-slot index.</summary>
+    /// <summary>Installs typed body or wing state on the listed enemy.</summary>
     private static KiHunterEnemyState CreateKiHunterState(RoomEnemySlot slot)
     {
         var state = new KiHunterEnemyState();
@@ -907,7 +907,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             AfterCommon = c => ResolveKiHunterShotAfterCommon(c.Enemy),
         });
     }
-    /// <summary>Acid mover installed by the startup callback after the projectile's idle frames.</summary>
+    /// <summary>Acid mover installed by the startup frame behaviour after the projectile's idle frames.</summary>
     private const EnemyProjectileFrameBehavior KiHunterAcidMovingFrameBehavior =
         EnemyProjectileFrameBehavior.KiHunterAcidFlight;
     /// <summary>Horizontal acid speed, three pixels per update, negated for leftward shots.</summary>
@@ -945,7 +945,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Runs the one-shot spit frame behaviours. The animation installs one through the
-    /// common frame-behaviour cue after its opening map; the callback shifts nineteen pixels and
+    /// common frame-behaviour cue after its opening map; the frame behaviour shifts nineteen pixels and
     /// then installs the falling mover.
     /// </summary>
     internal static void StartKiHunterAcidMovement(

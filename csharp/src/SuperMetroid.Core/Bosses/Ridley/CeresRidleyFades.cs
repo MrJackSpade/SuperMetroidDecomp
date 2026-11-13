@@ -21,7 +21,7 @@ internal sealed class CeresRidleyFades
     internal static void TickCeresRidleyEyeFade(RidleyEnemyState state)
     {
         // The game's increment-and-test advances once per AI call for every reachable
-        // counter value, resetting the scratch timer immediately afterward.
+        // counter value, resetting that timer to zero immediately afterward.
         if (++state.FunctionTimer == 0)
             return;
         state.FunctionTimer = 0;

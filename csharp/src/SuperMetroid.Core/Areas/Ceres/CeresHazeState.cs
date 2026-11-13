@@ -38,11 +38,11 @@ public sealed class CeresHazeState
     /// <summary>Last published strength in steps of the haze's fade, not a frame count: fade-in writes 0..15, fade-out writes 16..1, and zero counter retains the final strength one.</summary>
     public int Intensity { get; private set; }
 
-    /// <summary>Samples the boss bit once, as the room's haze starts.</summary>
-    /// <param name="enabled">Whether the room's setup callback spawns the Ceres haze owner.</param>
-    /// <param name="ridleyIsDead">Loaded area's boss-bit result selecting red rather than blue for this owner's lifetime.</param>
+    /// <summary>Samples Ridley's defeat once, as the room's haze starts.</summary>
+    /// <param name="enabled">Whether the room's setup spawns the Ceres haze owner.</param>
+    /// <param name="ridleyIsDead">Whether the loaded area's boss is defeated, selecting red rather than blue for this owner's lifetime.</param>
     /// <param name="immediateViewport">True for immediate viewport installation: starts holding at counter 16 with published strength 15; false starts waiting at zero for the door fade-in phase.</param>
-    [IndependentFlag("independent facts of the loaded room: whether it spawns the haze, Ridley's boss bit, and immediate viewport installation")]
+    [IndependentFlag("independent facts of the loaded room: whether it spawns the haze, whether Ridley is defeated, and immediate viewport installation")]
     public CeresHazeState(bool enabled, bool ridleyIsDead, bool immediateViewport)
     {
         Enabled = enabled;

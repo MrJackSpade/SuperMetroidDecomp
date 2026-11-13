@@ -128,6 +128,26 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { /// <summary>The turning floor's translation; translates the whole pixels by an offset.</summary>\nint F => 0; }");
         Expect("class P { /// <summary>The scene is already translated to its origin; translational motion stops.</summary>\nint F => 0; }");
         Expect("class P { /// <summary>Samus's energy transfer; the sand heap registers the hit at the original height.</summary>\nint F => 0; }");
+        // The program's working memory and the port's runtime set against it (#1632): physical slots, host slots,
+        // exceptions, numbers and notions, memset and scratch values.
+        Expect("class P { // the wings occupy the next physical slot\n }", "('physical slot')");
+        Expect("class P { /// <summary>Owns physical enemy slots.</summary>\nint F => 0; }", "('physical enemy slots')");
+        Expect("class P { // the boss writes physical projectile slots 14 to 17\n }", "('physical projectile slots')");
+        Expect("class P { /// <summary>Runs the physical-slot follow-up.</summary>\nvoid Run() { } }", "('physical-slot')");
+        Expect("class P { string Name => \"The ghost requires physical slot zero.\"; }", "('physical slot')");
+        Expect("class P { // request zero lands in host slot 17\n }", "('host slot')");
+        Expect("class P { /// <summary>Turns the fatal shot into a host exception.</summary>\nvoid Run() { } }", "('host exception')");
+        Expect("class P { // a negative host number loses the underflow\n }", "('host number')");
+        Expect("class P { // a friendlier host notion of submerged\n }", "('host notion')");
+        Expect("class P { // the post-memset marker keeps it\n }", "('memset')");
+        Expect("class P { /// <summary>Provides scratch state and the room's scroll.</summary>\nint F => 0; }", "('scratch')");
+        Expect("class P { // resets the scratch timer afterwards\n }", "('scratch')");
+        Expect("class P { // instead of treating queue scratch as a link\n }", "('scratch')");
+        // Physical geometry, the host that presents the game and its numbered frames, and starting over are not working memory.
+        Expect("class P { /// <summary>The body's physical components and physical motion; the place's slot is free.</summary>\nint F => 0; }");
+        Expect("class P { /// <summary>The host's save slots; the host persists them and reports an exception it catches.</summary>\nint F => 0; }");
+        Expect("class P { // the first host frame on which the wait expires; the hosts' slot list\n }");
+        Expect("class P { /// <summary>Queues the room's music from scratch; the claw leaves scratch marks.</summary>\nint F => 0; }");
         // A compound name in a comment is a routine label unless Core's code spells it (#1558).
         Expect("class P { // as EnemyMain does\n }", "('EnemyMain')");
         Expect("class P { // set by InitAI\n }", "('InitAI')");

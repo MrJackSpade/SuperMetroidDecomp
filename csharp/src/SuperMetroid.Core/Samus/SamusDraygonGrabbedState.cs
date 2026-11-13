@@ -24,13 +24,13 @@ public sealed class SamusDraygonGrabbedState
     /// <summary>True while the escape handler is installed as Samus's timer/hack handler.</summary>
     public bool IsActive { get; private set; }
 
-    /// <summary>Another callback replaced the empty movement handler without removing grab gamma.</summary>
+    /// <summary>Another behaviour replaced the empty movement handler without removing grab gamma.</summary>
     public bool MovementHandlerReplaced { get; private set; }
 
     /// <summary>True only while the grab's empty handler still owns beta movement.</summary>
     public bool OwnsMovement => IsActive && !MovementHandlerReplaced;
 
-    /// <summary>Preserves grab gamma while a newer movement callback replaces the empty handler.</summary>
+    /// <summary>Preserves grab gamma while a newer movement behaviour replaces the empty handler.</summary>
     internal void RelinquishMovementHandler() => MovementHandlerReplaced = true;
 
     /// <summary>The count of escape presses, which Crystal Flash's ammunition drain and the suit pickup's stage share.</summary>
@@ -219,7 +219,7 @@ public sealed class SamusDraygonGrabbedState
                 "Draygon owner/hack handling requires SetSamusIntoTheGrabbedByDraygonPose first.");
         }
 
-        // Gamma and the enemy's placement callback are independent of the pose
+        // Gamma and the enemy's placement of Samus are independent of the pose
         // and movement handler. Crystal Flash can replace both while still held.
     }
 

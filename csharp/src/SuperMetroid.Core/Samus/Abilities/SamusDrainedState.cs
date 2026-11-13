@@ -66,14 +66,14 @@ public sealed class SamusDrainedState
 
     /// <summary>
     /// Another owner replaced the movement handler and pose before drained art
-    /// installed its falling callback. The actor may continue its own AI, but this Samus
+    /// installed its falling behaviour. The actor may continue its own AI, but this Samus
     /// handler marker must not shadow the replacement after that owner completes.
     /// </summary>
     internal void RelinquishMovementHandler() => Phase = DrainedSamusPhase.Inactive;
 
     /// <summary>
     /// The Samus command that starts the countdown timer replaces the shared timer/hack
-    /// handler with timer processing. The runtime owns that timer; the old drained callback must stop.
+    /// handler with timer processing. The runtime owns that timer; the old drained behaviour must stop.
     /// </summary>
     internal void RelinquishTimerHackHandler() => GetUpHandler = DrainedGetUpHandler.Inactive;
 

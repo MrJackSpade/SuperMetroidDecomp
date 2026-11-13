@@ -47,7 +47,7 @@ internal sealed class IntroDiscoverySprite
     /// <summary>The drawn shade of the colouring the current pose's palette-inheriting parts draw in (#1512).</summary>
     public PictureShade Colouring { get; private set; }
 
-    /// <summary>Applies a cinematic callback's change of the colours the actor draws in.</summary>
+    /// <summary>Applies a cinematic cue's change of the colours the actor draws in.</summary>
     public void SetColouring(PictureShade colouring) => Colouring = colouring;
 
     /// <summary>The pose the animation most recently showed; null before its first frame and after deletion.</summary>

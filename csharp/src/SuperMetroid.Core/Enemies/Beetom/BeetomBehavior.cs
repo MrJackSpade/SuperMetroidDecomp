@@ -25,7 +25,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyTerrain _terrain;
     /// <summary>Queues sounds produced during Beetom movement and contact.</summary>
     private readonly EnemyAudioQueue _audio;
-    /// <summary>Provides the active frame's Samus and room data to callbacks.</summary>
+    /// <summary>Provides the active frame's Samus and room data to its behaviours.</summary>
     private readonly EnemyFrameContext _frameContext;
     /// <summary>Handles common contact before Beetom's attachment behavior.</summary>
     private readonly EnemyCollision _collision;
@@ -601,7 +601,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         });
     }
 
-    /// <summary>Attaches Beetom to Samus on its selected custom contact callback.</summary>
+    /// <summary>Attaches Beetom to Samus on its selected custom contact reaction.</summary>
     internal void AddBeetomTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Beetom &&

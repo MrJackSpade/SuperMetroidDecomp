@@ -59,7 +59,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         }
     }
 
-    /// <summary>Remembers level data for the private power-bomb callback, which has no level argument.</summary>
+    /// <summary>Remembers level data for the private power-bomb reaction, which has no level argument.</summary>
     private RoomLevelData? _deadSidehopperLevel;
     /// <summary>Remembers the camera position for the private power-bomb AI dispatch.</summary>
     private Position16<RoomPixels> _deadSidehopperCamera;
@@ -364,7 +364,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
             return;
         }
 
-        // Before the corpse is ready, the private power-bomb callback literally invokes
+        // Before the corpse is ready, the private power-bomb reaction literally invokes
         // the actor's main dispatcher once. Use the last scheduled room context because the
         // outer power-bomb pass does not carry level/camera arguments.
         DispatchDeadSidehopperState(
@@ -428,7 +428,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         return state;
     }
 
-    /// <summary>Routes bomb-special hits on the corpse shot callback to its decay check.</summary>
+    /// <summary>Routes bomb-special hits on the corpse shot reaction to its decay check.</summary>
     internal static void AddDeadSidehopperBombReactions(EnemySharedReactions table)
     {
         table.AddBombSpecialAfterNoOp(c => c.Enemy.DefinitionId == EnemyDefinitionId.CorpseSidehopper &&
@@ -456,7 +456,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         state.Playback = playback;
     }
 
-    /// <summary>Uses the private power-bomb callback in place of common enemy damage handling.</summary>
+    /// <summary>Uses the private power-bomb reaction in place of common enemy damage handling.</summary>
     internal void AddDeadSidehopperPowerBombReactions(EnemySharedReactions table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.CorpseSidehopper &&
@@ -472,7 +472,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.CorpseSidehopper &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyReaction.DeadSidehopperShot)
         {
-            // The common projectile prelude always marks the shot, but the private callback ignores it until the
+            // The common projectile prelude always marks the shot, but the private reaction ignores it until the
             // victim is fully drained. Even then it starts rotting without vulnerability damage or impact.
             BeforeSuperMissileQuake = (in EnemyShotContext c) =>
             {

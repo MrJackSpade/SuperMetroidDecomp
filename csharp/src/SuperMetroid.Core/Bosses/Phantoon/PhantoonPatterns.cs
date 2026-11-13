@@ -252,7 +252,7 @@ internal sealed class PhantoonPatterns
                 body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
 
                 // This flag makes the next pattern choice take the initial flame-rain
-                // branch after the eye-close animation invokes its flame-rain callback.
+                // branch after the eye-close animation runs its flame-rain cue.
                 state.BodyState.FlameRainRequested = true;
                 return;
             }
@@ -342,7 +342,7 @@ internal sealed class PhantoonPatterns
 
         // The call deliberately installs a pattern function which is immediately
         // overwritten with the fade-in function. Its timer, direction, and movement-side
-        // effects remain live, so call the shared callback implementation in full.
+        // effects remain live, so run the shared pattern choice in full.
         PickPhantoonSecondRoundPattern(state);
         state.BodyState.Function = PhantoonAiFunction.FadeInBeforeFigureEight;
         state.EyeState.FadeComplete = false;

@@ -99,7 +99,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             }
         }
 
-        // The game spawns even on the lethal eleventh callback, after requesting Kago's
+        // The game spawns even on the lethal eleventh hit, after requesting Kago's
         // death animation. Pool exhaustion is silent and therefore does not roll back the
         // counter, earthquake, or animation transition.
         _ = SpawnKagoBug(slot);
@@ -181,7 +181,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         RunKagoMain(slot.RequireSpeciesState<KagoEnemyState>());
     }
 
-    /// <summary>Applies Kago's shell response after the common projectile-shot callback has resolved damage.</summary>
+    /// <summary>Applies Kago's shell response after the common projectile-shot reaction has resolved damage.</summary>
     internal void AddKagoShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Kago &&

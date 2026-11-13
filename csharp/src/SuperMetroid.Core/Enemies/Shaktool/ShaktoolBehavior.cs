@@ -90,7 +90,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = new(ShaktoolAnimations.StartingWith(definition.InitialAnimation), AnimationPlace.StartOfAnimation);
 
         // The leading saw is the chain's fixed anchor. Every later segment centers on the preceding segment's
-        // position, subpixels included. Express that link structurally instead of treating queue scratch as an
+        // position, subpixels included. Express that link structurally instead of treating a value the game left behind as an
         // unrelated center.
         if (definition != ShaktoolSegmentDefinitions.LeadingSaw)
             PositionShaktoolAroundPreviousSegment(slot, state);
@@ -496,7 +496,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         });
     }
 
-    /// <summary>Registers front and linked attack-circle movement callbacks.</summary>
+    /// <summary>Registers front and linked attack-circle movement behaviours.</summary>
     internal void AddShaktoolProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddFrameBehavior(context =>

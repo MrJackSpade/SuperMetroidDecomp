@@ -270,10 +270,10 @@ public sealed class SamusLiquidPhysicsState
     /// </summary>
     /// <remarks>
     /// This test is intentionally not the ordinary movement-medium selector. The game's grapple
-    /// checks the suit-palette Gravity bit, requires a nonzero FX type, and compares only the
+    /// checks whether Samus wears the Gravity Suit, requires the room to have an effect at all, and compares only the
     /// water surface against Samus's bottom. It does not consult whether Samus ignores the
     /// water's surface and never falls back to the lava/acid surface. Those quirks are retained rather than
-    /// replacing the game's single flag with a friendlier host notion of “submerged.”
+    /// replacing the game's single flag with a friendlier general notion of “submerged.”
     /// </remarks>
     public bool DetermineGrappleSubmersion(SamusState samus)
     {

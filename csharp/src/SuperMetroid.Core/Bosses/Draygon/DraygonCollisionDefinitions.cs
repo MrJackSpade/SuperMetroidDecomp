@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// <summary>
 /// Owned collision for Draygon's body-layer and ordinary sprite frames. The
 /// visual streams referenced by these frames are independently replaceable;
-/// editing their artwork cannot move a hitbox or change a callback.
+/// editing their artwork cannot move a hitbox or change a reaction.
 /// </summary>
 internal static class DraygonCollisionDefinitions
 {

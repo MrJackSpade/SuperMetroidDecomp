@@ -19,12 +19,12 @@ internal sealed class RoomMainRoutines
     private readonly BackgroundScrollState _backgroundScroll;
     /// <summary>Samus state consulted for X-ray animation suspension.</summary>
     private readonly SamusFrameState _player;
-    /// <summary>Active room callback and area identity used to dispatch room-main work.</summary>
+    /// <summary>Active room behaviour and area identity used to dispatch room-main work.</summary>
     private readonly ActiveRoomState _room;
-    /// <summary>Boss bits and the random number sampled by room-main callbacks.</summary>
+    /// <summary>Boss bits and the random number sampled by room-main behaviours.</summary>
     private readonly SharedGameState _system;
 
-    /// <summary>Binds the room, enemy, tile, and memory owners used by room-main callbacks.</summary>
+    /// <summary>Binds the room, enemy, tile, and memory owners used by room-main behaviours.</summary>
     internal RoomMainRoutines(RoomMainRoutinesDependencies dependencies)
     {
         _backgroundScroll = dependencies.BackgroundScroll;

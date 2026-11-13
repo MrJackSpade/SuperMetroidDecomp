@@ -580,7 +580,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = playback;
     }
 
-    /// <summary>Preserves power-bomb callbacks on both body and arms, including relative aliases.</summary>
+    /// <summary>Preserves power-bomb reactions on both body and arms, including relative aliases.</summary>
     internal void AddEvirPowerBombReactions(EnemySharedReactions table)
     {
         // Touch and shot collision lists exclude the arms through their intangibility property, but the power-bomb walker
@@ -606,7 +606,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         });
     }
 
-    /// <summary>Runs common body contact and then Evir's physical-slot combat follow-up.</summary>
+    /// <summary>Runs common body contact and then Evir's own combat follow-up.</summary>
     internal void AddEvirTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Evir &&

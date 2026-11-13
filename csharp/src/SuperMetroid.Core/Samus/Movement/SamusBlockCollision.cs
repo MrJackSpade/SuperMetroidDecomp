@@ -18,7 +18,7 @@ public static class SamusBlockCollision
 {
     /// <summary>
     /// Runs the block-only observation of the wall-jump block collision check.
-    /// The check publishes available distance in a scratch value but does
+    /// The check reports the available distance but does
     /// not commit Samus's whole-pixel probe position. Collision still writes subpixels.
     /// </summary>
     internal static BlockMoveResult ProbeWallHorizontal(
@@ -210,7 +210,7 @@ public static class SamusBlockCollision
                         break;
 
                     case RoomCollisionType.SpecialAir:
-                        // Sand's submerging callback clears vertical speed/gravity even
+                        // Sand's submerging reaction clears vertical speed/gravity even
                         // when reached through the horizontal dispatcher.
                         collided = SamusInsideBlockReactions.ReactCollision(new(state, state.CollisionContactDamageIndex(owner)), terrain, block, Axis.Horizontal,
                             ref acceptedDisplacement, out _, move.BlockReactionDirection) == SpecialAirCollisionOutcome.Blocks;
@@ -1123,7 +1123,7 @@ public static class SamusBlockCollision
     /// </summary>
     public static void EjectAfterGrapple(RoomLevelData level, SamusKinematicsState state)
     {
-        // The game's horizontal scans only populate scratch distances: this step never
+        // The game's horizontal scans only measure distances: this step never
         // applies them. These probes do not trigger room objects, doors, damage, or enemies.
         int up = GrappleVerticalOverlap(level, state, direction: VerticalDirection.Down);
         int down = GrappleVerticalOverlap(level, state, direction: VerticalDirection.Up);

@@ -3,12 +3,12 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
-/// <summary>The Pirate-specific shot callbacks in Pirate hitbox records.</summary>
+/// <summary>The Pirate-specific shot reactions in Pirate hitbox records.</summary>
 internal static class PirateHitboxShotActions
 {
     /// <summary>
-    /// Dispatches the common and Pirate-specific shot callbacks in hitbox records. Only the
-    /// gold Ninja gives the two Ninja body callbacks special meaning; every other Pirate deliberately falls
+    /// Dispatches the common and Pirate-specific shot reactions in hitbox records. Only the
+    /// gold Ninja gives the two Ninja body reactions special meaning; every other Pirate deliberately falls
     /// through to normal shot AI even when it displays one of the shared Ninja maps.
     /// </summary>
     internal static PirateHitboxShotAction SelectPirateHitboxShotAction(
@@ -16,7 +16,7 @@ internal static class PirateHitboxShotActions
         SamusProjectile projectile,
         EnemyReaction? hitboxShotAi)
     {
-        // The empty frame still has a real point hitbox for a pirate. Its common callback
+        // The empty frame still has a real point hitbox for a pirate. Its common reaction
         // bypasses the Ninja-specific armor tests; it must not be rejected as unknown.
         if (hitboxShotAi is EnemyReaction.SpacePirateShot or EnemyReaction.NormalEnemyShot)
             return PirateHitboxShotAction.Normal;
@@ -64,8 +64,8 @@ internal static class PirateHitboxShotActions
 
     /// <summary>
     /// Dispatches a normal bomb through the same three component
-    /// callbacks as the ordinary projectile path. Non-gold Pirates always jump to normal
-    /// Pirate shot handling. Gold Ninjas return from both body callbacks because a
+    /// reactions as the ordinary projectile path. Non-gold Pirates always jump to normal
+    /// Pirate shot handling. Gold Ninjas return from both body reactions because a
     /// normal bomb's family sorts after the Power Bomb family; consequently bombs neither damage
     /// nor reflect from either authored body region.
     /// </summary>
@@ -91,7 +91,7 @@ internal static class PirateHitboxShotActions
     private static bool IsBeamOrMissile(SamusProjectileFamily family) =>
         family is SamusProjectileFamily.Beam or SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile;
 
-    /// <summary>Outcome chosen from a Pirate component's shot callback before ordinary damage processing.</summary>
+    /// <summary>Outcome chosen from a Pirate component's shot reaction before ordinary damage processing.</summary>
     internal enum PirateHitboxShotAction
     {
         /// <summary>Continue through the Pirate's normal shot reaction.</summary>

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// equipment can hold, the uncharged shots and then the charged ones, with the missile and bomb selectors after them; a
 /// combination that pairs Spazer with Plasma, which only the pause screen's same-frame toggle can equip, selects past
 /// its block. Its uncharged shot is a charged Power, Wave, Ice or Ice-Wave shot, and its charged shot is a missile, a
-/// Super Missile or a Power Bomb, carrying the beam's own identity and callbacks with that projectile's damage and
+/// Super Missile or a Power Bomb, carrying the beam's own identity and frame behaviours with that projectile's damage and
 /// animation.
 /// </summary>
 /// <remarks>

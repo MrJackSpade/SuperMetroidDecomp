@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// </summary>
 public sealed class TorizoEnemyState : ILitTorizo
 {
-    /// <summary>Attaches variant-specific boss state to the existing physical enemy slot.</summary>
+    /// <summary>Attaches variant-specific boss state to the Torizo's existing enemy in the room.</summary>
     internal TorizoEnemyState(RoomEnemySlot slot, bool isGolden)
     {
         Slot = slot;

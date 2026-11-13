@@ -11,7 +11,7 @@ internal sealed class EnemySharedReactions
     private readonly List<EnemyHurtRule> _hurt = [];
     /// <summary>Frozen private tails that may consume an enemy's frame before common thaw.</summary>
     private readonly List<EnemyFrozenPreemptionRule> _frozenPreemptions = [];
-    /// <summary>Frozen AI callbacks run after the common thaw step.</summary>
+    /// <summary>Frozen AI behaviours run after the common thaw step.</summary>
     private readonly List<EnemyFrozenRule> _frozen = [];
 
     /// <summary>Adds a hurt AI; the first registered hurt AI whose match accepts the enemy runs.</summary>
@@ -87,31 +87,31 @@ internal sealed class EnemySharedReactions
         return null;
     }
 
-    /// <summary>Private bomb callbacks checked before the selected literal no-op gate.</summary>
+    /// <summary>Private bomb reactions checked before the selected literal no-op gate.</summary>
     private readonly List<EnemyBombSpecial> _bombSpecials = [];
-    /// <summary>Private bomb callbacks checked after the selected literal no-op gate.</summary>
+    /// <summary>Private bomb reactions checked after the selected literal no-op gate.</summary>
     private readonly List<EnemyBombSpecial> _bombSpecialsAfterNoOp = [];
     /// <summary>Species reactions that surround common bomb damage.</summary>
     private readonly List<EnemyBombReaction> _bombCommon = [];
 
-    /// <summary>Adds a private bomb callback consulted before the selected literal no-op gate.</summary>
+    /// <summary>Adds a private bomb reaction consulted before the selected literal no-op gate.</summary>
     internal void AddBombSpecial(Func<EnemyBombContext, bool> matches, Action<EnemyBombContext> handler) =>
         _bombSpecials.Add(new EnemyBombSpecial(Ensure.NotNull(matches), Ensure.NotNull(handler)));
 
-    /// <summary>Adds a private bomb callback consulted after the selected literal no-op gate.</summary>
+    /// <summary>Adds a private bomb reaction consulted after the selected literal no-op gate.</summary>
     internal void AddBombSpecialAfterNoOp(Func<EnemyBombContext, bool> matches, Action<EnemyBombContext> handler) =>
         _bombSpecialsAfterNoOp.Add(new EnemyBombSpecial(Ensure.NotNull(matches), Ensure.NotNull(handler)));
 
     /// <summary>Adds a species reaction around common bomb damage.</summary>
     internal void AddBombCommon(EnemyBombReaction reaction) => _bombCommon.Add(Ensure.NotNull(reaction));
 
-    /// <summary>The first private bomb callback before the no-op gate that matches, or null.</summary>
+    /// <summary>The first private bomb reaction before the no-op gate that matches, or null.</summary>
     internal Action<EnemyBombContext>? FindBombSpecial(EnemyBombContext context) => Find(_bombSpecials, context);
 
-    /// <summary>The first private bomb callback after the no-op gate that matches, or null.</summary>
+    /// <summary>The first private bomb reaction after the no-op gate that matches, or null.</summary>
     internal Action<EnemyBombContext>? FindBombSpecialAfterNoOp(EnemyBombContext context) => Find(_bombSpecialsAfterNoOp, context);
 
-    /// <summary>The species reaction around common bomb damage, or null for the plain common callback.</summary>
+    /// <summary>The species reaction around common bomb damage, or null for the plain common reaction.</summary>
     internal EnemyBombReaction? FindBombCommon(EnemyBombContext context)
     {
         foreach (EnemyBombReaction reaction in _bombCommon)
@@ -122,7 +122,7 @@ internal sealed class EnemySharedReactions
         return null;
     }
 
-    /// <summary>Returns the first bomb callback whose predicate accepts the current collision context.</summary>
+    /// <summary>Returns the first bomb reaction whose predicate accepts the current collision context.</summary>
     private static Action<EnemyBombContext>? Find(
         List<EnemyBombSpecial> entries, EnemyBombContext context)
     {

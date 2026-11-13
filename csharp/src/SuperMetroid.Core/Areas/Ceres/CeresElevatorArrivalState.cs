@@ -31,7 +31,7 @@ public sealed class CeresElevatorArrivalState
     {
         Ensure.NotNull(samus);
 
-        // Spawning a projectile with graphics first copies enemy slot zero's tile and palette choice. The shared
+        // Spawning a projectile with graphics first copies the room's first-listed enemy's tile and palette choice. The shared
         // initializer then clears it, so both actors use room-loaded sprite tiles and the
         // palettes authored by their frames. Retaining the transient choice is
         // what previously made the level-data concealer teal until touchdown.

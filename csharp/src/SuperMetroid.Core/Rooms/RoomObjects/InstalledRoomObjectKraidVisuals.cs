@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
 /// The installed pictures of Kraid's room's ten ceiling and floor-spike frames (#1557). Their terrain, animation timing
-/// and movement callbacks stay the game's.
+/// and movement behaviours stay the game's.
 /// </summary>
 public sealed class InstalledRoomObjectKraidVisuals
 {

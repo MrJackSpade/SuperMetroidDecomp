@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.Ending;
 
-/// <summary>Mutable position, velocity, and packed delay or animation phase of one post-credits star.</summary>
+/// <summary>Mutable position, velocity, start delay and animation frame of one post-credits star.</summary>
 internal struct EndingShootingStar
 {
     /// <summary>Whether the star is still waiting out its authored start delay, counted by <see cref="Timer"/>.</summary>

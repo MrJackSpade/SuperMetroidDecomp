@@ -245,7 +245,7 @@ internal sealed class IntroCeresFlightState
         angle = RotationAngle.FromSteps(32);
 
         // These five slots are the exact spawn order. Their visual animations
-        // remain authored scripts; the compiled definitions supply callback identity,
+        // remain authored scripts; the compiled definitions supply behaviour identity,
         // initializer results and the physical motion applied by StepRearViewActors.
         // Each actor starts at its installed placement (#1596).
         CeresFlightActorPlacements layout = actorLayout ?? throw new InvalidOperationException(

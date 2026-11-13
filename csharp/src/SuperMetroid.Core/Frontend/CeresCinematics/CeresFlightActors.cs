@@ -22,7 +22,7 @@ internal static class CeresFlightActors
 
     /// <summary>Selects the five named actors spawned for the flight.</summary>
     /// <remarks>#1165 independently verifies each spawn identity, definition triple,
-    /// initializer branch and motion callback. This is actor-type dispatch: large debris,
+    /// initializer branch and motion. This is actor-type dispatch: large debris,
     /// station, small debris, vortex and rear stars select their own behavior and
     /// placement. The selected initializer parameters are not samples of a numerical curve.
     /// Named cases replace the earlier blanket retention claims; no output table or cache

@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Mutually exclusive room-main behaviors selected by a retail room state. Only the import oracle relates each to the game.</summary>
 public enum RoomMainCallback
 {
-    /// <summary>No room-specific main callback runs.</summary>
+    /// <summary>No room-specific main behaviour runs.</summary>
     None,
     /// <summary>Updates the land scrolling sky.</summary>
     ScrollingSkyLand,
@@ -19,7 +19,7 @@ public enum RoomMainCallback
     MaridiaElevatube,
     /// <summary>Advances the Ceres shaft elevator behavior.</summary>
     CeresElevatorShaft,
-    /// <summary>A present room-main callback that returns without changing state.</summary>
+    /// <summary>A present room-main behaviour that returns without changing state.</summary>
     Return,
     /// <summary>Spawns falling debris in the Ceres pre-elevator hall.</summary>
     SpawnCeresPreElevatorHallFallingDebris,

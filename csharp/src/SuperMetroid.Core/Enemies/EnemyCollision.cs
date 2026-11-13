@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Enemies;
 [RoomLifetime]
 internal sealed class EnemyCollision
 {
-    /// <summary>Dispatches enemy callbacks selected by touch or projectile contact.</summary>
+    /// <summary>Dispatches enemy reactions selected by touch or projectile contact.</summary>
     private readonly IEnemyDispatch _dispatch;
     /// <summary>Queues the enemy sounds produced by hits, freezes, and deaths.</summary>
     private readonly EnemyAudioQueue _audio;
@@ -26,7 +26,7 @@ internal sealed class EnemyCollision
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
     /// <summary>Publishes hit-driven room shake requests.</summary>
     private readonly RoomEarthquake _earthquake;
-    /// <summary>Supplies the current enemy frame's timing and state to collision callbacks.</summary>
+    /// <summary>Supplies the current enemy frame's timing and state to collision reactions.</summary>
     private readonly EnemyFrameContext _frameContext;
     /// <summary>Connects collision outcomes to enemy-owned projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -37,7 +37,7 @@ internal sealed class EnemyCollision
     /// <summary>Resizes a power bomb's sweep after each kill it makes.</summary>
     private readonly PowerBombRadiusAfterKill _powerBombRadius;
 
-    /// <summary>Binds the enemy and room owners whose state or callbacks collisions can change.</summary>
+    /// <summary>Binds the enemy and room owners whose state or reactions collisions can change.</summary>
     internal EnemyCollision(EnemyCollisionDependencies dependencies)
     {
         _powerBombRadius = dependencies.PowerBombRadius;
@@ -648,7 +648,7 @@ internal sealed class EnemyCollision
                     $"Enemy {enemy.DefinitionId} power-bomb reaction {named} is not translated.");
             }
 
-            // Private callbacks replace common power-bomb damage, but still receive the
+            // Private reactions replace common power-bomb damage, but still receive the
             // process-off-screen bit after a qualifying ellipse overlap.
             if (reaction?.ReplacesCommon is { } privateReaction)
             {

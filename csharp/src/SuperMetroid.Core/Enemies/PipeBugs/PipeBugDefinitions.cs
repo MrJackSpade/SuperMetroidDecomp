@@ -5,7 +5,7 @@ internal static class PipeBugDefinitions
 {
     /// <summary>
     /// The formation initializer assigns NTSC formation release counters centered on 104,
-    /// eight ticks per vertical rank. Physical slot order is center, upper-near,
+    /// eight ticks per vertical rank. Listing order is center, upper-near,
     /// upper-far, lower-near, lower-far; PAL shifts the same sequence down 32 ticks.
     /// </summary>
     internal static readonly int[] NorfairStaggerTargets = [104, 96, 88, 112, 120];

@@ -18,7 +18,8 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// pointers, opcodes, registers, instruction lists and PLMs, word widths, CPU mnemonics, numbered palettes and priorities,
 /// and routine labels written without an underscore: a compound name in a comment that names nothing in Core's code. #1632
 /// adds the carry flag, bits by number, record variables and extra words, routines, spritemaps, headers, the port's
-/// translation and lower-case memory symbols. Core's documentation states game behaviour in game
+/// translation and lower-case memory symbols, then physical slots, the port's host slots, exceptions, numbers and notions,
+/// memset and scratch values. Core's documentation states game behaviour in game
 /// terms; provenance belongs to the import pipeline or a check's native catalog. Only a
 /// <c>[CompatibilityService]</c> type, which reproduces hardware behaviour, or an <c>[EncodingOwner]</c> codec, which owns
 /// an encoding, may describe the hardware. One diagnostic per comment or literal; there is no allowance list.
@@ -126,6 +127,19 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
+    /// The program's working memory and the port's runtime set against it (#1632): a physical slot, enemy slot or projectile
+    /// slot (an enemy's place in the room's listing is the game's; a physical component or motion is geometry), a host slot,
+    /// exception, number or notion (the host that presents the game, its frames and the host's own slots are the
+    /// application's), a memset, and scratch values (starting from scratch and scratch marks are English).
+    /// </summary>
+    private static readonly Regex WorkingMemoryProse = new(
+        @"\bphysical[-\s]+(?:(?:enemy|projectile)[-\s]+)?slots?\b" +
+        @"|\bhost[-\s]+(?:slots?|exceptions?|numbers?|notions?)\b" +
+        @"|\bmemset\b" +
+        @"|(?<!\bfrom\s+)\bscratch\b(?!\s+marks?\b)",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
     /// A memory symbol of the original program in a comment: a lower-case name joined by underscores (<c>toriz_var_00</c>,
     /// <c>palette_change_num</c>) (#1632). The installed artwork's frame names are the snake case of Core's own frame
     /// identities (<c>draygon_goop_first</c> is <c>DraygonGoopFirst</c>), so a name whose Pascal-case form Core's code spells
@@ -230,6 +244,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : CpuProse.Match(text) is { Success: true } cpu ? cpu.Value
             : StorageProse.Match(text) is { Success: true } storage ? storage.Value
             : OperationProse.Match(text) is { Success: true } operation ? operation.Value
+            : WorkingMemoryProse.Match(text) is { Success: true } memory ? memory.Value
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;
         if (word is null || IsInHardwareOwner(owner))

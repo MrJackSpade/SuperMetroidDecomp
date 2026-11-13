@@ -8,8 +8,8 @@ namespace SuperMetroid.Core.Areas.Maridia;
 
 /// <summary>
 /// The Maridia elevatube's room main behaviour and the four door
-/// callbacks that initialize or release it. The fraction of the tracked position starts from what the previous
-/// room's main left (<see cref="RoomMainCarryover"/>), because the door callbacks do not set it, and is left for the
+/// behaviours that initialize or release it. The fraction of the tracked position starts from what the previous
+/// room's main left (<see cref="RoomMainCarryover"/>), because the door behaviours do not set it, and is left for the
 /// following room's main.
 /// </summary>
 [RoomLifetime]
@@ -33,7 +33,7 @@ public sealed class MaridiaElevatubeRoomMainState
     public SignedEightEight Acceleration { get; private set; }
 
     /// <summary>
-    /// Builds one room's elevatube owner, selecting whether the elevatube owns the room. The door callbacks initialize the
+    /// Builds one room's elevatube owner, selecting whether the elevatube owns the room. The door behaviours initialize the
     /// room-main values this behaviour reads.
     /// </summary>
     /// <param name="active">Whether the room state runs the elevatube.</param>
@@ -44,7 +44,7 @@ public sealed class MaridiaElevatubeRoomMainState
         TrackedFraction = Ensure.NotNull(carryover).Fraction;
     }
 
-    /// <summary>Applies the door callback for entry from Oasis to the south.</summary>
+    /// <summary>Applies the door behaviour for entry from Oasis to the south.</summary>
     public void SetUpFromSouth(SamusState samus)
     {
         EnsureActive(DoorSetupCode.ToiletStartsElevatubeRideFromSouth);
@@ -56,7 +56,7 @@ public sealed class MaridiaElevatubeRoomMainState
         samus.Control.LockStationary();
     }
 
-    /// <summary>Applies the door callback for entry from Plasma Spark to the north.</summary>
+    /// <summary>Applies the door behaviour for entry from Plasma Spark to the north.</summary>
     public void SetUpFromNorth(SamusState samus)
     {
         EnsureActive(DoorSetupCode.ToiletStartsElevatubeRideFromNorth);
@@ -69,7 +69,7 @@ public sealed class MaridiaElevatubeRoomMainState
     }
 
     /// <summary>
-    /// Applies Samus command one used by both exit callbacks. Room loading has already
+    /// Applies Samus command one used by both exit behaviours. Room loading has already
     /// selected a non-elevatube main behaviour, so no host-side movement state survives.
     /// </summary>
     public void ResetOnExit(SamusState samus)
@@ -123,7 +123,7 @@ public sealed class MaridiaElevatubeRoomMainState
         return movement;
     }
 
-    /// <summary>Rejects a door setup callback when the room has not selected the elevatube.</summary>
+    /// <summary>Rejects a door's setup behaviour when the room has not selected the elevatube.</summary>
     private void EnsureActive(DoorSetupCode setupCode)
     {
         if (IsActive)

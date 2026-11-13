@@ -11,7 +11,7 @@ internal static class IntroRinkaDefinitions
     /// followed by the start-moving step. The four-frame loop
     /// then selects the second, first, second and third for ten calls
     /// each before its jump returns to the loop's start. The generic animation
-    /// loads the first frame on relative call 0, the callback and first
+    /// loads the first frame on relative call 0, the frame behaviour and first
     /// loop frame on call 30, and subsequent loop frames on calls 40,
     /// 50, and 60. Because the frame behaviour runs before the animation advances,
     /// movement begins on the following actor call. The frame order is
@@ -29,7 +29,7 @@ internal static class IntroRinkaDefinitions
     public static CinematicActorDefinition RinkaActor =>
         new(CinematicSpriteFrameBehavior.NoOp, CinematicSpriteSegment.IntroRinka);
 
-    /// <summary>The Rinka spawner's empty callbacks and initial animation.</summary>
+    /// <summary>The Rinka spawner's empty behaviours and initial animation.</summary>
     /// <remarks>
     /// Issues #625 and #989: its animation contains seven steps:
     /// wait 74, empty frame, spawn the first pair, wait 128,
@@ -38,7 +38,7 @@ internal static class IntroRinkaDefinitions
     /// animation loads the first wait on zero-based call 0, spawns the
     /// first pair on call 74, then the second pair and deletes on call 202.
     /// IntroRinkaSystem follows this animation and verifies both waves.
-    /// The unequal waits and two distinct callbacks are authored timing
+    /// The unequal waits and two distinct behaviours are authored timing
     /// policy; retain the explicit bounded schedule rather than fit a
     /// recurrence or infer a third wave from adjacent data.
     /// </remarks>

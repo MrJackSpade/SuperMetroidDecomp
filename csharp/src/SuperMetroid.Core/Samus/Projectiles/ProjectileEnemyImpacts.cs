@@ -30,7 +30,7 @@ internal sealed class ProjectileEnemyImpacts
     }
     /// <summary>
     /// Applies the projectile-owned side effects that enemy collision performs before any
-    /// enemy callback which returns without entering ordinary impact conversion. This is
+    /// enemy reaction which returns without entering ordinary impact conversion. This is
     /// shared by extended hitboxes and radius-based custom reactions such as shutters.
     /// </summary>
     public void ApplyEnemyCollisionPrelude(SamusProjectile projectile, bool markCollisionState)
@@ -42,7 +42,7 @@ internal sealed class ProjectileEnemyImpacts
         if (slot.Type.Family == SamusProjectileFamily.SuperMissile)
         {
             // The collision walkers write the enemy-hit quake before dispatching the enemy's
-            // shot callback. This remains observable even when gold Ninja armor ignores a
+            // shot reaction. This remains observable even when gold Ninja armor ignores a
             // fresh, not-yet-linked Super Missile.
             _earthquakes.RequestSuperMissileEarthquake(SuperMissileDefinitions.EnemyHitEarthquake);
         }
@@ -59,7 +59,7 @@ internal sealed class ProjectileEnemyImpacts
         ApplyEnemyCollisionPrelude(projectile, markCollisionState);
 
     /// <summary>
-    /// Reflects the projectile after an enemy callback has replaced
+    /// Reflects the projectile after an enemy reaction has replaced
     /// the projectile direction. Reflection preserves the projectile family/type and world
     /// position, but reconstructs its damage, direction-specific animation, radii,
     /// and family frame behaviour exactly as the game does.

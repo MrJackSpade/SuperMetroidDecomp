@@ -13,6 +13,6 @@ public static class IntroNarrationDefinitions
     public const int CharacterDelayFrames = 5;
     /// <summary>One-update duration of the no-op marker at the beginning of each page stream.</summary>
     public const int InitialMarkerDelayFrames = 1;
-    /// <summary>128 cinematic background-object updates held after the final page starts caret blinking and before its finish callback.</summary>
+    /// <summary>128 cinematic background-object updates held after the final page starts caret blinking and before its finishing cue.</summary>
     public const int FinalPageHoldFrames = 128;
 }

@@ -1083,6 +1083,8 @@ internal static class FullRunSuitesVerification
             SuperMetroid.Verification.Audio.MusicQueueVerification.VerifyMusicQueueMatchesOriginalRing),
         new(nameof(VerifyDoorOrientationDomain), () => VerifyDoorOrientationDomain()),
         new(nameof(VerifyRgbColorDomain), () => VerifyRgbColorDomain()),
+        new(nameof(SuperMetroid.Verification.Assets.RgbaPngVerification.VerifyRgbaPngFilters),
+            SuperMetroid.Verification.Assets.RgbaPngVerification.VerifyRgbaPngFilters),
         new(nameof(VerifyBabyMetroidFatalBlowShake), () => VerifyBabyMetroidFatalBlowShake()),
         new(nameof(VerifyMotherBrainMissileWalkReset), () => VerifyMotherBrainMissileWalkReset()),
         new(nameof(VerifyMotherBrainWalkCreditShared), () => VerifyMotherBrainWalkCreditShared()),

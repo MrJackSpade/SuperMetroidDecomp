@@ -92,25 +92,20 @@ internal static class BlockReactionSelectorsVerification
     }
 
     /// <summary>
-    /// Checks that exactly the first eight common special-block reactions select crumble blocks, that each selects the
-    /// cartridge's header for its BTS, and that an undefined crumble block is rejected.
+    /// Checks that exactly the first eight common special-block reactions select crumble blocks and that an undefined
+    /// crumble block is rejected. What each selected block plays is the cartridge's list for its BTS
+    /// (<see cref="VerifyContactCrumbleInstructionSelection"/>); the header naming that list is not compared, as the game
+    /// keeps no record of it (#1691).
     /// </summary>
-    internal static void VerifyContactCrumbleHeaderSelection(CartridgeImportAddressSpace rom)
+    internal static void VerifyContactCrumbleSelection()
     {
-        // Header identities are arbitrary values since #1452, so the cartridge's header pointer is decoded
-        // through the native header table and compared as an identity.
         for (int index = 0; index <= BlockReaction.LastEntry; index++)
         {
-            bool selected = BlockReactionDefinitions.ContactCrumbles.TryGetMeaning(BlockReaction.Common(index), out ContactCrumbleBlock crumble);
+            bool selected = BlockReactionDefinitions.ContactCrumbles.TryGetMeaning(BlockReaction.Common(index), out _);
             AssertEqual(index < 8, selected, $"common special-block BTS {index:X2} selects a crumble block exactly when it is one of the first eight");
-            if (selected)
-                AssertEqual(RoomObjectNativeWords.Header(ReadRomWord(rom, 0x949139 + 2 * index)),
-                    RoomObjectKinds.ContactCrumbleOf(crumble), $"contact crumble native header selection at BTS {index:X2}");
             AssertTrue(!BlockReactionDefinitions.ContactCrumbles.TryGetMeaning(BlockReaction.AreaSpecific(index), out _),
                 $"area special-block reaction {index} selects no crumble block");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => RoomObjectKinds.ContactCrumbleOf((ContactCrumbleBlock)(-1)),
-            "contact crumble header rejects an undefined crumble block");
         AssertThrows<ArgumentOutOfRangeException>(() => BlockReactionChanges.ContactCrumble((ContactCrumbleBlock)(-1)),
             "contact crumble program rejects an undefined crumble block");
     }

@@ -4,6 +4,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Verification.Rooms.RoomObjects;
 
@@ -15,10 +16,8 @@ internal static class SamusEaterObjectDefinitionsVerification
     {
         Suite(nameof(VerifySamusEaterHeaderInstructionMapping), () => VerifySamusEaterHeaderInstructionMapping(rom));
         Suite(nameof(VerifySamusEaterMountingMapping), () => VerifySamusEaterMountingMapping(rom));
-        AssertEqual((ushort)0xb6cb, RoomObjectNativeWords.Word(SamusEaterObjectDefinitions.Floor.Identity), "floor plant carries the floor plant header");
-        AssertEqual((ushort)0xb6cf, RoomObjectNativeWords.Word(SamusEaterObjectDefinitions.Ceiling.Identity), "ceiling plant carries the ceiling plant header");
 
-        foreach (SamusEaterObjectDefinition definition in Plants)
+        foreach ((SamusEaterObjectDefinition definition, _) in Plants)
         {
             const int width = 4;
             const int height = 4;
@@ -57,15 +56,22 @@ internal static class SamusEaterObjectDefinitionsVerification
     private static void VerifySamusEaterMountingMapping(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifySamusEaterHeaderField), () => VerifySamusEaterHeaderField(rom, true));
 
-    /// <summary>The two plants, floor first.</summary>
-    private static readonly SamusEaterObjectDefinition[] Plants = [SamusEaterObjectDefinitions.Floor, SamusEaterObjectDefinitions.Ceiling];
+    /// <summary>
+    /// The two plants, floor first, each with the inside reaction that places it (as Samus's inside-block reactions
+    /// place it): the cartridge's header for that reaction is the plant's header.
+    /// </summary>
+    private static readonly (SamusEaterObjectDefinition Plant, SpecialAirInsideReaction Reaction)[] Plants =
+    [
+        (SamusEaterObjectDefinitions.Floor, SpecialAirInsideReaction.BrinstarFloorPlant),
+        (SamusEaterObjectDefinitions.Ceiling, SpecialAirInsideReaction.BrinstarCeilingPlant),
+    ];
 
     /// <summary>Checks each plant's native header: its program, or its mounting against the native setup and held-Y direction.</summary>
     private static void VerifySamusEaterHeaderField(CartridgeImportAddressSpace rom, bool mounting)
     {
-        foreach (SamusEaterObjectDefinition actual in Plants)
+        foreach ((SamusEaterObjectDefinition actual, SpecialAirInsideReaction reaction) in Plants)
         {
-            ushort header = RoomObjectNativeWords.Word(actual.Identity);
+            ushort header = SpecialAirReactionNativeWords.InsideHeaders[reaction];
             if (mounting)
             {
                 ushort setup = ReadSamusEaterObjectWord(rom, 0x840000 | header);

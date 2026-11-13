@@ -14,13 +14,13 @@ public static class DoorClosingObjects
         DoorClosingBehavior.None => null,
         DoorClosingBehavior.BlueDoorCloses => orientation.Direction switch
         {
-            DoorDirection.Right => new(RoomObjectKind.BlueDoorClosingFacingRight, ColoredDoorOrientation.Right),
-            DoorDirection.Left => new(RoomObjectKind.BlueDoorClosingFacingLeft, ColoredDoorOrientation.Left),
-            DoorDirection.Down => new(RoomObjectKind.BlueDoorClosingFacingDown, ColoredDoorOrientation.Down),
-            DoorDirection.Up => new(RoomObjectKind.BlueDoorClosingFacingUp, ColoredDoorOrientation.Up),
+            DoorDirection.Right => new(ColoredDoorOrientation.Right),
+            DoorDirection.Left => new(ColoredDoorOrientation.Left),
+            DoorDirection.Down => new(ColoredDoorOrientation.Down),
+            DoorDirection.Up => new(ColoredDoorOrientation.Up),
             _ => throw new ArgumentOutOfRangeException(nameof(orientation), orientation, "Undefined door direction."),
         },
-        DoorClosingBehavior.EscapeGateCloses => new(RoomObjectKind.MotherBrainEscapeRoomGateClosing, BlueCapFacing: null),
+        DoorClosingBehavior.EscapeGateCloses => new(BlueCapFacing: null),
         _ => throw new ArgumentOutOfRangeException(nameof(orientation), orientation, "Undefined door closing behavior."),
     };
 }

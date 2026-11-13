@@ -381,22 +381,6 @@ internal static class MapPresentationVerification
     private static void VerifyPauseWireframeAssets() =>
         VerifyPauseWireframes(RetailBus(), InstalledFixtures.Maps);
 
-    /// <summary>Checks installed pause-screen map, sprite, selector, reserve and equipment assets.</summary>
-    private static void VerifyPausePresentationAssets()
-    {
-        var bus = RetailBus();
-        AreaMapPresentation original = InstalledFixtures.Maps;
-        Suite(nameof(VerifyMapScreens), () => VerifyMapScreens(bus, original));
-        Suite(nameof(VerifyMapSprites), () => VerifyMapSprites(bus, original));
-        Suite(nameof(VerifyPauseTileAtlas), () => VerifyPauseTileAtlas(bus, original));
-        Suite(nameof(VerifyCompiledPauseEquipmentRules), () => VerifyCompiledPauseEquipmentRules(bus, original));
-        Suite(nameof(VerifyPauseSelectors), () => VerifyPauseSelectors(bus, original));
-        Suite(nameof(VerifyPauseReserveTankAssets), () => VerifyPauseReserveTankAssets(bus, original));
-        Suite(nameof(VerifyPauseReserveUiAssets), () => VerifyPauseReserveUiAssets(bus, original));
-        Suite(nameof(VerifyPauseEquipmentBaseAssets), () => VerifyPauseEquipmentBaseAssets(bus, original));
-        Suite(nameof(VerifyPauseEquipmentLabelAssets), () => VerifyPauseEquipmentLabelAssets(original));
-    }
-
     /// <summary>Checks installed HUD, menu, message, typewriter, narration, ending and file-select presentation assets.</summary>
     private static void VerifyFrontendPresentationAssets()
     {
@@ -411,9 +395,6 @@ internal static class MapPresentationVerification
         Suite(nameof(VerifyFileSelectPresentationAssets), () => VerifyFileSelectPresentationAssets(bus, original));
         Suite(nameof(VerifyEscapeTypewriterAssets), () => VerifyEscapeTypewriterAssets(bus, stock));
         Suite(nameof(VerifyIntroNarrationAssets), () => VerifyIntroNarrationAssets(bus, stock));
-        // Stronger than composing individual range guards: no bus read or write
-        // is permitted anywhere in this complete installed saved-map lifecycle.
-        Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(original, verifyCapturedRendering: true));
         Suite(nameof(VerifyMapLoadAnchors), () => VerifyMapLoadAnchors(bus, original));
         Suite(nameof(VerifyCompiledMapScrollControls), () => VerifyCompiledMapScrollControls(bus, original));
     }
@@ -699,14 +680,27 @@ internal static class MapPresentationVerification
 
     /// <summary>
     /// The map and installed presentation family. Only the catalog suite writes, into a private copy of the map
-    /// presentation; the full run schedules every suite independently.
+    /// presentation; the full run schedules every suite independently. Each pause-screen family (map screens and sprites,
+    /// the tile atlas, the equipment rules, the selectors, the reserve tank and its interface, the equipment base and
+    /// labels) is a suite of its own, as is the whole installed file-select menu pass (#1680).
     /// </summary>
     internal static RegisteredSuite[] MapPresentationSuites() =>
     [
         new(nameof(VerifyMapPresentation), () => VerifyMapPresentation()),
         new(nameof(VerifyMapPresentationCatalog), () => VerifyMapPresentationCatalog()),
         new(nameof(VerifyMapPresentationColors), () => VerifyMapPresentationColors()),
-        new(nameof(VerifyPausePresentationAssets), () => VerifyPausePresentationAssets()),
+        new(nameof(VerifyMapScreens), () => VerifyMapScreens(InstalledFixtures.Maps)),
+        new(nameof(VerifyMapSprites), () => VerifyMapSprites(RetailBus(), InstalledFixtures.Maps)),
+        new(nameof(VerifyPauseTileAtlas), () => VerifyPauseTileAtlas(RetailBus(), InstalledFixtures.Maps)),
+        new(nameof(VerifyCompiledPauseEquipmentRules), () => VerifyCompiledPauseEquipmentRules(RetailBus(), InstalledFixtures.Maps)),
+        new(nameof(VerifyPauseSelectors), () => VerifyPauseSelectors(RetailBus(), InstalledFixtures.Maps)),
+        new(nameof(VerifyPauseReserveTankAssets), () => VerifyPauseReserveTankAssets(RetailBus(), InstalledFixtures.Maps)),
+        new(nameof(VerifyPauseReserveUiAssets), () => VerifyPauseReserveUiAssets(RetailBus(), InstalledFixtures.Maps)),
+        new(nameof(VerifyPauseEquipmentBaseAssets), () => VerifyPauseEquipmentBaseAssets(RetailBus(), InstalledFixtures.Maps)),
+        new(nameof(VerifyPauseEquipmentLabelAssets), () => VerifyPauseEquipmentLabelAssets(InstalledFixtures.Maps)),
+        // Stronger than composing individual range guards: no bus read or write
+        // is permitted anywhere in this complete installed saved-map lifecycle.
+        new(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(InstalledFixtures.Maps, verifyCapturedRendering: true)),
         new(nameof(VerifyPauseBackdropAssets), () => VerifyPauseBackdropAssets()),
         new(nameof(VerifyPauseWireframeAssets), () => VerifyPauseWireframeAssets()),
         new(nameof(VerifyFrontendPresentationAssets), () => VerifyFrontendPresentationAssets()),

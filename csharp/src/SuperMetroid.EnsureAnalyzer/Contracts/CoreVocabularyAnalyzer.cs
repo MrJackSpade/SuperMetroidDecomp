@@ -23,7 +23,9 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// delegate the port passes (<see cref="HoldsDelegate"/>); a name that says <c>Dispatch</c> names the original's jump
 /// through a table of routines (#1624, <see cref="RoutineDispatchWords"/>) under the same allowance, unless it says what it
 /// sends (<see cref="SentThingWords"/>). A name that says <c>Function</c> names the enemy record's AI
-/// function field (#1701, <see cref="BehaviourFieldWords"/>) under the same delegate allowance. See <c>docs/core-vocabulary.md</c>.
+/// function field (#1701, <see cref="BehaviourFieldWords"/>) under the same delegate allowance. An area's name followed
+/// by a number and another word numbers the area by the cartridge's tileset (#1720, <see cref="TilesetNumber"/>):
+/// <c>Brinstar6DarkPattern</c>. See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
@@ -103,6 +105,15 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
     /// </summary>
     internal static readonly ImmutableArray<string> BehaviourFieldWords = ["Function"];
 
+    /// <summary>
+    /// The game's areas, as the camel-case words that name them (#1720): an area's name followed by a number is the
+    /// cartridge's graphics-set number for one of its tilesets (<see cref="TilesetNumber"/>).
+    /// </summary>
+    internal static readonly ImmutableArray<ImmutableArray<string>> AreaNames =
+    [
+        ["Crateria"], ["Brinstar"], ["Norfair"], ["Maridia"], ["Tourian"], ["Ceres"], ["Wrecked", "Ship"],
+    ];
+
     /// <summary>Endings that keep a word the same hardware word: <c>Banks</c>, <c>Addresses</c>, <c>Banked</c>, <c>Addressing</c>.</summary>
     private static readonly string[] Endings = ["", "s", "es", "ed", "ing"];
 
@@ -114,11 +125,12 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
         DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "Core is a C# game. Its identifiers say what things are in the game, never which chip, memory or " +
-            "cartridge structure the original stored them in, never number them as the cartridge did in hexadecimal, and " +
+            "cartridge structure the original stored them in, never number them as the cartridge did in hexadecimal or by its " +
+            "tilesets, and " +
             "never call a behaviour the callback the original dispatched it through, the routine table it jumped through or " +
             "the function field its record held; " +
             "hardware behaviour the game needs lives in " +
-            "a compatibility service named for the game (#1400, #1554, #1624, #1685, #1694, #1701, docs/core-vocabulary.md).");
+            "a compatibility service named for the game (#1400, #1554, #1624, #1685, #1694, #1701, #1720, docs/core-vocabulary.md).");
 
     /// <inheritdoc/>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [Rule];
@@ -314,7 +326,46 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
         }
         if (ContainedWord(identifier, BehaviourFieldWords) is { } field && !holdsDelegate())
             return $"names the enemy record's AI function field ('{field}') where it declares no delegate";
-        return HexCode(identifier) is { } code ? $"spells the cartridge value '{code}' in hexadecimal" : null;
+        if (HexCode(identifier) is { } code)
+            return $"spells the cartridge value '{code}' in hexadecimal";
+        return TilesetNumber(identifier) is { } tileset ? $"numbers its area by the cartridge's tileset ('{tileset}')" : null;
+    }
+
+    /// <summary>
+    /// The area and tileset number <paramref name="identifier"/> spells, joined, or null (#1720): an area's name
+    /// (<see cref="AreaNames"/>, without regard to case) carrying a decimal number, run into its last word or as its own
+    /// underscore-separated word, that another word follows, as in <c>Brinstar6DarkPattern</c>, <c>Crateria23Mechanical</c>,
+    /// <c>Norfair9And10CavernVertical</c>, <c>WreckedShip45EntranceHall</c> or <c>Crateria_2_BrickRoom</c>. A number that
+    /// ends the name is an ordinal, as a room's doors are numbered (<c>ElevToBlueBrinstar0</c>), and a number after any
+    /// other word is the game's own (<c>Metroids2Default</c>). An area followed by a lone capital letter is not read as a
+    /// tileset letter: <c>MaridiaBBrownWall</c> and <c>BrinstarETank</c>, an energy tank, have one shape.
+    /// </summary>
+    internal static string? TilesetNumber(string identifier)
+    {
+        string[] words = Words(identifier).ToArray();
+        foreach (ImmutableArray<string> area in AreaNames)
+        {
+            for (int start = 0; start + area.Length <= words.Length; start++)
+            {
+                bool matches = true;
+                for (int offset = 0; offset < area.Length - 1 && matches; offset++)
+                    matches = string.Equals(words[start + offset], area[offset], StringComparison.OrdinalIgnoreCase);
+                if (!matches)
+                    continue;
+                int last = start + area.Length - 1;
+                string word = words[last];
+                string name = area[area.Length - 1];
+                if (!word.StartsWith(name, StringComparison.OrdinalIgnoreCase))
+                    continue;
+                string number = word.Substring(name.Length);
+                int next = last + 1;
+                if (number.Length == 0 && next < words.Length && words[next].All(IsDecimalDigit))
+                    number = words[next++];
+                if (number.Length > 0 && number.All(IsDecimalDigit) && next < words.Length)
+                    return string.Concat(area) + number;
+            }
+        }
+        return null;
     }
 
     /// <summary>

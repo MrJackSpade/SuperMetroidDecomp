@@ -70,6 +70,14 @@ ordinals are not codes: a capital that starts a lower-case word begins that word
 `Shift8Add` is `8` and `Add`), a run of capitals that continues into other capitals is an acronym, a lone letter is a
 word or ordinal (`BossA`), and decimal numbers are numbers whether or not they are zero-padded (`Frame05`, `Dachora19`).
 
+A name that numbers an area by the cartridge's tileset is reported too (#1720, `CoreVocabularyAnalyzer.AreaNames`): an
+area's name (`Crateria`, `Brinstar`, `Norfair`, `Maridia`, `Tourian`, `Ceres`, `WreckedShip`) carrying a decimal number,
+run into it or as its own underscore-separated word, that another word follows (`Brinstar6DarkPattern`,
+`Crateria23Mechanical`, `Norfair9And10CavernVertical`, `WreckedShip45EntranceHall`, `Crateria_2_BrickRoom`). A number
+that ends the name is an ordinal, as a room's doors are numbered (`ElevToBlueBrinstar0`), and a number after any other
+word is the game's own (`Metroids2Default`). An area followed by a lone capital letter is not read as the tileset's
+letter, since `MaridiaBBrownWall` and `BrinstarETank`, an energy tank, have one shape; such a name is found by review.
+
 Matching is by whole camel-case word, ignoring case, with plural and verb endings (`Banks`, `Addresses`, `Banked`,
 `Addressing`). `Object` is not `Obj`, `Roman` is not `Rom`, `Registry` is not `Register`. A run of capitals is one word
 (`OAMBuffer` is `OAM` + `Buffer`), and a digit stays with the word before it (`Mode7`).

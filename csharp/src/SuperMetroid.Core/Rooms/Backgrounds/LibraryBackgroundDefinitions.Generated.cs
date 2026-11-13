@@ -18,8 +18,8 @@ public static partial class LibraryBackgroundDefinitions
     /// <summary>The ScrollingSkyBowlingAlley library background.</summary>
     public static LibraryBackground ScrollingSkyBowlingAlley { get; } = new(nameof(ScrollingSkyBowlingAlley), LibraryBackgroundView.SkyRows, []);
 
-    /// <summary>The Brinstar26KraidUpperLower library background.</summary>
-    public static LibraryBackground Brinstar26KraidUpperLower { get; } = new(nameof(Brinstar26KraidUpperLower), LibraryBackgroundView.Picture, []);
+    /// <summary>The BrinstarKraidUpperLower library background.</summary>
+    public static LibraryBackground BrinstarKraidUpperLower { get; } = new(nameof(BrinstarKraidUpperLower), LibraryBackgroundView.Picture, []);
 
     /// <summary>The KraidDead library background.</summary>
     public static LibraryBackground KraidDead { get; } = new(nameof(KraidDead), LibraryBackgroundView.Nothing, []);
@@ -30,125 +30,125 @@ public static partial class LibraryBackgroundDefinitions
     /// <summary>The CrocomireWhenAreaMiniBossDead library background.</summary>
     public static LibraryBackground CrocomireWhenAreaMiniBossDead { get; } = new(nameof(CrocomireWhenAreaMiniBossDead), LibraryBackgroundView.BossBody, []);
 
-    /// <summary>The Crateria0VerticalPatternRocks library background.</summary>
-    public static LibraryBackground Crateria0VerticalPatternRocks { get; } = new(nameof(Crateria0VerticalPatternRocks), LibraryBackgroundView.Picture, []);
+    /// <summary>The CrateriaVerticalPatternRocks library background.</summary>
+    public static LibraryBackground CrateriaVerticalPatternRocks { get; } = new(nameof(CrateriaVerticalPatternRocks), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The Crateria0HorizontalPatternRocks library background.</summary>
-    public static LibraryBackground Crateria0HorizontalPatternRocks { get; } = new(nameof(Crateria0HorizontalPatternRocks), LibraryBackgroundView.Picture, []);
+    /// <summary>The CrateriaHorizontalPatternRocks library background.</summary>
+    public static LibraryBackground CrateriaHorizontalPatternRocks { get; } = new(nameof(CrateriaHorizontalPatternRocks), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The Crateria0Rocks library background.</summary>
-    public static LibraryBackground Crateria0Rocks { get; } = new(nameof(Crateria0Rocks), LibraryBackgroundView.Picture, []);
+    /// <summary>The CrateriaRocks library background.</summary>
+    public static LibraryBackground CrateriaRocks { get; } = new(nameof(CrateriaRocks), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The Crateria2PurpleRocks library background.</summary>
-    public static LibraryBackground Crateria2PurpleRocks { get; } = new(nameof(Crateria2PurpleRocks), LibraryBackgroundView.Picture, []);
+    /// <summary>The CrateriaPurpleRocks library background.</summary>
+    public static LibraryBackground CrateriaPurpleRocks { get; } = new(nameof(CrateriaPurpleRocks), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The Crateria2BrickRoomWallArtDark library background.</summary>
-    public static LibraryBackground Crateria2BrickRoomWallArtDark { get; } = new(nameof(Crateria2BrickRoomWallArtDark), LibraryBackgroundView.Picture, []);
+    /// <summary>The CrateriaBrickRoomWallArtDark library background.</summary>
+    public static LibraryBackground CrateriaBrickRoomWallArtDark { get; } = new(nameof(CrateriaBrickRoomWallArtDark), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The Crateria23Mechanical library background.</summary>
-    public static LibraryBackground Crateria23Mechanical { get; } = new(nameof(Crateria23Mechanical), LibraryBackgroundView.Picture, []);
+    /// <summary>The CrateriaMechanical library background.</summary>
+    public static LibraryBackground CrateriaMechanical { get; } = new(nameof(CrateriaMechanical), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The Crateria2BrickRoomWallArt library background.</summary>
-    public static LibraryBackground Crateria2BrickRoomWallArt { get; } = new(nameof(Crateria2BrickRoomWallArt), LibraryBackgroundView.Picture, []);
+    /// <summary>The CrateriaBrickRoomWallArt library background.</summary>
+    public static LibraryBackground CrateriaBrickRoomWallArt { get; } = new(nameof(CrateriaBrickRoomWallArt), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The Crateria2Elevator library background.</summary>
-    public static LibraryBackground Crateria2Elevator { get; } = new(nameof(Crateria2Elevator), LibraryBackgroundView.Picture, []);
+    /// <summary>The CrateriaElevator library background.</summary>
+    public static LibraryBackground CrateriaElevator { get; } = new(nameof(CrateriaElevator), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The Crateria2BrickRoom library background.</summary>
-    public static LibraryBackground Crateria2BrickRoom { get; } = new(nameof(Crateria2BrickRoom), LibraryBackgroundView.Picture, []);
+    /// <summary>The CrateriaBrickRoom library background.</summary>
+    public static LibraryBackground CrateriaBrickRoom { get; } = new(nameof(CrateriaBrickRoom), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The Brinstar6VerticalGlowPatches library background.</summary>
-    public static LibraryBackground Brinstar6VerticalGlowPatches { get; } = new(nameof(Brinstar6VerticalGlowPatches), LibraryBackgroundView.Picture, []);
+    /// <summary>The BrinstarVerticalGlowPatches library background.</summary>
+    public static LibraryBackground BrinstarVerticalGlowPatches { get; } = new(nameof(BrinstarVerticalGlowPatches), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The Brinstar6HorizontalGlowPatches library background.</summary>
-    public static LibraryBackground Brinstar6HorizontalGlowPatches { get; } = new(nameof(Brinstar6HorizontalGlowPatches), LibraryBackgroundView.Picture, []);
+    /// <summary>The BrinstarHorizontalGlowPatches library background.</summary>
+    public static LibraryBackground BrinstarHorizontalGlowPatches { get; } = new(nameof(BrinstarHorizontalGlowPatches), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The Brinstar6LargeHorizontalPattern library background.</summary>
-    public static LibraryBackground Brinstar6LargeHorizontalPattern { get; } = new(nameof(Brinstar6LargeHorizontalPattern), LibraryBackgroundView.Picture, []);
+    /// <summary>The BrinstarLargeHorizontalPattern library background.</summary>
+    public static LibraryBackground BrinstarLargeHorizontalPattern { get; } = new(nameof(BrinstarLargeHorizontalPattern), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The Brinstar6MediumHorizontalPattern library background.</summary>
-    public static LibraryBackground Brinstar6MediumHorizontalPattern { get; } = new(nameof(Brinstar6MediumHorizontalPattern), LibraryBackgroundView.Picture, []);
+    /// <summary>The BrinstarMediumHorizontalPattern library background.</summary>
+    public static LibraryBackground BrinstarMediumHorizontalPattern { get; } = new(nameof(BrinstarMediumHorizontalPattern), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The Brinstar6ThinHorizontalPattern library background.</summary>
-    public static LibraryBackground Brinstar6ThinHorizontalPattern { get; } = new(nameof(Brinstar6ThinHorizontalPattern), LibraryBackgroundView.Picture, []);
+    /// <summary>The BrinstarThinHorizontalPattern library background.</summary>
+    public static LibraryBackground BrinstarThinHorizontalPattern { get; } = new(nameof(BrinstarThinHorizontalPattern), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The Brinstar6SmallPattern library background.</summary>
-    public static LibraryBackground Brinstar6SmallPattern { get; } = new(nameof(Brinstar6SmallPattern), LibraryBackgroundView.Picture, []);
+    /// <summary>The BrinstarSmallPattern library background.</summary>
+    public static LibraryBackground BrinstarSmallPattern { get; } = new(nameof(BrinstarSmallPattern), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The Brinstar6SpheresPattern library background.</summary>
-    public static LibraryBackground Brinstar6SpheresPattern { get; } = new(nameof(Brinstar6SpheresPattern), LibraryBackgroundView.Picture, []);
+    /// <summary>The BrinstarSpheresPattern library background.</summary>
+    public static LibraryBackground BrinstarSpheresPattern { get; } = new(nameof(BrinstarSpheresPattern), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The Brinstar6SmallPatternVariety0 library background.</summary>
-    public static LibraryBackground Brinstar6SmallPatternVariety0 { get; } = new(nameof(Brinstar6SmallPatternVariety0), LibraryBackgroundView.Picture, []);
+    /// <summary>The BrinstarVariedSmallPattern library background.</summary>
+    public static LibraryBackground BrinstarVariedSmallPattern { get; } = new(nameof(BrinstarVariedSmallPattern), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The Brinstar6DarkPattern library background.</summary>
-    public static LibraryBackground Brinstar6DarkPattern { get; } = new(nameof(Brinstar6DarkPattern), LibraryBackgroundView.Picture, []);
+    /// <summary>The BrinstarDarkPattern library background.</summary>
+    public static LibraryBackground BrinstarDarkPattern { get; } = new(nameof(BrinstarDarkPattern), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The Tourian15Statues library background.</summary>
-    public static LibraryBackground Tourian15Statues { get; } = new(nameof(Tourian15Statues), LibraryBackgroundView.Picture, []);
+    /// <summary>The TourianStatues library background.</summary>
+    public static LibraryBackground TourianStatues { get; } = new(nameof(TourianStatues), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The Brinstar7WideVerticalTowerBrick0 library background.</summary>
-    public static LibraryBackground Brinstar7WideVerticalTowerBrick0 { get; } = new(nameof(Brinstar7WideVerticalTowerBrick0), LibraryBackgroundView.Picture, []);
+    /// <summary>The BrinstarWideVerticalTowerBrick library background.</summary>
+    public static LibraryBackground BrinstarWideVerticalTowerBrick { get; } = new(nameof(BrinstarWideVerticalTowerBrick), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The Brinstar7VerticalTower library background.</summary>
-    public static LibraryBackground Brinstar7VerticalTower { get; } = new(nameof(Brinstar7VerticalTower), LibraryBackgroundView.Picture, []);
+    /// <summary>The BrinstarVerticalTower library background.</summary>
+    public static LibraryBackground BrinstarVerticalTower { get; } = new(nameof(BrinstarVerticalTower), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The Brinstar7NarrowVerticalTowerBrick library background.</summary>
-    public static LibraryBackground Brinstar7NarrowVerticalTowerBrick { get; } = new(nameof(Brinstar7NarrowVerticalTowerBrick), LibraryBackgroundView.Picture, []);
+    /// <summary>The BrinstarNarrowVerticalTowerBrick library background.</summary>
+    public static LibraryBackground BrinstarNarrowVerticalTowerBrick { get; } = new(nameof(BrinstarNarrowVerticalTowerBrick), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The Brinstar7VerticalBrick0 library background.</summary>
-    public static LibraryBackground Brinstar7VerticalBrick0 { get; } = new(nameof(Brinstar7VerticalBrick0), LibraryBackgroundView.Picture, []);
+    /// <summary>The BrinstarVerticalBrick library background.</summary>
+    public static LibraryBackground BrinstarVerticalBrick { get; } = new(nameof(BrinstarVerticalBrick), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The Brinstar7MechanicalRoomSpikeFloor library background.</summary>
-    public static LibraryBackground Brinstar7MechanicalRoomSpikeFloor { get; } = new(nameof(Brinstar7MechanicalRoomSpikeFloor), LibraryBackgroundView.Picture, []);
+    /// <summary>The BrinstarMechanicalRoomSpikeFloor library background.</summary>
+    public static LibraryBackground BrinstarMechanicalRoomSpikeFloor { get; } = new(nameof(BrinstarMechanicalRoomSpikeFloor), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The Brinstar7MechanicalRoom library background.</summary>
-    public static LibraryBackground Brinstar7MechanicalRoom { get; } = new(nameof(Brinstar7MechanicalRoom), LibraryBackgroundView.Picture, []);
+    /// <summary>The BrinstarMechanicalRoom library background.</summary>
+    public static LibraryBackground BrinstarMechanicalRoom { get; } = new(nameof(BrinstarMechanicalRoom), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The Brinstar7NarrowVerticalTowerBrickVines0 library background.</summary>
-    public static LibraryBackground Brinstar7NarrowVerticalTowerBrickVines0 { get; } = new(nameof(Brinstar7NarrowVerticalTowerBrickVines0), LibraryBackgroundView.Picture, []);
+    /// <summary>The BrinstarNarrowVerticalTowerBrickVines library background.</summary>
+    public static LibraryBackground BrinstarNarrowVerticalTowerBrickVines { get; } = new(nameof(BrinstarNarrowVerticalTowerBrickVines), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The Brinstar8NarrowVerticalTowerBrickGrey0 library background.</summary>
-    public static LibraryBackground Brinstar8NarrowVerticalTowerBrickGrey0 { get; } = new(nameof(Brinstar8NarrowVerticalTowerBrickGrey0), LibraryBackgroundView.Picture, []);
+    /// <summary>The StatuesHallwayGreyTowerBrick library background.</summary>
+    public static LibraryBackground StatuesHallwayGreyTowerBrick { get; } = new(nameof(StatuesHallwayGreyTowerBrick), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The Brinstar7BlueGridBlocks library background.</summary>
-    public static LibraryBackground Brinstar7BlueGridBlocks { get; } = new(nameof(Brinstar7BlueGridBlocks), LibraryBackgroundView.Picture, []);
+    /// <summary>The BrinstarBlueGridBlocks library background.</summary>
+    public static LibraryBackground BrinstarBlueGridBlocks { get; } = new(nameof(BrinstarBlueGridBlocks), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The Norfair9And10SmallPatternBrownPurpleBright library background.</summary>
-    public static LibraryBackground Norfair9And10SmallPatternBrownPurpleBright { get; } = new(nameof(Norfair9And10SmallPatternBrownPurpleBright), LibraryBackgroundView.Picture, []);
+    /// <summary>The NorfairSmallPatternBrownPurpleBright library background.</summary>
+    public static LibraryBackground NorfairSmallPatternBrownPurpleBright { get; } = new(nameof(NorfairSmallPatternBrownPurpleBright), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The Norfair9And10SmallPatternBrownPurple0 library background.</summary>
-    public static LibraryBackground Norfair9And10SmallPatternBrownPurple0 { get; } = new(nameof(Norfair9And10SmallPatternBrownPurple0), LibraryBackgroundView.Picture, []);
+    /// <summary>The NorfairSmallPatternBrownPurple library background.</summary>
+    public static LibraryBackground NorfairSmallPatternBrownPurple { get; } = new(nameof(NorfairSmallPatternBrownPurple), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The Norfair9HorizontalPatternBrick library background.</summary>
-    public static LibraryBackground Norfair9HorizontalPatternBrick { get; } = new(nameof(Norfair9HorizontalPatternBrick), LibraryBackgroundView.Picture, []);
+    /// <summary>The NorfairHorizontalPatternBrick library background.</summary>
+    public static LibraryBackground NorfairHorizontalPatternBrick { get; } = new(nameof(NorfairHorizontalPatternBrick), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The Norfair9VerticalPatternBrick library background.</summary>
-    public static LibraryBackground Norfair9VerticalPatternBrick { get; } = new(nameof(Norfair9VerticalPatternBrick), LibraryBackgroundView.Picture, []);
+    /// <summary>The NorfairVerticalPatternBrick library background.</summary>
+    public static LibraryBackground NorfairVerticalPatternBrick { get; } = new(nameof(NorfairVerticalPatternBrick), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The Norfair9And10CavernStalactites library background.</summary>
-    public static LibraryBackground Norfair9And10CavernStalactites { get; } = new(nameof(Norfair9And10CavernStalactites), LibraryBackgroundView.Picture, []);
+    /// <summary>The NorfairCavernStalactites library background.</summary>
+    public static LibraryBackground NorfairCavernStalactites { get; } = new(nameof(NorfairCavernStalactites), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The Norfair9And10CavernVertical library background.</summary>
-    public static LibraryBackground Norfair9And10CavernVertical { get; } = new(nameof(Norfair9And10CavernVertical), LibraryBackgroundView.Picture, []);
+    /// <summary>The NorfairCavernVertical library background.</summary>
+    public static LibraryBackground NorfairCavernVertical { get; } = new(nameof(NorfairCavernVertical), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The Norfair9CavernHorizontalRuins library background.</summary>
-    public static LibraryBackground Norfair9CavernHorizontalRuins { get; } = new(nameof(Norfair9CavernHorizontalRuins), LibraryBackgroundView.Picture, []);
+    /// <summary>The NorfairCavernHorizontalRuins library background.</summary>
+    public static LibraryBackground NorfairCavernHorizontalRuins { get; } = new(nameof(NorfairCavernHorizontalRuins), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The Norfair9CavernVerticalRuins library background.</summary>
-    public static LibraryBackground Norfair9CavernVerticalRuins { get; } = new(nameof(Norfair9CavernVerticalRuins), LibraryBackgroundView.Picture, []);
+    /// <summary>The NorfairCavernVerticalRuins library background.</summary>
+    public static LibraryBackground NorfairCavernVerticalRuins { get; } = new(nameof(NorfairCavernVerticalRuins), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The Norfair9CavernRoomPillars library background.</summary>
-    public static LibraryBackground Norfair9CavernRoomPillars { get; } = new(nameof(Norfair9CavernRoomPillars), LibraryBackgroundView.Picture, []);
+    /// <summary>The NorfairCavernRoomPillars library background.</summary>
+    public static LibraryBackground NorfairCavernRoomPillars { get; } = new(nameof(NorfairCavernRoomPillars), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The Norfair9RoomStatues library background.</summary>
-    public static LibraryBackground Norfair9RoomStatues { get; } = new(nameof(Norfair9RoomStatues), LibraryBackgroundView.Picture, []);
+    /// <summary>The NorfairRoomStatues library background.</summary>
+    public static LibraryBackground NorfairRoomStatues { get; } = new(nameof(NorfairRoomStatues), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The Norfair9PurplePatches library background.</summary>
-    public static LibraryBackground Norfair9PurplePatches { get; } = new(nameof(Norfair9PurplePatches), LibraryBackgroundView.Picture, []);
+    /// <summary>The NorfairPurplePatches library background.</summary>
+    public static LibraryBackground NorfairPurplePatches { get; } = new(nameof(NorfairPurplePatches), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The Norfair9Bubbles library background.</summary>
-    public static LibraryBackground Norfair9Bubbles { get; } = new(nameof(Norfair9Bubbles), LibraryBackgroundView.Picture, []);
+    /// <summary>The NorfairBubbles library background.</summary>
+    public static LibraryBackground NorfairBubbles { get; } = new(nameof(NorfairBubbles), LibraryBackgroundView.Picture, []);
 
     /// <summary>The PhantoonDefault library background.</summary>
     public static LibraryBackground PhantoonDefault { get; } = new(nameof(PhantoonDefault), LibraryBackgroundView.BossBody, []);
@@ -159,55 +159,55 @@ public static partial class LibraryBackgroundDefinitions
     /// <summary>The DraygonOrPhantoonWhenAreaBossDead library background.</summary>
     public static LibraryBackground DraygonOrPhantoonWhenAreaBossDead { get; } = new(nameof(DraygonOrPhantoonWhenAreaBossDead), LibraryBackgroundView.Nothing, []);
 
-    /// <summary>The WreckedShip45EntranceHall library background.</summary>
-    public static LibraryBackground WreckedShip45EntranceHall { get; } = new(nameof(WreckedShip45EntranceHall), LibraryBackgroundView.Picture, []);
+    /// <summary>The WreckedShipEntranceHall library background.</summary>
+    public static LibraryBackground WreckedShipEntranceHall { get; } = new(nameof(WreckedShipEntranceHall), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The WreckedShip45ColumnsTubes library background.</summary>
-    public static LibraryBackground WreckedShip45ColumnsTubes { get; } = new(nameof(WreckedShip45ColumnsTubes), LibraryBackgroundView.Picture, []);
+    /// <summary>The WreckedShipColumnsTubes library background.</summary>
+    public static LibraryBackground WreckedShipColumnsTubes { get; } = new(nameof(WreckedShipColumnsTubes), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The WreckedShip45ExperimentRoom library background.</summary>
-    public static LibraryBackground WreckedShip45ExperimentRoom { get; } = new(nameof(WreckedShip45ExperimentRoom), LibraryBackgroundView.Picture, []);
+    /// <summary>The WreckedShipExperimentRoom library background.</summary>
+    public static LibraryBackground WreckedShipExperimentRoom { get; } = new(nameof(WreckedShipExperimentRoom), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The WreckedShip45PanelsVents library background.</summary>
-    public static LibraryBackground WreckedShip45PanelsVents { get; } = new(nameof(WreckedShip45PanelsVents), LibraryBackgroundView.Picture, []);
+    /// <summary>The WreckedShipPanelsVents library background.</summary>
+    public static LibraryBackground WreckedShipPanelsVents { get; } = new(nameof(WreckedShipPanelsVents), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The WreckedShip45PanelsVentsHorizontal library background.</summary>
-    public static LibraryBackground WreckedShip45PanelsVentsHorizontal { get; } = new(nameof(WreckedShip45PanelsVentsHorizontal), LibraryBackgroundView.Picture, []);
+    /// <summary>The WreckedShipPanelsVentsHorizontal library background.</summary>
+    public static LibraryBackground WreckedShipPanelsVentsHorizontal { get; } = new(nameof(WreckedShipPanelsVentsHorizontal), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The WreckedShip45PanelsVentsVertical library background.</summary>
-    public static LibraryBackground WreckedShip45PanelsVentsVertical { get; } = new(nameof(WreckedShip45PanelsVentsVertical), LibraryBackgroundView.Picture, []);
+    /// <summary>The WreckedShipPanelsVentsVertical library background.</summary>
+    public static LibraryBackground WreckedShipPanelsVentsVertical { get; } = new(nameof(WreckedShipPanelsVentsVertical), LibraryBackgroundView.Picture, []);
 
     /// <summary>The CeresElev library background.</summary>
     public static LibraryBackground CeresElev { get; } = new(nameof(CeresElev), LibraryBackgroundView.Nothing, []);
 
-    /// <summary>The MaridiaBBrownWall library background.</summary>
-    public static LibraryBackground MaridiaBBrownWall { get; } = new(nameof(MaridiaBBrownWall), LibraryBackgroundView.Picture, []);
+    /// <summary>The MaridiaBrownWall library background.</summary>
+    public static LibraryBackground MaridiaBrownWall { get; } = new(nameof(MaridiaBrownWall), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The MaridiaCGreenWall library background.</summary>
-    public static LibraryBackground MaridiaCGreenWall { get; } = new(nameof(MaridiaCGreenWall), LibraryBackgroundView.Picture, []);
+    /// <summary>The MaridiaGreenWall library background.</summary>
+    public static LibraryBackground MaridiaGreenWall { get; } = new(nameof(MaridiaGreenWall), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The TourianDMechanicalRoom library background.</summary>
-    public static LibraryBackground TourianDMechanicalRoom { get; } = new(nameof(TourianDMechanicalRoom), LibraryBackgroundView.Picture, []);
+    /// <summary>The TourianMechanicalRoom library background.</summary>
+    public static LibraryBackground TourianMechanicalRoom { get; } = new(nameof(TourianMechanicalRoom), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The TourianDMechanicalRoomLetterbox library background.</summary>
-    public static LibraryBackground TourianDMechanicalRoomLetterbox { get; } = new(nameof(TourianDMechanicalRoomLetterbox), LibraryBackgroundView.Picture, []);
+    /// <summary>The TourianMechanicalRoomLetterbox library background.</summary>
+    public static LibraryBackground TourianMechanicalRoomLetterbox { get; } = new(nameof(TourianMechanicalRoomLetterbox), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The TourianDVerticalStructures library background.</summary>
-    public static LibraryBackground TourianDVerticalStructures { get; } = new(nameof(TourianDVerticalStructures), LibraryBackgroundView.Picture, []);
+    /// <summary>The TourianVerticalStructures library background.</summary>
+    public static LibraryBackground TourianVerticalStructures { get; } = new(nameof(TourianVerticalStructures), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The TourianDPipeRoomLetterbox library background.</summary>
-    public static LibraryBackground TourianDPipeRoomLetterbox { get; } = new(nameof(TourianDPipeRoomLetterbox), LibraryBackgroundView.Picture, []);
+    /// <summary>The TourianPipeRoomLetterbox library background.</summary>
+    public static LibraryBackground TourianPipeRoomLetterbox { get; } = new(nameof(TourianPipeRoomLetterbox), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The TourianDPipeRoomVerticalSeparation library background.</summary>
-    public static LibraryBackground TourianDPipeRoomVerticalSeparation { get; } = new(nameof(TourianDPipeRoomVerticalSeparation), LibraryBackgroundView.Picture, []);
+    /// <summary>The TourianPipeRoomVerticalSeparation library background.</summary>
+    public static LibraryBackground TourianPipeRoomVerticalSeparation { get; } = new(nameof(TourianPipeRoomVerticalSeparation), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The TourianDPipeRoom library background.</summary>
-    public static LibraryBackground TourianDPipeRoom { get; } = new(nameof(TourianDPipeRoom), LibraryBackgroundView.Picture, []);
+    /// <summary>The TourianPipeRoom library background.</summary>
+    public static LibraryBackground TourianPipeRoom { get; } = new(nameof(TourianPipeRoom), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The TourianEPipeRoomDark library background.</summary>
-    public static LibraryBackground TourianEPipeRoomDark { get; } = new(nameof(TourianEPipeRoomDark), LibraryBackgroundView.Picture, []);
+    /// <summary>The TourianPipeRoomDark library background.</summary>
+    public static LibraryBackground TourianPipeRoomDark { get; } = new(nameof(TourianPipeRoomDark), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The Tourian13And14StatueHall library background.</summary>
-    public static LibraryBackground Tourian13And14StatueHall { get; } = new(nameof(Tourian13And14StatueHall), LibraryBackgroundView.Picture, []);
+    /// <summary>The CeresCapsuleHall library background.</summary>
+    public static LibraryBackground CeresCapsuleHall { get; } = new(nameof(CeresCapsuleHall), LibraryBackgroundView.Picture, []);
 
 }

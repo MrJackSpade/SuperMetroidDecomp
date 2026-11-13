@@ -51,7 +51,7 @@ public static class MaridiaRoomStateDefinitions
 
     /// <summary>The Crab Tunnel room's state.</summary>
     public static RoomStateSettings CrabTunnel { get; } =
-        new(nameof(CrabTunnel), RoomLevelDefinitions.CrabTunnel, RoomGraphicsSet.SandlessMaridia, new RoomMusic(MusicDataSet.Maridia, RoomMusicTrack.Plays(MusicTrack.SecondSetSong)), SuperMetroid.Core.Fx.RoomFxDefinitions.CrabTunnel, RoomEnemyPopulationDefinitions.CrabTunnel, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Parallax(192), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.CrabTunnel, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.CrabTunnel, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.MaridiaBBrownWall, RoomSetupBehavior.BossRoomReturnB);
+        new(nameof(CrabTunnel), RoomLevelDefinitions.CrabTunnel, RoomGraphicsSet.SandlessMaridia, new RoomMusic(MusicDataSet.Maridia, RoomMusicTrack.Plays(MusicTrack.SecondSetSong)), SuperMetroid.Core.Fx.RoomFxDefinitions.CrabTunnel, RoomEnemyPopulationDefinitions.CrabTunnel, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Parallax(192), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.CrabTunnel, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.CrabTunnel, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.MaridiaBrownWall, RoomSetupBehavior.BossRoomReturnB);
 
 
     /// <summary>The Mt Everest room's state.</summary>
@@ -146,7 +146,7 @@ public static class MaridiaRoomStateDefinitions
 
     /// <summary>The West Sand Hall room's state.</summary>
     public static RoomStateSettings WestSandHall { get; } =
-        new(nameof(WestSandHall), RoomLevelDefinitions.WestSandHall, RoomGraphicsSet.SandyMaridia, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.WestSandHall, RoomEnemyPopulationDefinitions.WestSandHall, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Fixed, RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.WestSandHall, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.MaridiaCGreenWall, RoomSetupBehavior.BossRoomReturnC);
+        new(nameof(WestSandHall), RoomLevelDefinitions.WestSandHall, RoomGraphicsSet.SandyMaridia, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.WestSandHall, RoomEnemyPopulationDefinitions.WestSandHall, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Fixed, RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.WestSandHall, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.MaridiaGreenWall, RoomSetupBehavior.BossRoomReturnC);
 
 
     /// <summary>The Oasis room's state.</summary>
@@ -156,7 +156,7 @@ public static class MaridiaRoomStateDefinitions
 
     /// <summary>The East Sand Hall room's state.</summary>
     public static RoomStateSettings EastSandHall { get; } =
-        new(nameof(EastSandHall), RoomLevelDefinitions.EastSandHall, RoomGraphicsSet.SandyMaridia, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.EastSandHall, RoomEnemyPopulationDefinitions.EastSandHall, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Fixed, RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.EastSandHall, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.MaridiaCGreenWall, RoomSetupBehavior.BossRoomReturnC);
+        new(nameof(EastSandHall), RoomLevelDefinitions.EastSandHall, RoomGraphicsSet.SandyMaridia, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.EastSandHall, RoomEnemyPopulationDefinitions.EastSandHall, new BackgroundScrollModes(BackgroundAxisScroll.Parallax(192), BackgroundAxisScroll.Fixed, RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.EastSandHall, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.MaridiaGreenWall, RoomSetupBehavior.BossRoomReturnC);
 
 
     /// <summary>The West Sand Hole room's state.</summary>

@@ -3,6 +3,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
@@ -330,10 +331,12 @@ level, heldOnly, (ControllerButton.Left | ControllerButton.A), 0, 0);
     // Repeat the same eligible chord with a native solid-enemy snapshot in front of the
     // terrain: the solid enemy is the wall the jump launches from.
     var enemyEligible = CreateSpinSamus(animationFrame: 0x0b);
+    var launchRoom = WallJumpLaunchShakeChecks.CreateFilledRoom();
+    RoomEnemySlot launchEnemy = launchRoom.SlotTable.Slots[9];
     enemyEligible.Kinematics.InteractiveEnemies =
     [
         new SolidEnemyCollisionBody(
-            Slot: 9,
+            Enemy: launchEnemy,
             Position: new(69, 48),
             Radius: new(5, 5),
             Solid: true),
@@ -349,15 +352,17 @@ level, heldOnly, (ControllerButton.Left | ControllerButton.A), 0, 0);
     AssertEqual(SamusVerticalCollisionResult.WallJump, enemyEligible.SolidVerticalCollisionResult,
         "enemy wall jump publishes native solid-vertical result five");
     // #1697: the next enemy pass shakes the enemy the jump launched from; a launch off terrain shakes none.
-    WallJumpLaunchShakeChecks.AssertEnemyPassShakes(enemyEligible, 9, "a wall jump off a solid enemy");
-    WallJumpLaunchShakeChecks.AssertEnemyPassShakes(eligible, null, "a wall jump off terrain");
+    WallJumpLaunchShakeChecks.AssertEnemyPassShakes(launchRoom, enemyEligible, launchEnemy, "a wall jump off a solid enemy");
+    WallJumpLaunchShakeChecks.AssertEnemyPassShakes(WallJumpLaunchShakeChecks.CreateFilledRoom(), eligible, null, "a wall jump off terrain");
     // A later check that reaches the launch frames without launching withdraws a waiting shake.
+    var withdrawnRoom = WallJumpLaunchShakeChecks.CreateFilledRoom();
+    RoomEnemySlot withdrawnEnemy = withdrawnRoom.SlotTable.Slots[9];
     var withdrawn = CreateSpinSamus(animationFrame: 0x0b);
-    withdrawn.Kinematics.InteractiveEnemies = enemyEligible.Kinematics.InteractiveEnemies;
-    withdrawn.Kinematics.RequestWallJumpLaunchShake(9);
+    withdrawn.Kinematics.InteractiveEnemies = [enemyEligible.Kinematics.InteractiveEnemies[0] with { Enemy = withdrawnEnemy }];
+    withdrawn.Kinematics.RequestWallJumpLaunchShake(withdrawnEnemy);
     AssertTrue(!SamusAerialMovement.StepSpinJump(level, withdrawn, (ControllerButton.Left | ControllerButton.A), 0, 0).WallJumpTriggered,
         "held Jump against the enemy without a fresh edge does not launch");
-    WallJumpLaunchShakeChecks.AssertEnemyPassShakes(withdrawn, null, "a check that does not launch");
+    WallJumpLaunchShakeChecks.AssertEnemyPassShakes(withdrawnRoom, withdrawn, null, "a check that does not launch");
 
     // Bank $91:F2D3 clears only base speed; bank $90:9949 installs Y launch speed and
     // likewise leaves the Dash pair/flag alone. Seed a visible fractional value here so

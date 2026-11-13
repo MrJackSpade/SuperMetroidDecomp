@@ -1055,6 +1055,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyShitroidFlightPulls), () => VerifyShitroidFlightPulls()),
         new(nameof(VerifyShitroidDrainCarry), () => VerifyShitroidDrainCarry()),
         new(nameof(VerifyMotherBrainRinkaDoorSpawn), () => VerifyMotherBrainRinkaDoorSpawn()),
+        new(nameof(RinkaSpawnReservationsVerification.VerifyRinkaSpawnReservations), () => RinkaSpawnReservationsVerification.VerifyRinkaSpawnReservations(SuperMetroid.Verification.Harness.RepositoryInputsVerification.LoadRepositoryRom())),
         new(nameof(VerifyMotherBrainGlassSuperMissile), () => VerifyMotherBrainGlassSuperMissile()),
         new(nameof(VerifyMotherBrainTubeTiming), () => VerifyMotherBrainTubeTiming()),
         new(nameof(VerifyMotherBrainTubeHdmaDeletion), () => VerifyMotherBrainTubeHdmaDeletion()),

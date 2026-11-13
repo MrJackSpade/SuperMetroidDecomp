@@ -483,7 +483,7 @@ internal static class NativeEnemyFamilyStateImport
         {
             rinkaRecord.Function = words.A == 0 ? null : MotherBrainNativeWords.RinkaEnemyFunctions.Decode(words.A, "recorded RinkaEnemyFunction");
             rinkaRecord.Velocity = new(new SignedEightEight(words.B), new SignedEightEight(words.C));
-            rinkaRecord.SpawnResourceToken = words.D;
+            rinkaRecord.HeldSpawnPoint = words.D == 0 ? null : MotherBrainNativeWords.RinkaSpawnPoints.Decode(words.D, "recorded RinkaSpawnPoint");
             rinkaRecord.DelayTimer = CoordinateAxis.AsSigned(words.F);
         }
         if (slot.SpeciesState<EtecoonEnemyState>() is { } etecoonRecord)

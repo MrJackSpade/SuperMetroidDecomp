@@ -114,7 +114,7 @@ internal static class FrozenGateGlitchVerification
         samus.Kinematics.InteractiveEnemies =
         [
             new SolidEnemyCollisionBody(
-                zero.SlotIndex,
+                zero,
                 new(expected.EnemyX, FrozenGateY),
                 new(zero.Radius.X, zero.Radius.Y),
                 expected.Frozen ||

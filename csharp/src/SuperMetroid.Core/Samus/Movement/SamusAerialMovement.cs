@@ -772,7 +772,7 @@ public static class SamusAerialMovement
             samus.SolidVerticalCollisionResult = SamusVerticalCollisionResult.WallJump;
             // A launch off a solid or frozen enemy asks the next enemy pass to shake that enemy; a launch off
             // terrain asks nothing.
-            if (probe.EnemyCollision is { EnemySlot: int launchedFrom })
+            if (probe.EnemyCollision is { Enemy: { } launchedFrom })
                 samus.Kinematics.RequestWallJumpLaunchShake(launchedFrom);
         }
         return triggered;

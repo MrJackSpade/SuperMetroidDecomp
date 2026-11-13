@@ -1,4 +1,5 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Verification.Samus.Movement;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -27,7 +28,7 @@ internal static class ZeroDistanceJumpContactVerification
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0x8000).WithFractionY(0xffff);
             samus.Kinematics.InteractiveEnemies =
             [
-                new SolidEnemyCollisionBody(Slot: 0, Position: new((ushort)(100 + (left ? -1 : 1) * (10 + gap)), 100),
+                new SolidEnemyCollisionBody(Enemy: new SolidEnemyFixture(0), Position: new((ushort)(100 + (left ? -1 : 1) * (10 + gap)), 100),
                     Radius: new(5, 8), Solid: true),
             ];
             uint initialX = unchecked(samus.Kinematics.Position.X.RawValue);

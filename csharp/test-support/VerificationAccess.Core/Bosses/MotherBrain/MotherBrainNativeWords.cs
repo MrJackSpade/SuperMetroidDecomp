@@ -159,6 +159,25 @@ internal static class MotherBrainNativeWords
         [RinkaEnemyFunction.Flying] = 0xb85b,
     });
 
+    /// <summary>
+    /// The reservation token naming each <see cref="RinkaSpawnPoint"/>: twice the point's one-based place in the bank-$A2
+    /// spawn-point table, which a special Rinka's record holds while it holds the point (zero names none).
+    /// </summary>
+    internal static readonly NativeWordIdentities<RinkaSpawnPoint> RinkaSpawnPoints = new(new Dictionary<RinkaSpawnPoint, ushort>
+    {
+        [RinkaSpawnPoint.FarRightUpper] = 2,
+        [RinkaSpawnPoint.FarRightLower] = 4,
+        [RinkaSpawnPoint.RightUpper] = 6,
+        [RinkaSpawnPoint.RightLower] = 8,
+        [RinkaSpawnPoint.CentreUpper] = 10,
+        [RinkaSpawnPoint.CentreLower] = 12,
+        [RinkaSpawnPoint.LeftUpper] = 14,
+        [RinkaSpawnPoint.LeftLower] = 16,
+        [RinkaSpawnPoint.FarLeftUpper] = 18,
+        [RinkaSpawnPoint.FarLeftLower] = 20,
+        [RinkaSpawnPoint.Leftmost] = 22,
+    });
+
     /// <summary>The bank-$A9 routine word naming each <see cref="BabyMetroidRouteMovementFunction"/>.</summary>
     internal static readonly NativeWordIdentities<BabyMetroidRouteMovementFunction> BabyMetroidRouteMovementFunctions = new(new Dictionary<BabyMetroidRouteMovementFunction, ushort>
     {

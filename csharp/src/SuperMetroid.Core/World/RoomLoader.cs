@@ -1009,6 +1009,8 @@ internal sealed class RoomLoader
         enemies.TakeOverFrom(_room.HandOver);
         enemies.Audio.BindAudioRequests(_audioRequests);
         scope.Enemies = enemies;
+        // A wall jump's waiting shake names an enemy of the room being replaced, which leaves with it.
+        _player.Samus?.Kinematics.WithdrawWallJumpLaunchShake();
         projectiles.Earthquakes.BindRoomEarthquake(enemies.Earthquake);
         enemies.Load(new RoomEnemyLoadRequest(
             room.State.EnemyPopulation,

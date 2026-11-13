@@ -1056,7 +1056,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         foreach (RoomEnemySlot slot in ProcessingWindow.InteractiveEnemies)
         {
             _interactiveCollisionBodies.Add(new SolidEnemyCollisionBody(
-                slot.SlotIndex,
+                slot,
                 slot.Position.Whole,
                 new(slot.Radius.X, slot.Radius.Y),
                 // A frozen enemy blocks Samus whatever its properties say.
@@ -1079,9 +1079,9 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     /// </summary>
     internal void ShakeWallJumpLaunchEnemy(SamusState? samus)
     {
-        if (SlotTable.EnemyCount == 0 || samus?.Kinematics.TakeWallJumpLaunchShake() is not int launchedFrom)
+        if (SlotTable.EnemyCount == 0 || samus?.Kinematics.TakeWallJumpLaunchShake() is not { } launchedFrom)
             return;
-        SlotTable.Slots[launchedFrom].ShakeFromWallJumpLaunch();
+        launchedFrom.ShakeFromWallJumpLaunch();
     }
 
     /// <summary>Runs the room shaking: the earthquake's frame step, then the actor shake it selects.</summary>

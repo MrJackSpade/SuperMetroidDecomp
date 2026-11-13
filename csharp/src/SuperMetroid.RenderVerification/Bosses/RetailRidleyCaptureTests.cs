@@ -33,7 +33,7 @@ internal static class RetailRidleyCaptureTests
         foreach (short scroll in new short[] { -19, 0, 19 })
         {
             (ridley ?? throw new InvalidOperationException("Verification requires ridley.")).GetawayActive = true;
-            ridley.FloorZoom = scale;
+            ridley.FloorZoom = FloorZoom.FromTwoHundredFiftySixths(scale);
             ridley.FloorAngle = RotationAngle.WrappedSteps(tilt);
             ridley.FloorCenter = new Position16<FloorPixels>(128, 120);
             ridley.FloorOffset = new Offset16<FloorPixels>(7, unchecked(scroll));

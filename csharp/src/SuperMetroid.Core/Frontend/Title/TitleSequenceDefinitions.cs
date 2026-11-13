@@ -47,18 +47,18 @@ public static class TitleSequenceDefinitions
     /// <summary>The floor scenes' starting transforms, motion and completion thresholds.</summary>
     public static class Scenes
     {
-        /// <summary>The lower pan: zoom 72 at background offset (315, 225).</summary>
+        /// <summary>The lower pan: zoom 72/256 at background offset (315, 225).</summary>
         public static readonly TitleFloorSceneDefinition SceneZero =
-            new(TitleSequencePhase.SceneZeroPan, 72, new(315, 225));
-        /// <summary>The upper pan: zoom 96 at background offset (44, -155).</summary>
+            new(TitleSequencePhase.SceneZeroPan, FloorZoom.FromTwoHundredFiftySixths(72), new(315, 225));
+        /// <summary>The upper pan: zoom 96/256 at background offset (44, -155).</summary>
         public static readonly TitleFloorSceneDefinition SceneOne =
-            new(TitleSequencePhase.SceneOnePan, 96, new(44, -155));
-        /// <summary>The downward pan: zoom 96 at background offset (-177, -160).</summary>
+            new(TitleSequencePhase.SceneOnePan, FloorZoom.FromTwoHundredFiftySixths(96), new(44, -155));
+        /// <summary>The downward pan: zoom 96/256 at background offset (-177, -160).</summary>
         public static readonly TitleFloorSceneDefinition SceneTwo =
-            new(TitleSequencePhase.SceneTwoPan, 96, new(-177, -160));
-        /// <summary>The final zoom: zoom 67 with no background offset.</summary>
+            new(TitleSequencePhase.SceneTwoPan, FloorZoom.FromTwoHundredFiftySixths(96), new(-177, -160));
+        /// <summary>The final zoom: zoom 67/256 with no background offset.</summary>
         public static readonly TitleFloorSceneDefinition SceneThree =
-            new(TitleSequencePhase.SceneThreeZoom, 67, new(0, 0));
+            new(TitleSequencePhase.SceneThreeZoom, FloorZoom.FromTwoHundredFiftySixths(67), new(0, 0));
         /// <summary>The pan speed, 1.5 pixels per update; scenes zero and one pan left, scene two down.</summary>
         public static SignedSixteenSixteen PanVelocity { get; } = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(384);
         /// <summary>The lower pan's X threshold, -7 pixels; passing it starts the Nintendo card.</summary>
@@ -67,8 +67,8 @@ public static class TitleSequenceDefinitions
         public const int SceneOneEndX = -176;
         /// <summary>The downward pan's Y threshold, 163 pixels; reaching it starts the Metroid 3 card.</summary>
         public const int SceneTwoEndY = 163;
-        /// <summary>The unscaled zoom, in 1/256 units; reaching it completes the final zoom.</summary>
-        public const int IdentityScale = 256;
+        /// <summary>The final zoom's step every second update, in 256ths of a floor pixel per screen pixel.</summary>
+        public const int FinalZoomStep = 1;
         /// <summary>The floor scenes' rotation: none; the scenes pan and zoom only.</summary>
         public static RotationAngle Rotation => RotationAngle.Zero;
         /// <summary>The floor point the floor scenes zoom about.</summary>

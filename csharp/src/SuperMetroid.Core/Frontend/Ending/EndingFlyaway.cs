@@ -45,7 +45,7 @@ internal sealed class EndingFlyaway
         _stage.PaletteFxSystem.Start(EndingPaletteFxDefinitions.PlanetAfterglow, 0);
         _stage.PaletteFxSystem.Start(EndingPaletteFxDefinitions.GunshipEmergence, 0);
         _stage.FloorPosition = new(_stage.FloorPosition.X.WithWrappedWhole(-72), new(CoordinateAxis.Wrap(-104), 0));
-        _stage.FloorZoom = EndingMotionDefinitions.PlanetEscapeInitialScale;
+        _stage.FloorZoom = EndingMotionDefinitions.PlanetEscapeInitialZoom;
         _stage.FloorAngle = RotationAngle.WrappedSteps(-112);
         _stage.PhaseTimer = 192;
         flyawayWhite = EndingFlyawayFadeDefinitions.InitialWhite;
@@ -63,8 +63,8 @@ internal sealed class EndingFlyaway
         _stage.FloorAngle = _stage.FloorAngle.TurnedBySteps(-4);
         _stage.FloorPosition = _stage.FloorPosition.WithX(_stage.FloorPosition.X.MovedBy(EndingShipShake.PlanetFastDelta(PlanetMotionIndex)));
         PlanetMotionIndex = (PlanetMotionIndex + 1) % EndingMotionDefinitions.PlanetFastPatternLength;
-        _stage.FloorZoom -= 8;
-        if (_stage.FloorZoom < EndingMotionDefinitions.PlanetFastEndScale)
+        _stage.FloorZoom = _stage.FloorZoom.Narrowed(EndingMotionDefinitions.PlanetFastZoomStep);
+        if (_stage.FloorZoom < EndingMotionDefinitions.PlanetFastEndZoom)
         {
             PlanetMotionIndex = 0;
             _stage.Phase = EndingCreditsPhase.PlanetEscapeSlow;
@@ -79,8 +79,8 @@ internal sealed class EndingFlyaway
             _stage.FloorAngle = _stage.FloorAngle.TurnedBySteps(-1);
         _stage.FloorPosition = _stage.FloorPosition.WithX(_stage.FloorPosition.X.MovedBy(EndingShipShake.PlanetSlowDelta(PlanetMotionIndex)));
         PlanetMotionIndex = (PlanetMotionIndex + 1) % EndingMotionDefinitions.PlanetSlowPatternLength;
-        _stage.FloorZoom -= 2;
-        if (_stage.FloorZoom < EndingMotionDefinitions.PlanetSlowEndScale)
+        _stage.FloorZoom = _stage.FloorZoom.Narrowed(EndingMotionDefinitions.PlanetSlowZoomStep);
+        if (_stage.FloorZoom < EndingMotionDefinitions.PlanetSlowEndZoom)
         {
             PlanetVelocity = EndingMotionDefinitions.PlanetInitialVelocity;
             _stage.Phase = EndingCreditsPhase.PlanetEscapeAccelerating;
@@ -103,13 +103,13 @@ internal sealed class EndingFlyaway
         StepFlyawayFade();
         PlanetVelocity -= EndingMotionDefinitions.PlanetAcceleration;
         _stage.FloorPosition = _stage.FloorPosition.WithX(_stage.FloorPosition.X.MovedBy(PlanetVelocity));
-        if (_stage.FloorZoom < EndingMotionDefinitions.PlanetTurnStartScale &&
+        if (_stage.FloorZoom < EndingMotionDefinitions.PlanetTurnStartZoom &&
             EndingCadenceDefinitions.PlanetTurnEveryFourthUpdate.IsDue(CinematicFrame) &&
             _stage.FloorAngle != EndingMotionDefinitions.PlanetExitTargetAngle)
         {
             _stage.FloorAngle = _stage.FloorAngle.TurnedBySteps(2);
         }
-        if (_stage.FloorZoom < EndingMotionDefinitions.PlanetExitScale)
+        if (_stage.FloorZoom < EndingMotionDefinitions.PlanetExitZoom)
         {
             _stage.LoadColours(EndingColourLoad.FinalGunship);
             _stage.SpawnSprite(
@@ -119,7 +119,7 @@ internal sealed class EndingFlyaway
         }
         else
         {
-            _stage.FloorZoom -= 4;
+            _stage.FloorZoom = _stage.FloorZoom.Narrowed(EndingMotionDefinitions.PlanetFlyToCameraZoomStep);
         }
     }
 

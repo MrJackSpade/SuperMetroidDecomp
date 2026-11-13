@@ -22,6 +22,22 @@ public readonly record struct SignedEightEight : IComparable<SignedEightEight>
         new(unchecked((ushort)Ensure.BetweenInclusive(short.MinValue, short.MaxValue, rawValue)));
 
     /// <summary>
+    /// A speed of <paramref name="twoHundredFiftySixths"/> 256ths of a pixel an update, -32768 through 32767: the precision
+    /// the game's speeds and accelerations are authored in.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The speed lies outside the type's range.</exception>
+    public static SignedEightEight FromTwoHundredFiftySixthsOfPixel(int twoHundredFiftySixths) =>
+        new(unchecked((ushort)Ensure.BetweenInclusive(short.MinValue, short.MaxValue, twoHundredFiftySixths)));
+
+    /// <summary>A speed of <paramref name="pixels"/> whole pixels an update, -128 through 127, with no fraction.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The speed lies outside the type's range.</exception>
+    public static SignedEightEight FromPixels(int pixels) => FromParts(pixels, 0);
+
+    /// <summary>The speed in 256ths of a pixel an update, negative toward decreasing coordinates.</summary>
+    [IntegerQuantity("signed speed in 256ths of a pixel an update")]
+    public int InTwoHundredFiftySixthsOfPixel => unchecked((short)RawValue);
+
+    /// <summary>
     /// The value a raw computation lands on: a sum or difference of 8.8 words, in 1/256 units, wraps at sixteen bits,
     /// so a velocity stepped past the largest positive value continues from the most negative one and the reverse,
     /// as the game's velocity arithmetic does.

@@ -31,6 +31,15 @@ public readonly record struct Bearing
     /// </summary>
     public TrigonometryAngle ToMirroredTableAngle() => new(RawValue);
 
+    /// <summary>The bearing turned <paramref name="steps"/> 256ths of a turn clockwise, anticlockwise when negative, continuing around the circle.</summary>
+    public Bearing TurnedBySteps(int steps) => Wrapped(RawValue + steps);
+
+    /// <summary>
+    /// Which of <paramref name="sectors"/> equal arcs of the turn, numbered clockwise from zero at up, holds the bearing:
+    /// for a power of two, the bearing's top bits, which a facing or look choice reads.
+    /// </summary>
+    /// <param name="sectors">The number of arcs the turn divides into, 1 through 256.</param>
+    public int Sector(int sectors) => RawValue * Ensure.BetweenInclusive(1, RotationAngle.StepsPerTurn, sectors) / RotationAngle.StepsPerTurn;
 
     /// <inheritdoc />
     public override string ToString() => $"{RawValue}/256 turn clockwise from up";

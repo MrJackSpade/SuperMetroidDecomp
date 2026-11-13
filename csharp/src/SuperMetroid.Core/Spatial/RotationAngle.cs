@@ -65,6 +65,12 @@ public readonly record struct RotationAngle : IComparable<RotationAngle>
     /// <summary>Turns the angle by <paramref name="delta"/> 256ths of a step, continuing around the circle.</summary>
     public RotationAngle AddRaw(int delta) => NormalizeRaw(RawValue + delta);
 
+    /// <summary>
+    /// Turns the angle by <paramref name="fractionsOfStep"/> 256ths of a step, back when negative, continuing around the
+    /// circle: the sub-step precision the game's turn rates are authored in.
+    /// </summary>
+    public RotationAngle TurnedByFractionsOfStep(int fractionsOfStep) => NormalizeRaw(RawValue + fractionsOfStep);
+
     /// <summary>Turns the angle by <paramref name="steps"/> whole steps, keeping its fraction, continuing around the circle.</summary>
     public RotationAngle TurnedBySteps(int steps) => AddRaw(steps * FractionsPerStep);
 

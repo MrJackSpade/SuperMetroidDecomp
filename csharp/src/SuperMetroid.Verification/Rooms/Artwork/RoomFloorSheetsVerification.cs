@@ -210,7 +210,7 @@ internal static class RoomFloorSheetsVerification
     {
         PerspectiveFloor shaft = CeresPerspectiveFloors.ElevatorShaft(new TurningFloorTransform(0.25, default), default);
         AssertEqual(FloorOverflowMode.Wrap, shaft.Transform.Outside, "the elevator shaft's floor repeats beyond its edges");
-        PerspectiveFloor getaway = CeresPerspectiveFloors.RidleyGetaway(FloorView.Turned(default, 256, default, default), []);
+        PerspectiveFloor getaway = CeresPerspectiveFloors.RidleyGetaway(FloorView.Turned(default, FloorZoom.OwnSize, default, default), []);
         AssertEqual(FloorOverflowMode.Transparent, getaway.Transform.Outside, "Ceres Ridley's getaway floor shows nothing beyond its edges");
         Console.WriteLine("Ceres turning floors: the shaft's repeats beyond its edges; Ridley's getaway floor shows nothing there.");
     }

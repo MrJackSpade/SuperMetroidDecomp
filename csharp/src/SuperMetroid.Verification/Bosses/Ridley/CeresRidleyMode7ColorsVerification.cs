@@ -54,14 +54,14 @@ internal static class CeresRidleyMode7ColorsVerification
 
         var guard = NewCeresRidleyMode7ColorReadGuard(rom, forbidden);
         var ridley = new RidleyEnemyState();
-        Action<ushort> select = selectedZoom => CeresRidleyGetaway.UpdateCeresRidleyFloorZoomColours(ridley, selectedZoom);
+        Action<FloorZoom> select = selectedZoom => CeresRidleyGetaway.UpdateCeresRidleyFloorZoomColours(ridley, selectedZoom);
         var visited = new HashSet<int>();
         for (int index = 0; index < 112; index++)
         {
             CeresRidleyGetawayFrame frame = CeresRidleyGetawayCurve.FromIndex(index);
-            int row = LittleEndianBytes.HighByte(frame.Zoom);
+            int row = LittleEndianBytes.HighByte(frame.Zoom.TwoHundredFiftySixths);
             visited.Add(row);
-            select(checked((ushort)frame.Zoom));
+            select(frame.Zoom);
             // The colours the encounter shows are the import's shades of the installed colours, laid as the getaway laid them (#1512).
             RgbColor[] cgram = RidleyLaidColours.Ceres(ridley, original);
             for (int color = 0; color < CeresRidleyColorFormat.GetawayZoomColorCount; color++)
@@ -73,10 +73,10 @@ internal static class CeresRidleyMode7ColorsVerification
             "native getaway selects every extracted zoom row");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "installed Mode-7 zoom cycle avoids source-color ROM reads");
-        foreach (ushort unusualZoom in new ushort[] { 0x0900, 0xff00 })
+        foreach (int unusualFloorPixels in new[] { 9, 255 })
         {
-            AssertThrows<InvalidOperationException>(() => select(unusualZoom),
-                $"non-catalogued zoom ${unusualZoom:X4} fails without a cartridge fallback");
+            AssertThrows<InvalidOperationException>(() => select(FloorZoom.FromFloorPixelsPerScreenPixel(unusualFloorPixels)),
+                $"non-catalogued zoom of {unusualFloorPixels} floor pixels per screen pixel fails without a cartridge fallback");
         }
 
         document.ZoomRows[0][0] = document.ZoomRows[0][0] with { Green = 32 };

@@ -39,7 +39,7 @@ internal static class CinematicPresentationContractChecks
                     EscapeTimer countdown, SuperMetroid.Core.Assets.ScreenSprites oam,
                     SuperMetroid.Core.Assets.SpriteFrameBuffer sprites, SuperMetroid.Core.Assets.SpriteSheet timerSheet,
                     SuperMetroid.Core.Assets.ScreenSprites titleSprites, SuperMetroid.Core.Assets.SpriteSheet sheet) {
-                    gradient.Resolve(ushort.MaxValue);
+                    gradient.Resolve(SuperMetroid.Core.Spatial.FloorZoom.FromTwoHundredFiftySixths(ushort.MaxValue));
                     TitleSpriteDrawing.DrawSprite(sheet, TitleSprite.SuperMetroidLogo, titleSprites, default, SuperMetroid.Core.Frontend.Title.Artwork.TitleSpriteColouring.Logo);
                     TitleSpriteDrawing.DrawSprite(sheet, (TitleSprite)(-1), titleSprites, default, SuperMetroid.Core.Frontend.Title.Artwork.TitleSpriteColouring.Logo);
                     TitleSpriteDrawing.DrawSprite(sheet, (TitleSprite)31, titleSprites, default, SuperMetroid.Core.Frontend.Title.Artwork.TitleSpriteColouring.Logo);

@@ -45,7 +45,7 @@ internal sealed class EndingEscapeScenes
         _stage.SpawnSprite(EndingActorDefinitions.EscapeACloudRightBottom, EndingSpriteRole.CloudRightB);
         _stage.SpawnSprite(EndingActorDefinitions.EscapeACloudLeftBottom, EndingSpriteRole.CloudLeftB);
         _stage.FloorPosition = new(_stage.FloorPosition.X.WithWhole(0), default);
-        _stage.FloorZoom = EndingMotionDefinitions.EscapeInitialScale;
+        _stage.FloorZoom = EndingMotionDefinitions.EscapeInitialZoom;
         _stage.FloorAngle = EndingMotionDefinitions.EscapeInitialAngle.ToAngle();
         _stage.Brightness = 0;
         _artwork.PostCreditsText.Drop = 0;
@@ -68,7 +68,7 @@ internal sealed class EndingEscapeScenes
         _stage.SpawnSprite(EndingActorDefinitions.EscapeBCloudBottomA, EndingSpriteRole.CloudBottomA);
         _stage.SpawnSprite(EndingActorDefinitions.EscapeBCloudBottomB, EndingSpriteRole.CloudBottomB);
         _stage.FloorPosition = new(_stage.FloorPosition.X.WithWhole(0), default);
-        _stage.FloorZoom = EndingMotionDefinitions.EscapeInitialScale;
+        _stage.FloorZoom = EndingMotionDefinitions.EscapeInitialZoom;
         _stage.FloorAngle = EndingMotionDefinitions.EscapeInitialAngle.ToAngle();
         _stage.Brightness = 0;
         _stage.RestartFadeCadence();

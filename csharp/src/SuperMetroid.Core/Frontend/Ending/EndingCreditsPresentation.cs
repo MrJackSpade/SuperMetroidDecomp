@@ -100,7 +100,7 @@ internal static class EndingCreditsPresentation
 
     /// <summary>How the post-shot reward scene's turning shot picture appears: turned and zoomed about its centre.</summary>
     private static FloorView PostShotTransform(EndingCreditsState ending) => FloorView.Turned(ending.PostShot.Angle,
-        ending.PostShot.Scale,
+        ending.PostShot.Zoom,
         new Offset16<FloorPixels>(EndingPostShotDefinitions.CenterX, EndingPostShotDefinitions.CenterY),
         new Offset16<FloorPixels>(EndingPostShotDefinitions.OffsetX, EndingPostShotDefinitions.OffsetY));
 

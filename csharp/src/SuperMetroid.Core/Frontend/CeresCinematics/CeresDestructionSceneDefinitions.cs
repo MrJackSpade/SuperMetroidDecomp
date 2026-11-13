@@ -50,22 +50,24 @@ internal static class CeresDestructionSceneDefinitions
     /// <summary>The floor's zoom thresholds and the scenes' fixed-point velocities.</summary>
     internal static class Motion
     {
-        /// <summary>The floor's unscaled zoom, in 1/256 units.</summary>
-        internal const int IdentityScale = 256;
-        /// <summary>The zoom that ends the initial Ceres zoom.</summary>
-        internal const int CeresZoomLimit = 640;
-        /// <summary>The zoom the Ceres explosion's composition begins at.</summary>
-        internal const int CeresExplosionScale = 768;
-        /// <summary>The smallest zoom the sequence keeps.</summary>
-        internal const int MinimumScale = 16;
-        /// <summary>The zoom that ends the near Zebes approach.</summary>
-        internal const int ZebesApproachScaleLimit = 1152;
-        /// <summary>The zoom that separates the far Zebes approach.</summary>
-        internal const int FarZebesScaleLimit = 8192;
-        /// <summary>The slow per-update zoom change.</summary>
-        internal const int SlowScaleStep = 16;
-        /// <summary>The fast per-update zoom change.</summary>
-        internal const int FastScaleStep = 32;
+        /// <summary>The zoom that ends the initial Ceres zoom: two and a half floor pixels per screen pixel.</summary>
+        internal static FloorZoom CeresZoomLimit { get; } = FloorZoom.FromTwoHundredFiftySixths(640);
+        /// <summary>The zoom the Ceres explosion's composition begins at: three floor pixels per screen pixel.</summary>
+        internal static FloorZoom CeresExplosionZoom { get; } = FloorZoom.FromFloorPixelsPerScreenPixel(3);
+        /// <summary>The smallest zoom the sequence keeps: a sixteenth of a floor pixel per screen pixel.</summary>
+        internal static FloorZoom MinimumZoom { get; } = FloorZoom.FromTwoHundredFiftySixths(16);
+        /// <summary>The zoom that ends the near Zebes approach: four and a half floor pixels per screen pixel.</summary>
+        internal static FloorZoom ZebesApproachZoomLimit { get; } = FloorZoom.FromTwoHundredFiftySixths(1152);
+        /// <summary>The zoom that separates the far Zebes approach: thirty-two floor pixels per screen pixel.</summary>
+        internal static FloorZoom FarZebesZoomLimit { get; } = FloorZoom.FromFloorPixelsPerScreenPixel(32);
+        /// <summary>The initial Ceres zoom's change each update, in 256ths of a floor pixel per screen pixel.</summary>
+        internal const int CeresZoomStep = 1;
+        /// <summary>The near Zebes approach's zoom change each update, in 256ths of a floor pixel per screen pixel.</summary>
+        internal const int NearZebesZoomStep = 4;
+        /// <summary>The slow per-update zoom change, in 256ths of a floor pixel per screen pixel.</summary>
+        internal const int SlowZoomStep = 16;
+        /// <summary>The fast per-update zoom change, in 256ths of a floor pixel per screen pixel.</summary>
+        internal const int FastZoomStep = 32;
         /// <summary>One eighth of a pixel per update.</summary>
         internal static SignedSixteenSixteen EighthPixel { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(2);
         /// <summary>Minus one half pixel per update.</summary>

@@ -22,16 +22,16 @@ internal static class EndingActorDefinitions
     /// <summary>Yellow-cloud left actor's second placement: origin (-64,-192) pixels.</summary>
     internal static readonly EndingSpriteDefinition EscapeACloudLeftBottom =
         EndingSpriteDefinition.At(new(-64, -192), EndingSpriteColouring.Clouds, CinematicSpriteSegment.EndingCloud5);
-    /// <summary>First upper cloud, parameter zero, origin (128,-96).</summary>
+    /// <summary>First upper cloud, origin (128,-96).</summary>
     internal static readonly EndingSpriteDefinition EscapeBCloudTopA =
         EndingSpriteDefinition.At(new(128, -96), EndingSpriteColouring.Clouds, CinematicSpriteSegment.EndingCloud0);
-    /// <summary>Second upper cloud, parameter zero, origin (128,-32).</summary>
+    /// <summary>Second upper cloud, origin (128,-32).</summary>
     internal static readonly EndingSpriteDefinition EscapeBCloudTopB =
         EndingSpriteDefinition.At(new(128, -32), EndingSpriteColouring.Clouds, CinematicSpriteSegment.EndingCloud1);
-    /// <summary>First lower cloud, parameter zero, origin (128,288).</summary>
+    /// <summary>First lower cloud, origin (128,288).</summary>
     internal static readonly EndingSpriteDefinition EscapeBCloudBottomA =
         EndingSpriteDefinition.At(new(128, 288), EndingSpriteColouring.Clouds, CinematicSpriteSegment.EndingCloud2);
-    /// <summary>Second lower cloud, parameter zero, origin (128,352).</summary>
+    /// <summary>Second lower cloud, origin (128,352).</summary>
     internal static readonly EndingSpriteDefinition EscapeBCloudBottomB =
         EndingSpriteDefinition.At(new(128, 352), EndingSpriteColouring.Clouds, CinematicSpriteSegment.EndingCloud3);
     /// <summary>Planet actor at (128,128) pixels.</summary>

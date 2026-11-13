@@ -38,7 +38,7 @@ internal static class CeresDestructionActors
     /// <remarks>#1165 independently confirms the spawn order and the definitions it selects.
     /// This existing explicit actor dispatch is preserved: large debris aliases flight row0
     /// with its distinct definition/list, small debris aliases flight row2 unchanged, and
-    /// vortex aliases flight row3 with the parameter-zero initializer overrides.
+    /// vortex aliases flight row3 with the stationary vortex's initializer overrides.
     /// Its initializer installs an empty callback, so this vortex has no horizontal
     /// movement or wrap. The definition still names the moving callback before initialization. No slide
     /// policy applies to these actors. One proof against the authored data covers the complete mapping,
@@ -60,7 +60,7 @@ internal static class CeresDestructionActors
                 flight.HorizontalDelta, flight.WrapX, SignedEightEight.Zero, null, false),
             1 => new(                flight.ActiveFrameBehavior, flight.Animation,
                 flight.Colouring, flight.HorizontalDelta, flight.WrapX, SignedEightEight.Zero, null, false),
-            // Parameter zero makes the vortex's setup replace its moving callback with the no-op.
+            // The stationary vortex's setup replaces its moving callback with the no-op.
             2 => new(                CinematicSpriteFrameBehavior.CeresStationaryVortexNoOp, flight.Animation, flight.Colouring,
                 SignedSixteenSixteen.Zero, false, SignedEightEight.Zero, null, false),
             _ => throw new InvalidOperationException("Validated Ceres actor index became invalid."),

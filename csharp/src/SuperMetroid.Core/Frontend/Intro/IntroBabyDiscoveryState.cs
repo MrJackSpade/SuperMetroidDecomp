@@ -230,7 +230,7 @@ internal sealed class IntroBabyDiscoveryState
         {
             case CinematicSpriteCueKind.SpawnParticles:
                 // The six particle spawns use six consecutive definitions
-                // and init parameters zero through five, in this exact order.
+                // and fragments zero through five, in this exact order.
                 for (int index = 0; index < IntroEggEffectDefinitions.ParticleCount; index++)
                     eggParticles.Add(new IntroEggParticle(index, shellFallPastCurve));
                 audio?.QueueSound(

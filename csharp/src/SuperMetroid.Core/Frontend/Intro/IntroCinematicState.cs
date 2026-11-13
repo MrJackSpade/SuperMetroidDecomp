@@ -471,7 +471,7 @@ public sealed class IntroCinematicState : IFrontendScreen
                     // Ceres turning-floor scene. Give that scene its own display, colour, and
                     // brightness owner: the narration has just deliberately reached
                     // a blanked screen, while the approach restores full brightness only after
-                    // the fourteen-frame delayed music command has completed.
+                    // the fourteen-frame delayed music request has completed.
                     CurrentCeresFlight = new IntroCeresFlightState(audio
                         ?? throw new InvalidOperationException("The Ceres flight waits on the music queue."),
                         CharacterArtwork?.CeresFlight, subtitles.Enabled,

@@ -69,7 +69,7 @@ internal sealed class IntroRinkaSystem
             rinka.Sprite.Draw(objects, installedArt: installedArt);
     }
 
-    /// <summary>Handles the two spawner commands, allocating Rinkas zero and one or two and three.</summary>
+    /// <summary>Handles the two spawner cues, allocating Rinkas zero and one or two and three.</summary>
     private void HandleSpawnerCue(CinematicSpriteCueKind cue)
     {
         switch (cue)

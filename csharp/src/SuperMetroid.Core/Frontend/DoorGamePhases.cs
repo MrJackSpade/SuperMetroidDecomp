@@ -29,7 +29,7 @@ internal sealed class DoorGamePhases(FrontendSession session)
         // sound on this frame is queued, as it runs, before the door's cancels.
         session.doorTransition.Begin(session.GameplayRuntime);
         session.GameplayRuntime.DoorTransition.DrawDoorTransitionActors(enemyProjectiles: DoorTransitionEnemyProjectiles.Held, session.GameplayRuntime.Room.LoadedScope);
-        // The door runs Samus's door-entry command, then queues
+        // The door queues Samus's door-entry sound stop, then queues
         // the enemy library's silence so movement/charge loops terminate rather than leaking
         // into the next room.
         SamusState doorSamus = session.GameplayRuntime.Player.Samus
@@ -52,7 +52,7 @@ internal sealed class DoorGamePhases(FrontendSession session)
         }
         session.audio.QueueSound(EnemySound.Silence,
             priority: SoundRequestPriority.Essential);
-        // The door's music step follows both entry cancellation commands, not precedes them.
+        // The door's music step follows both entry cancellations, not precedes them.
         session.audio.DoorTransitionSoundsDisabled = true;
         // For ordinary doors the door-collision state runs the transition's beginning in the same update, and the
         // beginning enters the door transition before returning, so the beginning never owns a separately

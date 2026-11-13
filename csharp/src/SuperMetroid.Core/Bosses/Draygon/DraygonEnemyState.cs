@@ -155,7 +155,7 @@ public sealed class DraygonEnemyState
     /// </summary>
     public int? HealthBand { get; internal set; }
 
-    /// <summary>True after terminal burial invokes the persistent area-boss-defeated callback; prevents repeating that persistence write.</summary>
+    /// <summary>True after terminal burial records the area boss as defeated; prevents repeating that persistence write.</summary>
     public bool BossDefeatPersisted { get; internal set; }
 
 

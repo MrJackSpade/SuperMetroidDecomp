@@ -364,7 +364,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Rejects powered-robot bomb damage before Phantoon's defeat and applies recoil after admitted hits.</summary>
     internal void AddWorkRobotBombReactions(EnemySharedReactions table)
     {
-        // Powered Work Robot returns until Phantoon is dead. The bomb pass has already marked the bomb, so callback
+        // Powered Work Robot returns until Phantoon is dead. The bomb pass has already marked the bomb, so reaction
         // rejection belongs here rather than in collision admission.
         table.AddBombCommon(new EnemyBombReaction(c => IsWorkRobotDefinition(c.Enemy.DefinitionId) &&
                                                        c.SelectedShotAi is EnemyReaction.WorkRobotShot or EnemyReaction.WorkRobotNoPowerShot)

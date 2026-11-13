@@ -15,12 +15,12 @@ internal sealed class EscapeRoomEffects
     private readonly GameplayTimeFreeze _freeze;
     /// <summary>Paces the explosions on the escape's two- or four-update cadence.</summary>
     private readonly FrameClock _clock;
-    /// <summary>Provides the active room callback, camera and level.</summary>
+    /// <summary>Provides the active room behaviour, camera and level.</summary>
     private readonly ActiveRoomState _room;
     /// <summary>Supplies the game's random sequence and Zebes timebomb event.</summary>
     private readonly SharedGameState _system;
 
-    /// <summary>Binds room, enemy, freeze, clock, and system owners used by escape callbacks.</summary>
+    /// <summary>Binds room, enemy, freeze, clock, and system owners used by escape behaviours.</summary>
     internal EscapeRoomEffects(GameplayTimeFreeze freeze, FrameClock clock, ActiveRoomState room, SharedGameState system)
     {
         _freeze = freeze;
@@ -68,7 +68,7 @@ internal sealed class EscapeRoomEffects
             _system.SetEvent(SuperMetroid.Core.Progression.StoryEvent.ZebesTimebombSet);
     }
 
-    /// <summary>Dispatches the escape room-main callbacks at the post-draw boundary.</summary>
+    /// <summary>Dispatches the escape room-main behaviours at the post-draw boundary.</summary>
     internal void StepEscapeRoomEffects(RoomScope room)
     {
         RoomEnemySystem enemies = room.Enemies;

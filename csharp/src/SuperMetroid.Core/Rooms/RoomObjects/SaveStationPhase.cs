@@ -9,6 +9,6 @@ public enum SaveStationPhase
     AwaitingConfirmation,
     /// <summary>Accepted confirmation has centered and locked Samus; alternating four-tick pod frames run for the authored loop count.</summary>
     Animating,
-    /// <summary>Animation has published the save-completed message and waits for its close callback to unlock input and install the room-entry lockout.</summary>
+    /// <summary>Animation has published the save-completed message and waits for its closing cue to unlock input and install the room-entry lockout.</summary>
     AwaitingCompletionMessageClose,
 }

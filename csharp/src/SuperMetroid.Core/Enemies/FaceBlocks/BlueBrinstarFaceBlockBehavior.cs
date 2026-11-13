@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Enemies.FaceBlocks;
 [RoomLifetime]
 internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntityFactory
 {
-    /// <summary>The pass-through shot reaction for this species' private shot callback.</summary>
+    /// <summary>The pass-through shot reaction for this species' private shot reaction.</summary>
     internal static EnemyShotReaction PassThroughShot { get; } =
         new(enemy => enemy.DefinitionId == EnemyDefinitionId.FaceBlock &&
                      EnemyCollision.ShotAi(enemy) == EnemyReaction.BlueBrinstarFaceBlockShot)

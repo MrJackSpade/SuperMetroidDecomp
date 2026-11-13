@@ -71,7 +71,7 @@ internal sealed class CeresRidleyHits
     /// <summary>
     /// Executes the non-Norfair half of Ridley's shot reaction after the projectile
     /// collision has accepted and marked an overlapping projectile. Both the ordinary-shot and
-    /// physical normal-bomb walkers dispatch this exact callback; keeping the reaction here
+    /// physical normal-bomb walkers dispatch this exact reaction; keeping the reaction here
     /// prevents those two collision owners from acquiring subtly different cinematic rules.
     /// </summary>
     private void ResolveCeresRidleyShotAfterCollision(RoomEnemySlot slot)

@@ -29,7 +29,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>
-    /// Binds the terrain and echo slots used by Dachora's AI callbacks; its glows are shades its draws name (#1512), so
+    /// Binds the terrain and echo slots used by Dachora's AI behaviours; its glows are shades its draws name (#1512), so
     /// it needs no colour artwork.
     /// </summary>
     internal DachoraBehavior(EnemyTerrain terrain, EnemySlotTable slotTable, EnemyAudioQueue audio)
@@ -373,7 +373,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!_terrain.MoveEnemyVertically(level, slot, upwardDisplacement))
             return;
 
-        // Ceiling impact reverses the facing bit before the fall, a visible retail quirk.
+        // Ceiling impact reverses Dachora's facing before the fall, a visible retail quirk.
         if (!state.FacingRight)
         {
             StartDachoraAnimation(slot, state, DachoraSegment.FallingRight);

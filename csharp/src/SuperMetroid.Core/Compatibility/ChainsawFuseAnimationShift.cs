@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
 /// Where the Chainsaw beam's animation lands when its borrowed Power Bomb fuse speeds up (#1301, #1407, #1474). The
-/// uncharged Chainsaw combination's callback runs the Power Bomb fuse over the shot. When the fuse reaches its fast stage,
+/// uncharged Chainsaw combination's frame behaviour runs the Power Bomb fuse over the shot. When the fuse reaches its fast stage,
 /// the game moves the animation as far on as a bomb's fast animation lies from its slow one; on a beam that distance
 /// lands in whichever animation the game laid out there. The import pipeline decodes once, for every animation
 /// position, the position it lands on.

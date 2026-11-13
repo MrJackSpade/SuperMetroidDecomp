@@ -472,7 +472,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
             NorfairRidleyCombat.UpdateNorfairRidleyGrabbedSamus(body, state, samus);
     }
 
-    /// <summary>Adds Ridley's hurt callback for the post-hit AI window.</summary>
+    /// <summary>Adds Ridley's hurt behaviour for the post-hit AI window.</summary>
     /// <remarks>Ridley's hurt AI owns hurt frames instead of falling back to ordinary main AI. Movement/function work runs only
     /// on even actor frames, while tail projectile armor and hurt palettes remain live on every frame.</remarks>
     internal void AddRidleyHurtAi(EnemySharedReactions table) =>

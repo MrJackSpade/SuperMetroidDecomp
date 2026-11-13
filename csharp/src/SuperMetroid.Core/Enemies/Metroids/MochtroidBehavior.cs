@@ -260,7 +260,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
 
-    /// <summary>Registers the Mochtroid-specific shot callback when its definition selects one.</summary>
+    /// <summary>Registers the Mochtroid-specific shot reaction when its definition selects one.</summary>
     internal static void AddMochtroidShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Mochtroid &&

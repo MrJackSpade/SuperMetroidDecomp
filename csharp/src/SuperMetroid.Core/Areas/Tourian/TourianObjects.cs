@@ -16,7 +16,7 @@ internal sealed class TourianObjects
     /// <summary>The room's room objects, which the fake wall and the access floor's change join.</summary>
     private readonly RoomObjectSlotTable _slotTable;
 
-    /// <summary>Binds Tourian room callbacks to the active room's services and room-object slots.</summary>
+    /// <summary>Binds Tourian room behaviours to the active room's services and room-object slots.</summary>
     internal TourianObjects(IRoomSamusAccess? samus, IRoomObjectEnemyEffects? enemies, RoomObjectSlotTable slotTable)
     {
         _samus = samus;

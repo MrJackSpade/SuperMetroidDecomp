@@ -107,7 +107,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         // Both branches first clear the four lifecycle/collision bits. The special
         // Mother Brain variant is always processed off-screen but never uses generic death
         // respawn; ordinary room Rinkas retain the respawn property so their death explosion resurrects
-        // the physical slot from its population snapshot.
+        // the enemy in its place in the room's listing from its population snapshot.
         slot.Presence = slot.Presence.Without(EnemyPresence.RespawnsIfKilled);
         slot.Processing = slot.Processing.Without(EnemyProcessing.Animates | EnemyProcessing.OffScreen);
         slot.Contact = slot.Contact.Without(EnemyContact.IgnoresSamus);

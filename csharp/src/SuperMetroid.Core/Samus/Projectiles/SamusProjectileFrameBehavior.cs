@@ -37,7 +37,7 @@ public enum SamusProjectileFrameBehavior
     SpacetimePaletteCopyTail,
     /// <summary>Represents the chainsaw window-store path before Power Bomb execution.</summary>
     ChainsawPowerBomb,
-    /// <summary>Represents the charged chainsaw combination's callback overrun past the callback table.</summary>
+    /// <summary>Represents the charged chainsaw combination's overrun past the authored frame behaviours.</summary>
     ChargedChainsawOverrun,
     /// <summary>Represents the Murder Beam's misaligned execution path.</summary>
     MurderBeamMisalignedExecution,

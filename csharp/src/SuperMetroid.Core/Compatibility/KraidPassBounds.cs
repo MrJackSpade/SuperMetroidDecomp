@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// <remarks>
 /// Consulted by Kraid's mouth and body collision passes once per projectile tested, after the pass placed the mouth
 /// rectangle and before the next projectile is tested. Evidence: the original passes (<c>$A7:AFAA</c>, <c>$A7:B181</c>)
-/// keep the rectangle in shared working values that the hit callback, the dud flash's sprite allocation and the body
+/// keep the rectangle in shared working values that the hit reaction, the dud flash's sprite allocation and the body
 /// contour test overwrite and never reload within the pass; the Kraid mouth damage and body contour checks and the
 /// Kraid recorded movie confirm the leftovers.
 /// </remarks>

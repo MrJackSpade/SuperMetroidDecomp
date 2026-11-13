@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// The fixed room-object spawns embedded in Kraid's growth and sinking callbacks.
+/// The fixed room-object spawns embedded in Kraid's growth and sinking steps.
 /// Their irregular order is visible: the ceiling breaks from scattered points as the
 /// body rises, rather than sweeping monotonically across the room.
 /// </summary>
@@ -22,7 +22,7 @@ public static class KraidObjectDefinitions
     private static RoomObjectSpawnRequest<KraidRoomMutation> ClearSpikes => new(new(5, 27), KraidRoomMutation.ClearSpikes);
 
     /// <summary>
-    /// The nine calls of Kraid's ceiling crumble, indexed by how many ceiling rocks have fallen: the ceiling callbacks
+    /// The nine calls of Kraid's ceiling crumble, indexed by how many ceiling rocks have fallen: the ceiling steps
     /// it selects. Each block lies directly above its paired rock center on row 18; column 2 uses the
     /// left-edge background, then odd and even columns alternate variants 2 and 3.
     /// </summary>
@@ -45,9 +45,9 @@ public static class KraidObjectDefinitions
     public static IReadOnlyList<RoomObjectSpawnRequest<KraidRoomMutation>> DefeatedRoom { get; } = [ClearCeiling, ClearSpikes];
 
     /// <summary>
-    /// The platform mutation paired with each sinking-table callback, or none for the no-operation callback. The
+    /// The platform mutation paired with each sinking-schedule step, or none for the empty step. The
     /// surviving platforms share the ceiling row and alternate background blocks by column parity, as in the
-    /// sinking callbacks' inline arguments.
+    /// sinking steps' authored arguments.
     /// </summary>
     public static IReadOnlyDictionary<KraidSinkCallback, RoomObjectSpawnRequest<KraidRoomMutation>?> SinkMutations { get; } =
         new Dictionary<KraidSinkCallback, RoomObjectSpawnRequest<KraidRoomMutation>?>

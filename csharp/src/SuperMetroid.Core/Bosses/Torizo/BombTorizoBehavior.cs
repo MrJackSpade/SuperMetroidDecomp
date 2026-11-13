@@ -68,7 +68,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Slot.Shading = state.Colours.Shading;
     }
 
-    /// <summary>Connects the Bomb and Golden Torizo callbacks to their room-scoped services.</summary>
+    /// <summary>Connects the Bomb and Golden Torizo behaviours to their room-scoped services.</summary>
     internal BombTorizoBehavior(BombTorizoBehaviorDependencies dependencies)
     {
         _room = dependencies.Room;
@@ -339,13 +339,13 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             case TorizoCue.LowHealthExplosions explosions:
                 for (int explosion = 0; explosion < 6; explosion++)
                     Attacks.SpawnBombTorizoLowHealthExplosion(torizo, explosions.Site);
-                // The animation then waits forty updates, as the callback's sleep does.
+                // The animation then waits forty updates, as the cue's sleep does.
                 torizo.FlashTimer = 40;
                 return null;
 
             case TorizoCue.Command { Kind: TorizoCueKind.SpawnDeathExplosion }:
                 Attacks.SpawnBombTorizoDeathExplosion(torizo);
-                // The animation then waits one update, as the callback's sleep does.
+                // The animation then waits one update, as the cue's sleep does.
                 torizo.FlashTimer = 1;
                 return null;
 

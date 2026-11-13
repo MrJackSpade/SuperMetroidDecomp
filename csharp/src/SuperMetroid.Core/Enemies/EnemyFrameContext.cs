@@ -35,7 +35,7 @@ internal sealed class EnemyFrameContext
     /// Readers take it modulo a power of two.
     /// </summary>
     internal int FrameCounter { get; private set; }
-    /// <summary>Live projectile system supplied by the enemy pass to both ordinary and custom enemy-touch callbacks.</summary>
+    /// <summary>Live projectile system supplied by the enemy pass to both ordinary and custom enemy-touch reactions.</summary>
     internal SamusProjectileSystem? SamusProjectiles { get; private set; }
     /// <summary>Samus's colours for the pass, which Pseudo Screw's enemy contact changes (#1405).</summary>
     internal SamusColours? SamusColours { get; private set; }

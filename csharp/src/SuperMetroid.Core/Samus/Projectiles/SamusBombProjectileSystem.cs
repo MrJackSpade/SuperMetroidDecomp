@@ -254,7 +254,7 @@ public sealed class SamusBombProjectileSystem
 
             // The loop still steps the animation after a frame behaviour clears a slot.
             // Its cleared timer underflows and returns without reading an empty animation. An
-            // inactive host slot has the same externally visible result, so skip the
+            // inactive projectile has the same externally visible result, so skip the
             // otherwise meaningless decrement rather than pretending an empty animation ran.
             if (!slot.IsActive)
             {
@@ -776,7 +776,7 @@ public sealed class SamusBombProjectileSystem
     }
 
     /// <summary>
-    /// The power-bomb boundary traversal, shared by every callback that dispatches to it.
+    /// The power-bomb boundary traversal, shared by every frame behaviour that dispatches to it.
     /// Coordinates and radius belong to the global explosion, not the calling slot.
     /// </summary>
     internal static void CollectPowerBombBoundaryReactions(

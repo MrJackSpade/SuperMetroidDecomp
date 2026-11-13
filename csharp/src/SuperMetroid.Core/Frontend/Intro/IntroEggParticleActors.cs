@@ -17,7 +17,7 @@ internal static class IntroEggParticleActors
     /// and the fragment's own animation, in that order, matching the authored data.
     /// Each referenced animation starts with duration one and loops
     /// to itself. The egg spawn step creates exactly indices 0..5; the
-    /// method rejects negative and one-past-end indices. The shared callback
+    /// method rejects negative and one-past-end indices. The shared behaviour
     /// pair and two strides are an exact smaller representation of these
     /// six definitions. Actor verification completes all six fragments with
     /// physical definition reads forbidden.

@@ -49,8 +49,8 @@ internal sealed class MotherBrainCombat
         {
             BeforeSuperMissileQuake = (in EnemyShotContext c) =>
             {
-                // Every body rectangle's shot callback is exactly the dud shot;
-                // only the dummy root's head-callback list could select anything else.
+                // Every body rectangle's shot reaction is exactly the dud shot;
+                // only the dummy root's head-reaction list could select anything else.
                 if (c.HitboxShotAi != EnemyReaction.MotherBrainBodyShot)
                 {
                     throw new InvalidDataException(
@@ -108,7 +108,7 @@ internal sealed class MotherBrainCombat
             return;
         }
 
-        // The walker has marked every overlapping family before this callback;
+        // The walker has marked every overlapping family before this reaction;
         // the next projectile pass consumes the marker, removing a Super Missile's pair too.
         projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(
             projectile,
@@ -165,7 +165,7 @@ internal sealed class MotherBrainCombat
         SamusProjectileType projectileType,
         int projectileDamage)
     {
-        // The walker marked the projectile before dispatching this callback.
+        // The walker marked the projectile before dispatching this reaction.
         projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(
             projectile,
             head.Contact.HasAny(EnemyContact.BlocksPlasmaBeam) ||
@@ -209,7 +209,7 @@ internal sealed class MotherBrainCombat
             return;
         }
 
-        // The callback tail-calls common no-death shot damage. In particular,
+        // The reaction ends in common no-death shot damage. In particular,
         // charged beams use the separate charged vulnerability after the ordinary
         // beam freeze check; Hyper would otherwise inherit the immune plasma entry.
         EnemyCollision.NormalShotVulnerability vulnerability = EnemyCollision.ReadNormalShotVulnerability(head, projectileType);
@@ -240,7 +240,7 @@ internal sealed class MotherBrainCombat
     }
 
     /// <summary>
-    /// Runs a normal bomb through Mother Brain's brain callback.
+    /// Runs a normal bomb through the reaction of Mother Brain's brain.
     /// The first form's eight-entry projectile-family table rejects bombs outright. Later
     /// forms always run the recoil step: family five selects reaction zero, subtracting
     /// 256 from the walk/recoil credit with a signed-zero clamp. Fake-death
@@ -290,8 +290,8 @@ internal sealed class MotherBrainCombat
     }
 
     /// <summary>Adds the body's bomb reactions to the AI dispatch table.</summary>
-    /// <remarks>The body callback is the dud shot. The frame-hitbox bomb walker has already marked the physical explosion, and
-    /// the body callback performs no health, phase, or multipart-state work of its own.</remarks>
+    /// <remarks>The body's reaction is the dud shot. The frame-hitbox bomb walker has already marked the physical explosion, and
+    /// the body's reaction performs no health, phase, or multipart-state work of its own.</remarks>
     internal static void AddMotherBrainBodyBombReactions(EnemySharedReactions table)
     {
         table.AddBombSpecial(c => c.Enemy.DefinitionId == EnemyDefinitionId.MotherBrainBody &&

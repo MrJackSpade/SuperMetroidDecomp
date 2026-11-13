@@ -36,7 +36,7 @@ internal sealed class EnemyDeathsAndDrops
         _dispatch = dispatch;
         _powerBombRadius = powerBombRadius;
     }
-    /// <summary>Callback that checks pickup lifetime, Grapple, and Samus contact.</summary>
+    /// <summary>Frame behaviour that checks pickup lifetime, Grapple, and Samus contact.</summary>
     private const EnemyProjectileFrameBehavior EnemyPickupFrameBehavior =
         EnemyProjectileFrameBehavior.PickupLifetime;
     /// <summary>Frames a newly spawned enemy pickup remains collectible.</summary>
@@ -111,8 +111,8 @@ internal sealed class EnemyDeathsAndDrops
         enemy.Spawn = survivingSpawn;
         if (respawns)
         {
-            // The post-memset marker keeps the physical slot unavailable until the
-            // explosion's respawn cue reconstructs it from the population record.
+            // The respawn placeholder keeps the enemy's place in the room's listing taken until the
+            // explosion's respawn cue rebuilds the enemy from its population record.
             InstallRespawnPlaceholder(enemy);
         }
         _roomStatus.RecordKill();
@@ -254,7 +254,7 @@ internal sealed class EnemyDeathsAndDrops
             : ConfigurePickup(projectile, kind);
     }
 
-    /// <summary>Gives the projectile the selected pickup's identity, 400-frame life and collision callback, and returns its animation.</summary>
+    /// <summary>Gives the projectile the selected pickup's identity, 400-frame life and collision reaction, and returns its animation.</summary>
     internal static EnemyDeathProjectileSegment ConfigurePickup(EnemyProjectile projectile, EnemyPickupKind kind)
     {
         EnemyPickupAnimationDefinition animation = EnemyPickups.Animation(kind);

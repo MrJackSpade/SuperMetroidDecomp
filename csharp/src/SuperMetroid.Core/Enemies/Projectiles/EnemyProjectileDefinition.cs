@@ -1,10 +1,10 @@
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
-/// An enemy projectile's definition: the per-frame callback it starts with, its collision half-extents, the damage it
+/// An enemy projectile's definition: the frame behaviour it starts with, its collision half-extents, the damage it
 /// deals Samus, its behaviour flags, where it is drawn relative to Samus and whether touching Samus starts a touch reaction.
 /// </summary>
-/// <param name="FrameBehavior">Per-frame callback installed before the first animation tick.</param>
+/// <param name="FrameBehavior">Frame behaviour installed before the first animation tick.</param>
 /// <param name="Radius">The collision half-extents in room pixels.</param>
 /// <param name="Damage">Samus contact damage, zero or more.</param>
 /// <param name="Properties">The Samus-damage, contact-persistence and shot-blocking behaviours.</param>

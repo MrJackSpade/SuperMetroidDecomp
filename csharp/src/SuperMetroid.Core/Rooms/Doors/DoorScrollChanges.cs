@@ -2,10 +2,10 @@ using SuperMetroid.Core.Rooms.Scrolling;
 
 namespace SuperMetroid.Core.Rooms.Doors;
 
-/// <summary>Runs the straight-line door callbacks that write the room scroll grid.</summary>
+/// <summary>Runs the straight-line door behaviours that write the room scroll grid.</summary>
 internal static class DoorScrollChanges
 {
-    /// <summary>True when the setup code selects a pure scroll callback.</summary>
+    /// <summary>True when the setup code selects a pure scroll behaviour.</summary>
     public static bool Contains(DoorSetupCode setupCode) => Writes(setupCode) is not null;
 
     /// <summary>Executes ordered scroll writes; setups without scroll writes leave the grid unchanged.</summary>

@@ -47,9 +47,9 @@ internal static class SporeSpawnCollisionDefinitions
         [new(-44, -53, 44, -23, Touch, Dud), new(-44, 22, 43, 52, Touch, Dud), InnerPoint(Shot), new(-16, -68, 16, -48, Touch, Dud)],
         [new(-44, -55, 43, -25, Touch, Dud), new(-45, 24, 43, 55, Touch, Dud), new(-15, -25, 14, 24, Touch, Shot), new(-16, -69, 16, -48, Touch, Dud)],
     ];
-    /// <summary>Single trailing point that accepts the Spore Spawn shot callback.</summary>
+    /// <summary>Single trailing point that accepts the Spore Spawn shot reaction.</summary>
     internal static readonly EnemyCollisionHitbox[] ShotPointList = [InnerPoint(Shot)];
-    /// <summary>Single trailing point that rejects shots through the dud callback.</summary>
+    /// <summary>Single trailing point that rejects shots through the dud reaction.</summary>
     internal static readonly EnemyCollisionHitbox[] DudPointList = [InnerPoint(Dud)];
 
     /// <summary>The trailing-point hitboxes by oscillation phase B, C, D, C: only phase D's point rejects shots; the mirrored point shares the active list.</summary>

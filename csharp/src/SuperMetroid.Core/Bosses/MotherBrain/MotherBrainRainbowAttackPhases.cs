@@ -66,7 +66,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         _state.UpperNeckMovement = MotherBrainNeckMovement.BobUp;
 
         // The rainbow's drain setup leaves Samus able to stand at 700 energy or above and unable to stand
-        // below it. The test takes the sign of the wrapped difference, retained by AtLeastBySignedDifference.
+        // below it. The test reads the wrapped difference as signed, retained by AtLeastBySignedDifference.
         if (samus.Health >= 700)
             samus.Drained.SetupForRainbowBeamAbleToStand(samus);
         else
@@ -142,7 +142,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         _movement.RainbowBeamAngle = RotationAngle.HalfTurn - sourceAngle;
     }
 
-    /// <summary>Emits the next cyclic beam explosion offset when the eight-frame countdown underflows.</summary>
+    /// <summary>Emits the next cyclic beam explosion offset when the eight-frame countdown passes zero.</summary>
     private MotherBrainRainbowExplosionRequest? StepExplosionTimer()
     {
         if (--ExplosionTimer >= 0)
@@ -154,11 +154,11 @@ internal sealed class MotherBrainRainbowAttackPhases
             MotherBrainRainbowBeamAttackSequence.ExplosionOffsets[ExplosionIndex]);
     }
 
-    /// <summary>Drains one health with Varia or two without, clamping underflow to zero.</summary>
+    /// <summary>Drains one health with Varia or two without, clamping health below zero to zero.</summary>
     private static void DamageSamusDueToRainbowBeam(SamusState samus)
     {
         // The drain step starts from -2 in both branches; the Varia test then adds one back
-        // with Varia, producing -1 with Varia and -2 without it. The sign test then clamps
+        // with Varia, producing -1 with Varia and -2 without it. The below-zero check then clamps
         // wrapped/below-one health to zero.
         int damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit) ? 1 : 2;
         int candidate = samus.Health - damage;
@@ -340,7 +340,7 @@ internal sealed class MotherBrainRainbowAttackPhases
             requests);
         requests.Movement = _movement.MoveTowardWall(samus, frame.CameraCheckpoint);
 
-        // The start-draining step decrements zero to -1; the sign test fails on this very call.
+        // The start-draining step decrements zero to -1; the below-zero check fails on this very call.
         if (--_state.PhaseTimer < 0)
         {
             requests.StartEarthquake(MotherBrainDeathDefinitions.RainbowBeamEarthquake, 8);

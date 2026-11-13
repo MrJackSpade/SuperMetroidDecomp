@@ -93,7 +93,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.Action)
         {
             case FuneNamiheAction.FuneWaitForCooldown:
-                // The counter steps before the comparison. The comparison tests the sign of the difference rather
+                // The counter steps before the comparison. The comparison checks whether the difference is negative rather
                 // than comparing unsigned; ordinary room parameters are small,
                 // but the distinction remains visible at the 32768 wrap boundary.
                 state.CooldownTimer = WrappingCounter.IncrementCount(state.CooldownTimer);

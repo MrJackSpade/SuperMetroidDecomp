@@ -13,10 +13,10 @@ public static class KraidBodyContour
     /// </summary>
     /// <remarks>
     /// Independently reviewed for #1165 against the complete table and both
-    /// wrapped-sign comparisons. The first bottom comparison wraps to
+    /// wrapped comparisons. The first bottom comparison wraps to
     /// nonnegative for Y=-32768..-31746, selecting -48 before the ordinary staircase.
     /// Remaining inputs select the first inclusive top boundary. Preserve this
-    /// wrapped-sign test, rather than replacing it with ordered signed comparison.
+    /// wrapped comparison, rather than replacing it with an ordered signed one.
     /// </remarks>
     /// <param name="relativeY">The signed vertical distance from Kraid's body, -32768 through 32767.</param>
     public static int LeftEdge(int relativeY) => relativeY switch

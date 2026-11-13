@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 [RoomLifetime]
 internal sealed class MotherBrainCombat
 {
-    /// <summary>Provides room services, tiles, palette state, and effects used by the encounter.</summary>
+    /// <summary>Provides room services, pictures, palette state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Owns the bombs, glass, beams, turrets, and other encounter projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -186,7 +186,7 @@ internal sealed class MotherBrainCombat
         if (state.RainbowBeamSequence is { } sequence)
         {
             // The attached sequence shares the walk counter with the encounter. The recoil
-            // clears the body phase timer on recoil underflow and stores the counter
+            // clears the body phase timer when a shot takes the walk credit below zero and stores the counter
             // immediately, before common projectile damage runs.
             sequence.ApplyPhase2Or3ShotReaction(reactionProjectile);
             state.PhaseTimer = sequence.State.PhaseTimer;

@@ -242,6 +242,42 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class IntroTextCell { // the cell's characters\n }");
         Expect("class P { // the game's characters and every playable character; characters who speak\n }");
         Expect("class P { /// <summary>The room's per-line effects and per-line scroll run first; the credits table and the memory of the room.</summary>\nint F => 0; }");
+        // The processor's arithmetic and the original's display and sound records (#1726): underflows, sign tests and sign
+        // bits, testing and comparing by a sign, tile attributes and values, per-line effect objects and voices keyed on, in
+        // documentation, line comments and string literals.
+        Expect("class P { /// <summary>Waits for signed timer underflow, then locks Samus.</summary>\nint F => 0; }", "('underflow')");
+        Expect("class P { // the timer seeded at 64 underflows on call 65\n }", "('underflows')");
+        Expect("class P { string Name => \"The bounce counter underflowed.\"; }", "('underflowed')");
+        Expect("class P { // The sign test accepts zero and expires only after the count passes it\n }", "('sign test')");
+        Expect("class P { // Both boundaries are signed tests of the difference\n }", "('signed tests')");
+        Expect("class P { // both stay far below the word's sign bit\n }", "('sign bit')");
+        Expect("class P { /// <summary>Kept as the wrapped-sign test, rather than an ordered comparison.</summary>\nint F => 0; }", "('sign test')");
+        Expect("class P { // the sign-check keeps it\n }", "('sign-check')");
+        Expect("class P { /// <summary>A step that leaves the first row (the game tests its sign) restarts.</summary>\nint F => 0; }", "('tests its sign')");
+        Expect("class P { // The death explosions decrement before testing the sign\n }", "('testing the sign')");
+        Expect("class P { // The comparison tests only the sign of the wrapped difference\n }", "('tests only the sign')");
+        Expect("class P { /// <summary>The patrol compares it by the sign of the wrapped difference.</summary>\nint F => 0; }", "('compares it by the sign')");
+        Expect("class P { // The game caps the speed by the sign of its difference from the cap\n }", "('caps the speed by the sign')");
+        Expect("class P { // stores the moved-back place and branches on its sign\n }", "('branches on its sign')");
+        Expect("class P { /// <summary>Supported font layouts and tile attributes for ending text.</summary>\nint F => 0; }", "('tile attributes')");
+        Expect("class P { // the frames the shooting stars' tile values give attributes for\n }", "('tile values')");
+        Expect("class P { // each tile's attributes stay\n }", "('tile's attributes')");
+        Expect("class P { string Name => \"Tile attribute out of range.\"; }", "('Tile attribute')");
+        Expect("class P { // Both spawned per-line effect objects run their first step\n }", "('per-line effect objects')");
+        Expect("class P { /// <summary>X-ray per-line display effect object phases.</summary>\nint F => 0; }", "('per-line display effect object')");
+        Expect("class P { // a fresh key-on restarts the note\n }", "('key-on')");
+        Expect("class P { // each tick keys on the voice it starts\n }", "('keys on the voice')");
+        Expect("class P { string Name => \"The voice stays keyed on.\"; }", "('voice stays keyed on')");
+        // A value's sign as its direction, a key on disk, keying a binding or a table on a name, per-line effects and the
+        // game's blocks and pictures are English.
+        Expect("class P { /// <summary>The speed's sign selects the animation; the sign of the difference picks the side; a sign-inverted mirror.</summary>\nint F => 0; }");
+        Expect("class P { // the percentage's digits and percent sign; the turn relies on the sign of the speed\n }");
+        Expect("class P { /// <summary>Counts down until the countdown passes zero, then reads as below zero.</summary>\nint F => 0; }");
+        Expect("class P { /// <summary>Renaming a frame never changes a key on disk; installed frame bindings key on, so identities stay.</summary>\nint F => 0; }");
+        Expect("class P { // the table is keyed on the name; bindings key on the identity\n }");
+        Expect("class P { /// <summary>The room's per-line effects; the effect's per-line scroll; the falling tile's picture.</summary>\nint F => 0; }");
+        Expect("[System.AttributeUsage(System.AttributeTargets.All)] sealed class CompatibilityServiceAttribute(string behaviour) : System.Attribute { public string Behaviour { get; } = behaviour; }\n" +
+            "/// <summary>Evidence: the countdown's signed underflow; the sign test of the wrapped difference.</summary>\n[CompatibilityService(\"countdown\")] class Countdown { }");
         // A compound name in a comment is a routine label unless Core's code spells it (#1558).
         Expect("class P { // as EnemyMain does\n }", "('EnemyMain')");
         Expect("class P { // set by InitAI\n }", "('InitAI')");

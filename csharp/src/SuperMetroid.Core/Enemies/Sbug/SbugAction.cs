@@ -30,9 +30,9 @@ public enum SbugAction
     MoveTowardSamus,
     /// <summary>Applies the captured away velocity without retargeting or block collision checks.</summary>
     MoveAwayFromSamus,
-    /// <summary>Decrements the segment timer before moving and returns to proximity waiting on signed underflow.</summary>
+    /// <summary>Decrements the segment timer before moving and returns to proximity waiting once it passes zero.</summary>
     MoveForwardThenWait,
-    /// <summary>Runs a timed, collision-aware segment, waiting on collision or choosing another angle on timer underflow.</summary>
+    /// <summary>Runs a timed, collision-aware segment, waiting on collision or choosing another angle when the timer passes zero.</summary>
     MoveRandomlyUntilCollision,
     /// <summary>Applies custom movement and, while the long countdown is nonnegative, checks segment expiry and the both-axis 96-pixel reversal condition.</summary>
     MoveStraightAndReverseWhenFar,

@@ -32,7 +32,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     /// </summary>
     private readonly List<PictureShade> _statueLooks = [];
 
-    /// <summary>The released statues drawn in the room's tiles: their blacked-out eyes and greys, in the order shown.</summary>
+    /// <summary>The released statues drawn in the room's background: their blacked-out eyes and greys, in the order shown.</summary>
     private readonly List<PictureShade> _roomLooks = [];
 
     /// <summary>Binds projectile allocation and the room's slots to the statue species.</summary>
@@ -61,7 +61,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
 
     /// <summary>
     /// Shows a released statue's look, its blacked-out eyes or its grey: over the room's pictures for a statue drawn in the
-    /// room's tiles, otherwise over the scene's sprites.
+    /// room's background, otherwise over the scene's sprites.
     /// </summary>
     internal void ShowStatueLook(PictureShade look)
     {
@@ -89,7 +89,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         ShowScene();
     }
 
-    /// <summary>Lays the looks of the released statues drawn in the room's tiles over the room's pictures (#1512).</summary>
+    /// <summary>Lays the looks of the released statues drawn in the room's background over the room's pictures (#1512).</summary>
     public void ShadeGameplay(GameplayShadingBuilder frame)
     {
         Ensure.NotNull(frame);
@@ -129,7 +129,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     /// </summary>
     public int TourianEntranceStatueVerticalOffset { get; internal set; }
 
-    /// <summary>The statues' shared animation state, set and cleared by the statue tile animations and the descent.</summary>
+    /// <summary>The statues' shared animation state, set and cleared by the statue animations and the descent.</summary>
     public TourianStatueAnimation TourianEntranceStatueAnimation { get; } = new();
 
 

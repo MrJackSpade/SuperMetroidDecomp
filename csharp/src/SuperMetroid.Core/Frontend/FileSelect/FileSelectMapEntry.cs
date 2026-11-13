@@ -58,7 +58,7 @@ public sealed class FileSelectMapEntry
                 Phase = FileSelectMapEntryPhase.Revealing;
                 break;
             case FileSelectMapEntryPhase.Revealing:
-                // The game returns before updating edges on the signed-underflow call,
+                // The game returns before updating edges on the call that takes the edge past zero,
                 // disables the mask, and displays the whole area scene on that frame.
                 if (Top - FileSelectMapDefinitions.EntryWindowSpeed < 0)
                     Phase = FileSelectMapEntryPhase.Complete;

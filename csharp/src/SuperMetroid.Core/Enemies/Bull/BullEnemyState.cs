@@ -50,7 +50,7 @@ public sealed class BullEnemyState
     public SignedEightEight Speed { get; internal set; }
 
     /// <summary>
-    /// Whether flight is still below <see cref="MaxSpeed"/>, read from the sign of the wrapping difference as the game
+    /// Whether flight is still below <see cref="MaxSpeed"/>, read from the wrapping difference as signed, as the game
     /// does; an overshooting update is not clamped.
     /// </summary>
     internal bool IsBelowMaximumSpeed => (Speed - MaxSpeed).IsNegative;

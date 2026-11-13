@@ -20,9 +20,9 @@ public enum HorizontalShutterAction
     MovingLeft,
     /// <summary>Adds rightward 16.16 velocity, displaces overlapping Samus on the leading side, and stops at maximum X.</summary>
     MovingRight,
-    /// <summary>Waits for signed timer underflow before moving right or restoring proximity waiting.</summary>
+    /// <summary>Waits for the timer to pass zero before moving right or restoring proximity waiting.</summary>
     StoppedAfterMovingLeft,
-    /// <summary>Waits for signed timer underflow before moving left or restoring proximity waiting.</summary>
+    /// <summary>Waits for the timer to pass zero before moving left or restoring proximity waiting.</summary>
     StoppedAfterMovingRight,
     /// <summary>Inert endpoint for rest time 4080, retaining stationary manual ejection and eligible reaction activation.</summary>
     PermanentNoOp,

@@ -5,9 +5,9 @@ using SuperMetroid.Core.Rooms.Doors;
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
-/// Sand-family portion of the animated-tile objects a room's FX record starts as the room loads. Selection comes
-/// from the selected FX record's animated tiles, never from a particular room number.
-/// Other animated-tile families retain their existing independent owners.
+/// Sand-family portion of the block animations a room's FX record starts as the room loads. Selection comes
+/// from the selected FX record's block animations, never from a particular room number.
+/// Other block animation families retain their existing independent owners.
 /// </summary>
 [RoomLifetime]
 public sealed class RoomSandAnimatedTilesState

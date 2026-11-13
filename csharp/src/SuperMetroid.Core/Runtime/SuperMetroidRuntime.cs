@@ -844,7 +844,7 @@ internal sealed class SuperMetroidRuntime
             }
             // The camera writes the same distance-plus-one values consumed by Yard
             // kick setup. Publish the camera calculation itself, including its
-            // integer-only sign test and previous scrolling checkpoint. A second
+            // integer-only direction check and previous scrolling checkpoint. A second
             // frame-end absolute delta loses both the bias and checkpoint timing.
             samus.HorizontalDistanceMovedPlusOne = camera.Speed.X;
             samus.ProjectileInheritance.CameraYSubspeed = camera.Speed.Y.Fraction;
@@ -886,7 +886,7 @@ internal sealed class SuperMetroidRuntime
         // The enemy phase can install the gunship's movement mode on this frame.
         // It omits the normal timer-drawing call: neither countdown nor its sprites
         // survives boarding, even though timer status stays active. Decide after the
-        // actor transition, before liftoff can repurpose the timer's sprite tiles as dust.
+        // actor transition, before liftoff can repurpose the timer's sprite pictures as dust.
         bool runEscapeTimerHandler = frameTail?.Mode.Movement != SamusMovementMode.Gunship;
         if (runEscapeTimerHandler && EscapeTimer.Process(Clock.Counter, Assists.Current.EscapeTimerHoldsAtOneSecond))
         {
@@ -929,7 +929,7 @@ internal sealed class SuperMetroidRuntime
         }
     }
 
-    /// <summary>Runs the scrolling sky, animated tiles, escape effects, the elevatube and the room main behaviours.</summary>
+    /// <summary>Runs the scrolling sky, block animations, escape effects, the elevatube and the room main behaviours.</summary>
     private void RunRoomMains(RuntimeFramePolicy policy)
     {
         // Landing Site's room main advances the sky bands after ordinary gameplay logic.

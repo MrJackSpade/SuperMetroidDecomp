@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </summary>
 internal static class DownwardGateObjectDraws
 {
-    /// <summary>The shape of one of the six column stages or eight trigger draws; a trigger's frame is its color's tile step.</summary>
+    /// <summary>The shape of one of the six column stages or eight trigger draws; a trigger's frame is its color's picture step.</summary>
     internal static bool TryDescribe(RoomObjectDraw request, out Draw draw)
     {
         if (request is not RoomObjectFrameDraw<DownwardGateDraw> { Frame: var gate })

@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 [RoomLifetime]
 internal sealed class MotherBrainAttacks
 {
-    /// <summary>Provides room services, tiles, palette state, and effects used by the encounter.</summary>
+    /// <summary>Provides room services, pictures, palette state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Mother Brain's rainbow beam, its palette, and her death.</summary>
     private readonly MotherBrainRainbowAndDeath _rainbowAndDeath;
@@ -414,7 +414,7 @@ internal sealed class MotherBrainAttacks
     {
         RoomEnemySlot head = state.Head;
 
-        // The comparison takes the sign of the wrapped difference. Arena coordinates
+        // The comparison reads the wrapped difference as signed. Arena coordinates
         // never leave the signed range, and a wrapped coordinate keeps the same answer.
         int headMinusSamus = CoordinateAxis.Difference(head.Position.Y.Whole, samus.Position.Y.Whole);
         MotherBrainNeckMovement targetMovement = headMinusSamus >= 0

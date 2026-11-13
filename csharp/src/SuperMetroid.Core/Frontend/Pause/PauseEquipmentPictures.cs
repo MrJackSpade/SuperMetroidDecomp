@@ -35,7 +35,7 @@ internal static class PauseEquipmentPictures
     /// <summary>The frame name of decimal <paramref name="digit"/> in supply digit place <paramref name="place"/>, hundreds first.</summary>
     internal static string ReserveDigitFrame(int place, int digit) => $"Pause.Equipment.Reserve.Digit{place}.{digit}";
 
-    /// <summary>The frame name of the reserve arrow's tiles coloured <paramref name="arrow"/>.</summary>
+    /// <summary>The frame name of the reserve arrow's pictures coloured <paramref name="arrow"/>.</summary>
     internal static string ReserveArrowFrame(ShownReserveArrow arrow) => $"Pause.Equipment.Reserve.Arrow.{arrow}";
 
     /// <summary>The pictures <paramref name="page"/> shows, each placed at the page's corner.</summary>

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
-/// Immutable control skeletons for the two Wrecked Ship treadmill animated-tile objects.
+/// Immutable control skeletons for the two Wrecked Ship treadmill block animations.
 /// </summary>
 /// <remarks>
 /// The four frame sources are presentation identities resolved to installed art.

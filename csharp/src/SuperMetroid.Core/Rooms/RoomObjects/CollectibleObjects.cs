@@ -246,7 +246,7 @@ internal sealed class CollectibleObjects
 
         // The item's script grants inventory before the message box opens, but its
         // following draw/delete steps cannot run until that synchronous call
-        // returns. Keep the existing tile and slot throughout the fanfare.
+        // returns. Keep the existing block and slot throughout the fanfare.
         item.Triggered = false;
         item.Timer = 0;
         item.Phase = CollectiblePhase.AwaitingMessage;

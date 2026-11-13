@@ -142,7 +142,7 @@ public static class SamusGrappleBeamDrawing
             return;
 
         // The pair is a begin/end range, not two animation frames. Each
-        // six-call interval advances the source by 512 through four endpoint tiles.
+        // six-call interval advances the endpoint to the next of its four pictures.
         GrapplePointAnimation.Advance(grapple);
         SpriteSheet installed = sheet ?? throw new InvalidOperationException("The grapple beam requires the installed grapple sheet.");
         SuperMetroid.Core.Samus.Artwork.GrappleRopeOrientation orientation =

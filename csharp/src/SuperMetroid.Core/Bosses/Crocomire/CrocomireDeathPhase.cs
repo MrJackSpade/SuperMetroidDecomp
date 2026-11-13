@@ -75,7 +75,7 @@ public enum CrocomireDeathPhase
     WaitForSamusAtWall,
     /// <summary>Rumbles the hidden wall using the authored signed table.</summary>
     RumbleHiddenWall,
-    /// <summary>Loads skeleton sprite tiles and breaks the spike wall.</summary>
+    /// <summary>Loads the skeleton's pictures and breaks the spike wall.</summary>
     BreakSpikeWall,
     /// <summary>Eighty-frame delay before the skeleton starts falling.</summary>
     DelaySkeletonFall,

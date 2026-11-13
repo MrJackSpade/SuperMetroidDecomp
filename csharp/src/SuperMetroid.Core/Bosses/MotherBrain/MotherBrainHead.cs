@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 [RoomLifetime]
 internal sealed class MotherBrainHead
 {
-    /// <summary>Provides room services, tiles, palette state, and effects used by the encounter.</summary>
+    /// <summary>Provides room services, pictures, palette state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Owns the bombs, glass, beams, turrets, and other encounter projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -219,7 +219,7 @@ internal sealed class MotherBrainHead
     /// Returns the brain frame
     /// to draw, or null when the brain is not live. With time frozen it only reads the current
     /// frame. Otherwise a frame holds while its duration minus the timer is not negative
-    /// (a sign test), the timer counting up; past it, cues run until the next frame, which
+    /// (the timer counting up); past it, cues run until the next frame, which
     /// resets the timer to one.
     /// </summary>
     internal MotherBrainHeadFrame? AdvanceMotherBrainBrain(MotherBrainEnemyState state, SamusState? samus)

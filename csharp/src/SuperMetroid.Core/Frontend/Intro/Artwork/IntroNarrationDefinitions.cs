@@ -5,7 +5,7 @@ public static class IntroNarrationDefinitions
 {
     /// <summary>Zero-based page column at which every narration line begins: column one.</summary>
     public const int FirstColumn = 1;
-    /// <summary>Maximum glyph count per line, 29, occupying tile columns one through 29 including spaces.</summary>
+    /// <summary>Maximum glyph count per line, 29, occupying glyph columns one through 29 including spaces.</summary>
     public const int MaximumColumns = 29;
     /// <summary>First permitted text row in page cells, four; presentation lines use even rows with two-row spacing.</summary>
     public const int FirstTextRow = 4;

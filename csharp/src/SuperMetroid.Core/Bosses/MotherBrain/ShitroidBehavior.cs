@@ -478,7 +478,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         sharedProjectiles?.SetSharedCooldown(8);
         sharedProjectiles?.SetSharedBombCounter(5);
         samus.XSpeedDivisor = 2;
-        // A speed slowed past zero at the apex reads as below four by the clamp's sign test, so it keeps its value
+        // A speed slowed past zero at the apex reads as below four in the clamp's comparison, so it keeps its value
         // (#1562); the Shitroid sits a pixel right while the speed reads four or more (DrainingShitroidFallShift).
         int ySpeed = samus.Kinematics.YSpeed.Whole;
         int rightOfShake = DrainingShitroidFallShift.PixelsRightOfShake(ySpeed);

@@ -5,12 +5,12 @@ namespace SuperMetroid.Core.Frontend.GameOver.Artwork;
 /// <summary>
 /// Immutable game-over screen anchors the game binds (#1616); the Baby's colourings are shades the import pre-colours (#1512).
 /// The page is a picture the import composes once (#1467); the actors are drawn from the installed game-over sheet, whose
-/// compositions, page tiles and palette selectors belong to the import pipeline that reads the installed presentation
+/// compositions, page layout and palette selectors belong to the import pipeline that reads the installed presentation
 /// (#1463). Menu control, answer semantics, music and Baby sequence dispatch stay compiled in the application.
 /// </summary>
 public sealed class GameOverPresentation
 {
-    /// <summary>Retains the screen anchors and cursor duration; the page's tiles are the import's, which pictures the page (#1467).</summary>
+    /// <summary>Retains the screen anchors and cursor duration; the page's composition is the import's, which pictures the page (#1467).</summary>
     /// <param name="placements">The validated anchors and cursor duration.</param>
     internal GameOverPresentation(GameOverPlacements placements)
     {

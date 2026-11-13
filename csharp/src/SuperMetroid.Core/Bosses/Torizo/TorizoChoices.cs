@@ -249,7 +249,7 @@ internal sealed class TorizoChoices
         RoomEnemySlot torizo,
         SamusState samus)
     {
-        // The walking steps compare the facing bit against the sign of Samus's X minus the enemy's X.
+        // The walking steps compare the facing bit against whether Samus's X minus the enemy's X is negative.
         // Keep that subtraction direction explicit: the awakening facing check deliberately uses
         // the inverse delta, and collapsing both tests into one "faces Samus" helper silently
         // reverses one family of the game's branches.

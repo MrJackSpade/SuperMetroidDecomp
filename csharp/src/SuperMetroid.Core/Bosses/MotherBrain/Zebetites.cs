@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal static class Zebetites
 {
     /// <summary>
-    /// Four alternating large/split barriers, spaced twelve tiles
+    /// Four alternating large/split barriers, spaced twelve blocks
     /// leftward from X=824. Large barriers have half-height24 at Y=111; split
     /// halves have half-height8 at equal forty-pixel offsets from that center.
     /// </summary>

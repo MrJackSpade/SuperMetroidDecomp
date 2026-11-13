@@ -676,8 +676,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Whether a detached wing's arc angle lies from a quarter turn up to three quarters: the game's sign test of
-    /// the angle plus a quarter turn, which switches the wing from its orbit to its falling arc and back.
+    /// Whether a detached wing's arc angle lies from a quarter turn up to three quarters: the game's check that
+    /// the angle plus a quarter turn lies in the second half-turn, which switches the wing from its orbit to its falling arc and back.
     /// </summary>
     private static bool LiesWithinMiddleHalfTurn(RotationAngle angle) =>
         angle + RotationAngle.QuarterTurn >= RotationAngle.HalfTurn;

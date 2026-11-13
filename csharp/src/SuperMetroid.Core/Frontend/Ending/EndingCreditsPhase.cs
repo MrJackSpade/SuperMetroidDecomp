@@ -61,7 +61,7 @@ internal enum EndingCreditsPhase
     PostCreditsGesture,
     /// <summary>Runs the reward jump, which reveals the reward icon as Samus falls back, until the shot.</summary>
     PostCreditsJump,
-    /// <summary>Runs the post-shot palette and tile replacements before the white flash.</summary>
+    /// <summary>Runs the post-shot palette and picture replacements before the white flash.</summary>
     PostCreditsShot,
     /// <summary>Fades fixed white while switching to the two-screen final text map.</summary>
     PostCreditsWhiteFlash,

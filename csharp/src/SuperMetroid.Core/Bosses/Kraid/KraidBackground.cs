@@ -11,7 +11,7 @@ internal sealed class KraidBackground
 {
     /// <summary>Owns rocks, lint, and other fight projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>Applies Kraid palettes, background tiles, and sprite presentation.</summary>
+    /// <summary>Applies Kraid palettes, background pictures, and sprite presentation.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Kraid's state and part lookups, part animations, phase timer, random numbers and the sound he last requested.</summary>
     private readonly KraidEncounterAccess _access;

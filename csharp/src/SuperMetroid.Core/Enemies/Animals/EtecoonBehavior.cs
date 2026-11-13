@@ -699,7 +699,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void SetEtecoonHorizontalVelocity(EtecoonEnemyState state, SignedSixteenSixteen speed) =>
         state.Velocity = state.Velocity.WithX(speed);
 
-    /// <summary>Uses post-decrement semantics, treating a one-to-zero or signed underflow as expiry.</summary>
+    /// <summary>Uses post-decrement semantics, treating a step from one to zero or past zero as expiry.</summary>
     private static bool DecrementEtecoonTimerAndTestExpired(EtecoonEnemyState state)
     {
         CountdownStep step = state.ActionTimer.Decrement();

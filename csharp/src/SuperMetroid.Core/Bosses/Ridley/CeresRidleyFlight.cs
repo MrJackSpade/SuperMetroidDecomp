@@ -260,7 +260,7 @@ internal sealed class CeresRidleyFlight
 
     /// <summary>
     /// Turns Ridley's swoop heading by <paramref name="angleDelta"/> 256ths of a step toward <paramref name="targetAngle"/>,
-    /// testing the sign of the difference as the heading wraps, and derives his velocity from it.
+    /// choosing the side by whether their wrapped difference is negative, and derives his velocity from it.
     /// </summary>
     internal static void UpdateRidleySwoopVelocity(
         RidleyEnemyState state,
@@ -276,7 +276,7 @@ internal sealed class CeresRidleyFlight
         state.SwoopSpeedMagnitude = magnitude;
 
         RotationAngle angle = state.SwoopAngleAccumulator.TurnedByFractionsOfStep(angleDelta);
-        // The comparison tests the sign of the difference, not signed less-than. The heading wraps around the
+        // The comparison checks whether the difference is negative, not signed less-than. The heading wraps around the
         // turn, particularly onto the half-turn recovery target after a rightward swoop.
         bool negativeDifference = angle.TurnFrom(targetAngle) < 0;
         if (angleDelta < 0 ? negativeDifference : !negativeDifference)
@@ -314,7 +314,7 @@ internal sealed class CeresRidleyFlight
     {
         // Ridley rises past Y=32 while the Baby still follows his original hand
         // anchor. Crossing that line starts the Baby's independent fall and a
-        // 21-underflow wait before Ridley changes to the retrieval pose.
+        // wait of 21 counted past zero before Ridley changes to the retrieval pose.
         state.MovementMinimum = state.MovementMinimum.WithY(CoordinateAxis.Wrap(-192));
         AccelerateRidleyToward(slot, state, Position16<RoomPixels>.Wrapped(192, -128), 15);
         if (CoordinateAxis.Difference(slot.Position.Y.Whole, 32) < 0)
@@ -346,7 +346,7 @@ internal sealed class CeresRidleyFlight
     /// <summary>Accelerates Ridley toward the offscreen retreat point and begins the 64-frame getaway delay.</summary>
     internal void TickCeresRidleyRetreat(RoomEnemySlot slot, RidleyEnemyState state)
     {
-        // The retreat accelerates toward the off-screen point. The signed test
+        // The retreat accelerates toward the off-screen point. The above-the-line check
         // is performed before the common movement pass; once the origin is above Y=-128
         // the 64-frame delay is installed and the delay falls through into its first tick.
         AccelerateRidleyToward(slot, state, Position16<RoomPixels>.Wrapped(192, -128), 15);
@@ -371,7 +371,7 @@ internal sealed class CeresRidleyFlight
         state.TailAction = RidleyTailAction.None;
         state.Phase = RidleyPhase.CeresPublishEscapeHandoff;
 
-        // The retreat recolours the chamber: its walls and its first tiles. The game also copied the first tiles'
+        // The retreat recolours the chamber: its walls and the scenery that shares the retreat colours. The game also copied those
         // colours into Ridley's own sprite colours; his sprites here keep their own colours (#1544).
         state.Colours.ShowRetreat();
     }

@@ -12,6 +12,6 @@ public enum YappingMawAction
     BeginExtension,
     /// <summary>Solves all four curled link positions, advances the quadratic angular motion, carries any captive with the mouth, and enters cooldown when the signed curl becomes negative.</summary>
     ExtendingOrRetracting,
-    /// <summary>Retains captive placement until the timer seeded at 64 underflows on call 65, then releases input and returns to neutral unless Samus death still owns the lock.</summary>
+    /// <summary>Retains captive placement until the timer seeded at 64 passes zero on call 65, then releases input and returns to neutral unless Samus death still owns the lock.</summary>
     RetractedDelay,
 }

@@ -78,7 +78,7 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
     /// <summary>The installed pictures of the two-by-two Spore Spawn ceiling clear/crumble draws, without changing their terrain or sequence timing.</summary>
     public InstalledRoomObjectSporeSpawnCeilingVisuals? SporeSpawnCeilingVisuals => _visuals.RoomObjectSporeSpawnCeilingVisuals;
 
-    /// <summary>Replaceable plant tiles; the three-run collision layout stays compiled.</summary>
+    /// <summary>Replaceable plant pictures; the three-run collision layout stays compiled.</summary>
     public InstalledRoomObjectSamusEaterVisuals? SamusEaterVisuals => _visuals.RoomObjectSamusEaterVisuals;
 
     /// <summary>The installed picture of the nine-block vertical Botwoon wall clear; its block shape owns placement and collision.</summary>

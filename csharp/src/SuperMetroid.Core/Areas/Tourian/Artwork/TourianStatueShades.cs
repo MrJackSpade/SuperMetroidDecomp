@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Areas.Tourian.Artwork;
 /// The shades the Tourian entrance statues' pictures are pre-coloured in (#1512): the statue scene's entrance colours,
 /// the eye glow each released boss lights, and each boss statue's blacked-out eyes and grey once released. The import
 /// colours them from the installed Tourian statue colours, on the statue's sprites and, for the statues drawn in the
-/// room's tiles, on those tiles.
+/// room's background, on those pictures.
 /// </summary>
 public static class TourianStatueShades
 {
@@ -46,6 +46,6 @@ public static class TourianStatueShades
     /// <summary>Draygon's statue greyed.</summary>
     public static PictureShade DraygonGrey { get; } = new("tourian-statue-draygon-grey", 0);
 
-    /// <summary>The looks of the statues drawn in the room's tiles, Kraid's and Draygon's, which the room's pictures show.</summary>
+    /// <summary>The looks of the statues drawn in the room's background, Kraid's and Draygon's, which the room's pictures show.</summary>
     public static IReadOnlySet<PictureShade> RoomTileLooks { get; } = new HashSet<PictureShade> { KraidCleared, KraidGrey, DraygonCleared, DraygonGrey };
 }

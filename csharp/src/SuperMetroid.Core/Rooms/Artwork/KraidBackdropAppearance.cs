@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>
-/// Whether Kraid's room shows his backdrop (#1352, #1466): his rise shows it over the room's tiles, and the blocks and
+/// Whether Kraid's room shows his backdrop (#1352, #1466): his rise shows it over the room's blocks, and those blocks and
 /// cells it shows over have a picture with it and without it.
 /// </summary>
 public sealed record KraidBackdropAppearance : AppearanceInput

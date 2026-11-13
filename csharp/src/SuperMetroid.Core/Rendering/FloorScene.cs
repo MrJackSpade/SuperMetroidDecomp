@@ -13,7 +13,7 @@ public sealed record FloorScene
     /// <summary>How the floor appears on the screen; null shows no floor, leaving the backdrop.</summary>
     public FloorView? Background { get; }
 
-    /// <summary>The floor's map and tiles (#1403), present exactly when <see cref="Background"/> is.</summary>
+    /// <summary>The floor's map and pictures (#1403), present exactly when <see cref="Background"/> is.</summary>
     public AffineFloor? Floor { get; }
     /// <summary>The frame's one brightness, 0 (black) through 15, applied after the floor, the sprites and the gradient.</summary>
     public int Brightness { get; }
@@ -30,7 +30,7 @@ public sealed record FloorScene
     /// <param name="gradient">The gradient drawn over the floor, the backdrop and the sprites, or null for none.</param>
     /// <exception cref="ArgumentNullException"><paramref name="paint"/> is null.</exception>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="brightness"/> is out of range.</exception>
-    /// <param name="floor">The floor's map and tiles, given exactly when <paramref name="background"/> is.</param>
+    /// <param name="floor">The floor's map and pictures, given exactly when <paramref name="background"/> is.</param>
     /// <exception cref="ArgumentException">A floor is given without a transform or a transform without a floor.</exception>
     public FloorScene(FramePaint paint, FloorView? background,
         int brightness, ScreenGradientLayer? gradient = null,

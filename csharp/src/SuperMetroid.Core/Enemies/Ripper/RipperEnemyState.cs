@@ -20,13 +20,13 @@ public sealed class RipperEnemyState
 
     /// <summary>
     /// GRipper's exclusive left patrol reversal threshold, a room X coordinate in pixels from its spawn settings. The
-    /// patrol compares it by the sign of the wrapped difference.
+    /// patrol compares it by the wrapped difference read as signed.
     /// </summary>
     public int MinimumXPosition { get; internal set; }
 
     /// <summary>
     /// GRipper's inclusive right patrol reversal threshold, a room X coordinate in pixels from its spawn settings. The
-    /// patrol compares it by the sign of the wrapped difference.
+    /// patrol compares it by the wrapped difference read as signed.
     /// </summary>
     public int MaximumXPosition { get; internal set; }
 }

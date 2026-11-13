@@ -396,8 +396,8 @@ public static class SamusAerialMovement
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
 
-        // The simple vertical movement calls this before the shared gravity step. A signed
-        // underflow at the apex becomes a stationary downward state on this same frame.
+        // The simple vertical movement calls this before the shared gravity step. A speed
+        // passing zero at the apex becomes a stationary downward state on this same frame.
         if (samus.Kinematics.YDirection == SamusVerticalDirection.Up && SamusSpeedMagnitude.HasPassedZero(samus.Kinematics.YSpeed.Whole))
         {
             samus.Kinematics.YSpeed = default;
@@ -457,7 +457,7 @@ public static class SamusAerialMovement
             movementType: SamusMovementType.Falling,
             roomObjects);
 
-        // Converts an underflowed upward magnitude to a stationary downward state
+        // Converts an upward magnitude that passed zero to a stationary downward state
         // before the common vertical movement can turn the negative speed into moonfall-like
         // motion. An ordinary walk-off already enters with direction two.
         if (samus.Kinematics.YDirection == SamusVerticalDirection.Up &&
@@ -486,7 +486,7 @@ public static class SamusAerialMovement
     /// This is a movement handler, not movement type two. It begins on the same
     /// frame that the grapple release derives launch velocity, survives the beam's following-frame
     /// cleanup, uses the three standalone authored acceleration records,
-    /// and restores the normal handler after upward-speed underflow, any downward pass, or
+    /// and restores the normal handler after the upward speed passes zero, any downward pass, or
     /// a ceiling hit. Keeping that lifetime explicit prevents a grapple launch from silently
     /// acquiring ordinary jump input/caps one frame too early.
     /// </remarks>
@@ -517,7 +517,7 @@ public static class SamusAerialMovement
         }
 
         // The game writes mode two every frame, so the speed calculation always takes its deceleration
-        // branch until it underflows and resets mode zero. Only then can an input-free frame
+        // branch until it passes zero and resets mode zero. Only then can an input-free frame
         // clear base speed instead of calling the horizontal mover.
         speed.AccelerationMode = SamusAccelerationMode.Decelerating;
         SamusLiquidMedium medium = samus.LiquidPhysics.DetermineMovementMedium(samus);
@@ -684,7 +684,7 @@ public static class SamusAerialMovement
         return vertical;
     }
 
-    /// <summary>Ends upward movement on Jump release or signed speed underflow.</summary>
+    /// <summary>Ends upward movement on Jump release or the speed passing zero.</summary>
     private static void ApplyVariableJumpCutoff(
         SamusKinematicsState state,
         ControllerButton controllerInput)

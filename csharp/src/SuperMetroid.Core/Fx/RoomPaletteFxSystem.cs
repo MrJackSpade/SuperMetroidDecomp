@@ -115,7 +115,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
         var system = new RoomPaletteFxSystem(session);
         if ((suppliedDefinition ?? fx?.Select(door)) is { } record)
         {
-            // Colour effects and animated tiles have separate owners and lists; the record's effects start in its order.
+            // Colour effects and block animations have separate owners and lists; the record's effects start in its order.
             foreach (PaletteFxObject effect in record.PaletteEffects)
                 system.TryStart(effect, equippedItems, areaMiniBossDefeated, litTorizo: null);
         }

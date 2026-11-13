@@ -25,7 +25,7 @@ internal sealed class KraidRise
     private readonly RoomEarthquake _earthquake;
     /// <summary>Kraid's eight parts in his room, in the order they run.</summary>
     private readonly KraidParts _parts;
-    /// <summary>Applies Kraid palettes, background tiles, and sprite presentation.</summary>
+    /// <summary>Applies Kraid palettes, background pictures, and sprite presentation.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Coordinates Zebetite behavior registered alongside Kraid's room actors.</summary>
     private readonly ZebetiteBehavior _zebetiteBehavior;
@@ -112,7 +112,7 @@ internal sealed class KraidRise
     }
 
     /// <summary>
-    /// Shows the fixed room backdrop over the room's tiles (#1352, #1406, #1466): the blocks and cells it shows over show
+    /// Shows the fixed room backdrop over the room's blocks (#1352, #1406, #1466): the blocks and cells it shows over show
     /// their pictures with it from here.
     /// </summary>
     internal void ShowKraidRoomBackdrop() => _presentation.Appearance.ShowKraidBackdrop();
@@ -192,7 +192,7 @@ internal sealed class KraidRise
                 _presentation.FadeStepCount.Reset();
                 // The background redraw shows the room's backdrop on the same frame that it
                 // starts the backdrop's colour fade. Without it, the foreground's authored repeating
-                // room-background blocks show an unset tile as transparent,
+                // room-background blocks show an unset picture as transparent,
                 // exposing the filler rectangle of Kraid's body layer above his head.
                 ShowKraidRoomBackdrop();
                 return;

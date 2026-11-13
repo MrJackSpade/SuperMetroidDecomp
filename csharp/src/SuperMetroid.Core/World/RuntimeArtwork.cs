@@ -12,7 +12,7 @@ using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// Host-installed artwork catalogs (room tiles, palettes, layouts, sky, Samus, beams, grapple, map presentation) the
+/// Host-installed artwork catalogs (room pictures, palettes, layouts, sky, Samus, beams, grapple, map presentation) the
 /// runtime's owners draw and colour from.
 /// </summary>
 internal sealed class RuntimeArtwork
@@ -24,7 +24,7 @@ internal sealed class RuntimeArtwork
     private readonly ActiveRoomState _room;
     /// <summary>Receives gameplay HUD presentation and reports initialization state.</summary>
     private readonly HudState _hud;
-    /// <summary>Receives Samus palette, grapple, and tile-art bindings.</summary>
+    /// <summary>Receives Samus palette, grapple, and picture bindings.</summary>
     private readonly SamusFrameState _player;
 
     /// <summary>
@@ -131,7 +131,7 @@ internal sealed class RuntimeArtwork
     public RoomLevelArtworks? RoomVisualLayouts { get; set; }
     /// <summary>Installed terrain of every room level, rebound when a saved game state is restored.</summary>
     public InstalledRoomLevelStreams? RoomLevelStreams { get; set; }
-    /// <summary>Host-owned Samus visual tiles; restored and future Samus states use the same edit.</summary>
+    /// <summary>Host-owned Samus pictures; restored and future Samus states use the same edit.</summary>
     public InstalledSamusBodyArtwork? SamusBodyArt
     {
         get;

@@ -250,7 +250,7 @@ public sealed class BabyMetroidCutsceneState
         switch (Phase)
         {
             case BabyMetroidCutscenePhase.DashOntoScreen:
-                // The timer of 248 is decremented before the sign test, so calls 1..248 leave the Baby still and
+                // The timer of 248 is decremented before the below-zero check, so calls 1..248 leave the Baby still and
                 // call 249 takes zero to -1. The expiry call immediately executes the
                 // first curve update before the common mover consumes its new velocity.
                 if (--PhaseTimer < 0)
@@ -1012,7 +1012,7 @@ public sealed class BabyMetroidCutsceneState
         else
         {
             // Deliberately sends exact equality through the left branch; unlike Y,
-            // there is no equality test before the sign test.
+            // there is no equality test before the check for a negative difference.
             Velocity = Velocity.WithX(SignedEightEight.Max(Velocity.X - acceleration, -ApproachMaximumSpeed));
             int prediction = CoordinateAxis.Wrap(Position.X.Whole + Velocity.X.WholePixels);
             int predictedDifference = CoordinateAxis.Difference(prediction, targetX);

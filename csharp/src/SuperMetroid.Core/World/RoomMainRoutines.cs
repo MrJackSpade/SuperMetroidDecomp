@@ -11,7 +11,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// Room-main behaviours: Ceres falling debris, the Crocomire comeback, animated tiles, and elevator drawing rules.
+/// Room-main behaviours: Ceres falling debris, the Crocomire comeback, block animations, and elevator drawing rules.
 /// </summary>
 internal sealed class RoomMainRoutines
 {
@@ -24,7 +24,7 @@ internal sealed class RoomMainRoutines
     /// <summary>Defeated bosses and the random number sampled by room-main behaviours.</summary>
     private readonly SharedGameState _system;
 
-    /// <summary>Binds the room, enemy, tile, and memory owners used by room-main behaviours.</summary>
+    /// <summary>Binds the room, enemy, picture, and memory owners used by room-main behaviours.</summary>
     internal RoomMainRoutines(RoomMainRoutinesDependencies dependencies)
     {
         _backgroundScroll = dependencies.BackgroundScroll;
@@ -62,9 +62,9 @@ internal sealed class RoomMainRoutines
     public CeresElevatorShaftRoomMainResult LastCeresElevatorShaftRoomMain { get; internal set; }
 
     /// <summary>
-    /// The animated tiles objects' step: gameplay and the door
+    /// The block animations' step: gameplay and the door
     /// transition's scroll and every fade step call it. The X-Ray Scope's setup
-    /// disables the animated tiles objects, freezing every object until the scope ends.
+    /// disables the block animations, freezing every animation until the scope ends.
     /// </summary>
     internal void RunAnimatedTilesObjectHandler(RoomScope room)
     {
@@ -76,7 +76,7 @@ internal sealed class RoomMainRoutines
             room.TreadmillTiles.Step(_system.HasDefeatedAnyOf(_room.ActiveRoom.AreaIndex, DefeatedBosses.AreaBoss), room.ArtworkFrames);
         room.TourianStatues.StepTiles();
 
-        // The Wrecked Ship treadmill door code creates an ordinary animated-tile object. Its
+        // The Wrecked Ship treadmill door code creates an ordinary block animation. Its
         // handler shows one treadmill frame a pass only after Phantoon is defeated.
         if (room.WreckedShipTreadmill.IsActive)
         {

@@ -18,10 +18,10 @@ internal static class IntroRinkaDefinitions
     /// authored animation policy; retain the bounded two-phase stream.
     ///
     /// Issues #625 and #991: the three selected frames,
-    /// f=0..2, each have four parts and tile
-    /// 406+f, matching the authored data.
+    /// f=0..2, each have four parts showing
+    /// the frame's picture, matching the authored data.
     /// Part j=0..3 uses X=0 for even j or 504 for odd j, Y=0 for j&lt;2
-    /// or 248 otherwise, the Rinka's colours in front of the scene, tile 406+f, plus the vertical flip
+    /// or 248 otherwise, the Rinka's colours in front of the scene, the frame's picture, plus the vertical flip
     /// for j&lt;2 and the horizontal flip for even j. This is an exact bounded
     /// four-quadrant construction; the frame animation selects no other
     /// frames or adjacent visual data.

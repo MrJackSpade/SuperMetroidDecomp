@@ -245,7 +245,7 @@ public sealed class SamusCrystalFlashState
         // The raise changes only the whole pixels. The subposition survives.
         samus.Position -= new Offset16<RoomPixels>(0, 2);
 
-        // The game initializes nine, then decrements and tests the sign. Values 8..0 return; the tenth call runs
+        // The game initializes nine, then decrements and checks for a count below zero. Values 8..0 return; the tenth call runs
         // past zero and installs the main handler after completing its Y move.
         if (--RaiseTimer >= 0)
             return;

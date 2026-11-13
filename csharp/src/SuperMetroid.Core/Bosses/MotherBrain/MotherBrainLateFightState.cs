@@ -230,7 +230,7 @@ internal sealed class MotherBrainLateFightState
         return false;
     }
 
-    /// <summary>Whether <paramref name="value"/> is at least <paramref name="threshold"/> by the sign of their wrapped difference, as the game compares positions.</summary>
+    /// <summary>Whether <paramref name="value"/> is at least <paramref name="threshold"/> by their wrapped difference read as signed, as the game compares positions.</summary>
     internal static bool AtLeastBySignedDifference(int value, int threshold) =>
         CoordinateAxis.Difference(value, threshold) >= 0;
 

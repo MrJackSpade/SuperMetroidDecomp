@@ -638,8 +638,8 @@ public sealed class IntroCinematicState : IFrontendScreen
         if (!crossfadeCounter.IsNegative)
             return;
 
-        // Transition completion selects the visible layers and clears English text cells 128..767 to tile
-        // 47. The top/bottom ornamental rows survive because the loop starts at 128.
+        // Transition completion selects the visible layers and clears English text cells 128..767 to the
+        // blank cell. The top/bottom ornamental rows survive because the loop starts at 128.
         ClearVisibleNarrationText();
         Phase = IntroCinematicPhase.MotherBrainFlashback;
     }
@@ -915,7 +915,7 @@ public sealed class IntroCinematicState : IFrontendScreen
 
         // Each frame shows the definitions selected by the previous Samus draw. This
         // is what makes pose/frame changes use their corresponding artwork rather than
-        // reading stale standing tiles as a hurt body on the next visible frame.
+        // reading stale standing pictures as a hurt body on the next visible frame.
 
         AerialMovementResult? fallingMovement = null;
         BlockMoveResult? hurtEndingProbe = null;
@@ -1109,7 +1109,7 @@ level, samus, frameCounter);
     {
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
-        // The cinematic draw orders Samus against the cinematic objects by the display flag's sign.
+        // The cinematic draw orders Samus against the cinematic objects by whether the display flag is negative.
         IntroSamusDisplay display = BabyDiscovery.SamusDisplay;
         if (display == IntroSamusDisplay.SamusFirst)
             DrawBabyDiscoverySamus(sprites);
@@ -1239,7 +1239,7 @@ level, samus, frameCounter);
         else if (CurrentObjects is null)
         {
             // The first card is opaque and unscrolled and shows no sprites; later text is transparent
-            // and cropped one tile down. Do not conflate those two display setups.
+            // and cropped eight pixels down. Do not conflate those two display setups.
             return new(new FramePaint(Backdrop),
                 new DisplayLayer[] { new PicturedPlaneLayer(IntroNarrationPictures.FirstCardPlane(SceneSheets, crossfade.SceneShading), default) { DrawsOpaque = true } },
                 Brightness.Level);
@@ -1252,7 +1252,7 @@ level, samus, frameCounter);
 
         var text = new PicturedPlaneLayer(IntroNarrationPictures.PagesPlane(SceneSheets, narrationText, crossfade.SceneShading, crossfade.NarrationShading), default);
         // Back to front (#1514): the page's room, the flashback's actors over it, and the narration over both. Each picture
-        // and sprite is drawn whole at its layer's place; the per-tile and per-sprite-part priority tiers that once
+        // and sprite is drawn whole at its layer's place; the per-square and per-sprite-part priority tiers that once
         // interleaved them are a presentation quirk the model does not keep.
         return new(new FramePaint(Backdrop), new DisplayLayer[]
         {

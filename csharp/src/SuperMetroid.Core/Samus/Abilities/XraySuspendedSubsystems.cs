@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// </summary>
 /// <remarks>
 /// The game stores these as four separate composable flags: enemy projectiles,
-/// room objects, animated tiles, and palette FX.
+/// room objects, block animations, and palette FX.
 /// Automatic Reserve recovery clears only the shared time freeze,
 /// leaving this complete set suspended to create G-Mode.
 /// </remarks>
@@ -19,7 +19,7 @@ public enum XraySuspendedSubsystems
     EnemyProjectiles = 1 << 0,
     /// <summary>The room objects, which X-ray setup disables; suspends room-object processing, including door-transition room objects.</summary>
     RoomObjects = 1 << 1,
-    /// <summary>The animated tiles, which X-ray setup disables; prevents animated-tile objects from advancing.</summary>
+    /// <summary>The block animations, which X-ray setup disables; prevents them from advancing.</summary>
     AnimatedTiles = 1 << 2,
     /// <summary>The room palette effects, which X-ray setup disables; not Samus's independently handled visor colors.</summary>
     PaletteFx = 1 << 3,

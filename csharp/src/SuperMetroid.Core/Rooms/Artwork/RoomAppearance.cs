@@ -8,9 +8,9 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// </summary>
 public sealed class RoomAppearance
 {
-    /// <summary>Whether Kraid's rise has shown his backdrop over the room's tiles.</summary>
+    /// <summary>Whether Kraid's rise has shown his backdrop over the room's blocks.</summary>
     public bool KraidBackdropShown { get; private set; }
 
-    /// <summary>Shows Kraid's backdrop over the room's tiles, as his rise does (#1352).</summary>
+    /// <summary>Shows Kraid's backdrop over the room's blocks, as his rise does (#1352).</summary>
     public void ShowKraidBackdrop() => KraidBackdropShown = true;
 }

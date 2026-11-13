@@ -80,7 +80,7 @@ internal sealed class DoorOpeningScrollState
     /// <summary>
     /// The scroll updates that remain after setup: a right or left setup takes the first step
     /// before placement (63 remain), down's first update only stages a row (56 remain), and an
-    /// upward door's tile correction leaves its first moving step to setup (55 remain).
+    /// upward door's placement correction leaves its first moving step to setup (55 remain).
     /// </summary>
     internal static int MovingScrollUpdates(DoorDirection direction) => direction switch
     {

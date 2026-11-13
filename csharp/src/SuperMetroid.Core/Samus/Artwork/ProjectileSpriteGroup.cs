@@ -7,9 +7,9 @@ public enum ProjectileSpriteGroup
     Nothing,
     /// <summary>The eight one-cell Power beam poses.</summary>
     Power,
-    /// <summary>Plasma's axial four-tile and diagonal six-part strips.</summary>
+    /// <summary>Plasma's axial four-part and diagonal six-part strips.</summary>
     Plasma,
-    /// <summary>The missile explosion's growth from one central tile to five four-quadrant poses.</summary>
+    /// <summary>The missile explosion's growth from one central part to five four-quadrant poses.</summary>
     MissileExplosion,
     /// <summary>The bomb explosion's five four-quadrant stages.</summary>
     BombExplosion,
@@ -17,7 +17,7 @@ public enum ProjectileSpriteGroup
     SuperMissileExplosion,
     /// <summary>The three Power Bomb poses.</summary>
     PowerBomb,
-    /// <summary>The beam explosion's two single-tile cores and four four-quadrant stages.</summary>
+    /// <summary>The beam explosion's two single-part cores and four four-quadrant stages.</summary>
     BeamExplosion,
     /// <summary>The four bomb poses.</summary>
     Bomb,

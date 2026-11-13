@@ -6,7 +6,7 @@ using F = SuperMetroid.Core.Fx.Artwork.TourianStatueTilePicture;
 namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>
-/// The typed animations a Tourian boss statue's animated tiles play (#1600).
+/// The typed animations a Tourian boss statue's animated pictures play (#1600).
 /// All four statues share the layout; only the first idle frame's duration differs, and every other value a cue acts on is read
 /// from the statue's <see cref="TourianStatueAnimationDefinition"/> when an event is reached. The Tourian animation
 /// lookup check matches each statue's segments beat by beat, and its animations' control flow, with the game's.
@@ -56,7 +56,7 @@ internal static class TourianStatueTileAnimations
 
     /// <summary>
     /// The animation that starts at each segment: the entry runs on into the oscillation, which loops; a release and the
-    /// already-grey finish end the statue's animation, deleting its animated-tile object.
+    /// already-grey finish end the statue's animation, ending its picture animation.
     /// </summary>
     internal static IReadOnlyDictionary<P, Animation<P>> StartingAt { get; } = new Dictionary<P, Animation<P>>
     {

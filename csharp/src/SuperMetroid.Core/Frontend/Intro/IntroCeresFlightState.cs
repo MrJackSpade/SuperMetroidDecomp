@@ -65,7 +65,7 @@ internal sealed class IntroCeresFlightState
     /// <param name="audio">The shared music queue the approach waits on.</param>
     /// <param name="artwork">Installed cinematic artwork; the approach cannot start without it.</param>
     /// <param name="japaneseText">The Japanese text option, which adds the katakana SPACE COLONY caption.</param>
-    /// <param name="sheets">The installed sheets: the Ceres flight sheet the stars and rear-view actors draw from, and the caption's tiles; required.</param>
+    /// <param name="sheets">The installed sheets: the Ceres flight sheet the stars and rear-view actors draw from, and the caption's pictures; required.</param>
     public IntroCeresFlightState(AudioQueues audio,
         CeresFlightArtwork? artwork = null, bool japaneseText = false, InstalledSpriteSheets? sheets = null)
     {
@@ -85,7 +85,7 @@ internal sealed class IntroCeresFlightState
         Phase = IntroCeresFlightPhase.Initial;
     }
 
-    /// <summary>Rebinds the installed sheets: the Ceres flight sheet the stars and rear-view actors draw from, and the caption's tiles.</summary>
+    /// <summary>Rebinds the installed sheets: the Ceres flight sheet the stars and rear-view actors draw from, and the caption's pictures.</summary>
     public void BindSheets(InstalledSpriteSheets? sheets)
     {
         spriteArtwork = sheets is null ? null : new CinematicSpriteSheet(sheets.Get(SpriteSheetId.CeresFlightSprites), CinematicSpriteFamily.CeresFlight);

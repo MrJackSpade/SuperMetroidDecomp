@@ -127,7 +127,7 @@ public sealed class SamusGrappleState
     /// <summary>
     /// Whether the released-from-swing movement handler is running. The grapple
     /// beam becomes inactive one frame after release, but this independent Samus
-    /// movement handler continues until apex underflow or vertical collision restores the
+    /// movement handler continues until the upward speed passes zero at the apex or vertical collision restores the
     /// normal handler. Keeping it separate from <see cref="Phase"/> prevents premature
     /// fallback to ordinary movement-type-two physics.
     /// </summary>

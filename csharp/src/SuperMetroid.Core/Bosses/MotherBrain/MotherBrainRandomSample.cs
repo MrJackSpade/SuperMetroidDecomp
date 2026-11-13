@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
 /// The room's random number as one Mother Brain update reads it without advancing the generator. Mother Brain's
-/// choices test the number's sign, its named fields and the named chances they take, so the sample answers those
+/// choices test whether the number is negative, its named fields and the named chances they take, so the sample answers those
 /// questions by name; the range 0..65535 is the generator's own and is load-bearing, because each test reads a different
 /// part of the same number.
 /// </summary>

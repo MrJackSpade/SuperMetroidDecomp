@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>
-/// The pictures a Tourian boss statue's animated tiles show. The idle animation swings through the three oscillation
+/// The pictures a Tourian boss statue's animation shows. The idle animation swings through the three oscillation
 /// pictures forward and back, the release replays the second and third, and the released picture stays through the
 /// eye-glow and soul waits.
 /// </summary>

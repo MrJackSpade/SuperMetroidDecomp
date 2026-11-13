@@ -70,7 +70,7 @@ public static class SamusBombJumpMovement
                 samus.HorizontalSpeed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
         }
 
-        // The jump changes signed underflow to the falling direction. A diagonal jump
+        // The jump turns a speed that passed zero into the falling direction. A diagonal jump
         // additionally selects mode two so normal horizontal movement decelerates after
         // this special handler relinquishes control.
         if (samus.Kinematics.YDirection == SamusVerticalDirection.Up &&

@@ -73,8 +73,8 @@ public sealed class MotherBrainRainbowBeamSamusMovement
 
         FixedPosition<RoomPixels> before = Capture(samus);
 
-        // The test takes the sign of the target Y minus the current Y. For the fight's normal
-        // coordinate range this is exactly Samus's Y <= 124, but preserve the wrapped sign test
+        // The test checks whether the target Y minus the current Y is negative. For the fight's normal
+        // coordinate range this is exactly Samus's Y <= 124, but preserve the wrapped comparison
         // instead of introducing a plain integer comparison with different wraps.
         int difference = CoordinateAxis.Difference(124, samus.Position.Y.Whole);
         bool reachedVerticalBoundary = MoveVerticallyTowardCeilingOrFloor(
@@ -156,7 +156,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         // exit records the new whole Y as where Samus was: the camera sees no whole-pixel movement.
         cameraCheckpoint.HideCoarseVerticalMovement(moved.Fraction);
 
-        // The bounds are signed tests of the subtraction result, not unsigned C# comparisons.
+        // The bounds read the subtraction result as signed, not as unsigned C# comparisons do.
         // This distinction is observable if a malformed/debug position wraps around zero.
         bool aboveCeiling = CoordinateAxis.Difference(moved.Whole, 48) < 0;
         if (aboveCeiling || CoordinateAxis.Difference(moved.Whole, 192) >= 0)

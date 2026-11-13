@@ -16,6 +16,6 @@ public sealed class WreckedShipTreadmillLoop
     /// <summary>The physical direction selected by the entrance door setup.</summary>
     public WreckedShipTreadmillDirection Direction { get; }
 
-    /// <summary>The animated-tile object running this direction's loop.</summary>
+    /// <summary>The block animation running this direction's loop.</summary>
     public AnimatedTileObject AnimatedObject { get; }
 }

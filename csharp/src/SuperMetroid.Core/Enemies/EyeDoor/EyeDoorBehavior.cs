@@ -431,7 +431,7 @@ internal sealed class EyeDoorBehavior
     /// block edge to the end, over 16, wrapping past 65535, and tests one more than that, stepping a row down the edge's
     /// column (horizontal edge) or a block along the edge's row (vertical edge): its first row is taken within the scan
     /// cycle of 256, and a scan along a row past its end continues on the next row. A first block outside the room's grid
-    /// is a wall. A zero radius on a block boundary makes the count underflow to 4095, so the scan runs on through the
+    /// is a wall. A zero radius on a block boundary makes the count run past zero to 4095, so the scan runs on through the
     /// room until it meets a solid block.
     /// </remarks>
     /// <param name="level">The room's terrain.</param>

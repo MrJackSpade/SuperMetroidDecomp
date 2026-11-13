@@ -14,7 +14,7 @@ public sealed class InstalledXrayOverlays
     /// array. Every other uncollected item is revealed as its kind's own picture (#1538).
     /// </remarks>
     internal readonly RoomBlockAppearance[] tankMetatiles;
-    /// <summary>Installed room-specific X-ray tile lists keyed by overlay.</summary>
+    /// <summary>Installed room-specific X-ray block lists keyed by overlay.</summary>
     /// <remarks>
     /// Issue #1039: among 323 pinned NTSC J/U v1.0 room states, only
     /// Bomb Torizo selects a special X-ray overlay. Its three
@@ -31,7 +31,7 @@ public sealed class InstalledXrayOverlays
 
     /// <summary>Copies tank metatiles and ordered special-room records, requiring all compiled overlay sources without changing item collection or room object state.</summary>
     /// <param name="tankMetatiles">Exactly four appearances, one for each tank kind in tank order: Energy, Missile, Super Missile, Power Bomb.</param>
-    /// <param name="rooms">Nonempty ordered tile lists keyed by overlay; each list is copied.</param>
+    /// <param name="rooms">Nonempty ordered block lists keyed by overlay; each list is copied.</param>
     /// <exception cref="ArgumentNullException">An input sequence or overlay is null.</exception>
     /// <exception cref="InvalidDataException">Tank values/count, room lists, duplicate overlays, or required-overlay coverage are invalid.</exception>
     public InstalledXrayOverlays(IEnumerable<RoomBlockAppearance> tankMetatiles,

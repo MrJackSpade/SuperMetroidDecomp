@@ -15,7 +15,7 @@ internal sealed record MotherBrainFakeDeathDependencies
     /// <summary>Spawns the enemies the fake death releases into the room.</summary>
     public required IEnemyLifecycle Lifecycle { get; init; }
 
-    /// <summary>Provides room services, tiles, palette state, and effects used by the encounter.</summary>
+    /// <summary>Provides room services, pictures, palette state, and effects used by the encounter.</summary>
     public required EnemyRoomBinding Room { get; init; }
 
     /// <summary>Owns the bombs, glass, beams, turrets, and other encounter projectiles.</summary>

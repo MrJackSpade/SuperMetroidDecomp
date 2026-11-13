@@ -48,9 +48,39 @@ public readonly record struct Bearing
     public CompassDirection NearestStraightDirection() =>
         StraightDirectionsClockwise[TurnedBySteps(RotationAngle.StepsPerTurn / 8).Sector(StraightDirectionsClockwise.Length)];
 
+    /// <summary>
+    /// The compass direction opening the eighth of the turn that holds the bearing: each direction's eighth runs from it
+    /// clockwise up to the next, so a bearing takes the direction it has last turned past.
+    /// </summary>
+    public CompassDirection DirectionOfEighth() => DirectionsClockwise[Sector(DirectionsClockwise.Length)];
+
+    /// <summary>
+    /// The compass direction nearest the bearing: the one whose eighth of the turn, centred on it, holds the bearing. A
+    /// bearing exactly halfway between two takes the later one clockwise.
+    /// </summary>
+    public CompassDirection NearestDirection() =>
+        DirectionsClockwise[TurnedBySteps(RotationAngle.StepsPerTurn / 16).Sector(DirectionsClockwise.Length)];
+
+    /// <summary>The bearing pointing straight along <paramref name="direction"/>: a whole number of eighths of the turn clockwise from up.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="direction"/> is not a compass direction.</exception>
+    public static Bearing Toward(CompassDirection direction)
+    {
+        int eighths = Array.IndexOf(DirectionsClockwise, direction);
+        return eighths >= 0
+            ? new(eighths * (RotationAngle.StepsPerTurn / DirectionsClockwise.Length))
+            : throw new ArgumentOutOfRangeException(nameof(direction), direction, $"Undefined {nameof(CompassDirection)}.");
+    }
+
     /// <summary>The four straight directions in clockwise order from up, each a quarter of the turn on from the last.</summary>
     private static readonly CompassDirection[] StraightDirectionsClockwise =
         [CompassDirection.Up, CompassDirection.Right, CompassDirection.Down, CompassDirection.Left];
+
+    /// <summary>The eight compass directions in clockwise order from up, each an eighth of the turn on from the last.</summary>
+    private static readonly CompassDirection[] DirectionsClockwise =
+    [
+        CompassDirection.Up, CompassDirection.UpRight, CompassDirection.Right, CompassDirection.DownRight,
+        CompassDirection.Down, CompassDirection.DownLeft, CompassDirection.Left, CompassDirection.UpLeft,
+    ];
 
     /// <inheritdoc />
     public override string ToString() => $"{RawValue}/256 turn clockwise from up";

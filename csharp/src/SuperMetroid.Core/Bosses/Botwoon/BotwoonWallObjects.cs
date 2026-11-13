@@ -18,8 +18,7 @@ internal sealed class BotwoonWallObjects(RoomObjectSlotTable slotTable)
     /// it for 64 updates; it then crumbles nine rows of four four-update images, moving one block down between rows.
     /// </remarks>
     /// <returns>
-    /// False when every room-object slot is occupied; nothing is spawned then (<see cref="RoomObjectSlotTable"/>'s full-room
-    /// rule).
+    /// False when the room is full; nothing is spawned then (<see cref="Compatibility.RoomObjectPlaces"/>).
     /// </returns>
     public bool TrySpawn(RoomLevelData level, BotwoonWallMutation mutation)
     {
@@ -34,7 +33,7 @@ internal sealed class BotwoonWallObjects(RoomObjectSlotTable slotTable)
         // Resolve the block through the level so a malformed fixture cannot install a wall whose later vertical draws
         // fall outside the room.
         Position16<RoomBlocks> block = level.GridBlock(Block);
-        if (slotTable.SpawnHardcoded() is not { } slot)
+        if (slotTable.Spawn() is not { } slot)
             return false;
 
         slot.Block = block;

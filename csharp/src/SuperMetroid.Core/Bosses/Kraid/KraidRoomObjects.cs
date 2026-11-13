@@ -14,8 +14,7 @@ internal sealed class KraidRoomObjects(RoomObjectSlotTable slotTable)
     /// crumble frames on the authored cadence and is gone.
     /// </summary>
     /// <returns>
-    /// False when every room-object slot is occupied; nothing is spawned or changed then (<see cref="RoomObjectSlotTable"/>'s
-    /// full-room rule).
+    /// False when the room is full; nothing is spawned or changed then (<see cref="Compatibility.RoomObjectPlaces"/>).
     /// </returns>
     public bool TrySpawn(RoomLevelData level, RoomObjectSpawnRequest<KraidRoomMutation> request)
     {
@@ -23,7 +22,7 @@ internal sealed class KraidRoomObjects(RoomObjectSlotTable slotTable)
         TerrainChange change = Ensure.Listed(Changes, request.RoomObject);
 
         Position16<RoomBlocks> block = level.GridBlock(request.Block);
-        if (slotTable.SpawnHardcoded() is not { } slot)
+        if (slotTable.Spawn() is not { } slot)
             return false;
 
         slot.Block = block;

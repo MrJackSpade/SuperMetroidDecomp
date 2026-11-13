@@ -14,15 +14,14 @@ internal sealed class ShitroidWallObjects(RoomObjectSlotTable slotTable)
     /// appearance, and the object leaves the room on its first update.
     /// </summary>
     /// <returns>
-    /// False when every room-object slot is occupied; no terrain is changed then (<see cref="RoomObjectSlotTable"/>'s
-    /// full-room rule).
+    /// False when the room is full; no terrain is changed then (<see cref="Compatibility.RoomObjectPlaces"/>).
     /// </returns>
     public bool TrySpawn(RoomLevelData level, RoomObjectSpawnRequest<ShitroidWallMutation> request)
     {
         Ensure.NotNull(level);
         RoomBlockShape shape = Ensure.Listed(Shapes, request.RoomObject);
 
-        if (slotTable.SpawnHardcoded() is not { } slot)
+        if (slotTable.Spawn() is not { } slot)
             return false;
 
         slot.Block = level.GridBlock(request.Block);

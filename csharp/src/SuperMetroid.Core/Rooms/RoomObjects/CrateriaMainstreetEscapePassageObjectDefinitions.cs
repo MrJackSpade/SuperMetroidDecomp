@@ -6,9 +6,9 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </summary>
 internal static class CrateriaMainstreetEscapePassageObjectDefinitions
 {
-    /// <summary>The hardcoded spawn's block X.</summary>
+    /// <summary>The column of the block the room object is spawned at.</summary>
     internal const int BlockX = 61;
-    /// <summary>The hardcoded spawn's block Y.</summary>
+    /// <summary>The row of the block the room object is spawned at.</summary>
     internal const int BlockY = 11;
 
     /// <summary>The passage's one draw.</summary>

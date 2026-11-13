@@ -7,7 +7,8 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// The Bomb Torizo statue's hand (#1554). It shows the intact hand on its first update and arms its wake on its second;
 /// from its third update on, the first update on which Samus has Bombs wakes it, before its timing runs, and it starts
 /// its crumble at once: each step drops its fragment, shows its image and holds it for its updates. After the last step
-/// it queues the boss music and leaves the room, taking its identity with it so Bomb Torizo sees it gone.
+/// it queues the boss music and leaves the room, so Bomb Torizo sees it gone
+/// (<see cref="BombTorizoHandObjects.HandRemains"/>).
 /// </summary>
 /// <param name="owner">The room's hand owner, which drops the fragments, queues the music and reads Samus.</param>
 [RoomLifetime]
@@ -60,7 +61,6 @@ internal sealed class BombTorizoHandObject(BombTorizoHandObjects owner) : RoomOb
                 if (CrumbleStep == BombTorizoHandCrumbleDefinitions.Crumble.Count)
                 {
                     _owner.QueueMusic();
-                    place.Header = 0;
                     context.RoomObjects.DeleteObject(place);
                     return;
                 }

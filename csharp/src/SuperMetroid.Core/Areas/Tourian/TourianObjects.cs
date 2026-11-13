@@ -56,12 +56,12 @@ internal sealed class TourianObjects
     /// <returns>False when the room is full; nothing is spawned then (<see cref="Compatibility.RoomObjectPlaces"/>).</returns>
     public bool TrySpawnTourianAccess(RoomLevelData level, TourianAccessFloor floor)
     {
-        TourianAccessObjectDefinition definition = TourianAccessFloors.ForState(floor);
+        TerrainChange change = TourianAccessFloors.ForState(floor);
         if (_slotTable.Spawn() is not { } slot)
             return false;
 
         slot.Block = level.GridBlock(new(6, 12));
-        slot.Become(new TerrainChangeObject(definition.Change));
+        slot.Become(new TerrainChangeObject(change));
         return true;
     }
 }

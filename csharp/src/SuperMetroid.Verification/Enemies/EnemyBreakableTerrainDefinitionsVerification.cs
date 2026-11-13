@@ -9,13 +9,19 @@ namespace SuperMetroid.Verification.Enemies;
 /// <summary>Checks enemy spike-block reactions against native PLM headers and bus-free production collision behavior.</summary>
 internal static class EnemyBreakableTerrainDefinitionsVerification
 {
+    /// <summary>
+    /// The original's enemy-breakable block object, the one entry of its enemy spike-reaction table that spawns anything.
+    /// Core spawns the break by what it does and carries no identity for it (#1622).
+    /// </summary>
+    private const ushort NativeEnemyBreakableBlockHeader = 0xd094;
+
     /// <summary>Confirms BTS low nibble fifteen spawns a breakable PLM and clears terrain, while other authored selectors retain collision.</summary>
     internal static void VerifyEnemyBreakableTerrainDefinitions(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index < 16; index++)
         {
             ushort header = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa0c2da + index * 2));
-            AssertEqual(index == 15 ? RoomObjectNativeWords.Word(RoomObjectHeaderId.EnemyBreakableBlock) : (ushort)0,
+            AssertEqual(index == 15 ? NativeEnemyBreakableBlockHeader : (ushort)0,
                 header,
                 $"enemy spike reaction header {index}");
         }
@@ -43,6 +49,14 @@ internal static class EnemyBreakableTerrainDefinitionsVerification
                 $"production enemy spike collision ${behavior:X2}");
             AssertEqual(index == 15 ? 1 : 0, roomObjects.PopulationSlots.Count,
                 $"production enemy spike PLM count ${behavior:X2}");
+            // The break is the room object that makes the block's break, known by what it does rather than an identity.
+            if (index == 15)
+                AssertTrue(roomObjects.PopulationSlots.Single() is
+                    {
+                        Block: { X: 0, Y: 0 },
+                        Behaviour: TerrainChangeObject { Change: var change },
+                    } && change == ScriptedTerrainChangeDefinitions.EnemyBreakableBlockBreak,
+                    $"production enemy spike ${behavior:X2} spawns the block's break at the block");
             AssertEqual(index == 15 ? RoomCollisionType.Air : RoomCollisionType.SpikeBlock,
                 level.GetCollisionBlockByIndex(0).CollisionType,
                 $"production enemy spike resulting collision type ${behavior:X2}");

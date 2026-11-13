@@ -437,7 +437,8 @@ internal static class MapPresentationVerification
             JsonSerializer.Deserialize<MotherBrainRainbowPaletteDocument>(
                 File.ReadAllBytes(source), ArtworkJson.Options)
             ?? throw new InvalidDataException("Extracted Mother Brain rainbow palette is null.");
-        Suite(nameof(VerifyMotherBrainFakeDeathPalette), () => VerifyMotherBrainFakeDeathPalette(bus, original.MotherBrainRainbowPalette));
+        InstalledMotherBrainRainbowPalette rainbow = ImportAreaMapPresentation.MotherBrainRainbowColoursOf(original);
+        Suite(nameof(VerifyMotherBrainFakeDeathPalette), () => VerifyMotherBrainFakeDeathPalette(bus, rainbow));
         for (int frame = 0; frame < MotherBrainRainbowPaletteFormat.RainbowFrameCount; frame++)
         {
             var native = new SnesCgram();
@@ -450,7 +451,7 @@ internal static class MapPresentationVerification
                 MotherBrainColorDestinations.BrainColor);
             SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(native, bus, palette + MotherBrainRainbowPaletteGeometry.ColorCount * sizeof(ushort),
                 MotherBrainRainbowPaletteGeometry.ColorCount, MotherBrainColorDestinations.RearLegColor);
-            SnesCgram installed = MotherBrainLook.OfRainbow(original.MotherBrainRainbowPalette, MotherBrainShades.Rainbow(frame));
+            SnesCgram installed = MotherBrainLook.OfRainbow(rainbow, MotherBrainShades.Rainbow(frame));
             AssertTrue(new CgramPalettes(native).ImageEquals(new CgramPalettes(installed)),
                 $"Mother Brain rainbow frame {frame} matches all native CGRAM colors");
         }
@@ -482,7 +483,7 @@ internal static class MapPresentationVerification
             SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(native, bus, palette + count * sizeof(ushort),
                 MotherBrainRainbowPaletteGeometry.BackLegCount,
                 MotherBrainColorDestinations.DrainedRearLegColor);
-            SnesCgram installed = MotherBrainLook.OfRainbow(original.MotherBrainRainbowPalette,
+            SnesCgram installed = MotherBrainLook.OfRainbow(rainbow,
                 draining ? MotherBrainShades.ToGrey(frame) : MotherBrainShades.FromGrey(frame), seed);
             AssertTrue(new CgramPalettes(native).ImageEquals(new CgramPalettes(installed)),
                 $"Mother Brain {(draining ? "drain" : "revival")} frame {frame} retains exact native CGRAM and preserved colors");
@@ -495,7 +496,7 @@ internal static class MapPresentationVerification
             MotherBrainRainbowPaletteGeometry.ColorCount, MotherBrainColorDestinations.BrainColor);
         SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(nativeNormal, bus, MotherBrainSourceDefinitions.Palettes.NormalRearLegColors,
             MotherBrainRainbowPaletteGeometry.ColorCount, MotherBrainColorDestinations.RearLegColor);
-        SnesCgram installedNormal = MotherBrainLook.OfRainbow(original.MotherBrainRainbowPalette, MotherBrainShades.Restored);
+        SnesCgram installedNormal = MotherBrainLook.OfRainbow(rainbow, MotherBrainShades.Restored);
         AssertTrue(new CgramPalettes(nativeNormal).ImageEquals(new CgramPalettes(installedNormal)),
             "Mother Brain normal restoration matches both fixed native sources");
         AssertEqual(MotherBrainSourceDefinitions.Beam.InitialColor,

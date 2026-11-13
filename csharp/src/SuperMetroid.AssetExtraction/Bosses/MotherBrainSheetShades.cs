@@ -94,7 +94,7 @@ internal static class MotherBrainSheetShades
         Ensure.NotNull(bosses);
         AreaMapPresentation presentation = maps ?? throw Missing("Mother Brain's map-installed colours");
         MotherBrainHealthPalettePresentation health = ImportAreaMapPresentation.MotherBrainHealthPaletteOf(presentation);
-        MotherBrainRainbowPalettePresentation rainbow = presentation.MotherBrainRainbowPalette;
+        InstalledMotherBrainRainbowPalette rainbow = ImportAreaMapPresentation.MotherBrainRainbowColoursOf(presentation);
         MotherBrainRoomColorPresentation room = ImportAreaMapPresentation.MotherBrainRoomColorsOf(presentation);
         MotherBrainDeathColorCatalog death = bosses.MotherBrainDeathColors ?? throw Missing("Mother Brain's death colours");
         BabyMetroidCutsceneColorCatalog baby = bosses.BabyMetroidCutsceneColors ?? throw Missing("the Baby's cutscene colours");
@@ -133,7 +133,7 @@ internal static class MotherBrainSheetShades
         Ensure.NotNull(maps);
         Ensure.NotNull(bosses);
         MotherBrainHealthPalettePresentation health = ImportAreaMapPresentation.MotherBrainHealthPaletteOf(maps);
-        MotherBrainRainbowPalettePresentation rainbow = maps.MotherBrainRainbowPalette;
+        InstalledMotherBrainRainbowPalette rainbow = ImportAreaMapPresentation.MotherBrainRainbowColoursOf(maps);
         MotherBrainDeathColorCatalog death = bosses.MotherBrainDeathColors ?? throw Missing("Mother Brain's death colours");
         var shades = new List<SheetShade>([.. HealthBackground(health), .. RainbowBackground(rainbow)]);
         for (int frame = 0; frame < death.BodyFadeFrameCount; frame++)
@@ -170,9 +170,9 @@ internal static class MotherBrainSheetShades
     /// The sprite shades of her rainbow colours: her brain's and rear legs' colours in each rainbow phase, restored, in
     /// each step of the drain to grey and the revival from it, and her brain's in each step of the fake death's fades.
     /// </summary>
-    internal static IReadOnlyList<SheetShade> RainbowSprites(MotherBrainRainbowPalettePresentation colours)
+    internal static IReadOnlyList<SheetShade> RainbowSprites(InstalledMotherBrainRainbowPalette rainbow)
     {
-        InstalledMotherBrainRainbowPalette rainbow = InstalledMotherBrainRainbowPalette.Of(colours);
+        Ensure.NotNull(rainbow);
         var shades = new List<SheetShade>();
         for (int frame = 0; frame < rainbow.rainbow.Length; frame++)
             shades.Add(Phase(MotherBrainShades.Rainbow(frame), rainbow.rainbow[frame]));
@@ -219,9 +219,9 @@ internal static class MotherBrainSheetShades
     }
 
     /// <summary>The background shades of her rainbow colours: her body's colours in each rainbow phase, restored, and in each step of the drain and revival.</summary>
-    internal static IReadOnlyList<SheetShade> RainbowBackground(MotherBrainRainbowPalettePresentation colours)
+    internal static IReadOnlyList<SheetShade> RainbowBackground(InstalledMotherBrainRainbowPalette rainbow)
     {
-        InstalledMotherBrainRainbowPalette rainbow = InstalledMotherBrainRainbowPalette.Of(colours);
+        Ensure.NotNull(rainbow);
         var shades = new List<SheetShade>();
         for (int frame = 0; frame < rainbow.rainbow.Length; frame++)
         {

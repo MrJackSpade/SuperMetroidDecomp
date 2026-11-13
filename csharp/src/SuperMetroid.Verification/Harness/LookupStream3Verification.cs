@@ -1371,7 +1371,7 @@ internal static class LookupStream3Verification
         };
         InstalledMotherBrainRainbowPalette Load(MotherBrainRainbowPaletteDocument value) => MotherBrainRainbowPaletteFile.Read(
             new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(value, ArtworkJson.Options)));
-        void Check(MotherBrainRainbowPalettePresentation palette)
+        void Check(InstalledMotherBrainRainbowPalette palette)
         {
             var cgram = new SnesCgram();
             var bus = new TestAddressSpace();
@@ -1399,11 +1399,11 @@ internal static class LookupStream3Verification
             AssertEqual(38, palette.BeamCycleLength, "stream 3 beam cycle ends after its last colour");
             AssertEqual(0x3ce0, palette.BeamInitialColor, "stream 3 beam initial fixed color unchanged");
         }
-        CheckBeam(stock);
+        CheckBeam(stock.Beam);
         foreach (int invalid in new[] { -1, 38, int.MaxValue })
-            AssertThrows<InvalidDataException>(() => stock.BeamColor(invalid), "stream 3 beam colour index bounds");
+            AssertThrows<InvalidDataException>(() => stock.Beam.BeamColor(invalid), "stream 3 beam colour index bounds");
         Check(stock);
-        void CheckRainbow(MotherBrainRainbowPalettePresentation palette)
+        void CheckRainbow(InstalledMotherBrainRainbowPalette palette)
         {
             var cgram = new SnesCgram();
             for (int frame = 0; frame <= 10; frame++)
@@ -1419,7 +1419,7 @@ internal static class LookupStream3Verification
                 }
             }
         }
-        void CheckRevival(MotherBrainRainbowPalettePresentation palette)
+        void CheckRevival(InstalledMotherBrainRainbowPalette palette)
         {
             var bus = new TestAddressSpace();
             var cgram = new SnesCgram();

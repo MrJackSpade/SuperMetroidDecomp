@@ -20,7 +20,7 @@ namespace SuperMetroid.Verification.Bosses;
 internal static class ImportedBossLooks
 {
     /// <summary>Mother Brain's rainbow colours, as the import's shades show them.</summary>
-    extension(MotherBrainRainbowPalettePresentation self)
+    extension(InstalledMotherBrainRainbowPalette self)
     {
         /// <summary>Shows rainbow phase <paramref name="frame"/> over <paramref name="cgram"/>.</summary>
         internal void ApplyRainbow(IPaletteColors cgram, int frame) => self.ShowImported(cgram, MotherBrainShades.Rainbow(frame));

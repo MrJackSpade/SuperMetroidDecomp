@@ -135,7 +135,8 @@ public static class MapPresentationFiles
             Colours(MotherBrainHealthPaletteFile.FileName, "Mother Brain health palette", s => MotherBrainHealthPaletteFile.Read(s)),
             Colours(MotherBrainRoomColorFormat.FileName, "Mother Brain room colors", s => MotherBrainRoomColorFile.Read(s)),
             Colours(RoomFxPaletteBlendDefinitions.FileName, "room-FX blends", s => RoomFxPaletteBlendFile.Read(s)),
-            game.RoomPaletteFx);
+            game.RoomPaletteFx,
+            game.MotherBrainRainbow);
         installed.RequireAllManifestFilesRead([]);
         return new ImportAreaMapPresentation(game.Parts, game.Sources, characters, colours);
 
@@ -214,7 +215,7 @@ public static class MapPresentationFiles
         CreditsPresentation staffCredits = Resource(CreditsPresentationDefinitions.FileName, "staff credits", s => CreditsPresentation.Load(s));
         TitleGradientPresentation titleGradient = Resource(TitleGradientFile.FileName, "title gradient", s => TitleGradientFile.Read(s));
         RoomPaletteFxPresentation roomPaletteFx = Resource(RoomPaletteFxPresentationFormat.FileName, "room palette effects", s => RoomPaletteFxPresentationFile.Read(s));
-        MotherBrainRainbowPalettePresentation motherBrainRainbowPalette = Resource(MotherBrainRainbowPaletteFile.FileName, "Mother Brain rainbow palette", s => MotherBrainRainbowPaletteFile.Read(s));
+        InstalledMotherBrainRainbowPalette motherBrainRainbowPalette = Resource(MotherBrainRainbowPaletteFile.FileName, "Mother Brain rainbow palette", s => MotherBrainRainbowPaletteFile.Read(s));
         RoomFxLayer3Pages roomFxLayer3Tilemaps = Resource(RoomFxLayer3TilemapFormat.FileName, "room-FX presentation", s => RoomFxLayer3Pages.Load(s));
         InstalledPowerBombFixedColors powerBombFixedColors = Resource(PowerBombFixedColorFile.FileName, "Power Bomb fixed colors", s => PowerBombFixedColorFile.Read(s));
         CeresRidleyGetawayBoostDelays ceresRidleyGetawayBoostDelays = Resource(CeresRidleyGetawayBoostDelayFormat.FileName, "Ceres Ridley getaway boost delays", s => CeresRidleyGetawayBoostDelayFiles.Read(s));
@@ -222,7 +223,7 @@ public static class MapPresentationFiles
             new InstalledPresentationSources(
                 new GameplayMessageArtwork(gameplayMessageTitles, gameplayMessagePanels, gameplayMessageNotices), roomFxLayer3Tilemaps, staffCredits,
                 endingText, screens, new PauseScreenArtwork(pauseBackdrops, pauseWireframes, pauseEquipmentBase, pauseEquipmentLabels, pauseReserveUi),
-                cycle), roomPaletteFx);
+                cycle), roomPaletteFx, motherBrainRainbowPalette);
 
         T Resource<T>(string file, string description, Func<Stream, T> compile) where T : class =>
             MultiFileResource<T>([file], description, streams => compile(streams[0]));
@@ -268,7 +269,12 @@ public static class MapPresentationFiles
     /// The palette-effect colours, which only the import pre-colours sheets from; the game keeps only the backdrops of the
     /// space behind the exploding planet taken from them (#1583).
     /// </param>
-    private sealed record GameRead(AreaMapPresentationParts Parts, InstalledPresentationSources Sources, RoomPaletteFxPresentation RoomPaletteFx);
+    /// <param name="MotherBrainRainbow">
+    /// Mother Brain's rainbow colours, which only the import pre-colours her pictures from; the game keeps only the beam
+    /// backdrop's colours taken from them (#1616).
+    /// </param>
+    private sealed record GameRead(AreaMapPresentationParts Parts, InstalledPresentationSources Sources, RoomPaletteFxPresentation RoomPaletteFx,
+        InstalledMotherBrainRainbowPalette MotherBrainRainbow);
 
     /// <summary>
     /// A read-only view whose buffer the JSON reader may parse in place. Compilers copy what

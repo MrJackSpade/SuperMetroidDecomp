@@ -6,10 +6,10 @@ namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 /// <summary>
 /// Mother Brain's installed rainbow, drain, revival, fake-death and normal-restoration colors, every phase kept as
-/// installed. Only the import reads them, to pre-colour her pictures (#1512); the game reads the beam backdrop colours of
-/// the base type (#1527).
+/// installed. Only the import reads them, to pre-colour her pictures (#1512); the game receives the beam backdrop colours
+/// alone (#1527, #1616).
 /// </summary>
-public sealed class InstalledMotherBrainRainbowPalette : MotherBrainRainbowPalettePresentation
+public sealed class InstalledMotherBrainRainbowPalette
 {
     /// <summary>Ten color phases read by the rainbow list.</summary>
     internal readonly PaletteFrame[] rainbow;
@@ -32,8 +32,9 @@ public sealed class InstalledMotherBrainRainbowPalette : MotherBrainRainbowPalet
     /// <param name="beamCycle">Every colour of the beam backdrop's hue cycle, as installed.</param>
     internal InstalledMotherBrainRainbowPalette(PaletteFrame[] rainbow, PaletteFade toGrey,
         PaletteFade fromGrey, PaletteFade fakeDeathToGrey, PaletteFrame normal,
-        RgbColor beamInitial, RgbColor[] beamCycle) : base(beamInitial, beamCycle)
+        RgbColor beamInitial, RgbColor[] beamCycle)
     {
+        Beam = new MotherBrainRainbowPalettePresentation(beamInitial, beamCycle);
         this.rainbow = rainbow;
         this.toGrey = toGrey;
         this.fromGrey = fromGrey;
@@ -41,11 +42,8 @@ public sealed class InstalledMotherBrainRainbowPalette : MotherBrainRainbowPalet
         this.normal = normal;
     }
 
-    /// <summary>The installed rainbow colours <paramref name="colours"/> were read as.</summary>
-    /// <exception cref="InvalidOperationException">The colours were not read from an installation.</exception>
-    public static InstalledMotherBrainRainbowPalette Of(MotherBrainRainbowPalettePresentation colours) =>
-        Ensure.NotNull(colours) as InstalledMotherBrainRainbowPalette
-            ?? throw new InvalidOperationException("Mother Brain's rainbow colours were not read from an installation, so they have no rainbow, drain or revival phases.");
+    /// <summary>The colours of the rainbow beam's backdrop, which the game reads while the beam fires.</summary>
+    public MotherBrainRainbowPalettePresentation Beam { get; }
 
     /// <summary>One installed body and rear-leg phase.</summary>
     internal sealed class PaletteFrame

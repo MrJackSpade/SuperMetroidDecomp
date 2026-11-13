@@ -118,6 +118,7 @@ internal static class PauseMenuFixtureVerification
             new ImportPresentationColours(ImportAreaMapPresentation.SamusColoursOf(stock), ImportAreaMapPresentation.TitlePaletteOf(stock),
                 palettes, ImportAreaMapPresentation.CeresRidleyColorsOf(stock), ImportAreaMapPresentation.CeresRidleyFloorColorsOf(stock),
                 ImportAreaMapPresentation.MotherBrainHealthPaletteOf(stock), ImportAreaMapPresentation.MotherBrainRoomColorsOf(stock),
-                ImportAreaMapPresentation.RoomFxPaletteBlendsOf(stock), ImportAreaMapPresentation.RoomPaletteFxOf(stock)));
+                ImportAreaMapPresentation.RoomFxPaletteBlendsOf(stock), ImportAreaMapPresentation.RoomPaletteFxOf(stock),
+                ImportAreaMapPresentation.MotherBrainRainbowColoursOf(stock)));
     }
 }

@@ -17,6 +17,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// receives. It reads no character page: the characters are import data the installation never holds, which the import
 /// reads with <see cref="ImportAreaMapPresentation"/>, as it does the colours only the import reads.
 /// </summary>
+[ArchitectureReview("context-bag", "The installed map presentation's documents beside the catalog the game binds; every member is immutable artwork data the import composes pictures from, not a service.")]
 public class InstalledAreaMapPresentation
 {
     /// <summary>Takes the catalog the game binds and the installed documents it was read with.</summary>

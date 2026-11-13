@@ -365,7 +365,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             // The bomb half above has already decremented the shared projectile cooldown. The humanoid handler then
             // dispatches the HUD producer, which fires and queues its sound, before the game handles any projectile: the
             // bombs, then the shots (#1620). Passing the live camera position also gives the projectile deletion check
-            // its exact off-screen deletion window. The Spacetime beam's malformed callback entry writes straight into
+            // its exact off-screen deletion window. The Spacetime beam's malformed frame-behaviour entry writes straight into
             // Samus's progression owners during this pass, so later consumers this frame, and saves, observe them.
             var shotTerrain = new SamusTerrain { Level = _room.LevelData, RoomObjects = room.RoomObjects, Progression = _system };
             room.Projectiles.FireFromHud(shotTerrain, samus, new ProjectileButtonInput { ControllerInput = _controller1.Current, ControllerNewInput = _controller1.NewlyPressed, ControllerPreviousNewInput = samus.InputSnapshot.PreviousDrawNewInput }, room.BombProjectiles, projectileProducerEnabled: !frame.AlphaInputLocked(samus));

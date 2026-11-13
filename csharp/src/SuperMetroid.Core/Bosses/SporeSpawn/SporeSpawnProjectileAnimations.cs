@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using C = SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnProjectileCue;
 using P = SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnProjectileSegment;
 

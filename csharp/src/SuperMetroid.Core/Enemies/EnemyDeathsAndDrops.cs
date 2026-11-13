@@ -21,19 +21,19 @@ internal sealed class EnemyDeathsAndDrops
     /// <summary>Supplies RNG and enemy definitions for drop selection.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Reinitializes a respawned enemy from its saved population record.</summary>
-    private readonly IEnemyDispatch _dispatch;
+    private readonly IEnemyLifecycle _lifecycle;
     /// <summary>Receives the pickup and death sounds, each queued as the drop or death animation makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Connects death animation, pickup, and respawn processing to the room systems.</summary>
     internal EnemyDeathsAndDrops(EnemyRoomStatus roomStatus, EnemyProjectileEngine projectiles, EnemyRoomBinding room,
-        IEnemyDispatch dispatch, PowerBombRadiusAfterKill powerBombRadius, EnemyAudioQueue audio)
+        IEnemyLifecycle lifecycle, PowerBombRadiusAfterKill powerBombRadius, EnemyAudioQueue audio)
     {
         _audio = audio;
         _roomStatus = roomStatus;
         _projectiles = projectiles;
         _room = room;
-        _dispatch = dispatch;
+        _lifecycle = lifecycle;
         _powerBombRadius = powerBombRadius;
     }
     /// <summary>Frame behaviour that checks pickup lifetime, Grapple, and Samus contact.</summary>
@@ -559,8 +559,8 @@ internal sealed class EnemyDeathsAndDrops
         // never sets the frame: the actor keeps the empty frame its death left,
         // or what its init AI set, until its first cue. An empty frame is also
         // the contact gate, so the respawned actor cannot touch Samus before then.
-        _dispatch.InitializeSlotFromDefinition(slot, spawn.Population, definition);
-        _dispatch.RunInitializationAi(slot, EnemySpawnSurroundings.None);
+        _lifecycle.InitializeSlotFromDefinition(slot, spawn.Population, definition);
+        _lifecycle.RunInitializationAi(slot, EnemySpawnSurroundings.None);
     }
 
     /// <summary>Connects pickup lifetime and contact handling to the projectile engine.</summary>

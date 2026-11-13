@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using K = SuperMetroid.Core.Enemies.SpacePirates.WalkingSpacePirateCueKind;
 using P = SuperMetroid.Core.Enemies.SpacePirates.WalkingSpacePirateSegment;
 using SuperMetroid.Core.Enemies.Artwork;

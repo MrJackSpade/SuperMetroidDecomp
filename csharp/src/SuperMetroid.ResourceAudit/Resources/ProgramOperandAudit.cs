@@ -2,7 +2,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SuperMetroid.Core.Bosses.MotherBrain;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.ResourceAudit.ClosedContracts.Bosses;
 using SuperMetroid.ResourceAudit.Reports;
 

@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Enemies.Puyo.PuyoNativeListAddresses;
 using SuperMetroid.Core.Enemies.Puyo;

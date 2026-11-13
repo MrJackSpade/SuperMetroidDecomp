@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Rios;
 
 /// <summary>The state of one Norfair Rio, parent or flame follower.</summary>

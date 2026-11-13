@@ -45,6 +45,14 @@ callback and keeps the word: a delegate type and its file, an event, and a field
 is a delegate, or an array or constructed generic type of one (`Action? AudioCallback`, `Func<int> callback`,
 `List<Func<int>> PendingCallbacks`). A method's own name is never a delegate, even when it returns one.
 
+A name that says `Dispatch`, `Dispatcher` or `Redispatch` names the original's jump through a table of routines and is
+reported under the same delegate allowance (#1624, `CoreVocabularyAnalyzer.RoutineDispatchWords`): the cartridge ran a
+game state, an enemy's AI, a pose's movement or a boss's state by indexing a table of routine pointers, and Core names the
+phase or step that runs (`RunMainGameplay`, `IEnemyLifecycle`, `SamusPoseTraits`, `PhaseRandomStep`, `RunningGameState`).
+A name that also says what it sends (`CoreVocabularyAnalyzer.SentThingWords`: music, a sound, audio, a request, a message
+or an event) uses the English verb of sending and keeps the word (`PendingMusicDispatch`, `DispatchSoundRequests`), and
+words that only share its letters stay the game's own (`Dispatchable`).
+
 A name that says `Function` names the enemy record's AI function field and is reported under the same delegate
 allowance (#1701, `CoreVocabularyAnalyzer.BehaviourFieldWords`): the cartridge stored an enemy's or a boss's behaviour
 state, a part's wait and the state a cue installs as the routine its record's function field held, and Core names what

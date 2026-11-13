@@ -1,5 +1,5 @@
 using P = SuperMetroid.Core.Enemies.Kzan.KzanSegment;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Kzan;

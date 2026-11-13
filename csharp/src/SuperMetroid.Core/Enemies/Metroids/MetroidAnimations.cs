@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using K = SuperMetroid.Core.Enemies.Metroids.MetroidCueKind;
 using P = SuperMetroid.Core.Enemies.Metroids.MetroidSegment;
 using SuperMetroid.Core.Enemies.Artwork;

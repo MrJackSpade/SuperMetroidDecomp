@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Shutters;
 
 /// <summary>The state of the game's complete, though retail-unused, horizontal shutter.</summary>

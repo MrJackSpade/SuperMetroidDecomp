@@ -215,7 +215,7 @@ level, right, unchecked((ushort)(frame + 1))),
         "controller three spawns Hyper Beam palette-FX object");
     AssertEqual(1, left.Drained.HyperBeamPaletteFx.FrameHold,
         "palette-FX spawn installs native timer one");
-    AssertEqual(SuperMetroid.Core.Programs.AnimationPlace.StartOfAnimation, left.Drained.HyperBeamPaletteFx.Place,
+    AssertEqual(SuperMetroid.Core.Animation.AnimationPlace.StartOfAnimation, left.Drained.HyperBeamPaletteFx.Place,
         "palette-FX spawn starts the object's program");
 
     // Seed both neighboring colors so the test can distinguish the exact eight-color

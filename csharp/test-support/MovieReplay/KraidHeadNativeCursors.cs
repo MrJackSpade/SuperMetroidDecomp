@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Bosses.Kraid;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.TestSupport.MovieReplay;
 

@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using E = SuperMetroid.Core.Frontend.Intro.IntroEyeFrame;
 using P = SuperMetroid.Core.Frontend.Intro.IntroEyeSegment;
 

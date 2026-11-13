@@ -45,7 +45,7 @@ internal static class SamusPoseRecordCodecTooling
     internal static byte MovementByte(SamusPoseId pose) =>
         IrregularMovementBytes.TryGetValue(pose, out byte irregular)
             ? irregular
-            : SamusMovementTypeNativeWords.Byte(SamusPoseDispatch.ReadMovement(pose));
+            : SamusMovementTypeNativeWords.Byte(SamusPoseTraits.ReadMovement(pose));
 
     /// <summary>Record byte zero, the pose's facing as the cartridge stores it: zero forward, four left, eight right.</summary>
     internal static byte FacingByte(SamusPoseId pose) =>

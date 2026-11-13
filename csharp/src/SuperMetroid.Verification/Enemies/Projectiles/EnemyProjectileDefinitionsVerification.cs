@@ -1,5 +1,5 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Enemies.Kago;
 using SuperMetroid.Core.Bosses.Torizo;

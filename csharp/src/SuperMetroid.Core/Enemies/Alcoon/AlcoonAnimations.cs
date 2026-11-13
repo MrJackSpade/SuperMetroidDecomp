@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using K = SuperMetroid.Core.Enemies.Alcoon.AlcoonCueKind;
 using P = SuperMetroid.Core.Enemies.Alcoon.AlcoonSegment;
 using SuperMetroid.Core.Enemies.Artwork;

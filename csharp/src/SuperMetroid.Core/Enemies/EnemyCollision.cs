@@ -19,8 +19,8 @@ namespace SuperMetroid.Core.Enemies;
 [RoomLifetime]
 internal sealed class EnemyCollision
 {
-    /// <summary>Dispatches enemy reactions selected by touch or projectile contact.</summary>
-    private readonly IEnemyDispatch _dispatch;
+    /// <summary>Lists the enemies admitted to interaction this frame, whose reactions touch and projectile contact select.</summary>
+    private readonly IEnemyLifecycle _lifecycle;
     /// <summary>Queues the enemy sounds produced by hits, freezes, and deaths.</summary>
     private readonly EnemyAudioQueue _audio;
     /// <summary>Owns ordinary death animations and drops after a lethal collision.</summary>
@@ -45,7 +45,7 @@ internal sealed class EnemyCollision
     {
         _powerBombRadius = dependencies.PowerBombRadius;
         _spriteObjects = dependencies.SpriteObjects;
-        _dispatch = dependencies.Dispatch;
+        _lifecycle = dependencies.Lifecycle;
         _audio = dependencies.Audio;
         _deathsAndDrops = dependencies.DeathsAndDrops;
         _earthquake = dependencies.Earthquake;
@@ -80,7 +80,7 @@ internal sealed class EnemyCollision
         if (contactDamageIndex == SamusContactDamageIndex.None && !samus.InvincibilityTimer.IsZero)
             return false;
 
-        foreach (RoomEnemySlot slot in _dispatch.InteractiveEnemies)
+        foreach (RoomEnemySlot slot in _lifecycle.InteractiveEnemies)
         {
             if (onlyEnemy is not null && slot != onlyEnemy)
                 continue;
@@ -175,7 +175,7 @@ internal sealed class EnemyCollision
         _room.EnsureLoaded();
 
         int hitCount = 0;
-        foreach (RoomEnemySlot enemy in _dispatch.InteractiveEnemies)
+        foreach (RoomEnemySlot enemy in _lifecycle.InteractiveEnemies)
         {
             if (onlyEnemy is not null && enemy != onlyEnemy)
                 continue;
@@ -442,9 +442,9 @@ internal sealed class EnemyCollision
         _room.EnsureLoaded();
 
         int hitCount = 0;
-        for (int ordinal = 0; ordinal < (onlyEnemy is not null ? 1 : _dispatch.InteractiveEnemies.Count); ordinal++)
+        for (int ordinal = 0; ordinal < (onlyEnemy is not null ? 1 : _lifecycle.InteractiveEnemies.Count); ordinal++)
         {
-            RoomEnemySlot enemy = onlyEnemy ?? _dispatch.InteractiveEnemies[ordinal];
+            RoomEnemySlot enemy = onlyEnemy ?? _lifecycle.InteractiveEnemies[ordinal];
             bool usesCommonShotAi = ShotAi(enemy) == EnemyReaction.NormalEnemyShot;
             bool usesIgnoreShotAi = ShotAi(enemy) == EnemyReaction.Ignore;
             bool usesPrivateShotAi = HasPrivateNormalBombShotAi(enemy, ShotAi(enemy));

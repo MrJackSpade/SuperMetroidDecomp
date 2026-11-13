@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using C = SuperMetroid.Core.Samus.Projectiles.ChargeFlareComponent;
 
 namespace SuperMetroid.Core.Samus.Projectiles;

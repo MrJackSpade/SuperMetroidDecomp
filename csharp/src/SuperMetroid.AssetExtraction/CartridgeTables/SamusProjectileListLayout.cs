@@ -1,5 +1,5 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Samus;
 

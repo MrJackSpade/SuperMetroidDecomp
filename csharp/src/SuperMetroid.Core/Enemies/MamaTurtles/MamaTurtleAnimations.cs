@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using K = SuperMetroid.Core.Enemies.MamaTurtles.MamaTurtleCueKind;
 using P = SuperMetroid.Core.Enemies.MamaTurtles.MamaTurtleSegment;
 using SuperMetroid.Core.Enemies.Artwork;

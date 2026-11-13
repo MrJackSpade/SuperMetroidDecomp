@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Enemies.Crawlers;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Yard;
 
 /// <summary>The state of a Yard. Names follow what each value does.</summary>

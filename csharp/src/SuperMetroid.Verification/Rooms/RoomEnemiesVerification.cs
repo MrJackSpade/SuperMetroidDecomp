@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.World.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Verification.Samus.Projectiles;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Ripper;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Reflection;

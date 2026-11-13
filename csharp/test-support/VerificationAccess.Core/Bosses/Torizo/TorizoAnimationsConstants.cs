@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 

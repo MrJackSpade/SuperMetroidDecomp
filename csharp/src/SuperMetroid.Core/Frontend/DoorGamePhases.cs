@@ -14,8 +14,8 @@ namespace SuperMetroid.Core.Frontend;
 /// <param name="session">The frontend session these phases run against.</param>
 internal sealed class DoorGamePhases(FrontendSession session)
 {
-    /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.HitDoorBlock"/>, <see cref="SuperMetroidGameState.BeginningDoorTransition"/>.</summary>
-    internal void DispatchDoorCollisionAndLoading(ControllerButton controllerInput)
+    /// <summary>Runs one update of <see cref="SuperMetroidGameState.HitDoorBlock"/>, <see cref="SuperMetroidGameState.BeginningDoorTransition"/>.</summary>
+    internal void RunDoorCollisionAndLoading(ControllerButton controllerInput)
     {
         if (session.GameState == SuperMetroidGameState.HitDoorBlock &&
             !StepHitDoorBlock(controllerInput))
@@ -60,8 +60,8 @@ internal sealed class DoorGamePhases(FrontendSession session)
         session.GameState = SuperMetroidGameState.DoorTransition;
     }
 
-    /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.DoorTransition"/>.</summary>
-    internal void DispatchDoorTransition(ControllerButton controllerInput)
+    /// <summary>Runs one update of <see cref="SuperMetroidGameState.DoorTransition"/>.</summary>
+    internal void RunDoorTransition(ControllerButton controllerInput)
     {
         session.doorTransition.Step(session.GameplayRuntime, session.audio, controllerInput, session.RoomLoadProgress);
         session.display.PublishGameplay(session.GameplayRuntime);

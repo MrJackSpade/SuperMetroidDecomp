@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Flies;
 
 /// <summary>The state of one Mellow, Mella or Memu.</summary>

@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using K = SuperMetroid.Core.Enemies.Corpses.DeadTourianCueKind;
 using P = SuperMetroid.Core.Enemies.Corpses.DeadTourianSegment;
 using SuperMetroid.Core.Enemies.Artwork;

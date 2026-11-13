@@ -9,8 +9,8 @@ namespace SuperMetroid.Core.Frontend;
 /// <param name="session">The frontend session these phases run against.</param>
 internal sealed class LoadingGamePhases(FrontendSession session)
 {
-    /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.SetUpNewGame"/>.</summary>
-    internal void DispatchSetUpNewGame(ControllerButton controllerInput)
+    /// <summary>Runs one update of <see cref="SuperMetroidGameState.SetUpNewGame"/>.</summary>
+    internal void RunSetUpNewGame(ControllerButton controllerInput)
     {
         if (session.ResumesGameLoadingWait)
         {
@@ -24,8 +24,8 @@ internal sealed class LoadingGamePhases(FrontendSession session)
             : GameLoadingCompletion.MainGameplay);
     }
 
-    /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.LoadingGameData"/>.</summary>
-    internal void DispatchLoadingGameData(ControllerButton controllerInput)
+    /// <summary>Runs one update of <see cref="SuperMetroidGameState.LoadingGameData"/>.</summary>
+    internal void RunLoadingGameData(ControllerButton controllerInput)
     {
         if (session.ResumesGameLoadingWait)
         {
@@ -58,8 +58,8 @@ internal sealed class LoadingGamePhases(FrontendSession session)
         }
     }
 
-    /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.MainGameplayFadeIn"/>.</summary>
-    internal void DispatchMainGameplayFadeIn(ControllerButton controllerInput)
+    /// <summary>Runs one update of <see cref="SuperMetroidGameState.MainGameplayFadeIn"/>.</summary>
+    internal void RunMainGameplayFadeIn(ControllerButton controllerInput)
     {
         session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Audio = GameplayFrameAudio.Gameplay(session.GameplayRuntime) });
         session.display.PublishGameplay(session.GameplayRuntime);

@@ -1,7 +1,7 @@
 using SuperMetroid.TestSupport.Assertions;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 
 namespace SuperMetroid.TestSupport.MovieReplay;
 

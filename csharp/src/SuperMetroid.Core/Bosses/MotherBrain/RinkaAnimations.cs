@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using K = SuperMetroid.Core.Bosses.MotherBrain.RinkaCueKind;
 using P = SuperMetroid.Core.Bosses.MotherBrain.RinkaSegment;
 using SuperMetroid.Core.Enemies.Artwork;

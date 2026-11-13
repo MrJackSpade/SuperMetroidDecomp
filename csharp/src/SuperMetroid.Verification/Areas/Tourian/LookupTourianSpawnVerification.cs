@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Areas.Tourian;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Areas.Tourian;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.World;

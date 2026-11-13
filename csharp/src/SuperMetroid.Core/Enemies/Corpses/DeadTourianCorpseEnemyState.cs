@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>Typed corpse state for one dead Zoomer, Ripper, or Skree.</summary>

@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using P = SuperMetroid.Core.Enemies.Alcoon.AlcoonFireballSegment;
 using SuperMetroid.Core.Enemies.Projectiles;
 

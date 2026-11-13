@@ -13,8 +13,8 @@ internal sealed class MotherBrainFakeDeath
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     private readonly BossFrameResultBuilder _frameResults;
-    /// <summary>Routes Mother Brain's AI and projectile handlers through the room dispatch tables.</summary>
-    private readonly IEnemyDispatch _dispatch;
+    /// <summary>Spawns the enemies the fake death releases into the room.</summary>
+    private readonly IEnemyLifecycle _lifecycle;
     /// <summary>Provides room services, tiles, palette state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Owns the bombs, glass, beams, turrets, and other encounter projectiles.</summary>
@@ -32,7 +32,7 @@ internal sealed class MotherBrainFakeDeath
     internal MotherBrainFakeDeath(MotherBrainFakeDeathDependencies dependencies)
     {
         _frameResults = dependencies.FrameResults;
-        _dispatch = dependencies.Dispatch;
+        _lifecycle = dependencies.Lifecycle;
         _room = dependencies.Room;
         _projectiles = dependencies.Projectiles;
         _earthquake = dependencies.Earthquake;
@@ -268,7 +268,7 @@ internal sealed class MotherBrainFakeDeath
         }
 
         // SpawnEnemy silently fails when all 32 records are occupied.
-        _ = _dispatch.SpawnEnemy(population);
+        _ = _lifecycle.SpawnEnemy(population);
     }
 
     /// <summary>Initializes a falling tube.</summary>

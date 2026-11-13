@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using K = SuperMetroid.Core.Rooms.Doors.EyeDoorProjectileCueKind;
 using P = SuperMetroid.Core.Rooms.Doors.EyeDoorProjectileSegment;
 using SuperMetroid.Core.Enemies.Projectiles;

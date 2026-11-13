@@ -1,5 +1,5 @@
 using System.Text.Json;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 
 namespace SuperMetroid.DebugRunner.Tools;
 

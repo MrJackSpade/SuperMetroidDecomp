@@ -15,15 +15,15 @@ internal sealed class EnemyPopulationLoader
     /// <summary>Holds the room's enemy slots and the extent the population fills.</summary>
     private readonly EnemySlotTable _slotTable;
     /// <summary>Applies enemy definitions and runs each slot's initialization AI.</summary>
-    private readonly IEnemyDispatch _dispatch;
+    private readonly IEnemyLifecycle _lifecycle;
 
-    /// <summary>Binds room artwork, status, slot storage, and AI dispatch for a population load.</summary>
-    internal EnemyPopulationLoader(EnemyRoomBinding room, EnemyRoomStatus roomStatus, EnemySlotTable slotTable, IEnemyDispatch dispatch)
+    /// <summary>Binds room artwork, status, slot storage, and the enemy lifecycle for a population load.</summary>
+    internal EnemyPopulationLoader(EnemyRoomBinding room, EnemyRoomStatus roomStatus, EnemySlotTable slotTable, IEnemyLifecycle lifecycle)
     {
         _room = room;
         _roomStatus = roomStatus;
         _slotTable = slotTable;
-        _dispatch = dispatch;
+        _lifecycle = lifecycle;
     }
     /// <summary>
     /// The kills that clear the room for its grey doors and clearance watches: the room population's own quota
@@ -55,10 +55,10 @@ internal sealed class EnemyPopulationLoader
 
             RoomEnemyDefinition definition = definitions.ReadEnemyDefinition(enemy);
             RoomEnemySlot slot = _slotTable.Slots[slotIndex];
-            _dispatch.InitializeSlotFromDefinition(slot, population, definition);
+            _lifecycle.InitializeSlotFromDefinition(slot, population, definition);
             if (definition.Boss is { } boss)
                 _roomStatus.Boss = boss;
-            _dispatch.RunInitializationAi(slot, surroundings);
+            _lifecycle.RunInitializationAi(slot, surroundings);
 
             // Loading replaces whatever frame the initialization AI showed: an animated enemy shows the empty frame until
             // its first animation tick replaces it, and one that collides by its frames' hitboxes collides at the point

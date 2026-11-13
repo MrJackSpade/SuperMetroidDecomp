@@ -386,10 +386,10 @@ internal sealed class SuperMetroidRuntime
     internal IEnemyFrameResults EnemyFrameResults => Room.LoadedScope.Enemies;
 
     /// <summary>
-    /// The game state of the frontend dispatch now running. Samus's control setups test it from
+    /// The game state whose phase the frontend is now running. Samus's control setups test it from
     /// inside the update; runtime-only hosts run main gameplay.
     /// </summary>
-    public SuperMetroid.Core.Progression.SuperMetroidGameState DispatchGameState { get; set; } = SuperMetroid.Core.Progression.SuperMetroidGameState.MainGameplay;
+    public SuperMetroid.Core.Progression.SuperMetroidGameState RunningGameState { get; set; } = SuperMetroid.Core.Progression.SuperMetroidGameState.MainGameplay;
 
     /// <summary>Whether a power-bomb explosion is under way; X-ray setup and the pause check reject one, and the sound queues turn every sound away during one.</summary>
     /// <remarks>Before the first room exists there is no explosion.</remarks>
@@ -471,7 +471,7 @@ internal sealed class SuperMetroidRuntime
         BeginAcceptedGameplayFrame(controller1Input, frameRequest);
         RunLiquidWaveAndStatueDescent();
         AdvanceMainLoopRandom();
-        RunPreDispatchEffects();
+        RunEffectsBeforePhase();
         var context = new GameplayFrameContext(SampleSamusCameraPoint());
         PrepareEnemyProcessingList();
         RunPaletteFx();
@@ -527,7 +527,7 @@ internal sealed class SuperMetroidRuntime
         // replaces her handlers while the already-spawned blast continues normally.
         // Its cleanup resumes Samus's sounds, which can queue them before the Samus handler.
         if (Player.Samus is { } samus && !MessageBox.IsActive)
-            Room.LoadedScope.BombProjectiles.AdvancePowerBombExplosion(samus, Controller1.Current, DispatchGameState);
+            Room.LoadedScope.BombProjectiles.AdvancePowerBombExplosion(samus, Controller1.Current, RunningGameState);
     }
 
     /// <summary>Draws the update's random number.</summary>
@@ -543,8 +543,8 @@ internal sealed class SuperMetroidRuntime
         System.NextRandom();
     }
 
-    /// <summary>Runs the owners before the game-state dispatch: Ceres haze, the suit transformation, Phantoon's wave and blending, and room effect overlay FX.</summary>
-    private void RunPreDispatchEffects()
+    /// <summary>Runs the owners before the game state's phase: Ceres haze, the suit transformation, Phantoon's wave and blending, and room effect overlay FX.</summary>
+    private void RunEffectsBeforePhase()
     {
         Room.LoadedScope.CeresHaze.Step();
 
@@ -673,7 +673,7 @@ internal sealed class SuperMetroidRuntime
     private void RunSamusAndEnemyMain(GameplayFrameContext context, SamusState samus, ScrollBoundaryCamera camera, RuntimeFrameAudio audio)
     {
         SamusHandlerFrame frame = context.Samus;
-        SamusPhases.RunAlpha(frame, DispatchGameState, samus, camera, context.SamusCameraPointAtFrameStart, Room.LoadedScope);
+        SamusPhases.RunAlpha(frame, RunningGameState, samus, camera, context.SamusCameraPointAtFrameStart, Room.LoadedScope);
         if (frame.MovementEnabled && !frame.EnemyMainAlreadyRan)
             EnemyPhase.RunEnemyMainPhase(processingList: EnemyProcessingList.Prepared, frame.PreviousCameraPoint, Room.LoadedScope);
         SamusPhases.RunPostEnemyMainResample(frame, samus, Room.LoadedScope.BombProjectiles, Room.LoadedScope.Projectiles, Room.LoadedScope);
@@ -1118,7 +1118,7 @@ internal sealed class SuperMetroidRuntime
             if (Room.Camera is not null)
                 LiquidWaveAndStatueDescent.Advance(Room.LoadedScope.RoomObjects, Room.LoadedScope);
             if (Player.Samus is { } samus)
-                Room.LoadedScope.BombProjectiles.AdvancePowerBombExplosion(samus, Controller1.Current, DispatchGameState);
+                Room.LoadedScope.BombProjectiles.AdvancePowerBombExplosion(samus, Controller1.Current, RunningGameState);
         }
         if (MessageBox.ConfirmationSelectionChangedThisFrame)
             MessageBoxes.MessageBoxSelectionSoundRequestedThisFrame = true;

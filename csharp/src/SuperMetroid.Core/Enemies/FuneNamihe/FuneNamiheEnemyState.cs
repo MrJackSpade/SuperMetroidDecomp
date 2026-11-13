@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.FuneNamihe;
 
 /// <summary>The state of one Fune or Namihe, the two species that share this actor.</summary>

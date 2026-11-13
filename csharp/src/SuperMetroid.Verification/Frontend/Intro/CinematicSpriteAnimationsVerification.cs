@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Frontend.Intro.Artwork;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using static SuperMetroid.Verification.Frontend.Intro.CinematicSpriteNativeListAddresses;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Frontend.Intro;

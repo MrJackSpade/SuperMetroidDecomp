@@ -3,7 +3,7 @@ using static SuperMetroid.Verification.Enemies.FaceBlocks.BlueBrinstarFaceBlockN
 using SuperMetroid.Core.Enemies.FaceBlocks;
 using SuperMetroid.Core.Enemies.FaceBlocks.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 
 namespace SuperMetroid.Verification.Enemies.FaceBlocks;
 

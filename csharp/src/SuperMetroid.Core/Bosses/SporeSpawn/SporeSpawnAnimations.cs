@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using F = SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnFrameKind;
 using K = SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnCueKind;
 using P = SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnBodySegment;

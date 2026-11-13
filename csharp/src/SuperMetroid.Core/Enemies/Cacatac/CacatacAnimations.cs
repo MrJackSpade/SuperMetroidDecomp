@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using K = SuperMetroid.Core.Enemies.Cacatac.CacatacCueKind;
 using P = SuperMetroid.Core.Enemies.Cacatac.CacatacSegment;
 using D = SuperMetroid.Core.Enemies.Cacatac.CacatacSpikeDirection;

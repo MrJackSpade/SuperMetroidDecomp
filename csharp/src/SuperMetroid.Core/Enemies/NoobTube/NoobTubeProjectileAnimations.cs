@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using K = SuperMetroid.Core.Rooms.RoomObjects.NoobTubeProjectileCueKind;
 using P = SuperMetroid.Core.Rooms.RoomObjects.NoobTubeProjectileSegment;
 using SuperMetroid.Core.Enemies.Projectiles;

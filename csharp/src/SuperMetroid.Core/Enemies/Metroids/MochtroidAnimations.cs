@@ -1,5 +1,5 @@
 using P = SuperMetroid.Core.Enemies.Metroids.MochtroidSegment;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Metroids;

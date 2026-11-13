@@ -7,11 +7,11 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>One game state's update and the per-state facts the game reads around it.</summary>
 internal interface IGamePhase
 {
-    /// <summary>The state this phase dispatches.</summary>
+    /// <summary>The state this phase runs.</summary>
     SuperMetroidGameState State { get; }
 
-    /// <summary>The random generator's step before this state's dispatch.</summary>
-    DispatchRandomStep RandomStep { get; }
+    /// <summary>The random generator's step before this state's phase runs.</summary>
+    PhaseRandomStep RandomStep { get; }
 
     /// <summary>The prologue and epilogue audio facts for this state.</summary>
     GamePhaseAudio Audio { get; }
@@ -25,6 +25,6 @@ internal interface IGamePhase
     /// </summary>
     bool IsWaitingOutDisplayFrame { get; }
 
-    /// <summary>Runs one dispatch of the state.</summary>
+    /// <summary>Runs one update of the state.</summary>
     void Step(ControllerButton controllerInput);
 }

@@ -1,5 +1,5 @@
 using P = SuperMetroid.Core.Areas.Ceres.CeresElevatorArrivalSegment;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Core.Areas.Ceres;

@@ -3,7 +3,7 @@ using static SuperMetroid.Verification.Enemies.Fireflea.FirefleaNativeListAddres
 using SuperMetroid.Core.Enemies.Fireflea;
 using SuperMetroid.Core.Enemies.Fireflea.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 
 namespace SuperMetroid.Verification.Enemies.Fireflea;
 

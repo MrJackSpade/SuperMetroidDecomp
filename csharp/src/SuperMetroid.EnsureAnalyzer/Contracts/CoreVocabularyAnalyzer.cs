@@ -20,7 +20,9 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// <c>Backdrop2A</c>), an address run into a name (<c>Projectile86E314Frame</c>, <c>Projectile86C76eFrame</c>), or a
 /// family of a type's members numbered in hexadecimal (<c>Row9</c> beside <c>RowA</c>). A name that says <c>Callback</c>
 /// names the original's function-pointer dispatch (#1624, <see cref="DispatchWords"/>) unless what it declares holds a C#
-/// delegate the port passes (<see cref="HoldsDelegate"/>). A name that says <c>Function</c> names the enemy record's AI
+/// delegate the port passes (<see cref="HoldsDelegate"/>); a name that says <c>Dispatch</c> names the original's jump
+/// through a table of routines (#1624, <see cref="RoutineDispatchWords"/>) under the same allowance, unless it says what it
+/// sends (<see cref="SentThingWords"/>). A name that says <c>Function</c> names the enemy record's AI
 /// function field (#1701, <see cref="BehaviourFieldWords"/>) under the same delegate allowance. See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -74,6 +76,23 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
     internal static readonly ImmutableArray<string> DispatchWords = ["Callback"];
 
     /// <summary>
+    /// The original's routine dispatch (#1624), matched as whole camel-case words like <see cref="DispatchWords"/>: the
+    /// cartridge ran a game state, an enemy's AI, a pose's movement or a boss's state by jumping through a table of routine
+    /// pointers, and a Core name that says <c>Dispatch</c> (a <c>DispatchMainGameplay</c> method, an <c>IEnemyDispatch</c>
+    /// service, a <c>SamusPoseDispatch</c> table, a <c>Dispatcher</c> index, a <c>dispatched</c> local, a
+    /// <c>RedispatchBeta</c> step) names that jump instead of the phase or step it runs. A name that also says what it
+    /// sends (<see cref="SentThingWords"/>: a music request's <c>PendingMusicDispatch</c>) uses the English verb of sending,
+    /// and a declaration that holds a C# delegate the port passes dispatches through that delegate; both keep the word.
+    /// </summary>
+    internal static readonly ImmutableArray<string> RoutineDispatchWords = ["Dispatch", "Dispatcher", "Redispatch"];
+
+    /// <summary>
+    /// The things a name may say it dispatches, sending them (#1624): music, a sound, audio, a request, a message or an
+    /// event. A <see cref="RoutineDispatchWords"/> word beside one of them is the English verb, not the original's jump.
+    /// </summary>
+    internal static readonly ImmutableArray<string> SentThingWords = ["Music", "Sound", "Audio", "Request", "Message", "Event"];
+
+    /// <summary>
     /// The enemy record's AI function field (#1701), matched as whole camel-case words like <see cref="DispatchWords"/>: the
     /// cartridge stored an enemy's or a boss's behaviour state, a part's wait and the state a cue installs as the routine
     /// pointer its record's function field held, and a Core name that says <c>Function</c> (a <c>TorizoFunction</c> enum, a
@@ -96,7 +115,8 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
         isEnabledByDefault: true,
         description: "Core is a C# game. Its identifiers say what things are in the game, never which chip, memory or " +
             "cartridge structure the original stored them in, never number them as the cartridge did in hexadecimal, and " +
-            "never call a behaviour the callback the original dispatched it through or the function field its record held; " +
+            "never call a behaviour the callback the original dispatched it through, the routine table it jumped through or " +
+            "the function field its record held; " +
             "hardware behaviour the game needs lives in " +
             "a compatibility service named for the game (#1400, #1554, #1624, #1685, #1694, #1701, docs/core-vocabulary.md).");
 
@@ -287,6 +307,11 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
             return $"names the hardware ('{word}')";
         if (ContainedWord(identifier, DispatchWords) is { } dispatch && !holdsDelegate())
             return $"names the original's dispatch ('{dispatch}') where it declares no delegate";
+        if (ContainedWord(identifier, RoutineDispatchWords) is { } routine && ContainedWord(identifier, SentThingWords) is null &&
+            !holdsDelegate())
+        {
+            return $"names the original's routine dispatch ('{routine}') where it sends nothing and declares no delegate";
+        }
         if (ContainedWord(identifier, BehaviourFieldWords) is { } field && !holdsDelegate())
             return $"names the enemy record's AI function field ('{field}') where it declares no delegate";
         return HexCode(identifier) is { } code ? $"spells the cartridge value '{code}' in hexadecimal" : null;

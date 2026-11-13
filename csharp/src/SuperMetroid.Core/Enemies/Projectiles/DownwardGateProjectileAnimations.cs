@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using K = SuperMetroid.Core.Rooms.RoomObjects.DownwardGateProjectileCueKind;
 using P = SuperMetroid.Core.Rooms.RoomObjects.DownwardGateProjectileSegment;
 using SuperMetroid.Core.Rooms.RoomObjects;

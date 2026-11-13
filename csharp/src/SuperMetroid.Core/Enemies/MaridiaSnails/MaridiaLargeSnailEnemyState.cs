@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 
 /// <summary>The state of Oum, with its ten own values.</summary>

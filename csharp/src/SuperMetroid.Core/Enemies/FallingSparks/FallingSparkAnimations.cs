@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using CK = SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileCommonCueKind;
 using P = SuperMetroid.Core.Enemies.FallingSparks.FallingSparkSegment;
 using SuperMetroid.Core.Enemies.Projectiles;

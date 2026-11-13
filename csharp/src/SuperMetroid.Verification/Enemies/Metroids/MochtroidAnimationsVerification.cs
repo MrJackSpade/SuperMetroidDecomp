@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Enemies.Metroids.MochtroidNativeListAddresses;
 using SuperMetroid.Core.Enemies.Metroids;

@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 using K = SuperMetroid.Core.Enemies.Rios.LowerNorfairRioCueKind;
 using P = SuperMetroid.Core.Enemies.Rios.LowerNorfairRioSegment;
 using SuperMetroid.Core.Enemies.Artwork;

@@ -3,7 +3,7 @@ using static SuperMetroid.Verification.Enemies.Elevator.ElevatorNativeListAddres
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Enemies.Elevator.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Animation;
 
 namespace SuperMetroid.Verification.Enemies.Elevator;
 

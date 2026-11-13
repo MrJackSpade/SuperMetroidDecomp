@@ -140,8 +140,8 @@ internal sealed class SamusHandlerFrame
     /// <summary>Records whether grapple owns beta movement.</summary>
     internal void SampleGrappleOwnership(bool owns) => GrappleOwnsMovement = owns;
 
-    /// <summary>Replaces the beta handler the frame dispatches, which an actor's control setup does before dispatch.</summary>
-    internal void RedispatchBeta(SamusBetaHandler beta) => Mode = Mode with { Beta = beta };
+    /// <summary>Replaces the beta handler the frame runs, which an actor's control setup does before it runs.</summary>
+    internal void ReplaceBeta(SamusBetaHandler beta) => Mode = Mode with { Beta = beta };
 
     /// <summary>Records whether the grapple-release mover keeps alpha's pending aim or turn transition.</summary>
     internal void SampleGrappleReleasePoseInput(bool accepts) => GrappleReleaseAcceptsPoseInput = accepts;

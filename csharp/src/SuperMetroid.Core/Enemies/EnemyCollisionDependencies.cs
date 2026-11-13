@@ -9,8 +9,8 @@ namespace SuperMetroid.Core.Enemies;
 [RoomLifetime]
 internal sealed record EnemyCollisionDependencies
 {
-    /// <summary>Dispatch.</summary>
-    public required IEnemyDispatch Dispatch { get; init; }
+    /// <summary>Sets up enemies in their slots, spawns them and runs their AI.</summary>
+    public required IEnemyLifecycle Lifecycle { get; init; }
 
     /// <summary>Audio.</summary>
     public required EnemyAudioQueue Audio { get; init; }

@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.LavaJumpers.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 

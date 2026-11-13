@@ -22,8 +22,30 @@ public static class PuyoHopDefinitions
     internal static readonly RandomSampleField HopRoll = new(0, 3);
 
     /// <summary>
-    /// Whether a dropped Puyo's bounce is the big one: bit zero of its <see cref="HopRoll"/> with the frame counter
-    /// added, set for <see cref="PuyoHopType.DroppedBig"/> and clear for <see cref="PuyoHopType.DroppedSmall"/>.
+    /// The lowest bit of <see cref="HopRoll"/>: the part of the roll a choice between two outcomes reads, the same bit
+    /// whether the frame counter advances the whole roll or this bit alone.
     /// </summary>
-    internal static readonly RandomSampleField DroppedBounceIsBig = new(0, 1);
+    private static readonly RandomSampleField HopRollParity = new(0, 1);
+
+    /// <summary>
+    /// The ordinary hop a Puyo that last made the small one takes next (#1619): the parity of its hop roll advanced by the
+    /// enemy's frame counter chooses the small hop again or the big one, one time in two each.
+    /// </summary>
+    internal static readonly WeightedRandomChoice<PuyoHopType> HopAfterSmallHop = new(
+        HopRollParity, new(1, PuyoHopType.NormalSmall), new(1, PuyoHopType.NormalBig));
+
+    /// <summary>
+    /// The ordinary hop a Puyo that last made the big or the high one takes next (#1619): its <see cref="HopRoll"/> advanced
+    /// by the enemy's frame counter chooses the small hop one time in eight, the big one one time in eight and the high
+    /// one six times in eight.
+    /// </summary>
+    internal static readonly WeightedRandomChoice<PuyoHopType> HopAfterLargerHop = new(
+        HopRoll, new(1, PuyoHopType.NormalSmall), new(1, PuyoHopType.NormalBig), new(6, PuyoHopType.NormalHigh));
+
+    /// <summary>
+    /// The chance a dropped Puyo's bounce is <see cref="PuyoHopType.DroppedBig"/> rather than
+    /// <see cref="PuyoHopType.DroppedSmall"/> (#1619): its hop roll, advanced by the enemy's frame counter, odd, one time
+    /// in two.
+    /// </summary>
+    internal static readonly RandomChance BigDroppedBounce = RandomChance.Highest(1, HopRollParity);
 }

@@ -164,9 +164,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs Owtch's six-in-256 per-frame burial gate.</summary>
     private void MaybeMakeOwtchSink(RoomEnemySlot slot, OwtchEnemyState state)
     {
-        int random = _room.Random.Generate();
-        int decision = (OwtchMovementDefinitions.SinkRoll.Of(random) + slot.FrameCounter) % OwtchMovementDefinitions.SinkRoll.Outcomes;
-        if (decision < 6)
+        if (OwtchMovementDefinitions.Sinks.IsTakenBy(_room.Random.Generate(), advancedBy: slot.FrameCounter))
             state.Behavior = OwtchBehaviorState.Sinking;
     }
 

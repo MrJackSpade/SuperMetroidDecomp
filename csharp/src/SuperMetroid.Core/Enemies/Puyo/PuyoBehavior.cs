@@ -11,10 +11,6 @@ namespace SuperMetroid.Core.Enemies.Puyo;
 [RoomLifetime]
 internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
 {
-    /// <summary>The three ordinary hops in the order the random roll of zero, one or two chooses them.</summary>
-    private static readonly IdentitySequence<PuyoHopType> NormalHopsByRoll = new(
-        PuyoHopType.NormalSmall, PuyoHopType.NormalBig, PuyoHopType.NormalHigh);
-
     /// <summary>Whether a hop is one of the three ordinary hops that proximity and chance choose between.</summary>
     private static bool IsNormalHop(PuyoHopType type) =>
         type is PuyoHopType.NormalSmall or PuyoHopType.NormalBig or PuyoHopType.NormalHigh;
@@ -136,16 +132,15 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Direction = direction;
         state.InvertDirection = false;
 
-        // Types three and above ignore this value but still advance the seed, an observable
+        // Types three and above ignore this sample but still advance the seed, an observable
         // side effect shared with every other random enemy in the room.
-        int randomChoice = NextPuyoRandom0To7(slot);
+        int sample = _room.Random.Generate();
         if (IsNormalHop(state.HopType))
         {
-            if (state.HopType == PuyoHopType.NormalSmall)
-                randomChoice &= 1;
-            if (randomChoice >= 2)
-                randomChoice = 2;
-            state.HopType = NormalHopsByRoll.At(randomChoice);
+            WeightedRandomChoice<PuyoHopType> nextHop = state.HopType == PuyoHopType.NormalSmall
+                ? PuyoHopDefinitions.HopAfterSmallHop
+                : PuyoHopDefinitions.HopAfterLargerHop;
+            state.HopType = nextHop.Choose(sample, advancedBy: slot.FrameCounter);
         }
 
         state.CurrentHop = state.HopType;
@@ -278,19 +273,12 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!_terrain.MoveEnemyVertically(level, slot, displacement))
             return;
 
-        // The bounce picks one of the two dropped bounce heights from the same 0..7 value.
-        state.HopType = PuyoHopDefinitions.DroppedBounceIsBig.IsSetIn(NextPuyoRandom0To7(slot))
+        // The bounce picks one of the two dropped bounce heights from the same advanced hop roll.
+        state.HopType = PuyoHopDefinitions.BigDroppedBounce.IsTakenBy(_room.Random.Generate(), advancedBy: slot.FrameCounter)
             ? PuyoHopType.DroppedBig
             : PuyoHopType.DroppedSmall;
         state.Function = PuyoEnemyFunction.Grounded;
     }
-
-    /// <summary>
-    /// Draws <see cref="PuyoHopDefinitions.HopRoll"/> from a new random number, then adds the enemy's frame counter,
-    /// continuing past the roll's last value from zero.
-    /// </summary>
-    private int NextPuyoRandom0To7(RoomEnemySlot slot) =>
-        (_room.Random.Next(PuyoHopDefinitions.HopRoll) + slot.FrameCounter) % PuyoHopDefinitions.HopRoll.Outcomes;
 
     /// <summary>Runs the post-drop bounce wrapper.</summary>
     private void RunDroppedPuyo(RoomEnemySlot slot, PuyoEnemyState state, RoomLevelData level)

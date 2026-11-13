@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
-/// <summary>Defines the installed straddled-terrain file and its manifest (#1612).</summary>
+/// <summary>Defines the installed straddled-terrain file (#1612).</summary>
 internal static class StraddledTerrainFormat
 {
     /// <summary>
@@ -15,9 +15,6 @@ internal static class StraddledTerrainFormat
 
     /// <summary>JSON filename holding the decoded straddled terrain.</summary>
     internal const string FileName = "straddled-terrain.json";
-
-    /// <summary>Manifest filename recording the straddled-terrain file's schema and cartridge identity.</summary>
-    internal const string ManifestFileName = "straddled-terrain-manifest.json";
 
     /// <summary>Shared camel-case, case-insensitive JSON options that reject unknown fields; the file is written compactly.</summary>
     internal static readonly JsonSerializerOptions JsonOptions = new()

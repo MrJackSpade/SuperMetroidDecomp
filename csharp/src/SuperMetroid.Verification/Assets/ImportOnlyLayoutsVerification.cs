@@ -109,6 +109,7 @@ internal static class ImportOnlyLayoutsVerification
         yield return (GameInstallationLayout.BossAndIntroOverreadDirectoryName, "boss-intro-overreads-manifest.json");
         yield return (GameInstallationLayout.EnemyOverreadDirectoryName, "enemy-overreads-manifest.json");
         yield return (GameInstallationLayout.SamusOverreadDirectoryName, "samus-overreads-manifest.json");
+        yield return (GameInstallationLayout.StraddledTerrainDirectoryName, "straddled-terrain-manifest.json");
     }
 
     /// <summary>

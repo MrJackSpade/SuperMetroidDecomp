@@ -79,7 +79,7 @@ internal sealed class DoorTransitionRunner
             case DoorSetupCode.None:
                 return;
 
-            case DoorSetupCode.DoorASM_ToCeresElevatorShaft:
+            case DoorSetupCode.CeresElevShowsTurningFloor:
                 // Ceres's door setup owns the turning floor's rotation and centre. Those
                 // values must exist before room graphics/actors initialize, so the shared
                 // loader installs them at construction time and this dispatch
@@ -91,7 +91,7 @@ internal sealed class DoorTransitionRunner
                 }
                 return;
 
-            case DoorSetupCode.DoorASM_FromCeresElevatorShaft:
+            case DoorSetupCode.FallingTileEndsTurningFloor:
                 // The paired exit setup code of the Ceres elevator shaft's entry: it returns
                 // the screen from the turning floor to the ordinary room display, removing
                 // both the active and the shown transforms. Do this explicitly here rather
@@ -102,102 +102,102 @@ internal sealed class DoorTransitionRunner
                 ceresElevatorShaft.Deactivate();
                 return;
 
-            case DoorSetupCode.DoorASM_StartWreckedShipTreadmillWestEntrance:
+            case DoorSetupCode.WreckedShipEntranceStartsTreadmillRightwards:
                 StartWreckedShipTreadmill(WreckedShipTreadmillDirection.Rightwards, roomObjects, wreckedShipTreadmill);
                 return;
 
-            case DoorSetupCode.DoorASM_StartWreckedShipTreadmillEastEntrance:
+            case DoorSetupCode.WreckedShipEntranceStartsTreadmillLeftwards:
                 StartWreckedShipTreadmill(WreckedShipTreadmillDirection.Leftwards, roomObjects, wreckedShipTreadmill);
                 return;
 
-            case DoorSetupCode.DoorASM_SetupElevatubeFromSouth:
+            case DoorSetupCode.ToiletStartsElevatubeRideFromSouth:
                 SetUpMaridiaElevatube(entry: ElevatubeEntry.FromSouth, roomObjects, maridiaElevatube);
                 return;
 
-            case DoorSetupCode.DoorASM_SetupElevatubeFromNorth:
+            case DoorSetupCode.ToiletStartsElevatubeRideFromNorth:
                 SetUpMaridiaElevatube(entry: ElevatubeEntry.FromNorth, roomObjects, maridiaElevatube);
                 return;
 
-            case DoorSetupCode.DoorASM_ResetElevatubeOnNorthExit:
-            case DoorSetupCode.DoorASM_ResetElevatubeOnSouthExit:
+            case DoorSetupCode.PlasmaSparkEndsElevatubeRide:
+            case DoorSetupCode.OasisEndsElevatubeRideOpensScreens0x0And0x1:
                 maridiaElevatube.ResetOnExit(_player.Samus ?? throw new InvalidOperationException(
                     "Maridia elevatube exit setup requires an active Samus state."));
                 return;
 
-            case DoorSetupCode.DoorCode_Scroll6_Green:
-            case DoorSetupCode.DoorASM_Scroll_0_Blue:
-            case DoorSetupCode.DoorASM_Scroll_13_Blue:
-            case DoorSetupCode.DoorASM_Scroll_4_Red_8_Green:
-            case DoorSetupCode.DoorASM_Scroll_8_9_A_B_Red:
-            case DoorSetupCode.DoorASM_Scroll_2_3_4_5_B_C_D_11_Red:
-            case DoorSetupCode.DoorASM_Scroll_1_4_Green:
-            case DoorSetupCode.DoorASM_Scroll_2_Blue:
-            case DoorSetupCode.DoorASM_Scroll_17_Blue:
-            case DoorSetupCode.DoorASM_Scroll_4_Blue:
-            case DoorSetupCode.DoorASM_Scroll_6_Green_duplicate:
-            case DoorSetupCode.DoorASM_Scroll_3_Green:
-            case DoorSetupCode.DoorASM_Scroll_18_1C_Green:
-            case DoorSetupCode.DoorASM_Scroll_5_6_Blue:
-            case DoorSetupCode.DoorASM_Scroll_1D_Blue:
-            case DoorSetupCode.DoorASM_Scroll_2_3_Green:
-            case DoorSetupCode.DoorASM_Scroll_0_Red_1_Green:
-            case DoorSetupCode.DoorASM_Scroll_B_Green:
-            case DoorSetupCode.DoorASM_Scroll_Scroll_1C_Red_1D_Blue:
-            case DoorSetupCode.DoorASM_Scroll_4_Red:
-            case DoorSetupCode.DoorASM_Scroll_20_24_25_Green:
-            case DoorSetupCode.DoorASM_Scroll_2_Blue_duplicate:
-            case DoorSetupCode.DoorASM_Scroll_0_Green:
-            case DoorSetupCode.DoorASM_Scroll_6_7_Green:
-            case DoorSetupCode.DoorASM_Scroll_1_Blue_2_Red:
-            case DoorSetupCode.DoorASM_Scroll_1_Blue_3_Red:
-            case DoorSetupCode.DoorASM_Scroll_0_Red_4_Blue:
-            case DoorSetupCode.DoorASM_Scroll_2_3_Blue:
-            case DoorSetupCode.DoorASM_Scroll_0_1_Green:
-            case DoorSetupCode.DoorASM_Scroll_1_Green:
-            case DoorSetupCode.DoorASM_Scroll_F_12_Green:
-            case DoorSetupCode.DoorASM_Scroll_6_Green_duplicate_again:
-            case DoorSetupCode.DoorASM_Scroll_0_Green_1_Blue:
-            case DoorSetupCode.DoorASM_Scroll_2_Green:
-            case DoorSetupCode.DoorASM_Scroll_3_4_Red_6_7_8_Blue:
-            case DoorSetupCode.DoorASM_Scroll_1_2_3_Blue_4_Green_6_Red:
-            case DoorSetupCode.DoorASM_Scroll_0_1_Blue:
-            case DoorSetupCode.DoorASM_Scroll_0_Blue_1_Red:
-            case DoorSetupCode.DoorASM_Scroll_A_Green:
-            case DoorSetupCode.DoorASM_Scroll_0_2_Green:
-            case DoorSetupCode.DoorASM_Scroll_6_7_Blue_8_Red:
-            case DoorSetupCode.DoorASM_Scroll_2_Red_3_Blue:
-            case DoorSetupCode.DoorASM_Scroll_7_Green:
-            case DoorSetupCode.DoorASM_Scroll_1_Red_2_Blue:
-            case DoorSetupCode.DoorASM_Scroll_0_Blue_3_Red:
-            case DoorSetupCode.DoorASM_Scroll_1_Blue_4_Red:
-            case DoorSetupCode.DoorASM_Scroll_0_Blue_1_2_3_Red:
-            case DoorSetupCode.DoorASM_Scroll_0_Green_duplicate:
-            case DoorSetupCode.DoorASM_Scroll_0_1_Blue_4_Red:
-            case DoorSetupCode.DoorASM_Scroll_0_Blue_3_Red_duplicate:
-            case DoorSetupCode.DoorASM_Scroll_0_Blue_duplicate:
-            case DoorSetupCode.DoorASM_Scroll_0_Blue_1_Red_duplicate:
-            case DoorSetupCode.DoorASM_Scroll_18_Blue:
-            case DoorSetupCode.DoorASM_Scroll_2_Blue_3_Red:
-            case DoorSetupCode.DoorASM_Scroll_E_Red:
-            case DoorSetupCode.DoorASM_Scroll_1_Blue:
-            case DoorSetupCode.DoorASM_Scroll_0_Green_duplicate_again:
-            case DoorSetupCode.DoorASM_Scroll_3_Red_4_Blue:
-            case DoorSetupCode.DoorASM_Scroll_29_Blue:
-            case DoorSetupCode.DoorASM_Scroll_28_2E_Green:
-            case DoorSetupCode.DoorASM_Scroll_6_7_8_9_A_B_Red:
-            case DoorSetupCode.DoorASM_Scroll_A_Red_B_Blue:
-            case DoorSetupCode.DoorASM_Scroll_0_Red_4_Blue_duplicate:
-            case DoorSetupCode.DoorASM_Scroll_0_Red_1_Blue:
-            case DoorSetupCode.DoorASM_Scroll_9_Red_A_Blue:
-            case DoorSetupCode.DoorASM_Scroll_0_2_Red_1_Blue:
-            case DoorSetupCode.DoorASM_Scroll_1_Blue_duplicate:
-            case DoorSetupCode.DoorASM_Scroll_6_Blue:
-            case DoorSetupCode.DoorASM_Scroll_4_Red_duplicate:
-            case DoorSetupCode.DoorASM_Scroll_4_7_Red:
-            case DoorSetupCode.DoorASM_Scroll_1_Blue_2_Red_duplicate:
-            case DoorSetupCode.DoorASM_Scroll_0_2_Green_duplicate:
-            case DoorSetupCode.DoorASM_Scroll_0_1_Green_duplicate:
-            case DoorSetupCode.DoorASM_Scroll_18_Blue_19_Red:
+            case DoorSetupCode.ParlorOpensScreen1x1:
+            case DoorSetupCode.ParlorOpensScreen0x0TopAligned:
+            case DoorSetupCode.LandingSiteOpensScreen1x2TopAligned:
+            case DoorSetupCode.ParlorClosesScreen4x0OpensScreen3x1:
+            case DoorSetupCode.BowlingAlleyClosesScreens2x1And3x1And4x1And5x1:
+            case DoorSetupCode.BowlingAlleyClosesScreens2x0And3x0And4x0And5x0And5x1And0x2And1x2And5x2:
+            case DoorSetupCode.CrateriaKihunterOpensScreens1x0And1x1:
+            case DoorSetupCode.ClimbOpensScreen2x0TopAligned:
+            case DoorSetupCode.ClimbOpensScreen2x7TopAligned:
+            case DoorSetupCode.GauntletETankOpensScreen4x0TopAligned:
+            case DoorSetupCode.CaterpillarFromRedBinstarElevOpensScreen0x2:
+            case DoorSetupCode.GreenPiratesShaftOpensScreen0x3:
+            case DoorSetupCode.GreenBrinstarMainShaftOpensScreens0x6And0x7:
+            case DoorSetupCode.EtecoonETankOpensScreens0x1And1x1TopAligned:
+            case DoorSetupCode.GreenBrinstarMainShaftOpensScreen1x7TopAligned:
+            case DoorSetupCode.PinkBrinstarPowerBombsOpensScreens0x1And1x1:
+            case DoorSetupCode.WarehouseEntranceClosesScreen0x0OpensScreen1x0:
+            case DoorSetupCode.DachoraOpensScreen4x1:
+            case DoorSetupCode.BigPinkClosesScreen3x5OpensScreen4x5TopAligned:
+            case DoorSetupCode.DachoraClosesScreen4x0:
+            case DoorSetupCode.BigPinkOpensScreens2x6And1x7And2x7:
+            case DoorSetupCode.BlueBrinstarETankOpensScreen2x0TopAligned:
+            case DoorSetupCode.KraidEyeDoorOpensScreen0x0:
+            case DoorSetupCode.RedTowerOpensScreens0x6And0x7:
+            case DoorSetupCode.RedFishClosesScreen2x0OpensScreen1x0TopAligned:
+            case DoorSetupCode.SporeSpawnSuperClosesScreen1x1OpensScreen1x0TopAligned:
+            case DoorSetupCode.EastTunnelFromWarehouseEntranceClosesScreen0x0OpensScreen0x1TopAligned:
+            case DoorSetupCode.WarehouseKihunterOpensScreens2x0And3x0TopAligned:
+            case DoorSetupCode.BelowSpazerOpensScreens0x0And1x0:
+            case DoorSetupCode.BigPinkOpensScreen1x0:
+            case DoorSetupCode.CaterpillarOpensScreens0x5And0x6:
+            case DoorSetupCode.CaterpillarFromHellwayOpensScreen0x2:
+            case DoorSetupCode.ConstructionZoneOpensScreen0x0OpensScreen0x1TopAligned:
+            case DoorSetupCode.GreenBrinstarElevOpensScreen0x2BelowTheRoom:
+            case DoorSetupCode.AcidStatueClosesScreens0x1And1x1OpensScreens0x2And1x2And2x2TopAligned:
+            case DoorSetupCode.LNSpringBallMazeClosesScreen1x1OpensScreen4x0OpensScreens1x0And2x0And3x0TopAligned:
+            case DoorSetupCode.CrocomireOpensScreens0x0And1x0TopAligned:
+            case DoorSetupCode.BatCaveClosesScreen0x1OpensScreen0x0TopAligned:
+            case DoorSetupCode.IceBeamGateOpensScreen3x1:
+            case DoorSetupCode.HiJumpETankOpensScreens0x0And0x1:
+            case DoorSetupCode.VolcanoClosesScreen2x2OpensScreens0x2And1x2TopAligned:
+            case DoorSetupCode.IceBeamSnakeClosesScreen0x1OpensScreen1x1TopAligned:
+            case DoorSetupCode.WastelandOpensScreen1x1:
+            case DoorSetupCode.FastPillarsSetupClosesScreen0x1OpensScreen0x2TopAligned:
+            case DoorSetupCode.RedKihunterShaftFromAmphitheatreClosesScreen0x1OpensScreen0x0TopAligned:
+            case DoorSetupCode.LNFirefleaClosesScreen1x1OpensScreen1x0TopAligned:
+            case DoorSetupCode.GoldenTorizoClosesScreens1x0And0x1And1x1OpensScreen0x0TopAligned:
+            case DoorSetupCode.WorstRoomInTheGameOpensScreen0x0:
+            case DoorSetupCode.LNFirefleaClosesScreen1x1OpensScreens0x0And1x0TopAligned:
+            case DoorSetupCode.RedKihunterShaftFromLNFirefleaClosesScreen0x1OpensScreen0x0TopAligned:
+            case DoorSetupCode.GreenBubblesMissilesOpensScreen0x0TopAligned:
+            case DoorSetupCode.PurpleShaftClosesScreen0x1OpensScreen0x0TopAligned:
+            case DoorSetupCode.IceBeamGateOpensScreen3x3TopAligned:
+            case DoorSetupCode.KronicBoostClosesScreen1x1OpensScreen0x1TopAligned:
+            case DoorSetupCode.MickeyMouseClosesScreen2x3:
+            case DoorSetupCode.SpongeBathOpensScreen1x0TopAligned:
+            case DoorSetupCode.ElectricDeathOpensScreen0x0:
+            case DoorSetupCode.BasementClosesScreen3x0OpensScreen4x0TopAligned:
+            case DoorSetupCode.WreckedShipMainShaftOpensScreen5x6TopAligned:
+            case DoorSetupCode.WreckedShipMainShaftOpensScreens4x6And4x7:
+            case DoorSetupCode.BowlingAlleyClosesScreens0x1And1x1And2x1And3x1And4x1And5x1:
+            case DoorSetupCode.HalfieClimbClosesScreen0x2OpensScreen1x2TopAligned:
+            case DoorSetupCode.EastTunnelFromGlassTunnelClosesScreen0x0OpensScreen0x1TopAligned:
+            case DoorSetupCode.CrabHoleClosesScreen0x0OpensScreen0x1TopAligned:
+            case DoorSetupCode.CaterpillarClosesScreen0x3OpensScreen1x3TopAligned:
+            case DoorSetupCode.GlassTunnelClosesScreens0x0And0x2OpensScreen0x1TopAligned:
+            case DoorSetupCode.BotwoonOpensScreen1x0TopAligned:
+            case DoorSetupCode.CrabShaftOpensScreen0x3TopAligned:
+            case DoorSetupCode.PantsClosesScreen0x2:
+            case DoorSetupCode.PantsClosesScreens0x2And1x3:
+            case DoorSetupCode.EastPantsClosesScreen0x2OpensScreen0x1TopAligned:
+            case DoorSetupCode.ThePreciousOpensScreens0x0And0x1:
+            case DoorSetupCode.StatuesOpensScreens0x0And0x1:
+            case DoorSetupCode.ClimbClosesScreen1x8OpensScreen0x8TopAligned:
             default:
                 if (DoorScrollChanges.Contains(door.SetupCode))
                     return;

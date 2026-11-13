@@ -3,7 +3,6 @@ using SuperMetroid.Diagnostics.Saves;
 using SuperMetroid.Core.Input;
 using System.Text.Json;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Diagnostics.Configuration;
 using SuperMetroid.Diagnostics.Recording;
@@ -38,12 +37,12 @@ internal sealed class AndroidSessionData : IDisposable
     /// <summary>Input recorder replaced after each successful debugger state load.</summary>
     private ControllerInputRecorder recorder;
 
-    /// <summary>Opens installed assets and RAM state, binds art and audio, and begins a reset-seeded recording.</summary>
+    /// <summary>Opens installed assets and saves, binds art and audio, and begins a reset-seeded recording.</summary>
     public AndroidSessionData(string root, string? cartridgePath = null)
     {
         this.root = root;
         // A caller-provided cartridge is an import input only. The session always
-        // opens the extracted installation and a RAM-only address space.
+        // opens the extracted installation, which the game runs on alone.
         if (cartridgePath is not null)
             SuperMetroid.AssetExtraction.Installation.GameAssetInstaller.Install(cartridgePath, root);
         var installation = new SuperMetroid.AssetExtraction.Installation.GameInstallation(root);
@@ -52,7 +51,7 @@ internal sealed class AndroidSessionData : IDisposable
         string ini = Path.Combine(root, "SuperMetroid.ini");
         if (!File.Exists(ini)) File.WriteAllText(ini, HostOptionsIni.DefaultFileContents);
         Options = HostOptionsIni.Parse(File.ReadAllText(ini), ini);
-        Bus = installation.OpenRuntimeAddressSpace();
+        installation.RequireExtractedContent();
         maps = installation.LoadMaps();
         SaveSlotStore saves = GameSaveFileStore.LoadOrMigrate(savePath, Path.Combine(root, "SuperMetroid.srm"), maps).Saves;
         saves = AndroidFileImport.ActivatePendingSave(root, savePath, maps) ?? saves;
@@ -86,8 +85,6 @@ internal sealed class AndroidSessionData : IDisposable
 
     /// <summary>Parsed host options; their game values are shared by the runtime, the debugger state store and recordings.</summary>
     public HostOptions Options { get; }
-    /// <summary>Live RAM-only address space, replaced when a debugger state is loaded.</summary>
-    public SuperMetroidAddressSpace Bus { get; private set; }
     /// <summary>Live game graph owned by the session worker.</summary>
     public SuperMetroidGame Game { get; private set; }
     /// <summary>Fingerprint of installed audio, maps, projectiles, and artwork.</summary>
@@ -110,19 +107,19 @@ internal sealed class AndroidSessionData : IDisposable
     /// <summary>Writes an automatic state only after an eligible completed door transition.</summary>
     public void SaveCompletedDoor(SuperMetroidGameState previousState) =>
         DoorTransitionAutosave.TrySave(Options.DoorTransitionAutosave, replay: false,
-            previousState, states, Bus, Game);
+            previousState, states, Game);
 
     /// <summary>Saves a manual debugger slot and flushes its accompanying input recording.</summary>
     public string SaveSlot(int slot)
     {
         if (slot == DebuggerStateFormat.AutomaticSlot)
             return "The auto slot is written at completed door transitions. Select 0-9 for a manual save.";
-        DebuggerSaveStateMetadata metadata = states.Save(slot, Bus, Game);
+        DebuggerSaveStateMetadata metadata = states.Save(slot, Game);
         FlushRecording();
         return $"Saved slot {slot}, frame {metadata.FrameNumber}, room {metadata.Room}.";
     }
 
-    /// <summary>Replaces the game, RAM, and audio graph with a validated slot and starts a seeded recording.</summary>
+    /// <summary>Replaces the game and its audio graph with a validated slot and starts a seeded recording.</summary>
     public string LoadSlot(int slot)
     {
         if (!states.TryLoad(slot, out DebuggerSaveStateLoadResult loaded))
@@ -132,7 +129,6 @@ internal sealed class AndroidSessionData : IDisposable
         // precise seed before future saves can overwrite this user-visible slot.
         loaded.BindGame(content, saveFile);
         recorder.Dispose();
-        Bus = loaded.AddressSpace;
         Game = loaded.Game;
         recorder = StartRecorder();
         string seed = Path.ChangeExtension(recorder.Path, ".seed.smstate");

@@ -99,13 +99,10 @@ internal sealed class DebuggerSaveStateStore : IDisposable
         return Path.Combine(directory, $"SuperMetroid-debug-slot-{SlotName(slot)}.smstate");
     }
 
-    /// <summary>Captures address space, gameplay and optional SPC state and writes it durably before replacing the selected slot.</summary>
-    public DebuggerSaveStateMetadata Save(
-        int slot,
-        SuperMetroidAddressSpace addressSpace,
-        SuperMetroidGame game)
+    /// <summary>Captures the game, its audio session among it, and writes it durably before replacing the selected slot.</summary>
+    public DebuggerSaveStateMetadata Save(int slot, SuperMetroidGame game)
     {
-        DebuggerSaveStateCapture capture = Capture(slot, addressSpace, game);
+        DebuggerSaveStateCapture capture = Capture(slot, game);
         WaitForPendingWrites();
         Write(capture);
         return capture.Metadata;
@@ -117,21 +114,19 @@ internal sealed class DebuggerSaveStateStore : IDisposable
     /// <paramref name="written"/> or <paramref name="failed"/> on the writing thread.
     /// </summary>
     /// <param name="slot">The slot written.</param>
-    /// <param name="addressSpace">The address space captured.</param>
     /// <param name="game">The game captured.</param>
     /// <param name="written">Receives the metadata once the slot holds the capture.</param>
     /// <param name="failed">Receives the failure when the write does not complete; the slot keeps its previous state.</param>
     /// <returns>The captured state's metadata.</returns>
     public DebuggerSaveStateMetadata SaveInBackground(
         int slot,
-        SuperMetroidAddressSpace addressSpace,
         SuperMetroidGame game,
         Action<DebuggerSaveStateMetadata> written,
         Action<Exception> failed)
     {
         Ensure.NotNull(written);
         Ensure.NotNull(failed);
-        DebuggerSaveStateCapture capture = Capture(slot, addressSpace, game);
+        DebuggerSaveStateCapture capture = Capture(slot, game);
         lock (writeGate)
         {
             pendingWrites = pendingWrites.ContinueWith(_ => WriteAndReport(capture, written, failed),
@@ -153,12 +148,11 @@ internal sealed class DebuggerSaveStateStore : IDisposable
     public void Dispose() => WaitForPendingWrites();
 
     /// <summary>Serializes the slot's state at this moment, with the metadata naming it.</summary>
-    private DebuggerSaveStateCapture Capture(int slot, SuperMetroidAddressSpace addressSpace, SuperMetroidGame game)
+    private DebuggerSaveStateCapture Capture(int slot, SuperMetroidGame game)
     {
         ValidateSlot(slot);
-        Ensure.NotNull(addressSpace);
         Ensure.NotNull(game);
-        EnsureRomMatches(addressSpace);
+        EnsureRomMatches();
         var metadata = new DebuggerSaveStateMetadata(
             DateTimeOffset.UtcNow,
             game.FrameNumber,
@@ -172,7 +166,7 @@ internal sealed class DebuggerSaveStateStore : IDisposable
         using var payload = new MemoryStream((int)Math.Min(previous + (long)previous / 8, Array.MaxLength));
         // The content may have loaded parts of itself since the last save.
         bound.Value.Refresh();
-        DebuggerObjectGraphSerializer.Serialize(payload, new DebuggerSaveStateRoot(addressSpace, game), bound.Value);
+        DebuggerObjectGraphSerializer.Serialize(payload, game, bound.Value);
         // The capture keeps the serialized bytes in the array they were written to rather than copying them out.
         ArraySegment<byte> written = payload.TryGetBuffer(out ArraySegment<byte> buffer)
             ? buffer
@@ -299,10 +293,10 @@ internal sealed class DebuggerSaveStateStore : IDisposable
         // The graph reader asks for a few bytes at a time; decompressing into a buffer serves those reads from memory
         // instead of entering the inflater for every field.
         using var decompressed = new BufferedStream(compressed, DecompressedReadBufferBytes);
-        DebuggerSaveStateRoot root;
+        SuperMetroidGame game;
         try
         {
-            root = DebuggerObjectGraphSerializer.Deserialize<DebuggerSaveStateRoot>(decompressed, bound.Value);
+            game = DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(decompressed, bound.Value);
         }
         catch (InvalidDataException exception) when (
             exception.Message.Contains(DebuggerObjectGraphSerializer.UnsupportedVersion, StringComparison.Ordinal))
@@ -312,21 +306,20 @@ internal sealed class DebuggerSaveStateStore : IDisposable
                 $"{DebuggerObjectGraphSerializer.UnsupportedVersion}: '{path}' was saved by a build with a different state layout. " +
                 exception.Message, exception);
         }
-        EnsureRomMatches(root.AddressSpace);
-        if (root.Game.FrameNumber != frame || root.Game.GameState != gameState ||
-            root.Game.GameplayActiveRoom?.Name != room ||
-            root.Game.GameplayActiveRoomState?.Name != roomState)
+        EnsureRomMatches();
+        if (game.FrameNumber != frame || game.GameState != gameState ||
+            game.GameplayActiveRoom?.Name != room ||
+            game.GameplayActiveRoomState?.Name != roomState)
         {
             throw new InvalidDataException(
                 "Debugger state payload does not agree with its frame/room metadata header.");
         }
 
         if (hostOptions is not null)
-            root.Game.ApplyAssists(hostOptions.ToAssists());
+            game.ApplyAssists(hostOptions.ToAssists());
 
         return new DebuggerSaveStateLoadResult(
-            root.AddressSpace,
-            root.Game,
+            game,
             new DebuggerSaveStateMetadata(savedUtc, frame, gameState, room, roomState, path), warnings.AsReadOnly());
     }
 
@@ -349,12 +342,10 @@ internal sealed class DebuggerSaveStateStore : IDisposable
         return true;
     }
 
-    /// <summary>Requires the installed content receipt's supported ROM digest; mutable live memory contains no cartridge image to hash.</summary>
-    private void EnsureRomMatches(SuperMetroidAddressSpace addressSpace)
+    /// <summary>Requires the installed content receipt's supported ROM digest; the game holds no cartridge image to hash.</summary>
+    private void EnsureRomMatches()
     {
-        Ensure.NotNull(addressSpace);
-        // The live address space contains only mutable memory. Source revision is
-        // validated when assets are installed and recorded in the content receipt.
+        // Source revision is validated when assets are installed and recorded in the content receipt.
         if (!CryptographicOperations.FixedTimeEquals(SupportedCartridge.CreateSha256Digest(), romDigest))
             throw new InvalidDataException(
                 "Debugger states require an installed, revision-verified content identity.");
@@ -447,15 +438,4 @@ internal sealed class DebuggerSaveStateStore : IDisposable
     /// <param name="Metadata">The capture's frame, room and destination slot file.</param>
     /// <param name="Payload">The serialized object graph, before compression.</param>
     private sealed record DebuggerSaveStateCapture(DebuggerSaveStateMetadata Metadata, ReadOnlyMemory<byte> Payload);
-
-    /// <summary>Groups the three runtime owners serialized together as one debugger capture.</summary>
-    private sealed class DebuggerSaveStateRoot(
-        SuperMetroidAddressSpace addressSpace,
-        SuperMetroidGame game)
-    {
-        /// <summary>Mutable WRAM, SRAM and bus state at the captured frame.</summary>
-        public readonly SuperMetroidAddressSpace AddressSpace = addressSpace;
-        /// <summary>Gameplay and frontend state at the captured frame.</summary>
-        public readonly SuperMetroidGame Game = game;
-    }
 }

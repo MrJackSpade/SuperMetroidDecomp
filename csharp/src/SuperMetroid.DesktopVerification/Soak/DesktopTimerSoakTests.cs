@@ -132,7 +132,6 @@ internal static class DesktopTimerSoakTests
     private static void CreateDesktopSoakSeed(SuperMetroid.AssetExtraction.Installation.GameInstallation installation,
         SuperMetroidGameOptions options, bool paused)
     {
-        var bus = installation.OpenRuntimeAddressSpace();
         var game = InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(), options.ToAssists());
         var clips = DesktopAccess.LoadAudioClips();
         game.BindAudio(clips);
@@ -148,6 +147,6 @@ internal static class DesktopTimerSoakTests
         var identity = SuperMetroid.AssetExtraction.Installation.GameContentIdentity.Create(installation.LoadAudioClips(),
             installation.LoadMaps(), installation.LoadProjectiles());
         DebuggerSaveStateStore.ForInstalledGame(installation.Root, options, identity,
-            new SuperMetroid.Diagnostics.Sessions.InstalledSessionContent(RepositoryInstallation.Artwork, clips)).Save(0, bus, game);
+            new SuperMetroid.Diagnostics.Sessions.InstalledSessionContent(RepositoryInstallation.Artwork, clips)).Save(0, game);
     }
 }

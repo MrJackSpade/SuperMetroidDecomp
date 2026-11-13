@@ -12,7 +12,6 @@ using Microsoft.Win32;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Saves;
-using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Samus;
@@ -75,8 +74,6 @@ public sealed class PlayableGameControl : UserControl
     private readonly WindowsGamepadInput gamepad = new();
     /// <summary>Elapsed wall-clock updates waiting to be simulated.</summary>
     private double pendingPlaybackFrames;
-    /// <summary>Mutable emulated memory for the current installed-content session.</summary>
-    internal SuperMetroidAddressSpace addressSpace;
     /// <summary>Current frontend dispatcher and its retained display state.</summary>
     internal SuperMetroidGame game;
     /// <summary>Host-owned PCM storage; the device copies each frame on submit.</summary>
@@ -231,7 +228,7 @@ public sealed class PlayableGameControl : UserControl
     }
 
     /// <summary>Starts a new display generation before resetting a software-rendered session.</summary>
-    [MemberNotNull(nameof(addressSpace), nameof(game), nameof(stateStore))]
+    [MemberNotNull(nameof(game), nameof(stateStore))]
     private void Restart()
     {
         if (gpuWorker is not null) throw new InvalidOperationException("Live restart must use the asynchronous generation boundary.");
@@ -239,8 +236,8 @@ public sealed class PlayableGameControl : UserControl
         RestartCore();
     }
 
-    /// <summary>Recreates game, memory, audio, recorder, and artwork from installed content.</summary>
-    [MemberNotNull(nameof(addressSpace), nameof(game), nameof(stateStore))]
+    /// <summary>Recreates game, audio, recorder, and artwork from installed content.</summary>
+    [MemberNotNull(nameof(game), nameof(stateStore))]
     private void RestartCore()
     {
         keyboard.Clear();
@@ -254,7 +251,7 @@ public sealed class PlayableGameControl : UserControl
         // ordinary in-window reset depend on a mid-session disk edit and would obscure the
         // exact options with which the debugger-visible session was constructed.
         var installation = new GameInstallation(playerDataDirectory);
-        addressSpace = installation.OpenRuntimeAddressSpace();
+        installation.RequireExtractedContent();
         mapPresentation = installation.LoadMaps();
         InstalledClipAudioLibrary selectedAudioAssets = installation.LoadAudioClips();
         if (hostOptions.AudioEnabled)
@@ -306,13 +303,12 @@ public sealed class PlayableGameControl : UserControl
         canvas.Focus();
     }
 
-    /// <summary>Persists the selected debugger slot with current game, memory, and SPC state.</summary>
+    /// <summary>Persists the selected debugger slot with the current game and its audio session.</summary>
     internal void SaveDebuggerState(int slot)
     {
         if (driver is not null)
             throw new InvalidOperationException("Debugger states are disabled while a recorded timeline drives the host.");
-        DebuggerSaveStateMetadata metadata = stateStore.Save(
-            slot, addressSpace, game);
+        DebuggerSaveStateMetadata metadata = stateStore.Save(slot, game);
         statusLabel.Text =
             $"saved state {slot} | frame {metadata.FrameNumber} | " +
             FormatStateRoom(metadata.Room, metadata.RoomState);
@@ -360,7 +356,6 @@ public sealed class PlayableGameControl : UserControl
         try { if (!await BeginDisplayGenerationAsync()) return; }
         finally { if (!IsDisposed) Enabled = true; }
         if (rendererStopping || IsDisposed) return;
-        addressSpace = loaded.AddressSpace;
         game = loaded.BindGame(content ?? throw new InvalidOperationException(
             "Restored desktop session has no installed content."), saveFile);
         pendingDisplay = PresentationFrame(game.GetRetainedDisplay());
@@ -520,7 +515,7 @@ public sealed class PlayableGameControl : UserControl
                 });
             }
             DoorTransitionAutosave.TrySave(hostOptions.DoorTransitionAutosave, driver is not null,
-                previousGameState, stateStore, addressSpace, game);
+                previousGameState, stateStore, game);
             frameTimings.RecordEmulatedFrame(Stopwatch.GetTimestamp() - frameStarted);
             PublishGpuDisplay();
         }

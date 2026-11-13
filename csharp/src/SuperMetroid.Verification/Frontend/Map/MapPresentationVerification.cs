@@ -302,16 +302,15 @@ internal static class MapPresentationVerification
             AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock), "a corrupt installed map fails where it is decoded");
         }
         finally { File.WriteAllBytes(mapPath, installedMap); }
-        VerifyGameReadsNoImportColours(stock, original);
+        VerifyInstallationHoldsNoImportColours(stock, original);
         Console.WriteLine("Map catalog: deterministic reload, ROM-free exploration parity, live consumers and corruption errors pass.");
     }
 
     /// <summary>
-    /// Checks that the game's read of the map presentation loads no palette document (#1544): with every colour document
-    /// only the import reads taken out of the copy, the game's read still reads the same presentation, and the import's read
-    /// fails on the first document it needs.
+    /// Checks that the installation holds no colour document only the import reads (#1544, #1637): they are import data, the
+    /// installed copy holds none of them, and the game's read of it still reads the same presentation.
     /// </summary>
-    private static void VerifyGameReadsNoImportColours(string stock, AreaMapPresentation original)
+    private static void VerifyInstallationHoldsNoImportColours(string stock, AreaMapPresentation original)
     {
         string[] importColours =
         [
@@ -330,19 +329,15 @@ internal static class MapPresentationVerification
             SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork.CeresRidleyFloorColorFormat.FileName,
             SuperMetroid.AssetExtraction.Samus.SamusHyperBeamColorFormat.FileName,
         ];
-        Dictionary<string, byte[]> installed = importColours.ToDictionary(name => name, name => File.ReadAllBytes(Path.Combine(stock, name)));
-        try
+        string importData = SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.MapDirectoryName);
+        foreach (string name in importColours)
         {
-            foreach (string name in importColours) File.Delete(Path.Combine(stock, name));
-            InstalledAreaMapPresentation game = MapPresentationFiles.Load(stock);
-            AssertEqual(original.ContentIdentity, game.Game.ContentIdentity, "the game's read reads no colour document only the import reads");
-            AssertTrue(game is not ImportAreaMapPresentation, "the game's read holds none of the import's colours");
-            AssertThrows<FileNotFoundException>(() => MapPresentationFiles.LoadForImport(stock, SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.MapDirectoryName)), "the import's read requires its colour documents");
+            AssertTrue(!File.Exists(Path.Combine(stock, name)), $"the installation holds no {name}: it is import data");
+            AssertTrue(File.Exists(Path.Combine(importData, name)), $"the import extracts {name} into its import data");
         }
-        finally
-        {
-            foreach (KeyValuePair<string, byte[]> document in installed) File.WriteAllBytes(Path.Combine(stock, document.Key), document.Value);
-        }
+        InstalledAreaMapPresentation game = MapPresentationFiles.Load(stock);
+        AssertEqual(original.ContentIdentity, game.Game.ContentIdentity, "the game's read reads no colour document only the import reads");
+        AssertTrue(game is not ImportAreaMapPresentation, "the game's read holds none of the import's colours");
     }
 
     /// <summary>Checks that the stock map importer refuses to extract into a directory that already holds a stock catalog.</summary>
@@ -355,24 +350,26 @@ internal static class MapPresentationVerification
     {
         var bus = RetailBus();
         string stock = RepositoryInstallation.Installation.MapDirectory;
+        // The colour documents only the import reads are import data (#1637): their checks read them where the import does.
+        string importColours = SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.MapDirectoryName);
         AreaMapPresentation original = InstalledFixtures.Maps;
         Suite(nameof(VerifyTitleSpriteSources), () => VerifyTitleSpriteSources(bus));
         Suite(nameof(VerifyRoomFxLayer3TilemapsRejectMalformedDocuments), () => VerifyRoomFxLayer3TilemapsRejectMalformedDocuments(stock));
-        Suite(nameof(VerifyRoomFxPaletteBlendsRejectMalformedDocuments), () => VerifyRoomFxPaletteBlendsRejectMalformedDocuments(stock));
+        Suite(nameof(VerifyRoomFxPaletteBlendsRejectMalformedDocuments), () => VerifyRoomFxPaletteBlendsRejectMalformedDocuments(importColours));
         Suite(nameof(VerifyPowerBombFixedColorsRejectMalformedDocuments), () => VerifyPowerBombFixedColorsRejectMalformedDocuments(stock));
-        Suite(nameof(VerifySamusVisorColorsRejectMalformedDocuments), () => VerifySamusVisorColorsRejectMalformedDocuments(stock));
-        Suite(nameof(VerifySamusHurtColorsRejectMalformedDocuments), () => VerifySamusHurtColorsRejectMalformedDocuments(stock));
-        Suite(nameof(VerifySamusSuitColors), () => VerifySamusSuitColors(stock, original, bus, MapCatalogFixture.FixtureAssets));
-        Suite(nameof(VerifySamusFullBodyCycleColors), () => VerifySamusFullBodyCycleColors(stock, original, bus));
-        Suite(nameof(VerifyCrystalFlashColors), () => VerifyCrystalFlashColors(stock, original, bus));
-        Suite(nameof(VerifySamusChargeColors), () => VerifySamusChargeColors(stock, original, bus));
-        Suite(nameof(VerifyCeresRidleyColors), () => VerifyCeresRidleyColors(stock, original, bus,
+        Suite(nameof(VerifySamusVisorColorsRejectMalformedDocuments), () => VerifySamusVisorColorsRejectMalformedDocuments(importColours));
+        Suite(nameof(VerifySamusHurtColorsRejectMalformedDocuments), () => VerifySamusHurtColorsRejectMalformedDocuments(importColours));
+        Suite(nameof(VerifySamusSuitColors), () => VerifySamusSuitColors(importColours, original, bus, MapCatalogFixture.FixtureAssets));
+        Suite(nameof(VerifySamusFullBodyCycleColors), () => VerifySamusFullBodyCycleColors(importColours, original, bus));
+        Suite(nameof(VerifyCrystalFlashColors), () => VerifyCrystalFlashColors(importColours, original, bus));
+        Suite(nameof(VerifySamusChargeColors), () => VerifySamusChargeColors(importColours, original, bus));
+        Suite(nameof(VerifyCeresRidleyColors), () => VerifyCeresRidleyColors(importColours, original, bus,
             MapCatalogFixture.FixtureAssets));
-        Suite(nameof(VerifyCeresRidleyMode7Colors), () => VerifyCeresRidleyMode7Colors(stock, original, bus));
-        Suite(nameof(VerifySamusHyperBeamColorsRejectMalformedDocuments), () => VerifySamusHyperBeamColorsRejectMalformedDocuments(stock));
-        Suite(nameof(VerifyMotherBrainHealthPalette), () => VerifyMotherBrainHealthPalette(bus, stock, original));
+        Suite(nameof(VerifyCeresRidleyMode7Colors), () => VerifyCeresRidleyMode7Colors(importColours, original, bus));
+        Suite(nameof(VerifySamusHyperBeamColorsRejectMalformedDocuments), () => VerifySamusHyperBeamColorsRejectMalformedDocuments(importColours));
+        Suite(nameof(VerifyMotherBrainHealthPalette), () => VerifyMotherBrainHealthPalette(bus, importColours, original));
         Suite(nameof(VerifyMotherBrainRainbowPalette), () => VerifyMotherBrainRainbowPalette(bus, stock, original));
-        Suite(nameof(VerifyMotherBrainRoomColors), () => VerifyMotherBrainRoomColors(bus, stock, original));
+        Suite(nameof(VerifyMotherBrainRoomColors), () => VerifyMotherBrainRoomColors(bus, importColours, original));
     }
 
     /// <summary>Checks the installed pause backdrops and buttons, in a run of their own.</summary>

@@ -45,10 +45,10 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// <summary>
 /// Reads the installed map and menu presentation (#1409), as the player may have edited it in place, compiled into the
 /// presentation catalog the game binds. The game's read (<see cref="Load"/>) reads no palette document (#1544): the colours
-/// it shows that no picture holds are the scene colours (<see cref="SceneColourFiles"/>), and the colour documents only the
-/// import pre-colours sheets from are read by the import's read (<see cref="LoadForImport"/>) alone. Neither reads a
-/// character page from the installation: the pages are import data (#1636), which only the import's read reads, from the
-/// component's import-data directory (<see cref="PageFiles"/>).
+/// it shows that no picture holds are the scene colours (<see cref="SceneColourFiles"/>). The colour documents only the
+/// import pre-colours sheets from (#1637) and the character pages (#1636) are import data, which only the import's read
+/// (<see cref="LoadForImport"/>) reads, from the component's import-data directory (<see cref="ImportDataFiles"/>): the
+/// installation holds none of them.
 /// </summary>
 public static class MapPresentationFiles
 {
@@ -70,8 +70,12 @@ public static class MapPresentationFiles
     /// compositions and the title floor's map, read together with their pages.
     /// </summary>
     private static readonly string[] ImportCompositionFiles = [MapSpriteFormat.JsonFile, TitleGraphicsFormat.FloorMapFile];
-    /// <summary>The installed colour documents only the import reads, which the game's read leaves unread.</summary>
-    private static readonly string[] ImportColourFiles =
+    /// <summary>
+    /// The colour documents only the import pre-colours sheets from (#1544), which the extraction writes to the component's
+    /// import-data directory beside the pages (#1637), and the game's read leaves unread: the installation never holds them.
+    /// The manifest lists their hashes beside the documents'.
+    /// </summary>
+    internal static readonly string[] ImportColourFiles =
     [
         MapStaticPalettesFormat.FileName, TitlePaletteFormat.FileName, MotherBrainHealthPaletteFile.FileName,
         MotherBrainRoomColorFormat.FileName, RoomFxPaletteBlendDefinitions.FileName, SamusVisorColorFile.FileName,
@@ -79,6 +83,9 @@ public static class MapPresentationFiles
         CrystalFlashColorFile.FileName, SamusChargeColorFormat.FileName, CeresRidleyColorFormat.FileName,
         CeresRidleyFloorColorFormat.FileName, SamusHyperBeamColorFormat.FileName,
     ];
+
+    /// <summary>Every file of the component's import data: its pages and the colour documents only the import reads.</summary>
+    internal static readonly string[] ImportDataFiles = [.. PageFiles, .. ImportColourFiles];
 
     /// <summary>
     /// Reads all areas atomically into the catalog the game binds (<see cref="InstalledAreaMapPresentation.Game"/>), beside
@@ -96,10 +103,10 @@ public static class MapPresentationFiles
     /// <summary>
     /// Reads all areas atomically into the catalog the import composes from: the game's catalog with the characters, from
     /// the component's import data <paramref name="importData"/> (#1636), and the colours only the import pre-colours sheets
-    /// and pictures from (#1544). A file that does not decode fails loudly, naming the file.
+    /// and pictures from (#1544), from the same import data (#1637). A file that does not decode fails loudly, naming the file.
     /// </summary>
     /// <param name="directory">The component's directory, holding the manifest and the documents.</param>
-    /// <param name="importData">The component's import-data directory, holding the character and tile pages.</param>
+    /// <param name="importData">The component's import-data directory, holding the character and tile pages and the import's colour documents.</param>
     public static ImportAreaMapPresentation LoadForImport(string directory, string importData)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(importData);
@@ -287,14 +294,15 @@ public static class MapPresentationFiles
             bytes.Offset, bytes.Count, writable: false, publiclyVisible: true);
 
     /// <summary>
-    /// Reads the files the extraction manifest lists, each as extracted: a document from the component's directory and a
-    /// character page from its import data (#1636), which only the import's read has.
+    /// Reads the files the extraction manifest lists, each as extracted: an installed document from the component's directory,
+    /// and a character page (#1636) or a colour document only the import reads (#1637) from its import data, which only the
+    /// import's read has.
     /// </summary>
     private sealed class InstalledMapReader : IDisposable
     {
         /// <summary>Root of the installed map presentation files.</summary>
         private readonly string directory;
-        /// <summary>The component's import-data directory holding its pages, for the import's read; none for the game's.</summary>
+        /// <summary>The component's import-data directory holding its pages and import colours, for the import's read; none for the game's.</summary>
         private readonly string? importData;
         /// <summary>The extraction manifest, which lists every installed file the catalog reads.</summary>
         private readonly AreaMapCatalogManifest manifest;
@@ -313,7 +321,7 @@ public static class MapPresentationFiles
 
         /// <summary>
         /// Loads and validates the manifest's version and required resource count; <paramref name="importData"/> is the
-        /// component's import-data directory for the import's read, and none for the game's, which reads no page.
+        /// component's import-data directory for the import's read, and none for the game's, which reads no import data.
         /// </summary>
         public static InstalledMapReader Open(string directory, string? importData)
         {
@@ -330,16 +338,16 @@ public static class MapPresentationFiles
             return new InstalledMapReader(directory, importData, manifest);
         }
 
-        /// <summary>The full path of a file, for diagnostics: a page's in the import data, a document's in the directory.</summary>
+        /// <summary>The full path of a file, for diagnostics: an import-data file's in the import data, an installed document's in the directory.</summary>
         public string PathOf(string file) => Path.GetFullPath(Path.Combine(DirectoryOf(file), file));
 
         /// <summary>
-        /// The directory <paramref name="file"/> is read from: the import data for a page (#1636), the component's directory
-        /// for a document.
+        /// The directory <paramref name="file"/> is read from: the import data for a page (#1636) or an import colour document
+        /// (#1637), the component's directory for an installed document.
         /// </summary>
-        /// <exception cref="InvalidOperationException">The file is a page and this read is the game's, which reads none.</exception>
-        private string DirectoryOf(string file) => !PageFiles.Contains(file) ? directory
-            : importData ?? throw new InvalidOperationException($"The game's read of the map presentation reads no character page, but {file} was asked for.");
+        /// <exception cref="InvalidOperationException">The file is import data and this read is the game's, which reads none.</exception>
+        private string DirectoryOf(string file) => !ImportDataFiles.Contains(file) ? directory
+            : importData ?? throw new InvalidOperationException($"The game's read of the map presentation reads no import data, but {file} was asked for.");
 
         /// <summary>Rents a buffer and reads one listed file into it.</summary>
         public ArraySegment<byte> Read(string file)

@@ -187,10 +187,15 @@ public static class MapPresentationExtractor
         using (var file = new FileStream(PathOf(EscapeTimerTileAtlasFormat.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(escapeTimerTileBytes);
         hashes.Add(EscapeTimerTileAtlasFormat.FileName, Convert.ToHexString(SHA256.HashData(escapeTimerTileBytes)));
+        // The HUD's cells are import data; its layout, decoded from them once, is installed (#1638).
         byte[] gameplayHudBytes = GameplayHudPresentationExtractor.Extract(bus);
-        using (var file = new FileStream(Path.Combine(directory, GameplayHudDocumentDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
+        using (var file = new FileStream(PathOf(GameplayHudDocumentDefinitions.ArtworkFileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(gameplayHudBytes);
-        hashes.Add(GameplayHudDocumentDefinitions.FileName, Convert.ToHexString(SHA256.HashData(gameplayHudBytes)));
+        hashes.Add(GameplayHudDocumentDefinitions.ArtworkFileName, Convert.ToHexString(SHA256.HashData(gameplayHudBytes)));
+        byte[] gameplayHudLayoutBytes = GameplayHudLayoutFile.Encode(GameplayHudPresentationFile.Read(new MemoryStream(gameplayHudBytes, writable: false)));
+        using (var file = new FileStream(PathOf(GameplayHudDocumentDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
+            file.Write(gameplayHudLayoutBytes);
+        hashes.Add(GameplayHudDocumentDefinitions.FileName, Convert.ToHexString(SHA256.HashData(gameplayHudLayoutBytes)));
         byte[] gameOverBytes = GameOverPresentationExtractor.Extract(bus);
         using (var file = new FileStream(Path.Combine(directory, GameOverPresentationFormat.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(gameOverBytes);

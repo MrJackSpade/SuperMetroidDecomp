@@ -30,7 +30,6 @@ public class InstalledAreaMapPresentation
         HighlightColours = Ensure.NotNull(sources.HighlightColours);
         PauseSelectors = Ensure.NotNull(sources.PauseSelectors);
         PauseReserveTanks = Ensure.NotNull(sources.PauseReserveTanks);
-        GameplayHud = Ensure.NotNull(sources.GameplayHud);
         GameOptions = Ensure.NotNull(sources.GameOptions);
         GameOverSource = Ensure.NotNull(sources.GameOver);
     }
@@ -67,12 +66,6 @@ public class InstalledAreaMapPresentation
     /// binds (<see cref="AreaMapPresentation.PauseReserveTanks"/>).
     /// </summary>
     public PauseReserveTankSourcePresentation PauseReserveTanks { get; }
-
-    /// <summary>
-    /// The gameplay HUD's tiles, which the import pictures every HUD image from, with the layout the game binds
-    /// (<see cref="AreaMapPresentation.GameplayHud"/>).
-    /// </summary>
-    public GameplayHudArtwork GameplayHud { get; }
 
     /// <summary>
     /// The options screen's pages, labels and compositions, which the import composes the options and menu sheets from, with

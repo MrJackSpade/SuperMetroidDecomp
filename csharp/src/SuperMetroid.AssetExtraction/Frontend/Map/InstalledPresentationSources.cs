@@ -25,7 +25,6 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// </param>
 /// <param name="PauseSelectors">The equipment selectors' frame compositions with the anchors and timing the game binds (#1616).</param>
 /// <param name="PauseReserveTanks">The reserve strip's frame compositions with the anchors the game binds (#1616).</param>
-/// <param name="GameplayHud">The gameplay HUD's tiles with the layout the game binds (#1616).</param>
 /// <param name="GameOptions">The options screen's pages, labels and compositions with the anchors the game binds (#1616).</param>
 [ArchitectureReview("context-bag", "The installed documents an installed map presentation was read with; every member is immutable artwork data the import composes pictures from, not a service.")]
 internal sealed record InstalledPresentationSources(
@@ -35,7 +34,6 @@ internal sealed record InstalledPresentationSources(
     MapPaletteCycle HighlightColours,
     PauseSelectorSourcePresentation PauseSelectors,
     PauseReserveTankSourcePresentation PauseReserveTanks,
-    GameplayHudArtwork GameplayHud,
     GameOptionsSourcePresentation GameOptions)
 {
     /// <summary>The game-over page's tiles, compositions and palette selectors, which the menus' pictures and the game-over sheet are composed from (#1616).</summary>

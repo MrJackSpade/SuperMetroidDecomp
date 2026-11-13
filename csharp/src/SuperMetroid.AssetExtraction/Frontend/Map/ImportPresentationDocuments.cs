@@ -17,5 +17,6 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// <param name="Pause">The pause screen's backdrops, wireframes and equipment-page artwork, pictured into the pause sheet.</param>
 /// <param name="RoomFxPages">The room effects' BG3 pages, pictured into each tileset's BG3 sheet.</param>
 /// <param name="Messages">The gameplay messages' titles, panels and notices, whose words compose each message box picture.</param>
+/// <param name="GameplayHud">The gameplay HUD's tiles, which every HUD image is pictured from, with the layout they are cut by.</param>
 internal sealed record ImportPresentationDocuments(FileSelectSourcePresentation FileSelect, PauseScreenArtwork Pause, RoomFxLayer3Pages RoomFxPages,
-    GameplayMessageArtwork Messages);
+    GameplayMessageArtwork Messages, GameplayHudArtwork GameplayHud);

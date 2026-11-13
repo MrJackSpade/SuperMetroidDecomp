@@ -39,6 +39,7 @@ public sealed class ImportAreaMapPresentation : InstalledAreaMapPresentation
         Pause = Ensure.NotNull(documents.Pause);
         RoomFxPages = Ensure.NotNull(documents.RoomFxPages);
         Messages = Ensure.NotNull(documents.Messages);
+        GameplayHud = Ensure.NotNull(documents.GameplayHud);
         Ensure.NotNull(characters);
         Characters = Ensure.NotNull(characters.Characters);
         Sprites = Ensure.NotNull(characters.Sprites);
@@ -78,6 +79,12 @@ public sealed class ImportAreaMapPresentation : InstalledAreaMapPresentation
 
     /// <summary>The gameplay messages, import data (#1638), whose words the import composes each message box picture from (#1466).</summary>
     public GameplayMessageArtwork Messages { get; }
+
+    /// <summary>
+    /// The gameplay HUD's tiles, import data (#1638), which the import pictures every HUD image from, with the installed layout
+    /// the game binds (<see cref="AreaMapPresentation.GameplayHud"/>).
+    /// </summary>
+    public GameplayHudArtwork GameplayHud { get; }
 
     /// <summary>The characters the map screens, the pause interface and the HUD are pictured from.</summary>
     public MapCharacterArtwork Characters { get; }

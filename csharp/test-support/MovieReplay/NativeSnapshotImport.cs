@@ -155,7 +155,7 @@ internal static class NativeSnapshotImport
         SamusBodyHalfFrame drawnTop = SamusSpritemapNative.Frame(bodyArtwork.Spritemaps, SamusPoseNumbering.FromNumber(W(NativeSnapshotMemory.Pose)), SamusBodyHalf.Top, W(NativeSnapshotMemory.SamusTopSpritemap))
             ?? throw new InvalidDataException("The native Ridley checkpoint names no top body picture.");
         samus.Presentation.DrawnFrame = new SamusBodyFrame(drawnTop.Pose, drawnTop.AnimationFrame);
-        samus.Presentation.SpritemapPosition = new Position16<ScreenPixels>(W(NativeSnapshotMemory.SamusSpriteX), W(NativeSnapshotMemory.SamusSpriteY));
+        samus.Presentation.DrawOrigin = new Position16<ScreenPixels>(W(NativeSnapshotMemory.SamusSpriteX), W(NativeSnapshotMemory.SamusSpriteY));
         samus.ArmCannon.Frame = W(NativeSnapshotMemory.CannonFrame);
         samus.ArmCannon.StableSelectionUpdates = W(NativeSnapshotMemory.CannonToggle);
         samus.ArmCannon.DrawOrder = SuperMetroid.AssetExtraction.Samus.SamusArmCannonDrawOrderCodec.FromDrawingMode(W(NativeSnapshotMemory.CannonDrawingMode));

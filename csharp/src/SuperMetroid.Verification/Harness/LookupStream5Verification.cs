@@ -594,7 +594,7 @@ internal static class LookupStream5Verification
             while (Read(pointer + count * 6) != ushort.MaxValue)
             {
                 var label = elevators[count];
-                AssertEqual(Read(pointer + count * 6 + 4), MapSpriteOrdinals.Spritemaps.Word(MapLandmarks.ElevatorSpritemap(label.Destination)), "Native destination identity");
+                AssertEqual(Read(pointer + count * 6 + 4), MapSpriteOrdinals.Spritemaps.Word(MapLandmarks.ElevatorPicture(label.Destination)), "Native destination identity");
                 AssertEqual(Read(pointer + count * 6), layout.Get(label.Id).X, "Native elevator X");
                 AssertEqual(Read(pointer + count * 6 + 2), layout.Get(label.Id).Y, "Native elevator Y");
                 count++;

@@ -63,7 +63,7 @@ internal sealed class SpawnAnalysis
     {
         RequireMembers(model.EnemyFrameId, Walk.ExcludedEnemyFrames);
         RequireMembers(model.EnemyProjectileFrameId, Walk.ExcludedProjectileFrames);
-        RequireEmptySpritemapFrames(model);
+        RequireEmptyFrames(model);
         var analysis = new SpawnAnalysis(model);
         var scanner = new UnitScanner(model);
         var reached = new HashSet<Unit>();
@@ -274,15 +274,15 @@ internal sealed class SpawnAnalysis
 
     /// <summary>
     /// Requires the projectile frames the generator excludes, the blank frame aside, to be exactly those Core's
-    /// <c>EnemyProjectileEmptyFrameDefinitions.EmptySpritemapFrames</c> lists as drawing nothing, so a frame Core draws
+    /// <c>EnemyProjectileEmptyFrameDefinitions.EmptyFrames</c> lists as drawing nothing, so a frame Core draws
     /// nothing for is on no sheet and a frame Core draws is on its sheet.
     /// </summary>
     /// <exception cref="InvalidDataException">The catalog is missing or lists other frames.</exception>
-    private static void RequireEmptySpritemapFrames(CoreModel model)
+    private static void RequireEmptyFrames(CoreModel model)
     {
         INamedTypeSymbol[] catalogs = [.. model.Types.Where(type => type.Name == "EnemyProjectileEmptyFrameDefinitions")];
-        if (catalogs is not [var catalog] || catalog.GetMembers("EmptySpritemapFrames") is not [IFieldSymbol field])
-            throw new InvalidDataException("Core declares no single EnemyProjectileEmptyFrameDefinitions.EmptySpritemapFrames.");
+        if (catalogs is not [var catalog] || catalog.GetMembers("EmptyFrames") is not [IFieldSymbol field])
+            throw new InvalidDataException("Core declares no single EnemyProjectileEmptyFrameDefinitions.EmptyFrames.");
         var listed = new SortedSet<string>(StringComparer.Ordinal);
         foreach (SyntaxReference reference in field.DeclaringSyntaxReferences)
         {
@@ -301,7 +301,7 @@ internal sealed class SpawnAnalysis
         if (!listed.SetEquals(excluded))
         {
             throw new InvalidDataException("The generator's excluded projectile frames (" + string.Join(", ", excluded)
-                + ") are not the frames EnemyProjectileEmptyFrameDefinitions.EmptySpritemapFrames lists (" + string.Join(", ", listed) + ").");
+                + ") are not the frames EnemyProjectileEmptyFrameDefinitions.EmptyFrames lists (" + string.Join(", ", listed) + ").");
         }
     }
 

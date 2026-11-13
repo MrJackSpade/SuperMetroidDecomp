@@ -1,7 +1,7 @@
 ﻿namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
 
-/// <summary>Development-tool members of <see cref="CrocomireBodyFrameSpritemaps"/>; never linked by player hosts.</summary>
-internal static class CrocomireBodyFrameSpritemapsTooling
+/// <summary>Development-tool members of <see cref="CrocomireBodyFrames"/>; never linked by player hosts.</summary>
+internal static class CrocomireBodyFramesTooling
 {
     /// <summary>The installed extended spritemap <paramref name="frame"/> shows.</summary>
     internal static ushort Spritemap(CrocomireBodyFrame frame) => frame.Set switch

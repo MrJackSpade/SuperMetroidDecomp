@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
 
 /// <summary>The presentation boundary of Crocomire's body frames: the installed frame each one shows.</summary>
-internal static class CrocomireBodyFrameSpritemaps
+internal static class CrocomireBodyFrames
 {
 
     /// <summary>The installed frame each <see cref="CrocomireBodyFrame"/> shows.</summary>

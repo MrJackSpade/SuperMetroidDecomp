@@ -64,7 +64,7 @@ internal static class PhantoonAnimationsVerification
         AssertTrue(PartEntriesAscend, "native Phantoon part entries ascend");
 
         int stepCount = NativeEnemyAnimationOracle.CompareAll(cartridge, PartBankNumber, PartEntries, PhantoonAnimations.Segments,
-            PhantoonAnimations.StartingAt, PhantoonPartFrameSpritemapsConstants.Spritemap,
+            PhantoonAnimations.StartingAt, PhantoonPartFramesConstants.Spritemap,
             new NativeEnemyCueRules<PhantoonPartCue>(word => word == CallFunctionInY ? 1 : null, (word, operands, cue, at) =>
             {
                 AssertTrue(PartCallbacks.TryGetValue(operands[0], out PhantoonPartCue native), $"{at}: native routine ${operands[0]:X4} is known");
@@ -100,14 +100,14 @@ internal static class PhantoonAnimationsVerification
         for (int frame = 0; frame < 3; frame++)
         {
             Pass(eye, forceExpiry: true);
-            AssertEqual(PhantoonPartFrameSpritemapsConstants.Spritemap(new PhantoonPartFrame(PhantoonPartFrameKind.OpeningEye, frame)), eye.SpritemapPointer, $"opening eye frame {frame}");
+            AssertEqual(PhantoonPartFramesConstants.Spritemap(new PhantoonPartFrame(PhantoonPartFrameKind.OpeningEye, frame)), eye.SpritemapPointer, $"opening eye frame {frame}");
         }
         AssertTrue(enemies.Audio.LatestSound is null, "the materialization sound waits for the last frame to expire");
         Pass(eye, forceExpiry: true);
         AssertTrue(enemies.Audio.LatestSound.HasValue, "the opened eye queues its materialization sound");
         AssertEqual(PhantoonPartSegment.EyeHitboxBody, PartProgram(enemies, state.Body), "the opened eye installs the eye-only body hitbox");
         AssertEqual(PhantoonPartSegment.EyeOpen, PartProgram(enemies, eye), "the list's sleep keeps the eye on its opened program");
-        AssertEqual(PhantoonPartFrameSpritemapsConstants.Spritemap(new PhantoonPartFrame(PhantoonPartFrameKind.OpeningEye, 2)), eye.SpritemapPointer, "the opened eye keeps its last frame");
+        AssertEqual(PhantoonPartFramesConstants.Spritemap(new PhantoonPartFrame(PhantoonPartFrameKind.OpeningEye, 2)), eye.SpritemapPointer, "the opened eye keeps its last frame");
         AssertEqual((ushort)1, eye.AnimationClock.Hold.RawValue, "the callback's one-update timer survives the sleep");
     }
 
@@ -124,7 +124,7 @@ internal static class PhantoonAnimationsVerification
         Pass(mouth, forceExpiry: true);
         AssertEqual(1, ActiveFlames(enemies), "the mouth spawns one casual flame");
         AssertEqual(PhantoonPartSegment.MouthInitial, PartProgram(enemies, mouth), "the mouth runs on into its initial program");
-        AssertEqual(PhantoonPartFrameSpritemapsConstants.Spritemap(new PhantoonPartFrame(PhantoonPartFrameKind.Mouth, 0)), mouth.SpritemapPointer, "the mouth shows its closed frame at once");
+        AssertEqual(PhantoonPartFramesConstants.Spritemap(new PhantoonPartFrame(PhantoonPartFrameKind.Mouth, 0)), mouth.SpritemapPointer, "the mouth shows its closed frame at once");
     }
 
     /// <summary>Active Phantoon destroyable flames.</summary>

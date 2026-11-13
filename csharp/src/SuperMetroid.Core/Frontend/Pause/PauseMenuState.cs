@@ -520,10 +520,10 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     {
         Position16<SpritePixels> origin = SamusMapCell().ToMapPixels().ToScreen(MapScrollPosition).ToSpritePosition();
         LastIndicatorOrigin = origin;
-        MapSpriteId indicator = PauseMapIndicatorAnimation.SpritemapId(MapIndicatorAnimationFrame);
+        MapSpriteId indicator = PauseMapIndicatorAnimation.SpriteId(MapIndicatorAnimationFrame);
         LastMapIndicatorSprite = indicator;
         LastSelectorCategory = null;
-        DrawMenuSpritemap(
+        DrawMapSprite(
             indicator,
             origin,
             MapSpriteColouring.Markers);
@@ -595,7 +595,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         ButtonHighlight = Enum.IsDefined(highlight) ? highlight : throw new ArgumentOutOfRangeException(nameof(highlight), highlight, "Undefined pause highlight.");
 
     /// <summary>Draws a map sprite sheet frame in the map's colours <paramref name="colouring"/>.</summary>
-    private void DrawMenuSpritemap(MapSpriteId id, Position16<SpritePixels> origin, MapSpriteColouring colouring) =>
+    private void DrawMapSprite(MapSpriteId id, Position16<SpritePixels> origin, MapSpriteColouring colouring) =>
         // Map compositions use this shared entry. Extracted equipment selectors
         // and reserve tanks draw through their semantic presentation owners.
         MapSpriteSheet.Draw(MapSheet, id, screen.Objects, origin, MapSpriteScreen.Pause, colouring);

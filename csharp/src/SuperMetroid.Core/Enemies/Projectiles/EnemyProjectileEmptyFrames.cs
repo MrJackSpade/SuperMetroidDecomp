@@ -10,5 +10,5 @@ internal static class EnemyProjectileEmptyFrames
     /// empty projectile picture (#1513).
     /// </summary>
     internal static bool DrawsNothing(EnemyProjectileFrameId frame) =>
-        frame == EnemyProjectileFrameId.Blank || EnemyProjectileEmptyFrameDefinitions.EmptySpritemapFrames.Contains(frame);
+        frame == EnemyProjectileFrameId.Blank || EnemyProjectileEmptyFrameDefinitions.EmptyFrames.Contains(frame);
 }

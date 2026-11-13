@@ -1,7 +1,7 @@
 ﻿namespace SuperMetroid.Core.Bosses.Phantoon.Artwork;
 
-/// <summary>Cartridge values and helpers of <see cref="PhantoonPartFrameSpritemaps"/> that only verification reads.</summary>
-internal static class PhantoonPartFrameSpritemapsConstants
+/// <summary>Cartridge values and helpers of <see cref="PhantoonPartFrames"/> that only verification reads.</summary>
+internal static class PhantoonPartFramesConstants
 {
     /// <summary>The BG2 frame or collision selector <paramref name="frame"/> shows.</summary>
     internal static ushort Spritemap(PhantoonPartFrame frame) => frame.Kind switch

@@ -210,7 +210,7 @@ internal sealed class CrocomireFight
     private static void ShowCrocomireBodyFrame(CrocomireEnemyState state, RoomEnemySlot body, CrocomireBodyFrame frame)
     {
         state.BodyFrame = frame;
-        body.Frame = CrocomireBodyFrameSpritemaps.ShownFrames.Of(frame);
+        body.Frame = CrocomireBodyFrames.ShownFrames.Of(frame);
     }
 
     /// <summary>

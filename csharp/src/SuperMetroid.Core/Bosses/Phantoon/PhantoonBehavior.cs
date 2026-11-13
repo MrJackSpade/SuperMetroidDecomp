@@ -326,7 +326,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         AnimationPlayback<PhantoonPartSegment> playback = state.PartPlayback(part);
         // Writing the playback back after the events lets the animation's own hold overwrite an event's install on
         // this part, as the Sleep does. Phantoon's part animations count no plays.
-        EnemyAnimationPlayback.Play(part, PhantoonAnimations.Segments, ref playback, PhantoonPartFrameSpritemaps.ShownFrames.Of,
+        EnemyAnimationPlayback.Play(part, PhantoonAnimations.Segments, ref playback, PhantoonPartFrames.ShownFrames.Of,
             cue =>
             {
                 ApplyPhantoonPartCue(part, cue);

@@ -123,7 +123,7 @@ internal sealed class MotherBrainHead
 
         Offset16<RoomPixels> brainShake = GetMotherBrainBrainShake(state, head);
         // The brain is published wherever it lies; the display clips it to the view (#1520).
-        DrawMotherBrainWorldSpritemap(
+        DrawMotherBrainWorldFrame(
             sprites,
             new SpriteSource(SpriteSourceKind.MotherBrainBrain),
             new MotherBrainWorldFrame(
@@ -145,7 +145,7 @@ internal sealed class MotherBrainHead
         for (int index = segments.Length - 1; index >= 0; index--)
         {
             Position16<RoomPixels> segment = segments[index];
-            DrawMotherBrainWorldSpritemap(
+            DrawMotherBrainWorldFrame(
                 sprites,
                 new SpriteSource(SpriteSourceKind.MotherBrainNeck, segments.Length - 1 - index),
                 new MotherBrainWorldFrame(MotherBrainVisualDefinitions.NeckJointFrame, segment + neckShake,
@@ -155,7 +155,7 @@ internal sealed class MotherBrainHead
     }
 
     /// <summary>Publishes a selected world-space Mother Brain frame from the head's sheet with palette and camera offsets.</summary>
-    internal void DrawMotherBrainWorldSpritemap(
+    internal void DrawMotherBrainWorldFrame(
         SpriteFrameBuffer sprites,
         SpriteSource source,
         MotherBrainWorldFrame frame,

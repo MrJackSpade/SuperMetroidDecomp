@@ -42,7 +42,7 @@ public static class MapLandmarkExtractor
             for (int i = 0; i < elevators.Count; i++)
             {
                 var label = elevators[i];
-                if (Read(elevator + i * 6 + 4) != MapSpriteOrdinals.Spritemaps.Word(MapLandmarks.ElevatorSpritemap(label.Destination)))
+                if (Read(elevator + i * 6 + 4) != MapSpriteOrdinals.Spritemaps.Word(MapLandmarks.ElevatorPicture(label.Destination)))
                     throw new InvalidDataException($"Elevator label destination differs from cartridge: {label.Id}.");
                 points.Add(label.Id, new(Read(elevator + i * 6), Read(elevator + i * 6 + 2)));
             }

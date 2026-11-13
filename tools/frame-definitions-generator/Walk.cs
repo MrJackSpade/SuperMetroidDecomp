@@ -143,7 +143,7 @@ internal sealed class Walk
 
     /// <summary>
     /// EnemyProjectileFrameId members that draw nothing and are on no sheet: the blank frame, and the program frames Core's
-    /// <c>EnemyProjectileEmptyFrameDefinitions.EmptySpritemapFrames</c> lists as showing the empty projectile spritemap.
+    /// <c>EnemyProjectileEmptyFrameDefinitions.EmptyFrames</c> lists as showing the empty projectile spritemap.
     /// </summary>
     public static readonly string[] ExcludedProjectileFrames =
     [

@@ -116,7 +116,7 @@ internal sealed class CeresRidleyHits
     {
         state.BodyFlashing = slot.FlashTimer != 0 && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(enemyMainExecutionCounter);
         // His drawn parts take the phase one pass ahead of his body's colours.
-        state.SpritemapFlashing = slot.FlashTimer > 1 && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(enemyMainExecutionCounter + 1);
+        state.TailAndWingsFlashing = slot.FlashTimer > 1 && EnemyDrawPhaseDefinitions.HurtFlashShown.IsSetIn(enemyMainExecutionCounter + 1);
     }
 
     /// <summary>

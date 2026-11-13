@@ -2,6 +2,8 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Diagnostics.SaveStates;
+using SuperMetroid.Diagnostics.Configuration;
+using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Verification.Runtime;
 using SuperMetroid.Verification.Harness;
 
@@ -59,6 +61,38 @@ internal static class DebuggerStateLayoutVerification
         }
     }
 
+    /// <summary>
+    /// #1623: a restored state holds the catalogs' own members, not copies, so it compares equal to them: a progress record
+    /// holding the doors the tester's encounter reset clears, an item location and a load station comes back with each
+    /// set's members being the catalog's objects and finding them, and a room's X-ray overlay comes back as the catalog's.
+    /// </summary>
+    internal static void VerifyDebuggerStateRestoresCatalogMembers()
+    {
+        IReadOnlyList<LockedDoor> eyeDoors = TesterAssistDefinitions.EncounterReset.ClearedDoors;
+        ItemLocation item = ItemLocationDefinitions.All[^1];
+        var progress = new PersistentProgress();
+        foreach (LockedDoor door in eyeDoors)
+            progress.OpenedDoors.Add(door);
+        progress.CollectedItems.Add(item);
+        progress.UsedStations.Add(LoadStationDefinitions.CrocomireSave);
+
+        PersistentProgress restored = DeserializeDebuggerGraph<PersistentProgress>(SerializeDebuggerGraph(progress));
+        AssertTrue(!ReferenceEquals(progress, restored) && !ReferenceEquals(progress.OpenedDoors, restored.OpenedDoors),
+            "the restore builds its own progress record");
+        AssertTrue(restored.OpenedDoors.Members.SequenceEqual(LockedDoorDefinitions.All.Where(eyeDoors.Contains)),
+            "the restored opened doors are the catalog's eye doors the tester's encounter reset clears");
+        AssertTrue(eyeDoors.All(restored.OpenedDoors.Contains), "the restored opened doors find each catalog eye door");
+        AssertTrue(restored.CollectedItems.Members.SequenceEqual([item]) && restored.CollectedItems.Contains(item),
+            "the restored collected items are the catalog's item location");
+        AssertTrue(ReferenceEquals(LoadStationDefinitions.CrocomireSave, restored.UsedStations.Members.Single()) &&
+            restored.UsedStations.Contains(LoadStationDefinitions.CrocomireSave), "the restored used station is the catalog's");
+
+        object[] overlay = [SuperMetroid.Core.Rooms.Xray.XrayRoomOverlayDefinitions.BombTorizoAnimalEscapeBlocks];
+        AssertTrue(ReferenceEquals(overlay[0], DeserializeDebuggerGraph<object[]>(SerializeDebuggerGraph(overlay))[0]),
+            "a restored X-ray overlay is the catalog's");
+        Console.WriteLine("Debugger state identities: restored progress sets and overlays hold the catalogs' own members.");
+    }
+
     /// <summary>Serializes a fixture object through the production debugger graph format.</summary>
     private static byte[] SerializeDebuggerGraph(object root)
     {
@@ -79,6 +113,7 @@ internal static class DebuggerStateLayoutVerification
     internal static int DebuggerStateLayoutCommand()
     {
         Suite(nameof(VerifyDebuggerStateRejectsStaleLayouts), () => VerifyDebuggerStateRejectsStaleLayouts());
+        Suite(nameof(VerifyDebuggerStateRestoresCatalogMembers), () => VerifyDebuggerStateRestoresCatalogMembers());
         return 0;
     }
 }

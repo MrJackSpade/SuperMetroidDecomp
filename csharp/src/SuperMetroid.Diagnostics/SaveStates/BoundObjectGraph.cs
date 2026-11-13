@@ -27,8 +27,8 @@ internal sealed class BoundObjectGraph
     /// <summary>Separates a field step's declaring type from its field name.</summary>
     private const string FieldSeparator = "::";
 
-    /// <summary>The bound roots, in the order their paths number them.</summary>
-    private readonly object[] roots;
+    /// <summary>The bound roots, by the name a path's first step gives each.</summary>
+    private readonly Dictionary<string, object> roots = new(StringComparer.Ordinal);
 
     /// <summary>Each reachable object's parent and the step from it; a root's parent is null and its step is its number.</summary>
     private readonly Dictionary<object, Origin> origins = new(ReferenceEqualityComparer.Instance);
@@ -57,17 +57,29 @@ internal sealed class BoundObjectGraph
     /// <summary>Each type's instance fields in a stable order.</summary>
     private static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, FieldInfo[]> allFields = new();
 
-    /// <summary>Indexes every object reachable from <paramref name="roots"/>.</summary>
+    /// <summary>Indexes every object reachable from <paramref name="roots"/>, each root named by its number in the list.</summary>
     /// <param name="roots">The objects the host bound into the session.</param>
     internal BoundObjectGraph(IReadOnlyList<object> roots)
+        : this(Ensure.NotNull(roots).Select((root, index) =>
+            (index.ToString(System.Globalization.CultureInfo.InvariantCulture), Ensure.NotNull(root))).ToArray())
+    {
+    }
+
+    /// <summary>
+    /// Indexes every object reachable from <paramref name="roots"/>, breadth first in the list's order, each root named by
+    /// its name, which a path's first step gives.
+    /// </summary>
+    /// <param name="roots">The bound objects, each with a distinct name that holds no step separator.</param>
+    /// <exception cref="ArgumentException">Two roots share a name, or a name holds a step separator.</exception>
+    internal BoundObjectGraph(IReadOnlyList<(string Name, object Root)> roots)
     {
         Ensure.NotNull(roots);
-        this.roots = [.. roots];
         var pending = new Queue<object>();
-        for (int index = 0; index < this.roots.Length; index++)
+        foreach ((string name, object root) in roots)
         {
-            object root = Ensure.NotNull(this.roots[index]);
-            if (origins.TryAdd(root, new Origin(null, index.ToString(System.Globalization.CultureInfo.InvariantCulture))))
+            if (name.Contains(StepSeparator, StringComparison.Ordinal) || !this.roots.TryAdd(name, Ensure.NotNull(root)))
+                throw new ArgumentException($"Bound root name '{name}' is repeated or holds a step separator.", nameof(roots));
+            if (origins.TryAdd(root, new Origin(null, name)))
                 pending.Enqueue(root);
         }
         Index(pending);
@@ -278,10 +290,9 @@ internal sealed class BoundObjectGraph
         object value;
         if (last < 0)
         {
-            if (!int.TryParse(path, System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture, out int root) ||
-                (uint)root >= (uint)roots.Length)
-                throw new InvalidDataException($"Debugger state names bound root '{path}', which the host does not bind.");
-            value = roots[root];
+            value = roots.TryGetValue(path, out object? root)
+                ? root
+                : throw new InvalidDataException($"Debugger state names bound root '{path}', which the host does not bind.");
         }
         else
         {

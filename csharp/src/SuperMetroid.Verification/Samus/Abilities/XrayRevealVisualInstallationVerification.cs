@@ -78,6 +78,12 @@ internal static class XrayRevealVisualInstallationVerification
             entry.Required("behaviorValues").AsArray().RequiredElements().Any(value => value.GetValue<int>() == 2));
         AssertEqual("tall", tall.Required("shape").GetValue<string>(),
             "shot-block BTS 2 uses the native tall copy command");
+        // The installed rooms name their overlays; the pointer of each list stays the import's own knowledge (#1623).
+        JsonObject[] rooms = [.. document.Required("rooms").AsArray().RequiredElements().Select(node => node.AsObject())];
+        AssertTrue(rooms.Select(room => room.Required("overlay").GetValue<string>())
+                .SequenceEqual(SuperMetroid.Core.Rooms.Xray.XrayRoomOverlayDefinitions.All.Select(overlay => overlay.Name)),
+            "installed X-ray rooms name every retail overlay, in order");
+        AssertTrue(rooms.All(room => !room.ContainsKey("pointer")), "installed X-ray rooms hold no cartridge pointer");
         int originalTop = tall.Required("topLeft").GetValue<int>();
 
         var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(Enumerable.Repeat(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SolidBlock), 1024).ToArray(), new RoomBlockBehavior[1024], new RoomBlockAppearance[1024]), RoomLevelData.NothingBeyondGrid());

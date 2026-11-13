@@ -512,7 +512,7 @@ public sealed class SamusState
     internal UnauthoredBoostCadence UnauthoredBoostCadence { get; }
 
     /// <summary>
-    /// Room-dependent admission for spike-block BTS zero, populated by the alpha-phase
+    /// Room-dependent admission for the spike block's first common reaction, populated by the alpha-phase
     /// inside-block owner before beta movement reaches a directional collision scan.
     /// </summary>
     internal bool HeavySpikeDamageEnabled { get; set; } = true;

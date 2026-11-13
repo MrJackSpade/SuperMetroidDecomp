@@ -2,25 +2,33 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Fx;
 
-/// <summary>Compiled Maridia quicksand dispatch and physical definition data.</summary>
+/// <summary>Maridia quicksand's reaction objects and physical definition data.</summary>
 public static class QuicksandDefinitions
 {
     /// <summary>
-    /// Named setup dispatch for the eight supported sand headers. All select the shared delete list
-    /// (<see cref="QuicksandReactions"/>); no other header, including the unused surface clones between the named
-    /// headers, is a sand reaction.
+    /// The identity of the room object each inside sand reaction places at its block (<see cref="QuicksandObjects"/>);
+    /// every one leaves the room on its first update. No other inside reaction places a sand reaction.
     /// </summary>
-    internal static readonly IReadOnlyDictionary<RoomObjectHeaderId, SpecialAirReactionSetup> Reactions =
-        new Dictionary<RoomObjectHeaderId, SpecialAirReactionSetup>
+    internal static readonly IReadOnlyDictionary<SpecialAirInsideReaction, RoomObjectHeaderId> InsideObjects =
+        new Dictionary<SpecialAirInsideReaction, RoomObjectHeaderId>
         {
-            [RoomObjectHeaderId.InsideReactionQuicksandSurface] = SpecialAirReactionSetup.QuicksandSurface,
-            [RoomObjectHeaderId.InsideReactionSubmergingQuicksand] = SpecialAirReactionSetup.SubmergingQuicksand,
-            [RoomObjectHeaderId.InsideReactionSandFallsSlow] = SpecialAirReactionSetup.SandFallsSlow,
-            [RoomObjectHeaderId.InsideReactionSandFallsFast] = SpecialAirReactionSetup.SandFallsFast,
-            [RoomObjectHeaderId.CollisionReactionQuicksandSurface] = SpecialAirReactionSetup.QuicksandSurfaceCollision,
-            [RoomObjectHeaderId.CollisionReactionSubmergingQuicksand] = SpecialAirReactionSetup.SubmergingQuicksandCollision,
-            [RoomObjectHeaderId.CollisionReactionSandFallsSlow] = SpecialAirReactionSetup.SandFallsCollision,
-            [RoomObjectHeaderId.CollisionReactionSandFallsFast] = SpecialAirReactionSetup.SandFallsCollision,
+            [SpecialAirInsideReaction.QuicksandSurface] = RoomObjectHeaderId.InsideReactionQuicksandSurface,
+            [SpecialAirInsideReaction.SubmergingQuicksand] = RoomObjectHeaderId.InsideReactionSubmergingQuicksand,
+            [SpecialAirInsideReaction.SlowSandfall] = RoomObjectHeaderId.InsideReactionSandFallsSlow,
+            [SpecialAirInsideReaction.FastSandfall] = RoomObjectHeaderId.InsideReactionSandFallsFast,
+        };
+
+    /// <summary>
+    /// The identity of the room object each collision sand reaction places at its block (<see cref="QuicksandObjects"/>);
+    /// every one leaves the room on its first update. No other collision reaction places a sand reaction.
+    /// </summary>
+    internal static readonly IReadOnlyDictionary<SpecialAirCollisionReaction, RoomObjectHeaderId> CollisionObjects =
+        new Dictionary<SpecialAirCollisionReaction, RoomObjectHeaderId>
+        {
+            [SpecialAirCollisionReaction.QuicksandSurface] = RoomObjectHeaderId.CollisionReactionQuicksandSurface,
+            [SpecialAirCollisionReaction.SubmergingQuicksand] = RoomObjectHeaderId.CollisionReactionSubmergingQuicksand,
+            [SpecialAirCollisionReaction.SlowSandfall] = RoomObjectHeaderId.CollisionReactionSandFallsSlow,
+            [SpecialAirCollisionReaction.FastSandfall] = RoomObjectHeaderId.CollisionReactionSandFallsFast,
         };
 
     /// <summary>Without Gravity: 2-pixel moving and 1.125-pixel stationary displacement, 2.5-pixel upward speed cap.</summary>

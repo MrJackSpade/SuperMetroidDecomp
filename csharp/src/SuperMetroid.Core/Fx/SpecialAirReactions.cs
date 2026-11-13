@@ -1,67 +1,76 @@
 using SuperMetroid.Core.Progression;
-using static SuperMetroid.Core.Fx.SpecialAirReactionDefinitions;
+using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
-/// Resolves the special-air reaction a retail area's BTS index selects (<see cref="SpecialAirReactionDefinitions"/>), for a body
-/// inside the block and for a movement collision with it.
+/// The special-air reaction each retail area gives each of its first <see cref="EntriesPerArea"/> area reactions: what the
+/// block does while Samus is inside it, and what it does when her movement reaches it. Every entry an area leaves unused
+/// does nothing; an area outside the retail game, a common reaction and an area reaction past the sixteenth are rejected.
+/// These are the game's rules for its special-air blocks, not editable room or presentation assets.
 /// </summary>
 public static class SpecialAirReactions
 {
-    /// <summary>Resolves the inside-body header/setup for retail areas and indexes 0..15.</summary>
-    public static SpecialAirReactionDefinition ResolveInside(AreaId area, int areaReactionIndex)
+    /// <summary>How many area reactions each retail area gives special-air blocks, in both kinds of reaction.</summary>
+    public const int EntriesPerArea = 16;
+
+    /// <summary>What the special-air block with area reaction <paramref name="reaction"/> does to Samus inside it in <paramref name="area"/>.</summary>
+    /// <param name="area">The room's area, one of the retail areas.</param>
+    /// <param name="reaction">The block's reaction, one of its area's first <see cref="EntriesPerArea"/> reactions.</param>
+    public static SpecialAirInsideReaction InsideOf(AreaId area, BlockReaction reaction)
     {
-        Validate(area, areaReactionIndex, "inside-body");
-        return new AreaTableEntry(area, areaReactionIndex) switch
+        Validate(area, reaction, "inside-body");
+        return new AreaTableEntry(area, reaction.Entry) switch
         {
-            (AreaId.Crateria, 0) => CrateriaIcePhysics,
-            (AreaId.Brinstar, 0) => BrinstarFloorPlant,
-            (AreaId.Brinstar, 1) => BrinstarCeilingPlant,
-            (AreaId.Maridia, 0) => QuicksandSurfaceInside,
-            (AreaId.Maridia, 1) => QuicksandSurfaceInside,
-            (AreaId.Maridia, 2) => QuicksandSurfaceInside,
-            (AreaId.Maridia, 3) => QuicksandSubmergingInside,
-            (AreaId.Maridia, 4) => QuicksandSlowFallInside,
-            (AreaId.Maridia, 5) => QuicksandFastFallInside,
-            _ => Nothing,
+            (AreaId.Crateria, 0) => SpecialAirInsideReaction.IcePhysics,
+            (AreaId.Brinstar, 0) => SpecialAirInsideReaction.BrinstarFloorPlant,
+            (AreaId.Brinstar, 1) => SpecialAirInsideReaction.BrinstarCeilingPlant,
+            (AreaId.Maridia, 0) => SpecialAirInsideReaction.QuicksandSurface,
+            (AreaId.Maridia, 1) => SpecialAirInsideReaction.QuicksandSurface,
+            (AreaId.Maridia, 2) => SpecialAirInsideReaction.QuicksandSurface,
+            (AreaId.Maridia, 3) => SpecialAirInsideReaction.SubmergingQuicksand,
+            (AreaId.Maridia, 4) => SpecialAirInsideReaction.SlowSandfall,
+            (AreaId.Maridia, 5) => SpecialAirInsideReaction.FastSandfall,
+            _ => SpecialAirInsideReaction.Nothing,
         };
     }
 
-    /// <summary>Resolves the movement-collision header/setup for retail areas and indexes 0..15.</summary>
-    public static SpecialAirReactionDefinition ResolveCollision(AreaId area, int areaReactionIndex)
+    /// <summary>What the special-air block with area reaction <paramref name="reaction"/> does when Samus's movement reaches it in <paramref name="area"/>.</summary>
+    /// <param name="area">The room's area, one of the retail areas.</param>
+    /// <param name="reaction">The block's reaction, one of its area's first <see cref="EntriesPerArea"/> reactions.</param>
+    public static SpecialAirCollisionReaction CollisionOf(AreaId area, BlockReaction reaction)
     {
-        Validate(area, areaReactionIndex, "movement-collision");
-        return new AreaTableEntry(area, areaReactionIndex) switch
+        Validate(area, reaction, "movement-collision");
+        return new AreaTableEntry(area, reaction.Entry) switch
         {
-            (AreaId.Brinstar, 0) => ClearCarry,
-            (AreaId.Brinstar, 1) => ClearCarry,
-            (AreaId.Brinstar, 2) => BrinstarSlowSpeedBlockRespawning,
-            (AreaId.Brinstar, 3) => BrinstarSlowSpeedBlockPermanent,
-            (AreaId.Brinstar, 4) => BrinstarDachoraSpeedBlock,
-            (AreaId.Brinstar, 5) => BrinstarSpeedBlockPermanent,
-            (AreaId.Norfair, 3) => LowerNorfairChozoHand,
-            (AreaId.WreckedShip, 0) => WreckedShipChozoHand,
-            (AreaId.Maridia, 0) => QuicksandSurfaceCollision,
-            (AreaId.Maridia, 1) => QuicksandSurfaceCollision,
-            (AreaId.Maridia, 2) => QuicksandSurfaceCollision,
-            (AreaId.Maridia, 3) => QuicksandSubmergingCollision,
-            (AreaId.Maridia, 4) => QuicksandSlowFallCollision,
-            (AreaId.Maridia, 5) => QuicksandFastFallCollision,
-            _ => Nothing,
+            (AreaId.Brinstar, 0) => SpecialAirCollisionReaction.PassesThrough,
+            (AreaId.Brinstar, 1) => SpecialAirCollisionReaction.PassesThrough,
+            (AreaId.Brinstar, 2) => SpecialAirCollisionReaction.BrinstarSlowRespawningSpeedBlock,
+            (AreaId.Brinstar, 3) => SpecialAirCollisionReaction.BrinstarSlowPermanentSpeedBlock,
+            (AreaId.Brinstar, 4) => SpecialAirCollisionReaction.DachoraRespawningSpeedBlock,
+            (AreaId.Brinstar, 5) => SpecialAirCollisionReaction.PermanentSpeedBlock,
+            (AreaId.Norfair, 3) => SpecialAirCollisionReaction.LowerNorfairChozoHand,
+            (AreaId.WreckedShip, 0) => SpecialAirCollisionReaction.WreckedShipChozoHand,
+            (AreaId.Maridia, 0) => SpecialAirCollisionReaction.QuicksandSurface,
+            (AreaId.Maridia, 1) => SpecialAirCollisionReaction.QuicksandSurface,
+            (AreaId.Maridia, 2) => SpecialAirCollisionReaction.QuicksandSurface,
+            (AreaId.Maridia, 3) => SpecialAirCollisionReaction.SubmergingQuicksand,
+            (AreaId.Maridia, 4) => SpecialAirCollisionReaction.SlowSandfall,
+            (AreaId.Maridia, 5) => SpecialAirCollisionReaction.FastSandfall,
+            _ => SpecialAirCollisionReaction.Nothing,
         };
     }
 
-    /// <summary>Restricts special-air lookup to retail areas and their sixteen authored BTS entries.</summary>
-    private static void Validate(AreaId area, int areaReactionIndex, string context)
+    /// <summary>Restricts the special-air reactions to the retail areas and their first sixteen area reactions.</summary>
+    private static void Validate(AreaId area, BlockReaction reaction, string context)
     {
         _ = AreaIds.Require(area);
-        if (areaReactionIndex >= EntriesPerArea)
+        if (!reaction.IsAreaEntryBelow(EntriesPerArea))
         {
             throw new ArgumentOutOfRangeException(
-                nameof(areaReactionIndex),
-                areaReactionIndex,
-                $"Special-air {context} BTS indexes are authored only from zero through fifteen.");
+                nameof(reaction),
+                reaction,
+                $"Special-air {context} reactions are only an area's first sixteen reactions.");
         }
     }
 }

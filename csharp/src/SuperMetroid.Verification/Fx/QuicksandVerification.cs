@@ -128,14 +128,14 @@ internal static class QuicksandVerification
                 YAcceleration = new UnsignedSixteenSixteen(0, 0x1c00),
             };
             SignedSixteenSixteen displacement = SignedSixteenSixteen.FromRaw(0x28000);
-            bool collided = SamusInsideBlockReactions.ReactCollision(
+            SpecialAirCollisionOutcome outcome = SamusInsideBlockReactions.ReactCollision(
                 new(body, body.CollisionContactDamageIndex(null)),
                 new SamusTerrain { Level = level },
                 new RoomCollisionBlock(0, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpecialAir), RoomBlockBehaviorCodec.Decode(0x80 + index)),
                 axis: Axis.Vertical,
                 ref displacement,
                 out bool surfaceContact);
-            AssertEqual(false, collided,
+            AssertEqual(SpecialAirCollisionOutcome.PassesThrough, outcome,
                 $"production quicksand collision row {index} remains non-solid");
             AssertEqual(index < 3, surfaceContact,
                 $"production quicksand collision row {index} surface contact");
@@ -158,36 +158,34 @@ internal static class QuicksandVerification
     private static void VerifyQuicksandInstructionMapping(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyQuicksandReactionField), () => VerifyQuicksandReactionField(rom, true));
 
-    /// <summary>Checks the supported sand headers and rejects every other 16-bit PLM header.</summary>
+    /// <summary>
+    /// Checks the eight sand reactions' room objects: each one's identity is the cartridge's sand header for that reaction,
+    /// and that header's setup or list matches, the list playing as the sand object's typed change (it ends on its first
+    /// update).
+    /// </summary>
     private static void VerifyQuicksandReactionField(SuperMetroidAddressSpace rom, bool instruction)
     {
         // Original non-clone sand PLM headers, independent of the replacement's named cases.
         ushort[] headers = [0xb713, 0xb71f, 0xb723, 0xb727, 0xb72b, 0xb737, 0xb73b, 0xb73f];
-        // RoomObjectHeaderId's values are arbitrary (#1414): the domain is every member, each translated to its cartridge word.
-        foreach (RoomObjectHeaderId candidate in Enum.GetValues<RoomObjectHeaderId>())
+        var sand = new List<(RoomObjectHeaderId Identity, ushort Header, ushort Setup)>();
+        foreach ((SpecialAirInsideReaction reaction, RoomObjectHeaderId identity) in QuicksandDefinitions.InsideObjects)
+            sand.Add((identity, SpecialAirReactionNativeWords.InsideHeaders[reaction], SpecialAirReactionNativeWords.InsideSetups[reaction]));
+        foreach ((SpecialAirCollisionReaction reaction, RoomObjectHeaderId identity) in QuicksandDefinitions.CollisionObjects)
+            sand.Add((identity, SpecialAirReactionNativeWords.CollisionHeaders[reaction], SpecialAirReactionNativeWords.CollisionSetups[reaction]));
+        AssertTrue(sand.Select(entry => entry.Header).Order().SequenceEqual(headers), "the eight sand reactions are the cartridge's sand headers");
+        foreach ((RoomObjectHeaderId identity, ushort header, ushort setup) in sand)
         {
-            ushort header = RoomObjectNativeWords.Word(candidate);
-            bool expected = headers.Contains(header);
-            bool found = QuicksandReactions.TryGetReaction(candidate, out var actual);
-            AssertEqual(expected, found, "quicksand header ownership");
-            if (!expected)
-            {
-                AssertEqual(default(QuicksandReactionDefinition), actual, "missing quicksand clears result");
-                AssertThrows<ArgumentOutOfRangeException>(() => QuicksandReactions.ResolveReaction(candidate),
-                    "quicksand allocator rejects unsupported headers including clone gaps");
-                continue;
-            }
-            AssertEqual(actual, QuicksandReactions.ResolveReaction(candidate), "quicksand allocator resolution");
+            AssertEqual(header, RoomObjectNativeWords.Word(identity), $"sand reaction object identity names header {(int)header:X4}");
             ushort native = ReadRomWord(rom, 0x840000 | (header + (instruction ? 2 : 0)));
             if (instruction)
             {
                 // The reaction's native list plays as its typed change does (#1554): it ends on its first update.
-                NativeTerrainChanges.Compare(CartridgeImportSource.Require(rom), actual.Change, native, NativeTerrainChanges.NoSteps,
+                NativeTerrainChanges.Compare(CartridgeImportSource.Require(rom), TerrainChange.MadeAtSpawn, native, NativeTerrainChanges.NoSteps,
                     $"quicksand header {(int)header:X4}", out bool began);
                 AssertTrue(!began, $"quicksand header {(int)header:X4} opens nothing");
             }
             else
-                AssertEqual(native, FxNativeWords.SpecialAirReactionSetups.Word(actual.Setup), $"quicksand header {(int)header:X4} setup");
+                AssertEqual(native, setup, $"quicksand header {(int)header:X4} setup");
         }
     }
 
@@ -271,59 +269,66 @@ internal static class QuicksandVerification
 
     /// <summary>Checks the special-air inside-reaction header for each area and BTS index.</summary>
     private static void VerifySpecialAirInsideHeaderMapping(SuperMetroidAddressSpace rom) =>
-        Suite(nameof(VerifySpecialAirField), () => VerifySpecialAirField(rom, SpecialAirReactions.ResolveInside, 0x949b06, false));
+        Suite(nameof(VerifySpecialAirField), () => VerifySpecialAirField(rom, SpecialAirReactions.InsideOf,
+            SpecialAirReactionNativeWords.InsideHeaders, SpecialAirReactionNativeWords.InsideSetups, SpecialAirInsideReaction.Nothing, 0x949b06, false));
 
     /// <summary>Checks the setup pointer selected by each special-air inside reaction.</summary>
     private static void VerifySpecialAirInsideSetupMapping(SuperMetroidAddressSpace rom) =>
-        Suite(nameof(VerifySpecialAirField), () => VerifySpecialAirField(rom, SpecialAirReactions.ResolveInside, 0x949b06, true));
+        Suite(nameof(VerifySpecialAirField), () => VerifySpecialAirField(rom, SpecialAirReactions.InsideOf,
+            SpecialAirReactionNativeWords.InsideHeaders, SpecialAirReactionNativeWords.InsideSetups, SpecialAirInsideReaction.Nothing, 0x949b06, true));
 
     /// <summary>Checks the special-air collision header for each area and BTS index.</summary>
     private static void VerifySpecialAirCollisionHeaderMapping(SuperMetroidAddressSpace rom) =>
-        Suite(nameof(VerifySpecialAirField), () => VerifySpecialAirField(rom, SpecialAirReactions.ResolveCollision, 0x9492d9, false));
+        Suite(nameof(VerifySpecialAirField), () => VerifySpecialAirField(rom, SpecialAirReactions.CollisionOf,
+            SpecialAirReactionNativeWords.CollisionHeaders, SpecialAirReactionNativeWords.CollisionSetups, SpecialAirCollisionReaction.Nothing, 0x9492d9, false));
 
     /// <summary>Checks the setup pointer selected by each special-air collision reaction.</summary>
     private static void VerifySpecialAirCollisionSetupMapping(SuperMetroidAddressSpace rom) =>
-        Suite(nameof(VerifySpecialAirField), () => VerifySpecialAirField(rom, SpecialAirReactions.ResolveCollision, 0x9492d9, true));
+        Suite(nameof(VerifySpecialAirField), () => VerifySpecialAirField(rom, SpecialAirReactions.CollisionOf,
+            SpecialAirReactionNativeWords.CollisionHeaders, SpecialAirReactionNativeWords.CollisionSetups, SpecialAirCollisionReaction.Nothing, 0x9492d9, true));
 
-    /// <summary>Follows native area tables while checking valid reactions and out-of-range selector behavior.</summary>
-    private static void VerifySpecialAirField(SuperMetroidAddressSpace rom,
-        Func<AreaId, int, SpecialAirReactionDefinition> resolve, int nativePointers, bool setup)
+    /// <summary>
+    /// Follows the native area tables: for every retail area and each of its first sixteen area reactions, the named
+    /// reaction's header and setup are the ones the cartridge's table selects; every other area, a common reaction and
+    /// every later area reaction are rejected, the area first.
+    /// </summary>
+    private static void VerifySpecialAirField<TReaction>(SuperMetroidAddressSpace rom,
+        Func<AreaId, BlockReaction, TReaction> resolve, IReadOnlyDictionary<TReaction, ushort> headers,
+        IReadOnlyDictionary<TReaction, ushort> setups, TReaction nothing, int nativePointers, bool setup)
+        where TReaction : struct, Enum
     {
         for (int rawArea = 0; rawArea <= byte.MaxValue; rawArea++)
-        for (int index = 0; index <= byte.MaxValue; index++)
+        foreach (BlockReaction reaction in BlockReaction.All)
         {
             var area = (AreaId)rawArea;
-            if (rawArea >= 7 || index >= 16)
+            if (rawArea >= 7 || !reaction.IsAreaEntryBelow(SpecialAirReactions.EntriesPerArea))
             {
                 try
                 {
-                    resolve(area, (byte)index);
-                    throw new InvalidOperationException("Special-air selector accepted an unsupported area/index.");
+                    resolve(area, reaction);
+                    throw new InvalidOperationException("Special-air selector accepted an unsupported area or reaction.");
                 }
                 catch (ArgumentOutOfRangeException exception)
                 {
-                    AssertEqual(rawArea >= 7 ? "area" : "areaReactionIndex", exception.ParamName,
+                    AssertEqual(rawArea >= 7 ? "area" : "reaction", exception.ParamName,
                         "special-air bounds and validation order");
                 }
                 continue;
             }
 
             // Follow the original area pointer and header, independently of the production cases.
+            int index = reaction.Entry;
             ushort table = ReadRomWord(rom, nativePointers + rawArea * 2);
             ushort header = ReadRomWord(rom, 0x940000 | (table + index * 2));
-            ushort expected = setup ? ReadRomWord(rom, 0x840000 | header) : header;
+            ushort nativeSetup = ReadRomWord(rom, 0x840000 | header);
             var bts = RoomBlockBehaviorCodec.Decode((byte)(0x80 | index));
-            AssertEqual(true, bts.Reaction.IsAreaSpecific, "special-air BTS sign selects area dispatch");
-            AssertEqual((byte)index, bts.Reaction.Entry, "special-air BTS clears its sign bit");
-            SpecialAirReactionDefinition actual = resolve(area, bts.Reaction.Entry);
+            AssertEqual(reaction, bts.Reaction, "special-air BTS sign selects its area's reaction");
+            TReaction actual = resolve(area, bts.Reaction);
+            AssertEqual(nativeSetup, setups[actual], $"special-air {nativePointers:X6} area {rawArea} index {index} setup");
             // The cartridge gives Norfair's first three inside entries headers of their own that do nothing; the game has
-            // one no-op reaction, so an entry resolving to it is compared by the setup its native header names.
-            if (!setup && actual.Header == RoomObjectHeaderId.Nothing)
-                AssertEqual(ReadRomWord(rom, 0x840000 | header), FxNativeWords.SpecialAirReactionSetups.Word(actual.Setup),
-                    $"special-air {nativePointers:X6} area {rawArea} index {index} does nothing");
-            else
-                AssertEqual(expected, setup ? FxNativeWords.SpecialAirReactionSetups.Word(actual.Setup) : RoomObjectNativeWords.Word(actual.Header),
-                    $"special-air {nativePointers:X6} area {rawArea} index {index} setup {setup}");
+            // one no-op reaction, so an entry resolving to it is compared by the setup its native header names alone.
+            if (!setup && !EqualityComparer<TReaction>.Default.Equals(actual, nothing))
+                AssertEqual(header, headers[actual], $"special-air {nativePointers:X6} area {rawArea} index {index} header");
         }
     }
 

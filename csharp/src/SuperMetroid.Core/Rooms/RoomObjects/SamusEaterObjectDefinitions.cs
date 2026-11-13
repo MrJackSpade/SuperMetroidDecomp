@@ -21,7 +21,7 @@ internal static class SamusEaterObjectDefinitions
     internal const int ReleaseDuration = 96;
 
     /// <summary>The Brinstar floor plant.</summary>
-    public static readonly SamusEaterObjectDefinition Floor = new(Ceiling: false, FloorChews,
+    public static readonly SamusEaterObjectDefinition Floor = new(RoomObjectHeaderId.InsideReactionBrinstarFloorPlant, Ceiling: false, FloorChews,
     [
         new(SamusEaterDraw.FloorChew2, ChewFrameDuration, SamusEaterBite.None),
         new(SamusEaterDraw.FloorChew1, ChewFrameDuration, SamusEaterBite.None),
@@ -34,7 +34,7 @@ internal static class SamusEaterObjectDefinitions
     ], SamusEaterDraw.FloorChew3, SamusEaterDraw.FloorIdle);
 
     /// <summary>The Brinstar ceiling plant.</summary>
-    public static readonly SamusEaterObjectDefinition Ceiling = new(Ceiling: true, CeilingChews,
+    public static readonly SamusEaterObjectDefinition Ceiling = new(RoomObjectHeaderId.InsideReactionBrinstarCeilingPlant, Ceiling: true, CeilingChews,
     [
         new(SamusEaterDraw.CeilingChew2, ChewFrameDuration, SamusEaterBite.None),
         new(SamusEaterDraw.CeilingChew1, ChewFrameDuration, SamusEaterBite.None),
@@ -63,12 +63,4 @@ internal static class SamusEaterObjectDefinitions
 
     /// <summary>The periodic damage each chew deals.</summary>
     public const int ChewDamage = 2;
-
-    /// <summary>The plant each supported header places; every other header is not a Samus Eater.</summary>
-    public static IReadOnlyDictionary<RoomObjectHeaderId, SamusEaterObjectDefinition> ByHeader { get; } =
-        new Dictionary<RoomObjectHeaderId, SamusEaterObjectDefinition>
-        {
-            [RoomObjectHeaderId.InsideReactionBrinstarFloorPlant] = Floor,
-            [RoomObjectHeaderId.InsideReactionBrinstarCeilingPlant] = Ceiling,
-        };
 }

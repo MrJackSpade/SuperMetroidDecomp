@@ -19,12 +19,6 @@ public enum RoomObjectHeaderId
     /// <summary>No identified object: a free place, or a block reaction's short-lived object.</summary>
     None = 0,
 
-    /// <summary>The special-air reaction that does nothing.</summary>
-    Nothing,
-
-    /// <summary>The special-air contact through which Samus passes, as through air.</summary>
-    CollisionReactionPassThrough,
-
     /// <summary>A block extending the scroll trigger to its left along a horizontal chain.</summary>
     RightwardsScrollExtension,
 
@@ -57,9 +51,6 @@ public enum RoomObjectHeaderId
 
     /// <summary>An elevator platform.</summary>
     ElevatorPlatform,
-
-    /// <summary>The Crateria special-air block whose floor gives Samus ice physics.</summary>
-    InsideReactionCrateriaIcePhysics,
 
     /// <summary>Maridia's quicksand surface, when Samus stands inside it.</summary>
     InsideReactionQuicksandSurface,
@@ -247,9 +238,6 @@ public enum RoomObjectHeaderId
     /// <summary>The Lower Norfair Chozo's hand, which carries Samus when she curls up in it.</summary>
     LowerNorfairChozoHand,
 
-    /// <summary>Samus touching the block of the Lower Norfair Chozo's hand.</summary>
-    CollisionLowerNorfairChozoHandCheck,
-
     /// <summary>The glass of Mother Brain's tank, which missiles break.</summary>
     MotherBrainGlass,
 
@@ -258,9 +246,6 @@ public enum RoomObjectHeaderId
 
     /// <summary>The Wrecked Ship Chozo's hand, which carries Samus when she curls up in it.</summary>
     WreckedShipChozoHand,
-
-    /// <summary>Samus touching the block of the Wrecked Ship Chozo's hand.</summary>
-    CollisionWreckedShipChozoHandCheck,
 
     /// <summary>Clears the slope under the Wrecked Ship Chozo, letting Samus reach it.</summary>
     ClearSlopeAccessForWreckedShipChozo,

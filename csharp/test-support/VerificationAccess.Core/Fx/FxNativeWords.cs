@@ -54,26 +54,6 @@ internal static class FxNativeWords
         [AnimatedTileObject.Spores] = 0x82fd,
     });
 
-    /// <summary>The bank-$84 setup routine naming each <see cref="SpecialAirReactionSetup"/>.</summary>
-    internal static readonly NativeWordIdentities<SpecialAirReactionSetup> SpecialAirReactionSetups = new(new Dictionary<SpecialAirReactionSetup, ushort>
-    {
-        [SpecialAirReactionSetup.Nothing] = 0xb3cf,
-        [SpecialAirReactionSetup.ClearCarry] = 0xb3d0,
-        [SpecialAirReactionSetup.BrinstarFloorPlant] = 0xb0dc,
-        [SpecialAirReactionSetup.BrinstarCeilingPlant] = 0xb113,
-        [SpecialAirReactionSetup.IcePhysics] = 0xb3eb,
-        [SpecialAirReactionSetup.QuicksandSurface] = 0xb408,
-        [SpecialAirReactionSetup.SubmergingQuicksand] = 0xb497,
-        [SpecialAirReactionSetup.SandFallsSlow] = 0xb4a8,
-        [SpecialAirReactionSetup.SandFallsFast] = 0xb4b6,
-        [SpecialAirReactionSetup.QuicksandSurfaceCollision] = 0xb4c4,
-        [SpecialAirReactionSetup.SubmergingQuicksandCollision] = 0xb541,
-        [SpecialAirReactionSetup.SandFallsCollision] = 0xb54f,
-        [SpecialAirReactionSetup.SpeedBlock] = 0xcdea,
-        [SpecialAirReactionSetup.LowerNorfairChozoHand] = 0xd18f,
-        [SpecialAirReactionSetup.WreckedShipChozoHand] = 0xd620,
-    });
-
     /// <summary>The bank-$8D pre-instruction routine of each <see cref="NativePaletteFxPreInstruction"/>.</summary>
     internal static readonly NativeWordIdentities<NativePaletteFxPreInstruction> PaletteFxPreInstructions = new(new Dictionary<NativePaletteFxPreInstruction, ushort>
     {

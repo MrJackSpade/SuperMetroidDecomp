@@ -233,12 +233,9 @@ internal sealed class GameplayActorDrawing
             }
             else
             {
-                bool grappleHandlerInstalled =
-                    SamusGrappleBeamDrawing.UsesGrappleDrawingHandler(_player.Samus.Grapple.Phase);
-                bool grappleBeamSpecificPath = grappleHandlerInstalled &&
-                    SamusGrappleBeamDrawing.UsesBeamSpecificDrawingPath(_player.Samus.Grapple.Phase);
+                SamusGrappleDrawing grappleDrawing = SamusGrappleBeamDrawing.DrawingFor(_player.Samus.Grapple.Phase);
 
-                if (grappleBeamSpecificPath)
+                if (grappleDrawing == SamusGrappleDrawing.Beam)
                 {
                     // The active grapple display handler begins with the grapple flare. Firing also refreshes
                     // its hand origins here from Samus's post-movement position. This
@@ -249,7 +246,7 @@ internal sealed class GameplayActorDrawing
                         _room.Camera.PixelPosition,
                         ProjectileArtwork);
                 }
-                else if (!grappleHandlerInstalled)
+                else if (grappleDrawing == SamusGrappleDrawing.Ordinary)
                 {
                     // The ordinary display handler advances/emits the ordinary charge flare before it
                     // falls through to the shared drawing tail. Grapple's handler never calls this,
@@ -308,7 +305,7 @@ internal sealed class GameplayActorDrawing
                         _clock.Counter);
                 }
 
-                if (grappleBeamSpecificPath)
+                if (grappleDrawing == SamusGrappleDrawing.Beam)
                 {
                     // The active grapple handler deliberately omits drawing Samus's speed echoes. It advances
                     // the endpoint's animation after Samus, moves the flare on, and only

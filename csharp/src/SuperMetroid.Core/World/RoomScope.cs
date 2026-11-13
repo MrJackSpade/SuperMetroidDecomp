@@ -31,7 +31,7 @@ internal sealed record RoomScope
     /// <summary>The room's decompressed, read-only asset graph.</summary>
     public required LoadedRoomAssets Assets { get; init; }
 
-    /// <summary>The room's foreground/BTS/background allocation, shared by rendering and collision.</summary>
+    /// <summary>The room's foreground, block behaviours and background, shared by rendering and collision.</summary>
     public required RoomLevelData LevelData { get; init; }
 
     /// <summary>The room's foreground scroll-boundary camera.</summary>

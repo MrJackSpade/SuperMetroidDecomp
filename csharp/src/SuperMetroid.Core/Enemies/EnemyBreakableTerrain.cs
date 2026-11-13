@@ -14,7 +14,7 @@ public static class EnemyBreakableTerrain
         if (index >= ReactionCount)
         {
             throw new InvalidDataException(
-                $"Enemy spike BTS {behavior} indexes past the sixteen-entry reaction table.");
+                $"Enemy spike behaviour {behavior} names a reaction past the sixteen enemy-breakable reactions.");
         }
 
         return index == BreakableReaction;

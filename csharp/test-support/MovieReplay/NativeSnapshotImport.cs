@@ -155,7 +155,7 @@ internal static class NativeSnapshotImport
         samus.Presentation.SpritemapPosition = new Position16<ScreenPixels>(W(NativeSnapshotMemory.SamusSpriteX), W(NativeSnapshotMemory.SamusSpriteY));
         samus.ArmCannon.Frame = W(NativeSnapshotMemory.CannonFrame);
         samus.ArmCannon.StableSelectionUpdates = W(NativeSnapshotMemory.CannonToggle);
-        samus.ArmCannon.DrawOrder = SamusArmCannonState.DrawOrderOf(W(NativeSnapshotMemory.CannonDrawingMode));
+        samus.ArmCannon.DrawOrder = SuperMetroid.AssetExtraction.Samus.SamusArmCannonDrawOrderCodec.FromDrawingMode(W(NativeSnapshotMemory.CannonDrawingMode));
         samus.ArmCannon.IsOpen = memory[NativeSnapshotMemory.CannonFlags] != 0;
         samus.ArmCannon.IsTransitioning = memory[NativeSnapshotMemory.CannonFlags + 1] != 0;
         new ProjectileInheritanceRecordsAccess(samus.ProjectileInheritance).Load(memory.AsSpan(NativeSnapshotMemory.ProjectileInheritancePrefix,

@@ -20,8 +20,8 @@ internal static class RoomPerformanceStateFixture
         string root = Path.GetFullPath(destination);
         if (Directory.Exists(root)) throw new IOException($"Fixture directory already exists: {root}");
         Directory.CreateDirectory(root);
-        using var data = new InstalledGameSession(root, Path.GetFullPath("Super Metroid.smc"),
-            Path.GetFullPath("standalone-assets/audio"));
+        string romPath = Path.GetFullPath("Super Metroid.smc");
+        using var data = new InstalledGameSession(root, romPath, Path.GetFullPath("standalone-assets/audio"));
         data.Game.Session.SetupSelectedGame();
         var runtime = data.Game.Session.GameplayRuntime;
         bool surface = scene == "surface";
@@ -29,8 +29,10 @@ internal static class RoomPerformanceStateFixture
         if (scene == "map")
         {
             // The actual map-room entrance runs its cartridge setup and door PLM;
-            // this does not simulate an entire route merely to benchmark one room.
-            var door = SuperMetroid.AssetExtraction.Rooms.CartridgeDoorHeaderImporter.Load(data.Bus, RoomPerformanceFixtureDefinitions.CrateriaMapEntranceDoor);
+            // this does not simulate an entire route merely to benchmark one room. The door's header is imported from
+            // the cartridge the fixture installed from; the session itself holds no address space (#1688).
+            var cartridge = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+            var door = SuperMetroid.AssetExtraction.Rooms.CartridgeDoorHeaderImporter.Load(cartridge, RoomPerformanceFixtureDefinitions.CrateriaMapEntranceDoor);
             runtime.LoadCartridgeRoomThroughDoorForVerification(door, new Position16<RoomPixels>(camera, camera));
         }
         else

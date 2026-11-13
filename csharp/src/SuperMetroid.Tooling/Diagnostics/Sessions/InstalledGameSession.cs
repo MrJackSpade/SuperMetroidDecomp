@@ -3,7 +3,6 @@ using SuperMetroid.Diagnostics.Saves;
 using SuperMetroid.Core.Input;
 using System.Text.Json;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Diagnostics.Configuration;
 using SuperMetroid.Diagnostics.Recording;
@@ -36,12 +35,12 @@ internal sealed class InstalledGameSession : IDisposable
     /// <summary>The session's input recording, seeded from the saves it opened with.</summary>
     private readonly ControllerInputRecorder recorder;
 
-    /// <summary>Opens installed assets and RAM state, binds art and audio, and begins a reset-seeded recording.</summary>
+    /// <summary>Opens installed assets and saves, binds art and audio, and begins a reset-seeded recording.</summary>
     public InstalledGameSession(string root, string? cartridgePath = null, string? audioDirectory = null)
     {
         this.root = root;
         // A caller-provided cartridge is an import input only. The session always
-        // opens the extracted installation and a RAM-only address space.
+        // opens the extracted installation, which the game runs on alone.
         if (cartridgePath is not null)
             SuperMetroid.AssetExtraction.Installation.GameAssetInstaller.Install(cartridgePath, root);
         var installation = new SuperMetroid.AssetExtraction.Installation.GameInstallation(root);
@@ -50,7 +49,7 @@ internal sealed class InstalledGameSession : IDisposable
         string ini = Path.Combine(root, "SuperMetroid.ini");
         if (!File.Exists(ini)) File.WriteAllText(ini, HostOptionsIni.DefaultFileContents);
         Options = HostOptionsIni.Parse(File.ReadAllText(ini), ini);
-        Bus = installation.OpenRuntimeAddressSpace();
+        installation.RequireExtractedContent();
         maps = installation.LoadMaps();
         SaveSlotStore saves = GameSaveFileStore.LoadOrMigrate(savePath, Path.Combine(root, "SuperMetroid.srm"), maps).Saves;
         // A caller-provided cartridge has already passed through the importer;
@@ -85,8 +84,6 @@ internal sealed class InstalledGameSession : IDisposable
 
     /// <summary>Parsed host options; their game values are shared by the runtime, the debugger state store and recordings.</summary>
     public HostOptions Options { get; }
-    /// <summary>Live RAM-only address space, replaced when a debugger state is loaded.</summary>
-    public SuperMetroidAddressSpace Bus { get; private set; }
     /// <summary>Live game graph owned by the session worker.</summary>
     public SuperMetroidGame Game { get; private set; }
     /// <summary>Fingerprint of installed audio, maps, projectiles, and artwork.</summary>
@@ -102,7 +99,7 @@ internal sealed class InstalledGameSession : IDisposable
     {
         if (slot == DebuggerStateFormat.AutomaticSlot)
             return "The auto slot is written at completed door transitions. Select 0-9 for a manual save.";
-        DebuggerSaveStateMetadata metadata = states.Save(slot, Bus, Game);
+        DebuggerSaveStateMetadata metadata = states.Save(slot, Game);
         FlushRecording();
         return $"Saved slot {slot}, frame {metadata.FrameNumber}, room {metadata.Room}.";
     }

@@ -22,8 +22,6 @@ internal static class GunshipEscapeTimerVerification
     /// <summary>Confirms boarding suppresses timer sprites and countdown before liftoff reuses their VRAM tiles for dust.</summary>
     internal static int VerifyGunshipEscapeTimer()
     {
-        var installation = RepositoryInstallation.Installation;
-        var bus=installation.OpenRuntimeAddressSpace();
         var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
         var maps = InstalledFixtures.Maps;
         var projectiles=InstalledFixtures.Projectiles;

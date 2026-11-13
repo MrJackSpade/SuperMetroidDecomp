@@ -39,10 +39,6 @@ internal static class RomlessDesktopStartupTest
                 {
                     AudioEnabled = false,
                 });
-            var memory = host.addressSpace ?? throw new InvalidOperationException("Host has no address space.");
-            if (MetadataShape.DeclaresProperty(memory.GetType(), "Rom"))
-                throw new InvalidOperationException(
-                    "Windows host retained cartridge bytes after ROM-less startup.");
             var game = host.game ?? throw new InvalidOperationException("Host has no game.");
             long startFrame = game.FrameNumber;
             for (int frame = 0; frame < 6; frame++)
@@ -60,9 +56,8 @@ internal static class RomlessDesktopStartupTest
                     "Windows host did not save a debugger state without its ROM copy.");
             host.StepFrame(0);
             host.LoadDebuggerState(0).GetAwaiter().GetResult();
-            memory = host.addressSpace ?? throw new InvalidOperationException("Restored host has no address space.");
             game = host.game ?? throw new InvalidOperationException("Restored host has no game.");
-            if (MetadataShape.DeclaresProperty(memory.GetType(), "Rom") || game.FrameNumber != savedFrame)
+            if (game.FrameNumber != savedFrame)
                 throw new InvalidOperationException(
                     "Windows debugger state did not restore the zero-ROM frame exactly.");
             host.StepFrame(0);
@@ -92,11 +87,9 @@ internal static class RomlessDesktopStartupTest
                 driver: new RecordingFrameDriver(recordedReset));
             for (int frame = 0; frame < 6; frame++)
                 replayHost.StepFrame(null);
-            var replayMemory = replayHost.addressSpace ?? throw new InvalidOperationException(
-                    "Replay host has no address space.");
             var replayGame = replayHost.game ?? throw new InvalidOperationException(
                     "Replay host has no game.");
-            if (MetadataShape.DeclaresProperty(replayMemory.GetType(), "Rom") || replayGame.FrameNumber != savedFrame ||
+            if (replayGame.FrameNumber != savedFrame ||
                 !replayGame.PublishedPixels().SequenceEqual(savedPixels))
                 throw new InvalidOperationException(
                     "Zero-ROM Windows input replay diverged from the captured frame.");

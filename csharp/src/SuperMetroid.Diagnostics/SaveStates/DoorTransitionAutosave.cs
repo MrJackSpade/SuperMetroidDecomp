@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Diagnostics.SaveStates;
@@ -13,13 +12,13 @@ internal static class DoorTransitionAutosave
     /// <summary>Captures only the completed loading-B to gameplay transition; replay and disabled sessions skip it, and a failed write retains the prior recovery state.</summary>
     internal static DebuggerSaveStateMetadata? TrySave(bool enabled, bool replay,
         SuperMetroidGameState previousState, DebuggerSaveStateStore store,
-        SuperMetroidAddressSpace bus, SuperMetroidGame game)
+        SuperMetroidGame game)
     {
         if (!enabled || replay || previousState != SuperMetroidGameState.DoorTransition ||
             game.GameState != SuperMetroidGameState.MainGameplay) return null;
         // Recovery I/O must not terminate a healthy emulation session. The store
         // replaces the previous state only after serialization and durable flush.
-        return store.SaveInBackground(DebuggerStateFormat.AutomaticSlot, bus, game,
+        return store.SaveInBackground(DebuggerStateFormat.AutomaticSlot, game,
             saved => Console.WriteLine($"Door autosave: {saved.Path} | frame {saved.FrameNumber} | room {saved.Room}"),
             exception =>
             {

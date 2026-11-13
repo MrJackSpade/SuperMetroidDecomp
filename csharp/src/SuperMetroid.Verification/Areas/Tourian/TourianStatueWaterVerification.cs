@@ -23,8 +23,6 @@ internal static class TourianStatueWaterVerification
     /// <summary>Drives the retail room through water motion, freeze, and independent statue descent.</summary>
     internal static int VerifyTourianStatueWater()
     {
-        var installation = RepositoryInstallation.Installation;
-        var bus=installation.OpenRuntimeAddressSpace();
         var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
         var projectiles=InstalledFixtures.Projectiles;
         InstalledFixtures.BindGame(game);

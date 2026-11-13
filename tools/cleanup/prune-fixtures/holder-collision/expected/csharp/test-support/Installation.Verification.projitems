@@ -1,0 +1,5 @@
+<Project>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Installation.Verification/**/*.cs" LinkBase="TestSupport/Installation.Verification" />
+  </ItemGroup>
+</Project>

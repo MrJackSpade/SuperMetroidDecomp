@@ -17,6 +17,8 @@ namespace SuperMetroid.ReachabilityAudit.Removal;
 /// <c>&lt;Owner&gt;Tooling</c>, in the owner's namespace. It implements any moved interface the owner
 /// implemented and carries <c>[ToolingFor(typeof(Owner))]</c>.</item>
 /// <item>Instance methods and properties move into <c>extension(Owner self)</c> blocks.</item>
+/// <item>An owner's adapter and extension classes are chosen by <see cref="RelocationHolders"/>, among every class the
+/// target's projects already compile: a class of the style's name is merged into or passed over, never declared twice.</item>
 /// </list>
 /// Moved bodies are rewritten so that references back to the owner resolve; owner members they
 /// use that were private become internal. Every reference and documentation cref in the solution
@@ -77,7 +79,6 @@ internal static class SymbolRelocator
         IReadOnlySet<string> shippedAssemblies, RelocationStyle style)
     {
         var identity = new SymbolIdentity(solution.RepositoryRoot);
-        string AdapterName(INamedTypeSymbol owner) => style.AdapterName(owner);
         var trees = solution.Projects
             .SelectMany(p => p.Compilation.SyntaxTrees.Where(identity.IsRepositorySource)
                 .Select(t => new ProjectTree(Tree:t, p.Compilation, Project:p.Project.AssemblyName)))
@@ -134,6 +135,33 @@ internal static class SymbolRelocator
         var movedInterfaces = moves.Where(m => m is { Placement: Placement.WholeType, Symbol: INamedTypeSymbol { TypeKind: TypeKind.Interface } })
             .Select(m => (INamedTypeSymbol)m.Symbol).ToHashSet<INamedTypeSymbol>(Comparer);
         var movedInterfaceKeys = movedInterfaces.Select(identity.Key).OfType<string>().ToHashSet();
+
+        // The class each owner's moved members go into, chosen before any reference names it (RelocationHolders).
+        var holders = new RelocationHolders(solution, targetDirectory);
+        string OwnerKey(INamedTypeSymbol owner) => identity.Key(owner) ??
+            throw new InvalidOperationException($"Owner {owner} has no repository identity.");
+        static RelocationHolderKind KindOf(Move move) =>
+            move.Placement == Placement.ExtensionMember ? RelocationHolderKind.Extensions : RelocationHolderKind.Members;
+        bool ImplementsMovedInterface(INamedTypeSymbol owner) => owner.Interfaces.Any(i => movedInterfaces.Contains(i.OriginalDefinition));
+        var holderRequests = moves.Where(m => m.Placement != Placement.WholeType)
+            .GroupBy(m => (Owner: OwnerKey(m.AdapterOwner), Kind: KindOf(m)))
+            .OrderBy(g => g.Key.Owner, StringComparer.Ordinal).ThenBy(g => g.Key.Kind).ToList();
+        foreach (var request in holderRequests)
+        {
+            var owner = request.First().AdapterOwner;
+            string directory = Path.Combine(targetDirectory, request
+                .Select(m => Path.GetDirectoryName(TargetRelativePath(identity.Relative(m.Tree.FilePath), style.KeepsProjectDirectory)) ?? "")
+                .Order(StringComparer.Ordinal).First());
+            holders.Resolve(owner, request.Key.Owner, request.Key.Kind,
+                request.Key.Kind == RelocationHolderKind.Extensions ? style.ExtensionsName(owner) : style.AdapterName(owner),
+                directory, request.Key.Kind == RelocationHolderKind.Members && ImplementsMovedInterface(owner),
+                [.. request.Select(m => m.Symbol)]);
+            // An owner implementing a moved interface gets a members class of forwarders even when only instance members move.
+            if (request.Key.Kind == RelocationHolderKind.Extensions && ImplementsMovedInterface(owner))
+                holders.Resolve(owner, request.Key.Owner, RelocationHolderKind.Members, style.AdapterName(owner), directory, true, []);
+        }
+        string AdapterName(INamedTypeSymbol owner) => holders.Of(OwnerKey(owner), RelocationHolderKind.Members).Name;
+        string HolderName(INamedTypeSymbol owner, RelocationHolderKind kind) => holders.Of(OwnerKey(owner), kind).Name;
 
         // 2. Edits: outside moved spans they apply in place; inside, to the moved text.
         var edits = new Dictionary<SyntaxTree, List<TextEdit>>();
@@ -209,6 +237,9 @@ internal static class SymbolRelocator
                     else if (cref is NameMemberCrefSyntax && MoveOf(bound) is { Placement: Placement.AdapterMember } nameMove &&
                              (enclosing is null || !SameOwner(enclosing.Owner, nameMove.Owner)))
                         Edit(tree, cref.Span, $"{AdapterName(nameMove.AdapterOwner)}.{cref}");
+                    else if (MoveOf(bound) is { Placement: Placement.ExtensionMember } extensionMove)
+                        Edit(tree, cref.Span, ExtensionCref(identity, model, cref, extensionMove,
+                            HolderName(extensionMove.AdapterOwner, RelocationHolderKind.Extensions)));
                     continue;
                 }
                 if (node.Ancestors().Any(a => a is CrefSyntax)) continue;
@@ -347,10 +378,9 @@ internal static class SymbolRelocator
                 continue;
             }
             // Static members and instance extensions live in separately named classes, each in its own file.
-            string className = move.Placement == Placement.ExtensionMember ? style.ExtensionsName(move.AdapterOwner) : AdapterName(move.AdapterOwner);
-            string adapterFile = Path.Combine(targetDirectory, Path.GetDirectoryName(relative) ?? "", className + ".cs");
-            var file = FileFor(adapterFile, move);
-            var adapter = file.Adapter(move.AdapterOwner, movedInterfaces, implementation => MoveOf(implementation) is not null);
+            var file = FileFor(holders.Of(OwnerKey(move.AdapterOwner), KindOf(move)).Path, move);
+            var adapter = file.Adapter(move.AdapterOwner, kind => HolderName(move.AdapterOwner, kind), movedInterfaces,
+                implementation => MoveOf(implementation) is not null);
             text = AsAdapterMember(text);
             if (move.Placement == Placement.ExtensionMember)
                 adapter.Extensions.Add(new RelocatedExtension(move.ExtensionReceiver ?? adapter.SelfReceiver,
@@ -538,6 +568,46 @@ internal static class SymbolRelocator
         return "";
     }
 
+    /// <summary>
+    /// The cref of a member that moves into an extension block of <paramref name="holder"/>, in the C# 14 form
+    /// <c>Holder.extension(Receiver).Member</c>. The member keeps its parameters as written, a qualified reference keeps
+    /// its namespace, and a receiver written as the owner keeps that spelling. The 2026-11-13 cleanup at a7f8ec16e6 moved
+    /// <c>SamusProjectileListLayout.Prefix</c> into an extension block and left
+    /// <c>&lt;inheritdoc cref="SamusProjectileListLayout.Prefix"/&gt;</c> naming it where it was (CS1574).
+    /// </summary>
+    private static string ExtensionCref(SymbolIdentity identity, SemanticModel model, CrefSyntax cref, Move move, string holder)
+    {
+        switch (cref)
+        {
+            case QualifiedCrefSyntax { Member: ExtensionMemberCrefSyntax member } qualified:
+                return $"{NamespacePrefix(model, qualified.Container)}{holder}.{member}";
+            case QualifiedCrefSyntax qualified:
+                bool writtenAsOwner = move.ExtensionReceiver is null && identity.Key(model.GetSymbolInfo(qualified.Container).Symbol) is { } written &&
+                    written == identity.Key(move.AdapterOwner);
+                return $"{NamespacePrefix(model, qualified.Container)}{holder}." +
+                    $"{ExtensionOf(move, writtenAsOwner ? qualified.Container.ToString() : null)}.{qualified.Member}";
+            case ExtensionMemberCrefSyntax:
+                return $"{holder}.{cref}";
+            default:
+                return $"{holder}.{ExtensionOf(move, null)}.{cref}";
+        }
+    }
+
+    /// <summary>
+    /// The <c>extension(Receiver)</c> part of a cref to a moved instance member: its own block's type parameters and receiver
+    /// type when it was declared in one, else the owner, or <paramref name="writtenOwner"/> when the reference spelled it.
+    /// Generic arguments take the brace form crefs use.
+    /// </summary>
+    private static string ExtensionOf(Move move, string? writtenOwner)
+    {
+        if (move.Node.Parent is not ExtensionBlockDeclarationSyntax { ParameterList.Parameters: [{ Type: { } receiver }] } block)
+            return $"extension({writtenOwner ?? TypeName(move.AdapterOwner)})";
+        return $"extension{CrefBraces(block.TypeParameterList?.ToString() ?? "")}({CrefBraces(receiver.ToString())})";
+    }
+
+    /// <summary>Generic brackets in the brace form a cref writes them in.</summary>
+    private static string CrefBraces(string text) => text.Replace('<', '{').Replace('>', '}');
+
     /// <summary>Checks whether a candidate owner appears in the original owner's type or base chain.</summary>
     private static bool InOwnerChain(INamedTypeSymbol owner, INamedTypeSymbol candidate)
     {
@@ -682,13 +752,18 @@ internal static class SymbolRelocator
         private readonly Dictionary<INamedTypeSymbol, AdapterClass> adapters = new(Comparer);
 
         /// <summary>Gets or creates the owner adapter, adding forwarders for retained interface contracts.</summary>
-        public AdapterClass Adapter(INamedTypeSymbol owner, HashSet<INamedTypeSymbol> movedInterfaces, Func<ISymbol, bool> moves)
+        /// <param name="owner">The type whose members move.</param>
+        /// <param name="holderName">The name of the owner's class of each kind, as <see cref="RelocationHolders"/> chose it.</param>
+        /// <param name="movedInterfaces">The interfaces that move whole.</param>
+        /// <param name="moves">Whether a symbol moves.</param>
+        public AdapterClass Adapter(INamedTypeSymbol owner, Func<RelocationHolderKind, string> holderName, HashSet<INamedTypeSymbol> movedInterfaces,
+            Func<ISymbol, bool> moves)
         {
             if (adapters.TryGetValue(owner, out var adapter))
                 return adapter;
             var implemented = owner.Interfaces.Select(i => i.OriginalDefinition).Where(movedInterfaces.Contains).ToList();
             adapters[owner] = adapter = new AdapterClass(owner,
-                [.. implemented.Select(i => i.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat))], style);
+                [.. implemented.Select(i => i.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat))], style, holderName);
             // Contract members gameplay still uses stay on the owner; the adapter forwards to them.
             foreach (var contract in implemented.SelectMany(i => i.GetMembers())
                          .Where(m => m is IPropertySymbol or IMethodSymbol { MethodKind: MethodKind.Ordinary }))
@@ -733,14 +808,14 @@ internal static class SymbolRelocator
             {
                 if (adapter.Members.Count > 0)
                 {
-                    if (classes.TryGetValue(style.AdapterName(adapter.Owner), out var membersClass))
+                    if (classes.TryGetValue(adapter.MembersName, out var membersClass))
                         InsertBefore(membersClass.CloseBraceToken, adapter.Members, "");
                     else
                         appended.Append("\r\n").Append(adapter.RenderMembers());
                 }
                 if (adapter.Extensions.Count == 0)
                     continue;
-                if (!classes.TryGetValue(style.ExtensionsName(adapter.Owner), out var extensionsClass))
+                if (!classes.TryGetValue(adapter.ExtensionsName, out var extensionsClass))
                 {
                     appended.Append("\r\n").Append(adapter.RenderExtensions());
                     continue;
@@ -789,10 +864,15 @@ internal static class SymbolRelocator
     }
 
     /// <summary>Renders static and instance-extension members for one original owner.</summary>
-    private sealed class AdapterClass(INamedTypeSymbol owner, List<string> interfaces, RelocationStyle style)
+    private sealed class AdapterClass(INamedTypeSymbol owner, List<string> interfaces, RelocationStyle style,
+        Func<RelocationHolderKind, string> holderName)
     {
         /// <summary>The shipped type whose moved members this adapter holds.</summary>
         public INamedTypeSymbol Owner { get; } = owner;
+        /// <summary>The class that holds the owner's moved static members.</summary>
+        public string MembersName => holderName(RelocationHolderKind.Members);
+        /// <summary>The class that holds the owner's moved instance members.</summary>
+        public string ExtensionsName => holderName(RelocationHolderKind.Extensions);
         /// <summary>Moved interfaces implemented by this adapter through relocated members and forwarders.</summary>
         public List<string> Interfaces { get; } = interfaces;
         /// <summary>Static members, nested types, and retained-contract forwarders in the adapter.</summary>
@@ -813,16 +893,16 @@ internal static class SymbolRelocator
             string ownerName = TypeName(Owner);
             var output = new StringBuilder("/// <summary>").Append(string.Format(style.MembersSummary, ownerName)).Append("</summary>\r\n");
             if (Interfaces.Count > 0)
-                output.Append($"[ToolingFor(typeof({ownerName}))]\r\ninternal abstract class {style.AdapterName(Owner)} : {string.Join(", ", Interfaces)}\r\n");
+                output.Append($"[ToolingFor(typeof({ownerName}))]\r\ninternal abstract class {MembersName} : {string.Join(", ", Interfaces)}\r\n");
             else
-                output.Append($"internal static class {style.AdapterName(Owner)}\r\n");
+                output.Append($"internal static class {MembersName}\r\n");
             return output.Append("{\r\n").Append(string.Join("\r\n", Members.Select(m => m.Trim('\r', '\n')))).Append("\r\n}\r\n").ToString();
         }
 
         /// <summary>Emits the class holding the owner's moved instance members.</summary>
         public string RenderExtensions() =>
             new StringBuilder("/// <summary>").Append(string.Format(style.ExtensionsSummary, TypeName(Owner))).Append("</summary>\r\n")
-                .Append($"internal static class {style.ExtensionsName(Owner)}\r\n{{\r\n")
+                .Append($"internal static class {ExtensionsName}\r\n{{\r\n")
                 .Append(string.Join("\r\n", Extensions.Select(e => e.Receiver).Distinct(StringComparer.Ordinal).Select(ExtensionBlock)))
                 .Append("}\r\n").ToString();
 

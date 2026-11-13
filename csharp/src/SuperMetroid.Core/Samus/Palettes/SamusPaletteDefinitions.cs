@@ -128,12 +128,12 @@ public static class SamusPaletteDefinitions
         public const int ResetBlue = 0;
     }
 
-    /// <summary>Fixed-color tables used by the Power Bomb and Crystal Flash explosion effects.</summary>
+    /// <summary>The glow colour sequences of the Power Bomb and Crystal Flash explosions.</summary>
     public static class PowerBomb
     {
-        /// <summary>Number of pre-explosion fixed-color triplets.</summary>
+        /// <summary>Number of pre-explosion glow colours.</summary>
         public const int PreExplosionColorCount = 16;
-        /// <summary>Number of explosion fixed-color triplets selected by radius.</summary>
+        /// <summary>Number of explosion glow colours selected by radius.</summary>
         public const int ExplosionColorCount = 32;
     }
 }

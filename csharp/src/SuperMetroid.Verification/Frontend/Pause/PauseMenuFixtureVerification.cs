@@ -104,7 +104,7 @@ internal static class PauseMenuFixtureVerification
             EndingSpaceBackdrops = game.EndingSpaceBackdrops,
             MotherBrainRainbowPalette = game.MotherBrainRainbowPalette,
             CeresHaze = game.CeresHaze,
-            PowerBombFixedColors = game.PowerBombFixedColors,
+            PowerBombGlowColors = game.PowerBombGlowColors,
             CeresRidleyGetawayBoostDelays = game.CeresRidleyGetawayBoostDelays,
         };
         // The screens and the HUD are pictured from the constructed ROM's characters (#1466).

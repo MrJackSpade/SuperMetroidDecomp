@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// </para>
 /// <para>
 /// Nothing in gameplay reads how the light beam is drawn, so this owner publishes the beam's
-/// shape, progress and fixed color as <c>Flash</c>, and the display capture describes it as
+/// shape, progress and colour as <c>Flash</c>, and the display capture describes it as
 /// window shapes the backend draws (#1468).
 /// </para>
 /// <para>
@@ -91,7 +91,7 @@ public sealed class SamusSuitPickupState
     private SignedEightEight _lightBeamSpeed;
 
     /// <summary>The colour the light beam adds inside its window.</summary>
-    public RgbColor FixedColor { get; private set; }
+    public RgbColor BeamColor { get; private set; }
 
     /// <summary>Light-beam outline and progress produced by the most recent stage.</summary>
     public SamusSuitPickupBeam Beam { get; private set; }
@@ -110,7 +110,7 @@ public sealed class SamusSuitPickupState
             throw new InvalidOperationException("A suit pickup transformation is already active.");
 
         Kind = kind;
-        FixedColor = kind == SamusSuitPickupKind.Varia
+        BeamColor = kind == SamusSuitPickupKind.Varia
             ? new FadeLevelColour(SamusPaletteDefinitions.SuitPickup.InitialRed, SamusPaletteDefinitions.SuitPickup.VariaGreen, SamusPaletteDefinitions.SuitPickup.VariaBlue).ToColour()
             : new FadeLevelColour(SamusPaletteDefinitions.SuitPickup.InitialRed, SamusPaletteDefinitions.SuitPickup.GravityGreen, SamusPaletteDefinitions.SuitPickup.GravityBlue).ToColour();
         Stage = SamusSuitPickupStage.LightBeamAppears;
@@ -280,7 +280,7 @@ public sealed class SamusSuitPickupState
         }
     }
 
-    /// <summary>Applies the mirrored authored curve to each row as the beam widens and fixed color approaches white.</summary>
+    /// <summary>Applies the mirrored authored curve to each row as the beam widens and its colour approaches white.</summary>
     private void StepCurvedWidening()
     {
         AdvanceColorTowardWhite();
@@ -333,7 +333,7 @@ public sealed class SamusSuitPickupState
         Stage = SamusSuitPickupStage.LightBeamShrinks;
     }
 
-    /// <summary>Wipes beam rows from both edges while decelerating and restoring the suit-specific fixed color.</summary>
+    /// <summary>Wipes beam rows from both edges while decelerating and restoring the beam's suit-specific colour.</summary>
     private void StepLightBeamShrinks()
     {
         if (Kind == SamusSuitPickupKind.Gravity)
@@ -374,17 +374,17 @@ public sealed class SamusSuitPickupState
             Stage = SamusSuitPickupStage.Finish;
     }
 
-    /// <summary>Clears the window and fixed-color effect, then releases Samus input after the last light-beam stage.</summary>
+    /// <summary>Clears the light beam's window and colour, then releases Samus input after the last light-beam stage.</summary>
     private void Finish(SamusState samus)
     {
-        FixedColor = new FadeLevelColour(SamusPaletteDefinitions.SuitPickup.ResetRed, SamusPaletteDefinitions.SuitPickup.ResetGreen,
+        BeamColor = new FadeLevelColour(SamusPaletteDefinitions.SuitPickup.ResetRed, SamusPaletteDefinitions.SuitPickup.ResetGreen,
             SamusPaletteDefinitions.SuitPickup.ResetBlue).ToColour();
         Beam = SamusSuitPickupBeam.None;
         Stage = SamusSuitPickupStage.LightBeamAppears;
         _lightBeamScanlines = 0;
         _lightBeamLeft = Position16<ScreenPixels>.Zero;
         _lightBeamRight = Position16<ScreenPixels>.Zero;
-        FixedColor = RgbColor.Black;
+        BeamColor = RgbColor.Black;
         samus.Control.Unlock();
         IsActive = false;
     }
@@ -414,17 +414,17 @@ public sealed class SamusSuitPickupState
 
     /// <summary>Raises each channel by two toward the white reveal colour.</summary>
     private void AdvanceColorTowardWhite() =>
-        FixedColor = new FadeLevelColour(AddTwoAndClamp(FixedColor.FadeLevels.Red, SamusPaletteDefinitions.SuitPickup.WhiteRed),
-            AddTwoAndClamp(FixedColor.FadeLevels.Green, SamusPaletteDefinitions.SuitPickup.WhiteGreen),
-            AddTwoAndClamp(FixedColor.FadeLevels.Blue, SamusPaletteDefinitions.SuitPickup.WhiteBlue)).ToColour();
+        BeamColor = new FadeLevelColour(AddTwoAndClamp(BeamColor.FadeLevels.Red, SamusPaletteDefinitions.SuitPickup.WhiteRed),
+            AddTwoAndClamp(BeamColor.FadeLevels.Green, SamusPaletteDefinitions.SuitPickup.WhiteGreen),
+            AddTwoAndClamp(BeamColor.FadeLevels.Blue, SamusPaletteDefinitions.SuitPickup.WhiteBlue)).ToColour();
 
-    /// <summary>Returns the Varia beam's fixed color toward its orange target during the shrinking stage.</summary>
+    /// <summary>Returns the Varia beam's colour toward its orange target during the shrinking stage.</summary>
     private void AdvanceColorTowardOrange() => StepColorDownToward(
         SamusPaletteDefinitions.SuitPickup.WhiteRed,
         SamusPaletteDefinitions.SuitPickup.VariaOrangeGreen,
         SamusPaletteDefinitions.SuitPickup.VariaOrangeBlue);
 
-    /// <summary>Returns the Gravity beam's fixed color toward its blue target during the shrinking stage.</summary>
+    /// <summary>Returns the Gravity beam's colour toward its blue target during the shrinking stage.</summary>
     private void AdvanceColorTowardBlue() => StepColorDownToward(
         SamusPaletteDefinitions.SuitPickup.InitialRed,
         SamusPaletteDefinitions.SuitPickup.GravityGreen,
@@ -432,8 +432,8 @@ public sealed class SamusSuitPickupState
 
     /// <summary>Lowers each channel by one until it reaches its target.</summary>
     private void StepColorDownToward(int red, int green, int blue) =>
-        FixedColor = new FadeLevelColour(FixedColor.FadeLevels.Red == red ? red : FixedColor.FadeLevels.Red - 1, FixedColor.FadeLevels.Green == green ? green : FixedColor.FadeLevels.Green - 1,
-            FixedColor.FadeLevels.Blue == blue ? blue : FixedColor.FadeLevels.Blue - 1).ToColour();
+        BeamColor = new FadeLevelColour(BeamColor.FadeLevels.Red == red ? red : BeamColor.FadeLevels.Red - 1, BeamColor.FadeLevels.Green == green ? green : BeamColor.FadeLevels.Green - 1,
+            BeamColor.FadeLevels.Blue == blue ? blue : BeamColor.FadeLevels.Blue - 1).ToColour();
 
     /// <summary>Advances a channel by two without overshooting its stage target.</summary>
     private static int AddTwoAndClamp(int value, int target)

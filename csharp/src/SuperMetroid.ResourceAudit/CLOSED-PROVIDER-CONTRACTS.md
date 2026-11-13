@@ -289,7 +289,7 @@ No door transition, attack, pickup, room or gameplay runs; mechanics are unchang
 
 Nine private-constructor loaders validate complete independent arrays before
 publishing a provider: Samus full-body cycles, normal suits, charge/pseudo-Screw,
-hurt/intro, Hyper Beam body colors, visor, Crystal Flash, Power Bomb fixed colors,
+hurt/intro, Hyper Beam body colors, visor, Crystal Flash, Power Bomb glow colours,
 and Hyper Beam projectile FX. Each rule guards the full provider source and
 the underlying palette definition source where used. No palette clocks run.
 

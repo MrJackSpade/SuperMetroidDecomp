@@ -8,7 +8,7 @@ internal static class SamusSuitPickupStateAccess
     {
         /// <summary>Value-only render input while the transformation is active; null once it ends.</summary>
         public SamusSuitPickupFlash? Flash => self.IsActive
-            ? new(self.Beam, self.FixedColor)
+            ? new(self.Beam, self.BeamColor)
             : null;
     }
 }

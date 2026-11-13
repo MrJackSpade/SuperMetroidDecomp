@@ -27,7 +27,7 @@ internal static class SamusColorPresentationContractChecks
                 void Inspect(SamusFullBodyCycleColours body, InstalledSamusSuitColors suit,
                     SamusChargeColours charge, InstalledSamusHurtColors hurt,
                     SamusHyperBeamColours hyper, InstalledSamusVisorColors visor,
-                    InstalledCrystalFlashColors flash, InstalledPowerBombFixedColors bomb,
+                    InstalledCrystalFlashColors flash, InstalledPowerBombGlowColors bomb,
                     HyperBeamFxColours fx) {
                     body.Resolve(new SamusFullBodyCyclePalette(SamusFullBodyCycleFamily.ActiveShinespark,
                         SamusSuit.Gravity, 3), SamusColourSets.ColoursPerSet - 1);
@@ -40,10 +40,10 @@ internal static class SamusColorPresentationContractChecks
                     hyper.Resolve(SamusPaletteDefinitions.FullBodyCycles.HyperBeamPaletteCount, 0);
                     visor.Resolve(SamusVisorColorFormat.ColorCount - 1);
                     visor.Resolve(SamusVisorColorFormat.ColorCount);
-                    bomb.Resolve(PowerBombFixedColorSequence.Explosion, SamusPaletteDefinitions.PowerBomb.ExplosionColorCount - 1);
-                    bomb.Resolve(PowerBombFixedColorSequence.PreExplosion, SamusPaletteDefinitions.PowerBomb.PreExplosionColorCount - 1);
-                    bomb.Resolve(PowerBombFixedColorSequence.PreExplosion, SamusPaletteDefinitions.PowerBomb.PreExplosionColorCount);
-                    bomb.Resolve((PowerBombFixedColorSequence)int.MaxValue, 0);
+                    bomb.Resolve(PowerBombGlowSequence.Explosion, SamusPaletteDefinitions.PowerBomb.ExplosionColorCount - 1);
+                    bomb.Resolve(PowerBombGlowSequence.PreExplosion, SamusPaletteDefinitions.PowerBomb.PreExplosionColorCount - 1);
+                    bomb.Resolve(PowerBombGlowSequence.PreExplosion, SamusPaletteDefinitions.PowerBomb.PreExplosionColorCount);
+                    bomb.Resolve((PowerBombGlowSequence)int.MaxValue, 0);
                 }
             }
             """;

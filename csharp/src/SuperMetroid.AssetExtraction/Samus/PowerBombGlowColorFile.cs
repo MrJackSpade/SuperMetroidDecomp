@@ -7,27 +7,30 @@ using SuperMetroid.Core.Samus.Palettes;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
-/// <summary>Reads and writes the installed Power Bomb fixed colour document.</summary>
-public static class PowerBombFixedColorFile
+/// <summary>Reads and writes the installed Power Bomb glow colour document.</summary>
+public static class PowerBombGlowColorFile
 {
-    /// <summary>Supported schema revision, one, fixing the sixteen- and thirty-two-entry sequence dimensions.</summary>
-    public const int Version = 1;
+    /// <summary>
+    /// Supported schema revision, fixing the sixteen- and thirty-two-entry sequence dimensions; 2 names the file for the
+    /// explosion's glow (#1631).
+    /// </summary>
+    public const int Version = 2;
 
     /// <summary>JSON resource filename containing the pre-explosion and explosion RGB5 sequences.</summary>
-    public const string FileName = "power-bomb-fixed-colors.json";
+    public const string FileName = "power-bomb-glow-colors.json";
 
-    /// <summary>Validates the installed fixed-color JSON and keeps both complete RGB5 sequences as installed, without changing phase or radius mechanics.</summary>
+    /// <summary>Validates the installed glow colour JSON and keeps both complete RGB5 sequences as installed, without changing phase or radius mechanics.</summary>
     /// <param name="json">UTF-8 JSON source consumed from its current position and left open.</param>
     /// <returns>Every colour of both sequences, detached from the document arrays.</returns>
     /// <exception cref="ArgumentNullException">The source stream is null.</exception>
     /// <exception cref="InvalidDataException">The JSON contains duplicate or unknown properties, an unsupported version, incorrect sequence lengths, null colors, or channels outside 0..31.</exception>
-    public static InstalledPowerBombFixedColors Read(Stream json)
+    public static InstalledPowerBombGlowColors Read(Stream json)
     {
         Ensure.NotNull(json);
-        PowerBombFixedColorDocument document;
-        document = JsonAssetDocument.Read<PowerBombFixedColorDocument>(json, ArtworkJson.Options, "Power Bomb fixed-color");
+        PowerBombGlowColorDocument document;
+        document = JsonAssetDocument.Read<PowerBombGlowColorDocument>(json, ArtworkJson.Options, "Power Bomb glow colour");
         if (document.Version != Version)
-            throw new InvalidDataException("Power Bomb fixed colors require the supported version.");
+            throw new InvalidDataException("Power Bomb glow colours require the supported version.");
         return new(
             Compile(document.PreExplosion, SamusPaletteDefinitions.PowerBomb.PreExplosionColorCount, "pre-explosion"),
             Compile(document.Explosion, SamusPaletteDefinitions.PowerBomb.ExplosionColorCount, "explosion"));
@@ -36,7 +39,7 @@ public static class PowerBombFixedColorFile
     /// <summary>Serializes the editable sequences to indented camel-case UTF-8 JSON.</summary>
     /// <param name="document">The two complete RGB5 color sequences to serialize; the writer does not retain their collections.</param>
     /// <returns>JSON bytes for <see cref="FileName"/>.</returns>
-    public static byte[] Write(PowerBombFixedColorDocument document) =>
+    public static byte[] Write(PowerBombGlowColorDocument document) =>
         JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
 
     /// <summary>Checks a sequence's length and RGB5 channels before packing its colours.</summary>

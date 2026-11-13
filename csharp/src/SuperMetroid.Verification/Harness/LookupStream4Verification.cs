@@ -1598,11 +1598,11 @@ internal static class LookupStream4Verification
     /// <summary>Checks power-bomb palette color stages against cartridge words.</summary>
     private static void VerifyLookupStream4PowerBombColors(ISnesAddressSpace rom)
     {
-        byte[] original = PowerBombFixedColorExtractor.Extract(rom);
-        var catalog = PowerBombFixedColorFile.Read(new MemoryStream(original));
-        foreach (var sequence in Enum.GetValues<PowerBombFixedColorSequence>())
+        byte[] original = PowerBombGlowColorExtractor.Extract(rom);
+        var catalog = PowerBombGlowColorFile.Read(new MemoryStream(original));
+        foreach (var sequence in Enum.GetValues<PowerBombGlowSequence>())
         {
-            int count = PowerBombFixedColorFormat.Count(sequence);
+            int count = PowerBombGlowColorFormat.Count(sequence);
             for (int index = 0; index < count; index++)
             {
                 int address = PowerBombColorSources.Start(sequence) + index * 3;
@@ -1612,7 +1612,7 @@ internal static class LookupStream4Verification
             foreach (int invalid in new[] { int.MinValue, -1, count, int.MaxValue })
                 AssertThrows<ArgumentOutOfRangeException>(() => catalog.Resolve(sequence, invalid), "Power Bomb color index domain");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => catalog.Resolve((PowerBombFixedColorSequence)2, 0), "Power Bomb sequence domain");
+        AssertThrows<ArgumentOutOfRangeException>(() => catalog.Resolve((PowerBombGlowSequence)2, 0), "Power Bomb sequence domain");
     }
 
     /// <summary>

@@ -20,8 +20,8 @@ public sealed class SamusPowerBombExplosionState
     /// <summary>Whether the explosion is active, as rooms and FX read it.</summary>
     internal IActivePowerBomb Activity => field ??= new SamusPowerBombActivity(this);
 
-    /// <summary>Installed explosion colors: installed content, not game state, bound again when a game is restored.</summary>
-    public InstalledPowerBombFixedColors? PresentationColors { get; set; }
+    /// <summary>Installed glow colours: installed content, not game state, bound again when a game is restored.</summary>
+    public InstalledPowerBombGlowColors? PresentationColors { get; set; }
 
     /// <summary>Room-pixel centre copied from the projectile when its fuse reaches zero.</summary>
     public Position16<RoomPixels> Position { get; private set; }
@@ -65,8 +65,8 @@ public sealed class SamusPowerBombExplosionState
     /// <summary>Explosion radius consumed before the end-of-frame update.</summary>
     public PowerBombRadius RenderedExplosionRadius { get; internal set; }
 
-    /// <summary>The colour the explosion adds inside its window.</summary>
-    public RgbColor FixedColor { get; internal set; }
+    /// <summary>The explosion's glow: the colour it adds to the scene inside its window.</summary>
+    public RgbColor GlowColor { get; internal set; }
 
     /// <summary>True from placement until cleanup releases the one-at-a-time Power Bomb lock.</summary>
     public bool IsArmed { get; private set; }
@@ -120,7 +120,7 @@ public sealed class SamusPowerBombExplosionState
         RenderedExplosionRadius = PowerBombRadius.Zero;
         _afterglowStepsRemaining = 0;
         _crystalFlashAfterglowStepsRemaining = 0;
-        FixedColor = RgbColor.Black;
+        GlowColor = RgbColor.Black;
     }
 
     /// <summary>
@@ -131,7 +131,7 @@ public sealed class SamusPowerBombExplosionState
     {
         // Crystal Flash releases the one-at-a-time Power Bomb lock before starting its two
         // explosion effects. Their animation still shares the Power Bomb's status,
-        // position, radius, speed, fixed color, and window.
+        // position, radius, speed, glow colour, and window.
         IsArmed = false;
         Position = position;
         IsActive = true;
@@ -144,7 +144,7 @@ public sealed class SamusPowerBombExplosionState
         RenderedPhase = PowerBombExplosionPhase.Inactive;
         RenderedPreExplosionRadius = PowerBombRadius.Zero;
         RenderedExplosionRadius = PowerBombRadius.Zero;
-        FixedColor = RgbColor.Black;
+        GlowColor = RgbColor.Black;
         _afterglowStepsRemaining = 0;
         _crystalFlashAfterglowStepsRemaining = 0;
     }
@@ -225,7 +225,7 @@ public sealed class SamusPowerBombExplosionState
         RenderedPhase = PowerBombExplosionPhase.Inactive;
         RenderedPreExplosionRadius = PowerBombRadius.Zero;
         RenderedExplosionRadius = PowerBombRadius.Zero;
-        FixedColor = RgbColor.Black;
+        GlowColor = RgbColor.Black;
         _afterglowStepsRemaining = 0;
         _crystalFlashAfterglowStepsRemaining = 0;
     }
@@ -234,8 +234,8 @@ public sealed class SamusPowerBombExplosionState
     private void StepPreExplosionWhite()
     {
         RenderedPreExplosionRadius = PreExplosionRadius;
-        ReadFixedColor(
-            PowerBombFixedColorSequence.PreExplosion,
+        SelectGlowColor(
+            PowerBombGlowSequence.PreExplosion,
             (PreExplosionRadius.WholePixels >> 3) & 15);
 
         // The white pre-explosion uses addition wrapping at 65536. It subtracts acceleration only while
@@ -283,8 +283,8 @@ public sealed class SamusPowerBombExplosionState
     private void StepPreExplosionYellow()
     {
         RenderedPreExplosionRadius = PreExplosionRadius;
-        ReadFixedColor(
-            PowerBombFixedColorSequence.PreExplosion,
+        SelectGlowColor(
+            PowerBombGlowSequence.PreExplosion,
             (PreExplosionRadius.WholePixels >> 3) & 15);
 
         // The yellow pre-explosion builds this frame's two window tables before advancing to the next
@@ -314,8 +314,8 @@ public sealed class SamusPowerBombExplosionState
     private void StepExplosionYellow()
     {
         RenderedExplosionRadius = ExplosionRadius;
-        ReadFixedColor(
-            PowerBombFixedColorSequence.Explosion,
+        SelectGlowColor(
+            PowerBombGlowSequence.Explosion,
             ExplosionRadius.WholePixels >> 3);
 
         ExplosionRadius = AdvanceRadiusWrapping(ExplosionRadius);
@@ -332,12 +332,12 @@ public sealed class SamusPowerBombExplosionState
         Phase = PowerBombExplosionPhase.ExplosionWhite;
     }
 
-    /// <summary>Consumes seventeen white shapes and primes the 32-step fixed-color afterglow.</summary>
+    /// <summary>Consumes seventeen white shapes and primes the 32-step afterglow that fades the glow.</summary>
     private void StepExplosionWhite()
     {
         RenderedExplosionRadius = ExplosionRadius;
-        ReadFixedColor(
-            PowerBombFixedColorSequence.Explosion,
+        SelectGlowColor(
+            PowerBombGlowSequence.Explosion,
             ExplosionRadius.WholePixels >> 3);
 
         RenderedShape = ConsumeShape(out bool finishedShapes);
@@ -358,7 +358,7 @@ public sealed class SamusPowerBombExplosionState
     }
 
     /// <summary>
-    /// Fades the three fixed-color components one step every update and ends the effect after the last step. The delay
+    /// Fades the glow colour's three components one step every update and ends the effect after the last step. The delay
     /// the game keeps between steps never holds one back: the afterglow starts it at zero, so it runs past zero on the
     /// first update, and each step's reload of its count leaves it run past zero.
     /// </summary>
@@ -382,7 +382,7 @@ public sealed class SamusPowerBombExplosionState
             return true;
         }
 
-        FixedColor = FixedColor.FadeLevels.Map((_, channel) => channel == 0 ? 0 : channel - 1).ToColour();
+        GlowColor = GlowColor.FadeLevels.Map((_, channel) => channel == 0 ? 0 : channel - 1).ToColour();
         return false;
     }
 
@@ -390,10 +390,10 @@ public sealed class SamusPowerBombExplosionState
     private void StepCrystalFlashExplosion()
     {
         // Crystal Flash's explosion is a deliberately shorter clone of the yellow Power Bomb expansion.
-        // It uses the same curve and fixed-color table, but stops at radius 32.
+        // It uses the same curve and glow colours, but stops at radius 32.
         RenderedExplosionRadius = ExplosionRadius;
-        ReadFixedColor(
-            PowerBombFixedColorSequence.Explosion,
+        SelectGlowColor(
+            PowerBombGlowSequence.Explosion,
             ExplosionRadius.WholePixels >> 3);
 
         ExplosionRadius = AdvanceRadiusWrapping(ExplosionRadius);
@@ -418,7 +418,7 @@ public sealed class SamusPowerBombExplosionState
         if (_crystalFlashAfterglowStepsRemaining != 0)
         {
             _crystalFlashAfterglowStepsRemaining--;
-            FixedColor = FixedColor.FadeLevels.Map((_, channel) => channel == 0 ? 0 : channel - 1).ToColour();
+            GlowColor = GlowColor.FadeLevels.Map((_, channel) => channel == 0 ? 0 : channel - 1).ToColour();
             return false;
         }
 
@@ -438,7 +438,7 @@ public sealed class SamusPowerBombExplosionState
         RenderedExplosionRadius = PowerBombRadius.Zero;
         // Replacement colors may be brighter than the stock lifetime operand. Once
         // the window is released, do not retain their unused display remainder.
-        FixedColor = RgbColor.Black;
+        GlowColor = RgbColor.Black;
         return true;
     }
 
@@ -454,12 +454,12 @@ public sealed class SamusPowerBombExplosionState
         _afterglowStepsRemaining--;
     }
 
-    /// <summary>Loads the installed fixed-color triplet for a sequence and radius-derived index.</summary>
-    private void ReadFixedColor(PowerBombFixedColorSequence sequence, int colorIndex)
+    /// <summary>Selects the installed glow colour a sequence shows at a radius-derived step.</summary>
+    private void SelectGlowColor(PowerBombGlowSequence sequence, int colorIndex)
     {
         RgbColor color = (PresentationColors ?? throw new InvalidOperationException(
-                "Power Bomb color requires installed fixed-color definitions."))
+                "The Power Bomb's glow requires installed glow colours."))
             .Resolve(sequence, colorIndex);
-        FixedColor = color;
+        GlowColor = color;
     }
 }

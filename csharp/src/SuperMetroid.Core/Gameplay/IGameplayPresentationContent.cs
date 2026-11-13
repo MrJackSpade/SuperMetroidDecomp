@@ -32,7 +32,7 @@ public interface IGameplayPresentationContent : IAreaMapSource
     /// <summary>The Ceres haze's installed tints.</summary>
     CeresHazeTints CeresHaze { get; }
 
-    /// <summary>Fixed colours for Power Bomb, Crystal Flash, and Ceres explosion effects, separate from Samus palette colors.</summary>
-    InstalledPowerBombFixedColors PowerBombFixedColors { get; }
+    /// <summary>The glow colours Power Bomb, Crystal Flash, and Ceres explosions add to the scene, separate from Samus palette colors.</summary>
+    InstalledPowerBombGlowColors PowerBombGlowColors { get; }
 
 }

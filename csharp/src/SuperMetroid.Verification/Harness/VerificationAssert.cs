@@ -216,7 +216,7 @@ using static SuperMetroid.Verification.Samus.Poses.PoseCollisionDefinitionsVerif
 using static SuperMetroid.Verification.Samus.Poses.PoseDispatchDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Poses.PoseInputDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Poses.PoseProjectileOriginVerification;
-using static SuperMetroid.Verification.Samus.Palettes.PowerBombFixedColorsVerification;
+using static SuperMetroid.Verification.Samus.Palettes.PowerBombGlowColorsVerification;
 using static SuperMetroid.Verification.Rendering.PowerBombShapeVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.ProjectileDamageVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.ProjectileOriginsVerification;
@@ -1478,7 +1478,7 @@ internal static class VerificationAssert
         Suite(nameof(VerifyCompiledDraygonBg2Collision), () => VerifyCompiledDraygonBg2Collision(rom));
         Suite(nameof(VerifyRidleyCollisionDefinitions), () => VerifyRidleyCollisionDefinitions());
         Suite(nameof(VerifyLookupStream4), () => VerifyLookupStream4(rom));
-        Suite(nameof(VerifyPowerBombFixedColors), () => VerifyPowerBombFixedColors());
+        Suite(nameof(VerifyPowerBombGlowColors), () => VerifyPowerBombGlowColors());
         Suite(nameof(VerifyRidleyAttackChoices), () => VerifyRidleyAttackChoices(rom));
         Suite(nameof(VerifyRidleyMovementTargets), () => VerifyRidleyMovementTargets(rom));
         Suite(nameof(VerifyRidleyClawOffsets), () => VerifyRidleyClawOffsets(rom));

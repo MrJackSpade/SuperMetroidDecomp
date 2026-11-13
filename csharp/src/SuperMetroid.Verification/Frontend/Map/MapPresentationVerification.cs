@@ -43,7 +43,7 @@ using static SuperMetroid.Verification.Frontend.Pause.PauseReserveUiAssetsVerifi
 using static SuperMetroid.Verification.Frontend.Pause.PauseSelectorsVerification;
 using static SuperMetroid.Verification.Frontend.Pause.PauseTileAtlasVerification;
 using static SuperMetroid.Verification.Frontend.Pause.PauseWireframesVerification;
-using static SuperMetroid.Verification.Samus.Palettes.PowerBombFixedColorsVerification;
+using static SuperMetroid.Verification.Samus.Palettes.PowerBombGlowColorsVerification;
 using static SuperMetroid.Verification.Hardware.QueuedVramAssetsVerification;
 using static SuperMetroid.Verification.Fx.RoomFxLayer3TilemapsVerification;
 using static SuperMetroid.Verification.Fx.RoomFxPaletteBlendsVerification;
@@ -359,7 +359,7 @@ internal static class MapPresentationVerification
         Suite(nameof(VerifyTitleSpriteSources), () => VerifyTitleSpriteSources(bus));
         Suite(nameof(VerifyRoomFxLayer3TilemapsRejectMalformedDocuments), () => VerifyRoomFxLayer3TilemapsRejectMalformedDocuments(stock));
         Suite(nameof(VerifyRoomFxPaletteBlendsRejectMalformedDocuments), () => VerifyRoomFxPaletteBlendsRejectMalformedDocuments(stock));
-        Suite(nameof(VerifyPowerBombFixedColorsRejectMalformedDocuments), () => VerifyPowerBombFixedColorsRejectMalformedDocuments(stock));
+        Suite(nameof(VerifyPowerBombGlowColorsRejectMalformedDocuments), () => VerifyPowerBombGlowColorsRejectMalformedDocuments(stock));
         Suite(nameof(VerifySamusVisorColorsRejectMalformedDocuments), () => VerifySamusVisorColorsRejectMalformedDocuments(stock));
         Suite(nameof(VerifySamusHurtColorsRejectMalformedDocuments), () => VerifySamusHurtColorsRejectMalformedDocuments(stock));
         Suite(nameof(VerifySamusSuitColors), () => VerifySamusSuitColors(stock, original, bus, MapCatalogFixture.FixtureAssets));

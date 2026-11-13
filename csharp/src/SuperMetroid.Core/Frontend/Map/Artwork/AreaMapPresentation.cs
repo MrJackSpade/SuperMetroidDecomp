@@ -54,7 +54,7 @@ public sealed class AreaMapPresentation : IGameplayPresentationContent
         EndingSpaceBackdrops = parts.EndingSpaceBackdrops;
         MotherBrainRainbowPalette = parts.MotherBrainRainbowPalette;
         CeresHaze = parts.CeresHaze;
-        PowerBombFixedColors = parts.PowerBombFixedColors;
+        PowerBombGlowColors = parts.PowerBombGlowColors;
         CeresRidleyGetawayBoostDelays = parts.CeresRidleyGetawayBoostDelays;
     }
 
@@ -107,8 +107,8 @@ public sealed class AreaMapPresentation : IGameplayPresentationContent
     public MotherBrainRainbowPalettePresentation MotherBrainRainbowPalette { get; }
     /// <summary>The Ceres haze's installed tints.</summary>
     public CeresHazeTints CeresHaze { get; }
-    /// <summary>Fixed colours for Power Bomb, Crystal Flash, and Ceres explosion effects, separate from Samus palette colors.</summary>
-    public InstalledPowerBombFixedColors PowerBombFixedColors { get; }
+    /// <summary>The glow colours Power Bomb, Crystal Flash, and Ceres explosions add to the scene, separate from Samus palette colors.</summary>
+    public InstalledPowerBombGlowColors PowerBombGlowColors { get; }
 
     /// <summary>The Speed Booster delays the getaway's wing frames leave behind for the unauthored cadence.</summary>
     public CeresRidleyGetawayBoostDelays CeresRidleyGetawayBoostDelays { get; }

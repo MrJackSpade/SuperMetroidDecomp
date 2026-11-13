@@ -6,15 +6,15 @@ using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
-/// <summary>Exports native RGB5 colors without exporting radius or HDMA mechanics.</summary>
+/// <summary>Exports the explosion's glow colours as native RGB5 colors without exporting radius or HDMA mechanics.</summary>
 /// <remarks>The one decoder of the cartridge's three-byte fixed-colour triplets: each byte keeps its low five bits.</remarks>
-[EncodingOwner("Power Bomb fixed-colour triplet")]
-public static class PowerBombFixedColorExtractor
+[EncodingOwner("Power Bomb glow-colour triplet")]
+public static class PowerBombGlowColorExtractor
 {
         /// <summary>The five-bit channel in each stored fixed-colour byte.</summary>
         public const int ComponentMask = 0b1_1111;
 
-    /// <summary>Imports the sixteen pre-explosion and thirty-two explosion fixed-color triplets used by Power Bomb effects.</summary>
+    /// <summary>Imports the sixteen pre-explosion and thirty-two explosion glow colours used by Power Bomb effects.</summary>
     /// <param name="bus">Non-null cartridge import address space containing the native three-byte fixed-color sequences.</param>
     /// <returns>New UTF-8 JSON bytes containing ordered RGB5 colors, with each native component masked to 0..31.</returns>
     /// <remarks>Radius-based selection, HDMA geometry, and shared Crystal Flash or Ceres explosion behavior remain compiled.</remarks>
@@ -22,21 +22,21 @@ public static class PowerBombFixedColorExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        return PowerBombFixedColorFile.Write(new PowerBombFixedColorDocument
+        return PowerBombGlowColorFile.Write(new PowerBombGlowColorDocument
         {
-            Version = PowerBombFixedColorFile.Version,
-            PreExplosion = Read(bus, PowerBombFixedColorSequence.PreExplosion),
-            Explosion = Read(bus, PowerBombFixedColorSequence.Explosion),
+            Version = PowerBombGlowColorFile.Version,
+            PreExplosion = Read(bus, PowerBombGlowSequence.PreExplosion),
+            Explosion = Read(bus, PowerBombGlowSequence.Explosion),
         });
     }
 
-    /// <summary>Decodes one fixed-color sequence from native three-byte RGB triplets into five-bit channels.</summary>
-    private static PaletteRgb5[] Read(ISnesAddressSpace bus, PowerBombFixedColorSequence sequence)
+    /// <summary>Decodes one glow sequence from native three-byte RGB triplets into five-bit channels.</summary>
+    private static PaletteRgb5[] Read(ISnesAddressSpace bus, PowerBombGlowSequence sequence)
     {
         byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
             PowerBombColorSources.Start(sequence),
-            PowerBombFixedColorFormat.Count(sequence) * SamusSourceDefinitions.PowerBombBytesPerColor);
-        var colors = new PaletteRgb5[PowerBombFixedColorFormat.Count(sequence)];
+            PowerBombGlowColorFormat.Count(sequence) * SamusSourceDefinitions.PowerBombBytesPerColor);
+        var colors = new PaletteRgb5[PowerBombGlowColorFormat.Count(sequence)];
         for (int index = 0; index < colors.Length; index++)
         {
             int offset = index * SamusSourceDefinitions.PowerBombBytesPerColor;

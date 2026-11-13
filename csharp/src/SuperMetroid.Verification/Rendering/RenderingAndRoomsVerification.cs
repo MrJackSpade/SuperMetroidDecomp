@@ -1016,7 +1016,7 @@ internal static void VerifyPowerBombColorMathWindow()
 
     const ushort centerX = 100;
     const ushort centerY = 100;
-    var explosion = new SamusPowerBombExplosionState { PresentationColors = PowerBombFixedColorFile.Read(new MemoryStream(SuperMetroid.AssetExtraction.Samus.PowerBombFixedColorExtractor.Extract(bus))) };
+    var explosion = new SamusPowerBombExplosionState { PresentationColors = PowerBombGlowColorFile.Read(new MemoryStream(SuperMetroid.AssetExtraction.Samus.PowerBombGlowColorExtractor.Extract(bus))) };
     explosion.Arm();
     explosion.Spawn(new(centerX, centerY));
 

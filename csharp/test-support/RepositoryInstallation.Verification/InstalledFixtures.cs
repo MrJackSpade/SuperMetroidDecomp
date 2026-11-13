@@ -355,7 +355,7 @@ internal static class InstalledFixtures
 
     /// <summary>Creates a bomb system with installed frame bindings and explosion colors.</summary>
     internal static SamusBombProjectileSystem CreateBombSystem() =>
-        new() { FrameBindings = Projectiles.FrameBindings, PowerBombExplosion = { PresentationColors = Maps.PowerBombFixedColors } };
+        new() { FrameBindings = Projectiles.FrameBindings, PowerBombExplosion = { PresentationColors = Maps.PowerBombGlowColors } };
 
     /// <summary>The arm cannon's cover characters, from the cartridge-derived extraction, as no installation holds them (#1636).</summary>
     internal static SamusArmCannonCoverCharacters SamusArmCannonCover => SamusBodySheetFixtures.Inputs.ArmCannonCover;
@@ -379,7 +379,7 @@ internal static class InstalledFixtures
 
     /// <summary>Creates Ceres destruction with installed cinematic art and fixed colors.</summary>
     internal static CeresDestructionCinematicState CreateDestruction(AudioQueues? audio = null, ImportIntroCinematicArtwork? artwork = null) =>
-        new(audio, Maps.PowerBombFixedColors, (artwork ?? IntroArtwork).BoundCatalog,
+        new(audio, Maps.PowerBombGlowColors, (artwork ?? IntroArtwork).BoundCatalog,
             spriteSheets: CinematicSheetFixtures.WithIntro(artwork ?? IntroArtwork));
 
     /// <summary>Creates an intro scene with installed character, projectile, narration, and hurt-color art.</summary>

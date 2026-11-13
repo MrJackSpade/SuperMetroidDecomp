@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
-using static SuperMetroid.Verification.Samus.Palettes.PowerBombFixedColorsVerification;
+using static SuperMetroid.Verification.Samus.Palettes.PowerBombGlowColorsVerification;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
@@ -14,14 +14,14 @@ namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 internal static class CeresExplosionVerification
 {
     /// <summary>Compares blast windows, RGB colors, phase coverage, and cleanup through the scene timeline, including installed-color ROM isolation.</summary>
-    internal static void VerifyCeresExplosionTimeline(InstalledPowerBombFixedColors? colors = null)
+    internal static void VerifyCeresExplosionTimeline(InstalledPowerBombGlowColors? colors = null)
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var guarded = NewForbiddenPowerBombColorBus(bus);
         ImportIntroCinematicArtwork artwork = InstalledFixtures.IntroArtwork;
-        InstalledPowerBombFixedColors stockColors = colors ?? PowerBombFixedColorFile.Read(
-            new MemoryStream(PowerBombFixedColorExtractor.Extract(bus)));
-        var scene = new CeresDestructionCinematicState(fixedColors: stockColors, artwork: artwork.BoundCatalog,
+        InstalledPowerBombGlowColors stockColors = colors ?? PowerBombGlowColorFile.Read(
+            new MemoryStream(PowerBombGlowColorExtractor.Extract(bus)));
+        var scene = new CeresDestructionCinematicState(glowColors: stockColors, artwork: artwork.BoundCatalog,
             spriteSheets: CinematicSheetFixtures.WithIntro(artwork));
         var reference = new SamusPowerBombExplosionState { PresentationColors = stockColors };
         var phases = new HashSet<PowerBombExplosionPhase>();

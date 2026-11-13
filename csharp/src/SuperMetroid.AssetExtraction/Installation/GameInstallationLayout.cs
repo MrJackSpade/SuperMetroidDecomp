@@ -18,7 +18,7 @@ public static class GameInstallationLayout
     public const string MapDirectoryName = "maps";
     /// <summary>Component directory whose import data holds the starting gameplay colours and room-entry sprite colours, which only the import reads (#1637); nothing of it is installed.</summary>
     public const string GameplayBasePaletteDirectoryName = "gameplay-palettes";
-    /// <summary>Content child directory for the indexed common gameplay OBJ sheet.</summary>
+    /// <summary>Component directory whose import data holds the common gameplay sprite characters, which only the import reads (#1636); nothing of it is installed.</summary>
     public const string StandardObjectDirectoryName = "standard-objects";
     /// <summary>Content child directory for projectile artwork and presentation selectors.</summary>
     public const string ProjectileDirectoryName = "projectiles";
@@ -75,63 +75,63 @@ public static class GameInstallationLayout
     /// <summary>Content child directory for the stock-only typed terrain of every room level (terrain blocks, behaviours, background appearances and the terrain beyond each room).</summary>
     public const string RoomLevelStreamDirectoryName = "room-level-streams";
     /// <summary>Content child directory for shootable block appearances.</summary>
-    public const string RoomObjectShotBlockVisualDirectoryName = "room-plm-shot-blocks";
+    public const string RoomObjectShotBlockVisualDirectoryName = "room-object-shot-blocks";
     /// <summary>Content child directory for Grapple-reactive block appearances.</summary>
-    public const string RoomObjectGrappleBlockVisualDirectoryName = "room-plm-grapple-blocks";
+    public const string RoomObjectGrappleBlockVisualDirectoryName = "room-object-grapple-blocks";
     /// <summary>Content child directory for station appearances; activation and rewards remain compiled.</summary>
-    public const string RoomObjectStationVisualDirectoryName = "room-plm-stations";
+    public const string RoomObjectStationVisualDirectoryName = "room-object-stations";
     /// <summary>Content child directory for blue-door cap artwork.</summary>
-    public const string RoomObjectBlueDoorVisualDirectoryName = "room-plm-blue-doors";
+    public const string RoomObjectBlueDoorVisualDirectoryName = "room-object-blue-doors";
     /// <summary>Content child directory for colored-door cap artwork.</summary>
-    public const string RoomObjectColoredDoorVisualDirectoryName = "room-plm-colored-doors";
+    public const string RoomObjectColoredDoorVisualDirectoryName = "room-object-colored-doors";
     /// <summary>Content child directory for grey-door caps and shared clear frames.</summary>
-    public const string RoomObjectGreyDoorVisualDirectoryName = "room-plm-grey-doors";
+    public const string RoomObjectGreyDoorVisualDirectoryName = "room-object-grey-doors";
     /// <summary>Content child directory for the three eye-door components' artwork.</summary>
-    public const string RoomObjectEyeDoorVisualDirectoryName = "room-plm-eye-doors";
+    public const string RoomObjectEyeDoorVisualDirectoryName = "room-object-eye-doors";
     /// <summary>Content child directory for Mother Brain glass appearances.</summary>
-    public const string RoomObjectMotherBrainGlassVisualDirectoryName = "room-plm-mother-brain-glass";
+    public const string RoomObjectMotherBrainGlassVisualDirectoryName = "room-object-mother-brain-glass";
     /// <summary>Content child directory for n00b-tube appearances.</summary>
-    public const string RoomObjectNoobTubeVisualDirectoryName = "room-plm-noob-tube";
+    public const string RoomObjectNoobTubeVisualDirectoryName = "room-object-noob-tube";
     /// <summary>Content child directory for downward gate-block artwork.</summary>
-    public const string RoomObjectDownwardGateVisualDirectoryName = "room-plm-downward-gates";
+    public const string RoomObjectDownwardGateVisualDirectoryName = "room-object-downward-gates";
     /// <summary>Content child directory for elevator-platform frames.</summary>
-    public const string RoomObjectElevatorPlatformVisualDirectoryName = "room-plm-elevator-platforms";
+    public const string RoomObjectElevatorPlatformVisualDirectoryName = "room-object-elevator-platforms";
     /// <summary>Content child directory for closing escape-gate appearances.</summary>
-    public const string RoomObjectEscapeGateVisualDirectoryName = "room-plm-escape-gate";
+    public const string RoomObjectEscapeGateVisualDirectoryName = "room-object-escape-gate";
     /// <summary>Content child directory for Bomb Torizo hand artwork.</summary>
-    public const string RoomObjectBombTorizoHandVisualDirectoryName = "room-plm-bomb-torizo-hand";
+    public const string RoomObjectBombTorizoHandVisualDirectoryName = "room-object-bomb-torizo-hand";
     /// <summary>Content child directory for reachable Draygon cannon artwork.</summary>
-    public const string RoomObjectDraygonCannonVisualDirectoryName = "room-plm-draygon-cannons";
+    public const string RoomObjectDraygonCannonVisualDirectoryName = "room-object-draygon-cannons";
     /// <summary>Content child directory for Phantoon's fight and restored door artwork.</summary>
-    public const string RoomObjectPhantoonDoorVisualDirectoryName = "room-plm-phantoon-door";
+    public const string RoomObjectPhantoonDoorVisualDirectoryName = "room-object-phantoon-door";
     /// <summary>Content child directory for Chozo hand and slope-access artwork.</summary>
-    public const string RoomObjectChozoStatueVisualDirectoryName = "room-plm-chozo-statues";
+    public const string RoomObjectChozoStatueVisualDirectoryName = "room-object-chozo-statues";
     /// <summary>Content child directory for linked-block restoration appearances.</summary>
-    public const string RoomObjectLinkedRestoreVisualDirectoryName = "room-plm-linked-restores";
+    public const string RoomObjectLinkedRestoreVisualDirectoryName = "room-object-linked-restores";
     /// <summary>Content child directory for Tourian access-floor artwork.</summary>
-    public const string RoomObjectTourianAccessVisualDirectoryName = "room-plm-tourian-access";
+    public const string RoomObjectTourianAccessVisualDirectoryName = "room-object-tourian-access";
     /// <summary>Content child directory for the bomb-revealed Speed Booster tile.</summary>
-    public const string RoomObjectSpeedBoosterVisualDirectoryName = "room-plm-speed-booster";
-    /// <summary>Content child directory for the Maridia elevatube PLM tile.</summary>
-    public const string RoomObjectMaridiaElevatubeVisualDirectoryName = "room-plm-maridia-elevatube";
+    public const string RoomObjectSpeedBoosterVisualDirectoryName = "room-object-speed-booster";
+    /// <summary>Content child directory for the Maridia elevatube room object's tile.</summary>
+    public const string RoomObjectMaridiaElevatubeVisualDirectoryName = "room-object-maridia-elevatube";
     /// <summary>Content child directory for Spore Spawn ceiling tiles.</summary>
-    public const string RoomObjectSporeSpawnCeilingVisualDirectoryName = "room-plm-spore-spawn-ceiling";
+    public const string RoomObjectSporeSpawnCeilingVisualDirectoryName = "room-object-spore-spawn-ceiling";
     /// <summary>Content child directory for floor and ceiling plant tiles.</summary>
-    public const string RoomObjectSamusEaterVisualDirectoryName = "room-plm-samus-eater";
+    public const string RoomObjectSamusEaterVisualDirectoryName = "room-object-samus-eater";
     /// <summary>Content child directory for Botwoon wall-clear tiles.</summary>
-    public const string RoomObjectBotwoonWallVisualDirectoryName = "room-plm-botwoon-wall";
+    public const string RoomObjectBotwoonWallVisualDirectoryName = "room-object-botwoon-wall";
     /// <summary>Content child directory for Kraid ceiling and spike artwork.</summary>
-    public const string RoomObjectKraidVisualDirectoryName = "room-plm-kraid";
+    public const string RoomObjectKraidVisualDirectoryName = "room-object-kraid";
     /// <summary>Content child directory for Crocomire bridge and wall artwork.</summary>
-    public const string RoomObjectCrocomireVisualDirectoryName = "room-plm-crocomire";
+    public const string RoomObjectCrocomireVisualDirectoryName = "room-object-crocomire";
     /// <summary>Content child directory for Mother Brain fake-death terrain artwork.</summary>
-    public const string RoomObjectMotherBrainFakeDeathVisualDirectoryName = "room-plm-mother-brain-fake-death";
+    public const string RoomObjectMotherBrainFakeDeathVisualDirectoryName = "room-object-mother-brain-fake-death";
     /// <summary>Content child directory for item, orb, and reveal appearances.</summary>
-    public const string RoomObjectCollectibleVisualDirectoryName = "room-plm-collectibles";
+    public const string RoomObjectCollectibleVisualDirectoryName = "room-object-collectibles";
     /// <summary>Content child directory for the bombed reveals', escape passage's, escape shaft wall's and rescue wall's pictures (#1557).</summary>
-    public const string RoomObjectRevealAndWallVisualDirectoryName = "room-plm-reveals-and-walls";
+    public const string RoomObjectRevealAndWallVisualDirectoryName = "room-object-reveals-and-walls";
     /// <summary>Content child directory for the pictures of the blocks room-object setups and block reactions write of their own accord (#1580).</summary>
-    public const string RoomObjectSetupBlockDirectoryName = "room-plm-setup-blocks";
+    public const string RoomObjectSetupBlockDirectoryName = "room-object-setup-blocks";
     /// <summary>Content child directory for X-ray reveal metatile selections.</summary>
     public const string XrayRevealVisualDirectoryName = "xray-reveals";
     /// <summary>

@@ -5,9 +5,9 @@ public static class EscapeTypewriterDocumentDefinitions
 {
     /// <summary>
     /// The supported editable escape-typewriter JSON schema version: revision 3 places each line by the pixel of its layer
-    /// its first glyph shows at (#1601).
+    /// its first glyph shows at (#1601); revision 4 holds the warnings under <c>messages</c> (#1712).
     /// </summary>
-    public const int Version = 3;
+    public const int Version = 4;
 
     /// <summary>The embedded editable escape-warning program asset file name.</summary>
     public const string FileName = "escape-typewriter.json";

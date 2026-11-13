@@ -16,8 +16,11 @@ internal static class EnemyFrameDisplayFiles
     /// <summary>The installed document's file name.</summary>
     internal const string FileName = "enemy-frame-displays.json";
 
-    /// <summary>The document revision extraction writes and loading accepts.</summary>
-    internal const int Revision = 1;
+    /// <summary>
+    /// The document revision extraction writes and loading accepts: revision 2 names the multipart frames' bindings
+    /// <c>multipartDisplayFrames</c> (#1712).
+    /// </summary>
+    internal const int Revision = 2;
 
     /// <summary>Strict document encoding: camel-case names, no unknown or duplicate properties, indented output.</summary>
     private static readonly JsonSerializerOptions Options = new()
@@ -32,7 +35,7 @@ internal static class EnemyFrameDisplayFiles
     {
         Version = Revision,
         DisplayFrames = EnemyFrameBindingRules.Identity(EnemySpritemapDefinitions.Frames),
-        ExtendedDisplayFrames = EnemyFrameBindingRules.Identity(EnemyExtendedFrameDefinitions.Frames),
+        MultipartDisplayFrames = EnemyFrameBindingRules.Identity(EnemyExtendedFrameDefinitions.Frames),
     }, Options);
 
     /// <summary>Reads and validates the bindings in <paramref name="json"/>.</summary>
@@ -45,6 +48,6 @@ internal static class EnemyFrameDisplayFiles
             throw new InvalidDataException($"Enemy display bindings require revision {Revision}.");
         return new InstalledEnemyFrameDisplays(
             EnemyFrameCartridgeLookup.RequireSameBankDisplayBindings(EnemyFrameBindingRules.Ordinary(document.DisplayFrames)),
-            EnemyFrameBindingRules.Extended(document.ExtendedDisplayFrames));
+            EnemyFrameBindingRules.Extended(document.MultipartDisplayFrames));
     }
 }

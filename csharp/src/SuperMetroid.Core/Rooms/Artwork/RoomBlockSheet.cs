@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using System.Globalization;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.LevelData;
 
@@ -65,7 +64,7 @@ public sealed class RoomBlockSheet
     {
         if (!Inputs.Shows(block))
             throw new InvalidDataException(
-                $"Room block sheet {Sheet.Image.Name} has no picture of block {BlockName(block)}: the import found no room of the tileset that shows it.");
+                $"Room block sheet {Sheet.Image.Name} has no picture of block {block}: the import found no room of the tileset that shows it.");
         return Inputs.Of(block, artwork);
     }
 
@@ -79,14 +78,11 @@ public sealed class RoomBlockSheet
         string name = RoomBlockPictureNames.Of(block, artwork, inputs, values);
         if (!PictureParts.Holds(Sheet, name))
             throw new InvalidDataException(
-                $"Room block sheet {Sheet.Image.Name} has no picture of block {BlockName(block)} over {artwork} for its inputs' values: it holds no picture {name}.");
+                $"Room block sheet {Sheet.Image.Name} has no picture of block {block} over {artwork} for its inputs' values: it holds no picture {name}.");
         return Picture(name);
     }
 
     /// <summary>The picture of <paramref name="collectible"/>'s frame, which its kind shows where it lies in the tileset's rooms (#1538).</summary>
     /// <exception cref="InvalidDataException">The sheet has no such picture: no room of the tileset places the kind.</exception>
     public LayeredPicture PictureOf(CollectiblePicture collectible) => Picture(RoomBlockPictureNames.OfCollectible(collectible));
-
-    /// <summary>A block's index as its picture names spell it.</summary>
-    private static string BlockName(int block) => block.ToString("X3", CultureInfo.InvariantCulture);
 }

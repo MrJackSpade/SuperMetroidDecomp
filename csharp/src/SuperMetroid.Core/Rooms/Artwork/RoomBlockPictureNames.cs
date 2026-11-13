@@ -4,8 +4,8 @@ using System.Globalization;
 namespace SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>
-/// Names a pre-coloured block picture (#1392, #1431, #1466): the block's index among those its room loads, marked when
-/// it shows the sprites' artwork, then the values of the appearance inputs it depends on. Kraid's backdrop or an
+/// Names a pre-coloured block picture (#1392, #1431, #1466, #1712): the block, by its number among those its room loads,
+/// marked when it shows the sprites' artwork, then the values of the appearance inputs it depends on. Kraid's backdrop or an
 /// animation's frame therefore names another picture of the same block, and extraction and the room resolve the same
 /// name. A collectible showing its own picture names its kind and frame (#1538).
 /// </summary>
@@ -22,7 +22,7 @@ public static class RoomBlockPictureNames
     /// <exception cref="ArgumentOutOfRangeException">The block index is negative.</exception>
     /// <exception cref="ArgumentException">There is not one value for each input.</exception>
     public static string Of(int block, RoomBlockArtwork artwork, ImmutableArray<AppearanceInput> inputs, ReadOnlySpan<string> values) =>
-        AppearancePictureNames.Of(Ensure.AtLeastZero(block).ToString("X3", CultureInfo.InvariantCulture)
+        AppearancePictureNames.Of(string.Create(CultureInfo.InvariantCulture, $"block {Ensure.AtLeastZero(block)}")
             + (artwork == RoomBlockArtwork.Sprites ? OverSprites : ""), inputs, values);
 
     /// <summary>The name of the picture of <paramref name="collectible"/>'s frame (#1538), which depends on no input.</summary>

@@ -38,7 +38,7 @@ public static class PowerBombExplosionDefinitions
     public static readonly PowerBombRadius CrystalFlashRadiusLimit = PowerBombRadius.FromWholePixels(32);
     /// <summary>
     /// Maximum component of the first Crystal Flash color:
-    /// levels (14,14,10). This is a lifetime operand, not replacement artwork.
+    /// levels (14,14,10). This is a lifetime count, not replacement artwork.
     /// </summary>
     internal const int CrystalFlashInitialFadeSteps = 14;
     /// <summary>

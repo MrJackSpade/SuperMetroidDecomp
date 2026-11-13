@@ -9,7 +9,7 @@ public static class PowerBombExplosionAfterglow
     /// <summary>
     /// Compiled afterglow wake criterion for a stock Crystal Flash: the maximum
     /// component is 14+step for the four reachable explosion colour steps. Keeping
-    /// this operand independent of editable RGB preserves the fade count,
+    /// this criterion independent of editable RGB preserves the fade count,
     /// signed-timer cadence and cleanup frame without storing presentation colors.
     /// </summary>
     public static int CrystalFlashAfterglowSteps(PowerBombRadius consumedRadius)

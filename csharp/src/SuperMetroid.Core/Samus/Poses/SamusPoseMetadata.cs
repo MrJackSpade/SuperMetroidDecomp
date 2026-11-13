@@ -143,7 +143,7 @@ internal static class SamusPoseMetadata
 
     /// <summary>
     /// Selects the suit's front-view pose as facing forward
-    /// and Samus command 9 do. The Gravity and Varia suit bits
+    /// and the Zebes start setup do. The Gravity and Varia suit bits
     /// have equal precedence: either selects the shared suited pose <see cref="SamusPoseId.ForwardFacingSuitedPose"/>.
     /// </summary>
     private static void SelectForwardFacingPose(SamusState samus)
@@ -155,7 +155,7 @@ internal static class SamusPoseMetadata
     }
 
     /// <summary>
-    /// Applies the pose part of Samus command 9, the setup for the Zebes start:
+    /// Applies the pose part of the setup for the Zebes start:
     /// the suit's front-view pose and its initialization. Unlike
     /// <see cref="SamusPoseMetadata.ApplyForwardFacingPoseSetup"/> it neither shifts pose history, lifts
     /// Samus nor clears motion. Callers own the palette object and the special frame.
@@ -167,17 +167,17 @@ internal static class SamusPoseMetadata
     }
 
     /// <summary>
-    /// Samus command 7, the setup for an elevator: facing forward, then
+    /// The setup for an elevator: facing forward, then
     /// the riding-elevator handlers. Used on boarding and on a downward
     /// arrival's door finish.
     /// </summary>
     public static void SetupForElevator(SamusState samus)
     {
         ApplyForwardFacingPoseSetup(samus);
-        // Command seven replaces both physical movement/input handlers. An uncrashed
+        // The elevator setup replaces both physical movement/input handlers. An uncrashed
         // spark keeps its boost counter as the out-of-bounds elevator Blue Suit, while an
         // admitted Flash keeps only its independent palette timer. Neither movement owner
-        // may resume after elevator travel; the command restores ordinary pose input.
+        // may resume after elevator travel; the setup restores ordinary pose input.
         samus.Shinespark.RelinquishMovementHandler();
         samus.InputSnapshot.ShinesparkPoseInputLocked = false;
         samus.CrystalFlash.RelinquishMovementHandler();
@@ -724,7 +724,7 @@ internal static class SamusPoseMetadata
             case SamusMovementType.SpringBallInAir:
             case SamusMovementType.SpringBallFalling:
                 // Copies the current pose into the special prospective pose. Because
-                // that pose already matches, Samus's pose handling immediately executes command three.
+                // that pose already matches, Samus's pose handling immediately arms the bomb jump.
                 ArmPublishedBombJump(samus);
                 return true;
 
@@ -748,10 +748,10 @@ internal static class SamusPoseMetadata
         }
     }
 
-    /// <summary>Executes special prospective-pose command three.</summary>
+    /// <summary>Arms the published bomb jump.</summary>
     internal static void ArmPublishedBombJump(SamusState samus)
     {
-        // Command three replaces, rather than suspends, the movement handler.
+        // Arming the bomb jump replaces, rather than suspends, the movement handler.
         // A suit-interrupted spark may still own it despite the ordinary body pose.
         // Keep its independently running palette/boost state, but never resume it
         // when the bomb arc restores normal movement and input.

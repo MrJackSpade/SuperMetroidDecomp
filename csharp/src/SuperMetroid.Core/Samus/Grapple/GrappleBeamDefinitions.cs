@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Samus.Grapple;
 /// </remarks>
 public static class GrappleBeamDefinitions
 {
-    /// <summary>Palette operands shared by grapple initialization and cleanup tails.</summary>
+    /// <summary>Palette values shared by grapple initialization and cleanup tails.</summary>
     public static class Palettes
     {
         /// <summary>Firing selects the Ice beam's colours before entering the firing function.</summary>

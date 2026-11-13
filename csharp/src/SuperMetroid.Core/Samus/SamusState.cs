@@ -24,7 +24,7 @@ public sealed class SamusState
     /// <summary>The <see cref="SamusHudSelection"/> owner of this SamusState.</summary>
     internal SamusHudSelection HudSelection { get; }
 
-    /// <summary>The installed frame-handler pair and the Samus commands that replace it.</summary>
+    /// <summary>The installed frame-handler pair and the control setups that replace it.</summary>
     internal SamusControl Control { get; } = new();
 
     /// <summary>Samus as room objects read and change her.</summary>
@@ -76,8 +76,8 @@ public sealed class SamusState
     }
 
     /// <summary>
-    /// Set when a Samus command run during enemy AI cancels the pending pose transition: the command
-    /// clears every prospective pose and command, so this frame's pending
+    /// Set when a control setup run during enemy AI cancels the pending pose transition: the setup
+    /// clears every prospective pose and momentum response, so this frame's pending
     /// transition is not committed. The runtime consumes it before the pose update.
     /// </summary>
     public bool PendingPoseTransitionCancelled { get; private set; }
@@ -348,7 +348,7 @@ public sealed class SamusState
     public bool HyperBeamEnabled { get; set; }
 
     /// <summary>
-    /// Equipped-item flags. The animation command's equipment test and the Morph-Ball projectile
+    /// Equipped-item flags. The animation cue's equipment test and the Morph-Ball projectile
     /// handler read them directly.
     /// </summary>
     public SamusEquipmentFlags EquippedItems { get; set; }

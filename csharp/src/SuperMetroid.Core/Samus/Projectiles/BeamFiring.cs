@@ -51,7 +51,7 @@ internal sealed class BeamFiring
     public void CancelChargeForBombSpread()
         => CancelCharge();
     /// <summary>
-    /// Samus command four: consume Pseudo Screw charge,
+    /// The scripted charge end: consume Pseudo Screw charge,
     /// clear its visible flare and restore the normal suit palette. Unlike HUD
     /// cancellation, this does not rewrite the previous-charge sample.
     /// </summary>

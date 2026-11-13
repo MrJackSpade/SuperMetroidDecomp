@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Samus;
 /// </remarks>
 public sealed class SamusReserveAutoRecoveryState
 {
-    /// <summary>True between the Samus command that locks her for reserve recovery and the one that restores control.</summary>
+    /// <summary>True between the control setup that locks her for reserve recovery and the one that restores control.</summary>
     public bool IsActive { get; private set; }
 
     /// <summary>Starts only the game's automatic-mode path, which only the AUTO reserve mode selects.</summary>
@@ -25,7 +25,7 @@ public sealed class SamusReserveAutoRecoveryState
         if (samus.ReserveTankMode != ReserveTankMode.Auto || samus.ReserveEnergy == 0)
             throw new InvalidOperationException("Automatic reserve recovery requires enabled reserves.");
 
-        // The reserve-recovery Samus command conditionally installs the ordinary locked handler pair.
+        // The reserve-recovery lock conditionally installs the ordinary locked handler pair.
         // The pair suppresses animation as well as input/movement. A generic input
         // gate alone leaves Samus's animation running during the frozen recovery frames.
         // If X-Ray installed its own pair earlier in this gameplay frame, the reserve-recovery

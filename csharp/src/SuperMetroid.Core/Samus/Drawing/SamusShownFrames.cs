@@ -19,7 +19,7 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// a restart, the breathing loop, the wall-jump spin selection and the drained fall's handover move it on to the delay they
 /// select; a selected frame that is no delay, or one past every animation, fails the game's animation there, so nothing
 /// shows. A transition ends the pose: the pose update that follows the animation in the same update replaces it before the
-/// draw. A frame on a cue's operand reads the step the operand selects, and a frame past the end of an animation
+/// draw. A frame on a value a cue carries reads the step the value selects, and a frame past the end of an animation
 /// reads the animation laid out after it (#1535).
 /// </para>
 /// <para>

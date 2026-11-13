@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus;
 
 /// <summary>
-/// The second half of Samus's per-frame work, which Samus commands select: movement, animation and the energy checks.
+/// The second half of Samus's per-frame work, which Samus's control setups select: movement, animation and the energy checks.
 /// <see cref="TitleDemo"/> and <see cref="Fatal"/> are what a frame runs instead while the attract demo or the death
 /// sequence owns Samus. Exactly one is selected at a time.
 /// </summary>
@@ -17,7 +17,7 @@ internal enum SamusBetaHandler
     /// </summary>
     Locked,
 
-    /// <summary>Locked by a script, as the first Samus command does: no animation or pose transitions.</summary>
+    /// <summary>Locked by a script, as the stationary lock does: no animation or pose transitions.</summary>
     ScriptLocked,
 
     /// <summary>

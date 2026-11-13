@@ -382,8 +382,8 @@ public static class SamusGroundedMovement
     /// Runs standing movement for every modelled landing pose: the ordinary
     /// and spin landings, plus the aimed and horizontally firing landings.
     /// Landing animation is cosmetic with respect to movement: every member uses standing's
-    /// zero-base-speed horizontal pass, grounding probe, and momentum cleanup until animation
-    /// command's pose transition returns to <see cref="SamusPoseId.FacingRightNormalPose"/> and <see cref="SamusPoseId.FacingLeftNormalPose"/>.
+    /// zero-base-speed horizontal pass, grounding probe, and momentum cleanup until the animation
+    /// cue's pose transition returns to <see cref="SamusPoseId.FacingRightNormalPose"/> and <see cref="SamusPoseId.FacingLeftNormalPose"/>.
     /// </summary>
     internal static GroundedMovementResult StepLanding(
 
@@ -421,7 +421,7 @@ public static class SamusGroundedMovement
             roomObjects);
         speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
         // Landing art still uses standing movement: it does not reset Y values.
-        // Collision command five owns landing cleanup; a later hurt expiry may write
+        // Settling the accepted landing owns its cleanup; a later hurt expiry may write
         // direction two while this pose remains active, and that value must survive.
         return new GroundedMovementResult(horizontal, vertical);
     }

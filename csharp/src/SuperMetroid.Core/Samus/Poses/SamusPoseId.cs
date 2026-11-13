@@ -617,7 +617,7 @@ public enum SamusPoseId
     /// <summary>
     /// This pose is the right-facing horizontal-fire landing selected by the landing transition only
     /// when the current shot direction is two and the Shot binding is still held at impact.
-    /// Its terminal pose-transition command returns to ordinary standing after the landing frames.
+    /// Its terminal pose-transition cue returns to ordinary standing after the landing frames.
     /// </summary>
     FiringLandingRightPose,
 

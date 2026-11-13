@@ -56,7 +56,7 @@ public static class SamusKnockbackMovement
     }
 
     /// <summary>
-    /// Consumes special prospective command one after the knockback check has admitted either the
+    /// Consumes the pending knockback start after the knockback check has admitted either the
     /// normal knockback-pose branch or the pose-preserving Morph/Spring Ball branch.
     /// </summary>
     /// <param name="samus">Mutable player owner receiving the hurt pose, timer, movement handler, and cancellation of incompatible movement state.</param>
@@ -137,7 +137,7 @@ public static class SamusKnockbackMovement
                 ? SamusPoseId.KnockbackLeftPose
                 : SamusPoseId.KnockbackRightPose;
             // Interrupted poses pass through the same expansion check as ordinary
-            // input poses before command one initializes knockback. Scripted cinematic
+            // input poses before the knockback start initializes knockback. Scripted cinematic
             // callers without room terrain retain their explicitly positioned behavior.
             if (level is not null && !SamusGroundedPoseTransitions.TryResolveKnockbackPoseCollision(samus, 
 level, targetPose, frameCounter, roomObjects))
@@ -149,7 +149,7 @@ level, targetPose, frameCounter, roomObjects))
         else if (unusedMovementSeven)
         {
             // Is dead in retail play but fully specified: unlike the ball
-            // path it installs the unused knockback pose, then continues through the same command-one hurt
+            // path it installs the unused knockback pose, then continues through the same knockback-start hurt
             // initializer. This preserves the actual table instead of turning an unused
             // arm into an exception.
             samus.Pose = facingLeft

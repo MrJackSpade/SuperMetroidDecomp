@@ -73,7 +73,7 @@ internal static class TorizoBellyGlowEndVerification
         enemies.BossFrameResults.Begin();
         AssertTrue(enemies.BombTorizoBehavior.ApplyTorizoCue(
                 torizo, state, new TorizoCueInputs { Samus = null, Level = null, ControllerInput = 0, FrameCounter = 0 },
-                new TorizoCue.Command(fightStart), TorizoAnimations.Start(TorizoBodySegment.BombTorizoInitial0Resumed)) is null,
+                new TorizoCue.Signal(fightStart), TorizoAnimations.Start(TorizoBodySegment.BombTorizoInitial0Resumed)) is null,
             $"{definition}'s fight start plays on");
         TorizoBellyGlowRequest request = enemies.BossFrameResults.RoomEffects().TorizoBellyGlow
             ?? throw new InvalidOperationException($"{definition}'s fight start asks for no belly glow.");

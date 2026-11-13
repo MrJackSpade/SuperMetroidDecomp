@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
+using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -21,15 +22,15 @@ internal static class MapStaticPalettesExtractor
         var pause = new SnesCgram(); CartridgePaletteImporter.LoadToCgram(pause, bus, MapSourceDefinitions.Artwork.PauseColors);
         var file = new SnesCgram(); CartridgePaletteImporter.LoadToCgram(file, bus, MapSourceDefinitions.Menu.Colors);
         var world = new Dictionary<string, PaletteRgb5[]>();
-        for (int selected = 0; selected < FileSelectMapDefinitions.AreaCount; selected++)
+        foreach (AreaId selected in AreaIds.Zebes)
         {
             var colors = new SnesCgram(); CartridgePaletteImporter.LoadToCgram(colors, bus, MapSourceDefinitions.Menu.Colors);
             for (int row = 0; row < FileSelectEntryColourDefinitions.BlackSets; row++)
                 new CgramPalettes(colors).BackgroundRow(row).Write(FileSelectEntryColourDefinitions.BlackColour, RgbColor.Black);
-            for (int area = 0; area < FileSelectMapDefinitions.AreaCount; area++)
+            foreach (AreaId area in AreaIds.Zebes)
             {
                 int offsets = area == selected ? MapSourceDefinitions.FileSelectMap.ActivePaletteOffsets : MapSourceDefinitions.FileSelectMap.InactivePaletteOffsets;
-                int cursor = MapSourceDefinitions.FileSelectMap.PalettePrograms + RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), offsets + area * sizeof(ushort));
+                int cursor = MapSourceDefinitions.FileSelectMap.PalettePrograms + RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), offsets + AreaNumberCodec.Encode(area) * sizeof(ushort));
                 bool terminated = false;
                 for (int record = 0; record < MapSourceDefinitions.Artwork.MaximumCopyRecords; record++, cursor += MapSourceDefinitions.Artwork.CopyRecordBytes)
                 {
@@ -42,7 +43,7 @@ internal static class MapStaticPalettesExtractor
                 }
                 if (!terminated) throw new InvalidDataException("World-map palette copy program has no terminator.");
             }
-            world.Add(((AreaId)selected).ToString(), ToRgb(colors));
+            world.Add(selected.ToString(), ToRgb(colors));
         }
         using var json = new MemoryStream();
         MapStaticPalettesFile.Write(json, new() { Version = MapStaticPalettesFormat.Version, Pause = ToRgb(pause), FileSelect = ToRgb(file), World = world });

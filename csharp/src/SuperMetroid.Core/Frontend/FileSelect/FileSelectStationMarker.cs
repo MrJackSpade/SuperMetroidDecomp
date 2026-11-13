@@ -15,25 +15,19 @@ public sealed class FileSelectStationMarker
     private int timer;
 
     /// <summary>Binds a saved station's drawing anchor and starts a fresh indicator animation; this object neither chooses the gameplay load target nor initializes map scrolling.</summary>
-    /// <param name="area">One of the six Zebes map areas; Ceres is unsupported.</param>
-    /// <param name="stationIndex">Load-station slot 0..15, not an ordinal among usable stations; the slot must have a supported marker anchor.</param>
+    /// <param name="station">The saved station; it must have a map marker.</param>
     /// <param name="layout">Required installed save-marker layout; its independently edited X/Y coordinates affect drawing only, despite the optional parameter syntax.</param>
     /// <remarks>The frame and timer begin at zero. The first <see cref="Step"/> advances to frame one; subsequent frame holds use the 8/4/8/4 menu-update sequence.</remarks>
-    public FileSelectStationMarker(AreaId area, int stationIndex,
+    public FileSelectStationMarker(LoadStation station,
         SuperMetroid.Core.Frontend.Map.Artwork.MapSaveMarkerPositions? layout = null)
-        => BindPosition(area, stationIndex, layout);
+        => BindPosition(station, layout);
 
-    /// <summary>Rebinds drawing position without changing the existing marker animation or selected load index.</summary>
-    internal void BindPosition(AreaId area, int stationIndex, SuperMetroid.Core.Frontend.Map.Artwork.MapSaveMarkerPositions? layout)
+    /// <summary>Rebinds drawing position without changing the existing marker animation or selected station.</summary>
+    internal void BindPosition(LoadStation station, SuperMetroid.Core.Frontend.Map.Artwork.MapSaveMarkerPositions? layout)
     {
-        int areaIndex = AreaIds.ToIndex(area);
-        if ((uint)areaIndex >= FileSelectMapDefinitions.AreaCount)
-            throw new ArgumentOutOfRangeException(nameof(area));
-        if ((uint)stationIndex >= MapSaveMarkerDefinitions.SlotsPerArea)
-            throw new ArgumentOutOfRangeException(nameof(stationIndex));
         MapPosition = (layout ?? throw new InvalidOperationException(
             "Save marker requires installed station positions."))
-            .Get(area, stationIndex);
+            .Get(station);
     }
 
     /// <summary>Station's area-map drawing anchor in whole pixels before scroll subtraction, independent of its compiled load coordinates.</summary>

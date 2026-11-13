@@ -153,11 +153,6 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             ProgressionTableCodec.ReadUsedStations(memory.Slice(NativeSnapshotMemory.SaveElevatorMarkers, ProgressionTableCodec.UsedStationByteCount), nativeProgress);
             ProgressionTableCodec.ReadAreaMaps(memory.Slice(NativeSnapshotMemory.MapStationMarkers, ProgressionTableCodec.MapStationByteCount), nativeProgress);
             PersistentProgress portProgress = runtime.System.Progress;
-            void CheckFlags(string name, NumberedFlagSet actual, NumberedFlagSet expected)
-            {
-                if (!actual.SetEquals(expected))
-                    mismatches.Add($"{name}: native=[{string.Join(",", expected.Members)}] port=[{string.Join(",", actual.Members)}]");
-            }
             void CheckSet<TMember>(string name, ProgressSet<TMember> actual, ProgressSet<TMember> expected)
                 where TMember : notnull
             {
@@ -168,11 +163,11 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             CheckValue("Zebetites destroyed", portProgress.ZebetitesDestroyed, nativeProgress.ZebetitesDestroyed);
             CheckSet("Collected items", portProgress.CollectedItems, nativeProgress.CollectedItems);
             CheckSet("Opened doors", portProgress.OpenedDoors, nativeProgress.OpenedDoors);
+            CheckSet("Used stations", portProgress.UsedStations, nativeProgress.UsedStations);
             foreach (AreaId area in Enum.GetValues<AreaId>())
             {
                 if (portProgress.DefeatedBosses(area) != nativeProgress.DefeatedBosses(area))
                     mismatches.Add($"{area} bosses: native={nativeProgress.DefeatedBosses(area)} port={portProgress.DefeatedBosses(area)}");
-                CheckFlags($"{area} used stations", portProgress.UsedStations(area), nativeProgress.UsedStations(area));
                 if (portProgress.HasAreaMap(area) != nativeProgress.HasAreaMap(area))
                     mismatches.Add($"{area} map: native={nativeProgress.HasAreaMap(area)} port={portProgress.HasAreaMap(area)}");
             }

@@ -58,15 +58,13 @@ internal static class MapLoadAnchorsVerification
         new OriginalMapLoadAnchor(AreaId.Tourian, 8, 160, 96),
     ];
 
-    /// <summary>Compares six file-select display areas with the native area-order words and rejects unsupported menu indexes.</summary>
+    /// <summary>Compares the file-select map's label order with the native area-order words.</summary>
     internal static void VerifyFileSelectMapAreaCases(ISnesAddressSpace bus)
     {
+        AssertEqual(6, FileSelectMapAreaOrder.Labels.Count, "the world map labels the six Zebes areas");
         for (int displayIndex = 0; displayIndex < 6; displayIndex++)
             AssertEqual(ReadVerificationWord(bus, 0x81aaa0 + displayIndex * 2),
-                (ushort)FileSelectMapAreaOrder.Get(displayIndex), "native menu-to-game area identity");
-        foreach (int invalid in new[] { int.MinValue, -1, 6, 256, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => FileSelectMapAreaOrder.Get(invalid),
-                "unsupported menu area identity is not clamped or narrowed");
+                (ushort)SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(FileSelectMapAreaOrder.Labels[displayIndex]), "native menu-to-game area identity");
     }
 
     /// <summary>Checks all 34 horizontal save-station anchors against preserved coordinates and native records.</summary>
@@ -78,34 +76,25 @@ internal static class MapLoadAnchorsVerification
     private static void VerifyMapLoadAnchorField(ISnesAddressSpace bus, bool vertical)
     {
         int anchors = 0;
-        for (int area = 0; area < 6; area++)
+        foreach (AreaId typedArea in AreaIds.Zebes)
         {
-            var typedArea = (AreaId)area;
-            for (int station = 0; station < 16; station++)
+            foreach (LoadStation marked in MapSaveMarkers.Stations(typedArea))
             {
-                if (!MapSaveMarkers.Indices(typedArea).Contains(station))
-                {
-                    AssertThrows<InvalidDataException>(() => FileSelectMapLoadAnchors.Get(typedArea, station),
-                        "unused map-load station remains rejected");
-                    continue;
-                }
+                int station = LoadStationNumberCodec.Number(marked);
                 var expected = originalMapLoadAnchors.Single(entry => entry.Area == typedArea && entry.Station == station);
                 Position16<MapPixels> native = ReadNativeMapLoadAnchor(bus, typedArea, station);
                 AssertEqual(vertical ? expected.Y : expected.X, vertical ? native.Y : native.X,
                     "preserved table agrees with original load/room records");
-                Position16<MapPixels> actual = FileSelectMapLoadAnchors.Get(typedArea, station);
+                Position16<MapPixels> actual = FileSelectMapLoadAnchors.Get(marked);
                 AssertEqual(vertical ? expected.Y : expected.X, vertical ? actual.Y : actual.X,
-                    $"original projected map anchor {typedArea}/{station} vertical={vertical}");
+                    $"original projected map anchor {marked} vertical={vertical}");
                 anchors++;
             }
-            foreach (int invalid in new[] { int.MinValue, -1, 16, 256, int.MaxValue })
-                AssertThrows<ArgumentOutOfRangeException>(() => FileSelectMapLoadAnchors.Get(typedArea, invalid),
-                    "station bounds checked before narrowing");
         }
         AssertEqual(34, anchors, "complete original map-load anchor field");
-        foreach (AreaId invalid in new[] { AreaId.Ceres, (AreaId)7, (AreaId)255 })
-            AssertThrows<ArgumentOutOfRangeException>(() => FileSelectMapLoadAnchors.Get(invalid, 0),
-                "unsupported map-load area remains rejected");
+        foreach (LoadStation unmarked in new[] { LoadStationDefinitions.ZebesArrival, LoadStationDefinitions.CeresElevator })
+            AssertThrows<ArgumentOutOfRangeException>(() => FileSelectMapLoadAnchors.Get(unmarked),
+                "a station with no marker has no map-load anchor");
     }
 
     /// <summary>Compares native and compiled map scrolling, saved-station entry, and area rendering with cartridge access forbidden on the compiled path.</summary>
@@ -118,21 +107,15 @@ internal static class MapLoadAnchorsVerification
         Suite(nameof(VerifyFileSelectMapAreaCases), () => VerifyFileSelectMapAreaCases(bus));
         var guard = NewForbiddenMapBus();
         int anchors = 0;
-        for (int area = 0; area < FileSelectMapDefinitions.AreaCount; area++)
+        foreach (AreaId typedArea in AreaIds.Zebes)
         {
-            var typedArea = (AreaId)area;
             // The cartridge's map of the area, imported once for every station and visibility pattern it is scrolled
             // over; a scroll only reads it (#1532).
             var nativeMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, typedArea);
-            for (int stationIndex = 0; stationIndex < MapSaveMarkerDefinitions.SlotsPerArea; stationIndex++)
+            foreach (LoadStation marked in MapSaveMarkers.Stations(typedArea))
             {
-                if (!MapSaveMarkers.Indices(typedArea).Contains(stationIndex))
-                {
-                    AssertThrows<InvalidDataException>(() => FileSelectMapLoadAnchors.Get(typedArea, stationIndex), "unused load-map index rejected");
-                    continue;
-                }
-                var expected = ReadNativeMapLoadAnchor(bus, typedArea, stationIndex);
-                var actual = FileSelectMapLoadAnchors.Get(typedArea, stationIndex);
+                var expected = ReadNativeMapLoadAnchor(bus, typedArea, LoadStationNumberCodec.Number(marked));
+                var actual = FileSelectMapLoadAnchors.Get(marked);
                 anchors++;
                 for (int visibility = 0; visibility < 4; visibility++)
                 {
@@ -145,7 +128,7 @@ internal static class MapLoadAnchorsVerification
                     if (visibility == 2) system.Progress.ExploreEveryCell();
                     if (visibility == 3)
                     {
-                        system.SetAreaMapAcquired(area);
+                        system.SetAreaMapAcquired(typedArea);
                     }
                     var native = new FileSelectMapScroll(nativeMap, system, expected);
                     var compiled = new FileSelectMapScroll(catalog.Get(typedArea), system, actual);
@@ -157,18 +140,17 @@ internal static class MapLoadAnchorsVerification
                             AssertEqual(ScrollState(native), ScrollState(compiled), "anchor migration retains actual scroll trajectory");
                         }
                 }
-                VerifyStationMenu(typedArea, stationIndex);
+                VerifyStationMenu(marked);
             }
         }
         AssertEqual(34, anchors, "all native valid saved-map anchors checked");
-        AssertThrows<ArgumentOutOfRangeException>(() => FileSelectMapLoadAnchors.Get(AreaId.Ceres, 0), "Ceres has no file-select map anchor");
-        AssertThrows<ArgumentOutOfRangeException>(() => FileSelectMapLoadAnchors.Get(AreaId.Maridia, 16), "invalid station index not clamped");
+        AssertThrows<ArgumentOutOfRangeException>(() => FileSelectMapLoadAnchors.Get(LoadStationDefinitions.CeresElevator), "Ceres has no file-select map anchor");
         Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(catalog));
         SuperMetroidSaveSlot savedSlot = stationSaves.ReadSlot(0) ??
             throw new InvalidDataException("Verification requires the fixture's saved slot 0.");
         AssertThrows<InvalidOperationException>(() => new FileSelectMapMenuState(AudioQueues.Standalone(), new SharedRandom(), savedSlot, 0),
             "file-select map cannot construct a cartridge-backed fallback graph");
-        for (int area = 0; area < FileSelectMapDefinitions.AreaCount; area++)
+        foreach (AreaId area in AreaIds.Zebes)
         {
             var native = new FileSelectAreaMapGraphics(area, catalog.Backdrops, MenuSheetFixtures.For(catalog));
             native.BindLabels(catalog.Labels);
@@ -176,7 +158,7 @@ internal static class MapLoadAnchorsVerification
             compiled.BindLabels(catalog.Labels);
             for (int mask = 0; mask < 64; mask++)
             {
-                var stations = new ushort[FileSelectMapDefinitions.AreaCount];
+                var stations = new ushort[AreaIds.Zebes.Count];
                 for (int index = 0; index < stations.Length; index++) stations[index] = (ushort)((mask >> index) & 1);
                 // The two maps' frames are compared for the pixels they show, drawn only when their descriptions differ (#1532).
                 AssertTrue(ScenePixels.Same(native.Scene(stations), compiled.Scene(stations)), "compiled area order retains label layering and visibility for every area combination");
@@ -184,12 +166,12 @@ internal static class MapLoadAnchorsVerification
         }
         Console.WriteLine("Map load metadata: all 34 native anchors, four visibility patterns/scroll trajectories, each saved-menu entry and 384 display-order frames pass with every bus access forbidden; unbound cartridge fallback is rejected.");
 
-        void VerifyStationMenu(AreaId area, int station)
+        void VerifyStationMenu(LoadStation station)
         {
             var saves = stationSaves;
-            var snapshot = new SuperMetroidSaveSnapshot { Checkpoint = SuperMetroid.Core.Rooms.RoomObjects.LoadStations.Get(area, station, "station menu fixture"), Health = 99, MaxHealth = 99 };
-            snapshot.Progress.SetAreaMap(area, acquired: true);
-            snapshot.Progress.UsedStations(area).Add(station);
+            var snapshot = new SuperMetroidSaveSnapshot { Checkpoint = station, Health = 99, MaxHealth = 99 };
+            snapshot.Progress.SetAreaMap(station.Area, acquired: true);
+            snapshot.Progress.UsedStations.Add(station);
             saves.SaveSlot(0, snapshot);
             byte[] before = ReadSram();
             var slot = saves.ReadSlot(0);
@@ -204,7 +186,7 @@ internal static class MapLoadAnchorsVerification
                 AssertEqual(native.Phase, compiled.Phase, "each saved station retains entry timing");
                 AssertEqual(ScrollState(Scroll(native)), ScrollState(Scroll(compiled)), "each saved station retains menu-owned scroll state");
             }
-            AssertEqual(FileSelectMapNavigationPhase.Room, compiled.Phase, $"saved-station fixture {area}/{station} reaches room map");
+            AssertEqual(FileSelectMapNavigationPhase.Room, compiled.Phase, $"saved-station fixture {station} reaches room map");
             AssertTrue(ScenePixels.Same(native.CaptureRenderSnapshot(), compiled.CaptureRenderSnapshot()), "every saved station has exact composed room-map position");
             AssertTrue(before.SequenceEqual(ReadSram()), "map entry leaves entire SRAM and progression unchanged");
         }
@@ -219,10 +201,10 @@ internal static class MapLoadAnchorsVerification
     {
         // Independent literal native layout: no production LoadStationEntry or
         // SelectedRoom/state-selection call participates in this oracle.
-        int list = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x80c4b5 + (int)area * 2);
+        int list = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x80c4b5 + SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(area) * 2);
         int record = 0x800000 | (list + station * 14);
         int room = 0x8f0000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record);
-        AssertEqual((byte)area, bus.ReadCartridgeByte(room + 1), "valid saved-map station remains in its requested area");
+        AssertEqual((byte)SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(area), bus.ReadCartridgeByte(room + 1), "valid saved-map station remains in its requested area");
         int worldX = SnesAddressMath.OffsetInBank(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record + 6) + 128 + RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record + 12));
         int worldY = SnesAddressMath.OffsetInBank(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record + 8) + RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record + 10));
         return new((ushort)((bus.ReadCartridgeByte(room + 2) + RoomScreenOf.Pixel(worldX)) << 3),

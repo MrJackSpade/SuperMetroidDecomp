@@ -26,19 +26,19 @@ internal static class PersistentProgressAccess
         internal bool SameAs(PersistentProgress other) =>
             self.Events.Members.SequenceEqual(other.Events.Members) && self.ZebetitesDestroyed == other.ZebetitesDestroyed &&
             self.CollectedItems.Members.SequenceEqual(other.CollectedItems.Members) && self.OpenedDoors.Members.SequenceEqual(other.OpenedDoors.Members) &&
-            Enum.GetValues<AreaId>().All(area => self.DefeatedBosses(area) == other.DefeatedBosses(area) &&
-                self.UsedStations(area).SetEquals(other.UsedStations(area)) && self.HasAreaMap(area) == other.HasAreaMap(area) &&
+            self.UsedStations.Members.SequenceEqual(other.UsedStations.Members) &&
+            AreaIds.All.All(area => self.DefeatedBosses(area) == other.DefeatedBosses(area) && self.HasAreaMap(area) == other.HasAreaMap(area) &&
                 self.ExploredCells(area).SequenceEqual(other.ExploredCells(area)));
 
         /// <summary>Records every cell of every area's map as explored.</summary>
         internal void ExploreEveryCell()
         {
-            for (int area = 0; area < AreaIds.RetailCount; area++)
+            foreach (AreaId area in AreaIds.All)
             {
                 for (int y = 0; y < AreaMapSize.HeightInTiles; y++)
                 {
                     for (int x = 0; x < AreaMapSize.WidthInTiles; x++)
-                        self.SetExplored(AreaIds.At(area), new Position16<MapTiles>(checked((ushort)x), checked((ushort)y)), explored: true);
+                        self.SetExplored(area, new Position16<MapTiles>(checked((ushort)x), checked((ushort)y)), explored: true);
                 }
             }
         }

@@ -24,12 +24,12 @@ internal static class MapStaticPalettesVerification
         SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(palette, bus, MapSourceDefinitions.Menu.Colors);
         AssertTrue(palette.Colors.SequenceEqual(installed.FileSelect), "all static file-select colors match cartridge");
         AssertEqual(palette.Colors[0], original.Backdrops.FileSelect, "the file-select backdrop is the cartridge's backdrop colour");
-        var nativeWorld = new FileSelectAreaMapGraphics(0, original.Backdrops, MenuSheetFixtures.For(original));
-        var world = new FileSelectAreaMapGraphics(0, original.Backdrops, MenuSheetFixtures.For(original));
-        for (int area = 0; area < FileSelectMapDefinitions.AreaCount; area++)
+        var nativeWorld = new FileSelectAreaMapGraphics(AreaId.Crateria, original.Backdrops, MenuSheetFixtures.For(original));
+        var world = new FileSelectAreaMapGraphics(AreaId.Crateria, original.Backdrops, MenuSheetFixtures.For(original));
+        foreach (AreaId area in AreaIds.Zebes)
         {
             nativeWorld.SelectArea(area); world.SelectArea(area);
-            AssertEqual(installed.World(AreaIds.At(area))[0], world.screen.Backdrop, "the selected area shows its world-map backdrop");
+            AssertEqual(installed.World(area)[0], world.screen.Backdrop, "the selected area shows its world-map backdrop");
             AssertTrue(SuperMetroid.TestSupport.FrameRendering.ScenePixels.Same(nativeWorld.BackgroundsScene(), world.BackgroundsScene()), "all six stock world selections render identical pixels");
         }
         Console.WriteLine("Static map palettes: all six native world selections and pause/file-select colors pass.");

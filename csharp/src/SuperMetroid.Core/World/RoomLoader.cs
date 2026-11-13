@@ -156,11 +156,11 @@ internal sealed class RoomLoader
     {
         // A new game loads at the Ceres start; the station names the room, door and placement.
         LoadStation station = LoadStationDefinitions.CeresElevator;
-        DoorDefinition door = station.Door;
-        if (door.DestinationRoom != station.Room)
+        DoorDefinition door = station.Placement.Door;
+        if (door.DestinationRoom != station.Placement.Room)
         {
             throw new InvalidDataException(
-                $"Ceres station room {station.Room.Name} disagrees with door " +
+                $"Ceres station room {station.Placement.Room.Name} disagrees with door " +
                 $"{door.Name}'s destination {door.DestinationRoom.Name}.");
         }
 
@@ -174,7 +174,7 @@ internal sealed class RoomLoader
         return LoadRoom(
             door,
             room,
-            station.CameraPosition,
+            station.Placement.CameraPosition,
             RoomViewportLoadMode.DisplayInitialViewport,
             new RoomEntry { LoadStation = station });
     }
@@ -195,11 +195,11 @@ internal sealed class RoomLoader
         Ensure.NotNull(slot);
         LoadStation station = slot.Checkpoint;
         AreaId requestedArea = station.Area;
-        DoorDefinition door = station.Door;
-        if (door.DestinationRoom != station.Room)
+        DoorDefinition door = station.Placement.Door;
+        if (door.DestinationRoom != station.Placement.Room)
         {
             throw new InvalidDataException(
-                $"Load station {station} room {station.Room.Name} " +
+                $"Load station {station} room {station.Placement.Room.Name} " +
                 $"disagrees with door {door.Name}'s destination " +
                 $"{door.DestinationRoom.Name}.");
         }
@@ -209,8 +209,8 @@ internal sealed class RoomLoader
         // depend on those same words. In particular, loading a post-Morph-Ball save must not
         // accidentally construct the untouched new-game version of Blue Brinstar.
         RestoreSavedPlayerState(slot);
-        _player.IntroducedSamus.Position = _player.IntroducedSamus.Position.WithWholeX(station.SamusPosition.X);
-        _player.IntroducedSamus.Position = _player.IntroducedSamus.Position.WithWholeY(station.SamusPosition.Y);
+        _player.IntroducedSamus.Position = _player.IntroducedSamus.Position.WithWholeX(station.Placement.SamusPosition.X);
+        _player.IntroducedSamus.Position = _player.IntroducedSamus.Position.WithWholeY(station.Placement.SamusPosition.Y);
         SelectedRoom room = LoadSelectedRoom(door.DestinationRoom);
         if (room.AreaIndex != requestedArea)
         {
@@ -221,7 +221,7 @@ internal sealed class RoomLoader
         InitialViewportResult viewport = LoadRoom(
             door,
             room,
-            station.CameraPosition,
+            station.Placement.CameraPosition,
             RoomViewportLoadMode.DisplayInitialViewport,
             new RoomEntry { LoadStation = station });
         // Loading from a load station sets the save-station lockout. Without this room-entry lockout, the
@@ -306,11 +306,11 @@ internal sealed class RoomLoader
         // The arrival on Zebes is a cutscene-only entry high above Landing Site; the gunship is
         // not the checkpoint until the gunship's landing finishes and performs the save.
         LoadStation station = LoadStationDefinitions.ZebesArrival;
-        DoorDefinition door = station.Door;
-        if (door.DestinationRoom != station.Room)
+        DoorDefinition door = station.Placement.Door;
+        if (door.DestinationRoom != station.Placement.Room)
         {
             throw new InvalidDataException(
-                $"Post-Ceres station room {station.Room.Name} disagrees with " +
+                $"Post-Ceres station room {station.Placement.Room.Name} disagrees with " +
                 $"door {door.Name}'s destination {door.DestinationRoom.Name}.");
         }
 
@@ -325,7 +325,7 @@ internal sealed class RoomLoader
         // hurt check from it. The Ceres-start command locks Samus's state handlers.
         samus.Health = samus.MaxHealth;
         samus.PreviousHealthForHurtCheck = samus.Health;
-        samus.Kinematics.Position = samus.Kinematics.Position.WithX(new FixedCoordinate(station.SamusPosition.X, 0)).WithY(new FixedCoordinate(station.SamusPosition.Y, 0));
+        samus.Kinematics.Position = samus.Kinematics.Position.WithX(new FixedCoordinate(station.Placement.SamusPosition.X, 0)).WithY(new FixedCoordinate(station.Placement.SamusPosition.Y, 0));
         samus.Control.LockHandlers();
 
         // The landing branch moves the game to Crateria and loads the live explored map from
@@ -340,7 +340,7 @@ internal sealed class RoomLoader
         InitialViewportResult viewport = LoadRoom(
             door,
             room,
-            station.CameraPosition,
+            station.Placement.CameraPosition,
             RoomViewportLoadMode.DisplayInitialViewport,
             new RoomEntry { GunshipScenario = GunshipLoadScenario.EscapingCeres, LoadStation = station });
         SuperMetroid.Core.Samus.Palettes.SamusNormalSuitPalette.Load(_player.Colours, samus.EquippedItems);
@@ -1133,7 +1133,7 @@ internal sealed class RoomLoader
         {
             Pose = SamusPoseId.ForwardFacingPowerSuitPose,
             AnimationFrame = 0,
-            Position = FixedPosition<RoomPixels>.FromWhole(_room.ActiveLoadStation.SamusPosition.WithY(0)),
+            Position = FixedPosition<RoomPixels>.FromWhole(_room.ActiveLoadStation.Placement.SamusPosition.WithY(0)),
         };
         _artwork.BindSamusPalettePresentation();
         SuperMetroid.Core.Samus.Palettes.SamusNormalSuitPalette.LoadPower(_player.Colours);

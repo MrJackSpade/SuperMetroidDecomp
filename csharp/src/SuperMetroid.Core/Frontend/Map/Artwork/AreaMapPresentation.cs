@@ -25,8 +25,8 @@ namespace SuperMetroid.Core.Frontend.Map.Artwork;
 /// </summary>
 public sealed class AreaMapPresentation : IGameplayPresentationContent
 {
-    /// <summary>One validated map view per retail area in area-ID order.</summary>
-    private readonly IAreaMapView[] areas;
+    /// <summary>One validated map view per area.</summary>
+    private readonly IReadOnlyDictionary<AreaId, IAreaMapView> areas;
     /// <summary>Captures the selected maps and shared presentation resources as one immutable snapshot.</summary>
     internal AreaMapPresentation(AreaMapPresentationParts parts)
     {
@@ -114,8 +114,8 @@ public sealed class AreaMapPresentation : IGameplayPresentationContent
     public CeresRidleyGetawayBoostDelays CeresRidleyGetawayBoostDelays { get; }
 
     /// <summary>Returns an area's selected map presentation with verified stock exploration and station-reveal rules.</summary>
-    /// <param name="area">One of the seven retail area identities, including Ceres.</param>
+    /// <param name="area">One of the seven areas, including Ceres.</param>
     /// <returns>The immutable view compiled when this catalog was loaded.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">The value is not a retail area identity.</exception>
-    public IAreaMapView Get(AreaId area) => areas[AreaIds.ToIndex(area)];
+    /// <exception cref="ArgumentOutOfRangeException">The value is not an area.</exception>
+    public IAreaMapView Get(AreaId area) => areas[AreaIds.Require(area)];
 }

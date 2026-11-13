@@ -41,15 +41,15 @@ internal static class SaveSchemaTranslationVerification
         var system = new SharedGameState(new SharedRandom()) { LoadedItemCount = 65535 };
         // Progress in every set schema two listed by table position, so its upgrade is exercised (#1475).
         system.SetBossBits(AreaId.Brinstar, BossBits.AreaBoss | BossBits.AreaTorizo);
-        system.MarkSaveStationUsed(AreaId.Norfair, 3);
-        system.Progress.UsedStations(AreaId.Maridia).Add(12);
+        system.MarkSaveStationUsed(LoadStationDefinitions.CrocomireSave);
+        system.Progress.UsedStations.Add(LoadStationDefinitions.MaridiaElevator);
         system.SetAreaMapAcquired(AreaId.WreckedShip);
         system.SetCollectedItemBit(23);
         system.SetOpenedDoorBit(31);
         // A Zebetite count and the Shitroid-approach event, which schema four listed as counter events and by number (#1527).
         system.Progress.ZebetitesDestroyed = 3;
         system.SetEvent(StoryEvent.ShitroidEncounterMusicSkipped);
-        ram.SaveSlot(0, SuperMetroidSaveSnapshot.Capture(samus, system, new SaveSnapshotContext { Checkpoint = SuperMetroid.Core.Rooms.RoomObjects.LoadStationDefinitions.Gunship, JapaneseText = true }));
+        ram.SaveSlot(0, SuperMetroidSaveSnapshot.Capture(samus, system, new SaveSnapshotContext { Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.Gunship, JapaneseText = true }));
         ram.SetGameCompleted(true);
         ram.SelectSlot(0);
         string json = GameSaveJsonCodec.Serialize(GameSaveJsonCodec.Capture(ram));
@@ -326,14 +326,15 @@ internal static class SaveSchemaTranslationVerification
             var stations = new JsonArray();
             foreach (JsonNode? entry in progression.Required("usedStations").AsArray())
             {
-                int area = AreaIds.ToIndex(Enum.Parse<AreaId>(entry?.Required("area").GetValue<string>() ?? "", ignoreCase: true));
+                int area = AreaNumberCodec.Encode(Enum.Parse<AreaId>(entry?.Required("area").GetValue<string>() ?? "", ignoreCase: true));
+                // Schema two gave each area sixteen used-station bits, one per number its station list can give a station.
                 foreach (JsonNode? station in entry?.Required("stations").AsArray() ?? [])
-                    stations.Add(area * PersistentProgress.StationsPerArea + (station?.GetValue<int>() ?? 0));
+                    stations.Add(area * 16 + (station?.GetValue<int>() ?? 0));
             }
             var maps = new JsonArray();
             foreach (JsonNode? entry in progression.Required("acquiredMaps").AsArray())
             {
-                int area = AreaIds.ToIndex(Enum.Parse<AreaId>(entry?.GetValue<string>() ?? "", ignoreCase: true));
+                int area = AreaNumberCodec.Encode(Enum.Parse<AreaId>(entry?.GetValue<string>() ?? "", ignoreCase: true));
                 for (int bit = 0; bit < 8; bit++)
                     maps.Add(area * 8 + bit);
             }

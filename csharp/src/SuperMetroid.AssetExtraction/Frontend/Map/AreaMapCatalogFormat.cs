@@ -19,7 +19,7 @@ public static class AreaMapCatalogFormat
     /// <exception cref="ArgumentOutOfRangeException">The value is not a retail area identity.</exception>
     public static string FileName(AreaId area)
     {
-        _ = AreaIds.ToIndex(area);
+        _ = AreaIds.Require(area);
         return area.ToString().ToLowerInvariant() + ".json";
     }
 }

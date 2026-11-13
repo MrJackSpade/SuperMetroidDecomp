@@ -259,6 +259,9 @@ public static class LegacyGameSaveJson
     /// <summary>Bits a schema-two station or map table byte held.</summary>
     private const int BitsPerTableByte = 8;
 
+    /// <summary>Bits a schema-two used-station table gave each area: one per number its station list can give a station.</summary>
+    private const int UsedStationBitsPerArea = 16;
+
     /// <summary>
     /// Schema two to three (#1475): schema two listed bosses by the cartridge's eight area slots, used stations as bit
     /// positions of the sixteen-byte station table and acquired maps as bit positions of the twelve-byte map-station
@@ -295,10 +298,14 @@ public static class LegacyGameSaveJson
                 });
                 var areaStations = new JsonArray();
                 bool mapAcquired = false;
+                // Each area's word holds a bit per number its station list can give a station; the bits of numbers that
+                // name no station Samus uses were never read, and the current schema lists stations only.
                 foreach (int bit in Numbers(stations, index))
                 {
-                    if (bit / PersistentProgress.StationsPerArea == area)
-                        areaStations.Add(bit % PersistentProgress.StationsPerArea);
+                    if (bit / UsedStationBitsPerArea == area &&
+                        LoadStationNumberCodec.Find(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area), bit % UsedStationBitsPerArea) is { } station &&
+                        LoadStationDefinitions.Usable.Contains(station))
+                        areaStations.Add(bit % UsedStationBitsPerArea);
                 }
                 foreach (int bit in Numbers(maps, index))
                     mapAcquired |= bit / BitsPerTableByte == area;

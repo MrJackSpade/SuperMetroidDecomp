@@ -26,7 +26,7 @@ internal static class MenuScreenFixtures
         MapScreenPresentation screens = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.ImportOf(maps).Screens;
         var tiles = new BackgroundTile[4 * ScreenCells];
         screens.Page(MapScreenDefinitions.WorldForeground).CopyTo(tiles);
-        screens.Page(MapScreenDefinitions.WorldBackground(AreaIds.At(graphics.SelectedArea))).CopyTo(tiles.AsSpan(3 * ScreenCells));
+        screens.Page(MapScreenDefinitions.WorldBackground(graphics.SelectedArea)).CopyTo(tiles.AsSpan(3 * ScreenCells));
         return Load(MenuScreenMemory.Compose(maps, tiles));
     }
 

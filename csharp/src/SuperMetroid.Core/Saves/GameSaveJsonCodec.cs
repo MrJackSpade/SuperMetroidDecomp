@@ -101,7 +101,7 @@ public static class GameSaveJsonCodec
     private static GameSaveSlotJsonDocument CaptureSlot(SuperMetroidSaveSlot slot) => new()
     {
         Slot = slot.Slot,
-        Checkpoint = new SaveCheckpointJsonDocument(slot.Checkpoint.Area, slot.Checkpoint.Number),
+        Checkpoint = new SaveCheckpointJsonDocument(slot.Checkpoint.Area, LoadStationNumberCodec.Number(slot.Checkpoint)),
         Resources = new SaveResourcesJsonDocument(
             slot.Health,
             slot.MaxHealth,
@@ -150,7 +150,8 @@ public static class GameSaveJsonCodec
         DefeatedBosses = [.. RetailAreas.Select(area => new SaveAreaBossesJsonDocument(area, progress.DefeatedBosses(area)))],
         CollectedItems = [.. progress.CollectedItems.Members.Select(location => location.Name)],
         OpenedDoors = [.. progress.OpenedDoors.Members.Select(door => door.Name)],
-        UsedStations = [.. RetailAreas.Select(area => new SaveAreaStationsJsonDocument(area, [.. progress.UsedStations(area).Members]))],
+        UsedStations = [.. RetailAreas.Select(area => new SaveAreaStationsJsonDocument(area,
+            [.. progress.UsedStations.Members.Where(station => station.Area == area).Select(LoadStationNumberCodec.Number).Order()]))],
         AcquiredMaps = [.. RetailAreas.Where(progress.HasAreaMap)],
         ExploredAreas = [.. RetailAreas.Select(area => new ExploredAreaJsonDocument(area,
             [.. progress.ExploredCells(area).Select(MapCoordinateJsonDocument.FromCell)]))],
@@ -207,7 +208,7 @@ public static class GameSaveJsonCodec
     /// <exception cref="InvalidDataException">The checkpoint names no load station.</exception>
     private static LoadStation Checkpoint(SaveCheckpointJsonDocument checkpoint, string property) =>
         Enum.IsDefined(checkpoint.Area)
-            ? LoadStations.Get(checkpoint.Area, checkpoint.SaveStation, property)
+            ? LoadStationNumberCodec.Decode(checkpoint.Area, checkpoint.SaveStation, property)
             : throw new InvalidDataException($"{property}.area names no area");
 
     /// <summary>Requires a supported schema, valid selected slot, and exactly the game's slot count.</summary>
@@ -349,7 +350,7 @@ public static class GameSaveJsonCodec
         {
             int[] stations = progression.UsedStations[ListPosition(area)].Stations ??
                 throw new InvalidDataException($"{property}.usedStations of {area} is required");
-            DecodeNumbers(stations, progress.UsedStations(area), $"{property}.usedStations of {area}");
+            DecodeStations(stations, area, progress.UsedStations, $"{property}.usedStations of {area}");
         }
         int previousMap = -1;
         foreach (AreaId area in progression.AcquiredMaps)
@@ -452,18 +453,22 @@ public static class GameSaveJsonCodec
         }
     }
 
-    /// <summary>Turns on the listed flags, rejecting duplicates, disorder and numbers outside the range.</summary>
-    private static void DecodeNumbers(int[] numbers, NumberedFlagSet flags, string property)
+    /// <summary>
+    /// Records the stations of <paramref name="area"/> the save lists by their numbers as used, rejecting duplicates,
+    /// disorder and a number that names no station Samus uses.
+    /// </summary>
+    private static void DecodeStations(int[] numbers, AreaId area, ProgressSet<LoadStation> used, string property)
     {
         int previous = -1;
         for (int index = 0; index < numbers.Length; index++)
         {
             int number = numbers[index];
-            if ((uint)number >= (uint)flags.Capacity)
-                throw new InvalidDataException($"{property}[{index}]={number} is outside 0 through {flags.Capacity - 1}");
             if (number <= previous)
                 throw new InvalidDataException($"{property} must be strictly increasing without duplicates");
-            flags.Add(number);
+            LoadStation station = LoadStationNumberCodec.Find(area, number) is { } found && LoadStationDefinitions.Usable.Contains(found)
+                ? found
+                : throw new InvalidDataException($"{property}[{index}]={number} names no station Samus uses");
+            used.Add(station);
             previous = number;
         }
     }

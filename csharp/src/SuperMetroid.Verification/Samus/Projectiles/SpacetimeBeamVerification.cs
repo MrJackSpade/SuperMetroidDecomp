@@ -101,7 +101,7 @@ internal static class SpacetimeBeamVerification
             "SpaceTime corruption does not rewrite live equipment");
 
         var saveRam = new SaveSlotStore(RetailPresentationFixture());
-        saveRam.SaveSlot(0, SuperMetroidSaveSnapshot.Capture(samus, system, new SaveSnapshotContext { Checkpoint = SuperMetroid.Core.Rooms.RoomObjects.LoadStationDefinitions.CrateriaSave }));
+        saveRam.SaveSlot(0, SuperMetroidSaveSnapshot.Capture(samus, system, new SaveSnapshotContext { Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.CrateriaSave }));
         SuperMetroidSaveSlot saved = saveRam.ReadSlot(0)
             ?? throw new InvalidOperationException("SpaceTime save did not survive checksum validation.");
         AssertEqual((ushort)0x100e, saved.EquippedBeams.ToEquipmentWord(),
@@ -208,7 +208,7 @@ internal static class SpacetimeBeamVerification
         {
             var snapshot = new SuperMetroidSaveSnapshot
             {
-                Checkpoint = SuperMetroid.Core.Rooms.RoomObjects.LoadStationDefinitions.CrateriaSave,
+                Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.CrateriaSave,
                 Health = 399,
                 MaxHealth = 499,
                 Missiles = 20,

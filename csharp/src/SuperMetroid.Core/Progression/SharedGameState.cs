@@ -275,9 +275,9 @@ public sealed class SharedGameState
     /// <exception cref="ArgumentOutOfRangeException">The cell is outside the area map.</exception>
     public bool IsMapTileExplored(AreaId area, Position16<MapTiles> cell) => Progress.IsExplored(area, cell);
 
-    /// <summary>Marks save station <paramref name="stationBitIndex"/> of <paramref name="area"/> used.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The station number is outside the area's stations.</exception>
-    public void MarkSaveStationUsed(AreaId area, int stationBitIndex) => Progress.UsedStations(area).Add(stationBitIndex);
+    /// <summary>Marks <paramref name="station"/> used.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="station"/> is not a station Samus uses.</exception>
+    public void MarkSaveStationUsed(LoadStation station) => Progress.UsedStations.Add(station);
 
     /// <summary>Returns whether <paramref name="area"/> has downloaded its map-station data.</summary>
     public bool HasAreaMap(AreaId area) => Progress.HasAreaMap(area);

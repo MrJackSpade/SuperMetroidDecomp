@@ -69,13 +69,33 @@ public static class RoomObjectHeaderGenerationProcessPolicy {
             if (($word -band 0x8000) -ne 0) { throw ('Door {0} argument {1:X4} never persists.' -f $name, $word) }
             return 'new DoorBitArgument(@@DOOR:{0}@@, DoorOpeningPersistence.Persistent)' -f $word
         }
-        if ($name -in @('EnergyStation', 'MissileStation', 'SaveStation')) { return 'new StationArgument({0})' -f $word }
+        if ($name -in @('EnergyStation', 'MissileStation')) { return 'new StationArgument({0})' -f $word }
+        # A save station's argument numbers its load station in its area's station list; the population's area resolves it.
+        if ($name -eq 'SaveStation') { return '@@STATION:{0}@@' -f $word }
         if ($name -eq 'MetroidRoomClearance' -or $name -eq 'DownwardGateShotBlock') {
             if (($word -band 1) -ne 0) { throw ('{0} argument {1:X4} is odd.' -f $name, $word) }
             $type = if ($name -eq 'DownwardGateShotBlock') { 'GateTriggerArgument' } else { 'MetroidRoomArgument' }
             return 'new {0}({1})' -f $type, ($word -shr 1)
         }
         throw ('Retail header {0} has no decoded room argument for {1:X4}.' -f $name, $word)
+    }
+    # Each population's area, from the area room-state catalog that loads it, and each load station by its area and number,
+    # from the station identities and the save codec's numbering (#1623).
+    $populationAreas = @{}
+    foreach ($stateFile in Get-ChildItem (Join-Path $repoRoot 'csharp/src/SuperMetroid.Core/World/RoomStates') -Filter '*RoomStateDefinitions.cs') {
+        $stateArea = $stateFile.Name -replace 'RoomStateDefinitions\.cs$', ''
+        foreach ($match in [regex]::Matches([IO.File]::ReadAllText($stateFile.FullName), 'RoomObjectPopulationDefinitions\.(\w+)')) {
+            if (-not $populationAreas.ContainsKey($match.Groups[1].Value)) { $populationAreas[$match.Groups[1].Value] = [Collections.Generic.HashSet[string]]::new() }
+            [void] $populationAreas[$match.Groups[1].Value].Add($stateArea)
+        }
+    }
+    $stationAreas = @{}
+    foreach ($match in [regex]::Matches([IO.File]::ReadAllText((Join-Path $repoRoot 'csharp/src/SuperMetroid.Core/Progression/LoadStationDefinitions.cs')), 'public static LoadStation (\w+) \{ get; \} = new\(nameof\(\1\), AreaId\.(\w+)\);')) {
+        $stationAreas[$match.Groups[1].Value] = $match.Groups[2].Value
+    }
+    $stationsByAreaNumber = @{}
+    foreach ($match in [regex]::Matches([IO.File]::ReadAllText((Join-Path $repoRoot 'csharp/src/SuperMetroid.Core/Saves/LoadStationNumberCodec.cs')), '\[LoadStationDefinitions\.(\w+)\] = (\d+),')) {
+        $stationsByAreaNumber['{0}:{1}' -f $stationAreas[$match.Groups[1].Value], $match.Groups[2].Value] = $match.Groups[1].Value
     }
     $rom = [IO.File]::ReadAllBytes($romFile)
     $lines = [Collections.Generic.List[string]]::new()
@@ -144,6 +164,14 @@ public static class RoomObjectHeaderGenerationProcessPolicy {
             }
             else {
                 $argumentText = Format-RoomArgument $headerNames[$header] $argument
+                if ($argumentText -match '^@@STATION:(\d+)@@$') {
+                    [string[]] $areas = @()
+                    if ($populationAreas.ContainsKey($name)) { $areas = [string[]] @($populationAreas[$name]) }
+                    if ($areas.Count -ne 1) { throw "Save station population $name is loaded by no single area." }
+                    $stationKey = '{0}:{1}' -f $areas[0], $Matches[1]
+                    if (-not $stationsByAreaNumber.ContainsKey($stationKey)) { throw "Save station population $name names no load station $stationKey." }
+                    $argumentText = 'new SaveStationArgument(LoadStationDefinitions.{0})' -f $stationsByAreaNumber[$stationKey]
+                }
                 foreach ($token in [regex]::Matches($argumentText, '@@(DOOR|ITEM):(\d+)@@')) {
                     $placements = if ($token.Groups[1].Value -eq 'DOOR') { $doorPlacements } else { $itemPlacements }
                     $number = [int]$token.Groups[2].Value

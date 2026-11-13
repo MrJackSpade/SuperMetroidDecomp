@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -55,24 +56,26 @@ internal static class LoadStationDefinitionsVerification
             total += count;
             for (int station = 0; station <= byte.MaxValue; station++)
             {
-                LoadStation? found = LoadStations.Find(area, station);
+                LoadStation? found = LoadStationNumberCodec.Find(area, station);
                 bool expected = station < count && LoadStationEntryImporter.Load(rom, area, (byte)station).Room is not null &&
                     (area == AreaId.Ceres ? station == 0 : station < FirstDebugNumber || (area == AreaId.Crateria && station == ZebesArrivalNumber));
                 AssertEqual(expected, found is not null, $"{area} station {station} is named exactly when gameplay can load it");
                 if (found is null)
                 {
-                    AssertThrows<InvalidDataException>(() => LoadStations.Get(area, station, "test"), $"{area} station {station} names no station");
+                    AssertThrows<InvalidDataException>(() => LoadStationNumberCodec.Decode(area, station, "test"), $"{area} station {station} names no station");
                     continue;
                 }
                 AssertEqual(area, found.Area, $"{found} lies in its area's list");
-                AssertEqual(station, found.Number, $"{found} keeps its number");
-                AssertTrue(ReferenceEquals(found, LoadStations.Get(area, station, "test")), $"{found} is found by its area and number");
+                AssertEqual(station, LoadStationNumberCodec.Number(found), $"{found} keeps its number");
+                AssertTrue(ReferenceEquals(found, LoadStationNumberCodec.Decode(area, station, "test")), $"{found} is found by its area and number");
                 named++;
             }
         }
         AssertEqual(134, total, "All original retail station slots");
         AssertEqual(36, named, "Named load stations");
-        AssertEqual(36, LoadStationDefinitions.All.Count, "Every named station is listed once");
+        AssertEqual(36, LoadStationDefinitions.All.Distinct().Count(), "Every named station is listed once");
+        AssertTrue(LoadStationDefinitions.Usable.SequenceEqual(LoadStationDefinitions.All.Where(station => LoadStationNumberCodec.Number(station) < 16)),
+            "the used-station record keeps every station whose number its area's sixteen bits hold");
     }
 
     /// <summary>Checks each named station's room, door, camera and Samus placement against its native record.</summary>
@@ -80,14 +83,15 @@ internal static class LoadStationDefinitionsVerification
     {
         foreach (LoadStation station in LoadStationDefinitions.All)
         {
-            NativeLoadStation original = LoadStationEntryImporter.Load(rom, station.Area, (byte)station.Number);
-            AssertTrue(ReferenceEquals(original.Room, station.Room), $"{station} room");
-            AssertTrue(ReferenceEquals(original.Door, station.Door), $"{station} door");
-            AssertEqual(original.CameraPosition, station.CameraPosition, $"{station} camera");
-            AssertEqual(original.SamusOffset, station.SamusOffset, $"{station} Samus offset");
-            AssertEqual(unchecked((ushort)(original.CameraPosition.X + 128 + original.SamusOffset.X)), station.SamusPosition.X,
+            NativeLoadStation original = LoadStationEntryImporter.Load(rom, station.Area, (byte)LoadStationNumberCodec.Number(station));
+            LoadStationPlacement placement = station.Placement;
+            AssertTrue(ReferenceEquals(original.Room, placement.Room), $"{station} room");
+            AssertTrue(ReferenceEquals(original.Door, placement.Door), $"{station} door");
+            AssertEqual(original.CameraPosition, placement.CameraPosition, $"{station} camera");
+            AssertEqual(original.SamusOffset, placement.SamusOffset, $"{station} Samus offset");
+            AssertEqual(unchecked((ushort)(original.CameraPosition.X + 128 + original.SamusOffset.X)), placement.SamusPosition.X,
                 $"{station} horizontal placement preserves the 16-bit wrap of its signed offset");
-            AssertEqual(unchecked((ushort)(original.CameraPosition.Y + original.SamusOffset.Y)), station.SamusPosition.Y,
+            AssertEqual(unchecked((ushort)(original.CameraPosition.Y + original.SamusOffset.Y)), placement.SamusPosition.Y,
                 $"{station} vertical placement preserves the 16-bit wrap");
         }
     }

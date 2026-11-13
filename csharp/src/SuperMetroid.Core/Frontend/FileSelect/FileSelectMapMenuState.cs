@@ -25,7 +25,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     /// <summary>Receives confirmation, scrolling and transition sound requests during updates.</summary>
     private readonly AudioQueues audio;
     /// <summary>Saved Zebes area; Ceres bypasses this menu.</summary>
-    private readonly int area;
+    private readonly AreaId area;
     /// <summary>The selected save's progress: its used stations label the area map's areas.</summary>
     private readonly PersistentProgress savedProgress;
     /// <summary>Renders the six-area selection view during entry and area navigation.</summary>
@@ -36,8 +36,8 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     internal FileSelectMapScroll Scroll { get; private set; }
     /// <summary>Save-station marker positioned from the installed presentation catalog.</summary>
     private FileSelectStationMarker marker;
-    /// <summary>Saved station index used to restore the marker and scroll anchor.</summary>
-    private readonly int stationIndex;
+    /// <summary>The saved station, which restores the marker and scroll anchor.</summary>
+    private readonly LoadStation station;
     /// <summary>Suppresses marker display until the room-map entry animation reaches it.</summary>
     private bool markerDrawn;
     /// <summary>Advances map icon arrows and highlight palette independently of rendering.</summary>
@@ -74,20 +74,19 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
         Ensure.NotNull(slot);
         if (!AreaIds.IsZebes(slot.Checkpoint.Area))
             throw new ArgumentOutOfRangeException(nameof(slot), "Ceres does not use the Zebes save-selection map.");
-        area = AreaIds.ToIndex(slot.Checkpoint.Area);
-        stationIndex = slot.Checkpoint.Number;
+        area = slot.Checkpoint.Area;
+        station = slot.Checkpoint;
         var system = new SharedGameState(random);
         system.Progress.CopyFrom(slot.Progression);
         savedProgress = system.Progress;
-        var typedArea = AreaIds.At(area);
         if (mapPresentation is null)
             throw new InvalidOperationException("File-select map requires installed map presentation assets.");
         InstalledSpriteSheets sheets = spriteSheets ?? throw new InvalidOperationException("File-select map requires the installed sprite sheets.");
         areaGraphics = FileSelectAreaMapGraphics.FromPresentation(area, mapPresentation, sheets);
-        roomGraphics = new FileSelectRoomMapGraphics(system, typedArea, mapPresentation: mapPresentation, sheets: sheets);
+        roomGraphics = new FileSelectRoomMapGraphics(system, area, mapPresentation: mapPresentation, sheets: sheets);
         this.mapPresentation = mapPresentation;
         Scroll = CreateScrollForCurrentContent();
-        marker = new FileSelectStationMarker(typedArea, stationIndex, mapPresentation.SaveMarkers);
+        marker = new FileSelectStationMarker(station, mapPresentation.SaveMarkers);
         navigation = new FileSelectMapNavigation(area, initialHeldInput);
         navigation.BindLabels(mapPresentation.Labels);
         animations = new FileSelectMapAnimations(mapPresentation.Arrows);
@@ -111,17 +110,16 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
         animations.BindHighlight(catalog?.HighlightCycle);
         animations.BindPresentation(catalog?.Arrows);
         roomGraphics.BindMapPresentation(catalog);
-        marker.BindPosition(AreaIds.At(area), stationIndex, catalog?.SaveMarkers);
+        marker.BindPosition(station, catalog?.SaveMarkers);
     }
 
     /// <summary>Starts room-map scrolling at the compiled anchor for the saved area and station.</summary>
     private FileSelectMapScroll CreateScrollForCurrentContent()
     {
-        var typedArea = AreaIds.At(area);
         AreaMapPresentation catalog = mapPresentation ?? throw new InvalidOperationException(
             "File-select map requires installed map presentation assets.");
-        var anchor = FileSelectMapLoadAnchors.Get(typedArea, stationIndex);
-        return new FileSelectMapScroll(catalog.Get(typedArea), roomGraphics.MapSystem, anchor);
+        var anchor = FileSelectMapLoadAnchors.Get(station);
+        return new FileSelectMapScroll(catalog.Get(area), roomGraphics.MapSystem, anchor);
     }
 
     /// <summary>Advances one menu update, retaining input latching during entry and the game's ordering of icon/palette animation, scrolling, navigation, transition sounds, and delayed load/options handoff.</summary>
@@ -158,7 +156,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
             if (Phase == FileSelectMapNavigationPhase.Room)
             {
                 Scroll = CreateScrollForCurrentContent();
-                marker = new FileSelectStationMarker(AreaIds.At(area), stationIndex, mapPresentation?.SaveMarkers);
+                marker = new FileSelectStationMarker(station, mapPresentation?.SaveMarkers);
                 markerDrawn = false;
                 animations.ResetHighlight();
             }

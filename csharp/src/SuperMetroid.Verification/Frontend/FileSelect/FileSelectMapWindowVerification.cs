@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
@@ -43,7 +44,7 @@ internal static class FileSelectMapWindowVerification
         // left and top edges stop at the screen's edge, its right and bottom ones keep their fractions (#1555). The right
         // edge holds its last column, as the cartridge's window does, so the column past it is one further.
         SignedSixteenSixteen pixelAndHalf = SignedSixteenSixteen.FromParts(1, 0x8000);
-        var fractional = new FileSelectMapWindow(0, new FileSelectMapWindowMotion(2, -pixelAndHalf, pixelAndHalf, -pixelAndHalf, pixelAndHalf),
+        var fractional = new FileSelectMapWindow(AreaId.Crateria, new FileSelectMapWindowMotion(2, -pixelAndHalf, pixelAndHalf, -pixelAndHalf, pixelAndHalf),
             CreateWindowLabelFixture(new(1, 1)));
         AssertTrue(!fractional.Step(), "the reveal is not complete before its last move");
         AssertEqual(new VerifyWorldMapLabelsCase(0, 0, 3, 2),
@@ -55,7 +56,7 @@ internal static class FileSelectMapWindowVerification
             "a stopped edge stays at the screen's edge and a moving edge carries its fraction");
         fractional.Step();
         AssertEqual(5, fractional.Right, "a completed reveal stays where it ended");
-        AssertThrows<ArgumentOutOfRangeException>(() => new FileSelectMapWindow(6), "Ceres has no area-select window record");
+        AssertThrows<ArgumentOutOfRangeException>(() => new FileSelectMapWindow(AreaId.Ceres), "Ceres has no area-select window record");
 
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyMapWindowLeftVelocities), () => VerifyMapWindowLeftVelocities(bus));
@@ -66,9 +67,10 @@ internal static class FileSelectMapWindowVerification
         int[] durations = [52, 54, 46, 52, 52, 35];
         int[] labelX = [91, 42, 94, 206, 206, 135];
         int[] labelY = [50, 127, 181, 80, 159, 139];
-        for (int area = 0; area < FileSelectMapDefinitions.AreaCount; area++)
+        foreach (AreaId areaId in AreaIds.Zebes)
         {
-            var window = new FileSelectMapWindow(area, RetailPresentationFixture().Labels);
+            int area = SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(areaId);
+            var window = new FileSelectMapWindow(areaId, RetailPresentationFixture().Labels);
             AssertEqual(labelX[area], window.Left, "map window starts at native area label X");
             AssertEqual(labelY[area], window.Top, "map window starts at native area label Y");
             AssertEqual(window.Left + 1, window.Right, "map window starts one column wide, its edges on the label");
@@ -90,7 +92,7 @@ internal static class FileSelectMapWindowVerification
     private static void VerifyFileSelectMapWindowComposition()
     {
         TestAddressSpace fake = CreateComposedMapWindowCartridge();
-        var window = new FileSelectMapWindow(0, ReadCartridgeMapWindowMotion(fake, 0), CreateWindowLabelFixture(new(40, 30)));
+        var window = new FileSelectMapWindow(AreaId.Crateria, ReadCartridgeMapWindowMotion(fake, 0), CreateWindowLabelFixture(new(40, 30)));
         RgbaPixel areaColor = new(255, 0, 0), frameColor = new(0, 0, 255);
         RgbaPixel[] area = Enumerable.Repeat(areaColor, 256 * 224).ToArray();
         RgbaPixel[] frame = Enumerable.Repeat(frameColor, 256 * 224).ToArray();
@@ -107,7 +109,7 @@ internal static class FileSelectMapWindowVerification
             "completed expansion disables window and displays entire empty room frame");
 
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var returning = FileSelectMapWindow.CreateReturn(4, RetailPresentationFixture().Labels);
+        var returning = FileSelectMapWindow.CreateReturn(AreaId.Maridia, RetailPresentationFixture().Labels);
         AssertEqual(new VerifyWorldMapLabelsCase(8, 8, 249, 216),
             new VerifyWorldMapLabelsCase(returning.Left, returning.Top, returning.Right, returning.Bottom), "native return rectangle insets");
         for (int tick = 1; tick <= 40; tick++)
@@ -134,13 +136,13 @@ internal static class FileSelectMapWindowVerification
         int[] indices = [86, 107, 102, 81, 97, 118];
         int[] activeColors = [0x01db, 0x0bb1, 0x0013, 0x7fe0, 0x6400, 0x6417];
         var maps = RetailPresentationFixture();
-        var graphics = new FileSelectAreaMapGraphics(0, maps.Backdrops, MenuSheetFixtures.For(maps));
+        var graphics = new FileSelectAreaMapGraphics(AreaId.Crateria, maps.Backdrops, MenuSheetFixtures.For(maps));
         graphics.BindLabels(maps.Labels);
-        for (int area = 0; area < FileSelectMapDefinitions.AreaCount; area++)
+        foreach (AreaId areaId in AreaIds.Zebes)
         {
-            graphics.SelectArea(area);
+            int area = SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(areaId);
+            graphics.SelectArea(areaId);
             // The selected area's pictures show the colours the import pre-coloured its world-map sheet in (#1512).
-            var areaId = SuperMetroid.Core.Progression.AreaIds.At(area);
             SpriteImage foreground = MenuSheetFixtures.For(maps).Get(SuperMetroid.Core.Frontend.Artwork.ScreenTileSheetDefinitions.AreaMapForegrounds[areaId])
                 .Frame(SuperMetroid.Core.Frontend.Map.AreaMapPictures.WorldForegroundFrame).Sheet;
             // The sheet's colours laid out by the palette index each was composed as (#1544).

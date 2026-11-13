@@ -36,7 +36,7 @@ internal static class MapIndicatorAnimationVerification
                 "unsupported marker delay phase");
 
         using var json = new MemoryStream(MapSaveMarkerExtractor.Extract(rom), writable: false);
-        var marker = new FileSelectStationMarker(AreaId.Crateria, 0,
+        var marker = new FileSelectStationMarker(LoadStationDefinitions.Gunship,
             MapSaveMarkerFile.Read(json));
         int nativeOffset = 0, nativeTimer = 0, loops = 0;
         AssertEqual(ReadVerificationWord(rom, 0x82ba2d), MapSpriteOrdinals.Spritemaps.Word(marker.SpritemapId), "marker initial phase before first tick");

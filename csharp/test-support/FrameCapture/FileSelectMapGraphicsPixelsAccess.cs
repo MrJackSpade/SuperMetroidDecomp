@@ -60,17 +60,18 @@ internal static class FileSelectMapGraphicsPixelsAccess
         internal LayeredScene BackgroundsScene(Position16<MapPixels> scroll) => graphics.CaptureRenderSnapshot(scroll);
     }
 
-    /// <summary>Progress whose used stations are the stations each area's mask, by area index, names.</summary>
+    /// <summary>
+    /// Progress whose used stations are the stations each area's native used-station word, by area number, records: a
+    /// station whose number's bit the word sets; the bits of numbers that name no station Samus uses are never read.
+    /// </summary>
     internal static PersistentProgress UsedStations(ReadOnlySpan<ushort> usedStationMasks)
     {
         var progress = new PersistentProgress();
-        for (int area = 0; area < usedStationMasks.Length; area++)
+        foreach (LoadStation station in LoadStationDefinitions.Usable)
         {
-            for (int station = 0; station < PersistentProgress.StationsPerArea; station++)
-            {
-                if ((usedStationMasks[area] & (1 << station)) != 0)
-                    progress.UsedStations(AreaIds.At(area)).Add(station);
-            }
+            int area = SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(station.Area);
+            if (area < usedStationMasks.Length && (usedStationMasks[area] & (1 << SuperMetroid.Core.Saves.LoadStationNumberCodec.Number(station))) != 0)
+                progress.UsedStations.Add(station);
         }
         return progress;
     }

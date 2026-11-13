@@ -33,8 +33,8 @@ public sealed class WorldMapLabelPositions
     /// <summary>Selects the independently editable anchor belonging to a named Zebes area.</summary>
     /// <remarks>Reviewed for #1165: the six area identities select layout roles,
     /// not numerical samples. Preserve each imported/custom point without deriving it
-    /// from another area or storing a positional lookup. Only area IDs0..5 are valid.</remarks>
-    public Position16<SpritePixels> Get(int area) => ((uint)area < AreaIds.Zebes.Count ? AreaIds.Zebes[area] : AreaId.Ceres) switch
+    /// from another area or storing a positional lookup. Only the six Zebes areas have labels.</remarks>
+    public Position16<SpritePixels> Get(AreaId area) => area switch
     {
         AreaId.Crateria => crateria,
         AreaId.Brinstar => brinstar,
@@ -42,8 +42,8 @@ public sealed class WorldMapLabelPositions
         AreaId.WreckedShip => wreckedShip,
         AreaId.Maridia => maridia,
         AreaId.Tourian => tourian,
-        AreaId.Ceres => throw new ArgumentOutOfRangeException(nameof(area)),
-        _ => throw new ArgumentOutOfRangeException(nameof(area)),
+        AreaId.Ceres => throw new ArgumentOutOfRangeException(nameof(area), area, "Ceres has no world-map label."),
+        _ => throw new ArgumentOutOfRangeException(nameof(area), area, "Undefined area."),
     };
 
 }

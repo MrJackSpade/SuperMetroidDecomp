@@ -123,7 +123,7 @@ public static class SaveRamCodec
             GameTimeHours: ReadWord(payload, SaveRamLayout.GameTimeHoursOffset),
             Progression: DecodeProgression(payload, maps),
             StartupRoute: SuperMetroid.AssetExtraction.Progression.SaveLoadingGameStateCodec.Route(ReadWord(payload, SaveRamLayout.LoadingGameStateOffset)),
-            Checkpoint: LoadStations.Get(
+            Checkpoint: LoadStationNumberCodec.Decode(
                 SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Decode(ReadWord(payload, SaveRamLayout.AreaOffset), "The save's checkpoint"),
                 ReadWord(payload, SaveRamLayout.SaveStationOffset), "The save's checkpoint"))
         {
@@ -194,7 +194,7 @@ public static class SaveRamCodec
         EncodeProgression(snapshot.Progress, payload);
         WriteWord(payload, SaveRamLayout.LoadingGameStateOffset,
             FieldWord(SuperMetroid.AssetExtraction.Progression.SaveLoadingGameStateCodec.Word(snapshot.StartupRoute), nameof(snapshot.StartupRoute)));
-        WriteWord(payload, SaveRamLayout.SaveStationOffset, FieldWord(snapshot.Checkpoint.Number, nameof(snapshot.Checkpoint)));
+        WriteWord(payload, SaveRamLayout.SaveStationOffset, FieldWord(LoadStationNumberCodec.Number(snapshot.Checkpoint), nameof(snapshot.Checkpoint)));
         WriteWord(payload, SaveRamLayout.AreaOffset,
             FieldWord(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(snapshot.Checkpoint.Area), nameof(snapshot.Checkpoint)));
         SaveRamMapPacking.Pack(snapshot.Progress, maps).CopyTo(payload, SaveRamLayout.CompressedMapDataOffset);

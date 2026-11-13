@@ -13,7 +13,10 @@ namespace SuperMetroid.TestSupport.VerificationImporters;
 internal static class RoomObjectPopulationImporter
 {
     /// <summary>Imports bounded PLM placements, header words and scroll programs.</summary>
-    public static RoomObjectPopulation Read(ISnesAddressSpace source, ushort pointer)
+    /// <param name="source">The cartridge import source.</param>
+    /// <param name="pointer">Where the population starts.</param>
+    /// <param name="area">The area of the room the population is placed in, which a save station's argument needs; null outside a room.</param>
+    public static RoomObjectPopulation Read(ISnesAddressSpace source, ushort pointer, SuperMetroid.Core.Progression.AreaId? area = null)
     {
         Ensure.NotNull(source);
         if (source is not IImportCartridgeSource cartridge)
@@ -37,7 +40,7 @@ internal static class RoomObjectPopulationImporter
             RoomScrollWrite[]? scroll = header == RoomObjectHeaderId.ScrollTrigger ? Scroll(argument) : null;
             RoomScrollProgram? retailScroll = scroll is null ? null : RetailScrollProgram(argument, scroll);
             records.Add(new RoomObjectPlacement(metadata,
-                new(blockX, blockY), RoomObjectRoomArgumentWords.Decode(header, argument), retailScroll is null ? scroll : null,
+                new(blockX, blockY), RoomObjectRoomArgumentWords.Decode(header, argument, area), retailScroll is null ? scroll : null,
                 DraygonCannonObjects.IsDraygonCannonHeader(header) ? DraygonWallCannonAddresses.Decode(argument) : null)
             {
                 CompiledScrollProgram = retailScroll,

@@ -50,7 +50,7 @@ internal static class GameSaveJsonVerification
         system.SetBossBits(AreaId.Brinstar, BossBits.AreaBoss | BossBits.AreaMiniBoss);
         system.SetCollectedItemBit(23);
         system.SetOpenedDoorBit(31);
-        system.MarkSaveStationUsed(AreaId.Norfair, 3);
+        system.MarkSaveStationUsed(LoadStationDefinitions.CrocomireSave);
         system.SetAreaMapAcquired(AreaId.Brinstar);
         system.MarkExploredMapTile(AreaId.Brinstar, new(9, 1));
         system.MarkExploredMapTile(AreaId.Brinstar, new(23, 2));
@@ -59,7 +59,7 @@ internal static class GameSaveJsonVerification
         ControllerBindings bindings = ControllerBindings.Default.AssignAndSwap(
             action: ControllerAction.Shoot,
             physicalButton: ControllerButton.Y);
-        SuperMetroidSaveSnapshot snapshot = SuperMetroidSaveSnapshot.Capture(samus, system, new SaveSnapshotContext { Checkpoint = SuperMetroid.Core.Rooms.RoomObjects.LoadStationDefinitions.RedBrinstarSave, GameTime = time, ControllerBindings = bindings, MoonwalkEnabled = true, IconCancelEnabled = true });
+        SuperMetroidSaveSnapshot snapshot = SuperMetroidSaveSnapshot.Capture(samus, system, new SaveSnapshotContext { Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.RedBrinstarSave, GameTime = time, ControllerBindings = bindings, MoonwalkEnabled = true, IconCancelEnabled = true });
         saveRam.SaveSlot(1, snapshot);
 
         // The former preservation-only word is the native reserve-missile accumulator.
@@ -89,7 +89,7 @@ internal static class GameSaveJsonVerification
             "JSON save round trip rebuilds canonical SRAM from named state");
         SuperMetroidSaveSlot restoredSlot = restored.ReadSlot(1) ??
             throw new InvalidOperationException("JSON round trip lost slot 1.");
-        AssertTrue(ReferenceEquals(SuperMetroid.Core.Rooms.RoomObjects.LoadStationDefinitions.RedBrinstarSave, restoredSlot.Checkpoint), "JSON checkpoint station");
+        AssertTrue(ReferenceEquals(SuperMetroid.Core.Progression.LoadStationDefinitions.RedBrinstarSave, restoredSlot.Checkpoint), "JSON checkpoint station");
         AssertEqual(94, restoredSlot.Health, "JSON health");
         AssertEqual(15, restoredSlot.MaxMissiles, "JSON missile capacity");
         AssertTrue(restoredSlot.CollectedItems.HasAll(
@@ -234,7 +234,7 @@ internal static class GameSaveJsonVerification
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Health = 99, MaxHealth = 99, ReserveMissiles = 7 };
         var system = new SharedGameState(new SharedRandom()) { LoadedItemCount = ushort.MaxValue };
         SuperMetroidSaveSnapshot snapshot = SuperMetroidSaveSnapshot.Capture(samus, system,
-            new SaveSnapshotContext { Checkpoint = SuperMetroid.Core.Rooms.RoomObjects.LoadStationDefinitions.DraygonSave }) with
+            new SaveSnapshotContext { Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.DraygonSave }) with
         {
             StartupRoute = SaveLoadingGameState.CeresDestruction,
             HudItem = HudItem.XRay,

@@ -19,7 +19,7 @@ internal static class SaveLoadRandomAudit
         {
             var save = new SuperMetroidSaveSnapshot
             {
-                Checkpoint = SuperMetroid.Core.Rooms.RoomObjects.LoadStationDefinitions.MotherBrainSave,
+                Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.MotherBrainSave,
                 Health = 399, MaxHealth = 399,
                 EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.GravitySuit),
                 CollectedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.GravitySuit),

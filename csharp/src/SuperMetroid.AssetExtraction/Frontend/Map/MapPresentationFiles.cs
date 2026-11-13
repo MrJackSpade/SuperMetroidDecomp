@@ -162,9 +162,9 @@ public static class MapPresentationFiles
     private static GameRead ReadGame(InstalledMapReader installed)
     {
         Dictionary<AreaId, HashSet<int>> stationCells = installed.ReadStationCells();
-        var areas = new IAreaMapView[AreaIds.RetailCount];
+        var areas = new Dictionary<AreaId, IAreaMapView>();
         using var identity = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
-        foreach (AreaId area in Enum.GetValues<AreaId>())
+        foreach (AreaId area in AreaIds.All)
         {
             string file = AreaMapCatalogFormat.FileName(area);
             ArraySegment<byte> mapBytes = installed.Read(file);
@@ -175,7 +175,7 @@ public static class MapPresentationFiles
                 IAreaMapView definition = new AreaMapStockRules(baseline, stationCells[area]);
                 // The cells, decoded again under the exploration rules they were read to derive.
                 using var stream = ReadOnlyStream(mapBytes);
-                areas[AreaIds.ToIndex(area)] = AreaMapPresentationFile.Read(stream, definition);
+                areas.Add(area, AreaMapPresentationFile.Read(stream, definition));
             }
             catch (InvalidDataException error)
             {
@@ -327,7 +327,7 @@ public static class MapPresentationFiles
                     ?? throw new InvalidDataException("Map catalog manifest is null.");
             }
             catch (JsonException error) { throw new InvalidDataException($"Invalid map catalog manifest in {directory}.", error); }
-            if (manifest.Version != AreaMapCatalogFormat.Version || manifest.Sha256 is null || manifest.Sha256.Count != AreaIds.RetailCount + AreaMapCatalogFormat.SharedResourceCount)
+            if (manifest.Version != AreaMapCatalogFormat.Version || manifest.Sha256 is null || manifest.Sha256.Count != AreaIds.All.Count + AreaMapCatalogFormat.SharedResourceCount)
                 throw new InvalidDataException($"Map catalog manifest must contain the supported version, seven maps and all {AreaMapCatalogFormat.SharedResourceCount} shared presentation resources.");
             return new InstalledMapReader(directory, importData, manifest);
         }
@@ -374,9 +374,9 @@ public static class MapPresentationFiles
                     ?? throw new InvalidDataException("Station reveal content is null.");
             }
             catch (JsonException error) { throw new InvalidDataException("Invalid station reveal content.", error); }
-            if (masks.Count != AreaIds.RetailCount) throw new InvalidDataException("Station reveal content requires all seven areas.");
+            if (masks.Count != AreaIds.All.Count) throw new InvalidDataException("Station reveal content requires all seven areas.");
             var stationCells = new Dictionary<AreaId, HashSet<int>>();
-            foreach (AreaId area in Enum.GetValues<AreaId>())
+            foreach (AreaId area in AreaIds.All)
             {
                 if (!masks.TryGetValue(area.ToString(), out int[]? cells) || cells is null ||
                     cells.Any(cell => (uint)cell >= AreaMapSize.WidthInTiles * AreaMapSize.HeightInTiles) ||

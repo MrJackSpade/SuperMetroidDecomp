@@ -30,7 +30,7 @@ public sealed class FileSelectAreaMapGraphics
     internal void BindLabels(WorldMapLabelPositions? content) => labels = content;
 
     /// <summary>Area-map graphics bound to every installed resource the file-select map draws.</summary>
-    public static FileSelectAreaMapGraphics FromPresentation(int selectedArea,
+    public static FileSelectAreaMapGraphics FromPresentation(AreaId selectedArea,
         AreaMapPresentation presentation, InstalledSpriteSheets sheets)
     {
         Ensure.NotNull(presentation);
@@ -40,12 +40,12 @@ public sealed class FileSelectAreaMapGraphics
     }
 
     /// <summary>Initializes the unmasked world-map picture and backdrop owners from installed artwork and selects the requested Zebes area; labels must be bound separately or through <see cref="FromPresentation"/>.</summary>
-    /// <param name="selectedArea">Game-area identity 0..5, not the file-select label display-order ordinal.</param>
+    /// <param name="selectedArea">One of the six Zebes areas.</param>
     /// <param name="backdrops">Required menu backdrops, including each area's world-map backdrop.</param>
     /// <param name="sheets">Required installed sprite sheets: the map sprites the title and labels draw from, and the background tiles.</param>
     /// <exception cref="InvalidOperationException">Any required presentation resource is absent despite its optional parameter default.</exception>
-    /// <exception cref="ArgumentOutOfRangeException">The selected area is outside the six Zebes identities.</exception>
-    public FileSelectAreaMapGraphics(int selectedArea, MenuBackdrops? backdrops = null,
+    /// <exception cref="ArgumentOutOfRangeException">The selected area is not one of the six Zebes areas.</exception>
+    public FileSelectAreaMapGraphics(AreaId selectedArea, MenuBackdrops? backdrops = null,
         InstalledSpriteSheets? sheets = null)
     {
         if (backdrops is null || sheets is null)
@@ -57,18 +57,17 @@ public sealed class FileSelectAreaMapGraphics
         SelectArea(selectedArea);
     }
 
-    /// <summary>Selected game-area identity 0..5 controlling the background, backdrop, and label highlight; this does not select a gameplay load station.</summary>
-    public int SelectedArea { get; private set; }
+    /// <summary>The selected Zebes area, controlling the background, backdrop, and label highlight; this does not select a gameplay load station.</summary>
+    public AreaId SelectedArea { get; private set; }
 
     /// <summary>Shows the installed area's world-map backdrop before publishing its selection, without advancing menu input, windows, or transition timers.</summary>
-    /// <param name="selectedArea">Game-area identity 0..5.</param>
-    /// <exception cref="ArgumentOutOfRangeException">The area is outside the supported Zebes identities.</exception>
-    public void SelectArea(int selectedArea)
+    /// <param name="selectedArea">One of the six Zebes areas.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The area is not one of the six Zebes areas.</exception>
+    public void SelectArea(AreaId selectedArea)
     {
-        if ((uint)selectedArea >= FileSelectMapDefinitions.AreaCount)
-            throw new ArgumentOutOfRangeException(nameof(selectedArea));
-        var area = AreaIds.At(selectedArea);
-        screen.Backdrop = Backdrops.World(area);
+        if (!AreaIds.IsZebes(selectedArea))
+            throw new ArgumentOutOfRangeException(nameof(selectedArea), selectedArea, "Only the six Zebes areas have world-map selections.");
+        screen.Backdrop = Backdrops.World(selectedArea);
         SelectedArea = selectedArea;
     }
 
@@ -86,7 +85,7 @@ public sealed class FileSelectAreaMapGraphics
     private void BindBackdrops(MenuBackdrops? content)
     {
         Backdrops = content;
-        if (content is not null) screen.Backdrop = content.World(AreaIds.At(SelectedArea));
+        if (content is not null) screen.Backdrop = content.World(SelectedArea);
     }
 
     /// <summary>Rebinds the installed sheets: the map sprites the title and labels draw from, and the background tiles.</summary>
@@ -107,21 +106,17 @@ public sealed class FileSelectAreaMapGraphics
         if (labels is null || mapSheet is null)
             throw new InvalidOperationException("World-map labels require installed layout and sprite assets.");
         Draw(MapSpriteId.WorldTitle, new(128, 16), MapSpriteColouring.Labels);
-        for (int displayArea = 0; displayArea < FileSelectMapDefinitions.AreaCount; displayArea++)
+        foreach (AreaId area in FileSelectMapAreaOrder.Labels)
         {
-            AreaId area = FileSelectMapAreaOrder.Get(displayArea);
-            if (!AreaIds.IsZebes(area))
-                throw new InvalidDataException("File-select map display table contains an invalid area.");
-            int index = AreaIds.ToIndex(area);
-            if (MapSaveMarkers.HasUsedMarker(area, progress.UsedStations(area)))
-                DrawArea(area, index);
+            if (MapSaveMarkers.HasUsedMarker(area, progress.UsedStations))
+                DrawArea(area);
         }
         entries.FinishFrame();
 
-        void DrawArea(AreaId shown, int shownIndex)
+        void DrawArea(AreaId shown)
         {
-            Draw(MapSpriteNames.WorldLabel(shown), labels.Get(shownIndex),
-                shownIndex == SelectedArea ? MapSpriteColouring.Labels : MapSpriteColouring.DimLabels);
+            Draw(MapSpriteNames.WorldLabel(shown), labels.Get(shown),
+                shown == SelectedArea ? MapSpriteColouring.Labels : MapSpriteColouring.DimLabels);
         }
 
         void Draw(MapSpriteId id, Position16<SpritePixels> origin, MapSpriteColouring colouring)
@@ -144,7 +139,7 @@ public sealed class FileSelectAreaMapGraphics
     {
         // The foreground and the area's background are their pictures in the area's world-map colours (#1467, #1512).
         InstalledSpriteSheets sheets = worldSheets ?? throw new InvalidOperationException("The world map's pictures are bound when the game is bound to its installed content.");
-        AreaId area = AreaIds.At(SelectedArea);
+        AreaId area = SelectedArea;
         var foreground = new PicturedPlaneLayer(new PicturedPlane(
             [new PlacedPlanePicture(sheets.Get(ScreenTileSheetDefinitions.AreaMapForegrounds[area]).Frame(AreaMapPictures.WorldForegroundFrame), Offset16<PlanePixels>.Zero, PictureShading.Standard)]),
             Offset16<PlanePixels>.Zero);

@@ -103,7 +103,7 @@ internal static class ClosedPresentationIndexDefinitions
         ("DachoraColorCatalog", "Resolve", "color") => new(0, DachoraColorFormat.ColorsPerFrame),
         ("CreditsPresentation", "GetRow", "index") => new(0, CreditsPresentationDefinitions.RowCount),
         ("MapArrowPresentation", "Get", "direction") => new(1, MapArrowDefinitions.Count),
-        ("PauseBackdropPresentation", "LoadTo", "area") => new(0, AreaIds.RetailCount),
+        ("PauseBackdropPresentation", "LoadTo", "area") => new(0, AreaIds.All.Count),
         ("PauseWireframePresentation", "ApplyTo", "kind") => new(0, PauseWireframeDefinitions.Count),
         ("PauseReserveTankPresentation", "Anchor" or "Draw", "index") => new(0, PauseReserveTankDefinitions.AnchorCount),
         ("IntroEyeTilemapPresentation", "FrameTiles", "index") => new(0, IntroEyeTilemapFormat.FrameCount),
@@ -122,7 +122,7 @@ internal static class ClosedPresentationIndexDefinitions
         ("EndingObjectSourceArtwork", "Fragment", "id") => new(0, EndingObjectArtworkFormat.FragmentCount),
         ("GunshipLiftoffArtworkCatalog", "Resolve", "asset") => new((int)InstalledArtworkId.GunshipLiftoffFirstTiles,
             GunshipLiftoffTransferDefinitions.Frames.Length),
-        ("AreaMapPresentation" or "IGameplayPresentationContent" or "IAreaMapSource", "Get", "area") => new(0, AreaIds.RetailCount),
+        ("AreaMapPresentation" or "IGameplayPresentationContent" or "IAreaMapSource", "Get", "area") => new(0, AreaIds.All.Count),
         _ => null,
     };
 }

@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
@@ -9,8 +10,8 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// </remarks>
 public sealed class FileSelectMapNavigation
 {
-    /// <summary>Saved area index retained while area-map directions are suppressed in normal mode.</summary>
-    private readonly int area;
+    /// <summary>The saved Zebes area, retained while area-map directions are suppressed in normal mode.</summary>
+    private readonly AreaId area;
     /// <summary>The buttons held on the previous update, used to detect new confirm and cancel presses.</summary>
     private ControllerButton previousInput;
     /// <summary>The installed label positions, when bound.</summary>
@@ -18,13 +19,13 @@ public sealed class FileSelectMapNavigation
     /// <summary>Rebinds room-map labels before a pending window is constructed.</summary>
     internal void BindLabels(SuperMetroid.Core.Frontend.Map.Artwork.WorldMapLabelPositions? content) => labels = content;
 
-    /// <summary>Creates normal area/room-map navigation for a saved area's index.</summary>
-    /// <param name="area">Zero-based saved area index.</param>
+    /// <summary>Creates normal area/room-map navigation for a saved area.</summary>
+    /// <param name="area">The saved area, one of the six Zebes areas.</param>
     /// <param name="initialHeldInput">Controller state to latch so already-held buttons do not create edges.</param>
-    public FileSelectMapNavigation(int area, ControllerButton initialHeldInput = ControllerButton.None)
+    public FileSelectMapNavigation(AreaId area, ControllerButton initialHeldInput = ControllerButton.None)
     {
-        if ((uint)area >= FileSelectMapDefinitions.AreaCount)
-            throw new ArgumentOutOfRangeException(nameof(area));
+        if (!AreaIds.IsZebes(area))
+            throw new ArgumentOutOfRangeException(nameof(area), area, "Only the six Zebes areas have world-map selections.");
         this.area = area;
         previousInput = initialHeldInput;
     }

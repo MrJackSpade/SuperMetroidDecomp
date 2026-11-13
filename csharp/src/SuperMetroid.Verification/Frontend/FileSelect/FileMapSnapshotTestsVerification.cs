@@ -27,8 +27,8 @@ internal static class FileMapSnapshotTestsVerification
         foreach (bool cancel in new[] { false, true })
         {
             var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
-            var save = new SuperMetroidSaveSnapshot { Checkpoint = SuperMetroid.Core.Rooms.RoomObjects.LoadStationDefinitions.GlassTunnelSave, Health = 99, MaxHealth = 99 };
-            save.Progress.SetAreaMap(SuperMetroid.Core.Progression.AreaId.Maridia, acquired: true); save.Progress.UsedStations(SuperMetroid.Core.Progression.AreaId.Maridia).Add(0);
+            var save = new SuperMetroidSaveSnapshot { Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.GlassTunnelSave, Health = 99, MaxHealth = 99 };
+            save.Progress.SetAreaMap(SuperMetroid.Core.Progression.AreaId.Maridia, acquired: true); save.Progress.UsedStations.Add(SuperMetroid.Core.Progression.LoadStationDefinitions.GlassTunnelSave);
             saves.SaveSlot(0, save);
             var legacy = new FileSelectMapMenuState(AudioQueues.Standalone(), new SharedRandom(), (saves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(0).")), 0, RetailPresentationFixture(), MenuSheetFixtures.For(RetailPresentationFixture()));
             var capture = new FileSelectMapMenuState(AudioQueues.Standalone(), new SharedRandom(), (saves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(0).")), 0, RetailPresentationFixture(), MenuSheetFixtures.For(RetailPresentationFixture()));
@@ -63,8 +63,8 @@ internal static class FileMapSnapshotTestsVerification
          
         SuperMetroid.Core.Saves.SaveSlotStore Saves()
         {
-            var save = new SuperMetroidSaveSnapshot { Checkpoint = SuperMetroid.Core.Rooms.RoomObjects.LoadStationDefinitions.GlassTunnelSave, Health = 99, MaxHealth = 99 };
-            save.Progress.SetAreaMap(SuperMetroid.Core.Progression.AreaId.Maridia, acquired: true); save.Progress.UsedStations(SuperMetroid.Core.Progression.AreaId.Maridia).Add(0);
+            var save = new SuperMetroidSaveSnapshot { Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.GlassTunnelSave, Health = 99, MaxHealth = 99 };
+            save.Progress.SetAreaMap(SuperMetroid.Core.Progression.AreaId.Maridia, acquired: true); save.Progress.UsedStations.Add(SuperMetroid.Core.Progression.LoadStationDefinitions.GlassTunnelSave);
             var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
             saves.SaveSlot(0, save);
             return saves;

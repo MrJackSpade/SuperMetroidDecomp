@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
+using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Artwork;
 using System.Buffers.Binary;
@@ -27,7 +28,7 @@ public static class MapScreenExtractor
         Add(MapScreenDefinitions.WorldForeground, RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.FileSelectMap.AreaForeground, MapScreenDefinitions.PageBytes), WorldMapArtworkFormat.TileColumns);
         for (int index = 0; index < MapScreenDefinitions.ZebesAreas; index++)
         {
-            var area = (AreaId)index;
+            AreaId area = AreaNumberCodec.At(index);
             Add(MapScreenDefinitions.WorldBackground(area), RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                 MapSourceDefinitions.FileSelectMap.AreaBackgrounds + index * MapScreenDefinitions.PageBytes, MapScreenDefinitions.PageBytes), WorldMapArtworkFormat.TileColumns);
             var frame = new byte[MapScreenDefinitions.PageBytes];

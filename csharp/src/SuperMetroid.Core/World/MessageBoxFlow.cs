@@ -108,7 +108,7 @@ internal sealed class MessageBoxFlow
             if (accepted)
             {
                 LoadStation gunship = LoadStationDefinitions.Gunship;
-                _system.MarkSaveStationUsed(gunship.Area, gunship.Number);
+                _system.MarkSaveStationUsed(gunship);
                 _completedSaveStation = new SaveStationPersistenceRequest(gunship);
             }
             return;
@@ -131,13 +131,8 @@ internal sealed class MessageBoxFlow
             if (saving)
             {
                 room.Enemies.Projectiles.SpawnSaveStationElectricity(saveStation.Block);
-                _system.MarkSaveStationUsed(
-                    saveStation.AreaIndex,
-                    saveStation.SaveStationNumber & 7);
-                _completedSaveStation = new SaveStationPersistenceRequest(LoadStations.Get(
-                    saveStation.AreaIndex,
-                    saveStation.SaveStationNumber,
-                    "The save station's room object"));
+                _system.MarkSaveStationUsed(saveStation.Station);
+                _completedSaveStation = new SaveStationPersistenceRequest(saveStation.Station);
             }
             return;
         }

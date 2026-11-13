@@ -26,9 +26,9 @@ internal static class MapPictureSheets
         Ensure.NotNull(maps);
         var cells = new HashSet<MapCell> { MapCell.Empty };
         var ordered = new List<MapCell> { MapCell.Empty };
-        for (int index = 0; index < AreaIds.RetailCount; index++)
+        foreach (AreaId area in AreaIds.All)
         {
-            IAreaMapView map = maps.Game.Get(AreaIds.At(index));
+            IAreaMapView map = maps.Game.Get(area);
             for (int y = 0; y < AreaMapSize.HeightInTiles; y++)
             for (int x = 0; x < AreaMapSize.WidthInTiles; x++)
             {

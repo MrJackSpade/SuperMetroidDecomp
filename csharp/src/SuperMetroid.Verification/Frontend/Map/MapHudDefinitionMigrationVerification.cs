@@ -24,7 +24,6 @@ internal static class MapHudDefinitionMigrationVerification
     internal static void VerifyMapHudDefinitionMigration()
     {
         // FileSelectMapRomData and FileSelectMapIconRomData: counts, windows, timing and marker palettes stay in Core.
-        AssertEqual(6, FileSelectMapDefinitions.AreaCount, "selectable areas");
         AssertEqual(24, FileSelectMapDefinitions.RoomFrameVerticalScroll, "room frame offset");
         AssertEqual(111, FileSelectMapDefinitions.EntryWindowTop, "entry window top");
         AssertEqual(4, FileSelectMapDefinitions.EntryWindowSpeed, "entry window speed");

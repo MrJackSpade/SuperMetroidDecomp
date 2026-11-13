@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Progression;
 using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
@@ -110,10 +111,10 @@ public static class MapPresentationExtractor
             file.Write(paletteBytes);
         hashes.Add(MapStaticPalettesFormat.FileName, Convert.ToHexString(SHA256.HashData(paletteBytes)));
         var labelPoints = new Dictionary<string, Position16<SpritePixels>>();
-        for (int area = 0; area < SuperMetroid.Core.Frontend.FileSelect.FileSelectMapDefinitions.AreaCount; area++)
+        foreach (AreaId area in AreaIds.Zebes)
         {
-            int address = MapSourceDefinitions.FileSelectMap.LabelPositions + area * 4;
-            labelPoints.Add(((AreaId)area).ToString(), new(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address),
+            int address = MapSourceDefinitions.FileSelectMap.LabelPositions + AreaNumberCodec.Encode(area) * 4;
+            labelPoints.Add(area.ToString(), new(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address),
                 RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 2)));
         }
         using var labels = new MemoryStream();

@@ -62,7 +62,7 @@ internal sealed class StationObjects
     /// </summary>
     public void ResumeMapStationsAfterUnpause()
     {
-        foreach (RoomObjectSlot slot in _slotTable.Slots)
+        foreach (RoomObjectSlot slot in _slotTable.FromLastPlace)
         {
             // Unpause can arrive before the final access-art hold expires. Keep that
             // remaining animation; only a station waiting for the map returns to idle.
@@ -141,7 +141,7 @@ internal sealed class StationObjects
     /// <summary>Requires exactly one resident save station matching a frontend confirmation event.</summary>
     private StationObject FindSaveStation(StationActivationEvent activation)
     {
-        StationObject[] matches = _slotTable.Slots
+        StationObject[] matches = _slotTable.FromLastPlace
             .Where(slot => slot.Active && slot.Argument is StationArgument station && station.Station == activation.SaveStationNumber)
             .Select(slot => slot.Behaviour as StationObject)
             .OfType<StationObject>()
@@ -157,14 +157,20 @@ internal sealed class StationObjects
         };
     }
 
-    /// <summary>Installs station collision blocks and animation state, or deactivates an elevator platform's collision bits.</summary>
+    /// <summary>
+    /// Sets up the station or elevator platform the room's population placed as <paramref name="placed"/>: installs a
+    /// station's collision blocks and animation state, or deactivates an elevator platform's block.
+    /// </summary>
+    /// <returns>False when <paramref name="placed"/> is neither a station nor an elevator platform.</returns>
     internal static bool TrySetupStationOrElevator(
         RoomLevelData level,
         SharedGameState system,
         AreaId area,
-        RoomObjectSlot slot)
+        RoomObjectSlot slot,
+        RoomObjectHeaderId placed)
     {
-        if (slot.Header == RoomObjectHeaderId.ElevatorPlatform)
+        Ensure.NotNull(slot);
+        if (placed == RoomObjectHeaderId.ElevatorPlatform)
         {
             // The deactivating setup leaves a solid block solid and any other block air, keeping its appearance; the
             // platform then plays its loop.
@@ -172,7 +178,7 @@ internal sealed class StationObjects
             level.SetTerrain(slot.Block, level.GetCollisionBlock(slot.Block).Terrain.Deactivated());
             return true;
         }
-        if (!StationKindDefinitions.Kinds.TryGetValue(slot.Header, out StationKind kind))
+        if (!StationKindDefinitions.Kinds.TryGetValue(placed, out StationKind kind))
             return false;
         SetupStation(level, system, area, slot, kind);
         return true;
@@ -334,7 +340,7 @@ internal sealed class StationObjects
         };
         Position16<RoomBlocks> stationBlock = level.ObjectBlockStep(accessBlock, new Offset16<RoomBlocks>(columnsToStation, 0));
 
-        foreach (RoomObjectSlot slot in _slotTable.Slots)
+        foreach (RoomObjectSlot slot in _slotTable.FromLastPlace)
         {
             if (!slot.Active || slot.Block != stationBlock || slot.Behaviour is not StationObject station)
                 continue;

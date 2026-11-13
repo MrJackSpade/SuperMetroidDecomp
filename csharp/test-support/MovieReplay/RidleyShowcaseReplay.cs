@@ -100,7 +100,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
         Game = game;
         // Ridley's body, fragments and fireballs play typed animations (#1287, #1600); compare their playbacks as native pointers.
         var pointers = new RidleyNativeInstructionPointers(CartridgeImportSource.Require(bus));
-        RoomObjectSlot[] initialObjects = [.. runtime.RoomObjects.SlotTable.Slots];
+        RoomObjectSlot[] initialObjects = [.. runtime.RoomObjects.SlotTable.InProcessingOrder];
         var checkedProjectileCompositions = new HashSet<CheckedProjectileComposition>();
         ushort[]? pendingLoadedOwners = null;
         int loadingIntervals = 0;
@@ -598,7 +598,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             if (game.GameState == SuperMetroidGameState.MainGameplay)
             {
                 // The movie's memory lists PLMs by slot ordinal, and the table processes the highest ordinal first.
-                var roomObjectSlots = runtime.RoomObjects.PopulationSlots.ToDictionary(slot => RoomObjectSlotTable.Capacity - 1 - slot.ProcessingPosition);
+                var roomObjectSlots = runtime.RoomObjects.PopulationSlots.ToDictionary(slot => SuperMetroid.Core.Compatibility.RoomObjectPlaces.PlaceCount - 1 - slot.ProcessingPosition);
                 for (int slotIndex = 0; slotIndex < initialObjects.Length; slotIndex++)
                 {
                     int offset = slotIndex * 2;

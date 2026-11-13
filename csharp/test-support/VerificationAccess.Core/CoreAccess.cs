@@ -180,8 +180,8 @@ internal static class CoreAccess
     /// <summary>Rebinds enemy fixtures and inspects Kraid collision, statue requests, and pirate slot state.</summary>
     extension(RoomEnemySystem enemies)
     {
-        /// <summary>Room PLM requests emitted by Chozo statue AI in their publication order.</summary>
-        internal IReadOnlyList<ChozoStatueObjectRequest> ChozoStatueObjectRequests =>
+        /// <summary>The room objects the Chozo statue has asked for and the room has still to spawn, in the order it asked.</summary>
+        internal IReadOnlyList<RoomObjectSpawnRequest<ChozoStatueRoomObject>> ChozoStatueObjectRequests =>
             enemies.ChozoStatueBehavior.ChozoStatueObjectRequests;
         /// <summary>Per-slot Chozo statue states, including unused physical enemy slots.</summary>
         internal IReadOnlyList<ChozoStatueState?> ChozoStatueStates =>
@@ -343,7 +343,7 @@ internal static class CoreAccess
         /// </summary>
         internal bool ScrollObjectTriggered(Position16<RoomBlocks> block)
         {
-            ScrollTriggerObject[] owners = [.. roomObjects.SlotTable.Slots
+            ScrollTriggerObject[] owners = [.. roomObjects.SlotTable.InProcessingOrder
                 .Where(slot => slot.Active && slot.Block == block)
                 .Select(slot => slot.Behaviour)
                 .OfType<ScrollTriggerObject>()];
@@ -391,9 +391,9 @@ internal static class CoreAccess
     }
 
 
-    /// <summary>Visits occupied PLM slots by ordinal.</summary>
+    /// <summary>The room's occupied places, the last in update order first, as the checks have always listed them.</summary>
     private static IEnumerable<RoomObjectSlot> Group4ActiveObjectSlots(RoomObjectSystem roomObjects) =>
-        roomObjects.SlotTable.Slots.Where(slot => slot.Active);
+        roomObjects.SlotTable.FromLastPlace.Where(slot => slot.Active);
 
     /// <summary>Extracts live collectible state from the active PLM slots.</summary>
     private static IEnumerable<CollectibleObject> Group4CollectibleItems(RoomObjectSystem roomObjects) =>

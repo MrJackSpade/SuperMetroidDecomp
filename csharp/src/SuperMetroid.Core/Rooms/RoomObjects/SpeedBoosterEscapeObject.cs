@@ -38,7 +38,7 @@ internal sealed class SpeedBoosterEscapeObject(SpeedBoosterEscapeObjects owner) 
                     Phase = SpeedBoosterEscapePhase.WaitingForSamusLeft;
                 else
                     // A removed lavaquake leaves nothing at its place, as its setup's removal does.
-                    place.Clear();
+                    place.Delete();
                 return;
             case SpeedBoosterEscapePhase.WaitingForSamusLeft:
                 if (_owner.TryStartLavaMoving())

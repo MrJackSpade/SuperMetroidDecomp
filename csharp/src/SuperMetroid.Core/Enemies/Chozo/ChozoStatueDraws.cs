@@ -1,42 +1,30 @@
-using SuperMetroid.Core.Rooms.LevelData;
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Enemies.Chozo;
 
 /// <summary>
-/// The Chozo statue room objects' block draws: which room-object draws are the statues', the runs each lays from
-/// <see cref="ChozoStatueObjectDrawDefinitions"/>.
+/// The Chozo statue room objects' block draws: which room-object draws are the statues', and the block shape each draws,
+/// from <see cref="ChozoStatueObjectDrawDefinitions"/>. What each frame shows is its installed picture (#1557).
 /// </summary>
 internal static class ChozoStatueDraws
 {
-    /// <summary>A cleared hand or slope-access draw's runs.</summary>
-    internal readonly record struct Draw(ChozoStatueDraw Frame)
+    /// <summary>The block shape of <paramref name="request"/> when it is one of the statues' frames.</summary>
+    /// <param name="request">The draw to describe.</param>
+    /// <param name="shape">The frame's block shape; null when the draw is not the statues'.</param>
+    /// <returns>Whether the draw is one of the two Wrecked Ship slope-access frames or Lower Norfair's cleared hand.</returns>
+    /// <exception cref="InvalidOperationException">The draw is a statue frame with no shape.</exception>
+    internal static bool TryDescribe(RoomObjectDraw request, [MaybeNullWhen(false)] out RoomBlockShape shape)
     {
-        /// <summary>The draw's runs in order.</summary>
-        private RoomObjectBlockStrip[] Strips => ChozoStatueObjectDrawDefinitions.Strips[Frame];
-        /// <summary>One run for the hand cell, five for the Wrecked Ship slope layout.</summary>
-        internal int RunCount => Strips.Length;
-        /// <summary>The cells in one run, rejecting an invalid run index.</summary>
-        internal int BlockCount(int run) => Strip(run).Cells.Length;
-        /// <summary>Where a run starts, in blocks from the draw's origin.</summary>
-        internal Offset16<RoomBlocks> Start(int run) => Strip(run).Start;
-        /// <summary>How one cell collides.</summary>
-        internal RoomCollisionType CollisionAt(int run, int cell)
+        if (request is not RoomObjectFrameDraw<ChozoStatueDraw>)
         {
-            RoomObjectBlockStrip strip = Strip(run);
-            if ((uint)cell >= (uint)strip.Cells.Length) throw new ArgumentOutOfRangeException(nameof(cell));
-            return strip.Cells[cell];
+            shape = null;
+            return false;
         }
-        /// <summary>Selects a run, rejecting indexes outside the selected hand or slope geometry.</summary>
-        private RoomObjectBlockStrip Strip(int run) =>
-            (uint)run < (uint)RunCount ? Strips[run] : throw new ArgumentOutOfRangeException(nameof(run));
-    }
-
-    /// <summary>Accepts the two Wrecked Ship slope-access draws and Lower Norfair's cleared hand.</summary>
-    internal static bool TryDescribe(RoomObjectDraw request, out Draw draw)
-    {
-        bool found = RoomObjectDraw.TryFrame(request, out ChozoStatueDraw frame);
-        draw = found ? new(frame) : default;
-        return found;
+        ChozoStatueDraw frame = RoomObjectDraw.FrameOf<ChozoStatueDraw>(request, nameof(ChozoStatueDraw));
+        shape = ChozoStatueObjectDrawDefinitions.Shapes.TryGetValue(frame, out RoomBlockShape? described)
+            ? described
+            : throw new InvalidOperationException($"Undefined {nameof(ChozoStatueDraw)} {frame}.");
+        return true;
     }
 }

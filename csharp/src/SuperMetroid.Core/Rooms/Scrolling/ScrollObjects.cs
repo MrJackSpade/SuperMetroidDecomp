@@ -17,7 +17,7 @@ internal sealed class ScrollObjects
     }
 
     /// <summary>Every live room-authored scroll trigger, in place order.</summary>
-    public IReadOnlyList<ScrollObjectSnapshot> Snapshots => _slotTable.Slots
+    public IReadOnlyList<ScrollObjectSnapshot> Snapshots => _slotTable.FromLastPlace
         .Where(slot => slot.Active && slot.Behaviour is ScrollTriggerObject)
         .Select(slot => new ScrollObjectSnapshot(slot.Block))
         .ToArray();
@@ -33,7 +33,7 @@ internal sealed class ScrollObjects
     /// </remarks>
     public bool TryNotifyScrollTouch(Position16<RoomBlocks> block)
     {
-        foreach (RoomObjectSlot slot in _slotTable.Slots)
+        foreach (RoomObjectSlot slot in _slotTable.FromLastPlace)
         {
             if (!slot.Active || slot.Block != block || slot.Behaviour is not ScrollTriggerObject trigger)
                 continue;
@@ -61,7 +61,7 @@ internal sealed class ScrollObjects
 
             // An extension's whole effect is its setup, which removes it at once: the following authored record takes
             // its place.
-            slot.Clear();
+            slot.Delete();
             return;
         }
 

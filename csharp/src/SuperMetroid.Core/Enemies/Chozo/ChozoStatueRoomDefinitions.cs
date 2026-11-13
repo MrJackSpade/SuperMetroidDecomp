@@ -37,10 +37,10 @@ internal static class ChozoStatueRoomDefinitions
     /// ceiling (<see cref="Compatibility.StraddledTerrain{TTerrain}"/>), whose straddled terrain takes its collision kind from them
     /// and keeps the block it read as the block to restore.
     /// </remarks>
-    public static readonly RoomTerrainBlock HardcodedCrumbleSetupBlock =
+    public static readonly RoomTerrainBlock HandCrumbleSetupBlock =
         RoomTerrainBlock.Of(416, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.Air);
 
-    /// <summary>The block the crumbling plug writes when the statue spawns it: block zero, unmirrored, as air.</summary>
+    /// <summary>The block the crumbling plug writes when the walking statue's footstep spawns it: block zero, unmirrored, as air.</summary>
     /// <remarks>
     /// Gameplay terrain, not a picture (#1580): its setup never chooses a block, so nothing pictures it. The statue's
     /// spawn is applied right after the enemy pass, and when room objects run the plug draws its first breakup image over
@@ -48,7 +48,7 @@ internal static class ChozoStatueRoomDefinitions
     /// shots' collision, and its block number and mirroring by a Wave shot's scan past the room's ceiling
     /// (<see cref="Compatibility.StraddledTerrain{TTerrain}"/>).
     /// </remarks>
-    public static readonly RoomTerrainBlock SpawnedCrumbleSetupBlock =
+    public static readonly RoomTerrainBlock FootstepCrumbleSetupBlock =
         RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.Air);
 
     /// <summary>The column of the Power Bomb block whose breaking open triggers the Lower Norfair hand.</summary>
@@ -65,4 +65,28 @@ internal static class ChozoStatueRoomDefinitions
 
     /// <summary>The block where the Lower Norfair hand and room-plug room objects are placed.</summary>
     public static readonly Position16<RoomBlocks> LowerNorfairHandBlock = new(12, 29);
+
+    /// <summary>
+    /// The Bowling Alley screens the Wrecked Ship statue's waking makes green, in the order it writes them: the second and
+    /// third screens of the room's second row.
+    /// </summary>
+    public static readonly IReadOnlyList<Position16<RoomScreens>> WakingGreenScreens = [new(1, 1), new(2, 1)];
+
+    /// <summary>
+    /// The Bowling Alley screens the Wrecked Ship statue's waking then makes blue, in the order it writes them: the second
+    /// and third screens of the room's third row, below the green ones.
+    /// </summary>
+    public static readonly IReadOnlyList<Position16<RoomScreens>> WakingBlueScreens = [new(1, 2), new(2, 2)];
+
+    /// <summary>
+    /// The Bowling Alley screens the Wrecked Ship statue's release closes, in the order it writes them: the first five
+    /// screens of the room's second row.
+    /// </summary>
+    public static readonly IReadOnlyList<Position16<RoomScreens>> ReleaseClosedScreens = [new(0, 1), new(1, 1), new(2, 1), new(3, 1), new(4, 1)];
+
+    /// <summary>The Bowling Alley screen the Wrecked Ship statue's release then makes blue: the third row's second screen.</summary>
+    public static readonly Position16<RoomScreens> ReleaseBlueScreen = new(1, 2);
+
+    /// <summary>The Bowling Alley screen the Wrecked Ship statue's release closes last: the third row's third screen.</summary>
+    public static readonly Position16<RoomScreens> ReleaseClosedLastScreen = new(2, 2);
 }

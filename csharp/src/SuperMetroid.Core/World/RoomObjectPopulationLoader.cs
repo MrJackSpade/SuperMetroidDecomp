@@ -100,7 +100,7 @@ internal sealed class RoomObjectPopulationLoader
                 // Do not leave the preallocated but untranslated actor resident. The load is
                 // intentionally loud and includes every value needed to locate the exact authored
                 // record without relying on a room-name special case.
-                slot.Clear();
+                slot.Delete();
                 throw new NotSupportedException(
                     $"Room-object population {population.Name} record {recordIndex} " +
                     $"uses untranslated header " +
@@ -119,7 +119,7 @@ internal sealed class RoomObjectPopulationLoader
         RoomObjectPopulationRecord record,
         Position16<RoomBlocks> block)
     {
-        if (_slotTable.SpawnRoomObject() is not { } slot)
+        if (_slotTable.Spawn() is not { } slot)
             return null;
 
         slot.Header = record.Header;
@@ -151,7 +151,8 @@ internal sealed class RoomObjectPopulationLoader
 
         if (GreyDoorObjects.TryIdentifyGreyDoor(header, out ColoredDoorOrientation greyOrientation))
         {
-            GreyDoorObjects.SetupGreyDoorSlot(level, slot, greyOrientation);
+            GreyDoorObjects.SetupGreyDoorSlot(level, slot,
+                new GreyDoorVariant(greyOrientation, BombTorizo: header == RoomObjectHeaderId.BombTorizoGreyDoor));
             return true;
         }
 
@@ -233,7 +234,7 @@ internal sealed class RoomObjectPopulationLoader
 
         if (EyeDoorObjects.IsEyeDoorHeader(header))
         {
-            _eyeDoors.SetupEyeDoorSlot(level, slot);
+            _eyeDoors.SetupEyeDoorSlot(level, slot, header);
             return true;
         }
 
@@ -244,7 +245,7 @@ internal sealed class RoomObjectPopulationLoader
             return true;
         }
 
-        if (StationObjects.TrySetupStationOrElevator(level, system, areaIndex, slot))
+        if (StationObjects.TrySetupStationOrElevator(level, system, areaIndex, slot, header))
             return true;
 
         return false;

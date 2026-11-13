@@ -112,11 +112,9 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case TorizoFunction.WaitForHandTrigger:
-                // The awakening check scans all forty room-object slots for the hand trigger. A supplied room-object owner is
-                // authoritative; standalone enemy audits omit it and therefore model the
-                // already-collected item/removed hand trigger.
+                // Bomb Torizo sleeps, solid, while its statue's hand still stands in the room.
                 torizo.Contact = torizo.Contact.With(EnemyContact.SolidToSamus);
-                if (_room.Services.RoomObjects.HasActiveHeader(RoomObjectHeaderId.BombTorizoHand))
+                if (_room.Services.RoomObjects.BombTorizoHandRemains)
                     return;
 
                 RequestBombTorizoMusic(MusicRequest.SelectTrack(MusicTrack.SecondSetSong));

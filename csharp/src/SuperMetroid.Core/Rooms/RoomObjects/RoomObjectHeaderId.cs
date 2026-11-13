@@ -9,8 +9,9 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <remarks>
 /// The exposed, Chozo-orb and concealed shot-block items each name one object per <see cref="InWorldCollectibleKind"/>;
 /// doors name one object per colour and facing. A boss's change to its room (a wall, ceiling, bridge, platform, mural
-/// row or tube) has no identity here (#1608): its spawner places it by what it does, and its typed room object is how
-/// the room finds it.
+/// row or tube) has no identity here (#1608), and neither has a gate trigger's shot, the Wrecked Ship treadmill or the
+/// Maridia elevatube, nor does any object a Chozo statue, Tourian or the Wrecked Ship spawns carry one (#1622): its
+/// spawner places it by what it does, and its typed room object is how the room finds it.
 /// </remarks>
 public enum RoomObjectHeaderId
 {
@@ -34,12 +35,6 @@ public enum RoomObjectHeaderId
 
     /// <summary>A block extending the scroll trigger below it along a vertical chain.</summary>
     UpwardsScrollExtension,
-
-    /// <summary>The Wrecked Ship entrance treadmill, when Samus enters from the west.</summary>
-    WreckedShipEntranceTreadmillFromWest,
-
-    /// <summary>The Wrecked Ship entrance treadmill, when Samus enters from the east.</summary>
-    WreckedShipEntranceTreadmillFromEast,
 
     /// <summary>The Brinstar plant that bites Samus from the floor when she stands inside it.</summary>
     InsideReactionBrinstarFloorPlant,
@@ -110,9 +105,6 @@ public enum RoomObjectHeaderId
     /// <summary>The controller of Shaktool's room, which digs Shaktool's tunnel.</summary>
     ShaktoolRoomController,
 
-    /// <summary>The Maridia elevatube's start delay and sound.</summary>
-    MaridiaElevatube,
-
     /// <summary>
     /// The fake wall of the old Tourian escape shaft, spawned by its room's setup during the escape; it explodes once
     /// Samus passes below and to the right of it.
@@ -130,30 +122,6 @@ public enum RoomObjectHeaderId
     /// the critters escaped.
     /// </summary>
     CrateriaMainstreetEscapePassage,
-
-    /// <summary>The trigger on the left of a green gate, shot by a Super Missile.</summary>
-    LeftGreenGateTrigger,
-
-    /// <summary>The trigger on the right of a green gate, shot by a Super Missile.</summary>
-    RightGreenGateTrigger,
-
-    /// <summary>The trigger on the left of a red gate, shot by a missile.</summary>
-    LeftRedGateTrigger,
-
-    /// <summary>The trigger on the right of a red gate, shot by a missile.</summary>
-    RightRedGateTrigger,
-
-    /// <summary>The trigger on the left of a blue gate, shot by anything but a Power Bomb.</summary>
-    LeftBlueGateTrigger,
-
-    /// <summary>The trigger on the right of a blue gate, shot by anything but a Power Bomb.</summary>
-    RightBlueGateTrigger,
-
-    /// <summary>The trigger on the left of a yellow gate, set off by a Power Bomb.</summary>
-    LeftYellowGateTrigger,
-
-    /// <summary>The trigger on the right of a yellow gate.</summary>
-    RightYellowGateTrigger,
 
     /// <summary>A five-block gate that slides down out of the way when its trigger is shot or Samus stands below it.</summary>
     DownwardGate,

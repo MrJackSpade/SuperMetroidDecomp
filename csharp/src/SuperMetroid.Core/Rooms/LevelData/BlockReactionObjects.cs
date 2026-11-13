@@ -44,7 +44,7 @@ internal sealed class BlockReactionObjects
 
         // Spawning searches the room-object slots from the last down to the first. Matching it matters if multiple
         // room objects mutate the same room on one frame because the handler uses the same order.
-        if (_slotTable.SpawnAtCurrentBlock() is not { } slot)
+        if (_slotTable.Spawn() is not { } slot)
             return false;
 
         RoomCollisionBlock block = level.GetCollisionBlock(position);
@@ -78,7 +78,7 @@ internal sealed class BlockReactionObjects
         // The reaction spawn searches the same descending slot order used by every other
         // gameplay-spawned room object. Do not coalesce neighboring pieces: one collision scan
         // can allocate more than one independently timed object in a single movement call.
-        if (_slotTable.SpawnAtCurrentBlock() is not { } slot)
+        if (_slotTable.Spawn() is not { } slot)
             return false;
 
         RoomCollisionBlock block = level.GetCollisionBlock(position);
@@ -117,7 +117,7 @@ internal sealed class BlockReactionObjects
                 "Samus-contact crumble behaviour must be one of the eight crumble behaviours, zero through seven.");
         }
 
-        if (_slotTable.SpawnAtCurrentBlock() is not { } slot)
+        if (_slotTable.Spawn() is not { } slot)
             return false;
 
         RoomCollisionBlock block = level.GetCollisionBlock(position);
@@ -171,7 +171,7 @@ internal sealed class BlockReactionObjects
         if (!activeSpeedBooster && !activeShinespark)
             return false;
 
-        if (_slotTable.SpawnAtCurrentBlock() is not { } slot)
+        if (_slotTable.Spawn() is not { } slot)
             return false;
 
         RoomCollisionBlock block = level.GetCollisionBlock(position);
@@ -210,7 +210,7 @@ internal sealed class BlockReactionObjects
 
         // The spawn searches from the highest slot down. Importantly, the full-pool path never calls setup and
         // therefore must not change the live terrain.
-        if (_slotTable.SpawnAtCurrentBlock() is not { } slot)
+        if (_slotTable.Spawn() is not { } slot)
             return false;
 
         RoomCollisionBlock block = level.GetCollisionBlock(position);
@@ -282,7 +282,7 @@ internal sealed class BlockReactionObjects
 
         // The spawn scans from the highest slot down and changes nothing when full. The projectile still receives the
         // collision kind's normal result.
-        if (_slotTable.SpawnAtCurrentBlock() is not { } slot)
+        if (_slotTable.Spawn() is not { } slot)
             return false;
 
         RoomCollisionBlock block = level.GetCollisionBlock(position);
@@ -408,7 +408,7 @@ internal sealed class BlockReactionObjects
                 : BlockReactionChange.MadeAtSpawn;
         }
 
-        if (_slotTable.SpawnAtCurrentBlock() is not { } slot)
+        if (_slotTable.Spawn() is not { } slot)
             return false;
 
         slot.Block = position;

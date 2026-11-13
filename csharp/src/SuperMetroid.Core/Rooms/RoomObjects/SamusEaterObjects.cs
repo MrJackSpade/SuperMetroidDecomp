@@ -28,7 +28,7 @@ internal sealed class SamusEaterObjects
             : samus.Position.Y.Whole + samus.Radius.Y - 1;
         if ((edge & 15) != (definition.Ceiling ? 0 : 15)) return;
         // Descending allocation simply returns when all slots are occupied.
-        if (_slotTable.SpawnAtCurrentBlock() is not { } slot)
+        if (_slotTable.Spawn() is not { } slot)
             return;
 
         slot.Header = header;

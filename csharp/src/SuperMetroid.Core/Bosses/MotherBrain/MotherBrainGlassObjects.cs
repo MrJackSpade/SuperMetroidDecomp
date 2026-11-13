@@ -127,7 +127,7 @@ internal sealed class MotherBrainGlassObjects
         return false;
     }
 
-    /// <summary>Keeps the glass's hit count once it leaves the room, and clears its identity from its place.</summary>
+    /// <summary>Keeps the glass's hit count as it leaves the room, before its place is freed.</summary>
     internal void OnObjectDeleted(RoomObjectSlot slot)
     {
         Ensure.NotNull(slot);
@@ -136,6 +136,5 @@ internal sealed class MotherBrainGlassObjects
         MotherBrainGlassLastRoomArgument = (slot.Behaviour as MotherBrainGlassObject
             ?? throw new InvalidOperationException("Mother Brain's glass left the room without its typed object.")).Hits;
         _motherBrainGlassSlot = null;
-        slot.Header = 0;
     }
 }

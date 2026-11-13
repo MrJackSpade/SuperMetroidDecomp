@@ -45,10 +45,10 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         _roomFx = roomFx;
     }
 
-    /// <summary>Pending hardcoded and footstep room-object requests consumed by the shared allocator.</summary>
-    internal readonly List<ChozoStatueObjectRequest> ChozoStatueObjectRequests = new();
+    /// <summary>The room objects the statue has asked for and the room has still to spawn, in the order it asked.</summary>
+    internal readonly List<RoomObjectSpawnRequest<ChozoStatueRoomObject>> ChozoStatueObjectRequests = new();
 
-    /// <summary>Consumes each published request once through the shared slot allocator.</summary>
+    /// <summary>Spawns each room object the statue asked for, once, in the order it asked.</summary>
     internal void ApplyPendingChozoStatueObjects(RoomLevelData level, ChozoStatueObjects chozoStatueObjects)
     {
         while (ChozoStatueObjectRequests.Count != 0)
@@ -113,13 +113,13 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.IsWreckedShip)
         {
             state.Playback = new(ChozoStatueAnimations.StartingWith(ChozoStatueProgram.WreckedShipInitial), AnimationPlace.StartOfAnimation);
-            PublishHardcodedChozoObject(RoomObjectHeaderId.WreckedShipChozoHand, ChozoStatueRoomDefinitions.WreckedShipHandBlock);
-            PublishHardcodedChozoObject(RoomObjectHeaderId.BlockSlopeAccessForWreckedShipChozo, ChozoStatueRoomDefinitions.WreckedShipSlopeAccessBlock);
+            RequestChozoObject(ChozoStatueRoomObject.WreckedShipHand, ChozoStatueRoomDefinitions.WreckedShipHandBlock);
+            RequestChozoObject(ChozoStatueRoomObject.SlopeAccessClosing, ChozoStatueRoomDefinitions.WreckedShipSlopeAccessBlock);
         }
         else
         {
             state.Playback = new(ChozoStatueAnimations.StartingWith(ChozoStatueProgram.LowerNorfairInitial), AnimationPlace.StartOfAnimation);
-            PublishHardcodedChozoObject(RoomObjectHeaderId.LowerNorfairChozoHand, ChozoStatueRoomDefinitions.LowerNorfairHandBlock);
+            RequestChozoObject(ChozoStatueRoomObject.LowerNorfairHand, ChozoStatueRoomDefinitions.LowerNorfairHandBlock);
         }
     }
 
@@ -143,7 +143,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomCollisionBlock triggerBlock = level.GetCollisionBlock(triggerPosition);
 
         // Both setup routines clear only the block's collision kind. Its behaviour and
-        // appearance survive until their subsequently spawned hardcoded room object runs.
+        // appearance survive until the room object the statue then spawns runs.
         level.SetTerrain(
             triggerPosition,
             triggerBlock.Terrain.WithCollision(RoomCollisionType.Air));
@@ -153,22 +153,17 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             // Lower Norfair's hand trigger records the acid-lowered event before waking the actor.
             _room.Services.Events.Set(StoryEvent.LowerNorfairChozoLoweredAcid);
-            PublishHardcodedChozoObject(
-                RoomObjectHeaderId.CrumbleLowerNorfairChozoRoomPlug,
-                ChozoStatueRoomDefinitions.LowerNorfairHandBlock);
+            RequestChozoObject(ChozoStatueRoomObject.PlugCrumbleAtHand, ChozoStatueRoomDefinitions.LowerNorfairHandBlock);
         }
         else
         {
-            // The Wrecked Ship hand sets two pairs of scroll cells before handing the statue to
-            // its carry: cells 7 and 8 become green and 13 and 14 blue. The clear-slope-access room object then
-            // queues the authored slope-access terrain transition.
-            _room.Services.RoomScroll.Write(7, RoomScrollState.Green);
-            _room.Services.RoomScroll.Write(8, RoomScrollState.Green);
-            _room.Services.RoomScroll.Write(13, RoomScrollState.Blue);
-            _room.Services.RoomScroll.Write(14, RoomScrollState.Blue);
-            PublishHardcodedChozoObject(
-                RoomObjectHeaderId.ClearSlopeAccessForWreckedShipChozo,
-                ChozoStatueRoomDefinitions.WreckedShipSlopeAccessBlock);
+            // The Wrecked Ship hand opens two pairs of the room's screens before handing the statue to its carry: two
+            // green, then the two below them blue. The slope access's opening then queues its terrain change.
+            foreach (Position16<RoomScreens> screen in ChozoStatueRoomDefinitions.WakingGreenScreens)
+                _room.Services.RoomScroll.Write(screen, RoomScrollState.Green);
+            foreach (Position16<RoomScreens> screen in ChozoStatueRoomDefinitions.WakingBlueScreens)
+                _room.Services.RoomScroll.Write(screen, RoomScrollState.Blue);
+            RequestChozoObject(ChozoStatueRoomObject.SlopeAccessOpening, ChozoStatueRoomDefinitions.WreckedShipSlopeAccessBlock);
         }
     }
 
@@ -311,18 +306,12 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         Position16<RoomPixels> probe = new(
             CoordinateAxis.Wrap(statue.Position.X.Whole + footstepOffset.X), CoordinateAxis.Wrap(statue.Position.Y.Whole + 28));
-        RoomCollisionBlock current = level.GetCollisionBlockAtPixel(probe);
-        int belowIndex = current.Index + level.Size.X;
-        if (!level.IsLogicalBlockIndex(belowIndex) ||
-            level.GetCollisionBlockByIndex(belowIndex).CollisionType != RoomCollisionType.SpikeBlock)
-        {
+        Position16<RoomBlocks> footstep = level.GridBlock(probe.ToRoomBlock());
+        Position16<RoomBlocks> below = footstep + new Offset16<RoomBlocks>(0, 1);
+        if (!level.Size.Contains(below) || level.GetCollisionBlock(below).CollisionType != RoomCollisionType.SpikeBlock)
             return;
-        }
 
-        ChozoStatueObjectRequests.Add(new ChozoStatueObjectRequest(
-            RoomObjectHeaderId.CrumbleLowerNorfairChozoRoomPlug,
-            probe.ToRoomBlock(),
-            IsHardcoded: false));
+        RequestChozoObject(ChozoStatueRoomObject.PlugCrumbleUnderFootstep, footstep);
         SpawnWreckedShipChozoFootstep(statue, footstepOffset);
     }
 
@@ -340,21 +329,19 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(statue.Position.X.Whole + footstepOffset.X), CoordinateAxis.Wrap(statue.Position.Y.Whole + 28)));
     }
 
-    /// <summary>Restores Samus controls, publishes the overlapping scroll writes and queues slope-access terrain.</summary>
+    /// <summary>Restores Samus controls, closes and opens the room's screens behind her and queues the slope access's closing.</summary>
     private void FinishWreckedShipChozoSequence()
     {
         EnableChozoStatueSamusControls();
 
-        // The game sets overlapping pairs of scroll cells from cells 6, 8, 9
-        // and 13. Publish the resulting cells (6..10 = 0, 13 = 1, 14 = 0) exactly.
-        for (int index = 6; index <= 10; index++)
-            _room.Services.RoomScroll.Write(index, RoomScrollState.RedBoundary);
-        _room.Services.RoomScroll.Write(13, RoomScrollState.Blue);
-        _room.Services.RoomScroll.Write(14, RoomScrollState.RedBoundary);
+        // The release's overlapping writes leave five screens of the second row closed, then the third row's second
+        // screen blue and its third closed.
+        foreach (Position16<RoomScreens> screen in ChozoStatueRoomDefinitions.ReleaseClosedScreens)
+            _room.Services.RoomScroll.Write(screen, RoomScrollState.RedBoundary);
+        _room.Services.RoomScroll.Write(ChozoStatueRoomDefinitions.ReleaseBlueScreen, RoomScrollState.Blue);
+        _room.Services.RoomScroll.Write(ChozoStatueRoomDefinitions.ReleaseClosedLastScreen, RoomScrollState.RedBoundary);
 
-        PublishHardcodedChozoObject(
-            RoomObjectHeaderId.BlockSlopeAccessForWreckedShipChozo,
-            ChozoStatueRoomDefinitions.WreckedShipSlopeAccessBlock);
+        RequestChozoObject(ChozoStatueRoomObject.SlopeAccessClosing, ChozoStatueRoomDefinitions.WreckedShipSlopeAccessBlock);
     }
 
     /// <summary>Gives Samus her controls back, in both the room service and observable state.</summary>
@@ -371,12 +358,9 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         _room.Services.SamusControls.DisableControls();
     }
 
-    /// <summary>Queues an authored room-object spawn at its fixed room block.</summary>
-    private void PublishHardcodedChozoObject(RoomObjectHeaderId header, Position16<RoomBlocks> block) =>
-        ChozoStatueObjectRequests.Add(new ChozoStatueObjectRequest(
-            header,
-            block,
-            IsHardcoded: true));
+    /// <summary>Asks the room to spawn <paramref name="roomObject"/> at <paramref name="block"/>.</summary>
+    private void RequestChozoObject(ChozoStatueRoomObject roomObject, Position16<RoomBlocks> block) =>
+        ChozoStatueObjectRequests.Add(new RoomObjectSpawnRequest<ChozoStatueRoomObject>(block, roomObject));
 
     /// <summary>Requires the live Samus actor for cutscene carry movement.</summary>
     private static SamusState RequireChozoSamus(SamusState? samus) =>

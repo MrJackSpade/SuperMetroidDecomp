@@ -69,7 +69,7 @@ internal static class RoomScopeVerification
             ReferenceEquals(destination.LevelData, runtime.Room.LevelData),
             "the room views read the adopted scope");
         VerificationAssertions.AssertTrue(!ReferenceEquals(source.RoomObjects, destination.RoomObjects) &&
-            !destination.RoomObjects.SlotTable.Slots.Intersect(source.RoomObjects.SlotTable.Slots).Any(),
+            !destination.RoomObjects.SlotTable.InProcessingOrder.Intersect(source.RoomObjects.SlotTable.InProcessingOrder).Any(),
             "no PLM slot survives the load: the destination builds its own PLM system");
         VerificationAssertions.AssertTrue(ReferenceEquals(destination.RoomObjects, runtime.RoomObjects),
             "the runtime's PLM system is the loaded room's");

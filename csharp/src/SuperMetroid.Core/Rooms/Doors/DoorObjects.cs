@@ -64,14 +64,14 @@ internal sealed class DoorObjects
 
             // The closing keeps everything else the object holds: a cap that waits for a shot still does.
             (resident.Behaviour as IClosingDoor ?? throw new InvalidDataException(
-                $"Room object {resident.Header} at the door's block has no closing behind Samus.")).CloseBehindSamus();
+                $"The room object at the door's block {block} has no closing behind Samus.")).CloseBehindSamus();
             return true;
         }
 
         if (DoorClosingObjects.GetDefinition(door.Orientation) is not { } fallback)
             return false;
 
-        if (_slotTable.SpawnRoomObject() is not { } slot)
+        if (_slotTable.Spawn() is not { } slot)
             return false;
 
         slot.Header = fallback.Header;
@@ -199,7 +199,7 @@ internal sealed class DoorObjects
                 "A validated blue-door facing escaped its four-way header table."),
         };
 
-        if (_slotTable.SpawnAtCurrentBlock() is not { } slot)
+        if (_slotTable.Spawn() is not { } slot)
             return false;
 
         slot.Header = blueDoorHeader;

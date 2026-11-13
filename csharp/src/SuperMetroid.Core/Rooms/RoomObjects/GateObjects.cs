@@ -109,9 +109,8 @@ internal sealed class GateObjects
         // Spawning the trigger still probes the fixed room-object pool even though every trigger setup deletes its
         // temporary slot synchronously. A saturated pool therefore drops the collision just
         // as the original game does.
-        if (_slotTable.SpawnAtCurrentBlock() is not { } temporary)
+        if (_slotTable.Spawn() is not { } temporary)
             return true;
-        temporary.Header = HeaderForGateTrigger(trigger);
         temporary.Block = position;
 
         bool accepted = GateTriggerAcceptsProjectile(trigger, projectileType);
@@ -124,7 +123,7 @@ internal sealed class GateObjects
                     DownwardGateDefinitions.RejectedShotSound,
                     Priority: SoundRequestPriority.Normal));
             }
-            temporary.Clear();
+            temporary.Delete();
             return true;
         }
 
@@ -141,14 +140,14 @@ internal sealed class GateObjects
         }
         if (gate is null)
         {
-            temporary.Clear();
+            temporary.Delete();
             throw new InvalidDataException(
-                $"Downward gate trigger block {temporary.Block} has no adjacent resident gate at {gateBlock}.");
+                $"Downward gate trigger block {position} has no adjacent resident gate at {gateBlock}.");
         }
 
         // Repeated accepted hits before the gate wakes do not accumulate extra close cycles.
         gate.Trigger();
-        temporary.Clear();
+        temporary.Delete();
         return true;
     }
 
@@ -188,20 +187,6 @@ internal sealed class GateObjects
     private static bool IsLeftTrigger(DownwardGateTriggerBehavior trigger) =>
         trigger is DownwardGateTriggerBehavior.BlueLeft or DownwardGateTriggerBehavior.RedLeft or
             DownwardGateTriggerBehavior.GreenLeft or DownwardGateTriggerBehavior.YellowLeft;
-
-    /// <summary>Maps a color-and-side trigger behavior to the matching temporary room-object header.</summary>
-    private static RoomObjectHeaderId HeaderForGateTrigger(DownwardGateTriggerBehavior trigger) => trigger switch
-    {
-        DownwardGateTriggerBehavior.GreenLeft => RoomObjectHeaderId.LeftGreenGateTrigger,
-        DownwardGateTriggerBehavior.GreenRight => RoomObjectHeaderId.RightGreenGateTrigger,
-        DownwardGateTriggerBehavior.RedLeft => RoomObjectHeaderId.LeftRedGateTrigger,
-        DownwardGateTriggerBehavior.RedRight => RoomObjectHeaderId.RightRedGateTrigger,
-        DownwardGateTriggerBehavior.BlueLeft => RoomObjectHeaderId.LeftBlueGateTrigger,
-        DownwardGateTriggerBehavior.BlueRight => RoomObjectHeaderId.RightBlueGateTrigger,
-        DownwardGateTriggerBehavior.YellowLeft => RoomObjectHeaderId.LeftYellowGateTrigger,
-        DownwardGateTriggerBehavior.YellowRight => RoomObjectHeaderId.RightYellowGateTrigger,
-        _ => throw new ArgumentOutOfRangeException(nameof(trigger), trigger, null),
-    };
 
     /// <summary>Applies projectile-family rules, including the right-yellow acceptance asymmetry.</summary>
     private static bool GateTriggerAcceptsProjectile(

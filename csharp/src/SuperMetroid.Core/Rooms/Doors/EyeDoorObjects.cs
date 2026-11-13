@@ -34,16 +34,19 @@ internal sealed class EyeDoorObjects
     internal static bool IsEyeDoorHeader(RoomObjectHeaderId header) => EyeDoorPartDefinitions.Parts.ContainsKey(header);
 
     /// <summary>
-    /// Places an eye-door part, which takes its first look on its first update, and installs its closed collision blocks
-    /// unless its door has been opened for good.
+    /// Places the eye-door part the room's population placed as <paramref name="placed"/>, which takes its first look on
+    /// its first update, and installs its closed collision blocks unless its door has been opened for good.
     /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="placed"/> is not an eye-door part.</exception>
     internal void SetupEyeDoorSlot(
         RoomLevelData level,
-        RoomObjectSlot slot)
+        RoomObjectSlot slot,
+        RoomObjectHeaderId placed)
     {
-        (EyeDoorComponent component, EyeDoorOrientation orientation) = EyeDoorPartDefinitions.Parts.TryGetValue(slot.Header, out EyeDoorPart part)
+        Ensure.NotNull(slot);
+        (EyeDoorComponent component, EyeDoorOrientation orientation) = EyeDoorPartDefinitions.Parts.TryGetValue(placed, out EyeDoorPart part)
             ? part
-            : throw new ArgumentOutOfRangeException(nameof(slot), slot.Header, "Not an eye-door room object.");
+            : throw new ArgumentOutOfRangeException(nameof(placed), placed, "Not an eye-door room object.");
         slot.Become(component == EyeDoorComponent.Eye
             ? new EyeDoorEyeObject(orientation)
             : new EyeDoorPartObject(orientation, component));

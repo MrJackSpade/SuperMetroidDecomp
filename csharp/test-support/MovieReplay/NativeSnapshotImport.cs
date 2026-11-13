@@ -272,7 +272,7 @@ internal static class NativeSnapshotImport
 
         // The snapshot was recorded after the entering door PLM deleted itself.
         // Restore the empty physical pool rather than executing fresh room-entry actors.
-        var initialObjects = runtime.RoomObjects.SlotTable.Slots;
+        var initialObjects = runtime.RoomObjects.SlotTable.InProcessingOrder;
         for (int index = 0; index < initialObjects.Count; index++)
         {
             VerificationAssertions.AssertTrue(W(NativeSnapshotMemory.RoomObjectHeaders + index * 2) == 0, "native initial PLM pool is empty");

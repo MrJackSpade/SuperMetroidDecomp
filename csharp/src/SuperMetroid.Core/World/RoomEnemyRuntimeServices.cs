@@ -57,6 +57,9 @@ internal sealed class RoomEnemyRuntimeServices(
     /// <summary>Writes one camera scroll-zone cell of the room's kept scroll cells.</summary>
     public void Write(int index, RoomScrollState state) => room.LoadedCamera.Scrolls.SetCell(index, state);
 
+    /// <inheritdoc/>
+    public void Write(Position16<RoomScreens> screen, RoomScrollState state) => room.LoadedCamera.Scrolls.SetLogicalState(screen, state);
+
     /// <summary>Releases Samus's stationary script lock and reopens the player's grounded-movement gate.</summary>
     public void EnableControls()
     {
@@ -84,5 +87,5 @@ internal sealed class RoomEnemyRuntimeServices(
             .Draw(frame);
 
     /// <summary>Checks whether a requested Bomb Torizo hand room-object header remains active.</summary>
-    public bool HasActiveHeader(RoomObjectHeaderId header) => roomObjects.BombTorizoHand.HasActiveHeader(header);
+    public bool BombTorizoHandRemains => roomObjects.BombTorizoHand.HandRemains;
 }

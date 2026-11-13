@@ -77,13 +77,11 @@ internal sealed class CollectibleObject(
             case CollectiblePhase.EmptyAwaitingDelete:
                 // The empty item ends by leaving the room.
                 place.Delete();
-                place.Header = 0;
                 return;
 
             case CollectiblePhase.CollectedEmpty:
                 context.Draw(place, RoomObjectCollectibleDrawDefinitions.Empty);
                 place.Delete();
-                place.Header = 0;
                 return;
 
             case CollectiblePhase.Visible:

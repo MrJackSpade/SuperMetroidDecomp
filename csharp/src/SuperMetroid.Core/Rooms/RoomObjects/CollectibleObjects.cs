@@ -51,7 +51,7 @@ internal sealed class CollectibleObjects
     {
         get
         {
-            foreach (RoomObjectSlot slot in _slotTable.Slots)
+            foreach (RoomObjectSlot slot in _slotTable.FromLastPlace)
                 if (slot.Active && (slot.Behaviour as CollectibleObject)?.Phase == CollectiblePhase.AwaitingMessage)
                     return true;
             return false;
@@ -64,7 +64,7 @@ internal sealed class CollectibleObjects
     /// </summary>
     internal void CompleteCollectibleMessage(RoomLevelData level)
     {
-        foreach (RoomObjectSlot slot in _slotTable.Slots)
+        foreach (RoomObjectSlot slot in _slotTable.FromLastPlace)
         {
             if (!slot.Active || slot.Behaviour is not CollectibleObject { Phase: CollectiblePhase.AwaitingMessage } item)
                 continue;
@@ -106,7 +106,7 @@ internal sealed class CollectibleObjects
     }
 
     /// <summary>Every currently allocated permanent-item room object, by slot ordinal.</summary>
-    public IReadOnlyList<CollectibleObjectSnapshot> Collectibles => _slotTable.Slots
+    public IReadOnlyList<CollectibleObjectSnapshot> Collectibles => _slotTable.FromLastPlace
         .Where(slot => slot.Active)
         .SelectMany(slot => slot.Behaviour is CollectibleObject { } item
             ? [new CollectibleObjectSnapshot(slot.Block, (slot.Argument as CollectedItemArgument)?.Location, item.Kind)]
@@ -120,7 +120,7 @@ internal sealed class CollectibleObjects
     /// </summary>
     public bool TryNotifyCollectibleTouch(Position16<RoomBlocks> block)
     {
-        foreach (RoomObjectSlot slot in _slotTable.Slots)
+        foreach (RoomObjectSlot slot in _slotTable.FromLastPlace)
         {
             if (!slot.Active || slot.Block != block || slot.Behaviour is not CollectibleObject item)
                 continue;
@@ -149,7 +149,7 @@ internal sealed class CollectibleObjects
     public bool TryNotifyCollectibleProjectileHit(
         Position16<RoomBlocks> block)
     {
-        foreach (RoomObjectSlot slot in _slotTable.Slots)
+        foreach (RoomObjectSlot slot in _slotTable.FromLastPlace)
         {
             if (!slot.Active || slot.Block != block || slot.Behaviour is not CollectibleObject item)
                 continue;

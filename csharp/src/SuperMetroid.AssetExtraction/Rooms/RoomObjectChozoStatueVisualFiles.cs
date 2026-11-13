@@ -2,6 +2,7 @@ using SuperMetroid.Core.Enemies.Chozo.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Enemies.Chozo;
 using SuperMetroid.Core.Rooms.RoomObjects;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
@@ -50,15 +51,31 @@ public static class RoomObjectChozoStatueVisualFiles
         }
     }
 
-    /// <summary>Builds the draw list of a statue draw from its cells.</summary>
+    /// <summary>
+    /// The draw list of a statue frame as the cartridge writes it: its horizontal strips in write order, each cell
+    /// colliding as the game's block shape for the frame says (#1622). The run form is the cartridge's; the game draws
+    /// the shape.
+    /// </summary>
     internal static bool TryGet(RoomObjectDraw request, out RoomObjectShotBlockDrawDefinitions.DrawList list)
     {
-        bool found = ChozoStatueDraws.TryDescribe(request, out ChozoStatueDraws.Draw draw);
-        list = found
-            ? RoomObjectDrawListExport.Strips(request, draw.RunCount, draw.BlockCount, draw.CollisionAt, draw.Start)
-
-            : default;
-        return found;
+        if (!ChozoStatueDraws.TryDescribe(request, out RoomBlockShape? described))
+        {
+            list = default;
+            return false;
+        }
+        RoomBlockShape shape = described;
+        // The cleared hand is written as its one block. Both slope-access frames are written as the ledge, the fill five
+        // rows below it, and the step below the fill's sixth block, one row at a time.
+        Offset16<RoomBlocks>[] handStarts = [new(0, 0)];
+        int[] handCounts = [1];
+        Offset16<RoomBlocks>[] accessStarts = [new(0, 0), new(0, 5), new(5, 6), new(5, 7), new(5, 8)];
+        int[] accessCounts = [14, 9, 2, 1, 1];
+        bool hand = RoomObjectDraw.FrameOf<ChozoStatueDraw>(request, "Chozo statue") == ChozoStatueDraw.LowerNorfairClearedHand;
+        Offset16<RoomBlocks>[] starts = hand ? handStarts : accessStarts;
+        int[] counts = hand ? handCounts : accessCounts;
+        list = RoomObjectDrawListExport.Strips(request, starts.Length, run => counts[run],
+            (run, cell) => shape.CollisionAt(starts[run] + new Offset16<RoomBlocks>(cell, 0)), run => starts[run]);
+        return true;
     }
 
     /// <summary>Names the cleared hand or blocked/clear slope layout without changing collision ownership.</summary>

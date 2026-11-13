@@ -34,8 +34,8 @@ public sealed record SamusBodyArtworkParts
     /// <summary>The appearances of the atmospheric effects.</summary>
     public required SamusAtmosphericSourceArtwork Atmosphere { get; init; }
 
-    /// <summary>Editable fatal-damage and death palettes.</summary>
-    public required InstalledSamusDeathPalettes DeathPalettes { get; init; }
+    /// <summary>The death step each explosion frame shows and the room's whiteout colours, which gameplay reads (#1637).</summary>
+    public required SuperMetroid.Core.Samus.Death.SamusDeathSteps DeathSteps { get; init; }
 
     /// <summary>The arm cannon's descriptors, appearances and cover tile selections, and where each pose places its cover.</summary>
     public required SamusArmCannonSourceArtwork ArmCannon { get; init; }

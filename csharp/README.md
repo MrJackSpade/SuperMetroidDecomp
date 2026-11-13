@@ -485,9 +485,8 @@ Audio is modded by editing the installed clips in `game/audio` in place: each is
 16-bit stereo WAV at 32,040 Hz, and `audio-clips.json` records each clip's frame count and the frame a
 song loops back to. Running the extractor again restores the originals.
 
-Room tileset palettes are edited in place in `game/room-palettes`; running the extractor again restores the
-originals. Files are named for the artwork, not its cartridge location: a palette is
-`room-palette-{set}.json` (for example `room-palette-heated-norfair.json`). The character sheets in
+Room tileset palettes are import data, which only the import pre-colours the room sheets from; they are not
+installed. The character sheets in
 `game/room-characters` are what the room pictures are composed from, and a room's blocks, backgrounds and written
 pictures are changed through those pictures in the block sheets (below); the block compositions in `game/room-blocks`
 are what those sheets are composed from. Library-background tilemaps and scrolling-sky pages are in

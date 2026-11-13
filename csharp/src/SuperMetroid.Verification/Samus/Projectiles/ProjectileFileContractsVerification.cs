@@ -25,6 +25,10 @@ internal static class ProjectileFileContractsVerification
             .ToDictionary(BeamTileAtlasDefinitions.FileName, index => File.ReadAllBytes(
                 Path.Combine(directory, BeamTileAtlasDefinitions.FileName(index)))));
         var compiledBeams = InstalledFixtures.ImportProjectiles.BeamTiles;
+        AssertTrue(!File.Exists(Path.Combine(installed.ProjectileDirectory, BeamPaletteFile.FileName)),
+            "the installation holds no beam colours: they are import data (#1637)");
+        AssertTrue(ReferenceEquals(compiledBeams.Palettes, InstalledFixtures.ImportProjectiles.BeamPalettes),
+            "the beam catalog and the import's read share the beam colours read from the import data");
         for (int selection = 0; selection < BeamTileAtlasDefinitions.SelectionCount; selection++)
             AssertTrue(compiledBeams.Resolve(BeamTileCatalog.AssetFor(SamusBeamCombinationTableOrder.FromTableIndex(selection))).Span.SequenceEqual(
                 expectedBeams.Resolve(BeamTileCatalog.AssetFor(SamusBeamCombinationTableOrder.FromTableIndex(selection))).Span),

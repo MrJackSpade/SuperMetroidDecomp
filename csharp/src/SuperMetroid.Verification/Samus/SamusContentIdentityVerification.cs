@@ -68,6 +68,6 @@ internal static class SamusContentIdentityVerification
         };
         SamusArmCannonSourceArtwork cannon = InstalledSamusArmCannonArtworkTooling.Load(
             new MemoryStream(SamusArmCannonSourceArtwork.Write(cannonDocument)));
-        return SamusBodyCharacterArtwork.Create(new SamusBodyArtworkParts { TopSetStarts = topStarts, BottomSetStarts = bottomStarts, PoseFirstFrames = poses, Placements = placements, Frames = frames, Spritemaps = spritemaps, Atmosphere = atmosphere, DeathPalettes = deathPalettes, ArmCannon = cannon }, Half(topStarts.Length), Half(bottomStarts.Length));
+        return SamusBodyCharacterArtwork.Create(new SamusBodyArtworkParts { TopSetStarts = topStarts, BottomSetStarts = bottomStarts, PoseFirstFrames = poses, Placements = placements, Frames = frames, Spritemaps = spritemaps, Atmosphere = atmosphere, DeathSteps = deathPalettes.Steps, ArmCannon = cannon }, Half(topStarts.Length), Half(bottomStarts.Length));
     }
 }

@@ -3,6 +3,7 @@ using SuperMetroid.AssetExtraction.Bosses.Torizo;
 using SuperMetroid.AssetExtraction.World.Artwork;
 using System.Text.Json;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
@@ -101,6 +102,7 @@ internal sealed class EnemyTileArtworkReader
             manifest.KraidHeadsSha256 is null ||
             string.IsNullOrWhiteSpace(manifest.KraidRoomBackgroundSha256) ||
             string.IsNullOrWhiteSpace(manifest.KraidColorsSha256) ||
+            string.IsNullOrWhiteSpace(manifest.KraidEyeColoursSha256) ||
             string.IsNullOrWhiteSpace(manifest.CeresDoorTilesSha256) ||
             string.IsNullOrWhiteSpace(manifest.CeresDoorColorsSha256) ||
             string.IsNullOrWhiteSpace(manifest.MagdollitePaletteCycleSha256) ||
@@ -140,11 +142,11 @@ internal sealed class EnemyTileArtworkReader
 
     /// <summary>
     /// Reads what the game binds from the installed documents: every enemy frame's display, from both frame documents, and
-    /// Kraid's colours. No character page is read (#1636).
+    /// Kraid's eye colours (#1637). No character page (#1636) or colour document only the import reads is read.
     /// </summary>
     /// <exception cref="InvalidDataException">An installed document is invalid.</exception>
     internal InstalledEnemyArtwork LoadInstalled() =>
-        new(InstalledEnemyFrameDisplays.Of(Spritemaps(), ExtendedFrames()), KraidColors(),
+        new(InstalledEnemyFrameDisplays.Of(Spritemaps(), ExtendedFrames()), KraidEyes(),
             SelectedPresentationHash.Create("enemy-directory-v2", content =>
             {
                 // Every installed document, framed by name in name order: the directory holds no character page (#1636).
@@ -154,9 +156,9 @@ internal sealed class EnemyTileArtworkReader
 
     /// <summary>
     /// Reads every component and compiles the enemy, boss and area catalogs without reading a cartridge, the characters
-    /// from <paramref name="importData"/>.
+    /// and the colour documents from <paramref name="importData"/>.
     /// </summary>
-    /// <param name="importData">The component's import-data directory, holding its character and tile pages.</param>
+    /// <param name="importData">The component's import-data directory, holding its character and tile pages and colour documents.</param>
     /// <exception cref="InvalidDataException">A file is invalid.</exception>
     internal ImportEnemyArtwork LoadForImport(string importData)
     {
@@ -179,24 +181,24 @@ internal sealed class EnemyTileArtworkReader
         RoomCharacterAtlas motherBrainEscapeText = MotherBrainEscapeText(importData);
         MotherBrainSpecialSpriteArtworkCatalog motherBrainSpecialSprites = MotherBrainSpecialSprites(importData);
         KraidBackgroundArtwork kraidBackground = KraidBackground(importData);
-        KraidColorCatalog kraidColors = KraidColors();
+        KraidColorCatalog kraidColors = KraidColors(importData);
         CeresDoorSourceArtwork ceresDoor = CeresDoor(importData);
-        MagdollitePaletteCycle magdollitePaletteCycle = MagdollitePaletteCycle();
-        WorkRobotPaletteCycle workRobotPaletteCycle = WorkRobotPaletteCycle();
-        CrocomireColorCatalog crocomireColors = CrocomireColors();
-        DraygonColorCatalog draygonColors = DraygonColors();
-        PhantoonColorCatalog phantoonColors = PhantoonColors();
-        ChozoAndTubeColorCatalog chozoAndTubeColors = ChozoAndTubeColors();
-        SporeSpawnColorCatalog sporeSpawnColors = SporeSpawnColors();
-        DachoraColorCatalog dachoraColors = DachoraColors();
-        ShitroidColorCatalog shitroidColors = ShitroidColors();
-        BabyMetroidCutsceneColorCatalog babyMetroidCutsceneColors = BabyMetroidCutsceneColors();
-        BotwoonColorCatalog botwoonColors = BotwoonColors();
-        MotherBrainDeathColorCatalog motherBrainDeathColors = MotherBrainDeathColors();
-        ZebetiteColorCatalog zebetiteColors = ZebetiteColors();
-        NorfairRidleyColorCatalog norfairRidleyColors = NorfairRidleyColors();
-        TourianStatuePalettes tourianStatueColors = TourianStatueColors();
-        EnemyAuxiliaryColorCatalog auxiliaryColors = AuxiliaryColors();
+        MagdollitePaletteCycle magdollitePaletteCycle = MagdollitePaletteCycle(importData);
+        WorkRobotPaletteCycle workRobotPaletteCycle = WorkRobotPaletteCycle(importData);
+        CrocomireColorCatalog crocomireColors = CrocomireColors(importData);
+        DraygonColorCatalog draygonColors = DraygonColors(importData);
+        PhantoonColorCatalog phantoonColors = PhantoonColors(importData);
+        ChozoAndTubeColorCatalog chozoAndTubeColors = ChozoAndTubeColors(importData);
+        SporeSpawnColorCatalog sporeSpawnColors = SporeSpawnColors(importData);
+        DachoraColorCatalog dachoraColors = DachoraColors(importData);
+        ShitroidColorCatalog shitroidColors = ShitroidColors(importData);
+        BabyMetroidCutsceneColorCatalog babyMetroidCutsceneColors = BabyMetroidCutsceneColors(importData);
+        BotwoonColorCatalog botwoonColors = BotwoonColors(importData);
+        MotherBrainDeathColorCatalog motherBrainDeathColors = MotherBrainDeathColors(importData);
+        ZebetiteColorCatalog zebetiteColors = ZebetiteColors(importData);
+        NorfairRidleyColorCatalog norfairRidleyColors = NorfairRidleyColors(importData);
+        TourianStatuePalettes tourianStatueColors = TourianStatueColors(importData);
+        EnemyAuxiliaryColorCatalog auxiliaryColors = AuxiliaryColors(importData);
         return new ImportEnemyArtwork(
             EnemyTileSourceArtwork.FromInstalledArtwork(enemySheets with
             {
@@ -227,8 +229,8 @@ internal sealed class EnemyTileArtworkReader
     }
 
     /// <summary>
-    /// Every retail enemy's characters and colours, read from its character page in <paramref name="importData"/> and its
-    /// colour document: the parts of the enemy catalog that hold no frames or colour cycles.
+    /// Every retail enemy's characters and colours, read from its character page and its colour document in
+    /// <paramref name="importData"/>: the parts of the enemy catalog that hold no frames or colour cycles.
     /// </summary>
     /// <exception cref="InvalidDataException">A file is invalid.</exception>
     internal EnemyTileArtworkParts EnemySheets(string importData)
@@ -252,7 +254,7 @@ internal sealed class EnemyTileArtworkReader
             {
                 throw new InvalidDataException($"Invalid enemy tile PNG {tilePath}: {error.Message}", error);
             }
-            string palettePath = Path.Combine(directory, EnemyTileArtworkFiles.PaletteFileName(definitionPointer));
+            string palettePath = Path.Combine(importData, EnemyTileArtworkFiles.PaletteFileName(definitionPointer));
             try
             {
                 palettes.Add(definitionPointer, EnemyPaletteSheetFile.Read(
@@ -270,8 +272,8 @@ internal sealed class EnemyTileArtworkReader
     /// <exception cref="InvalidDataException">An installed file is invalid.</exception>
     internal CrocomireMeltingArtwork CrocomireMelting(string importData)
     {
-        byte[] first = ReadPage(importData, CrocomireMeltingArtworkFormat.FirstFileName);
-        byte[] second = ReadPage(importData, CrocomireMeltingArtworkFormat.SecondFileName);
+        byte[] first = ReadImportData(importData, CrocomireMeltingArtworkFormat.FirstFileName);
+        byte[] second = ReadImportData(importData, CrocomireMeltingArtworkFormat.SecondFileName);
         byte[] firstTilemap = Read(
             CrocomireMeltingArtworkFormat.FirstTilemapFileName);
         byte[] secondTilemap = Read(
@@ -295,7 +297,7 @@ internal sealed class EnemyTileArtworkReader
     /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
     internal CrocomireSkeletonArtwork CrocomireSkeleton(string importData)
     {
-        byte[] skeletonPng = ReadPage(importData,
+        byte[] skeletonPng = ReadImportData(importData,
             CrocomireSkeletonCharacterDefinitions.FileName);
         try
         {
@@ -451,7 +453,7 @@ internal sealed class EnemyTileArtworkReader
                 throw new InvalidDataException(
                     $"Enemy tile manifest omits gunship takeoff frame {index}.");
             string fileName = EnemyTileArtworkFormat.GunshipLiftoffFileName(index);
-            byte[] selected = ReadPage(importData, fileName);
+            byte[] selected = ReadImportData(importData, fileName);
             try
             {
                 gunshipFrames[index] = RoomCharacterAtlasPng.Read(
@@ -481,7 +483,7 @@ internal sealed class EnemyTileArtworkReader
                     out string? expectedHash) || string.IsNullOrWhiteSpace(expectedHash))
                 throw new InvalidDataException(
                     $"Enemy tile manifest omits Torizo page {page.FileName}.");
-            byte[] selected = ReadPage(importData, page.FileName);
+            byte[] selected = ReadImportData(importData, page.FileName);
             try
             {
                 torizoPages[index] = RoomCharacterAtlasPng.Read(
@@ -511,7 +513,7 @@ internal sealed class EnemyTileArtworkReader
                     out string? expectedHash) || string.IsNullOrWhiteSpace(expectedHash))
                 throw new InvalidDataException(
                     $"Enemy tile manifest omits Ceres escape page {page.FileName}.");
-            byte[] selected = ReadPage(importData, page.FileName);
+            byte[] selected = ReadImportData(importData, page.FileName);
             try
             {
                 ceresEscapePages[index] = RoomCharacterAtlasPng.Read(
@@ -551,7 +553,7 @@ internal sealed class EnemyTileArtworkReader
     {
         try
         {
-            byte[] selected = ReadPage(importData,
+            byte[] selected = ReadImportData(importData,
                 MotherBrainCorpseSheet.FileName);
             return RoomCharacterAtlasPng.Read(
                 new MemoryStream(selected, writable: false),
@@ -571,7 +573,7 @@ internal sealed class EnemyTileArtworkReader
     {
         try
         {
-            byte[] selected = ReadPage(importData,
+            byte[] selected = ReadImportData(importData,
                 EscapeTextSheetFormat.FileName);
             return RoomCharacterAtlasPng.Read(
                 new MemoryStream(selected, writable: false),
@@ -600,7 +602,7 @@ internal sealed class EnemyTileArtworkReader
                     $"Enemy tile manifest omits {sheet.FileName}.");
             try
             {
-                byte[] selected = ReadPage(importData, sheet.FileName);
+                byte[] selected = ReadImportData(importData, sheet.FileName);
                 motherBrainSpecialSheets.Add(sheet.Sheet,
                     RoomCharacterAtlasPng.Read(
                         new MemoryStream(selected, writable: false), sheet.ByteCount));
@@ -641,7 +643,7 @@ internal sealed class EnemyTileArtworkReader
             }
         }
         string roomBackgroundName = KraidBackgroundArtworkFormat.RoomBackgroundFileName;
-        byte[] roomBackgroundPng = ReadPage(importData,
+        byte[] roomBackgroundPng = ReadImportData(importData,
             roomBackgroundName);
         RoomCharacterAtlas roomBackground;
         try
@@ -658,17 +660,13 @@ internal sealed class EnemyTileArtworkReader
         return new KraidBackgroundArtwork(upperKraid, lowerKraid, kraidHeads, roomBackground);
     }
 
-    /// <summary>Kraid's colours.</summary>
-    /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
-    internal KraidColorCatalog KraidColors() => KraidColors(Read(KraidColorFormat.FileName));
-
-    /// <summary>Kraid's colours, from the document's <paramref name="installed"/> bytes.</summary>
-    /// <exception cref="InvalidDataException">The document is invalid.</exception>
-    private static KraidColorCatalog KraidColors(byte[] installed)
+    /// <summary>Kraid's colours, which only the import pre-colours his pictures from (#1637).</summary>
+    /// <exception cref="InvalidDataException">The extracted file is invalid.</exception>
+    internal static KraidColorCatalog KraidColors(string importData)
     {
         try
         {
-            return KraidColorFile.Read(new MemoryStream(installed, writable: false));
+            return KraidColorFile.Read(new MemoryStream(ReadImportData(importData, KraidColorFormat.FileName), writable: false));
         }
         catch (InvalidDataException error)
         {
@@ -677,15 +675,30 @@ internal sealed class EnemyTileArtworkReader
         }
     }
 
+    /// <summary>Kraid's installed eye colours, which gameplay's eye glow reads back (#1512, #1637).</summary>
+    /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
+    internal KraidEyeColours KraidEyes()
+    {
+        try
+        {
+            return KraidEyeColourFile.Read(new MemoryStream(Read(KraidEyeColourFile.FileName), writable: false));
+        }
+        catch (InvalidDataException error)
+        {
+            throw new InvalidDataException(
+                $"Invalid Kraid eye colour file {Path.Combine(directory, KraidEyeColourFile.FileName)}: {error.Message}", error);
+        }
+    }
+
     /// <summary>The Ceres door's characters and colours.</summary>
     /// <exception cref="InvalidDataException">An installed file is invalid.</exception>
-    internal CeresDoorSourceArtwork CeresDoor(string importData)
+    internal static CeresDoorSourceArtwork CeresDoor(string importData)
     {
         try
         {
             return CeresDoorVisualFiles.Load(
-                ReadPage(importData, CeresDoorVisualFormat.TilesFileName),
-                Read(CeresDoorVisualFormat.ColorsFileName));
+                ReadImportData(importData, CeresDoorVisualFormat.TilesFileName),
+                ReadImportData(importData, CeresDoorVisualFormat.ColorsFileName));
         }
         catch (InvalidDataException error)
         {
@@ -695,109 +708,109 @@ internal sealed class EnemyTileArtworkReader
 
     /// <summary>The Magdollite's palette cycle.</summary>
     /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
-    internal MagdollitePaletteCycle MagdollitePaletteCycle() =>
-        ReadColors(MagdollitePaletteCycleFormat.FileName, "Magdollite palette cycle",
+    internal MagdollitePaletteCycle MagdollitePaletteCycle(string importData) =>
+        ReadColors(importData, MagdollitePaletteCycleFormat.FileName, "Magdollite palette cycle",
             stream => MagdollitePaletteCycleFile.Read(stream));
 
     /// <summary>The Work Robot's palette cycle.</summary>
     /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
-    internal WorkRobotPaletteCycle WorkRobotPaletteCycle() =>
-        ReadColors(WorkRobotPaletteCycleFormat.FileName, "Work Robot palette cycle",
+    internal WorkRobotPaletteCycle WorkRobotPaletteCycle(string importData) =>
+        ReadColors(importData, WorkRobotPaletteCycleFormat.FileName, "Work Robot palette cycle",
             stream => WorkRobotPaletteCycleFile.Read(stream));
 
     /// <summary>Crocomire's colours.</summary>
     /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
-    internal CrocomireColorCatalog CrocomireColors() =>
-        ReadColors(CrocomireColorFormat.FileName, "Crocomire colors",
+    internal CrocomireColorCatalog CrocomireColors(string importData) =>
+        ReadColors(importData, CrocomireColorFormat.FileName, "Crocomire colors",
             stream => CrocomireColorFile.Read(stream));
 
     /// <summary>Draygon's colours.</summary>
     /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
-    internal DraygonColorCatalog DraygonColors() =>
-        ReadColors(DraygonColorFormat.FileName, "Draygon colors",
+    internal DraygonColorCatalog DraygonColors(string importData) =>
+        ReadColors(importData, DraygonColorFormat.FileName, "Draygon colors",
             stream => DraygonColorFile.Read(stream));
 
     /// <summary>Phantoon's colours.</summary>
     /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
-    internal PhantoonColorCatalog PhantoonColors() =>
-        ReadColors(PhantoonColorFormat.FileName, "Phantoon colors",
+    internal PhantoonColorCatalog PhantoonColors(string importData) =>
+        ReadColors(importData, PhantoonColorFormat.FileName, "Phantoon colors",
             stream => PhantoonColorFile.Read(stream));
 
     /// <summary>The Chozo statues' and glass tube's colours.</summary>
     /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
-    internal ChozoAndTubeColorCatalog ChozoAndTubeColors() =>
-        ReadColors(ChozoAndTubeColorFormat.FileName, "Chozo/tube colors",
+    internal ChozoAndTubeColorCatalog ChozoAndTubeColors(string importData) =>
+        ReadColors(importData, ChozoAndTubeColorFormat.FileName, "Chozo/tube colors",
             stream => ChozoAndTubeColorFile.Read(stream));
 
     /// <summary>Spore Spawn's colours.</summary>
     /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
-    internal SporeSpawnColorCatalog SporeSpawnColors() =>
-        ReadColors(SporeSpawnColorFormat.FileName, "Spore Spawn colors",
+    internal SporeSpawnColorCatalog SporeSpawnColors(string importData) =>
+        ReadColors(importData, SporeSpawnColorFormat.FileName, "Spore Spawn colors",
             stream => SporeSpawnColorFile.Read(stream));
 
     /// <summary>The Dachora's colours.</summary>
     /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
-    internal DachoraColorCatalog DachoraColors() =>
-        ReadColors(DachoraColorFormat.FileName, "Dachora colors",
+    internal DachoraColorCatalog DachoraColors(string importData) =>
+        ReadColors(importData, DachoraColorFormat.FileName, "Dachora colors",
             stream => DachoraColorFile.Read(stream));
 
     /// <summary>The Shitroid's colours.</summary>
     /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
-    internal ShitroidColorCatalog ShitroidColors() =>
-        ReadColors(ShitroidColorFormat.FileName, "Shitroid colors",
+    internal ShitroidColorCatalog ShitroidColors(string importData) =>
+        ReadColors(importData, ShitroidColorFormat.FileName, "Shitroid colors",
             stream => ShitroidColorFile.Read(stream));
 
     /// <summary>The cutscene Baby Metroid's colours.</summary>
     /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
-    internal BabyMetroidCutsceneColorCatalog BabyMetroidCutsceneColors() =>
-        ReadColors(BabyMetroidCutsceneColorFormat.FileName, "cutscene Baby colors",
+    internal BabyMetroidCutsceneColorCatalog BabyMetroidCutsceneColors(string importData) =>
+        ReadColors(importData, BabyMetroidCutsceneColorFormat.FileName, "cutscene Baby colors",
             stream => BabyMetroidCutsceneColorFile.Read(stream));
 
     /// <summary>Botwoon's colours.</summary>
     /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
-    internal BotwoonColorCatalog BotwoonColors() =>
-        ReadColors(BotwoonColorFormat.FileName, "Botwoon colors",
+    internal BotwoonColorCatalog BotwoonColors(string importData) =>
+        ReadColors(importData, BotwoonColorFormat.FileName, "Botwoon colors",
             stream => BotwoonColorFile.Read(stream));
 
     /// <summary>Mother Brain's death colours.</summary>
     /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
-    internal MotherBrainDeathColorCatalog MotherBrainDeathColors() =>
-        ReadColors(MotherBrainDeathColorFormat.FileName, "Mother Brain death colors",
+    internal MotherBrainDeathColorCatalog MotherBrainDeathColors(string importData) =>
+        ReadColors(importData, MotherBrainDeathColorFormat.FileName, "Mother Brain death colors",
             stream => MotherBrainDeathColorFile.Read(stream));
 
     /// <summary>The Zebetites' colours.</summary>
     /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
-    internal ZebetiteColorCatalog ZebetiteColors() =>
-        ReadColors(ZebetiteColorFile.FileName, "Zebetite colors",
+    internal ZebetiteColorCatalog ZebetiteColors(string importData) =>
+        ReadColors(importData, ZebetiteColorFile.FileName, "Zebetite colors",
             stream => ZebetiteColorFile.Read(stream));
 
     /// <summary>Norfair Ridley's colours.</summary>
     /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
-    internal NorfairRidleyColorCatalog NorfairRidleyColors() =>
-        ReadColors(NorfairRidleyColorFormat.FileName, "Norfair Ridley colors",
+    internal NorfairRidleyColorCatalog NorfairRidleyColors(string importData) =>
+        ReadColors(importData, NorfairRidleyColorFormat.FileName, "Norfair Ridley colors",
             stream => NorfairRidleyColorFile.Read(stream));
 
     /// <summary>The Tourian statues' colours.</summary>
     /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
-    internal TourianStatuePalettes TourianStatueColors() =>
-        ReadColors(TourianStatueColorFormat.FileName, "Tourian statue colors",
+    internal TourianStatuePalettes TourianStatueColors(string importData) =>
+        ReadColors(importData, TourianStatueColorFormat.FileName, "Tourian statue colors",
             stream => TourianStatueColorFile.Read(stream));
 
     /// <summary>The enemies' auxiliary colours.</summary>
-    /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
-    internal EnemyAuxiliaryColorCatalog AuxiliaryColors() =>
+    /// <exception cref="InvalidDataException">The extracted file is invalid.</exception>
+    internal static EnemyAuxiliaryColorCatalog AuxiliaryColors(string importData) =>
         EnemyAuxiliaryColorFiles.Read(new MemoryStream(
-            Read(EnemyAuxiliaryColorFormat.FileName), writable: false));
+            ReadImportData(importData, EnemyAuxiliaryColorFormat.FileName), writable: false));
 
     /// <summary>
-    /// Reads the colour document <paramref name="fileName"/> with <paramref name="read"/>; a document that does not read is
-    /// reported as invalid <paramref name="colors"/>.
+    /// Reads the colour document <paramref name="fileName"/> of the import data <paramref name="importData"/> (#1637) with
+    /// <paramref name="read"/>; a document that does not read is reported as invalid <paramref name="colors"/>.
     /// </summary>
-    private T ReadColors<T>(string fileName, string colors, Func<MemoryStream, T> read)
+    private T ReadColors<T>(string importData, string fileName, string colors, Func<MemoryStream, T> read)
     {
         try
         {
-            byte[] selected = Read(fileName);
+            byte[] selected = ReadImportData(importData, fileName);
             return read(new MemoryStream(selected, writable: false));
         }
         catch (InvalidDataException error)
@@ -828,6 +841,9 @@ internal sealed class EnemyTileArtworkReader
     /// <summary>The installed <paramref name="fileName"/>, as the installation holds it.</summary>
     private byte[] Read(string fileName) => File.ReadAllBytes(Path.Combine(directory, fileName));
 
-    /// <summary>The character or tile page <paramref name="fileName"/> of the import data <paramref name="importData"/> (#1636).</summary>
-    private static byte[] ReadPage(string importData, string fileName) => File.ReadAllBytes(Path.Combine(importData, fileName));
+    /// <summary>
+    /// The character or tile page (#1636) or colour document (#1637) <paramref name="fileName"/> of the import data
+    /// <paramref name="importData"/>.
+    /// </summary>
+    private static byte[] ReadImportData(string importData, string fileName) => File.ReadAllBytes(Path.Combine(importData, fileName));
 }

@@ -119,7 +119,6 @@ internal static class RoomAssetRomDataVerification
         // source table forbidden, including the overlapping Ceres character transfers.
         var installation = RepositoryInstallation.Installation;
         var characters = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.RoomCharacters;
-        var palettes = RoomStaticPaletteArtworkFiles.Load(Path.Combine(installation.ContentDirectory, GameInstallationLayout.RoomPaletteDirectoryName));
         var layouts = installation.LoadRoomVisualLayouts();
         foreach (ushort roomPointer in new ushort[] { 0x91f8, 0xdf8d })
         {

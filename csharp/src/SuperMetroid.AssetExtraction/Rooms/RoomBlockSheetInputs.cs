@@ -41,7 +41,7 @@ internal sealed record RoomBlockSheetInputs(RoomCharacterAtlases Characters, Roo
         return new(
             RoomCharacterArtworkFiles.LoadForImport(roomCharacters, ImportDataDirectory.Of(roomCharacters)),
             RoomMetatileArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.RoomMetatileDirectoryName)),
-            RoomStaticPaletteArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.RoomPaletteDirectoryName)),
+            RoomStaticPaletteArtworkFiles.LoadForImport(ImportDataDirectory.Of(Path.Combine(content, GameInstallationLayout.RoomPaletteDirectoryName))),
             maps.RoomFxAnimatedTiles,
             objects.Bosses,
             maps.Characters.Hud,

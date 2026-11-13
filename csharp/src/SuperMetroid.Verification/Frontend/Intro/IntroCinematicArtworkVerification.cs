@@ -58,9 +58,12 @@ internal static class IntroCinematicArtworkVerification
         string root = copy.Root;
         {
             GameInstallation installation = copy.Installation;
+            // The opening's pages and colours are import data (#1636, #1637): the check corrupts and restores its own copy of them.
+            string importData = Path.Combine(root, SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.ImportDataDirectoryName, SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.IntroCinematicDirectoryName);
+            PrivateInstallationCopy.CopyInstallation(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.IntroCinematicDirectoryName), importData);
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
             Suite(nameof(VerifySamusAnimationDelayDefinitions), () => VerifySamusAnimationDelayDefinitions(bus));
-            ImportIntroCinematicArtwork stock = IntroCinematicArtworkFiles.LoadForImport(installation.IntroCinematicDirectory, SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.IntroCinematicDirectoryName));
+            ImportIntroCinematicArtwork stock = IntroCinematicArtworkFiles.LoadForImport(installation.IntroCinematicDirectory, importData);
             AssertTrue(stock.BackgroundCharacters.Characters.Span.SequenceEqual(
                     RomDataReader.Decompress(bus, IntroCinematicSourceDefinitions.BackgroundCharacters,
                         maximumOutputBytes: IntroCinematicArtworkFormat.BackgroundByteCount)),
@@ -156,7 +159,7 @@ internal static class IntroCinematicArtworkVerification
                         $"installed cinematic preserves native graphics and colors at frame {frame}");
                 }
             }
-            string paletteStockPath = Path.Combine(installation.IntroCinematicDirectory, IntroCinematicPaletteFile.FileName);
+            string paletteStockPath = Path.Combine(importData, IntroCinematicPaletteFile.FileName);
             IntroCinematicPaletteDocument paletteDocument =
                 JsonSerializer.Deserialize<IntroCinematicPaletteDocument>(
                     File.ReadAllBytes(paletteStockPath),
@@ -175,11 +178,11 @@ internal static class IntroCinematicArtworkVerification
                 }))), "opening palette rejects out-of-range RGB5 channels");
             byte[] stockPalette = File.ReadAllBytes(paletteStockPath);
             File.WriteAllBytes(paletteStockPath, [0]);
-            AssertThrows<InvalidDataException>(() => IntroCinematicArtworkFiles.LoadForImport(installation.IntroCinematicDirectory, SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.IntroCinematicDirectoryName)),
+            AssertThrows<InvalidDataException>(() => IntroCinematicArtworkFiles.LoadForImport(installation.IntroCinematicDirectory, importData),
                 "opening palette stock corruption fails loudly where the import reads it");
             // Installed content is never repaired in place (#1532): damaged stock fails where it loads, and the check puts the stock bytes back.
             File.WriteAllBytes(paletteStockPath, stockPalette);
-            AssertTrue(IntroPaletteWords(IntroCinematicArtworkFiles.LoadForImport(installation.IntroCinematicDirectory, SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.IntroCinematicDirectoryName)).Palette).AsSpan().SequenceEqual(
+            AssertTrue(IntroPaletteWords(IntroCinematicArtworkFiles.LoadForImport(installation.IntroCinematicDirectory, importData).Palette).AsSpan().SequenceEqual(
                     ScreenColourWords.Words(stock.Palette.BackgroundColours.AsSpan(), stock.Palette.SpriteColours.AsSpan())),
                 "the restored stock shows exact cartridge opening palette colors");
             AssertEqual(0, guarded.ForbiddenReadAttempts,

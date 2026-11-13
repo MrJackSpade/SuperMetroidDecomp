@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Spatial;
 /// A rotation angle that wraps at a full turn, measured in steps of a 256th of a turn, each with a 256th-of-a-step
 /// fraction. Callers speak in angles: the named turns, angle arithmetic and comparison, the sector a heading lies in, and
 /// the trigonometry angle (<see cref="ToTrigonometryAngle"/>) the sine and cosine lookups read, the angle's whole steps. Keeping
-/// the fraction lets grapple and neck motion turn at sub-step precision while byte-angle callers share the same turns.
+/// the fraction lets grapple and neck motion turn at sub-step precision while whole-step callers share the same turns.
 /// </summary>
 [EncodingOwner("8.8 rotation angle word")]
 public readonly record struct RotationAngle : IComparable<RotationAngle>

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// Kraid's four head programs, in the order the original game lays them out. The order matters: a head program's first
+/// Kraid's four head programs, in the order the game lays them out. The order matters: a head program's first
 /// mouth reads look back into the program authored before it (see <see cref="KraidHeadAnimations.ReadsAt"/>).
 /// </summary>
 internal enum KraidHeadProgram

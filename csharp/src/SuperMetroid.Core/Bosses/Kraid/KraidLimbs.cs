@@ -66,14 +66,14 @@ internal sealed class KraidLimbs
 
     /// <summary>
     /// The segment a part's animation rests in. Resting after the last beat of a list that runs on into the next, it
-    /// already rests in the next, as the part's script position then lies inside it.
+    /// already rests in the next, as the part's animation position then lies inside it.
     /// </summary>
     private KraidPartProgram KraidPartResidentProgram(RoomEnemySlot part) =>
         AnimationResidence.ResidentSegment(KraidAnimations.Segments, KraidAnimations.StartingAt, KraidAnimations.RunsOnInto,
             _access.Part(part).Playback);
 
     /// <summary>
-    /// Runs a Kraid part's program where the enemy instruction interpreter would: the frame expires on the update
+    /// Runs a Kraid part's program where the shared enemy animation runs: the frame expires on the update
     /// its timer would, and a newly shown frame raises the new-frame flag.
     /// </summary>
     internal void AdvanceKraidPartAnimation(RoomEnemySlot part)
@@ -186,7 +186,7 @@ internal sealed class KraidLimbs
             : arm.Presence.With(EnemyPresence.Hidden);
 
         // While mouth reopens are pending, incrementing the timer here cancels the common
-        // interpreter's later decrement and freezes the selected arm map.
+        // animation's later decrement and freezes the selected arm frame.
         if (state.PendingMouthReopens != 0)
             arm.FrameHold = arm.FrameHold.AddFrames(1);
     }

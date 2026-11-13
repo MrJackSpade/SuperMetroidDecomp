@@ -67,7 +67,7 @@ public sealed class KraidEnemyState
     public int PendingMouthReopens { get; internal set; }
     /// <summary>Health captured by the living initializer before combat can change it.</summary>
     public int InitialHealth { get; internal set; }
-    /// <summary>Returns the original game threshold for the selected eighth of the initializer's captured health.</summary>
+    /// <summary>Returns the game's threshold for the selected eighth of the initializer's captured health.</summary>
     /// <param name="index">A zero-based table index from zero through seven, selecting one through eight eighths.</param>
     /// <returns>The initial health truncated to one eighth, multiplied by the selected number of eighths.</returns>
     public int HealthEighthThreshold(int index) => KraidHealthThresholds.Eighth(InitialHealth, index);
@@ -95,7 +95,7 @@ public sealed class KraidEnemyState
         : throw new InvalidOperationException($"Stepping Kraid's hurt phase {HurtFrame} breaks its caller's running-phase guard.");
 
     /// <summary>
-    /// Arms three mouth reopens. The original game merges the count bitwise into what remains, which from any count it
+    /// Arms three mouth reopens. The game merges the count bitwise into what remains, which from any count it
     /// reaches (zero to three) leaves three.
     /// </summary>
     internal void ArmMouthReopens() => PendingMouthReopens |= ArmedMouthReopens;
@@ -103,7 +103,7 @@ public sealed class KraidEnemyState
     /// <summary>
     /// Removes one pending mouth reopen (#1627). Every caller reaches here only while the mouth's reopen is pending, which a
     /// mouth hit marks only after arming three, and the removal that leaves none clears the mouth, so a reopen is always
-    /// pending here: the original's wrap of its count byte from zero is never reached, and removing from none breaks that
+    /// pending here: the game's wrap of its count from zero is never reached, and removing from none breaks that
     /// order.
     /// </summary>
     /// <exception cref="InvalidOperationException">No reopen is pending.</exception>
@@ -111,7 +111,7 @@ public sealed class KraidEnemyState
         ? PendingMouthReopens - 1
         : throw new InvalidOperationException("Removing a mouth reopen from none breaks Kraid's mouth-reopen order.");
 
-    /// <summary>Clears every mouth latch and the pending reopen count together, as the original game clears their shared word.</summary>
+    /// <summary>Clears every mouth latch and the pending reopen count together, as the game clears them at once.</summary>
     internal void ClearMouthReactions()
     {
         MouthFlags = KraidMouthFlags.None;
@@ -166,7 +166,7 @@ public sealed class KraidEnemyState
     /// <summary>Rise-rock requests that acquired a real projectile slot.</summary>
     public int SpawnedRiseRockCount { get; internal set; }
 
-    /// <summary>Retail spat-rock requests issued while head tilemap three is active.</summary>
+    /// <summary>Retail spat-rock requests issued while the fully open head frame is shown.</summary>
     public int SpitRockRequestCount { get; internal set; }
 
     /// <summary>Spat-rock requests that acquired a real projectile slot.</summary>

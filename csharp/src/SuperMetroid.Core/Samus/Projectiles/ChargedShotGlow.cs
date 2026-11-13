@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// and holds it on the odd step after, and restores the suit on step zero, its twenty-first call.
 /// </summary>
 /// <remarks>
-/// The glow's kind decides how it steps. The original decided by whether the Hyper Beam is equipped, and only a Hyper
+/// The glow's kind decides how it steps. The game decided by whether the Hyper Beam is equipped, and only a Hyper
 /// Beam glow ever runs while it is: the Hyper Beam fires no ordinary charged shot and is never unequipped.
 /// </remarks>
 public readonly record struct ChargedShotGlow

@@ -261,7 +261,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
     private bool ApplyWhiteout(SamusColours samusColours, SamusDeathSteps? artwork)
     {
         // Index zero suppresses whiteout completely. This is why the first 21-tick explosion
-        // frame remains over the original room even though the suit-explosion game state has begun.
+        // frame remains over the room as it was even though the suit-explosion game state has begun.
         if (AnimationIndex == 0)
             return false;
 

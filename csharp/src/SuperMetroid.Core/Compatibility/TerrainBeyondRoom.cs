@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// <remarks>
 /// <para>
 /// Consulted when a room object's setup or draw lands past the room's last block, when a collision probe or a
-/// collision extension crosses the room's edge, and when enemy terrain reads index past the room. The original's
+/// collision extension crosses the room's edge, and when enemy terrain reads index past the room. The game's
 /// bottom-edge fill of a door's scroll also read a full column of this space below a short room; what that drew is a
 /// presentation quirk, so the display shows only the room's grid and does not consult the service.
 /// </para>

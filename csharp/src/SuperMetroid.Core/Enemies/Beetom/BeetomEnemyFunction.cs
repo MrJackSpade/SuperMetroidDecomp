@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Beetom;
 
 /// <summary>
-/// The routine Beetom's main AI runs each frame. Setup functions intentionally remain separate states: on
+/// The behaviour Beetom's main AI runs each frame. Setup functions intentionally remain separate states: in
 /// the game, selecting an action consumes one frame and installing that action consumes another before movement
 /// begins.
 /// Its values are arbitrary.
@@ -28,15 +28,15 @@ public enum BeetomEnemyFunction
     StartLongHopRight,
     /// <summary>Aims the rising lunge toward Samus and installs the corresponding hop list.</summary>
     DecideActionSamusInProximity,
-    /// <summary>Installs left-facing attached art before the drain-following routine begins.</summary>
+    /// <summary>Installs left-facing attached art before the drain-following behaviour begins.</summary>
     StartDrainingLeft,
-    /// <summary>Installs right-facing attached art before the drain-following routine begins.</summary>
+    /// <summary>Installs right-facing attached art before the drain-following behaviour begins.</summary>
     StartDrainingRight,
-    /// <summary>Restores crawl art from the direction word, clears falling, and selects the straight drop.</summary>
+    /// <summary>Restores crawl art from the crawl direction, clears falling, and selects the straight drop.</summary>
     StartDropping,
     /// <summary>Resets the downward speed-table index to zero after Samus shakes the Beetom off.</summary>
     StartBeingFlung,
-    /// <summary>Decrements the word timer until its signed result is negative, then requests a new action.</summary>
+    /// <summary>Decrements the idle timer until its signed result is negative, then requests a new action.</summary>
     Idling,
     /// <summary>Moves left one quarter pixel per frame, reversing at a wall or failed eight-pixel-ahead ledge probe.</summary>
     CrawlingLeft,

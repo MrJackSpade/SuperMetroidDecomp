@@ -2,8 +2,8 @@ namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
 /// X-ray's warm-up (#1631): once X-ray starts, its beam spends eight updates of frozen time before its first step reads
-/// whether Run is still held, and the room shows the X-ray's blend from the third of those updates on. The original game
-/// spent the eight updates preparing the reveal's picture, work the port does not need, but the count is
+/// whether Run is still held, and the room shows the X-ray's blend from the third of those updates on. The game
+/// spent the eight updates preparing the reveal's picture, work this simulation does not need, but the count is
 /// gameplay-observable: every update of the warm-up is a whole update of frozen gameplay with its own random draw, and the
 /// beam's widening, aiming and ending, with Samus's release from X-ray, all start only once it is over.
 /// </summary>

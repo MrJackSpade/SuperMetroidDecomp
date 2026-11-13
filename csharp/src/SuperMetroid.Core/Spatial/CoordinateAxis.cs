@@ -36,7 +36,7 @@ public static class CoordinateAxis
 
     /// <summary>
     /// A coordinate read as a signed offset from the space's origin, -32768 through 32767: a coordinate stored above
-    /// or left of the origin has wrapped to a large word and reads negative.
+    /// or left of the origin has wrapped to a large value and reads negative.
     /// </summary>
     /// <param name="coordinate">The coordinate or computed displacement.</param>
     public static int AsSigned(int coordinate) => unchecked((short)coordinate);

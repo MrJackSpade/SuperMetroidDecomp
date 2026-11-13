@@ -12,7 +12,7 @@ public sealed class KraidNailState : KraidPartState
     /// </summary>
     public bool AlternateSpawn { get; internal set; }
 
-    /// <summary>Whether this fingernail has launched at least once (its parameter one); the original game sets it and nothing reads it back.</summary>
+    /// <summary>Whether this fingernail has launched at least once (its parameter one); the game sets it and nothing reads it back.</summary>
     public bool NailLaunched { get; internal set; }
 
     /// <summary>A fingernail's signed 16.16 velocity in pixels per update.</summary>

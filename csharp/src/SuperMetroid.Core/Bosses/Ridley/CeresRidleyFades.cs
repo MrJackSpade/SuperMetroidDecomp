@@ -20,7 +20,7 @@ internal sealed class CeresRidleyFades
     /// <summary>Advances the eye-fade schedule one step on each AI call before enabling the body fade.</summary>
     internal static void TickCeresRidleyEyeFade(RidleyEnemyState state)
     {
-        // The original increment-and-test advances once per AI call for every reachable
+        // The game's increment-and-test advances once per AI call for every reachable
         // counter value, resetting the scratch timer immediately afterward.
         if (++state.FunctionTimer == 0)
             return;

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Hoppers;
 
 /// <summary>
-/// The routines of the Sidehopper/Dessgeega state machine. The apparently duplicated members are real,
+/// The behaviours of the Sidehopper/Dessgeega state machine. The apparently duplicated members are real,
 /// separate entry points: the direction-selection setup chooses a different one even though both currently dispatch
 /// identical motion.
 /// Its values are arbitrary.
@@ -26,7 +26,7 @@ public enum HopperEnemyFunction
     StartBackwardHopUpsideDown,
     /// <summary>Retains positive X velocity, installs the ceiling jumping list, and selects the distinct forward movement entry.</summary>
     StartForwardHopUpsideDown,
-    /// <summary>Restores the variant's floor or ceiling idle list and waits for its instruction-driven ready flag.</summary>
+    /// <summary>Restores the variant's floor or ceiling idle list and waits for its cue-driven ready flag.</summary>
     Landed,
     /// <summary>Floor hop motion selected by the initial leftward branch, resolving vertical movement before horizontal movement and landing.</summary>
     JumpingUpsideUpBackward,

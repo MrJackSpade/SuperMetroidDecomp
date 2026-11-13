@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 
 /// <summary>
 /// The installed starting screen positions of the five rear-view Ceres approach actors, as the player left them; the
-/// installation is their only source (#1596). The front star field, actor instruction programs, and physical motion stay
+/// installation is their only source (#1596). The front star field, actor programs, and physical motion stay
 /// compiled.
 /// </summary>
 public sealed class CeresFlightActorPlacements

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.YappingMaws;
 
 /// <summary>
-/// The routine Yapping Maw's main AI runs.
+/// The behaviour Yapping Maw's main AI runs.
 /// Its values are arbitrary.
 /// </summary>
 public enum YappingMawAiFunction

@@ -4,10 +4,10 @@ namespace SuperMetroid.Core.Compatibility;
 /// The animation the Murder Beam's shot runs in each direction (#1517). The charged shot of the combination of all four
 /// beams, Spazer with Plasma, which only the pause screen's same-frame toggle can equip, takes the Power Bomb's damage
 /// (<see cref="UnauthoredBeamShots{TBeams, TProjectile}"/>) and reads its direction's animation from the Power Bomb's
-/// header, which names one animation, and on into the headers stored after it: fired up it runs the Power Bomb's
+/// definition, which names one animation, and on into the definitions stored after it: fired up it runs the Power Bomb's
 /// animation, right the bomb's, down the beam explosion's, down-left the missile explosion's and up-left the bomb
-/// explosion's; fired left it reads an empty word and runs no animation, the one direction in which the shot is
-/// harmless; in the other four directions it reads a damage word as an animation, which this rule does not reproduce and
+/// explosion's; fired left it reads an empty entry and runs no animation, the one direction in which the shot is
+/// harmless; in the other four directions it reads a damage value as an animation, which this rule does not reproduce and
 /// rejects.
 /// </summary>
 /// <remarks>
@@ -31,7 +31,7 @@ public sealed class MurderBeamDirectionPrograms<TDirection, TProgram>
     public MurderBeamDirectionPrograms(IReadOnlyDictionary<TDirection, TProgram?> programs) => _programs = Ensure.NotNull(programs);
 
     /// <summary>The animation the shot fired in <paramref name="direction"/> runs, or null for none.</summary>
-    /// <exception cref="InvalidDataException">The direction reads a damage word as an animation.</exception>
+    /// <exception cref="InvalidDataException">The direction reads a damage value as an animation.</exception>
     public TProgram? Program(TDirection direction) =>
         _programs.TryGetValue(direction, out TProgram? program)
             ? program

@@ -4,15 +4,15 @@ namespace SuperMetroid.Core.Compatibility;
 /// SpaceTime's progression overwrite (#1318, #1330, #1474, #1475). An uncharged SpaceTime shot's callback starts inside a
 /// long store and falls back into the beam palette's copy loop with the position its update loop left behind: the copy
 /// starts one colour past the shot's slot in the beam palette and reads from the place its animation has reached. Its
-/// bound is a signed test of that read position, so a shot animating from a list high in its bank copies on through the
-/// rest of the bank, past the palette and on through saved progress, before the read position wraps and the loop ends.
+/// bound is a signed test of that read position, so a shot animating from a list late in its program data copies on through the
+/// rest of that data, past the palette and on through saved progress, before the read position wraps and the loop ends.
 /// Which story events, area bosses, item locations, doors, used stations and area maps it turns on or off,
 /// and the loading state it leaves, therefore depend only on the shot's slot and where its animation stands; the import
 /// pipeline decodes them once into an overwrite for each animation position a SpaceTime shot can hold and each slot. Only
 /// the progress part is kept (owner decision on #1318).
 /// </summary>
 /// <remarks>
-/// Consulted by the SpaceTime shot's pre-instruction during the projectile update, after its animation has installed a
+/// Consulted by the SpaceTime shot's frame behaviour during the projectile update, after its animation has installed a
 /// frame. Before that, or with no list, the copy starts low and ends long before progress. Evidence: the SpaceTime check
 /// replays the native Pit Room probe's two alpha passes, whose corrupted loading state it matches, and runs the original
 /// copy over the cartridge for every position and slot, requiring this service's overwrite to leave every flag of

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// and the player's hits take credit away so sustained fire holds her back. The credit counts around
 /// <see cref="CreditSpan"/> units, and how it does is gameplay: earning credit adds without saturation, so a credit
 /// earned past the span starts again from zero and spends more turns below one step, while a shot's cost is kept only
-/// when the remainder is not overdrawn, the original reading any remainder in the upper half of the span as overdrawn,
+/// when the remainder is not overdrawn, the game reading any remainder in the upper half of the span as overdrawn,
 /// otherwise the credit is emptied. Every operation on the credit lives here, so the span and both rules are stated
 /// once.
 /// </summary>

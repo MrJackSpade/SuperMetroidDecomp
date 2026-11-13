@@ -16,19 +16,19 @@ public static class ScreenConversions
     }
 
     /// <summary>
-    /// The screen position word pair of <paramref name="room"/> under the camera: the native
-    /// <c>position - camera</c> subtraction kept as wrapped unsigned words.
+    /// The screen position of <paramref name="room"/> under the camera: the game's
+    /// position less camera subtraction kept as wrapped unsigned coordinates.
     /// </summary>
     public static Position16<ScreenPixels> ToScreen(this Position16<RoomPixels> room, Position16<RoomPixels> camera) =>
         new(unchecked((ushort)(room.X - camera.X)), unchecked((ushort)(room.Y - camera.Y)));
 
     /// <summary>
-    /// The sprite placement of a screen position: sprite coordinates are screen pixels, so the words are
+    /// The sprite placement of a screen position: sprite coordinates are screen pixels, so the coordinates are
     /// unchanged and the sprite list applies its placement range rules.
     /// </summary>
     public static Position16<SpritePixels> ToSpritePosition(this Position16<ScreenPixels> screen) => new(screen.X, screen.Y);
 
-    /// <summary>The whole screen pixels of an unsigned 8.8 screen position: each axis's high byte.</summary>
+    /// <summary>The whole screen pixels of an unsigned 8.8 screen position: each axis's whole part.</summary>
     public static Position16<ScreenPixels> WholePixels(this Position16<ScreenSubpixels> position) =>
         new((ushort)(position.X >> 8), (ushort)(position.Y >> 8));
 }

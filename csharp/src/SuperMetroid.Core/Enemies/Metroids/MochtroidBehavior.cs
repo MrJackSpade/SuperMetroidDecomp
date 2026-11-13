@@ -100,7 +100,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         // The game treats each coordinate difference as signed, divides it by four,
-        // shifts that result left eight fractional bits, and subtracts it from velocity.
+        // takes that result as 256ths of a pixel, and subtracts it from velocity.
         // This is a proportional attraction toward Samus—not a fixed-speed seek—and the
         // accumulated fraction is observable before either whole component reaches ±3.
         int yDifference = CoordinateAxis.Difference(slot.Position.Y.Whole, samus.Position.Y.Whole);

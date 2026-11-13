@@ -9,7 +9,7 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Enemies.Beetom;
 
-/// <summary>The Beetom species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Beetom species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -540,7 +540,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         state.AttachedToSamus = false;
     }
 
-    /// <summary>Installs a Beetom animation and primes its instruction timer.</summary>
+    /// <summary>Installs a Beetom animation and primes its animation timer.</summary>
     private static void SetBeetomAnimationScript(
         RoomEnemySlot slot,
         BeetomEnemyState state,
@@ -577,13 +577,13 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         });
     }
 
-    /// <summary>Ports Beetom's initialization AI.</summary>
+    /// <summary>Runs Beetom's initialization AI.</summary>
     internal void RunBeetomInitializationAi(RoomEnemySlot slot, EnemySpawnSurroundings surroundings)
     {
         InitializeBeetom(slot, surroundings.Samus, surroundings.ControllerInput);
     }
 
-    /// <summary>Ports Beetom's main AI.</summary>
+    /// <summary>Runs Beetom's main AI.</summary>
     internal void RunBeetomMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunBeetomMain(slot, slot.RequireSpeciesState<BeetomEnemyState>(), frame.Samus, frame.Level, frame.ControllerInput);

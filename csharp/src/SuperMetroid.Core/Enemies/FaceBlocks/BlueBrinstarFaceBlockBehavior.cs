@@ -77,7 +77,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
             StartGlow(slot);
         _glowStepCountdown = GlowFrameUpdates;
 
-        // Keeps only parameter two bit zero, moved to the sign bit. This looks
+        // Keeps only the facing parameter two selects. This looks
         // backwards until main AI is read: activation requires the Samus delta sign to be
         // *different* from this marker.
         state.FacesRight = slot.SpawnSettings<FaceBlockSpawnSettings>().Facing == HorizontalDirection.Right;

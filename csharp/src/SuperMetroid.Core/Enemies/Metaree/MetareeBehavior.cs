@@ -108,7 +108,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         MetareeEnemyState state,
         SamusState samus)
     {
-        // The proximity test computes a wrapped signed difference, takes its two's-complement
+        // The proximity test computes a wrapped signed difference, takes its signed
         // absolute value, and performs an unsigned compare. It notably does *not* check that
         // Samus is below the actor; preserving that retail bug matters to the velocity math.
         int horizontalDistance = Math.Abs(

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// How far a Bull steps up or left in one update (#1607): its forward step's distance reversed, and, when that distance
 /// is whole pixels with no fraction, one 65536th of a pixel further. A Bull charging up or left at a speed and angle whose
 /// step has no fraction therefore drifts one 65536th of a pixel further each update than one charging down or right, and
-/// its position's fraction, and in time its whole pixels, follow the original's.
+/// its position's fraction, and in time its whole pixels, follow the game's.
 /// </summary>
 /// <remarks>
 /// Consulted for each axis of a Bull's move in every update it flies, after its step's distance is formed from the

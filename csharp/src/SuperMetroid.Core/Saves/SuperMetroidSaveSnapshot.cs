@@ -17,7 +17,7 @@ public sealed record SuperMetroidSaveSnapshot
     /// <summary>Whether door transitions automatically clear the selected HUD item.</summary>
     public bool IconCancelEnabled { get; init; }
 
-    /// <summary>The persistent excess-missile accumulator.</summary>
+    /// <summary>The persistent excess-missile count.</summary>
     public int ReserveMissiles { get; init; }
 
     /// <summary>Whether the alternate Japanese text setting is enabled.</summary>
@@ -98,7 +98,7 @@ public sealed record SuperMetroidSaveSnapshot
     /// <summary>The persistent progress to save; the snapshot owns this copy.</summary>
     public PersistentProgress Progress { get; init; } = new();
 
-    /// <summary>Captures the translated gameplay owners into a detached snapshot.</summary>
+    /// <summary>Captures the gameplay owners into a detached snapshot.</summary>
     /// <param name="samus">Source of player inventory, ammunition, energy, and reserve state.</param>
     /// <param name="system">Source of persistent events, bosses, room bits, maps, and load state.</param>
     /// <param name="context">The save location, timer, bindings and options a save snapshot records with Samus and system state (#633).</param>

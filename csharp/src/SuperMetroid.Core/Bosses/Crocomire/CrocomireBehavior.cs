@@ -7,7 +7,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
-/// <summary>The Crocomire species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Crocomire species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -97,7 +97,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.DeathPhase == CrocomireDeathPhase.Fighting)
         {
             BridgeCollapse.HandleCrocomireBridgeThreshold(state);
-            // The word write runs even on the frame that starts bridge collapse.
+            // The scroll write runs even on the frame that starts bridge collapse.
             // Later death phases retain these zones until the skeleton enters the river.
             _room.Services.RoomScroll.Write(CrocomireCameraDefinitions.BridgeLeftScreen,
                 samus is not null && CoordinateAxis.Difference(samus.Position.X.Whole, CrocomireCameraDefinitions.BridgeVisibleSamusX) >= 0
@@ -282,7 +282,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         Fight.AdvanceCrocomireBodyAnimation(slot, context.Samus, context.Level, context.Camera.X);
     }
 
-    /// <summary>Ports Crocomire's main AI.</summary>
+    /// <summary>Runs Crocomire's main AI.</summary>
     internal void RunCrocomireMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunCrocomireMain(slot, frame.Samus, frame.Camera);

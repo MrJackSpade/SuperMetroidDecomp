@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
-/// Samus's breath bubbles and lava spray wait for the splashes, dust and spray that the original game kept in the same
+/// Samus's breath bubbles and lava spray wait for the splashes, dust and spray that the game kept in the same
 /// places as them (#1556). A breath bubble forms only once the effect in its place has run out: the previous bubble, the
 /// right-hand particle of a landing's dust or splash, or the third particle of a lava spray; a landing on a surface that
 /// shows no landing effect ends that wait at once. Lava spray starts again only once the effect in its leading place has

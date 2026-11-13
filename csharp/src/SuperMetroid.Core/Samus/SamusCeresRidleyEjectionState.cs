@@ -24,7 +24,7 @@ public sealed class SamusCeresRidleyEjectionState
     public bool InitializationPending { get; private set; }
 
     /// <summary>
-    /// The wall the shove carries Samus toward (<c>samus_var62</c>); <see cref="CeresRidleyShoveDirection.None"/>
+    /// The wall the shove carries Samus toward; <see cref="CeresRidleyShoveDirection.None"/>
     /// until initialization chooses a side and again once wall contact ends the shove.
     /// </summary>
     public CeresRidleyShoveDirection PushDirection { get; private set; }
@@ -102,7 +102,7 @@ public sealed class SamusCeresRidleyEjectionState
         }
 
         // The bomb jump's falling horizontal movement deliberately uses the current pose's movement
-        // type (knockback for the knockback poses) and the persistent base/extra-run words. Direction comes
+        // type (knockback for the knockback poses) and the persistent base/extra-run speeds. Direction comes
         // from the ejection's own direction instead of pose facing, so Ridley always throws toward a wall.
         SamusHorizontalSpeedState horizontalSpeed = samus.HorizontalSpeed;
         horizontalSpeed.SelectEnvironmentSpeedTable(
@@ -115,7 +115,7 @@ public sealed class SamusCeresRidleyEjectionState
         if (horizontal.Collided)
         {
             // Moving left or right ends by killing X speed when a collision is detected,
-            // which cancels speed boosting and clears the extra-run words as well.
+            // which cancels speed boosting and clears the extra-run speed as well.
             samus.HorizontalSpeed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
             // Restore the ordinary handlers, then
             // The knockback's vertical collision sees the still-set collision flag,
@@ -133,7 +133,7 @@ public sealed class SamusCeresRidleyEjectionState
         }
 
         // Accelerates only while the signed whole speed is below five. The
-        // resulting 16.16 word is passed directly to MoveDown; unlike the common falling
+        // resulting 16.16 speed is passed directly to MoveDown; unlike the common falling
         // wrapper, this path adds no extra one-pixel downward bias.
         if (samus.Kinematics.YSpeed.Whole < TerminalDownwardSpeed)
             samus.Kinematics.YSpeed += samus.Kinematics.YAcceleration;

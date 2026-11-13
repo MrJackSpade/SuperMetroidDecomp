@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
-/// Crocomire's power-bomb reactions for each of its fifty fight-body frames. The original game reads the
-/// mouth from the component selectors of the frame's spritemap; editable sprite art cannot change mouth admission.
+/// Crocomire's power-bomb reactions for each of its fifty fight-body frames. The game reads the
+/// mouth from the parts of the frame's picture; editable sprite art cannot change mouth admission.
 /// </summary>
 internal static class CrocomirePowerBombReactionDefinitions
 {

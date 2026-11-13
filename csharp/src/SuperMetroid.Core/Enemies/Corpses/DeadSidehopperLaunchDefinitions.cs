@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 public static class DeadSidehopperLaunchDefinitions
 {
     /// <summary>
-    /// Post-landing launch velocities indexed by the modulo-four jump phase: X words from
+    /// Post-landing launch velocities indexed by the modulo-four jump phase: X and Y speeds from
     /// the authored X and Y tables.
     /// </summary>
     private static readonly EightEightVector<RoomPixels>[] Launches =

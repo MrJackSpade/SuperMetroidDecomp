@@ -1,18 +1,18 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// Kraid's mouth shot latches. The original game sets, clears and tests each latch on its own. The pending reopen count
-/// that shares their word in the original game is <see cref="KraidEnemyState.PendingMouthReopens"/>.
+/// Kraid's mouth shot latches. The game sets, clears and tests each latch on its own. The pending reopen count
+/// the game keeps with them is <see cref="KraidEnemyState.PendingMouthReopens"/>.
 /// </summary>
 [Flags]
 public enum KraidMouthFlags
 {
     /// <summary>No latch is set and no reopen is pending.</summary>
     None = 0,
-    /// <summary>Bit 0: a charged shot hit the mouth or body this pass.</summary>
+    /// <summary>A charged shot hit the mouth or body this pass.</summary>
     Hit = 1 << 0,
-    /// <summary>Bit 1: a body hit started the eye glow with a charged shot, arming the reopen.</summary>
+    /// <summary>A body hit started the eye glow with a charged shot, arming the reopen.</summary>
     ReopenArmed = 1 << 1,
-    /// <summary>Bit 2: a mouth hit landed while the reopen was armed.</summary>
+    /// <summary>A mouth hit landed while the reopen was armed.</summary>
     ReopenPending = 1 << 2,
 }

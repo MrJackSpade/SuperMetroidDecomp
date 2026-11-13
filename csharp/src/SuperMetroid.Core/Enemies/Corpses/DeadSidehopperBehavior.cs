@@ -7,7 +7,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Corpses;
 
-/// <summary>The dead sidehopper species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The dead sidehopper species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -319,7 +319,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
 
     /// <summary>
     /// The end-hop cue selects the post-landing state from whether Shitroid has begun draining the victim. It is
-    /// deliberately instruction-driven: replacing it with a main-AI timer would make animation length and movement
+    /// deliberately cue-driven: replacing it with a main-AI timer would make animation length and movement
     /// cadence diverge.
     /// </summary>
     private static void SelectDeadSidehopperPostAnimationState(RoomEnemySlot slot)
@@ -419,11 +419,11 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
 
 
 
-    /// <summary>Starts a new dead Sidehopper animation, resetting both instruction clocks before its first step runs.</summary>
+    /// <summary>Starts a new dead Sidehopper animation, resetting both animation clocks before its first step runs.</summary>
     internal static void SetDeadSidehopperProgram(RoomEnemySlot slot, DeadSidehopperEnemyState state, DeadTourianProgram program) =>
         state.Playback = StartDeadTourianProgram(slot, program);
 
-    /// <summary>Resets <paramref name="slot"/>'s instruction clocks and returns the playback of <paramref name="program"/>'s animation from its start.</summary>
+    /// <summary>Resets <paramref name="slot"/>'s animation clocks and returns the playback of <paramref name="program"/>'s animation from its start.</summary>
     internal static AnimationPlayback<DeadTourianProgram> StartDeadTourianProgram(RoomEnemySlot slot, DeadTourianProgram program)
     {
         slot.FrameHold = WrappingCountdown.Start(1);

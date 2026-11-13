@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Spatial;
 
 /// <summary>
 /// An angle of 256 units per turn that wraps at a full turn, in the sine-table convention: zero points right and
-/// <c>$40</c> up (negative Y). This is the angle the game's sine and cosine lookups take; <see cref="RotationAngle"/>
+/// <c>64</c> up (negative Y). This is the angle the game's sine and cosine lookups take; <see cref="RotationAngle"/>
 /// is the form with a fraction, whose whole units are this value.
 /// </summary>
 [EncodingOwner("sine-table byte angle")]
@@ -80,7 +80,7 @@ public readonly record struct TrigonometryAngle : IComparable<TrigonometryAngle>
     /// </summary>
     public TrigonometryAngle InSecondHalfTurn() => new(RawValue % HalfTurn.RawValue + HalfTurn.RawValue);
 
-    /// <summary>This angle as the high byte of an 8.8 <see cref="RotationAngle"/>.</summary>
+    /// <summary>This angle as the whole steps of an 8.8 <see cref="RotationAngle"/>.</summary>
     public RotationAngle ToAngle() => RotationAngle.FromSteps(RawValue);
 
     /// <inheritdoc />

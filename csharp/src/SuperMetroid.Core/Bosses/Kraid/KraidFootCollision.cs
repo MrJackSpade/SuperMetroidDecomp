@@ -22,7 +22,7 @@ internal static class KraidFootCollision
     }
 
     /// <summary>Moving-foot horizontal placement within poses0,1,2,3 and the return sequence.</summary>
-    /// <remarks>Independently reviewed for #1165 against the original foot routine. Pose changes
+    /// <remarks>Independently reviewed for #1165 against the game's foot behaviour. Pose changes
     /// occur at frames5,10,11,21,23,31; frame17 reverses travel. Each pose's
     /// placement advances by two pixels. Pose2 at frame10 is the raised transition.</remarks>
     internal static int SecondX(int frame)

@@ -7,16 +7,16 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// </summary>
 internal static class TorizoRandomDefinitions
 {
-    /// <summary>Bomb Torizo drools while hurt when random bits 1, 6, 8 and 15 are clear: one time in sixteen.</summary>
+    /// <summary>Bomb Torizo drools while hurt when the sample has none of its four tested bits set: one time in sixteen.</summary>
     internal static readonly TorizoRandomBits LowHealthDrool = TorizoRandomBits.At(1, 6, 8, 15);
 
-    /// <summary>Golden Torizo's low-health call is taken when random bits 1 and 8 are clear: one time in four.</summary>
+    /// <summary>Golden Torizo's low-health call is taken when the sample has neither of its two tested bits set: one time in four.</summary>
     internal static readonly TorizoRandomBits LowHealthCall = TorizoRandomBits.At(1, 8);
 
-    /// <summary>Golden Torizo's medium-range attack is taken when random bits 4 and 8 are clear: one time in four.</summary>
+    /// <summary>Golden Torizo's medium-range attack is taken when the sample has neither of its two tested bits set: one time in four.</summary>
     internal static readonly TorizoRandomBits MediumRangeAttack = TorizoRandomBits.At(4, 8);
 
-    /// <summary>Golden Torizo's forward leap goes while held directions draw random bits 0 and 8 clear: one time in four.</summary>
+    /// <summary>Golden Torizo's forward leap goes while held directions draw a sample with neither of its two tested bits set: one time in four.</summary>
     internal static readonly TorizoRandomBits ForwardLeap = TorizoRandomBits.At(0, 8);
 
     /// <summary>The initial drool's added fall speed, 0 through 31 in raw 8.8 units: the selection modulo 32.</summary>

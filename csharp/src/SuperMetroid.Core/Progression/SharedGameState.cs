@@ -140,7 +140,7 @@ public sealed class SharedGameState
 
     /// <summary>
     /// Advances the shared RNG seed exactly as the game's generator
-    /// does, preserving the two half-by-half products, the carry into the upper half,
+    /// does, preserving the two half-by-half products, the overflow into the upper half,
     /// and the final addition wrapping past 65535. Every caller observes the updated seed.
     /// </summary>
     /// <returns>The new RNG state as a sample, 0 through 65535, also stored in <see cref="Random"/>.</returns>

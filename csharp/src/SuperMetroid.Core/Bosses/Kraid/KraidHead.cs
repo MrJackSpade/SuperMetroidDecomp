@@ -93,7 +93,7 @@ internal sealed class KraidHead
         state.ThinkingTimer = ReadKraidThinkingTimer();
     }
 
-    /// <summary>Advances the open-mouth attack and its head instruction timing.</summary>
+    /// <summary>Advances the open-mouth attack and its head animation timing.</summary>
     internal void RunKraidMouthOpenAttack(RoomEnemySlot body, KraidEnemyState state)
     {
         if (ProcessKraidHeadInstruction(state) == KraidHeadProgramResult.ProgramEnded)
@@ -101,8 +101,8 @@ internal sealed class KraidHead
             SetupKraidFirstPhaseThinking(body, state);
             state.BodyState.HeadTimer = 90;
 
-            // Bits 2 and 8-15 are populated by body/mouth projectile handling. Preserve
-            // the original game arithmetic now so adding collision cannot change sequencing.
+            // The reopen latch and the pending reopen count are set by body/mouth shot handling. Keep
+            // the game's order exactly so adding collision cannot change sequencing.
             if ((state.MouthFlags & KraidMouthFlags.ReopenPending) != KraidMouthFlags.None)
             {
                 state.RemoveOneMouthReopen();
@@ -118,7 +118,7 @@ internal sealed class KraidHead
             return;
         }
 
-        // The open-mouth tilemap remains installed for 64 frames. Retail emits a rock on
+        // The open mouth stays shown for 64 frames. Retail emits a rock on
         // every sixteenth timer value, including the entry frame after the open-mouth setup reloads it.
         if (state.DisplayedHeadFrame is { MouthStage: KraidHeadFrame.FullyOpenMouthStage } &&
             KraidCadenceDefinitions.SpitRockEverySixteenthMouthUpdate.IsDue(state.BodyState.HeadTimer))

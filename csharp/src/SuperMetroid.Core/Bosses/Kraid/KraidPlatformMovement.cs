@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>Movement data used by Kraid's belly-platform firing routine.</summary>
+/// <summary>Movement data used by Kraid's belly-platform firing.</summary>
 internal static class KraidPlatformMovement
 {
     /// <summary>

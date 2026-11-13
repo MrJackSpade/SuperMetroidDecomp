@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// Consulted whenever a room object writes a block's behaviour (a door cap's trigger, a scroll's extension, a statue's
 /// slopes), so that a later change of the block's collision kind, by the object's own draws or by another object, finds
 /// the reading the game finds. Behaviours the installation holds are decoded once, with every reading, by the import's
-/// codec of the original behaviour byte.
+/// codec of the game's block behaviour.
 /// </para>
 /// <para>
 /// Evidence: the original game stores one behaviour byte beside each block's level word and keeps it when a block's

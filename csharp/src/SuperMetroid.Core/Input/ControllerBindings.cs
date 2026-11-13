@@ -162,7 +162,7 @@ public readonly record struct ControllerBindings(
     /// <remarks>
     /// A valid save checksum proves only that the slot was written consistently; it does
     /// not make malformed button bindings safe. Replacing a corrupt permutation with defaults
-    /// used to hide both bad save data and translation bugs. The caller now gets the exact
+    /// used to hide both bad save data and decoding bugs. The caller now gets the exact
     /// seven bindings in the exception and can decide whether to delete or repair the save.
     /// </remarks>
     public ControllerBindings RequireRetailPermutation()

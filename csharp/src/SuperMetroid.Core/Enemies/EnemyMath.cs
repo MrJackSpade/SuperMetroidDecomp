@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// Stateless enemy arithmetic shared by the species routines: trigonometry angles, whole-pixel velocity
+/// Stateless enemy arithmetic shared by the species: trigonometry angles, whole-pixel velocity
 /// steps and sine/cosine products by short radii (<see cref="ShortCircleProduct"/>).
 /// </summary>
 internal static class EnemyMath
@@ -34,7 +34,7 @@ internal static class EnemyMath
     /// </summary>
     internal static Bearing CalculateBearing(Offset16<RoomPixels> delta)
     {
-        // A signed word's magnitude reaches 32,768, which a short cannot hold: the offsets widen to int before their
+        // A signed coordinate difference's magnitude reaches 32,768, which a short cannot hold: the offsets widen to int before their
         // absolute values are taken, so -32,768 gives 32,768 instead of overflowing.
         int quadrant = 0;
         int absoluteX = Math.Abs((int)delta.X);
@@ -48,7 +48,7 @@ internal static class EnemyMath
         // turn and left three quarters; each octant turns from its nearer compass direction by the slope's eighth.
         if (absoluteY < absoluteX)
         {
-            // The octant is chosen from the full distances; the slope keeps the original's limits, so offsets
+            // The octant is chosen from the full distances; the slope keeps the game's limits, so offsets
             // beyond 255 pixels bend the angle (AimAngleSlope).
             int divided = AimAngleSlope.Of(absoluteY, absoluteX);
             return Bearing.Wrapped(quadrant switch
@@ -172,16 +172,16 @@ internal static class EnemyMath
     /// <summary>
     /// The velocity of <paramref name="wholePixels"/> whole pixels per update, 0 through 127, along
     /// <paramref name="angle"/>'s sine: the signed sine sample, which peaks at one pixel per update, times the whole
-    /// speed. The product of a whole speed loses nothing, so it is the sample scaled exactly; the routines that read the
+    /// speed. The product of a whole speed loses nothing, so it is the sample scaled exactly; the behaviours that read the
     /// sample itself as a velocity take one pixel.
     /// </summary>
     internal static SignedEightEight SineVelocity(TrigonometryAngle angle, int wholePixels) =>
         Trigonometry.MultiplySignedSine(SignedEightEight.FromPixels(Ensure.BetweenInclusive(0, FastestSineSpeed, wholePixels)), angle);
 
     /// <summary>
-    /// The fastest whole speed, in pixels per update, a sine velocity is formed from (#1627): the original multiplies the
+    /// The fastest whole speed, in pixels per update, a sine velocity is formed from (#1627): the game multiplies the
     /// sine by the speed as a signed count of whole pixels, which goes no further, and every caller's speed lies within it,
-    /// so a faster one is rejected rather than given a product the original never forms.
+    /// so a faster one is rejected rather than given a product the game never forms.
     /// </summary>
     private const int FastestSineSpeed = 127;
 

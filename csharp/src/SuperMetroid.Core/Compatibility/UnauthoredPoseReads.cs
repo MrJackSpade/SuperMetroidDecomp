@@ -1,11 +1,11 @@
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
-/// What Samus's three pose numbers past her authored poses define (#1551). The pose definitions author one eight-byte
+/// What Samus's three pose numbers past her authored poses define (#1551). The pose definitions author one
 /// record per pose up to the last authored one; the game reads every pose's facing, aim, collision radius and shot
 /// height by the pose's number, so the three numbers after the last authored pose read the X-ray cone code stored after
 /// the definitions as theirs. The first faces right, the other two face neither way; none fires a shot, and each places
-/// a held charge's flare as the low four bits of its aim byte select; their radii and shot heights are those bytes read
+/// a held charge's flare as its aim value modulo 16 selects; their radii and shot heights are that data read
 /// as numbers.
 /// </summary>
 /// <remarks>

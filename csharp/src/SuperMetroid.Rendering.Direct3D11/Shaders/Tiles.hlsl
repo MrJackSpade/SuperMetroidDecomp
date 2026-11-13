@@ -13,7 +13,7 @@ cbuffer TileParameters : register(b0)
     // is the depth of what a pass draws (#1514, #1634): zero for everything; for a sprite insertion, one more than the depth
     // whose sprites it inserts; for a layer pass, which of its pictures' parts it draws (DrawsBehindPart or
     // DrawsInFrontPart).
-    uint Operation, TilemapWord, LayerWindowed, HorizontalScroll;
+    uint Operation, TableWord, LayerWindowed, HorizontalScroll;
     uint VerticalScroll, Reserved5, Reserved6, DrawnDepth;
     uint TransparentZero, Level, AddR, AddG;
     uint AddB, Reserved2, RoomSource, Reserved3;
@@ -41,11 +41,11 @@ static const uint SourceForeground = 1, SourceBackground = 2, SourceSky = 3, Sou
 static const uint SourceBossBody = 6, SourceXrayReveal = 7, SourceLibraryBackground = 8;
 // The HUD's placed pictures (PicturedHud, #1466), at the HUD's place at the top of the screen.
 static const uint SourceHud = 10;
-// A pictured plane (PicturedPlane, #1467, #1555), its table's word in TilemapWord: the count of its pictures, then two
+// A pictured plane (PicturedPlane, #1467, #1555), its table at room level word TableWord: the count of its pictures, then two
 // words each in drawing order, the picture's offset and its upper-left plane pixel, x below y, each a signed half. The
 // plane does not repeat.
 static const uint SourcePicturedPlane = 11;
-// A frontend picture grid (PictureGridLayer, #1467), its table at room level word `TilemapWord`: its width and height in
+// A frontend picture grid (PictureGridLayer, #1467), its table at room level word TableWord: its width and height in
 // cells, x below y, then a word per cell row by row, its one-cell picture's offset (zero for none) with its horizontal and
 // vertical mirroring in bits 30 and 31. The grid does not repeat (#1555).
 static const uint SourcePictureGrid = 12;
@@ -553,9 +553,9 @@ bool SourcePicture(uint part, uint2 sampleScreen, uint2 scroll, uint2 screen, ou
     else if (source == SourceHud)
         shown = part == PartBehind && HudPicture(screen, within, picture);
     else if (source == SourcePicturedPlane)
-        shown = part == PartBehind && PlanePicture(TilemapWord, PlanePosition(sampleScreen, scroll), within, picture);
+        shown = part == PartBehind && PlanePicture(TableWord, PlanePosition(sampleScreen, scroll), within, picture);
     else if (source == SourcePictureGrid)
-        shown = part == PartBehind && GridPicture(TilemapWord, PlanePosition(sampleScreen, scroll), within, picture);
+        shown = part == PartBehind && GridPicture(TableWord, PlanePosition(sampleScreen, scroll), within, picture);
     else
         shown = RoomTile(source, scrolled, part, entry, within, picture);
     // Every background draws from pictures (#1403); a position without one shows nothing.
@@ -603,12 +603,12 @@ void Main(uint3 id : SV_DispatchThreadID)
     if (Operation == OpXrayRoom) { Output[id.xy] = XrayGameplay(id.xy); return; }
     if (Operation == OpMessageText)
     {
-        // The message's picture (#1392, #1555) with its top-left corner at screen pixel (HorizontalScroll, TilemapWord), in
+        // The message's picture (#1392, #1555) with its top-left corner at screen pixel (HorizontalScroll, VerticalScroll), in
         // the message's text colours (#1408): a clear pixel shows nothing, and nothing shows outside the picture.
         uint picture = RoomLevels[RoomMessagePictureWord];
-        if (picture == 0 || id.x < HorizontalScroll || id.y < TilemapWord) return;
+        if (picture == 0 || id.x < HorizontalScroll || id.y < VerticalScroll) return;
         uint size = RoomLevels[picture + PictureSizeWord];
-        uint2 within = id.xy - uint2(HorizontalScroll, TilemapWord);
+        uint2 within = id.xy - uint2(HorizontalScroll, VerticalScroll);
         if (within.x >= (size & 65535) || within.y >= (size >> 16)) return;
         uint index;
         uint shown = PicturePixel(picture, within, index);

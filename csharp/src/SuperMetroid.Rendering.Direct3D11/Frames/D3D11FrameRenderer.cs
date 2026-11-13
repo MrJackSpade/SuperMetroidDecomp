@@ -290,7 +290,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         owner.Context.PSSetConstantBuffer(0, constants);
         owner.Context.PSSetShaderResource(0, displaySource);
         owner.Context.Draw(3, 0);
-        // Avoid SRV/UAV hazards on the next emulation frame and release target binding
+        // Avoid SRV/UAV hazards on the next frame and release target binding
         // before a later swapchain resize. Raster state belongs to this render owner.
         owner.Context.PSUnsetShaderResource(0);
         owner.Context.OMSetRenderTargets(Array.Empty<ID3D11RenderTargetView>());
@@ -427,10 +427,10 @@ public sealed class D3D11FrameRenderer : IDisposable
     {
         var data = ClearUploadConstants();
         data[0] = (uint)D3D11TileOperation.MessageText;
-        // The picture's top line goes in the layer word and its left column in the horizontal scroll; the room levels hold
-        // the picture (#1392).
-        data[1] = layer.Corner.Y;
+        // The picture's top-left corner goes in the scroll's words, its left column then its top line; the room levels
+        // hold the picture (#1392).
         data[3] = layer.Corner.X;
+        data[4] = layer.Corner.Y;
         data[25] = (uint)Math.Clamp(layer.FirstLine, 0, D3D11Screen.Height);
         data[26] = (uint)Math.Clamp(layer.EndLine, 0, D3D11Screen.Height);
         fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
@@ -452,7 +452,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         if (layer.Scenery is { } scenery)
             DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch
             {
-                Map = roomLevels.PlaneTable(scenery.Plane), Scroll = PlaneScroll(scenery.Scroll), RoomSource = D3D11RoomSource.PicturedPlane,
+                Table = roomLevels.PlaneTable(scenery.Plane), Scroll = PlaneScroll(scenery.Scroll), RoomSource = D3D11RoomSource.PicturedPlane,
                 FirstScanline = (uint)layer.HudLines,
             });
         DispatchFloor(layer.Transform, layer.HudLines, floorStart);
@@ -810,7 +810,7 @@ public sealed class D3D11FrameRenderer : IDisposable
                     // The grid's cell pictures, scrolled by its offset and not repeating (#1467, #1555), within its window if it names one (#1514).
                     DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch
                     {
-                        Map = roomLevels.GridTable(grid.Grid), Scroll = PlaneScroll(grid.Scroll), RoomSource = D3D11RoomSource.PictureGrid,
+                        Table = roomLevels.GridTable(grid.Grid), Scroll = PlaneScroll(grid.Scroll), RoomSource = D3D11RoomSource.PictureGrid,
                         Window = grid.Window,
                     });
                     break;
@@ -818,7 +818,7 @@ public sealed class D3D11FrameRenderer : IDisposable
                     // The plane's placed pictures, every pixel of each (#1467, #1514), scrolled by its offset (#1555).
                     DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch
                     {
-                        Map = roomLevels.PlaneTable(pictured.Plane), Scroll = PlaneScroll(pictured.Scroll),
+                        Table = roomLevels.PlaneTable(pictured.Plane), Scroll = PlaneScroll(pictured.Scroll),
                         RoomSource = D3D11RoomSource.PicturedPlane, TransparentZero = pictured.DrawsOpaque ? 0u : 1u,
                     });
                     break;
@@ -898,7 +898,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         // a short managed array. The trailing header words supply scanline clipping.
         // The tile shader's header words three and four are the layer's scroll; what a layer shows says where it repeats (#1514).
         var data = ClearUploadConstants();
-        data[0] = (uint)operation; data[1] = tile.Map; data[3] = tile.Scroll.X;
+        data[0] = (uint)operation; data[1] = tile.Table; data[3] = tile.Scroll.X;
         data[4] = tile.Scroll.Y; data[7] = tile.DrawnDepth;
         data[8] = tile.TransparentZero; data[9] = tile.Level; data[10] = tile.Red; data[11] = tile.Green; data[12] = tile.Blue;
         data[14] = (uint)tile.RoomSource;

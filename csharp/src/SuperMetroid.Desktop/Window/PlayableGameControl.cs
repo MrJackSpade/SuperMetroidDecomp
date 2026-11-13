@@ -491,8 +491,8 @@ public sealed class PlayableGameControl : UserControl
             pendingDisplay = PresentationFrame(captured.Snapshot);
             frame = captured.Frame;
 
-            // The session already advanced its SPC model and synthesized this update's samples
-            // inside Step; the bank $82 handshake never depends on this host. Only submission
+            // The session already played this update's sounds and mixed its samples inside Step,
+            // and the game's sound acknowledgements never depend on this host. Only submission
             // is recoverable here: a device failure cannot change gameplay.
             if (audioDevice is not null)
             {
@@ -516,7 +516,7 @@ public sealed class PlayableGameControl : UserControl
             }
             DoorTransitionAutosave.TrySave(hostOptions.DoorTransitionAutosave, driver is not null,
                 previousGameState, stateStore, game);
-            frameTimings.RecordEmulatedFrame(Stopwatch.GetTimestamp() - frameStarted);
+            frameTimings.RecordGameUpdate(Stopwatch.GetTimestamp() - frameStarted);
             PublishGpuDisplay();
         }
         catch (Exception frameException)
@@ -677,7 +677,7 @@ public sealed class PlayableGameControl : UserControl
                 ? string.Empty
                 : $"  |  {driver.Progress}");
         string timingStatus = latestFrameTiming?.ToToolbarText() ??
-            "emu --.- | step --.-/--.- ms | late --.-";
+            "upd --.- | step --.-/--.- ms | late --.-";
         statusLabel.Text = timingStatus + GpuTimingText;
         string errorStatus = lastRecoverableError is null
             ? string.Empty

@@ -62,7 +62,7 @@ internal static class DesktopTimerSoakTests
                 var worker = control.gpuWorker ?? throw new InvalidOperationException("Host has no GPU worker.");
                 string adapter = await worker.Ready;
                 var output = control.audioDevice ?? throw new InvalidOperationException("Host has no audio device.");
-                counter.EmulatedFrameMeasured += Measure;
+                counter.GameUpdateMeasured += Measure;
                 counter.LateFramesRecorded += RecordDiscard;
                 int startFrame = game.FrameNumber;
                 control.SetPlaying(true);
@@ -94,7 +94,7 @@ internal static class DesktopTimerSoakTests
                 Check(worker.SubmittedUploadBytes > 0 && worker.SubmittedUploadCalls > 0
                     && worker.CaptureUploadTimings().Observed > 0, "desktop renderer did not publish upload telemetry");
                 control.SetPlaying(false);
-                counter.EmulatedFrameMeasured -= Measure;
+                counter.GameUpdateMeasured -= Measure;
                 counter.LateFramesRecorded -= RecordDiscard;
                 memory.Add(SoakMemorySample.Capture(process, elapsed));
                 Check(unchecked((ushort)(game.FrameNumber - startFrame)) == samples.Count, "desktop frame/timing count mismatch");
@@ -112,7 +112,7 @@ internal static class DesktopTimerSoakTests
             }
             finally
             {
-                counter.EmulatedFrameMeasured -= Measure;
+                counter.GameUpdateMeasured -= Measure;
                 counter.LateFramesRecorded -= RecordDiscard;
                 await control.StopRendererAsync();
             }

@@ -18,7 +18,7 @@ public static class FrameTimingCounterSmokeTest
         counter.Reset(timestamp: 10_000);
 
         for (int frame = 0; frame < 60; frame++)
-            counter.RecordEmulatedFrame(elapsedTicks: frame == 59 ? 8 : 4);
+            counter.RecordGameUpdate(elapsedTicks: frame == 59 ? 8 : 4);
         counter.RecordLateFrames(2.5);
 
         if (counter.TryTakeSnapshot(timestamp: 10_999, out _))
@@ -26,23 +26,23 @@ public static class FrameTimingCounterSmokeTest
         if (!counter.TryTakeSnapshot(timestamp: 11_000, out FrameTimingSnapshot snapshot))
             throw new InvalidDataException("Timing counter did not publish at its reporting interval.");
 
-        AssertNear(snapshot.EmulatedFramesPerSecond, 60, "emulated FPS");
-        AssertNear(snapshot.AverageEmulationMilliseconds, 244.0 / 60.0, "average step time");
-        AssertNear(snapshot.WorstEmulationMilliseconds, 8, "worst step time");
+        AssertNear(snapshot.UpdatesPerSecond, 60, "updates per second");
+        AssertNear(snapshot.AverageUpdateMilliseconds, 244.0 / 60.0, "average step time");
+        AssertNear(snapshot.WorstUpdateMilliseconds, 8, "worst step time");
         AssertNear(snapshot.LateFrames, 2.5, "late frames");
 
         // Publication starts a new interval instead of leaking the previous counts into the
         // next readout. This matters after an isolated RDP or debugger stall.
         if (!counter.TryTakeSnapshot(timestamp: 12_000, out FrameTimingSnapshot empty))
             throw new InvalidDataException("Timing counter did not start a second interval.");
-        AssertNear(empty.EmulatedFramesPerSecond, 0, "cleared emulated FPS");
+        AssertNear(empty.UpdatesPerSecond, 0, "cleared updates per second");
         AssertNear(empty.LateFrames, 0, "cleared late frames");
         AssertNear(observedDiscards, 2.5, "whole-run observer survives interval reset");
 
         return new FrameTimingCounterSmokeTestResult(
-            snapshot.EmulatedFramesPerSecond,
-            snapshot.AverageEmulationMilliseconds,
-            snapshot.WorstEmulationMilliseconds,
+            snapshot.UpdatesPerSecond,
+            snapshot.AverageUpdateMilliseconds,
+            snapshot.WorstUpdateMilliseconds,
             snapshot.LateFrames);
     }
 

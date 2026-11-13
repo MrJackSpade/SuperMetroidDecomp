@@ -2,7 +2,7 @@
 
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
-/// <summary>One cue of the downward shot gate's animations, with the operands its command carries.</summary>
+/// <summary>One cue of the downward shot gate's animations: what it does, with the values it acts on.</summary>
 internal abstract record DownwardGateProjectileCue
 {
     /// <summary>Closes the hierarchy to the cues declared here.</summary>

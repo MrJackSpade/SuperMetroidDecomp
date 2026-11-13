@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Rios;
 
 /// <summary>
 /// The Norfair Rio's idle and swoop animations and its flames' animations (#641). Each
-/// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="NorfairRioCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="NorfairRioCue"/> naming what it does.
 /// </summary>
 internal static class NorfairRioAnimations
 {

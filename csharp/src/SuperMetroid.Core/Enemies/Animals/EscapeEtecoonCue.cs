@@ -1,6 +1,6 @@
 ﻿namespace SuperMetroid.Core.Enemies.Animals;
 
-/// <summary>One cue of the escaping Etecoons' animations, with its typed operands.</summary>
+/// <summary>One cue of the escaping Etecoons' animations: what it does, with the values it acts on.</summary>
 internal abstract record EscapeEtecoonCue
 {
     /// <summary>Closes the hierarchy to the cues declared here.</summary>
@@ -17,7 +17,7 @@ internal abstract record EscapeEtecoonCue
     internal sealed record Move(int Offset) : EscapeEtecoonCue;
 
     /// <summary>Installs the Etecoon's movement behaviour.</summary>
-    /// <param name="FrameBehavior">The cue's FrameBehavior operand.</param>
+    /// <param name="FrameBehavior">The movement behaviour the cue installs.</param>
     internal sealed record SetFrameBehavior(EscapeEtecoonFrameBehavior FrameBehavior) : EscapeEtecoonCue;
 
     /// <summary>A cue that signals what it does and carries nothing else.</summary>

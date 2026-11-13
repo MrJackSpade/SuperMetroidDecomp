@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Boyon;
 
 /// <summary>
 /// Boyon's idle and bouncing loops (#641). Each
-/// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="BoyonCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="BoyonCue"/> naming what it does.
 /// </summary>
 internal static class BoyonAnimations
 {

@@ -7,6 +7,6 @@ internal enum CacatacCueKind
     PlaySpikeSound,
     /// <summary>Restores main AI's patrol from the walking direction.</summary>
     RestorePatrol,
-    /// <summary>Spits a spike in the direction its operand selects.</summary>
+    /// <summary>Spits a spike in the direction the cue names.</summary>
     SpawnSpike,
 }

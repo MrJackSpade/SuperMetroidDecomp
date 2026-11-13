@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 
 /// <summary>
 /// The Work Robot's unpowered poses and its walk, wall, recoil, laser and ledge animations (#641). Each
-/// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="WorkRobotCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="WorkRobotCue"/> naming what it does.
 /// </summary>
 internal static class WorkRobotAnimations
 {

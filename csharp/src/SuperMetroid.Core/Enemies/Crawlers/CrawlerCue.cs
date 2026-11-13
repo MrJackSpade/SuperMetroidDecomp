@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Crawlers;
 
-/// <summary>One cue of the crawlers' animations, with its typed operands.</summary>
+/// <summary>One cue of the crawlers' animations: what it does, with the values it acts on.</summary>
 /// <param name="Kind">What the cue does.</param>
-/// <param name="Function">The cue's Function operand.</param>
+/// <param name="Function">For a function cue: the crawling or falling behaviour it installs.</param>
 internal readonly record struct CrawlerCue(CrawlerCueKind Kind, CrawlerEnemyFunction Function = default);

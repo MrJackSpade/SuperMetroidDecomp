@@ -54,7 +54,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (cue)
         {
             case YardCue.SetMovementFunction setMovementFunction:
-                // Yard animation owns movement dispatch: the operand is a movement behaviour, not a branch.
+                // Yard animation owns movement dispatch: the cue's value is a movement behaviour, not a branch.
                 state.MovementFunction = setMovementFunction.MovementFunction;
                 return null;
             case YardCue.SetHidingAnimation setHidingAnimation:

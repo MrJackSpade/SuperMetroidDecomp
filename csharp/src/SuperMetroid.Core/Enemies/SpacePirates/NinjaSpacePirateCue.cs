@@ -2,7 +2,7 @@
 
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
-/// <summary>One cue of the ninja Space Pirates' animations, with its typed operands.</summary>
+/// <summary>One cue of the ninja Space Pirates' animations: what it does, with the values it acts on.</summary>
 internal abstract record NinjaSpacePirateCue
 {
     /// <summary>Closes the hierarchy to the cues declared here.</summary>
@@ -10,19 +10,19 @@ internal abstract record NinjaSpacePirateCue
     {
     }
 
-    /// <summary>Plays the operand's enemy-library sound.</summary>
+    /// <summary>Plays the cue's enemy-library sound.</summary>
     /// <param name="Sound">For a sound cue: the enemy-library sound it plays.</param>
     internal sealed record PlaySound(SoundEffectId? Sound) : NinjaSpacePirateCue;
 
     /// <summary>Sets the function main AI runs next.</summary>
-    /// <param name="Function">The cue's Function operand.</param>
+    /// <param name="Function">The function main AI runs next.</param>
     internal sealed record SetFunction(NinjaSpacePirateFunction Function) : NinjaSpacePirateCue;
 
     /// <summary>Sets the look the Pirate draws in.</summary>
     /// <param name="Shading">The shading the Pirate is drawn in from then on (#1512).</param>
     internal sealed record SetShading(PictureShading Shading) : NinjaSpacePirateCue;
 
-    /// <summary>Throws a claw in the operand's direction from the given offset.</summary>
+    /// <summary>Throws a claw in the cue's direction from the given offset.</summary>
     /// <param name="Throw">For a claw cue: the way the claw flies.</param>
     /// <param name="Offset">The cue's signed pixel offset, horizontal and vertical.</param>
     internal sealed record ThrowClaw(HorizontalDirection Throw, Offset16<RoomPixels> Offset) : NinjaSpacePirateCue;

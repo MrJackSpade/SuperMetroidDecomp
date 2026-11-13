@@ -16,7 +16,7 @@ public sealed class CrawlerEnemyState
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>
-    /// The current crawling or falling behaviour; animation commands install the surface-specific one.
+    /// The current crawling or falling behaviour; animation cues install the surface-specific one.
     /// </summary>
     public CrawlerEnemyFunction? Function { get; internal set; }
 

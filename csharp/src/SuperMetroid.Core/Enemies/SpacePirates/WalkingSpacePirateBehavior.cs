@@ -43,7 +43,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         switch (cue)
         {
             case WalkingSpacePirateCue.SetFunction setFunction:
-                // The pirate animation does not jump to the operand. It stores that function
+                // The pirate animation does not jump to the cue's function. It stores that function
                 // for main AI to dispatch next frame, then runs on.
                 RequireWalkingSpacePirateState(slot).Function = setFunction.Function;
                 return null;

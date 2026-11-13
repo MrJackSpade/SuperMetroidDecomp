@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Choot;
 
 /// <summary>
 /// Choot's idle, jumping and falling animations (#641). Each
-/// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="ChootCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="ChootCue"/> naming what it does.
 /// </summary>
 internal static class ChootAnimations
 {

@@ -1,6 +1,6 @@
 ﻿namespace SuperMetroid.Core.Enemies.Yard;
 
-/// <summary>One cue of the Yard's animations, with its typed operands.</summary>
+/// <summary>One cue of the Yard's animations: what it does, with the values it acts on.</summary>
 internal abstract record YardCue
 {
     /// <summary>Closes the hierarchy to the cues declared here.</summary>
@@ -17,11 +17,11 @@ internal abstract record YardCue
     internal sealed record SetDirection(YardDirection Direction) : YardCue;
 
     /// <summary>Names the animation the Yard hides with, or none.</summary>
-    /// <param name="OptionalTarget">The segment the cue names, or none where the operand is the empty-behaviour sentinel.</param>
+    /// <param name="OptionalTarget">The segment the cue names, or none where the cue names the empty behaviour.</param>
     internal sealed record SetHidingAnimation(YardSegment? OptionalTarget) : YardCue;
 
     /// <summary>Selects the movement function main AI runs.</summary>
-    /// <param name="MovementFunction">The cue's MovementFunction operand.</param>
+    /// <param name="MovementFunction">The movement function main AI runs.</param>
     internal sealed record SetMovementFunction(YardMovementFunction MovementFunction) : YardCue;
 
     /// <summary>A cue that signals what it does and carries nothing else.</summary>

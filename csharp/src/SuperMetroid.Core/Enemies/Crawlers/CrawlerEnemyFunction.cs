@@ -6,13 +6,13 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 /// </summary>
 public enum CrawlerEnemyFunction
 {
-    /// <summary>Return-only initial orange-Zoomer state, awaiting the animation command that installs a horizontal or vertical crawling function.</summary>
+    /// <summary>Return-only initial orange-Zoomer state, awaiting the animation cue that installs a horizontal or vertical crawling function.</summary>
     HZoomerAwaitingAnimationCue = 1,
     /// <summary>Maintains wall contact and traverses vertical edges, reversing its tangent toward Samus while attached.</summary>
     HZoomerCrawlingVertically,
     /// <summary>Maintains floor or ceiling contact and traverses edges, reversing its horizontal tangent toward Samus while attached.</summary>
     HZoomerCrawlingHorizontally,
-    /// <summary>Return-only shared-crawler initial state, awaiting the surface animation's command to install the crawling function.</summary>
+    /// <summary>Return-only shared-crawler initial state, awaiting the surface animation's cue to install the crawling function.</summary>
     AwaitingAnimationCue,
     /// <summary>Shared wall-crawling behaviour that probes horizontal attachment, advances vertically, and rotates the surface animation at inside or outside corners.</summary>
     CrawlingVertically,

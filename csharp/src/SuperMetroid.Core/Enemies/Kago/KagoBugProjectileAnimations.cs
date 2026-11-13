@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Kago;
 
 /// <summary>
 /// The Kago bugs' landing, falling, jumping and shot animations (#641). Each
-/// frame shows a <see cref="EnemyProjectileFrameId"/> and each cue is a <see cref="KagoBugProjectileCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyProjectileFrameId"/> and each cue is a <see cref="KagoBugProjectileCue"/> naming what it does.
 /// </summary>
 internal static class KagoBugProjectileAnimations
 {

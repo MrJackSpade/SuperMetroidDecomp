@@ -20,7 +20,7 @@ internal static class EnemySoundEffectDefinitions
     /// <summary>Enemy-library sound request emitted by Boyon's start-bounce cue.</summary>
     internal static readonly SoundEffectId BoyonBounceSound = EnemySound.SplashOut;
 
-    /// <summary>Enemy-library request emitted by the spike-release animation command.</summary>
+    /// <summary>Enemy-library request emitted by the spike-release animation cue.</summary>
     internal static readonly SoundEffectId CacatacSpikeSound = EnemySound.CacatacSpikes;
 
     /// <summary>Enemy-library sound queued when Samus wakes the tutorial Dachora.</summary>

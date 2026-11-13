@@ -14,7 +14,7 @@ internal static class AnimationResidence
     /// </summary>
     /// <param name="segments">The family's segments.</param>
     /// <param name="startingAt">The family's animations, by the segment each starts at.</param>
-    /// <param name="runsOnInto">The segment each run-on segment's list continues into, directly after its last beat.</param>
+    /// <param name="runsOnInto">The segment each run-on segment continues into, directly after its last beat.</param>
     /// <param name="playback">The playing animation and where it stands.</param>
     /// <exception cref="InvalidOperationException">An unstarted playback's animation starts at no segment.</exception>
     internal static TSegment ResidentSegment<TSegment, TFrame, TEvent>(

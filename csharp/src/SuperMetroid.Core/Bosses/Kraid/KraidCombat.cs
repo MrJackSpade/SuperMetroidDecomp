@@ -129,7 +129,7 @@ internal sealed class KraidCombat
     /// Both passes return immediately once Kraid has begun sinking.
     /// </summary>
     private bool KraidSinkingSkipsProjectileCollision(RoomEnemySlot body) =>
-        !KraidPhaseGroups.BeforeSinking.Contains(_access.Part(body).Phase);
+        !KraidPhaseGroups.ShotsCollide.Contains(_access.Part(body).Phase);
 
     /// <summary>
     /// Resolves projectile hits on Kraid's mouth. Projectile
@@ -198,7 +198,7 @@ internal sealed class KraidCombat
             if ((state.MouthFlags & KraidMouthFlags.ReopenArmed) != KraidMouthFlags.None)
                 state.MouthFlags |= KraidMouthFlags.ReopenPending;
             if (body.Health < 1 &&
-                KraidPhaseGroups.BeforeDeath.Contains(state.BodyState.Phase))
+                KraidPhaseGroups.Fighting.Contains(state.BodyState.Phase))
                 BeginKraidDeath(state);
         }
 
@@ -294,7 +294,7 @@ internal sealed class KraidCombat
     /// permanent intangible flag and lint's ignoring touch reaction do not suppress these private paths.</remarks>
     internal void ResolveKraidBodyContact(RoomEnemySlot body, KraidEnemyState state, SamusState samus)
     {
-        if (!KraidPhaseGroups.BeforeDeath.Contains(state.BodyState.Phase))
+        if (!KraidPhaseGroups.Fighting.Contains(state.BodyState.Phase))
             return;
         int relativeY = CoordinateAxis.Difference(samus.Position.Y.Whole, body.Position.Y.Whole);
         if (CoordinateAxis.AsSigned(body.Position.X.Whole + KraidBodyContour.LeftEdge(relativeY) -

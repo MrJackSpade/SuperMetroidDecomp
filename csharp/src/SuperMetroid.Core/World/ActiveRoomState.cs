@@ -70,7 +70,7 @@ internal sealed class ActiveRoomState
     public SelectedRoom LoadedRoom => ActiveRoom ??
         throw new InvalidOperationException("No room is loaded.");
 
-    /// <summary>The load-station door whose setup code established the current room.</summary>
+    /// <summary>The load-station door whose setup established the current room.</summary>
     public DoorDefinition? ActiveDoor => View(c => c.Door, s => s.Door);
 
 

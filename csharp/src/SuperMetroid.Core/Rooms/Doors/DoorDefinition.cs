@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// <param name="RoomObjectBlock">The block of the destination room where the arrival's closing door cap stands.</param>
 /// <param name="DestinationScreen">The destination room's screen the camera arrives on.</param>
 /// <param name="SamusSpeed">How far the transition pushes Samus on each step of the door-opening scroll.</param>
-/// <param name="SetupCode">The setup the door runs while Samus passes through it.</param>
+/// <param name="Setup">The setup the door runs while Samus passes through it.</param>
 public sealed record DoorDefinition(
     string Name,
     RoomDefinition DestinationRoom,
@@ -21,4 +21,4 @@ public sealed record DoorDefinition(
     Position16<RoomBlocks> RoomObjectBlock,
     Position16<RoomScreens> DestinationScreen,
     DoorSamusSpeed SamusSpeed,
-    DoorSetupCode SetupCode);
+    DoorSetup Setup);

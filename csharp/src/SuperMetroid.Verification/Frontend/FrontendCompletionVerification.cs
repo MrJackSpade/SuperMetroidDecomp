@@ -214,7 +214,7 @@ internal static void VerifyDoorOpeningTrajectories()
             RoomObjectBlock: new(0, 0),
             DestinationScreen: new(3, 2),
             SamusSpeed: DoorSamusSpeed.SubpixelsPerStep(256),
-            SetupCode: DoorSetupCode.None);
+            Setup: DoorSetupDefinitions.None);
         ushort finalCameraY = direction == 3
             ? (ushort)(destinationY + 0x20)
             : destinationY;

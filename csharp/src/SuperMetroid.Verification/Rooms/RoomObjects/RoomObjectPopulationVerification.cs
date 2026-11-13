@@ -137,7 +137,7 @@ internal static class RoomObjectPopulationVerification
                 RoomObjectBlock: new(1, 1),
                 DestinationScreen: new(0, 0),
                 SamusSpeed: DoorSamusSpeed.None,
-                SetupCode: DoorSetupCode.None);
+                Setup: DoorSetupDefinitions.None);
             bool spawned = roomObjects.DoorObjects.TrySpawnDoorClosingObject(
                 level, door, new SharedGameState(new SharedRandom()));
             AssertEqual(expectedHeader != 0, spawned,
@@ -214,7 +214,7 @@ internal static class RoomObjectPopulationVerification
                 RoomObjectBlock: new(blockX, blockY),
                 DestinationScreen: new(0, 0),
                 SamusSpeed: DoorSamusSpeed.None,
-                SetupCode: DoorSetupCode.None);
+                Setup: DoorSetupDefinitions.None);
             AssertTrue(roomObjects.DoorObjects.TrySpawnDoorClosingObject(level, enteringDoor, system),
                 $"resident door $84:{raw:X4} accepts transition redirect");
             RoomObjectSlotSnapshot slot = roomObjects.PopulationSlots.Single();
@@ -240,7 +240,7 @@ internal static class RoomObjectPopulationVerification
             RoomObjectBlock: new(1, 1),
             DestinationScreen: new(0, 0),
             SamusSpeed: DoorSamusSpeed.None,
-            SetupCode: DoorSetupCode.None);
+            Setup: DoorSetupDefinitions.None);
         AssertThrows<InvalidDataException>(
             () => blueObjects.DoorObjects.TrySpawnDoorClosingObject(blueLevel, blueDoor, new SharedGameState(new SharedRandom())),
             "a shot blue cap at the door is outside the resident closing domain");
@@ -409,7 +409,7 @@ internal static class RoomObjectPopulationVerification
             RoomObjectBlock: new(doorX, doorY),
             DestinationScreen: new(0, 0),
             SamusSpeed: DoorSamusSpeed.AxisDefault,
-            SetupCode: DoorSetupCode.None);
+            Setup: DoorSetupDefinitions.None);
         AssertTrue(roomObjects.DoorObjects.TrySpawnDoorClosingObject(level, enteringDoor, system),
             "Bomb Torizo entry redirects the resident door to its secondary list");
         AssertEqual(GreyDoorPhase.Closing, roomObjects.GreyDoorSnapshots.Single().Phase,
@@ -514,7 +514,7 @@ internal static class RoomObjectPopulationVerification
             RoomObjectBlock: new(doorX, doorY),
             DestinationScreen: new(0, 0),
             SamusSpeed: DoorSamusSpeed.AxisDefault,
-            SetupCode: DoorSetupCode.None);
+            Setup: DoorSetupDefinitions.None);
         AssertTrue(roomObjects.DoorObjects.TrySpawnDoorClosingObject(level, enteringDoor, system),
             "room $9B9D redirects its resident grey door to closing list $BE59");
 
@@ -878,7 +878,7 @@ internal static class RoomObjectPopulationVerification
             RoomObjectBlock: new(gateX, gateY),
             DestinationScreen: new(0, 0),
             SamusSpeed: DoorSamusSpeed.AxisDefault,
-            SetupCode: DoorSetupCode.None);
+            Setup: DoorSetupDefinitions.None);
         AssertTrue(escape.DoorObjects.TrySpawnDoorClosingObject(escapeLevel, motherBrainExit, system),
             "direction-nine Mother Brain exit redirects the resident gate");
         AssertEqual(1, escape.SlotTable.ActiveCount,

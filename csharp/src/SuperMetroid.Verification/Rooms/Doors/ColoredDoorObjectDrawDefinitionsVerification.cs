@@ -107,7 +107,7 @@ internal static class ColoredDoorObjectDrawDefinitionsVerification
                 RoomObjectBlock: new(4, 4),
                 DestinationScreen: new(0, 0),
                 SamusSpeed: DoorSamusSpeed.None,
-                SetupCode: DoorSetupCode.None);
+                Setup: DoorSetupDefinitions.None);
             AssertTrue(roomObjects.DoorObjects.TrySpawnDoorClosingObject(level, enteringDoor, system),
                 $"resident colored door {header} selects its native closing list");
             for (int frame = 0; frame < 20 &&

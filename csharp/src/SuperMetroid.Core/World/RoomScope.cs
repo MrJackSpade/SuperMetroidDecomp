@@ -116,7 +116,7 @@ internal sealed record RoomScope
     /// <summary>The room's FX-selected treadmill animated tiles.</summary>
     public required RoomTreadmillAnimatedTilesState TreadmillTiles { get; init; }
 
-    /// <summary>The Wrecked Ship entrance treadmill tiles a door's setup code may start.</summary>
+    /// <summary>The Wrecked Ship entrance treadmill tiles a door's setup may start.</summary>
     public required WreckedShipTreadmillAnimatedTilesState WreckedShipTreadmill { get; init; }
 
     /// <summary>The room's Tourian statue tile animations and descent, enabled only in the statue room.</summary>

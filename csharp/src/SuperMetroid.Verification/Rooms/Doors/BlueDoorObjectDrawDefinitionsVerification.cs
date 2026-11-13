@@ -92,7 +92,7 @@ internal static class BlueDoorObjectDrawDefinitionsVerification
                 RoomObjectBlock: new(4, 4),
                 DestinationScreen: new(0, 0),
                 SamusSpeed: DoorSamusSpeed.None,
-                SetupCode: DoorSetupCode.None);
+                Setup: DoorSetupDefinitions.None);
             AssertTrue(roomObjects.DoorObjects.TrySpawnDoorClosingObject(level, closingDoor, new SharedGameState(new SharedRandom())),
                 $"{orientation} places the blue cap closing behind Samus");
             AssertTrue(roomObjects.PopulationSlots.Single().Behaviour is BlueDoorCapObject { Phase: BlueDoorCapPhase.Closing } closer && closer.Orientation == orientation,

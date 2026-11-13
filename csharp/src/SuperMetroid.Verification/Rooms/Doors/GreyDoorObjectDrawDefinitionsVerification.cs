@@ -108,7 +108,7 @@ internal static class GreyDoorObjectDrawDefinitionsVerification
                     RoomObjectBlock: new(4, 4),
                     DestinationScreen: new(0, 0),
                     SamusSpeed: DoorSamusSpeed.None,
-                    SetupCode: DoorSetupCode.None);
+                    Setup: DoorSetupDefinitions.None);
                 AssertTrue(roomObjects.DoorObjects.TrySpawnDoorClosingObject(level, enteringDoor,
                         system),
                     $"resident grey door {header} selects its closing list");
@@ -186,7 +186,7 @@ internal static class GreyDoorObjectDrawDefinitionsVerification
             RoomObjectBlock: new(4, 4),
             DestinationScreen: new(0, 0),
             SamusSpeed: DoorSamusSpeed.None,
-            SetupCode: DoorSetupCode.None);
+            Setup: DoorSetupDefinitions.None);
         AssertTrue(room.RoomObjects.DoorObjects.TrySpawnDoorClosingObject(room.Level, enteringDoor, room.System),
             "Bomb Torizo door selects its Bomb-gated closing list");
         for (int frame = 0; frame < 10; frame++)

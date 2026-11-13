@@ -127,14 +127,14 @@ internal static class RoomDefinitionIntegrationVerification
             AddAddressRange(forbidden,
                 DoorHeaderRomDataTooling.BankAddress | doorPointer,
                 DoorHeaderRomDataConstants.RecordByteCount);
-            // The pseudo-door's remaining bytes overlap $88FE; it has no setup code of its own.
+            // The pseudo-door's remaining bytes overlap $88FE; it has no setup routine of its own.
             if (doorPointer == DoorDefinitionsAccess.SharedElevatorPseudoDoorPointer)
                 continue;
             DoorDefinition door = DoorDefinitions.Get(doorPointer);
             // A setup the cartridge has two routines for forbids both: the import maps either routine to it.
-            if (door.SetupCode != DoorSetupCode.None)
+            if (door.Setup != DoorSetupDefinitions.None)
             {
-                foreach (ushort routine in DoorIdentityWords.SetupRoutines.WordsByIdentity[door.SetupCode])
+                foreach (ushort routine in DoorIdentityWords.SetupRoutines.WordsByIdentity[door.Setup])
                     forbidden.Add(RoomHeaderRomDataConstants.BankAddress | routine);
             }
         }

@@ -57,7 +57,7 @@ internal static class RoomScopeVerification
             RoomObjectBlock: default,
             DestinationScreen: camera.ToRoomScreen(),
             SamusSpeed: DoorSamusSpeed.None,
-            SetupCode: DoorSetupCode.None);
+            Setup: DoorSetupDefinitions.None);
         runtime.RoomLoader.LoadRoom(door, parlor, camera, RoomViewportLoadMode.StreamThroughDoor);
 
         RoomScope destination = runtime.Room.Scope;

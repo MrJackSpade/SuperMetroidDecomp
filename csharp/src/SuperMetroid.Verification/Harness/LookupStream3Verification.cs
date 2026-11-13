@@ -670,17 +670,17 @@ internal static class LookupStream3Verification
     {
         Suite(nameof(VerifyStream3GameOverText), () => VerifyStream3GameOverText(rom));
         Suite(nameof(VerifyStream3OptionsGeometry), () => VerifyStream3OptionsGeometry(rom));
-        // DoorSetupCode's values are arbitrary (#1414): zero and values far past the last member name no setup.
-        foreach (ushort undefined in new ushort[] { 0x0000, 0xb972, 0xffff })
-            AssertThrows<InvalidOperationException>(
-                () => SuperMetroid.Core.Rooms.Doors.DoorScrollChanges.Contains((DoorSetupCode)undefined),
-                "stream 3 undefined door setup code");
-        // Every cartridge routine the import maps to a scroll-changing setup runs over a grid of red cells and one of blue
+        // A word that names no door setup routine decodes to no setup (#1414, #1721): one inside a routine and one past them all.
+        foreach (ushort undefined in new ushort[] { 0xb972, 0xffff })
+            AssertThrows<InvalidDataException>(
+                () => DoorIdentityWords.SetupRoutines.Decode(undefined, "door setup routine"),
+                "stream 3 undefined door setup routine");
+        // Every cartridge routine the import maps to a setup that only changes screens runs over a grid of red cells and one of blue
         // cells, so every write differs from the cells it replaces in at least one run; the native writes are compared as
         // the cells the camera reads them as. A setup the cartridge has two routines for is checked against both.
-        foreach ((DoorSetupCode setup, ushort[] routines) in DoorIdentityWords.SetupRoutines.WordsByIdentity)
+        foreach ((DoorSetup setup, ushort[] routines) in DoorIdentityWords.SetupRoutines.WordsByIdentity)
         {
-            if (!SuperMetroid.Core.Rooms.Doors.DoorScrollChanges.Contains(setup))
+            if (setup.RoomEvent != DoorRoomEvent.None || setup.ScreenChanges.Count == 0)
                 continue;
             foreach (ushort routine in routines)
             foreach (RoomScrollState fill in new[] { RoomScrollState.RedBoundary, RoomScrollState.Blue })
@@ -688,13 +688,12 @@ internal static class LookupStream3Verification
                 byte[] expected = Enumerable.Repeat(fill.ToStorageByte(), RoomScrollGrid.KeptCellCount).ToArray();
                 var actual = RoomScrollGrid.LoadNativeTable(expected, new Extent16<RoomScreens>(10, 5));
                 ExecuteStream3DoorScroll(rom, routine, expected);
-                AssertTrue(SuperMetroid.Core.Rooms.Doors.DoorScrollChanges.TryApply(setup, actual), "stream 3 callback recognized");
+                setup.ChangeScreens(actual);
                 AssertTrue(actual.KeptStates.SequenceEqual(RoomScrollStates.FromStorageBytes(expected)),
                     $"stream 3 {setup} makes the native routine ${routine:X4}'s ordered door writes and leaves all other cells");
             }
         }
-        var unchangedScroll = RoomScrollGrid.LoadNativeTable(new byte[RoomScrollGrid.KeptCellCount], new Extent16<RoomScreens>(10, 5));
-        AssertTrue(!SuperMetroid.Core.Rooms.Doors.DoorScrollChanges.TryApply(DoorSetupCode.None, unchangedScroll), "stream 3 setup without scroll writes is a no-op");
+        AssertEqual(0, DoorSetupDefinitions.None.ScreenChanges.Count, "stream 3 setup without screen changes changes no screens");
         // The cartridge's four crossfade routines at the native boundary, each region the cartridge position of its first colour
         // and its colour count: the narration's colours on the way out and on the way back, the flashback's and the
         // laboratory's. Each crossfaded scene the import shades is the union of its routines' regions (#1597).

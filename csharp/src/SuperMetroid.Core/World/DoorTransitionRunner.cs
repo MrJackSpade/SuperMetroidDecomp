@@ -14,7 +14,7 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// Door transitions: the door setup code (Wrecked Ship treadmill, Maridia elevatube, scroll writes) and the
+/// Door transitions: the door's setup (Wrecked Ship treadmill, Maridia elevatube, screen changes) and the
 /// door sound-wait frames with their actor drawing.
 /// </summary>
 internal sealed class DoorTransitionRunner
@@ -40,7 +40,7 @@ internal sealed class DoorTransitionRunner
     /// <summary>Provides boss bits and advances main-loop random state.</summary>
     private readonly SharedGameState _system;
 
-    /// <summary>Captures the runtime services used by the door's setup code and its wait updates.</summary>
+    /// <summary>Captures the runtime services used by the door's setup and its wait updates.</summary>
     internal DoorTransitionRunner(DoorTransitionRunnerDependencies dependencies)
     {
         _actorDrawing = dependencies.ActorDrawing;
@@ -55,151 +55,73 @@ internal sealed class DoorTransitionRunner
         _system = dependencies.System;
     }
     /// <summary>
-    /// Runs the setup named by the active door definition after room-object creation.
+    /// Runs the active door's setup after room-object creation: its screen changes, then its room event.
     /// </summary>
     /// <remarks>
     /// The room load runs the door's setup between room-object
     /// construction and the first visible destination viewport. These setups are shared
-    /// code, not room-name patches: every door that names a modelled
-    /// setup receives the same writes. An unknown setup throws so missing camera
-    /// boundary behavior can never masquerade as a successful room load.
+    /// behaviour, not room-name patches: every door that names a setup receives the same
+    /// screen changes and room event.
     /// </remarks>
-    internal void RunDoorSetupCode(DoorDefinition door, RoomObjectSystem roomObjects, WreckedShipTreadmillAnimatedTilesState wreckedShipTreadmill, CeresElevatorShaftRoomMainState ceresElevatorShaft, MaridiaElevatubeRoomMainState maridiaElevatube)
+    internal void RunDoorSetup(DoorDefinition door, RoomObjectSystem roomObjects, WreckedShipTreadmillAnimatedTilesState wreckedShipTreadmill, CeresElevatorShaftRoomMainState ceresElevatorShaft, MaridiaElevatubeRoomMainState maridiaElevatube)
     {
         if (_room.Camera is null)
             throw new InvalidOperationException("Door setup requires the destination scroll grid.");
 
-        DoorSetupCodeInterpreter.ApplyScrollWrites(
-            door.SetupCode,
-            door.Name,
-            _room.Camera.Scrolls);
+        door.Setup.ChangeScreens(_room.Camera.Scrolls);
 
-        switch (door.SetupCode)
+        switch (door.Setup.RoomEvent)
         {
-            case DoorSetupCode.None:
+            case DoorRoomEvent.None:
                 return;
 
-            case DoorSetupCode.CeresElevShowsTurningFloor:
+            case DoorRoomEvent.ShowsTurningFloor:
                 // Ceres's door setup owns the turning floor's rotation and centre. Those
                 // values must exist before room graphics/actors initialize, so the shared
-                // loader installs them at construction time and this dispatch
-                // point merely verifies that the recognized setup was not discarded.
-                if (!door.EntersCeresElevatorShaft || _display.ActiveTurningFloor is null)
+                // loader installs them at construction time and this point merely verifies
+                // that the recognized setup was not discarded.
+                if (_display.ActiveTurningFloor is null)
                 {
                     throw new InvalidDataException(
-                        "Ceres elevator door setup reached dispatch without its turning-floor transform.");
+                        "Ceres elevator door setup reached its room event without its turning-floor transform.");
                 }
                 return;
 
-            case DoorSetupCode.FallingTileEndsTurningFloor:
-                // The paired exit setup code of the Ceres elevator shaft's entry: it returns
+            case DoorRoomEvent.EndsTurningFloor:
+                // The paired exit setup of the Ceres elevator shaft's entry: it returns
                 // the screen from the turning floor to the ordinary room display, removing
                 // both the active and the shown transforms. Do this explicitly here rather
                 // than relying on the destination loader's defensive state reset: this is
-                // the door setup code that owns the transition back to the ordinary display.
+                // the door setup that owns the transition back to the ordinary display.
                 _display.ActiveTurningFloor = null;
                 _display.PublishDoorElevatorFloor(null);
                 ceresElevatorShaft.Deactivate();
                 return;
 
-            case DoorSetupCode.WreckedShipEntranceStartsTreadmillRightwards:
+            case DoorRoomEvent.StartsTreadmillRightwards:
                 StartWreckedShipTreadmill(WreckedShipTreadmillDirection.Rightwards, roomObjects, wreckedShipTreadmill);
                 return;
 
-            case DoorSetupCode.WreckedShipEntranceStartsTreadmillLeftwards:
+            case DoorRoomEvent.StartsTreadmillLeftwards:
                 StartWreckedShipTreadmill(WreckedShipTreadmillDirection.Leftwards, roomObjects, wreckedShipTreadmill);
                 return;
 
-            case DoorSetupCode.ToiletStartsElevatubeRideFromSouth:
+            case DoorRoomEvent.StartsElevatubeRideFromSouth:
                 SetUpMaridiaElevatube(entry: ElevatubeEntry.FromSouth, roomObjects, maridiaElevatube);
                 return;
 
-            case DoorSetupCode.ToiletStartsElevatubeRideFromNorth:
+            case DoorRoomEvent.StartsElevatubeRideFromNorth:
                 SetUpMaridiaElevatube(entry: ElevatubeEntry.FromNorth, roomObjects, maridiaElevatube);
                 return;
 
-            case DoorSetupCode.PlasmaSparkEndsElevatubeRide:
-            case DoorSetupCode.OasisEndsElevatubeRideOpensScreens0x0And0x1:
+            case DoorRoomEvent.EndsElevatubeRide:
                 maridiaElevatube.ResetOnExit(_player.Samus ?? throw new InvalidOperationException(
                     "Maridia elevatube exit setup requires an active Samus state."));
                 return;
 
-            case DoorSetupCode.ParlorOpensScreen1x1:
-            case DoorSetupCode.ParlorOpensScreen0x0TopAligned:
-            case DoorSetupCode.LandingSiteOpensScreen1x2TopAligned:
-            case DoorSetupCode.ParlorClosesScreen4x0OpensScreen3x1:
-            case DoorSetupCode.BowlingAlleyClosesScreens2x1And3x1And4x1And5x1:
-            case DoorSetupCode.BowlingAlleyClosesScreens2x0And3x0And4x0And5x0And5x1And0x2And1x2And5x2:
-            case DoorSetupCode.CrateriaKihunterOpensScreens1x0And1x1:
-            case DoorSetupCode.ClimbOpensScreen2x0TopAligned:
-            case DoorSetupCode.ClimbOpensScreen2x7TopAligned:
-            case DoorSetupCode.GauntletETankOpensScreen4x0TopAligned:
-            case DoorSetupCode.CaterpillarOpensScreen0x2:
-            case DoorSetupCode.GreenPiratesShaftOpensScreen0x3:
-            case DoorSetupCode.GreenBrinstarMainShaftOpensScreens0x6And0x7:
-            case DoorSetupCode.EtecoonETankOpensScreens0x1And1x1TopAligned:
-            case DoorSetupCode.GreenBrinstarMainShaftOpensScreen1x7TopAligned:
-            case DoorSetupCode.PinkBrinstarPowerBombsOpensScreens0x1And1x1:
-            case DoorSetupCode.WarehouseEntranceClosesScreen0x0OpensScreen1x0:
-            case DoorSetupCode.DachoraOpensScreen4x1:
-            case DoorSetupCode.BigPinkClosesScreen3x5OpensScreen4x5TopAligned:
-            case DoorSetupCode.DachoraClosesScreen4x0:
-            case DoorSetupCode.BigPinkOpensScreens2x6And1x7And2x7:
-            case DoorSetupCode.BlueBrinstarETankOpensScreen2x0TopAligned:
-            case DoorSetupCode.KraidEyeDoorOpensScreen0x0:
-            case DoorSetupCode.RedTowerOpensScreens0x6And0x7:
-            case DoorSetupCode.RedFishClosesScreen2x0OpensScreen1x0TopAligned:
-            case DoorSetupCode.SporeSpawnSuperClosesScreen1x1OpensScreen1x0TopAligned:
-            case DoorSetupCode.EastTunnelClosesScreen0x0OpensScreen0x1TopAligned:
-            case DoorSetupCode.WarehouseKihunterOpensScreens2x0And3x0TopAligned:
-            case DoorSetupCode.BelowSpazerOpensScreens0x0And1x0:
-            case DoorSetupCode.BigPinkOpensScreen1x0:
-            case DoorSetupCode.CaterpillarOpensScreens0x5And0x6:
-            case DoorSetupCode.ConstructionZoneOpensScreen0x0OpensScreen0x1TopAligned:
-            case DoorSetupCode.GreenBrinstarElevOpensScreen0x2BelowTheRoom:
-            case DoorSetupCode.AcidStatueClosesScreens0x1And1x1OpensScreens0x2And1x2And2x2TopAligned:
-            case DoorSetupCode.LNSpringBallMazeClosesScreen1x1OpensScreen4x0OpensScreens1x0And2x0And3x0TopAligned:
-            case DoorSetupCode.CrocomireOpensScreens0x0And1x0TopAligned:
-            case DoorSetupCode.BatCaveClosesScreen0x1OpensScreen0x0TopAligned:
-            case DoorSetupCode.IceBeamGateOpensScreen3x1:
-            case DoorSetupCode.HiJumpETankOpensScreens0x0And0x1:
-            case DoorSetupCode.VolcanoClosesScreen2x2OpensScreens0x2And1x2TopAligned:
-            case DoorSetupCode.IceBeamSnakeClosesScreen0x1OpensScreen1x1TopAligned:
-            case DoorSetupCode.WastelandOpensScreen1x1:
-            case DoorSetupCode.FastPillarsSetupClosesScreen0x1OpensScreen0x2TopAligned:
-            case DoorSetupCode.RedKihunterShaftClosesScreen0x1OpensScreen0x0TopAligned:
-            case DoorSetupCode.LNFirefleaClosesScreen1x1OpensScreen1x0TopAligned:
-            case DoorSetupCode.GoldenTorizoClosesScreens1x0And0x1And1x1OpensScreen0x0TopAligned:
-            case DoorSetupCode.WorstRoomInTheGameOpensScreen0x0:
-            case DoorSetupCode.LNFirefleaClosesScreen1x1OpensScreens0x0And1x0TopAligned:
-            case DoorSetupCode.GreenBubblesMissilesOpensScreen0x0TopAligned:
-            case DoorSetupCode.PurpleShaftClosesScreen0x1OpensScreen0x0TopAligned:
-            case DoorSetupCode.IceBeamGateOpensScreen3x3TopAligned:
-            case DoorSetupCode.KronicBoostClosesScreen1x1OpensScreen0x1TopAligned:
-            case DoorSetupCode.MickeyMouseClosesScreen2x3:
-            case DoorSetupCode.SpongeBathOpensScreen1x0TopAligned:
-            case DoorSetupCode.ElectricDeathOpensScreen0x0:
-            case DoorSetupCode.BasementClosesScreen3x0OpensScreen4x0TopAligned:
-            case DoorSetupCode.WreckedShipMainShaftOpensScreen5x6TopAligned:
-            case DoorSetupCode.WreckedShipMainShaftOpensScreens4x6And4x7:
-            case DoorSetupCode.BowlingAlleyClosesScreens0x1And1x1And2x1And3x1And4x1And5x1:
-            case DoorSetupCode.HalfieClimbClosesScreen0x2OpensScreen1x2TopAligned:
-            case DoorSetupCode.CrabHoleClosesScreen0x0OpensScreen0x1TopAligned:
-            case DoorSetupCode.CaterpillarClosesScreen0x3OpensScreen1x3TopAligned:
-            case DoorSetupCode.GlassTunnelClosesScreens0x0And0x2OpensScreen0x1TopAligned:
-            case DoorSetupCode.BotwoonOpensScreen1x0TopAligned:
-            case DoorSetupCode.CrabShaftOpensScreen0x3TopAligned:
-            case DoorSetupCode.PantsClosesScreen0x2:
-            case DoorSetupCode.PantsClosesScreens0x2And1x3:
-            case DoorSetupCode.EastPantsClosesScreen0x2OpensScreen0x1TopAligned:
-            case DoorSetupCode.ThePreciousOpensScreens0x0And0x1:
-            case DoorSetupCode.StatuesOpensScreens0x0And0x1:
-            case DoorSetupCode.ClimbClosesScreen1x8OpensScreen0x8TopAligned:
             default:
-                if (DoorScrollChanges.Contains(door.SetupCode))
-                    return;
                 throw new InvalidOperationException(
-                    $"Undefined {nameof(DoorSetupCode)} {door.SetupCode} in door {door.Name}.");
+                    $"Undefined {nameof(DoorRoomEvent)} {door.Setup.RoomEvent} in door {door.Name}.");
         }
     }
 

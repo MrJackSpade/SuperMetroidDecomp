@@ -462,31 +462,22 @@ internal static void VerifyRoomScrollGridAndBoundaryCamera()
     // `$8F:BE25`, which must replace that pair with `[green, blue]` before camera tracking.
     grid.SetLogicalState(new(0, 0), RoomScrollState.Blue);
     grid.SetLogicalState(new(0, 1), RoomScrollState.RedBoundary);
-    DoorSetupCodeInterpreter.ApplyScrollWrites(
-        DoorSetupCode.ConstructionZoneOpensScreen0x0OpensScreen0x1TopAligned,
-        DoorDefinitions.Get(DoorPointers.ConstructionZoneFromFirstMissile).Name,
-        grid);
+    DoorSetupDefinitions.ConstructionZoneOpensScreen0x0OpensScreen0x1TopAligned.ChangeScreens(grid);
     AssertEqual(RoomScrollState.Green, grid.ReadState(0),
         "$8F:BE25 writes Construction Zone screen zero green");
     AssertEqual(RoomScrollState.Blue, grid.ReadState(1),
         "$8F:BE25 writes Construction Zone screen one blue");
     grid.SetCell(6, RoomScrollState.RedBoundary);
-    DoorSetupCodeInterpreter.ApplyScrollWrites(
-        DoorSetupCode.ParlorOpensScreen1x1,
-        DoorDefinitions.Get(DoorPointers.ParlorFromClimb).Name,
-        grid);
+    DoorSetupDefinitions.ParlorOpensScreen1x1.ChangeScreens(grid);
     AssertEqual(RoomScrollState.Green, grid.ReadState(6),
         "$8F:B981 writes early-route screen six green");
 
     // Door $83:AB4C leaves the Ceres Mode-7 shaft through `$8F:E513`. That routine
     // restores ordinary PPU state but performs no writes to the destination scroll array.
-    // The scroll interpreter must accept it without corrupting an otherwise valid grid;
-    // runtime-owned Mode-7 state is cleared by the paired door dispatcher.
+    // Its setup changes no screens, so an otherwise valid grid is left as it was;
+    // its room event ends the turning floor.
     grid.SetCell(7, RoomScrollState.Blue);
-    DoorSetupCodeInterpreter.ApplyScrollWrites(
-        DoorSetupCode.FallingTileEndsTurningFloor,
-        DoorDefinitions.Get(DoorPointers.FromCeresElevatorShaft).Name,
-        grid);
+    DoorSetupDefinitions.FallingTileEndsTurningFloor.ChangeScreens(grid);
     AssertEqual(RoomScrollState.Blue, grid.ReadState(7),
         "$8F:E513 preserves the destination scroll cells");
 

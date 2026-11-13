@@ -1158,6 +1158,12 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyMamaTurtleShellContourDefinitions), () => VerifyMamaTurtleShellContourDefinitions()),
         new(nameof(VerifyMamaTurtleEnemyDefinitions), () => VerifyMamaTurtleEnemyDefinitions()),
         new(nameof(VerifyPaletteFxInstructionCodeCatalogs), () => VerifyPaletteFxInstructionCodeCatalogs()),
+        new(nameof(SuperMetroid.Verification.Fx.Artwork.RoomPaletteFxPresentationVerification.VerifyExtractedRoomPaletteFxPresentation),
+            () => SuperMetroid.Verification.Fx.Artwork.RoomPaletteFxPresentationVerification.VerifyExtractedRoomPaletteFxPresentation(
+                SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")))),
+        new(nameof(SuperMetroid.Verification.Frontend.Title.TitleGradientVerification.VerifyTitleGradientTables),
+            () => SuperMetroid.Verification.Frontend.Title.TitleGradientVerification.VerifyTitleGradientTables(
+                SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")))),
         new(nameof(VerifyAnimatedTileInstructionCodeCatalog), () => VerifyAnimatedTileInstructionCodeCatalog()),
         new(nameof(VerifyEnemyProjectileCodePointerCatalog), () => VerifyEnemyProjectileCodePointerCatalog()),
         new(nameof(VerifyEnemyMappedSourceRouting), () => VerifyEnemyMappedSourceRouting()),

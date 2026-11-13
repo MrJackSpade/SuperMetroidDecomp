@@ -33,17 +33,13 @@ internal static class RoomFxRetailInventoryVerification
     /// <summary>Expected number of physical bank-$83 entry doors exercised by the audit.</summary>
     private const int RetailRoomFxDoorCount = 597;
 
-    /// <summary>Reuses the animated tiles extracted from an import bus without keeping that bus alive.</summary>
-    private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<CartridgeImportAddressSpace, RoomFxAnimatedTileAtlas>
-        retailAnimatedTiles = new();
-
     /// <summary>
-    /// The animated tiles' characters the import extracts once from the supplied retail bus (#1527): checks that render
-    /// a room effect's BG3 from VRAM place the selected frame's characters from them.
+    /// The animated tiles' characters as the import reads them from the shared installation's import data (#1527, #1680):
+    /// checks that render a room effect's BG3 from VRAM place the selected frame's characters from them. The extractor's
+    /// own check compares the atlas with the cartridge; these checks only draw from it, so they read the atlas the shared
+    /// map fixture already holds instead of extracting it again.
     /// </summary>
-    internal static RoomFxAnimatedTileAtlas RetailAnimatedTiles(CartridgeImportAddressSpace bus) =>
-        retailAnimatedTiles.GetValue(bus, source => RoomFxAnimatedTileAtlasPng.Read(new MemoryStream(
-            RoomFxAnimatedTileAtlasExtractor.Extract(source))));
+    private static RoomFxAnimatedTileAtlas AnimatedTiles => InstalledFixtures.ImportMaps.RoomFxAnimatedTiles;
 
     /// <summary>
     /// Exhaustively compares every named retail room state and every physical entry door
@@ -351,7 +347,7 @@ internal static class RoomFxRetailInventoryVerification
         actual.Step(liquidFrames, new RoomFxOverlayFrame { Camera = new Position16<RoomPixels>(0, cameraY), TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
         // The liquid's frames are selected, and BG3's pictures show the selected frame: the render reads it where the cartridge copies it.
         if (RoomFxAnimatedTilesState.ObjectOf(expectedType) is var liquidTiles and not AnimatedTileObject.None)
-            AnimatedTileFrameArtwork.ShowIn(vram, liquidFrames, RetailAnimatedTiles(bus), liquidTiles);
+            AnimatedTileFrameArtwork.ShowIn(vram, liquidFrames, AnimatedTiles, liquidTiles);
 
         if (expectedType is RoomFxType.Lava or RoomFxType.Acid)
         {
@@ -425,7 +421,7 @@ internal static class RoomFxRetailInventoryVerification
         fx.PrimeViewport(new Position16<RoomPixels>(0, cameraY));
         // The lava's frames are selected, and BG3's pictures show the selected frame: the render reads it where the cartridge copies it.
         var lavaFrames = new ArtworkFrameSelections();
-        RoomFxAnimatedTileAtlas lavaArtwork = RetailAnimatedTiles(bus);
+        RoomFxAnimatedTileAtlas lavaArtwork = AnimatedTiles;
         fx.Step(lavaFrames, new RoomFxOverlayFrame { Camera = new Position16<RoomPixels>(0, cameraY), TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
         AnimatedTileFrameArtwork.ShowIn(vram, lavaFrames, lavaArtwork, AnimatedTileObject.Lava);
 
@@ -757,7 +753,7 @@ internal static class RoomFxRetailInventoryVerification
         AssertEqual(definition.TargetY, fx.NamedBaseY.Whole,
             $"room {definition.Room} lava stops at its cartridge target");
 
-        AnimatedTileFrameArtwork.ShowIn(vram, risenFrames, RetailAnimatedTiles(bus), AnimatedTileObject.Lava);
+        AnimatedTileFrameArtwork.ShowIn(vram, risenFrames, AnimatedTiles, AnimatedTileObject.Lava);
         ushort[] finalPlane = EffectPlane(fx);
         RoomFxOverlayRenderSnapshot finalSnapshot = fx.CaptureForDisplay()
             ?? throw new InvalidDataException(

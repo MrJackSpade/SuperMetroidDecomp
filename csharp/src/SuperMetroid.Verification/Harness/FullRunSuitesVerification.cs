@@ -1049,6 +1049,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyTourianStatueDescentRounding), () => VerifyTourianStatueDescentRounding()),
         new(nameof(VerifyMetroidDeathDrops), () => VerifyMetroidDeathDrops()),
         new(nameof(VerifyShitroidGradualAcceleration), () => VerifyShitroidGradualAcceleration()),
+        new(nameof(VerifyShitroidFlightPulls), () => VerifyShitroidFlightPulls()),
         new(nameof(VerifyShitroidDrainCarry), () => VerifyShitroidDrainCarry()),
         new(nameof(VerifyMotherBrainRinkaDoorSpawn), () => VerifyMotherBrainRinkaDoorSpawn()),
         new(nameof(VerifyMotherBrainGlassSuperMissile), () => VerifyMotherBrainGlassSuperMissile()),

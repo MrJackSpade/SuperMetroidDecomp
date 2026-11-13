@@ -171,7 +171,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case ShitroidAiFunction.FlyToSidehopper:
-                GraduallyAccelerateShitroid(slot, state, 15, new(584, 74), 1024);
+                GraduallyAccelerateShitroid(slot, state, ShitroidFlightDefinitions.RushDivisor, new(584, 74));
                 if (ShitroidOverlapsRectangle(slot, new(584, 74), new(1, 1)))
                     state.Function = ShitroidAiFunction.ChaseSidehopper;
                 return;
@@ -182,9 +182,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 GraduallyAccelerateShitroid(
                     slot,
                     state,
-                    15,
-                    victim.Position.Whole + new Offset16<RoomPixels>(0, -32),
-                    1024);
+                    ShitroidFlightDefinitions.RushDivisor,
+                    victim.Position.Whole + new Offset16<RoomPixels>(0, -32));
                 if (ShitroidActorsOverlap(slot, victim))
                     state.Function = ShitroidAiFunction.AttachToSidehopper;
                 return;
@@ -205,7 +204,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 goto case ShitroidAiFunction.RiseAfterFeeding;
 
             case ShitroidAiFunction.RiseAfterFeeding:
-                GraduallyAccelerateShitroid(slot, state, 0, new(slot.Position.X.Whole, 104), 1024);
+                GraduallyAccelerateShitroid(slot, state, ShitroidFlightDefinitions.DriftDivisor, new(slot.Position.X.Whole, 104));
                 if (PredecrementShitroidTimerBecameNegative(state))
                 {
                     state.Function = ShitroidAiFunction.HoverNearSamus;
@@ -225,9 +224,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 GraduallyAccelerateShitroid(
                     slot,
                     state,
-                    15,
-                    target.Position.Whole + new Offset16<RoomPixels>(0, -32),
-                    1024);
+                    ShitroidFlightDefinitions.RushDivisor,
+                    target.Position.Whole + new Offset16<RoomPixels>(0, -32));
                 return;
             }
 
@@ -261,7 +259,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             case ShitroidAiFunction.RiseAfterDrainingSamus:
             {
                 SamusState target = RequireShitroidSamus(samus);
-                GraduallyAccelerateShitroid(slot, state, 0, new(target.Position.X.Whole, 104), 1024);
+                GraduallyAccelerateShitroid(slot, state, ShitroidFlightDefinitions.DriftDivisor, new(target.Position.X.Whole, 104));
                 if (PredecrementShitroidTimerBecameNegative(state))
                 {
                     RequestShitroidSound(ShitroidSoundDefinitions.FlyAwayCry);
@@ -279,9 +277,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 GraduallyAccelerateShitroid(
                     slot,
                     state,
-                    0,
-                    new(CoordinateAxis.Wrap(target.Position.X.Whole - 64), 100),
-                    1024);
+                    ShitroidFlightDefinitions.DriftDivisor,
+                    new(CoordinateAxis.Wrap(target.Position.X.Whole - 64), 100));
                 if (PredecrementShitroidTimerBecameNegative(state))
                 {
                     state.Function = ShitroidAiFunction.FlyRight;
@@ -297,9 +294,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 GraduallyAccelerateShitroid(
                     slot,
                     state,
-                    0,
-                    new(CoordinateAxis.Wrap(target.Position.X.Whole + 96), 104),
-                    1024);
+                    ShitroidFlightDefinitions.DriftDivisor,
+                    new(CoordinateAxis.Wrap(target.Position.X.Whole + 96), 104));
                 if (PredecrementShitroidTimerBecameNegative(state))
                 {
                     state.Function = ShitroidAiFunction.HoldSamusBeforeRelease;
@@ -315,7 +311,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 goto case ShitroidAiFunction.Exit;
 
             case ShitroidAiFunction.Exit:
-                GraduallyAccelerateShitroid(slot, state, 0, Position16<RoomPixels>.Wrapped(-128, 64), 1024);
+                GraduallyAccelerateShitroid(slot, state, ShitroidFlightDefinitions.DriftDivisor, Position16<RoomPixels>.Wrapped(-128, 64));
                 if (ShitroidOverlapsRectangle(slot, Position16<RoomPixels>.Wrapped(-128, 64), new(8, 8)))
                 {
                     state.Velocity = default;
@@ -438,9 +434,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         GraduallyAccelerateShitroid(
             slot,
             state,
-            10,
-            SelectShitroidHoverTarget(state, samus.Position.Whole),
-            1024);
+            ShitroidFlightDefinitions.StareDownDivisor,
+            SelectShitroidHoverTarget(state, samus.Position.Whole));
     }
 
     /// <summary>Alternates between a timed followed point and the followed X at authored height 80, using the room RNG.</summary>
@@ -512,9 +507,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         GraduallyAccelerateShitroid(
             slot,
             state,
-            8,
-            SelectShitroidHoverTarget(state, samus.Position.Whole - new Offset16<RoomPixels>(0, 18)),
-            1024);
+            ShitroidFlightDefinitions.RemorseDivisor,
+            SelectShitroidHoverTarget(state, samus.Position.Whole - new Offset16<RoomPixels>(0, 18)));
         return state.HorizontalLockAccumulator >= 1024 ||
             CoordinateAxis.Difference(samus.Position.X.Whole, 128) < 0;
     }
@@ -537,20 +531,22 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Uses the divisor table to steer both axes, with an offscreen horizontal reversal kick.</summary>
+    /// <summary>
+    /// Steers both axes toward <paramref name="target"/> with the pull <paramref name="divisor"/> names
+    /// (<see cref="ShitroidFlightDefinitions"/>), with the off-screen horizontal reversal kick.
+    /// </summary>
+    /// <param name="slot">The Shitroid's place.</param>
+    /// <param name="state">The Shitroid's state, whose velocity changes.</param>
+    /// <param name="divisor">The distance divisor, 1 through 16: a larger divisor is a gentler pull.</param>
+    /// <param name="target">The point the Shitroid flies to.</param>
     private void GraduallyAccelerateShitroid(
         RoomEnemySlot slot,
         ShitroidEnemyState state,
-        int divisorTableIndex,
-        Position16<RoomPixels> target,
-        int offscreenReversalKick)
+        int divisor,
+        Position16<RoomPixels> target)
     {
-        if ((uint)divisorTableIndex >= 16)
-            throw new ArgumentOutOfRangeException(nameof(divisorTableIndex));
-        // The gradual-acceleration divisor table holds 16 down to 1.
-        int divisor = 16 - divisorTableIndex;
         state.Velocity = state.Velocity.WithX(BabyMetroidGradualAcceleration.AccelerateHorizontally(
-            slot.Position.X.Whole, target.X, state.Velocity.X, divisor, offscreenReversalKick,
+            slot.Position.X.Whole, target.X, state.Velocity.X, divisor, ShitroidFlightDefinitions.OffScreenReversalKick,
             () => ShitroidIsOffScreen(slot)));
         state.Velocity = state.Velocity.WithY(BabyMetroidGradualAcceleration.AccelerateVertically(
             slot.Position.Y.Whole, target.Y, state.Velocity.Y, divisor));

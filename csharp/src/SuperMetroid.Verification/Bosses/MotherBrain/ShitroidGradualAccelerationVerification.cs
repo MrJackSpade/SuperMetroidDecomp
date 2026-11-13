@@ -79,6 +79,84 @@ internal static class ShitroidGradualAccelerationVerification
         Console.WriteLine("Shitroid drain carry: a Y speed of 4 or more adds one pixel to the latched X.");
     }
 
+    /// <summary>The original's gradual-acceleration divisor table (<c>$A9:F56A</c>): 16 down to 1.</summary>
+    private static readonly int[] OriginalDivisorTable = [16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
+
+    /// <summary>The extra speed the original passes every Shitroid flight for an off-screen reversal (<c>$A9:F451</c>).</summary>
+    private const int OriginalOffScreenReversalKick = 0x0400;
+
+    /// <summary>
+    /// Each Shitroid flight steers with the divisor the original's call selects from its table and the off-screen kick the
+    /// original passes (#1684): rushes at table position 15 (<c>$A9:F053</c>, <c>$A9:F07B</c>, <c>$A9:F208</c>), the
+    /// stare-down at 10 (<c>$A9:F1EA</c>), the remorseful follow at 8 (<c>$A9:F436</c>) and the drifts at 0
+    /// (<c>$A9:F142</c>, <c>$A9:F2CD</c>, <c>$A9:F30C</c>, <c>$A9:F335</c>, <c>$A9:F37A</c>), all through <c>$A9:F451</c>.
+    /// The production main runs each flight from the Big Boy room, on and off screen and moving toward and away from its
+    /// point, and its new velocity equals the gradual acceleration (checked against the original's chained carries by the
+    /// Shitroid seeking acceleration check) with that divisor and kick.
+    /// </summary>
+    internal static void VerifyShitroidFlightPulls()
+    {
+        var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.BigBoy);
+        RoomEnemySlot shitroid = runtime.Enemies.SlotTable.Slots.First(slot =>
+            slot.DefinitionId == EnemyDefinitionId.BabyMetroid);
+        ShitroidEnemyState state = shitroid.SpeciesState<ShitroidEnemyState>()
+            ?? throw new InvalidOperationException("The Big Boy room's Shitroid has no state.");
+        ShitroidBehavior behavior = runtime.Enemies.ShitroidBehavior;
+        var samus = runtime.Player.IntroducedSamus;
+        RoomEnemySlot victim = behavior.RequireShitroidVictim(shitroid);
+
+        var flights = new (ShitroidAiFunction Function, int TablePosition, Func<Position16<RoomPixels>> Target)[]
+        {
+            (ShitroidAiFunction.FlyToSidehopper, 15, () => new(584, 74)),
+            (ShitroidAiFunction.ChaseSidehopper, 15, () => victim.Position.Whole + new Offset16<RoomPixels>(0, -32)),
+            (ShitroidAiFunction.RiseAfterFeeding, 0, () => new(shitroid.Position.X.Whole, 104)),
+            (ShitroidAiFunction.ChaseSamus, 15, () => samus.Position.Whole + new Offset16<RoomPixels>(0, -32)),
+            (ShitroidAiFunction.RiseAfterDrainingSamus, 0, () => new(samus.Position.X.Whole, 104)),
+            (ShitroidAiFunction.FlyLeft, 0, () => new(CoordinateAxis.Wrap(samus.Position.X.Whole - 64), 100)),
+            (ShitroidAiFunction.FlyRight, 0, () => new(CoordinateAxis.Wrap(samus.Position.X.Whole + 96), 104)),
+            (ShitroidAiFunction.Exit, 0, () => Position16<RoomPixels>.Wrapped(-128, 64)),
+            (ShitroidAiFunction.HoverNearSamus, 10, () => samus.Position.Whole),
+            (ShitroidAiFunction.ReleasedFollow, 8, () => samus.Position.Whole - new Offset16<RoomPixels>(0, 18)),
+        };
+        var velocities = new[]
+        {
+            new EightEightVector<RoomPixels>(SignedEightEight.FromPixels(2), SignedEightEight.FromPixels(1)),
+            new EightEightVector<RoomPixels>(SignedEightEight.FromPixels(-2), SignedEightEight.FromPixels(-1)),
+        };
+        // From the camera at 512 the Shitroid at 700 is on screen; from the room's corner it is off screen to the right.
+        var cameras = new[] { new Position16<RoomPixels>(0x0200, 0x0000), new Position16<RoomPixels>(0x0000, 0x0000) };
+        int checks = 0;
+        foreach (var flight in flights)
+        foreach (EightEightVector<RoomPixels> velocity in velocities)
+        foreach (Position16<RoomPixels> camera in cameras)
+        {
+            state.Function = flight.Function;
+            state.Velocity = velocity;
+            state.StateTimer = 100;
+            state.HoverTimer = 4;
+            state.HorizontalLockAccumulator = 0;
+            shitroid.Position = shitroid.Position.WithWhole(new(700, 150));
+            samus.Position = samus.Position.WithWhole(new(600, 180));
+            Position16<RoomPixels> target = flight.Target();
+            int divisor = OriginalDivisorTable[flight.TablePosition];
+            bool offScreen = camera.X == 0;
+            SignedEightEight expectedX = BabyMetroidGradualAcceleration.AccelerateHorizontally(
+                700, target.X, velocity.X, divisor, OriginalOffScreenReversalKick, () => offScreen);
+            SignedEightEight expectedY = BabyMetroidGradualAcceleration.AccelerateVertically(150, target.Y, velocity.Y, divisor);
+
+            behavior.RunShitroidMain(shitroid, samus, camera, null);
+
+            AssertEqual(expectedX, state.Velocity.X, $"{flight.Function} from {velocity} with the camera at {camera}: X velocity");
+            AssertEqual(expectedY, state.Velocity.Y, $"{flight.Function} from {velocity} with the camera at {camera}: Y velocity");
+            checks++;
+        }
+        Console.WriteLine($"  Shitroid flight pulls: {checks} flights steer with the original's divisor and off-screen kick.");
+    }
+
     /// <summary>Runs the focused drain carry reproduction.</summary>
     [VerificationCommand("--shitroid-drain-carry")]
     internal static int ShitroidDrainCarryCommand()

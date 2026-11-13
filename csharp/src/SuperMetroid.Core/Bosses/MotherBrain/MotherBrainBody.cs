@@ -24,7 +24,7 @@ internal sealed class MotherBrainBody
 
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     private readonly BossFrameResultBuilder _frameResults;
-    /// <summary>Provides room services, tiles, palette state, and effects used by the encounter.</summary>
+    /// <summary>Provides room services, pictures, palette state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Owns the bombs, glass, beams, turrets, and other encounter projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -115,7 +115,7 @@ internal sealed class MotherBrainBody
                 // enters the real timed descent rather than jumping to standing form.
                 state.DeleteTurretsAndRinkas = true;
                 // Mother Brain and the Rinkas share this request. Publish it before later
-                // enemy slots can keep drawing replaced tile art.
+                // enemy slots can keep drawing replaced pictures.
                 _roomActors.TerminateRinkas();
                 state.Form = MotherBrainForm.FakeDeath;
                 _motherBrainEncounter.RequestMusic(MusicRequest.SelectTrack(MusicTrack.SecondSetSong), MusicQueueDelay.Shortest);

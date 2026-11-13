@@ -297,7 +297,7 @@ internal sealed class MotherBrainThirdPhaseFight
     /// </summary>
     internal bool RunThirdPhaseFightingAttackCooldown()
     {
-        // The attack cooldown accepts timer zero and returns to main only after underflow. It
+        // The attack cooldown accepts timer zero and returns to main only after the timer passes zero. It
         // does not fall through, so neck and walking handlers pause for all 65 calls.
         if (--_state.PhaseTimer < 0)
             _state.Phase = MotherBrainBodyPhase.ThirdPhaseFightingMain;

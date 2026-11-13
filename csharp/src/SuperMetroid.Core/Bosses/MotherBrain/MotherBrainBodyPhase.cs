@@ -10,7 +10,7 @@ public enum MotherBrainBodyPhase
     FirstPhase = 1,
     /// <summary>Seeds a 64-count wait and immediately falls into its first decrement.</summary>
     FakeDeathDescentInitialPause,
-    /// <summary>Waits for signed timer underflow, then locks Samus and closes scroll region 1.</summary>
+    /// <summary>Waits for the timer to pass zero, then locks Samus and closes scroll region 1.</summary>
     FakeDeathDescentPauseBeforeLock,
     /// <summary>Expires the 32-count pause, queues music stop/data load, and starts the 12-count unlock wait.</summary>
     FakeDeathDescentPauseBeforeMusic,
@@ -18,7 +18,7 @@ public enum MotherBrainBodyPhase
     FakeDeathDescentPauseBeforeUnlock,
     /// <summary>Starts room flashing, selects lowered-acid FX, clears the ceiling block, and arms tube collapse.</summary>
     FakeDeathDescentPauseBeforeFlash,
-    /// <summary>Advances the fake-death grey palette on timer underflow while also running tube collapse and explosions.</summary>
+    /// <summary>Advances the fake-death grey palette whenever the timer passes zero while also running tube collapse and explosions.</summary>
     FakeDeathDescentFadeToGray,
     /// <summary>Runs the independent tube sequence and dust/explosion cadence until the falling main tube starts ascent.</summary>
     FakeDeathDescentCollapseTubes,
@@ -38,13 +38,13 @@ public enum MotherBrainBodyPhase
     FakeDeathAscentSetupPhase2Graphics,
     /// <summary>Configures articulated drawing and blending, makes head/body tangible, sets head health 18,000, and immediately starts the 128-count suspense wait.</summary>
     FakeDeathAscentSetupPhase2Brain,
-    /// <summary>Waits for signed underflow, then seeds the 32-count rising-preparation delay and falls into it.</summary>
+    /// <summary>Waits for the timer to pass zero, then seeds the 32-count rising-preparation delay and falls into it.</summary>
     FakeDeathAscentPauseForSuspense,
     /// <summary>Starts the floor-clipping effect, starts the hidden head animation, and starts readying her standing body with a 256-count later pause.</summary>
     FakeDeathAscentPrepareForRising,
     /// <summary>Readies her standing body one update per call and decrements the suspense timer on the same call that finishes it.</summary>
     FakeDeathAscentReadyStandingBody,
-    /// <summary>Waits for the 256-count timer's signed underflow before placing the hidden body/background and enabling its hitboxes.</summary>
+    /// <summary>Waits for the 256-count timer to pass zero before placing the hidden body/background and enabling its hitboxes.</summary>
     FakeDeathAscentContinuePausing,
     /// <summary>Reveals the crouched body, starts boss music and earthquake, and enables the rising neck motion.</summary>
     FakeDeathAscentStartMusicAndEarthquake,
@@ -76,7 +76,7 @@ public enum MotherBrainBodyPhase
     SecondPhaseBombStandUp,
     /// <summary>Chooses neck targets from head/Samus Y ordering and seeds a four-count quick-positioning wait.</summary>
     SecondPhaseLaserPositionHeadQuickly,
-    /// <summary>On timer underflow slows neck rotation, installs the laser head animation, and seeds a 16-count recovery wait.</summary>
+    /// <summary>When the timer passes zero, slows neck rotation, installs the laser head animation, and seeds a 16-count recovery wait.</summary>
     SecondPhaseLaserPositionHeadSlowlyAndFire,
     /// <summary>Restores neutral neck targets after the wait and immediately re-enters thinking without the ordinary attack sub-dispatcher's end phase.</summary>
     SecondPhaseLaserFinishAttack,
@@ -88,7 +88,7 @@ public enum MotherBrainBodyPhase
     SecondPhaseRainbowStartCharging,
     /// <summary>Requests really-slow backward walking toward X 40, then retracts the head and starts a 256-count charge wait.</summary>
     SecondPhaseRainbowRetractNeck,
-    /// <summary>Waits for signed timer underflow, queues the charge sound, and falls into downward neck extension.</summary>
+    /// <summary>Waits for the timer to pass zero, queues the charge sound, and falls into downward neck extension.</summary>
     SecondPhaseRainbowWaitForCharge,
     /// <summary>Sets downward neck targets and projectile cooldown, seeds the NTSC 16-count firing delay, and immediately runs its first call.</summary>
     SecondPhaseRainbowExtendNeckDown,
@@ -96,11 +96,11 @@ public enum MotherBrainBodyPhase
     SecondPhaseRainbowStartFiring,
     /// <summary>Maintains beam effects and forced wallward movement until Samus reaches the wall, which selects the one-call delay.</summary>
     SecondPhaseRainbowMoveSamusTowardWall,
-    /// <summary>Runs another beam/movement call, underflows the zero timer, and starts an eight-count earthquake before draining setup.</summary>
+    /// <summary>Runs another beam/movement call, counts the zero timer past zero, and starts an eight-count earthquake before draining setup.</summary>
     SecondPhaseRainbowOneFrameDelay,
     /// <summary>Seeds both drain and earthquake timers with 299 and immediately executes the first draining call.</summary>
     SecondPhaseRainbowStartDrainingSamus,
-    /// <summary>Applies beam damage, ammunition drain, forced wall-centering movement, and effects until timer underflow.</summary>
+    /// <summary>Applies beam damage, ammunition drain, forced wall-centering movement, and effects until the timer passes zero.</summary>
     SecondPhaseRainbowDrainingSamus,
     /// <summary>Narrows the beam to an angular width of an eighth of a turn, stops the beam effect, sound and earthquake, releases input, and starts the falling handoff.</summary>
     SecondPhaseRainbowFinishFiring,
@@ -110,7 +110,7 @@ public enum MotherBrainBodyPhase
     SecondPhaseRainbowWaitForSamusToLand,
     /// <summary>Lowers the neck targets and installs the 128-count next-action pause.</summary>
     SecondPhaseRainbowLowerHead,
-    /// <summary>After timer underflow, repeats the beam at health 400 or above; otherwise begins the low-health finish-off cutscene.</summary>
+    /// <summary>After the timer passes zero, repeats the beam at health 400 or above; otherwise begins the low-health finish-off cutscene.</summary>
     SecondPhaseRainbowDecideNextAction,
     /// <summary>Uses suit-adjusted health thresholds and sampled RNG to choose onion rings/bombs until Samus reaches the intended low-health floor.</summary>
     SecondPhaseFinishSamusOff,
@@ -118,7 +118,7 @@ public enum MotherBrainBodyPhase
     SecondPhaseFinishSamusOffStandUp,
     /// <summary>Expires the admiration pause, starts the stretching head animation, and starts a 256-count final-charge delay.</summary>
     SecondPhaseFinishSamusOffAdmire,
-    /// <summary>On timer underflow installs the charging head animation and immediately begins readying the Baby Metroid's arrival.</summary>
+    /// <summary>When the timer passes zero, installs the charging head animation and immediately begins readying the Baby Metroid's arrival.</summary>
     SecondPhaseFinishSamusOffChargeFinalBeam,
     /// <summary>Readies the Baby Metroid's arrival one update per call; the last retracts the head, spawns the baby, and seeds a 256-count firing wait.</summary>
     SecondPhaseFinishSamusOffReadyBaby,
@@ -128,7 +128,7 @@ public enum MotherBrainBodyPhase
     SecondPhaseFinalRainbowBeamHolding,
     /// <summary>The body's next turn after baby attachment changes form/neck motion and immediately starts the 48-count regain-balance pause.</summary>
     SecondPhaseDrainedByBabyTakenAback,
-    /// <summary>Maintains the rainbow palette until timer underflow, then initializes the independent painful-walking sequence.</summary>
+    /// <summary>Maintains the rainbow palette until the timer passes zero, then initializes the independent painful-walking sequence.</summary>
     SecondPhaseDrainedByBabyRegainBalance,
     /// <summary>Refreshes head shake, applies rainbow palettes, and advances painful walking until stage 6 disables beam sound and brain palette handling.</summary>
     SecondPhaseDrainedByBabyFiringRainbowBeam,
@@ -144,9 +144,9 @@ public enum MotherBrainBodyPhase
     SecondPhaseDrainedByBabyTransitionToGrey,
     /// <summary>Installs the 768-count revival wait and returns without decrementing it on this setup call.</summary>
     SecondPhaseReviveInanimateGrey,
-    /// <summary>On signed wait underflow re-enables breath/drool, clears the palette counter, and starts the 224-count color-restoration delay.</summary>
+    /// <summary>When the wait passes zero, re-enables breath/drool, clears the palette counter, and starts the 224-count color-restoration delay.</summary>
     SecondPhaseReviveShowSignsOfLife,
-    /// <summary>Reverses the eight drained-grey palettes on timer underflow, then re-enables brain palette handling and falls into wake-up.</summary>
+    /// <summary>Reverses the eight drained-grey palettes when the timer passes zero, then re-enables brain palette handling and falls into wake-up.</summary>
     SecondPhaseReviveTransitionFromGrey,
     /// <summary>Waits for the posture helper to observe standing, then extends the neck and immediately begins a 16-count wake-up stretch.</summary>
     SecondPhaseReviveWakeUp,
@@ -160,7 +160,7 @@ public enum MotherBrainBodyPhase
     SecondPhaseReviveFinishPreparingForBabyDeath,
     /// <summary>Sampled RNG may adjust posture or fire the targeted onion-ring head animation, aimed at Samus when no baby index exists.</summary>
     SecondPhaseMurderBabyAttack,
-    /// <summary>Waits for the 64-count timer's signed underflow before returning to baby-attack selection.</summary>
+    /// <summary>Waits for the 64-count timer to pass zero before returning to baby-attack selection.</summary>
     SecondPhaseMurderBabyAttackCooldown,
     /// <summary>Repeatedly requests standing and backward walking to X 64; the baby owns replacement of this body phase.</summary>
     SecondPhasePrepareForFinalBabyAttack,
@@ -170,11 +170,11 @@ public enum MotherBrainBodyPhase
     SecondPhaseFinalBabyAttackHolding,
     /// <summary>Changes body form to 4, requests a fourteen-pixel backward target, and seeds the 32-count combat-setup wait.</summary>
     ThirdPhaseRecoverMakeSomeDistance,
-    /// <summary>On timer underflow installs the normal neck and walking sub-handlers and immediately runs the first phase-three fighting call.</summary>
+    /// <summary>When the timer passes zero, installs the normal neck and walking sub-handlers and immediately runs the first phase-three fighting call.</summary>
     ThirdPhaseRecoverSetupForFighting,
     /// <summary>Checks head death before neck/walking work, then uses standing pose, attack admission, and sampled RNG to choose bombs or four onion rings.</summary>
     ThirdPhaseFightingMain,
-    /// <summary>Pauses the neck/walking sub-handlers for the 64-count timer through zero and resumes main fighting only after signed underflow.</summary>
+    /// <summary>Pauses the neck/walking sub-handlers for the 64-count timer through zero and resumes main fighting only after it passes zero.</summary>
     ThirdPhaseFightingAttackCooldown,
     /// <summary>Phase-three death/escape: moves to the back of the room.</summary>
     ThirdPhaseDeathMoveToBackOfRoom,

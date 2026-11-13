@@ -20,7 +20,7 @@ internal sealed class KraidDeath
     private readonly RoomEarthquake _earthquake;
     /// <summary>Kraid's eight parts in his room, in the order they run.</summary>
     private readonly KraidParts _parts;
-    /// <summary>Applies Kraid palettes, background tiles, and sprite presentation.</summary>
+    /// <summary>Applies Kraid palettes, background pictures, and sprite presentation.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Applies contact damage, death state, and resulting drops.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;

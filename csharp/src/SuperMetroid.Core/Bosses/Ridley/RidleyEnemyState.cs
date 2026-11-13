@@ -60,7 +60,7 @@ public sealed class RidleyEnemyState
     public bool HitRoomBoundary { get; internal set; }
     /// <summary>Gets Ridley's signed 8.8 velocity, each axis held unchanged.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
-    /// <summary>Gets the shared wing animation phase, zero through nine, advancing when its timer underflows.</summary>
+    /// <summary>Gets the shared wing animation phase, zero through nine, advancing when its timer passes zero.</summary>
     public int WingFrame { get; internal set; }
     /// <summary>Gets the wing animation's countdown, reloaded to 32 once it runs below zero.</summary>
     public int WingAnimationTimer { get; internal set; }

@@ -19,7 +19,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new MotherBrainEntity(this, slot, common, _bossArtwork);
-    /// <summary>Provides room services, tiles, palette state, and effects used by the encounter.</summary>
+    /// <summary>Provides room services, pictures, palette state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Draws encounter artwork and applies installed palette data.</summary>
     private readonly EnemyPresentation _presentation;

@@ -47,7 +47,7 @@ public sealed record GameArtwork : IGameplayArtwork
     /// <summary>The opening's and the Ceres scenes' backdrops and actor placements; their pictures are the sprite sheets (#1616).</summary>
     public IntroCinematicArtwork? IntroCinematicArt { get; init; }
 
-    /// <summary>Samus body tiles, palettes and death palettes.</summary>
+    /// <summary>Samus body pictures, palettes and death palettes.</summary>
     public InstalledSamusBodyArtwork? SamusBodyArt { get; init; }
 
     /// <summary>The ending scenes' backdrops (#1544).</summary>

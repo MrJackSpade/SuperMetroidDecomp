@@ -1,11 +1,11 @@
 namespace SuperMetroid.Core.Fx;
 
-/// <summary>The animated-tile objects rooms, room effects and the Tourian statues animate their pictures with.
+/// <summary>The block animations rooms, room effects and the Tourian statues animate their pictures with.
 /// Its values are arbitrary; verification's view names each member's original identity (#1415).
 /// </summary>
 public enum AnimatedTileObject
 {
-    /// <summary>No animated-tile object is loaded.</summary>
+    /// <summary>No block animation is loaded.</summary>
     None = 0,
     /// <summary>The Phantoon statue in the Tourian statue room.</summary>
     TourianStatuePhantoon = 1,

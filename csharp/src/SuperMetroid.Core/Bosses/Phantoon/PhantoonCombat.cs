@@ -506,8 +506,8 @@ internal sealed class PhantoonCombat
             rain.FallDelay--;
             if (rain.FallDelay != 0)
                 return;
-            // Expiry falls through to movement on this call, including signed
-            // underflow. Keep each actor's queue call rather than a last-SFX latch.
+            // Expiry falls through to movement on this call, including a delay
+            // counted past zero. Keep each actor's queue call rather than a last-SFX latch.
             _audio.QueueEnemySound(PhantoonFlameMotionDefinitions.RainFallSound, PhantoonFlameMotionDefinitions.RainSoundPriority);
         }
 

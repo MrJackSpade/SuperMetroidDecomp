@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.Fx;
 [RoomLifetime]
 public sealed class RoomFxOverlayState : IGameplayShadingSource
 {
-    /// <summary>Tracks frame selection for the liquid, rain, fog, and spore tile animations.</summary>
+    /// <summary>Tracks frame selection for the liquid, rain, fog, and spore block animations.</summary>
     private readonly RoomFxAnimatedTilesState animatedTiles = new();
 
     /// <summary>The Fireflea state, which outlives each room.</summary>
@@ -101,13 +101,13 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// <summary>Selected lava or acid background wave displacement frame.</summary>
     private int lavaAcidBackgroundWavePhase;
     /// <summary>
-    /// Set after the first liquid effect overlay per-line effect pass installs its per-frame step. Later passes
+    /// Set after the liquid's first motion pass installs its per-frame step. Later passes
     /// run it before main-loop RNG; water uses this latch despite its older lava/acid name.
     /// </summary>
     internal bool LavaAcidOverlayFrameBehaviorInstalled { get; set; }
     /// <summary>
-    /// Records direct deletion of liquid scroll per-line effect objects by an enemy, which stops
-    /// their per-frame updates until the next room load.
+    /// Records an enemy ending the liquid's scrolling motion directly, which stops
+    /// its per-frame updates until the next room load.
     /// </summary>
     internal bool LiquidMotionStopped { get; set; }
 
@@ -168,7 +168,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// <summary>
     /// The live liquid surface's room line after rising and tide processing, or null while the liquid has no surface
     /// (#1546). A tide can carry the surface above the room's top, to a negative line, which every reader treats as no
-    /// surface, as the game's sign test does.
+    /// surface, as the game's below-zero check does.
     /// </summary>
     public int? Surface { get; internal set; }
 
@@ -245,14 +245,14 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
 
         if (RoomFxTypes.UsesWater(Type))
         {
-            // Both spawned per-line effect objects execute their phase initializer on the first
+            // Both water motions, the surface wave and the background wave, run their phase initializer on the first
             // handler pass. A one-frame timer reproduces that first-call rotation.
             waterOverlayWaveTimer = 1;
             waterBackgroundWaveTimer = 1;
         }
         else if (Type is RoomFxType.Lava or RoomFxType.Acid)
         {
-            // Lava and acid start with timer B at one, so the first per-line effect object pass rotates A
+            // Lava and acid start with timer B at one, so the background wave's first step rotates A
             // from zero to 30 and then reloads either four or six. Expressing the already-
             // resolved waveform phase as zero produces the same first visible table.
             lavaAcidBackgroundWaveTimer = HazePhaseDuration;
@@ -266,8 +266,8 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     }
 
     /// <summary>
-    /// True for the liquids whose effect overlay per-line effect step moves the surface: lava and
-    /// acid and water. That motion belongs to the per-line effect pass.
+    /// True for the liquids whose surface motion step moves the surface: lava and
+    /// acid and water. That motion belongs to the liquid's motion pass.
     /// </summary>
     public bool MovesLiquidBeforeMainLoop =>
         Type is RoomFxType.Lava or RoomFxType.Acid || RoomFxTypes.UsesWater(Type);
@@ -300,7 +300,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// <summary>
     /// Runs liquid motion and shared-state writes for lava, acid and water before
     /// main-loop random-number generation. Their setup installs the liquid's motion on the
-    /// first per-line effect pass; lava/acid's motion then swaps the shared random state on
+    /// liquid's first motion pass; lava/acid's motion then swaps the shared random state on
     /// subsequent unfrozen passes, even off screen. Rising/tidal motion also runs during
     /// door fades and pause entry. Visual updates remain in <see cref="Step"/>,
     /// which must not advance that motion twice.
@@ -363,7 +363,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         if (!IsRenderable || frame.TimeIsFrozen)
             return;
 
-        // The shared animated-tiles handler runs independently of the per-line effect's
+        // The shared block animations run independently of the liquid motion's
         // per-frame step. In particular, lava and acid select the animation frame their page
         // shows here, before the surface step that follows.
         animatedTiles.Step(frames);
@@ -482,7 +482,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
 
     /// <summary>
     /// Reloading a record's entry restores motion, blending and three colors, but does not restart
-    /// per-line effects, animated tiles, or the liquid's current motion phase as a room load would.
+    /// per-line effects, block animations, or the liquid's current motion phase as a room load would.
     /// </summary>
     internal void ApplyEntry(RoomFxRecordDefinition definition)
     {
@@ -545,7 +545,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         if (Liquid is RoomWater { SurfaceDrift: true })
             waterDrift += WaterDriftVelocity;
 
-        // The Tourian entrance statue's FX spawns only the effect overlay water object. Its second per-line effect object moves
+        // The Tourian entrance statue's FX starts only the water surface's motion. Its second motion moves
         // the statue vertically instead of installing the ordinary background X wave.
         if (Type != RoomFxType.Water || Liquid is not RoomWater { BackgroundWave: true })
             return;
@@ -691,7 +691,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         EarthquakeSoundSequenceIndex++;
     }
 
-    /// <summary>The statue per-line effect steps call the same earthquake sound owner.</summary>
+    /// <summary>The statue descent's steps call the same earthquake sound owner.</summary>
     internal void PublishStatueEarthquakeSound(int randomNumber, PowerOnEarthquakeSoundDelay earthquakeSoundDelay) =>
         HandleEarthquakeSoundEffect(randomNumber, earthquakeSoundDelay);
 

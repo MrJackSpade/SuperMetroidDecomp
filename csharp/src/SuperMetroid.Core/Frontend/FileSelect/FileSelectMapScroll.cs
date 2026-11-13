@@ -119,6 +119,6 @@ public sealed class FileSelectMapScroll
         return true;
     }
 
-    /// <summary>A map coordinate or boundary difference read as a signed offset, as the scroll's sign tests read it.</summary>
+    /// <summary>A map coordinate or boundary difference read as a signed offset, as the scroll's bounds checks read it.</summary>
     private static int Signed(int value) => CoordinateAxis.AsSigned(value);
 }

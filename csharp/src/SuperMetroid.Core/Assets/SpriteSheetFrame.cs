@@ -34,7 +34,7 @@ public sealed record SpriteSheetFrame
 
     /// <summary>
     /// Where a gameplay draw of the frame sits among the room's layers (#1514), as the import decided from where the game
-    /// draws the frame as a whole; null for a frame that is not an actor's, such as a picture of a layer's tiles, and for
+    /// draws the frame as a whole; null for a frame that is not an actor's, such as a picture of a layer's blocks, and for
     /// an empty frame.
     /// </summary>
     public ActorDepth? Depth { get; init; }

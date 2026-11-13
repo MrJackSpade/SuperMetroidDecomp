@@ -73,16 +73,16 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
     /// <summary>The Ceres haze, once the FX step has built it.</summary>
     public CeresHazeState? CeresHaze { get; set; }
 
-    /// <summary>The sand tiles, once the FX step has built them.</summary>
+    /// <summary>The sand block animations, once the FX step has built them.</summary>
     public RoomSandAnimatedTilesState? SandTiles { get; set; }
 
-    /// <summary>The spike tiles, once the FX step has built them.</summary>
+    /// <summary>The spike block animations, once the FX step has built them.</summary>
     public RoomSpikeAnimatedTilesState? SpikeTiles { get; set; }
 
-    /// <summary>The treadmill tiles, once the FX step has built them.</summary>
+    /// <summary>The treadmill block animations, once the FX step has built them.</summary>
     public RoomTreadmillAnimatedTilesState? TreadmillTiles { get; set; }
 
-    /// <summary>The Wrecked Ship treadmill tiles, once the definition step has built them.</summary>
+    /// <summary>The Wrecked Ship treadmill block animations, once the definition step has built them.</summary>
     public WreckedShipTreadmillAnimatedTilesState? WreckedShipTreadmill { get; set; }
 
     /// <summary>The Tourian statues, once the post-enemy step has built them.</summary>

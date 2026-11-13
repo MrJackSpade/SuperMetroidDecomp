@@ -27,7 +27,9 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// #1624 adds the interpreter vocabulary of the original's streams: operands, instructions and numbered, Samus and
 /// animation commands, then every other command of the original's streams and dispatchers and numbered functions and
 /// selectors. #1632 adds the display path's hardware vocabulary: the tile characters pictures were assembled
-/// from, video and display memory, and per-line tables.
+/// from, video and display memory, and per-line tables. #1726 adds the processor's arithmetic and the original's display
+/// and sound records: underflows, sign tests and sign bits, tile attributes and values, per-line effect objects and
+/// voices keyed on.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -213,6 +215,34 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         @"|\bper[-\s]+(?:scan)?line\s+(?:[\w-]+\s+){0,2}?tables?\b|\bscanline\s+tables?\b",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    /// <summary>
+    /// The processor's arithmetic and the original's display and sound records in prose (#1726): an underflow in any word
+    /// form; a sign test, sign bit, sign check or sign flag (spaced, hyphenated or signed: a signed test); testing a value's
+    /// sign (tests its sign, testing the sign); a comparison, cap, clamp or branch made by or on a value's sign within its
+    /// clause (compares it by the sign of the wrapped difference, branches on its sign); a tile's attributes or values; a
+    /// per-line effect object, with up to two words between (a per-line display effect object); and a voice, note or
+    /// channel keyed on (a key-on, the tick keys on the voice, a voice keyed on). A Core countdown passes zero, a
+    /// comparison says which side of the other a value lies, a picture is named, and a liquid's or effect's motion names
+    /// its steps. English stays legal: a value's sign as its direction (the sign of the speed, the sign of the difference,
+    /// a sign-inverted mirror, the percent sign) when nothing tests or compares by it; a key on disk; and keying a table
+    /// or a binding on a name (installed bindings key on the identity, a table keyed on the name).
+    /// </summary>
+    private static readonly Regex MachineArithmeticProse = new(
+        @"\bunderflow\w*" +
+        @"|\bsign(?:ed)?[-\s]+(?:tests?|testing|tested|bits?|checks?|flags?)\b" +
+        @"|\btest(?:s|ed|ing)?\s+(?:only\s+)?(?:the|its|their|that)\s+(?:[\w-]+(?:'s)?\s+){0,2}?" + SignWord +
+        @"|\b(?:compar(?:e|es|ed|ing)|caps?|capped|capping|clamps?|clamped|clamping|branch(?:es|ed|ing)?|judged)\b[^.;:!?]{0,60}?" +
+        @"\b(?:by|on)\s+(?:the|its|their)\s+(?:[\w-]+(?:'s)?\s+){0,2}?" + SignWord +
+        @"|\btiles?(?:'s|s')?[-\s]+(?:attributes?|values?)\b" +
+        @"|\bper[-\s]+line\s+(?:[\w-]+\s+){0,2}?objects?\b" +
+        @"|\bkey[-]?ons?\b" +
+        @"|\bkey(?:s|ed|ing)?\s+on\s+(?:the\s+|a\s+|its\s+|each\s+|every\s+|this\s+)?(?:voices?|notes?|channels?|samples?|instruments?)\b" +
+        @"|\b(?:voices?|notes?|channels?)\s+(?:(?:is|are|was|were|stays?|stayed|remains?|remained)\s+)?keyed\s+on\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>A value's sign as a word, not a percent, plus, minus, equals or dollar sign.</summary>
+    private const string SignWord = @"(?<!\b(?:percent|plus|minus|equals?|dollar)[-\s]+)sign\b";
+
     /// <summary>The words of text in prose: what is typed, written or spelled, and the text, message, letter or glyph it is.</summary>
     private const string TextWords =
         @"(?:typ(?:es|ed|ing)|typewriters?|texts?|narrations?|messages?|captions?|letters?|glyphs?|alphabets?" +
@@ -355,6 +385,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : WorkingMemoryProse.Match(text) is { Success: true } memory ? memory.Value
             : HostProvenanceProse.Match(text) is { Success: true } host ? host.Value
             : DisplayMemoryProse.Match(text) is { Success: true } display ? display.Value
+            : MachineArithmeticProse.Match(text) is { Success: true } arithmetic ? arithmetic.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

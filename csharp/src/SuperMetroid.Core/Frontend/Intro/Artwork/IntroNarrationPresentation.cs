@@ -3,7 +3,7 @@ using System.Collections;
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 
 /// <summary>
-/// Editable UTF-8 lines and bounded tile placement for the six English opening-narration pages.
+/// Editable UTF-8 lines and bounded glyph placement for the six English opening-narration pages.
 /// Typewriter timing, audio cadence, caret behavior, input waits and scene transitions remain compiled.
 /// </summary>
 public sealed class IntroNarrationPresentation

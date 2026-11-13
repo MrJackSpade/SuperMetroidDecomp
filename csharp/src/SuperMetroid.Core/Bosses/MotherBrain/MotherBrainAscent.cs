@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 [RoomLifetime]
 internal sealed class MotherBrainAscent
 {
-    /// <summary>Provides room services, tiles, palette state, and effects used by the encounter.</summary>
+    /// <summary>Provides room services, pictures, palette state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Owns the bombs, glass, beams, turrets, and other encounter projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -55,7 +55,7 @@ internal sealed class MotherBrainAscent
         state.BrainAction = MotherBrainBrainAction.SetupBrainAndNeckToBeDrawn;
 
         // Both records become tangible before the suspense pause, but remain invisible for
-        // their separate reasons: the body waits for its leg tiles, while the head's hide-drawing
+        // their separate reasons: the body waits for its leg pictures, while the head's hide-drawing
         // bit deliberately selects her brain and articulated neck's own draw.
         state.Body.Contact = state.Body.Contact.Without(EnemyContact.IgnoresSamus);
         state.Head.Contact = state.Head.Contact.Without(EnemyContact.IgnoresSamus);

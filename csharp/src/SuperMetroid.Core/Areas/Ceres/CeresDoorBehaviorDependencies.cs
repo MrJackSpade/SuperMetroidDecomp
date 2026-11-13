@@ -18,7 +18,7 @@ internal sealed record CeresDoorBehaviorDependencies
     /// <summary>Queues the door's opening and destruction sounds.</summary>
     public required EnemyAudioQueue Audio { get; init; }
 
-    /// <summary>Owns the tile and palette destinations for Ceres door artwork.</summary>
+    /// <summary>Owns the picture and palette destinations for Ceres door artwork.</summary>
     public required EnemyPresentation Presentation { get; init; }
 
     /// <summary>Spawns smoke or explosion effects around the shaking door.</summary>

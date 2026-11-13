@@ -48,7 +48,7 @@ public static class XrayRevealOverlays
     /// </summary>
     private static RevealedBlock Arranged(RoomBlockAppearance appearance)
     {
-        // The overlay swaps the two tile rows for vertical mirroring. It neither toggles each tile's mirroring nor
+        // The overlay swaps the block's top and bottom halves for vertical mirroring. It neither toggles each quarter's mirroring nor
         // implements horizontal mirroring; preserve that game behaviour.
         bool flip = (appearance.Mirroring & BlockMirroring.Vertical) != BlockMirroring.None;
         return new RevealedBlock(appearance.Block, flip ? RevealedBlockArrangement.RowsSwapped : RevealedBlockArrangement.AsDefined);

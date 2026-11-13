@@ -106,7 +106,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         if (absoluteDistance >= ZoaActivationColumnDistance)
             return;
 
-        // The Zoa rises facing Samus; the sign test uses the same wrapped Samus-minus-enemy distance as the common helper.
+        // The Zoa rises facing Samus; the facing check uses the same wrapped Samus-minus-enemy distance as the common helper.
         state.RequestedAnimation = ZoaAnimationChoices.Rising(facingRight: CoordinateAxis.AsSigned(signedDistance) >= 0);
         SetZoaAnimation(slot, state);
         state.Action = ZoaAction.Rising;

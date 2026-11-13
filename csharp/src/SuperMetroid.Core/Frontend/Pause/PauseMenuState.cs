@@ -277,7 +277,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // The retained HUD is its own layer at the HUD's place (#1466).
         var hud = new HudLayer(screen.ShownHudPictures(), DrawsOpaque: false);
         // Back to front (#1514): the area's frame, the page inside it, the page's markers, cursors and labels, and the
-        // retained HUD over the top band. Each picture and sprite is drawn whole at its layer's place; the per-tile and
+        // retained HUD over the top band. Each picture and sprite is drawn whole at its layer's place; the per-square and
         // per-sprite-part priority tiers that once interleaved them are a presentation quirk the model does not keep.
         DisplayLayer[] layers = [frame, page, screen.Sprites(), hud];
         return new(screen.Paint(), layers, Transition == PauseMenuTransition.None ? 15 : TransitionBrightness);
@@ -415,7 +415,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         bool IsVisible(int x, int y)
         {
             bool explored = system.IsMapTileExplored(area, new(x, y));
-            // The game's scroll bounds select one bit plane, unlike tile rendering, which
+            // The game's scroll bounds select one bit plane, unlike the map's drawing, which
             // also displays explored secrets. Unioning the planes moves the map's center
             // after a secret is explored even though the downloaded bounds are unchanged.
             if (mapRevealMode == MapRevealMode.None)

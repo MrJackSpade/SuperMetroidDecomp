@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Escape;
 
 /// <summary>
 /// The Zebes escape rooms' shaking and explosions (#1415): the earthquake each escape room shakes with, how often a
-/// horizontal shake turns diagonal and for how long, where the explosions go off and which one, and the tile outdoor
+/// horizontal shake turns diagonal and for how long, where the explosions go off and which one, and the blocks outdoor
 /// explosions skip.
 /// </summary>
 public static class ZebesEscapeDefinitions
@@ -82,7 +82,7 @@ public static class ZebesEscapeDefinitions
 
     /// <summary>
     /// The room mains of the escape rooms that set off random explosions: the outdoor rooms, whose explosions skip blank
-    /// tiles, the two rooms whose shaking turns diagonal, and the rooms exploding every fourth update. The escape room
+    /// blocks, the two rooms whose shaking turns diagonal, and the rooms exploding every fourth update. The escape room
     /// effects run their explosions in exactly these rooms, and the import pictures the explosions only for them.
     /// </summary>
     public static IReadOnlySet<RoomMainBehavior> ExplosionRoomMains { get; } = new HashSet<RoomMainBehavior>

@@ -245,7 +245,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         }
 
         // Upward motion slows by an eighth of a pixel per update each update; falling motion speeds up by half a
-        // pixel. The sign test is performed before the addition in the game.
+        // pixel. The game checks whether it is rising before the addition.
         SignedEightEight acceleration = state.Velocity.Y.IsNegative ? SignedEightEight.FromParts(0, 32) : SignedEightEight.FromParts(0, 128);
         state.Velocity = state.Velocity.WithY(state.Velocity.Y + acceleration);
         if (beforeTerrainBoundary)

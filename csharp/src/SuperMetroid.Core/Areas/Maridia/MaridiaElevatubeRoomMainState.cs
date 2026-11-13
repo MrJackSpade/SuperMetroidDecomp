@@ -115,7 +115,7 @@ public sealed class MaridiaElevatubeRoomMainState
 
         // The game's biased unsigned range test is exactly the inclusive signed range of the maximum speed either
         // way; a candidate outside it is rejected rather than clamped, leaving the preceding velocity intact. The sum
-        // wraps as the game's coordinate does, so an overflowed candidate is judged by its wrapped sign.
+        // wraps as the game's coordinate does, so an overflowed candidate is judged by whether its wrapped value reads as negative.
         SignedEightEight candidate = Velocity + Acceleration;
         if (candidate >= -MaridiaElevatubeDefinitions.MaximumSpeed && candidate <= MaridiaElevatubeDefinitions.MaximumSpeed)
             Velocity = candidate;

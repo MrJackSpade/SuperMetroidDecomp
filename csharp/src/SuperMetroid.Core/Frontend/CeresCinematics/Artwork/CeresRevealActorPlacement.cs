@@ -10,7 +10,7 @@ public sealed record CeresRevealActorPlacement
 
     /// <summary>Case-sensitive presentation role, required to match its fixed index among the installed reveal layout's actors.</summary>
     public required string Id { get; init; }
-    /// <summary>Initial horizontal screen-pixel coordinate, -32768 through 32767, negative left of the screen (#1627); not a room-world or tile coordinate.</summary>
+    /// <summary>Initial horizontal screen-pixel coordinate, -32768 through 32767, negative left of the screen (#1627); not a room-world or block coordinate.</summary>
     public required int X { get; init; }
     /// <summary>Initial vertical screen-pixel coordinate, -32768 through 32767, negative above the screen (#1627); increases downward.</summary>
     public required int Y { get; init; }

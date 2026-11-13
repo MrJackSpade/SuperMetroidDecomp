@@ -44,8 +44,8 @@ internal sealed class MotherBrainRevivalPhases
     /// </summary>
     internal bool RunSecondPhaseReviveShowSignsOfLife()
     {
-        // The sign test accepts zero: 768 reaches zero without advancing and only the 769th
-        // call underflows to -1. Revival then re-enables both breath producers,
+        // The below-zero check accepts zero: 768 reaches zero without advancing and only the 769th
+        // call passes zero to -1. Revival then re-enables both breath producers,
         // seeds 224, and falls through two phase changes to the transition from grey.
         if (--_state.PhaseTimer < 0)
         {
@@ -131,7 +131,7 @@ internal sealed class MotherBrainRevivalPhases
     /// </summary>
     internal bool RunSecondPhaseReviveWalkUpToBaby(MotherBrainRainbowBeamStepRequests requests)
     {
-        // Once the 128-count timer underflows, the timer deliberately remains negative and the
+        // Once the 128-count timer passes zero, the timer deliberately remains negative and the
         // helper is retried after every body-animation call until X has overshot 80.
         if (--_state.PhaseTimer < 0)
         {

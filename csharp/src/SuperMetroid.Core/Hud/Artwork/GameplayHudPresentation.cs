@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Hud.Artwork;
 
 /// <summary>
 /// The installed gameplay HUD's layout (#1466): where each of the HUD's images is placed for each of its values. The import
-/// pipeline decodes and validates the editable HUD document into it and pictures every image, keeping the tiles it pictures
+/// pipeline decodes and validates the editable HUD document into it and pictures every image, keeping the source artwork it pictures
 /// them from to itself (#1616); <see cref="HudState.Shown"/> places the images the HUD's values select. Placements are screen
 /// pixels across the HUD: the static top row at its top, then the band the values are drawn over.
 /// </summary>

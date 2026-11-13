@@ -58,6 +58,6 @@ internal sealed class PauseMapScroll(Position16<MapPixels> minimum, Position16<M
         return true;
     }
 
-    /// <summary>A map-bound difference read as a signed offset, as the scroll's sign tests read it.</summary>
+    /// <summary>A map-bound difference read as a signed offset, as the scroll's bounds checks read it.</summary>
     private static int Signed(int value) => CoordinateAxis.AsSigned(value);
 }

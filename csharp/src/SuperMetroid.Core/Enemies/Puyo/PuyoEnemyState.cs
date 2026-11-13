@@ -16,7 +16,7 @@ public sealed class PuyoEnemyState
 
     /// <summary>
     /// The furthest place the Puyo's index keeps: a step past it, as past the first row, restarts the fall, as the game's
-    /// sign test on the index does.
+    /// check for a negative index does.
     /// </summary>
     internal static readonly EnemyQuadraticSpeedIndex LargestYSpeedTableIndex =
         EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(short.MaxValue);
@@ -65,7 +65,7 @@ public sealed class PuyoEnemyState
 
     /// <summary>
     /// One airborne update's change to the speed index: rising lowers it by <paramref name="delta"/>, falling raises it.
-    /// A step that leaves the first row through <see cref="LargestYSpeedTableIndex"/> (the game tests its sign) restarts
+    /// A step that leaves the first row through <see cref="LargestYSpeedTableIndex"/> (the game checks whether it is negative) restarts
     /// the fall at the first row: the apex while rising, and a restart of an overlong fall.
     /// </summary>
     /// <param name="delta">The hop record's index step, at most three whole rows.</param>

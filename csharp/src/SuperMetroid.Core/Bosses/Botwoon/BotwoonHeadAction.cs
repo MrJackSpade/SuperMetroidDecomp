@@ -11,6 +11,6 @@ public enum BotwoonHeadAction
     WaitForSpitFrame,
     /// <summary>Emits three aimed projectiles immediately and selects the attack cooldown.</summary>
     SpawnImmediateVolley,
-    /// <summary>Decrements the attack timer through zero to signed underflow, pins it to zero, and restores movement-based animation.</summary>
+    /// <summary>Counts the attack timer down until it passes zero, pins it to zero, and restores movement-based animation.</summary>
     AttackCooldown,
 }

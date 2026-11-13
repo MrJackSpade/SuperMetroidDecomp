@@ -242,7 +242,7 @@ level, samus, controllerInput, frameCounter, roomObjects, SamusMovementType.Spri
         speed.SelectEnvironmentSpeedTable(samus.LiquidPhysics.DetermineMovementMedium(samus));
 
         // The normal variable-height jump cutoff. Releasing Jump
-        // while rising cancels the remaining magnitude; signed underflow at the apex takes
+        // while rising cancels the remaining magnitude; a speed passing zero at the apex takes
         // the same branch even if Jump is still held.
         if (samus.Kinematics.YDirection == SamusVerticalDirection.Up &&
             (((controllerInput & ControllerButton.A) == ControllerButton.None) ||
@@ -371,7 +371,7 @@ level, samus, controllerInput, frameCounter, roomObjects, SamusMovementType.Spri
     {
         SamusKinematicsState state = samus.Kinematics;
 
-        // The fall converts the signed underflow produced at the prior apex frame before
+        // The fall converts the speed that passed zero at the prior apex frame before
         // this frame snapshots displacement. Direction is a separate value;
         // do not infer it from the sign of the fixed-point magnitude.
         if (state.YDirection == SamusVerticalDirection.Up && SamusSpeedMagnitude.HasPassedZero(state.YSpeed.Whole))

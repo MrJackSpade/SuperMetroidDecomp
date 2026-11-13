@@ -15,7 +15,7 @@ internal sealed class MotherBrainFakeDeath
     private readonly BossFrameResultBuilder _frameResults;
     /// <summary>Spawns the enemies the fake death releases into the room.</summary>
     private readonly IEnemyLifecycle _lifecycle;
-    /// <summary>Provides room services, tiles, palette state, and effects used by the encounter.</summary>
+    /// <summary>Provides room services, pictures, palette state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Owns the bombs, glass, beams, turrets, and other encounter projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -227,7 +227,7 @@ internal sealed class MotherBrainFakeDeath
     /// <summary>Counts the tube phase's timer down and reports whether it ran past zero.</summary>
     private static bool DecrementMotherBrainTubeTimerPastZero(MotherBrainEnemyState state) => --state.TubeCollapseTimer < 0;
 
-    /// <summary>Queues the room tile change at the tube's location.</summary>
+    /// <summary>Queues the room block change at the tube's location.</summary>
     private void RequestMotherBrainTubeObject(
         MotherBrainEnemyState state,
         Position16<RoomBlocks> block,
@@ -387,7 +387,7 @@ internal sealed class MotherBrainFakeDeath
             MiscDustAnimation.SmallDustCloud);
     }
 
-    /// <summary>Finishes a falling tube with its explosion and tile update.</summary>
+    /// <summary>Finishes a falling tube with its explosion and block update.</summary>
     private void ExplodeMotherBrainTube(RoomEnemySlot tube)
     {
         Position16<RoomPixels> position = tube.Position.Whole;

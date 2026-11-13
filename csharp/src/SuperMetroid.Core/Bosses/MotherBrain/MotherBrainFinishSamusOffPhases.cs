@@ -107,7 +107,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
     internal bool RunSecondPhaseFinishSamusOffAdmire()
     {
         // Stand-up falls through here, so the freshly written 16 becomes 15
-        // on the same AI call. The sign test accepts zero and expires only after underflow.
+        // on the same AI call. The below-zero check accepts zero and expires only once the timer passes zero.
         if (--_state.PhaseTimer < 0)
         {
             _state.SetHeadAnimation(MotherBrainHeadSegment.StretchingPhase2);
@@ -133,7 +133,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
     }
 
     /// <summary>
-    /// Runs the second phase finish samus off load baby tiles body phase. True when it moves to the next body phase and the game runs
+    /// Runs the second phase finish samus off load baby pictures body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunSecondPhaseFinishSamusOffReadyBaby(MotherBrainRainbowBeamStepRequests requests)

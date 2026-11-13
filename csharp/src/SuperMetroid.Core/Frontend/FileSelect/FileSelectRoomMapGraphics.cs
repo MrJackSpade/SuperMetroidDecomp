@@ -31,7 +31,7 @@ public sealed class FileSelectRoomMapGraphics
     /// <param name="area">One of the six Zebes map areas, excluding Ceres.</param>
     /// <param name="revealMode">Optional presentation reveal override when projecting installed map cells; ordinary selection uses persistence-driven visibility.</param>
     /// <param name="mapPresentation">Required installed map tiles, palettes, screens, and sprite/layout resources, despite the optional parameter syntax.</param>
-    /// <param name="sheets">Required installed sprite sheets, despite the optional parameter syntax: the map sprites and the background tiles.</param>
+    /// <param name="sheets">Required installed sprite sheets, despite the optional parameter syntax: the map sprites and the background pictures.</param>
     public FileSelectRoomMapGraphics(SharedGameState system, AreaId area,
         MapRevealMode revealMode = MapRevealMode.None, AreaMapPresentation? mapPresentation = null, InstalledSpriteSheets? sheets = null)
     {
@@ -52,7 +52,7 @@ public sealed class FileSelectRoomMapGraphics
         AreaMap = AreaMapProjection.Project(mapPresentation.Get(area), system, revealMode);
     }
 
-    /// <summary>Rebinds the installed sheets: the map sprites the icons, marker and arrows draw from, and the background tiles.</summary>
+    /// <summary>Rebinds the installed sheets: the map sprites the icons, marker and arrows draw from, and the background pictures.</summary>
     internal void BindSheets(InstalledSpriteSheets? sheets)
     {
         InstalledSpriteSheets installed = sheets ?? throw new InvalidOperationException("Room-map graphics require the installed sprite sheets.");
@@ -102,7 +102,7 @@ public sealed class FileSelectRoomMapGraphics
         var frame = new PicturedPlane([.. framePictures]);
         var frameScroll = new Offset16<PlanePixels>(0, FileSelectMapDefinitions.RoomFrameVerticalScroll);
         // The room map scrolls through its frame's opening, the frame's border around it (#1514): each picture is drawn
-        // whole, and the per-tile priority tiers that once interleaved the two are a presentation quirk the model does not keep.
+        // whole, and the per-square priority tiers that once interleaved the two are a presentation quirk the model does not keep.
         layers.Add(new PicturedPlaneLayer(frame, frameScroll));
         if (content != RoomMapContent.FrameOnly)
             layers.Add(new PictureGridLayer(AreaMapPictures.Grid(AreaMap, pictures), scroll.AsPlaneOffset()) { Window = MapFrameOpening.Window(frameScroll) });

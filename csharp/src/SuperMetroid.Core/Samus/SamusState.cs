@@ -166,7 +166,7 @@ public sealed class SamusState
     public SamusXrayState Xray { get; } = new();
 
     /// <summary>
-    /// Fatal-damage death-pose ownership, death tiles/palettes, whiteout, and suit explosion.
+    /// Fatal-damage death-pose ownership, death pictures/palettes, whiteout, and suit explosion.
     /// The outer music wait and post-explosion room fade are the death game states' (<c>DeathGamePhases</c>).
     /// </summary>
     public SamusDeathSequenceState DeathSequence { get; } = new();

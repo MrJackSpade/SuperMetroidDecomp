@@ -21,7 +21,7 @@ internal sealed record KraidDeathDependencies
     /// <summary>Kraid's eight parts in his room, in the order they run.</summary>
     public required KraidParts Parts { get; init; }
 
-    /// <summary>Applies Kraid palettes, background tiles, and sprite presentation.</summary>
+    /// <summary>Applies Kraid palettes, background pictures, and sprite presentation.</summary>
     public required EnemyPresentation Presentation { get; init; }
 
     /// <summary>Applies contact damage, death state, and resulting drops.</summary>

@@ -8,7 +8,7 @@ public enum RoomFxType
 {
     /// <summary>No animated room-FX object is present.</summary>
     None = 0,
-    /// <summary>Animated damaging lava surface with the effect overlay tiles, palette effects, and optional background distortion.</summary>
+    /// <summary>Animated damaging lava surface with the effect overlay's pictures, palette effects, and optional background distortion.</summary>
     Lava = 1,
     /// <summary>Animated damaging acid surface sharing the liquid renderer but using acid-specific gameplay damage.</summary>
     Acid,

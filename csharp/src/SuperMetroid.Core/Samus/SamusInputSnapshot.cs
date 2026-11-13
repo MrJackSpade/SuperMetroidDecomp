@@ -28,8 +28,8 @@ internal sealed class SamusInputSnapshot
     /// <summary>
     /// Consecutive held-Jump history updated by the post-draw input filter: a wrapping count, 0 through
     /// <see cref="WrappingCounter.LargestCount"/>, kept narrow because its wrap is gameplay (#1627). A Jump held past the
-    /// largest count continues from zero, and the auto-jump compares the count with its limit by the sign of their
-    /// difference, so a hold long enough reads as fresh again (<see cref="JumpHoldReadsAsFresh"/>).
+    /// largest count continues from zero, and the auto-jump compares the count with its limit by whether their
+    /// difference is negative, so a hold long enough reads as fresh again (<see cref="JumpHoldReadsAsFresh"/>).
     /// </summary>
     public int AutoJumpTimer
     {
@@ -70,7 +70,7 @@ internal sealed class SamusInputSnapshot
 
     /// <summary>
     /// Whether a jump held for <paramref name="heldUpdates"/> reads as below the auto-jump limit: the game compares the
-    /// hold with the limit by the sign of their difference (<see cref="WrappingCounter.IsBehind"/>), so a jump held for
+    /// hold with the limit by whether their difference is negative (<see cref="WrappingCounter.IsBehind"/>), so a jump held for
     /// half the count's range past the limit counts as pressed again, until the count continues from zero.
     /// </summary>
     private static bool JumpHoldReadsAsFresh(int heldUpdates) =>

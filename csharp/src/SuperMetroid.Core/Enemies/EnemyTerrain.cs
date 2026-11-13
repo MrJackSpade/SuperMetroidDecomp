@@ -25,7 +25,7 @@ internal sealed class EnemyTerrain
 
     /// <summary>
     /// Moves the enemy horizontally, treating non-square slopes as walls. Square slopes
-    /// retain their half-tile geometry; only non-square slopes become solid walls.
+    /// retain their half-block geometry; only non-square slopes become solid walls.
     /// </summary>
     internal bool MoveEnemyHorizontallyTreatingSlopesAsWalls(
         RoomLevelData level,
@@ -418,7 +418,7 @@ internal sealed class EnemyTerrain
             $"Enemy collision extension chain from block ({start.X},{start.Y}) is cyclic.");
     }
 
-    /// <summary>Tests the target half-tile quadrant and the enemy's vertical span against a square slope.</summary>
+    /// <summary>Tests the target half-block quadrant and the enemy's vertical span against a square slope.</summary>
     private static bool SquareHorizontalSlopeIsSolid(
         RoomEnemySlot slot,
         int targetEdge,
@@ -444,7 +444,7 @@ internal sealed class EnemyTerrain
         return SquareSlopes.IsSolid(shape, quadrant.OtherRow);
     }
 
-    /// <summary>Tests the target half-tile quadrant and the enemy's horizontal span against a square slope.</summary>
+    /// <summary>Tests the target half-block quadrant and the enemy's horizontal span against a square slope.</summary>
     private static bool SquareVerticalSlopeIsSolid(
         RoomEnemySlot slot,
         int targetEdge,

@@ -469,8 +469,8 @@ public sealed class TitleSequenceState : IFrontendScreen
         objects.BeginFrame();
         if (ActiveSprite is { } sprite)
         {
-            // Cinematic drawing replaces each part's palette bits
-            // after masking the stored attributes. It does not add a base tile;
+            // Cinematic drawing replaces each part's colour choice
+            // after masking the stored one. It does not offset the parts' pictures;
             // confusing it with the enemy loader makes the title art uniformly blue.
             TitleSpriteDrawing.DrawSprite(sheet, sprite, objects,
                 ActiveOrigin.ToSpritePosition(), ActiveShading);

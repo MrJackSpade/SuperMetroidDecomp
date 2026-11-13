@@ -129,8 +129,8 @@ internal sealed class MotherBrainThirdPhaseDeath
         Func<int>? nextRandomNumber,
         List<MotherBrainDeathExplosionRequest> requests)
     {
-        // The death explosions decrement before testing the sign. A cleared timer therefore runs past zero and emits
-        // immediately. Crucially, the interval literal remains in A across the memory DEC,
+        // The death explosions decrement before checking for a count below zero. A cleared timer therefore runs past zero and emits
+        // immediately. Crucially, the interval value survives the timer's decrement,
         // so the smoky/mixed caller writes exactly 16/8 after an expiry.
         if (--DeathExplosionIntervalTimer >= 0)
             return;
@@ -171,7 +171,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         Func<int>? nextRandomNumber)
     {
         // The escape-door dust shares the old death-explosion interval value but replaces its cadence with
-        // four. A cleared timer underflows on the first call, so a new explosion is immediate.
+        // four. A cleared timer passes zero on the first call, so a new explosion is immediate.
         if (--DeathExplosionIntervalTimer >= 0)
             return null;
 
@@ -402,7 +402,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death load corpse tiles body phase. True when it moves to the next body phase and the game runs
+    /// Runs the third phase death load corpse pictures body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunThirdPhaseDeathReadyCorpse()
@@ -510,7 +510,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         if (--_state.PhaseTimer < 0)
         {
             // The decapitated brain remains at the corpse coordinates for the full
-            // delay. Loading the escape-timer tiles finally parks it at (0,0) before escape-timer tile
+            // delay. Loading the escape-timer pictures finally parks it at (0,0) before escape-timer picture
             // loading begins; this is a real actor-coordinate mutation, not rendering.
             _state.BrainPosition = Position16<RoomPixels>.Zero;
             _state.Phase = MotherBrainBodyPhase.ThirdPhaseDeathReadyEscapeWarning;
@@ -519,7 +519,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death load escape timer tiles body phase. True when it moves to the next body phase and the game runs
+    /// Runs the third phase death load escape timer pictures body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
     internal bool RunThirdPhaseDeathReadyEscapeWarning()
@@ -568,9 +568,9 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// </summary>
     internal bool RunThirdPhaseDeathSpawnTimeBombSetSubtitle(MotherBrainRainbowBeamStepRequests requests)
     {
-        // The subtitle delay decrements first. Its sign test does *not* merely wait: it branches directly
+        // The subtitle delay decrements first. Its below-zero check does *not* merely wait: it branches directly
         // into the typing step, so the underlying typewriter advances during all 32..0
-        // subtitle-delay values. On underflow the code installs the typing step,
+        // subtitle-delay values. When it passes zero the code installs the typing step,
         // spawns the persistent Japanese subtitle projectile, and falls through to
         // that same typewriter call. Keep the producer request separate because the
         //  allocator owns whether a place in the projectile pool is actually free.

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
-/// The direction of Wrecked Ship's two treadmill animated-tile objects.
+/// The direction of Wrecked Ship's two treadmill block animations.
 /// </summary>
 public enum WreckedShipTreadmillDirection
 {

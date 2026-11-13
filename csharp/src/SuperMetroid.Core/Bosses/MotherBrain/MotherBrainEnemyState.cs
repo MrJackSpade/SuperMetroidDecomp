@@ -49,7 +49,7 @@ public sealed class MotherBrainEnemyState
 
     /// <summary>Updates until the next fake-death explosion, on an eight-frame cadence.</summary>
     public int FakeDeathExplosionTimer { get; internal set; }
-    /// <summary>Wrapping index 0 through 7 into authored fake-death explosion positions; decremented modulo eight whenever the explosion timer underflows.</summary>
+    /// <summary>Wrapping index 0 through 7 into authored fake-death explosion positions; decremented modulo eight whenever the explosion timer passes zero.</summary>
     public int FakeDeathExplosionIndex { get; internal set; }
 
     /// <summary>
@@ -60,7 +60,7 @@ public sealed class MotherBrainEnemyState
     /// <summary>Elapsed-update count for the current room-flash frame, advanced upward by the room-flash handler and reset when the frame changes; never above the frame's two-update duration.</summary>
     public int RoomFlashTimer { get; internal set; }
 
-    /// <summary>Head-record sub-dispatch and its independent underflow timer.</summary>
+    /// <summary>Head-record sub-dispatch and its independent countdown.</summary>
     public MotherBrainTubeCollapseStep TubeCollapseStep { get; internal set; }
     /// <summary>Independent countdown used by selected tube spawn stages; a stage expires once it runs past zero.</summary>
     public int TubeCollapseTimer { get; internal set; }

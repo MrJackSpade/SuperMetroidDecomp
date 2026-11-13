@@ -42,7 +42,7 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidOperationException("Atomic movement requires the active Samus actor.");
 
         // The game treats equality as the positive direction: down for Y and right for
-        // X. Compare the wrapped coordinate difference by its sign, as the game does, rather than with a plain
+        // X. Compare by whether the wrapped coordinate difference is negative, as the game does, rather than with a plain
         // integer comparison that would disagree across the room coordinates' wrap.
         state.VerticalMovement = CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole) < 0
             ? AtomicVerticalMovement.MoveUp

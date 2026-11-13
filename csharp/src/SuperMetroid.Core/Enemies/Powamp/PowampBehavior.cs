@@ -199,7 +199,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
             ? balloon.State.BalloonGrappleTravelDistance
             : PowampUngrappledTravelDistance;
 
-        // Comparing the target with the body by the sign of their difference means "continue while body is still
+        // Comparing the target with the body by whether their difference is negative means "continue while body is still
         // below the target". A room collision completes the rise regardless of its Y coordinate.
         bool reachedTarget = !CoordinateAxis.Precedes(balloon.State.BalloonSpawn.Y - travelDistance, body.Position.Y.Whole);
         if (collided || reachedTarget)

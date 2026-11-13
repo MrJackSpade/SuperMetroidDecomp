@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 [RoomLifetime]
 internal sealed class MotherBrainProjectiles
 {
-    /// <summary>Provides room services, tiles, palette state, and effects used by the encounter.</summary>
+    /// <summary>Provides room services, pictures, palette state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Owns the bombs, glass, beams, turrets, and other encounter projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -281,7 +281,7 @@ internal sealed class MotherBrainProjectiles
         bomb.Velocity = bomb.Velocity.WithY(bomb.Velocity.Y + SignedEightEight.FromTwoHundredFiftySixthsOfPixel(acceleration));
         bomb.Position = bomb.Position.Advance(bomb.Velocity.ToSixteenSixteen());
 
-        // Both boundaries are signed tests of the difference. X reflects without clamping; the floor
+        // Both boundaries check whether the wrapped difference is negative. X reflects without clamping; the floor
         // clamps Y to 208 and resets the two authored bounce velocities.
         if (CoordinateAxis.Difference(bomb.Position.X.Whole, 240) >= 0)
             bomb.Velocity = bomb.Velocity.WithX(bomb.Velocity.X.Negated());

@@ -274,7 +274,7 @@ public static class SamusBlockCollision
                         }
                         // Station setups reject the both-ways direction before finding their
                         // parent. An observational scan still clips against the access
-                        // tile, but must not activate the station or demand an owner.
+                        // block, but must not activate the station or demand an owner.
                         if (move.BlockReactionDirection != SamusCollisionDirection.NonDirectionalProbe &&
                             block.Behavior.TryGetStationAccess(out _) &&
                             (terrain.RoomObjects is null ||
@@ -985,7 +985,7 @@ public static class SamusBlockCollision
         }
     }
 
-    /// <summary>Clips horizontal travel at the occupied half of a square slope tile.</summary>
+    /// <summary>Clips horizontal travel at the occupied half of a square slope block.</summary>
     private static SignedSixteenSixteen ClipHorizontalToSquareSlope(
         SamusKinematicsState state,
         SignedSixteenSixteen displacement,
@@ -1061,14 +1061,14 @@ public static class SamusBlockCollision
         return SignedSixteenSixteen.FromWholePixels(downWhole);
     }
 
-    /// <summary>Counts tile rows touched by Samus's current vertical collision extent.</summary>
+    /// <summary>Counts block rows touched by Samus's current vertical collision extent.</summary>
     private static int GetVerticalBlockSpan(SamusKinematicsState state)
     {
         int alignedTop = RoomGridConversions.BlockStart(CoordinateAxis.Wrap(state.Position.Y.Whole - state.Radius.Y));
         return CoordinateAxis.Wrap(state.Radius.Y + state.Position.Y.Whole - 1 - alignedTop) >> 4;
     }
 
-    /// <summary>Counts tile columns touched by Samus's current horizontal collision extent.</summary>
+    /// <summary>Counts block columns touched by Samus's current horizontal collision extent.</summary>
     private static int GetHorizontalBlockSpan(SamusKinematicsState state)
     {
         int alignedLeft = RoomGridConversions.BlockStart(CoordinateAxis.Wrap(state.Position.X.Whole - state.Radius.X));

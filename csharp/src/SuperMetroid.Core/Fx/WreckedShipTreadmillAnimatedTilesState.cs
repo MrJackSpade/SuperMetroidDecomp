@@ -4,9 +4,9 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
-/// Runs the two animated-tile objects spawned by Wrecked Ship entrance door setup. The door
+/// Runs the two block animations spawned by Wrecked Ship entrance door setup. The door
 /// chooses a direction; the object then waits for Phantoon's defeat and afterwards
-/// shows its four treadmill frames in a loop, one frame per pass, each selected as the frame its treadmill's tiles show
+/// shows its four treadmill frames in a loop, one frame per pass, each selected as the frame its treadmill's blocks show
 /// (#1406).
 /// </summary>
 [RoomLifetime]
@@ -27,7 +27,7 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
     public int NextFrameIndex { get; private set; }
 
     /// <summary>
-    /// Spawns the animated-tiles object for either treadmill, as the game does. Both animations begin
+    /// Spawns the block animation for either treadmill, as the game does. Both animations begin
     /// on the wait-for-area-boss step with a frame hold of one.
     /// </summary>
     public void Start(WreckedShipTreadmillDirection direction)
@@ -38,7 +38,7 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
     }
 
     /// <summary>
-    /// Starts one animated-tile object. Only the two treadmill objects are compiled, and each only
+    /// Starts one block animation. Only the two treadmill animations are compiled, and each only
     /// for its own direction; any other object is rejected before it can run.
     /// </summary>
     internal void StartDefinition(
@@ -58,7 +58,7 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
     }
 
     /// <summary>
-    /// Runs one animated-tile handler pass and publishes the source selected for the following
+    /// Runs one block animation pass and publishes the source selected for the following
     /// frame boundary. While Phantoon is not yet defeated, the wait holds the object for
     /// another pass and no source exists; once the bit is set, the four frames loop forever.
     /// </summary>

@@ -189,7 +189,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         AddBoulderVerticalVelocity(slot, state.BounceSpeedAccumulator, direction: VerticalDirection.Up);
 
-        // The game subtracts one record and branches on the sign of the result, storing zero in place of a
+        // The game subtracts one record and checks whether the result is negative, storing zero in place of a
         // result below zero, so the clock never keeps a value below zero past this update.
         EnemyQuadraticSpeedIndex slowed = state.BounceSpeedAccumulator - BounceSpeedStep;
         if (slowed.IsNegative)
@@ -298,8 +298,8 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Advances an acceleration clock and caps it. The game compares the sum with the cap by the sign of their
-    /// difference; both stay within 0 through 24576 here, so that is the ordinary comparison.
+    /// Advances an acceleration clock and caps it. The game compares the sum with the cap by whether their
+    /// difference is negative; both stay within 0 through 24576 here, so that is the ordinary comparison.
     /// </summary>
     private static EnemyQuadraticSpeedIndex AddAndCap(
         EnemyQuadraticSpeedIndex value, EnemyQuadraticSpeedIndex increment, EnemyQuadraticSpeedIndex maximum) =>

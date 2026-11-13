@@ -22,7 +22,7 @@ public static class MotherBrainDeathDefinitions
     public static readonly EarthquakeShake EscapeEarthquake =
         new(EarthquakeStrength.Medium, EarthquakeDirection.Diagonal, EarthquakeReach.Foreground);
 
-    /// <summary>The updates an escape-door fragment lives, counted through signed underflow.</summary>
+    /// <summary>The updates an escape-door fragment lives, counted down until it passes zero.</summary>
     public const int DoorFragmentLifetime = 32;
 
     /// <summary>The drag subtracted from a door fragment's 8.8 horizontal speed each update.</summary>

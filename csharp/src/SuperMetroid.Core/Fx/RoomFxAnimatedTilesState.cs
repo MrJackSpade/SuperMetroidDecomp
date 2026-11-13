@@ -3,7 +3,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
-/// One looping animation of a room's animated tiles: a room effect's, the horizontal spikes' or the Maridia sand's.
+/// One looping animation of a room's animated blocks: a room effect's, the horizontal spikes' or the Maridia sand's.
 /// </summary>
 /// <remarks>
 /// Lava, acid, rain, and spores do not show pictures of the room tileset's. Their effect starts one looping animation,

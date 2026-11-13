@@ -12,7 +12,7 @@ public enum BoulderAction
     InitialFall,
     /// <summary>Decelerates the upward quadratic-table motion while accelerating horizontally, then enters the falling half of the bounce.</summary>
     Rebound,
-    /// <summary>Falls with terrain collision, selects progressively smaller rebounds, and enters rolling when the bounce counter underflows; direction two breaks on impact.</summary>
+    /// <summary>Falls with terrain collision, selects progressively smaller rebounds, and enters rolling when the bounce counter passes zero; direction two breaks on impact.</summary>
     Falling,
     /// <summary>Follows terrain with vertical compensation and accelerates horizontally until wall collision hides and deletes the actor with a dust effect.</summary>
     Rolling,

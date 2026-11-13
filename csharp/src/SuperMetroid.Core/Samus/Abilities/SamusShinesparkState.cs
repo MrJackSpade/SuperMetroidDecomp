@@ -535,7 +535,7 @@ public sealed class SamusShinesparkState
 
         if (Phase == ShinesparkPhase.Windup)
         {
-            // The windup countdown: exact zero and signed underflow both launch up.
+            // The windup countdown: exact zero and a count past zero both launch up.
             bool timedOut = --StartStopTimer <= 0;
             SamusPoseId? pendingLaunchPose = null;
             if (timedOut)
@@ -948,7 +948,7 @@ false,             CrashSequenceFinished: true);
         // upward magnitude at 15 whole pixels while preserving its fraction, then negates
         // it back before the room move. If external Y is strong enough to reverse motion
         // downward, the temporary value is negative and deliberately bypasses this clamp.
-        // The cap test is the sign of the whole pixels' difference from fifteen, which wraps for a magnitude more
+        // The cap test checks whether the whole pixels' difference from fifteen is negative; it wraps for a magnitude more
         // than 32753 pixels upward or downward, as the game's comparison does.
         SignedSixteenSixteen collisionMagnitude = -upwardDisplacement;
         if (CoordinateAxis.Difference(collisionMagnitude.WholePixels, 15) >= 0)

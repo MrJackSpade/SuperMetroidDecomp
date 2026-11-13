@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 internal static class MotherBrainShotReaction
 {
-    /// <summary>Updates phase-two/three walk credit after a shot and signals recoil only on form-four Hyper Beam underflow.</summary>
+    /// <summary>Updates phase-two/three walk credit after a shot and signals recoil only when a form-four Hyper Beam shot takes the credit below zero.</summary>
     public static MotherBrainShotReactionResult Resolve(
         MotherBrainForm form,
         MotherBrainProjectileType projectileType,
@@ -30,8 +30,8 @@ internal static class MotherBrainShotReaction
         };
         if (form == MotherBrainForm.ThirdPhase && reactionType == 2)
         {
-            // The sign test keeps the nonnegative remainder without recoil, which is why
-            // sustained Hyper Beam fire first consumes accumulated walk credit. On underflow
+            // The below-zero check keeps the nonnegative remainder without recoil, which is why
+            // sustained Hyper Beam fire first consumes accumulated walk credit. Below zero
             // the counter is replaced by zero, not the wrapped subtraction.
             return walkCredit.CoversShot(MotherBrainWalkCredit.HyperBeamShotCost)
                 ? new MotherBrainShotReactionResult(
@@ -39,10 +39,10 @@ internal static class MotherBrainShotReaction
                 : new MotherBrainShotReactionResult(MotherBrainWalkCredit.Empty, HyperBeamRecoil: true);
         }
 
-        // DEC turns reaction one into zero, sending either missile kind directly to the
+        // The decrement turns reaction one into zero, sending either missile kind directly to the
         // zero label; only that zero is tested. Reaction zero wraps to -1 and reaction
         // two outside form four leaves one: both nonzero cases subtract 256 and clamp
-        // signed underflow to zero.
+        // a result below zero to zero.
         if (reactionType == 1)
             return new MotherBrainShotReactionResult(MotherBrainWalkCredit.Empty, HyperBeamRecoil: false);
 

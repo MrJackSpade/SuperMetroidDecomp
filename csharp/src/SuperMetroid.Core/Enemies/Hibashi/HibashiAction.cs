@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Hibashi;
 /// </summary>
 public enum HibashiAction
 {
-    /// <summary>Decrement the graphics owner's wait timer and, on signed underflow, restart eruption art and enable the following invisible collision part.</summary>
+    /// <summary>Decrement the graphics owner's wait timer and, once it passes zero, restart eruption art and enable the following invisible collision part.</summary>
     Inactive = 1,
     /// <summary>Let the animation's art and hitbox cues run until the finish flag is set, then reload the population wait and return to inactive.</summary>
     Active,

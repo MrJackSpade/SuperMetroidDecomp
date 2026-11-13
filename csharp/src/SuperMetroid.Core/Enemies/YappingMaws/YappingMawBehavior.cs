@@ -342,7 +342,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         state.QuadraticSpeedRow += EnemyQuadraticSpeedIndex.OneRow;
     }
 
-    /// <summary>Waits after retraction, including decrement-underflow expiration on frame 65.</summary>
+    /// <summary>Waits after retraction, including the expiry past zero on frame 65.</summary>
     private void WaitAfterYappingMawRetraction(
         YappingMawEnemyState state,
         SamusState samus)

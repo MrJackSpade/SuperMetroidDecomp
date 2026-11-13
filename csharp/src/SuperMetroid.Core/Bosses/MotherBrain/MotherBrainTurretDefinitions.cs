@@ -23,7 +23,7 @@ internal static class MotherBrainTurretDefinitions
     internal const int TurretCount = 12;
     /// <summary>Turret initialization selects eight turret poses in left-to-up-left octant order; it starts the first bay at X=920 and each later bay is 192 pixels left.</summary>
     internal const int FirstBayX = 920;
-    /// <summary>The placement rows repeat three mounting positions every twelve tiles.</summary>
+    /// <summary>The placement rows repeat three mounting positions every twelve blocks.</summary>
     internal const int BaySpacing = 192;
     /// <summary>The bullet uses a 2.75-pixel 8.8 speed, rounded in diagonal octants.</summary>
     internal const int BulletSpeed = 704;

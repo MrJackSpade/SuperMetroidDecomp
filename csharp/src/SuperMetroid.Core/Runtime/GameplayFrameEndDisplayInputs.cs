@@ -25,8 +25,8 @@ namespace SuperMetroid.Core.Runtime;
 /// <param name="PowerBomb">Power-bomb glow window inputs; its glow colour comes from the frame-boundary latch.</param>
 /// <param name="MessageBox">The message box overlay, which runs its own display loop.</param>
 /// <param name="SuitPickupBeam">Suit pickup light-beam window description; its colour comes from the frame-boundary latch.</param>
-/// <param name="Xray">X-ray per-line effect object phases and window cone inputs.</param>
-/// <param name="TourianStatuesEnabled">Whether the Tourian statue the background's vertical scroll per-line effect object is running.</param>
+/// <param name="Xray">X-ray beam phases and window cone inputs.</param>
+/// <param name="TourianStatuesEnabled">Whether the Tourian statues' descent, the background's vertical scroll, is running.</param>
 [IndependentFlag("independent display facts of the frame end")]
 public sealed record GameplayFrameEndDisplayInputs(
     ScreenLayers? DoorTransitionShownLayers,

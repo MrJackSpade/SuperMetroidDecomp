@@ -20,9 +20,9 @@ public enum VerticalShutterAction
     MovingUp,
     /// <summary>Adds downward 16.16 velocity, carries a rider, and stops at the maximum Y boundary.</summary>
     MovingDown,
-    /// <summary>Waits for signed timer underflow before moving down or restoring proximity waiting.</summary>
+    /// <summary>Waits for the timer to pass zero before moving down or restoring proximity waiting.</summary>
     StoppedAfterMovingUp,
-    /// <summary>Waits for signed timer underflow before moving up or restoring proximity waiting.</summary>
+    /// <summary>Waits for the timer to pass zero before moving up or restoring proximity waiting.</summary>
     StoppedAfterMovingDown,
     /// <summary>Inert endpoint selected by rest time 4080; eligible reaction modes can still reactivate it.</summary>
     PermanentNoOp,

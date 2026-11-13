@@ -7,6 +7,7 @@ using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -46,6 +47,11 @@ internal static class ImportOnlyLayoutsVerification
         yield return (intro, ZebesRevealArtworkFormat.MapFileName);
         foreach (string document in MapPresentationFiles.ImportDocumentFiles)
             yield return (GameInstallationLayout.MapDirectoryName, document);
+        string projectiles = GameInstallationLayout.ProjectileDirectoryName;
+        yield return (projectiles, ProjectileSpriteDefinitions.FileName);
+        yield return (projectiles, ChargeFlareSpriteExtractor.FileName);
+        yield return (projectiles, ProjectileTrailVisualDefinitions.FileName);
+        yield return (projectiles, GrappleSpriteDefinitions.FileName);
     }
 
     /// <summary>

@@ -89,7 +89,7 @@ internal static class ProjectileSheetComposer
             // A composition inking no pixel over the combination's page shows nothing: it has no picture, and the
             // projectile showing it draws nothing (#1513). The glitched combinations' pages leave their shots' compositions
             // without a character that inks anything.
-            var frame = new SheetFrameSource(ProjectileSheetFrames.ProjectileFrame(composition), projectiles.Catalog.Frame(composition), page);
+            var frame = new SheetFrameSource(ProjectileSheetFrames.ProjectileFrame(composition), artwork.Compositions.Sprites.Frame(composition), page);
             if (frame.ShowsAnything())
                 frames.Add(frame);
             else
@@ -98,10 +98,10 @@ internal static class ProjectileSheetComposer
         foreach (ProjectileSpriteId composition in FlareCompositions)
         {
             int selector = checked((ushort)ChargeFlareSpriteSelection.Selectors.ToList().IndexOf(composition));
-            frames.Add(new(ProjectileSheetFrames.FlareFrame(composition), projectiles.FlareCompositions.Frame(selector), page));
+            frames.Add(new(ProjectileSheetFrames.FlareFrame(composition), artwork.Compositions.Flares.Frame(selector), page));
         }
         foreach (ProjectileTrailFrame pose in Enum.GetValues<ProjectileTrailFrame>())
-            frames.Add(new(ProjectileSheetFrames.TrailFrame(pose), SpritePartFrames.SmallObject(projectiles.Trails.Resolve(pose), 0), page));
+            frames.Add(new(ProjectileSheetFrames.TrailFrame(pose), SpritePartFrames.SmallObject(artwork.Compositions.Trails.Resolve(pose), 0), page));
         return new SpriteSheetSources(frames, colours, ObjectSelectionCodec.GameplaySizes, Shades: inputs.Shades, Blank: blank);
     }
 

@@ -503,7 +503,10 @@ internal sealed class SamusPresentation
     private InstalledSpriteSheets BodySheets => Sheets ?? throw new InvalidOperationException(
         "Samus rendering requires the installed sprite sheets.");
 
-    /// <summary>Draws an echo, when its slot holds one, with current Samus spritemaps after Y clipping.</summary>
+    /// <summary>
+    /// Draws an echo, when its slot holds one, with the picture the body last drew, published wherever it lies; the
+    /// display clips it to the view, as it does the body (#1625).
+    /// </summary>
     private void DrawActiveSpeedBoosterEcho(SamusState samus,
         SpriteFrameBuffer sprites,
         Position16<RoomPixels>? stored,
@@ -514,15 +517,9 @@ internal sealed class SamusPresentation
             return;
 
         int graphicsYOffset = SamusPoseMetadata.ReadGraphicsYOffset(samus);
-        int screenY = CoordinateAxis.Difference(echo.Y - graphicsYOffset, cameraPosition.Y);
-
-        // The original accepts screen Y 0..247. Horizontal clipping remains display work,
-        // exactly as it is for the current Samus body.
-        if (screenY is < 0 or >= 248)
-            return;
-
         int screenX = CoordinateAxis.Wrap(echo.X - cameraPosition.X);
-        var origin = Position16<ScreenPixels>.Of(screenX, CoordinateAxis.Wrap(screenY));
+        int screenY = CoordinateAxis.Wrap(echo.Y - graphicsYOffset - cameraPosition.Y);
+        var origin = Position16<ScreenPixels>.Of(screenX, screenY);
         // An echo repeats the whole picture the body last drew; before the body has been drawn there is nothing to repeat.
         if (DrawnFrame is { } body)
             sprites.AddSamusBody(body, origin, BodySheets, new SpriteSource(SpriteSourceKind.SamusEcho, slot));

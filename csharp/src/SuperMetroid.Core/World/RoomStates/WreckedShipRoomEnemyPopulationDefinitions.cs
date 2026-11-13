@@ -20,7 +20,7 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
     [
         new(nameof(RoomEnemyPopulationDefinitions.SpongeBathWhenAreaBossDead),
         [
-            new(EnemyDefinitionId.Bull, new(240, 136), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.AnimationScript, EnemyPresence.None, false, new BullSpawnSettings(Intervals: new BullSpeedIntervals(6, 2), MaximumSpeed: 1791)),
+            new(EnemyDefinitionId.Bull, new(240, 136), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.AnimationScript, EnemyPresence.None, false, new BullSpawnSettings(Intervals: new BullSpeedIntervals(6, 2), MaximumSpeed: SignedEightEight.FromParts(6, 255))),
         ], 1),
         new(nameof(RoomEnemyPopulationDefinitions.WreckedShipETankWhenAreaBossDead),
         [
@@ -361,8 +361,8 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
         [
             new(EnemyDefinitionId.Robot, new(376, 128), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.AnimationScript, EnemyPresence.None, false, new WorkRobotSpawnSettings(Pose: WorkRobotProgram.NoPowerNeutral)),
             new(EnemyDefinitionId.Robot, new(704, 128), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.AnimationScript, EnemyPresence.None, false, new WorkRobotSpawnSettings(Pose: WorkRobotProgram.NoPowerNeutral)),
-            new(EnemyDefinitionId.Bull, new(224, 120), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.AnimationScript, EnemyPresence.None, false, new BullSpawnSettings(Intervals: new BullSpeedIntervals(6, 2), MaximumSpeed: 1791)),
-            new(EnemyDefinitionId.Bull, new(528, 117), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.AnimationScript, EnemyPresence.None, false, new BullSpawnSettings(Intervals: new BullSpeedIntervals(6, 2), MaximumSpeed: 1791)),
+            new(EnemyDefinitionId.Bull, new(224, 120), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.AnimationScript, EnemyPresence.None, false, new BullSpawnSettings(Intervals: new BullSpeedIntervals(6, 2), MaximumSpeed: SignedEightEight.FromParts(6, 255))),
+            new(EnemyDefinitionId.Bull, new(528, 117), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.AnimationScript, EnemyPresence.None, false, new BullSpawnSettings(Intervals: new BullSpeedIntervals(6, 2), MaximumSpeed: SignedEightEight.FromParts(6, 255))),
             new(EnemyDefinitionId.Spark, new(160, 80), EnemyContact.None, EnemyProcessing.AnimationScript, EnemyPresence.None, false, new SparkSpawnSettings(Start: SparkMovementDefinitions.Intermittent, BaseFunctionTime: 128)),
             new(EnemyDefinitionId.Spark, new(288, 80), EnemyContact.None, EnemyProcessing.AnimationScript, EnemyPresence.None, false, new SparkSpawnSettings(Start: SparkMovementDefinitions.Intermittent, BaseFunctionTime: 16)),
             new(EnemyDefinitionId.Spark, new(464, 80), EnemyContact.None, EnemyProcessing.AnimationScript, EnemyPresence.None, false, new SparkSpawnSettings(Start: SparkMovementDefinitions.Intermittent, BaseFunctionTime: 160)),

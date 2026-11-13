@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <remarks>
 /// Place order: Samus has <see cref="SamusProjectileSystem.SlotCount"/> shot places. A shot takes the lowest place no
 /// projectile holds; the projectile update and drawing run in update order, from the highest place down, and enemy
-/// collision from the lowest up. Gameplay names some places: a special attack's particles take the first four, pairing a
-/// Spazer particle with the one two places from it; the crash echoes take the last two; an unlinked Super Missile names
+/// collision from the lowest up. Gameplay names some places: a special attack's particles take the first four, each
+/// playing the part its place gives it (<see cref="SpecialAttackParticleDefinitions"/>); the crash echoes take the last two; an unlinked Super Missile names
 /// the first (<see cref="UnlinkedSuperMissileLink"/>); and some enemies react to the first place's projectile or to the
 /// highest one.
 /// </remarks>
@@ -23,6 +23,9 @@ internal sealed class ProjectileSlotTable
 
     /// <summary>Each place's projectile, in place order.</summary>
     internal IReadOnlyList<SamusProjectile> Slots => _places;
+
+    /// <summary>The projectile now holding the place <paramref name="projectile"/> took: itself, or one that replaced it.</summary>
+    internal SamusProjectile HolderOfPlaceOf(SamusProjectile projectile) => _places[Ensure.NotNull(projectile).Place];
     /// <summary>The lowest place no projectile holds, which the firing routines and the Super Missile's link take, or -1 when all are held.</summary>
     internal int FindFreeSlotIndex() => Array.FindIndex(_places, projectile => !projectile.IsOccupied);
 

@@ -134,20 +134,19 @@ internal static class ProjectileDamageVerification
         Console.WriteLine("Combo cost algorithm: all twelve original cost words and bounds match.");
     }
 
-    /// <summary>Compares the four combo origin angles with native words and checks slot bounds.</summary>
+    /// <summary>
+    /// Compares the four special-attack particles' orbit starts, in the order of the places they take, with the
+    /// original's origin-angle words, which it reads by projectile place (#1683).
+    /// </summary>
     internal static void VerifyComboOriginAngleAlgorithm(Func<int, ushort> readWord)
     {
-        for (int slot = 0; slot < 4; slot++)
-            AssertEqual(readWord(BeamComboDefinitions.OriginAngles + slot * 2),
-                (ushort)SamusComboMechanics.GetOriginAngle(slot).RawValue,
-                $"compiled combo origin angle {slot}");
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => SamusComboMechanics.GetOriginAngle(4),
-            "combo angle rejects a fifth projectile slot");
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => SamusComboMechanics.GetOriginAngle(-1),
-            "combo angle rejects a negative projectile slot");
-        Console.WriteLine("Combo origin algorithm: all four original angle words and bounds match.");
+        IReadOnlyList<SpecialAttackParticle> parts = SpecialAttackParticleDefinitions.InPlaceOrder;
+        AssertEqual(4, parts.Count, "a special attack has four particles");
+        for (int place = 0; place < parts.Count; place++)
+            AssertEqual(readWord(BeamComboDefinitions.OriginAngles + place * 2),
+                (ushort)parts[place].OrbitStart.RawValue,
+                $"special-attack particle {place}'s orbit start");
+        Console.WriteLine("Combo origin algorithm: all four original angle words match the particles' orbit starts.");
     }
 
     /// <summary>Compares all byte-valued angle and amplitude pairs with the native sine-offset calculation.</summary>
@@ -200,7 +199,7 @@ internal static class ProjectileDamageVerification
                 $"beam {beam:X} consumes its compiled one-Power-Bomb cost");
             for (int slot = 0; slot < 4; slot++)
                 AssertEqual(beam is 2 or 8
-                        ? SamusComboMechanics.GetOriginAngle(slot)
+                        ? SpecialAttackParticleDefinitions.InPlaceOrder[slot].OrbitStart
                         : default,
                     projectiles.Slots[slot].ComboAngle,
                     $"beam {beam:X} slot {slot} receives its compiled origin angle");

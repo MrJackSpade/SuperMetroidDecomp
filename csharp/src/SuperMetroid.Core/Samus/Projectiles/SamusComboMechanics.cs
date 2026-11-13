@@ -37,21 +37,6 @@ internal static class SamusComboMechanics
         ComboKind(beam) is null ? 0 : 1;
 
     /// <summary>
-    /// The Ice and Plasma special beam attacks' origin angles: four evenly spaced
-    /// angles of a 256-step turn assigned in projectile-slot order.
-    /// </summary>
-    /// <remarks>Independently reviewed for #1165 against NTSC J/U v1.0:
-    /// a quarter turn per projectile slot, for slots 0 through 3.
-    /// The adjacent unused diagonal-angle entries are not further projectile slots;
-    /// the bounded progression does not extrapolate into them.</remarks>
-    internal static TrigonometryAngle GetOriginAngle(int projectileSlot)
-    {
-        if ((uint)projectileSlot >= 4)
-            throw new ArgumentOutOfRangeException(nameof(projectileSlot));
-        return new TrigonometryAngle(0).TurnedBySteps(TrigonometryAngle.QuarterTurn.RawValue * projectileSlot);
-    }
-
-    /// <summary>
     /// Scales the sine and cosine of an angle by an amplitude, as the combos place their
     /// particles. The game negates the truncated positive magnitude, so this deliberately
     /// truncates toward zero in all quadrants.

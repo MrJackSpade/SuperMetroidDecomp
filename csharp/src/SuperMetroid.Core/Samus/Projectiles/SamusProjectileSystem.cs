@@ -627,11 +627,13 @@ public sealed class SamusProjectileSystem
             Animation.DrawFlareComponent(sprites, samus, cameraPosition, component, turningFloor, artwork);
     }
 
-    /// <summary>Draws the live ordinary-projectile subset after Samus.</summary>
+    /// <summary>
+    /// Draws the live ordinary-projectile subset after Samus, every live shot on every update: the original's
+    /// alternate-update flicker of uncharged beams by shot place is a presentation quirk the port does not keep (#1683).
+    /// </summary>
     public void DrawLiveProjectiles(
         SpriteFrameBuffer sprites,
         Position16<RoomPixels> cameraPosition,
-        int frameCounter,
         ProjectileDrawArtwork artwork)
     {
         Ensure.NotNull(sprites);
@@ -641,21 +643,6 @@ public sealed class SamusProjectileSystem
             if (!slot.IsActive ||
                 slot.Type.Family.IsBombOrExplosion)
                 continue;
-
-            // Only an ordinary uncharged beam reaches the flicker branches; a charged beam,
-            // missile or explosion remains visible on every frame parity.
-            if (slot.Type.Family == SamusProjectileFamily.Beam && !slot.Type.IsChargedBeam)
-            {
-                // Shots in odd and even slots flicker on opposite frames. Spazer/plasma combinations flicker every
-                // two updates and with the opposite phase from power/ice/wave, which flicker every update. Keeping these
-                // branches separate is what prevents the wider beam art from disappearing on the wrong video field.
-                bool oddSlot = (slot.Place & 1) != 0;
-                bool skip = slot.Type.HasAnyBeam(SamusBeamFlags.Spazer | SamusBeamFlags.Plasma)
-                    ? oddSlot != SamusCadenceDefinitions.WideBeamDrawnInOddSlot.IsSetIn(frameCounter)
-                    : oddSlot == SamusCadenceDefinitions.BeamDrawnInEvenSlot.IsSetIn(frameCounter);
-                if (skip)
-                    continue;
-            }
 
             // Unlike the bomb/explosion pass, the game's live projectile drawing does not
             // cull by world X. The sprite is published wherever it lies and the display clips it.

@@ -242,9 +242,7 @@ internal static void VerifySamusPowerBeamProjectiles()
             $"beam combination {beamType} selects native pre-instruction family");
     }
 
-    // Spazer/plasma art takes `$93:8275` rather than the ordinary power/ice/wave flicker
-    // branch. Host slot zero is visible while NMI bit one is clear and suppressed while it
-    // is set—the opposite comparison and a different counter bit from entry-zero power.
+    // An uncharged Spazer shot is drawn on every update (#1683): the draw depends on neither its place nor the update.
     var spazerFlickerSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
     {
         Pose = rightPose,
@@ -261,17 +259,14 @@ internal static void VerifySamusPowerBeamProjectiles()
     spazerFlickerBombs.StepFrame(new SamusTerrain { Level = air }, spazerFlickerSamus, 0, 0);
     spazerFlickerProjectiles.StepFrame(new SamusTerrain { Level = air }, spazerFlickerSamus, new ProjectileButtonInput { ControllerInput = ControllerButton.X, ControllerNewInput = ControllerButton.X }, new(0, 0), spazerFlickerBombs);
     ProjectileDrawArtwork spazerArtwork = InstalledFixtures.ProjectileArtwork();
-    OamBuffer spazerFlickerOam = SpriteFrameBuffer.DrawnOam(frame => spazerFlickerProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, frameCounter: 0, spazerArtwork));
+    OamBuffer spazerFlickerOam = SpriteFrameBuffer.DrawnOam(frame => spazerFlickerProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, spazerArtwork));
     AssertTrue(spazerFlickerOam.LastFinalizedSpriteCount != 0,
-        "even-slot Spazer draws while NMI bit one is clear");
+        "uncharged Spazer shot draws");
     SamusProjectile spazerShot = spazerFlickerProjectiles.Slots[0];
     AssertProjectileEntry(
-        DrawnEntries(frame => spazerFlickerProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, frameCounter: 0, spazerArtwork)),
+        DrawnEntries(frame => spazerFlickerProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, spazerArtwork)),
         new SpriteSource(SpriteSourceKind.SamusProjectile, 0), ProjectileSheetFrames.ProjectileFrame(ProjectileSpriteNative.Projectile(spazerShot.SpritemapPointer)), SamusBeamCombination.Spazer,
         new Position16<ScreenPixels>(spazerShot.Position.X.Whole, spazerShot.Position.Y.Whole), "Spazer shot");
-    spazerFlickerOam = SpriteFrameBuffer.DrawnOam(frame => spazerFlickerProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, frameCounter: 2, spazerArtwork));
-    AssertEqual(0, spazerFlickerOam.LastFinalizedSpriteCount,
-        "even-slot Spazer suppresses while NMI bit one is set");
 
     // The initial firing pass changes timer four to three. Three more wave passes cause the
     // first trail allocation and expose the only cadence distinction in `$B0C3/$B0E4`.
@@ -736,12 +731,9 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertEqual(BeamChargeLevel.None, hyperProjectiles.Charge.Level,
         "Hyper Beam fast-spark frame one ends the flare");
 
-    // `$93:8268` exempts charged-family bit `$0010` from ordinary beam flicker. Slot zero
-    // would be suppressed on even NMI under the uncharged rule, making this a direct guard
-    // against accidentally applying that branch to the charged projectile.
-    OamBuffer chargedOam = SpriteFrameBuffer.DrawnOam(frame => chargeProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, frameCounter: 0, InstalledFixtures.ProjectileArtwork()));
+    OamBuffer chargedOam = SpriteFrameBuffer.DrawnOam(frame => chargeProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, InstalledFixtures.ProjectileArtwork()));
     AssertTrue(chargedOam.LastFinalizedSpriteCount != 0,
-        "charged power beam bypasses ordinary alternating-frame flicker");
+        "charged power beam draws");
 
     // The release frame has already changed trail timer 4 to 3. Three more alpha passes
     // reach zero and allocate native trail byte index `$22` before the third pass moves the
@@ -1054,12 +1046,12 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertEqual(0xa25b, missile.SpritemapPointer,
         "missile instruction handler selects first bank-$93 art record");
 
-    OamBuffer missileOam = SpriteFrameBuffer.DrawnOam(frame => missileProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, frameCounter: 0, InstalledFixtures.ProjectileArtwork()));
+    OamBuffer missileOam = SpriteFrameBuffer.DrawnOam(frame => missileProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, InstalledFixtures.ProjectileArtwork()));
     AssertEqual(1, missileOam.LastFinalizedSpriteCount,
         "missile family bypasses ordinary beam alternating-frame flicker");
     ProjectileDrawArtwork missileArtwork = InstalledFixtures.ProjectileArtwork();
     AssertProjectileEntry(
-        DrawnEntries(frame => missileProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, frameCounter: 0, missileArtwork)),
+        DrawnEntries(frame => missileProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, missileArtwork)),
         new SpriteSource(SpriteSourceKind.SamusProjectile, 0), ProjectileSheetFrames.ProjectileFrame(ProjectileSpriteNative.Projectile(missile.SpritemapPointer)), SamusBeamCombinations.Of(missileSamus.EquippedBeams),
         new Position16<ScreenPixels>(missile.Position.X.Whole, missile.Position.Y.Whole), "Missile");
 
@@ -1533,11 +1525,11 @@ internal static void VerifySamusPowerBeamProjectiles()
 
     // The link instruction list is intentionally invisible; only the owner contributes an
     // OBJ after its own bank-$93 program selects `$A030`.
-    OamBuffer superOam = SpriteFrameBuffer.DrawnOam(frame => superProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, frameCounter: 0, InstalledFixtures.ProjectileArtwork()));
+    OamBuffer superOam = SpriteFrameBuffer.DrawnOam(frame => superProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, InstalledFixtures.ProjectileArtwork()));
     AssertEqual(1, superOam.LastFinalizedSpriteCount, "super owner draws while link spritemap is empty");
     ProjectileDrawArtwork superArtwork = InstalledFixtures.ProjectileArtwork();
     AssertProjectileEntry(
-        DrawnEntries(frame => superProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, frameCounter: 0, superArtwork)),
+        DrawnEntries(frame => superProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, superArtwork)),
         new SpriteSource(SpriteSourceKind.SamusProjectile, 0), ProjectileSheetFrames.ProjectileFrame(ProjectileSpriteNative.Projectile(super.SpritemapPointer)), SamusBeamCombinations.Of(superSamus.EquippedBeams),
         new Position16<ScreenPixels>(super.Position.X.Whole, super.Position.Y.Whole), "Super missile owner");
 

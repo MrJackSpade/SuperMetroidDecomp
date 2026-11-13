@@ -612,8 +612,9 @@ public sealed class SamusLiquidPhysicsState
 
     /// <summary>
     /// Applies periodic damage to Samus. The producer above adds
-    /// raw fixed-point damage; this consumer applies Varia's half or Gravity's quarter,
-    /// subtracts with the game's borrow chain, clamps fatal underflow, and clears the pair.
+    /// raw fixed-point damage; this consumer applies the suit's periodic division
+    /// (<see cref="SamusSuitDamage.ReducePeriodic"/>), subtracts with the game's borrow chain, clamps fatal underflow,
+    /// and clears the pair.
     /// </summary>
     public void ApplyPeriodicDamage(SamusState samus, bool timeIsFrozen)
     {
@@ -624,37 +625,18 @@ public sealed class SamusLiquidPhysicsState
             return;
         }
 
-        int appliedSubDamage = PendingPeriodicDamage.Fraction;
-        int appliedDamage = PendingPeriodicDamage.Whole;
-        int divisorShift = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
-            ? 2
-            : samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
-                ? 1
-                : 0;
-        if (divisorShift != 0)
-        {
-            // The suit divides the damage as one 8.8 amount: the whole damage within its 256-point cycle and the
-            // fraction's top part. Shifting that amount and splitting it back is not equivalent to shifting the whole
-            // and fractional damage independently when the fraction's overflow crosses.
-            int overlappingDamage = EightEight.FromSixteenSixteen(appliedDamage % SuitDividedWholeDamageCycle, appliedSubDamage);
-            overlappingDamage >>= divisorShift;
-            appliedSubDamage = SixteenSixteen.FromEightEight(EightEight.FractionOf(overlappingDamage));
-            appliedDamage = EightEight.WholeOf(overlappingDamage);
-        }
+        UnsignedSixteenSixteen applied = SamusSuitDamage.ReducePeriodic(PendingPeriodicDamage, samus.EquippedItems);
 
         // The game stops at its crash handler when the whole damage passes the largest amount it applies.
         // Reachable environmental rates never do this; throwing retains the overflow guard instead of converting it
         // into plausible damage.
-        if (appliedDamage > LargestPeriodicWholeDamage)
+        if (applied.Whole > LargestPeriodicWholeDamage)
             throw new InvalidDataException("Periodic whole damage overflowed into the signed-negative range.");
 
-        samus.TakeFractionalEnergyDamage(appliedSubDamage, appliedDamage);
+        samus.TakeFractionalEnergyDamage(applied.Fraction, applied.Whole);
 
         PendingPeriodicDamage = default;
     }
-
-    /// <summary>The whole damage points a suit's division reads within a cycle of 256; higher points drop out.</summary>
-    private const int SuitDividedWholeDamageCycle = 256;
 
     /// <summary>The largest whole periodic damage the game applies; more sends it to its crash handler.</summary>
     private const int LargestPeriodicWholeDamage = 32767;

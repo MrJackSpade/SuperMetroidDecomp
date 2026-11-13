@@ -680,10 +680,7 @@ internal sealed class EnemyProjectileEngine
             return null;
         }
 
-        int damage = SamusSuitDamage.Reduce(projectile.Damage, samus.EquippedItems);
-        samus.Health = samus.Health <= damage
-            ? 0
-            : samus.Health - damage;
+        SamusSuitDamage.Hurt(samus, projectile.Damage);
         samus.InvincibilityTimer = WrappingCountdown.FromRaw(projectile.InvincibilityFrames);
         KnockbackHorizontalDirection knockbackXDirection = CoordinateAxis.Difference(
             samus.Position.X.Whole, projectile.Position.X.Whole) >= 0

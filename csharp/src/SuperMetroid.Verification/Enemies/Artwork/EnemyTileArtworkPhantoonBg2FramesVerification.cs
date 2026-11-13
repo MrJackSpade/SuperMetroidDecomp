@@ -30,7 +30,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
 
     /// <summary>Checks 22 BG2 selectors and native tile writes, the new-frame gate and engine hitboxes.</summary>
     internal static void VerifyInstalledPhantoonBg2Frames(
-        SuperMetroidAddressSpace rom, string stockDirectory,
+        SuperMetroidAddressSpace rom, string extractedDirectory,
         ImportEnemyArtwork stock)
     {
         AssertTrue(stock.Bosses.PhantoonBg2Frames is not null,
@@ -78,7 +78,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         }
 
         EnemyBg2FrameDocument document =
-            RequiredJson.Deserialize<EnemyBg2FrameDocument>(File.ReadAllBytes(Path.Combine(stockDirectory, PhantoonBg2FrameDefinitions.FileName)),
+            RequiredJson.Deserialize<EnemyBg2FrameDocument>(File.ReadAllBytes(Path.Combine(extractedDirectory, PhantoonBg2FrameDefinitions.FileName)),
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         const string frameName = "body_invulnerable";
         EnemyBg2WriteDocument first = document.Frames[frameName][0];

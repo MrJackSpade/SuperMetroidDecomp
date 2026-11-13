@@ -8,8 +8,10 @@ public static class EndingTextDefinitions
 {
     /// <summary>Current ending-text asset schema version.</summary>
     public const int Version = 2;
-    /// <summary>Installed filename of the editable ending-text asset.</summary>
+    /// <summary>Installed filename of the ending typewriter text the game types (#1638).</summary>
     public const string FileName = "ending-text.json";
+    /// <summary>Import-data filename of the extracted ending-text document, whose panels and subtitle are packed tile placements (#1638).</summary>
+    public const string ArtworkFileName = "ending-text-artwork.json";
     /// <summary>Width of each ending tilemap in cells.</summary>
     public const int TilemapWidth = 32;
     /// <summary>Height of the result panel in rows.</summary>

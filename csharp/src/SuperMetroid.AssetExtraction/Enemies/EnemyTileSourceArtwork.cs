@@ -107,7 +107,7 @@ public sealed class EnemyTileSourceArtwork
     /// <summary>Builds <see cref="FrameDisplays"/> from the two installed enemy frame documents, none while either is missing.</summary>
     private void BindFrameDisplays() =>
         FrameDisplays = _spritemaps is { } spritemaps && _extendedFrames is { } extended
-            ? InstalledEnemyFrameDisplays.Of(spritemaps, extended) : null;
+            ? InstalledEnemyFrameDisplays.Of(spritemaps, extended).Displays() : null;
 
     /// <summary>Five editable gunship takeoff character uploads; null for constructed fixtures.</summary>
     public GunshipLiftoffArtworkCatalog? GunshipLiftoff { get; }

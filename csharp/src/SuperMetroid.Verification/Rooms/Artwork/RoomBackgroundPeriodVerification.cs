@@ -94,9 +94,8 @@ internal static class RoomBackgroundPeriodVerification
     internal static void VerifyFxPagesStoreOnePeriodAcross()
     {
         GameInstallation installation = RepositoryInstallation.Installation;
-        RoomFxLayer3Pages tilemaps;
-        using (FileStream file = File.OpenRead(Path.Combine(installation.ContentDirectory, GameInstallationLayout.MapDirectoryName, RoomFxLayer3TilemapFormat.FileName)))
-            tilemaps = RoomFxLayer3Pages.Load(file);
+        // The pages are import data (#1638): the import's read holds them.
+        RoomFxLayer3Pages tilemaps = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.ImportMaps.RoomFxPages;
         Dictionary<string, RoomFxType> pages = [];
         foreach (RoomFxType type in Enum.GetValues<RoomFxType>())
         {

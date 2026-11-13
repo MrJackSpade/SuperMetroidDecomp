@@ -67,7 +67,7 @@ internal static class CeresDestructionArtworkVerification
                 nativeOam.FinalizeFrame();
                 var installedOam = ScreenSpritesFixtures.Blank();
                 installedOam.BeginFrame();
-                CinematicSheetFixtures.Drawer(stock.CeresDestructionSprites).Draw(frame.Pose, installedOam,
+                CinematicSheetFixtures.Drawer(stock.Sprites.CeresDestruction).Draw(frame.Pose, installedOam,
                     new(120, y), CeresShades.Drawn(CeresSpriteColouring.SpaceObjects));
                 installedOam.FinalizeFrame();
                 AssertTrue(installedOam.ImageEquals(nativeOam) &&
@@ -166,7 +166,7 @@ internal static class CeresDestructionArtworkVerification
         }, "Ceres destruction layout rejects missing or reordered actor identities on read");
 
         string spritesName = CeresDestructionSpriteFormat.FileName;
-        string spritesPath = Path.Combine(installation.IntroCinematicDirectory, spritesName);
+        string spritesPath = Path.Combine(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.IntroCinematicDirectoryName), spritesName);
         CeresDestructionSpriteDocument spriteDocument =
             JsonSerializer.Deserialize<CeresDestructionSpriteDocument>(
                 File.ReadAllBytes(spritesPath), ArtworkJson.Options) ??

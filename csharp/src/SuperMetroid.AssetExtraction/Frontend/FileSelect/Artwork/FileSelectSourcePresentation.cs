@@ -13,9 +13,10 @@ using SuperMetroid.AssetExtraction.Map.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 
 /// <summary>
-/// The installed file-select presentation as the import pipeline reads it (#1463): the layout the game binds
-/// (<see cref="Presentation"/>), and the pages, fields and the border, cursor and helmet compositions the file-select
-/// sheets are composed from, which the game never receives (#1616).
+/// The file-select presentation as the import pipeline reads it (#1463, #1638): the layout the game binds
+/// (<see cref="Presentation"/>), read from the installed layout document, and the pages, fields and the border, cursor and
+/// helmet compositions the file-select sheets are composed from, read from the import-data artwork document, which the game
+/// never receives (#1616).
 /// </summary>
 public sealed class FileSelectSourcePresentation
 {
@@ -27,12 +28,12 @@ public sealed class FileSelectSourcePresentation
     internal readonly SpriteComposition[] helmetSprites;
 
     /// <summary>Stores the compiled presentation and its sprite compositions.</summary>
-    private FileSelectSourcePresentation(FileSelectPresentationDocument document, FileSelectPages pages,
+    private FileSelectSourcePresentation(FileSelectPresentation presentation, int objectPalette, FileSelectPages pages,
         FileSelectGlyphs glyphs, FileSelectSprites sprites, string contentIdentity)
     {
-        Presentation = new FileSelectPresentation(Placements(document));
+        Presentation = presentation;
         ContentIdentity = contentIdentity;
-        ObjectPalette = document.ObjectPalette;
+        ObjectPalette = objectPalette;
         this.pages = pages.Foreground;
         background = pages.Background;
         patches = pages.Patches;
@@ -42,18 +43,17 @@ public sealed class FileSelectSourcePresentation
         cursorSprites = sprites.Cursors;
         helmetSprites = sprites.Helmets;
     }
-
     /// <summary>The slot fields, anchors and durations the game places its actors by.</summary>
     public FileSelectPresentation Presentation { get; }
 
-    /// <summary>Uppercase SHA-256 digest of the loaded JSON bytes, identifying the selected presentation including its encoding.</summary>
+    /// <summary>Uppercase SHA-256 digest of the loaded layout and artwork JSON bytes, identifying the selected presentation including its encoding.</summary>
     public string ContentIdentity { get; }
 
     /// <summary>The OBJ palette the borders, cursor and helmets are composed in.</summary>
     internal int ObjectPalette { get; }
 
     /// <summary>The slot fields, anchors and durations of a validated document, which the game places its actors by.</summary>
-    private static FileSelectPlacements Placements(FileSelectPresentationDocument document) => new()
+    private static FileSelectPlacements Placements(FileSelectLayoutDocument document) => new()
     {
         MainSlots = document.MainSlots,
         DataSlots = document.DataSlots,
@@ -136,33 +136,63 @@ public sealed class FileSelectSourcePresentation
             yield return ScreenPictureSubject.Block(FileSelectParts.LetterFrame(slot), default, cell, new[] { SlotLetter(slot) });
     }
 
-    /// <summary>Reads and validates a complete file-select JSON document, compiling its tilemaps, patches, glyphs, and sprite compositions.</summary>
-    /// <param name="source">Readable JSON stream, consumed from its current position to the end and left open.</param>
-    /// <returns>A presentation owning the parsed layout and compiled artwork, independent of the source stream.</returns>
-    /// <exception cref="InvalidDataException">The JSON, schema version, required names, artwork, anchors, durations, or patch placements are invalid.</exception>
-    public static FileSelectSourcePresentation Load(Stream source)
+    /// <summary>
+    /// The name of every picture of file select the menus' sheet holds (#1467), in <see cref="Subjects"/> order: the names
+    /// alone, which the game needs to check the installed sheet and which no installed document holds (#1638).
+    /// </summary>
+    internal static IEnumerable<string> SubjectNames()
     {
-        byte[] bytes;
-        using (var copy = new MemoryStream())
+        yield return FileSelectParts.BackgroundFrame;
+        foreach (FileSelectPage page in FileSelectPresentationFormat.Pages)
+            yield return FileSelectParts.PageFrame(page);
+        foreach (FileSelectPatch patch in FileSelectPresentationFormat.Patches)
+            yield return FileSelectParts.PatchFrame(patch);
+        for (int digit = 0; digit < FileSelectPresentationDefinitions.DigitCount; digit++)
         {
-            source.CopyTo(copy);
-            bytes = copy.ToArray();
+            yield return FileSelectParts.DigitFrame(digit);
+            foreach (bool filled in new[] { false, true })
+                yield return FileSelectParts.TankFrame(filled, digit);
         }
-        FileSelectPresentationDocument document;
+        for (int slot = 0; slot < FileSelectPresentationDefinitions.SlotLetterCount; slot++)
+            yield return FileSelectParts.LetterFrame(slot);
+    }
+
+    /// <summary>Reads and validates both extracted file-select documents.</summary>
+    /// <param name="extraction">The extraction's layout and artwork documents.</param>
+    /// <exception cref="InvalidDataException">Either document is invalid, or a patch placement escapes its page.</exception>
+    public static FileSelectSourcePresentation Load(FileSelectExtraction extraction)
+    {
+        Ensure.NotNull(extraction);
+        return Load(new MemoryStream(extraction.Layout, writable: false), new MemoryStream(extraction.Artwork, writable: false));
+    }
+
+    /// <summary>
+    /// Reads and validates the installed layout document and the import-data artwork document, compiling the layout, the
+    /// tilemaps, patches, glyphs and sprite compositions.
+    /// </summary>
+    /// <param name="layoutSource">Readable layout JSON stream, consumed to the end and left open.</param>
+    /// <param name="artworkSource">Readable artwork JSON stream, consumed to the end and left open.</param>
+    /// <returns>A presentation owning the parsed layout and compiled artwork, independent of the source streams.</returns>
+    /// <exception cref="InvalidDataException">The JSON, schema versions, required names, artwork, anchors, durations, or patch placements are invalid.</exception>
+    public static FileSelectSourcePresentation Load(Stream layoutSource, Stream artworkSource)
+    {
+        byte[] layoutBytes = ReadAll(layoutSource);
+        byte[] artworkBytes = ReadAll(artworkSource);
+        FileSelectLayoutDocument layout = ReadLayoutDocument(layoutBytes);
+        FileSelectArtworkDocument document;
         try
         {
-            document = JsonAssetDocument.Read<FileSelectPresentationDocument>(
-                bytes, ArtworkJson.Options) ??
-                throw new InvalidDataException("File-select presentation document is null.");
+            document = JsonAssetDocument.Read<FileSelectArtworkDocument>(artworkBytes, ArtworkJson.Options) ??
+                throw new InvalidDataException("File-select artwork document is null.");
         }
         catch (JsonException error)
         {
-            throw new InvalidDataException("Invalid file-select presentation JSON.", error);
+            throw new InvalidDataException("Invalid file-select artwork JSON.", error);
         }
 
-        if (document.Version != FileSelectPresentationFormat.Version)
+        if (document.Version != FileSelectPresentationFormat.ArtworkVersion)
             throw new InvalidDataException(
-                $"File-select presentation version must be {FileSelectPresentationFormat.Version}.");
+                $"File-select artwork version must be {FileSelectPresentationFormat.ArtworkVersion}.");
         ValidateExactKeys(document.Pages,
             [FileSelectPresentationFormat.BackgroundPageName, .. FileSelectPresentationFormat.Pages.Select(FileSelectParts.PageName)],
             "file-select pages");
@@ -170,30 +200,12 @@ public sealed class FileSelectSourcePresentation
             "file-select patches");
         ValidateExactKeys(document.Sprites, FileSelectPresentationFormat.SpriteNames,
             "file-select sprites");
-        ValidateExactKeys(document.BorderAnchors,
-            FileSelectPresentationFormat.Borders.Select(FileSelectPresentationFormat.BorderName), "file-select borders");
-        ValidateExactKeys(document.DynamicAnchors,
-            FileSelectPresentationFormat.Anchors.Select(FileSelectPresentationFormat.AnchorName),
-            "file-select dynamic anchors");
         if (document.Digits is null || document.Digits.Length != 10)
             throw new InvalidDataException("File select requires ten digit cells.");
         if (document.SlotLetters is null || document.SlotLetters.Length != 3)
             throw new InvalidDataException("File select requires three slot-letter cells.");
-        if (document.MainSlots is null || document.MainSlots.Length != 3 ||
-            document.DataSlots is null || document.DataSlots.Length != 3)
-            throw new InvalidDataException("File select requires three main and three data slot layouts.");
-        ValidatePoints(document.MainCursorAnchors, 6, "main cursor");
-        ValidatePoints(document.DataCursorAnchors, 4, "data cursor");
-        ValidatePoints(document.ConfirmationCursorAnchors, 2, "confirmation cursor");
-        ValidatePoints(document.HelmetAnchors, 3, "helmet");
-        foreach (string name in FileSelectPresentationFormat.Borders.Select(FileSelectPresentationFormat.BorderName))
-            ValidatePoint(document.BorderAnchors[name], $"{name} border");
-        foreach (string name in FileSelectPresentationFormat.Anchors.Select(FileSelectPresentationFormat.AnchorName))
-            ValidatePagePoint(document.DynamicAnchors[name], $"{name} dynamic anchor");
         if ((uint)document.ObjectPalette >= MapPresentationFormat.PaletteCount)
             throw new InvalidDataException("File-select object palette must be 0..7.");
-        if (document.CursorFrameDuration < 1 || document.HelmetFrameDuration < 1)
-            throw new InvalidDataException("File-select actor durations must be at least one update.");
 
         var pages = FileSelectPresentationFormat.Pages.ToDictionary(page => page,
             page => CompilePage(document, FileSelectParts.PageName(page)));
@@ -233,26 +245,85 @@ public sealed class FileSelectSourcePresentation
         SpriteComposition[] helmetSprites = [.. Enumerable.Range(0, FileSelectPresentationFormat.HelmetFrameCount).Select(frame =>
             CompileSprite(document, FileSelectParts.HelmetSpriteName(frame)))];
 
-        foreach (FileSelectSlotFieldDocument slot in document.MainSlots.Concat(document.DataSlots))
-            ValidateSlot(slot);
-        ValidatePatchPlacements(document, patches);
-        return new(document, new(pages, background, patches), new(digits, letters),
-            new(borderSprites, cursorSprites, helmetSprites), Convert.ToHexString(SHA256.HashData(bytes)));
+        ValidatePatchPlacements(layout, patches);
+        return new(new FileSelectPresentation(Placements(layout)), document.ObjectPalette, new(pages, background, patches),
+            new(digits, letters), new(borderSprites, cursorSprites, helmetSprites),
+            Convert.ToHexString(SHA256.HashData(layoutBytes.Concat(artworkBytes).ToArray())));
     }
 
-    /// <summary>Serializes an authored document to the output.</summary>
-    /// <param name="output">Writable stream receiving UTF-8 JSON at its current position; left open.</param>
-    /// <param name="document">Authored layout and artwork to serialize; its collections are not modified.</param>
-    public static void Write(Stream output, FileSelectPresentationDocument document)
+    /// <summary>
+    /// Reads and validates the installed layout document alone: the slot fields, anchors and durations the game places its
+    /// actors by (#1616, #1638).
+    /// </summary>
+    /// <param name="source">Readable layout JSON stream, consumed to the end and left open.</param>
+    /// <exception cref="InvalidDataException">The JSON, schema version, required names, anchors or durations are invalid.</exception>
+    public static FileSelectPresentation ReadLayout(Stream source) =>
+        new(Placements(ReadLayoutDocument(ReadAll(source))));
+
+    /// <summary>The whole of <paramref name="source"/>, from its current position.</summary>
+    private static byte[] ReadAll(Stream source)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
-            ArtworkJson.Options);
-        output.Write(bytes);
+        using var copy = new MemoryStream();
+        source.CopyTo(copy);
+        return copy.ToArray();
     }
+
+    /// <summary>Parses and validates the layout document in <paramref name="bytes"/>.</summary>
+    /// <exception cref="InvalidDataException">The JSON, schema version, required names, anchors or durations are invalid.</exception>
+    private static FileSelectLayoutDocument ReadLayoutDocument(byte[] bytes)
+    {
+        FileSelectLayoutDocument document;
+        try
+        {
+            document = JsonAssetDocument.Read<FileSelectLayoutDocument>(bytes, ArtworkJson.Options) ??
+                throw new InvalidDataException("File-select presentation document is null.");
+        }
+        catch (JsonException error)
+        {
+            throw new InvalidDataException("Invalid file-select presentation JSON.", error);
+        }
+
+        if (document.Version != FileSelectPresentationFormat.Version)
+            throw new InvalidDataException(
+                $"File-select presentation version must be {FileSelectPresentationFormat.Version}.");
+        ValidateExactKeys(document.BorderAnchors,
+            FileSelectPresentationFormat.Borders.Select(FileSelectPresentationFormat.BorderName), "file-select borders");
+        ValidateExactKeys(document.DynamicAnchors,
+            FileSelectPresentationFormat.Anchors.Select(FileSelectPresentationFormat.AnchorName),
+            "file-select dynamic anchors");
+        if (document.MainSlots is null || document.MainSlots.Length != 3 ||
+            document.DataSlots is null || document.DataSlots.Length != 3)
+            throw new InvalidDataException("File select requires three main and three data slot layouts.");
+        ValidatePoints(document.MainCursorAnchors, 6, "main cursor");
+        ValidatePoints(document.DataCursorAnchors, 4, "data cursor");
+        ValidatePoints(document.ConfirmationCursorAnchors, 2, "confirmation cursor");
+        ValidatePoints(document.HelmetAnchors, 3, "helmet");
+        foreach (string name in FileSelectPresentationFormat.Borders.Select(FileSelectPresentationFormat.BorderName))
+            ValidatePoint(document.BorderAnchors[name], $"{name} border");
+        foreach (string name in FileSelectPresentationFormat.Anchors.Select(FileSelectPresentationFormat.AnchorName))
+            ValidatePagePoint(document.DynamicAnchors[name], $"{name} dynamic anchor");
+        if (document.CursorFrameDuration < 1 || document.HelmetFrameDuration < 1)
+            throw new InvalidDataException("File-select actor durations must be at least one update.");
+        foreach (FileSelectSlotFieldDocument slot in document.MainSlots.Concat(document.DataSlots))
+            ValidateSlot(slot);
+        return document;
+    }
+
+    /// <summary>Serializes an authored layout document to the output.</summary>
+    /// <param name="output">Writable stream receiving UTF-8 JSON at its current position; left open.</param>
+    /// <param name="document">Authored layout to serialize; its collections are not modified.</param>
+    public static void Write(Stream output, FileSelectLayoutDocument document) =>
+        output.Write(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
+
+    /// <summary>Serializes an authored artwork document to the output.</summary>
+    /// <param name="output">Writable stream receiving UTF-8 JSON at its current position; left open.</param>
+    /// <param name="document">Authored artwork to serialize; its collections are not modified.</param>
+    public static void WriteArtwork(Stream output, FileSelectArtworkDocument document) =>
+        output.Write(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
 
     /// <summary>Rejects authored field patches or time digits that would escape the page.</summary>
     private static void ValidatePatchPlacements(
-        FileSelectPresentationDocument document,
+        FileSelectLayoutDocument document,
         Dictionary<FileSelectPatch, FileSelectCompiledPatch> patches)
     {
         foreach (FileSelectSlotFieldDocument slot in document.MainSlots.Concat(document.DataSlots))
@@ -277,9 +348,8 @@ public sealed class FileSelectSourcePresentation
             }
         }
     }
-
     /// <summary>Compiles the 1024-cell page the document names <paramref name="name"/>.</summary>
-    private static BackgroundTile[] CompilePage(FileSelectPresentationDocument document, string name)
+    private static BackgroundTile[] CompilePage(FileSelectArtworkDocument document, string name)
     {
         MapPresentationCell[] cells = document.Pages[name];
         if (cells is null || cells.Length != FileSelectPresentationFormat.CellCount)
@@ -288,7 +358,7 @@ public sealed class FileSelectSourcePresentation
     }
 
     /// <summary>Compiles the sprite the document names <paramref name="name"/>.</summary>
-    private static SpriteComposition CompileSprite(FileSelectPresentationDocument document, string name) =>
+    private static SpriteComposition CompileSprite(FileSelectArtworkDocument document, string name) =>
         MenuSpriteCompiler.Compile(document.Sprites[name], $"file-select {name}");
 
     /// <summary>Compiles each authored cell of <paramref name="owner"/> to the tile it places.</summary>

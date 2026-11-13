@@ -20,8 +20,7 @@ namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 internal static class CeresFlightSpriteArtworkVerification
 {
     /// <summary>Compares six retail frames with native OAM and checks that a document missing a frame is rejected.</summary>
-    internal static void VerifyCeresFlightSpriteArtwork(GameInstallation installation,
-        SuperMetroidAddressSpace bus, CeresFlightCharacters stock)
+    internal static void VerifyCeresFlightSpriteArtwork(SuperMetroidAddressSpace bus, CeresFlightCharacters stock)
     {
         foreach (CinematicSpriteFrameDefinition frame in CeresFlightSpriteDefinitions.Frames)
         {
@@ -48,7 +47,7 @@ internal static class CeresFlightSpriteArtworkVerification
             }
         }
 
-        string stockPath = Path.Combine(installation.IntroCinematicDirectory, CeresFlightSpriteFormat.FileName);
+        string stockPath = Path.Combine(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.IntroCinematicDirectoryName), CeresFlightSpriteFormat.FileName);
         CeresFlightSpriteDocument document = JsonSerializer.Deserialize<CeresFlightSpriteDocument>(
             File.ReadAllBytes(stockPath), ArtworkJson.Options) ??
             throw new InvalidDataException("Stock Ceres flight sprites are empty.");

@@ -15,13 +15,9 @@ internal static class GameOverPresentationVerification
     /// <summary>Compares a No-to-title sequence with native output.</summary>
     internal static void VerifyGameOverPresentationAssets(
         ISnesAddressSpace bus,
-        string stock,
         AreaMapPresentation original)
     {
-        string stockPath = Path.Combine(stock, GameOverPresentationFormat.FileName);
         byte[] extracted = SuperMetroid.AssetExtraction.Frontend.GameOverPresentationExtractor.Extract(bus);
-        AssertTrue(extracted.SequenceEqual(File.ReadAllBytes(stockPath)),
-            "installed game-over JSON is the deterministic cartridge extraction");
         _ = GameOverSourcePresentation.Load(new MemoryStream(extracted));
         AssertEqual(60, GameOverBabyAnimationDefinitions.InstructionCount,
             "compiled game-over Baby instruction count");

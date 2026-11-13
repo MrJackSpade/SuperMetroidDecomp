@@ -37,9 +37,7 @@ internal static class EnemyExtendedFrameFiles
             {
                 Version = EnemyExtendedFrameSchema.Revision,
                 Frames = frames,
-                DisplayFrames = EnemyExtendedFrameDefinitions.Frames
-                    .ToDictionary(frame => frame.Name, frame => frame.Name,
-                        StringComparer.Ordinal),
+                DisplayFrames = EnemyFrameBindingRules.Identity(EnemyExtendedFrameDefinitions.Frames),
             }, CamelCaseIndentedJson);
         return json;
     }

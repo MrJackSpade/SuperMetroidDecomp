@@ -126,13 +126,19 @@ internal static void VerifyFileSelectFreshSaveTilemap()
     progress.SetAreaMap(AreaId.Crateria, acquired: true);
 
     var addressSpace = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
-    // The synthetic cartridge's file-select presentation is written over a scratch copy of the installed map presentation.
+    // The synthetic cartridge's file-select presentation is written over scratch copies of the installed map presentation,
+    // its layout, and of the extraction's import data, its artwork (#1638).
     using var mapScratch = new TestScratchDirectory("file-select-label-fixture");
     string mapDirectory = mapScratch.Root;
     PrivateInstallationCopy.CopyInstallation(RepositoryInstallation.Installation.MapDirectory, mapDirectory);
-    File.WriteAllBytes(Path.Combine(mapDirectory, FileSelectPresentationFormat.FileName),
-        SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(addressSpace));
-    var fixturePresentation = MapPresentationFiles.LoadForImport(mapDirectory, SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.MapDirectoryName));
+    using var importScratch = new TestScratchDirectory("file-select-label-fixture-import-data");
+    PrivateInstallationCopy.CopyInstallation(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(
+        SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.MapDirectoryName), importScratch.Root);
+    SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork.FileSelectExtraction fixtureFileSelect =
+        SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(addressSpace);
+    File.WriteAllBytes(Path.Combine(mapDirectory, FileSelectPresentationFormat.FileName), fixtureFileSelect.Layout);
+    File.WriteAllBytes(Path.Combine(importScratch.Root, FileSelectPresentationFormat.ArtworkFileName), fixtureFileSelect.Artwork);
+    var fixturePresentation = MapPresentationFiles.LoadForImport(mapDirectory, importScratch.Root);
     var saveRam = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
     var menu = new FileSelectMenuState(saveRam, mapPresentation: fixturePresentation.Game, spriteSheets: MenuSheetFixtures.For(fixturePresentation));
     ReadOnlySpan<ushort> tilemap = menu.BackgroundTilemap(fixturePresentation);

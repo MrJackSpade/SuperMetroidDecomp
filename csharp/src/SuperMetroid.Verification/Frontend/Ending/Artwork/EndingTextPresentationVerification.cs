@@ -87,18 +87,6 @@ internal static class EndingTextPresentationVerification
         return result;
     }
 
-    /// <summary>Checks that the installed ending text is the deterministic cartridge extraction.</summary>
-    internal static void VerifyEndingTextAssets(
-        ISnesAddressSpace bus,
-        string stockDirectory)
-    {
-        byte[] deterministic = SuperMetroid.AssetExtraction.Frontend.Ending.EndingTextExtractor.Extract(bus);
-        AssertTrue(deterministic.SequenceEqual(File.ReadAllBytes(
-            Path.Combine(stockDirectory, EndingTextDefinitions.FileName))),
-            "installed ending text is the deterministic cartridge extraction");
-        Console.WriteLine("Ending-text catalog: deterministic stock passes.");
-    }
-
     /// <summary>Forbids installed typewriter execution from rereading the bank-$8C text and panel source range.</summary>
     private static CartridgeReadGuard NewEndingTextReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

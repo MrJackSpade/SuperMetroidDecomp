@@ -71,6 +71,54 @@ public sealed class EndingTextPresentation
     /// <summary>The characters the ending's typewriter types, which the game reads instead of this presentation (#1467).</summary>
     public EndingTypewriterText Typewriter() => new([.. percentage], [.. finalMessage]);
 
+    /// <summary>The installed typewriter text's revision (#1638).</summary>
+    public const int TypewriterVersion = 1;
+
+    /// <summary>The typewriter text of the extracted artwork document <paramref name="artwork"/>, as the installation holds it (#1638).</summary>
+    /// <exception cref="InvalidDataException">The artwork document does not decode.</exception>
+    internal static byte[] ExtractTypewriter(byte[] artwork)
+    {
+        EndingTextDocument document = JsonAssetDocument.Read<EndingTextDocument>(artwork, ArtworkJson.Options)
+            ?? throw new InvalidDataException("Ending-text document is null.");
+        return JsonSerializer.SerializeToUtf8Bytes(new EndingTypewriterDocument
+        {
+            Version = TypewriterVersion, PercentageHeading = document.PercentageHeading, PercentageDetail = document.PercentageDetail,
+            FinalMessage = document.FinalMessage,
+        }, ArtworkJson.Options);
+    }
+
+    /// <summary>
+    /// Reads and validates the installed typewriter text (#1638): the characters the ending types, which the game binds. The
+    /// panels and subtitle are import data the game never reads.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The JSON, version, text lengths or glyphs are invalid.</exception>
+    public static EndingTypewriterText ReadTypewriter(Stream json)
+    {
+        Ensure.NotNull(json);
+        EndingTypewriterDocument document;
+        try
+        {
+            document = JsonAssetDocument.Read<EndingTypewriterDocument>(json, ArtworkJson.Options)
+                ?? throw new InvalidDataException("Ending typewriter document is null.");
+        }
+        catch (JsonException error) { throw new InvalidDataException("Invalid ending typewriter JSON.", error); }
+        if (document.Version != TypewriterVersion)
+            throw new InvalidDataException($"Ending typewriter text requires version {TypewriterVersion}.");
+        return new([.. Percentage(document.PercentageHeading, document.PercentageDetail)], [.. Final(document.FinalMessage)]);
+    }
+
+    /// <summary>The item-percentage characters, compiled from the heading and detail labels.</summary>
+    /// <exception cref="InvalidDataException">A label's length or glyphs are invalid.</exception>
+    private static EndingTextCharacter[] Percentage(string heading, string detail) =>
+    [
+        .. Compile(heading, EndingTextDefinitions.PercentageHeading, "percentage heading"),
+        .. Compile(detail, EndingTextDefinitions.PercentageDetail, "percentage detail"),
+    ];
+
+    /// <summary>The final message's characters, compiled from its label.</summary>
+    /// <exception cref="InvalidDataException">The label's length or glyphs are invalid.</exception>
+    private static EndingTextCharacter[] Final(string finalMessage) => Compile(finalMessage, EndingTextDefinitions.FinalMessage, "final message");
+
     /// <summary>Loads and validates <c>ending-text.json</c>, compiling bounded labels and keeping the installed result and subtitle tiles, without importing cinematic timers or instructions.</summary>
     /// <param name="json">UTF-8 JSON read from the current stream position to its end; the stream remains open.</param>
     /// <returns>A presentation with validated dimensions and glyphs, compiled text sequences, and an identity derived from the source bytes.</returns>
@@ -112,13 +160,8 @@ public sealed class EndingTextPresentation
             EndingTextDefinitions.CopyrightRows, "copyright year");
         Apply(copyright, document.CopyrightCompany, EndingTextDefinitions.CopyrightCompany,
             EndingTextDefinitions.CopyrightRows, "copyright company");
-        EndingTextCharacter[] percentage =
-        [
-            .. Compile(document.PercentageHeading, EndingTextDefinitions.PercentageHeading, "percentage heading"),
-            .. Compile(document.PercentageDetail, EndingTextDefinitions.PercentageDetail, "percentage detail"),
-        ];
-        EndingTextCharacter[] final = Compile(document.FinalMessage,
-            EndingTextDefinitions.FinalMessage, "final message");
+        EndingTextCharacter[] percentage = Percentage(document.PercentageHeading, document.PercentageDetail);
+        EndingTextCharacter[] final = Final(document.FinalMessage);
         return new(result, copyright,
             document.JapaneseSubtitle,
             percentage, final, Convert.ToHexString(SHA256.HashData(source)));

@@ -17,7 +17,7 @@ namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 internal static class EndingSheetFixtures
 {
     /// <summary>The installed ending artwork's identity, whose sheets are the installed ones.</summary>
-    private static readonly Lazy<string> stockIdentity = new(() => RepositoryInstallation.Installation.LoadEndingObjectArt().ContentIdentity);
+    private static readonly Lazy<string> stockIdentity = new(() => InstalledFixtures.EndingObjects.ContentIdentity);
 
     /// <summary>The ending's decoded colours the composed sheets are coloured with (#1544).</summary>
     private static readonly Lazy<EndingPaletteSet> palettes = new(() => InstalledFixtures.EndingColours);

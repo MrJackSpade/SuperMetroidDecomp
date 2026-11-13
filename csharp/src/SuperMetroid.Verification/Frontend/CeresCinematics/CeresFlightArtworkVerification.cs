@@ -58,8 +58,8 @@ internal static class CeresFlightArtworkVerification
         using var referencePalette = new MemoryStream(referenceFiles[CeresFlightPaletteFormat.FileName]);
         using var referenceSprites = new MemoryStream(referenceFiles[CeresFlightSpriteFormat.FileName]);
         using var referenceActors = new MemoryStream(referenceFiles[CeresFlightActorLayoutFormat.FileName]);
-        CeresFlightCharacters reference = CeresFlightCharacters.Read(referenceCharacters, referenceObjects,
-            CeresFlightSourceArtwork.Read(referenceMaps, CeresFlightPaletteFile.Read(referencePalette).Backdrop, referenceSprites, referenceActors));
+        CeresFlightCharacters reference = CeresFlightCharacters.Read(referenceCharacters, referenceObjects, referenceSprites,
+            CeresFlightSourceArtwork.Read(referenceMaps, CeresFlightPaletteFile.Read(referencePalette).Backdrop, referenceActors));
         var native = new IntroCeresFlightState(AudioQueues.Standalone(), reference.BoundCatalog, sheets: CinematicSheetFixtures.WithFlight(reference));
         var installed = new IntroCeresFlightState(AudioQueues.Standalone(), stock.BoundCatalog, sheets: CinematicSheetFixtures.WithFlight(stock));
         var phases = new HashSet<IntroCeresFlightPhase>();
@@ -90,7 +90,7 @@ internal static class CeresFlightArtworkVerification
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "installed flight never reads its cartridge art, palette, or spritemap sources");
 
-        Suite(nameof(VerifyCeresFlightSpriteArtwork), () => VerifyCeresFlightSpriteArtwork(installation, bus, stock));
+        Suite(nameof(VerifyCeresFlightSpriteArtwork), () => VerifyCeresFlightSpriteArtwork(bus, stock));
         Suite(nameof(VerifyCeresFlightActorLayout), () => VerifyCeresFlightActorLayout(installation, bus));
 
         Console.WriteLine("Ceres flight art: native front/rear frames and five ROM-sourced rear actor placements pass.");

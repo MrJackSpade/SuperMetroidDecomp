@@ -6,8 +6,12 @@ public static class EnemyTileArtworkFormat
 {
     /// <summary>File name of the versioned manifest binding enemy-definition identities to artwork sheets.</summary>
     public const string ManifestFileName = "enemy-tiles.json";
-    /// <summary>Current enemy-tile installation schema revision; 72 installs no colour document only the import reads, and Kraid's eye colours by purpose (#1637).</summary>
-    public const int Version = 72;
+    /// <summary>
+    /// Current enemy-tile installation schema revision; 72 installs no colour document only the import reads, and Kraid's eye
+    /// colours by purpose (#1637); 75 installs no boss layout only the import composes from (#1638); 76 does both; 77
+    /// installs the enemy frames' display bindings and no enemy composition (#1638).
+    /// </summary>
+    public const int Version = 77;
     /// <summary>Stable, source-address-free name for a gunship takeoff character chunk.</summary>
     public static string GunshipLiftoffFileName(int index) =>
         $"gunship-liftoff-{index + 1}-tiles.png";

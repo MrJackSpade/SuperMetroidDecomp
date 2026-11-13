@@ -21,17 +21,19 @@ using SuperMetroid.AssetExtraction.Rooms.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 
 /// <summary>
-/// Installs and loads the opening-scene tilemap and composition documents; its character pages (#1636) and the opening's
-/// and the Ceres approach's colours (#1637) are import data, which the extraction writes to the component's import-data
-/// directory and only the import's read reads.
+/// Installs and loads the opening-scene documents; its character pages (#1636), the opening's and the Ceres approach's
+/// colours (#1637) and its layouts and sprite compositions, whose entries are the original's packed tile and sprite
+/// placements (#1638), are import data, which the extraction writes to the component's import-data directory and only
+/// the import's read reads.
 /// </summary>
 public static class IntroCinematicArtworkFiles
 {
     /// <summary>
     /// Manifest revision for the complete opening and Ceres artwork resource set; 22 installs no character page (#1636),
-    /// 23 installs the Japanese text's next-page arrow compositions (#1655), and 24 installs no palette (#1637).
+    /// 23 installs the Japanese text's next-page arrow compositions (#1655), 24 installs no palette (#1637), 25 installs no
+    /// layout (#1638), 26 installs neither, and 27 installs no sprite composition (#1638).
     /// </summary>
-    private const int FormatVersion = 24;
+    private const int FormatVersion = 27;
 
     /// <summary>
     /// The component's character pages (#1636) and the colour documents only the import pre-colours sheets from (#1637),
@@ -45,9 +47,34 @@ public static class IntroCinematicArtworkFiles
         IntroCinematicPaletteFile.FileName, CeresFlightPaletteFormat.FileName,
     ];
 
+    /// <summary>
+    /// The component's sprite compositions (#1638), whose parts are the original's packed sprite placements: the opening's,
+    /// the Ceres approach's and the Ceres destruction scene's. The extraction writes them to its import-data directory and
+    /// only the import's read reads them; the manifest lists their hashes.
+    /// </summary>
+    private static readonly string[] CompositionFiles =
+    [
+        IntroCaretSpriteFormat.FileName, IntroNextPageArrowSpriteFormat.FileName, IntroMotherBrainSpriteFormat.FileName,
+        IntroMotherBrainExplosionSpriteFormat.FileName, IntroRinkaSpriteFormat.FileName, IntroEggEffectSpriteFormat.FileName,
+        IntroDiscoveryActorSpriteFormat.FileName, IntroScientistSpriteFormat.FileName, CeresFlightSpriteFormat.FileName,
+        CeresDestructionSpriteFormat.FileName,
+    ];
+
+    /// <summary>
+    /// The component's layouts (#1638): the scene pages, portrait, first narration card, subtitle line, eye rectangles and
+    /// Zebes reveal map, whose entries are the original's packed tile placements. The extraction writes them to its import-data
+    /// directory and only the import's read reads them; the manifest lists their hashes.
+    /// </summary>
+    private static readonly string[] LayoutFiles =
+    [
+        IntroCinematicArtworkFormat.PortraitTilemapFileName, IntroCinematicArtworkFormat.InitialNarrationTilemapFileName,
+        .. Enumerable.Range(0, IntroCinematicArtworkFormat.BackgroundPageCount).Select(IntroCinematicArtworkFormat.BackgroundPageFileName),
+        IntroFinalLineTilemapFormat.FileName, IntroEyeTilemapFormat.FileName, ZebesRevealArtworkFormat.MapFileName,
+    ];
+
     /// <summary>Creates the stock opening-cinematic, Ceres-flight, and destruction-scene PNG and JSON resources with their provenance manifest.</summary>
     /// <param name="bus">Non-null cartridge import address space supplying character graphics, tilemaps, palettes, sprites, and scene artwork.</param>
-    /// <param name="directory">Output directory, created if needed; each resource and the manifest require a previously absent filename. The character pages and palettes go to its import-data directory.</param>
+    /// <param name="directory">Output directory, created if needed; each resource and the manifest require a previously absent filename. The character pages, palettes, layouts and compositions go to its import-data directory.</param>
     /// <param name="sourceCartridgeSha256">Nonempty source-cartridge SHA-256 recorded with the generated stock-resource hashes.</param>
     /// <remarks>Checks native transfer dimensions, eye-frame draw geometry, and palette representation. Scene timing and dispatch remain compiled.</remarks>
     /// <exception cref="InvalidDataException">Native artwork, geometry, or palettes fail validation.</exception>
@@ -60,8 +87,10 @@ public static class IntroCinematicArtworkFiles
         Directory.CreateDirectory(directory);
         string importData = SuperMetroid.AssetExtraction.Installation.ImportDataDirectory.Of(directory);
         Directory.CreateDirectory(importData);
-        // A page or a palette goes to the import data, which the installer deletes before it publishes; a document is installed.
-        string PathOf(string name) => Path.Combine(ImportDataFiles.Contains(name) ? importData : directory, name);
+        // A page, a palette, a layout or a composition goes to the import data, which the installer deletes before it
+        // publishes; a document is installed.
+        string PathOf(string name) => Path.Combine(
+            ImportDataFiles.Contains(name) || LayoutFiles.Contains(name) || CompositionFiles.Contains(name) ? importData : directory, name);
 
         var hashes = new Dictionary<string, string>();
         WriteSheet(IntroCinematicArtworkFormat.BackgroundFileName,
@@ -149,7 +178,7 @@ public static class IntroCinematicArtworkFiles
             if (native.Length != IntroCinematicArtworkFormat.BackgroundPageByteCount)
                 throw new InvalidDataException($"Intro tilemap {name} must contain one $0800-byte page.");
             byte[] encoded = RoomBackgroundTilemapExtractor.Encode(native);
-            using (var output = new FileStream(Path.Combine(directory, name), FileMode.CreateNew, FileAccess.Write))
+            using (var output = new FileStream(PathOf(name), FileMode.CreateNew, FileAccess.Write))
                 output.Write(encoded);
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
         }
@@ -216,7 +245,7 @@ public static class IntroCinematicArtworkFiles
             });
             byte[] encoded = json.ToArray();
             string name = IntroFinalLineTilemapFormat.FileName;
-            using (var output = new FileStream(Path.Combine(directory, name), FileMode.CreateNew, FileAccess.Write))
+            using (var output = new FileStream(PathOf(name), FileMode.CreateNew, FileAccess.Write))
                 output.Write(encoded);
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
         }
@@ -263,7 +292,7 @@ public static class IntroCinematicArtworkFiles
             });
             byte[] encoded = json.ToArray();
             string name = IntroEyeTilemapFormat.FileName;
-            using (var output = new FileStream(Path.Combine(directory, name), FileMode.CreateNew, FileAccess.Write))
+            using (var output = new FileStream(PathOf(name), FileMode.CreateNew, FileAccess.Write))
                 output.Write(encoded);
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
         }
@@ -282,7 +311,7 @@ public static class IntroCinematicArtworkFiles
             });
             byte[] encoded = json.ToArray();
             string name = IntroCaretSpriteFormat.FileName;
-            using (var output = new FileStream(Path.Combine(directory, name), FileMode.CreateNew, FileAccess.Write))
+            using (var output = new FileStream(PathOf(name), FileMode.CreateNew, FileAccess.Write))
                 output.Write(encoded);
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
         }
@@ -318,7 +347,7 @@ public static class IntroCinematicArtworkFiles
             });
             byte[] encoded = json.ToArray();
             string name = IntroMotherBrainSpriteFormat.FileName;
-            using (var output = new FileStream(Path.Combine(directory, name), FileMode.CreateNew, FileAccess.Write))
+            using (var output = new FileStream(PathOf(name), FileMode.CreateNew, FileAccess.Write))
                 output.Write(encoded);
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
         }
@@ -339,8 +368,7 @@ public static class IntroCinematicArtworkFiles
                 });
             byte[] encoded = json.ToArray();
             string name = IntroMotherBrainExplosionSpriteFormat.FileName;
-            using (var output = new FileStream(Path.Combine(directory, name),
-                FileMode.CreateNew, FileAccess.Write))
+            using (var output = new FileStream(PathOf(name), FileMode.CreateNew, FileAccess.Write))
                 output.Write(encoded);
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
         }
@@ -360,8 +388,7 @@ public static class IntroCinematicArtworkFiles
             });
             byte[] encoded = json.ToArray();
             string name = IntroRinkaSpriteFormat.FileName;
-            using (var output = new FileStream(Path.Combine(directory, name),
-                FileMode.CreateNew, FileAccess.Write))
+            using (var output = new FileStream(PathOf(name), FileMode.CreateNew, FileAccess.Write))
                 output.Write(encoded);
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
         }
@@ -382,8 +409,7 @@ public static class IntroCinematicArtworkFiles
             });
             byte[] encoded = json.ToArray();
             string name = IntroEggEffectSpriteFormat.FileName;
-            using (var output = new FileStream(Path.Combine(directory, name),
-                FileMode.CreateNew, FileAccess.Write))
+            using (var output = new FileStream(PathOf(name), FileMode.CreateNew, FileAccess.Write))
                 output.Write(encoded);
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
         }
@@ -404,8 +430,7 @@ public static class IntroCinematicArtworkFiles
                 });
             byte[] encoded = json.ToArray();
             string name = IntroDiscoveryActorSpriteFormat.FileName;
-            using (var output = new FileStream(Path.Combine(directory, name),
-                FileMode.CreateNew, FileAccess.Write))
+            using (var output = new FileStream(PathOf(name), FileMode.CreateNew, FileAccess.Write))
                 output.Write(encoded);
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
         }
@@ -425,8 +450,7 @@ public static class IntroCinematicArtworkFiles
             });
             byte[] encoded = json.ToArray();
             string name = IntroScientistSpriteFormat.FileName;
-            using (var output = new FileStream(Path.Combine(directory, name),
-                FileMode.CreateNew, FileAccess.Write))
+            using (var output = new FileStream(PathOf(name), FileMode.CreateNew, FileAccess.Write))
                 output.Write(encoded);
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
         }
@@ -451,26 +475,90 @@ public static class IntroCinematicArtworkFiles
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(importData);
         IntroCinematicArtworkParts parts = ReadParts(directory);
-        return new(parts, ReadCharacters(importData, parts.CeresFlight),
+        return new(parts, ReadSprites(importData), ReadLayouts(importData), ReadCharacters(importData, parts.CeresFlight),
             ReadColours(importData, IntroCinematicPaletteFile.FileName, "opening palette", IntroCinematicPaletteFile.Read),
             ReadColours(importData, CeresFlightPaletteFormat.FileName, "Ceres flight palette", CeresFlightPaletteFile.Read));
     }
 
-    /// <summary>The opening's characters from the import's pages in <paramref name="importData"/>, the approach's bound to <paramref name="flight"/>.</summary>
+    /// <summary>The opening's and the Ceres destruction scene's compositions from the import data <paramref name="importData"/> (#1638).</summary>
+    /// <exception cref="InvalidDataException">A composition document does not decode; the error names its file.</exception>
+    private static IntroCinematicSprites ReadSprites(string importData)
+    {
+        return new IntroCinematicSprites(
+            Sprites(IntroCaretSpriteFormat.FileName, "opening caret sprites", IntroCaretSpritePresentation.Load),
+            Sprites(IntroNextPageArrowSpriteFormat.FileName, "intro next-page arrow sprites", IntroNextPageArrowSpritePresentation.Load),
+            Sprites(IntroMotherBrainSpriteFormat.FileName, "intro Mother Brain sprites", IntroMotherBrainSpritePresentation.Load),
+            Sprites(IntroMotherBrainExplosionSpriteFormat.FileName, "intro Mother Brain explosion sprites", IntroMotherBrainExplosionSpritePresentation.Load),
+            Sprites(IntroRinkaSpriteFormat.FileName, "intro Rinka sprites", IntroRinkaSpritePresentation.Load),
+            Sprites(IntroEggEffectSpriteFormat.FileName, "intro egg effect sprites", IntroEggEffectSpritePresentation.Load),
+            Sprites(IntroDiscoveryActorSpriteFormat.FileName, "intro discovery actor sprites", IntroDiscoveryActorSpritePresentation.Load),
+            Sprites(IntroScientistSpriteFormat.FileName, "intro scientist sprite artwork", IntroScientistSpritePresentation.Load),
+            Sprites(CeresDestructionSpriteFormat.FileName, "destruction sprites", CeresDestructionSpritePresentation.Load));
+
+        T Sprites<T>(string name, string description, Func<Stream, T> read)
+        {
+            string path = Path.Combine(importData, name);
+            try
+            {
+                return read(new MemoryStream(File.ReadAllBytes(path), writable: false));
+            }
+            catch (InvalidDataException error)
+            {
+                throw new InvalidDataException($"Invalid {description} {path}: {error.Message}", error);
+            }
+        }
+    }
+
+    /// <summary>The opening's layouts from the import data <paramref name="importData"/> (#1638).</summary>
+    /// <exception cref="InvalidDataException">A layout does not decode; the error names its file.</exception>
+    private static IntroCinematicLayouts ReadLayouts(string importData)
+    {
+        return new IntroCinematicLayouts(
+            [.. Enumerable.Range(0, IntroCinematicArtworkFormat.BackgroundPageCount)
+                .Select(page => Page(IntroCinematicArtworkFormat.BackgroundPageFileName(page), IntroCinematicArtworkFormat.BackgroundPageByteCount))],
+            Page(IntroCinematicArtworkFormat.PortraitTilemapFileName, IntroCinematicArtworkFormat.BackgroundPageByteCount),
+            Page(IntroCinematicArtworkFormat.InitialNarrationTilemapFileName, IntroCinematicArtworkFormat.BackgroundPageByteCount),
+            Layout(IntroFinalLineTilemapFormat.FileName, "opening divider", IntroFinalLineTilemap.Load),
+            Layout(IntroEyeTilemapFormat.FileName, "opening eye art", IntroEyeTilemapPresentation.Load),
+            Page(ZebesRevealArtworkFormat.MapFileName, ZebesRevealArtworkFormat.MapByteCount));
+
+        RoomBackgroundTilemapAtlas Page(string name, int byteCount) =>
+            Layout(name, "intro tilemap", stream => RoomBackgroundTilemapAtlas.Load(stream, byteCount));
+
+        T Layout<T>(string name, string description, Func<MemoryStream, T> read)
+        {
+            string path = Path.Combine(importData, name);
+            try
+            {
+                return read(new MemoryStream(File.ReadAllBytes(path), writable: false));
+            }
+            catch (InvalidDataException error)
+            {
+                throw new InvalidDataException($"Invalid {description} {path}: {error.Message}", error);
+            }
+        }
+    }
+
+    /// <summary>
+    /// The opening's characters from the import's pages in <paramref name="importData"/>, the approach's, with its
+    /// compositions, bound to <paramref name="flight"/>.
+    /// </summary>
     /// <exception cref="InvalidDataException">A page does not decode; the error names its file.</exception>
     private static IntroCinematicCharacters ReadCharacters(string importData, CeresFlightSourceArtwork flight)
     {
         string floorPath = Path.Combine(importData, CeresFlightArtworkFileFormat.FloorFileName);
         string objectPath = Path.Combine(importData, CeresFlightArtworkFileFormat.ObjectFileName);
+        string spritesPath = Path.Combine(importData, CeresFlightSpriteFormat.FileName);
         CeresFlightCharacters ceresFlight;
         try
         {
             ceresFlight = CeresFlightCharacters.Read(new MemoryStream(File.ReadAllBytes(floorPath), writable: false),
-                new MemoryStream(File.ReadAllBytes(objectPath), writable: false), flight);
+                new MemoryStream(File.ReadAllBytes(objectPath), writable: false),
+                new MemoryStream(File.ReadAllBytes(spritesPath), writable: false), flight);
         }
         catch (InvalidDataException error)
         {
-            throw new InvalidDataException($"Invalid Ceres flight characters ({floorPath}, {objectPath}): {error.Message}", error);
+            throw new InvalidDataException($"Invalid Ceres flight characters ({floorPath}, {objectPath}, {spritesPath}): {error.Message}", error);
         }
         return new IntroCinematicCharacters(
             Sheet(IntroCinematicArtworkFormat.BackgroundFileName, IntroCinematicArtworkFormat.BackgroundByteCount),
@@ -552,185 +640,23 @@ public static class IntroCinematicArtworkFiles
     {
         RequireManifest(directory);
         IntroBackdrops backdrops = ReadBackdrops(directory);
-        return new IntroCinematicArtworkParts { BackgroundPages = Enumerable.Range(0, IntroCinematicArtworkFormat.BackgroundPageCount)
-                .Select(page => LoadPage(IntroCinematicArtworkFormat.BackgroundPageFileName(page)))
-                .ToArray(), PortraitTilemap = LoadPage(IntroCinematicArtworkFormat.PortraitTilemapFileName), InitialNarrationTilemap = LoadPage(IntroCinematicArtworkFormat.InitialNarrationTilemapFileName), FinalLine = LoadFinalLine(), EyeFrames = LoadEyeFrames(), CaretSprites = LoadCaretSprites(), NextPageArrowSprites = LoadNextPageArrowSprites(), MotherBrainSprites = LoadMotherBrainSprites(), MotherBrainExplosionSprites = LoadMotherBrainExplosionSprites(), RinkaSprites = LoadRinkaSprites(), EggEffectSprites = LoadEggEffectSprites(), DiscoveryActorSprites = LoadDiscoveryActorSprites(), ScientistSprites = LoadScientistSprites(), Backdrop = backdrops.Opening, CeresFlight = LoadCeresFlight(), CeresDestruction = ReadCeresDestruction(directory), CeresDestructionMaps = LoadCeresDestructionMaps(), ZebesRevealMap = LoadZebesRevealMap(), CeresDestructionSprites = LoadCeresDestructionSprites() };
-
-        RoomBackgroundTilemapAtlas LoadPage(string name)
-        {
-            (string installedPath, byte[] selected) = ReadInstalled(name);
-            try
-            {
-                return RoomBackgroundTilemapAtlas.Load(new MemoryStream(selected, writable: false),
-                    IntroCinematicArtworkFormat.BackgroundPageByteCount);
-            }
-            catch (InvalidDataException error)
-            {
-                throw new InvalidDataException($"Invalid intro tilemap {installedPath}: {error.Message}", error);
-            }
-        }
+        return new IntroCinematicArtworkParts { Backdrop = backdrops.Opening, CeresFlight = LoadCeresFlight(), CeresDestruction = ReadCeresDestruction(directory), CeresDestructionMaps = LoadCeresDestructionMaps() };
 
         CeresFlightSourceArtwork LoadCeresFlight()
         {
             (string mapPath, byte[] map) = ReadInstalled(CeresFlightArtworkFileFormat.MapFileName);
-            (string spritesPath, byte[] sprites) = ReadInstalled(CeresFlightSpriteFormat.FileName);
             (string actorsPath, byte[] actors) = ReadInstalled(CeresFlightActorLayoutFormat.FileName);
             try
             {
                 return CeresFlightSourceArtwork.Read(
                     new MemoryStream(map, writable: false),
                     backdrops.CeresFlight,
-                    new MemoryStream(sprites, writable: false),
                     new MemoryStream(actors, writable: false));
             }
             catch (InvalidDataException error)
             {
                 throw new InvalidDataException(
-                    $"Invalid Ceres flight artwork ({mapPath}, {spritesPath}, {actorsPath}): {error.Message}", error);
-            }
-        }
-
-        IntroFinalLineTilemap LoadFinalLine()
-        {
-            (string path, byte[] selected) = ReadInstalled(IntroFinalLineTilemapFormat.FileName);
-            try
-            {
-                return IntroFinalLineTilemap.Load(new MemoryStream(selected, writable: false));
-            }
-            catch (InvalidDataException error)
-            {
-                throw new InvalidDataException($"Invalid opening divider {path}: {error.Message}", error);
-            }
-        }
-
-        IntroEyeTilemapPresentation LoadEyeFrames()
-        {
-            (string path, byte[] selected) = ReadInstalled(IntroEyeTilemapFormat.FileName);
-            try
-            {
-                return IntroEyeTilemapPresentation.Load(new MemoryStream(selected, writable: false));
-            }
-            catch (InvalidDataException error)
-            {
-                throw new InvalidDataException($"Invalid opening eye art {path}: {error.Message}", error);
-            }
-        }
-
-        IntroCaretSpritePresentation LoadCaretSprites()
-        {
-            (string path, byte[] selected) = ReadInstalled(IntroCaretSpriteFormat.FileName);
-            try
-            {
-                return IntroCaretSpritePresentation.Load(new MemoryStream(selected, writable: false));
-            }
-            catch (InvalidDataException error)
-            {
-                throw new InvalidDataException($"Invalid opening caret sprites {path}: {error.Message}", error);
-            }
-        }
-
-        IntroNextPageArrowSpritePresentation LoadNextPageArrowSprites()
-        {
-            (string path, byte[] selected) = ReadInstalled(IntroNextPageArrowSpriteFormat.FileName);
-            try
-            {
-                return IntroNextPageArrowSpritePresentation.Load(new MemoryStream(selected, writable: false));
-            }
-            catch (InvalidDataException error)
-            {
-                throw new InvalidDataException($"Invalid intro next-page arrow sprites {path}: {error.Message}", error);
-            }
-        }
-
-        IntroMotherBrainSpritePresentation LoadMotherBrainSprites()
-        {
-            (string path, byte[] selected) = ReadInstalled(IntroMotherBrainSpriteFormat.FileName);
-            try
-            {
-                return IntroMotherBrainSpritePresentation.Load(
-                    new MemoryStream(selected, writable: false));
-            }
-            catch (InvalidDataException error)
-            {
-                throw new InvalidDataException(
-                    $"Invalid intro Mother Brain sprites {path}: {error.Message}", error);
-            }
-        }
-
-        IntroMotherBrainExplosionSpritePresentation LoadMotherBrainExplosionSprites()
-        {
-            (string path, byte[] selected) = ReadInstalled(
-                IntroMotherBrainExplosionSpriteFormat.FileName);
-            try
-            {
-                return IntroMotherBrainExplosionSpritePresentation.Load(
-                    new MemoryStream(selected, writable: false));
-            }
-            catch (InvalidDataException error)
-            {
-                throw new InvalidDataException(
-                    $"Invalid intro Mother Brain explosion sprites {path}: {error.Message}", error);
-            }
-        }
-
-        IntroRinkaSpritePresentation LoadRinkaSprites()
-        {
-            (string path, byte[] selected) = ReadInstalled(IntroRinkaSpriteFormat.FileName);
-            try
-            {
-                return IntroRinkaSpritePresentation.Load(
-                    new MemoryStream(selected, writable: false));
-            }
-            catch (InvalidDataException error)
-            {
-                throw new InvalidDataException($"Invalid intro Rinka sprites {path}: {error.Message}",
-                    error);
-            }
-        }
-
-        IntroEggEffectSpritePresentation LoadEggEffectSprites()
-        {
-            (string path, byte[] selected) = ReadInstalled(IntroEggEffectSpriteFormat.FileName);
-            try
-            {
-                return IntroEggEffectSpritePresentation.Load(
-                    new MemoryStream(selected, writable: false));
-            }
-            catch (InvalidDataException error)
-            {
-                throw new InvalidDataException(
-                    $"Invalid intro egg effect sprites {path}: {error.Message}", error);
-            }
-        }
-
-        IntroDiscoveryActorSpritePresentation LoadDiscoveryActorSprites()
-        {
-            (string path, byte[] selected) = ReadInstalled(
-                IntroDiscoveryActorSpriteFormat.FileName);
-            try
-            {
-                return IntroDiscoveryActorSpritePresentation.Load(
-                    new MemoryStream(selected, writable: false));
-            }
-            catch (InvalidDataException error)
-            {
-                throw new InvalidDataException(
-                    $"Invalid intro discovery actor sprites {path}: {error.Message}", error);
-            }
-        }
-
-        IntroScientistSpritePresentation LoadScientistSprites()
-        {
-            (string path, byte[] selected) = ReadInstalled(IntroScientistSpriteFormat.FileName);
-            try
-            {
-                return IntroScientistSpritePresentation.Load(
-                    new MemoryStream(selected, writable: false));
-            }
-            catch (InvalidDataException error)
-            {
-                throw new InvalidDataException(
-                    $"Invalid intro scientist sprite artwork {path}: {error.Message}", error);
+                    $"Invalid Ceres flight artwork ({mapPath}, {actorsPath}): {error.Message}", error);
             }
         }
 
@@ -744,32 +670,6 @@ public static class IntroCinematicArtworkFiles
             catch (InvalidDataException error)
             {
                 throw new InvalidDataException($"Invalid destruction maps {path}: {error.Message}", error);
-            }
-        }
-
-        RoomBackgroundTilemapAtlas LoadZebesRevealMap()
-        {
-            (string mapPath, byte[] map) = ReadInstalled(ZebesRevealArtworkFormat.MapFileName);
-            try
-            {
-                return RoomBackgroundTilemapAtlas.Load(new MemoryStream(map, writable: false), ZebesRevealArtworkFormat.MapByteCount);
-            }
-            catch (InvalidDataException error)
-            {
-                throw new InvalidDataException($"Invalid Zebes reveal tilemap {mapPath}: {error.Message}", error);
-            }
-        }
-
-        CeresDestructionSpritePresentation LoadCeresDestructionSprites()
-        {
-            (string path, byte[] selected) = ReadInstalled(CeresDestructionSpriteFormat.FileName);
-            try
-            {
-                return CeresDestructionSpritePresentation.Load(new MemoryStream(selected, writable: false));
-            }
-            catch (InvalidDataException error)
-            {
-                throw new InvalidDataException($"Invalid destruction sprites {path}: {error.Message}", error);
             }
         }
 

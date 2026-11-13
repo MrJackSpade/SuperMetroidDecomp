@@ -21,11 +21,11 @@ public static class FileSelectPresentationExtractor
 {
     /// <summary>Builds file-select page templates and imports dynamic slot artwork, borders, cursor frames, and helmet frames.</summary>
     /// <param name="bus">Non-null cartridge import address space supplying native menu tilemaps, text patches, and spritemaps.</param>
-    /// <returns>New UTF-8 JSON bytes containing pages, field patches, digit and slot-letter cells, tile-cell anchors, pixel-space sprite anchors, and frame durations.</returns>
+    /// <returns>The installed layout document, with its slot fields, pixel-space sprite anchors and frame durations, and the import-data artwork document, with its pages, field patches, digit and slot-letter cells and sprite compositions (#1638).</returns>
     /// <remarks>Includes main, copy, and clear presentation variants without importing save contents, validation, or copy/clear control flow.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
     /// <exception cref="InvalidDataException">Imported artwork escapes its page or fails presentation or spritemap validation.</exception>
-    public static byte[] Extract(ISnesAddressSpace bus)
+    public static FileSelectExtraction Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
         var rawPatches = new Dictionary<int, RawPatch>();
@@ -126,14 +126,21 @@ public static class FileSelectPresentationExtractor
             sprites.Add(FileSelectParts.HelmetSpriteName(frame),
                 MenuSpriteExtractor.Read(bus, FileSelectHelmetSpritemaps.SpritemapId(frame)));
 
-        using var output = new MemoryStream();
-        FileSelectSourcePresentation.Write(output, new()
+        using var artwork = new MemoryStream();
+        FileSelectSourcePresentation.WriteArtwork(artwork, new()
         {
-            Version = FileSelectPresentationFormat.Version,
+            Version = FileSelectPresentationFormat.ArtworkVersion,
             Pages = pages,
             Patches = patches,
             Digits = digits,
             SlotLetters = letters,
+            Sprites = sprites,
+            ObjectPalette = MenuRenderDefinitions.ObjectPalette,
+        });
+        using var output = new MemoryStream();
+        FileSelectSourcePresentation.Write(output, new()
+        {
+            Version = FileSelectPresentationFormat.Version,
             MainSlots =
             [
                 Slot(FileSelectNativeLayout.MainSlotDestination(0, FileSelectSlotField.Energy),
@@ -152,7 +159,6 @@ public static class FileSelectPresentationExtractor
                 Slot(FileSelectNativeLayout.DataSlotDestination(2, FileSelectSlotField.Energy),
                     FileSelectNativeLayout.DataSlotDestination(2, FileSelectSlotField.TimeValue)),
             ],
-            Sprites = sprites,
             BorderAnchors = new(StringComparer.Ordinal)
             {
                 [FileSelectPresentationFormat.BorderName(FileSelectBorder.Main)] = new(128, 16),
@@ -181,11 +187,10 @@ public static class FileSelectPresentationExtractor
                 [FileSelectPresentationFormat.AnchorName(FileSelectAnchor.ClearConfirmSource)] =
                     Shown(FileSelectNativeLayout.ClearConfirmationSourceLetterDestination),
             },
-            ObjectPalette = MenuRenderDefinitions.ObjectPalette,
             CursorFrameDuration = MenuAnimationTimings.MissileFrameDuration(bus),
             HelmetFrameDuration = MenuAnimationTimings.HelmetFrameDuration(bus),
         });
-        return output.ToArray();
+        return new FileSelectExtraction(output.ToArray(), artwork.ToArray());
 
         // Overlay the title, three slot labels/time fields, Exit, and copy/clear commands only for occupied menus.
         void AddMainStatic(ushort[] page, bool includeDataCommands)

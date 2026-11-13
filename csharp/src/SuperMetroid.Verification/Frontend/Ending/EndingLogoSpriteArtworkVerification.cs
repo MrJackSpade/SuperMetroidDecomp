@@ -50,11 +50,11 @@ internal static class EndingLogoSpriteArtworkVerification
     }
 
     /// <summary>Checks that a logo sprite document missing a named frame is rejected on read.</summary>
-    internal static void VerifyEndingLogoSpritesRejectMissingFrame(GameInstallation installation)
+    internal static void VerifyEndingLogoSpritesRejectMissingFrame()
     {
         EndingLogoSpriteDocument document =
             JsonSerializer.Deserialize<EndingLogoSpriteDocument>(
-                File.ReadAllBytes(Path.Combine(installation.EndingObjectDirectory, EndingLogoSpriteFormat.FileName)), ArtworkJson.Options) ??
+                File.ReadAllBytes(Path.Combine(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.EndingObjectDirectoryName), EndingLogoSpriteFormat.FileName)), ArtworkJson.Options) ??
             throw new InvalidDataException("Stock ending logo sprite JSON is empty.");
         document.Frames.Remove("circle-right-3");
         AssertThrows<InvalidDataException>(() =>

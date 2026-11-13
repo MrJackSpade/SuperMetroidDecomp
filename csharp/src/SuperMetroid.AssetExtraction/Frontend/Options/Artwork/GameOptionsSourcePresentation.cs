@@ -13,9 +13,10 @@ using SuperMetroid.AssetExtraction.Map.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 
 /// <summary>
-/// The installed options presentation as the import pipeline reads it (#1463): the anchors the game binds
-/// (<see cref="Presentation"/>), and the pages, labels, highlight regions and the heading and cursor compositions the
-/// options sheets are composed from, which the game never receives (#1616).
+/// The options presentation as the import pipeline reads it (#1463, #1638), from the extracted artwork document in the
+/// component's import data: the anchors (<see cref="Presentation"/>), which the installed layout holds for the game
+/// (<see cref="GameOptionsLayoutFile"/>), and the pages, labels, highlight regions and the heading and cursor compositions
+/// the options sheets are composed from, which the game never receives (#1616).
 /// </summary>
 public sealed class GameOptionsSourcePresentation
 {
@@ -47,18 +48,10 @@ public sealed class GameOptionsSourcePresentation
     public int CursorPalette { get; }
 
     /// <summary>Retains the compiled presentation, its complete installed geometry, and its compositions.</summary>
-    private GameOptionsSourcePresentation(GameOptionsPresentationDocument document, GameOptionsPages pages,
+    private GameOptionsSourcePresentation(GameOptionsPresentationDocument document, GameOptionsPresentation presentation, GameOptionsPages pages,
         GameOptionsSprites sprites, string contentIdentity)
     {
-        Presentation = new GameOptionsPresentation(new GameOptionsPlacements
-        {
-            HeadingAnchors = GameOptionsPresentationFormat.MenuPages.ToDictionary(
-                page => page, page => document.HeadingAnchors[GameOptionsPresentationFormat.MenuName(page)]),
-            CursorAnchors = GameOptionsPresentationFormat.MenuPages.ToDictionary(
-                page => page, page => document.CursorAnchors[GameOptionsPresentationFormat.MenuName(page)]),
-            HiddenCursor = document.HiddenCursor,
-            CursorFrameDuration = document.CursorFrameDuration,
-        });
+        Presentation = presentation;
         ContentIdentity = contentIdentity;
         CursorPalette = document.CursorPalette;
         this.pages = pages.Pages;
@@ -174,6 +167,27 @@ public sealed class GameOptionsSourcePresentation
         }
     }
 
+    /// <summary>
+    /// The name of every picture of the options screen the menus' sheet holds (#1467), in <see cref="Subjects"/> order: the
+    /// names alone, which the game needs to check the installed sheet and which no installed document holds (#1638).
+    /// </summary>
+    internal static IEnumerable<string> SubjectNames()
+    {
+        yield return GameOptionsNames.BackgroundFrame;
+        foreach (GameOptionsScreen tilemap in GameOptionsPresentationFormat.Tilemaps)
+            yield return GameOptionsNames.PageFrame(tilemap);
+        foreach (bool japanese in new[] { false, true })
+            for (int region = 0; region < GameOptionsDefinitions.LanguagePaletteRegionCount; region++)
+                yield return GameOptionsNames.LanguageFrame(region, japanese);
+        for (int action = 0; action < GameOptionsDefinitions.Rows.ControllerActionCount; action++)
+            for (int button = 0; button < GameOptionsPresentationDefinitions.ControllerLabelButtons.Count; button++)
+                yield return GameOptionsNames.ControllerLabelFrame(action, GameOptionsNames.ControllerLabelButton(button));
+        foreach (GameOptionsScreen special in new[] { GameOptionsScreen.SpecialEnglish, GameOptionsScreen.SpecialJapanese })
+        foreach (GameOptionsToggle toggle in GameOptionsPresentationFormat.Toggles)
+        foreach (bool enabled in new[] { false, true })
+            yield return GameOptionsNames.ToggleFrame(special, toggle, enabled);
+    }
+
     /// <summary>The cells of <paramref name="tilemap"/> its pictures over it show instead of the page's own picture.</summary>
     private IEnumerable<int> DynamicCells(GameOptionsScreen tilemap) => tilemap switch
     {
@@ -226,9 +240,8 @@ public sealed class GameOptionsSourcePresentation
             [.. GameOptionsPresentationFormat.MenuPages.Select(GameOptionsNames.HeadingSpriteName),
                 .. Enumerable.Range(0, GameOptionsPresentationFormat.CursorFrameCount).Select(GameOptionsNames.CursorSpriteName)],
             "options sprites");
-        string[] menuNames = [.. GameOptionsPresentationFormat.MenuPages.Select(GameOptionsPresentationFormat.MenuName)];
-        ValidateExactKeys(document.HeadingAnchors, menuNames, "options heading anchors");
-        ValidateExactKeys(document.CursorAnchors, menuNames, "options cursor anchors");
+        GameOptionsPresentation presentation = GameOptionsLayoutFile.Presentation(document.HeadingAnchors, document.CursorAnchors,
+            document.HiddenCursor, document.CursorFrameDuration);
         if (document.ControllerLabelAnchors is null ||
             document.ControllerLabelAnchors.Length != GameOptionsDefinitions.Rows.ControllerActionCount)
             throw new InvalidDataException("Options require seven controller-label anchors.");
@@ -239,9 +252,6 @@ public sealed class GameOptionsSourcePresentation
         ValidatePalette(document.CursorPalette, nameof(document.CursorPalette));
         if (document.SelectedPalette == document.UnselectedPalette)
             throw new InvalidDataException("Options selected and unselected palettes must differ.");
-        if (document.CursorFrameDuration < 1)
-            throw new InvalidDataException("Options cursor frame duration must be at least one update.");
-        ValidatePoint(document.HiddenCursor, "hidden cursor", offscreenX: OffscreenX.Allowed);
 
         var pages = GameOptionsPresentationFormat.Tilemaps.ToDictionary(tilemap => tilemap,
             tilemap => CompilePage(document, GameOptionsNames.TilemapName(tilemap)));
@@ -282,19 +292,7 @@ public sealed class GameOptionsSourcePresentation
             page => CompileSprite(document, GameOptionsNames.HeadingSpriteName(page)));
         SpriteComposition[] cursorSprites = [.. Enumerable.Range(0, GameOptionsPresentationFormat.CursorFrameCount)
             .Select(frame => CompileSprite(document, GameOptionsNames.CursorSpriteName(frame)))];
-        foreach (GameOptionsPage page in GameOptionsPresentationFormat.MenuPages)
-        {
-            string name = GameOptionsPresentationFormat.MenuName(page);
-            ValidatePoint(document.HeadingAnchors[name], $"{name} heading", offscreenX: OffscreenX.Rejected);
-            int expected = GameOptionsNames.CursorCount(page);
-            Position16<SpritePixels>[]? points = document.CursorAnchors[name];
-            if (points is null || points.Length != expected)
-                throw new InvalidDataException($"Options {name} requires {expected} cursor anchors.");
-            foreach (Position16<SpritePixels> point in points)
-                ValidatePoint(point, $"{name} cursor", offscreenX: OffscreenX.Rejected);
-        }
-
-        return new(document, new(pages, background, labels), new(headingSprites, cursorSprites),
+        return new(document, presentation, new(pages, background, labels), new(headingSprites, cursorSprites),
             Convert.ToHexString(SHA256.HashData(bytes)));
     }
 
@@ -356,15 +354,6 @@ public sealed class GameOptionsSourcePresentation
         foreach (int cell in cells)
             if ((uint)cell >= GameOptionsPageDefinitions.PageCellCount || !claimed.Add(cell))
                 throw new InvalidDataException($"Options {owner} contains an invalid or duplicate cell {cell}.");
-    }
-
-    /// <summary>Validates an OAM origin, allowing hidden cursor X positions when requested.</summary>
-    private static void ValidatePoint(Position16<SpritePixels> point, string owner, OffscreenX offscreenX)
-    {
-        int maximumX = offscreenX == OffscreenX.Allowed ? SpritePart.PlaneWidth - 1 : byte.MaxValue;
-        if (point.X < 0 || point.X > maximumX || (uint)point.Y > byte.MaxValue)
-            throw new InvalidDataException(
-                $"Options {owner} requires X=0..{maximumX} and Y=0..255.");
     }
 
     /// <summary>Requires a controller-label rectangle to fit the 32-by-32 page.</summary>

@@ -94,7 +94,7 @@ internal static class EndingObjectArtworkVerification
     }
 
     /// <summary>Checks ending OBJ sheets, sprite actors, backgrounds, and guarded runtime reads.</summary>
-    internal static void VerifyEndingObjectArtwork(GameInstallation installation)
+    internal static void VerifyEndingObjectArtwork()
     {
         ImportEndingObjectArtwork stock = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EndingObjects;
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
@@ -221,7 +221,7 @@ internal static class EndingObjectArtworkVerification
 
         EndingCloudSpriteDocument cloudDocument =
             JsonSerializer.Deserialize<EndingCloudSpriteDocument>(
-                File.ReadAllBytes(Path.Combine(installation.EndingObjectDirectory, EndingCloudSpriteFormat.FileName)), ArtworkJson.Options) ??
+                File.ReadAllBytes(Path.Combine(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.EndingObjectDirectoryName), EndingCloudSpriteFormat.FileName)), ArtworkJson.Options) ??
             throw new InvalidDataException("Stock ending cloud sprite JSON is empty.");
         cloudDocument.Frames.Remove("scene-a-right");
         AssertThrows<InvalidDataException>(() =>
@@ -230,10 +230,10 @@ internal static class EndingObjectArtworkVerification
             EndingCloudSpritePresentation.Write(invalid, cloudDocument);
             _ = EndingCloudSpritePresentation.Load(new MemoryStream(invalid.ToArray(), writable: false));
         }, "ending cloud sprites reject missing named art on read");
-        Suite(nameof(VerifyEndingExplosionSpritesRejectMissingFrame), () => VerifyEndingExplosionSpritesRejectMissingFrame(installation));
-        Suite(nameof(VerifyEndingCompletionTextSpritesRejectMissingFrame), () => VerifyEndingCompletionTextSpritesRejectMissingFrame(installation));
-        Suite(nameof(VerifyEndingRewardSpritesRejectMissingFrame), () => VerifyEndingRewardSpritesRejectMissingFrame(installation));
-        Suite(nameof(VerifyEndingLogoSpritesRejectMissingFrame), () => VerifyEndingLogoSpritesRejectMissingFrame(installation));
+        Suite(nameof(VerifyEndingExplosionSpritesRejectMissingFrame), () => VerifyEndingExplosionSpritesRejectMissingFrame());
+        Suite(nameof(VerifyEndingCompletionTextSpritesRejectMissingFrame), () => VerifyEndingCompletionTextSpritesRejectMissingFrame());
+        Suite(nameof(VerifyEndingRewardSpritesRejectMissingFrame), () => VerifyEndingRewardSpritesRejectMissingFrame());
+        Suite(nameof(VerifyEndingLogoSpritesRejectMissingFrame), () => VerifyEndingLogoSpritesRejectMissingFrame());
         Suite(nameof(VerifyPostCreditsCharacterArtwork), () => VerifyPostCreditsCharacterArtwork());
         Console.WriteLine("Ending/credits art: compiled cloud, explosion, completion-text, reward and logo actors, twelve native sheets and two BG maps, codec rejections and guarded runtime pass.");
 

@@ -351,26 +351,26 @@ internal static class MapPresentationVerification
     {
         var bus = RetailBus();
         string stock = RepositoryInstallation.Installation.MapDirectory;
-        // The colour documents only the import reads are import data (#1637): their checks read them where the import does.
-        string importColours = SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.MapDirectoryName);
+        // The colour documents (#1637) and the room-FX pages (#1638) only the import reads are import data: their checks read them where the import does.
+        string importData = SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.MapDirectoryName);
         AreaMapPresentation original = InstalledFixtures.Maps;
         Suite(nameof(VerifyTitleSpriteSources), () => VerifyTitleSpriteSources(bus));
-        Suite(nameof(VerifyRoomFxLayer3TilemapsRejectMalformedDocuments), () => VerifyRoomFxLayer3TilemapsRejectMalformedDocuments(stock));
-        Suite(nameof(VerifyRoomFxPaletteBlendsRejectMalformedDocuments), () => VerifyRoomFxPaletteBlendsRejectMalformedDocuments(importColours));
+        Suite(nameof(VerifyRoomFxLayer3TilemapsRejectMalformedDocuments), () => VerifyRoomFxLayer3TilemapsRejectMalformedDocuments(importData));
+        Suite(nameof(VerifyRoomFxPaletteBlendsRejectMalformedDocuments), () => VerifyRoomFxPaletteBlendsRejectMalformedDocuments(importData));
         Suite(nameof(VerifyPowerBombGlowColorsRejectMalformedDocuments), () => VerifyPowerBombGlowColorsRejectMalformedDocuments(stock));
-        Suite(nameof(VerifySamusVisorColorsRejectMalformedDocuments), () => VerifySamusVisorColorsRejectMalformedDocuments(importColours));
-        Suite(nameof(VerifySamusHurtColorsRejectMalformedDocuments), () => VerifySamusHurtColorsRejectMalformedDocuments(importColours));
-        Suite(nameof(VerifySamusSuitColors), () => VerifySamusSuitColors(importColours, original, bus, MapCatalogFixture.FixtureAssets));
-        Suite(nameof(VerifySamusFullBodyCycleColors), () => VerifySamusFullBodyCycleColors(importColours, original, bus));
-        Suite(nameof(VerifyCrystalFlashColors), () => VerifyCrystalFlashColors(importColours, original, bus));
-        Suite(nameof(VerifySamusChargeColors), () => VerifySamusChargeColors(importColours, original, bus));
-        Suite(nameof(VerifyCeresRidleyColors), () => VerifyCeresRidleyColors(importColours, original, bus,
+        Suite(nameof(VerifySamusVisorColorsRejectMalformedDocuments), () => VerifySamusVisorColorsRejectMalformedDocuments(importData));
+        Suite(nameof(VerifySamusHurtColorsRejectMalformedDocuments), () => VerifySamusHurtColorsRejectMalformedDocuments(importData));
+        Suite(nameof(VerifySamusSuitColors), () => VerifySamusSuitColors(importData, original, bus, MapCatalogFixture.FixtureAssets));
+        Suite(nameof(VerifySamusFullBodyCycleColors), () => VerifySamusFullBodyCycleColors(importData, original, bus));
+        Suite(nameof(VerifyCrystalFlashColors), () => VerifyCrystalFlashColors(importData, original, bus));
+        Suite(nameof(VerifySamusChargeColors), () => VerifySamusChargeColors(importData, original, bus));
+        Suite(nameof(VerifyCeresRidleyColors), () => VerifyCeresRidleyColors(importData, original, bus,
             MapCatalogFixture.FixtureAssets));
-        Suite(nameof(VerifyCeresRidleyMode7Colors), () => VerifyCeresRidleyMode7Colors(importColours, original, bus));
-        Suite(nameof(VerifySamusHyperBeamColorsRejectMalformedDocuments), () => VerifySamusHyperBeamColorsRejectMalformedDocuments(importColours));
-        Suite(nameof(VerifyMotherBrainHealthPalette), () => VerifyMotherBrainHealthPalette(bus, importColours, original));
-        Suite(nameof(VerifyMotherBrainRainbowPalette), () => VerifyMotherBrainRainbowPalette(bus, importColours, stock, original));
-        Suite(nameof(VerifyMotherBrainRoomColors), () => VerifyMotherBrainRoomColors(bus, importColours, original));
+        Suite(nameof(VerifyCeresRidleyMode7Colors), () => VerifyCeresRidleyMode7Colors(importData, original, bus));
+        Suite(nameof(VerifySamusHyperBeamColorsRejectMalformedDocuments), () => VerifySamusHyperBeamColorsRejectMalformedDocuments(importData));
+        Suite(nameof(VerifyMotherBrainHealthPalette), () => VerifyMotherBrainHealthPalette(bus, importData, original));
+        Suite(nameof(VerifyMotherBrainRainbowPalette), () => VerifyMotherBrainRainbowPalette(bus, importData, stock, original));
+        Suite(nameof(VerifyMotherBrainRoomColors), () => VerifyMotherBrainRoomColors(bus, importData, original));
     }
 
     /// <summary>Checks the installed pause backdrops and buttons, in a run of their own.</summary>
@@ -404,16 +404,13 @@ internal static class MapPresentationVerification
         string stock = RepositoryInstallation.Installation.MapDirectory;
         AreaMapPresentation original = InstalledFixtures.Maps;
         Suite(nameof(VerifyEscapeTimerPresentationAssets), () => VerifyEscapeTimerPresentationAssets(bus));
-        Suite(nameof(VerifyGameplayHudPresentationAssets), () => VerifyGameplayHudPresentationAssets(bus, stock, original));
-        Suite(nameof(VerifyGameOverPresentationAssets), () => VerifyGameOverPresentationAssets(bus, stock, original));
+        Suite(nameof(VerifyGameplayHudPresentationAssets), () => VerifyGameplayHudPresentationAssets(bus, original));
+        Suite(nameof(VerifyGameOverPresentationAssets), () => VerifyGameOverPresentationAssets(bus, original));
         Suite(nameof(VerifyGameOverMenuNativeIndexes), () => VerifyGameOverMenuNativeIndexes(original));
-        Suite(nameof(VerifyGameOptionsPresentationAssets), () => VerifyGameOptionsPresentationAssets(bus, stock, original));
-        Suite(nameof(VerifyFileSelectPresentationAssets), () => VerifyFileSelectPresentationAssets(bus, stock, original));
-        Suite(nameof(VerifyGameplayMessagePanelAssets), () => VerifyGameplayMessagePanelAssets(bus, stock));
-        Suite(nameof(VerifyGameplayMessageNoticeAssets), () => VerifyGameplayMessageNoticeAssets(bus, stock));
+        Suite(nameof(VerifyGameOptionsPresentationAssets), () => VerifyGameOptionsPresentationAssets(bus, original));
+        Suite(nameof(VerifyFileSelectPresentationAssets), () => VerifyFileSelectPresentationAssets(bus, original));
         Suite(nameof(VerifyEscapeTypewriterAssets), () => VerifyEscapeTypewriterAssets(bus, stock));
         Suite(nameof(VerifyIntroNarrationAssets), () => VerifyIntroNarrationAssets(bus, stock));
-        Suite(nameof(VerifyEndingTextAssets), () => VerifyEndingTextAssets(bus, stock));
         // Stronger than composing individual range guards: no bus read or write
         // is permitted anywhere in this complete installed saved-map lifecycle.
         Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(original, verifyCapturedRendering: true));

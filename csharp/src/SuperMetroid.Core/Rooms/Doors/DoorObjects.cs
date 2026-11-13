@@ -64,7 +64,7 @@ internal sealed class DoorObjects
 
             // The closing keeps everything else the object holds: a cap that waits for a shot still does.
             (resident.Behaviour as IClosingDoor ?? throw new InvalidDataException(
-                $"Room object {resident.Header} at the door's block has no closing behind Samus.")).CloseBehindSamus();
+                $"The room object at the door's block {block} has no closing behind Samus.")).CloseBehindSamus();
             return true;
         }
 

@@ -34,7 +34,11 @@ internal sealed class RoomObjectSlot
     /// takes a place; <see cref="Delete"/> frees it.
     /// </summary>
     public bool Active => _places.IsHeld(_place);
-    /// <summary>What the room's population placed here, which selected its setup; <see cref="RoomObjectHeaderId.None"/> for every other object.</summary>
+    /// <summary>
+    /// The identity the object's spawner gave it, <see cref="RoomObjectHeaderId.None"/> for one spawned by what it does.
+    /// No room object, family or search reads it (#1622): the room's population selects a setup by its record's kind
+    /// and hands that kind to the setup.
+    /// </summary>
     public RoomObjectHeaderId Header { get; set; }
     /// <summary>
     /// The room block this room object sits on and draws from: a block of the room's grid, or one past its last row in the

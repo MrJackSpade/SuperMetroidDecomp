@@ -151,7 +151,8 @@ internal sealed class RoomObjectPopulationLoader
 
         if (GreyDoorObjects.TryIdentifyGreyDoor(header, out ColoredDoorOrientation greyOrientation))
         {
-            GreyDoorObjects.SetupGreyDoorSlot(level, slot, greyOrientation);
+            GreyDoorObjects.SetupGreyDoorSlot(level, slot,
+                new GreyDoorVariant(greyOrientation, BombTorizo: header == RoomObjectHeaderId.BombTorizoGreyDoor));
             return true;
         }
 
@@ -233,7 +234,7 @@ internal sealed class RoomObjectPopulationLoader
 
         if (EyeDoorObjects.IsEyeDoorHeader(header))
         {
-            _eyeDoors.SetupEyeDoorSlot(level, slot);
+            _eyeDoors.SetupEyeDoorSlot(level, slot, header);
             return true;
         }
 
@@ -244,7 +245,7 @@ internal sealed class RoomObjectPopulationLoader
             return true;
         }
 
-        if (StationObjects.TrySetupStationOrElevator(level, system, areaIndex, slot))
+        if (StationObjects.TrySetupStationOrElevator(level, system, areaIndex, slot, header))
             return true;
 
         return false;

@@ -89,6 +89,16 @@ internal static class RgbColorDomainVerification
         AssertTrue(cgram.Colors.ToArray().All(colour => fade.Toward(RgbColor.White).Apply(colour) == RgbColor.White),
             "typed gradual fade shows its exact target");
 
+        // A fade's length is any count of steps (#1627): one longer than a word's range keeps its first steps' slow
+        // movement, reaches its target on the step after its last and completes on the call after that.
+        const int longFade = 70000;
+        AssertEqual(longFade, new GradualFadeSteps(longFade, new SharedFadeStepCount()).Denominator, "a fade keeps a length past a word's range");
+        AssertEqual(0, GradualColourFade.Component(1, 0, 31, longFade), "the long fade's first moving step moves less than a level");
+        AssertEqual(31, GradualColourFade.Component(longFade + 1, 0, 31, longFade), "the step after the long fade's last reaches the target");
+        AssertEqual(RgbColor.White, new GradualColourFade(RgbColor.White, GradualFadeDirection.Toward, longFade,
+            [.. Enumerable.Range(0, longFade + 2)]).Apply(RgbColor.Black), "the long fade ends on its target");
+        AssertThrows<ArgumentOutOfRangeException>(() => new GradualFadeSteps(0, new SharedFadeStepCount()), "a fade takes at least one step");
+
         Console.WriteLine("RgbColor domain: all 32768 words, levels, off-scale rejection, plain channel bounds, level fades, and CGRAM agree.");
     }
 }

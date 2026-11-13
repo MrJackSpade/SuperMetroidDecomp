@@ -24,6 +24,12 @@ public readonly record struct SharedRandomState
     /// <summary>The values the state holds: an advance wraps at this.</summary>
     private const int StateSpan = 65536;
 
+    /// <summary>
+    /// The largest value the state holds, and so the largest sample a consumer copies from it: an advance wraps past it
+    /// (#1627).
+    /// </summary>
+    public const int LargestValue = StateSpan - 1;
+
     /// <summary>Each byte of the state is multiplied by five.</summary>
     private const int Multiplier = 5;
 
@@ -55,7 +61,7 @@ public readonly record struct SharedRandomState
     {
         int products = LowerHalf(Value) * Multiplier + LowerHalf(UpperHalf(Value) * Multiplier) * HalfSpan;
         int raised = products + HalfSpan;
-        int pastSixteenBits = raised > ushort.MaxValue ? 1 : 0;
+        int pastSixteenBits = raised > LargestValue ? 1 : 0;
         return new SharedRandomState((raised + Increment + pastSixteenBits) % StateSpan);
     }
 
@@ -64,5 +70,5 @@ public readonly record struct SharedRandomState
         new(LowerHalf(Value) << HalfBits | UpperHalf(Value));
 
     /// <summary>A sample checked to lie in 0 through 65535.</summary>
-    private static int RequireSample(int sample) => Ensure.BetweenInclusive(0, ushort.MaxValue, sample);
+    private static int RequireSample(int sample) => Ensure.BetweenInclusive(0, LargestValue, sample);
 }

@@ -149,7 +149,7 @@ internal static class CrocomireNativeWords
 
     /// <summary>
     /// Imports the body's values the cartridge keeps in record words D, E and F (#1476): during the fight the queued
-    /// steps, the reaction timer and the projectile counter; while the wall rumbles the rumble step; otherwise in the
+    /// steps and the projectile counter (E's reaction timer is read by nothing); while the wall rumbles the rumble step; otherwise in the
     /// death sequence the death-phase delay or the vertical acceleration in D, the vertical speed or the skeleton speed's
     /// fraction in E, and the vertical subpixel (the high byte) or the skeleton speed's whole pixels in F. Of the values
     /// one death-phase word holds, only the phase's own is read, so each is imported from the word.

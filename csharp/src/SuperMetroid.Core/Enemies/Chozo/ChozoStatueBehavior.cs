@@ -65,12 +65,6 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     private static readonly SoundEffectId ChozoFootstepsSound =
         EnemySoundEffectDefinitions.ChozoFootstepsSound;
 
-    /// <summary>Whether the statue last enabled Samus's controls rather than disabling them.</summary>
-    public bool ChozoStatueSamusControlsEnabled { get; private set; } = true;
-
-    /// <summary>Whether the Lower Norfair statue has started lowering the acid in this room.</summary>
-    public bool ChozoStatueAcidLoweringStarted { get; private set; }
-
     /// <summary>
     /// Initializes the glass tube's cracks, which do nothing the game keeps: the record is deleted before any main-AI
     /// update, and the cracks' colours are the shade every tube projectile draws in
@@ -220,7 +214,6 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
 
             case ChozoStatueCue.Command { Kind: ChozoStatueCueKind.StartLoweringAcid }:
-                ChozoStatueAcidLoweringStarted = true;
                 // The cue writes the liquid motion values consumed by the liquid handler once, when
                 // it runs; the liquid owns them from then on.
                 _roomFx.FxOverlay?.SetLiquidMotion(
@@ -253,7 +246,6 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
             case ChozoStatueCue.Move move:
                 ProcessChozoStatueMovement(
                     statue,
-                    state,
                     RequireChozoSamus(samus),
                     RequireChozoLevel(level),
                     move.Step);
@@ -271,13 +263,11 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Moves the statue through terrain, then places Samus at the authored carry offset from its accepted position.</summary>
     internal void ProcessChozoStatueMovement(
         RoomEnemySlot statue,
-        ChozoStatueState state,
         SamusState samus,
         RoomLevelData level,
         ChozoCarryStep carryStep)
     {
         var motion = ChozoCarry.Read(carryStep);
-        state.CarryStep = carryStep;
         int signedVelocity = motion.Velocity;
 
         // The slope-ignoring horizontal mover receives a signed 8.8 speed promoted to 16.16 by
@@ -343,19 +333,11 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         RequestChozoObject(ChozoStatueRoomObject.SlopeAccessClosing, ChozoStatueRoomDefinitions.WreckedShipSlopeAccessBlock);
     }
 
-    /// <summary>Gives Samus her controls back, in both the room service and observable state.</summary>
-    private void EnableChozoStatueSamusControls()
-    {
-        ChozoStatueSamusControlsEnabled = true;
-        _room.Services.SamusControls.EnableControls();
-    }
+    /// <summary>Gives Samus her controls back.</summary>
+    private void EnableChozoStatueSamusControls() => _room.Services.SamusControls.EnableControls();
 
-    /// <summary>Takes Samus's controls away while the statue holds her, in both the room service and observable state.</summary>
-    private void DisableChozoStatueSamusControls()
-    {
-        ChozoStatueSamusControlsEnabled = false;
-        _room.Services.SamusControls.DisableControls();
-    }
+    /// <summary>Takes Samus's controls away while the statue holds her.</summary>
+    private void DisableChozoStatueSamusControls() => _room.Services.SamusControls.DisableControls();
 
     /// <summary>Asks the room to spawn <paramref name="roomObject"/> at <paramref name="block"/>.</summary>
     private void RequestChozoObject(ChozoStatueRoomObject roomObject, Position16<RoomBlocks> block) =>

@@ -117,7 +117,6 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         }
         while (accumulatedDistance < distanceInSubpixels);
 
-        state.CalculatedSpinJumpSpeed = speed;
         int adjustedHalfSpan = UnsignedEightEight.Whole(accumulatedDistance);
         var halfSpan = new Offset16<RoomPixels>(adjustedHalfSpan, 0);
         state.RightPost = state.PostsMidpoint + halfSpan;
@@ -522,7 +521,6 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     /// <summary>Allocates a claw with the selected throw direction, offset, graphics, and outbound speed.</summary>
     internal void SpawnNinjaPirateClaw(
         RoomEnemySlot source,
-        NinjaSpacePirateEnemyState state,
         bool throwsRight,
         Offset16<RoomPixels> spawnOffset)
     {
@@ -540,7 +538,6 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             : SpacePirateProjectileSegment.ClawLeft));
         projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
         projectile.State = new NinjaPirateClawState(NinjaPirateClawLaunchSpeed);
-        state.SpawnedClawCount++;
     }
 
     /// <summary>Flies a claw thrown toward <paramref name="thrown"/> out and back, with exact camera culling.</summary>
@@ -589,7 +586,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
                     "A ninja Space Pirate sound cue carries no sound."));
                 return null;
             case NinjaSpacePirateCue.ThrowClaw throwClaw:
-                SpawnNinjaPirateClaw(slot, state, throwClaw.Throw == HorizontalDirection.Right, throwClaw.Offset);
+                SpawnNinjaPirateClaw(slot, throwClaw.Throw == HorizontalDirection.Right, throwClaw.Offset);
                 return null;
             case NinjaSpacePirateCue.Command { Kind: NinjaSpacePirateCueKind.StartActive }:
                 if (samus is null)

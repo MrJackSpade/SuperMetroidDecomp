@@ -314,7 +314,6 @@ internal static class NativeEnemyFamilyStateImport
             enemies.ZebetiteBehavior.SharedPaletteCycle = words.C;
         if (slot.SpeciesState<ChozoStatueState>() is { } chozoStatueRecord)
         {
-            chozoStatueRecord.CarryStep = ChozoNativeWords.CarryStep(words.C / 2);
             chozoStatueRecord.FrameBehavior = words.F == 0 ? null : ChozoNativeWords.ChozoStatueFrameBehaviors.Decode(words.F, "recorded ChozoStatueFrameBehavior");
         }
         if (slot.SpeciesState<YardEnemyState>() is { } yardRecord)
@@ -420,7 +419,6 @@ internal static class NativeEnemyFamilyStateImport
             kzanRecord.FallWaitTimer = WrappingCountdown.FromRaw(words.B);
             kzanRecord.RisingTarget = new(0, words.C);
             kzanRecord.FallingTarget = new(0, words.D);
-            kzanRecord.InitialFallingSpeed = SignedSixteenSixteen.FromParts(unchecked((short)words.F), words.E);
         }
         if (slot.SpeciesState<MetroidEnemyState>() is { } metroidRecord)
         {
@@ -447,7 +445,6 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.SpeciesState<WallSpacePirateEnemyState>() is { } wallSpacePirateRecord)
         {
             wallSpacePirateRecord.Function = words.A == 0 ? null : SpacePiratesNativeWords.WallSpacePirateFunctions.Decode(words.A, "recorded WallSpacePirateFunction");
-            wallSpacePirateRecord.WallJumpDestination = new(words.B, 0);
             wallSpacePirateRecord.ClimbDirection = (WallSpacePirateClimbDirection)words.C;
             wallSpacePirateRecord.WallJumpArcCenter = new(words.D, words.E);
             wallSpacePirateRecord.WallJumpArcAngle = RotationAngle.FromSteps(checked((byte)words.F));
@@ -455,7 +452,6 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.SpeciesState<NinjaSpacePirateEnemyState>() is { } ninjaSpacePirateRecord)
         {
             ninjaSpacePirateRecord.Function = words.A == 0 ? null : SpacePiratesNativeWords.NinjaSpacePirateFunctions.Decode(words.A, "recorded NinjaSpacePirateFunction");
-            ninjaSpacePirateRecord.CalculatedSpinJumpSpeed = words.B;
             ninjaSpacePirateRecord.PostsMidpoint = new(words.D, 0);
             ninjaSpacePirateRecord.LeftPost = new(words.E, 0);
             ninjaSpacePirateRecord.RightPost = new(words.F, 0);
@@ -583,7 +579,6 @@ internal static class NativeEnemyFamilyStateImport
         {
             kago.Function = words.A == 0 ? null : KagoNativeWords.KagoEnemyFunctions.Decode(words.A, "recorded KagoEnemyFunction");
             kago.UsesFastAnimation = words.B != 0;
-            kago.DeathAnimationStarted = words.F != 0;
         }
         if (slot.DefinitionId == EnemyDefinitionId.Coven && slot.SpeciesState<WreckedShipGhostEnemyState>() is { } ghost)
         {
@@ -618,7 +613,6 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.DefinitionId == EnemyDefinitionId.FaceBlock && slot.SpeciesState<BlueBrinstarFaceBlockEnemyState>() is { } faceBlock)
         {
             faceBlock.Activated = words.A != 0;
-            faceBlock.LastHorizontalDelta = words.B;
         }
         if (slot.DefinitionId == EnemyDefinitionId.Puromi && slot.SpeciesState<NuclearWaffleEnemyState>() is { } waffle)
         {
@@ -674,7 +668,7 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemies.DeadTourianCorpses[index] is { } corpse)
         {
-            corpse.Function = DeadTourianCorpseFunctionOf(corpse.Species, words.A);
+            corpse.Function = DeadTourianCorpseFunctionOf(corpse.Profile.Species, words.A);
             corpse.PreRotDelayCounter = words.B;
         }
         if (enemies.RioStates[index] is { } rio)

@@ -267,7 +267,6 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         int signedHalfSpan = direction == HorizontalDirection.Right
             ? span >> 1
             : -(span >> 1);
-        state.WallJumpDestination = new(CoordinateAxis.Wrap(slot.Position.X.Whole + signedSpan), 0);
         state.WallJumpArcCenter = new Position16<RoomPixels>(
             CoordinateAxis.Wrap(slot.Position.X.Whole + signedHalfSpan),
             slot.Position.Y.Whole);
@@ -277,16 +276,12 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     /// <summary>Emits a wall laser through the shared Pirate owner and queues sound only if allocation succeeds.</summary>
     private void FireWallSpacePirateLaser(
         RoomEnemySlot slot,
-        WallSpacePirateEnemyState state,
         HorizontalDirection direction)
     {
         // The laser initializer queues the laser sound for every successful allocation. The later wall-jump cue
         // independently queues the wall-jump sound; both are observable, distinct requests.
         if (_walkingSpacePirateBehavior.SpawnSpacePirateLaser(slot, direction == HorizontalDirection.Right, WallPirateLaserMuzzleYOffset))
-        {
-            state.SpawnedLaserCount++;
             _walkingSpacePirateBehavior.RequestSpacePirateSound(EnemySoundEffectDefinitions.WallPirateLaserSound);
-        }
     }
 
     /// <summary>
@@ -314,10 +309,10 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
                 PrepareWallSpacePirateJump(slot, state, direction: HorizontalDirection.Left);
                 return null;
             case WallSpacePirateCue.Command { Kind: WallSpacePirateCueKind.FireLaserLeft }:
-                FireWallSpacePirateLaser(slot, state, direction: HorizontalDirection.Left);
+                FireWallSpacePirateLaser(slot, direction: HorizontalDirection.Left);
                 return null;
             case WallSpacePirateCue.Command { Kind: WallSpacePirateCueKind.FireLaserRight }:
-                FireWallSpacePirateLaser(slot, state, direction: HorizontalDirection.Right);
+                FireWallSpacePirateLaser(slot, direction: HorizontalDirection.Right);
                 return null;
             case WallSpacePirateCue.SetFunction setFunction:
                 state.Function = setFunction.Function;

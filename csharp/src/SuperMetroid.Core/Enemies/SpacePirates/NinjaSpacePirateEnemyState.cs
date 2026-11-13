@@ -12,12 +12,6 @@ public sealed class NinjaSpacePirateEnemyState
     /// <summary>Movement/decision function.</summary>
     public NinjaSpacePirateFunction? Function { get; internal set; }
 
-    /// <summary>
-    /// The peak spin-jump speed derived at initialization, in 1/256 pixel per update: 32 for each 1/8-pixel
-    /// acceleration step whose running distance first covers the requested half-span, from 32 to 1,440.
-    /// </summary>
-    public int CalculatedSpinJumpSpeed { get; internal set; }
-
     /// <summary>The active stance animation, facing Samus, that becoming active continues at.</summary>
     internal NinjaSpacePirateSegment ActiveAnimation { get; set; }
 
@@ -62,9 +56,6 @@ public sealed class NinjaSpacePirateEnemyState
     /// restores its Y.
     /// </summary>
     public Position16<RoomPixels> SpawnPosition { get; internal set; }
-
-    /// <summary>Gets the host diagnostic count of claw projectiles requested by this actor.</summary>
-    public int SpawnedClawCount { get; internal set; }
 
     /// <summary>
     /// Changes <see cref="Speed"/> by <paramref name="delta"/>, wrapping past the fastest speed as the game's

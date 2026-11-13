@@ -22,12 +22,11 @@ internal static class StatueWalkDefinitionsVerification
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(0xaad59a + step * 2)), GoldenTorizoWalk.Velocity(step), "Torizo walking step velocity");
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         Func<RoomEnemySlot, TorizoEnemyState, SamusState?, RoomLevelData, int, AnimationContinuation<TorizoBodySegment>?> walk = enemies.BombTorizoBehavior.Choices.ProcessGoldenTorizoWalkAnimation;
-        Action<RoomEnemySlot, ChozoStatueState, SamusState, RoomLevelData, ChozoCarryStep> carry = enemies.ChozoStatueBehavior.ProcessChozoStatueMovement;
+        Action<RoomEnemySlot, SamusState, RoomLevelData, ChozoCarryStep> carry = enemies.ChozoStatueBehavior.ProcessChozoStatueMovement;
         var level = CreateEmptyRoom(new(32, 32));
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Radius = new(8, 8);
         var torizo = new TorizoEnemyState(slot, true);
-        var statue = new ChozoStatueState();
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
         for (int step = 0; step < GoldenTorizoWalk.StepCount; step++)
         {
@@ -56,8 +55,7 @@ internal static class StatueWalkDefinitionsVerification
             AssertEqual(yOffset, data.SamusOffset.Y, "Chozo native hand Y");
             slot.Position = new(new(256, 0x8123), new(256, 0x8123));
             uint start = 0x01008123;
-            carry(slot, statue, samus, level, step);
-            AssertEqual(step, statue.CarryStep, "Chozo carry step");
+            carry(slot, samus, level, step);
             uint x = unchecked(start + (uint)(SixteenSixteen.FromEightEight(velocity)));
             uint y = start + (uint)(SixteenSixteen.FromEightEight(Math.Abs((int)velocity)));
             AssertEqual(FixedCoordinate.WholeOf(unchecked((int)x)), slot.Position.X.Whole, "Chozo real signed X movement");

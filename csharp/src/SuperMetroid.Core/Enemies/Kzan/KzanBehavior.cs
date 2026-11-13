@@ -54,7 +54,6 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         // The spawn settings name the speed the fall starts at. Retail placements include four pixels per update,
         // the fastest the fall reaches.
         state.FallingSpeed = slot.SpawnSettings<KzanSpawnSettings>().FallSpeed;
-        state.InitialFallingSpeed = state.FallingSpeed;
 
         // The spawn settings name the fall distance in pixels and the top wait countdown.
         // A zero countdown deliberately wraps to -1 on its first decrement rather than

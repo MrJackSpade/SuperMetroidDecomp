@@ -33,7 +33,8 @@ internal static class KagoBehaviorVerification
         enemies.KagoBehavior.ResolveKagoShotAfterCommon(slot, state);
         AssertTrue(state.UsesFastAnimation, "Kago real shot handoff selects fast animation");
         AssertEqual(new AnimationPlayback<KagoSegment>(KagoAnimations.StartingWith(KagoSegment.Fast), AnimationPlace.StartOfAnimation), state.Playback, "Kago shot animation");
-        AssertEqual(1, state.SpawnedBugCount, "Kago real shot handoff retains its projectile side effect");
+        AssertEqual(1, enemies.Projectiles.EnemyProjectiles.Count(projectile => projectile.IsActive && projectile.Kind == RoomEnemyProjectileKind.KagoBug),
+            "Kago real shot handoff retains its projectile side effect");
         ushort[] fast = KagoAnimationsConstants.Spritemaps(KagoSegment.Fast).ToArray();
         AssertEqual(EnemyInstructionRunner.ExpectedFrames([.. fast, fast[0]], [3, 3, 3, 3, 3]),
             EnemyInstructionRunner.ShownFrames(slot, 13), "Kago post-hit loop");

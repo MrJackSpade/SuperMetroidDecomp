@@ -77,7 +77,7 @@ internal static class WalkingSpacePirateInstructionProgramDefinitionsVerificatio
             RunFrames(enemies, slot, samus, 113);
             AssertEqual(expected, state.Playback,
                 $"walking Pirate {(movingRight ? "right" : "left")} attack loops");
-            AssertEqual(3, state.SpawnedLaserCount,
+            AssertEqual(3, enemies.Projectiles.EnemyProjectiles.Count(p => p.IsActive && p.Kind == RoomEnemyProjectileKind.PirateMotherBrainLaser),
                 $"walking Pirate {(movingRight ? "right" : "left")} laser count");
             AssertEqual(EnemySoundEffectDefinitions.PirateMotherBrainLaserSound, (enemies.Audio.LatestSound ?? throw new InvalidOperationException("Verification requires a pending space pirate sound.")),
                 $"walking Pirate {(movingRight ? "right" : "left")} laser sound");

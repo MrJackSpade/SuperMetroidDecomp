@@ -982,9 +982,10 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     if (projectile.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion)
                         Check(owner + " source enemy header", SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(projectile.DropDefinitionId), NativeSnapshotMemory.EnemyProjectileEnemyHeader + index);
                     // The native word holds the killed slot's table offset, bit 15 for a respawn, $FFFF for none; a
-                    // cleared projectile's names the first slot.
+                    // cleared projectile's names the first slot. Only a direct drop is made a pickup from the start: a
+                    // death's pickup is its explosion's.
                     KilledEnemy killed = projectile.KilledEnemy;
-                    Check(owner + " killed enemy index", killed.IsDirectDrop ? 0xffff
+                    Check(owner + " killed enemy index", projectile.Kind == RoomEnemyProjectileKind.EnemyDeathPickup ? 0xffff
                         : SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.OffsetOf(killed.Enemy?.SlotIndex ?? 0) | (killed.Respawns ? 0x8000 : 0),
                         NativeSnapshotMemory.EnemyProjectileKilledEnemy + index);
                 }

@@ -42,12 +42,6 @@ public sealed class KzanEnemyState
         internal set => field = new(0, value.Y);
     }
 
-    /// <summary>
-    /// The initial downward speed, in pixels per update, from the spawn settings' fall speed; this
-    /// initialization snapshot is not the accelerating current speed.
-    /// </summary>
-    public SignedSixteenSixteen InitialFallingSpeed { get; internal set; }
-
     /// <summary>Reload value for the top wait in actor updates, 0 through 255, from the spawn's fall wait.</summary>
     public int FallWaitTimerResetValue { get; internal set; }
 

@@ -6,6 +6,6 @@ internal interface IGunshipSession
     /// <summary>Restoration requested the save message box and awaits the answer.</summary>
     bool SavePromptPending { get; }
 
-    /// <summary>Supplies the message box's Yes/No answer at its completion point.</summary>
-    void AnswerSavePrompt(bool save);
+    /// <summary>Resumes the ship once the message box has its answer; the ship's exit is the same for either answer.</summary>
+    void AnswerSavePrompt();
 }

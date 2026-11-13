@@ -7,20 +7,8 @@ namespace SuperMetroid.Core.Enemies.KiHunters;
 /// </summary>
 public sealed class KiHunterEnemyState
 {
-    /// <summary>Captures the slot's body or wing role before deletion can clear its definition identity.</summary>
-    internal KiHunterEnemyState(RoomEnemySlot slot)
-    {
-        // The slot's definition is mutable and is cleared during deletion.
-        // Role is established by the initializer and must survive that later write because
-        // body/wing callbacks continue to reach the neighbouring slot's record.
-        IsWing = KiHunterBehavior.IsKiHunterWingDefinition(slot.DefinitionId);
-    }
-
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<KiHunterSegment> Playback { get; set; }
-
-    /// <summary>Role fixed by the initializer, retained even if deletion clears the slot's definition; body and wing callbacks still use adjacent physical slots.</summary>
-    public bool IsWing { get; }
 
     /// <summary>Main-AI dispatcher.</summary>
     public KiHunterEnemyFunction? Function { get; internal set; }

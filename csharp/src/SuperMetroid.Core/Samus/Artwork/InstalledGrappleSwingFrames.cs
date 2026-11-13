@@ -1,27 +1,26 @@
+using SuperMetroid.Core.Samus.Grapple;
+
 namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>Displayed swing-frame selection only, as installed (#1596); physical body placement remains compiled separately.</summary>
 public sealed class InstalledGrappleSwingFrames
 {
-    /// <summary>How many high angle bytes a full turn holds, each with its own displayed frame.</summary>
-    private const int AngleCount = 256;
-
-    /// <summary>The installed displayed frame of every high angle byte.</summary>
+    /// <summary>The installed displayed frame of every swing direction, in direction order.</summary>
     private readonly int[] frames;
 
-    /// <summary>Copies the displayed frame of every angle the import pipeline validated.</summary>
-    /// <param name="frames">One displayed frame for each of the 256 high angle bytes.</param>
-    /// <exception cref="ArgumentException">An angle has no displayed frame, or a frame names no swing pose.</exception>
+    /// <summary>Copies the displayed frame of every swing direction the import pipeline validated.</summary>
+    /// <param name="frames">One displayed frame for each <see cref="GrappleSwingDirection"/>, in direction order.</param>
+    /// <exception cref="ArgumentException">A direction has no displayed frame, or a frame names no swing pose.</exception>
     internal InstalledGrappleSwingFrames(int[] frames)
     {
         Ensure.NotNull(frames);
-        if (frames.Length != AngleCount || frames.Any(frame => frame is < 0 or >= GrappleSwingFrameDefinitions.FrameCount))
-            throw new ArgumentException($"Grapple swing frames need one of {GrappleSwingFrameDefinitions.FrameCount} frames for each of {AngleCount} angles.", nameof(frames));
+        if (frames.Length != GrappleSwingDirection.Count || frames.Any(frame => frame is < 0 or >= GrappleSwingFrameDefinitions.FrameCount))
+            throw new ArgumentException($"Grapple swing frames need one of {GrappleSwingFrameDefinitions.FrameCount} frames for each of {GrappleSwingDirection.Count} swing directions.", nameof(frames));
         this.frames = [.. frames];
     }
 
-    /// <summary>Selects the editable displayed orientation frame for one swing angle step, independently of the compiled body-placement frame and the runtime's separate straight-down animation handling.</summary>
-    /// <param name="angle">The mirrored swing angle's step, one of 256 steps around a full turn.</param>
+    /// <summary>Selects the editable displayed orientation frame for one swing direction, independently of the compiled body-placement offset and the runtime's separate straight-down animation handling.</summary>
+    /// <param name="direction">The swing direction nearest the mirrored rope angle.</param>
     /// <returns>A displayed orientation frame index from 0 through 31, within the current facing's swing artwork.</returns>
-    public int Resolve(TrigonometryAngle angle) => frames[angle.RawValue];
+    public int Resolve(GrappleSwingDirection direction) => frames[direction.Number];
 }

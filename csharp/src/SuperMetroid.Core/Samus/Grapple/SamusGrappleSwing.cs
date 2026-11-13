@@ -33,14 +33,14 @@ public static class SamusGrappleSwing
         // it semantically represents the Flare/draw origin throughout.
         grapple.BeamStart = ropeStart.Pixel;
 
-        // The game shares a selector between physical body placement and displayed art.
+        // Body placement and displayed art both follow the swing direction nearest the mirrored angle.
         // Keep the authored physical mapping compiled so a visual-frame override cannot
         // move the collision body. Stock art still selects the same frame.
+        var direction = GrappleSwingDirection.Nearest(grapple.MirroredAngle.ToTrigonometryAngle());
         int artFrame = (grapple.SwingFrames ?? throw new InvalidOperationException(
             "Grapple swing requires installed frame definitions."))
-            .Resolve(grapple.MirroredAngle.ToTrigonometryAngle());
-        var offset = GrappleBodyPlacements.Offset(grapple.MirroredAngle.ToTrigonometryAngle(),
-            SamusPoseMetadata.IsFacingLeft(samus.Pose));
+            .Resolve(direction);
+        var offset = GrappleBodyPlacements.Offset(direction, SamusPoseMetadata.IsFacingLeft(samus.Pose));
 
         SamusPresentation.SetGrappleSwingAnimationFrame(samus, artFrame);
         samus.Position = samus.Position.WithWhole(new(CoordinateAxis.Wrap(ropeStart.Pixel.X + offset.X), CoordinateAxis.Wrap(ropeStart.Pixel.Y + offset.Y)));
@@ -331,7 +331,7 @@ public static class SamusGrappleSwing
             return new GrappleSwingCollisionResult(Collided: false, DistanceFromFeet: 0);
 
         int signedDelta = combined < 0 ? -magnitude : magnitude;
-        RotationAngle targetAngle = grapple.Angle.AddRaw(signedDelta);
+        RotationAngle targetAngle = grapple.Angle.TurnedByFractionsOfStep(signedDelta);
         TrigonometryAngle targetStep = targetAngle.ToTrigonometryAngle();
         TrigonometryAngle lastSafeStep = grapple.Angle.ToTrigonometryAngle();
         int stepDirection = combined < 0 ? -1 : 1;
@@ -351,10 +351,10 @@ public static class SamusGrappleSwing
                 candidateStep);
             if (collision.Collided)
             {
-                // A collision restores the last safe whole angle step and forces the
-                // fractional half value 128. The body therefore stops just before the
-                // colliding sample rather than snapping back to the frame's original angle.
-                grapple.Angle = RotationAngle.FromSteps(lastSafeStep.RawValue, fraction: 128);
+                // A collision restores the middle of the last safe whole angle step. The body
+                // therefore stops just before the colliding sample rather than snapping back
+                // to the frame's original angle.
+                grapple.Angle = RotationAngle.MiddleOfStep(lastSafeStep);
                 grapple.MirroredAngle = grapple.Angle;
 
                 bool closeCollision = grapple.RopeLength == 8 &&

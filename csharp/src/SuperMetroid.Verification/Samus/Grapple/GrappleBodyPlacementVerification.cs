@@ -47,8 +47,8 @@ internal static class GrappleBodyPlacementVerification
         foreach (string invalid in new[] { "null", "{}", "{", "{\"version\":1,\"version\":1,\"frames\":[]}" })
             AssertThrows<InvalidDataException>(() => GrappleSwingFrameFile.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(invalid))), "Invalid swing-frame JSON rejected");
         foreach (int invalid in new[] { -1, 32 })
-            AssertThrows<InvalidDataException>(() => GrappleSwingFrameFile.Load(new MemoryStream(GrappleSwingFrameFile.Write(new() { Version = 1, Frames = Enumerable.Repeat(invalid, 256).ToArray() }))), "Invalid swing-frame index rejected");
-        AssertThrows<InvalidDataException>(() => GrappleSwingFrameFile.Load(new MemoryStream(GrappleSwingFrameFile.Write(new() { Version = 1, Frames = new int[255] }))), "Incomplete swing-frame table rejected");
+            AssertThrows<InvalidDataException>(() => GrappleSwingFrameFile.Load(new MemoryStream(GrappleSwingFrameFile.Write(new() { Version = GrappleSwingFrameFile.Version, Frames = Enumerable.Repeat(invalid, GrappleSwingDirection.Count).ToArray() }))), "Invalid swing-frame index rejected");
+        AssertThrows<InvalidDataException>(() => GrappleSwingFrameFile.Load(new MemoryStream(GrappleSwingFrameFile.Write(new() { Version = GrappleSwingFrameFile.Version, Frames = new int[GrappleSwingDirection.Count - 1] }))), "Incomplete swing-frame table rejected");
         Console.WriteLine("Grapple body placement: 262144 extracted/installed updates preserve native frames and physical offsets across mirror angle, facing and anchor wrapping.");
     }
 

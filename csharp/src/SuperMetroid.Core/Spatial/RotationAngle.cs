@@ -56,6 +56,9 @@ public readonly record struct RotationAngle : IComparable<RotationAngle>
         new(checked((ushort)(Ensure.BetweenInclusive(0, StepsPerTurn - 1, steps) * FractionsPerStep +
             Ensure.BetweenInclusive(0, FractionsPerStep - 1, fraction))));
 
+    /// <summary>The angle halfway through whole step <paramref name="step"/>: the step with half a step's fraction.</summary>
+    public static RotationAngle MiddleOfStep(TrigonometryAngle step) => FromSteps(step.RawValue, FractionsPerStep / 2);
+
     /// <summary>The angle a computation in 256ths of a step lands on: past a full turn, or below zero, it continues around the circle.</summary>
     public static RotationAngle NormalizeRaw(int rawValue) => new(unchecked((ushort)rawValue));
 

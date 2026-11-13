@@ -610,6 +610,9 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyTypedNativeWords), () => VerifyTypedNativeWords()),
         new(nameof(VerifySamusSpatialValues), () => VerifySamusSpatialValues()),
         new(nameof(VerifyTypedTurnsAndZoom), () => VerifyTypedTurnsAndZoom()),
+        // The typed angle steps (#1684).
+        new(nameof(SuperMetroid.Verification.Spatial.TypedAngleStepsVerification.VerifyTypedAngleSteps),
+            SuperMetroid.Verification.Spatial.TypedAngleStepsVerification.VerifyTypedAngleSteps),
         new(nameof(VerifyPhantoonWaveLifecycle), () => VerifyPhantoonWaveLifecycle()),
         new(nameof(VerifyBackgroundMosaicWidth), () => VerifyBackgroundMosaicWidth()),
         new(nameof(VerifyOamSpritemapPacking), () => VerifyOamSpritemapPacking()),

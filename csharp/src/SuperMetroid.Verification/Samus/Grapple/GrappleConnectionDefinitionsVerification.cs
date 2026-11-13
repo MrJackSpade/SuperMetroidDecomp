@@ -124,10 +124,12 @@ internal static class GrappleConnectionDefinitionsVerification
                 new Offset16<RoomPixels>(unchecked((short)Word(address + 4)), unchecked((short)Word(address + 6))),
                 SamusGrappleConnectionNative.Functions.Decode(Word(address + 8), "grapple connection function"));
         }).ToArray();
-        AssertEqual(native.Length, GrappleConnectionDefinitions.SpecialAngleCount, "Native special-angle record count");
+        // The native records alternate an authored stop and its reflection; the typed list holds each stop then its reflection.
+        AssertEqual(native.Length, GrappleConnections.SpecialConnections.Count, "Native special-angle record count");
         for (int record = 0; record < native.Length; record++)
-            AssertEqual(native[record], GrappleConnections.SpecialAngle(record), $"Native special-angle record {record}");
-        AssertThrows<ArgumentOutOfRangeException>(() => GrappleConnections.SpecialAngle(native.Length), "Special-angle bound");
+            AssertEqual(native[record], GrappleConnections.SpecialConnections[record], $"Native special-angle record {record}");
+        for (int stop = 0; stop < GrappleConnectionDefinitions.AuthoredStops.Length; stop++)
+            AssertEqual(native[stop * 2 + 1], GrappleConnections.Reflection(GrappleConnectionDefinitions.AuthoredStops[stop]), $"Native reflection of authored stop {stop}");
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
         samus.Grapple.FlarePlacement = SuperMetroid.AssetExtraction.Samus.ChargeFlarePlacementFile.LoadGrapple(
             new MemoryStream(SuperMetroid.AssetExtraction.Samus.GrappleFlarePlacementExtractor.Extract(rom)));

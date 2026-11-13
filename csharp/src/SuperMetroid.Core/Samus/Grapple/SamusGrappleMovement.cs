@@ -110,49 +110,47 @@ public static class SamusGrappleMovement
     /// <summary>How far the grapple wall-jump probe looks for a wall toward the side Samus faces, in pixels.</summary>
     private const int WallJumpProbePixels = 16;
 
-    /// <summary>The 16.16 steps of a quarter of one 8.8 velocity step: an 8.8 velocity's quarter is the velocity times this.</summary>
-    private const int QuarterOfVelocityStep = 64;
+    /// <summary>The substeps the extending rope moves and probes in each update, each by a quarter of its velocity.</summary>
+    private const int ExtensionSubsteps = 4;
 
-    /// <summary>The coarse whole pixels the previous quarter leaks a part of: its whole pixels in multiples of 256.</summary>
-    private const int CoarseWholePixels = 256;
+    /// <summary>The whole pixels an 8.8 velocity's whole part spans, -128 through 127.</summary>
+    private const int VelocityWholePixelRange = 256;
 
-    /// <summary>The fine fraction steps the previous quarter leaks a part of: its fraction below 1/256 of a pixel.</summary>
-    private const int FineFractionSteps = 256;
+    /// <summary>The whole pixels a 16.16 displacement's whole part spans, -32768 through 32767.</summary>
+    private const int DisplacementWholePixelRange = ushort.MaxValue + 1;
 
-    /// <summary>The whole pixels each of the previous quarter's coarse 256-pixel steps leaks as.</summary>
-    private const int LeakedWholePerCoarseStep = 64;
+    /// <summary>One substep's share of the velocity, in 256ths: the factor that scales the velocity to its quarter.</summary>
+    private static readonly int SubstepShareInTwoHundredFiftySixths = EightEight.FromWhole(1) / ExtensionSubsteps;
 
-    /// <summary>The fine fraction steps that leak as one fraction step of the new quarter.</summary>
-    private const int FineStepsPerLeakedStep = 4;
-
-    /// <summary>The whole pixels an odd previous fraction moves a rising quarter by: half the whole range, downward.</summary>
-    private const int OddFractionWholeShift = 32768;
+    /// <summary>The 16.16 fraction steps in each 256th of a pixel, the finest step an 8.8 velocity takes.</summary>
+    private static readonly int FractionStepsPerVelocityStep = SixteenSixteen.FromEightEight(1);
 
     /// <summary>
     /// The rope's extension step for one of its four substeps, on one axis: a quarter of
-    /// <paramref name="velocity"/>, rounded toward negative infinity, into which part of last update's quarter
-    /// <paramref name="previous"/> leaks. The quarter's fraction always keeps the top six of the previous fraction's eight
-    /// finest bits below its own, the previous fraction's 256ths quartered. A velocity that is not negative also takes the
-    /// previous whole pixels' multiples of 256, each as 64 pixels, and an odd previous fraction moves its whole pixels
-    /// half the range down; a negative velocity's quarter keeps only its own whole pixels.
+    /// <paramref name="velocity"/>, rounded toward negative infinity, into which a quarter of the parts of last update's
+    /// step <paramref name="previous"/> the velocity does not reach leaks. The step's fraction always takes a quarter of
+    /// the previous fraction finer than the velocity's 256ths. A velocity that is not negative also takes a quarter of the
+    /// previous whole pixels beyond the velocity's whole range, and an odd previous fraction moves its whole pixels half
+    /// the displacement's whole range down; a negative velocity's step keeps only its own whole pixels.
     /// </summary>
     /// <remarks>
     /// The rope keeps the four substeps' quarter in the storage that held last update's, and builds it there without
     /// clearing what the velocity does not cover, so the substeps need not add up to the update's velocity.
     /// </remarks>
-    private static SignedSixteenSixteen QuarterExtensionVelocity(
+    internal static SignedSixteenSixteen QuarterExtensionVelocity(
         SignedEightEight velocity, SignedSixteenSixteen previous)
     {
-        SignedSixteenSixteen quarter = velocity.ScaledBy(QuarterOfVelocityStep);
+        SignedSixteenSixteen quarter = velocity.ScaledBy(SubstepShareInTwoHundredFiftySixths);
         int whole = quarter.WholePixels;
         if (!velocity.IsNegative)
         {
-            whole += previous.UnsignedWholePixels / CoarseWholePixels * LeakedWholePerCoarseStep;
+            int beyondVelocityRange = previous.UnsignedWholePixels / VelocityWholePixelRange * VelocityWholePixelRange;
+            whole += beyondVelocityRange / ExtensionSubsteps;
             if (previous.Fraction % 2 != 0)
-                whole -= OddFractionWholeShift;
+                whole -= DisplacementWholePixelRange / 2;
         }
 
-        int fraction = quarter.Fraction + previous.Fraction % FineFractionSteps / FineStepsPerLeakedStep;
+        int fraction = quarter.Fraction + previous.Fraction % FractionStepsPerVelocityStep / ExtensionSubsteps;
         return SignedSixteenSixteen.FromParts(whole, fraction);
     }
 
@@ -239,7 +237,7 @@ public static class SamusGrappleMovement
             QuarterExtensionVelocity(grapple.ExtensionVelocity.X, grapple.QuarterVelocity.X),
             QuarterExtensionVelocity(grapple.ExtensionVelocity.Y, grapple.QuarterVelocity.Y));
         GrappleBlockReaction finalReaction = GrappleBlockReaction.Passes;
-        for (int substep = 0; substep < 4; substep++)
+        for (int substep = 0; substep < ExtensionSubsteps; substep++)
         {
             grapple.EndpointOffset += grapple.QuarterVelocity;
             PublishFiringGeometry(samus, grapple);
@@ -750,10 +748,7 @@ public static class SamusGrappleMovement
         Position16<RoomPixels> endpoint,
         ISamusRoomObjects? roomObjects = null)
     {
-        int blockX = endpoint.X >> 4;
-        int blockY = endpoint.Y >> 4;
-        RoomCollisionBlock block =
-            level.GetCollisionBlockOrEdgeSolid(new(CoordinateAxis.Wrap(blockX), CoordinateAxis.Wrap(blockY)));
+        RoomCollisionBlock block = level.GetCollisionBlockOrEdgeSolid(endpoint.ToRoomBlock());
         if (block.Position is null)
         {
             // The edge-solid block outside the room dispatches as an ordinary solid endpoint: it stops
@@ -1119,25 +1114,35 @@ public static class SamusGrappleMovement
         int quadrant = (xNegative ? 2 : 0) | (yNegative ? 1 : 0);
         if (absoluteY < absoluteX)
         {
-            int eighths = (EightEight.FromWhole(absoluteY) / absoluteX) >> 3;
+            int steps = OctantSteps(EightEight.FromWhole(absoluteY) / absoluteX);
             return quadrant switch
             {
-                0 => RotationAngle.QuarterTurn.TurnedBySteps(eighths),
-                1 => RotationAngle.QuarterTurn.TurnedBySteps(-eighths),
-                2 => RotationAngle.ThreeQuarterTurn.TurnedBySteps(-eighths),
-                _ => RotationAngle.ThreeQuarterTurn.TurnedBySteps(eighths),
+                0 => RotationAngle.QuarterTurn.TurnedBySteps(steps),
+                1 => RotationAngle.QuarterTurn.TurnedBySteps(-steps),
+                2 => RotationAngle.ThreeQuarterTurn.TurnedBySteps(-steps),
+                _ => RotationAngle.ThreeQuarterTurn.TurnedBySteps(steps),
             };
         }
 
-        int reciprocalEighths = (EightEight.FromWhole(absoluteX) / absoluteY) >> 3;
+        int reciprocalSteps = OctantSteps(EightEight.FromWhole(absoluteX) / absoluteY);
         return quadrant switch
         {
-            0 => RotationAngle.HalfTurn.TurnedBySteps(-reciprocalEighths),
-            1 => RotationAngle.Zero.TurnedBySteps(reciprocalEighths),
-            2 => RotationAngle.HalfTurn.TurnedBySteps(reciprocalEighths),
-            _ => RotationAngle.Zero.TurnedBySteps(-reciprocalEighths),
+            0 => RotationAngle.HalfTurn.TurnedBySteps(-reciprocalSteps),
+            1 => RotationAngle.Zero.TurnedBySteps(reciprocalSteps),
+            2 => RotationAngle.HalfTurn.TurnedBySteps(reciprocalSteps),
+            _ => RotationAngle.Zero.TurnedBySteps(-reciprocalSteps),
         };
     }
+
+    /// <summary>The angle steps in an eighth of a turn.</summary>
+    private const int EighthTurnSteps = RotationAngle.StepsPerTurn / 8;
+
+    /// <summary>
+    /// The angle steps, 0 through 32, that a tangent of 0 through one whole, in 256ths, turns from its octant's axis: the
+    /// tangent read linearly across the eighth of a turn, truncated.
+    /// </summary>
+    private static int OctantSteps(int tangentInTwoHundredFiftySixths) =>
+        Ensure.BetweenInclusive(0, EightEight.FromWhole(1), tangentInTwoHundredFiftySixths) * EighthTurnSteps / EightEight.FromWhole(1);
 
     /// <summary>Reads the installed presentation offset for the current shot direction and running state.</summary>
     internal static Offset16<RoomPixels> ReadFlareOrigin(SamusGrappleState grapple, SamusProjectileDirection direction, bool running)

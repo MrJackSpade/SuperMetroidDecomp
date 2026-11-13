@@ -1168,6 +1168,8 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifySamusPeriodicSuitDamage), () => VerifySamusPeriodicSuitDamage()),
         new(nameof(SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainFinishOffThresholdVerification.VerifyMotherBrainFinishOffThreshold),
             SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainFinishOffThresholdVerification.VerifyMotherBrainFinishOffThreshold),
+        new(nameof(SuperMetroid.Verification.Samus.Grapple.GrappleExtensionArithmeticVerification.VerifyGrappleExtensionArithmetic),
+            SuperMetroid.Verification.Samus.Grapple.GrappleExtensionArithmeticVerification.VerifyGrappleExtensionArithmetic),
         new(nameof(VerifyRoomGridBounds), () => VerifyRoomGridBounds()),
         new(nameof(VerifyCompatibilitySubpixelInputs), () => VerifyCompatibilitySubpixelInputs()),
         new(nameof(VerifyDoorCapAbsentFrames), () => VerifyDoorCapAbsentFrames()),

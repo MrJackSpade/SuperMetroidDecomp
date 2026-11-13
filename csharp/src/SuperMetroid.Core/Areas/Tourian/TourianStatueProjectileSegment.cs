@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// <summary>The Tourian statue projectile animations (#641), in authored order.</summary>
 internal enum TourianStatueProjectileSegment
 {
-    /// <summary>The private delete list.</summary>
+    /// <summary>The private delete animation.</summary>
     Delete,
 
     /// <summary>A particle's water splash.</summary>
@@ -15,7 +15,7 @@ internal enum TourianStatueProjectileSegment
     /// <summary>An unlocking particle.</summary>
     /// <remarks>
     /// Its loop counter is never set, so it wraps from zero; the particle leaves the screen long before the counter runs
-    /// out, which on the game would run the list on into unrelated data.
+    /// out, which in the game would run the animation on into unrelated data.
     /// </remarks>
     Particle,
 

@@ -9,6 +9,10 @@ public static class BeamComboDefinitions
     public const int PlasmaOuterRadius = 192;
     /// <summary>The Plasma special beam attack's contraction switches phase below this radius.</summary>
     public const int PlasmaInnerThreshold = 45;
+    /// <summary>The Ice and Plasma particles' orbit turn each update when a right-facing Samus starts the attack: four steps on.</summary>
+    public static readonly TrigonometryAngle OrbitTurnOn = new(4);
+    /// <summary>The orbit turn each update when a left-facing Samus starts the attack: four steps back, a full circle less four.</summary>
+    public static readonly TrigonometryAngle OrbitTurnBack = TrigonometryAngle.Wrapped(-4);
     /// <summary>The Wave special beam attack's oscillator cap: eight pixels per update.</summary>
     public static readonly SignedEightEight WaveSpeedLimit = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(2048);
     /// <summary>The Wave special beam attack's per-update acceleration: a quarter of a pixel per update.</summary>

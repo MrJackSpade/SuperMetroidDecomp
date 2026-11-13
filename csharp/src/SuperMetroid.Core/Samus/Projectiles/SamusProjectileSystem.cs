@@ -725,7 +725,7 @@ public sealed class SamusProjectileSystem
             samus.HorizontalSpeed.ClearSpeedEchoes();
             samus.Shinespark.ResetProjectileEchoStorage();
         }
-        Combos.ComboState = 0;
+        Combos.OrbitTurnPerUpdate = TrigonometryAngle.Zero;
         SlotTable.ClearAll();
         Trails.Clear();
         SlotTable.ProjectileCounter = 0;

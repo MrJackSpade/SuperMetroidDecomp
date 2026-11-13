@@ -577,11 +577,11 @@ public sealed class SamusBombProjectileSystem
     internal static void InitializeBomb(
         SamusBombProjectileSlot slot)
     {
-        SamusProjectileHeader header = SamusProjectileSelection.NonBeam(slot.Type.Family);
+        SamusProjectileKind kind = SamusProjectileSelection.NonBeam(slot.Type.Family);
 
-        slot.Damage = SamusProjectileDamage.Read(header);
+        slot.Damage = SamusProjectileDamage.Read(kind);
 
-        slot.Playback = SamusProjectilePrograms.Start(SamusProjectileHeaders.SoleProgram(header));
+        slot.Playback = SamusProjectilePrograms.Start(SamusProjectileKinds.SoleProgram(kind));
         slot.FrameHold = WrappingCountdown.Start(1);
     }
 

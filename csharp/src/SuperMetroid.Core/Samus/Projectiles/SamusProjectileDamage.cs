@@ -3,42 +3,42 @@ using static SuperMetroid.Core.Samus.Projectiles.SamusProjectileDamageDefinition
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>The damage each projectile definition starts its projectile with.</summary>
+/// <summary>The damage each projectile kind starts its projectile with.</summary>
 internal static class SamusProjectileDamage
 {
-    /// <summary>The damage <paramref name="header"/> starts its projectile with.</summary>
-    internal static int Read(SamusProjectileHeader header) => header switch
+    /// <summary>The damage a projectile of <paramref name="kind"/> starts with.</summary>
+    internal static int Read(SamusProjectileKind kind) => kind switch
     {
-        SamusProjectileHeader.Missile => 100,
-        SamusProjectileHeader.SuperMissile or SamusProjectileHeader.SuperMissileLink => 300,
-        SamusProjectileHeader.PowerBomb => 200,
-        SamusProjectileHeader.Bomb => 30,
-        SamusProjectileHeader.PlasmaSBA or SamusProjectileHeader.WaveSBA or SamusProjectileHeader.SpazerSBA or
-            SamusProjectileHeader.SpazerSBATrail => 300,
-        SamusProjectileHeader.ShinesparkEcho => ShinesparkEchoDamage,
-        SamusProjectileHeader.UnchargedPower or SamusProjectileHeader.UnchargedSpazer or SamusProjectileHeader.UnchargedSpazerIce or SamusProjectileHeader.UnchargedSpazerIceWave or
-            SamusProjectileHeader.UnchargedPlasmaIceWave or SamusProjectileHeader.UnchargedIce or SamusProjectileHeader.UnchargedWave or SamusProjectileHeader.UnchargedPlasma or
-            SamusProjectileHeader.UnchargedIceWave or SamusProjectileHeader.UnchargedSpazerWave or SamusProjectileHeader.UnchargedPlasmaWave or SamusProjectileHeader.UnchargedPlasmaIce or
-            SamusProjectileHeader.ChargedPower or SamusProjectileHeader.ChargedSpazer or SamusProjectileHeader.ChargedSpazerIce or SamusProjectileHeader.ChargedSpazerIceWave or
-            SamusProjectileHeader.ChargedPlasmaIceWave or SamusProjectileHeader.ChargedIce or SamusProjectileHeader.ChargedPlasma or SamusProjectileHeader.ChargedWave or
-            SamusProjectileHeader.ChargedIceWave or SamusProjectileHeader.ChargedSpazerWave or SamusProjectileHeader.ChargedPlasmaIce or SamusProjectileHeader.ChargedPlasmaWave => BeamDamage(BeamIdentity(header)),
-        _ => throw new ArgumentOutOfRangeException(nameof(header), header, "Undefined projectile header."),
+        SamusProjectileKind.Missile => 100,
+        SamusProjectileKind.SuperMissile or SamusProjectileKind.SuperMissileLink => 300,
+        SamusProjectileKind.PowerBomb => 200,
+        SamusProjectileKind.Bomb => 30,
+        SamusProjectileKind.PlasmaSBA or SamusProjectileKind.WaveSBA or SamusProjectileKind.SpazerSBA or
+            SamusProjectileKind.SpazerSBATrail => 300,
+        SamusProjectileKind.ShinesparkEcho => ShinesparkEchoDamage,
+        SamusProjectileKind.UnchargedPower or SamusProjectileKind.UnchargedSpazer or SamusProjectileKind.UnchargedSpazerIce or SamusProjectileKind.UnchargedSpazerIceWave or
+            SamusProjectileKind.UnchargedPlasmaIceWave or SamusProjectileKind.UnchargedIce or SamusProjectileKind.UnchargedWave or SamusProjectileKind.UnchargedPlasma or
+            SamusProjectileKind.UnchargedIceWave or SamusProjectileKind.UnchargedSpazerWave or SamusProjectileKind.UnchargedPlasmaWave or SamusProjectileKind.UnchargedPlasmaIce or
+            SamusProjectileKind.ChargedPower or SamusProjectileKind.ChargedSpazer or SamusProjectileKind.ChargedSpazerIce or SamusProjectileKind.ChargedSpazerIceWave or
+            SamusProjectileKind.ChargedPlasmaIceWave or SamusProjectileKind.ChargedIce or SamusProjectileKind.ChargedPlasma or SamusProjectileKind.ChargedWave or
+            SamusProjectileKind.ChargedIceWave or SamusProjectileKind.ChargedSpazerWave or SamusProjectileKind.ChargedPlasmaIce or SamusProjectileKind.ChargedPlasmaWave => BeamDamage(BeamIdentity(kind)),
+        _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Undefined projectile kind."),
     };
 
     /// <summary>
-    /// The uncharged and charged beam definitions: the charge state and beams of a beam definition. The charged
-    /// half swaps Wave/Plasma and Plasma-Wave/Plasma-Ice order.
+    /// The charge state and beams of an uncharged or charged beam shot's kind. The charged kinds swap the Wave/Plasma and
+    /// Plasma-Wave/Plasma-Ice order.
     /// </summary>
-    internal static SamusBeamIdentity BeamIdentity(SamusProjectileHeader header) => new(
-        header is SamusProjectileHeader.ChargedPower or SamusProjectileHeader.ChargedSpazer or SamusProjectileHeader.ChargedSpazerIce or SamusProjectileHeader.ChargedSpazerIceWave or
-        SamusProjectileHeader.ChargedPlasmaIceWave or SamusProjectileHeader.ChargedIce or SamusProjectileHeader.ChargedPlasma or SamusProjectileHeader.ChargedWave or
-        SamusProjectileHeader.ChargedIceWave or SamusProjectileHeader.ChargedSpazerWave or SamusProjectileHeader.ChargedPlasmaIce or SamusProjectileHeader.ChargedPlasmaWave, Beam(header));
+    internal static SamusBeamIdentity BeamIdentity(SamusProjectileKind kind) => new(
+        kind is SamusProjectileKind.ChargedPower or SamusProjectileKind.ChargedSpazer or SamusProjectileKind.ChargedSpazerIce or SamusProjectileKind.ChargedSpazerIceWave or
+        SamusProjectileKind.ChargedPlasmaIceWave or SamusProjectileKind.ChargedIce or SamusProjectileKind.ChargedPlasma or SamusProjectileKind.ChargedWave or
+        SamusProjectileKind.ChargedIceWave or SamusProjectileKind.ChargedSpazerWave or SamusProjectileKind.ChargedPlasmaIce or SamusProjectileKind.ChargedPlasmaWave, Beam(kind));
 
-    /// <summary>The beams a beam definition fires.</summary>
-    private static SamusBeamCombination Beam(SamusProjectileHeader header) =>
-        Beams.TryGetValue(header, out SamusBeamCombination value) ? value : throw new ArgumentOutOfRangeException(nameof(header), header, "Undefined projectile header.");
+    /// <summary>The beams a beam shot of <paramref name="kind"/> fires.</summary>
+    private static SamusBeamCombination Beam(SamusProjectileKind kind) =>
+        Beams.TryGetValue(kind, out SamusBeamCombination value) ? value : throw new ArgumentOutOfRangeException(nameof(kind), kind, "Undefined beam shot kind.");
 
-    /// <summary>Maps a beam definition to its base damage and triples charged shots.</summary>
+    /// <summary>Maps a beam shot's beams to its base damage and triples charged shots.</summary>
     private static int BeamDamage(SamusBeamIdentity identity)
     {
         var (charged, beam) = identity;
@@ -58,7 +58,7 @@ internal static class SamusProjectileDamage
             SamusBeamCombination.PlasmaIceWave => 300,
             SamusBeamCombination.SpazerPlasma or SamusBeamCombination.SpazerPlasmaWave or
                 SamusBeamCombination.SpazerPlasmaIce or SamusBeamCombination.SpazerPlasmaIceWave =>
-                throw new InvalidOperationException($"{beam} has no beam header."),
+                throw new InvalidOperationException($"{beam} has no beam shot kind of its own."),
             _ => throw new ArgumentOutOfRangeException(nameof(identity), beam, "Undefined beam combination."),
         };
         return damage * (charged ? 3 : 1);

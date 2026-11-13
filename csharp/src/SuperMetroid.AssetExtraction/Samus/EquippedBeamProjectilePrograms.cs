@@ -69,7 +69,7 @@ internal static class EquippedBeamProjectilePrograms
             SamusProjectileType reflected = SamusProjectileType.EchoOf(echo);
             starts.AddRange(BeamShotPrograms(reflected.BeamCombination, reflected.IsChargedBeam));
         }
-        AddSole(starts, SamusProjectileHeader.SuperMissileLink);
+        AddSole(starts, SamusProjectileKind.SuperMissileLink);
         starts.AddRange(Explosions);
         starts.AddRange(SamusPowerBombFuseData.FastCounterparts.Values.Select(place => place.Segment));
         return Continued(starts);
@@ -84,21 +84,21 @@ internal static class EquippedBeamProjectilePrograms
 
     /// <summary>
     /// Every animation a shot of <paramref name="beams"/>, charged when <paramref name="charged"/>, starts in any direction:
-    /// its header's lists, except the Murder Beam's, which reads past the Power Bomb header it takes its damage from
+    /// its kind's programs, except the Murder Beam's, which reads past the Power Bomb kind it takes its damage from
     /// (<see cref="MurderBeamDirectionPrograms{TDirection, TProgram}"/>).
     /// </summary>
     internal static IEnumerable<SamusProjectileProgram> BeamShotPrograms(SamusBeamCombination beams, bool charged) =>
         SamusProjectileSelection.IsMurderBeam(beams, charged)
             ? SamusProjectileSelectionDefinitions.MurderBeamDirectionAnimations.Values.OfType<SamusProjectileProgram>()
-            : SamusProjectileHeaders.Programs(SamusProjectileSelection.BeamShot(beams, charged));
+            : SamusProjectileKinds.Programs(SamusProjectileSelection.BeamShot(beams, charged));
 
-    /// <summary>Adds every list <paramref name="header"/> names.</summary>
-    private static void AddEveryDirection(List<SamusProjectileProgram> starts, SamusProjectileHeader header) =>
-        starts.AddRange(SamusProjectileHeaders.Programs(header));
+    /// <summary>Adds every program a shot of <paramref name="kind"/> can start.</summary>
+    private static void AddEveryDirection(List<SamusProjectileProgram> starts, SamusProjectileKind kind) =>
+        starts.AddRange(SamusProjectileKinds.Programs(kind));
 
-    /// <summary>Adds the one program a shot, bomb or particle from <paramref name="header"/> starts whatever its direction.</summary>
-    private static void AddSole(List<SamusProjectileProgram> starts, SamusProjectileHeader header) =>
-        starts.Add(SamusProjectileHeaders.SoleProgram(header));
+    /// <summary>Adds the one program a shot, bomb or particle of <paramref name="kind"/> starts whatever its direction.</summary>
+    private static void AddSole(List<SamusProjectileProgram> starts, SamusProjectileKind kind) =>
+        starts.Add(SamusProjectileKinds.SoleProgram(kind));
 
     /// <summary><paramref name="starts"/> and every segment their animations play.</summary>
     private static HashSet<SamusProjectileProgram> Continued(IEnumerable<SamusProjectileProgram> starts) =>

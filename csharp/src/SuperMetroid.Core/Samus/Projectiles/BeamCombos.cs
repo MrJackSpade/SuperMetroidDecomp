@@ -136,19 +136,19 @@ internal sealed class BeamCombos
     /// <summary>Selects damage and animation data from the charged, combo, or Spazer echo tables and initializes its first frame.</summary>
     internal static void InitializeComboData(SamusProjectile slot, BeamComboData comboData)
     {
-        SamusProjectileHeader header = comboData switch
+        SamusProjectileKind projectileKind = comboData switch
         {
             BeamComboData.Charged => SamusProjectileSelection.BeamShot(slot.Type.BeamCombination, charged: true),
             BeamComboData.Echo => SamusProjectileSelection.Echo(
                 slot.Type.Echo ?? throw new InvalidOperationException("Echo data initializes an echo projectile.")),
             BeamComboData.Combo => SamusProjectileSelection.SpecialAttack(slot.Type.BeamCombination)
-                ?? throw new InvalidDataException($"{slot.Type.BeamCombination}'s special attack has no particle header."),
+                ?? throw new InvalidDataException($"{slot.Type.BeamCombination}'s special attack has no particles of its own."),
             _ => throw new ArgumentOutOfRangeException(nameof(comboData), comboData, "Undefined combo data."),
         };
-        slot.Damage = SamusProjectileDamage.Read(header);
+        slot.Damage = SamusProjectileDamage.Read(projectileKind);
         SamusProjectileProgram program = comboData == BeamComboData.Combo
-            ? SamusProjectileHeaders.SoleProgram(header)
-            : SamusProjectileHeaders.Program(header, slot.Direction);
+            ? SamusProjectileKinds.SoleProgram(projectileKind)
+            : SamusProjectileKinds.Program(projectileKind, slot.Direction);
         slot.Playback = SamusProjectilePrograms.Start(program);
         slot.FrameHold = WrappingCountdown.Start(1);
         if (comboData == BeamComboData.Charged)

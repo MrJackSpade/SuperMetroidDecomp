@@ -1,4 +1,5 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Installation;
@@ -25,6 +26,7 @@ internal static class ImportOnlyLayoutsVerification
         yield return (enemyTiles, KraidBackgroundArtworkFormat.LowerFileName);
         foreach (KraidHeadFrame head in KraidHeadTilemapFormat.HeadsByMouthStage)
             yield return (enemyTiles, KraidBackgroundArtworkFormat.HeadFileName(head.MouthStage));
+        yield return (enemyTiles, CeresWarningGlyphDefinitions.FileName);
     }
 
     /// <summary>

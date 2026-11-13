@@ -186,7 +186,7 @@ public static class EnemyTileArtworkFiles
                 Convert.ToHexString(SHA256.HashData(png)));
         }
         byte[] ceresEscapeOverlay = CeresEscapeOverlayTilemapFiles.Extract(bus);
-        File.WriteAllBytes(Path.Combine(directory,
+        File.WriteAllBytes(Path.Combine(importData,
             CeresWarningGlyphDefinitions.FileName), ceresEscapeOverlay);
         byte[] phantoonBg2Json = PhantoonBg2FrameFiles.Extract(bus);
         File.WriteAllBytes(Path.Combine(directory, PhantoonBg2FrameDefinitions.FileName),

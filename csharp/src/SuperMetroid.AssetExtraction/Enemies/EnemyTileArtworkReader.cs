@@ -174,7 +174,7 @@ internal sealed class EnemyTileArtworkReader
         GunshipLiftoffArtworkCatalog gunshipLiftoff = GunshipLiftoff(importData);
         TorizoSwapArtwork torizoInstructionVram = TorizoSwaps(importData);
         CeresEscapeTileArtwork ceresEscapeTiles = CeresEscapeTiles(importData);
-        CeresEscapeOverlays ceresEscapeOverlay = CeresEscapeOverlayTilemaps();
+        CeresEscapeOverlays ceresEscapeOverlay = CeresEscapeOverlayTilemaps(importData);
         RoomCharacterAtlas motherBrainCorpse = MotherBrainCorpse(importData);
         RoomCharacterAtlas motherBrainEscapeText = MotherBrainEscapeText(importData);
         MotherBrainSpecialSpriteArtworkCatalog motherBrainSpecialSprites = MotherBrainSpecialSprites(importData);
@@ -527,13 +527,13 @@ internal sealed class EnemyTileArtworkReader
         return new CeresEscapeTileArtwork(ceresEscapePages);
     }
 
-    /// <summary>The Ceres escape's overlay tilemaps.</summary>
-    /// <exception cref="InvalidDataException">The installed file is invalid.</exception>
-    internal CeresEscapeOverlays CeresEscapeOverlayTilemaps()
+    /// <summary>The Ceres escape's overlay layouts, import data only the import composes the warning pictures from (#1638).</summary>
+    /// <exception cref="InvalidDataException">The extracted file is invalid.</exception>
+    internal static CeresEscapeOverlays CeresEscapeOverlayTilemaps(string importData)
     {
         try
         {
-            byte[] selected = Read(
+            byte[] selected = ReadPage(importData,
                 CeresWarningGlyphDefinitions.FileName);
             return CeresEscapeOverlays.Load(
                 new MemoryStream(selected, writable: false));
@@ -541,7 +541,7 @@ internal sealed class EnemyTileArtworkReader
         catch (InvalidDataException error)
         {
             throw new InvalidDataException(
-                "Invalid installed Ceres escape overlay tilemaps.", error);
+                "Invalid extracted Ceres escape overlay layouts.", error);
         }
     }
 

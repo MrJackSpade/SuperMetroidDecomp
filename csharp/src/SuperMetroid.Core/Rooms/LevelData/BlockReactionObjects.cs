@@ -267,7 +267,7 @@ internal sealed class BlockReactionObjects
         // The power-bomb and Super Missile setups clear the newly allocated room object when the weapon family is wrong.
         // Observably that is identical to returning with no active slot: setup never changes the live block, and the
         // next handler has nothing to process. Perform this
-        // gate before the host allocation loop while preserving every accepted path.
+        // gate before the room-object allocation loop while preserving every accepted path.
         if (reaction is ShotBlockReaction.RespawningPowerBombBreak or ShotBlockReaction.PermanentPowerBombBreak &&
             projectileFamily is not (SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb))
             return false;

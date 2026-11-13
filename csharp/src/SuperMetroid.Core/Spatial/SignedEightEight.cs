@@ -55,6 +55,13 @@ public readonly record struct SignedEightEight : IComparable<SignedEightEight>
     [IntegerQuantity("whole-pixel byte of an 8.8 velocity")]
     public int UnsignedWholePixels => EightEight.WholeOf(RawValue);
 
+    /// <summary>
+    /// The speed in 256ths of a pixel an update read without its sign, 0 through 65535, as a multiply that takes the whole
+    /// word as an unsigned magnitude does: a negative velocity reads 65536 larger.
+    /// </summary>
+    [IntegerQuantity("unsigned reading of an 8.8 speed in 256ths of a pixel an update")]
+    public int UnsignedTwoHundredFiftySixthsOfPixel => RawValue;
+
     /// <summary>The fraction's eight bits, 0 through 255 256ths of a pixel.</summary>
     [IntegerQuantity("fraction byte of an 8.8 velocity")]
     public int FractionSubpixels => EightEight.FractionOf(RawValue);

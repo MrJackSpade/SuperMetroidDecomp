@@ -157,7 +157,7 @@ internal static class NativeEnemyFamilyStateImport
             gunshipRecord.BaseY = words.E;
             gunshipRecord.LandingBrakeStep = words.E;
             gunshipRecord.RumbleFrame = words.E;
-            gunshipRecord.EscapeVelocity = words.F;
+            gunshipRecord.EscapeVelocity = new SignedEightEight(words.F);
         }
         if (slot.SpeciesState<CeresSteamEnemyState>() is { } ceresSteamRecord)
         {
@@ -355,9 +355,9 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.SpeciesState<BullEnemyState>() is { } bullRecord)
         {
             bullRecord.Function = words.A == 0 ? null : BullNativeWords.BullEnemyFunctions.Decode(words.A, "recorded BullEnemyFunction");
-            bullRecord.Acceleration = words.B;
-            bullRecord.AccelerationDelta = words.C;
-            bullRecord.Speed = words.D;
+            bullRecord.Acceleration = new SignedEightEight(words.B);
+            bullRecord.AccelerationDelta = new SignedEightEight(words.C);
+            bullRecord.Speed = new SignedEightEight(words.D);
             bullRecord.ActivationTimer = unchecked((short)words.E);
             bullRecord.AccelerationIntervalTimer = unchecked((short)words.F);
         }

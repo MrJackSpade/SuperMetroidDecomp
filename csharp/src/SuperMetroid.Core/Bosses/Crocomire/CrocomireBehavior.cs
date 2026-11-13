@@ -69,16 +69,16 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The tongue's horizontal offset from the body, in pixels, set when the tongue initializes.</summary>
     internal const int CrocomireTongueBodyXOffset = 23;
 
-    /// <summary>Acceleration the sink adds each frame, in 1/256 pixel per frame per frame: three and a half pixels.</summary>
-    internal const int SinkAccelerationIncrement = 896;
+    /// <summary>Acceleration the sink adds each frame: three and a half pixels per frame per frame.</summary>
+    internal static readonly SignedEightEight SinkAccelerationIncrement = SignedEightEight.FromParts(3, 128);
     /// <summary>The sink's acceleration stops growing at forty-eight whole pixels, keeping its fraction.</summary>
     internal const int MaximumSinkAccelerationWhole = 48;
     /// <summary>The sink's speed stops growing at three whole pixels per frame, keeping its fraction.</summary>
     internal const int MaximumSinkSpeedWhole = 3;
     /// <summary>The rise's acceleration stops growing at thirty-one pixels per frame per frame.</summary>
-    internal const int MaximumRiseAccelerationWhole = 31;
+    internal static readonly SignedEightEight MaximumRiseAcceleration = SignedEightEight.FromPixels(31);
     /// <summary>The speed a rise keeps when its deceleration would take it below zero: 255/256 pixel per frame.</summary>
-    internal const int RiseSpeedAfterStalling = 255;
+    internal static readonly SignedEightEight RiseSpeedAfterStalling = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(255);
     /// <summary>Starting acceleration of every sink: eight pixels per frame per frame.</summary>
     internal const int SinkStartingAccelerationWhole = 8;
     /// <summary>The skeleton's fixed fall through its arc: 224/256 pixel per frame.</summary>

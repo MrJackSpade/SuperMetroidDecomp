@@ -514,11 +514,8 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             graphics);
     }
 
-    /// <summary>A thrown claw's launch speed, eight pixels per update, in 1/256 pixel per update.</summary>
-    private const int NinjaPirateClawLaunchSpeed = 2048;
-
-    /// <summary>How much a claw's speed changes each update, in 1/256 pixel per update.</summary>
-    private const int NinjaPirateClawSpeedChange = 32;
+    /// <summary>A thrown claw's launch speed: eight pixels an update.</summary>
+    private static readonly SignedEightEight NinjaPirateClawLaunchSpeed = SignedEightEight.FromPixels(8);
 
     /// <summary>Allocates a claw with the selected throw direction, offset, graphics, and outbound speed.</summary>
     internal void SpawnNinjaPirateClaw(
@@ -551,20 +548,13 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         HorizontalDirection thrown)
     {
         NinjaPirateClawState claw = projectile.StateOf<NinjaPirateClawState>();
-        int pixels = UnsignedEightEight.Whole(claw.Speed);
-        bool outbound = claw.Outbound;
         int direction = thrown == HorizontalDirection.Right ? 1 : -1;
 
         // Outbound motion follows the throw direction while decelerating to zero; inbound
         // motion reverses direction and accelerates indefinitely until the 256x256 camera
         // check deletes the claw. Y advances one pixel on both halves of the flight.
         projectile.Position = projectile.Position.WithWrappedWholeX(projectile.Position.X.Whole +
-            (outbound ? direction * pixels : -direction * pixels));
-        claw.Speed = outbound
-            ? WrappingCounter.SubtractCount(claw.Speed, NinjaPirateClawSpeedChange)
-            : WrappingCounter.AddCount(claw.Speed, NinjaPirateClawSpeedChange);
-        if (outbound && claw.Speed == 0)
-            claw.Outbound = false;
+            direction * claw.StepAlongThrow());
         projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole + 1);
 
         int right = CoordinateAxis.Wrap(camera.X + 256);

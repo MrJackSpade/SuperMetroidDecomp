@@ -35,7 +35,11 @@ internal static class EnemyFrameDisplayFiles
         ExtendedDisplayFrames = EnemyFrameBindingRules.Identity(EnemyExtendedFrameDefinitions.Frames),
     }, Options);
 
-    /// <summary>Reads and validates the bindings in <paramref name="json"/>.</summary>
+    /// <summary>
+    /// Reads and validates the bindings in <paramref name="json"/> by the rules <see cref="EnemyFrameBindingRules"/> states
+    /// by the enemies showing each frame and the families of the extended frames: where the original stored a frame is the
+    /// import's knowledge, not a rule of an edited binding (#1710).
+    /// </summary>
     /// <exception cref="InvalidDataException">The document, or a binding, is invalid.</exception>
     internal static InstalledEnemyFrameDisplays Load(Stream json)
     {
@@ -44,7 +48,7 @@ internal static class EnemyFrameDisplayFiles
         if (document.Version != Revision)
             throw new InvalidDataException($"Enemy display bindings require revision {Revision}.");
         return new InstalledEnemyFrameDisplays(
-            EnemyFrameCartridgeLookup.RequireSameBankDisplayBindings(EnemyFrameBindingRules.Ordinary(document.DisplayFrames)),
+            EnemyFrameBindingRules.Ordinary(document.DisplayFrames),
             EnemyFrameBindingRules.Extended(document.ExtendedDisplayFrames));
     }
 }

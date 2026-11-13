@@ -689,7 +689,7 @@ production behavior, ROM, save, installed artwork or gameplay changed.
 
 Both private constructors are reached through complete loaders: every current
 frame and display binding is required, and each target must be an installed
-identity in the same bank (ordinary) or family (extended).
+identity every enemy showing the frame shows (ordinary) or of the same family (extended).
 TryGetDisplay therefore has its own valid-domain resource rule. Extended fallback
 includes the compiled empty extended frame. Known unowned bank/pointer pairs
 remain findings. The total GetDisplayPointer ID projection retains its independent

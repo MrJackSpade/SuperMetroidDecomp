@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Hud;
 
 namespace SuperMetroid.AssetExtraction.Installation;
@@ -14,14 +15,14 @@ namespace SuperMetroid.AssetExtraction.Installation;
 /// <summary>
 /// Installs the pre-coloured room artwork (#1392, #1466): each tileset's block sheet, the appearance inputs each tileset's
 /// blocks depend on, and each library background's image, each as a sheet manifest whose pictures the installation's picture
-/// store holds (#1635), the tilemap words each background pictures with the inputs its changing cells depend on, the written
+/// store holds (#1635), each background's size with the inputs its changing cells depend on (#1708), the written
 /// picture sheets with the inputs each picture depends on, the turning floor of each tileset whose rooms show one (#1467,
 /// #1649); the tilesets and those manifests name the sheets (#1693). A player edits a sheet's or image's installed file in
 /// place.
 /// </summary>
 public static class RoomBlockSheetFiles
 {
-    /// <summary>The manifest naming each background image and the tilemap words it pictures.</summary>
+    /// <summary>The manifest naming each background image, its size and its changing cells.</summary>
     public const string BackgroundManifestFileName = "room-backgrounds.json";
 
     /// <summary>
@@ -29,9 +30,10 @@ public static class RoomBlockSheetFiles
     /// longer pictures a cell over a collectible's graphics (#1513); revision 4 installs only the library backgrounds the
     /// player sees as their own pictures, none of the boss rooms', the sky rooms' or the cleared ones (#1649); revision 5
     /// records one period of what each library background shows, its one page where its two pages hold one tilemap, which
-    /// the room shows repeated across and down (#1651).
+    /// the room shows repeated across and down (#1651); revision 8 records each image's size in place of the tilemap words
+    /// it pictures, which the game only counted (#1708).
     /// </summary>
-    private const int BackgroundManifestVersion = 7;
+    private const int BackgroundManifestVersion = 8;
 
     /// <summary>The manifest naming each written picture sheet and the inputs each of its pictures depends on.</summary>
     public const string WrittenManifestFileName = "written-pictures.json";
@@ -75,10 +77,9 @@ public static class RoomBlockSheetFiles
                 .Select(entry => new WrittenPictureDocument(entry.Key, [.. entry.Value.Select(input => input.Token)]))]))]);
         File.WriteAllBytes(Path.Combine(directory, WrittenManifestFileName), JsonSerializer.SerializeToUtf8Bytes(sheets, JsonOptions));
         var manifest = new BackgroundManifest(BackgroundManifestVersion,
-            composition.Backgrounds.ToDictionary(entry => entry.Key, entry => entry.Value.Words, StringComparer.Ordinal),
+            composition.Backgrounds.ToDictionary(entry => entry.Key, entry => entry.Value.Size, StringComparer.Ordinal),
             composition.Backgrounds.ToDictionary(entry => entry.Key, entry => entry.Value.Cells.Select(cell => new CellDocument(cell.Cell, cell.Picture,
-                [.. cell.Inputs.Select(input => input.Token)])).ToArray(), StringComparer.Ordinal),
-            composition.Backgrounds.ToDictionary(entry => entry.Key, entry => entry.Value.WidthTiles, StringComparer.Ordinal));
+                [.. cell.Inputs.Select(input => input.Token)])).ToArray(), StringComparer.Ordinal));
         File.WriteAllBytes(Path.Combine(directory, BackgroundManifestFileName), JsonSerializer.SerializeToUtf8Bytes(manifest, JsonOptions));
         return InstalledSheetFamily.Install(directory, [
             .. composition.BlockSheets.Select(entry => new NamedComposedSheet(RoomBlockSheet.NameOf(entry.Key), entry.Value)),
@@ -100,7 +101,7 @@ public static class RoomBlockSheetFiles
         string manifestPath = Path.Combine(directory, BackgroundManifestFileName);
         BackgroundManifest manifest = JsonSerializer.Deserialize<BackgroundManifest>(File.ReadAllBytes(manifestPath), JsonOptions)
             ?? throw new InvalidDataException($"Room background manifest {manifestPath} is empty.");
-        if (manifest.Version != BackgroundManifestVersion || manifest.Words is null || manifest.Cells is null)
+        if (manifest.Version != BackgroundManifestVersion || manifest.Sizes is null || manifest.Cells is null)
             throw new InvalidDataException($"Room background manifest {manifestPath} is not revision {BackgroundManifestVersion}.");
         string writtenPath = Path.Combine(directory, WrittenManifestFileName);
         WrittenManifest written = JsonSerializer.Deserialize<WrittenManifest>(File.ReadAllBytes(writtenPath), JsonOptions)
@@ -121,9 +122,8 @@ public static class RoomBlockSheetFiles
         return new InstalledRoomArtwork(
             tilesets.ToDictionary(tileset => tileset, tileset => new RoomBlockSheet(tileset, store.Read(RoomBlockSheet.NameOf(tileset)),
                 RoomBlockAppearanceFiles.Read(directory, tileset))),
-            manifest.Words.ToDictionary(entry => entry.Key, entry => new RoomBackgroundImage(entry.Key, store.Read(entry.Key),
-                    RoomBackgroundImageGeometry.ImageSize(entry.Value.Length, manifest.Widths.TryGetValue(entry.Key, out int width) ? width
-                        : throw new InvalidDataException($"Room background manifest {manifestPath} records no width of {entry.Key}.")),
+            manifest.Sizes.ToDictionary(entry => entry.Key, entry => new RoomBackgroundImage(entry.Key, store.Read(entry.Key),
+                    entry.Value,
                     (manifest.Cells.TryGetValue(entry.Key, out CellDocument[]? cells) && cells is not null ? cells
                         : throw new InvalidDataException($"Room background manifest {manifestPath} records no cells of {entry.Key}."))
                     .Select(cell => new RoomBackgroundCell(cell.Cell, cell.Picture ?? throw new InvalidDataException($"Room background manifest {manifestPath} names no picture of a cell of {entry.Key}."),
@@ -161,7 +161,7 @@ public static class RoomBlockSheetFiles
         string floorPath = Path.Combine(directory, FloorManifestFileName);
         foreach (string name in RoomBlockUploads.BackgroundNames())
         {
-            if (!backgrounds.Words.ContainsKey(name))
+            if (!backgrounds.Sizes.ContainsKey(name))
                 throw new InvalidDataException($"Room background manifest {backgroundPath} names no image {name}, which a retail room state shows.");
         }
         foreach (TilesetDefinition tileset in tilesets)
@@ -200,13 +200,11 @@ public static class RoomBlockSheetFiles
         [.. (tokens ?? throw new InvalidDataException("A manifest entry records no appearance inputs."))
             .Select(AppearanceInputSpellings.Parse)];
 
-    /// <summary>The background manifest: each image's name, the tilemap words it pictures and its changing cells.</summary>
+    /// <summary>The background manifest: each image's name, its size and its changing cells.</summary>
     /// <param name="Version">The schema revision.</param>
-    /// <param name="Words">Each image's tilemap words, page by page: one period of what it shows (#1651).</param>
+    /// <param name="Sizes">Each image's width and height, which a part of its picture that shows nothing does not record (#1634): one period of what it shows (#1651), laid out as its room shows it (#1617).</param>
     /// <param name="Cells">Each image's cells whose pictures change with appearance inputs.</param>
-    /// <param name="Widths">Each image's tiles across one row of its words: a page, one period across of a page that repeats (#1675), or two pages side by side (#1617).</param>
-    private sealed record BackgroundManifest(int Version, Dictionary<string, ushort[]> Words, Dictionary<string, CellDocument[]> Cells,
-        Dictionary<string, int> Widths);
+    private sealed record BackgroundManifest(int Version, Dictionary<string, Extent16<ImagePixels>> Sizes, Dictionary<string, CellDocument[]> Cells);
 
     /// <summary>One cell of a background image whose picture changes with appearance inputs.</summary>
     /// <param name="Cell">The cell.</param>

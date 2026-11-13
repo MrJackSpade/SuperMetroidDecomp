@@ -1,17 +1,14 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
-/// A composed library background image (#1392, #1466): its sheet, the tilemap words it pictures, and the cells whose
-/// pictures change with the room's appearance inputs.
+/// A composed library background image (#1392, #1466): its sheet, its size, and the cells whose pictures change with the
+/// room's appearance inputs.
 /// </summary>
-/// <param name="Sheet">The image's sheet, one frame of both pages.</param>
-/// <param name="Words">The tilemap words pictured, page by page.</param>
+/// <param name="Sheet">The image's sheet, one frame of what it shows.</param>
+/// <param name="Size">The image's width and height, which a part of its picture that shows nothing does not record (#1634).</param>
 /// <param name="Cells">The cells the block sheet pictures for their inputs' values.</param>
-internal sealed record ComposedRoomBackground(ComposedSpriteSheet Sheet, ushort[] Words, IReadOnlyList<RoomBackgroundCell> Cells)
-{
-    /// <summary>Tiles across one row of <see cref="Words"/>: a page, or one period across of a page that repeats (#1675).</summary>
-    internal int WidthTiles { get; init; } = RoomBackgroundImageGeometry.PageTiles;
-}
+internal sealed record ComposedRoomBackground(ComposedSpriteSheet Sheet, Extent16<ImagePixels> Size, IReadOnlyList<RoomBackgroundCell> Cells);

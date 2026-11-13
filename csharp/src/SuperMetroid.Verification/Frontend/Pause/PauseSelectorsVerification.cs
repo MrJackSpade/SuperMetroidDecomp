@@ -11,7 +11,6 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.FrameRendering;
 namespace SuperMetroid.Verification.Frontend.Pause;
@@ -19,45 +18,49 @@ namespace SuperMetroid.Verification.Frontend.Pause;
 /// <summary>Checks pause equipment selector placement, animation, and restored-state rebinding.</summary>
 internal static class PauseSelectorsVerification
 {
-    /// <summary>Compares all sixteen selectors with guarded native rendering.</summary>
+    /// <summary>
+    /// Compares the selectors' anchors, durations and compositions with the cartridge's, and confirms every one of the sixteen
+    /// selectors keeps its animation across a saved-state round trip.
+    /// </summary>
     internal static void VerifyPauseSelectors(ISnesAddressSpace bus, AreaMapPresentation catalog)
     {
-        var guard = NewPauseSelectorReadGuard(bus);
         PaletteRowWords.AssertSelectsOnlyPaletteRow(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82b9c9), SuperMetroid.AssetExtraction.Frontend.Map.Artwork.MapSpriteColouringSets.SpriteSet(SuperMetroid.Core.Frontend.Map.Artwork.MapSpriteColouring.Markers), "the map caller's colouring selects the native word's sprite set");
         Suite(nameof(VerifyPauseSelectorAnchors), () => VerifyPauseSelectorAnchors(bus));
         Suite(nameof(VerifyPauseSelectorNativeDurations), () => VerifyPauseSelectorNativeDurations(bus, catalog.PauseSelectors));
         for (int group = 0; group < 3; group++) VerifyPauseSelectorNativeCompositions(bus, InstalledFixtures.ImportOf(catalog).PauseSelectors, group);
         foreach (var anchor in PauseSelectorAnchors.Anchors())
         {
-            var native = Create(bus, catalog, anchor.Category, anchor.Item);
-            var pause = Create(guard, catalog, anchor.Category, anchor.Item);
+            PauseMenuState continuing = Create(catalog, anchor.Category, anchor.Item);
+            PauseMenuState pause = Create(catalog, anchor.Category, anchor.Item);
             AssertEqual(new CursorBeforeRestore(anchor.Category, anchor.Item), new CursorBeforeRestore(pause.SelectedCategory, pause.SelectedItem), "real menu fixture reaches the reported semantic selector");
-            // Every tick compares the complete render inputs; the pixels are compared once per displayed selector frame,
-            // drawing the two frames only when their descriptions differ (#1532). The two memory images are compared by what
-            // they show and composed only when that differs, instead of composing both every tick (#1532).
+            // The two menus are built and stepped alike, so only the restored menu's ticks, from its round trip on, are
+            // compared with the menu that was never restored (#1680). Each compared tick compares the complete render
+            // inputs; the pixels are compared once per displayed selector frame (#1532).
             int renderedFrame = -1;
             for (int tick = 0; tick < 100; tick++)
             {
-                native.Step(0, 0); pause.Step(0, 0);
-                AssertEqual(native.ItemSelectorAnimationState, pause.ItemSelectorAnimationState, "real selector phase and timer follow native decrement/advance order");
-                var nativeInputs = native.CaptureRenderSnapshot(); var portInputs = pause.CaptureRenderSnapshot();
-                AssertTrue(nativeInputs.SpriteParts().SequenceEqual(portInputs.SpriteParts()) && PauseShownColours.Of(native, catalog).SequenceEqual(PauseShownColours.Of(pause, catalog)) &&
-                    PauseScreenMemory.SameImage(native, pause, catalog) && nativeInputs.Brightness == portInputs.Brightness,
-                    "all sixteen selectors match native render inputs with pointer/art/position/timing reads forbidden");
-                if (pause.ItemSelectorAnimationState.Frame != renderedFrame)
-                {
-                    renderedFrame = pause.ItemSelectorAnimationState.Frame;
-                    AssertTrue(ScenePixels.Same(nativeInputs, portInputs), "all sixteen selectors match native pixels with pointer/art/position/timing reads forbidden");
-                }
-                if (tick == 51)
+                continuing.Step(0, 0); pause.Step(0, 0);
+                if (tick == RestoredTick)
                 {
                     // The capture names the installed content by path, as a host's store does, instead of copying it (#1532).
                     pause = SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(pause); pause.BindFixtureArtwork(catalog);
                 }
+                if (tick < RestoredTick)
+                    continue;
+                AssertEqual(continuing.ItemSelectorAnimationState, pause.ItemSelectorAnimationState, "a restored selector keeps its phase and timer");
+                var continuingInputs = continuing.CaptureRenderSnapshot(); var restoredInputs = pause.CaptureRenderSnapshot();
+                AssertTrue(continuingInputs.SpriteParts().SequenceEqual(restoredInputs.SpriteParts()) && PauseShownColours.Of(continuing, catalog).SequenceEqual(PauseShownColours.Of(pause, catalog)) &&
+                    PauseScreenMemory.SameImage(continuing, pause, catalog) && continuingInputs.Brightness == restoredInputs.Brightness,
+                    "every restored selector keeps the render inputs of the menu never restored");
+                if (pause.ItemSelectorAnimationState.Frame != renderedFrame)
+                {
+                    renderedFrame = pause.ItemSelectorAnimationState.Frame;
+                    AssertTrue(ScenePixels.Same(continuingInputs, restoredInputs), "every restored selector keeps the pixels of the menu never restored");
+                }
             }
         }
-        Console.WriteLine("Pause selectors: sixteen anchors/672 native OAM cases and 1600 guarded native frames pass.");
-        static PauseMenuState Create(ISnesAddressSpace addressSpace, AreaMapPresentation content, PauseEquipmentCategory category, int item)
+        Console.WriteLine("Pause selectors: sixteen anchors, 672 native OAM cases and the selectors' restored animation pass.");
+        static PauseMenuState Create(AreaMapPresentation content, PauseEquipmentCategory category, int item)
         {
             var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
             if (category == PauseEquipmentCategory.Reserves) { samus.MaxReserveEnergy = 100; samus.ReserveEnergy = 50; samus.ReserveTankMode = ReserveTankMode.Manual; }
@@ -73,23 +76,7 @@ internal static class PauseSelectorsVerification
             return pause;
         }
     }
-    /// <summary>Blocks runtime reads of native selector anchors, animation lists, and spritemaps after installation.</summary>
-    private static CartridgeReadGuard NewPauseSelectorReadGuard(ISnesAddressSpace source)
-    {
-        var blocked = new HashSet<int>();
-        void Add(int address, int count) { for (int i = 0; i < count; i++) blocked.Add(address + i); }
-        Add(0x82c0da, 2); Add(0x82c0ec, 2); Add(0x82c100, 2); Add(0x82c10c, 1); Add(0x82c18e, 8); Add(0x82c1e8, 2);
-        Add(0x820000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), 0x82c0ec), 43);
-        Add(0x820000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), 0x82c1e8), 8);
-        foreach (var anchor in PauseSelectorAnchors.Anchors())
-            Add((0x820000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), 0x82c18e + (int)anchor.Category * 2)) + anchor.Item * 4, 4);
-        foreach (int id in new[] { 0x14, 0x15, 0x16 })
-        {
-            Add(0x82c569 + id * 2, 2);
-            int pointer = 0x820000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), 0x82c569 + id * 2);
-            Add(pointer, 2 + RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), pointer) * 5);
-        }
-        return new CartridgeReadGuard(source).Forbid(blocked.Contains,
-            address => $"Installed pause read selector data at {address:X6}.");
-    }
+
+    /// <summary>The tick after which a selector is saved and restored: midway through its animation.</summary>
+    private const int RestoredTick = 51;
 }

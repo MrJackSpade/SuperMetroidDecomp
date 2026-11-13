@@ -127,7 +127,7 @@ internal static class RoomBlockSheetComposer
                 ColourGroups = groups.ManifestMembers,
             },
         };
-        return new ComposedRoomBackground(canvas.ToSplitRoomSheet(colours, frames), background.Words, cells) { WidthTiles = background.WidthTiles };
+        return new ComposedRoomBackground(canvas.ToSplitRoomSheet(colours, frames), canvas.Size, cells);
     }
 
     /// <summary>

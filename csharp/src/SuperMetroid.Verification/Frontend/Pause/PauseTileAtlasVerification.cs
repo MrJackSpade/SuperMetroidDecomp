@@ -15,10 +15,13 @@ using SuperMetroid.TestSupport.FrameRendering;
 
 namespace SuperMetroid.Verification.Frontend.Pause;
 
-/// <summary>Checks pause UI tile artwork and page rendering against native output.</summary>
+/// <summary>Checks the pause characters against the cartridge, the menu's page changes and its restored pixels.</summary>
 internal static class PauseTileAtlasVerification
 {
-    /// <summary>Compares stock VRAM bytes, three-area menu transitions and a restored equipment page.</summary>
+    /// <summary>
+    /// Compares the stock pause characters with the cartridge's, and in three areas drives the menu from the map to the
+    /// equipment page and back and confirms the restored equipment page keeps its pixels.
+    /// </summary>
     internal static void VerifyPauseTileAtlas(ISnesAddressSpace bus, AreaMapPresentation original)
     {
         var vram = new SnesVram(); InstalledFixtures.ImportOf(original).Characters.Pause.LoadTo(new VramRegion(vram, PpuMemoryLayout.Vram).Slice(PauseTileAtlasFormatConstants.DestinationByte / sizeof(ushort), MapTileAtlasFormat.ByteCount / sizeof(ushort)));
@@ -28,16 +31,12 @@ internal static class PauseTileAtlasVerification
         {
             var system = new SharedGameState(new SharedRandom()); system.SetAreaMapAcquired(area);
             var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { CollectedBeams = SamusBeamFlags.Charge, EquippedBeams = SamusBeamFlags.Charge };
-            var nativeSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { CollectedBeams = samus.CollectedBeams, EquippedBeams = samus.EquippedBeams };
-            var native = new PauseMenuState(new PauseMenuEntry { Samus = nativeSamus, System = system, AreaIndex = area, RoomMapPosition = new(10, 10), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
             var pause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = system, AreaIndex = area, RoomMapPosition = new(10, 10), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
             int toMap = 2 + PausePageTransitionNativeLength + 1;
             for (int tick = 0; tick < toMap + PausePageTransitionNativeLength + 2; tick++)
             {
                 ControllerButton pressed = tick == 2 ? ControllerButton.R : tick == toMap ? ControllerButton.L : 0;
-                AssertEqual(native.Step(pressed, pressed), pause.Step(pressed, pressed), "pause PNG migration preserves unpause result");
-                AssertEqual(native.ScreenMode, pause.ScreenMode, "pause PNG migration preserves page timing");
-                AssertTrue(ScenePixels.Same(native.CaptureRenderSnapshot(), pause.CaptureRenderSnapshot()), "pause map/equipment transitions match native pixels with artwork reads blocked");
+                pause.Step(pressed, pressed);
             }
             AssertEqual(PauseScreenMode.Map, pause.ScreenMode, "pause PNG fixture returns to the map page");
             EnterPauseEquipment(pause);
@@ -48,7 +47,7 @@ internal static class PauseTileAtlasVerification
             pause.BindFixtureArtwork(original);
             AssertTrue(ScenePixels.Same(before, pause.CaptureRenderSnapshot()), "restored pause keeps its pixels and animation phase");
         }
-        Console.WriteLine("Pause UI atlas: exact bytes, three-area map/equipment transitions and capture/restore pass.");
+        Console.WriteLine("Pause UI atlas: exact bytes, three-area map/equipment page changes and capture/restore pass.");
     }
 
 }

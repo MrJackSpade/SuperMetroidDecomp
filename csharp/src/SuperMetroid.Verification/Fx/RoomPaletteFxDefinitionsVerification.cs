@@ -20,12 +20,13 @@ using SuperMetroid.Core.Progression;
 internal static class RoomPaletteFxDefinitionsVerification
 {
     /// <summary>
-    /// The bank-$8D definitions of the cinematic fade, the dark lightning, the Wrecked Ship lights' copy and the Tourian
-    /// glow's copy, which no scene spawns and no room's record sets, so they are no effect of the game.
+    /// The bank-$8D definitions of the Nintendo boot logo's fade (#1686), the cinematic fade, the dark lightning, the Wrecked
+    /// Ship lights' copy and the Tourian glow's copy, which no scene spawns and no room's record sets, so they are no effect
+    /// of the game.
     /// </summary>
-    private static readonly HashSet<ushort> UnreachableDefinitions = [0xe1ec, 0xf769, 0xf771, 0xf7a5];
+    private static readonly HashSet<ushort> UnreachableDefinitions = [0xe198, 0xe1ec, 0xf769, 0xf771, 0xf7a5];
 
-    /// <summary>Audits the 59 reachable entries and eight area lists, then checks spawns and room loads without metadata reads.</summary>
+    /// <summary>Audits the 58 reachable entries and eight area lists, then checks spawns and room loads without metadata reads.</summary>
     internal static void VerifyRoomPaletteFxDefinitions(CartridgeImportAddressSpace rom)
     {
 
@@ -45,7 +46,7 @@ internal static class RoomPaletteFxDefinitionsVerification
         Suite(nameof(VerifyPaletteFxDispatchDomain), () => VerifyPaletteFxDispatchDomain());
         Suite(nameof(VerifyPaletteFxSetupSelection), () => VerifyPaletteFxSetupSelection(rom));
         Suite(nameof(VerifyPaletteFxInitialListSelection), () => VerifyPaletteFxInitialListSelection(rom));
-        AssertEqual(59, pointers.Length, "compiled palette-FX definition count");
+        AssertEqual(58, pointers.Length, "compiled palette-FX definition count");
 
         var forbidden = new HashSet<int>();
         int genericCompiledPrograms = 0;
@@ -68,7 +69,7 @@ internal static class RoomPaletteFxDefinitionsVerification
                 genericCompiledPrograms++;
             }
         }
-        AssertEqual(58, genericCompiledPrograms,
+        AssertEqual(57, genericCompiledPrograms,
             "generic palette-FX definitions with typed initial programs");
         AssertEqual(1, specializedCompiledPrograms,
             "specialized Hyper Beam palette-FX definition count");
@@ -133,9 +134,9 @@ internal static class RoomPaletteFxDefinitionsVerification
             "out-of-range palette-FX bit index");
 
         Console.WriteLine(
-            "Palette-FX definitions: 63 setup/list records, eight native area lists, " +
+            "Palette-FX definitions: 58 setup/list records, eight native area lists, " +
             "64 area selections, every production spawn, all retail room-load selections, " +
-            "62 compiled generic program entries, and the specialized Hyper Beam owner pass " +
+            "57 compiled generic program entries, and the specialized Hyper Beam owner pass " +
             "with fixed metadata reads forbidden.");
     }
 

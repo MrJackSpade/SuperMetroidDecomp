@@ -8,8 +8,6 @@ public enum PaletteFxObject
 {
     /// <summary>The Super Metroid logo fading in on the title screen.</summary>
     FadeInSuperMetroidTitleLogo = 1,
-    /// <summary>The Nintendo logo fading in at boot, which no screen shows.</summary>
-    FadeInNintendoBootLogo,
     /// <summary>The Nintendo copyright line fading in on the title screen.</summary>
     FadeInNintendoCopyright,
     /// <summary>The light of the baby Metroid's tube on the title screen.</summary>

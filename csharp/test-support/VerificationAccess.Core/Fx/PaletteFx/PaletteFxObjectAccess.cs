@@ -14,7 +14,6 @@ internal static class PaletteFxObjectAccess
     private static readonly Dictionary<PaletteFxObject, ushort> Addresses = new()
     {
         [PaletteFxObject.FadeInSuperMetroidTitleLogo] = 0xe194,
-        [PaletteFxObject.FadeInNintendoBootLogo] = 0xe198,
         [PaletteFxObject.FadeInNintendoCopyright] = 0xe19c,
         [PaletteFxObject.TitleScreenBabyMetroidTubeLight] = 0xe1a0,
         [PaletteFxObject.TitleScreenFlickeringDisplays] = 0xe1a4,

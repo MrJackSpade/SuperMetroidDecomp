@@ -31,7 +31,6 @@ internal static class PaletteFxColoursPositions
         [PaletteFxColours.ExplodingZebesGreyClouds] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 5 * GameplayColourPositionDefinitions.SetColours + 1,
         [PaletteFxColours.GunshipEmergingFromExplosion] = GameplayColourPositionDefinitions.BackgroundSetsFirst + 5 * GameplayColourPositionDefinitions.SetColours + 0,
         [PaletteFxColours.TitleLogo] = GameplayColourPositionDefinitions.SpriteSetsFirst + 2 * GameplayColourPositionDefinitions.SetColours + 1,
-        [PaletteFxColours.NintendoBootLogo] = GameplayColourPositionDefinitions.SpriteSetsFirst + 1 * GameplayColourPositionDefinitions.SetColours + 9,
         [PaletteFxColours.PlanetZebesText] = GameplayColourPositionDefinitions.SpriteSetsFirst + 0 * GameplayColourPositionDefinitions.SetColours + 1,
         [PaletteFxColours.GunshipGlow] = GameplayColourPositionDefinitions.SpriteSetsFirst + 7 * GameplayColourPositionDefinitions.SetColours + 15,
         [PaletteFxColours.ZoomedOutExplodingZebes] = GameplayColourPositionDefinitions.SpriteSetsFirst + 7 * GameplayColourPositionDefinitions.SetColours + 0,

@@ -37,7 +37,6 @@ internal sealed class EnemyPaletteFxShows(
                 ShuttersBehavior.ShowEscapeShutterFlash(slots.Slots, record);
                 return;
             case PaletteFxColours.TitleLogo:
-            case PaletteFxColours.NintendoBootLogo:
             case PaletteFxColours.NintendoCopyright:
             case PaletteFxColours.BabyMetroidTubeLight:
             case PaletteFxColours.TitleScreenDisplays:

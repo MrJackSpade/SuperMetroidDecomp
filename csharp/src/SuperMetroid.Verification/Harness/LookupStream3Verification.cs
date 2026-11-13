@@ -2226,17 +2226,14 @@ internal static class LookupStream3Verification
         Console.WriteLine("Shaktool registry: 15 native headers and exact legacy bank/pointer/name/order hash pass; artwork and timing remain separate.");
     }
 
-    /// <summary>Checks both Nintendo logo fade entries and their native mechanics/color operand positions.</summary>
+    /// <summary>Checks the Nintendo copyright fade entry and its native mechanics/color operand positions.</summary>
     internal static void VerifyStream3NintendoFadeEntries()
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var entries = NintendoLogoFadePaletteFxColorDefinitionsTooling.All;
-        AssertEqual(2, entries.Count, "both semantic Nintendo fade entries");
+        AssertEqual(1, entries.Count, "the one semantic Nintendo fade entry");
         foreach (var entry in new[]
         {
-            new VerifyStream3NintendoFadeEntriesCase(DefinitionPointer:NintendoLogoFadePaletteFxColorDefinitions.BootLogoDefinitionPointer,
-ProgramStart:NintendoLogoFadePaletteFxColorDefinitionsConstants.BootLogoEntry,
-BranchesToSharedBody:false),
             new VerifyStream3NintendoFadeEntriesCase(DefinitionPointer:NintendoLogoFadePaletteFxColorDefinitions.CopyrightDefinitionPointer,
 ProgramStart:NintendoLogoFadePaletteFxColorDefinitionsConstants.CopyrightEntry,
 BranchesToSharedBody:true),
@@ -2260,9 +2257,9 @@ BranchesToSharedBody:true),
                 (ushort)(entry.ProgramStart + 4), "boot actually falls through");
         }
         AssertThrows<IndexOutOfRangeException>(() => _ = entries[-1], "fade entry lower bound");
-        AssertThrows<IndexOutOfRangeException>(() => _ = entries[2], "fade entry upper bound");
-        AssertTrue(entries.SequenceEqual(new[] { entries[0], entries[1] }), "fade enumeration and indexing agree");
-        Console.WriteLine("Nintendo fade entries: both native definition/slot/fallthrough-or-branch contracts, order and bounds pass; timing/colors unchanged.");
+        AssertThrows<IndexOutOfRangeException>(() => _ = entries[1], "fade entry upper bound");
+        AssertTrue(entries.SequenceEqual(new[] { entries[0] }), "fade enumeration and indexing agree");
+        Console.WriteLine("Nintendo fade entry: the copyright's native definition/slot/branch contract and bounds pass; timing/colors unchanged.");
     }
 
     /// <summary>Checks the opening portrait tilemap against decompressed ROM and the actual VRAM upload.</summary>

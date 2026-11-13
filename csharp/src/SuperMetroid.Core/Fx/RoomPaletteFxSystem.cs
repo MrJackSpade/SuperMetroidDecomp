@@ -26,7 +26,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
     /// <summary>The running effects, in turn order (<see cref="ColourEffectTurnOrder"/>).</summary>
     internal readonly List<RoomColourEffect> effects = [];
     /// <summary>
-    /// The effects whose programs ran to their end (#1597), in the order they settled: each keeps its final frame on its
+    /// The effects whose animations ran to their end (#1597), in the order they settled: each keeps its final frame on its
     /// colours, without taking a turn, until an effect showing the same colours settles after it or the room ends.
     /// </summary>
     private readonly List<RoomColourEffect> settled = [];
@@ -76,7 +76,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
     /// <param name="session">Whether the effects run and the heat phases, which room loading never clears.</param>
     /// <param name="fx">The room state's FX definition.</param>
     /// <param name="door">The entry door, which selects the FX record.</param>
-    /// <param name="equippedItems">Samus's equipment, which selects suit-dependent programs.</param>
+    /// <param name="equippedItems">Samus's equipment, which selects suit-dependent animations.</param>
     /// <param name="areaMiniBossDefeated">Whether the area's mini-boss is dead.</param>
     public static RoomPaletteFxSystem ForRoom(
         PaletteFxSessionState session,
@@ -90,7 +90,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
     /// <param name="session">Whether the effects run and the heat phases, which room loading never clears.</param>
     /// <param name="fx">The room state's FX definition.</param>
     /// <param name="door">The entry door, which selects the FX record.</param>
-    /// <param name="equippedItems">Samus's equipment, which selects suit-dependent programs.</param>
+    /// <param name="equippedItems">Samus's equipment, which selects suit-dependent animations.</param>
     /// <param name="areaMiniBossDefeated">Whether the area's mini-boss is dead.</param>
     /// <param name="suppliedDefinition">A record to use instead of the door's selection.</param>
     internal static RoomPaletteFxSystem ForRecord(PaletteFxSessionState session, RoomFxSelection? fx, DoorDefinition? door,
@@ -174,7 +174,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
                 segment = definition.InitialAnimation;
                 break;
             case ColourEffectStart.ChoosesHeatAnimationForSuit:
-                // The heat shimmer chooses its whole program from the same live suit Samus wears; Gravity before Varia.
+                // The heat shimmer chooses its whole animation from the same live suit Samus wears; Gravity before Varia.
                 segment = PaletteFxHeatAnimations.Start(PaletteFxHeatAnimations.SuitFor(equippedItems));
                 break;
             case ColourEffectStart.SkippedOnceAreaMiniBossIsDead:
@@ -251,7 +251,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
         effect.Restart(PaletteFxHeatAnimations.Shimmer(suit), PaletteFxHeatAnimations.Phase(suit, _session.PublishedHeatPhase));
     }
 
-    /// <summary>Carries out a step of <paramref name="effect"/>'s program that reaches beyond it: a heat phase or a sound.</summary>
+    /// <summary>Carries out a step of <paramref name="effect"/>'s animation that reaches beyond it: a heat phase or a sound.</summary>
     /// <exception cref="InvalidDataException">A sound step names no sound.</exception>
     /// <exception cref="InvalidOperationException">The step is of a kind the effect keeps itself, or of no defined kind.</exception>
     private void CarryOut(RoomColourEffect effect, PaletteFxCue cue)
@@ -273,8 +273,8 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
     }
 
     /// <summary>
-    /// Checks one frame a frontend screen's effect shows (#1512). A program names its colours before its first frame, so a
-    /// frame shown before that is a defect in the program.
+    /// Checks one frame a frontend screen's effect shows (#1512). An animation names its colours before its first frame, so a
+    /// frame shown before that is a defect in the animation.
     /// </summary>
     /// <exception cref="InvalidOperationException">The frame is shown before its colours are named, or in colours no screen shows.</exception>
     private static void ShowScreenFrame(RoomColourEffect effect, PaletteFxFrame frame)
@@ -359,8 +359,8 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
     /// <summary>
     /// Shows one frame in the colours the effect shows during gameplay (#1512, #1597): the effect holds the frame, which
     /// the room's pictures take as a shade, and a frame of Samus's or an enemy's group is also kept for that owner, which
-    /// lays its shade over its own draws. A program names its colours before its first frame, so a frame shown before
-    /// that is a defect in the program.
+    /// lays its shade over its own draws. An animation names its colours before its first frame, so a frame shown before
+    /// that is a defect in the animation.
     /// </summary>
     /// <exception cref="InvalidOperationException">
     /// The frame is shown before its colours are named, or in colours no room picture, Samus nor enemy shows.

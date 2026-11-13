@@ -46,7 +46,7 @@ public sealed class RoomTreadmillAnimatedTilesState
         }
     }
 
-    /// <summary>Runs each selected animation script; its boss wait gates graphics independently of floor collision.</summary>
+    /// <summary>Runs each selected animation; its boss wait gates graphics independently of floor collision.</summary>
     public void Step(bool areaBossDefeated, ArtworkFrameSelections frames)
     {
         foreach (var animation in objects) animation.Step(areaBossDefeated, frames);

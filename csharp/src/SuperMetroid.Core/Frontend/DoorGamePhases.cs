@@ -73,7 +73,7 @@ internal sealed class DoorGamePhases(FrontendSession session)
             session.audio.DoorTransitionSoundsDisabled = false;
             // The game resumes spin audio only after sound admission is
             // restored at the final fade boundary, not on each fade frame.
-            if (SamusSpinSoundCommand.Select(session.GameplayRuntime.Player.IntroducedSamus) is { } spinSound)
+            if (SamusSpinSound.Select(session.GameplayRuntime.Player.IntroducedSamus) is { } spinSound)
                 session.audio.QueueSound(spinSound, priority: SoundRequestPriority.High);
             session.GameState = SuperMetroidGameState.MainGameplay;
         }

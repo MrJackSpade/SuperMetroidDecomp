@@ -20,7 +20,7 @@ internal abstract record EscapeEtecoonCue
     /// <param name="FrameBehavior">The cue's FrameBehavior operand.</param>
     internal sealed record SetFrameBehavior(EscapeEtecoonFrameBehavior FrameBehavior) : EscapeEtecoonCue;
 
-    /// <summary>A cue that carries no operand.</summary>
+    /// <summary>A cue that signals what it does and carries nothing else.</summary>
     /// <param name="Kind">What the cue does.</param>
-    internal sealed record Command(EscapeEtecoonCueKind Kind) : EscapeEtecoonCue;
+    internal sealed record Signal(EscapeEtecoonCueKind Kind) : EscapeEtecoonCue;
 }

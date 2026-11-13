@@ -28,7 +28,7 @@ internal static class WallSpacePirateAnimationsVerification
                     _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
                 }, $"{at}: operand {index}");
             },
-            cue => cue is WallSpacePirateCue.Command { Kind: WallSpacePirateCueKind.ChooseLeftWallDirection } or WallSpacePirateCue.Command { Kind: WallSpacePirateCueKind.ChooseRightWallDirection }));
+            cue => cue is WallSpacePirateCue.Signal { Kind: WallSpacePirateCueKind.ChooseLeftWallDirection } or WallSpacePirateCue.Signal { Kind: WallSpacePirateCueKind.ChooseRightWallDirection }));
         Console.WriteLine($"  Wall Space Pirate animations: {Entries.Length} segments ({beats} beats) and {WallSpacePirateAnimations.StartingAt.Count} animations match bank $B2.");
     }
 }

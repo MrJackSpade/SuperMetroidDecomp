@@ -134,10 +134,10 @@ internal sealed class DownwardGateBehavior
             case DownwardGateProjectileCue.SetFrameBehavior setFrameBehavior:
                 projectile.FrameBehavior = setFrameBehavior.FrameBehavior;
                 break;
-            case DownwardGateProjectileCue.Command { Kind: DownwardGateProjectileCueKind.ClearFrameBehavior }:
+            case DownwardGateProjectileCue.Signal { Kind: DownwardGateProjectileCueKind.ClearFrameBehavior }:
                 projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
                 break;
-            case DownwardGateProjectileCue.Command { Kind: DownwardGateProjectileCueKind.Delete }:
+            case DownwardGateProjectileCue.Signal { Kind: DownwardGateProjectileCueKind.Delete }:
                 projectile.Delete();
                 break;
             default:

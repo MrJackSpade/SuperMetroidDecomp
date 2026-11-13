@@ -91,7 +91,7 @@ internal static class RidleyNativeProgramOracle
                             VerificationAssertions.AssertEqual(unchecked((short)operand), move.Displacement.X, $"{at}: X move");
                             VerificationAssertions.AssertEqual(unchecked((short)cartridge.ReadCartridgeWord(address + 4)), move.Displacement.Y, $"{at}: Y move");
                             break;
-                        case RidleyBodyCue.Command:
+                        case RidleyBodyCue.Signal:
                             break;
                         default:
                             throw new InvalidOperationException($"Undefined Ridley body cue {cue}.");

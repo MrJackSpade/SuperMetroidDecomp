@@ -44,13 +44,13 @@ internal static class XrayTilemapVerification
         RevealedBlock Defined(int block) => new(block, RevealedBlockArrangement.AsDefined);
         // Each copy command shows its own four installed blocks, so a revealed cell names the command and the quarter
         // that wrote it (#1596).
-        static XrayRevealVisualBlocks Shown(XrayRevealCommand command)
+        static XrayRevealVisualBlocks Shown(XrayRevealShape command)
         {
             int first = RevealBlockBase + (int)command * 4;
             return new(first, first + 1, first + 2, first + 3);
         }
         var visuals = XrayRevealFixtures.Complete(Shown);
-        XrayRevealVisualBlocks squareBlocks = Shown(XrayRevealCommand.CopySquare);
+        XrayRevealVisualBlocks squareBlocks = Shown(XrayRevealShape.CopySquare);
         // Layer one, and BG1 with it, half a block into the room's second block: the camera's block is block 33.
         Position16<RoomPixels> cameraPosition = new(24, 24);
         RevealedBlock?[] Build(AreaId area = AreaId.Brinstar) => XrayRevealMap.Build(level, cameraPosition, area, visuals);
@@ -93,10 +93,10 @@ internal static class XrayTilemapVerification
         Set(48, RoomCollisionType.ShootableBlock, 1);
         Set(49, RoomCollisionType.HorizontalExtension, 0xff);
         var edge = Build();
-        AssertEqual(Defined(Shown(XrayRevealCommand.CopyWide).TopLeft), Cell(edge, 15, 0), "last first-screen column receives wide reveal's left half");
+        AssertEqual(Defined(Shown(XrayRevealShape.CopyWide).TopLeft), Cell(edge, 15, 0), "last first-screen column receives wide reveal's left half");
         AssertEqual(Cell(left, 0, 1), Cell(edge, 0, 1), "last first-screen column does not write into the next row's first block");
         Set(40, RoomCollisionType.SpecialBlock, 0x82);
-        AssertEqual(Defined(Shown(XrayRevealCommand.CopyBrinstar).TopLeft), Cell(Build(), 7, 0), "Brinstar-only reveal is applied in Brinstar");
+        AssertEqual(Defined(Shown(XrayRevealShape.CopyBrinstar).TopLeft), Cell(Build(), 7, 0), "Brinstar-only reveal is applied in Brinstar");
         AssertEqual(Cell(basis, 7, 0), Cell(Build(AreaId.Crateria), 7, 0), "Brinstar-only reveal preserves copied art elsewhere");
         // A square at the bottom row writes only its upper blocks: its lower ones lie below the revealed area.
         Set(33 + 15 * RoomSide, RoomCollisionType.ShootableBlock, 3);

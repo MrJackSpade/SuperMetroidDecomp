@@ -33,8 +33,8 @@ internal static class CeresSteamNativeListAddresses
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
     internal static readonly Dictionary<ushort, NativeCueShape<CeresSteamCue>> Instructions = new()
     {
-        [0xf11d] = NativeCueShape<CeresSteamCue>.Exactly(new CeresSteamCue.Command(CeresSteamCueKind.Vanish)),
+        [0xf11d] = NativeCueShape<CeresSteamCue>.Exactly(new CeresSteamCue.Signal(CeresSteamCueKind.Vanish)),
         [0xf127] = NativeCueShape<CeresSteamCue>.Of<CeresSteamCue.CountDownToActivation>("TA"),
-        [0xf135] = NativeCueShape<CeresSteamCue>.Exactly(new CeresSteamCue.Command(CeresSteamCueKind.Appear)),
+        [0xf135] = NativeCueShape<CeresSteamCue>.Exactly(new CeresSteamCue.Signal(CeresSteamCueKind.Appear)),
     };
 }

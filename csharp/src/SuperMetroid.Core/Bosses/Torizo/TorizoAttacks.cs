@@ -109,7 +109,7 @@ internal sealed class TorizoAttacks
     {
         switch (cue)
         {
-            case TorizoProjectileCue.Command { Kind: TorizoProjectileCueKind.ClearFrameBehavior }:
+            case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.ClearFrameBehavior }:
                 projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
                 return null;
             case TorizoProjectileCue.SetFrameBehavior setFrameBehavior:
@@ -128,10 +128,10 @@ internal sealed class TorizoAttacks
             case TorizoProjectileCue.PlaySound playSound:
                 _audio.QueueEnemySound(playSound.Sound, playSound.Priority);
                 return null;
-            case TorizoProjectileCue.Command { Kind: TorizoProjectileCueKind.Delete }:
+            case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.Delete }:
                 projectile.Delete();
                 return null;
-            case TorizoProjectileCue.Command { Kind: TorizoProjectileCueKind.Hatch }:
+            case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.Hatch }:
                 return projectile.StateOf<GoldenTorizoEggState>().FacingRight ? TorizoProjectileSegment.EggHatchedRight : TorizoProjectileSegment.EggHatchedLeft;
             case TorizoProjectileCue.GoToIfEyeBeamExplosionsDisabled goToIfEyeBeamExplosionsDisabled:
             {
@@ -141,37 +141,37 @@ internal sealed class TorizoAttacks
             }
             case TorizoProjectileCue.GoToSometimes goToSometimes:
                 return _projectiles.TakeOneInFourBranch() ? goToSometimes.Target : null;
-            case TorizoProjectileCue.Command { Kind: TorizoProjectileCueKind.AimSuperMissileTowardSamus } or TorizoProjectileCue.Command { Kind: TorizoProjectileCueKind.AimSuperMissileAwayFromSamus }:
+            case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.AimSuperMissileTowardSamus } or TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.AimSuperMissileAwayFromSamus }:
                 SetGoldenTorizoSuperMissileVelocity(
                     projectile,
                     samus ?? throw new InvalidOperationException("Golden Torizo super-missile aiming requires the active Samus actor."),
-                    awayFromSamus: cue is TorizoProjectileCue.Command { Kind: TorizoProjectileCueKind.AimSuperMissileAwayFromSamus });
+                    awayFromSamus: cue is TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.AimSuperMissileAwayFromSamus });
                 return null;
             case TorizoProjectileCue.SetRadius setRadius:
                 projectile.Radius = setRadius.Radius;
                 return null;
-            case TorizoProjectileCue.Command { Kind: TorizoProjectileCueKind.SpawnOrbDrops }:
+            case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.SpawnOrbDrops }:
                 RequestTorizoChozoOrbDrop(projectile);
                 return null;
             case TorizoProjectileCue.Scatter scatter:
                 _projectiles.Scatter(projectile, scatter.Spread);
                 return null;
-            case TorizoProjectileCue.Command { Kind: TorizoProjectileCueKind.ReturnToOrigin }:
+            case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.ReturnToOrigin }:
                 projectile.Position = projectile.Position.WithWhole(projectile.StateOf<AnchoredProjectileState>().Anchor);
                 return null;
-            case TorizoProjectileCue.Command { Kind: TorizoProjectileCueKind.RaiseDust }:
+            case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.RaiseDust }:
                 projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole - 4);
                 return null;
-            case TorizoProjectileCue.Command { Kind: TorizoProjectileCueKind.StopBlockingShots }:
+            case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.StopBlockingShots }:
                 projectile.BlocksSamusProjectiles = false;
                 return null;
-            case TorizoProjectileCue.Command { Kind: TorizoProjectileCueKind.StopHarmingSamus }:
+            case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.StopHarmingSamus }:
                 projectile.CanDamageSamus = false;
                 return null;
-            case TorizoProjectileCue.Command { Kind: TorizoProjectileCueKind.DrawInFront }:
+            case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.DrawInFront }:
                 projectile.Depth = EnemyProjectileDepth.InFrontOfSamus;
                 return null;
-            case TorizoProjectileCue.Command { Kind: TorizoProjectileCueKind.NoOperation }:
+            case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.NoOperation }:
                 return null;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(TorizoProjectileCueKind)} {cue}.");

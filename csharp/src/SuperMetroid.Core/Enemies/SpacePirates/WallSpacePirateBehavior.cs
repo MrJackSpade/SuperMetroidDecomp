@@ -298,26 +298,26 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
                 return MoveWallSpacePirateAndReverseOnCollision(slot, state, level, climbLeftWall.ClimbPixels, wall: HorizontalDirection.Left);
             case WallSpacePirateCue.ClimbRightWall climbRightWall:
                 return MoveWallSpacePirateAndReverseOnCollision(slot, state, level, climbRightWall.ClimbPixels, wall: HorizontalDirection.Right);
-            case WallSpacePirateCue.Command { Kind: WallSpacePirateCueKind.ChooseLeftWallDirection }:
+            case WallSpacePirateCue.Signal { Kind: WallSpacePirateCueKind.ChooseLeftWallDirection }:
                 return RandomizeWallSpacePirateClimbDirection(state, wall: HorizontalDirection.Left);
-            case WallSpacePirateCue.Command { Kind: WallSpacePirateCueKind.ChooseRightWallDirection }:
+            case WallSpacePirateCue.Signal { Kind: WallSpacePirateCueKind.ChooseRightWallDirection }:
                 return RandomizeWallSpacePirateClimbDirection(state, wall: HorizontalDirection.Right);
-            case WallSpacePirateCue.Command { Kind: WallSpacePirateCueKind.PrepareJumpRight }:
+            case WallSpacePirateCue.Signal { Kind: WallSpacePirateCueKind.PrepareJumpRight }:
                 PrepareWallSpacePirateJump(slot, state, direction: HorizontalDirection.Right);
                 return null;
-            case WallSpacePirateCue.Command { Kind: WallSpacePirateCueKind.PrepareJumpLeft }:
+            case WallSpacePirateCue.Signal { Kind: WallSpacePirateCueKind.PrepareJumpLeft }:
                 PrepareWallSpacePirateJump(slot, state, direction: HorizontalDirection.Left);
                 return null;
-            case WallSpacePirateCue.Command { Kind: WallSpacePirateCueKind.FireLaserLeft }:
+            case WallSpacePirateCue.Signal { Kind: WallSpacePirateCueKind.FireLaserLeft }:
                 FireWallSpacePirateLaser(slot, direction: HorizontalDirection.Left);
                 return null;
-            case WallSpacePirateCue.Command { Kind: WallSpacePirateCueKind.FireLaserRight }:
+            case WallSpacePirateCue.Signal { Kind: WallSpacePirateCueKind.FireLaserRight }:
                 FireWallSpacePirateLaser(slot, direction: HorizontalDirection.Right);
                 return null;
             case WallSpacePirateCue.SetFunction setFunction:
                 state.Function = setFunction.Function;
                 return null;
-            case WallSpacePirateCue.Command { Kind: WallSpacePirateCueKind.PlayAttackSound }:
+            case WallSpacePirateCue.Signal { Kind: WallSpacePirateCueKind.PlayAttackSound }:
                 _walkingSpacePirateBehavior.RequestSpacePirateSound(EnemySoundEffectDefinitions.WallPirateJumpSound);
                 return null;
             default:

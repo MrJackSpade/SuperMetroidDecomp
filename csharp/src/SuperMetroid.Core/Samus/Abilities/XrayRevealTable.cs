@@ -9,6 +9,6 @@ public static class XrayRevealTable
     /// The reveal command for a collision kind and behaviour; null when the game leaves this block's copied foreground art
     /// unchanged. The blocks a copy command shows are installed (<see cref="Artwork.InstalledXrayReveals"/>).
     /// </summary>
-    public static XrayRevealCommand? Find(RoomCollisionType type, RoomBlockBehavior behavior) =>
+    public static XrayRevealShape? Find(RoomCollisionType type, RoomBlockBehavior behavior) =>
         XrayReveals.Find(type, behavior);
 }

@@ -45,9 +45,9 @@ public static class XrayRevealMap
             if (RoomReadingOrder.Step(firstBlock, Offset16<RoomBlocks>.Of(-1, row), level.Size.X) is { } before &&
                 Lookup(before) is { } predecessor)
             {
-                if (predecessor.Command == XrayRevealCommand.CopySquare)
+                if (predecessor.Shape == XrayRevealShape.CopySquare)
                     CopyMetatile(0, row + 1, predecessor.BottomRight);
-                if (predecessor.Command is XrayRevealCommand.CopyWide or XrayRevealCommand.CopySquare)
+                if (predecessor.Shape is XrayRevealShape.CopyWide or XrayRevealShape.CopySquare)
                     CopyMetatile(0, row, predecessor.TopRight);
             }
             for (int col = 0; col < XrayRevealArea.Columns; col++)
@@ -55,20 +55,20 @@ public static class XrayRevealMap
                 Position16<RoomBlocks> block = RoomReadingOrder.Step(firstBlock, Offset16<RoomBlocks>.Of(col, row), level.Size.X) ??
                     throw new InvalidOperationException("A revealed block lies before the room's first block.");
                 if (Lookup(block) is not { } reveal) continue;
-                if (reveal.Command is XrayRevealCommand.HorizontalExtension or XrayRevealCommand.VerticalExtension)
+                if (reveal.Shape is XrayRevealShape.HorizontalExtension or XrayRevealShape.VerticalExtension)
                 {
                     if (XrayRevealExtensions.Resolve(level, block, visuals) is { } replacement)
                         CopyMetatile(col, row, replacement);
                     continue;
                 }
-                if (reveal.Command == XrayRevealCommand.CopyBrinstar && area != AreaId.Brinstar)
+                if (reveal.Shape == XrayRevealShape.CopyBrinstar && area != AreaId.Brinstar)
                     continue;
                 CopyMetatile(col, row, reveal.TopLeft);
-                if (reveal.Command is XrayRevealCommand.CopyWide or XrayRevealCommand.CopySquare)
+                if (reveal.Shape is XrayRevealShape.CopyWide or XrayRevealShape.CopySquare)
                     CopyMetatile(col + 1, row, reveal.TopRight);
-                if (reveal.Command is XrayRevealCommand.CopyTall or XrayRevealCommand.CopySquare)
+                if (reveal.Shape is XrayRevealShape.CopyTall or XrayRevealShape.CopySquare)
                     CopyMetatile(col, row + 1, reveal.BottomLeft);
-                if (reveal.Command == XrayRevealCommand.CopySquare)
+                if (reveal.Shape == XrayRevealShape.CopySquare)
                     CopyMetatile(col + 1, row + 1, reveal.BottomRight);
             }
         }

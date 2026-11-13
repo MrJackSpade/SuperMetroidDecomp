@@ -59,33 +59,33 @@ public sealed class LaidOutAnimationContinuation<TAnimation, TStep>
     /// <summary>Each animation's successor, or none for the last animation laid out.</summary>
     private readonly IReadOnlyDictionary<TAnimation, Successor?> _successors;
 
-    /// <summary>The step each animation's operand places read, by frame in the animation's own numbering.</summary>
-    private readonly IReadOnlyDictionary<TAnimation, IReadOnlyDictionary<int, TStep>> _operandSteps;
+    /// <summary>The step each place of a value one of an animation's cues carries reads, by frame in the animation's own numbering.</summary>
+    private readonly IReadOnlyDictionary<TAnimation, IReadOnlyDictionary<int, TStep>> _cueValueSteps;
 
-    /// <summary>Keeps every animation's successor, the last animation laid out having none, and its operand places' steps.</summary>
+    /// <summary>Keeps every animation's successor, the last animation laid out having none, and the steps its cue values' places read.</summary>
     /// <exception cref="ArgumentException">
-    /// A successor starts no later than the animation before it, or the operand steps name an animation outside the layout or a
+    /// A successor starts no later than the animation before it, or the cue-value steps name an animation outside the layout or a
     /// frame before an animation's start.
     /// </exception>
     public LaidOutAnimationContinuation(IReadOnlyDictionary<TAnimation, Successor?> successors,
-        IReadOnlyDictionary<TAnimation, IReadOnlyDictionary<int, TStep>> operandSteps)
+        IReadOnlyDictionary<TAnimation, IReadOnlyDictionary<int, TStep>> cueValueSteps)
     {
         Ensure.NotNull(successors);
-        Ensure.NotNull(operandSteps);
+        Ensure.NotNull(cueValueSteps);
         foreach (KeyValuePair<TAnimation, Successor?> pair in successors)
         {
             if (pair.Value is { Shift: <= 0 })
                 throw new ArgumentException($"The program laid out after {pair.Key} does not start after it.", nameof(successors));
         }
-        foreach (KeyValuePair<TAnimation, IReadOnlyDictionary<int, TStep>> pair in operandSteps)
+        foreach (KeyValuePair<TAnimation, IReadOnlyDictionary<int, TStep>> pair in cueValueSteps)
         {
             if (!successors.ContainsKey(pair.Key))
-                throw new ArgumentException($"Operand steps name program {pair.Key}, which is not in the layout.", nameof(operandSteps));
+                throw new ArgumentException($"Cue-value steps name animation {pair.Key}, which is not in the layout.", nameof(cueValueSteps));
             if (pair.Value.Keys.Any(frame => frame < 0))
-                throw new ArgumentException($"Operand steps of {pair.Key} name a frame before its start.", nameof(operandSteps));
+                throw new ArgumentException($"Cue-value steps of {pair.Key} name a frame before its start.", nameof(cueValueSteps));
         }
         _successors = successors;
-        _operandSteps = operandSteps;
+        _cueValueSteps = cueValueSteps;
     }
 
     /// <summary>
@@ -101,14 +101,14 @@ public sealed class LaidOutAnimationContinuation<TAnimation, TStep>
                 : new Read(next.Animation, frame - next.Shift, next.Shift);
 
     /// <summary>
-    /// The step <paramref name="frame"/> of <paramref name="animation"/> reads when it lands on a cue's operand, in
-    /// the animation's own frame numbering; null when the frame is no operand's place of the animation.
+    /// The step <paramref name="frame"/> of <paramref name="animation"/> reads when it lands on a value one of the
+    /// animation's cues carries, in the animation's own frame numbering; null when the frame is the place of no cue value.
     /// </summary>
     /// <exception cref="ArgumentException"><paramref name="animation"/> is not in the layout.</exception>
-    public TStep? OperandStep(TAnimation animation, int frame) =>
+    public TStep? CueValueStep(TAnimation animation, int frame) =>
         !_successors.ContainsKey(animation)
             ? throw new ArgumentException($"Program {animation} is not in the layout.", nameof(animation))
-            : _operandSteps.TryGetValue(animation, out IReadOnlyDictionary<int, TStep>? steps) && steps.TryGetValue(frame, out TStep? step)
+            : _cueValueSteps.TryGetValue(animation, out IReadOnlyDictionary<int, TStep>? steps) && steps.TryGetValue(frame, out TStep? step)
                 ? step
                 : null;
 }

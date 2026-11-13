@@ -33,7 +33,7 @@ internal static class EscapeEtecoonNativeListAddresses
     internal static readonly Dictionary<ushort, NativeCueShape<EscapeEtecoonCue>> Instructions = new()
     {
         [0x806b] = NativeCueShape<EscapeEtecoonCue>.Of<EscapeEtecoonCue.SetFrameBehavior>("E"),
-        [0x8074] = NativeCueShape<EscapeEtecoonCue>.Exactly(new EscapeEtecoonCue.Command(EscapeEtecoonCueKind.ClearFrameBehavior)),
+        [0x8074] = NativeCueShape<EscapeEtecoonCue>.Exactly(new EscapeEtecoonCue.Signal(EscapeEtecoonCueKind.ClearFrameBehavior)),
         [0xe545] = NativeCueShape<EscapeEtecoonCue>.Of<EscapeEtecoonCue.GoToIfAcidHigh>("T"),
         [0xe610] = NativeCueShape<EscapeEtecoonCue>.Of<EscapeEtecoonCue.Move>("S"),
     };

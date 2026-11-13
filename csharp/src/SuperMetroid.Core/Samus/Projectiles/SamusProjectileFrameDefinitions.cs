@@ -3,16 +3,16 @@ using P = SuperMetroid.Core.Samus.Projectiles.SamusProjectileSegment;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// The Samus projectiles' timed records (#1301, #1517), by the animation that shows them, in the order it shows them: each
-/// record's hitbox radii and the animation frame trails read. What a record pictures is installed only (#1596). A record
+/// The Samus projectiles' animation frames (#1301, #1517), by the animation that shows them, in the order it shows them: each
+/// frame's hitbox radii and the animation frame trails read. What a frame pictures is installed only (#1596). A frame
 /// is named by its animation and its place there (<see cref="SamusProjectileFrame"/>), the identity installed frame
-/// bindings key on, so an animation added or removed leaves every other record's identity alone.
+/// bindings key on, so an animation added or removed leaves every other frame's identity alone.
 /// </summary>
-internal static class SamusProjectileRecordDefinitions
+internal static class SamusProjectileFrameDefinitions
 {
-    /// <summary>Every animation's timed records, in the order it shows them.</summary>
-    internal static readonly IReadOnlyDictionary<SamusProjectileSegment, SamusProjectileRecord[]> ByAnimation =
-        new Dictionary<SamusProjectileSegment, SamusProjectileRecord[]>
+    /// <summary>Every animation's frames, in the order it shows them.</summary>
+    internal static readonly IReadOnlyDictionary<SamusProjectileSegment, SamusProjectileFrameGameplay[]> ByAnimation =
+        new Dictionary<SamusProjectileSegment, SamusProjectileFrameGameplay[]>
     {
         [P.PowerUpFacingRight] =
         [
@@ -1240,6 +1240,6 @@ internal static class SamusProjectileRecordDefinitions
         ],
     };
 
-    /// <summary>The record <paramref name="frame"/> shows.</summary>
-    internal static SamusProjectileRecord Get(SamusProjectileFrame frame) => ByAnimation[frame.Animation][frame.Show];
+    /// <summary>The gameplay of <paramref name="frame"/>.</summary>
+    internal static SamusProjectileFrameGameplay Get(SamusProjectileFrame frame) => ByAnimation[frame.Animation][frame.Show];
 }

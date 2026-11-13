@@ -67,6 +67,6 @@ internal static class YardNativeListAddresses
         [0xcc3f] = NativeCueShape<YardCue>.Of<YardCue.SetHidingAnimation>("N"),
         [0xcc48] = NativeCueShape<YardCue>.Of<YardCue.SetDirection>("D"),
         [0xcc5f] = NativeCueShape<YardCue>.Of<YardCue.MoveBy>("SY"),
-        [0xcc78] = NativeCueShape<YardCue>.Exactly(new YardCue.Command(YardCueKind.RepeatPreviousPoseUnlessContinuing)),
+        [0xcc78] = NativeCueShape<YardCue>.Exactly(new YardCue.Signal(YardCueKind.RepeatPreviousPoseUnlessContinuing)),
     };
 }

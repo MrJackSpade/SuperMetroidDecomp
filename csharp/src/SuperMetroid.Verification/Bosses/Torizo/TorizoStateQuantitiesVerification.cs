@@ -23,7 +23,7 @@ internal static class TorizoStateQuantitiesVerification
         enemies.BombTorizoBehavior.Access.TorizoState = state;
         var inputs = new TorizoCueInputs { Samus = null, Level = null, ControllerInput = 0, FrameCounter = 0 };
         void Apply(TorizoCueKind kind) =>
-            AssertTrue(enemies.BombTorizoBehavior.ApplyTorizoCue(slot, state, inputs, new TorizoCue.Command(kind),
+            AssertTrue(enemies.BombTorizoBehavior.ApplyTorizoCue(slot, state, inputs, new TorizoCue.Signal(kind),
                     TorizoAnimations.Start(TorizoBodySegment.BombTorizoInitial0Resumed)) is null,
                 $"{kind} runs on");
 

@@ -16,14 +16,14 @@ internal static class XrayRevealVerification
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         int matches = 0;
-        var commands = new HashSet<XrayRevealCommand>();
+        var commands = new HashSet<XrayRevealShape>();
         foreach (RoomCollisionType type in Enum.GetValues<RoomCollisionType>())
         for (int bts = 0; bts <= byte.MaxValue; bts++)
         {
             XrayRevealDefinition? expected = ReadNativeXrayRevealDefinition(
                 bus, type, unchecked((byte)bts));
-            XrayRevealCommand? found = XrayRevealTable.Find(type, RoomBlockBehaviorCodec.Decode(bts));
-            AssertEqual(expected?.Command, found, $"retail reveal command {type}/BTS {bts:X2}");
+            XrayRevealShape? found = XrayRevealTable.Find(type, RoomBlockBehaviorCodec.Decode(bts));
+            AssertEqual(expected?.Shape, found, $"retail reveal command {type}/BTS {bts:X2}");
             if (found is { } command) { matches++; commands.Add(command); }
         }
         AssertEqual(817, matches, "retail reveal lookup matches all wildcard and explicit entries");
@@ -49,30 +49,30 @@ internal static class XrayRevealVerification
                 if (value == XrayRevealTableWords.End) return null;
                 if (value != XrayRevealTableWords.AnyBts && value != bts) continue;
                 int commandPointer = ReadNativeXrayRevealWord(bus, match + 2);
-                XrayRevealCommand command = SamusIdentityWords.XrayRevealCommands.Decode(
+                XrayRevealShape command = SamusIdentityWords.XrayRevealShapes.Decode(
                     ReadNativeXrayRevealWord(bus, commandPointer), "native X-ray reveal command");
                 return command switch
                 {
-                    XrayRevealCommand.HorizontalExtension or
-                        XrayRevealCommand.VerticalExtension =>
+                    XrayRevealShape.HorizontalExtension or
+                        XrayRevealShape.VerticalExtension =>
                         new(command, 0, 0, 0, 0),
-                    XrayRevealCommand.CopyOne or XrayRevealCommand.CopyBrinstar =>
+                    XrayRevealShape.CopyOne or XrayRevealShape.CopyBrinstar =>
                         new(command, ReadNativeXrayRevealWord(bus, commandPointer + 2), 0, 0, 0),
-                    XrayRevealCommand.CopyWide =>
+                    XrayRevealShape.CopyWide =>
                         new(command,
                             ReadNativeXrayRevealWord(bus, commandPointer + 2),
                             ReadNativeXrayRevealWord(bus, commandPointer + 4), 0, 0),
-                    XrayRevealCommand.CopyTall =>
+                    XrayRevealShape.CopyTall =>
                         new(command,
                             ReadNativeXrayRevealWord(bus, commandPointer + 2), 0,
                             ReadNativeXrayRevealWord(bus, commandPointer + 4), 0),
-                    XrayRevealCommand.CopySquare =>
+                    XrayRevealShape.CopySquare =>
                         new(command,
                             ReadNativeXrayRevealWord(bus, commandPointer + 2),
                             ReadNativeXrayRevealWord(bus, commandPointer + 4),
                             ReadNativeXrayRevealWord(bus, commandPointer + 6),
                             ReadNativeXrayRevealWord(bus, commandPointer + 8)),
-                    _ => throw new InvalidOperationException($"Undefined {nameof(XrayRevealCommand)} {command}."),
+                    _ => throw new InvalidOperationException($"Undefined {nameof(XrayRevealShape)} {command}."),
                 };
             }
         }

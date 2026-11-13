@@ -188,7 +188,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
             case EscapeEtecoonCue.SetFrameBehavior setFrameBehavior:
                 state.FrameBehavior = setFrameBehavior.FrameBehavior;
                 return null;
-            case EscapeEtecoonCue.Command { Kind: EscapeEtecoonCueKind.ClearFrameBehavior }:
+            case EscapeEtecoonCue.Signal { Kind: EscapeEtecoonCueKind.ClearFrameBehavior }:
                 state.FrameBehavior = EscapeEtecoonFrameBehavior.Cleared;
                 return null;
             case EscapeEtecoonCue.GoToIfAcidHigh goToIfAcidHigh:

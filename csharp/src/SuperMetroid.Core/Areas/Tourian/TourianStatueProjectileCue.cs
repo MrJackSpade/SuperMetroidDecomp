@@ -18,7 +18,7 @@ internal abstract record TourianStatueProjectileCue
     /// <param name="Movement">The behaviour a <see cref="StartMoving"/> cue installs.</param>
     internal sealed record StartMoving(EnemyProjectileFrameBehavior Movement) : TourianStatueProjectileCue;
 
-    /// <summary>A cue that carries no operand.</summary>
+    /// <summary>A cue that signals what it does and carries nothing else.</summary>
     /// <param name="Kind">What the cue does.</param>
-    internal sealed record Command(TourianStatueProjectileCueKind Kind) : TourianStatueProjectileCue;
+    internal sealed record Signal(TourianStatueProjectileCueKind Kind) : TourianStatueProjectileCue;
 }

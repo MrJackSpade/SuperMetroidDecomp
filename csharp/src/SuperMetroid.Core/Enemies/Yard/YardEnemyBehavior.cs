@@ -67,7 +67,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             case YardCue.MoveBy moveBy:
                 slot.Position += moveBy.Offset;
                 return null;
-            case YardCue.Command { Kind: YardCueKind.RepeatPreviousPoseUnlessContinuing }:
+            case YardCue.Signal { Kind: YardCueKind.RepeatPreviousPoseUnlessContinuing }:
                 if (state.Behavior != YardBehavior.Hiding && !YardDecisions.RepeatPreviousPose.IsSetIn(_room.Random.Generate()))
                     return null;
                 return new AnimationContinuation<YardSegment>(playing, PoseBeforeRepeatCue(playing));
@@ -90,7 +90,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             IReadOnlyList<AnimationBeat<EnemyFrameId, YardCue>> beats = YardAnimations.Segments.Beats(run.Segment);
             for (int beat = 0; beat < run.BeatCount; beat++)
             {
-                if (beats[run.FirstBeat + beat] is not AnimationBeat<EnemyFrameId, YardCue>.Event { Raised: YardCue.Command { Kind: YardCueKind.RepeatPreviousPoseUnlessContinuing } })
+                if (beats[run.FirstBeat + beat] is not AnimationBeat<EnemyFrameId, YardCue>.Event { Raised: YardCue.Signal { Kind: YardCueKind.RepeatPreviousPoseUnlessContinuing } })
                     continue;
                 if (found is not null)
                     throw new InvalidDataException($"A Yard animation through {run.Segment} has more than one repeat cue.");

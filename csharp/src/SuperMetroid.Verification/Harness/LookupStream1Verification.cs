@@ -1658,12 +1658,12 @@ internal static class LookupStream1Verification
             }
         }
         AssertEqual(795, expected.Count, "Independent native timed-record count outside the two unused lists");
-        AssertTrue(SamusProjectileRecordDefinitions.TimedRecordAddresses.SequenceEqual(expected), "Exact calculated pointer domain/order");
-        AssertEqual(expected.Count, SamusProjectileRecordDefinitions.TimedRecordAddresses.Count, "Calculated pointer view count");
+        AssertTrue(SamusProjectileFrameDefinitions.TimedRecordAddresses.SequenceEqual(expected), "Exact calculated pointer domain/order");
+        AssertEqual(expected.Count, SamusProjectileFrameDefinitions.TimedRecordAddresses.Count, "Calculated pointer view count");
         for (int index = 0; index < expected.Count; index++)
         {
             ushort pointer = expected[index];
-            AssertEqual(pointer, SamusProjectileRecordDefinitions.TimedRecordAddresses[index], "Calculated indexed pointer");
+            AssertEqual(pointer, SamusProjectileFrameDefinitions.TimedRecordAddresses[index], "Calculated indexed pointer");
             Extent16<RoomPixels> radius = SamusProjectileProgramsVerification.RecordAt(pointer).Radius;
             AssertEqual(Word(0x930000 | (pointer + 4)), LittleEndianBytes.Word((byte)radius.X, (byte)radius.Y), "Typed record radii are the native bytes");
         }
@@ -1701,8 +1701,8 @@ internal static class LookupStream1Verification
             AssertEqual(unchecked((ushort)(pointer + 8)), bomb.InstructionPointer, "Actual bomb record progression");
             bombInterpreted++;
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => _ = SamusProjectileRecordDefinitions.TimedRecordAddresses[-1], "Lower indexed view rejection");
-        AssertThrows<ArgumentOutOfRangeException>(() => _ = SamusProjectileRecordDefinitions.TimedRecordAddresses[expected.Count], "Upper indexed view rejection");
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = SamusProjectileFrameDefinitions.TimedRecordAddresses[-1], "Lower indexed view rejection");
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = SamusProjectileFrameDefinitions.TimedRecordAddresses[expected.Count], "Upper indexed view rejection");
         AssertEqual(Extent16<RoomPixels>.Zero, SamusProjectilePlayback.InitialRadius(null), "A shot with no list (the safe Murder Beam) has zero radii");
         Console.WriteLine($"Projectile radii:{expected.Count} native calculated records/{2 * expected.Count} bytes,{interpreted} actual projectile/{bombInterpreted} bomb records with zero reads; exact domain/order/bounds pass.");
     }

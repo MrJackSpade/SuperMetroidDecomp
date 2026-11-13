@@ -53,7 +53,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             case WalkingSpacePirateCue.FireLaserRight fireLaserRight:
                 SpawnWalkingSpacePirateLaser(slot, direction: HorizontalDirection.Right, fireLaserRight.LaserHeight);
                 return null;
-            case WalkingSpacePirateCue.Command { Kind: WalkingSpacePirateCueKind.ChooseMovement }:
+            case WalkingSpacePirateCue.Signal { Kind: WalkingSpacePirateCueKind.ChooseMovement }:
                 return SelectWalkingSpacePirateMovement(slot, samus);
             default:
                 throw new InvalidOperationException($"The walking Space Pirates' animations have no {cue} cue.");

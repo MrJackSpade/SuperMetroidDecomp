@@ -19,7 +19,7 @@ internal abstract record EnemyProjectileCommonCue
     /// <param name="FrameBehavior">The movement behaviour a <see cref="SetFrameBehavior"/> cue installs.</param>
     internal sealed record SetFrameBehavior(EnemyProjectileFrameBehavior FrameBehavior) : EnemyProjectileCommonCue;
 
-    /// <summary>A cue that carries no operand.</summary>
+    /// <summary>A cue that signals what it does and carries nothing else.</summary>
     /// <param name="Kind">What the cue does.</param>
-    internal sealed record Command(EnemyProjectileCommonCueKind Kind) : EnemyProjectileCommonCue;
+    internal sealed record Signal(EnemyProjectileCommonCueKind Kind) : EnemyProjectileCommonCue;
 }

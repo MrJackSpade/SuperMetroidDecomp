@@ -16,12 +16,12 @@ internal abstract record MotherBrainHeadCue
     /// <param name="Afterburns">The afterburn count the bomb lobs with.</param>
     internal sealed record SpawnBomb(int Afterburns) : MotherBrainHeadCue;
 
-    /// <summary>A cue that carries no operand.</summary>
+    /// <summary>A cue that signals what it does and carries nothing else.</summary>
     /// <param name="Kind">What the cue does.</param>
-    internal sealed record Command(MotherBrainHeadCueKind Kind) : MotherBrainHeadCue;
+    internal sealed record Signal(MotherBrainHeadCueKind Kind) : MotherBrainHeadCue;
 
     /// <summary>A cue without operands.</summary>
-    internal static MotherBrainHeadCue Of(MotherBrainHeadCueKind kind) => new Command(kind);
+    internal static MotherBrainHeadCue Of(MotherBrainHeadCueKind kind) => new Signal(kind);
 
     /// <summary>Requests <paramref name="sound"/>.</summary>
     internal static MotherBrainHeadCue Sound(SoundEffectId sound) => new PlaySound(sound);

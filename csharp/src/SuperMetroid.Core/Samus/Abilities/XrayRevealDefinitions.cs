@@ -28,81 +28,81 @@ internal static class XrayRevealDefinitions
     internal static readonly BlockReaction SpikeRevealReaction = BlockReaction.Common(14);
 
     /// <summary>The command each special-air reaction selects.</summary>
-    internal static readonly IReadOnlyDictionary<BlockReaction, XrayRevealCommand> SpecialAirReveals = new Dictionary<BlockReaction, XrayRevealCommand>
+    internal static readonly IReadOnlyDictionary<BlockReaction, XrayRevealShape> SpecialAirReveals = new Dictionary<BlockReaction, XrayRevealShape>
     {
-        [SpecialAirRevealReaction] = XrayRevealCommand.CopyOne,
+        [SpecialAirRevealReaction] = XrayRevealShape.CopyOne,
     };
 
     /// <summary>The command each spike-block reaction selects.</summary>
-    internal static readonly IReadOnlyDictionary<BlockReaction, XrayRevealCommand> SpikeBlockReveals = new Dictionary<BlockReaction, XrayRevealCommand>
+    internal static readonly IReadOnlyDictionary<BlockReaction, XrayRevealShape> SpikeBlockReveals = new Dictionary<BlockReaction, XrayRevealShape>
     {
-        [SpikeRevealReaction] = XrayRevealCommand.CopyOne,
+        [SpikeRevealReaction] = XrayRevealShape.CopyOne,
     };
 
     /// <summary>The command each special-block reaction selects.</summary>
-    internal static readonly IReadOnlyDictionary<BlockReaction, XrayRevealCommand> SpecialBlockReveals = new Dictionary<BlockReaction, XrayRevealCommand>
+    internal static readonly IReadOnlyDictionary<BlockReaction, XrayRevealShape> SpecialBlockReveals = new Dictionary<BlockReaction, XrayRevealShape>
     {
-        [BlockReaction.Common(0)] = XrayRevealCommand.CopyOne,
-        [BlockReaction.Common(4)] = XrayRevealCommand.CopyOne,
-        [BlockReaction.Common(8)] = XrayRevealCommand.CopyOne,
-        [BlockReaction.Common(9)] = XrayRevealCommand.CopyOne,
-        [BlockReaction.Common(10)] = XrayRevealCommand.CopyOne,
-        [BlockReaction.Common(11)] = XrayRevealCommand.CopyOne,
-        [BlockReaction.Common(12)] = XrayRevealCommand.CopyOne,
-        [BlockReaction.Common(13)] = XrayRevealCommand.CopyOne,
-        [BlockReaction.Common(1)] = XrayRevealCommand.CopyWide,
-        [BlockReaction.Common(5)] = XrayRevealCommand.CopyWide,
-        [BlockReaction.Common(2)] = XrayRevealCommand.CopyTall,
-        [BlockReaction.Common(6)] = XrayRevealCommand.CopyTall,
-        [BlockReaction.Common(3)] = XrayRevealCommand.CopySquare,
-        [BlockReaction.Common(7)] = XrayRevealCommand.CopySquare,
-        [BlockReaction.Common(14)] = XrayRevealCommand.CopyOne,
-        [BlockReaction.Common(15)] = XrayRevealCommand.CopyOne,
-        [BlockReaction.AreaSpecific(2)] = XrayRevealCommand.CopyBrinstar,
-        [BlockReaction.AreaSpecific(3)] = XrayRevealCommand.CopyBrinstar,
-        [BlockReaction.AreaSpecific(4)] = XrayRevealCommand.CopyBrinstar,
-        [BlockReaction.AreaSpecific(5)] = XrayRevealCommand.CopyBrinstar,
+        [BlockReaction.Common(0)] = XrayRevealShape.CopyOne,
+        [BlockReaction.Common(4)] = XrayRevealShape.CopyOne,
+        [BlockReaction.Common(8)] = XrayRevealShape.CopyOne,
+        [BlockReaction.Common(9)] = XrayRevealShape.CopyOne,
+        [BlockReaction.Common(10)] = XrayRevealShape.CopyOne,
+        [BlockReaction.Common(11)] = XrayRevealShape.CopyOne,
+        [BlockReaction.Common(12)] = XrayRevealShape.CopyOne,
+        [BlockReaction.Common(13)] = XrayRevealShape.CopyOne,
+        [BlockReaction.Common(1)] = XrayRevealShape.CopyWide,
+        [BlockReaction.Common(5)] = XrayRevealShape.CopyWide,
+        [BlockReaction.Common(2)] = XrayRevealShape.CopyTall,
+        [BlockReaction.Common(6)] = XrayRevealShape.CopyTall,
+        [BlockReaction.Common(3)] = XrayRevealShape.CopySquare,
+        [BlockReaction.Common(7)] = XrayRevealShape.CopySquare,
+        [BlockReaction.Common(14)] = XrayRevealShape.CopyOne,
+        [BlockReaction.Common(15)] = XrayRevealShape.CopyOne,
+        [BlockReaction.AreaSpecific(2)] = XrayRevealShape.CopyBrinstar,
+        [BlockReaction.AreaSpecific(3)] = XrayRevealShape.CopyBrinstar,
+        [BlockReaction.AreaSpecific(4)] = XrayRevealShape.CopyBrinstar,
+        [BlockReaction.AreaSpecific(5)] = XrayRevealShape.CopyBrinstar,
     };
 
     /// <summary>The command each shootable-block reaction selects.</summary>
-    internal static readonly IReadOnlyDictionary<BlockReaction, XrayRevealCommand> ShootableBlockReveals = new Dictionary<BlockReaction, XrayRevealCommand>
+    internal static readonly IReadOnlyDictionary<BlockReaction, XrayRevealShape> ShootableBlockReveals = new Dictionary<BlockReaction, XrayRevealShape>
     {
-        [BlockReaction.Common(0)] = XrayRevealCommand.CopyOne,
-        [BlockReaction.Common(4)] = XrayRevealCommand.CopyOne,
-        [BlockReaction.Common(1)] = XrayRevealCommand.CopyWide,
-        [BlockReaction.Common(5)] = XrayRevealCommand.CopyWide,
-        [BlockReaction.Common(2)] = XrayRevealCommand.CopyTall,
-        [BlockReaction.Common(6)] = XrayRevealCommand.CopyTall,
-        [BlockReaction.Common(3)] = XrayRevealCommand.CopySquare,
-        [BlockReaction.Common(7)] = XrayRevealCommand.CopySquare,
-        [BlockReaction.Common(8)] = XrayRevealCommand.CopyOne,
-        [BlockReaction.Common(9)] = XrayRevealCommand.CopyOne,
-        [BlockReaction.Common(10)] = XrayRevealCommand.CopyOne,
-        [BlockReaction.Common(11)] = XrayRevealCommand.CopyOne,
-        [BlockReaction.Common(12)] = XrayRevealCommand.CopyOne,
-        [BlockReaction.Common(13)] = XrayRevealCommand.CopyOne,
-        [BlockReaction.Common(14)] = XrayRevealCommand.CopyOne,
-        [BlockReaction.Common(15)] = XrayRevealCommand.CopyOne,
+        [BlockReaction.Common(0)] = XrayRevealShape.CopyOne,
+        [BlockReaction.Common(4)] = XrayRevealShape.CopyOne,
+        [BlockReaction.Common(1)] = XrayRevealShape.CopyWide,
+        [BlockReaction.Common(5)] = XrayRevealShape.CopyWide,
+        [BlockReaction.Common(2)] = XrayRevealShape.CopyTall,
+        [BlockReaction.Common(6)] = XrayRevealShape.CopyTall,
+        [BlockReaction.Common(3)] = XrayRevealShape.CopySquare,
+        [BlockReaction.Common(7)] = XrayRevealShape.CopySquare,
+        [BlockReaction.Common(8)] = XrayRevealShape.CopyOne,
+        [BlockReaction.Common(9)] = XrayRevealShape.CopyOne,
+        [BlockReaction.Common(10)] = XrayRevealShape.CopyOne,
+        [BlockReaction.Common(11)] = XrayRevealShape.CopyOne,
+        [BlockReaction.Common(12)] = XrayRevealShape.CopyOne,
+        [BlockReaction.Common(13)] = XrayRevealShape.CopyOne,
+        [BlockReaction.Common(14)] = XrayRevealShape.CopyOne,
+        [BlockReaction.Common(15)] = XrayRevealShape.CopyOne,
     };
 
     /// <summary>The command each grapple-block reaction selects.</summary>
-    internal static readonly IReadOnlyDictionary<BlockReaction, XrayRevealCommand> GrappleBlockReveals = new Dictionary<BlockReaction, XrayRevealCommand>
+    internal static readonly IReadOnlyDictionary<BlockReaction, XrayRevealShape> GrappleBlockReveals = new Dictionary<BlockReaction, XrayRevealShape>
     {
-        [BlockReaction.Common(0)] = XrayRevealCommand.CopyOne,
-        [BlockReaction.Common(1)] = XrayRevealCommand.CopyOne,
-        [BlockReaction.Common(2)] = XrayRevealCommand.CopyOne,
+        [BlockReaction.Common(0)] = XrayRevealShape.CopyOne,
+        [BlockReaction.Common(1)] = XrayRevealShape.CopyOne,
+        [BlockReaction.Common(2)] = XrayRevealShape.CopyOne,
     };
 
     /// <summary>The command each bombable-block reaction selects.</summary>
-    internal static readonly IReadOnlyDictionary<BlockReaction, XrayRevealCommand> BombableBlockReveals = new Dictionary<BlockReaction, XrayRevealCommand>
+    internal static readonly IReadOnlyDictionary<BlockReaction, XrayRevealShape> BombableBlockReveals = new Dictionary<BlockReaction, XrayRevealShape>
     {
-        [BlockReaction.Common(0)] = XrayRevealCommand.CopyOne,
-        [BlockReaction.Common(4)] = XrayRevealCommand.CopyOne,
-        [BlockReaction.Common(1)] = XrayRevealCommand.CopyWide,
-        [BlockReaction.Common(5)] = XrayRevealCommand.CopyWide,
-        [BlockReaction.Common(2)] = XrayRevealCommand.CopyTall,
-        [BlockReaction.Common(6)] = XrayRevealCommand.CopyTall,
-        [BlockReaction.Common(3)] = XrayRevealCommand.CopySquare,
-        [BlockReaction.Common(7)] = XrayRevealCommand.CopySquare,
+        [BlockReaction.Common(0)] = XrayRevealShape.CopyOne,
+        [BlockReaction.Common(4)] = XrayRevealShape.CopyOne,
+        [BlockReaction.Common(1)] = XrayRevealShape.CopyWide,
+        [BlockReaction.Common(5)] = XrayRevealShape.CopyWide,
+        [BlockReaction.Common(2)] = XrayRevealShape.CopyTall,
+        [BlockReaction.Common(6)] = XrayRevealShape.CopyTall,
+        [BlockReaction.Common(3)] = XrayRevealShape.CopySquare,
+        [BlockReaction.Common(7)] = XrayRevealShape.CopySquare,
     };
 }

@@ -32,13 +32,13 @@ internal abstract record MotherBrainBodyCue
     /// <param name="Dust">The particle spawned.</param>
     internal sealed record SpawnHandDust(Offset16<RoomPixels> Offset, MiscDustAnimation Dust) : MotherBrainBodyCue;
 
-    /// <summary>A cue that carries no operand.</summary>
+    /// <summary>A cue that signals what it does and carries nothing else.</summary>
     /// <param name="Kind">What the cue does.</param>
-    internal sealed record Command(MotherBrainBodyCueKind Kind) : MotherBrainBodyCue;
+    internal sealed record Signal(MotherBrainBodyCueKind Kind) : MotherBrainBodyCue;
 
     /// <summary>Fires the red hand beam.</summary>
-    internal static MotherBrainBodyCue FireHandBeam { get; } = new Command(MotherBrainBodyCueKind.FireHandBeam);
+    internal static MotherBrainBodyCue FireHandBeam { get; } = new Signal(MotherBrainBodyCueKind.FireHandBeam);
 
     /// <summary>Advances the hand-beam attack phase.</summary>
-    internal static MotherBrainBodyCue AdvanceHandBeamPhase { get; } = new Command(MotherBrainBodyCueKind.AdvanceHandBeamPhase);
+    internal static MotherBrainBodyCue AdvanceHandBeamPhase { get; } = new Signal(MotherBrainBodyCueKind.AdvanceHandBeamPhase);
 }

@@ -293,7 +293,7 @@ internal sealed class SamusShownFrames
             publications.Add(new(SamusDrainedAnimationDefinitions.UnableToStandFrame, PublishedFrameDrawing.AfterAdvancing));
         // The Baby's Hyper Beam freeze and rainbow stop write the frame without checking the pose, so a Samus the drain has
         // let go of takes them in whatever pose she holds, drawn as written.
-        if (BabyCommandsMeetFree(pose))
+        if (BabyFreezeAndStopMeetFree(pose))
         {
             publications.Add(new(SamusDrainedAnimationDefinitions.HyperBeamAcquisitionFrame, PublishedFrameDrawing.AsWritten));
             publications.Add(new(SamusDrainedAnimationDefinitions.RainbowStopFrame, PublishedFrameDrawing.AsWritten));
@@ -342,10 +342,10 @@ internal sealed class SamusShownFrames
 
     /// <summary>
     /// Whether the Baby's Hyper Beam freeze and rainbow stop can meet <paramref name="pose"/> on a Samus the drain has let go
-    /// of: any pose but the drained crouches, which the commands are made for, and the death poses, since enemy AI, which
-    /// runs the Baby's commands, stops while Samus dies.
+    /// of: any pose but the drained crouches, which the freeze and stop are made for, and the death poses, since enemy AI,
+    /// which runs the Baby's freeze and stop, stops while Samus dies.
     /// </summary>
-    private static bool BabyCommandsMeetFree(SamusPoseId pose) =>
+    private static bool BabyFreezeAndStopMeetFree(SamusPoseId pose) =>
         pose is not (SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose or
             SamusPoseId.DeathSequenceRightPose or SamusPoseId.DeathSequenceLeftPose);
 

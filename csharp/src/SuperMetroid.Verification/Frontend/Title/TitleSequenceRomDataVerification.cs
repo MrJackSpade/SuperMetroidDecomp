@@ -177,7 +177,7 @@ internal static class TitleSequenceRomDataVerification
         int pointer = TitleSourceDefinitions.TextLists[definition.Phase];
         foreach (TitleCardStep step in TitleCards.Steps(definition.Phase))
         {
-            if (step.Command is { } command)
+            if (step.Cue is { } command)
             {
                 WriteRomWord(rom, pointer, TitleNativeWords.Instructions.Word(command));
                 AssertEqual(sceneCommand, TitleNativeWords.Instructions.Word(command), "constructed title scene command");

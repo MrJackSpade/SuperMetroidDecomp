@@ -71,7 +71,7 @@ internal sealed class SamusPoseTransitionPhase
         if (!animationTransitionApplied && _player.ProspectiveSamusPose is { } inputTransition)
             ApplyInputTransition(frame, samus, inputTransition, roomObjects);
         else if (!animationTransitionApplied)
-            ApplyLookupFailureCommand(frame, samus);
+            ApplyLookupFailureResponse(frame, samus);
 
         // Crouching selects command two only on lookup failure. A matched
         // angle-held pose must retain boost even though movement zeroed X speed.
@@ -353,13 +353,13 @@ internal sealed class SamusPoseTransitionPhase
             // selected for the pre-wall movement type.
             if (_player.ProspectiveSamusPose is null && _player.ProspectiveSamusFallbackPose is not null)
             {
-                SamusProspectivePoseChangeCommand command = SamusPoseChangeCommands.ForLookupFailure(
+                SamusMomentumResponse response = SamusMomentumResponses.ForLookupFailure(
                     SamusPoseMetadata.ReadMovementType(frame.PoseAtFrameStart));
-                if (command is not (SamusProspectivePoseChangeCommand.Decelerate or SamusProspectivePoseChangeCommand.Stop))
+                if (response is not (SamusMomentumResponse.Decelerate or SamusMomentumResponse.Stop))
                     throw new InvalidDataException(
-                        $"Ran-into-wall source {frame.PoseAtFrameStart} selected unexpected lookup-failure command {command}.");
+                        $"Ran-into-wall source {frame.PoseAtFrameStart} selected unexpected lookup-failure momentum response {response}.");
                 samus.HorizontalSpeed.ApplyDeceleratingInputFallback(
-                    command == SamusProspectivePoseChangeCommand.Decelerate && frame.DeceleratingFallbackHasMomentum,
+                    response == SamusMomentumResponse.Decelerate && frame.DeceleratingFallbackHasMomentum,
                     SamusPoseMetadata.ReadFacingDirection(samus));
             }
         }
@@ -928,11 +928,11 @@ internal sealed class SamusPoseTransitionPhase
     }
 
     /// <summary>
-    /// Applies the command alpha's lookup failure selected when no transition won: hurt and
+    /// Applies the momentum response alpha's lookup failure selected when no transition won: hurt and
     /// boost releases, grabbed, wall-jump and ball fallbacks, running deceleration and stops, and the aim, turn and
     /// aerial definition fallbacks.
     /// </summary>
-    private void ApplyLookupFailureCommand(SamusHandlerFrame frame, SamusState samus)
+    private void ApplyLookupFailureResponse(SamusHandlerFrame frame, SamusState samus)
     {
         if (frame.PoseAtFrameStart is SamusPoseId.KnockbackRightPose or SamusPoseId.KnockbackLeftPose &&
                  _player.ProspectiveSamusFallbackPose == frame.PoseAtFrameStart)
@@ -1036,7 +1036,7 @@ internal sealed class SamusPoseTransitionPhase
             // before decelerating; changing only the mode leaves stale dash
             // speed alive and changes the subsequent stopping trajectory.
             samus.HorizontalSpeed.ApplyDeceleratingInputFallback(
-                selectedMomentumCommand: true, SamusPoseMetadata.ReadFacingDirection(samus));
+                selectedDeceleration: true, SamusPoseMetadata.ReadFacingDirection(samus));
         }
         else if (SamusPoseMetadata.IsRightFacingRunningPose(frame.PoseAtFrameStart) &&
                  _player.ProspectiveSamusFallbackPose == SamusPoseId.FacingRightNormalPose)

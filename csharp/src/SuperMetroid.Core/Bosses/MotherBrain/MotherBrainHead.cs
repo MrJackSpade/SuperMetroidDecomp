@@ -276,75 +276,75 @@ internal sealed class MotherBrainHead
     {
         switch (cue)
         {
-            case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.ShakeBrain }:
+            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.ShakeBrain }:
                 state.BrainMainShakeTimer = 50;
                 return null;
-            case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.SpawnDrool }:
+            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.SpawnDrool }:
                 SpawnMotherBrainDrool(state);
                 return null;
-            case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.SpawnBigPurpleBreath }:
+            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.SpawnBigPurpleBreath }:
                 SpawnMotherBrainPurpleBreathBig(state);
                 return null;
             case MotherBrainHeadCue.PlaySound playSound:
                 _audio.QueueEnemySound(playSound.Effect, priority: SoundRequestPriority.Normal);
                 return null;
-            case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.DisableNeckMovement }:
+            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.DisableNeckMovement }:
                 state.NeckMovementEnabled = false;
                 return null;
-            case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.EnableNeckMovement }:
+            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.EnableNeckMovement }:
                 state.NeckMovementEnabled = true;
                 return null;
-            case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.AimOnionRingsAtSamus }:
+            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.AimOnionRingsAtSamus }:
             {
                 SamusState target = samus ?? throw new InvalidOperationException(
                     "Mother Brain onion-ring aiming requires the active Samus actor.");
                 AimMotherBrainOnionRingsAt(state, target.Position.Whole);
                 return null;
             }
-            case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.AimOnionRingsAtBabyMetroid }:
+            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.AimOnionRingsAtBabyMetroid }:
             {
                 BabyMetroidCutsceneState baby = state.BabyMetroid ?? throw new InvalidOperationException(
                     "Mother Brain's Baby-targeting cue ran without the Baby actor.");
                 AimMotherBrainOnionRingsAt(state, baby.Position.Whole);
                 return null;
             }
-            case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.SpawnOnionRing }:
+            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.SpawnOnionRing }:
                 SpawnMotherBrainOnionRing(state, state.OnionRingsTargetAngle);
                 return null;
             case MotherBrainHeadCue.SpawnBomb bomb:
                 SpawnMotherBrainBomb(state, bomb.Afterburns);
                 return null;
-            case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.SpawnLaser }:
+            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.SpawnLaser }:
                 SpawnMotherBrainMouthLaser(state);
                 return null;
-            case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.CountBabyMetroidAttack }:
+            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.CountBabyMetroidAttack }:
                 MotherBrainEncounterAccess.RequireLiveMotherBrainRainbowSequence(state).IncrementLiveBabyMetroidAttackCounter();
                 return null;
-            case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.ResetBabyMetroidAttacks }:
+            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.ResetBabyMetroidAttacks }:
                 MotherBrainEncounterAccess.RequireLiveMotherBrainRainbowSequence(state).ResetLiveBabyMetroidAttackCounter();
                 return null;
-            case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.QueueBabyMetroidAttackSound }:
+            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.QueueBabyMetroidAttackSound }:
                 // The attack cry step skips the attack cry once the attack counter reaches eleven.
                 if (MotherBrainEncounterAccess.RequireLiveMotherBrainRainbowSequence(state).Revival.BabyMetroidAttackCounter != 11)
                     _audio.QueueEnemySound(MotherBrainSoundDefinitions.AttackCry, priority: SoundRequestPriority.Normal);
                 return null;
-            case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.PrepareRainbowBeamCharge }:
+            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.PrepareRainbowBeamCharge }:
                 state.SmallPurpleBreathGenerationEnabled = false;
                 _audio.QueueEnemySound(MotherBrainSoundDefinitions.RainbowBeamCharge, priority: SoundRequestPriority.Normal);
                 return null;
-            case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.SpawnRainbowBeamChargeParticle }:
+            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.SpawnRainbowBeamChargeParticle }:
                 SpawnMotherBrainRainbowChargingProjectile();
                 return null;
             // The neutral hold holds the phase-two neutral pose again on fifteen samples in sixteen.
-            case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.MaybeHoldNeutralPhase2 }:
+            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.MaybeHoldNeutralPhase2 }:
                 return MotherBrainRandomDefinitions.NeutralPhase2Holds.IsTakenBy(_room.Random.Read()) ? MotherBrainHeadSegment.NeutralPhase2Hold : null;
             // Retail branches unconditionally here, where the adjacent commentary might suggest a
             // conditional one: the hold's chance alone decides whether the phase-three pose holds again.
-            case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.MaybeHoldNeutralPhase3 }:
+            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.MaybeHoldNeutralPhase3 }:
                 return MotherBrainRandomDefinitions.NeutralPhase3Holds.IsTakenBy(_room.Random.Read()) ? MotherBrainHeadSegment.NeutralPhase3Hold : null;
             // The drool hold returns its destination: only the burst's chance bursts into more drool; every other sample
             // keeps the one-frame loop.
-            case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.MaybeDroolAgain }:
+            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.MaybeDroolAgain }:
                 return MotherBrainRandomDefinitions.DroolBursts.IsTakenBy(_room.Random.Read()) ? MotherBrainHeadSegment.DyingDroolBurst : null;
             default:
                 throw new InvalidOperationException($"Undefined Mother Brain head cue {cue}.");

@@ -283,7 +283,7 @@ internal static class LookupStream2Verification
     internal static void VerifyLookupStream2ProjectileIdentityGeometry(ISnesAddressSpace rom)
     {
         var expected = new SortedSet<ushort>();
-        foreach (ushort record in SamusProjectileRecordDefinitions.TimedRecordAddresses)
+        foreach (ushort record in SamusProjectileFrameDefinitions.TimedRecordAddresses)
             expected.Add(ReadVerificationWord(rom, (0x930000 | record) + 2));
         int physicalAddress = 0x93f0fa;
         int physicalRecords = 0;
@@ -1467,7 +1467,7 @@ internal static class LookupStream2Verification
     {
         byte[] json = ProjectileFrameBindingExtractor.Extract(rom);
         var stock = ProjectileFrameBindingFile.Load(new MemoryStream(json));
-        foreach (ushort pointer in SamusProjectileRecordDefinitions.TimedRecordAddresses)
+        foreach (ushort pointer in SamusProjectileFrameDefinitions.TimedRecordAddresses)
             AssertEqual(ReadVerificationWord(rom, (0x930000 | pointer) + 2), stock.Resolve(pointer), "Every installed selector retains its exact native target");
         for (int direction = 0; direction < 8; direction++)
         {
@@ -1480,7 +1480,7 @@ internal static class LookupStream2Verification
         int checkedWaveIce = 0;
         int checkedAxialEndPairs = 0;
         int checkedCappedSweep = 0;
-        foreach (ushort pointer in SamusProjectileRecordDefinitions.TimedRecordAddresses)
+        foreach (ushort pointer in SamusProjectileFrameDefinitions.TimedRecordAddresses)
         {
             if (pointer is not (>= 0x873b and < 0x8973) and
                 not (>= 0x8e77 and < 0x8f17) and
@@ -1506,7 +1506,7 @@ internal static class LookupStream2Verification
         AssertEqual(8, checkedAxialEndPairs, "All four reversed axial end-pairs use exact native operands");
         AssertEqual(10, checkedCappedSweep, "All ten capped sweep phases use exact native operands");
         int checkedBombs = 0;
-        foreach (ushort pointer in SamusProjectileRecordDefinitions.TimedRecordAddresses)
+        foreach (ushort pointer in SamusProjectileFrameDefinitions.TimedRecordAddresses)
         {
             if (pointer is < 0x9f87 or >= 0xa007) continue;
             var bomb = new SamusBombProjectileSlot(0) { Playback = SamusProjectileProgramAddresses.PlaybackAt(pointer), FrameHold = WrappingCountdown.Start(1), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500) };
@@ -1518,7 +1518,7 @@ internal static class LookupStream2Verification
         AssertEqual(14, checkedBombs, "Both normal/fast PowerBomb and Bomb visual cycles");
         AssertThrows<InvalidDataException>(() => stock.Resolve(0x87c3), "Wave self-jump is not accepted as a timed record");
         AssertThrows<InvalidDataException>(() => stock.Resolve(0x86dc), "Program interior is not accepted as a timed record");
-        Console.WriteLine($"Stream2 Power bindings: {SamusProjectileRecordDefinitions.TimedRecordAddresses.Count} installed beam/effect selectors and native operands and actual handler paths pass.");
+        Console.WriteLine($"Stream2 Power bindings: {SamusProjectileFrameDefinitions.TimedRecordAddresses.Count} installed beam/effect selectors and native operands and actual handler paths pass.");
     }
 
     /// <summary>Checks Golden Torizo foot extended frames and OAM geometry.</summary>

@@ -18,7 +18,7 @@ internal abstract record DownwardGateProjectileCue
     /// <param name="YVelocity">The vertical velocity a <see cref="SetYVelocity"/> cue installs.</param>
     internal sealed record SetYVelocity(SignedEightEight YVelocity) : DownwardGateProjectileCue;
 
-    /// <summary>A cue that carries no operand.</summary>
+    /// <summary>A cue that signals what it does and carries nothing else.</summary>
     /// <param name="Kind">What the cue does.</param>
-    internal sealed record Command(DownwardGateProjectileCueKind Kind) : DownwardGateProjectileCue;
+    internal sealed record Signal(DownwardGateProjectileCueKind Kind) : DownwardGateProjectileCue;
 }

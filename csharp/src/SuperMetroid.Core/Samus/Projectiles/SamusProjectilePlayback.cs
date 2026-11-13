@@ -73,8 +73,7 @@ internal static class SamusProjectilePlayback
         AnimationPhase<SamusProjectileSegment> first = SamusProjectileAnimations.StartingWith(selected).Phases[0];
         if (SamusProjectileAnimations.Segments.Beats(first.Segment)[first.FirstBeat] is not AnimationBeat<SamusProjectileFrame, NoAnimationCue>.Frame frame)
             throw new InvalidDataException($"Samus projectile animation {selected} does not open with a frame.");
-        SamusProjectileRecord record = SamusProjectileRecordDefinitions.Get(frame.Shown);
-        return record.Radius;
+        return SamusProjectileFrameDefinitions.Get(frame.Shown).Radius;
     }
 
     /// <summary>
@@ -88,6 +87,6 @@ internal static class SamusProjectilePlayback
             return null;
         if (SamusProjectileAnimations.Segments.Beats(at.Segment)[at.Beat - 1] is not AnimationBeat<SamusProjectileFrame, NoAnimationCue>.Frame frame)
             throw new InvalidOperationException($"Samus projectile segment {at.Segment} continues past a beat that shows no frame.");
-        return SamusProjectileRecordDefinitions.Get(frame.Shown).AnimationFrame;
+        return SamusProjectileFrameDefinitions.Get(frame.Shown).AnimationFrame;
     }
 }

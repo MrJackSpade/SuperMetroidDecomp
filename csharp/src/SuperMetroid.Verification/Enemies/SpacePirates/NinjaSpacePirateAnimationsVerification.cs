@@ -36,7 +36,7 @@ internal static class NinjaSpacePirateAnimationsVerification
                                 setShading.Shading == SuperMetroid.Core.Enemies.SpacePirates.Artwork.NinjaSpacePirateShades.GoldWallFlash
                                     ? SuperMetroid.AssetExtraction.Enemies.EnemySheetRowDefinitions.NinjaGoldWall : NinjaStanceRow),
                             NinjaSpacePirateCue.ThrowClaw throwClaw => throwClaw.Throw == HorizontalDirection.Right ? (ushort)1 : (ushort)0,
-                            NinjaSpacePirateCue.Command { Kind: NinjaSpacePirateCueKind.ResetSpeed } or NinjaSpacePirateCue.SetFunction or NinjaSpacePirateCue.Command { Kind: NinjaSpacePirateCueKind.StartActive } or NinjaSpacePirateCue.Command { Kind: NinjaSpacePirateCueKind.StartLeftDivekick } or NinjaSpacePirateCue.Command { Kind: NinjaSpacePirateCueKind.StartRightDivekick } => throw new InvalidOperationException($"{at}: {cue} has no word operand."),
+                            NinjaSpacePirateCue.Signal { Kind: NinjaSpacePirateCueKind.ResetSpeed } or NinjaSpacePirateCue.SetFunction or NinjaSpacePirateCue.Signal { Kind: NinjaSpacePirateCueKind.StartActive } or NinjaSpacePirateCue.Signal { Kind: NinjaSpacePirateCueKind.StartLeftDivekick } or NinjaSpacePirateCue.Signal { Kind: NinjaSpacePirateCueKind.StartRightDivekick } => throw new InvalidOperationException($"{at}: {cue} has no word operand."),
                             _ => throw new InvalidOperationException($"{at}: {cue} has no word operand."),
                         },
                         'S' => unchecked((ushort)AssertIs<NinjaSpacePirateCue.ThrowClaw>(cue, $"{at}: cue").Offset.X),

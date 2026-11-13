@@ -45,7 +45,7 @@ internal abstract record TorizoProjectileCue
     /// <param name="Radius">The collision radius a <see cref="SetRadius"/> cue sets.</param>
     internal sealed record SetRadius(Extent16<RoomPixels> Radius) : TorizoProjectileCue;
 
-    /// <summary>A cue that carries no operand.</summary>
+    /// <summary>A cue that signals what it does and carries nothing else.</summary>
     /// <param name="Kind">What the cue does.</param>
-    internal sealed record Command(TorizoProjectileCueKind Kind) : TorizoProjectileCue;
+    internal sealed record Signal(TorizoProjectileCueKind Kind) : TorizoProjectileCue;
 }

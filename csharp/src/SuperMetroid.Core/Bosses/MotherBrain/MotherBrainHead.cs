@@ -310,7 +310,7 @@ internal sealed class MotherBrainHead
                 return null;
             }
             case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.SpawnOnionRing }:
-                SpawnMotherBrainOnionRing(state, new TrigonometryAngle(state.OnionRingsTargetAngle));
+                SpawnMotherBrainOnionRing(state, state.OnionRingsTargetAngle);
                 return null;
             case MotherBrainHeadCue.SpawnBomb bomb:
                 SpawnMotherBrainBomb(state, bomb.Afterburns);
@@ -374,7 +374,7 @@ internal sealed class MotherBrainHead
     /// <summary>
     /// The shared onion-ring aim tail. Both target selectors subtract the same mouth offsets,
     /// call the original game angle routine, rotate by a half turn, and clamp the launch arc to
-    /// 16..72; only the source coordinate differs.
+    /// <see cref="OnionRingLowestAim"/> through <see cref="OnionRingHighestAim"/>; only the source coordinate differs.
     /// </summary>
     private static void AimMotherBrainOnionRingsAt(
         MotherBrainEnemyState state,
@@ -382,21 +382,28 @@ internal sealed class MotherBrainHead
     {
         RoomEnemySlot head = state.Head;
         Position16<RoomPixels> mouth = head.Position.Whole + new Offset16<RoomPixels>(10, 16);
-        int angle = EnemyMath.CalculateBearing(target - mouth).ToTableAngle().TurnedBy(TrigonometryAngle.QuarterTurn).RawValue;
+        TrigonometryAngle angle = EnemyMath.CalculateBearing(target - mouth).ToTableAngle().TurnedBy(TrigonometryAngle.QuarterTurn);
 
-        // The clamp performs two signed comparisons within one turn of 256. The
-        // wraparound half maps 192..255 and 0..15 to 16; the opposite half maps
-        // 72..191 to 72. Only 16..71 survives unchanged.
-        state.OnionRingsTargetAngle = angle switch
-        {
-            >= 16 and < 72 => angle,
-            >= 72 and < 192 => 72,
-            _ => 16,
-        };
+        // The clamp performs two signed comparisons within one turn. The
+        // wraparound half, from three quarters of a turn round past zero, maps to the lowest aim; the opposite half maps
+        // to the highest. Only the aims between them survive unchanged.
+        state.OnionRingsTargetAngle =
+            angle >= OnionRingLowestAim && angle < OnionRingHighestAim ? angle
+            : angle >= OnionRingHighestAim && angle < OnionRingClampSplit ? OnionRingHighestAim
+            : OnionRingLowestAim;
     }
 
+    /// <summary>The lowest aim an onion ring launches at: a sixteenth of a turn.</summary>
+    private static readonly TrigonometryAngle OnionRingLowestAim = new(16);
+
+    /// <summary>The highest aim an onion ring launches at: nine thirty-seconds of a turn.</summary>
+    private static readonly TrigonometryAngle OnionRingHighestAim = new(72);
+
+    /// <summary>Where the onion-ring aim clamp stops raising aims to the highest and starts lowering them to the lowest: three quarters of a turn.</summary>
+    private static readonly TrigonometryAngle OnionRingClampSplit = new(192);
+
     /// <summary>The sideways speed a Mother Brain bomb's floor bounce restores, without its direction.</summary>
-    private static readonly SignedEightEight MotherBrainBombBounceSpeed = SignedEightEight.FromSignedRaw(112);
+    private static readonly SignedEightEight MotherBrainBombBounceSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(112);
 
     /// <summary>Updates an onion ring stays at Mother Brain's mouth before it flies.</summary>
     private const int MotherBrainOnionRingAttachDelay = 8;
@@ -417,7 +424,7 @@ internal sealed class MotherBrainHead
         RoomEnemySlot head = state.Head;
         bomb.Position = bomb.Position.WithWhole(new(CoordinateAxis.Wrap(head.Position.X.Whole + 12), CoordinateAxis.Wrap(head.Position.Y.Whole + 16)));
         bomb.Position = bomb.Position.WithFractionX(0).WithFractionY(0);
-        bomb.Velocity = new(new SignedEightEight(224), new SignedEightEight(256));
+        bomb.Velocity = new(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(224), SignedEightEight.FromPixels(1));
         bomb.State = new MotherBrainBombState(MotherBrainBombBounceSpeed, afterburnCount);
         state.RecordBombSpawned();
     }
@@ -518,7 +525,7 @@ internal sealed class MotherBrainHead
             projectile,
             RoomEnemyProjectileKind.MotherBrainRainbowBeamCharging,
             graphics: default);
-        projectile.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
+        projectile.Velocity = EightEightVector<RoomPixels>.Zero;
         projectile.Position = projectile.Position.WithFractionX(0).WithFractionY(0);
         _projectileAttacks.RunMotherBrainRainbowChargingFrameBehavior(projectile);
     }

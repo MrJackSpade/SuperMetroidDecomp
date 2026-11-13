@@ -220,7 +220,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static readonly EightEightVector<RoomPixels> DraygonShotSwoopAccelerationStep = new(0, 8);
 
     /// <summary>The swoop acceleration, 160/256 pixel per frame per frame, an eye hit may not reach.</summary>
-    internal static readonly SignedEightEight DraygonSwoopAccelerationLimit = SignedEightEight.FromSignedRaw(160);
+    internal static readonly SignedEightEight DraygonSwoopAccelerationLimit = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(160);
 
     /// <summary>The swoop path entry at which the arms reach for the swoop's apex, and return to rest on the climb.</summary>
     internal const int DraygonSwoopApexArmsEntry = 26;
@@ -266,6 +266,9 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static readonly RotationAngle DraygonInitialSpiralAngle = RotationAngle.ThreeQuarterTurn;
     /// <summary>Initial per-frame angular step of the Samus-carry spiral: eight table units, slowed by 1/256 unit each frame.</summary>
     internal static readonly RotationAngle DraygonInitialSpiralAngleDelta = RotationAngle.FromSteps(8);
+
+    /// <summary>How much the spiral's turn each frame slows every frame: a 256th of a step.</summary>
+    internal static readonly RotationAngle DraygonSpiralTurnSlowing = RotationAngle.FromSteps(0, 1);
     /// <summary>The carry spiral's per-frame radius growth: one eighth of a pixel.</summary>
     internal static readonly SignedSixteenSixteen DraygonSpiralRadiusGrowth = SignedSixteenSixteen.FromParts(0, 8192);
     /// <summary>Largest radius reached by the expanding carry spiral.</summary>

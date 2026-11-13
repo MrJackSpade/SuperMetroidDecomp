@@ -15,9 +15,9 @@ internal static class BabyMetroidGradualAcceleration
     /// <summary>Extra speed adjustment while reversing direction toward the target.</summary>
     private const int ReversalStep = 8;
     /// <summary>Horizontal signed-velocity clamp applied after the run: eight pixels an update either way.</summary>
-    private static readonly SignedEightEight MaxXSpeed = SignedEightEight.FromSignedRaw(2048);
+    private static readonly SignedEightEight MaxXSpeed = SignedEightEight.FromPixels(8);
     /// <summary>Vertical signed-velocity clamp, smaller than the horizontal limit: five pixels an update either way.</summary>
-    private static readonly SignedEightEight MaxYSpeed = SignedEightEight.FromSignedRaw(1280);
+    private static readonly SignedEightEight MaxYSpeed = SignedEightEight.FromPixels(5);
 
     /// <summary>
     /// Returns the new X velocity. <paramref name="isVaguelyOffScreen"/> runs only on the

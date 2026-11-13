@@ -257,8 +257,8 @@ public sealed class MotherBrainEnemyState
     public FixedPosition<RoomPixels> HandBeamNextPosition { get; internal set; }
     /// <summary>Signed 8.8 aimed velocity; advances the shared cursor before each child receives its independent randomized scatter velocity.</summary>
     public EightEightVector<RoomPixels> HandBeamNextVelocity { get; internal set; }
-    /// <summary>Aim angle in 256-unit-turn table units (0 through 255), calculated from hand to Samus at charging setup and used as the children's randomized scatter-angle base.</summary>
-    public int HandBeamNextAngle { get; internal set; }
+    /// <summary>Aim angle, calculated from hand to Samus at charging setup and used as the children's randomized scatter-angle base.</summary>
+    public TrigonometryAngle HandBeamNextAngle { get; internal set; }
 
     /// <summary>
     /// The already verified rainbow/finish-off/Baby/phase-three state machine, attached to
@@ -332,8 +332,8 @@ public sealed class MotherBrainEnemyState
 
 
     /// <summary>
-    /// Clamped aim angle in 256-unit-turn table units, 16 through 72, written by the head's aim step
+    /// Clamped aim angle, a sixteenth through nine thirty-seconds of a turn, written by the head's aim step
     /// and consumed by the next onion-ring spawn.
     /// </summary>
-    public int OnionRingsTargetAngle { get; internal set; }
+    public TrigonometryAngle OnionRingsTargetAngle { get; internal set; }
 }

@@ -250,7 +250,7 @@ internal sealed class MotherBrainFakeDeath
 
         MotherBrainProjectileStarts.Initialize(projectile, kind, graphics: SpriteGraphics.SharedIn(MotherBrainColours.GlassAndTubes));
         projectile.Position = projectile.Position.WithWhole(position);
-        projectile.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
+        projectile.Velocity = EightEightVector<RoomPixels>.Zero;
         projectile.State = new MotherBrainTopTubeState();
     }
 
@@ -332,7 +332,7 @@ internal sealed class MotherBrainFakeDeath
     {
         MotherBrainFallingTubeState tubeState = tube.RequireSpeciesState<MotherBrainFallingTubeState>();
         // A tube falls to its floor and explodes there, so its speed stays a few pixels an update.
-        tubeState.FallSpeed += SignedEightEight.FromSignedRaw(6);
+        tubeState.FallSpeed += SignedEightEight.FromTwoHundredFiftySixthsOfPixel(6);
         tube.Position = tube.Position.AdvanceY(tubeState.FallSpeed.ToSixteenSixteenDelta());
         return tubeState;
     }

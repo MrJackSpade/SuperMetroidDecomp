@@ -317,10 +317,10 @@ internal sealed class CrocomireCombat
     {
         // Preserve the two word shifts, including negative two's-complement bits. The
         // table is read with the bearing unconverted, so X is its sine and Y its negative cosine.
-        return new(
-            Trigonometry.SignedSine(bearing.ToMirroredTableAngle()) * CrocomireProjectileDefinitions.VelocityMultiplier,
-            Trigonometry.SignedNegativeCosineSample(bearing.ToMirroredTableAngle().RawValue) *
-                CrocomireProjectileDefinitions.VelocityMultiplier);
+        TrigonometryAngle heading = bearing.ToMirroredTableAngle();
+        return EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(
+            Trigonometry.SignedSine(heading) * CrocomireProjectileDefinitions.VelocityMultiplier,
+            Trigonometry.SignedSine(heading - TrigonometryAngle.QuarterTurn) * CrocomireProjectileDefinitions.VelocityMultiplier);
     }
 
     /// <summary>The gravity a falling spike-wall piece gains each update.</summary>
@@ -343,7 +343,7 @@ internal sealed class CrocomireCombat
         // The acceleration's whole part is added to the velocity in 256ths of a pixel: a fraction that passes a whole
         // pixel raises the whole velocity by one, and the whole pixels are then capped by this piece's maximum. The
         // piece starts at rest and its whole velocity stays at or below its cap of at most six pixels.
-        SignedEightEight xVelocity = (projectile.Velocity.X + SignedEightEight.FromSignedRaw(UnsignedEightEight.Whole(acceleration)))
+        SignedEightEight xVelocity = (projectile.Velocity.X + SignedEightEight.FromTwoHundredFiftySixthsOfPixel(UnsignedEightEight.Whole(acceleration)))
             .WithWholePixelsAtMost(CrocomireSpikeMotion.MaximumVelocity(piece.Piece));
         projectile.Velocity = projectile.Velocity.WithX(xVelocity);
 

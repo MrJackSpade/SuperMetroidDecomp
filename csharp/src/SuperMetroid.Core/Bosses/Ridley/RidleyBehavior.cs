@@ -140,7 +140,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 return;
 
             case RidleyAiFunction.ClearVelocity:
-                state.Velocity = new EightEightVector<RoomPixels>(0, 0);
+                state.Velocity = EightEightVector<RoomPixels>.Zero;
                 return;
 
             case RidleyAiFunction.NorfairEnterArena:
@@ -182,7 +182,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 NorfairRidleyCombat.TickNorfairRidleySwoopPhase(
                     state,
                     state.FacingDirection != RidleyFacing.Left ? 32 : -32,
-                    state.FacingDirection != RidleyFacing.Left ? 512 : -512,
+                    SwoopTarget(state, RotationAngle.FromSteps(2)),
                     1152,
                     RidleyAiFunction.NorfairSwoopAimSideways,
                     20);
@@ -192,7 +192,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 if (NorfairRidleyCombat.TickNorfairRidleySwoopPhase(
                         state,
                         state.FacingDirection != RidleyFacing.Left ? 320 : -320,
-                        state.FacingDirection != RidleyFacing.Left ? 16384 : -16384,
+                        SwoopTarget(state, RotationAngle.QuarterTurn),
                         1280,
                         RidleyAiFunction.NorfairSwoopAimUp,
                         16))
@@ -205,7 +205,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 NorfairRidleyCombat.TickNorfairRidleySwoopPhase(
                     state,
                     state.FacingDirection != RidleyFacing.Left ? 512 : -512,
-                    state.FacingDirection != RidleyFacing.Left ? 30720 : -30720,
+                    SwoopTarget(state, CeresRidleyBehavior.SwoopClimbTarget),
                     768,
                     RidleyAiFunction.NorfairSwoopClimb,
                     32);
@@ -215,7 +215,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 if (NorfairRidleyCombat.TickNorfairRidleySwoopPhase(
                         state,
                         state.FacingDirection != RidleyFacing.Left ? 1024 : -1024,
-                        state.FacingDirection != RidleyFacing.Left ? 30720 : -30720,
+                        SwoopTarget(state, CeresRidleyBehavior.SwoopClimbTarget),
                         768,
                         RidleyAiFunction.NorfairSwoopRecover,
                         32))
@@ -225,7 +225,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 return;
 
             case RidleyAiFunction.NorfairSwoopRecover:
-                CeresRidleyFlight.UpdateRidleySwoopVelocity(state, 0, short.MinValue, 448);
+                CeresRidleyFlight.UpdateRidleySwoopVelocity(state, 0, RotationAngle.HalfTurn, 448);
                 if (state.SwoopPhaseTimer != 0)
                 {
                     state.SwoopPhaseTimer--;
@@ -485,4 +485,11 @@ internal sealed class RidleyBehavior : IEnemySpecies
             frame.SharedProjectiles ?? throw new InvalidOperationException(
                 "Ridley's power-bomb check requires the shared projectile owner."),
             frame.Camera));
+
+    /// <summary>
+    /// The heading a Norfair swoop turns toward: <paramref name="rightward"/> for a Ridley facing right or forward, and
+    /// the same turn the other way round from zero for one facing left.
+    /// </summary>
+    private static RotationAngle SwoopTarget(RidleyEnemyState state, RotationAngle rightward) =>
+        state.FacingDirection != RidleyFacing.Left ? rightward : RotationAngle.Zero - rightward;
 }

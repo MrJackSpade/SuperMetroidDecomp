@@ -14,10 +14,10 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 internal sealed class NorfairRidleyDeath
 {
     /// <summary>The drag a breakup fragment's sideways speed loses each update, stopping at rest.</summary>
-    private static readonly SignedEightEight BreakupFragmentDrag = SignedEightEight.FromSignedRaw(4);
+    private static readonly SignedEightEight BreakupFragmentDrag = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(4);
 
     /// <summary>The gravity a breakup fragment's fall gains each update.</summary>
-    private static readonly SignedEightEight BreakupFragmentGravity = SignedEightEight.FromSignedRaw(4);
+    private static readonly SignedEightEight BreakupFragmentGravity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(4);
 
     /// <summary>Enemy dispatcher used for Ridley's registered callbacks.</summary>
     private readonly IEnemyDispatch _dispatch;
@@ -86,7 +86,7 @@ internal sealed class NorfairRidleyDeath
         if (!NorfairRidleyMovement.TickRidleyFunctionTimer(state))
             return;
 
-        state.Velocity = new EightEightVector<RoomPixels>(0, 0);
+        state.Velocity = EightEightVector<RoomPixels>.Zero;
         RidleyLiquidMotion.Publish(_roomFx, state, RidleyLiquidDefinitions.DrainedHeight,
             RidleyLiquidDefinitions.DrainVelocity, RidleyLiquidDefinitions.DrainDelay);
         state.DeathExplosionTimer = 0;
@@ -113,7 +113,7 @@ internal sealed class NorfairRidleyDeath
         if (state.GrabState != RidleyGrabState.Released)
             ReleaseNorfairRidleyGrab(state, samus);
         state.Function = RidleyAiFunction.NorfairDeathImpact;
-        state.Velocity = new EightEightVector<RoomPixels>(0, 0);
+        state.Velocity = EightEightVector<RoomPixels>.Zero;
         SpawnNorfairRidleyBreakupActors(state);
     }
 
@@ -242,7 +242,7 @@ internal sealed class NorfairRidleyDeath
         var fragmentState = new RidleyExplosionFragmentState
         {
             Lifetime = RidleyExplosionDefinitions.GetPart(part).Lifetime,
-            Velocity = new(SignedEightEight.FromSignedRaw(BossRandomRolls.InLowerHalf(random)
+            Velocity = new(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(BossRandomRolls.InLowerHalf(random)
                 ? horizontalMagnitude
                 : -horizontalMagnitude), default),
         };

@@ -307,7 +307,7 @@ internal sealed class KraidRise
         if (!KraidRandomDefinitions.RisingRockOffsetRight.IsSetIn(random))
             randomOffset = CoordinateAxis.AsSigned(-(randomOffset + KraidRandomDefinitions.RisingRockLeftExtraPixels));
         rock.Position = FixedPosition<RoomPixels>.FromWhole(new(CoordinateAxis.Wrap(body.Position.X.Whole + randomOffset), 432));
-        rock.Velocity = new(SignedEightEight.FromSignedRaw(KraidRandomDefinitions.RisingRockXSpeedSteps.Of(random) * KraidRandomDefinitions.RisingRockXSpeedStep), SignedEightEight.FromSignedRaw(-1280));
+        rock.Velocity = new(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(KraidRandomDefinitions.RisingRockXSpeedSteps.Of(random) * KraidRandomDefinitions.RisingRockXSpeedStep), SignedEightEight.FromPixels(-5));
         rock.Graphics = SpriteGraphics.SharedIn(KraidColours.RocksShading);
         state.SpawnedRiseRockCount++;
         _access.RequestKraidSound(KraidSoundDefinitions.RockSpit);
@@ -375,7 +375,7 @@ internal sealed class KraidRise
                     RequestKraidRisingRock(body, state);
                 body.Position = body.Position.WithWrappedWholeX(body.Position.X.Whole +
                     ((body.Position.Y.Whole & 2) == 0 ? -1 : 1));
-                AddSignedKraidVerticalDisplacement(body, -32768);
+                AddSignedKraidVerticalDisplacement(body, RisingBodyLift);
                 if (CoordinateAxis.Difference(body.Position.Y.Whole, 457) < 0)
                 {
                     body.Position = body.Position.WithWholeX(176);
@@ -463,11 +463,14 @@ internal sealed class KraidRise
         }
     }
 
+    /// <summary>How far Kraid's body rises each update while it raises itself: half a pixel upward.</summary>
+    private static readonly SignedSixteenSixteen RisingBodyLift = SignedSixteenSixteen.FromSixteenthsOfPixel(-8);
+
     /// <summary>Adds signed vertical motion to the body position with fixed-point wraparound.</summary>
     private static void AddSignedKraidVerticalDisplacement(
         RoomEnemySlot body,
-        int displacement)
+        SignedSixteenSixteen displacement)
     {
-        body.Position = body.Position.WithY(body.Position.Y.MovedBy(SignedSixteenSixteen.FromRaw(displacement)));
+        body.Position = body.Position.WithY(body.Position.Y.MovedBy(displacement));
     }
 }

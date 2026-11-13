@@ -266,7 +266,7 @@ internal sealed class KraidHead
         int random = _access.ReadKraidRandomNumber();
         rock.Position = FixedPosition<RoomPixels>.FromWhole(new(CoordinateAxis.Wrap(body.Position.X.Whole + 16), CoordinateAxis.Wrap(body.Position.Y.Whole - 96)));
         rock.Velocity = rock.Velocity.WithX(KraidRockLaunchDefinitions.FromRandom(random));
-        rock.Velocity = rock.Velocity.WithY(SignedEightEight.FromSignedRaw(-1024));
+        rock.Velocity = rock.Velocity.WithY(SignedEightEight.FromPixels(-4));
         rock.Graphics = SpriteGraphics.SharedIn(KraidColours.RocksShading);
         return true;
     }

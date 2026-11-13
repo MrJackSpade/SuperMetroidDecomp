@@ -50,10 +50,10 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>The acceleration of the Shitroid's approach to a latch, on each axis.</summary>
-    private static readonly SignedEightEight LatchAcceleration = SignedEightEight.FromSignedRaw(512);
+    private static readonly SignedEightEight LatchAcceleration = SignedEightEight.FromPixels(2);
 
     /// <summary>The fastest the Shitroid approaches a latch, on each axis, in either direction.</summary>
-    private static readonly SignedEightEight LatchMaximumSpeed = SignedEightEight.FromSignedRaw(1280);
+    private static readonly SignedEightEight LatchMaximumSpeed = SignedEightEight.FromPixels(5);
 
     /// <summary>Four authored feeding jitter offsets, stepped through by <see cref="MotherBrainCadenceDefinitions.ShitroidShakeStep"/>.</summary>
     private static readonly Offset16<RoomPixels>[] ShitroidShakeOffsets =

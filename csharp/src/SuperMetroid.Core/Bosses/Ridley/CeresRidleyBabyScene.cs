@@ -38,7 +38,7 @@ internal sealed class CeresRidleyBabyScene
     }
 
     /// <summary>The gravity the dropped Baby's fall gains each update.</summary>
-    private static readonly SignedEightEight CeresBabyFallGravity = SignedEightEight.FromSignedRaw(8);
+    private static readonly SignedEightEight CeresBabyFallGravity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(8);
 
     /// <summary>Keeps the Baby at Ridley's arm anchor, falls independently, then follows the grasp point on retrieval.</summary>
     internal static void TickCeresBaby(RoomEnemySlot slot, RidleyEnemyState state)

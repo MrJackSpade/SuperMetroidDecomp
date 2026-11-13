@@ -16,5 +16,5 @@ internal readonly record struct BotwoonSegmentProgram(BotwoonSegmentProgramKind 
     internal static BotwoonSegmentProgram Toward(BotwoonSegmentProgramKind kind, Bearing toLeader) =>
         kind == BotwoonSegmentProgramKind.Hidden
             ? Hidden
-            : new(kind, BotwoonAnimations.FacingOfOctant(toLeader.RawValue >> 5));
+            : new(kind, BotwoonAnimations.FacingOfOctant(toLeader.Sector(8)));
 }

@@ -9,7 +9,7 @@ internal static class CeresFlightActorDefinitions
     public const int RearViewActorCount = 5;
 
     /// <summary>The acceleration applied to the opening star field on each update.</summary>
-    public static readonly SignedEightEight FrontStarAcceleration = SignedEightEight.FromSignedRaw(128);
+    public static readonly SignedEightEight FrontStarAcceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(128);
 
     /// <summary>Where the opening star field starts; the rear view's actors start at their installed placements.</summary>
     public static readonly Position16<ScreenPixels> FrontStarsStart = new(112, 87);
@@ -33,7 +33,7 @@ internal static class CeresFlightActorDefinitions
         ActiveFrameBehavior: CinematicSpriteFrameBehavior.CeresStars,
         Program: CinematicSpriteProgram.CeresStars,
         Colouring: CeresSpriteColouring.SpaceObjects,
-        InitialVelocity: SignedEightEight.FromSignedRaw(-1024),
+        InitialVelocity: SignedEightEight.FromPixels(-4),
         HorizontalDelta: SignedSixteenSixteen.Zero,
         WrapX: false);
 

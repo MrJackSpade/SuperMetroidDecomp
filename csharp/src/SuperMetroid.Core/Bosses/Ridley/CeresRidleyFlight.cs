@@ -67,7 +67,7 @@ internal sealed class CeresRidleyFlight
             FacingDirection = RidleyFacing.Left,
             IdleTailWhipEnabled = true,
             TailDamage = 15,
-            Velocity = new EightEightVector<RoomPixels>(0, 0),
+            Velocity = EightEightVector<RoomPixels>.Zero,
             MovementMinimum = Position16<RoomPixels>.Wrapped(40, -32),
             MovementMaximum = new Position16<RoomPixels>(224, 176),
             BabyPlayback = new AnimationPlayback<CeresBabyProgram>(CeresBabyAnimations.StartingWith(CeresBabyProgram.Initial), AnimationPlace.StartOfAnimation),
@@ -105,7 +105,7 @@ internal sealed class CeresRidleyFlight
         // The fallthrough from the rise deliberately applies both -16 and +20 on the crossing
         // frame. Do not combine these into a single acceleration outside this state.
         // The rise carries Ridley past line 80, 32 pixels above where the slowing starts, within a few updates.
-        state.Velocity = state.Velocity.WithY(state.Velocity.Y + SignedEightEight.FromSignedRaw(20));
+        state.Velocity = state.Velocity.WithY(state.Velocity.Y + SignedEightEight.FromTwoHundredFiftySixthsOfPixel(20));
         if (CoordinateAxis.Difference(slot.Position.Y.Whole, 80) < 0)
         {
             state.Function = RidleyAiFunction.CeresHovering;
@@ -160,7 +160,7 @@ internal sealed class CeresRidleyFlight
     }
 
     /// <summary>The least vertical speed Ridley keeps, either way, while he moves into his fireball position.</summary>
-    private static readonly SignedEightEight FireballMoveMinimumSpeed = SignedEightEight.FromSignedRaw(128);
+    private static readonly SignedEightEight FireballMoveMinimumSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(128);
 
     /// <summary>Steers Ridley into his fireball position and installs the mouth/fireball instruction stream.</summary>
     internal void TickCeresRidleyFireballMove(RoomEnemySlot slot, RidleyEnemyState state)
@@ -263,7 +263,7 @@ internal sealed class CeresRidleyFlight
     internal static void TickCeresRidleySwoopPhase(
         RidleyEnemyState state,
         int angleDelta,
-        int targetAngle,
+        RotationAngle targetAngle,
         int targetMagnitude,
         RidleyAiFunction nextFunction,
         int nextTimer)
@@ -276,11 +276,14 @@ internal sealed class CeresRidleyFlight
         }
     }
 
-    /// <summary>Applies signed-word comparisons while reversing Ridley's swoop velocity.</summary>
+    /// <summary>
+    /// Turns Ridley's swoop heading by <paramref name="angleDelta"/> 256ths of a step toward <paramref name="targetAngle"/>,
+    /// testing the sign of the difference as the heading wraps, and derives his velocity from it.
+    /// </summary>
     internal static void UpdateRidleySwoopVelocity(
         RidleyEnemyState state,
         int angleDelta,
-        int targetAngle,
+        RotationAngle targetAngle,
         int targetMagnitude)
     {
         int magnitude = state.SwoopSpeedMagnitude;
@@ -290,13 +293,12 @@ internal sealed class CeresRidleyFlight
             magnitude = Math.Max(targetMagnitude, magnitude - 32);
         state.SwoopSpeedMagnitude = magnitude;
 
-        RotationAngle angle = state.SwoopAngleAccumulator.AddRaw(angleDelta);
+        RotationAngle angle = state.SwoopAngleAccumulator.TurnedByFractionsOfStep(angleDelta);
         // The comparison tests the sign of the difference, not signed less-than. The heading wraps around the
         // turn, particularly onto the half-turn recovery target after a rightward swoop.
-        RotationAngle target = RotationAngle.NormalizeRaw(targetAngle);
-        bool negativeDifference = angle.TurnFrom(target) < 0;
+        bool negativeDifference = angle.TurnFrom(targetAngle) < 0;
         if (angleDelta < 0 ? negativeDifference : !negativeDifference)
-            angle = target;
+            angle = targetAngle;
         state.SwoopAngleAccumulator = angle;
         TrigonometryAngle phase = angle.ToTrigonometryAngle();
         state.Velocity = state.Velocity.WithX(Trigonometry.MultiplySignedSine(magnitude, phase));
@@ -354,7 +356,7 @@ internal sealed class CeresRidleyFlight
         }
 
         state.BabyFunction = CeresBabyFunction.CarriedInFeet;
-        state.Velocity = state.Velocity.WithY(SignedEightEight.FromSignedRaw(-512));
+        state.Velocity = state.Velocity.WithY(SignedEightEight.FromPixels(-2));
         BeginCeresRidleyRetreat(state);
     }
 
@@ -382,7 +384,7 @@ internal sealed class CeresRidleyFlight
         // The retreat places the two wall actors before the getaway begins. The getaway scene shows the chamber's walls
         // itself (#1545); the actors draw nothing, but they take two enemy places (SpawnCeresRidleyGetawayWalls).
         SpawnCeresRidleyGetawayWalls();
-        state.Velocity = new EightEightVector<RoomPixels>(0, 0);
+        state.Velocity = EightEightVector<RoomPixels>.Zero;
         state.TailFunctionIndex = RidleyTailFunction.None;
         state.Function = RidleyAiFunction.CeresPublishEscapeHandoff;
 

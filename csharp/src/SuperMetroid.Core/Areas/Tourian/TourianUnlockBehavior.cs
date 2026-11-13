@@ -35,10 +35,10 @@ internal sealed class TourianUnlockBehavior
     private static readonly Offset16<RoomPixels> SplashAboveSurface = new(0, -4);
 
     /// <summary>The upward acceleration of a rising statue soul each update.</summary>
-    private static readonly SignedEightEight SoulRiseAcceleration = SignedEightEight.FromSignedRaw(128);
+    private static readonly SignedEightEight SoulRiseAcceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(128);
 
     /// <summary>The gravity a falling statue particle gains each update.</summary>
-    private static readonly SignedEightEight ParticleGravity = SignedEightEight.FromSignedRaw(16);
+    private static readonly SignedEightEight ParticleGravity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(16);
 
     /// <summary>The water surface the unlocking particles cross and their splashes ride; only its Y axis is meaningful.</summary>
     internal Position16<RoomPixels> TourianStatueWaterSurface { get; set; }
@@ -71,7 +71,7 @@ internal sealed class TourianUnlockBehavior
     public void SpawnTourianSoul(TourianStatueEye eye)
     {
         if (SpawnAtStatueEye(RoomEnemyProjectileKind.TourianStatueSoul, eye) is not { } soul) return;
-        soul.Velocity = soul.Velocity.WithY(SignedEightEight.Wrapped(-1024));
+        soul.Velocity = soul.Velocity.WithY(SignedEightEight.FromPixels(-4));
     }
 
     /// <summary>Allocates an unlock effect at a statue's <paramref name="eye"/>; null when every slot is busy.</summary>
@@ -102,9 +102,9 @@ internal sealed class TourianUnlockBehavior
         TrigonometryAngle angle = TrigonometryAngle.Wrapped(_room.Random.Next(TourianStatueParticleDefinitions.LaunchAngle) - 32);
         // The samples lie within one pixel either way, so four times one stays within four. The vertical speed is the
         // sine a quarter turn back: the angle's negative cosine.
-        projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.FromSignedRaw(Trigonometry.SignedSine(angle)));
-        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromSignedRaw(
-            4 * Trigonometry.SignedSine(angle.TurnedBySteps(-TrigonometryAngle.QuarterTurn.RawValue))));
+        projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(Trigonometry.SignedSine(angle)));
+        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(
+            4 * Trigonometry.SignedSine(angle - TrigonometryAngle.QuarterTurn)));
     }
 
     /// <summary>Holds a splash at the water surface.</summary>

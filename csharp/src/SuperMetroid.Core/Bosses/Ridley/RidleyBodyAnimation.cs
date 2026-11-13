@@ -107,7 +107,7 @@ internal sealed class RidleyBodyAnimation
             {
                 RidleyEnemyState liftoff = _ridleyEncounter.RequireCeresRidley(slot);
                 liftoff.Function = RidleyAiFunction.CeresLiftoffAccelerating;
-                liftoff.Velocity = liftoff.Velocity.WithY(SignedEightEight.FromSignedRaw(-352));
+                liftoff.Velocity = liftoff.Velocity.WithY(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-352));
                 return null;
             }
             case RidleyBodyCue.Command { Kind: RidleyBodyCueKind.StartLiftoff }:
@@ -116,7 +116,7 @@ internal sealed class RidleyBodyAnimation
                 // the fight's start and supplies the initial upward 8.8 velocity in the same tick.
                 RidleyEnemyState norfairLiftoff = _ridleyEncounter.RequireNorfairRidley(slot);
                 norfairLiftoff.Function = RidleyAiFunction.NorfairEnterArena;
-                norfairLiftoff.Velocity = norfairLiftoff.Velocity.WithY(SignedEightEight.FromSignedRaw(-352));
+                norfairLiftoff.Velocity = norfairLiftoff.Velocity.WithY(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-352));
                 return null;
             }
             default:

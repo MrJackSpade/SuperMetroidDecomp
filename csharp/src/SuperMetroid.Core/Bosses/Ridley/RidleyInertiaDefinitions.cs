@@ -10,10 +10,10 @@ public static class RidleyInertiaDefinitions
     public const int DeathReversalBoost = 16;
 
     /// <summary>The fastest positive speed the Norfair acceleration routines allow, five pixels per frame.</summary>
-    public static SignedEightEight MaximumVelocity { get; } = SignedEightEight.FromSignedRaw(5 * 256);
+    public static SignedEightEight MaximumVelocity { get; } = SignedEightEight.FromPixels(5);
 
     /// <summary>The fastest negative speed, five pixels per frame, compared with the N flag.</summary>
-    public static SignedEightEight MinimumVelocity { get; } = SignedEightEight.FromSignedRaw(-5 * 256);
+    public static SignedEightEight MinimumVelocity { get; } = SignedEightEight.FromPixels(-5);
 
     /// <summary>Base acceleration added when reversing direction.</summary>
     public const int ReversalAcceleration = 8;

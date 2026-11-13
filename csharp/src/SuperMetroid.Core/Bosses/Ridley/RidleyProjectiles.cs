@@ -34,6 +34,24 @@ internal sealed class RidleyProjectiles
     /// <summary>The fireball's 8.8 speed: five pixels per update.</summary>
     private const int FireballSpeed = 1280;
 
+    /// <summary>The start of the arc a left-facing Ridley aims his fireballs within.</summary>
+    private static readonly TrigonometryAngle LeftFacingAimStart = new(176);
+
+    /// <summary>The end of the arc a left-facing Ridley aims his fireballs within; the clamp keeps this end itself.</summary>
+    private static readonly TrigonometryAngle LeftFacingAimEnd = new(235);
+
+    /// <summary>Below this a left-facing Ridley's aim clamps to the arc's end rather than its start: a quarter turn.</summary>
+    private static readonly TrigonometryAngle LeftFacingAimSplit = new(64);
+
+    /// <summary>The start of the arc a right-facing Ridley aims his fireballs within.</summary>
+    private static readonly TrigonometryAngle RightFacingAimStart = new(21);
+
+    /// <summary>The end of the arc a right-facing Ridley aims his fireballs within; the clamp keeps this end itself.</summary>
+    private static readonly TrigonometryAngle RightFacingAimEnd = new(80);
+
+    /// <summary>From this a right-facing Ridley's aim clamps to the arc's start rather than its end: three quarters of a turn.</summary>
+    private static readonly TrigonometryAngle RightFacingAimSplit = new(192);
+
     /// <summary>Runs Ridley's fireball aim step and retains its asymmetric aim clamps.</summary>
     internal void CalculateRidleyFireballVelocity(RoomEnemySlot ridley, SamusState samus)
     {
@@ -43,19 +61,21 @@ internal sealed class RidleyProjectiles
         TrigonometryAngle angle = EnemyMath.CalculateBearing(
             new(CoordinateAxis.Difference(samus.Position.X.Whole, muzzleX), CoordinateAxis.Difference(samus.Position.Y.Whole, muzzleY))).ToTableAngle().TurnedBy(TrigonometryAngle.QuarterTurn);
 
+        // Each facing keeps its aim within its own arc; an aim beyond the arc's far end, up to the split, takes that
+        // end, and any other aim outside it takes the near end.
         if (state.FacingDirection == RidleyFacing.Left)
         {
-            if (angle.RawValue is < 64 or >= 235)
-                angle = new(235);
-            else if (angle.RawValue < 176)
-                angle = new(176);
+            if (angle < LeftFacingAimSplit || angle >= LeftFacingAimEnd)
+                angle = LeftFacingAimEnd;
+            else if (angle < LeftFacingAimStart)
+                angle = LeftFacingAimStart;
         }
         else
         {
-            if (angle.RawValue is < 21 or >= 192)
-                angle = new(21);
-            else if (angle.RawValue >= 80)
-                angle = new(80);
+            if (angle < RightFacingAimStart || angle >= RightFacingAimSplit)
+                angle = RightFacingAimStart;
+            else if (angle >= RightFacingAimEnd)
+                angle = RightFacingAimEnd;
         }
 
         // The sine and cosine multiplies read signed values from the shared sine table.
@@ -126,7 +146,7 @@ internal sealed class RidleyProjectiles
         RidleyProjectileStarts.Initialize(center, kind, FireballGraphicsIndex);
         center.Position = center.Position.WithWhole(position);
         // The afterburn centre's steps explicitly stop the center; allocation retains prior velocities.
-        center.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
+        center.Velocity = EightEightVector<RoomPixels>.Zero;
         center.RemainingAfterburns = remaining;
     }
 

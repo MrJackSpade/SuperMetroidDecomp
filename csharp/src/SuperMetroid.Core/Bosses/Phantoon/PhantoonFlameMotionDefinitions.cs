@@ -12,7 +12,7 @@ internal static class PhantoonFlameMotionDefinitions
     /// screens tall (<see cref="Rooms.Scrolling.RoomScrollGrid.KeptCellCount"/>), and a bounce restarts it at three
     /// pixels an update upward, so its speed stays below 64 pixels an update.
     /// </summary>
-    internal static readonly SignedEightEight FlameGravity = SignedEightEight.FromSignedRaw(16);
+    internal static readonly SignedEightEight FlameGravity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(16);
     /// <summary>Updates an intro flame circles at its full radius before the circle starts closing.</summary>
     internal const int IntroCircleDelay = 180;
     /// <summary>The radius, in pixels, an intro flame starts circling at; it closes by one every other update.</summary>

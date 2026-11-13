@@ -278,7 +278,7 @@ internal sealed class MotherBrainProjectiles
     {
         // Every floor bounce restarts the fall at two pixels an update upward, and between bounces the bomb falls back no
         // further than from the height its launch reaches to its floor at 208, so the speed stays within a few pixels an update.
-        bomb.Velocity = bomb.Velocity.WithY(bomb.Velocity.Y + SignedEightEight.FromSignedRaw(acceleration));
+        bomb.Velocity = bomb.Velocity.WithY(bomb.Velocity.Y + SignedEightEight.FromTwoHundredFiftySixthsOfPixel(acceleration));
         bomb.Position = bomb.Position.Advance(bomb.Velocity.ToSixteenSixteen());
 
         // Both boundaries are signed tests of the difference. X reflects without clamping; the floor
@@ -290,7 +290,7 @@ internal sealed class MotherBrainProjectiles
 
         bomb.Position = bomb.Position.WithWholeY(208);
         SignedEightEight bounceSpeed = bomb.StateOf<MotherBrainBombState>().BounceSpeed;
-        bomb.Velocity = new(bounceSpeed.AlongDirectionOf(bomb.Velocity.X), SignedEightEight.FromSignedRaw(-512));
+        bomb.Velocity = new(bounceSpeed.AlongDirectionOf(bomb.Velocity.X), SignedEightEight.FromPixels(-2));
         return true;
     }
 
@@ -320,7 +320,7 @@ internal sealed class MotherBrainProjectiles
         MotherBrainEnemyState state)
     {
         state.RecordBombRemoved();
-        bomb.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
+        bomb.Velocity = EightEightVector<RoomPixels>.Zero;
         bomb.Delete();
     }
 
@@ -361,7 +361,7 @@ internal sealed class MotherBrainProjectiles
     /// <summary>Keeps the escape subtitle projectile fixed to its screen position.</summary>
     internal static void PinMotherBrainEscapeSubtitle(EnemyProjectile subtitle)
     {
-        subtitle.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
+        subtitle.Velocity = EightEightVector<RoomPixels>.Zero;
         subtitle.Position = subtitle.Position.WithWhole(new(MotherBrainDeathDefinitions.SubtitleX, MotherBrainDeathDefinitions.SubtitleY));
     }
 
@@ -378,7 +378,7 @@ internal sealed class MotherBrainProjectiles
         }
 
         // A tube falls from the ceiling to its floor at 208 and is removed there, so its speed stays a few pixels an update.
-        projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + SignedEightEight.FromSignedRaw(6));
+        projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + SignedEightEight.FromTwoHundredFiftySixthsOfPixel(6));
         projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
         if (projectile.Position.Y.Whole < 208)
             return;
@@ -419,11 +419,13 @@ internal sealed class MotherBrainProjectiles
 
         // The shard's launch angle is a random angle of 0 through 255. It selects signed sine/cosine velocities, and
         // the sixteenth of a turn it lies in chooses one of sixteen authored shard animation lists.
-        int angle = MotherBrainGlassShardDefinitions.LaunchAngle.Of(_room.Random.Generate());
-        shard.Velocity = shard.Velocity.WithX(SignedEightEight.FromSignedRaw(Trigonometry.SignedNegativeCosineSample(angle + 64)));
-        // A cosine sample lies within one pixel either way, so four times one stays within four.
-        shard.Velocity = shard.Velocity.WithY(SignedEightEight.FromSignedRaw(4 * Trigonometry.SignedNegativeCosineSample(angle)));
-        int animationIndex = angle >> 4;
+        var angle = new TrigonometryAngle(MotherBrainGlassShardDefinitions.LaunchAngle.Of(_room.Random.Generate()));
+        shard.Velocity = shard.Velocity.WithX(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(Trigonometry.SignedSine(angle)));
+        // The vertical speed is four times the negative cosine, the sine a quarter turn back; a sample lies within one
+        // pixel either way, so four times one stays within four.
+        shard.Velocity = shard.Velocity.WithY(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(
+            4 * Trigonometry.SignedSine(angle - TrigonometryAngle.QuarterTurn)));
+        int animationIndex = angle.ToAngle().Sector(16);
         shard.StartAnimation(new MotherBrainGlassAnimation(MotherBrainGlassAnimations.ShardProgram(animationIndex)));
         shard.Graphics = MotherBrainGlassShardDefinitions.Graphics(MotherBrainColours.GlassAndTubes);
 
@@ -454,7 +456,7 @@ internal sealed class MotherBrainProjectiles
 
         // A shard is removed once it leaves the first 256 lines, so it falls at most that far and its speed stays a few
         // pixels an update above its launch speed.
-        shard.Velocity = shard.Velocity.WithY(shard.Velocity.Y + SignedEightEight.FromSignedRaw(32));
+        shard.Velocity = shard.Velocity.WithY(shard.Velocity.Y + SignedEightEight.FromTwoHundredFiftySixthsOfPixel(32));
 
         // The condition itself consumes one random value every live shard frame; a successful
         // sparkle consumes two more below. Bits 5 and 10 of the sample both clear: one sample in four.
@@ -507,7 +509,7 @@ internal sealed class MotherBrainProjectiles
         state.HandBeamNextPosition = beam.Position;
 
         int angleRandom = _room.Random.Generate();
-        TrigonometryAngle scatterAngle = new TrigonometryAngle(state.HandBeamNextAngle).TurnedBySteps(MotherBrainRandomDefinitions.HandBeamScatterTurn.Of(angleRandom));
+        TrigonometryAngle scatterAngle = state.HandBeamNextAngle.TurnedBySteps(MotherBrainRandomDefinitions.HandBeamScatterTurn.Of(angleRandom));
         int speedRandom = _room.Random.Generate();
         int scatterSpeed = UnsignedEightEight.FromParts(whole: MotherBrainRandomDefinitions.HandBeamScatterSpeed.Of(speedRandom), fraction: 0);
         beam.Velocity = beam.Velocity.WithX(EnemyMath.MultiplySineSample(scatterSpeed, scatterAngle));
@@ -528,7 +530,7 @@ internal sealed class MotherBrainProjectiles
             return;
         }
 
-        beam.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
+        beam.Velocity = EightEightVector<RoomPixels>.Zero;
         beam.StartAnimation(new MotherBrainHandBeamAnimation());
     }
 
@@ -550,7 +552,7 @@ internal sealed class MotherBrainProjectiles
         int parameter = drool.StateOf<MotherBrainDroolState>().MouthPoint;
 
         drool.Position = drool.Position.WithWhole(head.Position.Whole + MotherBrainBehavior.MotherBrainDroolOffsets[parameter]);
-        drool.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
+        drool.Velocity = EightEightVector<RoomPixels>.Zero;
     }
 
     /// <summary>
@@ -561,7 +563,7 @@ internal sealed class MotherBrainProjectiles
         EnemyProjectile drool)
     {
         // The drool splashes once it falls to 215, so its speed stays a few pixels an update.
-        drool.Velocity = drool.Velocity.WithY(drool.Velocity.Y + SignedEightEight.FromSignedRaw(12));
+        drool.Velocity = drool.Velocity.WithY(drool.Velocity.Y + SignedEightEight.FromTwoHundredFiftySixthsOfPixel(12));
         drool.Position = drool.Position.AdvanceY(drool.Velocity.Y.ToSixteenSixteenDelta());
         if (drool.Position.Y.Whole < 215)
             return;

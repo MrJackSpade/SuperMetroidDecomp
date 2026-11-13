@@ -891,7 +891,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
             RoomEnemyProjectileKind.BotwoonBody,
             SpriteGraphics.SpawnedBy(head));
         segment.Position = FixedPosition<RoomPixels>.FromWhole(head.Position.Whole);
-        segment.Velocity = segment.Velocity.WithY(new SignedEightEight(0));
+        segment.Velocity = segment.Velocity.WithY(SignedEightEight.Zero);
 
         // Every segment, the tail cap included, starts hidden inside the wall.
         BotwoonSegmentProgram pose = BotwoonSegmentProgram.Hidden;
@@ -988,13 +988,13 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         BotwoonEnemyState state,
         int randomEnemyCounter)
     {
-        SignedSixteenSixteen displacement = EnemyQuadraticSpeeds.Row(EightEight.WholeOf(segment.Velocity.Y.SignedRawValue)).Positive;
+        SignedSixteenSixteen displacement = EnemyQuadraticSpeeds.Row(segment.Velocity.Y.WholePixels).Positive;
         segment.Position = segment.Position.AdvanceY(displacement);
         if (CoordinateAxis.Difference(segment.Position.Y.Whole, 200) < 0)
         {
             // The fall speed selects a row of the quadratic speeds, which rejects a speed past its rows long before the
             // speed could leave its range.
-            segment.Velocity = segment.Velocity.WithY(segment.Velocity.Y + SignedEightEight.FromSignedRaw(192));
+            segment.Velocity = segment.Velocity.WithY(segment.Velocity.Y + SignedEightEight.FromTwoHundredFiftySixthsOfPixel(192));
             segment.FrameHold = WrappingCountdown.Start(0);
             ShowBotwoonBodyHurtFlash(segment, randomEnemyCounter);
             return;

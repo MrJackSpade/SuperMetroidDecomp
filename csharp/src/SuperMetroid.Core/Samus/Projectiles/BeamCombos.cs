@@ -66,16 +66,14 @@ internal sealed class BeamCombos
         bool activated = combo is SamusComboKind requested && !IsHeldOff(requested);
         if (activated && combo is SamusComboKind kind)
         {
-            // The attack's four particles take the first four places, the last first, replacing whatever projectiles
-            // hold them; each continues from the sub-pixel position of the projectile it replaces (LeftMuzzleSubpixelCarry),
-            // and plays the part its place gives it.
+            // The attack's particles replace the shots Samus has in her first places (SpecialAttackReplacesFirstShots),
+            // and each plays its part.
             IReadOnlyList<SpecialAttackParticle> parts = SpecialAttackParticleDefinitions.InPlaceOrder;
-            var particles = new SamusProjectile[parts.Count];
-            for (int place = parts.Count - 1; place >= 0; place--)
+            SamusProjectile[] particles = SpecialAttackReplacesFirstShots.ParticleShots(parts.Count, _slotTable.Occupy);
+            for (int partIndex = 0; partIndex < parts.Count; partIndex++)
             {
-                SpecialAttackParticle part = parts[place];
-                SamusProjectile slot = _slotTable.Occupy(place);
-                particles[place] = slot;
+                SpecialAttackParticle part = parts[partIndex];
+                SamusProjectile slot = particles[partIndex];
                 slot.AttackParticle = part;
                 slot.Type = SamusProjectileType.Beam(beam, charged: true);
                 slot.PicturedBeams = beam;

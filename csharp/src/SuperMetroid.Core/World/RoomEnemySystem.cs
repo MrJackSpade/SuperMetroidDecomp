@@ -1157,7 +1157,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         BotwoonBehavior.AddBotwoonBombReactions(table);
         RidleyInteractions.AddRidleyBombReactions(table);
         ShaktoolBehavior.AddShaktoolBombReactions(table);
-        ShuttersBehavior.AddDestroyableAndHorizontalShutterBombReactions(table);
+        ShuttersBehavior.AddDestroyableShutterBombReactions(table);
         EvirBehavior.AddEvirBombReactions(table);
         YappingMawBehavior.AddYappingMawBombReactions(table);
         KagoBehavior.AddKagoBombReactions(table);
@@ -1331,7 +1331,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         RinkaBehavior.AddRinkaShotReactions(table);
         RipperBehavior.AddRipperShotReactions(table);
         DragonBehavior.AddDragonShotReactions(table);
-        ShuttersBehavior.AddDestroyableAndHorizontalShutterShotReactions(table);
+        ShuttersBehavior.AddDestroyableShutterShotReactions(table);
         ZebetiteBehavior.AddZebetiteShotReactions(table);
         EvirBehavior.AddEvirShotReactions(table);
         YappingMawBehavior.AddYappingMawShotReactions(table);

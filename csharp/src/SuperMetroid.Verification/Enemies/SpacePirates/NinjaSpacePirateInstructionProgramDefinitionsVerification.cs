@@ -230,11 +230,11 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledFrames(artwork), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             enemies.VerificationServices().NextRandom = () => 1;
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.Bind(EnemyDefinitionId.PirateGreyNinja, slot.Definition);
+            slot.Bind(EnemyDefinitionId.PirateSilverNinja, slot.Definition);
             slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
             slot.Position = slot.Position.WithWhole(new(0x0100, 0x0100));
             slot.Radius = new(8, 16);
-            slot.SetSpawnParameter2(EnemyDefinitionId.PirateGreyNinja, 0x0080);
+            slot.SetSpawnParameter2(EnemyDefinitionId.PirateSilverNinja, 0x0080);
             NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(slot);
             return new NinjaSpacePirateInstructionProgramDefinitionsCreateSystemResult(enemies, slot, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0100)) });
         }

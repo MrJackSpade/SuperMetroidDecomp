@@ -393,13 +393,6 @@ internal static class NativeEnemyFamilyStateImport
             verticalShutterRecord.DownVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.D), words.C);
             verticalShutterRecord.UpVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.F), words.E);
         }
-        if (slot.SpeciesState<HorizontalShutterEnemyState>() is { } horizontalShutterRecord)
-        {
-            horizontalShutterRecord.Action = words.A == 0 ? null : ShuttersNativeWords.HorizontalShutterActions.Decode(words.A, "recorded HorizontalShutterAction");
-            horizontalShutterRecord.ActionTimer = WrappingCountdown.Start(words.B);
-            horizontalShutterRecord.RightVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.D), words.C);
-            horizontalShutterRecord.LeftVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.F), words.E);
-        }
         if (slot.SpeciesState<CacatacEnemyState>() is { } cacatacRecord)
         {
             cacatacRecord.RightVelocity = cacatacRecord.RightVelocity.WithWholePixels(unchecked((short)words.A));

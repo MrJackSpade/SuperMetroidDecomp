@@ -59,8 +59,7 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
                 [NinjaSpacePirateShades.GoldWall.Key];
         }
 
-        static bool IsNinja(EnemyDefinitionId enemy) => enemy is EnemyDefinitionId.PirateGoldNinja or EnemyDefinitionId.PirateGreenNinja
-            or EnemyDefinitionId.PirateGreyNinja or EnemyDefinitionId.PirateMagentaNinja or EnemyDefinitionId.PirateRedNinja
+        static bool IsNinja(EnemyDefinitionId enemy) => enemy is EnemyDefinitionId.PirateGoldNinja
             or EnemyDefinitionId.PirateSilverNinja;
 
         static InitializeResult Initialize(
@@ -68,10 +67,10 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
         {
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = artwork.Bosses };
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.Bind(EnemyDefinitionId.PirateGreyNinja, slot.Definition);
+            slot.Bind(EnemyDefinitionId.PirateSilverNinja, slot.Definition);
             slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
             slot.Position = slot.Position.WithWhole(new(0x0100, 0x0100));
-            slot.SetSpawnParameter2(EnemyDefinitionId.PirateGreyNinja, 0x0080);
+            slot.SetSpawnParameter2(EnemyDefinitionId.PirateSilverNinja, 0x0080);
             NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(slot);
             return new InitializeResult(slot, (enemies.NinjaSpacePirateStates[0]
                 ?? throw new InvalidOperationException("Verification requires the initialized ninja state.")).Playback);

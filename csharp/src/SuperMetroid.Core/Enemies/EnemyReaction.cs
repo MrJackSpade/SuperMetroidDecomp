@@ -60,12 +60,6 @@ public enum EnemyReaction
     DestroyableVerticalShutterShot,
     /// <summary>Vertical shutter Power Bomb reaction.</summary>
     VerticalShutterPowerBomb,
-    /// <summary>Horizontal shutter touch reaction.</summary>
-    HorizontalShutterTouch,
-    /// <summary>Horizontal shutter shot reaction.</summary>
-    HorizontalShutterShot,
-    /// <summary>Horizontal shutter Power Bomb reaction.</summary>
-    HorizontalShutterPowerBomb,
     /// <summary>Skree shot reaction.</summary>
     SkreeShot,
     /// <summary>Metaree shot reaction.</summary>

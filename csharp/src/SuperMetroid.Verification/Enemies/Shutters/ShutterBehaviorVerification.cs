@@ -17,7 +17,7 @@ internal static class ShutterBehaviorVerification
 {
     /// <summary>
     /// Each initializer starts its animation: the growing shutter its ten-pixel pose, the shootable and destroyable vertical
-    /// shutters the shared forty-pixel pose, the horizontal shutter its pose, and Kamer its four-frame platform loop. A
+    /// shutters the shared forty-pixel pose, and Kamer its four-frame platform loop. A
     /// pose shows once and holds; the update that reaches the native sleep still reports it as new.
     /// </summary>
     internal static void VerifyShutterBehavior()
@@ -37,9 +37,6 @@ internal static class ShutterBehaviorVerification
                 (enemies, slot) => ShuttersBehavior.InitializeVerticalShutter(slot),
                 enemies => enemies.SlotTable.Slots[0].EntityState<ShuttersEntity, VerticalShutterEnemyState>()?.Playback);
         }
-        VerifyPose(EnemyDefinitionId.ShutterHorizShootable, ShutterSegment.Horizontal,
-            (enemies, slot) => ShuttersBehavior.InitializeHorizontalShutter(slot),
-            enemies => enemies.SlotTable.Slots[0].EntityState<ShuttersEntity, HorizontalShutterEnemyState>()?.Playback);
 
         RoomEnemySystem kamerSystem = NewSystem();
         RoomEnemySlot kamer = NewSlot(kamerSystem, EnemyDefinitionId.Kamer);
@@ -102,26 +99,8 @@ internal static class ShutterBehaviorVerification
                 SuperMetroid.AssetExtraction.Enemies.PopulationWords.Parameters(mode, 0)), "vertical shutter invalid trigger mode");
     }
 
-    /// <summary>Checks horizontal shutter function installation and invalid trigger-mode rejection.</summary>
-    internal static void VerifyHorizontalShutterInitialFunctionSelection(CartridgeImportAddressSpace rom)
-    {
-        Action<HorizontalShutterEnemyState> select = ShuttersBehavior.SelectInitialHorizontalShutterAction;
-        var state = new HorizontalShutterEnemyState();
-        foreach (ShutterTriggerMode mode in Enum.GetValues<ShutterTriggerMode>())
-        {
-            state.Action = HorizontalShutterAction.Initial;
-            state.TriggerMode = mode;
-            ushort native = ReadShutterWord(rom, ShutterNativeTableAddresses.HorizontalInitialFunctions.AddWithinBank(ShutterTriggerModeCodec.ToNativeOffset(mode)));
-            select(state);
-            AssertEqual(native, ShuttersNativeWords.HorizontalShutterActions.Word(state.Action ?? throw new InvalidOperationException("The shutter installed no function.")), "horizontal shutter installs native initial function pointer");
-        }
-        foreach (int mode in new[] { 5, 6, 128, 255 })
-            AssertThrows<InvalidDataException>(() => SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.ShutterHorizShootable,
-                SuperMetroid.AssetExtraction.Enemies.PopulationWords.Parameters(mode, 0)), "horizontal shutter invalid trigger mode");
-    }
-
     /// <summary>
-    /// The five exported shutter compositions are the poses the growing, forty-pixel and horizontal programs show, and the
+    /// The four exported shutter compositions are the poses the growing and forty-pixel programs show, and the
     /// native growing maps between them hold the sprite counts their calculated addresses assume.
     /// </summary>
     internal static void VerifyShutterExportFrames(CartridgeImportAddressSpace rom)
@@ -129,7 +108,7 @@ internal static class ShutterBehaviorVerification
         ShutterSegment[] programs =
         [
             ShutterSegment.GrowingTenPixels, ShutterSegment.GrowingTwentyPixels, ShutterSegment.GrowingThirtyPixels,
-            ShutterSegment.FortyPixels, ShutterSegment.Horizontal,
+            ShutterSegment.FortyPixels,
         ];
         NativeEnemySpritemapDefinition[] frames = ShutterVisualDefinitions.Frames();
         AssertEqual(programs.Length, frames.Length, "one exported shutter composition per pose");
@@ -183,48 +162,6 @@ internal static class ShutterBehaviorVerification
             AssertEqual(unchecked((short)(-whole - (fraction == 0 ? 0 : 1))), upward.WholePixels, $"growth speed {index}: upward whole pixels borrow for a nonzero fraction");
             AssertEqual(unchecked((ushort)-fraction), upward.Fraction, $"growth speed {index}: upward fraction is the negated fraction word");
         }
-    }
-
-    /// <summary>
-    /// A horizontal shutter's travel endpoints are room positions offset from its spawn position by the travel
-    /// distance, wrapping at sixteen bits: a leftward shutter spawned five pixels from the room's left edge ends
-    /// its travel at the wrapped X, and a rightward one spawned near the right limit wraps past zero.
-    /// </summary>
-    internal static void VerifyHorizontalShutterEndpoints()
-    {
-        const byte travelDistance = 16;
-        const ushort spawnY = 100;
-        Confirm(primaryDirection: 0, spawnX: 5, expectedLeftX: 65525, expectedRightX: 5);
-        Confirm(primaryDirection: 1, spawnX: 65530, expectedLeftX: 65530, expectedRightX: 10);
-
-        static void Confirm(byte primaryDirection, ushort spawnX, ushort expectedLeftX, ushort expectedRightX)
-        {
-            var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
-            slot.Position = FixedPosition<RoomPixels>.FromWhole(new Position16<RoomPixels>(spawnX, spawnY));
-            slot.SetSpawnWords(EnemyDefinitionId.ShutterHorizShootable, _ => new SuperMetroid.AssetExtraction.Enemies.PopulationWords(
-                LittleEndianBytes.Word(0, primaryDirection), 0, 0, LittleEndianBytes.Word(0, travelDistance), 0));
-            ShuttersBehavior.InitializeHorizontalShutter(slot);
-            HorizontalShutterEnemyState state = slot.SpeciesState<HorizontalShutterEnemyState>()
-                ?? throw new InvalidOperationException("Verification requires the horizontal shutter state.");
-            string context = $"primary direction {primaryDirection} at X {spawnX}";
-            AssertEqual(new Position16<RoomPixels>(expectedLeftX, spawnY), state.LeftEndpoint, $"{context}: left endpoint");
-            AssertEqual(new Position16<RoomPixels>(expectedRightX, spawnY), state.RightEndpoint, $"{context}: right endpoint");
-        }
-    }
-
-    /// <summary>
-    /// The rightward and leftward 16.16 velocities each round-trip exactly through their own pair of slot words,
-    /// including a negative whole word and a full fraction, and writing one leaves the other unchanged.
-    /// </summary>
-    internal static void VerifyHorizontalShutterVelocityWords()
-    {
-        var state = new HorizontalShutterEnemyState();
-        SignedSixteenSixteen right = SignedSixteenSixteen.FromParts(-2, 40000);
-        SignedSixteenSixteen left = SignedSixteenSixteen.FromParts(short.MinValue, ushort.MaxValue);
-        state.RightVelocity = right;
-        state.LeftVelocity = left;
-        AssertEqual(right, state.RightVelocity, "rightward velocity round-trips through its slot words");
-        AssertEqual(left, state.LeftVelocity, "leftward velocity round-trips through its own slot words");
     }
 
     /// <summary>
@@ -289,8 +226,6 @@ internal static class ShutterBehaviorVerification
         Suite(nameof(VerifyShutterBehavior), () => VerifyShutterBehavior());
         Suite(nameof(VerifyGrowingShutterActivationTimer), () => VerifyGrowingShutterActivationTimer());
         Suite(nameof(VerifyGrowingShutterUpwardVelocity), () => VerifyGrowingShutterUpwardVelocity());
-        Suite(nameof(VerifyHorizontalShutterEndpoints), () => VerifyHorizontalShutterEndpoints());
-        Suite(nameof(VerifyHorizontalShutterVelocityWords), () => VerifyHorizontalShutterVelocityWords());
         Suite(nameof(VerifyVerticalShutterEndpoints), () => VerifyVerticalShutterEndpoints());
         Suite(nameof(VerifyVerticalShutterVelocityWords), () => VerifyVerticalShutterVelocityWords());
         Suite(nameof(ShutterAnimationsVerification.VerifyShutterAnimations), () => ShutterAnimationsVerification.VerifyShutterAnimations(rom));

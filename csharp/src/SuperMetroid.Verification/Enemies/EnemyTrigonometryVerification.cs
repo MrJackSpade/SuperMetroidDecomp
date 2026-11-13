@@ -406,7 +406,6 @@ internal static class EnemyTrigonometryVerification
         new(nameof(ShutterBehaviorVerification.VerifyShutterBehavior), () => ShutterBehaviorVerification.VerifyShutterBehavior()),
         new(nameof(ShutterBehaviorVerification.VerifyShutterExportFrames), () => ShutterBehaviorVerification.VerifyShutterExportFrames(LoadRepositoryRom())),
         new(nameof(ShutterBehaviorVerification.VerifyVerticalShutterInitialFunctionSelection), () => ShutterBehaviorVerification.VerifyVerticalShutterInitialFunctionSelection(LoadRepositoryRom())),
-        new(nameof(ShutterBehaviorVerification.VerifyHorizontalShutterInitialFunctionSelection), () => ShutterBehaviorVerification.VerifyHorizontalShutterInitialFunctionSelection(LoadRepositoryRom())),
         new(nameof(ChootAnimationsVerification.VerifyChootAnimations), () => ChootAnimationsVerification.VerifyChootAnimations(LoadRepositoryRom())),
         new(nameof(ChootBehaviorVerification.VerifyChootBehavior), () => ChootBehaviorVerification.VerifyChootBehavior(null)),
         new(nameof(NorfairLavaJumperAnimationsVerification.VerifyNorfairLavaJumperAnimations), () => NorfairLavaJumperAnimationsVerification.VerifyNorfairLavaJumperAnimations(LoadRepositoryRom())),

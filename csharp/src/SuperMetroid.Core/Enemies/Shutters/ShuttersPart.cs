@@ -9,8 +9,6 @@ internal enum ShuttersPart
     ShutterDestroyable,
     /// <summary>The <see cref="EnemyDefinitionId.ShutterGrowing"/> occupant.</summary>
     ShutterGrowing,
-    /// <summary>The <see cref="EnemyDefinitionId.ShutterHorizShootable"/> occupant.</summary>
-    ShutterHorizShootable,
     /// <summary>The <see cref="EnemyDefinitionId.ShutterShootable"/> occupant.</summary>
     ShutterShootable,
 }

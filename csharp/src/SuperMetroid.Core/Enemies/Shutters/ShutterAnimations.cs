@@ -5,7 +5,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.Shutters;
 
 /// <summary>
-/// The growing, vertical and horizontal shutters' poses and Kamer's platform loop as typed animations (#641). Each
+/// The growing and vertical shutters' poses and Kamer's platform loop as typed animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
 internal static class ShutterAnimations
@@ -30,10 +30,6 @@ internal static class ShutterAnimations
         [
             Show(EnemyFrameId.ShutterFortyPixels, 1),
         ],
-        [P.Horizontal] =
-        [
-            Show(EnemyFrameId.ShutterHorizontal, 1),
-        ],
         [P.KamerPlatform] =
         [
             Show(EnemyFrameId.KamerPlatformFirst, 10),
@@ -50,7 +46,6 @@ internal static class ShutterAnimations
         [P.GrowingTwentyPixels] = new([new(P.GrowingTwentyPixels, 0, 1, 1)], AnimationEnd.Holds),
         [P.GrowingThirtyPixels] = new([new(P.GrowingThirtyPixels, 0, 1, 1)], AnimationEnd.Holds),
         [P.FortyPixels] = new([new(P.FortyPixels, 0, 1, 1)], AnimationEnd.Holds),
-        [P.Horizontal] = new([new(P.Horizontal, 0, 1, 1)], AnimationEnd.Holds),
         [P.KamerPlatform] = new([new(P.KamerPlatform, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
     };
 

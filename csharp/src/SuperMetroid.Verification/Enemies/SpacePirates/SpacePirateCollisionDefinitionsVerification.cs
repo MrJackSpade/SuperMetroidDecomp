@@ -235,7 +235,7 @@ internal static class SpacePirateCollisionDefinitionsVerification
             {
                 false => (EnemyDefinitionId)0xffff,
                 true when ninjaFramePointers.Contains(pointer) =>
-                    EnemyDefinitionId.PirateGreyNinja,
+                    EnemyDefinitionId.PirateSilverNinja,
                 true when wallFrame => EnemyDefinitionId.PirateGreyWall,
                 _ => EnemyDefinitionId.PirateGreyWalking,
             }, slot.Definition);

@@ -265,6 +265,20 @@ internal sealed class BoundObjectGraph
         return true;
     }
 
+    /// <summary>
+    /// Whether <paramref name="value"/> is a bound object, with its path and its depth: how many steps from a root the
+    /// walk first reached it, a root's being zero. Indexing is breadth first, so no path to it from a root is shorter.
+    /// </summary>
+    internal bool TryGetPath(object value, [NotNullWhen(true)] out string? path, out int depth)
+    {
+        depth = 0;
+        if (!TryGetPath(value, out path))
+            return false;
+        for (object? parent = origins[value].Parent; parent is not null; parent = origins[parent].Parent)
+            depth++;
+        return true;
+    }
+
     /// <summary>The object <paramref name="path"/> names among the bound objects.</summary>
     /// <exception cref="InvalidDataException">The path names no object the host binds now.</exception>
     internal object Resolve(string path) => Resolved(Ensure.NotNull(path), path);

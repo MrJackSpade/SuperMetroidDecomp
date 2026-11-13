@@ -104,6 +104,7 @@ using static SuperMetroid.Verification.Bosses.Crocomire.CrocomireMeltingDefiniti
 using static SuperMetroid.Verification.Bosses.Crocomire.CrocomireTongueCollisionDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Movement.DamageBoostJumpInitializerVerification;
 using static SuperMetroid.Verification.Runtime.DebuggerStateLayoutVerification;
+using static SuperMetroid.Verification.Runtime.DefinitionIndexVerification;
 using static SuperMetroid.Verification.Rooms.Doors.DoorAlignmentVerification;
 using static SuperMetroid.Verification.Rooms.Doors.DoorAnimatedTilesVerification;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
@@ -518,6 +519,10 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyDebuggerStateRestoresCatalogMembers), () => VerifyDebuggerStateRestoresCatalogMembers()),
         new(nameof(VerifyDebuggerStateRebuildsHashKeyedCollections), () => VerifyDebuggerStateRebuildsHashKeyedCollections()),
         new(nameof(VerifyDebuggerStatePacksLevelBlocks), () => VerifyDebuggerStatePacksLevelBlocks()),
+        new(nameof(VerifyDebuggerStateIndexesReachedCatalogs), () => VerifyDebuggerStateIndexesReachedCatalogs()),
+        new(nameof(VerifyDefinitionCandidatesCoverEnemyCatalogs), () => VerifyDefinitionCandidatesCoverEnemyCatalogs()),
+        new(nameof(VerifyDefinitionCandidatesCoverWorldCatalogs), () => VerifyDefinitionCandidatesCoverWorldCatalogs()),
+        new(nameof(VerifyDefinitionCandidatesCoverOtherCatalogs), () => VerifyDefinitionCandidatesCoverOtherCatalogs()),
         new(nameof(VerifyWorkRamCells), () => VerifyWorkRamCells()),
         new(nameof(VerifyCanonicalWordReads), () => VerifyCanonicalWordReads()),
         new(nameof(VerifyPpuMemoryModel), () => VerifyPpuMemoryModel()),

@@ -182,11 +182,8 @@ public static class RgbaPng
             zlib.ReadExactly(filter);
             zlib.ReadExactly(current);
             Unfilter(filter[0], current, previous);
-            for (int column = 0; column < width; column++)
-            {
-                int at = column * PixelBytes;
-                pixels[row * width + column] = new RgbaPixel(current[at], current[at + 1], current[at + 2], current[at + 3]);
-            }
+            // A pixel's four channels are laid out in the order the file stores them, as Encode writes them.
+            MemoryMarshal.Cast<byte, RgbaPixel>(current).CopyTo(pixels.AsSpan(row * width, width));
             byte[] filtered = previous;
             previous = current;
             current = filtered;
@@ -194,23 +191,42 @@ public static class RgbaPng
         return pixels;
     }
 
-    /// <summary>Reverses a row's PNG filter in place against the reconstructed row above.</summary>
+    /// <summary>
+    /// Reverses a row's PNG filter in place against the reconstructed row above: none, left, up, average or Paeth. A byte
+    /// left of the row's first pixel, or above-left of it, is zero.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The filter is none of the five.</exception>
     private static void Unfilter(byte filter, Span<byte> row, ReadOnlySpan<byte> above)
     {
-        for (int index = 0; index < row.Length; index++)
+        switch (filter)
         {
-            int left = index >= PixelBytes ? row[index - PixelBytes] : 0;
-            int up = above[index];
-            int upLeft = index >= PixelBytes ? above[index - PixelBytes] : 0;
-            row[index] = unchecked((byte)(row[index] + filter switch
-            {
-                0 => 0,
-                1 => left,
-                2 => up,
-                3 => (left + up) / 2,
-                4 => Paeth(left, up, upLeft),
-                _ => throw new InvalidDataException($"Unknown PNG filter {filter}."),
-            }));
+            case 0:
+                return;
+            case 1:
+                for (int index = PixelBytes; index < row.Length; index++)
+                    row[index] = unchecked((byte)(row[index] + row[index - PixelBytes]));
+                return;
+            case 2:
+                for (int index = 0; index < row.Length; index++)
+                    row[index] = unchecked((byte)(row[index] + above[index]));
+                return;
+            case 3:
+                for (int index = 0; index < row.Length; index++)
+                {
+                    int left = index >= PixelBytes ? row[index - PixelBytes] : 0;
+                    row[index] = unchecked((byte)(row[index] + (left + above[index]) / 2));
+                }
+                return;
+            case 4:
+                for (int index = 0; index < row.Length; index++)
+                {
+                    int left = index >= PixelBytes ? row[index - PixelBytes] : 0;
+                    int upLeft = index >= PixelBytes ? above[index - PixelBytes] : 0;
+                    row[index] = unchecked((byte)(row[index] + Paeth(left, above[index], upLeft)));
+                }
+                return;
+            default:
+                throw new InvalidDataException($"Unknown PNG filter {filter}.");
         }
     }
 
@@ -241,13 +257,27 @@ public static class RgbaPng
         foreach (byte value in data) crc = Step(crc, value);
         return ~crc;
 
-        static uint Step(uint crc, byte value)
+        static uint Step(uint crc, byte value) => CrcOfByte[unchecked((byte)(crc ^ value))] ^ (crc >> 8);
+    }
+
+    /// <summary>
+    /// The CRC-32 remainder of each byte value, shifted out bit by bit through <see cref="ReflectedPolynomial"/>, so a
+    /// CRC advances a whole byte at a time.
+    /// </summary>
+    private static readonly uint[] CrcOfByte = CrcRemainders();
+
+    /// <summary>Computes <see cref="CrcOfByte"/>.</summary>
+    private static uint[] CrcRemainders()
+    {
+        var remainders = new uint[byte.MaxValue + 1];
+        for (int value = 0; value <= byte.MaxValue; value++)
         {
-            crc ^= value;
+            uint crc = (uint)value;
             for (int bit = 0; bit < 8; bit++)
                 crc = (crc & 1) != 0 ? (crc >> 1) ^ ReflectedPolynomial : crc >> 1;
-            return crc;
+            remainders[value] = crc;
         }
+        return remainders;
     }
 
     /// <summary>The CRC-32 polynomial PNG uses, bit-reversed.</summary>

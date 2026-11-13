@@ -202,6 +202,16 @@ internal static class InstalledFixtures
     private static readonly Lazy<ExtractedAudioAssetCatalog> audio = new(() => SharedFixtureTiming.Load("Fixture: extracted audio",
         () => ExtractedAudioAssetCatalog.Load(RepositoryInstallation.Installation.AudioDirectory)));
 
+    /// <summary>
+    /// The installation's pre-rendered clips, which a game binds, loaded once per process (#1680). The library only names
+    /// the clips and reads them; every game and backend bound to it keeps its own playback and its own read samples.
+    /// </summary>
+    internal static SuperMetroid.Core.Audio.ClipAudioLibrary AudioClips => audioClips.Value;
+
+    /// <summary>Backing loader for <see cref="AudioClips"/>.</summary>
+    private static readonly Lazy<SuperMetroid.Core.Audio.ClipAudioLibrary> audioClips =
+        Shared<SuperMetroid.Core.Audio.ClipAudioLibrary>("audio clips", () => RepositoryInstallation.Installation.LoadAudioClips().Clips);
+
     /// <summary>The installation's stock map and presentation catalog the game binds, loaded once per process.</summary>
     internal static AreaMapPresentation Maps => maps.Value.Game;
 

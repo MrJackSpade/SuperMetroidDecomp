@@ -3,7 +3,6 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -54,10 +53,9 @@ internal static class TitleScreenPublicationVerification
             $"the shown Baby Metroid page cycles 0, 1, 2, 1 ({string.Join(",", shownPages)})");
 
         RgbaPixel[] shown = DisplayRendering.Render(new DisplayPacket(0, title.CaptureRenderSnapshot()));
-        using var state = new MemoryStream();
-        DebuggerObjectGraphSerializer.Serialize(state, title);
-        state.Position = 0;
-        var restored = DebuggerObjectGraphSerializer.Deserialize<TitleSequenceState>(state);
+        // The debugger's store names the installed content it binds by path instead of writing it (#1507), so the round
+        // trip carries only the title's own state, not the installed sheets and presentation it draws from (#1677).
+        var restored = GraphDigestVerification.RoundTrip(title);
         restored.BindTitleGradient(maps.TitleGradient);
         restored.BindTitleBackdrop(maps.TitleBackdrop);
         restored.BindFixtureTitleGraphics(graphics);

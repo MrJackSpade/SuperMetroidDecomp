@@ -13,12 +13,13 @@ internal static class SamusOverreadFormat
     /// and Plasma beams' launch, the Chainsaw beam's palette and the drained Shinespark crash read past their tables (#1500);
     /// revision eleven adds the Spazer and Plasma beams' cooldowns (#1506); revision twelve names the poses by their
     /// renamed identities and holds no entry for a record no gameplay path reaches (#1517); revision thirteen adds the step
-    /// the animation reads at each place of a program that lands on an instruction's operand (#1535); revision fourteen
+    /// the animation reads at each place of a program that lands on a value one of its cues carries (#1535); revision fourteen
     /// holds no Chozo orbs, which nothing in the game reads (#1553); revision fifteen holds no trail start past a placement
     /// list, which leaves no trail (#1625); revision sixteen holds no waits below the charge flare's animations, which no
-    /// runtime reaches (#1624).
+    /// runtime reaches (#1624); revision seventeen keys the steps a program's places read on a cue's value as cue-value steps
+    /// (#1624).
     /// </summary>
-    internal const int Version = 16;
+    internal const int Version = 17;
     /// <summary>JSON filename holding the decoded over-read results.</summary>
     internal const string FileName = "samus-overreads.json";
     /// <summary>Shared camel-case, case-insensitive JSON options that reject unknown fields; the file is written compactly.</summary>

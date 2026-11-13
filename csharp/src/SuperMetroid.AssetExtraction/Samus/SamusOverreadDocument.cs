@@ -13,9 +13,9 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// For every pose with an animation program, the program laid out after its own, named by a pose that animates by it,
 /// and the frame shift; null for the last program laid out.
 /// </param>
-/// <param name="AnimationOperandSteps">
-/// For every pose with an animation program, the step the animation reads at each frame of its program that lands on an
-/// instruction's operand rather than on a step of its own, by frame, in the program's own frame numbering (#1535). A place
+/// <param name="AnimationCueValueSteps">
+/// For every pose with an animation program, the step the animation reads at each frame of its program that lands on a
+/// value one of its cues carries rather than on a step of its own, by frame, in the program's own frame numbering (#1535). A place
 /// whose read would name a record no gameplay path gives Samus has no entry.
 /// </param>
 /// <param name="SpaceTimeOverwrites">
@@ -32,7 +32,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 internal sealed record SamusOverreadDocument(
     int Version,
     IReadOnlyDictionary<string, SamusOverreadDocument.Continuation?> AnimationContinuations,
-    IReadOnlyDictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.OperandStep>> AnimationOperandSteps,
+    IReadOnlyDictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.CueValueStep>> AnimationCueValueSteps,
     IReadOnlyDictionary<string, IReadOnlyDictionary<string, IReadOnlyList<SamusOverreadDocument.Overwrite?>>> SpaceTimeOverwrites,
     IReadOnlyDictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.Cursor>> ChainsawFuseLandings,
     IReadOnlyDictionary<string, bool> PostureAdmissions,
@@ -47,7 +47,7 @@ internal sealed record SamusOverreadDocument(
     /// <param name="Shift">How many frames after the earlier program it starts.</param>
     internal sealed record Continuation(string Pose, int Shift);
 
-    /// <summary>The step the animation reads at an operand's place: what the game does on reaching that frame (#1535).</summary>
+    /// <summary>The step the animation reads at a cue value's place: what the game does on reaching that frame (#1535).</summary>
     /// <param name="Kind">What the step does.</param>
     /// <param name="Ticks">A delay's ticks; null for any other kind.</param>
     /// <param name="Frames">
@@ -61,10 +61,10 @@ internal sealed record SamusOverreadDocument(
     /// grounded and equipped airborne poses; a vertical-speed transition's grounded and airborne poses; null for any other
     /// kind.
     /// </param>
-    internal sealed record OperandStep(string Kind, int? Ticks, IReadOnlyList<int>? Frames, IReadOnlyList<string>? Items, IReadOnlyList<string>? Poses);
+    internal sealed record CueValueStep(string Kind, int? Ticks, IReadOnlyList<int>? Frames, IReadOnlyList<string>? Items, IReadOnlyList<string>? Poses);
 
-    /// <summary>What the step at an operand's place does, as the animation's handler for it does.</summary>
-    internal enum OperandStepKind
+    /// <summary>What the step at a cue value's place does, as the game does on reading that value as a step.</summary>
+    internal enum CueValueStepKind
     {
         /// <summary>Holds the picture for its ticks, then moves on to the next frame.</summary>
         Delay,

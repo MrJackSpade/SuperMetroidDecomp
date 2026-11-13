@@ -2,34 +2,34 @@ using System.Globalization;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Poses;
-using Kind = SuperMetroid.AssetExtraction.Samus.SamusOverreadDocument.OperandStepKind;
+using Kind = SuperMetroid.AssetExtraction.Samus.SamusOverreadDocument.CueValueStepKind;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>
-/// Decodes what Samus's animation reads at each place of a program that lands on an instruction's operand (#1535). The
-/// game reads its animation frame as a byte of the program: a frame on an operand's place reads that operand as a step of
+/// Decodes what Samus's animation reads at each place of a program that lands on a value one of its cues carries (#1535).
+/// The game reads its animation frame as a byte of the program: a frame on a cue value's place reads that value as a step of
 /// its own, a delay below the first instruction byte and otherwise the instruction its low four bits select, with that
 /// instruction's operands taken from the bytes after it. The Baby's Hyper Beam freeze and rainbow stop set frames that land
 /// on such places in the programs laid out after a transition's.
 /// </summary>
 [SuperMetroid.Core.EncodingOwner("Samus animation program bytes: a delay byte, or an instruction whose low four bits select its handler")]
-internal static class SamusAnimationOperandDecoding
+internal static class SamusAnimationCueValueDecoding
 {
     /// <summary>
-    /// The step at every operand place of every program, by pose with a record, then by frame in the program's own
+    /// The step at every cue-value place of every program, by pose with a record, then by frame in the program's own
     /// numbering: every frame of the program's span, from its start to the next program's, that is no step of its own. The
     /// last program laid out holds no frame past its own steps.
     /// </summary>
-    internal static Dictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.OperandStep>> OperandSteps(IImportCartridgeSource cartridge)
+    internal static Dictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.CueValueStep>> CueValueSteps(IImportCartridgeSource cartridge)
     {
         SamusAnimationProgramLayout.LaidOutProgram[] laidOut = SamusAnimationProgramLayout.Read(cartridge);
-        var byProgram = new Dictionary<SamusPoseAnimation, IReadOnlyDictionary<string, SamusOverreadDocument.OperandStep>>();
+        var byProgram = new Dictionary<SamusPoseAnimation, IReadOnlyDictionary<string, SamusOverreadDocument.CueValueStep>>();
         for (int index = 0; index < laidOut.Length; index++)
         {
             SamusAnimationProgramLayout.LaidOutProgram program = laidOut[index];
             int span = index + 1 < laidOut.Length ? laidOut[index + 1].Start - program.Start : program.Program.FrameCount;
-            var steps = new Dictionary<string, SamusOverreadDocument.OperandStep>(StringComparer.Ordinal);
+            var steps = new Dictionary<string, SamusOverreadDocument.CueValueStep>(StringComparer.Ordinal);
             for (int frame = 0; frame < span; frame++)
             {
                 if (program.Program.TryStepAt(frame) is null && Decode(cartridge, program.Start, frame) is { } step)
@@ -46,7 +46,7 @@ internal static class SamusAnimationOperandDecoding
     /// game's handler for its byte does; null when the step would publish a record no gameplay path gives Samus, which no
     /// pose names.
     /// </summary>
-    private static SamusOverreadDocument.OperandStep? Decode(IImportCartridgeSource cartridge, int start, int frame)
+    private static SamusOverreadDocument.CueValueStep? Decode(IImportCartridgeSource cartridge, int start, int frame)
     {
         int place = start + frame;
         int Byte(int offset) => cartridge.ReadCartridgeByte(SnesAddressMath.AddWithinBank(SamusOverreadSourceDefinitions.SamusAnimationProgramBank, place + offset));
@@ -59,7 +59,7 @@ internal static class SamusAnimationOperandDecoding
                 : null;
         string[] Items() => ItemNames(SamusEquipmentWordCodec.FromSavedEquipmentWord(
             cartridge.ReadCartridgeWord(SnesAddressMath.AddWithinBank(SamusOverreadSourceDefinitions.SamusAnimationProgramBank, place + 1))));
-        SamusOverreadDocument.OperandStep? Transition(Kind kind, string[]? items, string[]? poses) =>
+        SamusOverreadDocument.CueValueStep? Transition(Kind kind, string[]? items, string[]? poses) =>
             poses is null ? null : new(kind.ToString(), null, null, items, poses);
         return (value & 0xf) switch
         {

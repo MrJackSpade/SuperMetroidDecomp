@@ -141,10 +141,8 @@ internal sealed class KraidDeath
                 else
                 {
                     _room.Services.Bosses.SetDefeated(BossBits.AreaBoss);
-                    state.BossDefeatPersisted = true;
                     state.BodyState.Function = KraidAiFunction.DeathFinishedWasAlive;
                 }
-                state.DeathSequenceComplete = true;
                 return;
             case KraidAiFunction.DeathFinishedWasAlive:
                 MarkKraidDeadUnlessDeadAtLeftEdge(body, cameraX);
@@ -242,7 +240,7 @@ internal sealed class KraidDeath
             _access.RequestKraidSound(KraidSoundDefinitions.RockSpit);
             state.DeathSoundTimer = 30;
         }
-        ProcessKraidSinkTable(body, state);
+        ProcessKraidSinkTable(body);
         body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole + 1);
         if (CoordinateAxis.Difference(body.Position.Y.Whole, 608) < 0)
             return;
@@ -278,17 +276,15 @@ internal sealed class KraidDeath
             xScatter: EnemyDropScatterDefinitions.WideArenaHorizontalScatter,
             yBase: 352,
             yScatter: EnemyDropScatterDefinitions.ArenaBandVerticalScatter);
-        state.DeathDropRequestCount = 16;
         // The death continues into redrawing Kraid's room background, which restarts the shared fade step count.
         _presentation.FadeStepCount.Reset();
     }
 
     /// <summary>Consumes sink-table entries as the body descends.</summary>
-    internal void ProcessKraidSinkTable(RoomEnemySlot body, KraidEnemyState state)
+    internal void ProcessKraidSinkTable(RoomEnemySlot body)
     {
         if (KraidSinkSchedule.CallbackAt(body.Position.Y.Whole) is KraidSinkCallback function)
         {
-            state.SinkTableEventCount++;
             // Every eight-pixel sinking row invokes its callback, including the
             // deliberately empty callback used by rows whose only job is clearing a strip of his body.
             // Do not merge that callback with the adjacent crumble callback: they are

@@ -145,13 +145,12 @@ internal sealed class KraidRise
             case KraidAiFunction.GrowReleaseCamera:
                 ApplyKraidScrolls(layout: KraidScrollLayout.Grown);
                 state.BodyState.Function = KraidAiFunction.GrowBreakCeilingPlatforms;
-                state.CameraReleasedForSecondPhase = true;
                 state.EjectionLimit = new Position16<RoomPixels>(0, 164);
                 return;
 
             case KraidAiFunction.GrowBreakCeilingPlatforms:
                 if (KraidCadenceDefinitions.CeilingBreakRockEveryEighthUpdate.IsDue(body.FrameCounter))
-                    RequestKraidRisingRock(body, state);
+                    RequestKraidRisingRock(body);
                 body.Position = body.Position.WithWrappedWholeX(body.Position.X.Whole +
                     (KraidCadenceDefinitions.RiseSwayPhase.IsSetIn(body.Position.Y.Whole) ? -1 : 1));
                 body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole - 1);
@@ -159,8 +158,7 @@ internal sealed class KraidRise
                     state.BodyState.CeilingRock < KraidCeilingRocks.Count)
                 {
                     int rock = state.BodyState.CeilingRock;
-                    if (_background.SpawnKraidCeilingRock(KraidCeilingRocks.X(rock)))
-                        state.CeilingRockSpawnCount++;
+                    _ = _background.SpawnKraidCeilingRock(KraidCeilingRocks.X(rock));
                     _frameResults.KraidObjects.Add(KraidObjectDefinitions.GrowthCeiling[rock]);
                     state.BodyState.CeilingRock = rock + 1;
                 }
@@ -288,9 +286,8 @@ internal sealed class KraidRise
     }
 
     /// <summary>Requests a rock from the floor during the growth sequence.</summary>
-    internal void RequestKraidRisingRock(RoomEnemySlot body, KraidEnemyState state)
+    internal void RequestKraidRisingRock(RoomEnemySlot body)
     {
-        state.RiseRockSpawnRequestCount++;
         int random = _access.ReadKraidRandomNumber();
         RoomEnemyProjectileKind kind = KraidRandomDefinitions.RisingRockRight.IsSetIn(random)
             ? RoomEnemyProjectileKind.KraidRisingRockRight
@@ -310,7 +307,6 @@ internal sealed class KraidRise
         rock.Position = FixedPosition<RoomPixels>.FromWhole(new(CoordinateAxis.Wrap(body.Position.X.Whole + randomOffset), 432));
         rock.Velocity = new(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(KraidRandomDefinitions.RisingRockXSpeedSteps.Of(random) * KraidRandomDefinitions.RisingRockXSpeedStep), SignedEightEight.FromPixels(-5));
         rock.Graphics = SpriteGraphics.SharedIn(KraidColours.RocksShading);
-        state.SpawnedRiseRockCount++;
         _access.RequestKraidSound(KraidSoundDefinitions.RockSpit);
     }
 
@@ -352,7 +348,7 @@ internal sealed class KraidRise
                 }
                 else if (KraidCadenceDefinitions.FirstRiseRockEverySixteenthUpdate.IsDue(state.BodyState.RisingRockTimer))
                 {
-                    RequestKraidRisingRock(body, state);
+                    RequestKraidRisingRock(body);
                 }
                 return;
 
@@ -365,7 +361,7 @@ internal sealed class KraidRise
                 }
                 else if (KraidCadenceDefinitions.FasterRiseRockEveryEighthUpdate.IsDue(state.BodyState.RisingRockTimer))
                 {
-                    RequestKraidRisingRock(body, state);
+                    RequestKraidRisingRock(body);
                 }
                 return;
 
@@ -373,7 +369,7 @@ internal sealed class KraidRise
                 RestrictSamusToKraidFirstScreen(samus);
                 if (KraidCadenceDefinitions.RaisedBodyFirstRockOfEight.IsDue(_earthquake.RemainingFrames) ||
                     KraidCadenceDefinitions.RaisedBodySecondRockOfEight.IsDue(_earthquake.RemainingFrames))
-                    RequestKraidRisingRock(body, state);
+                    RequestKraidRisingRock(body);
                 body.Position = body.Position.WithWrappedWholeX(body.Position.X.Whole +
                     (KraidCadenceDefinitions.RiseSwayPhase.IsSetIn(body.Position.Y.Whole) ? 1 : -1));
                 AddSignedKraidVerticalDisplacement(body, RisingBodyLift);

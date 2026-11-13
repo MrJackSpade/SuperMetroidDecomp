@@ -40,9 +40,6 @@ internal sealed class CrocomireBridgeCollapse
     /// </summary>
     private const int TongueSleepDelay = 32767;
 
-    /// <summary>True after the X threshold of 1600 starts the bridge-collapse phase.</summary>
-    public bool CrocomireBridgeCollapseStarted { get; private set; }
-
     /// <summary>
     /// Carries out the state transition. The individual bridge room objects and the
     /// subsequent melting sequence are a separate stage, but the actor/tongue state
@@ -55,7 +52,6 @@ internal sealed class CrocomireBridgeCollapse
         if (CoordinateAxis.Difference(body.Position.X.Whole, CrocomireBehavior.CrocomireBridgeThreshold) < 0)
             return;
 
-        CrocomireBridgeCollapseStarted = true;
         state.DeathPhase = CrocomireDeathPhase.CrumbleBridgeAndSink;
         CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, CrocomireBodySegment.BridgeCollapsed);
         body.Contact = body.Contact.With(EnemyContact.SolidToSamus);

@@ -72,9 +72,6 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ceiling Y coordinate anchoring the four stalk projectiles.</summary>
     private const int SporeSpawnCeilingY = 560;
 
-    /// <summary>Frame-local drop publications from boss death and individual spores.</summary>
-    internal readonly List<SporeSpawnDropRequest> SporeSpawnDropRequests = new();
-
     /// <summary>Queues a sound from the boss or one of its programs as it makes it, after the update's earlier requests.</summary>
     private void RequestSporeSpawnSound(SoundEffectId sound) =>
         _audio.QueueEnemySound(sound, SoundRequestPriority.Normal);
@@ -568,7 +565,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                 RequestSporeSpawnSound(queueSound.Sound ?? throw new InvalidDataException("A Spore Spawn sound cue carries no sound."));
                 return;
             case SporeSpawnCue.Command { Kind: SporeSpawnCueKind.RequestDeathDrops }:
-                RequestSporeSpawnDeathDrops(state);
+                RequestSporeSpawnDeathDrops();
                 return;
             case SporeSpawnCue.SetFunction setFunction:
                 state.Function = setFunction.Function;
@@ -633,17 +630,15 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         RequestSporeSpawnSound(SporeSpawnSoundDefinitions.DyingExplosion);
     }
 
-    /// <summary>Generates sixteen RNG-positioned boss drops and marks the death drop as requested.</summary>
-    private void RequestSporeSpawnDeathDrops(SporeSpawnEnemyState state)
+    /// <summary>Generates sixteen RNG-positioned boss drops.</summary>
+    private void RequestSporeSpawnDeathDrops()
     {
         for (int index = 0; index < 16; index++)
         {
             int random = _room.Random.Generate();
             Position16<RoomPixels> drop = new(SporeSpawnRandomDefinitions.DropX.Of(random) + 64, SporeSpawnRandomDefinitions.DropY.Of(random) + 528);
-            SporeSpawnDropRequests.Add(new SporeSpawnDropRequest());
             _deathsAndDrops.SpawnEnemyDropFromDefinition(drop, EnemyDefinitionId.SporeSpawn);
         }
-        state.DeathDropRequested = true;
     }
     /// <summary>Graphics bits assigned to newly spawned spores: his body's colours as they show now (#1512).</summary>
     private SpriteGraphics SporeSpawnGraphicsIndex => SpriteGraphics.SharedIn((SporeSpawn
@@ -768,17 +763,11 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidOperationException(
                 $"Projectile {spore.Kind} reached Spore Spawn's spore drop step.");
         }
-        SporeSpawnDropRequests.Add(new SporeSpawnDropRequest());
         _deathsAndDrops.SpawnEnemyDropFromDefinition(
             spore.Position.Whole,
             EnemyDefinitionId.SporeSpawnStalk);
     }
 
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-        SporeSpawnDropRequests.Clear();
-    }
     /// <summary>Single active boss state, absent outside a room containing Spore Spawn.</summary>
     internal SporeSpawnEnemyState? SporeSpawn { get; set; }
 

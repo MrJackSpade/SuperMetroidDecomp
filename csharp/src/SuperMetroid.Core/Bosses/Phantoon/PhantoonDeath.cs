@@ -93,11 +93,7 @@ internal sealed class PhantoonDeath
         state.BodyState.FunctionTimer = explosion.Delay;
         Position16<RoomPixels> position = body.Position.Whole + explosion.Offset;
 
-        int before = _projectiles.EnemyProjectiles.Count(projectile => projectile.IsActive);
-        state.DeathExplosionRequests++;
         _projectiles.SpawnRoomGraphicsDustExplosion(position, explosion.Type);
-        if (_projectiles.EnemyProjectiles.Count(projectile => projectile.IsActive) > before)
-            state.DeathExplosionsSpawned++;
         _audio.RequestPhantoonCombatSound(explosion.Type == MiscDustAnimation.BigExplosion
             ? PhantoonSoundDefinitions.BigDeathExplosionSound
             : PhantoonSoundDefinitions.DeathExplosionSound);
@@ -220,7 +216,6 @@ internal sealed class PhantoonDeath
             xScatter: EnemyDropScatterDefinitions.NarrowArenaHorizontalScatter,
             yBase: 96,
             yScatter: EnemyDropScatterDefinitions.ArenaBandVerticalScatter);
-        state.ItemDropRequested = true;
         // The body is deleted, and every other part takes the body's properties.
         body.Presence = body.Presence.With(EnemyPresence.Deleted);
         state.Eye.Contact = body.Contact;
@@ -239,7 +234,6 @@ internal sealed class PhantoonDeath
         }
         _frameResults.PhantoonDoor = PhantoonDoorChange.RestoredDoor;
         _audio.RequestPhantoonMusic(MusicRequest.SelectTrack(MusicTrack.Elevator));
-        state.WreckedShipPowerPaletteComplete = true;
     }
 
     /// <summary>

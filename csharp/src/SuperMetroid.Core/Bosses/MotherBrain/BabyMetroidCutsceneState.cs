@@ -81,9 +81,6 @@ public sealed class BabyMetroidCutsceneState
     /// <summary>Function timer: each phase counts it down and moves on once it runs past zero.</summary>
     public int FunctionTimer { get; private set; }
 
-    /// <summary>Initial request to permit the Baby cry effect.</summary>
-    public bool CrySoundEnabled { get; private set; }
-
     /// <summary>
     /// Zero-based leg of the ceiling-to-Samus route the Baby is steering along, started at the
     /// first leg after the ceiling collision.
@@ -179,7 +176,6 @@ public sealed class BabyMetroidCutsceneState
         Presence = populationPresence;
         HurtFlashShown = false;
         SetAnimation(MotherBrainBabySegment.Initial);
-        CrySoundEnabled = true;
         RouteLeg = 0;
         Health = 3200;
         OnionRingHitFlashTimer = 0;
@@ -403,9 +399,8 @@ public sealed class BabyMetroidCutsceneState
 
             case BabyMetroidCutscenePhase.MoveToSamus:
             {
-                // The route step clears the ordinary cry request and enables health-based
-                // palette selection on *every* route call. The ambient cry takes its own chance.
-                CrySoundEnabled = false;
+                // The route step enables health-based palette selection on every route call. The ambient cry takes its
+                // own chance.
                 ambientCrySoundQueued = MotherBrainRandomDefinitions.BabyMetroidCries.IsTakenBy(randomNumber);
 
                 // The route is eight overlapping records. The fixed targets, divisors, and callback identities are
@@ -451,7 +446,6 @@ public sealed class BabyMetroidCutsceneState
                 // The healing step pins the actor to the four-entry shake table before healing. The
                 // subsequent common mover is harmless because the touch handler zeroed
                 // both velocities when it installed this function.
-                CrySoundEnabled = false;
                 int shakingIndex = MotherBrainCadenceDefinitions.BabyShakeStep.Of(enemyFrameCounter);
                 Position = Position.WithWhole(samus.Position.Whole + ShakingOffsets[shakingIndex] + SamusLatchOffset);
 

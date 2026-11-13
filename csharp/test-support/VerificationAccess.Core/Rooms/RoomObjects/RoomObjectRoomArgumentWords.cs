@@ -139,11 +139,14 @@ internal static class RoomObjectRoomArgumentWords
 
     /// <summary>
     /// The hit count the cartridge keeps in a cannon's or the glass's argument word: a typed cannon's count, or the word
-    /// the cartridge leaves once a counted hit destroyed it.
+    /// the cartridge leaves once a counted hit destroyed it. A smoking cannon was shot down unless it was set up
+    /// destroyed, which alone holds the destroying count: the hit that destroys a cannon is not added to its count.
     /// </summary>
     private static int? HitWord(RoomObjectSlot slot) => slot.Behaviour switch
     {
-        DraygonCannonObject cannon => cannon.ShotDown ? ushort.MaxValue : cannon.Hits,
+        DraygonCannonObject cannon => cannon.Phase == DraygonCannonPhase.Smoking && cannon.Hits != DraygonCannonDefinitions.HitsToDestroy
+            ? ushort.MaxValue
+            : cannon.Hits,
         MotherBrainGlassObject glass => glass.Hits,
         _ => null,
     };

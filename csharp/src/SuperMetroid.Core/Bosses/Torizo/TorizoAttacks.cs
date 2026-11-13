@@ -18,8 +18,6 @@ internal sealed class TorizoAttacks
     private readonly EnemyAudioQueue _audio;
     /// <summary>Spawns the orb drops and the death scatter after the authored sequences.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
-    /// <summary>Drop requests published by the Chozo-orb projectile cue.</summary>
-    internal readonly List<TorizoOrbDropRequest> TorizoOrbDropRequests = new();
     /// <summary>Bomb and Golden Torizo's state lookups, facing, posture and the function their branches test.</summary>
     private readonly TorizoEncounterAccess _access;
 
@@ -771,7 +769,6 @@ internal sealed class TorizoAttacks
             : EnemyDefinitionId.BombTorizoOrb;
 
         RoomEnemyDefinition definition = _room.LoadedDefinitions.ReadEnemyDefinition(definitionId);
-        TorizoOrbDropRequests.Add(new TorizoOrbDropRequest());
         _deathsAndDrops.SpawnEnemyDropFromChanceTable(
             projectile.Position.Whole,
             definition.DropChances);

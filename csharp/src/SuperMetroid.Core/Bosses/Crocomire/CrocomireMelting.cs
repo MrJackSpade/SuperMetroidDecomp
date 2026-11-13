@@ -95,7 +95,6 @@ internal sealed class CrocomireMelting
         death.DistortionStep = 256;
         death.LowestDistortionSourceRow = CrocomireMeltingDefinitions.LowestDistortionSourceRow;
         death.DistortionSourceRow = death.LowestDistortionSourceRow;
-        death.DistortionEndY = CrocomireMeltingDefinitions.DistortionEndY;
         death.MeltPass = pass;
         death.MeltColumnsErased = 0;
         death.NextMeltBand = 0;

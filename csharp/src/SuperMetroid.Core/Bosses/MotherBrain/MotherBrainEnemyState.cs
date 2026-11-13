@@ -65,9 +65,6 @@ public sealed class MotherBrainEnemyState
     /// <summary>Independent countdown used by selected tube spawn stages; a stage expires once it runs past zero.</summary>
     public int TubeCollapseTimer { get; internal set; }
 
-    /// <summary>Count of dynamically spawned physical falling-tube enemy records.</summary>
-    public int SpawnedFallingTubeCount { get; internal set; }
-
 
     /// <summary>The colours the encounter has loaded over its sprites, her body layer and her room (#1512).</summary>
     internal MotherBrainColours Colours { get; } = new();

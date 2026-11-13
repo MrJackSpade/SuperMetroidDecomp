@@ -81,7 +81,6 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.SpeciesState<PhantoonEyeState>() is { } phantoonEye)
         {
             phantoonEye.ClosedTimer = CoordinateAxis.AsSigned(words.A);
-            phantoonEye.ShotMarker = words.B;
             phantoonEye.FigureEightReversed = words.C != 0;
             phantoonEye.DyingFadeCycles = words.C;
             phantoonEye.FadeDenominator = words.D;

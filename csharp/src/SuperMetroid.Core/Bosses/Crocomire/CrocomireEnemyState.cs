@@ -102,12 +102,6 @@ public sealed class CrocomireEnemyState
     public SignedEightEight VerticalAcceleration { get; internal set; }
 
     /// <summary>
-    /// During combat: the shot and power-bomb reaction timer, cleared at wake-up and set to ten by every reaction. No
-    /// retail behaviour reads it back.
-    /// </summary>
-    public int ReactionTimer { get; internal set; }
-
-    /// <summary>
     /// While the body sinks or rises: the vertical speed per frame, down while sinking and up while rising. The sink clamps
     /// its whole part at three pixels and the rise stops it at zero, so it stays below four pixels per frame.
     /// </summary>

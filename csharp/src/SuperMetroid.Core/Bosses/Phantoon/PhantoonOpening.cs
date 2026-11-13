@@ -34,9 +34,7 @@ internal sealed class PhantoonOpening
         if (!PhantoonPresentation.TickPhantoonFunctionTimer(state.BodyState))
             return;
 
-        state.StartingFlameRequests++;
-        if (SpawnPhantoonStartingFlame(body, PhantoonFlameSpawns.StartingFlameStart(state.BodyState.StartingFlameIndex)))
-            state.StartingFlamesSpawned++;
+        _ = SpawnPhantoonStartingFlame(body, PhantoonFlameSpawns.StartingFlameStart(state.BodyState.StartingFlameIndex));
         _audio.QueueEnemySound(PhantoonSoundDefinitions.StartingFlame, PhantoonSoundDefinitions.StartingFlamePriority);
         state.BodyState.FunctionTimer = 30;
         state.BodyState.StartingFlameIndex = WrappingCounter.IncrementCount(state.BodyState.StartingFlameIndex);

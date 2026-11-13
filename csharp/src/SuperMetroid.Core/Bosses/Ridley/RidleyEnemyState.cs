@@ -146,14 +146,8 @@ public sealed class RidleyEnemyState
     public int DeathExplosionTimer { get; internal set; }
     /// <summary>Gets the Lower Norfair index, zero through nine, cycling through ten authored death-explosion placements.</summary>
     public int DeathExplosionCount { get; internal set; }
-    /// <summary>Gets the whole-pixel room-liquid target height published by Lower Norfair death or combat logic.</summary>
-    public int FxTargetYPosition { get; internal set; }
-    /// <summary>Gets the authored room-liquid motion delay, in updates, published with Ridley's FX target and velocity.</summary>
-    public int FxTimer { get; internal set; }
     /// <summary>Gets whether Lower Norfair's twelve independently moving breakup actors have already been allocated.</summary>
     public bool DeathBreakupSpawned { get; internal set; }
-    /// <summary>Gets whether the Lower Norfair death has written the persistent area-boss defeat flag.</summary>
-    public bool BossDefeatPublished { get; internal set; }
 
     /// <summary>The Ceres Baby's playing cutscene animation, standing after its current pose; owned separately from Ridley's body.</summary>
     internal AnimationPlayback<CeresBabySegment> BabyPlayback { get; set; } =

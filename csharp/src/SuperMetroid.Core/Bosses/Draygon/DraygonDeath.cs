@@ -131,7 +131,6 @@ internal sealed class DraygonDeath
             _room.Services.Bosses.SetDefeated(BossBits.AreaBoss);
             state.BossDefeatPersisted = true;
         }
-        state.ItemDropRequested = true;
         _spriteObjects.EndAll();
     }
 

@@ -919,8 +919,8 @@ internal static class LookupStream5Verification
         }
     }
 
-    /// <summary>Compares Phantoon marker addresses and visual selectors with cartridge data.</summary>
-    internal static void VerifyLookupStream5PhantoonMarkers(CartridgeImportAddressSpace rom)
+    /// <summary>Checks that every one of Phantoon's eight shot draws takes one random number and shortens his window.</summary>
+    internal static void VerifyLookupStream5PhantoonMarkers()
     {
         AssertEqual(SuperMetroid.AssetExtraction.Cartridge.SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes("Super Metroid.smc"))), "Marker reference ROM revision");
@@ -944,15 +944,11 @@ internal static class LookupStream5Verification
             state.BodyState.FunctionTimer = 60;
             state.TentaclesState.SwoopRequested = false;
             state.TentaclesState.RoundDamage = 0;
-            byte expected = rom.ReadCartridgeByte(0xa7cda5 + bucket);
-            AssertEqual(expected, PhantoonPatternDefinitions.ShotEyeMarkers[bucket], "Exact retained native RNG bucket");
             shot(body, state, 0x100, 1);
-            AssertEqual(expected, state.EyeState.ShotMarker, "Actual exposed eye marker");
-            AssertEqual((ushort)bucket, state.MouthState.ShotPattern, "Actual selected RNG pattern");
             AssertEqual(16, state.BodyState.FunctionTimer, "Actual shot window");
             AssertEqual(bucket + 1, calls, "One preserved RNG call per shot");
         }
-        Console.WriteLine("Phantoon retained random markers: eight SHA-verified native bytes and eight actual bus-free shot writes preserve RNG, pattern and timing.");
+        Console.WriteLine("Phantoon shot draws: eight actual bus-free shots preserve RNG and timing.");
     }
 
     /// <summary>Checks Magdollite's palette pulse frames and the eight-frame update cadence.</summary>
@@ -1838,7 +1834,7 @@ internal static class LookupStream5Verification
     [VerificationCommand("--lookup-stream5-phantoon-markers")]
     internal static int LookupStream5PhantoonMarkersCommand()
     {
-        Suite(nameof(VerifyLookupStream5PhantoonMarkers), () => VerifyLookupStream5PhantoonMarkers(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        Suite(nameof(VerifyLookupStream5PhantoonMarkers), () => VerifyLookupStream5PhantoonMarkers());
         return 0;
     }
 

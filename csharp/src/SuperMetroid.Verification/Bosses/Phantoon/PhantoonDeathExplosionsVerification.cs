@@ -56,8 +56,9 @@ internal static class PhantoonDeathExplosionsVerification
                 AssertEqual((ushort)timer, state.BodyState.FunctionTimer, "Exact death explosion frame timer");
                 AssertEqual((ushort)index, state.TentaclesState.ExplosionIndex, "Exact death record cursor and repeat");
                 AssertEqual((ushort)passes, state.BodyState.ExplosionPass, "Exact death repeat counter");
-                AssertEqual(requests, state.DeathExplosionRequests, "Exact death request frame");
-                AssertEqual(full ? 0 : requests, state.DeathExplosionsSpawned, "Allocation pressure does not alter schedule");
+                // A due explosion takes the emptied pool's one place; a full pool leaves the schedule as it is.
+                if (!full)
+                    AssertEqual(due ? 1 : 0, enemies.Projectiles.EnemyProjectiles.Count(p => p.IsActive), "Exact death request frame");
                 AssertEqual((passes == 3 ? PhantoonAiFunction.BeginFinalWavyDeath : PhantoonAiFunction.DyingExplosions), state.BodyState.Function, "Exact final death phase handoff");
                 if (due)
                 {

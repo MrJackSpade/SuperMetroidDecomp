@@ -66,9 +66,6 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// </summary>
     public int DeathAndEscapeExplosionIndex { get; internal set; }
 
-    /// <summary>Number of calls made to the body flicker producer.</summary>
-    public uint BodyFlickerCallCount { get; private set; }
-
     /// <summary>Whether the death has reached the point where the start of Mother Brain's body is cleared (#1466).</summary>
     public bool BodyClearRequested { get; private set; }
 
@@ -327,7 +324,6 @@ internal sealed class MotherBrainThirdPhaseDeath
         // Body flickering runs every AI call, independently of the seventeen-call
         // palette cadence. Counter values 0..15 copy blackening palettes; value 16
         // is past the last palette and completes the transition without a copy.
-        BodyFlickerCallCount++;
         GenerateDeathExplosions(
             style: MotherBrainDeathExplosionStyle.Mixed, frame.NextRandomNumber, requests.DeathExplosions);
         if (--_state.FunctionTimer < 0)

@@ -219,7 +219,6 @@ internal sealed class CrocomireSkeleton
             xScatter: EnemyDropScatterDefinitions.NarrowArenaHorizontalScatter,
             yBase: 96,
             yScatter: EnemyDropScatterDefinitions.ArenaBandVerticalScatter);
-        _access.RequireCrocomireDeath().ItemDropRequested = true;
         state.DeathPhase = state.DeathPhase.Next();
     }
 
@@ -238,7 +237,6 @@ internal sealed class CrocomireSkeleton
         _access.RequestCrocomireMusic(MusicRequest.SelectTrack(MusicTrack.SecondSetSong), MusicQueueDelay.Shortest);
         _zebetiteBehavior.CameraDistance = CameraDistanceMode.NormalTracking;
         _room.Services.Bosses.SetDefeated(BossBits.AreaMiniBoss);
-        _access.RequireCrocomireDeath().BossBitSet = true;
         _access.SpawnCrocomireDust(state, -16);
         _access.SpawnCrocomireDust(state, 16);
         state.DeathPhase = state.DeathPhase.Next();

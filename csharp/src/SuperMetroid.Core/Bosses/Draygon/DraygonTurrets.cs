@@ -34,7 +34,6 @@ internal sealed class DraygonTurrets
         // The turret cadence tests the frame counter, then advances the room RNG even when the
         // chosen turret is disabled; the spawn itself is SpawnDraygonWallTurret.
         int random = _room.Random.Generate();
-        state.TurretCadenceChecks++;
         if (samus is not null)
             SpawnDraygonWallTurret(state, samus, random);
     }
@@ -71,6 +70,5 @@ internal sealed class DraygonTurrets
         // The definition names the flight step, but init replaces it with an empty step until the 84-frame muzzle
         // bloom reaches its enable step and explicitly enables flight.
         turret.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
-        state.WallTurretsSpawned++;
     }
 }

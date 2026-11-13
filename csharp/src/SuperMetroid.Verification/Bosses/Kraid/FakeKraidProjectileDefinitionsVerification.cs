@@ -42,9 +42,7 @@ internal static class FakeKraidProjectileDefinitionsVerification
                 Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook,
             };
             var state = new FakeKraidEnemyState();
-            enemies.FakeKraidBehavior.SpawnFakeKraidSpitPair(source, state, movingRight ? HorizontalDirection.Right : HorizontalDirection.Left);
-            AssertEqual(2, state.SpawnedSpitCount,
-                $"Fake Kraid {(movingRight ? "right" : "left")} spit count");
+            enemies.FakeKraidBehavior.SpawnFakeKraidSpitPair(source, movingRight ? HorizontalDirection.Right : HorizontalDirection.Left);
 
             EnemyProjectile[] spawned = enemies.Projectiles.EnemyProjectiles
                 .Where(projectile => projectile.IsActive)

@@ -52,8 +52,6 @@ public sealed class DraygonEnemyState
     public RoomEnemySlot Arms { get => field ?? throw new InvalidOperationException("Draygon's arms part is not attached; part initialization attaches it."); internal set; }
 
 
-    /// <summary>The boss-room load disables the normal minimap and marks its four tiles.</summary>
-    public bool MinimapDisabledAndBossTilesExplored { get; internal set; }
 
     /// <summary>
     /// The off-screen point at the left where Draygon is placed between attack rounds: the body's position when the
@@ -120,10 +118,6 @@ public sealed class DraygonEnemyState
     /// <summary>Goop shots left in a firing pass, set to sixteen when the pass begins; the pass ends when it reaches zero.</summary>
     public int GoopCounter { get; internal set; }
 
-    /// <summary>Count of wall-turret projectiles admitted to the shared pool; disabled cannons and exhausted allocations do not increment it.</summary>
-    public int WallTurretsSpawned { get; internal set; }
-    /// <summary>Count of goop projectiles admitted by the facing-specific body-list producers.</summary>
-    public int GoopProjectilesSpawned { get; internal set; }
 
     /// <summary>
     /// Horizontal radius of the carry spiral in 16.16 pixels; the vertical radius is a quarter of its whole pixels.
@@ -154,11 +148,6 @@ public sealed class DraygonEnemyState
     /// <summary>Frames left of an incidental 64-frame tail whip.</summary>
     public int TailWhipTimer { get; internal set; }
 
-    /// <summary>How many times Draygon's chase has reached its grab window and caught Samus.</summary>
-    public int SuccessfulGrabs { get; internal set; }
-
-    /// <summary>Number of tail-hit steps that actually damaged grabbed Samus.</summary>
-    public int TailWhipHits { get; internal set; }
 
 
     /// <summary>
@@ -166,13 +155,9 @@ public sealed class DraygonEnemyState
     /// </summary>
     public int? HealthBand { get; internal set; }
 
-    /// <summary>True after the burial at the end of the fight scatters sixteen physical pickups using the body's drop definition.</summary>
-    public bool ItemDropRequested { get; internal set; }
     /// <summary>True after terminal burial invokes the persistent area-boss-defeated callback; prevents repeating that persistence write.</summary>
     public bool BossDefeatPersisted { get; internal set; }
 
-    /// <summary>Number of exact 64-frame turret-selection RNG draws observed.</summary>
-    public int TurretCadenceChecks { get; internal set; }
 
     /// <summary>
     /// The wall cannons disabled by Draygon setup or a destroyed room object.

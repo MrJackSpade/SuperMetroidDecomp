@@ -46,9 +46,6 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// <summary>Whether the rainbow attack has started its beam and not yet ended it.</summary>
     public bool BeamActive { get; internal set; }
 
-    /// <summary>Samus projectile cooldown written at beam shutdown.</summary>
-    public int SamusProjectileCooldownTimer { get; private set; }
-
     /// <summary>
     /// Starts, immediately after the power-bomb gate and charge countdown.
     /// </summary>
@@ -63,7 +60,6 @@ internal sealed class MotherBrainRainbowAttackPhases
         SoundQueueCount = 6;
         _state.RainbowBeamSoundPlaying = false;
         BeamActive = true;
-        SamusProjectileCooldownTimer = 0;
         _state.NeckAngleDelta = 64;
         _state.NeckMovementEnabled = true;
         _state.LowerNeckMovement = MotherBrainNeckMovement.BobDown;
@@ -279,7 +275,6 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// </summary>
     internal bool RunSecondPhaseRainbowExtendNeckDown()
     {
-        SamusProjectileCooldownTimer = 8;
         _state.LowerNeckMovement = MotherBrainNeckMovement.Lower;
         _state.UpperNeckMovement = MotherBrainNeckMovement.Lower;
         _state.NeckAngleDelta = 1280; // NTSC value of the regional pair 1280/1792.
@@ -302,7 +297,6 @@ internal sealed class MotherBrainRainbowAttackPhases
             {
                 // The step rereads the power-bomb flag here. The
                 // parameter is one stable sample of the flag for this AI call.
-                SamusProjectileCooldownTimer = 0;
                 StartActiveBeam(samus);
             }
         }
@@ -408,7 +402,6 @@ internal sealed class MotherBrainRainbowAttackPhases
             requests.StopEarthquake();
             _state.RainbowBeamSoundPlaying = false;
             samus.Control.Unlock(); // Samus command one.
-            SamusProjectileCooldownTimer = 8;
             _state.Phase = MotherBrainBodyFunction.SecondPhaseRainbowLetSamusFall;
         }
         return false;

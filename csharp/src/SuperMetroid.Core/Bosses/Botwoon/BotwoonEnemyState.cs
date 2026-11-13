@@ -82,14 +82,10 @@ public sealed class BotwoonEnemyState
         : PictureShading.Standard;
     /// <summary>The health thresholds he has passed, 0 through 8: each shows the next health band, and 8 marks all passed.</summary>
     public int HealthBandsPassed { get; internal set; }
-    /// <summary>Head health retained from initialization, independently of subsequent damage and the health-band thresholds.</summary>
-    public int MaximumHealth { get; internal set; }
     /// <summary>Initial maximum health shifted right one, used as the strict threshold for movement health phase 1.</summary>
     public int HalfHealth { get; internal set; }
     /// <summary>Initial maximum health shifted right two, used as the strict threshold for the fastest movement health phase.</summary>
     public int QuarterHealth { get; internal set; }
-    /// <summary>Previous-health snapshot, initialized from the head's spawn health separately from its maximum/threshold fields.</summary>
-    public int PreviousHealth { get; internal set; }
     /// <summary>Movement/spit speed record index 0, 1, or 2, refreshed when choosing a path outside a hole according to half/quarter-health thresholds.</summary>
     [IntegerQuantity("count of health thresholds passed, zero through two, indexing the speed records")]
     public int HealthPhase { get; internal set; }
@@ -113,12 +109,6 @@ public sealed class BotwoonEnemyState
     public bool BodyDeathStarted { get; internal set; }
     /// <summary>Landing signal from retained body argument zero, releasing the head's wait-for-body phase into wall crumbling and specialized drops.</summary>
     public bool LastBodySegmentLanded { get; internal set; }
-    /// <summary>Witness that the specialized sixteen-pickup request sequence has been emitted after the final body landing.</summary>
-    public bool DropRequested { get; internal set; }
-    /// <summary>Witness that initialization or death requested the appropriate Botwoon wall-clear/crumble room object.</summary>
-    public bool WallCrumbleRequested { get; internal set; }
-    /// <summary>Whether defeat persistence has been recognized or written; live death sets the area miniboss bit only after the complete wall-explosion phase.</summary>
-    public bool BossBitSet { get; internal set; }
     /// <summary>Ring index saved at a head hole crossing so delayed body samples toggle at the same position; null means no crossing remains pending.</summary>
     public int? SavedHoleRingIndex { get; internal set; }
 

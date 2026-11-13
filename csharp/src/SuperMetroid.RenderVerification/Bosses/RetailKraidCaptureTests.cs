@@ -45,6 +45,9 @@ internal static class RetailKraidCaptureTests
         var body = runtime.Enemies.SlotTable.Slots[0];
         KraidAiFunction BodyFunction() =>
             (body.SpeciesState<KraidPartState>() ?? throw new InvalidOperationException("Kraid's body has no part state.")).Function;
+        // The death has played out once the background fade hands the body to either finished entry.
+        static bool DeathFinished(KraidEnemyState kraid) =>
+            kraid.BodyState.Function is KraidAiFunction.DeathFinishedWasAlive or KraidAiFunction.DeathFinishedWasDead;
         var phases = new HashSet<KraidAiFunction>();
         int samples = 0;
         bool completed = false, ownedBackground = false;
@@ -97,7 +100,8 @@ internal static class RetailKraidCaptureTests
             if (finished) { completed = true; break; }
             runtime.StepFrame(0);
         }
-        if (!completed || !boss.CameraReleasedForSecondPhase || boss.BodyAppearance != KraidBodyAppearance.InFrontOfSprites)
+        // Reaching second-phase thinking passes the growth step that releases the first-screen camera.
+        if (!completed || boss.BodyAppearance != KraidBodyAppearance.InFrontOfSprites)
             throw new InvalidOperationException("Kraid growth missed camera/priority/second-phase handoff.");
         Console.WriteLine($"{device.Kind}: Kraid growth: {growthSamples} exact samples across {growthPhases.Count} AI states, camera and BG2 priority handoff verified.");
         int deathWait = 0;
@@ -116,7 +120,7 @@ internal static class RetailKraidCaptureTests
         for (int tick = 0; tick < 1200; tick++)
         {
             bool changed = deathPhases.Add(BodyFunction());
-            if (changed || tick % 4 == 0 || boss.DeathSequenceComplete)
+            if (changed || tick % 4 == 0 || DeathFinished(boss))
             {
                 var expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
                 samples++;
@@ -124,10 +128,10 @@ internal static class RetailKraidCaptureTests
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), $"{device.Kind}: Kraid death tick={tick}, AI={BodyFunction()}");
                 deathSamples++;
             }
-            if (boss.DeathSequenceComplete) break;
+            if (DeathFinished(boss)) break;
             runtime.StepFrame(0);
         }
-        if (!boss.DeathSequenceComplete || !deathPhases.Contains(KraidAiFunction.DeathWaitBeforeFadeIn4) ||
+        if (!DeathFinished(boss) || !deathPhases.Contains(KraidAiFunction.DeathWaitBeforeFadeIn4) ||
             !deathPhases.Contains(KraidAiFunction.DeathSink) ||
             !deathPhases.Contains(KraidAiFunction.DeathFadeInBackground))
             throw new InvalidOperationException("Kraid death missed sinking, the wait before the fade-in or the background fade.");
@@ -138,9 +142,9 @@ internal static class RetailKraidCaptureTests
         // regression. Run the defeated-room restoration before opening the other door.
         runtime.LoadCartridgeRoomThroughDoorForVerification(SuperMetroid.AssetExtraction.Rooms.CartridgeDoorHeaderImporter.Load(bus, KraidCaptureDefinitions.IncomingDoor), new Position16<RoomPixels>(0, 256));
         int restoreTicks = 0;
-        while (runtime.Enemies.KraidBehavior.Access.Kraid is { DeathSequenceComplete: false } && restoreTicks++ < 120)
+        while (runtime.Enemies.KraidBehavior.Access.Kraid is { } reloaded && !DeathFinished(reloaded) && restoreTicks++ < 120)
             runtime.StepFrame(0);
-        if (runtime.Enemies.KraidBehavior.Access.Kraid is not { DeathSequenceComplete: true })
+        if (runtime.Enemies.KraidBehavior.Access.Kraid is not { } restored || !DeathFinished(restored))
             throw new InvalidOperationException("Defeated Kraid reload did not restore its background.");
         RetailDoorCaptureTests.VerifyTransition(device, renderer, runtime, new RetailDoorCase { Door = KraidAuditDefinitions.RightExitDoor, Destination = KraidAuditDefinitions.RightExitDestination }, "defeated Kraid right", RequireSteadyHud(runtime, $"{device.Kind}: defeated Kraid right"));
     }

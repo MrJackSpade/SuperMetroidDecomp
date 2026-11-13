@@ -278,7 +278,6 @@ internal sealed class KraidProjectiles
         bool siblingKilled = !ReferenceEquals(sibling.SpeciesState<KraidPartState>(), siblingPart);
         part.NailVelocity = KraidNailLaunch.FromSiblingVelocity(
             KilledFingernailStops.SiblingSpeed(siblingPart.NailVelocity.Y.WholePixels, stopped: 0, siblingKilled));
-        part.NailLaunched = true;
         nail.Contact = nail.Contact.Without(EnemyContact.IgnoresSamus);
         nail.Presence = nail.Presence.Without(EnemyPresence.Hidden);
         nail.AnimationClock.StepOnNextUpdate();

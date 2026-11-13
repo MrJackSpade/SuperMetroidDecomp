@@ -62,7 +62,6 @@ internal sealed class DraygonParts
         _frameContext.RequestFullSweep();
         Draygon = new DraygonEnemyState(body)
         {
-            MinimapDisabledAndBossTilesExplored = true,
             Function = DraygonAiFunction.IntroInitialDelay,
         };
         body.SetSpeciesState(Draygon);
@@ -330,7 +329,6 @@ internal sealed class DraygonParts
         // the ordinary camera renderer observe the hit instead of reducing it to HP loss.
         _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Strong, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), 32);
 
-        state.TailWhipHits++;
         _spriteObjects.SpawnRoomSpriteObject(
             new(samus.Position.X.Whole, CoordinateAxis.Wrap(samus.Position.Y.Whole + 16)),
             RoomSpriteObjectKind.DustCloud,
@@ -354,7 +352,6 @@ internal sealed class DraygonParts
         int random = _room.Random.Generate();
         TrigonometryAngle angle = new(DraygonRandomDefinitions.GoopAngleSpread.Of(random) + (movingRight ? 192 : 128));
         SetDraygonProjectileVelocity(goop, angle, DraygonProjectileSpeeds.Goop);
-        state.GoopProjectilesSpawned++;
     }
 
     /// <summary>Launches a Draygon projectile along <paramref name="angle"/> at <paramref name="speed"/>.</summary>

@@ -101,7 +101,6 @@ internal static class PauseMenuFixtureVerification
             EndingText = game.EndingText,
             TitleBackdrop = game.TitleBackdrop,
             TitleGradient = game.TitleGradient,
-            EndingSpaceBackdrops = game.EndingSpaceBackdrops,
             MotherBrainRainbowPalette = game.MotherBrainRainbowPalette,
             CeresHaze = game.CeresHaze,
             PowerBombGlowColors = game.PowerBombGlowColors,

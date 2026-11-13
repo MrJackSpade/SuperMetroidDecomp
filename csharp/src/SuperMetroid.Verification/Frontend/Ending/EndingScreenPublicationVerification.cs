@@ -33,7 +33,6 @@ internal static class EndingScreenPublicationVerification
             EndingCreditsState restored = RoundTrip(ending);
             restored.InstalledArtwork.BindFixtureObjectArtwork(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EndingObjects);
             restored.InstalledArtwork.BindBackdrops(InstalledFixtures.EndingBackdrops);
-            restored.InstalledArtwork.BindSpaceBackdrops(InstalledFixtures.Maps.EndingSpaceBackdrops);
             restored.InstalledArtwork.BindEndingText(InstalledFixtures.Maps.EndingText);
             FramePaint restoredShown = EndingCreditsPresentation.CaptureRenderSnapshot(restored).Paint;
             var shownRestored = restored.ShownVram();

@@ -405,7 +405,6 @@ internal static class InstalledFixtures
         var ending = new EndingCreditsState(audio, new EndingCreditsSetup { GameTimeHours = gameTimeHours, GameTimeMinutes = gameTimeMinutes, Inventory = inventory, JapaneseText = japaneseText, EndingText = Maps.EndingText });
         ending.InstalledArtwork.BindFixtureObjectArtwork(endingObjects.Value);
         ending.InstalledArtwork.BindBackdrops(endingBackdrops.Value);
-        ending.InstalledArtwork.BindSpaceBackdrops(Maps.EndingSpaceBackdrops);
         return ending;
     }
 

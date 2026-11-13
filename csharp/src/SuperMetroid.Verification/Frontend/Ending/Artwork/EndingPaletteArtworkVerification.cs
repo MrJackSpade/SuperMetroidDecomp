@@ -134,6 +134,11 @@ internal static class EndingPaletteArtworkVerification
             AssertEqual(LittleEndianBytes.Word(native[0], native[1]), scene.Backdrop.ToWord(),
                 $"installed ending {scene.Screen} backdrop is the cartridge scene's first colour");
         }
+        // The space behind the exploding planet shows each frame's first palette-effect colour, which the import reads (#1637).
+        AssertTrue(EndingSpaceBackdropColours.InFrameOrder(backdrops.Space).SequenceEqual(
+                EndingSpaceBackdropColours.InFrameOrder(EndingSpaceBackdropColours.From(InstalledFixtures.ImportMaps.RoomPaletteFx))),
+            "each installed backdrop of the space behind the exploding planet is its frame's first colour");
+        VerifyEndingBackdropsRejectMalformedSpace(installation.EndingBackdropDirectory);
 
         bool rejectAllCartridgeReads = false;
         var guardedBus = NewEndingPaletteSourceReadGuard(
@@ -144,7 +149,6 @@ internal static class EndingPaletteArtworkVerification
         var nativeState = CreateRetailEndingFixture(nativeAudio, 2, 59);
         var installedState = CreateRetailEndingFixture(installedAudio, 2, 59);
         installedState.InstalledArtwork.BindBackdrops(backdrops);
-        installedState.InstalledArtwork.BindSpaceBackdrops(maps.EndingSpaceBackdrops);
         installedState.InstalledArtwork.BindEndingText(maps.EndingText);
         installedState.InstalledArtwork.BindFixtureObjectArtwork(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EndingObjects);
         // This matches the playable host's installed ending bindings: the production-shaped scene must complete without
@@ -266,5 +270,37 @@ internal static class EndingPaletteArtworkVerification
             address => throw new InvalidOperationException(
                 $"Installed ending reread cartridge byte ${address:X6}."));
         return guard;
+    }
+
+    /// <summary>
+    /// Checks that an ending backdrop document whose space behind the exploding planet lacks a frame's backdrop, or holds a
+    /// channel outside the fade scale, fails to load (#1637).
+    /// </summary>
+    /// <param name="installed">The installed ending backdrop directory, whose document each case edits a copy of.</param>
+    private static void VerifyEndingBackdropsRejectMalformedSpace(string installed)
+    {
+        var document = (System.Text.Json.Nodes.JsonObject)(System.Text.Json.Nodes.JsonNode.Parse(
+            File.ReadAllText(Path.Combine(installed, EndingBackdropFiles.FileName)))
+            ?? throw new InvalidDataException("The installed ending backdrops are null."));
+        string directory = Path.Combine(Path.GetTempPath(), "ending-backdrops-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(directory);
+        try
+        {
+            Reject(space => space.RemoveAt(space.Count - 1), "an ending backdrop document without a frame's space backdrop");
+            Reject(space => space[0]!["blue"] = FadeLevelColour.FullLevel + 1, "an ending space backdrop channel outside the fade scale");
+        }
+        finally
+        {
+            Directory.Delete(directory, recursive: true);
+        }
+
+        void Reject(Action<System.Text.Json.Nodes.JsonArray> edit, string description)
+        {
+            var copy = (System.Text.Json.Nodes.JsonObject)document.DeepClone();
+            edit((System.Text.Json.Nodes.JsonArray)(copy["spaceBehindExplodingPlanet"]
+                ?? throw new InvalidDataException("The installed ending backdrops hold no space backdrops.")));
+            File.WriteAllText(Path.Combine(directory, EndingBackdropFiles.FileName), copy.ToJsonString());
+            AssertThrows<InvalidDataException>(() => EndingBackdropFiles.Load(directory), "reject " + description);
+        }
     }
 }

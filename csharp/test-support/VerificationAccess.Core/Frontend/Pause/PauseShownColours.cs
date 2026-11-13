@@ -1,6 +1,7 @@
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
@@ -36,12 +37,18 @@ internal static class PauseShownColours
 
     /// <summary>
     /// The native colours <see cref="Of"/> composes that the pause screen's pictures show: every colour, but for the
-    /// highlight cycle's colour group while no highlighted map sprite is drawn.
+    /// highlight cycle's colour group while no highlighted map sprite is drawn, and only that group's highlight colours
+    /// while one is.
     /// </summary>
     /// <remarks>
     /// The cartridge cycles that group whenever the pause screen runs, and the equipment page's selector and reserve
     /// strip drew in it and glowed with the map's highlight. That sharing was a presentation quirk (#1544): they show
     /// their own colours, so the native colours of the group say nothing about them.
+    /// <para>
+    /// The cycle writes the whole group, but the highlighted map sprites change only their highlight with it (#1637): the
+    /// installed cycle holds each frame's highlight colour, and the group's other colours are places no highlighted picture
+    /// shows the cycle in, so their native colours say nothing about the pictures either.
+    /// </para>
     /// <para>
     /// The reserve arrow's two colours are never compared either. The cartridge writes them only on the updates the
     /// equipment page takes input in the reserve rows, so they hold whatever was last written: the solid look the page's
@@ -55,7 +62,8 @@ internal static class PauseShownColours
         Ensure.NotNull(pause);
         bool highlighted = ShownHighlight(pause) is not null;
         return [.. Enumerable.Range(0, SnesCgram.ColorCount)
-            .Where(colour => highlighted || colour is < HighlightFirstColour or >= HighlightFirstColour + HighlightColours)
+            .Where(colour => colour is < HighlightFirstColour or >= HighlightFirstColour + HighlightColours
+                || (highlighted && MapPaletteCycleFormat.HighlightInks.Contains(colour - HighlightFirstColour)))
             .Where(colour => colour is not (ArrowShadeColour or ArrowLightColour))];
     }
 
@@ -70,7 +78,10 @@ internal static class PauseShownColours
         // Only the map's highlighted sprites show the cycle (#1544): the equipment page's selector and reserve strip,
         // which the cartridge draws in the same colour group, show their own colours.
         if (ShownHighlight(pause) is int frame)
-            InstalledFixtures.ImportOf(maps).HighlightColours.Colours(frame).CopyTo(colours.AsSpan(HighlightFirstColour));
+        {
+            foreach (int ink in MapPaletteCycleFormat.HighlightInks)
+                colours[HighlightFirstColour + ink] = InstalledFixtures.ImportOf(maps).HighlightColours.Highlight(frame);
+        }
         PictureShading arrow = pause.ReserveArrowShading;
         if (!arrow.IsStandard)
         {

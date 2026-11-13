@@ -1105,27 +1105,38 @@ internal static class LookupStream5Verification
         Console.WriteLine("Morph Ball eye: four native mount tuples, eight actual wrapped initializers,16 native beam colors and actual full-beam cycle pass.");
     }
 
-    /// <summary>Checks the map highlight palette cycle against cartridge colors and installed CGRAM slots.</summary>
+    /// <summary>Checks the map highlight cycle's holds and highlight colours against the cartridge's.</summary>
     internal static void VerifyLookupStream5MapHighlight(SuperMetroidAddressSpace rom)
     {
         var frames = Enumerable.Range(0, 14).Select(frame => new MapPaletteCycleFrame
         {
             DurationTicks = rom.ReadCartridgeByte(MapSourceDefinitions.Animation.PaletteTiming + frame * 3),
-            Colors = Enumerable.Range(0, 16).Select(color =>
-            {
-                ushort word = ReadVerificationWord(rom, MapSourceDefinitions.Animation.PaletteColors + (frame * 16 + color) * 2);
-                return new PaletteRgb5 { Red = word & 31, Green = (word >> 5) & 31, Blue = (word >> 10) & 31 };
-            }).ToArray(),
+            Highlight = Highlight(frame),
         }).ToArray();
-        var original = new MapPaletteCycleDocument { Version = 1, Frames = frames };
+        var original = new MapPaletteCycleDocument { Version = MapPaletteCycleFile.Version, Frames = frames };
+        // The extraction states each frame's look as the colour its highlight shows: both of the frame's highlight colours.
+        MapPaletteCycleDocument extracted = System.Text.Json.JsonSerializer.Deserialize<MapPaletteCycleDocument>(
+            SuperMetroid.AssetExtraction.Frontend.Map.MapPaletteCycleExtractor.Extract(rom), ArtworkJson.Options)
+            ?? throw new InvalidDataException("The extracted map highlight cycle is null.");
+        AssertTrue(extracted.Frames.SequenceEqual(frames), "the extracted highlight cycle holds each frame's hold and highlight colour");
+        for (int frame = 0; frame < 14; frame++)
+            AssertEqual(Highlight(frame), Colour(frame, 11), "both of a frame's highlight colours are the same colour");
         MapPaletteCycle stock = Check(original);
         for (int frame = 0; frame < 14; frame++)
         {
             AssertEqual((byte)Math.Min(frame, 14 - frame), rom.ReadCartridgeByte(MapSourceDefinitions.Animation.PaletteTiming + frame * 3 + 1), "Native highlight phase traversal");
         }
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Duration(-1), "Highlight lower frame bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.Colours(14), "Highlight upper frame bound");
-        Console.WriteLine("Map highlight: 224 native colors and14 timing/phase records resolve to each frame's highlight shade colours.");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.Highlight(14), "Highlight upper frame bound");
+        Console.WriteLine("Map highlight: 14 native highlight colours and timing/phase records resolve to each frame's highlight shade colour.");
+
+        PaletteRgb5 Highlight(int frame) => Colour(frame, 6);
+
+        PaletteRgb5 Colour(int frame, int color)
+        {
+            ushort word = ReadVerificationWord(rom, MapSourceDefinitions.Animation.PaletteColors + (frame * 16 + color) * 2);
+            return new PaletteRgb5 { Red = word & 31, Green = (word >> 5) & 31, Blue = (word >> 10) & 31 };
+        }
 
         static MapPaletteCycle Check(MapPaletteCycleDocument document)
         {
@@ -1137,13 +1148,9 @@ internal static class LookupStream5Verification
             {
                 AssertEqual((byte)document.Frames[frame].DurationTicks, cycle.Duration(frame), "Highlight hold");
                 AssertEqual(cycle.Duration(frame), cycle.Timing.Duration(frame), "Gameplay steps the highlight by the installed hold");
-                // Each frame's colours are the ones the import pre-colours the frame's highlight shade from (#1512).
-                RgbColor[] shown = cycle.Colours(frame);
-                for (int color = 0; color < 16; color++)
-                {
-                    var rgb = document.Frames[frame].Colors[color];
-                    AssertEqual(new FadeLevelColour(rgb.Red, rgb.Green, rgb.Blue).ToColour(), shown[color], "Highlight shade colour");
-                }
+                // Each frame's highlight colour is the one the import pre-colours the frame's highlight shade from (#1512).
+                var rgb = document.Frames[frame].Highlight;
+                AssertEqual(new FadeLevelColour(rgb.Red, rgb.Green, rgb.Blue).ToColour(), cycle.Highlight(frame), "Highlight shade colour");
             }
             return cycle;
         }

@@ -4,9 +4,9 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 /// <summary>
-/// Mother Brain's installed rainbow, drain, revival, fake-death and normal-restoration colors, every phase kept as
-/// installed. Only the import reads them, to pre-colour her pictures (#1512); the game receives the beam backdrop colours
-/// alone (#1527, #1616).
+/// Mother Brain's rainbow, drain, revival, fake-death and normal-restoration colors, every phase kept as the import data
+/// holds it (#1637). Only the import reads them, to pre-colour her pictures (#1512); the game works with her beam backdrop's
+/// colours alone, which are installed by purpose (<see cref="MotherBrainBeamColourFile"/>).
 /// </summary>
 public sealed class InstalledMotherBrainRainbowPalette
 {
@@ -21,28 +21,21 @@ public sealed class InstalledMotherBrainRainbowPalette
     /// <summary>Body and rear-leg colors restored after the beam.</summary>
     internal readonly PaletteFrame normal;
 
-    /// <summary>Keeps the installed rainbow, drain, revival, fake-death, restoration and beam-backdrop colours.</summary>
+    /// <summary>Keeps the rainbow, drain, revival, fake-death and restoration colours.</summary>
     /// <param name="rainbow">The ten rainbow phases.</param>
     /// <param name="toGrey">The drain fade.</param>
     /// <param name="fromGrey">The revival fade.</param>
     /// <param name="fakeDeathToGrey">The fake-death brain fade.</param>
     /// <param name="normal">The restored normal phase.</param>
-    /// <param name="beamInitial">The beam backdrop's first colour.</param>
-    /// <param name="beamCycle">Every colour of the beam backdrop's hue cycle, as installed.</param>
     internal InstalledMotherBrainRainbowPalette(PaletteFrame[] rainbow, PaletteFade toGrey,
-        PaletteFade fromGrey, PaletteFade fakeDeathToGrey, PaletteFrame normal,
-        RgbColor beamInitial, RgbColor[] beamCycle)
+        PaletteFade fromGrey, PaletteFade fakeDeathToGrey, PaletteFrame normal)
     {
-        Beam = new MotherBrainRainbowPalettePresentation(beamInitial, beamCycle);
         this.rainbow = rainbow;
         this.toGrey = toGrey;
         this.fromGrey = fromGrey;
         this.fakeDeathToGrey = fakeDeathToGrey;
         this.normal = normal;
     }
-
-    /// <summary>The colours of the rainbow beam's backdrop, which the game reads while the beam fires.</summary>
-    public MotherBrainRainbowPalettePresentation Beam { get; }
 
     /// <summary>One installed body and rear-leg phase.</summary>
     internal sealed class PaletteFrame

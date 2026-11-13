@@ -2,7 +2,11 @@ using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
-/// <summary>Editable Mother Brain palette schema, separating selected RGB5 colors from engine-owned attack/fade cadence and HDMA loop control.</summary>
+/// <summary>
+/// Mother Brain's rainbow, drain, revival, fake-death and restoration colours as the import data holds them (#1637): only
+/// the import reads them, to pre-colour her pictures, and the installation holds none of them. Her beam backdrop's colours,
+/// which the game works with, are installed by purpose (<see cref="MotherBrainBeamColourDocument"/>).
+/// </summary>
 public sealed record MotherBrainRainbowPaletteDocument
 {
     /// <summary>Schema revision; the reader accepts only <see cref="MotherBrainRainbowPaletteFile.Version"/>.</summary>
@@ -17,8 +21,4 @@ public sealed record MotherBrainRainbowPaletteDocument
     public PaletteRgb5[][]? FakeDeathToGrey { get; init; }
     /// <summary>Normal restoration frame with 15 shared body/brain inks and 15 rear-leg inks, matching the roles of $A9:9474/$9494; no trailing word is allowed.</summary>
     public required MotherBrainRainbowPaletteFrameDocument Normal { get; init; }
-    /// <summary>RGB5 fixed backdrop color for the first active rainbow-beam HDMA frame, before the native color cursor advances.</summary>
-    public required PaletteRgb5 BeamInitial { get; init; }
-    /// <summary>Exactly 38 RGB5 backdrop samples from the native $88:E833 hue cycle; the terminating signed $FFFF word is engine control and is not included.</summary>
-    public required PaletteRgb5[] BeamCycle { get; init; }
 }

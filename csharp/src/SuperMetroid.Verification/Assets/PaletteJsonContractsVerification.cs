@@ -88,7 +88,7 @@ internal static class PaletteJsonContractsVerification
             }
         }
         AssertEqual(0, accepted.Count, "palette compilers must reject ambiguous/corrupt data:\n" + string.Join('\n', accepted));
-        Console.WriteLine($"PASS palette JSON contracts: 12 formats / 18 selections, {rejected} invalid documents.");
+        Console.WriteLine($"PASS palette JSON contracts: 13 formats / 18 selections, {rejected} invalid documents.");
     }
 
     /// <summary>Names one palette schema, its valid document, loader, and historical casing rule.</summary>

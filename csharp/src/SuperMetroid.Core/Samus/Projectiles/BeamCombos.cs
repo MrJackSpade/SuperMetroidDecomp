@@ -15,11 +15,6 @@ internal sealed class BeamCombos
     private readonly ProjectileTrails _trails;
     /// <summary>What the Spacetime shot's runaway palette copy overwrites in saved progression.</summary>
     private readonly SpaceTimeProgressionOverwrite<SamusProjectileSegmentBeat, ProgressionOverwrite> _spaceTimeOverwrite;
-    /// <summary>
-    /// The last special attack's particle that holds off a new Ice or Plasma attack while it orbits
-    /// (<see cref="LeadParticleHoldsOffOrbitingAttack"/>), or none before the pool's first attack.
-    /// </summary>
-    private SamusProjectile? _holdingParticle;
 
     /// <summary>Connects special beam activation and particle updates to shared projectile, charge, and trail owners.</summary>
     internal BeamCombos(ProjectileAnimation animation, BeamChargeState charge, ProjectileSlotTable slotTable, ProjectileTrails trails,
@@ -63,8 +58,12 @@ internal sealed class BeamCombos
         int remaining = samus.PowerBombs - SamusComboMechanics.GetPowerBombCost(beam);
         samus.PowerBombs = remaining < 0 ? 0 : remaining;
         SamusComboKind? combo = SamusComboMechanics.ComboKind(beam);
-        bool activated = combo is SamusComboKind requested && !IsHeldOff(requested);
-        if (activated && combo is SamusComboKind kind)
+        // The attack starts once the charge completes. Every particle of a running attack clears the charge on each of
+        // its updates, and the charge grows while the particles stand still only under the X-ray once the run button is
+        // released, which ends the X-ray within a few updates; so the charge completes only after the last attack's
+        // particles have all ended. A particle still orbiting would be replaced like any shot in Samus's first places.
+        bool activated = combo is not null;
+        if (combo is SamusComboKind kind)
         {
             // The attack's particles replace the shots Samus has in her first places (SpecialAttackReplacesFirstShots),
             // and each plays its part.
@@ -107,7 +106,6 @@ internal sealed class BeamCombos
                 InitializeComboData(slot, kind == SamusComboKind.Ice ? BeamComboData.Charged
                     : kind == SamusComboKind.Spazer && part.SpazerTrail ? BeamComboData.Echo : BeamComboData.Combo);
             }
-            _holdingParticle = LeadParticleHoldsOffOrbitingAttack.HoldingParticle(particles);
             // Each Spazer beam particle pairs with the trailing particle that turns its way.
             if (kind == SamusComboKind.Spazer)
             {
@@ -134,19 +132,6 @@ internal sealed class BeamCombos
             samus.SelectedHudItem = samus.AutoCancelHudItemIndex = HudItem.Beam;
         return activated;
     }
-
-    /// <summary>
-    /// Whether a new <paramref name="kind"/> attack is held off by the last attack's particle that holds off Ice and
-    /// Plasma attacks (<see cref="LeadParticleHoldsOffOrbitingAttack"/>): an Ice attack while that particle still orbits
-    /// as an Ice particle, a Plasma attack while it still orbits as a Plasma ring; an ended particle orbits as neither.
-    /// </summary>
-    private bool IsHeldOff(SamusComboKind kind) => kind switch
-    {
-        SamusComboKind.Ice => _holdingParticle?.FrameBehavior is SamusProjectileFrameBehavior.IceCombo or SamusProjectileFrameBehavior.IceComboOutward,
-        SamusComboKind.Plasma => _holdingParticle?.FrameBehavior == SamusProjectileFrameBehavior.PlasmaCombo,
-        SamusComboKind.Wave or SamusComboKind.Spazer => false,
-        _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, $"Undefined {nameof(SamusComboKind)}."),
-    };
 
     /// <summary>Selects damage and animation data from the charged, combo, or Spazer echo tables and initializes its first frame.</summary>
     internal static void InitializeComboData(SamusProjectile slot, BeamComboData comboData)

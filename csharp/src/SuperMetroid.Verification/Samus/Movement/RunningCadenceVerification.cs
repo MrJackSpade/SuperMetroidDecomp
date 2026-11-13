@@ -39,6 +39,20 @@ internal static class RunningCadenceVerification
         AssertThrows<ArgumentOutOfRangeException>(() => SamusRunningCadences.Delay(residue, SamusRunningCadence.Ordinary, SamusRunningCadenceCodec.FrameCount),
             "a running frame past the tenth has no delay");
 
+        // A running frame's delay is any count the animation frame timer's countdown takes, not a byte (#1627).
+        var longest = new UnauthoredBoostCadence();
+        longest.TakeDelaysLeftByWings([byte.MaxValue + 1, .. Enumerable.Repeat(UnauthoredBoostCadence.LongestDelay, UnauthoredBoostCadence.FrameCount - 1)]);
+        AssertEqual(byte.MaxValue + 1, SamusRunningCadences.Delay(longest, SamusRunningCadence.UnauthoredBoost, 0), "a delay past a byte is kept");
+        AssertEqual(WrappingCountdown.LongestStart, SamusRunningCadences.Delay(longest, SamusRunningCadence.UnauthoredBoost, 1),
+            "the longest delay is the animation timer's longest start");
+        AssertEqual(WrappingCountdown.LongestStart, WrappingCountdown.Start(0).AddFrames(longest.Delay(1)).RemainingFrames,
+            "the animation frame timer takes the longest delay");
+        AssertThrows<InvalidDataException>(() => longest.TakeDelaysLeftByWings([.. Enumerable.Repeat(UnauthoredBoostCadence.LongestDelay + 1, UnauthoredBoostCadence.FrameCount)]),
+            "a delay past the animation timer's longest start is refused");
+        AssertThrows<InvalidDataException>(() => longest.TakeDelaysLeftByWings([.. Enumerable.Repeat(-1, UnauthoredBoostCadence.FrameCount)]),
+            "a negative delay is refused");
+        AssertEqual(UnauthoredBoostCadence.LongestDelay, longest.Delay(UnauthoredBoostCadence.FrameCount - 1), "refused delays keep what the wings last left");
+
         var speed = new SamusHorizontalSpeedState();
         for (int stage = 0; stage <= SamusSpeedBoostCounter.FullStage; stage++)
         {

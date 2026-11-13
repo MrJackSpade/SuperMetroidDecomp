@@ -63,13 +63,13 @@ internal static class GrappleConnectionDefinitions
             }.ToFrozenDictionary(),
         }.ToFrozenDictionary();
 
-    /// <summary>The raw angle a stop's reflection mirrors it about: its reflected angle is this minus its own.</summary>
-    internal const int ReflectionAngle = 256;
+    /// <summary>The turn a stop's reflection mirrors it about: its reflected angle is this turn less its own, one whole step.</summary>
+    internal static readonly RotationAngle ReflectionTurn = RotationAngle.FromSteps(1);
 
     /// <summary>
-    /// The grapple's special angles are eight exact collision-stop records. They are four
-    /// authored stops, each immediately followed by its left/right reflection: the angle reflects
-    /// as 256 - angle, X negates and the pose swaps facing; Y and the next function are shared.
+    /// The grapple's four authored collision stops. Each has a left/right reflection on the other side, and a swing
+    /// compares the eight exact angles: the angle reflects as <see cref="ReflectionTurn"/> less the stop's own, X negates
+    /// and the pose swaps facing; Y and the next function are shared.
     /// </summary>
     internal static readonly SpecialConnection[] AuthoredStops =
     [
@@ -85,7 +85,4 @@ internal static class GrappleConnectionDefinitions
     /// <param name="SamusOffset">Samus's room-pixel position relative to the grapple anchor.</param>
     /// <param name="Function">The connection function installed at the stop.</param>
     internal readonly record struct SpecialConnection(RotationAngle Angle, SamusPoseId Pose, Offset16<RoomPixels> SamusOffset, GrappleConnectionFunction Function);
-
-    /// <summary>Number of special-angle records, in their order.</summary>
-    internal static int SpecialAngleCount => AuthoredStops.Length * 2;
 }

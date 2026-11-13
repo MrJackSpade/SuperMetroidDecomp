@@ -8,9 +8,6 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// </summary>
 internal static class GreyDoorObjectDrawDefinitions
 {
-    /// <summary>The cleared-opening frame, which draws no cap.</summary>
-    internal const int ClearFrame = -1;
-
     /// <summary>
     /// How the four cells of each of the twenty grey-cap draws collide, in authored run order. The clear frame has no
     /// collision; frame zero carries the shootable and extension types; opening frames are solid except the middle cells
@@ -19,7 +16,7 @@ internal static class GreyDoorObjectDrawDefinitions
     internal static IReadOnlyDictionary<GreyDoorCaps.Draw, IReadOnlyList<RoomCollisionType>> Collisions { get; } =
         new Dictionary<GreyDoorCaps.Draw, IReadOnlyList<RoomCollisionType>>
         {
-            [new GreyDoorCaps.Draw(ColoredDoorOrientation.Left, ClearFrame)] =
+            [new GreyDoorCaps.Draw(ColoredDoorOrientation.Left, null)] =
             [
                 RoomCollisionType.Air,
                 RoomCollisionType.Air,
@@ -54,7 +51,7 @@ internal static class GreyDoorObjectDrawDefinitions
                 RoomCollisionType.Air,
                 RoomCollisionType.SolidBlock,
             ],
-            [new GreyDoorCaps.Draw(ColoredDoorOrientation.Right, ClearFrame)] =
+            [new GreyDoorCaps.Draw(ColoredDoorOrientation.Right, null)] =
             [
                 RoomCollisionType.Air,
                 RoomCollisionType.Air,
@@ -89,7 +86,7 @@ internal static class GreyDoorObjectDrawDefinitions
                 RoomCollisionType.SolidBlock,
                 RoomCollisionType.SolidBlock,
             ],
-            [new GreyDoorCaps.Draw(ColoredDoorOrientation.Up, ClearFrame)] =
+            [new GreyDoorCaps.Draw(ColoredDoorOrientation.Up, null)] =
             [
                 RoomCollisionType.Air,
                 RoomCollisionType.Air,
@@ -124,7 +121,7 @@ internal static class GreyDoorObjectDrawDefinitions
                 RoomCollisionType.SolidBlock,
                 RoomCollisionType.SolidBlock,
             ],
-            [new GreyDoorCaps.Draw(ColoredDoorOrientation.Down, ClearFrame)] =
+            [new GreyDoorCaps.Draw(ColoredDoorOrientation.Down, null)] =
             [
                 RoomCollisionType.Air,
                 RoomCollisionType.Air,

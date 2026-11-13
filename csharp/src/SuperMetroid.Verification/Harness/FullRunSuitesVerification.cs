@@ -437,6 +437,9 @@ using static SuperMetroid.Verification.Samus.Projectiles.SamusBombCountVerificat
 using static SuperMetroid.Verification.Samus.Artwork.SamusArtOriginRangeVerification;
 using static SuperMetroid.Verification.Samus.SamusSuitDamageVerification;
 using static SuperMetroid.Verification.Rooms.RoomGridBoundsVerification;
+using static SuperMetroid.Verification.Compatibility.CompatibilitySubpixelInputsVerification;
+using static SuperMetroid.Verification.Rooms.Doors.DoorCapAbsentFramesVerification;
+using static SuperMetroid.Verification.Samus.SamusPreviousPositionWritesVerification;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationOracles;
 using System.Collections.Frozen;
@@ -617,6 +620,15 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyTypedNativeWords), () => VerifyTypedNativeWords()),
         new(nameof(VerifySamusSpatialValues), () => VerifySamusSpatialValues()),
         new(nameof(VerifyTypedTurnsAndZoom), () => VerifyTypedTurnsAndZoom()),
+        // The typed angle steps, the X-ray aim, the combo orbit and the Crystal Flash radius (#1684).
+        new(nameof(SuperMetroid.Verification.Spatial.TypedAngleStepsVerification.VerifyTypedAngleSteps),
+            SuperMetroid.Verification.Spatial.TypedAngleStepsVerification.VerifyTypedAngleSteps),
+        new(nameof(SuperMetroid.Verification.Samus.Abilities.XrayAimClampVerification.VerifyXrayAimClamp),
+            SuperMetroid.Verification.Samus.Abilities.XrayAimClampVerification.VerifyXrayAimClamp),
+        new(nameof(SuperMetroid.Verification.Samus.Projectiles.ComboSineOffsetVerification.VerifyComboSineOffset),
+            SuperMetroid.Verification.Samus.Projectiles.ComboSineOffsetVerification.VerifyComboSineOffset),
+        new(nameof(SuperMetroid.Verification.Samus.Abilities.CrystalFlashAfterglowVerification.VerifyCrystalFlashAfterglow),
+            SuperMetroid.Verification.Samus.Abilities.CrystalFlashAfterglowVerification.VerifyCrystalFlashAfterglow),
         new(nameof(VerifyPhantoonWaveLifecycle), () => VerifyPhantoonWaveLifecycle()),
         new(nameof(VerifyBackgroundMosaicWidth), () => VerifyBackgroundMosaicWidth()),
         new(nameof(VerifyOamSpritemapPacking), () => VerifyOamSpritemapPacking()),
@@ -1146,5 +1158,8 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifySamusArtOriginRange), () => VerifySamusArtOriginRange()),
         new(nameof(VerifySamusSuitDamage), () => VerifySamusSuitDamage()),
         new(nameof(VerifyRoomGridBounds), () => VerifyRoomGridBounds()),
+        new(nameof(VerifyCompatibilitySubpixelInputs), () => VerifyCompatibilitySubpixelInputs()),
+        new(nameof(VerifyDoorCapAbsentFrames), () => VerifyDoorCapAbsentFrames()),
+        new(nameof(VerifySamusPreviousPositionWrites), () => VerifySamusPreviousPositionWrites()),
     ];
 }

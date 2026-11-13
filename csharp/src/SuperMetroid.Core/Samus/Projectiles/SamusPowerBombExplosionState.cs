@@ -394,7 +394,7 @@ public sealed class SamusPowerBombExplosionState
             ExplosionRadius.WholePixels >> 3);
 
         ExplosionRadius = AdvanceRadiusWrapping(ExplosionRadius);
-        if (ExplosionRadius.RawValue < PowerBombExplosionDefinitions.CrystalFlashRadiusLimit)
+        if (ExplosionRadius < PowerBombExplosionDefinitions.CrystalFlashRadiusLimit)
         {
             RadiusSpeed = RadiusSpeed.WrappingAdd(PowerBombExplosionDefinitions.ExplosionAcceleration);
             return;
@@ -402,7 +402,7 @@ public sealed class SamusPowerBombExplosionState
 
         // As with the ordinary afterglow, the Crystal Flash afterglow fades a step on every active frame behaviour.
         _crystalFlashAfterglowStepsRemaining =
-            PowerBombExplosionAfterglow.CrystalFlashAfterglowSteps(RenderedExplosionRadius.RawValue);
+            PowerBombExplosionAfterglow.CrystalFlashAfterglowSteps(RenderedExplosionRadius);
         Phase = PowerBombExplosionPhase.CrystalFlashAfterglow;
     }
 

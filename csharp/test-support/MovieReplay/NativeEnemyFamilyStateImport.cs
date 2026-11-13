@@ -315,7 +315,7 @@ internal static class NativeEnemyFamilyStateImport
             enemies.ZebetiteBehavior.SharedPaletteCycle = words.C;
         if (slot.SpeciesState<ChozoStatueState>() is { } chozoStatueRecord)
         {
-            chozoStatueRecord.CarryRecord = words.C / 2;
+            chozoStatueRecord.CarryStep = ChozoNativeWords.CarryStep(words.C / 2);
             chozoStatueRecord.FrameBehavior = words.F == 0 ? null : ChozoNativeWords.ChozoStatueFrameBehaviors.Decode(words.F, "recorded ChozoStatueFrameBehavior");
         }
         if (slot.SpeciesState<YardEnemyState>() is { } yardRecord)
@@ -514,7 +514,7 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.SpeciesState<HopperEnemyState>() is { } hopperRecord)
         {
             hopperRecord.Function = words.A == 0 ? null : HoppersNativeWords.HopperEnemyFunctions.Decode(words.A, "recorded HopperEnemyFunction");
-            hopperRecord.YSpeedTableIndex = words.B;
+            hopperRecord.YSpeedTableIndex = EnemyQuadraticSpeedIndex.FromRows(words.B);
             hopperRecord.XVelocity = unchecked((short)words.C);
             hopperRecord.YSpeedTableIndexDelta = words.D;
         }
@@ -523,11 +523,11 @@ internal static class NativeEnemyFamilyStateImport
             platform.RestingHeight = new Position16<RoomPixels>(0, words.A);
             platform.RightSpeed = SignedSixteenSixteen.FromParts(unchecked((short)words.C), words.B);
             platform.LeftSpeed = SignedSixteenSixteen.FromParts(unchecked((short)words.E), words.D);
-            platform.YSpeedTableIndex = Index(words.F, platform.MaximumYSpeedTableIndex, "platform acceleration index");
+            platform.YSpeedTableIndex = EnemyQuadraticSpeedIndex.FromRows(Index(words.F, platform.MaximumYSpeedTableIndex.WholeRows, "platform acceleration index"));
         }
         if (enemies.BeetomStates[index] is { } beetom)
         {
-            beetom.YSpeedTableIndex = Index(words.B, short.MaxValue, "Beetom speed index");
+            beetom.YSpeedTableIndex = EnemyQuadraticSpeedIndex.FromRows(Index(words.B, short.MaxValue, "Beetom speed index"));
             beetom.Function = words.C == 0 ? null : BeetomNativeWords.BeetomEnemyFunctions.Decode(words.C, "recorded BeetomEnemyFunction");
             beetom.FunctionTimer = unchecked((short)words.D);
             beetom.ButtonCounter = unchecked((short)words.E);
@@ -548,7 +548,7 @@ internal static class NativeEnemyFamilyStateImport
         {
             choot.Function = words.A == 0 ? null : ChootNativeWords.ChootEnemyFunctions.Decode(words.A, "recorded ChootEnemyFunction");
             // The ascent cursor is 8.8 and moves by whole records, so its signed high byte is the record index.
-            choot.YSpeedTableIndex = unchecked((short)words.B) >> 8;
+            choot.YSpeedTableIndex = EnemyQuadraticSpeedIndex.FromRows(unchecked((short)words.B) >> 8);
             choot.FallingPatternFrame = (words.C & 0xff) == 0
                 ? words.C >> 8
                 : throw new InvalidDataException($"Recorded Choot falling cursor ${words.C:X4} is not a whole frame.");

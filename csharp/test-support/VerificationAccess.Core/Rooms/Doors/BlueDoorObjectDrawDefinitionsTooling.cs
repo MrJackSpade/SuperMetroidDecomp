@@ -14,8 +14,8 @@ internal static class BlueDoorObjectDrawDefinitionsTooling
             foreach (var frame in RoomObjectBlueDoorVisualFiles.Editable) yield return frame;
             for (int orientation = 0; orientation < 4; orientation++)
             {
-                RoomObjectBlueDoorVisualFiles.TryGet(RoomObjectDraw.Of(new BlueDoorCaps.Draw(
-                    DoorCapOrientations.FromTableIndex(orientation), BlueDoorObjectDrawDefinitions.AliasFrame)), out var draw);
+                RoomObjectBlueDoorVisualFiles.TryGet(RoomObjectDraw.Of(BlueDoorCaps.Draw.AliasOf(
+                    DoorCapOrientations.FromTableIndex(orientation))), out var draw);
                 yield return draw;
             }
         }

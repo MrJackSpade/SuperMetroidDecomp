@@ -152,7 +152,7 @@ internal static class RoomBlockWriters
             throw new InvalidDataException($"Grey door frame {draw} is not a grey door cap's frame.");
         ColoredDoorOrientation facing = cap.Orientation;
         Func<InventoriedRoomState, bool> grey = Placing(DoorObjectHeaderDefinitions.GreyDoors.Where(door => door.Value == facing).Select(door => door.Key));
-        if (cap.Frame != GreyDoorObjectDrawDefinitions.ClearFrame)
+        if (!cap.IsCleared)
             return grey;
         Func<InventoriedRoomState, bool> coloured = Placing(DoorObjectHeaderDefinitions.ColoredDoors
             .Where(door => door.Value.Orientation == facing).Select(door => door.Key));

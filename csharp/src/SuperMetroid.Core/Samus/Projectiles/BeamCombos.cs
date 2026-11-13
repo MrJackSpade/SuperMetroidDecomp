@@ -328,7 +328,7 @@ internal sealed class BeamCombos
                         if (slot.ComboOrbitRadius == 0)
                         {
                             slot.SpazerAngleStep = -SpazerTurnSteps(PartOf(slot).SpazerTurn, 2);
-                            slot.ComboAngle = slot.ComboAngle.TurnedBySteps(TrigonometryAngle.HalfTurn.RawValue);
+                            slot.ComboAngle += TrigonometryAngle.HalfTurn;
                             slot.SpazerPhase = SpazerComboPhase.FlyingUpAwayFromPoint;
                             shared.SetSharedCooldown(2);
                             _charge.ClearCount();

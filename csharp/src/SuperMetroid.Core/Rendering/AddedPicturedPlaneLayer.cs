@@ -23,12 +23,18 @@ public sealed record AddedPicturedPlaneLayer(PicturedPlane Plane, PicturedPlaneL
         init => field = Ensure.NotNull(value);
     } = Ensure.NotNull(Plane);
 
-    /// <summary>The plane line shown on the screen's top line, every line's, within an offset of -32768 through 32767.</summary>
+    /// <summary>
+    /// The plane line shown on the screen's top line, every line's: a displacement in the plane's space, which holds it as
+    /// it holds every picture's corner and every plane layer's scroll (<see cref="Offset16{TSpace}"/>, #1627).
+    /// </summary>
     public int VerticalScroll
     {
         get;
-        init => field = Ensure.BetweenInclusive(short.MinValue, short.MaxValue, value);
-    } = Ensure.BetweenInclusive(short.MinValue, short.MaxValue, VerticalScroll);
+        init => field = PlaneLine(value);
+    } = PlaneLine(VerticalScroll);
+
+    /// <summary>A vertical displacement in the plane's space, as the plane's offsets hold it.</summary>
+    private static int PlaneLine(int line) => Offset16<PlanePixels>.Of(0, line).Y;
 
     /// <summary>
     /// The sine wave that ripples the glowing plane sideways (#1468), or null for a horizontal scroll of zero on every line;

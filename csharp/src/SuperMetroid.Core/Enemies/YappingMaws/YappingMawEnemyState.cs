@@ -70,10 +70,10 @@ public sealed class YappingMawEnemyState
     public SignedSixteenSixteen Extension { get; internal set; }
 
     /// <summary>
-    /// The row of the quadratically increasing common enemy speeds the next curl update adds: each update moves one
-    /// row on, so the curl accelerates out and, after the turn-around, back.
+    /// The whole-row place along the quadratically increasing common enemy speeds the next curl update adds: each
+    /// update moves one row on, so the curl accelerates out and, after the turn-around, back.
     /// </summary>
-    public int QuadraticSpeedRow { get; internal set; }
+    public EnemyQuadraticSpeedIndex QuadraticSpeedRow { get; internal set; }
 
     /// <summary>
     /// Which of the row's two speeds the curl adds: the positive one while the tongue extends, the negative one after

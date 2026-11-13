@@ -15,6 +15,12 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Samus must be within 80 horizontal pixels for a waiting Choot to arm its jump timer.</summary>
     private const int ChootActivationDistance = 80;
 
+    /// <summary>
+    /// How far the ascent moves back along the quadratic speed table each jumping update, two whole rows; the starting
+    /// place is found by moving on by the same step.
+    /// </summary>
+    private static readonly EnemyQuadraticSpeedIndex ChootRowsPerUpdate = EnemyQuadraticSpeedIndex.FromRows(2);
+
     /// <summary>Initializes the Choot, selecting a falling pattern and calculating ascent speed from parameters.</summary>
     internal static void InitializeChoot(RoomEnemySlot slot)
     {
@@ -98,11 +104,11 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // Choot applies the table's separately stored negative pair, including its fractional
         // negation bug, without consulting room collision during this authored leap.
-        SignedSixteenSixteen upwardDisplacement = EnemyQuadraticSpeeds.Row(state.YSpeedTableIndex).Negative;
+        SignedSixteenSixteen upwardDisplacement = state.YSpeedTableIndex.Row.Negative;
         slot.Position = slot.Position.WithY(slot.Position.Y.MovedBy(upwardDisplacement));
 
-        state.YSpeedTableIndex -= 2;
-        if (state.YSpeedTableIndex >= 0)
+        state.YSpeedTableIndex -= ChootRowsPerUpdate;
+        if (!state.YSpeedTableIndex.IsNegative)
             return;
 
         // The apex transition snaps only the whole positions to precalculated origins;
@@ -147,15 +153,14 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Calculates the Choot's initial jump speed, integrating every second quadratic step until
     /// they cover the requested height. The table ends at record 94, so the result is an even index from 2 to 94.
     /// </summary>
-    private static int CalculateInitialChootYSpeedTableIndex(int jumpHeight)
+    private static EnemyQuadraticSpeedIndex CalculateInitialChootYSpeedTableIndex(int jumpHeight)
     {
-        int tableIndex = 0;
+        EnemyQuadraticSpeedIndex tableIndex = EnemyQuadraticSpeedIndex.Start;
         FixedCoordinate accumulatedDistance = default;
         for (int iteration = 0; iteration < 128; iteration++)
         {
-            tableIndex += 2;
-            accumulatedDistance = accumulatedDistance.MovedBy(
-                EnemyQuadraticSpeeds.Row(tableIndex).Positive);
+            tableIndex += ChootRowsPerUpdate;
+            accumulatedDistance = accumulatedDistance.MovedBy(tableIndex.Row.Positive);
             int wholeDistance = accumulatedDistance.Whole;
             if (CoordinateAxis.Difference(wholeDistance, jumpHeight) >= 0)
                 return tableIndex;

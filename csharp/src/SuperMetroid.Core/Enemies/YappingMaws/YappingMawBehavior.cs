@@ -213,7 +213,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void BeginYappingMawExtension(RoomEnemySlot slot, YappingMawEnemyState state)
     {
         state.Extension = SignedSixteenSixteen.Zero;
-        state.QuadraticSpeedRow = 0;
+        state.QuadraticSpeedRow = EnemyQuadraticSpeedIndex.Start;
         state.QuadraticSpeedSign = EnemySpeedSign.Positive;
         state.SegmentRadius = state.DistanceToSamus / 2;
         state.CurlAngle = state.AimAngle.ToTableAngle().ToAngle();
@@ -288,7 +288,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
                 // the same row's negative speed, or from a negative speed on to the next row's positive one.
                 if (state.QuadraticSpeedSign == EnemySpeedSign.Negative)
                 {
-                    state.QuadraticSpeedRow++;
+                    state.QuadraticSpeedRow += EnemyQuadraticSpeedIndex.OneRow;
                     state.QuadraticSpeedSign = EnemySpeedSign.Positive;
                 }
                 else
@@ -342,8 +342,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Adds the current quadratic speed to the curl, carrying the fraction, then advances the record.</summary>
     internal static void AddYappingMawQuadraticSpeed(YappingMawEnemyState state)
     {
-        state.Extension += EnemyQuadraticSpeeds.Row(state.QuadraticSpeedRow).Toward(state.QuadraticSpeedSign);
-        state.QuadraticSpeedRow++;
+        state.Extension += state.QuadraticSpeedRow.Row.Toward(state.QuadraticSpeedSign);
+        state.QuadraticSpeedRow += EnemyQuadraticSpeedIndex.OneRow;
     }
 
     /// <summary>Waits after retraction, including decrement-underflow expiration on frame 65.</summary>

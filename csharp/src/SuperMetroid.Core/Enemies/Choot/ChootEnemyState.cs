@@ -15,10 +15,11 @@ public sealed class ChootEnemyState
     public ChootEnemyFunction? Function { get; internal set; }
 
     /// <summary>
-    /// The ascent's quadratic-speed record index, falling by two per jumping update; the update that takes it below
-    /// zero is the apex. It starts at the even index whose integrated speeds cover the jump height, at most 94.
+    /// The ascent's whole-row place along the quadratic speed table, moving back two rows per jumping update; the update
+    /// that takes it before the first row is the apex. It starts at the even row whose integrated speeds cover the jump
+    /// height, at most row 94.
     /// </summary>
-    public int YSpeedTableIndex { get; internal set; }
+    public EnemyQuadraticSpeedIndex YSpeedTableIndex { get; internal set; }
 
     /// <summary>The falling pattern's current frame, advanced by one per falling update and restarted at each loop's end.</summary>
     public int FallingPatternFrame { get; internal set; }
@@ -41,8 +42,8 @@ public sealed class ChootEnemyState
     /// <summary>The whole-pixel base added to each signed falling-pattern offset; initialized at the apex, and its Y advanced by <see cref="FallingPatternYDistance"/> at every loop's end.</summary>
     public Position16<RoomPixels> FallingOrigin { get; internal set; }
 
-    /// <summary>The ascent record index calculated from the population's loop count and pattern height; copied back to <see cref="YSpeedTableIndex"/> when the jump cycle finishes.</summary>
-    public int InitialYSpeedTableIndex { get; internal set; }
+    /// <summary>The ascent's starting place calculated from the population's loop count and pattern height; copied back to <see cref="YSpeedTableIndex"/> when the jump cycle finishes.</summary>
+    public EnemyQuadraticSpeedIndex InitialYSpeedTableIndex { get; internal set; }
 
     /// <summary>
     /// Parameter-two countdown. The jump begins only after decrementing through zero to

@@ -84,7 +84,7 @@ internal static class ColorWindowSnapshotTestsVerification
         AssertEqual(WindowRectangle.Spanning(0, 0, 255, 223), owned.Shapes[0], "a window owns its shapes");
         AssertThrows<ArgumentException>(() => new ScreenWindow(new WindowShape[ScreenWindow.MaximumShapes + 1]),
             "a window joins no more shapes than the backend draws");
-        AssertThrows<ArgumentException>(() => new WindowCone(Offset16<ScreenPixels>.Zero, 0, WindowCone.AngleUnitsPerTurn / 2),
+        AssertThrows<ArgumentException>(() => new WindowCone(Offset16<ScreenPixels>.Zero, TrigonometryAngle.Zero, TrigonometryAngle.HalfTurn),
             "a cone is narrower than half a turn");
         _ = new DisplayPacket(0, new LayeredScene(memory,
             new DisplayLayer[] { new ColourAddWindowLayer(owned, new RgbColor(206, 8, 255)) }, 15));

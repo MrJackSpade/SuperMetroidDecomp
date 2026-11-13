@@ -4,8 +4,9 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>
-/// Editable single-piece appearances for Samus's bank-$90 atmospheric effects, which the atmosphere sheet is composed from
-/// (#1463). The game reads none of them; it draws each effect's frame from the pre-coloured atmosphere sheet by name (#1616).
+/// Single-piece appearances for Samus's bank-$90 atmospheric effects, which the atmosphere sheet is composed from (#1463),
+/// read from the import data (#1638). The game reads none of them; it draws each effect's frame from the pre-coloured
+/// atmosphere sheet by name (#1616).
 /// </summary>
 /// <remarks>
 /// Types four, six, and seven share the same retail list. Type two has a null retail

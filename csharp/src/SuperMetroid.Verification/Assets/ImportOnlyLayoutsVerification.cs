@@ -75,6 +75,11 @@ internal static class ImportOnlyLayoutsVerification
         yield return (projectiles, ChargeFlareSpriteExtractor.FileName);
         yield return (projectiles, ProjectileTrailVisualDefinitions.FileName);
         yield return (projectiles, GrappleSpriteDefinitions.FileName);
+        string samusBody = GameInstallationLayout.SamusBodyDirectoryName;
+        yield return (samusBody, SamusBodyArtworkFiles.ArtworkFileName);
+        yield return (samusBody, SamusAtmosphericArtworkFiles.ArtworkFileName);
+        yield return (samusBody, SamusAtmosphericArtworkFiles.ManifestFileName);
+        yield return (samusBody, SamusArmCannonArtworkFormat.ArtworkFileName);
     }
 
     /// <summary>

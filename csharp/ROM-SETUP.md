@@ -73,8 +73,9 @@ Within either platform's application-data root:
 - `game/maps/gameplay-hud.json`: the HUD's layout, the screen pixel each of its pictures shows at; the HUD's
   tiles, whose cells are the original's packed tile placements, are import data the import pictures the HUD from.
 - `game/room-characters/`: stock indexed room-character PNGs and their manifest.
-- `game/samus-body/`: 24 indexed Samus upper/lower-body PNG atlases and editable
-  pose/frame/transfer-definition JSON.
+- `game/samus-body/`: what the game binds of Samus's body: each pose's art origin and the body frames her body
+  sheet pictures (`samus-body.json`), her death steps and the arm cannon's layout. Her body pages, selectors,
+  compositions, atmospheric lists and cover appearances are import data the import pictures her sheets from.
 - `game/enemy-tiles/`: the enemies' compositions and extended frames, the bosses' BG2 layouts and
   tile-reference maps, Kraid's eye colours, and their manifest. The enemies' characters and the enemy, boss
   and area colour documents are import data, which only pre-colour the sheets and are not installed.
@@ -181,37 +182,21 @@ require their input directories. Keep all ROMs and generated game resources out 
 
 ## Samus body PNG and frame selectors
 
-`game/samus-body/top-00.png` through `top-0C.png` and `bottom-00.png` through
-`bottom-0A.png` contain the 4-bpp character data uploaded for Samus animation
-frames. Each native transfer definition occupies a 64x16-pixel strip in its set's
-PNG; unused cells must remain palette index zero. Edit a PNG in place to change its
-pixels. Edit `samus-body.json` to change visual pose/frame selectors, signed
-per-pose graphics Y offsets, the two split VRAM transfer sizes, or the `spritemaps`
-array's OAM part offsets and attributes. The `spritemapTopBases` and
-`spritemapBottomBases` arrays select each pose's upper/lower indexed OAM frame.
-`landingYOffsets`, `postureYOffsets`, and `drainedYOffsets` adjust visual placement
-in those special poses without changing their movement or collision.
-Zero spritemap pointers are native mutable-memory references, not blank frames.
-`samus-atmosphere.json` in the same directory exposes the four-frame direct
-small-OBJ attribute lists for atmospheric type one and the list shared by types
-four, six, and seven. Type two has a zero cartridge pointer and remains a
-mutable-memory read rather than an extracted asset; effect timing and slot motion
-stay compiled.
+Samus's body, atmosphere, overlay and death pictures are installed whole in the sprite sheets. The
+body pages, frame selectors, pose-half compositions, the atmospheric lists and the arm cannon's cover
+appearances they are composed from are the import's data and are not installed (#1636, #1638).
+`game/samus-body/samus-body.json` holds, for each pose, its signed art origin (`graphicsYOffset`) and
+each animation frame her body sheet pictures with how many pixels above her drawn point that frame's
+body origin sits; the body sheet's frames are named from it. Edit the rises to move a frame's picture
+without changing movement or collision.
 `samus-death-steps.json` holds what the game works with of her death: the death step
 each of the nine explosion frames shows and the 22 colours the room whitens to, each
 an RGB colour with channels 0..31. Her suited and suitless death colours only
 pre-colour her death shades: they are import data, not installed.
-`samus-death-explosion.png` holds the five 4-bpp death graphics transfers in
-native upload order. Each transfer occupies four 64-pixel-wide tile rows (32
-characters), for a 64x160 image; editing it reskins the explosion without changing
-transfer timing or VRAM destinations.
-`samus-arm-cannon-tiles.png` is a 96x8 indexed sheet of the twelve 8x8 cover
-characters. `samus-arm-cannon.json` in the same directory contains the 253
-pose drawing pointers, signed placement bytes, ten direction-specific OAM
-attributes, and frame-to-tile selections; keep its table sizes and references
-within the supplied drawing-data and tile ranges. Neither file changes the HUD
-selection, cover opening/closing cadence, projectile origin, damage, or equipment
-behavior.
+`samus-arm-cannon.json` in the same directory contains each pose's drawing descriptor and the drawing
+window's direction, drawing-mode and signed placement bytes; keep its table sizes and references within the
+drawing data. It does not change the HUD selection, cover opening/closing cadence, projectile origin,
+damage, or equipment behavior.
 
 Edited files are validated on load. Run the extractor again to restore the
 originals. These files do not change pose timing, movement, collision, or

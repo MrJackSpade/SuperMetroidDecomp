@@ -140,7 +140,6 @@ public static class GameInstallationLayout
     /// <summary>Current installation-receipt version; content whose receipt names another is extracted again before opening.</summary>
     public const int FormatVersion = 304;
 
-
     /// <summary>Backup of the previously published stock game tree during an atomic install.</summary>
     internal const string PreviousDirectoryName = ".game.previous";
     /// <summary>Prefix for a stock tree being prepared before publication.</summary>

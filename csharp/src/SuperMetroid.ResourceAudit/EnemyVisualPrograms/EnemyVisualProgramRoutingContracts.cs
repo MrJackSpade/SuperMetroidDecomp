@@ -4,16 +4,16 @@ using SuperMetroid.ResourceAudit.Reports;
 
 namespace SuperMetroid.ResourceAudit.EnemyVisualPrograms;
 
-/// <summary>The common enemy-interpreter methods that route instruction words to visual selectors.</summary>
+/// <summary>The common enemy animation methods that route compiled animation steps to visual selectors.</summary>
 internal static class EnemyVisualProgramRoutingContracts
 {
-    /// <summary>Required interpreter and presentation entry points that connect compiled words to visual selectors.</summary>
+    /// <summary>Required animation and presentation entry points that connect compiled words to visual selectors.</summary>
     /// <remarks>Each routing method and the type that owns it.</remarks>
     private static readonly RoutedMethod[] Methods =
     [
         new RoutedMethod("PublishSheetFrame", "EnemyPresentation"),
-        new RoutedMethod("RunsAnimationScript", "EnemyInstructionInterpreter"),
-        new RoutedMethod("ProcessEnemyProjectileInstructions", "EnemyProjectileEngine"),
+        new RoutedMethod("AdvanceAnimation", "EnemyAnimationPlayer"),
+        new RoutedMethod("AdvanceEnemyProjectileAnimations", "EnemyProjectileEngine"),
     ];
 
     /// <summary>Reports an unresolved audit boundary if any expected routing method disappears from its owner type.</summary>

@@ -538,6 +538,9 @@ public static class SamusGrappleMovement
                 grapple.Phase);
         }
 
+        // Each eligible check first withdraws an earlier launch's enemy shake.
+        samus.Kinematics.WithdrawWallJumpLaunchShake();
+
         // The wall-jump probe tests solid/frozen enemies first, then 16 pixels of room blocks toward
         // the wall named by the contact pose's facing. The shared probe preserves
         // square slopes, behaviour dispatch, available distance, and enemy identity.
@@ -553,6 +556,9 @@ public static class SamusGrappleMovement
         bool jumpNew = (newlyPressedInput & ControllerButton.A) != ControllerButton.None;
         if (wall.Collided && jumpNew)
         {
+            // Accepted off a solid or frozen enemy, the wall jump asks this update's enemy pass to shake it.
+            if (wall.EnemyCollision is { EnemySlot: int launchedFrom })
+                samus.Kinematics.RequestWallJumpLaunchShake(launchedFrom);
             grapple.Phase = GrapplePhase.WallJumping;
             return new GrappleMovementResult(
                 grapple.Phase);

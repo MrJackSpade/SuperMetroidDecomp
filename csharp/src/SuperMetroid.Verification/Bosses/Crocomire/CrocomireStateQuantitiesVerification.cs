@@ -62,7 +62,7 @@ internal static class CrocomireStateQuantitiesVerification
             state.FightFunction = CrocomireFightFunction.PowerBombCharge;
             state.StepCounter = start;
             state.BodyPlayback = new AnimationPlayback<CrocomireBodyProgram>(CrocomireBodyAnimations.StartingWith(CrocomireBodyProgram.Initial), AnimationPlace.StartOfAnimation);
-            state.Body.FrameHold = WrappingCountdown.Start(1);
+            state.Body.AnimationClock.StepOnNextUpdate();
             // The initial program shows its frame on the first update and runs its fight-AI cue on every later one.
             Pass(enemies, state);
 

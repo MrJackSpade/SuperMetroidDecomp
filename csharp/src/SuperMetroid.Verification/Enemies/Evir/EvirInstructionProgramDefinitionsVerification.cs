@@ -73,7 +73,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
             object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, ControllerButton.None];
             for (int call = 0; call < 10; call++)
             {
-                slot.FrameHold = WrappingCountdown.Start(1);
+                slot.AnimationClock.StepOnNextUpdate();
                 EnemyInstructionRunner.Process(arguments);
                 if (call == 0)
                     AssertEqual(new Offset16<RoomPixels>(8, 0), state.RegenerationOffset,
@@ -110,7 +110,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
     {
         slot.Bind(definition, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.AnimationClock.StepOnNextUpdate();
         var state = new EvirEnemyState
         {
             RequestedProgram = program,

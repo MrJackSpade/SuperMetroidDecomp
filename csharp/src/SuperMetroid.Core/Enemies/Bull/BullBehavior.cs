@@ -37,9 +37,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         BullEnemyState state = _inheritance.Inherit(slot.SlotIndex, static previous => new BullEnemyState(previous));
         slot.SetSpeciesState(state);
 
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
-        state.Playback = new(BullAnimations.StartingWith(BullProgram.Normal), AnimationPlace.StartOfAnimation);
+        state.Playback = EnemyProgramAnimation.Start(slot, BullAnimations.StartingWith(BullProgram.Normal));
 
         BullSpawnSettings settings = slot.SpawnSettings<BullSpawnSettings>();
         BullSpeedIntervals intervals = settings.Intervals;
@@ -200,9 +198,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.ShotReactionDisabled)
             return;
 
-        bull.FrameHold = WrappingCountdown.Start(1);
-        bull.Timer = WrappingCountdown.Start(0);
-        state.Playback = new(BullAnimations.StartingWith(BullProgram.Shot), AnimationPlace.StartOfAnimation);
+        state.Playback = EnemyProgramAnimation.Start(bull, BullAnimations.StartingWith(BullProgram.Shot));
         state.Angle = BullMotion.ShotAngle(projectileDirection);
         state.Acceleration = ShotKickAcceleration;
         state.Speed = ShotKickSpeed;

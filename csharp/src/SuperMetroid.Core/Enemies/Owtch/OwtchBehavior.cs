@@ -181,9 +181,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Restarts the selected facing animation at its first step.</summary>
     private static void SetOwtchProgram(RoomEnemySlot slot, OwtchEnemyState state, OwtchProgram program)
     {
-        state.Playback = new(OwtchAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        state.Playback = EnemyProgramAnimation.Start(slot, OwtchAnimations.StartingWith(program));
     }
 
     /// <summary>Allows common bomb damage only while Owtch occupies vulnerable movement state zero.</summary>

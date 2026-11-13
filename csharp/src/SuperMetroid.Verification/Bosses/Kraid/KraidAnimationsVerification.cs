@@ -162,7 +162,7 @@ internal static class KraidAnimationsVerification
         (_, KraidEnemyState state, RoomEnemySlot body, RoomEnemySlot arm) = NewKraid();
         body.Health = 104;
         state.ArmState.Playback = Started(KraidPartProgram.ArmNormalPause);
-        arm.FrameHold = WrappingCountdown.Start(1);
+        arm.AnimationClock.StepOnNextUpdate();
         Pass(arm);
         Pass(arm, forceExpiry: true);
         AssertEqual(KraidAnimations.StartingWith(KraidPartProgram.ArmNormalPause), state.ArmState.Playback.Animation, "a healthy arm plays on in its pause's loop");
@@ -170,16 +170,16 @@ internal static class KraidAnimationsVerification
 
         body.Health = 51;
         state.ArmState.Playback = Started(KraidPartProgram.ArmNormalPause);
-        arm.FrameHold = WrappingCountdown.Start(1);
+        arm.AnimationClock.StepOnNextUpdate();
         Pass(arm);
         Pass(arm, forceExpiry: true);
         AssertEqual(KraidAnimations.StartingWith(KraidPartProgram.ArmSlow), state.ArmState.Playback.Animation, "below half health the pause starts the slow swing");
         AssertEqual(KraidPartFrameToolingDefinitions.Spritemap(new KraidPartFrame(KraidPartFrameKind.Arm, 0)), arm.SpritemapPointer, "the slow swing's first frame shows at once");
-        AssertEqual((ushort)8, arm.FrameHold.RawValue, "the slow swing's first frame lasts eight updates");
+        AssertEqual((ushort)8, arm.AnimationClock.Hold.RawValue, "the slow swing's first frame lasts eight updates");
 
         state.ArmState.Playback = new(KraidAnimations.StartingWith(KraidPartProgram.ArmSlow),
             new AnimationPlace(0, KraidAnimations.Segments.Beats(KraidPartProgram.ArmSlow).Count - 2));
-        arm.FrameHold = WrappingCountdown.Start(1);
+        arm.AnimationClock.StepOnNextUpdate();
         Pass(arm);
         Pass(arm, forceExpiry: true);
         AssertEqual(KraidAnimations.StartingWith(KraidPartProgram.ArmSlow), state.ArmState.Playback.Animation, "a slow arm's callback keeps the slow swing");
@@ -196,16 +196,16 @@ internal static class KraidAnimationsVerification
         RoomEnemySlot foot = enemies.SlotTable.Slots[5];
         foot.Bind(EnemyDefinitionId.KraidFoot, foot.Definition);
         state.FootState.Playback = Started(KraidPartProgram.FootNeutral);
-        foot.FrameHold = WrappingCountdown.Start(1);
+        foot.AnimationClock.StepOnNextUpdate();
         Pass(foot);
         ushort neutral = KraidPartFrameToolingDefinitions.Spritemap(new KraidPartFrame(KraidPartFrameKind.Foot, 0));
         AssertEqual(neutral, foot.SpritemapPointer, "the neutral foot shows its pose");
-        AssertTrue(foot.NewInstructionFrame, "the held pose raises the new-frame flag as it shows");
+        AssertTrue(foot.AnimationClock.ShowsNewFrame, "the held pose raises the new-frame flag as it shows");
         // Past one whole wrap of the frame timer: the held pose never plays on, shows anew or raises the flag again.
         for (int update = 0; update < 70000; update++)
         {
             Pass(foot);
-            if (foot.SpritemapPointer != neutral || foot.NewInstructionFrame)
+            if (foot.SpritemapPointer != neutral || foot.AnimationClock.ShowsNewFrame)
                 throw new InvalidOperationException($"Verification failed: the held neutral foot changed at update {update}.");
         }
 
@@ -214,7 +214,7 @@ internal static class KraidAnimationsVerification
             Pass(arm, forceExpiry: true);
         AssertEqual(KraidPartFrameToolingDefinitions.Spritemap(new KraidPartFrame(KraidPartFrameKind.Arm, 21)), arm.SpritemapPointer,
             "the arm shows its last lunge-ready pose");
-        AssertEqual((ushort)32767, arm.FrameHold.RawValue, "the last lunge-ready pose keeps the longest frame's exact count");
+        AssertEqual((ushort)32767, arm.AnimationClock.Hold.RawValue, "the last lunge-ready pose keeps the longest frame's exact count");
     }
 
     /// <summary>The part animation starting at <paramref name="segment"/>, before its first play.</summary>
@@ -229,7 +229,7 @@ internal static class KraidAnimationsVerification
     private static void Pass(RoomEnemySlot part, bool forceExpiry = false)
     {
         if (forceExpiry)
-            part.FrameHold = WrappingCountdown.Start(1);
+            part.AnimationClock.StepOnNextUpdate();
         EnemyInstructionInterpreter.RunsAnimationScript(part, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
     }
 

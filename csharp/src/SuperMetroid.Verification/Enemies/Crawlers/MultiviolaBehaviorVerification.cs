@@ -23,7 +23,7 @@ internal static class MultiviolaBehaviorVerification
         MultiviolaBehavior.InitializeMultiviola(slot);
         AssertEqual(new AnimationPlayback<MultiviolaProgram>(MultiviolaAnimations.StartingWith(MultiviolaProgram.Flying), AnimationPlace.StartOfAnimation), (enemies.SlotTable.Slots[0].EntityState<MultiviolaEntity, MultiviolaEnemyState>() ?? throw new InvalidOperationException("Multiviola has no state.")).Playback,
             "Multiviola initializer animation");
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.AnimationClock.StepOnNextUpdate();
         AssertEqual(EnemyInstructionRunner.ExpectedLoop(MultiviolaAnimations.Segments, MultiviolaProgram.Flying, MultiviolaFrameToolingDefinitions.Spritemap),
             EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(MultiviolaAnimations.Segments, MultiviolaProgram.Flying)),
             "Multiviola runs its loop and returns through its goto");

@@ -36,7 +36,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.SetSpeciesState(state);
         state.Playback = new(FlyAnimations.StartingWith(FlyProgram.Flight), AnimationPlace.StartOfAnimation);
         slot.Frame = EnemyFrameId.Empty;
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.AnimationClock.StepOnNextUpdate();
     }
 
     /// <summary>Advances room RNG and dispatches a fly's circle, attack, or retreat phase.</summary>
@@ -164,7 +164,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Advances Flies's typed animation.</summary>
     internal static void AdvanceFliesTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
-        if (!EnemyProgramAnimation.Expire(slot))
+        if (!slot.AnimationClock.Expire())
             return;
         FlyEnemyState state = slot.RequireSpeciesState<FlyEnemyState>();
         AnimationPlayback<FlyProgram> playback = state.Playback;

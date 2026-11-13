@@ -146,11 +146,9 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = currentlyMovingLeft
             ? SkulteraEnemyFunction.TurningRight
             : SkulteraEnemyFunction.TurningLeft;
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
-        state.Playback = new(SkulteraAnimations.StartingWith(currentlyMovingLeft
+        state.Playback = EnemyProgramAnimation.Start(slot, SkulteraAnimations.StartingWith(currentlyMovingLeft
             ? SkulteraProgram.TurningRight
-            : SkulteraProgram.TurningLeft), AnimationPlace.StartOfAnimation);
+            : SkulteraProgram.TurningLeft));
     }
 
     /// <summary>Runs the mirrored turn completion functions.</summary>
@@ -167,11 +165,9 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
             ? SkulteraEnemyFunction.SwimmingLeft
             : SkulteraEnemyFunction.SwimmingRight;
         state.AngleDelta = -state.AngleDelta;
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
-        state.Playback = new(SkulteraAnimations.StartingWith(direction == HorizontalDirection.Left
+        state.Playback = EnemyProgramAnimation.Start(slot, SkulteraAnimations.StartingWith(direction == HorizontalDirection.Left
             ? SkulteraProgram.SwimmingLeft
-            : SkulteraProgram.SwimmingRight), AnimationPlace.StartOfAnimation);
+            : SkulteraProgram.SwimmingRight));
     }
 
     /// <summary>Runs Skultera's main AI.</summary>

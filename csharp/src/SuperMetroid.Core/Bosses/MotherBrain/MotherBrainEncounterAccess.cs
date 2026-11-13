@@ -62,8 +62,6 @@ internal sealed class MotherBrainEncounterAccess
     /// <summary>Restarts the body enemy on <paramref name="program"/> with its initial timer.</summary>
     internal static void SetMotherBrainBodyProgram(MotherBrainEnemyState state, MotherBrainBodyProgram program)
     {
-        state.BodyPlayback = new(MotherBrainAnimations.BodyStartingWith(program), AnimationPlace.StartOfAnimation);
-        state.Body.FrameHold = WrappingCountdown.Start(1);
-        state.Body.Timer = WrappingCountdown.Start(0);
+        state.BodyPlayback = EnemyProgramAnimation.Start(state.Body, MotherBrainAnimations.BodyStartingWith(program));
     }
 }

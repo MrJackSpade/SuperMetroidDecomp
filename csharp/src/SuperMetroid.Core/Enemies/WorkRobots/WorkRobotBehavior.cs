@@ -95,8 +95,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         // Population records already carry process-off-screen in retail rooms.
         slot.Contact = slot.Contact.With(EnemyContact.SolidToSamus);
         slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
-        slot.FrameHold = WrappingCountdown.Start(4);
-        slot.Timer = WrappingCountdown.Start(0);
+        slot.AnimationClock.RestartAfter(4);
         state.Playback = new(WorkRobotAnimations.StartingWith(WorkRobotProgram.Initial), AnimationPlace.StartOfAnimation);
         state.LaserVelocity = WorkRobotFacingLeftVelocity;
         state.LaserCooldown = WrappingCountdown.Start(0);
@@ -125,8 +124,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         // The placement names the unpowered pose the robot holds.
         state.Playback = new(WorkRobotAnimations.StartingWith(slot.SpawnSettings<WorkRobotSpawnSettings>().Pose), AnimationPlace.StartOfAnimation);
         slot.Contact = slot.Contact.With(EnemyContact.SolidToSamus);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        slot.AnimationClock.Restart();
 
         // An unpowered robot stops the room's glow, an earlier powered robot's too: in a room placing both, the order
         // they are placed in decides whether the glow runs.
@@ -148,7 +146,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Enemy animation processing will decrement the timer later in this same frame.
         // Incrementing here cancels that tick, freezing the current art while airborne.
-        slot.FrameHold = slot.FrameHold.AddFrames(1);
+        slot.AnimationClock.Extend(1);
         // The fraction carries into the whole pixels, which wrap, as the game's paired additions do.
         state.FallVelocity += WorkRobotGravity;
     }
@@ -338,7 +336,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
                 ? WorkRobotProgram.FacingRightShotSamusAhead
                 : WorkRobotProgram.FacingRightShotSamusBehind), AnimationPlace.StartOfAnimation);
         }
-        robot.FrameHold = WrappingCountdown.Start(1);
+        robot.AnimationClock.StepOnNextUpdate();
         state.LaserCooldown = state.LaserCooldown.AddFrames(64);
     }
 

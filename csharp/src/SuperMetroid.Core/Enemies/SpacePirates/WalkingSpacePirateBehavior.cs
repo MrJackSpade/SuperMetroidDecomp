@@ -325,7 +325,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         WalkingSpacePirateProgram program)
     {
         state.Playback = new(WalkingSpacePirateAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.AnimationClock.StepOnNextUpdate();
     }
 
     /// <summary>Runs the firing cues and the laser initializer.</summary>
@@ -498,7 +498,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// <summary>Advances the walking Space Pirate's typed animation.</summary>
     internal void AdvanceWalkingSpacePirateTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context)
     {
-        if (!EnemyProgramAnimation.Expire(slot))
+        if (!slot.AnimationClock.Expire())
             return;
         var state = RequireWalkingSpacePirateState(slot);
         AnimationPlayback<WalkingSpacePirateProgram> playback = state.Playback;

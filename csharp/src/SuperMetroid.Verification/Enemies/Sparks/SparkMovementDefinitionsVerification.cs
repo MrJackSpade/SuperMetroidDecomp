@@ -81,7 +81,7 @@ internal static class SparkMovementDefinitionsVerification
         SparkBehavior.InitializeSpark(slot);
         SparkEnemyState state = enemies.SparkStates[0] ?? throw new InvalidOperationException("Spark has no state.");
         state.Playback = new(SparkAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.AnimationClock.StepOnNextUpdate();
         slot.Contact = intangible ? EnemyContact.IgnoresSamus : EnemyContact.None;
         slot.Processing = EnemyProcessing.None;
         slot.Presence = EnemyPresence.None;

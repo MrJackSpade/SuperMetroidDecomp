@@ -12,18 +12,14 @@ namespace SuperMetroid.Core.Enemies;
 internal static class EnemyProgramAnimation
 {
     /// <summary>
-    /// Counts <paramref name="slot"/>'s frame timer down and reports whether its frame expired this update, clearing
-    /// the new-frame flag while the frame holds.
+    /// Starts <paramref name="animation"/> on <paramref name="slot"/> (#1624): its first step plays on the next update, with
+    /// no repeats counted, from the animation's start. The species state stores the returned playback.
     /// </summary>
-    internal static bool Expire(RoomEnemySlot slot)
+    internal static AnimationPlayback<TSegment> Start<TSegment>(RoomEnemySlot slot, Animation<TSegment> animation)
+        where TSegment : struct
     {
-        Ensure.NotNull(slot);
-        CountdownStep frameStep = slot.FrameHold.Decrement();
-        slot.FrameHold = frameStep.Remaining;
-        if (frameStep.IsZero)
-            return true;
-        slot.NewInstructionFrame = false;
-        return false;
+        Ensure.NotNull(slot).AnimationClock.Restart();
+        return new AnimationPlayback<TSegment>(Ensure.NotNull(animation), AnimationPlace.StartOfAnimation);
     }
 
     /// <summary>
@@ -53,7 +49,7 @@ internal static class EnemyProgramAnimation
         Ensure.NotNull(read);
         Ensure.NotNull(write);
         Ensure.NotNull(react);
-        if (!Expire(slot))
+        if (!slot.AnimationClock.Expire())
             return;
         TState state = slot.RequireSpeciesState<TState>();
         AnimationPlayback<TSegment> playback = read(state);
@@ -146,25 +142,23 @@ internal static class EnemyProgramAnimation
         Ensure.NotNull(frame);
         Animation<TSegment> animation = playback.Animation;
         AnimationPlace place = playback.Place;
-        // The enemy's frame timer is read and written in place, as the load and countdown cues do, so a write a cue's
-        // reaction makes to it in between stands.
-        var timer = new EnemyTimerRepeats(slot);
-        AnimationShown<TSegment, TFrame> shown = segments.PlayToNextFrame(ref animation, ref place, ref timer, react);
+        // The clock's repeats are read and written in place as counted phases load and count them, so a restart a cue's
+        // reaction makes in between stands.
+        EnemyAnimationClock clock = slot.AnimationClock;
+        AnimationShown<TSegment, TFrame> shown = segments.PlayToNextFrame(ref animation, ref place, ref clock, react);
         playback = new AnimationPlayback<TSegment>(animation, place);
         switch (shown)
         {
             case AnimationShown<TSegment, TFrame>.Frame shownFrame:
-                slot.FrameHold = WrappingCountdown.FromRaw(shownFrame.Duration);
                 slot.Frame = frame(shownFrame.Shown);
-                slot.NewInstructionFrame = true;
+                slot.AnimationClock.Show(shownFrame.Duration);
                 return;
             case AnimationShown<TSegment, TFrame>.HeldFrame held:
-                // The timer is the hold's from now on, left to wrap from zero as a held animation's is: no later expiry plays anything.
                 slot.Frame = frame(held.Shown);
-                slot.NewInstructionFrame = true;
+                slot.AnimationClock.ShowForGood();
                 return;
             case AnimationShown<TSegment, TFrame>.Paused paused:
-                slot.FrameHold = WrappingCountdown.FromRaw(paused.Duration);
+                slot.AnimationClock.Pause(paused.Duration);
                 return;
             case AnimationShown<TSegment, TFrame>.Held:
                 return;
@@ -192,7 +186,6 @@ internal static class EnemyProgramAnimation
         if (installed is { } current && EqualityComparer<TProgram>.Default.Equals(current, program))
             return;
         install(program);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        slot.AnimationClock.Restart();
     }
 }

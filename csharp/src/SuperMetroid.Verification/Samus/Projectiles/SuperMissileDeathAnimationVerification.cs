@@ -50,7 +50,7 @@ internal static class SuperMissileDeathAnimationVerification
         // as at native update 40203) and the Sova a shared crawler surface frame.
         if (enemy.Frame == EnemyFrameId.Empty)
             enemy.Frame = enemyDefinition == EnemyDefinitionId.Dragon ? EnemyFrameId.DragonBodyIdleLeft : EnemyFrameId.HZoomerUpsideUpLoopFirst;
-        enemy.FrameHold = WrappingCountdown.Start(0x7fff);
+        enemy.AnimationClock.HoldFor(0x7fff);
         runtime.Enemies.ProcessingWindow.PrepareEnemyProcessingList(enemy.Position.Whole);
 
         SamusProjectile shot = runtime.Projectiles.Slots[0];

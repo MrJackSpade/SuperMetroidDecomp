@@ -222,8 +222,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
         static void Install(RoomEnemySlot slot, KiHunterEnemyState state, KiHunterProgram program)
         {
             state.Playback = new(KiHunterAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-            slot.FrameHold = WrappingCountdown.Start(1);
-            slot.Timer = WrappingCountdown.Start(0);
+            slot.AnimationClock.Restart();
         }
 
         // The playback rests past the last beat of an animation that holds there.

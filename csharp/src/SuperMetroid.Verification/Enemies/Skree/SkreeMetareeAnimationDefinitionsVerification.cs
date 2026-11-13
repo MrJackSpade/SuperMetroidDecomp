@@ -161,11 +161,8 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
     }
 
     /// <summary>Seeds nondefault instruction and timer values so installation must visibly replace them.</summary>
-    private static RoomEnemySlot NewSkreeMetareeAnimationSlot() => new(0, EnemySlotFixtures.Registry)
-    {
-        FrameHold = WrappingCountdown.Start(0x2222),
-        Timer = WrappingCountdown.Start(0x3333),
-    };
+    private static RoomEnemySlot NewSkreeMetareeAnimationSlot() =>
+        new RoomEnemySlot(0, EnemySlotFixtures.Registry).WithAnimationClock(hold: 0x2222, repeats: 0x3333);
 
     /// <summary>Chooses an installed phase distinct from the requested one for each handoff fixture.</summary>
     private static SkreeMetareeAnimationPhase DifferentSkreeMetareePhase(
@@ -186,8 +183,8 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
         AssertEqual(expectedPhase, installed, $"{context} installed phase");
         AssertTrue(ReferenceEquals(SkreeMetareeAnimations.StartingWith(expectedProgram), playback.Animation) &&
             playback.Place == AnimationPlace.StartOfAnimation, $"{context} animation");
-        AssertEqual(1, slot.FrameHold.RawValue, $"{context} instruction timer");
-        AssertEqual(0, slot.Timer.RawValue, $"{context} loop timer");
+        AssertEqual(1, slot.AnimationClock.Hold.RawValue, $"{context} instruction timer");
+        AssertEqual(0, slot.AnimationClock.Repeats.RawValue, $"{context} loop timer");
     }
 
 }

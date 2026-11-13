@@ -64,7 +64,7 @@ internal static class RidleyBreakupProgramsVerification
             var fragment = fragments[0];
             RidleyExplosionFragmentState fragmentState = fragment.RequireSpeciesState<RidleyExplosionFragmentState>();
             fragmentState.Playback = new AnimationPlayback<RidleyBreakupFrame>(RidleyBreakupAnimations.StartingWith(frame), AnimationPlace.StartOfAnimation);
-            fragment.FrameHold = WrappingCountdown.Start(1);
+            fragment.AnimationClock.StepOnNextUpdate();
             process(fragment, null, null, Position16<RoomPixels>.Zero, 0);
             AssertEqual(expectedPointer, fragment.SpritemapPointer, "breakup selects native sprite");
             process(fragment, null, null, Position16<RoomPixels>.Zero, 0);

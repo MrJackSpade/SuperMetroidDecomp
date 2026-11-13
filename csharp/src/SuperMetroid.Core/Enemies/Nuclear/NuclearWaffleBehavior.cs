@@ -37,9 +37,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new NuclearWaffleEnemyState();
         slot.SetSpeciesState(state);
 
-        state.Playback = new(NuclearWaffleAnimations.StartingWith(NuclearWaffleProgram.BodyLoop), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        state.Playback = EnemyProgramAnimation.Start(slot, NuclearWaffleAnimations.StartingWith(NuclearWaffleProgram.BodyLoop));
 
         NuclearWaffleSpawnSettings settings = slot.SpawnSettings<NuclearWaffleSpawnSettings>();
         state.OrbitRadius = settings.OrbitRadius;
@@ -325,7 +323,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Advances the Nuclear Waffle's typed animation.</summary>
     internal static void AdvanceNuclearWaffleTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
-        if (!EnemyProgramAnimation.Expire(slot))
+        if (!slot.AnimationClock.Expire())
             return;
         NuclearWaffleEnemyState state = slot.SpeciesState<NuclearWaffleEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Nuclear Waffle state.");

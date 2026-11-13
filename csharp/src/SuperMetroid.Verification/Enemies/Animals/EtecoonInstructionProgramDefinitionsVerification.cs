@@ -36,7 +36,7 @@ internal static class EtecoonInstructionProgramDefinitionsVerification
                 animation is not { Phases: [{ Plays: 1 } only], End: AnimationEnd.Loop { Phase: 0 } } || only.Segment != program)
                 continue;
             state.Playback = new(EtecoonAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-            slot.FrameHold = WrappingCountdown.Start(1);
+            slot.AnimationClock.StepOnNextUpdate();
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(EtecoonAnimations.Segments, program, EtecoonFrameToolingDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(EtecoonAnimations.Segments, program)),
                 $"Etecoon {program} loop");
@@ -46,7 +46,7 @@ internal static class EtecoonInstructionProgramDefinitionsVerification
             // Four six-pose flex cycles, then two held poses: 4 x 6 x 8 + 2 x 32 updates reach the final sleep.
             (RoomEnemySystem enemies, RoomEnemySlot slot, EtecoonEnemyState state) = NewEtecoon();
             state.Playback = new(EtecoonAnimations.StartingWith(EtecoonProgram.Flexing), AnimationPlace.StartOfAnimation);
-            slot.FrameHold = WrappingCountdown.Start(1);
+            slot.AnimationClock.StepOnNextUpdate();
             _ = EnemyInstructionRunner.ShownFrames(slot, 4 * 6 * 8 + 2 * 32);
             AnimationPlayback<EtecoonProgram> held = state.Playback;
             _ = EnemyInstructionRunner.ShownFrames(slot, 8);
@@ -58,7 +58,7 @@ internal static class EtecoonInstructionProgramDefinitionsVerification
             AssertEqual(AnimationPlace.HoldingIn(held.Animation.Phases.Count - 1, held.Animation.Phases[^1].BeatCount), state.Playback.Place,
                 "Etecoon flex stays asleep");
             AssertEqual(EtecoonAnimationsTooling.Spritemaps(EtecoonProgram.FlexingLoop).Last(), slot.SpritemapPointer, "Etecoon flex ends on its last pose");
-            AssertEqual((ushort)0, slot.Timer.RawValue, "Etecoon flex loop count expires");
+            AssertEqual((ushort)0, slot.AnimationClock.Repeats.RawValue, "Etecoon flex loop count expires");
         }
 
         AssertTrue(EtecoonAnimationsTooling.Spritemaps(Enum.GetValues<EtecoonProgram>()).Where(pointer => pointer != 0x804d).ToHashSet().SetEquals(

@@ -44,7 +44,7 @@ internal static class RidleyShotHealthStageVerification
         ridley.Processing = EnemyProcessing.OffScreen | EnemyProcessing.AnimationScript;
         ridley.Presence = EnemyPresence.None;
         ridley.InvincibilityTimer = 0;
-        ridley.FrameHold = WrappingCountdown.Start(0x7fff);
+        ridley.AnimationClock.HoldFor(0x7fff);
         ridley.Health = 9340;
         state.FightMode = RidleyFightMode.PowerBombDodge;
         state.HealthStage = 0;

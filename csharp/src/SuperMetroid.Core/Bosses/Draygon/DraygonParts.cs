@@ -57,7 +57,7 @@ internal sealed class DraygonParts
         // Draygon shows his body, eye and dying arms' frames on his body (#1354, #1466, #1515, #1540), nothing at first.
         _presentation.AttachBossBody(new BossBodyParts(BossBodyOwner.Draygon));
 
-        body.FrameHold = WrappingCountdown.Start(1);
+        body.AnimationClock.StepOnNextUpdate();
 
         _frameContext.RequestFullSweep();
         Draygon = new DraygonEnemyState(body)
@@ -77,7 +77,7 @@ internal sealed class DraygonParts
         DraygonEnemyState state = Draygon ??
             throw new InvalidDataException("Draygon part appeared before his body.");
 
-        part.FrameHold = WrappingCountdown.Start(1);
+        part.AnimationClock.StepOnNextUpdate();
         switch (DraygonPartDefinitions.Parts[part.DefinitionId])
         {
             case DraygonPart.Eye:
@@ -140,7 +140,7 @@ internal sealed class DraygonParts
         DraygonEnemyState state = Draygon ??
             throw new InvalidDataException("Draygon program started without encounter state.");
         state.StartAnimation(part, program);
-        part.FrameHold = WrappingCountdown.Start(1);
+        part.AnimationClock.StepOnNextUpdate();
     }
 
     /// <summary>
@@ -152,36 +152,30 @@ internal sealed class DraygonParts
     {
         DraygonEnemyState state = Draygon ??
             throw new InvalidDataException("Draygon part ran without encounter state.");
-        CountdownStep frameHold = part.FrameHold.Decrement();
-        part.FrameHold = frameHold.Remaining;
-        if (!frameHold.IsZero)
-        {
-            part.NewInstructionFrame = false;
+        if (!part.AnimationClock.Expire())
             return;
-        }
 
         AnimationPlayback<DraygonProgram> playback = state.Playback(part);
         Animation<DraygonProgram> animation = playback.Animation;
         AnimationPlace place = playback.Place;
-        WrappingCountdown counter = part.Timer;
+        WrappingCountdown counter = part.AnimationClock.Repeats;
         AnimationShown<DraygonProgram, DraygonFrame> shown = DraygonAnimations.Segments.PlayToNextFrame(ref animation, ref place, ref counter,
             cue =>
             {
                 ApplyDraygonCue(state, part, samus, cue);
                 return null;
             });
-        part.Timer = counter;
+        part.AnimationClock.Repeats = counter;
         switch (shown)
         {
             case AnimationShown<DraygonProgram, DraygonFrame>.Frame frame:
                 state.SetPlayback(part, new AnimationPlayback<DraygonProgram>(animation, place));
-                part.FrameHold = WrappingCountdown.FromRaw(frame.Duration);
                 part.Frame = DraygonFrameDefinitions.ShownFrames.Of(frame.Shown);
-                part.NewInstructionFrame = true;
+                part.AnimationClock.Show(frame.Duration);
                 return;
             case AnimationShown<DraygonProgram, DraygonFrame>.Paused paused:
                 state.SetPlayback(part, new AnimationPlayback<DraygonProgram>(animation, place));
-                part.FrameHold = WrappingCountdown.FromRaw(paused.Duration);
+                part.AnimationClock.Pause(paused.Duration);
                 return;
             case AnimationShown<DraygonProgram, DraygonFrame>.Held:
                 // The script's sleep: the timer wraps from zero and the last frame stays.
@@ -211,10 +205,10 @@ internal sealed class DraygonParts
                 state.StartAnimation(RequirePart(state.Eye), start.Eye);
                 state.StartAnimation(RequirePart(state.Tail), start.Tail);
                 state.StartAnimation(RequirePart(state.Arms), start.Arms);
-                state.Arms.FrameHold = WrappingCountdown.Start(1);
-                state.Tail.FrameHold = WrappingCountdown.Start(1);
-                state.Eye.FrameHold = WrappingCountdown.Start(1);
-                state.Body.FrameHold = WrappingCountdown.Start(1);
+                state.Arms.AnimationClock.StepOnNextUpdate();
+                state.Tail.AnimationClock.StepOnNextUpdate();
+                state.Eye.AnimationClock.StepOnNextUpdate();
+                state.Body.AnimationClock.StepOnNextUpdate();
                 return;
             case DraygonCue.SetEyeFunction eyeFunction:
                 (RequirePart(state.Eye)).RequireSpeciesState<DraygonEyeState>().Function = eyeFunction.Function;
@@ -304,7 +298,7 @@ internal sealed class DraygonParts
             _ => throw new InvalidOperationException($"Draygon's eye bearing {bearing} lies in no quarter of the turn."),
         };
         StartDraygonProgram(eye, look);
-        eye.Timer = WrappingCountdown.Start(0);
+        eye.AnimationClock.ClearRepeats();
     }
 
     /// <summary>Places a death-animation sprite at a room-RNG offset from the body.</summary>

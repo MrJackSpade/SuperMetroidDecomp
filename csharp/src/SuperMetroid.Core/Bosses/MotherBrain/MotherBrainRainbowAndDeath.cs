@@ -209,7 +209,7 @@ internal sealed class MotherBrainRainbowAndDeath
         MotherBrainRainbowBeamAttackSequence sequence)
     {
         RoomEnemySlot head = state.Head;
-        sequence.SynchronizeLiveActor(new MotherBrainLiveActorSnapshot { Body = state.Body.Position.Whole, BodyPose = state.Pose, Form = state.Form, BodyContact = state.Body.Contact, BodyProcessing = state.Body.Processing, BodyPresence = state.Body.Presence, BodyCollidesByFrameHitboxes = state.Body.CollidesByFrameHitboxes, BodyNewInstructionFrame = state.Body.NewInstructionFrame, Brain = head.Position.Whole, BrainHealth = head.Health, BrainContact = head.Contact, BrainProcessing = head.Processing, BrainPresence = head.Presence, BrainCollidesByFrameHitboxes = head.CollidesByFrameHitboxes, BrainNewInstructionFrame = head.NewInstructionFrame, LowerNeckAngle = state.LowerNeckAngle, UpperNeckAngle = state.UpperNeckAngle, NeckMovementEnabled = state.NeckMovementEnabled, LowerNeckMovement = state.LowerNeckMovement, UpperNeckMovement = state.UpperNeckMovement, BombCounter = state.BombCounter, HitboxesEnabled = state.HitboxesEnabled != MotherBrainHitboxParts.None });
+        sequence.SynchronizeLiveActor(new MotherBrainLiveActorSnapshot { Body = state.Body.Position.Whole, BodyPose = state.Pose, Form = state.Form, BodyContact = state.Body.Contact, BodyProcessing = state.Body.Processing, BodyPresence = state.Body.Presence, BodyCollidesByFrameHitboxes = state.Body.CollidesByFrameHitboxes, BodyNewInstructionFrame = state.Body.AnimationClock.ShowsNewFrame, Brain = head.Position.Whole, BrainHealth = head.Health, BrainContact = head.Contact, BrainProcessing = head.Processing, BrainPresence = head.Presence, BrainCollidesByFrameHitboxes = head.CollidesByFrameHitboxes, BrainNewInstructionFrame = head.AnimationClock.ShowsNewFrame, LowerNeckAngle = state.LowerNeckAngle, UpperNeckAngle = state.UpperNeckAngle, NeckMovementEnabled = state.NeckMovementEnabled, LowerNeckMovement = state.LowerNeckMovement, UpperNeckMovement = state.UpperNeckMovement, BombCounter = state.BombCounter, HitboxesEnabled = state.HitboxesEnabled != MotherBrainHitboxParts.None });
     }
 
     /// <summary>
@@ -267,13 +267,13 @@ internal sealed class MotherBrainRainbowAndDeath
         state.Body.Processing = sequence.ThirdPhaseDeath.BodyProcessing;
         state.Body.Presence = sequence.ThirdPhaseDeath.BodyPresence;
         state.Body.CollidesByFrameHitboxes = sequence.ThirdPhaseDeath.BodyCollidesByFrameHitboxes;
-        state.Body.NewInstructionFrame = sequence.ThirdPhaseDeath.BodyNewInstructionFrame;
+        state.Body.AnimationClock.ShowsNewFrame = sequence.ThirdPhaseDeath.BodyNewInstructionFrame;
         head.Health = sequence.State.BrainHealth;
         head.Contact = sequence.ThirdPhaseDeath.BrainContact;
         head.Processing = sequence.ThirdPhaseDeath.BrainProcessing;
         head.Presence = sequence.ThirdPhaseDeath.BrainPresence;
         head.CollidesByFrameHitboxes = sequence.ThirdPhaseDeath.BrainCollidesByFrameHitboxes;
-        head.NewInstructionFrame = sequence.ThirdPhaseDeath.BrainNewInstructionFrame;
+        head.AnimationClock.ShowsNewFrame = sequence.ThirdPhaseDeath.BrainNewInstructionFrame;
         // The live flag begins at two, while the reusable sequence needs only its Boolean
         // branch meaning. Preserve every nonzero value; only an explicit clear
         // is allowed to collapse it to zero.

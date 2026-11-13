@@ -201,9 +201,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Starts the idle or bounce animation and restarts its frame and auxiliary timers.</summary>
     private static void SetBoyonProgram(RoomEnemySlot slot, BoyonEnemyState state, BoyonProgram program)
     {
-        state.Playback = new(BoyonAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        state.Playback = EnemyProgramAnimation.Start(slot, BoyonAnimations.StartingWith(program));
     }
 
     /// <summary>The bounce cue: permit the arc and request the bounce sound.</summary>

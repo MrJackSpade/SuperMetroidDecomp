@@ -51,8 +51,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
         slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
         slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        slot.AnimationClock.Restart();
 
         var state = new WreckedShipGhostEnemyState
         {

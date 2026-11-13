@@ -65,7 +65,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
     /// <summary>Plays a door's typed animation where the shared enemy animation would run its list.</summary>
     private void AdvanceCeresDoorAnimation(RoomEnemySlot slot, SamusState? samus)
     {
-        if (!EnemyProgramAnimation.Expire(slot))
+        if (!slot.AnimationClock.Expire())
             return;
         CeresDoorEnemyState state = slot.RequireSpeciesState<CeresDoorEnemyState>();
         AnimationPlayback<CeresDoorProgram> playback = state.Playback;
@@ -150,8 +150,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
         CeresDoorInitializationDefinition initialization = CeresDoorInitializations.For(variant);
 
         slot.Frame = EnemyFrameId.CeresDoorInitial;
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        slot.AnimationClock.Restart();
         var state = new CeresDoorEnemyState
         {
             Function = initialization.MainFunction,

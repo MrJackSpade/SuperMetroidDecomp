@@ -101,7 +101,7 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
                 out SamusState samus,
                 out FakeKraidEnemyState state);
             state.Playback = new AnimationPlayback<FakeKraidProgram>(FakeKraidAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-            slot.FrameHold = WrappingCountdown.Start(1);
+            slot.AnimationClock.StepOnNextUpdate();
             state.WalkDelta = walkDelta;
             state.FacingDelta = movingRight ? (short)4 : (short)-4;
             state.WalkStepTimer = 0x0100;
@@ -123,7 +123,7 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
                 out SamusState samus,
                 out FakeKraidEnemyState state);
             state.Playback = new AnimationPlayback<FakeKraidProgram>(FakeKraidAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-            slot.FrameHold = WrappingCountdown.Start(1);
+            slot.AnimationClock.StepOnNextUpdate();
             state.WalkStepTimer = 0x0100;
             state.SpitDecisionTimer = 0x0100;
 
@@ -145,7 +145,7 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
                 out SamusState samus,
                 out FakeKraidEnemyState state);
             state.Playback = new AnimationPlayback<FakeKraidProgram>(FakeKraidAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-            slot.FrameHold = WrappingCountdown.Start(1);
+            slot.AnimationClock.StepOnNextUpdate();
             state.WalkDelta = walkDelta;
             state.FacingDelta = movingRight ? (short)4 : (short)-4;
             state.WalkStepTimer = 1;

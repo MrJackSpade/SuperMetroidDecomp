@@ -499,8 +499,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         state.Playback = new(MagdolliteAnimations.StartingWith(state.DesiredProgram), AnimationPlace.StartOfAnimation);
         state.InstalledProgram = state.DesiredProgram;
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        slot.AnimationClock.Restart();
     }
 
     /// <summary>Validates the retail-ordered head, body and overlay any one component found when it was placed.</summary>

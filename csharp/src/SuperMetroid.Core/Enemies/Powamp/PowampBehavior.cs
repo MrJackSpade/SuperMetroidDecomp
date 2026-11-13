@@ -66,8 +66,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         // animation's loop counter before choosing the half-specific list.
         slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
         slot.Frame = EnemyFrameId.Empty;
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        slot.AnimationClock.Restart();
 
         if (!state.IsBalloon)
         {
@@ -480,9 +479,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Restarts a body or balloon animation on the next animation pass.</summary>
     private static void SetPowampProgram(RoomEnemySlot slot, PowampEnemyState state, PowampProgram program)
     {
-        state.Playback = new(PowampAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        state.Playback = EnemyProgramAnimation.Start(slot, PowampAnimations.StartingWith(program));
     }
 
     /// <summary>Rejects a rise or sink dispatch without room collision data.</summary>

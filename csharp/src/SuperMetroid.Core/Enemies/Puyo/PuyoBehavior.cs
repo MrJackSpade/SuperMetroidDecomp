@@ -405,9 +405,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Starts a selected pose or hop animation with a one-tick frame countdown.</summary>
     private static void SetPuyoProgram(RoomEnemySlot slot, PuyoEnemyState state, PuyoProgram program)
     {
-        state.Playback = new(PuyoAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        state.Playback = EnemyProgramAnimation.Start(slot, PuyoAnimations.StartingWith(program));
     }
 
     /// <summary>Advances Puyo's typed animation.</summary>

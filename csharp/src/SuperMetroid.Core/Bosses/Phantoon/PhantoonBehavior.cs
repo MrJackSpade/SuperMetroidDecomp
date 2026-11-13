@@ -127,8 +127,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         PhantoonEnemyState state = Combat.Phantoon ??
             throw new InvalidOperationException("Phantoon body must initialize before its parts.");
         part.Frame = EnemyFrameId.Empty;
-        part.FrameHold = WrappingCountdown.Start(1);
-        part.Timer = WrappingCountdown.Start(0);
+        part.AnimationClock.Restart();
         part.Shading = state.Body.Shading;
         state.PartPlayback(part) = PhantoonEnemyState.Starting(program);
     }
@@ -321,7 +320,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal void AdvancePhantoonPartAnimation(RoomEnemySlot part)
     {
-        if (!EnemyProgramAnimation.Expire(part))
+        if (!part.AnimationClock.Expire())
             return;
         PhantoonEnemyState state = Combat.RequirePhantoonState(part);
         AnimationPlayback<PhantoonPartProgram> playback = state.PartPlayback(part);

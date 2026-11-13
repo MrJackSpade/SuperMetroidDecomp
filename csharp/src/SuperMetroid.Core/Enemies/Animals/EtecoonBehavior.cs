@@ -95,9 +95,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         // bit instead of inferring animation activity from the population record.
         slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
         slot.Frame = EnemyFrameId.Empty;
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
-        state.Playback = new(EtecoonAnimations.StartingWith(EtecoonProgram.Initial), AnimationPlace.StartOfAnimation);
+        state.Playback = EnemyProgramAnimation.Start(slot, EtecoonAnimations.StartingWith(EtecoonProgram.Initial));
         state.Function = EtecoonAiFunction.WaitingForSamus;
         state.AwaitingSamus = true;
     }
@@ -231,7 +229,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity);
         state.Playback = new(EtecoonAnimations.StartingWith(EtecoonAnimations.AfterSleep(Playing(state.Playback))), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.AnimationClock.StepOnNextUpdate();
         state.Function = EtecoonAiFunction.InitialJump;
         if (CoordinateAxis.Difference(samus.Position.X.Whole, 256) >= 0)
             _audio.QueueEnemySound(EtecoonJumpSound, priority: SoundRequestPriority.Normal);
@@ -275,7 +273,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         SetEtecoonVerticalVelocity(state, SignedSixteenSixteen.Zero);
-        slot.FrameHold = WrappingCountdown.Start(3);
+        slot.AnimationClock.HoldFor(3);
         state.Playback = new(EtecoonAnimations.StartingWith(EtecoonProgram.HitCeiling), AnimationPlace.StartOfAnimation);
     }
 
@@ -288,7 +286,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.Playback = new(EtecoonAnimations.StartingWith(EtecoonAnimations.AfterSleep(Playing(state.Playback))), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.AnimationClock.StepOnNextUpdate();
         if (state.HeadingRight)
         {
             SetEtecoonHorizontalVelocity(state, EtecoonRightVelocity);
@@ -427,7 +425,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             default:
                 throw new InvalidOperationException($"Undefined {nameof(EtecoonRoute)} {state.Route}.");
         }
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.AnimationClock.StepOnNextUpdate();
     }
 
     /// <summary>Runs to the left teaching marker before starting an idle hopping interval.</summary>
@@ -545,7 +543,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         SetEtecoonVerticalVelocity(state, SignedSixteenSixteen.Zero);
-        slot.FrameHold = WrappingCountdown.Start(3);
+        slot.AnimationClock.HoldFor(3);
         state.Playback = new(EtecoonAnimations.StartingWith(EtecoonProgram.HitCeiling), AnimationPlace.StartOfAnimation);
     }
 
@@ -581,7 +579,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             SetEtecoonHorizontalVelocity(state, EtecoonRightVelocity);
         }
         SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity);
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.AnimationClock.StepOnNextUpdate();
         if (CoordinateAxis.Difference(samus.Position.X.Whole, 256) >= 0)
             _audio.QueueEnemySound(EtecoonJumpSound, priority: SoundRequestPriority.Normal);
     }
@@ -610,7 +608,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             if (CoordinateAxis.Difference(samus.Position.X.Whole, 256) >= 0)
                 _audio.QueueEnemySound(EtecoonJumpSound, priority: SoundRequestPriority.Normal);
         }
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.AnimationClock.StepOnNextUpdate();
     }
 
     /// <summary>Runs to the return marker and installs the rightward jump back toward the wall route.</summary>
@@ -651,7 +649,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.QuakePauseFrames = EtecoonQuakeDefinitions.QuakePauseFrames;
-        slot.FrameHold = slot.FrameHold.AddFrames(128);
+        slot.AnimationClock.Extend(128);
     }
 
     /// <summary>Moves an Etecoon horizontally by its signed 16.16 speed.</summary>
@@ -745,7 +743,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         EtecoonProgram program)
     {
         state.Playback = new(EtecoonAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.AnimationClock.StepOnNextUpdate();
     }
 
     /// <summary>The segment <paramref name="playback"/> is playing: the one its current phase plays, as a sleep rests in it.</summary>

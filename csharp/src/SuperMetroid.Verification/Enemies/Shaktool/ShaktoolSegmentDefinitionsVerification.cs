@@ -59,7 +59,7 @@ internal static class ShaktoolSegmentDefinitionsVerification
                 $"Shaktool production orbit angle {index}");
             AssertEqual(new AnimationPlayback<ShaktoolProgram>(ShaktoolAnimations.StartingWith(definition.InitialProgram), AnimationPlace.StartOfAnimation), state.Playback,
                 $"Shaktool production initial list {index}");
-            AssertEqual((ushort)1, slot.FrameHold.RawValue,
+            AssertEqual((ushort)1, slot.AnimationClock.Hold.RawValue,
                 $"Shaktool production instruction timer {index}");
         }
 

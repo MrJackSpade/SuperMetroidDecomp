@@ -95,8 +95,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         statue.Contact = statue.Contact.With(EnemyContact.SolidToSamus);
         statue.Processing = statue.Processing.With(EnemyProcessing.AnimationScript | EnemyProcessing.OffScreen);
         statue.Frame = EnemyFrameId.Empty;
-        statue.FrameHold = WrappingCountdown.Start(1);
-        statue.Timer = WrappingCountdown.Start(0);
+        statue.AnimationClock.Restart();
 
         // The statue shows its own colours, the shade of its site's statue, which no other enemy shows (#1512).
         statue.Shading = PictureShading.Shaded(isWreckedShip ? ChozoAndTubeShades.WreckedShipStatue : ChozoAndTubeShades.LowerNorfairStatue);
@@ -181,7 +180,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (state.HandTriggered)
                 {
                     state.Playback = new(ChozoStatueAnimations.StartingWith(ChozoStatueProgram.LowerNorfairActivated), AnimationPlace.StartOfAnimation);
-                    statue.FrameHold = WrappingCountdown.Start(1);
+                    statue.AnimationClock.StepOnNextUpdate();
                 }
                 return;
 
@@ -189,7 +188,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (_room.Services.Bosses.IsDefeated(BossBits.AreaBoss) && state.HandTriggered)
                 {
                     state.Playback = new(ChozoStatueAnimations.StartingWith(ChozoStatueProgram.WreckedShipActivated), AnimationPlace.StartOfAnimation);
-                    statue.FrameHold = WrappingCountdown.Start(1);
+                    statue.AnimationClock.StepOnNextUpdate();
                 }
                 return;
 

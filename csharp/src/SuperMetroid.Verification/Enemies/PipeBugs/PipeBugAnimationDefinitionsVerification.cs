@@ -41,11 +41,7 @@ internal static class PipeBugAnimationDefinitionsVerification
                     NativeEnemyAnimationOracle.EntryOf(PipeBugNativeListAddresses.Entries, PipeBugPrograms.BrinstarProgram(strong, selector)),
                     $"{(strong ? "strong" : "normal")} Pipe Bug {selector}");
 
-                var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
-                {
-                    FrameHold = WrappingCountdown.Start(0x2222),
-                    Timer = WrappingCountdown.Start(0x3333),
-                };
+                var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry).WithAnimationClock(hold: 0x2222, repeats: 0x3333);
                 slot.SetSpawnParameter1(EnemyDefinitionId.Zeb, strong ? 1 : 0);
                 var state = new PipeBugEnemyState(slot)
                 {
@@ -59,9 +55,9 @@ internal static class PipeBugAnimationDefinitionsVerification
                     $"production {(strong ? "strong" : "normal")} Pipe Bug selector {selector}");
                 AssertEqual(new AnimationPlayback<PipeBugProgram>(PipeBugAnimations.StartingWith(PipeBugPrograms.BrinstarProgram(strong, selector)), AnimationPlace.StartOfAnimation), state.Playback,
                     $"production {(strong ? "strong" : "normal")} Pipe Bug animation {selector}");
-                AssertEqual(1, slot.FrameHold.RawValue,
+                AssertEqual(1, slot.AnimationClock.Hold.RawValue,
                     $"production {(strong ? "strong" : "normal")} Pipe Bug timer {selector}");
-                AssertEqual(0, slot.Timer.RawValue,
+                AssertEqual(0, slot.AnimationClock.Repeats.RawValue,
                     $"production {(strong ? "strong" : "normal")} Pipe Bug loop {selector}");
             }
         }

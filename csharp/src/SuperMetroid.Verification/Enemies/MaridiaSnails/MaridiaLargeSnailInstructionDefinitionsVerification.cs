@@ -37,14 +37,14 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
                     ? MaridiaLargeSnailAnimation.FacingLeftIdle
                     : MaridiaLargeSnailAnimation.FacingRightIdle,
             };
-            slot.FrameHold = WrappingCountdown.Start(0x1234);
-            slot.Timer = WrappingCountdown.Start(0x5678);
+            slot.AnimationClock.HoldFor(0x1234);
+            slot.AnimationClock.Repeats = WrappingCountdown.Start(0x5678);
             MaridiaLargeSnailBehavior.InstallMaridiaLargeSnailAnimationScript(slot, state);
             AssertEqual(animation, state.InstalledAnimation, $"Oum installed selector {animationIndex}");
             AssertTrue(ReferenceEquals(MaridiaLargeSnailAnimations.StartingWith(program), state.Playback.Animation) &&
                 state.Playback.Place == AnimationPlace.StartOfAnimation, $"Oum installed animation {animationIndex}");
-            AssertEqual((ushort)1, slot.FrameHold.RawValue, $"Oum instruction timer {animationIndex}");
-            AssertEqual((ushort)0, slot.Timer.RawValue, $"Oum general timer {animationIndex}");
+            AssertEqual((ushort)1, slot.AnimationClock.Hold.RawValue, $"Oum instruction timer {animationIndex}");
+            AssertEqual((ushort)0, slot.AnimationClock.Repeats.RawValue, $"Oum general timer {animationIndex}");
         }
         AssertThrows<InvalidDataException>(() => MaridiaSnailsNativeWords.MaridiaLargeSnailAnimations.Decode(8, "Oum animation index"), "Oum selector past table");
 
@@ -121,8 +121,7 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
     private static void Start(RoomEnemySlot slot, MaridiaLargeSnailEnemyState state, MaridiaLargeSnailProgram program)
     {
         state.Playback = new(MaridiaLargeSnailAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        slot.AnimationClock.Restart();
     }
 
     /// <summary>Runs the Oum checks and its program oracle against the local retail cartridge.</summary>

@@ -264,10 +264,8 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         state.InstalledAnimation = state.RequestedAnimation;
         state.ReinstallRequested = false;
-        state.Playback = new(DragonAnimations.StartingWith(DragonPhases.Program(
-            state.RequestedAnimation)), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        state.Playback = EnemyProgramAnimation.Start(slot, DragonAnimations.StartingWith(DragonPhases.Program(
+            state.RequestedAnimation)));
     }
 
     /// <summary>Requires the wing the Dragon body found when it was placed, still holding its authored wing record.</summary>

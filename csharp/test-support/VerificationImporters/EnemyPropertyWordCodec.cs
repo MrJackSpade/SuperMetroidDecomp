@@ -44,7 +44,7 @@ internal static class EnemyPropertyWordCodec
     /// <summary>The extra-property word's bit for <see cref="RoomEnemySlot.CollidesByFrameHitboxes"/>.</summary>
     private const int CollidesByFrameHitboxesBit = 1 << 2;
 
-    /// <summary>The extra-property word's bit for <see cref="RoomEnemySlot.NewInstructionFrame"/>.</summary>
+    /// <summary>The extra-property word's bit for <see cref="EnemyAnimationClock.ShowsNewFrame"/>.</summary>
     private const int NewInstructionFrameBit = 1 << 15;
 
     /// <summary>The extra-property word's named bits.</summary>

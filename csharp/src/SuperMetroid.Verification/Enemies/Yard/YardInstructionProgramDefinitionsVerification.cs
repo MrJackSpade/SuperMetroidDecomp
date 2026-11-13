@@ -58,7 +58,7 @@ internal static class YardInstructionProgramDefinitionsVerification
     {
         for (int update = 0; update < updates; update++)
         {
-            yard.FrameHold = WrappingCountdown.Start(1);
+            yard.AnimationClock.StepOnNextUpdate();
             EnemyInstructionInterpreter.RunsAnimationScript(yard, null, null, Position16<RoomPixels>.Zero, 0);
         }
     }

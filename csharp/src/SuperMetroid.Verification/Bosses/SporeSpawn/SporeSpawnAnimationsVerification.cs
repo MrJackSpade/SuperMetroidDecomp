@@ -177,7 +177,7 @@ internal static class SporeSpawnAnimationsVerification
         body.Bind(body.DefinitionId, default(RoomEnemyDefinition));
         body.Position = body.Position.WithWhole(new(128, 624));
         body.Health = 960;
-        body.FrameHold = WrappingCountdown.Start(1);
+        body.AnimationClock.StepOnNextUpdate();
 
         var state = new SporeSpawnEnemyState(body)
         {

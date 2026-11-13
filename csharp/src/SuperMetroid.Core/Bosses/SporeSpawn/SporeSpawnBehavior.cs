@@ -196,7 +196,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         if (CoordinateAxis.Difference(body.Position.Y.Whole, SporeSpawnDeathCenterY) >= 0)
         {
             state.BodyPlayback = new AnimationPlayback<SporeSpawnBodyProgram>(SporeSpawnAnimations.StartingWith(SporeSpawnBodyProgram.FightStarted), AnimationPlace.StartOfAnimation);
-            body.FrameHold = WrappingCountdown.Start(1);
+            body.AnimationClock.StepOnNextUpdate();
         }
 
         state.MaximumXRadius = SporeSpawnDescentMaximumXRadius;
@@ -389,7 +389,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Plays Spore Spawn's body animation where the shared enemy animation would run its list.</summary>
     internal void AdvanceSporeSpawnAnimation(RoomEnemySlot body)
     {
-        if (!EnemyProgramAnimation.Expire(body))
+        if (!body.AnimationClock.Expire())
             return;
         SporeSpawnEnemyState state = RequireSporeSpawnState(body);
         AnimationPlayback<SporeSpawnBodyProgram> playback = state.BodyPlayback;
@@ -489,7 +489,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.AngleDelta = -state.AngleDelta;
                 state.Damaged = true;
                 state.BodyPlayback = new AnimationPlayback<SporeSpawnBodyProgram>(SporeSpawnAnimations.StartingWith(SporeSpawnBodyProgram.CloseAndMove), AnimationPlace.StartOfAnimation);
-                body.FrameHold = WrappingCountdown.Start(1);
+                body.AnimationClock.StepOnNextUpdate();
 
                 int healthFrame = body.Health >= 770
                     ? 0
@@ -534,7 +534,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             _projectiles.EnemyProjectiles[projectileSlot].Delete();
 
         state.BodyPlayback = new AnimationPlayback<SporeSpawnBodyProgram>(SporeSpawnAnimations.StartingWith(SporeSpawnBodyProgram.Death), AnimationPlace.StartOfAnimation);
-        body.FrameHold = WrappingCountdown.Start(1);
+        body.AnimationClock.StepOnNextUpdate();
         _room.Services.Bosses.SetDefeated(BossBits.AreaMiniBoss);
         state.ScrollClampHookActive = false;
         PublishSporeSpawnObject(SporeSpawnCeilingMutation.Crumble);

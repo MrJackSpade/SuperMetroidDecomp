@@ -196,14 +196,13 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void SetRipperProgram(RoomEnemySlot slot, RipperProgram program)
     {
         slot.RequireSpeciesState<RipperEnemyState>().Playback = new(RipperAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        slot.AnimationClock.Restart();
     }
 
     /// <summary>Advances Ripper's typed animation.</summary>
     internal static void AdvanceRipperTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
-        if (!EnemyProgramAnimation.Expire(slot))
+        if (!slot.AnimationClock.Expire())
             return;
         RipperEnemyState state = slot.RequireSpeciesState<RipperEnemyState>();
         AnimationPlayback<RipperProgram> playback = state.Playback;

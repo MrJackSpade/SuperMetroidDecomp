@@ -137,8 +137,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     internal void InitializeTourianEntranceStatue(RoomEnemySlot statue)
     {
         TourianEntranceStatueProgram part = statue.Spawn.Population.SpawnSettingsOf<TourianEntranceStatueSpawnSettings>().Statue;
-        statue.FrameHold = WrappingCountdown.Start(1);
-        statue.Timer = WrappingCountdown.Start(0);
+        statue.AnimationClock.Restart();
         statue.SetSpeciesState(new TourianEntranceStatueState(new AnimationPlayback<TourianEntranceStatueProgram>(TourianEntranceStatueAnimations.StartingWith(part), AnimationPlace.StartOfAnimation)));
 
         // Only the first of the three enemy records creates the fixed screen actors. The
@@ -207,7 +206,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     /// <summary>Advances TourianEntranceStatue's typed animation.</summary>
     internal static void AdvanceTourianEntranceStatueTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
-        if (!EnemyProgramAnimation.Expire(slot))
+        if (!slot.AnimationClock.Expire())
             return;
         TourianEntranceStatueState state = slot.RequireSpeciesState<TourianEntranceStatueState>();
         AnimationPlayback<TourianEntranceStatueProgram> playback = state.Playback;

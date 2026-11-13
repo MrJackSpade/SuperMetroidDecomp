@@ -31,7 +31,7 @@ internal sealed class RidleyBodyAnimation
     /// </summary>
     internal void AdvanceRidleyBodyAnimation(RoomEnemySlot slot, SamusState? samus)
     {
-        if (!EnemyProgramAnimation.Expire(slot))
+        if (!slot.AnimationClock.Expire())
             return;
         RidleyEnemyState state = _ridleyEncounter.RequireRidley(slot);
         AnimationPlayback<RidleyBodyProgram> playback = state.BodyPlayback;
@@ -134,7 +134,7 @@ internal sealed class RidleyBodyAnimation
     /// </summary>
     internal static void AdvanceRidleyBreakupAnimation(RoomEnemySlot fragment)
     {
-        if (!EnemyProgramAnimation.Expire(fragment))
+        if (!fragment.AnimationClock.Expire())
             return;
         RidleyExplosionFragmentState state = fragment.RequireSpeciesState<RidleyExplosionFragmentState>();
         AnimationPlayback<RidleyBreakupFrame> playback = state.Playback;

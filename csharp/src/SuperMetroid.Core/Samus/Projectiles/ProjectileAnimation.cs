@@ -38,7 +38,7 @@ internal sealed class ProjectileAnimation
             return true;
         }
         SamusProjectileRecord record = SamusProjectileRecordDefinitions.Get(frame);
-        slot.FrameHold = WrappingCountdown.FromRaw(duration);
+        slot.FrameHold = WrappingCountdown.Start(duration);
         slot.Sprite = (FrameBindings ?? throw new InvalidOperationException(
             "Samus's projectiles show their records' installed compositions, which are not bound.")).Resolve(frame);
         slot.Radius = record.Radius;

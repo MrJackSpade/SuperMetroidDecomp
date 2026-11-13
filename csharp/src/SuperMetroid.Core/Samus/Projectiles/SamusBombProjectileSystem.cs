@@ -1072,7 +1072,7 @@ public sealed class SamusBombProjectileSystem
         if (duration == 0)
             throw new InvalidDataException($"Bomb record {frame} has zero duration.");
         SamusProjectileRecord record = SamusProjectileRecordDefinitions.Get(frame);
-        slot.FrameHold = WrappingCountdown.FromRaw(duration);
+        slot.FrameHold = WrappingCountdown.Start(duration);
         slot.Sprite = (FrameBindings ?? throw new InvalidOperationException(
             "Samus's bombs show their records' installed compositions, which are not bound.")).Resolve(frame);
         slot.Radius = record.Radius;

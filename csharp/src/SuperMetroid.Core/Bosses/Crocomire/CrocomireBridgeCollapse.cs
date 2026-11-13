@@ -71,7 +71,7 @@ internal sealed class CrocomireBridgeCollapse
 
         if (state.Tongue is { } tongue)
         {
-            CrocomireBodyLayer.StartCrocomireTongueProgram(state, CrocomireTongueProgram.Sleep, WrappingCountdown.Start(TongueSleepDelay));
+            CrocomireBodyLayer.StartCrocomireTongueProgram(state, CrocomireTongueProgram.Sleep, TongueSleepDelay);
             tongue.Presence = tongue.Presence.With(EnemyPresence.Hidden);
         }
     }
@@ -232,7 +232,7 @@ internal sealed class CrocomireBridgeCollapse
         }
 
         HideCrocomireSunkenBody();
-        body.NewInstructionFrame = false;
+        body.AnimationClock.ShowsNewFrame = false;
 
         // The acceleration's fraction carries into its whole part before the whole part is clamped, and the
         // speed's into its whole part before that is clamped: each clamp keeps the fraction it carried from.

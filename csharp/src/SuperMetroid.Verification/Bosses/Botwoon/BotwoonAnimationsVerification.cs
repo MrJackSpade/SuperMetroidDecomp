@@ -125,15 +125,15 @@ internal static class BotwoonAnimationsVerification
         state.HeadHistory[3] = new Position16<RoomPixels>(1000, 1000);
         state.InsideHole = false;
         animateHead(head, state);
-        head.FrameHold = WrappingCountdown.Start(7);
+        head.AnimationClock.HoldFor(7);
         state.HeadHistory[3] = new Position16<RoomPixels>(1000, 1000);
         animateHead(head, state);
-        AssertEqual((ushort)7, head.FrameHold.RawValue, "reinstalling Botwoon's unchanged head program keeps it running");
+        AssertEqual((ushort)7, head.AnimationClock.Hold.RawValue, "reinstalling Botwoon's unchanged head program keeps it running");
         state.InsideHole = true;
         state.HeadHistory[3] = new Position16<RoomPixels>(1000, 1000);
         animateHead(head, state);
         AssertEqual(BotwoonHeadProgram.Hidden, state.HeadProgram, "Botwoon's head hides inside the wall");
-        AssertEqual((ushort)1, head.FrameHold.RawValue, "a changed Botwoon head program restarts on the next update");
+        AssertEqual((ushort)1, head.AnimationClock.Hold.RawValue, "a changed Botwoon head program restarts on the next update");
 
         for (ushort selector = 0; selector < 64; selector += 2)
         {
@@ -240,7 +240,7 @@ internal static class BotwoonAnimationsVerification
     {
         (RoomEnemySystem enemies, RoomEnemySlot head, BotwoonEnemyState state) = NewBotwoonHead();
         state.HeadPlayback = new(BotwoonAnimations.HeadStartingWith(program), AnimationPlace.StartOfAnimation);
-        head.FrameHold = WrappingCountdown.Start(1);
+        head.AnimationClock.StepOnNextUpdate();
         CompareBotwoonHead(rom, nativeList, enemies, head, state, label, drawn);
     }
 
@@ -248,19 +248,19 @@ internal static class BotwoonAnimationsVerification
     private static void CompareBotwoonHead(CartridgeImportAddressSpace rom, ushort nativeList, RoomEnemySystem enemies,
         RoomEnemySlot head, BotwoonEnemyState state, string label, HashSet<ushort>? drawn = null)
     {
-        var native = new NativeBotwoonHead(nativeList, head.FrameHold.RawValue, head.Radius);
+        var native = new NativeBotwoonHead(nativeList, head.AnimationClock.Hold.RawValue, head.Radius);
         for (int update = 0; update < 70; update++)
         {
             enemies.Audio.BeginFrame();
             EnemyInstructionInterpreter.RunsAnimationScript(head, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
             bool nativeSound = native.Step(rom);
             string at = $"Botwoon {label} update {update}";
-            AssertEqual(native.Timer, head.FrameHold.RawValue, $"{at}: timer");
+            AssertEqual(native.Timer, head.AnimationClock.Hold.RawValue, $"{at}: timer");
             AssertEqual(native.Spritemap, head.SpritemapPointer, $"{at}: frame");
             if (native.NewFrame)
                 drawn?.Add(head.SpritemapPointer);
             AssertEqual(native.Radius, head.Radius, $"{at}: radius");
-            AssertEqual(native.NewFrame, head.NewInstructionFrame, $"{at}: new-frame flag");
+            AssertEqual(native.NewFrame, head.AnimationClock.ShowsNewFrame, $"{at}: new-frame flag");
             AssertEqual(native.SpitFrame, state.SpitFrameReached, $"{at}: spit frame");
             AssertEqual(EnemyAudioQueueAccess.SoundList(nativeSound ? [BotwoonSoundDefinitions.Spit] : []), enemies.Audio.QueuedSoundList,
                 $"{at}: the spit sound is the update's only sound when the native list queues it");

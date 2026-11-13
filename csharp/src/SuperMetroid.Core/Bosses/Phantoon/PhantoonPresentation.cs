@@ -76,7 +76,7 @@ internal sealed class PhantoonPresentation
         RoomEnemySlot slot,
         PhantoonPartProgram program)
     {
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.AnimationClock.StepOnNextUpdate();
         state.PartPlayback(slot) = PhantoonEnemyState.Starting(program);
     }
 }

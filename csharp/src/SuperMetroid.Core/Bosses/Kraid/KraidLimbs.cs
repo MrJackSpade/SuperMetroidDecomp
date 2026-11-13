@@ -78,7 +78,7 @@ internal sealed class KraidLimbs
     /// </summary>
     internal void AdvanceKraidPartAnimation(RoomEnemySlot part)
     {
-        if (!EnemyProgramAnimation.Expire(part))
+        if (!part.AnimationClock.Expire())
             return;
         KraidPartState partState = _access.Part(part);
         AnimationPlayback<KraidPartProgram> playback = partState.Playback;
@@ -188,7 +188,7 @@ internal sealed class KraidLimbs
         // While mouth reopens are pending, incrementing the timer here cancels the common
         // interpreter's later decrement and freezes the selected arm map.
         if (state.PendingMouthReopens != 0)
-            arm.FrameHold = arm.FrameHold.AddFrames(1);
+            arm.AnimationClock.Extend(1);
     }
 
     /// <summary>Dispatches the foot's lunge, retreat, and grown-form walking functions.</summary>
@@ -329,7 +329,7 @@ internal sealed class KraidLimbs
         {
             _access.SetKraidPartProgram(foot, KraidPartProgram.FootLungeForward);
         }
-        foot.FrameHold = WrappingCountdown.Start(1);
+        foot.AnimationClock.StepOnNextUpdate();
     }
 
     /// <summary>Counts down a foot phase and installs its next function at zero.</summary>

@@ -45,8 +45,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
 
         slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
         slot.Frame = EnemyFrameId.Empty;
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        slot.AnimationClock.Restart();
 
         MorphBallEyeSpawnSettings settings = slot.SpawnSettings<MorphBallEyeSpawnSettings>();
         if (settings.Part != MorphBallEyePart.BeamMount)
@@ -115,7 +114,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         state.FunctionTimer = EyeTransitionDuration;
-        eye.FrameHold = WrappingCountdown.Start(1);
+        eye.AnimationClock.StepOnNextUpdate();
         state.Playback = new(MorphBallEyeAnimations.StartingWith(eye.SpawnSettings<MorphBallEyeSpawnSettings>().Facing == HorizontalDirection.Right
             ? MorphBallEyeProgram.FacingRightActivating
             : MorphBallEyeProgram.FacingLeftActivating), AnimationPlace.StartOfAnimation);
@@ -157,7 +156,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
                 ? MorphBallEyeProgram.FacingRightDeactivating
                 : MorphBallEyeProgram.FacingLeftDeactivating), AnimationPlace.StartOfAnimation);
             state.Function = MorphBallEyeAiFunction.Deactivating;
-            eye.FrameHold = WrappingCountdown.Start(1);
+            eye.AnimationClock.StepOnNextUpdate();
             return;
         }
 
@@ -168,7 +167,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         Animation<MorphBallEyeProgram> tracking = MorphBallEyeAnimations.StartingWith(MorphBallEyeProgram.Active);
         state.Playback = new(tracking, AnimationSegments<MorphBallEyeProgram, EnemyFrameId, NoAnimationCue>.PlaceOf(tracking,
             MorphBallEyeProgram.Active, state.Angle.Sector(MorphBallEyeBeamDefinitions.TrackingPoses)));
-        eye.FrameHold = WrappingCountdown.Start(1);
+        eye.AnimationClock.StepOnNextUpdate();
     }
 
     /// <summary>Returns to waiting when the closing countdown reaches zero or goes below it.</summary>

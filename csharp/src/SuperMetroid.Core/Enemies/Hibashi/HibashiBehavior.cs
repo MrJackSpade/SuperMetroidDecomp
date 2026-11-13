@@ -59,9 +59,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Every part starts with the one-frame hitbox map. Only part zero replaces it with
         // the eruption animation and initializes the state-machine values below.
-        state.Playback = new(HibashiAnimations.StartingWith(HibashiProgram.Hitbox), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        state.Playback = EnemyProgramAnimation.Start(slot, HibashiAnimations.StartingWith(HibashiProgram.Hitbox));
         if (state.IsCollisionPart)
             return;
 
@@ -108,9 +106,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot hitbox = GetFollowingHibashiPart(graphics);
         state.Function = HibashiEnemyFunction.Active;
         state.ActivityFinished = false;
-        graphics.FrameHold = WrappingCountdown.Start(1);
-        graphics.Timer = WrappingCountdown.Start(0);
-        state.Playback = new(HibashiAnimations.StartingWith(HibashiProgram.Graphics), AnimationPlace.StartOfAnimation);
+        state.Playback = EnemyProgramAnimation.Start(graphics, HibashiAnimations.StartingWith(HibashiProgram.Graphics));
 
         // The invisibility property controls rendering only. The intangibility property controls admission to
         // Samus/projectile/grapple collision. The bottom remains visually invisible for the

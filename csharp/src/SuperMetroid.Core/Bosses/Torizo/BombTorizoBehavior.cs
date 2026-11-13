@@ -225,7 +225,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs Bomb or Golden Torizo's body program where the shared enemy animation would.</summary>
     internal void AdvanceTorizoAnimation(RoomEnemySlot torizo, TorizoInstructionInputs inputs)
     {
-        if (!EnemyProgramAnimation.Expire(torizo))
+        if (!torizo.AnimationClock.Expire())
             return;
         TorizoEnemyState state = Access.RequireBombTorizoState(torizo);
         AnimationPlayback<TorizoBodyProgram> playback = state.BodyPlayback;

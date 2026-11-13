@@ -150,7 +150,7 @@ internal sealed class MotherBrainAscent
     internal void StartMotherBrainAscent(MotherBrainEnemyState state)
     {
         MotherBrainEncounterAccess.SetMotherBrainBodyProgram(state, MotherBrainBodyProgram.Crouched);
-        state.Head.FrameHold = WrappingCountdown.Start(1);
+        state.Head.AnimationClock.StepOnNextUpdate();
         state.Body.Presence = state.Body.Presence.Without(EnemyPresence.Hidden);
         state.Body.Position = state.Body.Position.WithWhole(new(59, 279));
         MotherBrainBody.PlaceMotherBrainBodyLayer(state, Position16<BackgroundPixels>.Wrapped(-27, -217));

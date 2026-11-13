@@ -130,9 +130,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.InstalledAnimation = requested;
-        state.Playback = new(WaverAnimations.StartingWith(requested), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        state.Playback = EnemyProgramAnimation.Start(slot, WaverAnimations.StartingWith(requested));
     }
 
     /// <summary>Runs Waver's main AI.</summary>

@@ -27,7 +27,7 @@ internal static class BoulderBehaviorVerification
         BoulderBehavior.InitializeBoulder(slot);
         AssertEqual(new AnimationPlayback<BoulderProgram>(BoulderAnimations.StartingWith(BoulderProgram.Left), AnimationPlace.StartOfAnimation), (enemies.SlotTable.Slots[0].EntityState<BoulderEntity, BoulderEnemyState>() ?? throw new InvalidOperationException("The Boulder has no state.")).Playback,
             "Boulder initializer animation");
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.AnimationClock.StepOnNextUpdate();
         AssertEqual(EnemyInstructionRunner.ExpectedLoop(BoulderAnimations.Segments, BoulderProgram.Left, BoulderFrameToolingDefinitions.Spritemap),
             EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(BoulderAnimations.Segments, BoulderProgram.Left)),
             "Boulder runs its loop and returns through its goto");

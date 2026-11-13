@@ -93,14 +93,14 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     /// <summary>Starts <paramref name="program"/> on <paramref name="slot"/> from the next update.</summary>
     private void StartGunshipProgram(RoomEnemySlot slot, GunshipProgram program)
     {
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.AnimationClock.StepOnNextUpdate();
         _shipPrograms[slot] = new AnimationPlayback<GunshipProgram>(GunshipAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
     }
 
     /// <summary>Runs a hull or pad piece's typed program where the shared enemy animation would.</summary>
     internal void AdvanceGunshipAnimation(RoomEnemySlot slot)
     {
-        if (!EnemyProgramAnimation.Expire(slot))
+        if (!slot.AnimationClock.Expire())
             return;
         AnimationPlayback<GunshipProgram> playback = _shipPrograms[slot];
         EnemyProgramAnimation.Play(slot, GunshipAnimations.Segments, ref playback,
@@ -116,9 +116,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         slot.SetSpeciesState(part);
         slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
         slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
-        _shipPrograms[slot] = new AnimationPlayback<GunshipProgram>(GunshipAnimations.StartingWith(GunshipProgram.TopHull), AnimationPlace.StartOfAnimation);
+        _shipPrograms[slot] = EnemyProgramAnimation.Start(slot, GunshipAnimations.StartingWith(GunshipProgram.TopHull));
         if (_gunshipLoadScenario == GunshipLoadScenario.EscapingCeres)
         {
             SamusState samus = _samusAtEnemyInitialization
@@ -146,11 +144,9 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         slot.SetSpeciesState(part);
         slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
         slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
-        _shipPrograms[slot] = new AnimationPlayback<GunshipProgram>(GunshipAnimations.StartingWith(slot.SpawnSettings<GunshipSpawnSettings>().Part == GunshipBottomPiece.EntrancePad
+        _shipPrograms[slot] = EnemyProgramAnimation.Start(slot, GunshipAnimations.StartingWith(slot.SpawnSettings<GunshipSpawnSettings>().Part == GunshipBottomPiece.EntrancePad
             ? GunshipProgram.BottomEntrancePad
-            : GunshipProgram.BottomHull), AnimationPlace.StartOfAnimation);
+            : GunshipProgram.BottomHull));
 
         if (slot.SpawnSettings<GunshipSpawnSettings>().Part == GunshipBottomPiece.EntrancePad)
         {

@@ -110,7 +110,7 @@ internal static class BossDisplayBindingsFixtureVerification
         {
             Actor.SpritemapPointer = frame;
             Actor.CollidesByFrameHitboxes = true;
-            Actor.NewInstructionFrame = fresh;
+            Actor.AnimationClock.ShowsNewFrame = fresh;
         }
 
         /// <summary>Runs queued enemy drawing into a fresh OAM frame.</summary>

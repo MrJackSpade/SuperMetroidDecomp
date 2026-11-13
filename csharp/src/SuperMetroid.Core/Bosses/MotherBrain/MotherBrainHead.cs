@@ -61,7 +61,7 @@ internal sealed class MotherBrainHead
         // The brain initializer gives the head enemy the dummy program for life (the encounter state's
         // head-slot cursor starts there): its dummy frame is the head's collision hitbox.
         // The visible brain runs a separate program.
-        head.FrameHold = WrappingCountdown.Start(1);
+        head.AnimationClock.StepOnNextUpdate();
         head.Contact = head.Contact.With(EnemyContact.BlocksPlasmaBeam);
         head.Presence = head.Presence.With(EnemyPresence.Hidden);
         state.Head = head;

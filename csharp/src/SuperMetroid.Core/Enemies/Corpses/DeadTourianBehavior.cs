@@ -198,7 +198,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Advances the Tourian corpses' typed animation.</summary>
     internal static void AdvanceDeadTourianTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
-        if (!EnemyProgramAnimation.Expire(slot))
+        if (!slot.AnimationClock.Expire())
             return;
         DeadTourianCorpseEnemyState state = RequireDeadTourianCorpseState(slot);
         AnimationPlayback<DeadTourianProgram> playback = state.Playback;

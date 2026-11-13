@@ -38,7 +38,7 @@ internal sealed class CrocomireMelting
 
         if (state.Tongue is { } tongue)
         {
-            CrocomireBodyLayer.StartCrocomireTongueProgram(state, CrocomireTongueProgram.Melting, WrappingCountdown.Start(1));
+            CrocomireBodyLayer.StartCrocomireTongueProgram(state, CrocomireTongueProgram.Melting, 1);
             tongue.Processing = tongue.Processing.With(EnemyProcessing.AnimationScript | EnemyProcessing.OffScreen);
             tongue.Contact = tongue.Contact.With(EnemyContact.IgnoresSamus);
             tongue.Presence = tongue.Presence.Without(EnemyPresence.Hidden);

@@ -84,9 +84,9 @@ internal static class EnemyInstructionOwnerCoverageVerification
                 slot.Processing = population.Processing;
                 slot.Presence = population.Presence;
                 slot.CollidesByFrameHitboxes = population.CollidesByFrameHitboxes;
-                slot.NewInstructionFrame = false;
+                slot.AnimationClock.ShowsNewFrame = false;
 
-                slot.FrameHold = WrappingCountdown.Start(1);
+                slot.AnimationClock.StepOnNextUpdate();
 
                 bool translatedRecord = true;
                 try

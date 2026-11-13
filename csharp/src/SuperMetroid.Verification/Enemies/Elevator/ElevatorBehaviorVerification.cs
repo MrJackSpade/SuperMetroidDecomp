@@ -23,7 +23,7 @@ internal static class ElevatorBehaviorVerification
         enemies.ElevatorBehavior.InitializeElevator(slot, null);
         AssertEqual(new AnimationPlayback<ElevatorProgram>(ElevatorAnimations.StartingWith(ElevatorProgram.Loop), AnimationPlace.StartOfAnimation), (enemies.SlotTable.Slots[0].EntityState<ElevatorEntity, ElevatorEnemyState>() ?? throw new InvalidOperationException("The elevator has no state.")).Playback,
             "elevator initializer animation");
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.AnimationClock.StepOnNextUpdate();
         AssertEqual(EnemyInstructionRunner.ExpectedLoop(ElevatorAnimations.Segments, ElevatorProgram.Loop, ElevatorFrameToolingDefinitions.Spritemap),
             EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(ElevatorAnimations.Segments, ElevatorProgram.Loop)),
             "elevator runs its loop and returns through its goto");

@@ -156,9 +156,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Starts a patrol or attack animation on the next animation tick.</summary>
     internal static void SetCacatacProgram(RoomEnemySlot slot, CacatacEnemyState state, CacatacProgram program)
     {
-        state.Playback = new(CacatacAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        state.Playback = EnemyProgramAnimation.Start(slot, CacatacAnimations.StartingWith(program));
     }
 
     /// <summary>Registers the spike's ten direction-table movers and viewport cull.</summary>

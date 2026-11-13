@@ -24,7 +24,7 @@ internal abstract class EnemyProjectileAnimation
         switch (step)
         {
             case EnemyProjectileFrameStep.Show shown:
-                projectile.FrameHold = WrappingCountdown.FromRaw(shown.Duration);
+                projectile.FrameHold = WrappingCountdown.Start(shown.Duration);
                 projectile.Frame = shown.Frame;
                 return;
             case EnemyProjectileFrameStep.ShowForGood held:

@@ -169,8 +169,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.Playback = new(RinkaAnimations.StartingWith(RinkaProgram.Ordinary), AnimationPlace.StartOfAnimation);
         }
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        slot.AnimationClock.Restart();
     }
 
     /// <summary>True while a door load still owes a special Rinka its spawn choice.</summary>

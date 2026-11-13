@@ -905,8 +905,8 @@ internal static class LookupStream2Verification
                 slot.Bind(EnemyDefinitionId.Gamet, slot.Definition);
                 slot.Position = slot.Position.WithWhole(new(128, 128)); slot.SetSpawnParameter2(EnemyDefinitionId.Gamet, 64);
                 enemies.PipeBugsBehavior.InitializeNorfairPipeBug(slot);
-                slot.FrameHold = WrappingCountdown.FromRaw((ushort)(member + 4));
-                slot.Timer = WrappingCountdown.FromRaw((ushort)(member + 8));
+                slot.AnimationClock.HoldFor((ushort)(member + 4));
+                slot.AnimationClock.Repeats = WrappingCountdown.Start((ushort)(member + 8));
             }
             var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = FixedPosition<RoomPixels>.FromWhole(new(samusX, 112)) };
             enemies.PipeBugsBehavior.RunNorfairPipeBugSamusWait(enemies.SlotTable.Slots[0], (enemies.PipeBugStates[0] ?? throw new InvalidOperationException("Verification requires enemies.PipeBugStates[0].")), samus);
@@ -920,9 +920,9 @@ internal static class LookupStream2Verification
                 AssertEqual(PipeBugEnemyFunction.NorfairRise, state.Function, "Actual formation begins rising");
                 AssertEqual(new AnimationPlayback<PipeBugProgram>(PipeBugAnimations.StartingWith(samusX < 128 ? PipeBugProgram.GametRisingLeft : PipeBugProgram.GametRisingRight), AnimationPlace.StartOfAnimation),
                     state.Playback, "Actual formation selects facing");
-                AssertEqual((ushort)(member == 0 ? 1 : member + 4), enemies.SlotTable.Slots[member].FrameHold.RawValue,
+                AssertEqual((ushort)(member == 0 ? 1 : member + 4), enemies.SlotTable.Slots[member].AnimationClock.Hold.RawValue,
                     "Only leader instruction timer resets");
-                AssertEqual((ushort)(member == 0 ? 0 : member + 8), enemies.SlotTable.Slots[member].Timer.RawValue,
+                AssertEqual((ushort)(member == 0 ? 0 : member + 8), enemies.SlotTable.Slots[member].AnimationClock.Repeats.RawValue,
                     "Only leader loop counter resets");
             }
         }

@@ -33,7 +33,7 @@ internal sealed class EnemyInstructionInterpreter
     {
         if ((slot.Entity as IBossBodyFrames)?.FindBodyFrame(selected) is not { } frame)
             return;
-        if (!slot.NewInstructionFrame)
+        if (!slot.AnimationClock.ShowsNewFrame)
             return;
         // Every boss that shows a body attaches it at initialization; Mother Brain's shows only once her second phase begins.
         (_presentation.BossBody ?? throw new InvalidOperationException("A boss body frame was shown before its owner attached the body it shows on."))

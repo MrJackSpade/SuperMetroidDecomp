@@ -48,9 +48,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new KzanEnemyState();
         slot.SetSpeciesState(state);
 
-        state.Playback = new(KzanAnimations.StartingWith(KzanProgram.Idle), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        state.Playback = EnemyProgramAnimation.Start(slot, KzanAnimations.StartingWith(KzanProgram.Idle));
         state.Function = KzanEnemyFunction.WaitingToFall;
 
         // The spawn settings name the speed the fall starts at. Retail placements include four pixels per update,

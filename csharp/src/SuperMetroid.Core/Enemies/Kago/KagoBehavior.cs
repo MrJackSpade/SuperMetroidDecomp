@@ -51,9 +51,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         // Kago's placement already authors its other processing properties. The initializer
         // sets only the animation-script property so the common animation interpreter animates the shell.
         slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
-        state.Playback = new(KagoAnimations.StartingWith(KagoProgram.Slow), AnimationPlace.StartOfAnimation);
+        state.Playback = EnemyProgramAnimation.Start(slot, KagoAnimations.StartingWith(KagoProgram.Slow));
         state.Function = KagoEnemyFunction.InstallNoOp;
         state.DeathAnimationStarted = false;
         state.HitCounter = slot.SpawnSettings<KagoSpawnSettings>().HitCount;
@@ -88,7 +86,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.UsesFastAnimation = true;
             state.Playback = new(KagoAnimations.StartingWith(KagoProgram.Fast), AnimationPlace.StartOfAnimation);
-            slot.FrameHold = WrappingCountdown.Start(1);
+            slot.AnimationClock.StepOnNextUpdate();
         }
 
         if (--state.HitCounter < 0)
@@ -171,7 +169,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Advances Kago's typed animation.</summary>
     internal static void AdvanceKagoTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
-        if (!EnemyProgramAnimation.Expire(slot))
+        if (!slot.AnimationClock.Expire())
             return;
         KagoEnemyState state = slot.RequireSpeciesState<KagoEnemyState>();
         AnimationPlayback<KagoProgram> playback = state.Playback;

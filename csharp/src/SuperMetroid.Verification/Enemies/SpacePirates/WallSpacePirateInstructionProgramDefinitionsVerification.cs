@@ -75,7 +75,7 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
             (RoomEnemySystem enemies, RoomEnemySlot slot,
                 WallSpacePirateEnemyState state, SamusState samus) = CreateSystem();
             state.Playback = new(WallSpacePirateAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-            slot.FrameHold = WrappingCountdown.Start(1);
+            slot.AnimationClock.StepOnNextUpdate();
             RunFrames(enemies, slot, samus, level, 70);
             AssertEqual(expected, state.Playback,
                 $"wall Pirate {(movingRight ? "right" : "left")} attack sleeps");
@@ -96,7 +96,7 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
                 WallSpacePirateEnemyState state, SamusState samus) = CreateSystem();
             ushort initialY = slot.Position.Y.Whole;
             state.Playback = new(WallSpacePirateAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-            slot.FrameHold = WrappingCountdown.Start(1);
+            slot.AnimationClock.StepOnNextUpdate();
             RunFrames(enemies, slot, samus, level, frames);
             AssertEqual(expectedFunction, state.Function,
                 $"wall Pirate program {program} climb function");
@@ -114,7 +114,7 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
             state.Playback = new(WallSpacePirateAnimations.StartingWith(onRightWall
                 ? WallSpacePirateProgram.MovingDownRightWall
                 : WallSpacePirateProgram.MovingDownLeftWall), AnimationPlace.StartOfAnimation);
-            slot.FrameHold = WrappingCountdown.Start(1);
+            slot.AnimationClock.StepOnNextUpdate();
             RunFrames(
                 enemies,
                 slot,

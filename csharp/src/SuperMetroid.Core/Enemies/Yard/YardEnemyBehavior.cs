@@ -122,7 +122,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.SetSpeciesState(state);
 
         slot.Frame = EnemyFrameId.Empty;
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.AnimationClock.StepOnNextUpdate();
 
         YardDirectionDefinition definition = YardDirections.ForDirection(direction);
         state.Playback = new(YardAnimations.StartingWith(definition.CrawlingProgram), AnimationPlace.StartOfAnimation);
@@ -210,8 +210,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 state.Playback = new(YardAnimations.StartingWith(hiding), AnimationPlace.StartOfAnimation);
                 slot.Frame = EnemyFrameId.Empty;
-                slot.FrameHold = WrappingCountdown.Start(1);
-                slot.Timer = WrappingCountdown.Start(0);
+                slot.AnimationClock.Restart();
                 state.Behavior = YardBehavior.Hiding;
                 return;
             }
@@ -383,7 +382,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         YardProgram program)
     {
         state.Playback = new(YardAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.AnimationClock.StepOnNextUpdate();
         state.TurnTransitionDisabled = true;
         state.TurnTransitionDisableCounter = 0;
     }
@@ -484,10 +483,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         state.CrawlingVelocity = state.BlockSide == CrawlerSurfaceOrientation.UpsideRight ? landing.ReversedX() : landing;
         slot.Frame = EnemyFrameId.Empty;
         state.MovementFunction = YardMovementFunction.InstructionPending;
-        state.Playback = new(YardAnimations.StartingWith(state.HidingProgram ??
-            throw new InvalidDataException("A landing Yard has no hiding animation to resume.")), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        state.Playback = EnemyProgramAnimation.Start(slot, YardAnimations.StartingWith(state.HidingProgram ??
+            throw new InvalidDataException("A landing Yard has no hiding animation to resume.")));
     }
 
     /// <summary>Selects visible and hiding programs from Yard's airborne facing direction.</summary>
@@ -499,8 +496,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             YardDirections.ForAirborneFacing(state.AirborneFacingDirection);
         state.Playback = new(YardAnimations.StartingWith(definition.VisibleProgram), AnimationPlace.StartOfAnimation);
         state.HidingProgram = definition.HidingProgram;
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        slot.AnimationClock.Restart();
     }
 
     /// <summary>Turns Yard after landing only when its airborne facing points away from Samus.</summary>
@@ -652,7 +648,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Advances Yard's typed animation.</summary>
     internal void AdvanceYardTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
-        if (!EnemyProgramAnimation.Expire(slot))
+        if (!slot.AnimationClock.Expire())
             return;
         var state = slot.RequireSpeciesState<YardEnemyState>();
         AnimationPlayback<YardProgram> playback = state.Playback;

@@ -197,7 +197,7 @@ internal sealed class CrocomireCombat
             {
                 if (!projectileType.IsChargedBeam)
                 {
-                    body.FrameHold = WrappingCountdown.Start(8);
+                    body.AnimationClock.HoldFor(8);
                     SpawnCrocomireShotDust(projectileType, projectile);
                     return;
                 }
@@ -221,7 +221,7 @@ internal sealed class CrocomireCombat
                 // Both regional constants are eight. Keep the branch
                 // explicit because the source distinguishes projectile-attack state even
                 // though this release stores identical delay values.
-                body.FrameHold = body.FrameHold.AddFrames(
+                body.AnimationClock.Extend(
                     state.FightFunction == CrocomireFightFunction.ProjectileAttack ? 8 : 8);
             }
             state.FightFlags = (state.FightFlags & ~(CrocomireFightFlags.DamageReactionPending | CrocomireFightFlags.ClawTouchedSamus)) |

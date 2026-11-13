@@ -41,7 +41,7 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
             object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, ControllerButton.None];
             for (int call = 0; call < calls; call++)
             {
-                slot.FrameHold = WrappingCountdown.Start(1);
+                slot.AnimationClock.StepOnNextUpdate();
                 EnemyInstructionRunner.Process(arguments);
             }
             AssertEqual(visible, state.FollowerVisible, $"Lower Norfair Rio {name} publishes follower visibility");
@@ -85,7 +85,7 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Holtz, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.AnimationClock.StepOnNextUpdate();
         var state = new LowerNorfairRioEnemyState { Playback = new(LowerNorfairRioAnimations.StartingWith(entry), AnimationPlace.StartOfAnimation) };
         slot.SetSpeciesState(state);
         return new NewLowerNorfairRioInstructionSystemResult(enemies, slot, state);

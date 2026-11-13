@@ -87,7 +87,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = new(CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.ProgramFor(
             animationFamily, orientation)), AnimationPlace.StartOfAnimation);
         slot.Frame = EnemyFrameId.Empty;
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.AnimationClock.StepOnNextUpdate();
         state.Function = CrawlerEnemyFunction.InstructionPending;
 
         state.Velocity = ResetCrawlerVelocities(blockSide, crawlSpeed, state.Velocity);
@@ -134,7 +134,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = new(CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.ProgramFor(
             CrawlerAnimationFamily.HZoomer, orientation)), AnimationPlace.StartOfAnimation);
         slot.Frame = EnemyFrameId.Empty;
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.AnimationClock.StepOnNextUpdate();
         state.Velocity = SignedForBlockSide(settings.BlockSide, new EightEightVector<RoomPixels>(crawlSpeed, crawlSpeed));
     }
 
@@ -289,9 +289,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         CrawlerEnemyState state,
         CrawlerProgram program)
     {
-        state.Playback = new(CrawlerAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        state.Playback = EnemyProgramAnimation.Start(slot, CrawlerAnimations.StartingWith(program));
     }
 
     /// <summary>Runs shared crawler main AI.</summary>
@@ -461,10 +459,8 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         // The orange Zoomer turns corners with its own selection; only the shared crawlers come here.
         if (state.SurfaceFamily is CrawlerAnimationFamily.HZoomer)
             throw new InvalidDataException("The orange Zoomer's animations are not a shared crawler surface family.");
-        state.Playback = new(CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.ProgramFor(
-            state.SurfaceFamily, orientation)), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        state.Playback = EnemyProgramAnimation.Start(slot, CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.ProgramFor(
+            state.SurfaceFamily, orientation)));
     }
 
     /// <summary>Converts the current crawler velocity to a horizontal move adjusted for the supporting slope.</summary>

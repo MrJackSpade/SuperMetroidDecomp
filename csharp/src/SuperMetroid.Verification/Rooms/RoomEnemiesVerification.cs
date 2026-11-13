@@ -473,7 +473,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         ripper.FrozenTimer = 400;
         ushort initialX = ripper.Position.X.Whole;
         EnemyFrameId? initialFrame = ripper.Frame;
-        WrappingCountdown initialFrameHold = ripper.FrameHold;
+        WrappingCountdown initialFrameHold = ripper.AnimationClock.Hold;
         for (int frame = 1; frame <= 12; frame++)
         {
             enemies.StepStandaloneFrame(enemies.StandaloneFrame(level) with { Camera = new(0, 0), TimeIsFrozen = true });
@@ -483,7 +483,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
             AssertEqual(400, ripper.FrozenTimer, "X-ray holds Ice freeze timer independently");
             AssertEqual(initialX, ripper.Position.X.Whole, "X-ray holds enemy movement");
             AssertEqual(initialFrame, ripper.Frame, "X-ray holds the enemy's animation frame");
-            AssertEqual(initialFrameHold, ripper.FrameHold, "X-ray holds the enemy's animation timer");
+            AssertEqual(initialFrameHold, ripper.AnimationClock.Hold, "X-ray holds the enemy's animation timer");
         }
         ripper.Contact = ripper.Contact.With(EnemyContact.IgnoresSamus);
         ripper.InvincibilityTimer = 10;
@@ -723,7 +723,7 @@ internal static void VerifyCeresDoorBossBranch()
         } } });
     enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer, tilesetPointer), BgArtworkFixtures.For(vram)) { Samus = samus });
     RoomEnemySlot door = enemies.SlotTable.Slots[0];
-    door.FrameHold = WrappingCountdown.Start(1);
+    door.AnimationClock.StepOnNextUpdate();
 
     for (int frame = 0; frame < 4; frame++)
         enemies.StepStandaloneFrame(enemies.StandaloneFrame(openRoom) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
@@ -742,7 +742,7 @@ internal static void VerifyCeresDoorBossBranch()
     }
     AssertTrue(door.Contact.HasAny(EnemyContact.IgnoresSamus),
         $"defeated Ceres boss advances door bytecode to intangible setup " +
-        $"(timer=${door.FrameHold.RawValue:X4}, " +
+        $"(timer=${door.AnimationClock.Hold.RawValue:X4}, " +
         $"contact={door.Contact}, processing={door.Processing}, presence={door.Presence}, bossReads={areaBossReads})");
     Console.WriteLine("  Ceres door: area-boss branch opens the physical Ridley-room actor.");
 }

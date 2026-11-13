@@ -87,9 +87,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         AttachBotwoon(head, state);
         head.SetSpeciesState(state);
         // The initializer installs the hidden program: the head starts hidden in its hole.
-        state.HeadPlayback = new(BotwoonAnimations.HeadStartingWith(BotwoonHeadProgram.Hidden), AnimationPlace.StartOfAnimation);
-        head.FrameHold = WrappingCountdown.Start(1);
-        head.Timer = WrappingCountdown.Start(0);
+        state.HeadPlayback = EnemyProgramAnimation.Start(head, BotwoonAnimations.HeadStartingWith(BotwoonHeadProgram.Hidden));
 
         // A previously defeated Botwoon does not allocate body actors. The room loader
         // installs the permanent open wall and makes both one-screen scroll entries blue.
@@ -590,9 +588,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (program == state.HeadProgram)
             return;
-        state.HeadPlayback = new(BotwoonAnimations.HeadStartingWith(program), AnimationPlace.StartOfAnimation);
-        head.FrameHold = WrappingCountdown.Start(1);
-        head.Timer = WrappingCountdown.Start(0);
+        state.HeadPlayback = EnemyProgramAnimation.Start(head, BotwoonAnimations.HeadStartingWith(program));
     }
 
     /// <summary>Advances Botwoon's typed animation.</summary>
@@ -608,13 +604,8 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal void AdvanceBotwoonHeadAnimation(RoomEnemySlot head, BotwoonEnemyState state)
     {
-        CountdownStep frameHold = head.FrameHold.Decrement();
-        head.FrameHold = frameHold.Remaining;
-        if (!frameHold.IsZero)
-        {
-            head.NewInstructionFrame = false;
+        if (!head.AnimationClock.Expire())
             return;
-        }
 
         AnimationPlace place = state.HeadPlayback.Place;
         // No head animation counts its plays, so nothing reads or writes this counter.
@@ -627,9 +618,8 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         if (advance is not AnimationShown<BotwoonHeadProgram, BotwoonHeadFrame>.Frame shown)
             throw new InvalidOperationException($"Botwoon's head animation ended an update with {advance}.");
-        head.FrameHold = WrappingCountdown.FromRaw(shown.Duration);
         head.Frame = BotwoonVisualDefinitions.HeadFrames.Of(shown.Shown);
-        head.NewInstructionFrame = true;
+        head.AnimationClock.Show(shown.Duration);
     }
 
     /// <summary>Applies frame cues for facing radius, spit audio, or the volley trigger.</summary>

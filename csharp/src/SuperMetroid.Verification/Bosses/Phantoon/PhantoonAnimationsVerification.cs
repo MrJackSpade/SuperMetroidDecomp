@@ -82,7 +82,7 @@ internal static class PhantoonAnimationsVerification
     private static void Pass(RoomEnemySlot part, bool forceExpiry = false)
     {
         if (forceExpiry)
-            part.FrameHold = WrappingCountdown.Start(1);
+            part.AnimationClock.StepOnNextUpdate();
         EnemyInstructionInterpreter.RunsAnimationScript(part, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
     }
 
@@ -96,7 +96,7 @@ internal static class PhantoonAnimationsVerification
         PhantoonEnemyState state = RequireState(enemies);
         RoomEnemySlot eye = state.Eye;
         state.PartPlayback(eye) = PhantoonEnemyState.Starting(PhantoonPartProgram.EyeOpen);
-        eye.FrameHold = WrappingCountdown.Start(1);
+        eye.AnimationClock.StepOnNextUpdate();
         for (int frame = 0; frame < 3; frame++)
         {
             Pass(eye, forceExpiry: true);
@@ -108,7 +108,7 @@ internal static class PhantoonAnimationsVerification
         AssertEqual(PhantoonPartProgram.EyeHitboxBody, PartProgram(enemies, state.Body), "the opened eye installs the eye-only body hitbox");
         AssertEqual(PhantoonPartProgram.EyeOpen, PartProgram(enemies, eye), "the list's sleep keeps the eye on its opened program");
         AssertEqual(PhantoonPartFrameSpritemapsConstants.Spritemap(new PhantoonPartFrame(PhantoonPartFrameKind.OpeningEye, 2)), eye.SpritemapPointer, "the opened eye keeps its last frame");
-        AssertEqual((ushort)1, eye.FrameHold.RawValue, "the callback's one-update timer survives the sleep");
+        AssertEqual((ushort)1, eye.AnimationClock.Hold.RawValue, "the callback's one-update timer survives the sleep");
     }
 
     /// <summary>The mouth's flame program spawns one casual flame and runs on into its initial frame.</summary>

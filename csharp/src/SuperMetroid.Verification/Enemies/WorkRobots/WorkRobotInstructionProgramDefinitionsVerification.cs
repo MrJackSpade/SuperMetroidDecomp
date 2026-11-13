@@ -34,7 +34,7 @@ internal static class WorkRobotInstructionProgramDefinitionsVerification
             state.Playback = new(WorkRobotAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
             for (int call = 0; call < 400; call++)
             {
-                robot.FrameHold = WrappingCountdown.Start(1);
+                robot.AnimationClock.StepOnNextUpdate();
                 robot.Position = robot.Position.WithWhole(new(512, unchecked((ushort)(320 - robot.Radius.Y))));
                 state.LaserCooldown = WrappingCountdown.Start(ushort.MaxValue);
                 EnemyInstructionInterpreter.RunsAnimationScript(robot, null, level, new Position16<RoomPixels>(384, 192), 0);

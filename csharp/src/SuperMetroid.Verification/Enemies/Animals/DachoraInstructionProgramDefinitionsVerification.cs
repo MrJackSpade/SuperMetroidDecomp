@@ -56,7 +56,7 @@ internal static class DachoraInstructionProgramDefinitionsVerification
             enemies.DachoraBehavior.InitializeDachora(slot);
             DachoraEnemyState state = enemies.SlotTable.Slots[0].EntityState<DachoraEntity, DachoraEnemyState>() ?? throw new InvalidOperationException("The Dachora has no state.");
             state.Playback = new(DachoraAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-            slot.FrameHold = WrappingCountdown.Start(1);
+            slot.AnimationClock.StepOnNextUpdate();
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(DachoraAnimations.Segments, program, DachoraFrameToolingDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(DachoraAnimations.Segments, program)),
                 $"Dachora {program} loop");

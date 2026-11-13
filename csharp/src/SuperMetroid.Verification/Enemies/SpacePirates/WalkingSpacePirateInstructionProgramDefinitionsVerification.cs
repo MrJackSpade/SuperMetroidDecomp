@@ -73,7 +73,7 @@ internal static class WalkingSpacePirateInstructionProgramDefinitionsVerificatio
                 WalkingSpacePirateEnemyState state, SamusState samus) = CreateSystem();
             samus.Position = samus.Position.WithWholeX(movingRight ? (ushort)0x0180 : (ushort)0x0080);
             state.Playback = new(WalkingSpacePirateAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-            slot.FrameHold = WrappingCountdown.Start(1);
+            slot.AnimationClock.StepOnNextUpdate();
             RunFrames(enemies, slot, samus, 113);
             AssertEqual(expected, state.Playback,
                 $"walking Pirate {(movingRight ? "right" : "left")} attack loops");
@@ -92,7 +92,7 @@ internal static class WalkingSpacePirateInstructionProgramDefinitionsVerificatio
             (RoomEnemySystem enemies, RoomEnemySlot slot,
                 WalkingSpacePirateEnemyState state, SamusState samus) = CreateSystem();
             state.Playback = new(WalkingSpacePirateAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-            slot.FrameHold = WrappingCountdown.Start(1);
+            slot.AnimationClock.StepOnNextUpdate();
             RunFrames(enemies, slot, samus, frames);
             // The walk loop has shown its first pose and stands before its second.
             AssertEqual(new AnimationPlayback<WalkingSpacePirateProgram>(WalkingSpacePirateAnimations.StartingWith(program), PlaceOf(program, expectedSegment, 1)), state.Playback,

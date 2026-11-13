@@ -328,9 +328,9 @@ internal static class NativeSnapshotImport
             slot.Health = W(address + 20);
             // A free native slot keeps its last occupant's word in that occupant's bank; a free port slot shows no frame.
             slot.SpritemapPointer = W(address) == 0 ? (ushort)0 : W(address + 22);
-            slot.Timer = WrappingCountdown.FromRaw(W(address + 24));
+            slot.AnimationClock.Repeats = WrappingCountdown.Start(W(address + 24));
 
-            slot.FrameHold = WrappingCountdown.FromRaw(W(address + 28));
+            slot.AnimationClock.HoldFor(W(address + 28));
             // The native palette word names a row; the colouring it denotes is decoded under the room's loaded set.
             slot.SetPaletteRow(runtime.Enemies, NativeSpriteGraphicsWords.PaletteRow(W(address + 30)));
             // The native tile index word is where the import composes the occupant's sheet, not slot state (#1513).

@@ -96,11 +96,9 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         slot.SetSpeciesState(state);
 
-        state.Playback = new(YappingMawAnimations.StartingWith(slot.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down
+        state.Playback = EnemyProgramAnimation.Start(slot, YappingMawAnimations.StartingWith(slot.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down
             ? YappingMawProgram.AttackingDown
-            : YappingMawProgram.AttackingUp), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+            : YappingMawProgram.AttackingUp));
 
         // Projectile slots are searched from the last downward, and the body segments are
         // spawned with parameters 3, 2, 1, 0, each recording its slot under its parameter.
@@ -226,9 +224,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         int direction = AimSector(state.AimAngle);
         YappingMawAim aim = YappingMawAnimationDefinitions.Aims.At(direction);
         state.Aim = aim;
-        state.Playback = new(YappingMawAnimations.StartingWith(YappingMawBites.AttackForDirection(aim)), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        state.Playback = EnemyProgramAnimation.Start(slot, YappingMawAnimations.StartingWith(YappingMawBites.AttackForDirection(aim)));
 
         state.HeldSamusOffset = YappingMawAttackGeometry.HeldSamusOffset(direction);
         state.Function = YappingMawAiFunction.ExtendingOrRetracting;
@@ -332,8 +328,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             }), AnimationPlace.StartOfAnimation);
             skipHeldPlacement = state.Aim is not (YappingMawAim.Right or YappingMawAim.Left);
         }
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        slot.AnimationClock.Restart();
 
         if (!skipHeldPlacement && state.HasGrabbedSamus)
             PositionSamusInYappingMaw(slot, state, samus);

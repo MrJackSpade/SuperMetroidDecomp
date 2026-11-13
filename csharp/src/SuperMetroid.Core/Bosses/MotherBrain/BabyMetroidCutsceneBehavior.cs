@@ -102,8 +102,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         state.BabyPlayback = MotherBrainBabyAnimations.Starting(baby.Program);
 
         CopyBabyMetroidActorToPhysicalSlot(slot, baby, _motherBrainEncounter.Colours);
-        slot.FrameHold = WrappingCountdown.Start(baby.FrameHold);
-        slot.Timer = WrappingCountdown.Start(0);
+        slot.AnimationClock.RestartAfter(baby.FrameHold);
 
         // The writer receives colour index 241 and count 15. Color zero is deliberately
         // skipped in the source, preserving the room's transparent backdrop entry.
@@ -266,7 +265,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
     {
         MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ?? throw new InvalidDataException(
             "The cutscene Baby's animation ran without Mother Brain's encounter state.");
-        if (!EnemyProgramAnimation.Expire(slot))
+        if (!slot.AnimationClock.Expire())
             return;
         AnimationPlayback<MotherBrainBabyProgram> playback = state.BabyPlayback;
         EnemyProgramAnimation.Play(slot, MotherBrainBabyAnimations.Segments, ref playback, BabyMetroidVisualDefinitions.ShownFrames.Of,
@@ -279,7 +278,6 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
     {
         state.BabyPlayback = MotherBrainBabyAnimations.Starting(program);
         state.BabyAppliedProgram = program;
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        slot.AnimationClock.Restart();
     }
 }

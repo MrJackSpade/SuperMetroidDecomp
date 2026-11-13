@@ -301,7 +301,7 @@ public sealed class SamusHorizontalSpeedState
 
         SamusRunningCadence cadence = SamusRunningCadences.SpeedBoostCadence(stage);
         animationFrame = 0;
-        animationFrameTimer = WrappingCountdown.FromRaw(animationFrameBuffer)
+        animationFrameTimer = WrappingCountdown.Start(animationFrameBuffer)
             .AddFrames(SamusRunningCadences.Delay(unauthoredBoostCadence, cadence, frame: 0)).RemainingFrames;
         // Animation runs after movement. Stage advancement changes cadence
         // and sound, not contact damage; the next movement epilogue publishes that.

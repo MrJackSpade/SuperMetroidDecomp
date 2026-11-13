@@ -58,9 +58,9 @@ internal static class BossDisplayBindingsResourcesVerification
             tentacles.Step(); tentacles.Draw();
             int index = frame / duration % poseCount;
             AssertEqual(PhantoonPartFrameSpritemapsConstants.Spritemap(AssertIs<AnimationBeat<PhantoonPartFrame, PhantoonPartCue>.Frame>(beats[index], "pose beat").Shown), tentacles.Actor.SpritemapPointer, "exact physical pose sequence");
-            AssertEqual((ushort)(duration - frame % duration), tentacles.Actor.FrameHold.RawValue, "exact native hold/goto clock");
+            AssertEqual((ushort)(duration - frame % duration), tentacles.Actor.AnimationClock.Hold.RawValue, "exact native hold/goto clock");
             bool fresh = frame % duration == 0;
-            AssertEqual(fresh, tentacles.Actor.NewInstructionFrame, "exact new-frame schedule");
+            AssertEqual(fresh, tentacles.Actor.AnimationClock.ShowsNewFrame, "exact new-frame schedule");
             if (fresh) transitions++;
         }
         Console.WriteLine($"PASS boss clocks: {frames} production animation steps/{transitions} exact native frame admissions.");
@@ -81,7 +81,7 @@ internal static class BossDisplayBindingsResourcesVerification
         fixture.Enemies.PhantoonBehavior.Combat.Phantoon = state;
         fixture.SetFrame(0, false);
         state.PartPlayback(fixture.Actor) = PhantoonEnemyState.Starting(PhantoonPartProgram.Tentacles);
-        fixture.Actor.FrameHold = WrappingCountdown.Start(1);
+        fixture.Actor.AnimationClock.StepOnNextUpdate();
         return fixture;
     }
 }

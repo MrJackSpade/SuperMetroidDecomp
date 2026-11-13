@@ -342,9 +342,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         HopperEnemyState state,
         HopperProgram program)
     {
-        state.Playback = new(HopperAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        state.Playback = EnemyProgramAnimation.Start(slot, HopperAnimations.StartingWith(program));
     }
 
     /// <summary>Ports Hoppers's main AI.</summary>
@@ -356,7 +354,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Advances Hoppers's typed animation.</summary>
     internal void AdvanceHoppersTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
-        if (!EnemyProgramAnimation.Expire(slot))
+        if (!slot.AnimationClock.Expire())
             return;
         HopperEnemyState state = slot.RequireSpeciesState<HopperEnemyState>();
         AnimationPlayback<HopperProgram> playback = state.Playback;

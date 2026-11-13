@@ -600,7 +600,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
                 state.ActiveProgram = CoordinateAxis.Difference(slot.Position.X.Whole, samus.Position.X.Whole) < 0
                     ? NinjaSpacePirateProgram.ActiveFacingRight
                     : NinjaSpacePirateProgram.ActiveFacingLeft;
-                slot.FrameHold = WrappingCountdown.Start(1);
+                slot.AnimationClock.StepOnNextUpdate();
                 // The cue returns the selected list, not its next step.
                 // Re-entering that list runs its function cue and restores decision AI
                 // after the idle animation explicitly installed the no-op function.
@@ -626,7 +626,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         NinjaSpacePirateProgram program)
     {
         state.Playback = new(NinjaSpacePirateAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.AnimationClock.StepOnNextUpdate();
     }
 
     /// <summary>Binds both claw throws to the outbound-and-return flight in their direction.</summary>

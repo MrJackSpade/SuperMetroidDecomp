@@ -106,8 +106,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
         state.BurrowTimer = 21;
         if (EnemyTerrain.EnemyMeetsAttachmentBlockBelow(level, slot, SignedSixteenSixteen.FromWholePixels(6)))
         {
-            slot.FrameHold = WrappingCountdown.Start(1);
-            slot.Timer = WrappingCountdown.Start(0);
+            slot.AnimationClock.Restart();
             state.Function = SkreeEnemyFunction.Burrowing;
             // The floor collision has its own distinct impact/burrow request.
             _audio.QueueEnemySound(EnemySound.SkreeBurrow, priority: SoundRequestPriority.Normal);
@@ -142,10 +141,8 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.InstalledInstructionIndex = state.RequestedInstructionIndex;
-        state.Playback = new(SkreeMetareeAnimations.StartingWith(SkreeMetareePrograms.SkreeProgram(
-            state.RequestedInstructionIndex)), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        state.Playback = EnemyProgramAnimation.Start(slot, SkreeMetareeAnimations.StartingWith(SkreeMetareePrograms.SkreeProgram(
+            state.RequestedInstructionIndex)));
     }
 
     /// <summary>Runs Skree's main AI.</summary>

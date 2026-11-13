@@ -171,9 +171,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         ChootEnemyState state,
         ChootProgram program)
     {
-        state.Playback = new(ChootAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        state.Playback = EnemyProgramAnimation.Start(slot, ChootAnimations.StartingWith(program));
     }
 
     /// <summary>Advances Choot's typed animation.</summary>

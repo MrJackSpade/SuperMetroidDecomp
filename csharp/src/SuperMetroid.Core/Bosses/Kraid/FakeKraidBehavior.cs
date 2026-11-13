@@ -116,8 +116,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.NextSpikeRow = FakeKraidSpikeRow.Top;
 
         slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        slot.AnimationClock.Restart();
         state.WalkDelta = -4;
         state.FacingDelta = -4;
         state.Playback = new AnimationPlayback<FakeKraidProgram>(FakeKraidAnimations.StartingWith(FakeKraidProgram.StepForwardsFacingLeft), AnimationPlace.StartOfAnimation);

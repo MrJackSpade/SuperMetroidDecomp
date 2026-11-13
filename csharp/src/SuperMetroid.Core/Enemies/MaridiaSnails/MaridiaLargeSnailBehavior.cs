@@ -452,10 +452,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         if (state.RequestedAnimation == state.InstalledAnimation)
             return;
         state.InstalledAnimation = state.RequestedAnimation;
-        state.Playback = new(MaridiaLargeSnailAnimations.StartingWith(MaridiaLargeSnailPrograms
-            .Program(state.RequestedAnimation)), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        state.Playback = EnemyProgramAnimation.Start(slot, MaridiaLargeSnailAnimations.StartingWith(MaridiaLargeSnailPrograms
+            .Program(state.RequestedAnimation)));
     }
 
     /// <summary>

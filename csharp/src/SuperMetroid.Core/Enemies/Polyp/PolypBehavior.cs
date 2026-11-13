@@ -38,8 +38,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         Action<int> setRandomNumber = _room.Random.Seed;
 
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        slot.AnimationClock.Restart();
         var state = new PolypEnemyState
         {
             Playback = new(PolypAnimations.StartingWith(PolypProgram.Stationary), AnimationPlace.StartOfAnimation),

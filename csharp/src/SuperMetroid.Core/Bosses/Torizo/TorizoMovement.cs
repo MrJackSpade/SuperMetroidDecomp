@@ -70,8 +70,7 @@ internal sealed class TorizoMovement
         torizo.Processing = torizo.Processing.With(definition.Processing);
         torizo.CollidesByFrameHitboxes = true;
         torizo.Radius = definition.Radius;
-        torizo.FrameHold = WrappingCountdown.Start(1);
-        torizo.Timer = WrappingCountdown.Start(0);
+        torizo.AnimationClock.Restart();
         torizo.Shading = state.Colours.Shading;
         torizo.Frame = EnemyFrameId.BombTorizoDormant;
 

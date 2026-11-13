@@ -60,7 +60,7 @@ internal static class MorphBallEyeBehaviorVerification
             tracking.Playback = new(MorphBallEyeAnimations.StartingWith(MorphBallEyeProgram.Active),
                 AnimationSegments<MorphBallEyeProgram, EnemyFrameId, NoAnimationCue>.PlaceOf(
                     MorphBallEyeAnimations.StartingWith(MorphBallEyeProgram.Active), MorphBallEyeProgram.Active, pose));
-            eye.FrameHold = WrappingCountdown.Start(1);
+            eye.AnimationClock.StepOnNextUpdate();
             AssertEqual(EnemyInstructionRunner.ExpectedFrames([active[pose]], [1]), EnemyInstructionRunner.ShownFrames(eye, 1),
                 $"eye tracking pose {pose}");
         }

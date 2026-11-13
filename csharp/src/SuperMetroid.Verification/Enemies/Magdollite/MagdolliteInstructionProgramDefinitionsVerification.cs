@@ -148,8 +148,7 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
         static void Install(RoomEnemySlot slot, MagdolliteEnemyState state, MagdolliteProgram program)
         {
             state.Playback = new(MagdolliteAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-            slot.FrameHold = WrappingCountdown.Start(1);
-            slot.Timer = WrappingCountdown.Start(0);
+            slot.AnimationClock.Restart();
         }
 
         static void RunFrames(RoomEnemySystem enemies, RoomEnemySlot slot, int frames)

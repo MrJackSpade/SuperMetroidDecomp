@@ -19,8 +19,7 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new AtomicEnemyState();
         slot.SetSpeciesState(state);
 
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        slot.AnimationClock.Restart();
 
         AtomicSpawnSettings settings = slot.SpawnSettings<AtomicSpawnSettings>();
         state.Playback = new(AtomicAnimations.StartingWith(settings.Spin), AnimationPlace.StartOfAnimation);

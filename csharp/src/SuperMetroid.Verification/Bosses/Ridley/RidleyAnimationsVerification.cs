@@ -58,7 +58,7 @@ internal static class RidleyAnimationsVerification
     /// <summary>Runs one body update, expiring the current frame first.</summary>
     private static void Pass(RoomEnemySlot body, SamusState? samus)
     {
-        body.FrameHold = WrappingCountdown.Start(1);
+        body.AnimationClock.StepOnNextUpdate();
         EnemyInstructionInterpreter.RunsAnimationScript(body, samus, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
     }
 
@@ -71,7 +71,7 @@ internal static class RidleyAnimationsVerification
         AssertEqual(RidleyAnimations.StartingWith(RidleyBodyProgram.OpeningRoarFacingRight), state.BodyPlayback.Animation, "a right-facing Ridley roars facing right");
         AssertEqual((RidleyCollisionDefinitions.BodyFrame?)RidleyCollisionDefinitions.BodyFrame.Right,
             RidleyCollisionDefinitions.BodyFrameAt(body.SpritemapPointer), "the right-facing roar shows its first frame at once");
-        AssertEqual((ushort)6, body.FrameHold.RawValue, "the right-facing roar's first frame lasts six updates");
+        AssertEqual((ushort)6, body.AnimationClock.Hold.RawValue, "the right-facing roar's first frame lasts six updates");
 
         (_, state, body) = NewRidley(EnemyDefinitionId.Ridley, RidleyFacing.Left);
         CeresRidleyFlight.StartRidleyProgram(state, body, RidleyBodyProgram.OpeningRoar);

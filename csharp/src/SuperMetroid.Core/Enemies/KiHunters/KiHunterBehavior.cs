@@ -812,9 +812,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Restarts a body or wing animation from its first step.</summary>
     private static void InstallKiHunterInstruction(RoomEnemySlot slot, KiHunterEnemyState state, KiHunterProgram program)
     {
-        state.Playback = new(KiHunterAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        state.Playback = EnemyProgramAnimation.Start(slot, KiHunterAnimations.StartingWith(program));
     }
 
     /// <summary>The 0.875-pixel 16.16 downward acceleration added to a falling or hopping body each frame.</summary>

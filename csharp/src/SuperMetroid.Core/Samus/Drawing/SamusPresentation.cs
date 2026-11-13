@@ -54,7 +54,7 @@ internal sealed class SamusPresentation
                 $"Samus pose {samus.Pose} cannot start its animation on frame {samus.AnimationFrame}, which is not a delay.");
         }
 
-        samus.AnimationFrameTimer = WrappingCountdown.FromRaw(samus.AnimationFrameBuffer).AddFrames(initialDelay.Ticks);
+        samus.AnimationFrameTimer = WrappingCountdown.Start(samus.AnimationFrameBuffer).AddFrames(initialDelay.Ticks);
         samus.PendingTransitionalPose = null;
     }
 
@@ -95,7 +95,7 @@ internal sealed class SamusPresentation
         samus.WritePoseWithoutInitialization(pose);
         samus.AnimatedPose = pose;
         samus.AnimationFrame = frame;
-        samus.AnimationFrameTimer = WrappingCountdown.FromRaw(timer);
+        samus.AnimationFrameTimer = WrappingCountdown.Start(timer);
         samus.PendingTransitionalPose = null;
     }
 
@@ -182,7 +182,7 @@ internal sealed class SamusPresentation
     internal static void SetAnimationFrameFromSpecialHandler(SamusState samus, int frame, int timer)
     {
         samus.AnimationFrame = frame;
-        samus.AnimationFrameTimer = WrappingCountdown.FromRaw(timer);
+        samus.AnimationFrameTimer = WrappingCountdown.Start(timer);
     }
 
     /// <summary>Runs the step the animation reaches when its frame timer expires: a frame's delay, or a cue.</summary>
@@ -201,7 +201,7 @@ internal sealed class SamusPresentation
                     ? samus.HorizontalSpeed.SpeedBoosterDelay(samus.UnauthoredBoostCadence, samus.AnimationFrame)
                     : SamusRunningCadences.Delay(samus.UnauthoredBoostCadence, SamusRunningCadence.Ordinary, samus.AnimationFrame)
                 : delay.Ticks;
-            samus.AnimationFrameTimer = WrappingCountdown.FromRaw(samus.AnimationFrameBuffer).AddFrames(runningOrPoseDelay);
+            samus.AnimationFrameTimer = WrappingCountdown.Start(samus.AnimationFrameBuffer).AddFrames(runningOrPoseDelay);
             return;
         }
 
@@ -228,7 +228,7 @@ internal sealed class SamusPresentation
                         : () => samus.AudioRequests.QueueSound(RoomSound.SpeedBooster, SoundRequestPriority.Normal)))
                 {
                     samus.AnimationFrame = stagedFrame;
-                    samus.AnimationFrameTimer = WrappingCountdown.FromRaw(stagedTimer);
+                    samus.AnimationFrameTimer = WrappingCountdown.Start(stagedTimer);
                     return;
                 }
 
@@ -237,7 +237,7 @@ internal sealed class SamusPresentation
             else
             {
                 samus.AnimationFrame = 0;
-                samus.AnimationFrameTimer = WrappingCountdown.FromRaw(samus.AnimationFrameBuffer).AddFrames(
+                samus.AnimationFrameTimer = WrappingCountdown.Start(samus.AnimationFrameBuffer).AddFrames(
                     SamusRunningCadences.Delay(samus.UnauthoredBoostCadence, SamusRunningCadence.Ordinary, frame: 0));
                 return;
             }
@@ -325,7 +325,7 @@ internal sealed class SamusPresentation
             throw new InvalidDataException(
                 $"Samus animation instruction {step} selected frame {samus.AnimationFrame}, which is not a delay.");
         }
-        samus.AnimationFrameTimer = WrappingCountdown.FromRaw(samus.AnimationFrameBuffer).AddFrames(selected.Ticks);
+        samus.AnimationFrameTimer = WrappingCountdown.Start(samus.AnimationFrameBuffer).AddFrames(selected.Ticks);
     }
 
     /// <summary>Rejects animation updates after a pose change that did not restart the animation for the new pose's program.</summary>

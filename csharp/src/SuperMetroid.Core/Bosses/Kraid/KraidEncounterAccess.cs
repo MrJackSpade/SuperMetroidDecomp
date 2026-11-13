@@ -51,7 +51,7 @@ internal sealed class KraidEncounterAccess
     internal void StartKraidPartProgram(RoomEnemySlot part, KraidPartProgram program)
     {
         SetKraidPartProgram(part, program);
-        part.FrameHold = WrappingCountdown.Start(1);
+        part.AnimationClock.StepOnNextUpdate();
     }
 
     /// <summary>Consumes one value from the room RNG for Kraid's next decision.</summary>

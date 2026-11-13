@@ -148,9 +148,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot slot,
         FuneNamiheEnemyState state)
     {
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
-        state.Playback = new(FuneNamiheAnimations.StartingWith(SelectFuneNamiheProgram(state)), AnimationPlace.StartOfAnimation);
+        state.Playback = EnemyProgramAnimation.Start(slot, FuneNamiheAnimations.StartingWith(SelectFuneNamiheProgram(state)));
     }
 
     /// <summary>The animation for <paramref name="state"/>'s species, activity and facing.</summary>

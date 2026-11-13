@@ -426,8 +426,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     /// <summary>Resets <paramref name="slot"/>'s instruction clocks and returns the playback of <paramref name="program"/>'s animation from its start.</summary>
     internal static AnimationPlayback<DeadTourianProgram> StartDeadTourianProgram(RoomEnemySlot slot, DeadTourianProgram program)
     {
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        slot.AnimationClock.Restart();
         return new AnimationPlayback<DeadTourianProgram>(DeadTourianAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
     }
 
@@ -459,7 +458,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     /// <summary>Advances the dead Sidehopper's typed animation.</summary>
     internal static void AdvanceDeadSidehopperTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
-        if (!EnemyProgramAnimation.Expire(slot))
+        if (!slot.AnimationClock.Expire())
             return;
         DeadSidehopperEnemyState state = RequireDeadSidehopperState(slot);
         AnimationPlayback<DeadTourianProgram> playback = state.Playback;

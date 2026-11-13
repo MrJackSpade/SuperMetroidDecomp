@@ -157,8 +157,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
                 slot,
                 SignedSixteenSixteen.FromWholePixels(state.YVelocity)))
         {
-            slot.FrameHold = WrappingCountdown.Start(1);
-            slot.Timer = WrappingCountdown.Start(0);
+            slot.AnimationClock.Restart();
             state.Function = MetareeEnemyFunction.Burrowing;
             _audio.QueueEnemySound(EnemySoundEffectDefinitions.BurrowSound, priority: SoundRequestPriority.Normal);
             return;
@@ -199,9 +198,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.InstalledAnimationScriptIndex = requested;
-        state.Playback = new(SkreeMetareeAnimations.StartingWith(SkreeMetareePrograms.MetareeProgram(requested)), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        state.Playback = EnemyProgramAnimation.Start(slot, SkreeMetareeAnimations.StartingWith(SkreeMetareePrograms.MetareeProgram(requested)));
     }
 
     /// <summary>Runs Metaree's main AI.</summary>

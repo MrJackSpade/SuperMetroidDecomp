@@ -59,9 +59,9 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
         state.BaseFunctionTime = slot.SpawnSettings<SparkSpawnSettings>().BaseFunctionTime;
         SetSparkFunctionTimer(state, additionalTime: 0);
 
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.AnimationClock.StepOnNextUpdate();
         state.Playback = new(SparkAnimations.StartingWith(definition.Program), AnimationPlace.StartOfAnimation);
-        slot.Timer = WrappingCountdown.Start(0);
+        slot.AnimationClock.ClearRepeats();
         // Spark keeps its population properties: the initializer's extra property change before Phantoon's
         // defeat is exempt under the emulation scope limits (owner decision on #1318).
     }
@@ -130,7 +130,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void InstallSparkProgram(RoomEnemySlot slot, SparkEnemyState state, SparkProgram program)
     {
         state.Playback = new(SparkAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.AnimationClock.StepOnNextUpdate();
     }
 
     /// <summary>Runs Spark's main AI.</summary>
@@ -142,7 +142,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Advances Spark's typed animation.</summary>
     internal static void AdvanceSparkTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
-        if (!EnemyProgramAnimation.Expire(slot))
+        if (!slot.AnimationClock.Expire())
             return;
         SparkEnemyState state = slot.RequireSpeciesState<SparkEnemyState>();
         AnimationPlayback<SparkProgram> playback = state.Playback ?? throw new InvalidOperationException(

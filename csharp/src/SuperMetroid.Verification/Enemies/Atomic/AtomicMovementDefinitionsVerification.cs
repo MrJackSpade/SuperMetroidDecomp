@@ -54,7 +54,7 @@ internal static class AtomicMovementDefinitionsVerification
             AssertEqual(speeds.Positive, state.Speed, $"Atomic positive speed {selector}");
             AssertEqual(speeds.Negative, state.NegativeSpeed, $"Atomic negative speed {selector}");
 
-            slot.FrameHold = WrappingCountdown.Start(1);
+            slot.AnimationClock.StepOnNextUpdate();
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(AtomicAnimations.Segments, program, AtomicFrameToolingDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(AtomicAnimations.Segments, program)),
                 $"Atomic spinning loop {selector}");

@@ -155,7 +155,7 @@ internal static class BeetomInstructionProgramDefinitionsVerification
     {
         for (int call = 0; call < calls; call++)
         {
-            slot.FrameHold = WrappingCountdown.Start(1);
+            slot.AnimationClock.StepOnNextUpdate();
             EnemyInstructionRunner.Process(arguments);
         }
     }

@@ -474,8 +474,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         state.Playback = new(EvirAnimations.StartingWith(state.RequestedProgram), AnimationPlace.StartOfAnimation);
         state.InstalledProgram = state.RequestedProgram;
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        slot.AnimationClock.Restart();
     }
 
     /// <summary>The body a spit found when it was placed, two places before it.</summary>
@@ -569,7 +568,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Advances Evir's typed animation.</summary>
     internal void AdvanceEvirTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
-        if (!EnemyProgramAnimation.Expire(slot))
+        if (!slot.AnimationClock.Expire())
             return;
         var state = slot.RequireSpeciesState<EvirEnemyState>();
         AnimationPlayback<EvirProgram> playback = state.Playback ??

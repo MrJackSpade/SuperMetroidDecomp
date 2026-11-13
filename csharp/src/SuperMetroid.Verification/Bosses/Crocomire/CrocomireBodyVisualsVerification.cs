@@ -189,7 +189,7 @@ internal static class CrocomireBodyVisualsVerification
             slot.Shading = PictureShading.Standard;
             slot.CollidesByFrameHitboxes = true;
             if (newFrame)
-                slot.NewInstructionFrame = true;
+                slot.AnimationClock.ShowsNewFrame = true;
             slot.SpritemapPointer = pointer;
             slot.Position = slot.Position.WithWhole(new(0x0080, 0x0080));
             var oam = new OamBuffer();

@@ -46,9 +46,7 @@ internal sealed class CrocomireEncounterAccess
     /// <summary>Starts <paramref name="program"/> on the body from its first step on the next update, as a list install does.</summary>
     internal static void StartCrocomireBodyProgram(CrocomireEnemyState state, CrocomireBodyProgram program)
     {
-        state.BodyPlayback = new AnimationPlayback<CrocomireBodyProgram>(CrocomireBodyAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-        state.Body.FrameHold = WrappingCountdown.Start(1);
-        state.Body.Timer = WrappingCountdown.Start(0);
+        state.BodyPlayback = EnemyProgramAnimation.Start(state.Body, CrocomireBodyAnimations.StartingWith(program));
     }
 
     /// <summary>Finds the Crocomire encounter owning an enemy slot, failing if its room state is absent.</summary>

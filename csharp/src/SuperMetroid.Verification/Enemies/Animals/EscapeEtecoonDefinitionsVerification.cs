@@ -162,7 +162,7 @@ internal static class EscapeEtecoonDefinitionsVerification
             [etecoon, null, null, Position16<RoomPixels>.Zero, ControllerButton.None];
         for (int step = 0; step < steps; step++)
         {
-            etecoon.FrameHold = WrappingCountdown.Start(1);
+            etecoon.AnimationClock.StepOnNextUpdate();
             EnemyInstructionRunner.Process(arguments);
             shown.Add(etecoon.SpritemapPointer);
         }

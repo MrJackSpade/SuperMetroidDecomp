@@ -31,7 +31,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
     /// <summary>Plays a vent's typed animation where the shared enemy animation would run its list.</summary>
     internal static void AdvanceCeresSteamAnimation(RoomEnemySlot slot)
     {
-        if (!EnemyProgramAnimation.Expire(slot))
+        if (!slot.AnimationClock.Expire())
             return;
         CeresSteamEnemyState state = slot.RequireSpeciesState<CeresSteamEnemyState>();
         AnimationPlayback<CeresSteamProgram> playback = state.Playback;
@@ -84,8 +84,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
         // while extended frames supply per-frame art and collision boxes whose geometry cannot be represented by definition radii.
         slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
         slot.CollidesByFrameHitboxes = true;
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        slot.AnimationClock.Restart();
         // The initializer selects the enemy projectiles' colours, which the import colours the steam's sheets in (#1512).
 
         // The initializer masks the live RNG to 0..31 and adds one. The delay is then

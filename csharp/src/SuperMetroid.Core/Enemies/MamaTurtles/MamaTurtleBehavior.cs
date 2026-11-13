@@ -151,8 +151,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         // Spell that write out because animation processing is essential to leaving shell.
         slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
         slot.Frame = EnemyFrameId.Empty;
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        slot.AnimationClock.Restart();
         slot.Radius = slot.Radius.WithY(0);
         state.Playback = new(MamaTurtleAnimations.StartingWith(MamaTurtleProgram.MamaAsleep), AnimationPlace.StartOfAnimation);
     }
@@ -169,11 +168,9 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         slot.SetSpeciesState(state);
 
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
-        state.Playback = new(MamaTurtleAnimations.StartingWith(slot.SpawnSettings<TurtleSpawnSettings>().Speed < 0
+        state.Playback = EnemyProgramAnimation.Start(slot, MamaTurtleAnimations.StartingWith(slot.SpawnSettings<TurtleSpawnSettings>().Speed < 0
             ? MamaTurtleProgram.BabyCrawlingLeft
-            : MamaTurtleProgram.BabyCrawlingRight), AnimationPlace.StartOfAnimation);
+            : MamaTurtleProgram.BabyCrawlingRight));
     }
 
     /// <summary>Runs the Mama Turtle's main behaviour and its indirect functions.</summary>
@@ -829,14 +826,14 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void InstallTurtleInstruction(RoomEnemySlot slot, MamaTurtleEnemyState state, MamaTurtleProgram program)
     {
         state.Playback = new(MamaTurtleAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.AnimationClock.StepOnNextUpdate();
     }
 
     /// <summary>Starts a baby turtle animation with its frame timer set to one.</summary>
     private static void InstallTurtleInstruction(RoomEnemySlot slot, BabyTurtleEnemyState state, MamaTurtleProgram program)
     {
         state.Playback = new(MamaTurtleAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.AnimationClock.StepOnNextUpdate();
     }
 
     /// <summary>Rejects turtle movement without active room collision data.</summary>
@@ -876,7 +873,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Advances MamaTurtle's typed animation.</summary>
     internal void AdvanceMamaTurtleTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
-        if (!EnemyProgramAnimation.Expire(slot))
+        if (!slot.AnimationClock.Expire())
             return;
         MamaTurtleEnemyState state = slot.RequireSpeciesState<MamaTurtleEnemyState>();
         AnimationPlayback<MamaTurtleProgram> playback = state.Playback;
@@ -890,7 +887,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Advances BabyTurtle's typed animation.</summary>
     internal void AdvanceBabyTurtleTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context)
     {
-        if (!EnemyProgramAnimation.Expire(slot))
+        if (!slot.AnimationClock.Expire())
             return;
         BabyTurtleEnemyState state = slot.RequireSpeciesState<BabyTurtleEnemyState>();
         AnimationPlayback<MamaTurtleProgram> playback = state.Playback;

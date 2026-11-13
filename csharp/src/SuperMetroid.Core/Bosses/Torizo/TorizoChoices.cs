@@ -166,7 +166,7 @@ internal sealed class TorizoChoices
         state.Velocity = new(SignedEightEight.FromPixels(_access.FacesRight(torizo) ? 2 : -2),
             SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-1472));
         state.JumpAcceleration = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 40);
-        torizo.FrameHold = WrappingCountdown.Start(1);
+        torizo.AnimationClock.StepOnNextUpdate();
     }
 
     /// <summary>Sets the faster reverse leap velocity used by Golden Torizo's repeated-jump branch.</summary>
@@ -177,7 +177,7 @@ internal sealed class TorizoChoices
         state.Velocity = new(SignedEightEight.FromPixels(_access.FacesRight(torizo) ? -3 : 3),
             SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-1152));
         state.JumpAcceleration = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 40);
-        torizo.FrameHold = WrappingCountdown.Start(1);
+        torizo.AnimationClock.StepOnNextUpdate();
     }
 
     /// <summary>Uses the walk table's velocity and wall branches, arming a 72-frame air transition when Samus crosses the facing test.</summary>
@@ -237,7 +237,7 @@ internal sealed class TorizoChoices
         state.Velocity = new(SignedEightEight.FromPixels(_access.FacesRight(torizo) ? -3 : 3),
             SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-1152));
         state.JumpAcceleration = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 40);
-        torizo.FrameHold = WrappingCountdown.Start(1);
+        torizo.AnimationClock.StepOnNextUpdate();
         return TorizoAnimations.ContinueWith(target);
     }
 

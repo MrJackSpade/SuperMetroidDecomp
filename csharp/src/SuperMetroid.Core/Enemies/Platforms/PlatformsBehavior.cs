@@ -314,9 +314,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Starts the selected animation with a one-tick frame timer.</summary>
     private static void InstallPlatformProgram(RoomEnemySlot slot, PlatformEnemyState state, PlatformProgram program)
     {
-        state.Playback = new(PlatformAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        state.Playback = EnemyProgramAnimation.Start(slot, PlatformAnimations.StartingWith(program));
     }
 
     /// <summary>Runs the four equivalent movement cues.</summary>

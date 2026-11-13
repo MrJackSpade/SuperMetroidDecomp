@@ -66,7 +66,7 @@ internal static class SkreeMetareeBehaviorVerification
         slot.Bind(metaree ? EnemyDefinitionId.Metaree : EnemyDefinitionId.Skree, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         // The room spawn primes the instruction timer before the species initializer runs.
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.AnimationClock.StepOnNextUpdate();
         if (metaree)
         {
             MetareeBehavior.InitializeMetaree(slot);
@@ -82,8 +82,7 @@ internal static class SkreeMetareeBehaviorVerification
     private static void Restart(RoomEnemySlot slot, Action start)
     {
         start();
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        slot.AnimationClock.Restart();
     }
 
     /// <summary>Runs the Skree/Metaree behavior check and the program oracle against the local retail cartridge.</summary>

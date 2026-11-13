@@ -87,8 +87,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // the translated property enum retains the directly observed scheduler meaning.
         slot.Contact = slot.Contact.With(EnemyContact.BlocksPlasmaBeam);
         slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        slot.AnimationClock.Restart();
 
         var state = new ShitroidEnemyState(slot)
         {
@@ -749,8 +748,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     private void SetShitroidProgram(RoomEnemySlot slot, ShitroidProgram program)
     {
         RequireShitroidState(slot).Playback = ShitroidAnimations.Starting(program);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        slot.AnimationClock.Restart();
     }
 
     /// <summary>Requires the Baby Metroid's victim: the enemy placed directly after it (<see cref="BabyMetroidVictim"/>).</summary>
@@ -809,7 +807,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AdvanceShitroidAnimation(RoomEnemySlot slot)
     {
         ShitroidEnemyState state = RequireShitroidState(slot);
-        if (!EnemyProgramAnimation.Expire(slot))
+        if (!slot.AnimationClock.Expire())
             return;
         AnimationPlayback<ShitroidProgram> playback = state.Playback;
         EnemyProgramAnimation.Play(slot, ShitroidAnimations.Segments, ref playback, BabyMetroidVisualDefinitions.ShownFrames.Of, ApplyShitroidCue);

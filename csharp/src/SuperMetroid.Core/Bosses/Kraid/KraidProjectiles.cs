@@ -49,7 +49,7 @@ internal sealed class KraidProjectiles
         KraidParts.Require(lint, _parts.Lint(expected), "lint");
         _access.AttachKraidPart(lint, state);
         lint.Shading = _parts.Body.Shading;
-        lint.FrameHold = WrappingCountdown.Start(KraidBehavior.KraidStillPartTimer);
+        lint.AnimationClock.HoldFor(KraidBehavior.KraidStillPartTimer);
         _access.SetKraidPartProgram(lint, KraidPartProgram.LintInitial);
         lint.Frame = EnemyFrameId.KraidLintInitial;
         _parts.LintStateOf(state, lint).Function = KraidAiFunction.LintInactive;
@@ -74,7 +74,7 @@ internal sealed class KraidProjectiles
         // A fingernail set up, at the room's first setup or a respawn, has taken no alternate spawn (KilledFingernailStops).
         nailPart.AlternateSpawn = false;
         nail.Presence = nail.Presence.With(EnemyPresence.Hidden);
-        nail.FrameHold = WrappingCountdown.Start(KraidBehavior.KraidStillPartTimer);
+        nail.AnimationClock.HoldFor(KraidBehavior.KraidStillPartTimer);
         _access.SetKraidPartProgram(nail, KraidPartProgram.NailLoop);
         nail.Frame = EnemyFrameId.KraidNailLoopFirst;
         _parts.NailStateOf(state, nail).NextFunction = KraidAiFunction.FingernailInitialize;
@@ -281,7 +281,7 @@ internal sealed class KraidProjectiles
         part.NailLaunched = true;
         nail.Contact = nail.Contact.Without(EnemyContact.IgnoresSamus);
         nail.Presence = nail.Presence.Without(EnemyPresence.Hidden);
-        nail.FrameHold = WrappingCountdown.Start(1);
+        nail.AnimationClock.StepOnNextUpdate();
         _access.SetKraidPartProgram(nail, KraidPartProgram.NailLoop);
         part.Function = KraidAiFunction.FingernailFire;
 
@@ -343,7 +343,7 @@ internal sealed class KraidProjectiles
         KraidEnemyState state = _access.RequireKraidState(lint);
         if (samus is not null)
             ResolveKraidLintContact(lint, samus);
-        lint.FrameHold = WrappingCountdown.Start(KraidBehavior.KraidStillPartTimer);
+        lint.AnimationClock.HoldFor(KraidBehavior.KraidStillPartTimer);
         KraidLintState part = _parts.LintStateOf(state, lint);
         switch (_parts.LintStateOf(state, lint).Function)
         {

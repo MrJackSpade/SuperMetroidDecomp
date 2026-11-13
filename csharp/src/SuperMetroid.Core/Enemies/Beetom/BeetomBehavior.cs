@@ -546,9 +546,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         BeetomEnemyState state,
         BeetomProgram program)
     {
-        state.Playback = new(BeetomAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        state.Playback = EnemyProgramAnimation.Start(slot, BeetomAnimations.StartingWith(program));
     }
 
     /// <summary>Requires a live Samus actor for attachment and targeting phases.</summary>

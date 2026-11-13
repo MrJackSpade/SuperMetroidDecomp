@@ -62,8 +62,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         // stands solid to her.
         slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
         slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus | EnemyContact.SolidToSamus);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        slot.AnimationClock.Restart();
         // The initializer selects the common sprite colours, which the import colours the escape Etecoons' sheets in (#1512).
 
         EscapeEtecoonInitialization initialization =
@@ -89,8 +88,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         // synthetic/debug population faithful to retail initialization.
         slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
         slot.Frame = EnemyFrameId.Empty;
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        slot.AnimationClock.Restart();
         slot.RequireSpeciesState<EscapeDachoraEnemyState>().Playback =
             new(EscapeDachoraAnimations.StartingWith(EscapeDachoraProgram.RunningAroundLowTide), AnimationPlace.StartOfAnimation);
     }
@@ -144,7 +142,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         SignedSixteenSixteen horizontalDisplacement = state.Velocity.X.ToSixteenSixteenDelta();
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, horizontalDisplacement))
         {
-            slot.FrameHold = WrappingCountdown.Start(1);
+            slot.AnimationClock.StepOnNextUpdate();
             state.Velocity = state.Velocity.ReversedX();
             state.Playback = new(EscapeEtecoonAnimations.StartingWith(HasCrittersEscaped()
                 ? EscapeEtecoonProgram.RunningForEscape
@@ -162,7 +160,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs an escaping Etecoon's or Dachora's typed program where the shared enemy animation would.</summary>
     private void AdvanceEscapeAnimal(RoomEnemySlot slot, SamusState? samus)
     {
-        if (!EnemyProgramAnimation.Expire(slot))
+        if (!slot.AnimationClock.Expire())
             return;
         if (slot.DefinitionId == EnemyDefinitionId.EtecoonEscape)
         {

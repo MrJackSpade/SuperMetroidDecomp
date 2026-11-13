@@ -191,13 +191,13 @@ internal static class DraygonAnimationsVerification
     {
         (_, DraygonEnemyState state) = NewDraygon();
         state.StartAnimation(state.Body, DraygonProgram.BodyFacingRightReset);
-        state.Body.FrameHold = WrappingCountdown.Start(1);
+        state.Body.AnimationClock.StepOnNextUpdate();
         Pass(state.Body);
         AssertEqual(Started(DraygonProgram.EyeFacingRightIdle), state.Playback(state.Eye), "the reset starts the eye");
         AssertEqual(Started(DraygonProgram.TailFacingRightIdle), state.Playback(state.Tail), "the reset starts the tail");
         AssertEqual(Started(DraygonProgram.ArmsFacingRightIdle), state.Playback(state.Arms), "the reset starts the arms");
         foreach (RoomEnemySlot part in new[] { state.Eye, state.Tail, state.Arms })
-            AssertEqual((ushort)1, part.FrameHold.RawValue, "the reset's started parts run on their next update");
+            AssertEqual((ushort)1, part.AnimationClock.Hold.RawValue, "the reset's started parts run on their next update");
         AssertEqual(new AnimationPlayback<DraygonProgram>(DraygonAnimations.StartingWith(DraygonProgram.BodyFacingRightReset), new AnimationPlace(0, 3)),
             state.Playback(state.Body), "the body's own frame keeps it in the reset, after its frame");
         AssertEqual(DraygonFrameToolingDefinitions.Spritemap(new DraygonFrame(63)), state.Body.SpritemapPointer, "the reset shows the right-facing body frame");
@@ -214,7 +214,7 @@ internal static class DraygonAnimationsVerification
         (RoomEnemySystem enemies, DraygonEnemyState state) = NewDraygon();
         RoomEnemySlot arms = state.Arms;
         state.StartAnimation(arms, DraygonProgram.ArmsFacingLeftDying);
-        arms.FrameHold = WrappingCountdown.Start(1);
+        arms.AnimationClock.StepOnNextUpdate();
         var native = new NativeEnemyListReader(BodyBankNumber, Entry(DraygonProgram.ArmsFacingLeftDying), 1, OperandWords);
         bool paralysed = false;
         for (int update = 0; update < 400; update++)
@@ -223,10 +223,10 @@ internal static class DraygonAnimationsVerification
             Pass(arms);
             List<NativeEnemyListDefinitions.Callback> callbacks = native.Step(cartridge);
             string at = $"Draygon dying update {update}";
-            AssertEqual(native.Timer, arms.FrameHold.RawValue, $"{at}: timer");
+            AssertEqual(native.Timer, arms.AnimationClock.Hold.RawValue, $"{at}: timer");
             AssertEqual(native.Spritemap, arms.SpritemapPointer, $"{at}: frame");
-            AssertEqual(native.NewFrame, arms.NewInstructionFrame, $"{at}: new-frame flag");
-            AssertEqual(native.Counter, arms.Timer.RawValue, $"{at}: loop counter");
+            AssertEqual(native.NewFrame, arms.AnimationClock.ShowsNewFrame, $"{at}: new-frame flag");
+            AssertEqual(native.Counter, arms.AnimationClock.Repeats.RawValue, $"{at}: loop counter");
             DraygonCue[] cues = [.. callbacks.Where(callback => !SelectsHudSplit(callback.Word)).Select(callback => CueOf(callback.Word, callback.Operands))];
             AssertEqual(EnemyAudioQueueAccess.SoundList(cues.OfType<DraygonCue.QueueSound>().Select(sound => sound.Sound)),
                 enemies.Audio.QueuedSoundList, $"{at}: every sound the native list queues, in its order");

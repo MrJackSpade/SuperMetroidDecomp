@@ -50,9 +50,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The Rio's setup writes the list directly rather than calling the animation installer. The installed animation must
         // therefore remain none until the first behavioral transition installs a new list.
-        state.Playback = new(RioAnimations.StartingWith(RioProgram.Idle), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        state.Playback = EnemyProgramAnimation.Start(slot, RioAnimations.StartingWith(RioProgram.Idle));
     }
 
     /// <summary>Runs the Rio's main AI and its five functions.</summary>

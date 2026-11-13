@@ -291,6 +291,6 @@ internal static class GunshipLandingVerification
     {
         var first = AssertIs<AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame>(GunshipAnimations.Segments.Beats(program)[0], message + " (first beat)");
         AssertEqual(GunshipFrameDefinitionsConstants.Spritemap(first.Shown), pad.SpritemapPointer, message + " (pose)");
-        AssertEqual(WrappingCountdown.FromRaw((ushort)first.Duration), pad.FrameHold, message + " (duration)");
+        AssertEqual(WrappingCountdown.FromRaw((ushort)first.Duration), pad.AnimationClock.Hold, message + " (duration)");
     }
 }

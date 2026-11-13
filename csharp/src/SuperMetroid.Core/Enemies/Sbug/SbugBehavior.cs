@@ -389,9 +389,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.InstalledProgram = state.RequestedProgram;
-        state.Playback = new(SbugAnimations.StartingWith(state.RequestedProgram.Value), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        state.Playback = EnemyProgramAnimation.Start(slot, SbugAnimations.StartingWith(state.RequestedProgram.Value));
     }
 
     /// <summary>Resets the shared enemy random seed when random wandering is activated.</summary>

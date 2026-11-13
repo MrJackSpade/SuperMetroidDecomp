@@ -99,8 +99,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         // The population's tangibility property already excludes these actors from host interaction.
         slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
         slot.Frame = EnemyFrameId.Empty;
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        slot.AnimationClock.Restart();
 
         if (settings.Role == DachoraRole.SpeedBoostEcho)
         {
@@ -334,7 +333,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         // The charge animation is asleep at its launch wait. Stepping past the sleep enters the same
         // right-facing echo animation used by the four trails, exactly as the game does on launch.
         state.Playback = new(DachoraAnimations.StartingWith(DachoraAnimations.AfterSleep(Playing(state.Playback))), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.AnimationClock.StepOnNextUpdate();
         state.Function = DachoraAiFunction.Shinesparking;
 
         RoomEnemySlot[] echoes = RequireDachoraEchoSlots(slot);
@@ -513,7 +512,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void InstallDachoraInstruction(RoomEnemySlot slot, DachoraEnemyState state, DachoraProgram program)
     {
         state.Playback = new(DachoraAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.AnimationClock.StepOnNextUpdate();
     }
 
     /// <summary>The faster clone of a run loop, where the speed-up jump lands at the same pose.</summary>

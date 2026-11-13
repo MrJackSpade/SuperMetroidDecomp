@@ -64,7 +64,7 @@ internal sealed class MotherBrainBody
     /// </summary>
     internal static void AdvanceMotherBrainTubeAnimation(RoomEnemySlot tube)
     {
-        if (!EnemyProgramAnimation.Expire(tube))
+        if (!tube.AnimationClock.Expire())
             return;
         MotherBrainFallingTubeState tubeState = tube.RequireSpeciesState<MotherBrainFallingTubeState>();
         AnimationPlayback<MotherBrainTubePiece> playback = tubeState.Playback;
@@ -76,7 +76,7 @@ internal sealed class MotherBrainBody
     /// <summary>Sets Mother Brain's body up when the room spawns it.</summary>
     internal void InitializeMotherBrainBody(RoomEnemySlot body)
     {
-        body.FrameHold = WrappingCountdown.Start(1);
+        body.AnimationClock.StepOnNextUpdate();
         body.Contact = body.Contact.With(EnemyContact.BlocksPlasmaBeam | EnemyContact.IgnoresSamus);
         body.Presence = body.Presence.With(EnemyPresence.Hidden);
         body.Shading = EnemyShades.HurtFlashLook;
@@ -147,7 +147,7 @@ internal sealed class MotherBrainBody
     {
         MotherBrainEnemyState state = _access.RequireCompleteMotherBrainState(slot);
         bool body = ReferenceEquals(slot, state.Body);
-        if (!EnemyProgramAnimation.Expire(slot))
+        if (!slot.AnimationClock.Expire())
             return;
         AnimationPlayback<MotherBrainBodyProgram> playback = body ? state.BodyPlayback : state.HeadSlotPlayback;
         EnemyProgramAnimation.Play(slot, MotherBrainAnimations.BodySegments, ref playback, MotherBrainBodyVisualDefinitions.ShownFrames.Of,

@@ -172,9 +172,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Switches the active animation so its first step runs on the next animation tick.</summary>
     private static void SetStokeProgram(RoomEnemySlot slot, StokeEnemyState state, StokeProgram program)
     {
-        state.Playback = new(StokeAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        state.Playback = EnemyProgramAnimation.Start(slot, StokeAnimations.StartingWith(program));
     }
 
     /// <summary>Animation cues for left and right: resume movement in <paramref name="direction"/>.</summary>

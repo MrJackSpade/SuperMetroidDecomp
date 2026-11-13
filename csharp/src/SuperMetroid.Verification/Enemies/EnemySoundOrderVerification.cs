@@ -100,7 +100,7 @@ internal static class EnemySoundOrderVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[place];
         slot.Bind(EnemyDefinitionId.Metroid, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.AnimationClock.StepOnNextUpdate();
         slot.SetSpeciesState(new MetroidEnemyState(
             new RoomSpriteObject(RoomSpriteObjectKind.MetroidOuterBodyA, default, SpriteGraphics.SharedStandard),
             new RoomSpriteObject(RoomSpriteObjectKind.MetroidOuterBodyB, default, SpriteGraphics.SharedStandard))
@@ -124,7 +124,7 @@ internal static class EnemySoundOrderVerification
         BoyonBehavior.InitializeBoyon(slot);
         BoyonEnemyState state = slot.RequireSpeciesState<BoyonEnemyState>();
         state.Playback = new AnimationPlayback<BoyonProgram>(BoyonAnimations.StartingWith(BoyonProgram.Bouncing), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.AnimationClock.StepOnNextUpdate();
         return slot;
     }
 

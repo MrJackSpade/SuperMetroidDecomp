@@ -100,8 +100,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         // loaded while naming only the verified animation-script property.
         slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
         slot.Contact = slot.Contact.With(EnemyContact.SolidToSamus);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        slot.AnimationClock.Restart();
         slot.Shading = PulseShading;
         state.Function = state.IsSecondaryHalf
             ? ZebetiteAiFunction.WaitForDoorTransition
@@ -218,8 +217,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = ZebetiteAnimations.Starting(ZebetiteAnimations.HealthProgram(
             linkedPair: (state.GenerationFlags & ZebetiteGenerationFlags.LinkedPair) != ZebetiteGenerationFlags.None,
             slot.Health));
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        slot.AnimationClock.Restart();
     }
 
     /// <summary>Finds a free physical slot and initializes a primary or linked half from its population record.</summary>
@@ -285,7 +283,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void AdvanceZebetiteAnimation(RoomEnemySlot slot)
     {
         ZebetiteEnemyState state = slot.RequireSpeciesState<ZebetiteEnemyState>();
-        if (!EnemyProgramAnimation.Expire(slot))
+        if (!slot.AnimationClock.Expire())
             return;
         // A held pose is the script's sleep: the timer wraps from zero and the pose stays.
         AnimationPlayback<ZebetiteProgram> playback = state.Playback;

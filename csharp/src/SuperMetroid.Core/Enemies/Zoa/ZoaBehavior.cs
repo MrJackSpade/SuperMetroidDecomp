@@ -15,7 +15,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Advances Zoa's typed animation (#641) where the shared enemy animation would run its list.</summary>
     internal static void AdvanceZoaAnimation(RoomEnemySlot slot)
     {
-        if (!EnemyProgramAnimation.Expire(slot))
+        if (!slot.AnimationClock.Expire())
             return;
         ZoaEnemyState state = slot.RequireSpeciesState<ZoaEnemyState>();
         AnimationPlayback<ZoaProgram> playback = state.Playback;
@@ -170,9 +170,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.RequestedAnimation == state.InstalledAnimation)
             return;
         state.InstalledAnimation = state.RequestedAnimation;
-        state.Playback = new(ZoaAnimations.StartingWith(ZoaPrograms.Program(state.RequestedAnimation)), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        state.Playback = EnemyProgramAnimation.Start(slot, ZoaAnimations.StartingWith(ZoaPrograms.Program(state.RequestedAnimation)));
     }
 
     /// <summary>Runs Zoa's main AI.</summary>

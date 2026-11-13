@@ -766,11 +766,11 @@ internal sealed class TorizoAttacks
                 $"Projectile {projectile.Kind} reached the Torizo-orb drop.");
         }
 
-        EnemyDefinitionId header = GoldenTorizo is not null
+        EnemyDefinitionId definitionId = GoldenTorizo is not null
             ? EnemyDefinitionId.GoldenTorizoOrb
             : EnemyDefinitionId.BombTorizoOrb;
 
-        RoomEnemyDefinition definition = _room.LoadedDefinitions.ReadEnemyDefinition(header);
+        RoomEnemyDefinition definition = _room.LoadedDefinitions.ReadEnemyDefinition(definitionId);
         TorizoOrbDropRequests.Add(new TorizoOrbDropRequest());
         _deathsAndDrops.SpawnEnemyDropFromChanceTable(
             projectile.Position.Whole,

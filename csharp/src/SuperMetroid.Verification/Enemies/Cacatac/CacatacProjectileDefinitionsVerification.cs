@@ -30,7 +30,7 @@ internal static class CacatacProjectileDefinitionsVerification
             ushort raw = CacatacNativeWords.SpikeDirections.Word(direction);
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(instructionTable + raw);
             bool diagonal = raw >= CacatacNativeWords.SpikeDirections.Word(CacatacSpikeDirection.UpLeft);
-            AssertEqual(native, CacatacProjectileNativeListAddresses.Entry(CacatacSpikes.Program(direction)),
+            AssertEqual(native, CacatacProjectileNativeListAddresses.Entry(CacatacSpikes.Animation(direction)),
                 $"compiled Cacatac spike instruction {direction}");
 
             CacatacSpikeSpeedPair speeds = CacatacSpikes.SpeedPair(direction);

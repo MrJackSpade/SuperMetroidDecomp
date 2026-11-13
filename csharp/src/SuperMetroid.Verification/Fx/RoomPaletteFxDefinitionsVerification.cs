@@ -50,13 +50,13 @@ internal static class RoomPaletteFxDefinitionsVerification
                 forbidden.Add(address + index);
 
             RoomPaletteFxDefinition definition = RoomPaletteFxSelection.Get(pointer);
-            if (definition.InitialProgram == PaletteFxProgram.HyperBeam0)
+            if (definition.InitialAnimation == PaletteFxSegment.HyperBeam0)
             {
                 specializedCompiledPrograms++;
             }
             else
             {
-                AssertTrue(Enum.IsDefined(definition.InitialProgram),
+                AssertTrue(Enum.IsDefined(definition.InitialAnimation),
                     $"palette-FX ${pointer:X4} begins a typed program");
                 genericCompiledPrograms++;
             }
@@ -145,9 +145,9 @@ internal static class RoomPaletteFxDefinitionsVerification
                 $"${pointer:X4} production countdown");
             // Every native start installs a pre-instruction that does nothing, the intro's included: no condition.
             AssertEqual(null, effect.Condition, $"${pointer:X4} production condition");
-            Animation<PaletteFxProgram> expected = PaletteFxAnimations.StartingWith(definition.Start == ColourEffectStart.ChoosesHeatProgramForSuit
-                ? PaletteFxHeatPrograms.Start(PaletteFxHeatSuit.Power)
-                : definition.InitialProgram);
+            Animation<PaletteFxSegment> expected = PaletteFxAnimations.StartingWith(definition.Start == ColourEffectStart.ChoosesHeatAnimationForSuit
+                ? PaletteFxHeatAnimations.Start(PaletteFxHeatSuit.Power)
+                : definition.InitialAnimation);
             AssertTrue(ReferenceEquals(expected, effect.Animation), $"${pointer:X4} production initial animation");
             AssertEqual(AnimationPlace.StartOfAnimation, effect.Place, $"${pointer:X4} production starts its animation");
         }
@@ -191,7 +191,7 @@ internal static class RoomPaletteFxDefinitionsVerification
         AssertTrue(shown.SequenceEqual([PaletteFxColours.TitleLogo, PaletteFxColours.TitleScreenDisplays,
                 PaletteFxColours.BabyMetroidTubeLight, PaletteFxColours.NintendoCopyright]),
             "the settled logo lies first, then the running effects' records in the order they started");
-        AssertEqual<PaletteFxFrame?>(new PaletteFxFrame(PaletteFxProgram.CommonFadeInLogo, 0),
+        AssertEqual<PaletteFxFrame?>(new PaletteFxFrame(PaletteFxSegment.CommonFadeInLogo, 0),
             system.FrameOf(PaletteFxColours.NintendoCopyright), "the copyright shows its first frame on its first turn");
 
         // No cap holds the effects back (#1598): a ninth effect starts like the first.

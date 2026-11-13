@@ -13,6 +13,6 @@ internal static class YappingMawVisualDefinitions
     /// order. The native address remains the stable identity while the extracted composition is editable.
     /// </summary>
     internal static NativeEnemySpritemapDefinition[] Frames() =>
-        [.. new SortedSet<ushort>(YappingMawAnimationsConstants.Spritemaps(Enum.GetValues<YappingMawProgram>()))
+        [.. new SortedSet<ushort>(YappingMawAnimationsConstants.Spritemaps(Enum.GetValues<YappingMawSegment>()))
             .Select(pointer => new NativeEnemySpritemapDefinition(Bank, pointer, $"yapping_maw_a8_{pointer:x4}"))];
 }

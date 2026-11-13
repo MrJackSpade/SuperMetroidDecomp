@@ -7,4 +7,4 @@ namespace SuperMetroid.Verification.Enemies.Owtch;
 /// <param name="Program">The program.</param>
 /// <param name="Loop">The loop.</param>
 /// <param name="Walking">The walking.</param>
-internal readonly record struct VerifyOwtchBehaviorCase(OwtchBehaviorState Initial, OwtchProgram Program, OwtchProgram Loop, OwtchBehaviorState Walking);
+internal readonly record struct VerifyOwtchBehaviorCase(OwtchBehaviorState Initial, OwtchSegment Program, OwtchSegment Loop, OwtchBehaviorState Walking);

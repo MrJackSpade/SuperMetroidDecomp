@@ -26,40 +26,40 @@ internal static class YardInstructionProgramDefinitionsVerification
     {
         RoomEnemySystem enemies = CreateYardInstructionSystem(out RoomEnemySlot yard);
         YardEnemyState state = enemies.SlotTable.Slots[0].EntityState<YardEntity, YardEnemyState>() ?? throw new InvalidOperationException("The Yard has no state.");
-        foreach (YardProgram program in Enum.GetValues<YardProgram>())
+        foreach (YardSegment program in Enum.GetValues<YardSegment>())
         {
             state.Playback = new(YardAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
             RunYard(yard, 80);
         }
 
         // Hiding: the repeat cue resumes at the pose before it however often it runs.
-        ushort repeatedPose = YardAnimationsConstants.Spritemaps(YardProgram.HidingUpsideUpMovingLeft).Last();
+        ushort repeatedPose = YardAnimationsConstants.Spritemaps(YardSegment.HidingUpsideUpMovingLeft).Last();
         state.Behavior = YardBehavior.Hiding;
-        state.Playback = new(YardAnimations.StartingWith(YardProgram.HidingUpsideUpMovingLeft), AnimationPlace.StartOfAnimation);
+        state.Playback = new(YardAnimations.StartingWith(YardSegment.HidingUpsideUpMovingLeft), AnimationPlace.StartOfAnimation);
         RunYard(yard, 20);
-        AssertEqual(YardProgram.HidingUpsideUpMovingLeft, StandsIn(state.Playback), "a hiding Yard stays in its hiding animation");
+        AssertEqual(YardSegment.HidingUpsideUpMovingLeft, StandsIn(state.Playback), "a hiding Yard stays in its hiding animation");
         AssertEqual(repeatedPose, yard.SpritemapPointer, "a hiding Yard keeps re-showing the pose before the repeat cue");
 
         // Visible, with the fixture's even random draw: the cue runs on into the hidden animation.
         state.Behavior = YardBehavior.NormalCrawling;
-        state.Playback = new(YardAnimations.StartingWith(YardProgram.HidingUpsideUpMovingLeft), AnimationPlace.StartOfAnimation);
+        state.Playback = new(YardAnimations.StartingWith(YardSegment.HidingUpsideUpMovingLeft), AnimationPlace.StartOfAnimation);
         RunYard(yard, 3);
-        AssertEqual(YardProgram.HiddenUpsideUpMovingLeft, StandsIn(state.Playback), "a visible Yard's even draw runs on into the hidden animation");
+        AssertEqual(YardSegment.HiddenUpsideUpMovingLeft, StandsIn(state.Playback), "a visible Yard's even draw runs on into the hidden animation");
 
         Suite(nameof(YardAnimationsVerification.VerifyYardAnimations), () => YardAnimationsVerification.VerifyYardAnimations(rom));
         Console.WriteLine("Yard: all 38 programs run, and the repeat cue holds a hiding Yard and runs a visible one on.");
     }
 
     /// <summary>The segment a playback stands in: the segment of the phase it plays.</summary>
-    private static YardProgram StandsIn(AnimationPlayback<YardProgram> playback) => playback.Animation.Phases[playback.Place.Phase].Segment;
+    private static YardSegment StandsIn(AnimationPlayback<YardSegment> playback) => playback.Animation.Phases[playback.Place.Phase].Segment;
 
     /// <summary>Forces the requested number of animation updates.</summary>
     private static void RunYard(RoomEnemySlot yard, int updates)
     {
         for (int update = 0; update < updates; update++)
         {
-            yard.FrameHold = WrappingCountdown.Start(1);
-            EnemyInstructionInterpreter.RunsAnimationScript(yard, null, null, Position16<RoomPixels>.Zero, 0);
+            yard.AnimationClock.StepOnNextUpdate();
+            EnemyAnimationPlayer.AdvanceAnimation(yard, null, null, Position16<RoomPixels>.Zero, 0);
         }
     }
 
@@ -73,7 +73,7 @@ internal static class YardInstructionProgramDefinitionsVerification
         yard = enemies.SlotTable.Slots[0];
         yard.Bind(EnemyDefinitionId.Yard, yard.Definition);
         yard.Bind(yard.DefinitionId, default(RoomEnemyDefinition));
-        var state = new YardEnemyState() { Playback = new(YardAnimations.StartingWith(YardProgram.CrawlingUpsideUpMovingLeft), AnimationPlace.StartOfAnimation) };
+        var state = new YardEnemyState() { Playback = new(YardAnimations.StartingWith(YardSegment.CrawlingUpsideUpMovingLeft), AnimationPlace.StartOfAnimation) };
         yard.SetSpeciesState(state);
         return enemies;
     }

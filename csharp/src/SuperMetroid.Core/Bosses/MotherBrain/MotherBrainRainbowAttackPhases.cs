@@ -56,7 +56,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     {
         Ensure.NotNull(samus);
 
-        _state.SetHeadProgram(MotherBrainHeadProgram.FiringRainbowBeam);
+        _state.SetHeadAnimation(MotherBrainHeadSegment.FiringRainbowBeam);
         AngularWidth = NarrowestWidth;
         ExplosionIndex = 0;
         ExplosionTimer = 0;
@@ -84,7 +84,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     {
         // The rainbow setup resets the neutral phase-two head program and selects the
         // ordinary 2/4 neck geometry before beginning its first 256-count wait.
-        _state.SetHeadProgram(MotherBrainHeadProgram.NeutralPhase2);
+        _state.SetHeadAnimation(MotherBrainHeadSegment.NeutralPhase2);
         _state.NeckAngleDelta = 64;
         _state.NeckMovementEnabled = true;
         _state.LowerNeckMovement = MotherBrainNeckMovement.BobDown;
@@ -95,7 +95,7 @@ internal sealed class MotherBrainRainbowAttackPhases
 
     /// <summary>Requests the slow forward body animation until its target is reached.</summary>
     internal MotherBrainWalkResult RequestWalkForwardReallySlow(int targetX) =>
-        _state.MakeBodyWalkForwards(targetX, MotherBrainBodyProgram.WalkForwardReallySlow);
+        _state.MakeBodyWalkForwards(targetX, MotherBrainBodySegment.WalkForwardReallySlow);
 
     /// <summary>Widens the beam by one and a half steps up to twelve and refreshes its angle toward Samus.</summary>
     private void IncreaseWidthAndAim(SamusState samus)
@@ -233,7 +233,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     {
         if (--_state.FunctionTimer < 0)
         {
-            _state.SetHeadProgram(MotherBrainHeadProgram.ChargingRainbowBeam);
+            _state.SetHeadAnimation(MotherBrainHeadSegment.ChargingRainbowBeam);
             _state.Phase = MotherBrainBodyFunction.SecondPhaseRainbowRetractNeck;
             return true;
         }

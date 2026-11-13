@@ -14,7 +14,7 @@ internal sealed class SkreeEntity(SkreeBehavior species, RoomEnemySlot slot, Ene
     public EnemyMainAiHandler? FindMain() => species.RunSkreeMainAi;
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => SkreeBehavior.AdvanceSkreeTypedAnimation;
+    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => SkreeBehavior.AdvanceSkreeTypedAnimation;
 
     /// <summary>The Skree's own shot reaction, which normal bombs dispatch like the common one.</summary>
     /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>

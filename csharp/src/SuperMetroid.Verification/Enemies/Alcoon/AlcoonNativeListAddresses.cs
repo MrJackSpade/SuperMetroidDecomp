@@ -14,18 +14,18 @@ internal static class AlcoonNativeListAddresses
     internal const byte Bank = 0xa8;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<AlcoonProgram>[] Entries =
+    internal static readonly NativeProgramEntry<AlcoonSegment>[] Entries =
     [
-        new NativeProgramEntry<AlcoonProgram>(AlcoonProgram.WalkingLeft, 0xdbe7),
-        new NativeProgramEntry<AlcoonProgram>(AlcoonProgram.WalkingLeftLoop, 0xdbe9),
-        new NativeProgramEntry<AlcoonProgram>(AlcoonProgram.FireLeft, 0xdc03),
-        new NativeProgramEntry<AlcoonProgram>(AlcoonProgram.AirborneLeftLookingUp, 0xdc4b),
-        new NativeProgramEntry<AlcoonProgram>(AlcoonProgram.AirborneLeftLookingForward, 0xdc51),
-        new NativeProgramEntry<AlcoonProgram>(AlcoonProgram.WalkingRight, 0xdc57),
-        new NativeProgramEntry<AlcoonProgram>(AlcoonProgram.WalkingRightLoop, 0xdc59),
-        new NativeProgramEntry<AlcoonProgram>(AlcoonProgram.FireRight, 0xdc73),
-        new NativeProgramEntry<AlcoonProgram>(AlcoonProgram.AirborneRightLookingUp, 0xdcbb),
-        new NativeProgramEntry<AlcoonProgram>(AlcoonProgram.AirborneRightLookingForward, 0xdcc1),
+        new NativeProgramEntry<AlcoonSegment>(AlcoonSegment.WalkingLeft, 0xdbe7),
+        new NativeProgramEntry<AlcoonSegment>(AlcoonSegment.WalkingLeftLoop, 0xdbe9),
+        new NativeProgramEntry<AlcoonSegment>(AlcoonSegment.FireLeft, 0xdc03),
+        new NativeProgramEntry<AlcoonSegment>(AlcoonSegment.AirborneLeftLookingUp, 0xdc4b),
+        new NativeProgramEntry<AlcoonSegment>(AlcoonSegment.AirborneLeftLookingForward, 0xdc51),
+        new NativeProgramEntry<AlcoonSegment>(AlcoonSegment.WalkingRight, 0xdc57),
+        new NativeProgramEntry<AlcoonSegment>(AlcoonSegment.WalkingRightLoop, 0xdc59),
+        new NativeProgramEntry<AlcoonSegment>(AlcoonSegment.FireRight, 0xdc73),
+        new NativeProgramEntry<AlcoonSegment>(AlcoonSegment.AirborneRightLookingUp, 0xdcbb),
+        new NativeProgramEntry<AlcoonSegment>(AlcoonSegment.AirborneRightLookingForward, 0xdcc1),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>

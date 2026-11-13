@@ -169,7 +169,7 @@ internal static class CrocomireMeltingDefinitionsVerification
     /// <summary>Loads one installed BG2 melt tilemap and compares the words his shown body shows with native words (#1515).</summary>
     internal static ushort[] VerifyInstalledCrocomireMeltingTilemap(
         CartridgeImportAddressSpace rom, ImportEnemyArtwork artwork,
-        CrocomireMeltingIllustration source, CrocomireBodyProgram bodyProgram, bool compareRom = true)
+        CrocomireMeltingIllustration source, CrocomireBodySegment bodyProgram, bool compareRom = true)
     {
         int sourceAddress = CrocomireMeltingSources.Tilemap(source);
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtwork = artwork.Bosses };

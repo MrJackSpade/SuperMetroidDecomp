@@ -196,7 +196,7 @@ internal static class RetailKraidCaptureTests
         shot.Position = shot.Position.WithWhole(new(unchecked((ushort)(body.Position.X.Whole + left + 2)), unchecked((ushort)(body.Position.Y.Whole + (top + bottom) / 2))));
         shot.Radius = new(2, 2);
         // Any live missile program marks the slot active; this staged shot only enters collision, not animation.
-        shot.Playback = SamusProjectilePrograms.Start(SamusProjectileProgram.MissileRight);
+        shot.Playback = SamusProjectilePlayback.Start(SamusProjectileSegment.MissileRight);
         shot.FrameHold = WrappingCountdown.Start(1);
         // Kraid's collision walk starts at the native projectile count; one staged shot is count one.
         shots.SlotTable.ProjectileCounter = 1;

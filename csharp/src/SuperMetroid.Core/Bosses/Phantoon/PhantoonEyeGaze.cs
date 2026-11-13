@@ -7,8 +7,8 @@ internal static class PhantoonEyeGaze
     /// <param name="direction">The direction from Phantoon in which Samus lies.</param>
     /// <returns>The eye's gaze program; the caller owns starting it and resetting its frame timer.</returns>
     /// <exception cref="InvalidDataException">The direction is not one of the eight the eye looks in.</exception>
-    internal static PhantoonPartProgram EyeProgram(CompassDirection direction) =>
-        PhantoonPatternDefinitions.EyeGazePrograms.TryGetValue(direction, out PhantoonPartProgram program)
-            ? program
+    internal static PhantoonPartSegment EyeAnimation(CompassDirection direction) =>
+        PhantoonPatternDefinitions.EyeGazeAnimations.TryGetValue(direction, out PhantoonPartSegment segment)
+            ? segment
             : throw new InvalidDataException($"Phantoon's eye has no gaze toward {direction}.");
 }

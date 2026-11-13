@@ -13,16 +13,16 @@ internal static class SbugNativeListAddresses
     internal const byte Bank = 0xa3;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<SbugProgram>[] Entries =
+    internal static readonly NativeProgramEntry<SbugSegment>[] Entries =
     [
-        new NativeProgramEntry<SbugProgram>(SbugProgram.Right, 0xa071),
-        new NativeProgramEntry<SbugProgram>(SbugProgram.UpRight, 0xa085),
-        new NativeProgramEntry<SbugProgram>(SbugProgram.Up, 0xa099),
-        new NativeProgramEntry<SbugProgram>(SbugProgram.UpLeft, 0xa0ad),
-        new NativeProgramEntry<SbugProgram>(SbugProgram.Left, 0xa0c1),
-        new NativeProgramEntry<SbugProgram>(SbugProgram.DownLeft, 0xa0d5),
-        new NativeProgramEntry<SbugProgram>(SbugProgram.Down, 0xa0e9),
-        new NativeProgramEntry<SbugProgram>(SbugProgram.DownRight, 0xa0fd),
+        new NativeProgramEntry<SbugSegment>(SbugSegment.Right, 0xa071),
+        new NativeProgramEntry<SbugSegment>(SbugSegment.UpRight, 0xa085),
+        new NativeProgramEntry<SbugSegment>(SbugSegment.Up, 0xa099),
+        new NativeProgramEntry<SbugSegment>(SbugSegment.UpLeft, 0xa0ad),
+        new NativeProgramEntry<SbugSegment>(SbugSegment.Left, 0xa0c1),
+        new NativeProgramEntry<SbugSegment>(SbugSegment.DownLeft, 0xa0d5),
+        new NativeProgramEntry<SbugSegment>(SbugSegment.Down, 0xa0e9),
+        new NativeProgramEntry<SbugSegment>(SbugSegment.DownRight, 0xa0fd),
     ];
 
 }

@@ -246,12 +246,12 @@ internal sealed class EyeDoorBehavior
         int placementIndex,
         Position16<RoomBlocks> block)
     {
-        MiscDustProjectileProgram program = MiscDustProjectiles.Program(animation);
+        MiscDustProjectileSegment segment = MiscDustProjectiles.Animation(animation);
         MiscDustPlacementDefinition placement = MiscDustProjectiles.SmokePlacement(placementIndex);
 
         int random = _room.Random.Read();
         // Stores only the program, keeping the definition's one-update timer.
-        projectile.InstallAnimation(new MiscDustProjectileAnimation(program));
+        projectile.InstallAnimation(new MiscDustProjectileAnimation(segment));
 
         projectile.Position = projectile.Position.WithWhole(block.ToRoomPixels() + new Offset16<RoomPixels>(
             CoordinateAxis.AsSigned(8 + placement.Base.X + placement.XScatter.Of(random)),
@@ -296,7 +296,7 @@ internal sealed class EyeDoorBehavior
             projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole - 4);
             // The floor splash stops the drop's movement, as the list switch does.
             projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
-            projectile.StartAnimation(new EyeDoorSweatAnimation(EyeDoorSweatProgram.HitFloor));
+            projectile.StartAnimation(new EyeDoorSweatAnimation(EyeDoorSweatSegment.HitFloor));
             return;
         }
 
@@ -317,7 +317,7 @@ internal sealed class EyeDoorBehavior
     private static void StartEyeDoorProjectileImpact(EnemyProjectile projectile)
     {
         projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
-        projectile.StartAnimation(new EyeDoorProjectileAnimation(EyeDoorProjectileProgram.Impact));
+        projectile.StartAnimation(new EyeDoorProjectileAnimation(EyeDoorProjectileSegment.Impact));
     }
 
     /// <summary>Carries out one cue of the eye-door shot's programs.</summary>
@@ -480,7 +480,7 @@ internal sealed class EyeDoorBehavior
     {
         table.AddCue<EyeDoorProjectileCue>((context, cue) => ApplyEyeDoorProjectileCue(context.Projectile, context.Samus?.RoomView, cue));
         // A shot eye-door projectile runs its typed shot program, the list its definition names.
-        table.AddShotAnimation(RoomEnemyProjectileKind.EyeDoorProjectile, () => new EyeDoorProjectileAnimation(EyeDoorProjectileProgram.Shot));
+        table.AddShotAnimation(RoomEnemyProjectileKind.EyeDoorProjectile, () => new EyeDoorProjectileAnimation(EyeDoorProjectileSegment.Shot));
 
         table.AddFrameBehavior(context =>
         {

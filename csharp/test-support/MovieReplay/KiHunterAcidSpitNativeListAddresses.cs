@@ -11,11 +11,11 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 internal static class KiHunterAcidSpitNativeListAddresses
 {
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<KiHunterAcidSpitProgram>[] Entries =
+    internal static readonly NativeProgramEntry<KiHunterAcidSpitSegment>[] Entries =
     [
-        new NativeProgramEntry<KiHunterAcidSpitProgram>(KiHunterAcidSpitProgram.Left, 0xcf34),
-        new NativeProgramEntry<KiHunterAcidSpitProgram>(KiHunterAcidSpitProgram.HitFloor, 0xcf56),
-        new NativeProgramEntry<KiHunterAcidSpitProgram>(KiHunterAcidSpitProgram.Right, 0xcf6e),
+        new NativeProgramEntry<KiHunterAcidSpitSegment>(KiHunterAcidSpitSegment.Left, 0xcf34),
+        new NativeProgramEntry<KiHunterAcidSpitSegment>(KiHunterAcidSpitSegment.HitFloor, 0xcf56),
+        new NativeProgramEntry<KiHunterAcidSpitSegment>(KiHunterAcidSpitSegment.Right, 0xcf6e),
     ];
 
     /// <summary>The bank-$86 bytes the lists occupy, $86:CF34-CF8F, which production must never read.</summary>

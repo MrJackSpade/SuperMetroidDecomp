@@ -75,7 +75,7 @@ internal static class DemoInputNativeListAddresses
 
     /// <summary>A title demonstration's native object: its first watch's pre-instruction word and its program.</summary>
     private static Object Title(ushort header, AttractDemoInputDefinition input) =>
-        new(header, WatchAddress(input.FirstWatch), input.Program);
+        new(header, WatchAddress(input.FirstWatch), input.Animation);
 
     /// <summary>
     /// The recordings whose loop the cartridge authors as a list of its own, which the recording's last list runs on into

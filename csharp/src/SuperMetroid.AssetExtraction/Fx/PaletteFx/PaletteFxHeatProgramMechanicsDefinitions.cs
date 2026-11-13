@@ -22,19 +22,19 @@ public static class PaletteFxHeatProgramMechanicsDefinitions
     private static readonly PaletteFxHeatProgramDefinition Power = new()
     {
         Suit = PaletteFxHeatSuit.Power,
-        ColorFrames = PaletteFxColorFrames.Of(PaletteFxProgram.SamusInHeatPowerSuitPulse, PaletteFxHeatProgramDefinition.ColorsPerFrame),
+        ColorFrames = PaletteFxColorFrames.Of(PaletteFxSegment.SamusInHeatPowerSuitPulse, PaletteFxHeatProgramDefinition.ColorsPerFrame),
     };
     /// <summary>Compiled heat palette control for the Varia Suit.</summary>
     private static readonly PaletteFxHeatProgramDefinition Varia = new()
     {
         Suit = PaletteFxHeatSuit.Varia,
-        ColorFrames = PaletteFxColorFrames.Of(PaletteFxProgram.SamusInHeatVariaSuitPulse, PaletteFxHeatProgramDefinition.ColorsPerFrame),
+        ColorFrames = PaletteFxColorFrames.Of(PaletteFxSegment.SamusInHeatVariaSuitPulse, PaletteFxHeatProgramDefinition.ColorsPerFrame),
     };
     /// <summary>Compiled heat palette control for the Gravity Suit.</summary>
     private static readonly PaletteFxHeatProgramDefinition Gravity = new()
     {
         Suit = PaletteFxHeatSuit.Gravity,
-        ColorFrames = PaletteFxColorFrames.Of(PaletteFxProgram.SamusInHeatGravitySuitPulse, PaletteFxHeatProgramDefinition.ColorsPerFrame),
+        ColorFrames = PaletteFxColorFrames.Of(PaletteFxSegment.SamusInHeatGravitySuitPulse, PaletteFxHeatProgramDefinition.ColorsPerFrame),
     };
 
     /// <summary>The Power, Varia, and Gravity programs in selection order.</summary>

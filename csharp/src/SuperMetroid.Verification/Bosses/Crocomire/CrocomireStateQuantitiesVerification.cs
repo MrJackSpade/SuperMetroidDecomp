@@ -61,8 +61,8 @@ internal static class CrocomireStateQuantitiesVerification
             (RoomEnemySystem enemies, CrocomireEnemyState state) = NewCrocomire();
             state.FightFunction = CrocomireFightFunction.PowerBombCharge;
             state.StepCounter = start;
-            state.BodyPlayback = new AnimationPlayback<CrocomireBodyProgram>(CrocomireBodyAnimations.StartingWith(CrocomireBodyProgram.Initial), AnimationPlace.StartOfAnimation);
-            state.Body.FrameHold = WrappingCountdown.Start(1);
+            state.BodyPlayback = new AnimationPlayback<CrocomireBodySegment>(CrocomireBodyAnimations.StartingWith(CrocomireBodySegment.Initial), AnimationPlace.StartOfAnimation);
+            state.Body.AnimationClock.StepOnNextUpdate();
             // The initial program shows its frame on the first update and runs its fight-AI cue on every later one.
             Pass(enemies, state);
 
@@ -276,7 +276,7 @@ internal static class CrocomireStateQuantitiesVerification
         AssertEqual(CrocomireDeathPhase.ArcSkeletonIntoArena.Next(), state.DeathPhase, "the arc ends past X 576");
 
         // The collapse keeps accelerating the speed, clamped at six pixels, while the skeleton falls apart.
-        state.BodyPlayback = new AnimationPlayback<CrocomireBodyProgram>(CrocomireBodyAnimations.StartingWith(CrocomireBodyProgram.SkeletonFallsApart), AnimationPlace.StartOfAnimation);
+        state.BodyPlayback = new AnimationPlayback<CrocomireBodySegment>(CrocomireBodyAnimations.StartingWith(CrocomireBodySegment.SkeletonFallsApart), AnimationPlace.StartOfAnimation);
         for (int frame = 1; frame <= 20; frame++)
         {
             NativeAccelerate(ref fraction, ref whole, (uint)SixteenSixteen.FromEightEight(16), 6);
@@ -356,7 +356,7 @@ internal static class CrocomireStateQuantitiesVerification
     private static void Pass(RoomEnemySystem enemies, CrocomireEnemyState state)
     {
         enemies.Audio.BeginFrame();
-        EnemyInstructionInterpreter.RunsAnimationScript(state.Body, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
+        EnemyAnimationPlayer.AdvanceAnimation(state.Body, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
     }
 
     /// <summary>Runs Crocomire's state-quantity checks from the command dispatcher.</summary>

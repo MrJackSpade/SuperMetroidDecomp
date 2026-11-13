@@ -27,7 +27,7 @@ internal static class IntroRinkaDefinitions
     /// frames or adjacent visual data.
     /// </remarks>
     public static CinematicActorDefinition RinkaActor =>
-        new(CinematicSpriteFrameBehavior.NoOp, CinematicSpriteProgram.IntroRinka);
+        new(CinematicSpriteFrameBehavior.NoOp, CinematicSpriteSegment.IntroRinka);
 
     /// <summary>The Rinka spawner's empty callbacks and initial animation.</summary>
     /// <remarks>
@@ -43,7 +43,7 @@ internal static class IntroRinkaDefinitions
     /// recurrence or infer a third wave from adjacent data.
     /// </remarks>
     public static CinematicActorDefinition SpawnerActor =>
-        new(CinematicSpriteFrameBehavior.NoOp, CinematicSpriteProgram.IntroRinkaSpawner);
+        new(CinematicSpriteFrameBehavior.NoOp, CinematicSpriteSegment.IntroRinkaSpawner);
 
     /// <summary>The values <see cref="IntroRinkaLaunches.Rinka"/> selects, in index order.</summary>
     internal static readonly IntroRinkaPhysicalDefinition[] Rinkas =

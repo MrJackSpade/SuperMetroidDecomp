@@ -14,5 +14,5 @@ internal sealed class SkulteraEntity(SkulteraBehavior species, RoomEnemySlot slo
     public EnemyMainAiHandler? FindMain() => species.RunSkulteraMainAi;
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => SkulteraBehavior.AdvanceSkulteraTypedAnimation;
+    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => SkulteraBehavior.AdvanceSkulteraTypedAnimation;
 }

@@ -46,12 +46,12 @@ internal static class CrawlerBehaviorVerification
             else
                 CrawlersBehavior.InitializeCrawler(slot, family, speciesSurfaceFamily);
             CrawlerEnemyState state = enemies.CrawlerStates[0] ?? throw new InvalidOperationException("The crawler has no state.");
-            CrawlerProgram program = CrawlerSurfaceAnimations.ProgramFor(family, orientation);
+            CrawlerSegment program = CrawlerSurfaceAnimations.AnimationFor(family, orientation);
             string context = $"{family} {orientation}";
-            AssertEqual(new AnimationPlayback<CrawlerProgram>(CrawlerAnimations.StartingWith(program), AnimationPlace.StartOfAnimation), state.Playback, $"{context} starts its surface animation");
+            AssertEqual(new AnimationPlayback<CrawlerSegment>(CrawlerAnimations.StartingWith(program), AnimationPlace.StartOfAnimation), state.Playback, $"{context} starts its surface animation");
 
             // The surface animation runs on into the loop it then repeats.
-            CrawlerProgram loop = CrawlerAnimations.StartingWith(program).Phases[^1].Segment;
+            CrawlerSegment loop = CrawlerAnimations.StartingWith(program).Phases[^1].Segment;
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(CrawlerAnimations.Segments, loop, CrawlerFrameToolingDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(CrawlerAnimations.Segments, loop)), $"{context} loop");
             bool sideWall = orientation is CrawlerSurfaceOrientation.UpsideRight or CrawlerSurfaceOrientation.UpsideLeft;

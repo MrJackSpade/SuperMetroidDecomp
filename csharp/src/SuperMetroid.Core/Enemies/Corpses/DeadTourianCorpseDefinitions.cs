@@ -14,20 +14,20 @@ internal static class DeadTourianCorpseDefinitions
     {
         [DeadTourianCorpseSpecies.Zoomer] =
         [
-            new(DeadTourianProgram.ZoomerCorpse0, 16),
-            new(DeadTourianProgram.ZoomerCorpse1, 16),
-            new(DeadTourianProgram.ZoomerCorpse2, 16),
+            new(DeadTourianSegment.ZoomerCorpse0, 16),
+            new(DeadTourianSegment.ZoomerCorpse1, 16),
+            new(DeadTourianSegment.ZoomerCorpse2, 16),
         ],
         [DeadTourianCorpseSpecies.Ripper] =
         [
-            new(DeadTourianProgram.RipperCorpse0, 16),
-            new(DeadTourianProgram.RipperCorpse1, 16),
+            new(DeadTourianSegment.RipperCorpse0, 16),
+            new(DeadTourianSegment.RipperCorpse1, 16),
         ],
         [DeadTourianCorpseSpecies.Skree] =
         [
-            new(DeadTourianProgram.SkreeCorpse0, 32),
-            new(DeadTourianProgram.SkreeCorpse1, 32),
-            new(DeadTourianProgram.SkreeCorpse2, 32),
+            new(DeadTourianSegment.SkreeCorpse0, 32),
+            new(DeadTourianSegment.SkreeCorpse1, 32),
+            new(DeadTourianSegment.SkreeCorpse2, 32),
         ],
     };
 }

@@ -22,5 +22,5 @@ public static class TitleLogoFadePaletteFxColorDefinitions
     public const int ColorsPerFrame = 15;
 
     /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
-    public static PaletteFxColorFrames ColorFrames { get; } = PaletteFxColorFrames.Of(PaletteFxProgram.FadeInSuperMetroidTitleLogo, ColorsPerFrame);
+    public static PaletteFxColorFrames ColorFrames { get; } = PaletteFxColorFrames.Of(PaletteFxSegment.FadeInSuperMetroidTitleLogo, ColorsPerFrame);
 }

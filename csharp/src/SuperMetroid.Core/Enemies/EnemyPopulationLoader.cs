@@ -63,7 +63,7 @@ internal sealed class EnemyPopulationLoader
             // Loading replaces whatever frame the initialization AI showed: an animated enemy shows the empty frame until
             // its first animation tick replaces it, and one that collides by its frames' hitboxes collides at the point
             // at its origin meanwhile. An enemy without an animation shows no frame.
-            slot.Frame = slot.Processing.HasAny(EnemyProcessing.AnimationScript)
+            slot.Frame = slot.Processing.HasAny(EnemyProcessing.Animates)
                 ? EnemyFrameId.Empty
                 : null;
 

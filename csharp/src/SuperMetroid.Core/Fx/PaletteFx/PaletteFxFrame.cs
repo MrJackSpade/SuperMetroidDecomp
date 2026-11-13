@@ -6,4 +6,4 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// </summary>
 /// <param name="Animation">The program that shows the frame.</param>
 /// <param name="Frame">The frame's place among the frames <paramref name="Animation"/> shows, from zero.</param>
-public readonly record struct PaletteFxFrame(PaletteFxProgram Animation, int Frame);
+public readonly record struct PaletteFxFrame(PaletteFxSegment Animation, int Frame);

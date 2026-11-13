@@ -95,7 +95,7 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
 
         AssertTrue(sawLeftFireball && sawRightFireball,
             "real Alcoon programs execute fire callbacks in both facings");
-        var poses = Enum.GetValues<AlcoonProgram>()
+        var poses = Enum.GetValues<AlcoonSegment>()
             .SelectMany(program => AlcoonAnimations.Segments.Beats(program)
                 .Select((beat, index) => new AlcoonInstructionProgramDefinitionsPose(Program:program, Step:index, Shows:beat.ShownFrame is not null)))
             .Where(step => step.Shows)
@@ -105,7 +105,7 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
         AssertEqual(44, poses.Count, "the Alcoon's programs author 44 poses");
         AssertEqual(42, reachedPoses.Count, $"real Alcoon reaches every reachable pose; missing={missed}");
         AssertTrue(poses.Except(reachedPoses).All(pose =>
-                pose.Program is AlcoonProgram.FireLeft or AlcoonProgram.FireRight &&
+                pose.Program is AlcoonSegment.FireLeft or AlcoonSegment.FireRight &&
                 AlcoonAnimations.Segments.Beats(pose.Program)[pose.Step - 1] is AnimationBeat<EnemyFrameId, AlcoonCue>.Event cue &&
                 cue.Raised.Kind == AlcoonCueKind.StartWalking),
             "native start-walking cues skip the two trailing unreachable poses");

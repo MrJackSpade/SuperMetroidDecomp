@@ -14,13 +14,13 @@ internal static class CacatacNativeListAddresses
     internal const byte Bank = 0xa2;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<CacatacProgram>[] Entries =
+    internal static readonly NativeProgramEntry<CacatacSegment>[] Entries =
     [
-        new NativeProgramEntry<CacatacProgram>(CacatacProgram.UpsideUpIdle, 0x9e8a),
-        new NativeProgramEntry<CacatacProgram>(CacatacProgram.UpsideUpAttack, 0x9eb0),
-        new NativeProgramEntry<CacatacProgram>(CacatacProgram.UpsideDownIdle, 0x9eda),
-        new NativeProgramEntry<CacatacProgram>(CacatacProgram.UpsideDownIdleLoop, 0x9edc),
-        new NativeProgramEntry<CacatacProgram>(CacatacProgram.UpsideDownAttack, 0x9f00),
+        new NativeProgramEntry<CacatacSegment>(CacatacSegment.UpsideUpIdle, 0x9e8a),
+        new NativeProgramEntry<CacatacSegment>(CacatacSegment.UpsideUpAttack, 0x9eb0),
+        new NativeProgramEntry<CacatacSegment>(CacatacSegment.UpsideDownIdle, 0x9eda),
+        new NativeProgramEntry<CacatacSegment>(CacatacSegment.UpsideDownIdleLoop, 0x9edc),
+        new NativeProgramEntry<CacatacSegment>(CacatacSegment.UpsideDownAttack, 0x9f00),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>

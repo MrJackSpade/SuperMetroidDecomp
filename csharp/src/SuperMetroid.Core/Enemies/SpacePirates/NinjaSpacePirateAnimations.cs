@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
 using K = SuperMetroid.Core.Enemies.SpacePirates.NinjaSpacePirateCueKind;
-using P = SuperMetroid.Core.Enemies.SpacePirates.NinjaSpacePirateProgram;
+using P = SuperMetroid.Core.Enemies.SpacePirates.NinjaSpacePirateSegment;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.SpacePirates;
@@ -13,8 +13,8 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 internal static class NinjaSpacePirateAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<NinjaSpacePirateProgram, EnemyFrameId, NinjaSpacePirateCue> Segments { get; } = new(
-        new Dictionary<NinjaSpacePirateProgram, AnimationBeat<EnemyFrameId, NinjaSpacePirateCue>[]>
+    internal static AnimationSegments<NinjaSpacePirateSegment, EnemyFrameId, NinjaSpacePirateCue> Segments { get; } = new(
+        new Dictionary<NinjaSpacePirateSegment, AnimationBeat<EnemyFrameId, NinjaSpacePirateCue>[]>
     {
         [P.ClawAttackLeft] =
         [
@@ -317,7 +317,7 @@ internal static class NinjaSpacePirateAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<NinjaSpacePirateProgram, Animation<NinjaSpacePirateProgram>> StartingAt { get; } = new Dictionary<NinjaSpacePirateProgram, Animation<NinjaSpacePirateProgram>>
+    internal static IReadOnlyDictionary<NinjaSpacePirateSegment, Animation<NinjaSpacePirateSegment>> StartingAt { get; } = new Dictionary<NinjaSpacePirateSegment, Animation<NinjaSpacePirateSegment>>
     {
         [P.ClawAttackLeft] = new([new(P.ClawAttackLeft, 0, 23, 1), new(P.ActiveFacingLeft, 0, 1, 1), new(P.ActiveFacingLeftLoop, 0, 6, 1)], AnimationEnd.LoopsFrom(2)),
         [P.SpinJumpLeft] = new([new(P.SpinJumpLeft, 0, 16, 1), new(P.SpinJumpLeftLoop, 0, 9, 1)], AnimationEnd.LoopsFrom(1)),
@@ -354,7 +354,7 @@ internal static class NinjaSpacePirateAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<NinjaSpacePirateProgram> StartingWith(NinjaSpacePirateProgram segment) => StartingAt[segment];
+    internal static Animation<NinjaSpacePirateSegment> StartingWith(NinjaSpacePirateSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NinjaSpacePirateCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NinjaSpacePirateCue>.Frame(frame, duration);

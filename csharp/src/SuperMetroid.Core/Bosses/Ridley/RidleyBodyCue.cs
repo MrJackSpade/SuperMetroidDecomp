@@ -12,11 +12,11 @@ internal abstract record RidleyBodyCue
     /// In Ceres, when Samus has under 30 energy, shortens the hover to eight updates and continues at the cue's target.
     /// </summary>
     /// <param name="Target">The program the cue continues at.</param>
-    internal sealed record GoToIfCeresAndSamusLowEnergy(RidleyBodyProgram Target) : RidleyBodyCue;
+    internal sealed record GoToIfCeresAndSamusLowEnergy(RidleyBodySegment Target) : RidleyBodyCue;
 
     /// <summary>Continues at the cue's target unless Ridley faces left.</summary>
     /// <param name="Target">The program the cue continues at.</param>
-    internal sealed record GoToUnlessFacingLeft(RidleyBodyProgram Target) : RidleyBodyCue;
+    internal sealed record GoToUnlessFacingLeft(RidleyBodySegment Target) : RidleyBodyCue;
 
     /// <summary>Moves Ridley by the cue's displacement.</summary>
     /// <param name="Displacement">How far a <see cref="Move"/> cue moves Ridley.</param>

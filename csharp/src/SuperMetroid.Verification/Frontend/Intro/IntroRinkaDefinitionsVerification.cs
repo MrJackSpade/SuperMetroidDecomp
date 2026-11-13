@@ -27,7 +27,7 @@ internal static class IntroRinkaDefinitionsVerification
             int address = IntroRinkaDefinitions.NativeBank | actors[index].NativePointer;
             AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((address + 2)), actual.FrameBehavior.NativeAddress,
                 $"intro Rinka actor {index} pre-instruction callback");
-            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Entry(actual.Program),
+            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Entry(actual.Animation),
                 $"intro Rinka actor {index} instruction list");
         }
 

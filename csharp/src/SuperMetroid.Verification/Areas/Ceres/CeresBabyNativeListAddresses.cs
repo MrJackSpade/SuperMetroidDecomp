@@ -11,8 +11,8 @@ internal static class CeresBabyNativeListAddresses
     /// <summary>Each program's native entry: <c>InstList_BabyMetroidCutscene_0</c> and <c>_1</c>.</summary>
     internal static readonly CeresBabyNativeListAddressesEntry[] Entries =
     [
-        new CeresBabyNativeListAddressesEntry(CeresBabyProgram.Initial, 0xbf31),
-        new CeresBabyNativeListAddressesEntry(CeresBabyProgram.ExpressiveLoop, 0xbf59),
+        new CeresBabyNativeListAddressesEntry(CeresBabySegment.Initial, 0xbf31),
+        new CeresBabyNativeListAddressesEntry(CeresBabySegment.ExpressiveLoop, 0xbf59),
     ];
 
     /// <summary>The draw list's instructions: the cue variant each becomes, or null for its goto.</summary>

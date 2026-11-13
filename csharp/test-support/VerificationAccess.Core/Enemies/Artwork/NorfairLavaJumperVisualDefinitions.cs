@@ -17,7 +17,7 @@ internal static class NorfairLavaJumperVisualDefinitions
     /// <summary>Deduplicates the frames the parent and follower programs (#641) show, in first-shown order.</summary>
     internal static NativeEnemySpritemapDefinition[] Frames()
     {
-        var frames = NorfairLavaJumperAnimationsConstants.Spritemaps(Enum.GetValues<NorfairLavaJumperProgram>()).Distinct()
+        var frames = NorfairLavaJumperAnimationsConstants.Spritemaps(Enum.GetValues<NorfairLavaJumperSegment>()).Distinct()
             .Select(pointer => new NativeEnemySpritemapDefinition(Bank, pointer, $"norfair_lava_jumper_{pointer:x4}")).ToArray();
         if (frames.Length != FrameCount)
             throw new InvalidDataException(

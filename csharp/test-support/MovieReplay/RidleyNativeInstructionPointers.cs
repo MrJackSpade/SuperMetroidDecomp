@@ -15,9 +15,9 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 internal sealed class RidleyNativeInstructionPointers
 {
     /// <summary>Each body segment's beat and control addresses.</summary>
-    private readonly Dictionary<RidleyBodyProgram, NativeEnemyList<RidleyBodyProgram>> body;
+    private readonly Dictionary<RidleyBodySegment, NativeEnemyList<RidleyBodySegment>> body;
     /// <summary>Each fireball segment's beat and control addresses.</summary>
-    private readonly Dictionary<RidleyFireballProgram, NativeEnemyList<RidleyFireballProgram>> fireball;
+    private readonly Dictionary<RidleyFireballSegment, NativeEnemyList<RidleyFireballSegment>> fireball;
     /// <summary>Each typed enemy-projectile family's pointer translation.</summary>
     private readonly Func<EnemyProjectileAnimation, ushort?>[] projectileFamilies;
     /// <summary>The source room's Pipe Bugs' pointer translation.</summary>
@@ -38,7 +38,7 @@ internal sealed class RidleyNativeInstructionPointers
         NativeEnemyAnimationOracle.PointerOf(body, RidleyNativeProgramOracle.BodyListEntries, RidleyAnimations.StartingAt, state.BodyPlayback);
 
     /// <summary>The native entry point of body <paramref name="program"/>.</summary>
-    internal static ushort BodyEntry(RidleyBodyProgram program) =>
+    internal static ushort BodyEntry(RidleyBodySegment program) =>
         RidleyNativeListAddresses.BodyEntries.Single(item => item.Program == program).Entry;
 
     /// <summary>The native instruction pointer of <paramref name="actor"/>, which must keep a translated cursor.</summary>
@@ -83,7 +83,7 @@ internal sealed class RidleyNativeInstructionPointers
     /// The body playback a recording's native pointer <paramref name="address"/> stands for: the start of the animation
     /// starting at a list whose entry it is, otherwise the beat or the list end it stands at.
     /// </summary>
-    internal AnimationPlayback<RidleyBodyProgram> BodyPlaybackAt(ushort address) =>
+    internal AnimationPlayback<RidleyBodySegment> BodyPlaybackAt(ushort address) =>
         NativeEnemyAnimationOracle.PlaybackAt(body, RidleyNativeProgramOracle.BodyListEntries, RidleyAnimations.StartingAt, address);
 
     /// <summary>Ridley's encounter state.</summary>

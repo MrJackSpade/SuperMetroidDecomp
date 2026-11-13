@@ -14,7 +14,7 @@ internal sealed class RoomColourEffect
     /// <summary>Starts <paramref name="effect"/> playing the animation that starts at <paramref name="segment"/>, due on its first turn.</summary>
     /// <param name="effect">What the effect shows.</param>
     /// <param name="segment">The segment its animation starts at.</param>
-    internal RoomColourEffect(PaletteFxObject effect, PaletteFxProgram segment)
+    internal RoomColourEffect(PaletteFxObject effect, PaletteFxSegment segment)
     {
         Effect = effect;
         Animation = PaletteFxAnimations.StartingWith(segment);
@@ -32,7 +32,7 @@ internal sealed class RoomColourEffect
     internal ColourEffectCondition? Condition { get; set; }
 
     /// <summary>The animation the effect plays.</summary>
-    internal Animation<PaletteFxProgram> Animation { get; private set; }
+    internal Animation<PaletteFxSegment> Animation { get; private set; }
 
     /// <summary>Where the effect stands in its animation: the phase, and the phase's next beat.</summary>
     internal AnimationPlace Place { get; set; }
@@ -66,7 +66,7 @@ internal sealed class RoomColourEffect
     internal void End() => Ended = true;
 
     /// <summary>Restarts the effect playing <paramref name="animation"/> from <paramref name="place"/>, due on this turn.</summary>
-    internal void Restart(Animation<PaletteFxProgram> animation, AnimationPlace place)
+    internal void Restart(Animation<PaletteFxSegment> animation, AnimationPlace place)
     {
         Animation = Ensure.NotNull(animation);
         Place = place;
@@ -74,7 +74,7 @@ internal sealed class RoomColourEffect
     }
 
     /// <summary>Restarts the effect at the start of <paramref name="animation"/>, due on this turn.</summary>
-    internal void Restart(Animation<PaletteFxProgram> animation)
+    internal void Restart(Animation<PaletteFxSegment> animation)
     {
         Animation = Ensure.NotNull(animation);
         Place = AnimationPlace.StartOfAnimation;
@@ -95,7 +95,7 @@ internal sealed class RoomColourEffect
         Ensure.NotNull(carryOut);
         AnimationPlace place = Place;
         WrappingCountdown repeats = Repeats;
-        AnimationShown<PaletteFxProgram, int> shown = PaletteFxSegments.All.PlayToNextFrame(Animation, ref place, ref repeats, cue =>
+        AnimationShown<PaletteFxSegment, int> shown = PaletteFxSegments.All.PlayToNextFrame(Animation, ref place, ref repeats, cue =>
         {
             switch (cue)
             {
@@ -116,11 +116,11 @@ internal sealed class RoomColourEffect
         Repeats = repeats;
         switch (shown)
         {
-            case AnimationShown<PaletteFxProgram, int>.Frame frame:
+            case AnimationShown<PaletteFxSegment, int>.Frame frame:
                 UpdatesUntilNextStep = frame.Duration;
                 Frame = new PaletteFxFrame(frame.Segment, frame.Shown);
                 return Frame;
-            case AnimationShown<PaletteFxProgram, int>.Ended:
+            case AnimationShown<PaletteFxSegment, int>.Ended:
                 End();
                 Settled = true;
                 return null;

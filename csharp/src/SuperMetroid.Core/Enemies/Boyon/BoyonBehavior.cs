@@ -20,7 +20,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new BoyonEntity(this, slot, common);
 
     /// <summary>Carries out one cue of Boyon's animations.</summary>
-    private BoyonProgram? ApplyBoyonCue(RoomEnemySlot slot, BoyonEnemyState state, BoyonCue cue)
+    private BoyonSegment? ApplyBoyonCue(RoomEnemySlot slot, BoyonEnemyState state, BoyonCue cue)
     {
         switch (cue.Kind)
         {
@@ -71,7 +71,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
             BounceSpeedCalculated = false,
         };
         slot.SetSpeciesState(state);
-        SetBoyonProgram(slot, state, BoyonProgram.Idle);
+        SetBoyonAnimation(slot, state, BoyonSegment.Idle);
     }
 
     /// <summary>Runs the Boyon's main AI.</summary>
@@ -101,7 +101,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
             if (!state.Bouncing)
             {
                 state.Bouncing = true;
-                SetBoyonProgram(slot, state, BoyonProgram.Bouncing);
+                SetBoyonAnimation(slot, state, BoyonSegment.Bouncing);
             }
         }
         else if (state.BounceDisabled)
@@ -111,7 +111,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
             if (!state.IdleDisabled)
             {
                 state.IdleDisabled = true;
-                SetBoyonProgram(slot, state, BoyonProgram.Idle);
+                SetBoyonAnimation(slot, state, BoyonSegment.Idle);
             }
             return;
         }
@@ -199,11 +199,9 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Starts the idle or bounce animation and restarts its frame and auxiliary timers.</summary>
-    private static void SetBoyonProgram(RoomEnemySlot slot, BoyonEnemyState state, BoyonProgram program)
+    private static void SetBoyonAnimation(RoomEnemySlot slot, BoyonEnemyState state, BoyonSegment segment)
     {
-        state.Playback = new(BoyonAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        state.Playback = EnemyAnimationPlayback.Start(slot, BoyonAnimations.StartingWith(segment));
     }
 
     /// <summary>The bounce cue: permit the arc and request the bounce sound.</summary>
@@ -214,10 +212,10 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs Boyon's idle and bouncing loops as typed programs (#641).</summary>
-    internal void AdvanceBoyonAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, BoyonAnimations.Segments,
+    internal void AdvanceBoyonAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(slot, BoyonAnimations.Segments,
             static (BoyonEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyBoyonCue(slot, state, cue) is { } target
-                ? new AnimationContinuation<BoyonProgram>(BoyonAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
+                ? new AnimationContinuation<BoyonSegment>(BoyonAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
 }

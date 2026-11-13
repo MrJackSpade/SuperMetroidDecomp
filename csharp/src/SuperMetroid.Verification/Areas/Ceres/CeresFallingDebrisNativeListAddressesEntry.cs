@@ -7,4 +7,4 @@ namespace SuperMetroid.Verification.Areas.Ceres;
 /// <param name="Program">The program.</param>
 /// <param name="Kind">The kind.</param>
 /// <param name="Entry">The entry.</param>
-internal readonly record struct CeresFallingDebrisNativeListAddressesEntry(CeresFallingDebrisProgram Program, RoomEnemyProjectileKind Kind, ushort Entry);
+internal readonly record struct CeresFallingDebrisNativeListAddressesEntry(CeresFallingDebrisSegment Program, RoomEnemyProjectileKind Kind, ushort Entry);

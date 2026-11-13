@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Programs;
-using P = SuperMetroid.Core.Enemies.Nuclear.NuclearWaffleProjectileProgram;
+using P = SuperMetroid.Core.Enemies.Nuclear.NuclearWaffleProjectileSegment;
 using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Core.Enemies.Nuclear;
@@ -11,8 +11,8 @@ namespace SuperMetroid.Core.Enemies.Nuclear;
 internal static class NuclearWaffleProjectileAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<NuclearWaffleProjectileProgram, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
-        new Dictionary<NuclearWaffleProjectileProgram, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>
+    internal static AnimationSegments<NuclearWaffleProjectileSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
+        new Dictionary<NuclearWaffleProjectileSegment, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>
     {
         [P.Initial] =
         [
@@ -32,13 +32,13 @@ internal static class NuclearWaffleProjectileAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<NuclearWaffleProjectileProgram, Animation<NuclearWaffleProjectileProgram>> StartingAt { get; } = new Dictionary<NuclearWaffleProjectileProgram, Animation<NuclearWaffleProjectileProgram>>
+    internal static IReadOnlyDictionary<NuclearWaffleProjectileSegment, Animation<NuclearWaffleProjectileSegment>> StartingAt { get; } = new Dictionary<NuclearWaffleProjectileSegment, Animation<NuclearWaffleProjectileSegment>>
     {
         [P.Initial] = new([new(P.Initial, 0, 12, 1)], AnimationEnd.LoopsFrom(0)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<NuclearWaffleProjectileProgram> StartingWith(NuclearWaffleProjectileProgram segment) => StartingAt[segment];
+    internal static Animation<NuclearWaffleProjectileSegment> StartingWith(NuclearWaffleProjectileSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);

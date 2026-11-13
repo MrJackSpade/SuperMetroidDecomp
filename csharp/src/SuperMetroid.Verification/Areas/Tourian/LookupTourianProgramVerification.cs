@@ -57,17 +57,17 @@ internal static class LookupTourianProgramVerification
         ISnesAddressSpace rom, ushort header, TourianStatueAnimationDefinition definition)
     {
         var instructions = OriginalTourianInstructions(rom, header).ToList();
-        Dictionary<ushort, TourianStatueTileProgram> labels = ProgramLabels(rom, instructions);
-        var expected = new Dictionary<TourianStatueTileProgram, List<Beat>>();
+        Dictionary<ushort, TourianStatueTileSegment> labels = ProgramLabels(rom, instructions);
+        var expected = new Dictionary<TourianStatueTileSegment, List<Beat>>();
         // The list each segment's list continues at when it jumps or runs on, or null where it deletes.
-        var continues = new Dictionary<TourianStatueTileProgram, TourianStatueTileProgram?>();
+        var continues = new Dictionary<TourianStatueTileSegment, TourianStatueTileSegment?>();
         List<Beat>? current = null;
-        TourianStatueTileProgram currentLabel = default;
+        TourianStatueTileSegment currentLabel = default;
         int frames = 0;
         foreach (var instruction in instructions)
         {
             string at = $"{definition.Statue} statue at $87:{instruction.Cursor:X4}";
-            if (labels.TryGetValue(instruction.Cursor, out TourianStatueTileProgram label))
+            if (labels.TryGetValue(instruction.Cursor, out TourianStatueTileSegment label))
             {
                 // A list that has not jumped or deleted runs on into the next authored one.
                 if (current is not null)
@@ -172,11 +172,11 @@ internal static class LookupTourianProgramVerification
         AssertEqual(9, frames, $"{definition.Statue} statue: nine native timed frames");
 
         int compared = 0;
-        AssertEqual(Enum.GetValues<TourianStatueTileProgram>().Length, expected.Count,
+        AssertEqual(Enum.GetValues<TourianStatueTileSegment>().Length, expected.Count,
             $"{definition.Statue} statue: every typed segment is a native list entry");
-        AnimationSegments<TourianStatueTileProgram, TourianStatueTilePicture, TourianStatueTileCue> segments =
+        AnimationSegments<TourianStatueTileSegment, TourianStatueTilePicture, TourianStatueTileCue> segments =
             TourianStatueTileAnimations.SegmentsFor(definition.FirstFrameDuration);
-        foreach (KeyValuePair<TourianStatueTileProgram, List<Beat>> native in expected)
+        foreach (KeyValuePair<TourianStatueTileSegment, List<Beat>> native in expected)
         {
             IReadOnlyList<Beat> typed = segments.Beats(native.Key);
             AssertEqual(native.Value.Count, typed.Count, $"{definition.Statue} statue {native.Key}: beat count");
@@ -184,12 +184,12 @@ internal static class LookupTourianProgramVerification
                 AssertEqual(native.Value[index], typed[index], $"{definition.Statue} statue {native.Key}: beat {index}");
             compared += native.Value.Count;
         }
-        foreach (TourianStatueTileProgram start in Enum.GetValues<TourianStatueTileProgram>())
+        foreach (TourianStatueTileSegment start in Enum.GetValues<TourianStatueTileSegment>())
         {
-            Animation<TourianStatueTileProgram> typed = TourianStatueTileAnimations.StartingWith(start);
-            var phases = new List<AnimationPhase<TourianStatueTileProgram>>();
-            var entered = new Dictionary<TourianStatueTileProgram, int> { [start] = 0 };
-            TourianStatueTileProgram segment = start;
+            Animation<TourianStatueTileSegment> typed = TourianStatueTileAnimations.StartingWith(start);
+            var phases = new List<AnimationPhase<TourianStatueTileSegment>>();
+            var entered = new Dictionary<TourianStatueTileSegment, int> { [start] = 0 };
+            TourianStatueTileSegment segment = start;
             AnimationEnd end;
             while (true)
             {
@@ -215,31 +215,31 @@ internal static class LookupTourianProgramVerification
     }
 
     /// <summary>
-    /// Names each native list entry: the header's program pointer is <see cref="TourianStatueTileProgram.Entry"/>, and
+    /// Names each native list entry: the header's program pointer is <see cref="TourianStatueTileSegment.Entry"/>, and
     /// the grey-event, boss-bit and unconditional branches enter the already-grey, release and idle programs.
     /// </summary>
-    private static Dictionary<ushort, TourianStatueTileProgram> ProgramLabels(
+    private static Dictionary<ushort, TourianStatueTileSegment> ProgramLabels(
         ISnesAddressSpace rom, List<LookupTourianArtworkInstruction> instructions)
     {
-        var labels = new Dictionary<ushort, TourianStatueTileProgram> { [instructions[0].Cursor] = TourianStatueTileProgram.Entry };
+        var labels = new Dictionary<ushort, TourianStatueTileSegment> { [instructions[0].Cursor] = TourianStatueTileSegment.Entry };
         foreach (var instruction in instructions)
         {
             var command = (AnimatedTileInstruction)instruction.Code;
             if (command == AnimatedTileInstruction.GotoIfEventSet)
-                labels[Word(rom, instruction.Cursor + 4)] = TourianStatueTileProgram.AlreadyGrey;
+                labels[Word(rom, instruction.Cursor + 4)] = TourianStatueTileSegment.AlreadyGrey;
             else if (command == AnimatedTileInstruction.GotoIfAnyBossBitsSetForArea)
-                labels[Word(rom, instruction.Cursor + 4)] = TourianStatueTileProgram.Release;
+                labels[Word(rom, instruction.Cursor + 4)] = TourianStatueTileSegment.Release;
             else if (command == AnimatedTileInstruction.Goto)
-                labels[Word(rom, instruction.Cursor + 2)] = TourianStatueTileProgram.Oscillate;
+                labels[Word(rom, instruction.Cursor + 2)] = TourianStatueTileSegment.Oscillate;
         }
-        AssertEqual(Enum.GetValues<TourianStatueTileProgram>().Length, labels.Count, "four distinct native statue list entries");
+        AssertEqual(Enum.GetValues<TourianStatueTileSegment>().Length, labels.Count, "four distinct native statue list entries");
         return labels;
     }
 
     /// <summary>The program whose native list starts at <paramref name="target"/>.</summary>
-    private static TourianStatueTileProgram Label(Dictionary<ushort, TourianStatueTileProgram> labels, ushort target, string at)
+    private static TourianStatueTileSegment Label(Dictionary<ushort, TourianStatueTileSegment> labels, ushort target, string at)
     {
-        AssertTrue(labels.TryGetValue(target, out TourianStatueTileProgram program), $"{at}: branch enters a named program");
+        AssertTrue(labels.TryGetValue(target, out TourianStatueTileSegment program), $"{at}: branch enters a named program");
         return program;
     }
 
@@ -254,7 +254,7 @@ internal static class LookupTourianProgramVerification
     }
 
     /// <summary>An event beat of <paramref name="kind"/>, continuing at <paramref name="target"/> when it branches.</summary>
-    private static Beat Cue(TourianStatueTileCueKind kind, TourianStatueTileProgram target = default) =>
+    private static Beat Cue(TourianStatueTileCueKind kind, TourianStatueTileSegment target = default) =>
         new Beat.Event(new TourianStatueTileCue(kind, target));
 
     /// <summary>The bank-$87 word at <paramref name="cursor"/>.</summary>

@@ -32,15 +32,15 @@ internal static class FuneNamiheSelectorOracle
 
     /// <summary>The animation the selector at <paramref name="cursor"/> names.</summary>
     /// <param name="cursor">The selector cursor.</param>
-    internal static FuneNamiheProgram ProgramAt(ushort cursor) => Decode(cursor) switch
+    internal static FuneNamiheSegment ProgramAt(ushort cursor) => Decode(cursor) switch
     {
-        (false, true, false) => FuneNamiheProgram.FuneActiveLeft,
-        (false, true, true) => FuneNamiheProgram.FuneActiveRight,
-        (false, false, false) => FuneNamiheProgram.FuneIdleLeft,
-        (false, false, true) => FuneNamiheProgram.FuneIdleRight,
-        (true, true, false) => FuneNamiheProgram.NamiheActiveLeft,
-        (true, true, true) => FuneNamiheProgram.NamiheActiveRight,
-        (true, false, false) => FuneNamiheProgram.NamiheIdleLeft,
-        (true, false, true) => FuneNamiheProgram.NamiheIdleRight,
+        (false, true, false) => FuneNamiheSegment.FuneActiveLeft,
+        (false, true, true) => FuneNamiheSegment.FuneActiveRight,
+        (false, false, false) => FuneNamiheSegment.FuneIdleLeft,
+        (false, false, true) => FuneNamiheSegment.FuneIdleRight,
+        (true, true, false) => FuneNamiheSegment.NamiheActiveLeft,
+        (true, true, true) => FuneNamiheSegment.NamiheActiveRight,
+        (true, false, false) => FuneNamiheSegment.NamiheIdleLeft,
+        (true, false, true) => FuneNamiheSegment.NamiheIdleRight,
     };
 }

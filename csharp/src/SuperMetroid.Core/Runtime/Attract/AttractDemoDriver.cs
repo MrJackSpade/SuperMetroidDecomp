@@ -38,7 +38,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
     /// <summary>Seeds demo progression bits without reading or writing a player save.</summary>
     private readonly SharedGameState _system;
     /// <summary>What a demo Samus's animation frame past her pose's program reads.</summary>
-    private readonly LaidOutProgramContinuation<SamusPoseId, SamusAnimationProgramStep> _animationContinuation;
+    private readonly LaidOutAnimationContinuation<SamusPoseId, SamusPoseAnimationStep> _animationContinuation;
 
     /// <summary>The session's beam charge, which a demo Samus reads and clears like any other.</summary>
     private readonly SuperMetroid.Core.Samus.Projectiles.BeamChargeState _beamCharge;

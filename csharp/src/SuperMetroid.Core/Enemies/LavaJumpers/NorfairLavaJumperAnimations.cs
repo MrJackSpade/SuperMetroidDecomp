@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.LavaJumpers.NorfairLavaJumperCueKind;
-using P = SuperMetroid.Core.Enemies.LavaJumpers.NorfairLavaJumperProgram;
+using P = SuperMetroid.Core.Enemies.LavaJumpers.NorfairLavaJumperSegment;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.LavaJumpers;
@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Enemies.LavaJumpers;
 internal static class NorfairLavaJumperAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<NorfairLavaJumperProgram, EnemyFrameId, NorfairLavaJumperCue> Segments { get; } = new(
-        new Dictionary<NorfairLavaJumperProgram, AnimationBeat<EnemyFrameId, NorfairLavaJumperCue>[]>
+    internal static AnimationSegments<NorfairLavaJumperSegment, EnemyFrameId, NorfairLavaJumperCue> Segments { get; } = new(
+        new Dictionary<NorfairLavaJumperSegment, AnimationBeat<EnemyFrameId, NorfairLavaJumperCue>[]>
     {
         [P.Hidden] =
         [
@@ -45,7 +45,7 @@ internal static class NorfairLavaJumperAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<NorfairLavaJumperProgram, Animation<NorfairLavaJumperProgram>> StartingAt { get; } = new Dictionary<NorfairLavaJumperProgram, Animation<NorfairLavaJumperProgram>>
+    internal static IReadOnlyDictionary<NorfairLavaJumperSegment, Animation<NorfairLavaJumperSegment>> StartingAt { get; } = new Dictionary<NorfairLavaJumperSegment, Animation<NorfairLavaJumperSegment>>
     {
         [P.Hidden] = new([new(P.Hidden, 0, 1, 1)], AnimationEnd.Holds),
         [P.Jump] = new([new(P.Jump, 0, 8, 1)], AnimationEnd.Holds),
@@ -53,7 +53,7 @@ internal static class NorfairLavaJumperAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<NorfairLavaJumperProgram> StartingWith(NorfairLavaJumperProgram segment) => StartingAt[segment];
+    internal static Animation<NorfairLavaJumperSegment> StartingWith(NorfairLavaJumperSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NorfairLavaJumperCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NorfairLavaJumperCue>.Frame(frame, duration);

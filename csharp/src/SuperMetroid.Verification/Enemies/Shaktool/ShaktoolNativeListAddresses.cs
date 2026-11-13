@@ -14,29 +14,29 @@ internal static class ShaktoolNativeListAddresses
     internal const byte Bank = 0xaa;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<ShaktoolProgram>[] Entries =
+    internal static readonly NativeProgramEntry<ShaktoolSegment>[] Entries =
     [
-        new NativeProgramEntry<ShaktoolProgram>(ShaktoolProgram.SawHandAttackPrimaryPiece, 0xd9ea),
-        new NativeProgramEntry<ShaktoolProgram>(ShaktoolProgram.SawHandAttackFinalPiece, 0xd9f2),
-        new NativeProgramEntry<ShaktoolProgram>(ShaktoolProgram.SawHandHeadBobPrimaryPiece, 0xd9fc),
-        new NativeProgramEntry<ShaktoolProgram>(ShaktoolProgram.SawHandHeadBobFinalPiece, 0xda04),
-        new NativeProgramEntry<ShaktoolProgram>(ShaktoolProgram.SawHandPrimaryPiece, 0xda0e),
-        new NativeProgramEntry<ShaktoolProgram>(ShaktoolProgram.SawHandFinalPiece, 0xda1e),
-        new NativeProgramEntry<ShaktoolProgram>(ShaktoolProgram.ArmPieceAttackBack, 0xda2e),
-        new NativeProgramEntry<ShaktoolProgram>(ShaktoolProgram.ArmPieceAttackFront, 0xda42),
-        new NativeProgramEntry<ShaktoolProgram>(ShaktoolProgram.ArmPieceHeadBobBack, 0xda56),
-        new NativeProgramEntry<ShaktoolProgram>(ShaktoolProgram.ArmPieceHeadBobFront, 0xda62),
-        new NativeProgramEntry<ShaktoolProgram>(ShaktoolProgram.ArmPieceNormal, 0xda72),
-        new NativeProgramEntry<ShaktoolProgram>(ShaktoolProgram.HeadAttack, 0xda7a),
-        new NativeProgramEntry<ShaktoolProgram>(ShaktoolProgram.HeadHeadBob, 0xda90),
-        new NativeProgramEntry<ShaktoolProgram>(ShaktoolProgram.HeadAimingLeft, 0xdaa4),
-        new NativeProgramEntry<ShaktoolProgram>(ShaktoolProgram.HeadAimingUpLeft, 0xdaac),
-        new NativeProgramEntry<ShaktoolProgram>(ShaktoolProgram.HeadAimingUp, 0xdab4),
-        new NativeProgramEntry<ShaktoolProgram>(ShaktoolProgram.HeadAimingUpRight, 0xdabc),
-        new NativeProgramEntry<ShaktoolProgram>(ShaktoolProgram.HeadAimingRight, 0xdac4),
-        new NativeProgramEntry<ShaktoolProgram>(ShaktoolProgram.HeadAimingDownRight, 0xdacc),
-        new NativeProgramEntry<ShaktoolProgram>(ShaktoolProgram.HeadAimingDown, 0xdad4),
-        new NativeProgramEntry<ShaktoolProgram>(ShaktoolProgram.HeadAimingDownLeft, 0xdadc),
+        new NativeProgramEntry<ShaktoolSegment>(ShaktoolSegment.SawHandAttackPrimaryPiece, 0xd9ea),
+        new NativeProgramEntry<ShaktoolSegment>(ShaktoolSegment.SawHandAttackFinalPiece, 0xd9f2),
+        new NativeProgramEntry<ShaktoolSegment>(ShaktoolSegment.SawHandHeadBobPrimaryPiece, 0xd9fc),
+        new NativeProgramEntry<ShaktoolSegment>(ShaktoolSegment.SawHandHeadBobFinalPiece, 0xda04),
+        new NativeProgramEntry<ShaktoolSegment>(ShaktoolSegment.SawHandPrimaryPiece, 0xda0e),
+        new NativeProgramEntry<ShaktoolSegment>(ShaktoolSegment.SawHandFinalPiece, 0xda1e),
+        new NativeProgramEntry<ShaktoolSegment>(ShaktoolSegment.ArmPieceAttackBack, 0xda2e),
+        new NativeProgramEntry<ShaktoolSegment>(ShaktoolSegment.ArmPieceAttackFront, 0xda42),
+        new NativeProgramEntry<ShaktoolSegment>(ShaktoolSegment.ArmPieceHeadBobBack, 0xda56),
+        new NativeProgramEntry<ShaktoolSegment>(ShaktoolSegment.ArmPieceHeadBobFront, 0xda62),
+        new NativeProgramEntry<ShaktoolSegment>(ShaktoolSegment.ArmPieceNormal, 0xda72),
+        new NativeProgramEntry<ShaktoolSegment>(ShaktoolSegment.HeadAttack, 0xda7a),
+        new NativeProgramEntry<ShaktoolSegment>(ShaktoolSegment.HeadHeadBob, 0xda90),
+        new NativeProgramEntry<ShaktoolSegment>(ShaktoolSegment.HeadAimingLeft, 0xdaa4),
+        new NativeProgramEntry<ShaktoolSegment>(ShaktoolSegment.HeadAimingUpLeft, 0xdaac),
+        new NativeProgramEntry<ShaktoolSegment>(ShaktoolSegment.HeadAimingUp, 0xdab4),
+        new NativeProgramEntry<ShaktoolSegment>(ShaktoolSegment.HeadAimingUpRight, 0xdabc),
+        new NativeProgramEntry<ShaktoolSegment>(ShaktoolSegment.HeadAimingRight, 0xdac4),
+        new NativeProgramEntry<ShaktoolSegment>(ShaktoolSegment.HeadAimingDownRight, 0xdacc),
+        new NativeProgramEntry<ShaktoolSegment>(ShaktoolSegment.HeadAimingDown, 0xdad4),
+        new NativeProgramEntry<ShaktoolSegment>(ShaktoolSegment.HeadAimingDownLeft, 0xdadc),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>

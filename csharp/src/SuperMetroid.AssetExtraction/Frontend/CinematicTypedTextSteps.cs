@@ -13,11 +13,11 @@ internal static class CinematicTypedTextSteps
     extension(CinematicTypedTexts typed)
     {
         /// <summary>The texts typed, by their programs, in the order they were given.</summary>
-        internal IEnumerable<CinematicSpriteProgram> Texts => typed.steps.Values.Select(step => step.Text).Distinct();
+        internal IEnumerable<CinematicSpriteSegment> Texts => typed.steps.Values.Select(step => step.Text).Distinct();
 
         /// <summary>The poses <paramref name="text"/> shows, in typing order: the step at each place shows every glyph up to it.</summary>
         /// <exception cref="ArgumentOutOfRangeException">The program types no text here.</exception>
-        internal IReadOnlyList<CinematicSpritePose> Steps(CinematicSpriteProgram text)
+        internal IReadOnlyList<CinematicSpritePose> Steps(CinematicSpriteSegment text)
         {
             CinematicSpritePose[] poses = [.. typed.steps.Where(entry => entry.Value.Text == text)
                 .OrderBy(entry => entry.Value.Glyph).Select(entry => entry.Key)];

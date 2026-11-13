@@ -36,21 +36,21 @@ internal static class PlatformInstructionProgramDefinitionsVerification
         PlatformProgramCase[] cases =
         [
             new(true, true, PlatformHorizontalMovement.Left,
-                PlatformProgram.KamerMovingLeft),
+                PlatformSegment.KamerMovingLeft),
             new(true, true, PlatformHorizontalMovement.Right,
-                PlatformProgram.KamerMovingRight),
+                PlatformSegment.KamerMovingRight),
             new(true, false, PlatformHorizontalMovement.Left,
-                PlatformProgram.KamerStillLeft),
+                PlatformSegment.KamerStillLeft),
             new(true, false, PlatformHorizontalMovement.Right,
-                PlatformProgram.KamerStillRight),
+                PlatformSegment.KamerStillRight),
             new(false, true, PlatformHorizontalMovement.Left,
-                PlatformProgram.TripperMovingLeft),
+                PlatformSegment.TripperMovingLeft),
             new(false, true, PlatformHorizontalMovement.Right,
-                PlatformProgram.TripperMovingRight),
+                PlatformSegment.TripperMovingRight),
             new(false, false, PlatformHorizontalMovement.Left,
-                PlatformProgram.TripperStillMovingLeft),
+                PlatformSegment.TripperStillMovingLeft),
             new(false, false, PlatformHorizontalMovement.Right,
-                PlatformProgram.TripperStillMovingRight),
+                PlatformSegment.TripperStillMovingRight),
         ];
 
         foreach (PlatformProgramCase testCase in cases)
@@ -67,19 +67,19 @@ internal static class PlatformInstructionProgramDefinitionsVerification
             PlatformsBehavior.InitializePlatform(slot);
 
             PlatformEnemyState state = (enemies.PlatformStates[0] ?? throw new InvalidOperationException("Verification requires enemies.PlatformStates[0]."));
-            PlatformProgram expectedInitial = testCase.IsKamer
+            PlatformSegment expectedInitial = testCase.IsKamer
                 ? testCase.Direction == PlatformHorizontalMovement.Left
-                    ? PlatformProgram.KamerStillLeft
-                    : PlatformProgram.KamerStillRight
+                    ? PlatformSegment.KamerStillLeft
+                    : PlatformSegment.KamerStillRight
                 : testCase.Direction == PlatformHorizontalMovement.Left
-                    ? PlatformProgram.TripperStillMovingLeft
-                    : PlatformProgram.TripperStillMovingRight;
-            AssertEqual(new AnimationPlayback<PlatformProgram>(PlatformAnimations.StartingWith(expectedInitial), AnimationPlace.StartOfAnimation), state.Playback,
+                    ? PlatformSegment.TripperStillMovingLeft
+                    : PlatformSegment.TripperStillMovingRight;
+            AssertEqual(new AnimationPlayback<PlatformSegment>(PlatformAnimations.StartingWith(expectedInitial), AnimationPlace.StartOfAnimation), state.Playback,
                 $"real {(testCase.IsKamer ? "Kamer" : "Tripper")} initializer " +
                 $"selects {testCase.Direction} still program");
 
             (testCase.IsMoving ? installMoving : installStill)(slot, (state));
-            AssertEqual(new AnimationPlayback<PlatformProgram>(PlatformAnimations.StartingWith(testCase.Program), AnimationPlace.StartOfAnimation), state.Playback,
+            AssertEqual(new AnimationPlayback<PlatformSegment>(PlatformAnimations.StartingWith(testCase.Program), AnimationPlace.StartOfAnimation), state.Playback,
                 $"production platform installer selects {testCase.Program}");
 
             // The direction cue runs with the first pose; four more updates show the rest of the four-pose loop and
@@ -89,7 +89,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
                 : PlatformHorizontalMovement.Left;
             ExecutePlatformProgram(slot, callCount: 1);
             AssertEqual(testCase.Direction, state.XMovement, $"platform program {testCase.Program} publishes direction");
-            AnimationPlayback<PlatformProgram>? firstPose = state.Playback;
+            AnimationPlayback<PlatformSegment>? firstPose = state.Playback;
             ExecutePlatformProgram(slot, callCount: 4);
             AssertEqual(firstPose, state.Playback, $"platform program {testCase.Program} loops through four poses");
         }
@@ -110,7 +110,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
             [slot, null, null, Position16<RoomPixels>.Zero, ControllerButton.None];
         for (int call = 0; call < callCount; call++)
         {
-            slot.FrameHold = WrappingCountdown.Start(1);
+            slot.AnimationClock.StepOnNextUpdate();
             EnemyInstructionRunner.Process(arguments);
         }
     }
@@ -127,7 +127,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
             AssertEqual((ushort)3, CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | pointer), "Tripper native three-entry map");
         foreach (ushort pointer in fourEntryTripper)
             AssertEqual((ushort)4, CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | pointer), "Tripper native four-entry map");
-        AssertTrue(PlatformAnimationsConstants.Spritemaps(Enum.GetValues<PlatformProgram>()).ToHashSet()
+        AssertTrue(PlatformAnimationsConstants.Spritemaps(Enum.GetValues<PlatformSegment>()).ToHashSet()
                 .SetEquals(kamer.Concat(threeEntryTripper).Concat(fourEntryTripper)),
             "platform programs show exactly the sixteen animated maps");
     }
@@ -170,7 +170,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
             for (int direction = 0; direction <= ushort.MaxValue; direction++)
                 AssertEqual(direction == 0 ? left : right,
                     NativeEnemyAnimationOracle.EntryOf(PlatformNativeListAddresses.Entries,
-                        PlatformPrograms.SelectProgram(isKamer, Axis.Horizontal, (PlatformHorizontalMovement)direction)),
+                        PlatformAnimationChoices.SelectAnimation(isKamer, Axis.Horizontal, (PlatformHorizontalMovement)direction)),
                     "platform initial program uses full-word zero/nonzero direction");
         }
     }
@@ -193,7 +193,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
             for (int direction = 0; direction <= ushort.MaxValue; direction++)
                 AssertEqual(direction == 0 ? left : right,
                     NativeEnemyAnimationOracle.EntryOf(PlatformNativeListAddresses.Entries,
-                        PlatformPrograms.SelectProgram(isKamer, moving ? Axis.Vertical : Axis.Horizontal, (PlatformHorizontalMovement)direction)),
+                        PlatformAnimationChoices.SelectAnimation(isKamer, moving ? Axis.Vertical : Axis.Horizontal, (PlatformHorizontalMovement)direction)),
                     "platform animation program uses species, motion and full-word direction");
         }
     }
@@ -217,7 +217,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
         bool IsKamer,
         bool IsMoving,
         PlatformHorizontalMovement Direction,
-        PlatformProgram Program);
+        PlatformSegment Program);
 
     /// <summary>Runs the standalone Tripper and Kamer instruction verification command.</summary>
     [VerificationCommand("--platform-instruction-program-definitions")]

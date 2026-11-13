@@ -63,11 +63,11 @@ public sealed class TourianStatueSequence
         /// <summary>The statue's animation and the operands its events act on.</summary>
         public TourianStatueAnimationDefinition Definition { get; } = definition;
         /// <summary>The statue's typed animated-tile segments, built once for its first-frame duration.</summary>
-        public AnimationSegments<TourianStatueTileProgram, TourianStatueTilePicture, TourianStatueTileCue> Segments { get; } =
+        public AnimationSegments<TourianStatueTileSegment, TourianStatueTilePicture, TourianStatueTileCue> Segments { get; } =
             TourianStatueTileAnimations.SegmentsFor(definition.FirstFrameDuration);
         /// <summary>The statue's animation and where it stands in it; null once the animation has ended and the object is deleted.</summary>
-        public AnimationPlayback<TourianStatueTileProgram>? Playback { get; private set; } =
-            new AnimationPlayback<TourianStatueTileProgram>(TourianStatueTileAnimations.StartingWith(TourianStatueTileProgram.Entry), AnimationPlace.StartOfAnimation);
+        public AnimationPlayback<TourianStatueTileSegment>? Playback { get; private set; } =
+            new AnimationPlayback<TourianStatueTileSegment>(TourianStatueTileAnimations.StartingWith(TourianStatueTileSegment.Entry), AnimationPlace.StartOfAnimation);
         /// <summary>Remaining duration of the current tile frame.</summary>
         public int Timer { get; private set; } = 1;
 
@@ -80,7 +80,7 @@ public sealed class TourianStatueSequence
         }
 
         /// <summary>Resumes the animation at <paramref name="playback"/> after showing a picture for <paramref name="duration"/> ticks.</summary>
-        internal void Show(AnimationPlayback<TourianStatueTileProgram> playback, int duration)
+        internal void Show(AnimationPlayback<TourianStatueTileSegment> playback, int duration)
         {
             Playback = playback;
             Timer = duration;
@@ -185,17 +185,17 @@ public sealed class TourianStatueSequence
             // The statue animations play no counted phase; the play still takes a repeat counter.
             WrappingCountdown repeats = WrappingCountdown.Start(0);
             TourianStatueAnimationDefinition definition = tile.Definition;
-            Animation<TourianStatueTileProgram> animation = playback.Animation;
+            Animation<TourianStatueTileSegment> animation = playback.Animation;
             AnimationPlace place = playback.Place;
-            AnimationShown<TourianStatueTileProgram, TourianStatueTilePicture> shown = tile.Segments.PlayToNextFrame(
+            AnimationShown<TourianStatueTileSegment, TourianStatueTilePicture> shown = tile.Segments.PlayToNextFrame(
                 ref animation, ref place, ref repeats, cue => RunCue(definition, cue));
             switch (shown)
             {
-                case AnimationShown<TourianStatueTileProgram, TourianStatueTilePicture>.Frame frame:
-                    tile.Show(new AnimationPlayback<TourianStatueTileProgram>(animation, place), frame.Duration);
+                case AnimationShown<TourianStatueTileSegment, TourianStatueTilePicture>.Frame frame:
+                    tile.Show(new AnimationPlayback<TourianStatueTileSegment>(animation, place), frame.Duration);
                     _room.LoadedScope.ArtworkFrames.Select(definition.Picture(frame.Shown));
                     break;
-                case AnimationShown<TourianStatueTileProgram, TourianStatueTilePicture>.Ended:
+                case AnimationShown<TourianStatueTileSegment, TourianStatueTilePicture>.Ended:
                     tile.Stop();
                     break;
                 default:
@@ -205,11 +205,11 @@ public sealed class TourianStatueSequence
         }
 
         // Carries out one event with the statue's operands; a branching event whose condition holds returns where the play continues.
-        AnimationContinuation<TourianStatueTileProgram>? RunCue(
+        AnimationContinuation<TourianStatueTileSegment>? RunCue(
             TourianStatueAnimationDefinition definition, TourianStatueTileCue cue)
         {
             ITourianStatueActors statue = _enemies.TourianStatue;
-            var branch = new AnimationContinuation<TourianStatueTileProgram>(
+            var branch = new AnimationContinuation<TourianStatueTileSegment>(
                 TourianStatueTileAnimations.StartingWith(cue.Target), AnimationPlace.StartOfAnimation);
             switch (cue.Kind)
             {

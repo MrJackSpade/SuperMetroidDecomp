@@ -17,7 +17,7 @@ internal static class RinkaVisualDefinitions
     /// <summary>Deduplicates the poses shared by ordinary and Mother Brain Rinkas, in authored order.</summary>
     internal static NativeEnemySpritemapDefinition[] Frames()
     {
-        NativeEnemySpritemapDefinition[] frames = [.. RinkaAnimationsConstants.Spritemaps(Enum.GetValues<RinkaProgram>()).Distinct()
+        NativeEnemySpritemapDefinition[] frames = [.. RinkaAnimationsConstants.Spritemaps(Enum.GetValues<RinkaSegment>()).Distinct()
             .Select(pointer => new NativeEnemySpritemapDefinition(Bank, pointer, $"rinka_spin_{pointer:x4}"))];
         if (frames.Length != FrameCount)
             throw new InvalidDataException($"Rinka shows {frames.Length} distinct frames, expected {FrameCount}.");

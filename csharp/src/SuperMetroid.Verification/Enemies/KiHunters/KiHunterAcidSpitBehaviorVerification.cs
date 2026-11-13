@@ -33,7 +33,7 @@ internal static class KiHunterAcidSpitBehaviorVerification
         enemies.KiHunterBehavior.SpawnKiHunterAcidSpit(body, true);
         EnemyProjectile left = Find(RoomEnemyProjectileKind.KiHunterAcidSpitLeft);
         EnemyProjectile right = Find(RoomEnemyProjectileKind.KiHunterAcidSpitRight);
-        foreach ((EnemyProjectile spit, KiHunterAcidSpitProgram program) in new[] { new VerifyKiHunterAcidSpitBehaviorCase(left, KiHunterAcidSpitProgram.Left), new VerifyKiHunterAcidSpitBehaviorCase(right, KiHunterAcidSpitProgram.Right) })
+        foreach ((EnemyProjectile spit, KiHunterAcidSpitSegment program) in new[] { new VerifyKiHunterAcidSpitBehaviorCase(left, KiHunterAcidSpitSegment.Left), new VerifyKiHunterAcidSpitBehaviorCase(right, KiHunterAcidSpitSegment.Right) })
         {
             AssertEqual(program, ProgramOf(spit), $"the {spit.Kind} spit starts its launch program");
             (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, spit, Entry(program), 60, $"{spit.Kind} launch");
@@ -45,8 +45,8 @@ internal static class KiHunterAcidSpitBehaviorVerification
         left.Radius = new(2, 2);
         left.Velocity = left.Velocity.WithY(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(256));
         KiHunterBehavior.RunKiHunterAcidMovement(left, level);
-        AssertEqual(KiHunterAcidSpitProgram.HitFloor, ProgramOf(left), "a floor collision starts the splash program");
-        (bool splashed, int updates) = NativeEnemyProjectileParity.Compare(cartridge, enemies, left, Entry(KiHunterAcidSpitProgram.HitFloor), 60, "acid splash");
+        AssertEqual(KiHunterAcidSpitSegment.HitFloor, ProgramOf(left), "a floor collision starts the splash program");
+        (bool splashed, int updates) = NativeEnemyProjectileParity.Compare(cartridge, enemies, left, Entry(KiHunterAcidSpitSegment.HitFloor), 60, "acid splash");
         AssertTrue(splashed, "the splash deletes the spit");
         AssertEqual(0, guard.ForbiddenReadAttempts, "production reads none of the acid's native list bytes");
         Console.WriteLine($"  Ki-Hunter acid behavior: both launches and the {updates}-update splash match their native lists.");
@@ -56,11 +56,11 @@ internal static class KiHunterAcidSpitBehaviorVerification
     }
 
     /// <summary>The native entry of <paramref name="program"/>.</summary>
-    private static ushort Entry(KiHunterAcidSpitProgram program) =>
+    private static ushort Entry(KiHunterAcidSpitSegment program) =>
         NativeEnemyProjectileProgramOracle.EntryOf(KiHunterAcidSpitNativeListAddresses.Entries, program);
 
     /// <summary>The typed program <paramref name="projectile"/> runs.</summary>
-    private static KiHunterAcidSpitProgram ProgramOf(EnemyProjectile projectile) =>
+    private static KiHunterAcidSpitSegment ProgramOf(EnemyProjectile projectile) =>
         projectile.Animation is KiHunterAcidSpitAnimation animation ? animation.PlayingSegment
             : throw new InvalidOperationException("The spit runs no typed program.");
 

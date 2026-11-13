@@ -107,8 +107,8 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     /// <summary>The <see cref="EnemyDrawList"/> owner of this RoomEnemySystem.</summary>
     internal EnemyDrawList Drawing { get; }
 
-    /// <summary>The <see cref="EnemyInstructionInterpreter"/> owner of this RoomEnemySystem.</summary>
-    internal EnemyInstructionInterpreter Instructions { get; }
+    /// <summary>The <see cref="EnemyAnimationPlayer"/> owner of this RoomEnemySystem.</summary>
+    internal EnemyAnimationPlayer AnimationPlayer { get; }
 
     /// <summary>The <see cref="EnemyPopulationLoader"/> owner of this RoomEnemySystem.</summary>
     internal EnemyPopulationLoader PopulationLoader { get; }
@@ -456,16 +456,16 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     internal void RebindEscapeTypewriters(EscapeTypewriterPresentation? value)
     {
         EscapeTypewriterState? active = MotherBrainEncounter.MotherBrain?.EscapeTypewriter;
-        if (active?.ProgramId == EscapeTypewriterProgramId.Zebes)
+        if (active?.MessageId == EscapeTypewriterMessageId.Zebes)
         {
-            if (value is null) active.UnbindProgram();
-            else active.BindProgram(value.Get(EscapeTypewriterProgramId.Zebes));
+            if (value is null) active.UnbindMessage();
+            else active.BindMessage(value.Get(EscapeTypewriterMessageId.Zebes));
         }
         EscapeTypewriterState? ceres = RidleyEncounter.Ridley?.CeresEscapeTypewriter;
-        if (ceres?.ProgramId == EscapeTypewriterProgramId.Ceres)
+        if (ceres?.MessageId == EscapeTypewriterMessageId.Ceres)
         {
-            if (value is null) ceres.UnbindProgram();
-            else ceres.BindProgram(value.Get(EscapeTypewriterProgramId.Ceres));
+            if (value is null) ceres.UnbindMessage();
+            else ceres.BindMessage(value.Get(EscapeTypewriterMessageId.Ceres));
         }
     }
 
@@ -730,8 +730,8 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         BoyonBehavior = new BoyonBehavior(Audio);
         BoulderBehavior = new BoulderBehavior(Terrain, Projectiles, Audio);
         BotwoonBehavior = new BotwoonBehavior(new BotwoonBehaviorDependencies { Audio = Audio, Room = Room, Projectiles = Projectiles, SpriteObjects = SpriteObjects, Presentation = Presentation, Collision = Collision, DeathsAndDrops = DeathsAndDrops, FrameResults = BossFrameResults , BossArtwork = BossArtworkBinding });
-        Instructions = new EnemyInstructionInterpreter(Presentation);
-        Drawing = new EnemyDrawList(new EnemyDrawListDependencies { DeadTorizoBehavior = DeadTorizoBehavior, FrameContext = FrameContext, Instructions = Instructions, MotherBrainBehavior = MotherBrainBehavior, Presentation = Presentation, Room = Room, PuyoCeilingTurn = PuyoCeilingTurn });
+        AnimationPlayer = new EnemyAnimationPlayer(Presentation);
+        Drawing = new EnemyDrawList(new EnemyDrawListDependencies { DeadTorizoBehavior = DeadTorizoBehavior, FrameContext = FrameContext, AnimationPlayer = AnimationPlayer, MotherBrainBehavior = MotherBrainBehavior, Presentation = Presentation, Room = Room, PuyoCeilingTurn = PuyoCeilingTurn });
         BombTorizoBehavior = new BombTorizoBehavior(new BombTorizoBehaviorDependencies { Room = Room, Terrain = Terrain, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, FrameResults = BossFrameResults });
         BlueBrinstarFaceBlockBehavior = new BlueBrinstarFaceBlockBehavior(SlotTable, ElevatorBehavior);
         BeetomBehavior = new BeetomBehavior(Room, Terrain, Audio, FrameContext, Collision, compatibility.BeetomInheritance);
@@ -1013,8 +1013,8 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
                     // incorrectly advanced a Metroid's body animation while its frozen
                     // callback still owned the two composited outer sprite objects.
                     if ((slot.AiStates & EnemyAiStates.Frozen) == EnemyAiStates.None &&
-                        slot.Processing.HasAny(EnemyProcessing.AnimationScript))
-                        EnemyInstructionInterpreter.RunsAnimationScript(
+                        slot.Processing.HasAny(EnemyProcessing.Animates))
+                        EnemyAnimationPlayer.AdvanceAnimation(
                             slot,
                             frame.Samus,
                             frame.Level,
@@ -1192,7 +1192,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
 }
 
     /// <summary>Advances enemy-projectile actors after Samus movement and before room objects.</summary>
-    public void StepEnemyProjectileInstructions(
+    public void AdvanceEnemyProjectileAnimations(
         RoomLevelData level,
         SamusState? samus,
         Position16<RoomPixels> camera,

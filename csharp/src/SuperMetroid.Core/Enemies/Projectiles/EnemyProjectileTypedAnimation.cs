@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// A projectile animation that plays a family's typed animations (#1600): frames with durations, frames held for good
 /// (#1607), events, counted phases and a hold. Each event goes to the handler its family registered with
 /// <see cref="EnemyProjectileHandlerTable.AddCue{TCue}"/>, or with
-/// <see cref="EnemyProjectileHandlerTable.AddBranchingCue{TProgram, TCue}"/> when its reaction continues the play in the
+/// <see cref="EnemyProjectileHandlerTable.AddBranchingCue{TSegment, TCue}"/> when its reaction continues the play in the
 /// animation starting at another segment, as a conditional jump does. Counted phases count the projectile's
 /// <see cref="EnemyProjectile.LoopCountdown"/>.
 /// </summary>
@@ -50,7 +50,7 @@ internal abstract class EnemyProjectileTypedAnimation<TSegment, TFrame, TEvent> 
         AnimationPlace place = Playback.Place;
         WrappingCountdown repeats = projectile.LoopCountdown;
         AnimationShown<TSegment, TFrame> shown = Segments.PlayToNextFrame(ref animation, ref place, ref repeats,
-            raised => handlers.PublishProgramCue<TSegment, TEvent>(context, raised) is { } target
+            raised => handlers.PublishAnimationCue<TSegment, TEvent>(context, raised) is { } target
                 ? new AnimationContinuation<TSegment>(StartingAt[target], AnimationPlace.StartOfAnimation)
                 : null);
         Playback = new AnimationPlayback<TSegment>(animation, place);

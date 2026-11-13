@@ -33,17 +33,17 @@ internal static class EscapeDachoraAnimationsVerification
                     }, $"{at}: operand {index}");
                 }),
             EscapeDachoraAnimations.BranchTargets);
-        foreach (EscapeDachoraProgram target in EscapeDachoraAnimations.Segments.Beats(EscapeDachoraProgram.RunningAroundLowTideLeft)
-            .Concat(EscapeDachoraAnimations.Segments.Beats(EscapeDachoraProgram.RunningAroundLowTideRight))
-            .Concat(EscapeDachoraAnimations.Segments.Beats(EscapeDachoraProgram.RunningAroundHighTideLeft))
-            .Concat(EscapeDachoraAnimations.Segments.Beats(EscapeDachoraProgram.RunningAroundHighTideRight))
+        foreach (EscapeDachoraSegment target in EscapeDachoraAnimations.Segments.Beats(EscapeDachoraSegment.RunningAroundLowTideLeft)
+            .Concat(EscapeDachoraAnimations.Segments.Beats(EscapeDachoraSegment.RunningAroundLowTideRight))
+            .Concat(EscapeDachoraAnimations.Segments.Beats(EscapeDachoraSegment.RunningAroundHighTideLeft))
+            .Concat(EscapeDachoraAnimations.Segments.Beats(EscapeDachoraSegment.RunningAroundHighTideRight))
             .OfType<AnimationBeat<EnemyFrameId, EscapeDachoraCue>.Event>()
             .Where(raised => raised.Raised.Kind is EscapeDachoraCueKind.GoToIfAcidHigh or EscapeDachoraCueKind.GoToIfCrittersEscaped)
             .Select(raised => raised.Raised.Target))
         {
             AssertTrue(EscapeDachoraAnimations.BranchTargets.ContainsKey(target), $"branch target {target} continues the play");
             if (EscapeDachoraAnimations.StartingAt.TryGetValue(target, out var started))
-                AssertEqual(new AnimationContinuation<EscapeDachoraProgram>(started, AnimationPlace.StartOfAnimation), EscapeDachoraAnimations.BranchTargets[target],
+                AssertEqual(new AnimationContinuation<EscapeDachoraSegment>(started, AnimationPlace.StartOfAnimation), EscapeDachoraAnimations.BranchTargets[target],
                     $"a branch to {target} starts its animation");
         }
         Console.WriteLine($"  escape Dachora animations: {Entries.Length} segments ({beats} beats) and {EscapeDachoraAnimations.StartingAt.Count} animations match bank $B3.");

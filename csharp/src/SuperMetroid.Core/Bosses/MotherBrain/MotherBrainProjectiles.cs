@@ -184,7 +184,7 @@ internal sealed class MotherBrainProjectiles
         table.AddCue<MotherBrainEffectCue>((context, cue) => ApplyMotherBrainEffectCue(context.Projectile, cue));
         // A touched onion ring runs its typed impact program, the list its definition names.
         table.AddTouchAnimation(RoomEnemyProjectileKind.MotherBrainOnionRing,
-            () => new MotherBrainEffectAnimation(MotherBrainEffectProgram.OnionRingHit));
+            () => new MotherBrainEffectAnimation(MotherBrainEffectSegment.OnionRingHit));
 
         table.AddCue<MotherBrainHandBeamCue>((context, cue) =>
         {
@@ -425,7 +425,7 @@ internal sealed class MotherBrainProjectiles
         // pixel either way, so four times one stays within four.
         shard.Velocity = shard.Velocity.WithY(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(
             4 * Trigonometry.SignedSine(angle - TrigonometryAngle.QuarterTurn)));
-        shard.StartAnimation(new MotherBrainGlassAnimation(MotherBrainGlassAnimations.ShardPrograms.At(angle)));
+        shard.StartAnimation(new MotherBrainGlassAnimation(MotherBrainGlassAnimations.ShardAnimations.At(angle)));
         shard.Graphics = MotherBrainGlassShardDefinitions.Graphics(MotherBrainColours.GlassAndTubes);
 
         MotherBrainGlassShardPlacement placement =
@@ -476,7 +476,7 @@ internal sealed class MotherBrainProjectiles
             sparkle,
             RoomEnemyProjectileKind.MotherBrainGlassSparkle,
             graphics: default);
-        sparkle.StartAnimation(new MotherBrainGlassAnimation(MotherBrainGlassProgram.Sparkle));
+        sparkle.StartAnimation(new MotherBrainGlassAnimation(MotherBrainGlassSegment.Sparkle));
         sparkle.Position = sparkle.Position.WithWhole(new(CoordinateAxis.Wrap(
             source.Position.X.Whole + _room.Random.Next(MotherBrainGlassShardDefinitions.SparkleOffset) - 16), CoordinateAxis.Wrap(
             source.Position.Y.Whole + _room.Random.Next(MotherBrainGlassShardDefinitions.SparkleOffset) - 16)));
@@ -568,7 +568,7 @@ internal sealed class MotherBrainProjectiles
             return;
 
         drool.Position = drool.Position.WithWrappedWholeY(drool.Position.Y.Whole - 4);
-        drool.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectProgram.DroolHitFloor));
+        drool.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectSegment.DroolHitFloor));
     }
 
     /// <summary>
@@ -719,7 +719,7 @@ internal sealed class MotherBrainProjectiles
             SelectNextMotherBrainTurretDirection(turret);
             MotherBrainTurretDirection direction =
                 MotherBrainTurretDefinitions.Ring.At(turretState.RingPosition);
-            turret.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretProgram.TurretPose, direction));
+            turret.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretSegment.TurretPose, direction));
         }
 
         if (--turretState.FiringWait == 0)
@@ -802,7 +802,7 @@ internal sealed class MotherBrainProjectiles
         bullet.Velocity = definition.BulletVelocity;
         bullet.Position = bullet.Position.WithWhole(turret.Position.Whole + definition.BulletOffset);
         // The bullet list's first cue jumps to the pose for this direction.
-        bullet.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretProgram.BulletPose, direction));
+        bullet.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretSegment.BulletPose, direction));
     }
 
     /// <summary>Runs the bullet property flicker, 8.8 movement, and point collision.</summary>

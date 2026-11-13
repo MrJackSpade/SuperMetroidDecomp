@@ -41,7 +41,7 @@ internal sealed class ProjectileTrails
         }
 
         // Beams select by their beams and charge, so charged plain power selects the charged trail, not ordinary power's.
-        ProjectileTrailPrograms programs = ProjectileTrailSelection.Select(projectile.Type);
+        ProjectileTrailAnimations animations = ProjectileTrailSelection.Select(projectile.Type);
 
         ProjectileTrailFamilyGroup group = projectile.Type.Echo is not null
             ? ProjectileTrailFamilyGroup.SpecialBeamAttack
@@ -58,19 +58,19 @@ internal sealed class ProjectileTrails
             return;
 
         var trail = new SamusProjectileTrail(projectile.PicturedBeams);
-        StartSide(trail.Left, programs.Left, projectile.Position.Whole, placement.Left);
-        StartSide(trail.Right, programs.Right, projectile.Position.Whole, placement.Right);
+        StartSide(trail.Left, animations.Left, projectile.Position.Whole, placement.Left);
+        StartSide(trail.Right, animations.Right, projectile.Position.Whole, placement.Right);
         Add(trail);
     }
 
     /// <summary>
-    /// Starts <paramref name="side"/> on <paramref name="program"/>, which it begins at its next update, placed
+    /// Starts <paramref name="side"/> on <paramref name="segment"/>, which it begins at its next update, placed
     /// <paramref name="offset"/> from the shot at <paramref name="origin"/>.
     /// </summary>
-    private static void StartSide(SamusProjectileTrailSide side, ProjectileTrailProgram program, Position16<RoomPixels> origin, Offset16<RoomPixels> offset)
+    private static void StartSide(SamusProjectileTrailSide side, ProjectileTrailSegment segment, Position16<RoomPixels> origin, Offset16<RoomPixels> offset)
     {
         side.FrameHold = 1;
-        side.Cursor = new ProjectileTrailCursor(program, 0);
+        side.Cursor = new ProjectileTrailCursor(segment, 0);
         side.Position = Position16<RoomPixels>.Of(AddOffset(origin.X, offset.X), AddOffset(origin.Y, offset.Y));
     }
 
@@ -79,7 +79,7 @@ internal sealed class ProjectileTrails
     /// installed, or null before its list has installed one.
     /// </summary>
     internal static int? GetTrailAnimationFrame(SamusProjectile projectile) =>
-        SamusProjectilePrograms.ShownAnimationFrame(projectile.Playback
+        SamusProjectilePlayback.ShownAnimationFrame(projectile.Playback
             ?? throw new InvalidOperationException("A trail read the animation frame of an inactive projectile."));
 
     /// <summary>Places a sparkle <paramref name="offset"/> pixels from <paramref name="origin"/>, drawn four pixels up and left, with the position wrapping at 65536.</summary>
@@ -135,22 +135,22 @@ internal sealed class ProjectileTrails
 
                     // A move continues with the next step in the same update.
                     cursor = cursor.Next();
-                    ProjectileTrailInstruction movement = ((ProjectileTrailStep.Move)step).Movement;
+                    ProjectileTrailCue movement = ((ProjectileTrailStep.Move)step).Movement;
                     switch (movement)
                     {
                         // The cue names the side it moves. Both streams run the same moves, including
                         // moves of their sibling.
-                        case ProjectileTrailInstruction.MoveLeftDown:
+                        case ProjectileTrailCue.MoveLeftDown:
                             pair.Left.Position = pair.Left.Position.WithY(CoordinateAxis.Wrap(pair.Left.Position.Y + 1));
                             break;
-                        case ProjectileTrailInstruction.MoveRightDown:
+                        case ProjectileTrailCue.MoveRightDown:
                             pair.Right.Position = pair.Right.Position.WithY(CoordinateAxis.Wrap(pair.Right.Position.Y + 1));
                             break;
-                        case ProjectileTrailInstruction.MoveLeftUp:
+                        case ProjectileTrailCue.MoveLeftUp:
                             pair.Left.Position = pair.Left.Position.WithY(CoordinateAxis.Wrap(pair.Left.Position.Y - 1));
                             break;
                         default:
-                            throw new InvalidOperationException($"Undefined {nameof(ProjectileTrailInstruction)} {movement}.");
+                            throw new InvalidOperationException($"Undefined {nameof(ProjectileTrailCue)} {movement}.");
                     }
                 }
             }

@@ -6,9 +6,9 @@ namespace SuperMetroid.Core.Enemies.Yard;
 /// One of the eight authored surface directions used by a Yard (Maridia snail).
 /// </summary>
 internal readonly record struct YardDirectionDefinition(
-    YardProgram CrawlingProgram,
+    YardSegment CrawlingAnimation,
     CrawlerSurfaceOrientation BlockSide,
-    YardProgram HidingProgram,
+    YardSegment HidingAnimation,
     YardAirborneFacing AirborneFacingDirection,
     YardDirection OppositeDirection,
     YardMovementFunction MovementFunction);

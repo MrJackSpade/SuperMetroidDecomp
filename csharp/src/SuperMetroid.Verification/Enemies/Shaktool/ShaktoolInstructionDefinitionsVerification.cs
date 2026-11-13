@@ -22,13 +22,13 @@ internal static class ShaktoolInstructionDefinitionsVerification
         for (ushort bucket = 0; bucket <= 0x00e0; bucket += 0x0020)
         {
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaadd15 + (bucket >> 5) * 2)),
-                NativeEnemyAnimationOracle.EntryOf(ShaktoolNativeListAddresses.Entries, ShaktoolPrograms.ForOrientation(new Bearing(bucket).DirectionOfEighth())),
+                NativeEnemyAnimationOracle.EntryOf(ShaktoolNativeListAddresses.Entries, ShaktoolAnimationChoices.ForOrientation(new Bearing(bucket).DirectionOfEighth())),
                 $"Shaktool orientation list {bucket:X2}");
         }
         for (int index = 0; index < 7; index++)
         {
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaadf13 + index * 2)),
-                NativeEnemyAnimationOracle.EntryOf(ShaktoolNativeListAddresses.Entries, ShaktoolPrograms.CollisionForSegment(index)),
+                NativeEnemyAnimationOracle.EntryOf(ShaktoolNativeListAddresses.Entries, ShaktoolAnimationChoices.CollisionForSegment(index)),
                 $"Shaktool collision list {index}");
         }
 
@@ -48,7 +48,7 @@ internal static class ShaktoolInstructionDefinitionsVerification
             orient(center, centerState);
             AssertEqual(new Bearing(bucket).DirectionOfEighth(), centerState.Orientation,
                 $"Shaktool production orientation bucket {bucket:X2}");
-            AssertEqual(new AnimationPlayback<ShaktoolProgram>(ShaktoolAnimations.StartingWith(ShaktoolPrograms.ForOrientation(new Bearing(bucket).DirectionOfEighth())), AnimationPlace.StartOfAnimation),
+            AssertEqual(new AnimationPlayback<ShaktoolSegment>(ShaktoolAnimations.StartingWith(ShaktoolAnimationChoices.ForOrientation(new Bearing(bucket).DirectionOfEighth())), AnimationPlace.StartOfAnimation),
                 centerState.Playback,
                 $"Shaktool production orientation list {bucket:X2}");
         }
@@ -59,13 +59,13 @@ internal static class ShaktoolInstructionDefinitionsVerification
         reverse(tail, (tailState), tail.Position.Whole);
         for (int index = 0; index < 7; index++)
         {
-            AssertEqual(new AnimationPlayback<ShaktoolProgram>(ShaktoolAnimations.StartingWith(ShaktoolPrograms.CollisionForSegment(index)), AnimationPlace.StartOfAnimation),
+            AssertEqual(new AnimationPlayback<ShaktoolSegment>(ShaktoolAnimations.StartingWith(ShaktoolAnimationChoices.CollisionForSegment(index)), AnimationPlace.StartOfAnimation),
                 (enemies.ShaktoolSegments[index] ?? throw new InvalidOperationException("Verification requires a Shaktool segment.")).Playback,
                 $"Shaktool production collision list {index}");
         }
 
         AssertThrows<InvalidDataException>(
-            () => ShaktoolPrograms.CollisionForSegment(-1),
+            () => ShaktoolAnimationChoices.CollisionForSegment(-1),
             "negative Shaktool collision segment");
         Console.WriteLine(
             "Shaktool instruction definitions: 22 native selectors and all orientation and collision-reversal production handoffs pass with source tables forbidden.");
@@ -82,19 +82,19 @@ internal static class ShaktoolInstructionDefinitionsVerification
     internal static void VerifyShaktoolInstructionProgramDefinitions(CartridgeImportAddressSpace rom)
     {
         RoomEnemySystem enemies = CreateCompiledShaktoolGroup();
-        ShaktoolProgram[] steadyPrograms =
+        ShaktoolSegment[] steadyPrograms =
         [
-            ShaktoolProgram.SawHandPrimaryPiece,
-            ShaktoolProgram.SawHandFinalPiece,
-            ShaktoolProgram.ArmPieceNormal,
-            ShaktoolProgram.HeadAimingLeft,
-            ShaktoolProgram.HeadAimingUpLeft,
-            ShaktoolProgram.HeadAimingUp,
-            ShaktoolProgram.HeadAimingUpRight,
-            ShaktoolProgram.HeadAimingRight,
-            ShaktoolProgram.HeadAimingDownRight,
-            ShaktoolProgram.HeadAimingDown,
-            ShaktoolProgram.HeadAimingDownLeft,
+            ShaktoolSegment.SawHandPrimaryPiece,
+            ShaktoolSegment.SawHandFinalPiece,
+            ShaktoolSegment.ArmPieceNormal,
+            ShaktoolSegment.HeadAimingLeft,
+            ShaktoolSegment.HeadAimingUpLeft,
+            ShaktoolSegment.HeadAimingUp,
+            ShaktoolSegment.HeadAimingUpRight,
+            ShaktoolSegment.HeadAimingRight,
+            ShaktoolSegment.HeadAimingDownRight,
+            ShaktoolSegment.HeadAimingDown,
+            ShaktoolSegment.HeadAimingDownLeft,
         ];
         for (int index = 0; index < steadyPrograms.Length; index++)
         {
@@ -124,7 +124,7 @@ internal static class ShaktoolInstructionDefinitionsVerification
         for (int step = 0; step < steps; step++)
         {
             MotherBrainRinkaDoorSpawnExpected before = new MotherBrainRinkaDoorSpawnExpected(segment.Position.X.Whole, segment.Position.Y.Whole);
-            segment.FrameHold = WrappingCountdown.Start(1);
+            segment.AnimationClock.StepOnNextUpdate();
             EnemyInstructionRunner.Process(arguments);
             moved |= segment.Position.X.Whole != before.X || segment.Position.Y.Whole != before.Y;
         }

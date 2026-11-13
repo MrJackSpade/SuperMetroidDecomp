@@ -5,4 +5,4 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// The draw shows the picture of that place for the component and Samus's facing.
 /// </summary>
 /// <param name="Index">The place among the component's pictures, from zero.</param>
-internal readonly record struct ChargeFlarePhase(int Index);
+public readonly record struct ChargeFlarePhase(int Index);

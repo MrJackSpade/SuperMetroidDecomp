@@ -6,33 +6,33 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal static class ShitroidAnimations
 {
     /// <summary>Every Shitroid segment.</summary>
-    internal static AnimationSegments<ShitroidProgram, BabyMetroidFrame, ShitroidCue> Segments { get; } = new(
-        new Dictionary<ShitroidProgram, AnimationBeat<BabyMetroidFrame, ShitroidCue>[]>
+    internal static AnimationSegments<ShitroidSegment, BabyMetroidFrame, ShitroidCue> Segments { get; } = new(
+        new Dictionary<ShitroidSegment, AnimationBeat<BabyMetroidFrame, ShitroidCue>[]>
     {
-        [ShitroidProgram.FinishDraining] = [Show(2, 128), Show(1, 16)],
-        [ShitroidProgram.Normal] = [Show(0, 16), Show(1, 16), Show(2, 16), Show(1, 16)],
-        [ShitroidProgram.LatchedOn] = [Show(0, 8), Show(1, 8), Show(2, 5), Show(1, 2)],
-        [ShitroidProgram.Remorse] = Remorse(),
+        [ShitroidSegment.FinishDraining] = [Show(2, 128), Show(1, 16)],
+        [ShitroidSegment.Normal] = [Show(0, 16), Show(1, 16), Show(2, 16), Show(1, 16)],
+        [ShitroidSegment.LatchedOn] = [Show(0, 8), Show(1, 8), Show(2, 5), Show(1, 2)],
+        [ShitroidSegment.Remorse] = Remorse(),
     });
 
     /// <summary>
     /// The animation that starts at each segment: the pulses cycle for good, and the end of draining runs on into the
     /// ordinary pulse.
     /// </summary>
-    internal static IReadOnlyDictionary<ShitroidProgram, Animation<ShitroidProgram>> StartingAt { get; } = new Dictionary<ShitroidProgram, Animation<ShitroidProgram>>
+    internal static IReadOnlyDictionary<ShitroidSegment, Animation<ShitroidSegment>> StartingAt { get; } = new Dictionary<ShitroidSegment, Animation<ShitroidSegment>>
     {
-        [ShitroidProgram.FinishDraining] = new([Whole(ShitroidProgram.FinishDraining), Whole(ShitroidProgram.Normal)], AnimationEnd.LoopsFrom(1)),
-        [ShitroidProgram.Normal] = new([Whole(ShitroidProgram.Normal)], AnimationEnd.LoopsFrom(0)),
-        [ShitroidProgram.LatchedOn] = new([Whole(ShitroidProgram.LatchedOn)], AnimationEnd.LoopsFrom(0)),
-        [ShitroidProgram.Remorse] = new([Whole(ShitroidProgram.Remorse)], AnimationEnd.LoopsFrom(0)),
+        [ShitroidSegment.FinishDraining] = new([Whole(ShitroidSegment.FinishDraining), Whole(ShitroidSegment.Normal)], AnimationEnd.LoopsFrom(1)),
+        [ShitroidSegment.Normal] = new([Whole(ShitroidSegment.Normal)], AnimationEnd.LoopsFrom(0)),
+        [ShitroidSegment.LatchedOn] = new([Whole(ShitroidSegment.LatchedOn)], AnimationEnd.LoopsFrom(0)),
+        [ShitroidSegment.Remorse] = new([Whole(ShitroidSegment.Remorse)], AnimationEnd.LoopsFrom(0)),
     };
 
-    /// <summary>The animation that starts at <paramref name="program"/>, before its first play.</summary>
-    internal static AnimationPlayback<ShitroidProgram> Starting(ShitroidProgram program) =>
-        new(StartingAt[program], AnimationPlace.StartOfAnimation);
+    /// <summary>The animation that starts at <paramref name="segment"/>, before its first play.</summary>
+    internal static AnimationPlayback<ShitroidSegment> Starting(ShitroidSegment segment) =>
+        new(StartingAt[segment], AnimationPlace.StartOfAnimation);
 
-    /// <summary>One play of every beat of <paramref name="program"/>.</summary>
-    private static AnimationPhase<ShitroidProgram> Whole(ShitroidProgram program) => new(program, 0, Segments.Beats(program).Count, 1);
+    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<ShitroidSegment> Whole(ShitroidSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>
     /// Two pulses at ten updates a pose, the random cry, then one pulse that quickens from six updates a pose to two

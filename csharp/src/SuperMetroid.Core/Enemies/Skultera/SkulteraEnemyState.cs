@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Skultera;
 public sealed class SkulteraEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<SkulteraProgram> Playback { get; set; }
+    internal AnimationPlayback<SkulteraSegment> Playback { get; set; }
 
     /// <summary>The swimming or turning behaviour dispatched by main AI.</summary>
     public SkulteraEnemyFunction? Function { get; internal set; }

@@ -669,7 +669,7 @@ firingLevel, cancelledSamus, controllerInput: 0);
     OamBuffer grappleFlareOam = grappleFlareOamFrame.FinalizeAsOam();
     AssertEqual(GrappleFlareStage.JustFired, samus.Grapple.FlareStage,
         "grapple flare moves on only in post-Samus tile pass");
-    AssertEqual(16, samus.Grapple.FlareAnimationFrame,
+    AssertEqual(16, samus.Grapple.FlarePicture.Index,
         "first grapple flare selects shared main frame sixteen");
     AssertEqual(2, samus.Grapple.FlareAnimationTimer.RawValue,
         "first grapple flare performs decrement-before-test");
@@ -775,7 +775,7 @@ firingLevel, cancelledSamus, controllerInput: 0);
     AssertEqual(0x0c90, samus.Kinematics.YSpeed.Fraction, "release pose preserves fractional Y velocity");
     AssertEqual(GrappleFlareStage.None, samus.Grapple.FlareStage,
         "completed grapple release clears the flare");
-    AssertEqual(0, samus.Grapple.FlareAnimationFrame,
+    AssertEqual(0, samus.Grapple.FlarePicture.Index,
         "completed grapple release clears flare frame");
     AssertEqual(0, samus.Grapple.FlareAnimationTimer.RawValue,
         "completed grapple release clears flare timer");

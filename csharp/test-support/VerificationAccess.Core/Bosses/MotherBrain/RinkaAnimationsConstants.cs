@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal static class RinkaAnimationsConstants
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params RinkaProgram[] programs) =>
+    internal static IEnumerable<ushort> Spritemaps(params RinkaSegment[] programs) =>
         programs.SelectMany(program => RinkaAnimations.Segments.Beats(program))
             .OfType<AnimationBeat<EnemyFrameId, RinkaCue>.Frame>()
             .Select(beat => RinkaFrameToolingDefinitions.Spritemap(beat.Shown));

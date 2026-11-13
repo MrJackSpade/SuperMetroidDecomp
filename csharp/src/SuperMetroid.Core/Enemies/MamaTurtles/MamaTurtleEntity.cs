@@ -24,7 +24,7 @@ internal sealed class MamaTurtleEntity(MamaTurtleBehavior species, RoomEnemySlot
     };
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => MamaTurtlePartDefinitions.Parts[Slot.DefinitionId] switch
+    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => MamaTurtlePartDefinitions.Parts[Slot.DefinitionId] switch
     {
         MamaTurtlePart.MamaTurtle => species.AdvanceMamaTurtleTypedAnimation,
         MamaTurtlePart.BabyTurtle => species.AdvanceBabyTurtleTypedAnimation,

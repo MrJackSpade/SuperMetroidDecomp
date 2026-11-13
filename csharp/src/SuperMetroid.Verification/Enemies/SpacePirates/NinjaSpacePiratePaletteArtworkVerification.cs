@@ -33,7 +33,7 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
         // Native initialization for x=$100, span=$80, facing left: midpoint=$C0;
         // 32 acceleration steps sum to $4200, so the adjusted right post is $102.
         const ushort nativeX = 0x0102;
-        (RoomEnemySlot stockSlot, AnimationPlayback<NinjaSpacePirateProgram> stockProgram) = Initialize(stock);
+        (RoomEnemySlot stockSlot, AnimationPlayback<NinjaSpacePirateSegment> stockProgram) = Initialize(stock);
         SpriteSheetShadeDocument stockShade = GoldWallShade(stock);
         AssertTrue(stockShade.Inks.Length > 0, "The ninja's sheet installs its gold wall shade over the inks it paints");
         for (int index = 0; index < stockShade.Inks.Length; index++)
@@ -42,7 +42,7 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
         AssertEqual(nativeX, stockSlot.Position.X.Whole,
             "Installing ninja palette does not change initial post placement");
         // Facing left, the ninja starts at the native initial list $B2:F2DA.
-        AssertEqual(new AnimationPlayback<NinjaSpacePirateProgram>(NinjaSpacePirateAnimations.StartingWith(NinjaSpacePirateProgram.InitialFacingLeft), AnimationPlace.StartOfAnimation), stockProgram,
+        AssertEqual(new AnimationPlayback<NinjaSpacePirateSegment>(NinjaSpacePirateAnimations.StartingWith(NinjaSpacePirateSegment.InitialFacingLeft), AnimationPlace.StartOfAnimation), stockProgram,
             "Installing ninja palette does not change initial animation");
 
         Console.WriteLine("Ninja Pirate palette: the gold wall shade matches the native gold-Pirate colours; placement and animation pass.");

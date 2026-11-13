@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Flies;
 public sealed class FlyEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<FlyProgram> Playback { get; set; }
+    internal AnimationPlayback<FlySegment> Playback { get; set; }
 
     /// <summary>Counts up per attack update, down below zero during retreat, and then down from 24 to gate another idle attack.</summary>
     public int RetreatTimer { get; internal set; }

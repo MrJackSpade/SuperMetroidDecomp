@@ -12,10 +12,10 @@ internal sealed class EndingRewardJump
     /// The program Samus's body falls by once she passes above the screen. A suited jump's head flies ahead of the body
     /// and is deleted as it passes the height at which the body starts to fall, so only the body falls and lands.
     /// </summary>
-    internal const CinematicSpriteProgram FallingProgram = CinematicSpriteProgram.Falling;
+    internal const CinematicSpriteSegment FallingAnimation = CinematicSpriteSegment.Falling;
 
     /// <summary>The program Samus's body lands and shoots by.</summary>
-    internal const CinematicSpriteProgram LandingProgram = CinematicSpriteProgram.Landing;
+    internal const CinematicSpriteSegment LandingAnimation = CinematicSpriteSegment.Landing;
 
     /// <summary>The colouring Samus's body falls and lands in.</summary>
     internal const EndingSpriteColouring FallingColouring = EndingSpriteColouring.FallingSamus;
@@ -72,7 +72,7 @@ internal sealed class EndingRewardJump
             {
                 Falling = true;
                 body.SetColouring(EndingShades.Drawn(FallingColouring));
-                body.Start(FallingProgram);
+                body.Start(FallingAnimation);
                 body.InstallFrameBehavior(CinematicSpriteFrameBehavior.RewardLanding);
             }
         }
@@ -82,7 +82,7 @@ internal sealed class EndingRewardJump
             if (BodyY >= EndingRewardJumpDefinitions.LandingY)
             {
                 body.WholePosition = body.WholePosition.WithY(EndingRewardJumpDefinitions.LandingY);
-                body.Start(LandingProgram);
+                body.Start(LandingAnimation);
                 body.InstallFrameBehavior(null);
             }
         }
@@ -173,7 +173,7 @@ internal sealed class EndingRewardJump
         var actor = new IntroDiscoverySprite(
             initialization.Position,
             EndingShades.Drawn(initialization.Colouring),
-            record.Program);
+            record.Animation);
         actor.InstallFrameBehavior(record.FrameBehavior);
         return actor;
     }

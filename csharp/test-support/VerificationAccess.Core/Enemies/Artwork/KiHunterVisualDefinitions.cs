@@ -14,6 +14,6 @@ internal static class KiHunterVisualDefinitions
     /// timing, callbacks and collision continue to use compiled mechanics.
     /// </summary>
     internal static NativeEnemySpritemapDefinition[] Frames() =>
-        [.. new SortedSet<ushort>(KiHunterAnimationsConstants.Spritemaps(Enum.GetValues<KiHunterProgram>()))
+        [.. new SortedSet<ushort>(KiHunterAnimationsConstants.Spritemaps(Enum.GetValues<KiHunterSegment>()))
             .Select(pointer => new NativeEnemySpritemapDefinition(Bank, pointer, $"ki_hunter_a8_{pointer:x4}"))];
 }

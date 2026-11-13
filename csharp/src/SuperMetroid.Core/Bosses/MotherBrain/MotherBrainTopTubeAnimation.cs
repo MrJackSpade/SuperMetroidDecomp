@@ -5,18 +5,18 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>A falling ceiling tube's typed animation.</summary>
-internal sealed class MotherBrainTopTubeAnimation(MotherBrainTopTubeProgram program)
-    : EnemyProjectileTypedAnimation<MotherBrainTopTubeProgram, MotherBrainTopTubeProgram, NoAnimationCue>(MotherBrainTopTubeAnimations.StartingAt[program])
+internal sealed class MotherBrainTopTubeAnimation(MotherBrainTopTubeSegment segment)
+    : EnemyProjectileTypedAnimation<MotherBrainTopTubeSegment, MotherBrainTopTubeSegment, NoAnimationCue>(MotherBrainTopTubeAnimations.StartingAt[segment])
 {
     /// <inheritdoc/>
-    private protected override AnimationSegments<MotherBrainTopTubeProgram, MotherBrainTopTubeProgram, NoAnimationCue> Segments =>
+    private protected override AnimationSegments<MotherBrainTopTubeSegment, MotherBrainTopTubeSegment, NoAnimationCue> Segments =>
         MotherBrainTopTubeAnimations.Segments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<MotherBrainTopTubeProgram, Animation<MotherBrainTopTubeProgram>> StartingAt =>
+    private protected override IReadOnlyDictionary<MotherBrainTopTubeSegment, Animation<MotherBrainTopTubeSegment>> StartingAt =>
         MotherBrainTopTubeAnimations.StartingAt;
 
     /// <inheritdoc/>
-    private protected override EnemyProjectileFrameId Present(MotherBrainTopTubeProgram frame) =>
+    private protected override EnemyProjectileFrameId Present(MotherBrainTopTubeSegment frame) =>
         MotherBrainTopTubeFrameDefinitions.ShownProjectileFrames[frame];
 }

@@ -90,7 +90,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
 
         slot.Shading = TourianCorpseShades.InDrainedColours;
         state.Function = DeadTourianCorpseFunction.Waiting;
-        state.Playback = DeadSidehopperBehavior.StartDeadTourianProgram(slot, definition.InitialProgram);
+        state.Playback = DeadSidehopperBehavior.StartDeadTourianAnimation(slot, definition.InitialAnimation);
     }
 
     /// <summary>Runs the shared corpse behaviour: collision starts a 16-frame delay, then the corpse rots until its last row has fallen.</summary>
@@ -196,13 +196,13 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances the Tourian corpses' typed animation.</summary>
-    internal static void AdvanceDeadTourianTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    internal static void AdvanceDeadTourianTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _)
     {
-        if (!EnemyProgramAnimation.Expire(slot))
+        if (!slot.AnimationClock.Expire())
             return;
         DeadTourianCorpseEnemyState state = RequireDeadTourianCorpseState(slot);
-        AnimationPlayback<DeadTourianProgram> playback = state.Playback;
-        EnemyProgramAnimation.Play(slot, DeadTourianAnimations.Segments, ref playback,
+        AnimationPlayback<DeadTourianSegment> playback = state.Playback;
+        EnemyAnimationPlayback.Play(slot, DeadTourianAnimations.Segments, ref playback,
             cue => throw new InvalidDataException($"A corpse pose published {cue.Kind}."));
         state.Playback = playback;
     }

@@ -37,7 +37,7 @@ internal static class GoldNinjaDeathDropsVerification
         // ($B2:8779), the callback the movie's kill entered, and hold that frame.
         const ushort normalShotFrame = 0x8ea2;
         pirate.SpritemapPointer = normalShotFrame;
-        pirate.FrameHold = WrappingCountdown.Start(0x7fff);
+        pirate.AnimationClock.HoldFor(0x7fff);
         pirate.Health = 1;
         runtime.Enemies.ProcessingWindow.PrepareEnemyProcessingList(pirate.Position.Whole);
         MotherBrainRinkaDoorSpawnExpected target = new MotherBrainRinkaDoorSpawnExpected(pirate.Position.X.Whole, (ushort)(pirate.Position.Y.Whole + 15));

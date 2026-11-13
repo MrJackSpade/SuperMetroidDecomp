@@ -24,7 +24,7 @@ internal static class SamusAnimationOperandDecoding
     internal static Dictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.OperandStep>> OperandSteps(IImportCartridgeSource cartridge)
     {
         SamusAnimationProgramLayout.LaidOutProgram[] laidOut = SamusAnimationProgramLayout.Read(cartridge);
-        var byProgram = new Dictionary<SamusAnimationProgram, IReadOnlyDictionary<string, SamusOverreadDocument.OperandStep>>();
+        var byProgram = new Dictionary<SamusPoseAnimation, IReadOnlyDictionary<string, SamusOverreadDocument.OperandStep>>();
         for (int index = 0; index < laidOut.Length; index++)
         {
             SamusAnimationProgramLayout.LaidOutProgram program = laidOut[index];
@@ -38,7 +38,7 @@ internal static class SamusAnimationOperandDecoding
             byProgram.Add(program.Program, steps);
         }
         return SamusAnimationProgramLayout.PosesWithRecords()
-            .ToDictionary(pose => pose.ToString(), pose => byProgram[SamusAnimationDelays.ProgramForPose(pose)]);
+            .ToDictionary(pose => pose.ToString(), pose => byProgram[SamusAnimationDelays.AnimationForPose(pose)]);
     }
 
     /// <summary>

@@ -38,9 +38,9 @@ internal static class WorkRobotLaserBehaviorVerification
         AssertEqual(5, lasers.Length, "all five laser definitions start the typed program");
         foreach (EnemyProjectile laser in lasers)
         {
-            AssertTrue(laser.Animation is WorkRobotLaserAnimation { PlayingSegment: WorkRobotLaserProgram.Initial }, $"the {laser.Kind} laser starts its prefix");
+            AssertTrue(laser.Animation is WorkRobotLaserAnimation { PlayingSegment: WorkRobotLaserSegment.Initial }, $"the {laser.Kind} laser starts its prefix");
             (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, laser,
-                NativeEnemyProjectileProgramOracle.EntryOf(WorkRobotLaserNativeListAddresses.Entries, WorkRobotLaserProgram.Initial), 80, laser.Kind.ToString());
+                NativeEnemyProjectileProgramOracle.EntryOf(WorkRobotLaserNativeListAddresses.Entries, WorkRobotLaserSegment.Initial), 80, laser.Kind.ToString());
             AssertTrue(!deleted, $"the {laser.Kind} laser loops until it is shot or collides");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts, "production reads none of the laser's native list bytes");

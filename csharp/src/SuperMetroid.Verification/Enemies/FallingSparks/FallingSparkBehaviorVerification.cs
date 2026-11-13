@@ -28,13 +28,13 @@ internal static class FallingSparkBehaviorVerification
         source.Position = source.Position.WithWhole(new(288, 96));
         enemies.FallingSparksBehavior.SpawnFallingSpark(source);
         EnemyProjectile spark = enemies.Projectiles.EnemyProjectiles.Single(candidate => candidate.Kind == RoomEnemyProjectileKind.FallingSpark);
-        AssertEqual(FallingSparkProgram.Falling, ProgramOf(spark), "a spawned spark starts its falling program");
-        (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, spark, Entry(FallingSparkProgram.Falling), 30, "falling spark flight");
+        AssertEqual(FallingSparkSegment.Falling, ProgramOf(spark), "a spawned spark starts its falling program");
+        (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, spark, Entry(FallingSparkSegment.Falling), 30, "falling spark flight");
         AssertTrue(!deleted, "the falling program loops until the floor");
 
         FallingSparksBehavior.BeginFallingSparkFloorImpact(spark);
-        AssertEqual(FallingSparkProgram.HitFloor, ProgramOf(spark), "the floor impact starts the impact program");
-        (deleted, int updates) = NativeEnemyProjectileParity.Compare(cartridge, enemies, spark, Entry(FallingSparkProgram.HitFloor), 30, "falling spark impact");
+        AssertEqual(FallingSparkSegment.HitFloor, ProgramOf(spark), "the floor impact starts the impact program");
+        (deleted, int updates) = NativeEnemyProjectileParity.Compare(cartridge, enemies, spark, Entry(FallingSparkSegment.HitFloor), 30, "falling spark impact");
         AssertTrue(deleted, "the impact program deletes the spark");
         AssertEqual(12, updates, "the impact shows eleven one-update frames before deleting the spark");
         AssertEqual(0, guard.ForbiddenReadAttempts, "production reads none of the spark's native list bytes");
@@ -42,11 +42,11 @@ internal static class FallingSparkBehaviorVerification
     }
 
     /// <summary>The native entry of <paramref name="program"/>.</summary>
-    private static ushort Entry(FallingSparkProgram program) =>
+    private static ushort Entry(FallingSparkSegment program) =>
         NativeEnemyProjectileProgramOracle.EntryOf(FallingSparkNativeListAddresses.Entries, program);
 
     /// <summary>The typed program <paramref name="projectile"/> runs.</summary>
-    private static FallingSparkProgram ProgramOf(EnemyProjectile projectile) =>
+    private static FallingSparkSegment ProgramOf(EnemyProjectile projectile) =>
         projectile.Animation is FallingSparkAnimation animation ? animation.PlayingSegment
             : throw new InvalidOperationException("The spark runs no typed program.");
 

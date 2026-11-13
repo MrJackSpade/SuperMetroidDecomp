@@ -117,7 +117,7 @@ internal sealed class MotherBrainRevivalPhases
     {
         if (--_state.FunctionTimer < 0)
         {
-            _state.SetHeadProgram(MotherBrainHeadProgram.StretchingPhase3);
+            _state.SetHeadAnimation(MotherBrainHeadSegment.StretchingPhase3);
             _state.Phase = MotherBrainBodyFunction.SecondPhaseReviveWalkUpToBaby;
             _state.FunctionTimer = 128;
             return true;
@@ -194,9 +194,9 @@ internal sealed class MotherBrainRevivalPhases
             // A nonzero Baby enemy index selects the Baby-targeted volley; zero instead targets Samus.
             // This cutscene owns a spawned Baby, so retain the live actor
             // condition instead of unconditionally substituting the desired list.
-            _state.SetHeadProgram(_state.BabyMetroidSpawned
-                ? MotherBrainHeadProgram.AttackingBabyMetroid
-                : MotherBrainHeadProgram.AttackingSamusFourOnionRingsPhase3);
+            _state.SetHeadAnimation(_state.BabyMetroidSpawned
+                ? MotherBrainHeadSegment.AttackingBabyMetroid
+                : MotherBrainHeadSegment.AttackingSamusFourOnionRingsPhase3);
             _state.Phase = MotherBrainBodyFunction.SecondPhaseMurderBabyAttackCooldown;
             _state.FunctionTimer = 64;
         }
@@ -234,7 +234,7 @@ internal sealed class MotherBrainRevivalPhases
     /// </summary>
     internal bool RunSecondPhaseExecuteFinalBabyAttack()
     {
-        _state.SetHeadProgram(MotherBrainHeadProgram.AttackingBabyMetroid);
+        _state.SetHeadAnimation(MotherBrainHeadSegment.AttackingBabyMetroid);
         _state.Phase = MotherBrainBodyFunction.SecondPhaseFinalBabyAttackHolding;
         return false;
     }

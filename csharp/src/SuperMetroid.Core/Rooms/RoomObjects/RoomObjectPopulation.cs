@@ -37,7 +37,7 @@ public sealed class RoomObjectPopulation
     internal static RoomObjectPopulation FromRecords(string name, RoomObjectPlacementDefinition[] records) =>
         new(name, Ensure.NotNull(records).Select(record => new RoomObjectPlacement(
             RoomObjectKinds.RequirePlaced(record.Kind), record.Block, record.Argument, Cannon: record.Cannon)
-            { CompiledScrollProgram = record.ScrollProgram }));
+            { CompiledScrollChange = record.ScrollChange }));
 
     /// <summary>Copies one placement's scroll program and rejects a malformed one.</summary>
     private static RoomObjectPlacement CopyPlacement(RoomObjectPlacement placement)
@@ -45,25 +45,25 @@ public sealed class RoomObjectPopulation
         Ensure.NotNull(placement);
         if (placement.Kind == RoomObjectKind.None)
             throw new InvalidDataException("A decoded room-object placement cannot be an empty placement.");
-        RoomScrollWrite[]? program = placement.ScrollProgram?.ToArray();
-        RoomScrollProgram? compiledProgram = program is null ? placement.CompiledScrollProgram : null;
-        if (compiledProgram is not null)
+        RoomScrollWrite[]? animation = placement.ScrollChange?.ToArray();
+        RoomScrollChange? compiledChange = animation is null ? placement.CompiledScrollChange : null;
+        if (compiledChange is not null)
         {
             if (placement.Kind != RoomObjectKind.ScrollTrigger)
                 throw new InvalidDataException("Only a scroll trigger may run a retail scroll program.");
         }
         else if (placement.Kind == RoomObjectKind.ScrollTrigger)
         {
-            if (program is null || program.Length >= RoomScrollGrid.KeptCellCount)
+            if (animation is null || animation.Length >= RoomScrollGrid.KeptCellCount)
                 throw new InvalidDataException("A decoded scroll room object needs a bounded write program.");
-            foreach (RoomScrollWrite write in program)
+            foreach (RoomScrollWrite write in animation)
             {
                 if (write.Index is < 0 or >= RoomScrollGrid.KeptCellCount || !Enum.IsDefined(write.State))
                     throw new InvalidDataException("A decoded scroll room object contains an invalid scroll write.");
             }
         }
-        else if (program is not null)
+        else if (animation is not null)
             throw new InvalidDataException("Only a resident scroll room object may own scroll writes.");
-        return placement with { ScrollProgram = program, CompiledScrollProgram = compiledProgram };
+        return placement with { ScrollChange = animation, CompiledScrollChange = compiledChange };
     }
 }

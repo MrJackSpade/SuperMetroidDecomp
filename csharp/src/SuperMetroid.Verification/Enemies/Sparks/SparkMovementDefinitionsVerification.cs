@@ -30,7 +30,7 @@ internal static class SparkMovementDefinitionsVerification
             var nativeFunction = SparksNativeWords.SparkEnemyFunctions.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(SparkNativeValues.FunctionTable + selector * 2),
                 $"Spark selector {selector}'s function");
             SparkMovementDefinition definition = SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.SparkStart(selector);
-            AssertEqual(nativeList, NativeEnemyAnimationOracle.EntryOf(SparkNativeListAddresses.Entries, definition.Program),
+            AssertEqual(nativeList, NativeEnemyAnimationOracle.EntryOf(SparkNativeListAddresses.Entries, definition.Animation),
                 $"Spark list selector {selector}");
             AssertEqual(nativeFunction, definition.Function, $"Spark function selector {selector}");
 
@@ -38,7 +38,7 @@ internal static class SparkMovementDefinitionsVerification
             slot.SetSpawnParameter2(EnemyDefinitionId.Spark, 5);
             SparkBehavior.InitializeSpark(slot);
             SparkEnemyState state = enemies.SparkStates[0] ?? throw new InvalidOperationException("Spark has no state.");
-            AssertEqual(new AnimationPlayback<SparkProgram>(SparkAnimations.StartingWith(definition.Program), AnimationPlace.StartOfAnimation),
+            AssertEqual(new AnimationPlayback<SparkSegment>(SparkAnimations.StartingWith(definition.Animation), AnimationPlace.StartOfAnimation),
                 state.Playback, $"Spark production animation selector {selector}");
             AssertEqual(nativeFunction, state.Function, $"Spark production function selector {selector}");
         }
@@ -47,30 +47,30 @@ internal static class SparkMovementDefinitionsVerification
                 () => SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.SparkStart(unauthored),
                 $"Spark unauthored initial state {unauthored}");
 
-        foreach (SparkProgram loop in new[] { SparkProgram.Active, SparkProgram.Emitter })
+        foreach (SparkSegment loop in new[] { SparkSegment.Active, SparkSegment.Emitter })
         {
             (RoomEnemySystem loopSystem, RoomEnemySlot loopSlot, _) = Start(loop, intangible: false);
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(SparkAnimations.Segments, loop, SparkFrameToolingDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(loopSlot, EnemyInstructionRunner.LoopUpdates(SparkAnimations.Segments, loop)), $"Spark {loop} loop");
         }
-        (RoomEnemySystem onSystem, RoomEnemySlot on, SparkEnemyState onState) = Start(SparkProgram.FlickerOn, intangible: true);
+        (RoomEnemySystem onSystem, RoomEnemySlot on, SparkEnemyState onState) = Start(SparkSegment.FlickerOn, intangible: true);
         EnemyInstructionRunner.ShownFrames(on, 1);
         AssertTrue(!on.Contact.HasAny(EnemyContact.IgnoresSamus), "Spark flicker-on makes the actor tangible before its first flash");
         EnemyInstructionRunner.ShownFrames(on, 40);
-        AssertEqual<SparkProgram?>(SparkProgram.Active, StandsIn(onState.Playback), "Spark flicker-on runs into the active loop");
-        (RoomEnemySystem outSystem, RoomEnemySlot off, SparkEnemyState offState) = Start(SparkProgram.FlickerOut, intangible: false);
+        AssertEqual<SparkSegment?>(SparkSegment.Active, StandsIn(onState.Playback), "Spark flicker-on runs into the active loop");
+        (RoomEnemySystem outSystem, RoomEnemySlot off, SparkEnemyState offState) = Start(SparkSegment.FlickerOut, intangible: false);
         EnemyInstructionRunner.ShownFrames(off, 40);
         AssertTrue(off.Contact.HasAny(EnemyContact.IgnoresSamus), "Spark flicker-out makes the actor intangible");
-        AssertEqual<SparkProgram?>(SparkProgram.FlickerOut, StandsIn(offState.Playback), "Spark flicker-out holds");
+        AssertEqual<SparkSegment?>(SparkSegment.FlickerOut, StandsIn(offState.Playback), "Spark flicker-out holds");
         Console.WriteLine("  Spark: three native selections, the unauthored-state rejection, both loops and both flickers with their collision cues pass.");
 
         // The segment a playback stands in: the segment of the phase it plays.
-        static SparkProgram? StandsIn(AnimationPlayback<SparkProgram>? playback) =>
+        static SparkSegment? StandsIn(AnimationPlayback<SparkSegment>? playback) =>
             playback is { } playing ? playing.Animation.Phases[playing.Place.Phase].Segment : null;
     }
 
     /// <summary>A Spark running <paramref name="program"/> from its first step.</summary>
-    private static SparkMovementDefinitionsStartResult Start(SparkProgram program, bool intangible)
+    private static SparkMovementDefinitionsStartResult Start(SparkSegment program, bool intangible)
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().IsAreaBossDefeated = () => true;
@@ -81,7 +81,7 @@ internal static class SparkMovementDefinitionsVerification
         SparkBehavior.InitializeSpark(slot);
         SparkEnemyState state = enemies.SparkStates[0] ?? throw new InvalidOperationException("Spark has no state.");
         state.Playback = new(SparkAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.AnimationClock.StepOnNextUpdate();
         slot.Contact = intangible ? EnemyContact.IgnoresSamus : EnemyContact.None;
         slot.Processing = EnemyProcessing.None;
         slot.Presence = EnemyPresence.None;

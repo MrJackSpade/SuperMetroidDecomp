@@ -11,13 +11,13 @@ internal abstract record TorizoCue
     /// <summary>A branch, call or link to another body program.</summary>
     /// <param name="Kind">What the branch tests or does.</param>
     /// <param name="Target">The program a branch, call or link cue continues at or saves.</param>
-    internal sealed record Branch(TorizoBranchKind Kind, TorizoBodyProgram Target) : TorizoCue;
+    internal sealed record Branch(TorizoBranchKind Kind, TorizoBodySegment Target) : TorizoCue;
 
     /// <summary>A two-way branch or call between two body programs.</summary>
     /// <param name="Kind">What the choice tests.</param>
     /// <param name="Target">The program a branch, call or link cue continues at or saves.</param>
     /// <param name="Alternate">The program a two-way branch or call continues at otherwise.</param>
-    internal sealed record Choice(TorizoChoiceKind Kind, TorizoBodyProgram Target, TorizoBodyProgram Alternate) : TorizoCue;
+    internal sealed record Choice(TorizoChoiceKind Kind, TorizoBodySegment Target, TorizoBodySegment Alternate) : TorizoCue;
 
     /// <summary>Stands Bomb Torizo up or sits it down, moving it by a movement-table entry.</summary>
     /// <param name="Kind">Which way the posture changes.</param>

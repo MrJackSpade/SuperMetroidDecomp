@@ -32,14 +32,13 @@ internal sealed class CrocomireBodyLayer
     /// </summary>
     public Position16<BackgroundPixels> Placement { get; internal set; }
 
-    /// <summary>Starts the tongue's <paramref name="program"/> from its first step once <paramref name="timer"/> expires.</summary>
-    internal static void StartCrocomireTongueProgram(CrocomireEnemyState state, CrocomireTongueProgram program, WrappingCountdown timer)
+    /// <summary>Starts the tongue's <paramref name="segment"/> from its first step after <paramref name="updates"/> updates.</summary>
+    internal static void StartCrocomireTongueAnimation(CrocomireEnemyState state, CrocomireTongueSegment segment, int updates)
     {
         RoomEnemySlot tongue = state.Tongue ??
             throw new InvalidOperationException("Crocomire's tongue program started without a tongue.");
-        state.TonguePlayback = new AnimationPlayback<CrocomireTongueProgram>(CrocomireAnimations.TongueStartingWith(program), AnimationPlace.StartOfAnimation);
-        tongue.FrameHold = timer;
-        tongue.Timer = WrappingCountdown.Start(0);
+        state.TonguePlayback = new AnimationPlayback<CrocomireTongueSegment>(CrocomireAnimations.TongueStartingWith(segment), AnimationPlace.StartOfAnimation);
+        tongue.AnimationClock.RestartAfter(updates);
     }
 
     /// <summary>

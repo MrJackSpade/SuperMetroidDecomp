@@ -15,7 +15,7 @@ internal static class CeresDestructionActorDefinitions
     /// waiting callback and list; its operands set its placement/palette.
     /// Its slide callback accelerates by 64/256 pixels.</summary>
     internal static CeresDestructionActorDefinition ZebesPlanet =>
-        new(CinematicSpriteFrameBehavior.Zebes, CinematicSpriteProgram.ZebesPlanet,
+        new(CinematicSpriteFrameBehavior.Zebes, CinematicSpriteSegment.ZebesPlanet,
             CeresSpriteColouring.Zebes, SignedSixteenSixteen.Zero, false, SignedEightEight.FromParts(0, 64),
             CinematicSpriteFrameBehavior.ZebesSlideSceneAway, false);
 
@@ -23,13 +23,13 @@ internal static class CeresDestructionActorDefinitions
     /// an empty callback and its list, in the cinematic's first sprite colours.
     /// Its program deletes before scene sliding, so it has no slide callback or acceleration.</summary>
     internal static CeresDestructionActorDefinition ZebesTitle =>
-        new(CinematicSpriteFrameBehavior.NoOp, CinematicSpriteProgram.ZebesTitle,
+        new(CinematicSpriteFrameBehavior.NoOp, CinematicSpriteSegment.ZebesTitle,
             CeresSpriteColouring.ZebesTitle, SignedSixteenSixteen.Zero, false, SignedEightEight.Zero, null, false);
 
     /// <summary>The four star sheets' programs, indexed by row-major quadrant.</summary>
-    internal static readonly CinematicSpriteProgram[] ZebesStarSheets =
+    internal static readonly CinematicSpriteSegment[] ZebesStarSheets =
     [
-        CinematicSpriteProgram.ZebesStarSheet0, CinematicSpriteProgram.ZebesStarSheet1,
-        CinematicSpriteProgram.ZebesStarSheet2, CinematicSpriteProgram.ZebesStarSheet3,
+        CinematicSpriteSegment.ZebesStarSheet0, CinematicSpriteSegment.ZebesStarSheet1,
+        CinematicSpriteSegment.ZebesStarSheet2, CinematicSpriteSegment.ZebesStarSheet3,
     ];
 }

@@ -17,7 +17,7 @@ internal static class ViolaVisualDefinitions
     /// <summary>Collects each distinct loop frame once, in loop order, and rejects changes to the expected eight-frame artwork set.</summary>
     internal static NativeEnemySpritemapDefinition[] Frames()
     {
-        NativeEnemySpritemapDefinition[] frames = [.. CrawlerAnimationsConstants.Spritemaps(CrawlerProgram.ViolaNormal).Distinct()
+        NativeEnemySpritemapDefinition[] frames = [.. CrawlerAnimationsConstants.Spritemaps(CrawlerSegment.ViolaNormal).Distinct()
             .Select(pointer => new NativeEnemySpritemapDefinition(Bank, pointer, $"viola_spin_{pointer:x4}"))];
         if (frames.Length != FrameCount)
             throw new InvalidDataException($"Viola shows {frames.Length} distinct frames, expected {FrameCount}.");

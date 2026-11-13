@@ -5,15 +5,15 @@ internal static class IntroMotherBrainDefinitions
 {
     /// <summary>The intro Mother Brain's initialization, frame behaviour, and initial animation.</summary>
     public static IntroMotherBrainActorDefinition MotherBrain =>
-        new(CinematicSpriteProgram.IntroMotherBrain);
+        new(CinematicSpriteSegment.IntroMotherBrain);
 
     /// <summary>A large explosion's initialization, frame behaviour, and initial animation.</summary>
     public static IntroMotherBrainActorDefinition BigExplosionActor =>
-        new(CinematicSpriteProgram.IntroMotherBrainExplosionBig);
+        new(CinematicSpriteSegment.IntroMotherBrainExplosionBig);
 
     /// <summary>A small explosion's initialization, frame behaviour, and initial animation.</summary>
     public static IntroMotherBrainActorDefinition SmallExplosionActor =>
-        new(CinematicSpriteProgram.IntroMotherBrainExplosionSmall);
+        new(CinematicSpriteSegment.IntroMotherBrainExplosionSmall);
 
     /// <summary>Mother Brain's initializer fixes her cinematic origin at (56,111).</summary>
     public static Position16<ScreenPixels> MotherBrainOrigin => new(56, 111);

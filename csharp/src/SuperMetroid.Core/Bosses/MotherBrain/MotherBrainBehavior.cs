@@ -232,7 +232,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         [new(0, 0), new(-1, 1), new(0, -1), new(1, 1)];
 
     /// <summary>Advances MotherBrainBody's typed animation.</summary>
-    internal void AdvanceMotherBrainBodyTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context)
+    internal void AdvanceMotherBrainBodyTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext context)
     {
         Body.AdvanceMotherBrainSlotAnimation(slot, context.Samus);
     }
@@ -499,9 +499,9 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.RoomFlashFrame is not int frame)
             return;
 
-        if (state.RoomFlashTimer == MotherBrainRoomPaletteProgramDefinitions.FlashImageTicks)
+        if (state.RoomFlashTimer == MotherBrainRoomPaletteAnimationDefinitions.FlashImageTicks)
         {
-            frame = (frame + 1) % MotherBrainRoomPaletteProgramDefinitions.FlashFrameCount;
+            frame = (frame + 1) % MotherBrainRoomPaletteAnimationDefinitions.FlashFrameCount;
             state.RoomFlashFrame = frame;
             state.RoomFlashTimer = 0;
         }

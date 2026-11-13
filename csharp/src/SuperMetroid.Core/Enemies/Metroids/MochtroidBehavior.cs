@@ -52,13 +52,13 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // retained. Ordinary room loads start clean and therefore take the safe path.
         var state = new MochtroidEnemyState
         {
-            InstalledProgram = null,
+            InstalledAnimation = null,
             AttachmentDamageTimer = 0,
             MovementMode = MochtroidMovementMode.NotTouchingSamus,
         };
         slot.SetSpeciesState(state);
-        SetMochtroidProgram(
-            slot, state, MochtroidProgram.FreeFlight);
+        SetMochtroidAnimation(
+            slot, state, MochtroidSegment.FreeFlight);
     }
 
     /// <summary>Runs a Mochtroid's per-frame behaviour, resetting its state before dispatch.</summary>
@@ -117,8 +117,8 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, xVelocity))
             StoreMochtroidXVelocity(state, SignedSixteenSixteen.Zero);
 
-        SetMochtroidProgram(
-            slot, state, MochtroidProgram.FreeFlight);
+        SetMochtroidAnimation(
+            slot, state, MochtroidSegment.FreeFlight);
     }
 
     /// <summary>Caps a signed 16.16 velocity by its whole-pixel component at three pixels.</summary>
@@ -160,8 +160,8 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         StoreMochtroidYVelocity(state, SignedSixteenSixteen.Zero);
         if (--state.ShakeTimer == 0)
             state.MovementMode = MochtroidMovementMode.NotTouchingSamus;
-        SetMochtroidProgram(
-            slot, state, MochtroidProgram.FreeFlight);
+        SetMochtroidAnimation(
+            slot, state, MochtroidSegment.FreeFlight);
     }
 
     /// <summary>Stores the current horizontal velocity in the species state.</summary>
@@ -177,13 +177,13 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Installs a changed flight or attachment animation and restarts its frame timers.</summary>
-    internal static void SetMochtroidProgram(
+    internal static void SetMochtroidAnimation(
         RoomEnemySlot slot,
         MochtroidEnemyState state,
-        MochtroidProgram program) =>
-        EnemyProgramAnimation.InstallOnce(slot, state.InstalledProgram, program, installed =>
+        MochtroidSegment segment) =>
+        EnemyAnimationPlayback.StartOnce(slot, state.InstalledAnimation, segment, installed =>
         {
-            state.InstalledProgram = installed;
+            state.InstalledAnimation = installed;
             state.Playback = new(MochtroidAnimations.StartingWith(installed), AnimationPlace.StartOfAnimation);
         });
 
@@ -194,8 +194,8 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus)
     {
         state.MovementMode = MochtroidMovementMode.TouchingSamus;
-        SetMochtroidProgram(
-            slot, state, MochtroidProgram.Attached);
+        SetMochtroidAnimation(
+            slot, state, MochtroidSegment.Attached);
         state.CountAttachedUpdate();
 
         bool applyCommonTouch = samus.HorizontalSpeed.ContactDamageIndex != SamusContactDamageIndex.None;
@@ -240,8 +240,8 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Mochtroid's typed animation.</summary>
-    internal static void AdvanceMochtroidTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, MochtroidAnimations.Segments,
+    internal static void AdvanceMochtroidTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(slot, MochtroidAnimations.Segments,
             static (MochtroidEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (state, cue) => throw new InvalidOperationException($"Mochtroid's cue-free animation raised {cue}."));
 

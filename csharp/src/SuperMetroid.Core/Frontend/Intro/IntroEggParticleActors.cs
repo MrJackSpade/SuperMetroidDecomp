@@ -38,5 +38,5 @@ internal static class IntroEggParticleActors
     /// The bounded selector reaches only these six records.
     /// </remarks>
     public static CinematicActorDefinition Particle(int index) =>
-        new(CinematicSpriteFrameBehavior.MetroidEggParticle, Ensure.Element(ParticlePrograms, index));
+        new(CinematicSpriteFrameBehavior.MetroidEggParticle, Ensure.Element(ParticleAnimations, index));
 }

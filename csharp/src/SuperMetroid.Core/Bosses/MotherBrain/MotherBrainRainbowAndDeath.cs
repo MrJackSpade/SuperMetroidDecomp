@@ -118,8 +118,8 @@ internal sealed class MotherBrainRainbowAndDeath
         if (step.EscapeTypewriterSetupRequested)
         {
             state.EscapeTypewriter = _bossArtwork.EscapeTypewriterPresentation is { } presentation
-                ? new(presentation.Get(EscapeTypewriterProgramId.Zebes))
-                : new(EscapeTypewriterProgramId.Zebes);
+                ? new(presentation.Get(EscapeTypewriterMessageId.Zebes))
+                : new(EscapeTypewriterMessageId.Zebes);
             state.BodyLayerPlacement = Position16<BackgroundPixels>.Zero;
         }
         if (step.EscapeDoorExplosion is { } doorDust)
@@ -145,11 +145,11 @@ internal sealed class MotherBrainRainbowAndDeath
     /// <summary>Places a death explosion with the requested position and visual phase.</summary>
     internal void SpawnMotherBrainDeathExplosion(MotherBrainDeathExplosionRequest request)
     {
-        MiscDustProjectileProgram program = MotherBrainDeathExplosions.Program(request.ProjectileParameter);
+        MiscDustProjectileSegment segment = MotherBrainDeathExplosions.Animation(request.ProjectileParameter);
         var projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null) return; // Shared-pool exhaustion drops the spawn.
         MotherBrainProjectileStarts.Initialize(projectile, RoomEnemyProjectileKind.MotherBrainDeathExplosion, graphics: default);
-        projectile.StartAnimation(new MiscDustProjectileAnimation(program));
+        projectile.StartAnimation(new MiscDustProjectileAnimation(segment));
         projectile.State = new MotherBrainFollowingExplosionState(request.Offset);
         projectile.Velocity = FollowingExplosionLeftVelocity.Of(request.Offset);
         _projectileAttacks.RunMotherBrainDeathExplosion(projectile);
@@ -209,7 +209,7 @@ internal sealed class MotherBrainRainbowAndDeath
         MotherBrainRainbowBeamAttackSequence sequence)
     {
         RoomEnemySlot head = state.Head;
-        sequence.SynchronizeLiveActor(new MotherBrainLiveActorSnapshot { Body = state.Body.Position.Whole, BodyPose = state.Pose, Form = state.Form, BodyContact = state.Body.Contact, BodyProcessing = state.Body.Processing, BodyPresence = state.Body.Presence, BodyCollidesByFrameHitboxes = state.Body.CollidesByFrameHitboxes, BodyNewInstructionFrame = state.Body.NewInstructionFrame, Brain = head.Position.Whole, BrainHealth = head.Health, BrainContact = head.Contact, BrainProcessing = head.Processing, BrainPresence = head.Presence, BrainCollidesByFrameHitboxes = head.CollidesByFrameHitboxes, BrainNewInstructionFrame = head.NewInstructionFrame, LowerNeckAngle = state.LowerNeckAngle, UpperNeckAngle = state.UpperNeckAngle, NeckMovementEnabled = state.NeckMovementEnabled, LowerNeckMovement = state.LowerNeckMovement, UpperNeckMovement = state.UpperNeckMovement, BombCounter = state.BombCounter, HitboxesEnabled = state.HitboxesEnabled != MotherBrainHitboxParts.None });
+        sequence.SynchronizeLiveActor(new MotherBrainLiveActorSnapshot { Body = state.Body.Position.Whole, BodyPose = state.Pose, Form = state.Form, BodyContact = state.Body.Contact, BodyProcessing = state.Body.Processing, BodyPresence = state.Body.Presence, BodyCollidesByFrameHitboxes = state.Body.CollidesByFrameHitboxes, BodyShowsNewFrame = state.Body.AnimationClock.ShowsNewFrame, Brain = head.Position.Whole, BrainHealth = head.Health, BrainContact = head.Contact, BrainProcessing = head.Processing, BrainPresence = head.Presence, BrainCollidesByFrameHitboxes = head.CollidesByFrameHitboxes, BrainShowsNewFrame = head.AnimationClock.ShowsNewFrame, LowerNeckAngle = state.LowerNeckAngle, UpperNeckAngle = state.UpperNeckAngle, NeckMovementEnabled = state.NeckMovementEnabled, LowerNeckMovement = state.LowerNeckMovement, UpperNeckMovement = state.UpperNeckMovement, BombCounter = state.BombCounter, HitboxesEnabled = state.HitboxesEnabled != MotherBrainHitboxParts.None });
     }
 
     /// <summary>
@@ -230,20 +230,20 @@ internal sealed class MotherBrainRainbowAndDeath
         // The brain-program request resets the physical list timer only when body AI requests a new list.
         // The dedicated latch is essential because the running program advances away from
         // the list origin while the request itself remains unchanged.
-        if (sequence.State.HeadProgram is { } headProgram &&
-            (step is { HeadAnimationScriptRequested: true } ||
-             headProgram != state.RainbowAppliedHeadProgram))
+        if (sequence.State.HeadAnimation is { } headSegment &&
+            (step is { HeadAnimationRequested: true } ||
+             headSegment != state.RainbowAppliedHeadAnimation))
         {
-            MotherBrainEncounterAccess.SetMotherBrainBrainProgram(state, headProgram);
-            state.RainbowAppliedHeadProgram = headProgram;
+            MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, headSegment);
+            state.RainbowAppliedHeadAnimation = headSegment;
         }
 
         if (step is { } result &&
             (result.BodyWalkRequested || result.BodyPostureRequested))
         {
-            MotherBrainBodyProgram bodyProgram = sequence.RequestedBodyProgram ?? throw new InvalidDataException(
+            MotherBrainBodySegment bodySegment = sequence.RequestedBodyAnimation ?? throw new InvalidDataException(
                 "Rainbow body AI requested animation without a body program.");
-            MotherBrainEncounterAccess.SetMotherBrainBodyProgram(state, bodyProgram);
+            MotherBrainEncounterAccess.SetMotherBrainBodyAnimation(state, bodySegment);
         }
 
         state.Function = sequence.State.Phase ?? throw new InvalidDataException("The live Mother Brain rainbow sequence has no body function yet.");
@@ -267,13 +267,13 @@ internal sealed class MotherBrainRainbowAndDeath
         state.Body.Processing = sequence.ThirdPhaseDeath.BodyProcessing;
         state.Body.Presence = sequence.ThirdPhaseDeath.BodyPresence;
         state.Body.CollidesByFrameHitboxes = sequence.ThirdPhaseDeath.BodyCollidesByFrameHitboxes;
-        state.Body.NewInstructionFrame = sequence.ThirdPhaseDeath.BodyNewInstructionFrame;
+        state.Body.AnimationClock.ShowsNewFrame = sequence.ThirdPhaseDeath.BodyShowsNewFrame;
         head.Health = sequence.State.BrainHealth;
         head.Contact = sequence.ThirdPhaseDeath.BrainContact;
         head.Processing = sequence.ThirdPhaseDeath.BrainProcessing;
         head.Presence = sequence.ThirdPhaseDeath.BrainPresence;
         head.CollidesByFrameHitboxes = sequence.ThirdPhaseDeath.BrainCollidesByFrameHitboxes;
-        head.NewInstructionFrame = sequence.ThirdPhaseDeath.BrainNewInstructionFrame;
+        head.AnimationClock.ShowsNewFrame = sequence.ThirdPhaseDeath.BrainShowsNewFrame;
         // The live flag begins at two, while the reusable sequence needs only its Boolean
         // branch meaning. Preserve every nonzero value; only an explicit clear
         // is allowed to collapse it to zero.

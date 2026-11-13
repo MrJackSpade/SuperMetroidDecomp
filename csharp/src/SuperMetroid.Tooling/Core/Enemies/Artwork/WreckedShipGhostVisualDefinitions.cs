@@ -11,5 +11,5 @@ internal static class WreckedShipGhostVisualDefinitions
     internal const int FrameCount = 3;
 
     /// <summary>The compositions the ghost's typed floating loop (#641) shows, in order.</summary>
-    internal static ushort[] Spritemaps() => [.. WreckedShipGhostAnimationsTooling.Spritemaps(WreckedShipGhostProgram.Floating)];
+    internal static ushort[] Spritemaps() => [.. WreckedShipGhostAnimationsTooling.Spritemaps(WreckedShipGhostSegment.Floating)];
 }

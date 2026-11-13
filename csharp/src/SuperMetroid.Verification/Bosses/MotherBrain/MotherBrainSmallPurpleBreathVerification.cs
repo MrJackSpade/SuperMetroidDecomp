@@ -55,7 +55,7 @@ internal static class MotherBrainSmallPurpleBreathVerification
 
         // 8+8+10+10+11+11+12+12 frames, then $86:CAEE clears the flag and Delete removes it.
         for (int frame = 0; frame < 120 && Breaths() != 0; frame++)
-            runtime.Enemies.StepEnemyProjectileInstructions(runtime.Room.LoadedLevelData, runtime.Player.Samus,
+            runtime.Enemies.AdvanceEnemyProjectileAnimations(runtime.Room.LoadedLevelData, runtime.Player.Samus,
                 new(runtime.Room.LoadedCamera.PixelPosition.X, runtime.Room.LoadedCamera.PixelPosition.Y), runtime.Enemies.NextStandaloneProjectileFrame(),
                 samusBombs: null, frameCounter: runtime.Enemies.FrameContext.RandomEnemyCounter);
         AssertEqual(0, Breaths(), "the small breath deletes itself after its eight poses");

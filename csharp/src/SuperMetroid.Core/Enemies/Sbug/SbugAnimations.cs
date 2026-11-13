@@ -1,4 +1,4 @@
-using P = SuperMetroid.Core.Enemies.Sbug.SbugProgram;
+using P = SuperMetroid.Core.Enemies.Sbug.SbugSegment;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Artwork;
 
@@ -11,8 +11,8 @@ namespace SuperMetroid.Core.Enemies.Sbug;
 internal static class SbugAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<SbugProgram, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
-        new Dictionary<SbugProgram, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
+    internal static AnimationSegments<SbugSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<SbugSegment, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
     {
         [P.Right] =
         [
@@ -73,7 +73,7 @@ internal static class SbugAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<SbugProgram, Animation<SbugProgram>> StartingAt { get; } = new Dictionary<SbugProgram, Animation<SbugProgram>>
+    internal static IReadOnlyDictionary<SbugSegment, Animation<SbugSegment>> StartingAt { get; } = new Dictionary<SbugSegment, Animation<SbugSegment>>
     {
         [P.Right] = new([new(P.Right, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
         [P.UpRight] = new([new(P.UpRight, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
@@ -86,7 +86,7 @@ internal static class SbugAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<SbugProgram> StartingWith(SbugProgram segment) => StartingAt[segment];
+    internal static Animation<SbugSegment> StartingWith(SbugSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);

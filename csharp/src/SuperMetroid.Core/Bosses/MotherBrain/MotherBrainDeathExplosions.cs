@@ -6,9 +6,9 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal static class MotherBrainDeathExplosions
 {
     /// <summary>The program projectile parameter zero through two selects.</summary>
-    internal static MiscDustProjectileProgram Program(int parameter) =>
-        (uint)parameter < (uint)MotherBrainDeathExplosionDefinitions.Programs.Length
-            ? MotherBrainDeathExplosionDefinitions.Programs[parameter]
+    internal static MiscDustProjectileSegment Animation(int parameter) =>
+        (uint)parameter < (uint)MotherBrainDeathExplosionDefinitions.Animations.Length
+            ? MotherBrainDeathExplosionDefinitions.Animations[parameter]
             : throw new ArgumentOutOfRangeException(
                 nameof(parameter), parameter, "Mother Brain death explosion parameter must be zero through two.");
 }

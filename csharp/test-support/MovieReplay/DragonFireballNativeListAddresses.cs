@@ -11,12 +11,12 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 internal static class DragonFireballNativeListAddresses
 {
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<DragonFireballProgram>[] Entries =
+    internal static readonly NativeProgramEntry<DragonFireballSegment>[] Entries =
     [
-        new NativeProgramEntry<DragonFireballProgram>(DragonFireballProgram.RisingLeft, 0xb4bf),
-        new NativeProgramEntry<DragonFireballProgram>(DragonFireballProgram.RisingRight, 0xb4cb),
-        new NativeProgramEntry<DragonFireballProgram>(DragonFireballProgram.FallingLeft, 0xb4d7),
-        new NativeProgramEntry<DragonFireballProgram>(DragonFireballProgram.FallingRight, 0xb4e3),
+        new NativeProgramEntry<DragonFireballSegment>(DragonFireballSegment.RisingLeft, 0xb4bf),
+        new NativeProgramEntry<DragonFireballSegment>(DragonFireballSegment.RisingRight, 0xb4cb),
+        new NativeProgramEntry<DragonFireballSegment>(DragonFireballSegment.FallingLeft, 0xb4d7),
+        new NativeProgramEntry<DragonFireballSegment>(DragonFireballSegment.FallingRight, 0xb4e3),
     ];
 
     /// <summary>The bank-$86 bytes the lists occupy, $86:B4BF-B4EE, which production must never read.</summary>

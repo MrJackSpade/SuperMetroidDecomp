@@ -4,5 +4,5 @@ namespace SuperMetroid.Core.Enemies.Animals;
 internal readonly record struct EscapeEtecoonInitialization(
     Position16<RoomPixels> Position,
     EscapeEtecoonFrameBehavior FrameBehavior,
-    EscapeEtecoonProgram Program,
+    EscapeEtecoonSegment Animation,
     EightEightVector<RoomPixels> Velocity);

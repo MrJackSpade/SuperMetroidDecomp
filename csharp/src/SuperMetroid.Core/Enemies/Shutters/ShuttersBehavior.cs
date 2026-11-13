@@ -88,11 +88,11 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.GrowthSpeed = settings.GrowthSpeed;
 
         slot.CollidesByFrameHitboxes = false;
-        slot.NewInstructionFrame = false;
-        InstallGrowingShutterProgram(
+        slot.AnimationClock.ShowsNewFrame = false;
+        StartGrowingShutterAnimation(
             slot,
             state,
-            ShutterProgram.GrowingTenPixels,
+            ShutterSegment.GrowingTenPixels,
             yRadius: 8);
     }
 
@@ -250,28 +250,26 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         if (finalSection)
             return;
 
-        ShutterProgram program = state.GrowthLevel switch
+        ShutterSegment segment = state.GrowthLevel switch
         {
-            1 => ShutterProgram.GrowingTwentyPixels,
-            2 => ShutterProgram.GrowingThirtyPixels,
-            3 => ShutterProgram.FortyPixels,
+            1 => ShutterSegment.GrowingTwentyPixels,
+            2 => ShutterSegment.GrowingThirtyPixels,
+            3 => ShutterSegment.FortyPixels,
             _ => throw new InvalidDataException(
                 $"Growing shutter advanced to invalid level {state.GrowthLevel}."),
         };
         int radius = 8 + state.GrowthLevel * 8;
-        InstallGrowingShutterProgram(slot, state, program, radius);
+        StartGrowingShutterAnimation(slot, state, segment, radius);
     }
 
     /// <summary>Restarts the next growth pose and updates the shutter's vertical collision radius.</summary>
-    private static void InstallGrowingShutterProgram(
+    private static void StartGrowingShutterAnimation(
         RoomEnemySlot slot,
         GrowingShutterEnemyState state,
-        ShutterProgram program,
+        ShutterSegment segment,
         int yRadius)
     {
-        state.Playback = new(ShutterAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        state.Playback = EnemyAnimationPlayback.Start(slot, ShutterAnimations.StartingWith(segment));
         slot.Radius = slot.Radius.WithY(yRadius);
     }
     /// <summary>Samus's four-pixel correction when pushing against a horizontal shutter.</summary>
@@ -314,8 +312,8 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.MovingSamus = false;
         state.ShotActivated = false;
         slot.CollidesByFrameHitboxes = false;
-        slot.NewInstructionFrame = false;
-        InstallHorizontalShutterProgram(slot, state);
+        slot.AnimationClock.ShowsNewFrame = false;
+        StartHorizontalShutterAnimation(slot, state);
     }
 
     /// <summary>Runs the horizontal shutter's main AI.</summary>
@@ -530,11 +528,9 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Restarts the stationary shutter pose after movement or reaction.</summary>
-    private static void InstallHorizontalShutterProgram(RoomEnemySlot slot, HorizontalShutterEnemyState state)
+    private static void StartHorizontalShutterAnimation(RoomEnemySlot slot, HorizontalShutterEnemyState state)
     {
-        state.Playback = new(ShutterAnimations.StartingWith(ShutterProgram.Horizontal), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        state.Playback = EnemyAnimationPlayback.Start(slot, ShutterAnimations.StartingWith(ShutterSegment.Horizontal));
     }
 
     /// <summary>Rest length, in AI updates, that selects a permanent stop at an endpoint instead of a timed rest.</summary>
@@ -617,35 +613,35 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Plays a shutter's cue-free animation on to its next frame after its frame expired.</summary>
-    private static AnimationPlayback<ShutterProgram> PlayShutterAnimation(RoomEnemySlot slot, AnimationPlayback<ShutterProgram> playback)
+    private static AnimationPlayback<ShutterSegment> PlayShutterAnimation(RoomEnemySlot slot, AnimationPlayback<ShutterSegment> playback)
     {
-        EnemyProgramAnimation.Play(slot, ShutterAnimations.Segments, ref playback,
+        EnemyAnimationPlayback.Play(slot, ShutterAnimations.Segments, ref playback,
             static cue => throw new InvalidOperationException($"A shutter's cue-free animation raised {cue}."));
         return playback;
     }
 
     /// <summary>Advances ShutterGrowing's typed animation.</summary>
-    internal static void AdvanceShutterGrowingTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    internal static void AdvanceShutterGrowingTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _)
     {
-        if (!EnemyProgramAnimation.Expire(slot))
+        if (!slot.AnimationClock.Expire())
             return;
         GrowingShutterEnemyState state = slot.RequireSpeciesState<GrowingShutterEnemyState>();
         state.Playback = PlayShutterAnimation(slot, state.Playback);
     }
 
     /// <summary>Advances ShutterShootable's typed animation.</summary>
-    internal static void AdvanceShutterShootableTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    internal static void AdvanceShutterShootableTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _)
     {
-        if (!EnemyProgramAnimation.Expire(slot))
+        if (!slot.AnimationClock.Expire())
             return;
         VerticalShutterEnemyState state = slot.RequireSpeciesState<VerticalShutterEnemyState>();
         state.Playback = PlayShutterAnimation(slot, state.Playback);
     }
 
     /// <summary>Advances ShutterHorizShootable's typed animation.</summary>
-    internal static void AdvanceShutterHorizShootableTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    internal static void AdvanceShutterHorizShootableTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _)
     {
-        if (!EnemyProgramAnimation.Expire(slot))
+        if (!slot.AnimationClock.Expire())
             return;
         HorizontalShutterEnemyState state = slot.RequireSpeciesState<HorizontalShutterEnemyState>();
         state.Playback = PlayShutterAnimation(slot, state.Playback);
@@ -794,11 +790,11 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.MovingSamus = false;
         state.ShotActivated = false;
         slot.CollidesByFrameHitboxes = false;
-        slot.NewInstructionFrame = false;
-        InstallVerticalShutterProgram(
+        slot.AnimationClock.ShowsNewFrame = false;
+        StartVerticalShutterAnimation(
             slot,
             state,
-            slot.DefinitionId == EnemyDefinitionId.Kamer ? ShutterProgram.KamerPlatform : ShutterProgram.FortyPixels);
+            slot.DefinitionId == EnemyDefinitionId.Kamer ? ShutterSegment.KamerPlatform : ShutterSegment.FortyPixels);
     }
 
     /// <summary>Runs the vertical shutter's main AI.</summary>
@@ -1026,11 +1022,9 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Restarts a vertical shutter's selected animation.</summary>
-    private static void InstallVerticalShutterProgram(RoomEnemySlot slot, VerticalShutterEnemyState state, ShutterProgram program)
+    private static void StartVerticalShutterAnimation(RoomEnemySlot slot, VerticalShutterEnemyState state, ShutterSegment segment)
     {
-        state.Playback = new(ShutterAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        state.Playback = EnemyAnimationPlayback.Start(slot, ShutterAnimations.StartingWith(segment));
     }
 
     /// <inheritdoc/>

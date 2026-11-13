@@ -1,4 +1,4 @@
-﻿using P = SuperMetroid.Core.Bosses.Phantoon.PhantoonPartProgram;
+﻿using P = SuperMetroid.Core.Bosses.Phantoon.PhantoonPartSegment;
 
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 internal static class PhantoonAnimationsConstants
 {
     /// <summary>The eye program gazing in clockwise direction <paramref name="ordinal"/> from up.</summary>
-    internal static PhantoonPartProgram Gaze(int ordinal) =>
+    internal static PhantoonPartSegment Gaze(int ordinal) =>
         (uint)ordinal < 8
             ? P.EyeLookingUp + ordinal
             : throw new ArgumentOutOfRangeException(nameof(ordinal), ordinal, "Phantoon gazes in eight directions.");

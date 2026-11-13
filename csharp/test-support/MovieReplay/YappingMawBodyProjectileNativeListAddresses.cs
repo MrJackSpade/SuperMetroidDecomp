@@ -11,17 +11,17 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 internal static class YappingMawBodyProjectileNativeListAddresses
 {
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<YappingMawBodyProjectileProgram>[] Entries =
+    internal static readonly NativeProgramEntry<YappingMawBodyProjectileSegment>[] Entries =
     [
-        new NativeProgramEntry<YappingMawBodyProjectileProgram>(YappingMawBodyProjectileProgram.FacingDown, 0xec56),
-        new NativeProgramEntry<YappingMawBodyProjectileProgram>(YappingMawBodyProjectileProgram.FacingUp, 0xec5c),
+        new NativeProgramEntry<YappingMawBodyProjectileSegment>(YappingMawBodyProjectileSegment.FacingDown, 0xec56),
+        new NativeProgramEntry<YappingMawBodyProjectileSegment>(YappingMawBodyProjectileSegment.FacingUp, 0xec5c),
     ];
 
     /// <summary>The bank-$86 bytes from the first list to the end of the last, $86:EC56-EC61, which production must never read.</summary>
     internal static readonly MotherBrainEffectNativeListAddressesExtent Extent = new MotherBrainEffectNativeListAddressesExtent(0xec56, 0xec62);
 
     /// <summary>The native entry of <paramref name="program"/>.</summary>
-    internal static ushort Entry(YappingMawBodyProjectileProgram program) => NativeEnemyProjectileProgramOracle.EntryOf(Entries, program);
+    internal static ushort Entry(YappingMawBodyProjectileSegment program) => NativeEnemyProjectileProgramOracle.EntryOf(Entries, program);
 
     /// <summary>The family's typed programs beside their native lists.</summary>
     internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, YappingMawBodyProjectileAnimations.Segments, YappingMawBodyProjectileAnimations.StartingAt, (frame => EnemyProjectileProgramFrameSources.Operand(frame)), NativeEnemyProjectileCommonCues.Rules);

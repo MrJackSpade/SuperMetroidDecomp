@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Zoa.ZoaCueKind;
-using P = SuperMetroid.Core.Enemies.Zoa.ZoaProgram;
+using P = SuperMetroid.Core.Enemies.Zoa.ZoaSegment;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Zoa;
@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Enemies.Zoa;
 internal static class ZoaAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<ZoaProgram, EnemyFrameId, ZoaCue> Segments { get; } = new(
-        new Dictionary<ZoaProgram, AnimationBeat<EnemyFrameId, ZoaCue>[]>
+    internal static AnimationSegments<ZoaSegment, EnemyFrameId, ZoaCue> Segments { get; } = new(
+        new Dictionary<ZoaSegment, AnimationBeat<EnemyFrameId, ZoaCue>[]>
     {
         [P.FacingLeftShooting] =
         [
@@ -48,7 +48,7 @@ internal static class ZoaAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<ZoaProgram, Animation<ZoaProgram>> StartingAt { get; } = new Dictionary<ZoaProgram, Animation<ZoaProgram>>
+    internal static IReadOnlyDictionary<ZoaSegment, Animation<ZoaSegment>> StartingAt { get; } = new Dictionary<ZoaSegment, Animation<ZoaSegment>>
     {
         [P.FacingLeftShooting] = new([new(P.FacingLeftShooting, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
         [P.FacingLeftRising] = new([new(P.FacingLeftRising, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
@@ -57,7 +57,7 @@ internal static class ZoaAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<ZoaProgram> StartingWith(ZoaProgram segment) => StartingAt[segment];
+    internal static Animation<ZoaSegment> StartingWith(ZoaSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, ZoaCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, ZoaCue>.Frame(frame, duration);

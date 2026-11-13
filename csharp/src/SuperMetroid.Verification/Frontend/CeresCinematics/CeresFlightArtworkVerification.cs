@@ -111,14 +111,15 @@ internal static class CeresFlightArtworkVerification
             var source = CeresCinematicSourceDefinitions.RearViewPlacements[index];
             AssertEqual(source.Id, document.Actors[index].Id,
                 $"Ceres flight actor {index} retains its native role");
-            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                    CeresCinematicSourceDefinitions.PlacementBank | source.FirstOperand),
+            // The installed positions are signed (#1627): an operand of 65504 places the actor 32 pixels left of the origin.
+            AssertEqual(CoordinateAxis.AsSigned(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+                    CeresCinematicSourceDefinitions.PlacementBank | source.FirstOperand)),
                 document.Actors[index].X,
-                $"Ceres flight actor {index} X matches the cartridge operand");
-            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                    CeresCinematicSourceDefinitions.PlacementBank | source.SecondOperand),
+                $"Ceres flight actor {index} X is the cartridge operand as a signed position");
+            AssertEqual(CoordinateAxis.AsSigned(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+                    CeresCinematicSourceDefinitions.PlacementBank | source.SecondOperand)),
                 document.Actors[index].Y,
-                $"Ceres flight actor {index} Y matches the cartridge operand");
+                $"Ceres flight actor {index} Y is the cartridge operand as a signed position");
         }
 
         document.Actors[0] = document.Actors[0] with { Id = "wrong-actor" };

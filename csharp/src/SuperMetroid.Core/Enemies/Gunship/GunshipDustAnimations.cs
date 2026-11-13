@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Programs;
-using P = SuperMetroid.Core.Enemies.Gunship.GunshipDustProgram;
+using P = SuperMetroid.Core.Enemies.Gunship.GunshipDustSegment;
 
 namespace SuperMetroid.Core.Enemies.Gunship;
 
@@ -10,8 +10,8 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 internal static class GunshipDustAnimations
 {
     /// <summary>Every dust program.</summary>
-    internal static AnimationSegments<GunshipDustProgram, GunshipDustFrame, GunshipDustCue> Segments { get; } = new(
-        new Dictionary<GunshipDustProgram, AnimationBeat<GunshipDustFrame, GunshipDustCue>[]>
+    internal static AnimationSegments<GunshipDustSegment, GunshipDustFrame, GunshipDustCue> Segments { get; } = new(
+        new Dictionary<GunshipDustSegment, AnimationBeat<GunshipDustFrame, GunshipDustCue>[]>
     {
         [P.RightInner] =
         [
@@ -104,7 +104,7 @@ internal static class GunshipDustAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<GunshipDustProgram, Animation<GunshipDustProgram>> StartingAt { get; } = new Dictionary<GunshipDustProgram, Animation<GunshipDustProgram>>
+    internal static IReadOnlyDictionary<GunshipDustSegment, Animation<GunshipDustSegment>> StartingAt { get; } = new Dictionary<GunshipDustSegment, Animation<GunshipDustSegment>>
     {
         [P.RightInner] = new([new(P.RightInnerLoop, 0, 8, 1, AnimationPhaseCounting.EveryPlay), new(P.RightInnerLoop, 8, 1, 1)], AnimationEnd.Holds),
         [P.RightMiddle] = new([new(P.RightMiddleLoop, 0, 8, 1, AnimationPhaseCounting.EveryPlay), new(P.RightMiddleLoop, 8, 1, 1)], AnimationEnd.Holds),
@@ -115,10 +115,10 @@ internal static class GunshipDustAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<GunshipDustProgram> StartingWith(GunshipDustProgram segment) => StartingAt[segment];
+    internal static Animation<GunshipDustSegment> StartingWith(GunshipDustSegment segment) => StartingAt[segment];
 
-    /// <summary>Shows <paramref name="program"/>'s pose <paramref name="phase"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<GunshipDustFrame, GunshipDustCue> Show(GunshipDustProgram program, int phase, int duration) => new AnimationBeat<GunshipDustFrame, GunshipDustCue>.Frame(new(program, phase), duration);
+    /// <summary>Shows <paramref name="segment"/>'s pose <paramref name="phase"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<GunshipDustFrame, GunshipDustCue> Show(GunshipDustSegment segment, int phase, int duration) => new AnimationBeat<GunshipDustFrame, GunshipDustCue>.Frame(new(segment, phase), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
     private static AnimationBeat<GunshipDustFrame, GunshipDustCue> Cue(GunshipDustCue cue) => new AnimationBeat<GunshipDustFrame, GunshipDustCue>.Event(cue);

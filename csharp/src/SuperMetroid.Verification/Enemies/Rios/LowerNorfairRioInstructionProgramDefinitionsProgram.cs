@@ -8,4 +8,4 @@ namespace SuperMetroid.Verification.Enemies.Rios;
 /// <param name="Visible">The visible.</param>
 /// <param name="Signal">The signal.</param>
 /// <param name="Name">The name.</param>
-internal readonly record struct LowerNorfairRioInstructionProgramDefinitionsProgram(LowerNorfairRioProgram Entry, int Calls, bool Visible, bool Signal, string Name);
+internal readonly record struct LowerNorfairRioInstructionProgramDefinitionsProgram(LowerNorfairRioSegment Entry, int Calls, bool Visible, bool Signal, string Name);

@@ -59,8 +59,8 @@ internal static class CompiledScrollObjectProgramsVerification
     /// <summary>Preserves cross-room WRAM storage while rejecting reads of compiled cartridge program ranges.</summary>
     private static CartridgeReadGuard NewRetailScrollProgramReadGuard(ISnesAddressSpace source) =>
         new MutableCartridgeReadGuard(source)
-            .Forbid(address => RoomObjectScrollProgramDefinitions.Pointers.Any(pointer =>
+            .Forbid(address => RoomObjectScrollChangeDefinitions.Pointers.Any(pointer =>
                     address >= (0x8f0000 | pointer) &&
-                    address < (0x8f0000 | pointer) + RoomObjectScrollProgramDefinitions.Get(pointer).Length),
+                    address < (0x8f0000 | pointer) + RoomObjectScrollChangeDefinitions.Get(pointer).Length),
                 address => $"Retail scroll PLM reread compiled program byte ${address:X6}.");
 }

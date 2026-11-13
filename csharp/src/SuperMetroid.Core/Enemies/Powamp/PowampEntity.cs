@@ -14,7 +14,7 @@ internal sealed class PowampEntity(PowampBehavior species, RoomEnemySlot slot, E
     public EnemyMainAiHandler? FindMain() => species.RunPowampMainAi;
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => PowampBehavior.AdvancePowampTypedAnimation;
+    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => PowampBehavior.AdvancePowampTypedAnimation;
 
     /// <summary>The Powamp's own shot reaction, which normal bombs dispatch like the common one.</summary>
     /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>

@@ -13,9 +13,9 @@ internal static class WreckedShipGhostNativeListAddresses
     internal const byte Bank = 0xa8;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<WreckedShipGhostProgram>[] Entries =
+    internal static readonly NativeProgramEntry<WreckedShipGhostSegment>[] Entries =
     [
-        new NativeProgramEntry<WreckedShipGhostProgram>(WreckedShipGhostProgram.Floating, 0x9a8c),
+        new NativeProgramEntry<WreckedShipGhostSegment>(WreckedShipGhostSegment.Floating, 0x9a8c),
     ];
 
 }

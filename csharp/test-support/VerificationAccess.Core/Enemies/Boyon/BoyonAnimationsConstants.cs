@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Boyon;
 internal static class BoyonAnimationsConstants
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params BoyonProgram[] programs) =>
+    internal static IEnumerable<ushort> Spritemaps(params BoyonSegment[] programs) =>
         programs.SelectMany(program => BoyonAnimations.Segments.Beats(program))
             .OfType<AnimationBeat<EnemyFrameId, BoyonCue>.Frame>()
             .Select(frame => BoyonFrameToolingDefinitions.Spritemap(frame.Shown));

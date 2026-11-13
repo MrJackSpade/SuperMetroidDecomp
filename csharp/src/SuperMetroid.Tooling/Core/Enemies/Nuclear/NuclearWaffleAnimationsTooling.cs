@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Nuclear;
 internal static class NuclearWaffleAnimationsTooling
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params NuclearWaffleProgram[] programs) =>
+    internal static IEnumerable<ushort> Spritemaps(params NuclearWaffleSegment[] programs) =>
         programs.SelectMany(program => NuclearWaffleAnimations.Segments.Beats(program))
             .OfType<AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame>()
             .Select(frame => NuclearWaffleFrameToolingDefinitions.Spritemap(frame.Shown));

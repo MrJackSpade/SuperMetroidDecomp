@@ -78,11 +78,11 @@ public sealed class SbugEnemyState
     public SbugFacing CustomFacing { get; internal set; }
 
     /// <summary>The loop most recently requested by direction-selection code.</summary>
-    internal SbugProgram? RequestedProgram { get; set; }
+    internal SbugSegment? RequestedAnimation { get; set; }
 
     /// <summary>The loop already started, or none before the first direction is selected.</summary>
-    internal SbugProgram? InstalledProgram { get; set; }
+    internal SbugSegment? InstalledAnimation { get; set; }
 
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<SbugProgram> Playback { get; set; }
+    internal AnimationPlayback<SbugSegment> Playback { get; set; }
 }

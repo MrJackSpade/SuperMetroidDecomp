@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.KiHunters;
 internal static class KiHunterAnimationsConstants
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params KiHunterProgram[] programs) =>
+    internal static IEnumerable<ushort> Spritemaps(params KiHunterSegment[] programs) =>
         programs.SelectMany(program => KiHunterAnimations.Segments.Beats(program))
             .OfType<AnimationBeat<EnemyFrameId, KiHunterCue>.Frame>()
             .Select(frame => KiHunterFrameToolingDefinitions.Spritemap(frame.Shown));

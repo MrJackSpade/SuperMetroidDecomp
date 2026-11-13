@@ -7,10 +7,10 @@ namespace SuperMetroid.Core.Escape.Artwork;
 internal static class EscapeTypewriterLines
 {
     /// <summary>Ceres uses three warning lines while Zebes uses two.</summary>
-    internal static int LineCount(EscapeTypewriterProgramId id) => Ensure.Listed(EscapeTypewriterDefinitions.LineCounts, id);
+    internal static int LineCount(EscapeTypewriterMessageId id) => Ensure.Listed(EscapeTypewriterDefinitions.LineCounts, id);
 
     /// <summary>Builds one selected warning line and where it starts from reviewed wording and line spacing.</summary>
-    internal static EscapeTypewriterLine Line(EscapeTypewriterProgramId id, int index)
+    internal static EscapeTypewriterLine Line(EscapeTypewriterMessageId id, int index)
     {
         if ((uint)index >= LineCount(id)) throw new ArgumentOutOfRangeException(nameof(index));
         string text = Ensure.Listed(EscapeTypewriterDefinitions.LineTexts, new EscapeTypewriterLineKey(id, index));

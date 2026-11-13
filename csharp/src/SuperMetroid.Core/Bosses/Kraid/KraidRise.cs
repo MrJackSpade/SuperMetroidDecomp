@@ -178,10 +178,10 @@ internal sealed class KraidRise
             case KraidAiFunction.GrowShowLowerBodyInFront:
                 state.BodyState.Function = KraidAiFunction.GrowDrawRoomBackground;
                 RoomEnemySlot foot = _parts.Foot;
-                _access.StartKraidPartProgram(foot, KraidPartProgram.FootNeutral);
+                _access.StartKraidPartAnimation(foot, KraidPartSegment.FootNeutral);
                 foreach (RoomEnemySlot lint in _parts.Lints)
                 {
-                    _access.SetKraidPartProgram(lint, KraidPartProgram.LintPostGrowth);
+                    _access.SetKraidPartAnimation(lint, KraidPartSegment.LintPostGrowth);
                     lint.Frame = KraidPartFrameDefinitions.ShownFrames.Of(new KraidPartFrame(KraidPartFrameKind.Lint, 1));
                 }
                 return;
@@ -220,7 +220,7 @@ internal sealed class KraidRise
             case KraidAiFunction.HandleFunctionTimer:
             case KraidAiFunction.DecrementFunctionTimerAndStartWalk:
             case KraidAiFunction.FootFirstPhaseThinking:
-            case KraidAiFunction.ProcessHeadInstructionAndTimer:
+            case KraidAiFunction.AdvanceHeadAnimationAndTimer:
             case KraidAiFunction.FootSecondPhaseThinking:
             case KraidAiFunction.FootSecondPhaseWalkingRight:
             case KraidAiFunction.FootSecondPhaseWalkToStart:
@@ -284,7 +284,7 @@ internal sealed class KraidRise
         state.WalkTarget = new Position16<RoomPixels>(288, 0);
         RoomEnemySlot foot = _parts.Foot;
         state.FootState.Function = KraidAiFunction.FootSecondPhaseWalkToStart;
-        _access.StartKraidPartProgram(foot, KraidPartProgram.FootWalkingBackward);
+        _access.StartKraidPartAnimation(foot, KraidPartSegment.FootWalkingBackward);
     }
 
     /// <summary>Requests a rock from the floor during the growth sequence.</summary>
@@ -301,8 +301,8 @@ internal sealed class KraidRise
 
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(rock, kind, graphics: SpriteGraphics.SharedIn(KraidColours.RocksShading));
         rock.StartAnimation(new KraidRockAnimation(kind == RoomEnemyProjectileKind.KraidRisingRockRight
-            ? KraidRockProgram.RisingRightPose
-            : KraidRockProgram.SharedPose));
+            ? KraidRockSegment.RisingRightPose
+            : KraidRockSegment.SharedPose));
         // A rock on the left starts one pixel further from the body than its mirror on the right.
         int randomOffset = KraidRandomDefinitions.RisingRockOffset.Of(random);
         if (!KraidRandomDefinitions.RisingRockOffsetRight.IsSetIn(random))
@@ -391,7 +391,7 @@ internal sealed class KraidRise
                     state.FootState.Function = KraidAiFunction.FootFirstPhaseThinking;
                     state.FootState.FunctionTimer = 300;
                     state.FootState.NextFunction = KraidAiFunction.FootPrepareFirstPhaseLunge;
-                    _access.StartKraidPartProgram(_parts.Arm, KraidPartProgram.ArmNormal);
+                    _access.StartKraidPartAnimation(_parts.Arm, KraidPartSegment.ArmNormal);
                 }
                 return;
 
@@ -416,7 +416,7 @@ internal sealed class KraidRise
             case KraidAiFunction.HandleFunctionTimer:
             case KraidAiFunction.DecrementFunctionTimerAndStartWalk:
             case KraidAiFunction.FootFirstPhaseThinking:
-            case KraidAiFunction.ProcessHeadInstructionAndTimer:
+            case KraidAiFunction.AdvanceHeadAnimationAndTimer:
             case KraidAiFunction.FootSecondPhaseThinking:
             case KraidAiFunction.FootSecondPhaseWalkingRight:
             case KraidAiFunction.FootSecondPhaseWalkToStart:

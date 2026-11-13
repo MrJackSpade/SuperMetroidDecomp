@@ -10,7 +10,7 @@ public static class RoomStateLists
     /// <summary>Returns the default first, then every alternative in authored order.</summary>
     public static IReadOnlyList<RoomStateSettings> GetStates(RoomDefinition room)
     {
-        RoomStateProgram program = RoomStateSelection.Program(Ensure.NotNull(room));
+        RoomStateChoice program = RoomStateSelection.ChoiceFor(Ensure.NotNull(room));
         return [program.Default, .. program.Branches.Select(branch => branch.State)];
     }
 }

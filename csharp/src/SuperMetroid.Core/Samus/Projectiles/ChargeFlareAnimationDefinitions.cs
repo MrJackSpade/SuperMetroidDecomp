@@ -32,7 +32,7 @@ internal static class ChargeFlareAnimationDefinitions
     });
 
     /// <summary>Each component's program: the main flare's opening and loop, each spark ring's restarting cycle.</summary>
-    internal static IReadOnlyDictionary<C, Animation<C>> Programs { get; } = new Dictionary<C, Animation<C>>
+    internal static IReadOnlyDictionary<C, Animation<C>> Animations { get; } = new Dictionary<C, Animation<C>>
     {
         [C.MainFlare] = new([new(C.MainFlare, 0, 30, 1), new(C.MainFlare, MainFlareLoopStart, 30 - MainFlareLoopStart, 1)], AnimationEnd.LoopsFrom(1)),
         [C.SlowSparks] = new([new(C.SlowSparks, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),

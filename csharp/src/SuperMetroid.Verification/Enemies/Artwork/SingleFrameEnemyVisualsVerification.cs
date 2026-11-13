@@ -27,8 +27,8 @@ internal static class SingleFrameEnemyVisualsVerification
         var stock = EnemySpritemapDocuments.Load(new MemoryStream(stockBytes));
         foreach (var (definition, spritemap, count) in new[]
         {
-            new VerifySingleFrameEnemyVisualsCase(SingleFrameEnemyVisualDefinitions.Kzan, KzanAnimationsConstants.Spritemaps(KzanProgram.Idle).Single(), 4),
-            new VerifySingleFrameEnemyVisualsCase(SingleFrameEnemyVisualDefinitions.Polyp, PolypAnimationsConstants.Spritemaps(PolypProgram.Stationary).Single(), 1),
+            new VerifySingleFrameEnemyVisualsCase(SingleFrameEnemyVisualDefinitions.Kzan, KzanAnimationsConstants.Spritemaps(KzanSegment.Idle).Single(), 4),
+            new VerifySingleFrameEnemyVisualsCase(SingleFrameEnemyVisualDefinitions.Polyp, PolypAnimationsConstants.Spritemaps(PolypSegment.Stationary).Single(), 1),
         })
         {
             AssertEqual(definition.Pointer, spritemap, definition.Name + " is the frame its typed program shows");

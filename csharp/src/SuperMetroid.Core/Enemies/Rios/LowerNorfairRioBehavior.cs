@@ -57,14 +57,14 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
         {
             _parents.Place(slot, _slotTable.ListedBefore(slot, 1));
             ValidateLowerNorfairRioParent(slot);
-            state.InstalledProgram = LowerNorfairRioProgram.Flames;
-            state.Playback = new(LowerNorfairRioAnimations.StartingWith(LowerNorfairRioProgram.Flames), AnimationPlace.StartOfAnimation);
+            state.InstalledAnimation = LowerNorfairRioSegment.Flames;
+            state.Playback = new(LowerNorfairRioAnimations.StartingWith(LowerNorfairRioSegment.Flames), AnimationPlace.StartOfAnimation);
             state.Function = LowerNorfairRioEnemyFunction.FollowParent;
             return;
         }
 
-        state.InstalledProgram = LowerNorfairRioProgram.Idle;
-        state.Playback = new(LowerNorfairRioAnimations.StartingWith(LowerNorfairRioProgram.Idle), AnimationPlace.StartOfAnimation);
+        state.InstalledAnimation = LowerNorfairRioSegment.Idle;
+        state.Playback = new(LowerNorfairRioAnimations.StartingWith(LowerNorfairRioSegment.Idle), AnimationPlace.StartOfAnimation);
         state.Function = LowerNorfairRioEnemyFunction.WaitForAttackOpportunity;
     }
 
@@ -98,10 +98,10 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
                     // its list installer on every rejected frame. The helper itself prevents
                     // an unchanged attack animation from restarting.
                     state.AnimationSignal = false;
-                    InstallLowerNorfairRioAnimationScript(
+                    StartLowerNorfairRioAnimation(
                         slot,
                         state,
-                        LowerNorfairRioProgram.Idle);
+                        LowerNorfairRioSegment.Idle);
                     return;
                 }
 
@@ -110,10 +110,10 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
                     RioLaunchDefinitions.LowerNorfairYVelocity);
                 if (CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0)
                     NegateLowerNorfairRioXVelocity(state);
-                InstallLowerNorfairRioAnimationScript(
+                StartLowerNorfairRioAnimation(
                     slot,
                     state,
-                    LowerNorfairRioProgram.PrepareToSwoop);
+                    LowerNorfairRioSegment.PrepareToSwoop);
                 state.Function = LowerNorfairRioEnemyFunction.WaitForTakeoffAnimation;
                 return;
 
@@ -121,10 +121,10 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
                 if (!state.AnimationSignal)
                     return;
                 state.AnimationSignal = false;
-                InstallLowerNorfairRioAnimationScript(
+                StartLowerNorfairRioAnimation(
                     slot,
                     state,
-                    LowerNorfairRioProgram.Descending);
+                    LowerNorfairRioSegment.Descending);
                 state.Function = LowerNorfairRioEnemyFunction.Dive;
                 return;
 
@@ -153,10 +153,10 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
                         slot,
                         state.Velocity.Y.ToSixteenSixteenDelta()))
                 {
-                    InstallLowerNorfairRioAnimationScript(
+                    StartLowerNorfairRioAnimation(
                         slot,
                         state,
-                        LowerNorfairRioProgram.Cooldown);
+                        LowerNorfairRioSegment.Cooldown);
                     state.Function = LowerNorfairRioEnemyFunction.WaitForLandingAnimation;
                     return;
                 }
@@ -165,10 +165,10 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
                 if (state.AnimationSignal)
                 {
                     state.AnimationSignal = false;
-                    InstallLowerNorfairRioAnimationScript(
+                    StartLowerNorfairRioAnimation(
                         slot,
                         state,
-                        LowerNorfairRioProgram.AscendingPart2);
+                        LowerNorfairRioSegment.AscendingPart2);
                 }
                 return;
 
@@ -176,10 +176,10 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
                 if (!state.AnimationSignal)
                     return;
                 state.AnimationSignal = false;
-                InstallLowerNorfairRioAnimationScript(
+                StartLowerNorfairRioAnimation(
                     slot,
                     state,
-                    LowerNorfairRioProgram.Cooldown);
+                    LowerNorfairRioSegment.Cooldown);
                 state.Function = LowerNorfairRioEnemyFunction.WaitForAttackOpportunity;
                 return;
 
@@ -240,10 +240,10 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
         LowerNorfairRioEnemyState state)
     {
         state.Velocity = state.Velocity.WithY(-SignedEightEight.FromParts(0, 1));
-        InstallLowerNorfairRioAnimationScript(
+        StartLowerNorfairRioAnimation(
             slot,
             state,
-            LowerNorfairRioProgram.AscendingPart1);
+            LowerNorfairRioSegment.AscendingPart1);
         state.Function = LowerNorfairRioEnemyFunction.ReturnToPerch;
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.LowerNorfairRioReturnSound, priority: SoundRequestPriority.Normal);
     }
@@ -272,13 +272,13 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
         state.Velocity = state.Velocity.WithY(state.Velocity.Y - LowerNorfairRioGravity);
 
     /// <summary>Restarts a different Rio animation list while leaving an unchanged list's timer intact.</summary>
-    private static void InstallLowerNorfairRioAnimationScript(
+    private static void StartLowerNorfairRioAnimation(
         RoomEnemySlot slot,
         LowerNorfairRioEnemyState state,
-        LowerNorfairRioProgram animationScript) =>
-        EnemyProgramAnimation.InstallOnce(slot, state.InstalledProgram, animationScript, installed =>
+        LowerNorfairRioSegment animationScript) =>
+        EnemyAnimationPlayback.StartOnce(slot, state.InstalledAnimation, animationScript, installed =>
         {
-            state.InstalledProgram = installed;
+            state.InstalledAnimation = installed;
             state.Playback = new(LowerNorfairRioAnimations.StartingWith(installed), AnimationPlace.StartOfAnimation);
         });
 
@@ -316,8 +316,8 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
     }
 
     /// <summary>Advances the Lower Norfair Rio's typed animation.</summary>
-    internal static void AdvanceLowerNorfairRioTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, LowerNorfairRioAnimations.Segments,
+    internal static void AdvanceLowerNorfairRioTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(slot, LowerNorfairRioAnimations.Segments,
             static (LowerNorfairRioEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

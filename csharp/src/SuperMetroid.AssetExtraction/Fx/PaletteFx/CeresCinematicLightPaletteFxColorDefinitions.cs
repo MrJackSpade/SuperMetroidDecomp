@@ -20,8 +20,8 @@ public static class CeresCinematicLightPaletteFxColorDefinitions
     public const int NavigationLightsColorsPerFrame = 2;
 
     /// <summary>The gunship engine's records and the colour each writes.</summary>
-    public static PaletteFxColorFrames GunshipEngineFrames { get; } = PaletteFxColorFrames.Of(PaletteFxProgram.CutsceneGunshipEngineFlicker1, GunshipEngineColorsPerFrame);
+    public static PaletteFxColorFrames GunshipEngineFrames { get; } = PaletteFxColorFrames.Of(PaletteFxSegment.CutsceneGunshipEngineFlicker1, GunshipEngineColorsPerFrame);
 
     /// <summary>The navigation lights' records and the colours each writes.</summary>
-    public static PaletteFxColorFrames NavigationLightsFrames { get; } = PaletteFxColorFrames.Of(PaletteFxProgram.CommonCeresNavigationLights, NavigationLightsColorsPerFrame);
+    public static PaletteFxColorFrames NavigationLightsFrames { get; } = PaletteFxColorFrames.Of(PaletteFxSegment.CommonCeresNavigationLights, NavigationLightsColorsPerFrame);
 }

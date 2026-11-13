@@ -14,7 +14,7 @@ internal sealed class SparkEntity(SparkBehavior species, RoomEnemySlot slot, Ene
     public EnemyMainAiHandler? FindMain() => species.RunSparkMainAi;
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => SparkBehavior.AdvanceSparkTypedAnimation;
+    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => SparkBehavior.AdvanceSparkTypedAnimation;
 
     /// <summary>The pass-through shot reaction, ahead of the shared ones (only other species' precede it there).</summary>
     public override EnemyShotReaction? FindShot() =>

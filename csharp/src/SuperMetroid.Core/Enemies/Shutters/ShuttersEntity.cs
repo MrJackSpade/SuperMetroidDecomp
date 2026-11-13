@@ -26,7 +26,7 @@ internal sealed class ShuttersEntity(ShuttersBehavior species, RoomEnemySlot slo
     };
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => ShuttersPartDefinitions.Parts[Slot.DefinitionId] switch
+    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => ShuttersPartDefinitions.Parts[Slot.DefinitionId] switch
     {
         ShuttersPart.ShutterGrowing => ShuttersBehavior.AdvanceShutterGrowingTypedAnimation,
         ShuttersPart.ShutterShootable or ShuttersPart.ShutterDestroyable or ShuttersPart.Kamer => ShuttersBehavior.AdvanceShutterShootableTypedAnimation,

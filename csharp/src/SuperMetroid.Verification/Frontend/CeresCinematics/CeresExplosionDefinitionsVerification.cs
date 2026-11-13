@@ -68,7 +68,7 @@ internal static class CeresExplosionDefinitionsVerification
             int address = CeresExplosionDefinitions.NativeBank | definitionPointer;
             AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 2)), definition.FrameBehavior.NativeAddress,
                 $"{name} pre-instruction callback");
-            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Entry(definition.Program),
+            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Entry(definition.Animation),
                 $"{name} instruction list");
         }
     }

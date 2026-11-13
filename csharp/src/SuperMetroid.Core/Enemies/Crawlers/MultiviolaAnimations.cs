@@ -1,4 +1,4 @@
-using P = SuperMetroid.Core.Enemies.Crawlers.MultiviolaProgram;
+using P = SuperMetroid.Core.Enemies.Crawlers.MultiviolaSegment;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Artwork;
 
@@ -11,8 +11,8 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 internal static class MultiviolaAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<MultiviolaProgram, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
-        new Dictionary<MultiviolaProgram, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
+    internal static AnimationSegments<MultiviolaSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<MultiviolaSegment, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
     {
         [P.Flying] =
         [
@@ -34,13 +34,13 @@ internal static class MultiviolaAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<MultiviolaProgram, Animation<MultiviolaProgram>> StartingAt { get; } = new Dictionary<MultiviolaProgram, Animation<MultiviolaProgram>>
+    internal static IReadOnlyDictionary<MultiviolaSegment, Animation<MultiviolaSegment>> StartingAt { get; } = new Dictionary<MultiviolaSegment, Animation<MultiviolaSegment>>
     {
         [P.Flying] = new([new(P.Flying, 0, 14, 1)], AnimationEnd.LoopsFrom(0)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<MultiviolaProgram> StartingWith(MultiviolaProgram segment) => StartingAt[segment];
+    internal static Animation<MultiviolaSegment> StartingWith(MultiviolaSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);

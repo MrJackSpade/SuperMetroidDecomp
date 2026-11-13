@@ -13,11 +13,11 @@ public static class GunshipDustDefinitions
     /// </summary>
     internal static IReadOnlyList<GunshipDustPlacement> LiftoffClouds { get; } =
     [
-        new GunshipDustPlacement(64, GunshipDustProgram.RightInner),
-        new GunshipDustPlacement(72, GunshipDustProgram.RightMiddle),
-        new GunshipDustPlacement(80, GunshipDustProgram.RightOuter),
-        new GunshipDustPlacement(-64, GunshipDustProgram.LeftInner),
-        new GunshipDustPlacement(-72, GunshipDustProgram.LeftMiddle),
-        new GunshipDustPlacement(-80, GunshipDustProgram.LeftOuter),
+        new GunshipDustPlacement(64, GunshipDustSegment.RightInner),
+        new GunshipDustPlacement(72, GunshipDustSegment.RightMiddle),
+        new GunshipDustPlacement(80, GunshipDustSegment.RightOuter),
+        new GunshipDustPlacement(-64, GunshipDustSegment.LeftInner),
+        new GunshipDustPlacement(-72, GunshipDustSegment.LeftMiddle),
+        new GunshipDustPlacement(-80, GunshipDustSegment.LeftOuter),
     ];
 }

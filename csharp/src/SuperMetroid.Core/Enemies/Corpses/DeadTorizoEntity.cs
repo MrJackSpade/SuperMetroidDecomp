@@ -18,7 +18,7 @@ internal sealed class DeadTorizoEntity(DeadTorizoBehavior species, RoomEnemySlot
     public EnemyMainAiHandler? FindMain() => species.RunDeadTorizoMainAi;
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => species.AdvanceDeadTorizoTypedAnimation;
+    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => species.AdvanceDeadTorizoTypedAnimation;
 
     /// <summary>The dead Torizo's own shot reaction, which normal bombs dispatch like the common one.</summary>
     /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>

@@ -5,9 +5,9 @@ internal static class CacatacSpikes
 {
     /// <summary>The named animation program of a spike launched in <paramref name="direction"/>.</summary>
     /// <exception cref="InvalidDataException"><paramref name="direction"/> is not one of the ten selectors.</exception>
-    internal static CacatacProjectileProgram Program(CacatacSpikeDirection direction) =>
-        CacatacProjectileDefinitions.Programs.TryGetValue(direction, out CacatacProjectileProgram program)
-            ? program
+    internal static CacatacProjectileSegment Animation(CacatacSpikeDirection direction) =>
+        CacatacProjectileDefinitions.Animations.TryGetValue(direction, out CacatacProjectileSegment segment)
+            ? segment
             : throw new InvalidDataException($"Cacatac spike direction {direction} is outside the ten spike directions.");
 
     /// <summary>

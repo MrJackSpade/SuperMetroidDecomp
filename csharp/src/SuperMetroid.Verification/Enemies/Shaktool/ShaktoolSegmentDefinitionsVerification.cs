@@ -57,9 +57,9 @@ internal static class ShaktoolSegmentDefinitionsVerification
                 $"Shaktool production angular velocity {index}");
             AssertEqual(definition.InitialOrbitAngle, state.OrbitAngle,
                 $"Shaktool production orbit angle {index}");
-            AssertEqual(new AnimationPlayback<ShaktoolProgram>(ShaktoolAnimations.StartingWith(definition.InitialProgram), AnimationPlace.StartOfAnimation), state.Playback,
+            AssertEqual(new AnimationPlayback<ShaktoolSegment>(ShaktoolAnimations.StartingWith(definition.InitialAnimation), AnimationPlace.StartOfAnimation), state.Playback,
                 $"Shaktool production initial list {index}");
-            AssertEqual((ushort)1, slot.FrameHold.RawValue,
+            AssertEqual((ushort)1, slot.AnimationClock.Hold.RawValue,
                 $"Shaktool production instruction timer {index}");
         }
 
@@ -106,7 +106,7 @@ internal static class ShaktoolSegmentDefinitionsVerification
     /// <summary>Checks the first animation instruction list selected for each segment.</summary>
     private static void VerifyShaktoolInitialInstructionSelection(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativeInstructionAddress,
-            definition => NativeEnemyAnimationOracle.EntryOf(ShaktoolNativeListAddresses.Entries, definition.InitialProgram), "initial instruction selection"));
+            definition => NativeEnemyAnimationOracle.EntryOf(ShaktoolNativeListAddresses.Entries, definition.InitialAnimation), "initial instruction selection"));
 
     /// <summary>Checks that each segment's initial pre-instruction is the one its cartridge callback word stands for.</summary>
     private static void VerifyShaktoolCallbackSelection(CartridgeImportAddressSpace rom)

@@ -22,7 +22,7 @@ public sealed class SamusOverreadServices
     /// <param name="projectiles">The services Samus's projectiles consult where they read past their data.</param>
     /// <param name="straddledTerrain">The terrain a Wave shot's scan past the room's ceiling finds straddling two blocks.</param>
     internal SamusOverreadServices(
-        LaidOutProgramContinuation<SamusPoseId, SamusAnimationProgramStep> animationContinuation,
+        LaidOutAnimationContinuation<SamusPoseId, SamusPoseAnimationStep> animationContinuation,
         SamusProjectileOverreads projectiles,
         StraddledTerrain<RoomTerrainBlock> straddledTerrain)
     {
@@ -32,7 +32,7 @@ public sealed class SamusOverreadServices
     }
 
     /// <summary>What a Samus animation frame past its pose's program reads, by a pose that animates by each program.</summary>
-    internal LaidOutProgramContinuation<SamusPoseId, SamusAnimationProgramStep> AnimationContinuation { get; }
+    internal LaidOutAnimationContinuation<SamusPoseId, SamusPoseAnimationStep> AnimationContinuation { get; }
 
 
     /// <summary>The services Samus's projectiles consult where their glitch paths read past their data.</summary>

@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.SpriteObjects;
 using K = SuperMetroid.Core.Enemies.Deaths.EnemyDeathProjectileCueKind;
-using P = SuperMetroid.Core.Enemies.Deaths.EnemyDeathProjectileProgram;
+using P = SuperMetroid.Core.Enemies.Deaths.EnemyDeathProjectileSegment;
 using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Core.Enemies.Deaths;
@@ -13,8 +13,8 @@ namespace SuperMetroid.Core.Enemies.Deaths;
 internal static class EnemyDeathProjectileAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<EnemyDeathProjectileProgram, EnemyProjectileFrameId, EnemyDeathProjectileCue> Segments { get; } = new(
-        new Dictionary<EnemyDeathProjectileProgram, AnimationBeat<EnemyProjectileFrameId, EnemyDeathProjectileCue>[]>
+    internal static AnimationSegments<EnemyDeathProjectileSegment, EnemyProjectileFrameId, EnemyDeathProjectileCue> Segments { get; } = new(
+        new Dictionary<EnemyDeathProjectileSegment, AnimationBeat<EnemyProjectileFrameId, EnemyDeathProjectileCue>[]>
     {
         [P.RespawnTail] =
         [
@@ -122,7 +122,7 @@ internal static class EnemyDeathProjectileAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<EnemyDeathProjectileProgram, Animation<EnemyDeathProjectileProgram>> StartingAt { get; } = new Dictionary<EnemyDeathProjectileProgram, Animation<EnemyDeathProjectileProgram>>
+    internal static IReadOnlyDictionary<EnemyDeathProjectileSegment, Animation<EnemyDeathProjectileSegment>> StartingAt { get; } = new Dictionary<EnemyDeathProjectileSegment, Animation<EnemyDeathProjectileSegment>>
     {
         [P.RespawnTail] = new([new(P.RespawnTail, 0, 3, 1)], AnimationEnd.Holds),
         [P.BigExplosion] = new([new(P.BigExplosionLoop, 0, 4, 5), new(P.BigExplosionLoop, 4, 1, 1)], AnimationEnd.Holds),
@@ -138,7 +138,7 @@ internal static class EnemyDeathProjectileAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<EnemyDeathProjectileProgram> StartingWith(EnemyDeathProjectileProgram segment) => StartingAt[segment];
+    internal static Animation<EnemyDeathProjectileSegment> StartingWith(EnemyDeathProjectileSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, EnemyDeathProjectileCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyDeathProjectileCue>.Frame(frame, duration);

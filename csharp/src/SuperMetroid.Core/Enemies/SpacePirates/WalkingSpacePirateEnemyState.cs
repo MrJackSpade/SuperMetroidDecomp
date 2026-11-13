@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 public sealed class WalkingSpacePirateEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<WalkingSpacePirateProgram> Playback { get; set; }
+    internal AnimationPlayback<WalkingSpacePirateSegment> Playback { get; set; }
 
     /// <summary>The current behaviour.</summary>
     public WalkingSpacePirateFunction? Function { get; internal set; }

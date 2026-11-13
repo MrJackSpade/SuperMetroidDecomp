@@ -18,7 +18,7 @@ internal sealed class BoyonEntity(BoyonBehavior species, RoomEnemySlot slot, Ene
     public EnemyMainAiHandler? FindMain() => RunMain;
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => species.AdvanceBoyonAnimation;
+    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => species.AdvanceBoyonAnimation;
 
     /// <summary>Runs a Boyon's per-frame behaviour.</summary>
     private void RunMain(RoomEnemySlot slot, IEnemyAiFrame frame) =>

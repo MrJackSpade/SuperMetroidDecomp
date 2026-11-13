@@ -16,7 +16,7 @@ internal sealed class FakeKraidEntity(FakeKraidBehavior species, RoomEnemySlot s
     public EnemyMainAiHandler? FindMain() => species.RunFakeKraidMainAi;
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => species.AdvanceFakeKraidTypedAnimation;
+    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => species.AdvanceFakeKraidTypedAnimation;
 
     /// <summary>The fake Kraid's own shot reaction, which normal bombs dispatch like the common one.</summary>
     /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>

@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 public sealed class HyperBeamPaletteFxState
 {
     /// <summary>The colours the Hyper Beam palette program names, which its object checks the program against.</summary>
-    private const PaletteFxColours ProgramColours = PaletteFxColours.HyperBeam;
+    private const PaletteFxColours AnimationColours = PaletteFxColours.HyperBeam;
 
     /// <summary>Where the Hyper Beam's colour animation resumes between updates.</summary>
     internal AnimationPlace Place { get; private set; }
@@ -68,11 +68,11 @@ public sealed class HyperBeamPaletteFxState
 
         RoomPaletteFxDefinition definition = HyperBeamDefinition();
         if (definition.Start != SamusPaletteDefinitions.HyperBeamFx.Start ||
-            definition.InitialProgram != PaletteFxProgram.HyperBeam0)
+            definition.InitialAnimation != PaletteFxSegment.HyperBeam0)
         {
             throw new InvalidDataException(
                 $"Compiled Hyper Beam palette-FX definition is inconsistent: start " +
-                $"{definition.Start}, program {definition.InitialProgram}.");
+                $"{definition.Start}, program {definition.InitialAnimation}.");
         }
 
         // The handler decrements before testing. A timer of two therefore displays a frame
@@ -86,18 +86,18 @@ public sealed class HyperBeamPaletteFxState
         AnimationPlace place = Place;
         // The Hyper Beam's cycle counts no repeats.
         WrappingCountdown noRepeats = WrappingCountdown.Start(0);
-        AnimationShown<PaletteFxProgram, int> next = PaletteFxSegments.All.PlayToNextFrame(
-            PaletteFxAnimations.StartingWith(definition.InitialProgram), ref place, ref noRepeats,
+        AnimationShown<PaletteFxSegment, int> next = PaletteFxSegments.All.PlayToNextFrame(
+            PaletteFxAnimations.StartingWith(definition.InitialAnimation), ref place, ref noRepeats,
             cue =>
             {
-                if (cue != new PaletteFxCue.SetColours(ProgramColours))
+                if (cue != new PaletteFxCue.SetColours(AnimationColours))
                     throw new InvalidDataException($"The Hyper Beam's colour animation raised {cue}, which its object does not perform.");
             });
         Place = place;
-        if (next is not AnimationShown<PaletteFxProgram, int>.Frame shown)
+        if (next is not AnimationShown<PaletteFxSegment, int>.Frame shown)
             throw new InvalidDataException($"The Hyper Beam's colour animation reached {next}; its cycle only shows frames.");
         // The cycle's frames are the beams' cycle colourings in order.
-        if (shown.Segment != PaletteFxProgram.HyperBeam1)
+        if (shown.Segment != PaletteFxSegment.HyperBeam1)
             throw new InvalidDataException($"The Hyper Beam's colour animation showed frame {shown.Shown} of {shown.Segment}, outside its cycle.");
         int frameIndex = shown.Shown;
         // The cycle's jump returns to its first frame: showing it again completes a cycle.

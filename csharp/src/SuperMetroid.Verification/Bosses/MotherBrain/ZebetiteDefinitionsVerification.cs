@@ -31,7 +31,7 @@ internal static class ZebetiteDefinitionsVerification
             [
                 MotherBrainNativeWords.GenerationFlagsWord(definition.GenerationFlags),
                 checked((ushort)definition.YRadius),
-                ZebetiteEntry(definition.Program),
+                ZebetiteEntry(definition.Animation),
                 checked((ushort)definition.XPosition),
                 checked((ushort)definition.PrimaryYPosition),
                 checked((ushort)definition.LinkedYPosition),
@@ -58,7 +58,7 @@ internal static class ZebetiteDefinitionsVerification
                 health < 800 ? 1 : 0;
             int table = linkedPair ? linkedHealthTable : bigHealthTable;
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((table + tier * 2)),
-                ZebetiteEntry(ZebetiteAnimations.HealthProgram(linkedPair, health)),
+                ZebetiteEntry(ZebetiteAnimations.HealthAnimation(linkedPair, health)),
                 $"Zebetite {(linkedPair ? "linked" : "big")} health {health}");
         }
 
@@ -105,7 +105,7 @@ internal static class ZebetiteDefinitionsVerification
                 $"production Zebetite generation {generation} flags");
             AssertEqual(expected.YRadius, slot.Radius.Y,
                 $"production Zebetite generation {generation} radius");
-            AssertEqual(ZebetiteAnimations.Starting(expected.Program), state.Playback,
+            AssertEqual(ZebetiteAnimations.Starting(expected.Animation), state.Playback,
                 $"production Zebetite generation {generation} program");
             AssertEqual(expected.XPosition, slot.Position.X.Whole,
                 $"production Zebetite generation {generation} X");
@@ -116,7 +116,7 @@ internal static class ZebetiteDefinitionsVerification
             {
                 slot.Health = health;
                 ZebetiteBehavior.SelectZebetiteHealthAnimation(slot, state);
-                AssertEqual(ZebetiteAnimations.HealthProgram(
+                AssertEqual(ZebetiteAnimations.HealthAnimation(
                         (expected.GenerationFlags & ZebetiteGenerationFlags.LinkedPair) != 0,
                         health),
                     state.Playback.Animation.Phases[state.Playback.Place.Phase].Segment,
@@ -165,6 +165,6 @@ internal static class ZebetiteDefinitionsVerification
     }
 
     /// <summary>The native bank-$A6 list of <paramref name="program"/>, which the generation and health tables select.</summary>
-    private static ushort ZebetiteEntry(ZebetiteProgram program) =>
+    private static ushort ZebetiteEntry(ZebetiteSegment program) =>
         MotherBrainNativeListAddresses.ZebetiteEntries.Single(entry => entry.Program == program).Entry;
 }

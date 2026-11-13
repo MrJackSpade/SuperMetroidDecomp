@@ -18,7 +18,7 @@ internal sealed class DeadTourianEntity(DeadTourianBehavior species, RoomEnemySl
     public EnemyMainAiHandler? FindMain() => species.RunDeadTourianMainAi;
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => DeadTourianBehavior.AdvanceDeadTourianTypedAnimation;
+    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => DeadTourianBehavior.AdvanceDeadTourianTypedAnimation;
 
     /// <summary>The corpse's rot trigger, when its definition names it as the shot reaction.</summary>
     /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>

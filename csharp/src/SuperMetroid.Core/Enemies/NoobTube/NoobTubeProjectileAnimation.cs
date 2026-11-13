@@ -6,14 +6,14 @@ using SuperMetroid.Core.Enemies.NoobTube.Artwork;
 namespace SuperMetroid.Core.Enemies.NoobTube;
 
 /// <summary>N00b tube projectile's typed animation.</summary>
-internal sealed class NoobTubeProjectileAnimation(NoobTubeProjectileProgram program)
-    : EnemyProjectileTypedAnimation<NoobTubeProjectileProgram, NoobTubeProjectileFrame, NoobTubeProjectileCue>(NoobTubeProjectileAnimations.StartingWith(program))
+internal sealed class NoobTubeProjectileAnimation(NoobTubeProjectileSegment segment)
+    : EnemyProjectileTypedAnimation<NoobTubeProjectileSegment, NoobTubeProjectileFrame, NoobTubeProjectileCue>(NoobTubeProjectileAnimations.StartingWith(segment))
 {
     /// <inheritdoc/>
-    private protected override AnimationSegments<NoobTubeProjectileProgram, NoobTubeProjectileFrame, NoobTubeProjectileCue> Segments => NoobTubeProjectileAnimations.Segments;
+    private protected override AnimationSegments<NoobTubeProjectileSegment, NoobTubeProjectileFrame, NoobTubeProjectileCue> Segments => NoobTubeProjectileAnimations.Segments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<NoobTubeProjectileProgram, Animation<NoobTubeProjectileProgram>> StartingAt => NoobTubeProjectileAnimations.StartingAt;
+    private protected override IReadOnlyDictionary<NoobTubeProjectileSegment, Animation<NoobTubeProjectileSegment>> StartingAt => NoobTubeProjectileAnimations.StartingAt;
 
     /// <inheritdoc/>
     private protected override EnemyProjectileFrameId Present(NoobTubeProjectileFrame frame) =>

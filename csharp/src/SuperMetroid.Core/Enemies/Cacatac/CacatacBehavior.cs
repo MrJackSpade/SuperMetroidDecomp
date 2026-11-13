@@ -32,7 +32,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Carries out one cue of Cacatac's animations.</summary>
-    private CacatacProgram? ApplyCacatacCue(RoomEnemySlot slot, CacatacEnemyState state, CacatacCue cue)
+    private CacatacSegment? ApplyCacatacCue(RoomEnemySlot slot, CacatacEnemyState state, CacatacCue cue)
     {
         switch (cue.Kind)
         {
@@ -79,7 +79,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
             UpsideUp = upsideUp,
         };
         slot.SetSpeciesState(state);
-        SetCacatacProgram(slot, state, upsideUp ? CacatacProgram.UpsideUpIdle : CacatacProgram.UpsideDownIdle);
+        SetCacatacAnimation(slot, state, upsideUp ? CacatacSegment.UpsideUpIdle : CacatacSegment.UpsideDownIdle);
     }
 
     /// <summary>Runs a Cacatac's per-frame behaviour through its three functions.</summary>
@@ -136,7 +136,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.Function = CacatacEnemyFunction.Stopped;
-        SetCacatacProgram(slot, state, state.UpsideUp ? CacatacProgram.UpsideUpAttack : CacatacProgram.UpsideDownAttack);
+        SetCacatacAnimation(slot, state, state.UpsideUp ? CacatacSegment.UpsideUpAttack : CacatacSegment.UpsideDownAttack);
     }
 
     /// <summary>Animation cue: restore patrol from the stored direction.</summary>
@@ -154,11 +154,9 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.CacatacSpikeSound, priority: SoundRequestPriority.Normal);
 
     /// <summary>Starts a patrol or attack animation on the next animation tick.</summary>
-    internal static void SetCacatacProgram(RoomEnemySlot slot, CacatacEnemyState state, CacatacProgram program)
+    internal static void SetCacatacAnimation(RoomEnemySlot slot, CacatacEnemyState state, CacatacSegment segment)
     {
-        state.Playback = new(CacatacAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        state.Playback = EnemyAnimationPlayback.Start(slot, CacatacAnimations.StartingWith(segment));
     }
 
     /// <summary>Registers the spike's ten direction-table movers and viewport cull.</summary>
@@ -178,11 +176,11 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Cacatac's typed animation.</summary>
-    internal void AdvanceCacatacTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, CacatacAnimations.Segments,
+    internal void AdvanceCacatacTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(slot, CacatacAnimations.Segments,
             static (CacatacEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyCacatacCue(slot, state, cue) is { } target
-                ? new AnimationContinuation<CacatacProgram>(CacatacAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
+                ? new AnimationContinuation<CacatacSegment>(CacatacAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
 
     /// <summary>
@@ -192,7 +190,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void SpawnCacatacSpike(RoomEnemySlot source, CacatacSpikeDirection direction)
     {
         // Rejects an odd or out-of-table direction before allocating, as the selector check does.
-        CacatacProjectileProgram program = CacatacSpikes.Program(direction);
+        CacatacProjectileSegment segment = CacatacSpikes.Animation(direction);
 
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
@@ -202,7 +200,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
             projectile,
             RoomEnemyProjectileKind.CacatacSpike,
             SpriteGraphics.SpawnedBy(source));
-        projectile.InstallAnimation(new CacatacProjectileAnimation(program));
+        projectile.InstallAnimation(new CacatacProjectileAnimation(segment));
         projectile.Position = source.Position;
         projectile.Velocity = CacatacSpikes.Velocity(direction);
     }

@@ -4,13 +4,13 @@ namespace SuperMetroid.Core.Enemies.Dragon;
 internal static class DragonAnimationDefinitions
 {
     /// <summary>Idle, wing and attacking body programs by facing.</summary>
-    internal static readonly Dictionary<DragonAnimationSelector, DragonProgram> Programs = new()
+    internal static readonly Dictionary<DragonAnimationSelector, DragonSegment> Animations = new()
     {
-        [DragonAnimationSelector.IdleFacingLeft] = DragonProgram.IdleFacingLeft,
-        [DragonAnimationSelector.IdleFacingRight] = DragonProgram.IdleFacingRight,
-        [DragonAnimationSelector.WingsFacingLeft] = DragonProgram.WingsFacingLeft,
-        [DragonAnimationSelector.WingsFacingRight] = DragonProgram.WingsFacingRight,
-        [DragonAnimationSelector.AttackingFacingLeft] = DragonProgram.AttackingFacingLeft,
-        [DragonAnimationSelector.AttackingFacingRight] = DragonProgram.AttackingFacingRight,
+        [DragonAnimationSelector.IdleFacingLeft] = DragonSegment.IdleFacingLeft,
+        [DragonAnimationSelector.IdleFacingRight] = DragonSegment.IdleFacingRight,
+        [DragonAnimationSelector.WingsFacingLeft] = DragonSegment.WingsFacingLeft,
+        [DragonAnimationSelector.WingsFacingRight] = DragonSegment.WingsFacingRight,
+        [DragonAnimationSelector.AttackingFacingLeft] = DragonSegment.AttackingFacingLeft,
+        [DragonAnimationSelector.AttackingFacingRight] = DragonSegment.AttackingFacingRight,
     };
 }

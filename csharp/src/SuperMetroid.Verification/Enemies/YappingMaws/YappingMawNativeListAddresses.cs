@@ -14,26 +14,26 @@ internal static class YappingMawNativeListAddresses
     internal const byte Bank = 0xa8;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<YappingMawProgram>[] Entries =
+    internal static readonly NativeProgramEntry<YappingMawSegment>[] Entries =
     [
-        new NativeProgramEntry<YappingMawProgram>(YappingMawProgram.AttackingUp, 0x9f6f),
-        new NativeProgramEntry<YappingMawProgram>(YappingMawProgram.AttackingUpRight, 0x9f85),
-        new NativeProgramEntry<YappingMawProgram>(YappingMawProgram.AttackingRight, 0x9f9b),
-        new NativeProgramEntry<YappingMawProgram>(YappingMawProgram.AttackingDownRight, 0x9fb1),
-        new NativeProgramEntry<YappingMawProgram>(YappingMawProgram.AttackingDown, 0x9fc7),
-        new NativeProgramEntry<YappingMawProgram>(YappingMawProgram.AttackingDownLeft, 0x9fdd),
-        new NativeProgramEntry<YappingMawProgram>(YappingMawProgram.AttackingLeft, 0x9ff3),
-        new NativeProgramEntry<YappingMawProgram>(YappingMawProgram.AttackingUpLeft, 0xa009),
-        new NativeProgramEntry<YappingMawProgram>(YappingMawProgram.CooldownUpRight, 0xa01f),
-        new NativeProgramEntry<YappingMawProgram>(YappingMawProgram.CooldownUp, 0xa025),
-        new NativeProgramEntry<YappingMawProgram>(YappingMawProgram.CooldownUpLoop, 0xa027),
-        new NativeProgramEntry<YappingMawProgram>(YappingMawProgram.CooldownUpLeft, 0xa03d),
-        new NativeProgramEntry<YappingMawProgram>(YappingMawProgram.CooldownUpLeftLoop, 0xa045),
-        new NativeProgramEntry<YappingMawProgram>(YappingMawProgram.CooldownDownRight, 0xa05b),
-        new NativeProgramEntry<YappingMawProgram>(YappingMawProgram.CooldownDown, 0xa061),
-        new NativeProgramEntry<YappingMawProgram>(YappingMawProgram.CooldownDownLoop, 0xa063),
-        new NativeProgramEntry<YappingMawProgram>(YappingMawProgram.CooldownDownLeft, 0xa079),
-        new NativeProgramEntry<YappingMawProgram>(YappingMawProgram.CooldownDownLeftLoop, 0xa081),
+        new NativeProgramEntry<YappingMawSegment>(YappingMawSegment.AttackingUp, 0x9f6f),
+        new NativeProgramEntry<YappingMawSegment>(YappingMawSegment.AttackingUpRight, 0x9f85),
+        new NativeProgramEntry<YappingMawSegment>(YappingMawSegment.AttackingRight, 0x9f9b),
+        new NativeProgramEntry<YappingMawSegment>(YappingMawSegment.AttackingDownRight, 0x9fb1),
+        new NativeProgramEntry<YappingMawSegment>(YappingMawSegment.AttackingDown, 0x9fc7),
+        new NativeProgramEntry<YappingMawSegment>(YappingMawSegment.AttackingDownLeft, 0x9fdd),
+        new NativeProgramEntry<YappingMawSegment>(YappingMawSegment.AttackingLeft, 0x9ff3),
+        new NativeProgramEntry<YappingMawSegment>(YappingMawSegment.AttackingUpLeft, 0xa009),
+        new NativeProgramEntry<YappingMawSegment>(YappingMawSegment.CooldownUpRight, 0xa01f),
+        new NativeProgramEntry<YappingMawSegment>(YappingMawSegment.CooldownUp, 0xa025),
+        new NativeProgramEntry<YappingMawSegment>(YappingMawSegment.CooldownUpLoop, 0xa027),
+        new NativeProgramEntry<YappingMawSegment>(YappingMawSegment.CooldownUpLeft, 0xa03d),
+        new NativeProgramEntry<YappingMawSegment>(YappingMawSegment.CooldownUpLeftLoop, 0xa045),
+        new NativeProgramEntry<YappingMawSegment>(YappingMawSegment.CooldownDownRight, 0xa05b),
+        new NativeProgramEntry<YappingMawSegment>(YappingMawSegment.CooldownDown, 0xa061),
+        new NativeProgramEntry<YappingMawSegment>(YappingMawSegment.CooldownDownLoop, 0xa063),
+        new NativeProgramEntry<YappingMawSegment>(YappingMawSegment.CooldownDownLeft, 0xa079),
+        new NativeProgramEntry<YappingMawSegment>(YappingMawSegment.CooldownDownLeftLoop, 0xa081),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>

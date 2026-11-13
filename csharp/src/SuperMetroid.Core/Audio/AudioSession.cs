@@ -65,7 +65,7 @@ public sealed class AudioSession
             if (hasAdvanced)
                 throw new InvalidOperationException(
                     "Audio clips must be bound before the session's first update; this session advanced without them.");
-            clipState = new ClipPlaybackState();
+            clipState = new ClipPlaybackState(clips.InitialBeat);
         }
         backend = new ClipAudioBackend(clips, clipState);
         lastPcm = null;

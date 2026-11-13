@@ -2,22 +2,13 @@ namespace SuperMetroid.Core.Audio;
 
 /// <summary>
 /// The clip player's playback state (#1305, #1478), kept by the session so a restored session continues its audio: the
-/// clip set loaded, the song playing and from when, the song change waiting for the music's next beat, how far the beat
-/// has advanced and the tempo between songs, each sound library's sound, priority and low-health mode, and the clips
-/// still fading out. Positions are absolute clip frames since the session's first update. Presentation only: no
-/// gameplay update reads it.
+/// clip set loaded, the song playing and from when, the song change waiting for the music's next beat, the music's beat
+/// (#1725), each sound library's sound, priority and low-health mode, and the clips still fading out. Positions are
+/// absolute clip frames since the session's first update. Presentation only: no gameplay update reads it.
 /// </summary>
-public sealed class ClipPlaybackState
+/// <param name="initialBeat">How long the music's beat lasts before any song has played: the clip set's <see cref="ClipAudioLibrary.InitialBeat"/>.</param>
+public sealed class ClipPlaybackState(BeatLength initialBeat)
 {
-    /// <summary>The parts one beat is divided into; a song's tempo counts the parts each clock step advances.</summary>
-    public const int BeatParts = 256;
-
-    /// <summary>
-    /// The tempo the beat advances at before any song has played: the rate the songs' tempo maps were rendered against
-    /// before a song set its own. Each song's tempo map starts at its first frame, so it does not record this one.
-    /// </summary>
-    internal const int InitialTempo = 16;
-
     /// <summary>The three sound libraries, in queue order.</summary>
     internal readonly ClipLibraryState[] Libraries = [new(), new(), new()];
 
@@ -42,11 +33,8 @@ public sealed class ClipPlaybackState
     /// <summary>The song change waiting for the music's next beat, or null when none waits.</summary>
     internal SongChange? PendingSongChange { get; private set; }
 
-    /// <summary>Parts of the current beat already played, 0 through <see cref="BeatParts"/> - 1.</summary>
-    internal int Beat { get; private set; }
-
-    /// <summary>The tempo while no song plays, 0 through <see cref="BeatParts"/> - 1: <see cref="InitialTempo"/>, then each song's last.</summary>
-    internal int Tempo { get; private set; } = InitialTempo;
+    /// <summary>The music's beat: how much of it has played, and how long it lasts while no song plays.</summary>
+    internal MusicBeat Beat { get; } = new(initialBeat);
 
     /// <summary>Records that playback has reached absolute frame <paramref name="sample"/>.</summary>
     internal void RenderedTo(long sample) => Sample = sample;
@@ -70,23 +58,11 @@ public sealed class ClipPlaybackState
         ClipSet = clipSet;
     }
 
-    /// <summary>Holds <paramref name="tempo"/> while no song plays.</summary>
-    internal void HoldTempo(int tempo) => Tempo = tempo;
-
-    /// <summary>The song played to its end: the music keeps the song's last tempo and no song plays.</summary>
-    internal void EndSong(int lastTempo)
+    /// <summary>The song played to its end: the music keeps the song's last beat length and no song plays.</summary>
+    internal void EndSong(BeatLength lastBeat)
     {
-        Tempo = lastTempo;
+        Beat.Hold(lastBeat);
         StopSong();
-    }
-
-    /// <summary>Advances the beat by <paramref name="parts"/> and reports whether that completed it; the overshoot starts the next beat.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="parts"/> is negative.</exception>
-    internal bool AdvanceBeat(int parts)
-    {
-        int reached = Beat + Ensure.AtLeastZero(parts);
-        Beat = reached % BeatParts;
-        return reached >= BeatParts;
     }
 
     /// <summary>Plays <paramref name="song"/>, the clip of <paramref name="track"/>, from <paramref name="now"/>.</summary>

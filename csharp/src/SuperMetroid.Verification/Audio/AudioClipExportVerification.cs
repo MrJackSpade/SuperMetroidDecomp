@@ -226,10 +226,10 @@ internal static class AudioClipExportVerification
     private static void VerifyStoredSoundEffectFields(string manifestPath)
     {
         using JsonDocument manifest = JsonDocument.Parse(File.ReadAllBytes(manifestPath));
-        string[] indexFields = ["formatVersion", "sampleRate", "music", "soundEffects", "unrenderable"];
+        string[] indexFields = ["formatVersion", "sampleRate", "initialBeat", "music", "soundEffects", "unrenderable"];
         string[] effectFields = ["context", "sound", "policy", "activeFrames", "layers"];
         // A layer no longer records the voices it was rendered from: only layer replacement read them (#1533).
-        string[] layerFields = ["clip", "loopStart", "keyOnFrames"];
+        string[] layerFields = ["clip", "loopStart", "noteStarts"];
         string[] clipFields = ["path", "frames"];
         string[] unrenderableFields = ["context", "sound"];
         AssertTrue(manifest.RootElement.EnumerateObject().Select(field => field.Name).SequenceEqual(indexFields),

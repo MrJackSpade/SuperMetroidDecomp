@@ -3,8 +3,9 @@ namespace SuperMetroid.Core.Audio;
 /// <summary>
 /// The clip player (#1305, #1478): plays the pre-rendered songs and sounds from the session's audio events.
 /// <list type="bullet">
-/// <item>A song change waits for the music's next beat: every sound clock step advances the beat by the playing song's
-/// tempo (or, while none plays, the last song's), and the change takes effect when the beat completes.</item>
+/// <item>A song change waits for the music's next beat: every sound clock step plays the clip frames it accounts for of
+/// the beat, at the playing song's beat length (or, while none plays, the last song's), and the change takes effect
+/// when the beat completes.</item>
 /// <item>Requesting the song that plays changes nothing. A song that ends leaves none playing, so the same song can then
 /// restart. A stop silences the music.</item>
 /// <item>Each library accepts a sound by its clip's policy (priority, low-health mode, exempt sounds); the sound holds
@@ -24,6 +25,9 @@ public sealed class ClipAudioBackend
     /// <summary>Clip frames in one update.</summary>
     private const int FramesPerUpdate = SoundClockTiming.SamplesPerUpdate;
 
+    /// <summary>Clip frames one sound clock step period accounts for.</summary>
+    private const int FramesPerStep = SoundClockTiming.SamplesPerStep;
+
     /// <summary>The installed clips.</summary>
     private readonly ClipAudioLibrary catalog;
 
@@ -38,7 +42,7 @@ public sealed class ClipAudioBackend
     public ClipAudioBackend(ClipAudioLibrary catalog, ClipPlaybackState? state = null)
     {
         this.catalog = Ensure.NotNull(catalog);
-        State = state ?? new ClipPlaybackState();
+        State = state ?? new ClipPlaybackState(catalog.InitialBeat);
     }
 
     /// <summary>The playback state this backend advances.</summary>
@@ -125,20 +129,30 @@ public sealed class ClipAudioBackend
                 library.EndIfFinished(now);
         }
 
-        if (State.Song is MusicClipEntry song && song.LoopStart is null && now - State.SongStart >= song.Clip.Frames)
-            State.EndSong(TempoAt(song, song.Clip.Frames));
-
-        if (State.AdvanceBeat(steps * CurrentTempo(now)))
+        if (AdvanceMusicBeat(now, steps))
             OnBeat(now);
     }
 
+    /// <summary>
+    /// Plays the music's beat over a clock step at <paramref name="now"/> that accounts for <paramref name="steps"/> step
+    /// periods: a song past its end first stops, leaving its last beat length held, then the beat plays the step's clip
+    /// frames at the beat length in force. Reports whether the beat completed.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="steps"/> is negative.</exception>
+    internal bool AdvanceMusicBeat(long now, int steps)
+    {
+        if (State.Song is MusicClipEntry song && song.LoopStart is null && now - State.SongStart >= song.Clip.Frames)
+            State.EndSong(BeatLengthAt(song, song.Clip.Frames));
+        return State.Beat.Advance((long)Ensure.AtLeastZero(steps) * FramesPerStep, CurrentBeatLength(now));
+    }
+
     /// <summary>Applies the song change waiting for this beat, unless it asks for what already plays.</summary>
-    private void OnBeat(long now)
+    internal void OnBeat(long now)
     {
         if (State.TakeSongChange() is not SongChange change || change.Track == State.PlayingTrack)
             return;
         if (State.Song is MusicClipEntry playing)
-            State.HoldTempo(TempoAt(playing, now - State.SongStart));
+            State.Beat.Hold(BeatLengthAt(playing, now - State.SongStart));
         ReleaseMusic(now);
         if (change.Track is not MusicTrack track)
         {
@@ -241,19 +255,19 @@ public sealed class ClipAudioBackend
     }
 
     /// <summary>The unwrapped position of a layer's first note start at or after <paramref name="position"/>; never for a layer with none ahead.</summary>
-    private static long NextNote(SoundEffectClipLayer layer, long position)
+    internal static long NextNote(SoundEffectClipLayer layer, long position)
     {
         long frames = layer.Clip.Frames;
         if (Position(frames, layer.LoopStart, position) is not long frame)
             return long.MaxValue;
-        foreach (long noteStart in layer.KeyOnFrames)
+        foreach (long noteStart in layer.NoteStarts)
         {
             if (noteStart >= frame)
                 return position + (noteStart - frame);
         }
         if (layer.LoopStart is long loopStart)
         {
-            foreach (long noteStart in layer.KeyOnFrames)
+            foreach (long noteStart in layer.NoteStarts)
             {
                 if (noteStart >= loopStart)
                     return position + (frames - frame) + (noteStart - loopStart);
@@ -262,26 +276,26 @@ public sealed class ClipAudioBackend
         return long.MaxValue;
     }
 
-    /// <summary>The tempo of a clock step now: the playing song's tempo before this step, or the held tempo.</summary>
-    private int CurrentTempo(long now) =>
-        State.Song is MusicClipEntry song ? TempoAt(song, now - State.SongStart) : State.Tempo;
+    /// <summary>How long the beat lasts at a clock step now: the playing song's beat length before this step, or the held one.</summary>
+    private BeatLength CurrentBeatLength(long now) =>
+        State.Song is MusicClipEntry song ? BeatLengthAt(song, now - State.SongStart) : State.Beat.Held;
 
     /// <summary>
-    /// The tempo a clock step at song position <paramref name="position"/> advances the beat by: the song's last
-    /// tempo change before that frame, wrapped into the loop. The song at its loop start is as it was at its end, so the
-    /// same lookup holds in every pass. Before the song's first change the held tempo applies.
+    /// How long the beat lasts at a clock step at song position <paramref name="position"/>: the song's last beat length
+    /// change before that frame, wrapped into the loop. The song at its loop start is as it was at its end, so the same
+    /// lookup holds in every pass. Before the song's first change the held beat length applies.
     /// </summary>
-    private int TempoAt(MusicClipEntry song, long position)
+    private BeatLength BeatLengthAt(MusicClipEntry song, long position)
     {
         long frame = Position(song.Clip.Frames, song.LoopStart, position) ?? song.Clip.Frames;
-        int tempo = State.Tempo;
+        BeatLength length = State.Beat.Held;
         foreach (SongTempo segment in song.TempoSegments)
         {
             if (segment.Frame >= frame)
                 break;
-            tempo = segment.Tempo;
+            length = segment.Beat;
         }
-        return tempo;
+        return length;
     }
 
     /// <summary>A clip's samples, read and hash-checked on first use.</summary>

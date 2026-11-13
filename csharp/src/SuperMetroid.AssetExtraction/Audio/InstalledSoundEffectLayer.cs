@@ -7,12 +7,12 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// </summary>
 /// <param name="Clip">The rendered layer.</param>
 /// <param name="LoopStart">For a looping channel, the first frame of its loop, repeated to the clip's end; null for a one-shot layer.</param>
-/// <param name="KeyOnFrames">Clip-relative frames at which the layer starts a note; a clip-set switch interrupts the layer until its next note.</param>
+/// <param name="NoteStarts">Clip frames at which the layer starts a note, in order; a clip-set switch interrupts the layer until its next note (#1725).</param>
 public sealed record InstalledSoundEffectLayer(
     AudioClipFile Clip,
     long? LoopStart,
-    IReadOnlyList<long> KeyOnFrames)
+    IReadOnlyList<long> NoteStarts)
 {
     /// <summary>The layer the game plays; a method, so the manifest does not store it.</summary>
-    public SoundEffectClipLayer PlayedLayer() => new(Clip, LoopStart, KeyOnFrames);
+    public SoundEffectClipLayer PlayedLayer() => new(Clip, LoopStart, NoteStarts);
 }

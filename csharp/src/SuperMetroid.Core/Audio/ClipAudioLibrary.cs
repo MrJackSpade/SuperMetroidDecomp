@@ -20,15 +20,17 @@ public sealed class ClipAudioLibrary
     private readonly HashSet<SoundEffectClipKey> unrenderable;
 
     /// <summary>Creates a catalog over the import's songs and sound effects, whose clips <paramref name="source"/> supplies.</summary>
+    /// <param name="initialBeat">How long the music's beat lasts before any song has played.</param>
     /// <param name="music">One clip per song of each clip set.</param>
     /// <param name="soundEffects">One entry per renderable (data set, effect).</param>
     /// <param name="unrenderable">The (data set, effect) pairs with no clip.</param>
     /// <param name="source">Supplies each clip's samples.</param>
     /// <exception cref="ArgumentNullException">An argument is null.</exception>
     /// <exception cref="InvalidDataException">The songs or sound effects repeat an identity.</exception>
-    internal ClipAudioLibrary(IReadOnlyList<MusicClipEntry> music, IReadOnlyList<SoundEffectClipEntry> soundEffects,
+    internal ClipAudioLibrary(BeatLength initialBeat, IReadOnlyList<MusicClipEntry> music, IReadOnlyList<SoundEffectClipEntry> soundEffects,
         IReadOnlyList<UnrenderableSoundEffect> unrenderable, IAudioClipSource source)
     {
+        InitialBeat = Ensure.NotNull(initialBeat);
         Ensure.NotNull(music);
         Ensure.NotNull(soundEffects);
         Ensure.NotNull(unrenderable);
@@ -58,6 +60,12 @@ public sealed class ClipAudioLibrary
             }
         }
     }
+
+    /// <summary>
+    /// How long the music's beat lasts at power-on, before any song has played (#1725): the beat the first song change
+    /// waits for, as the songs were rendered from.
+    /// </summary>
+    public BeatLength InitialBeat { get; }
 
     /// <summary>The song <paramref name="track"/> in <paramref name="clipSet"/>'s clip set.</summary>
     /// <exception cref="KeyNotFoundException">The clip set has no such song.</exception>

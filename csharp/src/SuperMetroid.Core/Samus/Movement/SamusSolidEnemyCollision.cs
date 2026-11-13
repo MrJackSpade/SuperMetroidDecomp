@@ -95,7 +95,7 @@ public static class SamusSolidEnemyCollision
             return new SolidEnemyCollisionResult(
                 Collided: true,
                 Distance: gap,
-                EnemySlot: enemy.Slot,
+                Enemy: enemy.Enemy,
                 WasTouching: wasTouching);
         }
 
@@ -103,7 +103,7 @@ public static class SamusSolidEnemyCollision
         return new SolidEnemyCollisionResult(
             Collided: false,
             Distance: distance,
-            EnemySlot: null,
+            Enemy: null,
             WasTouching: false);
     }
 

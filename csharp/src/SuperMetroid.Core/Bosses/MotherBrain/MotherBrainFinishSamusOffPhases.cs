@@ -15,19 +15,21 @@ internal sealed class MotherBrainFinishSamusOffPhases
         _state = state;
     }
 
-    /// <summary>Applies Gravity/Varia damage reduction and the extra scaling used only by the 80-damage beam strike.</summary>
-    /// <remarks>The nominal damage is 80 or 160, so the scaled threshold never exceeds 340.</remarks>
-    internal static int CalculateFinishOffHealthThreshold(SamusEquipmentFlags equippedItems, int nominalDamage)
-    {
-        // The nominal damage takes the suits' ordinary division. The low-energy check then multiplies the divided 80
-        // result by four, while the next check deliberately does not multiply the divided 160 result. The caller
-        // selects that distinction.
-        int divided = SamusSuitDamage.Reduce(nominalDamage, equippedItems);
+    /// <summary>
+    /// The energy at or below which Mother Brain stands up to finish Samus off:
+    /// <see cref="MotherBrainFinishOffDefinitions.StandUpOnionRingHits"/> onion ring hits as Samus's suits divide them,
+    /// plus <see cref="MotherBrainFinishOffDefinitions.EnergyMargin"/>.
+    /// </summary>
+    internal static int StandUpToFinishOffEnergy(SamusEquipmentFlags equippedItems) =>
+        SamusSuitDamage.Reduce(MotherBrainAttackDamage.OnionRing, equippedItems) * MotherBrainFinishOffDefinitions.StandUpOnionRingHits
+        + MotherBrainFinishOffDefinitions.EnergyMargin;
 
-        return nominalDamage == 80
-            ? divided * 4 + 20
-            : divided + 20;
-    }
+    /// <summary>
+    /// The energy at or below which Mother Brain keeps to onion rings rather than choosing her bomb: one bomb hit as
+    /// Samus's suits divide it, plus <see cref="MotherBrainFinishOffDefinitions.EnergyMargin"/>.
+    /// </summary>
+    internal static int OnionRingsOnlyEnergy(SamusEquipmentFlags equippedItems) =>
+        SamusSuitDamage.Reduce(MotherBrainAttackDamage.Bomb, equippedItems) + MotherBrainFinishOffDefinitions.EnergyMargin;
 
     /// <summary>Runs one update of readying the Baby Metroid's arrival, rejecting calls once it has arrived.</summary>
     private void ReadyBabyMetroidArrival()
@@ -44,12 +46,10 @@ internal sealed class MotherBrainFinishSamusOffPhases
     /// </summary>
     internal bool RunSecondPhaseFinishSamusOff(SamusState samus, RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
     {
-        // The low-energy check asks whether one more ordinary phase-two hit could put
-        // Samus at the encounter's intended low-energy floor. The first nominal
-        // damage is 80, suit-divided, multiplied by four, then padded by twenty.
-        // The sign test treats equality as done and changes the body
-        // function without falling into the stand-up handler on this call.
-        if (CalculateFinishOffHealthThreshold(samus.EquippedItems, 80) >= samus.Health)
+        // The low-energy check asks whether a few more onion rings could put Samus at the encounter's intended
+        // low-energy floor. Equality counts as low and changes the body function without falling into the stand-up
+        // handler on this call.
+        if (StandUpToFinishOffEnergy(samus.EquippedItems) >= samus.Health)
         {
             _state.Phase = MotherBrainBodyFunction.SecondPhaseFinishSamusOffStandUp;
             return false;
@@ -66,10 +66,9 @@ internal sealed class MotherBrainFinishSamusOffPhases
             return false;
         }
 
-        // A weaker 160 nominal-hit threshold biases wounded Samus toward onion
-        // rings. Only when Samus is above it does the bomb's chance choose a
-        // bomb; all remaining admitted values still choose two onion rings.
-        if (CalculateFinishOffHealthThreshold(samus.EquippedItems, 160) >= samus.Health ||
+        // A weaker one-bomb threshold biases wounded Samus toward onion rings. Only when Samus is above it does the
+        // bomb's chance choose a bomb; all remaining admitted values still choose two onion rings.
+        if (OnionRingsOnlyEnergy(samus.EquippedItems) >= samus.Health ||
             !frame.RandomNumberSeed.Takes(MotherBrainRandomDefinitions.FinishOffBombs))
         {
             _state.SetHeadProgram(MotherBrainHeadProgram.TwoOnionRingsPhase2);

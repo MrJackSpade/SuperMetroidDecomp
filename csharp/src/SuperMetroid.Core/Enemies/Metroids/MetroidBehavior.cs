@@ -506,7 +506,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
 
             EnemyWeaponVulnerability frozenVulnerability = EnemyCollision.ReadProjectileVulnerability(enemy, c.ProjectileType);
-            int frozenDamage = (c.ProjectileDamage >> 1) * frozenVulnerability.Multiplier;
+            int frozenDamage = frozenVulnerability.DamageFrom(c.ProjectileDamage);
             if (!frozenVulnerability.FreezesWithoutDamage && frozenDamage != 0)
             {
                 enemy.FlashTimer = enemy.HurtFlashFrames + 8;

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// <remarks>
 /// Consulted by the frozen-enemy pass on the update an enemy thaws, after its frozen state is cleared. Evidence: the
 /// original thaw branch stores the remaining handler state into the freeze timer as well as the handler, as the
-/// frozen-pass comment in <c>RoomEnemySystem</c> records; the port kept that value until #1472 named it.
+/// frozen-pass comment in <c>RoomEnemySystem</c> records.
 /// </remarks>
 [CompatibilityService("a thawing enemy is left one freeze update while grappled and two while hurt instead of none")]
 public static class ThawedFreezeLeftover

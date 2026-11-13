@@ -171,7 +171,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     {
         State.Phase = MotherBrainBodyFunction.ThirdPhaseRecoverMakeSomeDistance;
 
-        // Clears only the shared enemy-slot index. This host flag is the equivalent
+        // Clears only the shared enemy-slot index. This flag is the equivalent
         // liveness witness used by head attack selection after the actor has deleted itself.
         State.BabyMetroidSpawned = false;
     }
@@ -185,7 +185,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     public void ApplyPhase2Or3ShotReaction(MotherBrainProjectileType projectileType)
     {
         // The shot reaction knows only the eight projectile types it reacts to. Validate the
-        // host enum so a caller cannot accidentally smuggle a larger
+        // projectile type so a caller cannot accidentally smuggle a larger
         // value past that domain.
         MotherBrainShotReactionResult reaction =
             MotherBrainShotReaction.Resolve(State.Body.Form, projectileType, ThirdPhaseFight.Phase3WalkCounter);

@@ -135,7 +135,7 @@ internal sealed class MotherBrainAttacks
     /// <summary>
     /// Runs the three-entry body attack choice. The selected head
     /// animation is an ordinary enemy animation, so attacks remain synchronized with its frame
-    /// durations instead of being represented by host timers.
+    /// durations instead of running on separate timers.
     /// </summary>
     internal void RunMotherBrainSecondPhaseTryAttack(
         MotherBrainEnemyState state,

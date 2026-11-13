@@ -75,7 +75,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
 
         // The test takes the sign of the target Y minus the current Y. For the fight's normal
         // coordinate range this is exactly Samus's Y <= 124, but preserve the wrapped sign test
-        // instead of introducing a host integer comparison with different wraps.
+        // instead of introducing a plain integer comparison with different wraps.
         int difference = CoordinateAxis.Difference(124, samus.Position.Y.Whole);
         bool reachedVerticalBoundary = MoveVerticallyTowardCeilingOrFloor(
             samus, cameraCheckpoint, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(difference >= 0 ? 64 : -64));

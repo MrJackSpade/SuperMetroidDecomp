@@ -86,7 +86,7 @@ public sealed class TorizoEnemyState : ILitTorizo
     /// <summary>The behaviour the Torizo runs before each animation step while active.</summary>
     public TorizoFrameBehavior FrameBehavior { get; internal set; }
 
-    /// <summary>Host latch preventing repeat entry into the death script after lethal damage; remains set for this state instance.</summary>
+    /// <summary>Latch preventing repeat entry into the death script after lethal damage; remains set for this state instance.</summary>
     public bool DeathStarted { get; internal set; }
 
     /// <summary>

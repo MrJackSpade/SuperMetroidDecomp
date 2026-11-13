@@ -13,7 +13,7 @@ internal static class MotherBrainShotReaction
         MotherBrainWalkCredit walkCredit)
     {
         // The shot reaction knows only the projectile types it reacts to. Validate the
-        // host enum so a caller cannot smuggle a larger value past it.
+        // projectile type so a caller cannot smuggle a larger value past it.
         if (!Enum.IsDefined(projectileType))
             throw new ArgumentOutOfRangeException(nameof(projectileType));
 

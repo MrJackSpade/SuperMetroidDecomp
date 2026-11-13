@@ -39,7 +39,7 @@ internal sealed class TorizoMovement
 
     /// <summary>
     /// Runs the shared Torizo initializer for the area-zero Bomb and area-two
-    /// Golden definitions. The concrete definition selects the values, so an unrelated host area enum
+    /// Golden definitions. The concrete definition selects the values, so the room's area
     /// cannot become a second authority for actor identity.
     /// </summary>
     internal void InitializeBombTorizo(RoomEnemySlot torizo, SamusState? samus, ControllerButton controllerInput)

@@ -21,14 +21,14 @@ internal static class SaveStationElectricityAnimations
         ],
         [P.Cycle] =
         [
-            Show(EnemyProjectileFrameId.SaveStationElectricityFrame00, 1),
-            Show(EnemyProjectileFrameId.SaveStationElectricityFrame01, 1),
-            Show(EnemyProjectileFrameId.SaveStationElectricityFrame02, 1),
-            Show(EnemyProjectileFrameId.SaveStationElectricityFrame03, 1),
-            Show(EnemyProjectileFrameId.SaveStationElectricityFrame04, 1),
-            Show(EnemyProjectileFrameId.SaveStationElectricityFrame05, 1),
-            Show(EnemyProjectileFrameId.SaveStationElectricityFrame06, 1),
-            Show(EnemyProjectileFrameId.SaveStationElectricityFrame07, 1),
+            Show(EnemyProjectileFrameId.SaveStationElectricityStartFirst, 1),
+            Show(EnemyProjectileFrameId.SaveStationElectricityStartSecond, 1),
+            Show(EnemyProjectileFrameId.SaveStationElectricityStartThird, 1),
+            Show(EnemyProjectileFrameId.SaveStationElectricityStartFourth, 1),
+            Show(EnemyProjectileFrameId.SaveStationElectricityStartFifth, 1),
+            Show(EnemyProjectileFrameId.SaveStationElectricityStartSixth, 1),
+            Show(EnemyProjectileFrameId.SaveStationElectricityStartSeventh, 1),
+            Show(EnemyProjectileFrameId.SaveStationElectricityStartEighth, 1),
             Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
         ],
     });

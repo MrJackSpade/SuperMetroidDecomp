@@ -16,10 +16,10 @@ internal static class AlcoonFireballAnimations
     {
         [P.Initial] =
         [
-            Show(EnemyProjectileFrameId.AlcoonFireballFrame00, 3),
-            Show(EnemyProjectileFrameId.AlcoonFireballFrame01, 3),
-            Show(EnemyProjectileFrameId.AlcoonFireballFrame02, 3),
-            Show(EnemyProjectileFrameId.AlcoonFireballFrame03, 3),
+            Show(EnemyProjectileFrameId.AlcoonFireballInitialFirst, 3),
+            Show(EnemyProjectileFrameId.AlcoonFireballInitialSecond, 3),
+            Show(EnemyProjectileFrameId.AlcoonFireballInitialThird, 3),
+            Show(EnemyProjectileFrameId.AlcoonFireballInitialFourth, 3),
         ],
     });
 

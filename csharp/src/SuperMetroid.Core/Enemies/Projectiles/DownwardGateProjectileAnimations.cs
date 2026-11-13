@@ -19,19 +19,19 @@ internal static class DownwardGateProjectileAnimations
         [
             Cue(new DownwardGateProjectileCue.SetYVelocity(YVelocity: SignedEightEight.FromParts(1, 0))),
             Cue(new DownwardGateProjectileCue.SetFrameBehavior(FrameBehavior: EnemyProjectileFrameBehavior.DownwardGateDescent)),
-            Show(EnemyProjectileFrameId.DownwardGateFrame00, 1),
+            Show(EnemyProjectileFrameId.DownwardGateMoving, 1),
         ],
         [P.MovingStep2] =
         [
-            Show(EnemyProjectileFrameId.DownwardGateFrame01, 1),
+            Show(EnemyProjectileFrameId.DownwardGateThirdMovingStep, 1),
         ],
         [P.MovingStep3] =
         [
-            Show(EnemyProjectileFrameId.DownwardGateFrame02, 1),
+            Show(EnemyProjectileFrameId.DownwardGateFourthMovingStep, 1),
         ],
         [P.MovingStep4] =
         [
-            Show(EnemyProjectileFrameId.DownwardGateFrame03, 1),
+            Show(EnemyProjectileFrameId.DownwardGateFifthMovingStep, 1),
         ],
         [P.MovingStep5] =
         [
@@ -40,24 +40,24 @@ internal static class DownwardGateProjectileAnimations
         [P.Closed] =
         [
             Cue(new DownwardGateProjectileCue.SetYVelocity(YVelocity: -SignedEightEight.FromParts(1, 0))),
-            Show(EnemyProjectileFrameId.DownwardGateFrame04, 1),
+            Show(EnemyProjectileFrameId.DownwardGateClosed, 1),
         ],
         [P.ClosedStep2] =
         [
             Cue(new DownwardGateProjectileCue.SetFrameBehavior(FrameBehavior: EnemyProjectileFrameBehavior.DownwardGateDescent)),
-            Show(EnemyProjectileFrameId.DownwardGateFrame05, 1),
+            Show(EnemyProjectileFrameId.DownwardGateThirdClosedStep, 1),
         ],
         [P.ClosedStep3] =
         [
-            Show(EnemyProjectileFrameId.DownwardGateFrame06, 1),
+            Show(EnemyProjectileFrameId.DownwardGateFourthClosedStep, 1),
         ],
         [P.ClosedStep4] =
         [
-            Show(EnemyProjectileFrameId.DownwardGateFrame07, 1),
+            Show(EnemyProjectileFrameId.DownwardGateFifthClosedStep, 1),
         ],
         [P.ClosedStep5] =
         [
-            Show(EnemyProjectileFrameId.DownwardGateFrame08, 1),
+            Show(EnemyProjectileFrameId.DownwardGateSixthClosedStep, 1),
         ],
         [P.ClosedStep6] =
         [

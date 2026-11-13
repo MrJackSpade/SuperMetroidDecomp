@@ -16,31 +16,31 @@ internal static class ShaktoolProjectileAnimations
     {
         [P.Front] =
         [
-            Show(EnemyProjectileFrameId.ShaktoolFrame00, 4),
-            Show(EnemyProjectileFrameId.ShaktoolFrame01, 4),
+            Show(EnemyProjectileFrameId.ShaktoolFrontFirst, 4),
+            Show(EnemyProjectileFrameId.ShaktoolFrontSecond, 4),
         ],
         [P.FrontLoop] =
         [
-            Show(EnemyProjectileFrameId.ShaktoolFrame02, 119),
+            Show(EnemyProjectileFrameId.ShaktoolFrontLoop, 119),
         ],
         [P.Middle] =
         [
-            Show(EnemyProjectileFrameId.ShaktoolFrame03, 6),
+            Show(EnemyProjectileFrameId.ShaktoolMiddleFirst, 6),
             Cue(new EnemyProjectileCommonCue.SetFrameBehavior(FrameBehavior: EnemyProjectileFrameBehavior.ShaktoolTrailingCircleFlight)),
-            Show(EnemyProjectileFrameId.ShaktoolFrame04, 4),
+            Show(EnemyProjectileFrameId.ShaktoolMiddleSecond, 4),
         ],
         [P.MiddleLoop] =
         [
-            Show(EnemyProjectileFrameId.ShaktoolFrame05, 119),
+            Show(EnemyProjectileFrameId.ShaktoolMiddleLoop, 119),
         ],
         [P.Back] =
         [
-            Show(EnemyProjectileFrameId.ShaktoolFrame06, 10),
+            Show(EnemyProjectileFrameId.ShaktoolBack, 10),
             Cue(new EnemyProjectileCommonCue.SetFrameBehavior(FrameBehavior: EnemyProjectileFrameBehavior.ShaktoolTrailingCircleFlight)),
         ],
         [P.BackLoop] =
         [
-            Show(EnemyProjectileFrameId.ShaktoolFrame07, 119),
+            Show(EnemyProjectileFrameId.ShaktoolBackLoop, 119),
         ],
     });
 

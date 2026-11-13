@@ -18,14 +18,14 @@ internal static class EyeDoorSweatAnimations
     {
         [P.Falling] =
         [
-            Show(EnemyProjectileFrameId.EyeDoorSweatFrame00, 6),
+            Show(EnemyProjectileFrameId.EyeDoorSweatFalling, 6),
         ],
         [P.HitFloor] =
         [
             Cue(new EnemyProjectileCommonCue.Command(CK.ClearFrameBehavior)),
-            Show(EnemyProjectileFrameId.EyeDoorSweatFrame01, 6),
-            Show(EnemyProjectileFrameId.EyeDoorSweatFrame02, 6),
-            Show(EnemyProjectileFrameId.EyeDoorSweatFrame03, 6),
+            Show(EnemyProjectileFrameId.EyeDoorSweatHitFloorFirst, 6),
+            Show(EnemyProjectileFrameId.EyeDoorSweatHitFloorSecond, 6),
+            Show(EnemyProjectileFrameId.EyeDoorSweatHitFloorThird, 6),
             Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
         ],
     });

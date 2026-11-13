@@ -18,24 +18,24 @@ internal static class TourianStatueProjectileAnimations
         ],
         [P.Splash] =
         [
-            Show(EnemyProjectileFrameId.TourianStatueFrame00, 8),
-            Show(EnemyProjectileFrameId.TourianStatueFrame01, 8),
-            Show(EnemyProjectileFrameId.TourianStatueFrame02, 8),
-            Show(EnemyProjectileFrameId.TourianStatueFrame03, 8),
+            Show(EnemyProjectileFrameId.TourianStatueSplashFirst, 8),
+            Show(EnemyProjectileFrameId.TourianStatueSplashSecond, 8),
+            Show(EnemyProjectileFrameId.TourianStatueSplashThird, 8),
+            Show(EnemyProjectileFrameId.TourianStatueSplashFourth, 8),
             Cue(new TourianStatueProjectileCue.Command(K.Delete)),
         ],
         [P.EyeGlow] =
         [
-            Show(EnemyProjectileFrameId.TourianStatueFrame04, 8),
-            Show(EnemyProjectileFrameId.TourianStatueFrame05, 8),
-            Show(EnemyProjectileFrameId.TourianStatueFrame06, 8),
-            Show(EnemyProjectileFrameId.TourianStatueFrame07, 7),
-            Show(EnemyProjectileFrameId.TourianStatueFrame08, 7),
-            Show(EnemyProjectileFrameId.TourianStatueFrame09, 7),
-            Show(EnemyProjectileFrameId.TourianStatueFrame10, 6),
-            Show(EnemyProjectileFrameId.TourianStatueFrame11, 6),
-            Show(EnemyProjectileFrameId.TourianStatueFrame12, 5),
-            Show(EnemyProjectileFrameId.TourianStatueFrame13, 48),
+            Show(EnemyProjectileFrameId.TourianStatueEyeGlowFirst, 8),
+            Show(EnemyProjectileFrameId.TourianStatueEyeGlowSecond, 8),
+            Show(EnemyProjectileFrameId.TourianStatueEyeGlowThird, 8),
+            Show(EnemyProjectileFrameId.TourianStatueEyeGlowFourth, 7),
+            Show(EnemyProjectileFrameId.TourianStatueEyeGlowFifth, 7),
+            Show(EnemyProjectileFrameId.TourianStatueEyeGlowSixth, 7),
+            Show(EnemyProjectileFrameId.TourianStatueEyeGlowSeventh, 6),
+            Show(EnemyProjectileFrameId.TourianStatueEyeGlowEighth, 6),
+            Show(EnemyProjectileFrameId.TourianStatueEyeGlowNinth, 5),
+            Show(EnemyProjectileFrameId.TourianStatueEyeGlowTenth, 48),
             Cue(new TourianStatueProjectileCue.Command(K.PlayReleaseSound)),
             Cue(new TourianStatueProjectileCue.Command(K.Earthquake)),
             Cue(new TourianStatueProjectileCue.Command(K.SpawnParticle)),
@@ -46,44 +46,44 @@ internal static class TourianStatueProjectileAnimations
         ],
         [P.Particle] =
         [
-            Show(EnemyProjectileFrameId.TourianStatueFrame14, 3),
-            Show(EnemyProjectileFrameId.TourianStatueFrame15, 3),
+            Show(EnemyProjectileFrameId.TourianStatueParticleFirst, 3),
+            Show(EnemyProjectileFrameId.TourianStatueParticleSecond, 3),
             Cue(new TourianStatueProjectileCue.Command(K.SpawnTail)),
-            Show(EnemyProjectileFrameId.TourianStatueFrame16, 3),
-            Show(EnemyProjectileFrameId.TourianStatueFrame17, 3),
+            Show(EnemyProjectileFrameId.TourianStatueParticleThird, 3),
+            Show(EnemyProjectileFrameId.TourianStatueParticleFourth, 3),
         ],
         [P.Tail] =
         [
-            Show(EnemyProjectileFrameId.TourianStatueFrame18, 4),
+            Show(EnemyProjectileFrameId.TourianStatueTailFirst, 4),
             Cue(new TourianStatueProjectileCue.MoveDown(Pixels: 8)),
-            Show(EnemyProjectileFrameId.TourianStatueFrame19, 4),
+            Show(EnemyProjectileFrameId.TourianStatueTailSecond, 4),
             Cue(new TourianStatueProjectileCue.MoveDown(Pixels: 4)),
-            Show(EnemyProjectileFrameId.TourianStatueFrame20, 4),
+            Show(EnemyProjectileFrameId.TourianStatueTailThird, 4),
             Cue(new TourianStatueProjectileCue.MoveDown(Pixels: 2)),
-            Show(EnemyProjectileFrameId.TourianStatueFrame21, 4),
+            Show(EnemyProjectileFrameId.TourianStatueTailFourth, 4),
             Cue(new TourianStatueProjectileCue.Command(K.Delete)),
         ],
         [P.Soul] =
         [
-            Show(EnemyProjectileFrameId.TourianStatueFrame22, 8),
-            Show(EnemyProjectileFrameId.TourianStatueFrame23, 8),
+            Show(EnemyProjectileFrameId.TourianStatueSoulFirst, 8),
+            Show(EnemyProjectileFrameId.TourianStatueSoulSecond, 8),
         ],
         [P.BaseDecoration] =
         [
-            Show(EnemyProjectileFrameId.TourianStatueFrame24, 128),
+            Show(EnemyProjectileFrameId.TourianStatueBaseDecoration, 128),
             Cue(new TourianStatueProjectileCue.StartMoving(Movement: EnemyProjectileFrameBehavior.TourianStatueRevealFollow)),
         ],
         [P.BaseDecorationLoop] =
         [
-            Show(EnemyProjectileFrameId.TourianStatueFrame25, 1911),
+            Show(EnemyProjectileFrameId.TourianStatueBaseDecorationLoop, 1911),
         ],
         [P.Ridley] =
         [
-            Show(EnemyProjectileFrameId.TourianStatueFrame26, 1911),
+            Show(EnemyProjectileFrameId.TourianStatueRidley, 1911),
         ],
         [P.Phantoon] =
         [
-            Show(EnemyProjectileFrameId.TourianStatueFrame27, 1911),
+            Show(EnemyProjectileFrameId.TourianStatuePhantoon, 1911),
         ],
     });
 

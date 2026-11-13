@@ -138,28 +138,28 @@ internal static class EncounterArtworkDrawingDefinitions
     /// <summary>Her onion rings, whose characters her legs' look holds.</summary>
     private static readonly EnemyProjectileFrameId[] MotherBrainRings =
     [
-        EnemyProjectileFrameId.MotherBrainBlueRing00, EnemyProjectileFrameId.MotherBrainBlueRing01, EnemyProjectileFrameId.MotherBrainBlueRing02,
-        EnemyProjectileFrameId.MotherBrainBlueRing03, EnemyProjectileFrameId.MotherBrainBlueRing04, EnemyProjectileFrameId.MotherBrainBlueRing05,
+        EnemyProjectileFrameId.MotherBrainBlueRingOnionRingFirst, EnemyProjectileFrameId.MotherBrainBlueRingOnionRingSecond, EnemyProjectileFrameId.MotherBrainBlueRingOnionRingThird,
+        EnemyProjectileFrameId.MotherBrainBlueRingOnionRingFourth, EnemyProjectileFrameId.MotherBrainBlueRingOnionRingFifth, EnemyProjectileFrameId.MotherBrainBlueRingOnionRingSixth,
     ];
 
     /// <summary>Her bombs, which her attacks' look holds.</summary>
     private static readonly EnemyProjectileFrameId[] MotherBrainAttackEffects =
     [
-        EnemyProjectileFrameId.MotherBrainBombFrame00, EnemyProjectileFrameId.MotherBrainBombFrame01, EnemyProjectileFrameId.MotherBrainBombFrame02,
-        EnemyProjectileFrameId.MotherBrainBombFrame03, EnemyProjectileFrameId.MotherBrainBombFrame04, EnemyProjectileFrameId.MotherBrainBombFrame05,
-        EnemyProjectileFrameId.MotherBrainBombFrame06, EnemyProjectileFrameId.MotherBrainBombFrame07, EnemyProjectileFrameId.MotherBrainBombFrame08,
+        EnemyProjectileFrameId.MotherBrainBombFirst, EnemyProjectileFrameId.MotherBrainBombSecond, EnemyProjectileFrameId.MotherBrainBombThird,
+        EnemyProjectileFrameId.MotherBrainBombFourth, EnemyProjectileFrameId.MotherBrainBombFifth, EnemyProjectileFrameId.MotherBrainBombSixth,
+        EnemyProjectileFrameId.MotherBrainBombSeventh, EnemyProjectileFrameId.MotherBrainBombEighth, EnemyProjectileFrameId.MotherBrainBombNinth,
     ];
 
     /// <summary>The escape door's fragments, which the exploded door's look holds.</summary>
     private static readonly EnemyProjectileFrameId[] MotherBrainDoorFragments =
     [
-        EnemyProjectileFrameId.MotherBrainEscapeDoorParticleFrame00, EnemyProjectileFrameId.MotherBrainEscapeDoorParticleFrame01, EnemyProjectileFrameId.MotherBrainEscapeDoorParticleFrame02,
-        EnemyProjectileFrameId.MotherBrainEscapeDoorParticleFrame03, EnemyProjectileFrameId.MotherBrainEscapeDoorParticleFrame04, EnemyProjectileFrameId.MotherBrainEscapeDoorParticleFrame05,
-        EnemyProjectileFrameId.MotherBrainEscapeDoorParticleFrame06, EnemyProjectileFrameId.MotherBrainEscapeDoorParticleFrame07,
+        EnemyProjectileFrameId.MotherBrainEscapeDoorParticleFirst, EnemyProjectileFrameId.MotherBrainEscapeDoorParticleSecond, EnemyProjectileFrameId.MotherBrainEscapeDoorParticleThird,
+        EnemyProjectileFrameId.MotherBrainEscapeDoorParticleFourth, EnemyProjectileFrameId.MotherBrainEscapeDoorParticleFifth, EnemyProjectileFrameId.MotherBrainEscapeDoorParticleSixth,
+        EnemyProjectileFrameId.MotherBrainEscapeDoorParticleSeventh, EnemyProjectileFrameId.MotherBrainEscapeDoorParticleEighth,
     ];
 
     /// <summary>The escape's subtitle, which the escape message's look holds.</summary>
-    private static readonly EnemyProjectileFrameId[] MotherBrainSubtitle = [EnemyProjectileFrameId.MotherBrainEscapeSubtitleFrame00];
+    private static readonly EnemyProjectileFrameId[] MotherBrainSubtitle = [EnemyProjectileFrameId.MotherBrainEscapeSubtitle];
 
     /// <summary>Mother Brain's living brain, whose faces her room's load holds.</summary>
     private static readonly EncounterArtworkDrawing MotherBrainHead =

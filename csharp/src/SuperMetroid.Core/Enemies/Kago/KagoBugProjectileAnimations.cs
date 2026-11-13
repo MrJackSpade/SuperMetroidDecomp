@@ -27,32 +27,32 @@ internal static class KagoBugProjectileAnimations
         ],
         [P.Landed] =
         [
-            Show(EnemyProjectileFrameId.KagoBugFrame00, 5),
+            Show(EnemyProjectileFrameId.KagoBugLandedFirst, 5),
             Cue(new(K.StartIdle)),
-            Show(EnemyProjectileFrameId.KagoBugFrame01, LongestPose),
+            Show(EnemyProjectileFrameId.KagoBugLandedSecond, LongestPose),
         ],
         [P.Falling] =
         [
-            Hold(EnemyProjectileFrameId.KagoBugFrame02),
+            Hold(EnemyProjectileFrameId.KagoBugFalling),
         ],
         [P.JumpStart] =
         [
-            Show(EnemyProjectileFrameId.KagoBugFrame03, 16),
-            Show(EnemyProjectileFrameId.KagoBugFrame04, 5),
+            Show(EnemyProjectileFrameId.KagoBugJumpStartFirst, 16),
+            Show(EnemyProjectileFrameId.KagoBugJumpStartSecond, 5),
             Cue(new(K.StartJump)),
         ],
         [P.JumpLoop] =
         [
-            Hold(EnemyProjectileFrameId.KagoBugFrame05),
+            Hold(EnemyProjectileFrameId.KagoBugJumpLoop),
         ],
         [P.Shot] =
         [
             Cue(new(K.DrawFromSharedSheet)),
-            Show(EnemyProjectileFrameId.KagoBugFrame06, 4),
-            Show(EnemyProjectileFrameId.KagoBugFrame07, 4),
-            Show(EnemyProjectileFrameId.KagoBugFrame08, 4),
-            Show(EnemyProjectileFrameId.KagoBugFrame09, 4),
-            Show(EnemyProjectileFrameId.KagoBugFrame10, 4),
+            Show(EnemyProjectileFrameId.KagoBugShotFirst, 4),
+            Show(EnemyProjectileFrameId.KagoBugShotSecond, 4),
+            Show(EnemyProjectileFrameId.KagoBugShotThird, 4),
+            Show(EnemyProjectileFrameId.KagoBugShotFourth, 4),
+            Show(EnemyProjectileFrameId.KagoBugShotFifth, 4),
             Cue(new(K.SpawnDrop)),
         ],
     });

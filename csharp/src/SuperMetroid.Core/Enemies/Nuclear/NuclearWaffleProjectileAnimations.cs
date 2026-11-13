@@ -16,18 +16,18 @@ internal static class NuclearWaffleProjectileAnimations
     {
         [P.Initial] =
         [
-            Show(EnemyProjectileFrameId.NuclearWaffleFrame00, 3),
-            Show(EnemyProjectileFrameId.NuclearWaffleFrame01, 3),
-            Show(EnemyProjectileFrameId.NuclearWaffleFrame02, 3),
-            Show(EnemyProjectileFrameId.NuclearWaffleFrame03, 3),
-            Show(EnemyProjectileFrameId.NuclearWaffleFrame04, 3),
-            Show(EnemyProjectileFrameId.NuclearWaffleFrame05, 3),
-            Show(EnemyProjectileFrameId.NuclearWaffleFrame06, 3),
-            Show(EnemyProjectileFrameId.NuclearWaffleFrame07, 3),
-            Show(EnemyProjectileFrameId.NuclearWaffleFrame08, 3),
-            Show(EnemyProjectileFrameId.NuclearWaffleFrame09, 3),
-            Show(EnemyProjectileFrameId.NuclearWaffleFrame10, 3),
-            Show(EnemyProjectileFrameId.NuclearWaffleFrame11, 3),
+            Show(EnemyProjectileFrameId.NuclearWaffleInitialFirst, 3),
+            Show(EnemyProjectileFrameId.NuclearWaffleInitialSecond, 3),
+            Show(EnemyProjectileFrameId.NuclearWaffleInitialThird, 3),
+            Show(EnemyProjectileFrameId.NuclearWaffleInitialFourth, 3),
+            Show(EnemyProjectileFrameId.NuclearWaffleInitialFifth, 3),
+            Show(EnemyProjectileFrameId.NuclearWaffleInitialSixth, 3),
+            Show(EnemyProjectileFrameId.NuclearWaffleInitialSeventh, 3),
+            Show(EnemyProjectileFrameId.NuclearWaffleInitialEighth, 3),
+            Show(EnemyProjectileFrameId.NuclearWaffleInitialNinth, 3),
+            Show(EnemyProjectileFrameId.NuclearWaffleInitialTenth, 3),
+            Show(EnemyProjectileFrameId.NuclearWaffleInitialEleventh, 3),
+            Show(EnemyProjectileFrameId.NuclearWaffleInitialTwelfth, 3),
         ],
     });
 

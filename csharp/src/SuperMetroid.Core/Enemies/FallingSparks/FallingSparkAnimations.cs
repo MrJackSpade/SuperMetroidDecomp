@@ -17,23 +17,23 @@ internal static class FallingSparkAnimations
     {
         [P.Falling] =
         [
-            Show(EnemyProjectileFrameId.FallingSparkFrame00, 3),
-            Show(EnemyProjectileFrameId.FallingSparkFrame01, 3),
-            Show(EnemyProjectileFrameId.FallingSparkFrame02, 3),
+            Show(EnemyProjectileFrameId.FallingSparkFallingFirst, 3),
+            Show(EnemyProjectileFrameId.FallingSparkFallingSecond, 3),
+            Show(EnemyProjectileFrameId.FallingSparkFallingThird, 3),
         ],
         [P.HitFloor] =
         [
-            Show(EnemyProjectileFrameId.FallingSparkFrame03, 1),
-            Show(EnemyProjectileFrameId.FallingSparkFrame04, 1),
-            Show(EnemyProjectileFrameId.FallingSparkFrame05, 1),
-            Show(EnemyProjectileFrameId.FallingSparkFrame06, 1),
-            Show(EnemyProjectileFrameId.FallingSparkFrame07, 1),
-            Show(EnemyProjectileFrameId.FallingSparkFrame08, 1),
-            Show(EnemyProjectileFrameId.FallingSparkFrame09, 1),
-            Show(EnemyProjectileFrameId.FallingSparkFrame10, 1),
-            Show(EnemyProjectileFrameId.FallingSparkFrame11, 1),
-            Show(EnemyProjectileFrameId.FallingSparkFrame12, 1),
-            Show(EnemyProjectileFrameId.FallingSparkFrame13, 1),
+            Show(EnemyProjectileFrameId.FallingSparkHitFloorFirst, 1),
+            Show(EnemyProjectileFrameId.FallingSparkHitFloorSecond, 1),
+            Show(EnemyProjectileFrameId.FallingSparkHitFloorThird, 1),
+            Show(EnemyProjectileFrameId.FallingSparkHitFloorFourth, 1),
+            Show(EnemyProjectileFrameId.FallingSparkHitFloorFifth, 1),
+            Show(EnemyProjectileFrameId.FallingSparkHitFloorSixth, 1),
+            Show(EnemyProjectileFrameId.FallingSparkHitFloorSeventh, 1),
+            Show(EnemyProjectileFrameId.FallingSparkHitFloorEighth, 1),
+            Show(EnemyProjectileFrameId.FallingSparkHitFloorNinth, 1),
+            Show(EnemyProjectileFrameId.FallingSparkHitFloorTenth, 1),
+            Show(EnemyProjectileFrameId.FallingSparkHitFloorEleventh, 1),
             Cue(new EnemyProjectileCommonCue.Command(CK.Delete)),
         ],
     });

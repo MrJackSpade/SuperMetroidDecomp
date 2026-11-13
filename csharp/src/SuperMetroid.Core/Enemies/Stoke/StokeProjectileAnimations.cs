@@ -16,8 +16,8 @@ internal static class StokeProjectileAnimations
     {
         [P.Initial] =
         [
-            Show(EnemyProjectileFrameId.StokeFrame00, 16),
-            Show(EnemyProjectileFrameId.StokeFrame01, 16),
+            Show(EnemyProjectileFrameId.StokeInitialFirst, 16),
+            Show(EnemyProjectileFrameId.StokeInitialSecond, 16),
         ],
     });
 

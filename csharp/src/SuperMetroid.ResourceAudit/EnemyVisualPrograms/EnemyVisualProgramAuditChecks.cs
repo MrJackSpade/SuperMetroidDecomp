@@ -76,14 +76,14 @@ internal static class EnemyVisualProgramAuditChecks
 
         var projectileExports = new ResourceIndex();
         projectileExports.Add(ResourceDomains.EnemyProjectileProgram,
-            ResourceIndex.Address(ResourceBanks.EnemyProjectilePrograms, EnemyProjectileProgramFrameSources.Operand(EnemyProjectileFrameId.PolypRock00)));
+            ResourceIndex.Address(ResourceBanks.EnemyProjectilePrograms, EnemyProjectileProgramFrameSources.Operand(EnemyProjectileFrameId.PolypRockInitial)));
         var boundProjectile = new AuditReport();
         EnemyVisualProgramAudit.RequireResolvedOperand(ResourceBanks.EnemyProjectilePrograms,
-            EnemyProjectileProgramFrameSources.Operand(EnemyProjectileFrameId.PolypRock00), null, "PolypRock", "fixture", projectileExports, boundProjectile);
+            EnemyProjectileProgramFrameSources.Operand(EnemyProjectileFrameId.PolypRockInitial), null, "PolypRock", "fixture", projectileExports, boundProjectile);
         Require(boundProjectile.Findings.Count == 0, "installed projectile operands do not require a redundant pointer lookup");
         var missingProjectile = new AuditReport();
         EnemyVisualProgramAudit.RequireResolvedOperand(ResourceBanks.EnemyProjectilePrograms,
-            EnemyProjectileProgramFrameSources.Operand(EnemyProjectileFrameId.PolypRock00), null, "PolypRock", "fixture", new ResourceIndex(), missingProjectile);
+            EnemyProjectileProgramFrameSources.Operand(EnemyProjectileFrameId.PolypRockInitial), null, "PolypRock", "fixture", new ResourceIndex(), missingProjectile);
         Require(missingProjectile.Findings.Count == 1, "missing projectile binding/selector is rejected");
 
         Console.WriteLine("Enemy visual audit contracts: owner discovery, missing selector/artwork, bank isolation, and projectile binding pass.");

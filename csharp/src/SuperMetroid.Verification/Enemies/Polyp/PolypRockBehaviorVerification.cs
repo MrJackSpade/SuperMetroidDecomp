@@ -40,9 +40,9 @@ internal static class PolypRockBehaviorVerification
         rock.StartAnimation(EnemyProjectileDeleteAnimation.Instance);
         enemies.Projectiles.ProcessEnemyProjectileInstructions(rock, null, Position16<RoomPixels>.Zero);
         AssertTrue(!rock.IsActive, "the shared shot list still deletes the rock");
-        AssertTrue(CompiledEnemyVisualSelectors.TryGet((byte)EnemyInstructionBank.Bank86, EnemyProjectileProgramFrameSources.Operand(EnemyProjectileFrameId.PolypRock00), out ushort selected),
+        AssertTrue(CompiledEnemyVisualSelectors.TryGet((byte)EnemyInstructionBank.Bank86, EnemyProjectileProgramFrameSources.Operand(EnemyProjectileFrameId.PolypRockInitial), out ushort selected),
             "the rock's frame has a selector");
-        AssertEqual(PolypRockFrameToolingDefinitions.Spritemap(EnemyProjectileFrameId.PolypRock00), selected, "the rock's selector is its native spritemap");
+        AssertEqual(PolypRockFrameToolingDefinitions.Spritemap(EnemyProjectileFrameId.PolypRockInitial), selected, "the rock's selector is its native spritemap");
         AssertEqual(0, guard.ForbiddenReadAttempts, "production reads none of the rock's native list bytes");
         Console.WriteLine("  Polyp rock behavior: the rock shows its frame and sleeps as its native list does; its selector matches.");
     }

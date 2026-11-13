@@ -17,9 +17,9 @@ internal static class PowampSpikeAnimations
     {
         [P.Initial] =
         [
-            Show(EnemyProjectileFrameId.PowampSpikeFrame00, 6),
-            Show(EnemyProjectileFrameId.PowampSpikeFrame01, 6),
-            Show(EnemyProjectileFrameId.PowampSpikeFrame02, 6),
+            Show(EnemyProjectileFrameId.PowampSpikeInitialFirst, 6),
+            Show(EnemyProjectileFrameId.PowampSpikeInitialSecond, 6),
+            Show(EnemyProjectileFrameId.PowampSpikeInitialThird, 6),
         ],
         [P.Delete] =
         [

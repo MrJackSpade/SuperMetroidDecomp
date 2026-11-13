@@ -24,7 +24,7 @@ public static class EnemySheetFiles
     /// overlay's own characters, as the only door that draws it shows them before its first draw (#1641); 28 installs no
     /// look an enemy's draws never select, so variants the player cannot tell apart, as the Chozo statue's of one site and
     /// the elevator's, are one variant drawing one sheet (#1643); 29 installs no frame no animation shows, as the room sprite
-    /// objects nothing spawns (#1623).
+    /// objects nothing spawns, and keys every projectile frame by what it shows (#1623).
     /// </summary>
     public const int ManifestVersion = 29;
 

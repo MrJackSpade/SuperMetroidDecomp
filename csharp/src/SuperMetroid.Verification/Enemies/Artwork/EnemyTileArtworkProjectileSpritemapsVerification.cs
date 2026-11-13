@@ -582,13 +582,13 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         {
             EnemyProjectileFrameId frame = EnemyProjectileProgramFrameOperands.Frame(operand);
             return SuperMetroid.Core.Enemies.Projectiles.Artwork.EnemyProjectileEmptyFrameDefinitions.EmptySpritemapFrames.Contains(frame)
-                || frame is EnemyProjectileFrameId.ChozoTourianDustFrame04 or EnemyProjectileFrameId.ChozoTourianDustFrame05
-                    or EnemyProjectileFrameId.ChozoTourianDustFrame06 or EnemyProjectileFrameId.ChozoTourianDustFrame07
-                    or EnemyProjectileFrameId.ChozoTourianDustFrame08 or EnemyProjectileFrameId.ChozoTourianDustFrame09
-                    or EnemyProjectileFrameId.ShaktoolFrame00 or EnemyProjectileFrameId.ShaktoolFrame01
-                    or EnemyProjectileFrameId.ShaktoolFrame02 or EnemyProjectileFrameId.ShaktoolFrame03
-                    or EnemyProjectileFrameId.ShaktoolFrame04 or EnemyProjectileFrameId.ShaktoolFrame05
-                    or EnemyProjectileFrameId.ShaktoolFrame06 or EnemyProjectileFrameId.ShaktoolFrame07;
+                || frame is EnemyProjectileFrameId.ChozoTourianDustSpikeClearingExplosionsFirst or EnemyProjectileFrameId.ChozoTourianDustSpikeClearingExplosionsSecond
+                    or EnemyProjectileFrameId.ChozoTourianDustSpikeClearingExplosionsThird or EnemyProjectileFrameId.ChozoTourianDustSpikeClearingExplosionsFourth
+                    or EnemyProjectileFrameId.ChozoTourianDustSpikeClearingExplosionsFifth or EnemyProjectileFrameId.ChozoTourianDustSpikeClearingExplosionsSixth
+                    or EnemyProjectileFrameId.ShaktoolFrontFirst or EnemyProjectileFrameId.ShaktoolFrontSecond
+                    or EnemyProjectileFrameId.ShaktoolFrontLoop or EnemyProjectileFrameId.ShaktoolMiddleFirst
+                    or EnemyProjectileFrameId.ShaktoolMiddleSecond or EnemyProjectileFrameId.ShaktoolMiddleLoop
+                    or EnemyProjectileFrameId.ShaktoolBack or EnemyProjectileFrameId.ShaktoolBackLoop;
         }
 
         static OamBuffer DrawReferenceProgramFrameWith(ushort operand, ISnesAddressSpace source, ushort word)

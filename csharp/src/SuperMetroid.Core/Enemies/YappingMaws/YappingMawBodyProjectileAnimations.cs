@@ -16,11 +16,11 @@ internal static class YappingMawBodyProjectileAnimations
     {
         [P.FacingDown] =
         [
-            Show(EnemyProjectileFrameId.YappingMawFrame00, 1),
+            Show(EnemyProjectileFrameId.YappingMawFacingDown, 1),
         ],
         [P.FacingUp] =
         [
-            Show(EnemyProjectileFrameId.YappingMawFrame01, 1),
+            Show(EnemyProjectileFrameId.YappingMawFacingUp, 1),
         ],
     });
 

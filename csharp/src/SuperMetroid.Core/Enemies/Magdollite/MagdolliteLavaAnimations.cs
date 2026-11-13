@@ -21,11 +21,11 @@ internal static class MagdolliteLavaAnimations
         ],
         [P.Left] =
         [
-            Show(EnemyProjectileFrameId.MagdolliteLavaFrame00, 1),
+            Show(EnemyProjectileFrameId.MagdolliteLavaLeft, 1),
         ],
         [P.Right] =
         [
-            Show(EnemyProjectileFrameId.MagdolliteLavaFrame01, 1),
+            Show(EnemyProjectileFrameId.MagdolliteLavaRight, 1),
         ],
         [P.Shot] =
         [

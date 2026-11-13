@@ -355,7 +355,7 @@ internal sealed class StationObjects
                 (station.Kind != StationKind.Save ||
                     (station.SavePhase == SaveStationPhase.Idle && !SaveStationLockedOut)))
             {
-                // Recharge setup rejects an already-full resource before command six
+                // Recharge setup rejects an already-full resource before the station lock
                 // takes control. Rejecting it later leaves a locked Samus with no access
                 // animation running to release her. Collision itself remains solid.
                 if (station.Kind is StationKind.Energy or StationKind.Missile)

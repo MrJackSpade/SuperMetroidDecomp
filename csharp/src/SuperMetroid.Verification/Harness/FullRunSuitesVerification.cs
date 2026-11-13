@@ -26,6 +26,8 @@ using static SuperMetroid.Verification.Bosses.MotherBrain.DrainingShitroidFallSh
 using static SuperMetroid.Verification.Enemies.YappingMaws.YappingMawBendChainVerification;
 using static SuperMetroid.Verification.Enemies.MamaTurtles.MamaTurtleWallReversalVerification;
 using static SuperMetroid.Verification.Enemies.Kzan.KzanRiseStepVerification;
+using static SuperMetroid.Verification.Enemies.Crawlers.MultiviolaLeftOrUpSpeedVerification;
+using static SuperMetroid.Verification.Enemies.Yard.YardAirborneReversalVerification;
 using static SuperMetroid.Verification.Enemies.Sbug.SbugReversalVerification;
 using static SuperMetroid.Verification.Enemies.Puyo.PuyoCeilingTurnVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidFatalBlowShakeVerification;
@@ -988,6 +990,8 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyYappingMawBendChain), () => VerifyYappingMawBendChain()),
         new(nameof(VerifyMamaTurtleWallReversal), () => VerifyMamaTurtleWallReversal()),
         new(nameof(VerifyKzanRiseStep), () => VerifyKzanRiseStep()),
+        new(nameof(VerifyMultiviolaLeftOrUpSpeed), () => VerifyMultiviolaLeftOrUpSpeed()),
+        new(nameof(VerifyYardAirborneReversal), () => VerifyYardAirborneReversal()),
         new(nameof(VerifySbugReversal), () => VerifySbugReversal()),
         new(nameof(VerifyPuyoCeilingTurn), () => VerifyPuyoCeilingTurn()),
         new(nameof(VerifyJumpNoXMovement), () => VerifyJumpNoXMovement()),

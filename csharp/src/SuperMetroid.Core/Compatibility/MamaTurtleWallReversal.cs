@@ -25,7 +25,7 @@ internal static class MamaTurtleWallReversal
     /// <summary>The velocity a turtle that met the wall at <paramref name="velocity"/> leaves it with.</summary>
     /// <param name="velocity">The horizontal velocity the turtle met the wall with.</param>
     internal static SignedSixteenSixteen ReversedVelocity(SignedSixteenSixteen velocity) =>
-        velocity.ComplementedWholeNegatedFraction();
+        PartwiseReversal.WholeComplementedFractionNegated(velocity);
 
     /// <summary>
     /// The acceleration a turtle that met the wall at <paramref name="velocity"/> with <paramref name="acceleration"/>
@@ -36,7 +36,7 @@ internal static class MamaTurtleWallReversal
     /// <param name="velocity">The horizontal velocity the turtle met the wall with.</param>
     internal static SignedSixteenSixteen ReversedAcceleration(SignedSixteenSixteen acceleration, SignedSixteenSixteen velocity)
     {
-        SignedSixteenSixteen reversed = acceleration.ComplementedWholeNegatedFraction();
+        SignedSixteenSixteen reversed = PartwiseReversal.WholeComplementedFractionNegated(acceleration);
         return velocity.WholePixels == UnderAPixelLeftward ? reversed - SignedSixteenSixteen.FromWholePixels(1) : reversed;
     }
 }

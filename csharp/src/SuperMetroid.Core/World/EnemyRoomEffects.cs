@@ -68,11 +68,11 @@ internal sealed class EnemyRoomEffects
         ApplyPendingTorizoBellyGlow(requests, roomPaletteFx);
     }
 
-    /// <summary>Starts the belly glow a Torizo's fight start asked for among the room's colour effects.</summary>
+    /// <summary>Starts the belly glow a Torizo's fight start asked for among the room's colour effects, watching that Torizo.</summary>
     internal void ApplyPendingTorizoBellyGlow(EnemyRoomEffectRequests requests, RoomPaletteFxSystem roomPaletteFx)
     {
         if (requests.TorizoBellyGlow is { } glow)
-            roomPaletteFx.Start(glow, _player.IntroducedSamus.EquippedItems);
+            roomPaletteFx.StartTorizoBellyGlow(glow.Glow, glow.Torizo, _player.IntroducedSamus.EquippedItems);
     }
 
     /// <summary>

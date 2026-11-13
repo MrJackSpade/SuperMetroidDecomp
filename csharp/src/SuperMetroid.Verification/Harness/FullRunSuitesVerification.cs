@@ -583,6 +583,8 @@ internal static class FullRunSuitesVerification
             SuperMetroid.Verification.Frontend.Title.TitleCounterPhasesVerification.VerifyTitleCounterPhases),
         new(nameof(SuperMetroid.Verification.Bosses.Torizo.TorizoAttackPhaseVerification.VerifyTorizoAttackPhase),
             SuperMetroid.Verification.Bosses.Torizo.TorizoAttackPhaseVerification.VerifyTorizoAttackPhase),
+        new(nameof(SuperMetroid.Verification.Bosses.Torizo.TorizoBellyGlowEndVerification.VerifyTorizoBellyGlowEnd),
+            SuperMetroid.Verification.Bosses.Torizo.TorizoBellyGlowEndVerification.VerifyTorizoBellyGlowEnd),
         new(nameof(SuperMetroid.Verification.Bosses.Kraid.KraidHeightPhasesVerification.VerifyKraidHeightPhases),
             SuperMetroid.Verification.Bosses.Kraid.KraidHeightPhasesVerification.VerifyKraidHeightPhases),
         new(nameof(SuperMetroid.Verification.Enemies.Cacatac.CacatacAttackChanceVerification.VerifyCacatacAttackChance),

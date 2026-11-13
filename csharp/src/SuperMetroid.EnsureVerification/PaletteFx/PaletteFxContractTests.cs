@@ -32,7 +32,7 @@ internal static class PaletteFxContractTests
         var fxSession = new PaletteFxSessionState();
         var fx = new RoomPaletteFxSystem(fxSession);
         fx.Start(PaletteFxObject.CutsceneGunshipEngineFlicker, 0);
-        fx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false });
+        fx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
         IReadOnlyList<ShownPaletteFxFrame> shown = fx.Shown;
         var first = new PaletteFxFrame(PaletteFxSegment.CutsceneGunshipEngineFlicker1, 0);
         if (shown.Count != 1 || shown[0] != new ShownPaletteFxFrame(PaletteFxColours.CutsceneGunshipEngine, first)

@@ -57,8 +57,8 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
     public bool IsRunning(PaletteFxObject effect) => effects.Exists(running => running.Effect == effect);
 
     /// <summary>
-    /// Starts an effect outside the room's FX record: Samus's load appearance, a Torizo's belly, a statue's grey-out, the
-    /// escape's flashes or a screen's effects. It must start: the start is rejected loudly when it does not.
+    /// Starts an effect outside the room's FX record: Samus's load appearance, a statue's grey-out, the escape's flashes or
+    /// a screen's effects. It must start: the start is rejected loudly when it does not.
     /// </summary>
     /// <exception cref="InvalidOperationException">The effect did not start: its start skips it.</exception>
     public void Start(
@@ -66,8 +66,23 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
         SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
         bool areaMiniBossDefeated = false)
     {
-        if (!TryStart(effect, equippedItems, areaMiniBossDefeated))
+        if (!TryStart(effect, equippedItems, areaMiniBossDefeated, litTorizo: null))
             throw new InvalidOperationException($"Colour effect {effect} could not start.");
+    }
+
+    /// <summary>
+    /// Starts a Torizo's belly glow (#1700), which watches <paramref name="torizo"/>, the Torizo whose fight start asked for
+    /// it, and ends on the first update that Torizo has no health left. It must start: the start is rejected loudly when it
+    /// does not.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The glow did not start: its start skips it.</exception>
+    internal void StartTorizoBellyGlow(
+        PaletteFxObject glow,
+        ILitTorizo torizo,
+        SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems)
+    {
+        if (!TryStart(glow, equippedItems, areaMiniBossDefeated: false, Ensure.NotNull(torizo)))
+            throw new InvalidOperationException($"Torizo belly glow {glow} could not start.");
     }
 
     /// <summary>
@@ -102,7 +117,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
         {
             // Colour effects and animated tiles have separate owners and lists; the record's effects start in its order.
             foreach (PaletteFxObject effect in record.PaletteEffects)
-                system.TryStart(effect, equippedItems, areaMiniBossDefeated);
+                system.TryStart(effect, equippedItems, areaMiniBossDefeated, litTorizo: null);
         }
         return system;
     }
@@ -159,12 +174,17 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
     }
 
     /// <summary>Starts <paramref name="effect"/> after the running effects, unless its start skips it.</summary>
+    /// <param name="effect">The effect to start.</param>
+    /// <param name="equippedItems">Samus's equipment, which selects suit-dependent animations.</param>
+    /// <param name="areaMiniBossDefeated">Whether the area's mini-boss is dead.</param>
+    /// <param name="litTorizo">The Torizo whose belly the effect lights, which it watches for its defeat, or null.</param>
     /// <returns>Whether the effect started.</returns>
     /// <exception cref="InvalidOperationException">The effect names a start of no defined kind.</exception>
     private bool TryStart(
         PaletteFxObject effect,
         SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
-        bool areaMiniBossDefeated)
+        bool areaMiniBossDefeated,
+        ILitTorizo? litTorizo)
     {
         RoomPaletteFxDefinition definition = RoomPaletteFxSelection.Get(effect);
         PaletteFxSegment segment;
@@ -186,7 +206,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
                 throw new InvalidOperationException($"Colour effect {effect} has undefined start {definition.Start}.");
         }
 
-        ColourEffectTurnOrder.Join(effects, new RoomColourEffect(effect, segment));
+        ColourEffectTurnOrder.Join(effects, new RoomColourEffect(effect, segment, litTorizo));
         return true;
     }
 
@@ -199,7 +219,9 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
             case null:
                 return;
             case ColourEffectCondition.EndsWhenTorizoDies:
-                if (conditions.TorizoIsDead)
+                ILitTorizo torizo = effect.LitTorizo
+                    ?? throw new InvalidOperationException($"Colour effect {effect.Effect} watches for a Torizo's defeat but lights no Torizo.");
+                if (torizo.IsDefeated)
                     effect.End();
                 return;
             case ColourEffectCondition.EndsWhenAreaMiniBossDies:

@@ -316,7 +316,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         StepBabyMetroidAnimation();
         // The title runs the same colour effects as rooms. Its two console
         // animations own their colors and timers; the host must not synthesize a blink.
-        consolePaletteFx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false });
+        consolePaletteFx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
         // The skip reconstruction follows the palette effects for this frame. Restart
         // only here, not when the subsequent fade-in arms the title idle countdown.
         if (rebuildConsolePaletteFxAfterStep)

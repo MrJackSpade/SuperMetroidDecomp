@@ -14,9 +14,11 @@ internal sealed class RoomColourEffect
     /// <summary>Starts <paramref name="effect"/> playing the animation that starts at <paramref name="segment"/>, due on its first turn.</summary>
     /// <param name="effect">What the effect shows.</param>
     /// <param name="segment">The segment its animation starts at.</param>
-    internal RoomColourEffect(PaletteFxObject effect, PaletteFxSegment segment)
+    /// <param name="litTorizo">The Torizo whose belly the effect lights, or null for an effect that lights none.</param>
+    internal RoomColourEffect(PaletteFxObject effect, PaletteFxSegment segment, ILitTorizo? litTorizo)
     {
         Effect = effect;
+        LitTorizo = litTorizo;
         Animation = PaletteFxAnimations.StartingWith(segment);
         Place = AnimationPlace.StartOfAnimation;
         UpdatesUntilNextStep = 1;
@@ -24,6 +26,12 @@ internal sealed class RoomColourEffect
 
     /// <summary>What the effect shows.</summary>
     internal PaletteFxObject Effect { get; }
+
+    /// <summary>
+    /// The Torizo whose belly the effect lights (#1700), which <see cref="ColourEffectCondition.EndsWhenTorizoDies"/>
+    /// watches; none for every other effect.
+    /// </summary>
+    internal ILitTorizo? LitTorizo { get; }
 
     /// <summary>The colours the effect shows its frames in; none until its animation names them.</summary>
     internal PaletteFxColours? Colours { get; set; }

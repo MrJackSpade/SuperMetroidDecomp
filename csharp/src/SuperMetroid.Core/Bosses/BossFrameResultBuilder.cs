@@ -4,6 +4,7 @@ using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Bosses.SporeSpawn;
+using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Rooms.RoomObjects;
@@ -35,7 +36,7 @@ internal sealed class BossFrameResultBuilder
     internal SporeSpawnCeilingMutation? SporeSpawnCeiling { get; set; }
 
     /// <summary>The belly glow a Torizo's fight start asks the palette-FX handler for, or null.</summary>
-    internal PaletteFxObject? TorizoBellyGlow { get; set; }
+    internal TorizoBellyGlowRequest? TorizoBellyGlow { get; set; }
 
     /// <summary>Phantoon's door change (#1678): the fight's door as the starting flames close in, or the restored door.</summary>
     internal PhantoonDoorChange? PhantoonDoor { get; set; }

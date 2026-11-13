@@ -2,7 +2,10 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Fx.PaletteFx;
 
-/// <summary>The Samus, equipment, enemy and boss conditions the colour effects watch each update (#633, #1554).</summary>
+/// <summary>
+/// The Samus, equipment and mini-boss conditions the colour effects watch each update (#633, #1554); a Torizo's belly glow
+/// watches its own Torizo instead (#1700).
+/// </summary>
 public sealed record PaletteFxConditions
 {
     /// <summary>
@@ -14,12 +17,6 @@ public sealed record PaletteFxConditions
 
     /// <summary>Equipped items.</summary>
     public required SuperMetroid.Core.Progression.SamusEquipmentFlags EquippedItems { get; init; }
-
-    /// <summary>
-    /// Whether the Torizo whose belly glows, the room's first enemy, has no health left; also true in a room with no
-    /// enemies. Only <see cref="ColourEffectCondition.EndsWhenTorizoDies"/> reads it.
-    /// </summary>
-    public required bool TorizoIsDead { get; init; }
 
     /// <summary>Area mini boss defeated.</summary>
     public required bool AreaMiniBossDefeated { get; init; }

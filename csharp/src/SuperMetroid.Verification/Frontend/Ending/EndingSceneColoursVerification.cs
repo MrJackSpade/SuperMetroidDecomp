@@ -16,7 +16,7 @@ namespace SuperMetroid.Verification.Frontend.Ending;
 internal static class EndingSceneColoursVerification
 {
     /// <summary>The conditions a frontend screen's colour effects run under.</summary>
-    private static readonly PaletteFxConditions Screen = new() { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false };
+    private static readonly PaletteFxConditions Screen = new() { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false };
 
     /// <summary>Runs the scene colour checks on the ending's colours alone, without an installation.</summary>
     internal static void VerifyEndingSceneColours()

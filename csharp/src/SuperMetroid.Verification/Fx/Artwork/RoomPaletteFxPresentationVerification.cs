@@ -78,9 +78,9 @@ internal static class RoomPaletteFxPresentationVerification
         int frames = NorfairEnvironmentalPaletteFxColorDefinitions.CycleFrames * 2;
         for (int frame = 0; frame < frames; frame++)
         {
-            native.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false });
+            native.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
             PaletteFxRoomLook.LayShownShades(native, nativeCgram, new ReferencePaletteFxColorSource(bus));
-            installed.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false });
+            installed.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
             PaletteFxRoomLook.LayShownShades(installed, installedCgram, presentation);
             AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                 $"installed Norfair palette equals native output on frame {frame}");
@@ -257,9 +257,9 @@ internal static class RoomPaletteFxPresentationVerification
                 .Sum(phase => PaletteFxHeatProgramDefinitionConstants.Duration(definition.Suit, phase));
             for (int step = 0; step <= steps; step++)
             {
-                native.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipment), TorizoIsDead = false, AreaMiniBossDefeated = false });
+                native.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipment), AreaMiniBossDefeated = false });
                 PaletteFxRoomLook.LayShownShades(native, nativeCgram, new ReferencePaletteFxColorSource(bus));
-                installed.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipment), TorizoIsDead = false, AreaMiniBossDefeated = false });
+                installed.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipment), AreaMiniBossDefeated = false });
                 PaletteFxRoomLook.LayShownShades(installed, installedCgram, presentation);
                 AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                     $"installed {definition.Suit} heat CGRAM matches native frame {step}");
@@ -304,7 +304,7 @@ internal static class RoomPaletteFxPresentationVerification
             var installedCgram = new SnesCgram();
             for (int frame = 0; frame < framesToRun; frame++)
             {
-                var conditions = new PaletteFxConditions { SamusY = samusY, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false };
+                var conditions = new PaletteFxConditions { SamusY = samusY, EquippedItems = 0, AreaMiniBossDefeated = false };
                 StepFamily(native, shape, conditions);
                 PaletteFxRoomLook.LayShownShades(native, nativeCgram, new ReferencePaletteFxColorSource(bus));
                 StepFamily(installed, shape, conditions);
@@ -369,9 +369,9 @@ internal static class RoomPaletteFxPresentationVerification
             const int frames = 160;
             for (int frame = 0; frame < frames; frame++)
             {
-                native.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false });
+                native.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
                 PaletteFxRoomLook.LayShownShades(native, nativeCgram, new ReferencePaletteFxColorSource(bus));
-                installed.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false });
+                installed.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
                 PaletteFxRoomLook.LayShownShades(installed, installedCgram, presentation);
                 AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                     $"installed Wrecked Ship definition ${definition:X4} equals native " +
@@ -427,9 +427,9 @@ internal static class RoomPaletteFxPresentationVerification
         const int frames = 80;
         for (int frame = 0; frame < frames; frame++)
         {
-            native.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false });
+            native.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
             PaletteFxRoomLook.LayShownShades(native, nativeCgram, new ReferencePaletteFxColorSource(bus));
-            installed.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false });
+            installed.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
             PaletteFxRoomLook.LayShownShades(installed, installedCgram, presentation);
             AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                 $"installed Maridia palette equals native output on frame {frame}");

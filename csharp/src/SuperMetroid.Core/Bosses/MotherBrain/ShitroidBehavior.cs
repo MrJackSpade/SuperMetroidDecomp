@@ -705,7 +705,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         RunShitroidMain(slot, samus, _shitroidCamera, null);
     }
 
-    /// <summary>Function 26: shots/contact release function 25 into the exit sequence.</summary>
+    /// <summary>Shots or contact break the released follow into the exit sequence.</summary>
     private static void BreakReleasedShitroidFollow(ShitroidEnemyState state)
     {
         if (state.Action == ShitroidAction.ReleasedFollow)

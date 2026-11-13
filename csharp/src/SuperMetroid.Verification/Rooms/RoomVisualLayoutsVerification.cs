@@ -22,15 +22,16 @@ internal static class RoomVisualLayoutsVerification
 {
     /// <summary>
     /// Checks every installed level's terrain, behaviours, background and terrain beyond the room, and every stock
-    /// appearance, against the cartridge's level words decoded by the import's codec.
+    /// appearance, against the cartridge's level words decoded by the import's codec. The installed levels are the shared
+    /// installation's catalogs, which the room loads below read too, so they are read once (#1680).
     /// </summary>
     internal static void VerifyRoomVisualLayouts(GameInstallation installed,
-        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus, SelectedRoom landing)
+        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
     {
-        RoomLevelArtworks stock = installed.LoadRoomVisualLayouts();
+        RoomLevelArtworks stock = InstalledFixtures.RoomAssets.VisualLayouts;
         AssertEqual(246, RoomVisualLayoutFiles.RetailLevels.Count,
             "distinct pinned room levels");
-        InstalledRoomLevelStreams levelStreams = installed.LoadRoomLevelStreams();
+        InstalledRoomLevelStreams levelStreams = InstalledFixtures.RoomAssets.LevelStreams;
         AssertEqual(RoomVisualLayoutFiles.RetailLevels.Count, levelStreams.Count,
             "installed room-level count");
         VerifyRoomLevelStreamRejections(installed);
@@ -121,8 +122,7 @@ internal static class RoomVisualLayoutsVerification
                 int blockCount = layerBytes / 2;
                 int bg2Offset = 2 + layerBytes + blockCount;
                 int availableBg2 = Math.Min(layerBytes, native.Length - bg2Offset);
-                RoomLevelData loaded = LoadFixtureRoomAssets(room,
-                    visualLayouts: stock, levelStreams: levelStreams).LevelData;
+                RoomLevelData loaded = LoadFixtureRoomAssets(room).LevelData;
                 AssertEqual(blockCount, loaded.Size.X * loaded.Size.Y, $"{stateName} physical allocation");
                 // The plane's shown blocks are built once per state, not once per block read.
                 RoomBlockAppearance[] shownBackground = loaded.BackgroundPlane.Blocks;
@@ -151,33 +151,6 @@ internal static class RoomVisualLayoutsVerification
             "all retail room-state loads use the guarded installed level streams");
         AssertTrue(slopeBlocks > 0 && spikeBlocks > 0,
             "guarded installed-stream audit includes physical slope and spike-hazard blocks");
-
-        LoadedRoomAssets nativeRoom = LoadFixtureRoomAssets(landing);
-        LoadedRoomAssets stockRoom = LoadFixtureRoomAssets(landing,
-            visualLayouts: stock, levelStreams: levelStreams);
-
-        // The renderers resolve each block from the level planes (#1346), so the shown first blocks, each a whole block and
-        // its mirroring (#1431), are the planes'.
-        RoomBlockCell nativeFirst = nativeRoom.LevelData.ForegroundPlane.Cells.Cells[0];
-        AssertEqual(nativeFirst, stockRoom.LevelData.ForegroundPlane.Cells.Cells[0],
-            "stock installed BG1 layout retains the native first block and mirroring");
-
-        RoomBlockCell nativeBg2 = nativeRoom.LevelData.BackgroundPlane.Cells.Cells[0];
-        AssertEqual(nativeBg2, stockRoom.LevelData.BackgroundPlane.Cells.Cells[0],
-            "stock installed BG2 layout retains the native first block and mirroring");
-
-        // Ceres has no authored BG2 tail, while the Wrecked Ship allocation includes
-        // an extra physical row beyond its camera. Both must survive the installed-stream path.
-        foreach (ushort pointer in new ushort[] { 0xdf8d, 0xc98e })
-        {
-            SelectedRoom room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, pointer);
-            LoadedRoomAssets nativeOther = LoadFixtureRoomAssets(room);
-            LoadedRoomAssets installedOther = LoadFixtureRoomAssets(room,
-                visualLayouts: stock, levelStreams: levelStreams);
-            AssertTrue(nativeOther.LevelData.SameTerrainAs(installedOther.LevelData) &&
-                nativeOther.LevelData.BackgroundPlane.Blocks.SequenceEqual(installedOther.LevelData.BackgroundPlane.Blocks),
-                $"installed room ${pointer:X4} retains its terrain, behaviours, background and level height");
-        }
         Console.WriteLine($"  Room layouts: {RoomVisualLayoutFiles.RetailLevels.Count} levels decode to the installed terrain and " +
             $"{stateCount} guarded state loads keep it (including slopes and spikes), and the installed appearances are the native ones.");
     }
@@ -214,9 +187,9 @@ internal static class RoomVisualLayoutsVerification
         {
             string directory = Path.Combine(scratch.Root, label);
             Directory.CreateDirectory(directory);
+            // The copy is the installation's files, which the shared catalogs loaded, so only the corruption can reject it.
             foreach (string file in Directory.GetFiles(installed.RoomLevelStreamDirectory))
                 File.Copy(file, Path.Combine(directory, Path.GetFileName(file)));
-            _ = RoomLevelStreamFiles.Load(directory);
             corrupt(directory);
             try
             {

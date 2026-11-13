@@ -104,6 +104,7 @@ internal static class GraphDigestVerification
     /// </summary>
     internal static byte[] UnboundGraphDigest(object value)
     {
+        _ = definitionsIndexed.Value;
         using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
         using (var stream = new HashingStream(hash))
             DebuggerObjectGraphSerializer.Serialize(stream, value);
@@ -266,6 +267,7 @@ internal static class GraphDigestVerification
     /// </summary>
     private static BoundObjectGraph Bound(object[] content)
     {
+        _ = definitionsIndexed.Value;
         if (content.Length == 0)
             content = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BoundContent;
         lock (boundGraphs)
@@ -327,6 +329,16 @@ internal static class GraphDigestVerification
         installedCatalogsIndexed = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.LoadedBoundContent;
         return SuperMetroid.TestSupport.RepositoryInstallation.SharedFixtureTiming.Load("Fixture: installed content index", index);
     }
+
+    /// <summary>
+    /// The index of the objects the game's static members hold, which every capture and restore consults and the process
+    /// builds once, on the first that needs it (<see cref="DefinitionObjects"/>, #1623). Building it runs every definition
+    /// catalog's initializer and walks everything they hold, a cost of the process rather than of whichever suite first
+    /// captures a state, so it is a shared fixture timed as its own entry (#1680). Asking for any object's path builds it.
+    /// </summary>
+    private static readonly Lazy<bool> definitionsIndexed = new(() =>
+        SuperMetroid.TestSupport.RepositoryInstallation.SharedFixtureTiming.Load("Fixture: definition objects index",
+            () => DefinitionObjects.TryGetPath(new object(), out _)));
 
     /// <summary>How many installed catalogs had loaded when the installed content was last indexed.</summary>
     private static int installedCatalogsIndexed = -1;

@@ -50,11 +50,9 @@ internal static class CeresEnginePaletteBindingVerification
         }
 
         // Restore, then bind the installed art through the same frontend entry point as the desktop
-        // host; the rebind must keep the flicker's program and timer, not restart them.
-        using var state = new MemoryStream();
-        DebuggerObjectGraphSerializer.Serialize(state, game);
-        state.Position = 0;
-        var restored = DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(state);
+        // host; the rebind must keep the flicker's program and timer, not restart them. The state names the installed
+        // content by path, as the host's store does, instead of writing every bound catalog into it (#1680).
+        SuperMetroidGame restored = GraphDigestVerification.RoundTrip(game);
         // Installed artwork is not saved state; the host rebinds all of it after a restore.
         restored.BindArtwork(restored.Artwork with
         {

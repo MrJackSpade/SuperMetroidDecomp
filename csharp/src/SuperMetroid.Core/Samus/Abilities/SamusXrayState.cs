@@ -98,7 +98,7 @@ public sealed class SamusXrayState
     public RotationAngle AngularWideningSpeed { get; private set; }
 
     /// <summary>
-    /// The visor-colour sequence X-ray's suit colouring runs: widening at admission, full beam once the colouring
+    /// The sequence of colours X-ray's suit colouring shows on the visor: widening at admission, full beam once the colouring
     /// sees the full-beam phase, and a request to restore the normal suit colours after teardown.
     /// </summary>
     public XrayVisorPaletteMode VisorPaletteMode { get; private set; }

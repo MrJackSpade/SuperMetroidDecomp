@@ -191,7 +191,7 @@ internal static class RoomCharacterInstallationVerification
     /// </summary>
     internal static RegisteredSuite[] RoomArtworkInstallationSuites() =>
     [
-        new(nameof(VerifyRoomVisualLayouts), () => VerifyRoomVisualLayouts(RepositoryInstallation.Installation, roomArtworkBus.Value, landingSite.Value)),
+        new(nameof(VerifyRoomVisualLayouts), () => VerifyRoomVisualLayouts(RepositoryInstallation.Installation, roomArtworkBus.Value)),
         new(nameof(VerifyXrayRevealVisualInstallation), () => VerifyXrayRevealVisualInstallation(RepositoryInstallation.Installation)),
         new(nameof(VerifyRoomArtworkInstallation), () => VerifyRoomArtworkInstallation(RepositoryInstallation.Installation, roomArtworkBus.Value, landingSite.Value)),
     ];

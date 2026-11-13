@@ -115,15 +115,16 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     /// <summary>
     /// The program's storage and machine vocabulary #1558 left out (#1611): a record's generic variables, words and bytes
     /// named by where they are stored, palette colours and handlers by number, tile transfers and characters, tilemap cells
-    /// and pages, register shadows and work memory, scanline numbers and raw bits.
+    /// and pages, register shadows and work memory, scanline numbers and raw bits. Each term is read spaced or hyphenated
+    /// ("work memory", "work-memory heap"); the clauses about the carry and what uploads leave are read as written.
     /// </summary>
     private static readonly Regex StorageProse = new(
-        @"\b[Vv]ariable [A-F]\b|\bextended words?\b|\binit[12]\b|\bunrelated bytes\b" +
-        @"|\b(?:level|draw|controller|random-number|RNG|scratch|speed|whole|attribute|pose-definition|population|parameter|property)\s+(?:words?|bytes?)\b" +
-        @"|\b(?:one|two|three|four|six|eight|sixteen|[0-9]+)-byte\b|\bodd-byte\b|\b(?:high|low) (?:bit|byte|word)s?\b|\bcarry (?:flags?|bits?|set|clear|returned|out)\b|\b(?:on|with|without|by) the carry\b|\bthe carry returned\b" +
-        @"|\bcolou?rs? [0-9]+(?:\s*(?:-|through|to)\s*[0-9]+)?\b|\bpalette handlers?\b|\bhandler (?:one|two|three|four|five|six|seven|eight|nine|ten|[0-9]+)\b|\bvisor colou?r\b" +
-        @"|\btile (?:transfers?|uploaders?|uploads?)\b|\b(?:sheet|sprite) characters?\b|\buploads? leave\b|\btransfer lists?\b|\btile cells?\b|\btilemap pages?\b|\b[0-9]+-by-[0-9]+ pages?\b" +
-        @"|\bregister shadows?\b|\b(?:liquid|shadow|hardware) registers?\b|\bhardware[-\s]timing\b|\bwork memory\b|\bstaging surfaces?\b|\b(?:transfer|turning-floor) residue\b|\bscanline [0-9]+\b",
+        @"\b[Vv]ariable[-\s][A-F]\b|\bextended[-\s]words?\b|\binit[12]\b|\bunrelated[-\s]bytes\b" +
+        @"|\b(?:level|draw|controller|random-number|RNG|scratch|speed|whole|attribute|pose-definition|population|parameter|property)[-\s]+(?:words?|bytes?)\b" +
+        @"|\b(?:one|two|three|four|six|eight|sixteen|[0-9]+)-byte\b|\bodd-byte\b|\b(?:high|low)[-\s](?:bit|byte|word)s?\b|\bcarry[-\s](?:flags?|bits?|set|clear|returned|out)\b|\b(?:on|with|without|by) the carry\b|\bthe carry returned\b" +
+        @"|\bcolou?rs?[-\s][0-9]+(?:\s*(?:-|through|to)\s*[0-9]+)?\b|\bpalette[-\s]handlers?\b|\bhandler[-\s](?:one|two|three|four|five|six|seven|eight|nine|ten|[0-9]+)\b|\bvisor[-\s]colou?r\b" +
+        @"|\btile[-\s](?:transfers?|uploaders?|uploads?)\b|\b(?:sheet|sprite)[-\s]characters?\b|\buploads? leave\b|\btransfer[-\s]lists?\b|\btile[-\s]cells?\b|\btilemap[-\s]pages?\b|\b[0-9]+-by-[0-9]+[-\s]pages?\b" +
+        @"|\bregister[-\s]shadows?\b|\b(?:liquid|shadow|hardware)[-\s]registers?\b|\bhardware[-\s]timing\b|\bwork[-\s]memory\b|\bstaging[-\s]surfaces?\b|\b(?:transfer|turning-floor)[-\s]residue\b|\bscanline[-\s][0-9]+\b",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>

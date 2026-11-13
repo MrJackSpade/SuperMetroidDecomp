@@ -109,6 +109,13 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { // the wait branches on the carry it returns\n }", "('on the carry')");
         Expect("class P { // leaves the carry flag set\n }", "('carry flag')");
         Expect("class P { /// <summary>Draygon's carry spiral; the carry orbit grows as Ridley's carry ends.</summary>\nint F => 0; }");
+        // The same terms hyphenated (#1632): a corpse schedule in the "work-memory heap" was read as game prose.
+        Expect("class P { /// <summary>The game keeps every schedule in one shared work-memory heap.</summary>\nint F => 0; }", "('work-memory')");
+        foreach (string term in new[] { "unrelated-bytes", "level-word", "speed-word", "high-byte",
+            "low-bit", "carry-flag", "colour-15", "palette-handler", "handler-seven", "visor-colour", "tile-transfer",
+            "sprite-character", "transfer-list", "tile-cell", "tilemap-page", "32-by-32-page", "register-shadow",
+            "shadow-register", "staging-surface", "transfer-residue", "scanline-224" })
+            Expect($"class P {{ // the {term} stays as it was\n }}", $"('{term}')");
         // Game prose using the same words is not storage vocabulary.
         Expect("class P { /// <summary>Samus carries a variable speed; the carry over to the next room keeps it.</summary>\nint F => 0; }");
         Expect("class P { /// <summary>The Speed Booster residue stays; the eight colours fade.</summary>\nint F => 0; }");

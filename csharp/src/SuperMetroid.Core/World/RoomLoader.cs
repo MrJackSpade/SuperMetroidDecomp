@@ -232,7 +232,7 @@ internal sealed class RoomLoader
         // reopens its confirmation message.
         _room.LoadedScope.RoomObjects.Stations.LockSaveStationForCurrentRoomEntry();
 
-        // Command nine does not begin at its endpoint. It selects a front-facing pose,
+        // The Zebes start setup does not begin at its endpoint. It selects a front-facing pose,
         // frame two/timer three, a suit-specific palette object, and the 360-call
         // appearance handler before restoring ordinary input.
         SuperMetroid.Core.Samus.Palettes.SamusNormalSuitPalette.Load(_player.Colours, _player.IntroducedSamus.EquippedItems);
@@ -640,7 +640,7 @@ internal sealed class RoomLoader
 
     /// <summary>
     /// Applies the doorway nudges after music has drained: the nudges to Samus's live
-    /// position, then an elevator door's Samus command (7 going down, 0 going up). Releases
+    /// position, then an elevator door's control setup (the elevator setup going down, the lock going up). Releases
     /// the scroll's trajectory. This is deliberately later than the scroll.
     /// </summary>
     internal void FinishDoorOpeningScroll()

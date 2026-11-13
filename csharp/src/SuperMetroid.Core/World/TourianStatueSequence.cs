@@ -60,7 +60,7 @@ public sealed class TourianStatueSequence
     /// <summary>One spawned statue animation's definition, animation playback, and frame timer.</summary>
     internal sealed class TileObject(TourianStatueAnimationDefinition definition)
     {
-        /// <summary>The statue's animation and the operands its events act on.</summary>
+        /// <summary>The statue's animation and the values its events act on.</summary>
         public TourianStatueAnimationDefinition Definition { get; } = definition;
         /// <summary>The statue's typed animated-tile segments, built once for its first-frame duration.</summary>
         public AnimationSegments<TourianStatueTileSegment, TourianStatueTilePicture, TourianStatueTileCue> Segments { get; } =
@@ -204,7 +204,7 @@ public sealed class TourianStatueSequence
             }
         }
 
-        // Carries out one event with the statue's operands; a branching event whose condition holds returns where the play continues.
+        // Carries out one event with the statue's values; a branching event whose condition holds returns where the play continues.
         AnimationContinuation<TourianStatueTileSegment>? RunCue(
             TourianStatueAnimationDefinition definition, TourianStatueTileCue cue)
         {

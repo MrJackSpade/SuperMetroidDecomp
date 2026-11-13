@@ -14,17 +14,15 @@ internal static class SamusPoseHistoryVerification
         var history = new SamusPoseHistoryState
         {
             PreviousPose = SamusPoseId.UnusedKnockbackLeftPose, PreviousMovement = SamusMovementType.SpinJumping,
-            LastDifferentPose = SamusPoseId.ShinesparkDiagonalRightPose, LastDifferentMovement = SamusMovementType.NormalJumping,
+            LastDifferentMovement = SamusMovementType.NormalJumping,
         };
         AssertTrue(!history.AllowsWallJumpProbe, "wall probe rejects normal-jump history");
         history.CommitTransition(SamusPoseId.SpinJumpLeftPose, SamusMovementType.SpinJumping);
-        AssertEqual(SamusPoseId.UnusedKnockbackLeftPose, history.LastDifferentPose, "transition shifts previous pose");
         AssertEqual(SamusMovementType.SpinJumping, history.LastDifferentMovement, "transition shifts packed direction/movement");
         AssertEqual(SamusPoseId.SpinJumpLeftPose, history.PreviousPose, "transition records current pose");
         AssertEqual(SamusMovementType.SpinJumping, history.PreviousMovement, "transition records current packed metadata");
         AssertTrue(history.AllowsWallJumpProbe, "wall probe admits spin history");
         history.CommitTransition(SamusPoseId.SpinJumpLeftPose, SamusMovementType.SpinJumping);
-        AssertEqual(SamusPoseId.SpinJumpLeftPose, history.LastDifferentPose, "same-pose transition still shifts history");
         AssertEqual(SamusMovementType.SpinJumping, history.LastDifferentMovement, "same-pose transition retains current direction");
 
         foreach (SamusMovementType movement in Enum.GetValues<SamusMovementType>())

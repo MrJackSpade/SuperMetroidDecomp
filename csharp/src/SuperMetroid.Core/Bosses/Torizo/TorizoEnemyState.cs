@@ -82,14 +82,8 @@ public sealed class TorizoEnemyState
     /// <summary>The behaviour the Torizo runs before each animation step while active.</summary>
     public TorizoFrameBehavior FrameBehavior { get; internal set; }
 
-    /// <summary>Host lifecycle latch set when the awakening check observes the hand trigger gone and resumes Bomb Torizo's awakening animation.</summary>
-    public bool AwakeningReleased { get; internal set; }
     /// <summary>Host latch preventing repeat entry into the death script after lethal damage; remains set for this state instance.</summary>
     public bool DeathStarted { get; internal set; }
-    /// <summary>Whether the area's Torizo defeat flag was already set at initialization or was set by the death step.</summary>
-    public bool BossBitSet { get; internal set; }
-    /// <summary>Host latch recording the death cue's 16-pickup scatter request in the variant's arena; does not mean those pickups were collected.</summary>
-    public bool ItemDropRequested { get; internal set; }
 
     /// <summary>
     /// The largest value <see cref="DecisionCounter"/> and <see cref="SamusSpaceJumpFrames"/> reach: counting one more

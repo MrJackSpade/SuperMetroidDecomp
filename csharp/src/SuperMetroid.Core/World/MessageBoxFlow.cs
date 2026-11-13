@@ -105,7 +105,7 @@ internal sealed class MessageBoxFlow
         {
             bool accepted = _messageBox.ConsumeConfirmationResult()
                 ?? throw new InvalidDataException("Gunship message closed without a save selection.");
-            room.Enemies.Gunship.AnswerSavePrompt(accepted);
+            room.Enemies.Gunship.AnswerSavePrompt();
             _gunshipExitSoundRequested = true;
             if (accepted)
             {

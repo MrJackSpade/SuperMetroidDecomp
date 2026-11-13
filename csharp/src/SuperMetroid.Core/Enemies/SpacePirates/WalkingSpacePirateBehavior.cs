@@ -48,10 +48,10 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
                 RequireWalkingSpacePirateState(slot).Function = setFunction.Function;
                 return null;
             case WalkingSpacePirateCue.FireLaserLeft fireLaserLeft:
-                SpawnWalkingSpacePirateLaser(slot, RequireWalkingSpacePirateState(slot), direction: HorizontalDirection.Left, fireLaserLeft.LaserHeight);
+                SpawnWalkingSpacePirateLaser(slot, direction: HorizontalDirection.Left, fireLaserLeft.LaserHeight);
                 return null;
             case WalkingSpacePirateCue.FireLaserRight fireLaserRight:
-                SpawnWalkingSpacePirateLaser(slot, RequireWalkingSpacePirateState(slot), direction: HorizontalDirection.Right, fireLaserRight.LaserHeight);
+                SpawnWalkingSpacePirateLaser(slot, direction: HorizontalDirection.Right, fireLaserRight.LaserHeight);
                 return null;
             case WalkingSpacePirateCue.Command { Kind: WalkingSpacePirateCueKind.ChooseMovement }:
                 return SelectWalkingSpacePirateMovement(slot, samus);
@@ -331,14 +331,10 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// <summary>Runs the firing cues and the laser initializer.</summary>
     private void SpawnWalkingSpacePirateLaser(
         RoomEnemySlot source,
-        WalkingSpacePirateEnemyState state,
         HorizontalDirection direction,
         int laserHeight)
     {
-        if (!SpawnSpacePirateLaser(source, direction == HorizontalDirection.Right, laserHeight))
-            return;
-
-        state.SpawnedLaserCount++;
+        _ = SpawnSpacePirateLaser(source, direction == HorizontalDirection.Right, laserHeight);
     }
 
     /// <summary>

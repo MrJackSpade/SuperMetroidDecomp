@@ -160,34 +160,6 @@ public sealed class KraidEnemyState
     /// </summary>
     public Position16<RoomPixels> BodyOrigin { get; internal set; }
 
-    /// <summary>Number of rock/quake spawn requests made by retail cadence.</summary>
-    public int RiseRockSpawnRequestCount { get; internal set; }
-
-    /// <summary>Rise-rock requests that acquired a real projectile slot.</summary>
-    public int SpawnedRiseRockCount { get; internal set; }
-
-    /// <summary>Retail spat-rock requests issued while the fully open head frame is shown.</summary>
-    public int SpitRockRequestCount { get; internal set; }
-
-    /// <summary>Spat-rock requests that acquired a real projectile slot.</summary>
-    public int SpawnedSpitRockCount { get; internal set; }
-
-    /// <summary>Number of private roar steps consumed from the head stream.</summary>
-    public int RoarRequestCount { get; internal set; }
-
-    /// <summary>Gets the number of growth-sequence ceiling rocks that acquired a live projectile slot.</summary>
-    public int CeilingRockSpawnCount { get; internal set; }
-
-    /// <summary>Gets whether growth has relinquished the first-screen camera lock for the enlarged encounter.</summary>
-    public bool CameraReleasedForSecondPhase { get; internal set; }
     /// <summary>Gets the sinking sound countdown, initially forty-three and reloaded to thirty after each request.</summary>
     public int DeathSoundTimer { get; internal set; }
-    /// <summary>Gets the number of authored sinking-table events consumed during the death descent.</summary>
-    public int SinkTableEventCount { get; internal set; }
-    /// <summary>Gets the number of pickup actors requested by Kraid's authored death scatter, independent of pool allocation success.</summary>
-    public int DeathDropRequestCount { get; internal set; }
-    /// <summary>Gets whether this encounter's death handoff newly wrote the persistent area-boss defeat bit.</summary>
-    public bool BossDefeatPersisted { get; internal set; }
-    /// <summary>Gets whether background restoration and the death music/persistence handoff have reached the terminal death entry.</summary>
-    public bool DeathSequenceComplete { get; internal set; }
 }

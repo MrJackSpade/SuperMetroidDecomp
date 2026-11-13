@@ -59,7 +59,6 @@ internal sealed class TorizoMovement
         if (_room.Services.Bosses.IsDefeated(BossBits.AreaTorizo))
         {
             torizo.Presence = torizo.Presence.With(EnemyPresence.Deleted);
-            state.BossBitSet = true;
             return;
         }
 

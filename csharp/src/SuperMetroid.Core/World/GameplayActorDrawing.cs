@@ -102,7 +102,6 @@ internal sealed class GameplayActorDrawing
                     _player.Colours, _player.Samus.EquippedItems);
             bool drainedOwnsSamusPalette = !deathOwnsSamus &&
                 _player.Samus.Drained.UpdatePalette(_player.Colours, _player.Samus.EquippedItems);
-            LastVisorPaletteStep = default;
             bool chargeGlowRestoredNormalPalette = false;
             if (!deathOwnsSamus && !drainedOwnsSamusPalette)
             {
@@ -114,7 +113,6 @@ internal sealed class GameplayActorDrawing
                     _player.Colours,
                     _player.Samus,
                     room.FxOverlay.VisorAnimation);
-                LastVisorPaletteStep = room.Projectiles.LastVisorPaletteStep;
                 // A restored suit from the beam-charge palette step bypasses the entire special
                 // dispatcher on glow expiry. In particular, stored shine must not tick
                 // or overwrite the restored suit on this frame.
@@ -406,9 +404,6 @@ internal sealed class GameplayActorDrawing
     /// body colours rather than her projectiles' colours.
     /// </summary>
     public SamusBeamChargePaletteStepResult LastBeamChargePaletteStep { get; internal set; }
-
-    /// <summary>Most recent step of the visor's ordinary colour cycle.</summary>
-    public SamusVisorPaletteStepResult LastVisorPaletteStep { get; internal set; }
 
 
 

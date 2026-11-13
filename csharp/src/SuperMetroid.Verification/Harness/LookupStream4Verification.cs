@@ -1960,6 +1960,8 @@ internal static class LookupStream4Verification
                 new Action<RoomEnemySlot>(enemies.RidleyBehavior.Combat.InitializeNorfairRidley)(slot);
                 RidleyEnemyState state = (enemies.RidleyEncounter.Ridley ?? throw new InvalidOperationException("Verification requires enemies.RidleyEncounter.Ridley."));
                 state.Function = RidleyAiFunction.WaitBeforeLiftoff; state.FunctionTimer = 0;
+                var liquid = new RoomFxOverlayState(new RoomFxSession());
+                enemies.RoomFx.BindRoomFx(liquid);
                 Action<RoomEnemySlot, RidleyEnemyState> tick = enemies.RidleyBehavior.Combat.TickNorfairRidleyArenaReveal;
                 for (int call = 0; call < 46; call++)
                 {
@@ -1975,7 +1977,7 @@ internal static class LookupStream4Verification
                             cgram[color], "Actual producer preserves full CGRAM and held rows");
                 }
                 AssertEqual(RidleyAiFunction.ClearVelocity, state.Function, "Native terminator handoff");
-                AssertEqual(RidleyLiquidDefinitions.BattleHeight, state.FxTargetYPosition, "Native liquid target handoff");
+                AssertEqual<int?>(RidleyLiquidDefinitions.BattleHeight, liquid.TargetSurface, "Native liquid target handoff");
                 AssertEqual(8, state.WingAnimationTimer, "Native wing timer handoff");
                 AssertTrue(state.TailSegments.All(segment => segment.Active), "Native tail activation handoff");
             }

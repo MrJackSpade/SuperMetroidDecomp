@@ -24,10 +24,6 @@ public sealed class DeadTorizoEnemyState
     public int PreRotDelayCounter { get; internal set; }
     /// <summary>Count of the corpse's rot calls since initialization, including the call that completes its final entry; its sand heap forms by it.</summary>
     public uint ProcessCallCount { get; internal set; }
-    /// <summary>Host diagnostic count of completed row entries, incremented before their dust callback, including the final entry.</summary>
-    public uint FinishedEntryCount { get; internal set; }
-    /// <summary>Host diagnostic count of dust effects requested by completed entries, one request per completed-entry hook invocation.</summary>
-    public uint DustSpawnCount { get; internal set; }
 
     /// <summary>The corpse function.</summary>
     internal DeadTorizoFunction? Function { get; set; }

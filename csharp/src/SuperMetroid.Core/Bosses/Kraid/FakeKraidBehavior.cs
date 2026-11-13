@@ -64,10 +64,10 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
                     RequestFakeKraidSound(KraidSoundDefinitions.MiniKraidCry);
                 return null;
             case FakeKraidCueKind.SpitLeft:
-                SpawnFakeKraidSpitPair(slot, slot.RequireSpeciesState<FakeKraidEnemyState>(), direction: HorizontalDirection.Left);
+                SpawnFakeKraidSpitPair(slot, direction: HorizontalDirection.Left);
                 return null;
             case FakeKraidCueKind.SpitRight:
-                SpawnFakeKraidSpitPair(slot, slot.RequireSpeciesState<FakeKraidEnemyState>(), direction: HorizontalDirection.Right);
+                SpawnFakeKraidSpitPair(slot, direction: HorizontalDirection.Right);
                 return null;
             default:
                 throw new InvalidOperationException($"Mini-Kraid's animations have no {cue.Kind} cue.");
@@ -222,7 +222,6 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs Mini-Kraid's left and right spit steps.</summary>
     internal void SpawnFakeKraidSpitPair(
         RoomEnemySlot slot,
-        FakeKraidEnemyState state,
         HorizontalDirection direction)
     {
         int xOffset = direction == HorizontalDirection.Right ? 4 : -4;
@@ -230,11 +229,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             EightEightVector<RoomPixels> launch =
                 FakeKraidProjectiles.SpitLaunch(direction == HorizontalDirection.Right, projectile);
-            if (SpawnFakeKraidSpit(
-                    slot,
-                    xOffset,
-                    launch))
-                state.SpawnedSpitCount++;
+            _ = SpawnFakeKraidSpit(slot, xOffset, launch);
         }
     }
 
@@ -260,7 +255,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         return true;
     }
 
-    /// <summary>Allocates a facing-specific spike at an authored body row and counts only successful spawns.</summary>
+    /// <summary>Allocates a facing-specific spike at an authored body row.</summary>
     /// <returns>False when the enemy projectile pool is full.</returns>
     internal bool SpawnFakeKraidSpike(
         RoomEnemySlot source,
@@ -287,7 +282,6 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
             ? -SpikePixelsPerFrame
             : SpikePixelsPerFrame;
         projectile.Velocity = new(SignedEightEight.FromPixels(spikePixelsPerFrame), SignedEightEight.Zero);
-        state.SpawnedSpikeCount++;
         return true;
     }
 

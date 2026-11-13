@@ -21,7 +21,6 @@ internal static class PhantoonPatternsVerification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdb1 + i * 8)), placement.Position.Y, "Native rain body Y");
             AssertEqual((ushort)0, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdb3 + i * 8)), "Native unused rain record word");
             AssertEqual(rom.ReadCartridgeByte(0xa7cfc2 + i), PhantoonFlameRain.FirstRainColumns[i], "Native first rain column");
-            AssertEqual(rom.ReadCartridgeByte(0xa7cda5 + i), PhantoonPatternDefinitions.ShotEyeMarkers[i], "Native shot eye marker");
         }
         for (int high = 0; high < 256; high++)
         for (int pattern = 0; pattern < 8; pattern++)
@@ -93,12 +92,10 @@ internal static class PhantoonPatternsVerification
             shotState.TentaclesState.SwoopRequested = false;
             shotState.TentaclesState.RoundDamage = 0;
             shot(shotBody, shotState, 0x100, 1);
-            AssertEqual(rom.ReadCartridgeByte(0xa7cda5 + (raw & 7)), shotState.EyeState.ShotMarker, "Real shot exact eye marker without bus");
-            AssertEqual((ushort)(raw & 7), shotState.MouthState.ShotPattern, "Real shot retains selected pattern");
             AssertEqual(16, shotState.BodyState.FunctionTimer, "Real shot window shortening preserved");
             AssertEqual(raw + 1, shotCalls, "Shot consumes exactly one RNG call");
         }
-        Console.WriteLine("Phantoon patterns: 41 native record/eye words, 16 bytes, all eight real eye octants, 2048 rain handoffs and 65536 bus-free shot reactions match.");
+        Console.WriteLine("Phantoon patterns: 41 native record/eye words, 8 bytes, all eight real eye octants, 2048 rain handoffs and 65536 bus-free shot reactions match.");
     }
 
 }

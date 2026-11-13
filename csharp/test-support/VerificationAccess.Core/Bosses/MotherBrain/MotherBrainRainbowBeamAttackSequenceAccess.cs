@@ -39,39 +39,6 @@ internal static class MotherBrainRainbowBeamAttackSequenceAccess
         }
 
         /// <summary>
-        /// Executes the movement half of <c>$A9:9072-$91B7</c> on Mother Brain's later brain
-        /// enemy slot. Call this after the body AI/body instruction stage and before the still
-        /// later Baby slot, matching the retail increasing-slot enemy loop.
-        /// </summary>
-        internal void StepNeckMovement(ISnesAddressSpace bus, SamusState samus)
-        {
-            Ensure.NotNull(bus);
-            Ensure.NotNull(samus);
-            if (self.State.NeckMovementEnabled)
-            {
-                RotationAngle lowerAngle = self.LowerNeckAngle;
-                RotationAngle upperAngle = self.UpperNeckAngle;
-                MotherBrainNeckMovement lowerMovement = self.State.LowerNeckMovement;
-                MotherBrainNeckMovement upperMovement = self.State.UpperNeckMovement;
-                MotherBrainNeckKinematics.StepAngles(
-                    ref lowerAngle,
-                    ref upperAngle,
-                    ref lowerMovement,
-                    ref upperMovement,
-                    self.State.NeckAngleDelta,
-                    self.State.BrainPosition.Y,
-                    samus.Position.Y.Whole);
-                self.LowerNeckAngle = lowerAngle;
-                self.UpperNeckAngle = upperAngle;
-                self.State.LowerNeckMovement = lowerMovement;
-                self.State.UpperNeckMovement = upperMovement;
-            }
-
-            self.State.BrainPosition = MotherBrainNeckKinematics.CalculateGeometry(self.State.Body.Position, self.LowerNeckAngle, self.UpperNeckAngle,
-                MotherBrainNeckJointDefinitions.InitialDistances)[MotherBrainNeckJointDefinitions.BrainAnchor];
-        }
-
-        /// <summary>
         /// Executes the body-owned shake countdown consumed while the later graphics hook draws
         /// Mother Brain's brain at <c>$A9:9382-$939A</c>. Call after all enemy slots, matching the
         /// renderer: `$BE96` can then observe zero and reseed fifty on the following frame.

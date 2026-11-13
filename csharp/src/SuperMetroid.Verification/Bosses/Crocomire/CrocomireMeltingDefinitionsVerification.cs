@@ -75,8 +75,6 @@ internal static class CrocomireMeltingDefinitionsVerification
             int header = HeaderAddress(pass);
             AssertEqual(CrocomireMeltingDefinitions.LowestDistortionSourceRow, source.ReadCartridgeWord(header),
                 $"Crocomire {pass} melt lowest distortion source row");
-            AssertEqual(CrocomireMeltingDefinitions.DistortionEndY, source.ReadCartridgeWord(header + 2),
-                $"Crocomire {pass} melt distortion end");
             AssertEqual(CrocomireMeltingSourceDefinitions.CopyByteCount, (source.ReadCartridgeWord(header + 4) + 1) * 2,
                 $"Crocomire {pass} melt copy length, counted inclusively");
             AssertEqual(CrocomireMeltingSources.Graphics(pass).Bank, rom.ReadCartridgeByte(header + 6),

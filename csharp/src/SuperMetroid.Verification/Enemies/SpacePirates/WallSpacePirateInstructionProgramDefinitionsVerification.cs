@@ -81,7 +81,7 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
                 $"wall Pirate {(movingRight ? "right" : "left")} attack sleeps");
             AssertEqual(expectedFunction, state.Function,
                 $"wall Pirate {(movingRight ? "right" : "left")} attack jump handoff");
-            AssertEqual(1, state.SpawnedLaserCount,
+            AssertEqual(1, enemies.Projectiles.EnemyProjectiles.Count(p => p.IsActive && p.Kind == RoomEnemyProjectileKind.PirateMotherBrainLaser),
                 $"wall Pirate {(movingRight ? "right" : "left")} laser count");
             AssertEqual(EnemySoundEffectDefinitions.WallPirateJumpSound, (enemies.Audio.LatestSound ?? throw new InvalidOperationException("Verification requires a pending space pirate sound.")),
                 $"wall Pirate {(movingRight ? "right" : "left")} jump sound");

@@ -19,7 +19,7 @@ internal static class DeadCorpseCounterVerification
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        var state = new DeadSidehopperEnemyState(slot, 2, new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.RowCount));
+        var state = new DeadSidehopperEnemyState(slot, new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.RowCount));
 
         state.Function = DeadSidehopperAiFunction.PreRotDelay;
         for (int call = 1; call < 16; call++)
@@ -40,7 +40,7 @@ internal static class DeadCorpseCounterVerification
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         DeadTourianBehavior.DeadTourianCorpseProfile profile = DeadTourianCorpseProfileDefinitions.DeadZoomerProfile;
-        var state = new DeadTourianCorpseEnemyState(slot, profile.Species, 0, profile,
+        var state = new DeadTourianCorpseEnemyState(slot, profile,
             new CorpseRotSchedule(DeadTourianCorpses.For(profile.Species, 0).RowCount));
 
         state.PreRotDelayCounter = 15;

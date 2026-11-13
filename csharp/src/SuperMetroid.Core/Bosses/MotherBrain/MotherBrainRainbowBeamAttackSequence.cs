@@ -68,26 +68,6 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// </summary>
     public RotationAngle RainbowBeamAngle => _movement.RainbowBeamAngle;
 
-    /// <summary>
-    /// Lower neck angle updated by the brain-slot handler. The final
-    /// beam has already lowered it to three sixteenths of a turn before the Baby interrupts the body.
-    /// </summary>
-    public RotationAngle LowerNeckAngle { get; internal set; } = RotationAngle.FromSteps(48);
-
-    /// <summary>Upper neck angle, correspondingly lowered to an eighth of a turn.</summary>
-    public RotationAngle UpperNeckAngle { get; internal set; } = RotationAngle.FromSteps(32);
-
-    /// <summary>
-    /// Number of live Mother Brain bomb enemy projectiles.
-    /// </summary>
-    /// <remarks>
-    /// The counter belongs to Mother Brain even though the enemy-projectile system owns each bomb's
-    /// motion. Bomb initialization increments it and both deletion paths decrement
-    /// it. Keeping the mutation behind these two methods makes that cross-actor ownership
-    /// visible instead of silently deriving a count from the host projectile collection.
-    /// </remarks>
-    public int BombCounter { get; private set; }
-
     /// <summary>Reads and writes <paramref name="walk"/> from now on, the walk credit of the encounter attaching this sequence.</summary>
     internal void ShareWalkCounter(MotherBrainWalkCounter walk) => ThirdPhaseFight.ShareWalkCounter(Ensure.NotNull(walk));
 
@@ -132,12 +112,9 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         ThirdPhaseDeath.BrainPresence = actor.BrainPresence;
         ThirdPhaseDeath.BrainCollidesByFrameHitboxes = actor.BrainCollidesByFrameHitboxes;
         ThirdPhaseDeath.BrainShowsNewFrame = actor.BrainShowsNewFrame;
-        LowerNeckAngle = actor.LowerNeckAngle;
-        UpperNeckAngle = actor.UpperNeckAngle;
         State.NeckMovementEnabled = actor.NeckMovementEnabled;
         State.LowerNeckMovement = actor.LowerNeckMovement;
         State.UpperNeckMovement = actor.UpperNeckMovement;
-        BombCounter = actor.BombCounter;
         ThirdPhaseDeath.HitboxesEnabled = actor.HitboxesEnabled;
     }
 

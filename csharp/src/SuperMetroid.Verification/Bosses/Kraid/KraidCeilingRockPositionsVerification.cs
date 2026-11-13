@@ -44,7 +44,6 @@ internal static class KraidCeilingRockPositionsVerification
         {
             foreach (var occupied in enemies.Projectiles.EnemyProjectiles) occupied.Delete();
             requests.Clear();
-            state.CeilingRockSpawnCount = 0;
             body.Position = body.Position.WithWhole(new(128, (ushort)raw));
             state.BodyState.CeilingRock = index;
             state.BodyState.Function = KraidAiFunction.GrowBreakCeilingPlatforms;

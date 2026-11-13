@@ -32,11 +32,6 @@ internal sealed class MotherBrainGlassObjects
     private RoomObjectSlot? _motherBrainGlassSlot;
     /// <summary>Whether the current room loaded the glass room object before head damage can update it.</summary>
     internal bool MotherBrainGlassWasLoaded { get; private set; }
-    /// <summary>
-    /// Glass hit count retained after the glass has left the room. Only glass-phase head hits add to it, so it stays far
-    /// below the counter's range; nothing in play reads it back.
-    /// </summary>
-    internal int MotherBrainGlassLastRoomArgument { get; private set; }
 
     /// <summary>Shard actors requested by the most recent room-object pass.</summary>
     public IReadOnlyList<MotherBrainGlassProjectileRequest> MotherBrainGlassProjectileRequests =>
@@ -63,13 +58,12 @@ internal sealed class MotherBrainGlassObjects
 
         _motherBrainGlassSlot = slot;
         MotherBrainGlassWasLoaded = true;
-        MotherBrainGlassLastRoomArgument = 0;
     }
 
     /// <summary>
     /// Mother Brain's head shot counts a hit on the glass at once. This is separate from the glass's own count of strikes
     /// on its block: a missile can overlap the brain before its terrain probe reaches the glass block, and the head shot
-    /// counts that hit immediately in the enemy collision pass.
+    /// counts that hit immediately in the enemy collision pass. A hit once the glass has left the room changes nothing.
     /// </summary>
     public void IncrementMotherBrainGlassRoomArgument()
     {
@@ -81,8 +75,6 @@ internal sealed class MotherBrainGlassObjects
 
         if (TryGetMotherBrainGlass(out MotherBrainGlassObject? glass))
             glass.CountHeadShot();
-        else
-            MotherBrainGlassLastRoomArgument++;
     }
 
     /// <summary>Clears shard spawn requests before processing the next room frame.</summary>
@@ -127,14 +119,11 @@ internal sealed class MotherBrainGlassObjects
         return false;
     }
 
-    /// <summary>Keeps the glass's hit count as it leaves the room, before its place is freed.</summary>
+    /// <summary>Forgets the glass as it leaves the room, before its place is freed.</summary>
     internal void OnObjectDeleted(RoomObjectSlot slot)
     {
         Ensure.NotNull(slot);
-        if (!ReferenceEquals(slot, _motherBrainGlassSlot))
-            return;
-        MotherBrainGlassLastRoomArgument = (slot.Behaviour as MotherBrainGlassObject
-            ?? throw new InvalidOperationException("Mother Brain's glass left the room without its typed object.")).Hits;
-        _motherBrainGlassSlot = null;
+        if (ReferenceEquals(slot, _motherBrainGlassSlot))
+            _motherBrainGlassSlot = null;
     }
 }

@@ -190,7 +190,6 @@ internal static class SpikeShinesparkSuitVerification
         samus.PoseHistory.PreviousPose = samus.Pose;
         samus.PoseHistory.PreviousMovement =
             SamusMovementType.MorphBallGround;
-        samus.PoseHistory.LastDifferentPose = 0;
         samus.PoseHistory.LastDifferentMovement = SamusMovementType.Standing;
         AssertTrue(samus.Shinespark.TryStoreFromSpeedBooster(SamusSpeedBoostCounter.AtFullStage),
             "spike-suit fixture accepts stored Shinespark");

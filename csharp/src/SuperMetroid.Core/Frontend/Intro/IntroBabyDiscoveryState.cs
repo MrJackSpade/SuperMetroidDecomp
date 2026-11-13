@@ -77,9 +77,6 @@ internal sealed class IntroBabyDiscoveryState
     /// <summary>The 32 by 16 discovery room with the game's partial foreground copy.</summary>
     public RoomLevelData Level { get; }
 
-    /// <summary>Signals the egg actor's permanent switch to its hatching animation.</summary>
-    public bool EggHatchingStarted { get; private set; }
-
     /// <summary>Signals the outer cinematic owner to start page three's palette transition.</summary>
     public bool PageThreeRequested { get; private set; }
 
@@ -138,7 +135,6 @@ internal sealed class IntroBabyDiscoveryState
             egg.Start(CinematicSpriteSegment.MetroidEggHatching);
             egg.InstallFrameBehavior(
                 CinematicSpriteFrameBehavior.NoOp);
-            EggHatchingStarted = true;
         }
 
         // The egg's delete behaviour replaces the egg with the shared delete animation only when page three's reverse

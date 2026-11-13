@@ -7,21 +7,20 @@ internal static class AttractDemoControllerVerification
 {
     /// <summary>
     /// Checks that consecutive scripted X presses retain their explicit new-press edges
-    /// while the Start latch history and repeat timer survive each temporary override.
+    /// while the Start latch history survives each temporary override.
     /// A later real Start latch must see no edge leaked from the demo.
     /// </summary>
     internal static void VerifyAttractDemoControllerOverride()
     {
-        var controller = new ControllerInputState(4, 2);
+        var controller = new ControllerInputState();
         controller.Latch(ControllerButton.Start);
-        ushort repeat = controller.RepeatTimer.RawValue;
         for (int frame = 0; frame < 2; frame++)
         {
             using (controller.UseDemoInput(ControllerButton.X, ControllerButton.X))
             {
                 if (controller.Current != ControllerButton.X || controller.NewlyPressed != ControllerButton.X)
                     throw new InvalidDataException("Demo controller did not preserve the explicit scripted edge.");
-                if (controller.Previous != ControllerButton.Start || controller.RepeatTimer.RawValue != repeat)
+                if (controller.Previous != ControllerButton.Start)
                     throw new InvalidDataException("Demo override modified the hardware latch history.");
             }
             if (controller.Current != ControllerButton.Start || controller.NewlyPressed != ControllerButton.Start)

@@ -85,7 +85,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidDataException(
                 $"Dead {profile.Species} placement names a corpse that is not one of its species'.");
         }
-        var state = new DeadTourianCorpseEnemyState(slot, profile.Species, variant, profile, new CorpseRotSchedule(definition.RowCount));
+        var state = new DeadTourianCorpseEnemyState(slot, profile, new CorpseRotSchedule(definition.RowCount));
         slot.SetSpeciesState(state);
 
         slot.Shading = TourianCorpseShades.InDrainedColours;
@@ -146,10 +146,9 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot slot,
         DeadTourianCorpseEnemyState state)
     {
-        state.ProcessCallCount++;
         bool stillRotting = state.Rot.Step(
             state.Rows.MoveRow,
-            _ => FinishDeadTourianCorpseRow(slot, state));
+            _ => FinishDeadTourianCorpseRow(slot));
         if (!stillRotting)
             state.Function = DeadTourianCorpseFunction.Finished;
     }
@@ -158,14 +157,8 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static CorpseRotRows ShownDeadTourianRows(RoomEnemySlot slot) => RequireDeadTourianCorpseState(slot).Rows.Shown;
 
     /// <summary>Spawns randomized dust for a completed rot row and gates its sound on the enemy counter.</summary>
-    private void FinishDeadTourianCorpseRow(
-        RoomEnemySlot slot,
-        DeadTourianCorpseEnemyState state)
-    {
-        state.FinishedEntryCount++;
+    private void FinishDeadTourianCorpseRow(RoomEnemySlot slot) =>
         _rowDust.Spawn(slot, _room.Random.Read(), _projectiles, _frameContext.RandomEnemyCounter);
-        state.DustSpawnCount++;
-    }
 
     /// <summary>Rejects uninitialized slots and slots whose corpse state belongs to another enemy.</summary>
     private static DeadTourianCorpseEnemyState RequireDeadTourianCorpseState(RoomEnemySlot slot)

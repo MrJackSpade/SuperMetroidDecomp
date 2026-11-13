@@ -111,7 +111,6 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.Mouth = part;
             StartPhantoonPart(part, PhantoonPartSegment.MouthInitial);
-            state.MouthState.StartPart();
             part.SetSpeciesState(state.MouthState);
         }
         else

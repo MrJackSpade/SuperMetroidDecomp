@@ -19,7 +19,6 @@ internal sealed class DraygonCannonObject : RoomObjectBehaviour, IShootableRoomO
     /// <param name="start">Whether the cannon starts whole or already destroyed.</param>
     internal DraygonCannonObject(DraygonCannonOrientation orientation, DraygonWallCannon cannon, DraygonCannonStart start)
     {
-        Orientation = orientation;
         Cannon = cannon;
         _look = DraygonCannonAnimationDefinitions.Looks.TryGetValue(orientation, out DraygonCannonLook? look)
             ? look
@@ -29,9 +28,6 @@ internal sealed class DraygonCannonObject : RoomObjectBehaviour, IShootableRoomO
         // A cannon set up destroyed counts as having taken its destroying hits.
         Hits = destroyed ? DraygonCannonDefinitions.HitsToDestroy : 0;
     }
-
-    /// <summary>Which wall the cannon faces out from.</summary>
-    internal DraygonCannonOrientation Orientation { get; }
 
     /// <summary>The firing cannon Draygon stops when this one is destroyed.</summary>
     internal DraygonWallCannon Cannon { get; }
@@ -47,12 +43,6 @@ internal sealed class DraygonCannonObject : RoomObjectBehaviour, IShootableRoomO
     /// a cannon set up destroyed.
     /// </summary>
     internal int Hits { get; private set; }
-
-    /// <summary>Whether a counted hit destroyed the cannon; its count is then spent.</summary>
-    internal bool ShotDown { get; private set; }
-
-    /// <summary>Whether the cannon's terrain and firing have been destroyed.</summary>
-    internal bool Destroyed { get; private set; }
 
     /// <summary>Whether a missile strike wakes the cannon: from its first update until a hit destroys it.</summary>
     internal bool WakeArmed { get; private set; }
@@ -103,7 +93,6 @@ internal sealed class DraygonCannonObject : RoomObjectBehaviour, IShootableRoomO
                 Show(place, context, _look.HitFlash[0], DraygonCannonPhase.Flashing);
                 return;
             case DraygonCannonPhase.Struck:
-                ShotDown = true;
                 WakeArmed = false;
                 Destroy(place, context);
                 return;
@@ -128,7 +117,6 @@ internal sealed class DraygonCannonObject : RoomObjectBehaviour, IShootableRoomO
     {
         context.RoomObjects.Bosses().DraygonCannons.DisableCannon(Cannon);
         DraygonCannonObjects.WriteDestroyedTerrain(context.Level, place.Block);
-        Destroyed = true;
         _frame = 0;
         Show(place, context, _look.Smoke[0], DraygonCannonPhase.Smoking);
     }

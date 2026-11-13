@@ -95,8 +95,6 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             _frameResults.BotwoonWall = BotwoonWallMutation.Clear;
             head.Presence = head.Presence.With(EnemyPresence.Deleted);
-            state.WallCrumbleRequested = true;
-            state.BossBitSet = true;
             return;
         }
 
@@ -117,10 +115,8 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.PreviousInsideHole = true;
         state.InitialAction = true;
         state.TargetHoleIndex = 0;
-        state.MaximumHealth = head.Health;
         state.HalfHealth = head.Health >> 1;
         state.QuarterHealth = head.Health >> 2;
-        state.PreviousHealth = head.Health;
         // The initializer makes the head intangible: it starts hidden in its hole, out of every collision pass.
         head.Contact = head.Contact.With(EnemyContact.IgnoresSamus);
 
@@ -695,7 +691,6 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.Function = BotwoonEnemyFunction.WallExplosions;
         _frameResults.BotwoonWall = BotwoonWallMutation.Crumble;
-        state.WallCrumbleRequested = true;
 
         // Botwoon's death drop emits sixteen independent pickup
         // requests. Each position uses both halves of one RNG result: X is the sample modulo 128
@@ -711,7 +706,6 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 position,
                 head.Definition.DropChances);
         }
-        state.DropRequested = true;
         state.WallExplosionFrame = 0;
         state.LargeExplosionTimer = 0;
         state.SmallExplosionTimer = 0;
@@ -723,7 +717,6 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.WallExplosionFrame >= BotwoonWallExplosionDuration)
         {
             head.Presence = head.Presence.With(EnemyPresence.Deleted);
-            state.BossBitSet = true;
             _room.Services.Bosses.SetDefeated(BossBits.AreaMiniBoss);
             // The death sequence invokes the shortest-delay request for the elevator song only after the complete 192-frame
             // wall-explosion phase, not when health first reaches zero.
@@ -806,7 +799,6 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
                                                        c.SelectedShotAi == EnemyReaction.BotwoonShot)
         {
             RunsGenericDeath = false,
-            BeforeCommon = c => RequireBotwoonState(c.Enemy).PreviousHealth = c.HealthBefore,
             AfterCommon = c => ResolveBotwoonCombatAfterCommon(c.Enemy),
         });
     }
@@ -842,18 +834,14 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         });
     }
 
-    /// <summary>Records pre-hit health for the health bands and skips generic death on shot hits.</summary>
+    /// <summary>Resolves the health bands and skips generic death on shot hits.</summary>
     internal void AddBotwoonShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Botwoon &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyReaction.BotwoonShot)
         {
             ExemptFromGenericDeath = true,
-            AfterCommon = c =>
-            {
-                RequireBotwoonState(c.Enemy).PreviousHealth = c.HealthBefore;
-                ResolveBotwoonCombatAfterCommon(c.Enemy);
-            },
+            AfterCommon = c => ResolveBotwoonCombatAfterCommon(c.Enemy),
         });
     }
 

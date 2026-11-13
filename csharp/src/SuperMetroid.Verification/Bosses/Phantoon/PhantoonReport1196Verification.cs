@@ -1,6 +1,7 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Enemies;
 using static SuperMetroid.Verification.Bosses.Phantoon.PhantoonFlameSoundVerification;
 using static SuperMetroid.Verification.Bosses.Phantoon.PhantoonAnimationsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -22,7 +23,9 @@ internal static class PhantoonReport1196Verification
         enemies.BeginEnemySoundRequestFrame();
         (state ?? throw new InvalidOperationException("Verification requires state.")).BodyState.FunctionTimer = 1;
         enemies.PhantoonBehavior.Opening.RunPhantoonStartingFlameSpawner(state.Body, state);
-        AssertEqual(1, state.StartingFlamesSpawned, "intro producer actually spawns a starting flame");
+        AssertEqual(1, enemies.Projectiles.EnemyProjectiles.Count(projectile =>
+                projectile.IsActive && projectile.Kind == RoomEnemyProjectileKind.PhantoonStartingFlame),
+            "intro producer actually spawns a starting flame");
         var audio = AudioQueues.Standalone();
         var renderer = AudioSessionAccess.CreateSynthesizing(RepositoryInstallation.Installation.LoadAudio());
         renderer.RenderFrame(audio.AdvanceFrame(renderer.Acknowledgements));

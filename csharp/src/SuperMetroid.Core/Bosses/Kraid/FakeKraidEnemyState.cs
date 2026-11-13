@@ -35,10 +35,4 @@ public sealed class FakeKraidEnemyState
     /// <summary>The body port whose spike clock main AI visits on the next frame.</summary>
     internal FakeKraidSpikeRow NextSpikeRow { get; set; }
 
-
-    /// <summary>Number of spike projectiles successfully allocated by this actor.</summary>
-    public int SpawnedSpikeCount { get; internal set; }
-
-    /// <summary>Number of spit projectiles successfully allocated by this actor.</summary>
-    public int SpawnedSpitCount { get; internal set; }
 }

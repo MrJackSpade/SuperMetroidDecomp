@@ -148,7 +148,7 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
             slot.SpritemapPointer, slot.Position.Whole,
             checked((ushort)slot.Health), checked((ushort)SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.EncodePropertyWord(properties)), checked((ushort)SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.EncodeExtraPropertyWord(properties)),
             state.Function, state.Angle.ToTrigonometryAngle().RawValue, checked((ushort)state.MaximumXRadius),
-            state.DeathStarted, state.DeathDropRequested);
+            state.DeathStarted, system.ActiveEnemyDropPickups > 0);
     }
 
     /// <summary>Instruction, frame, position, health, and fight-state values compared across Spore Spawn program ticks.</summary>

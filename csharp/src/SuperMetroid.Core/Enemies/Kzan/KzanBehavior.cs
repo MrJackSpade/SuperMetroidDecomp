@@ -42,7 +42,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     private static readonly SoundEffectId KzanLandingSound =
         EnemySoundEffectDefinitions.KzanLandingSoundEffect;
 
-    /// <summary>Initializes the top's idle list, fall speed, fall distance and wait timer from its spawn settings.</summary>
+    /// <summary>Initializes the top's idle animation, fall speed, fall distance and wait timer from its spawn settings.</summary>
     internal static void InitializeKzanTop(RoomEnemySlot slot)
     {
         var state = new KzanEnemyState();

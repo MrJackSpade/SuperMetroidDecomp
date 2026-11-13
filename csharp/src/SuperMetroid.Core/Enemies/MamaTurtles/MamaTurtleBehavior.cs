@@ -108,7 +108,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Maximum crawl distance from a baby's spawn before its list reverses direction.</summary>
+    /// <summary>Maximum crawl distance from a baby's spawn before its animation reverses direction.</summary>
     private const int BabyTurtleTravelDistance = 48;
     /// <summary>Upper room Y where Mama pauses after a rider-powered ascent.</summary>
     private const int MamaTurtlePeakYPosition = 488;
@@ -811,7 +811,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     private RoomEnemySlot RoomMama() =>
         _mama ?? throw new InvalidOperationException("A Baby Turtle reached its parent in a room where no Mama Turtle was placed.");
 
-    /// <summary>Selects the left or right crawl list from the child's signed X velocity.</summary>
+    /// <summary>Selects the left or right crawl animation from the child's signed X velocity.</summary>
     private static void StartBabyTurtleCrawlingAnimation(
         RoomEnemySlot baby,
         BabyTurtleEnemyState state) =>

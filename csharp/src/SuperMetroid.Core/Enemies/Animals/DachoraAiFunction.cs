@@ -9,7 +9,7 @@ public enum DachoraAiFunction
     /// <summary>Probes the floor and waits for Samus to enter the activation rectangle.</summary>
     WaitingForSamus = 1,
 
-    /// <summary>Runs the 120-update warning countdown before installing the first run list.</summary>
+    /// <summary>Runs the 120-update warning countdown before starting the first run animation.</summary>
     BlinkingBeforeRun,
 
     /// <summary>Accelerates left along the floor until the turn coordinate or a wall.</summary>

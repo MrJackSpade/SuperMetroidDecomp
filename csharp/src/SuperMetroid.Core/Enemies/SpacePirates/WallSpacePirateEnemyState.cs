@@ -11,7 +11,7 @@ public sealed class WallSpacePirateEnemyState
     internal AnimationPlayback<WallSpacePirateSegment> Playback { get; set; }
 
     /// <summary>
-    /// AI entry, initialized for the starting wall and replaced by an animation cue as attack, jump, and landing lists
+    /// AI entry, initialized for the starting wall and replaced by an animation cue as attack, jump, and landing animations
     /// advance.
     /// </summary>
     public WallSpacePirateFunction? Function { get; internal set; }

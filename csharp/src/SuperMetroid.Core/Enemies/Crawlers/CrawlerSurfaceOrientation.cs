@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Crawlers;
 
-/// <summary>The four physical surfaces represented by crawler animation lists.</summary>
+/// <summary>The four physical surfaces represented by crawler animations.</summary>
 internal enum CrawlerSurfaceOrientation
 {
     /// <summary>Table index zero, top facing right on a vertical surface.</summary>

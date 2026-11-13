@@ -111,9 +111,9 @@ public sealed class EnemyProjectile
     /// <summary>Samus's shots test this actor for collision.</summary>
     public bool BlocksSamusProjectiles { get; internal set; }
     /// <summary>
-    /// How Samus's shots that reach the projectile act on it: they run its shot list, meet an indestructible dud, or are
+    /// How Samus's shots that reach the projectile act on it: they play its shot animation, meet an indestructible dud, or are
     /// not tested at all. This is deliberately separate from <see cref="BlocksSamusProjectiles"/>: Kago enables that
-    /// property only after its bug has moved far enough from the source shell, while still running its shot list.
+    /// property only after its bug has moved far enough from the source shell, while still playing its shot animation.
     /// </summary>
     public EnemyProjectileCollisionOption CollisionOption { get; internal set; }
     /// <summary>The enemy a death explosion or its drop came from, and whether the explosion rebuilds it when it ends.</summary>
@@ -126,7 +126,7 @@ public sealed class EnemyProjectile
     /// <summary>The chance table a boss-selected drop rolls against instead of its enemy definition's, or null.</summary>
     internal EnemyDropChances? DropChancesOverride { get; set; }
 
-    /// <summary>Runs <paramref name="animation"/> from its first frame on the next pass, in place of any list.</summary>
+    /// <summary>Runs <paramref name="animation"/> from its first frame on the next pass, in place of any animation it plays.</summary>
     internal void StartAnimation(EnemyProjectileAnimation animation)
     {
         Animation = Ensure.NotNull(animation);

@@ -305,8 +305,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = YappingMawAiFunction.RetractedDelay;
         state.GrabCooldown = WrappingCountdown.Start(YappingMawGrabCooldownFrames);
 
-        // The six retracted lists are not one per aim. The right and left sectors have
-        // dedicated art, while every other sector shares its attack direction's list. Preserve the downward-reaching Maw's early-return quirk: on its shared-list branches it
+        // The six retracted animations are not one per aim. The right and left sectors have
+        // dedicated art, while every other sector shares its attack direction's animation. Preserve the downward-reaching Maw's early-return quirk: on its shared-animation branches it
         // skips the final held-Samus placement on this one transition frame.
         bool skipHeldPlacement = false;
         if (slot.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Up)

@@ -284,7 +284,7 @@ internal sealed class EyeDoorBehavior
             StartEyeDoorProjectileImpact(projectile);
     }
 
-    /// <summary>Applies sweat gravity and enters the impact list on a downward vertical collision.</summary>
+    /// <summary>Applies sweat gravity and starts the impact animation on a downward vertical collision.</summary>
     internal static void RunEyeDoorSweatFrameBehavior(
         EnemyProjectile projectile,
         RoomLevelData level)
@@ -294,7 +294,7 @@ internal sealed class EyeDoorBehavior
         if (!projectile.Velocity.Y.IsNegative && collidedVertically)
         {
             projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole - 4);
-            // The floor splash stops the drop's movement, as the list switch does.
+            // The floor splash stops the drop's movement, as the animation switch does.
             projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
             projectile.StartAnimation(new EyeDoorSweatAnimation(EyeDoorSweatSegment.HitFloor));
             return;
@@ -313,7 +313,7 @@ internal sealed class EyeDoorBehavior
     /// <summary>A falling sweat drop's downward acceleration per update, in 256ths of a pixel per update.</summary>
     private static readonly SignedEightEight EyeDoorSweatGravity = SignedEightEight.FromParts(0, 12);
 
-    /// <summary>Sends an eye-door shot into its typed impact animation, stopping its movement as the list switch does.</summary>
+    /// <summary>Sends an eye-door shot into its typed impact animation, stopping its movement as the animation switch does.</summary>
     private static void StartEyeDoorProjectileImpact(EnemyProjectile projectile)
     {
         projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
@@ -479,7 +479,7 @@ internal sealed class EyeDoorBehavior
     internal void AddEyeDoorProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddCue<EyeDoorProjectileCue>((context, cue) => ApplyEyeDoorProjectileCue(context.Projectile, context.Samus?.RoomView, cue));
-        // A shot eye-door projectile runs its typed shot animation, the list its definition names.
+        // A shot eye-door projectile runs its typed shot animation, the animation its definition names.
         table.AddShotAnimation(RoomEnemyProjectileKind.EyeDoorProjectile, () => new EyeDoorProjectileAnimation(EyeDoorProjectileSegment.Shot));
 
         table.AddFrameBehavior(context =>

@@ -63,7 +63,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.SetSpeciesState(state);
 
         // The initializer forces animation processing for both halves and clears the
-        // animation's loop counter before choosing the half-specific list.
+        // animation's loop counter before choosing the half-specific animation.
         slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
         slot.Frame = EnemyFrameId.Empty;
         slot.AnimationClock.Restart();
@@ -516,7 +516,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             RunPowampSpikeFrameBehavior(context.Projectile, context.Level);
         }, EnemyProjectileFrameBehavior.PowampSpikeFlight);
-        // A shot spike runs the same private delete animation its definition names as its shot list.
+        // A shot spike runs the same private delete animation its definition names as its shot animation.
         table.AddShotAnimation(RoomEnemyProjectileKind.PowampSpike, () => new PowampSpikeAnimation(PowampSpikeSegment.Delete));
     }
 
@@ -594,7 +594,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
 
             // Spawning copies the spike's definition before
             // its initializer zeros velocities and captures the owner position. Reading
-            // the record through the shared helper preserves its list, map sentinel, radii,
+            // the record through the shared helper preserves its animation, map sentinel, radii,
             // damage, and all property bits instead of maintaining a second hand copy here.
             EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
                 spike,
@@ -628,7 +628,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
             BeginPowampSpikeDeletion(spike);
     }
 
-    /// <summary>Marks a spike for its deletion list after its movement phase ends.</summary>
+    /// <summary>Marks a spike for its deletion animation after its movement phase ends.</summary>
     internal static void BeginPowampSpikeDeletion(EnemyProjectile spike)
     {
         // The animation deletes the spike as its first command; starting it at timer one lets the

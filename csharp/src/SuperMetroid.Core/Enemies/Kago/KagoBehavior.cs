@@ -137,7 +137,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         }, EnemyProjectileFrameBehavior.KagoBugFall);
 
         table.AddCue<KagoBugProjectileCue>((context, cue) => ApplyKagoBugCue(context.Projectile, cue));
-        // A shot bug runs its typed shot animation, the list its definition names.
+        // A shot bug runs its typed shot animation, the animation its definition names.
         table.AddShotAnimation(RoomEnemyProjectileKind.KagoBug, () => new KagoBugProjectileAnimation(KagoBugProjectileSegment.Shot));
     }
 
@@ -282,7 +282,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal))
         {
             // A wall ends the rising phase immediately in the game: both X velocity
-            // and the upward component are replaced before selecting the falling list.
+            // and the upward component are replaced before selecting the falling animation.
             projectile.Velocity = new(SignedEightEight.Zero, SignedEightEight.FromParts(1, 0));
             BeginKagoBugFall(projectile);
             return;
@@ -324,7 +324,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + KagoBugGravity);
     }
 
-    /// <summary>Switches an airborne bug to the falling list when rising ends or a wall interrupts it.</summary>
+    /// <summary>Switches an airborne bug to the falling animation when rising ends or a wall interrupts it.</summary>
     private static void BeginKagoBugFall(EnemyProjectile projectile)
     {
         projectile.FrameBehavior =

@@ -76,7 +76,7 @@ internal sealed class EscapeAnimalObjects : ICrittersEscapeReaction
         slot.Block = position;
         slot.Become(new CritterWallBreakthroughObject());
         RoomCollisionBlock block = level.GetCollisionBlock(position);
-        // The reaction shows the struck wall's installed picture over the wall's collision type; until its list runs, the
+        // The reaction shows the struck wall's installed picture over the wall's collision type; until its sequence runs, the
         // block is deactivated, staying solid only when it was. The wall breaks open for good, so it saves no block to
         // restore.
         level.SetTerrain(position, block.Terrain.WithAppearance(_drawing.SetupBlock(RoomObjectSetupBlock.CritterWallStruck)).Deactivated());

@@ -14,6 +14,6 @@ public enum NorfairLavaJumpingEnemyFunction
     RiseBeforeAnimationSwitch,
     /// <summary>Continue the signed 8.8 arc until the flip animation's cue signals completion, then clear the handshake and enter final falling.</summary>
     MoveUntilAnimationSignal,
-    /// <summary>Continue descent until Y modulo 256 reaches 240, then restore spawn whole coordinates, install the hidden/rising list, and disable offscreen processing without clearing subpositions.</summary>
+    /// <summary>Continue descent until Y modulo 256 reaches 240, then restore spawn whole coordinates, start the hidden/rising animation, and disable offscreen processing without clearing subpositions.</summary>
     FallBackIntoLava,
 }

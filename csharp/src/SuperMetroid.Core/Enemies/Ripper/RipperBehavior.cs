@@ -85,10 +85,10 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         RipperEnemyState state = CreateRipperState(slot);
         state.Speeds = EnemyLinearSpeedRow.Moving(slot.SpawnSettings<RipperSpawnSettings>().Speed);
 
-        // Ripper II's list labels appear inverted relative to the displayed shared maps.
-        // Keep the list names instead of normalizing them: a leftward start uses the
-        // negative speed pair with the moving-right list, while a rightward start uses positive speed
-        // with the moving-left list.
+        // Ripper II's animation labels appear inverted relative to the displayed shared maps.
+        // Keep the animation names instead of normalizing them: a leftward start uses the
+        // negative speed pair with the moving-right animation, while a rightward start uses positive speed
+        // with the moving-left animation.
         bool movingPositive = slot.SpawnSettings<RipperSpawnSettings>().Direction == HorizontalDirection.Right;
         LoadRipperVelocity(state, movingPositive);
         SetRipperAnimation(slot, movingPositive ? RipperSegment.Ripper2MovingLeft : RipperSegment.Ripper2MovingRight);
@@ -111,8 +111,8 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Ripper.</summary>
     internal static void InitializeRipper(RoomEnemySlot slot)
     {
-        // The spawn's direction chooses the positive speed and the right-facing list, or the negative speed and the
-        // left-facing list. Unlike a reversal, initialization keeps the population's frame timer.
+        // The spawn's direction chooses the positive speed and the right-facing animation, or the negative speed and the
+        // left-facing animation. Unlike a reversal, initialization keeps the population's frame timer.
         bool movingRight = slot.SpawnSettings<RipperSpawnSettings>().Direction == HorizontalDirection.Right;
         RipperEnemyState state = CreateRipperState(slot);
         state.Playback = new(RipperAnimations.StartingWith(

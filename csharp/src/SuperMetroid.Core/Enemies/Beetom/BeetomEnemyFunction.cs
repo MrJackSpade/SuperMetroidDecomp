@@ -26,7 +26,7 @@ public enum BeetomEnemyFunction
     StartLongHopLeft,
     /// <summary>Loads the long-hop speed-table index, clears falling, and installs right-facing hop art.</summary>
     StartLongHopRight,
-    /// <summary>Aims the rising lunge toward Samus and installs the corresponding hop list.</summary>
+    /// <summary>Aims the rising lunge toward Samus and starts the corresponding hop animation.</summary>
     DecideActionSamusInProximity,
     /// <summary>Installs left-facing attached art before the drain-following behaviour begins.</summary>
     StartDrainingLeft,

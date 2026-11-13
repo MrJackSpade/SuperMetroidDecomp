@@ -7,16 +7,16 @@ internal static class ShaktoolInstructionDefinitions
     /// The head animation of each eighth-turn
     /// direction bucket. The direction buckets start at up; program storage starts two eighth-turns earlier at left.
     /// </summary>
-    internal static readonly Dictionary<int, ShaktoolProgram> OrientationPrograms = new()
+    internal static readonly Dictionary<CompassDirection, ShaktoolProgram> OrientationPrograms = new()
     {
-        [0] = ShaktoolProgram.HeadAimingUp,
-        [32] = ShaktoolProgram.HeadAimingUpRight,
-        [64] = ShaktoolProgram.HeadAimingRight,
-        [96] = ShaktoolProgram.HeadAimingDownRight,
-        [128] = ShaktoolProgram.HeadAimingDown,
-        [160] = ShaktoolProgram.HeadAimingDownLeft,
-        [192] = ShaktoolProgram.HeadAimingLeft,
-        [224] = ShaktoolProgram.HeadAimingUpLeft,
+        [CompassDirection.Up] = ShaktoolProgram.HeadAimingUp,
+        [CompassDirection.UpRight] = ShaktoolProgram.HeadAimingUpRight,
+        [CompassDirection.Right] = ShaktoolProgram.HeadAimingRight,
+        [CompassDirection.DownRight] = ShaktoolProgram.HeadAimingDownRight,
+        [CompassDirection.Down] = ShaktoolProgram.HeadAimingDown,
+        [CompassDirection.DownLeft] = ShaktoolProgram.HeadAimingDownLeft,
+        [CompassDirection.Left] = ShaktoolProgram.HeadAimingLeft,
+        [CompassDirection.UpLeft] = ShaktoolProgram.HeadAimingUpLeft,
     };
 
     /// <summary>

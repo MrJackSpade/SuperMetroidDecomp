@@ -788,7 +788,8 @@ internal static class NativeEnemyFamilyStateImport
                 int bucket = word & 0x7fff;
                 if ((bucket & 0x1f) != 0 || bucket > 0xe0)
                     throw new InvalidDataException($"Recorded Shaktool centre orientation ${word:X4} has no heading bucket.");
-                segment.OrientationBucket = bucket;
+                // The recorded bucket is the bearing of the direction the head aims, a whole number of eighths of a turn.
+                segment.Orientation = new Bearing(bucket).DirectionOfEighth();
                 return;
             case 6:
                 segment.CurlProgress = RotationAngle.FromRaw(Index(word, 0xf3fb, "Shaktool curl progress"));

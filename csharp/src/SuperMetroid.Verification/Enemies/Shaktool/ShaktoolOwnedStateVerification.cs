@@ -22,7 +22,7 @@ internal static class ShaktoolOwnedStateVerification
         RoomEnemySlot center = enemies.SlotTable.Slots[3];
         ShaktoolSegmentState centerState = states[3];
 
-        foreach ((bool reversed, int expectedBucket) in new[] { new VerifyShaktoolOwnedStateCase(false, 0x80), new VerifyShaktoolOwnedStateCase(true, 0x00) })
+        foreach ((bool reversed, CompassDirection expectedOrientation) in new[] { new VerifyShaktoolOwnedStateCase(false, CompassDirection.Down), new VerifyShaktoolOwnedStateCase(true, CompassDirection.Up) })
         {
             centerState.MotionFlags = 0;
             centerState.OrbitAngle = RotationAngle.FromRaw(0xff80);
@@ -32,7 +32,7 @@ internal static class ShaktoolOwnedStateVerification
             states[4].OrbitAngle = RotationAngle.FromRaw(0x8080);
             enemies.ShaktoolBehavior.AdvanceAndOrientShaktoolCenter(center, centerState);
             AssertEqual((ushort)0x0080, centerState.OrbitAngle.RawValue, "the centre's orbit wraps through zero");
-            AssertEqual(expectedBucket, centerState.OrientationBucket, $"reversed={reversed} selects the expected heading bucket");
+            AssertEqual(expectedOrientation, centerState.Orientation, $"reversed={reversed} selects the expected head orientation");
             AssertEqual(reversed, centerState.OrientationReversed, "orienting keeps the chain's reversal");
         }
 

@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Samus.Poses;
@@ -11,11 +12,12 @@ using SuperMetroid.AssetExtraction.Assets;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>
-/// The arm cannon as the import reads it (#1463, #1638): the extracted document's layout, cover appearances and cover tile
-/// selections, from the component's import data. The game binds only the layout (<see cref="Layout"/>, installed as
-/// <c>samus-arm-cannon.json</c>), whose placements gameplay receives (<see cref="Gameplay"/>, #1616); the appearances are
-/// packed sprite attributes only the overlay sheet is composed from, and its 8×8 cover characters are import data too
-/// (<see cref="SamusArmCannonCoverCharacters"/>, #1636).
+/// The arm cannon as the import reads it (#1463, #1638): the extracted document's drawing descriptors, cover appearances
+/// and cover tile selections, from the component's import data. The import decodes the descriptors into each pose's typed
+/// placement (<see cref="Gameplay"/>, #1616), and the game binds only the placements the installation holds
+/// (<see cref="Installed"/>, <c>samus-arm-cannon.json</c>); the appearances are packed sprite attributes only the overlay
+/// sheet is composed from, and its 8×8 cover characters are import data too (<see cref="SamusArmCannonCoverCharacters"/>,
+/// #1636).
 /// </summary>
 public sealed class SamusArmCannonSourceArtwork
 {
@@ -29,19 +31,19 @@ public sealed class SamusArmCannonSourceArtwork
     /// <summary>Each native aim direction's installed cover tile for opening frames one through three.</summary>
     private readonly int[][] openingTiles;
 
-    /// <summary>Holds the complete layout, cover appearances and cover tiles.</summary>
-    private SamusArmCannonSourceArtwork(SamusArmCannonLayout layout, SpritePart[] attributes, int[][] coverTiles)
+    /// <summary>Holds the complete descriptors, cover appearances and cover tiles.</summary>
+    private SamusArmCannonSourceArtwork(SamusArmCannonDescriptors descriptors, SpritePart[] attributes, int[][] coverTiles)
     {
-        Layout = layout;
+        Descriptors = descriptors;
         this.attributes = [.. attributes];
         openingTiles = [.. coverTiles.Select(row => row.ToArray())];
     }
 
-    /// <summary>What the game binds of the arm cannon: each pose's descriptor within the drawing window.</summary>
-    public SamusArmCannonLayout Layout { get; }
+    /// <summary>Each pose's drawing descriptor within the extracted drawing window, which only the import decodes.</summary>
+    public SamusArmCannonDescriptors Descriptors { get; }
 
-    /// <summary>Where each pose draws the cover, which is what the game reads of the arm cannon.</summary>
-    public InstalledSamusArmCannonArtwork Gameplay => Layout.Gameplay;
+    /// <summary>Where each pose draws the cover, as its descriptor reads it over the whole drawing window.</summary>
+    public InstalledSamusArmCannonArtwork Gameplay => Descriptors.Gameplay;
 
     /// <summary>SHA-256 of selected cannon placement, cover appearances and tile selectors; the characters are import data (#1636).</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("samus-arm-cannon-v5", content =>
@@ -58,12 +60,20 @@ public sealed class SamusArmCannonSourceArtwork
                 content.Append("cover tile", OpeningTile(direction, frame));
     });
 
-    /// <summary>Validated document tables: the layout, the cover appearances and the cover tiles.</summary>
-    internal sealed record DescriptorTables(SamusArmCannonLayout Layout, SpritePart[] Attributes, int[][] CoverTiles);
+    /// <summary>Validated document tables: the drawing descriptors, the cover appearances and the cover tiles.</summary>
+    internal sealed record DescriptorTables(SamusArmCannonDescriptors Descriptors, SpritePart[] Attributes, int[][] CoverTiles);
 
     /// <summary>The artwork of validated document tables.</summary>
     internal static SamusArmCannonSourceArtwork FromPlacement(DescriptorTables placement) =>
-        new(placement.Layout, placement.Attributes, placement.CoverTiles);
+        new(placement.Descriptors, placement.Attributes, placement.CoverTiles);
+
+    /// <summary>
+    /// The placements the installation holds (#1638): each pose's drawing order and directions, and its cover's displacement
+    /// at every animation frame the pose shows when her animation reads past its programs with <paramref name="continuation"/>,
+    /// where the drawing window holds one.
+    /// </summary>
+    internal SamusArmCannonLayout Installed(LaidOutProgramContinuation<SamusPoseId, SamusAnimationProgramStep> continuation) =>
+        Descriptors.Installed(SamusShownFrames.Of(continuation));
 
     /// <summary>Parses the extracted arm-cannon document and validates descriptor, attribute, and tile-source geometry.</summary>
     internal static DescriptorTables LoadPlacement(Stream json)
@@ -76,7 +86,7 @@ public sealed class SamusArmCannonSourceArtwork
             !CoverTileShape.HasRows(document.CoverTiles))
             throw new InvalidDataException("Arm-cannon artwork has an invalid version or table geometry.");
 
-        SamusArmCannonLayout layout = SamusArmCannonLayout.Create(document.PoseDescriptors, document.DrawingData);
+        SamusArmCannonDescriptors descriptors = SamusArmCannonDescriptors.Create(document.PoseDescriptors, document.DrawingData);
         SpritePart[] attributes = document.CoverAppearances.Select((value, index) =>
             RequireAppearance(value, $"cover appearance {index}")).ToArray();
         int[][] coverTiles = new int[document.CoverTiles.Length][];
@@ -91,7 +101,7 @@ public sealed class SamusArmCannonSourceArtwork
                     $"Arm-cannon direction {direction} selects a missing tile.");
             coverTiles[direction] = [.. row];
         }
-        return new DescriptorTables(layout, attributes, coverTiles);
+        return new DescriptorTables(descriptors, attributes, coverTiles);
     }
 
     /// <summary>Serializes the extracted document as indented camel-case UTF-8 JSON for the import data's <c>samus-arm-cannon-artwork.json</c>; table bounds and selector validation occur when it is loaded, not here.</summary>
@@ -101,14 +111,14 @@ public sealed class SamusArmCannonSourceArtwork
         return json;
     }
 
-    /// <summary>Gets where <paramref name="pose"/>'s installed drawing descriptor begins within the drawing data.</summary>
+    /// <summary>Gets where <paramref name="pose"/>'s extracted drawing descriptor begins within the drawing data.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The pose has no record in the pose tables.</exception>
-    public int PoseDescriptor(SamusPoseId pose) => Layout.PoseDescriptor(pose);
+    public int PoseDescriptor(SamusPoseId pose) => Descriptors.PoseDescriptor(pose);
 
-    /// <summary>The installed descriptor byte <paramref name="offset"/> bytes into the drawing data.</summary>
+    /// <summary>The extracted descriptor byte <paramref name="offset"/> bytes into the drawing data.</summary>
     /// <param name="offset">Byte offset into the drawing data; coordinate bytes are signed pixel offsets.</param>
-    /// <exception cref="InvalidDataException">The offset lies outside the installed drawing window.</exception>
-    public byte ReadDrawingByte(int offset) => Layout.ReadDrawingByte(offset);
+    /// <exception cref="InvalidDataException">The offset lies outside the extracted drawing window.</exception>
+    public byte ReadDrawingByte(int offset) => Descriptors.ReadDrawingByte(offset);
 
     /// <summary>Gets the installed cover's character, palette, priority, and mirroring for native direction 0–9.</summary>
     public SpritePart CoverAppearance(int direction) => (uint)direction < (uint)attributes.Length

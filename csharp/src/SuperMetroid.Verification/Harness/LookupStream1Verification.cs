@@ -1910,7 +1910,35 @@ internal static class LookupStream1Verification
                 draws++;
             }
         }
-        Console.WriteLine($"Cannon placement:608 installed native bytes,the canonical hash and {draws} actual OAM draws pass.");
+        // The installation holds each pose's typed placement (#1638): the descriptor's own reading at every animation frame
+        // the pose shows that the drawing window holds, and no displacement at any other frame; the installed document reads
+        // back as written.
+        SamusShownFrames shown = SamusShownFrames.Of(InstalledFixtures.AnimationContinuation);
+        SamusArmCannonLayout installed = stock.Installed(InstalledFixtures.AnimationContinuation);
+        int installedFrames = 0;
+        foreach (SamusPoseId pose in SamusPoseNumbers.RecordedPoses)
+        {
+            SamusArmCannonPlacement decoded = stock.Gameplay.Placement(pose), placed = installed.Gameplay.Placement(pose);
+            AssertEqual(decoded.DrawOrder, placed.DrawOrder, $"Installed cannon draw order of {pose}");
+            AssertEqual(decoded.FirstDirection, placed.FirstDirection, $"Installed cannon direction of {pose}");
+            AssertEqual(decoded.LaterDirection, placed.LaterDirection, $"Installed cannon later direction of {pose}");
+            for (int frame = 0; frame <= byte.MaxValue; frame++)
+            {
+                if (shown.TryPictureFrame(pose, frame, out _) && decoded.Offsets.ContainsKey(frame))
+                {
+                    AssertEqual(decoded.Offset(frame), placed.Offset(frame), $"Installed cannon displacement of {pose} at frame {frame}");
+                    installedFrames++;
+                }
+                else
+                {
+                    int unshown = frame;
+                    AssertThrows<InvalidDataException>(() => placed.Offset(unshown), $"No installed cannon displacement of {pose} at unshown frame {frame}");
+                }
+            }
+        }
+        AssertEqual(installed.ContentIdentity, SamusArmCannonLayout.Read(new MemoryStream(installed.Write())).ContentIdentity,
+            "Installed cannon layout reads back as written");
+        Console.WriteLine($"Cannon placement:608 extracted native bytes,the canonical hash, {draws} actual OAM draws and {installedFrames} installed pose frames pass.");
     }
 
     /// <summary>Reads Samus arm-cannon placement source words.</summary>

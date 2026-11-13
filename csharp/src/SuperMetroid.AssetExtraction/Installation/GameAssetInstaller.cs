@@ -324,7 +324,7 @@ public static class GameAssetInstaller
             Step("Extracting room background tilemaps...", (bus, d) => RoomBackgroundTilemapArtworkFiles.Extract(bus, d, SupportedCartridge.Sha256)),
             Step("Extracting scrolling-sky tilemaps...", (bus, d) => RoomSkyTilemapArtworkFiles.Extract(bus, d, SupportedCartridge.Sha256))),
         new(GameInstallationLayout.RoomVisualLayoutDirectoryName,
-            Step("Extracting room visual layouts...", (bus, d) => RoomVisualLayoutFiles.Extract(bus, d, SupportedCartridge.Sha256))),
+            Step("Extracting room visual layouts...", (bus, d) => RoomVisualLayoutFiles.Extract(bus, d))),
         new(GameInstallationLayout.RoomLevelStreamDirectoryName,
             Step("Extracting room terrain...", (bus, d) => RoomLevelStreamFiles.Extract(bus, d, SupportedCartridge.Sha256))),
         new(GameInstallationLayout.RoomObjectShotBlockVisualDirectoryName,

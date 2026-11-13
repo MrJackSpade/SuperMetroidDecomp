@@ -45,7 +45,9 @@ internal static class RoomAssetJsonContractsVerification
                 // Block compositions are stock extraction input (#1431): their identity is their tiles.
                 new("metatiles", CartridgeImportContent.ImportData(GameInstallationLayout.RoomMetatileDirectoryName), RoomMetatileArtworkFiles.ManifestFileName,
                     stock => BlockCompositionIdentity(RoomMetatileArtworkFiles.LoadForImport(stock))),
-                new("layouts", installed.RoomVisualLayoutDirectory, RoomVisualLayoutFiles.ManifestFileName,
+                // The layouts install no manifest (#1693): the first level's document is the file corrupted.
+                new("layouts", installed.RoomVisualLayoutDirectory, RoomVisualLayoutFiles.LevelFileName(
+                        RoomVisualLayoutFiles.RetailLevels.Keys.OrderBy(level => level.Name, StringComparer.Ordinal).First()),
                     stock => RoomVisualLayoutFiles.Load(stock).ContentIdentity),
                 // The X-ray reveals install no manifest (#1693): their document is the file corrupted.
                 new("X-ray", installed.XrayRevealVisualDirectory, XrayRevealVisualFiles.VisualFileName,

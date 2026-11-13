@@ -124,6 +124,8 @@ internal static class ImportOnlyLayoutsVerification
         yield return (GameInstallationLayout.BossBodySheetDirectoryName, "boss-body-sheets-provenance.json");
         // The picture store's provenance held its pages' and maps' hashes; its index, pictures.json, holds the rest.
         yield return (PictureStoreFiles.DirectoryName, "pictures-provenance.json");
+        // The room layouts' manifest listed each level's name, size and hash; the retail rooms name the levels.
+        yield return (GameInstallationLayout.RoomVisualLayoutDirectoryName, "room-layouts.json");
     }
 
     /// <summary>

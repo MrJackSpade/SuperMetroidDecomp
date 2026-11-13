@@ -28,9 +28,10 @@ internal static class RoomPictureClosedContractDefinitions
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Rooms.Artwork.InstalledRoomArtwork", "room-artwork-complete-retail-selections",
-            ["Get", "FloorOf", "MessageBox", "FxOverlay", "Background", "Sky"],
+            ["Get", "FloorOf", "MessageBox", "FxOverlay", "Hud", "Background", "Sky"],
             [new("csharp/src/SuperMetroid.Core/Rooms/Artwork/InstalledRoomArtwork.cs"),
              new("csharp/src/SuperMetroid.Core/Rooms/Artwork/RoomBlockSheet.cs"),
+             new("csharp/src/SuperMetroid.Core/Rooms/Artwork/HudPictureSheet.cs"),
              new("csharp/src/SuperMetroid.Core/Rooms/Artwork/RoomBackgroundImage.cs"),
              new("csharp/src/SuperMetroid.Core/Rooms/Backgrounds/LibraryBackground.cs"),
              // Only a background the player sees as its own picture is installed and looked up (#1649).

@@ -131,7 +131,7 @@ internal static class EndingPictureSheetComposer
                 for (int column = 0; column < rows[row].Length; column++)
                     characters.Paint(canvas, column * CharacterPixels, (sheetTop + row) * CharacterPixels, rows[row][column], colours);
             }
-            frames.Add(lines[index].Picture, WrittenPictureSheetComposer.Frame(canvas, sheetTop, rows.Length, WrittenPictureLayer.WrittenOverRoom));
+            frames.Add(lines[index].Picture, WrittenPictureSheetComposer.Frame(canvas, sheetTop, rows.Length, SpriteImageColours.Background));
         }
         return canvas.ToSheet(colours, frames, SpriteImageColours.Background);
     }
@@ -198,7 +198,7 @@ internal static class EndingPictureSheetComposer
             for (int row = 0; row < glyph.Words.Length; row++)
                 textAfter.Paint(canvas, left, top + row * CharacterPixels, glyph.Words[row], colours);
             frames.Add(glyph.Name, WrittenPictureSheetComposer.Frame(canvas, new Position16<ImagePixels>(checked((ushort)left), checked((ushort)top)),
-                new Extent16<ImagePixels>(CharacterPixels, checked((ushort)(glyph.Words.Length * CharacterPixels))), WrittenPictureLayer.WrittenOverRoom));
+                new Extent16<ImagePixels>(CharacterPixels, checked((ushort)(glyph.Words.Length * CharacterPixels))), SpriteImageColours.Background));
             left += CharacterPixels;
         }
         return canvas.ToSheet(colours, frames, SpriteImageColours.Background);
@@ -209,7 +209,7 @@ internal static class EndingPictureSheetComposer
             if (words.Length != rows * EndingTextDefinitions.TilemapWidth)
                 throw new InvalidDataException($"The ending's {name} is not {rows} whole rows.");
             PaintMap(canvas, top, words, characters, colours);
-            frames.Add(name, WrittenPictureSheetComposer.Frame(canvas, top / CharacterPixels, rows, WrittenPictureLayer.WrittenOverRoom));
+            frames.Add(name, WrittenPictureSheetComposer.Frame(canvas, top / CharacterPixels, rows, SpriteImageColours.Background));
             top += rows * CharacterPixels;
         }
     }
@@ -225,7 +225,7 @@ internal static class EndingPictureSheetComposer
         PaintMap(canvas, 0, objects.PostCreditsFragmentB.Tiles.Span, characters, colours);
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal)
         {
-            [EndingPictureNames.WavySamus] = WrittenPictureSheetComposer.Frame(canvas, 0, ScreenCells, WrittenPictureLayer.FxOverlayAndHud),
+            [EndingPictureNames.WavySamus] = WrittenPictureSheetComposer.Frame(canvas, 0, ScreenCells, SpriteImageColours.TwoBppBackground),
         };
         return canvas.ToSheet(colours, frames, SpriteImageColours.TwoBppBackground);
     }
@@ -246,7 +246,7 @@ internal static class EndingPictureSheetComposer
             // Each picture starts at the map's row the screen's top shows, so Core places it whole at the top-left (#1626).
             frames.Add(EndingPictureNames.ExplosionMap(maps[index]), WrittenPictureSheetComposer.Frame(canvas,
                 new Position16<ImagePixels>(0, index * ScreenSize.Y + ExplosionRowsAboveScreen),
-                new Extent16<ImagePixels>(ScreenSize.X, ScreenSize.Y - ExplosionRowsAboveScreen), WrittenPictureLayer.WrittenOverRoom));
+                new Extent16<ImagePixels>(ScreenSize.X, ScreenSize.Y - ExplosionRowsAboveScreen), SpriteImageColours.Background));
         }
         return canvas.ToSheet(colours, frames, SpriteImageColours.Background);
     }

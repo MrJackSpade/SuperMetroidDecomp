@@ -68,8 +68,11 @@ internal sealed record RoomScope
     /// <summary>Resolves what pictures written over the foreground show, or null in a tileset nothing writes pictures over (#1392, #1466).</summary>
     public required WrittenPictureResolver? ForegroundWrittenPictures { get; init; }
 
-    /// <summary>Resolves what the HUD and the room effect's page show on the effect overlay (#1392, #1466).</summary>
+    /// <summary>Resolves what the room effect's liquid or atmosphere shows on the effect overlay (#1392, #1466, #1706).</summary>
     public required WrittenPictureResolver FxOverlayPictures { get; init; }
+
+    /// <summary>The pictures of the HUD's images in the room's tileset's colours, which the HUD's own layer draws (#1466, #1731).</summary>
+    public required HudPictureSheet HudPictures { get; init; }
 
     /// <summary>The images of the message boxes the room shows (#1392).</summary>
     public required MessageBoxSheet MessageBoxes { get; init; }

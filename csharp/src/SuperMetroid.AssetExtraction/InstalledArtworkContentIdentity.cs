@@ -169,6 +169,11 @@ internal static class InstalledArtworkContentIdentity
                 content.AppendName("messages", messages.Name);
                 messages.Sheet.AppendIdentity(content);
             }
+            foreach (HudPictureSheet hud in artwork.HudPictures.Values.OrderBy(hud => hud.Name, StringComparer.Ordinal))
+            {
+                content.AppendName("hud", hud.Name);
+                hud.Sheet.AppendIdentity(content);
+            }
             foreach (WrittenPictureSheet pictures in artwork.Written.Values.Concat(artwork.FxOverlayPictures.Values).OrderBy(pictures => pictures.Name, StringComparer.Ordinal))
             {
                 content.AppendName("written", pictures.Name);

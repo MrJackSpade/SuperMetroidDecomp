@@ -141,7 +141,7 @@ internal static class HudImageSheet
             for (int y = 0; y < image.Size.Y; y++)
             for (int x = 0; x < image.Size.X; x++)
                 Paint(new Position16<CharacterCells>((ushort)(corner.X + x), (ushort)(corner.Y + y)), image.Tiles[y * image.Size.X + x]);
-            frames.Add(image.Image.FrameName, WrittenPictureSheetComposer.Frame(canvas, Pixels(corner), Pixels(image.Size), WrittenPictureLayer.FxOverlayAndHud));
+            frames.Add(image.Image.FrameName, WrittenPictureSheetComposer.Frame(canvas, Pixels(corner), Pixels(image.Size), SpriteImageColours.TwoBppBackground));
         }
         return canvas.ToSheet(colours, frames, SpriteImageColours.TwoBppBackground);
 

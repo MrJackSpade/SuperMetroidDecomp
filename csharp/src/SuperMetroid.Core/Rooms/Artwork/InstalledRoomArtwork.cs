@@ -8,19 +8,21 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// <summary>
 /// The installed pre-coloured room artwork (#1392, #1466): the block sheet of each tileset a room can load with the
 /// appearance inputs its blocks depend on, the image of each library background a room state loads, the sheets of the
-/// pictures encounters write over the rooms' layers, the sheets of the effect overlay's pictures (each room effect's page
-/// and the HUD's images), each tileset's message boxes, and the turning floor of each tileset whose rooms show one (#1467, #1649).
+/// pictures encounters write over the rooms' layers, the sheets of the effect overlay's pictures (each room effect's liquid
+/// or atmosphere), the sheets of the HUD's pictures (#1731), each tileset's message boxes, and the turning floor of each
+/// tileset whose rooms show one (#1467, #1649).
 /// </summary>
 public sealed class InstalledRoomArtwork
 {
     /// <summary>
     /// Keeps the sheets, each under its own tileset, the background images, each under its own name, and the written
-    /// picture and effect overlay picture sheets, each under its own tileset.
+    /// picture, effect overlay picture and HUD picture sheets, each under its own tileset.
     /// </summary>
     /// <exception cref="ArgumentException">A sheet is filed under another tileset, or an image under another name.</exception>
     public InstalledRoomArtwork(IReadOnlyDictionary<TilesetDefinition, RoomBlockSheet> sheets,
         IReadOnlyDictionary<string, RoomBackgroundImage> backgrounds, IReadOnlyDictionary<TilesetDefinition, WrittenPictureSheet> written,
-        IReadOnlyDictionary<TilesetDefinition, WrittenPictureSheet> fxOverlayPictures, IReadOnlyDictionary<TilesetDefinition, MessageBoxSheet> messageBoxes,
+        IReadOnlyDictionary<TilesetDefinition, WrittenPictureSheet> fxOverlayPictures, IReadOnlyDictionary<TilesetDefinition, HudPictureSheet> hud,
+        IReadOnlyDictionary<TilesetDefinition, MessageBoxSheet> messageBoxes,
         IReadOnlyDictionary<TilesetDefinition, RoomFloorSheet> floors)
     {
         Floors = Ensure.NotNull(floors);
@@ -28,6 +30,12 @@ public sealed class InstalledRoomArtwork
         {
             if (floor.Tileset != tileset)
                 throw new ArgumentException($"{floor.Name} is filed under {tileset}.", nameof(floors));
+        }
+        HudPictures = Ensure.NotNull(hud);
+        foreach ((TilesetDefinition tileset, HudPictureSheet pictures) in hud)
+        {
+            if (pictures.Tileset != tileset)
+                throw new ArgumentException($"{pictures.Name} is filed under {tileset}.", nameof(hud));
         }
         MessageBoxes = Ensure.NotNull(messageBoxes);
         foreach ((TilesetDefinition tileset, MessageBoxSheet messages) in messageBoxes)
@@ -44,7 +52,7 @@ public sealed class InstalledRoomArtwork
             if (pictures.Tileset != tileset)
                 throw new ArgumentException($"{pictures.Name} is filed under {tileset}.", nameof(written));
         }
-        if (written.Values.Any(pictures => pictures.Layer != WrittenPictureLayer.WrittenOverRoom) || fxOverlayPictures.Values.Any(pictures => pictures.Layer != WrittenPictureLayer.FxOverlayAndHud))
+        if (written.Values.Any(pictures => pictures.Layer != WrittenPictureLayer.WrittenOverRoom) || fxOverlayPictures.Values.Any(pictures => pictures.Layer != WrittenPictureLayer.FxOverlay))
             throw new ArgumentException("A written picture sheet is filed under another layer's sheets.", nameof(written));
         foreach ((string name, RoomBackgroundImage background) in backgrounds)
         {
@@ -67,8 +75,11 @@ public sealed class InstalledRoomArtwork
     /// <summary>The sheets of pictures written over the foreground and the background, by the tileset whose rooms the pictures are written in.</summary>
     public IReadOnlyDictionary<TilesetDefinition, WrittenPictureSheet> Written { get; }
 
-    /// <summary>The sheets of the effect overlay's pictures (each room effect's page and the HUD's images), by the tileset whose colours they show in.</summary>
+    /// <summary>The sheets of the effect overlay's pictures (each room effect's liquid or atmosphere), by the tileset whose colours they show in.</summary>
     public IReadOnlyDictionary<TilesetDefinition, WrittenPictureSheet> FxOverlayPictures { get; }
+
+    /// <summary>The sheets of the HUD's pictures, by the tileset whose colours they show in (#1731).</summary>
+    public IReadOnlyDictionary<TilesetDefinition, HudPictureSheet> HudPictures { get; }
 
     /// <summary>The turning floor of each tileset whose rooms show one; a tileset whose rooms show none has none (#1649).</summary>
     public IReadOnlyDictionary<TilesetDefinition, RoomFloorSheet> Floors { get; }
@@ -91,6 +102,11 @@ public sealed class InstalledRoomArtwork
     /// <exception cref="InvalidDataException">No sheet is installed for the tileset.</exception>
     public WrittenPictureSheet FxOverlay(TilesetDefinition tileset) =>
         FxOverlayPictures.TryGetValue(tileset, out WrittenPictureSheet? pictures) ? pictures : throw new InvalidDataException($"No effect overlay picture sheet is installed for {tileset}.");
+
+    /// <summary>The HUD picture sheet of <paramref name="tileset"/>.</summary>
+    /// <exception cref="InvalidDataException">No sheet is installed for the tileset.</exception>
+    public HudPictureSheet Hud(TilesetDefinition tileset) =>
+        HudPictures.TryGetValue(tileset, out HudPictureSheet? pictures) ? pictures : throw new InvalidDataException($"No HUD picture sheet is installed for {tileset}.");
 
     /// <summary>
     /// The image of library background <paramref name="background"/> in a room of <paramref name="tileset"/>: the picture

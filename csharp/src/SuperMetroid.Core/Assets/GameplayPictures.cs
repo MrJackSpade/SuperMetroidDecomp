@@ -24,7 +24,7 @@ public enum GameplayPictures
     /// <summary>The HUD's pictures.</summary>
     Hud,
 
-    /// <summary>The room effect's pages on the effect overlay: its liquid, fog or haze.</summary>
+    /// <summary>The room effect's pictures on the effect overlay: its liquid, fog or haze.</summary>
     FxOverlay,
 
     /// <summary>The message box's pictures.</summary>

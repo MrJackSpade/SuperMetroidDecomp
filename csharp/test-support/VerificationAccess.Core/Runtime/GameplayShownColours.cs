@@ -46,7 +46,7 @@ internal static class GameplayShownColours
     {
         Ensure.NotNull(runtime);
         SpriteImage room = runtime.Room.LoadedScope.Assets.BlockSheet.Sheet.Image;
-        SpriteImage hud = runtime.Room.LoadedScope.FxOverlayPictures.Sheet.Sheet.Image;
+        SpriteImage hud = runtime.Room.LoadedScope.HudPictures.Sheet.Image;
         return [.. Places(room).Where(place => place >= HudColours).Concat(Places(hud)).Distinct().Order(),
             .. Enumerable.Range(SamusSuitFirst + 1, RowColours - 1), .. Enumerable.Range(SamusBeamsFirst + 1, RowColours - 1)];
     }
@@ -70,7 +70,7 @@ internal static class GameplayShownColours
         // The HUD's colours, its layer's eight sets of four, show as its pictures show them under the HUD's shading: a
         // door's fade spares the HUD and lays the import's shade of each step over it instead, which keeps its minimap
         // and highlighted item lit where the room fades.
-        Lay(image, runtime.Room.LoadedScope.FxOverlayPictures.Sheet.Sheet.Image, shading.Of(GameplayPictures.Hud));
+        Lay(image, runtime.Room.LoadedScope.HudPictures.Sheet.Image, shading.Of(GameplayPictures.Hud));
         // Samus's draws show her shading, then the display's fade, then any of her colours written over the faded display.
         RgbColor[] samus = SamusColoursAccess.InksUnder(shading.OfSprite(runtime.Player.Colours.Shading, isSamus: true), sources);
         Array.Copy(samus, SamusSheetInks.Suit, image, SamusSuitFirst, RowColours);

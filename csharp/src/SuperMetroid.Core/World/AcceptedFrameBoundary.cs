@@ -51,7 +51,7 @@ internal sealed class AcceptedFrameBoundary
     /// <summary>The HUD whose images each frame boundary latches.</summary>
     private readonly HudState _hud;
     /// <summary>
-    /// The pictures of the HUD's images in the room's effect overlay sheet, looked up once per sheet (#1466): a lookup of the bound
+    /// The pictures of the HUD's images in the room's HUD picture sheet, looked up once per sheet (#1466, #1731): a lookup of the bound
     /// sheet's frames, remade from the sheet when absent, not game state.
     /// </summary>
     [NonSerialized]
@@ -287,21 +287,21 @@ internal sealed class AcceptedFrameBoundary
                 Sky = sky,
                 BackgroundText = backgroundText,
                 ForegroundText = foregroundText,
-                // The room effect's page draws from the effect overlay sheet's pictures, as the effects' animations select them; the
-                // plane holds nothing else (#1466).
+                // The room effect's liquid or atmosphere draws from the effect overlay sheet's pictures, as the effects' animations
+                // select them; the overlay holds nothing else (#1466, #1706).
                 FxOverlay = scope.FxOverlayPictures.Resolve(latched.FxOverlay ?? throw new InvalidOperationException("A room's frame boundary latches its effect overlay plane."),
                     appearance),
             },
-            // The HUD's images draw from the same sheet, on the HUD's own layer (#1466).
-            PicturedHud = HudPicturesIn(scope.FxOverlayPictures.Sheet.Sheet).Pictured(latched.Hud ?? ShownHud.Nothing),
+            // The HUD's images draw from the HUD's own sheet, on the HUD's own layer (#1466, #1731).
+            PicturedHud = HudPicturesIn(scope.HudPictures.Sheet).Pictured(latched.Hud ?? ShownHud.Nothing),
             XrayReveal = reveal is { } revealed ? new XrayRevealPlane(revealed.Origin, revealed.Blocks.AsSpan(), pictures) : null,
         };
     }
 
-    /// <summary>The effect overlay plane this frame boundary displays (#1348): the room effect's page; the HUD is its own layer (#1466).</summary>
+    /// <summary>The effect overlay plane this frame boundary displays (#1348): the room effect it shows; the HUD is its own layer (#1466).</summary>
     internal FxOverlayPlane CaptureFxOverlayPlane() => _room.FxOverlay?.EffectPlane ?? FxOverlayPlane.Cleared;
 
-    /// <summary>The pictures of the HUD's images in <paramref name="sheet"/>, the room's effect overlay sheet.</summary>
+    /// <summary>The pictures of the HUD's images in <paramref name="sheet"/>, the room's HUD picture sheet.</summary>
     private HudPictures HudPicturesIn(SpriteSheet sheet) =>
         _hudPictures is { } shown && ReferenceEquals(shown.Sheet, sheet) ? shown : _hudPictures = new HudPictures(sheet);
 

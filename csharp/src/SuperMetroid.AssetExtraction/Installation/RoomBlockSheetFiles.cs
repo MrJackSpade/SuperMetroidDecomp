@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Rooms.Artwork;
@@ -16,9 +17,9 @@ namespace SuperMetroid.AssetExtraction.Installation;
 /// Installs the pre-coloured room artwork (#1392, #1466): each tileset's block sheet, the appearance inputs each tileset's
 /// blocks depend on, and each library background's image, each as a sheet manifest whose pictures the installation's picture
 /// store holds (#1635), each background's size with the inputs its changing cells depend on (#1708), the written
-/// picture sheets with the inputs each picture depends on, the turning floor of each tileset whose rooms show one (#1467,
-/// #1649); the tilesets and those manifests name the sheets (#1693). A player edits a sheet's or image's installed file in
-/// place.
+/// picture sheets with the inputs each picture depends on, each tileset's sheet of the HUD's pictures (#1731), the turning
+/// floor of each tileset whose rooms show one (#1467, #1649); the tilesets and those manifests name the sheets (#1693). A
+/// player edits a sheet's or image's installed file in place.
 /// </summary>
 public static class RoomBlockSheetFiles
 {
@@ -45,9 +46,11 @@ public static class RoomBlockSheetFiles
     /// its appearance inputs (#1466); revision 2 no longer pictures the cell the effect area is cleared to (#1514); revision
     /// 3 names an encounter's look input by the encounter and the look (#1538); revision 4 installs the effect overlay's
     /// sheets as <c>OverlayPictures.</c> (#1601); revision 5 installs each liquid's surface strip and body and each
-    /// atmosphere's repeating picture in place of the effects' tilemap pages (#1706).
+    /// atmosphere's repeating picture in place of the effects' tilemap pages (#1706); revision 6 names each sheet's layer by
+    /// name, installs the effect overlay's sheets as <c>RoomEffects.</c> and no longer records the HUD's pictures, which are
+    /// a sheet of their own, <c>Hud.</c> (#1731).
     /// </summary>
-    private const int WrittenManifestVersion = 5;
+    private const int WrittenManifestVersion = 6;
 
     /// <summary>The manifest naming each tileset whose turning floor is installed: each whose rooms show one (#1649).</summary>
     public const string FloorManifestFileName = "room-floors.json";
@@ -71,7 +74,7 @@ public static class RoomBlockSheetFiles
         Directory.CreateDirectory(directory);
         foreach ((TilesetDefinition tileset, RoomBlockAppearances appearances) in composition.BlockAppearances)
             RoomBlockAppearanceFiles.Write(directory, tileset, appearances);
-        ComposedWrittenPictureSheet[] writtenSheets = [.. composition.Written.Values, .. composition.OverlayPictures.Values];
+        ComposedWrittenPictureSheet[] writtenSheets = [.. composition.Written.Values, .. composition.RoomEffects.Values];
         File.WriteAllBytes(Path.Combine(directory, FloorManifestFileName), JsonSerializer.SerializeToUtf8Bytes(
             new FloorManifest(FloorManifestVersion, [.. composition.Floors.Keys.Select(RoomBlockSheet.NameOf).Order(StringComparer.Ordinal)]),
             JsonOptions));
@@ -88,6 +91,7 @@ public static class RoomBlockSheetFiles
             .. composition.BlockSheets.Select(entry => new NamedComposedSheet(RoomBlockSheet.NameOf(entry.Key), entry.Value)),
             .. composition.Backgrounds.Select(entry => new NamedComposedSheet(entry.Key, entry.Value.Sheet)),
             .. writtenSheets.Select(written => new NamedComposedSheet(WrittenPictureSheet.NameOf(written.Layer, written.Tileset), written.Sheet)),
+            .. composition.Hud.Select(entry => new NamedComposedSheet(HudPictureSheet.NameOf(entry.Key), entry.Value)),
             .. composition.MessageBoxes.Select(entry => new NamedComposedSheet(MessageBoxSheet.NameOf(entry.Key), entry.Value)),
             .. composition.Floors.Select(entry => new NamedComposedSheet(RoomFloorSheet.NameOf(entry.Key), entry.Value)),
         ]);
@@ -132,7 +136,8 @@ public static class RoomBlockSheetFiles
                     .Select(cell => new RoomBackgroundCell(cell.Cell, cell.Picture ?? throw new InvalidDataException($"Room background manifest {manifestPath} names no picture of a cell of {entry.Key}."),
                         Inputs(cell.Inputs)))),
                 StringComparer.Ordinal),
-            Sheets(WrittenPictureLayer.WrittenOverRoom), Sheets(WrittenPictureLayer.FxOverlayAndHud),
+            Sheets(WrittenPictureLayer.WrittenOverRoom), Sheets(WrittenPictureLayer.FxOverlay),
+            tilesets.ToDictionary(tileset => tileset, tileset => new HudPictureSheet(tileset, store.Read(HudPictureSheet.NameOf(tileset)))),
             tilesets.ToDictionary(tileset => tileset, tileset => new MessageBoxSheet(tileset, store.Read(MessageBoxSheet.NameOf(tileset)), GameplayMessageArtwork.Forms())),
             floors.Tilesets.Select(name => byName.TryGetValue(name, out TilesetDefinition tileset)
                     ? new RoomFloorSheet(tileset, store.Read(RoomFloorSheet.NameOf(tileset)))
@@ -170,11 +175,11 @@ public static class RoomBlockSheetFiles
         foreach (TilesetDefinition tileset in tilesets)
         {
             string installed = RoomBlockSheet.NameOf(tileset);
-            WrittenSheetDocument overlay = written.Sheets.FirstOrDefault(sheet => sheet.Layer == WrittenPictureLayer.FxOverlayAndHud && sheet.Tileset == installed)
+            WrittenSheetDocument overlay = written.Sheets.FirstOrDefault(sheet => sheet.Layer == WrittenPictureLayer.FxOverlay && sheet.Tileset == installed)
                 ?? throw new InvalidDataException($"Written picture manifest {writtenPath} names no effect overlay picture sheet of {installed}, whose rooms show one.");
             WrittenPictureDocument[] pictures = overlay.Pictures
                 ?? throw new InvalidDataException($"Written picture sheet {WrittenPictureSheet.NameOf(overlay.Layer, tileset)} records no pictures.");
-            foreach (RoomFxType effect in RoomBlockUploads.EffectPagesOf(tileset))
+            foreach (RoomFxType effect in RoomBlockUploads.OverlayEffectsOf(tileset))
             {
                 foreach (string name in RoomEffectPictures.NamesOf(effect))
                 {
@@ -228,7 +233,7 @@ public static class RoomBlockSheetFiles
     private sealed record WrittenManifest(int Version, WrittenSheetDocument[] Sheets);
 
     /// <summary>One written picture sheet.</summary>
-    /// <param name="Layer">The display layer the pictures show on.</param>
+    /// <param name="Layer">The display layer the pictures show on, by its name.</param>
     /// <param name="Tileset">The installed name of the tileset whose rooms the pictures are written in.</param>
     /// <param name="Pictures">Each picture the sheet holds and the inputs it depends on.</param>
     private sealed record WrittenSheetDocument(WrittenPictureLayer Layer, string Tileset, WrittenPictureDocument[]? Pictures);
@@ -238,11 +243,12 @@ public static class RoomBlockSheetFiles
     /// <param name="Inputs">The inputs it depends on, as their tokens spell them.</param>
     private sealed record WrittenPictureDocument(string? Picture, string[]? Inputs);
 
-    /// <summary>Stable camel-case manifest fields.</summary>
+    /// <summary>Stable camel-case manifest fields; a written picture sheet's layer is named, never numbered (#1731).</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         PropertyNameCaseInsensitive = true,
         WriteIndented = false,
+        Converters = { new JsonStringEnumConverter<WrittenPictureLayer>(allowIntegerValues: false) },
     };
 }

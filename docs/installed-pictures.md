@@ -113,7 +113,8 @@ colour set as its own, and their pictures on the store's pages keep it too:
 
 | Sheet | Where it shows |
 |---|---|
-| `room-block-sheets/OverlayPictures.<tileset>` | each room's effect overlay pictures and gameplay's HUD band |
+| `room-block-sheets/RoomEffects.<tileset>` | each room's effect overlay pictures |
+| `room-block-sheets/Hud.<tileset>` | gameplay's HUD band |
 | `room-block-sheets/Messages.<tileset>` | the gameplay message boxes |
 | `sprite-sheets/pause-hud` | the pause screen's HUD |
 | `sprite-sheets/intro-narration-pictures` | the opening narration cards, the first card among them |

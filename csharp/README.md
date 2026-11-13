@@ -554,9 +554,10 @@ cell's block picture while they show something else. The scrolling sky is an ima
 sky (`SkyLand`, `SkyOcean`) and tileset. Pictures written over a room's BG1 or BG2 after it loads (the Ceres warning's
 pages and typed glyphs, and the Zebes escape warning's glyphs) are pictured on one sheet per tileset,
 `Written.<tileset>`, one frame per picture and per value of the appearance inputs it depends on;
-`written-pictures.json` records the inputs each picture depends on. The effect overlay has a sheet per tileset too,
-`OverlayPictures.<tileset>`: each of the HUD's images and each room effect's page, in BG3's four-colour
-rows with every pixel keeping its palette index, colour zero included. Each tileset's gameplay message boxes
+`written-pictures.json` records the inputs each picture depends on and names each sheet's layer. The effect overlay has a
+sheet per tileset too, `RoomEffects.<tileset>`: each room effect's liquid (its surface strip and body) or atmosphere,
+and the HUD has its own, `Hud.<tileset>`: each of the HUD's images; both in BG3's four-colour rows with every pixel
+keeping its palette index, colour zero included. Each tileset's gameplay message boxes
 are `Messages.<tileset>`: one image of each message in each form it takes (each button a panel can name, each save
 choice), in its BG3 colours with the two colours a message box installs; `message-boxes.json` records the words each
 image pictures. Each Ceres tileset's Mode 7 tiles are one picture, `Mode7.<tileset>`, sixteen tiles to a row;

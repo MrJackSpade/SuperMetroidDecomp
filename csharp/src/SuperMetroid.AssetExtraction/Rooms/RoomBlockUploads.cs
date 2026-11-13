@@ -79,11 +79,11 @@ internal static class RoomBlockUploads
     }
 
     /// <summary>
-    /// The room effects some retail room state of <paramref name="tileset"/> runs whose page the effect overlay shows, each
-    /// once (#1536): the effects whose pages the tileset's effect overlay picture sheet pictures, and the only pages its
-    /// rooms show.
+    /// The room effects some retail room state of <paramref name="tileset"/> runs that show on the effect overlay, each
+    /// once (#1536): the effects whose liquid or atmosphere the tileset's effect overlay picture sheet pictures, and the only
+    /// ones its rooms show there.
     /// </summary>
-    internal static IEnumerable<RoomFxType> EffectPagesOf(TilesetDefinition tileset) =>
+    internal static IEnumerable<RoomFxType> OverlayEffectsOf(TilesetDefinition tileset) =>
         RetailRooms.All.SelectMany(RoomStateLists.GetStates).Where(state => RoomTilesets.Get(state.GraphicsSet) == tileset)
             .SelectMany(EffectsIn).Distinct();
 
@@ -337,10 +337,10 @@ internal static class RoomBlockUploads
     internal static BgCharacterUpload HudCharacters(RoomBlockSheetInputs inputs) =>
         new(BgArtworkIdentity.Asset(InstalledArtworkId.StandardHudTiles), BgCharacterSet.Layer3, 0, Ensure.NotNull(inputs).Hud.Bytes[..HudTileAtlasFormat.CharacterByteCount]);
 
-    /// <summary>The room effects whose BG3 pages <paramref name="state"/>'s rooms show, and the characters each animates on BG3.</summary>
+    /// <summary>The room effects <paramref name="state"/>'s rooms show on the effect overlay.</summary>
     private static IEnumerable<RoomFxType> EffectsIn(RoomStateSettings state) =>
         (state.Fx?.Records ?? []).Select(record => record.Type)
-            .Where(RoomFxOverlayState.ShowsPage).Distinct();
+            .Where(RoomFxOverlayState.ShowsOnOverlay).Distinct();
 
     /// <summary>Each frame a room effect of <paramref name="type"/> animates over BG3's characters.</summary>
     internal static IEnumerable<AnimatedCharacterPlacement> EffectCharacters(RoomBlockSheetInputs inputs, RoomFxType type)

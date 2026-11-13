@@ -447,7 +447,7 @@ internal static class RoomBlockPicturesVerification
             // A room whose effect shows no artwork shows nothing on the overlay.
             if (artwork.Shown is not { } shownArtwork)
             {
-                AssertTrue(plane.EffectPage is null, $"{room.Name}: BG3 shows its effect's artwork");
+                AssertTrue(plane.Effect is null, $"{room.Name}: BG3 shows its effect's artwork");
                 Console.WriteLine($"BG3 pictures: {room.Name} shows no effect artwork.");
                 continue;
             }

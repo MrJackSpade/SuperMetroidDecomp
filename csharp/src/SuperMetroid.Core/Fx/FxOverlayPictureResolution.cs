@@ -17,9 +17,9 @@ internal static class FxOverlayPictureResolution
     {
         Ensure.NotNull(resolver);
         Ensure.NotNull(plane);
-        if (resolver.Sheet.Layer != WrittenPictureLayer.FxOverlayAndHud)
+        if (resolver.Sheet.Layer != WrittenPictureLayer.FxOverlay)
             throw new InvalidOperationException($"{resolver.Sheet.Name} pictures no effect overlay pictures.");
-        return new FxOverlayArtwork(plane.EffectPage is { } type
+        return new FxOverlayArtwork(plane.Effect is { } type
             ? RoomEffectPictures.Artwork(resolver.Sheet, type, appearance) : null);
     }
 }

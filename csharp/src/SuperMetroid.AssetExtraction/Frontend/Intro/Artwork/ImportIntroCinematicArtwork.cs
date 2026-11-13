@@ -10,23 +10,23 @@ using SuperMetroid.Core.Frontend.Intro.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>
-/// The opening cinematic as the import reads it (#1544, #1636, #1638): its installed documents with its characters,
-/// layouts and sprite compositions, from the component's import data, and the colours only the import pre-colours the opening's, the Ceres scenes'
+/// The opening cinematic as the import reads it (#1544, #1636, #1638, #1693): its installed documents with its characters,
+/// layouts, Mode 7 maps and sprite compositions, from the component's import data, and the colours only the import pre-colours the opening's, the Ceres scenes'
 /// and the ending flyaway's sheets in. The game reads none of them; its own read of the opening
-/// (<see cref="IntroCinematicArtworkFiles.Load"/>) reads no character page or layout and leaves the colour documents unread.
+/// (<see cref="IntroCinematicArtworkFiles.Load"/>) reads no character page, layout or map and leaves the colour documents unread.
 /// </summary>
 public sealed class ImportIntroCinematicArtwork : IntroCinematicSourceArtwork
 {
     /// <summary>Takes the opening's installed documents, its characters and layouts and the colours only the import reads.</summary>
-    /// <param name="parts">The opening's scene artwork and the destruction's maps.</param>
+    /// <param name="parts">The opening's installed scene artwork.</param>
     /// <param name="sprites">The opening's and the Ceres destruction scene's sprite compositions.</param>
-    /// <param name="layouts">The opening's scene, portrait, narration, subtitle, eye and Zebes reveal layouts.</param>
-    /// <param name="characters">The opening's characters; their Ceres approach takes the documents' place.</param>
+    /// <param name="layouts">The opening's scene, portrait, narration, subtitle, eye and Zebes reveal layouts and the destruction's maps.</param>
+    /// <param name="characters">The opening's characters; their Ceres approach, with its maps, takes the documents' place.</param>
     /// <param name="palette">The opening narration's colours.</param>
     /// <param name="flightPalette">The Ceres approach's colours.</param>
     /// <exception cref="ArgumentNullException">A part, a layout, the characters or a palette is null.</exception>
     /// <exception cref="InvalidDataException">The scene pages, portrait, narration or Zebes tilemaps, or the reveal's characters, are malformed.</exception>
-    public ImportIntroCinematicArtwork(IntroCinematicArtworkParts parts, IntroCinematicSprites sprites, IntroCinematicLayouts layouts,
+    public ImportIntroCinematicArtwork(IntroCinematicSceneParts parts, IntroCinematicSprites sprites, IntroCinematicLayouts layouts,
         IntroCinematicCharacters characters, IntroCinematicPalette palette, CeresFlightPalette flightPalette)
         : base(Ensure.NotNull(parts) with { CeresFlight = Ensure.NotNull(characters).CeresFlight })
     {
@@ -50,6 +50,7 @@ public sealed class ImportIntroCinematicArtwork : IntroCinematicSourceArtwork
         FinalLine = Ensure.NotNull(layouts.FinalLine);
         EyeFrames = Ensure.NotNull(layouts.EyeFrames);
         ZebesRevealMap = Ensure.NotNull(layouts.ZebesRevealMap);
+        CeresDestructionMaps = Ensure.NotNull(layouts.CeresDestructionMaps);
         FlightCharacters = characters.CeresFlight;
         BackgroundCharacters = Ensure.NotNull(characters.BackgroundCharacters);
         IntroObjectCharacters = Ensure.NotNull(characters.IntroObjectCharacters);
@@ -94,12 +95,13 @@ public sealed class ImportIntroCinematicArtwork : IntroCinematicSourceArtwork
         _ => throw new ArgumentOutOfRangeException(nameof(family), family, "Undefined cinematic family."),
     };
 
-    /// <summary>Identity of the installed documents and of the compositions the opening's sheets are composed from.</summary>
-    public override string ContentIdentity => SelectedPresentationHash.Create("IntroCinematicImportArtwork-v1", content =>
+    /// <summary>Identity of the installed documents and of the Mode 7 maps and compositions the opening's sheets are composed from.</summary>
+    public override string ContentIdentity => SelectedPresentationHash.Create("IntroCinematicImportArtwork-v2", content =>
     {
         content.Append("documents", Convert.FromHexString(base.ContentIdentity));
         content.Append("sprites", Convert.FromHexString(Sprites.ContentIdentity));
         content.Append("ceres-flight-sprites", Convert.FromHexString(FlightCharacters.Sprites.ContentIdentity));
+        content.Append("ceres-maps", CeresDestructionMaps.Views.Span);
     });
 
     /// <summary>The four ordered 32x32 scene pages' tiles.</summary>
@@ -120,8 +122,10 @@ public sealed class ImportIntroCinematicArtwork : IntroCinematicSourceArtwork
     public IntroEyeTilemapPresentation EyeFrames { get; }
     /// <summary>The Zebes reveal's tilemap, which the planet's picture is composed from with the reveal's characters.</summary>
     public RoomBackgroundTilemapAtlas ZebesRevealMap { get; }
+    /// <summary>The destruction's Mode 7 maps, which the Ceres floor's shots are composed from.</summary>
+    public CeresDestructionMaps CeresDestructionMaps { get; }
 
-    /// <summary>The Ceres approach's documents with its floor and OBJ characters, which the Ceres scenes' pictures are composed from.</summary>
+    /// <summary>The Ceres approach's documents with its floor maps and floor and OBJ characters, which the Ceres scenes' pictures are composed from.</summary>
     public CeresFlightCharacters FlightCharacters { get; }
 
     /// <summary>BG characters of the illustrated scenes.</summary>

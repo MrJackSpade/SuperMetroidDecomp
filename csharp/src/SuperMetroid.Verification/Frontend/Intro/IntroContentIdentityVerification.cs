@@ -40,9 +40,7 @@ internal static class IntroContentIdentityVerification
             AssertTrue(spriteBaseline != CreateIntroSpritesIdentity(edit, reverse: false), edit + " changes the opening's composition identity");
         var edits = new List<string>
         {
-            "opening-backdrop",
-            "flight-front-map", "flight-rear-map", "flight-backdrop",
-            "destruction-map-0", "destruction-map-1", "destruction-map-2", "destruction-map-order",
+            "opening-backdrop", "flight-backdrop",
         };
         foreach ((string family, int count) in new[]
         {
@@ -128,7 +126,8 @@ internal static class IntroContentIdentityVerification
 
     /// <summary>
     /// Builds a complete synthetic opening asset bundle of installed documents with one selected edit or encoding-only
-    /// change; its characters, layouts and compositions are import data no installed identity covers (#1636, #1638).
+    /// change; its characters, layouts, Mode 7 maps and compositions are import data no installed identity covers (#1636,
+    /// #1638, #1693).
     /// </summary>
     private static IntroCinematicSourceArtwork CreateIntroIdentityFixture(string? edit = null)
     {
@@ -144,20 +143,7 @@ internal static class IntroContentIdentityVerification
                 Id = CeresFlightActors.RearViewPlacementId(index), X = index + (edit == $"flight-actor-{index}-x" ? 1 : 0),
                 Y = index + (edit == $"flight-actor-{index}-y" ? 1 : 0),
             }).ToArray();
-        // Build a Mode 7 flight view with an optional final-cell edit.
-        int[] FlightMap(string name)
-        {
-            var cells = new int[CeresFlightArtworkFileFormat.MapCellsPerView];
-            if (edit == name) cells[^1] = 1;
-            return cells;
-        }
         var flight = CeresFlightSourceArtwork.Read(
-            Json(new CeresFlightMapDocument
-            {
-                Version = CeresFlightArtworkFileFormat.Version, Width = CeresFlightArtworkFileFormat.MapWidth,
-                Height = CeresFlightArtworkFileFormat.MapHeight,
-                FrontViewTiles = FlightMap("flight-front-map"), RearViewTiles = FlightMap("flight-rear-map"),
-            }),
             Backdrop("flight-backdrop"),
             Json(new CeresFlightActorLayoutDocument { Version = CeresFlightActorLayoutFormat.Version, Actors = flightActors }));
 
@@ -173,24 +159,11 @@ internal static class IntroContentIdentityVerification
                 Id = CeresDestructionActors.InitialPlacementId(index), X = index + (edit == $"destruction-actor-{index}-x" ? 1 : 0),
                 Y = index + (edit == $"destruction-actor-{index}-y" ? 1 : 0),
             }).ToArray();
-        int[][] views = Enumerable.Range(0, CeresDestructionMapFormat.ViewCount).Select(view =>
-        {
-            var cells = new int[CeresDestructionMapFormat.CellsPerView];
-            cells[0] = view;
-            if (edit == "destruction-map-" + view) cells[^1] = 1;
-            return cells;
-        }).ToArray();
-        if (edit == "destruction-map-order") Array.Reverse(views);
-        var destructionMaps = CeresDestructionMaps.Load(Json(new CeresDestructionMapDocument
-        {
-            Version = CeresDestructionMapFormat.Version, Width = CeresDestructionMapFormat.MapWidth,
-            Height = CeresDestructionMapFormat.MapHeight, Views = views,
-        }));
         var destruction = CeresDestructionArtworkFile.Read(
             Json(new CeresRevealActorLayoutDocument { Version = CeresRevealActorLayoutFormat.Version, Actors = revealActors }),
             Json(new CeresDestructionActorLayoutDocument { Version = CeresDestructionActorLayoutFormat.Version, Actors = destructionActors }));
 
-        return new IntroCinematicSourceArtwork(new IntroCinematicArtworkParts { Backdrop = Backdrop("opening-backdrop"), CeresFlight = flight, CeresDestruction = destruction, CeresDestructionMaps = destructionMaps });
+        return new IntroCinematicSourceArtwork(new IntroCinematicSceneParts { Backdrop = Backdrop("opening-backdrop"), CeresFlight = flight, CeresDestruction = destruction });
     }
 
     /// <summary>Runs selected-content identity checks for opening and Ceres assets.</summary>

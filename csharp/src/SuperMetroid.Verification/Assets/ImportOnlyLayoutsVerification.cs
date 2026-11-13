@@ -52,6 +52,9 @@ internal static class ImportOnlyLayoutsVerification
         yield return (intro, IntroFinalLineTilemapFormat.FileName);
         yield return (intro, IntroEyeTilemapFormat.FileName);
         yield return (intro, ZebesRevealArtworkFormat.MapFileName);
+        // The Ceres approach's and destruction's Mode 7 maps only compose the Ceres scenes' sheets (#1693).
+        yield return (intro, CeresFlightArtworkFileFormat.MapFileName);
+        yield return (intro, CeresDestructionMapFormat.FileName);
         yield return (intro, IntroCaretSpriteFormat.FileName);
         yield return (intro, IntroNextPageArrowSpriteFormat.FileName);
         yield return (intro, IntroMotherBrainSpriteFormat.FileName);

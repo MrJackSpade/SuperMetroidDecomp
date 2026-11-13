@@ -57,11 +57,11 @@ internal static void VerifyCeresDestructionCinematic()
     WriteRepeatedCompressedChunks(rom, CeresCinematicSourceDefinitions.CeresTilemaps,
         [0x11, 0x22, 0x33, 0x44]);
     byte[] maps = DecompressSyntheticCeresTilemaps(rom);
-    // The synthetic maps are written over a scratch copy of the installed opening-cinematic files.
-    using var introScratch = new TestScratchDirectory("ceres-timeline");
-    string introDirectory = introScratch.Root;
-    PrivateInstallationCopy.CopyInstallation(RepositoryInstallation.Installation.IntroCinematicDirectory, introDirectory);
-    using (var stream = File.Create(Path.Combine(introDirectory, CeresFlightArtworkFileFormat.MapFileName)))
+    // The maps are import data (#1693): the synthetic maps are written over a scratch copy of the opening's import data.
+    using var importScratch = new TestScratchDirectory("ceres-timeline");
+    string importData = importScratch.Root;
+    PrivateInstallationCopy.CopyInstallation(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.IntroCinematicDirectoryName), importData);
+    using (var stream = File.Create(Path.Combine(importData, CeresFlightArtworkFileFormat.MapFileName)))
         CeresFlightCharacters.WriteMap(stream, new CeresFlightMapDocument
         {
             Version = CeresFlightArtworkFileFormat.Version,
@@ -70,7 +70,7 @@ internal static void VerifyCeresDestructionCinematic()
             FrontViewTiles = maps.AsSpan(0, 0x300).SelectToArray(value => (int)value),
             RearViewTiles = maps.AsSpan(0x300, 0x300).SelectToArray(value => (int)value),
         });
-    using (var stream = File.Create(Path.Combine(introDirectory, CeresDestructionMapFormat.FileName)))
+    using (var stream = File.Create(Path.Combine(importData, CeresDestructionMapFormat.FileName)))
         CeresDestructionMaps.Write(stream, new CeresDestructionMapDocument
         {
             Version = CeresDestructionMapFormat.Version,
@@ -80,7 +80,7 @@ internal static void VerifyCeresDestructionCinematic()
                 .SelectToArray(value => (int)value)).ToArray(),
         });
     // The fixture composes its sheets as the import does, from the import's read, which alone reads the colours (#1544).
-    var artwork = IntroCinematicArtworkFiles.LoadForImport(introDirectory, SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.IntroCinematicDirectoryName));
+    var artwork = IntroCinematicArtworkFiles.LoadForImport(RepositoryInstallation.Installation.IntroCinematicDirectory, importData);
     var presentation = RetailPresentationFixture();
     var state = new CeresDestructionCinematicState(glowColors: presentation.PowerBombGlowColors, artwork: artwork.BoundCatalog,
         spriteSheets: CinematicSheetFixtures.WithIntro(artwork));

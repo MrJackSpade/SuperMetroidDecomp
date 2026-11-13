@@ -41,6 +41,17 @@ public readonly record struct Bearing
     /// <param name="sectors">The number of arcs the turn divides into, 1 through 256.</param>
     public int Sector(int sectors) => RawValue * Ensure.BetweenInclusive(1, RotationAngle.StepsPerTurn, sectors) / RotationAngle.StepsPerTurn;
 
+    /// <summary>
+    /// The straight direction, up, right, down or left, nearest the bearing: the one whose quarter of the turn, centred
+    /// on it, holds the bearing. A bearing exactly halfway between two takes the later one clockwise.
+    /// </summary>
+    public CompassDirection NearestStraightDirection() =>
+        StraightDirectionsClockwise[TurnedBySteps(RotationAngle.StepsPerTurn / 8).Sector(StraightDirectionsClockwise.Length)];
+
+    /// <summary>The four straight directions in clockwise order from up, each a quarter of the turn on from the last.</summary>
+    private static readonly CompassDirection[] StraightDirectionsClockwise =
+        [CompassDirection.Up, CompassDirection.Right, CompassDirection.Down, CompassDirection.Left];
+
     /// <inheritdoc />
     public override string ToString() => $"{RawValue}/256 turn clockwise from up";
 }

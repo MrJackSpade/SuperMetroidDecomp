@@ -4,6 +4,7 @@ using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.TestSupport.RepositoryInstallation;
@@ -37,6 +38,8 @@ internal static class ImportOnlyLayoutsVerification
         yield return (intro, IntroFinalLineTilemapFormat.FileName);
         yield return (intro, IntroEyeTilemapFormat.FileName);
         yield return (intro, ZebesRevealArtworkFormat.MapFileName);
+        foreach (string document in MapPresentationFiles.ImportDocumentFiles)
+            yield return (GameInstallationLayout.MapDirectoryName, document);
     }
 
     /// <summary>

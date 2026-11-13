@@ -20,10 +20,12 @@ internal static class FileSelectSlotDestinationsVerification
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Slot field oracle revision");
         Suite(nameof(VerifyFileSelectSlotLabelSources), () => VerifyFileSelectSlotLabelSources(rom));
-        byte[] json = FileSelectPresentationExtractor.Extract(rom);
-        _ = FileSelectSourcePresentation.Load(new MemoryStream(json));
-        FileSelectPresentationDocument document = RequiredJson.Deserialize<FileSelectPresentationDocument>(
-            json, ArtworkJson.Options);
+        FileSelectExtraction extraction = FileSelectPresentationExtractor.Extract(rom);
+        _ = FileSelectSourcePresentation.Load(extraction);
+        FileSelectLayoutDocument document = RequiredJson.Deserialize<FileSelectLayoutDocument>(
+            extraction.Layout, ArtworkJson.Options);
+        FileSelectArtworkDocument artwork = RequiredJson.Deserialize<FileSelectArtworkDocument>(
+            extraction.Artwork, ArtworkJson.Options);
         // Each independently indexed field uses its own original LDX operands.
         Suite(nameof(VerifyField), () => VerifyField(false, FileSelectSlotField.Label, [0x819f16, 0x819f49, 0x819f7f]));
         Suite(nameof(VerifyField), () => VerifyField(false, FileSelectSlotField.Energy, [0x819f25, 0x819f5b, 0x819f91]));
@@ -61,7 +63,7 @@ internal static class FileSelectSlotDestinationsVerification
                         : [FileSelectParts.PageName(FileSelectPage.MainWithData), FileSelectParts.PageName(FileSelectPage.MainEmpty)];
                     foreach (string page in pages)
                     {
-                        MapPresentationCell cell = document.Pages[page][expected / 2];
+                        MapPresentationCell cell = artwork.Pages[page][expected / 2];
                         AssertEqual(firstTile & 0x3ff, cell.TileRow * 32 + cell.TileColumn, "extracted slot text starts at original destination");
                     }
                 }

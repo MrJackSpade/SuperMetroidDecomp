@@ -21,7 +21,7 @@ internal static class PausePictureSheet
     private const int Columns = PauseBackdropDefinitions.Columns;
 
     /// <summary>Every picture the sheet holds.</summary>
-    internal static IEnumerable<ScreenPictureSubject> Subjects(InstalledAreaMapPresentation maps)
+    internal static IEnumerable<ScreenPictureSubject> Subjects(ImportAreaMapPresentation maps)
     {
         Ensure.NotNull(maps);
         foreach (ScreenPictureSubject cell in MapPictureSheets.CellSubjects(maps))
@@ -60,7 +60,7 @@ internal static class PausePictureSheet
             .SelectMany(span => Enumerable.Range(span.Word, span.Count));
 
     /// <summary>The button page's two shown rows laid where the frame shows them, on an otherwise empty frame.</summary>
-    internal static BackgroundTile[] ButtonRows(InstalledAreaMapPresentation maps)
+    internal static BackgroundTile[] ButtonRows(ImportAreaMapPresentation maps)
     {
         BackgroundTile[] page = maps.Pause.Backdrops.CreateButtonTilemap();
         var rows = new BackgroundTile[PauseBackdropDefinitions.Cells];
@@ -96,11 +96,30 @@ internal static class PausePictureSheet
     internal static ComposedSpriteSheet Compose(ImportAreaMapPresentation maps)
     {
         MapPictureSheets.RequireCellsPicturedOnce(maps, maps.Palettes.Pause);
-        ComposedSpriteSheet sheet = ScreenPictureSheetComposer.ComposeHoldingBlanks([.. Subjects(maps)], Characters(maps), maps.Palettes.Pause);
+        ScreenPictureSubject[] subjects = [.. Subjects(maps)];
+        if (!subjects.Select(subject => subject.Name).SequenceEqual(FrameNames(maps)))
+            throw new InvalidDataException("The pause sheet's pictures are not the frames the game names it by.");
+        ComposedSpriteSheet sheet = ScreenPictureSheetComposer.ComposeHoldingBlanks(subjects, Characters(maps), maps.Palettes.Pause);
         PauseReserveArrowColours arrow = maps.Pause.ReserveUi.ArrowColours;
         return sheet with { Manifest = sheet.Manifest with { Shades = SheetShade.Documents([.. arrow.Shades()]) } };
     }
 
-    /// <summary>The frames the sheet must hold.</summary>
-    internal static IEnumerable<string> FrameNames(InstalledAreaMapPresentation maps) => Subjects(maps).Select(subject => subject.Name);
+    /// <summary>
+    /// The frames the sheet must hold, in <see cref="Subjects"/> order: the map cells' names from the installed maps, and the
+    /// frame's and the equipment page's own names, as their artwork is import data the installation never holds (#1638).
+    /// </summary>
+    internal static IEnumerable<string> FrameNames(InstalledAreaMapPresentation maps)
+    {
+        Ensure.NotNull(maps);
+        foreach (ScreenPictureSubject cell in MapPictureSheets.CellSubjects(maps))
+            yield return cell.Name;
+        for (int index = 0; index < AreaIds.RetailCount; index++)
+            yield return PauseFramePictures.BackdropFrame(AreaIds.At(index));
+        yield return PauseFramePictures.ButtonRowsFrame;
+        foreach (PauseButtonLabel label in Enum.GetValues<PauseButtonLabel>())
+        foreach (PauseButtonLabelShade shade in Enum.GetValues<PauseButtonLabelShade>())
+            yield return PauseFramePictures.ButtonFrame(label, shade);
+        foreach (string equipment in PauseEquipmentPageLayout.SubjectNames())
+            yield return equipment;
+    }
 }

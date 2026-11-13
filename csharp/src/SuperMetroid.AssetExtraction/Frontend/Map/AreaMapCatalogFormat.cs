@@ -6,9 +6,9 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 public static class AreaMapCatalogFormat
 {
     /// <summary>Supported extracted map-catalog schema version; other manifest versions are rejected.</summary>
-    public const int Version = 81;
-    /// <summary>Manifest-bound non-area artwork files, including Ceres Mode-7 colors and the scene colours (#1544).</summary>
-    public const int SharedResourceCount = 63;
+    public const int Version = 82;
+    /// <summary>Manifest-bound non-area artwork files, including Ceres Mode-7 colors, the scene colours (#1544) and the file-select artwork (#1638).</summary>
+    public const int SharedResourceCount = 64;
     /// <summary>Bundled authored reveal mask: logical row-major cell indexes, not SRAM offsets or editable engine code.</summary>
     public const string StationRevealFile = "station-reveal.json";
     /// <summary>Stock manifest filename containing extraction provenance and the SHA-256 digest of every catalog resource.</summary>

@@ -110,9 +110,7 @@ internal static class PauseMenuFixtureVerification
         // The screens and the HUD are pictured from the constructed ROM's characters (#1466).
         return InstalledFixtures.Record(new ImportAreaMapPresentation(new AreaMapPresentation(parts), new InstalledPresentationSources(
             stock.Messages, stock.RoomFxPages, stock.StaffCredits, stock.EndingTextPresentation, stock.Screens,
-            new PauseScreenArtwork(backdrops, stock.Pause.Wireframes, stock.Pause.EquipmentBase, stock.Pause.EquipmentLabels,
-                stock.Pause.ReserveUi),
-            stock.HighlightColours, constructedSelectors, constructedTanks, stock.GameplayHud, stock.GameOptions, stock.FileSelect)
+            stock.HighlightColours, constructedSelectors, constructedTanks, stock.GameplayHud, stock.GameOptions)
             { GameOver = stock.GameOverSource },
             new ImportPresentationCharacters(new MapCharacterArtwork(
                 new MapTileCharacters(Read(MapSourceDefinitions.Artwork.MapCharacters, MapTileAtlasFormat.ByteCount)), new HudTileAtlas(hud),
@@ -122,6 +120,9 @@ internal static class PauseMenuFixtureVerification
             new ImportPresentationColours(stock.SamusColours, stock.TitlePalette,
                 palettes, stock.CeresRidleyColors, stock.CeresRidleyFloorColors,
                 stock.MotherBrainHealthPalette, stock.MotherBrainRoomColors,
-                stock.RoomFxPaletteBlends, stock.RoomPaletteFx, stock.MotherBrainRainbowColours)));
+                stock.RoomFxPaletteBlends, stock.RoomPaletteFx, stock.MotherBrainRainbowColours),
+            new ImportPresentationDocuments(stock.FileSelect,
+                new PauseScreenArtwork(backdrops, stock.Pause.Wireframes, stock.Pause.EquipmentBase, stock.Pause.EquipmentLabels,
+                    stock.Pause.ReserveUi))));
     }
 }

@@ -34,6 +34,8 @@ internal static class MapPresentationJsonContractVerification
             using JsonDocument parsedManifest = JsonDocument.Parse(manifest);
             string[] files = parsedManifest.RootElement.GetProperty("sha256").EnumerateObject()
                 .Select(property => property.Name).Where(name => name.EndsWith(".json", StringComparison.Ordinal))
+                // The import-only documents are import data no installation holds (#1638), so no installed copy is edited.
+                .Where(name => !MapPresentationFiles.ImportDocumentFiles.Contains(name))
                 .Order(StringComparer.Ordinal).ToArray();
             // The production manifest requires every resource. Check every JSON file
             // in that finite registry, not just the initially defective formats.

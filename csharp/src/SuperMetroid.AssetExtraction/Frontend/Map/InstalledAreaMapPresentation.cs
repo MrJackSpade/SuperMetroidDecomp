@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 using SuperMetroid.AssetExtraction.Fx;
@@ -26,7 +25,6 @@ public class InstalledAreaMapPresentation
         Game = Ensure.NotNull(game);
         Ensure.NotNull(sources);
         Screens = Ensure.NotNull(sources.Screens);
-        Pause = Ensure.NotNull(sources.Pause);
         StaffCredits = Ensure.NotNull(sources.StaffCredits);
         EndingTextPresentation = Ensure.NotNull(sources.EndingText);
         Messages = Ensure.NotNull(sources.Messages);
@@ -36,7 +34,6 @@ public class InstalledAreaMapPresentation
         PauseReserveTanks = Ensure.NotNull(sources.PauseReserveTanks);
         GameplayHud = Ensure.NotNull(sources.GameplayHud);
         GameOptions = Ensure.NotNull(sources.GameOptions);
-        FileSelect = Ensure.NotNull(sources.FileSelect);
         GameOverSource = Ensure.NotNull(sources.GameOver);
     }
 
@@ -60,9 +57,6 @@ public class InstalledAreaMapPresentation
 
     /// <summary>The map screens' pages, which the import pictures for the world map and the room maps (#1467).</summary>
     public MapScreenPresentation Screens { get; }
-
-    /// <summary>The pause screen's backdrops, wireframes and equipment-page artwork, which the import pictures into the pause sheet (#1467).</summary>
-    public PauseScreenArtwork Pause { get; }
 
     /// <summary>The editable staff credits, which the import pictures into the ending's credits rows (#1467).</summary>
     public CreditsPresentation StaffCredits { get; }
@@ -93,10 +87,4 @@ public class InstalledAreaMapPresentation
     /// the anchors the game binds (<see cref="AreaMapPresentation.GameOptions"/>).
     /// </summary>
     public GameOptionsSourcePresentation GameOptions { get; }
-
-    /// <summary>
-    /// The file-select screen's pages, fields and compositions, which the import composes the file-select and menu sheets
-    /// from, with the layout the game binds (<see cref="AreaMapPresentation.FileSelect"/>).
-    /// </summary>
-    public FileSelectSourcePresentation FileSelect { get; }
 }

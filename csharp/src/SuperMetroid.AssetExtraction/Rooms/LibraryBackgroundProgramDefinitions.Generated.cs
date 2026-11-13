@@ -7,8 +7,8 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 
 public static partial class LibraryBackgroundProgramDefinitions
 {
-    /// <summary>The ScrollingSkyTilemapsLandingSite library-background program.</summary>
-    public static LibraryBackgroundProgram ScrollingSkyTilemapsLandingSite { get; } = new(LibraryBackgroundDefinitions.ScrollingSkyTilemapsLandingSite, [
+    /// <summary>The ScrollingSkyLandingSite library-background program.</summary>
+    public static LibraryBackgroundProgram ScrollingSkyLandingSite { get; } = new(LibraryBackgroundDefinitions.ScrollingSkyLandingSite, [
         new(LibraryBackgroundCommand.TransferForDoor, LibraryBackgroundSource.Sky(2), LibraryBackgroundDestination.BackgroundFirstPage, 2048, CrateriaDoorDefinitions.GauntletEntrance0),
         new(LibraryBackgroundCommand.TransferForDoor, LibraryBackgroundSource.Sky(4), LibraryBackgroundDestination.BackgroundFirstPage, 2048, CrateriaDoorDefinitions.Parlor1),
         new(LibraryBackgroundCommand.TransferForDoor, LibraryBackgroundSource.Sky(1), LibraryBackgroundDestination.BackgroundSecondPage, 2048, CrateriaDoorDefinitions.CrateriaPowerBombs0),
@@ -17,8 +17,8 @@ public static partial class LibraryBackgroundProgramDefinitions
         new(LibraryBackgroundCommand.TransferForDoor, LibraryBackgroundSource.Sky(2), LibraryBackgroundDestination.BackgroundFirstPage, 2048, DoorDefinitions.DemoSet3024),
     ]);
 
-    /// <summary>The ScrollingSkyTilemapsWreckedShipEntrance library-background program.</summary>
-    public static LibraryBackgroundProgram ScrollingSkyTilemapsWreckedShipEntrance { get; } = new(LibraryBackgroundDefinitions.ScrollingSkyTilemapsWreckedShipEntrance, [
+    /// <summary>The ScrollingSkyWreckedShipEntrance library-background program.</summary>
+    public static LibraryBackgroundProgram ScrollingSkyWreckedShipEntrance { get; } = new(LibraryBackgroundDefinitions.ScrollingSkyWreckedShipEntrance, [
         new(LibraryBackgroundCommand.TransferForDoor, LibraryBackgroundSource.Sky(2), LibraryBackgroundDestination.BackgroundFirstPage, 2048, CrateriaDoorDefinitions.BowlingAlleyPath0),
         new(LibraryBackgroundCommand.TransferForDoor, LibraryBackgroundSource.Sky(5), LibraryBackgroundDestination.BackgroundFirstPage, 2048, CrateriaDoorDefinitions.Moat1),
         new(LibraryBackgroundCommand.TransferForDoor, LibraryBackgroundSource.Sky(1), LibraryBackgroundDestination.BackgroundSecondPage, 2048, WreckedShipDoorDefinitions.BowlingAlley0),
@@ -27,14 +27,14 @@ public static partial class LibraryBackgroundProgramDefinitions
         new(LibraryBackgroundCommand.TransferForDoor, LibraryBackgroundSource.Sky(3), LibraryBackgroundDestination.BackgroundSecondPage, 2048, WreckedShipDoorDefinitions.GravitySuit0),
     ]);
 
-    /// <summary>The ScrollingSkyTilemapsEastOcean library-background program.</summary>
-    public static LibraryBackgroundProgram ScrollingSkyTilemapsEastOcean { get; } = new(LibraryBackgroundDefinitions.ScrollingSkyTilemapsEastOcean, [
+    /// <summary>The ScrollingSkyEastOcean library-background program.</summary>
+    public static LibraryBackgroundProgram ScrollingSkyEastOcean { get; } = new(LibraryBackgroundDefinitions.ScrollingSkyEastOcean, [
         new(LibraryBackgroundCommand.TransferForDoor, LibraryBackgroundSource.Sky(5), LibraryBackgroundDestination.BackgroundFirstPage, 2048, CrateriaDoorDefinitions.ForgottenHighwayKagos0),
         new(LibraryBackgroundCommand.TransferForDoor, LibraryBackgroundSource.Sky(5), LibraryBackgroundDestination.BackgroundFirstPage, 2048, WreckedShipDoorDefinitions.ElectricDeath0),
     ]);
 
-    /// <summary>The ScrollingSkyTilemapsBowlingAlley library-background program.</summary>
-    public static LibraryBackgroundProgram ScrollingSkyTilemapsBowlingAlley { get; } = new(LibraryBackgroundDefinitions.ScrollingSkyTilemapsBowlingAlley, [
+    /// <summary>The ScrollingSkyBowlingAlley library-background program.</summary>
+    public static LibraryBackgroundProgram ScrollingSkyBowlingAlley { get; } = new(LibraryBackgroundDefinitions.ScrollingSkyBowlingAlley, [
         new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.Sky(2), LibraryBackgroundDestination.BackgroundFirstPage, 2048, null),
     ]);
 
@@ -475,10 +475,10 @@ public static partial class LibraryBackgroundProgramDefinitions
     /// <summary>Every library-background program, one for each library background, in command-list order.</summary>
     public static IReadOnlyList<LibraryBackgroundProgram> All { get; } =
     [
-        ScrollingSkyTilemapsLandingSite,
-        ScrollingSkyTilemapsWreckedShipEntrance,
-        ScrollingSkyTilemapsEastOcean,
-        ScrollingSkyTilemapsBowlingAlley,
+        ScrollingSkyLandingSite,
+        ScrollingSkyWreckedShipEntrance,
+        ScrollingSkyEastOcean,
+        ScrollingSkyBowlingAlley,
         Brinstar26KraidUpperLower,
         KraidDead,
         CrocomireDefault,

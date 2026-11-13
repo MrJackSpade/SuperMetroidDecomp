@@ -17,8 +17,8 @@ internal sealed class SamusPresentation
     /// </summary>
     public SamusBodyFrame? DrawnFrame { get; internal set; }
 
-    /// <summary>Last screen-space origin calculated from world position and the foreground scroll.</summary>
-    public Position16<ScreenPixels> SpritemapPosition { get; internal set; }
+    /// <summary>The screen point Samus's body picture was last drawn at, from her world position and the foreground scroll.</summary>
+    public Position16<ScreenPixels> DrawOrigin { get; internal set; }
 
     /// <summary>Currently bound body placements and presentation catalogs; never part of save state.</summary>
     public InstalledSamusBodyArtwork? Artwork { get; private set; }
@@ -383,15 +383,15 @@ internal sealed class SamusPresentation
 
         InstalledSamusBodyArtwork artwork = Artwork ?? throw new InvalidOperationException(
             "Samus pose presentation requires installed body artwork.");
-        int spritemapX = CoordinateAxis.Wrap(renderX - cameraPosition.X);
-        int spritemapY = CoordinateAxis.Wrap(
+        int originX = CoordinateAxis.Wrap(renderX - cameraPosition.X);
+        int originY = CoordinateAxis.Wrap(
             renderY - artwork.OriginRise(samus.Pose, pictureFrame) - cameraPosition.Y);
-        SpritemapPosition = Position16<ScreenPixels>.Of(spritemapX, spritemapY);
+        DrawOrigin = Position16<ScreenPixels>.Of(originX, originY);
 
         // The body is one whole picture of her pose at its picture frame, drawn at the origin (#1513, #1585).
         var body = new SamusBodyFrame(samus.Pose, pictureFrame);
         DrawnFrame = body;
-        sprites.AddSamusBody(body, SpritemapPosition, BodySheets, new SpriteSource(SpriteSourceKind.Samus));
+        sprites.AddSamusBody(body, DrawOrigin, BodySheets, new SpriteSource(SpriteSourceKind.Samus));
         return true;
     }
 

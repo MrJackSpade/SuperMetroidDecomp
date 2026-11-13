@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles.Artwork;
 internal static class EnemyProjectileEmptyFrameDefinitions
 {
     /// <summary>The program frames that show the empty projectile frame.</summary>
-    internal static readonly HashSet<EnemyProjectileFrameId> EmptySpritemapFrames =
+    internal static readonly HashSet<EnemyProjectileFrameId> EmptyFrames =
     [
         EnemyProjectileFrameId.EnemyDeathRespawnTail,
         EnemyProjectileFrameId.EnemyDeathBigExplosion,

@@ -41,7 +41,7 @@ internal static class CrocomireAnimationsVerification
         AssertTrue(BodyEntriesAscend, "native body entries ascend");
 
         Dictionary<CrocomireBodySegment, NativeEnemyList<CrocomireBodySegment>> lists = NativeEnemyAnimationOracle.Lists(cartridge, BodyBankNumber,
-            BodyListEntries, CrocomireBodyAnimations.Segments, CrocomireBodyFrameSpritemapsTooling.Spritemap,
+            BodyListEntries, CrocomireBodyAnimations.Segments, CrocomireBodyFramesTooling.Spritemap,
             new NativeEnemyCueRules<CrocomireBodyCue>(
                 word => BodyCallbacks.ContainsKey(word) ? 0 : null,
                 (word, _, cue, at) => AssertEqual(BodyCallbacks[word], cue, $"{at}: cue")));
@@ -137,7 +137,7 @@ internal static class CrocomireAnimationsVerification
         state.FightFunction = CrocomireFightFunction.Sleeping;
         Start(state, CrocomireBodySegment.Initial);
         Pass(enemies, state);
-        AssertEqual(CrocomireBodyFrameSpritemapsTooling.Spritemap(new CrocomireBodyFrame(CrocomireBodyFrameSet.Body, 12)), state.Body.SpritemapPointer,
+        AssertEqual(CrocomireBodyFramesTooling.Spritemap(new CrocomireBodyFrame(CrocomireBodyFrameSet.Body, 12)), state.Body.SpritemapPointer,
             "the sleeping body shows its initial frame");
         AssertEqual((ushort)1, state.Body.AnimationClock.Hold.RawValue, "the initial frame lasts one update");
 
@@ -146,7 +146,7 @@ internal static class CrocomireAnimationsVerification
         Pass(enemies, state, samus);
         AssertEqual(CrocomireFightFunction.WaitingForFirstDamage, state.FightFunction, "Samus within range wakes Crocomire");
         AssertTrue((state.FightFlags & CrocomireFightFlags.Engaged) != 0, "waking engages Samus");
-        AssertEqual(CrocomireBodyFrameSpritemapsTooling.Spritemap(new CrocomireBodyFrame(CrocomireBodyFrameSet.Body, 18)), state.Body.SpritemapPointer,
+        AssertEqual(CrocomireBodyFramesTooling.Spritemap(new CrocomireBodyFrame(CrocomireBodyFrameSet.Body, 18)), state.Body.SpritemapPointer,
             "the redirect shows the damage wait's first frame in the same update");
         AssertEqual((ushort)34, state.Body.AnimationClock.Hold.RawValue, "the damage wait's first frame lasts 34 updates");
         AssertEqual(CrocomireBodyAnimations.StartingWith(CrocomireBodySegment.WaitForFirstSecondDamage), state.BodyPlayback.Animation, "the damage wait animation plays");
@@ -166,7 +166,7 @@ internal static class CrocomireAnimationsVerification
         {
             state.Body.AnimationClock.StepOnNextUpdate();
             Pass(enemies, state);
-            AssertEqual(CrocomireBodyFrameSpritemapsTooling.Spritemap(new CrocomireBodyFrame(CrocomireBodyFrameSet.Body, expected[index].Frame)), state.Body.SpritemapPointer,
+            AssertEqual(CrocomireBodyFramesTooling.Spritemap(new CrocomireBodyFrame(CrocomireBodyFrameSet.Body, expected[index].Frame)), state.Body.SpritemapPointer,
                 $"roar close frame {index}");
             AssertEqual((ushort)expected[index].Duration, state.Body.AnimationClock.Hold.RawValue, $"roar close duration {index}");
         }
@@ -289,7 +289,7 @@ internal static class CrocomireAnimationsVerification
         Enum.GetValues<CrocomireBodySegment>()
             .SelectMany(segment => CrocomireBodyAnimations.Segments.Beats(segment))
             .Select(beat => beat.ShownFrame).OfType<CrocomireBodyFrame>().Where(frame => frame.Set == set)
-            .Select(frame => CrocomireBodyFrameSpritemapsTooling.Spritemap(frame))
+            .Select(frame => CrocomireBodyFramesTooling.Spritemap(frame))
             .Distinct();
 
     /// <summary>Runs Crocomire's body program parity check against the repository cartridge.</summary>

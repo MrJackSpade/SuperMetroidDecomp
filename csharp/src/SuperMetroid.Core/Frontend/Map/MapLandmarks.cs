@@ -80,8 +80,8 @@ public static class MapLandmarks
         /// <summary>Exposes the elevator label order through the non-generic collection interface.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
-    /// <summary>The labels use five consecutive menu sprites for Crateria through Maridia.</summary>
-    public static MapSpriteId ElevatorSpritemap(AreaId destination) => destination switch
+    /// <summary>The map picture of the elevator label leading to <paramref name="destination"/>, one of the five for Crateria through Maridia.</summary>
+    public static MapSpriteId ElevatorPicture(AreaId destination) => destination switch
     {
         AreaId.Crateria => MapSpriteId.ElevatorCrateria, AreaId.Brinstar => MapSpriteId.ElevatorBrinstar,
         AreaId.Norfair => MapSpriteId.ElevatorNorfair, AreaId.WreckedShip => MapSpriteId.ElevatorWreckedShip,

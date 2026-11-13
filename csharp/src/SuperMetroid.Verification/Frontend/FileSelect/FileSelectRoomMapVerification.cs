@@ -514,7 +514,7 @@ internal static class FileSelectRoomMapVerification
         for (int tick = 0; tick < durations[phase]; tick++)
         {
             marker.Step();
-            AssertEqual(expectedFrames[phase], MapSpriteOrdinals.Spritemaps.Word(marker.SpritemapId), "station marker exact animation cadence");
+            AssertEqual(expectedFrames[phase], MapSpriteOrdinals.Spritemaps.Word(marker.SpriteId), "station marker exact animation cadence");
             bool backing = phase is < 3 or >= 7;
             AssertEqual(backing, marker.ShowBacking, "station marker alternates backing at loop boundary");
             var oam = ScreenSpritesFixtures.Blank();

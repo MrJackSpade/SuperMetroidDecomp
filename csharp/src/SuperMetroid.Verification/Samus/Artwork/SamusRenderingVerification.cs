@@ -122,8 +122,8 @@ internal static void VerifySamusRenderingSlice()
     oam = oamFrame.FinalizeAsOam();
 
     // Pose $01's graphics Y offset is six, so world (1152,134) becomes origin (128,128).
-    AssertEqual(128, samus.Presentation.SpritemapPosition.X, "Samus default screen X calculation");
-    AssertEqual(128, samus.Presentation.SpritemapPosition.Y, "Samus signed graphics-Y offset calculation");
+    AssertEqual(128, samus.Presentation.DrawOrigin.X, "Samus default screen X calculation");
+    AssertEqual(128, samus.Presentation.DrawOrigin.Y, "Samus signed graphics-Y offset calculation");
     // The body records the pose and picture frame it drew, not a table index (#1465), as one whole picture (#1513, #1585).
     var poseOne = new SamusBodyFrame(SamusPoseId.FacingRightNormalPose, 0);
     AssertEqual(poseOne, samus.Presentation.DrawnFrame, "Samus pose 1 draws its frame-zero picture");
@@ -134,7 +134,7 @@ internal static void VerifySamusRenderingSlice()
     AssertEqual(1, body.Length, "Samus pose 1 publishes one full-body frame");
     AssertTrue(ShowsBodyFrame(samus, body[0], poseOne), "the body draw shows its whole-picture sheet frame");
     AssertEqual(new SpriteSource(SpriteSourceKind.Samus), body[0].Source, "body draw source");
-    AssertEqual(samus.Presentation.SpritemapPosition, body[0].Origin, "body draw sits at the spritemap origin");
+    AssertEqual(samus.Presentation.DrawOrigin, body[0].Origin, "body draw sits at the spritemap origin");
     AssertEqual(7, oam.LastFinalizedSpriteCount, "Samus pose 1 emits four top and three bottom OBJs");
 
     OamEntry firstTop = oam.GetEntry(0);
@@ -364,14 +364,14 @@ internal static void VerifySamusRenderingSlice()
     BindSyntheticSamusRendering(bus, samus);
     samus.Presentation.Draw(samus, oamFrame, cameraPosition: new(samus.Position.X.Whole, 0));
     oam = oamFrame.FinalizeAsOam();
-    AssertEqual(0x0082, samus.Presentation.SpritemapPosition.Y,
+    AssertEqual(0x0082, samus.Presentation.DrawOrigin.Y,
         "morph transition frame zero reads signed minus-four table byte");
     samus.AnimationFrame = 1;
     oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
     samus.Presentation.Draw(samus, oamFrame, cameraPosition: new(samus.Position.X.Whole, 0));
     oam = oamFrame.FinalizeAsOam();
-    AssertEqual(0x0084, samus.Presentation.SpritemapPosition.Y,
+    AssertEqual(0x0084, samus.Presentation.DrawOrigin.Y,
         "morph transition frame one reads signed minus-two table byte");
 
     // Standing's position selector has two special families. Front-view frames zero/one
@@ -385,7 +385,7 @@ internal static void VerifySamusRenderingSlice()
     BindSyntheticSamusRendering(bus, samus);
     samus.Presentation.Draw(samus, oamFrame, cameraPosition: new(0x0400, 0));
     oam = oamFrame.FinalizeAsOam();
-    AssertEqual(0x0085, samus.Presentation.SpritemapPosition.Y,
+    AssertEqual(0x0085, samus.Presentation.DrawOrigin.Y,
         "front-facing frame two uses fixed one-pixel graphics offset");
 
     // Landing's `$90:8D28` table is byte-packed and read by a 16-bit unaligned LDA whose high
@@ -406,7 +406,7 @@ internal static void VerifySamusRenderingSlice()
     BindSyntheticSamusRendering(bus, samus);
     samus.Presentation.Draw(samus, oamFrame, cameraPosition: new(0x0400, 0));
     oam = oamFrame.FinalizeAsOam();
-    AssertEqual(0x0083, samus.Presentation.SpritemapPosition.Y,
+    AssertEqual(0x0083, samus.Presentation.DrawOrigin.Y,
         "normal-jump landing frame zero is placed by its own byte");
     AssertEqual(0x83, oam.GetEntry(0).Position.Y,
         "landing OAM exposes low-byte three-pixel visual nudge");
@@ -416,7 +416,7 @@ internal static void VerifySamusRenderingSlice()
     BindSyntheticSamusRendering(bus, samus);
     samus.Presentation.Draw(samus, oamFrame, cameraPosition: new(0x0400, 0));
     oam = oamFrame.FinalizeAsOam();
-    AssertEqual(0x0080, samus.Presentation.SpritemapPosition.Y,
+    AssertEqual(0x0080, samus.Presentation.DrawOrigin.Y,
         "normal-jump landing frame one is placed by its own byte");
 
     // Over the Ceres shaft's turning floor, Samus's drawing turns her point with the floor before applying the
@@ -433,9 +433,9 @@ internal static void VerifySamusRenderingSlice()
         cameraPosition: new(0x0400, 0),
         turningFloor: quarterTurn);
     oam = oamFrame.FinalizeAsOam();
-    AssertEqual(0x007a, samus.Presentation.SpritemapPosition.X,
+    AssertEqual(0x007a, samus.Presentation.DrawOrigin.X,
         "a quarter-turned floor turns Samus's drawn X about its centre");
-    AssertEqual(0x0082, samus.Presentation.SpritemapPosition.Y,
+    AssertEqual(0x0082, samus.Presentation.DrawOrigin.Y,
         "a quarter-turned floor applies the pose graphics offset after the turned Y");
     AssertEqual(0x0488, samus.Position.X.Whole,
         "the turned drawing restores physical Samus X");

@@ -12,7 +12,7 @@ internal static class PauseMapIndicatorAnimation
     /// <remarks>Independently reviewed for #1165: start at frame 95, rise twice, then fall.
     /// The bounded triangle is2-abs(2-phase). Invalid indices throw
     /// ArgumentOutOfRangeException; timer advancement remains caller-owned.</remarks>
-    public static MapSpriteId SpritemapId(int frame) => frame switch
+    public static MapSpriteId SpriteId(int frame) => frame switch
     {
         0 => MapSpriteId.IndicatorFrame0,
         1 => MapSpriteId.IndicatorFrame1,

@@ -23,20 +23,20 @@ public sealed record TurningRoomLayer : DisplayLayer
     /// <summary>Describes a room shown as a turning floor below the HUD's lines, with an optional bottom band.</summary>
     /// <param name="transform">How the floor appears on the screen.</param>
     /// <param name="map">The turning floor's map.</param>
-    /// <param name="hudScanlines">The lines the floor leaves to the HUD, from zero through 224 screen lines and a multiple of eight.</param>
+    /// <param name="hudLines">The lines the floor leaves to the HUD, from zero through 224 screen lines and a multiple of eight.</param>
     /// <param name="floor">The optional bottom band, copied; its first line must follow the HUD and be above the screen's bottom, with each map dimension 32 or 64 tiles.</param>
     /// <exception cref="ArgumentOutOfRangeException">The HUD's lines, or the band's first line or map size, are invalid.</exception>
     public TurningRoomLayer(FloorView transform, AffineFloor map,
-        int hudScanlines, TurningRoomLowerBand? floor = null)
+        int hudLines, TurningRoomLowerBand? floor = null)
     {
-        if (hudScanlines < 0 || hudScanlines > ScreenGeometry.ScreenHeightPixels ||
-            hudScanlines % ScreenGeometry.BackgroundTileSizePixels != 0)
-            throw new ArgumentOutOfRangeException(nameof(hudScanlines));
-        if (floor is { } f && (f.FirstLine < hudScanlines || f.FirstLine >= ScreenGeometry.ScreenHeightPixels))
+        if (hudLines < 0 || hudLines > ScreenGeometry.ScreenHeightPixels ||
+            hudLines % ScreenGeometry.BackgroundTileSizePixels != 0)
+            throw new ArgumentOutOfRangeException(nameof(hudLines));
+        if (floor is { } f && (f.FirstLine < hudLines || f.FirstLine >= ScreenGeometry.ScreenHeightPixels))
             throw new ArgumentOutOfRangeException(nameof(floor));
         Transform = transform;
         Map = Ensure.NotNull(map);
-        HudLines = hudScanlines;
+        HudLines = hudLines;
         Floor = floor;
     }
 }

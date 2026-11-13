@@ -228,7 +228,7 @@ public sealed class GameOptionsSourcePresentation
             throw new InvalidDataException(
                 $"Options presentation version must be {GameOptionsPresentationFormat.Version}.");
         ValidateExactKeys(document.Pages, [GameOptionsPresentationFormat.BackgroundPageName,
-                .. GameOptionsPresentationFormat.Tilemaps.Select(GameOptionsNames.TilemapName)],
+                .. GameOptionsPresentationFormat.Tilemaps.Select(GameOptionsNames.PageName)],
             "options pages");
         ValidateExactKeys(document.ControllerLabels,
             [.. GameOptionsPresentationDefinitions.ControllerLabelButtons.Select(GameOptionsNames.ControllerLabelName)],
@@ -254,7 +254,7 @@ public sealed class GameOptionsSourcePresentation
             throw new InvalidDataException("Options selected and unselected palettes must differ.");
 
         var pages = GameOptionsPresentationFormat.Tilemaps.ToDictionary(tilemap => tilemap,
-            tilemap => CompilePage(document, GameOptionsNames.TilemapName(tilemap)));
+            tilemap => CompilePage(document, GameOptionsNames.PageName(tilemap)));
         BackgroundTile[] background = CompilePage(document, GameOptionsPresentationFormat.BackgroundPageName);
 
         var labels = new Dictionary<ControllerButton, BackgroundTile[]>();

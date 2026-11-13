@@ -57,7 +57,7 @@ internal static class BossDisplayBindingsResourcesVerification
         {
             tentacles.Step(); tentacles.Draw();
             int index = frame / duration % poseCount;
-            AssertEqual(PhantoonPartFrameSpritemapsConstants.Spritemap(AssertIs<AnimationBeat<PhantoonPartFrame, PhantoonPartCue>.Frame>(beats[index], "pose beat").Shown), tentacles.Actor.SpritemapPointer, "exact physical pose sequence");
+            AssertEqual(PhantoonPartFramesConstants.Spritemap(AssertIs<AnimationBeat<PhantoonPartFrame, PhantoonPartCue>.Frame>(beats[index], "pose beat").Shown), tentacles.Actor.SpritemapPointer, "exact physical pose sequence");
             AssertEqual((ushort)(duration - frame % duration), tentacles.Actor.AnimationClock.Hold.RawValue, "exact native hold/goto clock");
             bool fresh = frame % duration == 0;
             AssertEqual(fresh, tentacles.Actor.AnimationClock.ShowsNewFrame, "exact new-frame schedule");

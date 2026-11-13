@@ -581,7 +581,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         static bool IsOnNoSheet(ushort operand)
         {
             EnemyProjectileFrameId frame = EnemyProjectileProgramFrameOperands.Frame(operand);
-            return SuperMetroid.Core.Enemies.Projectiles.Artwork.EnemyProjectileEmptyFrameDefinitions.EmptySpritemapFrames.Contains(frame)
+            return SuperMetroid.Core.Enemies.Projectiles.Artwork.EnemyProjectileEmptyFrameDefinitions.EmptyFrames.Contains(frame)
                 || frame is EnemyProjectileFrameId.ChozoTourianDustSpikeClearingExplosionsFirst or EnemyProjectileFrameId.ChozoTourianDustSpikeClearingExplosionsSecond
                     or EnemyProjectileFrameId.ChozoTourianDustSpikeClearingExplosionsThird or EnemyProjectileFrameId.ChozoTourianDustSpikeClearingExplosionsFourth
                     or EnemyProjectileFrameId.ChozoTourianDustSpikeClearingExplosionsFifth or EnemyProjectileFrameId.ChozoTourianDustSpikeClearingExplosionsSixth

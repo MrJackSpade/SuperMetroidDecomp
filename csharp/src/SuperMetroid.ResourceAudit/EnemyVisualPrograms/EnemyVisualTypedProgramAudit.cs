@@ -173,7 +173,7 @@ internal static class EnemyVisualTypedProgramAudit
             rows.Add(new(frames.Length));
         }
 
-        RequireSegmentFrames(CrocomireBodyAnimations.Segments, frame => CrocomireBodyFrameSpritemapsTooling.Spritemap(frame), CrocomireBodyVisualToolingDefinitions.Bank,
+        RequireSegmentFrames(CrocomireBodyAnimations.Segments, frame => CrocomireBodyFramesTooling.Spritemap(frame), CrocomireBodyVisualToolingDefinitions.Bank,
             nameof(CrocomireBodyAnimations), "csharp/src/SuperMetroid.Core/Bosses/Crocomire/CrocomireBodyAnimations.cs");
         RequireSegmentFrames(DraygonAnimations.Segments, frame => DraygonFrameToolingDefinitions.Spritemap(frame), DraygonBg2FrameToolingDefinitions.Bank,
             nameof(DraygonAnimations), "csharp/src/SuperMetroid.Core/Bosses/Draygon/DraygonAnimations.cs");

@@ -16,9 +16,9 @@ internal static class MapIndicatorAnimationVerification
     {
         for (int frame = 0; frame < 4; frame++)
             AssertEqual(ReadVerificationWord(rom, 0x82ba2d + frame * 2),
-                MapSpriteOrdinals.Spritemaps.Word(PauseMapIndicatorAnimation.SpritemapId(frame)), "original marker sprite phase");
+                MapSpriteOrdinals.Spritemaps.Word(PauseMapIndicatorAnimation.SpriteId(frame)), "original marker sprite phase");
         foreach (int invalid in new[] { int.MinValue, -1, 4, 256, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => PauseMapIndicatorAnimation.SpritemapId(invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => PauseMapIndicatorAnimation.SpriteId(invalid),
                 "unsupported marker sprite phase");
     }
 
@@ -39,7 +39,7 @@ internal static class MapIndicatorAnimationVerification
         var marker = new FileSelectStationMarker(LoadStationDefinitions.Gunship,
             MapSaveMarkerFile.Read(json));
         int nativeOffset = 0, nativeTimer = 0, loops = 0;
-        AssertEqual(ReadVerificationWord(rom, 0x82ba2d), MapSpriteOrdinals.Spritemaps.Word(marker.SpritemapId), "marker initial phase before first tick");
+        AssertEqual(ReadVerificationWord(rom, 0x82ba2d), MapSpriteOrdinals.Spritemaps.Word(marker.SpriteId), "marker initial phase before first tick");
         for (int tick = 0; tick < 49; tick++)
         {
             // Original $82:B9FC uses a word byte-offset and the native delay data,
@@ -52,7 +52,7 @@ internal static class MapIndicatorAnimationVerification
             }
             nativeTimer--;
             marker.Step();
-            AssertEqual(ReadVerificationWord(rom, 0x82ba2d + nativeOffset), MapSpriteOrdinals.Spritemaps.Word(marker.SpritemapId),
+            AssertEqual(ReadVerificationWord(rom, 0x82ba2d + nativeOffset), MapSpriteOrdinals.Spritemaps.Word(marker.SpriteId),
                 $"actual marker phase at tick {tick}");
             AssertEqual((loops & 1) == 0, marker.ShowBacking, $"marker backing parity at tick {tick}");
         }

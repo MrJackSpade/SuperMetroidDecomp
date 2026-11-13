@@ -55,7 +55,7 @@ public sealed class SamusSuitPickupState
     /// beam's <see cref="SuitPickupBeamDefinitions.BeamLines"/>: each stage stops once it reaches 128, one update's
     /// growth past it at most.
     /// </summary>
-    private int _lightBeamScanlines;
+    private int _lightBeamLines;
 
     /// <summary>
     /// The beam's inclusive left screen column while it is a column or centre line (the uniform, curved,
@@ -100,7 +100,7 @@ public sealed class SamusSuitPickupState
             ? new FadeLevelColour(SamusPaletteDefinitions.SuitPickup.InitialRed, SamusPaletteDefinitions.SuitPickup.VariaGreen, SamusPaletteDefinitions.SuitPickup.VariaBlue).ToColour()
             : new FadeLevelColour(SamusPaletteDefinitions.SuitPickup.InitialRed, SamusPaletteDefinitions.SuitPickup.GravityGreen, SamusPaletteDefinitions.SuitPickup.GravityBlue).ToColour();
         Stage = SamusSuitPickupStage.LightBeamAppears;
-        _lightBeamScanlines = 0;
+        _lightBeamLines = 0;
         _lightBeamLeft = Position16<ScreenPixels>.Zero;
         _lightBeamRight = Position16<ScreenPixels>.Zero;
         _frameBehaviorInstallCallsRemaining = 2;
@@ -202,7 +202,7 @@ public sealed class SamusSuitPickupState
             case SamusSuitPickupStage.LightBeamAppears:
             case SamusSuitPickupStage.RevealSuit:
             case SamusSuitPickupStage.LightBeamShrinks:
-                samus.SparkCarryover.LeaveLines(stage, _lightBeamScanlines);
+                samus.SparkCarryover.LeaveLines(stage, _lightBeamLines);
                 break;
             case SamusSuitPickupStage.UniformWidening:
             case SamusSuitPickupStage.CurvedWidening:
@@ -234,13 +234,13 @@ public sealed class SamusSuitPickupState
     {
         // The count grows from zero by eight to exactly 128, so the game's signed
         // comparison with 128 is this ordinary one.
-        _lightBeamScanlines += 8;
+        _lightBeamLines += 8;
         Beam = new(SamusSuitPickupBeamShape.GrowingFromEdges,
             SuitPickupBeamDefinitions.NarrowBeamEdges.Left,
             SuitPickupBeamDefinitions.NarrowBeamEdges.Right,
-            _lightBeamScanlines);
+            _lightBeamLines);
 
-        if (_lightBeamScanlines >= 128)
+        if (_lightBeamLines >= 128)
         {
             Stage = SamusSuitPickupStage.UniformWidening;
             SetLightBeamEdges(SuitPickupBeamDefinitions.NarrowBeamEdges);
@@ -297,7 +297,7 @@ public sealed class SamusSuitPickupState
             Stage = SamusSuitPickupStage.RevealSuit;
             // The speed halves, truncating its lowest fraction bit.
             _lightBeamSpeed = _lightBeamSpeed.Halved();
-            _lightBeamScanlines = 0;
+            _lightBeamLines = 0;
         }
     }
 
@@ -329,17 +329,17 @@ public sealed class SamusSuitPickupState
 
         // The wipe grows from zero by the speed's whole pixels and stops once it reaches 128, so it
         // stays far inside the range where the game's signed comparison is this ordinary one.
-        _lightBeamScanlines += _lightBeamSpeed.WholePixels;
+        _lightBeamLines += _lightBeamSpeed.WholePixels;
         // The final curved column is wiped by this many rows from the top. The game's
         // lower do/while starts at position minus one, so the bottom wipe is one shorter.
-        Beam = Beam with { Shape = SamusSuitPickupBeamShape.ClosingCurvedColumn, Progress = _lightBeamScanlines };
+        Beam = Beam with { Shape = SamusSuitPickupBeamShape.ClosingCurvedColumn, Progress = _lightBeamLines };
 
         // The speed never falls below its minimum, so one deceleration stays far above zero.
         SignedEightEight decelerated = _lightBeamSpeed - SuitPickupBeamDefinitions.ShrinkingDeceleration;
         _lightBeamSpeed = decelerated < SuitPickupBeamDefinitions.MinimumShrinkingSpeed
             ? SuitPickupBeamDefinitions.MinimumShrinkingSpeed
             : decelerated;
-        if (_lightBeamScanlines >= 128)
+        if (_lightBeamLines >= 128)
         {
             Stage = SamusSuitPickupStage.LightBeamDissipates;
             SetLightBeamEdges(SuitPickupBeamDefinitions.DissipationStart);
@@ -367,7 +367,7 @@ public sealed class SamusSuitPickupState
             SamusPaletteDefinitions.SuitPickup.ResetBlue).ToColour();
         Beam = SamusSuitPickupBeam.None;
         Stage = SamusSuitPickupStage.LightBeamAppears;
-        _lightBeamScanlines = 0;
+        _lightBeamLines = 0;
         _lightBeamLeft = Position16<ScreenPixels>.Zero;
         _lightBeamRight = Position16<ScreenPixels>.Zero;
         BeamColor = RgbColor.Black;

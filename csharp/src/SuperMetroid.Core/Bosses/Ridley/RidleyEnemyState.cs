@@ -30,11 +30,11 @@ public sealed class RidleyEnemyState
     /// <summary>The colours the encounter has loaded over its sprites and its room (#1512).</summary>
     internal RidleyColours Colours { get; } = new();
     /// <summary>Whether Ridley's tail and wings draw in the hurt flash's colours this update.</summary>
-    internal bool SpritemapFlashing { get; set; }
+    internal bool TailAndWingsFlashing { get; set; }
     /// <summary>Whether the common enemy draw path draws Ridley's body in the hurt flash's colours this update.</summary>
     internal bool BodyFlashing { get; set; }
     /// <summary>The shading Ridley's tail and wings draw in: his own colours, or the hurt flash's (#1512).</summary>
-    public PictureShading SpritemapShading => Colours.SpriteShading(SpritemapFlashing);
+    public PictureShading TailAndWingsShading => Colours.SpriteShading(TailAndWingsFlashing);
     /// <summary>The shading the common enemy draw path draws Ridley's body in (#1512).</summary>
     public PictureShading CommonDrawShading => Colours.SpriteShading(BodyFlashing);
     /// <summary>Gets whether shared body motion and wing/tail updates run; cleared when the intact death body is hidden.</summary>

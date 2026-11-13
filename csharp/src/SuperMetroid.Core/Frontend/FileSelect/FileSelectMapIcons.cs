@@ -100,7 +100,7 @@ public sealed class FileSelectMapIcons(SharedGameState system, AreaId area)
             "Elevator labels require installed landmark layout.");
         foreach (var label in MapLandmarks.Elevators(area))
         {
-            Add(entries, MapLandmarks.ElevatorSpritemap(label.Destination),
+            Add(entries, MapLandmarks.ElevatorPicture(label.Destination),
                 elevatorLayout.Get(label.Id), scroll, MapSpriteColouring.Labels);
         }
     }

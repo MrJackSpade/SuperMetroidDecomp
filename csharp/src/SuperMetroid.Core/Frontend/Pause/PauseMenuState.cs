@@ -158,7 +158,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // label's picture in its shade (#1467).
         SetPauseButtonLabelMode(PauseButtonHighlight.MapPage);
 
-        LoadPauseMapTilemap();
+        LoadMapPage();
         SelectFirstCollectedEquipment();
         SetupMapScrolling();
     }
@@ -343,7 +343,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
                 else
                 {
                     ScreenMode = PauseScreenMode.Map;
-                    LoadPauseMapTilemap();
+                    LoadMapPage();
                     Transition = PauseMenuTransition.EquipmentToMapFadeIn;
                 }
                 TransitionBrightness = 0;
@@ -400,7 +400,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
 
     /// <summary>Builds the area map from installed presentation and exploration bits into the map page.</summary>
     [MemberNotNull(nameof(ShownMap))]
-    private void LoadPauseMapTilemap()
+    private void LoadMapPage()
     {
         AreaMapPresentation maps = mapPresentation ?? throw new InvalidOperationException(
             "Pause map requires installed map presentation assets.");
@@ -520,10 +520,10 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     {
         Position16<SpritePixels> origin = SamusMapCell().ToMapPixels().ToScreen(MapScrollPosition).ToSpritePosition();
         LastIndicatorOrigin = origin;
-        MapSpriteId indicator = PauseMapIndicatorAnimation.SpritemapId(MapIndicatorAnimationFrame);
+        MapSpriteId indicator = PauseMapIndicatorAnimation.SpriteId(MapIndicatorAnimationFrame);
         LastMapIndicatorSprite = indicator;
         LastSelectorCategory = null;
-        DrawMenuSpritemap(
+        DrawMapSprite(
             indicator,
             origin,
             MapSpriteColouring.Markers);
@@ -595,7 +595,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         ButtonHighlight = Enum.IsDefined(highlight) ? highlight : throw new ArgumentOutOfRangeException(nameof(highlight), highlight, "Undefined pause highlight.");
 
     /// <summary>Draws a map sprite sheet frame in the map's colours <paramref name="colouring"/>.</summary>
-    private void DrawMenuSpritemap(MapSpriteId id, Position16<SpritePixels> origin, MapSpriteColouring colouring) =>
+    private void DrawMapSprite(MapSpriteId id, Position16<SpritePixels> origin, MapSpriteColouring colouring) =>
         // Map compositions use this shared entry. Extracted equipment selectors
         // and reserve tanks draw through their semantic presentation owners.
         MapSpriteSheet.Draw(MapSheet, id, screen.Objects, origin, MapSpriteScreen.Pause, colouring);
@@ -785,7 +785,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // rerun controls.
         // Preserve the live scroll position and transition timing. Only refresh
         // the map page when it is shown; the equipment page shares its layer.
-        if (ScreenMode == PauseScreenMode.Map) LoadPauseMapTilemap();
+        if (ScreenMode == PauseScreenMode.Map) LoadMapPage();
     }
 
     /// <summary>

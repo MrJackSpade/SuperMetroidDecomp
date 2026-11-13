@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Bosses.Phantoon.Artwork;
 
 /// <summary>The presentation boundary of Phantoon's part frames: the background frame or collision selector each one shows.</summary>
-internal static class PhantoonPartFrameSpritemaps
+internal static class PhantoonPartFrames
 {
 
     /// <summary>The installed frame each <see cref="PhantoonPartFrame"/> shows.</summary>

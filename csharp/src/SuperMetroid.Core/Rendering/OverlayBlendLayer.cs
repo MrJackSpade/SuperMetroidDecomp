@@ -26,18 +26,18 @@ public sealed record OverlayBlendLayer : DisplayLayer
 
     /// <summary>Captures an overlay to blend with its line scrolls, checking the first line and operation.</summary>
     /// <param name="picture">What the overlay shows, or null where it shows nothing.</param>
-    /// <param name="firstScanline">Inclusive first screen line from 0 through 224; 224 means no visible lines participate.</param>
+    /// <param name="firstLine">Inclusive first screen line from 0 through 224; 224 means no visible lines participate.</param>
     /// <param name="operation">Whether the overlay brightens or darkens the screen under it.</param>
     /// <param name="horizontal">The layer's horizontal scroll line by line.</param>
     /// <param name="vertical">The layer's vertical scroll line by line.</param>
-    public OverlayBlendLayer(OverlayPicture? picture, int firstScanline, BlendOperation operation, LineScroll horizontal, LineScroll vertical)
+    public OverlayBlendLayer(OverlayPicture? picture, int firstLine, BlendOperation operation, LineScroll horizontal, LineScroll vertical)
     {
-        if (firstScanline is < 0 or > ScreenGeometry.ScreenHeightPixels)
-            throw new ArgumentOutOfRangeException(nameof(firstScanline));
+        if (firstLine is < 0 or > ScreenGeometry.ScreenHeightPixels)
+            throw new ArgumentOutOfRangeException(nameof(firstLine));
         if (operation is not (BlendOperation.Add or BlendOperation.Subtract))
             throw new ArgumentOutOfRangeException(nameof(operation));
         Picture = picture;
-        FirstLine = firstScanline;
+        FirstLine = firstLine;
         Operation = operation;
         Horizontal = Ensure.NotNull(horizontal);
         Vertical = Ensure.NotNull(vertical);

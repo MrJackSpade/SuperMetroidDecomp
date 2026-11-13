@@ -110,10 +110,10 @@ internal sealed class CeresRidleyBabyScene
             // The tip's pose follows its direction turned by the link before it.
             EnemyFrameId tipFrame = RidleySupplementalVisualDefinitions.TailTipFrames.At(
                 tip.Angle.Direction.TurnedBy(state.TailSegments[5].Angle.Direction));
-            DrawRidleyWorldSpritemap(
+            DrawRidleyWorldFrame(
                 sprites,
                 new SpriteSource(SpriteSourceKind.RidleyTail, 6),
-                state.SpritemapShading,
+                state.TailAndWingsShading,
                 tip,
                 tipFrame,
                 camera);
@@ -122,10 +122,10 @@ internal sealed class CeresRidleyBabyScene
             // tip. Earlier draws win equal-priority overlap, so reversing this visually
             // changes the curl even though every individual piece is otherwise correct.
             for (int index = 5; index >= 0; index--)
-                DrawRidleyWorldSpritemap(
+                DrawRidleyWorldFrame(
                     sprites,
                     new SpriteSource(SpriteSourceKind.RidleyTail, index),
-                    state.SpritemapShading,
+                    state.TailAndWingsShading,
                     state.TailSegments[index],
                     RidleySupplementalVisualDefinitions.SegmentFrames.Of(index),
                     camera);
@@ -137,7 +137,7 @@ internal sealed class CeresRidleyBabyScene
         EnemyFrameId wingFrame = RidleySupplementalVisualDefinitions.WingFrames.Of(
             wingFrameIndex);
         _presentation.PublishEncounterFrame(sprites, new SpriteSource(SpriteSourceKind.RidleyWings), wingFrame,
-            new(CoordinateAxis.Wrap(slot.Position.X.Whole - camera.X), CoordinateAxis.Wrap(slot.Position.Y.Whole - camera.Y)), state.SpritemapShading);
+            new(CoordinateAxis.Wrap(slot.Position.X.Whole - camera.X), CoordinateAxis.Wrap(slot.Position.Y.Whole - camera.Y)), state.TailAndWingsShading);
     }
 
     /// <summary>
@@ -270,7 +270,7 @@ internal sealed class CeresRidleyBabyScene
     }
 
     /// <summary>Publishes a Ridley component's world frame at its screen position for the current camera.</summary>
-    private void DrawRidleyWorldSpritemap(
+    private void DrawRidleyWorldFrame(
         SpriteFrameBuffer sprites,
         SpriteSource source,
         PictureShading colouring,

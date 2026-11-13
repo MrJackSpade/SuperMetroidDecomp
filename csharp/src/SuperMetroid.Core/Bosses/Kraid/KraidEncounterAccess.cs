@@ -42,15 +42,15 @@ internal sealed class KraidEncounterAccess
         slot.Presence = slot.Presence.With(EnemyPresence.Deleted | EnemyPresence.Hidden);
     }
 
-    /// <summary>Installs <paramref name="program"/> as the part's program, from its start; the caller sets the timer.</summary>
-    internal void SetKraidPartAnimation(RoomEnemySlot part, KraidPartSegment program) =>
+    /// <summary>Installs <paramref name="segment"/> as the part's program, from its start; the caller sets the timer.</summary>
+    internal void SetKraidPartAnimation(RoomEnemySlot part, KraidPartSegment segment) =>
         _parts.StateOf(RequireKraidState(part), part).Playback =
-            new AnimationPlayback<KraidPartSegment>(KraidAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
+            new AnimationPlayback<KraidPartSegment>(KraidAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
 
     /// <summary>Sets a part's program and runs its first instruction on the next frame.</summary>
-    internal void StartKraidPartAnimation(RoomEnemySlot part, KraidPartSegment program)
+    internal void StartKraidPartAnimation(RoomEnemySlot part, KraidPartSegment segment)
     {
-        SetKraidPartAnimation(part, program);
+        SetKraidPartAnimation(part, segment);
         part.AnimationClock.StepOnNextUpdate();
     }
 

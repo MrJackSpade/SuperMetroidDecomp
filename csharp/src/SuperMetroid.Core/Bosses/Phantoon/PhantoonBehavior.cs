@@ -122,14 +122,14 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Copies body presentation state into a physical part and starts its chosen program.</summary>
-    private void StartPhantoonPart(RoomEnemySlot part, PhantoonPartSegment program)
+    private void StartPhantoonPart(RoomEnemySlot part, PhantoonPartSegment segment)
     {
         PhantoonEnemyState state = Combat.Phantoon ??
             throw new InvalidOperationException("Phantoon body must initialize before its parts.");
         part.Frame = EnemyFrameId.Empty;
         part.AnimationClock.Restart();
         part.Shading = state.Body.Shading;
-        state.PartPlayback(part) = PhantoonEnemyState.Starting(program);
+        state.PartPlayback(part) = PhantoonEnemyState.Starting(segment);
     }
 
     /// <summary>

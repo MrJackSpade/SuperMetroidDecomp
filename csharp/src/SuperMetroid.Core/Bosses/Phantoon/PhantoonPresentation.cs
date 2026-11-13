@@ -74,9 +74,9 @@ internal sealed class PhantoonPresentation
     internal static void StartPhantoonAnimation(
         PhantoonEnemyState state,
         RoomEnemySlot slot,
-        PhantoonPartSegment program)
+        PhantoonPartSegment segment)
     {
         slot.AnimationClock.StepOnNextUpdate();
-        state.PartPlayback(slot) = PhantoonEnemyState.Starting(program);
+        state.PartPlayback(slot) = PhantoonEnemyState.Starting(segment);
     }
 }

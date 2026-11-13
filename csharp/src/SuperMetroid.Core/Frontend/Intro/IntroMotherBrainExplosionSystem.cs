@@ -64,10 +64,10 @@ internal sealed class IntroMotherBrainExplosionSystem
         /// <summary>Starts one explosion at its authored offset and independent launch delay.</summary>
         private ExplosionActor(
             Position16<ScreenPixels> position,
-            CinematicSpriteSegment program,
+            CinematicSpriteSegment segment,
             int startDelay)
         {
-            sprite = new IntroDiscoverySprite(position, IntroShades.Drawn(IntroSpriteColouring.Explosions), program);
+            sprite = new IntroDiscoverySprite(position, IntroShades.Drawn(IntroSpriteColouring.Explosions), segment);
             sprite.DelayFirstStep(startDelay);
         }
 

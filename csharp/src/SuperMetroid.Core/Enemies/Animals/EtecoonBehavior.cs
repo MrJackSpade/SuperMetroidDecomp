@@ -740,9 +740,9 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void StartEtecoonAnimation(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
-        EtecoonSegment program)
+        EtecoonSegment segment)
     {
-        state.Playback = new(EtecoonAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
+        state.Playback = new(EtecoonAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
         slot.AnimationClock.StepOnNextUpdate();
     }
 

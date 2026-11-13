@@ -135,11 +135,11 @@ internal sealed class DraygonParts
     }
 
     /// <summary>Restarts a linked Draygon part's program on its next update, as a list install does.</summary>
-    internal void StartDraygonAnimation(RoomEnemySlot part, DraygonSegment program)
+    internal void StartDraygonAnimation(RoomEnemySlot part, DraygonSegment segment)
     {
         DraygonEnemyState state = Draygon ??
             throw new InvalidDataException("Draygon program started without encounter state.");
-        state.StartAnimation(part, program);
+        state.StartAnimation(part, segment);
         part.AnimationClock.StepOnNextUpdate();
     }
 

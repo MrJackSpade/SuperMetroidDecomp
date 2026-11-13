@@ -623,9 +623,9 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     private static void StartNinjaPirateAnimation(
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state,
-        NinjaSpacePirateSegment program)
+        NinjaSpacePirateSegment segment)
     {
-        state.Playback = new(NinjaSpacePirateAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
+        state.Playback = new(NinjaSpacePirateAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
         slot.AnimationClock.StepOnNextUpdate();
     }
 

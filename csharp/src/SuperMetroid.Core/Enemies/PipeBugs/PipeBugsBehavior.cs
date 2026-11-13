@@ -647,9 +647,9 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Restarts an animation at timer one and clears its animation frame timer.</summary>
-    internal static void StartPipeBugAnimation(RoomEnemySlot slot, PipeBugEnemyState state, PipeBugSegment program)
+    internal static void StartPipeBugAnimation(RoomEnemySlot slot, PipeBugEnemyState state, PipeBugSegment segment)
     {
-        state.Playback = EnemyAnimationPlayback.Start(slot, PipeBugAnimations.StartingWith(program));
+        state.Playback = EnemyAnimationPlayback.Start(slot, PipeBugAnimations.StartingWith(segment));
     }
 
     /// <summary>Rejects a behavior callback that needs Samus but received no live player actor.</summary>

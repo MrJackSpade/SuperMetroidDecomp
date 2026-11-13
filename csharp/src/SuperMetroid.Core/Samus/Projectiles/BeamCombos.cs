@@ -146,13 +146,13 @@ internal sealed class BeamCombos
             _ => throw new ArgumentOutOfRangeException(nameof(comboData), comboData, "Undefined combo data."),
         };
         slot.Damage = SamusProjectileDamage.Read(header);
-        SamusProjectileSegment program = comboData == BeamComboData.Combo
+        SamusProjectileSegment segment = comboData == BeamComboData.Combo
             ? SamusProjectileHeaders.SoleAnimation(header)
             : SamusProjectileHeaders.Animation(header, slot.Direction);
-        slot.Playback = SamusProjectilePlayback.Start(program);
+        slot.Playback = SamusProjectilePlayback.Start(segment);
         slot.FrameHold = WrappingCountdown.Start(1);
         if (comboData == BeamComboData.Charged)
-            slot.Radius = SamusProjectilePlayback.InitialRadius(program);
+            slot.Radius = SamusProjectilePlayback.InitialRadius(segment);
     }
 
     /// <summary>Runs one Ice combo slot and returns its optional Samus-library sound request.</summary>

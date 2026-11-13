@@ -90,11 +90,11 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     /// </summary>
     private readonly Dictionary<RoomEnemySlot, AnimationPlayback<GunshipSegment>> _shipAnimations = [];
 
-    /// <summary>Starts <paramref name="program"/> on <paramref name="slot"/> from the next update.</summary>
-    private void StartGunshipAnimation(RoomEnemySlot slot, GunshipSegment program)
+    /// <summary>Starts <paramref name="segment"/> on <paramref name="slot"/> from the next update.</summary>
+    private void StartGunshipAnimation(RoomEnemySlot slot, GunshipSegment segment)
     {
         slot.AnimationClock.StepOnNextUpdate();
-        _shipAnimations[slot] = new AnimationPlayback<GunshipSegment>(GunshipAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
+        _shipAnimations[slot] = new AnimationPlayback<GunshipSegment>(GunshipAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
     }
 
     /// <summary>Runs a hull or pad piece's typed program where the shared enemy animation would.</summary>

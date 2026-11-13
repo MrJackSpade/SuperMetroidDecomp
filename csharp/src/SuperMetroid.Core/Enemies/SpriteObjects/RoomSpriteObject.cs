@@ -99,21 +99,21 @@ public sealed class RoomSpriteObject
     }
 
     /// <summary>
-    /// Points the object at the animation starting at <paramref name="program"/>, past its first frame, and shows that
+    /// Points the object at the animation starting at <paramref name="segment"/>, past its first frame, and shows that
     /// frame, keeping the current countdown: the frozen Metroid shell shows the animation's first frame without reloading
     /// the timer, so the next expiry continues at the animation's second beat.
     /// </summary>
-    /// <param name="program">The segment whose animation the object plays from now on.</param>
-    internal void ShowFirstFrameKeepingTimer(RoomSpriteObjectSegment program)
+    /// <param name="segment">The segment whose animation the object plays from now on.</param>
+    internal void ShowFirstFrameKeepingTimer(RoomSpriteObjectSegment segment)
     {
         if (!IsActive)
             throw new InvalidOperationException($"Sprite object {Kind} has ended and shows no frame.");
         if (Holds)
             throw new InvalidOperationException($"Sprite object {Kind} holds its frame and has no countdown to keep.");
-        if (RoomSpriteObjectAnimations.Segments.Beats(program)[0] is not AnimationBeat<RoomSpriteObjectFrame, NoAnimationCue>.Frame first)
-            throw new InvalidOperationException($"Sprite object animation {program} does not begin with a timed frame.");
+        if (RoomSpriteObjectAnimations.Segments.Beats(segment)[0] is not AnimationBeat<RoomSpriteObjectFrame, NoAnimationCue>.Frame first)
+            throw new InvalidOperationException($"Sprite object animation {segment} does not begin with a timed frame.");
         // The animation's first phase plays the segment from its first beat: past that beat is the phase's second.
-        Playback = new(RoomSpriteObjectAnimations.StartingWith(program), new AnimationPlace(0, 1));
+        Playback = new(RoomSpriteObjectAnimations.StartingWith(segment), new AnimationPlace(0, 1));
         Frame = first.Shown;
     }
 }

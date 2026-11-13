@@ -5,8 +5,8 @@ using SuperMetroid.Core.Bosses.Draygon.Artwork;
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>A Draygon goop's or wall-turret shot's typed animation.</summary>
-internal sealed class DraygonProjectileAnimation(DraygonProjectileSegment program)
-    : EnemyProjectileTypedAnimation<DraygonProjectileSegment, DraygonProjectileFrame, DraygonProjectileCue>(DraygonProjectileAnimations.StartingWith(program))
+internal sealed class DraygonProjectileAnimation(DraygonProjectileSegment segment)
+    : EnemyProjectileTypedAnimation<DraygonProjectileSegment, DraygonProjectileFrame, DraygonProjectileCue>(DraygonProjectileAnimations.StartingWith(segment))
 {
     /// <inheritdoc/>
     private protected override AnimationSegments<DraygonProjectileSegment, DraygonProjectileFrame, DraygonProjectileCue> Segments =>

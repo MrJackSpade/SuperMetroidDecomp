@@ -57,8 +57,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
                 // Yard animation owns movement dispatch: the operand is a movement behaviour, not a branch.
                 state.MovementFunction = setMovementFunction.MovementFunction;
                 return null;
-            case YardCue.SetHidingAnimation setHidingProgram:
-                state.HidingAnimation = setHidingProgram.OptionalTarget;
+            case YardCue.SetHidingAnimation setHidingAnimation:
+                state.HidingAnimation = setHidingAnimation.OptionalTarget;
                 return null;
             case YardCue.SetDirection setDirection:
                 state.Direction = setDirection.Direction;
@@ -379,9 +379,9 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void SetYardAnimationAndDisableTurn(
         RoomEnemySlot slot,
         YardEnemyState state,
-        YardSegment program)
+        YardSegment segment)
     {
-        state.Playback = new(YardAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
+        state.Playback = new(YardAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
         slot.AnimationClock.StepOnNextUpdate();
         state.TurnTransitionDisabled = true;
         state.TurnTransitionDisableCounter = 0;

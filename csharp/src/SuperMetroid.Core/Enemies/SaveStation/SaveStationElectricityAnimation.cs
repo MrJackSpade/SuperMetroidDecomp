@@ -5,8 +5,8 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Enemies.SaveStation;
 
 /// <summary>The save-station electricity's typed animation.</summary>
-internal sealed class SaveStationElectricityAnimation(SaveStationElectricitySegment program)
-    : EnemyProjectileFrameAnimation<SaveStationElectricitySegment, EnemyProjectileCommonCue>(SaveStationElectricityAnimations.StartingWith(program))
+internal sealed class SaveStationElectricityAnimation(SaveStationElectricitySegment segment)
+    : EnemyProjectileFrameAnimation<SaveStationElectricitySegment, EnemyProjectileCommonCue>(SaveStationElectricityAnimations.StartingWith(segment))
 {
     /// <inheritdoc/>
     private protected override AnimationSegments<SaveStationElectricitySegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => SaveStationElectricityAnimations.Segments;

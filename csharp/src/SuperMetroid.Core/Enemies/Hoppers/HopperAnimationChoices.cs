@@ -13,7 +13,7 @@ internal static class HopperAnimationChoices
     /// <summary>The program of a <paramref name="kind"/> hopper on <paramref name="surface"/> in <paramref name="phase"/>.</summary>
     /// <exception cref="InvalidDataException">The kind is undefined.</exception>
     internal static HopperSegment Animation(HopperKind kind, HopperSurface surface, HopperPhase phase) =>
-        HopperAnimationDefinitions.Animations.TryGetValue(new HopperAnimationKey(kind, surface, phase), out HopperSegment program)
-            ? program
+        HopperAnimationDefinitions.Animations.TryGetValue(new HopperAnimationKey(kind, surface, phase), out HopperSegment segment)
+            ? segment
             : throw new InvalidDataException($"Undefined {nameof(HopperKind)} {kind}.");
 }

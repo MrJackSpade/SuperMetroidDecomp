@@ -180,8 +180,8 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void SetMochtroidAnimation(
         RoomEnemySlot slot,
         MochtroidEnemyState state,
-        MochtroidSegment program) =>
-        EnemyAnimationPlayback.StartOnce(slot, state.InstalledAnimation, program, installed =>
+        MochtroidSegment segment) =>
+        EnemyAnimationPlayback.StartOnce(slot, state.InstalledAnimation, segment, installed =>
         {
             state.InstalledAnimation = installed;
             state.Playback = new(MochtroidAnimations.StartingWith(installed), AnimationPlace.StartOfAnimation);

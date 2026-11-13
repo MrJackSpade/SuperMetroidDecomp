@@ -11,13 +11,13 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 internal sealed class ScrollTriggerObject : RoomObjectBehaviour
 {
     /// <summary>Creates a trigger that applies a room's authored program or a constructed room's validated writes.</summary>
-    /// <param name="writes">A constructed room's writes, in order; null when the trigger applies <paramref name="program"/>.</param>
-    /// <param name="program">The room's authored program; null when the trigger applies <paramref name="writes"/>.</param>
+    /// <param name="writes">A constructed room's writes, in order; null when the trigger applies <paramref name="change"/>.</param>
+    /// <param name="change">The room's authored program; null when the trigger applies <paramref name="writes"/>.</param>
     /// <exception cref="InvalidOperationException">Neither is given.</exception>
-    internal ScrollTriggerObject(IReadOnlyList<RoomScrollWrite>? writes, RoomScrollChange? program)
+    internal ScrollTriggerObject(IReadOnlyList<RoomScrollWrite>? writes, RoomScrollChange? change)
     {
-        Change = program;
-        Writes = program.HasValue ? null : writes?.ToArray() ?? throw new InvalidOperationException(
+        Change = change;
+        Writes = change.HasValue ? null : writes?.ToArray() ?? throw new InvalidOperationException(
             "A scroll trigger has neither an authored program nor constructed writes.");
     }
 
@@ -41,8 +41,8 @@ internal sealed class ScrollTriggerObject : RoomObjectBehaviour
             return;
         RoomScrollGrid scrolls = context.Frame.Scrolls ?? throw new InvalidOperationException(
             "A touched scroll trigger requires the active scroll grid.");
-        if (Change is { } program)
-            RoomObjectScrollChanges.Apply(program, scrolls.SetCell);
+        if (Change is { } change)
+            RoomObjectScrollChanges.Apply(change, scrolls.SetCell);
         else
             foreach (RoomScrollWrite write in Writes ?? throw new InvalidOperationException("A scroll trigger lost its writes."))
                 scrolls.SetCell(write.Index, write.State);

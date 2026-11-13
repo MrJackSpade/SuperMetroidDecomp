@@ -419,19 +419,19 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Switches an outer-body sprite to frozen art without resetting its retained frame timer.</summary>
     private static void FreezeMetroidOuterBody(
         RoomSpriteObject outerBody,
-        RoomSpriteObjectSegment frozenProgram)
+        RoomSpriteObjectSegment frozenSegment)
     {
         outerBody.Graphics = MetroidOuterBodyDefinitions.FrozenGraphics;
         outerBody.UpdatesDisabled = true;
         // Drawing reads the selected record even while animation is disabled.
         // Show the frozen program's first frame without resetting the retained timer.
-        outerBody.ShowFirstFrameKeepingTimer(frozenProgram);
+        outerBody.ShowFirstFrameKeepingTimer(frozenSegment);
     }
 
     /// <summary>Restarts a Metroid animation at timer one after its function changes.</summary>
-    private static void SetMetroidAnimation(RoomEnemySlot slot, MetroidEnemyState state, MetroidSegment program)
+    private static void SetMetroidAnimation(RoomEnemySlot slot, MetroidEnemyState state, MetroidSegment segment)
     {
-        state.Playback = new(MetroidAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
+        state.Playback = new(MetroidAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
         slot.AnimationClock.StepOnNextUpdate();
     }
 

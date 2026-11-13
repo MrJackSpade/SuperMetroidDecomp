@@ -68,7 +68,7 @@ internal sealed class EndingStage
     internal EndingSprite SpawnSprite(
         Position16<ScreenPixels> position,
         EndingSpriteColouring colouring,
-        CinematicSpriteSegment program,
+        CinematicSpriteSegment segment,
         EndingSpriteRole role)
     {
         if (!Enum.IsDefined(role))
@@ -76,7 +76,7 @@ internal sealed class EndingStage
         int rank = SoleActorRank(role);
         if (rank >= 0)
             sprites.RemoveAll(actor => actor.Role == role);
-        var added = new EndingSprite(new IntroDiscoverySprite(position, EndingShades.Drawn(colouring), program), role);
+        var added = new EndingSprite(new IntroDiscoverySprite(position, EndingShades.Drawn(colouring), segment), role);
         // A sole actor stands before the first sole actor ranked after it; any other actor before the first sole actor.
         int place = sprites.FindIndex(actor => SoleActorRank(actor.Role) > rank && SoleActorRank(actor.Role) >= 0);
         sprites.Insert(place >= 0 ? place : sprites.Count, added);

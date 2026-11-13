@@ -340,9 +340,9 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void SetHopperAnimation(
         RoomEnemySlot slot,
         HopperEnemyState state,
-        HopperSegment program)
+        HopperSegment segment)
     {
-        state.Playback = EnemyAnimationPlayback.Start(slot, HopperAnimations.StartingWith(program));
+        state.Playback = EnemyAnimationPlayback.Start(slot, HopperAnimations.StartingWith(segment));
     }
 
     /// <summary>Ports Hoppers's main AI.</summary>

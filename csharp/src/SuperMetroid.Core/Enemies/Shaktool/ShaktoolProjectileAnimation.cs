@@ -4,8 +4,8 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Enemies.Shaktool;
 
 /// <summary>Shaktool attack circle's typed animation.</summary>
-internal sealed class ShaktoolProjectileAnimation(ShaktoolProjectileSegment program)
-    : EnemyProjectileFrameAnimation<ShaktoolProjectileSegment, EnemyProjectileCommonCue>(ShaktoolProjectileAnimations.StartingWith(program))
+internal sealed class ShaktoolProjectileAnimation(ShaktoolProjectileSegment segment)
+    : EnemyProjectileFrameAnimation<ShaktoolProjectileSegment, EnemyProjectileCommonCue>(ShaktoolProjectileAnimations.StartingWith(segment))
 {
     /// <inheritdoc/>
     private protected override AnimationSegments<ShaktoolProjectileSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => ShaktoolProjectileAnimations.Segments;

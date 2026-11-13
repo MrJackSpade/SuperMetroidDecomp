@@ -5,8 +5,8 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>A Ceres falling tile's typed animation.</summary>
-internal sealed class CeresFallingDebrisAnimation(CeresFallingDebrisSegment program)
-    : EnemyProjectileTypedAnimation<CeresFallingDebrisSegment, CeresFallingDebrisSegment, NoAnimationCue>(CeresFallingDebrisAnimations.StartingWith(program))
+internal sealed class CeresFallingDebrisAnimation(CeresFallingDebrisSegment segment)
+    : EnemyProjectileTypedAnimation<CeresFallingDebrisSegment, CeresFallingDebrisSegment, NoAnimationCue>(CeresFallingDebrisAnimations.StartingWith(segment))
 {
     /// <inheritdoc/>
     private protected override AnimationSegments<CeresFallingDebrisSegment, CeresFallingDebrisSegment, NoAnimationCue> Segments => CeresFallingDebrisAnimations.Segments;

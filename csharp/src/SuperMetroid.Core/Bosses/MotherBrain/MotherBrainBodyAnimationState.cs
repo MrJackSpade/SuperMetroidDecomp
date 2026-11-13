@@ -34,5 +34,5 @@ public sealed class MotherBrainBodyAnimationState
     /// Requests a body program; the physical body slot starts it on the next enemy
     /// animation-script stage.
     /// </summary>
-    public void SetAnimation(MotherBrainBodySegment program) => Animation = program;
+    public void SetAnimation(MotherBrainBodySegment segment) => Animation = segment;
 }

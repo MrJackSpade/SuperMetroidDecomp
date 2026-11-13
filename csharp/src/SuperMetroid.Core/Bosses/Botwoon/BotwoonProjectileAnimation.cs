@@ -7,9 +7,9 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 /// <summary>A Botwoon body segment's or spit's typed animation.</summary>
 internal sealed class BotwoonProjectileAnimation : EnemyProjectileTypedAnimation<BotwoonBodyAnimationSegment, BotwoonProjectileFrame, NoAnimationCue>
 {
-    /// <summary>Starts the animation of <paramref name="program"/>.</summary>
-    private BotwoonProjectileAnimation(BotwoonBodyAnimationSegment program)
-        : base(BotwoonAnimations.ProjectileStartingWith(program))
+    /// <summary>Starts the animation of <paramref name="segment"/>.</summary>
+    private BotwoonProjectileAnimation(BotwoonBodyAnimationSegment segment)
+        : base(BotwoonAnimations.ProjectileStartingWith(segment))
     {
     }
 
@@ -19,11 +19,11 @@ internal sealed class BotwoonProjectileAnimation : EnemyProjectileTypedAnimation
     /// <summary>A spit's cycling animation.</summary>
     internal static BotwoonProjectileAnimation Spit() => new(BotwoonBodyAnimationSegment.Spit);
 
-    /// <summary>A body segment showing <paramref name="program"/>.</summary>
-    internal static BotwoonProjectileAnimation ForSegment(BotwoonBodyAnimationSegment program) =>
-        program == BotwoonBodyAnimationSegment.Spit
-            ? throw new ArgumentOutOfRangeException(nameof(program), program, "A body segment does not run the spit program.")
-            : new(program);
+    /// <summary>A body segment showing <paramref name="segment"/>.</summary>
+    internal static BotwoonProjectileAnimation ForSegment(BotwoonBodyAnimationSegment segment) =>
+        segment == BotwoonBodyAnimationSegment.Spit
+            ? throw new ArgumentOutOfRangeException(nameof(segment), segment, "A body segment does not run the spit program.")
+            : new(segment);
 
     /// <summary>
     /// Switches a segment to <paramref name="program"/>'s animation from its first frame. An unchanged program keeps

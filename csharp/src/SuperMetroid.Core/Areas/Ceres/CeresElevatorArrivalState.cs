@@ -174,11 +174,11 @@ public sealed class CeresElevatorArrivalState
     {
         /// <summary>Initializes a projectile's program, position, and graphics.</summary>
         public CeresElevatorProjectile(
-            CeresElevatorArrivalSegment program,
+            CeresElevatorArrivalSegment segment,
             Position16<RoomPixels> position,
             SpriteGraphics graphics)
         {
-            Playback = new AnimationPlayback<CeresElevatorArrivalSegment>(CeresElevatorArrivalAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
+            Playback = new AnimationPlayback<CeresElevatorArrivalSegment>(CeresElevatorArrivalAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
             Position = position;
             Graphics = graphics;
         }
@@ -194,11 +194,11 @@ public sealed class CeresElevatorArrivalState
         /// <summary>The projectile's animation and where it stands in it, played on when its frame expires.</summary>
         internal AnimationPlayback<CeresElevatorArrivalSegment> Playback { get; set; }
 
-        /// <summary>Starts the animation of <paramref name="program"/> on the next update.</summary>
-        internal void Start(CeresElevatorArrivalSegment program)
+        /// <summary>Starts the animation of <paramref name="segment"/> on the next update.</summary>
+        internal void Start(CeresElevatorArrivalSegment segment)
         {
             FrameHold = 1;
-            Playback = new AnimationPlayback<CeresElevatorArrivalSegment>(CeresElevatorArrivalAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
+            Playback = new AnimationPlayback<CeresElevatorArrivalSegment>(CeresElevatorArrivalAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
         }
         /// <summary>Frames until this projectile's next animation pass.</summary>
         public int FrameHold { get; set; } = 1;

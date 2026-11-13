@@ -582,10 +582,10 @@ internal static class TorizoProjectileAnimations
     ];
 
     /// <summary>The program a sleeping egg resumes into when its hatch timer steps the list past the sleep.</summary>
-    internal static TorizoProjectileSegment AfterSleep(TorizoProjectileSegment program) => program switch
+    internal static TorizoProjectileSegment AfterSleep(TorizoProjectileSegment segment) => segment switch
     {
         P.EggBouncingLeft
-            or P.EggBouncingRight => EnumOrder.Next(program),
+            or P.EggBouncingRight => EnumOrder.Next(segment),
         P.ExplosionLowHealthInitial or
             P.ExplosionLowHealthInitialLoop or
             P.ExplosionDeathInitial or
@@ -645,14 +645,14 @@ internal static class TorizoProjectileAnimations
             P.EyeBeamWallImpact or
             P.EyeBeamFloorImpact or
             P.EyeBeamFloorImpactLoop or
-            P.EyeBeamNormal => throw new ArgumentOutOfRangeException(nameof(program), program, "The program does not sleep before authored code."),
-        _ => throw new ArgumentOutOfRangeException(nameof(program), program, "The program does not sleep before authored code."),
+            P.EyeBeamNormal => throw new ArgumentOutOfRangeException(nameof(segment), segment, "The program does not sleep before authored code."),
+        _ => throw new ArgumentOutOfRangeException(nameof(segment), segment, "The program does not sleep before authored code."),
     };
 
-    /// <summary>Shows pose <paramref name="phase"/> of <paramref name="program"/> for <paramref name="duration"/> passes.</summary>
+    /// <summary>Shows pose <paramref name="phase"/> of <paramref name="segment"/> for <paramref name="duration"/> passes.</summary>
     private static AnimationBeat<TorizoProjectileFrame, TorizoProjectileCue> Show(
-        TorizoProjectileSegment program, int phase, int duration) =>
-        new AnimationBeat<TorizoProjectileFrame, TorizoProjectileCue>.Frame(new(program, phase), duration);
+        TorizoProjectileSegment segment, int phase, int duration) =>
+        new AnimationBeat<TorizoProjectileFrame, TorizoProjectileCue>.Frame(new(segment, phase), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
     private static AnimationBeat<TorizoProjectileFrame, TorizoProjectileCue> Cue(TorizoProjectileCue cue) =>

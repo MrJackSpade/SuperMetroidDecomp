@@ -167,26 +167,26 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
         bool areaMiniBossDefeated)
     {
         RoomPaletteFxDefinition definition = RoomPaletteFxSelection.Get(effect);
-        PaletteFxSegment program;
+        PaletteFxSegment segment;
         switch (definition.Start)
         {
             case ColourEffectStart.Plain:
-                program = definition.InitialAnimation;
+                segment = definition.InitialAnimation;
                 break;
             case ColourEffectStart.ChoosesHeatAnimationForSuit:
                 // The heat shimmer chooses its whole program from the same live suit Samus wears; Gravity before Varia.
-                program = PaletteFxHeatAnimations.Start(PaletteFxHeatAnimations.SuitFor(equippedItems));
+                segment = PaletteFxHeatAnimations.Start(PaletteFxHeatAnimations.SuitFor(equippedItems));
                 break;
             case ColourEffectStart.SkippedOnceAreaMiniBossIsDead:
                 if (areaMiniBossDefeated)
                     return false;
-                program = definition.InitialAnimation;
+                segment = definition.InitialAnimation;
                 break;
             default:
                 throw new InvalidOperationException($"Colour effect {effect} has undefined start {definition.Start}.");
         }
 
-        ColourEffectTurnOrder.Join(effects, new RoomColourEffect(effect, program));
+        ColourEffectTurnOrder.Join(effects, new RoomColourEffect(effect, segment));
         return true;
     }
 

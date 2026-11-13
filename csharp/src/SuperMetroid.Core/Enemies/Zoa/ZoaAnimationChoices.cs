@@ -5,8 +5,8 @@ internal static class ZoaAnimationChoices
 {
     /// <summary>The program <paramref name="selector"/> plays.</summary>
     internal static ZoaSegment Animation(ZoaAnimationSelector selector) =>
-        ZoaAnimationDefinitions.Animations.TryGetValue(selector, out ZoaSegment program)
-            ? program
+        ZoaAnimationDefinitions.Animations.TryGetValue(selector, out ZoaSegment segment)
+            ? segment
             : throw new ArgumentOutOfRangeException(nameof(selector), selector, $"Undefined {nameof(ZoaAnimationSelector)}.");
 
     /// <summary>The rising animation facing right or left.</summary>

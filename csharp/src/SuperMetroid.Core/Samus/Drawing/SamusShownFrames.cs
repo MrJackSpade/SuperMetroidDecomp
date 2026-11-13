@@ -355,8 +355,8 @@ internal sealed class SamusShownFrames
     /// </summary>
     private static int[] Starts(SamusPoseId pose)
     {
-        SamusPoseAnimation program = SamusAnimationDelays.AnimationForPose(pose);
-        return [.. Poses.Where(other => ReferenceEquals(SamusAnimationDelays.AnimationForPose(other), program))
+        SamusPoseAnimation animation = SamusAnimationDelays.AnimationForPose(pose);
+        return [.. Poses.Where(other => ReferenceEquals(SamusAnimationDelays.AnimationForPose(other), animation))
             .SelectMany(InitialFrames).Distinct().Order().Where(frame => IsPicture(pose, frame))];
     }
 

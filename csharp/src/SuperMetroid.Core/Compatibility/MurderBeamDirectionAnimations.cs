@@ -27,13 +27,13 @@ public sealed class MurderBeamDirectionAnimations<TDirection, TAnimation>
     private readonly IReadOnlyDictionary<TDirection, TAnimation?> _programs;
 
     /// <summary>Keeps the animation each readable direction runs.</summary>
-    /// <param name="programs">The animation each direction whose read names one runs, or null for the direction whose read is empty.</param>
-    public MurderBeamDirectionAnimations(IReadOnlyDictionary<TDirection, TAnimation?> programs) => _programs = Ensure.NotNull(programs);
+    /// <param name="animations">The animation each direction whose read names one runs, or null for the direction whose read is empty.</param>
+    public MurderBeamDirectionAnimations(IReadOnlyDictionary<TDirection, TAnimation?> animations) => _programs = Ensure.NotNull(animations);
 
     /// <summary>The animation the shot fired in <paramref name="direction"/> runs, or null for none.</summary>
     /// <exception cref="InvalidDataException">The direction reads a damage word as an animation.</exception>
     public TAnimation? Animation(TDirection direction) =>
-        _programs.TryGetValue(direction, out TAnimation? program)
-            ? program
+        _programs.TryGetValue(direction, out TAnimation? animation)
+            ? animation
             : throw new InvalidDataException($"The Murder Beam fired {direction} reads a damage word as its animation.");
 }

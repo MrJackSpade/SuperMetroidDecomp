@@ -196,9 +196,9 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     private static void StartWallSpacePirateAnimation(
         RoomEnemySlot slot,
         WallSpacePirateEnemyState state,
-        WallSpacePirateSegment program)
+        WallSpacePirateSegment segment)
     {
-        state.Playback = new(WallSpacePirateAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
+        state.Playback = new(WallSpacePirateAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
         slot.AnimationClock.StepOnNextUpdate();
     }
 

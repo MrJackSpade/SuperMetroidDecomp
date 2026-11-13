@@ -69,10 +69,10 @@ internal static class MotherBrainAnimations
 
     /// <summary>Each body program's animation: its segment played once, then held as the script's sleep holds it.</summary>
     internal static IReadOnlyDictionary<B, Animation<B>> BodyStartingAt { get; } =
-        Enum.GetValues<B>().ToDictionary(program => program, program => new Animation<B>([Whole(program)], AnimationEnd.Holds));
+        Enum.GetValues<B>().ToDictionary(segment => segment, segment => new Animation<B>([Whole(segment)], AnimationEnd.Holds));
 
-    /// <summary>The body animation that starts at <paramref name="program"/>.</summary>
-    internal static Animation<B> BodyStartingWith(B program) => BodyStartingAt[program];
+    /// <summary>The body animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<B> BodyStartingWith(B segment) => BodyStartingAt[segment];
 
     /// <summary>A forward walk whose frames last <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<MotherBrainBodyFrame, MotherBrainBodyCue>[] WalkForward(int duration) =>
@@ -343,8 +343,8 @@ internal static class MotherBrainAnimations
         [H.ChargingRainbowBeamLoop] = Looping(0, H.ChargingRainbowBeamLoop),
     };
 
-    /// <summary>The brain animation that starts at <paramref name="program"/>.</summary>
-    internal static Animation<H> HeadStartingWith(H program) => HeadStartingAt[program];
+    /// <summary>The brain animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<H> HeadStartingWith(H segment) => HeadStartingAt[segment];
 
     /// <summary>
     /// The neck stretch and the Hyper Beam recoil: the brain shakes, the mouth opens through
@@ -435,11 +435,11 @@ internal static class MotherBrainAnimations
     private static AnimationBeat<MotherBrainHeadFrame, MotherBrainHeadCue> HeadCue(MotherBrainHeadCue cue) =>
         new AnimationBeat<MotherBrainHeadFrame, MotherBrainHeadCue>.Event(cue);
 
-    /// <summary>One play of every beat of body segment <paramref name="program"/>.</summary>
-    private static AnimationPhase<B> Whole(B program) => new(program, 0, BodySegments.Beats(program).Count, 1);
+    /// <summary>One play of every beat of body segment <paramref name="segment"/>.</summary>
+    private static AnimationPhase<B> Whole(B segment) => new(segment, 0, BodySegments.Beats(segment).Count, 1);
 
-    /// <summary>One play of every beat of brain segment <paramref name="program"/>.</summary>
-    private static AnimationPhase<H> Whole(H program) => new(program, 0, HeadSegments.Beats(program).Count, 1);
+    /// <summary>One play of every beat of brain segment <paramref name="segment"/>.</summary>
+    private static AnimationPhase<H> Whole(H segment) => new(segment, 0, HeadSegments.Beats(segment).Count, 1);
 
     /// <summary>An animation of <paramref name="segments"/>, each played once in turn, that loops from phase <paramref name="loopsFrom"/>.</summary>
     private static Animation<H> Looping(int loopsFrom, params H[] segments) => new([.. segments.Select(segment => Whole(segment))], AnimationEnd.LoopsFrom(loopsFrom));

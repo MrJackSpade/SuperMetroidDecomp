@@ -45,7 +45,7 @@ internal sealed class ScrollObjects
 
     /// <summary>Runs one scroll trigger's or extension's setup at the place the room population took for it.</summary>
     internal static void SetupScrollSlot(RoomLevelData level, RoomObjectSlot slot,
-        RoomObjectHeaderId header, IReadOnlyList<RoomScrollWrite>? program, RoomScrollChange? compiledProgram)
+        RoomObjectHeaderId header, IReadOnlyList<RoomScrollWrite>? animation, RoomScrollChange? compiledChange)
     {
         Ensure.NotNull(level);
         Ensure.NotNull(slot);
@@ -65,7 +65,7 @@ internal sealed class ScrollObjects
             return;
         }
 
-        var trigger = new ScrollTriggerObject(program, compiledProgram);
+        var trigger = new ScrollTriggerObject(animation, compiledChange);
         slot.Become(trigger);
         trigger.Rest(level, slot.Block);
     }

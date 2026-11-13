@@ -5,8 +5,8 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>A Ridley fireball's or afterburn's typed animation.</summary>
-internal sealed class RidleyFireballAnimation(RidleyFireballSegment program)
-    : EnemyProjectileTypedAnimation<RidleyFireballSegment, RidleyFireballFrame, RidleyFireballCue>(RidleyFireballAnimations.StartingWith(program))
+internal sealed class RidleyFireballAnimation(RidleyFireballSegment segment)
+    : EnemyProjectileTypedAnimation<RidleyFireballSegment, RidleyFireballFrame, RidleyFireballCue>(RidleyFireballAnimations.StartingWith(segment))
 {
     /// <inheritdoc/>
     private protected override AnimationSegments<RidleyFireballSegment, RidleyFireballFrame, RidleyFireballCue> Segments =>

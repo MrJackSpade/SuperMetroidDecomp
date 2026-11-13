@@ -117,8 +117,8 @@ internal static class GunshipDustAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<GunshipDustSegment> StartingWith(GunshipDustSegment segment) => StartingAt[segment];
 
-    /// <summary>Shows <paramref name="program"/>'s pose <paramref name="phase"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<GunshipDustFrame, GunshipDustCue> Show(GunshipDustSegment program, int phase, int duration) => new AnimationBeat<GunshipDustFrame, GunshipDustCue>.Frame(new(program, phase), duration);
+    /// <summary>Shows <paramref name="segment"/>'s pose <paramref name="phase"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<GunshipDustFrame, GunshipDustCue> Show(GunshipDustSegment segment, int phase, int duration) => new AnimationBeat<GunshipDustFrame, GunshipDustCue>.Frame(new(segment, phase), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
     private static AnimationBeat<GunshipDustFrame, GunshipDustCue> Cue(GunshipDustCue cue) => new AnimationBeat<GunshipDustFrame, GunshipDustCue>.Event(cue);

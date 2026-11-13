@@ -686,12 +686,12 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         KiHunterEnemyState state = body.RequireSpeciesState<KiHunterEnemyState>();
         bool movingRight = state.Velocity.X.WholePixels >= 0;
-        KiHunterSegment wingProgram = movingRight
+        KiHunterSegment wingSegment = movingRight
             ? KiHunterSegment.WingsRight
             : KiHunterSegment.WingsLeft;
         RoomEnemySlot wings = GetKiHunterWings(body);
         if (WingsInPlace(wings) is { Function: KiHunterEnemyFunction.FollowBody } wingState)
-            StartKiHunterAnimation(wings, wingState, wingProgram);
+            StartKiHunterAnimation(wings, wingState, wingSegment);
         return movingRight
             ? KiHunterSegment.FlyingRight
             : KiHunterSegment.FlyingLeft;
@@ -810,9 +810,9 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Restarts a body or wing animation from its first step.</summary>
-    private static void StartKiHunterAnimation(RoomEnemySlot slot, KiHunterEnemyState state, KiHunterSegment program)
+    private static void StartKiHunterAnimation(RoomEnemySlot slot, KiHunterEnemyState state, KiHunterSegment segment)
     {
-        state.Playback = EnemyAnimationPlayback.Start(slot, KiHunterAnimations.StartingWith(program));
+        state.Playback = EnemyAnimationPlayback.Start(slot, KiHunterAnimations.StartingWith(segment));
     }
 
     /// <summary>The 0.875-pixel 16.16 downward acceleration added to a falling or hopping body each frame.</summary>

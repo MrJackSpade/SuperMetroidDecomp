@@ -835,9 +835,9 @@ public sealed class BabyMetroidCutsceneState
     }
 
     /// <summary>Switches the Baby's program and restarts its frame timer.</summary>
-    private void SetAnimation(MotherBrainBabySegment program)
+    private void SetAnimation(MotherBrainBabySegment segment)
     {
-        Animation = program;
+        Animation = segment;
         FrameHold = 1;
     }
 

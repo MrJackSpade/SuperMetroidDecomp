@@ -477,9 +477,9 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     private static bool IsPowampCentered(int wiggleIndex) => wiggleIndex is 0 or 6;
 
     /// <summary>Restarts a body or balloon animation on the next animation pass.</summary>
-    private static void SetPowampAnimation(RoomEnemySlot slot, PowampEnemyState state, PowampSegment program)
+    private static void SetPowampAnimation(RoomEnemySlot slot, PowampEnemyState state, PowampSegment segment)
     {
-        state.Playback = EnemyAnimationPlayback.Start(slot, PowampAnimations.StartingWith(program));
+        state.Playback = EnemyAnimationPlayback.Start(slot, PowampAnimations.StartingWith(segment));
     }
 
     /// <summary>Rejects a rise or sink dispatch without room collision data.</summary>

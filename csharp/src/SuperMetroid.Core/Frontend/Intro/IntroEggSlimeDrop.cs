@@ -32,7 +32,7 @@ internal sealed class IntroEggSlimeDrop
         sprite = new IntroDiscoverySprite(
             babyPosition,
             colouring: IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors),
-            program: definition.Animation);
+            segment: definition.Animation);
         sprite.InstallFrameBehavior(definition.FrameBehavior);
     }
 

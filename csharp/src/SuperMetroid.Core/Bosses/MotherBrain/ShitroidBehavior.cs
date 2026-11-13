@@ -744,10 +744,10 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Slot.Shading = state.Shading;
     }
 
-    /// <summary>Starts <paramref name="program"/> with both instruction timers reset.</summary>
-    private void SetShitroidAnimation(RoomEnemySlot slot, ShitroidSegment program)
+    /// <summary>Starts <paramref name="segment"/> with both instruction timers reset.</summary>
+    private void SetShitroidAnimation(RoomEnemySlot slot, ShitroidSegment segment)
     {
-        RequireShitroidState(slot).Playback = ShitroidAnimations.Starting(program);
+        RequireShitroidState(slot).Playback = ShitroidAnimations.Starting(segment);
         slot.AnimationClock.Restart();
     }
 

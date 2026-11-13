@@ -6,8 +6,8 @@ internal static class PipeBugAnimationChoices
     /// <summary>The rising or shooting program of a normal or strong Pipe Bug with <paramref name="selector"/>.</summary>
     /// <exception cref="InvalidDataException"><paramref name="selector"/> is not one of the four animations.</exception>
     internal static PipeBugSegment BrinstarAnimation(bool strong, PipeBugAnimationSelector selector) =>
-        PipeBugDefinitions.BrinstarAnimations.TryGetValue(new PipeBugAnimationKey(strong, selector), out PipeBugSegment program)
-            ? program
+        PipeBugDefinitions.BrinstarAnimations.TryGetValue(new PipeBugAnimationKey(strong, selector), out PipeBugSegment segment)
+            ? segment
             : throw new InvalidDataException(
                 $"Pipe Bug animation selector {selector} is not one of its four animations.");
 

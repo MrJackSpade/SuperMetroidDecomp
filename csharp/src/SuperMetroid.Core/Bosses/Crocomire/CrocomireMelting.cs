@@ -70,10 +70,10 @@ internal sealed class CrocomireMelting
         _bossArtwork.Body(BossBodyOwner.Crocomire).Frame(CrocomireMeltingFrameNames.Of(illustration));
 
     /// <summary>Starts the selected body melting list, which the melt image just shown on his body layer goes with.</summary>
-    private static void StartCrocomireMeltingBodyAnimation(CrocomireEnemyState state, CrocomireBodySegment bodyProgram)
+    private static void StartCrocomireMeltingBodyAnimation(CrocomireEnemyState state, CrocomireBodySegment bodySegment)
     {
         state.DeathPhase = state.DeathPhase.Next();
-        CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, bodyProgram);
+        CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, bodySegment);
     }
 
     /// <summary>Shows melt image <paramref name="illustration"/> as his whole body, in place of the body frame it showed (#1515).</summary>

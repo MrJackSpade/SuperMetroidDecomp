@@ -166,7 +166,7 @@ internal static class DachoraAnimations
     internal static Animation<DachoraSegment> StartingWith(DachoraSegment segment) => StartingAt[segment];
 
     /// <summary>The program a sleeping list resumes into when its owner steps the list past the sleep.</summary>
-    internal static DachoraSegment AfterSleep(DachoraSegment program) => program switch
+    internal static DachoraSegment AfterSleep(DachoraSegment segment) => segment switch
     {
         P.ChargeRight => P.EchoRight,
         P.RunningLeft or
@@ -182,8 +182,8 @@ internal static class DachoraAnimations
             P.IdleRight or
             P.BlinkRight or
             P.EchoRight or
-            P.FallingRight => throw new ArgumentOutOfRangeException(nameof(program), program, "The program does not sleep before authored code."),
-        _ => throw new ArgumentOutOfRangeException(nameof(program), program, "The program does not sleep before authored code."),
+            P.FallingRight => throw new ArgumentOutOfRangeException(nameof(segment), segment, "The program does not sleep before authored code."),
+        _ => throw new ArgumentOutOfRangeException(nameof(segment), segment, "The program does not sleep before authored code."),
     };
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>

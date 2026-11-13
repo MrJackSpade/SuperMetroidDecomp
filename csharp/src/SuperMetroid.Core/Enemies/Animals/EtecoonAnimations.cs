@@ -149,7 +149,7 @@ internal static class EtecoonAnimations
     internal static Animation<EtecoonSegment> StartingWith(EtecoonSegment segment) => StartingAt[segment];
 
     /// <summary>The program a sleeping list resumes into when its owner steps the list past the sleep.</summary>
-    internal static EtecoonSegment AfterSleep(EtecoonSegment program) => program switch
+    internal static EtecoonSegment AfterSleep(EtecoonSegment segment) => segment switch
     {
         P.LookRightAtSamusAndRunLeft
             or P.HoppingFacingLeft
@@ -158,7 +158,7 @@ internal static class EtecoonAnimations
             or P.LookLeftAtSamusAndRunRight
             or P.HoppingFacingRight
             or P.ContinueHoppingFacingRight
-            or P.WallJumpRightEligible => EnumOrder.Next(program),
+            or P.WallJumpRightEligible => EnumOrder.Next(segment),
         P.BeginRunningLeft or
             P.RunningLeft or
             P.WallJumpLeft or
@@ -170,8 +170,8 @@ internal static class EtecoonAnimations
             P.JumpingRight or
             P.Initial or
             P.Flexing or
-            P.FlexingLoop => throw new ArgumentOutOfRangeException(nameof(program), program, "The program does not sleep before authored code."),
-        _ => throw new ArgumentOutOfRangeException(nameof(program), program, "The program does not sleep before authored code."),
+            P.FlexingLoop => throw new ArgumentOutOfRangeException(nameof(segment), segment, "The program does not sleep before authored code."),
+        _ => throw new ArgumentOutOfRangeException(nameof(segment), segment, "The program does not sleep before authored code."),
     };
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>

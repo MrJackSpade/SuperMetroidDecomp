@@ -243,12 +243,12 @@ internal sealed class IntroCinematicObjectSystem
             return;
         }
 
-        IntroNarrationCharacter[] program = NarrationAnimation;
-        if (narrationCharacterIndex < program.Length)
+        IntroNarrationCharacter[] animation = NarrationAnimation;
+        if (narrationCharacterIndex < animation.Length)
         {
-            IntroNarrationCharacter character = program[narrationCharacterIndex];
-            IntroNarrationCharacter? next = narrationCharacterIndex + 1 < program.Length
-                ? program[narrationCharacterIndex + 1]
+            IntroNarrationCharacter character = animation[narrationCharacterIndex];
+            IntroNarrationCharacter? next = narrationCharacterIndex + 1 < animation.Length
+                ? animation[narrationCharacterIndex + 1]
                 : null;
             (textGlow ??= new()).Spawn(character.Column, character.Row);
             if (next is { } following)

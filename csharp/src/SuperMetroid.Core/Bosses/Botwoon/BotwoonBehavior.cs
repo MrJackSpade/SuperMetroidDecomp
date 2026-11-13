@@ -541,20 +541,20 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         Offset16<RoomPixels> moved = head.Position.Whole - state.HeadHistory[3];
         if (moved.X != 0 || moved.Y != 0)
         {
-            BotwoonHeadAnimationSegment program;
+            BotwoonHeadAnimationSegment segment;
             if (state.InsideHole)
             {
                 // The head becomes intangible while it travels inside the wall.
                 head.Contact = head.Contact.With(EnemyContact.IgnoresSamus);
-                program = BotwoonHeadAnimationSegment.Hidden;
+                segment = BotwoonHeadAnimationSegment.Hidden;
             }
             else
             {
                 // Collision is restored once the head is outside.
                 head.Contact = head.Contact.Without(EnemyContact.IgnoresSamus);
-                program = BotwoonHeadAnimationSegment.MovingToward(EnemyMath.CalculateBearing(moved));
+                segment = BotwoonHeadAnimationSegment.MovingToward(EnemyMath.CalculateBearing(moved));
             }
-            StartBotwoonHeadAnimation(head, state, program);
+            StartBotwoonHeadAnimation(head, state, segment);
         }
 
         for (int index = 3; index > 0; index--)
@@ -584,11 +584,11 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void StartBotwoonHeadAnimation(
         RoomEnemySlot head,
         BotwoonEnemyState state,
-        BotwoonHeadAnimationSegment program)
+        BotwoonHeadAnimationSegment segment)
     {
-        if (program == state.HeadAnimation)
+        if (segment == state.HeadAnimation)
             return;
-        state.HeadPlayback = EnemyAnimationPlayback.Start(head, BotwoonAnimations.HeadStartingWith(program));
+        state.HeadPlayback = EnemyAnimationPlayback.Start(head, BotwoonAnimations.HeadStartingWith(segment));
     }
 
     /// <summary>Advances Botwoon's typed animation.</summary>

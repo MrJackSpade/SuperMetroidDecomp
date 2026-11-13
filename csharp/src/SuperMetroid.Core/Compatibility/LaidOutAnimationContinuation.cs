@@ -89,26 +89,26 @@ public sealed class LaidOutAnimationContinuation<TAnimation, TStep>
     }
 
     /// <summary>
-    /// Where a read at <paramref name="frame"/> of <paramref name="program"/>, past its end, lands; null when nothing is
+    /// Where a read at <paramref name="frame"/> of <paramref name="animation"/>, past its end, lands; null when nothing is
     /// laid out after it or the frame falls short of the next program's start.
     /// </summary>
-    /// <exception cref="ArgumentException"><paramref name="program"/> is not in the layout.</exception>
-    public Read? ReadPast(TAnimation program, int frame) =>
-        !_successors.TryGetValue(program, out Successor? successor)
-            ? throw new ArgumentException($"Program {program} is not in the layout.", nameof(program))
+    /// <exception cref="ArgumentException"><paramref name="animation"/> is not in the layout.</exception>
+    public Read? ReadPast(TAnimation animation, int frame) =>
+        !_successors.TryGetValue(animation, out Successor? successor)
+            ? throw new ArgumentException($"Program {animation} is not in the layout.", nameof(animation))
             : successor is not { } next || frame < next.Shift
                 ? null
                 : new Read(next.Animation, frame - next.Shift, next.Shift);
 
     /// <summary>
-    /// The step <paramref name="frame"/> of <paramref name="program"/> reads when it lands on an instruction's operand, in
+    /// The step <paramref name="frame"/> of <paramref name="animation"/> reads when it lands on an instruction's operand, in
     /// the program's own frame numbering; null when the frame is no operand's place of the program.
     /// </summary>
-    /// <exception cref="ArgumentException"><paramref name="program"/> is not in the layout.</exception>
-    public TStep? OperandStep(TAnimation program, int frame) =>
-        !_successors.ContainsKey(program)
-            ? throw new ArgumentException($"Program {program} is not in the layout.", nameof(program))
-            : _operandSteps.TryGetValue(program, out IReadOnlyDictionary<int, TStep>? steps) && steps.TryGetValue(frame, out TStep? step)
+    /// <exception cref="ArgumentException"><paramref name="animation"/> is not in the layout.</exception>
+    public TStep? OperandStep(TAnimation animation, int frame) =>
+        !_successors.ContainsKey(animation)
+            ? throw new ArgumentException($"Program {animation} is not in the layout.", nameof(animation))
+            : _operandSteps.TryGetValue(animation, out IReadOnlyDictionary<int, TStep>? steps) && steps.TryGetValue(frame, out TStep? step)
                 ? step
                 : null;
 }

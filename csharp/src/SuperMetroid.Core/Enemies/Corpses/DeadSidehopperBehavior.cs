@@ -420,14 +420,14 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
 
 
     /// <summary>Starts a new dead Sidehopper animation, resetting both instruction clocks before its first step runs.</summary>
-    internal static void SetDeadSidehopperAnimation(RoomEnemySlot slot, DeadSidehopperEnemyState state, DeadTourianSegment program) =>
-        state.Playback = StartDeadTourianAnimation(slot, program);
+    internal static void SetDeadSidehopperAnimation(RoomEnemySlot slot, DeadSidehopperEnemyState state, DeadTourianSegment segment) =>
+        state.Playback = StartDeadTourianAnimation(slot, segment);
 
-    /// <summary>Resets <paramref name="slot"/>'s instruction clocks and returns the playback of <paramref name="program"/>'s animation from its start.</summary>
-    internal static AnimationPlayback<DeadTourianSegment> StartDeadTourianAnimation(RoomEnemySlot slot, DeadTourianSegment program)
+    /// <summary>Resets <paramref name="slot"/>'s instruction clocks and returns the playback of <paramref name="segment"/>'s animation from its start.</summary>
+    internal static AnimationPlayback<DeadTourianSegment> StartDeadTourianAnimation(RoomEnemySlot slot, DeadTourianSegment segment)
     {
         slot.AnimationClock.Restart();
-        return new AnimationPlayback<DeadTourianSegment>(DeadTourianAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
+        return new AnimationPlayback<DeadTourianSegment>(DeadTourianAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
     }
 
     /// <summary>Rejects missing or mismatched private state before dispatching the slot's corpse AI.</summary>

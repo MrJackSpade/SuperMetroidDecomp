@@ -5,8 +5,8 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Enemies.Gunship;
 
 /// <summary>A gunship liftoff dust cloud's typed animation.</summary>
-internal sealed class GunshipDustAnimation(GunshipDustSegment program)
-    : EnemyProjectileTypedAnimation<GunshipDustSegment, GunshipDustFrame, GunshipDustCue>(GunshipDustAnimations.StartingWith(program))
+internal sealed class GunshipDustAnimation(GunshipDustSegment segment)
+    : EnemyProjectileTypedAnimation<GunshipDustSegment, GunshipDustFrame, GunshipDustCue>(GunshipDustAnimations.StartingWith(segment))
 {
     /// <inheritdoc/>
     private protected override AnimationSegments<GunshipDustSegment, GunshipDustFrame, GunshipDustCue> Segments => GunshipDustAnimations.Segments;

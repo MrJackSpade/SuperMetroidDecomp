@@ -207,8 +207,8 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
     private static void StartNorfairLavaJumpingEnemyAnimation(
         RoomEnemySlot slot,
         NorfairLavaJumpingEnemyState state,
-        NorfairLavaJumperSegment program) =>
-        EnemyAnimationPlayback.StartOnce(slot, state.InstalledAnimation, program, installed =>
+        NorfairLavaJumperSegment segment) =>
+        EnemyAnimationPlayback.StartOnce(slot, state.InstalledAnimation, segment, installed =>
         {
             state.InstalledAnimation = installed;
             state.Playback = new(NorfairLavaJumperAnimations.StartingWith(installed), AnimationPlace.StartOfAnimation);

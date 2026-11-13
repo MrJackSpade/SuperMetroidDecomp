@@ -288,8 +288,8 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void StartNorfairRioAnimation(
         RoomEnemySlot slot,
         NorfairRioEnemyState state,
-        NorfairRioSegment program) =>
-        EnemyAnimationPlayback.StartOnce(slot, state.InstalledAnimation, program, installed =>
+        NorfairRioSegment segment) =>
+        EnemyAnimationPlayback.StartOnce(slot, state.InstalledAnimation, segment, installed =>
         {
             state.InstalledAnimation = installed;
             state.Playback = new(NorfairRioAnimations.StartingWith(installed), AnimationPlace.StartOfAnimation);

@@ -127,9 +127,9 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Selects an animation and makes its first step due on the next pass.</summary>
-    private static void StartSparkAnimation(RoomEnemySlot slot, SparkEnemyState state, SparkSegment program)
+    private static void StartSparkAnimation(RoomEnemySlot slot, SparkEnemyState state, SparkSegment segment)
     {
-        state.Playback = new(SparkAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
+        state.Playback = new(SparkAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
         slot.AnimationClock.StepOnNextUpdate();
     }
 

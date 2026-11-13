@@ -54,30 +54,30 @@ internal static class BotwoonAnimations
 
     /// <summary>The head's segments: each head program's beats.</summary>
     internal static AnimationSegments<BotwoonHeadAnimationSegment, BotwoonHeadFrame, BotwoonHeadCue> HeadSegments { get; } = new(
-        HeadAnimationKeys.ToDictionary(program => program, HeadBeats), HeadAnimationKeys);
+        HeadAnimationKeys.ToDictionary(segment => segment, HeadBeats), HeadAnimationKeys);
 
     /// <summary>The head animation that starts at each head program: it plays the program's beats once and holds its last frame.</summary>
     internal static IReadOnlyDictionary<BotwoonHeadAnimationSegment, Animation<BotwoonHeadAnimationSegment>> HeadStartingAt { get; } =
-        HeadAnimationKeys.ToDictionary(program => program, program => new Animation<BotwoonHeadAnimationSegment>(
-            [new(program, 0, HeadSegments.Beats(program).Count, 1)], AnimationEnd.Holds));
+        HeadAnimationKeys.ToDictionary(segment => segment, segment => new Animation<BotwoonHeadAnimationSegment>(
+            [new(segment, 0, HeadSegments.Beats(segment).Count, 1)], AnimationEnd.Holds));
 
     /// <summary>The segments a body segment or spit plays: each segment program's beats.</summary>
     internal static AnimationSegments<BotwoonBodyAnimationSegment, BotwoonProjectileFrame, NoAnimationCue> ProjectileSegments { get; } = new(
-        SegmentAnimationKeys.ToDictionary(program => program, ProjectileBeats), SegmentAnimationKeys);
+        SegmentAnimationKeys.ToDictionary(segment => segment, ProjectileBeats), SegmentAnimationKeys);
 
     /// <summary>
     /// The projectile animation that starts at each segment program: a body link and the spit cycle their frames for good,
     /// and a tail cap or hidden segment shows its one frame and holds it.
     /// </summary>
     internal static IReadOnlyDictionary<BotwoonBodyAnimationSegment, Animation<BotwoonBodyAnimationSegment>> ProjectileStartingAt { get; } =
-        SegmentAnimationKeys.ToDictionary(program => program, program => new Animation<BotwoonBodyAnimationSegment>(
-            [new(program, 0, ProjectileSegments.Beats(program).Count, 1)], ProjectileEnd(program.Kind)));
+        SegmentAnimationKeys.ToDictionary(segment => segment, segment => new Animation<BotwoonBodyAnimationSegment>(
+            [new(segment, 0, ProjectileSegments.Beats(segment).Count, 1)], ProjectileEnd(segment.Kind)));
 
-    /// <summary>The head animation that starts at <paramref name="program"/>.</summary>
-    internal static Animation<BotwoonHeadAnimationSegment> HeadStartingWith(BotwoonHeadAnimationSegment program) => HeadStartingAt[program];
+    /// <summary>The head animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<BotwoonHeadAnimationSegment> HeadStartingWith(BotwoonHeadAnimationSegment segment) => HeadStartingAt[segment];
 
-    /// <summary>The projectile animation that starts at <paramref name="program"/>.</summary>
-    internal static Animation<BotwoonBodyAnimationSegment> ProjectileStartingWith(BotwoonBodyAnimationSegment program) => ProjectileStartingAt[program];
+    /// <summary>The projectile animation that starts at <paramref name="segment"/>.</summary>
+    internal static Animation<BotwoonBodyAnimationSegment> ProjectileStartingWith(BotwoonBodyAnimationSegment segment) => ProjectileStartingAt[segment];
 
     /// <summary>The facing of angle octant <paramref name="octant"/>, zero (up) through seven, clockwise.</summary>
     internal static BotwoonFacing FacingOfOctant(int octant) =>
@@ -105,23 +105,23 @@ internal static class BotwoonAnimations
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Undefined Botwoon segment program kind."),
     };
 
-    /// <summary>The beats of head program <paramref name="program"/>.</summary>
-    private static AnimationBeat<BotwoonHeadFrame, BotwoonHeadCue>[] HeadBeats(BotwoonHeadAnimationSegment program) => program.Kind switch
+    /// <summary>The beats of head program <paramref name="segment"/>.</summary>
+    private static AnimationBeat<BotwoonHeadFrame, BotwoonHeadCue>[] HeadBeats(BotwoonHeadAnimationSegment segment) => segment.Kind switch
     {
         BotwoonHeadAnimationSegmentKind.Hidden => HiddenHead(),
-        BotwoonHeadAnimationSegmentKind.Moving => MovingHead(program.Facing),
-        BotwoonHeadAnimationSegmentKind.Spitting => SpittingHead(program.Facing),
-        _ => throw new ArgumentOutOfRangeException(nameof(program), program, "Undefined Botwoon head program."),
+        BotwoonHeadAnimationSegmentKind.Moving => MovingHead(segment.Facing),
+        BotwoonHeadAnimationSegmentKind.Spitting => SpittingHead(segment.Facing),
+        _ => throw new ArgumentOutOfRangeException(nameof(segment), segment, "Undefined Botwoon head program."),
     };
 
-    /// <summary>The beats of segment program <paramref name="program"/>.</summary>
-    private static AnimationBeat<BotwoonProjectileFrame, NoAnimationCue>[] ProjectileBeats(BotwoonBodyAnimationSegment program) => program.Kind switch
+    /// <summary>The beats of segment program <paramref name="segment"/>.</summary>
+    private static AnimationBeat<BotwoonProjectileFrame, NoAnimationCue>[] ProjectileBeats(BotwoonBodyAnimationSegment segment) => segment.Kind switch
     {
-        BotwoonBodyAnimationSegmentKind.Body => BodyLink(program.Facing),
-        BotwoonBodyAnimationSegmentKind.Tail => [SegmentFrame(new(BotwoonProjectileFrameKind.Tail, program.Facing, 0), 1)],
+        BotwoonBodyAnimationSegmentKind.Body => BodyLink(segment.Facing),
+        BotwoonBodyAnimationSegmentKind.Tail => [SegmentFrame(new(BotwoonProjectileFrameKind.Tail, segment.Facing, 0), 1)],
         BotwoonBodyAnimationSegmentKind.Hidden => [SegmentFrame(new(BotwoonProjectileFrameKind.Hidden, BotwoonFacing.Up, 0), 1)],
         BotwoonBodyAnimationSegmentKind.Spit => SpitCycle(),
-        _ => throw new ArgumentOutOfRangeException(nameof(program), program, "Undefined Botwoon segment program."),
+        _ => throw new ArgumentOutOfRangeException(nameof(segment), segment, "Undefined Botwoon segment program."),
     };
 
     /// <summary>The invisible head frame, held while Botwoon is inside a wall.</summary>

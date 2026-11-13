@@ -11,17 +11,17 @@ public static class RoomStateSelection
     /// <summary>Selects a state with first-match precedence.</summary>
     public static RoomStateSettings Select(RoomHeaderDefinition room, RoomStateSelectionContext selection)
     {
-        RoomStateChoice program = ChoiceFor(Ensure.NotNull(room));
-        foreach (RoomStateBranch branch in program.Branches)
+        RoomStateChoice animation = ChoiceFor(Ensure.NotNull(room));
+        foreach (RoomStateBranch branch in animation.Branches)
         {
             if (branch.Condition.IsMet(selection))
                 return branch.State;
         }
-        return program.Default;
+        return animation.Default;
     }
 
     /// <summary>The program of <paramref name="room"/>, which must be a compiled retail room.</summary>
     internal static RoomStateChoice ChoiceFor(RoomHeaderDefinition room) =>
-        RoomStateSelectionDefinitions.Choices.TryGetValue(room, out RoomStateChoice? program) ? program
+        RoomStateSelectionDefinitions.Choices.TryGetValue(room, out RoomStateChoice? animation) ? animation
             : throw new ArgumentOutOfRangeException(nameof(room), room.Name, "Room is not one of the 262 compiled retail rooms.");
 }

@@ -12,6 +12,6 @@ internal readonly record struct EndingSpriteDefinition(
     CinematicSpriteSegment Animation)
 {
     /// <summary>An actor at signed <paramref name="origin"/>, stored as the wrapped coordinates the actor carries.</summary>
-    public static EndingSpriteDefinition At(Offset16<ScreenPixels> origin, EndingSpriteColouring colouring, CinematicSpriteSegment program) =>
-        new(new(CoordinateAxis.Wrap(origin.X), CoordinateAxis.Wrap(origin.Y)), colouring, program);
+    public static EndingSpriteDefinition At(Offset16<ScreenPixels> origin, EndingSpriteColouring colouring, CinematicSpriteSegment segment) =>
+        new(new(CoordinateAxis.Wrap(origin.X), CoordinateAxis.Wrap(origin.Y)), colouring, segment);
 }

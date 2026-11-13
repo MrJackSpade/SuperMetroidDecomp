@@ -48,25 +48,25 @@ public sealed class RoomObjectPopulation
         Ensure.NotNull(placement);
         if (placement.Header.Header == RoomObjectHeaderId.None)
             throw new InvalidDataException("A decoded room-object placement cannot be an empty placement.");
-        RoomScrollWrite[]? program = placement.ScrollChange?.ToArray();
-        RoomScrollChange? compiledProgram = program is null ? placement.CompiledScrollChange : null;
-        if (compiledProgram is not null)
+        RoomScrollWrite[]? animation = placement.ScrollChange?.ToArray();
+        RoomScrollChange? compiledChange = animation is null ? placement.CompiledScrollChange : null;
+        if (compiledChange is not null)
         {
             if (placement.Header.Header != RoomObjectHeaderId.ScrollTrigger)
                 throw new InvalidDataException("Only a scroll trigger may run a retail scroll program.");
         }
         else if (placement.Header.Header == RoomObjectHeaderId.ScrollTrigger)
         {
-            if (program is null || program.Length >= RoomScrollGrid.KeptCellCount)
+            if (animation is null || animation.Length >= RoomScrollGrid.KeptCellCount)
                 throw new InvalidDataException("A decoded scroll room object needs a bounded write program.");
-            foreach (RoomScrollWrite write in program)
+            foreach (RoomScrollWrite write in animation)
             {
                 if (write.Index is < 0 or >= RoomScrollGrid.KeptCellCount || !Enum.IsDefined(write.State))
                     throw new InvalidDataException("A decoded scroll room object contains an invalid scroll write.");
             }
         }
-        else if (program is not null)
+        else if (animation is not null)
             throw new InvalidDataException("Only a resident scroll room object may own scroll writes.");
-        return placement with { ScrollChange = program, CompiledScrollChange = compiledProgram };
+        return placement with { ScrollChange = animation, CompiledScrollChange = compiledChange };
     }
 }

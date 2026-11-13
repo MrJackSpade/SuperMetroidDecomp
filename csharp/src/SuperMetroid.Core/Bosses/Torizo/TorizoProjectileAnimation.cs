@@ -5,8 +5,8 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>A Torizo projectile's typed animation.</summary>
-internal sealed class TorizoProjectileAnimation(TorizoProjectileSegment program)
-    : EnemyProjectileTypedAnimation<TorizoProjectileSegment, TorizoProjectileFrame, TorizoProjectileCue>(TorizoProjectileAnimations.StartingWith(program))
+internal sealed class TorizoProjectileAnimation(TorizoProjectileSegment segment)
+    : EnemyProjectileTypedAnimation<TorizoProjectileSegment, TorizoProjectileFrame, TorizoProjectileCue>(TorizoProjectileAnimations.StartingWith(segment))
 {
     /// <inheritdoc/>
     private protected override AnimationSegments<TorizoProjectileSegment, TorizoProjectileFrame, TorizoProjectileCue> Segments => TorizoProjectileAnimations.Segments;

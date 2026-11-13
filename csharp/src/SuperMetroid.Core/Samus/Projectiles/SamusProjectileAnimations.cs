@@ -1391,6 +1391,6 @@ internal static class SamusProjectileAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<SamusProjectileSegment> StartingWith(SamusProjectileSegment segment) => StartingAt[segment];
 
-    /// <summary>Shows <paramref name="program"/>'s timed record <paramref name="show"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<SamusProjectileFrame, NoAnimationCue> Show(SamusProjectileSegment program, int show, int duration) => new AnimationBeat<SamusProjectileFrame, NoAnimationCue>.Frame(new(program, show), duration);
+    /// <summary>Shows <paramref name="segment"/>'s timed record <paramref name="show"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<SamusProjectileFrame, NoAnimationCue> Show(SamusProjectileSegment segment, int show, int duration) => new AnimationBeat<SamusProjectileFrame, NoAnimationCue>.Frame(new(segment, show), duration);
 }

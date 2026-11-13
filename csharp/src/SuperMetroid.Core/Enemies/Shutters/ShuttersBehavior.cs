@@ -250,7 +250,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         if (finalSection)
             return;
 
-        ShutterSegment program = state.GrowthLevel switch
+        ShutterSegment segment = state.GrowthLevel switch
         {
             1 => ShutterSegment.GrowingTwentyPixels,
             2 => ShutterSegment.GrowingThirtyPixels,
@@ -259,17 +259,17 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
                 $"Growing shutter advanced to invalid level {state.GrowthLevel}."),
         };
         int radius = 8 + state.GrowthLevel * 8;
-        StartGrowingShutterAnimation(slot, state, program, radius);
+        StartGrowingShutterAnimation(slot, state, segment, radius);
     }
 
     /// <summary>Restarts the next growth pose and updates the shutter's vertical collision radius.</summary>
     private static void StartGrowingShutterAnimation(
         RoomEnemySlot slot,
         GrowingShutterEnemyState state,
-        ShutterSegment program,
+        ShutterSegment segment,
         int yRadius)
     {
-        state.Playback = EnemyAnimationPlayback.Start(slot, ShutterAnimations.StartingWith(program));
+        state.Playback = EnemyAnimationPlayback.Start(slot, ShutterAnimations.StartingWith(segment));
         slot.Radius = slot.Radius.WithY(yRadius);
     }
     /// <summary>Samus's four-pixel correction when pushing against a horizontal shutter.</summary>
@@ -1022,9 +1022,9 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Restarts a vertical shutter's selected animation.</summary>
-    private static void StartVerticalShutterAnimation(RoomEnemySlot slot, VerticalShutterEnemyState state, ShutterSegment program)
+    private static void StartVerticalShutterAnimation(RoomEnemySlot slot, VerticalShutterEnemyState state, ShutterSegment segment)
     {
-        state.Playback = EnemyAnimationPlayback.Start(slot, ShutterAnimations.StartingWith(program));
+        state.Playback = EnemyAnimationPlayback.Start(slot, ShutterAnimations.StartingWith(segment));
     }
 
     /// <inheritdoc/>

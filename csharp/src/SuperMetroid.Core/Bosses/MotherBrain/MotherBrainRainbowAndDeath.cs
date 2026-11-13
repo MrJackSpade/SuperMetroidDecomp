@@ -145,11 +145,11 @@ internal sealed class MotherBrainRainbowAndDeath
     /// <summary>Places a death explosion with the requested position and visual phase.</summary>
     internal void SpawnMotherBrainDeathExplosion(MotherBrainDeathExplosionRequest request)
     {
-        MiscDustProjectileSegment program = MotherBrainDeathExplosions.Animation(request.ProjectileParameter);
+        MiscDustProjectileSegment segment = MotherBrainDeathExplosions.Animation(request.ProjectileParameter);
         var projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null) return; // Shared-pool exhaustion drops the spawn.
         MotherBrainProjectileStarts.Initialize(projectile, RoomEnemyProjectileKind.MotherBrainDeathExplosion, graphics: default);
-        projectile.StartAnimation(new MiscDustProjectileAnimation(program));
+        projectile.StartAnimation(new MiscDustProjectileAnimation(segment));
         projectile.State = new MotherBrainFollowingExplosionState(request.Offset);
         projectile.Velocity = FollowingExplosionLeftVelocity.Of(request.Offset);
         _projectileAttacks.RunMotherBrainDeathExplosion(projectile);
@@ -230,20 +230,20 @@ internal sealed class MotherBrainRainbowAndDeath
         // The brain-program request resets the physical list timer only when body AI requests a new list.
         // The dedicated latch is essential because the running program advances away from
         // the list origin while the request itself remains unchanged.
-        if (sequence.State.HeadAnimation is { } headProgram &&
+        if (sequence.State.HeadAnimation is { } headSegment &&
             (step is { HeadAnimationRequested: true } ||
-             headProgram != state.RainbowAppliedHeadAnimation))
+             headSegment != state.RainbowAppliedHeadAnimation))
         {
-            MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, headProgram);
-            state.RainbowAppliedHeadAnimation = headProgram;
+            MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, headSegment);
+            state.RainbowAppliedHeadAnimation = headSegment;
         }
 
         if (step is { } result &&
             (result.BodyWalkRequested || result.BodyPostureRequested))
         {
-            MotherBrainBodySegment bodyProgram = sequence.RequestedBodyAnimation ?? throw new InvalidDataException(
+            MotherBrainBodySegment bodySegment = sequence.RequestedBodyAnimation ?? throw new InvalidDataException(
                 "Rainbow body AI requested animation without a body program.");
-            MotherBrainEncounterAccess.SetMotherBrainBodyAnimation(state, bodyProgram);
+            MotherBrainEncounterAccess.SetMotherBrainBodyAnimation(state, bodySegment);
         }
 
         state.Function = sequence.State.Phase ?? throw new InvalidDataException("The live Mother Brain rainbow sequence has no body function yet.");

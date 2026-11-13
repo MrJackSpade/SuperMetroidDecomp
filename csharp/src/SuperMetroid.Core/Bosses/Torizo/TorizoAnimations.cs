@@ -143,11 +143,11 @@ internal static class TorizoAnimations
     /// The program a sleeping list resumes into when the AI steps its program past the sleep, as Bomb Torizo's wake
     /// and Golden Torizo's trigger do.
     /// </summary>
-    internal static TorizoBodySegment AfterSleep(TorizoBodySegment program) => program switch
+    internal static TorizoBodySegment AfterSleep(TorizoBodySegment segment) => segment switch
     {
         P.BombTorizoInitial0
             or P.FacingLeftFacelessWalkingLeftLegMovingTrailing
-            or P.GoldenInitial0 => EnumOrder.Next(program),
+            or P.GoldenInitial0 => EnumOrder.Next(segment),
         P.SpecialCallableBlowUpBombTorizosGut or
             P.CallableBlowUpBombTorizosFace or
             P.DeathSequence0 or
@@ -264,7 +264,7 @@ internal static class TorizoAnimations
             P.GoldenDodgeTurningRight or
             P.GoldenTurningRight or
             P.GoldenWalkingRightLeftLegMoving or
-            P.GoldenWalkingRightRightLegMoving => throw new ArgumentOutOfRangeException(nameof(program), program, "The program does not sleep before authored code."),
-        _ => throw new ArgumentOutOfRangeException(nameof(program), program, "The program does not sleep before authored code."),
+            P.GoldenWalkingRightRightLegMoving => throw new ArgumentOutOfRangeException(nameof(segment), segment, "The program does not sleep before authored code."),
+        _ => throw new ArgumentOutOfRangeException(nameof(segment), segment, "The program does not sleep before authored code."),
     };
 }

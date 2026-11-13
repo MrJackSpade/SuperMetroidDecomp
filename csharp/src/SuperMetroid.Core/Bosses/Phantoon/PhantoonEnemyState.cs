@@ -62,9 +62,9 @@ public sealed class PhantoonEnemyState
     /// <summary>The mouth's animation playback.</summary>
     private AnimationPlayback<PhantoonPartSegment> _mouthPlayback = Starting(PhantoonPartSegment.InvulnerableBody);
 
-    /// <summary>The animation starting at <paramref name="program"/>, before its first play.</summary>
-    internal static AnimationPlayback<PhantoonPartSegment> Starting(PhantoonPartSegment program) =>
-        new(PhantoonAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
+    /// <summary>The animation starting at <paramref name="segment"/>, before its first play.</summary>
+    internal static AnimationPlayback<PhantoonPartSegment> Starting(PhantoonPartSegment segment) =>
+        new(PhantoonAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
 
     /// <summary>The animation playback of <paramref name="part"/>, which is Phantoon's body or one of his attached parts.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="part"/> is not one of Phantoon's parts.</exception>

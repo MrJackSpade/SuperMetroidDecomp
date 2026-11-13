@@ -461,9 +461,9 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void RequestEvirAnimation(
         RoomEnemySlot slot,
         EvirEnemyState state,
-        EvirSegment program)
+        EvirSegment segment)
     {
-        state.RequestedAnimation = program;
+        state.RequestedAnimation = segment;
         StartEvirAnimation(slot, state);
     }
 

@@ -22,12 +22,12 @@ internal static class MotherBrainBabyAnimations
         [MotherBrainBabySegment.TakingFatalBlow] = new([Whole(MotherBrainBabySegment.TakingFatalBlow)], AnimationEnd.Holds),
     };
 
-    /// <summary>The animation that starts at <paramref name="program"/>, before its first play.</summary>
-    internal static AnimationPlayback<MotherBrainBabySegment> Starting(MotherBrainBabySegment program) =>
-        new(StartingAt[program], AnimationPlace.StartOfAnimation);
+    /// <summary>The animation that starts at <paramref name="segment"/>, before its first play.</summary>
+    internal static AnimationPlayback<MotherBrainBabySegment> Starting(MotherBrainBabySegment segment) =>
+        new(StartingAt[segment], AnimationPlace.StartOfAnimation);
 
-    /// <summary>One play of every beat of <paramref name="program"/>.</summary>
-    private static AnimationPhase<MotherBrainBabySegment> Whole(MotherBrainBabySegment program) => new(program, 0, Segments.Beats(program).Count, 1);
+    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<MotherBrainBabySegment> Whole(MotherBrainBabySegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>Shows pose <paramref name="index"/>.</summary>
     private static AnimationBeat<BabyMetroidFrame, NoAnimationCue> Show(int index, int duration) =>

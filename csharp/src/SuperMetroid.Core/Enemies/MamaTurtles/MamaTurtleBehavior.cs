@@ -823,16 +823,16 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
                 : MamaTurtleSegment.BabyCrawlingRight);
 
     /// <summary>Starts a Mama Turtle animation with its frame timer set to one.</summary>
-    private static void StartTurtleAnimation(RoomEnemySlot slot, MamaTurtleEnemyState state, MamaTurtleSegment program)
+    private static void StartTurtleAnimation(RoomEnemySlot slot, MamaTurtleEnemyState state, MamaTurtleSegment segment)
     {
-        state.Playback = new(MamaTurtleAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
+        state.Playback = new(MamaTurtleAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
         slot.AnimationClock.StepOnNextUpdate();
     }
 
     /// <summary>Starts a baby turtle animation with its frame timer set to one.</summary>
-    private static void StartTurtleAnimation(RoomEnemySlot slot, BabyTurtleEnemyState state, MamaTurtleSegment program)
+    private static void StartTurtleAnimation(RoomEnemySlot slot, BabyTurtleEnemyState state, MamaTurtleSegment segment)
     {
-        state.Playback = new(MamaTurtleAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
+        state.Playback = new(MamaTurtleAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
         slot.AnimationClock.StepOnNextUpdate();
     }
 

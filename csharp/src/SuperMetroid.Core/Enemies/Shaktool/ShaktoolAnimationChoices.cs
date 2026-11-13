@@ -6,8 +6,8 @@ internal static class ShaktoolAnimationChoices
     /// <summary>The head animation of an eighth-turn direction bucket.</summary>
     /// <exception cref="InvalidDataException"><paramref name="directionBucket"/> is not one of the eight buckets.</exception>
     internal static ShaktoolSegment ForOrientationBucket(int directionBucket) =>
-        ShaktoolAnimationDefinitions.OrientationAnimations.TryGetValue(directionBucket, out ShaktoolSegment program)
-            ? program
+        ShaktoolAnimationDefinitions.OrientationAnimations.TryGetValue(directionBucket, out ShaktoolSegment segment)
+            ? segment
             : throw new InvalidDataException(
                 $"Shaktool orientation bucket {directionBucket} is invalid.");
 

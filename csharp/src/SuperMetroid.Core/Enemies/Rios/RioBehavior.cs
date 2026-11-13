@@ -222,8 +222,8 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void StartRioAnimation(
         RoomEnemySlot slot,
         RioEnemyState state,
-        RioSegment program) =>
-        EnemyAnimationPlayback.StartOnce(slot, state.InstalledAnimation, program, installed =>
+        RioSegment segment) =>
+        EnemyAnimationPlayback.StartOnce(slot, state.InstalledAnimation, segment, installed =>
         {
             state.InstalledAnimation = installed;
             state.Playback = new(RioAnimations.StartingWith(installed), AnimationPlace.StartOfAnimation);

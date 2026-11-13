@@ -24,11 +24,11 @@ internal sealed class IntroDiscoverySprite
     public IntroDiscoverySprite(
         Position16<ScreenPixels> position,
         PictureShade colouring,
-        CinematicSpriteSegment program)
+        CinematicSpriteSegment segment)
     {
         Position = new(new(position.X, 0), new(position.Y, 0));
         Colouring = colouring;
-        Playback = new AnimationPlayback<CinematicSpriteSegment>(CinematicSpriteAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
+        Playback = new AnimationPlayback<CinematicSpriteSegment>(CinematicSpriteAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
     }
 
     /// <summary>Cleared when the animation's end retires the actor.</summary>
@@ -75,10 +75,10 @@ internal sealed class IntroDiscoverySprite
     /// <summary>The frame behaviour the actor's animation installed, until an owner installs its own.</summary>
     internal CinematicSpriteFrameBehavior? ListFrameBehavior { get; private set; }
 
-    /// <summary>Starts the animation of <paramref name="program"/> on the next handler call, discarding the old frame countdown.</summary>
-    public void Start(CinematicSpriteSegment program)
+    /// <summary>Starts the animation of <paramref name="segment"/> on the next handler call, discarding the old frame countdown.</summary>
+    public void Start(CinematicSpriteSegment segment)
     {
-        Playback = new AnimationPlayback<CinematicSpriteSegment>(CinematicSpriteAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
+        Playback = new AnimationPlayback<CinematicSpriteSegment>(CinematicSpriteAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
         frameHold = WrappingCountdown.Start(1);
     }
 

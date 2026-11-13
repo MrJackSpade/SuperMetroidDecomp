@@ -4,8 +4,8 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Enemies.Dragon;
 
 /// <summary>Dragon fireball's typed animation.</summary>
-internal sealed class DragonFireballAnimation(DragonFireballSegment program)
-    : EnemyProjectileFrameAnimation<DragonFireballSegment, EnemyProjectileCommonCue>(DragonFireballAnimations.StartingWith(program))
+internal sealed class DragonFireballAnimation(DragonFireballSegment segment)
+    : EnemyProjectileFrameAnimation<DragonFireballSegment, EnemyProjectileCommonCue>(DragonFireballAnimations.StartingWith(segment))
 {
     /// <inheritdoc/>
     private protected override AnimationSegments<DragonFireballSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => DragonFireballAnimations.Segments;

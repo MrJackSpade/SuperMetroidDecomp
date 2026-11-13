@@ -5,8 +5,8 @@ using SuperMetroid.Core.Enemies.Projectiles.Artwork;
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>Downward gate's typed animation.</summary>
-internal sealed class DownwardGateProjectileAnimation(DownwardGateProjectileSegment program)
-    : EnemyProjectileFrameAnimation<DownwardGateProjectileSegment, DownwardGateProjectileCue>(DownwardGateProjectileAnimations.StartingWith(program))
+internal sealed class DownwardGateProjectileAnimation(DownwardGateProjectileSegment segment)
+    : EnemyProjectileFrameAnimation<DownwardGateProjectileSegment, DownwardGateProjectileCue>(DownwardGateProjectileAnimations.StartingWith(segment))
 {
     /// <inheritdoc/>
     private protected override AnimationSegments<DownwardGateProjectileSegment, EnemyProjectileFrameId, DownwardGateProjectileCue> Segments => DownwardGateProjectileAnimations.Segments;

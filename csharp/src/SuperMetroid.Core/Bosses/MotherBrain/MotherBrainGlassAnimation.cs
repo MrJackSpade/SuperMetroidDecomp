@@ -5,9 +5,9 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>A glass shard's or sparkle's typed animation.</summary>
-/// <param name="program">The program to play.</param>
-internal sealed class MotherBrainGlassAnimation(MotherBrainGlassSegment program)
-    : EnemyProjectileTypedAnimation<MotherBrainGlassSegment, MotherBrainGlassFrame, MotherBrainGlassCue>(MotherBrainGlassAnimations.StartingAt[program])
+/// <param name="segment">The program to play.</param>
+internal sealed class MotherBrainGlassAnimation(MotherBrainGlassSegment segment)
+    : EnemyProjectileTypedAnimation<MotherBrainGlassSegment, MotherBrainGlassFrame, MotherBrainGlassCue>(MotherBrainGlassAnimations.StartingAt[segment])
 {
     /// <inheritdoc/>
     private protected override AnimationSegments<MotherBrainGlassSegment, MotherBrainGlassFrame, MotherBrainGlassCue> Segments =>

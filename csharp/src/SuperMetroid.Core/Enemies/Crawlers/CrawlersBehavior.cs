@@ -287,9 +287,9 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void SetHZoomerAnimation(
         RoomEnemySlot slot,
         CrawlerEnemyState state,
-        CrawlerSegment program)
+        CrawlerSegment segment)
     {
-        state.Playback = EnemyAnimationPlayback.Start(slot, CrawlerAnimations.StartingWith(program));
+        state.Playback = EnemyAnimationPlayback.Start(slot, CrawlerAnimations.StartingWith(segment));
     }
 
     /// <summary>Runs shared crawler main AI.</summary>

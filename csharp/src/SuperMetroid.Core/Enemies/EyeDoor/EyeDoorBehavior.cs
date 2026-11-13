@@ -246,12 +246,12 @@ internal sealed class EyeDoorBehavior
         int placementIndex,
         Position16<RoomBlocks> block)
     {
-        MiscDustProjectileSegment program = MiscDustProjectiles.Animation(animation);
+        MiscDustProjectileSegment segment = MiscDustProjectiles.Animation(animation);
         MiscDustPlacementDefinition placement = MiscDustProjectiles.SmokePlacement(placementIndex);
 
         int random = _room.Random.Read();
         // Stores only the program, keeping the definition's one-update timer.
-        projectile.InstallAnimation(new MiscDustProjectileAnimation(program));
+        projectile.InstallAnimation(new MiscDustProjectileAnimation(segment));
 
         projectile.Position = projectile.Position.WithWhole(block.ToRoomPixels() + new Offset16<RoomPixels>(
             CoordinateAxis.AsSigned(8 + placement.Base.X + placement.XScatter.Of(random)),

@@ -282,14 +282,14 @@ internal sealed class CrocomireBridgeCollapse
     internal static void SelectCrocomireRisingAnimation(CrocomireEnemyState state)
     {
         int y = state.Body.Position.Y.Whole;
-        CrocomireBodySegment program = y < 248
+        CrocomireBodySegment segment = y < 248
             ? CrocomireBodySegment.MeltingTwoTopFourRows
             : y < 264
                 ? CrocomireBodySegment.MeltingTwoTopThreeRows
                 : y < 280
                     ? CrocomireBodySegment.MeltingTwoTopTwoRows
                     : CrocomireBodySegment.MeltingTwoTopRow;
-        CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, program);
+        CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, segment);
     }
 
     /// <summary>Completes the acid sink and hands control to the skeleton river sequence.</summary>

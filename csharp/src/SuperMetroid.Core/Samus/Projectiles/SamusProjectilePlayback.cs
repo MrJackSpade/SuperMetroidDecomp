@@ -33,9 +33,9 @@ internal static class SamusProjectilePlayback
         }
     }
 
-    /// <summary>A playback of the animation starting at <paramref name="program"/>; no program is a projectile with no list.</summary>
-    internal static AnimationPlayback<SamusProjectileSegment>? Start(SamusProjectileSegment? program) =>
-        program is { } selected ? new AnimationPlayback<SamusProjectileSegment>(SamusProjectileAnimations.StartingWith(selected), AnimationPlace.StartOfAnimation) : null;
+    /// <summary>A playback of the animation starting at <paramref name="segment"/>; no program is a projectile with no list.</summary>
+    internal static AnimationPlayback<SamusProjectileSegment>? Start(SamusProjectileSegment? segment) =>
+        segment is { } selected ? new AnimationPlayback<SamusProjectileSegment>(SamusProjectileAnimations.StartingWith(selected), AnimationPlace.StartOfAnimation) : null;
 
     /// <summary>
     /// Where <paramref name="playback"/> stands: before its first play, at the start of the segment its animation starts
@@ -66,9 +66,9 @@ internal static class SamusProjectilePlayback
     /// The hitbox a freshly selected list declares through its first record, as the initializers' reads of the list's
     /// radii see it; a projectile with no list (the safe left-facing Murder Beam) reads zero.
     /// </summary>
-    internal static Extent16<RoomPixels> InitialRadius(SamusProjectileSegment? program)
+    internal static Extent16<RoomPixels> InitialRadius(SamusProjectileSegment? segment)
     {
-        if (program is not { } selected)
+        if (segment is not { } selected)
             return Extent16<RoomPixels>.Zero;
         AnimationPhase<SamusProjectileSegment> first = SamusProjectileAnimations.StartingWith(selected).Phases[0];
         if (SamusProjectileAnimations.Segments.Beats(first.Segment)[first.FirstBeat] is not AnimationBeat<SamusProjectileFrame, NoAnimationCue>.Frame frame)

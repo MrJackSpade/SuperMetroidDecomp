@@ -8,11 +8,11 @@ public sealed class EscapeTypewriterPresentation
     /// <summary>Loaded Zebes time-bomb warning lines and where each starts.</summary>
     private readonly EscapeTypewriterMessage zebes;
 
-    /// <summary>Retains the two programs the import pipeline validated.</summary>
-    internal EscapeTypewriterPresentation(Dictionary<EscapeTypewriterMessageId, EscapeTypewriterMessage> programs)
+    /// <summary>Retains the two messages the import pipeline validated.</summary>
+    internal EscapeTypewriterPresentation(Dictionary<EscapeTypewriterMessageId, EscapeTypewriterMessage> messages)
     {
-        ceres = programs[EscapeTypewriterMessageId.Ceres];
-        zebes = programs[EscapeTypewriterMessageId.Zebes];
+        ceres = messages[EscapeTypewriterMessageId.Ceres];
+        zebes = messages[EscapeTypewriterMessageId.Zebes];
     }
 
     /// <summary>Returns the installed warning text and placement for one escape scenario.</summary>

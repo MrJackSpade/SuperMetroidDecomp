@@ -27,12 +27,12 @@ internal static class ShitroidAnimations
         [ShitroidSegment.Remorse] = new([Whole(ShitroidSegment.Remorse)], AnimationEnd.LoopsFrom(0)),
     };
 
-    /// <summary>The animation that starts at <paramref name="program"/>, before its first play.</summary>
-    internal static AnimationPlayback<ShitroidSegment> Starting(ShitroidSegment program) =>
-        new(StartingAt[program], AnimationPlace.StartOfAnimation);
+    /// <summary>The animation that starts at <paramref name="segment"/>, before its first play.</summary>
+    internal static AnimationPlayback<ShitroidSegment> Starting(ShitroidSegment segment) =>
+        new(StartingAt[segment], AnimationPlace.StartOfAnimation);
 
-    /// <summary>One play of every beat of <paramref name="program"/>.</summary>
-    private static AnimationPhase<ShitroidSegment> Whole(ShitroidSegment program) => new(program, 0, Segments.Beats(program).Count, 1);
+    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<ShitroidSegment> Whole(ShitroidSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>
     /// Two pulses at ten updates a pose, the random cry, then one pulse that quickens from six updates a pose to two

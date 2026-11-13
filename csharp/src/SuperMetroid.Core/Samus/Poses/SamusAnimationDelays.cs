@@ -37,19 +37,19 @@ internal static class SamusAnimationDelays
     {
         Ensure.NotNull(continuation);
         SamusPoseId read = pose;
-        SamusPoseAnimation program = AnimationOf(read);
+        SamusPoseAnimation animation = AnimationOf(read);
         int readFrame = frame;
         int shift = 0;
-        SamusPoseAnimationStep? step = program.TryStepAt(readFrame) ?? continuation.OperandStep(read, readFrame);
+        SamusPoseAnimationStep? step = animation.TryStepAt(readFrame) ?? continuation.OperandStep(read, readFrame);
         while (step is null)
         {
             if (continuation.ReadPast(read, readFrame) is not { } past)
                 return null;
             read = past.Animation;
-            program = AnimationOf(read);
+            animation = AnimationOf(read);
             readFrame = past.Frame;
             shift += past.Shift;
-            step = program.TryStepAt(readFrame) ?? continuation.OperandStep(read, readFrame);
+            step = animation.TryStepAt(readFrame) ?? continuation.OperandStep(read, readFrame);
         }
         return shift == 0 ? step : step switch
         {

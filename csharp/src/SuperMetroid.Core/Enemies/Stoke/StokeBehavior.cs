@@ -120,7 +120,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
         StokeEnemyState state,
         RoomLevelData level,
         SignedSixteenSixteen horizontalDisplacement,
-        StokeSegment attackingProgram)
+        StokeSegment attackingSegment)
     {
         MoveStokeAndTurnAtTerrain(slot, state, level, horizontalDisplacement);
 
@@ -131,7 +131,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
         // The attack animation owns Stoke until its trailing branch reaches the resume-moving cue and that
         // wrapper's command installs the corresponding moving function again.
         state.Function = StokeAiFunction.IdleDuringAttack;
-        SetStokeAnimation(slot, state, attackingProgram);
+        SetStokeAnimation(slot, state, attackingSegment);
     }
 
     /// <summary>Moves Stoke and turns it at terrain.</summary>
@@ -170,9 +170,9 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Switches the active animation so its first step runs on the next animation tick.</summary>
-    private static void SetStokeAnimation(RoomEnemySlot slot, StokeEnemyState state, StokeSegment program)
+    private static void SetStokeAnimation(RoomEnemySlot slot, StokeEnemyState state, StokeSegment segment)
     {
-        state.Playback = EnemyAnimationPlayback.Start(slot, StokeAnimations.StartingWith(program));
+        state.Playback = EnemyAnimationPlayback.Start(slot, StokeAnimations.StartingWith(segment));
     }
 
     /// <summary>Animation cues for left and right: resume movement in <paramref name="direction"/>.</summary>

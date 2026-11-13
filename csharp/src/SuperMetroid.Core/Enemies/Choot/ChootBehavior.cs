@@ -169,9 +169,9 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void SetChootAnimation(
         RoomEnemySlot slot,
         ChootEnemyState state,
-        ChootSegment program)
+        ChootSegment segment)
     {
-        state.Playback = EnemyAnimationPlayback.Start(slot, ChootAnimations.StartingWith(program));
+        state.Playback = EnemyAnimationPlayback.Start(slot, ChootAnimations.StartingWith(segment));
     }
 
     /// <summary>Advances Choot's typed animation.</summary>

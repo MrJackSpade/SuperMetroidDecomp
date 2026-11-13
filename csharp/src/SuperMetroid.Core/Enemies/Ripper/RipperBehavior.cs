@@ -74,8 +74,8 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             ReverseRipperVariant(
                 slot,
-                positiveProgram: RipperSegment.GRipperMovingRight,
-                negativeProgram: RipperSegment.GRipperMovingLeft);
+                positiveSegment: RipperSegment.GRipperMovingRight,
+                negativeSegment: RipperSegment.GRipperMovingLeft);
         }
     }
 
@@ -104,8 +104,8 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
 
         ReverseRipperVariant(
             slot,
-            positiveProgram: RipperSegment.Ripper2MovingLeft,
-            negativeProgram: RipperSegment.Ripper2MovingRight);
+            positiveSegment: RipperSegment.Ripper2MovingLeft,
+            negativeSegment: RipperSegment.Ripper2MovingRight);
     }
 
     /// <summary>Initializes the Ripper.</summary>
@@ -183,19 +183,19 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Flips a GRipper or Ripper II speed pair and restarts the corresponding loop.</summary>
     internal static void ReverseRipperVariant(
         RoomEnemySlot slot,
-        RipperSegment positiveProgram,
-        RipperSegment negativeProgram)
+        RipperSegment positiveSegment,
+        RipperSegment negativeSegment)
     {
         RipperEnemyState state = slot.RequireSpeciesState<RipperEnemyState>();
         bool wasMovingNegative = state.XVelocity.WholePixels < 0;
         LoadRipperVelocity(state, movingRight: wasMovingNegative);
-        SetRipperAnimation(slot, wasMovingNegative ? positiveProgram : negativeProgram);
+        SetRipperAnimation(slot, wasMovingNegative ? positiveSegment : negativeSegment);
     }
 
     /// <summary>Installs a flying loop from its first step on the next enemy frame.</summary>
-    private static void SetRipperAnimation(RoomEnemySlot slot, RipperSegment program)
+    private static void SetRipperAnimation(RoomEnemySlot slot, RipperSegment segment)
     {
-        slot.RequireSpeciesState<RipperEnemyState>().Playback = new(RipperAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
+        slot.RequireSpeciesState<RipperEnemyState>().Playback = new(RipperAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
         slot.AnimationClock.Restart();
     }
 

@@ -70,10 +70,10 @@ internal static class SporeSpawnProjectileAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<SporeSpawnProjectileSegment> StartingWith(SporeSpawnProjectileSegment segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="phase"/> of <paramref name="program"/>'s run for <paramref name="duration"/> passes.</summary>
+    /// <summary>Shows pose <paramref name="phase"/> of <paramref name="segment"/>'s run for <paramref name="duration"/> passes.</summary>
     private static AnimationBeat<SporeSpawnProjectileFrame, SporeSpawnProjectileCue> Show(
-        SporeSpawnProjectileSegment program, int phase, int duration) =>
-        new AnimationBeat<SporeSpawnProjectileFrame, SporeSpawnProjectileCue>.Frame(new(program, phase), duration);
+        SporeSpawnProjectileSegment segment, int phase, int duration) =>
+        new AnimationBeat<SporeSpawnProjectileFrame, SporeSpawnProjectileCue>.Frame(new(segment, phase), duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
     private static AnimationBeat<SporeSpawnProjectileFrame, SporeSpawnProjectileCue> Cue(SporeSpawnProjectileCue cue) =>

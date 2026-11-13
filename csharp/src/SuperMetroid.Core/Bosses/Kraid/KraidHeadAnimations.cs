@@ -92,11 +92,11 @@ internal static class KraidHeadAnimations
     internal static Animation<KraidHeadSegment> StartingWith(KraidHeadSegment segment) => StartingAt[segment];
 
     /// <summary>
-    /// The head animation of <paramref name="program"/> standing before beat <paramref name="position"/> of its one phase;
+    /// The head animation of <paramref name="segment"/> standing before beat <paramref name="position"/> of its one phase;
     /// at the beat count, its play is done and the next play holds.
     /// </summary>
-    internal static AnimationPlayback<KraidHeadSegment> At(KraidHeadSegment program, int position) =>
-        new(StartingWith(program), new AnimationPlace(0, position));
+    internal static AnimationPlayback<KraidHeadSegment> At(KraidHeadSegment segment, int position) =>
+        new(StartingWith(segment), new AnimationPlace(0, position));
 
     /// <summary>
     /// Where <paramref name="playback"/> stands in its head list: the program its one phase plays, and the step its play

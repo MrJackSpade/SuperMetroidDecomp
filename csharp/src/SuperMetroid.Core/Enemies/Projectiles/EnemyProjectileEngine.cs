@@ -805,7 +805,7 @@ internal sealed class EnemyProjectileEngine
         Position16<RoomPixels> position,
         MiscDustAnimation animation)
     {
-        MiscDustProjectileSegment program = MiscDustProjectiles.Animation(animation);
+        MiscDustProjectileSegment segment = MiscDustProjectiles.Animation(animation);
         EnemyProjectile? projectile = AllocateEnemyProjectile();
         if (projectile is null)
             return;
@@ -819,7 +819,7 @@ internal sealed class EnemyProjectileEngine
         // The dust-cloud-or-explosion initializer ignores the definition's placeholder list and
         // indexes this literal thirty-word table with the spawn parameter. Parameter three
         // selects the small explosion for Rinka; Boulder passes 17 for its impact cloud.
-        projectile.StartAnimation(new MiscDustProjectileAnimation(program));
+        projectile.StartAnimation(new MiscDustProjectileAnimation(segment));
     }
 
     /// <summary>

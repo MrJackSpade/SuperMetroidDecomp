@@ -14,20 +14,20 @@ internal static class ZebetiteAnimations
 
     /// <summary>Every health-tier segment: its pose for one update.</summary>
     internal static AnimationSegments<ZebetiteSegment, ZebetiteFrame, NoAnimationCue> Segments { get; } = new(
-        Enum.GetValues<ZebetiteSegment>().ToDictionary(program => program, program =>
+        Enum.GetValues<ZebetiteSegment>().ToDictionary(segment => segment, segment =>
             new AnimationBeat<ZebetiteFrame, NoAnimationCue>[]
             {
-                new AnimationBeat<ZebetiteFrame, NoAnimationCue>.Frame(new ZebetiteFrame(FrameOrder.PositionOf(program)), 1),
+                new AnimationBeat<ZebetiteFrame, NoAnimationCue>.Frame(new ZebetiteFrame(FrameOrder.PositionOf(segment)), 1),
             }));
 
     /// <summary>Each health tier's animation: its pose, held as the script's sleep holds it.</summary>
     internal static IReadOnlyDictionary<ZebetiteSegment, Animation<ZebetiteSegment>> StartingAt { get; } =
-        Enum.GetValues<ZebetiteSegment>().ToDictionary(program => program,
-            program => new Animation<ZebetiteSegment>([new(program, 0, 1, 1)], AnimationEnd.Holds));
+        Enum.GetValues<ZebetiteSegment>().ToDictionary(segment => segment,
+            segment => new Animation<ZebetiteSegment>([new(segment, 0, 1, 1)], AnimationEnd.Holds));
 
-    /// <summary>The animation that starts at <paramref name="program"/>, before its first play.</summary>
-    internal static AnimationPlayback<ZebetiteSegment> Starting(ZebetiteSegment program) =>
-        new(StartingAt[program], AnimationPlace.StartOfAnimation);
+    /// <summary>The animation that starts at <paramref name="segment"/>, before its first play.</summary>
+    internal static AnimationPlayback<ZebetiteSegment> Starting(ZebetiteSegment segment) =>
+        new(StartingAt[segment], AnimationPlace.StartOfAnimation);
 
     /// <summary>
     /// The program for a barrier's form and health: large or split, then one tier for each 200 health below 1000,

@@ -32,7 +32,7 @@ internal sealed class IntroEggParticle
         sprite = new IntroDiscoverySprite(
             IntroEggMotion.FragmentInitialPosition(index),
             colouring: IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors),
-            program: definition.Animation);
+            segment: definition.Animation);
         sprite.InstallFrameBehavior(definition.FrameBehavior);
     }
 

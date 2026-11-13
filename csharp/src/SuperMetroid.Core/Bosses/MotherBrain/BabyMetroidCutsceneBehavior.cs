@@ -165,9 +165,9 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         // begins on the next increasing-slot enemy pass exactly like the cross-actor write.
         if (step.BodyStumbleRequested)
         {
-            MotherBrainBodySegment bodyProgram = sequence.RequestedBodyAnimation ?? throw new InvalidDataException(
+            MotherBrainBodySegment bodySegment = sequence.RequestedBodyAnimation ?? throw new InvalidDataException(
                 "Baby requested Mother Brain body movement without a body program.");
-            MotherBrainEncounterAccess.SetMotherBrainBodyAnimation(state, bodyProgram);
+            MotherBrainEncounterAccess.SetMotherBrainBodyAnimation(state, bodySegment);
         }
 
         // Cross-enemy writes happen during the later Baby slot and become visible in the
@@ -273,11 +273,11 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         state.BabyPlayback = playback;
     }
 
-    /// <summary>Restarts the Baby's slot on <paramref name="program"/>, as the set-list helper does.</summary>
-    private static void SetBabyMetroidCutsceneAnimation(MotherBrainEnemyState state, RoomEnemySlot slot, MotherBrainBabySegment program)
+    /// <summary>Restarts the Baby's slot on <paramref name="segment"/>, as the set-list helper does.</summary>
+    private static void SetBabyMetroidCutsceneAnimation(MotherBrainEnemyState state, RoomEnemySlot slot, MotherBrainBabySegment segment)
     {
-        state.BabyPlayback = MotherBrainBabyAnimations.Starting(program);
-        state.BabyAppliedAnimation = program;
+        state.BabyPlayback = MotherBrainBabyAnimations.Starting(segment);
+        state.BabyAppliedAnimation = segment;
         slot.AnimationClock.Restart();
     }
 }

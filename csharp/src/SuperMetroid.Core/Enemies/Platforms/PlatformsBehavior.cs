@@ -312,9 +312,9 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Starts the selected animation with a one-tick frame timer.</summary>
-    private static void StartPlatformAnimation(RoomEnemySlot slot, PlatformEnemyState state, PlatformSegment program)
+    private static void StartPlatformAnimation(RoomEnemySlot slot, PlatformEnemyState state, PlatformSegment segment)
     {
-        state.Playback = EnemyAnimationPlayback.Start(slot, PlatformAnimations.StartingWith(program));
+        state.Playback = EnemyAnimationPlayback.Start(slot, PlatformAnimations.StartingWith(segment));
     }
 
     /// <summary>Runs the four equivalent movement cues.</summary>

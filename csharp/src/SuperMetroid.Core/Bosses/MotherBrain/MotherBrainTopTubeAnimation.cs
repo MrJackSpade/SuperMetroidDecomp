@@ -5,8 +5,8 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>A falling ceiling tube's typed animation.</summary>
-internal sealed class MotherBrainTopTubeAnimation(MotherBrainTopTubeSegment program)
-    : EnemyProjectileTypedAnimation<MotherBrainTopTubeSegment, MotherBrainTopTubeSegment, NoAnimationCue>(MotherBrainTopTubeAnimations.StartingAt[program])
+internal sealed class MotherBrainTopTubeAnimation(MotherBrainTopTubeSegment segment)
+    : EnemyProjectileTypedAnimation<MotherBrainTopTubeSegment, MotherBrainTopTubeSegment, NoAnimationCue>(MotherBrainTopTubeAnimations.StartingAt[segment])
 {
     /// <inheritdoc/>
     private protected override AnimationSegments<MotherBrainTopTubeSegment, MotherBrainTopTubeSegment, NoAnimationCue> Segments =>

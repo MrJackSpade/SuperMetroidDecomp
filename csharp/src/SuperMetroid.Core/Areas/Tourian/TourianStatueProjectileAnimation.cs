@@ -5,8 +5,8 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>A Tourian statue projectile's typed animation.</summary>
-internal sealed class TourianStatueProjectileAnimation(TourianStatueProjectileSegment program)
-    : EnemyProjectileFrameAnimation<TourianStatueProjectileSegment, TourianStatueProjectileCue>(TourianStatueProjectileAnimations.StartingWith(program))
+internal sealed class TourianStatueProjectileAnimation(TourianStatueProjectileSegment segment)
+    : EnemyProjectileFrameAnimation<TourianStatueProjectileSegment, TourianStatueProjectileCue>(TourianStatueProjectileAnimations.StartingWith(segment))
 {
     /// <inheritdoc/>
     private protected override AnimationSegments<TourianStatueProjectileSegment, EnemyProjectileFrameId, TourianStatueProjectileCue> Segments => TourianStatueProjectileAnimations.Segments;

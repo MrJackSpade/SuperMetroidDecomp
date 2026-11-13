@@ -8,18 +8,18 @@ public sealed class EscapeTypewriterState
     /// <summary>The installed warning text the typewriter types.</summary>
     private EscapeTypewriterMessage? installedMessage;
 
-    /// <summary>Creates an unbound warning-text state for <paramref name="programId"/>; attach host text with <see cref="BindMessage"/> before typing it.</summary>
-    /// <param name="programId">The warning program the state will show.</param>
-    public EscapeTypewriterState(EscapeTypewriterMessageId programId) => MessageId = programId;
+    /// <summary>Creates an unbound warning-text state for <paramref name="messageId"/>; attach host text with <see cref="BindMessage"/> before typing it.</summary>
+    /// <param name="messageId">The warning program the state will show.</param>
+    public EscapeTypewriterState(EscapeTypewriterMessageId messageId) => MessageId = messageId;
 
     /// <summary>Creates a warning-text state with its host program bound and its saved identity initialized from that program.</summary>
-    /// <param name="program">Installed Ceres or Zebes warning lines and their source identity.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="program"/> is null.</exception>
-    public EscapeTypewriterState(EscapeTypewriterMessage program)
+    /// <param name="message">Installed Ceres or Zebes warning lines and their source identity.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="message"/> is null.</exception>
+    public EscapeTypewriterState(EscapeTypewriterMessage message)
     {
-        Ensure.NotNull(program);
-        MessageId = program.Id;
-        BindMessage(program);
+        Ensure.NotNull(message);
+        MessageId = message.Id;
+        BindMessage(message);
     }
 
     /// <summary>
@@ -47,14 +47,14 @@ public sealed class EscapeTypewriterState
     public bool MessageStarted { get; private set; }
 
     /// <summary>Reattaches the installed typewriter text when a saved game state is restored.</summary>
-    public void BindMessage(EscapeTypewriterMessage program)
+    public void BindMessage(EscapeTypewriterMessage message)
     {
-        Ensure.NotNull(program);
-        if (MessageId != EscapeTypewriterMessageId.None && MessageId != program.Id)
+        Ensure.NotNull(message);
+        if (MessageId != EscapeTypewriterMessageId.None && MessageId != message.Id)
             throw new InvalidDataException(
-                $"Cannot bind escape typewriter program {program.Id} to saved {MessageId} state.");
-        MessageId = program.Id;
-        installedMessage = program;
+                $"Cannot bind escape typewriter program {message.Id} to saved {MessageId} state.");
+        MessageId = message.Id;
+        installedMessage = message;
     }
 
     /// <summary>Removes host content while retaining the saved program identity and cursor.</summary>
@@ -71,14 +71,14 @@ public sealed class EscapeTypewriterState
         glyph = null;
         if (Completed) return true;
         if (DelayTimer != 0) { DelayTimer--; return false; }
-        EscapeTypewriterMessage program = installedMessage ??
+        EscapeTypewriterMessage message = installedMessage ??
             throw new InvalidOperationException(
                 $"Escape typewriter program {MessageId} was restored without host content rebind.");
-        return StepInstalled(program, out glyph);
+        return StepInstalled(message, out glyph);
     }
 
     /// <summary>Advances line and character cursors after the delay expires, consuming at most one character.</summary>
-    private bool StepInstalled(EscapeTypewriterMessage program, out EscapeTypewriterGlyph? glyph)
+    private bool StepInstalled(EscapeTypewriterMessage message, out EscapeTypewriterGlyph? glyph)
     {
         glyph = null;
         DelayTimer = Delay;
@@ -88,9 +88,9 @@ public sealed class EscapeTypewriterState
             MessageStarted = true;
         }
 
-        while (MessageLineIndex < program.Lines.Count)
+        while (MessageLineIndex < message.Lines.Count)
         {
-            EscapeTypewriterLine line = program.Lines[MessageLineIndex];
+            EscapeTypewriterLine line = message.Lines[MessageLineIndex];
             if (MessageCharacterIndex >= line.Text.Length)
             {
                 MessageLineIndex++;

@@ -7,8 +7,8 @@ internal static class MaridiaLargeSnailAnimationChoices
 {
     /// <summary>The program of <paramref name="animation"/>.</summary>
     internal static MaridiaLargeSnailSegment Animation(A animation) =>
-        MaridiaLargeSnailAnimationDefinitions.Animations.TryGetValue(animation, out MaridiaLargeSnailSegment program)
-            ? program
+        MaridiaLargeSnailAnimationDefinitions.Animations.TryGetValue(animation, out MaridiaLargeSnailSegment segment)
+            ? segment
             : throw new ArgumentOutOfRangeException(nameof(animation), animation, $"Undefined {nameof(MaridiaLargeSnailAnimation)}.");
 
     /// <summary>The idle animation facing left or right.</summary>

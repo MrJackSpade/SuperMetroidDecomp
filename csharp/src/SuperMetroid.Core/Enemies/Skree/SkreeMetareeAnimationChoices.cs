@@ -6,15 +6,15 @@ internal static class SkreeMetareeAnimationChoices
     /// <summary>The Metaree program of <paramref name="phase"/>.</summary>
     /// <exception cref="InvalidDataException"><paramref name="phase"/> is outside the four-entry table.</exception>
     internal static SkreeMetareeSegment MetareeAnimation(SkreeMetareeAnimationPhase phase) =>
-        SkreeMetareeAnimationDefinitions.MetareeAnimations.TryGetValue(phase, out SkreeMetareeSegment program)
-            ? program
+        SkreeMetareeAnimationDefinitions.MetareeAnimations.TryGetValue(phase, out SkreeMetareeSegment segment)
+            ? segment
             : throw InvalidPhase(phase, "Metaree");
 
     /// <summary>The Skree program of <paramref name="phase"/>.</summary>
     /// <exception cref="InvalidDataException"><paramref name="phase"/> is outside the four-entry table.</exception>
     internal static SkreeMetareeSegment SkreeAnimation(SkreeMetareeAnimationPhase phase) =>
-        SkreeMetareeAnimationDefinitions.SkreeAnimations.TryGetValue(phase, out SkreeMetareeSegment program)
-            ? program
+        SkreeMetareeAnimationDefinitions.SkreeAnimations.TryGetValue(phase, out SkreeMetareeSegment segment)
+            ? segment
             : throw InvalidPhase(phase, "Skree");
 
     /// <summary>Reports an out-of-table animation selector with its enemy name.</summary>

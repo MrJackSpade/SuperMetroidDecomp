@@ -322,9 +322,9 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     private static void StartWalkingSpacePirateAnimation(
         RoomEnemySlot slot,
         WalkingSpacePirateEnemyState state,
-        WalkingSpacePirateSegment program)
+        WalkingSpacePirateSegment segment)
     {
-        state.Playback = new(WalkingSpacePirateAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
+        state.Playback = new(WalkingSpacePirateAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
         slot.AnimationClock.StepOnNextUpdate();
     }
 

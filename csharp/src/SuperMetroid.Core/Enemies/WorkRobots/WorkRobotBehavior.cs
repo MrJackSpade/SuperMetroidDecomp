@@ -278,7 +278,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot robot,
         WorkRobotEnemyState state,
         WorkRobotLaser projectileDefinition,
-        WorkRobotSegment firingProgram,
+        WorkRobotSegment firingSegment,
         Position16<RoomPixels> camera)
     {
         if (!state.LaserCooldown.IsZero)
@@ -289,7 +289,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.LaserCooldown = WrappingCountdown.Start(WorkRobotLaserDefinitions.CooldownJitter.Of(_room.Random.Read()) + 16);
         SpawnWorkRobotLaser(robot, state, projectileDefinition, camera);
-        return firingProgram;
+        return firingSegment;
     }
 
     /// <summary>Counts a nonzero laser cooldown down without unsigned wraparound.</summary>

@@ -339,9 +339,9 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Switches Alcoon's animation so its first step runs on the next update.</summary>
-    private static void StartAlcoonAnimation(RoomEnemySlot slot, AlcoonEnemyState state, AlcoonSegment program)
+    private static void StartAlcoonAnimation(RoomEnemySlot slot, AlcoonEnemyState state, AlcoonSegment segment)
     {
-        state.Playback = new(AlcoonAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
+        state.Playback = new(AlcoonAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
         slot.AnimationClock.StepOnNextUpdate();
     }
 

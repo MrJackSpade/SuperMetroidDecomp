@@ -753,11 +753,12 @@ internal sealed class EnemyProjectileEngine
     internal void Scatter(EnemyProjectile projectile, EnemyProjectileScatter scatter)
     {
         Ensure.NotNull(projectile);
-        // The fields and centres are authored byte operands (checked below), so the offsets stay within one byte.
+        // Each centre must lie among its field's values (#1627): the redraw ends only on a draw at or past the centre, so a
+        // centre past the field's last value would redraw for good.
         RandomSampleField xRange = RequireLowHalfField(scatter.XRange);
-        int xCenter = Ensure.BetweenInclusive(0, byte.MaxValue, scatter.Center.X);
+        int xCenter = Ensure.BetweenInclusive(0, xRange.Outcomes - 1, scatter.Center.X);
         RandomSampleField yRange = RequireLowHalfField(scatter.YRange);
-        int yCenter = Ensure.BetweenInclusive(0, byte.MaxValue, scatter.Center.Y);
+        int yCenter = Ensure.BetweenInclusive(0, yRange.Outcomes - 1, scatter.Center.Y);
         int signSample = _room.Random.Generate();
 
         int xOffset;

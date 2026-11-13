@@ -1,4 +1,4 @@
-﻿namespace SuperMetroid.Core.Enemies;
+namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// Stateless enemy arithmetic shared by the species routines: trigonometry angles, whole-pixel velocity
@@ -176,7 +176,14 @@ internal static class EnemyMath
     /// sample itself as a velocity take one pixel.
     /// </summary>
     internal static SignedEightEight SineVelocity(TrigonometryAngle angle, int wholePixels) =>
-        Trigonometry.MultiplySignedSine(SignedEightEight.FromPixels(Ensure.BetweenInclusive(0, sbyte.MaxValue, wholePixels)), angle);
+        Trigonometry.MultiplySignedSine(SignedEightEight.FromPixels(Ensure.BetweenInclusive(0, FastestSineSpeed, wholePixels)), angle);
+
+    /// <summary>
+    /// The fastest whole speed, in pixels per update, a sine velocity is formed from (#1627): the original multiplies the
+    /// sine by the speed as a signed count of whole pixels, which goes no further, and every caller's speed lies within it,
+    /// so a faster one is rejected rather than given a product the original never forms.
+    /// </summary>
+    private const int FastestSineSpeed = 127;
 
     /// <summary>Multiplies a signed sine-table sample by speed with the game's fixed-point rounding.</summary>
     internal static SignedEightEight MultiplySineSample(SignedEightEight speed, TrigonometryAngle angle) =>

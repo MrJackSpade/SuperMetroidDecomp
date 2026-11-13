@@ -40,6 +40,9 @@ internal static class MotherBrainNeckSineVerification
                 $"Mother Brain complete neck geometry lower angle {angle:X2}");
         }
 
+        // #1627: a joint farther than the original's signed multiply reaches is rejected rather than given a product it never forms.
+        AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainNeckKinematics.CalculateSignedComponent(new TrigonometryAngle(0), 128),
+            "a joint 128 pixels from its anchor is rejected");
         Console.WriteLine(
             "Mother Brain neck sine: all 32,768 signed products and 256 complete five-joint geometries match an independent ROM-backed reference without a runtime bus.");
     }

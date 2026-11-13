@@ -313,7 +313,9 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         int tableIndex = 0;
         int accumulatedHeight = 0;
-        for (int iteration = 0; iteration < ushort.MaxValue; iteration++)
+        // Each pass moves the row on by the delta, so the height is reached within the table's rows or never: past them
+        // the row lookup rejects the climb, and a delta of zero sums the first row's speed of zero only (#1627).
+        for (int iteration = 0; iteration < EnemyQuadraticSpeedDefinitions.RowCount; iteration++)
         {
             tableIndex = WrappingCounter.AddCount(tableIndex, tableIndexDelta);
 

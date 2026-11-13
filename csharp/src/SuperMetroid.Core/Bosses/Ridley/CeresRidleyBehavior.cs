@@ -51,6 +51,12 @@ internal sealed class CeresRidleyBehavior
     }
 
     /// <summary>
+    /// The health Ceres Ridley's main AI restores every update, kept exact (#1627): a hit later in the update takes its
+    /// damage from this count, and what remains is the health the rest of that update reads.
+    /// </summary>
+    private const int RestoredHealth = 32767;
+
+    /// <summary>
     /// Ports the Ceres dispatcher reached through the end of the battle. The
     /// reveal, liftoff, hover, two authored termination conditions, upward retreat,
     /// palette handoff, and <c>ceres_status = 1</c> publication all retain their original order.
@@ -61,7 +67,7 @@ internal sealed class CeresRidleyBehavior
         SamusState? samus)
     {
         RidleyEnemyState state = _ridleyEncounter.RequireCeresRidley(slot);
-        slot.Health = short.MaxValue;
+        slot.Health = RestoredHealth;
 
         // The palette selection runs after the boss dispatcher and before movement. None of the
         // translated dispatcher branches mutate the flash timer, so selecting the two

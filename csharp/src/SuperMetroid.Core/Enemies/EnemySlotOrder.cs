@@ -9,7 +9,11 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 internal static class EnemySlotOrder
 {
-    /// <summary>How many enemies, counting each part of a multipart enemy, a room holds at once.</summary>
+    /// <summary>
+    /// How many enemies, counting each part of a multipart enemy, a room holds at once: the original's thirty-two, kept
+    /// (#1627), since a spawn into a full room fails and the places a room's enemies take feed the rules that read a
+    /// neighbouring place (<see cref="Compatibility.FollowUpAfterStruckPart"/>).
+    /// </summary>
     public const int Capacity = 32;
 
     /// <summary>The empty place a newly spawned enemy takes: the earliest, or null when every place is taken.</summary>

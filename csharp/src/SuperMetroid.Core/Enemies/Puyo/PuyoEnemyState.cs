@@ -8,11 +8,18 @@ public sealed class PuyoEnemyState
     internal AnimationPlayback<PuyoProgram> Playback { get; set; }
 
     /// <summary>
-    /// Unsigned 8.8 index whose whole part chooses a row of the shared quadratic speed table, from 0 through 32767:
-    /// a hop starts below 24576, and any step that would leave the range restarts the fall at zero
-    /// (<see cref="StepAirborneIndex"/>).
+    /// The Puyo's place along the shared quadratic speed table, whose whole rows choose its vertical speed, from the first
+    /// row through <see cref="LargestYSpeedTableIndex"/>: a hop starts below its 96th row, and any step that would leave
+    /// that range restarts the fall at the first row (<see cref="StepAirborneIndex"/>).
     /// </summary>
-    public int YSpeedTableIndex { get; internal set; }
+    public EnemyQuadraticSpeedIndex YSpeedTableIndex { get; internal set; }
+
+    /// <summary>
+    /// The furthest place the Puyo's index keeps: a step past it, as past the first row, restarts the fall, as the game's
+    /// sign test on the index's word does.
+    /// </summary>
+    internal static readonly EnemyQuadraticSpeedIndex LargestYSpeedTableIndex =
+        EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(short.MaxValue);
 
     /// <summary>Grounded-frame countdown copied from population parameter one.</summary>
     public int HopCooldownTimer { get; internal set; }
@@ -51,23 +58,23 @@ public sealed class PuyoEnemyState
     public PuyoDirection InvertedDirection { get; internal set; }
 
     /// <summary>Three-quarter point of the initial vertical speed index.</summary>
-    public int InitialYSpeedTableIndexThreeQuarters { get; internal set; }
+    public EnemyQuadraticSpeedIndex InitialYSpeedTableIndexThreeQuarters { get; internal set; }
 
     /// <summary>One-half point of the initial vertical speed index.</summary>
-    public int InitialYSpeedTableIndexHalf { get; internal set; }
+    public EnemyQuadraticSpeedIndex InitialYSpeedTableIndexHalf { get; internal set; }
 
     /// <summary>
     /// One airborne update's change to the speed index: rising lowers it by <paramref name="delta"/>, falling raises it.
-    /// A step that leaves 0 through 32767 (the game tests its sign) restarts the fall at zero: the apex
-    /// while rising, and a restart of an overlong fall.
+    /// A step that leaves the first row through <see cref="LargestYSpeedTableIndex"/> (the game tests its sign) restarts
+    /// the fall at the first row: the apex while rising, and a restart of an overlong fall.
     /// </summary>
-    /// <param name="delta">The hop record's 8.8 index step, at most three whole steps.</param>
-    internal void StepAirborneIndex(int delta)
+    /// <param name="delta">The hop record's index step, at most three whole rows.</param>
+    internal void StepAirborneIndex(EnemyQuadraticSpeedIndex delta)
     {
         YSpeedTableIndex = Falling ? YSpeedTableIndex + delta : YSpeedTableIndex - delta;
-        if (YSpeedTableIndex is >= 0 and <= short.MaxValue)
+        if (!YSpeedTableIndex.IsNegative && YSpeedTableIndex <= LargestYSpeedTableIndex)
             return;
         Falling = true;
-        YSpeedTableIndex = 0;
+        YSpeedTableIndex = EnemyQuadraticSpeedIndex.Start;
     }
 }

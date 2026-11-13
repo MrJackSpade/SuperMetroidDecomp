@@ -758,7 +758,7 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemies.PuyoStates[index] is { } puyo)
         {
-            puyo.YSpeedTableIndex = Index(words.A, short.MaxValue, "Puyo speed index");
+            puyo.YSpeedTableIndex = EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(Index(words.A, short.MaxValue, "Puyo speed index"));
             puyo.HopCooldownTimer = unchecked((short)words.B);
             puyo.Function = words.C == 0 ? null : PuyoNativeWords.PuyoEnemyFunctions.Decode(words.C, "recorded PuyoEnemyFunction");
             puyo.AirborneFunction = words.D == 0 ? null : PuyoNativeWords.PuyoAirborneFunctions.Decode(words.D, "recorded PuyoAirborneFunction");

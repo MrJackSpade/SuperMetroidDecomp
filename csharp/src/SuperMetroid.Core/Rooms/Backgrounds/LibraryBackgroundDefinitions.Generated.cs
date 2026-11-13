@@ -6,17 +6,17 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 
 public static partial class LibraryBackgroundDefinitions
 {
-    /// <summary>The ScrollingSkyTilemapsLandingSite library background.</summary>
-    public static LibraryBackground ScrollingSkyTilemapsLandingSite { get; } = new(nameof(ScrollingSkyTilemapsLandingSite), LibraryBackgroundView.SkyRows, [CrateriaDoorDefinitions.GauntletEntrance0, CrateriaDoorDefinitions.Parlor1, CrateriaDoorDefinitions.CrateriaPowerBombs0, CrateriaDoorDefinitions.CrateriaTube0, CrateriaDoorDefinitions.LandingSiteLandingCutscene, DoorDefinitions.DemoSet3024]);
+    /// <summary>The ScrollingSkyLandingSite library background.</summary>
+    public static LibraryBackground ScrollingSkyLandingSite { get; } = new(nameof(ScrollingSkyLandingSite), LibraryBackgroundView.SkyRows, [CrateriaDoorDefinitions.GauntletEntrance0, CrateriaDoorDefinitions.Parlor1, CrateriaDoorDefinitions.CrateriaPowerBombs0, CrateriaDoorDefinitions.CrateriaTube0, CrateriaDoorDefinitions.LandingSiteLandingCutscene, DoorDefinitions.DemoSet3024]);
 
-    /// <summary>The ScrollingSkyTilemapsWreckedShipEntrance library background.</summary>
-    public static LibraryBackground ScrollingSkyTilemapsWreckedShipEntrance { get; } = new(nameof(ScrollingSkyTilemapsWreckedShipEntrance), LibraryBackgroundView.SkyRows, [CrateriaDoorDefinitions.BowlingAlleyPath0, CrateriaDoorDefinitions.Moat1, WreckedShipDoorDefinitions.BowlingAlley0, WreckedShipDoorDefinitions.WreckedShipEntrance0, WreckedShipDoorDefinitions.Attic2, WreckedShipDoorDefinitions.GravitySuit0]);
+    /// <summary>The ScrollingSkyWreckedShipEntrance library background.</summary>
+    public static LibraryBackground ScrollingSkyWreckedShipEntrance { get; } = new(nameof(ScrollingSkyWreckedShipEntrance), LibraryBackgroundView.SkyRows, [CrateriaDoorDefinitions.BowlingAlleyPath0, CrateriaDoorDefinitions.Moat1, WreckedShipDoorDefinitions.BowlingAlley0, WreckedShipDoorDefinitions.WreckedShipEntrance0, WreckedShipDoorDefinitions.Attic2, WreckedShipDoorDefinitions.GravitySuit0]);
 
-    /// <summary>The ScrollingSkyTilemapsEastOcean library background.</summary>
-    public static LibraryBackground ScrollingSkyTilemapsEastOcean { get; } = new(nameof(ScrollingSkyTilemapsEastOcean), LibraryBackgroundView.SkyRows, [CrateriaDoorDefinitions.ForgottenHighwayKagos0, WreckedShipDoorDefinitions.ElectricDeath0]);
+    /// <summary>The ScrollingSkyEastOcean library background.</summary>
+    public static LibraryBackground ScrollingSkyEastOcean { get; } = new(nameof(ScrollingSkyEastOcean), LibraryBackgroundView.SkyRows, [CrateriaDoorDefinitions.ForgottenHighwayKagos0, WreckedShipDoorDefinitions.ElectricDeath0]);
 
-    /// <summary>The ScrollingSkyTilemapsBowlingAlley library background.</summary>
-    public static LibraryBackground ScrollingSkyTilemapsBowlingAlley { get; } = new(nameof(ScrollingSkyTilemapsBowlingAlley), LibraryBackgroundView.SkyRows, []);
+    /// <summary>The ScrollingSkyBowlingAlley library background.</summary>
+    public static LibraryBackground ScrollingSkyBowlingAlley { get; } = new(nameof(ScrollingSkyBowlingAlley), LibraryBackgroundView.SkyRows, []);
 
     /// <summary>The Brinstar26KraidUpperLower library background.</summary>
     public static LibraryBackground Brinstar26KraidUpperLower { get; } = new(nameof(Brinstar26KraidUpperLower), LibraryBackgroundView.Picture, []);

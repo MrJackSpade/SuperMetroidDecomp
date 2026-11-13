@@ -10,8 +10,8 @@ public static class GameOptionsPresentationDefinitions
     /// <summary>The JSON names of the cursor frame sprites, by frame.</summary>
     internal static readonly string[] CursorSpriteNames = ["Cursor.0", "Cursor.1", "Cursor.2", "Cursor.3"];
 
-    /// <summary>The JSON name of a foreground page.</summary>
-    internal static readonly IReadOnlyDictionary<GameOptionsScreen, string> TilemapNames =
+    /// <summary>The name each options page's pictures are filed under.</summary>
+    internal static readonly IReadOnlyDictionary<GameOptionsScreen, string> PageNames =
         new Dictionary<GameOptionsScreen, string>
         {
             [GameOptionsScreen.Primary] = "Primary",

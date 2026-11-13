@@ -158,7 +158,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // label's picture in its shade (#1467).
         SetPauseButtonLabelMode(PauseButtonHighlight.MapPage);
 
-        LoadPauseMapTilemap();
+        LoadMapPage();
         SelectFirstCollectedEquipment();
         SetupMapScrolling();
     }
@@ -343,7 +343,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
                 else
                 {
                     ScreenMode = PauseScreenMode.Map;
-                    LoadPauseMapTilemap();
+                    LoadMapPage();
                     Transition = PauseMenuTransition.EquipmentToMapFadeIn;
                 }
                 TransitionBrightness = 0;
@@ -400,7 +400,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
 
     /// <summary>Builds the area map from installed presentation and exploration bits into the map page.</summary>
     [MemberNotNull(nameof(ShownMap))]
-    private void LoadPauseMapTilemap()
+    private void LoadMapPage()
     {
         AreaMapPresentation maps = mapPresentation ?? throw new InvalidOperationException(
             "Pause map requires installed map presentation assets.");
@@ -785,7 +785,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // rerun controls.
         // Preserve the live scroll position and transition timing. Only refresh
         // the map page when it is shown; the equipment page shares its layer.
-        if (ScreenMode == PauseScreenMode.Map) LoadPauseMapTilemap();
+        if (ScreenMode == PauseScreenMode.Map) LoadMapPage();
     }
 
     /// <summary>

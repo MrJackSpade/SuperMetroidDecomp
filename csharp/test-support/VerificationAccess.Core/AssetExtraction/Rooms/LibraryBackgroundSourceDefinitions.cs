@@ -6,10 +6,10 @@ internal static class LibraryBackgroundSourceDefinitions
     /// <summary>Each compiled program, by its bank-$8F command-list pointer.</summary>
     internal static IReadOnlyDictionary<ushort, LibraryBackgroundProgram> ByPointer { get; } = new Dictionary<ushort, LibraryBackgroundProgram>
     {
-        [0xb76a] = LibraryBackgroundProgramDefinitions.ScrollingSkyTilemapsLandingSite,
-        [0xb7ae] = LibraryBackgroundProgramDefinitions.ScrollingSkyTilemapsWreckedShipEntrance,
-        [0xb7f2] = LibraryBackgroundProgramDefinitions.ScrollingSkyTilemapsEastOcean,
-        [0xb80a] = LibraryBackgroundProgramDefinitions.ScrollingSkyTilemapsBowlingAlley,
+        [0xb76a] = LibraryBackgroundProgramDefinitions.ScrollingSkyLandingSite,
+        [0xb7ae] = LibraryBackgroundProgramDefinitions.ScrollingSkyWreckedShipEntrance,
+        [0xb7f2] = LibraryBackgroundProgramDefinitions.ScrollingSkyEastOcean,
+        [0xb80a] = LibraryBackgroundProgramDefinitions.ScrollingSkyBowlingAlley,
         [0xb815] = LibraryBackgroundProgramDefinitions.Brinstar26KraidUpperLower,
         [0xb840] = LibraryBackgroundProgramDefinitions.KraidDead,
         [0xb84d] = LibraryBackgroundProgramDefinitions.CrocomireDefault,

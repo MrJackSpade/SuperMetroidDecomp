@@ -9,9 +9,9 @@ namespace SuperMetroid.Core.Frontend.Options.Artwork;
 /// </summary>
 public static class GameOptionsNames
 {
-    /// <summary>The JSON name of a foreground page.</summary>
-    public static string TilemapName(GameOptionsScreen tilemap) =>
-        Ensure.Listed(GameOptionsPresentationDefinitions.TilemapNames, tilemap);
+    /// <summary>The name the pictures of options page <paramref name="page"/> are filed under.</summary>
+    public static string PageName(GameOptionsScreen page) =>
+        Ensure.Listed(GameOptionsPresentationDefinitions.PageNames, page);
 
     /// <summary>The JSON name of a menu layout's heading sprite.</summary>
     internal static string HeadingSpriteName(GameOptionsPage page) =>
@@ -45,7 +45,7 @@ public static class GameOptionsNames
     public const string BackgroundFrame = "Options.Background";
 
     /// <summary>The menus' picture of <paramref name="page"/>, less its labels, language highlights and toggle choices (#1467).</summary>
-    public static string PageFrame(GameOptionsScreen page) => $"Options.Page.{TilemapName(page)}";
+    public static string PageFrame(GameOptionsScreen page) => $"Options.Page.{PageName(page)}";
 
     /// <summary>The menus' picture of the primary page's language row <paramref name="region"/> while the text is Japanese or English (#1467).</summary>
     public static string LanguageFrame(int region, bool japanese) =>
@@ -60,6 +60,6 @@ public static class GameOptionsNames
     /// disabled one selected (#1467).
     /// </summary>
     public static string ToggleFrame(GameOptionsScreen page, GameOptionsToggle toggle, bool enabled) =>
-        $"Options.Toggle.{TilemapName(page)}.{ToggleName(toggle)}.{(enabled ? "On" : "Off")}";
+        $"Options.Toggle.{PageName(page)}.{ToggleName(toggle)}.{(enabled ? "On" : "Off")}";
 
 }

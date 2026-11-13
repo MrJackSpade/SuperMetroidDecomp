@@ -56,14 +56,14 @@ public static class RoomObjectGreyDoorVisualFiles
         if (!GreyDoorCaps.TryDescribe(request, out var draw))
             throw new InvalidDataException($"Grey-door draw {request} has no visual ID.");
         string direction = DoorCapOrientations.VisualName(draw.Orientation);
-        return draw.Frame < 0 ? $"clear-{direction}" : $"grey-{direction}-frame-{draw.Frame}";
+        return draw.Frame is int frame ? $"grey-{direction}-frame-{frame}" : $"clear-{direction}";
     }
 
     /// <summary>The four cleared openings, then each facing's four grey frames.</summary>
     private static IEnumerable<RoomObjectDraw> Draws()
     {
         for (int orientation = 0; orientation < 4; orientation++)
-            yield return RoomObjectDraw.Of(new GreyDoorCaps.Draw(DoorCapOrientations.FromTableIndex(orientation), GreyDoorObjectDrawDefinitions.ClearFrame));
+            yield return RoomObjectDraw.Of(GreyDoorCaps.Draw.ClearedOf(DoorCapOrientations.FromTableIndex(orientation)));
         for (int orientation = 0; orientation < 4; orientation++)
             for (int frame = 0; frame < 4; frame++)
                 yield return RoomObjectDraw.Of(new GreyDoorCaps.Draw(DoorCapOrientations.FromTableIndex(orientation), frame));

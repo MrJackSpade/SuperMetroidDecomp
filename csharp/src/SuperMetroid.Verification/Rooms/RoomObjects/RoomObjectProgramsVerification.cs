@@ -280,7 +280,9 @@ internal static class RoomObjectProgramsVerification
     {
         ArgumentNullException.ThrowIfNull(gate);
         downwardGateAddresses ??= DownwardGateAddresses(rom);
-        int frame = gate.Phase is DownwardGatePhase.Closing or DownwardGatePhase.Reopening ? gate.Frame : 0;
+        int frame = gate.Phase is DownwardGatePhase.Closing or DownwardGatePhase.Reopening
+            ? gate.Frame ?? throw new InvalidDataException($"A moving downward gate in {gate.Phase} ended an update showing no image.")
+            : 0;
         return downwardGateAddresses.TryGetValue(new GateState(gate.Phase, frame), out ushort address)
             ? address
             : throw new InvalidDataException($"A downward gate in {gate.Phase} at image {frame} has no native instruction.");

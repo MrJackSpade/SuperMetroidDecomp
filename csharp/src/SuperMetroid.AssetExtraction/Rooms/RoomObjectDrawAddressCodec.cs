@@ -75,11 +75,11 @@ internal static class RoomObjectDrawAddressCodec
         RoomObjectFrameDraw<GrappleBlockDraw> { Frame: var grapple } => Offset(RoomObjectDrawSourceDefinitions.GrappleBlockFirst, GrappleIndex(grapple) * OneBlockStride),
         RoomObjectFrameDraw<RoomObjectCollectibleDrawDefinitions.Draw> { Frame: var item } => Collectible(item),
         RoomObjectFrameDraw<BlueDoorCaps.Draw> { Frame: var blue } => Offset(RoomObjectDrawSourceDefinitions.BlueDoorLeftAlias,
-            FacingIndex(blue.Orientation) * BlueFacingStride + (blue.Frame - BlueDoorObjectDrawDefinitions.AliasFrame) * CapStride),
-        RoomObjectFrameDraw<GreyDoorCaps.Draw> { Frame: { Frame: GreyDoorObjectDrawDefinitions.ClearFrame } clear } =>
+            FacingIndex(blue.Orientation) * BlueFacingStride + BlueCapIndex(blue) * CapStride),
+        RoomObjectFrameDraw<GreyDoorCaps.Draw> { Frame: { Frame: null } clear } =>
             Offset(RoomObjectDrawSourceDefinitions.DoorClearLeft, FacingIndex(clear.Orientation) * CapStride),
-        RoomObjectFrameDraw<GreyDoorCaps.Draw> { Frame: var grey } => Offset(RoomObjectDrawSourceDefinitions.GreyDoorLeft,
-            FacingIndex(grey.Orientation) * CapFacingStride + grey.Frame * CapStride),
+        RoomObjectFrameDraw<GreyDoorCaps.Draw> { Frame: { Frame: int greyFrame } grey } => Offset(RoomObjectDrawSourceDefinitions.GreyDoorLeft,
+            FacingIndex(grey.Orientation) * CapFacingStride + greyFrame * CapStride),
         RoomObjectFrameDraw<ColoredDoorCaps.Draw> { Frame: var colored } => Offset(RoomObjectDrawSourceDefinitions.ColoredDoorYellowLeft,
             ColorIndex(colored.Color) * ColorStride + FacingIndex(colored.Orientation) * CapFacingStride + colored.Frame * CapStride),
         RoomObjectFrameDraw<EyeDoorDraws.Draw> { Frame: var eye } => EyeDoor(eye),
@@ -150,6 +150,12 @@ internal static class RoomObjectDrawAddressCodec
         GrappleBlockDraw.Blank => 4,
         _ => throw new InvalidDataException($"Undefined {nameof(GrappleBlockDraw)} {grapple}."),
     };
+
+    /// <summary>
+    /// The position of a blue cap among its facing's five records in the cartridge: the physical alias first, then the
+    /// four opening frames in order (#1627).
+    /// </summary>
+    private static int BlueCapIndex(BlueDoorCaps.Draw blue) => blue.Frame is int frame ? 1 + frame : 0;
 
     /// <summary>The position of a cap facing in the cartridge's cap tables: left, right, up, down.</summary>
     private static int FacingIndex(ColoredDoorOrientation orientation) => orientation switch

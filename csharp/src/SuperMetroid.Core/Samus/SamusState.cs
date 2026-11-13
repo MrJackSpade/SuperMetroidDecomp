@@ -864,19 +864,19 @@ level, probe, this, amount, scanLeftToRight, roomObjects);
 
     /// <summary>
     /// Applies this frame's whole previous-position writes before scrolling calculates
-    /// distance; the fractions are kept. Its normal tail subsequently replaces the complete checkpoint.
+    /// distance; the fractions are kept. Its normal tail subsequently replaces the complete checkpoint. The written X is
+    /// a whole pixel of the room's coordinates, which <see cref="FixedCoordinate"/> holds (#1627).
     /// </summary>
     internal FixedPosition<RoomPixels> ApplyPreviousPositionWrites(FixedPosition<RoomPixels> previous)
     {
-        int correctedY = CoordinateAxis.Wrap((_poseCollisionPreviousYPosition ?? previous.Y.Whole)
-            + _poseAlignmentPreviousYDelta);
-        int xPosition = Ensure.BetweenInclusive(0, ushort.MaxValue, _previousXPositionWrite ?? previous.X.Whole);
+        var written = new FixedPosition<RoomPixels>(
+            FixedCoordinate.Of(_previousXPositionWrite ?? previous.X.Whole, previous.X.Fraction),
+            FixedCoordinate.Of(CoordinateAxis.Wrap((_poseCollisionPreviousYPosition ?? previous.Y.Whole) + _poseAlignmentPreviousYDelta),
+                previous.Y.Fraction));
         _poseCollisionPreviousYPosition = null;
         _poseAlignmentPreviousYDelta = 0;
         _previousXPositionWrite = null;
-        return new FixedPosition<RoomPixels>(
-            FixedCoordinate.Of(xPosition, previous.X.Fraction),
-            FixedCoordinate.Of(correctedY, previous.Y.Fraction));
+        return written;
     }
 
     /// <summary>Persistent low-energy warning state, shared by beta and reserve recovery.</summary>

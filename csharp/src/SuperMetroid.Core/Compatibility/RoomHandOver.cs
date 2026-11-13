@@ -39,10 +39,10 @@ public sealed class RoomHandOver
     private ImmutableArray<EnemyProjectileHandOver> _enemyProjectiles = [];
 
     /// <summary>Records what the outgoing room's shot places leave: each one's horizontal sub-pixel position.</summary>
-    /// <param name="horizontalFractions">Each place's fraction, in place order, 0 through 65535.</param>
+    /// <param name="horizontalFractions">Each place's fraction, in place order, 0 through <see cref="FixedCoordinate.LastFraction"/>.</param>
     public void LeaveShots(IEnumerable<int> horizontalFractions) =>
         _shotHorizontalFractions = [.. Ensure.NotNull(horizontalFractions).Select(fraction =>
-            Ensure.BetweenInclusive(0, ushort.MaxValue, fraction))];
+            Ensure.BetweenInclusive(0, FixedCoordinate.LastFraction, fraction))];
 
     /// <summary>
     /// The horizontal sub-pixel position shot place <paramref name="place"/> starts the room with: what the room before

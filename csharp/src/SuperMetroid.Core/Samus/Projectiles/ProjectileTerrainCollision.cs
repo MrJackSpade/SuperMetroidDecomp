@@ -636,10 +636,10 @@ internal sealed class ProjectileTerrainCollision
         var firstBlock = Position16<RoomBlocks>.Of(left >> 4, targetY >> 4);
         for (int step = 0; step <= span; step++)
         {
-            int index = BlockScanCycle.BlockAlongRows(firstBlock, level.Size.X, step);
-            if (index < level.Size.X * level.Size.Y)
+            Position16<RoomBlocks> block = BlockScanCycle.BlockAlongRows(firstBlock, level.Size.X, step);
+            if (level.Size.Contains(block))
             {
-                RunShotReaction(level, slot, level.GetCollisionBlock(new(CoordinateAxis.Wrap(index % level.Size.X), CoordinateAxis.Wrap(index / level.Size.X))), roomObjects,
+                RunShotReaction(level, slot, level.GetCollisionBlock(block), roomObjects,
                     new ShotSpan(span, span - step, targetY), out bool endSpan, axis: Axis.Vertical);
                 if (endSpan) return;
             }

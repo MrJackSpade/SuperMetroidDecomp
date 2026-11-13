@@ -40,10 +40,10 @@ internal static class EnemyBreakableTerrainDefinitionsVerification
                 [RoomBlockAppearance.Of(0, BlockMirroring.None)]), RoomLevelData.NothingBeyondGrid());
             var roomObjects = RoomObjectFixtures.Unbound();
             var terrain = new EnemyTerrain();
-            RoomCollisionBlock block = level.GetCollisionBlockByIndex(0);
+            RoomCollisionBlock block = level.GetCollisionBlock(Position16<RoomBlocks>.Zero);
             bool collision;
             using (new EnemyTerrain.EnemyTerrainScope(terrain, roomObjects.BreakableTerrain))
-                collision = terrain.ReactToEnemySpikeBlock(level, 0, block);
+                collision = terrain.ReactToEnemySpikeBlock(level, Position16<RoomBlocks>.Zero, block);
 
             AssertEqual(index != 15, collision,
                 $"production enemy spike collision ${behavior:X2}");
@@ -58,7 +58,7 @@ internal static class EnemyBreakableTerrainDefinitionsVerification
                     } && change == ScriptedTerrainChangeDefinitions.EnemyBreakableBlockBreak,
                     $"production enemy spike ${behavior:X2} spawns the block's break at the block");
             AssertEqual(index == 15 ? RoomCollisionType.Air : RoomCollisionType.SpikeBlock,
-                level.GetCollisionBlockByIndex(0).CollisionType,
+                level.GetCollisionBlock(Position16<RoomBlocks>.Zero).CollisionType,
                 $"production enemy spike resulting collision type ${behavior:X2}");
         }
 

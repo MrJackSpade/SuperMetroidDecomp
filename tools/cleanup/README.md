@@ -184,17 +184,25 @@ exits nonzero when any fixture fails.
 `tools/cleanup/prune-fixtures/<name>/` confirms the dead-code prune the same way: `input/` is a small repository whose
 `csharp/Fixture.slnx` lists projects named like the shipped, host and verification projects (the reachability audit
 knows them by name), with test-support shared through `.projitems`, and `expected/` is every file of it after the prune.
+A fixture for a shape the prune must refuse holds `expected-error.txt` in place of `expected/`: text the prune's failure
+must print.
 
 ```powershell
 pwsh -File tools/cleanup/check-prune-fixtures.ps1                         # every prune fixture
 pwsh -File tools/cleanup/check-prune-fixtures.ps1 -Name holder-collision  # only the named ones
 ```
 
-It builds `SuperMetroid.ReachabilityAudit` once in Release, then for each fixture copies `input/` into a new temporary
-directory with a `csharp/Directory.Build.props` that imports `csharp/Directory.Build.props` and names the repository's
-`csharp/test-support` (`$(RepositoryTestSupport)`, for the host's console error policy), restores it, runs the prune on
-it with the arguments `run.ps1` uses and `csharp/test-support/VerificationAccess.Core` as the destination, compares
-every file with `expected/` as above, and builds the pruned copy. `holder-collision` holds the shapes of the
+It builds `SuperMetroid.ReachabilityAudit` once in Release (which builds the repository analyzer in Release too), then
+for each fixture copies `input/` into a new temporary directory with a `csharp/Directory.Build.props` that imports
+`csharp/Directory.Build.props`, names the repository's `csharp/test-support` (`$(RepositoryTestSupport)`, for the host's
+console error policy) and adds `SuperMetroid.EnsureAnalyzer` to every project, and with the repository's
+`csharp/.editorconfig` beside it, so every rule has the severity and scope the repository gives it (the SME rules in
+`src/SuperMetroid.Core` and `src/SuperMetroid.AssetExtraction` only). The module map is not added: its rules
+(SME6402-SME6405) place the repository's own modules, which a fixture does not have, and a prune changes no namespace or
+path they read. The check restores the copy, runs the prune on it with the arguments `run.ps1` uses and
+`csharp/test-support/VerificationAccess.Core` as the destination, compares every file with `expected/` as above, and
+builds the pruned copy, so an analyzer finding fails the fixture as it fails the cleanup's build. For a refused shape it
+requires the prune to fail, printing `expected-error.txt`, and to leave every file of `input/` as it was. `holder-collision` holds the shapes of the
 2026-11-13 failure at a7f8ec16e6: a moved instance member whose `<Owner>Access` class another test-support folder
 already declares (it is merged into), a moved static member whose `<Owner>Constants` name an instance class holds (the
 first free name, `<Owner>Constants2`, is used), and `inheritdoc` and `see` crefs to both, which follow them.
@@ -208,13 +216,29 @@ members, an internal property's private setter that moved code writes loses its 
 method that moved code calls become internal. `moved-crefs` holds crefs to members inside a moved extension block (a
 generic one among them) and a moved nested type: `see`, `seealso` and `inheritdoc`, written with the owner, with its
 namespace too, or alone inside the moved code; a moved block's cref to a member of the owner's staying block; and a
-labelled `see` in shipped code, which becomes its label. `partial-members` moves a partial method without an
+labelled `see` in shipped code, which becomes its label. `holder-modifiers` and `partial-members` hold their code in a
+`SuperMetroid.Desktop` project: a hand-written partial type is SME6361 in Core and AssetExtraction, where only a
+generator completes one, and is code the prune meets in the shipped projects outside the SME rules. `partial-members` moves a partial method without an
 implementation as written and an implemented one, both into a partial `<Owner>Constants`, and joins the two parts of an
 instance partial method and property into one extension member each. `same-receiver-blocks` holds two extension blocks
 of one class taking the same receiver, one production uses and one only checks use: the second moves whole. Such blocks
 share a documentation-comment ID, so the audit keys each block by where it is declared as well; before, the two counted
 as one reachable declaration, the second block's members moved one by one and an empty block stayed in shipped code. A
 staying block every member of which would move out one by one fails the run.
+
+The promotion fixtures hold the shape of the 2026-11-13 failure at 5eddba348d, where the prune made the private field
+`RoomObjectSlotTable._places` internal for moved test code and the build failed on SME6354, and the other rules a
+promotion can break. `underscore-promotion` promotes an underscore-prefixed private field that moved code reaches
+through `this`, through a conditional access and in documentation: it becomes internal as `places`, and every reference
+follows, `nameof` and crefs among them, the constructor's assignment, which a parameter of that name would take, as
+`this.places`. `shared-field-promotion` promotes one of two underscore-prefixed fields declared together, which become
+internal together and both lose the underscore. `moved-private-cref` moves documentation naming a private member that
+moved code does not use: the test-support assembly compiles against the shipped project's reference assembly, which holds
+no private member, so the cref becomes text (a labelled one its label) instead of failing CS1574. Four fixtures hold
+shapes the prune refuses, failing the run before it writes anything: `underscore-collision`, where the underscore-less
+name is taken (SME6354 cannot be met by renaming); `mutable-field-promotion`, a class's mutable field in Core
+(SME6436); `argument-guard-promotion`, a private method that checks its argument by hand (SME6201); and
+`derived-hiding-promotion`, a private member whose name a derived type's member takes (CS0108).
 
 The prune puts an owner's moved members in the class its style names, in the owner's namespace, unless a project
 compiling the destination already knows that name. It then merges into that class when it is one static class (abstract,
@@ -232,6 +256,30 @@ A partial member moves into a partial class (an existing class is merged into on
 method without an implementation moves as written, private to its new class, and the run fails when code outside that
 class reaches it or when a staying one must become internal. An instance partial member that becomes an extension
 member is written once from its two parts, and the run fails when they are not both repository source.
+
+A staying member becomes internal (a promotion) when moved code reaches it: through its owner's name, `this`, a receiver
+or a conditional access, or by constructing its type. A promotion changes only accessibility, so the rules it can break
+are the build's rules that read accessibility (`PromotionRules` and `PromotedNames` in the same folder), each met or
+refused before anything is written:
+
+- SME6354 (an underscore-prefixed field or property is private): the member is renamed to its name without the
+  underscore, which the rule's message asks for ("a member without the underscore") and which every rule that reads a
+  name as words reads as before; every reference is rewritten, crefs and `nameof` among them, and qualified with `this`
+  or its type where a local or parameter of that name would take it. A field declared together with a promoted one is
+  promoted with it and renamed too. The rename is refused when the name is taken by the owner, a containing or base
+  type or a derived type, when the name already means something else in the owner or a derived type, when code reaches
+  a member of that name through the owner's type, or when something reads the old name as text (a string literal, an
+  inactive `#if` branch, a serialization or reflection attribute).
+- SME6436 (no mutable field of a class is exposed, Core): a private mutable instance field is refused; its class needs
+  a named operation or a property for what the moved code needs.
+- SME6201 (a non-private method or accessor checks arguments with Ensure): a private one that checks an argument by hand
+  is refused until the check uses Ensure.
+- CS0108 (hiding): a member that a derived type's member of the same name would hide is refused.
+
+Every other rule the build enforces reads what a declaration is, says or does, which a promotion does not change; the
+CA rules that read accessibility (CA1859, CA2211) judge private and internal members alike. A cref in moved
+documentation to a staying member the destination cannot see (private, or private protected, and not promoted) becomes
+text, as a cref in a shipped assembly to moved code does.
 
 ## Seeing status
 

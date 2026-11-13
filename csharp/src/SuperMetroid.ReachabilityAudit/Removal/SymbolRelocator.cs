@@ -22,8 +22,11 @@ namespace SuperMetroid.ReachabilityAudit.Removal;
 /// </list>
 /// Moved bodies are rewritten so that references back to the owner resolve; owner members they
 /// use that were private become internal, and every modifier the move writes is one its declaration
-/// kind takes (<see cref="RelocationModifiers"/>). Every reference and documentation cref in the solution
-/// is retargeted, and crefs in shipped assemblies, which cannot see the target, become plain text.
+/// kind takes (<see cref="RelocationModifiers"/>). A member that becomes internal keeps every rule a promotion can break
+/// (<see cref="PromotionRules"/>), and an underscore-prefixed one takes its name without the underscore, with every
+/// reference rewritten (<see cref="PromotedNames"/>). Every reference and documentation cref in the solution
+/// is retargeted, and crefs in shipped assemblies, which cannot see the target, become plain text, as do crefs in moved
+/// documentation to members the target cannot see.
 /// Anything that cannot move mechanically (instance fields, constructors, indexers, operators,
 /// generic owners, mutating struct members) is reported and left in place.
 /// </summary>
@@ -65,6 +68,14 @@ internal static class SymbolRelocator
         public INamedTypeSymbol AdapterOwner => Owner ??
             throw new InvalidOperationException($"{Symbol.Name} moves as a whole type and has no adapter owner.");
     }
+
+    /// <summary>A cref in moved documentation to a staying member, written once what becomes internal is known.</summary>
+    /// <param name="Tree">The tree that holds the cref.</param>
+    /// <param name="Cref">The cref.</param>
+    /// <param name="Attribute">The cref's attribute, whose element becomes text when the target cannot see the member.</param>
+    /// <param name="Bound">The staying member it names.</param>
+    /// <param name="Qualified">The cref qualified with the member's owner, when the moved code no longer stands inside it.</param>
+    private sealed record MovedCref(SyntaxTree Tree, CrefSyntax Cref, XmlCrefAttributeSyntax Attribute, ISymbol Bound, string? Qualified);
 
     /// <summary>Compares Roslyn symbols across declaration and reference passes.</summary>
     private static readonly SymbolEqualityComparer Comparer = SymbolEqualityComparer.Default;
@@ -220,6 +231,7 @@ internal static class SymbolRelocator
             movedSpans.TryGetValue(tree, out var spans) && spans.Any(s => s.Contains(span));
         Move? EnclosingMove(SyntaxTree tree, SyntaxNode node) =>
             moves.FirstOrDefault(m => m.Tree == tree && m.Node.FullSpan.Contains(node.Span));
+        var compilationOf = trees.ToDictionary(entry => entry.Tree, entry => entry.Compilation);
 
         var promotions = new HashSet<ISymbol>(Comparer);
         var setterPromotions = new HashSet<ISymbol>(Comparer);
@@ -230,6 +242,9 @@ internal static class SymbolRelocator
             if (written && symbol is IPropertySymbol { SetMethod.DeclaredAccessibility: Accessibility.Private or Accessibility.Protected or Accessibility.ProtectedAndInternal })
                 setterPromotions.Add(symbol);
         }
+        // Every staying member that becomes internal: the promoted ones and the fields sharing a declaration with one, whose
+        // shared modifiers change with it.
+        var widened = new HashSet<ISymbol>(Comparer);
         // A staying call site of a moved instance member resolves it as an extension, which needs the
         // adapter's namespace in scope; moved code lands in that namespace already.
         var neededUsings = new Dictionary<SyntaxTree, SortedSet<string>>();
@@ -246,155 +261,265 @@ internal static class SymbolRelocator
             if (!neededUsings.TryGetValue(tree, out var names)) neededUsings[tree] = names = new(StringComparer.Ordinal);
             names.Add(name);
         }
-        foreach (var (tree, compilation, assembly) in trees)
+        // The new name of each underscore-prefixed member that becomes internal (PromotedNames), by repository key. Every
+        // reference is written with it. It is empty for the first collection, which finds what becomes internal.
+        IReadOnlyDictionary<string, string> renames = new Dictionary<string, string>(StringComparer.Ordinal);
+        string? RenamedTo(ISymbol? symbol) => renames.Count > 0 && symbol is IFieldSymbol or IPropertySymbol &&
+            identity.Key(symbol) is { } key && renames.TryGetValue(key, out string? name) ? name : null;
+        string Spelled(ISymbol symbol, SimpleNameSyntax written) => RenamedTo(symbol) ?? written.ToString();
+        string RenamedCref(CrefSyntax cref, ISymbol bound)
         {
-            var model = compilation.GetSemanticModel(tree);
-            bool shipped = shippedAssemblies.Contains(assembly);
-            var root = tree.GetRoot();
-            foreach (var node in root.DescendantNodes(descendIntoTrivia: true))
+            if (RenamedTo(bound) is not { } name)
+                return cref.ToString();
+            int at = CrefMemberName(cref, bound).SpanStart - cref.SpanStart;
+            return cref.ToString().Remove(at, bound.Name.Length).Insert(at, name);
+        }
+        // Crefs in moved documentation to staying members, written once what becomes internal is known: the target compiles
+        // against the reference assembly of the member's project, which holds no private member.
+        var movedCrefs = new List<MovedCref>();
+        bool HiddenFromTarget(ISymbol symbol) =>
+            symbol.DeclaredAccessibility is Accessibility.Private or Accessibility.ProtectedAndInternal && !widened.Contains(symbol) ||
+            symbol.ContainingType?.OriginalDefinition is { } container && HiddenFromTarget(container);
+
+        void CollectEdits()
+        {
+            edits.Clear();
+            promotions.Clear();
+            setterPromotions.Clear();
+            widened.Clear();
+            neededUsings.Clear();
+            movedCrefs.Clear();
+            foreach (var (tree, compilation, assembly) in trees)
             {
-                // Moved code constructing a staying type needs the constructor visible from the target.
-                if (node is BaseObjectCreationExpressionSyntax creation && EnclosingMove(tree, creation) is { Placement: not Placement.WholeType } &&
-                    SymbolIdentity.Normalize(model.GetSymbolInfo(creation).Symbol) is IMethodSymbol { MethodKind: MethodKind.Constructor } constructor &&
-                    !Moved(constructor))
+                var model = compilation.GetSemanticModel(tree);
+                bool shipped = shippedAssemblies.Contains(assembly);
+                var root = tree.GetRoot();
+                foreach (var node in root.DescendantNodes(descendIntoTrivia: true))
                 {
-                    Promote(constructor, promotions, false);
-                    continue;
-                }
-                if (node is CrefSyntax cref && cref.Parent is XmlCrefAttributeSyntax attribute)
-                {
-                    var bound = SymbolIdentity.Normalize(model.GetSymbolInfo(cref).Symbol);
-                    var enclosing = EnclosingMove(tree, cref);
-                    if (bound is null) continue;
-                    if (!Moved(bound))
+                    // Moved code constructing a staying type needs the constructor visible from the target.
+                    if (node is BaseObjectCreationExpressionSyntax creation && EnclosingMove(tree, creation) is { Placement: not Placement.WholeType } &&
+                        SymbolIdentity.Normalize(model.GetSymbolInfo(creation).Symbol) is IMethodSymbol { MethodKind: MethodKind.Constructor } constructor &&
+                        !Moved(constructor))
                     {
-                        // Moved documentation naming a staying owner member, or a member of one of the owner's staying extension
-                        // blocks, needs the owner's name.
-                        if (enclosing is { Placement: not Placement.WholeType } && cref is NameMemberCrefSyntax or ExtensionMemberCrefSyntax &&
-                            DeclaringOwner(bound) is { } crefOwner && InOwnerChain(enclosing.AdapterOwner, crefOwner))
-                            Edit(tree, cref.Span, $"{TypeName(crefOwner)}.{StayingBlockOf(bound, cref)}{cref}");
+                        Promote(constructor, promotions, false);
                         continue;
                     }
-                    // A shipped assembly cannot see the target project: the reference becomes text, a labelled one its label.
-                    if (shipped && enclosing is null)
+                    if (node is CrefSyntax cref && cref.Parent is XmlCrefAttributeSyntax attribute)
                     {
-                        var (textSpan, replacement) = attribute.Parent switch
+                        var bound = SymbolIdentity.Normalize(model.GetSymbolInfo(cref).Symbol);
+                        var enclosing = EnclosingMove(tree, cref);
+                        if (bound is null) continue;
+                        if (!Moved(bound))
                         {
-                            XmlEmptyElementSyntax element => (element.Span, $"<c>{cref}</c>"),
-                            XmlElementStartTagSyntax { Parent: XmlElementSyntax labelled } => (labelled.Span, labelled.Content.ToFullString()),
-                            _ => throw new InvalidOperationException($"The cref at {cref.GetLocation().GetLineSpan()} is in an unexpected element."),
+                            // Moved documentation naming a staying owner member, or a member of one of the owner's staying extension
+                            // blocks, needs the owner's name.
+                            string? qualifiedText = enclosing is { Placement: not Placement.WholeType } && cref is NameMemberCrefSyntax or ExtensionMemberCrefSyntax &&
+                                DeclaringOwner(bound) is { } crefOwner && InOwnerChain(enclosing.AdapterOwner, crefOwner)
+                                ? $"{TypeName(crefOwner)}.{StayingBlockOf(bound, cref)}{RenamedCref(cref, bound)}" : null;
+                            if (enclosing is not null)
+                                movedCrefs.Add(new MovedCref(tree, cref, attribute, bound, qualifiedText));
+                            else if (RenamedTo(bound) is { } renamedCref)
+                                Edit(tree, CrefMemberName(cref, bound).Span, renamedCref);
+                            continue;
+                        }
+                        // A shipped assembly cannot see the target project: the reference becomes text, a labelled one its label.
+                        if (shipped && enclosing is null)
+                        {
+                            var (textSpan, replacement) = AsText(attribute, cref.ToString());
+                            Edit(tree, textSpan, replacement);
+                        }
+                        else if (cref is QualifiedCrefSyntax qualified && MoveOf(bound) is { Placement: Placement.AdapterMember } crefMove)
+                            Edit(tree, qualified.Container.Span, NamespacePrefix(model, qualified.Container) + AdapterName(crefMove.AdapterOwner));
+                        else if (cref is NameMemberCrefSyntax && MoveOf(bound) is { Placement: Placement.AdapterMember } nameMove &&
+                                 (enclosing is null || !SameOwner(enclosing.Owner, nameMove.Owner)))
+                            Edit(tree, cref.Span, $"{AdapterName(nameMove.AdapterOwner)}.{cref}");
+                        else if (MoveOf(bound) is { Placement: Placement.ExtensionMember } extensionMove)
+                            Edit(tree, cref.Span, ExtensionCref(identity, model, cref, extensionMove,
+                                HolderName(extensionMove.AdapterOwner, RelocationHolderKind.Extensions)));
+                        else if (MoveOf(bound) is null && Containers(bound).Select(MoveOf).FirstOrDefault(m => m is not null) is
+                                 { Placement: Placement.AdapterMember } container)
+                            foreach (var (span, text) in ContainedMemberCref(model, cref, bound, container, enclosing))
+                                Edit(tree, span, text);
+                        continue;
+                    }
+                    if (node.Ancestors().Any(a => a is CrefSyntax)) continue;
+                    if (node is MemberBindingExpressionSyntax binding)
+                    {
+                        // A conditional access (receiver?.Member) reaches its member as a member access does.
+                        var bound = SymbolIdentity.Normalize(model.GetSymbolInfo(binding.Name).Symbol);
+                        if (RenamedTo(bound) is { } renamedMember)
+                            Edit(tree, binding.Name.Span, renamedMember);
+                        if (bound is not null && MoveOf(bound) is { Placement: Placement.ExtensionMember } accessed)
+                            RequireExtensionNamespace(tree, model, node, accessed);
+                        if (bound is not null && !Moved(bound) && EnclosingMove(tree, node) is { Placement: not Placement.WholeType } reaching &&
+                            DeclaringOwner(bound) is { } boundOwner && InOwnerChain(reaching.AdapterOwner, boundOwner))
+                            Promote(bound, promotions, IsWritten(binding));
+                        continue;
+                    }
+                    if (node is MemberAccessExpressionSyntax or QualifiedNameSyntax)
+                    {
+                        var (left, name) = node switch
+                        {
+                            MemberAccessExpressionSyntax access => new QualifiedNameParts(access.Expression, access.Name),
+                            QualifiedNameSyntax qualified => new QualifiedNameParts(qualified.Left, qualified.Right),
+                            _ => throw new InvalidOperationException(),
                         };
-                        Edit(tree, textSpan, replacement);
-                    }
-                    else if (cref is QualifiedCrefSyntax qualified && MoveOf(bound) is { Placement: Placement.AdapterMember } crefMove)
-                        Edit(tree, qualified.Container.Span, NamespacePrefix(model, qualified.Container) + AdapterName(crefMove.AdapterOwner));
-                    else if (cref is NameMemberCrefSyntax && MoveOf(bound) is { Placement: Placement.AdapterMember } nameMove &&
-                             (enclosing is null || !SameOwner(enclosing.Owner, nameMove.Owner)))
-                        Edit(tree, cref.Span, $"{AdapterName(nameMove.AdapterOwner)}.{cref}");
-                    else if (MoveOf(bound) is { Placement: Placement.ExtensionMember } extensionMove)
-                        Edit(tree, cref.Span, ExtensionCref(identity, model, cref, extensionMove,
-                            HolderName(extensionMove.AdapterOwner, RelocationHolderKind.Extensions)));
-                    else if (MoveOf(bound) is null && Containers(bound).Select(MoveOf).FirstOrDefault(m => m is not null) is
-                             { Placement: Placement.AdapterMember } container)
-                        foreach (var (span, text) in ContainedMemberCref(model, cref, bound, container, enclosing))
-                            Edit(tree, span, text);
-                    continue;
-                }
-                if (node.Ancestors().Any(a => a is CrefSyntax)) continue;
-                if (node is MemberAccessExpressionSyntax or QualifiedNameSyntax)
-                {
-                    var (left, name) = node switch
-                    {
-                        MemberAccessExpressionSyntax access => new QualifiedNameParts(access.Expression, access.Name),
-                        QualifiedNameSyntax qualified => new QualifiedNameParts(qualified.Left, qualified.Right),
-                        _ => throw new InvalidOperationException(),
-                    };
-                    var bound = SymbolIdentity.Normalize(model.GetSymbolInfo(name).Symbol);
-                    if (left is ThisExpressionSyntax && bound is not null && EnclosingMove(tree, node) is { Placement: Placement.ExtensionMember })
-                    {
-                        Promote(bound, promotions, IsWritten(node));
+                        var bound = SymbolIdentity.Normalize(model.GetSymbolInfo(name).Symbol);
+                        if (RenamedTo(bound) is { } renamedMember)
+                            Edit(tree, name.Span, renamedMember);
+                        if (left is ThisExpressionSyntax && bound is not null && EnclosingMove(tree, node) is { Placement: Placement.ExtensionMember })
+                        {
+                            Promote(bound, promotions, IsWritten(node));
+                            continue;
+                        }
+                        if (bound is not null && MoveOf(bound) is { Placement: Placement.ExtensionMember } accessed)
+                            RequireExtensionNamespace(tree, model, node, accessed);
+                        // Moved code reaching a staying member of its owner through a qualifier, the owner's name or a receiver of
+                        // one of the owner's extension blocks, reaches it from outside the owner.
+                        if (bound is not null && !Moved(bound) && EnclosingMove(tree, node) is { Placement: not Placement.WholeType } reaching &&
+                            DeclaringOwner(bound) is { } boundOwner && InOwnerChain(reaching.AdapterOwner, boundOwner))
+                            Promote(bound, promotions, IsWritten(node));
+                        if (bound is null || MoveOf(bound) is not { Placement: Placement.AdapterMember } move)
+                            continue;
+                        if (model.GetSymbolInfo(left).Symbol is not INamedTypeSymbol) continue;
+                        if (EnclosingMove(tree, node) is not { Placement: Placement.AdapterMember } qualifying || !SameOwner(qualifying.Owner, move.Owner))
+                            RejectUnimplementedReach(move, node);
+                        Edit(tree, left.Span, NamespacePrefix(model, left) + AdapterName(move.AdapterOwner));
                         continue;
                     }
-                    if (bound is not null && MoveOf(bound) is { Placement: Placement.ExtensionMember } accessed)
-                        RequireExtensionNamespace(tree, model, node, accessed);
-                    // Moved code reaching a staying member of its owner through a qualifier, the owner's name or a receiver of
-                    // one of the owner's extension blocks, reaches it from outside the owner.
-                    if (bound is not null && !Moved(bound) && EnclosingMove(tree, node) is { Placement: not Placement.WholeType } reaching &&
-                        DeclaringOwner(bound) is { } boundOwner && InOwnerChain(reaching.AdapterOwner, boundOwner))
-                        Promote(bound, promotions, IsWritten(node));
-                    if (bound is null || MoveOf(bound) is not { Placement: Placement.AdapterMember } move)
-                        continue;
-                    if (model.GetSymbolInfo(left).Symbol is not INamedTypeSymbol) continue;
-                    if (EnclosingMove(tree, node) is not { Placement: Placement.AdapterMember } qualifying || !SameOwner(qualifying.Owner, move.Owner))
-                        RejectUnimplementedReach(move, node);
-                    Edit(tree, left.Span, NamespacePrefix(model, left) + AdapterName(move.AdapterOwner));
-                    continue;
-                }
-                if (node is not SimpleNameSyntax simple || IsQualifiedName(simple) ||
-                    simple is IdentifierNameSyntax { IsVar: true } || simple.Identifier.Text is "nameof" or "dynamic" or "_") continue;
-                var symbol = SymbolIdentity.Normalize(model.GetSymbolInfo(simple).Symbol);
-                if (symbol is null) continue;
-                var inside = EnclosingMove(tree, simple);
-                if (MoveOf(symbol) is { Placement: Placement.AdapterMember } target)
-                {
-                    // An unqualified use from code that does not move with it into the same adapter.
-                    if (inside is null || inside.Placement == Placement.WholeType || !SameOwner(inside.Owner, target.Owner)
-                        || inside.Placement == Placement.ExtensionMember)
+                    if (node is not SimpleNameSyntax simple || simple is IdentifierNameSyntax { IsVar: true } ||
+                        simple.Identifier.Text is "nameof" or "dynamic" or "_") continue;
+                    if (IsQualifiedName(simple))
                     {
-                        RejectUnimplementedReach(target, simple);
-                        Edit(tree, simple.Span, $"{AdapterName(target.AdapterOwner)}.{simple}");
+                        // A property pattern names its member on its own.
+                        if (simple.Parent is NameColonSyntax && RenamedTo(SymbolIdentity.Normalize(model.GetSymbolInfo(simple).Symbol)) is { } patternName)
+                            Edit(tree, simple.Span, patternName);
+                        continue;
                     }
-                    continue;
+                    var symbol = SymbolIdentity.Normalize(model.GetSymbolInfo(simple).Symbol);
+                    if (symbol is null) continue;
+                    var inside = EnclosingMove(tree, simple);
+                    if (MoveOf(symbol) is { Placement: Placement.AdapterMember } target)
+                    {
+                        // An unqualified use from code that does not move with it into the same adapter.
+                        if (inside is null || inside.Placement == Placement.WholeType || !SameOwner(inside.Owner, target.Owner)
+                            || inside.Placement == Placement.ExtensionMember)
+                        {
+                            RejectUnimplementedReach(target, simple);
+                            Edit(tree, simple.Span, $"{AdapterName(target.AdapterOwner)}.{simple}");
+                        }
+                        continue;
+                    }
+                    if (MoveOf(symbol) is { Placement: Placement.ExtensionMember } extension)
+                    {
+                        // Another moved instance member of the same owner is reached through the receiver.
+                        if (inside is { Placement: Placement.ExtensionMember } && SameOwner(inside.Owner, extension.Owner))
+                            Edit(tree, simple.Span, $"self.{simple}");
+                        continue;
+                    }
+                    string? renamed = RenamedTo(symbol);
+                    if (inside is null || inside.Placement == Placement.WholeType || inside.Node == simple.Parent)
+                    {
+                        if (renamed is not null)
+                            Edit(tree, simple.Span, Unshadowed(model, simple, symbol, renamed));
+                        continue;
+                    }
+                    if (Moved(symbol)) continue;
+                    // A moved member's reference back to a staying member of its owner chain.
+                    if (!symbol.IsStatic && symbol is not INamedTypeSymbol && symbol.ContainingType is { } instanceOwner &&
+                        inside.Placement == Placement.ExtensionMember && InOwnerChain(inside.AdapterOwner, instanceOwner) &&
+                        symbol.Kind is SymbolKind.Field or SymbolKind.Property or SymbolKind.Method or SymbolKind.Event)
+                    {
+                        Edit(tree, simple.Span, $"self.{Spelled(symbol, simple)}");
+                        Promote(symbol, promotions, IsWritten(simple));
+                    }
+                    else if ((symbol.IsStatic || symbol is INamedTypeSymbol) && symbol.ContainingType is { } staticOwner &&
+                        InOwnerChain(inside.AdapterOwner, staticOwner))
+                    {
+                        Edit(tree, simple.Span, $"{TypeName(staticOwner)}.{Spelled(symbol, simple)}");
+                        Promote(symbol, promotions, IsWritten(simple));
+                    }
+                    else if (renamed is not null)
+                        Edit(tree, simple.Span, Unshadowed(model, simple, symbol, renamed));
                 }
-                if (MoveOf(symbol) is { Placement: Placement.ExtensionMember } extension)
+                foreach (var self in root.DescendantNodes().OfType<ThisExpressionSyntax>())
+                    if (EnclosingMove(tree, self) is { Placement: Placement.ExtensionMember })
+                        Edit(tree, self.Span, "self");
+                // Staying types no longer implement moved interfaces; their adapters do.
+                foreach (var baseList in root.DescendantNodes().OfType<BaseListSyntax>())
                 {
-                    // Another moved instance member of the same owner is reached through the receiver.
-                    if (inside is { Placement: Placement.ExtensionMember } && SameOwner(inside.Owner, extension.Owner))
-                        Edit(tree, simple.Span, $"self.{simple}");
-                    continue;
-                }
-                if (inside is null || inside.Placement == Placement.WholeType || inside.Node == simple.Parent) continue;
-                if (Moved(symbol)) continue;
-                // A moved member's reference back to a staying member of its owner chain.
-                if (!symbol.IsStatic && symbol is not INamedTypeSymbol && symbol.ContainingType is { } instanceOwner &&
-                    inside.Placement == Placement.ExtensionMember && InOwnerChain(inside.AdapterOwner, instanceOwner) &&
-                    symbol.Kind is SymbolKind.Field or SymbolKind.Property or SymbolKind.Method or SymbolKind.Event)
-                {
-                    Edit(tree, simple.Span, $"self.{simple}");
-                    Promote(symbol, promotions, IsWritten(simple));
-                }
-                else if ((symbol.IsStatic || symbol is INamedTypeSymbol) && symbol.ContainingType is { } staticOwner &&
-                    InOwnerChain(inside.AdapterOwner, staticOwner))
-                {
-                    Edit(tree, simple.Span, $"{TypeName(staticOwner)}.{simple}");
-                    Promote(symbol, promotions, IsWritten(simple));
+                    if (InMovedSpan(tree, baseList.Span)) continue;
+                    var kept = baseList.Types.Where(t => model.GetTypeInfo(t.Type).Type is not INamedTypeSymbol bt ||
+                        identity.Key(bt.OriginalDefinition) is not { } baseKey || !movedInterfaceKeys.Contains(baseKey)).ToList();
+                    if (kept.Count == baseList.Types.Count) continue;
+                    var previous = baseList.GetFirstToken().GetPreviousToken();
+                    Edit(tree, kept.Count == 0 ? TextSpan.FromBounds(previous.Span.End, baseList.Span.End) : baseList.Span,
+                        kept.Count == 0 ? "" : ": " + string.Join(", ", kept.Select(t => t.ToString())));
                 }
             }
-            foreach (var self in root.DescendantNodes().OfType<ThisExpressionSyntax>())
-                if (EnclosingMove(tree, self) is { Placement: Placement.ExtensionMember })
-                    Edit(tree, self.Span, "self");
-            // Staying types no longer implement moved interfaces; their adapters do.
-            foreach (var baseList in root.DescendantNodes().OfType<BaseListSyntax>())
+
+            // A field sharing its declaration with a promoted one shares its modifiers, so it becomes internal with it.
+            widened.UnionWith(promotions);
+            foreach (var field in promotions.OfType<IFieldSymbol>().ToList())
+                foreach (var syntax in DeclarationsOf(identity, field))
+                    if (syntax is VariableDeclaratorSyntax { Parent: VariableDeclarationSyntax { Variables.Count: > 1 } shared })
+                        foreach (var sibling in shared.Variables)
+                            if (SymbolIdentity.Normalize(compilationOf[sibling.SyntaxTree].GetSemanticModel(sibling.SyntaxTree).GetDeclaredSymbol(sibling)) is { } other)
+                                widened.Add(other);
+            // Moved documentation keeps a cref the target can resolve; one to a member it cannot see becomes text.
+            foreach (var (tree, cref, attribute, bound, qualified) in movedCrefs)
             {
-                if (InMovedSpan(tree, baseList.Span)) continue;
-                var kept = baseList.Types.Where(t => model.GetTypeInfo(t.Type).Type is not INamedTypeSymbol bt ||
-                    identity.Key(bt.OriginalDefinition) is not { } baseKey || !movedInterfaceKeys.Contains(baseKey)).ToList();
-                if (kept.Count == baseList.Types.Count) continue;
-                var previous = baseList.GetFirstToken().GetPreviousToken();
-                Edit(tree, kept.Count == 0 ? TextSpan.FromBounds(previous.Span.End, baseList.Span.End) : baseList.Span,
-                    kept.Count == 0 ? "" : ": " + string.Join(", ", kept.Select(t => t.ToString())));
+                if (HiddenFromTarget(bound))
+                {
+                    var (textSpan, replacement) = AsText(attribute, qualified ?? cref.ToString());
+                    Edit(tree, textSpan, replacement);
+                }
+                else if (qualified is not null)
+                    Edit(tree, cref.Span, qualified);
+                else if (RenamedTo(bound) is { } renamedCref)
+                    Edit(tree, CrefMemberName(cref, bound).Span, renamedCref);
+            }
+            foreach (var (tree, names) in neededUsings)
+            {
+                var unit = tree.GetCompilationUnitRoot();
+                string newline = tree.GetText().ToString().Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
+                string directives = string.Concat(names.Select(name => $"using {name};{newline}"));
+                Edit(tree, new TextSpan(unit.Usings.Count > 0 ? unit.Usings[^1].FullSpan.End : 0, 0), directives);
             }
         }
 
-        foreach (var (tree, names) in neededUsings)
+        // What becomes internal decides the names it takes (PromotedNames) and must keep every rule a promotion can break
+        // (PromotionRules); once names change, the edits are collected again with every reference written with its new name.
+        CollectEdits();
+        var types = new SourceTypes(identity, trees.Select(entry => entry.Compilation));
+        renames = PromotedNames.Plan(widened, trees, types, identity);
+        PromotionRules.Reject(widened, [.. setterPromotions.OfType<IPropertySymbol>()], symbol => RenamedTo(symbol) ?? symbol.Name, types,
+            tree => compilationOf[tree].GetSemanticModel(tree), identity);
+        if (renames.Count > 0)
         {
-            var unit = tree.GetCompilationUnitRoot();
-            string newline = tree.GetText().ToString().Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
-            string directives = string.Concat(names.Select(name => $"using {name};{newline}"));
-            Edit(tree, new TextSpan(unit.Usings.Count > 0 ? unit.Usings[^1].FullSpan.End : 0, 0), directives);
+            var promotedBeforeRename = widened.ToHashSet(Comparer);
+            CollectEdits();
+            if (!widened.SetEquals(promotedBeforeRename))
+                throw new InvalidOperationException("Renaming the promoted underscore-prefixed members changed which members moved code reaches.");
+            RejectUnwrittenRenames();
+        }
+        // Every reference to a renamed member is covered by an edit that writes its new name.
+        void RejectUnwrittenRenames()
+        {
+            foreach (var (tree, compilation, _) in trees)
+            {
+                var model = compilation.GetSemanticModel(tree);
+                var written = edits.TryGetValue(tree, out var list) ? list : [];
+                foreach (var reference in tree.GetRoot().DescendantNodes(descendIntoTrivia: true).OfType<IdentifierNameSyntax>())
+                    if (reference.Identifier.ValueText.StartsWith('_') && RenamedTo(SymbolIdentity.Normalize(model.GetSymbolInfo(reference).Symbol)) is not null &&
+                        !written.Any(edit => edit.Span.Contains(reference.Span)))
+                        throw new InvalidOperationException($"The reference to {reference} at {reference.GetLocation().GetLineSpan()} was not " +
+                            "written with the member's new name.");
+            }
         }
 
-        // 3. Accessibility: staying members used by moved code become internal (RelocationModifiers).
+        // 3. Accessibility: staying members used by moved code become internal (RelocationModifiers), an underscore-prefixed
+        // one under its name without the underscore (PromotedNames).
         foreach (var symbol in setterPromotions)
             foreach (var syntax in DeclarationsOf(identity, symbol))
                 if (syntax is PropertyDeclarationSyntax { AccessorList: { } accessors } property &&
@@ -422,6 +547,16 @@ internal static class SymbolRelocator
                     Edit(declaration.SyntaxTree, span, text);
             }
         }
+        foreach (var symbol in widened)
+            if (RenamedTo(symbol) is { } name)
+                foreach (var syntax in DeclarationsOf(identity, symbol))
+                    Edit(syntax.SyntaxTree, syntax switch
+                    {
+                        VariableDeclaratorSyntax declarator => declarator.Identifier.Span,
+                        PropertyDeclarationSyntax property => property.Identifier.Span,
+                        _ => throw new InvalidOperationException($"{symbol.ToDisplayString()} is declared by a {syntax.Kind()} at " +
+                            $"{syntax.GetLocation().GetLineSpan()}, whose name the rename cannot find."),
+                    }, name);
 
         // 4. Moved text, grouped into target files.
         // A source project's global usings do not follow its code; each moved declaration takes those it names.
@@ -429,7 +564,6 @@ internal static class SymbolRelocator
             (IReadOnlySet<string>)group.SelectMany(entry => entry.Tree.GetCompilationUnitRoot().Usings)
                 .Where(u => u.GlobalKeyword.IsKind(SyntaxKind.GlobalKeyword) && u.Alias is null && u.StaticKeyword.IsKind(SyntaxKind.None) && u.Name is not null)
                 .Select(u => u.Name!.ToString()).ToHashSet(StringComparer.Ordinal));
-        var compilationOf = trees.ToDictionary(entry => entry.Tree, entry => entry.Compilation);
         var files = new SortedDictionary<string, TargetFile>(StringComparer.Ordinal);
         TargetFile FileFor(string path, Move move)
         {
@@ -516,7 +650,37 @@ internal static class SymbolRelocator
         }
         foreach (string line in manual) Console.WriteLine(line);
         Console.WriteLine($"Relocated {moves.Count} declarations into {files.Count} files; deleted {deleted} emptied files; " +
-            $"{promotions.Count} members made internal; {manual.Count} left for manual relocation.");
+            $"{promotions.Count} members made internal; {renames.Count} renamed without their underscore; {manual.Count} left for manual relocation.");
+    }
+
+    /// <summary>A cref element written as text: an empty element's reference as code, a labelled one as its label.</summary>
+    /// <param name="attribute">The cref's attribute.</param>
+    /// <param name="written">The reference as the text should spell it.</param>
+    /// <exception cref="InvalidOperationException">The cref is in an element that is neither empty nor labelled.</exception>
+    private static TextEdit AsText(XmlCrefAttributeSyntax attribute, string written) => attribute.Parent switch
+    {
+        XmlEmptyElementSyntax element => new TextEdit(element.Span, $"<c>{written}</c>"),
+        XmlElementStartTagSyntax { Parent: XmlElementSyntax labelled } => new TextEdit(labelled.Span, labelled.Content.ToFullString()),
+        _ => throw new InvalidOperationException($"The cref at {attribute.GetLocation().GetLineSpan()} is in an unexpected element."),
+    };
+
+    /// <summary>The name in a cref that spells <paramref name="bound"/>'s own name: the last identifier spelling it.</summary>
+    /// <exception cref="InvalidOperationException">The cref does not spell the member's name.</exception>
+    private static IdentifierNameSyntax CrefMemberName(CrefSyntax cref, ISymbol bound) =>
+        cref.DescendantNodesAndSelf().OfType<IdentifierNameSyntax>().LastOrDefault(name => name.Identifier.ValueText == bound.Name) ??
+        throw new InvalidOperationException($"The cref {cref} at {cref.GetLocation().GetLineSpan()} does not spell {bound.Name}.");
+
+    /// <summary>
+    /// A renamed member's new name at a reference written without a qualifier: qualified with <c>this</c>, or with its type in
+    /// a static context, when a local, a parameter or another symbol of that name would take it there, as the constructor
+    /// parameter a field's unprefixed name repeats does.
+    /// </summary>
+    private static string Unshadowed(SemanticModel model, SimpleNameSyntax reference, ISymbol symbol, string name)
+    {
+        if (PromotedNames.InMemberLookup(reference) || model.LookupSymbols(reference.SpanStart, name: name).IsEmpty)
+            return name;
+        return symbol.IsStatic || model.GetEnclosingSymbol(reference.SpanStart) is { IsStatic: true }
+            ? $"{TypeName(symbol.ContainingType)}.{name}" : $"this.{name}";
     }
 
     /// <summary>Whether a source file starts with a UTF-8 byte-order mark, which rewriting it keeps.</summary>
@@ -789,7 +953,7 @@ internal static class SymbolRelocator
     /// event, whose accessibility must stay identical (CS8799). A part a source generator writes (a LibraryImport stub, say)
     /// is not repository source: the generator writes it again from the declaration it implements.
     /// </summary>
-    private static IEnumerable<SyntaxNode> DeclarationsOf(SymbolIdentity identity, ISymbol symbol)
+    internal static IEnumerable<SyntaxNode> DeclarationsOf(SymbolIdentity identity, ISymbol symbol)
     {
         ISymbol? implementation = symbol switch
         {

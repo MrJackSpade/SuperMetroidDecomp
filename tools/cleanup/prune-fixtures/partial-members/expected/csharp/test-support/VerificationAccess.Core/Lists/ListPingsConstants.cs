@@ -1,4 +1,4 @@
-﻿namespace SuperMetroid.AssetExtraction.Lists;
+﻿namespace SuperMetroid.Desktop.Lists;
 
 /// <summary>Cartridge values and helpers of <see cref="ListPings"/> that only verification reads.</summary>
 internal static partial class ListPingsConstants

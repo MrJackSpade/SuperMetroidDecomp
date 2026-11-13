@@ -1,4 +1,4 @@
-using SuperMetroid.AssetExtraction.Lists;
+using SuperMetroid.Desktop.Lists;
 using SuperMetroid.TestSupport.WindowsConsole;
 
 namespace SuperMetroid.Game;

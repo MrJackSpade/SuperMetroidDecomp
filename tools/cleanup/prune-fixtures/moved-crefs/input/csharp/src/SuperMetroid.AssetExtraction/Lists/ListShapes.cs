@@ -41,10 +41,10 @@ internal static class ListShapes
     internal sealed class Shape<T>
     {
         /// <summary>The shape's size: the number of entries of <see cref="Kind"/>.</summary>
-        internal int Size => 2;
+        internal int Size { get; } = 2;
 
         /// <summary>The kind of entry, which <see cref="Size"/> counts.</summary>
-        internal string Kind => typeof(T).Name;
+        internal string Kind { get; } = typeof(T).Name;
     }
 
     /// <summary>The seed of a layout of <paramref name="lists"/> lists, which only checks compute.</summary>

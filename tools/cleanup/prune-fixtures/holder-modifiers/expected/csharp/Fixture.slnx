@@ -1,5 +1,5 @@
 <Solution>
-  <Project Path="src/SuperMetroid.AssetExtraction/SuperMetroid.AssetExtraction.csproj" />
+  <Project Path="src/SuperMetroid.Desktop/SuperMetroid.Desktop.csproj" />
   <Project Path="src/SuperMetroid.Game/SuperMetroid.Game.csproj" />
   <Project Path="src/SuperMetroid.Verification/SuperMetroid.Verification.csproj" />
 </Solution>

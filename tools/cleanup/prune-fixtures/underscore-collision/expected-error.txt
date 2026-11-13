@@ -1,0 +1,1 @@
+Moved code uses SuperMetroid.AssetExtraction.Lists.ListRack._places, which must lose its underscore to become internal (SME6354), but 'places' already names SuperMetroid.AssetExtraction.Lists.ListRack.places.

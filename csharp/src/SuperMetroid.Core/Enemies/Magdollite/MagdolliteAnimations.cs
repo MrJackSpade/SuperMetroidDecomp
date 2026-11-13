@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 
 /// <summary>
 /// The Magdollite head's idle, submerge and emerge animations, its body's pillar stacks and its overlay's throw and cap animations as typed programs (#641). Each
-/// frame shows a <see cref="EnemyFrameId"/> and each callback becomes a <see cref="MagdolliteCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="MagdolliteCue"/> with its typed operands.
 /// </summary>
 internal static class MagdolliteAnimations
 {

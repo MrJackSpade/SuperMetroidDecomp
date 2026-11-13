@@ -4,7 +4,7 @@ using P = SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnProjectileProgram;
 
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
-/// <summary>Spore Spawn's typed projectile programs (#641), in place of their lists.</summary>
+/// <summary>Spore Spawn's typed projectile programs (#641).</summary>
 internal static class SporeSpawnProjectileAnimations
 {
     /// <summary>The emitter's release poses' dwells.</summary>

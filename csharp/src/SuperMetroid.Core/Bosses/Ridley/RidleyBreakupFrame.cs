@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
-/// The pose a Ridley death-breakup fragment shows (#641), in the authored order of the one-frame lists
-/// of the breakup; each is also the fragment's typed program, which shows it for one update and then holds.
+/// The pose a Ridley death-breakup fragment shows (#641), in the order the breakup authors its
+/// fragments; each is also the fragment's typed program, which shows it for one update and then holds.
 /// </summary>
 internal enum RidleyBreakupFrame
 {

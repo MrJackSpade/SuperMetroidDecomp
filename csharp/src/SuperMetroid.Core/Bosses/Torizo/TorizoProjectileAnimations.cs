@@ -6,9 +6,8 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
-/// Bomb and Golden Torizo's typed projectile programs (#641), in place of their lists. Generated from the
-/// verified lists: each frame is a <see cref="TorizoProjectileFrame"/> pose of its program, and each command
-/// a <see cref="TorizoProjectileCue"/> with its typed operands.
+/// Bomb and Golden Torizo's typed projectile programs (#641): each frame is a <see cref="TorizoProjectileFrame"/>
+/// pose of its program, and each cue a <see cref="TorizoProjectileCue"/> with its typed operands.
 /// </summary>
 internal static class TorizoProjectileAnimations
 {
@@ -581,7 +580,7 @@ internal static class TorizoProjectileAnimations
         P.StatueFragment12, P.StatueFragment13, P.StatueFragment14, P.StatueFragment15,
     ];
 
-    /// <summary>The program a sleeping egg resumes into when its hatch timer steps the list past the sleep.</summary>
+    /// <summary>The program a sleeping egg resumes into when its hatch timer wakes it.</summary>
     internal static TorizoProjectileProgram AfterSleep(TorizoProjectileProgram program) => program switch
     {
         P.EggBouncingLeft

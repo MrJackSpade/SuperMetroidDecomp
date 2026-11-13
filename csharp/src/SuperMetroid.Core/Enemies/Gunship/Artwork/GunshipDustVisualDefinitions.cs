@@ -2,7 +2,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Core.Enemies.Gunship.Artwork;
 
-/// <summary>The gunship liftoff dust clouds' installed frames and the projectile definition's list identity.</summary>
+/// <summary>The presentation boundary of the gunship's liftoff dust clouds: the projectile frame each of their frames shows.</summary>
 internal static class GunshipDustVisualDefinitions
 {
 

@@ -5,9 +5,9 @@ namespace SuperMetroid.Core.Bosses.Draygon.Artwork;
 
 /// <summary>
 /// Draygon's presentation boundary (#641): the frames its typed programs show, in authored order.
-/// Gameplay animates <see cref="DraygonFrame"/> indexes; only this catalog knows the spritemaps.
-/// Each facing authors 27 one-component roots (arms, body, eye), eight two-component tail roots, then the tail
-/// whip's roots in pairs of four, six and eight components.
+/// Gameplay animates <see cref="DraygonFrame"/> poses; only this catalog knows the frames they show.
+/// Each facing has 27 one-part poses (arms, body, eye), eight two-part tail poses, then the tail whip's poses in
+/// pairs of four, six and eight parts.
 /// </summary>
 internal static class DraygonFrameDefinitions
 {

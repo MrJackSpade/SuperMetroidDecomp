@@ -61,7 +61,7 @@ internal static class BossBodyLayeredPartsVerification
             compared++;
         }
 
-        enemies.CrocomireBehavior.BodyLayer.ShowCrocomireBodyFrame(sheets.Of(BossBodyOwner.Crocomire).Frame(EnemyFrameId.CrocomireBodyPowerBombReactionMouthNotOpenLoopFirst));
+        enemies.CrocomireBehavior.BodyLayer.ShowCrocomireBodyFrame(sheets.Of(BossBodyOwner.Crocomire).Frame(EnemyFrameId.CrocomireBodyChargingFirst));
         Compare("showing his body");
         CrocomireMelting melting = enemies.CrocomireBehavior.Melting;
         foreach (CrocomireMeltingIllustration pass in Enum.GetValues<CrocomireMeltingIllustration>())
@@ -151,7 +151,7 @@ internal static class BossBodyLayeredPartsVerification
     /// <summary>A part showing a frame that paints nothing is not drawn: the part beneath it shows whole.</summary>
     private static void CheckPartShowingNothing(BossBodySheet sheet)
     {
-        BossBodyFrame body = sheet.Frame(EnemyFrameId.CrocomireBodyPowerBombReactionMouthNotOpenLoopFirst);
+        BossBodyFrame body = sheet.Frame(EnemyFrameId.CrocomireBodyChargingFirst);
         var nothing = new BossBodyFrame("Nothing", picture: null, body.Corner, depth: null);
         ShownBossBody shown = new BossBodyLayer([body, nothing]).Show();
         SpriteSheetFrame picture = body.Picture ?? throw new InvalidOperationException("Crocomire's body frame has a picture.");

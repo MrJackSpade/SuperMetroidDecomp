@@ -79,12 +79,12 @@ public enum EnemyProjectileFrameId
     CrocomireMouthFifth,
     /// <summary><c>crocomire_mouth_sixth</c>, an installed program frame.</summary>
     CrocomireMouthSixth,
-    /// <summary><c>crocomire_bridge_fragment_first</c>, an installed program frame.</summary>
-    CrocomireBridgeFragmentFirst,
-    /// <summary><c>crocomire_bridge_fragment_third</c>, an installed program frame.</summary>
-    CrocomireBridgeFragmentThird,
-    /// <summary><c>crocomire_spike_wall_piece_sixth</c>, an installed program frame.</summary>
-    CrocomireSpikeWallPieceSixth,
+    /// <summary><c>crocomire_bridge_fragment</c>, an installed program frame.</summary>
+    CrocomireBridgeFragment,
+    /// <summary><c>crocomire_spike_wall_piece</c>, an installed program frame.</summary>
+    CrocomireSpikeWallPiece,
+    /// <summary><c>crocomire_shot_first</c>, an installed program frame.</summary>
+    CrocomireShotFirst,
     /// <summary><c>crocomire_shot_second</c>, an installed program frame.</summary>
     CrocomireShotSecond,
     /// <summary><c>crocomire_shot_third</c>, an installed program frame.</summary>

@@ -2,7 +2,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Areas.Ceres.Artwork;
 
-/// <summary>The presentation boundary of the Ceres Baby's poses (#641): the spritemap each pose shows.</summary>
+/// <summary>The presentation boundary of the Ceres Baby's poses (#641): the frame each pose shows.</summary>
 internal static class CeresBabyFrameDefinitions
 {
 

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Kzan;
 
 /// <summary>
 /// Kzan's idle pose as a typed program (#641). Each
-/// frame shows a <see cref="EnemyFrameId"/> and its lists use no owner callbacks.
+/// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
 internal static class KzanAnimations
 {

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
 /// The downward shot gate's moving and closed programs (#641). Each
-/// frame shows a <see cref="EnemyProjectileFrameId"/> and each command becomes a <see cref="DownwardGateProjectileCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyProjectileFrameId"/> and each cue is a <see cref="DownwardGateProjectileCue"/> with its typed operands.
 /// </summary>
 internal static class DownwardGateProjectileAnimations
 {
@@ -85,7 +85,7 @@ internal static class DownwardGateProjectileAnimations
     internal static Animation<DownwardGateProjectileProgram> StartingWith(DownwardGateProjectileProgram segment) => StartingAt[segment];
 
     /// <summary>
-    /// The program each sleeping program resumes with when its owner steps the list past the sleep, keyed by
+    /// The program each sleeping program resumes with when its owner wakes it, keyed by
     /// the program that slept.
     /// </summary>
     internal static IReadOnlyDictionary<DownwardGateProjectileProgram, DownwardGateProjectileProgram> Resumption { get; } = new Dictionary<DownwardGateProjectileProgram, DownwardGateProjectileProgram>

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 
 /// <summary>
 /// The presentation boundary of Spore Spawn's body (#641): the frame each
-/// <see cref="SporeSpawnFrame"/> shows. The opening and open poses are consecutive eighteen-byte roots.
+/// <see cref="SporeSpawnFrame"/> shows.
 /// </summary>
 internal static class SporeSpawnFrameDefinitions
 {

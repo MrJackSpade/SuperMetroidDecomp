@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.FuneNamihe;
 
 /// <summary>
 /// The Fune's and Namihe's idle and spitting animations as typed programs (#641). Each
-/// frame shows a <see cref="EnemyFrameId"/> and each callback becomes a <see cref="FuneNamiheCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="FuneNamiheCue"/> with its typed operands.
 /// </summary>
 internal static class FuneNamiheAnimations
 {

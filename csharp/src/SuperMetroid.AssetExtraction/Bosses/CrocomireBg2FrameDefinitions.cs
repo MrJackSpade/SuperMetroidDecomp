@@ -12,25 +12,25 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 internal static class CrocomireBg2FrameDefinitions
 {
     /// <summary>Schema version for the selected mixed-frame BG2 artwork file; version 3 names each frame for its pose (#1465), 4 for the animation that first shows it (#1623).</summary>
-    internal const int Version = 4;
+    internal const int Version = 5;
     /// <summary>Installed BG2 visual resource for Crocomire's mixed fight frames.</summary>
     internal const string FileName = "crocomire-bg2-frames.json";
 
     /// <summary>The 42 body frames that carry BG2 components, in the compiled frame order.</summary>
     internal static ImmutableArray<EnemyFrameName> Frames { get; } =
     [
-        new(EnemyFrameId.CrocomireBodyPowerBombReactionMouthNotOpenLoopFirst, "crocomire_body_power_bomb_reaction_mouth_not_open_loop_first"),
-        new(EnemyFrameId.CrocomireBodyPowerBombReactionMouthNotOpenLoopSecond, "crocomire_body_power_bomb_reaction_mouth_not_open_loop_second"),
-        new(EnemyFrameId.CrocomireBodyPowerBombReactionMouthNotOpenLoopThird, "crocomire_body_power_bomb_reaction_mouth_not_open_loop_third"),
-        new(EnemyFrameId.CrocomireBodyPowerBombReactionMouthNotOpenLoopFourth, "crocomire_body_power_bomb_reaction_mouth_not_open_loop_fourth"),
-        new(EnemyFrameId.CrocomireBodyPowerBombReactionMouthNotOpenLoopFifth, "crocomire_body_power_bomb_reaction_mouth_not_open_loop_fifth"),
-        new(EnemyFrameId.CrocomireBodyPowerBombReactionMouthNotOpenLoopSixth, "crocomire_body_power_bomb_reaction_mouth_not_open_loop_sixth"),
-        new(EnemyFrameId.CrocomireBodyPowerBombReactionMouthNotOpenLoopSeventh, "crocomire_body_power_bomb_reaction_mouth_not_open_loop_seventh"),
-        new(EnemyFrameId.CrocomireBodySteppingBackFifth, "crocomire_body_stepping_back_fifth"),
-        new(EnemyFrameId.CrocomireBodySteppingBackFourth, "crocomire_body_stepping_back_fourth"),
-        new(EnemyFrameId.CrocomireBodySteppingBackThird, "crocomire_body_stepping_back_third"),
-        new(EnemyFrameId.CrocomireBodySteppingBackSecond, "crocomire_body_stepping_back_second"),
-        new(EnemyFrameId.CrocomireBodySteppingBackFirst, "crocomire_body_stepping_back_first"),
+        new(EnemyFrameId.CrocomireBodyChargingFirst, "crocomire_body_charging_first"),
+        new(EnemyFrameId.CrocomireBodyChargingSecond, "crocomire_body_charging_second"),
+        new(EnemyFrameId.CrocomireBodyChargingThird, "crocomire_body_charging_third"),
+        new(EnemyFrameId.CrocomireBodyChargingFourth, "crocomire_body_charging_fourth"),
+        new(EnemyFrameId.CrocomireBodyChargingFifth, "crocomire_body_charging_fifth"),
+        new(EnemyFrameId.CrocomireBodyChargingSixth, "crocomire_body_charging_sixth"),
+        new(EnemyFrameId.CrocomireBodyChargingSeventh, "crocomire_body_charging_seventh"),
+        new(EnemyFrameId.CrocomireBodyChargingEighth, "crocomire_body_charging_eighth"),
+        new(EnemyFrameId.CrocomireBodyChargingNinth, "crocomire_body_charging_ninth"),
+        new(EnemyFrameId.CrocomireBodyChargingTenth, "crocomire_body_charging_tenth"),
+        new(EnemyFrameId.CrocomireBodyChargingEleventh, "crocomire_body_charging_eleventh"),
+        new(EnemyFrameId.CrocomireBodyChargingTwelfth, "crocomire_body_charging_twelfth"),
         new(EnemyFrameId.CrocomireBodyInitial, "crocomire_body_initial"),
         new(EnemyFrameId.CrocomireBodyWaitForFirstSecondDamageSixth, "crocomire_body_wait_for_first_second_damage_sixth"),
         new(EnemyFrameId.CrocomireBodyWaitForFirstSecondDamageFifth, "crocomire_body_wait_for_first_second_damage_fifth"),
@@ -47,15 +47,15 @@ internal static class CrocomireBg2FrameDefinitions
         new(EnemyFrameId.CrocomireBodyProjectileAttackSeventh, "crocomire_body_projectile_attack_seventh"),
         new(EnemyFrameId.CrocomireBodyProjectileAttackEighth, "crocomire_body_projectile_attack_eighth"),
         new(EnemyFrameId.CrocomireBodyStepForwardAfterDelay, "crocomire_body_step_forward_after_delay"),
-        new(EnemyFrameId.CrocomireBodyStepForwardFourth, "crocomire_body_step_forward_fourth"),
-        new(EnemyFrameId.CrocomireBodyStepForwardFifth, "crocomire_body_step_forward_fifth"),
-        new(EnemyFrameId.CrocomireBodyStepForwardSixth, "crocomire_body_step_forward_sixth"),
-        new(EnemyFrameId.CrocomireBodyStepForwardSeventh, "crocomire_body_step_forward_seventh"),
-        new(EnemyFrameId.CrocomireBodyStepForwardEighth, "crocomire_body_step_forward_eighth"),
-        new(EnemyFrameId.CrocomireBodyStepForwardNinth, "crocomire_body_step_forward_ninth"),
-        new(EnemyFrameId.CrocomireBodyStepForwardTenth, "crocomire_body_step_forward_tenth"),
-        new(EnemyFrameId.CrocomireBodyStepForwardEleventh, "crocomire_body_step_forward_eleventh"),
-        new(EnemyFrameId.CrocomireBodyStepForwardTwelfth, "crocomire_body_step_forward_twelfth"),
+        new(EnemyFrameId.CrocomireBodySteppingForwardFirst, "crocomire_body_stepping_forward_first"),
+        new(EnemyFrameId.CrocomireBodySteppingForwardSecond, "crocomire_body_stepping_forward_second"),
+        new(EnemyFrameId.CrocomireBodySteppingForwardThird, "crocomire_body_stepping_forward_third"),
+        new(EnemyFrameId.CrocomireBodySteppingForwardFourth, "crocomire_body_stepping_forward_fourth"),
+        new(EnemyFrameId.CrocomireBodySteppingForwardFifth, "crocomire_body_stepping_forward_fifth"),
+        new(EnemyFrameId.CrocomireBodySteppingForwardSixth, "crocomire_body_stepping_forward_sixth"),
+        new(EnemyFrameId.CrocomireBodySteppingForwardSeventh, "crocomire_body_stepping_forward_seventh"),
+        new(EnemyFrameId.CrocomireBodySteppingForwardEighth, "crocomire_body_stepping_forward_eighth"),
+        new(EnemyFrameId.CrocomireBodySteppingForwardNinth, "crocomire_body_stepping_forward_ninth"),
         new(EnemyFrameId.CrocomireBodyProjectileAttackLoopFirst, "crocomire_body_projectile_attack_loop_first"),
         new(EnemyFrameId.CrocomireBodyProjectileAttackLoopSecond, "crocomire_body_projectile_attack_loop_second"),
         new(EnemyFrameId.CrocomireBodyProjectileAttackLoopThird, "crocomire_body_projectile_attack_loop_third"),

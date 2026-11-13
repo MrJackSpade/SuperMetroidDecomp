@@ -1,6 +1,6 @@
 ﻿namespace SuperMetroid.Core.Enemies.Chozo;
 
-/// <summary>What a cue of the Chozo statue's animations does: one per kind of step its lists use.</summary>
+/// <summary>What a cue of the Chozo statue's animations does: clear its frame behaviour, play its footstep or grab sound, release Samus, lower the acid, or give Samus her controls back.</summary>
 internal enum ChozoStatueCueKind
 {
     /// <summary>Clears the frame behaviour.</summary>

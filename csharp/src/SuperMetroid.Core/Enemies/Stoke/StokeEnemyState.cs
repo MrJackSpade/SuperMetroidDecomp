@@ -13,7 +13,7 @@ public sealed class StokeEnemyState
     /// <summary>Signed 16.16 room-pixel displacement per walking update to the left, from the negative half of the population's linear-speed record.</summary>
     public SignedSixteenSixteen LeftVelocity { get; internal set; }
 
-    /// <summary>Facing latch changed by animation cues, one update after a turn request; initialized from population parameter 1.</summary>
+    /// <summary>Facing latch changed by animation cues, one update after a turn request; initialized from its spawn direction.</summary>
     public StokeDirection Direction { get; internal set; }
 
     /// <summary>The current walking or attacking behaviour.</summary>

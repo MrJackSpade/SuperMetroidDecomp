@@ -48,6 +48,6 @@ public sealed class HopperEnemyState
     /// <summary>The kind of hopper its definition is, which selects its animations.</summary>
     public HopperKind Kind { get; internal set; }
 
-    /// <summary>Population parameter one: zero means floor, nonzero means ceiling.</summary>
+    /// <summary>Whether it is mounted on the ceiling rather than the floor.</summary>
     public bool UpsideDown { get; internal set; }
 }

@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 
-/// <summary>What a cue of Oum's animations does: one per kind of step its lists use.</summary>
+/// <summary>What a cue of Oum's animations does: open or close the shell's attack-rotation window, finish the attack, or play the splash sound.</summary>
 internal enum MaridiaLargeSnailCueKind
 {
     /// <summary>Opens the window in which an attack may rotate the shell.</summary>

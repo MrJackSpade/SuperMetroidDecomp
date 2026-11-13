@@ -557,7 +557,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>
     /// Runs the private tail after common shot/power-bomb AI. A surviving
     /// body mirrors freeze/hurt timing into its wing until health reaches the wing record's
-    /// parameter-one threshold; that exact threshold—not a host constant—starts detachment.
+    /// detach health; that exact threshold—not a host constant—starts detachment.
     /// </summary>
     private void ResolveKiHunterShotAfterCommon(RoomEnemySlot body)
     {

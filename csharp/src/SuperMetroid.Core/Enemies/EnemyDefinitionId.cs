@@ -274,13 +274,13 @@ public enum EnemyDefinitionId
     /// <summary>The <c>CorpseSidehopper2</c> enemy definition.</summary>
     CorpseSidehopper2,
     /// <summary>The <c>CorpseZoomer</c> enemy definition.</summary>
-    /// <remarks>The dead Zoomer, with parameter-1 variants 0, 2 and 4 sharing the corpse-rotting engine.</remarks>
+    /// <remarks>The dead Zoomer, with its three corpse variants sharing the corpse-rotting engine.</remarks>
     CorpseZoomer,
     /// <summary>The <c>CorpseRipper</c> enemy definition.</summary>
-    /// <remarks>The dead Ripper, with parameter-1 variants 0 and 2 sharing the corpse-rotting engine.</remarks>
+    /// <remarks>The dead Ripper, with its two corpse variants sharing the corpse-rotting engine.</remarks>
     CorpseRipper,
     /// <summary>The <c>CorpseSkree</c> enemy definition.</summary>
-    /// <remarks>The dead Skree, with parameter-1 variants 0, 2 and 4 sharing the corpse-rotting engine.</remarks>
+    /// <remarks>The dead Skree, with its three corpse variants sharing the corpse-rotting engine.</remarks>
     CorpseSkree,
     /// <summary>The <c>BabyMetroid</c> enemy definition.</summary>
     /// <remarks>The retail Shitroid actor.</remarks>

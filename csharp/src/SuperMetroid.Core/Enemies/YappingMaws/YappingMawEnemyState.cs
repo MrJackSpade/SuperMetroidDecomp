@@ -120,7 +120,7 @@ public sealed class YappingMawEnemyState
     public EnemyProjectile?[] BodyProjectiles { get; } =
         new EnemyProjectile?[4];
 
-    /// <summary>The root/base object selected by population parameter two.</summary>
+    /// <summary>The root/base object its attack direction selects.</summary>
     public RoomSpriteObject? RootSpriteObject { get; internal set; }
 
     /// <summary>One curl correction per tongue link, changed only by calculations.</summary>

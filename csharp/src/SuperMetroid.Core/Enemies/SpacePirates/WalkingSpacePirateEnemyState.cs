@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>
 /// The state of one walking Space Pirate. The patrol posts are room positions that wrap at sixteen bits, because
-/// population parameter two is added and subtracted without clamping by the initializer; the walk compares the Pirate
+/// its patrol reach is added and subtracted without clamping by the initializer; the walk compares the Pirate
 /// with them by the wrapped spatial difference.
 /// </summary>
 public sealed class WalkingSpacePirateEnemyState

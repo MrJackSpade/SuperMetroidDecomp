@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Beetom;
 
-/// <summary>What a cue of the Beetom's animations does: one per kind of step its lists use.</summary>
+/// <summary>What a cue of the Beetom's animations does: keep or stop processing it off screen, or nothing before the drain loop.</summary>
 internal enum BeetomCueKind
 {
     /// <summary>Does nothing: the empty step the drain animation calls before its loop.</summary>

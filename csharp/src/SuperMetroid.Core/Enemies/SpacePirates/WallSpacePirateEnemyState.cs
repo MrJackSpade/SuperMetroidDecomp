@@ -17,7 +17,7 @@ public sealed class WallSpacePirateEnemyState
     public WallSpacePirateFunction? Function { get; internal set; }
 
     /// <summary>
-    /// The room position the prepare-jump cues aim the jump at: the departure X plus or minus parameter two. Only the X
+    /// The room position the prepare-jump cues aim the jump at: the departure X plus or minus its jump span. Only the X
     /// axis is stored; no gameplay reads it back.
     /// </summary>
     public Position16<RoomPixels> WallJumpDestination

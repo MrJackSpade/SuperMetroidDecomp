@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.MamaTurtles;
 
-/// <summary>What a cue of the turtles' animations does: one per kind of step its lists use.</summary>
+/// <summary>What a cue of the turtles' animations does: crawl, turn and spin the baby, carry a riding Samus, enter or leave the shell, start the Mama Turtle's rise, or play the spinning sound.</summary>
 internal enum MamaTurtleCueKind
 {
     /// <summary>Moves the baby along its crawl and carries a riding Samus.</summary>

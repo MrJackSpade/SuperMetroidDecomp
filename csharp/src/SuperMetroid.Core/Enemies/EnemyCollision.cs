@@ -770,7 +770,7 @@ internal sealed class EnemyCollision
     /// beam freezes the enemy instead of killing it unless <see cref="PreventsLethalFreeze"/>, which the beam entry
     /// decides; non-beam families never prevent it.
     /// </summary>
-    [IndependentFlag("independent facts of the vulnerability byte: immediate freeze, and lethal-freeze prevention")]
+    [IndependentFlag("independent facts of an ordinary shot's vulnerability: immediate freeze, and lethal-freeze prevention")]
     internal readonly record struct NormalShotVulnerability(
         int Multiplier,
         bool FreezeImmediately,

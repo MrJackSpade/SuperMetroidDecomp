@@ -123,7 +123,7 @@ public sealed class KiHunterEnemyState
     public Position16<RoomPixels> OrbitCenter { get; internal set; }
     /// <summary>The wings' original room position saved at detachment and restored when the collision-bearing arc deletes the wing.</summary>
     public Position16<RoomPixels> SavedWingPosition { get; internal set; }
-    /// <summary>The body's wingless latch, set by a negative spawn parameter one or by health reaching the following wing's parameter-one threshold.</summary>
+    /// <summary>The body's wingless latch, set by a wingless spawn or by health reaching the following wings' detach health.</summary>
     public bool HasLostWings { get; internal set; }
 
     /// <summary>Adds one quadratic-table speed to <see cref="DetachedSpeedAccumulator"/>, wrapping as the game's counter does.</summary>

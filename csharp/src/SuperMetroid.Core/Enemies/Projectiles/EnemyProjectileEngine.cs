@@ -817,8 +817,8 @@ internal sealed class EnemyProjectileEngine
         projectile.Position = projectile.Position.WithWhole(position);
 
         // The dust-cloud-or-explosion initializer ignores the definition's placeholder list and
-        // indexes this literal thirty-entry table with the spawn parameter. Parameter three
-        // selects the small explosion for Rinka; Boulder passes 17 for its impact cloud.
+        // indexes this literal thirty-entry table with the spawner's choice: the Rinka's
+        // is the small explosion, and the Boulder's its impact cloud.
         projectile.StartAnimation(new MiscDustProjectileAnimation(segment));
     }
 

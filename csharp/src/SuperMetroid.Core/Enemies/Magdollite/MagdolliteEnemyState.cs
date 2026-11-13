@@ -16,7 +16,7 @@ public sealed class MagdolliteEnemyState
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<MagdolliteSegment> Playback { get; set; }
 
-    /// <summary>The immutable head, arm, or hand role decoded from this physical enemy slot's population parameter one.</summary>
+    /// <summary>The immutable head, arm, or hand role its spawn names.</summary>
     public MagdollitePart Part { get; }
     /// <summary>The current AI function.</summary>
     public MagdolliteEnemyFunction? Function { get; internal set; }

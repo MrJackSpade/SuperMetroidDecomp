@@ -28,6 +28,6 @@ public sealed class LowerNorfairRioEnemyState
     /// <summary>The current behaviour, shared by parent and flame follower dispatch.</summary>
     public LowerNorfairRioEnemyFunction? Function { get; internal set; }
 
-    /// <summary>Whether a negative population parameter 1 selects the lower flame follower instead of the parent; a follower must immediately follow a parent of the same enemy definition.</summary>
+    /// <summary>Whether this is the lower flame follower instead of the parent; a follower must immediately follow a parent of the same enemy definition.</summary>
     public bool IsFollower { get; internal set; }
 }

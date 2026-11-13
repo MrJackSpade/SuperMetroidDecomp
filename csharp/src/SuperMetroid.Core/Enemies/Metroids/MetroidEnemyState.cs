@@ -57,7 +57,7 @@ public sealed class MetroidEnemyState
     }
 
     /// <summary>
-    /// The ice damage the Metroid still absorbs before freezing (parameter two), from the authored value; a shot that
+    /// The ice damage the Metroid still absorbs before freezing, from the authored value; a shot that
     /// reaches it freezes the Metroid and empties it.
     /// </summary>
     public int IceDamageToFreeze

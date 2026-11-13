@@ -31,7 +31,7 @@ public sealed class NorfairLavaJumpingEnemyState
     /// <summary>Parent parts traverse the four jump phases, while followers keep the follow function.</summary>
     public NorfairLavaJumpingEnemyFunction? Function { get; internal set; }
 
-    /// <summary>Whether population parameter one's follower flag selects the visual follower half rather than the jumping parent.</summary>
+    /// <summary>Whether this is the visual follower half rather than the jumping parent.</summary>
     public bool IsFollower { get; internal set; }
 
     /// <summary>One update's gravity: adds <paramref name="gravity"/> to the velocity, wrapping as the game's addition does.</summary>

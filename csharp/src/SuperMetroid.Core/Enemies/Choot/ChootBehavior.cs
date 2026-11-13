@@ -70,7 +70,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Uses wrapped signed horizontal distance to arm the parameter-two jump delay when Samus enters range.</summary>
+    /// <summary>Uses wrapped signed horizontal distance to arm the jump delay when Samus enters range.</summary>
     private static void WaitForChootActivation(
         RoomEnemySlot slot,
         ChootEnemyState state,

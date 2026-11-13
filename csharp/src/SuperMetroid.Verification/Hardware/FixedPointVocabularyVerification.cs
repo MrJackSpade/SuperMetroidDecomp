@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Verification.Harness;
@@ -6,21 +5,18 @@ using SuperMetroid.Verification.Harness;
 namespace SuperMetroid.Verification.Hardware;
 
 /// <summary>
-/// Confirms #1326's fixed-point, angle, carry and Speed Booster counter types against the primitive forms they
+/// Confirms #1326's fixed-point, angle and Speed Booster counter types against the primitive forms they
 /// replaced, each reference written as the replaced code computed it.
 /// </summary>
 internal static class FixedPointVocabularyVerification
 {
-    private static readonly ushort[] BoundaryWords = [0x0000, 0x7fff, 0x8000, 0xffff];
-
     /// <summary>Runs every #1326 confirmation.</summary>
     internal static void VerifyFixedPointVocabulary()
     {
         VerifyFixedProducts();
         VerifyBearingConversion();
-        VerifyCarryArithmetic();
         VerifySpeedBoostCounter();
-        Console.WriteLine("Fixed-point vocabulary: sine products, bearings, carries and the boost counter match the replaced forms.");
+        Console.WriteLine("Fixed-point vocabulary: sine products, bearings and the boost counter match the replaced forms.");
     }
 
     /// <summary>The 8-bit sine fixed products keep the replaced tuple's words, including the independent negation.</summary>
@@ -57,39 +53,6 @@ internal static class FixedPointVocabularyVerification
                 $"bearing {bearing:X2} in the table convention");
             AssertEqual((byte)bearing, new Bearing((byte)bearing).ToMirroredTableAngle().RawValue,
                 $"bearing {bearing:X2} read unconverted");
-        }
-    }
-
-    /// <summary>
-    /// A seeking boss's velocity run (#1479) over boundary words: a run toward a target whose signed distance wraps
-    /// starts with an extra unit, each raise or lower lands on the word the chained arithmetic it replaced computed,
-    /// and a step that crosses zero adds one unit to the next step, which a zero step then shows.
-    /// </summary>
-    private static void VerifyCarryArithmetic()
-    {
-        foreach (ushort value in BoundaryWords)
-        foreach (ushort operand in BoundaryWords)
-        foreach (bool wrappedDistance in new[] { false, true })
-        {
-            int extra = wrappedDistance ? 1 : 0;
-            // From 0, a target at 1 lies ahead in both orders; one at $9000 lies behind by the signed distance.
-            int target = wrappedDistance ? 0x9000 : 1;
-
-            var raising = new SeekingVelocityRun(new SignedEightEight(value), 0, target);
-            int sum = value + operand + extra;
-            raising.Raise(operand);
-            AssertEqual(unchecked((ushort)sum), raising.Velocity.RawValue, $"raise {value:X4}+{operand:X4} extra {extra}");
-            raising.Raise(0);
-            AssertEqual(unchecked((ushort)(sum + (sum > ushort.MaxValue ? 1 : 0))), raising.Velocity.RawValue,
-                $"a raise {value:X4}+{operand:X4} extra {extra} crossing zero lengthens the next step");
-
-            var lowering = new SeekingVelocityRun(new SignedEightEight(value), 0, target);
-            int difference = value - operand - extra;
-            lowering.Lower(operand);
-            AssertEqual(unchecked((ushort)difference), lowering.Velocity.RawValue, $"lower {value:X4}-{operand:X4} extra {extra}");
-            lowering.Lower(0);
-            AssertEqual(unchecked((ushort)(difference - (difference < 0 ? 1 : 0))), lowering.Velocity.RawValue,
-                $"a lower {value:X4}-{operand:X4} extra {extra} crossing zero lengthens the next step");
         }
     }
 

@@ -245,9 +245,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         // quarter of the signed whole part equals the game's two logical right shifts of the word; the check fails
         // loudly if that range is ever violated.
         int bendStep = Ensure.BetweenInclusive(0, YappingMawMaximumCurl, state.Extension.WholePixels) / 4;
-        // The bend corrects the eight offsets in one chain, link by link and X before Y: an offset whose correction
-        // wraps it past the last pixel of its word moves the next offset in the chain one pixel further.
-        int wrappedIntoNext = 0;
+        // The bend corrects the eight offsets in one chain, link by link and X before Y (YappingMawBendChain).
+        var chain = new YappingMawBendChain();
         for (int segment = 0; segment < 4; segment++)
         {
             int multiple = bendStep * (segment + 1);
@@ -269,8 +268,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
                 CalculateYappingMawY(RotationAngle.Zero.ToTrigonometryAngle(), rawX));
             state.Corrections[segment] = new Offset16<RoomPixels>(
                 CoordinateAxis.AsSigned(correctionX), CoordinateAxis.AsSigned(correctionY));
-            int segmentX = Corrected(rawX, correctionX);
-            int segmentY = Corrected(rawY, correctionY);
+            int segmentX = chain.Corrected(rawX, correctionX);
+            int segmentY = chain.Corrected(rawY, correctionY);
             state.SegmentOffsets[segment] = new Offset16<RoomPixels>(
                 CoordinateAxis.AsSigned(segmentX), CoordinateAxis.AsSigned(segmentY));
         }
@@ -338,16 +337,6 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (!skipHeldPlacement && state.HasGrabbedSamus)
             PositionSamusInYappingMaw(slot, state, samus);
-
-        // One offset of the chain, a word, moved by its correction, a word, and by one pixel when the previous offset
-        // wrapped; records whether this one wraps in turn.
-        int Corrected(int offset, int correction)
-        {
-            int sum = offset + correction + wrappedIntoNext;
-            int wrapped = CoordinateAxis.Wrap(sum);
-            wrappedIntoNext = wrapped != sum ? 1 : 0;
-            return wrapped;
-        }
     }
 
     /// <summary>Adds the current quadratic speed to the curl, carrying the fraction, then advances the record.</summary>

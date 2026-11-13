@@ -191,21 +191,6 @@ internal sealed class CeresRidleyFlight
         TickCeresRidleyFireballShooting(slot, state);
     }
 
-    /// <summary>
-    /// The fireball target a jitter selects around the base position. Both coordinates move by the jitter, and the
-    /// game adds the jitter to X and Y as one value, so its sum with X carries one pixel into Y whenever it passes the
-    /// end of the coordinate space: a negative jitter carries unless it takes X below zero, a positive one only when it
-    /// takes X past the far end.
-    /// </summary>
-    /// <param name="basePosition">The base position the jitter moves.</param>
-    /// <param name="jitter">The jitter, -7 through 7 pixels.</param>
-    private static Position16<RoomPixels> JitteredFireballTarget(Position16<RoomPixels> basePosition, int jitter)
-    {
-        int x = basePosition.X + jitter;
-        bool carries = jitter < 0 ? x >= 0 : x > ushort.MaxValue;
-        return Position16<RoomPixels>.Wrapped(x, basePosition.Y + jitter + (carries ? 1 : 0));
-    }
-
     /// <summary>Selects the next fireball target from the base position and a jitter drawn from the current random number.</summary>
     internal void TickCeresRidleyFireballShooting(RoomEnemySlot slot, RidleyEnemyState state)
     {
@@ -214,7 +199,7 @@ internal sealed class CeresRidleyFlight
         int jitter = BossRandomRolls.InLowerHalf(random)
             ? RidleyRandomDefinitions.FireballJitter.Of(random)
             : -RidleyRandomDefinitions.FireballJitter.Of(random);
-        Position16<RoomPixels> target = JitteredFireballTarget(state.FireballBasePosition, jitter);
+        Position16<RoomPixels> target = CeresRidleyFireballTarget.Around(state.FireballBasePosition, jitter);
         AccelerateRidleyToward(slot, state, target, 16);
         if (--state.FunctionTimer < 0)
         {

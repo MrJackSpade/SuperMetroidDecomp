@@ -31,8 +31,8 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>NTSC pause at the bottom before the top begins to rise.</summary>
     private const int KzanNtscRiseWaitFrames = 64;
-    /// <summary>Fractional pixels subtracted each rising actor update.</summary>
-    private const int KzanNtscRisingSubspeed = 32768;
+    /// <summary>The rise of each rising update: half a pixel upward.</summary>
+    private static readonly SignedSixteenSixteen KzanRisingStep = SignedSixteenSixteen.FromSixteenthsOfPixel(-8);
     /// <summary>The speed each falling update adds: one sixteenth of a pixel per update.</summary>
     private static readonly SignedSixteenSixteen KzanFallAcceleration = SignedSixteenSixteen.FromSixteenthsOfPixel(1);
     /// <summary>The fastest the falling acceleration reaches: four pixels per update.</summary>
@@ -181,9 +181,8 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.PreviousPosition = slot.Position.Whole;
 
-        // The NTSC build rises by exactly half a pixel per actor frame. Subtract the fraction and the whole part
-        // separately, as the game does, so a fractional borrow decrements the whole position.
-        SubtractKzanY(slot, wholeSpeed: 0, KzanNtscRisingSubspeed);
+        // The NTSC build rises by exactly half a pixel per actor frame, the fraction's borrow reaching the whole pixels.
+        slot.Position = slot.Position.WithY(slot.Position.Y.MovedBy(KzanRisingStep));
         if ((slot.Position.Whole - state.RisingTarget).Y < 0)
         {
             state.Function = KzanEnemyFunction.WaitingToFall;
@@ -191,18 +190,6 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         CarrySamusWithKzanIfTouchingFromBelow(slot, state, samus);
-    }
-
-    /// <summary>Moves the enemy up by the whole and fractional speed, borrowing from the whole pixels.</summary>
-    private static void SubtractKzanY(
-        RoomEnemySlot slot,
-        int wholeSpeed,
-        int fractionalSpeed)
-    {
-        bool borrowed = slot.Position.Y.Fraction < fractionalSpeed;
-        slot.Position = slot.Position.WithFractionY(CoordinateAxis.Wrap(slot.Position.Y.Fraction - fractionalSpeed));
-        slot.Position = slot.Position.WithWrappedWholeY(
-            slot.Position.Y.Whole - wholeSpeed - (borrowed ? 1 : 0));
     }
 
     /// <summary>

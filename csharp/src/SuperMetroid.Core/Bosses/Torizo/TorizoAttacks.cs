@@ -217,22 +217,21 @@ internal sealed class TorizoAttacks
         }
         if (kind == RoomEnemyProjectileKind.BombTorizoInitialDrool)
         {
-            // The drool's initializer adds one more 256th of a pixel to the fall speed whenever lifting the jittered height
-            // does not wrap it below zero.
+            // Every vertical and horizontal move of a Torizo is tested against the room's terrain, solid past its edges,
+            // so a Torizo's centre lies at least its half-height (41 pixels) below the room's top and its half-width
+            // (18 pixels) inside either side: the lifted drool lies inside the room and its side offset never leaves it.
             int jitteredY = TorizoRandomDefinitions.InitialDroolYJitter.Of(random) + torizo.Position.Y.Whole;
-            int unwrappedLiftSpeedBonus = jitteredY >= TorizoMotionDefinitions.InitialDroolLift ? 1 : 0;
-            projectile.Position = projectile.Position.WithWrappedWholeY(jitteredY - TorizoMotionDefinitions.InitialDroolLift);
-            // The jitter is five bits, so the fall speed lies between 48 and 80 256ths of a pixel.
-            projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(TorizoRandomDefinitions.DroolFallJitter.Of(random) + 48 + unwrappedLiftSpeedBonus));
-            // A jitter that carries the drool past the last pixel of the coordinate space moves
-            // its side offset one pixel further right. Every branch stores a zero X velocity.
+            projectile.Position = projectile.Position.WithWholeY(jitteredY - TorizoMotionDefinitions.InitialDroolLift);
+            // The jitter is five bits, so the fall speed lies between 49 and 80 256ths of a pixel.
+            projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(
+                TorizoRandomDefinitions.DroolFallJitter.Of(random) + TorizoMotionDefinitions.InitialDroolSlowestFall));
+            // Every branch stores a zero X velocity.
             int jitteredX = _room.Random.Next(TorizoRandomDefinitions.InitialDroolXJitter) + torizo.Position.X.Whole;
-            int pastLastPixel = jitteredX > ushort.MaxValue ? 1 : 0;
             projectile.Position = projectile.Position.WithWholeX(_access.Posture(torizo).HasFlag(TorizoPostureFlags.TurningAround)
-                ? CoordinateAxis.Wrap(jitteredX)
+                ? jitteredX
                 : _access.FacesRight(torizo)
-                    ? CoordinateAxis.Wrap(jitteredX + TorizoMotionDefinitions.InitialDroolSideOffset + pastLastPixel)
-                    : CoordinateAxis.Wrap(jitteredX - TorizoMotionDefinitions.InitialDroolSideOffset + pastLastPixel));
+                    ? jitteredX + TorizoMotionDefinitions.InitialDroolSideOffset
+                    : jitteredX - TorizoMotionDefinitions.InitialDroolSideOffset);
             projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.Zero);
             return;
         }

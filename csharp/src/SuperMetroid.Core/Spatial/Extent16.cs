@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Spatial;
 public readonly record struct Extent16<TSpace>
     where TSpace : ISpatialSpace
 {
-    /// <summary>The extent of two sizes that must already be sixteen-bit words, 0 through 65535.</summary>
+    /// <summary>The extent of two sizes that must already lie in 0 through 65535.</summary>
     /// <param name="x">The width.</param>
     /// <param name="y">The height.</param>
     public Extent16(int x, int y)
@@ -34,10 +34,10 @@ public readonly record struct Extent16<TSpace>
     /// <summary>No extent.</summary>
     public static Extent16<TSpace> Zero => default;
 
-    /// <summary>Replaces the X extent with a size that must already be a sixteen-bit word.</summary>
+    /// <summary>Replaces the X extent with a size that must already lie in 0 through 65535.</summary>
     public Extent16<TSpace> WithX(int x) => this with { X = checked((ushort)x) };
 
-    /// <summary>Replaces the Y extent with a size that must already be a sixteen-bit word.</summary>
+    /// <summary>Replaces the Y extent with a size that must already lie in 0 through 65535.</summary>
     public Extent16<TSpace> WithY(int y) => this with { Y = checked((ushort)y) };
 
     /// <summary>The number of cells in a row-major grid of this size.</summary>

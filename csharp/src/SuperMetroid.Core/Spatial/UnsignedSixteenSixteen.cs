@@ -7,21 +7,21 @@ namespace SuperMetroid.Core.Spatial;
 [EncodingOwner("unsigned 16.16 fixed-point number")]
 public readonly record struct UnsignedSixteenSixteen
 {
-    /// <summary>Holds the two words, each checked to lie within a native word.</summary>
+    /// <summary>Holds the two parts, each checked to lie in 0 through 65535.</summary>
     public UnsignedSixteenSixteen(int whole, int fraction)
     {
         Whole = Ensure.BetweenInclusive(0, ushort.MaxValue, whole);
         Fraction = Ensure.BetweenInclusive(0, ushort.MaxValue, fraction);
     }
 
-    /// <summary>The whole word, 0 through 65535.</summary>
+    /// <summary>The whole part, 0 through 65535.</summary>
     [IntegerQuantity("whole-pixel part of an unsigned distance")]
     public int Whole { get; }
 
-    /// <summary>The fraction word, 0 through 65535.</summary>
+    /// <summary>The fraction, 0 through 65535.</summary>
     public int Fraction { get; }
 
-    /// <summary>Both words as one unsigned 32-bit value, the whole word high.</summary>
+    /// <summary>Both parts as one unsigned 32-bit value, the whole part high.</summary>
     public uint RawValue => ((uint)Whole << 16) | (uint)Fraction;
 
     /// <summary>Whether the speed is no motion at all: zero whole pixels and zero fraction.</summary>
@@ -33,7 +33,7 @@ public readonly record struct UnsignedSixteenSixteen
     /// </summary>
     public int InTwoFiftySixths => (int)(RawValue >> 8);
 
-    /// <summary>Splits an unsigned 32-bit value into its whole and fraction words.</summary>
+    /// <summary>Splits an unsigned 32-bit value into its whole part and fraction.</summary>
     public static UnsignedSixteenSixteen FromRaw(uint rawValue) =>
         new(unchecked((ushort)(rawValue >> 16)), unchecked((ushort)rawValue));
 
@@ -68,14 +68,14 @@ public readonly record struct UnsignedSixteenSixteen
 
     /// <summary>
     /// Adds two values: a fraction sum that passes a whole moves the whole part by one, and the whole part wraps at its
-    /// word.
+    /// sixteen bits.
     /// </summary>
     public static UnsignedSixteenSixteen operator +(UnsignedSixteenSixteen left, UnsignedSixteenSixteen right) =>
         FromRaw(unchecked(left.RawValue + right.RawValue));
 
     /// <summary>
     /// Subtracts two values: a fraction that drops below zero borrows one from the whole part, and the whole part wraps
-    /// at its word, so a speed slowed past zero holds a whole word of 32768 or more, which the game's sign tests read as
+    /// at sixteen bits, so a speed slowed past zero holds a whole part of 32768 or more, which the game's sign tests read as
     /// having passed zero.
     /// </summary>
     public static UnsignedSixteenSixteen operator -(UnsignedSixteenSixteen left, UnsignedSixteenSixteen right) =>
@@ -83,14 +83,14 @@ public readonly record struct UnsignedSixteenSixteen
 
     /// <summary>
     /// Adds a signed change, as the game's speed arithmetic adds a signed 16.16 acceleration to an unsigned speed: the
-    /// sum carries and wraps exactly as the two words' 32-bit addition does.
+    /// sum overflows and wraps exactly as the two parts' 32-bit addition does.
     /// </summary>
     public static UnsignedSixteenSixteen operator +(UnsignedSixteenSixteen speed, SignedSixteenSixteen change) =>
         FromRaw(unchecked(speed.RawValue + (uint)change.RawValue));
 
     /// <summary>
     /// Subtracts a signed change, as the game's speed arithmetic subtracts a signed 16.16 deceleration from an unsigned
-    /// speed: the difference borrows and wraps exactly as the two words' 32-bit subtraction does.
+    /// speed: the difference underflows and wraps exactly as the two parts' 32-bit subtraction does.
     /// </summary>
     public static UnsignedSixteenSixteen operator -(UnsignedSixteenSixteen speed, SignedSixteenSixteen change) =>
         FromRaw(unchecked(speed.RawValue - (uint)change.RawValue));
@@ -102,14 +102,14 @@ public readonly record struct UnsignedSixteenSixteen
     public UnsignedSixteenSixteen Halved(int halvings) => FromRaw(RawValue >> Ensure.BetweenInclusive(0, 16, halvings));
 
     /// <summary>
-    /// The speed as a displacement along its positive direction, as the game moves by a speed word pair: the same
-    /// whole and fraction, the whole read as signed, so a speed whose whole word is 32768 or more moves backward.
+    /// The speed as a displacement along its positive direction, as the game moves by a speed's two parts: the same
+    /// whole and fraction, the whole read as signed, so a speed whose whole part is 32768 or more moves backward.
     /// </summary>
     public SignedSixteenSixteen AsDisplacement() => SignedSixteenSixteen.FromParts(unchecked((short)Whole), Fraction);
 
     /// <summary>
-    /// The displacement's whole and fraction kept as a speed, as the game stores a signed result in a speed's words:
-    /// a negative whole becomes a whole word of 32768 or more.
+    /// The displacement's whole and fraction kept as a speed, as the game stores a signed result in a speed's parts:
+    /// a negative whole becomes a whole part of 32768 or more.
     /// </summary>
     public static UnsignedSixteenSixteen FromDisplacement(SignedSixteenSixteen displacement) =>
         FromRaw(unchecked((uint)displacement.RawValue));
@@ -125,6 +125,6 @@ public readonly record struct UnsignedSixteenSixteen
         FromRaw(checked((uint)(((long)Ensure.BetweenInclusive(0, ushort.MaxValue, wholePixels) << 16) /
             Ensure.BetweenInclusive(1, int.MaxValue, updates))));
 
-    /// <summary>This speed with its whole word replaced.</summary>
+    /// <summary>This speed with its whole part replaced.</summary>
     public UnsignedSixteenSixteen WithWhole(int whole) => new(whole, Fraction);
 }

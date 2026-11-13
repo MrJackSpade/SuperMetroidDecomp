@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
 /// Mini-Kraid's action choice, step and spit animations (#641). Each
-/// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="FakeKraidCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="FakeKraidCue"/> naming what it does.
 /// </summary>
 internal static class FakeKraidAnimations
 {

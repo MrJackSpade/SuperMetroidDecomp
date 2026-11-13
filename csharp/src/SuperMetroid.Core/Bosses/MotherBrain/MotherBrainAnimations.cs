@@ -427,7 +427,7 @@ internal static class MotherBrainAnimations
     private static AnimationBeat<MotherBrainHeadFrame, MotherBrainHeadCue> Show(int index, int duration) =>
         new AnimationBeat<MotherBrainHeadFrame, MotherBrainHeadCue>.Frame(new MotherBrainHeadFrame(index), duration);
 
-    /// <summary>Raises a brain event without operands.</summary>
+    /// <summary>Raises a brain event that carries no values.</summary>
     private static AnimationBeat<MotherBrainHeadFrame, MotherBrainHeadCue> Cue(MotherBrainHeadCueKind kind) =>
         HeadCue(MotherBrainHeadCue.Of(kind));
 

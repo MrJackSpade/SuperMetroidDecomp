@@ -598,7 +598,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void LoadSporeSpawnDeathPalette(int step)
     {
         SporeSpawnEnemyState state = SporeSpawn ?? throw new InvalidOperationException(
-            "Spore Spawn palette instruction ran without the boss state.");
+            "Spore Spawn palette cue ran without the boss state.");
         state.Colours.ShowDeath(step);
         state.Body.Shading = state.Colours.Sprites;
     }

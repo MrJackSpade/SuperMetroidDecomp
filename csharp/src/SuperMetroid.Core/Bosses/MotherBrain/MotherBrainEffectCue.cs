@@ -2,7 +2,7 @@
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>One cue of Mother Brain's onion rings, bombs, breath, drool, door fragments and subtitle animations, with the operands its command carries.</summary>
+/// <summary>One cue of Mother Brain's onion rings, bombs, breath, drool, door fragments and subtitle animations: what it does, with the values it acts on.</summary>
 internal abstract record MotherBrainEffectCue
 {
     /// <summary>Closes the hierarchy to the cues declared here.</summary>

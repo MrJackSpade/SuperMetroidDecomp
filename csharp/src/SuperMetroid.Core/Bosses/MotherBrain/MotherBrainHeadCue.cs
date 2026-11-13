@@ -20,7 +20,7 @@ internal abstract record MotherBrainHeadCue
     /// <param name="Kind">What the cue does.</param>
     internal sealed record Signal(MotherBrainHeadCueKind Kind) : MotherBrainHeadCue;
 
-    /// <summary>A cue without operands.</summary>
+    /// <summary>A cue that carries no values.</summary>
     internal static MotherBrainHeadCue Of(MotherBrainHeadCueKind kind) => new Signal(kind);
 
     /// <summary>Requests <paramref name="sound"/>.</summary>

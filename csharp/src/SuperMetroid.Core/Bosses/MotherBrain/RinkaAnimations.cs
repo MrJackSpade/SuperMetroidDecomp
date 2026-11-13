@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
 /// The ordinary and Mother Brain Rinkas' hide, fire and spin animations (#641). Each
-/// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="RinkaCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="RinkaCue"/> naming what it does.
 /// </summary>
 internal static class RinkaAnimations
 {

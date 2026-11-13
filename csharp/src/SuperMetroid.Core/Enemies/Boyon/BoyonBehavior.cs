@@ -117,7 +117,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // The speed multiplier is restored from its copy before the bounce moves, so an animation
-        // command during this frame cannot change the current displacement.
+        // cue during this frame cannot change the current displacement.
         state.SpeedMultiplier = state.SpeedMultiplierMirror;
         switch (state.BounceMovement)
         {

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.SaveStation;
 
 /// <summary>
 /// The save-station electricity's twenty eight-pose cycles (#1296). Each frame shows a <see cref="EnemyProjectileFrameId"/> and each
-/// command becomes an <see cref="EnemyProjectileCommonCue"/>.
+/// cue is an <see cref="EnemyProjectileCommonCue"/>.
 /// </summary>
 internal static class SaveStationElectricityAnimations
 {

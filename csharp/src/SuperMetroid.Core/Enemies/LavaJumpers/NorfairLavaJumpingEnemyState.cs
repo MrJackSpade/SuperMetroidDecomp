@@ -11,7 +11,7 @@ public sealed class NorfairLavaJumpingEnemyState
     public bool AnimationFinished { get; internal set; }
 
     /// <summary>
-    /// Function six remembers the last started animation so it does not restart one
+    /// The animation start remembers the last started animation so it does not restart one
     /// which is already running; none since initialization.
     /// </summary>
     internal NorfairLavaJumperSegment? InstalledAnimation { get; set; }

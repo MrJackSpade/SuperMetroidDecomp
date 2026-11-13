@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.WorkRobots;
 
 /// <summary>
-/// The projectile definitions Work Robot fire commands spawn. The horizontal definition uses the owner's
+/// The projectile definitions Work Robot fire cues spawn. The horizontal definition uses the owner's
 /// signed X velocity for both directions.
 /// Its values are arbitrary.
 /// </summary>

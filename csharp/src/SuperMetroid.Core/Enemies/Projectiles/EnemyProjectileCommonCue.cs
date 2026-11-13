@@ -1,7 +1,7 @@
 ﻿namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
-/// One general command of a typed projectile animation whose family adds no behavior of its own; the projectile
+/// One general cue of a typed projectile animation whose family adds no behavior of its own; the projectile
 /// engine carries it out for every such family.
 /// </summary>
 internal abstract record EnemyProjectileCommonCue

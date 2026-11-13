@@ -207,7 +207,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
             MaximumBouncingSpeed);
     }
 
-    /// <summary>Accelerates through terrain contact; ordinary impacts consume bounce indexes while selector two breaks immediately.</summary>
+    /// <summary>Accelerates through terrain contact; ordinary impacts consume bounce indexes while a boulder that breaks on impact breaks at the first.</summary>
     internal void RunBoulderFalling(RoomEnemySlot slot, BoulderEnemyState state, RoomLevelData level)
     {
         SignedSixteenSixteen verticalDisplacement = state.BounceSpeedAccumulator.Row.Positive;

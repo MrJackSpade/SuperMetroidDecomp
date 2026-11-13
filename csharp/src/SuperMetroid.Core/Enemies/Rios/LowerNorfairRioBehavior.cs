@@ -69,7 +69,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
     }
 
     /// <summary>
-    /// Runs the Lower Norfair Rio's main AI and functions one through six.
+    /// Runs the Lower Norfair Rio's main AI and each action it dispatches.
     /// The shared RNG advances before every parent and follower dispatch, exactly as retail.
     /// </summary>
     private void RunLowerNorfairRioMain(

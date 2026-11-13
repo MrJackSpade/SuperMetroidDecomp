@@ -131,7 +131,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
             case FuneNamiheAction.FuneActivityNoOp:
             case FuneNamiheAction.NamiheActivityNoOp:
                 // The active animation's finish step is the only owner allowed to leave
-                // these inert states. Main AI intentionally does nothing until that command.
+                // these inert states. Main AI intentionally does nothing until that step.
                 return;
 
             default:

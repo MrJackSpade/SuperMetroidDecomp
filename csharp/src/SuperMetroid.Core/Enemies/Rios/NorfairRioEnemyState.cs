@@ -7,7 +7,7 @@ public sealed class NorfairRioEnemyState
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<NorfairRioSegment> Playback { get; set; }
 
-    /// <summary>The last animation installed by function seven.</summary>
+    /// <summary>The last animation started, which starting it again does not restart.</summary>
     internal NorfairRioSegment InstalledAnimation { get; set; }
 
     /// <summary>Animation handshake set by the swoop-start-finished cue.</summary>

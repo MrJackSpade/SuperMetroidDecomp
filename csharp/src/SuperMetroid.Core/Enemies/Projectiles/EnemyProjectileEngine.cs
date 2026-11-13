@@ -50,7 +50,7 @@ internal sealed class EnemyProjectileEngine
         return table;
     }
 
-    /// <summary>Carries out one shared command of a typed projectile animation.</summary>
+    /// <summary>Carries out one shared cue of a typed projectile animation.</summary>
     private void ApplyCommonCue(EnemyProjectile projectile, EnemyProjectileCommonCue cue)
     {
         switch (cue)

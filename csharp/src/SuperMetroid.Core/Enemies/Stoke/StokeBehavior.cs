@@ -129,7 +129,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         // The attack animation owns Stoke until its trailing branch reaches the resume-moving cue and that
-        // wrapper's command installs the corresponding moving function again.
+        // cue installs the corresponding moving action again.
         state.Action = StokeAction.IdleDuringAttack;
         SetStokeAnimation(slot, state, attackingSegment);
     }
@@ -163,7 +163,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // The turn always selects the left wrapper first, then replaces it with right
         // only when the old direction was not one. It does not update direction/function;
-        // the wrapper command executes later in this same enemy animation phase.
+        // the wrapper's cue runs later in this same enemy animation phase.
         SetStokeAnimation(slot, state, StokeSegment.MovingLeft);
         if (state.Direction != StokeDirection.Right)
             SetStokeAnimation(slot, state, StokeSegment.MovingRight);

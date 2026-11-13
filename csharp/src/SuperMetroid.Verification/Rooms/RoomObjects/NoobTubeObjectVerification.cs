@@ -205,12 +205,11 @@ internal static class NoobTubeObjectVerification
         AssertTrue(brokenEvent, "n00b-tube completion sets event $0B");
         AssertTrue(!samus.Control.AlphaLocked, "n00b-tube completion unlocks Samus");
         AssertTrue(samus.Control.Mode.Beta != SamusBetaHandler.ScriptLocked, "completion restores normal animation ownership");
-        AssertEqual(RoomLiquidOptions.SmallTide,
-            roomFx.LiquidOptions,
-            "n00b-tube completion clears the disable bit on shared room FX");
+        AssertEqual(new RoomWater(LiquidTide.Small, SurfaceDrift: false, BackgroundWave: false, IgnoresSurfaceUntilEnabled: false),
+            roomFx.Liquid,
+            "n00b-tube completion lets the shared room water's surface affect Samus");
         samus.LiquidPhysics.ConfigureFor(roomFx);
-        AssertEqual(RoomLiquidOptions.SmallTide,
-            samus.LiquidPhysics.LiquidOptions,
+        AssertTrue(!samus.LiquidPhysics.IgnoresWaterSurface,
             "next room-FX publication preserves enabled water physics");
         AssertEqual(SamusLiquidMedium.Water,
             samus.LiquidPhysics.DetermineMovementMedium(samus),
@@ -324,9 +323,9 @@ internal static class NoobTubeObjectVerification
         StepNoobTube(roomObjects, level);
         AssertEqual(0, roomObjects.SlotTable.ActiveCount, "event-$0B n00b tube deletes on its first step");
         AssertEqual(0, projectiles.Count, "event-$0B n00b tube spawns no break debris");
-        AssertEqual(RoomLiquidOptions.SmallTide,
-            roomFx.LiquidOptions,
-            "event-$0B room load clears the shared water-disable bit");
+        AssertEqual(new RoomWater(LiquidTide.Small, SurfaceDrift: false, BackgroundWave: false, IgnoresSurfaceUntilEnabled: false),
+            roomFx.Liquid,
+            "event-$0B room load lets the shared room water's surface affect Samus");
         samus.LiquidPhysics.ConfigureFor(roomFx);
         AssertEqual(SamusLiquidMedium.Water,
             samus.LiquidPhysics.DetermineMovementMedium(samus),

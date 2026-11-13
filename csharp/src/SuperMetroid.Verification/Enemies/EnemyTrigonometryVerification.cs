@@ -748,18 +748,18 @@ internal static class EnemyTrigonometryVerification
         var tideSession = new RoomFxSession();
         var tide = new RoomFxOverlayState(tideSession);
         var step = new Action(tide.StepLiquidTide);
-        foreach (RoomLiquidOptions option in new[] { RoomLiquidOptions.None, RoomLiquidOptions.LargeTide,
-            RoomLiquidOptions.SmallTide, RoomLiquidOptions.SmallTide | RoomLiquidOptions.LargeTide })
+        // The import decides the small tide's precedence over the large one (#1695); each liquid holds one tide.
+        foreach (LiquidTide option in Enum.GetValues<LiquidTide>())
         {
-            tide.LiquidOptions = option;
+            tide.Liquid = new RoomWater(option, SurfaceDrift: false, BackgroundWave: false, IgnoresSurfaceUntilEnabled: false);
             for (int phase = 0; phase <= ushort.MaxValue; phase++)
             {
                 tide.TidePhase = RotationAngle.FromRaw(phase);
                 tide.TideOffset = SignedSixteenSixteen.FromParts(0, 12345);
                 step();
                 short sample = Reference(RotationAngle.FromRaw(unchecked((ushort)phase)).ToTrigonometryAngle().RawValue);
-                bool small = (option & RoomLiquidOptions.SmallTide) != 0;
-                bool still = option == RoomLiquidOptions.None;
+                bool small = option == LiquidTide.Small;
+                bool still = option == LiquidTide.None;
                 int scale = still ? 0 : small ? 8 : 32;
                 int delta = still ? 0 : small ? (sample >= 0 ? 288 : 192) : (sample >= 0 ? 224 : 128);
                 if (tide.TideOffset.RawValue != SixteenSixteen.FromEightEight(sample * scale) ||
@@ -767,7 +767,7 @@ internal static class EnemyTrigonometryVerification
                     throw new InvalidDataException($"Native tide differs at options={option}, phase={phase:X4}.");
             }
         }
-        Console.WriteLine("Compiled tide: all 65,536 phases in four option combinations preserve exact offset, phase advance and small-tide precedence without a bus.");
+        Console.WriteLine("Compiled tide: all 65,536 phases of each tide preserve exact offset and phase advance without a bus.");
     }
 
     /// <summary>Runs the registered compiled enemy trigonometry family, each part a suite of its own, in registry order.</summary>

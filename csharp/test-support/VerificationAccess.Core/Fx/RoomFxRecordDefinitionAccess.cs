@@ -18,10 +18,12 @@ internal static class RoomFxRecordDefinitionAccess
         internal ushort DoorPointer => RoomFxDefinitionsAccess.DoorPointerOf(self);
 
         /// <summary>
-        /// Exposes one native byte for consumers that use offset-based FX fields. The two blend bytes are not exposed: the
-        /// record holds the visor animation and the effect blend the import read from them, which several bytes share (#1545).
+        /// Exposes one native byte for consumers that use offset-based FX fields. The two blend bytes and the liquid options
+        /// byte are not exposed: the record holds the visor animation and the effect blend the import read from the blend
+        /// bytes, which several bytes share (#1545), and the liquid it read from the options byte, which drops the bits its
+        /// liquid does not read (#1695).
         /// </summary>
-        /// <exception cref="NotSupportedException"><paramref name="offset"/> is a blend byte.</exception>
+        /// <exception cref="NotSupportedException"><paramref name="offset"/> is a blend byte or the liquid options byte.</exception>
         internal byte ReadByte(int offset) => offset switch
         {
             0 => (byte)self.DoorPointer,
@@ -36,7 +38,7 @@ internal static class RoomFxRecordDefinitionAccess
             9 => RoomFxRecordEncoding.TypeByte(self.Type),
             10 or 11 =>
                 throw new NotSupportedException($"The record holds the blend the import read from byte {offset}, not the byte."),
-            12 => RoomFxRecordCodec.LiquidOptionsByte(self.LiquidOptions),
+            12 => throw new NotSupportedException("The record holds the liquid the import read from byte 12, not the byte."),
             13 => RoomFxRecordEncoding.PaletteEffectsByte(self.PaletteEffects, self.HeaderArea),
             14 => RoomFxRecordEncoding.AnimatedTilesByte(self.AnimatedTiles, self.HeaderArea),
             15 => RoomFxRecordEncoding.PaletteBlendByte(self.PaletteBlend),

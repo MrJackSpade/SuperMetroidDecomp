@@ -29,7 +29,7 @@ internal static class SamusVerticalDefinitionsVerification
             samus.EquippedItems = ((high ? SamusEquipmentFlags.HiJumpBoots : 0) | (gravity ? SamusEquipmentFlags.GravitySuit : 0) | (boost ? SamusEquipmentFlags.SpeedBooster : 0));
             samus.LiquidPhysics.WaterSurfaceY = environment is 1 or 3 ? 0 : null;
             samus.LiquidPhysics.LavaAcidSurfaceY = environment == 2 ? 0 : null;
-            samus.LiquidPhysics.LiquidOptions = environment == 3 ? RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave : RoomLiquidOptions.None;
+            samus.LiquidPhysics.IgnoresWaterSurface = environment == 3;
             int medium = launch == 2 || gravity || environment == 3 ? 0 : environment;
             int address = launch == 2 ? 0x909eb9 : launch == 1
                 ? high ? 0x909edd : 0x909ed1

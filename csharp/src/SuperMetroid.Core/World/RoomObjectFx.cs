@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// The room FX as room objects use it (#1395). Room objects write the shared liquid values Samus reads; the model keeps Samus's
-/// copy of the liquid options, so enabling water physics writes both in the same operation.
+/// copy of whether the water's surface affects her, so enabling water physics writes both in the same operation.
 /// </summary>
 internal sealed class RoomObjectFx(RoomFxOverlayState fx, Func<SamusState?> samus) : IRoomObjectFx
 {

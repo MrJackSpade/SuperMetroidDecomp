@@ -59,6 +59,7 @@ internal static class LookupRoomFxFieldsVerification
         Suite(nameof(VerifyRoomFxType), () => VerifyRoomFxType(rom));
         Suite(nameof(VerifyRoomFxBlends), () => VerifyRoomFxBlends(rom));
         Suite(nameof(VerifyRoomFxLiquidOptions), () => VerifyRoomFxLiquidOptions(rom));
+        Suite(nameof(RoomLiquidDecisionsVerification.VerifyRoomLiquidCodec), RoomLiquidDecisionsVerification.VerifyRoomLiquidCodec);
         Suite(nameof(VerifyRoomFxPaletteFxBitset), () => VerifyRoomFxPaletteFxBitset(rom));
         Suite(nameof(VerifyRoomFxAnimatedTileBitset), () => VerifyRoomFxAnimatedTileBitset(rom));
         Suite(nameof(VerifyRoomFxPaletteBlend), () => VerifyRoomFxPaletteBlend(rom));
@@ -128,8 +129,28 @@ internal static class LookupRoomFxFieldsVerification
         }
     }
 
-    /// <summary>Checks liquid rendering flags at offset twelve.</summary>
-    private static void VerifyRoomFxLiquidOptions(CartridgeImportAddressSpace rom) => VerifyRoomFxField(rom, 12, 1, record => RoomFxRecordCodec.LiquidOptionsByte(record.LiquidOptions));
+    /// <summary>The record's liquid options byte, which the import reads into the liquid the effect fills its room with.</summary>
+    private const int LiquidOptionsOffset = 12;
+
+    /// <summary>
+    /// Checks that each record holds the liquid the import reads from its options byte at offset twelve (#1695), and that
+    /// every decision the liquid's readers make is the one the byte's bits make; the record holds no byte there, as the
+    /// import drops the bits its liquid does not read. A terminator is no record (#1546).
+    /// </summary>
+    private static void VerifyRoomFxLiquidOptions(CartridgeImportAddressSpace rom)
+    {
+        foreach (ushort pointer in OriginalFxRecordPointers)
+        {
+            int address = 0x830000 | pointer;
+            if (ReadVerificationWord(rom, address) == ushort.MaxValue)
+                continue;
+            RoomFxRecordDefinition actual = RoomFxDefinitions.RecordAt(pointer);
+            byte options = RoomFxFieldRomByte(rom, address + LiquidOptionsOffset);
+            AssertEqual(RoomFxRecordCodec.Liquid(actual.Type, options), actual.Liquid, $"FX {pointer:X4} liquid");
+            RoomLiquidDecisionsVerification.AssertRecordLiquidDecisions(actual, options, $"FX {pointer:X4}");
+            AssertThrows<NotSupportedException>(() => actual.ReadByte(LiquidOptionsOffset), $"FX {pointer:X4} holds no options byte");
+        }
+    }
     /// <summary>Checks the palette effects, encoded through the header's area's list, against the bits at offset thirteen.</summary>
     private static void VerifyRoomFxPaletteFxBitset(CartridgeImportAddressSpace rom) => VerifyRoomFxField(rom, 13, 1,
         record => RoomFxRecordEncoding.PaletteEffectsByte(record.PaletteEffects, record.HeaderArea));

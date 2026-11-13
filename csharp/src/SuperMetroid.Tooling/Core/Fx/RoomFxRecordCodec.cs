@@ -13,8 +13,8 @@ namespace SuperMetroid.Core.Fx;
 /// through it. Core holds only the decoded fields: a record's two effect bitsets select from its room's area's lists
 /// (<see cref="AreaPaletteFxObjects"/>, <see cref="AreaAnimatedTileObjects"/>), and the decoded record names the effects
 /// they select (#1526). The record's two blend bytes select entries of the game's blending dispatcher; the import reads
-/// them once into the room effect's own blend and whether the room animates Samus's visor (#1545), and the numbers stay
-/// here. Never linked by player hosts.
+/// them once into the room effect's own blend and whether the room animates Samus's visor (#1545), and its options byte
+/// once into the liquid the effect fills the room with (#1695); the numbers stay here. Never linked by player hosts.
 /// </summary>
 internal static class RoomFxRecordCodec
 {
@@ -109,7 +109,7 @@ internal static class RoomFxRecordCodec
             type,
             VisorAnimation(native[RoomFxRomDataRecordTooling.DefaultBlendOffset], context),
             EffectBlend(type, native[RoomFxRomDataRecordTooling.EffectBlendOffset], context),
-            LiquidOptions(native[RoomFxRomDataRecordTooling.LiquidOptionsOffset]),
+            Liquid(type, native[RoomFxRomDataRecordTooling.LiquidOptionsOffset]),
             PaletteEffects(area, native[RoomFxRomDataRecordTooling.PaletteFxBitsetOffset]),
             AnimatedTiles(area, native[RoomFxRomDataRecordTooling.AnimatedTileBitsetOffset]),
             RoomFxRecordWords.PaletteBlends.Decode(native[RoomFxRomDataRecordTooling.PaletteBlendOffset], $"{context} palette blend"));
@@ -123,58 +123,90 @@ internal static class RoomFxRecordCodec
     /// <summary>The surface height a record's height word names, or null for <see cref="UnnamedSurfaceWord"/>.</summary>
     internal static int? SurfaceY(ushort word) => word == UnnamedSurfaceWord ? null : word;
 
-    /// <summary>A liquid option and the bit of a record's options byte that selects it.</summary>
-    /// <param name="Option">The option.</param>
-    /// <param name="Bit">Its bit in the options byte.</param>
-    private readonly record struct LiquidOptionBit(RoomLiquidOptions Option, int Bit);
+    /// <summary>The options-byte bit that makes water's surface drift; lava and acid do not read it.</summary>
+    private const int SurfaceDriftBit = 1 << 0;
 
-    /// <summary>Each liquid option and the options-byte bit that selects it.</summary>
-    private static readonly LiquidOptionBit[] LiquidOptionBits =
-    [
-        new(RoomLiquidOptions.SurfaceDrift, 1 << 0),
-        new(RoomLiquidOptions.BackgroundWave, 1 << 1),
-        new(RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave, 1 << 2),
-        new(RoomLiquidOptions.Untested, 1 << 3),
-        new(RoomLiquidOptions.LargeTide, 1 << 6),
-        new(RoomLiquidOptions.SmallTide, 1 << 7),
-    ];
+    /// <summary>The options-byte bit that gives water its background wave, and lava or acid its vertical heat haze.</summary>
+    private const int BackgroundWaveBit = 1 << 1;
 
-    /// <summary>The liquid options a record's options byte selects; every named bit is kept, tested or not.</summary>
+    /// <summary>
+    /// The options-byte bit that makes Samus ignore water's surface until a room object enables it, and gives lava or acid
+    /// its horizontal heat haze unless <see cref="BackgroundWaveBit"/> selects the vertical one.
+    /// </summary>
+    private const int SurfaceIgnoredOrHorizontalHazeBit = 1 << 2;
+
+    /// <summary>An options-byte bit some records set that no liquid reads; the import drops it.</summary>
+    private const int UnreadBit = 1 << 3;
+
+    /// <summary>The options-byte bit that selects the large tide, unless <see cref="SmallTideBit"/> is also set.</summary>
+    private const int LargeTideBit = 1 << 6;
+
+    /// <summary>The options-byte bit that selects the small tide, which wins over <see cref="LargeTideBit"/>.</summary>
+    private const int SmallTideBit = 1 << 7;
+
+    /// <summary>Every options-byte bit the import knows; a record setting any other names nothing.</summary>
+    private const int KnownBits = SurfaceDriftBit | BackgroundWaveBit | SurfaceIgnoredOrHorizontalHazeBit | UnreadBit | LargeTideBit | SmallTideBit;
+
+    /// <summary>
+    /// The liquid a record of <paramref name="type"/> whose options byte is <paramref name="value"/> fills its room with
+    /// (#1695): water for water and the statue effect, lava or acid for those, and none for every other effect, which reads
+    /// none of the byte. Each liquid keeps only the facts it has: lava and acid drop the drift bit, every liquid the unread
+    /// bit, and the small tide wins when both tide bits are set.
+    /// </summary>
     /// <exception cref="InvalidDataException">The byte sets a bit that selects no option.</exception>
-    internal static RoomLiquidOptions LiquidOptions(byte value)
+    internal static RoomLiquid? Liquid(RoomFxType type, byte value)
     {
-        RoomLiquidOptions options = RoomLiquidOptions.None;
-        int unnamed = value;
-        foreach (LiquidOptionBit entry in LiquidOptionBits)
-        {
-            if ((value & entry.Bit) != 0)
-                options |= entry.Option;
-            unnamed &= ~entry.Bit;
-        }
+        int unnamed = value & ~KnownBits;
         if (unnamed != 0)
             throw new InvalidDataException($"Liquid options ${value:X2} set bits ${unnamed:X2}, which select no option.");
-        return options;
+        bool Has(int bit) => (value & bit) != 0;
+        LiquidTide tide = Has(SmallTideBit) ? LiquidTide.Small : Has(LargeTideBit) ? LiquidTide.Large : LiquidTide.None;
+        return type switch
+        {
+            RoomFxType.Water or RoomFxType.TourianEntranceStatue =>
+                new RoomWater(tide, Has(SurfaceDriftBit), Has(BackgroundWaveBit), Has(SurfaceIgnoredOrHorizontalHazeBit)),
+            RoomFxType.Lava or RoomFxType.Acid => new RoomLavaOrAcid(tide,
+                Has(BackgroundWaveBit) ? HeatHazeDirection.Vertical
+                : Has(SurfaceIgnoredOrHorizontalHazeBit) ? HeatHazeDirection.Horizontal
+                : HeatHazeDirection.None),
+            RoomFxType.None or RoomFxType.Rain or RoomFxType.Fog or RoomFxType.Spores or RoomFxType.ScrollingSky or
+                RoomFxType.UnusedScrollingSky or RoomFxType.Fireflea or RoomFxType.CeresRidley or RoomFxType.CeresElevator or
+                RoomFxType.CeresHaze => null,
+            _ => throw new ArgumentOutOfRangeException(nameof(type), type, "Unknown room effect."),
+        };
     }
 
     /// <summary>
-    /// The options byte that selects <paramref name="options"/>: the byte checks seed synthetic records with and compare
-    /// the decode against, and the word Samus's liquid physics copies, which the native capture seed writes.
+    /// The options byte that selects <paramref name="liquid"/>: the byte checks seed synthetic records with, and the word
+    /// the native capture seed writes for the room's water.
     /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="options"/> holds a value that names no option.</exception>
-    internal static byte LiquidOptionsByte(RoomLiquidOptions options)
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="liquid"/> is no known liquid, or holds a tide or haze that names none.</exception>
+    internal static byte LiquidOptionsByte(RoomLiquid? liquid) => checked((byte)(liquid switch
     {
-        int value = 0;
-        RoomLiquidOptions unencoded = options;
-        foreach (LiquidOptionBit entry in LiquidOptionBits)
+        null => 0,
+        RoomWater water => TideBits(water.Tide) |
+            (water.SurfaceDrift ? SurfaceDriftBit : 0) |
+            (water.BackgroundWave ? BackgroundWaveBit : 0) |
+            (water.IgnoresSurfaceUntilEnabled ? SurfaceIgnoredOrHorizontalHazeBit : 0),
+        RoomLavaOrAcid lavaOrAcid => TideBits(lavaOrAcid.Tide) | lavaOrAcid.Haze switch
         {
-            if ((options & entry.Option) != RoomLiquidOptions.None)
-                value |= entry.Bit;
-            unencoded &= ~entry.Option;
-        }
-        if (unencoded != RoomLiquidOptions.None)
-            throw new ArgumentOutOfRangeException(nameof(options), options, "The options hold a value that names no liquid option.");
-        return checked((byte)value);
-    }
+            HeatHazeDirection.None => 0,
+            HeatHazeDirection.Horizontal => SurfaceIgnoredOrHorizontalHazeBit,
+            HeatHazeDirection.Vertical => BackgroundWaveBit,
+            _ => throw new ArgumentOutOfRangeException(nameof(liquid), lavaOrAcid.Haze, "Unknown heat haze."),
+        },
+        _ => throw new ArgumentOutOfRangeException(nameof(liquid), liquid, "Unknown room liquid."),
+    }));
+
+    /// <summary>The options-byte bits that select <paramref name="tide"/>.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="tide"/> names no tide.</exception>
+    private static int TideBits(LiquidTide tide) => tide switch
+    {
+        LiquidTide.None => 0,
+        LiquidTide.Small => SmallTideBit,
+        LiquidTide.Large => LargeTideBit,
+        _ => throw new ArgumentOutOfRangeException(nameof(tide), tide, "Unknown liquid tide."),
+    };
 
     /// <summary>
     /// The palette effects a record's palette-effect byte starts in a room of <paramref name="area"/>, in ascending bit

@@ -70,8 +70,8 @@ internal static class RoomFxRecordDefinitionsVerification
         AssertEqual(nativeFx.YVelocity.RawValue, compiledFx.YVelocity.RawValue,
             "Ceres compiled FX velocity");
         AssertEqual(nativeFx.Timer.RawValue, compiledFx.Timer.RawValue, "Ceres compiled FX timer");
-        AssertEqual(nativeFx.LiquidOptions, compiledFx.LiquidOptions,
-            "Ceres compiled FX liquid options");
+        AssertEqual(nativeFx.Liquid, compiledFx.Liquid,
+            "Ceres compiled FX liquid");
         AssertTrue(nativeVram.ImageEquals(compiledVram),
             "Ceres compiled FX retains VRAM output");
         // The blend's colours are the layer-3 pictures' shade of it (#1512); the room names the same blend.

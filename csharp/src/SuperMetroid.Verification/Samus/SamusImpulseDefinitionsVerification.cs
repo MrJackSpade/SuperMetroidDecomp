@@ -63,7 +63,7 @@ internal static class SamusImpulseDefinitionsVerification
             hurt.EquippedItems = (((equipment & 1) != 0 ? SamusEquipmentFlags.HiJumpBoots : 0) | ((equipment & 2) != 0 ? SamusEquipmentFlags.SpeedBooster : 0) | ((equipment & 4) != 0 ? SamusEquipmentFlags.GravitySuit : 0));
             hurt.LiquidPhysics.WaterSurfaceY = environment is 1 or 3 ? 0 : null;
             hurt.LiquidPhysics.LavaAcidSurfaceY = environment == 2 ? 0 : null;
-            hurt.LiquidPhysics.LiquidOptions = environment == 3 ? RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave : RoomLiquidOptions.None;
+            hurt.LiquidPhysics.IgnoresWaterSurface = environment == 3;
             hurt.BombJumpRequest = SamusBombJumpRequest.Published(SamusBombJumpDirection.Left).Accept();
             hurt.BombJumpStarting = true;
             hurt.BombJumpActive = true;

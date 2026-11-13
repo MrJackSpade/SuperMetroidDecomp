@@ -148,29 +148,22 @@ internal static class RoomFxRecordCatalogSource
             : throw new InvalidDataException($"{value} is not a {typeof(TIdentity).Name} member.");
 
     /// <summary>
-    /// Renders a flag combination as the generated catalog spells it: its members in ascending value order joined
-    /// with <c>|</c>, or the type's zero member when none is set.
+    /// Renders the liquid a record fills its room with as the generated catalog spells it (#1695): its kind's constructor
+    /// with each fact named, or null for an effect with no liquid.
     /// </summary>
-    private static string Flags<TFlags>(TFlags value)
-        where TFlags : struct, Enum
+    /// <exception cref="InvalidDataException">The liquid is of no kind the catalog spells.</exception>
+    private static string Liquid(RoomLiquid? liquid) => liquid switch
     {
-        ulong bits = Convert.ToUInt64(value, System.Globalization.CultureInfo.InvariantCulture);
-        TFlags[] members = [.. Enum.GetValues<TFlags>().Where(member => Convert.ToUInt64(member, System.Globalization.CultureInfo.InvariantCulture) != 0)];
-        List<string> set = [];
-        ulong covered = 0;
-        foreach (TFlags member in members)
-        {
-            ulong flag = Convert.ToUInt64(member, System.Globalization.CultureInfo.InvariantCulture);
-            if ((bits & flag) != flag)
-                continue;
-            set.Add($"{typeof(TFlags).Name}.{member}");
-            covered |= flag;
-        }
-        if (covered != bits)
-            throw new InvalidDataException($"{typeof(TFlags).Name} 0x{bits:X2} sets a bit no member names.");
-        return set.Count == 0 ? $"{typeof(TFlags).Name}.{Enum.GetValues<TFlags>().Single(member => Convert.ToUInt64(member, System.Globalization.CultureInfo.InvariantCulture) == 0)}"
-            : string.Join(" | ", set);
-    }
+        null => "null",
+        RoomWater water => $"new {nameof(RoomWater)}({Member(water.Tide)}, {nameof(RoomWater.SurfaceDrift)}: {Bool(water.SurfaceDrift)}, " +
+            $"{nameof(RoomWater.BackgroundWave)}: {Bool(water.BackgroundWave)}, " +
+            $"{nameof(RoomWater.IgnoresSurfaceUntilEnabled)}: {Bool(water.IgnoresSurfaceUntilEnabled)})",
+        RoomLavaOrAcid lavaOrAcid => $"new {nameof(RoomLavaOrAcid)}({Member(lavaOrAcid.Tide)}, {Member(lavaOrAcid.Haze)})",
+        _ => throw new InvalidDataException($"{liquid.GetType().Name} is no room liquid the catalog spells."),
+    };
+
+    /// <summary>Renders a fact as the generated catalog spells it: its C# literal.</summary>
+    private static string Bool(bool value) => value ? "true" : "false";
 
     /// <summary>Renders an effect list as the generated catalog spells it: its members in order, in brackets.</summary>
     private static string Effects<TIdentity>(ImmutableArray<TIdentity> effects)
@@ -187,7 +180,7 @@ internal static class RoomFxRecordCatalogSource
         $"SignedEightEight.FromTwoHundredFiftySixthsOfPixel({record.YVelocity.InTwoHundredFiftySixthsOfPixel.ToString(System.Globalization.CultureInfo.InvariantCulture)}), " +
         $"{record.Timer.ToString(System.Globalization.CultureInfo.InvariantCulture)}, {Member(record.Type)}, " +
         $"{Member(record.VisorAnimation)}, {EffectBlend(record.EffectBlend)}, " +
-        $"{Flags(record.LiquidOptions)}, {Effects(record.PaletteEffects)}, " +
+        $"{Liquid(record.Liquid)}, {Effects(record.PaletteEffects)}, " +
         $"{Effects(record.AnimatedTiles)}, {Member(record.PaletteBlend)})";
 
     /// <summary>

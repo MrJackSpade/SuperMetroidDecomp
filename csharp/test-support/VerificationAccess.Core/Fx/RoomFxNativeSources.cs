@@ -39,8 +39,17 @@ internal static class RoomFxNativeSources
     /// <summary>First rain instruction-list entry at $87:82CF.</summary>
     public const ushort RainFirstInstruction = 0x82cf;
 
+    /// <summary>Liquid-options bit zero, which water's surface drift tests.</summary>
+    public const ushort SurfaceDriftOption = 0x0001;
+
     /// <summary>Liquid-options bit selecting the vertical BG2 wave used by heat rooms.</summary>
     public const ushort VerticalBg2WaveOption = 0x0002;
+
+    /// <summary>
+    /// Liquid-options bit two, which disables Samus's water physics in water and selects the horizontal BG2 heat wave in
+    /// lava and acid.
+    /// </summary>
+    public const ushort WaterPhysicsDisabledOrHorizontalHeatWaveOption = 0x0004;
 
     /// <summary>Liquid-options bit seven selects the ±8-pixel tide.</summary>
     public const ushort SmallTideOption = 0x0080;

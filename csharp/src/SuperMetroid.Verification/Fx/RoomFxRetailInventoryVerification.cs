@@ -291,7 +291,12 @@ internal static class RoomFxRetailInventoryVerification
 
         bool liquid = expectedType is RoomFxType.Water or RoomFxType.Lava or RoomFxType.Acid;
         // The audit report prints the record's liquid-options byte as the cartridge stores it.
-        ushort liquidOptions = RoomFxRecordCodec.LiquidOptionsByte(actual.LiquidOptions);
+        ushort liquidOptions = expectedRecord == 0
+            ? (ushort)0
+            : ReadRetailFxRecordByte(
+                bus,
+                expectedRecord,
+                RoomFxRomDataRecordTooling.LiquidOptionsOffset);
         RetailLiquidClassification classification = !liquid
             ? expectedType == RoomFxType.None
                 ? RetailLiquidClassification.None
@@ -933,7 +938,7 @@ internal static class RoomFxRetailInventoryVerification
         }
 
         int expectedMaximum =
-            (fx.LiquidOptions & RoomLiquidOptions.SmallTide) != 0
+            fx.Liquid?.Tide == LiquidTide.Small
                 ? LiquidTideDefinitions.SmallTideScale
                 : LiquidTideDefinitions.LargeTideScale;
         AssertTrue(maximumAbsoluteOffset > 0 && maximumAbsoluteOffset <= expectedMaximum,

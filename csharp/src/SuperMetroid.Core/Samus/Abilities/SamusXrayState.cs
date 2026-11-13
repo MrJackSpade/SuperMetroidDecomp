@@ -67,10 +67,10 @@ public sealed class SamusXrayState
     public bool TimeIsFrozen { get; private set; }
 
     /// <summary>
-    /// The eight setup calls which prepare the reveal
-    /// before the main frame behaviour begins changing the beam state.
+    /// The beam's warm-up: the updates of frozen time it spends after X-ray starts before its own step begins changing
+    /// the beam's phase; over whenever no beam is warming up.
     /// </summary>
-    public XraySetupStage SetupStage { get; internal set; }
+    public XrayWarmUp WarmUp { get; internal set; }
 
     /// <summary>Values zero through five index the beam dispatcher.</summary>
     public XrayBeamPhase BeamPhase { get; private set; }
@@ -225,7 +225,7 @@ public sealed class SamusXrayState
         AngularHalfWidth = SignedSixteenSixteen.Zero;
         AngularWideningSpeed = SignedSixteenSixteen.Zero;
         VisorPaletteMode = XrayVisorPaletteMode.Widening;
-        SetupStage = XraySetupStage.FreezeTimeSaveBackground;
+        WarmUp = XrayWarmUp.Started;
         BeamPhase = XrayBeamPhase.NoBeam;
         TimeIsFrozen = true;
         SuspendedSubsystems = XraySuspendedSubsystems.All;
@@ -309,7 +309,7 @@ public sealed class SamusXrayState
 
         IsActive = false;
         OwnsSamusControl = false;
-        SetupStage = XraySetupStage.Complete;
+        WarmUp = XrayWarmUp.Over;
         BeamPhase = XrayBeamPhase.NoBeam;
         Angle = RotationAngle.Zero;
         AngularHalfWidth = SignedSixteenSixteen.Zero;
@@ -406,9 +406,9 @@ public sealed class SamusXrayState
     }
 
     /// <summary>
-    /// Advances the cone effect by one update. The setup-stage count represents the eight
-    /// real setup functions. The reveal itself remains intentionally outside this movement
-    /// state; the renderer consumes its angle/width only after setup has completed.
+    /// Advances the cone effect by one update: an update of the beam's warm-up, until that is over, and then the beam's own
+    /// step. The reveal itself remains outside this movement state; the display reads the beam's angle and width only
+    /// once the warm-up is over.
     /// </summary>
     public XrayBeamStepResult StepBeam(
         SamusState samus,
@@ -420,11 +420,11 @@ public sealed class SamusXrayState
 
         XrayBeamPhase phaseAtStart = BeamPhase;
 
-        if (SetupStage != XraySetupStage.Complete)
+        if (!WarmUp.IsOver)
         {
-            // The eight calls execute in order. After the eighth the program
-            // installs the beam's main frame behaviour; beam state zero itself first runs on the following call.
-            SetupStage = SetupStage.Advance();
+            // The warm-up's last update hands over to the beam's own step, whose phase zero first runs on the
+            // following update.
+            WarmUp = WarmUp.Spend();
             return SnapshotBeamStep(phaseAtStart, completed: false);
         }
 
@@ -668,7 +668,7 @@ public sealed class SamusXrayState
         SuspendedSubsystems = XraySuspendedSubsystems.None;
         IsActive = false;
         OwnsSamusControl = false;
-        SetupStage = XraySetupStage.Complete;
+        WarmUp = XrayWarmUp.Over;
         BeamPhase = XrayBeamPhase.NoBeam;
         Angle = RotationAngle.Zero;
         AngularHalfWidth = SignedSixteenSixteen.Zero;

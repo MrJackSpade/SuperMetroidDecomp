@@ -89,7 +89,7 @@ internal static class AcidStatueFirstEntryVerification
             if (snapshot is null)
                 continue;
             RgbaPixel[] pixels = DisplayRendering.Render(snapshot);
-            if (phase is DoorTransitionPhase.HandleTransition or DoorTransitionPhase.FadeInDestinationPalette)
+            if (phase is DoorTransitionPhase.FinishDoorOpeningScroll or DoorTransitionPhase.FadeInDestinationPalette)
             {
                 sawDestinationFade = true;
                 AssertEqual(RoomFxType.Acid, (displayed ?? throw new InvalidOperationException("Verification requires displayed.")).Type,

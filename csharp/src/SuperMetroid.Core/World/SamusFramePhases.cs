@@ -692,7 +692,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
               room.Enemies.Elevator.ElevatorRunsSamusMovement))
         {
             // Elevator command seven installs the moving beta handler for departure.
-            // HandleTransition reinstalls it only on downward arrival. Upward arrival
+            // Finishing the door's opening scroll reinstalls it only on downward arrival. Upward arrival
             // retains command zero until the actor reaches rest; terrain probes there
             // would incorrectly wake the scroll triggers the platform passes.
             _player.ProspectiveSamusPose = null;

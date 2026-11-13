@@ -640,7 +640,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// earthquake sound; after the eighth the loop starts again from the first. The independently retained rhythm
     /// supplies only the delays.
     /// </summary>
-    /// <param name="randomNumber">The current random number, sampled without advancing it; bits zero and one add zero through three updates to the next earthquake-sound delay.</param>
+    /// <param name="randomNumber">The current random number, sampled without advancing it; the number modulo 4 adds zero through three updates to the next earthquake-sound delay.</param>
     /// <param name="earthquakeSoundDelay">
     /// The frame the save file found at power-on adds to every next delay (<see cref="PowerOnEarthquakeSoundDelay"/>).
     /// Both callers' effects are the first their room starts after the door ends the previous room's effects, so they

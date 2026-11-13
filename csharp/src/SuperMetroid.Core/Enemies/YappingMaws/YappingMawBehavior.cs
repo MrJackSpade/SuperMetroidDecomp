@@ -79,6 +79,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int YappingMawGrabSafetyDistance = 32;
     /// <summary>Maximum extension curl admitted by the four-link solver, in whole angle units.</summary>
     private const int YappingMawMaximumCurl = 128;
+    /// <summary>The curl, in whole angle units, per angle step each link of the chain bends by: the bend step is a quarter of the curl.</summary>
+    private const int CurlPerBendStep = 4;
     /// <summary>Cooldown after Samus is released before the Maw can grab again.</summary>
     private const int YappingMawGrabCooldownFrames = 48;
     /// <summary>Delay after full retraction before Samus input is released.</summary>
@@ -234,17 +236,20 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = YappingMawAiFunction.ExtendingOrRetracting;
     }
 
+    /// <summary>
+    /// The angle steps each link of the chain bends by for a curl of <paramref name="curl"/> whole angle units. The
+    /// extension only runs while the curl is 0 through <see cref="YappingMawMaximumCurl"/>: setup starts it at zero, the
+    /// clamp caps it, and the update that carries it negative leaves the extension; a curl outside that range is refused.
+    /// </summary>
+    internal static int BendStepOf(int curl) => Ensure.BetweenInclusive(0, YappingMawMaximumCurl, curl) / CurlPerBendStep;
+
     /// <summary>Runs the curved four-link solver and state transition.</summary>
     private void AdvanceYappingMawExtension(
         RoomEnemySlot slot,
         YappingMawEnemyState state,
         SamusState samus)
     {
-        // The function only runs while the curl's whole part is in [0, YappingMawMaximumCurl]: setup starts it at zero,
-        // the clamp below caps it, and the update that carries it negative leaves this function. In that range a
-        // quarter of the signed whole part equals the game's unsigned quartering of the curl; the check fails
-        // loudly if that range is ever violated.
-        int bendStep = Ensure.BetweenInclusive(0, YappingMawMaximumCurl, state.Extension.WholePixels) / 4;
+        int bendStep = BendStepOf(state.Extension.WholePixels);
         // The bend corrects the eight offsets in one chain, link by link and X before Y (YappingMawBendChain).
         var chain = new YappingMawBendChain();
         for (int segment = 0; segment < 4; segment++)

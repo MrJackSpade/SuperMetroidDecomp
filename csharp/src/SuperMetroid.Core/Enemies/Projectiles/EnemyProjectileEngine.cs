@@ -110,8 +110,11 @@ internal sealed class EnemyProjectileEngine
     /// <summary>The frame counter of 0 through 255 sampled by the current projectile pass; verification drives it to step programs.</summary>
     internal int CurrentFrame8 { get; set; }
 
-    /// <summary>A shot meets an enemy projectile only inside the same 32-pixel cell: the shift that selects the cell.</summary>
-    private const int CoarseContactCellShift = 5;
+    /// <summary>The pixels along each axis of the cells a shot and an enemy projectile meet in: they meet only inside the same cell.</summary>
+    private const int CoarseContactCellPixels = 32;
+
+    /// <summary>The coarse contact cell, along one axis, holding an unsigned room pixel coordinate.</summary>
+    internal static int CoarseContactCell(int pixel) => Ensure.BetweenInclusive(0, ushort.MaxValue, pixel) / CoarseContactCellPixels;
 
     /// <summary>The pixel offset within a 16-pixel block.</summary>
     private const int BlockPixelMask = 15;
@@ -186,8 +189,8 @@ internal sealed class EnemyProjectileEngine
                 // The path intentionally compares only 32-pixel cells. It does not
                 // run the radius overlap used by ordinary enemies, a coarse quirk preserved
                 // here instead of “fixing” shots near a cell corner.
-                if (enemyProjectile.Position.X.Whole >> CoarseContactCellShift != shot.Position.X.Whole >> CoarseContactCellShift ||
-                    enemyProjectile.Position.Y.Whole >> CoarseContactCellShift != shot.Position.Y.Whole >> CoarseContactCellShift)
+                if (CoarseContactCell(enemyProjectile.Position.X.Whole) != CoarseContactCell(shot.Position.X.Whole) ||
+                    CoarseContactCell(enemyProjectile.Position.Y.Whole) != CoarseContactCell(shot.Position.Y.Whole))
                 {
                     continue;
                 }

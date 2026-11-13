@@ -34,8 +34,10 @@ No reviewed operation loads a further resource or accepts an arbitrary artwork n
   It does not request another resource identity.
 
 The existing `IconNames` field is a mutable array behind a readonly reference. The
-source pass additionally rejects any reference to that field outside the two reviewed
-provider/definition files. It cannot silently accept a new caller that mutates its keys.
+source pass additionally rejects any reference to that field outside the reviewed
+provider, definition and loader files, among them `GameplayHudLayoutFile`, which reads the
+installed layout and requires exactly the five named icons. It cannot silently accept a new
+caller that mutates its keys.
 This scope is the Core source inventory, not arbitrary code in third-party assemblies.
 
 ## File select v1 — 23 original consumer boundaries

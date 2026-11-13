@@ -45,6 +45,21 @@ internal static class CoreVocabularyAnalyzerTests
         Expect("class P { void Run() { int header = 0; _ = header; } }", "'header' names the hardware ('Header')");
         // Words that begin with the same letters are the game's own: a facing, a head, a heading.
         Expect("class P { int Heading; int Head; int Headroom; int Headbutt; int HeadedLeft; }");
+        // The cartridge's sprite pieces, the display's raster lines and its background tilemaps, in each kind of
+        // declaration a renamed Core identifier used them in (#1694).
+        Expect("static class CrocomireBodyFrameSpritemaps { }", "'CrocomireBodyFrameSpritemaps' names the hardware ('Spritemap')");
+        Expect("class P { void DrawRidleyWorldSpritemap() { } }", "'DrawRidleyWorldSpritemap' names the hardware ('Spritemap')");
+        Expect("class P { bool SpritemapFlashing { get; set; } }", "'SpritemapFlashing' names the hardware ('Spritemap')");
+        Expect("class P { void Run() { int spritemapX = 0; _ = spritemapX; } }", "'spritemapX' names the hardware ('Spritemap')");
+        Expect("class P { int _lightBeamScanlines; }", "'_lightBeamScanlines' names the hardware ('Scanline')");
+        Expect("class P { P(int firstScanline) { } }", "'firstScanline' names the hardware ('Scanline')");
+        Expect("class P { void LoadPauseMapTilemap() { } }", "'LoadPauseMapTilemap' names the hardware ('Tilemap')");
+        Expect("class P { static int ScrollingSkyTilemapsLandingSite { get; } }", "'ScrollingSkyTilemapsLandingSite' names the hardware ('Tilemap')");
+        Expect("class P { string Name(int tilemap) => \"\"; }", "'tilemap' names the hardware ('Tilemap')");
+        // A sprite, a map sprite, a scan, a screen line, a tile and a room layer named as the destination engine names it
+        // (two words: TileMap) are the game's own.
+        Expect("class P { int Sprite; int MapSpriteId; int SpriteSheets; int ScanLeftToRight; int Scanned; int Scanner; int FirstLine; int HudLines; }");
+        Expect("class P { int Tile; int Tiles; int Metatile; int MapTiles; int TileMap; int TileMapLayer; }");
         Expect("class P { int Banked; }", "'Banked' names the hardware ('Bank')");
         Expect("class P { int[] Pointers = []; }", "'Pointers' names the hardware ('Pointer')");
         Expect("class P { void Run() { try { } catch (System.Exception addressing) { _ = addressing; } } }", "'addressing' names the hardware ('Address')");

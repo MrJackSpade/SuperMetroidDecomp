@@ -24,7 +24,11 @@ The words, kept in one place in the analyzer (`CoreVocabularyAnalyzer.HardwareWo
 `Pointer`, `Address`, `Cartridge`, `Mode7`, `Register`, and the CPU's return and jump mnemonics `Rts`, `Rtl`, `Jsr`,
 `Jsl`, `Jmp`, `Jml` that routine labels carry (#1481), the storage widths, save memory, opcodes and program labels
 `Word`, `Byte`, `Sram`, `Opcode`, `Plm`, `Eproj` (#1558), and `Header`, the cartridge's record headers that named rooms,
-room objects, effects, projectiles and enemies by the structure the program stored them in (#1685). An underscore-separated part that is a cartridge address (four or six
+room objects, effects, projectiles and enemies by the structure the program stored them in (#1685), and the
+cartridge's sprite and raster vocabulary (#1694): `Spritemap`, the frame the cartridge built from hardware sprite
+pieces (a Core picture is a frame, a picture or a composition); `Scanline`, the display's raster line (a Core screen
+row is a line); and `Tilemap`, the cartridge's one-word background tilemap (a Core page or layout is named for what it
+shows). An underscore-separated part that is a cartridge address (four or six
 hexadecimal digits with at least one decimal digit, as in `RTS_86BB30` or `Instr_A0B3`) is reported as well.
 
 A name that spells a cartridge value in hexadecimal is reported too (#1554): a run of two or more capital hexadecimal
@@ -41,9 +45,10 @@ Matching is by whole camel-case word, ignoring case, with plural and verb ending
 `Addressing`). `Object` is not `Obj`, `Roman` is not `Rom`, `Registry` is not `Register`. A run of capitals is one word
 (`OAMBuffer` is `OAM` + `Buffer`), and a digit stays with the word before it (`Mode7`).
 
-The ticket also names `Tilemap` where it means a VRAM plane. That meaning cannot be told from the word itself (a
-metatile layer of a room is a tilemap in any remake), so the rule does not list it; the display-model tickets remove the
-VRAM-plane uses by replacing the types, and the v0.9.0 validation pass reads for any that remain.
+`Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
+it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as do `Tile`, `Tiles`,
+`Metatile` and `MapTiles`; so does `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside
+`Scanline` (#1694). Documentation prose is never read, so a comment may still say what a cartridge spritemap held.
 
 Members that override or implement a member declared outside Core keep the name the base declares. A record's
 positional parameter and the property it declares are reported once.

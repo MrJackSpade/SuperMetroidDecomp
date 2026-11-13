@@ -109,8 +109,10 @@ reads a bearing directly from the table, the conversion is written out at that c
 in table units stay integers.
 
 Processor flags do not cross routine boundaries (SME6353). Where a carry is load-bearing, the code states the rule it
-serves in the value's own terms: a 16.16 or 8.8 addition whose fraction overflow moves the whole part, or a seeking
-boss's velocity run (`SeekingVelocityRun`) in which a step crossing zero lengthens the next (#1479). A result names
+serves in the value's own terms: a 16.16 or 8.8 addition whose fraction overflow moves the whole part, or, where the
+original passed a carry on to an addition that gameplay observes, a named compatibility service in the game's terms
+(`SeekingVelocityRun`, in which a seeking boss's step crossing zero lengthens the next; `YappingMawBendChain`; #1620,
+`docs/compatibility-layer.md`). A result names
 what the flag meant
 (`ReachedVerticalBoundary`, `GrappleBlockReaction`).
 

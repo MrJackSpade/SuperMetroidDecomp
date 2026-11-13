@@ -25,7 +25,8 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// <c>[CompatibilityService]</c> type, which reproduces hardware behaviour, or an <c>[EncodingOwner]</c> codec, which owns
 /// an encoding, may describe the hardware. One diagnostic per comment or literal; there is no allowance list.
 /// #1624 adds the interpreter vocabulary of the original's streams: operands, instructions and numbered, Samus and
-/// animation commands. #1632 adds the display path's hardware vocabulary: the tile characters pictures were assembled
+/// animation commands, then every other command of the original's streams and dispatchers and numbered functions and
+/// selectors. #1632 adds the display path's hardware vocabulary: the tile characters pictures were assembled
 /// from, video and display memory, and per-line tables.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
@@ -82,6 +83,25 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         @"|\bcommands?[-\s]+(?:[0-9]+|zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen" +
         @"|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty)\b" +
         @"(?![-\s]+(?:frames?|updates?|ticks?|times?|steps?|pixels?|seconds?|beats?|more|fewer|less|of)\b)",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// The original's stream and dispatch commands in prose, numbered or not (#1624): a command of any kind (the
+    /// rainbow-stop command, the unpause command, music commands, a copy-one command, a command list), and a function or
+    /// selector by number (controller function zero, functions one through six, selector two, <c>Selector 0..3</c>). A Core
+    /// cue, sound or music request, control setup or lock, reveal shape, action or phase says what it is. English stays
+    /// legal: a command of the player, the user or a menu (the player's command, a menu command, the menu's commands, a
+    /// data-management or file-select command, an options page's rows and commands, a command row), the verb after a person
+    /// (the player commands Samus, who commands it), and a number that counts the noun after it (the selector one layer
+    /// above).
+    /// </summary>
+    private static readonly Regex DispatchProse = new(
+        @"(?<!\b(?:player's|players'|players?|user's|users'|users?|who|menu's|menus'|menus?|data-management|file-select" +
+        @"|options?|rows?\s+and)[-\s]+)\bcommands?\b(?![-\s]+rows?\b)" +
+        @"|\b(?:functions?|selectors?)[-\s]+(?:[0-9]+|zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve" +
+        @"|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty)\b" +
+        @"(?![-\s]+(?:frames?|updates?|ticks?|times?|steps?|pixels?|seconds?|beats?|layers?|levels?|rows?|columns?|more|fewer" +
+        @"|less|of)\b)",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
@@ -327,6 +347,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : HardwareTerms.Match(text) is { Success: true } term ? term.Value
             : ProgramProse.Match(text) is { Success: true } program ? program.Value
             : InterpreterProse.Match(text) is { Success: true } interpreter ? interpreter.Value
+            : DispatchProse.Match(text) is { Success: true } dispatch ? dispatch.Value
             : CpuProse.Match(text) is { Success: true } cpu ? cpu.Value
             : StorageProse.Match(text) is { Success: true } storage ? storage.Value
             : OperationProse.Match(text) is { Success: true } operation ? operation.Value

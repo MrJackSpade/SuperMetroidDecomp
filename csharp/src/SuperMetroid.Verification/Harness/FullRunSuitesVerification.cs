@@ -338,6 +338,7 @@ using static SuperMetroid.Verification.Rooms.RoomObjects.SamusEaterVisualsVerifi
 using static SuperMetroid.Verification.Samus.Grapple.GrappleBeamDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Grapple.SamusGrappleVerification;
 using static SuperMetroid.Verification.Samus.Hud.SamusHudSelectionVerification;
+using static SuperMetroid.Verification.Samus.Hud.AutoCancelledItemVerification;
 using static SuperMetroid.Verification.Samus.Palettes.SamusHurtColorsVerification;
 using static SuperMetroid.Verification.Samus.Palettes.SamusHyperBeamColorsVerification;
 using static SuperMetroid.Verification.Samus.Abilities.SamusMorphBallVerification;
@@ -784,9 +785,11 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyGrappleGreenGateVisibility), () => VerifyGrappleGreenGateVisibility()),
         new(nameof(VerifyGrappleEnemyDeath), () => VerifyGrappleEnemyDeath()),
         new(nameof(VerifyGrappleConnectionCancelsSpeedBoost), () => VerifyGrappleConnectionCancelsSpeedBoost()),
+        new(nameof(VerifyGrappleEndReturnsAutoCancelledItem), () => VerifyGrappleEndReturnsAutoCancelledItem()),
         new(nameof(VerifyShutterRiding), () => VerifyShutterRiding()),
         new(nameof(VerifyXrayInput), () => VerifyXrayInput()),
         new(nameof(VerifyXrayGameState), () => VerifyXrayGameState()),
+        new(nameof(VerifyXrayEndReturnsAutoCancelledItem), () => VerifyXrayEndReturnsAutoCancelledItem()),
         new(nameof(VerifySpeedBoosterStageFiveResidue), () => VerifySpeedBoosterStageFiveResidue()),
         new(nameof(VerifyDraygonPrebattleXray), () => VerifyDraygonPrebattleXray()),
         new(nameof(VerifyXraySetupBuffers), () => VerifyXraySetupBuffers()),

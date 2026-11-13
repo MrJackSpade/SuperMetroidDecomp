@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Samus.Drawing;
+using SuperMetroid.Core.Samus.Hud;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Movement;
@@ -581,6 +582,7 @@ public static class SamusGrappleMovement
         SamusBlockCollision.EjectAfterGrapple(level, samus.Kinematics);
         SamusAerialPoseTransitions.ApplyGrappleWallJump(samus);
         ClearConnectedGrapple(grapple);
+        SamusHudSelection.ReturnAutoCancelledItem(samus);
         return new GrappleMovementResult(
             GrapplePhase.Inactive,
             WallJumpStarted: true);
@@ -607,6 +609,7 @@ public static class SamusGrappleMovement
         if (!deferPoseChange)
             SamusAerialPoseTransitions.ApplyGrappleDropTransition(samus, level, targetPose, frameCounter, roomObjects);
         ClearConnectedGrapple(grapple);
+        SamusHudSelection.ReturnAutoCancelledItem(samus);
         return new GrappleMovementResult(
             GrapplePhase.Inactive,
             OwnsMovement: !deferPoseChange || emptyBeta,
@@ -1138,9 +1141,9 @@ public static class SamusGrappleMovement
     }
 
     /// <summary>
-    /// Completes the one-frame cancellation function installed by firing. The game's
-    /// step also clears palette/sound bookkeeping not yet modeled by this runtime;
-    /// every gameplay-visible firing value owned by this class is cleared here.
+    /// Completes the one-frame cancellation function installed by firing: the stop sound, the ejection, the fallback
+    /// pose of a cancelled connected pose, every firing value, and the end of an auto-cancelled selection. The equipped
+    /// beams' colours return in the frame's grapple phase, after every grapple ending.
     /// </summary>
     public static GrappleMovementResult CompleteFiringCancellation(
         RoomLevelData level,
@@ -1187,6 +1190,7 @@ public static class SamusGrappleMovement
         grapple.EndpointOffset = FixedVector<RoomPixels>.Zero;
         grapple.CancelFromConnectedPose = false;
         SamusGrappleBeamDrawing.ClearFlareAnimation(grapple);
+        SamusHudSelection.ReturnAutoCancelledItem(samus);
         return new GrappleMovementResult(
             GrapplePhase.Inactive,
             Fired: false,
@@ -1270,6 +1274,7 @@ public static class SamusGrappleMovement
         grapple.ValidateAnchorBlock = false;
         grapple.ValidateAnchorEnemy = false;
         SamusGrappleBeamDrawing.ClearFlareAnimation(grapple);
+        SamusHudSelection.ReturnAutoCancelledItem(samus);
         return deferPoseChange ? releasePose : null;
     }
 
@@ -1284,9 +1289,9 @@ public static class SamusGrappleMovement
     /// <summary>Resets grapple-owned movement and rendering state so a later shot cannot inherit connection state.</summary>
     private static void ClearConnectedGrapple(SamusGrappleState grapple)
     {
-        // The drop and wall-jump teardowns share the same long cleanup tail. Palette, sound, and HUD-item
-        // producers live outside this state object; every owned movement/rendering value is
-        // reset here so a later firing edge cannot inherit wall-grace or collision state.
+        // The drop and wall-jump teardowns share the same long cleanup tail. Every owned movement/rendering value is
+        // reset here so a later firing edge cannot inherit wall-grace or collision state; their callers end an
+        // auto-cancelled selection, and the frame's grapple phase shows the equipped beams' colours again.
         grapple.Phase = GrapplePhase.Inactive;
         grapple.RopeLength = 0;
         grapple.RopeLengthDelta = 0;

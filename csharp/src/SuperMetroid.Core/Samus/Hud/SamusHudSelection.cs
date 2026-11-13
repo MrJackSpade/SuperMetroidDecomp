@@ -70,6 +70,20 @@ internal sealed class SamusHudSelection
         return new HudSelectionOutcome(itemHandlerAccepted);
     }
 
+    /// <summary>
+    /// Ends the use of an item chosen for auto-cancel (Select pressed while Item Cancel is held): the HUD returns to the
+    /// beams and the auto-cancel is spent; an item chosen without Item Cancel held stays selected. The grapple's
+    /// cancellation, drop, wall jump and release from a swing do this as the grapple ends, and X-ray as its beam ends.
+    /// </summary>
+    /// <param name="samus">Samus, whose selection and auto-cancel the use ends.</param>
+    internal static void ReturnAutoCancelledItem(SamusState samus)
+    {
+        if (samus.AutoCancelHudItemIndex == HudItem.Beam)
+            return;
+        samus.SelectedHudItem = HudItem.Beam;
+        samus.AutoCancelHudItemIndex = HudItem.Beam;
+    }
+
     /// <summary>Applies the switched-to handlers' ammo and equipment admission rules.</summary>
     private static bool IsHudItemAvailable(SamusState samus, HudItem item) => item switch
     {

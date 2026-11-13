@@ -306,7 +306,7 @@ internal sealed class MotherBrainRainbowAndDeath
         ApplyLiveMotherBrainDeath(state, sequence, current);
         if (current.SoundQueued)
             // A request is not invariably a start: the painful-walk stage-six handoff
-            // stops the same looping voice. Preserve the command selected by the sequence.
+            // stops the same looping voice. Preserve the start or stop the sequence selected.
             _motherBrainEncounter.RequestRainbowBeamSound(sequence.State.RainbowBeamSoundPlaying
                 ? MotherBrainSoundDefinitions.StartRainbowDrain
                 : MotherBrainSoundDefinitions.StopRainbowDrain);

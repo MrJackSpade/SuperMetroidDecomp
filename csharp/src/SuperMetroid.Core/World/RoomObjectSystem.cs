@@ -48,7 +48,7 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects
     /// <summary>Queues sound requests emitted by room object cues.</summary>
     internal RoomObjectSoundQueue Sounds { get; }
 
-    /// <summary>Turns room-object draw-list commands into level changes and background picture updates.</summary>
+    /// <summary>Turns room objects' block draws into level changes and background picture updates.</summary>
     internal RoomObjectBlockDrawing Drawing { get; }
 
     /// <summary>Spawns room objects for breakable blocks struck by projectile impacts.</summary>

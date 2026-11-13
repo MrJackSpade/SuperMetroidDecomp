@@ -41,7 +41,7 @@ public static class XrayRevealMap
         for (int row = 0; row < XrayRevealArea.Rows; row++)
         {
             // The prior column may own a 2-wide reveal crossing the left edge. Its
-            // right half is copied before this row's own commands overwrite it; the room's first block has none.
+            // right half is copied before this row's own reveals overwrite it; the room's first block has none.
             if (RoomReadingOrder.Step(firstBlock, Offset16<RoomBlocks>.Of(-1, row), level.Size.X) is { } before &&
                 Lookup(before) is { } predecessor)
             {

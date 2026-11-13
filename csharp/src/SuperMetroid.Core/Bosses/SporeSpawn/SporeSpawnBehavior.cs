@@ -384,7 +384,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         SporeSpawnEnemyState state = RequireSporeSpawnState(body);
         AnimationPlayback<SporeSpawnBodySegment> playback = state.BodyPlayback;
-        // The open-pulse and death-burst repeats count the body's frame timer, as the timer commands do.
+        // The open-pulse and death-burst repeats count the body's frame timer, as the animations' counted loops do.
         EnemyAnimationPlayback.Play(body, SporeSpawnAnimations.Segments, ref playback, SporeSpawnFrameDefinitions.ShownFrames.Of,
             cue =>
             {

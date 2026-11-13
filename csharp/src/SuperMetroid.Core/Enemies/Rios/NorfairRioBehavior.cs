@@ -72,7 +72,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Runs the Norfair Rio's main AI and functions one through six.
+    /// Runs the Norfair Rio's main AI and each action it dispatches.
     /// Every parent and follower advances the shared enemy RNG before dispatch.
     /// </summary>
     private void RunNorfairRioMain(
@@ -177,8 +177,8 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case NorfairRioAction.FinishLanding:
-                // Function six is intentionally a one-frame state: it changes only
-                // the dispatched function. The looping idle animation remains installed, which also keeps
+                // Finishing the landing is intentionally a one-frame state: it changes only
+                // the dispatched action. The looping idle animation remains installed, which also keeps
                 // the follower half visible while the actor waits for another random attack.
                 state.Action = NorfairRioAction.WaitForAttackOpportunity;
                 return;

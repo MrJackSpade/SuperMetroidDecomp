@@ -35,7 +35,7 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// the release on the drained crouches, and the wall contact that rewinds a spin pose. The frames they reach, with the
 /// frames the starts reach, are the pose's own animation, whose delays and holds are the pose's picture frames. The
 /// unauthored paths meet poses they are not made for: the unable-to-stand handler meeting the poses Samus takes after the
-/// Baby Metroid's commands end, the Baby's freeze and rainbow stop meeting a Samus the drain has let go of, and the wall
+/// Baby Metroid's drain ends, the Baby's freeze and rainbow stop meeting a Samus the drain has let go of, and the wall
 /// contact rewinding a drained pose that carries a spin's movement. The game draws their frames from the pose's tables
 /// past its own pictures, which show other poses' halves or nothing. A frame written with a timer of one just before the
 /// animation pass is advanced by it before the draw; any other written frame is drawn as it stands.
@@ -55,8 +55,8 @@ internal sealed class SamusShownFrames
 
     /// <summary>
     /// The movement types Samus can be initialized in: the movement types of the poses some path gives her. The drained
-    /// commands write a drained pose without initializing it, so her movement stays the type of whichever of these she was
-    /// last initialized in, and nothing in the commands checks which (the Mother Brain glitch recording carries a spin
+    /// operations write a drained pose without initializing it, so her movement stays the type of whichever of these she was
+    /// last initialized in, and nothing in those operations checks which (the Mother Brain glitch recording carries a spin
     /// jump's movement into the drained standing pose).
     /// </summary>
     private static readonly SamusMovementType[] InitializedMovementTypes =
@@ -258,7 +258,7 @@ internal sealed class SamusShownFrames
             publications.Add(new(SamusDrainedAnimationDefinitions.UnableToStandFrame, PublishedFrameDrawing.AfterAdvancing));
         if (pose is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose)
         {
-            // The Baby Metroid's Hyper Beam and rainbow-stop commands write the frame during enemy AI, after the animation, so
+            // The Baby Metroid's Hyper Beam freeze and rainbow stop write the frame during enemy AI, after the animation, so
             // the draw shows it as written. The Baby puts Samus crouching at the ceiling before either. The left-facing
             // crouch's Hyper Beam frame, and both crouches' rainbow-stop frame, land on a cue's place, and the
             // right-facing crouch's Hyper Beam frame past its animation: the game's tables hold no composition there, so the
@@ -333,7 +333,7 @@ internal sealed class SamusShownFrames
     /// beam, which turns Samus to the left-facing knockback and lets her fall into the left-facing drained crouch that she
     /// is held in until the Baby Metroid stands her up and puts her crouching again, both facing left; so the right-facing
     /// drained poses never meet it. The fall initializes the crouch, so the standing pose the Baby writes keeps the
-    /// crouch's own movement: no wall contact rewinds it into the handler's frames. Once the Baby's commands end, Samus
+    /// crouch's own movement: no wall contact rewinds it into the handler's frames. Once the Baby's drain ends, Samus
     /// takes her ordinary poses for the rest of the fight, each of which the handler can meet.
     /// </summary>
     private static bool UnableToStandMeets(SamusPoseId pose) =>

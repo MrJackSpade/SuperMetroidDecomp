@@ -65,7 +65,7 @@ internal sealed class RidleyTail
         }
 
         // The tail composition always composes positions, but only the selected tail controller
-        // updates offsets. Function zero and stagger/stop returns retain them.
+        // updates offsets. With no tail action, and on the stagger and stop returns, the offsets stay.
         RidleyTailSegment first = state.TailSegments[0];
         Position16<RoomPixels> tailRoot = slot.Position.Whole + new Offset16<RoomPixels>(0, 16);
         first.Position = state.FacingDirection switch

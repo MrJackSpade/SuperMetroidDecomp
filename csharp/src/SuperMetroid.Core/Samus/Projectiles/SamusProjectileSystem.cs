@@ -654,7 +654,7 @@ public sealed class SamusProjectileSystem
     /// </summary>
     /// <param name="timeIsFrozen">
     /// Whether time is frozen. Frozen trails retain their current record and are still drawn;
-    /// their timers and embedded position commands do not advance.
+    /// their timers and position steps do not advance.
     /// </param>
     public void AdvanceTrails(bool timeIsFrozen) => Trails.Advance(timeIsFrozen);
 

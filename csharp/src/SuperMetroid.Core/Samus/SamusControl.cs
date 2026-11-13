@@ -36,12 +36,12 @@ internal sealed class SamusControl : IRoomSamusControl
 
     /// <summary>
     /// The station lock: the locked alpha with an empty beta, which neither moves nor
-    /// animates Samus. A map station keeps it through the pause menu until the unpause command restores the normal pair.
+    /// animates Samus. A map station keeps it through the pause menu until closing the pause menu restores the normal pair.
     /// </summary>
     public void LockIntoRefillStation() => Install(SamusAlphaHandler.Locked, SamusBetaHandler.RefillStation);
 
     /// <summary>
-    /// The handler part of the unpause command: whenever the beta is the station lock's empty one, it
+    /// The station lock's release on unpause: whenever the beta is the station lock's empty one, it
     /// restores the normal pair. Any station that locked Samus, map or recharge, therefore lets go when the pause menu
     /// closes.
     /// </summary>
@@ -51,11 +51,11 @@ internal sealed class SamusControl : IRoomSamusControl
             Unlock();
     }
 
-    /// <summary>The suit-pickup command: the inert pair of the suit transformation.</summary>
+    /// <summary>The suit-pickup lock: the inert pair of the suit transformation.</summary>
     public void LockForSuitPickup() => Install(SamusAlphaHandler.Locked, SamusBetaHandler.SuitPickup);
 
     /// <summary>
-    /// The gunship command after the face-forward lock: a beta which checks low health despite the
+    /// The gunship setup after the face-forward lock: a beta which checks low health despite the
     /// locked alpha, until the ship restores the normal pair.
     /// </summary>
     public void EnterGunship() => Install(SamusAlphaHandler.Locked, SamusBetaHandler.Gunship);

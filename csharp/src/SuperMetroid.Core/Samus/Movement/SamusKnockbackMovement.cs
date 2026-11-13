@@ -389,7 +389,7 @@ level, targetPose, frameCounter, roomObjects))
     /// <summary>Restores ordinary input and movement ownership and clears hurt motion values after expiry.</summary>
     private static KnockbackMovementResult FinishKnockback(SamusState samus)
     {
-        // The expiry command restores the normal input handler as well as
+        // Knockback's expiry restores the normal input handler as well as
         // movement, including when hurt interrupted a still-input-locked bomb rise.
         samus.BombJumpPoseInputLocked = false;
         // Installs the ordinary movement handler. A Shinespark windup can

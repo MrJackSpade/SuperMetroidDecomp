@@ -32,8 +32,8 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (cue.Kind)
         {
             case PlatformCueKind.MoveLeft:
-                // The ordinary and duplicate commands are equivalent: both publish horizontal
-                // dispatcher index zero before the next frame.
+                // The ordinary and duplicate move-left cues are equivalent: both publish leftward horizontal
+                // movement before the next frame.
                 SetPlatformHorizontalMovementFromCue(slot, PlatformHorizontalMovement.Left);
                 break;
             case PlatformCueKind.MoveRight:

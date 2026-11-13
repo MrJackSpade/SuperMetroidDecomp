@@ -21,7 +21,7 @@ internal interface IRoomObjects
     /// <summary>Queues sound requests emitted by room object cues.</summary>
     RoomObjectSoundQueue Sounds { get; }
 
-    /// <summary>Turns room-object draw-list commands into level changes and background picture updates.</summary>
+    /// <summary>Turns room objects' block draws into level changes and background picture updates.</summary>
     IRoomObjectDrawing Drawing { get; }
 
     /// <summary>Handles collectible item reveals, pickup, and persistence.</summary>

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>
-/// The animation frames the drained-Samus handlers and commands publish directly, outside the drained poses' own
+/// The animation frames the drained-Samus handlers and the drain's operations publish directly, outside the drained poses' own
 /// animations (#1513). They are frames of the asymmetrical drained animations as the game numbers them, so several name an
 /// cue's place or a number between two runs of the pose they land in, which the game draws as it stands.
 /// </summary>
@@ -25,7 +25,7 @@ internal static class SamusDrainedAnimationDefinitions
     /// <summary>The frame the Hyper Beam acquisition freezes the drained animation at.</summary>
     internal const int HyperBeamAcquisitionFrame = 28;
 
-    /// <summary>The frame the rainbow-stop command starts the standing part of the drained animation at.</summary>
+    /// <summary>The frame the rainbow stop starts the standing part of the drained animation at.</summary>
     internal const int RainbowStopFrame = 13;
 
     /// <summary>The frame a falling drained crouch lands on.</summary>

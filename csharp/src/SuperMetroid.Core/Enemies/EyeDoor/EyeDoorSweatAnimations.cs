@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.EyeDoor;
 
 /// <summary>
 /// The eye-door sweat drop's falling and floor-splash animations (#1296, #1600). Each frame shows a <see cref="EnemyProjectileFrameId"/> and each
-/// command becomes an <see cref="EnemyProjectileCommonCue"/>.
+/// cue is an <see cref="EnemyProjectileCommonCue"/>.
 /// </summary>
 internal static class EyeDoorSweatAnimations
 {

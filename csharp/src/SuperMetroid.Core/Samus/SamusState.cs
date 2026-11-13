@@ -173,7 +173,7 @@ public sealed class SamusState
 
     /// <summary>
     /// Mother Brain/Baby Metroid drain poses, controller calls, and installed falling
-    /// movement handler. Enemy AI remains a separate producer of these literal commands.
+    /// movement handler. Enemy AI remains the separate caller of these drain operations.
     /// </summary>
     public SamusDrainedState Drained { get; } = new();
 
@@ -204,7 +204,7 @@ public sealed class SamusState
         set => HorizontalSpeed.SpeedDivisor = value;
     }
 
-    /// <summary>Current energy, also used by the animation's low-energy command.</summary>
+    /// <summary>Current energy, also used by the animation's low-energy cue.</summary>
     public int Health { get; set; } = 99;
 
     /// <summary>
@@ -298,7 +298,7 @@ public sealed class SamusState
     public HudItem AutoCancelHudItemIndex { get; set; }
 
     /// <summary>
-    /// Equipped beam bitfield. Drained-controller function three replaces
+    /// Equipped beam bitfield. Equipping the Hyper Beam in the drain replaces
     /// this with the exact charge/wave/plasma plus hyper-beam configuration.
     /// </summary>
     public SamusBeamFlags EquippedBeams { get; set; }
@@ -381,7 +381,7 @@ public sealed class SamusState
     /// <summary>True while the bomb jump's main handler owns the rising arc.</summary>
     public bool BombJumpActive { get; set; }
 
-    /// <summary>Bomb command installed an empty pose-input handler; independent of the current movement handler.</summary>
+    /// <summary>The bomb jump installed an empty pose-input handler; independent of the current movement handler.</summary>
     public bool BombJumpPoseInputLocked { get; set; }
 
     /// <summary>Which way the pending or running knockback moves Samus, or none.</summary>
@@ -894,7 +894,7 @@ level, probe, this, amount, scanLeftToRight, roomObjects);
     }
 
     /// <summary>
-    /// Called by the unpause command: reconcile Morph/Spring Ball
+    /// Called on resuming from pause: reconcile Morph/Spring Ball
     /// equipment without changing position, velocity, or vertical direction.
     /// </summary>
     public void ReconcilePauseBallEquipment()

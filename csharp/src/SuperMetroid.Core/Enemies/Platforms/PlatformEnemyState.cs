@@ -24,11 +24,11 @@ public sealed class PlatformEnemyState
     public SignedSixteenSixteen LeftSpeed { get; internal set; }
 
     /// <summary>
-    /// Record index into the shared quadratically increasing enemy speeds, from zero to
-    /// <see cref="MaximumYSpeedTableIndex"/>: it starts at zero, rises by one per accelerating update and is clamped
+    /// Whole-row place along the shared quadratically increasing enemy speeds, from the first row to
+    /// <see cref="MaximumYSpeedTableIndex"/>: it starts at the first row, moves on one row per accelerating update and is clamped
     /// at the maximum, so it never leaves that range.
     /// </summary>
-    public int YSpeedTableIndex { get; internal set; }
+    public EnemyQuadraticSpeedIndex YSpeedTableIndex { get; internal set; }
 
     /// <summary>The rider-selected vertical movement, recomputed each actor update before horizontal then vertical motion.</summary>
     public PlatformVerticalMovement YMovement { get; internal set; }
@@ -42,8 +42,8 @@ public sealed class PlatformEnemyState
     /// <summary>Whether vertically-still art has been installed for the current vertical phase.</summary>
     public bool VerticallyStillArtInstalled { get; internal set; }
 
-    /// <summary>The inclusive cap on <see cref="YSpeedTableIndex"/>: the spawn settings' vertical acceleration updates.</summary>
-    public int MaximumYSpeedTableIndex { get; internal set; }
+    /// <summary>The inclusive cap on <see cref="YSpeedTableIndex"/>: as many rows on as the spawn settings' vertical acceleration updates.</summary>
+    public EnemyQuadraticSpeedIndex MaximumYSpeedTableIndex { get; internal set; }
 
     /// <summary>The previous actor update's rider-selected vertical movement; a change restarts the acceleration.</summary>
     public PlatformVerticalMovement PreviousYMovement { get; internal set; }

@@ -3,9 +3,10 @@ namespace SuperMetroid.Core.Enemies;
 /// <summary>
 /// A place along the shared quadratic speed table (<see cref="EnemyQuadraticSpeeds"/>), counted in 256ths of a row: its
 /// whole rows select the row whose speed applies, and its fraction carries a slower climb or fall toward the next row.
-/// The enemies that accelerate through the table (the boulders, the Ki-Hunter's detached wing, the large Maridia snail and
-/// Botwoon's falling head) step such a place each update instead of a speed; a step is a place's difference in the same
-/// 256ths. Places only grow, shrink and compare; nothing wraps, because each mover caps or floors its place well inside
+/// The enemies that accelerate through the table (the boulders, the Ki-Hunter's detached wing, the large Maridia snail,
+/// Botwoon's falling head, the Puyo, and the whole-row movers: the Beetom's, Choot's and hoppers' hops, the platforms,
+/// the yellow Pipe Bug's arc, the Polyp's rock and the Yapping Maw's curl) step such a place each update instead of a
+/// speed; a step is a place's difference in the same 256ths. Places only grow, shrink and compare; nothing wraps, because each mover caps or floors its place well inside
 /// the table, and a place past the table's last row or below its first fails when its row is read.
 /// </summary>
 public readonly record struct EnemyQuadraticSpeedIndex : IComparable<EnemyQuadraticSpeedIndex>
@@ -19,6 +20,9 @@ public readonly record struct EnemyQuadraticSpeedIndex : IComparable<EnemyQuadra
 
     /// <summary>The first row with no fraction: the place an accelerating mover starts from.</summary>
     public static EnemyQuadraticSpeedIndex Start => default;
+
+    /// <summary>The step of one whole row, by which the whole-row movers move along the table each update.</summary>
+    public static EnemyQuadraticSpeedIndex OneRow => FromRows(1);
 
     /// <summary>The place <paramref name="rows"/> whole rows along the table, or the step of that many rows.</summary>
     public static EnemyQuadraticSpeedIndex FromRows(int rows) => new(EightEight.FromWhole(rows));

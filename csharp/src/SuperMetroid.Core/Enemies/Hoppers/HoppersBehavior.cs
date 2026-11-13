@@ -57,8 +57,8 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Global RNG seed written when a Hopper initializes.</summary>
     private const int HopperRandomSeed = 37;
-    /// <summary>Terminal quadratic-speed table index used to cap the falling half of a hop.</summary>
-    private const int MaximumHopperYSpeedTableIndex = 64;
+    /// <summary>Terminal place along the quadratic speed table, row 64, that caps the falling half of a hop.</summary>
+    private static readonly EnemyQuadraticSpeedIndex MaximumHopperYSpeedTableIndex = EnemyQuadraticSpeedIndex.FromRows(64);
 
     /// <summary>Initializes the Hopper.</summary>
     internal void InitializeHopper(RoomEnemySlot slot)
@@ -243,7 +243,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         // Inequality expresses that table exactly. Equality reverses both phases, making
         // each actor collide with its starting surface and then migrate to the opposite one.
         bool useNegativeSpeed = (surface == HopperSurface.Ceiling) != movingAwayFromSurface;
-        SignedSixteenSixteen verticalDisplacement = EnemyQuadraticSpeeds.Row(state.YSpeedTableIndex).Toward(useNegativeSpeed ? EnemySpeedSign.Negative : EnemySpeedSign.Positive);
+        SignedSixteenSixteen verticalDisplacement = state.YSpeedTableIndex.Row.Toward(useNegativeSpeed ? EnemySpeedSign.Negative : EnemySpeedSign.Positive);
 
         // Every movement entry resolves Y first. A collision while rising reverses
         // X and changes to the falling half without performing horizontal motion that frame.
@@ -278,12 +278,12 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (movingAwayFromSurface)
         {
-            // The game stores the decremented record and branches on its sign: a record below zero is the apex,
-            // replaced by zero as the hop turns back toward the surface.
-            int next = state.YSpeedTableIndex - state.YSpeedTableIndexDelta;
-            if (next < 0)
+            // The game stores the moved-back place and branches on its sign: a place before the first row is the apex,
+            // replaced by the first row as the hop turns back toward the surface.
+            EnemyQuadraticSpeedIndex next = state.YSpeedTableIndex - EnemyQuadraticSpeedIndex.FromRows(state.YSpeedTableIndexDelta);
+            if (next.IsNegative)
             {
-                state.YSpeedTableIndex = 0;
+                state.YSpeedTableIndex = EnemyQuadraticSpeedIndex.Start;
                 state.Falling = true;
             }
             else
@@ -295,27 +295,28 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The game caps the returning record by the sign of its word difference from the cap; both stay far
         // below the word's sign bit, so that is the ordinary minimum.
-        state.YSpeedTableIndex = Math.Min(
-            state.YSpeedTableIndex + state.YSpeedTableIndexDelta,
+        state.YSpeedTableIndex = EnemyQuadraticSpeedIndex.Min(
+            state.YSpeedTableIndex + EnemyQuadraticSpeedIndex.FromRows(state.YSpeedTableIndexDelta),
             MaximumHopperYSpeedTableIndex);
     }
 
     /// <summary>Sums the quadratic table's coarse speeds until the authored jump height is reached.</summary>
-    internal static int CalculateInitialHopperYSpeedTableIndex(
+    internal static EnemyQuadraticSpeedIndex CalculateInitialHopperYSpeedTableIndex(
         int jumpHeight,
         int tableIndexDelta)
     {
-        int tableIndex = 0;
+        EnemyQuadraticSpeedIndex tableIndex = EnemyQuadraticSpeedIndex.Start;
         int accumulatedHeight = 0;
         // Each pass moves the row on by the delta, so the height is reached within the table's rows or never: past them
-        // the row lookup rejects the climb, and a delta of zero sums the first row's speed of zero only (#1627).
+        // the row lookup rejects the climb before the place could grow further, and a delta of zero sums the first row's
+        // speed of zero only (#1627).
         for (int iteration = 0; iteration < EnemyQuadraticSpeedDefinitions.RowCount; iteration++)
         {
-            tableIndex = WrappingCounter.AddCount(tableIndex, tableIndexDelta);
+            tableIndex += EnemyQuadraticSpeedIndex.FromRows(tableIndexDelta);
 
             // The height sums each row's coarse speed, in 256ths of a pixel; summing full speeds changes every
             // initial jump row.
-            int heightIncrement = EnemyQuadraticSpeeds.Row(tableIndex).CoarseToward(EnemySpeedSign.Positive);
+            int heightIncrement = tableIndex.Row.CoarseToward(EnemySpeedSign.Positive);
             accumulatedHeight = CoordinateAxis.Wrap(accumulatedHeight + heightIncrement);
             if (CoordinateAxis.Difference(accumulatedHeight, jumpHeight) >= 0)
                 return tableIndex;

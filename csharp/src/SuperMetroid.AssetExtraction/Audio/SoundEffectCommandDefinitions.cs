@@ -6,7 +6,9 @@ namespace SuperMetroid.AssetExtraction.Audio;
 
 /// <summary>
 /// The request number each sound has in its library of the installed sound program: the import pipeline's private
-/// knowledge of the cartridge's sound numbering, read only by <see cref="SoundEffectCommands"/>.
+/// knowledge of the cartridge's sound numbering, read only by <see cref="SoundEffectCommands"/>. A library's other
+/// requests name no sound the game asks for (#1686): the import keeps their programs in its catalog but exports no clip
+/// of them.
 /// </summary>
 [EncodingOwner("request numbers of the sound driver's three sound libraries")]
 internal static class SoundEffectCommandDefinitions
@@ -79,7 +81,6 @@ internal static class SoundEffectCommandDefinitions
         [SamusSound.ResumedSpaceJump] = 0x3f,
         [SamusSound.MotherBrainRainbowBeam] = 0x40,
         [SamusSound.ResumeChargingBeam] = 0x41,
-        [SamusSound.Unused] = 0x42,
     }.ToFrozenDictionary();
 
     /// <summary>Each library-two sound's request number.</summary>
@@ -114,7 +115,6 @@ internal static class SoundEffectCommandDefinitions
         [EnemySound.SpikePlatformStop] = 0x1b,
         [EnemySound.ChozoGrab] = 0x1c,
         [EnemySound.DachoraCry] = 0x1d,
-        [EnemySound.Unused1] = 0x1e,
         [EnemySound.FuneSpit] = 0x1f,
         [EnemySound.ShotFly] = 0x20,
         [EnemySound.ShotSkree] = 0x21,
@@ -124,9 +124,7 @@ internal static class SoundEffectCommandDefinitions
         [EnemySound.BigExplosion] = 0x25,
         [EnemySound.BombTorizoSwipe] = 0x26,
         [EnemySound.ShotTorizo] = 0x27,
-        [EnemySound.Unused2] = 0x28,
         [EnemySound.HeavyRumble] = 0x29,
-        [EnemySound.Unused3] = 0x2a,
         [EnemySound.FireballImpact] = 0x2b,
         [EnemySound.ShotSporeSpawn] = 0x2c,
         [EnemySound.KraidRoar] = 0x2d,
@@ -148,7 +146,6 @@ internal static class SoundEffectCommandDefinitions
         [EnemySound.DachoraStoredShinespark] = 0x3d,
         [EnemySound.ShotRipper] = 0x3e,
         [EnemySound.AlcoonSpit] = 0x3f,
-        [EnemySound.Unused4] = 0x40,
         [EnemySound.Empty1] = 0x41,
         [EnemySound.BoulderBounce] = 0x42,
         [EnemySound.BoulderExplosion] = 0x43,
@@ -163,7 +160,6 @@ internal static class SoundEffectCommandDefinitions
         [EnemySound.AcidSpit] = 0x4c,
         [EnemySound.GunshipHover] = 0x4d,
         [EnemySound.CeresRidleyGetaway] = 0x4e,
-        [EnemySound.Unused5] = 0x4f,
         [EnemySound.MetroidDrain] = 0x50,
         [EnemySound.ShotCoven] = 0x51,
         [EnemySound.BabyMetroidRemorse] = 0x52,
@@ -180,9 +176,7 @@ internal static class SoundEffectCommandDefinitions
         [EnemySound.SidehopperJump] = 0x5d,
         [EnemySound.SidehopperLanding] = 0x5e,
         [EnemySound.ShotHoltz] = 0x5f,
-        [EnemySound.Unused6] = 0x60,
         [EnemySound.FireSpit] = 0x61,
-        [EnemySound.Unused7] = 0x62,
         [EnemySound.MotherBrainHandBeam] = 0x63,
         [EnemySound.HoltzCry] = 0x64,
         [EnemySound.RioCry] = 0x65,
@@ -191,7 +185,6 @@ internal static class SoundEffectCommandDefinitions
         [EnemySound.WorkRobot] = 0x68,
         [EnemySound.ShotShaktool] = 0x69,
         [EnemySound.ShotPowamp] = 0x6a,
-        [EnemySound.Unused8] = 0x6b,
         [EnemySound.KagoBug] = 0x6c,
         [EnemySound.CeresTileFall] = 0x6d,
         [EnemySound.ShotMotherBrain] = 0x6e,

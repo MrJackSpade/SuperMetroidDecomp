@@ -70,8 +70,6 @@ public enum EnemySound
     ChozoGrab,
     /// <summary>The Dachora's cry.</summary>
     DachoraCry,
-    /// <summary>The library's first unused sound; a high-priority sound.</summary>
-    Unused1,
     /// <summary>A Fune spitting; a high-priority sound.</summary>
     FuneSpit,
     /// <summary>A shot fly hit.</summary>
@@ -90,12 +88,8 @@ public enum EnemySound
     BombTorizoSwipe,
     /// <summary>A Torizo hit; a high-priority sound.</summary>
     ShotTorizo,
-    /// <summary>The library's second unused sound.</summary>
-    Unused2,
     /// <summary>A heavy rumble: Mother Brain rising, Crocomire's wall exploding, Spore Spawn hardening.</summary>
     HeavyRumble,
-    /// <summary>The library's third unused sound.</summary>
-    Unused3,
     /// <summary>Ridley's fireball striking a surface, Crocomire's post-death rumble, Phantoon exploding.</summary>
     FireballImpact,
     /// <summary>Spore Spawn hit or opening up; a high-priority sound.</summary>
@@ -138,8 +132,6 @@ public enum EnemySound
     ShotRipper,
     /// <summary>An Alcoon spitting, Fake Kraid's lint, or a ninja pirate's spin jump.</summary>
     AlcoonSpit,
-    /// <summary>The library's fourth unused sound.</summary>
-    Unused4,
     /// <summary>The library's first empty sound; it plays nothing.</summary>
     Empty1,
     /// <summary>A boulder bouncing.</summary>
@@ -168,8 +160,6 @@ public enum EnemySound
     GunshipHover,
     /// <summary>Ceres Ridley's getaway; a high-priority sound.</summary>
     CeresRidleyGetaway,
-    /// <summary>The library's fifth unused sound.</summary>
-    Unused5,
     /// <summary>A Metroid draining Samus, or a Metroid's cry; a high-priority sound.</summary>
     MetroidDrain,
     /// <summary>A Coven hit; a high-priority sound.</summary>
@@ -202,12 +192,8 @@ public enum EnemySound
     SidehopperLanding,
     /// <summary>A Holtz, Desgeega, Viola, Alcoon or Botwoon hit.</summary>
     ShotHoltz,
-    /// <summary>The library's sixth unused sound.</summary>
-    Unused6,
     /// <summary>A Dragon's or Magdollite's fire spit, or a fire pillar.</summary>
     FireSpit,
-    /// <summary>The library's seventh unused sound.</summary>
-    Unused7,
     /// <summary>Mother Brain's hand beam.</summary>
     MotherBrainHandBeam,
     /// <summary>A Holtz's cry.</summary>
@@ -224,8 +210,6 @@ public enum EnemySound
     ShotShaktool,
     /// <summary>A Powamp hit.</summary>
     ShotPowamp,
-    /// <summary>The library's eighth unused sound.</summary>
-    Unused8,
     /// <summary>A Kago bug.</summary>
     KagoBug,
     /// <summary>A Ceres tile falling from the ceiling and landing.</summary>

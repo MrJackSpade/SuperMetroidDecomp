@@ -141,6 +141,4 @@ public enum SamusSound
     MotherBrainRainbowBeam,
     /// <summary>The Charge Beam's charging sound resumed.</summary>
     ResumeChargingBeam,
-    /// <summary>An unused sound that needs a music data set's instrument.</summary>
-    Unused,
 }

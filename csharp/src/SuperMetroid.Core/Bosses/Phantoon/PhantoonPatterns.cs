@@ -41,7 +41,7 @@ internal sealed class PhantoonPatterns
         state.EyeState.WaveLength = null;
         state.EyeState.ClosedTimer = PhantoonTimerDefinitions.EyeClosed[PhantoonCadenceDefinitions.FirstEyeClosedChoice.Of(_frameContext.FrameCounter)];
         state.BodyState.Function = PhantoonAiFunction.MoveInFigureEightThenOpenEye;
-        state.BodyState.SpeedPhase = 0;
+        state.BodyState.FigureEightStage = PhantoonFigureEightStage.EasingIn;
         if (PhantoonRandomDefinitions.FigureEightReversed.IsSetIn(_room.Random.Generate()))
         {
             state.BodyState.FigureEightSpeed = SignedSixteenSixteen.Zero;
@@ -105,7 +105,7 @@ internal sealed class PhantoonPatterns
     /// <summary>Changes horizontal velocity over the forward half of a figure-eight.</summary>
     internal static void AdjustPhantoonForwardFigureEightSpeed(PhantoonBodyState body)
     {
-        if (body.SpeedPhase == 0)
+        if (body.FigureEightStage == PhantoonFigureEightStage.EasingIn)
         {
             ChangePhantoonSpeed(
                 body,
@@ -114,12 +114,12 @@ internal sealed class PhantoonPatterns
             if (body.FigureEightSpeed.WholePixels >= PhantoonMotionDefinitions.ForwardSlowCap)
             {
                 body.FigureEightSpeed = SignedSixteenSixteen.FromParts(PhantoonMotionDefinitions.ForwardSlowCap - 1, 0);
-                body.SpeedPhase = 1;
+                body.FigureEightStage = PhantoonFigureEightStage.Surging;
             }
             return;
         }
 
-        if ((body.SpeedPhase & 1) != 0)
+        if (body.FigureEightStage == PhantoonFigureEightStage.Surging)
         {
             ChangePhantoonSpeed(
                 body,
@@ -128,7 +128,7 @@ internal sealed class PhantoonPatterns
             if (body.FigureEightSpeed.WholePixels >= PhantoonMotionDefinitions.ForwardFastCap)
             {
                 body.FigureEightSpeed = SignedSixteenSixteen.FromParts(PhantoonMotionDefinitions.ForwardFastCap, 0);
-                body.SpeedPhase = WrappingCounter.IncrementCount(body.SpeedPhase);
+                body.FigureEightStage = PhantoonFigureEightStage.Settling;
             }
             return;
         }
@@ -141,14 +141,14 @@ internal sealed class PhantoonPatterns
         if (body.FigureEightSpeed.WholePixels <= minimum)
         {
             body.FigureEightSpeed = SignedSixteenSixteen.FromParts(minimum + 1, 0);
-            body.SpeedPhase = 0;
+            body.FigureEightStage = PhantoonFigureEightStage.EasingIn;
         }
     }
 
     /// <summary>Changes horizontal velocity over the returning half of a figure-eight.</summary>
     internal static void AdjustPhantoonReverseFigureEightSpeed(PhantoonBodyState body)
     {
-        if (body.SpeedPhase == 0)
+        if (body.FigureEightStage == PhantoonFigureEightStage.EasingIn)
         {
             ChangePhantoonSpeed(
                 body,
@@ -158,12 +158,12 @@ internal sealed class PhantoonPatterns
             if (body.FigureEightSpeed.WholePixels <= cap)
             {
                 body.FigureEightSpeed = SignedSixteenSixteen.FromParts(cap + 2, 0);
-                body.SpeedPhase = 1;
+                body.FigureEightStage = PhantoonFigureEightStage.Surging;
             }
             return;
         }
 
-        if ((body.SpeedPhase & 1) != 0)
+        if (body.FigureEightStage == PhantoonFigureEightStage.Surging)
         {
             ChangePhantoonSpeed(
                 body,
@@ -173,7 +173,7 @@ internal sealed class PhantoonPatterns
             if (body.FigureEightSpeed.WholePixels <= cap)
             {
                 body.FigureEightSpeed = SignedSixteenSixteen.FromParts(cap + 1, 0);
-                body.SpeedPhase = WrappingCounter.IncrementCount(body.SpeedPhase);
+                body.FigureEightStage = PhantoonFigureEightStage.Settling;
             }
             return;
         }
@@ -186,7 +186,7 @@ internal sealed class PhantoonPatterns
         if (body.FigureEightSpeed.WholePixels >= maximum)
         {
             body.FigureEightSpeed = SignedSixteenSixteen.FromParts(maximum, 0);
-            body.SpeedPhase = 0;
+            body.FigureEightStage = PhantoonFigureEightStage.EasingIn;
         }
     }
 
@@ -682,7 +682,7 @@ internal sealed class PhantoonPatterns
             if (!state.EyeState.FigureEightReversed)
                 state.BodyState.PathCursor = state.BodyState.PathCursor == 0 ? 533 : state.BodyState.PathCursor - 1;
             state.BodyState.FigureEightSpeed = SignedSixteenSixteen.Zero;
-            state.BodyState.SpeedPhase = 0;
+            state.BodyState.FigureEightStage = PhantoonFigureEightStage.EasingIn;
             state.EyeState.FigureEightReversed = true;
         }
         else
@@ -690,7 +690,7 @@ internal sealed class PhantoonPatterns
             if (state.EyeState.FigureEightReversed)
                 state.BodyState.PathCursor = state.BodyState.PathCursor >= 533 ? 0 : state.BodyState.PathCursor + 1;
             state.BodyState.FigureEightSpeed = SignedSixteenSixteen.FromParts(1, 0);
-            state.BodyState.SpeedPhase = 0;
+            state.BodyState.FigureEightStage = PhantoonFigureEightStage.EasingIn;
             state.EyeState.FigureEightReversed = false;
         }
 

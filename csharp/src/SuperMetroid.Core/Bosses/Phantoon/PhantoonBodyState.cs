@@ -32,9 +32,8 @@ public sealed class PhantoonBodyState
     /// </summary>
     public SignedSixteenSixteen FigureEightSpeed { get; internal set; }
 
-    /// <summary>The body's figure-eight speed phase.</summary>
-    [IntegerQuantity("counter the figure-eight advances through its speed steps")]
-    public int SpeedPhase { get; internal set => field = Ensure.AtLeastZero(value); }
+    /// <summary>The stage of the figure-eight's speed change the body is in.</summary>
+    public PhantoonFigureEightStage FigureEightStage { get; internal set; }
 
     /// <summary>The body's updates before its current function moves on.</summary>
     public int FunctionTimer { get; internal set; }

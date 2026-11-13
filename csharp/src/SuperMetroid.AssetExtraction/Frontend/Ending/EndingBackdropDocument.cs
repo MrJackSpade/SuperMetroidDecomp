@@ -8,9 +8,6 @@ public sealed record EndingBackdropDocument
     /// <summary>Schema revision; loading requires <see cref="EndingBackdropFiles.Version"/>.</summary>
     public required int Version { get; init; }
 
-    /// <summary>The cartridge the backdrops were imported from.</summary>
-    public required string SourceCartridgeSha256 { get; init; }
-
     /// <summary>The escape scenes' backdrop.</summary>
     public required PaletteRgb5 Escape { get; init; }
 

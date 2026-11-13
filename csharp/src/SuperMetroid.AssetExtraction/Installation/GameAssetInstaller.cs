@@ -315,7 +315,7 @@ public static class GameAssetInstaller
         new(GameInstallationLayout.EndingObjectDirectoryName,
             Step("Extracting ending object artwork...", (bus, d) => EndingObjectArtworkFiles.Extract(bus, d, SupportedCartridge.Sha256))),
         new(GameInstallationLayout.EndingBackdropDirectoryName,
-            Step("Extracting ending backdrops...", (bus, d) => EndingBackdropFiles.Extract(bus, d, SupportedCartridge.Sha256))),
+            Step("Extracting ending backdrops...", (bus, d) => EndingBackdropFiles.Extract(bus, d))),
         new(GameInstallationLayout.RoomPaletteDirectoryName,
             Step("Extracting room base palettes...", (bus, d) => RoomStaticPaletteArtworkFiles.Extract(bus, d, SupportedCartridge.Sha256))),
         new(GameInstallationLayout.RoomMetatileDirectoryName,

@@ -6,8 +6,11 @@ namespace SuperMetroid.Rendering.Direct3D11.Frames;
 /// <summary>A layer pass's constants: what it draws and where, its scroll, the depth it draws, transparency, brightness, colour and line range (#633).</summary>
 internal sealed record D3D11TileDispatch
 {
-    /// <summary>Map.</summary>
-    public uint Map { get; init; } = 0;
+    /// <summary>
+    /// The room level word a pictured plane's or a picture grid's table starts at (#1467), as Tiles.hlsl's TableWord
+    /// reads it; zero for a pass that reads no table.
+    /// </summary>
+    public uint Table { get; init; } = 0;
 
 
     /// <summary>Scroll.</summary>

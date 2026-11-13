@@ -1,6 +1,6 @@
 namespace SuperMetroid.Desktop.Audio;
 
-/// <summary>Reopens a lost Windows endpoint without restarting emulation or replaying stale sound.</summary>
+/// <summary>Reopens a lost Windows endpoint without restarting the game or replaying stale sound.</summary>
 internal sealed class RecoveringAudioOutput : IHostAudioOutput
 {
     /// <summary>Factory used for initial endpoint creation and later reopen attempts.</summary>
@@ -67,7 +67,7 @@ internal sealed class RecoveringAudioOutput : IHostAudioOutput
         output = null;
         retryAt = clock() + WaveOutAudioPolicy.DeviceReopenIntervalMilliseconds;
         if (!recovering)
-            Console.Error.WriteLine("Audio endpoint unavailable; gameplay/SPC continue, unheard PCM is discarded, and output will be retried once per second.");
+            Console.Error.WriteLine("Audio endpoint unavailable; gameplay and its sounds continue, unheard PCM is discarded, and output will be retried once per second.");
         recovering = true;
         // The worker must stop before reopening. Its original failure is also included
         // in Dispose's aggregate, so cleanup diagnostics must not block the retry.

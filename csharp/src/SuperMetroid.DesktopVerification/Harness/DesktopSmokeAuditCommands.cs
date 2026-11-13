@@ -122,8 +122,8 @@ internal static class DesktopSmokeAuditCommands
                 throw new ArgumentException("--frame-timing-audit does not accept additional arguments.");
             FrameTimingCounterSmokeTestResult result = FrameTimingCounterSmokeTest.Run();
             Console.WriteLine(
-                $"Frame timing passed: emulation {result.EmulatedFramesPerSecond:F1} fps, " +
-                $"step {result.AverageEmulationMilliseconds:F2}/{result.WorstEmulationMilliseconds:F2} ms, " +
+                $"Frame timing passed: {result.UpdatesPerSecond:F1} updates per second, " +
+                $"step {result.AverageUpdateMilliseconds:F2}/{result.WorstUpdateMilliseconds:F2} ms, " +
                 $"late {result.LateFrames:F1}.");
             return true;
         }

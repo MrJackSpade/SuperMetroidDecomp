@@ -6,12 +6,12 @@ namespace SuperMetroid.Desktop.Timing;
 /// <summary>
 /// Accumulates timing observations without allocating or consulting game state. All calls
 /// are made by the WinForms UI thread, so snapshots need no locks and cannot perturb the
-/// emulation worker with cross-thread synchronization.
+/// game's updates with cross-thread synchronization.
 /// </summary>
 public sealed class FrameTimingCounter
 {
     /// <summary>Optional owner-thread diagnostic observer; the normal host has no subscriber.</summary>
-    internal event Action<long>? EmulatedFrameMeasured;
+    internal event Action<long>? GameUpdateMeasured;
     /// <summary>Owner-thread observer for whole-run catch-up discards, independent of toolbar intervals.</summary>
     internal event Action<double>? LateFramesRecorded;
     /// <summary>Stopwatch ticks per second for converting observations to wall time.</summary>
@@ -20,12 +20,12 @@ public sealed class FrameTimingCounter
     private readonly long reportingIntervalTicks;
     /// <summary>Timestamp from which the current reporting interval is measured.</summary>
     private long intervalStarted;
-    /// <summary>Total host ticks spent translating frames in this interval.</summary>
-    private long emulationTicks;
-    /// <summary>Longest single frame translation in this interval.</summary>
-    private long worstEmulationTicks;
-    /// <summary>Completed translated frames in this interval.</summary>
-    private int emulatedFrames;
+    /// <summary>Total host ticks spent running game updates in this interval.</summary>
+    private long updateTicks;
+    /// <summary>Longest single game update in this interval.</summary>
+    private long worstUpdateTicks;
+    /// <summary>Completed game updates in this interval.</summary>
+    private int updates;
     /// <summary>Wall-clock frame equivalents discarded by bounded catch-up in this interval.</summary>
     private double lateFrames;
 
@@ -54,14 +54,14 @@ public sealed class FrameTimingCounter
         ClearObservations();
     }
 
-    /// <summary>Records the complete host cost of one translated video frame.</summary>
-    public void RecordEmulatedFrame(long elapsedTicks)
+    /// <summary>Records the complete host cost of one game update.</summary>
+    public void RecordGameUpdate(long elapsedTicks)
     {
         Ensure.AtLeastZero(elapsedTicks);
-        emulatedFrames++;
-        emulationTicks += elapsedTicks;
-        EmulatedFrameMeasured?.Invoke(elapsedTicks);
-        worstEmulationTicks = Math.Max(worstEmulationTicks, elapsedTicks);
+        updates++;
+        updateTicks += elapsedTicks;
+        GameUpdateMeasured?.Invoke(elapsedTicks);
+        worstUpdateTicks = Math.Max(worstUpdateTicks, elapsedTicks);
     }
 
     /// <summary>
@@ -90,9 +90,9 @@ public sealed class FrameTimingCounter
 
         double elapsedSeconds = (double)elapsedTicks / timestampFrequency;
         snapshot = new FrameTimingSnapshot(
-            emulatedFrames / elapsedSeconds,
-            ToAverageMilliseconds(emulationTicks, emulatedFrames),
-            ToMilliseconds(worstEmulationTicks),
+            updates / elapsedSeconds,
+            ToAverageMilliseconds(updateTicks, updates),
+            ToMilliseconds(worstUpdateTicks),
             lateFrames);
 
         intervalStarted = timestamp;
@@ -110,9 +110,9 @@ public sealed class FrameTimingCounter
     /// <summary>Clears interval counters while retaining the clock geometry and interval start.</summary>
     private void ClearObservations()
     {
-        emulationTicks = 0;
-        worstEmulationTicks = 0;
-        emulatedFrames = 0;
+        updateTicks = 0;
+        worstUpdateTicks = 0;
+        updates = 0;
         lateFrames = 0;
     }
 }

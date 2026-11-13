@@ -5,6 +5,7 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Map;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Saves;
 
@@ -100,9 +101,7 @@ public static class GameSaveJsonCodec
     private static GameSaveSlotJsonDocument CaptureSlot(SuperMetroidSaveSlot slot) => new()
     {
         Slot = slot.Slot,
-        Checkpoint = new SaveCheckpointJsonDocument(
-            AreaIds.FromIndex(Ensure.BetweenInclusive(0, byte.MaxValue, slot.Area), $"slot {slot.Slot} checkpoint"),
-            slot.SaveStation),
+        Checkpoint = new SaveCheckpointJsonDocument(slot.Checkpoint.Area, slot.Checkpoint.Number),
         Resources = new SaveResourcesJsonDocument(
             slot.Health,
             slot.MaxHealth,
@@ -199,11 +198,17 @@ public static class GameSaveJsonCodec
             GameTimeSeconds = slot.GameTime.Seconds,
             GameTimeMinutes = slot.GameTime.Minutes,
             GameTimeHours = slot.GameTime.Hours,
-            SaveStation = slot.Checkpoint.SaveStation,
-            Area = AreaIds.ToIndex(slot.Checkpoint.Area),
+            Checkpoint = Checkpoint(slot.Checkpoint, $"slots[{slot.Slot}].checkpoint"),
             Progress = DecodeProgression(slot.Progression, "progression"),
         };
     }
+
+    /// <summary>The load station a slot's checkpoint names by its area and its number in the area's station list.</summary>
+    /// <exception cref="InvalidDataException">The checkpoint names no load station.</exception>
+    private static LoadStation Checkpoint(SaveCheckpointJsonDocument checkpoint, string property) =>
+        Enum.IsDefined(checkpoint.Area)
+            ? LoadStations.Get(checkpoint.Area, checkpoint.SaveStation, property)
+            : throw new InvalidDataException($"{property}.area names no area");
 
     /// <summary>Requires a supported schema, valid selected slot, and exactly the game's slot count.</summary>
     private static void Validate(GameSaveJsonDocument document)
@@ -235,8 +240,7 @@ public static class GameSaveJsonCodec
         if (slot.Checkpoint is null || slot.Resources is null || slot.Inventory is null ||
             slot.GameTime is null || slot.Controller is null || slot.Progression is null)
             throw new InvalidDataException($"slots[{expectedSlot}] is missing a required domain object");
-        _ = AreaIds.ToIndex(slot.Checkpoint.Area);
-        RequireRange(slot.Checkpoint.SaveStation, SaveFieldValue.MaximumValue, expectedSlot, "checkpoint.saveStation");
+        _ = Checkpoint(slot.Checkpoint, $"slots[{expectedSlot}].checkpoint");
         if (!Enum.IsDefined(slot.ReserveMode))
             throw new InvalidDataException($"slots[{expectedSlot}].reserveMode names no reserve-tank mode");
         if (!Enum.IsDefined(slot.HudItem))

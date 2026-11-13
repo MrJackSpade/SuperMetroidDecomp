@@ -2,6 +2,7 @@ using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Runtime;
 
@@ -36,7 +37,7 @@ internal static class AutomaticCheckpointSaver
         runtime.System.LoadSavedStartupRoute(route);
         // Saving first stores the live explored map as Ceres's.
         runtime.System.StoredExploredMaps.StoreLiveMap(AreaId.Ceres);
-        saves.SaveSlot(slot, SuperMetroidSaveSnapshot.Capture(samus, runtime.System, new SaveSnapshotContext { Area = AreaId.Ceres, SaveStation = 0, GameTime = runtime.GameTime, ControllerBindings = runtime.Options.ControllerBindings, MoonwalkEnabled = runtime.Options.MoonwalkEnabled, IconCancelEnabled = runtime.Options.IconCancelEnabled, JapaneseText = runtime.JapaneseText }));
+        saves.SaveSlot(slot, SuperMetroidSaveSnapshot.Capture(samus, runtime.System, new SaveSnapshotContext { Checkpoint = LoadStationDefinitions.CeresElevator, GameTime = runtime.GameTime, ControllerBindings = runtime.Options.ControllerBindings, MoonwalkEnabled = runtime.Options.MoonwalkEnabled, IconCancelEnabled = runtime.Options.IconCancelEnabled, JapaneseText = runtime.JapaneseText }));
     }
 
     /// <summary>
@@ -61,12 +62,12 @@ internal static class AutomaticCheckpointSaver
         // station zero and saving the game. The marker controls ship/save-point display
         // after reload and therefore belongs inside the atomic checkpoint operation.
         runtime.System.LoadSavedStartupRoute(SaveLoadingGameState.MainGame);
-        runtime.System.MarkSaveStationUsed(area: AreaId.Crateria, stationBitIndex: 0);
+        runtime.System.MarkSaveStationUsed(area: LoadStationDefinitions.Gunship.Area, stationBitIndex: LoadStationDefinitions.Gunship.Number);
         // Saving first stores the live explored map as Crateria's.
         runtime.System.StoredExploredMaps.StoreLiveMap(AreaId.Crateria);
         saves.SaveSlot(
             selectedSaveSlot,
-            SuperMetroidSaveSnapshot.Capture(samus, runtime.System, new SaveSnapshotContext { Area = 0, SaveStation = 0, GameTime = runtime.GameTime, ControllerBindings = runtime.Options.ControllerBindings, MoonwalkEnabled = runtime.Options.MoonwalkEnabled, IconCancelEnabled = runtime.Options.IconCancelEnabled, JapaneseText = runtime.JapaneseText }));
+            SuperMetroidSaveSnapshot.Capture(samus, runtime.System, new SaveSnapshotContext { Checkpoint = LoadStationDefinitions.Gunship, GameTime = runtime.GameTime, ControllerBindings = runtime.Options.ControllerBindings, MoonwalkEnabled = runtime.Options.MoonwalkEnabled, IconCancelEnabled = runtime.Options.IconCancelEnabled, JapaneseText = runtime.JapaneseText }));
         return true;
     }
 }

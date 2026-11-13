@@ -2,6 +2,7 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Saves;
 
@@ -31,8 +32,7 @@ internal static class SaveSlotRetention
         int gameTimeMinutes = SaveFieldValue.Require(snapshot.GameTimeMinutes, nameof(snapshot.GameTimeMinutes));
         int gameTimeHours = SaveFieldValue.Require(snapshot.GameTimeHours, nameof(snapshot.GameTimeHours));
 
-        int saveStation = SaveFieldValue.Require(snapshot.SaveStation, nameof(snapshot.SaveStation));
-        int area = SaveFieldValue.Require(snapshot.Area, nameof(snapshot.Area));
+        LoadStation checkpoint = Ensure.NotNull(snapshot.Checkpoint);
         PersistentProgress progression = ExploredMapStorage.Retained(snapshot.Progress, maps);
 
         return new SuperMetroidSaveSlot(
@@ -59,8 +59,7 @@ internal static class SaveSlotRetention
             GameTimeHours: gameTimeHours,
             Progression: progression,
             StartupRoute: snapshot.StartupRoute,
-            SaveStation: saveStation,
-            Area: area)
+            Checkpoint: checkpoint)
         {
             ControllerBindings = bindings,
             MoonwalkEnabled = snapshot.MoonwalkEnabled,

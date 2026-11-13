@@ -2,12 +2,9 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Saves;
 
-/// <summary>A save load point expressed with typed area identity.</summary>
-/// <param name="Area">Retail world area that owns the load-station table.</param>
-/// <param name="SaveStation">
-/// Zero-based load-station index within <paramref name="Area"/>; a JSON number the codec accepts in
-/// <c>[0, <see cref="SaveFieldValue.MaximumValue"/>]</c>, the range the slot keeps.
-/// </param>
+/// <summary>The load station a save resumes at, as the save file names it.</summary>
+/// <param name="Area">The area whose station list holds the station.</param>
+/// <param name="SaveStation">The station's number in that list; the codec accepts only a number that names a load station.</param>
 public sealed record SaveCheckpointJsonDocument(
     AreaId Area,
     int SaveStation);

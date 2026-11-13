@@ -187,7 +187,7 @@ internal static class MapLoadAnchorsVerification
         void VerifyStationMenu(AreaId area, int station)
         {
             var saves = stationSaves;
-            var snapshot = new SuperMetroidSaveSnapshot { Area = (ushort)area, SaveStation = (ushort)station, Health = 99, MaxHealth = 99 };
+            var snapshot = new SuperMetroidSaveSnapshot { Checkpoint = SuperMetroid.Core.Rooms.RoomObjects.LoadStations.Get(area, station, "station menu fixture"), Health = 99, MaxHealth = 99 };
             snapshot.Progress.SetAreaMap(area, acquired: true);
             snapshot.Progress.UsedStations(area).Add(station);
             saves.SaveSlot(0, snapshot);

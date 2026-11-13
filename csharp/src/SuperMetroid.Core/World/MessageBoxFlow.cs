@@ -107,8 +107,9 @@ internal sealed class MessageBoxFlow
             _gunshipExitSoundRequested = true;
             if (accepted)
             {
-                _system.MarkSaveStationUsed(AreaId.Crateria, 0);
-                _completedSaveStation = new SaveStationPersistenceRequest(AreaId.Crateria, 0);
+                LoadStation gunship = LoadStationDefinitions.Gunship;
+                _system.MarkSaveStationUsed(gunship.Area, gunship.Number);
+                _completedSaveStation = new SaveStationPersistenceRequest(gunship);
             }
             return;
         }
@@ -133,9 +134,10 @@ internal sealed class MessageBoxFlow
                 _system.MarkSaveStationUsed(
                     saveStation.AreaIndex,
                     saveStation.SaveStationNumber & 7);
-                _completedSaveStation = new SaveStationPersistenceRequest(
+                _completedSaveStation = new SaveStationPersistenceRequest(LoadStations.Get(
                     saveStation.AreaIndex,
-                    saveStation.SaveStationNumber);
+                    saveStation.SaveStationNumber,
+                    "The save station's room object"));
             }
             return;
         }

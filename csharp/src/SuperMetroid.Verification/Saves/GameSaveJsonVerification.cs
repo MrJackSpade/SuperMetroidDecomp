@@ -59,7 +59,7 @@ internal static class GameSaveJsonVerification
         ControllerBindings bindings = ControllerBindings.Default.AssignAndSwap(
             action: ControllerAction.Shoot,
             physicalButton: ControllerButton.Y);
-        SuperMetroidSaveSnapshot snapshot = SuperMetroidSaveSnapshot.Capture(samus, system, new SaveSnapshotContext { Area = AreaId.Brinstar, SaveStation = 4, GameTime = time, ControllerBindings = bindings, MoonwalkEnabled = true, IconCancelEnabled = true });
+        SuperMetroidSaveSnapshot snapshot = SuperMetroidSaveSnapshot.Capture(samus, system, new SaveSnapshotContext { Checkpoint = SuperMetroid.Core.Rooms.RoomObjects.LoadStationDefinitions.RedBrinstarSave, GameTime = time, ControllerBindings = bindings, MoonwalkEnabled = true, IconCancelEnabled = true });
         saveRam.SaveSlot(1, snapshot);
 
         // The former preservation-only word is the native reserve-missile accumulator.
@@ -89,8 +89,7 @@ internal static class GameSaveJsonVerification
             "JSON save round trip rebuilds canonical SRAM from named state");
         SuperMetroidSaveSlot restoredSlot = restored.ReadSlot(1) ??
             throw new InvalidOperationException("JSON round trip lost slot 1.");
-        AssertEqual((ushort)AreaId.Brinstar, restoredSlot.Area, "JSON checkpoint area");
-        AssertEqual(4, restoredSlot.SaveStation, "JSON checkpoint station");
+        AssertTrue(ReferenceEquals(SuperMetroid.Core.Rooms.RoomObjects.LoadStationDefinitions.RedBrinstarSave, restoredSlot.Checkpoint), "JSON checkpoint station");
         AssertEqual(94, restoredSlot.Health, "JSON health");
         AssertEqual(15, restoredSlot.MaxMissiles, "JSON missile capacity");
         AssertTrue(restoredSlot.CollectedItems.HasAll(
@@ -235,7 +234,7 @@ internal static class GameSaveJsonVerification
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Health = 99, MaxHealth = 99, ReserveMissiles = 7 };
         var system = new SharedGameState(new SharedRandom()) { LoadedItemCount = ushort.MaxValue };
         SuperMetroidSaveSnapshot snapshot = SuperMetroidSaveSnapshot.Capture(samus, system,
-            new SaveSnapshotContext { Area = AreaId.Maridia, SaveStation = SaveFieldValue.MaximumValue }) with
+            new SaveSnapshotContext { Checkpoint = SuperMetroid.Core.Rooms.RoomObjects.LoadStationDefinitions.DraygonSave }) with
         {
             StartupRoute = SaveLoadingGameState.CeresDestruction,
             HudItem = HudItem.XRay,
@@ -250,7 +249,8 @@ internal static class GameSaveJsonVerification
         AssertEqual(HudItem.XRay, slot.HudItem, "JSON carries the last selection of the HUD ring");
         AssertEqual(ReserveTankMode.Manual, slot.ReserveMode, "JSON carries the manual reserve-tank mode");
         AssertEqual(SaveLoadingGameState.CeresDestruction, slot.StartupRoute, "JSON names the save's startup route");
-        AssertEqual(SaveFieldValue.MaximumValue, slot.Checkpoint.SaveStation, "JSON carries the largest load station");
+        AssertEqual(AreaId.Maridia, slot.Checkpoint.Area, "JSON names the checkpoint's area");
+        AssertEqual(3, slot.Checkpoint.SaveStation, "JSON numbers the checkpoint in its area's station list");
         AssertEqual(7, slot.Resources.ReserveMissiles, "JSON carries the reserve-missile count");
 
         string json = GameSaveJsonCodec.Serialize(document);
@@ -264,12 +264,13 @@ internal static class GameSaveJsonVerification
             : throw new InvalidOperationException($"The fixture JSON lacks {from}.");
         AssertInvalidJsonSave(Replaced("\"loadedItemCount\": 65535", "\"loadedItemCount\": 65536"), "loadedItemCount");
         AssertInvalidJsonSave(Replaced("\"hudItem\": \"xRay\"", "\"hudItem\": 5"), "hudItem");
+        AssertInvalidJsonSave(Replaced("\"saveStation\": 3", "\"saveStation\": 7"), "load station");
         AssertInvalidJsonSave(Replaced("\"reserveMode\": \"manual\"", "\"reserveMode\": \"overflow\""), "reserveMode");
         AssertInvalidJsonSave(Replaced("\"loadedItemCount\": 65535", "\"loadedItemCount\": 65535,\n      \"newFileMarker\": 1"), "newFileMarker");
         // Counts are signed words, which the cartridge drains below zero; only values outside the word are invalid.
         AssertInvalidJsonSave(Replaced("\"reserveMissiles\": 7", "\"reserveMissiles\": -32769"), "reserveMissiles");
         AssertInvalidJsonSave(Replaced("\"reserveMissiles\": 7", "\"reserveMissiles\": 32768"), "reserveMissiles");
-        Console.WriteLine("  JSON save numbers: full-range slot fields round-trip exactly; out-of-range numbers are rejected at parse.");
+        Console.WriteLine("  JSON save numbers: full-range slot fields round-trip exactly; out-of-range numbers and a checkpoint naming no load station are rejected at parse.");
     }
 
     /// <summary>Confirms malformed save JSON is rejected with a diagnostic naming the invalid field or value.</summary>

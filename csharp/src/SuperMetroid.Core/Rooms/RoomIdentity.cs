@@ -28,6 +28,6 @@ public readonly record struct RoomIdentity
     /// <summary>The room index, whose meaning is local to <see cref="Area"/>.</summary>
     public int RoomIndex { get; }
 
-    /// <summary>Formats the area/room pair for diagnostics.</summary>
-    public override string ToString() => $"${AreaIds.ToIndex(Area):X2}/${RoomIndex:X2}";
+    /// <summary>Names the area and the room's index within it for diagnostics.</summary>
+    public override string ToString() => $"{Area} room {RoomIndex}";
 }

@@ -30,7 +30,7 @@ internal sealed class ActiveRoomState
     internal RoomDoorBackground? DoorSourceBackground { get; set; }
 
     /// <summary>The load-station record that established the loading or loaded room; null for a room entered otherwise.</summary>
-    public LoadStationEntry? ActiveLoadStation => _construction is { } construction ? construction.LoadStation : Scope?.LoadStation;
+    public LoadStation? ActiveLoadStation => _construction is { } construction ? construction.LoadStation : Scope?.LoadStation;
 
     /// <summary>The completed scope of the loaded room, or null before the first load.</summary>
     internal RoomScope? Scope { get; private set; }
@@ -44,7 +44,7 @@ internal sealed class ActiveRoomState
     /// <summary>Starts building a room's scope; until <see cref="Adopt"/>, the room views below read its parts.</summary>
     /// <exception cref="InvalidOperationException">A load is already in progress.</exception>
     internal RoomScopeConstruction BeginConstruction(DoorDefinition door, SelectedRoom room, LoadedRoomAssets assets,
-        LoadStationEntry? loadStation)
+        LoadStation? loadStation)
     {
         if (_construction is not null)
             throw new InvalidOperationException("A room load is already building its scope.");

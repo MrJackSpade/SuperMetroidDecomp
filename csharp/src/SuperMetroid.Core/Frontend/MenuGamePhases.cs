@@ -225,7 +225,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
             StartSavedCeresDestruction(mapSlot);
             return;
         }
-        if (mapSlot.Area != AreaIds.ToIndex(AreaId.Ceres))
+        if (mapSlot.Checkpoint.Area != AreaId.Ceres)
         {
             if (session.ScreenAs<FileSelectMapMenuState>() is { LoadRequested: true })
             {

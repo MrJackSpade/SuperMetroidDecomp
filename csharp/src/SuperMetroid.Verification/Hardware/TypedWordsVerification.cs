@@ -641,7 +641,7 @@ internal static void VerifyTypedNativeWords()
         "named room identity combines area and per-area index");
     AssertTrue(crateriaRoom != brinstarRoom,
         "equal room bytes in different areas remain distinct");
-    AssertEqual("$00/$1C", crateriaRoom.ToString(),
+    AssertEqual("Crateria room 28", crateriaRoom.ToString(),
         "room identity diagnostic format");
     AssertThrows<ArgumentOutOfRangeException>(
         () => new RoomIdentity((AreaId)AreaIds.RetailCount, 0),

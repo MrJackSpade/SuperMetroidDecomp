@@ -18,5 +18,5 @@ internal readonly record struct RoomEntry
     public LoadedRoomAssets? PreloadedAssets { get; init; }
 
     /// <summary>The load-station record whose load establishes the room; null for a room entered otherwise.</summary>
-    public LoadStationEntry? LoadStation { get; init; }
+    public LoadStation? LoadStation { get; init; }
 }

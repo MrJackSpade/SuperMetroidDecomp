@@ -470,10 +470,10 @@ internal sealed class EndingCreditsState : IFrontendScreen
         if (!EscapeScenes.ExplosionFinaleDisplay) return CaptureExplosionBurst();
         DisplayLayer[] layers =
         [
-            Plane(EndingExplosionDisplayDefinitions.FinaleSubMap),
-            Plane(EndingExplosionDisplayDefinitions.FinaleMainMap),
-            new AddedPicturedPlaneLayer(ExplosionPlane(EndingExplosionDisplayDefinitions.FinaleSubMap)),
-            EndingCreditsPresentation.Sprites(this, EndingCreditsPresentation.CurrentEscapeObjectSheet(this), blend: SpriteBlend.Glows),
+            Plane(EndingExplosionDisplayDefinitions.FinaleGlow),
+            Plane(EndingExplosionDisplayDefinitions.FinaleExplosion),
+            new AddedPicturedPlaneLayer(ExplosionPlane(EndingExplosionDisplayDefinitions.FinaleGlow)),
+            EndingCreditsPresentation.Sprites(this, blend: SpriteBlend.Glows),
         ];
         return new(EndingCreditsPresentation.Paint(this), layers, Stage.Brightness);
 
@@ -493,16 +493,12 @@ internal sealed class EndingCreditsState : IFrontendScreen
         new([new PlacedPlanePicture(Picture(sheet, picture), Offset16<PlanePixels>.Zero, screen.Colours.SceneryShading(scenery))]);
 
     /// <summary>
-    /// The explosion's one-screen <paramref name="map"/> (#1467, #1515), its picture placed where the screen shows it: its
-    /// top <see cref="EndingExplosionDisplayDefinitions.MapRowsAboveScreen"/> lie above the screen's top, so the screen shows
-    /// the map from the row below its first.
+    /// The explosion's one-screen picture <paramref name="map"/> (#1467, #1515), placed whole at the screen's top-left: the
+    /// import pictures it as the screen shows it (#1626).
     /// </summary>
-    private PicturedPlane ExplosionPlane(EndingObjectFragmentId map)
-    {
-        var corner = new Offset16<PlanePixels>(0, -EndingExplosionDisplayDefinitions.MapRowsAboveScreen);
-        return new PicturedPlane([new PlacedPlanePicture(Picture(SpriteSheetId.EndingExplosionPictures,
-            EndingPictureNames.ExplosionMap(map)), corner, screen.Colours.SceneryShading(EndingScenery.ExplosionPictures))]);
-    }
+    private PicturedPlane ExplosionPlane(EndingObjectFragmentId map) =>
+        new([new PlacedPlanePicture(Picture(SpriteSheetId.EndingExplosionPictures, EndingPictureNames.ExplosionMap(map)),
+            Offset16<PlanePixels>.Zero, screen.Colours.SceneryShading(EndingScenery.ExplosionPictures))]);
 
     /// <summary>
     /// The wavy Samus's texture (#1555): its one-screen picture in the ending's colours (#1512), repeated across and down
@@ -553,13 +549,12 @@ internal sealed class EndingCreditsState : IFrontendScreen
     /// </summary>
     private LayeredScene CaptureExplosionBurst()
     {
-        EndingObjectSheet sheet = EndingCreditsPresentation.CurrentEscapeObjectSheet(this);
-        var planet = new PicturedPlaneLayer(ExplosionPlane(EndingExplosionDisplayDefinitions.InitialMap), Offset16<PlanePixels>.Zero);
-        SpritesLayer debris = EndingCreditsPresentation.Sprites(this, sheet, EndingSpriteLayer.Actors);
+        var planet = new PicturedPlaneLayer(ExplosionPlane(EndingExplosionDisplayDefinitions.PlanetExplosion), Offset16<PlanePixels>.Zero);
+        SpritesLayer debris = EndingCreditsPresentation.Sprites(this, EndingSpriteLayer.Actors);
         DisplayLayer[] layers =
         [
-            EndingCreditsPresentation.Sprites(this, sheet, EndingSpriteLayer.Stars), planet, debris,
-            new AddedPicturedPlaneLayer(ExplosionPlane(EndingExplosionDisplayDefinitions.BurstSubMap), planet, debris),
+            EndingCreditsPresentation.Sprites(this, EndingSpriteLayer.Stars), planet, debris,
+            new AddedPicturedPlaneLayer(ExplosionPlane(EndingExplosionDisplayDefinitions.BurstGlow), planet, debris),
         ];
         return new(EndingCreditsPresentation.Paint(this), layers, Stage.Brightness);
     }

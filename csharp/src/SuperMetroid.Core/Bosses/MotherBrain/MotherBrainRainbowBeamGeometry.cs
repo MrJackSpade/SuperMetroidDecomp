@@ -1,15 +1,13 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// Origin and edge description of Mother Brain's rainbow beam, resolved by the simulation
-/// and rasterized only on the render side.
+/// The cone of Mother Brain's rainbow beam: its apex at her mouth and its two edges, each an angle in 256ths of a turn
+/// measured as the beam aims, from straight down turning toward her right. The display draws whatever cone they describe.
 /// </summary>
-/// <param name="MouthScreenX">The window apex: the mouth's screen X, the head's room X plus fourteen less the camera's.</param>
-/// <param name="MouthY">The mouth's screen Y, the head's room Y plus five less the camera's, validated by the simulation to lie strictly inside the scanline work area.</param>
-/// <param name="EdgeA">Lower edge angle, 0 through 255: aim table index minus half the angular width, wrapped around the 256-unit turn.</param>
-/// <param name="EdgeB">Upper edge angle, 0 through 255: aim table index plus half the angular width, wrapped around the 256-unit turn.</param>
+/// <param name="Mouth">The cone's apex: the mouth's room position, fourteen pixels right of the head and five below.</param>
+/// <param name="LowerEdge">The edge half the beam's width short of its aim, 0 through 255, wrapped around the turn.</param>
+/// <param name="UpperEdge">The edge half the beam's width past its aim, 0 through 255, wrapped around the turn.</param>
 public readonly record struct MotherBrainRainbowBeamGeometry(
-    int MouthScreenX,
-    int MouthY,
-    int EdgeA,
-    int EdgeB);
+    Position16<RoomPixels> Mouth,
+    int LowerEdge,
+    int UpperEdge);

@@ -19,8 +19,7 @@ namespace SuperMetroid.Verification.Frontend.Pause;
 internal static class PauseHudPlaneVerification
 {
     /// <summary>
-    /// The HUD gameplay latched reaches pause's four retained HUD rows at entry; a later latched HUD replaces only the
-    /// three drawn rows, keeping the static top row.
+    /// The HUD gameplay latched reaches pause's four HUD rows at entry; a later latched HUD replaces it whole.
     /// </summary>
     internal static void VerifyPauseHudFromLayer3Plane()
     {
@@ -34,12 +33,9 @@ internal static class PauseHudPlaneVerification
 
         ShownHud accepted = Hud(7);
         pause.SynchronizeAcceptedHud(accepted);
-        ushort[] shown = HudWords(pause);
-        AssertTrue(shown[..FxOverlayPlaneConstants.Columns].SequenceEqual(HudWords(pause, entered)[..FxOverlayPlaneConstants.Columns]),
-            "the static top row stays as pause entered");
-        AssertTrue(shown[FxOverlayPlaneConstants.Columns..].SequenceEqual(HudWords(pause, accepted)[FxOverlayPlaneConstants.Columns..]),
-            "the three drawn rows mirror the latched HUD");
-        Console.WriteLine("  Pause HUD: entry and accepted HUD rows come from the HUD gameplay latched.");
+        AssertTrue(ReferenceEquals(accepted, pause.screen.Hud), "pause shows the HUD gameplay latched since, whole (#1626)");
+        AssertTrue(HudWords(pause).SequenceEqual(HudWords(pause, accepted)), "pause's four HUD rows are the latched HUD's");
+        Console.WriteLine("  Pause HUD: entry and accepted HUDs are the HUD gameplay latched.");
     }
 
     /// <summary>The four HUD rows' words.</summary>

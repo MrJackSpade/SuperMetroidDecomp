@@ -81,7 +81,7 @@ internal static class EndingCloudPlacementVerification
             var actual = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
             RgbColor[] actualColours = EndingShownColours.Of(ending);
             int objectSelection = SuperMetroid.AssetExtraction.Frontend.Ending.EndingSheetObjectSelectionDefinitions.Of(
-                EndingCreditsPresentation.CurrentEscapeObjectSheet(ending));
+                EndingSpriteSheets.Clouds);
             byte[] nativeVram = ending.ShownVram();
             nativeCloudCharacters.CopyTo(nativeVram.AsSpan(
                 SuperMetroid.AssetExtraction.Artwork.ObjCharacterImage.ResolveTileByteAddress(0, objectSelection)));

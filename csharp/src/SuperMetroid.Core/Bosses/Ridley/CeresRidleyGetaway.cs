@@ -149,23 +149,22 @@ internal sealed class CeresRidleyGetaway
         UpdateCeresRidleyFloorZoomColours(state, zoom);
         state.FloorAngle += CeresRidleyGetawayDefinitions.TurnPerFrame;
 
-        // The Baby capsule advances on every fourth frame of the frame counter using 0,1,2,1. Only the
-        // floor's two rows that show that animation are redrawn.
+        // The Baby capsule advances on every fourth frame of the frame counter using 0,1,2,1.
         if (RidleyCadenceDefinitions.GetawayCapsuleStepEveryFourthUpdate.IsDue(frameCounter))
         {
             state.GetawayBabyFrame = (state.GetawayBabyFrame + 1) % 4;
-            _room.Services.DrawFloor(CeresFloorAnimation.BabyFrameForPhase(state.GetawayBabyFrame));
+            _room.Services.ShowFloorFrame(CeresFloorAnimation.BabyFrameForPhase(state.GetawayBabyFrame));
         }
 
-        // The six sparse wing rows alternate on every eighth frame of the frame counter. Each wing frame's floor
-        // update leaves behind the delays Samus's unauthored Speed Booster cadence runs on from then on.
+        // The wings beat on every eighth frame of the frame counter. Each wing frame leaves behind the delays
+        // Samus's unauthored Speed Booster cadence runs on from then on.
         if (RidleyCadenceDefinitions.GetawayWingStepEveryEighthUpdate.IsDue(frameCounter))
         {
             state.GetawayWingFrame = (state.GetawayWingFrame + 1) % 2;
             CeresFloorAnimationFrame wing = state.GetawayWingFrame == 0
                 ? CeresFloorAnimationFrame.WingFrame0
                 : CeresFloorAnimationFrame.WingFrame1;
-            _room.Services.DrawFloor(wing);
+            _room.Services.ShowFloorFrame(wing);
             CeresRidleyGetawayBoostDelays delays = _bossArtwork.CeresRidleyGetawayBoostDelays ?? throw new InvalidOperationException(
                 "The Ceres Ridley getaway requires the installed delays its wing frames leave behind.");
             _unauthoredBoostCadence.TakeDelaysLeftByWings(delays.LeftBy(wing));
@@ -202,7 +201,7 @@ internal sealed class CeresRidleyGetaway
     /// Runs the shared Ridley function for the Ceres branch: the warning runs through its phases
     /// (<see cref="CeresSelfDestructPhase"/>) in order. English skips
     /// only the Japanese subtitle phase and types the game's three-line English warning. Japanese runs the
-    /// subtitle phase first, installs its subtitle tilemap, and then uses the same typewriter.
+    /// subtitle phase first, shows its subtitle, and then uses the same typewriter.
     /// </summary>
     internal void TickCeresRidleySelfDestruct(RidleyEnemyState state)
     {

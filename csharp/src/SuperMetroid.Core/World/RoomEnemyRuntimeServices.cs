@@ -82,9 +82,9 @@ internal sealed class RoomEnemyRuntimeServices(
     public void IncrementGlassRoomArgument() => roomObjects.MotherBrainGlass.IncrementMotherBrainGlassRoomArgument();
 
     /// <inheritdoc />
-    public void DrawFloor(CeresFloorAnimationFrame frame) =>
-        (room.LoadedScope.Floor ?? throw new InvalidOperationException("Only a room that shows a turning floor has one to draw over."))
-            .Draw(frame);
+    public void ShowFloorFrame(CeresFloorAnimationFrame frame) =>
+        (room.LoadedScope.Floor ?? throw new InvalidOperationException("Only a room that shows a turning floor has its parts to animate."))
+            .Show(frame);
 
     /// <summary>Checks whether a requested Bomb Torizo hand room-object header remains active.</summary>
     public bool BombTorizoHandRemains => roomObjects.BombTorizoHand.HandRemains;

@@ -848,8 +848,7 @@ internal static class LookupStream4Verification
         var state = new RidleyEnemyState { GetawayFrameIndex = 1 };
         byte[] untouched = new byte[SnesVram.ByteCount];
         Array.Fill(untouched, (byte)0x5a);
-        CeresFloorAnimationFrame[] capsulePictures = [CeresFloorAnimationFrame.BabyFrame0, CeresFloorAnimationFrame.BabyFrame1, CeresFloorAnimationFrame.BabyFrame2];
-        CeresFloorAnimationFrame? Capsule() => map.Drawn.Where(capsulePictures.Contains).Cast<CeresFloorAnimationFrame?>().SingleOrDefault();
+        CeresFloorAnimationFrame? Capsule() => map.Shown.TryGetValue(CeresFloorPart.BabyCapsule, out CeresFloorAnimationFrame capsule) ? capsule : null;
         int expectedPhase = 0;
         for (ushort nmi = 0; nmi < 16; nmi++)
         {

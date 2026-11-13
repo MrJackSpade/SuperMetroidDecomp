@@ -32,16 +32,6 @@ public sealed class ShownHud
     public ImmutableArray<PlacedHudImage> Images { get; }
 
     /// <summary>
-    /// This HUD's static top row with <paramref name="drawn"/>'s drawn rows: what a screen keeping this HUD resident shows
-    /// once it mirrors the rows gameplay draws again, leaving the top row it kept.
-    /// </summary>
-    /// <param name="drawn">The HUD gameplay shows now.</param>
-    public ShownHud WithDrawnRowsOf(ShownHud drawn) => new([
-        .. Images.Where(InTopRow),
-        .. Ensure.NotNull(drawn).Images.Where(placed => !InTopRow(placed)),
-    ]);
-
-    /// <summary>
     /// The HUD as the backend draws it: each placed image's installed picture at the screen pixel its corner shows at, in
     /// drawing order (#1466, #1514).
     /// </summary>
@@ -53,7 +43,4 @@ public sealed class ShownHud
         Ensure.NotNull(pictureOf);
         return new PicturedHud([.. Images.Select(placed => new PlacedHudPicture(pictureOf(placed.Image), placed.Corner, shading))]);
     }
-
-    /// <summary>Whether <paramref name="placed"/> stands in the static top row rather than the band the values are drawn over.</summary>
-    private static bool InTopRow(PlacedHudImage placed) => placed.Corner.Y < GameplayHudDefinitions.TopRowHeightPixels;
 }

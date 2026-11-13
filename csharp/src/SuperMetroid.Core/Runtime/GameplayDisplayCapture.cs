@@ -36,10 +36,9 @@ public static class GameplayDisplayCapture
             layers[0] = CaptureFirefleaDarkness(FirefleaTint(latched), basis);
         if (!doorOwnsDisplay)
         {
-            // The rainbow beam's blend hides the effect overlay. Its fixed
-            // color window replaces room liquid/fog blending while the beam owns the per-line effects.
+            // While the rainbow beam shows, its added colour takes the place of the room effect's overlay and blend.
             MotherBrainRainbowBeamRenderSnapshot? rainbow = RainbowBeam(frame);
-            if (rainbow?.Active != true && latched.RoomFxOverlay is { } fx)
+            if (rainbow is null && latched.RoomFxOverlay is { } fx)
             {
                 // An effect whose overlay lies behind the room blends the room with it; one lying over the room is drawn
                 // over the finished scene (#1545).
@@ -57,7 +56,7 @@ public static class GameplayDisplayCapture
             if (latched.MorphBallEyeBeam is { } eye)
                 AddLayer(GameplayEffectCapture.CaptureMorphBallEyeBeam(eye, scrolls.ForegroundPosition));
             if (rainbow is { } beam)
-                AddLayer(GameplayEffectCapture.CaptureMotherBrainRainbowBeam(beam));
+                AddLayer(GameplayEffectCapture.CaptureMotherBrainRainbowBeam(beam, scrolls.ForegroundPosition));
         }
         // Preserve the reference ordering, including the effects which remain enabled
         // during the door's scroll. Message glyphs precede the suit's final color window.
@@ -168,12 +167,11 @@ public static class GameplayDisplayCapture
     internal static ScrollBands? SkyHorizontalScrolls(GameplayFrameEndDisplayInputs live, RoomShakeFrameResult shake) =>
         live.ScrollingSky is { } sky ? SkyBandScrolls.Of(sky, shake.Background.X) : null;
 
-    /// <summary>The rainbow beam's live window description drawn in the colour the accepted frame latched.</summary>
+    /// <summary>The shown rainbow beam's cone in the colour the accepted frame latched, or null while it is hidden.</summary>
     internal static MotherBrainRainbowBeamRenderSnapshot? RainbowBeam(GameplayDisplayFrame frame)
     {
-        MotherBrainRainbowBeamRenderSnapshot? beam = frame.FrameEnd.RainbowBeam;
-        if (beam is not { Active: true } active) return beam;
-        return active with
+        if (frame.FrameEnd.RainbowBeam is not { } shown) return null;
+        return shown with
         {
             Color = frame.Latched.Tints.RainbowBeam
                 ?? throw new InvalidOperationException("An active rainbow beam has no latched colour."),

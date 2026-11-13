@@ -101,33 +101,25 @@ internal sealed class PauseScreen
     private HudPictures HudPictures { get => field ??= new HudPictures(Sheets.Get(SpriteSheetId.PauseHud)); set; }
 
     /// <summary>
-    /// The gameplay HUD pause keeps resident (#1351, #1466): pause never replaces the HUD gameplay showed, and mirrors the
-    /// rows gameplay draws while it opens and closes.
+    /// The gameplay HUD pause shows (#1351, #1466, #1626): the HUD gameplay displayed at its last accepted frame, whole.
     /// </summary>
     public ShownHud Hud { get; private set; } = ShownHud.Nothing;
 
-    /// <summary>The retained HUD's pictures last resolved, while neither the HUD nor the sheets have changed.</summary>
+    /// <summary>The shown HUD's pictures last resolved, while neither the HUD nor the sheets have changed.</summary>
     private PicturedHud? pictured;
 
-    /// <summary>Keeps <paramref name="gameplay"/>, the HUD gameplay displayed at its last frame, resident.</summary>
-    internal void RetainHud(ShownHud gameplay)
+    /// <summary>Shows <paramref name="gameplay"/>, the HUD gameplay displayed at its last accepted frame.</summary>
+    internal void ShowHud(ShownHud gameplay)
     {
         Hud = Ensure.NotNull(gameplay);
         pictured = null;
     }
 
-    /// <summary>Mirrors the rows <paramref name="gameplay"/> draws, keeping the static top row pause retained.</summary>
-    internal void MirrorAcceptedHud(ShownHud gameplay)
-    {
-        Hud = Hud.WithDrawnRowsOf(gameplay);
-        pictured = null;
-    }
-
     /// <summary>
-    /// The HUD pause shows (#1466): the retained HUD's images under the pause palette, drawn on the HUD's own layer. The
+    /// The HUD pause shows (#1466): the shown HUD's images under the pause palette, drawn on the HUD's own layer. The
     /// cleared cells the pause leaves beneath and around the HUD show nothing, so pause draws none.
     /// </summary>
-    internal PicturedHud RetainedHudPictures() => pictured ??= HudPictures.Pictured(Hud, PictureShading.Standard);
+    internal PicturedHud ShownHudPictures() => pictured ??= HudPictures.Pictured(Hud, PictureShading.Standard);
 
     /// <summary>The installed artwork the screen draws.</summary>
     [AllowNull]

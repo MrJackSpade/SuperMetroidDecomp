@@ -17,12 +17,13 @@ using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 /// <summary>Checks Mother Brain's rainbow beam cone, colour cycling, and captured render data.</summary>
 internal static class MotherBrainBeamWindowVerification
 {
-    /// <summary>Checks apex geometry, HUD exclusion, native color stride, quadrant signs, and paint purity.</summary>
+    /// <summary>
+    /// Checks the cone the beam publishes (#1626): its apex at the mouth in the room, its two edges either side of its
+    /// aim, placed against the frame's camera below the HUD and drawn whichever way it points; and its colour cycle.
+    /// </summary>
     internal static void VerifyMotherBrainBeamWindow()
     {
         AssertOwnsNoScanlineTable(typeof(MotherBrainRainbowBeamEffect));
-        // A native 64-angle-wide beam selects gradients 32/96, both exactly 1.
-        // This retains the indirect-run/carry fixture without replacing engine lookup data.
         var paletteDocument = RequiredJson.Parse(File.ReadAllText(Path.Combine(
             RepositoryInstallation.Installation.MapDirectory, MotherBrainRainbowPaletteFile.FileName)));
         var cycle = new JsonArray();
@@ -33,25 +34,21 @@ internal static class MotherBrainBeamWindowVerification
         MotherBrainRainbowPalettePresentation installedColours = MotherBrainRainbowPaletteFile.Read(new MemoryStream(
             System.Text.Encoding.UTF8.GetBytes(paletteDocument.ToJsonString()))).Beam;
         var beam = new MotherBrainRainbowBeamEffect { PresentationColors = installedColours };
-        AssertTrue(beam.Geometry is null, "no geometry is published before the first build");
-        AssertEqual(ScreenWindow.Closed, (GameplayEffectCapture.CaptureMotherBrainRainbowBeam(
-                new MotherBrainRainbowBeamRenderSnapshot(true, RgbColor.Black, null))
-                ?? throw new InvalidOperationException("An active beam captures its window.")).Window,
-            "a missing geometry lights nothing");
-        void Step() => beam.Step(true, new(100, 95), RotationAngle.QuarterTurn, Width(64), default);
+        AssertTrue(beam.RenderSnapshot is null, "the beam shows nothing before it first aims");
+        void Step() => beam.Step(true, new(100, 95), RotationAngle.QuarterTurn, Width(64));
         Step();
-        AssertEqual(installedColours.BeamInitialColor, beam.Color, "beam first frame uses E767 fixed color");
-        AssertEqual(new MotherBrainRainbowBeamGeometry(114, 100, 32, 96),
-            beam.Geometry, "right beam publishes the low-byte mouth X, mouth Y and both wrapped edges");
+        AssertEqual(installedColours.BeamInitialColor, beam.Color, "the beam's first update shows its initial colour");
+        AssertEqual(new MotherBrainRainbowBeamGeometry(new(114, 100), 32, 96),
+            beam.Geometry, "the beam publishes the mouth's room position and both wrapped edges");
         // The beam's edges are measured from straight down: 32 and 96 reflect to the screen's 96 and 32, a cone from
         // up-right to down-right of the mouth, below the HUD (#1468).
-        AssertEqual(ScreenWindow.Of(new WindowCone(Offset16<ScreenPixels>.Of(114, 100), 32, 96), MotherBrainBeamDefinitions.FirstLine),
-            Cone(beam.RenderSnapshot), "right beam is a cone from the mouth between its reflected edges");
-        RgbaPixel[] drawn = Draw(beam.RenderSnapshot);
+        AssertEqual(ScreenWindow.Of(new WindowCone(Offset16<ScreenPixels>.Of(114, 100), 32, 96), DisplayScreen.HudHeight),
+            Cone(beam), "right beam is a cone from the mouth between its reflected edges");
+        RgbaPixel[] drawn = Draw(Cone(beam));
         int[] upperApex = LitColumns(drawn, 99);
         AssertTrue(upperApex.Length != 0 && upperApex[0] is >= 114 and <= 116 && upperApex[^1] == 255,
             "the line above the mouth lights from beside the mouth to the screen's right edge");
-        AssertTrue(Enumerable.Range(0, MotherBrainBeamDefinitions.FirstLine).All(line => LitColumns(drawn, line).Length == 0),
+        AssertTrue(Enumerable.Range(0, DisplayScreen.HudHeight).All(line => LitColumns(drawn, line).Length == 0),
             "rainbow beam misses the HUD");
         Step();
         AssertEqual(31, beam.Color, "first cycling frame reads entry zero");
@@ -66,77 +63,72 @@ internal static class MotherBrainBeamWindowVerification
                 "beam advances one cycle colour per update");
         }
         Step();
-        AssertEqual(31, beam.Color, "negative terminator selects entry zero");
-        AssertEqual(0, beam.ColorIndex, "reset frame does not increment the cycle colour");
+        AssertEqual(31, beam.Color, "the cycle's end shows colour zero");
+        AssertEqual(0, beam.ColorIndex, "the update that restarts the cycle does not advance it");
         Step();
-        AssertEqual(31, beam.Color, "entry zero repeats after wrap as in E7F5");
-        MotherBrainRainbowBeamRenderSnapshot snapshot = beam.RenderSnapshot;
-        AssertEqual(new MotherBrainRainbowBeamRenderSnapshot(true, beam.Color, beam.Geometry), snapshot,
-            "render snapshot carries the active flag, color and geometry by value");
-        var capture = GameplayEffectCapture.CaptureMotherBrainRainbowBeam(snapshot)
-            ?? throw new InvalidOperationException("Verification requires capture.");
-        AssertEqual(snapshot.Color, capture.Colour, "shared render packet adds the beam's native colour");
-        AssertEqual(Cone(snapshot), capture.Window, "shared render packet includes the beam's cone");
+        AssertEqual(31, beam.Color, "colour zero repeats after the restart");
+        MotherBrainRainbowBeamRenderSnapshot snapshot = beam.RenderSnapshot
+            ?? throw new InvalidOperationException("The shown beam publishes its cone.");
+        AssertEqual(new MotherBrainRainbowBeamRenderSnapshot(beam.Color, new(new(114, 100), 32, 96)), snapshot,
+            "the shown beam publishes its colour and cone by value");
+        ColourAddWindowLayer capture = GameplayEffectCapture.CaptureMotherBrainRainbowBeam(snapshot, default);
+        AssertEqual(snapshot.Color, capture.Colour, "the captured layer adds the beam's colour");
         int cursor = beam.ColorIndex;
-        _ = GameplayEffectCapture.CaptureMotherBrainRainbowBeam(beam.RenderSnapshot);
+        _ = GameplayEffectCapture.CaptureMotherBrainRainbowBeam(snapshot, default);
         AssertEqual(cursor, beam.ColorIndex, "repainting cannot advance beam simulation");
-        beam.Step(false, new(0, 0), default, RotationAngle.Zero, default);
-        AssertTrue(GameplayEffectCapture.CaptureMotherBrainRainbowBeam(beam.RenderSnapshot) is null,
-            "deleted HDMA object emits no render layer");
-        AssertEqual(snapshot.Geometry, beam.Geometry, "deactivation keeps the last geometry");
+        beam.Step(false, new(0, 0), default, RotationAngle.Zero);
+        AssertTrue(beam.RenderSnapshot is null, "a hidden beam shows nothing");
         Step();
-        AssertEqual(installedColours.BeamInitialColor, beam.Color, "new attack resets HDMA color");
+        AssertEqual(installedColours.BeamInitialColor, beam.Color, "a new attack restarts the colour cycle");
         foreach (byte angle in new byte[] { 32, 96, 128, 160, 0, 224 })
         {
-            beam.Step(true, new(100, 95), RotationAngle.FromSteps(angle), Width(2), default);
+            beam.Step(true, new(100, 95), RotationAngle.FromSteps(angle), Width(2));
             bool up = angle is 96 or 128 or 160;
-            MotherBrainRainbowBeamGeometry geometry = beam.Geometry ?? throw new InvalidOperationException("The beam resolved its geometry.");
-            AssertEqual(ScreenWindow.Of(new WindowCone(Offset16<ScreenPixels>.Of(114, 100), 128 - geometry.EdgeB, 128 - geometry.EdgeA),
-                MotherBrainBeamDefinitions.FirstLine), Cone(beam.RenderSnapshot), $"quadrant {angle} reflects its edges into the cone's");
-            AssertEqual(0, LitColumns(Draw(beam.RenderSnapshot), up ? 101 : 98).Length,
+            MotherBrainRainbowBeamGeometry geometry = beam.Geometry ?? throw new InvalidOperationException("The beam aimed.");
+            AssertEqual(ScreenWindow.Of(new WindowCone(Offset16<ScreenPixels>.Of(114, 100), 128 - geometry.UpperEdge, 128 - geometry.LowerEdge),
+                DisplayScreen.HudHeight), Cone(beam), $"quadrant {angle} reflects its edges into the cone's");
+            AssertEqual(0, LitColumns(Draw(Cone(beam)), up ? 101 : 98).Length,
                 $"quadrant {angle} stays on its ray side of the mouth");
         }
-        MotherBrainRainbowBeamGeometry? retained = beam.Geometry;
-        beam.Step(true, new(100, 95), RotationAngle.ThreeQuarterTurn, Width(2), default);
-        AssertEqual(retained, beam.Geometry, "native left-axis RTS preserves prior geometry");
-        beam.Step(true, new(356, 95), RotationAngle.QuarterTurn, Width(64), new(256, 0));
-        AssertEqual(114, (beam.Geometry ?? throw new InvalidOperationException("Verification requires beam.Geometry.")).MouthScreenX, "the mouth lies on the screen at its room X less the camera's");
-        AssertEqual(ScreenWindow.Of(new WindowCone(Offset16<ScreenPixels>.Of(114, 100), 32, 96), MotherBrainBeamDefinitions.FirstLine),
-            Cone(beam.RenderSnapshot), "a scrolled camera places the cone like the unscrolled head");
-        AssertThrows<InvalidDataException>(() => beam.Step(true, new(100, 27), RotationAngle.QuarterTurn, Width(64), default),
-            "a mouth above the work area fails during the simulation update");
-        VerifyRetainedCones(beam.PresentationColors);
-        Console.WriteLine("  Mother Brain beam: cones from the mouth, HUD exclusion, retained geometry, color stride/reset and owned capture agree.");
+        VerifyLeftwardCone(beam);
+        beam.Step(true, new(356, 95), RotationAngle.QuarterTurn, Width(64));
+        AssertEqual(new Position16<RoomPixels>(370, 100), beam.Geometry?.Mouth, "the mouth stays where it lies in the room");
+        AssertEqual(ScreenWindow.Of(new WindowCone(Offset16<ScreenPixels>.Of(114, 100), 32, 96), DisplayScreen.HudHeight),
+            Cone(beam, new(256, 0)), "a scrolled camera places the cone like the unscrolled head");
+        Console.WriteLine("  Mother Brain beam: cones from the mouth in any direction, HUD exclusion, camera placement, color stride/reset and owned capture agree.");
     }
 
     /// <summary>
-    /// The geometry a left-straddling beam keeps is the cone drawn (#1468): in the same active run, and after the beam
-    /// is deactivated and starts a new attack.
+    /// A beam aimed across the leftward axis draws its own cone (#1626), never the cone an earlier aim drew: its edges
+    /// reflect into the screen's like any other aim and it lights the mouth's line toward the screen's left edge.
     /// </summary>
-    private static void VerifyRetainedCones(MotherBrainRainbowPalettePresentation colors)
+    private static void VerifyLeftwardCone(MotherBrainRainbowBeamEffect beam)
     {
-        var beam = new MotherBrainRainbowBeamEffect { PresentationColors = colors };
-        beam.Step(true, new(100, 95), RotationAngle.FromSteps(128), Width(32), default);
-        ScreenWindow up = Cone(beam.RenderSnapshot);
-        beam.Step(true, new(100, 95), RotationAngle.ThreeQuarterTurn, Width(2), default);
-        AssertEqual(up, Cone(beam.RenderSnapshot), "retain keeps the previous cone");
-        beam.Step(false, default, default, RotationAngle.Zero, default);
-        beam.Step(true, new(40, 150), RotationAngle.ThreeQuarterTurn, Width(2), default);
-        AssertEqual(up, Cone(beam.RenderSnapshot), "retain after reactivation still shows the cone from the earlier attack");
+        beam.Step(true, new(100, 95), RotationAngle.FromSteps(128), Width(32));
+        ScreenWindow up = Cone(beam);
+        beam.Step(true, new(100, 95), RotationAngle.ThreeQuarterTurn, Width(2));
+        AssertEqual(new MotherBrainRainbowBeamGeometry(new(114, 100), 191, 193), beam.Geometry,
+            "a leftward aim publishes its own edges");
+        AssertTrue(Cone(beam) != up, "a leftward aim does not keep the earlier cone");
+        AssertEqual(ScreenWindow.Of(new WindowCone(Offset16<ScreenPixels>.Of(114, 100), 128 - 193, 128 - 191), DisplayScreen.HudHeight),
+            Cone(beam), "a leftward aim reflects its edges into the cone's");
+        int[] mouthLine = LitColumns(Draw(Cone(beam)), 100);
+        AssertTrue(mouthLine.Length != 0 && mouthLine[0] == 0 && mouthLine[^1] <= 116,
+            "a leftward cone lights the mouth's line from the screen's left edge to the mouth");
     }
 
-    /// <summary>Native 8.8 angular-width word for a whole number of 256-unit-turn table units.</summary>
+    /// <summary>A whole number of 256-unit-turn angle units of the beam's width.</summary>
     private static RotationAngle Width(int steps) => RotationAngle.FromSteps(steps);
 
-    /// <summary>The window an active beam is captured with.</summary>
-    private static ScreenWindow Cone(MotherBrainRainbowBeamRenderSnapshot beam) =>
-        (GameplayEffectCapture.CaptureMotherBrainRainbowBeam(beam)
-            ?? throw new InvalidOperationException("An active beam captures its window.")).Window;
+    /// <summary>The window the shown beam is captured with, against <paramref name="camera"/>.</summary>
+    private static ScreenWindow Cone(MotherBrainRainbowBeamEffect beam, Position16<RoomPixels> camera = default) =>
+        GameplayEffectCapture.CaptureMotherBrainRainbowBeam(beam.RenderSnapshot
+            ?? throw new InvalidOperationException("The shown beam publishes its cone."), camera).Window;
 
-    /// <summary>The active beam over a black screen, in a fixed colour, as the display renderer draws it.</summary>
-    private static RgbaPixel[] Draw(MotherBrainRainbowBeamRenderSnapshot beam) =>
+    /// <summary>A window over a black screen, in a fixed colour, as the display renderer draws it.</summary>
+    private static RgbaPixel[] Draw(ScreenWindow window) =>
         DisplayRendering.Render(new LayeredScene(FramePaint.FromNative(new RgbColor[SnesCgram.ColorCount], []),
-            new DisplayLayer[] { new ColourAddWindowLayer(Cone(beam), new RgbColor(255, 255, 255)) }, DisplayBrightness.Full));
+            new DisplayLayer[] { new ColourAddWindowLayer(window, new RgbColor(255, 255, 255)) }, DisplayBrightness.Full));
 
     /// <summary>The columns a drawn line lights.</summary>
     private static int[] LitColumns(RgbaPixel[] drawn, int line) =>

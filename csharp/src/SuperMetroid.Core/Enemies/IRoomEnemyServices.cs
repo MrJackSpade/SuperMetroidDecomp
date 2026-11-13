@@ -26,6 +26,6 @@ public interface IRoomEnemyServices : IChozoStatueRoomServices, IMotherBrainRoom
     /// <summary>The active room-object population.</summary>
     IRoomObjectPresence RoomObjects { get; }
 
-    /// <summary>Draws <paramref name="frame"/>'s picture over the part of the room's turning floor it covers (#1349, #1467).</summary>
-    void DrawFloor(CeresFloorAnimationFrame frame);
+    /// <summary>Shows <paramref name="frame"/> on the part of the room's turning floor it animates (#1349, #1467, #1626).</summary>
+    void ShowFloorFrame(CeresFloorAnimationFrame frame);
 }

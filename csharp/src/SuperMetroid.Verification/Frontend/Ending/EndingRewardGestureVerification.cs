@@ -90,13 +90,13 @@ internal static class EndingRewardGestureVerification
                     firstMotion = true;
                 }
                 minimumY = Math.Min(minimumY, jump.BodyY);
-                if (!switched && jump.FallingSheetSelected)
+                if (!switched && jump.Falling)
                 {
-                    AssertTrue(jump.BodyY < -80, "native reward sheet switches only beyond the upper screen edge");
+                    AssertTrue(jump.BodyY < -80, "Samus falls back only once beyond the upper screen edge");
                     switched = true;
                 }
             }
-            AssertTrue(jump.ShotRequested && switched && firstMotion, "jump executes flight, sheet handoff, landing and shooting");
+            AssertTrue(jump.ShotRequested && switched && firstMotion, "jump executes flight, fall, landing and shooting");
             AssertEqual(136, jump.BodyY, "native reward landing center");
             Console.WriteLine($"  {reward}: jump/landing {jumpCalls} frames, apex {minimumY}, shot request.");
         }

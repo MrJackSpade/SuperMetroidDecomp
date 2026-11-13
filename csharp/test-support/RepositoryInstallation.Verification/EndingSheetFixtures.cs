@@ -61,14 +61,11 @@ internal static class EndingSheetFixtures
         SpriteSheetFileConstants.Load(tiles.Manifest,
             $"{SpriteSheetDefinitions.FileNames[sheet]}-fixture-{tag}", tiles.Size, tiles.Pixels, tiles.PaletteIndices);
 
-    /// <summary>
-    /// Draws <paramref name="family"/> from the sheet <paramref name="ending"/> draws <paramref name="objectSheet"/>'s page
-    /// from now, as its own frames draw it.
-    /// </summary>
-    internal static CinematicSpriteSheet Drawer(EndingCreditsState ending, EndingObjectSheet objectSheet, CinematicSpriteFamily family)
+    /// <summary>Draws <paramref name="family"/> from <paramref name="ending"/>'s sheet <paramref name="sheet"/>, as its own frames draw it.</summary>
+    internal static CinematicSpriteSheet Drawer(EndingCreditsState ending, SpriteSheetId sheet, CinematicSpriteFamily family)
     {
         ArgumentNullException.ThrowIfNull(ending);
-        return new CinematicSpriteSheet(ending.InstalledArtwork.SpriteSheet(EndingSpriteSheets.For(objectSheet, ending.Stage.EndingReward)), family);
+        return new CinematicSpriteSheet(ending.InstalledArtwork.SpriteSheet(sheet), family);
     }
 
     extension(EndingArtwork self)

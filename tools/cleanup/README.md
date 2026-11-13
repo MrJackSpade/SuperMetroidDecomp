@@ -198,12 +198,27 @@ every file with `expected/` as above, and builds the pruned copy. `holder-collis
 2026-11-13 failure at a7f8ec16e6: a moved instance member whose `<Owner>Access` class another test-support folder
 already declares (it is merged into), a moved static member whose `<Owner>Constants` name an instance class holds (the
 first free name, `<Owner>Constants2`, is used), and `inheritdoc` and `see` crefs to both, which follow them.
+`extension-block` holds the shape of the 2026-11-13 failure at 2390b2f3af: a whole extension block moves into a new
+`<Owner>Constants` class with no modifier on its header, the member it declared without one becomes internal, and the
+staying private members it reaches through its owner's name or through a receiver of the owner's other block become
+internal. `extension-block-merge` moves a block into an existing `<Owner>Constants` class that already declares a block
+for the same receiver. `holder-modifiers` holds the other modifiers the prune writes: a moved `protected internal` member
+becomes `internal`, a moved `new` member drops `new`, a struct's `readonly` instance members drop `readonly` as extension
+members, an internal property's private setter that moved code writes loses its modifier, and both parts of a partial
+method that moved code calls become internal.
 
 The prune puts an owner's moved members in the class its style names, in the owner's namespace, unless a project
 compiling the destination already knows that name. It then merges into that class when it is one static class (abstract,
 for an adapter of moved interfaces) that exactly the destination's projects compile, so the moved code sees what it would
 see in the destination and reaches no other project, and otherwise passes the name over for the next free one. A merge
-into a class that already declares a moved member fails the run.
+into a class that already declares a moved member fails the run; an extension block is compared member by member, under
+its receiver.
+
+Every modifier the prune writes is one its declaration takes (`RelocationModifiers` in
+`csharp/src/SuperMetroid.ReachabilityAudit/Removal`): a moved declaration, and a staying one moved code uses, become
+internal; an extension block, an explicit interface implementation and an operator keep their declarations as written. A
+declaration a holder class cannot take, a staying member whose accessibility is bound to what it overrides or what
+overrides it, and an extension block whose owner's adapter is abstract fail the run instead of being written wrongly.
 
 ## Seeing status
 

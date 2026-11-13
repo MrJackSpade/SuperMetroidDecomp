@@ -120,18 +120,23 @@ internal sealed class RelocationHolders
         type is { TypeKind: TypeKind.Class, IsGenericType: false, ContainingType: null } &&
         (kind == RelocationHolderKind.Members && abstractHolder ? type is { IsAbstract: true, IsStatic: false } : type.IsStatic);
 
-    /// <summary>Fails when the class merged into already declares a member that moves into it: two such members never compile.</summary>
+    /// <summary>
+    /// Fails when the class merged into already declares a member that moves into it: two such members never compile. An
+    /// extension block is compared by its members, each under its receiver, since a class may declare any number of blocks,
+    /// several for one receiver among them.
+    /// </summary>
     /// <exception cref="InvalidOperationException">A moved member's name, receiver and parameters are already declared.</exception>
     private static void RejectDeclaredMembers(INamedTypeSymbol holder, string path, RelocationHolderKind kind, IReadOnlyCollection<ISymbol> moved)
     {
-        var present = kind == RelocationHolderKind.Extensions
-            ? holder.GetTypeMembers().Where(block => block.IsExtension)
-                .SelectMany(block => block.GetMembers().Select(member => (Receiver: TypeText(block.ExtensionParameter?.Type), Member: member))).ToList()
-            : holder.GetMembers().Select(member => (Receiver: "", Member: member)).ToList();
-        foreach (ISymbol member in moved)
+        var present = holder.GetMembers().Where(member => member is not INamedTypeSymbol { IsExtension: true })
+            .Select(member => (Receiver: "", Member: member))
+            .Concat(holder.GetTypeMembers().Where(block => block.IsExtension)
+                .SelectMany(block => block.GetMembers().Select(member => (Receiver: TypeText(block.ExtensionParameter?.Type), Member: member))))
+            .ToList();
+        foreach (ISymbol member in moved.SelectMany(symbol => symbol is INamedTypeSymbol { IsExtension: true } block ? block.GetMembers() : [symbol]))
         {
-            string receiver = kind == RelocationHolderKind.Extensions
-                ? TypeText(member.ContainingType is { IsExtension: true } block ? block.ExtensionParameter?.Type : member.ContainingType) : "";
+            string receiver = member.ContainingType is { IsExtension: true } block ? TypeText(block.ExtensionParameter?.Type)
+                : kind == RelocationHolderKind.Extensions ? TypeText(member.ContainingType) : "";
             if (present.FirstOrDefault(entry => entry.Receiver == receiver && entry.Member.Name == member.Name &&
                     (entry.Member is not IMethodSymbol || member is not IMethodSymbol || Parameters(entry.Member) == Parameters(member))).Member
                 is { } declared)

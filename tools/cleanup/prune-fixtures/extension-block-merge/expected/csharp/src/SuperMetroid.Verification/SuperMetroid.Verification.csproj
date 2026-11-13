@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Reachability prune fixture (tools/cleanup/check-prune-fixtures.ps1): the verification project. It compiles the
+       prune's target, VerificationAccess.Core, which holds the checks and already declares the class one owner's moved
+       extension block is merged into. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../SuperMetroid.AssetExtraction/SuperMetroid.AssetExtraction.csproj" />
+  </ItemGroup>
+  <Import Project="../../test-support/VerificationAccess.Core.projitems" />
+</Project>

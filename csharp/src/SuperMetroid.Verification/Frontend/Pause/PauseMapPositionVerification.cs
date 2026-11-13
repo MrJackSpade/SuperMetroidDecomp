@@ -56,7 +56,7 @@ internal static class PauseMapPositionVerification
                 AssertTrue(expected.LowTable[..bytes].SequenceEqual(actual.LowTable[..bytes]), "current-position marker native OAM and animation timing");
                 AssertEqual(expected.HighTable[0], actual.HighTable[0], "current-position marker size/X bits");
                 for (int color = 0; color < markerColors.Length; color++)
-                    AssertEqual(markerColors[color], PauseShownColours.Of(pause)[markerPalette + 1 + color], $"{area} frame {frame} current-position marker ink {color + 1}");
+                    AssertEqual(markerColors[color], PauseShownColours.Of(pause, RetailPresentationFixture())[markerPalette + 1 + color], $"{area} frame {frame} current-position marker ink {color + 1}");
                 AssertTrue(pixels.SequenceEqual(pause.Render()), "repaint does not advance position marker");
             }
         }

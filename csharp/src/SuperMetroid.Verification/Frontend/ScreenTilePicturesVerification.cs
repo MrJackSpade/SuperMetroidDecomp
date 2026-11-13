@@ -257,9 +257,9 @@ internal static class ScreenTilePicturesVerification
             Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()), System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = maps,
             SpriteSheets = InstalledFixtures.SpriteSheets,
         });
-        int layers = AssertPauseDrawnFromVram(pause, "pause map");
+        int layers = AssertPauseDrawnFromVram(pause, maps, "pause map");
         PauseEquipmentRulesVerification.EnterPauseEquipment(pause);
-        layers += AssertPauseDrawnFromVram(pause, "pause equipment");
+        layers += AssertPauseDrawnFromVram(pause, maps, "pause equipment");
         Console.WriteLine($"Screen tile pictures: the pause map and equipment pages draw all {layers} of their pictured background layers as their characters do.");
     }
 
@@ -293,18 +293,18 @@ internal static class ScreenTilePicturesVerification
     /// Asserts <paramref name="pause"/>'s scene draws what its VRAM draws (#1467): each of its map grid, equipment page and
     /// frame layers, drawn alone, shows exactly what the BG1 or BG2 tilemap the cartridge lays out for it shows over the
     /// scene's own VRAM characters in its colours, at the layer's scroll, every tile drawn, decoded on the CPU;
-    /// returns the pictured layers checked.
+    /// returns the pictured layers checked. <paramref name="maps"/> is the map presentation the fixture bound it to.
     /// </summary>
-    private static int AssertPauseDrawnFromVram(PauseMenuState pause, string name)
+    private static int AssertPauseDrawnFromVram(PauseMenuState pause, AreaMapPresentation maps, string name)
     {
         LayeredScene scene = pause.CaptureRenderSnapshot();
-        byte[] vram = pause.ShownVram();
+        byte[] vram = pause.ShownVram(maps);
         var pageSize = new Extent16<CharacterCells>(AreaMapSize.WidthInTiles, AreaMapSize.HeightInTiles);
-        BackgroundTile[] page = VramTilemapImage.Rows(pause.ShownBg1Tiles, pageSize);
-        BackgroundTile[] frame = VramTilemapImage.Rows(pause.ShownBg2Tiles, PauseFramePageSize);
+        BackgroundTile[] page = VramTilemapImage.Rows(pause.ShownBg1Tiles(maps), pageSize);
+        BackgroundTile[] frame = VramTilemapImage.Rows(pause.ShownBg2Tiles(maps), PauseFramePageSize);
         PicturedPlane shownFrame = pause.screen.Frame(pause.area, pause.ButtonHighlight);
         // The colours the pause screen's pictures show, in the cartridge's order (#1512).
-        RgbColor[] pauseColours = PauseShownColours.Of(pause);
+        RgbColor[] pauseColours = PauseShownColours.Of(pause, maps);
         int layers = 0;
         foreach (DisplayLayer layer in scene.Layers)
         {

@@ -12,16 +12,21 @@ namespace SuperMetroid.Core.Frontend;
 /// </summary>
 internal static class FrontendShownVramAccess
 {
-    /// <summary>The intro's composed image, or the Ceres flight's while the intro shows the flight.</summary>
+    /// <summary>
+    /// The intro's composed image, or the Ceres flight's while the intro shows the flight, over the flight artwork the intro
+    /// was bound with and binds into its flight.
+    /// </summary>
     extension(IntroCinematicState self)
     {
         [WholeImageFixture("the scene's composed memory image")]
         internal byte[] ShownVram() => self.CurrentCeresFlight is { } flight && self.Phase == IntroCinematicPhase.CeresFlight
-            ? CeresFlightScreenMemory.Compose(flight) : IntroScreenMemory.Compose(self);
+            ? CeresFlightScreenMemory.Compose(flight, self.CharacterArtwork?.CeresFlight
+                ?? throw new InvalidOperationException("The intro's Ceres flight is composed from the flight artwork the intro was bound with."))
+            : IntroScreenMemory.Compose(self);
     }
 
-    /// <summary>The Ceres flight's composed image.</summary>
-    extension(IntroCeresFlightState self) { [WholeImageFixture("the scene's composed memory image")] internal byte[] ShownVram() => CeresFlightScreenMemory.Compose(self); }
+    /// <summary>The Ceres flight's composed image, over <paramref name="artwork"/>, the flight artwork its fixture bound.</summary>
+    extension(IntroCeresFlightState self) { [WholeImageFixture("the scene's composed memory image")] internal byte[] ShownVram(SuperMetroid.Core.Frontend.CeresCinematics.Artwork.CeresFlightArtwork artwork) => CeresFlightScreenMemory.Compose(self, artwork); }
 
     /// <summary>The Ceres destruction's composed image.</summary>
     extension(CeresDestructionCinematicState self) { [WholeImageFixture("the scene's composed memory image")] internal byte[] ShownVram() => CeresDestructionScreenMemory.Compose(self); }
@@ -41,6 +46,6 @@ internal static class FrontendShownVramAccess
     /// <summary>The title screen's composed image.</summary>
     extension(TitleSequenceState self) { [WholeImageFixture("the scene's composed memory image")] internal byte[] ShownVram() => TitleScreenMemory.Compose(self); }
 
-    /// <summary>The pause menu's composed image.</summary>
-    extension(PauseMenuState self) { [WholeImageFixture("the scene's composed memory image")] internal byte[] ShownVram() => PauseScreenMemory.Compose(self); }
+    /// <summary>The pause menu's composed image, over <paramref name="artwork"/>, the map presentation its fixture bound.</summary>
+    extension(PauseMenuState self) { [WholeImageFixture("the scene's composed memory image")] internal byte[] ShownVram(SuperMetroid.Core.Frontend.Map.Artwork.AreaMapPresentation artwork) => PauseScreenMemory.Compose(self, artwork); }
 }

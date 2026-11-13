@@ -116,11 +116,11 @@ internal static class PauseMenuVerification
         var pause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(28, 1), GameplayHud = retainedHud, MapPresentation = presentation.Game, SpriteSheets = MenuSheetFixtures.For(presentation) });
 
         AssertEqual(PauseScreenMode.Map, pause.ScreenMode, "pause begins on map page");
-        AssertEqual(0x0804, pause.ReadReserveSupplyDigit(0).Raw,
+        AssertEqual(0x0804, pause.ReadReserveSupplyDigit(presentation.Game, 0).Raw,
             "pause equipment reserve-supply hundreds digit renders current supply");
-        AssertEqual(0x0808, pause.ReadReserveSupplyDigit(1).Raw,
+        AssertEqual(0x0808, pause.ReadReserveSupplyDigit(presentation.Game, 1).Raw,
             "pause equipment reserve-supply tens digit renders current supply");
-        AssertEqual(0x080b, pause.ReadReserveSupplyDigit(2).Raw,
+        AssertEqual(0x080b, pause.ReadReserveSupplyDigit(presentation.Game, 2).Raw,
             "pause equipment reserve-supply ones digit renders current supply");
         HudLayer drawnHud = pause.CaptureRenderSnapshot().Layers.ToArray().OfType<HudLayer>().First();
         AssertTrue(ReferenceEquals(MenuSheetFixtures.For(presentation).Get(SpriteSheetId.PauseHud).Frame(HudTopRowImage.Instance.FrameName),
@@ -136,9 +136,9 @@ internal static class PauseMenuVerification
             ShownSpriteDraws(pause).Single(draw => ReferenceEquals(draw.Image, markerFrame)).Origin, "pause map marker shows its initial frame at its origin");
         // The fixture retains the five retail Crateria destination labels (22 OBJ parts).
         AssertEqual(23, pause.LastRenderedSpriteCount, "pause marker plus downloaded destination labels OAM count");
-        AssertEqual(0x1400, pause.ReadPauseButtonLabelWord(805) & 0x1c00,
+        AssertEqual(0x1400, pause.ReadPauseButtonLabelWord(presentation.Game, 805) & 0x1c00,
             "pause map label bright palette reached BG2");
-        AssertEqual(0x0800, pause.ReadPauseButtonLabelWord(822) & 0x1c00,
+        AssertEqual(0x0800, pause.ReadPauseButtonLabelWord(presentation.Game, 822) & 0x1c00,
             "pause equipment label dim palette reached BG2");
         EnterPauseEquipment(pause);
         AssertEqual(PauseScreenMode.Equipment, pause.ScreenMode, "pause R transition reaches equipment page");
@@ -152,9 +152,9 @@ internal static class PauseMenuVerification
         AssertEqual(new Position16<ScreenPixels>(0x90, 0x70), ShownEquipmentSelector(pause, MenuSheetFixtures.For(presentation).Get(SpriteSheetId.PauseSprites), presentation.Game.PauseSelectors).Origin,
             "pause shows the suits category's selector frame at the Morph Ball's origin");
         AssertEqual(1, pause.LastRenderedSpriteCount, "pause equipment selector OAM count");
-        AssertEqual(0x0800, pause.ReadPauseButtonLabelWord(805) & 0x1c00,
+        AssertEqual(0x0800, pause.ReadPauseButtonLabelWord(presentation.Game, 805) & 0x1c00,
             "pause map label dims on equipment page");
-        AssertEqual(0x1400, pause.ReadPauseButtonLabelWord(822) & 0x1c00,
+        AssertEqual(0x1400, pause.ReadPauseButtonLabelWord(presentation.Game, 822) & 0x1c00,
             "pause equipment label brightens on equipment page");
 
         // Rebuilding after a live supply change must replace the displayed tile words;
@@ -162,11 +162,11 @@ internal static class PauseMenuVerification
         // that Samus's underlying reserve field changed.
         samus.ReserveEnergy = 100;
         pause.Step(0, ControllerButton.A);
-        AssertEqual(0x0805, pause.ReadReserveSupplyDigit(0).Raw,
+        AssertEqual(0x0805, pause.ReadReserveSupplyDigit(presentation.Game, 0).Raw,
             "pause equipment reserve-supply hundreds digit refreshes after rebuild");
-        AssertEqual(0x0804, pause.ReadReserveSupplyDigit(1).Raw,
+        AssertEqual(0x0804, pause.ReadReserveSupplyDigit(presentation.Game, 1).Raw,
             "pause equipment reserve-supply tens digit refreshes after rebuild");
-        AssertEqual(0x0804, pause.ReadReserveSupplyDigit(2).Raw,
+        AssertEqual(0x0804, pause.ReadReserveSupplyDigit(presentation.Game, 2).Raw,
             "pause equipment reserve-supply ones digit refreshes after rebuild");
 
         // D-pad and A use joypad1_newkeys, not the delayed-held word used by L/R/Start.
@@ -184,7 +184,7 @@ internal static class PauseMenuVerification
             "pause A re-equips live Bombs bit");
         AssertTrue(pause.Step(ControllerButton.Start, 0),
             "pause delayed Start requests outer unpause state");
-        AssertEqual(0x0800, pause.ReadPauseButtonLabelWord(812) & 0x1c00,
+        AssertEqual(0x0800, pause.ReadPauseButtonLabelWord(presentation.Game, 812) & 0x1c00,
             "pause Start label switches to the native unpause palette");
 
         // Re-enter the equipment page with only Wave collected so the pause code itself

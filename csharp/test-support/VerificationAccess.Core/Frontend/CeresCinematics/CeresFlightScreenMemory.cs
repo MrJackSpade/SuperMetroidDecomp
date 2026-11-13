@@ -41,11 +41,13 @@ internal static class CeresFlightScreenMemory
         return vram.CaptureImage();
     }
 
-    /// <summary>The image <paramref name="flight"/> shows: its view with the SPACE COLONY caption over it.</summary>
+    /// <summary>
+    /// The image <paramref name="flight"/> shows: the view of <paramref name="artwork"/>, the flight artwork its fixture bound
+    /// it to, with the SPACE COLONY caption over it.
+    /// </summary>
     [WholeImageFixture("the Ceres flight's memory image")]
-    internal static byte[] Compose(IntroCeresFlightState flight) =>
-        WithCaption(View((flight.Artwork ?? throw new InvalidOperationException("Ceres approach rendering requires installed cinematic artwork.")).ImportSource,
-            flight.ShowsRearView), BackgroundTileWordBytes.Words(CaptionTiles(flight)));
+    internal static byte[] Compose(IntroCeresFlightState flight, SuperMetroid.Core.Frontend.CeresCinematics.Artwork.CeresFlightArtwork artwork) =>
+        WithCaption(View(Ensure.NotNull(artwork).ImportSource, flight.ShowsRearView), BackgroundTileWordBytes.Words(CaptionTiles(flight)));
 
     /// <summary>
     /// The caption tilemap the cartridge's caption list leaves for <paramref name="flight"/>'s state (#1467): the letters

@@ -77,7 +77,7 @@ internal static class PauseMapArrowsVerification
             AssertEqual(expectedBytes / 4, drawnArrowParts, "unavailable arrows emit no leftover OAM parts");
             // The highlighted arrows change only their highlight with the cycle (#1637).
             foreach (int color in SuperMetroid.AssetExtraction.Frontend.Map.Artwork.MapPaletteCycleFormat.HighlightInks)
-                AssertEqual(nativeArrowColors[color], PauseShownColours.Of(pause)[176 + color],
+                AssertEqual(nativeArrowColors[color], PauseShownColours.Of(pause, RetailPresentationFixture())[176 + color],
                     $"pause arrow palette colour {color} follows native $82:A92B timing at scroll {x},{y}");
             AssertTrue(ScenePixels.Same(shown, pause.CaptureRenderSnapshot()), "repainting does not advance arrows");
         }

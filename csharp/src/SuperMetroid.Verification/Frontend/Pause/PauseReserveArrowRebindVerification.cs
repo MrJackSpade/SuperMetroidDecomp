@@ -26,10 +26,10 @@ internal static class PauseReserveArrowRebindVerification
         EnterPauseEquipment(menu);
         AssertEqual(PauseEquipmentCategory.Reserves, menu.SelectedCategory, "fixture settles on the reserve page selection");
         var pixels = menu.Render();
-        byte[] vram = menu.ShownVram().ToArray();
+        byte[] vram = menu.ShownVram(catalog).ToArray();
 
         menu.BindFixtureArtwork(catalog);
-        AssertTrue(vram.SequenceEqual(menu.ShownVram()), "same-content rebind keeps the reserve arrow tilemap");
+        AssertTrue(vram.SequenceEqual(menu.ShownVram(catalog)), "same-content rebind keeps the reserve arrow tilemap");
         AssertTrue(pixels.SequenceEqual(menu.Render()), "same-content rebind keeps exact reserve page pixels");
 
         using var state = new MemoryStream();

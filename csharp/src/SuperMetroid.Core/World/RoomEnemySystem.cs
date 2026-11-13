@@ -643,7 +643,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         MotherBrainEncounter = new MotherBrainEncounter(Audio);
         RidleyTail = new RidleyTail(FrameContext, Projectiles, RidleyEncounter, Room);
         DeathsAndDrops = new EnemyDeathsAndDrops(RoomStatus, Projectiles, Room, Dispatch, compatibility.PowerBombRadius, Audio);
-        Collision = new EnemyCollision(new EnemyCollisionDependencies { Dispatch = Dispatch, Audio = Audio, DeathsAndDrops = DeathsAndDrops, Earthquake = Earthquake, FrameContext = FrameContext, Projectiles = Projectiles, Room = Room, SlotTable = SlotTable, PowerBombRadius = compatibility.PowerBombRadius });
+        Collision = new EnemyCollision(new EnemyCollisionDependencies { Dispatch = Dispatch, Audio = Audio, DeathsAndDrops = DeathsAndDrops, Earthquake = Earthquake, FrameContext = FrameContext, Projectiles = Projectiles, SpriteObjects = SpriteObjects, Room = Room, SlotTable = SlotTable, PowerBombRadius = compatibility.PowerBombRadius });
         RidleyProjectiles = new RidleyProjectiles(DeathsAndDrops, Projectiles, RidleyEncounter);
         ZoaBehavior = new ZoaBehavior();
         ElevatorBehavior = new ElevatorBehavior(Room, Audio, FrameResults);
@@ -1122,6 +1122,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         KraidBehavior.Combat.AddKraidBombReactions(table);
 
         NinjaSpacePirateBehavior.AddGoldNinjaPirateBombReactions(table);
+        WallSpacePirateBehavior.AddWallSpacePirateBombReactions(table);
         ShuttersBehavior.AddShuttersBombReactions(table);
         MetroidBehavior.AddMetroidBombReactions(table);
         ShitroidBehavior.AddShitroidBombReactions(table);

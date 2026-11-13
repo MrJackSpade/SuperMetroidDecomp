@@ -29,5 +29,6 @@ internal static class RoomSpriteObjectProgramAddresses
         [RoomSpriteObjectSegment.YappingMawBaseFacingUp] = 0xc5de,
         [RoomSpriteObjectSegment.EvirFacingLeft] = 0xc608,
         [RoomSpriteObjectSegment.EvirFacingRight] = 0xc61c,
+        [RoomSpriteObjectSegment.EnemyHit] = 0xc5c6,
     };
 }

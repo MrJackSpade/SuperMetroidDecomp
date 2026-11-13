@@ -349,6 +349,18 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
                                                                EnemyCollision.PowerBombReaction(enemy) == EnemyReaction.SpacePiratePowerBomb));
     }
 
+    /// <summary>
+    /// Runs the ordinary Pirates' bombs through the common bomb damage, showing the hit burst only where the reaction the
+    /// bomb reaches shows it (<see cref="PirateHitboxShotActions.ShowsHitBurst"/>).
+    /// </summary>
+    internal static void AddWallSpacePirateBombReactions(EnemySharedReactions table)
+    {
+        table.AddBombCommon(new EnemyBombReaction(c => IsOrdinarySpacePirateDefinition(c.Enemy.DefinitionId))
+        {
+            ShowsHitBurst = c => PirateHitboxShotActions.ShowsHitBurst(c.Enemy, c.SelectedShotAi),
+        });
+    }
+
     /// <summary>Uses shared Pirate shot logic, including hitbox quake, big death explosion, and Gold Ninja drops.</summary>
     internal void AddWallSpacePirateShotReactions(EnemySharedReactions table)
     {
@@ -356,6 +368,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
                                                      EnemyCollision.ShotAi(enemy) == EnemyReaction.SpacePirateShot)
         {
             AfterSuperMissileQuake = _walkingSpacePirateBehavior.ResolveSpacePirateHitboxShot,
+            ShowsHitBurst = c => PirateHitboxShotActions.ShowsHitBurst(c.Enemy, c.HitboxShotAi),
             ReplacesGenericDeath = c =>
             {
                 if (c.HitboxShotAi == EnemyReaction.NormalEnemyShot)

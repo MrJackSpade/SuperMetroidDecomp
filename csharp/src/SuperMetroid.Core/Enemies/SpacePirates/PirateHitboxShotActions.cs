@@ -87,6 +87,18 @@ internal static class PirateHitboxShotActions
             : PirateHitboxShotAction.Normal;
     }
 
+    /// <summary>
+    /// Whether a shot or bomb whose hit runs through <paramref name="reaction"/> and hurts <paramref name="pirate"/> while
+    /// it is not frozen shows the enemy-hit burst: the common reaction (a Pirate's empty frame) and the Pirates' own show
+    /// it, except on the gold Ninja, whose own reaction, like both Ninja body reactions on every Pirate, runs the Pirates'
+    /// damage that shows none.
+    /// </summary>
+    /// <param name="pirate">The Pirate hit.</param>
+    /// <param name="reaction">The reaction the hit runs: its hitbox's, or the definition's when the Pirate collides by its radius.</param>
+    internal static bool ShowsHitBurst(RoomEnemySlot pirate, EnemyReaction? reaction) =>
+        reaction == EnemyReaction.NormalEnemyShot ||
+        reaction == EnemyReaction.SpacePirateShot && Ensure.NotNull(pirate).DefinitionId != EnemyDefinitionId.PirateGoldNinja;
+
     /// <summary>Whether a shot is a beam, missile or Super Missile, the families the gold ninja reflects or is hurt by.</summary>
     private static bool IsBeamOrMissile(SamusProjectileFamily family) =>
         family is SamusProjectileFamily.Beam or SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile;

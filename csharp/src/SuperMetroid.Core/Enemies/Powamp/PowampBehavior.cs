@@ -505,6 +505,8 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
                                                        c.SelectedShotAi == EnemyReaction.PowampShot)
         {
             RunsGenericDeath = false,
+            // Powamp's shot reaction runs the common damage without the hit burst.
+            ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
             AfterCommon = c => ResolvePowampShotAfterCommon(c.Enemy),
         });
     }
@@ -557,6 +559,8 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
             // body is still visibly deflating.
             SkipsEnemy = enemy => enemy.RequireSpeciesState<PowampEnemyState>().RefusesContact,
             ExemptFromGenericDeath = true,
+            // Powamp's shot reaction runs the common damage without the hit burst.
+            ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
             AfterCommon = c => ResolvePowampShotAfterCommon(c.Enemy),
         });
     }

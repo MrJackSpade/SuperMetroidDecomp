@@ -28,5 +28,6 @@ internal static class RoomSpriteObjectDefinitions
         [RoomSpriteObjectKind.DraygonIntroEvir] = RoomSpriteObjectSegment.EvirFacingLeft,
         [RoomSpriteObjectKind.DraygonDeathEvirFacingRight] = RoomSpriteObjectSegment.EvirFacingRight,
         [RoomSpriteObjectKind.DraygonSpiralFoam] = RoomSpriteObjectSegment.DraygonFoamingAtTheMouth,
+        [RoomSpriteObjectKind.EnemyHit] = RoomSpriteObjectSegment.EnemyHit,
     };
 }

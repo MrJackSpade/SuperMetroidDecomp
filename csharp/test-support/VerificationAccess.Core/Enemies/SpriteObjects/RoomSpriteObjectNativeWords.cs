@@ -32,5 +32,6 @@ internal static class RoomSpriteObjectNativeWords
         [RoomSpriteObjectKind.DraygonIntroEvir] = 0x3b,
         [RoomSpriteObjectKind.DraygonDeathEvirFacingRight] = 0x3c,
         [RoomSpriteObjectKind.DraygonSpiralFoam] = 0x3d,
+        [RoomSpriteObjectKind.EnemyHit] = 0x37,
     });
 }

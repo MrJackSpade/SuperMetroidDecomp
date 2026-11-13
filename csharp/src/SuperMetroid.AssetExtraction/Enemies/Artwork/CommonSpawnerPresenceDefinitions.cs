@@ -115,6 +115,7 @@ internal static class CommonSpawnerPresenceDefinitions
         [Engine(nameof(EnemyProjectileEngine.SpawnSaveStationElectricity))] =
             new() { RoomObjects = [RoomObjectKind.SaveStation] },
         [Engine(nameof(EnemyProjectileEngine.CreateEnemyProjectileDudShot))] = EveryEnemy,
+        [Engine(nameof(EnemyProjectileEngine.CreateBombDudShot))] = EveryEnemy,
         [Engine(nameof(EnemyProjectileEngine.SpawnRandomEnemyDeathSprite))] = EveryEnemy,
         [Engine(nameof(EnemyProjectileEngine.SpawnRoomGraphicsDustExplosion))] = new()
         {

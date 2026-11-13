@@ -83,8 +83,8 @@ internal sealed class SheetPictureColouring
     /// <summary>
     /// The colouring that colours what this one and <paramref name="other"/> cover as each does, or none when they disagree
     /// on something both cover: their palette bits, a group's colours, whether a shade both name blends, or what a shade
-    /// both name shows of a group both cover. A shade only one names is kept as it is: a picture of the other was never
-    /// drawn in it.
+    /// both name shows of a group both cover, or a shade only one names recolours a group the other covers. A shade only one
+    /// names and that recolours nothing the other covers is kept as it is: a picture of the other was never drawn in it.
     /// </summary>
     internal SheetPictureColouring? MergedWith(SheetPictureColouring other)
     {
@@ -102,6 +102,10 @@ internal sealed class SheetPictureColouring
                 && (shade.Blends != otherShade.Blends || !SameOverBoth(shade, otherShade, other.Groups) || !SameOverBoth(otherShade, shade, Groups)))
                 return null;
         }
+        // A shade only one names is kept as it is only while it recolours nothing the other covers: held on one sheet, the
+        // other's pictures would show it over their own colours, and look like pictures that are drawn in it (#1713).
+        if (RecoloursUnnamed(shades, other.shades, other.Groups) || RecoloursUnnamed(other.shades, shades, Groups))
+            return null;
         var merged = new RgbColor[colours.Length];
         for (int ink = 0; ink < merged.Length; ink++)
             merged[ink] = Covers(Groups, ink) ? colours[ink] : other.colours[ink];
@@ -136,6 +140,14 @@ internal sealed class SheetPictureColouring
     private static bool SameOverBoth(SheetPictureShade shade, SheetPictureShade other, ImageColourGroups groups) =>
         shade.Colours.Where(entry => Covers(groups, entry.Key))
             .All(entry => other.Colours.TryGetValue(entry.Key, out RgbColor colour) && colour == entry.Value);
+
+    /// <summary>
+    /// Whether a shade of <paramref name="named"/> that <paramref name="others"/> does not name recolours an ink of a group
+    /// <paramref name="groups"/> covers.
+    /// </summary>
+    private static bool RecoloursUnnamed(SortedDictionary<string, SheetPictureShade> named, SortedDictionary<string, SheetPictureShade> others,
+        ImageColourGroups groups) =>
+        named.Any(shade => !others.ContainsKey(shade.Key) && shade.Value.Colours.Keys.Any(ink => Covers(groups, ink)));
 
     /// <summary>Whether <paramref name="groups"/> covers <paramref name="ink"/>'s colour group.</summary>
     private static bool Covers(ImageColourGroups groups, int ink) => groups.Contains(ImageColourGroup.Numbered(ink / GroupColours));

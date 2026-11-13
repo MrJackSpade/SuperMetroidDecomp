@@ -313,6 +313,13 @@ internal static class RoomSpriteObjectAnimations
             Show(F.EvirFacingRight2, 10),
             Show(F.EvirFacingRight3, 10),
         ],
+        [P.EnemyHit] =
+        [
+            Show(F.EnemyHit0, 2),
+            Show(F.EnemyHit1, 2),
+            Show(F.EnemyHit2, 2),
+            Show(F.EnemyHit3, 2),
+        ],
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
@@ -341,6 +348,7 @@ internal static class RoomSpriteObjectAnimations
         [P.YappingMawBaseFacingUp] = new([new(P.YappingMawBaseFacingUp, 0, 1, 1)], AnimationEnd.Holds),
         [P.EvirFacingLeft] = new([new(P.EvirFacingLeft, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
         [P.EvirFacingRight] = new([new(P.EvirFacingRight, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.EnemyHit] = new([new(P.EnemyHit, 0, 4, 1)], AnimationEnd.Stops),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

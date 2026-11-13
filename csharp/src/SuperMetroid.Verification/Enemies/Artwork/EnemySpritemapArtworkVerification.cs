@@ -293,7 +293,8 @@ internal static class EnemySpritemapArtworkVerification
                 KraidLintVisualDefinitions.FrameCount + NuclearWaffleVisualDefinitions.FrameCount +
                 2 + // Single-frame Kzan and Polyp.
                 RidleyBreakupVisualDefinitions.Legs.Length + RidleyBreakupVisualDefinitions.Torso.Length +
-                RidleyBreakupVisualDefinitions.Head.Length + RidleyBreakupVisualDefinitions.Claw.Length,
+                RidleyBreakupVisualDefinitions.Head.Length + RidleyBreakupVisualDefinitions.Claw.Length +
+                4, // The enemy-hit burst's four sprite-object frames (#1713).
             EnemySpritemapDefinitions.Frames.Length,
             "post-Gunship installed composition groups account for the complete current catalog");
         HashSet<ushort> installedHunterPointers = EnemySpritemapDefinitions.Frames
@@ -313,9 +314,9 @@ internal static class EnemySpritemapArtworkVerification
         AssertTrue(YappingMawAnimationsConstants.Spritemaps(Enum.GetValues<YappingMawSegment>()).ToHashSet().SetEquals(installedMawPointers),
             "every installed Yapping Maw frame is shown by a program, and every shown pose is installed");
         AssertEqual(24, installedMawPointers.Count, "Yapping Maw's programs show 24 distinct frames");
-        AssertEqual(123, EnemySpritemapDefinitions.Frames.Count(
+        AssertEqual(127, EnemySpritemapDefinitions.Frames.Count(
                 frame => frame.Bank == EnemySpritemapDefinitions.RoomSpriteObjectBank),
-            "the bank-B4 sprite-object programs the game starts select 123 distinct visual frames");
+            "the bank-B4 sprite-object programs the game starts select 127 distinct visual frames");
         HashSet<ushort> installedSpritePointers = EnemySpritemapDefinitions.Frames
             
             .Where(frame => frame.Bank == EnemySpritemapDefinitions.RoomSpriteObjectBank)

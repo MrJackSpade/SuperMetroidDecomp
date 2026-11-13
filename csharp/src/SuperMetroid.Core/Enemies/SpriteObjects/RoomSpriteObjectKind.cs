@@ -52,4 +52,6 @@ public enum RoomSpriteObjectKind
     DraygonDeathEvirFacingRight,
     /// <summary>Finite mouth-foam animation emitted during the carry spiral and fatal drift.</summary>
     DraygonSpiralFoam,
+    /// <summary>Finite burst centred on an enemy a shot or bomb hurts while it is not frozen.</summary>
+    EnemyHit,
 }

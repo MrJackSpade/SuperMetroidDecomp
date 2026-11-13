@@ -16,6 +16,18 @@ internal sealed class EnemyBombReaction(Func<EnemyBombContext, bool> matches)
     /// <summary>Whether common damage runs the generic death animation on a lethal hit.</summary>
     internal bool RunsGenericDeath { get; init; } = true;
 
+    /// <summary>
+    /// Whether a bomb that hurts an enemy that is not frozen shows the enemy-hit burst at it, after the damage and before
+    /// the death (<see cref="EnemyCollision"/>), as the shot reaction the bomb runs does for a beam.
+    /// </summary>
+    internal Func<EnemyBombContext, bool> ShowsHitBurst { get; init; } = AlwaysShowsHitBurst;
+
+    /// <summary>The <see cref="ShowsHitBurst"/> of a reaction whose every hurting bomb shows the burst.</summary>
+    internal static Func<EnemyBombContext, bool> AlwaysShowsHitBurst { get; } = static _ => true;
+
+    /// <summary>The <see cref="ShowsHitBurst"/> of a reaction that runs the common damage without the burst.</summary>
+    internal static Func<EnemyBombContext, bool> NeverShowsHitBurst { get; } = static _ => false;
+
     /// <summary>Runs immediately before common damage.</summary>
     internal Action<EnemyBombContext>? BeforeCommon { get; init; }
 

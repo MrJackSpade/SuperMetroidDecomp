@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>
-/// The programs of a Tourian boss statue's animated tiles, in authored order. Each statue runs the same four programs
+/// The animations of a Tourian boss statue's animated tiles, in authored order. Each statue runs the same four animations
 /// with its own operands; see <see cref="TourianStatueTileAnimations"/>.
 /// </summary>
 internal enum TourianStatueTileSegment

@@ -1,6 +1,6 @@
 ﻿namespace SuperMetroid.Core.Areas.Tourian;
 
-/// <summary>What a statue projectile program cue does.</summary>
+/// <summary>What a statue projectile animation cue does.</summary>
 internal enum TourianStatueProjectileCueKind
 {
     /// <summary>Deletes the projectile.</summary>

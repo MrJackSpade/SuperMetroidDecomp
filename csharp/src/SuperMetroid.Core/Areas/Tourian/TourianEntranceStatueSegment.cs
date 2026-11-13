@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>
-/// The three Tourian entrance-statue records' animations, each of which deletes its record at once, (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// The three Tourian entrance-statue records' animations, each of which deletes its record at once, (#641): one segment per animation a spawn, branch or resumed sleep enters, in authored order.
 /// Their steps are <see cref="TourianEntranceStatueAnimations"/>.
 /// </summary>
 internal enum TourianEntranceStatueSegment

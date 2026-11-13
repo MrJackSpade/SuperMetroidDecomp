@@ -4,12 +4,12 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
-/// The Ceres falling tiles' typed programs (#641): one pose, then a sleep while the
-/// per-frame movement moves the tile. Each program's frame is the program itself.
+/// The Ceres falling tiles' typed animations (#641): one pose, then a sleep while the
+/// per-frame movement moves the tile. Each animation's frame is the animation itself.
 /// </summary>
 internal static class CeresFallingDebrisAnimations
 {
-    /// <summary>Both tile programs.</summary>
+    /// <summary>Both tile animations.</summary>
     internal static AnimationSegments<CeresFallingDebrisSegment, CeresFallingDebrisSegment, NoAnimationCue> Segments { get; } = new(
         new Dictionary<CeresFallingDebrisSegment, AnimationBeat<CeresFallingDebrisSegment, NoAnimationCue>[]>
     {

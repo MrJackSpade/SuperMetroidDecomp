@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Areas.Tourian.TourianStatueProjectileSegment;
 
 namespace SuperMetroid.Core.Areas.Tourian;
 
-/// <summary>The Tourian statue projectile programs (#641).</summary>
+/// <summary>The Tourian statue projectile animations (#641).</summary>
 internal static class TourianStatueProjectileAnimations
 {
     /// <summary>Every segment's beats.</summary>

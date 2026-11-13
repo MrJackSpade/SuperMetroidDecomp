@@ -16,7 +16,7 @@ public static class CeresSteamDefinitions
     /// variants 4 and 5 reuse directions 1 and 3. The initializer
     /// indexes by <c>2 * parameter1</c>; production accepts only 0..5 and
     /// rejects 6. The constant stride describes four distinct animation
-    /// programs, while the last two entries are deliberate aliases.
+    /// animations, while the last two entries are deliberate aliases.
     /// The separate six-entry function table follows
     /// the rule <c>variant &lt; 4</c> exactly: ordinary
     /// directions use the return function, while both rotating-room variants

@@ -2,7 +2,7 @@
 
 namespace SuperMetroid.Core.Areas.Tourian;
 
-/// <summary>A statue projectile program cue.</summary>
+/// <summary>A statue projectile animation cue.</summary>
 internal abstract record TourianStatueProjectileCue
 {
     /// <summary>Closes the hierarchy to the cues declared here.</summary>

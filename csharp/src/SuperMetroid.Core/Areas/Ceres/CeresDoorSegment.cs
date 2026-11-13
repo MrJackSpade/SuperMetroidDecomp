@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
-/// The Ceres doors' and walls' typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// The Ceres doors' and walls' typed animations (#641): one segment per animation a spawn, branch or resumed sleep enters, in authored order.
 /// Their steps are <see cref="CeresDoorAnimations"/>.
 /// </summary>
 internal enum CeresDoorSegment

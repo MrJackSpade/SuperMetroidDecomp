@@ -573,7 +573,7 @@ public sealed class SamusBombProjectileSystem
         return slotIndex;
     }
 
-    /// <summary>Starts a bomb: its damage and its program, from the compiled non-beam projectile data for the slot's family.</summary>
+    /// <summary>Starts a bomb: its damage and its animation, from the compiled non-beam projectile data for the slot's family.</summary>
     internal static void InitializeBomb(
         SamusBombProjectileSlot slot)
     {

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Palettes;
 /// <summary>Immutable game data shared by Samus palettes.</summary>
 /// <remarks>
 /// Palette state machines retain their mutable timers and phase transitions. This catalog
-/// names the colour tables, colour-program steps, colour ranges, and fixed-color endpoints those
+/// names the colour tables, colour-animation steps, colour ranges, and fixed-color endpoints those
 /// machines consume, so no raw number masquerades as gameplay behavior.
 /// </remarks>
 public static class SamusPaletteDefinitions
@@ -74,7 +74,7 @@ public static class SamusPaletteDefinitions
     /// 14336; the other nine in each step are the same grayscale colour
     /// with every channel at <c>16 + floor(11*min(r,6-r)/3)</c>. This yields channel
     /// levels 16, 19, 23, 27, 23, 19 and matches all 60 colours in the
-    /// authored data. The body colour program selects steps
+    /// authored data. The body colour animation selects steps
     /// 0,1,2,3,4,5,4,3,2,1 and copies only ten colors per transition;
     /// the following six bubble colors have a separate cursor and timer.
     /// Keep both streams live for the stock presentation. Body-color

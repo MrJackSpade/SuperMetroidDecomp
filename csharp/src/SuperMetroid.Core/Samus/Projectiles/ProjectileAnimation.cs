@@ -82,7 +82,7 @@ internal sealed class ProjectileAnimation
             SpriteMirror.None));
     }
 
-    /// <summary>Counts one update off a flare component's wait and shows its program's next picture once the wait is spent.</summary>
+    /// <summary>Counts one update off a flare component's wait and shows its animation's next picture once the wait is spent.</summary>
     internal void AdvanceFlareComponent(ChargeFlareComponent component)
     {
         // The next picture shows on the update the wait's count passes below zero, so a wait of zero still holds its

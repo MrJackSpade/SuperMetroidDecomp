@@ -4,9 +4,9 @@ using P = SuperMetroid.Core.Samus.Projectiles.SamusProjectileSegment;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// The Samus projectiles' programs (#1301). Generated from the verified animation scripts:
+/// The Samus projectiles' animations (#1301):
 /// each timed step shows a <see cref="SamusProjectileFrame"/> for its duration, and the lists' gotos and
-/// deletes end their programs.
+/// deletes end their animations.
 /// </summary>
 internal static class SamusProjectileAnimations
 {

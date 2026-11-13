@@ -16,7 +16,7 @@ internal static class SamusProjectileSelection
 
     /// <summary>
     /// The animation a shot of <paramref name="beams"/>, charged when <paramref name="charged"/>, runs fired in
-    /// <paramref name="direction"/>, or null for none: its kind's program for the direction, except the Murder Beam's,
+    /// <paramref name="direction"/>, or null for none: its kind's animation for the direction, except the Murder Beam's,
     /// which reads past the Power Bomb kind it takes its damage from (<see cref="MurderBeamDirectionAnimations{TDirection, TAnimation}"/>).
     /// </summary>
     internal static SamusProjectileSegment? BeamShotAnimation(SamusBeamCombination beams, bool charged, SamusProjectileDirection direction) =>

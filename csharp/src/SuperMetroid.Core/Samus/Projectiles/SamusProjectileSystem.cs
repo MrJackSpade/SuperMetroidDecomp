@@ -569,7 +569,7 @@ public sealed class SamusProjectileSystem
 
         if (samus.HyperBeamEnabled)
         {
-            // Hyper Beam replaces the ordinary flare's programs with a backward count through the components'
+            // Hyper Beam replaces the ordinary flare's animations with a backward count through the components'
             // pictures, fast sparks first, then slow sparks, then the main flare.
             var hyper = new ChargeFlareComponents(3, Descending: true);
             foreach (ChargeFlareComponent component in hyper.DrawOrder)
@@ -657,7 +657,7 @@ public sealed class SamusProjectileSystem
 
     /// <summary>
     /// Advances every trail one update, after the ordinary projectile pass, and removes the trails that have ended. Each
-    /// side owns its own timer, program position and position.
+    /// side owns its own timer, animation position and position.
     /// </summary>
     /// <param name="timeIsFrozen">
     /// Whether time is frozen. Frozen trails retain their current record and are still drawn;

@@ -263,8 +263,8 @@ public sealed class SamusDrainedState
     /// <summary>
     /// Called only by the drained-fall animation cue; the generic delay
     /// step performs the command's separate frame increment. The cue does not look at the pose: the drained
-    /// crouches' programs hold it, and a landing pose whose frame the Baby's Hyper Beam freeze or rainbow stop sets reads
-    /// into the drained crouch's program and reaches it too, so that pose falls as a drained Samus does (#1535).
+    /// crouches' animations hold it, and a landing pose whose frame the Baby's Hyper Beam freeze or rainbow stop sets reads
+    /// into the drained crouch's animation and reaches it too, so that pose falls as a drained Samus does (#1535).
     /// </summary>
     internal void InstallFallingMovementHandler(SamusState samus)
     {
@@ -348,7 +348,7 @@ public sealed class SamusDrainedState
     {
         Ensure.NotNull(samus);
 
-        // These are literal indices into the asymmetrical delay programs, not visual
+        // These are literal indices into the asymmetrical delay animations, not visual
         // frame counts. In particular, the left-facing drained crouch's index 13 lands inside a
         // cue's argument rather than on a frame; the game
         // intentionally draws that index until the next animation decrement advances it.

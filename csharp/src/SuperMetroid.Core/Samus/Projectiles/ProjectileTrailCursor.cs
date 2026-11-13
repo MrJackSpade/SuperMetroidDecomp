@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>Where one trail side is in its program: the step it runs next.</summary>
-/// <param name="Animation">The program the side runs.</param>
+/// <summary>Where one trail side is in its animation: the step it runs next.</summary>
+/// <param name="Animation">The animation the side runs.</param>
 /// <param name="Step">The index of the next step.</param>
 public readonly record struct ProjectileTrailCursor(ProjectileTrailSegment Animation, int Step)
 {

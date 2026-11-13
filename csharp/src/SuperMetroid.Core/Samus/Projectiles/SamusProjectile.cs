@@ -145,11 +145,11 @@ public sealed class SamusProjectile
     /// <summary>The projectile's frame behaviour.</summary>
     public SamusProjectileFrameBehavior FrameBehavior { get; internal set; }
 
-    /// <summary>A live projectile program marks the projectile drawable and updated.</summary>
+    /// <summary>A live projectile animation marks the projectile drawable and updated.</summary>
     public bool IsActive => Playback is not null;
 
     /// <summary>
-    /// Enemy collision admits a beam, missile, or Super Missile even when it has no program to animate. This
+    /// Enemy collision admits a beam, missile, or Super Missile even when it has no animation to play. This
     /// distinction is observable for the left-facing Murder Beam, whose type and damage remain live while it has none.
     /// </summary>
     public bool HasEnemyCollisionPayload => !Type.IsNone && Type.Family.IsBeamOrMissile;

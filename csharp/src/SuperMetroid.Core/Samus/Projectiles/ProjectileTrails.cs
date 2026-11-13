@@ -4,7 +4,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// The trails Samus's shots leave (#1625): presentation particles, each a pair of sparkles running its own programs until
+/// The trails Samus's shots leave (#1625): presentation particles, each a pair of sparkles running its own animations until
 /// both end. A new trail never displaces one already shown, and nothing in gameplay reads a trail.
 /// </summary>
 internal sealed class ProjectileTrails
@@ -19,7 +19,7 @@ internal sealed class ProjectileTrails
     internal void Add(SamusProjectileTrail trail) => trails.Add(Ensure.NotNull(trail));
 
     /// <summary>
-    /// Leaves a trail behind <paramref name="projectile"/>: selects both sparkles' programs from the shot's beams and
+    /// Leaves a trail behind <paramref name="projectile"/>: selects both sparkles' animations from the shot's beams and
     /// places them from the placement its shown animation frame selects in its trail list.
     /// </summary>
     internal void SpawnTrail(SamusProjectile projectile)
@@ -176,7 +176,7 @@ internal sealed class ProjectileTrails
         }
     }
 
-    /// <summary>Publishes one side wherever it lies, once it shows a pose and until its program ends.</summary>
+    /// <summary>Publishes one side wherever it lies, once it shows a pose and until its animation ends.</summary>
     private static void DrawTrailSide(
         SpriteFrameBuffer sprites,
         SamusProjectileTrail pair,
@@ -187,7 +187,7 @@ internal sealed class ProjectileTrails
     {
         SamusProjectileTrailSide side = direction == HorizontalDirection.Left ? pair.Left : pair.Right;
         // A finished side, including one that ended in this frame's advance, shows nothing, and so does a side whose
-        // program has shown no pose yet.
+        // animation has shown no pose yet.
         if (side.FrameHold == 0 || side.ShownPose is not { } pose)
             return;
 

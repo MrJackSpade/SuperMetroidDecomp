@@ -48,7 +48,7 @@ public sealed class SamusXrayState
     public bool AreEnemyProjectilesSuspended =>
         (SuspendedSubsystems & XraySuspendedSubsystems.EnemyProjectiles) != XraySuspendedSubsystems.None;
 
-    /// <summary>Whether X-ray's independent room-object disable remains set, suppressing room-object program processing separately from shared time freeze.</summary>
+    /// <summary>Whether X-ray's independent room-object disable remains set, suppressing room-object animation processing separately from shared time freeze.</summary>
     public bool AreObjectsSuspended =>
         (SuspendedSubsystems & XraySuspendedSubsystems.RoomObjects) != XraySuspendedSubsystems.None;
 

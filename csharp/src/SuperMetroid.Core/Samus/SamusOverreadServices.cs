@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Samus;
 public sealed class SamusOverreadServices
 {
     /// <summary>Keeps every decoded service.</summary>
-    /// <param name="animationContinuation">What a Samus animation frame past its pose's program reads.</param>
+    /// <param name="animationContinuation">What a Samus animation frame past its pose's animation reads.</param>
 
     /// <param name="projectiles">The services Samus's projectiles consult where they read past their data.</param>
     /// <param name="straddledTerrain">The terrain a Wave shot's scan past the room's ceiling finds straddling two blocks.</param>
@@ -31,7 +31,7 @@ public sealed class SamusOverreadServices
         StraddledTerrain = Ensure.NotNull(straddledTerrain);
     }
 
-    /// <summary>What a Samus animation frame past its pose's program reads, by a pose that animates by each program.</summary>
+    /// <summary>What a Samus animation frame past its pose's animation reads, by a pose that animates by each animation.</summary>
     internal LaidOutAnimationContinuation<SamusPoseId, SamusPoseAnimationStep> AnimationContinuation { get; }
 
 

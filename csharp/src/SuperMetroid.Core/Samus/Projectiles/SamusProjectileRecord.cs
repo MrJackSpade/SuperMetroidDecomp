@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// One timed projectile record's gameplay (#1301): its program and place there are the identity installed frame bindings
+/// One timed projectile record's gameplay (#1301): its animation and place there are the identity installed frame bindings
 /// key on, and what it pictures is installed only (#1596).
 /// </summary>
 /// <param name="Radius">The hitbox's radii.</param>

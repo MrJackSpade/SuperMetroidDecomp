@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Samus.Poses;
 
-/// <summary>How the Samus animation programs in <see cref="SamusAnimationDelayDefinitions"/> are written.</summary>
+/// <summary>How the Samus animations in <see cref="SamusAnimationDelayDefinitions"/> are written.</summary>
 /// <remarks>
 /// The frame delays are authored animation cadence: the chosen timing of each drawn pose sequence (turn, landing,
 /// breathing, spin, appearance), which follows from no physical gameplay quantity. Fitting or reciting them in arithmetic

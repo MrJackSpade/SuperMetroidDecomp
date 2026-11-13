@@ -198,7 +198,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
                 ? new AnimationContinuation<FuneNamiheSegment>(FuneNamiheAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
 
-    /// <summary>Shared projectile movement callback installed for both Fune and Namihe fireballs.</summary>
+    /// <summary>Shared projectile movement behaviour installed for both Fune and Namihe fireballs.</summary>
     private const EnemyProjectileFrameBehavior NamiFuneFireballFrameBehavior =
         EnemyProjectileFrameBehavior.FuneNamiheFireballFlight;
 

@@ -79,7 +79,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Carries out one cue of a baby turtle's animations. The crawl loop, leaving the shell while ridden and the end of
-    /// leaving it continue at the animation their callbacks return; every other cue runs on.
+    /// leaving it continue at the animation their cues return; every other cue runs on.
     /// </summary>
     private MamaTurtleSegment? ApplyBabyTurtleCue(RoomEnemySlot slot, MamaTurtleCue cue, SamusState? samus, RoomLevelData? level)
     {
@@ -697,7 +697,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             : MamaTurtleSegment.BabyCrawlingRight;
     }
 
-    /// <summary>Runs Mama's custom ordinary-touch callback.</summary>
+    /// <summary>Runs Mama's custom ordinary-touch reaction.</summary>
     private void ResolveMamaTurtleTouch(
         RoomEnemySlot mama,
         MamaTurtleEnemyState state,
@@ -710,7 +710,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Velocity = state.Velocity.WithWholeY(2);
     }
 
-    /// <summary>Runs Baby's direction flip, separation, and wake callback.</summary>
+    /// <summary>Runs Baby's direction flip, separation, and wake reaction.</summary>
     private void ResolveBabyTurtleTouch(
         RoomEnemySlot baby,
         BabyTurtleEnemyState state,
@@ -843,7 +843,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidOperationException("Turtle movement requires active room collision data.");
     }
 
-    /// <summary>Runs the baby wake callback after common bomb damage.</summary>
+    /// <summary>Runs the baby wake reaction after common bomb damage.</summary>
     internal void AddMamaTurtleBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.BabyTurtle &&
@@ -898,7 +898,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = playback;
     }
 
-    /// <summary>Runs the baby wake callback after common projectile damage.</summary>
+    /// <summary>Runs the baby wake reaction after common projectile damage.</summary>
     internal void AddMamaTurtleShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.BabyTurtle &&

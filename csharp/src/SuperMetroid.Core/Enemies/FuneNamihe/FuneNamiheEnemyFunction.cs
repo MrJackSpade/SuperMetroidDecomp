@@ -11,7 +11,7 @@ public enum FuneNamiheEnemyFunction
     FuneWaitForCooldown = 1,
     /// <summary>Selects the active mouth animation only when Samus's modular vertical distance is strictly below its whole-pixel vertical proximity, then parks at <see cref="NamiheActivityNoOp"/> without a cooldown.</summary>
     NamiheWaitForSamus,
-    /// <summary>Fune's inert main-AI target while animation cues own mouth motion, projectile/sound production, and the finish callback that restores its cooldown wait.</summary>
+    /// <summary>Fune's inert main-AI target while animation cues own mouth motion, projectile/sound production, and the finishing cue that restores its cooldown wait.</summary>
     FuneActivityNoOp,
     /// <summary>Namihe's separately observable inert main-AI target while its animation owns the attack and eventually restores its Samus-proximity wait.</summary>
     NamiheActivityNoOp,

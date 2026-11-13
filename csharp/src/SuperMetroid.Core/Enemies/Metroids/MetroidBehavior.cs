@@ -464,7 +464,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
             });
 
-    /// <summary>Registers the Metroid Power Bomb callback that clears its outer body before generic death.</summary>
+    /// <summary>Registers the Metroid Power Bomb reaction that clears its outer body before generic death.</summary>
     internal static void AddMetroidPowerBombReactions(EnemySharedReactions table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Metroid &&

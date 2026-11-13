@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Yard;
 
-/// <summary>Compiled turn geometry and callback metadata for the Maridia Yard.</summary>
+/// <summary>Compiled turn geometry and behaviour metadata for the Maridia Yard.</summary>
 internal static class YardTurnDefinitions
 {
     /// <summary>
@@ -21,7 +21,7 @@ internal static class YardTurnDefinitions
 
     /// <summary>
     /// The transition-disabled alternatives, which only the four horizontal crawling states have: zero lookahead and
-    /// the corresponding vertical crawl callbacks.
+    /// the corresponding vertical crawl behaviours.
     /// </summary>
     internal static readonly Dictionary<YardMovementFunction, YardTurnDefinition> DisabledTurns = new()
     {

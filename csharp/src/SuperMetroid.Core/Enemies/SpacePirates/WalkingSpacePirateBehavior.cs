@@ -454,7 +454,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         : movement == EnemyProjectileFrameBehavior.LaserFlightLeft ? HorizontalDirection.Left
         : throw new InvalidOperationException($"{movement} is not a laser flight.");
 
-    /// <summary>Requires the physical slot to have been initialized as a walking pirate.</summary>
+    /// <summary>Requires the enemy to have been initialized as a walking pirate.</summary>
     internal static WalkingSpacePirateEnemyState RequireWalkingSpacePirateState(
         RoomEnemySlot slot) =>
         slot.SpeciesState<WalkingSpacePirateEnemyState>() ?? throw new InvalidOperationException(
@@ -505,7 +505,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         state.Playback = playback;
     }
 
-    /// <summary>Runs the extended-hitbox shot callback, including collision marking before rejection or reflection.</summary>
+    /// <summary>Runs the extended-hitbox shot reaction, including collision marking before rejection or reflection.</summary>
     internal bool ResolveSpacePirateHitboxShot(in EnemyShotContext c)
     {
         if (!c.UsesFrameHitboxes)
@@ -514,15 +514,15 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         if (pirateAction != PirateHitboxShotActions.PirateHitboxShotAction.Normal)
         {
             // The extended walker marks a non-plasma projectile as having entered an extended hitbox before the
-            // selected callback runs. Normal hits get the equivalent lifecycle transition from TryStartEnemyImpact;
+            // selected reaction runs. Normal hits get the equivalent lifecycle transition from TryStartEnemyImpact;
             // rejected and reflected hits return before that shared host path. The plasma-blocking enemy property also
             // forces the mark.
             c.Projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(c.Projectile, c.MarksCollision);
         }
         if (pirateAction == PirateHitboxShotActions.PirateHitboxShotAction.Ignore)
         {
-            // The Ninja body callback deliberately returns for a just-fired Super Missile that has no link yet.
-            // The frame-hitbox collision walk nevertheless exits after invoking that callback.
+            // The Ninja body reaction deliberately returns for a just-fired Super Missile that has no link yet.
+            // The frame-hitbox collision walk nevertheless exits after running that reaction.
             return true;
         }
         if (pirateAction == PirateHitboxShotActions.PirateHitboxShotAction.Reflect)

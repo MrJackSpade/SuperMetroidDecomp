@@ -73,7 +73,7 @@ internal sealed class EnemySlotDispatch : IEnemyDispatch
     private static InvalidDataException Untranslated(RoomEnemySlot slot) =>
         new($"Enemy {slot.DefinitionId} initialization AI is not translated.");
 
-    /// <summary>Exposes physical-slot population setup to the enemy loader.</summary>
+    /// <summary>Exposes setting up a listed enemy from its population record to the enemy loader.</summary>
     void IEnemyDispatch.InitializeSlotFromDefinition(
         RoomEnemySlot slot, RoomEnemyPopulationRecord population, RoomEnemyDefinition definition) =>
         InitializeSlotFromDefinition(slot, population, definition);

@@ -52,7 +52,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         EnemyDefinitionId.PirateMagentaWall or
         EnemyDefinitionId.PirateSilverWall;
 
-    /// <summary>Groups wall, walking, and Ninja Pirates that share ordinary Pirate combat callbacks.</summary>
+    /// <summary>Groups wall, walking, and Ninja Pirates that share ordinary Pirate combat reactions.</summary>
     internal static bool IsOrdinarySpacePirateDefinition(EnemyDefinitionId definition) =>
         IsWallSpacePirateDefinition(definition) ||
         WalkingSpacePirateBehavior.IsWalkingSpacePirateDefinition(definition) ||
@@ -342,7 +342,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
                 ? new AnimationContinuation<WallSpacePirateSegment>(WallSpacePirateAnimations.StartingWith(continuesAt), AnimationPlace.StartOfAnimation)
                 : null);
 
-    /// <summary>Applies the ordinary Pirate power-bomb callback across wall, walking, and Ninja variants.</summary>
+    /// <summary>Applies the ordinary Pirate power-bomb reaction across wall, walking, and Ninja variants.</summary>
     internal static void AddWallSpacePiratePowerBombReactions(EnemySharedReactions table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => IsOrdinarySpacePirateDefinition(enemy.DefinitionId) &&
@@ -374,7 +374,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         });
     }
 
-    /// <summary>Skips frozen contact and rejects unsupported extended hitbox callbacks before normal touch damage.</summary>
+    /// <summary>Skips frozen contact and rejects unsupported extended hitbox reactions before normal touch damage.</summary>
     internal void AddWallSpacePirateTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => IsOrdinarySpacePirateDefinition(slot.DefinitionId) &&
@@ -382,7 +382,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
             context =>
             {
                 // Space Pirate extended maps currently use the shared Pirate touch
-                // callback in every retail hitbox. Keep the callback check explicit: silently
+                // reaction in every retail hitbox. Keep the reaction check explicit: silently
                 // treating a later family-specific attack box as ordinary body contact would
                 // recreate the exact radius-flattening bug this path is intended to remove.
                 if (context.UsesFrameHitboxes && context.HitboxTouchAi != EnemyReaction.SpacePirateTouch)

@@ -6,7 +6,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>One Samus projectile overlapping one enemy in the ordinary shot pass.</summary>
-/// <param name="Enemy">The enemy whose shot callback runs.</param>
+/// <param name="Enemy">The enemy whose shot reaction runs.</param>
 /// <param name="Projectile">The overlapping beam or missile slot.</param>
 /// <param name="Projectiles">Samus's projectile owner, for collision preludes, impacts and reflection.</param>
 /// <param name="Samus">Samus, when the pass has one.</param>
@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="ProjectileDirection">The incoming projectile's direction.</param>
 /// <param name="Family">The incoming projectile family.</param>
 /// <param name="UsesFrameHitboxes">Whether the overlap came from the enemy's authored extended hitboxes.</param>
-/// <param name="HitboxShotAi">The named shot callback of the overlapping hitbox, if named.</param>
+/// <param name="HitboxShotAi">The named shot reaction of the overlapping hitbox, if named.</param>
 /// <param name="HealthBefore">Enemy health after impact and before vulnerability damage (set for the later stages).</param>
 [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
 internal readonly record struct EnemyShotContext(

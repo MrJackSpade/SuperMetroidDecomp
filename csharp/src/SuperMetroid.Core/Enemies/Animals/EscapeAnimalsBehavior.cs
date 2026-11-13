@@ -35,7 +35,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         _terrain = terrain;
     }
 
-    /// <summary>Whole-pixel horizontal step used by each Dachora movement-animation callback.</summary>
+    /// <summary>Whole-pixel horizontal step used by each Dachora movement-animation cue.</summary>
     private const int EscapeDachoraPixelsPerCallback = 6;
     /// <summary>Lava Y threshold tested by both families' acid-height branch cues.</summary>
     private const int EscapeAnimalLavaBranchY = 206;

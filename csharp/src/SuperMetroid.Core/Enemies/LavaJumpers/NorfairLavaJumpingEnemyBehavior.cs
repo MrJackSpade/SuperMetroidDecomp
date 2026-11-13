@@ -24,7 +24,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
     /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
-    /// <summary>Binds lava-jumper behavior to room RNG and physical enemy slots.</summary>
+    /// <summary>Binds lava-jumper behavior to room RNG and the room's enemies.</summary>
     internal NorfairLavaJumpingEnemyBehavior(EnemyRoomBinding room, EnemySlotTable slotTable, EnemyAudioQueue audio)
     {
         _audio = audio;

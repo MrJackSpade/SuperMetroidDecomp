@@ -372,7 +372,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         // Samus command three drops any active grapple;
         // its transitional pose must be committed before the Maw releases input. It normalizes
         // spin-jump/wall-jump bodies. The input handler itself was already replaced by the
-        // touch callback; do not force unrelated falling/running poses to standing.
+        // touch reaction; do not force unrelated falling/running poses to standing.
         if (samus.Grapple.Phase != GrapplePhase.Inactive)
         {
             samus.Grapple.Phase = GrapplePhase.Dropped;
@@ -399,7 +399,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         _scrollCap.CapSamusScrollingSpeed(samus);
     }
 
-    /// <summary>Custom touch callback: grab, never ordinary contact damage.</summary>
+    /// <summary>Custom touch reaction: grab, never ordinary contact damage.</summary>
     private static void ResolveYappingMawTouch(
         YappingMawEnemyState state,
         SamusState samus)
@@ -479,7 +479,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         return EnemyShades.FrozenLook;
     }
 
-    /// <summary>Animation callback used by all six held-Samus offset cues.</summary>
+    /// <summary>Animation behaviour used by all six held-Samus offset cues.</summary>
     internal static void SetYappingMawHeldOffset(
         YappingMawEnemyState state,
         YappingMawAim aim)
@@ -583,7 +583,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     private static int WholePixelsRoundedDown(int fractions) =>
         fractions >= 0 ? fractions / FractionsPerPixel : -((-fractions + FractionsPerPixel - 1) / FractionsPerPixel);
 
-    /// <summary>Routes bomb hits through the Maw's shared shot callback.</summary>
+    /// <summary>Routes bomb hits through the Maw's shared shot reaction.</summary>
     internal static void AddYappingMawBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.YappingMaw &&

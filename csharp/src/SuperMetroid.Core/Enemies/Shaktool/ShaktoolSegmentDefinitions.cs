@@ -1,13 +1,13 @@
 namespace SuperMetroid.Core.Enemies.Shaktool;
 
 /// <summary>
-/// Compiled mechanics and callback metadata for Shaktool's seven linked body segments, leading saw first. Processing and contact:
+/// Compiled mechanics and behaviour metadata for Shaktool's seven linked body segments, leading saw first. Processing and contact:
 /// every segment runs its animation and is processed off screen; the five internal pieces also ignore Samus's
 /// touch. Owner distance: how many slots each segment sits after the chain's first segment, its owner: its
 /// position in the chain. The joints integrate symmetric increments 1,2,3,4,3,2 into steps 0,1,3,6,10,13,15: the
 /// initial neighbor angle is eight whole steps back for each, and the initial curl per update an eighth of a step on for
 /// each, the same curvature at 1/64 of the angle's magnitude. Initial animation: both saws their primary-piece animation,
-/// the center segment the head-down animation, the four arms the normal arm animation. Callback by part: fixed anchor, head,
+/// the center segment the head-down animation, the four arms the normal arm animation. Behaviour by part: fixed anchor, head,
 /// final saw and ordinary arms have distinct roles.
 /// </summary>
 internal static class ShaktoolSegmentDefinitions

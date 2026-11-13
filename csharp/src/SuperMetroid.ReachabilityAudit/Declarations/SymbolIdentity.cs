@@ -5,12 +5,16 @@ namespace SuperMetroid.ReachabilityAudit.Declarations;
 
 /// <summary>
 /// Stable keys for repository source symbols. A key combines the documentation-comment ID with
-/// the declaring file, so a shared-source file compiled into several assemblies is one symbol.
+/// the declaring file, so a shared-source file compiled into several assemblies is one symbol; an extension block's key
+/// adds where the block is declared, since blocks taking the same receiver share one documentation-comment ID.
 /// </summary>
 internal sealed class SymbolIdentity(string repositoryRoot)
 {
     /// <summary>Suffix of the key that stands for a source type's compiler-generated constructor.</summary>
     public const string ImplicitConstructorSuffix = "#implicit-ctor";
+
+    /// <summary>Separates an extension block's key from the position of its declaration.</summary>
+    private const string ExtensionBlockSeparator = "#block-";
 
     /// <summary>Path segment excluded because it contains compiler-generated intermediate source.</summary>
     private static readonly string ObjSegment = $"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}";
@@ -74,6 +78,19 @@ internal sealed class SymbolIdentity(string repositoryRoot)
             return Key(constructor.ContainingType) is { } typeKey ? typeKey + ImplicitConstructorSuffix : null;
         string? file = symbol.Locations.Where(l => l.IsInSource).Select(l => l.SourceTree).OfType<SyntaxTree>()
             .Where(IsRepositorySource).Select(tree => Relative(tree.FilePath)).Order(StringComparer.Ordinal).FirstOrDefault();
-        return file is not null && symbol.GetDocumentationCommentId() is { } id ? $"{id}@{file}" : null;
+        if (file is null || symbol.GetDocumentationCommentId() is not { } id)
+            return null;
+        // Extension blocks of one class that take the same receiver share a documentation ID, yet each is its own
+        // declaration, reachable only through its own members: each is keyed by where it is declared as well.
+        if (symbol is INamedTypeSymbol { IsExtension: true })
+            return $"{id}@{file}{ExtensionBlockSeparator}{BlockStart(symbol, file)}";
+        return $"{id}@{file}";
     }
+
+    /// <summary>Where an extension block is declared in <paramref name="file"/>.</summary>
+    /// <exception cref="InvalidOperationException">The block has no declaration in the file.</exception>
+    private int BlockStart(ISymbol block, string file) =>
+        block.Locations.FirstOrDefault(l => l.IsInSource && l.SourceTree is { } tree && Relative(tree.FilePath) == file) is { } location
+            ? location.SourceSpan.Start
+            : throw new InvalidOperationException($"{block.ToDisplayString()} has no declaration in {file}.");
 }

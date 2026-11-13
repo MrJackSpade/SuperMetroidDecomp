@@ -153,7 +153,7 @@ public sealed class PlayableGameControl : UserControl
         var saveStateButton = new ToolStripButton("Save State")
         {
             Enabled = driver is null,
-            ToolTipText = "Persist the complete emulated state in the selected slot",
+            ToolTipText = "Save the complete game state in the selected slot",
         };
         var loadStateButton = new ToolStripButton("Load State")
         {
@@ -434,7 +434,7 @@ public sealed class PlayableGameControl : UserControl
     }
 
     /// <summary>
-    /// Flushes changed saves synchronously. The cartridge call is infrequent, and completing
+    /// Flushes changed saves synchronously. The game saves infrequently, and completing
     /// the write before the next frame preserves the save even if the host is stopped at a
     /// breakpoint or closed immediately after the Ceres checkpoint.
     /// </summary>
@@ -457,10 +457,10 @@ public sealed class PlayableGameControl : UserControl
     }
 
     /// <summary>
-    /// Selects exactly one live or driven word, records live input before execution, and advances
-    /// the translated dispatcher. Null means a finished timeline or deferred audio capacity, never input zero.
+    /// Selects exactly one live or driven set of held buttons, records live input before the update, and
+    /// advances the game one update. Null means a finished timeline or deferred audio capacity, never input zero.
     /// </summary>
-    /// <remarks>Under a driver the forced and live inputs are ignored: the timeline supplies every word,
+    /// <remarks>Under a driver the forced and live inputs are ignored: the timeline supplies every update's buttons,
     /// and the driver's current game, read after its input, is the one stepped and presented.</remarks>
     private FrontendFrame? AdvanceOneFrame(ControllerButton? forcedInput = null)
     {
@@ -521,7 +521,7 @@ public sealed class PlayableGameControl : UserControl
         }
         catch (Exception frameException)
         {
-            // RecordFrame runs before Step specifically so the throwing controller word is
+            // RecordFrame runs before Step specifically so the throwing update's buttons are
             // already present. Force that snapshot to disk now: a debugger can leave the
             // process paused indefinitely, so ProcessExit/Dispose and the next periodic
             // flush are not reliable ways to preserve the reproducing frame.
@@ -531,11 +531,11 @@ public sealed class PlayableGameControl : UserControl
             }
             catch (Exception recorderException)
             {
-                // Preserve both failures. Replacing a cartridge/runtime exception with a
+                // Preserve both failures. Replacing a gameplay/runtime exception with a
                 // secondary diagnostic-write exception would be another silent loss of the
                 // information needed to reproduce the frame.
                 frameException = new AggregateException(
-                    "The emulated frame and its emergency input-recording flush both failed.",
+                    "The game update and its emergency input-recording flush both failed.",
                     frameException,
                     recorderException);
             }
@@ -554,7 +554,7 @@ public sealed class PlayableGameControl : UserControl
             catch (Exception diagnosticException)
             {
                 frameException = new AggregateException(
-                    "The emulated frame and diagnostic console write both failed.",
+                    "The game update and diagnostic console write both failed.",
                     frameException, diagnosticException);
             }
 
@@ -564,15 +564,15 @@ public sealed class PlayableGameControl : UserControl
                 throw new UnreachableException();
             }
 
-            // A managed exception cannot resume inside the cartridge routine that threw.
+            // A managed exception cannot resume inside the game routine that threw.
             // The opt-in development mode therefore preserves the complete diagnostic and
-            // tries the next dispatcher frame from whatever state the failed frame reached.
+            // tries the next update from whatever state the failed update reached.
             // This is intentionally a host recovery boundary, not a claim that the partial
-            // state is cartridge-correct.
+            // state is one the original game would reach.
             lastRecoverableError = errorReporter.Report(
                 frameException,
                 new GitHubErrorContext(
-                    Boundary: "playable emulated-frame boundary",
+                    Boundary: "playable game-update boundary",
                     FrameNumber: game.FrameNumber,
                     GameState: game.GameState.ToString(),
                     Phase: game.CurrentFrame.Phase,
@@ -729,12 +729,12 @@ public sealed class PlayableGameControl : UserControl
         host.Text = $"Super Metroid C# — RoomId: {identity} — {room.Name} [state {state.Name}]";
     }
 
-    /// <summary>Merges keyboard and gamepad into one filtered cartridge-format input word.</summary>
+    /// <summary>Merges keyboard and gamepad into one filtered set of held controller buttons.</summary>
     private ControllerButton BuildControllerWord()
     {
-        // Keyboard and gamepad are two host producers for the same physical SNES port.
-        // Merge them before recording so replay sees one exact cartridge-format word and
-        // never depends on which Windows device generated a particular held bit.
+        // Keyboard and gamepad are two host producers for the game's one controller.
+        // Merge them before recording so replay sees one exact set of held buttons and
+        // never depends on which Windows device pressed a particular button.
         ControllerButton input = keyboard.BuildControllerWord(gamepad.Poll());
         return inputActivation.Filter(input);
     }
@@ -773,7 +773,7 @@ public sealed class PlayableGameControl : UserControl
         // Remote disconnect/lock can leave the WinForms window technically active, so its
         // Deactivate event is not a sufficient release boundary. SystemEvents may deliver
         // this callback off the UI thread; queue the state mutation onto the same thread
-        // that polls and records controller words.
+        // that polls and records the controller's buttons.
         if (!IsHandleCreated || IsDisposed)
             return;
         BeginInvoke(ReleaseInputAfterSessionSwitch);

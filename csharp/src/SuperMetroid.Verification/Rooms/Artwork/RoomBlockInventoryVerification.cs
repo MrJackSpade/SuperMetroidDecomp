@@ -261,8 +261,8 @@ internal static class RoomBlockInventoryVerification
         InvalidDataException error = AssertThrows<InvalidDataException>(
             () => resolver.Resolve(plane, null, RoomBlockArtwork.Tileset, default, []),
             "a room showing a block its sheet does not picture fails");
-        AssertTrue(error.Message.Contains(sheet.Sheet.Image.Name, StringComparison.Ordinal) && error.Message.Contains("block 001", StringComparison.Ordinal),
-            $"the failure names the sheet {sheet.Sheet.Image.Name} and block 001: {error.Message}");
+        AssertTrue(error.Message.Contains(sheet.Sheet.Image.Name, StringComparison.Ordinal) && error.Message.Contains("of block 1", StringComparison.Ordinal),
+            $"the failure names the sheet {sheet.Sheet.Image.Name} and block 1 by its decimal number, as its pictures are named: {error.Message}");
         AssertTrue(sheet.Inputs.Shows(0) && !sheet.Inputs.Shows(1), "the sheet's record shows the pictured block alone");
         Console.WriteLine("Unpictured block: a room showing a block its sheet does not picture fails, naming the sheet and the block.");
     }

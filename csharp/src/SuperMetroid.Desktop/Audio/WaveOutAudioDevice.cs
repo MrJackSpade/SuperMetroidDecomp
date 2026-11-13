@@ -61,7 +61,7 @@ internal sealed partial class WaveOutAudioDevice : IHostAudioOutput
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(sampleRate);
         if (channelCount != 2)
-            throw new ArgumentOutOfRangeException(nameof(channelCount), "The SNES mixer is stereo.");
+            throw new ArgumentOutOfRangeException(nameof(channelCount), "The game's audio output is stereo.");
         if (samplesPerBuffer <= 0 || samplesPerBuffer % channelCount != 0)
             throw new ArgumentOutOfRangeException(nameof(samplesPerBuffer));
         if (volumePercent is < 0 or > 100)
@@ -87,7 +87,7 @@ internal sealed partial class WaveOutAudioDevice : IHostAudioOutput
             if (WaveOutAudioPolicy.PrerollSilenceBufferCount >= slots.Length)
             {
                 throw new InvalidOperationException(
-                    "waveOut preroll must leave at least one hardware slot for emulated PCM.");
+                    "waveOut preroll must leave at least one hardware slot for the game's PCM.");
             }
             prerollSilence = new short[samplesPerBuffer];
             submissionWorker = new Thread(ProcessPendingFrames)
@@ -113,7 +113,7 @@ internal sealed partial class WaveOutAudioDevice : IHostAudioOutput
     }
 
     /// <summary>
-    /// UI-owner preflight before emulation consumes input or produces PCM. Only the UI
+    /// UI-owner preflight before the game's update consumes input or produces PCM. Only the UI
     /// adds frames, so the worker can only increase capacity after this observation.
     /// A failed worker remains eligible so Submit reports its original device failure
     /// through the existing recoverable audio boundary instead of freezing gameplay.
@@ -143,7 +143,7 @@ internal sealed partial class WaveOutAudioDevice : IHostAudioOutput
         throw new InvalidOperationException(
             $"waveOut worker queue still owns all " +
             $"{WaveOutAudioPolicy.ManagedQueueCapacityFrames} managed PCM frames; " +
-            "refusing to drop the newest emulated audio frame silently.");
+            "refusing to drop the game's newest audio frame silently.");
     }
 
     /// <summary>
@@ -228,7 +228,7 @@ internal sealed partial class WaveOutAudioDevice : IHostAudioOutput
     /// native buffers provides no tolerance: without this fill, the device starts consuming
     /// the sole submitted 16.7-ms frame immediately while the WinForms producer runs at the
     /// same average cadence. A few silent frames absorb ordinary scheduling/RDP jitter and
-    /// preserve every later emulated sample instead of repeating or dropping audio.
+    /// preserve every later sample the game produces instead of repeating or dropping audio.
     /// </summary>
     private void PrimeDeviceBeforeFirstFrame()
     {
@@ -253,7 +253,7 @@ internal sealed partial class WaveOutAudioDevice : IHostAudioOutput
         // the WinForms producer continues through the bounded managed queue above. Polling
         // is deliberate here: WHDR_DONE is the ownership bit documented by waveOut, and a
         // one-millisecond sleep avoids burning a core while retaining much finer resolution
-        // than one 60-Hz emulated frame.
+        // than one 60-Hz game update.
         Stopwatch timeout = Stopwatch.StartNew();
         do
         {
@@ -521,7 +521,7 @@ internal sealed partial class WaveOutAudioDevice : IHostAudioOutput
     {
         /// <summary>One selects uncompressed PCM.</summary>
         public ushort FormatTag;
-        /// <summary>Two interleaved channels for the SNES mixer.</summary>
+        /// <summary>Two interleaved channels of the game's stereo output.</summary>
         public ushort Channels;
         /// <summary>Sample frames played per second.</summary>
         public uint SamplesPerSecond;

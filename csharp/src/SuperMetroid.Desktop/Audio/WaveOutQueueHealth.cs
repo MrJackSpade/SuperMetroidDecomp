@@ -12,7 +12,7 @@ internal sealed class WaveOutQueueHealth
     private int minimum = int.MaxValue, maximum;
 
     /// <summary>
-    /// Called by the audio owner before an emulated block is written. Startup/reset
+    /// Called by the audio owner before a block of the game's audio is written. Startup/reset
     /// preroll is excluded. Zero means all native headers have returned before refill;
     /// this is an observed queue drain, not a hardware-reported underrun duration.
     /// </summary>

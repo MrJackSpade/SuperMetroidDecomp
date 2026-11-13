@@ -108,7 +108,7 @@ internal static class Program
                 UnhandledExceptionConsole.SetRecoverableUiErrorReporter(exception =>
                     githubErrorReporter.Report(
                         exception,
-                        new GitHubErrorContext("WinForms UI callback outside the emulated-frame boundary")));
+                        new GitHubErrorContext("WinForms UI callback outside the game-update boundary")));
                 Console.WriteLine(
                     $"Recoverable errors will be deduplicated and filed in " +
                     $"{hostOptions.GitHubErrorRepository}; gameplay will attempt the next frame.");

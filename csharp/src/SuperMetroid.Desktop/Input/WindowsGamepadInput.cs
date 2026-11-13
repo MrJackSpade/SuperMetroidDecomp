@@ -34,7 +34,7 @@ internal sealed partial class WindowsGamepadInput
     public GenericGamepadSnapshot LastSnapshot { get; private set; }
 
     /// <summary>
-    /// Polls the active controller and returns its SNES buttons. A disconnected controller
+    /// Polls the active controller and returns the game controller buttons it holds. A disconnected controller
     /// contributes zero input and triggers a throttled rescan, so unplug/replug works while
     /// the game remains open without putting device discovery in the 60-Hz hot path.
     /// </summary>
@@ -119,7 +119,7 @@ internal sealed partial class WindowsGamepadInput
             WindowsMultimediaResult.NoError;
     }
 
-    /// <summary>Stores the normalized snapshot and maps it to SNES buttons for this poll.</summary>
+    /// <summary>Stores the normalized snapshot and maps it to the game's controller buttons for this poll.</summary>
     private ControllerButton MapAndRemember(JoystickPosition position)
     {
         LastSnapshot = CreateSnapshot(position, activeCapabilities);

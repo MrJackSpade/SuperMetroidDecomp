@@ -8,13 +8,13 @@ internal enum JoystickPositionQueryFlags : uint
     ReturnX = 0x00000001,
     /// <summary><c>JOY_RETURNY</c>: requests valid Y-axis data in <c>JOYINFOEX.dwYpos</c>, subsequently normalized by the desktop adapter for vertical input.</summary>
     ReturnY = 0x00000002,
-    /// <summary><c>JOY_RETURNZ</c>: requests valid third-axis data in <c>JOYINFOEX.dwZpos</c>; this axis is not mapped to SNES controls.</summary>
+    /// <summary><c>JOY_RETURNZ</c>: requests valid third-axis data in <c>JOYINFOEX.dwZpos</c>; this axis is not mapped to the game's controller buttons.</summary>
     ReturnZ = 0x00000004,
-    /// <summary><c>JOY_RETURNR</c>: requests valid rudder or fourth-axis data in <c>JOYINFOEX.dwRpos</c>; this axis is not mapped to SNES controls.</summary>
+    /// <summary><c>JOY_RETURNR</c>: requests valid rudder or fourth-axis data in <c>JOYINFOEX.dwRpos</c>; this axis is not mapped to the game's controller buttons.</summary>
     ReturnR = 0x00000008,
-    /// <summary><c>JOY_RETURNU</c>: requests valid fifth-axis data in <c>JOYINFOEX.dwUpos</c>; this axis is not mapped to SNES controls.</summary>
+    /// <summary><c>JOY_RETURNU</c>: requests valid fifth-axis data in <c>JOYINFOEX.dwUpos</c>; this axis is not mapped to the game's controller buttons.</summary>
     ReturnU = 0x00000010,
-    /// <summary><c>JOY_RETURNV</c>: requests valid sixth-axis data in <c>JOYINFOEX.dwVpos</c>; this axis is not mapped to SNES controls.</summary>
+    /// <summary><c>JOY_RETURNV</c>: requests valid sixth-axis data in <c>JOYINFOEX.dwVpos</c>; this axis is not mapped to the game's controller buttons.</summary>
     ReturnV = 0x00000020,
     /// <summary><c>JOY_RETURNPOV</c>: requests the directional hat in <c>JOYINFOEX.dwPOV</c>; the adapter uses the centered sentinel when capabilities report no hat.</summary>
     ReturnPointOfView = 0x00000040,

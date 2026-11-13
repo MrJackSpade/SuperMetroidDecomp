@@ -34,7 +34,7 @@ public sealed class RuntimeCanvas : Control
     /// <see cref="PlayableGameControl"/> listens to ordinary <c>KeyDown</c>/<c>KeyUp</c>
     /// events so the translated controller owns held/newly-pressed semantics. Without this
     /// override, the framework consumes the four arrows while moving focus and may consume
-    /// Enter as a default-button key; those inputs would never reach the SNES controller word.
+    /// Enter as a default-button key; those inputs would never reach the game's controller.
     /// </remarks>
     protected override bool IsInputKey(Keys keyData)
     {

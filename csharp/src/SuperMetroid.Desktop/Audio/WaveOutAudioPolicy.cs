@@ -7,7 +7,7 @@ internal static class WaveOutAudioPolicy
     public const int HardwareBufferCount = 6;
 
     /// <summary>
-    /// Silent buffers queued before the first emulated PCM frame. Three frames provide
+    /// Silent buffers queued before the game's first PCM frame. Three frames provide
     /// 50 ms of host/RDP scheduling tolerance without making controller-driven sound feel
     /// detached from the corresponding video frame.
     /// </summary>

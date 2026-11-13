@@ -5,7 +5,7 @@ internal static class WorkRobotLaserDefinitions
 {
     /// <summary>
     /// The random field that adds zero to thirty-one updates to a firing WorkRobot's laser cooldown, before the fixed
-    /// sixteen: bits zero to four.
+    /// sixteen: the sample modulo 32.
     /// </summary>
     internal static readonly RandomSampleField CooldownJitter = new(0, 5);
 }

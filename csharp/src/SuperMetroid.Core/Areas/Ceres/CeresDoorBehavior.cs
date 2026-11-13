@@ -97,10 +97,10 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
                 return xDistance >= 48 || yDistance >= 48 ? cue.Target : null;
             }
             case CeresDoorCueKind.GoToIfAreaBossAlive:
-                // The test samples bit zero of the current area's saved
-                // boss flags. Ceres begins with that flag clear, so the facing-right door
+                // The test reads whether the current area's boss is saved
+                // as defeated. Ceres begins with that flag clear, so the facing-right door
                 // loops as a tangible actor during Ridley's fight. Ridley's escape publishes
-                // the boss bit together with status two; the next pass must then run on
+                // the boss's defeat together with status two; the next pass must then run on
                 // past the branch to the intangible setup.
                 // Hardcoding the early-game branch stranded the invisible 8x32 actor at
                 // X=8 and clipped Samus at X=29 after the getaway cutscene.

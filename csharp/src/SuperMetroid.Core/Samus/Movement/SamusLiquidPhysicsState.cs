@@ -270,8 +270,8 @@ public sealed class SamusLiquidPhysicsState
     /// <remarks>
     /// This test is intentionally not the ordinary movement-medium selector. The game's grapple
     /// checks the suit-palette Gravity bit, requires a nonzero FX type, and compares only the
-    /// water surface against Samus's bottom. It does not consult liquid-options bit two
-    /// and never falls back to the lava/acid surface. Those quirks are retained rather than
+    /// water surface against Samus's bottom. It does not consult the liquid option that has Samus ignore the water
+    /// surface and never falls back to the lava/acid surface. Those quirks are retained rather than
     /// replacing the game's single flag with a friendlier host notion of “submerged.”
     /// </remarks>
     public bool DetermineGrappleSubmersion(SamusState samus)
@@ -405,7 +405,7 @@ public sealed class SamusLiquidPhysicsState
         }
 
         // Publishes the X-speed divisor and clears the remembered medium. Only
-        // water (bit zero set) owns an exit splash; lava/acid simply clears the remembered medium.
+        // water owns an exit splash; lava/acid simply clears the remembered medium.
         samus.AnimationFrameBuffer = samus.XSpeedDivisor;
         bool exitedWater = LiquidPhysicsType == SamusLiquidMedium.Water;
         LiquidPhysicsType = SamusLiquidMedium.Air;

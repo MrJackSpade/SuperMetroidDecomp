@@ -59,19 +59,19 @@ internal static class KraidRandomDefinitions
     internal static readonly RandomSampleField MovementChoice = new(2, 3);
 
     /// <summary>
-    /// Whether a launching nail waits for the lint at its parked position instead of launching beside Kraid's body: the
-    /// sample's bit zero, set to wait, unless its sibling took the alternate spawn last.
+    /// Whether a launching nail waits for the lint at its parked position instead of launching beside Kraid's body: an
+    /// odd sample waits, unless its sibling took the alternate spawn last.
     /// </summary>
     internal static readonly RandomSampleField NailWaitsForLint = new(0, 1);
 
-    /// <summary>Whether a rising rock flies to the right: the sample's bit four.</summary>
+    /// <summary>Whether a rising rock flies to the right: taken when the sample divided by 16 is odd.</summary>
     internal static readonly RandomSampleField RisingRockRight = new(4, 1);
 
     /// <summary>A rising rock's offset from Kraid's body X, 0 through 63 pixels: the sample modulo 64.</summary>
     internal static readonly RandomSampleField RisingRockOffset = new(0, 6);
 
     /// <summary>
-    /// Whether a rising rock keeps its offset to the right of Kraid's body: the sample's bit zero; when clear the rock
+    /// Whether a rising rock keeps its offset to the right of Kraid's body: taken by an odd sample; otherwise the rock
     /// rises to the left, <see cref="RisingRockLeftExtraPixels"/> further from the body than its offset.
     /// </summary>
     internal static readonly RandomSampleField RisingRockOffsetRight = new(0, 1);

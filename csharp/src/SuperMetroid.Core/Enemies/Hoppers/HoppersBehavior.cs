@@ -6,7 +6,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Hoppers;
 
-/// <summary>The Hoppers species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Hoppers species owner: its per-room state, AI behaviours and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -238,7 +238,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         HopperSurface surface)
     {
         bool movingAwayFromSurface = !state.Falling;
-        // Has four movement routines: floor actors use the negative half while
+        // Has four movements: floor actors use the negative half while
         // jumping and the positive half while falling; ceiling actors do the inverse.
         // Inequality expresses that table exactly. Equality reverses both phases, making
         // each actor collide with its starting surface and then migrate to the opposite one.

@@ -89,6 +89,45 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         // Game prose using the same words is not storage vocabulary.
         Expect("class P { /// <summary>Samus carries a variable speed; the carry over to the next room keeps it.</summary>\nint F => 0; }");
         Expect("class P { /// <summary>The Speed Booster residue stays; the eight colours fade.</summary>\nint F => 0; }");
+        // The processor's operations and the program's record vocabulary #1611 left out (#1632).
+        Expect("class P { // Carry is set only for count two\n }", "('Carry is set')");
+        Expect("class P { /// <summary>Reports carry when the walk ends.</summary>\nint F => 0; }", "('Reports carry')");
+        Expect("class P { // the wait returns the carry when it ends\n }", "('returns the carry')");
+        Expect("class P { // adds the speed with carry\n }", "('with carry')");
+        Expect("class P { // moves bit7 to carry\n }", "('bit7')");
+        Expect("class P { /// <summary>Whether Draygon swoops: the sample's bit zero.</summary>\nint F => 0; }", "('bit zero')");
+        Expect("class P { // bits eight to thirteen place it\n }", "('bits eight')");
+        Expect("class P { // handler bit 2 stays set\n }", "('bit 2')");
+        Expect("class P { /// <summary>Extra word two holds the speed.</summary>\nint F => 0; }", "('Extra word')");
+        Expect("class P { // Family-extra variable zero counts the hops\n }", "('Family-extra variable')");
+        Expect("class P { // the extended variable zero\n }", "('extended variable')");
+        Expect("class P { // Extension variable four\n }", "('Extension variable')");
+        Expect("class P { // Extra enemy word four\n }", "('Extra enemy word')");
+        Expect("class P { /// <summary>The slot's enemy words.</summary>\nint F => 0; }", "('enemy words')");
+        Expect("class P { // kept in variables 0C/0D\n }", "('variables 0C')");
+        Expect("class P { // Variable 10 counts down\n }", "('Variable 10')");
+        Expect("class P { // the family-extras are cleared\n }", "('family-extras')");
+        Expect("class P { /// <summary>The walk routine.</summary>\nvoid Walk() { } }", "('routine')");
+        Expect("class P { string Name => \"The demo calls no routine.\"; }", "('routine')");
+        Expect("class P { // rejects a zero sprite map\n }", "('sprite map')");
+        Expect("class P { /// <summary>The empty projectile spritemap.</summary>\nint F => 0; }", "('spritemap')");
+        Expect("class P { // the species header lists it\n }", "('header')");
+        Expect("class P { // translated from the original\n }", "('translated from')");
+        Expect("class P { // not another untranslated arm\n }", "('untranslated')");
+        Expect("class P { // a direct translation keeps it\n }", "('direct translation')");
+        Expect("class P { // toriz_var_00 holds the step\n }", "('toriz_var_00')");
+        Expect("class P { /// <summary>Set while palette_change_num counts.</summary>\nint F => 0; }", "('palette_change_num')");
+        // The game's own carrying, a little bit, records' game prose, heads and geometric translation are the game's.
+        Expect("class P { /// <summary>Draygon carries Samus; the carry spiral grows and Ridley keeps the carry anchor.</summary>\nint F => 0; }");
+        Expect("class P { // the conveyor carries Samus; the platform's carry measures the step\n }");
+        Expect("class P { // the grab falls through into the carry on the grabbing update\n }");
+        Expect("class P { // the adds carry the fractions into whole steps\n }");
+        Expect("class P { /// <summary>Samus slides a bit; the shot drifts a bit two pixels lower.</summary>\nint F => 0; }");
+        Expect("class P { /// <summary>The extra missiles; an enemy's word of warning; a variable amount.</summary>\nint F => 0; }");
+        Expect("class P { /// <summary>Heading left, the head turns ahead; the headroom stays; Phantoon routinely waits.</summary>\nint F => 0; }");
+        Expect("class P { /// <summary>The turning floor's translation; translates the whole pixels by an offset.</summary>\nint F => 0; }");
+        Expect("class P { /// <summary>The scene is already translated to its origin; translational motion stops.</summary>\nint F => 0; }");
+        Expect("class P { /// <summary>Samus's energy transfer; the sand heap registers the hit at the original height.</summary>\nint F => 0; }");
         // A compound name in a comment is a routine label unless Core's code spells it (#1558).
         Expect("class P { // as EnemyMain does\n }", "('EnemyMain')");
         Expect("class P { // set by InitAI\n }", "('InitAI')");
@@ -99,8 +138,8 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { string Name => \"0x10 SpeedEcho\"; }");
         // Routine labels are read only in comments: a string literal's underscore-joined frame name is a presentation key.
         Expect("class P { string Frame => \"mother_brain_body_initial\"; }");
-        // A lower-case frame name is a presentation key, not a routine label, even in a comment.
-        Expect("class P { /// <summary>The draygon_frame_12 picture.</summary>\nint F => 0; }");
+        // A lower-case frame name whose Pascal-case form is a Core identity is a presentation key, not a symbol (#1632).
+        Expect("enum Frame { DraygonFrame12 }\nclass P { /// <summary>The draygon_frame_12 picture.</summary>\nint F => 0; }");
         // Identifiers are not prose, and a word that only begins the same is not the term.
         Expect("class P { /// <summary>The ramp, the object and the background fade up; time is 12:30.</summary>\nint Ram => 0; }");
         Expect("/// <summary>The addressee opens the pointed door; 1200 frames pass.</summary>\nclass P { }");

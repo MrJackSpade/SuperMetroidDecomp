@@ -103,7 +103,7 @@ internal sealed class DraygonCombat
             state.Colours.ShowBand(RequireHealthBand(state));
         state.ShadeSprites();
 
-        // Grapple-connected flag bit zero is the retail electrocution channel. It is
+        // A grapple connected to the turrets is the game's electrocution channel. It is
         // sampled only while hurt AI owns the body and subtracts exactly 256 HP on every
         // eighth body frame before running the same fatal/nonfatal reaction as a shot.
         if (samus is null || !DraygonGrab.IsDraygonGrappleConnected(samus) ||

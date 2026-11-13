@@ -34,7 +34,7 @@ public sealed class AttractDemoInput
     {
         if (Script.IsPlaying)
             CheckWatch(gameState, movementType);
-        Script.Step(cue => throw new InvalidOperationException($"Title demonstrations call no {cue} routine."));
+        Script.Step(cue => throw new InvalidOperationException($"Title demonstrations handle no {cue} cue."));
     }
 
     /// <summary>Ends the input when the title leaves, or releases the shinespark using the game's actual Draygon-grab comparison.</summary>

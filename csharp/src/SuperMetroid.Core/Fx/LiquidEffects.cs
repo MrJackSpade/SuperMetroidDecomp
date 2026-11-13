@@ -17,7 +17,7 @@ public static class LiquidEffects
     /// <summary>Calculates the signed row displacement for a water wave index 0..15.</summary>
     /// <remarks>The water waveform consists of two identical eight-sample
     /// periods. Within each four-sample half-wave, reflect the integer ramp around
-    /// its midpoint: min(index&amp;3, 3-(index&amp;3)). Bit two reverses its sign.
+    /// its midpoint: min(index&amp;3, 3-(index&amp;3)). An index whose remainder modulo eight is four or more reverses its sign.
     /// This is an exact integer triangular waveform, without a floating-point
     /// generation claim. Water background/effect overlay and the identical vertical lava/acid wave
     /// share this mapping.

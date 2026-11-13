@@ -16,7 +16,9 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// original program (#1528), and none describes state by what a debugger sees, edits or stores (#1501). #1558 adds a bank
 /// prefixed to an address, three-digit and bare hexadecimal values, comment hex literals, the program's addresses,
 /// pointers, opcodes, registers, instruction lists and PLMs, word widths, CPU mnemonics, numbered palettes and priorities,
-/// and routine labels written without an underscore: a compound name in a comment that names nothing in Core's code. Core's documentation states game behaviour in game
+/// and routine labels written without an underscore: a compound name in a comment that names nothing in Core's code. #1632
+/// adds the carry flag, bits by number, record variables and extra words, routines, spritemaps, headers, the port's
+/// translation and lower-case memory symbols. Core's documentation states game behaviour in game
 /// terms; provenance belongs to the import pipeline or a check's native catalog. Only a
 /// <c>[CompatibilityService]</c> type, which reproduces hardware behaviour, or an <c>[EncodingOwner]</c> codec, which owns
 /// an encoding, may describe the hardware. One diagnostic per comment or literal; there is no allowance list.
@@ -98,6 +100,38 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         @"|\btile (?:transfers?|uploaders?|uploads?)\b|\b(?:sheet|sprite) characters?\b|\buploads? leave\b|\btransfer lists?\b|\btile cells?\b|\btilemap pages?\b|\b[0-9]+-by-[0-9]+ pages?\b" +
         @"|\bregister shadows?\b|\b(?:liquid|shadow|hardware) registers?\b|\bhardware[-\s]timing\b|\bwork memory\b|\bstaging surfaces?\b|\b(?:transfer|turning-floor) residue\b|\bscanline [0-9]+\b",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// The processor's operations and the program's record vocabulary #1611 left out (#1632): the carry flag as an operation
+    /// sets, clears, reports, returns or adds it (Draygon, Ridley, a Chozo statue, a conveyor or a platform carrying Samus,
+    /// and a carry spiral, orbit, anchor or phase, are the game's), a bit by number (not "a bit"), a record's extra,
+    /// extended, extension, family-extra, enemy or numbered variables and words, the program's routines, spritemaps and
+    /// headers, and the port's translation of the original (a position, layer or motion translated by an offset is
+    /// geometry).
+    /// </summary>
+    private static readonly Regex OperationProse = new(
+        @"\bcarry\s+(?:is|was|stays|remains|becomes|left)\s+(?:set|clear(?:ed)?)\b" +
+        @"|\b(?:sets?|setting|clears?|clearing|cleared|reports?|reported|reporting|returns?|returning|tests?|tested|testing|keeps?|kept|chains?|chained|passe[sd]|propagates?" +
+        @"|adds?|added|adding|subtracts?|subtracted|subtracting|with)\s+(?:the\s+|its\s+|a\s+|that\s+)?(?:set\s+|clear\s+)?carry\b" +
+        @"(?!\s+(?:spiral|orbit|anchor|phase|state|setup|release|step|poses?|the|a|an|its|it|them|their|her|him|Samus)\b)" +
+        @"|(?<![-\w])(?<!\ba\s)bits?\s*(?:[0-9]+|zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen)\b" +
+        @"|\b(?:extra|extended|extension|family[-\s]extra|enemy|record|spare|generic|species)[-\s]+(?:enemy[-\s]+)?(?:variables?|words?)\b|\bfamily[-\s]extras?\b" +
+        @"|\bvariables?[-\s]+(?:(?-i:[0-9A-F]{1,2})|zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen)\b" +
+        @"|\broutines?\b|\bsprite[-\s]?maps?\b|\bheaders?\b" +
+        @"|\buntranslated\b|\bretranslat\w*|\btranslat(?:ed|ion|ions|es|ing|e)\s+from\b" +
+        @"|\btranslated\s+(?:routines?|code|logic|behaviou?rs?|AI|functions?|programs?|ports?|versions?|sources?|bosses|boss|enem(?:y|ies)|famil(?:y|ies)|paths?|branch(?:es)?)\b" +
+        @"|\b(?:direct|literal|mechanical|faithful|line-by-line|original|cartridge|program's|port's)\s+translations?\b" +
+        @"|\btranslations?\s+of\s+(?:the\s+)?(?:original|routines?|code|program|assembly|game|retail|cartridge)\b" +
+        @"|\b(?:not\s+yet|yet\s+to\s+be|already|faithfully|literally|directly|mechanically|been|be)\s+translated\b(?!\s+(?:to|by|into|onto|along|across|toward|towards)\b)",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// A memory symbol of the original program in a comment: a lower-case name joined by underscores (<c>toriz_var_00</c>,
+    /// <c>palette_change_num</c>) (#1632). The installed artwork's frame names are the snake case of Core's own frame
+    /// identities (<c>draygon_goop_first</c> is <c>DraygonGoopFirst</c>), so a name whose Pascal-case form Core's code spells
+    /// is a presentation key, not a symbol.
+    /// </summary>
+    private static readonly Regex MemorySymbol = new(@"\b[a-z][a-z0-9]*(?:_[a-z0-9]+)+\b", RegexOptions.CultureInvariant);
 
     /// <summary>
     /// The machine's memories and layers, read case-sensitively so ordinary words are not matched: save RAM, RAM, the
@@ -195,6 +229,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : ProgramProse.Match(text) is { Success: true } program ? program.Value
             : CpuProse.Match(text) is { Success: true } cpu ? cpu.Value
             : StorageProse.Match(text) is { Success: true } storage ? storage.Value
+            : OperationProse.Match(text) is { Success: true } operation ? operation.Value
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;
         if (word is null || IsInHardwareOwner(owner))
@@ -202,7 +237,10 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         context.ReportDiagnostic(Diagnostic.Create(Rule, location, word));
     }
 
-    /// <summary>A comment's routine label, underscore-joined or compound, or its hexadecimal literal; null when it has none.</summary>
+    /// <summary>
+    /// A comment's routine label, underscore-joined or compound, its memory symbol, or its hexadecimal literal; null when it
+    /// has none.
+    /// </summary>
     private static string? CommentOnlyFinding(string text, Lazy<ImmutableHashSet<string>> codeNames)
     {
         if (RoutineLabel.Match(text) is { Success: true } label)
@@ -210,6 +248,11 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         if (HexLiteral.Match(text) is { Success: true } literal)
             return literal.Value;
         string prose = Markup.Replace(text, " ");
+        foreach (Match symbol in MemorySymbol.Matches(prose))
+        {
+            if (!codeNames.Value.Contains(PascalCase(symbol.Value)))
+                return symbol.Value;
+        }
         foreach (Match compound in CompoundName.Matches(prose))
         {
             if (!codeNames.Value.Contains(compound.Value))
@@ -217,6 +260,10 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         }
         return null;
     }
+
+    /// <summary>The Pascal-case form of a lower-case underscore-joined name: each part capitalized, the underscores dropped.</summary>
+    private static string PascalCase(string snakeCase) =>
+        string.Concat(snakeCase.Split('_').Select(part => part.Length == 0 ? part : char.ToUpperInvariant(part[0]) + part.Substring(1)));
 
     /// <summary>Whether a node lies in a type marked as a compatibility service or encoding owner.</summary>
     private static bool IsInHardwareOwner(SyntaxNode? node)

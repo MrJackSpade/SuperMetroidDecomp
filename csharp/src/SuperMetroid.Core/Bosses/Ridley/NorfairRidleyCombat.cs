@@ -479,7 +479,7 @@ internal sealed class NorfairRidleyCombat
     private static int GetNorfairRidleyClawY(RoomEnemySlot slot, RidleyEnemyState state) =>
         CoordinateAxis.Wrap(slot.Position.Y.Whole + RidleyClawOffsets.ReadY(state.FeetDistanceIndex));
 
-    /// <summary>Starts a turn only when Ridley faces away from the arena half identified by X bit seven.</summary>
+    /// <summary>Starts a turn only when Ridley faces away from the half of its 256-pixel screen his X lies in.</summary>
     internal static void SelectNorfairRidleyFacingAnimation(RoomEnemySlot slot, RidleyEnemyState state)
     {
         if (state.FacingDirection == RidleyFacing.Turning)

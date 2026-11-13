@@ -214,7 +214,7 @@ internal sealed class IntroBabyDiscoveryState
     private void HandleDemoCue(DemoInputCue cue)
     {
         if (cue != DemoInputCue.EndIntroBabyDiscovery)
-            throw new InvalidOperationException($"The Baby-discovery demo calls no {cue} routine.");
+            throw new InvalidOperationException($"The Baby-discovery demo handles no {cue} cue.");
 
         // The scene's end replaces both Samus handlers with ones that do nothing, disables demo input, and
         // returns into the following shared delete step. Samus is never processed again.

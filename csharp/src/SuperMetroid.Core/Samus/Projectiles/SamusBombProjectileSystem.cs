@@ -956,7 +956,7 @@ public sealed class SamusBombProjectileSystem
             {
                 // Gameplay always owns the room's room-object pool. Null is supported only for
                 // nonreactive synthetic fixtures, so reaching a producer without it is a
-                // caller-composition error rather than untranslated game behavior.
+                // caller-composition error rather than unsupported game behavior.
                 throw new InvalidOperationException(
                     $"Bombed block reaction type {block.CollisionType}/behaviour ({block.Behavior}) " +
                     $"at ({x},{y}) requires a room-object owner.");

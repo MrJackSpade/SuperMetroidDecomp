@@ -9,13 +9,13 @@ internal static class PhantoonRandomDefinitions
     /// <summary>Which of the eight shot patterns and eye markers a hit in the vulnerable window starts: the sample modulo 8.</summary>
     internal static readonly RandomSampleField ShotPattern = new(0, 3);
 
-    /// <summary>Whether the figure eight after the eye closes runs reversed: the sample's bit zero.</summary>
+    /// <summary>Whether the figure eight after the eye closes runs reversed: taken by an odd sample.</summary>
     internal static readonly RandomSampleField FigureEightReversed = new(0, 1);
 
     /// <summary>Which of the four casual flame patterns Phantoon's mouth spits next: the sample modulo 4.</summary>
     internal static readonly RandomSampleField CasualFlamePattern = new(0, 2);
 
-    /// <summary>Whether the next figure eight starts on the right, at X 208: the sample's bit zero.</summary>
+    /// <summary>Whether the next figure eight starts on the right, at X 208: taken by an odd sample.</summary>
     internal static readonly RandomSampleField FigureEightStartsRight = new(0, 1);
 
     /// <summary>Which of the eight hiding timers Phantoon waits before its flame rain: the sample modulo 8.</summary>

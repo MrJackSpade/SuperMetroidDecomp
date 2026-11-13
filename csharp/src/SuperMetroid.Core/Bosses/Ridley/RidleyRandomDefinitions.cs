@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <summary>The random choices of Ridley in Ceres and Norfair: its attacks, timers, fireball jitter and tail.</summary>
 internal static class RidleyRandomDefinitions
 {
-    /// <summary>Whether the resting Ceres baby jumps on silently rather than crying: the sample's bit zero.</summary>
+    /// <summary>Whether the resting Ceres baby jumps on silently rather than crying: taken by an odd sample.</summary>
     internal static readonly RandomSampleField CeresBabySilentJump = new(0, 1);
 
     /// <summary>Ceres Ridley's fireball target jitter, 0 through 7 pixels on the side its sample's sign picks: the sample modulo 8.</summary>

@@ -52,10 +52,10 @@ internal static class CrocomireMeltingDefinitionsVerification
     {
         for (int step = 0; step < CrocomireMeltingDefinitions.ColumnCount; step++)
             AssertEqual(rom.ReadCartridgeByte(MaskTableAddress + (step & 7)),
-                CrocomireMeltDissolve.SelectMask(step), $"Original chronological melt mask {step}");
-        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireMeltDissolve.SelectMask(-1), "Mask negative step");
-        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireMeltDissolve.SelectMask(49), "Mask upper bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireMeltDissolve.SelectMask(int.MaxValue), "Mask invalid maximum");
+                CrocomireMeltDissolveConstants.SelectMask(step), $"Original chronological melt mask {step}");
+        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireMeltDissolveConstants.SelectMask(-1), "Mask negative step");
+        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireMeltDissolveConstants.SelectMask(49), "Mask upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireMeltDissolveConstants.SelectMask(int.MaxValue), "Mask invalid maximum");
     }
 
     /// <summary>The melt table offset of <paramref name="pass"/>'s header.</summary>
@@ -138,7 +138,7 @@ internal static class CrocomireMeltingDefinitionsVerification
         for (int step = 0; step < CrocomireMeltingDefinitions.ColumnCount; step++)
         {
             int column = rom.ReadCartridgeByte(ColumnTableAddress + step);
-            AssertEqual(column, CrocomireMeltDissolve.SelectColumn(step), $"Crocomire melt column {step}");
+            AssertEqual(column, CrocomireMeltDissolveConstants.SelectColumn(step), $"Crocomire melt column {step}");
             byte mask = rom.ReadCartridgeByte(MaskTableAddress + (step & 7));
             for (int y = 0; y < 48; y++)
             {
@@ -148,11 +148,11 @@ internal static class CrocomireMeltingDefinitionsVerification
                 expected[byteIndex + 16] &= mask;
                 expected[byteIndex + 17] &= mask;
             }
-            CrocomireMeltDissolve.EraseColumn(image, step);
+            CrocomireMeltDissolveConstants.EraseColumn(image, step);
             AssertTrue(image.SequenceEqual(expected), $"Crocomire melt silhouette after step {step}");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireMeltDissolve.SelectColumn(-1), "Crocomire negative melt step");
-        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireMeltDissolve.SelectColumn(49), "Crocomire melt step after authored table");
+        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireMeltDissolveConstants.SelectColumn(-1), "Crocomire negative melt step");
+        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireMeltDissolveConstants.SelectColumn(49), "Crocomire melt step after authored table");
     }
 
     /// <summary>The characters of <paramref name="pass"/>'s installed melt image, which the extraction pictures its bands from.</summary>

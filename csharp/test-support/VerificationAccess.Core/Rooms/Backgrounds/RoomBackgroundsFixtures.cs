@@ -263,7 +263,7 @@ internal static class RoomBackgroundsFixtures
     private static RoomBackgroundImagePlane SeededImage(Random random, RgbColor[] scene, int tileRows, bool sky = false)
     {
         RoomBlockPictureTable blocks = SeededPictures(random, scene);
-        var size = new Extent16<ImagePixels>(RoomBackgroundImageGeometry.PagePixels, (ushort)(tileRows * 8));
+        var size = new Extent16<ImagePixels>(RoomBackgroundImageGeometryConstants.PagePixels, (ushort)(tileRows * 8));
         SpriteSheet sheet = SeededSheet(random, scene, new Extent16<ImagePixels>(size.X, checked((ushort)(2 * size.Y))),
             new Dictionary<string, Position16<ImagePixels>>
             {

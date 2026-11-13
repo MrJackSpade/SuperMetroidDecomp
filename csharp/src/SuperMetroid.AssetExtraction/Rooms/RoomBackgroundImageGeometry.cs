@@ -15,9 +15,6 @@ internal static class RoomBackgroundImageGeometry
     /// <summary>Tiles along a tilemap page's side.</summary>
     internal const int PageTiles = 32;
 
-    /// <summary>Pixels along a tilemap page's side: the width of every background picture, one page wide.</summary>
-    internal const int PagePixels = PageTiles * 8;
-
     /// <summary>Tiles in one tilemap page.</summary>
     internal const int PageWords = PageTiles * PageTiles;
 

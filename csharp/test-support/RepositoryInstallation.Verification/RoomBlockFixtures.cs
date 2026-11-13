@@ -122,7 +122,7 @@ internal static class RoomBlockFixtures
         int characterWord = 0, bool pagesInOneColumn = false)
     {
         const int tile = 8, characterWords = 16, pageWords = RoomBackgroundImageGeometry.PageTiles * RoomBackgroundImageGeometry.PageTiles;
-        var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(RoomBackgroundImageGeometry.PagePixels, RoomBackgroundImageGeometry.Pages * RoomBackgroundImageGeometry.PagePixels));
+        var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(RoomBackgroundImageGeometryConstants.PagePixels, RoomBackgroundImageGeometry.Pages * RoomBackgroundImageGeometryConstants.PagePixels));
         RgbColor[] colours = palette[..ImageColourGroup.HalfColours].ToArray();
         var character = new byte[characterWords * sizeof(ushort)];
         var words = new ushort[RoomBackgroundImageGeometry.Words];
@@ -140,14 +140,14 @@ internal static class RoomBlockFixtures
             }
             int page = index / pageWords, within = index % pageWords;
             coloured = coloured.Union(canvas.PaintTile(within % RoomBackgroundImageGeometry.PageTiles * tile,
-                page * RoomBackgroundImageGeometry.PagePixels + within / RoomBackgroundImageGeometry.PageTiles * tile, word, character, colours));
+                page * RoomBackgroundImageGeometryConstants.PagePixels + within / RoomBackgroundImageGeometry.PageTiles * tile, word, character, colours));
         }
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal)
         {
             [RoomBackgroundImage.FrameName] = new SpriteSheetFrameDocument
             {
                 Corner = default,
-                Size = new Extent16<ImagePixels>(RoomBackgroundImageGeometry.PagePixels, RoomBackgroundImageGeometry.Pages * RoomBackgroundImageGeometry.PagePixels),
+                Size = new Extent16<ImagePixels>(RoomBackgroundImageGeometryConstants.PagePixels, RoomBackgroundImageGeometry.Pages * RoomBackgroundImageGeometryConstants.PagePixels),
                 Origin = default,
                 ColourGroups = coloured.ManifestMembers,
             },

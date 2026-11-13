@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.Intro;
 
-/// <summary>Every cinematic sprite animation script as a typed program (#641), in authored order.</summary>
+/// <summary>Every cinematic sprite animation (#641), in authored order.</summary>
 internal enum CinematicSpriteSegment
 {
     /// <summary>The intro Mother Brain's four-pose loop.</summary>

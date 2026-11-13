@@ -25,7 +25,7 @@ internal enum EndingCreditsPhase
     ZebesExplosionPaletteCrossfade,
     /// <summary>Holds the explosion for sixteen updates with the escape backdrop off; the flyaway's floor is ready as it ends.</summary>
     ZebesExplosionHold,
-    /// <summary>Lets the explosion actor's private program control the finale.</summary>
+    /// <summary>Lets the explosion actor's private animation control the finale.</summary>
     ZebesExplosionAnimation,
     /// <summary>Holds the explosion whiteout before queuing planet-escape music.</summary>
     WaitForPlanetEscapeMusic,
@@ -41,7 +41,7 @@ internal enum EndingCreditsPhase
     OperationSuccessfulText,
     /// <summary>Blanks the planet and completion text before staff credits.</summary>
     FadeOutToCredits,
-    /// <summary>Scrolls the staff credits until their control program finishes.</summary>
+    /// <summary>Scrolls the staff credits until their control animation finishes.</summary>
     Credits,
     /// <summary>Holds the first post-credits backdrop blank for sixty calls.</summary>
     PostCreditsBlank,
@@ -69,7 +69,7 @@ internal enum EndingCreditsPhase
     PostCreditsLogo,
     /// <summary>Writes the collected-item percentage into the final panel.</summary>
     ItemPercentage,
-    /// <summary>Scrolls the percentage panel down after its text program completes.</summary>
+    /// <summary>Scrolls the percentage panel down after its text animation completes.</summary>
     ItemPercentageScrollDown,
     /// <summary>Holds the final see-you-next-mission screen until reset.</summary>
     SeeYouNextMission,

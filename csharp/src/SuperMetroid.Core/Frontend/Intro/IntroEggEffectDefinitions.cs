@@ -10,7 +10,7 @@ internal static class IntroEggEffectDefinitions
     /// <summary>Number of slime drops allocated by the confused-baby frame behaviour.</summary>
     public const int SlimeDropCount = 4;
 
-    /// <summary>The six particles' programs, indexed by particle.</summary>
+    /// <summary>The six particles' animations, indexed by particle.</summary>
     internal static readonly CinematicSpriteSegment[] ParticleAnimations =
     [
         CinematicSpriteSegment.MetroidEggParticle1, CinematicSpriteSegment.MetroidEggParticle2, CinematicSpriteSegment.MetroidEggParticle3,

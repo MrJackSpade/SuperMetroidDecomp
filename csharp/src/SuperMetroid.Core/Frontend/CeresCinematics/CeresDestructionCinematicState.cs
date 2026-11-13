@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 /// <remarks>
 /// The cinematic owns this sequence. The state deliberately retains the
 /// game's phase boundaries, counters, 16.16 camera motion, turning-floor rotation values, and
-/// compiled sprite animation scripts, so the scene's progress is game state:
+/// compiled sprite animations, so the scene's progress is game state:
 /// there is no host-authored video or timer that merely happens to end at the
 /// same gameplay room.
 /// </remarks>
@@ -84,7 +84,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     private readonly List<IntroDiscoverySprite> ceresActorsDrawnLast = [];
     /// <summary>Runs the final station blast through the ordinary power-bomb color curve.</summary>
     private readonly SamusPowerBombExplosionState stationExplosion = new();
-    /// <summary>Engine-flicker palette program created at the Zebes reveal boundary.</summary>
+    /// <summary>Engine-flicker palette animation created at the Zebes reveal boundary.</summary>
     internal RoomPaletteFxSystem? PaletteFx { get; set; }
     /// <summary>Planet actor whose sliding frame behaviour uses the larger acceleration.</summary>
     internal IntroDiscoverySprite? ZebesPlanetActor { get; private set; }
@@ -171,7 +171,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// Binds installed artwork when the game is bound to its installed content. Only the
     /// graphics already reached by the current phase are refreshed; counters,
     /// actors, audio and gameplay timeline remain untouched. The backdrop is refreshed only
-    /// before the later engine-flicker palette program starts, as the scene reloads the
+    /// before the later engine-flicker palette animation starts, as the scene reloads the
     /// flight's colours only until then (#1512).
     /// </summary>
     internal void BindArtwork(IntroCinematicArtwork? value)
@@ -388,7 +388,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             StepCeresActors();
 
         // The cinematic's game state runs the palette effects after cinematic objects, including the
-        // frame which spawns the program.
+        // frame which spawns the animation.
         if (!CeresDestructionPhaseGroups.ThroughFlightToZebesStart.Contains(Phase))
         {
             if (PaletteFx is null)
@@ -397,7 +397,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 PaletteFx.Start(CeresDestructionSceneDefinitions.GunshipEngineFlicker, 0);
             }
             // The flicker's records are shades the import pre-colours the scene's pictures in (#1512); the scene names the
-            // record its running engine program shows (#1597).
+            // record its running engine animation shows (#1597).
             PaletteFx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false });
             if (PaletteFx.AudioRequests.SoundRequests.Count != 0)
                 throw new InvalidDataException("Ceres engine palette program unexpectedly requested audio.");
@@ -516,7 +516,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     private bool MusicQueueFinished() =>
         audio is null ? --musicQueueTimer <= 0 : !audio.HasQueuedMusic;
 
-    /// <summary>Installs an authored sprite at <paramref name="start"/> with its attributes, program, and frame behaviour.</summary>
+    /// <summary>Installs an authored sprite at <paramref name="start"/> with its attributes, animation, and frame behaviour.</summary>
     private static IntroDiscoverySprite CreateActor(
         CeresDestructionActorDefinition definition, Position16<ScreenPixels> start)
     {
@@ -548,7 +548,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         // The explosion spawner remains invisible for 128 frames, spawns five staggered small blasts,
         // waits 80 BEFORE installing the repeating-blast frame behaviour, then runs
         // it during the final 64-frame wait. The frame behaviour stops on departure;
-        // the program still reaches its four terminal blasts afterward.
+        // the animation still reaches its four terminal blasts afterward.
         CeresExplosionSpawnEvents events = CeresExplosions.EventsAtFrame(explosionSpawnerFrame,
             CeresDestructionPhaseGroups.BeforeFlyingAway.Contains(Phase), ref explosionRepeatCountdown);
         if (events.Initial)
@@ -648,7 +648,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         actor.InstallFrameBehavior(definition.FrameBehavior);
 
         // The initializer writes its stagger directly to the frame hold. The loop countdown is a different count, used
-        // by the program's counted loops; using it here would make all five blasts appear immediately despite distinct
+        // by the animation's counted loops; using it here would make all five blasts appear immediately despite distinct
         // delays.
         actor.DelayFirstStep(placement.DelayFrames);
         actors.Add(actor);
@@ -728,7 +728,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
 
             case CinematicSpriteCueKind.StartFlyingToZebes:
                 // The title actor, not a host timer, publishes the camera flight exactly
-                // where its animation script reaches the flight step.
+                // where its animation reaches the flight step.
                 Background = new(Background.X.WithWhole(CeresDestructionSceneDefinitions.Motion.FloorExitX),
                     Background.Y.WithWrappedWhole(-112));
                 angle = CeresDestructionSceneDefinitions.Motion.ApproachAngle;
@@ -827,7 +827,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
 
     /// <summary>
     /// The shading of the gunship's floor (#1512, #1544, #1597): the shade of the frame the gunship engine's flicker
-    /// program shows, which recolours the engine's colour, or the floor's standard colours while no program has shown one.
+    /// animation shows, which recolours the engine's colour, or the floor's standard colours while no animation has shown one.
     /// </summary>
     internal PictureShading EngineShading => PaletteFx?.FrameOf(PaletteFxColours.CutsceneGunshipEngine) is { } frame
         ? PictureShading.Shaded(PaletteFxShades.Of(PaletteFxColours.CutsceneGunshipEngine, frame))

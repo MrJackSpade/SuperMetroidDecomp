@@ -44,7 +44,7 @@ internal static class CeresDestructionActors
     /// policy applies to these actors. One proof against the authored data covers the complete mapping,
     /// initializer operands, shared aliases and invalid-index rejection. The prior authored-
     /// identity retention claim is superseded by verified semantic case selection; no table
-    /// or generated cache remains. Animation programs have their separate existing proofs.</remarks>
+    /// or generated cache remains. Animations have their separate existing proofs.</remarks>
     public static CeresDestructionActorDefinition InitialActor(int index)
     {
         CeresFlightActorDefinition flight = index switch
@@ -71,11 +71,11 @@ internal static class CeresDestructionActors
     /// <remarks>
     /// #1165: the reveal's spawns select these six roles. Star quadrant q=index-1 is bounded to 0..3. The star
     /// initializers give all four sheets the same palette and acceleration; where each starts is installed (#1615).
-    /// Their definitions, initializers and single-frame loop programs follow one another at fixed spacing. Only the
+    /// Their definitions, initializers and single-frame loop animations follow one another at fixed spacing. Only the
     /// lower-right sheet installs the completion callback. Planet and title are separate
-    /// named roles with their own initializer operands and programs, not curve exceptions.
+    /// named roles with their own initializer operands and animations, not curve exceptions.
     /// One metadata proof against the authored data checks every field and invalid-index rejection.
-    /// Animation programs have their existing separate proofs.
+    /// Animations have their existing separate proofs.
     /// </remarks>
     public static CeresDestructionActorDefinition ZebesActor(int index) => index switch
     {

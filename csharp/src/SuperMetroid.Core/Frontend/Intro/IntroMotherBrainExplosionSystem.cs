@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// </summary>
 /// <remarks>
 /// The large and small explosion definitions: initializer tables place each object and delay its first frame, and each runs its own
-/// typed program (#641). Every object keeps its own timer and program, which is what creates the staggered blast
+/// typed animation (#641). Every object keeps its own timer and animation, which is what creates the staggered blast
 /// pattern.
 /// </remarks>
 internal sealed class IntroMotherBrainExplosionSystem
@@ -55,10 +55,10 @@ internal sealed class IntroMotherBrainExplosionSystem
         }
     }
 
-    /// <summary>One cinematic object's delayed program and visible frame.</summary>
+    /// <summary>One cinematic object's delayed animation and visible frame.</summary>
     internal sealed class ExplosionActor
     {
-        /// <summary>The cinematic sprite object running the explosion's program.</summary>
+        /// <summary>The cinematic sprite object running the explosion's animation.</summary>
         private readonly IntroDiscoverySprite sprite;
 
         /// <summary>Starts one explosion at its authored offset and independent launch delay.</summary>
@@ -74,10 +74,10 @@ internal sealed class IntroMotherBrainExplosionSystem
         /// <summary>Fixed cinematic screen origin selected by the small or big placement table.</summary>
         public Position16<ScreenPixels> Position => sprite.WholePosition;
 
-        /// <summary>The pose the explosion's program shows; null before its first frame and after deletion.</summary>
+        /// <summary>The pose the explosion's animation shows; null before its first frame and after deletion.</summary>
         public CinematicSpritePose? Pose => sprite.Pose;
 
-        /// <summary>Cleared by the program's delete after the later crossfade or list completion.</summary>
+        /// <summary>Cleared by the animation's delete after the later crossfade or list completion.</summary>
         public bool IsActive => sprite.IsActive;
 
         /// <summary>Starts a big explosion from its five-entry position and delay table.</summary>

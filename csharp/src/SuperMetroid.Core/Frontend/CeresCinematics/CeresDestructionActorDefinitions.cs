@@ -21,12 +21,12 @@ internal static class CeresDestructionActorDefinitions
 
     /// <summary>The PLANET ZEBES text actor: its initializer,
     /// an empty callback and its list, in the cinematic's first sprite colours.
-    /// Its program deletes before scene sliding, so it has no slide callback or acceleration.</summary>
+    /// Its animation deletes before scene sliding, so it has no slide callback or acceleration.</summary>
     internal static CeresDestructionActorDefinition ZebesTitle =>
         new(CinematicSpriteFrameBehavior.NoOp, CinematicSpriteSegment.ZebesTitle,
             CeresSpriteColouring.ZebesTitle, SignedSixteenSixteen.Zero, false, SignedEightEight.Zero, null, false);
 
-    /// <summary>The four star sheets' programs, indexed by row-major quadrant.</summary>
+    /// <summary>The four star sheets' animations, indexed by row-major quadrant.</summary>
     internal static readonly CinematicSpriteSegment[] ZebesStarSheets =
     [
         CinematicSpriteSegment.ZebesStarSheet0, CinematicSpriteSegment.ZebesStarSheet1,

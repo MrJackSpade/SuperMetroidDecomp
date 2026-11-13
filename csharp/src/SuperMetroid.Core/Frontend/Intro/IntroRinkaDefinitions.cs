@@ -13,7 +13,7 @@ internal static class IntroRinkaDefinitions
     /// each before its jump returns to the loop's start. The generic animation
     /// loads the first frame on relative call 0, the callback and first
     /// loop frame on call 30, and subsequent loop frames on calls 40,
-    /// 50, and 60. Because the frame behaviour runs before the program advances,
+    /// 50, and 60. Because the frame behaviour runs before the animation advances,
     /// movement begins on the following actor call. The frame order is
     /// authored animation policy; retain the bounded two-phase stream.
     ///
@@ -23,7 +23,7 @@ internal static class IntroRinkaDefinitions
     /// Part j=0..3 uses X=0 for even j or 504 for odd j, Y=0 for j&lt;2
     /// or 248 otherwise, the Rinka's colours in front of the scene, tile 406+f, plus the vertical flip
     /// for j&lt;2 and the horizontal flip for even j. This is an exact bounded
-    /// four-quadrant construction; the frame program selects no other
+    /// four-quadrant construction; the frame animation selects no other
     /// frames or adjacent visual data.
     /// </remarks>
     public static CinematicActorDefinition RinkaActor =>

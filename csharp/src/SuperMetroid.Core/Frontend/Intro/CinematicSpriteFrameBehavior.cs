@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.Intro;
 
-/// <summary>The per-frame behaviours cinematic sprites run, whether their animation scripts or their owners install them.</summary>
+/// <summary>The per-frame behaviours cinematic sprites run, whether their animations or their owners install them.</summary>
 internal enum CinematicSpriteFrameBehavior
 {
     /// <summary>The shared behaviour that does nothing.</summary>

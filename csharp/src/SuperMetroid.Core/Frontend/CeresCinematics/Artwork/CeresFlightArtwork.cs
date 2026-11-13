@@ -24,6 +24,6 @@ public sealed class CeresFlightArtwork
     /// colours (#1512); every picture they draw is pre-coloured in the flight's colours by the import.
     /// </summary>
     public RgbColor Backdrop { get; }
-    /// <summary>Selected initial screen-pixel positions for the five named rear-view actors; their movement and program timing remain compiled logic.</summary>
+    /// <summary>Selected initial screen-pixel positions for the five named rear-view actors; their movement and animation timing remain compiled logic.</summary>
     public CeresFlightActorPlacements Actors { get; }
 }

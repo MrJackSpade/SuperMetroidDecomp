@@ -19,7 +19,7 @@ internal enum EndingSpriteRole
     CloudBottomA,
     /// <summary>Other lower cloud actor in the second escape backdrop.</summary>
     CloudBottomB,
-    /// <summary>Primary planet actor whose program controls subordinate explosion layers.</summary>
+    /// <summary>Primary planet actor whose animation controls subordinate explosion layers.</summary>
     ExplodingZebes,
     /// <summary>Lava layer deleted when the primary planet actor ends.</summary>
     ExplosionLava,

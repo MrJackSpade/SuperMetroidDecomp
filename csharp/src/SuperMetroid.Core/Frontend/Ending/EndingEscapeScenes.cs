@@ -106,7 +106,7 @@ internal sealed class EndingEscapeScenes
         sprites.RemoveAll(wrapper => !wrapper.Sprite.IsActive);
     }
 
-    /// <summary>Carries out the ending sprite programs' cues that spawn actors, trigger palette effects or advance the cinematic phase.</summary>
+    /// <summary>Carries out the ending sprite animations' cues that spawn actors, trigger palette effects or advance the cinematic phase.</summary>
     private void HandleSpriteCue(CinematicSpriteCueKind cue)
     {
         switch (cue)
@@ -229,7 +229,7 @@ internal sealed class EndingEscapeScenes
             EndingSpriteRole.ClearTimeDigit);
     }
 
-    /// <summary>The program showing clear-time <paramref name="digit"/>.</summary>
+    /// <summary>The animation showing clear-time <paramref name="digit"/>.</summary>
     private static CinematicSpriteSegment ClearTimeDigitAnimation(int digit) => (uint)digit < (uint)EndingCreditsState.ClearTimeDigitAnimations.Length
         ? EndingCreditsState.ClearTimeDigitAnimations[digit]
         : throw new ArgumentOutOfRangeException(nameof(digit), digit, "A clear-time digit is 0..9.");

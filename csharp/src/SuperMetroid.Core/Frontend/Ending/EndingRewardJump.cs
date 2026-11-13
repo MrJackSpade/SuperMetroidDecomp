@@ -9,21 +9,21 @@ namespace SuperMetroid.Core.Frontend.Ending;
 internal sealed class EndingRewardJump
 {
     /// <summary>
-    /// The program Samus's body falls by once she passes above the screen. A suited jump's head flies ahead of the body
+    /// The animation Samus's body falls by once she passes above the screen. A suited jump's head flies ahead of the body
     /// and is deleted as it passes the height at which the body starts to fall, so only the body falls and lands.
     /// </summary>
     internal const CinematicSpriteSegment FallingAnimation = CinematicSpriteSegment.Falling;
 
-    /// <summary>The program Samus's body lands and shoots by.</summary>
+    /// <summary>The animation Samus's body lands and shoots by.</summary>
     internal const CinematicSpriteSegment LandingAnimation = CinematicSpriteSegment.Landing;
 
     /// <summary>The colouring Samus's body falls and lands in.</summary>
     internal const EndingSpriteColouring FallingColouring = EndingSpriteColouring.FallingSamus;
 
-    /// <summary>The colouring the landing program's shoot cue turns Samus's body to, which it keeps to the end.</summary>
+    /// <summary>The colouring the landing animation's shoot cue turns Samus's body to, which it keeps to the end.</summary>
     internal const EndingSpriteColouring ShootingColouring = EndingSpriteColouring.ShootingSamus;
 
-    /// <summary>The landing program's cue that turns Samus's body to <see cref="ShootingColouring"/> and requests the shot.</summary>
+    /// <summary>The landing animation's cue that turns Samus's body to <see cref="ShootingColouring"/> and requests the shot.</summary>
     internal const CinematicSpriteCueKind ShootCue = CinematicSpriteCueKind.Shoot;
 
     /// <summary>Selects the armored head offsets used during the launch animation.</summary>
@@ -38,7 +38,7 @@ internal sealed class EndingRewardJump
     public bool ShotRequested { get; private set; }
     /// <summary>Set when the body passes above the screen and Samus starts to fall back, as the falling Samus.</summary>
     public bool Falling { get; private set; }
-    /// <summary>Whole-pixel body height used to select the falling and landed programs.</summary>
+    /// <summary>Whole-pixel body height used to select the falling and landed animations.</summary>
     public int BodyY => CoordinateAxis.AsSigned(body.WholePosition.Y);
 
     /// <summary>Spawns the body and, for suited rewards, its helmeted or helmetless head actor.</summary>
@@ -107,7 +107,7 @@ internal sealed class EndingRewardJump
         actor.Position = actor.Position.WithY(actor.Position.Y.MovedBy(Velocity));
     }
 
-    /// <summary>Handles launch, head placement, and the shoot event the jump programs publish.</summary>
+    /// <summary>Handles launch, head placement, and the shoot event the jump animations publish.</summary>
     private void HandleCue(CinematicSpriteCueKind cue)
     {
         switch (cue)
@@ -164,7 +164,7 @@ internal sealed class EndingRewardJump
 
     /// <summary>Requires a suited jump's head actor when a head-specific cue runs.</summary>
     private IntroDiscoverySprite RequireHead() => head ?? throw new InvalidDataException("Suited jump requested a missing head actor.");
-    /// <summary>Creates a jump actor from its catalogued initial position, palette, and programs.</summary>
+    /// <summary>Creates a jump actor from its catalogued initial position, palette, and animations.</summary>
     private static IntroDiscoverySprite Spawn(EndingRewardActor definition)
     {
         EndingRewardActorDefinition record = EndingRewardActors.Get(definition);

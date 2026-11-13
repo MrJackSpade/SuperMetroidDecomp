@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Frontend.Title;
 /// <summary>
 /// The four title cards' typed steps: each card reveals its letters
 /// one frame at a time for eight updates, holds its final frame, then triggers its turning-floor scene and deletes itself.
-/// The extraction pipeline checks the authored animation scripts beside these steps; <see cref="TitleCards"/> selects a card.
+/// The extraction pipeline checks the authored animations beside these steps; <see cref="TitleCards"/> selects a card.
 /// </summary>
 internal static class TitleCardDefinitions
 {

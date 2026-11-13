@@ -25,7 +25,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 [RoomLifetime]
 public sealed class SamusBombProjectileSystem
 {
-    /// <summary>The installed composition each timed record draws, which a bomb's records need bound.</summary>
+    /// <summary>The installed composition each projectile animation frame draws, which a bomb's frames need bound.</summary>
     public SuperMetroid.Core.Samus.Artwork.InstalledProjectileFrameBindings? FrameBindings { get; set; }
     /// <summary>How many bombs Samus can have out at once.</summary>
     public const int SlotCount = MorphBallBombDefinitions.SlotCount;
@@ -1074,12 +1074,12 @@ public sealed class SamusBombProjectileSystem
             return true;
         }
         if (duration == 0)
-            throw new InvalidDataException($"Bomb record {frame} has zero duration.");
-        SamusProjectileRecord record = SamusProjectileRecordDefinitions.Get(frame);
+            throw new InvalidDataException($"Bomb frame {frame} has zero duration.");
+        SamusProjectileFrameGameplay gameplay = SamusProjectileFrameDefinitions.Get(frame);
         slot.FrameHold = WrappingCountdown.Start(duration);
         slot.Sprite = (FrameBindings ?? throw new InvalidOperationException(
-            "Samus's bombs show their records' installed compositions, which are not bound.")).Resolve(frame);
-        slot.Radius = record.Radius;
+            "Samus's bombs show their frames' installed compositions, which are not bound.")).Resolve(frame);
+        slot.Radius = gameplay.Radius;
         slot.Playback = playback;
         return false;
     }

@@ -10,7 +10,7 @@ public static class ProjectileFrameBindingFormat
     /// <summary>Supported schema revision, three, requiring an explicit visual assignment for every timed record by its program and place there.</summary>
     public const int Version = 3;
     /// <summary>The timed records requiring bindings; not the number of sprite compositions or updates in one animation.</summary>
-    public static int FrameCount => SamusProjectileRecordOrder.Frames.Count;
+    public static int FrameCount => SamusProjectileFrameOrder.Frames.Count;
     /// <summary>Formats a timed record as the canonical JSON key, such as PowerUpFacingRight_0 for the first Power beam record.</summary>
     /// <param name="record">The timed record; formatting does not validate that it names one.</param>
     /// <returns>The record's program, an underscore and its place among the program's records.</returns>

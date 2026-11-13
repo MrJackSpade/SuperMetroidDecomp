@@ -54,7 +54,7 @@ internal static class ProjectileTrailCoordinatesVerification
 
         // Every frame a shot's animation can show past a list's run of placements leaves no trail: what lies past a list is
         // not part of the game's design (#1625).
-        int[] frameDomain = [.. SamusProjectileRecordOrder.Frames.Select(record => SamusProjectileRecordDefinitions.Get(record).AnimationFrame)
+        int[] frameDomain = [.. SamusProjectileFrameOrder.Frames.Select(record => SamusProjectileFrameDefinitions.Get(record).AnimationFrame)
             .Distinct()
             .Order()];
         int overruns = 0;
@@ -92,10 +92,10 @@ internal static class ProjectileTrailCoordinatesVerification
     {
         // For each animation frame, the list position just past the first record that installs it: a trail spawned there
         // reads that frame.
-        var records = SamusProjectileRecordOrder.Frames.OrderBy(SamusProjectileProgramAddresses.RecordAddress).ToArray();
+        var records = SamusProjectileFrameOrder.Frames.OrderBy(SamusProjectileProgramAddresses.RecordAddress).ToArray();
         var afterFrame = Enumerable.Range(0, 22).Select(frame => SamusProjectileProgramAddresses.PlaybackAt(unchecked((ushort)(
             SamusProjectileProgramAddresses.RecordAddress(records.First(record =>
-                SamusProjectileRecordDefinitions.Get(record).AnimationFrame == frame)) +
+                SamusProjectileFrameDefinitions.Get(record).AnimationFrame == frame)) +
             SuperMetroid.AssetExtraction.CartridgeTables.SamusProjectileListLayout.TimedRecordByteCount)))).ToArray();
         var system = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount));
         var spawn = new Action<SamusProjectile>(system.Trails.SpawnTrail);

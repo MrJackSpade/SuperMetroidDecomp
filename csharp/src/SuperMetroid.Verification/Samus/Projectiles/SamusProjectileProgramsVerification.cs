@@ -55,7 +55,7 @@ internal static class SamusProjectileProgramsVerification
                     var show = AssertIs<AnimationBeat<SamusProjectileFrame, NoAnimationCue>.Frame>(beats[index], $"{at}: timed record");
                     AssertEqual(word, show.Duration, $"{at}: duration");
                     AssertEqual(new SamusProjectileFrame(program, index), show.Shown, $"{at}: the segment's next record");
-                    SamusProjectileRecord record = SamusProjectileRecordDefinitions.Get(show.Shown);
+                    SamusProjectileFrameGameplay record = SamusProjectileFrameDefinitions.Get(show.Shown);
                     AssertEqual(cursor, SamusProjectileProgramAddresses.RecordAddress(show.Shown), $"{at}: record address");
                     ushort radii = Word(cursor + 4);
                     AssertEqual(new Extent16<RoomPixels>(LittleEndianBytes.LowByte(radii), LittleEndianBytes.HighByte(radii)), record.Radius, $"{at}: radii");
@@ -78,8 +78,8 @@ internal static class SamusProjectileProgramsVerification
         }
         // Each animation plays the segments its lists' gotos, runs on and deletes play.
         NativeEnemyAnimationOracle.CompareAnimations(lists, SamusProjectileAnimations.StartingAt);
-        AssertEqual(SamusProjectileRecordDefinitionsConstants.RecordCount, records.Count, "every record is shown by a program");
-        AssertTrue(records.SequenceEqual(SamusProjectileRecordDefinitions.TimedRecordAddresses), "the record addresses are the timed records in address order");
+        AssertEqual(SamusProjectileFrameDefinitionsConstants.FrameCount, records.Count, "every record is shown by a program");
+        AssertTrue(records.SequenceEqual(SamusProjectileFrameDefinitions.TimedRecordAddresses), "the record addresses are the timed records in address order");
 
         int fields = 0;
         foreach (SamusProjectileKind kind in Enum.GetValues<SamusProjectileKind>())
@@ -171,13 +171,13 @@ internal static class SamusProjectileProgramsVerification
     }
 
     /// <summary>The typed record at bank-$93 record address <paramref name="address"/>.</summary>
-    internal static SamusProjectileRecord RecordAt(ushort address)
+    internal static SamusProjectileFrameGameplay RecordAt(ushort address)
     {
         if (address == 0 || !SamusProjectileProgramAddresses.Layout.TryPlaceAt(address, out SamusProjectileSegmentBeat place))
             throw new InvalidDataException($"$93:{address:X4} is not a Samus projectile list position.");
         IReadOnlyList<AnimationBeat<SamusProjectileFrame, NoAnimationCue>> beats = SamusProjectileAnimations.Segments.Beats(place.Segment);
         return place.Beat < beats.Count && beats[place.Beat] is AnimationBeat<SamusProjectileFrame, NoAnimationCue>.Frame show
-            ? SamusProjectileRecordDefinitions.Get(show.Shown)
+            ? SamusProjectileFrameDefinitions.Get(show.Shown)
             : throw new InvalidDataException($"$93:{address:X4} is not a timed record.");
     }
 

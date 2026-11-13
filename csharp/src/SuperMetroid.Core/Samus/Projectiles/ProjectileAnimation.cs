@@ -37,11 +37,11 @@ internal sealed class ProjectileAnimation
             ClearProjectile(slot);
             return true;
         }
-        SamusProjectileRecord record = SamusProjectileRecordDefinitions.Get(frame);
+        SamusProjectileFrameGameplay gameplay = SamusProjectileFrameDefinitions.Get(frame);
         slot.FrameHold = WrappingCountdown.Start(duration);
         slot.Sprite = (FrameBindings ?? throw new InvalidOperationException(
-            "Samus's projectiles show their records' installed compositions, which are not bound.")).Resolve(frame);
-        slot.Radius = record.Radius;
+            "Samus's projectiles show their frames' installed compositions, which are not bound.")).Resolve(frame);
+        slot.Radius = gameplay.Radius;
         slot.Playback = playback;
         return false;
     }
@@ -149,6 +149,6 @@ internal sealed class ProjectileAnimation
         SamusState samus) =>
         SamusNormalSuitPalette.Load(colours, samus.EquippedItems);
 
-    /// <summary>The installed composition each timed record draws, which a projectile's records need bound.</summary>
+    /// <summary>The installed composition each projectile animation frame draws, which a projectile's frames need bound.</summary>
     public SuperMetroid.Core.Samus.Artwork.InstalledProjectileFrameBindings? FrameBindings { get; set; }
 }

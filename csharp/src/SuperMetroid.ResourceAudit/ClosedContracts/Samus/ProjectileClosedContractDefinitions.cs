@@ -32,7 +32,7 @@ internal static class ProjectileClosedContractDefinitions
              new("csharp/src/SuperMetroid.AssetExtraction/Samus/ProjectileTrailVisualDefinitions.cs")]),
         new("SuperMetroid.Core.Samus.Artwork.InstalledProjectileFrameBindings", "projectile-complete-timed-bindings", ["Resolve"],
             [new("csharp/src/SuperMetroid.Core/Samus/Artwork/InstalledProjectileFrameBindings.cs"),
-             new("csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusProjectileRecordDefinitions.cs"),
+             new("csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusProjectileFrameDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusProjectileFrame.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Samus/ProjectileSpriteDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Palettes/SamusColourDefinitions.cs")]),

@@ -110,7 +110,7 @@ internal sealed class SamusProjectileListLayout
                 places[record] = place;
             }
         }
-        foreach (SamusProjectileFrame record in SamusProjectileRecordOrder.Frames)
+        foreach (SamusProjectileFrame record in SamusProjectileFrameOrder.Frames)
         {
             if (!places.ContainsKey(record))
                 throw new InvalidDataException($"Timed projectile record {record} stands in no list.");

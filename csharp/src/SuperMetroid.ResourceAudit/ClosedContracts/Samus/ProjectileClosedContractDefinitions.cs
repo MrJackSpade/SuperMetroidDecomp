@@ -23,7 +23,6 @@ internal static class ProjectileClosedContractDefinitions
         new("SuperMetroid.AssetExtraction.Samus.ChargeFlareSprites", "flare-complete-private-composition-set", ["Frame"],
             [new("csharp/src/SuperMetroid.AssetExtraction/Samus/ChargeFlareSprites.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/ChargeFlareSpriteDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Samus/Artwork/ChargeFlareSpriteSelection.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Samus/InstalledProjectileSprites.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Samus/ProjectileSpriteDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Palettes/SamusColourDefinitions.cs"),

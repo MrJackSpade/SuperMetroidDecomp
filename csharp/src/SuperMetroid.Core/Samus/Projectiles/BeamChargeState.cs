@@ -2,7 +2,7 @@ using SuperMetroid.Core.Samus.Palettes;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>Beam charge state: the flare counter, the previous charge, the charged-shot glow timer, the charge palette index and the three flare components' frames and timers.</summary>
+/// <summary>Beam charge state: the flare counter, the previous charge, the charged-shot glow timer, the charge palette index and the three flare components' pictures and waits.</summary>
 internal sealed class BeamChargeState
 {
     /// <summary>Clears the charge count alone, as a Varia or Gravity Suit's pickup does (#1577).</summary>
@@ -55,55 +55,66 @@ internal sealed class BeamChargeState
     /// <summary>The nested visor palette result, which survives room loads.</summary>
     internal SamusVisorPaletteStepResult LastVisorPaletteStep { get; set; }
 
-    /// <summary>Current animation frame for each of the three flare components.</summary>
-    internal readonly int[] FlareFrames = new int[3];
-    /// <summary>Countdown to each flare component's next authored frame.</summary>
-    internal readonly WrappingCountdown[] FlareTimers = new WrappingCountdown[3];
+    /// <summary>
+    /// The picture each flare component shows, in <see cref="ChargeFlareComponent"/> order: a place of its program, or,
+    /// after the Hyper Beam's backward count has run a component past its first picture, the 0 through 65535 place the
+    /// count wrapped to.
+    /// </summary>
+    internal readonly int[] FlarePhases = new int[3];
 
-    /// <summary>The current animation frame of flare <paramref name="component"/>.</summary>
-    internal int FlareFrame(int component) => FlareFrames[component];
+    /// <summary>The wait each flare component holds its picture for, in <see cref="ChargeFlareComponent"/> order.</summary>
+    internal readonly WrappingCountdown[] FlareHolds = new WrappingCountdown[3];
 
-    /// <summary>Sets flare <paramref name="component"/>'s animation frame.</summary>
-    internal void SetFlareFrame(int component, int frame) =>
-        FlareFrames[component] = Ensure.BetweenInclusive(0, ChargeFlareAnimations.FramePlaces - 1, frame);
+    /// <summary>The picture flare <paramref name="component"/> shows.</summary>
+    internal int FlarePhase(ChargeFlareComponent component) => FlarePhases[Place(component)];
 
-    /// <summary>Restarts flare <paramref name="component"/>'s countdown to its next frame.</summary>
-    internal void StartFlareTimer(int component, int frames) => FlareTimers[component] = WrappingCountdown.Start(frames);
-
-    /// <summary>Counts one call of flare <paramref name="component"/>'s countdown, keeping what remains.</summary>
-    internal CountdownStep DecrementFlareTimer(int component)
+    /// <summary>Shows <paramref name="step"/>'s picture on flare <paramref name="component"/> and holds it for the step's wait.</summary>
+    internal void ShowFlare(ChargeFlareComponent component, ChargeFlareStep step)
     {
-        CountdownStep step = FlareTimers[component].Decrement();
-        FlareTimers[component] = step.Remaining;
+        FlarePhases[Place(component)] = Ensure.BetweenInclusive(0, WrappingCounter.LargestCount, step.Phase);
+        FlareHolds[Place(component)] = step.Hold;
+    }
+
+    /// <summary>Counts one update off flare <paramref name="component"/>'s wait, keeping what remains.</summary>
+    internal CountdownStep CountFlareHold(ChargeFlareComponent component)
+    {
+        CountdownStep step = FlareHolds[Place(component)].Decrement();
+        FlareHolds[Place(component)] = step.Remaining;
         return step;
     }
 
-    /// <summary>The ordinary charge flare's first call: every frame at zero, the three countdowns at 3, 5 and 4.</summary>
+    /// <summary>The ordinary charge flare's first call: every component starts its program at its first picture.</summary>
     internal void StartChargeFlare()
     {
-        Array.Clear(FlareFrames);
-        StartFlareTimer(0, 3);
-        StartFlareTimer(1, 5);
-        StartFlareTimer(2, 4);
+        foreach (ChargeFlareComponent component in Enum.GetValues<ChargeFlareComponent>())
+            ShowFlare(component, ChargeFlareAnimations.First(component));
     }
 
-    /// <summary>Hyper Beam's literal stores: frames 29, 5 and 5, each countdown at 3.</summary>
+    /// <summary>The Hyper Beam's shot: every component shows its last picture, to count its pictures backward from there.</summary>
     internal void StartHyperBeamFlare()
     {
-        FlareFrames[0] = 29;
-        FlareFrames[1] = 5;
-        FlareFrames[2] = 5;
-        StartFlareTimer(0, 3);
-        StartFlareTimer(1, 3);
-        StartFlareTimer(2, 3);
+        foreach (ChargeFlareComponent component in Enum.GetValues<ChargeFlareComponent>())
+        {
+            ShowFlare(component, new(ChargeFlareAnimations.LastPicture(component),
+                WrappingCountdown.Start(ChargeFlareAnimationDefinitions.HyperBeamPictureUpdates)));
+        }
     }
 
-    /// <summary>Clears every flare frame and countdown.</summary>
+    /// <summary>Clears every flare component to its first picture with no wait.</summary>
     internal void ClearFlare()
     {
-        Array.Clear(FlareFrames);
-        Array.Clear(FlareTimers);
+        Array.Clear(FlarePhases);
+        Array.Clear(FlareHolds);
     }
+
+    /// <summary>The place of <paramref name="component"/>'s picture and wait in the flare's arrays.</summary>
+    private static int Place(ChargeFlareComponent component) => component switch
+    {
+        ChargeFlareComponent.MainFlare => 0,
+        ChargeFlareComponent.SlowSparks => 1,
+        ChargeFlareComponent.FastSparks => 2,
+        _ => throw new ArgumentOutOfRangeException(nameof(component), component, $"Undefined {nameof(ChargeFlareComponent)}."),
+    };
 
     /// <summary>
     /// Clears the charge and its whole flare, as the shinespark windup and the grapple wall jump's launch do: the count

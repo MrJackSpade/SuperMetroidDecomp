@@ -17,8 +17,17 @@ public readonly record struct FixedCoordinate
     [IntegerQuantity("whole-pixel coordinate")]
     public ushort Whole { get; init; }
 
-    /// <summary>The fraction of a pixel, in 65536ths, 0 through 65535.</summary>
+    /// <summary>The fraction of a pixel, in 65536ths, 0 through <see cref="LastFraction"/>.</summary>
     public ushort Fraction { get; init; }
+
+    /// <summary>
+    /// The largest fraction, one 65536th short of the next whole pixel: where terrain stops a mover just before the
+    /// pixel it may not enter (#1627).
+    /// </summary>
+    public const int LastFraction = FractionsPerPixel - 1;
+
+    /// <summary>The fractions one pixel is counted in.</summary>
+    private const int FractionsPerPixel = 65536;
 
     /// <summary>The position at <paramref name="whole"/> pixels and <paramref name="fraction"/> 65536ths, each 0 through 65535.</summary>
     public static FixedCoordinate Of(int whole, int fraction) => new(whole, fraction);

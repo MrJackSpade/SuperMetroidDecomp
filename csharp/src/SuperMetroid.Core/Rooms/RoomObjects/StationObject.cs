@@ -117,7 +117,8 @@ internal sealed class StationObject(
             return;
 
         StationAnimationProgramDefinitions.Frame frame = StationAnimationPrograms.Resolve(AnimationList, AnimationFrame);
-        if (frame.Duration is <= 0 or > short.MaxValue)
+        // A frame's hold is any positive count of updates (#1627).
+        if (frame.Duration <= 0)
         {
             throw new InvalidDataException(
                 $"{Kind} station animation {AnimationList} frame {AnimationFrame} does not begin with a timed draw.");

@@ -47,8 +47,7 @@ internal static class RoomObjectPopulationImporter
             });
             cursor = unchecked((ushort)(cursor + RoomObjectPopulationFormatConstants.RecordByteCount));
         }
-        // Preserve the loader's bounded parser: a terminator beyond record 256
-        // is not accepted merely because the importer could keep reading.
+        // A population whose records run round its whole bank has no terminator.
         throw new InvalidDataException($"Imported PLM population $8F:{pointer:X4} has no bounded zero terminator.");
 
         byte Byte(byte bank, ushort offset) => cartridge.ReadCartridgeByte(((int)new SnesAddress(bank, offset)));

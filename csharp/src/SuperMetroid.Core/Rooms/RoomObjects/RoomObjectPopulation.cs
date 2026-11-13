@@ -8,9 +8,6 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </summary>
 public sealed class RoomObjectPopulation
 {
-    /// <summary>The most placements one room's object population holds.</summary>
-    public const int MaximumPlacementCount = 255;
-
     /// <summary>Owned placement records kept in the order the room-object allocator consumes them.</summary>
     private readonly RoomObjectPlacement[] placements;
 
@@ -19,19 +16,19 @@ public sealed class RoomObjectPopulation
     /// <summary>Validated placement records in allocation order; scroll programs are owned copies.</summary>
     public ReadOnlyMemory<RoomObjectPlacement> Placements => placements;
 
-    /// <summary>Copies an ordered, bounded decoded population and validates scroll programs before any room-object slots are allocated.</summary>
+    /// <summary>Copies an ordered decoded population and validates scroll programs before any room-object slots are allocated.</summary>
     /// <param name="name">The population's name, used in diagnostics.</param>
-    /// <param name="records">The placements in order; at most <see cref="MaximumPlacementCount"/>.</param>
+    /// <param name="records">
+    /// The placements in order, any number of them (#1627): the room's places, not the population, bound how many objects
+    /// it holds at once (<see cref="SuperMetroid.Core.Compatibility.RoomObjectPlaces"/>).
+    /// </param>
     /// <exception cref="ArgumentNullException">The sequence or one of its placements is null.</exception>
-    /// <exception cref="InvalidDataException">There are too many placements, one is an empty placement, or a setup-specific payload is invalid.</exception>
+    /// <exception cref="InvalidDataException">One is an empty placement, or a setup-specific payload is invalid.</exception>
     public RoomObjectPopulation(string name, IEnumerable<RoomObjectPlacement> records)
     {
         Ensure.NotNull(records);
         Name = Ensure.NotNull(name);
-        // Never enumerate an unbounded caller sequence: one placement past the limit is enough to reject it.
-        placements = records.Take(MaximumPlacementCount + 1).Select(CopyPlacement).ToArray();
-        if (placements.Length > MaximumPlacementCount)
-            throw new InvalidDataException($"Room-object population {name} exceeds the most placements a room can hold.");
+        placements = records.Select(CopyPlacement).ToArray();
     }
 
     /// <summary>Builds a retail population from its compiled records, binding scroll triggers to their compiled program identities.</summary>

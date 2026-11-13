@@ -21,7 +21,8 @@ public abstract record ColourEffectCondition
     public sealed record RestartsWhileSamusIsHigh(int Height, PaletteFxSegment Restart) : ColourEffectCondition;
 
     /// <summary>
-    /// The effect ends on the first update the Torizo whose belly it lights, the room's first enemy, has no health left.
+    /// The effect ends on the first update the Torizo whose belly it lights (<see cref="ILitTorizo"/>), the Torizo whose
+    /// fight start started it, has no health left.
     /// </summary>
     public sealed record EndsWhenTorizoDies : ColourEffectCondition
     {

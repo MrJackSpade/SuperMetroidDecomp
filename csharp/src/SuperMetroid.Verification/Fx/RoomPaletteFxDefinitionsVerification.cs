@@ -161,7 +161,7 @@ internal static class RoomPaletteFxDefinitionsVerification
     /// </summary>
     internal static void VerifyColourEffectTurnOrder()
     {
-        var conditions = new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false };
+        var conditions = new PaletteFxConditions { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false };
         var system = new RoomPaletteFxSystem(new PaletteFxSessionState());
         system.Start(PaletteFxObject.TitleScreenFlickeringDisplays, 0);
         system.Start(PaletteFxObject.FadeInSuperMetroidTitleLogo, 0);

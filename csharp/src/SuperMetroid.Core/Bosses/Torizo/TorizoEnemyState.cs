@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Fx.PaletteFx;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
@@ -7,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// Torizo's state beyond its ordinary enemy record, kept in named fields rather than in
 /// shared boss values, so no common enemy field takes on a second meaning.
 /// </summary>
-public sealed class TorizoEnemyState
+public sealed class TorizoEnemyState : ILitTorizo
 {
     /// <summary>Attaches variant-specific boss state to the existing physical enemy slot.</summary>
     internal TorizoEnemyState(RoomEnemySlot slot, bool isGolden)
@@ -26,6 +27,9 @@ public sealed class TorizoEnemyState
     internal TorizoBehaviorFlags Behavior { get; set; }
     /// <summary>Whether the owning definition is Golden Torizo, rather than Bomb Torizo; fixed at initialization.</summary>
     public bool IsGolden { get; }
+
+    /// <summary>Whether this Torizo has no health left: its belly's glow ends on the first update it sees so (#1700).</summary>
+    public bool IsDefeated => Slot.Health == 0;
 
     /// <summary>Persistent target colors and numerator shared by awakening and death fades.</summary>
     internal TorizoColours Colours { get; } = new();

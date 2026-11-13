@@ -303,8 +303,8 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case TorizoCue.Command { Kind: TorizoCueKind.StartBombTorizoFight }:
                 RequestBombTorizoMusic(MusicRequest.SelectTrack(MusicTrack.FirstSetSong));
-                // The fight starts the belly's glow, a palette-FX object that ends once the statue dies.
-                _frameResults.TorizoBellyGlow = PaletteFxObject.BombTorizoBelly;
+                // The fight starts the belly's glow, which watches this Torizo and ends once it dies.
+                _frameResults.TorizoBellyGlow = new(PaletteFxObject.BombTorizoBelly, state);
                 return null;
 
             case TorizoCue.Command { Kind: TorizoCueKind.NoOperation }:
@@ -461,7 +461,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             case TorizoCue.Command { Kind: TorizoCueKind.StartGoldenTorizoFight }:
                 RequestBombTorizoMusic(MusicRequest.SelectTrack(MusicTrack.FirstSetSong));
                 torizo.Radius = new(18, 48);
-                _frameResults.TorizoBellyGlow = PaletteFxObject.GoldenTorizoBelly;
+                _frameResults.TorizoBellyGlow = new(PaletteFxObject.GoldenTorizoBelly, state);
                 return null;
 
             case TorizoCue.Command { Kind: TorizoCueKind.ClearCaughtSuperMissile }:

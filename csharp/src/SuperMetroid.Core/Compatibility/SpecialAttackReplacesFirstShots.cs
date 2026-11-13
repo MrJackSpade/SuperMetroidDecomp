@@ -8,8 +8,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// nothing from the shot it replaces but its horizontal sub-pixel position (<see cref="LeftMuzzleSubpixelCarry"/>).
 /// </summary>
 /// <remarks>
-/// Consulted once per special-attack start, after its Power Bomb cost and the lead particle's hold, as the particles are
-/// set off. Evidence: the Wave, Ice, Spazer and Plasma starts (<c>$90:CD1A</c>, <c>$90:CD9B</c>, <c>$90:CE14</c>,
+/// Consulted once per special-attack start, after its Power Bomb cost, as the particles are set off. Evidence: the Wave, Ice, Spazer and Plasma starts (<c>$90:CD1A</c>, <c>$90:CD9B</c>, <c>$90:CE14</c>,
 /// <c>$90:CE98</c>) write their particles into the first four projectile places, the last first, neither testing nor
 /// deleting what those places hold, and set the shot count to four; every value a particle's update and animation read
 /// is one its start writes, and the position, collision size and picture the replaced shot leaves are rewritten by the

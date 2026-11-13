@@ -63,7 +63,7 @@ internal static class RoomFxWidenedInputsVerification
         AssertThrows<ArgumentOutOfRangeException>(() => liquid.SetLiquidMotion(targetYPosition: -1), "a named target above the room's top");
 
         static PaletteFxConditions Conditions(int samusY) =>
-            new() { SamusY = samusY, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false };
+            new() { SamusY = samusY, EquippedItems = 0, AreaMiniBossDefeated = false };
         static RoomFxOverlayFrame Frame(int darkness) =>
             new() { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.None, FirefleaDarknessStep = darkness };
         static RoomFxOverlayFrame FrameRandom(int randomNumber) =>

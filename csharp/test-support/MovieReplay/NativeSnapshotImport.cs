@@ -109,7 +109,12 @@ internal static class NativeSnapshotImport
             PaletteFxImportedPlace resumed = PaletteFxNativeProgramOracle.PlaceAt(
                 paletteFxLists ??= PaletteFxNativeProgramOracle.Lists(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus)),
                 ImportedAnimationCandidates(effect), W(NativeSnapshotMemory.PaletteFxInstruction + slot * 2));
-            var imported = new RoomColourEffect(effect, resumed.Animation)
+            // A Torizo's belly glow watches the room's Torizo, which the room's load set up (#1700).
+            ILitTorizo? litTorizo = effect is PaletteFxObject.BombTorizoBelly or PaletteFxObject.GoldenTorizoBelly
+                ? runtime.Enemies.BombTorizoBehavior.Access.TorizoState
+                    ?? throw new InvalidDataException("The native snapshot runs a Torizo's belly glow in a room with no Torizo.")
+                : null;
+            var imported = new RoomColourEffect(effect, resumed.Animation, litTorizo)
             {
                 Place = resumed.Place,
                 // The native colour index names the colours the object animates: of the colour groups its programs name,

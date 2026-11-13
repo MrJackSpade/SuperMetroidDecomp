@@ -44,38 +44,11 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int RinkaHealth = 10;
     /// <summary>Flight speed in 8.8 pixels per update (1 + 32/256 pixels), resolved along its aim angle into flight velocity.</summary>
     private static readonly SignedEightEight RinkaSpeed = SignedEightEight.FromParts(1, 32);
-    /// <summary>Number of Mother Brain Rinka actors sharing the eleven spawn resources.</summary>
-    private const int RinkaMaximumSpecialActors = 3;
-
     /// <summary>
-    /// The eleven authored Japan/USA spawn points. Mother Brain's
-    /// three special actors compete for these resources and may rewrite their spawn snapshots
-    /// when their authored point is outside the current screen. The even reservation token is
-    /// derived from each point's position in this table.
+    /// The spawn points Mother Brain's three special Rinkas compete for; a Rinka whose own point is off screen or held
+    /// moves to another and rewrites its spawn snapshot.
     /// </summary>
-    private static readonly Position16<RoomPixels>[] RinkaSpawnPoints =
-    [
-        new(999, 38),
-        new(999, 166),
-        new(823, 54),
-        new(823, 166),
-        new(631, 28),
-        new(631, 182),
-        new(439, 54),
-        new(439, 166),
-        new(247, 28),
-        new(247, 182),
-        new(128, 168),
-    ];
-
-    /// <summary>Pairs an authored spawn point with its one-based even reservation token.</summary>
-    internal static RinkaSpawnResource RinkaSpawnResourceAt(int index) =>
-        new(RinkaSpawnPoints[index], 2 * (index + 1));
-
-    /// <summary>Marks which of the eleven authored spawn points are currently reserved.</summary>
-    /// <remarks>Eleven literal table entries.</remarks>
-    private readonly bool[] _rinkaOccupiedSpawnResources =
-        new bool[RinkaMaximumSpecialActors + 8];
+    private readonly RinkaSpawnReservations _spawnReservations = new();
     /// <summary>Causes special Rinkas to be removed instead of launched or respawned.</summary>
     private bool _rinkaTerminationFlag;
 
@@ -342,91 +315,36 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         ReinitializeRinka(slot, state);
     }
 
-    /// <summary>Runs the special Rinka's fixed-resource spawn selection without memory alias tricks.</summary>
+    /// <summary>
+    /// Reserves a special Rinka's spawn point against the current camera, moving the Rinka and its spawn snapshot to the
+    /// point when it cannot keep its own.
+    /// </summary>
     private void ReserveSpecialRinkaSpawn(RoomEnemySlot slot, RinkaEnemyState state)
     {
-        Position16<RoomPixels> spawn = slot.Spawn.Population.Position;
-        int mappedIndex = FindRinkaSpawnResource(spawn);
-        bool mustRelocate = RinkaSpawnIsOutsideCamera(spawn) ||
-            _rinkaOccupiedSpawnResources[mappedIndex];
-
-        if (mustRelocate)
-        {
-            // The first pass prefers a free point on the current camera. If all eleven are
-            // off-camera or occupied, code performs a second pass that ignores the
-            // camera but still refuses to steal an occupied resource.
-            int selectedIndex = -1;
-            for (int index = 0; index < RinkaSpawnPoints.Length; index++)
-            {
-                RinkaSpawnResource candidate = RinkaSpawnResourceAt(index);
-                if (!RinkaSpawnIsOutsideCamera(candidate.Position) &&
-                    !_rinkaOccupiedSpawnResources[index])
-                {
-                    selectedIndex = index;
-                    break;
-                }
-            }
-            if (selectedIndex < 0)
-            {
-                for (int index = 0; index < RinkaSpawnPoints.Length; index++)
-                {
-                    if (!_rinkaOccupiedSpawnResources[index])
-                    {
-                        selectedIndex = index;
-                        break;
-                    }
-                }
-            }
-
-            // All eleven resources being occupied is a real failure path: the reservation
-            // returns without inventing a twelfth location or overwriting another owner.
-            if (selectedIndex < 0)
-                return;
-
-            mappedIndex = selectedIndex;
-            RinkaSpawnResource selected = RinkaSpawnResourceAt(selectedIndex);
-            RoomEnemyPopulationRecord rewrittenPopulation = slot.Spawn.Population with
-            {
-                Position = selected.Position,
-            };
-            slot.Spawn = slot.Spawn with { Population = rewrittenPopulation };
-            slot.Position = slot.Position.WithWhole(selected.Position);
-        }
-
-        _rinkaOccupiedSpawnResources[mappedIndex] = true;
-        state.SpawnResourceToken = RinkaSpawnResourceAt(mappedIndex).Token;
-    }
-
-    /// <summary>Finds the authored point for a population position, using resource zero for an unknown point.</summary>
-    private static int FindRinkaSpawnResource(Position16<RoomPixels> position)
-    {
-        for (int index = 0; index < RinkaSpawnPoints.Length; index++)
-        {
-            RinkaSpawnResource resource = RinkaSpawnResourceAt(index);
-            if (resource.Position == position)
-                return index;
-        }
-
-        // The location lookup falls back to the first table resource when a population coordinate does
-        // not match. Preserve that odd behavior instead of rejecting a synthetic fixture.
-        return 0;
-    }
-
-    /// <summary>Clears the occupied spawn entry identified by a special Rinka's even resource token.</summary>
-    private void ReleaseSpecialRinkaSpawn(RinkaEnemyState state)
-    {
-        if (state.SpawnResourceToken == 0)
+        // Every point being held is a real failure path: the Rinka keeps its place and whatever point it held.
+        if (_spawnReservations.Reserve(slot.Spawn.Population.Position, _rinkaCamera) is not { } reservation)
             return;
 
-        for (int index = 0; index < RinkaSpawnPoints.Length; index++)
+        if (reservation.MovesTo is { } centre)
         {
-            if (RinkaSpawnResourceAt(index).Token == state.SpawnResourceToken)
+            RoomEnemyPopulationRecord rewrittenPopulation = slot.Spawn.Population with
             {
-                _rinkaOccupiedSpawnResources[index] = false;
-                break;
-            }
+                Position = centre,
+            };
+            slot.Spawn = slot.Spawn with { Population = rewrittenPopulation };
+            slot.Position = slot.Position.WithWhole(centre);
         }
-        state.SpawnResourceToken = 0;
+        state.HeldSpawnPoint = reservation.Reserved;
+    }
+
+    /// <summary>Releases the spawn point a special Rinka holds, if it holds one.</summary>
+    private void ReleaseSpecialRinkaSpawn(RinkaEnemyState state)
+    {
+        if (state.HeldSpawnPoint is not { } held)
+            return;
+
+        _spawnReservations.Release(held);
+        state.HeldSpawnPoint = null;
     }
 
     /// <summary>The Rinka's asymmetric (-16..271, -16..239) flight rectangle.</summary>
@@ -441,17 +359,6 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
             return true;
         int relativeX = CoordinateAxis.Difference(slot.Position.X.Whole + 16, _rinkaCamera.X);
         return relativeX is < 0 or >= 288;
-    }
-
-    /// <summary>The strict camera-origin test used only for special spawns.</summary>
-    private bool RinkaSpawnIsOutsideCamera(Position16<RoomPixels> position)
-    {
-        if (CoordinateAxis.AsSigned(position.Y) < 0 ||
-            CoordinateAxis.Difference(position.Y, _rinkaCamera.Y) is < 0 or >= 224)
-        {
-            return true;
-        }
-        return CoordinateAxis.Difference(position.X, _rinkaCamera.X) is < 0 or >= 256;
     }
 
     /// <summary>Distinguishes Mother Brain's parameterized spawn-sharing actors from ordinary room Rinkas.</summary>

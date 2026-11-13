@@ -21,10 +21,10 @@ internal static class LookupSmallGameTablesVerification
         Suite(nameof(VerifyMotherBrainBombBounceAccelerations), () => VerifyMotherBrainBombBounceAccelerations(rom));
         Suite(nameof(VerifyCrocomireBridgeDustPositions), () => VerifyCrocomireBridgeDustPositions(rom));
         Suite(nameof(VerifyCeresFallingDebrisColumns), () => VerifyCeresFallingDebrisColumns(rom));
-        Suite(nameof(VerifyRinkaSpawnResources), () => VerifyRinkaSpawnResources(rom));
+        Suite(nameof(VerifyRinkaSpawnPoints), () => VerifyRinkaSpawnPoints(rom));
         Suite(nameof(VerifyDeadTourianCorpseLayouts), () => VerifyDeadTourianCorpseLayouts(rom));
         Console.WriteLine("Small game tables: falling-tube bodies, bomb bounce gravity, " +
-            "Crocomire bridge dust, Ceres debris columns, Rinka resource tokens and dead Tourian corpse layouts match every native word.");
+            "Crocomire bridge dust, Ceres debris columns, Rinka spawn points and dead Tourian corpse layouts match every native word.");
     }
 
     /// <summary>Checks five falling-tube body radius and floor records against bank $A9.</summary>
@@ -84,16 +84,23 @@ internal static class LookupSmallGameTablesVerification
         AssertThrows<ArgumentOutOfRangeException>(() => RoomMainRoutines.CeresFallingDebrisX(16), "Debris column bound");
     }
 
-    /// <summary>Matches eleven Rinka spawn positions and resource tokens to bank $A2 records.</summary>
-    private static void VerifyRinkaSpawnResources(ISnesAddressSpace rom)
+    /// <summary>
+    /// Matches the eleven Rinka spawn points' order and centres to the bank $A2 records, and the import's reservation
+    /// token for each point to its record's token (#1699).
+    /// </summary>
+    private static void VerifyRinkaSpawnPoints(ISnesAddressSpace rom)
     {
-        for (int index = 0; index < 11; index++)
+        AssertEqual(11, RinkaSpawnPointDefinitions.SearchOrder.Length, "Rinka spawn point count");
+        AssertEqual(Enum.GetValues<RinkaSpawnPoint>().Length, RinkaSpawnPointDefinitions.SearchOrder.Select(definition => definition.Point).Distinct().Count(),
+            "every Rinka spawn point appears once in the search order");
+        for (int index = 0; index < RinkaSpawnPointDefinitions.SearchOrder.Length; index++)
         {
-            var resource = RinkaBehavior.RinkaSpawnResourceAt(index);
+            RinkaSpawnPointDefinition definition = RinkaSpawnPointDefinitions.SearchOrder[index];
             int record = 0xa2b75b + 6 * index;
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(record), resource.Position.X, $"Rinka spawn {index} X");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 2)), resource.Position.Y, $"Rinka spawn {index} Y");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 4)), resource.Token, $"Rinka spawn {index} token");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(record), definition.Centre.X, $"Rinka spawn {definition.Point} X");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 2)), definition.Centre.Y, $"Rinka spawn {definition.Point} Y");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 4)), MotherBrainNativeWords.RinkaSpawnPoints.Word(definition.Point),
+                $"Rinka spawn {definition.Point} reservation token");
         }
     }
 

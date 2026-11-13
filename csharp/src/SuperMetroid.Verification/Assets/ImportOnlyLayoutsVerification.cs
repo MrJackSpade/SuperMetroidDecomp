@@ -96,7 +96,6 @@ internal static class ImportOnlyLayoutsVerification
         yield return (projectiles, GrappleSpriteDefinitions.FileName);
         // The colours only the import pre-colours Samus's sheets in (#1693).
         yield return (projectiles, HyperBeamFxColorFormat.FileName);
-        yield return (GameInstallationLayout.SamusOverreadDirectoryName, SamusOverreadFormat.ColourFileName);
         string samusBody = GameInstallationLayout.SamusBodyDirectoryName;
         yield return (samusBody, SamusBodyArtworkFiles.ArtworkFileName);
         yield return (samusBody, SamusAtmosphericArtworkFiles.ArtworkFileName);

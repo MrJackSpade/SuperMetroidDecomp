@@ -1,6 +1,7 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 
@@ -8,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>
 /// The colours Samus's beams show for each beam combination the game can select (#1512): a retail combination's installed
-/// palette, the glitched Chainsaw beam's colours the overread decoding holds, or the SpaceTime beam's defined black.
+/// palette, the one the glitched Chainsaw beam shares (#1736), or the SpaceTime beam's defined black.
 /// </summary>
 internal static class SamusBeamColours
 {
@@ -19,20 +20,19 @@ internal static class SamusBeamColours
     /// </summary>
     private static readonly RgbColor SpacetimeColour = RgbColor.Black;
 
-    /// <summary>The beam combinations the game can show a beam palette for, retail and glitched.</summary>
+    /// <summary>The beam combinations with a beam shade of their own: the retail combinations and SpaceTime.</summary>
     internal static IEnumerable<SamusBeamCombination> Shown =>
         Enum.GetValues<SamusBeamCombination>().Where(combination => combination.IsRetail ||
-            combination is ChainsawBeamGraphicsDefinitions.Selection or SpacetimeBeamGraphicsDefinitions.Selection);
+            combination is SpacetimeBeamGraphicsDefinitions.Selection);
 
     /// <summary>The sixteen colours <paramref name="combination"/>'s beams show.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The game shows no palette for the combination.</exception>
-    internal static RgbColor[] Of(SamusBeamCombination combination, InstalledBeamPalettes palettes, ChainsawBeamColours<RgbColor> chainsaw)
+    internal static RgbColor[] Of(SamusBeamCombination combination, InstalledBeamPalettes palettes)
     {
         Ensure.NotNull(palettes);
-        Ensure.NotNull(chainsaw);
         return combination switch
         {
-            ChainsawBeamGraphicsDefinitions.Selection => [.. chainsaw.Colours],
+            ChainsawBeamGraphicsDefinitions.Selection => palettes.Colours(SamusShades.ShownPalette(combination)),
             SpacetimeBeamGraphicsDefinitions.Selection => Enumerable.Repeat(SpacetimeColour, BeamPaletteDefinitions.ColorCount).ToArray(),
             SamusBeamCombination.Power or SamusBeamCombination.Wave or SamusBeamCombination.Ice or SamusBeamCombination.IceWave
                 or SamusBeamCombination.Spazer or SamusBeamCombination.SpazerWave or SamusBeamCombination.SpazerIce

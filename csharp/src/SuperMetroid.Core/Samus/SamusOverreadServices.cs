@@ -9,9 +9,7 @@ namespace SuperMetroid.Core.Samus;
 /// (#1474), as the import pipeline decoded them from the player's game data (owner question 3). The session's
 /// gameplay runtime receives them with the installed content and hands each to the owner that consults it when it builds
 /// that owner: her animation and the projectile system, which takes its own group whole and the terrain a Wave shot's
-/// scan past the room's ceiling finds straddling two blocks (#1612). The colours Gravity Speed Booster
-/// and the Chainsaw beam read past their tables are no longer here (#1512): only the import reads them, to pre-colour her
-/// sheets in those shades.
+/// scan past the room's ceiling finds straddling two blocks (#1612).
 /// Lifetime: the installation's, shared by every runtime of the session.
 /// </summary>
 public sealed class SamusOverreadServices

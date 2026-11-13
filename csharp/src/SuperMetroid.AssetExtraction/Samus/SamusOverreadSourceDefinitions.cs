@@ -24,30 +24,8 @@ internal static class SamusOverreadSourceDefinitions
     /// <summary>$90:AD1C compares the inherited read index against $0020 after advancing it.</summary>
     internal const int PaletteByteCount = 0x0020;
 
-    /// <summary>$9B:C90A, the grapple-handler code the Speed Booster palette overrun reads as sixteen colours.</summary>
-    internal const int SpeedBoosterGrappleCode = 0x9bc90a;
-
-    /// <summary>
-    /// Every colour word of the expansion overrun: <c>$91:DD5B</c>'s unrolled <c>LDA $0000..$001E,X</c> runs under DB=$9B
-    /// with X=$68AD, so it reads <c>$9B:68AD-$68CC</c> in the unconnected expansion window. Open bus returns the memory
-    /// data register, which holds the operand's high byte, $00; all sixteen words are $0000.
-    /// </summary>
-    internal const ushort ExpansionOpenBusWord = 0x0000;
-
     /// <summary>$90:DD75, the byte the HUD's posture-transition admission reads for pose zero; the real flags start at $90:DDAA.</summary>
     internal const int HudPostureFlagsForPoseZero = 0x90dd75;
-
-    /// <summary>
-    /// $90:7FFF: where the beam palette loader reads the Chainsaw beam's sixteen colours, through the palette place it
-    /// reads past its table; the first byte lies in the unconnected expansion window and the rest are Samus_Animate's code.
-    /// </summary>
-    internal const int ChainsawPaletteStart = 0x907fff;
-
-    /// <summary>
-    /// The byte <c>LDA [$00],Y</c> reads at <c>$90:7FFF</c>: the expansion window is open bus, so it returns the memory
-    /// data register, which still holds the long pointer's bank, $90.
-    /// </summary>
-    internal const int ChainsawPaletteOpenBusByte = 0x90;
 
     /// <summary>$90:D4C6: the Shinespark crash's echo departure table, two angle bytes per pose from the first crash pose.</summary>
     internal const int CrashDepartureTable = 0x90d4c6;

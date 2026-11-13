@@ -355,7 +355,7 @@ public sealed class SamusCrystalFlashState
         if (BeamPaletteRestoreRequested)
         {
             // Completion reloads the equipped combination's beam palette with the loader equipping a beam uses, so a Spazer
-            // and Plasma combination takes the colours read past the palette table as everywhere else (#1506).
+            // and Plasma combination shows the same colours as everywhere else (#1506, #1736).
             SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem.LoadBeamPalette(colours, samus.EquippedBeams);
 
             SpecialPaletteKind = SamusSpecialPaletteType.None;

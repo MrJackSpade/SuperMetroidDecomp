@@ -16,30 +16,15 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 
-/// <summary>Checks Chainsaw beam DMA and glitched palette reads against native cartridge behavior.</summary>
+/// <summary>Checks Chainsaw beam DMA against native cartridge behavior, and the palette the Chainsaw beam shows.</summary>
 internal static class InvalidBeamGraphicsVerification
 {
-    /// <summary>Verifies bounded instruction reads, ordinary beam palettes, and both direct and queued Chainsaw graphics loads.</summary>
+    /// <summary>Verifies ordinary beam palettes, the Chainsaw beam's graphics load and the listed palette it shows.</summary>
     internal static void VerifyInvalidBeamGraphics()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertThrows<InvalidOperationException>(() => CpuBusRegionRead.Read(bus, 0x907fff),
             "plain high-level address reads do not acquire an invented open-bus value");
-        // ROM oracle for the installed Chainsaw colours (#1500): colour c is the word whose low byte is the
-        // byte before Samus_Animate's byte 2c (the open-bus pointer bank for colour zero) and
-        // whose high byte is Samus_Animate's byte 2c, kept as CGRAM keeps it.
-        ChainsawBeamColours<RgbColor> chainsaw = InstalledFixtures.SamusShadeSources.Chainsaw;
-        AssertEqual(BeamPaletteDefinitions.ColorCount, chainsaw.Colours.Count, "the installed Chainsaw palette holds a beam palette's colours");
-        for (int color = 0; color < BeamPaletteDefinitions.ColorCount; color++)
-        {
-            int highByteAddress = ChainsawBeamGraphicsDefinitionsConstants.InstructionAddress + color * 2;
-            byte low = color == 0
-                ? ChainsawBeamGraphicsDefinitionsConstants.OpenBusByte
-                : bus.ReadCartridgeByte(highByteAddress - 1);
-            RgbColor native = RgbColor.FromWordIgnoringTopBit(LittleEndianBytes.Word(low, bus.ReadCartridgeByte(highByteAddress)));
-            AssertEqual(native, chainsaw.Colours[color],
-                $"Chainsaw palette colour {color} is the open-bus byte and Samus_Animate's instruction bytes as CGRAM keeps them");
-        }
         var artwork = InstalledFixtures.ImportProjectiles.BeamTiles;
         AssertTrue(artwork.TryResolve(ChainsawBeamGraphicsDefinitionsConstants.TileSource, 256, out var legacyTiles),
             "restored native Chainsaw DMA resolves through installed artwork");
@@ -57,14 +42,14 @@ internal static class InvalidBeamGraphicsVerification
                 AssertEqual((LittleEndianBytes.Word(CpuBusRegionRead.Read(bus, source + color * 2), CpuBusRegionRead.Read(bus, source + color * 2 + 1))) & 0x7fff,
                     ordinaryBeams[color], $"ordinary beam {beam} palette remains unchanged");
         }
-        // Independent AC8D/ACCD CPU trace with bus-latch tracking, recorded in the
-        // native probe notes. These are WRAM words; CGRAM discards their high bit.
-        ushort[] nativePalette = [0x0890, 0x30c2, 0x5822, 0x90ec, 0x6ead, 0x2919, 0x000f, 0xfcaa,
-            0x8067, 0x1cad, 0xc90a, 0x004d, 0x19f0, 0x4ec9, 0xf000, 0xad14];
         {
+            // The palette table lists no Spazer-and-Plasma colours, so the Chainsaw beam shows Plasma and Wave's (#1736).
             var samusColours = new SamusColours();
             SamusProjectileSystem.LoadBeamPalette(samusColours, SamusBeamFlags.Wave | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma);
-            RgbColor[] chainsawBeams = samusColours.ShownBeams(InstalledFixtures.SamusShadeSources);
+            AssertEqual(SamusShades.Beam(SamusBeamCombination.PlasmaWave), samusColours.Beams, "the Chainsaw beam shows Plasma and Wave's shade");
+            AssertTrue(samusColours.ShownBeams(InstalledFixtures.SamusShadeSources).SequenceEqual(
+                    InstalledFixtures.SamusShadeSources.BeamPalettes.Colours(SamusBeamCombination.PlasmaWave)),
+                "the Chainsaw beam shows Plasma and Wave's installed palette");
             // The page Chainsaw's equipped word binds shows the bytes its native DMA reads.
             var pages = new ProjectileObjectPages(SpriteFrameTestArtwork.StandardObjects, artwork,
                 InstalledFixtures.ImportProjectiles.TrailTiles);
@@ -72,10 +57,8 @@ internal static class InvalidBeamGraphicsVerification
             int first = ProjectileObjectPageDefinitions.BeamFirstCharacter * SpriteArtwork.CharacterByteCount;
             for (int offset = 0; offset < 256; offset++)
                 AssertEqual(CpuBusRegionRead.Read(bus, 0x9ac421 + offset), page[first + offset], $"Chainsaw native DMA byte {offset}");
-            for (int color = 0; color < nativePalette.Length; color++)
-                AssertEqual(nativePalette[color] & 0x7fff, chainsawBeams[color], $"Chainsaw native palette color {color}");
         }
-        Console.WriteLine("Chainsaw graphics: the bound page matches native DMA and the palette matches the instruction-context trace.");
+        Console.WriteLine("Chainsaw graphics: the bound page matches native DMA and the beam shows Plasma and Wave's palette.");
     }
 
     /// <summary>Runs invalid-beam graphics checks.</summary>

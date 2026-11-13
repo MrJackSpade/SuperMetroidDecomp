@@ -161,8 +161,8 @@ public sealed class SamusProjectileSystem
         LoadBeamPalette(colours, SamusBeamCombinations.Of(equippedBeams));
 
     /// <summary>
-    /// Shows a beam combination's shade as the beams' colours: a retail combination's, the glitched Chainsaw beam's or
-    /// the Spacetime beam's (#1512).
+    /// Shows a beam combination's shade as the beams' colours: a retail combination's, the glitched Chainsaw beam's, which
+    /// is Plasma and Wave's (#1736), or the Spacetime beam's (#1512).
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The combination has no shade the game can show.</exception>
     public static void LoadBeamPalette(SamusColours colours, SamusBeamCombination selection)

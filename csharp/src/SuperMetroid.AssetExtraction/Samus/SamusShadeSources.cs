@@ -19,20 +19,18 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <param name="Charge">The charged-beam and pseudo Screw Attack colours.</param>
 /// <param name="HyperBeamSuit">The Hyper Beam's full-body glow.</param>
 /// <param name="FullBodyCycles">The Speed Booster, Screw Attack and shinespark cycles.</param>
-/// <param name="SpeedBoosterOverrun">The colours Gravity's Speed Booster copies past its cycle.</param>
 /// <param name="Hurt">The hurt flash's and the cinematic restoration's colours.</param>
 /// <param name="Visor">The visor cycle's shades.</param>
 /// <param name="BeamPalettes">The retail beam combinations' colours.</param>
-/// <param name="Chainsaw">The glitched Chainsaw beam's colours.</param>
 /// <param name="CrystalFlash">The Crystal Flash's body and bubble colours.</param>
 /// <param name="HyperBeamCycle">The Hyper Beam's own beam colour cycle.</param>
 /// <param name="Death">The death sequence's suited, suitless and whiteout colours.</param>
 /// <param name="PaletteFx">The palette-FX records' colours, whose heat glow and loading suit recolour her suit (#1512).</param>
 internal sealed record SamusShadeSources(GameplayStartingColours Starting, RgbColor[] IntroSuit, RgbColor[] IntroBeams,
     InstalledSamusSuitColors Suits, SamusChargeColours Charge, SamusHyperBeamColours HyperBeamSuit,
-    SamusFullBodyCycleColours FullBodyCycles, SpeedBoosterOverrunColours<SpeedBoosterPaletteOverrun, RgbColor> SpeedBoosterOverrun,
+    SamusFullBodyCycleColours FullBodyCycles,
     InstalledSamusHurtColors Hurt, InstalledSamusVisorColors Visor, InstalledBeamPalettes BeamPalettes,
-    ChainsawBeamColours<RgbColor> Chainsaw, InstalledCrystalFlashColors CrystalFlash, HyperBeamFxColours HyperBeamCycle,
+    InstalledCrystalFlashColors CrystalFlash, HyperBeamFxColours HyperBeamCycle,
     InstalledSamusDeathPalettes Death, IPaletteFxColorSource PaletteFx)
 {
     /// <summary>The visible colours of an ordinary charged shot's glow, every one but the transparent first.</summary>
@@ -79,8 +77,6 @@ internal sealed record SamusShadeSources(GameplayStartingColours Starting, RgbCo
         }
         foreach (SamusFullBodyCyclePalette palette in FullBodyCycles.Palettes)
             shades.Add(Suit(SamusShades.FullBodyCycle(palette), Colours(colour => FullBodyCycles.Resolve(palette, colour))));
-        foreach (SpeedBoosterPaletteOverrun overrun in Enum.GetValues<SpeedBoosterPaletteOverrun>())
-            shades.Add(Suit(SamusShades.SpeedBoosterOverrun(overrun), [.. SpeedBoosterOverrun.Colours(overrun)]));
         foreach (SamusHurtColorVariant variant in Enum.GetValues<SamusHurtColorVariant>())
             shades.Add(Suit(SamusShades.Hurt(variant), Colours(colour => Hurt.Resolve(variant, colour))));
         for (int shade = 0; shade < SamusVisorColorFormat.ColorCount; shade++)
@@ -89,7 +85,7 @@ internal sealed record SamusShadeSources(GameplayStartingColours Starting, RgbCo
                 [Visor.Resolve(shade)]));
         }
         foreach (SamusBeamCombination combination in SamusBeamColours.Shown)
-            shades.Add(Beams(SamusShades.Beam(combination), SamusBeamColours.Of(combination, BeamPalettes, Chainsaw)));
+            shades.Add(Beams(SamusShades.Beam(combination), SamusBeamColours.Of(combination, BeamPalettes)));
         for (int step = 0; step < CrystalFlashColorFormat.BodyFrameCount; step++)
         {
             int shown = step;

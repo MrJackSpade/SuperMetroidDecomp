@@ -1170,6 +1170,8 @@ internal static class FullRunSuitesVerification
             SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainFinishOffThresholdVerification.VerifyMotherBrainFinishOffThreshold),
         new(nameof(SuperMetroid.Verification.Samus.Grapple.GrappleExtensionArithmeticVerification.VerifyGrappleExtensionArithmetic),
             SuperMetroid.Verification.Samus.Grapple.GrappleExtensionArithmeticVerification.VerifyGrappleExtensionArithmetic),
+        new(nameof(SuperMetroid.Verification.Samus.Grapple.GrappleSwingArithmeticVerification.VerifyGrappleSwingArithmetic),
+            SuperMetroid.Verification.Samus.Grapple.GrappleSwingArithmeticVerification.VerifyGrappleSwingArithmetic),
         new(nameof(SuperMetroid.Verification.Enemies.EnemyHitDamageVerification.VerifyEnemyHitDamage),
             SuperMetroid.Verification.Enemies.EnemyHitDamageVerification.VerifyEnemyHitDamage),
         new(nameof(VerifyRoomGridBounds), () => VerifyRoomGridBounds()),

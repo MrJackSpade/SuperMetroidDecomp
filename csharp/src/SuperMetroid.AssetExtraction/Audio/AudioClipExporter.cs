@@ -116,6 +116,8 @@ internal static class AudioClipExporter
         var manifest = new AudioClipManifest(
             AudioClipManifest.CurrentFormatVersion,
             SpcAudioClipRenderer.NativeSampleRate,
+            // Every song was rendered from a driver started at its initial tempo, as the game starts the music.
+            DriverTempoBeats.LengthAt(SpcDriverDefinitions.Music.InitialTempo),
             music,
             [.. outcomes.OfType<InstalledSoundEffectClip>()],
             [.. outcomes.OfType<UnrenderableSoundEffect>()]);
@@ -140,7 +142,7 @@ internal static class AudioClipExporter
         foreach ((long sample, int tempo) in track.TempoChanges)
         {
             if (sample - start < clipFrames)
-                segments.Add(new SongTempo(sample - start, tempo));
+                segments.Add(new SongTempo(sample - start, DriverTempoBeats.LengthAt(tempo)));
         }
         return new MusicClipEntry(
             AudioAssetCatalogDefinitions.Get(key.Bank).DataSet
@@ -196,14 +198,14 @@ internal static class AudioClipExporter
         {
             return new InstalledSoundEffectClip(context, SoundEffectCommands.Decode(key.Library, key.Command), policy, null,
                 [.. layers.Select(layer => new InstalledSoundEffectLayer(
-                    Write(root, SoundEffectDirectory, files, layer.Clip), layer.LoopStart, layer.KeyOnFrames))]);
+                    Write(root, SoundEffectDirectory, files, layer.Clip), layer.LoopStart, layer.NoteStarts))]);
         }
         var shot = (SoundEffectRendering.OneShot)share.Rendering;
         // A silent effect still occupies its library until its logical end, so it keeps an entry without layers.
         return new InstalledSoundEffectClip(context, SoundEffectCommands.Decode(key.Library, key.Command), policy, shot.ActiveFrames,
             shot.Clip.Length == 0
                 ? []
-                : [new InstalledSoundEffectLayer(Write(root, SoundEffectDirectory, files, shot.Clip), null, shot.KeyOnFrames)]);
+                : [new InstalledSoundEffectLayer(Write(root, SoundEffectDirectory, files, shot.Clip), null, shot.NoteStarts)]);
     }
 
     /// <summary>

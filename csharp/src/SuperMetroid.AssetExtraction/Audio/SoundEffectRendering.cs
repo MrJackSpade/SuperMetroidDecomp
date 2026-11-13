@@ -16,14 +16,14 @@ internal static class SoundEffectRendering
     /// <summary>A rendered one-shot effect: its clip through the release, its logical end and its key-ons.</summary>
     /// <param name="Clip">Interleaved stereo PCM from the start, ending at the last nonzero frame; empty for a silent effect.</param>
     /// <param name="ActiveFrames">Frames from the start to the library's logical end.</param>
-    /// <param name="KeyOnFrames">Frames at which the effect keyed a note on.</param>
-    internal sealed record OneShot(short[] Clip, long ActiveFrames, IReadOnlyList<long> KeyOnFrames);
+    /// <param name="NoteStarts">Frames at which the effect keyed a note on: the clip's note starts.</param>
+    internal sealed record OneShot(short[] Clip, long ActiveFrames, IReadOnlyList<long> NoteStarts);
 
     /// <summary>One channel of a never-ending effect: its clip through its second state repeat and its loop.</summary>
     /// <param name="Clip">Interleaved stereo PCM of the channel's voice from the start to its E2.</param>
     /// <param name="LoopStart">The channel's E1: the clip repeats [E1, E2).</param>
-    /// <param name="KeyOnFrames">Frames before E2 at which the channel keyed a note on.</param>
-    internal sealed record LoopingLayer(short[] Clip, long LoopStart, IReadOnlyList<long> KeyOnFrames);
+    /// <param name="NoteStarts">Frames before E2 at which the channel keyed a note on: the clip's note starts.</param>
+    internal sealed record LoopingLayer(short[] Clip, long LoopStart, IReadOnlyList<long> NoteStarts);
 
     /// <summary>
     /// Creates a renderer, attached to <paramref name="observer"/>, that has uploaded the common and

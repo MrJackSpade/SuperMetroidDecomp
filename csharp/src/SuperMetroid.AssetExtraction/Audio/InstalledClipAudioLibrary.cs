@@ -21,11 +21,12 @@ public sealed class InstalledClipAudioLibrary
     /// <exception cref="ArgumentNullException">An argument is null.</exception>
     /// <exception cref="ArgumentException"><paramref name="contentIdentity"/> is blank.</exception>
     /// <exception cref="InvalidDataException">
-    /// The rate, an identity, a clip's length, loop bounds or a tempo timeline is invalid, or the manifest repeats an identity.
+    /// The rate, the power-on beat, an identity, a clip's length, loop bounds or a tempo timeline is invalid, or the
+    /// manifest repeats an identity.
     /// </exception>
     internal InstalledClipAudioLibrary(AudioClipManifest manifest, string contentIdentity, IAudioClipSource source)
     {
-        Clips = new ClipAudioLibrary(Validated(manifest).Music, [.. manifest.SoundEffects.Select(entry => entry.PlayedEntry())],
+        Clips = new ClipAudioLibrary(Validated(manifest).InitialBeat, manifest.Music, [.. manifest.SoundEffects.Select(entry => entry.PlayedEntry())],
             manifest.Unrenderable, source);
         ArgumentException.ThrowIfNullOrWhiteSpace(contentIdentity);
         Manifest = manifest;
@@ -43,13 +44,15 @@ public sealed class InstalledClipAudioLibrary
     /// </summary>
     public string ContentIdentity { get; }
 
-    /// <summary>Checks the manifest's rate, clip lengths, loop bounds and tempo timelines.</summary>
+    /// <summary>Checks the manifest's rate, power-on beat, clip lengths, loop bounds and tempo timelines.</summary>
     /// <returns><paramref name="manifest"/>, once checked.</returns>
     private static AudioClipManifest Validated(AudioClipManifest manifest)
     {
         Ensure.NotNull(manifest);
         if (manifest.SampleRate != SoundClockTiming.SamplesPerUpdate * UpdatesPerSecond)
             throw new InvalidDataException($"Audio clip manifest has rate {manifest.SampleRate}.");
+        if (manifest.InitialBeat is null)
+            throw new InvalidDataException("Audio clip manifest gives no beat length before any song has played.");
         foreach (MusicClipEntry entry in manifest.Music)
         {
             ValidateClip(entry.Clip);

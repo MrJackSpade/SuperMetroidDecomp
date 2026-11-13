@@ -31,9 +31,6 @@ internal static class AudioClipBackendVerification
     /// <summary>The common item-fanfare track, which ends.</summary>
     private const byte EndingTrack = 2;
 
-    /// <summary>Updates within which the music's beat completes at any nonzero tempo: a beat's parts in clock steps.</summary>
-    private const int BeatUpdates = ClipPlaybackState.BeatParts * SoundClockTiming.SamplesPerStep / SoundClockTiming.SamplesPerUpdate + 1;
-
     /// <summary>Updates within which a request written now starts: the port model latches it at one poll and the driver acts at the next.</summary>
     private const int SoundStartUpdates = 3;
 
@@ -44,7 +41,7 @@ internal static class AudioClipBackendVerification
         ExtractedAudioAssetCatalog extracted = installation.LoadAudio();
         VerifyEquivalence(clips.Clips, extracted, AudioRequest.ForTrack(MusicTrackNumbers.Decode(RoomTrack)), MusicUpdates, "Green Brinstar room track");
         VerifyEquivalence(clips.Clips, extracted, new AudioRequest.RequestSound(SamusSound.UnchargedPowerBeam), SoundUpdates, "Power Beam");
-        VerifyMusicCommands(clips.Clips);
+        VerifyMusicCommands(clips.Clips, BeatUpdates(clips.Manifest));
         VerifySoundCommands(clips);
         Console.WriteLine(
             "  Audio clip backend: PCM equals the emulated driver for a track and a sound; same-track, end restart, " +
@@ -77,13 +74,26 @@ internal static class AudioClipBackendVerification
         AssertTrue(audible, $"{name} is audible");
     }
 
-    /// <summary>The playing song requested again, an ended song restarting, and stop.</summary>
-    private static void VerifyMusicCommands(ClipAudioLibrary clips)
+    /// <summary>
+    /// Updates within which a requested song change takes effect: the longest beat the installed music plays, with the
+    /// clock step that completes it, in whole updates, plus the update the request arrives in.
+    /// </summary>
+    private static int BeatUpdates(AudioClipManifest manifest)
+    {
+        long longestBeat = manifest.Music.SelectMany(song => song.TempoSegments).Select(segment => segment.Beat)
+            .Append(manifest.InitialBeat)
+            .Where(beat => beat.Beats > 0)
+            .Max(beat => (beat.Frames + beat.Beats - 1) / beat.Beats);
+        return (int)((longestBeat + SoundClockTiming.SamplesPerStep) / SoundClockTiming.SamplesPerUpdate) + 2;
+    }
+
+    /// <summary>The playing song requested again, an ended song restarting, and stop, each change within <paramref name="beatUpdates"/>.</summary>
+    private static void VerifyMusicCommands(ClipAudioLibrary clips, int beatUpdates)
     {
         var script = new Script(clips);
         script.Advance([new AudioRequest.ChangeMusicDataSet(null), new AudioRequest.ChangeMusicDataSet(MusicDataSet.GreenBrinstar)]);
         script.Advance([AudioRequest.ForTrack(MusicTrackNumbers.Decode(RoomTrack))]);
-        script.AdvanceUntil(() => script.State.Song is not null, BeatUpdates);
+        script.AdvanceUntil(() => script.State.Song is not null, beatUpdates);
         long start = script.State.SongStart;
         AssertEqual(clips.GetMusic(MusicDataSet.GreenBrinstar, MusicTrackNumbers.Decode(RoomTrack)), script.State.Song, "the room song's clip starts");
 
@@ -92,19 +102,19 @@ internal static class AudioClipBackendVerification
         AssertEqual(start, script.State.SongStart, "requesting the playing song does not restart it");
 
         script.Advance([new AudioRequest.StopMusic()]);
-        script.AdvanceUntil(() => script.State.Song is null, BeatUpdates);
+        script.AdvanceUntil(() => script.State.Song is null, beatUpdates);
         AssertEqual<MusicTrack?>(null, script.State.PlayingTrack, "stop leaves no song playing");
 
         MusicClipEntry ending = clips.GetMusic(MusicDataSet.GreenBrinstar, MusicTrackNumbers.Decode(EndingTrack));
         AssertTrue(ending.LoopStart is null, "track 2 ends");
         script.Advance([AudioRequest.ForTrack(MusicTrackNumbers.Decode(EndingTrack))]);
-        script.AdvanceUntil(() => script.State.Song is not null, BeatUpdates);
+        script.AdvanceUntil(() => script.State.Song is not null, beatUpdates);
         long firstStart = script.State.SongStart;
         script.AdvanceUntil(() => script.State.Song is null, (int)(ending.Clip.Frames / ManagedSnesDsp.NativeStereoFramesPerVideoFrame) + 2);
         AssertEqual<MusicTrack?>(null, script.State.PlayingTrack, "an ended song leaves no song playing");
         AssertTrue(script.State.Sample - firstStart >= ending.Clip.Frames, "the song ended after its whole clip");
         script.Advance([AudioRequest.ForTrack(MusicTrackNumbers.Decode(EndingTrack))]);
-        script.AdvanceUntil(() => script.State.Song is not null, BeatUpdates);
+        script.AdvanceUntil(() => script.State.Song is not null, beatUpdates);
         AssertTrue(script.State.SongStart > firstStart, "the same song restarts after it ended");
     }
 
@@ -144,7 +154,7 @@ internal static class AudioClipBackendVerification
         long position = script.State.Sample - library3.Start;
         script.Advance([new AudioRequest.ChangeMusicDataSet(MusicDataSet.GreenBrinstar)]);
         SoundEffectClipLayer beep = library3.Sound?.Layers[0] ?? throw new InvalidOperationException("The beep has a layer.");
-        AssertTrue(library3.InterruptedUntil[0] > position && beep.KeyOnFrames.Count != 0, "a clip-set switch interrupts the looping beep until a later note");
+        AssertTrue(library3.InterruptedUntil[0] > position && beep.NoteStarts.Count != 0, "a clip-set switch interrupts the looping beep until a later note");
 
         script.Advance([new AudioRequest.RequestSound(RoomSound.Silence)]);
         script.AdvanceUntil(() => library3.Sound?.Sound == RoomSound.Silence, SoundStartUpdates);

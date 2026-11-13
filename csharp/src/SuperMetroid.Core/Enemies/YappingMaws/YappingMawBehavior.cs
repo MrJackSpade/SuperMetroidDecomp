@@ -224,8 +224,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             CalculateYappingMawX(TrigonometryAngle.HalfTurn, state.SegmentRadius),
             CalculateYappingMawY(TrigonometryAngle.HalfTurn, state.SegmentRadius / 2));
 
-        // Eight 32-unit sectors, each centred on its direction: the aim is turned a half sector before quantizing.
-        int direction = Bearing.Wrapped(state.AimAngle.RawValue + 16).RawValue / 32;
+        int direction = AimSector(state.AimAngle);
         YappingMawAim aim = YappingMawAnimationDefinitions.Aims.At(direction);
         state.Aim = aim;
         state.Playback = new(YappingMawAnimations.StartingWith(YappingMawBites.AttackForDirection(aim)), AnimationPlace.StartOfAnimation);
@@ -265,10 +264,10 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             // lopsided curve is a direct consequence of reusing raw X for both components.
             int correctionX = CoordinateAxis.Wrap(
                 CalculateYappingMawX(state.CurlAngle.ToTrigonometryAngle(), rawX) -
-                CalculateYappingMawX(new TrigonometryAngle(0), rawX));
+                CalculateYappingMawX(RotationAngle.Zero.ToTrigonometryAngle(), rawX));
             int correctionY = CoordinateAxis.Wrap(
                 CalculateYappingMawY(state.CurlAngle.ToTrigonometryAngle(), rawX) -
-                CalculateYappingMawY(new TrigonometryAngle(0), rawX));
+                CalculateYappingMawY(RotationAngle.Zero.ToTrigonometryAngle(), rawX));
             state.Corrections[segment] = new Offset16<RoomPixels>(
                 CoordinateAxis.AsSigned(correctionX), CoordinateAxis.AsSigned(correctionY));
             int segmentX = Corrected(rawX, correctionX);
@@ -559,9 +558,17 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         return new YappingMawTarget(distance, EnemyMath.CalculateBearing(new(deltaX, deltaY)));
     }
 
-    /// <summary>X is the Y helper with a minus-64 angle adjustment.</summary>
+    /// <summary>
+    /// Which of the eight directions, numbered clockwise from up, the aim <paramref name="aim"/> points in: eight equal
+    /// sectors, each centred on its direction, so the aim is turned on half a sector before its sector is read. The
+    /// bearing's units are read through its mirrored table angle, which counts the same units.
+    /// </summary>
+    internal static int AimSector(Bearing aim) =>
+        aim.ToMirroredTableAngle().ToAngle().TurnedBySteps(EnemyTrigonometryAngleDefinitions.EighthTurn / 2).Sector(8);
+
+    /// <summary>X is the Y helper a quarter turn behind.</summary>
     internal static int CalculateYappingMawX(TrigonometryAngle angle, int length) =>
-        CalculateYappingMawY(angle.TurnedBySteps(-TrigonometryAngle.QuarterTurn.RawValue), length);
+        CalculateYappingMawY(angle.TurnedBySteps(-EnemyTrigonometryAngleDefinitions.QuarterTurn), length);
 
     /// <summary>
     /// Computes the link offsets exactly, including the high-byte sine approximation and the unusual
@@ -570,8 +577,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal static int CalculateYappingMawY(TrigonometryAngle angle, int length)
     {
-        int signedSample = Trigonometry.SignedSixteenBitSine(
-            TrigonometryAngle.Wrapped(-angle.RawValue));
+        // The game samples the angle reflected below zero, whose sine is this angle's sine reversed.
+        int signedSample = -Trigonometry.SignedSixteenBitSine(angle);
         bool negative = signedSample < 0;
         int magnitude = negative ? -signedSample : signedSample;
         // The short multiplier takes only the length's place within 256. A sample's whole part and that place are

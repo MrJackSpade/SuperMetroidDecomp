@@ -127,6 +127,19 @@ internal static class SbugMovementDefinitionsVerification
         AssertEqual(SbugFacing.UpRight, state.CustomFacing, "the reversal folds down-right into up-right");
         AssertEqual(new AnimationPlayback<SbugProgram>(SbugAnimations.StartingWith(SbugMovement.FacingProgram(SbugFacing.UpRight)), AnimationPlace.StartOfAnimation), state.Playback,
             "the folded facing installs its loop");
+
+        // Every random turn, less a quarter turn, carries around the turn and keeps the heading's fraction.
+        RotationAngle start = RotationAngle.FromSteps(240, 77);
+        for (int random = 0; random <= byte.MaxValue; random++)
+        {
+            ushort turn = checked((ushort)random);
+            enemies.VerificationServices().NextRandom = () => turn;
+            state.FaceCustomHeading(start);
+            state.Function = SbugEnemyFunction.ChooseRandomDirectionAndReverseWhenFar;
+            enemies.SbugBehavior.RunSbugMain(slot, samus, null);
+            AssertEqual(RotationAngle.FromRaw(unchecked((ushort)(start.RawValue + (random - 64) * 256))), state.CustomHeading,
+                $"Sbug random turn {random}");
+        }
         Console.WriteLine("  Sbug custom heading: turns carry into the heading word and a reversal folds the facing.");
     }
 

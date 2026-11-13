@@ -278,11 +278,9 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         SbugEnemyState state,
         SbugEnemyFunction movement)
     {
-        // Reading 0 through 255, subtracting a quarter turn and wrapping again creates an unsigned turn of less than a
-        // full turn; the later trigonometry reads only the heading within one turn, which the turn wraps within.
+        // The random draw, 0 through 255 steps, less a quarter turn, turns the heading either way around the circle.
         int randomTurn = _room.Random.Next(SbugMovementDefinitions.RandomTurn);
-        int angleDelta = TrigonometryAngle.Wrapped(randomTurn - EnemyTrigonometryAngleDefinitions.QuarterTurn).RawValue;
-        state.TurnCustomHeading(angleDelta);
+        state.TurnCustomHeading(RotationAngle.FromSteps(randomTurn) - RotationAngle.QuarterTurn);
         RecalculateSbugCustomDirection(slot, state);
         state.MovementTimer = SbugMovementSegmentFrames;
         state.Function = movement;

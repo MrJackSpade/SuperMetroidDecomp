@@ -364,14 +364,12 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
                 ResolveDragonCombatAfterCommon(context.Slot);
             });
     }
-    /// <summary>Upward launch velocity of each Dragon fireball, in signed eight-eight units.</summary>
-    private static readonly SignedEightEight DragonFireballInitialYVelocity = SignedEightEight.FromSignedRaw(-961);
-    /// <summary>Leftward eight-eight fireball velocity.</summary>
-    private static readonly SignedEightEight DragonFireballLeftXVelocity = SignedEightEight.FromSignedRaw(-704);
-    /// <summary>Rightward eight-eight fireball velocity.</summary>
-    private const int DragonFireballRightXVelocity = 704;
-    /// <summary>Eight-eight downward acceleration applied to a live fireball.</summary>
-    private static readonly SignedEightEight DragonFireballGravity = SignedEightEight.FromSignedRaw(32);
+    /// <summary>Upward launch velocity of each Dragon fireball: three pixels and 193 256ths per update.</summary>
+    private static readonly SignedEightEight DragonFireballInitialYVelocity = -SignedEightEight.FromParts(3, 193);
+    /// <summary>The fireball's sideways speed, two and three quarter pixels per update, toward the Dragon's facing.</summary>
+    private static readonly SignedEightEight DragonFireballHorizontalSpeed = SignedEightEight.FromParts(2, 192);
+    /// <summary>Downward acceleration applied to a live fireball, an eighth of a pixel per update each update.</summary>
+    private static readonly SignedEightEight DragonFireballGravity = SignedEightEight.FromParts(0, 32);
 
     /// <summary>Spawns and initializes a Dragon fireball.</summary>
     internal void SpawnDragonFireball(RoomEnemySlot body, DragonEnemyState bodyState)
@@ -390,13 +388,13 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (bodyState.FacingLeft)
         {
             projectile.Position = projectile.Position.WithWrappedWholeX(body.Position.X.Whole - 12);
-            projectile.Velocity = projectile.Velocity.WithX(DragonFireballLeftXVelocity);
+            projectile.Velocity = projectile.Velocity.WithX(-DragonFireballHorizontalSpeed);
             projectile.InstallAnimation(new DragonFireballAnimation(DragonFireballProgram.RisingLeft));
         }
         else
         {
             projectile.Position = projectile.Position.WithWrappedWholeX(body.Position.X.Whole + 12);
-            projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(DragonFireballRightXVelocity));
+            projectile.Velocity = projectile.Velocity.WithX(DragonFireballHorizontalSpeed);
             projectile.InstallAnimation(new DragonFireballAnimation(DragonFireballProgram.RisingRight));
         }
         projectile.Position = projectile.Position.WithFractionX(0);

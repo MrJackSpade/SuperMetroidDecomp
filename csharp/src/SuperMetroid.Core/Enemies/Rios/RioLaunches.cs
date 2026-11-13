@@ -4,6 +4,6 @@ namespace SuperMetroid.Core.Enemies.Rios;
 public static class RioLaunches
 {
     /// <summary>The fast or slow downward launch <paramref name="random"/> picks.</summary>
-    public static int NorfairYVelocity(int random) =>
+    public static SignedEightEight NorfairYVelocity(int random) =>
         RioLaunchDefinitions.SlowLaunchBit.IsSetIn(random) ? RioLaunchDefinitions.NorfairSlowYVelocity : RioLaunchDefinitions.NorfairFastYVelocity;
 }

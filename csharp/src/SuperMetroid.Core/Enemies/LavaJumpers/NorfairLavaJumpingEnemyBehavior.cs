@@ -31,10 +31,10 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
         _slotTable = slotTable;
     }
 
-    /// <summary>8.8 velocity increment applied after each moving frame.</summary>
-    private static readonly SignedEightEight NorfairLavaJumpingEnemyGravity = SignedEightEight.FromSignedRaw(56);
+    /// <summary>Velocity increment applied after each moving frame, 56 256ths of a pixel per update.</summary>
+    private static readonly SignedEightEight NorfairLavaJumpingEnemyGravity = SignedEightEight.FromParts(0, 56);
     /// <summary>The rising velocity at and above which, while still rising, the jumper switches to the visible jump list.</summary>
-    private static readonly SignedEightEight NorfairLavaJumpingEnemyAnimationSwitchVelocity = SignedEightEight.FromSignedRaw(-1024);
+    private static readonly SignedEightEight NorfairLavaJumpingEnemyAnimationSwitchVelocity = -SignedEightEight.FromParts(4, 0);
 
     /// <summary>Initializes the Norfair lava jumper.</summary>
     internal void InitializeNorfairLavaJumpingEnemy(RoomEnemySlot slot)

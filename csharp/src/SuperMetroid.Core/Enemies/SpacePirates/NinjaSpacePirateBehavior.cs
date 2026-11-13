@@ -41,8 +41,12 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         _spriteObjects = spriteObjects;
     }
 
-    /// <summary>8.8 speed assigned at the start of a divekick jump and descent.</summary>
-    private const int NinjaPirateInitialDiveSpeed = 1536;
+    /// <summary>Speed assigned at the start of a divekick jump and descent, six pixels per update.</summary>
+    private static readonly SignedEightEight NinjaPirateInitialDiveSpeed = SignedEightEight.FromParts(6, 0);
+    /// <summary>How much a spin jump's speed changes each update, an eighth of a pixel per update.</summary>
+    private static readonly SignedEightEight NinjaPirateSpinSpeedChange = SignedEightEight.FromParts(0, 32);
+    /// <summary>How much a divekick's speed falls each update, a quarter pixel per update.</summary>
+    private static readonly SignedEightEight NinjaPirateDiveSpeedChange = SignedEightEight.FromParts(0, 64);
     /// <summary>The span the posts' half-span is kept within: a wider half-span continues from zero.</summary>
     private const int PostHalfSpanPixels = 256;
     /// <summary>Maximum horizontal distance at which an idle ninja activates.</summary>
@@ -372,7 +376,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
 
         if (vertical == VerticalDirection.Up)
         {
-            state.ChangeSpeed(32);
+            state.ChangeSpeed(NinjaPirateSpinSpeedChange);
             bool crossedMidpoint = direction == HorizontalDirection.Right
                 ? (slot.Position.Whole - state.PostsMidpoint).X >= 0
                 : (slot.Position.Whole - state.PostsMidpoint).X < 0;
@@ -385,8 +389,8 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             return;
         }
 
-        state.ChangeSpeed(-32);
-        if (state.Speed != new SignedEightEight(0))
+        state.ChangeSpeed(-NinjaPirateSpinSpeedChange);
+        if (!state.Speed.IsZero)
             return;
 
         state.Function = NinjaSpacePirateFunction.NoOperation;
@@ -405,7 +409,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     /// patrol centre, which nothing reads; it is not kept.
     /// </summary>
     private static void InitializeNinjaPirateDive(NinjaSpacePirateEnemyState state) =>
-        state.Speed = new SignedEightEight(NinjaPirateInitialDiveSpeed);
+        state.Speed = NinjaPirateInitialDiveSpeed;
 
     /// <summary>Rises until signed speed turns negative, then switches to the descent list.</summary>
     private static void StepNinjaPirateDiveJump(
@@ -414,7 +418,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         HorizontalDirection direction)
     {
         slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole - state.Speed.UnsignedWholePixels);
-        state.ChangeSpeed(-64);
+        state.ChangeSpeed(-NinjaPirateDiveSpeedChange);
         if (!state.Speed.IsNegative)
             return;
 
@@ -427,7 +431,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             direction == HorizontalDirection.Right
                 ? NinjaSpacePirateProgram.DivekickRightDive
                 : NinjaSpacePirateProgram.DivekickLeftDive);
-        state.Speed = new SignedEightEight(NinjaPirateInitialDiveSpeed);
+        state.Speed = NinjaPirateInitialDiveSpeed;
     }
 
     /// <summary>
@@ -452,7 +456,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         bool landed = _terrain.MoveEnemyVertically(level, slot, NinjaPirateDiveFallStep.Of(state.Speed));
         if (!landed)
         {
-            state.ChangeSpeed(-64);
+            state.ChangeSpeed(-NinjaPirateDiveSpeedChange);
             landed = state.Speed.IsNegative || state.Speed.UnsignedWholePixels == 0;
         }
         if (!landed)

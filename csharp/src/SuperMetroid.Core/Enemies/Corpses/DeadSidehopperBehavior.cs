@@ -107,7 +107,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         // The victim shows the colours the Shitroid's entry gives it, the target the room's colours fade to (#1512).
         state.DrainStage = 0;
         slot.Shading = state.Shading;
-        state.Velocity = new EightEightVector<RoomPixels>(96, 256);
+        state.Velocity = new EightEightVector<RoomPixels>(SignedEightEight.FromParts(0, 96), SignedEightEight.FromParts(1, 0));
     }
 
     /// <summary>Runs the already-dead Tourian layout.</summary>
@@ -250,9 +250,9 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
                 horizontalDisplacement);
         }
 
-        // Upward motion accelerates by 32 in signed 8.8; falling motion accelerates by
-        // 128. The sign test is performed before the addition in the game.
-        SignedEightEight acceleration = SignedEightEight.FromSignedRaw(state.Velocity.Y.IsNegative ? 32 : 128);
+        // Upward motion slows by an eighth of a pixel per update each update; falling motion speeds up by half a
+        // pixel. The sign test is performed before the addition in the game.
+        SignedEightEight acceleration = state.Velocity.Y.IsNegative ? SignedEightEight.FromParts(0, 32) : SignedEightEight.FromParts(0, 128);
         state.Velocity = state.Velocity.WithY(state.Velocity.Y + acceleration);
         if (beforeTerrainBoundary)
         {

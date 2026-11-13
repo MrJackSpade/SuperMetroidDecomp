@@ -274,9 +274,9 @@ internal sealed class EyeDoorBehavior
         }
 
         EyeDoorShotState shot = projectile.StateOf<EyeDoorShotState>();
-        int angle = shot.Heading.RawValue;
-        projectile.Velocity = projectile.Velocity.WithX(projectile.Velocity.X + ReadEyeDoorAcceleration(angle));
-        projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + ReadEyeDoorAcceleration(angle - 64));
+        projectile.Velocity = projectile.Velocity.WithX(projectile.Velocity.X + ReadEyeDoorAcceleration(shot.Heading));
+        projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y +
+            ReadEyeDoorAcceleration(shot.Heading.TurnedBySteps(-EnemyTrigonometryAngleDefinitions.QuarterTurn)));
 
         SharedGameState system = _eyeDoorProjectileSystem ??
             throw new InvalidOperationException("A live eye-door projectile has no opened-door owner.");
@@ -303,15 +303,15 @@ internal sealed class EyeDoorBehavior
         projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + EyeDoorSweatGravity);
     }
 
-    /// <summary>Scales one signed sine-table sample to the eye shot's per-frame acceleration.</summary>
-    internal static SignedEightEight ReadEyeDoorAcceleration(int tableIndex)
-    {
-        int sample = Trigonometry.SignedSine(TrigonometryAngle.Wrapped(tableIndex));
-        return SignedEightEight.FromSignedRaw(sample >> 4);
-    }
+    /// <summary>
+    /// The eye shot's per-update acceleration along <paramref name="angle"/>'s sine: a sixteenth of the one-pixel sine
+    /// velocity, rounded toward decreasing coordinates, so a small negative sine still accelerates the shot back.
+    /// </summary>
+    internal static SignedEightEight ReadEyeDoorAcceleration(TrigonometryAngle angle) =>
+        EnemyMath.SineVelocity(angle, 1).DividedRoundingDown(16);
 
     /// <summary>A falling sweat drop's downward acceleration per update, in 256ths of a pixel per update.</summary>
-    private static readonly SignedEightEight EyeDoorSweatGravity = SignedEightEight.FromSignedRaw(12);
+    private static readonly SignedEightEight EyeDoorSweatGravity = SignedEightEight.FromParts(0, 12);
 
     /// <summary>Sends an eye-door shot into its typed impact program, stopping its movement as the list switch does.</summary>
     private static void StartEyeDoorProjectileImpact(EnemyProjectile projectile)
@@ -349,10 +349,10 @@ internal sealed class EyeDoorBehavior
     private static void AimEyeDoorProjectileAtSamus(EnemyProjectile projectile, IRoomSamus samus)
     {
         EyeDoorShotState shot = projectile.StateOf<EyeDoorShotState>();
-        shot.Heading = new TrigonometryAngle(EnemyMath.CalculateBearing(
-            new(CoordinateAxis.Difference(samus.Position.X.Whole, projectile.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, projectile.Position.Y.Whole))).RawValue);
-        projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.Wrapped(Trigonometry.SignedSine(shot.Heading)));
-        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Wrapped(Trigonometry.SignedSine(shot.Heading.TurnedBySteps(-EnemyTrigonometryAngleDefinitions.QuarterTurn))));
+        shot.Heading = EnemyMath.CalculateBearing(
+            new(CoordinateAxis.Difference(samus.Position.X.Whole, projectile.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, projectile.Position.Y.Whole))).ToMirroredTableAngle();
+        projectile.Velocity = projectile.Velocity.WithX(EnemyMath.SineVelocity(shot.Heading, 1));
+        projectile.Velocity = projectile.Velocity.WithY(EnemyMath.SineVelocity(shot.Heading.TurnedBySteps(-EnemyTrigonometryAngleDefinitions.QuarterTurn), 1));
     }
 
     /// <summary>Advances horizontal subpixels or snaps to the first solid leading edge.</summary>

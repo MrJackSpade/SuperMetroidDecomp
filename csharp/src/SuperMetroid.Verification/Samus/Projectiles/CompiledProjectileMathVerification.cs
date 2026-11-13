@@ -29,8 +29,9 @@ internal static class CompiledProjectileMathVerification
         var enemy = new Func<ushort, byte, int>((speed, angle) => EnemyMath.MultiplySineSample(speed, new TrigonometryAngle(angle)).RawValue);
         var baby = new Func<ushort, byte, int>((babySpeed, babyAngle) => BabyMetroidCutsceneState.CalculateVelocityComponent(babySpeed, new TrigonometryAngle(babyAngle)).RawValue);
         var rainbow = new Func<ushort, RotationAngle, int>((rainbowSpeed, rainbowAngle) => MotherBrainRainbowBeamSamusMovement.CalculateYVelocity(rainbowSpeed, rainbowAngle).RawValue);
-        var fly = new Func<int, int>(FliesBehavior.ReadSignedSineCosine);
-        var eye = new Func<int, int>(index => EyeDoorBehavior.ReadEyeDoorAcceleration(index).SignedRawValue);
+        var flyCircle = new Func<TrigonometryAngle, EightEightVector<RoomPixels>>(FliesBehavior.CircleStep);
+        var flyDive = new Func<TrigonometryAngle, EightEightVector<RoomPixels>>(FliesBehavior.DiveVelocity);
+        var eye = new Func<byte, int>(angle => EyeDoorBehavior.ReadEyeDoorAcceleration(new TrigonometryAngle(angle)).SignedRawValue);
         var rio = new Func<byte, int>(angle => RioBehavior.ReadRioSignedSineCosineSample(new TrigonometryAngle(angle)).RawValue);
         // The native view's index runs a quarter turn ahead of the angle it holds: its first 64 words are the negative cosine.
         var shaktool = new Func<int, int>(index => ShaktoolBehavior.ReadShaktoolCommonSineSample(TrigonometryAngle.Wrapped(index - 64)).RawValue);
@@ -71,13 +72,20 @@ internal static class CompiledProjectileMathVerification
                 rainbow((ushort)speed, cosineAngle) != expected)
                 throw new InvalidDataException($"Signed projectile product differs: angle={angle}, speed={speed}.");
         }
-        for (int index = 0; index < 320; index++)
+        // The fly's circle step and dive read the native view at the angle a quarter turn ahead across and at the angle
+        // itself down (the negative cosine), the dive doubling and quadrupling the samples; the eye shot takes a
+        // sixteenth of the sample, shifted toward negative infinity.
+        for (int angle = 0; angle < 256; angle++)
         {
-            AssertEqual(native[index], fly(index), "fly signed prefix sample");
+            var tableAngle = new TrigonometryAngle(angle);
+            AssertEqual(new EightEightVector<RoomPixels>(native[angle + 64], native[angle]), flyCircle(tableAngle),
+                "fly circle step: sine across, negative cosine down");
+            AssertEqual(new EightEightVector<RoomPixels>(native[angle + 64] * 2, native[angle] * 4), flyDive(tableAngle),
+                "fly dive: doubled sine across, quadrupled negative cosine down");
+            AssertEqual((short)(native[angle + 64] >> 4), eye((byte)angle), "eye arithmetic shift");
         }
         for (int index = short.MinValue; index <= ushort.MaxValue; index++)
         {
-            AssertEqual((short)(native[unchecked((byte)index) + 64] >> 4), eye(index), "eye arithmetic shift and angle wrapping");
             AssertEqual(unchecked((ushort)native[unchecked((byte)(index - 64)) + 64]), shaktool(index), "Shaktool full-index wrapping");
         }
         for (int angle = 0; angle < 256; angle++)

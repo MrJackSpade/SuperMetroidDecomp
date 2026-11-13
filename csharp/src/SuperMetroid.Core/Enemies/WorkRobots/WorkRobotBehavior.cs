@@ -45,9 +45,9 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>The leftward laser velocity, two pixels per update; only its X is meaningful.</summary>
-    private static readonly EightEightVector<RoomPixels> WorkRobotFacingLeftVelocity = new(-512, 0);
+    private static readonly EightEightVector<RoomPixels> WorkRobotFacingLeftVelocity = new(-SignedEightEight.FromParts(2, 0), SignedEightEight.Zero);
     /// <summary>The rightward laser velocity, two pixels per update; only its X is meaningful.</summary>
-    private static readonly EightEightVector<RoomPixels> WorkRobotFacingRightVelocity = new(512, 0);
+    private static readonly EightEightVector<RoomPixels> WorkRobotFacingRightVelocity = new(SignedEightEight.FromParts(2, 0), SignedEightEight.Zero);
     /// <summary>What gravity adds to a falling unpowered robot's speed each airborne update: half a pixel.</summary>
     private static readonly SignedSixteenSixteen WorkRobotGravity = SignedSixteenSixteen.FromParts(0, 32768);
     /// <summary>The speed an unpowered robot starts falling at: one pixel per update.</summary>
@@ -443,15 +443,15 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
             definition.ProjectileKind(),
             SpriteGraphics.SharedStandard);
         projectile.Velocity = projectile.Velocity.WithX(state.LaserVelocity.X);
-        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromSignedRaw(definition switch
+        projectile.Velocity = projectile.Velocity.WithY(definition switch
         {
             WorkRobotLaser.UpLeft or WorkRobotLaser.UpRight =>
-                -128,
-            WorkRobotLaser.DownLeft or WorkRobotLaser.DownRight => 128,
-            WorkRobotLaser.Horizontal => 0,
+                -SignedEightEight.FromParts(0, 128),
+            WorkRobotLaser.DownLeft or WorkRobotLaser.DownRight => SignedEightEight.FromParts(0, 128),
+            WorkRobotLaser.Horizontal => SignedEightEight.Zero,
             _ => throw new InvalidOperationException(
                 $"Undefined Work Robot laser definition {definition}."),
-        }));
+        });
 
         // All five initializers place the muzzle four pixels in the signed facing direction
         // and sixteen pixels above the robot.

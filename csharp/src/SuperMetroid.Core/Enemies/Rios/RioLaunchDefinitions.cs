@@ -3,21 +3,21 @@ namespace SuperMetroid.Core.Enemies.Rios;
 /// <summary>Fixed NTSC launch magnitudes for the three separately dispatched Rio families.</summary>
 public static class RioLaunchDefinitions
 {
-    /// <summary>Rio initial downward velocity, in 8.8 pixels/frame.</summary>
-    public const int RioYVelocity = 1408;
-    /// <summary>Rio initial horizontal magnitude; caller supplies direction.</summary>
-    public const int RioXVelocity = 384;
-    /// <summary>Norfair Rio horizontal magnitude.</summary>
-    public const int NorfairXVelocity = 256;
-    /// <summary>Lower Norfair Rio initial downward velocity.</summary>
-    public const int LowerNorfairYVelocity = 1792;
-    /// <summary>Lower Norfair Rio horizontal magnitude.</summary>
-    public const int LowerNorfairXVelocity = 256;
+    /// <summary>Rio initial downward velocity, five and a half pixels per update.</summary>
+    public static SignedEightEight RioYVelocity { get; } = SignedEightEight.FromParts(5, 128);
+    /// <summary>Rio initial horizontal speed, one and a half pixels per update; caller supplies direction.</summary>
+    public static SignedEightEight RioXVelocity { get; } = SignedEightEight.FromParts(1, 128);
+    /// <summary>Norfair Rio horizontal speed, one pixel per update.</summary>
+    public static SignedEightEight NorfairXVelocity { get; } = SignedEightEight.FromParts(1, 0);
+    /// <summary>Lower Norfair Rio initial downward velocity, seven pixels per update.</summary>
+    public static SignedEightEight LowerNorfairYVelocity { get; } = SignedEightEight.FromParts(7, 0);
+    /// <summary>Lower Norfair Rio horizontal speed, one pixel per update.</summary>
+    public static SignedEightEight LowerNorfairXVelocity { get; } = SignedEightEight.FromParts(1, 0);
 
-    /// <summary>The faster of the Norfair Rio's two downward launch velocities, chosen when <see cref="SlowLaunchBit"/> is clear.</summary>
-    internal const int NorfairFastYVelocity = 1792;
-    /// <summary>The slower Norfair Rio downward launch velocity, chosen when <see cref="SlowLaunchBit"/> is set.</summary>
-    internal const int NorfairSlowYVelocity = 1472;
+    /// <summary>The faster of the Norfair Rio's two downward launch velocities, seven pixels per update, chosen when <see cref="SlowLaunchBit"/> is clear.</summary>
+    internal static SignedEightEight NorfairFastYVelocity { get; } = SignedEightEight.FromParts(7, 0);
+    /// <summary>The slower Norfair Rio downward launch velocity, five and three quarter pixels per update, chosen when <see cref="SlowLaunchBit"/> is set.</summary>
+    internal static SignedEightEight NorfairSlowYVelocity { get; } = SignedEightEight.FromParts(5, 192);
 
     /// <summary>The random bit, bit two, that sends a diving Norfair Rio down at its slower launch velocity.</summary>
     internal static readonly RandomSampleField SlowLaunchBit = new(2, 1);

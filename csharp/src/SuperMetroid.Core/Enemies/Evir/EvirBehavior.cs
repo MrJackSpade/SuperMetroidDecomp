@@ -141,7 +141,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             };
         }
         throw new InvalidDataException(
-            $"An Evir bobbing at {speed.RawValue} takes its first half-cycle from a value no retail Evir reads.");
+            $"An Evir bobbing at {speed.WholePixels} pixels and {speed.Fraction} 65536ths per update takes its first half-cycle from a value no retail Evir reads.");
     }
 
     /// <summary>Initializes the Evir Projectile.</summary>

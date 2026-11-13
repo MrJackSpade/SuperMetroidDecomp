@@ -659,8 +659,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static RotationAngle ReadKiHunterQuadraticAngleDelta(int speedIndex, EnemySpeedSign sign)
     {
         // The orbit steps by the coarse speed; stepping by the full speed changes the orbit.
-        int coarse = EnemyQuadraticSpeeds.Row(EightEight.WholeOf(speedIndex)).CoarseToward(sign);
-        return RotationAngle.FromSteps(EightEight.WholeOf(coarse), EightEight.FractionOf(coarse));
+        return RotationAngle.FromRaw(EnemyQuadraticSpeeds.Row(EightEight.WholeOf(speedIndex)).CoarseToward(sign));
     }
 
     /// <summary>Slows a detached wing by one speed step, landing on the slowest index when the step would go below zero.</summary>
@@ -907,12 +906,12 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Acid mover installed by the startup callback after the projectile's idle frames.</summary>
     private const EnemyProjectileFrameBehavior KiHunterAcidMovingFrameBehavior =
         EnemyProjectileFrameBehavior.KiHunterAcidFlight;
-    /// <summary>Positive 8.8 horizontal acid speed, negated for leftward shots.</summary>
-    private const int KiHunterAcidHorizontalSpeed = 768;
-    /// <summary>8.8 downward speed added to each active acid frame.</summary>
-    private static readonly SignedEightEight KiHunterAcidGravity = SignedEightEight.FromSignedRaw(16);
-    /// <summary>Maximum 8.8 downward speed for a falling acid projectile.</summary>
-    private static readonly SignedEightEight KiHunterAcidTerminalYSpeed = SignedEightEight.FromSignedRaw(512);
+    /// <summary>Horizontal acid speed, three pixels per update, negated for leftward shots.</summary>
+    private static readonly SignedEightEight KiHunterAcidHorizontalSpeed = SignedEightEight.FromParts(3, 0);
+    /// <summary>Downward speed added to each active acid frame, a sixteenth of a pixel per update.</summary>
+    private static readonly SignedEightEight KiHunterAcidGravity = SignedEightEight.FromParts(0, 16);
+    /// <summary>Maximum downward speed for a falling acid projectile, two pixels per update.</summary>
+    private static readonly SignedEightEight KiHunterAcidTerminalYSpeed = SignedEightEight.FromParts(2, 0);
 
     /// <summary>
     /// Spawns an acid spit from its definition and initializer.
@@ -932,11 +931,11 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             kind,
             SpriteGraphics.SpawnedBy(body));
 
-        projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.FromSignedRaw(movingRight
+        projectile.Velocity = projectile.Velocity.WithX(movingRight
             ? KiHunterAcidHorizontalSpeed
-            : -KiHunterAcidHorizontalSpeed));
+            : -KiHunterAcidHorizontalSpeed);
         projectile.Position = projectile.Position.WithWrappedWholeX(body.Position.X.Whole + (movingRight ? 22 : -22));
-        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(0));
+        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Zero);
         projectile.Position = projectile.Position.WithWrappedWholeY(body.Position.Y.Whole - 16).WithFractionX(0).WithFractionY(0);
     }
 
@@ -970,7 +969,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal))
         {
-            projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(0));
+            projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.Zero);
             return;
         }
 

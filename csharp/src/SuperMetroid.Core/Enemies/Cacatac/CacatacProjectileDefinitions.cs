@@ -5,20 +5,19 @@ internal static class CacatacProjectileDefinitions
 {
 
     /// <summary>
-    /// A cardinal spike moves two pixels per update
-    /// (signed 8.8 raw 512) toward its negative or positive side.
+    /// A cardinal spike moves two pixels per update toward its negative or positive side.
     /// </summary>
     private static readonly CacatacSpikeSpeedPair CardinalSpeeds = new(
-        SignedEightEight.FromSignedRaw(-512),
-        SignedEightEight.FromSignedRaw(512));
+        -SignedEightEight.FromParts(2, 0),
+        SignedEightEight.FromParts(2, 0));
 
     /// <summary>
     /// A diagonal spike moves one and a half pixels per
-    /// update on each axis (signed 8.8 raw 384) toward its negative or positive side.
+    /// update on each axis toward its negative or positive side.
     /// </summary>
     private static readonly CacatacSpikeSpeedPair DiagonalSpeeds = new(
-        SignedEightEight.FromSignedRaw(-384),
-        SignedEightEight.FromSignedRaw(384));
+        -SignedEightEight.FromParts(1, 128),
+        SignedEightEight.FromParts(1, 128));
 
     /// <summary>
     /// Each spike direction and facing's named animation program.
@@ -39,7 +38,7 @@ internal static class CacatacProjectileDefinitions
 
     /// <summary>
     /// Each spike direction's launch speeds. The initializer compares its even direction selector to 12:
-    /// directions 0..10 are cardinal, with magnitude 512; 12..18 are diagonal, with magnitude 384.
+    /// directions 0..10 are cardinal, two pixels per update; 12..18 are diagonal, one and a half.
     /// </summary>
     internal static readonly Dictionary<CacatacSpikeDirection, CacatacSpikeSpeedPair> Speeds = new()
     {

@@ -235,7 +235,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
 
         projectile.Velocity = new(
             direction == HorizontalDirection.Right ? sourceSettings.LaunchSpeed : sourceSettings.LaunchSpeed.Negated(),
-            new SignedEightEight(0));
+            SignedEightEight.Zero);
     }
 
     /// <summary>Runs the fireball's per-frame behaviour: the fireball flies sideways at its speed until it leaves the view.</summary>

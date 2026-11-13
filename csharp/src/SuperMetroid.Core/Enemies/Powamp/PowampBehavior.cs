@@ -605,7 +605,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
                 RoomEnemyProjectileKind.PowampSpike,
                 SpriteGraphics.SpawnedBy(body).In(look));
             spike.Position = FixedPosition<RoomPixels>.FromWhole(body.Position.Whole);
-            spike.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
+            spike.Velocity = new(SignedEightEight.Zero, SignedEightEight.Zero);
             spike.State = new PowampSpikeState(direction);
             lastSpikePlace = spike.Place;
         }

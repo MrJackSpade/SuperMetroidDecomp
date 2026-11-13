@@ -27,10 +27,9 @@ public static class ShaktoolOrbitTables
     }
     /// <summary>
     /// A segment's place from the one before it at <paramref name="angle"/>: the orbit's sine at the angle across, and its
-    /// sine a quarter turn behind the angle (the negative cosine) down. Both are 256ths of a pixel, promoted to 16.16
-    /// before addition to the preceding segment's position.
+    /// sine a quarter turn behind the angle (the negative cosine) down, each in 256ths of a pixel.
     /// </summary>
     public static FixedVector<RoomPixels> Displacement(TrigonometryAngle angle) => new(
-        SignedEightEight.FromSignedRaw(SampleAt(angle)).ToSixteenSixteenDelta(),
-        SignedEightEight.FromSignedRaw(SampleAt(angle.TurnedBy(TrigonometryAngle.HalfTurn).TurnedBy(TrigonometryAngle.QuarterTurn))).ToSixteenSixteenDelta());
+        SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(SampleAt(angle)),
+        SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(SampleAt(angle.TurnedBy(TrigonometryAngle.HalfTurn).TurnedBy(TrigonometryAngle.QuarterTurn))));
 }

@@ -44,7 +44,7 @@ internal sealed class FallingSparksBehavior
         // The initializer zeros both ordinary velocity words, then takes a random number. The
         // authored launches are one short of the eight selections; the last selection drifts by
         // FallingSparkUnauthoredLaunch.
-        projectile.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
+        projectile.Velocity = new(SignedEightEight.Zero, SignedEightEight.Zero);
         Func<int> nextRandom = _room.Random.Generate;
         SignedSixteenSixteen launch = FallingSparkLaunches.FromRandom(nextRandom(), () => _room.Overreads.FallingSparkUnauthoredLaunch);
         projectile.State = new FallingSparkState(launch);

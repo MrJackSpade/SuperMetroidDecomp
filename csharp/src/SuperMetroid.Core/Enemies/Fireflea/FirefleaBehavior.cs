@@ -40,7 +40,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         FirefleaSpawnSettings settings = slot.SpawnSettings<FirefleaSpawnSettings>();
         state.Speeds = new EnemyLinearSpeedRow(settings.Speed, SignedSixteenSixteen.Zero - settings.Speed);
         state.SpeedSign = settings.SpeedSign;
-        state.AngularSpeed = state.Speeds.Toward(state.SpeedSign);
+        state.AngularSpeed = TurnPerUpdate(state.Speeds.Toward(state.SpeedSign));
         state.Radius = settings.Radius;
 
         if (state.UsesCircularMovement)
@@ -51,7 +51,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
             // The initializer places the Fireflea at the circle's zero angle whatever its initial angle: it reads the
             // angle's fraction, which a spawned angle never has. The main AI places it at its initial angle on its
             // first update.
-            slot.Position = slot.Position.WithWhole(state.Center + EnemyMath.CircleOffset(new TrigonometryAngle(0), state.Radius));
+            slot.Position = slot.Position.WithWhole(state.Center + EnemyMath.CircleOffset(RotationAngle.Zero.ToTrigonometryAngle(), state.Radius));
             return;
         }
 
@@ -61,6 +61,13 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         state.MaximumYExtent = spawnY + reach;
     }
 
+    /// <summary>
+    /// The turn a circling Fireflea makes each update at linear speed <paramref name="speed"/>: each pixel of the speed
+    /// turns it one step, each 256th of a pixel a 256th of a step, the speed's finer fraction dropped. A speed toward
+    /// decreasing coordinates turns it back, its 256ths continued around the circle.
+    /// </summary>
+    internal static RotationAngle TurnPerUpdate(SignedSixteenSixteen speed) => RotationAngle.NormalizeRaw(speed.InTwoFiftySixths);
+
     /// <summary>Runs the Fireflea's main AI, advancing circular angle or wrapped vertical travel.</summary>
     private static void RunFirefleaMain(RoomEnemySlot slot, FirefleaEnemyState state)
     {
@@ -68,10 +75,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             slot.Position = slot.Position.WithWhole(state.Center + EnemyMath.CircleOffset(state.Angle.ToTrigonometryAngle(), state.Radius));
 
-            // The angle advances by the speed at 256ths of a pixel: its fraction cut to 256ths under its whole part
-            // modulo 256, the exact signed 8.8 step including negative speeds.
-            SignedSixteenSixteen speed = state.AngularSpeed;
-            state.Angle = state.Angle.AddRaw(EightEight.FromSixteenSixteen(speed.WholePixels, speed.Fraction));
+            state.Angle += state.AngularSpeed;
             return;
         }
 

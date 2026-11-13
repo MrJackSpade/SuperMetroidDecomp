@@ -471,9 +471,9 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Position = slot.Position.Advance(new(xVelocity.ToSixteenSixteenDelta(), yVelocity.ToSixteenSixteenDelta()));
     }
 
-    /// <summary>The shared signed enemy sine at <paramref name="angle"/>, in 256ths of a pixel.</summary>
+    /// <summary>The shared enemy sine velocity at <paramref name="angle"/>: one pixel per update at its peak.</summary>
     internal static SignedEightEight ReadShaktoolCommonSineSample(TrigonometryAngle angle) =>
-        SignedEightEight.FromSignedRaw(Trigonometry.SignedSine(angle));
+        EnemyMath.SineVelocity(angle, 1);
 
     /// <summary>
     /// Implements Shaktool's fatal-shot tail: a hit that kills one segment deletes the enemies the room lists first

@@ -21,15 +21,16 @@ namespace SuperMetroid.AssetExtraction.Samus;
 [EncodingOwner("retail X-ray reveal table words")]
 public static class XrayRevealVisualFiles
 {
-    /// <summary>Family-relative version-five installed JSON filename for reveal-rule operands, the extension exit block, four tank metatiles, and special-room overlay records.</summary>
+    /// <summary>Family-relative version-six installed JSON filename for reveal-rule operands, the extension exit block, four tank metatiles, and special-room overlay records.</summary>
     public const string VisualFileName = "reveals.json";
     /// <summary>
     /// Schema revision that includes rule operands, tank metatiles, and room-overlay records: revision 3 holds the four tanks'
     /// reveal blocks alone, every other item being revealed as its kind's own picture (#1538); revision 4 holds the block an
     /// extension chain leaving the room backward shows, which the game kept a compiled copy of (#1615); revision 5 names each
-    /// room overlay by its overlay instead of the cartridge pointer of its list (#1623).
+    /// room overlay by its overlay instead of the cartridge pointer of its list (#1623); revision 6 names the reactions each
+    /// rule covers by their list and entry instead of the game's behaviour bytes (#1709).
     /// </summary>
-    private const int FormatVersion = 5;
+    private const int FormatVersion = 6;
 
     /// <summary>
     /// The block the cartridge's extension traversal writes when a chain's next step leaves the room backward, at
@@ -67,29 +68,32 @@ public static class XrayRevealVisualFiles
         Directory.CreateDirectory(directory);
 
         var groups = new Dictionary<XrayRevealGroupKey,
-            List<int>>();
+            List<BlockReaction>>();
         foreach (RoomCollisionType type in Enum.GetValues<RoomCollisionType>())
         for (int value = 0; value <= byte.MaxValue; value++)
         {
             XrayRevealDefinition? native = ReadNative(bus, type, value);
-            if (native?.Shape != XrayRevealTable.Find(type, RoomBlockBehaviorCodec.Decode(value)))
+            RoomBlockBehavior behavior = RoomBlockBehaviorCodec.Decode(value);
+            if (native?.Shape != XrayRevealTable.Find(type, behavior))
                 throw new InvalidDataException(
                     $"Compiled X-ray command {type}/behaviour ${value:X2} differs from the cartridge.");
             if (native is not { } definition || !InstalledXrayReveals.IsDrawable(definition.Shape))
                 continue;
             var key = new XrayRevealGroupKey(type, definition);
-            if (!groups.TryGetValue(key, out List<int>? values))
-                groups.Add(key, values = []);
-            values.Add(value);
+            if (!groups.TryGetValue(key, out List<BlockReaction>? reactions))
+                groups.Add(key, reactions = []);
+            reactions.Add(behavior.Reaction);
         }
 
         XrayRevealVisualEntry[] entries = groups
             .Select(pair => new XrayRevealVisualEntry(
-                pair.Key.Type, pair.Value.ToArray(), NameOf(pair.Key.Definition.Shape),
+                pair.Key.Type, [.. pair.Value.Select(reaction => new XrayRevealReactionDocument(reaction.Scope, reaction.Entry))],
+                NameOf(pair.Key.Definition.Shape),
                 pair.Key.Definition.TopLeft, pair.Key.Definition.TopRight,
                 pair.Key.Definition.BottomLeft, pair.Key.Definition.BottomRight))
             .OrderBy(entry => entry.CollisionType)
-            .ThenBy(entry => entry.BehaviorValues[0])
+            .ThenBy(entry => entry.Reactions[0].Scope)
+            .ThenBy(entry => entry.Reactions[0].Entry)
             .ToArray();
         // The first draws reveal the item set up in each block pair as that pair's first frame, which shows the item's own
         // picture; the port reveals such an item as its kind's first frame (#1538). The tanks' draws follow, in tank order.
@@ -113,7 +117,7 @@ public static class XrayRevealVisualFiles
         file.Write(json);
     }
 
-    /// <summary>Validates the installed version-five X-ray presentation as the player left it, retaining native rule selection, copy geometry, extensions, and area gating.</summary>
+    /// <summary>Validates the installed version-six X-ray presentation as the player left it, retaining native rule selection, copy geometry, extensions, and area gating.</summary>
     /// <param name="directory">Family directory containing the installed reveal JSON.</param>
     /// <returns>A ROM-independent catalog with copied rule operands, the extension exit block, four tank reveals, and ordered special-room tile lists.</returns>
     /// <remarks>Loading does not repeat cartridge reads. Strict JSON rejects unknown/missing constructor properties. Every entry must name a compiled drawable rule with its shape, every drawable rule must be covered once, and the special rooms keep their identities; blocks, appearances, tile lists and byte-range room coordinates may change.</remarks>
@@ -131,8 +135,8 @@ public static class XrayRevealVisualFiles
         foreach (XrayRevealVisualEntry entry in document.Entries)
         {
             var visual = new XrayRevealVisualBlocks(entry.TopLeft, entry.TopRight, entry.BottomLeft, entry.BottomRight);
-            foreach (int value in entry.BehaviorValues)
-                mappings.Add(new XrayRevealVisualDefinition(entry.CollisionType, RoomBlockBehaviorCodec.Decode(value).Reaction, visual));
+            foreach (XrayRevealReactionDocument reaction in entry.Reactions)
+                mappings.Add(new XrayRevealVisualDefinition(entry.CollisionType, reaction.Reaction, visual));
         }
         var overlays = new InstalledXrayOverlays(document.TankMetatiles,
             document.Rooms.Select(room => new XrayRoomOverlayTiles(OverlayNamed(room.Overlay),
@@ -141,7 +145,7 @@ public static class XrayRevealVisualFiles
         return new InstalledXrayReveals(mappings, overlays, document.ExtensionExitBlock);
     }
 
-    /// <summary>Checks exact room identities, drawable rule shapes, behaviour groups, and unused operand zeros.</summary>
+    /// <summary>Checks exact room identities, drawable rule shapes, reaction groups, and unused operand zeros.</summary>
     private static void ValidateStructure(XrayRevealVisualDocument document, string path)
     {
         if (document.Version != FormatVersion || document.Entries is null ||
@@ -160,10 +164,11 @@ public static class XrayRevealVisualFiles
         }
         foreach (XrayRevealVisualEntry entry in document.Entries)
         {
-            if (entry is null || entry.BehaviorValues is null || entry.BehaviorValues.Length == 0 ||
-                entry.BehaviorValues.Any(value => value is < 0 or > byte.MaxValue))
-                throw new InvalidDataException($"X-ray visuals {path} contain an invalid behaviour group.");
-            if (XrayRevealTable.Find(entry.CollisionType, RoomBlockBehaviorCodec.Decode(entry.BehaviorValues[0])) is not { } command ||
+            if (entry is null || entry.Reactions is null || entry.Reactions.Length == 0 ||
+                entry.Reactions.Any(reaction => reaction is null || !Enum.IsDefined(reaction.Scope) ||
+                    reaction.Entry is < 0 or > BlockReaction.LastEntry))
+                throw new InvalidDataException($"X-ray visuals {path} contain an invalid reaction group.");
+            if (XrayRevealTable.Find(entry.CollisionType, RoomBlockBehavior.Reacting(entry.Reactions[0].Reaction)) is not { } command ||
                 !InstalledXrayReveals.IsDrawable(command) || entry.Shape != NameOf(command))
                 throw new InvalidDataException($"X-ray visuals {path} contain an invalid copy shape.");
             if ((command is XrayRevealShape.CopyOne or XrayRevealShape.CopyBrinstar &&
@@ -318,16 +323,26 @@ public static class XrayRevealVisualFiles
     /// <param name="Rooms">The special rooms' overlays.</param>
     private sealed record XrayRevealVisualDocument(int Version, XrayRevealVisualEntry[] Entries, int ExtensionExitBlock,
         RoomBlockAppearance[] TankMetatiles, XrayRoomOverlayEntry[] Rooms);
-    /// <summary>One compiled collision-kind and behaviour rule's editable blocks with its fixed copy shape.</summary>
+    /// <summary>One compiled collision-kind and reaction rule's editable blocks with its fixed copy shape.</summary>
     /// <param name="CollisionType">The rule's collision kind.</param>
-    /// <param name="BehaviorValues">The behaviour values the rule covers, 0 through 255.</param>
+    /// <param name="Reactions">The reactions the rule covers.</param>
     /// <param name="Shape">The rule's copy shape.</param>
     /// <param name="TopLeft">The top-left block number.</param>
     /// <param name="TopRight">The top-right block number, or zero when the shape has none.</param>
     /// <param name="BottomLeft">The bottom-left block number, or zero when the shape has none.</param>
     /// <param name="BottomRight">The bottom-right block number, or zero when the shape has none.</param>
-    private sealed record XrayRevealVisualEntry(RoomCollisionType CollisionType, int[] BehaviorValues,
+    private sealed record XrayRevealVisualEntry(RoomCollisionType CollisionType, XrayRevealReactionDocument[] Reactions,
         string Shape, int TopLeft, int TopRight, int BottomLeft, int BottomRight);
+
+    /// <summary>One reaction a rule covers, named by its list and its entry in that list.</summary>
+    /// <param name="Scope">The list the reaction is an entry of: <c>Common</c> or <c>AreaSpecific</c>.</param>
+    /// <param name="Entry">The reaction's entry in its list, 0 through 127.</param>
+    private sealed record XrayRevealReactionDocument(BlockReactionScope Scope, int Entry)
+    {
+        /// <summary>The reaction, once <see cref="ValidateStructure"/> has admitted the list and entry.</summary>
+        [JsonIgnore]
+        public BlockReaction Reaction => new(Scope, Entry);
+    }
     /// <summary>One room-specific overlay, named by its overlay, and its ordered editable block records.</summary>
     /// <param name="Overlay">The overlay's name in <see cref="XrayRoomOverlayDefinitions"/>.</param>
     /// <param name="Tiles">The overlay's block records, in order.</param>

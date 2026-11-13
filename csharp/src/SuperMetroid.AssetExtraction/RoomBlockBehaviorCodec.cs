@@ -13,7 +13,9 @@ namespace SuperMetroid.AssetExtraction;
 /// <item>an extension: the whole byte, two's complement, is the signed offset;</item>
 /// <item>a door: the low seven bits are the door-list entry.</item>
 /// </list>
-/// Checks that compare the game's own bytes, and the installed level files, convert through it.
+/// Only the import and checks that compare the game's own bytes convert through it: the installation holds each block's
+/// behaviour as the reading its collision kind takes, and the X-ray reveals' rules by their reactions (#1709), so nothing
+/// the game loads holds the byte.
 /// </summary>
 [EncodingOwner("room block behaviour byte")]
 public static class RoomBlockBehaviorCodec

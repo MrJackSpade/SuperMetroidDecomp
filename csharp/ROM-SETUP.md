@@ -922,7 +922,8 @@ unchanged.
 X-ray reveal art is installed as `game/xray-reveals/reveals.json`. In the
 installed file, edit its `topLeft`, `topRight`,
 `bottomLeft`, or `bottomRight` metatile indices, and restart. Each entry names
-the collision type and BTS values that select it, plus its read-only copy
+the collision type and the `reactions` that select it, each by its list
+(`Common` or `AreaSpecific`) and `entry` (0..127), plus its read-only copy
 shape. The installer groups identical cartridge rules to keep the file short;
 changing the rule keys, shape, count, or unused operands is rejected. The
 visual indices may be 0..4095, but each selected metatile must exist in the

@@ -36,7 +36,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Whole-pixel horizontal step used by each Dachora movement-animation cue.</summary>
-    private const int EscapeDachoraPixelsPerCallback = 6;
+    private const int EscapeDachoraPixelsPerCue = 6;
     /// <summary>Lava Y threshold tested by both families' acid-height branch cues.</summary>
     private const int EscapeAnimalLavaBranchY = 206;
     /// <summary>One unit of 16.16 downward acceleration applied during Etecoon's exit.</summary>
@@ -211,10 +211,10 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
             case EscapeDachoraCueKind.GoToIfCrittersEscaped:
                 return HasCrittersEscaped() ? cue.Target : null;
             case EscapeDachoraCueKind.MoveLeft:
-                slot.Position = slot.Position.WithWrappedWholeX(slot.Position.X.Whole - EscapeDachoraPixelsPerCallback);
+                slot.Position = slot.Position.WithWrappedWholeX(slot.Position.X.Whole - EscapeDachoraPixelsPerCue);
                 return null;
             case EscapeDachoraCueKind.MoveRight:
-                slot.Position = slot.Position.WithWrappedWholeX(slot.Position.X.Whole + EscapeDachoraPixelsPerCallback);
+                slot.Position = slot.Position.WithWrappedWholeX(slot.Position.X.Whole + EscapeDachoraPixelsPerCue);
                 return null;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(EscapeDachoraCueKind)} {cue.Kind}.");

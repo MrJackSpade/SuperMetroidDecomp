@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <summary>
 /// The steps of Kraid's sinking/death schedule; each member names what its step does.
 /// </summary>
-public enum KraidSinkCallback
+public enum KraidSinkStep
 {
     /// <summary>
     /// The empty step. Rows that only clear another strip of his body

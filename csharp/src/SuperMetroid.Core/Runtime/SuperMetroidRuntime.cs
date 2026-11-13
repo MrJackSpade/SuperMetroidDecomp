@@ -968,7 +968,7 @@ internal sealed class SuperMetroidRuntime
 
         RoomMains.RunCeresFallingDebrisRoomMain(Room.LoadedScope);
         RoomMains.RunCrocomireComebackRoomMain(Room.LoadedScope);
-        if (Room.ActiveRoom?.State.MainCallback == RoomMainCallback.HandleCeresRidleyGetawayCutscene)
+        if (Room.ActiveRoom?.State.MainBehavior == RoomMainBehavior.HandleCeresRidleyGetawayCutscene)
             Room.LoadedScope.Enemies.Ceres.RunCeresRidleyGetawayRoomMain(Player.Samus, Clock.Counter);
     }
 

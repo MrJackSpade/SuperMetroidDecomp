@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// The Chainsaw frame behaviour, reached by uncharged beam combination thirteen: it runs the Power Bomb frame behaviour over the
 /// shot. Its misaligned store into the cached window edges is a presentation quirk the model drops (#1407).
 /// </summary>
-internal sealed class ChainsawPowerBombCallback
+internal sealed class ChainsawPowerBombFrameBehavior
 {
     /// <summary>Projectile animation owner used when the frame behaviour clears the shot.</summary>
     private readonly ProjectileAnimation _animation;
@@ -14,7 +14,7 @@ internal sealed class ChainsawPowerBombCallback
     private readonly ChainsawFuseAnimationShift<SamusProjectileSegmentBeat> _fuseShift;
 
     /// <summary>Connects the frame behaviour to projectile animation cleanup and the fuse's animation shift.</summary>
-    internal ChainsawPowerBombCallback(ProjectileAnimation animation,
+    internal ChainsawPowerBombFrameBehavior(ProjectileAnimation animation,
         ChainsawFuseAnimationShift<SamusProjectileSegmentBeat> fuseShift)
     {
         _animation = animation;

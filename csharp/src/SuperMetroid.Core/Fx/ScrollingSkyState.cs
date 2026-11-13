@@ -32,34 +32,34 @@ public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool hasBa
     /// implementation. This is the same room-main dispatch decision the game makes;
     /// callers must not infer it from a room number, area, door, or camera position.
     /// </summary>
-    public static bool IsLandRoomMain(RoomMainCallback callback) =>
-        callback is RoomMainCallback.ScrollingSkyLand or
-            RoomMainCallback.ScrollingSkyLandZebesTimebombSet;
+    public static bool IsLandRoomMain(RoomMainBehavior main) =>
+        main is RoomMainBehavior.ScrollingSkyLand or
+            RoomMainBehavior.ScrollingSkyLandZebesTimebombSet;
 
     /// <summary>Identifies the scrolling-sky room mains; spawning the bands is a separate decision.</summary>
-    public static bool IsScrollingSkyRoomMain(RoomMainCallback callback) =>
-        IsLandRoomMain(callback) || callback == RoomMainCallback.ScrollingSkyOcean;
+    public static bool IsScrollingSkyRoomMain(RoomMainBehavior main) =>
+        IsLandRoomMain(main) || main == RoomMainBehavior.ScrollingSkyOcean;
 
     /// <summary>
     /// Whether a room state's setup spawns the sky's bands, whichever door the room is entered through; a room's
     /// effect can spawn them too (<see cref="SpawnsBands"/>).
     /// </summary>
-    public static bool SetupSpawnsBands(RoomSetupCallback setup) =>
-        setup is RoomSetupCallback.ScrollingSkyLand or RoomSetupCallback.ScrollingSkyOcean
-            or RoomSetupCallback.ShakeScreenAndCallScrollingSkyLandDuringEscape;
+    public static bool SetupSpawnsBands(RoomSetupBehavior setup) =>
+        setup is RoomSetupBehavior.ScrollingSkyLand or RoomSetupBehavior.ScrollingSkyOcean
+            or RoomSetupBehavior.ShakeScreenAndCallScrollingSkyLandDuringEscape;
 
     /// <summary>
     /// Whether a room state spawns the sky's bands when entered with <paramref name="selectedFx"/> as its effect: the sky
     /// effect or the state's setup spawns them; the room-main behaviour alone does not.
     /// </summary>
-    public static bool SpawnsBands(RoomFxType? selectedFx, RoomSetupCallback setup) =>
+    public static bool SpawnsBands(RoomFxType? selectedFx, RoomSetupBehavior setup) =>
         selectedFx == RoomFxType.ScrollingSky || SetupSpawnsBands(setup);
 
     /// <summary>The chunk table a scrolling-sky room main reads its rows through.</summary>
-    public static ScrollingSkyChunkTable VariantOf(RoomMainCallback callback) =>
-        IsLandRoomMain(callback) ? ScrollingSkyChunkTable.Land
-            : callback == RoomMainCallback.ScrollingSkyOcean ? ScrollingSkyChunkTable.Ocean
-            : throw new ArgumentOutOfRangeException(nameof(callback), callback, "The room main runs no scrolling sky.");
+    public static ScrollingSkyChunkTable VariantOf(RoomMainBehavior main) =>
+        IsLandRoomMain(main) ? ScrollingSkyChunkTable.Land
+            : main == RoomMainBehavior.ScrollingSkyOcean ? ScrollingSkyChunkTable.Ocean
+            : throw new ArgumentOutOfRangeException(nameof(main), main, "The room main runs no scrolling sky.");
 
     /// <summary>
     /// The background scroll the sky publishes: the sky copies the camera Y, wrapping past row 65535, into Y.

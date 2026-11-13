@@ -48,11 +48,11 @@ internal static class RoomFloorSheetsVerification
     {
         RoomStateSettings plain = CeresRoomStateDefinitions.FallingTileDefault;
         AssertEqual(RoomTurningFloor.None, RoomTurningFloors.Of(plain), "a state that runs neither the shaft nor Ridley shows no turning floor");
-        AssertEqual(RoomTurningFloor.ElevatorShaft, RoomTurningFloors.Of(plain with { MainCallback = RoomMainCallback.CeresElevatorShaft }),
+        AssertEqual(RoomTurningFloor.ElevatorShaft, RoomTurningFloors.Of(plain with { MainBehavior = RoomMainBehavior.CeresElevatorShaft }),
             "a state that runs the elevator shaft's room main shows the shaft's floor");
         AssertEqual(RoomTurningFloor.RidleyGetaway, RoomTurningFloors.Of(plain with { EnemyPopulation = RoomEnemyPopulationDefinitions.CeresRidleyDefault }),
             "a state whose enemies include Ceres Ridley shows his getaway's floor");
-        AssertEqual(RoomTurningFloor.None, RoomTurningFloors.Of(plain with { MainCallback = RoomMainCallback.HandleCeresRidleyGetawayCutscene }),
+        AssertEqual(RoomTurningFloor.None, RoomTurningFloors.Of(plain with { MainBehavior = RoomMainBehavior.HandleCeresRidleyGetawayCutscene }),
             "the getaway's room main without Ridley shows no turning floor");
 
         RoomGraphicsSet[] floored = [.. RoomBlockUploads.FloorTilesets().Select(tileset => tileset.GraphicsSet).Order()];

@@ -17,10 +17,10 @@ public sealed record RoomStateSettings(
     SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes BackgroundScrollModes,
     SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinition Scroll,
     SuperMetroid.Core.Rooms.Xray.XrayRoomOverlayDefinition? XrayOverlay,
-    RoomMainCallback MainCallback,
+    RoomMainBehavior MainBehavior,
     SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulation ObjectPopulation,
     SuperMetroid.Core.Rooms.Backgrounds.LibraryBackground? Background,
-    RoomSetupCallback SetupCallback)
+    RoomSetupBehavior SetupBehavior)
 {
     /// <summary>The state's name.</summary>
     public string Name { get; init; } = Ensure.NotNull(Name);

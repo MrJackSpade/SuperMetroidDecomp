@@ -79,7 +79,7 @@ internal sealed record RoomScope
     /// the sprites' artwork (#1357); every other room, and the frames before a room is active, show the tileset's.
     /// </summary>
     internal static RoomBlockArtwork BlockArtworkOf(SelectedRoom? room) =>
-        room?.State.SetupCallback == RoomSetupCallback.ShowSpritesOnCeresRidleyBackgroundsAndSpawnHaze
+        room?.State.SetupBehavior == RoomSetupBehavior.ShowSpritesOnCeresRidleyBackgroundsAndSpawnHaze
             ? RoomBlockArtwork.Sprites
             : RoomBlockArtwork.Tileset;
 

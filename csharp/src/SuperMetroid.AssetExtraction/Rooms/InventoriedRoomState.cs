@@ -34,13 +34,13 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// </param>
 /// <param name="Headers">The room objects the state's population places.</param>
 /// <param name="Enemies">The enemies the state's population places.</param>
-/// <param name="SetupCallback">The state's setup routine.</param>
-/// <param name="MainCallback">The state's main routine.</param>
+/// <param name="SetupBehavior">The behaviour the state runs when its room loads.</param>
+/// <param name="MainBehavior">The room behaviour the state runs each frame.</param>
 /// <param name="Entrances">The doors that lead into the state's room.</param>
 /// <param name="XrayOverlay">The X-ray reveal's overlay of the state, or null where it has none.</param>
 internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Area, IReadOnlySet<int> Placed,
     IReadOnlySet<RoomTerrainReaction> Terrain, IReadOnlySet<RoomTerrainReaction> StraddledShots, IReadOnlySet<RoomObjectKind> Headers,
-    IReadOnlySet<EnemyDefinitionId> Enemies, RoomSetupCallback SetupCallback, RoomMainCallback MainCallback,
+    IReadOnlySet<EnemyDefinitionId> Enemies, RoomSetupBehavior SetupBehavior, RoomMainBehavior MainBehavior,
     IReadOnlySet<DoorDefinition> Entrances, XrayRoomOverlayDefinition? XrayOverlay)
 {
     /// <summary>The bomb-block reactions bombable blocks select, entries zero through seven.</summary>
@@ -71,7 +71,7 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
     internal bool InCeres => Area == AreaId.Ceres;
 
     /// <summary>Whether the state draws its level's blocks: every state but the Ceres elevator shaft's, whose screen is its Mode 7 floor (#1647).</summary>
-    internal bool DrawsLevel => !RoomTurningFloors.ShowsShaftFloor(MainCallback);
+    internal bool DrawsLevel => !RoomTurningFloors.ShowsShaftFloor(MainBehavior);
 
     /// <summary>Whether a block of the state's terrain collides as <paramref name="collision"/> and selects <paramref name="reaction"/>.</summary>
     internal bool Holds(RoomCollisionType collision, BlockReaction reaction) => Terrain.Contains(new(collision, reaction));
@@ -228,6 +228,6 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
         foreach (RoomEnemyPopulationRecord record in state.EnemyPopulation.Records.Span)
             enemies.Add(record.DefinitionId);
         return new InventoriedRoomState(RoomTilesets.Get(state.GraphicsSet), room.AreaIndex, placed, reactions, straddledShots, headers, enemies,
-            state.SetupCallback, state.MainCallback, entrances.ToHashSet(), state.XrayOverlay);
+            state.SetupBehavior, state.MainBehavior, entrances.ToHashSet(), state.XrayOverlay);
     }
 }

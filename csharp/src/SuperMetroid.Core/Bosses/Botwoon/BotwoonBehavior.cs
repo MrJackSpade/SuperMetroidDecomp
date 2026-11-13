@@ -527,7 +527,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Botwoon head callback {state.HeadFunction} is not translated.");
+                    $"Undefined Botwoon head behaviour {state.HeadFunction}.");
         }
     }
 

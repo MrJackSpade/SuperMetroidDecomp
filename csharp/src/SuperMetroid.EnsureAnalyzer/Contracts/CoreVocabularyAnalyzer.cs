@@ -18,7 +18,9 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// may, so there is no identifier allowance. An identifier that spells a cartridge value in hexadecimal is the machine's
 /// numbering too (#1554, <see cref="HexCode"/>): a capital code after a word (<c>Unused0B</c>, <c>PoseFD</c>,
 /// <c>Backdrop2A</c>), an address run into a name (<c>Projectile86E314Frame</c>, <c>Projectile86C76eFrame</c>), or a
-/// family of a type's members numbered in hexadecimal (<c>Row9</c> beside <c>RowA</c>). See <c>docs/core-vocabulary.md</c>.
+/// family of a type's members numbered in hexadecimal (<c>Row9</c> beside <c>RowA</c>). A name that says <c>Callback</c>
+/// names the original's function-pointer dispatch (#1624, <see cref="DispatchWords"/>) unless what it declares holds a C#
+/// delegate the port passes (<see cref="HoldsDelegate"/>). See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
@@ -58,6 +60,15 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
         ["Ai", "Function"], ["Enemy", "Function"], ["Fight", "Function"],
     ];
 
+    /// <summary>
+    /// The original's dispatch vocabulary (#1624), matched as whole camel-case words like <see cref="HardwareWords"/>: the
+    /// cartridge stored a room's setup and main behaviour, a beam's frame behaviour or a sinking step as a function pointer
+    /// it called back, and a Core name that says <c>Callback</c> names that pointer instead of the behaviour. A declaration
+    /// that holds a C# delegate the port passes (a delegate type, or a field, property, event, parameter or local whose type
+    /// holds one) is a genuine callback and keeps the word.
+    /// </summary>
+    internal static readonly ImmutableArray<string> DispatchWords = ["Callback"];
+
     /// <summary>Endings that keep a word the same hardware word: <c>Banks</c>, <c>Addresses</c>, <c>Banked</c>, <c>Addressing</c>.</summary>
     private static readonly string[] Endings = ["", "s", "es", "ed", "ing"];
 
@@ -69,9 +80,9 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
         DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "Core is a C# game. Its identifiers say what things are in the game, never which chip, memory or " +
-            "cartridge structure the original stored them in, and never number them as the cartridge did in hexadecimal; " +
-            "hardware behaviour the game needs lives in a compatibility service named for the game (#1400, #1554, #1685, #1694, #1701, " +
-            "docs/core-vocabulary.md).");
+            "cartridge structure the original stored them in, never number them as the cartridge did in hexadecimal, and " +
+            "never call a behaviour the callback the original dispatched it through; hardware behaviour the game needs lives in " +
+            "a compatibility service named for the game (#1400, #1554, #1624, #1685, #1694, #1701, docs/core-vocabulary.md).");
 
     /// <inheritdoc/>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [Rule];
@@ -92,9 +103,9 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
                 if (reported.TryAdd(location, 0))
                     report(Diagnostic.Create(Rule, location, name, finding));
             }
-            void Check(Action<Diagnostic> report, string name, Location location)
+            void Check(Action<Diagnostic> report, string name, Location location, Func<bool> holdsDelegate)
             {
-                if (Finding(name) is { } finding)
+                if (Finding(name, holdsDelegate) is { } finding)
                     Report(report, name, location, finding);
             }
             start.RegisterSymbolAction(symbolContext => AnalyzeSymbol(symbolContext, Check),
@@ -108,13 +119,16 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
             start.RegisterSyntaxTreeAction(treeContext =>
             {
                 string file = Path.GetFileNameWithoutExtension(treeContext.Tree.FilePath);
-                Check(treeContext.ReportDiagnostic, file, Location.Create(treeContext.Tree, new TextSpan(0, 0)));
+                // A file is named for its type, so a file named for a delegate type the file declares is that delegate's.
+                Check(treeContext.ReportDiagnostic, file, Location.Create(treeContext.Tree, new TextSpan(0, 0)),
+                    () => treeContext.Tree.GetRoot(treeContext.CancellationToken).DescendantNodes()
+                        .OfType<DelegateDeclarationSyntax>().Any(declaration => declaration.Identifier.ValueText == file));
             });
         });
     }
 
     /// <summary>Reports a declared type or member; overrides and implementations of external members keep their names.</summary>
-    private static void AnalyzeSymbol(SymbolAnalysisContext context, Action<Action<Diagnostic>, string, Location> check)
+    private static void AnalyzeSymbol(SymbolAnalysisContext context, Action<Action<Diagnostic>, string, Location, Func<bool>> check)
     {
         ISymbol symbol = context.Symbol;
         if (symbol.IsImplicitlyDeclared || symbol.Locations.FirstOrDefault(location => location.IsInSource) is not { } location)
@@ -123,7 +137,7 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
             return;
         if (symbol.IsOverride || ImplementsExternal(symbol))
             return;
-        check(context.ReportDiagnostic, symbol.Name, location);
+        check(context.ReportDiagnostic, symbol.Name, location, () => DeclaresDelegate(symbol));
     }
 
     /// <summary>
@@ -167,46 +181,50 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
     }
 
     /// <summary>Reports a declared local, parameter, type parameter, local function, range variable or namespace segment.</summary>
-    private static void AnalyzeNode(SyntaxNodeAnalysisContext context, Action<Action<Diagnostic>, string, Location> check)
+    private static void AnalyzeNode(SyntaxNodeAnalysisContext context, Action<Action<Diagnostic>, string, Location, Func<bool>> check)
     {
+        // Whether the local or parameter the node declares holds a delegate; asked only of a name that says a dispatch word.
+        bool HoldsDeclaredDelegate() =>
+            context.SemanticModel.GetDeclaredSymbol(context.Node, context.CancellationToken) is { } declared && DeclaresDelegate(declared);
+        static bool DeclaresNoDelegate() => false;
         switch (context.Node)
         {
             case VariableDeclaratorSyntax declarator when declarator.Parent?.Parent is not (FieldDeclarationSyntax or EventFieldDeclarationSyntax):
-                check(context.ReportDiagnostic, declarator.Identifier.ValueText, declarator.Identifier.GetLocation());
+                check(context.ReportDiagnostic, declarator.Identifier.ValueText, declarator.Identifier.GetLocation(), HoldsDeclaredDelegate);
                 break;
             case SingleVariableDesignationSyntax designation:
-                check(context.ReportDiagnostic, designation.Identifier.ValueText, designation.Identifier.GetLocation());
+                check(context.ReportDiagnostic, designation.Identifier.ValueText, designation.Identifier.GetLocation(), HoldsDeclaredDelegate);
                 break;
             case ForEachStatementSyntax loop:
-                check(context.ReportDiagnostic, loop.Identifier.ValueText, loop.Identifier.GetLocation());
+                check(context.ReportDiagnostic, loop.Identifier.ValueText, loop.Identifier.GetLocation(), HoldsDeclaredDelegate);
                 break;
             case CatchDeclarationSyntax { Identifier.ValueText.Length: > 0 } caught:
-                check(context.ReportDiagnostic, caught.Identifier.ValueText, caught.Identifier.GetLocation());
+                check(context.ReportDiagnostic, caught.Identifier.ValueText, caught.Identifier.GetLocation(), DeclaresNoDelegate);
                 break;
             case LocalFunctionStatementSyntax function:
-                check(context.ReportDiagnostic, function.Identifier.ValueText, function.Identifier.GetLocation());
+                check(context.ReportDiagnostic, function.Identifier.ValueText, function.Identifier.GetLocation(), DeclaresNoDelegate);
                 break;
             case ParameterSyntax parameter when IsOwnParameter(parameter, context.SemanticModel, context.CancellationToken):
-                check(context.ReportDiagnostic, parameter.Identifier.ValueText, parameter.Identifier.GetLocation());
+                check(context.ReportDiagnostic, parameter.Identifier.ValueText, parameter.Identifier.GetLocation(), HoldsDeclaredDelegate);
                 break;
             case TypeParameterSyntax typeParameter:
-                check(context.ReportDiagnostic, typeParameter.Identifier.ValueText, typeParameter.Identifier.GetLocation());
+                check(context.ReportDiagnostic, typeParameter.Identifier.ValueText, typeParameter.Identifier.GetLocation(), DeclaresNoDelegate);
                 break;
             case BaseNamespaceDeclarationSyntax space:
                 foreach (IdentifierNameSyntax segment in space.Name.DescendantNodesAndSelf().OfType<IdentifierNameSyntax>())
-                    check(context.ReportDiagnostic, segment.Identifier.ValueText, segment.GetLocation());
+                    check(context.ReportDiagnostic, segment.Identifier.ValueText, segment.GetLocation(), DeclaresNoDelegate);
                 break;
             case FromClauseSyntax from:
-                check(context.ReportDiagnostic, from.Identifier.ValueText, from.Identifier.GetLocation());
+                check(context.ReportDiagnostic, from.Identifier.ValueText, from.Identifier.GetLocation(), DeclaresNoDelegate);
                 break;
             case LetClauseSyntax let:
-                check(context.ReportDiagnostic, let.Identifier.ValueText, let.Identifier.GetLocation());
+                check(context.ReportDiagnostic, let.Identifier.ValueText, let.Identifier.GetLocation(), DeclaresNoDelegate);
                 break;
             case JoinClauseSyntax join:
-                check(context.ReportDiagnostic, join.Identifier.ValueText, join.Identifier.GetLocation());
+                check(context.ReportDiagnostic, join.Identifier.ValueText, join.Identifier.GetLocation(), DeclaresNoDelegate);
                 break;
             case QueryContinuationSyntax continuation:
-                check(context.ReportDiagnostic, continuation.Identifier.ValueText, continuation.Identifier.GetLocation());
+                check(context.ReportDiagnostic, continuation.Identifier.ValueText, continuation.Identifier.GetLocation(), DeclaresNoDelegate);
                 break;
             default:
                 break;
@@ -242,13 +260,47 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
         return false;
     }
 
-    /// <summary>What a declared name says that Core may not, as the diagnostic states it, or null when it says nothing of the machine.</summary>
-    internal static string? Finding(string identifier)
+    /// <summary>
+    /// What a declared name says that Core may not, as the diagnostic states it, or null when it says nothing of the machine.
+    /// <paramref name="holdsDelegate"/> says whether the declaration holds a C# delegate; it is asked only of a name that
+    /// says a dispatch word.
+    /// </summary>
+    internal static string? Finding(string identifier, Func<bool> holdsDelegate)
     {
         if (HardwareWord(identifier) is { } word)
             return $"names the hardware ('{word}')";
+        if (ContainedWord(identifier, DispatchWords) is { } dispatch && !holdsDelegate())
+            return $"names the original's dispatch ('{dispatch}') where it declares no delegate";
         return HexCode(identifier) is { } code ? $"spells the cartridge value '{code}' in hexadecimal" : null;
     }
+
+    /// <summary>
+    /// Whether a declared symbol holds a C# delegate (#1624): a delegate type, an event, or a field, property, parameter or
+    /// local whose type holds one.
+    /// </summary>
+    private static bool DeclaresDelegate(ISymbol symbol) => symbol switch
+    {
+        INamedTypeSymbol type => type.TypeKind == TypeKind.Delegate,
+        IEventSymbol => true,
+        IFieldSymbol field => HoldsDelegate(field.Type),
+        IPropertySymbol property => HoldsDelegate(property.Type),
+        IParameterSymbol parameter => HoldsDelegate(parameter.Type),
+        ILocalSymbol local => HoldsDelegate(local.Type),
+        _ => false,
+    };
+
+    /// <summary>
+    /// Whether a type holds a C# delegate: is one (<c>Action</c>, <c>Func&lt;int&gt;</c>), or is an array or constructed
+    /// generic type of one (<c>Action[]</c>, <c>List&lt;Func&lt;int&gt;&gt;</c>).
+    /// </summary>
+    internal static bool HoldsDelegate(ITypeSymbol? type) => type switch
+    {
+        null => false,
+        { TypeKind: TypeKind.Delegate } => true,
+        IArrayTypeSymbol array => HoldsDelegate(array.ElementType),
+        INamedTypeSymbol { IsGenericType: true } named => named.TypeArguments.Any(HoldsDelegate),
+        _ => false,
+    };
 
     /// <summary>
     /// The hexadecimal code <paramref name="identifier"/> spells for a cartridge value, or null (#1554). A code follows a
@@ -388,16 +440,34 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
             if (IsAddressWord(part))
                 return part;
         }
-        string[] words = Words(identifier).ToArray();
-        foreach (string word in words)
+        return ContainedWord(identifier, HardwareWords) ?? ContainedPhrase(identifier, HardwarePhrases);
+    }
+
+    /// <summary>
+    /// The word of <paramref name="vocabulary"/> that <paramref name="identifier"/> contains as a whole camel-case word,
+    /// ignoring case and allowing the plural and verb <see cref="Endings"/>, or null.
+    /// </summary>
+    private static string? ContainedWord(string identifier, ImmutableArray<string> vocabulary)
+    {
+        foreach (string word in Words(identifier))
         {
-            foreach (string hardware in HardwareWords)
+            foreach (string listed in vocabulary)
             {
-                if (IsWordWithEnding(word, hardware))
-                    return hardware;
+                if (IsWordWithEnding(word, listed))
+                    return listed;
             }
         }
-        foreach (ImmutableArray<string> phrase in HardwarePhrases)
+        return null;
+    }
+
+    /// <summary>
+    /// The phrase of <paramref name="phrases"/> that <paramref name="identifier"/> contains as consecutive whole camel-case
+    /// words, ignoring case and allowing the <see cref="Endings"/> on its last word, joined, or null.
+    /// </summary>
+    private static string? ContainedPhrase(string identifier, ImmutableArray<ImmutableArray<string>> phrases)
+    {
+        string[] words = Words(identifier).ToArray();
+        foreach (ImmutableArray<string> phrase in phrases)
         {
             for (int start = 0; start + phrase.Length <= words.Length; start++)
             {

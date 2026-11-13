@@ -23,9 +23,9 @@ internal static class RoomSetupCodeCatalogVerification
     /// </summary>
     internal static void VerifyRoomSetupCodeCatalog()
     {
-        ushort[] catalog = Enum.GetValues<RoomSetupCallback>()
-            .Where(callback => callback != RoomSetupCallback.None)
-            .Select(callback => RoomCallbackDefinitions.PointerOf(callback))
+        ushort[] catalog = Enum.GetValues<RoomSetupBehavior>()
+            .Where(callback => callback != RoomSetupBehavior.None)
+            .Select(callback => RoomBehaviorDefinitions.PointerOf(callback))
             .ToArray();
         AssertEqual(catalog.Length, catalog.Distinct().Count(),
             "room-setup callback catalog has no aliases");
@@ -56,8 +56,8 @@ internal static class RoomSetupCodeCatalogVerification
                 RoomStateSettings state = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer, context).State;
                 if (!statePointers.Add(state.Pointer))
                     continue;
-                if (state.SetupCallback != RoomSetupCallback.None)
-                    retailSetupPointers.Add(RoomCallbackDefinitions.PointerOf(state.SetupCallback));
+                if (state.SetupBehavior != RoomSetupBehavior.None)
+                    retailSetupPointers.Add(RoomBehaviorDefinitions.PointerOf(state.SetupBehavior));
             }
         }
 
@@ -71,11 +71,11 @@ internal static class RoomSetupCodeCatalogVerification
             AssertTrue(retailSetupPointers.Contains(pointer),
                 $"catalogued room-setup callback $8F:{pointer:X4} occurs in a retail state");
         }
-        AssertTrue(RoomCallbackDefinitions.CeresHazeSetups.Contains(
-                RoomSetupCallback.TurnCeresDoorToSolidBlocksAndSpawnHaze),
+        AssertTrue(RoomBehaviorDefinitions.CeresHazeSetups.Contains(
+                RoomSetupBehavior.TurnCeresDoorToSolidBlocksAndSpawnHaze),
             "Ceres solid-door setup declares haze side effect");
-        AssertTrue(!RoomCallbackDefinitions.CeresHazeSetups.Contains(
-                RoomSetupCallback.SetMediumHorizontalRoomShaking),
+        AssertTrue(!RoomBehaviorDefinitions.CeresHazeSetups.Contains(
+                RoomSetupBehavior.SetMediumHorizontalRoomShaking),
             "unrelated setup does not acquire Ceres haze");
 
         Console.WriteLine(

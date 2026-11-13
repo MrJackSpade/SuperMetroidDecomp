@@ -43,31 +43,29 @@ internal sealed class MotherBrainEncounter
         "Mother Brain's colours are laid while her encounter is loaded.")).Colours;
 
     /// <summary>
-    /// Requests a sound of the body's fight, fake death and tube collapse, or of the Baby Metroid's cries in the
-    /// cutscene, at the end of the enemy update. A later sound from this source in the same update replaces it: the
-    /// update-end rule of <see cref="EnemyAudioQueue.RequestSoundAtUpdateEnd"/>.
+    /// Queues a sound of the body's fight, fake death and tube collapse, or of the Baby Metroid's cries in the cutscene,
+    /// as it is made, after the update's earlier requests.
     /// </summary>
     internal void RequestBodySound(SoundEffectId sound) =>
-        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.MotherBrainBody, sound, SoundRequestPriority.Normal);
+        _audio.QueueEnemySound(sound, SoundRequestPriority.Normal);
 
-    /// <summary>Requests the rainbow beam's drain sound starting or stopping, at the end of the enemy update.</summary>
+    /// <summary>Queues the rainbow beam's drain sound starting or stopping.</summary>
     internal void RequestRainbowBeamSound(SoundEffectId sound) =>
-        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.MotherBrainRainbowBeam, sound, SoundRequestPriority.Normal);
+        _audio.QueueEnemySound(sound, SoundRequestPriority.Normal);
 
     /// <summary>
-    /// Requests a sound a Mother Brain program cue or explosion makes, at the end of the enemy update. Mother Brain's
-    /// explosion competes at low priority; every other cue sound at normal priority.
+    /// Queues a sound a Mother Brain program cue or explosion makes. Mother Brain's explosion competes at low priority;
+    /// every other cue sound at normal priority.
     /// </summary>
     internal void RequestCueSound(SoundEffectId sound) =>
-        _audio.RequestSoundAtUpdateEnd(
-            EnemySoundSource.MotherBrainCue,
+        _audio.QueueEnemySound(
             sound,
             sound == MotherBrainSoundDefinitions.Explosion ? SoundRequestPriority.Low : SoundRequestPriority.Normal);
 
     /// <summary>
-    /// Requests one music change at the end of the enemy update. Mother Brain's changes come in sequences (stop, load a
-    /// data set, select a track), so every request in an update is kept in order.
+    /// Queues one music change. Mother Brain's changes come in sequences (stop, load a data set, select a track), each
+    /// queued after the one before it.
     /// </summary>
     internal void RequestMusic(MusicRequest request, MusicQueueDelay delay) =>
-        _audio.AppendMusicAtUpdateEnd(EnemyMusicSource.MotherBrain, new DelayedMusicRequest(request, delay));
+        _audio.QueueEnemyMusic(new DelayedMusicRequest(request, delay));
 }

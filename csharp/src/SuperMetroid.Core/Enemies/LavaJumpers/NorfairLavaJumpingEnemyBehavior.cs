@@ -20,7 +20,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
     /// <summary>The parent each follower found when it was placed, which its room lists right before it.</summary>
     private readonly EnemyPartLinks<RoomEnemySlot> _parents = new();
 
-    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Binds lava-jumper behavior to room RNG and physical enemy slots.</summary>
@@ -87,7 +87,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
                 state.YVelocity = NorfairLavaJumps.InitialVerticalVelocity(random);
                 state.Function = NorfairLavaJumpingEnemyFunction.RiseBeforeAnimationSwitch;
                 slot.Processing = slot.Processing.With(EnemyProcessing.OffScreen);
-                _audio.RequestSoundAtUpdateEnd(EnemySoundSource.NorfairLavaJumpingEnemy, EnemySoundEffectDefinitions.NorfairLavaJumpingEnemyJumpSound, priority: SoundRequestPriority.Normal);
+                _audio.QueueEnemySound(EnemySoundEffectDefinitions.NorfairLavaJumpingEnemyJumpSound, priority: SoundRequestPriority.Normal);
                 return;
 
             case NorfairLavaJumpingEnemyFunction.RiseBeforeAnimationSwitch:
@@ -218,7 +218,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
             state.Playback = new(NorfairLavaJumperAnimations.StartingWith(installed), AnimationPlace.StartOfAnimation);
         });
 
-    /// <summary>Ports NorfairLavaJumpingEnemy's main AI.</summary>
+    /// <summary>Runs the Norfair lava-jumping enemy's main AI.</summary>
     internal void RunNorfairLavaJumpingEnemyMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
     {
         RunNorfairLavaJumpingEnemyMain(
@@ -226,7 +226,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
             slot.RequireSpeciesState<NorfairLavaJumpingEnemyState>());
     }
 
-    /// <summary>Advances NorfairLavaJumpingEnemy's typed animation.</summary>
+    /// <summary>Advances the Norfair lava-jumping enemy's typed animation.</summary>
     internal static void AdvanceNorfairLavaJumpingEnemyTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
         EnemyProgramAnimation.Advance(slot, NorfairLavaJumperAnimations.Segments, NorfairLavaJumperFrameDefinitions.ShownFrames.Of,
             static (NorfairLavaJumpingEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,

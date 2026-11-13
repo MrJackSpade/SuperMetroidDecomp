@@ -72,7 +72,7 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
             state.ThrowOrigin = slot.Position.Whole;
             Install(slot, state, program);
             RunFrames(enemies, slot, 80);
-            AssertEqual(EnemySound.FireSpit, (enemies.Audio.PublishedSoundFrom(EnemySoundSource.Magdollite) ?? throw new InvalidOperationException("Verification requires a pending Magdollite sound.")),
+            AssertEqual(EnemySound.FireSpit, (enemies.Audio.LatestSound ?? throw new InvalidOperationException("Verification requires a pending Magdollite sound.")),
                 $"Magdollite {direction} throw sound");
             AssertEqual(3,
                 enemies.Projectiles.EnemyProjectiles.Count(projectile =>

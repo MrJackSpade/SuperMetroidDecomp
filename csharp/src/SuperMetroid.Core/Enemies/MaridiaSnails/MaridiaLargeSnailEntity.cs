@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 
-/// <summary>One MaridiaLargeSnail occupant: its own AI handlers, with the shared reactions.</summary>
-/// <param name="species">The MaridiaLargeSnail species owner.</param>
+/// <summary>One Maridia large snail occupant: its own AI handlers, with the shared reactions.</summary>
+/// <param name="species">The Maridia large snail species owner.</param>
 /// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class MaridiaLargeSnailEntity(MaridiaLargeSnailBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)

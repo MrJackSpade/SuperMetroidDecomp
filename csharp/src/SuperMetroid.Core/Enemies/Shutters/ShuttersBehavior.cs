@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 /// <summary>The Shutters species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
 {
-    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Builds the species owner on the room's enemy audio queue.</summary>
@@ -594,7 +594,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         Position16<RoomPixels> camera)
     {
         if (IsShutterCenterOnScreen(slot, camera))
-            _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Shutters, ShutterActivationSound, priority: SoundRequestPriority.Normal);
+            _audio.QueueEnemySound(ShutterActivationSound, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>Lets bombs trigger shootable vertical shutters without ordinary damage AI.</summary>

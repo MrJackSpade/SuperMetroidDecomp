@@ -64,16 +64,13 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Camera used by the offscreen acceleration and wall sequence.</summary>
     private Position16<RoomPixels> _shitroidCamera;
 
-    /// <summary>
-    /// Requests one of the Baby Metroid's cries at the end of the enemy update. A later cry in the same update replaces
-    /// it: the update-end rule of <see cref="EnemyAudioQueue.RequestSoundAtUpdateEnd"/>.
-    /// </summary>
+    /// <summary>Queues one of the Baby Metroid's cries as it cries, after the update's earlier requests.</summary>
     private void RequestShitroidSound(SoundEffectId sound) =>
-        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Shitroid, sound, SoundRequestPriority.Normal);
+        _audio.QueueEnemySound(sound, SoundRequestPriority.Normal);
 
-    /// <summary>Requests the Baby Metroid's music change at the end of the enemy update.</summary>
+    /// <summary>Queues the Baby Metroid's music change as it makes it.</summary>
     private void RequestShitroidMusic(MusicRequest request) =>
-        _audio.RequestMusicAtUpdateEnd(EnemyMusicSource.Shitroid, new DelayedMusicRequest(request, MusicQueueDelay.Shortest));
+        _audio.QueueEnemyMusic(new DelayedMusicRequest(request, MusicQueueDelay.Shortest));
 
     /// <summary>Sets the Shitroid up when the room spawns it.</summary>
     internal void InitializeShitroid(RoomEnemySlot slot, int cameraX)

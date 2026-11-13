@@ -53,12 +53,12 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             case MetroidCueKind.PlayDrainingSound:
                 // The attached loop emits the Metroid's animation sound.
-                _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Metroid, EnemySoundEffectDefinitions.MetroidAnimationSoundEffect, priority: SoundRequestPriority.Normal);
+                _audio.QueueEnemySound(EnemySoundEffectDefinitions.MetroidAnimationSoundEffect, priority: SoundRequestPriority.Normal);
                 break;
             case MetroidCueKind.PlayRandomCry:
                 // The shared random sequence advances exactly once and the result's remainder by eight chooses one of the eight
                 // authored idle cries.
-                _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Metroid, MetroidReactions.RandomCrySoundEffect(_room.Random.Generate()), priority: SoundRequestPriority.Normal);
+                _audio.QueueEnemySound(MetroidReactions.RandomCrySoundEffect(_room.Random.Generate()), priority: SoundRequestPriority.Normal);
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(MetroidCueKind)} {cue.Kind}.");
@@ -359,7 +359,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             state.IceDamageToFreeze -= collisionProjectileDamage;
         }
 
-        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Metroid, EnemySoundEffectDefinitions.MetroidRecoilSoundEffect, priority: SoundRequestPriority.Normal);
+        _audio.QueueEnemySound(EnemySoundEffectDefinitions.MetroidRecoilSoundEffect, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>Releases an attached Metroid into its four-frame escape and clears Samus's drain palette flag.</summary>
@@ -388,7 +388,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Spawns the Metroid's death drops around the origin
-    /// recorded before <c>EnemyDeath</c> cleared the slot.
+    /// recorded before its death cleared the slot.
     /// </summary>
     internal void RequestMetroidDrops(Position16<RoomPixels> origin)
     {
@@ -528,7 +528,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
             if (enemy.Health == 0)
             {
-                // The death records the drop origin, EnemyDeath spawns the explosion, and only then
+                // The death records the drop origin, the enemy's death spawns the explosion, and only then
                 // the five drops spawn.
                 Position16<RoomPixels> dropOrigin = enemy.Position.Whole;
                 FinishMetroidDeath(enemy, c.Samus);

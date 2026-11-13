@@ -22,7 +22,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     /// <summary>Runs common damaging touch behavior for selected shell hitboxes.</summary>
     private readonly EnemyCollision _collision;
 
-    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Binds terrain and contact owners for Oum's bounce and push behavior.</summary>
@@ -448,7 +448,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         switch (cue.Kind)
         {
             case MaridiaLargeSnailCueKind.PlaySplash:
-                _audio.RequestSoundAtUpdateEnd(EnemySoundSource.MaridiaLargeSnail, MaridiaLargeSnailSplashSound, priority: SoundRequestPriority.Normal);
+                _audio.QueueEnemySound(MaridiaLargeSnailSplashSound, priority: SoundRequestPriority.Normal);
                 break;
             case MaridiaLargeSnailCueKind.FinishAttack:
                 state.AttackAnimationFinished = true;
@@ -507,7 +507,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     /// AI for damaging, freezing, and zero-damage vulnerability results alike.
     /// </summary>
     private void ResolveMaridiaLargeSnailShotAfterCommon() =>
-        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.MaridiaLargeSnail, MaridiaLargeSnailShotSound, priority: SoundRequestPriority.Normal);
+        _audio.QueueEnemySound(MaridiaLargeSnailShotSound, priority: SoundRequestPriority.Normal);
 
     /// <summary>Publishes Oum's shot sound after common bomb damage.</summary>
     internal void AddMaridiaLargeSnailBombReactions(EnemySharedReactions table)
@@ -519,7 +519,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         });
     }
 
-    /// <summary>Ports MaridiaLargeSnail's main AI.</summary>
+    /// <summary>Runs the Maridia large snail's main AI.</summary>
     internal void RunMaridiaLargeSnailMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunMaridiaLargeSnailMain(
@@ -530,7 +530,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             frame.ControllerInput);
     }
 
-    /// <summary>Advances MaridiaLargeSnail's typed animation.</summary>
+    /// <summary>Advances the Maridia large snail's typed animation.</summary>
     internal void AdvanceMaridiaLargeSnailTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
         EnemyProgramAnimation.Advance(slot, MaridiaLargeSnailAnimations.Segments, MaridiaLargeSnailFrameDefinitions.ShownFrames.Of,
             static (MaridiaLargeSnailEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,

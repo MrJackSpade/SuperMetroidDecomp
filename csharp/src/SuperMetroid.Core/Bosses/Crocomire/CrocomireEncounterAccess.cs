@@ -35,16 +35,13 @@ internal sealed class CrocomireEncounterAccess
     /// <summary>Typed extended state used by Crocomire's bridge/melting/skeleton graph.</summary>
     public CrocomireDeathState? CrocomireDeath { get; internal set; }
 
-    /// <summary>
-    /// Requests one of Crocomire's sounds at the end of the enemy update. A later Crocomire sound in the same update
-    /// replaces it: the update-end rule of <see cref="EnemyAudioQueue.RequestSoundAtUpdateEnd"/>.
-    /// </summary>
+    /// <summary>Queues one of Crocomire's sounds as Crocomire makes it, after the update's earlier requests.</summary>
     internal void RequestCrocomireSound(SoundEffectId sound) =>
-        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Crocomire, sound, SoundRequestPriority.Normal);
+        _audio.QueueEnemySound(sound, SoundRequestPriority.Normal);
 
-    /// <summary>Requests Crocomire's music change at the end of the enemy update, replacing an earlier one from the same update.</summary>
+    /// <summary>Queues Crocomire's music change as Crocomire makes it, after the update's earlier music requests.</summary>
     internal void RequestCrocomireMusic(MusicRequest request, MusicQueueDelay delay) =>
-        _audio.RequestMusicAtUpdateEnd(EnemyMusicSource.Crocomire, new DelayedMusicRequest(request, delay));
+        _audio.QueueEnemyMusic(new DelayedMusicRequest(request, delay));
 
     /// <summary>Starts <paramref name="program"/> on the body from its first step on the next update, as a list install does.</summary>
     internal static void StartCrocomireBodyProgram(CrocomireEnemyState state, CrocomireBodyProgram program)

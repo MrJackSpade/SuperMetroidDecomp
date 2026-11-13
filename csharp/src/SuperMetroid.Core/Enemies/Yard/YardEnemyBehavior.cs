@@ -32,7 +32,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Applies the common touch and vulnerability paths after Yard-specific reactions.</summary>
     private readonly EnemyCollision _collision;
 
-    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Binds Yard's room, terrain, quake, and collision owners for its registered AI callbacks.</summary>
@@ -415,7 +415,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
                 // whole pixel away from a conventional negation when the fraction is 0.
                 state.AirborneVelocity = state.AirborneVelocity.WithX(NegatePartsSeparately(state.AirborneVelocity.X));
                 state.BouncedHorizontally = true;
-                _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Yard, YardBounceSound, priority: SoundRequestPriority.Low);
+                _audio.QueueEnemySound(YardBounceSound, priority: SoundRequestPriority.Low);
             }
             else
             {
@@ -597,7 +597,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         if (kickRequested)
         {
             KickYardIntoAir(slot, state, samus);
-            _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Yard, YardBounceSound, priority: SoundRequestPriority.Low);
+            _audio.QueueEnemySound(YardBounceSound, priority: SoundRequestPriority.Low);
             return;
         }
 
@@ -641,7 +641,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (state.Behavior is not (YardBehavior.Dropped or YardBehavior.Kicked))
             ShootYardIntoAir(slot, state, samus);
-        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Yard, YardBounceSound, priority: SoundRequestPriority.Low);
+        _audio.QueueEnemySound(YardBounceSound, priority: SoundRequestPriority.Low);
     }
 
     /// <summary>Ports Yard's main AI.</summary>

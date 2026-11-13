@@ -29,7 +29,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Draws the corpse's sand heap from its installed frame.</summary>
     private readonly EnemyPresentation _presentation;
 
-    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Binds corpse rotting to room memory, frame timing, projectiles, and presentation.</summary>
@@ -207,7 +207,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             MiscDustAnimation.CorpseDustCloud);
         state.DustSpawnCount++;
         if (CorpseCadenceDefinitions.DustSoundEveryEighthEnemyPass.IsDue(_frameContext.RandomEnemyCounter))
-            _audio.RequestSoundAtUpdateEnd(EnemySoundSource.DeadTorizo, EnemySound.LiquidDamage, priority: SoundRequestPriority.Normal);
+            _audio.QueueEnemySound(EnemySound.LiquidDamage, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>

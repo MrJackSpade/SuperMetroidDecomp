@@ -117,8 +117,8 @@ internal static class CrocomireAnimationsVerification
             AssertEqual(native.Timer, state.Body.FrameHold.RawValue, $"{at}: timer");
             AssertEqual(native.Spritemap, state.Body.SpritemapPointer, $"{at}: frame");
             AssertEqual(native.NewFrame, state.Body.NewInstructionFrame, $"{at}: new-frame flag");
-            AssertEqual(callbacks.Select(BodySound).LastOrDefault(sound => sound is not null), enemies.Audio.PublishedSoundFrom(EnemySoundSource.Crocomire),
-                $"{at}: sound");
+            AssertEqual(EnemyAudioQueueAccess.SoundList(callbacks.Select(BodySound).OfType<SoundEffectId>()), enemies.Audio.QueuedSoundList,
+                $"{at}: every sound the native list queues, in its order");
             AssertEqual(HasReached(native, CrocomireBodyProgram.SkeletonStable), state.BodyResidentProgram >= CrocomireBodyProgram.SkeletonStable,
                 $"{at}: the stable-skeleton test reads the native cursor");
         }

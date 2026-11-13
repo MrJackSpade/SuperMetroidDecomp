@@ -250,9 +250,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Resolves the private tail of a shot on a Zebetite.</summary>
     private void ResolveZebetiteShotAfterCommon(RoomEnemySlot struck)
     {
-        // Every Zebetite shares one source: a second hit in the same update replaces the first hit's request
-        // (the update-end rule of EnemyAudioQueue.RequestSoundAtUpdateEnd).
-        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Zebetite, ZebetiteShotSound, SoundRequestPriority.Normal);
+        _audio.QueueEnemySound(ZebetiteShotSound, SoundRequestPriority.Normal);
         RoomEnemySlot linked = ZebetiteShotShare.Recipient(_slotTable.Slots, struck.RequireSpeciesState<ZebetiteEnemyState>().LinkedHalf);
         linked.Health = struck.Health;
         linked.FlashTimer = struck.FlashTimer;

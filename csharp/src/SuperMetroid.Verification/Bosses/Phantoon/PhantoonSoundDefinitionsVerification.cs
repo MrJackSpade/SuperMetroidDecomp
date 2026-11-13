@@ -44,7 +44,7 @@ internal static class PhantoonSoundDefinitionsVerification
             int index = call % 3;
             process(body, PhantoonPartCue.PlayMaterializationSound);
             AssertEqual(PhantoonSounds.MaterializationSound(index),
-                (enemies.Audio.PublishedSoundFrom(EnemySoundSource.PhantoonMaterialization) ?? throw new InvalidOperationException("Verification requires a Phantoon materialization sound request.")),
+                (enemies.Audio.LatestSound ?? throw new InvalidOperationException("Verification requires a Phantoon materialization sound request.")),
                 $"Phantoon materialization callback {call} sound");
             AssertEqual((index + 1) % 3, state.MaterializationSoundIndex,
                 $"Phantoon materialization callback {call} next index");

@@ -250,7 +250,8 @@ internal static class BotwoonAnimationsVerification
             AssertEqual(native.Radius, head.Radius, $"{at}: radius");
             AssertEqual(native.NewFrame, head.NewInstructionFrame, $"{at}: new-frame flag");
             AssertEqual(native.SpitFrame, state.SpitFrameReached, $"{at}: spit frame");
-            AssertEqual(nativeSound ? BotwoonSoundDefinitions.Spit : null, enemies.Audio.PublishedSoundFrom(EnemySoundSource.Botwoon), $"{at}: spit sound");
+            AssertEqual(EnemyAudioQueueAccess.SoundList(nativeSound ? [BotwoonSoundDefinitions.Spit] : []), enemies.Audio.QueuedSoundList,
+                $"{at}: the spit sound is the update's only sound when the native list queues it");
         }
     }
 

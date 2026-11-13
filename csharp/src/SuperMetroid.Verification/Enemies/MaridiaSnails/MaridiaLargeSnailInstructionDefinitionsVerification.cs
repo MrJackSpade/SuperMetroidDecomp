@@ -57,7 +57,7 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
             EnemyInstructionRunner.ShownFrames(slot, 1);
             AssertTrue(state.AttackAnimationFinished, $"Oum {attack} marks the attack finished");
             AssertEqual<SoundEffectId?>(MaridiaLargeSnailNativeValues.SplashSound,
-                enemies.Audio.PublishedSoundFrom(EnemySoundSource.MaridiaLargeSnail), $"Oum {attack} plays the library-two splash");
+                enemies.Audio.LatestSound, $"Oum {attack} plays the library-two splash");
         }
 
         foreach ((MaridiaLargeSnailProgram roll, int windowPose) in new[]

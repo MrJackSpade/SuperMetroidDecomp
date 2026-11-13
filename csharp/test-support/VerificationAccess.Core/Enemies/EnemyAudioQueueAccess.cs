@@ -1,21 +1,18 @@
 namespace SuperMetroid.Core.Enemies;
 
-/// <summary>Verification reads of <see cref="EnemyAudioQueue"/>'s end-of-update requests through its production operations.</summary>
+/// <summary>Verification reads of the sounds <see cref="EnemyAudioQueue"/> has queued, through its public request list.</summary>
 internal static class EnemyAudioQueueAccess
 {
-    /// <summary>Reads the end-of-update requests a check's enemy pass has made so far.</summary>
+    /// <summary>Reads the sounds a check's enemies have queued since the update's audio began.</summary>
     extension(EnemyAudioQueue self)
     {
-        /// <summary>
-        /// The sound <paramref name="source"/> has pending for the end of this update, or null when it has none. The read
-        /// publishes the source, as the end of the enemy pass does, so the request also joins
-        /// <see cref="EnemyAudioQueue.SoundRequests"/>.
-        /// </summary>
-        internal SoundEffectId? PublishedSoundFrom(EnemySoundSource source)
-        {
-            int before = self.SoundRequests.Count;
-            self.PublishSoundsFrom(source);
-            return self.SoundRequests.Count > before ? self.SoundRequests[^1].SoundEffect : null;
-        }
+        /// <summary>The latest sound the enemies have queued since the update's audio began, or null when they have queued none.</summary>
+        internal SoundEffectId? LatestSound => self.SoundRequests.Count > 0 ? self.SoundRequests[^1].SoundEffect : null;
+
+        /// <summary>The sounds the enemies have queued since the update's audio began, in request order, as one comparable text.</summary>
+        internal string QueuedSoundList => SoundList(self.SoundRequests.Select(request => request.SoundEffect));
     }
+
+    /// <summary>Writes <paramref name="sounds"/> in order as one comparable text, for an expected sequence beside <c>QueuedSoundList</c>.</summary>
+    internal static string SoundList(IEnumerable<SoundEffectId> sounds) => "[" + string.Join(", ", sounds) + "]";
 }

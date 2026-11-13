@@ -220,7 +220,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
                 $"ninja Pirate dive program {program} function");
             AssertEqual(SuperMetroid.Core.Enemies.SpacePirates.Artwork.NinjaSpacePirateShades.GoldWallFlash, slot.Shading,
                 $"ninja Pirate dive program {program} gold wall look");
-            AssertEqual(NinjaSpacePirateSoundDefinitions.Attack, (enemies.Audio.PublishedSoundFrom(EnemySoundSource.SpacePirate) ?? throw new InvalidOperationException("Verification requires a pending space pirate sound.")),
+            AssertEqual(NinjaSpacePirateSoundDefinitions.Attack, (enemies.Audio.LatestSound ?? throw new InvalidOperationException("Verification requires a pending space pirate sound.")),
                 $"ninja Pirate dive program {program} sound");
         }
 

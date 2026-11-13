@@ -23,16 +23,13 @@ internal sealed class KraidEncounterAccess
         _parts = parts;
     }
 
-    /// <summary>
-    /// Requests one of Kraid's sounds at the end of the enemy update. A later Kraid sound in the same update replaces
-    /// it: the update-end rule of <see cref="EnemyAudioQueue.RequestSoundAtUpdateEnd"/>.
-    /// </summary>
+    /// <summary>Queues one of Kraid's sounds as Kraid makes it, after the update's earlier requests.</summary>
     internal void RequestKraidSound(SoundEffectId sound) =>
-        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Kraid, sound, SoundRequestPriority.Normal);
+        _audio.QueueEnemySound(sound, SoundRequestPriority.Normal);
 
-    /// <summary>Requests Kraid's music change at the end of the enemy update.</summary>
+    /// <summary>Queues Kraid's music change as Kraid makes it.</summary>
     internal void RequestKraidMusic(MusicRequest request) =>
-        _audio.RequestMusicAtUpdateEnd(EnemyMusicSource.Kraid, new DelayedMusicRequest(request, MusicQueueDelay.Shortest));
+        _audio.QueueEnemyMusic(new DelayedMusicRequest(request, MusicQueueDelay.Shortest));
 
     /// <summary>
     /// Marks a Kraid part dead: it stops being solid, ignores Samus, stops its animation and off-screen processing,

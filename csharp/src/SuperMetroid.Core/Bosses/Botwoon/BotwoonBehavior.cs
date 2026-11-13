@@ -729,7 +729,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
             _room.Services.Bosses.SetDefeated(BossBits.AreaMiniBoss);
             // The death sequence invokes the shortest-delay request for the elevator song only after the complete 192-frame
             // wall-explosion phase, not when health first reaches zero.
-            _audio.RequestMusicAtUpdateEnd(EnemyMusicSource.Botwoon, new DelayedMusicRequest(
+            _audio.QueueEnemyMusic(new DelayedMusicRequest(
                 MusicRequest.SelectTrack(MusicTrack.Elevator),
                 MusicQueueDelay.Shortest));
             return;
@@ -1052,10 +1052,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>
-    /// Requests one of Botwoon's sounds at the end of the enemy update. A later Botwoon sound in the same update
-    /// replaces it: the update-end rule of <see cref="EnemyAudioQueue.RequestSoundAtUpdateEnd"/>.
-    /// </summary>
+    /// <summary>Queues one of Botwoon's sounds as Botwoon makes it, after the update's earlier requests.</summary>
     private void RequestBotwoonSound(SoundEffectId sound) =>
-        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Botwoon, sound, SoundRequestPriority.Normal);
+        _audio.QueueEnemySound(sound, SoundRequestPriority.Normal);
 }

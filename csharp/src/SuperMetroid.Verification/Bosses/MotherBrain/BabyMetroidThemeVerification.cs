@@ -22,13 +22,11 @@ internal static class BabyMetroidThemeVerification
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
         Action<BabyMetroidCutsceneStepResult> apply = enemies.BabyMetroidCutsceneBehavior.ApplyBabyMetroidFrameEffects;
         var begin = new Action(enemies.BeginEnemySoundRequestFrame);
-        var collect = new Action(enemies.PublishEnemyAudioRequests);
         for (int frame = 0; frame <= 73; frame++)
         {
             begin();
             var step = baby.Step(samus, sequence, HeadOf(sequence));
             apply(step);
-            collect();
             // #1410: the requests are asserted by kind and identity instead of by their queue words ($0000, $FF48, $0005).
             MusicRequest[] expected = frame switch
             {

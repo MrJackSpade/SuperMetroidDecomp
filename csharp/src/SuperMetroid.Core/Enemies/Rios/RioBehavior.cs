@@ -22,7 +22,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Resolves Rio's horizontal and vertical flight against current room terrain.</summary>
     private readonly EnemyTerrain _terrain;
 
-    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Binds Rio AI to shared room RNG and enemy terrain collision.</summary>
@@ -94,7 +94,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 // The game's on-screen check returns zero for an on-screen origin. The
                 // branch consequently queues the cry only for the visible attack start.
                 if (!EnemyProcessingWindow.EnemyWithNormalSpritesIsOffScreen(slot, camera))
-                    _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Rio, EnemySoundEffectDefinitions.RioDiveSound, priority: SoundRequestPriority.Normal);
+                    _audio.QueueEnemySound(EnemySoundEffectDefinitions.RioDiveSound, priority: SoundRequestPriority.Normal);
                 return;
 
             case RioEnemyFunction.WaitingForLandingAnimation:

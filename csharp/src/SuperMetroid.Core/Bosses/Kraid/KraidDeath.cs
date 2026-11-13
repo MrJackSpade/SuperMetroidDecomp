@@ -219,7 +219,7 @@ internal sealed class KraidDeath
         state.BodyState.Function = KraidAiFunction.DeathFadeOut;
         state.HeadPlayback = KraidHeadAnimations.DeathAfterEntryFrame;
         state.BodyState.HeadTimer = KraidHeadAnimations.DeathEntryDuration;
-        // The death clears the fingernails' respawn bit, then runs EnemyDeath for the
+        // The death clears the fingernails' respawn bit, then kills the
         // nails, then the three lints. The death runs without choosing an explosion, so each
         // part leaves the first death explosion.
         foreach (RoomEnemySlot nail in _parts.Nails)

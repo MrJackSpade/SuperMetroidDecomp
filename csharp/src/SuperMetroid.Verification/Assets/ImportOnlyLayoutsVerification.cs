@@ -107,6 +107,7 @@ internal static class ImportOnlyLayoutsVerification
         yield return (GameInstallationLayout.StandardObjectDirectoryName, "standard-object-artwork.json");
         // The overread manifests named the format and the cartridge only; each document names its own format.
         yield return (GameInstallationLayout.BossAndIntroOverreadDirectoryName, "boss-intro-overreads-manifest.json");
+        yield return (GameInstallationLayout.EnemyOverreadDirectoryName, "enemy-overreads-manifest.json");
     }
 
     /// <summary>

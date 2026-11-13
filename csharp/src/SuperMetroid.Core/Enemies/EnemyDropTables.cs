@@ -5,7 +5,7 @@ internal static class EnemyDropTables
 {
     /// <summary>
     /// The drop the roll weighs at position <paramref name="column"/>.
-    /// The accumulator order and probability arithmetic remain in the caller.
+    /// The running-sum order and probability arithmetic remain in the caller.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="column"/> is outside the six positions.</exception>
     internal static EnemyPickupKind ForProbabilityColumn(int column) =>

@@ -13,9 +13,9 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// <remarks>
 /// The retail feature crosses three parts of the game: X-ray setup admits and installs the four X-ray
 /// poses, the X-ray pose-input and movement handlers own turning and angle-selected body art, and
-/// the cone effect widens/aims/deactivates the window beam. Keeping those words in one
+/// the cone effect widens/aims/deactivates the window beam. Keeping that state in one
 /// explicit state prevents the standing and crouching X-ray poses from silently inheriting ordinary standing or
-/// crouching input. The desktop compositor now consumes these exact angle/width words to
+/// crouching input. The desktop compositor now consumes these exact angle and width values to
 /// reproduce the moving tangent-table window; building the revealed blocks' picture remains
 /// separate presentation work and no fake hidden tiles are generated here.
 /// </remarks>
@@ -32,15 +32,15 @@ public sealed class SamusXrayState
     public bool OwnsSamusControl { get; private set; }
 
     /// <summary>
-    /// True when Reserve recovery cleared the shared freeze word underneath X-Ray's
+    /// True when Reserve recovery cleared the shared freeze flag underneath X-Ray's
     /// still-live phase-five cone effect. The effect deliberately cannot clean itself up.
     /// </summary>
     public bool IsReserveMode => IsActive && !OwnsSamusControl && !TimeIsFrozen;
 
     /// <summary>
-    /// The four independent enable words disabled by X-Ray setup. Unlike shared
+    /// The four independent subsystems X-Ray setup disables. Unlike shared
     /// time freeze, automatic Reserve completion and a room transition do not restore
-    /// these words; that mismatch is the game's direct/indirect G-Mode state.
+    /// these subsystems; that mismatch is the game's direct/indirect G-Mode state.
     /// </summary>
     public XraySuspendedSubsystems SuspendedSubsystems { get; internal set; }
 
@@ -119,7 +119,7 @@ public sealed class SamusXrayState
     /// <summary>
     /// Runs the admission tests and pose selection of the X-ray setup.
     /// The caller represents the already selected/equipped HUD item; item ownership is
-    /// checked by the HUD selector one layer above this routine.
+    /// checked by the HUD selector one layer above this.
     /// </summary>
     public bool TryBegin(SamusState samus, SamusMovementType previousMovementType, XrayBeginConditions conditions, XrayActivation activation = XrayActivation.Immediate)
     {
@@ -160,8 +160,8 @@ public sealed class SamusXrayState
             : facingLeft ? SamusPoseId.XrayingStandingLeftPose : SamusPoseId.XrayingStandingRightPose;
 
         // A second X-Ray setup under direct G-Mode makes the stranded phase-five object
-        // observe a nonzero freeze word. Its phase-five cleanup immediately
-        // restores the four subsystem-enable words. Represent the two cone effects
+        // observe a nonzero freeze flag. Its phase-five cleanup immediately
+        // restores the four suspended subsystems. Represent the two cone effects
         // at their shared observable boundary instead of inventing gate-specific state.
         if (cancellingDirectGMode)
         {
@@ -199,7 +199,7 @@ public sealed class SamusXrayState
         // The cone setup runs inside the X-ray setup itself, before Samus's pose update
         // arbitrates the special command that installs X-Ray's Samus handlers. If a
         // same-frame hurt expiry wins that later arbitration, the beam effect's lifecycle,
-        // frozen-time word, and four subsystem disables still remain live: X-Mode.
+        // frozen-time flag, and four subsystem disables still remain live: X-Mode.
         Angle = facingLeft ? RotationAngle.ThreeQuarterTurn : RotationAngle.QuarterTurn;
         AngularHalfWidth = SignedSixteenSixteen.Zero;
         AngularWideningSpeed = SignedSixteenSixteen.Zero;
@@ -245,7 +245,7 @@ public sealed class SamusXrayState
 
     /// <summary>
     /// Models the Samus command that replaces the X-Ray handler pair when automatic
-    /// Reserve recovery begins. The independent cone effect and shared freeze word remain.
+    /// Reserve recovery begins. The independent cone effect and shared freeze flag remain.
     /// </summary>
     internal void RelinquishSamusControlForReserveRecovery()
     {
@@ -254,7 +254,7 @@ public sealed class SamusXrayState
     }
 
     /// <summary>
-    /// Models the shared freeze word being set when automatic
+    /// Models the shared freeze flag being set when automatic
     /// Reserve recovery begins. A stranded phase-five X-Ray object from Reserve Mode sees
     /// this second trigger and can execute its forced-stand cleanup on the following frame.
     /// </summary>
@@ -265,7 +265,7 @@ public sealed class SamusXrayState
     }
 
     /// <summary>
-    /// Models the Reserve recovery state clearing the shared freeze word before restoring ordinary
+    /// Models the Reserve recovery state clearing the shared freeze flag before restoring ordinary
     /// Samus handlers. X-Ray phase five observes zero and therefore leaves its cone effect
     /// installed, producing Reserve Mode/greyout rather than normal X-Ray teardown.
     /// </summary>
@@ -277,7 +277,7 @@ public sealed class SamusXrayState
 
     /// <summary>
     /// Models the door-transition cleanup which removes direct G-Mode's stranded X-Ray
-    /// cone effect without restoring any of the four independent subsystem-enable words.
+    /// cone effect without restoring any of the four suspended subsystems.
     /// </summary>
     internal void TransitionDirectGModeToIndirect()
     {
@@ -457,7 +457,7 @@ public sealed class SamusXrayState
 
             case XrayBeamPhase.Finish:
                 // The phase-five cleanup performs every cleanup write only while the shared freeze
-                // word is nonzero. Automatic Reserve completion clears that word first;
+                // flag is set. Automatic Reserve completion clears that flag first;
                 // phase five then remains installed forever and produces greyout mode.
                 if (TimeIsFrozen)
                     Finish(samus);
@@ -482,7 +482,7 @@ public sealed class SamusXrayState
         if (VisorPaletteMode == XrayVisorPaletteMode.RestoreSuitPalette)
         {
             // A handler that reports the palette unhandled asks the outer dispatcher to load the
-            // complete normal suit palette, then clears every X-ray palette word.
+            // complete normal suit palette, then clears every X-ray palette value.
             SamusNormalSuitPalette.Load(colours, equippedItems);
             SpecialPaletteKind = SamusSpecialPaletteType.None;
             VisorShade = 0;

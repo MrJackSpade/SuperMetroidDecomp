@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Rios;
 
 /// <summary>
-/// The routines Rio's main AI dispatches.
+/// The behaviours Rio's main AI dispatches.
 /// Its values are arbitrary.
 /// </summary>
 public enum RioEnemyFunction

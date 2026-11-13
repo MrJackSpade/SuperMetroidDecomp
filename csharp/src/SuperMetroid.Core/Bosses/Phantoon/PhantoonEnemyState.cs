@@ -115,9 +115,9 @@ public sealed class PhantoonEnemyState
     /// </summary>
     public int MosaicBlockSize { get; internal set; } = 1;
 
-    /// <summary>Gets whether the terminal activation routine has requested the authored sixteen-pickup arena scatter.</summary>
+    /// <summary>Gets whether the final death step has requested the authored sixteen-pickup arena scatter.</summary>
     public bool ItemDropRequested { get; internal set; }
-    /// <summary>Gets whether the terminal activation routine has published the persistent area-boss defeat bit.</summary>
+    /// <summary>Gets whether the final death step has published the persistent area-boss defeat flag.</summary>
     public bool BossDefeatPersisted { get; internal set; }
     /// <summary>Gets whether the powered Wrecked Ship fade over colours zero through 111 and the final deletion/door/music handoff have completed.</summary>
     public bool WreckedShipPowerPaletteComplete { get; internal set; }

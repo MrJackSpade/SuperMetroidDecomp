@@ -463,7 +463,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
             return;
         DeadSidehopperEnemyState state = RequireDeadSidehopperState(slot);
         AnimationPlayback<DeadTourianProgram> playback = state.Playback;
-        EnemyProgramAnimation.Play(slot, DeadTourianAnimations.Segments, ref playback, DeadTourianFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Play(slot, DeadTourianAnimations.Segments, ref playback,
             cue => ApplyDeadSidehopperCue(slot, cue) is { } target
                 ? new AnimationContinuation<DeadTourianProgram>(DeadTourianAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);

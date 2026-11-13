@@ -201,8 +201,9 @@ internal static class RoomFxRetailInventoryVerification
         Suite(nameof(VerifyRetailRisingLavaFeedback), () => VerifyRetailRisingLavaFeedback(bus, doors));
         Suite(nameof(VerifyRetailFxTransitionReset), () => VerifyRetailFxTransitionReset(bus, states));
 
-        string inventoryPath = Path.GetFullPath(
-            Path.Combine("csharp", "retail-room-fx-inventory.tsv"));
+        // The inventory is the run's diagnostic output, which nothing reads back, so it is written beside the run's binaries
+        // rather than into the repository (#1680).
+        string inventoryPath = Path.Combine(AppContext.BaseDirectory, "retail-room-fx-inventory.tsv");
         File.WriteAllLines(inventoryPath, inventoryLines);
 
         Console.WriteLine(

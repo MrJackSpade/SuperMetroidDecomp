@@ -1,22 +1,23 @@
 using P = SuperMetroid.Core.Enemies.Elevator.ElevatorProgram;
 using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Elevator;
 
 /// <summary>
 /// The elevator's two-frame animation loop as a typed program (#641). Each
-/// frame shows a <see cref="ElevatorFrame"/> pose and its lists use no owner callbacks.
+/// frame shows a <see cref="EnemyFrameId"/> and its lists use no owner callbacks.
 /// </summary>
 internal static class ElevatorAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<ElevatorProgram, ElevatorFrame, NoAnimationCue> Segments { get; } = new(
-        new Dictionary<ElevatorProgram, AnimationBeat<ElevatorFrame, NoAnimationCue>[]>
+    internal static AnimationSegments<ElevatorProgram, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<ElevatorProgram, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
     {
         [P.Loop] =
         [
-            Show(0, 2),
-            Show(1, 2),
+            Show(EnemyFrameId.ElevatorPlatform0, 2),
+            Show(EnemyFrameId.ElevatorPlatform1, 2),
         ],
     });
 
@@ -29,6 +30,6 @@ internal static class ElevatorAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<ElevatorProgram> StartingWith(ElevatorProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<ElevatorFrame, NoAnimationCue> Show(int pose, int duration) => new AnimationBeat<ElevatorFrame, NoAnimationCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);
 }

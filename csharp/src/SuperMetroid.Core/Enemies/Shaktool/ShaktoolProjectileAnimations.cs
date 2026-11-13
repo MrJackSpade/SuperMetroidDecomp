@@ -6,41 +6,41 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 
 /// <summary>
 /// Shaktool's attack-circle programs (#641). Each
-/// frame shows a <see cref="ShaktoolProjectileFrame"/> pose and each command becomes a <see cref="EnemyProjectileCommonCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyProjectileFrameId"/> and each command becomes a <see cref="EnemyProjectileCommonCue"/> with its typed operands.
 /// </summary>
 internal static class ShaktoolProjectileAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<ShaktoolProjectileProgram, ShaktoolProjectileFrame, EnemyProjectileCommonCue> Segments { get; } = new(
-        new Dictionary<ShaktoolProjectileProgram, AnimationBeat<ShaktoolProjectileFrame, EnemyProjectileCommonCue>[]>
+    internal static AnimationSegments<ShaktoolProjectileProgram, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
+        new Dictionary<ShaktoolProjectileProgram, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>
     {
         [P.Front] =
         [
-            Show(0, 4),
-            Show(1, 4),
+            Show(EnemyProjectileFrameId.ShaktoolFrontFirst, 4),
+            Show(EnemyProjectileFrameId.ShaktoolFrontSecond, 4),
         ],
         [P.FrontLoop] =
         [
-            Show(2, 119),
+            Show(EnemyProjectileFrameId.ShaktoolFrontLoop, 119),
         ],
         [P.Middle] =
         [
-            Show(3, 6),
+            Show(EnemyProjectileFrameId.ShaktoolMiddleFirst, 6),
             Cue(new EnemyProjectileCommonCue.SetFrameBehavior(FrameBehavior: EnemyProjectileFrameBehavior.ShaktoolTrailingCircleFlight)),
-            Show(4, 4),
+            Show(EnemyProjectileFrameId.ShaktoolMiddleSecond, 4),
         ],
         [P.MiddleLoop] =
         [
-            Show(5, 119),
+            Show(EnemyProjectileFrameId.ShaktoolMiddleLoop, 119),
         ],
         [P.Back] =
         [
-            Show(6, 10),
+            Show(EnemyProjectileFrameId.ShaktoolBack, 10),
             Cue(new EnemyProjectileCommonCue.SetFrameBehavior(FrameBehavior: EnemyProjectileFrameBehavior.ShaktoolTrailingCircleFlight)),
         ],
         [P.BackLoop] =
         [
-            Show(7, 119),
+            Show(EnemyProjectileFrameId.ShaktoolBackLoop, 119),
         ],
     });
 
@@ -58,9 +58,9 @@ internal static class ShaktoolProjectileAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<ShaktoolProjectileProgram> StartingWith(ShaktoolProjectileProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<ShaktoolProjectileFrame, EnemyProjectileCommonCue> Show(int pose, int duration) => new AnimationBeat<ShaktoolProjectileFrame, EnemyProjectileCommonCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<ShaktoolProjectileFrame, EnemyProjectileCommonCue> Cue(EnemyProjectileCommonCue cue) => new AnimationBeat<ShaktoolProjectileFrame, EnemyProjectileCommonCue>.Event(cue);
+    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Cue(EnemyProjectileCommonCue cue) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Event(cue);
 }

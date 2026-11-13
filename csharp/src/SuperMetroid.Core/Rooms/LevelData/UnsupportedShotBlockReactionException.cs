@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Rooms.LevelData;
 
-/// <summary>A shootable block's behaviour selects a reaction the shot-block dispatcher does not translate.</summary>
+/// <summary>A shootable block's behaviour selects a reaction the shot-block dispatcher does not model.</summary>
 internal sealed class UnsupportedShotBlockReactionException : ArgumentOutOfRangeException
 {
     /// <summary>Creates the failure for the behaviour parameter <paramref name="paramName"/>.</summary>

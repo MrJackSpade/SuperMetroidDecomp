@@ -26,10 +26,11 @@ internal static class KraidColors
     /// of each.
     /// </summary>
     internal static KraidEyeColours Eyes(KraidColorCatalog colors) =>
-        new(EyeSet(colors, -1), [.. Enumerable.Range(0, KraidHealthThresholdDefinitions.EighthCount).Select(band => EyeSet(colors, band))]);
+        new(EyeSet(colors, KraidColourBand.HurtFlash),
+            [.. Enumerable.Range(0, KraidHealthThresholdDefinitions.EighthCount).Select(band => EyeSet(colors, KraidColourBand.Health(band)))]);
 
-    /// <summary>The eyes' colours of health band <paramref name="band"/>, or of the hurt flash for minus one.</summary>
-    private static RgbColor[] EyeSet(KraidColorCatalog colors, int band) =>
-        [.. Enumerable.Range(KraidPalettes.BandColors * (band + 1) + KraidPalettes.FirstEyeColour, KraidEyeGlow.Eyes)
+    /// <summary>The eyes' colours of <paramref name="band"/>: a health band's, or the hurt flash's.</summary>
+    private static RgbColor[] EyeSet(KraidColorCatalog colors, KraidColourBand band) =>
+        [.. Enumerable.Range(KraidPalettes.BandColors * band.ColourGroup + KraidPalettes.FirstEyeColour, KraidEyeGlow.Eyes)
             .Select(colour => Resolve(colors, KraidPaletteSource.Health, colour))];
 }

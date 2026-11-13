@@ -5,7 +5,7 @@ public sealed class SamusProjectileTrailSide
 {
     /// <summary>Room-pixel trail-sprite position.</summary>
     public Position16<RoomPixels> Position { get; internal set; }
-    /// <summary>Updates remaining before the current trail instruction advances; zero once the sparkle's program has ended.</summary>
+    /// <summary>Updates remaining before the current trail cue advances; zero once the sparkle's program has ended.</summary>
     public int FrameHold { get; internal set; }
     /// <summary>
     /// The side's place in its trail program: the step it runs when its timer next expires. Null before any program

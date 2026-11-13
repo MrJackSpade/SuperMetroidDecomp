@@ -1,11 +1,10 @@
 ﻿using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.Waver.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Waver;
 
-/// <summary>The Waver species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Waver species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -82,8 +81,8 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
                 slot,
                 horizontalDisplacement))
         {
-            // The wall reversal negates the overlapping velocity bytes and writes them back
-            // as two words. For every initialized Waver this is exactly a signed 16.16
+            // The wall reversal negates the velocity's whole and fraction parts and stores them back
+            // together. For every initialized Waver this is exactly a signed 16.16
             // negation; expressing that value directly preserves the game's ±1.5 px/frame.
             state.XVelocity = -horizontalDisplacement;
             // A wall turns Waver around and ends any spin.
@@ -123,7 +122,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Starts a changed facing or spin animation and restarts its instruction and loop timers.</summary>
+    /// <summary>Starts a changed facing or spin animation and restarts its frame and loop timers.</summary>
     internal static void SetWaverProgram(RoomEnemySlot slot, WaverEnemyState state)
     {
         WaverProgram requested = state.RequestedAnimation;
@@ -136,7 +135,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Timer = WrappingCountdown.Start(0);
     }
 
-    /// <summary>Ports Waver's main AI.</summary>
+    /// <summary>Runs Waver's main AI.</summary>
     internal void RunWaverMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunWaverMain(slot, slot.RequireSpeciesState<WaverEnemyState>(), frame.Level);
@@ -144,7 +143,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Waver's typed animation.</summary>
     internal static void AdvanceWaverTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, WaverAnimations.Segments, WaverFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, WaverAnimations.Segments,
             static (WaverEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

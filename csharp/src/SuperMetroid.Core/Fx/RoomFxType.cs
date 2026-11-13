@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Fx;
 
 /// <summary>
 /// The room effect a room-FX record selects. Its values are arbitrary; the import decodes the record's dispatcher
-/// byte (#1415).
+/// type (#1415).
 /// </summary>
 public enum RoomFxType
 {
@@ -12,7 +12,7 @@ public enum RoomFxType
     Lava = 1,
     /// <summary>Animated damaging acid surface sharing the liquid renderer but using acid-specific gameplay damage.</summary>
     Acid,
-    /// <summary>Animated water surface with submerged physics and optional per-scanline background displacement.</summary>
+    /// <summary>Animated water surface with submerged physics and optional per-row background displacement.</summary>
     Water,
     /// <summary>Full-screen drifting spore atmosphere driven through the room-FX effect overlay owner.</summary>
     Spores,
@@ -20,9 +20,9 @@ public enum RoomFxType
     Rain,
     /// <summary>Full-screen fog atmosphere with its dedicated additive screen arrangement.</summary>
     Fog,
-    /// <summary>Scrolling exterior-sky background driven by the active room's sky tilemap.</summary>
+    /// <summary>Scrolling exterior-sky background driven by the active room's sky picture.</summary>
     ScrollingSky,
-    /// <summary>An unused retail FX entry that targets the alternate scrolling-sky routine.</summary>
+    /// <summary>An unused retail FX entry that targets the alternate scrolling-sky behaviour.</summary>
     UnusedScrollingSky,
     /// <summary>Fireflea-room darkness and palette behavior, including enemy-driven light flashes.</summary>
     Fireflea,

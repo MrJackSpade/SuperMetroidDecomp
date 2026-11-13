@@ -59,7 +59,7 @@ internal sealed class MotherBrainBody
     }
 
     /// <summary>
-    /// Runs a falling tube's program where the enemy instruction interpreter would: its pose shows on the update the
+    /// Runs a falling tube's program where the shared enemy animation runs: its pose shows on the update the
     /// timer expires, raising the new-frame flag, and the script's sleep then keeps it.
     /// </summary>
     internal static void AdvanceMotherBrainTubeAnimation(RoomEnemySlot tube)
@@ -133,13 +133,13 @@ internal sealed class MotherBrainBody
 
         // The first-phase function always falls through to the encounter's custom rectangle walker,
         // including the frame that arms fake death. This collision is not represented by
-        // either enemy header's ordinary radius and must stay in the body dispatcher.
+        // either enemy definition's ordinary radius and must stay in the body dispatcher.
         if (samus is not null)
             ResolveMotherBrainSamusCollision(state, samus);
     }
 
     /// <summary>
-    /// Plays the body's animation, or the head slot's dummy, where the enemy instruction interpreter would: the frame
+    /// Plays the body's animation, or the head slot's dummy, where the shared enemy animation runs: the frame
     /// expires on the update its timer would, and a newly shown frame raises the new-frame flag. A held animation is the
     /// script's sleep: the timer wraps from zero and the last frame stays.
     /// </summary>
@@ -209,8 +209,8 @@ internal sealed class MotherBrainBody
     }
 
     /// <summary>
-    /// Resolves Mother Brain's contact with Samus. Mother Brain owns a bit-selected set of asymmetric
-    /// rectangles whose side extents are interpreted relative to Samus, rather than an
+    /// Resolves Mother Brain's contact with Samus. Mother Brain owns a flag-selected set of asymmetric
+    /// rectangles whose side extents are measured relative to Samus, rather than an
     /// ordinary enemy radius. Phase one enables only the brain list; later phases also
     /// admit the body and three independently positioned neck segments.
     /// </summary>
@@ -283,7 +283,7 @@ internal sealed class MotherBrainBody
             if (xOverlap < 0)
                 continue;
 
-            // Clamps shallow contact UP to four pixels. The resulting words are
+            // Clamps shallow contact UP to four pixels. The resulting displacement is
             // consumed by Samus movement later in the frame, so overwrite rather than add.
             samus.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromWholePixels(new(Math.Max(xOverlap, 4), 4));
             samus.InvincibilityTimer = WrappingCountdown.Start(96);
@@ -351,10 +351,10 @@ internal sealed class MotherBrainBody
     }
 
     /// <summary>
-    /// Literal body/background movement helper. The signed Y operand is added
+    /// Body and background movement. The signed Y operand is added
     /// to the actor and subtracted from the background, keeping the large background body art
-    /// rigidly attached to its small sprite hitbox record. X movement happens before this call
-    /// in the original game, so the derived scroll must sample the already-updated body X.
+    /// rigidly attached to its small sprite hitbox record. X movement happens before this call,
+    /// so the derived scroll must sample the already-updated body X.
     /// </summary>
     private void MoveMotherBrainBody(Offset16<RoomPixels> displacement)
     {
@@ -435,8 +435,8 @@ internal sealed class MotherBrainBody
         turret.State = new MotherBrainTurretState(parameter, MotherBrainTurretDefinitions.Ring.PositionOf(direction));
         turret.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretProgram.TurretPose, direction));
 
-        // The initializer makes two independent calls to the original game RNG for the turret's waits and clamps their low
-        // bytes upward.
+        // The initializer draws the RNG twice, once for each of the turret's waits, and clamps each wait's remainder modulo
+        // 256 upward.
         _projectileAttacks.ResetMotherBrainTurretRotationTimer(turret);
         _projectileAttacks.ResetMotherBrainTurretCooldown(turret);
     }

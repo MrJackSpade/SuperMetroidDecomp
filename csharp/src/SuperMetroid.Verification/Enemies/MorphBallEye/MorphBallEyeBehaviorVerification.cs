@@ -10,6 +10,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.MorphBallEye;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Checks the Morph Ball eye's initial animations and how its eyelid and tracking animations run.</summary>
 internal static class MorphBallEyeBehaviorVerification
@@ -57,7 +58,7 @@ internal static class MorphBallEyeBehaviorVerification
         for (int pose = 0; pose < active.Length; pose++)
         {
             tracking.Playback = new(MorphBallEyeAnimations.StartingWith(MorphBallEyeProgram.Active),
-                AnimationSegments<MorphBallEyeProgram, MorphBallEyeFrame, NoAnimationCue>.PlaceOf(
+                AnimationSegments<MorphBallEyeProgram, EnemyFrameId, NoAnimationCue>.PlaceOf(
                     MorphBallEyeAnimations.StartingWith(MorphBallEyeProgram.Active), MorphBallEyeProgram.Active, pose));
             eye.FrameHold = WrappingCountdown.Start(1);
             AssertEqual(EnemyInstructionRunner.ExpectedFrames([active[pose]], [1]), EnemyInstructionRunner.ShownFrames(eye, 1),

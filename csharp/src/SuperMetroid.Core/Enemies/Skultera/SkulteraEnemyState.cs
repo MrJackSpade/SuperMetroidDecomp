@@ -2,8 +2,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Skultera;
 
 /// <summary>
-/// The state of one Skultera (spelled <c>Skulltera</c> in the upstream symbols; the enemy header and the game's visible
-/// name use <c>Skultera</c>).
+/// The state of one Skultera.
 /// </summary>
 public sealed class SkulteraEnemyState
 {

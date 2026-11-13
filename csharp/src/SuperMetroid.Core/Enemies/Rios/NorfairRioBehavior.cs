@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.Rios.Artwork;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -7,7 +6,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Rios;
 
-/// <summary>The Norfair rio species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Norfair rio species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -91,8 +90,8 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case NorfairRioEnemyFunction.WaitForAttackOpportunity:
-                // The retail gate tests bits eight and zero of the newly-generated random
-                // word, then the strict modular X distance. Failure also consumes a pending
+                // The retail gate tests two parts of the newly generated random
+                // number, then the strict modular X distance. Failure also consumes a pending
                 // animation signal and restores the idle list without starting an attack.
                 if (samus is null ||
                     (!RioLaunchDefinitions.AttackChanceLowBit.IsSetIn(random) && !RioLaunchDefinitions.AttackChanceHighBit.IsSetIn(random)) ||
@@ -179,7 +178,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case NorfairRioEnemyFunction.FinishLanding:
                 // Function six is intentionally a one-frame state: it changes only
-                // the dispatch word. The looping idle animation remains installed, which also keeps
+                // the dispatched function. The looping idle animation remains installed, which also keeps
                 // the follower half visible while the actor waits for another random attack.
                 state.Function = NorfairRioEnemyFunction.WaitForAttackOpportunity;
                 return;
@@ -247,10 +246,8 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // The follower's spawn-data read is another deliberate alias. For an immediately
-        // following child, it reaches the parent's family-extra block: one word is the
-        // installed-list word and field_4 is its signed follower Y offset. The drawing-queue
-        // offsets in the same routine alias the parent's live X/Y position words.
+        // The follower's spawn reads the parent's own state: its installed list and its signed
+        // follower Y offset. Its drawing position follows the parent's live position.
         NorfairRioProgram followerList = parentState.FollowerOffset.Y < 0
             ? NorfairRioProgram.FlamesDescending
             : NorfairRioProgram.FlamesAscending;
@@ -333,7 +330,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances the Norfair Rio's typed animation.</summary>
     internal static void AdvanceNorfairRioTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, NorfairRioAnimations.Segments, NorfairRioFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, NorfairRioAnimations.Segments,
             static (NorfairRioEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

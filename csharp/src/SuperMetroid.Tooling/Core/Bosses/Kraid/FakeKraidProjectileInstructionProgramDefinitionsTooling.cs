@@ -1,13 +1,19 @@
-﻿using SuperMetroid.Tooling;
+using SuperMetroid.Tooling;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>Development-tool members of <see cref="FakeKraidProjectileInstructionProgramDefinitions"/>; never linked by player hosts.</summary>
-[ToolingFor(typeof(FakeKraidProjectileInstructionProgramDefinitions))]
+/// <summary>Development-tool members of <see cref="FakeKraidProjectileAnimation"/>'s programs; never linked by player hosts.</summary>
+[ToolingFor(typeof(FakeKraidProjectileAnimation))]
 internal abstract class FakeKraidProjectileInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, IDeclaredProgramBank
 {
+    /// <summary>
+    /// Each pose list's duration word, the longest frame a list gives, which the typed programs' held poses stand for (#1627):
+    /// the list sleeps on its pose after it.
+    /// </summary>
+    private const ushort HeldPoseDuration = 0x7fff;
+
     /// <summary>Bytes in one pose list: its duration, visual operand and terminal sleep.</summary>
     private const int PoseListByteCount = 6;
 
@@ -40,6 +46,6 @@ internal abstract class FakeKraidProjectileInstructionProgramDefinitionsTooling 
         ushort address = (ushort)(FakeKraidProjectileInstructionProgramToolingDefinitions.Spit + PoseListByteCount * (index / 2) + (sleep ? 4 : 0));
         return new(address, sleep
             ? (ushort)EnemyProjectileInstruction.Sleep
-            : checked((ushort)FakeKraidProjectileInstructionProgramDefinitions.PoseDuration));
+            : HeldPoseDuration);
     }
 }

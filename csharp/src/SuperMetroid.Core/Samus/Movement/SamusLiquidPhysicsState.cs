@@ -12,16 +12,16 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// The room's liquid surfaces and derived liquid state consulted by Samus's physics.
 /// </summary>
 /// <remarks>
-/// Super Metroid does not have one universal "underwater" flag. Different routines
+/// Super Metroid does not have one universal "underwater" flag. Different checks
 /// compare either Samus's top, bottom, or bottom-minus-one boundary against the live
 /// surface, and the remembered medium records the medium selected by the animation/room-load pass.
-/// Keeping each surface here lets each translated caller reproduce its own
+/// Keeping each surface here lets each caller reproduce its own
 /// comparison instead of sharing a convenient but incorrect host-side boolean.
 /// </remarks>
 public sealed class SamusLiquidPhysicsState
 {
     /// <summary>
-    /// Takes the selected room FX into Samus's liquid words. Room rendering and
+    /// Takes the selected room FX into Samus's liquid state. Room rendering and
     /// movement therefore consume one game-owned surface instead of independently
     /// configured debug values.
     /// </summary>
@@ -105,7 +105,7 @@ public sealed class SamusLiquidPhysicsState
     public RoomFxType FxType { get; set; }
 
     /// <summary>
-    /// The water surface's room Y, a line of the room, zero or more, or none when the room has no water surface; movement routines then
+    /// The water surface's room Y, a line of the room, zero or more, or none when the room has no water surface; movement behaviours then
     /// consult <see cref="LavaAcidSurfaceY"/> instead.
     /// </summary>
     public int? WaterSurfaceY
@@ -143,7 +143,7 @@ public sealed class SamusLiquidPhysicsState
     internal void BindAudioRequests(GameplayAudioRequests requests) => AudioRequests = Ensure.NotNull(requests);
 
     /// <summary>
-    /// Queues a sound selected by a movement routine now, beside those of liquid entry, footsteps and landing impact.
+    /// Queues a sound selected by a movement behaviour now, beside those of liquid entry, footsteps and landing impact.
     /// </summary>
     /// <remarks>
     /// This is intentionally not a general audio backend. movement owns a handful
@@ -219,7 +219,7 @@ public sealed class SamusLiquidPhysicsState
     }
 
     /// <summary>
-    /// Selects air/water/lava physics for routines that test Samus's bottom boundary and
+    /// Selects air/water/lava physics for steps that test Samus's bottom boundary and
     /// bypass all liquid behavior when the Gravity Suit is equipped.
     /// </summary>
     public SamusLiquidMedium DetermineMovementMedium(SamusState samus)
@@ -234,7 +234,7 @@ public sealed class SamusLiquidPhysicsState
     }
 
     /// <summary>
-    /// True when the spin routine's top-boundary test finds Samus
+    /// True when the spin's top-boundary test finds Samus
     /// fully under water/lava. The caller performs the Gravity-Suit palette-bit exemption.
     /// </summary>
     public bool IsTopBoundarySubmerged(SamusState samus)
@@ -284,7 +284,7 @@ public sealed class SamusLiquidPhysicsState
 
     /// <summary>
     /// Returns the extra animation delay used by the pose initializer while installing a changed
-    /// pose. That routine samples <c>Y + radius - 1</c>, not the normal bottom boundary.
+    /// pose. That step samples <c>Y + radius - 1</c>, not the normal bottom boundary.
     /// </summary>
     public int DeterminePoseChangeAnimationBuffer(SamusState samus)
     {
@@ -371,7 +371,7 @@ public sealed class SamusLiquidPhysicsState
             {
                 // Lava alone cancels the speed boost before the Gravity-Suit branch.
                 // Cancelling the speed boost owns the momentum/counter/palette/echo transition;
-                // the two extra-run words are then cleared explicitly by the FX handler.
+                // the two extra-run speeds are then cleared explicitly by the FX handler.
                 // Acid deliberately skips all three writes.
                 samus.HorizontalSpeed.CancelRunningMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
                 samus.HorizontalSpeed.ExtraRunSpeed = default;
@@ -425,7 +425,7 @@ public sealed class SamusLiquidPhysicsState
     }
 
     /// <summary>
-    /// Ports <c>HandleLandingSoundEffectsAndGraphics</c> and all area handlers.
+    /// Runs <c>HandleLandingSoundEffectsAndGraphics</c> and all area handlers.
     /// Call this after downward collision has placed Samus against the
     /// surface but before animation and pose-change cleanup erase the impact velocity/radius.
     /// </summary>
@@ -471,8 +471,8 @@ public sealed class SamusLiquidPhysicsState
     /// <summary>Selects landing dust or splash by area and room while leaving impact sound policy to the caller.</summary>
     private void HandleLandingGraphics(SamusState samus)
     {
-        // Is an eight-entry area jump table. Invalid area bytes would execute
-        // unrelated data on hardware; fail loudly instead of manufacturing output.
+        // Is an eight-entry area table. An invalid area would select
+        // unrelated data; fail loudly instead of manufacturing output.
         switch (AreaIndex)
         {
             case AreaId.Crateria:
@@ -581,7 +581,7 @@ public sealed class SamusLiquidPhysicsState
         // Both landing particle handlers suppress their particles when Samus's current
         // bottom is genuinely below active water or lava/acid. The raw-medium determination
         // preserves the absent surfaces and water option-bit-two exemption used by
-        // those routines. Importantly, suppression RETURNS and leaves the effect waits as they were.
+        // those handlers. Importantly, suppression RETURNS and leaves the effect waits as they were.
         if (DetermineRawMediumAtBoundary(bottom) != SamusLiquidMedium.Air)
             return;
 
@@ -599,7 +599,7 @@ public sealed class SamusLiquidPhysicsState
 
     /// <summary>
     /// A landing that shows no effect ends the wait its predecessor's right-hand particle kept on breath bubbles, as the
-    /// original game's landing cleared both of its effects; particles already shown run out on their own.
+    /// game's landing cleared both of its effects; particles already shown run out on their own.
     /// </summary>
     private void EndLandingEffectWait() => EffectWaits.ReleaseBubbles();
 
@@ -613,7 +613,7 @@ public sealed class SamusLiquidPhysicsState
     /// <summary>
     /// Applies periodic damage to Samus. The producer above adds
     /// raw fixed-point damage; this consumer applies Varia's half or Gravity's quarter,
-    /// subtracts with the original borrow chain, clamps fatal underflow, and clears the pair.
+    /// subtracts with the game's borrow chain, clamps fatal underflow, and clears the pair.
     /// </summary>
     public void ApplyPeriodicDamage(SamusState samus, bool timeIsFrozen)
     {
@@ -635,7 +635,7 @@ public sealed class SamusLiquidPhysicsState
         {
             // The suit divides the damage as one 8.8 amount: the whole damage within its 256-point cycle and the
             // fraction's top part. Shifting that amount and splitting it back is not equivalent to shifting the whole
-            // and fractional damage independently when a carry crosses.
+            // and fractional damage independently when the fraction's overflow crosses.
             int overlappingDamage = EightEight.FromSixteenSixteen(appliedDamage % SuitDividedWholeDamageCycle, appliedSubDamage);
             overlappingDamage >>= divisorShift;
             appliedSubDamage = SixteenSixteen.FromEightEight(EightEight.FractionOf(overlappingDamage));
@@ -823,7 +823,7 @@ public sealed class SamusLiquidPhysicsState
         AudioRequests.QueueSound(soundEffect, priority);
 
     /// <summary>
-    /// Movement routines distinguish water from lava by whether the room has a water surface, then
+    /// Movement distinguishes water from lava by whether the room has a water surface, then
     /// perform signed wrapped subtraction against the selected surface. Retain that exact
     /// ordering so absence and wraparound behavior stay exact.
     /// </summary>

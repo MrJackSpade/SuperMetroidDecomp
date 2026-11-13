@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
@@ -30,30 +31,30 @@ internal static class FrameColouringDefinitions
     /// </summary>
     private static readonly Dictionary<EnemyProjectileFrameId, FrameColouring> BossProjectiles = new()
     {
-        [EnemyProjectileFrameId.CrocomireFrame06] = new(EnemyDefinitionId.Crocomire, [CrocomireShades.Wall, CrocomireShades.WallSpikes]),
-        [EnemyProjectileFrameId.CrocomireFrame07] = new(EnemyDefinitionId.Crocomire, [CrocomireShades.Wall, CrocomireShades.WallSpikes]),
-        [EnemyProjectileFrameId.DraygonFrame06] = new(EnemyDefinitionId.DraygonBody, [DraygonShades.Intro]),
-        [EnemyProjectileFrameId.DraygonFrame07] = new(EnemyDefinitionId.DraygonBody, [DraygonShades.Intro]),
-        [EnemyProjectileFrameId.MotherBrainTopTubeFrame00] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
-        [EnemyProjectileFrameId.MotherBrainTopTubeFrame01] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
-        [EnemyProjectileFrameId.MotherBrainTopTubeFrame02] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
-        [EnemyProjectileFrameId.MotherBrainTopTubeFrame03] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
-        [EnemyProjectileFrameId.MotherBrainGlassFrame00] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
-        [EnemyProjectileFrameId.MotherBrainGlassFrame01] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
-        [EnemyProjectileFrameId.MotherBrainGlassFrame02] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
-        [EnemyProjectileFrameId.MotherBrainGlassFrame03] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
-        [EnemyProjectileFrameId.MotherBrainGlassFrame04] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
-        [EnemyProjectileFrameId.MotherBrainGlassFrame05] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
-        [EnemyProjectileFrameId.MotherBrainGlassFrame06] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
-        [EnemyProjectileFrameId.MotherBrainGlassFrame07] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
-        [EnemyProjectileFrameId.MotherBrainGlassFrame08] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
-        [EnemyProjectileFrameId.MotherBrainGlassFrame09] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
-        [EnemyProjectileFrameId.MotherBrainGlassFrame10] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
-        [EnemyProjectileFrameId.MotherBrainGlassFrame11] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
-        [EnemyProjectileFrameId.MotherBrainGlassFrame12] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
-        [EnemyProjectileFrameId.MotherBrainGlassFrame13] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
-        [EnemyProjectileFrameId.MotherBrainGlassFrame14] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
-        [EnemyProjectileFrameId.MotherBrainGlassFrame15] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
+        [EnemyProjectileFrameId.CrocomireBridgeFragmentFirst] = new(EnemyDefinitionId.Crocomire, [CrocomireShades.Wall, CrocomireShades.WallSpikes]),
+        [EnemyProjectileFrameId.CrocomireBridgeFragmentThird] = new(EnemyDefinitionId.Crocomire, [CrocomireShades.Wall, CrocomireShades.WallSpikes]),
+        [EnemyProjectileFrameId.DraygonGoopShotFirst] = new(EnemyDefinitionId.DraygonBody, [DraygonShades.Intro]),
+        [EnemyProjectileFrameId.DraygonGoopShotSecond] = new(EnemyDefinitionId.DraygonBody, [DraygonShades.Intro]),
+        [EnemyProjectileFrameId.MotherBrainTopTubeTopRight] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
+        [EnemyProjectileFrameId.MotherBrainTopTubeTopLeft] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
+        [EnemyProjectileFrameId.MotherBrainTopTubeTopMiddleLeft] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
+        [EnemyProjectileFrameId.MotherBrainTopTubeTopMiddleRight] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
+        [EnemyProjectileFrameId.MotherBrainGlassFirstShardGroupFirst] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
+        [EnemyProjectileFrameId.MotherBrainGlassFirstShardGroupSecond] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
+        [EnemyProjectileFrameId.MotherBrainGlassFirstShardGroupThird] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
+        [EnemyProjectileFrameId.MotherBrainGlassFirstShardGroupFourth] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
+        [EnemyProjectileFrameId.MotherBrainGlassFirstShardGroupFifth] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
+        [EnemyProjectileFrameId.MotherBrainGlassFirstShardGroupSixth] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
+        [EnemyProjectileFrameId.MotherBrainGlassFirstShardGroupSeventh] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
+        [EnemyProjectileFrameId.MotherBrainGlassFirstShardGroupEighth] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
+        [EnemyProjectileFrameId.MotherBrainGlassSecondShardGroupFirst] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
+        [EnemyProjectileFrameId.MotherBrainGlassSecondShardGroupSecond] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
+        [EnemyProjectileFrameId.MotherBrainGlassSecondShardGroupThird] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
+        [EnemyProjectileFrameId.MotherBrainGlassSecondShardGroupFourth] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
+        [EnemyProjectileFrameId.MotherBrainGlassSecondShardGroupFifth] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
+        [EnemyProjectileFrameId.MotherBrainGlassSecondShardGroupSixth] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
+        [EnemyProjectileFrameId.MotherBrainGlassSecondShardGroupSeventh] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
+        [EnemyProjectileFrameId.MotherBrainGlassSecondShardGroupEighth] = new(EnemyDefinitionId.MotherBrainBody, [MotherBrainShades.RoomEntry]),
     };
 
     /// <summary>
@@ -61,7 +62,7 @@ internal static class FrameColouringDefinitions
     /// the Tourian statue scene's statue programs, drawn in the scene's entrance colours.
     /// </summary>
     internal static IReadOnlyDictionary<EnemyProjectileFrameId, FrameColouring> Projectiles { get; } = new Dictionary<EnemyProjectileFrameId, FrameColouring>(
-        BossProjectiles.Concat(TourianStatueProjectileFrameDefinitions.ShownProjectileFrames.Values.Distinct()
+        BossProjectiles.Concat(TourianStatueProjectileAnimations.Segments.Frames
             .Select(frame => KeyValuePair.Create(frame, TourianStatueEntrance))));
 
     /// <summary>

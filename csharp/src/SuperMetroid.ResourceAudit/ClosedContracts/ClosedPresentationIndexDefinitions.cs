@@ -116,6 +116,8 @@ internal static class ClosedPresentationIndexDefinitions
         ("SamusSpritemapSources", "TryGet", "index") => new(0, SamusSpritemapSources.EntryCount),
         ("SamusArmCannonSourceArtwork", "PoseDescriptor", "pose") => new(0, SamusBodySources.PoseCount),
         ("SamusArmCannonSourceArtwork", "ReadDrawingByte", "offset") => new(0, SamusArmCannonArtworkFormat.DrawingDataByteCount),
+        ("SamusArmCannonDescriptors", "PoseDescriptor", "pose") => new(0, SamusBodySources.PoseCount),
+        ("SamusArmCannonDescriptors", "ReadDrawingByte", "offset") => new(0, SamusArmCannonArtworkFormat.DrawingDataByteCount),
         ("SamusArmCannonSourceArtwork", "CoverTileIndex", "direction") => new(0, SamusProjectileDirectionCodec.Count),
         ("SamusArmCannonSourceArtwork", "CoverTileIndex", "frame") => new(0, SamusArmCannonArtworkFormat.FramesPerDirection),
         ("EndingObjectSourceArtwork", "Fragment", "id") => new(0, EndingObjectArtworkFormat.FragmentCount),

@@ -3,8 +3,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Sbug;
 
 /// <summary>
-/// The state of an Sbug, with its parallel extension arrays. The names follow the behavior the Sbug's routines
-/// establish rather than anonymous variable labels.
+/// The state of an Sbug. The names follow the behaviour the Sbug's movement establishes.
 /// </summary>
 public sealed class SbugEnemyState
 {
@@ -64,9 +63,9 @@ public sealed class SbugEnemyState
     public SignedSixteenSixteen RightXVelocity { get; internal set; }
     /// <summary>Spawn-computed signed 16.16 vertical displacement for angle <c>InitialAngle + 32</c>, used by the right zigzag leg.</summary>
     public SignedSixteenSixteen RightYVelocity { get; internal set; }
-    /// <summary>Current signed 16.16 horizontal displacement in pixels per AI update, computed from the custom angle and independently word-negated on reversal.</summary>
+    /// <summary>Current signed 16.16 horizontal displacement in pixels per AI update, computed from the custom angle and negated whole and fraction separately on reversal.</summary>
     public SignedSixteenSixteen CustomXVelocity { get; internal set; }
-    /// <summary>Current signed 16.16 vertical displacement in pixels per AI update, computed from the custom angle and independently word-negated on reversal.</summary>
+    /// <summary>Current signed 16.16 vertical displacement in pixels per AI update, computed from the custom angle and negated whole and fraction separately on reversal.</summary>
     public SignedSixteenSixteen CustomYVelocity { get; internal set; }
 
     /// <summary>Spawn-computed facing for the spawn heading; selects the forward loop.</summary>

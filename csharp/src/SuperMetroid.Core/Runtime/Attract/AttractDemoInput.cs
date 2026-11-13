@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Runtime.Attract;
 
 /// <summary>
 /// A title demonstration's input: its recorded-input playback and what the playback watches for before each step.
-/// Held and newly-pressed words are independent; deriving edges loses scripted edges.
+/// Held and newly-pressed buttons are independent; deriving edges loses scripted edges.
 /// </summary>
 public sealed class AttractDemoInput
 {

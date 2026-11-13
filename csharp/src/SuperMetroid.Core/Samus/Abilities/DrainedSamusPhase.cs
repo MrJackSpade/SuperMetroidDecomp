@@ -7,9 +7,9 @@ public enum DrainedSamusPhase
     Inactive,
     /// <summary>Either drain setup, able or unable to stand, has installed left-facing knockback <c>KnockbackLeftPose</c> and locked input via the shared rainbow-beam setup.</summary>
     RainbowBeamLocked,
-    /// <summary>Controller zero has selected drained crouching <c>DrainedCrouchingRightPose</c> and <c>DrainedCrouchingLeftPose</c> at animation index two with zero base/Y speed; the drained-fall animation instruction has not yet installed falling movement.</summary>
+    /// <summary>Controller zero has selected drained crouching <c>DrainedCrouchingRightPose</c> and <c>DrainedCrouchingLeftPose</c> at animation index two with zero base/Y speed; the drained-fall animation cue has not yet installed falling movement.</summary>
     WaitingForFallingCommand,
-    /// <summary>The drained-fall animation instruction has installed the drained falling handler, which advances shared gravity/Y movement and block collision until a solid collision restores normal movement.</summary>
+    /// <summary>The drained-fall animation cue has installed the drained falling handler, which advances shared gravity/Y movement and block collision until a solid collision restores normal movement.</summary>
     Falling,
     /// <summary>The falling handler encountered a solid collision, cleared Y speed, and selected animation index seven with an eight-update timer without changing pose or Y direction.</summary>
     OnFloor,

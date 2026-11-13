@@ -7,7 +7,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Magdollite;
 
-/// <summary>The Magdollite species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Magdollite species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -467,7 +467,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Reproduces the Magdollite's drawing-queue alias. For the third record, the source is the head's
-    /// Y word and the destination is its Y radius. Expressing that relationship directly
+    /// Y position and the destination is its Y radius. Expressing that relationship directly
     /// preserves collision geometry without exposing unrelated queue storage to C#.
     /// </summary>
     private void UpdateMagdolliteHeadRadius(RoomEnemySlot overlay)
@@ -732,13 +732,13 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports Magdollite's initialization AI.</summary>
+    /// <summary>Runs Magdollite's initialization AI.</summary>
     internal void RunMagdolliteInitializationAi(RoomEnemySlot slot, EnemySpawnSurroundings surroundings)
     {
         InitializeMagdollite(slot, surroundings.Samus);
     }
 
-    /// <summary>Ports Magdollite's main AI.</summary>
+    /// <summary>Runs Magdollite's main AI.</summary>
     internal void RunMagdolliteMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunMagdolliteMain(slot, slot.RequireSpeciesState<MagdolliteEnemyState>(), frame.Samus);
@@ -746,7 +746,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Magdollite's typed animation.</summary>
     internal void AdvanceMagdolliteTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context) =>
-        EnemyProgramAnimation.Advance(slot, MagdolliteAnimations.Segments, MagdolliteFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, MagdolliteAnimations.Segments,
             static (MagdolliteEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyMagdolliteCue(slot, cue, context.Camera) is { } target
                 ? new AnimationContinuation<MagdolliteProgram>(MagdolliteAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)

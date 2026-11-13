@@ -147,9 +147,9 @@ internal sealed class Walk
     /// </summary>
     public static readonly string[] ExcludedProjectileFrames =
     [
-        "Blank", "EnemyDeathFrame00", "EnemyDeathFrame01", "EnemyDeathFrame02", "FallingSparkFrame04", "FallingSparkFrame06",
-        "FallingSparkFrame08", "FallingSparkFrame10", "FallingSparkFrame12", "PhantoonFrame19", "PhantoonFrame21", "PhantoonFrame23",
-        "TorizoDroolFrame00", "TorizoDroolFrame01", "GoldenTorizoEyeBeamFrame05", "TourianStatueFrame13", "BotwoonFrame40",
+        "Blank", "EnemyDeathRespawnTail", "EnemyDeathBigExplosion", "EnemyDeathMiniKraidExplosion", "FallingSparkHitFloorSecond", "FallingSparkHitFloorFourth",
+        "FallingSparkHitFloorSixth", "FallingSparkHitFloorEighth", "FallingSparkHitFloorTenth", "PhantoonRainImpactFifth", "PhantoonCasualFallingFourth", "PhantoonCasualFallingSixth",
+        "TorizoDroolFourFrameDelay", "TorizoDroolTwoFrameDelay", "GoldenTorizoEyeBeamFloorImpactLoopFirst", "TourianStatueEyeGlowTenth", "BotwoonHiddenUp",
     ];
 
     /// <summary>RoomSpriteObjectKind members that are no object.</summary>

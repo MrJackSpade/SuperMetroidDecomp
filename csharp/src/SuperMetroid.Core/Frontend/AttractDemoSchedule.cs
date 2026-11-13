@@ -20,7 +20,7 @@ internal sealed class AttractDemoSchedule
     /// <summary>The still-frame hold left after the scene's scripted input.</summary>
     internal int HoldFramesRemaining { get; private set; }
 
-    /// <summary>The blank enemy-transfer waits left before the scene becomes visible; none before its runtime exists (#1627).</summary>
+    /// <summary>The blank enemy-loading waits left before the scene becomes visible; none before its runtime exists (#1627).</summary>
     private int? loadFramesRemaining;
 
     /// <summary>Whether live controller input cancelled the scene.</summary>
@@ -53,7 +53,7 @@ internal sealed class AttractDemoSchedule
     /// <summary>The scene the next demo plays, or null at the end of the set.</summary>
     internal AttractDemoScene? NextScene => StockAttractDemoScenes.Get(Set, Scene);
 
-    /// <summary>Starts <paramref name="scene"/>, the next scene, with its scripted input and enemy-transfer waits ahead.</summary>
+    /// <summary>Starts <paramref name="scene"/>, the next scene, with its scripted input and enemy-loading waits ahead.</summary>
     internal void Begin(AttractDemoScene scene)
     {
         Ensure.NotNull(scene);
@@ -64,7 +64,7 @@ internal sealed class AttractDemoSchedule
         loadFramesRemaining = AttractDemoDefinitions.EnemyGraphicsLoadFrames;
     }
 
-    /// <summary>Counts one enemy-transfer wait; returns whether it was the last.</summary>
+    /// <summary>Counts one enemy-loading wait; returns whether it was the last.</summary>
     /// <exception cref="InvalidOperationException">No scene has begun loading.</exception>
     internal bool CountLoadFrame()
     {

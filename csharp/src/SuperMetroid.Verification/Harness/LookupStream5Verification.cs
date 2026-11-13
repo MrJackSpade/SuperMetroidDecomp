@@ -1378,13 +1378,13 @@ internal static class LookupStream5Verification
         {
             var source = CeresCinematicSourceDefinitions.RearViewPlacements[index];
             return new CeresFlightActorPlacement { Id = source.Id,
-                X = ReadVerificationWord(rom, 0x8b0000 | source.FirstOperand),
-                Y = ReadVerificationWord(rom, 0x8b0000 | source.SecondOperand) };
+                X = CoordinateAxis.AsSigned(ReadVerificationWord(rom, 0x8b0000 | source.FirstOperand)),
+                Y = CoordinateAxis.AsSigned(ReadVerificationWord(rom, 0x8b0000 | source.SecondOperand)) };
         }).ToArray();
         Check(flight, "CeresFlightActorLayout", values =>
         {
             using var encoded = new MemoryStream();
-            CeresFlightActorLayoutFile.Write(encoded, new() { Version = 1, Actors = values });
+            CeresFlightActorLayoutFile.Write(encoded, new() { Version = CeresFlightActorLayoutFormat.Version, Actors = values });
             encoded.Position = 0;
             var layout = CeresFlightActorLayoutFile.Read(encoded);
             return new LookupStream5Load<CeresFlightActorPlacement>(index => layout[index], layout.ContentIdentity);
@@ -1393,13 +1393,13 @@ internal static class LookupStream5Verification
         {
             var source = CeresCinematicSourceDefinitions.ZebesPlacements[index];
             return new CeresRevealActorPlacement { Id = source.Id,
-                X = ReadVerificationWord(rom, 0x8b0000 | source.FirstOperand),
-                Y = ReadVerificationWord(rom, 0x8b0000 | source.SecondOperand) };
+                X = CoordinateAxis.AsSigned(ReadVerificationWord(rom, 0x8b0000 | source.FirstOperand)),
+                Y = CoordinateAxis.AsSigned(ReadVerificationWord(rom, 0x8b0000 | source.SecondOperand)) };
         }).ToArray();
         Check(reveal, "CeresRevealActorLayout", values =>
         {
             using var encoded = new MemoryStream();
-            CeresRevealActorLayoutFile.Write(encoded, new() { Version = 1, Actors = values });
+            CeresRevealActorLayoutFile.Write(encoded, new() { Version = CeresRevealActorLayoutFormat.Version, Actors = values });
             encoded.Position = 0;
             var layout = CeresRevealActorLayoutFile.Read(encoded);
             return new LookupStream5Load<CeresRevealActorPlacement>(index => layout[index], layout.ContentIdentity);
@@ -1408,17 +1408,32 @@ internal static class LookupStream5Verification
         {
             var inherited = flight[index == 0 ? 0 : index == 1 ? 2 : 3];
             return new CeresDestructionActorPlacement { Id = CeresDestructionActors.InitialPlacementId(index),
-                X = index == 2 ? ReadVerificationWord(rom, 0x8bbfa6) : inherited.X, Y = inherited.Y };
+                X = index == 2 ? CoordinateAxis.AsSigned(ReadVerificationWord(rom, 0x8bbfa6)) : inherited.X, Y = inherited.Y };
         }).ToArray();
         Check(destruction, "CeresDestructionActorLayout", values =>
         {
             using var encoded = new MemoryStream();
-            CeresDestructionActorLayoutFile.Write(encoded, new() { Version = 1, Actors = values });
+            CeresDestructionActorLayoutFile.Write(encoded, new() { Version = CeresDestructionActorLayoutFormat.Version, Actors = values });
             encoded.Position = 0;
             var layout = CeresDestructionActorLayoutFile.Read(encoded);
             return new LookupStream5Load<CeresDestructionActorPlacement>(index => layout[index], layout.ContentIdentity);
         }, value => new LookupStream5Field(value.Id, value.X, value.Y));
+        // #1627: the layouts hold signed screen pixels. A placement left of the screen stands at its wrapped screen position,
+        // the signed range's ends are accepted and a coordinate past either end is rejected.
+        CeresFlightActorPlacement left = flight[0] with { X = -32 };
+        AssertEqual(65504, (int)left.Position.X, "a placement 32 pixels left of the screen stands at its wrapped screen position");
+        _ = ReadFlight([flight[0] with { X = -32768, Y = 32767 }, .. flight[1..]]);
+        AssertThrows<InvalidDataException>(() => ReadFlight([flight[0] with { X = 32768 }, .. flight[1..]]), "a coordinate past the signed range's top is rejected");
+        AssertThrows<InvalidDataException>(() => ReadFlight([flight[0] with { Y = -32769 }, .. flight[1..]]), "a coordinate past the signed range's bottom is rejected");
         Console.WriteLine("Ceres layouts: all14 original actor placements/28 coordinate operands, complete identity preservation and bounds pass.");
+
+        static CeresFlightActorPlacements ReadFlight(CeresFlightActorPlacement[] values)
+        {
+            using var encoded = new MemoryStream();
+            CeresFlightActorLayoutFile.Write(encoded, new() { Version = CeresFlightActorLayoutFormat.Version, Actors = values });
+            encoded.Position = 0;
+            return CeresFlightActorLayoutFile.Read(encoded);
+        }
 
         // Each layout's identity keeps the layout name it was installed under; #1452 renamed the types to the placements
         // they hold and kept those names.

@@ -1,21 +1,22 @@
 using P = SuperMetroid.Core.Enemies.Corpses.DeadTorizoProgram;
 using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>
 /// Dead Torizo's stationary corpse pose as a typed program (#641). Each
-/// frame shows a <see cref="DeadTorizoFrame"/> pose and its lists use no owner callbacks.
+/// frame shows a <see cref="EnemyFrameId"/> and its lists use no owner callbacks.
 /// </summary>
 internal static class DeadTorizoAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<DeadTorizoProgram, DeadTorizoFrame, NoAnimationCue> Segments { get; } = new(
-        new Dictionary<DeadTorizoProgram, AnimationBeat<DeadTorizoFrame, NoAnimationCue>[]>
+    internal static AnimationSegments<DeadTorizoProgram, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<DeadTorizoProgram, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
     {
         [P.Stationary] =
         [
-            Show(0, 1),
+            Show(EnemyFrameId.DeadTorizoStationary, 1),
         ],
     });
 
@@ -28,6 +29,6 @@ internal static class DeadTorizoAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<DeadTorizoProgram> StartingWith(DeadTorizoProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<DeadTorizoFrame, NoAnimationCue> Show(int pose, int duration) => new AnimationBeat<DeadTorizoFrame, NoAnimationCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);
 }

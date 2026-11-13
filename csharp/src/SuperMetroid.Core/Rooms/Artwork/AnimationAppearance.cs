@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>
 /// The frame an animation shows (#1406, #1466): a room's lava, a treadmill, a statue or a boss's melt. The blocks, cells
-/// and words it paints have a picture for each of its frames, and for the room's load before it selects one.
+/// and cells it paints have a picture for each of its frames, and for the room's load before it selects one.
 /// </summary>
 /// <param name="Animation">The animation.</param>
 public sealed record AnimationAppearance(ArtworkAnimation Animation) : AppearanceInput

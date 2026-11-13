@@ -13,6 +13,6 @@ internal enum NoobTubeProjectileCueKind
     FlickerHidden,
     /// <summary>Places the shard at its column on odd frames and mirrored across the tube on even ones.</summary>
     FlickerReflected,
-    /// <summary>Installs a movement routine.</summary>
+    /// <summary>Installs a movement behaviour.</summary>
     SetFrameBehavior,
 }

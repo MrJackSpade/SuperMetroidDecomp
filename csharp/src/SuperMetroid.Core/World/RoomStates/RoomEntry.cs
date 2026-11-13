@@ -5,7 +5,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.World.RoomStates;
 
-/// <summary>How a room load enters its room, beyond the door, room header, camera and viewport mode.</summary>
+/// <summary>How a room load enters its room, beyond the door, room definition, camera and viewport mode.</summary>
 [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
 internal readonly record struct RoomEntry
 {

@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Bosses;
 
 /// <summary>
 /// One axis of a seeking boss's 8.8 velocity while it accelerates toward a target point: a run of steps, each raising or
-/// lowering the velocity. A step that carries the velocity across zero, past either end of its word, makes the run's
+/// lowering the velocity. A step that takes the velocity across zero, wrapping past either end of its range, makes the run's
 /// next step one unit (1/256 pixel per frame) larger; and the run's first step is one unit larger when the signed
 /// distance to the target wraps around the coordinate space, so the target lies the other way round from its plain
 /// order. Ceres and Norfair Ridley and the baby

@@ -16,7 +16,7 @@ public readonly record struct SamusTerrain
     internal ISamusRoomObjects? RoomObjects { get; init; }
 
     /// <summary>
-    /// The session's progression, which Spacetime's malformed palette copy overwrites as raw bytes (#1318, #1330). Only
+    /// The session's progression, which Spacetime's malformed palette copy overwrites with raw data (#1318, #1330). Only
     /// the gameplay projectile frame passes it; Spacetime fails loudly without it.
     /// </summary>
     public SuperMetroid.Core.Progression.SharedGameState? Progression { get; init; }

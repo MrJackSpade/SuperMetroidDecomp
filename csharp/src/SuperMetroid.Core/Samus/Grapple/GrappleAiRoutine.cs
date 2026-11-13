@@ -1,13 +1,13 @@
 namespace SuperMetroid.Core.Samus.Grapple;
 
 /// <summary>
-/// The enemy header's grapple reaction. Every retail
+/// The enemy definition's grapple reaction. Every retail
 /// enemy selects one of the seven shared reactions except the elevator, whose
 /// main AI doubles as its grapple AI.
 /// </summary>
 public enum GrappleAiRoutine
 {
-    /// <summary>No definition: the zero word of an empty enemy slot's default header.</summary>
+    /// <summary>No definition: an empty enemy slot's default.</summary>
     None,
 
     /// <summary>The grapple passes through without interacting.</summary>

@@ -8,7 +8,7 @@ using SuperMetroid.Core.Fx.PaletteFx;
 
 namespace SuperMetroid.Core.Areas.Tourian;
 
-/// <summary>The Tourian entrance statue species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Tourian entrance statue species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntityFactory, IGameplayShadingSource
 {

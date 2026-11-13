@@ -32,7 +32,7 @@ internal sealed class DoorTransitionState
     /// </summary>
     [AllowNull]
     private GradualFadeSteps FadeSteps { get => field ?? throw new InvalidOperationException("The door fade has not started."); set; }
-    /// <summary>Door header captured before the destination room replaces the source.</summary>
+    /// <summary>Door definition captured before the destination room replaces the source.</summary>
     private DoorDefinition? door;
     /// <summary>Samus's source-room position used to compute the final door-scroll placement.</summary>
     private FixedPosition<RoomPixels> sourceSamus;

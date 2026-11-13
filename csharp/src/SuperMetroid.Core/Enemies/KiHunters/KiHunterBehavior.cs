@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.KiHunters.Artwork;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -255,7 +254,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.MaximumAngularVelocity = -2;
             state.AngularAcceleration = KiHunterMotionDefinitions.LeftSwoopAcceleration;
-            state.SwoopAngle = 255;
+            // A leftward swoop starts one step short of the whole turn, as the original's does, and steps down to the half turn.
+            state.SwoopAngle = RotationAngle.StepsPerTurn - 1;
             state.AnimationChangeAngle = 240;
             state.Velocity = state.Velocity.WithWholeX(-1);
         }
@@ -883,7 +883,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances the Ki-Hunter's typed animation.</summary>
     internal void AdvanceKiHunterTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, KiHunterAnimations.Segments, KiHunterFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, KiHunterAnimations.Segments,
             static (KiHunterEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyKiHunterCue(slot, cue) is { } target
                 ? new AnimationContinuation<KiHunterProgram>(KiHunterAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)

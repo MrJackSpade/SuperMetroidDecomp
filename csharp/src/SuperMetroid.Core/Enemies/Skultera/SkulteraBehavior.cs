@@ -1,11 +1,10 @@
 ﻿using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.Skultera.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Skultera;
 
-/// <summary>The Skultera species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Skultera species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -114,8 +113,8 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
                 horizontalDisplacement))
         {
             BeginSkulteraTurn(slot, state, currentlyMovingLeft: direction == HorizontalDirection.Left);
-            // Horizontal collision jumps directly to the merge label. Consequently
-            // CurrentYOffset remains the preceding frame's word and is copied below again.
+            // Horizontal collision skips straight to the shared tail. Consequently
+            // CurrentYOffset remains the preceding frame's value and is copied below again.
             state.PreviousYOffset = state.CurrentYOffset;
             return;
         }
@@ -175,7 +174,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
             : SkulteraProgram.SwimmingRight), AnimationPlace.StartOfAnimation);
     }
 
-    /// <summary>Ports Skultera's main AI.</summary>
+    /// <summary>Runs Skultera's main AI.</summary>
     internal void RunSkulteraMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunSkulteraMain(slot, slot.RequireSpeciesState<SkulteraEnemyState>(), frame.Level);
@@ -183,7 +182,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Skultera's typed animation.</summary>
     internal static void AdvanceSkulteraTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, SkulteraAnimations.Segments, SkulteraFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, SkulteraAnimations.Segments,
             static (SkulteraEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

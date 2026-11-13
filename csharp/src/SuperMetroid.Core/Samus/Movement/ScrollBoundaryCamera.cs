@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// The camera position constrained by Super Metroid's directional scroll-zone handlers.
 /// </summary>
 /// <remarks>
-/// The four private handlers are direct ports of the four scroll-boundary handlers.
+/// The four private handlers are the game's four scroll-boundary handlers.
 /// The public directional methods are host/debug
 /// stimuli: genuine Samus tracking will eventually supply the same
 /// proposed position, ideal position, and fixed-point camera speed fields.
@@ -28,8 +28,7 @@ public sealed class ScrollBoundaryCamera
     }
 
     /// <summary>
-    /// Gets the camera's 16.16 position: the integer words and the fraction
-    /// words.
+    /// Gets the camera's 16.16 position: whole pixels and fraction.
     /// </summary>
     public FixedPosition<RoomPixels> Position { get; internal set; }
 
@@ -44,12 +43,12 @@ public sealed class ScrollBoundaryCamera
 
     /// <summary>
     /// Gets the most recently calculated 16.16 camera speed on each axis:
-    /// Samus's unsigned distance moved plus one pixel, held as its word pattern.
+    /// Samus's unsigned distance moved plus one pixel, held unsigned.
     /// </summary>
     public FixedVector<RoomPixels> Speed { get; internal set; }
 
     /// <summary>
-    /// Samus's four previous-position words written at the end of the scrolling routine.
+    /// Samus's previous position written at the end of scrolling.
     /// Room-main movement occurs later and must remain visible to the next scroll call.
     /// Null represents a newly constructed camera without an accepted scrolling pass.
     /// </summary>
@@ -66,7 +65,7 @@ public sealed class ScrollBoundaryCamera
         PreviousSamusPoint = previous.PreviousSamusPoint;
     }
 
-    /// <summary>Door placement writes both whole previous-position words, retaining fractions.</summary>
+    /// <summary>Door placement writes both whole previous-position coordinates, retaining fractions.</summary>
     internal void PublishDoorSamusPosition(Position16<RoomPixels> samus) =>
         PreviousSamusPoint = (PreviousSamusPoint ?? default).WithWhole(samus);
 
@@ -106,7 +105,7 @@ public sealed class ScrollBoundaryCamera
     }
 
     /// <summary>
-    /// Keeps the fraction words of the camera this one replaces.
+    /// Keeps the fractions of the camera this one replaces.
     /// Room and game loads write only the integer positions, so the
     /// previous room's fractions remain.
     /// </summary>
@@ -114,8 +113,8 @@ public sealed class ScrollBoundaryCamera
         RetainSubpositions(previous.Position);
 
     /// <summary>
-    /// Keeps the fraction words of <paramref name="retained"/>, such as those that
-    /// survived a released gameplay owner; the integer words are unchanged.
+    /// Keeps the fractions of <paramref name="retained"/>, such as those that
+    /// survived a released gameplay owner; the whole pixels are unchanged.
     /// </summary>
     public void RetainSubpositions(FixedPosition<RoomPixels> retained) =>
         Position = Position.WithFractionsOf(retained);
@@ -124,7 +123,7 @@ public sealed class ScrollBoundaryCamera
     /// Publishes the modular camera position the door-transition scroll owns.
     /// </summary>
     /// <remarks>
-    /// The vertical transition routines deliberately begin outside the destination room:
+    /// The vertical transitions deliberately begin outside the destination room:
     /// down starts at destination Y minus 224 (often 65312) and up starts at
     /// destination Y plus 251. These are valid wrapped coordinates, not entry
     /// positions to clamp. Keeping this operation separate from <see cref="SetPosition"/>
@@ -135,8 +134,8 @@ public sealed class ScrollBoundaryCamera
         Position = Position.WithWhole(position);
 
     /// <summary>
-    /// Transfers the retained camera fractions when loading a door's new scroll grid:
-    /// the integer words come from <paramref name="position"/>, the fractions from
+    /// Carries the retained camera fractions over when loading a door's new scroll grid:
+    /// the whole pixels come from <paramref name="position"/>, the fractions from
     /// <paramref name="retainedFractions"/>.
     /// </summary>
     public void SetDoorTransitionPosition(Position16<RoomPixels> position, FixedPosition<RoomPixels> retainedFractions) =>
@@ -152,16 +151,16 @@ public sealed class ScrollBoundaryCamera
     /// <summary>
     /// Applies a direct camera Y write made by a room-installed scrolling-finished
     /// hook. The game changes only the camera's whole Y at this point: fractional
-    /// and ideal-camera words retain the values produced by ordinary scrolling.
+    /// and ideal-camera values retain the values produced by ordinary scrolling.
     /// </summary>
     public void SetCameraYFromScrollingFinishedHook(int yPosition) =>
         SetWholeY(yPosition);
 
     /// <summary>
-    /// Ports horizontal Samus tracking plus camera-speed calculation.
+    /// Runs horizontal Samus tracking plus camera-speed calculation.
     /// Integer movement follows the facing-dependent camera target;
     /// an unchanged integer position dispatches to autoscrolling exactly
-    /// as the original routine does (subpixel-only Samus movement still affects speed).
+    /// as the game does (subpixel-only Samus movement still affects speed).
     /// </summary>
     public void TrackMovedSamusHorizontally(
         FixedPosition<RoomPixels> previous,
@@ -174,8 +173,8 @@ public sealed class ScrollBoundaryCamera
 
         Speed = Speed.WithX(CalculateDistanceMovedPlusOne(previous.X, current.X));
 
-        // Compares the integer words only. This is intentionally after speed
-        // calculation: even when those words match, differing fractional samples can make
+        // Compares the whole pixels only. This is intentionally after speed
+        // calculation: even when they match, differing fractional samples can make
         // the integer X speed used by autoscrolling zero, one, or (on wrap) much larger.
         if (previous.X.Whole == current.X.Whole)
         {
@@ -245,7 +244,7 @@ public sealed class ScrollBoundaryCamera
     }
 
     /// <summary>
-    /// Ports vertical Samus tracking plus distance calculation.
+    /// Runs vertical Samus tracking plus distance calculation.
     /// An unchanged integer Y position runs the boundary check alone.
     /// </summary>
     public void TrackMovedSamusVertically(
@@ -263,8 +262,8 @@ public sealed class ScrollBoundaryCamera
         }
 
         // Samus Y direction one means upward. The apparently reversed scroller choice is
-        // literal: upward motion subtracts down_scroller, all else
-        // subtracts up_scroller.
+        // literal: upward motion subtracts the down scroller, all else
+        // subtracts the up scroller.
         int targetOffset = context.YDirection == SamusVerticalDirection.Up ? context.DownScroller : context.UpScroller;
         IdealPosition = IdealPosition.WithY(CoordinateAxis.Wrap(current.Y.Whole - targetOffset));
 
@@ -284,12 +283,12 @@ public sealed class ScrollBoundaryCamera
     }
 
     /// <summary>
-    /// Direct port of horizontal scroll-zone autoscrolling.
+    /// Horizontal scroll-zone autoscrolling.
     /// </summary>
     /// <remarks>
-    /// This routine does not chase Samus. It gently pushes a camera that is sitting inside
+    /// This step does not chase Samus. It gently pushes a camera that is sitting inside
     /// a red (zero) scroll cell toward a legal adjacent cell, or back from a red cell on its
-    /// right. The extra two pixels are present in the original and are not a host smoothing rule.
+    /// right. The extra two pixels are the game's, not a host smoothing rule.
     /// </remarks>
     private void HandleHorizontalAutoscrolling(bool timeIsFrozen)
     {
@@ -299,7 +298,7 @@ public sealed class ScrollBoundaryCamera
             return;
 
         // The scroll records the pre-clamp position. Every proposed movement below starts from
-        // this original word, even if the live position is first clamped to a room edge.
+        // this starting position, even if the live position is first clamped to a room edge.
         int proposed = Position.X.Whole;
 
         if (CoordinateAxis.AsSigned(Position.X.Whole) < 0)
@@ -355,7 +354,7 @@ public sealed class ScrollBoundaryCamera
     }
 
     /// <summary>
-    /// Direct port of vertical scroll-zone autoscrolling.
+    /// Vertical scroll-zone autoscrolling.
     /// </summary>
     private void HandleVerticalAutoscrolling(bool timeIsFrozen)
     {
@@ -384,7 +383,7 @@ public sealed class ScrollBoundaryCamera
         if (Scrolls.ReadCameraState(currentCell) == RoomScrollState.RedBoundary)
         {
             // A red current cell pushes downward toward its bottom boundary. As in the X
-            // routine, a second red cell beyond the candidate causes screen-edge rounding.
+            // step, a second red cell beyond the candidate causes screen-edge rounding.
             int bottomBoundary = NextScreenStart(Position.Y.Whole);
             int candidate = CoordinateAxis.Wrap(proposed + Speed.Y.WholePixels + 2);
             if (candidate >= bottomBoundary)
@@ -435,7 +434,7 @@ public sealed class ScrollBoundaryCamera
         // wrapped space, snap to it and discard the fractional camera position.
         if (CoordinateAxis.Difference(IdealPosition.X, Position.X.Whole) < 0)
         {
-            // Overshoot snaps to the ideal word and discards the fractional camera position.
+            // Overshoot snaps to the ideal position and discards the fractional camera position.
             Position = Position.WithX(new FixedCoordinate(IdealPosition.X, 0));
         }
 
@@ -446,8 +445,8 @@ public sealed class ScrollBoundaryCamera
             return;
         }
 
-        // The horizontal routines sample the row containing the screen's vertical center
-        // (Y plus half a screen), then the screen immediately to the right of the camera's high X byte.
+        // The horizontal checks sample the row containing the screen's vertical center
+        // (Y plus half a screen), then the screen immediately to the right of the camera's screen column.
         int row = (EightEight.WholeOf(CoordinateAxis.Wrap(Position.Y.Whole + HalfScreen))) * Scrolls.Size.X;
         int rightCell = row + (EightEight.WholeOf(Position.X.Whole)) + 1;
         if (Scrolls.ReadCameraState(rightCell) != RoomScrollState.RedBoundary)
@@ -466,7 +465,7 @@ public sealed class ScrollBoundaryCamera
         int proposed = Position.X.Whole;
         if (CoordinateAxis.Difference(Position.X.Whole, IdealPosition.X) < 0)
         {
-            // Overshoot snaps to the ideal word and discards the fractional camera position.
+            // Overshoot snaps to the ideal position and discards the fractional camera position.
             Position = Position.WithX(new FixedCoordinate(IdealPosition.X, 0));
         }
 
@@ -501,7 +500,7 @@ public sealed class ScrollBoundaryCamera
 
         if (CoordinateAxis.Difference(IdealPosition.Y, Position.Y.Whole) < 0)
         {
-            // Overshoot snaps to the ideal word and discards the fractional camera position.
+            // Overshoot snaps to the ideal position and discards the fractional camera position.
             Position = Position.WithY(new FixedCoordinate(IdealPosition.Y, 0));
         }
 
@@ -510,7 +509,7 @@ public sealed class ScrollBoundaryCamera
         bool blockedBelow = false;
         if (!beyondRoomBottom)
         {
-            // Preserve the original branch order: if the physical room maximum was already
+            // Preserve the game's branch order: if the physical room maximum was already
             // exceeded, the boundary check branches before reading the cell below. This also prevents
             // a legitimate bottom-row/right-edge camera from indexing beyond the scroll grid.
             blockedBelow = Scrolls.ReadCameraState(currentCell + Scrolls.Size.X) ==
@@ -537,7 +536,7 @@ public sealed class ScrollBoundaryCamera
         int proposed = Position.Y.Whole;
         if (CoordinateAxis.Difference(Position.Y.Whole, IdealPosition.Y) < 0)
         {
-            // Overshoot snaps to the ideal word and discards the fractional camera position.
+            // Overshoot snaps to the ideal position and discards the fractional camera position.
             Position = Position.WithY(new FixedCoordinate(IdealPosition.Y, 0));
         }
 
@@ -575,7 +574,7 @@ public sealed class ScrollBoundaryCamera
     /// <summary>
     /// Compares only the whole pixels as signed wrapped values, then
     /// subtracts the complete 16.16 pair in the selected direction and adds exactly
-    /// one whole pixel. Modular arithmetic keeps the routine's noted subpixel corner case, where
+    /// one whole pixel. Modular arithmetic keeps the game's noted subpixel corner case, where
     /// the result can still be less than 1.0.
     /// </summary>
     private static SignedSixteenSixteen CalculateDistanceMovedPlusOne(
@@ -591,9 +590,9 @@ public sealed class ScrollBoundaryCamera
     /// <summary>The whole pixel the distance moved gains.</summary>
     private static readonly SignedSixteenSixteen OnePixel = SignedSixteenSixteen.FromParts(1, 0);
 
-    /// <summary>Writes only the horizontal integer camera word, preserving its fraction and vertical axis.</summary>
+    /// <summary>Writes only the horizontal whole camera position, preserving its fraction and vertical axis.</summary>
     private void SetWholeX(int x) => Position = Position.WithX(Position.X.WithWhole(x));
 
-    /// <summary>Writes only the vertical integer camera word, preserving its fraction and horizontal axis.</summary>
+    /// <summary>Writes only the vertical whole camera position, preserving its fraction and horizontal axis.</summary>
     private void SetWholeY(int y) => Position = Position.WithY(Position.Y.WithWhole(y));
 }

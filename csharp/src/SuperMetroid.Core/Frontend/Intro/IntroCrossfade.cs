@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// </summary>
 /// <remarks>
 /// <see cref="Levels"/> steps separate black from a colour, and a colour at level <c>n</c> shows each channel scaled by
-/// <c>n / Levels</c>, rounded down. That is the rounding the original's per-channel fixed-point accumulators produce, so
+/// <c>n / Levels</c>, rounded down. That is the rounding the game's per-channel fixed-point sums produce, so
 /// an early fade-in step can still show black.
 /// </remarks>
 public sealed class IntroCrossfade

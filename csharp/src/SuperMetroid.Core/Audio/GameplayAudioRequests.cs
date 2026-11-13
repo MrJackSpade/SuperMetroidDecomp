@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Audio;
 /// outside a runtime, it reaches no queue. Evidence for the run order: the game's main gameplay update runs the colour
 /// effects, Samus's input handling (which fires her weapons), the projectiles' hits on enemies, the enemies, Samus's
 /// movement and animation, the enemy projectiles, the room objects, the enemy projectiles' hits, the power bomb's hits,
-/// the drawing and the HUD in turn, and each of them calls the game's sound and music queue routines at the point it runs;
+/// the drawing and the HUD in turn, and each of them calls the game's sound and music queues at the point it runs;
 /// none holds a request back for a later caller.
 /// </remarks>
 internal sealed class GameplayAudioRequests

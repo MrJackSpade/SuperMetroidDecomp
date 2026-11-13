@@ -9,7 +9,7 @@ internal static class DraygonBurialEvirs
     /// <summary>
     /// The burial subspeeds are the absolute unit-circle components scaled by <see cref="DraygonBurialEvirDefinitions.SubspeedScale"/>
     /// and truncated, in 65536ths of a pixel; the six angles all lie in the upper half of the circle, so the vertical one is positive. The spawn positions use the same six angles on the radius508
-    /// circle, floor to pixels, then wrap signed X into the word. The angle
+    /// circle, floor to pixels, then wrap signed X into the coordinate range. The angle
     /// selects the movement signs; its unused zero padding is not state.
     /// </summary>
     internal static DraygonBurialEvirDefinition ForEntry(int entry)
@@ -30,8 +30,8 @@ internal static class DraygonBurialEvirs
     }
 
     /// <summary>
-    /// The signed per-frame displacement: X moves right when the angle plus 64 has bit 7 set and Y moves
-    /// down when the angle plus 128 has bit 7 set; otherwise each magnitude is subtracted.
+    /// The signed per-frame displacement: X moves right when the angle plus a quarter turn lies in the second half of the
+    /// turn, and Y moves down when the angle plus a half turn does; otherwise each magnitude is subtracted.
     /// </summary>
     internal static FixedVector<RoomPixels> Velocity(DraygonBurialEvirDefinition evir) => new(
         EnemyMath.CosineIsNegative(evir.Angle) ? evir.SubspeedMagnitude.X : SignedSixteenSixteen.Zero - evir.SubspeedMagnitude.X,

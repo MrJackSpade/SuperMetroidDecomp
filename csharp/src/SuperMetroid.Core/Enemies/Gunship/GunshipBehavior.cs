@@ -97,13 +97,13 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         _shipPrograms[slot] = new AnimationPlayback<GunshipProgram>(GunshipAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
     }
 
-    /// <summary>Runs a hull or pad piece's typed program where the enemy instruction interpreter would.</summary>
+    /// <summary>Runs a hull or pad piece's typed program where the shared enemy animation would.</summary>
     internal void AdvanceGunshipAnimation(RoomEnemySlot slot)
     {
         if (!EnemyProgramAnimation.Expire(slot))
             return;
         AnimationPlayback<GunshipProgram> playback = _shipPrograms[slot];
-        EnemyProgramAnimation.Play(slot, GunshipAnimations.Segments, ref playback, GunshipFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Play(slot, GunshipAnimations.Segments, ref playback,
             cue => throw new InvalidOperationException($"The gunship's programs publish no cue; got {cue}."));
         _shipPrograms[slot] = playback;
     }
@@ -373,8 +373,8 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
 
     /// <summary>
     /// Whether the landed ship bobs before running <paramref name="function"/>: every function from waiting for the
-    /// landing entrance through loading the liftoff dust. The game tests its function word against the range of
-    /// those routines (a range which also contains Idle); firing up the engines is the first routine past it.
+    /// landing entrance through loading the liftoff dust. The game tests its function against the range of
+    /// those functions (a range which also contains Idle); firing up the engines is the first function past it.
     /// </summary>
     private static bool BobsWhileLanded(GunshipFunction function) => function is
         GunshipFunction.WaitForLandingEntranceToOpen or GunshipFunction.EjectSamus or GunshipFunction.FinishLanding or
@@ -418,7 +418,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         {
             RoomEnemySlot pad = Pieces(top).EntrancePad;
             Part(top).Function = GunshipFunction.WaitForEntranceToOpen;
-            // The alignment stores the ship's X in both Samus X words, so the camera sees
+            // The alignment stores the ship's X as both Samus's current and previous X, so the camera sees
             // no horizontal motion from this alignment.
             if (samus.Position.X.Whole != GunshipMotionDefinitions.LandedX)
             {
@@ -622,7 +622,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         return Math.Min(current + 2, maximum);
     }
 
-    /// <summary>Ports Gunship's main AI.</summary>
+    /// <summary>Runs Gunship's main AI.</summary>
     internal void RunGunshipMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunGunshipTopMain(

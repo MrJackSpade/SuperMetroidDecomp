@@ -1,5 +1,6 @@
 ﻿using SuperMetroid.Core.Enemies.Polyp.Artwork;
 using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Polyp;
 
@@ -9,6 +10,6 @@ internal static class PolypAnimationsConstants
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params PolypProgram[] programs) =>
         programs.SelectMany(program => PolypAnimations.Segments.Beats(program))
-            .OfType<AnimationBeat<PolypFrame, NoAnimationCue>.Frame>()
+            .OfType<AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame>()
             .Select(frame => PolypFrameToolingDefinitions.Spritemap(frame.Shown));
 }

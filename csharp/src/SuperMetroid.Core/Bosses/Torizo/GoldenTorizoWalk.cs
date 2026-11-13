@@ -5,9 +5,8 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// half walk right, each advancing the body by its stride phase's planted-foot movement.
 /// </summary>
 /// <remarks>
-/// The game's walking instruction reads a word table by a byte operand, so an odd operand would read a word
-/// straddling two entries. Every walking cue in Golden Torizo's programs carries an even operand (steps 0 to 19 here),
-/// so no retail path reaches a straddled read and none is reproduced (#1473).
+/// Every walking cue in Golden Torizo's programs names one of these steps (0 to 19 here); a cue between two steps
+/// reaches no retail path and is not reproduced (#1473).
 /// </remarks>
 public static class GoldenTorizoWalk
 {

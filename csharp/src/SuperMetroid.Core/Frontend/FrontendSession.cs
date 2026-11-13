@@ -286,7 +286,7 @@ internal sealed class FrontendSession
         PauseBrightness = brightness;
         display.SetBrightness(brightness);
     }
-    /// <summary>Starts a pause fade from <paramref name="initialBrightness"/> with both fade words reloaded.</summary>
+    /// <summary>Starts a pause fade from <paramref name="initialBrightness"/> with both fade counters reloaded.</summary>
     internal void BeginPauseFade(int initialBrightness)
     {
         PauseBrightness = initialBrightness;
@@ -399,7 +399,7 @@ internal sealed class FrontendSession
                 slot.GameTimeMinutes, slot.GameTimeHours);
             runtime.FrameBoundary.PublishWhileLoading();
 
-            // Preserve the already-translated Ceres elevator entrance for its checkpoint.
+            // Preserve the already-modelled Ceres elevator entrance for its checkpoint.
             // Every other station uses the general room loader below.
             if (slot.StartupRoute == SaveLoadingGameState.CeresElevatorArrival)
             {
@@ -473,7 +473,7 @@ internal sealed class FrontendSession
     /// <summary>
     /// The end of the fade-in selects the next state, which then enters main gameplay; the Ceres arrival is
     /// ordinary gameplay with Samus locked. The fade-in wrote full brightness this frame; the level is published before it
-    /// rises, so the register is recorded directly.
+    /// rises, so the brightness is recorded directly.
     /// </summary>
     internal void FinishGameplayFadeIn()
     {

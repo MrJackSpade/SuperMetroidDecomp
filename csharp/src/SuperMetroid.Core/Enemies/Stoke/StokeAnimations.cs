@@ -1,18 +1,19 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Stoke.StokeCueKind;
 using P = SuperMetroid.Core.Enemies.Stoke.StokeProgram;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Stoke;
 
 /// <summary>
 /// Stoke's walking and fire-spitting animations as typed programs (#641). Each
-/// frame shows a <see cref="StokeFrame"/> pose and each callback becomes a <see cref="StokeCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyFrameId"/> and each callback becomes a <see cref="StokeCue"/> with its typed operands.
 /// </summary>
 internal static class StokeAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<StokeProgram, StokeFrame, StokeCue> Segments { get; } = new(
-        new Dictionary<StokeProgram, AnimationBeat<StokeFrame, StokeCue>[]>
+    internal static AnimationSegments<StokeProgram, EnemyFrameId, StokeCue> Segments { get; } = new(
+        new Dictionary<StokeProgram, AnimationBeat<EnemyFrameId, StokeCue>[]>
     {
         [P.MovingLeft] =
         [
@@ -20,16 +21,16 @@ internal static class StokeAnimations
         ],
         [P.MovingLeftLoop] =
         [
-            Show(0, 8),
-            Show(1, 16),
-            Show(2, 8),
-            Show(3, 8),
+            Show(EnemyFrameId.StokeWalkLeft0, 8),
+            Show(EnemyFrameId.StokeWalkLeft1, 16),
+            Show(EnemyFrameId.StokeWalkLeft2, 8),
+            Show(EnemyFrameId.StokeWalkLeft3, 8),
         ],
         [P.AttackingLeft] =
         [
-            Show(2, 16),
+            Show(EnemyFrameId.StokeWalkLeft2, 16),
             Cue(new(K.SpawnFireball, FireballDirection: StokeDirection.Left)),
-            Show(4, 16),
+            Show(EnemyFrameId.StokeAttackLeft, 16),
         ],
         [P.MovingRight] =
         [
@@ -37,16 +38,16 @@ internal static class StokeAnimations
         ],
         [P.MovingRightLoop] =
         [
-            Show(5, 8),
-            Show(6, 16),
-            Show(7, 8),
-            Show(8, 8),
+            Show(EnemyFrameId.StokeWalkRight0, 8),
+            Show(EnemyFrameId.StokeWalkRight1, 16),
+            Show(EnemyFrameId.StokeWalkRight2, 8),
+            Show(EnemyFrameId.StokeWalkRight3, 8),
         ],
         [P.AttackingRight] =
         [
-            Show(7, 16),
+            Show(EnemyFrameId.StokeWalkRight2, 16),
             Cue(new(K.SpawnFireball, FireballDirection: StokeDirection.Right)),
-            Show(9, 16),
+            Show(EnemyFrameId.StokeAttackRight, 16),
         ],
     });
 
@@ -64,9 +65,9 @@ internal static class StokeAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<StokeProgram> StartingWith(StokeProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<StokeFrame, StokeCue> Show(int pose, int duration) => new AnimationBeat<StokeFrame, StokeCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyFrameId, StokeCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, StokeCue>.Frame(frame, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<StokeFrame, StokeCue> Cue(StokeCue cue) => new AnimationBeat<StokeFrame, StokeCue>.Event(cue);
+    private static AnimationBeat<EnemyFrameId, StokeCue> Cue(StokeCue cue) => new AnimationBeat<EnemyFrameId, StokeCue>.Event(cue);
 }

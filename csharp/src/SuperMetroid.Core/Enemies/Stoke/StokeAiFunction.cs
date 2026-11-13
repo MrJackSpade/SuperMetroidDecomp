@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Enemies.Stoke;
 
 /// <summary>
-/// Stoke's main-AI routine. The game has separate moving-left and moving-right
-/// routines; which one runs always matches the direction word, so the direction is read from
+/// Stoke's main-AI behaviour. The game has separate moving-left and moving-right
+/// functions; which one runs always matches the stored direction, so the direction is read from
 /// <see cref="StokeEnemyState.Direction"/> alone.
 /// </summary>
 public enum StokeAiFunction
@@ -11,7 +11,7 @@ public enum StokeAiFunction
     IdleDuringAttack,
 
     /// <summary>
-    /// Walking left or right, with the 16.16 speed pair of the direction word's side, terrain-turn checks, and the
+    /// Walking left or right, with the 16.16 speed pair of the stored direction's side, terrain-turn checks, and the
     /// per-update random attack choice toward that side.
     /// </summary>
     Moving,

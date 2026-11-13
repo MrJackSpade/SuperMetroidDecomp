@@ -20,8 +20,8 @@ internal static class EscapeTimerCadenceDefinitions
     internal const int QuarterCount = 4;
     /// <summary>Each quarter divides into two16-frame accumulators, front-loading an odd budget's extra unit; the exact budget ordering.</summary>
     internal const int HalvesPerQuarter = 2;
-    /// <summary>27-centisecond halves use accumulator preload1 in a16-unit denominator; the exact accumulator initial condition.</summary>
+    /// <summary>27-centisecond halves preload the running sum with 1 in a 16-unit denominator; the exact initial condition.</summary>
     internal const int HigherBudgetPhase = 1;
-    /// <summary>26-centisecond halves use accumulator preload4 in a16-unit denominator; the exact accumulator initial condition.</summary>
+    /// <summary>26-centisecond halves preload the running sum with 4 in a 16-unit denominator; the exact initial condition.</summary>
     internal const int LowerBudgetPhase = 4;
 }

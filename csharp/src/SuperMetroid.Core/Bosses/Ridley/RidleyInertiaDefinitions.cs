@@ -9,7 +9,7 @@ public static class RidleyInertiaDefinitions
     /// <summary>Moving Ridley to his death spot adds sixteen to reversal deceleration, independently of Y.</summary>
     public const int DeathReversalBoost = 16;
 
-    /// <summary>The fastest positive speed the Norfair acceleration routines allow, five pixels per frame.</summary>
+    /// <summary>The fastest positive speed Norfair Ridley's acceleration allows, five pixels per frame.</summary>
     public static SignedEightEight MaximumVelocity { get; } = SignedEightEight.FromPixels(5);
 
     /// <summary>The fastest negative speed, five pixels per frame, compared with the N flag.</summary>

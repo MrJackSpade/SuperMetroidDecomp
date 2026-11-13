@@ -22,7 +22,7 @@ public sealed record RoomObjectRoom
     }
 
 
-    /// <summary>Room collision and tilemap data room objects edit.</summary>
+    /// <summary>Room collision and block data room objects edit.</summary>
     public RoomLevelData Level { get; }
 
     /// <summary>What the room's room objects show over its load, as a collectible shows in its graphics slot (#1466).</summary>

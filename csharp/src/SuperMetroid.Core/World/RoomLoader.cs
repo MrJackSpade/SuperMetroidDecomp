@@ -50,7 +50,7 @@ internal sealed class RoomLoader
     private readonly GameplayDisplayState _display;
     /// <summary>Coordinates the door loader's staged transition states.</summary>
     private readonly DoorTransitionRunner _doorTransition;
-    /// <summary>The enemy words and installed enemy artwork that outlive each room; each room's enemies are built over it.</summary>
+    /// <summary>The enemy state and installed enemy artwork that outlive each room; each room's enemies are built over it.</summary>
     private readonly EnemySession _enemySession;
 
     /// <summary>The session's installed boss artwork, which each room's bosses read.</summary>
@@ -191,7 +191,7 @@ internal sealed class RoomLoader
     /// ordinary standing control. That presentation coroutine is not a room-loading
     /// responsibility, so this method establishes its deterministic endpoint rather than
     /// replaying guessed timing. Room selection, coordinates, inventory, progression bits,
-    /// enemies, room objects, graphics, beam upload, and camera all remain driven.
+    /// enemies, room objects, graphics, beam graphics, and camera all remain driven.
     /// </remarks>
     public InitialViewportResult InitializeSavedGame(SuperMetroidSaveSlot slot)
     {
@@ -208,8 +208,8 @@ internal sealed class RoomLoader
         }
 
         // Apply progression before room construction. Enemy and room-object initialization query
-        // boss/event/item bytes synchronously, while room-state selection and beam graphics
-        // depend on those same words. In particular, loading a post-Morph-Ball save must not
+        // boss/event/item flags synchronously, while room-state selection and beam graphics
+        // depend on those same flags. In particular, loading a post-Morph-Ball save must not
         // accidentally construct the untouched new-game version of Blue Brinstar.
         RestoreSavedPlayerState(slot);
         _player.IntroducedSamus.Position = _player.IntroducedSamus.Position.WithWholeX(station.Placement.SamusPosition.X);
@@ -300,7 +300,7 @@ internal sealed class RoomLoader
         // Initializing Samus clears all of her state, including the speeds and pose
         // state the escape left behind; only the inventory below it survives. The player is
         // the same one, so a loadout already granted to her is not granted again.
-        // Initialization clears Pose; the port's constructor defaults to the right-facing pose.
+        // Initialization clears Pose; the model's constructor defaults to the right-facing pose.
         var samus = new SamusState(_samusOverreads.AnimationContinuation, _unauthoredBoostCadence, SamusCompatibility.ForNewSamus(), _beamCharge) { Pose = 0, AnimationFrame = 0 };
         samus.CopyInventoryFrom(carried);
         samus.BindAudioRequests(_audioRequests);
@@ -358,12 +358,12 @@ internal sealed class RoomLoader
     }
 
     /// <summary>
-    /// True after 's type-$9 handler has selected a normal destination door and
+    /// True after the door-block handler has selected a normal destination door and
     /// before the frontend's door-transition states consume it.
     /// </summary>
     public bool HasPendingDoorTransition => _room.LevelData?.PendingDoorTransition is not null;
 
-    /// <summary>The unconsumed door selected by the type-$9 collision handler.</summary>
+    /// <summary>The unconsumed door selected by the door-block collision handler.</summary>
     public DoorDefinition? PendingDoorTransition => _room.LevelData?.PendingDoorTransition;
 
     /// <summary>
@@ -404,7 +404,7 @@ internal sealed class RoomLoader
     /// </summary>
     internal static bool DoorTransitionAlignsX(DoorDirection direction) => direction.IsVertical();
 
-    /// <summary>Whether the pending door's destination room header selects the isolated door transition.</summary>
+    /// <summary>Whether the pending door's destination room definition selects the isolated door transition.</summary>
     public bool PendingDoorDestinationUsesIsolatedDoorTransition => PendingDoorTransition is { } door
         ? LoadSelectedRoom(door.DestinationRoom).UsesIsolatedDoorTransition
         : throw new InvalidOperationException("No pending door destination exists.");
@@ -517,7 +517,7 @@ internal sealed class RoomLoader
         DoorOpeningSourceView sourceScroll = _pendingDoorOpeningSourceView
             ?? throw new InvalidOperationException(
                 "Door-opening scroll lost the source room's view.");
-        // The offsets derive from the foreground words staged before setup's first call:
+        // The offsets derive from the foreground position staged before setup's first call:
         // horizontal setups had not yet taken their four-pixel step, and an upward door's
         // correction of the source room's top row stages the foreground five (the background four) pixels lower.
         Offset16<RoomPixels> foregroundStaging = direction switch
@@ -694,12 +694,12 @@ internal sealed class RoomLoader
         SelectedRoom room = LoadSelectedRoom(door.DestinationRoom);
 
         // The transition's teardown deletes direct G-Mode's stranded X-ray beam,
-        // but it does not restore the four subsystem enable words. Destination room setup
+        // but it does not restore the four suspended subsystems. Destination room setup
         // therefore begins in indirect G-Mode and cannot create a visible gate actor.
         _player.Samus.Xray.TransitionDirectGModeToIndirect();
 
-        // The desktop's opt-in error reporter resumes at the next emulated-frame boundary.
-        // Code cannot throw, but translated room construction can still reject an
+        // The desktop's opt-in error reporter resumes at the next frame boundary.
+        // Code cannot throw, but room construction can still reject an
         // unsupported definition. Build the read-only asset graph before consuming the
         // source room's pending door so such a failure remains retryable instead of leaving
         // the door transition with no destination on the following frame.
@@ -715,7 +715,7 @@ internal sealed class RoomLoader
         }
 
         // A door that exchanges explored maps stores the live map as the departed area's,
-        // then, with the destination's header loaded, loads the live map from the entered area's.
+        // then, with the destination's definition loaded, loads the live map from the entered area's.
         if (ExploredMapExchangeDoorDefinitions.Doors.Contains(door))
         {
             _system.StoredExploredMaps.StoreLiveMap(_room.LoadedRoom.AreaIndex);
@@ -732,7 +732,7 @@ internal sealed class RoomLoader
             _room.LoadedScope.Enemies.Elevator.PrepareElevatorArrival();
 
         // The load-station record established only the first room. Once the door collision publishes
-        // a door definition, that definition and its destination header become authoritative:
+        // a door definition, that definition and its destination definition become authoritative:
         // the destination's scope is built without a load station.
 
         // The door's scroll has already placed Samus before the destination room is
@@ -870,7 +870,7 @@ internal sealed class RoomLoader
         // then draw over (#1349, #1467); every other room shows none (#1649).
         scope.Floor = assets.CreateFloor();
 
-        // Loading the FX header selects the door-specific record, applies its palette
+        // Loading the FX definition selects the door-specific record, applies its palette
         // blend, chooses the effect page the effect overlay plane shows, and creates the type-owned per-line
         // effect and animtile state before palette-FX objects and enemies begin running.
         var roomFxOverlay = RoomFxOverlayState.ForRoom(
@@ -891,7 +891,7 @@ internal sealed class RoomLoader
         if (_player.Samus is not null)
             _player.Samus.LiquidPhysics.ConfigureFor(roomFxOverlay);
 
-        // Loading reads the FX header after room setup and before enemies. Its selected
+        // Loading reads the FX definition after room setup and before enemies. Its selected
         // record names two independent effect lists. The palette half must
         // be created on every shared room-load path; Landing Site's lightning replaces the
         // colors used by the scrolling-sky horizon on the first gameplay handler call.
@@ -906,7 +906,7 @@ internal sealed class RoomLoader
 
 
         // Loading destroys room-owned objects before constructing the destination: the
-        // destination's projectiles and bombs are built new here, before Load/beam upload, so no
+        // destination's projectiles and bombs are built new here, before Load/beam graphics, so no
         // stale index reaches into them; its room-object system is built with the population below.
         // The held beam charge survives on the session; Samus's own echo storage is cleared.
         if (_player.Samus is { } loadingSamus)
@@ -928,8 +928,8 @@ internal sealed class RoomLoader
         // The room-object loader walks this list once. Each record allocates
         // the highest free one of forty IDs before its setup executes. Immediate
         // deletion can therefore free that same ID for the next authored record, and enemy code
-        // can observe the resulting physical header/argument ordering. All room families
-        // enter through this one parser; an unsupported header throws with complete record
+        // can observe the resulting physical identity/argument ordering. All room families
+        // enter through this one parser; an unsupported definition throws with complete record
         // context instead of being skipped by a collection of sibling scans.
         // The room's room-object system is built with its bindings, then one set of runtime services
         // serves the room's room objects and enemies.
@@ -1067,9 +1067,9 @@ internal sealed class RoomLoader
     /// Resolves a compiled room selector against the live saved progress and Samus inventory.
     /// </summary>
     /// <remarks>
-    /// The fixed eleven-byte header still supplies the area index needed to choose that
-    /// area's boss byte. The ordered selector program is application-owned definition data;
-    /// no production path executes selector bytes. Keeping this at the shared loader
+    /// The fixed room definition still supplies the area needed to choose that
+    /// area's boss flags. The ordered selector program is application-owned definition data;
+    /// no production path executes selector data. Keeping this at the shared loader
     /// boundary prevents doors, save stations, and attract scenes from choosing differently.
     /// </remarks>
     internal SelectedRoom LoadSelectedRoom(RoomHeaderDefinition room)
@@ -1128,7 +1128,7 @@ internal sealed class RoomLoader
     /// Applies the Ceres-start Samus pose/state after room loading.
     /// </summary>
     /// <remarks>
-    /// The routine intentionally replaces the load-station Y coordinate with zero;
+    /// The behaviour intentionally replaces the load-station Y coordinate with zero;
     /// elevator platform/projectile motion later carries front-facing Samus into the room.
     /// That elevator actor is a separate pending subsystem, so this method does not invent a
     /// floor placement or prematurely unlock controls.
@@ -1158,7 +1158,7 @@ internal sealed class RoomLoader
         // from enemy slot zero. Their shared initializer, however, runs
         // before the first draw and explicitly clears that graphics index. The specialized
         // arrival model owns that post-initialization value; passing the transient
-        // enemy word here previously recolored the level-data concealer teal.
+        // enemy graphics index here previously recolored the level-data concealer teal.
         _room.LoadedScope.BeginCeresElevatorArrival(new CeresElevatorArrivalState(_player.Samus));
 
         // The locked Ceres-start frame handler still publishes the initial minimap. The
@@ -1170,11 +1170,11 @@ internal sealed class RoomLoader
 
         // Samus's Ceres-start setup command installs a locked frame handler. Reuse the
         // existing runtime switch to ensure ordinary movement cannot begin before the
-        // elevator arrival sequence has been translated.
+        // elevator arrival sequence has been modelled.
         _player.GroundedSamusMovementEnabled = false;
     }
 
-    /// <summary>Returns room-header geometry for either supported room path.</summary>
+    /// <summary>Returns room geometry for either supported room path.</summary>
     internal ActiveRoomGeometry GetActiveRoomGeometry()
     {
         if (_room.ActiveRoom is not null)

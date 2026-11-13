@@ -415,35 +415,35 @@ internal static class CrocomireBodyAnimations
         ],
         [P.MeltingOneTopRow] =
         [
-            Show(Body(42), 32767),
+            Show(Body(42), LoopingMeltFrameDuration),
         ],
         [P.MeltingOneTopTwoRows] =
         [
-            Show(Body(43), 32767),
+            Hold(Body(43)),
         ],
         [P.MeltingOneTopThreeRows] =
         [
-            Show(Body(44), 32767),
+            Hold(Body(44)),
         ],
         [P.MeltingOneTopFourRows] =
         [
-            Show(Body(45), 32767),
+            Hold(Body(45)),
         ],
         [P.MeltingTwoTopRow] =
         [
-            Show(Body(46), 32767),
+            Show(Body(46), LoopingMeltFrameDuration),
         ],
         [P.MeltingTwoTopTwoRows] =
         [
-            Show(Body(47), 32767),
+            Hold(Body(47)),
         ],
         [P.MeltingTwoTopThreeRows] =
         [
-            Show(Body(48), 32767),
+            Hold(Body(48)),
         ],
         [P.MeltingTwoTopFourRows] =
         [
-            Show(Body(49), 32767),
+            Hold(Body(49)),
         ],
         [P.BridgeCollapsed] =
         [
@@ -499,11 +499,11 @@ internal static class CrocomireBodyAnimations
         ],
         [P.SkeletonStable] =
         [
-            Show(Skeleton(21), 32767),
+            Hold(Skeleton(21)),
         ],
         [P.Dead] =
         [
-            Show(Skeleton(22), 32767),
+            Hold(Skeleton(22)),
         ],
         [P.SkeletonFlowingDownRiver] =
         [
@@ -590,6 +590,20 @@ internal static class CrocomireBodyAnimations
 
     /// <summary>A skeleton frame.</summary>
     private static CrocomireBodyFrame Skeleton(int index) => new(CrocomireBodyFrameSet.Skeleton, index);
+
+    /// <summary>
+    /// Shows <paramref name="frame"/> for good (#1627): the body rests on it until its owner starts another program. A shot
+    /// that adds to or resets the body's frame timer only moves the update the rest is reached again, which plays nothing.
+    /// </summary>
+    private static AnimationBeat<CrocomireBodyFrame, CrocomireBodyCue> Hold(CrocomireBodyFrame frame) =>
+        new AnimationBeat<CrocomireBodyFrame, CrocomireBodyCue>.HeldFrame(frame);
+
+    /// <summary>
+    /// The updates each melting pass's first-row frame shows before its list shows it again, the longest frame a list
+    /// gives, kept exact (#1627): these two lists loop on their frame, so the frame shows anew, raising the new-frame flag,
+    /// each time the count runs out, and a shot's added updates move when.
+    /// </summary>
+    private const int LoopingMeltFrameDuration = 32767;
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<CrocomireBodyFrame, CrocomireBodyCue> Show(CrocomireBodyFrame frame, int duration) =>

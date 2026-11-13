@@ -12,11 +12,11 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 [RoomLifetime]
 internal sealed class PhantoonDeath
 {
-    /// <summary>Room services and tilemap state used by the Wrecked Ship encounter.</summary>
+    /// <summary>Room services and background state used by the Wrecked Ship encounter.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Owns the starting, casual, rain, rage, and spiral flame actors.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>Applies body palettes and the background tilemap changes.</summary>
+    /// <summary>Applies body palettes and the background changes.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Supplies Samus state for eye tracking and attack selection.</summary>
     private readonly EnemyFrameContext _frameContext;

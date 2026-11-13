@@ -13,11 +13,11 @@ internal static class KraidAnimations
     {
         [P.FootInitial] =
         [
-            Show(FootStanding(), 32767),
+            Hold(FootStanding()),
         ],
         [P.FootNeutral] =
         [
-            Show(Foot(0), 32767),
+            Hold(Foot(0)),
         ],
         [P.FootWalkingForward] =
         [
@@ -282,15 +282,15 @@ internal static class KraidAnimations
         [
             Show(Arm(0), 6),
             Show(Arm(20), 6),
-            Show(Arm(21), 32767),
+            Show(Arm(21), ReadyToLungeArmDuration),
         ],
         [P.LintInitial] =
         [
-            Show(Lint(0), 32767),
+            Hold(Lint(0)),
         ],
         [P.LintPostGrowth] =
         [
-            Show(Lint(1), 32767),
+            Hold(Lint(1)),
         ],
         [P.NailLoop] =
         [
@@ -359,6 +359,21 @@ internal static class KraidAnimations
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<KraidPartFrame, KraidPartCue> Show(KraidPartFrame frame, int duration) =>
         new AnimationBeat<KraidPartFrame, KraidPartCue>.Frame(frame, duration);
+
+    /// <summary>
+    /// Shows <paramref name="frame"/> for good (#1627): the part rests on it until its owner starts another program. The
+    /// feet's standing poses and the belly lints' poses are held: nothing reads a foot's frame timer, and a lint's routine
+    /// reloads its timer every update, so the original's longest frame never runs out where gameplay sees it.
+    /// </summary>
+    private static AnimationBeat<KraidPartFrame, KraidPartCue> Hold(KraidPartFrame frame) =>
+        new AnimationBeat<KraidPartFrame, KraidPartCue>.HeldFrame(frame);
+
+    /// <summary>
+    /// The updates the arm's last lunge-ready pose shows, the longest frame a list gives, kept exact (#1627): while mouth
+    /// reopens are pending, Kraid's arm routine adds an update to the arm's frame timer every update, which keeps this
+    /// count standing and the arm's new-frame flag clear; a held frame's timer would run out every update instead.
+    /// </summary>
+    private const int ReadyToLungeArmDuration = 32767;
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
     private static AnimationBeat<KraidPartFrame, KraidPartCue> Cue(KraidPartCue cue) =>

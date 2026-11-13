@@ -6,7 +6,7 @@ internal static class BombTorizoMovementDefinitions
     /// <summary>
     /// The sixteen X values and eight Y values, in pixels, of the posture
     /// movement. The sitting-down copies
-    /// are byte-identical and are subtracted by the caller. Left-facing per-frame
+    /// are identical and are subtracted by the caller. Left-facing per-frame
     /// displacements are authored to the posture animation, including its uneven steps;
     /// right-facing movement reflects their horizontal sign rather than storing a second table.
     /// </summary>

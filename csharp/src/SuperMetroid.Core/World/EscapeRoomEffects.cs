@@ -17,7 +17,7 @@ internal sealed class EscapeRoomEffects
     private readonly FrameClock _clock;
     /// <summary>Provides the active room callback, camera and level.</summary>
     private readonly ActiveRoomState _room;
-    /// <summary>Supplies the original game random sequence and Zebes timebomb event.</summary>
+    /// <summary>Supplies the game's random sequence and Zebes timebomb event.</summary>
     private readonly SharedGameState _system;
 
     /// <summary>Binds room, enemy, freeze, clock, and system owners used by escape callbacks.</summary>

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Sparks;
 
 /// <summary>
-/// The routine Wrecked Ship Spark's main AI runs. Its values are arbitrary.
+/// The behaviour Wrecked Ship Spark's main AI runs. Its values are arbitrary.
 /// </summary>
 public enum SparkEnemyFunction
 {

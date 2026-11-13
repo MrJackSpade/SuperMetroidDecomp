@@ -30,7 +30,7 @@ public static class SamusGrappleSwing
 
         // The swing copies Start to Flare during swinging. BeamStart retains
         // the older public name because the renderer consumes it, but
-        // it semantically represents the Flare/draw origin throughout this translation.
+        // it semantically represents the Flare/draw origin throughout.
         grapple.BeamStart = ropeStart.Pixel;
 
         // The game shares a selector between physical body placement and displayed art.
@@ -83,7 +83,7 @@ public static class SamusGrappleSwing
 
 
     /// <summary>
-    /// The signed negative cosine of <paramref name="angle"/>'s whole step, the table's word at that step: the sine a
+    /// The signed negative cosine of <paramref name="angle"/>'s whole step, the table's entry at that step: the sine a
     /// quarter turn behind it.
     /// </summary>
     internal static int ReadSignedSine(RotationAngle angle) =>
@@ -315,7 +315,7 @@ public static class SamusGrappleSwing
     }
 
 
-    /// <summary>Sweeps each traversed angle-table byte against terrain and reflects or locks at the last clear angle.</summary>
+    /// <summary>Sweeps each traversed angle-table step against terrain and reflects or locks at the last clear angle.</summary>
     internal static GrappleSwingCollisionResult AdvanceAngleWithTerrainCollision(
         RoomLevelData level,
         SamusState samus,
@@ -385,7 +385,7 @@ public static class SamusGrappleSwing
 
         // No sampled angle collided, so preserve the full fine target, clear the special
         // angle request, age the kick window, and damp extra velocity by six. Every one of
-        // these operations is bypassed by the collision return above in the original code.
+        // these operations is bypassed by the collision return above.
         grapple.Angle = targetAngle;
         grapple.MirroredAngle = targetAngle;
         grapple.SpecialAngleHandling = false;
@@ -393,7 +393,7 @@ public static class SamusGrappleSwing
         grapple.CollisionBounceTimer = Math.Max(0, grapple.CollisionBounceTimer - 1);
 
         // The angular movement damps the temporary jump impulse toward zero by six after a successful
-        // angle step. This word is separate from angular velocity and must not be folded in.
+        // angle step. This impulse is separate from angular velocity and must not be folded in.
         if (grapple.JumpImpulse > 0)
             grapple.JumpImpulse = Math.Max(0, grapple.JumpImpulse - 6);
         else if (grapple.JumpImpulse < 0)
@@ -434,7 +434,7 @@ public static class SamusGrappleSwing
     }
 
 
-    /// <summary>Projects a body probe from the block-biased anchor and wraps its room-block coordinates to bytes.</summary>
+    /// <summary>Projects a body probe from the block-biased anchor and wraps its room-block coordinates below 256.</summary>
     internal static GrappleCollisionPoint CalculateCollisionPoint(
         SamusGrappleState grapple,
         TrigonometryAngle angle,
@@ -443,7 +443,7 @@ public static class SamusGrappleSwing
         int xSine = Trigonometry.SignedSine(angle);
         int yNegativeCosine = Trigonometry.SignedSine(angle - TrigonometryAngle.QuarterTurn);
 
-        // For a block anchor, the collision point biases the low nibble toward the side from
+        // For a block anchor, the collision point biases the position within the block toward the side from
         // which the rope leaves the block: eight for a nonnegative component, seven for a
         // negative one. This one-pixel asymmetry is observable in both collision probes and
         // Samus positioning, and the adjusted endpoint remains stored after the helper.

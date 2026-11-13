@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <summary>
 /// Ridley's encounter mode, shared by the Ceres and Lower Norfair encounters: whether he is outside combat, fighting,
 /// dodging a power bomb or dying, which decides whether hits interrupt him, his tail attacks and his death starts. The
-/// original game's value for each mode belongs to verification.
+/// stored value of each mode belongs to verification.
 /// </summary>
 public enum RidleyFightMode
 {

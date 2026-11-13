@@ -26,5 +26,5 @@ internal static class MagdolliteLavaNativeListAddresses
     internal static ushort Entry(MagdolliteLavaProgram program) => NativeEnemyProjectileProgramOracle.EntryOf(Entries, program);
 
     /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, MagdolliteLavaAnimations.Segments, MagdolliteLavaAnimations.StartingAt, (frame => EnemyProjectileProgramFrameSources.Operand(MagdolliteLavaFrameDefinitions.ShownProjectileFrames[frame])), MagdolliteLavaCueRules.Rules);
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, MagdolliteLavaAnimations.Segments, MagdolliteLavaAnimations.StartingAt, (frame => EnemyProjectileProgramFrameSources.Operand(frame)), MagdolliteLavaCueRules.Rules);
 }

@@ -6,28 +6,28 @@ namespace SuperMetroid.Core.Enemies.Nuclear;
 
 /// <summary>
 /// The Nuclear Waffle's body program (#641). Each
-/// frame shows a <see cref="NuclearWaffleProjectileFrame"/> pose and each command becomes a <see cref="EnemyProjectileCommonCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyProjectileFrameId"/> and each command becomes a <see cref="EnemyProjectileCommonCue"/> with its typed operands.
 /// </summary>
 internal static class NuclearWaffleProjectileAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<NuclearWaffleProjectileProgram, NuclearWaffleProjectileFrame, EnemyProjectileCommonCue> Segments { get; } = new(
-        new Dictionary<NuclearWaffleProjectileProgram, AnimationBeat<NuclearWaffleProjectileFrame, EnemyProjectileCommonCue>[]>
+    internal static AnimationSegments<NuclearWaffleProjectileProgram, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
+        new Dictionary<NuclearWaffleProjectileProgram, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>
     {
         [P.Initial] =
         [
-            Show(0, 3),
-            Show(1, 3),
-            Show(2, 3),
-            Show(3, 3),
-            Show(4, 3),
-            Show(5, 3),
-            Show(6, 3),
-            Show(7, 3),
-            Show(8, 3),
-            Show(9, 3),
-            Show(10, 3),
-            Show(11, 3),
+            Show(EnemyProjectileFrameId.NuclearWaffleInitialFirst, 3),
+            Show(EnemyProjectileFrameId.NuclearWaffleInitialSecond, 3),
+            Show(EnemyProjectileFrameId.NuclearWaffleInitialThird, 3),
+            Show(EnemyProjectileFrameId.NuclearWaffleInitialFourth, 3),
+            Show(EnemyProjectileFrameId.NuclearWaffleInitialFifth, 3),
+            Show(EnemyProjectileFrameId.NuclearWaffleInitialSixth, 3),
+            Show(EnemyProjectileFrameId.NuclearWaffleInitialSeventh, 3),
+            Show(EnemyProjectileFrameId.NuclearWaffleInitialEighth, 3),
+            Show(EnemyProjectileFrameId.NuclearWaffleInitialNinth, 3),
+            Show(EnemyProjectileFrameId.NuclearWaffleInitialTenth, 3),
+            Show(EnemyProjectileFrameId.NuclearWaffleInitialEleventh, 3),
+            Show(EnemyProjectileFrameId.NuclearWaffleInitialTwelfth, 3),
         ],
     });
 
@@ -40,6 +40,6 @@ internal static class NuclearWaffleProjectileAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<NuclearWaffleProjectileProgram> StartingWith(NuclearWaffleProjectileProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<NuclearWaffleProjectileFrame, EnemyProjectileCommonCue> Show(int pose, int duration) => new AnimationBeat<NuclearWaffleProjectileFrame, EnemyProjectileCommonCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);
 }

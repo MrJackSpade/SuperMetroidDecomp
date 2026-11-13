@@ -14,7 +14,7 @@ public static class MorphBallBombDefinitions
     /// <summary>Power-bomb cooldown selected from non-beam table entry three.</summary>
     public const int PowerBombCooldown = 40;
 
-    /// <summary>Initial normal- and power-bomb fuse written by their firing routines.</summary>
+    /// <summary>Initial normal- and power-bomb fuse written when they are placed.</summary>
     public const int InitialBombTimer = 60;
 
     /// <summary>Minimum flare counter accepted by bomb or bomb-spread firing.</summary>

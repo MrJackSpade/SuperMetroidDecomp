@@ -100,7 +100,7 @@ internal sealed class GreyDoorObjects
 
     /// <summary>
     /// Maps the four grey doors and Bomb Torizo's right-facing grey door to their facing (#1414: matched by member,
-    /// replacing the header range the room-object headers implied).
+    /// replacing the range the room-object definitions implied).
     /// </summary>
     internal static bool TryIdentifyGreyDoor(
         RoomObjectHeaderId header,

@@ -13,7 +13,7 @@ public enum ResumeChargingBeamSoundLatch
     ResumeNextPass,
 
     /// <summary>
-    /// A word with bit 15 set. The handler's signed branch rearms to <see cref="ResumeNextPass"/> without any
+    /// A negative latch value. The handler's signed branch rearms to <see cref="ResumeNextPass"/> without any
     /// audio work that pass. Core never writes it; it enters only through an imported state.
     /// </summary>
     SignedLatch,

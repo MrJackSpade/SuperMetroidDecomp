@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Chozo;
 
 /// <summary>
-/// The Wrecked Ship Chozo's footstep and explosion dust and the Tourian statue's descent dust (#641), one per animation a spawn, branch or family routine enters, in authored order.
+/// The Wrecked Ship Chozo's footstep and explosion dust and the Tourian statue's descent dust (#641), one per animation a spawn, branch or family step enters, in authored order.
 /// Their steps are <see cref="ChozoTourianDustAnimations"/>.
 /// </summary>
 internal enum ChozoTourianDustProgram

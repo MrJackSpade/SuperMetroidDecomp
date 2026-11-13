@@ -7,14 +7,14 @@ using SuperMetroid.Core.Samus.Abilities;
 namespace SuperMetroid.Core.Gameplay;
 
 /// <summary>
-/// The room backgrounds one gameplay frame shows (#1346), resolved from level data with no tilemap: foreground from the room's
+/// The room backgrounds one gameplay frame shows (#1346), resolved from level data with no stored picture grid: foreground from the room's
 /// level plane, background from its background plane when that layer streams, the source room's screen during a door's opening
 /// scroll, and the text an escape shows over either layer (#1555). A null <see cref="Background"/> leaves background to the sky's rows, a boss body
-/// that owns background (#1352), or the tilemap its owner loaded (a library background or the X-ray reveal) until that
+/// that owns background (#1352), or the picture its owner loaded (a library background or the X-ray reveal) until that
 /// owner gets its own layer.
 /// </summary>
 /// <param name="Foreground">The room's level plane on the foreground.</param>
-/// <param name="Background">The room's background plane on the background, or null when the background shows a loaded tilemap.</param>
+/// <param name="Background">The room's background plane on the background, or null when the background shows a loaded picture.</param>
 /// <param name="FxOverlay">The room effect's page on the effect overlay (#1348, #1514), as its picture (#1403); null until the frame boundary that latched it resolves it. The HUD is its own layer (#1466).</param>
 /// <param name="DoorSource">The source room's foreground screen during a door's opening scroll, or null.</param>
 /// <param name="ForegroundText">The text an escape shows over the foreground (Ceres's warning), or null (#1555).</param>
@@ -27,7 +27,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// <param name="BossBody">The boss body shown while a boss shows one, as its pictures placed where they show, or null (#1352, #1466, #1514).</param>
 /// <param name="BlockArtwork">Which artwork foreground's and the background's blocks show (#1357, #1466).</param>
 /// <param name="XrayReveal">The X-ray reveal background shows in place of the room's own background, or null (#1392).</param>
-/// <param name="BackgroundImage">The room's library background drawn from its image, where background shows the tilemap it loaded (#1392).</param>
+/// <param name="BackgroundImage">The room's library background drawn from its image, where background shows the picture it loaded (#1392).</param>
 [ArchitectureReview("context-bag", "The background layers one gameplay frame shows, published to the display; every member is a layer's picture data, not a service.")]
 public sealed record RoomBackgrounds(RoomBackgroundLayer Foreground, RoomBackgroundLayer? Background, FxOverlayPage? FxOverlay,
     RoomDoorBackground? DoorSource = null, RoomOverlayPictures? ForegroundText = null, SkyPictures? Sky = null,

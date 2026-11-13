@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
 /// <summary>
-/// The five routines Spore Spawn's main AI dispatches.
-/// Its values are arbitrary; verification's catalog names each member's original routine (#1413).
+/// The five behaviours Spore Spawn's main AI dispatches.
+/// Its values are arbitrary; verification's catalog relates each member to its source (#1413).
 /// </summary>
 public enum SporeSpawnFunction
 {

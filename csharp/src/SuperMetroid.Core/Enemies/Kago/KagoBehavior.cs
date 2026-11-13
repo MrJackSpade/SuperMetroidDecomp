@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.Kago.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -176,7 +175,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         KagoEnemyState state = slot.RequireSpeciesState<KagoEnemyState>();
         AnimationPlayback<KagoProgram> playback = state.Playback;
-        EnemyProgramAnimation.Play(slot, KagoAnimations.Segments, ref playback, KagoFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Play(slot, KagoAnimations.Segments, ref playback,
             static cue => throw new InvalidOperationException($"A cue-free Kago animation raised {cue}."));
         state.Playback = playback;
     }

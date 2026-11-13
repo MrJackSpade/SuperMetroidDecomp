@@ -164,7 +164,7 @@ public static class SamusGrappleBeamDrawing
         // is observably different from merely reversing EndAngle while firing, and it also
         // keeps the rope visually attached after pose-specific art-origin correction.
         RotationAngle drawAngle = SamusGrappleMovement.CalculateAngleFromXY(grapple.Anchor - grapple.BeamStart);
-        // Preserve the fractional word across segments. Rounding each individual
+        // Preserve the fraction across segments. Rounding each individual
         // displacement shortens diagonals and rounds negative steps incorrectly.
         int stepX = SamusGrappleSwing.ReadSignedSine(drawAngle + RotationAngle.QuarterTurn)
             * GrappleBeamDefinitions.Rendering.SegmentSampleToFixedPoint;
@@ -227,11 +227,11 @@ public static class SamusGrappleBeamDrawing
         (phase + RopeCycle - 1 - segment % RopeCycle) % RopeCycle;
 
 
-    /// <summary>Clears the three charge-flare words shared by grapple cancellation and connection cleanup.</summary>
+    /// <summary>Clears the three charge-flare values shared by grapple cancellation and connection cleanup.</summary>
     internal static void ClearFlareAnimation(SamusGrappleState grapple)
     {
         // Every grapple teardown clears these same shared charge/grapple
-        // words before restoring the ordinary draw handler and projectile palette.
+        // values before restoring the ordinary draw handler and projectile palette.
         grapple.FlareStage = GrappleFlareStage.None;
         grapple.FlareAnimationFrame = 0;
         grapple.FlareAnimationTimer = WrappingCountdown.Start(0);

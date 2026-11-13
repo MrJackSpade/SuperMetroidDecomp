@@ -27,7 +27,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
     /// <summary>The destination door.</summary>
     public DoorDefinition Door { get; } = Ensure.NotNull(door);
 
-    /// <summary>The destination room and state header.</summary>
+    /// <summary>The destination room and state definition.</summary>
     public SelectedRoom Room { get; } = Ensure.NotNull(room);
 
     /// <summary>The destination's asset graph.</summary>
@@ -82,22 +82,22 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
     /// <summary>The treadmill tiles, once the FX step has built them.</summary>
     public RoomTreadmillAnimatedTilesState? TreadmillTiles { get; set; }
 
-    /// <summary>The Wrecked Ship treadmill tiles, once the header step has built them.</summary>
+    /// <summary>The Wrecked Ship treadmill tiles, once the definition step has built them.</summary>
     public WreckedShipTreadmillAnimatedTilesState? WreckedShipTreadmill { get; set; }
 
     /// <summary>The Tourian statues, once the post-enemy step has built them.</summary>
     public TourianStatueSequence? TourianStatues { get; set; }
 
-    /// <summary>The elevatube room main, once the header step has built it.</summary>
+    /// <summary>The elevatube room main, once the definition step has built it.</summary>
     public MaridiaElevatubeRoomMainState? MaridiaElevatube { get; set; }
 
-    /// <summary>The Ceres elevator shaft room main, once the header step has built it.</summary>
+    /// <summary>The Ceres elevator shaft room main, once the definition step has built it.</summary>
     public CeresElevatorShaftRoomMainState? CeresElevatorShaft { get; set; }
 
-    /// <summary>The Ceres falling-debris room main, once the header step has built it.</summary>
+    /// <summary>The Ceres falling-debris room main, once the definition step has built it.</summary>
     public CeresFallingDebrisRoomMainState? CeresFallingDebris { get; set; }
 
-    /// <summary>The escape diagonal-quake countdown, once the header step has built it.</summary>
+    /// <summary>The escape diagonal-quake countdown, once the definition step has built it.</summary>
     public EscapeDiagonalQuakeState? EscapeDiagonalQuake { get; set; }
 
     /// <summary>The enemy system, once the enemy step has built it.</summary>

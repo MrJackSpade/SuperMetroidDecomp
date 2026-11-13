@@ -1,10 +1,9 @@
 ﻿using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.Zoa.Artwork;
 using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Enemies.Zoa;
 
-/// <summary>The Zoa species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Zoa species owner: its per-room state, behaviour and the interactions it registers.</summary>
 internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
@@ -13,14 +12,14 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new ZoaEntity(slot, common);
 
-    /// <summary>Advances Zoa's typed animation (#641) where the interpreter would run its list.</summary>
+    /// <summary>Advances Zoa's typed animation (#641) where the shared enemy animation would run its list.</summary>
     internal static void AdvanceZoaAnimation(RoomEnemySlot slot)
     {
         if (!EnemyProgramAnimation.Expire(slot))
             return;
         ZoaEnemyState state = slot.RequireSpeciesState<ZoaEnemyState>();
         AnimationPlayback<ZoaProgram> playback = state.Playback;
-        EnemyProgramAnimation.Play(slot, ZoaAnimations.Segments, ref playback, ZoaFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Play(slot, ZoaAnimations.Segments, ref playback,
             cue =>
             {
                 ApplyZoaCue(state, cue);
@@ -176,7 +175,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Timer = WrappingCountdown.Start(0);
     }
 
-    /// <summary>Ports Zoa's main AI.</summary>
+    /// <summary>Runs Zoa's main AI.</summary>
     internal static void RunZoaMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunZoaMain(slot, slot.RequireSpeciesState<ZoaEnemyState>(), frame.Samus, frame.Camera);

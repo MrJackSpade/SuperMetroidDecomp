@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 internal static class RidleyExplosionDefinitions
 {
     /// <summary>
-    /// The breakup initializer draws a fragment's horizontal speed from one random word as the sum of two
+    /// The breakup initializer draws a fragment's horizontal speed from one random value as the sum of two
     /// selections: this one, 0 to 3 sixteenths of a pixel per frame, and <see cref="FragmentSpeedWholePixel"/>.
     /// </summary>
     internal static readonly RandomSampleField FragmentSpeedSixteenths = new(4, 2);

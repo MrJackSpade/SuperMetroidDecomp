@@ -40,7 +40,7 @@ internal static class SamusBodyCompositions
     /// pose's own movement type: a frame whose top half is the complete body shows none.
     /// </summary>
     /// <exception cref="InvalidDataException">The pose has no movement type.</exception>
-    private static bool ShowsBottomHalf(SamusPoseId pose, int animationFrame)
+    internal static bool ShowsBottomHalf(SamusPoseId pose, int animationFrame)
     {
         SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(pose);
         // The draw suppresses the ordinary spin-jump bottom half for frames one through ten, whose top halves are the

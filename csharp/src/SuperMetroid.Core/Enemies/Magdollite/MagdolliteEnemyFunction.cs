@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Magdollite;
 
 /// <summary>
-/// The routine Magdollite's main AI runs each frame.
+/// The behaviour Magdollite's main AI runs each frame.
 /// Its values are arbitrary.
 /// </summary>
 public enum MagdolliteEnemyFunction

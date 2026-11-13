@@ -9,24 +9,24 @@ using SuperMetroid.Core.Samus.Drawing;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>The projectile animation interpreter and drawing: slot clearing, live projectile and charge-flare sprites, flare animation state and the suit palette the flare restores.</summary>
+/// <summary>The projectile animation player and drawing: slot clearing, live projectile and charge-flare sprites, flare animation state and the suit palette the flare restores.</summary>
 internal sealed class ProjectileAnimation
 {
-    /// <summary>Owns charge-flare frame and countdown arrays advanced by the interpreter.</summary>
+    /// <summary>Owns charge-flare frame and countdown arrays advanced by the animation.</summary>
     private readonly BeamChargeState _charge;
-    /// <summary>Owns the shot count reduced when a delete instruction ends a projectile.</summary>
+    /// <summary>Owns the shot count reduced when a delete cue ends a projectile.</summary>
     private readonly ProjectileSlotTable _slotTable;
     /// <summary>The delays a flare frame wrapping below the flare's programs reads.</summary>
     private readonly ChargeFlareDelaysBelowPrograms _flareDelaysBelow;
 
-    /// <summary>Binds projectile instructions to live slot ownership and charge-flare state.</summary>
+    /// <summary>Binds projectile cues to live slot ownership and charge-flare state.</summary>
     internal ProjectileAnimation(BeamChargeState charge, ProjectileSlotTable slotTable, ChargeFlareDelaysBelowPrograms flareDelaysBelow)
     {
         _charge = charge;
         _slotTable = slotTable;
         _flareDelaysBelow = Ensure.NotNull(flareDelaysBelow);
     }
-    /// <summary>Decodes timed frames, goto, and delete; publishes frame radius and animation metadata when the countdown expires.</summary>
+    /// <summary>Plays timed frames, jumps and deletion; publishes frame radius and animation metadata when the countdown expires.</summary>
     internal bool RunProjectileInstructionHandler(
         SamusProjectile slot)
     {
@@ -59,7 +59,7 @@ internal sealed class ProjectileAnimation
             : _slotTable.ProjectileCounter - 1;
     }
 
-    /// <summary>Publishes an installed projectile composition when its screen origin passes horizontal and Y-byte clipping.</summary>
+    /// <summary>Publishes an installed projectile composition when its screen origin passes horizontal and vertical clipping.</summary>
     internal static void DrawSlot(
         SpriteFrameBuffer sprites,
         SpriteSource source,

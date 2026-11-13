@@ -126,7 +126,7 @@ internal sealed class ProjectileMotion
         }
 
         // Hyper's update falls directly into the shared Wave movement. Hyper deliberately has
-        // no projectile-trail timer or trail spawn; its long beam spritemap
+        // no projectile-trail timer or trail spawn; its long beam picture
         // and the separately counting muzzle flare provide the complete presentation.
         RunWaveBeamShared(level, slot, cameraPosition, roomObjects);
     }
@@ -306,9 +306,9 @@ internal sealed class ProjectileMotion
 
     /// <summary>
     /// Applies the shared beam/missile deletion window after movement. The game's
-    /// routine allows a 64-pixel apron above and left of the viewport and extends through
+    /// check allows a 64-pixel apron above and left of the viewport and extends through
     /// coordinate 319 on the other axes; centralizing those bounds keeps projectile
-    /// families from drifting apart during later translation.
+    /// families from drifting apart.
     /// </summary>
     /// <returns>True when the projectile was outside the movement window and cleared.</returns>
     private bool DeleteIfOutsideMovementWindow(
@@ -503,9 +503,9 @@ internal sealed class ProjectileMotion
 
         RoomCollisionBlock block = level.GetCollisionBlock(new(CoordinateAxis.Wrap(blockX), CoordinateAxis.Wrap(blockY)));
 
-        // Extension blocks return the dispatcher to its caller with N set, causing the same
+        // Extension blocks return to the dispatcher's caller with a repeat result, causing the same
         // point reaction to run again on the signed horizontal/vertical parent. A zero-behaviour
-        // extension is transparent. Reuse the already translated level resolver so missiles
+        // extension is transparent. Reuse the level resolver so missiles
         // and the broad Samus body scans cannot disagree about chained extensions.
         if (!SamusBlockCollision.TryResolveExtension(level, ref block))
             return false;
@@ -577,9 +577,9 @@ internal sealed class ProjectileMotion
         if (slopeShape >= 5)
         {
             // Non-square slope collision mirrors the projectile's within-block coordinate before indexing
-            // the game table. behaviour bit 6 flips X and bit 7 flips Y. A table height at or
-            // above the mirrored Y point (the original uses signed `height - y <= 0`) is
-            // solid. Values can reach 20 for overhanging shapes, so do not mask to a nibble.
+            // the game table: the behaviour's flips mirror X and Y. A table height at or
+            // above the mirrored Y point (`height - y <= 0`, signed) is
+            // solid. Values can reach 20 for overhanging shapes, so do not reduce them modulo 16.
             int xInBlock = slot.Position.X.Whole & 15;
             if (block.Behavior.Slope.FlipsHorizontally)
                 xInBlock ^= 15;

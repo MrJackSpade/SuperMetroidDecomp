@@ -1,5 +1,6 @@
 ﻿using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Waver.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Waver;
 
@@ -9,6 +10,6 @@ internal static class WaverAnimationsConstants
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params WaverProgram[] programs) =>
         programs.SelectMany(program => WaverAnimations.Segments.Beats(program))
-            .OfType<AnimationBeat<WaverFrame, WaverCue>.Frame>()
+            .OfType<AnimationBeat<EnemyFrameId, WaverCue>.Frame>()
             .Select(frame => WaverFrameToolingDefinitions.Spritemap(frame.Shown));
 }

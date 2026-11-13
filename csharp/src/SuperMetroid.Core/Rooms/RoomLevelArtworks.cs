@@ -27,7 +27,7 @@ public sealed class RoomLevelArtworks
                     $"Installed room visual layouts lack required level {level}.");
     }
 
-    /// <summary>Resolves installed initial artwork by the room state's level, without selecting room state or reading the original game data.</summary>
+    /// <summary>Resolves installed initial artwork by the room state's level, without selecting room state or reading game data.</summary>
     /// <param name="level">The level the room state names, used as the installation key.</param>
     /// <returns>The matching validated visual layout.</returns>
     /// <exception cref="InvalidDataException">The requested level is not installed.</exception>

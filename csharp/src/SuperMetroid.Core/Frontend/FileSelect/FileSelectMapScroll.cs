@@ -49,7 +49,7 @@ public sealed class FileSelectMapScroll
             if (Enumerable.Range(0, 64).Any(x => Visible(x, y))) { bottom = y; break; }
         // Every value below is a map pixel or a difference of two, within a few hundred pixels of the 512 by 256 map:
         // the scans keep the left column at or before the right and the top row at or above the bottom, so the
-        // halved spans are never negative and no value comes near a word's range. Only a negative result (Maridia's
+        // halved spans are never negative and no value comes near the coordinate range. Only a negative result (Maridia's
         // margin left of the first column, a scroll above the map) is stored as its wrapped coordinate.
         int minimumX = left * 8 - (map.Area == AreaId.Maridia ? 24 : 0);
         int maximumX = right * 8;

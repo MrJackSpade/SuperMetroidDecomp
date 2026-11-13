@@ -6,18 +6,18 @@ namespace SuperMetroid.Core.Enemies.Stoke;
 
 /// <summary>
 /// The Stoke's projectile program (#641). Each
-/// frame shows a <see cref="StokeProjectileFrame"/> pose and each command becomes a <see cref="EnemyProjectileCommonCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyProjectileFrameId"/> and each command becomes a <see cref="EnemyProjectileCommonCue"/> with its typed operands.
 /// </summary>
 internal static class StokeProjectileAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<StokeProjectileProgram, StokeProjectileFrame, EnemyProjectileCommonCue> Segments { get; } = new(
-        new Dictionary<StokeProjectileProgram, AnimationBeat<StokeProjectileFrame, EnemyProjectileCommonCue>[]>
+    internal static AnimationSegments<StokeProjectileProgram, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
+        new Dictionary<StokeProjectileProgram, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>
     {
         [P.Initial] =
         [
-            Show(0, 16),
-            Show(1, 16),
+            Show(EnemyProjectileFrameId.StokeInitialFirst, 16),
+            Show(EnemyProjectileFrameId.StokeInitialSecond, 16),
         ],
     });
 
@@ -30,6 +30,6 @@ internal static class StokeProjectileAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<StokeProjectileProgram> StartingWith(StokeProjectileProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<StokeProjectileFrame, EnemyProjectileCommonCue> Show(int pose, int duration) => new AnimationBeat<StokeProjectileFrame, EnemyProjectileCommonCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);
 }

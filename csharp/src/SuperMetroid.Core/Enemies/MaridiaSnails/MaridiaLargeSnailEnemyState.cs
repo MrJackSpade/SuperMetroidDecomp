@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 
-/// <summary>The state of Oum, with its ten family-extra values.</summary>
+/// <summary>The state of Oum, with its ten own values.</summary>
 public sealed class MaridiaLargeSnailEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
@@ -19,7 +19,7 @@ public sealed class MaridiaLargeSnailEnemyState
     /// </summary>
     public MaridiaLargeSnailAnimation InstalledAnimation { get; internal set; }
 
-    /// <summary>Extra word two: set by the attack animation's cue when it ends.</summary>
+    /// <summary>Set by the attack animation's cue when it ends.</summary>
     public bool AttackAnimationFinished { get; internal set; }
 
     /// <summary>
@@ -40,7 +40,7 @@ public sealed class MaridiaLargeSnailEnemyState
     /// <summary>
     /// Movement suppression produced after AI and consumed on the next frame.
     /// This one-frame pipeline is intentional game ordering, not input latency invented
-    /// by the host translation.
+    /// by the host.
     /// </summary>
     public bool StopMovementNextFrame { get; internal set; }
 

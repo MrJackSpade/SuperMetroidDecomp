@@ -24,7 +24,7 @@ internal sealed class DoorGamePhases(FrontendSession session)
         // liquid's rumble or ambient sound it requests is queued as it runs, ahead of the cancels.
         session.GameplayRuntime.DoorTransition.RunDoorSoundWaitPrologue(controllerInput, session.GameplayRuntime.Room.LoadedScope.RoomObjects, session.GameplayRuntime.Room.LoadedScope);
         // The door sets the door/enemy pause flags, then runs the source
-        // enemy/draw owners while sounds are still admitted, so an enemy instruction's
+        // enemy/draw owners while sounds are still admitted, so an enemy cue's
         // sound on this frame is queued, as it runs, before the door's cancels.
         session.doorTransition.Begin(session.GameplayRuntime);
         session.GameplayRuntime.DoorTransition.DrawDoorTransitionActors(enemyProjectiles: DoorTransitionEnemyProjectiles.Held, session.GameplayRuntime.Room.LoadedScope);

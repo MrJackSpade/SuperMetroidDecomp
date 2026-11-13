@@ -11,6 +11,6 @@ internal readonly record struct MotherBrainWalkResult(bool ReachedTarget, bool R
     internal static MotherBrainWalkResult Reached => new(true, false);
     /// <summary>Signals that the walk remains incomplete and no new program was installed this call.</summary>
     internal static MotherBrainWalkResult Waiting => new(false, false);
-    /// <summary>Signals that a walking instruction program was installed while travel remains incomplete.</summary>
+    /// <summary>Signals that a walking program was installed while travel remains incomplete.</summary>
     internal static MotherBrainWalkResult WalkInstalled => new(false, true);
 }

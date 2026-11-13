@@ -53,6 +53,10 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
     /// <summary>The beats of <paramref name="segment"/>.</summary>
     internal IReadOnlyList<AnimationBeat<TFrame, TEvent>> Beats(TSegment segment) => beats[segment];
 
+    /// <summary>Every frame a segment shows, each once, in the order the segments first show them.</summary>
+    internal IEnumerable<TFrame> Frames =>
+        beats.Values.SelectMany(segment => segment).Select(beat => beat.ShownFrame).OfType<TFrame>().Distinct();
+
     /// <summary>
     /// Plays <paramref name="animation"/> on from <paramref name="place"/> to its next frame, raising each event it passes
     /// in <paramref name="raise"/>: a phase plays its run as many times as it says, counting its plays down

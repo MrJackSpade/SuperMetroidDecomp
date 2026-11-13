@@ -13,7 +13,7 @@ public sealed class DeadTorizoEnemyState
         Rot = Ensure.NotNull(rot);
     }
 
-    /// <summary>Physical enemy slot zero, owning the corpse's position and collision/instruction words.</summary>
+    /// <summary>Physical enemy slot zero, owning the corpse's position and collision and animation state.</summary>
     public RoomEnemySlot Slot { get; }
     /// <summary>The corpse's own rot schedule: the fall of each of its ninety-six pixel rows.</summary>
     internal CorpseRotSchedule Rot { get; }

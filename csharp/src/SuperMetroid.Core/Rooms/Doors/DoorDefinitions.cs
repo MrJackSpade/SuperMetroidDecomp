@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>The retail game's 597 physical doors.</summary>
 /// <remarks>Each entry holds a door's destination room, direction and closing behavior, closing-cap block, destination
-/// screen, Samus push speed and setup routine.
+/// screen, Samus push speed and setup.
 /// The elevator pseudo-doors are door-list entries (<see cref="RoomDoorListDefinitions"/>), not doors.</remarks>
 [NumberedIdentities("Each numbered door is one door of its room, named by its place in that room's door list; every door has its own destination and is used by name, never iterated or indexed.")]
 public static class DoorDefinitions

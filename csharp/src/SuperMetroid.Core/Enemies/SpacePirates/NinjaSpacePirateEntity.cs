@@ -24,7 +24,7 @@ internal sealed class NinjaSpacePirateEntity(NinjaSpacePirateBehavior species, R
         EnemyCapabilities.SamusFrameHitboxes | EnemyCapabilities.ProjectileFrameHitboxes;
 
     /// <summary>The Pirate shot reactions, which normal bombs dispatch like the common one.</summary>
-    /// <param name="reaction">The reaction the header or the selected hitbox names, or null.</param>
+    /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>
     public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
         SpacePirateHitboxes.OwnsShotReaction(reaction);
 }

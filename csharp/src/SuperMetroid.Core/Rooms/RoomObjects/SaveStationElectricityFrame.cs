@@ -1,5 +1,0 @@
-namespace SuperMetroid.Core.Rooms.RoomObjects;
-
-/// <summary>One save-station electricity pose; its installed artwork key is confined to <see cref="SuperMetroid.Core.Enemies.SaveStation.Artwork.SaveStationElectricityFrameDefinitions"/>.</summary>
-/// <param name="Pose">The pose, in installed artwork order.</param>
-internal readonly record struct SaveStationElectricityFrame(int Pose);

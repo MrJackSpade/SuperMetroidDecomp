@@ -1,19 +1,20 @@
 ﻿using SuperMetroid.Core.Programs;
 using P = SuperMetroid.Core.Bosses.Torizo.TorizoBodyProgram;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
 /// Bomb and Golden Torizo's typed body animations (#641, #1600), in place of their lists. Generated from the verified
-/// lists: each frame shows a <see cref="TorizoFrame"/> pose, each callback becomes a <see cref="TorizoCue"/>
+/// lists: each frame shows a <see cref="EnemyFrameId"/>, each callback becomes a <see cref="TorizoCue"/>
 /// with its typed operands, and each artwork swap names its <see cref="TorizoArtworkSwap"/>
 /// entry. A callback that sleeps for a fixed time is its cue followed by a wait of that length.
 /// </summary>
 internal static class TorizoAnimations
 {
     /// <summary>Every body segment's beats.</summary>
-    internal static AnimationSegments<TorizoBodyProgram, TorizoFrame, TorizoCue> Segments { get; } = new(
-        new Dictionary<TorizoBodyProgram, AnimationBeat<TorizoFrame, TorizoCue>[]>(
+    internal static AnimationSegments<TorizoBodyProgram, EnemyFrameId, TorizoCue> Segments { get; } = new(
+        new Dictionary<TorizoBodyProgram, AnimationBeat<EnemyFrameId, TorizoCue>[]>(
             [.. TorizoEncounterPrograms.Segments, .. TorizoFacingLeftPrograms.Segments, .. TorizoFacingRightPrograms.Segments,
              .. GoldenTorizoPrograms.Segments]));
 

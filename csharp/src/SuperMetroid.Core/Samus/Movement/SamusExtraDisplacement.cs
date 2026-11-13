@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// <remarks>
 /// These values are not velocity and are not one-frame impulses. Enemy, room-object, and room
 /// producers own their lifetime; Samus movement merely reads them. Keeping the arithmetic
-/// here prevents a convenient but incorrect host interpretation such as clearing them after
+/// here prevents a convenient but incorrect host reading such as clearing them after
 /// movement or applying the grounded one-pixel bias to airborne gravity.
 /// </remarks>
 internal static class SamusExtraDisplacement
@@ -14,7 +14,7 @@ internal static class SamusExtraDisplacement
     /// <summary>
     /// Adds the external Y displacement to a signed movement displacement using wrapping 32-bit
     /// arithmetic. The vertical move does this after choosing up/down from the separate Y-direction
-    /// word, so a strong external value may reverse the actual collision scan direction.
+    /// direction, so a strong external value may reverse the actual collision scan direction.
     /// </summary>
     public static SignedSixteenSixteen AddToVerticalSpeedDisplacement(
         SamusKinematicsState kinematics,
@@ -55,7 +55,7 @@ internal static class SamusExtraDisplacement
 
     /// <summary>
     /// Computes the transition vertical movement, used by jump-transition frames that accept external Y movement
-    /// but deliberately skip ordinary gravity. Null means both producer words were zero and
+    /// but deliberately skip ordinary gravity. Null means both producer values were zero and
     /// the game returned without invoking collision at all.
     /// </summary>
     public static SignedSixteenSixteen? CalculateExtraOnlyVerticalDisplacement(

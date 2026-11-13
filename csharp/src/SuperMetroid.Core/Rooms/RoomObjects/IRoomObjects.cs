@@ -18,7 +18,7 @@ internal interface IRoomObjects
     /// <summary>The game's event flags, which scripted room objects set.</summary>
     IGlobalEventFlags? Events { get; }
 
-    /// <summary>Queues sound requests emitted by room object instructions.</summary>
+    /// <summary>Queues sound requests emitted by room object cues.</summary>
     RoomObjectSoundQueue Sounds { get; }
 
     /// <summary>Turns room-object draw-list commands into level changes and background picture updates.</summary>
@@ -30,10 +30,10 @@ internal interface IRoomObjects
     /// <summary>Runs save, map, and refill station room interactions.</summary>
     StationObjects Stations { get; }
 
-    /// <summary>Door-object instruction owner bound to this room's allocation and draw state.</summary>
+    /// <summary>Door-object owner bound to this room's allocation and draw state.</summary>
     DoorObjects DoorObjects { get; }
 
-    /// <summary>Runs eye door opening and projectile interaction instructions.</summary>
+    /// <summary>Runs eye door opening and projectile interaction cues.</summary>
     EyeDoorObjects EyeDoors { get; }
 
     /// <summary>Handles grey door conditions and opening animation.</summary>

@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>
 /// The twenty-nine retail room graphics sets (#1466): a tileset's identity, which names its pictures. Which characters a
-/// graphics set uploads is the import's knowledge; gameplay names the set.
+/// graphics set loads is the import's knowledge; gameplay names the set.
 /// </summary>
 public enum RoomGraphicsSet
 {

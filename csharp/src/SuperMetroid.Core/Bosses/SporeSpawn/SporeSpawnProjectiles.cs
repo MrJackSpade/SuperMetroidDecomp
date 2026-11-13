@@ -20,7 +20,7 @@ internal static class SporeSpawnProjectiles
     /// <summary>How many steps a spore's drift path holds before it repeats.</summary>
     internal static int DriftStepCount => Drift.Length;
 
-    /// <summary>Accepts only the four stalk or ceiling-emitter ordinals used by the spawn routines.</summary>
+    /// <summary>Accepts only the four stalk or ceiling-emitter ordinals the spawns use.</summary>
     private static int SpawnIndex(int spawnArgument)
     {
         if (spawnArgument is < 0 or > 3)

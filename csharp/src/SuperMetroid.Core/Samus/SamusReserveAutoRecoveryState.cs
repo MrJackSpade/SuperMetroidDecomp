@@ -59,7 +59,7 @@ public sealed class SamusReserveAutoRecoveryState
             }
             else
             {
-                // The game's signed-underflow repair after this decrement handled corrupt reserve words; a count
+                // The game's signed-underflow repair after this decrement handled corrupt reserve counts; a count
                 // decremented from a positive value reaches zero first.
                 samus.ReserveEnergy = SamusQuantity.DecrementPositive(samus.ReserveEnergy);
             }
@@ -68,8 +68,8 @@ public sealed class SamusReserveAutoRecoveryState
         bool completed = samus.ReserveEnergy == 0;
         if (completed)
         {
-            // The reserve-recovery state clears the one shared freeze word before the restore command restores
-            // normal control. X-Ray phase five deliberately checks that word and skips
+            // The reserve-recovery state clears the one shared freeze flag before the restore command restores
+            // normal control. X-Ray phase five deliberately checks that flag and skips
             // cleanup when it is zero, which is the game's Reserve Mode glitch.
             samus.Xray.ClearSharedFreezeForReserveMode();
             // The restore command restores the ordinary input/movement handlers unless

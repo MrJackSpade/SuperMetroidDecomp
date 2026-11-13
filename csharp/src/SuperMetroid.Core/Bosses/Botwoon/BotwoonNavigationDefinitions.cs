@@ -19,12 +19,6 @@ internal static class BotwoonNavigationDefinitions
     /// <summary>The random selection of one of the target hole's four path descriptors.</summary>
     internal static readonly RandomSampleField PathChoice = new(3, 2);
 
-    /// <summary>The head-position history ring's X/Y samples.</summary>
-    internal const int HistoryEntries = 256;
-
-    /// <summary>Wraps a history-ring index around the ring's <see cref="HistoryEntries"/> entries.</summary>
-    internal static int WrapHistoryIndex(int index) => index & (HistoryEntries - 1);
-
     /// <summary>Path descriptors authored for each source hole and visibility.</summary>
     internal const int PathVariantsPerHole = 4;
 

@@ -63,6 +63,6 @@ public static class NoobTubeDebrisDefinitions
     /// <summary>The whole-pixel X a hidden actor is moved to: 4608 pixels left of the room, far off screen.</summary>
     private const int HiddenX = -4608;
 
-    /// <summary>The stored whole-pixel X of a hidden actor (<see cref="HiddenX"/> in the position's wrapping word).</summary>
+    /// <summary>The stored whole-pixel X of a hidden actor (<see cref="HiddenX"/> wrapped into the coordinate range).</summary>
     public static int HiddenXPosition { get; } = CoordinateAxis.Wrap(HiddenX);
 }

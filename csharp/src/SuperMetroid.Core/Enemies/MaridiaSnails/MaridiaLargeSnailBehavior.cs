@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.MaridiaSnails.Artwork;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -7,7 +6,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 
-/// <summary>The Maridia large snail species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Maridia large snail species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -229,7 +228,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         {
             case MaridiaLargeSnailBounceFunction.Falling:
                 // The record stays within 3712 256ths of a record below the start through record 64, so the game's
-                // signed word comparisons are ordinary comparisons.
+                // signed comparisons are ordinary comparisons.
                 state.YSpeedTableIndex = EnemyQuadraticSpeedIndex.Min(
                     state.YSpeedTableIndex + MaridiaLargeSnailBounceAcceleration,
                     MaridiaLargeSnailMaximumFallIndex);
@@ -346,7 +345,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         if (MaridiaLargeSnailTouchesSamusFromBelow(slot, samus))
         {
             // Unlike most moving-platform producers, Oum assigns—not adds—the vertical
-            // displacement word. This preserves the last touching Oum's ownership.
+            // displacement. This preserves the last touching Oum's ownership.
             samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeY(CoordinateAxis.Difference(
                 slot.Position.Y.Whole, state.PreviousPosition.Y));
         }
@@ -506,7 +505,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
 
     /// <summary>Advances the Maridia large snail's typed animation.</summary>
     internal void AdvanceMaridiaLargeSnailTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, MaridiaLargeSnailAnimations.Segments, MaridiaLargeSnailFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, MaridiaLargeSnailAnimations.Segments,
             static (MaridiaLargeSnailEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {
@@ -564,7 +563,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
 
                 // The damaging touch enters common touch damage and falls directly through the harmless touch's
                 // asymmetric shove. Harmless-touch frames execute only the shove, which is why the
-                // closed shell can carry/push Samus without inflicting the header's 100 HP.
+                // closed shell can carry/push Samus without inflicting the definition's 100 HP.
                 if (context.HitboxTouchAi == EnemyReaction.MaridiaLargeSnailDamagingTouch)
                     _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus);
                 ResolveMaridiaLargeSnailTouchAfterCommon(context.Slot, context.Samus);

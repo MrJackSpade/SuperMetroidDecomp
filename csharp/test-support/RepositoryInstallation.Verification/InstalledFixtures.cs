@@ -117,8 +117,13 @@ internal static class InstalledFixtures
         ProjectilePresentationFiles.LoadForImport(CartridgeImportContent.Component(GameInstallationLayout.ProjectileDirectoryName),
             CartridgeImportContent.ImportData(GameInstallationLayout.ProjectileDirectoryName)));
 
-    /// <summary>Lazy Samus body and arm-cannon artwork: the repository installation's, whose game catalog its artwork binds.</summary>
-    private static readonly Lazy<SamusBodySources> samusBody = Shared<SamusBodySources>("Samus body", () => RepositoryInstallation.SamusBody);
+    /// <summary>
+    /// Lazy Samus body and arm-cannon artwork as the import reads them, from the cartridge-derived extraction: their
+    /// compositions, atmosphere and cover appearances are import data (#1638).
+    /// </summary>
+    private static readonly Lazy<SamusBodySources> samusBody = Shared<SamusBodySources>("Samus body", () =>
+        SamusBodyArtworkFiles.LoadForImport(CartridgeImportContent.Component(GameInstallationLayout.SamusBodyDirectoryName),
+            CartridgeImportContent.ImportData(GameInstallationLayout.SamusBodyDirectoryName)));
 
     /// <summary>Lazy intro and Ceres-flight cinematic artwork as the import reads it, characters included, from the cartridge-derived extraction (#1636).</summary>
     private static readonly Lazy<ImportIntroCinematicArtwork> introArtwork = Shared<ImportIntroCinematicArtwork>("intro artwork", () =>

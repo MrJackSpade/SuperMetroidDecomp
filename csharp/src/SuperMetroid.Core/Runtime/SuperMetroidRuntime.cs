@@ -26,7 +26,7 @@ using SuperMetroid.Core.Samus.Movement;
 namespace SuperMetroid.Core.Runtime;
 
 /// <summary>
-/// Incremental, frame-steppable C# runtime shell for translated Super Metroid systems.
+/// Incremental, frame-steppable C# runtime shell for the Super Metroid systems.
 /// </summary>
 /// <remarks>
 /// Each update begins at the frame boundary, which shows the previous update's frame, latches
@@ -443,7 +443,7 @@ internal sealed class SuperMetroidRuntime
         }
         finally
         {
-            // The desktop error reporter deliberately catches translated exceptions and
+            // The desktop error reporter deliberately catches modelled exceptions and
             // attempts another frame. A finally seam is therefore mandatory: otherwise a
             // frame that throws after borrowing the last round leaves live ammo at two.
             infiniteAmmoGuard.Complete(Player.Samus);
@@ -454,7 +454,7 @@ internal sealed class SuperMetroidRuntime
 
     /// <summary>
     /// Advances one frame boundary and the corresponding gameplay update while the
-    /// frame-exit ammo guard remains active through translated callbacks.
+    /// frame-exit ammo guard remains active through callbacks.
     /// </summary>
     private RuntimeFrameResult StepFrameGuarded(
         ControllerButton controller1Input,
@@ -535,7 +535,7 @@ internal sealed class SuperMetroidRuntime
     {
         // Every update draws a random number right after the liquid wave and statue descent
         // (EffectPhaseRandomOrder) and before the game state's own work. Several room and
-        // enemy routines only sample the random number instead of advancing it themselves;
+        // enemy behaviours only sample the random number instead of advancing it themselves;
         // the falling-tile room is the first visibly obvious example: without this draw,
         // every ceiling fragment selects the same X table entry forever. Keep this
         // unconditional and at the start of the update; advancing only at a consumer would
@@ -702,9 +702,9 @@ internal sealed class SuperMetroidRuntime
     /// <summary>Parks the frame's tail when a room object opened a message box; returns whether it did.</summary>
     private bool SuspendTailForMessageBox(GameplayFrameContext context)
     {
-        // The message routine runs inside the room-object handler: the rest of this gameplay
+        // The message runs inside the room-object handler: the rest of this gameplay
         // frame (enemy-projectile collision, scrolling, drawing, room main and the shared
-        // tail) resumes only after the box closes, after the item routine finishes.
+        // tail) resumes only after the box closes, after the item's step finishes.
         if (context.Tail is not { } suspendedTail || !MessageBox.IsActive)
             return false;
         _suspendedFrameTail = suspendedTail;
@@ -784,7 +784,7 @@ internal sealed class SuperMetroidRuntime
             if (arrival.Step(samus))
             {
                 // The arrival's Samus lock installed a locked Samus handler before the projectiles
-                // were spawned. Re-enable the translated ordinary movement path only
+                // were spawned. Re-enable the ordinary movement path only
                 // after the pad reaches its deletion height.
                 samus.Control.Unlock();
                 Player.GroundedSamusMovementEnabled = true;
@@ -841,7 +841,7 @@ internal sealed class SuperMetroidRuntime
                         DownScroller: roomGeometry.DownScroller),
                     Freeze.TimeIsFrozen);
             }
-            // The camera writes the same distance-plus-one words consumed by Yard
+            // The camera writes the same distance-plus-one values consumed by Yard
             // kick setup. Publish the camera calculation itself, including its
             // integer-only sign test and previous scrolling checkpoint. A second
             // frame-end absolute delta loses both the bias and checkpoint timing.
@@ -915,10 +915,10 @@ internal sealed class SuperMetroidRuntime
         {
             // The loan exists only so firing logic does not observe zero and
             // auto-cancel the selected weapon. Remove it before the HUD update converts the
-            // live counters into HUD tile words; publishing first made the on-screen
+            // live counters into HUD cells; publishing first made the on-screen
             // minimum read two even though Snapshot later restored the actor to one.
             infiniteAmmoGuard.Complete(Player.Samus);
-            // The HUD update rebuilds live energy/ammo words every gameplay frame.
+            // The HUD update rebuilds live energy/ammo cells every gameplay frame.
             // Initialization alone is insufficient: Ridley contact and fireballs mutate
             // Samus during this frame, and those values must enter the next frame boundary.
             // The room-object handler has not returned while a pickup message is open.
@@ -928,7 +928,7 @@ internal sealed class SuperMetroidRuntime
         }
     }
 
-    /// <summary>Runs the scrolling sky, animated tiles, escape effects, the elevatube and the room main routines.</summary>
+    /// <summary>Runs the scrolling sky, animated tiles, escape effects, the elevatube and the room main behaviours.</summary>
     private void RunRoomMains(RuntimeFramePolicy policy)
     {
         // Landing Site's room main advances the sky bands after ordinary gameplay logic.
@@ -955,7 +955,7 @@ internal sealed class SuperMetroidRuntime
 
         // Execute the active room's room main at the same seam as Landing Site's
         // room main above: after gameplay drawing/HUD work and before global shaking. The
-        // Ceres routine publishes a tilt for the following frame's presentation and may
+        // Ceres room main publishes a tilt for the following frame's presentation and may
         // change the outer dispatcher to the Ceres elevator state only when its caller is main gameplay.
         RoomMains.LastCeresElevatorShaftRoomMain = Room.LoadedScope.CeresElevatorShaft.Step(
             Player.Samus,
@@ -1071,8 +1071,8 @@ internal sealed class SuperMetroidRuntime
 
     /// <summary>
     /// Gameplay-frame state the remainder of a main-gameplay update reads after the room-object handler.
-    /// The message routine runs inside that handler, so a room object that opens a box
-    /// suspends the frame; the port parks this state until the box closes.
+    /// The message runs inside that handler, so a room object that opens a box
+    /// suspends the frame; the model parks this state until the box closes.
     /// </summary>
     /// <param name="Mode">The frame's installed alpha and beta handlers.</param>
     /// <param name="PreviousCameraPoint">Samus's camera point carried to the frame tail.</param>
@@ -1125,7 +1125,7 @@ internal sealed class SuperMetroidRuntime
             return Snapshot(infiniteAmmoGuard);
 
         MessageBoxes.ResolveClosedMessageBox(frameSuspended: _suspendedFrameTail is not null, Room.LoadedScope.RoomObjects, Room.LoadedScope);
-        // The room-object handler returns once the box and its item routine finish; the
+        // The room-object handler returns once the box and its item's step finish; the
         // parked remainder of that gameplay frame runs now, in this same dispatch.
         if (!MessageBox.IsActive && _suspendedFrameTail is { } tail)
         {

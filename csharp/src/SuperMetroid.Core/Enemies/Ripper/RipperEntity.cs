@@ -29,7 +29,7 @@ internal sealed class RipperEntity(RipperBehavior species, RoomEnemySlot slot, E
     public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => RipperBehavior.AdvanceRipperTypedAnimation;
 
     /// <summary>The grapple Ripper's and second Ripper's shared shot reaction, which normal bombs dispatch like the common one.</summary>
-    /// <param name="reaction">The reaction the header or the selected hitbox names, or null.</param>
+    /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>
     public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
         Slot.DefinitionId is EnemyDefinitionId.GRipper or EnemyDefinitionId.Ripper2 && reaction == EnemyReaction.GRipperRipper2Shot;
 }

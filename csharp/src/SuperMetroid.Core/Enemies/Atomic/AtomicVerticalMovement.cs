@@ -1,8 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Atomic;
 
 /// <summary>
-/// Atomic's vertical movement routine. The original symbol calls this the X movement function even
-/// though both targets update Y; the name describes the behaviour instead of perpetuating that label error.
+/// Atomic's vertical movement behaviour; both targets update Y.
 /// Its values are arbitrary.
 /// </summary>
 public enum AtomicVerticalMovement

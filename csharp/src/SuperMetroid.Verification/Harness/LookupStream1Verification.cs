@@ -558,7 +558,7 @@ internal static class LookupStream1Verification
         int[] native = Enumerable.Range(0, 253).Select(pose => (int)unchecked((sbyte)LookupStream1BodyGraphicsOriginsRomByte(rom, 0x91b62d + pose * 8))).ToArray();
         SamusBodySources template = CreateSamusIdentityFixture();
         SamusBodySources stock = new SamusBodySources(new SamusBodyArtworkParts { TopSetStarts = template.TopSetStarts.ToArray(), BottomSetStarts = template.BottomSetStarts.ToArray(), PoseFirstFrames = template.PoseFirstFrames.ToDictionary(), Placements = template.Placements.ToDictionary(pose => pose.Key, pose => pose.Value with { GraphicsYOffset = native[SamusPoseNumbers.Number(pose.Key)] }), Frames = template.Frames.ToArray(), Spritemaps = template.Spritemaps, Atmosphere = template.Atmosphere, DeathSteps = template.DeathSteps, ArmCannon = template.ArmCannon });
-        SamusBodySources installed = SamusBodyArtworkFiles.Load(RepositoryInstallation.Installation.SamusBodyDirectory);
+        InstalledSamusBody installed = SamusBodyArtworkFiles.Load(RepositoryInstallation.Installation.SamusBodyDirectory);
         for (int pose = 0; pose < 253; pose++)
         {
             if (!SamusPoseNumbering.NamesPose(pose)) continue;
@@ -649,7 +649,7 @@ internal static class LookupStream1Verification
     {
         int[] landing = Enumerable.Range(0, 16).Select(index => (int)LookupStream1BodyFacingOffsetsRomByte(rom, 0x908d28 + index)).ToArray();
         int[] posture = Enumerable.Range(0, 24).Select(index => (int)unchecked((sbyte)LookupStream1BodyFacingOffsetsRomByte(rom, 0x908d80 + index))).ToArray();
-        SamusBodySources stock = SamusBodyArtworkFiles.Load(RepositoryInstallation.Installation.SamusBodyDirectory);
+        SamusBodySources stock = InstalledFixtures.SamusBody;
         // The import bakes each frame's placement from the row the draw indexes: four landing bytes, two posture bytes per
         // pose, plus the frame, reading on into the next pose's row up to the table's end (#1517).
         for (int row = 0; row < 4; row++)
@@ -787,8 +787,7 @@ internal static class LookupStream1Verification
     /// <summary>Checks arm-cannon pose pointers against native selections.</summary>
     internal static void VerifyLookupStream1CannonPoses(ISnesAddressSpace rom)
     {
-        string directory = RepositoryInstallation.Installation.SamusBodyDirectory;
-        byte[] json = File.ReadAllBytes(Path.Combine(directory, SamusArmCannonArtworkFormat.JsonFileName));
+        byte[] json = File.ReadAllBytes(Path.Combine(CartridgeImportContent.ImportData(GameInstallationLayout.SamusBodyDirectoryName), SamusArmCannonArtworkFormat.ArtworkFileName));
         var document = RequiredJson.Deserialize<SamusArmCannonArtworkDocument>(json,
             new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         SamusArmCannonSourceArtwork Load(SamusArmCannonArtworkDocument value) => SamusArmCannonSourceArtwork.FromPlacement(
@@ -1379,8 +1378,7 @@ internal static class LookupStream1Verification
         }
         foreach (int invalid in new[] { int.MinValue, -1, expected.Length, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => _ = sources[invalid], "Calculated cannon source index bounds preserve array contract");
-        string directory = RepositoryInstallation.Installation.SamusBodyDirectory;
-        byte[] json = File.ReadAllBytes(Path.Combine(directory, SamusArmCannonArtworkFormat.JsonFileName));
+        byte[] json = File.ReadAllBytes(Path.Combine(CartridgeImportContent.ImportData(GameInstallationLayout.SamusBodyDirectoryName), SamusArmCannonArtworkFormat.ArtworkFileName));
         byte[] png = File.ReadAllBytes(Path.Combine(CartridgeImportContent.ImportData(GameInstallationLayout.SamusBodyDirectoryName), SamusArmCannonArtworkFormat.TileFileName));
         SamusArmCannonCoverCharacters cover = InstalledSamusArmCannonArtworkToolingConstants.LoadWithCover(new MemoryStream(json), new MemoryStream(png));
         SamusArmCannonSourceArtwork stock = cover.Cannon;
@@ -1471,8 +1469,7 @@ internal static class LookupStream1Verification
     /// <summary>Checks arm-cannon drawing commands and extracted placement through native OAM results.</summary>
     internal static void VerifyLookupStream1CannonDrawingControls(ISnesAddressSpace rom)
     {
-        string directory = RepositoryInstallation.Installation.SamusBodyDirectory;
-        byte[] json = File.ReadAllBytes(Path.Combine(directory, SamusArmCannonArtworkFormat.JsonFileName));
+        byte[] json = File.ReadAllBytes(Path.Combine(CartridgeImportContent.ImportData(GameInstallationLayout.SamusBodyDirectoryName), SamusArmCannonArtworkFormat.ArtworkFileName));
         var document = RequiredJson.Deserialize<SamusArmCannonArtworkDocument>(json,
             new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         SamusArmCannonSourceArtwork Load(SamusArmCannonArtworkDocument value) => SamusArmCannonSourceArtwork.FromPlacement(
@@ -1847,9 +1844,8 @@ internal static class LookupStream1Verification
     /// <summary>Checks cannon placement relative to Samus body poses.</summary>
     internal static void VerifyLookupStream1CannonPlacement(ISnesAddressSpace rom)
     {
-        string directory = RepositoryInstallation.Installation.SamusBodyDirectory;
-        SamusBodySources body = SamusBodyArtworkFiles.Load(directory);
-        byte[] json = File.ReadAllBytes(Path.Combine(directory, SamusArmCannonArtworkFormat.JsonFileName));
+        SamusBodySources body = InstalledFixtures.SamusBody;
+        byte[] json = File.ReadAllBytes(Path.Combine(CartridgeImportContent.ImportData(GameInstallationLayout.SamusBodyDirectoryName), SamusArmCannonArtworkFormat.ArtworkFileName));
         var document = RequiredJson.Deserialize<SamusArmCannonArtworkDocument>(json,
             new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         SamusArmCannonSourceArtwork Load(SamusArmCannonArtworkDocument value) => SamusArmCannonSourceArtwork.FromPlacement(
@@ -1900,7 +1896,35 @@ internal static class LookupStream1Verification
                 draws++;
             }
         }
-        Console.WriteLine($"Cannon placement:608 installed native bytes,the canonical hash and {draws} actual OAM draws pass.");
+        // The installation holds each pose's typed placement (#1638): the descriptor's own reading at every animation frame
+        // the pose shows that the drawing window holds, and no displacement at any other frame; the installed document reads
+        // back as written.
+        SamusShownFrames shown = SamusShownFrames.Of(InstalledFixtures.AnimationContinuation);
+        SamusArmCannonLayout installed = stock.Installed(InstalledFixtures.AnimationContinuation);
+        int installedFrames = 0;
+        foreach (SamusPoseId pose in SamusPoseNumbers.RecordedPoses)
+        {
+            SamusArmCannonPlacement decoded = stock.Gameplay.Placement(pose), placed = installed.Gameplay.Placement(pose);
+            AssertEqual(decoded.DrawOrder, placed.DrawOrder, $"Installed cannon draw order of {pose}");
+            AssertEqual(decoded.FirstDirection, placed.FirstDirection, $"Installed cannon direction of {pose}");
+            AssertEqual(decoded.LaterDirection, placed.LaterDirection, $"Installed cannon later direction of {pose}");
+            for (int frame = 0; frame <= byte.MaxValue; frame++)
+            {
+                if (shown.TryPictureFrame(pose, frame, out _) && decoded.Offsets.ContainsKey(frame))
+                {
+                    AssertEqual(decoded.Offset(frame), placed.Offset(frame), $"Installed cannon displacement of {pose} at frame {frame}");
+                    installedFrames++;
+                }
+                else
+                {
+                    int unshown = frame;
+                    AssertThrows<InvalidDataException>(() => placed.Offset(unshown), $"No installed cannon displacement of {pose} at unshown frame {frame}");
+                }
+            }
+        }
+        AssertEqual(installed.ContentIdentity, SamusArmCannonLayout.Read(new MemoryStream(installed.Write())).ContentIdentity,
+            "Installed cannon layout reads back as written");
+        Console.WriteLine($"Cannon placement:608 extracted native bytes,the canonical hash, {draws} actual OAM draws and {installedFrames} installed pose frames pass.");
     }
 
     /// <summary>Reads Samus arm-cannon placement source words.</summary>
@@ -1909,9 +1933,7 @@ internal static class LookupStream1Verification
     /// <summary>Checks Samus spritemap pointer roots and the installed OAM definitions.</summary>
     internal static void VerifyLookupStream1OamPointers(ISnesAddressSpace rom)
     {
-        string directory = RepositoryInstallation.Installation.SamusBodyDirectory;
-        var body = SamusBodyArtworkFiles.Load(directory);
-        var stock = body.Spritemaps;
+        var stock = InstalledFixtures.SamusBody.Spritemaps;
         ushort[] nativePointers = Enumerable.Range(0, 2096).Select(index =>
             LittleEndianBytes.Word(LookupStream1OamPointersRomByte(rom, 0x92808d + index * 2), LookupStream1OamPointersRomByte(rom, 0x92808e + index * 2))).ToArray();
         SamusSpritemapId?[] native = SamusSpritemapNative.Entries(nativePointers);

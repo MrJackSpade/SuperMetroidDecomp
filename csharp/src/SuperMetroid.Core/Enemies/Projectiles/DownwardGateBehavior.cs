@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
-/// <summary>The downward gate species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The downward gate species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class DownwardGateBehavior
 {
@@ -69,7 +69,7 @@ internal sealed class DownwardGateBehavior
         projectile.State = new DownwardGateState(request.RoomObjectBlock);
     }
 
-    /// <summary>Finds the matching gate actor from the pool's end and advances its sleeping instruction.</summary>
+    /// <summary>Finds the matching gate actor from the pool's end and wakes its sleeping animation.</summary>
     private void WakeDownwardGateProjectile(Position16<RoomBlocks> roomObjectBlock)
     {
         EnemyProjectile? projectile = null;
@@ -102,7 +102,7 @@ internal sealed class DownwardGateBehavior
         int travelled = gate.TravelSinceBlock + speedMagnitude;
         if (travelled >= DownwardGateDefinitions.OneBlockDistance)
         {
-            // Steps the list two bytes past its sleep, which wakes the next visual frame
+            // Steps the list past its sleep, which wakes the next visual frame
             // on this same projectile-handler pass.
             ResumeDownwardGate(projectile);
             travelled = 0;

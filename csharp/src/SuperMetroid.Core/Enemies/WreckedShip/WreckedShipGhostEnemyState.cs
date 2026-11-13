@@ -32,7 +32,7 @@ public sealed class WreckedShipGhostEnemyState
 
     /// <summary>
     /// The visible ghost's signed 16.16 vertical speed in pixels
-    /// per update, accelerating toward <see cref="BobbingOrigin"/> with the game's carry and wraparound.
+    /// per update, accelerating toward <see cref="BobbingOrigin"/> with the fraction's overflow and wraparound.
     /// </summary>
     public SignedSixteenSixteen VerticalVelocity { get; internal set; }
 

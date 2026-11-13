@@ -19,7 +19,7 @@ internal sealed class RinkaEntity(RinkaBehavior species, RoomEnemySlot slot, Ene
     public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => RinkaBehavior.AdvanceRinkaTypedAnimation;
 
     /// <summary>The Rinka's own shot reaction, which normal bombs dispatch like the common one.</summary>
-    /// <param name="reaction">The reaction the header or the selected hitbox names, or null.</param>
+    /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>
     public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
         reaction == EnemyReaction.RinkaShot;
 }

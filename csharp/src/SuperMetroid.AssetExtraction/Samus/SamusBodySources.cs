@@ -1,5 +1,7 @@
 using SuperMetroid.Core;
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 
@@ -10,8 +12,9 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// and four-byte frame selections, from which the import resolves once the half pictures each pose shows at each
 /// animation frame, and the placement each of those frames carries (#1517). A half picture is a numbered body definition
 /// record: a group's start plus a selection's position, which may run into the next group. The half pictures and the
-/// compositions are the import's private knowledge: it composes the whole picture of each pose frame from them (#1585),
-/// and gameplay receives only <see cref="Gameplay"/> (#1616).
+/// compositions are the import's private knowledge, read from the component's import data (#1638): it composes the whole
+/// picture of each pose frame from them (#1585), and decides once which frames the body sheet pictures, which the
+/// installation holds with where each places the body (<see cref="InstalledBody"/>); gameplay receives only that.
 /// </summary>
 public sealed class SamusBodySources
 {
@@ -52,6 +55,7 @@ public sealed class SamusBodySources
         Atmosphere = Ensure.NotNull(parts.Atmosphere);
         ArmCannon = Ensure.NotNull(parts.ArmCannon);
         posePictures = installed.Pictures;
+        originRises = installed.OriginRises;
         Spritemaps = Ensure.NotNull(parts.Spritemaps);
         DeathSteps = Ensure.NotNull(parts.DeathSteps);
         topSetStarts = (int[])parts.TopSetStarts.Clone();
@@ -62,10 +66,14 @@ public sealed class SamusBodySources
     }
 
     /// <summary>
-    /// What the game reads of the body: where each installed frame places it, each pose's art origin, her death steps and
-    /// the arm cannon's placements.
+    /// What the game would read of this body: where each frame whose half pictures and placement resolve places it, each
+    /// pose's art origin, her death steps and the arm cannon's placements. The installation holds the frames the body sheet
+    /// pictures of these (<see cref="InstalledBody"/>), which are every frame the game draws.
     /// </summary>
     public InstalledSamusBodyArtwork Gameplay { get; }
+
+    /// <summary>Where each pose's resolved animation frames place the body, or none where not resolved.</summary>
+    private readonly Dictionary<SamusPoseId, IReadOnlyList<int?>> originRises;
 
     /// <summary>The appearances of the atmospheric effects, which the atmosphere sheet is composed from.</summary>
     public SamusAtmosphericSourceArtwork Atmosphere { get; }
@@ -100,8 +108,10 @@ public sealed class SamusBodySources
     public IReadOnlyDictionary<SamusPoseId, SamusBodyPosePlacement> Placements { get; }
 
     /// <summary>
-    /// SHA-256 of all visual selectors and bundled Samus presentation catalogs. The body and death-explosion characters are
-    /// import data the installation never holds (#1636); the sheets composed from them carry their identity.
+    /// SHA-256 of all visual selectors and bundled Samus presentation catalogs the import composes the sheets from. The body
+    /// and death-explosion characters are import data the installation never holds (#1636); the sheets composed from them
+    /// carry their identity, and what the installation holds of the body for the game carries its own
+    /// (<see cref="InstalledSamusBody.ContentIdentity"/>).
     /// </summary>
     public string ContentIdentity => field ??= SelectedPresentationHash.Create("samus-body-v6", content =>
     {
@@ -178,7 +188,7 @@ public sealed class SamusBodySources
         return counts;
     }
 
-    /// <summary>What the installed body holds for gameplay: where each installed frame places the body, and its catalogs.</summary>
+    /// <summary>What the installed body holds for gameplay: where each resolved frame places the body, and its catalogs.</summary>
     private static SamusBodyArtworkContent Content(SamusBodyArtworkParts parts, InstalledFrames installed) => new()
     {
         OriginRises = installed.OriginRises,
@@ -186,6 +196,62 @@ public sealed class SamusBodySources
         DeathSteps = Ensure.NotNull(parts.DeathSteps),
         ArmCannon = Ensure.NotNull(parts.ArmCannon).Gameplay,
     };
+
+    /// <summary>
+    /// What the installation holds of this body for the game (#1638): each pose's art origin, every body frame the body sheet
+    /// pictures with where it places the body, her death steps and the arm cannon's placement at every frame each pose shows.
+    /// </summary>
+    /// <param name="continuation">What an animation frame past a pose's program reads, which decides the frames her body can show.</param>
+    internal InstalledSamusBody InstalledBody(LaidOutProgramContinuation<SamusPoseId, SamusAnimationProgramStep> continuation) =>
+        new(Placements.ToDictionary(pose => pose.Key, pose => pose.Value.GraphicsYOffset),
+            SheetFrames(originRises, Spritemaps, Ensure.NotNull(continuation)), DeathSteps, ArmCannon.Installed(continuation));
+
+    /// <summary>
+    /// Every whole picture the body sheet holds, in the cartridge's pose order and frame order: each frame
+    /// <paramref name="installed"/> pictures, composed of the halves its own frame selects (#1513, #1585).
+    /// </summary>
+    /// <exception cref="InvalidDataException">A pictured frame selects no half pictures of this body.</exception>
+    internal IEnumerable<SamusShownBody> SheetBodies(InstalledSamusBody installed)
+    {
+        foreach (SamusBodyFrame frame in Ensure.NotNull(installed).Frames)
+        {
+            if (!TryPictures(frame.Pose, frame.PictureFrame, out SamusBodyFramePictures pictures))
+                throw new InvalidDataException($"Samus body frame {frame.Name} is pictured but selects no installed half pictures.");
+            yield return new SamusShownBody(frame, SamusBodyCompositions.Of(frame.Pose, frame.PictureFrame, this), pictures);
+        }
+    }
+
+    /// <summary>
+    /// The body frames the body sheet pictures (#1513, #1585, #1638), and where each places the body: each picture frame of
+    /// each pose some path gives Samus, as her own animation shows it with <paramref name="continuation"/>, whose half
+    /// pictures and placement are installed and whose halves' animation frames the pose-half table holds. A body whose
+    /// halves reach past the table draws nothing the sheet could hold: the draw rejects it.
+    /// </summary>
+    private static Dictionary<SamusPoseId, IReadOnlyDictionary<int, int>> SheetFrames(Dictionary<SamusPoseId, IReadOnlyList<int?>> installed,
+        SamusSpritemapSources spritemaps, LaidOutProgramContinuation<SamusPoseId, SamusAnimationProgramStep> continuation)
+    {
+        SamusShownFrames shown = SamusShownFrames.Of(continuation);
+        Dictionary<SamusPoseId, Dictionary<int, int>> pictured = SamusPoseNumbers.RecordedPoses.ToDictionary(pose => pose, _ => new Dictionary<int, int>());
+        foreach (SamusPoseId pose in SamusShownFrames.Poses)
+        {
+            if (!installed.TryGetValue(pose, out IReadOnlyList<int?>? rises))
+                continue;
+            foreach (int frame in shown.pictured[pose])
+            {
+                if ((uint)frame >= (uint)rises.Count || rises[frame] is not { } rise ||
+                    !Covers(spritemaps, new SamusBodyHalfFrame(pose, SamusBodyHalf.Top, frame)) ||
+                    (SamusBodyCompositions.ShowsBottomHalf(pose, frame) &&
+                     !Covers(spritemaps, new SamusBodyHalfFrame(pose, SamusBodyHalf.Bottom, frame))))
+                    continue;
+                pictured[pose].Add(frame, rise);
+            }
+        }
+        return pictured.ToDictionary(pose => pose.Key, pose => (IReadOnlyDictionary<int, int>)pose.Value);
+    }
+
+    /// <summary>Whether <paramref name="half"/>'s animation frame is one the table holds for its pose half.</summary>
+    private static bool Covers(SamusSpritemapSources spritemaps, SamusBodyHalfFrame half) =>
+        (uint)half.AnimationFrame < (uint)spritemaps.Frames(half).Count;
 
     /// <summary>
     /// Validates the native tables and resolves, for every pose and every animation frame the body sheets cover that the

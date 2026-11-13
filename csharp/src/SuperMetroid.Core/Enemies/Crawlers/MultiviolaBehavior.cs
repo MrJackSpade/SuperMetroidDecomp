@@ -1,11 +1,10 @@
 ﻿using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.Crawlers.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Crawlers;
 
-/// <summary>The Multiviola species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Multiviola species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -61,7 +60,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
         // The products are magnitudes; the signs of the heading's cosine and sine give each axis its direction.
         if (!EnemyMath.CosineIsNegative(state.Heading))
         {
-            NegateWithoutFractionCarry(ref state, axis: Axis.Horizontal);
+            NegateWithoutFractionOverflow(ref state, axis: Axis.Horizontal);
         }
 
         SignedSixteenSixteen horizontalDisplacement = state.Velocity.X;
@@ -78,7 +77,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         if (!EnemyMath.SineIsNegative(state.Heading))
-            NegateWithoutFractionCarry(ref state, axis: Axis.Vertical);
+            NegateWithoutFractionOverflow(ref state, axis: Axis.Vertical);
 
         SignedSixteenSixteen verticalDisplacement = state.Velocity.Y;
         if (_terrain.MoveEnemyVertically(level, slot, verticalDisplacement))
@@ -97,35 +96,35 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Reproduces the Multiviola's two-word negations. This is not
+    /// Reproduces the Multiviola's split negation. This is not
     /// a conventional negation: when the fraction is zero, its wrapped increment
-    /// does not carry into the already-complemented whole pixels, leaving the velocity exactly
-    /// one pixel/frame too negative. This is an original-game bug, kept because it is observable.
+    /// does not reach the already-negated whole pixels, leaving the velocity exactly
+    /// one pixel/frame too negative. The game behaves this way, and the result is observable.
     /// </summary>
-    private static void NegateWithoutFractionCarry(
+    private static void NegateWithoutFractionOverflow(
         ref MultiviolaEnemyState state,
         Axis axis)
     {
         if (axis == Axis.Horizontal)
         {
-            state.Velocity = state.Velocity.WithX(NegateWithoutFractionCarry(state.Velocity.X));
+            state.Velocity = state.Velocity.WithX(NegateWithoutFractionOverflow(state.Velocity.X));
             return;
         }
 
-        state.Velocity = state.Velocity.WithY(NegateWithoutFractionCarry(state.Velocity.Y));
+        state.Velocity = state.Velocity.WithY(NegateWithoutFractionOverflow(state.Velocity.Y));
     }
 
-    /// <summary>Applies the separate-word complement and fractional increment, including its missing carry.</summary>
-    private static SignedSixteenSixteen NegateWithoutFractionCarry(SignedSixteenSixteen axis) =>
+    /// <summary>Negates the whole and fraction parts separately and increments the fraction, without passing its overflow on.</summary>
+    private static SignedSixteenSixteen NegateWithoutFractionOverflow(SignedSixteenSixteen axis) =>
         axis.ComplementedWholeNegatedFraction();
 
     /// <summary>Advances Multiviola's typed animation.</summary>
     internal static void AdvanceMultiviolaTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, MultiviolaAnimations.Segments, MultiviolaFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, MultiviolaAnimations.Segments,
             static (MultiviolaEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Multiviola animation raised {cue}."));
 
-    /// <summary>Ports Multiviola's main AI.</summary>
+    /// <summary>Runs Multiviola's main AI.</summary>
     internal void RunMultiviolaMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunMultiviolaMain(slot, slot.RequireSpeciesState<MultiviolaEnemyState>(), frame.Level);

@@ -21,8 +21,7 @@ public sealed class PipeBugEnemyState
 
     /// <summary>
     /// Whether a Brinstar Pipe Bug flies left, set from Samus's side of the bug every update it waits with Samus in its
-    /// vertical band. The game keeps it as the sign bit of the record word the other two species use for their
-    /// function.
+    /// vertical band.
     /// </summary>
     public bool BrinstarFliesLeft { get; internal set; }
 

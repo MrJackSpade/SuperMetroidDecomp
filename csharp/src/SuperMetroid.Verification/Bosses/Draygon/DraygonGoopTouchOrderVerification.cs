@@ -51,7 +51,7 @@ internal static class DraygonGoopTouchOrderVerification
                 powerBomb.Spawn(goop.Position.Whole);
                 powerBomb.ExplosionRadius = PowerBombRadius.FromRaw(8192); // 32 pixels in 8.8
             }
-            enemies.Audio.PowerBomb = powerBomb;
+            enemies.FrameContext.SeedFrame(enemies.FrameContext.FrameCounter, CreateProjectileFixture(), new SuperMetroid.Core.Samus.Palettes.SamusColours(), powerBomb);
 
             enemies.StepEnemyProjectiles(runtime.Room.LoadedLevelData, samus);
 

@@ -10,7 +10,7 @@ public sealed class CrawlerEnemyState
     internal AnimationPlayback<CrawlerProgram> Playback { get; set; }
 
     /// <summary>
-    /// Signed two's-complement 8.8 motion words. On horizontal surfaces X is the tangent and Y the floor/ceiling-probe
+    /// Signed 8.8 motion. On horizontal surfaces X is the tangent and Y the floor/ceiling-probe
     /// direction; on vertical surfaces Y is the tangent and X the wall-probe direction.
     /// </summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
@@ -39,7 +39,7 @@ public sealed class CrawlerEnemyState
     public SignedSixteenSixteen FallingYVelocity { get; internal set; }
 
     /// <summary>
-    /// One falling update's gravity: adds half a pixel per update while the whole pixels, compared as a signed word,
+    /// One falling update's gravity: adds half a pixel per update while the whole pixels, compared as signed,
     /// are below four.
     /// </summary>
     internal void ApplyFallingGravity()
@@ -52,7 +52,7 @@ public sealed class CrawlerEnemyState
     /// <summary>
     /// Count of successive updates whose attachment probe misses the surface, 0 through 4 in play: contact and landing
     /// reset it, and the fourth miss selects falling rather than another outside-corner turn. The
-    /// setter accepts every count to 65535 so the turn routines' wrapped increment is preserved exactly.
+    /// setter accepts every count to 65535 so the turns' wrapped increment is preserved exactly.
     /// </summary>
     public int ConsecutiveTurnCounter
     {

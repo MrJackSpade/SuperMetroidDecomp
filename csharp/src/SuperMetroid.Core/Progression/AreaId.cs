@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Progression;
 
 /// <summary>The seven mutually exclusive retail world-area indices.</summary>
 /// <remarks>
-/// The order is the fixed area numbering used by room headers, load-station tables, maps, and
+/// The order is the fixed area numbering used by room definitions, load-station tables, maps, and
 /// area-dependent gameplay tables. It is not a flags field.
 /// </remarks>
 public enum AreaId

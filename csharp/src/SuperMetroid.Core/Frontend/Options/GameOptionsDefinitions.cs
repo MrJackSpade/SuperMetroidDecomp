@@ -14,7 +14,7 @@ public static class GameOptionsDefinitions
     public const int ControllerScrollPixelsPerFrame = 2;
     /// <summary>The queue limit options navigation and confirmation sounds are requested under.</summary>
     public static readonly SoundRequestPriority MaximumQueuedMenuSounds = SoundRequestPriority.Normal;
-    /// <summary>Two tilemap rows for each of the two language labels.</summary>
+    /// <summary>Two text rows for each of the two language labels.</summary>
     public const int LanguagePaletteRegionCount = 4;
 
     /// <summary>Row counts and the controller page's navigation rows.</summary>

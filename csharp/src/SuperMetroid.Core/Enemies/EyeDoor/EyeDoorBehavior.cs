@@ -7,7 +7,7 @@ using SuperMetroid.Core.Rooms.Doors;
 
 namespace SuperMetroid.Core.Enemies.EyeDoor;
 
-/// <summary>The eye door species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The eye door species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class EyeDoorBehavior
 {
@@ -475,7 +475,7 @@ internal sealed class EyeDoorBehavior
         return false;
     }
 
-    /// <summary>Routes live eye shots and sweat through their distinct movement routines.</summary>
+    /// <summary>Routes live eye shots and sweat through their distinct movement behaviours.</summary>
     internal void AddEyeDoorProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddCue<EyeDoorProjectileCue>((context, cue) => ApplyEyeDoorProjectileCue(context.Projectile, context.Samus?.RoomView, cue));

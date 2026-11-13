@@ -2,37 +2,38 @@ using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Cacatac.CacatacCueKind;
 using P = SuperMetroid.Core.Enemies.Cacatac.CacatacProgram;
 using D = SuperMetroid.Core.Enemies.Cacatac.CacatacSpikeDirection;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Cacatac;
 
 /// <summary>
 /// Cacatac's upright and inverted idle and spike-attack animations as typed programs (#641). Each
-/// frame shows a <see cref="CacatacFrame"/> pose and each callback becomes a <see cref="CacatacCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyFrameId"/> and each callback becomes a <see cref="CacatacCue"/> with its typed operands.
 /// </summary>
 internal static class CacatacAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<CacatacProgram, CacatacFrame, CacatacCue> Segments { get; } = new(
-        new Dictionary<CacatacProgram, AnimationBeat<CacatacFrame, CacatacCue>[]>
+    internal static AnimationSegments<CacatacProgram, EnemyFrameId, CacatacCue> Segments { get; } = new(
+        new Dictionary<CacatacProgram, AnimationBeat<EnemyFrameId, CacatacCue>[]>
     {
         [P.UpsideUpIdle] =
         [
             Cue(new(K.RestorePatrol)),
-            Show(0, 8),
-            Show(1, 8),
-            Show(2, 8),
-            Show(3, 8),
-            Show(4, 8),
-            Show(5, 8),
-            Show(6, 8),
-            Show(7, 8),
+            Show(EnemyFrameId.CacatacUprightIdle0, 8),
+            Show(EnemyFrameId.CacatacUprightIdle1, 8),
+            Show(EnemyFrameId.CacatacUprightIdle2, 8),
+            Show(EnemyFrameId.CacatacUprightIdle3, 8),
+            Show(EnemyFrameId.CacatacUprightIdle4, 8),
+            Show(EnemyFrameId.CacatacUprightIdle5, 8),
+            Show(EnemyFrameId.CacatacUprightIdle6, 8),
+            Show(EnemyFrameId.CacatacUprightIdle7, 8),
         ],
         [P.UpsideUpAttack] =
         [
-            Show(0, 21),
-            Show(8, 5),
-            Show(9, 21),
-            Show(8, 5),
+            Show(EnemyFrameId.CacatacUprightIdle0, 21),
+            Show(EnemyFrameId.CacatacUprightAttack1, 5),
+            Show(EnemyFrameId.CacatacUprightAttack2, 21),
+            Show(EnemyFrameId.CacatacUprightAttack1, 5),
             Cue(new(K.PlaySpikeSound)),
             Cue(new(K.SpawnSpike, Direction: D.LeftFacingUp)),
             Cue(new(K.SpawnSpike, Direction: D.UpLeft)),
@@ -46,21 +47,21 @@ internal static class CacatacAnimations
         ],
         [P.UpsideDownIdleLoop] =
         [
-            Show(10, 8),
-            Show(11, 8),
-            Show(12, 8),
-            Show(13, 8),
-            Show(14, 8),
-            Show(15, 8),
-            Show(16, 8),
-            Show(17, 8),
+            Show(EnemyFrameId.CacatacInvertedIdle0, 8),
+            Show(EnemyFrameId.CacatacInvertedIdle1, 8),
+            Show(EnemyFrameId.CacatacInvertedIdle2, 8),
+            Show(EnemyFrameId.CacatacInvertedIdle3, 8),
+            Show(EnemyFrameId.CacatacInvertedIdle4, 8),
+            Show(EnemyFrameId.CacatacInvertedIdle5, 8),
+            Show(EnemyFrameId.CacatacInvertedIdle6, 8),
+            Show(EnemyFrameId.CacatacInvertedIdle7, 8),
         ],
         [P.UpsideDownAttack] =
         [
-            Show(10, 21),
-            Show(18, 5),
-            Show(19, 21),
-            Show(18, 5),
+            Show(EnemyFrameId.CacatacInvertedIdle0, 21),
+            Show(EnemyFrameId.CacatacInvertedAttack1, 5),
+            Show(EnemyFrameId.CacatacInvertedAttack2, 21),
+            Show(EnemyFrameId.CacatacInvertedAttack1, 5),
             Cue(new(K.PlaySpikeSound)),
             Cue(new(K.SpawnSpike, Direction: D.LeftFacingDown)),
             Cue(new(K.SpawnSpike, Direction: D.DownLeft)),
@@ -83,9 +84,9 @@ internal static class CacatacAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<CacatacProgram> StartingWith(CacatacProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<CacatacFrame, CacatacCue> Show(int pose, int duration) => new AnimationBeat<CacatacFrame, CacatacCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyFrameId, CacatacCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, CacatacCue>.Frame(frame, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<CacatacFrame, CacatacCue> Cue(CacatacCue cue) => new AnimationBeat<CacatacFrame, CacatacCue>.Event(cue);
+    private static AnimationBeat<EnemyFrameId, CacatacCue> Cue(CacatacCue cue) => new AnimationBeat<EnemyFrameId, CacatacCue>.Event(cue);
 }

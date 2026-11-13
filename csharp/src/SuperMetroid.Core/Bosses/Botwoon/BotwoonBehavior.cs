@@ -297,7 +297,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         PositionBotwoonBody(state);
         RunBotwoonHeadFunction(head, state, samus);
         OrientBotwoonBody(head, state);
-        state.RingIndex = BotwoonNavigationDefinitions.WrapHistoryIndex(state.RingIndex + 1);
+        state.RingIndex = BotwoonTrailRing.PlaceAt(state.RingIndex + 1);
     }
 
     /// <summary>Dispatches movement toward a hole or through an authored path descriptor.</summary>
@@ -342,9 +342,16 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Restricts target distance to the signed angle routine's supported range.</summary>
+    /// <summary>
+    /// Restricts target distance to the signed angle routine's supported range, exactly as the original clamps it (#1627):
+    /// beyond <see cref="HoleBearingReach"/> pixels either way it reads as that reach, except that a distance of exactly
+    /// 256 pixels upward or leftward is kept as it is. The bearing toward his hole, and so his path, follows these values.
+    /// </summary>
     private static int ClampBotwoonTargetDelta(int value) =>
-        value < -256 ? -255 : value >= 256 ? 255 : value;
+        value < -(HoleBearingReach + 1) ? -HoleBearingReach : value > HoleBearingReach ? HoleBearingReach : value;
+
+    /// <summary>The farthest a hole's distance on either axis is measured for its bearing, in pixels.</summary>
+    private const int HoleBearingReach = 255;
 
     /// <summary>Uses health phase, current hole, and RNG to choose an authored path.</summary>
     private void ChooseBotwoonPath(RoomEnemySlot head, BotwoonEnemyState state)
@@ -414,14 +421,14 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Spaces thirteen body projectiles along older head-history samples.</summary>
     private static void PositionBotwoonBody(BotwoonEnemyState state)
     {
-        int historyIndex = BotwoonNavigationDefinitions.WrapHistoryIndex(state.RingIndex - state.SegmentSpacingEntries);
+        int historyIndex = BotwoonTrailRing.PlaceAt(state.RingIndex - state.SegmentSpacingEntries);
         for (int segmentIndex = state.BodySegments.Length - 1; segmentIndex >= 0; segmentIndex--)
         {
             EnemyProjectile segment = state.Segment(segmentIndex);
 
             ToggleBotwoonSegmentAtHole(state, segmentIndex, historyIndex);
             segment.Position = segment.Position.WithWhole(state.History[historyIndex]);
-            historyIndex = BotwoonNavigationDefinitions.WrapHistoryIndex(historyIndex - state.SegmentSpacingEntries);
+            historyIndex = BotwoonTrailRing.PlaceAt(historyIndex - state.SegmentSpacingEntries);
         }
     }
 

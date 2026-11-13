@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Escape.Artwork;
 public static class EscapeTimerComposition
 {
     /// <summary>The glyph that draws the decimal value <paramref name="digit"/>.</summary>
-    /// <param name="digit">Decoded decimal value 0 through 9, not a packed-BCD byte.</param>
+    /// <param name="digit">Decoded decimal value 0 through 9, not a packed decimal pair.</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="digit"/> is outside 0..9.</exception>
     public static EscapeTimerGlyph DigitGlyph(int digit) => Ensure.Element(EscapeTimerPresentationDefinitions.DigitGlyphs, digit);
 

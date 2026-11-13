@@ -13,7 +13,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>The Bomb Torizo species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Bomb Torizo species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -31,7 +31,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyAudioQueue _audio;
     /// <summary>Exposes the two live colour sets occupied by Torizo's body.</summary>
     private readonly EnemyPresentation _presentation;
-    /// <summary>Provides the frame counter used by Torizo instruction choices.</summary>
+    /// <summary>Provides the frame counter used by Torizo program choices.</summary>
     private readonly EnemyFrameContext _frameContext;
     /// <summary>Spawns the orb drops and the death scatter after the authored sequences.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
@@ -41,7 +41,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Bomb and Golden Torizo's setup and movement: walking, jumps, falls and air transitions under gravity.</summary>
     internal TorizoMovement Movement { get; }
 
-    /// <summary>Bomb and Golden Torizo's state lookups, facing, posture and the function word their branches test.</summary>
+    /// <summary>Bomb and Golden Torizo's state lookups, facing, posture and the function their branches test.</summary>
     internal TorizoEncounterAccess Access { get; }
 
     /// <summary>Bomb and Golden Torizo's projectiles: drool, swipes, sonic booms, Chozo orbs, eggs, super missiles, eye beams and explosions.</summary>
@@ -201,13 +201,13 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         _audio.QueueEnemySound(sound, priority: SoundRequestPriority.Normal);
     }
 
-    /// <summary>Ports BombTorizo's main AI.</summary>
+    /// <summary>Runs BombTorizo's main AI.</summary>
     internal void RunBombTorizoMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunBombTorizoMain(slot, Access.RequireBombTorizoState(slot), frame.Samus, frame.Level);
     }
 
-    /// <summary>Ports GoldenTorizo's main AI.</summary>
+    /// <summary>Runs GoldenTorizo's main AI.</summary>
     internal void RunGoldenTorizoMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunGoldenTorizoMain(
@@ -222,15 +222,15 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         AdvanceTorizoAnimation(slot, new TorizoInstructionInputs { Samus = context.Samus, Level = context.Level, ControllerInput = context.ControllerInput, FrameCounter = _frameContext.FrameCounter });
     }
-    /// <summary>Runs Bomb or Golden Torizo's body program where the enemy instruction interpreter would.</summary>
+    /// <summary>Runs Bomb or Golden Torizo's body program where the shared enemy animation would.</summary>
     internal void AdvanceTorizoAnimation(RoomEnemySlot torizo, TorizoInstructionInputs inputs)
     {
         if (!EnemyProgramAnimation.Expire(torizo))
             return;
         TorizoEnemyState state = Access.RequireBombTorizoState(torizo);
         AnimationPlayback<TorizoBodyProgram> playback = state.BodyPlayback;
-        // The death and wake repeats count the body's timer word, as the timer commands do.
-        EnemyProgramAnimation.Play(torizo, TorizoAnimations.Segments, ref playback, TorizoFrameDefinitions.ShownFrames.Of,
+        // The death and wake repeats count the body's frame timer, as the timer commands do.
+        EnemyProgramAnimation.Play(torizo, TorizoAnimations.Segments, ref playback,
             (cue, continuation) => ApplyTorizoCue(torizo, state, inputs, cue, continuation));
         state.BodyPlayback = playback;
     }
@@ -246,7 +246,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Carries out one cue of Bomb or Golden Torizo's body animation, returning where a branch, call or return
     /// continues the play, or null to play on. <paramref name="continuation"/> is where the play stands just past the
     /// cue: the return point a call saves. <see cref="TorizoInstructionInputs.FrameCounter"/> is the frame
-    /// counter, which both attack choosers add; only its bit 3 survives.
+    /// counter, which both attack choosers add; only whether it lies in the second half of each sixteen-frame cycle survives.
     /// </summary>
     internal AnimationContinuation<TorizoBodyProgram>? ApplyTorizoCue(
         RoomEnemySlot torizo,
@@ -587,7 +587,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Requires the active Samus actor for distance and attack decisions in Golden bytecode.</summary>
+    /// <summary>Requires the active Samus actor for distance and attack decisions in Golden Torizo's program.</summary>
     private static SamusState RequireGoldenTorizoSamus(SamusState? samus) =>
         samus ?? throw new InvalidOperationException(
             "Golden Torizo instruction selection requires the active Samus actor.");

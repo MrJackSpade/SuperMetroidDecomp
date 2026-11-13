@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal static class BombedRevealObjectDraws
 {
     /// <summary>
-    /// Describes a draw handed over by the shared room-object draw interpreter; draws outside the three reveals belong to
+    /// Describes a draw handed over by the shared room-object draw dispatch; draws outside the three reveals belong to
     /// other families.
     /// </summary>
     internal static bool TryGet(RoomObjectDraw request, out RoomObjectShotBlockDrawDefinitions.DrawList draw)

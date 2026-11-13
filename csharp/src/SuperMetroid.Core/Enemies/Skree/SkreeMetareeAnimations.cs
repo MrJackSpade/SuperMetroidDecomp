@@ -1,30 +1,31 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Skree.SkreeMetareeCueKind;
 using P = SuperMetroid.Core.Enemies.Skree.SkreeMetareeProgram;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Skree;
 
 /// <summary>
 /// The Skree's and Metaree's idling, wind-up, diving and stop animations as typed programs (#641). Each
-/// frame shows a <see cref="SkreeMetareeFrame"/> pose and each callback becomes a <see cref="SkreeMetareeCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyFrameId"/> and each callback becomes a <see cref="SkreeMetareeCue"/> with its typed operands.
 /// </summary>
 internal static class SkreeMetareeAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<SkreeMetareeProgram, SkreeMetareeFrame, SkreeMetareeCue> Segments { get; } = new(
-        new Dictionary<SkreeMetareeProgram, AnimationBeat<SkreeMetareeFrame, SkreeMetareeCue>[]>
+    internal static AnimationSegments<SkreeMetareeProgram, EnemyFrameId, SkreeMetareeCue> Segments { get; } = new(
+        new Dictionary<SkreeMetareeProgram, AnimationBeat<EnemyFrameId, SkreeMetareeCue>[]>
     {
         [P.MetareeIdling] =
         [
-            Show(0, 10),
-            Show(2, 10),
-            Show(3, 10),
-            Show(4, 10),
+            Show(EnemyFrameId.MetareeIdle0, 10),
+            Show(EnemyFrameId.MetareeIdle1, 10),
+            Show(EnemyFrameId.MetareeIdle2, 10),
+            Show(EnemyFrameId.MetareeIdle3, 10),
         ],
         [P.MetareePreparingAttack] =
         [
-            Show(0, 16),
-            Show(1, 8),
+            Show(EnemyFrameId.MetareeIdle0, 16),
+            Show(EnemyFrameId.MetareePrepare1, 8),
             Cue(new(K.SetAttackReady)),
         ],
         [P.MetareeDiving] =
@@ -33,27 +34,27 @@ internal static class SkreeMetareeAnimations
         ],
         [P.MetareeDivingLoop] =
         [
-            Show(2, 2),
-            Show(3, 2),
-            Show(4, 2),
-            Show(0, 2),
+            Show(EnemyFrameId.MetareeIdle1, 2),
+            Show(EnemyFrameId.MetareeIdle2, 2),
+            Show(EnemyFrameId.MetareeIdle3, 2),
+            Show(EnemyFrameId.MetareeIdle0, 2),
         ],
         [P.MetareeStopAnimating] =
         [
             Cue(new(K.StopProcessingOffScreen)),
-            Show(0, 1),
+            Show(EnemyFrameId.MetareeIdle0, 1),
         ],
         [P.SkreeIdling] =
         [
-            Show(5, 10),
-            Show(7, 10),
-            Show(8, 10),
-            Show(9, 10),
+            Show(EnemyFrameId.SkreeIdle0, 10),
+            Show(EnemyFrameId.SkreeIdle1, 10),
+            Show(EnemyFrameId.SkreeIdle2, 10),
+            Show(EnemyFrameId.SkreeIdle3, 10),
         ],
         [P.SkreePreparingAttack] =
         [
-            Show(5, 16),
-            Show(6, 8),
+            Show(EnemyFrameId.SkreeIdle0, 16),
+            Show(EnemyFrameId.SkreePrepare1, 8),
             Cue(new(K.SetAttackReady)),
         ],
         [P.SkreeDiving] =
@@ -62,15 +63,15 @@ internal static class SkreeMetareeAnimations
         ],
         [P.SkreeDivingLoop] =
         [
-            Show(7, 2),
-            Show(8, 2),
-            Show(9, 2),
-            Show(5, 2),
+            Show(EnemyFrameId.SkreeIdle1, 2),
+            Show(EnemyFrameId.SkreeIdle2, 2),
+            Show(EnemyFrameId.SkreeIdle3, 2),
+            Show(EnemyFrameId.SkreeIdle0, 2),
         ],
         [P.SkreeStopAnimating] =
         [
             Cue(new(K.StopProcessingOffScreen)),
-            Show(5, 1),
+            Show(EnemyFrameId.SkreeIdle0, 1),
         ],
     });
 
@@ -92,9 +93,9 @@ internal static class SkreeMetareeAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<SkreeMetareeProgram> StartingWith(SkreeMetareeProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<SkreeMetareeFrame, SkreeMetareeCue> Show(int pose, int duration) => new AnimationBeat<SkreeMetareeFrame, SkreeMetareeCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyFrameId, SkreeMetareeCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, SkreeMetareeCue>.Frame(frame, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<SkreeMetareeFrame, SkreeMetareeCue> Cue(SkreeMetareeCue cue) => new AnimationBeat<SkreeMetareeFrame, SkreeMetareeCue>.Event(cue);
+    private static AnimationBeat<EnemyFrameId, SkreeMetareeCue> Cue(SkreeMetareeCue cue) => new AnimationBeat<EnemyFrameId, SkreeMetareeCue>.Event(cue);
 }

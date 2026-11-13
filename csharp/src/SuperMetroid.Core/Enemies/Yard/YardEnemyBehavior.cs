@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.Yard.Artwork;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.Crawlers;
 using SuperMetroid.Core.Fx;
@@ -13,7 +12,7 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Enemies.Yard;
 
-/// <summary>The Yard species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Yard species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -88,14 +87,14 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         for (int phase = 0; phase < playing.Phases.Count; phase++)
         {
             AnimationPhase<YardProgram> run = playing.Phases[phase];
-            IReadOnlyList<AnimationBeat<YardFrame, YardCue>> beats = YardAnimations.Segments.Beats(run.Segment);
+            IReadOnlyList<AnimationBeat<EnemyFrameId, YardCue>> beats = YardAnimations.Segments.Beats(run.Segment);
             for (int beat = 0; beat < run.BeatCount; beat++)
             {
-                if (beats[run.FirstBeat + beat] is not AnimationBeat<YardFrame, YardCue>.Event { Raised: YardCue.Command { Kind: YardCueKind.RepeatPreviousPoseUnlessContinuing } })
+                if (beats[run.FirstBeat + beat] is not AnimationBeat<EnemyFrameId, YardCue>.Event { Raised: YardCue.Command { Kind: YardCueKind.RepeatPreviousPoseUnlessContinuing } })
                     continue;
                 if (found is not null)
                     throw new InvalidDataException($"A Yard animation through {run.Segment} has more than one repeat cue.");
-                if (beat == 0 || beats[run.FirstBeat + beat - 1] is not AnimationBeat<YardFrame, YardCue>.Frame)
+                if (beat == 0 || beats[run.FirstBeat + beat - 1] is not AnimationBeat<EnemyFrameId, YardCue>.Frame)
                     throw new InvalidDataException($"Yard repeat cue in {run.Segment} does not follow a pose.");
                 found = new AnimationPlace(phase, beat - 1);
             }
@@ -170,7 +169,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             case YardMovementFunction.Airborne:
                 RunYardAirborneMovement(slot, state, samus, level);
                 return;
-            // Direction-changing animation can publish the new direction word one frame before
+            // Direction-changing animation can publish the new direction one frame before
             // it installs the matching movement behaviour. The game dispatches through that behaviour,
             // not by the temporarily newer direction field.
             case YardMovementFunction.CrawlingUpsideUpMovingLeft:
@@ -302,7 +301,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (!surfaceCollision)
         {
-            // The count stays within one through four, so the game's signed word comparison is an ordinary one.
+            // The count stays within one through four, so the game's signed comparison is an ordinary one.
             state.ConsecutiveTurnCounter++;
             if (state.ConsecutiveTurnCounter >= YardEnemyState.MissedProbesBeforeFalling)
             {
@@ -377,7 +376,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         state.TurnTransitionDisableCounter = next;
     }
 
-    /// <summary>Starts a turn instruction immediately and resets the temporary turn suppression counter.</summary>
+    /// <summary>Starts a turn animation immediately and resets the temporary turn suppression counter.</summary>
     private static void SetYardInstructionAndDisableTurn(
         RoomEnemySlot slot,
         YardEnemyState state,
@@ -516,7 +515,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         return shouldTurn && TurnYardAround(state);
     }
 
-    /// <summary>Reverses Yard's crawl direction and associated graphics, property bits, and velocities unless it is hidden or instruction-pending.</summary>
+    /// <summary>Reverses Yard's crawl direction and associated graphics, properties, and velocities unless it is hidden or awaiting its animation.</summary>
     internal static bool TurnYardAround(YardEnemyState state)
     {
         if (state.Behavior == YardBehavior.Hiding ||
@@ -572,11 +571,11 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             -1));
     }
 
-    /// <summary>Negates the whole and fraction words independently, as Yard's collision handlers do.</summary>
+    /// <summary>Negates the whole and fraction parts independently, as Yard's collision handlers do.</summary>
     private static SignedSixteenSixteen NegatePartsSeparately(SignedSixteenSixteen velocity) =>
         velocity.NegatedPartsSeparately();
 
-    /// <summary>Negates one raw 8.8 crawl word, wrapping at sixteen bits.</summary>
+    /// <summary>Negates one raw 8.8 crawl velocity, wrapping in its signed range.</summary>
     private static SignedEightEight NegateEightEight(SignedEightEight velocity) =>
         velocity.Negated();
 
@@ -601,7 +600,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // A hidden/instruction-pending shell, a falling shell, and an already kicked shell
+        // A hidden shell awaiting its animation, a falling shell, and an already kicked shell
         // deliberately do nothing on overlap. Every other route enters normal enemy touch,
         // restores the population's idle speed, optionally turns, then resumes behavior zero.
         if (state.MovementFunction == YardMovementFunction.InstructionPending ||
@@ -617,7 +616,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Behavior = YardBehavior.NormalCrawling;
     }
 
-    /// <summary>Interprets the exact held horizontal direction used by Yard's touch callback.</summary>
+    /// <summary>Reads the exact held horizontal direction used by Yard's touch callback.</summary>
     private static bool SamusIsDirectingTowardYard(
         YardEnemyState state,
         ControllerButton controllerInput)
@@ -644,7 +643,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         _audio.QueueEnemySound(YardBounceSound, priority: SoundRequestPriority.Low);
     }
 
-    /// <summary>Ports Yard's main AI.</summary>
+    /// <summary>Runs Yard's main AI.</summary>
     internal void RunYardMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunYardMain(slot, frame.Samus, frame.Level);
@@ -659,7 +658,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         AnimationPlayback<YardProgram> playback = state.Playback;
         // Only the repeat cue continues elsewhere, and it continues in the animation already playing.
         Animation<YardProgram> playing = playback.Animation;
-        EnemyProgramAnimation.Play(slot, YardAnimations.Segments, ref playback, YardFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Play(slot, YardAnimations.Segments, ref playback,
             cue => ApplyYardCue(slot, state, cue, playing));
         state.Playback = playback;
     }

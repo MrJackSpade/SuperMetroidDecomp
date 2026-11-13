@@ -2,7 +2,7 @@ using SuperMetroid.Core.Rooms.Scrolling;
 
 namespace SuperMetroid.Core.Fx;
 
-/// <summary>Each band of the Landing Site's scrolling sky: where it starts, how fast it drifts and which accumulator it adds to (#1415).</summary>
+/// <summary>Each band of the Landing Site's scrolling sky: where it starts, how fast it drifts and which running sum it adds to (#1415).</summary>
 public static class ScrollingSkyBands
 {
     /// <summary>Selects a sky band's top world row, its drift a frame and its horizontal-scroll slot.</summary>

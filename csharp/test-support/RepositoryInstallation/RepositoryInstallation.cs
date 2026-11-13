@@ -54,12 +54,12 @@ internal static class RepositoryInstallation
         }
     }
 
-    /// <summary>The installation's Samus body, loaded once per process: the artwork binds what the game reads of it.</summary>
-    internal static Lazy<SuperMetroid.AssetExtraction.Samus.SamusBodySources> SamusBodyLoader { get; } =
+    /// <summary>What the game binds of the installation's Samus body, loaded once per process: the artwork binds it.</summary>
+    internal static Lazy<SuperMetroid.AssetExtraction.Samus.InstalledSamusBody> SamusBodyLoader { get; } =
         new(() => SharedFixtureTiming.Load("Fixture: repository Samus body", () => Installation.LoadSamusBody()));
 
-    /// <summary>The installation's Samus body, whose game catalog <see cref="Artwork"/> binds.</summary>
-    internal static SuperMetroid.AssetExtraction.Samus.SamusBodySources SamusBody => SamusBodyLoader.Value;
+    /// <summary>What the game binds of the installation's Samus body, whose game catalog <see cref="Artwork"/> binds.</summary>
+    internal static SuperMetroid.AssetExtraction.Samus.InstalledSamusBody SamusBody => SamusBodyLoader.Value;
 
     /// <summary>The installation's presentation catalogs, loaded once per process and bound to every fixture.</summary>
     internal static Lazy<GameArtwork> ArtworkLoader { get; } =

@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.Metroids.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
@@ -12,7 +11,7 @@ using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Enemies.Metroids;
 
-/// <summary>The Metroid species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Metroid species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -156,7 +155,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             StoreMetroidXVelocity(state, SignedSixteenSixteen.Zero);
     }
 
-    /// <summary>Runs the Metroid's byte-oriented fixed-speed seek as it closes on Samus.</summary>
+    /// <summary>Runs the Metroid's fixed-speed seek as it closes on Samus.</summary>
     private void RunMetroidClosing(
         RoomEnemySlot slot,
         MetroidEnemyState state,
@@ -256,7 +255,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             if (state.Function != MetroidAiFunction.AttachedToSamus)
             {
-                // Overlapping byte writes produce delta/4 in signed 16.16 form.
+                // The stores produce delta/4 in signed 16.16 form.
                 StoreMetroidXVelocity(
                     state,
                     SignedSixteenSixteen.FromSixteenthsOfPixel(4 * CoordinateAxis.Difference(slot.Position.X.Whole, samus.Position.X.Whole)));
@@ -327,7 +326,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // The Metroid's shot reaction recoils from the first projectile (MetroidRecoilOrigin), not the current
-        // collision slot. The overlapping byte stores encode delta/8 as signed 16.16.
+        // collision slot. The stores encode delta/8 as signed 16.16.
         StoreMetroidXVelocity(
             state,
             SignedSixteenSixteen.FromSixteenthsOfPixel(2 * CoordinateAxis.Difference(slot.Position.X.Whole, recoilOrigin.X)));
@@ -417,7 +416,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         outerBody.UpdatesDisabled = false;
     }
 
-    /// <summary>Switches an outer-body sprite to frozen art without resetting its retained instruction timer.</summary>
+    /// <summary>Switches an outer-body sprite to frozen art without resetting its retained frame timer.</summary>
     private static void FreezeMetroidOuterBody(
         RoomSpriteObject outerBody,
         RoomSpriteObjectProgram frozenProgram)
@@ -453,7 +452,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             });
     }
 
-    /// <summary>Ports Metroid's main AI.</summary>
+    /// <summary>Runs Metroid's main AI.</summary>
     internal void RunMetroidMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunMetroidMain(slot, frame.Samus, frame.Level);
@@ -461,7 +460,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Metroid's typed animation.</summary>
     internal void AdvanceMetroidTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, MetroidAnimations.Segments, MetroidFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, MetroidAnimations.Segments,
             static (MetroidEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {
@@ -501,7 +500,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 return true;
             }
 
-            // Like the ordinary path, the walker only marks the direction word. The damage path does not reject a
+            // Like the ordinary path, the walker only marks the direction. The damage path does not reject a
             // projectile an earlier enemy marked this pass: a Super Missile that just hit a Rinka still reaches
             // the Metroid's shot reaction.
             c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
@@ -547,7 +546,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         });
     }
 
-    /// <summary>Registers hurt AI ahead of frozen AI when both handler bits are set; animation bytecode still advances.</summary>
+    /// <summary>Registers hurt AI ahead of frozen AI when both handlers are active; the animation program still advances.</summary>
     internal static void AddMetroidHurtAi(EnemySharedReactions table) =>
         table.AddHurt(slot => slot.DefinitionId == EnemyDefinitionId.Metroid, (slot, _) => ApplyMetroidHurt(slot));
 

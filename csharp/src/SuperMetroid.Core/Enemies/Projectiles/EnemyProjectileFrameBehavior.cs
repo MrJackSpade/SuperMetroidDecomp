@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
 /// How an enemy projectile moves itself on each projectile pass, before its program advances. Its values are arbitrary.
-/// verification's view names the game routines each member stands for.
+/// Verification's view relates each member to its source.
 /// </summary>
 internal enum EnemyProjectileFrameBehavior
 {

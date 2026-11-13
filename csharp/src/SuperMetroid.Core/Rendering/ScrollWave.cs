@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rendering;
 /// </summary>
 /// <remarks>
 /// The wave's angle at screen line <c>y</c> is <see cref="Phase"/> advanced by <c>y</c> of <see cref="Period"/>'s whole
-/// turn, in the byte angle's steps rounded down. Its displacement is the game's signed sine sample at that angle
+/// turn, in the angle's 256 steps rounded down. Its displacement is the game's signed sine sample at that angle
 /// (<see cref="Trigonometry.SignedSine"/>) scaled by <see cref="Amplitude"/>, rounded toward zero, so the ripple has the
 /// shape the game's other sine motion has.
 /// </remarks>

@@ -1,122 +1,123 @@
 using P = SuperMetroid.Core.Enemies.Animals.EtecoonProgram;
 using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>
 /// The Etecoon's look, run, wall-jump, hop and flex animations as typed programs (#641). Each
-/// frame shows a <see cref="EtecoonFrame"/> pose and its lists use no owner callbacks.
+/// frame shows a <see cref="EnemyFrameId"/> and its lists use no owner callbacks.
 /// </summary>
 internal static class EtecoonAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<EtecoonProgram, EtecoonFrame, NoAnimationCue> Segments { get; } = new(
-        new Dictionary<EtecoonProgram, AnimationBeat<EtecoonFrame, NoAnimationCue>[]>
+    internal static AnimationSegments<EtecoonProgram, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<EtecoonProgram, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
     {
         [P.LookRightAtSamusAndRunLeft] =
         [
-            Show(12, 5),
+            Show(EnemyFrameId.Etecoon00, 5),
         ],
         [P.BeginRunningLeft] =
         [
-            Show(13, 1),
+            Show(EnemyFrameId.Etecoon01, 1),
         ],
         [P.RunningLeft] =
         [
-            Show(0, 5),
-            Show(1, 5),
-            Show(2, 5),
-            Show(1, 5),
+            Show(EnemyFrameId.Etecoon02, 5),
+            Show(EnemyFrameId.Etecoon03, 5),
+            Show(EnemyFrameId.Etecoon04, 5),
+            Show(EnemyFrameId.Etecoon03, 5),
         ],
         [P.WallJumpLeft] =
         [
-            Show(7, 8),
+            Show(EnemyFrameId.Etecoon05, 8),
         ],
         [P.WallJumpLeftLoop] =
         [
-            Show(3, 3),
-            Show(4, 3),
-            Show(5, 3),
-            Show(6, 3),
+            Show(EnemyFrameId.Etecoon06, 3),
+            Show(EnemyFrameId.Etecoon07, 3),
+            Show(EnemyFrameId.Etecoon08, 3),
+            Show(EnemyFrameId.Etecoon09, 3),
         ],
         [P.HoppingFacingLeft] =
         [
-            Show(8, 1),
+            Show(EnemyFrameId.Etecoon10, 1),
         ],
         [P.ContinueHoppingFacingLeft] =
         [
-            Show(9, 12),
-            Show(10, 12),
+            Show(EnemyFrameId.Etecoon11, 12),
+            Show(EnemyFrameId.Etecoon12, 12),
         ],
         [P.HitCeiling] =
         [
-            Show(11, 6),
-            Show(10, 12),
-            Show(9, 12),
+            Show(EnemyFrameId.Etecoon13, 6),
+            Show(EnemyFrameId.Etecoon12, 12),
+            Show(EnemyFrameId.Etecoon11, 12),
         ],
         [P.WallJumpLeftEligible] =
         [
-            Show(14, 1),
+            Show(EnemyFrameId.Etecoon14, 1),
         ],
         [P.LookLeftAtSamusAndRunRight] =
         [
-            Show(29, 5),
+            Show(EnemyFrameId.Etecoon15, 5),
         ],
         [P.BeginRunningRight] =
         [
-            Show(28, 1),
+            Show(EnemyFrameId.Etecoon16, 1),
         ],
         [P.RunningRight] =
         [
-            Show(15, 5),
-            Show(16, 5),
-            Show(17, 5),
-            Show(16, 5),
+            Show(EnemyFrameId.Etecoon17, 5),
+            Show(EnemyFrameId.Etecoon18, 5),
+            Show(EnemyFrameId.Etecoon19, 5),
+            Show(EnemyFrameId.Etecoon18, 5),
         ],
         [P.WallJumpRight] =
         [
-            Show(22, 8),
+            Show(EnemyFrameId.Etecoon20, 8),
         ],
         [P.JumpingRight] =
         [
-            Show(18, 3),
-            Show(19, 3),
-            Show(20, 3),
-            Show(21, 3),
+            Show(EnemyFrameId.Etecoon21, 3),
+            Show(EnemyFrameId.Etecoon22, 3),
+            Show(EnemyFrameId.Etecoon23, 3),
+            Show(EnemyFrameId.Etecoon24, 3),
         ],
         [P.HoppingFacingRight] =
         [
-            Show(23, 1),
+            Show(EnemyFrameId.Etecoon25, 1),
         ],
         [P.ContinueHoppingFacingRight] =
         [
-            Show(24, 12),
-            Show(25, 12),
-            Show(26, 6),
-            Show(25, 12),
-            Show(24, 12),
+            Show(EnemyFrameId.Etecoon26, 12),
+            Show(EnemyFrameId.Etecoon27, 12),
+            Show(EnemyFrameId.Etecoon28, 6),
+            Show(EnemyFrameId.Etecoon27, 12),
+            Show(EnemyFrameId.Etecoon26, 12),
         ],
         [P.WallJumpRightEligible] =
         [
-            Show(30, 1),
+            Show(EnemyFrameId.Etecoon29, 1),
         ],
         [P.Initial] =
         [
-            Show(23, 8),
+            Show(EnemyFrameId.Etecoon25, 8),
         ],
         [P.Flexing] =
         [
         ],
         [P.FlexingLoop] =
         [
-            Show(23, 8),
-            Show(24, 8),
-            Show(25, 8),
-            Show(26, 8),
-            Show(25, 8),
-            Show(24, 8),
-            Show(27, 32),
-            Show(29, 32),
+            Show(EnemyFrameId.Etecoon25, 8),
+            Show(EnemyFrameId.Etecoon26, 8),
+            Show(EnemyFrameId.Etecoon27, 8),
+            Show(EnemyFrameId.Etecoon28, 8),
+            Show(EnemyFrameId.Etecoon27, 8),
+            Show(EnemyFrameId.Etecoon26, 8),
+            Show(EnemyFrameId.Etecoon30, 32),
+            Show(EnemyFrameId.Etecoon15, 32),
         ],
     });
 
@@ -173,6 +174,6 @@ internal static class EtecoonAnimations
         _ => throw new ArgumentOutOfRangeException(nameof(program), program, "The program does not sleep before authored code."),
     };
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<EtecoonFrame, NoAnimationCue> Show(int pose, int duration) => new AnimationBeat<EtecoonFrame, NoAnimationCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);
 }

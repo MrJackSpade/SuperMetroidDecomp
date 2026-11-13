@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>
-/// The routine an escape Etecoon's main AI calls every frame.
+/// The behaviour an escape Etecoon's main AI calls every frame.
 /// Its values are arbitrary.
 /// </summary>
 public enum EscapeEtecoonFrameBehavior

@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.Beetom.Artwork;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -466,7 +465,9 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         int tableIndex = 0;
         int accumulatedHeight = 0;
-        for (int iteration = 0; iteration < ushort.MaxValue; iteration++)
+        // Each pass moves the row on by the delta, so the height is reached within the table's rows or never: past them
+        // the row lookup rejects the climb, and a delta of zero sums the first row's speed of zero only (#1627).
+        for (int iteration = 0; iteration < EnemyQuadraticSpeedDefinitions.RowCount; iteration++)
         {
             tableIndex = WrappingCounter.AddCount(tableIndex, tableIndexDelta);
             // The height sums each row's coarse speed, in 256ths of a pixel; summing full speeds changes every arc.
@@ -590,7 +591,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Beetom's typed animation.</summary>
     internal static void AdvanceBeetomTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, BeetomAnimations.Segments, BeetomFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, BeetomAnimations.Segments,
             static (BeetomEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyBeetomCue(slot, cue) is { } target
                 ? new AnimationContinuation<BeetomProgram>(BeetomAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)

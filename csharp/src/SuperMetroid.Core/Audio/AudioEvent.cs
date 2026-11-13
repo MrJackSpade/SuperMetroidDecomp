@@ -1,7 +1,7 @@
 ﻿namespace SuperMetroid.Core.Audio;
 
 /// <summary>
-/// One semantic audio instruction of an update (#1304, #1410): a music data set change, a music track selection, a
+/// One semantic audio event of an update (#1304, #1410): a music data set change, a music track selection, a
 /// step of the sound acceptance clock, or a sound starting. Each is its own sealed record holding only what it carries.
 /// </summary>
 /// <remarks>

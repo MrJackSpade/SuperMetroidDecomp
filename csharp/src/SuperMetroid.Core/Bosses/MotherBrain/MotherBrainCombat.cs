@@ -172,7 +172,7 @@ internal sealed class MotherBrainCombat
                 !projectileType.BeamCombination.HasPlasma);
 
         // The reaction step reads its eight-row reaction table at the family's row wrapped to eight
-        // rows, so missile explosions alias beams exactly as in the original game.
+        // rows, so missile explosions alias beams.
         MotherBrainProjectileType reactionProjectile = projectileType.Family switch
         {
             SamusProjectileFamily.Beam or SamusProjectileFamily.MissileExplosion => MotherBrainProjectileType.Beam,
@@ -210,7 +210,7 @@ internal sealed class MotherBrainCombat
         }
 
         // The callback tail-calls common no-death shot damage. In particular,
-        // charged beams use the separate charged vulnerability byte after the ordinary
+        // charged beams use the separate charged vulnerability after the ordinary
         // beam freeze check; Hyper would otherwise inherit the immune plasma entry.
         EnemyCollision.NormalShotVulnerability vulnerability = EnemyCollision.ReadNormalShotVulnerability(head, projectileType);
         if (vulnerability.FreezeImmediately)
@@ -243,7 +243,7 @@ internal sealed class MotherBrainCombat
     /// Runs a normal bomb through Mother Brain's brain callback.
     /// The first form's eight-entry projectile-family table rejects bombs outright. Later
     /// forms always run the recoil step: family five selects reaction zero, subtracting
-    /// 256 from the walk/recoil accumulator with a signed-zero clamp. Fake-death
+    /// 256 from the walk/recoil credit with a signed-zero clamp. Fake-death
     /// form one then creates only a dud, while forms two and later enter common no-death
     /// damage. The frame-hitbox caller already owns the bomb collision mark.
     /// </summary>
@@ -263,7 +263,7 @@ internal sealed class MotherBrainCombat
             return;
 
         // A bomb is reaction type zero, which spends one step and empties the credit when the result is
-        // negative as a signed word.
+        // negative.
         state.WalkCounter = state.WalkCounter.SpendForShot(MotherBrainWalkCredit.StepCredit);
         if (state.Form == MotherBrainForm.FakeDeath)
             return;

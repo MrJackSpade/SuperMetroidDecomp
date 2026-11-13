@@ -7,7 +7,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>The Mother Brain species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Mother Brain species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -78,7 +78,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
 
 
 
-    /// <summary>Ports the common body main/hurt entry.</summary>
+    /// <summary>Runs the common body main/hurt entry.</summary>
     internal void RunMotherBrainBodyMain(
         RoomEnemySlot body,
         SamusState? samus,
@@ -237,13 +237,13 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         Body.AdvanceMotherBrainSlotAnimation(slot, context.Samus);
     }
 
-    /// <summary>Ports MotherBrainBody's main AI.</summary>
+    /// <summary>Runs MotherBrainBody's main AI.</summary>
     internal void RunMotherBrainBodyMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunMotherBrainBodyMain(slot, frame.Samus, frame.SharedProjectiles);
     }
 
-    /// <summary>Ports MotherBrainHead's main AI.</summary>
+    /// <summary>Runs MotherBrainHead's main AI.</summary>
     internal void RunMotherBrainHeadMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         Head.RunMotherBrainHeadMain(slot, frame.Samus);
@@ -305,7 +305,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                     return;
 
                 // The fake-death flash starts the looping room flash, drains the room's acid,
-                // arms the head's independent tube sequence, and clears both fade words.
+                // arms the head's independent tube sequence, and clears both fade timers.
                 state.RoomFlashFrame = 0;
                 state.RoomFlashTimer = 1;
                 _frameResults.MotherBrainAcidChange = MotherBrainRoomFxDefinitions.AcidDrains;

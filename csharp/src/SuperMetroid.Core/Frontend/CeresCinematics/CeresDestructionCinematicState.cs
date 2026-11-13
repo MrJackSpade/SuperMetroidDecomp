@@ -19,7 +19,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 /// </summary>
 /// <remarks>
 /// The cinematic owns this sequence. The state deliberately retains the
-/// game's phase boundaries, counters, 16.16 camera motion, turning-floor matrix values, and
+/// game's phase boundaries, counters, 16.16 camera motion, turning-floor rotation values, and
 /// compiled sprite animation scripts, so the scene's progress is game state:
 /// there is no host-authored video or timer that merely happens to end at the
 /// same gameplay room.
@@ -90,7 +90,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     internal IntroDiscoverySprite? ZebesPlanetActor { get; private set; }
     /// <summary>Star actor whose offscreen deletion completes the cinematic.</summary>
     private IntroDiscoverySprite? zebesCompletionStarActor;
-    /// <summary>Title actor whose instruction starts the turning-floor flight toward Zebes.</summary>
+    /// <summary>Title actor whose cue starts the turning-floor flight toward Zebes.</summary>
     private IntroDiscoverySprite? zebesTitleActor;
 
     /// <summary>Signed 16.16 camera offset applied to the turning-floor Ceres or Zebes scene.</summary>
@@ -169,7 +169,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
 
     /// <summary>
     /// Binds installed artwork when the game is bound to its installed content. Only the
-    /// graphics transfers already reached by the current phase are refreshed; counters,
+    /// graphics already reached by the current phase are refreshed; counters,
     /// actors, audio and gameplay timeline remain untouched. The backdrop is refreshed only
     /// before the later engine-flicker palette program starts, as the scene reloads the
     /// flight's colours only until then (#1512).
@@ -403,7 +403,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 throw new InvalidDataException("Ceres engine palette program unexpectedly requested audio.");
         }
 
-        // The cinematic's game state increments the shared cinematic frame word after calling the
+        // The cinematic's game state increments the shared cinematic frame counter after calling the
         // current function but before object handling. The mosaic test therefore observes
         // this pre-increment value on its following dispatcher call.
         cinematicFrameCounter++;
@@ -615,7 +615,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     private void SpawnFinalCeresExplosion()
     {
         // The final blast calls the ordinary enemy explosion with screen-space coordinates,
-        // before replacing the station tilemap. Keep its authored curves/colors/lifetime.
+        // before replacing the station picture. Keep its authored curves/colors/lifetime.
         stationExplosion.Spawn(new(
             CoordinateAxis.Wrap(CeresDestructionSceneDefinitions.CeresFloorCenter.X - Background.X.Whole),
             CoordinateAxis.Wrap(CeresDestructionSceneDefinitions.CeresFloorCenter.Y - Background.Y.Whole)));
@@ -633,7 +633,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         LoadFinalExplosionMaps();
     }
 
-    /// <summary>Creates a small blast at a camera-relative authored offset with its initial instruction delay.</summary>
+    /// <summary>Creates a small blast at a camera-relative authored offset with its initial animation delay.</summary>
     private void SpawnCeresExplosion(
         CinematicActorDefinition definition,
         CeresExplosionPlacement placement)
@@ -716,7 +716,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         }
     }
 
-    /// <summary>Lets the title actor start the camera flight at its authored instruction boundary.</summary>
+    /// <summary>Lets the title actor start the camera flight at its authored cue boundary.</summary>
     private void HandleZebesInstruction(CinematicSpriteCueKind cue)
     {
         switch (cue)
@@ -786,7 +786,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// Captures the scene's ordered layers (#1514): over Ceres, the station's turning floor with the asteroids and blasts
     /// in front of it; on the approach to Zebes, the planet and its stars behind the gunship's floor; or the Zebes reveal's
     /// planet picture. The per-sprite-part priority tiers that once interleaved the sprites with the floor are a
-    /// presentation quirk the port does not keep.
+    /// presentation quirk the model does not keep.
     /// </summary>
     public LayeredScene CaptureRenderSnapshot()
     {

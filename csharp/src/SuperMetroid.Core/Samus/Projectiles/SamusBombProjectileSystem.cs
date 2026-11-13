@@ -73,7 +73,7 @@ public sealed class SamusBombProjectileSystem
     /// <summary>Owner of the flash, damaging radius, and armed flag.</summary>
     public SamusPowerBombExplosionState PowerBombExplosion { get; } = new();
 
-    /// <summary>How many bombs Samus has out by the placing routines' count; kept separately from the free-slot search.</summary>
+    /// <summary>How many bombs Samus has out by the placing count; kept separately from the free-slot search.</summary>
     public int BombCounter
     {
         get;
@@ -100,7 +100,7 @@ public sealed class SamusBombProjectileSystem
 
     /// <summary>
     /// Replaces the bomb count from an enemy-owned Samus interaction. Shitroid writes
-    /// five while it drains Samus to suppress projectile allocation, then clears the word
+    /// five while it drains Samus to suppress projectile allocation, then clears the count
     /// at the terminal one-energy transition without disturbing the shared cooldown.
     /// </summary>
     internal void SetSharedBombCounter(int value) => BombCounter = value;
@@ -262,7 +262,7 @@ public sealed class SamusBombProjectileSystem
         }
 
         // Main gameplay runs the bomb overlap check after frame-handler alpha (which placed/updated the
-        // bombs) and before beta moves Samus. Store only the low direction byte here. The
+        // bombs) and before beta moves Samus. Store only the direction here. The
         // same frame's hit-interruption phase can arm the bomb movement handler.
         // Runtime defers this until the humanoid shot producer has also run: a
         // shot this frame may suppress overlap before the bomb direction is stored.
@@ -292,7 +292,7 @@ public sealed class SamusBombProjectileSystem
         foreach (SamusBombProjectileSlot slot in InUpdateOrder)
         {
             // Power bombs and normal bombs both use the same projectile
-            // timed-spritemap interpreter. The large power-bomb flash itself is a glowing
+            // timed-frame animation. The large power-bomb flash itself is a glowing
             // window and is composed separately from the sprites.
             SamusProjectileFamily family = slot.Type.Family;
             if (slot.Playback is null ||
@@ -300,10 +300,10 @@ public sealed class SamusBombProjectileSystem
                 continue;
 
             // The projectile draw suppresses power bombs as soon as their shared
-            // projectile-variable word reaches zero. The fuse publishes that zero on
+            // projectile value reaches zero. The fuse publishes that zero on
             // the detonation frame, so the small placed-bomb sprite must disappear exactly
             // when the large explosion effect begins. Normal bomb explosions keep
-            // drawing their spritemaps with a zero BombTimer and are unaffected.
+            // drawing their frames with a zero BombTimer and are unaffected.
             if (family == SamusProjectileFamily.PowerBomb && slot.BombTimer.IsZero)
                 continue;
 
@@ -560,7 +560,7 @@ public sealed class SamusBombProjectileSystem
             slotIndex++;
             if (slotIndex >= SlotCount)
             {
-                // This is the original's defensive/corrupt-state fallback: step the index back
+                // This is the game's defensive/corrupt-state fallback: step the index back
                 // once and reuse the last slot. Consistent BombCounter state never needs it.
                 slotIndex = SlotCount - 1;
                 break;
@@ -831,7 +831,7 @@ public sealed class SamusBombProjectileSystem
                 // The bomb collision first admits the bomb centre through the room's scroll bounds,
                 // and valid rooms surround reachable bomb centres with an edge wall. An
                 // out-of-range cross member therefore identifies malformed room/caller
-                // state rather than another bomb reaction routine.
+                // state rather than another bomb reaction.
                 throw new InvalidDataException(
                     $"Bomb explosion cross reaches outside room storage at block ({x},{y}).");
             }
@@ -878,10 +878,10 @@ public sealed class SamusBombProjectileSystem
             return;
         }
 
-        // The shot dispatch selects the temporary generic trigger room object for both type-$8 special collision and
+        // The shot dispatch selects the temporary generic trigger room object for both solid-block collision and
         // shootable collision with the resident-object trigger behaviour. Its setup deletes that temporary
         // slot, finds the resident actor at the same block, and publishes this projectile
-        // word. The n00b tube begins as a solid block but its intact draw changes the live origin
+        // projectile. The n00b tube begins as a solid block but its intact draw changes the live origin
         // to a shootable block, so narrowing this seam to colored doors strands the progression room object.
         if (block.CollisionType is RoomCollisionType.SolidBlock or RoomCollisionType.ShootableBlock &&
             block.Behavior.Reaction == BlockReactionDefinitions.ResidentObjectTrigger)
@@ -917,7 +917,7 @@ public sealed class SamusBombProjectileSystem
             return;
         }
 
-        // The bomb dispatch sends these types to routines that only report pass or stop. They
+        // The bomb dispatch sends these types to reactions that only report pass or stop. They
         // spawn no room object and do not alter the room's terrain or behaviours, so recording the visit is
         // the complete observable effect for this runtime.
         if (block.CollisionType is
@@ -943,7 +943,7 @@ public sealed class SamusBombProjectileSystem
             {
                 // The bomb-block table is a literal sixteen-entry table. Retail room data must keep a
                 // nonnegative bombable behaviour within that table; a larger value would make
-                // the game read unrelated following data as a room-object header.
+                // the game read unrelated following data as a room-object definition.
                 throw new InvalidDataException(
                     $"Bombable block {block.Position} has behaviour ({block.Behavior}) outside " +
                     "the bomb-block reaction table.");
@@ -958,8 +958,8 @@ public sealed class SamusBombProjectileSystem
                     $"at ({x},{y}) requires a room-object owner.");
             }
 
-            // Spawn is synchronous: accepted behaviour 0..7 applies CEDA's temporary type-$8
-            // or type-$0 word before the caller proceeds to its next border/cross member.
+            // Spawn is synchronous: accepted behaviour 0..7 applies the reaction's temporary solid-block
+            // or air collision before the caller proceeds to its next border/cross member.
             roomObjects.BlockReactions.TrySpawnBombReactionBlock(
                 level,
                 block.At,
@@ -1046,13 +1046,13 @@ public sealed class SamusBombProjectileSystem
 
         // Collision types are a four-bit field and every value 0..15 is handled above;
         // type 5/D either resolves to its parent or returned before this dispatcher. Keep
-        // the guard for corrupted packed words, but do not label it missing behavior.
+        // the guard for corrupted packed values, but do not label it missing behavior.
         throw new InvalidDataException(
             $"Bombed block reaction reached impossible type {block.CollisionType}/" +
             $"behaviour ({block.Behavior}) at ({x},{y}).");
     }
 
-    /// <summary>Ticks the bomb animation, including timed maps, delete and goto steps.</summary>
+    /// <summary>Ticks the bomb animation, including timed frames, delete and jump steps.</summary>
     internal bool RunProjectileInstructionHandler(
         SamusBombProjectileSlot slot)
     {

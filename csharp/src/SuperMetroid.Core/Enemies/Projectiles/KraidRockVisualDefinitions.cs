@@ -11,13 +11,13 @@ internal static class KraidRockVisualDefinitions
     internal static IReadOnlyDictionary<KraidRockFrame, EnemyProjectileFrameId> ShownProjectileFrames { get; } =
         new Dictionary<KraidRockFrame, EnemyProjectileFrameId>
         {
-            [new(KraidRockProgram.SharedPose, 0)] = EnemyProjectileFrameId.KraidRockFrame00,
-            [new(KraidRockProgram.SharedPose, 4)] = EnemyProjectileFrameId.KraidRockFrame02,
-            [new(KraidRockProgram.RisingRightPose, 0)] = EnemyProjectileFrameId.KraidRockFrame01,
-            [new(KraidRockProgram.SpitRockShot, 0)] = EnemyProjectileFrameId.KraidRockFrame02,
-            [new(KraidRockProgram.SpitRockShot, 1)] = EnemyProjectileFrameId.KraidRockFrame03,
-            [new(KraidRockProgram.SpitRockShot, 2)] = EnemyProjectileFrameId.KraidRockFrame04,
-            [new(KraidRockProgram.SpitRockShot, 3)] = EnemyProjectileFrameId.KraidRockFrame05,
-            [new(KraidRockProgram.SpitRockShot, 4)] = EnemyProjectileFrameId.KraidRockFrame06,
+            [new(KraidRockProgram.SharedPose, 0)] = EnemyProjectileFrameId.KraidRockSharedPoseFirst,
+            [new(KraidRockProgram.SharedPose, 4)] = EnemyProjectileFrameId.KraidRockSharedPoseFifth,
+            [new(KraidRockProgram.RisingRightPose, 0)] = EnemyProjectileFrameId.KraidRockRisingRightPose,
+            [new(KraidRockProgram.SpitRockShot, 0)] = EnemyProjectileFrameId.KraidRockSharedPoseFifth,
+            [new(KraidRockProgram.SpitRockShot, 1)] = EnemyProjectileFrameId.KraidRockSpitRockShotSecond,
+            [new(KraidRockProgram.SpitRockShot, 2)] = EnemyProjectileFrameId.KraidRockSpitRockShotThird,
+            [new(KraidRockProgram.SpitRockShot, 3)] = EnemyProjectileFrameId.KraidRockSpitRockShotFourth,
+            [new(KraidRockProgram.SpitRockShot, 4)] = EnemyProjectileFrameId.KraidRockSpitRockShotFifth,
         };
 }

@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>What a cue of the Rinkas' programs does: one per instruction its lists use.</summary>
+/// <summary>What a cue of the Rinkas' programs does: one per kind of step its lists use.</summary>
 internal enum RinkaCueKind
 {
     /// <summary>Makes the Rinka visible and tangible and starts its aim delay.</summary>

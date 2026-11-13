@@ -1,18 +1,19 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Beetom.BeetomCueKind;
 using P = SuperMetroid.Core.Enemies.Beetom.BeetomProgram;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Beetom;
 
 /// <summary>
 /// The Beetom's crawl, hop and drain animations as typed programs (#641). Each
-/// frame shows a <see cref="BeetomFrame"/> pose and each callback becomes a <see cref="BeetomCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyFrameId"/> and each callback becomes a <see cref="BeetomCue"/> with its typed operands.
 /// </summary>
 internal static class BeetomAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<BeetomProgram, BeetomFrame, BeetomCue> Segments { get; } = new(
-        new Dictionary<BeetomProgram, AnimationBeat<BeetomFrame, BeetomCue>[]>
+    internal static AnimationSegments<BeetomProgram, EnemyFrameId, BeetomCue> Segments { get; } = new(
+        new Dictionary<BeetomProgram, AnimationBeat<EnemyFrameId, BeetomCue>[]>
     {
         [P.CrawlingLeft] =
         [
@@ -20,33 +21,33 @@ internal static class BeetomAnimations
         ],
         [P.CrawlingLeftLoop] =
         [
-            Show(0, 10),
-            Show(1, 10),
-            Show(2, 10),
-            Show(1, 10),
+            Show(EnemyFrameId.BeetomLeftCrawl0, 10),
+            Show(EnemyFrameId.BeetomLeftCrawl1, 10),
+            Show(EnemyFrameId.BeetomLeftCrawl2, 10),
+            Show(EnemyFrameId.BeetomLeftCrawl1, 10),
         ],
         [P.HopLeft] =
         [
             Cue(new(K.ProcessOffScreen)),
-            Show(3, 4),
-            Show(4, 8),
-            Show(3, 4),
-            Show(0, 1),
+            Show(EnemyFrameId.BeetomLeftHop0, 4),
+            Show(EnemyFrameId.BeetomLeftHop1, 8),
+            Show(EnemyFrameId.BeetomLeftHop0, 4),
+            Show(EnemyFrameId.BeetomLeftCrawl0, 1),
         ],
         [P.DrainingLeft] =
         [
-            Show(5, 5),
-            Show(6, 5),
-            Show(7, 5),
-            Show(6, 48),
+            Show(EnemyFrameId.BeetomLeftDrain0, 5),
+            Show(EnemyFrameId.BeetomLeftDrain1, 5),
+            Show(EnemyFrameId.BeetomLeftDrain2, 5),
+            Show(EnemyFrameId.BeetomLeftDrain1, 48),
             Cue(new(K.Nothing)),
         ],
         [P.DrainingLeftLoop] =
         [
-            Show(8, 5),
-            Show(9, 5),
-            Show(10, 5),
-            Show(9, 5),
+            Show(EnemyFrameId.BeetomLeftDrain3, 5),
+            Show(EnemyFrameId.BeetomLeftDrain4, 5),
+            Show(EnemyFrameId.BeetomLeftDrain5, 5),
+            Show(EnemyFrameId.BeetomLeftDrain4, 5),
         ],
         [P.CrawlingRight] =
         [
@@ -54,33 +55,33 @@ internal static class BeetomAnimations
         ],
         [P.CrawlingRightLoop] =
         [
-            Show(11, 10),
-            Show(12, 10),
-            Show(13, 10),
-            Show(12, 10),
+            Show(EnemyFrameId.BeetomRightCrawl0, 10),
+            Show(EnemyFrameId.BeetomRightCrawl1, 10),
+            Show(EnemyFrameId.BeetomRightCrawl2, 10),
+            Show(EnemyFrameId.BeetomRightCrawl1, 10),
         ],
         [P.HopRight] =
         [
             Cue(new(K.ProcessOffScreen)),
-            Show(14, 4),
-            Show(15, 8),
-            Show(14, 4),
-            Show(11, 1),
+            Show(EnemyFrameId.BeetomRightHop0, 4),
+            Show(EnemyFrameId.BeetomRightHop1, 8),
+            Show(EnemyFrameId.BeetomRightHop0, 4),
+            Show(EnemyFrameId.BeetomRightCrawl0, 1),
         ],
         [P.DrainingRight] =
         [
-            Show(16, 5),
-            Show(17, 5),
-            Show(18, 5),
-            Show(17, 48),
+            Show(EnemyFrameId.BeetomRightDrain0, 5),
+            Show(EnemyFrameId.BeetomRightDrain1, 5),
+            Show(EnemyFrameId.BeetomRightDrain2, 5),
+            Show(EnemyFrameId.BeetomRightDrain1, 48),
             Cue(new(K.Nothing)),
         ],
         [P.DrainingRightLoop] =
         [
-            Show(19, 5),
-            Show(20, 5),
-            Show(21, 5),
-            Show(20, 5),
+            Show(EnemyFrameId.BeetomRightDrain3, 5),
+            Show(EnemyFrameId.BeetomRightDrain4, 5),
+            Show(EnemyFrameId.BeetomRightDrain5, 5),
+            Show(EnemyFrameId.BeetomRightDrain4, 5),
         ],
     });
 
@@ -102,9 +103,9 @@ internal static class BeetomAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<BeetomProgram> StartingWith(BeetomProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<BeetomFrame, BeetomCue> Show(int pose, int duration) => new AnimationBeat<BeetomFrame, BeetomCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyFrameId, BeetomCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, BeetomCue>.Frame(frame, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<BeetomFrame, BeetomCue> Cue(BeetomCue cue) => new AnimationBeat<BeetomFrame, BeetomCue>.Event(cue);
+    private static AnimationBeat<EnemyFrameId, BeetomCue> Cue(BeetomCue cue) => new AnimationBeat<EnemyFrameId, BeetomCue>.Event(cue);
 }

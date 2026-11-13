@@ -14,16 +14,16 @@ internal static class IntroRinkaLaunches
     /// </summary>
     /// <remarks>
     /// Issues #625 and #986: the initializer indexes four initial X values
-    /// by parameter p=0..3. The original data
+    /// by parameter p=0..3. The authored data
     /// gives 112, 192, 128, 232. The spawn
-    /// instructions create p=0/1, then p=2/3, and the selector rejects
+    /// cues create p=0/1, then p=2/3, and the selector rejects
     /// invalid parameters. The two pairs have different offsets and spans;
     /// these are authored scene placements, so retain four explicit X
     /// values instead of encoding them as a fitted sequence. The production
     /// verifier runs both waves with physical-table reads forbidden.
     ///
     /// Issues #625 and #987: the separate Y source has
-    /// four values 80, 64, 56, 88 in the original data.
+    /// four values 80, 64, 56, 88 in the authored data.
     /// The initializer subtracts eight, wrapping below zero,
     /// before storing Y, yielding 72, 56, 48, 80.
     /// Both spawn waves use the same bounded p=0..3 selector. The source
@@ -31,11 +31,11 @@ internal static class IntroRinkaLaunches
     /// four explicit final Y values instead of a fitted progression.
     ///
     /// Issues #625 and #988: four signed whole-pixel X components
-    /// are 0, -1, 0, -1 in the original
+    /// are 0, -1, 0, -1 in the authored
     /// data. For bounded p=0..3 this is exactly -(p&amp;1).
-    /// The miss routine indexes the table for p=1..3; the p=0 hit routine
+    /// The miss step indexes the table for p=1..3; the p=0 hit step
     /// uses the same zero as an immediate. Both first add fractional
-    /// velocity one half, then carry into the signed whole-pixel addition,
+    /// velocity one half, then overflow into the signed whole-pixel addition,
     /// yielding +0.5 px/call for even p and -0.5 for odd p. The shared
     /// selector represents both paths without an out-of-range read.
     /// </remarks>

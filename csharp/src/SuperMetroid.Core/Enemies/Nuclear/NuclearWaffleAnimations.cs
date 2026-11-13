@@ -1,32 +1,33 @@
 using P = SuperMetroid.Core.Enemies.Nuclear.NuclearWaffleProgram;
 using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Nuclear;
 
 /// <summary>
 /// Puromi/Nuclear Waffle's body animation as a typed program (#641). Each
-/// frame shows a <see cref="NuclearWaffleFrame"/> pose and its lists use no owner callbacks.
+/// frame shows a <see cref="EnemyFrameId"/> and its lists use no owner callbacks.
 /// </summary>
 internal static class NuclearWaffleAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<NuclearWaffleProgram, NuclearWaffleFrame, NoAnimationCue> Segments { get; } = new(
-        new Dictionary<NuclearWaffleProgram, AnimationBeat<NuclearWaffleFrame, NoAnimationCue>[]>
+    internal static AnimationSegments<NuclearWaffleProgram, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<NuclearWaffleProgram, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
     {
         [P.BodyLoop] =
         [
-            Show(0, 3),
-            Show(1, 3),
-            Show(4, 3),
-            Show(2, 3),
-            Show(3, 3),
-            Show(5, 3),
-            Show(0, 3),
-            Show(1, 3),
-            Show(6, 3),
-            Show(2, 3),
-            Show(3, 3),
-            Show(7, 3),
+            Show(EnemyFrameId.NuclearWaffle00, 3),
+            Show(EnemyFrameId.NuclearWaffle01, 3),
+            Show(EnemyFrameId.NuclearWaffle02, 3),
+            Show(EnemyFrameId.NuclearWaffle03, 3),
+            Show(EnemyFrameId.NuclearWaffle04, 3),
+            Show(EnemyFrameId.NuclearWaffle05, 3),
+            Show(EnemyFrameId.NuclearWaffle00, 3),
+            Show(EnemyFrameId.NuclearWaffle01, 3),
+            Show(EnemyFrameId.NuclearWaffle06, 3),
+            Show(EnemyFrameId.NuclearWaffle03, 3),
+            Show(EnemyFrameId.NuclearWaffle04, 3),
+            Show(EnemyFrameId.NuclearWaffle07, 3),
         ],
     });
 
@@ -39,6 +40,6 @@ internal static class NuclearWaffleAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<NuclearWaffleProgram> StartingWith(NuclearWaffleProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<NuclearWaffleFrame, NoAnimationCue> Show(int pose, int duration) => new AnimationBeat<NuclearWaffleFrame, NoAnimationCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);
 }

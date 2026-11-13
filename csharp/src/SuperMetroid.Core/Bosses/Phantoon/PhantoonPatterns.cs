@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 [RoomLifetime]
 internal sealed class PhantoonPatterns
 {
-    /// <summary>Room services and tilemap state used by the Wrecked Ship encounter.</summary>
+    /// <summary>Room services and background state used by the Wrecked Ship encounter.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Owns the starting, casual, rain, rage, and spiral flame actors.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -225,16 +225,15 @@ internal sealed class PhantoonPatterns
     }
 
     /// <summary>Starts the spiral-flame pattern around the body.</summary>
-    /// <remarks>The spiral fireballs are the first ordinary combat attack. Their exact translation belongs to
-    /// the next combat slice; retaining the explicit call boundary prevents the eye-opening instruction from being
-    /// mistaken for completed behavior.</remarks>
+    /// <remarks>The spiral fireballs are the first ordinary combat attack: eight destroyable flames, spawned from
+    /// direction seven down to zero.</remarks>
     private void SpawnPhantoonSpiralFlames(RoomEnemySlot body)
     {
         for (int direction = 7; direction >= 0; direction--)
             SpawnPhantoonDestroyableFlame(body, PhantoonFlameSpawnType.Spiral, direction);
     }
 
-    /// <summary>Ports the eye-open vulnerable window.</summary>
+    /// <summary>Runs the eye-open vulnerable window.</summary>
     internal static void RunPhantoonEyeTracking(
         RoomEnemySlot body,
         PhantoonEnemyState state,
@@ -266,7 +265,7 @@ internal sealed class PhantoonPatterns
         PointPhantoonEyeAtSamus(body, state, samus);
     }
 
-    /// <summary>Ports the one-frame opaque-swoop setup.</summary>
+    /// <summary>Runs the one-frame opaque-swoop setup.</summary>
     internal static void BeginPhantoonVulnerableSwoop(
         RoomEnemySlot body,
         PhantoonEnemyState state,
@@ -278,7 +277,7 @@ internal sealed class PhantoonPatterns
         PhantoonPresentation.InstallPhantoonProgram(state, body, PhantoonPartProgram.FullHitboxBody);
     }
 
-    /// <summary>Ports the 360-frame opaque swoop.</summary>
+    /// <summary>Runs the 360-frame opaque swoop.</summary>
     internal static void RunPhantoonSwoop(
         RoomEnemySlot body,
         PhantoonEnemyState state,
@@ -321,7 +320,7 @@ internal sealed class PhantoonPatterns
             body.Function = PhantoonAiFunction.PickNextAppearance;
     }
 
-    /// <summary>Ports the hidden left/right placement and round-two picker.</summary>
+    /// <summary>Runs the hidden left/right placement and round-two picker.</summary>
     internal void PlacePhantoonForNextFigureEight(
         RoomEnemySlot body,
         PhantoonEnemyState state)
@@ -359,7 +358,7 @@ internal sealed class PhantoonPatterns
             state.BodyState.Function = PhantoonAiFunction.MoveInFigureEightThenOpenEye;
     }
 
-    /// <summary>Ports the visible setup for every flame-rain window.</summary>
+    /// <summary>Runs the visible setup for every flame-rain window.</summary>
     internal static void BeginPhantoonFlameRainVulnerableWindow(
         RoomEnemySlot body,
         PhantoonEnemyState state)
@@ -492,7 +491,7 @@ internal sealed class PhantoonPatterns
         state.EyeState.FadeComplete = false;
     }
 
-    /// <summary>Ports all eight alternating radial flame waves.</summary>
+    /// <summary>Runs all eight alternating radial flame waves.</summary>
     internal void RunPhantoonRage(RoomEnemySlot body, PhantoonEnemyState state)
     {
         if (!PhantoonPresentation.TickPhantoonFunctionTimer(state.BodyState))

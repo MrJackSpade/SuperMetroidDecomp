@@ -12,8 +12,8 @@ internal static class RoomEnemyAuxiliaryDefinitionCatalog
     /// <summary>The respawn placeholder's, cutscene actors', Torizo orbs' and Spore Spawn stalk's definitions.</summary>
     /// <remarks>
     /// The respawn placeholder is selected when a killed actor vacates its slot. The Baby Metroid and falling tubes are
-    /// Mother Brain's cutscene actors. The two Chozo-orb headers are Bomb Torizo's and Golden Torizo's drops. The Spore
-    /// Spawn stalk header's drop chances pass for every spore impact.
+    /// Mother Brain's cutscene actors. The two Chozo-orb definitions are Bomb Torizo's and Golden Torizo's drops. The
+    /// Spore Spawn stalk definition's drop chances pass for every spore impact.
     /// </remarks>
     internal static readonly Dictionary<EnemyDefinitionId, RoomEnemyDefinition> Definitions =
         new Dictionary<EnemyDefinitionId, RoomEnemyDefinition>

@@ -471,11 +471,11 @@ internal static void VerifySamusArmCannon()
     var bus = new TestAddressSpace();
     SeedPoseOneSamusData(bus);
 
-    // Keep the fixture's custom selector, after-body order and signed offsets,
-    // expressed through installed drawing data rather than a patched ROM record.
-    string directory = RepositoryInstallation.Installation.SamusBodyDirectory;
-    var document = RequiredJson.Parse(File.ReadAllText(
-        Path.Combine(directory, SamusArmCannonArtworkFormat.JsonFileName)));
+    // Keep the fixture's custom selector, after-body order and signed offsets, expressed through the extracted drawing
+    // data rather than a patched ROM record; the extracted document is import data (#1638).
+    var document = RequiredJson.Parse(File.ReadAllText(Path.Combine(
+        CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.SamusBodyDirectoryName),
+        SamusArmCannonArtworkFormat.ArtworkFileName)));
     document.Required("poseDescriptors")[nameof(SamusPoseId.FacingRightNormalPose)] = 0;
     int[] drawing = [2, 2, 7, 0xfd, 9, 0xfb];
     for (int index = 0; index < drawing.Length; index++)

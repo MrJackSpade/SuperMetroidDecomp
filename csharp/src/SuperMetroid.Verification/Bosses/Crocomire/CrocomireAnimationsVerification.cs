@@ -114,7 +114,9 @@ internal static class CrocomireAnimationsVerification
             Pass(enemies, state);
             List<ushort> callbacks = [.. native.Step(cartridge).Select(callback => callback.Word)];
             string at = $"Crocomire skeleton collapse update {update}";
-            AssertEqual(native.Timer, state.Body.FrameHold.RawValue, $"{at}: timer");
+            // The stable skeleton is a held frame (#1627), whose timer rests apart from the native list's longest frame.
+            if (!SuperMetroid.Verification.Enemies.NativeEnemyProjectileParity.RestsOnHeldFrame(native.Timer, state.Body.FrameHold))
+                AssertEqual(native.Timer, state.Body.FrameHold.RawValue, $"{at}: timer");
             AssertEqual(native.Spritemap, state.Body.SpritemapPointer, $"{at}: frame");
             AssertEqual(native.NewFrame, state.Body.NewInstructionFrame, $"{at}: new-frame flag");
             AssertEqual(EnemyAudioQueueAccess.SoundList(callbacks.Select(BodySound).OfType<SoundEffectId>()), enemies.Audio.QueuedSoundList,
@@ -286,8 +288,8 @@ internal static class CrocomireAnimationsVerification
     internal static IEnumerable<ushort> TypedBodySpritemaps(CrocomireBodyFrameSet set) =>
         Enum.GetValues<CrocomireBodyProgram>()
             .SelectMany(segment => CrocomireBodyAnimations.Segments.Beats(segment))
-            .OfType<AnimationBeat<CrocomireBodyFrame, CrocomireBodyCue>.Frame>().Where(frame => frame.Shown.Set == set)
-            .Select(frame => CrocomireBodyFrameSpritemapsTooling.Spritemap(frame.Shown))
+            .Select(beat => beat.ShownFrame).OfType<CrocomireBodyFrame>().Where(frame => frame.Set == set)
+            .Select(frame => CrocomireBodyFrameSpritemapsTooling.Spritemap(frame))
             .Distinct();
 
     /// <summary>Runs Crocomire's body program parity check against the repository cartridge.</summary>

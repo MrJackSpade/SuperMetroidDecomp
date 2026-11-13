@@ -4,7 +4,7 @@ using SuperMetroid.Core.Samus.Movement;
 
 namespace SuperMetroid.Core.World;
 
-/// <summary>The enemy state and hooks the room main routines and scrolling read or run.</summary>
+/// <summary>The enemy state and hooks the room main behaviours and scrolling read or run.</summary>
 internal interface IEnemyRoomMainHooks
 {
     /// <summary>The loaded Crocomire, if any.</summary>

@@ -1,6 +1,6 @@
 ﻿namespace SuperMetroid.Core.Enemies.Corpses;
 
-/// <summary>The dead Zoomer, Ripper and Skree corpses' header rot-trigger callbacks.</summary>
+/// <summary>The dead Zoomer, Ripper and Skree corpses' rot-trigger callbacks.</summary>
 internal static class DeadTourianCorpseProfileDefinitions
 {
     /// <summary>Dead Zoomer's rot-trigger callbacks.</summary>

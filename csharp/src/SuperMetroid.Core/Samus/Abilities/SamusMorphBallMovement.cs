@@ -13,8 +13,8 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// <remarks>
 /// The game does not treat the ball as a generic circular rigid body. Grounded,
 /// falling, bouncing, and transition poses enter different wrappers which share only a few
-/// subroutines. This class keeps those entry points separate while reusing their exact
-/// 16.16 collision operations. Their air/water/lava tables are translated; bomb displacement,
+/// steps. This class keeps those entry points separate while reusing their exact
+/// 16.16 collision operations. Their air/water/lava tables are modelled; bomb displacement,
 /// enemies, conveyors, and Spring Ball projectiles remain explicit future branches. Bomb-
 /// jump displacement itself lives
 /// in <see cref="SamusBombJumpMovement"/> rather than being approximated here.
@@ -79,7 +79,7 @@ public static class SamusMorphBallMovement
         if (samus.Kinematics.YDirection != SamusVerticalDirection.None)
         {
             // The simple vertical movement handles a rebound already in progress through the
-            // same falling check and one-frame-lag gravity routine as airborne morph.
+            // same falling check and one-frame-lag gravity step as airborne morph.
             vertical = MoveVerticallyWithGravity(
 
                 level,
@@ -134,7 +134,7 @@ public static class SamusMorphBallMovement
         if (!directionHeld && samus.HorizontalSpeed.AccelerationMode == SamusAccelerationMode.Accelerating)
         {
             // The outer falling wrapper clears persistent motion before dispatching to
-            // either the falling or bouncing subroutine. The inner routine still calculates
+            // either the falling or bouncing step. The inner step still calculates
             // once, then erases base speed and moves horizontally by zero.
             samus.HorizontalSpeed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
         }
@@ -200,7 +200,7 @@ public static class SamusMorphBallMovement
         else
         {
             // With zero knockback and zero extra Y displacement, the bounce and the fall
-            // rejoin at the same falling-check/gravity routine. Bounce state changes only
+            // rejoin at the same falling-check/gravity step. Bounce state changes only
             // when the later solid-vertical handler sees a downward collision.
             vertical = MoveVerticallyWithGravity(
 
@@ -231,7 +231,7 @@ public static class SamusMorphBallMovement
                 $"Spring-Ball powered jump requires a rising Spring Ball jump pose, not {samus.Pose}.");
         }
 
-        // A nonzero bounce state selects the bouncing routine instead of the
+        // A nonzero bounce state selects the bouncing step instead of the
         // powered jump, so a rebound's upward speed survives a released Jump button.
         if (samus.MorphBallBounceState != SamusBallBounceState.None)
         {
@@ -263,7 +263,7 @@ level, samus, controllerInput, frameCounter, roomObjects, SamusMovementType.Spri
         SamusCollisionDirection? collisionDirection = null;
         if (speed.AccelerationMode == SamusAccelerationMode.Accelerating && !directionHeld)
         {
-            // With no horizontal direction held the game clears the displacement and persistent base words;
+            // With no horizontal direction held the game clears the displacement and persistent base speed;
             // powered vertical motion continues unchanged.
             speed.BaseSpeed = default;
             // This branch bypasses the speed calculation; retain the previous total-speed pair.
@@ -346,8 +346,8 @@ level, samus, controllerInput, frameCounter, roomObjects, SamusMovementType.Spri
                 out _);
             if (landed)
             {
-                // The transition handler recognizes the ordinary landed result and cancels every word
-                // which could make the item-and-airborne transition instruction choose the airborne endpoint afterward.
+                // The transition handler recognizes the ordinary landed result and cancels every value
+                // which could make the item-and-airborne transition cue choose the airborne endpoint afterward.
                 samus.Kinematics.YSpeed = default;
                 samus.Kinematics.YDirection = SamusVerticalDirection.None;
                 samus.MorphBallBounceState = SamusBallBounceState.None;
@@ -373,7 +373,7 @@ level, samus, controllerInput, frameCounter, roomObjects, SamusMovementType.Spri
         SamusKinematicsState state = samus.Kinematics;
 
         // The fall converts the signed underflow produced at the prior apex frame before
-        // this frame snapshots displacement. Direction is a separate word in the original;
+        // this frame snapshots displacement. Direction is a separate value;
         // do not infer it from the sign of the fixed-point magnitude.
         if (state.YDirection == SamusVerticalDirection.Up && SamusSpeedMagnitude.HasPassedZero(state.YSpeed.Whole))
         {

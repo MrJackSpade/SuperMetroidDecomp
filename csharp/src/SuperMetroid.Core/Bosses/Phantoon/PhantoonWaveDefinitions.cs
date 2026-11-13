@@ -20,8 +20,8 @@ public static class PhantoonWaveDefinitions
 
     /// <summary>
     /// The phases in one of the sine's angle steps, two for each angle; an odd phase,
-    /// which only a restored phase can hold, shows the angle of the even phase below it (#1468: the original's read
-    /// straddling two samples there is a presentation quirk, not kept).
+    /// which only a restored phase can hold, shows the angle of the even phase below it (#1468: reading between two
+    /// samples there is a presentation quirk, not kept).
     /// </summary>
     public const int PhasesPerAngleStep = 2;
 

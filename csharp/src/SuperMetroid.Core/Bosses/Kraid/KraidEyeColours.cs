@@ -39,6 +39,9 @@ public sealed class KraidEyeColours
     /// </summary>
     internal ReadOnlySpan<RgbColor> Shaded => bands[0];
 
+    /// <summary>The eyes' colours under <paramref name="band"/>: a health band's, or the hurt flash's.</summary>
+    internal ReadOnlySpan<RgbColor> Of(KraidColourBand band) => band.HealthBand is { } health ? HealthBand(health) : Hurt;
+
     /// <summary>The eyes' colours under health band <paramref name="band"/>, zero through seven.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The band is not one of the eight.</exception>
     internal ReadOnlySpan<RgbColor> HealthBand(int band) =>

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.OldTourianWall;
 
 /// <summary>
 /// The old Tourian escape shaft fake-wall explosion, whose animation
-/// <see cref="OldTourianWallExplosionAnimation"/> plays typed. Its six small-explosion spritemap operands resolve
+/// <see cref="OldTourianWallExplosionAnimation"/> plays typed. Its six small-explosion frames resolve
 /// through extracted presentation art.
 /// </summary>
 internal static class OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions

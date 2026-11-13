@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Enemies;
-using SuperMetroid.Core.Enemies.Deaths.Artwork;
 using SuperMetroid.Core.Enemies.Deaths;
 
 namespace SuperMetroid.TestSupport.MovieReplay;
@@ -35,5 +34,5 @@ internal static class EnemyDeathProjectileNativeListAddresses
     internal static ushort Entry(EnemyDeathProjectileProgram program) => NativeEnemyProjectileProgramOracle.EntryOf(Entries, program);
 
     /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, EnemyDeathProjectileAnimations.Segments, EnemyDeathProjectileAnimations.StartingAt, (frame => EnemyProjectileProgramFrameSources.Operand(EnemyDeathProjectileFrameDefinitions.ShownProjectileFrames[frame])), EnemyDeathProjectileCueRules.Rules);
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, EnemyDeathProjectileAnimations.Segments, EnemyDeathProjectileAnimations.StartingAt, (frame => EnemyProjectileProgramFrameSources.Operand(frame)), EnemyDeathProjectileCueRules.Rules);
 }

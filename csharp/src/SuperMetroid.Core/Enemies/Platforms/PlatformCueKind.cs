@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Platforms;
 
-/// <summary>What a cue of the Tripper's and Kamer's programs does: one per instruction its lists use.</summary>
+/// <summary>What a cue of the Tripper's and Kamer's programs does: one per kind of step its lists use.</summary>
 internal enum PlatformCueKind
 {
     /// <summary>Makes main AI move the platform left.</summary>

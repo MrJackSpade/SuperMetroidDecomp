@@ -13,6 +13,7 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Checks compiled Metroid escape movement and random cry words against retail sources.</summary>
 internal static class MetroidBehaviorDefinitionsVerification
@@ -104,9 +105,9 @@ internal static class MetroidBehaviorDefinitionsVerification
             enemies.SlotTable.Slots[0].SetSpeciesState(new MetroidEnemyState(new RoomSpriteObject(RoomSpriteObjectKind.MetroidOuterBodyA, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard), new RoomSpriteObject(RoomSpriteObjectKind.MetroidOuterBodyB, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard))
             {
                 Playback = new(MetroidAnimations.StartingWith(MetroidProgram.ChasingSamus),
-                    AnimationSegments<MetroidProgram, MetroidFrame, MetroidCue>.PlaceOf(MetroidAnimations.StartingWith(MetroidProgram.ChasingSamus),
+                    AnimationSegments<MetroidProgram, EnemyFrameId, MetroidCue>.PlaceOf(MetroidAnimations.StartingWith(MetroidProgram.ChasingSamus),
                         MetroidProgram.ChasingSamus,
-                        MetroidAnimations.Segments.Beats(MetroidProgram.ChasingSamus).ToList().FindIndex(beat => beat is AnimationBeat<MetroidFrame, MetroidCue>.Event))),
+                        MetroidAnimations.Segments.Beats(MetroidProgram.ChasingSamus).ToList().FindIndex(beat => beat is AnimationBeat<EnemyFrameId, MetroidCue>.Event))),
             });
 
             EnemyInstructionInterpreter.RunsAnimationScript(slot, null, null, Position16<RoomPixels>.Zero, 0);

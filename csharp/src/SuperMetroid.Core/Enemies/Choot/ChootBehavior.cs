@@ -1,10 +1,9 @@
 ﻿using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.Choot.Artwork;
 using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Enemies.Choot;
 
-/// <summary>The Choot species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Choot species owner: its per-room state, behaviour and the interactions it registers.</summary>
 internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
@@ -132,7 +131,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             // The last loop's end restores exact spawn coordinates/subpositions, reinstalls
-            // idle bytecode, and rearms the same calculated ascent for the next activation.
+            // the idle program, and rearms the same calculated ascent for the next activation.
             state.YSpeedTableIndex = state.InitialYSpeedTableIndex;
             slot.Position = FixedPosition<RoomPixels>.FromWhole(state.SpawnPosition);
             SetChootProgram(slot, state, ChootProgram.Idle);
@@ -166,7 +165,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
             $"Choot jump-height calculation did not reach {jumpHeight} pixels.");
     }
 
-    /// <summary>Installs idle, jumping, or falling bytecode and restarts its instruction timers.</summary>
+    /// <summary>Installs the idle, jumping, or falling program and restarts its frame timers.</summary>
     private static void SetChootProgram(
         RoomEnemySlot slot,
         ChootEnemyState state,
@@ -179,7 +178,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Choot's typed animation.</summary>
     internal static void AdvanceChootTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, ChootAnimations.Segments, ChootFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, ChootAnimations.Segments,
             static (ChootEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyChootCue(slot, cue) is { } target
                 ? new AnimationContinuation<ChootProgram>(ChootAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
@@ -197,7 +196,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         return null;
     }
 
-    /// <summary>Ports Choot's main AI.</summary>
+    /// <summary>Runs Choot's main AI.</summary>
     internal static void RunChootMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunChootMain(slot, slot.RequireSpeciesState<ChootEnemyState>(), frame.Samus);

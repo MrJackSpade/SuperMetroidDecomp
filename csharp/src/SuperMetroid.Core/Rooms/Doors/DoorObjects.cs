@@ -85,7 +85,7 @@ internal sealed class DoorObjects
 
     /// <summary>
     /// The deactivating setup: a solid block stays solid and any other block becomes air, keeping its appearance.
-    /// Despite its historical name, the routine does not delete or deactivate the room-object slot.
+    /// Despite its historical name, the setup does not delete or deactivate the room-object slot.
     /// </summary>
     internal static void SetupDoorTransitionDeactivatedSlot(RoomLevelData level, RoomObjectSlot slot) =>
         level.SetTerrain(slot.Block, level.GetCollisionBlock(slot.Block).Terrain.Deactivated());
@@ -148,7 +148,7 @@ internal sealed class DoorObjects
 
     /// <summary>
     /// Names the color and facing of a colored-door room object (#1414: each of the twelve doors is matched by member, replacing
-    /// the color ranges the room-object headers implied).
+    /// the color ranges the room-object definitions implied).
     /// </summary>
     internal static bool TryIdentifyColoredDoor(
         RoomObjectHeaderId header,
@@ -168,7 +168,7 @@ internal sealed class DoorObjects
     /// The cap's top or left block begins as a shootable solid. Setup changes only that block to a plain solid,
     /// preserving its appearance; the cap's opening then draws all four of its blocks and ends on the cleared opening
     /// (<see cref="BlueDoorCapObject"/>). A Power Bomb is the one projectile that does not open it. A full room loses the
-    /// request, as the original game's block-spawned objects do.
+    /// request, as the game's block-spawned objects do.
     /// </remarks>
     public bool TrySpawnBlueDoorOpening(
         RoomLevelData level,

@@ -1,11 +1,10 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.Evir.Artwork;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Evir;
 
-/// <summary>The Evir species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Evir species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -173,7 +172,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         ResetEvirProjectilePosition(slot, state);
 
         // Clears installed-list after having installed the normal list. That oddity
-        // forces the first main-AI request to refresh the bytecode timer exactly once.
+        // forces the first main-AI request to refresh the frame timer exactly once.
         state.InstalledProgram = null;
     }
 
@@ -414,7 +413,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         state.RegenerationOffset += new Offset16<RoomPixels>(EvirBodyFacesRight(slot) ? 1 : -1, 0);
 
     /// <summary>
-    /// Both regeneration instructions test the animation installed on the spit's body, not any facing of its own.
+    /// Both regeneration cues test the animation installed on the spit's body, not any facing of its own.
     /// </summary>
     private bool EvirBodyFacesRight(RoomEnemySlot projectile) =>
         (BodyPlaceOf(projectile).SpeciesState<EvirEnemyState>() ?? BodyStateOf(projectile)).InstalledProgram == EvirProgram.BodyFacingRight;
@@ -468,7 +467,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         InstallEvirInstruction(slot, state);
     }
 
-    /// <summary>Resets the instruction timer once per list change, preserving held animations.</summary>
+    /// <summary>Resets the frame timer once per list change, preserving held animations.</summary>
     private static void InstallEvirInstruction(RoomEnemySlot slot, EvirEnemyState state)
     {
         if (state.RequestedProgram == state.InstalledProgram)
@@ -491,8 +490,8 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         string relationship,
         bool initializing = false)
     {
-        // A partner is a place, not its live header. Contact can clear the body after the active list was built; its
-        // deleted arms and spit still execute once and read the cleared common words, and a power bomb's follow-up can
+        // A partner is a place, not its live definition. Contact can clear the body after the active list was built; its
+        // deleted arms and spit still execute once and read the cleared common state, and a power bomb's follow-up can
         // delete a body whose arms and spit live on. Validate authored identities at initialization, then keep reaching
         // the established place.
         if (partner is null || (initializing && partner.DefinitionId != expectedDefinition))
@@ -545,19 +544,19 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         });
     }
 
-    /// <summary>Ports Evir's initialization AI.</summary>
+    /// <summary>Runs Evir's initialization AI.</summary>
     internal void RunEvirInitializationAi(RoomEnemySlot slot, EnemySpawnSurroundings surroundings)
     {
         InitializeEvir(slot, surroundings.Samus);
     }
 
-    /// <summary>Ports Evir's main AI.</summary>
+    /// <summary>Runs Evir's main AI.</summary>
     internal void RunEvirMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunEvirMain(slot, slot.RequireSpeciesState<EvirEnemyState>(), frame.Samus);
     }
 
-    /// <summary>Ports EvirProjectile's main AI.</summary>
+    /// <summary>Runs EvirProjectile's main AI.</summary>
     internal void RunEvirProjectileMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunEvirProjectileMain(
@@ -575,7 +574,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = slot.RequireSpeciesState<EvirEnemyState>();
         AnimationPlayback<EvirProgram> playback = state.Playback ??
             throw new InvalidOperationException($"Evir slot {slot.SlotIndex} has no installed animation.");
-        EnemyProgramAnimation.Play(slot, EvirAnimations.Segments, ref playback, EvirFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Play(slot, EvirAnimations.Segments, ref playback,
             cue => ApplyEvirCue(slot, state, cue) is { } target
                 ? new AnimationContinuation<EvirProgram>(EvirAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);

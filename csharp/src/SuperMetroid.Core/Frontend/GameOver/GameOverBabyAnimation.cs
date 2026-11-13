@@ -8,8 +8,8 @@ namespace SuperMetroid.Core.Frontend.GameOver;
 /// cycle is a four-step triangular frame wave, Closed/Middle/Open/Middle, held ten updates per step. A cry has
 /// eight steps of that wave; its duration is 2 + abs(4 - cryStep), with cryStep 0..7, and its palette follows
 /// the frame. The first cry step of each group queues that group's cry when its countdown expires. The final
-/// step restarts the program at step zero. Steps are calculated on demand; there is no stored instruction
-/// array. The extraction pipeline and verification check every step against the original
+/// step restarts the program at step zero. Steps are calculated on demand; there is no stored step
+/// array. The extraction pipeline and verification check every step against the authored
 /// animation script.
 /// </remarks>
 public static class GameOverBabyAnimation
@@ -38,7 +38,7 @@ public static class GameOverBabyAnimation
 
     /// <summary>Calculates one step's duration, pose, palette, cry handoff and restart.</summary>
     /// <param name="step">Step ordinal in play order, zero through <see cref="StepCount"/> minus one.</param>
-    /// <returns>The step's complete compiled instruction.</returns>
+    /// <returns>The step's complete compiled cue.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The step is outside the program.</exception>
     public static GameOverBabyScriptStep Get(int step)
     {

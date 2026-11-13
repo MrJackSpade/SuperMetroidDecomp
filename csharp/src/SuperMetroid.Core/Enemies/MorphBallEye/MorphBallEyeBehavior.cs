@@ -1,12 +1,11 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.MorphBallEye.Artwork;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Enemies.MorphBallEye;
 
-/// <summary>The Morph Ball eye species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Morph Ball eye species owner: its per-room state, behaviour and the interactions it registers.</summary>
 internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
@@ -32,7 +31,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int EyeActivateYDistance = 128;
     /// <summary>Strict vertical range retained while tracking Samus.</summary>
     private const int EyeDeactivateYDistance = 128;
-    /// <summary>Word countdown for both opening and closing eye transitions.</summary>
+    /// <summary>Countdown for both opening and closing eye transitions.</summary>
     private const int EyeTransitionDuration = 32;
 
     /// <summary>The room-global beam an eye body casts.</summary>
@@ -76,7 +75,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         MorphBallEyeEnemyState state,
         SamusState? samus)
     {
-        // The game tests collected_items, not equipped_items. This
+        // The game tests the collected items, not the equipped items. This
         // matters after the player disables Morph Ball in the equipment menu.
         if (samus is null || !samus.CollectedItems.HasAny(SamusEquipmentFlags.MorphBall))
             return;
@@ -167,7 +166,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         // The tracking loop resumes at the pose for the arc of the turn the angle lies in, one pose for
         // each of the turn's sixteen equal arcs.
         Animation<MorphBallEyeProgram> tracking = MorphBallEyeAnimations.StartingWith(MorphBallEyeProgram.Active);
-        state.Playback = new(tracking, AnimationSegments<MorphBallEyeProgram, MorphBallEyeFrame, NoAnimationCue>.PlaceOf(tracking,
+        state.Playback = new(tracking, AnimationSegments<MorphBallEyeProgram, EnemyFrameId, NoAnimationCue>.PlaceOf(tracking,
             MorphBallEyeProgram.Active, state.Angle.Sector(MorphBallEyeBeamDefinitions.TrackingPoses)));
         eye.FrameHold = WrappingCountdown.Start(1);
     }
@@ -303,11 +302,11 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances MorphBallEye's typed animation.</summary>
     internal static void AdvanceMorphBallEyeTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, MorphBallEyeAnimations.Segments, MorphBallEyeFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, MorphBallEyeAnimations.Segments,
             static (MorphBallEyeEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (state, cue) => throw new InvalidOperationException($"The Morph Ball eye's cue-free animation raised {cue}."));
 
-    /// <summary>Ports MorphBallEye's main AI.</summary>
+    /// <summary>Runs MorphBallEye's main AI.</summary>
     internal void RunMorphBallEyeMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunMorphBallEyeMain(slot, slot.RequireSpeciesState<MorphBallEyeEnemyState>(), frame.Samus);

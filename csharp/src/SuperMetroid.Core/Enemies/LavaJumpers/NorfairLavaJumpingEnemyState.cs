@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.LavaJumpers;
 public sealed class NorfairLavaJumpingEnemyState
 {
     /// <summary>
-    /// Family-extra variable zero. The flip animation's cue sets this handshake after the
+    /// Whether the jump animation has finished. The flip animation's cue sets this handshake after the
     /// jump animation reaches the frame where main AI may begin the final falling phase.
     /// </summary>
     public bool AnimationFinished { get; internal set; }
@@ -20,7 +20,7 @@ public sealed class NorfairLavaJumpingEnemyState
     internal AnimationPlayback<NorfairLavaJumperProgram> Playback { get; set; }
 
     /// <summary>
-    /// Signed 8.8 vertical velocity. Gravity adds to its word, which the jump compares unsigned with the animation
+    /// Signed 8.8 vertical velocity. Gravity adds to it, and the jump compares it unsigned with the animation
     /// switch velocity (<see cref="ApplyGravity"/>), and the follower shows only while it is negative.
     /// </summary>
     public SignedEightEight YVelocity { get; internal set; }
@@ -31,7 +31,7 @@ public sealed class NorfairLavaJumpingEnemyState
     /// <summary>Parent parts traverse the four jump phases, while followers keep the follow function.</summary>
     public NorfairLavaJumpingEnemyFunction? Function { get; internal set; }
 
-    /// <summary>Whether population parameter-one bit 15 selects the visual follower half rather than the jumping parent.</summary>
+    /// <summary>Whether population parameter one's follower flag selects the visual follower half rather than the jumping parent.</summary>
     public bool IsFollower { get; internal set; }
 
     /// <summary>One update's gravity: adds <paramref name="gravity"/> to the velocity, wrapping as the game's addition does.</summary>

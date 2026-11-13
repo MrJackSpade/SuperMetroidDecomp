@@ -21,7 +21,7 @@ internal static class BabyMetroidGradualAcceleration
 
     /// <summary>
     /// Returns the new X velocity. <paramref name="isVaguelyOffScreen"/> runs only on the
-    /// reversal path, as the original's vaguely-on-screen check does.
+    /// reversal path.
     /// </summary>
     /// <param name="position">The mover's whole X coordinate.</param>
     /// <param name="target">The target's whole X coordinate.</param>

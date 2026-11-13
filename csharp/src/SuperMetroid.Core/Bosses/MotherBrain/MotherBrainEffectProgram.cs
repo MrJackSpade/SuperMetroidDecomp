@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// Mother Brain's onion-ring, bomb, rainbow-charge, drool, escape-door, purple-breath and subtitle programs (#641), one per list a spawn, branch or family routine enters, in authored order.
+/// Mother Brain's onion-ring, bomb, rainbow-charge, drool, escape-door, purple-breath and subtitle programs (#641), one per list a spawn, branch or family step enters, in authored order.
 /// Generated from the verified lists; see <see cref="MotherBrainEffectAnimations"/>.
 /// </summary>
 internal enum MotherBrainEffectProgram

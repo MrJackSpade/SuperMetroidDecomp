@@ -193,7 +193,7 @@ internal sealed class IntroCeresFlightState
     {
         PrepareRenderSprites();
         // The stars, the station, its asteroids and the vortex lie beyond the gunship: they are drawn behind its floor.
-        // The per-sprite-part priority tiers that once interleaved them with the floor are a presentation quirk the port
+        // The per-sprite-part priority tiers that once interleaved them with the floor are a presentation quirk the model
         // does not keep.
         var sprites = new SpritesLayer(objects.Draws);
         var layers = new List<DisplayLayer> { sprites };

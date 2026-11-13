@@ -55,13 +55,13 @@ internal sealed class DoorTransitionRunner
         _system = dependencies.System;
     }
     /// <summary>
-    /// Runs the setup routine named by the active door header after room-object creation.
+    /// Runs the setup named by the active door definition after room-object creation.
     /// </summary>
     /// <remarks>
-    /// The room load runs the door's routine between room-object
-    /// construction and the first visible destination viewport. These routines are shared
-    /// programs, not room-name patches: every door that names a translated
-    /// routine receives the same writes. An unknown routine throws so missing camera
+    /// The room load runs the door's setup between room-object
+    /// construction and the first visible destination viewport. These setups are shared
+    /// programs, not room-name patches: every door that names a modelled
+    /// setup receives the same writes. An unknown setup throws so missing camera
     /// boundary behavior can never masquerade as a successful room load.
     /// </remarks>
     internal void RunDoorSetupCode(DoorDefinition door, RoomObjectSystem roomObjects, WreckedShipTreadmillAnimatedTilesState wreckedShipTreadmill, CeresElevatorShaftRoomMainState ceresElevatorShaft, MaridiaElevatubeRoomMainState maridiaElevatube)
@@ -80,10 +80,10 @@ internal sealed class DoorTransitionRunner
                 return;
 
             case DoorSetupCode.DoorASM_ToCeresElevatorShaft:
-                // Ceres's door setup owns the rotating-room matrix and centre. Those
+                // Ceres's door setup owns the turning floor's rotation and centre. Those
                 // values must exist before room graphics/actors initialize, so the shared
                 // loader installs them at construction time and this dispatch
-                // point merely verifies that the recognized routine was not discarded.
+                // point merely verifies that the recognized setup was not discarded.
                 if (!door.EntersCeresElevatorShaft || _display.ActiveTurningFloor is null)
                 {
                     throw new InvalidDataException(
@@ -217,7 +217,7 @@ internal sealed class DoorTransitionRunner
 
         wreckedShipTreadmill.Start(direction);
         // Both spawn helpers report when they have no free slot left, and
-        // the door routine deliberately ignores that result. The dedicated animated owner
+        // the door setup deliberately ignores that result. The dedicated animated owner
         // above cannot exhaust; preserve the room-object allocator's false result here.
         _ = roomObjects.WreckedShipTreadmill.TrySpawnWreckedShipEntranceTreadmill(
             _room.LevelData,
@@ -238,7 +238,7 @@ internal sealed class DoorTransitionRunner
         else
             maridiaElevatube.SetUpFromNorth(samus);
 
-        // The door routine ignores whether the spawn found a free slot when all forty are
+        // The door setup ignores whether the spawn found a free slot when all forty are
         // occupied. Retaining the bool-returning allocator preserves that edge.
         _ = roomObjects.WreckedShipTreadmill.TrySpawnMaridiaElevatube(_room.LevelData);
     }
@@ -284,7 +284,7 @@ internal sealed class DoorTransitionRunner
     }
     /// <summary>
     /// Runs the enemy projectiles. Gameplay runs them every update, checking only the
-    /// suspension X-ray applies, so their instructions keep running while time is frozen for
+    /// suspension X-ray applies, so their programs keep running while time is frozen for
     /// a reserve refill.
     /// </summary>
     internal void RunEnemyProjectileHandler(SamusBombProjectileSystem bombProjectiles, RoomScope room)

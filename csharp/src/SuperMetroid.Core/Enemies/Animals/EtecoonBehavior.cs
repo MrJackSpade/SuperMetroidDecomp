@@ -9,7 +9,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Animals;
 
-/// <summary>The Etecoon species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Etecoon species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -21,7 +21,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Probes the floor, walls, and ceiling throughout the teaching route.</summary>
     private readonly EnemyTerrain _terrain;
-    /// <summary>Pauses instruction timing while a room earthquake is active.</summary>
+    /// <summary>Pauses animation timing while a room earthquake is active.</summary>
     private readonly RoomEarthquake _earthquake;
 
     /// <summary>Suppresses the pre-jump transition while an elevator door transition owns the room.</summary>
@@ -61,7 +61,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int EtecoonLongRunMaximumX = 832;
 
     /// <summary>Y speed for an ordinary Etecoon hop.</summary>
-    /// <remarks>These are the eight authored words. Keeping them named beside their consumers
+    /// <remarks>These are the eight authored speeds. Keeping them named beside their consumers
     /// avoids replacing authored fixed-point values with host-side tuning.</remarks>
     private static readonly SignedSixteenSixteen EtecoonJumpYVelocity = SignedSixteenSixteen.FromParts(-3, 0);
     /// <summary>Y speed for the stronger long jump.</summary>
@@ -754,11 +754,11 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Etecoon's typed animation.</summary>
     internal static void AdvanceEtecoonTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, EtecoonAnimations.Segments, EtecoonFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, EtecoonAnimations.Segments,
             static (EtecoonEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Etecoon animation raised {cue}."));
 
-    /// <summary>Ports Etecoon's main AI.</summary>
+    /// <summary>Runs Etecoon's main AI.</summary>
     internal void RunEtecoonMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunEtecoonMain(slot, slot.RequireSpeciesState<EtecoonEnemyState>(), frame.Samus, frame.Level);

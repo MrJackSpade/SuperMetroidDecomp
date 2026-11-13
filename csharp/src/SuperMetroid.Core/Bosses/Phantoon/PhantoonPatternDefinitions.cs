@@ -5,7 +5,7 @@ public static class PhantoonPatternDefinitions
 {
     /// <summary>
     /// The figure-eight cursor and world X/Y of each of the eight
-    /// random buckets; each record also has an unused zero word. Patterns zero and four share the same body
+    /// random buckets. Patterns zero and four share the same body
     /// placement.
     /// </summary>
     internal static readonly PhantoonRainPlacementDefinition[] RainPlacements =

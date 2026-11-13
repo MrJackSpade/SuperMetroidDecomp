@@ -6,7 +6,7 @@ internal enum DispatchRandomStep
     /// <summary>The generator is reseeded at power-on, then advances once: the reset state is dispatched after the first advance.</summary>
     Reseed,
 
-    /// <summary>The per-line effects run first (lava swaps the generator's live bytes), then the generator advances.</summary>
+    /// <summary>The per-line effects run first (lava swaps the generator's live state), then the generator advances.</summary>
     NonGameplayLineEffectsThenAdvance,
 
     /// <summary>

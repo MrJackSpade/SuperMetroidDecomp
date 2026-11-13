@@ -1,59 +1,60 @@
 using P = SuperMetroid.Core.Enemies.Ripper.RipperProgram;
 using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Ripper;
 
 /// <summary>
 /// The GRipper, Ripper II and Ripper flying loops as typed programs (#641). Each
-/// frame shows a <see cref="RipperFrame"/> pose and its lists use no owner callbacks.
+/// frame shows a <see cref="EnemyFrameId"/> and its lists use no owner callbacks.
 /// </summary>
 internal static class RipperAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<RipperProgram, RipperFrame, NoAnimationCue> Segments { get; } = new(
-        new Dictionary<RipperProgram, AnimationBeat<RipperFrame, NoAnimationCue>[]>
+    internal static AnimationSegments<RipperProgram, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<RipperProgram, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
     {
         [P.GRipperMovingLeft] =
         [
-            Show(0, 8),
-            Show(1, 7),
-            Show(0, 8),
-            Show(2, 7),
+            Show(EnemyFrameId.RipperSharedLeft0, 8),
+            Show(EnemyFrameId.RipperSharedLeft1, 7),
+            Show(EnemyFrameId.RipperSharedLeft0, 8),
+            Show(EnemyFrameId.RipperSharedLeft2, 7),
         ],
         [P.GRipperMovingRight] =
         [
-            Show(3, 8),
-            Show(4, 7),
-            Show(3, 8),
-            Show(5, 7),
+            Show(EnemyFrameId.RipperSharedRight0, 8),
+            Show(EnemyFrameId.RipperSharedRight1, 7),
+            Show(EnemyFrameId.RipperSharedRight0, 8),
+            Show(EnemyFrameId.RipperSharedRight2, 7),
         ],
         [P.Ripper2MovingRight] =
         [
-            Show(0, 8),
-            Show(1, 7),
-            Show(0, 8),
-            Show(2, 7),
+            Show(EnemyFrameId.RipperSharedLeft0, 8),
+            Show(EnemyFrameId.RipperSharedLeft1, 7),
+            Show(EnemyFrameId.RipperSharedLeft0, 8),
+            Show(EnemyFrameId.RipperSharedLeft2, 7),
         ],
         [P.Ripper2MovingLeft] =
         [
-            Show(3, 8),
-            Show(4, 7),
-            Show(3, 8),
-            Show(5, 7),
+            Show(EnemyFrameId.RipperSharedRight0, 8),
+            Show(EnemyFrameId.RipperSharedRight1, 7),
+            Show(EnemyFrameId.RipperSharedRight0, 8),
+            Show(EnemyFrameId.RipperSharedRight2, 7),
         ],
         [P.RipperMovingRight] =
         [
-            Show(9, 8),
-            Show(10, 7),
-            Show(9, 8),
-            Show(11, 7),
+            Show(EnemyFrameId.RipperRight0, 8),
+            Show(EnemyFrameId.RipperRight1, 7),
+            Show(EnemyFrameId.RipperRight0, 8),
+            Show(EnemyFrameId.RipperRight2, 7),
         ],
         [P.RipperMovingLeft] =
         [
-            Show(6, 8),
-            Show(7, 7),
-            Show(6, 8),
-            Show(8, 7),
+            Show(EnemyFrameId.RipperLeft0, 8),
+            Show(EnemyFrameId.RipperLeft1, 7),
+            Show(EnemyFrameId.RipperLeft0, 8),
+            Show(EnemyFrameId.RipperLeft2, 7),
         ],
     });
 
@@ -71,6 +72,6 @@ internal static class RipperAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<RipperProgram> StartingWith(RipperProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<RipperFrame, NoAnimationCue> Show(int pose, int duration) => new AnimationBeat<RipperFrame, NoAnimationCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);
 }

@@ -3,6 +3,7 @@ using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
+using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
@@ -48,7 +49,7 @@ internal static class EncounterArtworkDrawingDefinitions
     private static readonly EncounterArtworkDrawing GunshipHull =
         new(ComposedEncounter.Gunship, [EncounterLook.LoadedName, GunshipTakeoffDefinitions.TakeoffLook.Name])
         {
-            Frames = [.. GunshipFrameDefinitions.ShownFrames.Select(entry => entry.Value)],
+            Frames = [.. GunshipAnimations.Segments.Frames],
         };
 
     /// <summary>The takeoff's dust, which the engines raise once they fire up: never while the gunship is landed.</summary>
@@ -79,7 +80,7 @@ internal static class EncounterArtworkDrawingDefinitions
     private static readonly EncounterArtworkDrawing BombTorizoBody =
         new(ComposedEncounter.BombTorizo, [EncounterLook.LoadedName, .. Bomb(Enumerable.Range(0, 8)), .. Bomb([11, 15, 20])])
         {
-            Frames = [.. TorizoFrameDefinitions.ShownFrames.Select(entry => entry.Value)],
+            Frames = [.. TorizoAnimations.Segments.Frames],
         };
 
     /// <summary>Bomb Torizo's projectiles, which fly only once it has woken.</summary>
@@ -98,7 +99,7 @@ internal static class EncounterArtworkDrawingDefinitions
         new(ComposedEncounter.GoldenTorizo, [.. Golden(Enumerable.Range(0, 9)), .. Golden([10, 12, 14, 16, 18, 20]),
             .. Golden(Enumerable.Range(22, TorizoArtworkSwapDefinitions.GoldenSequence.Count - 22))])
         {
-            Frames = [.. TorizoFrameDefinitions.ShownFrames.Select(entry => entry.Value)],
+            Frames = [.. TorizoAnimations.Segments.Frames],
             Projectiles = [.. TorizoProjectileVisualDefinitions.ShownProjectileFrames.Select(entry => entry.Value)],
         };
 
@@ -109,7 +110,7 @@ internal static class EncounterArtworkDrawingDefinitions
     private static readonly EncounterArtworkDrawing CeresDoors =
         new(ComposedEncounter.CeresDoor, [EncounterLook.LoadedName, CeresDoorLookDefinitions.OverlayLook.Name])
         {
-            Frames = [.. CeresDoorFrameDefinitions.ShownFrames.Select(entry => entry.Value).Except([EnemyFrameId.CeresDoorRotatingOverlay])],
+            Frames = [.. CeresDoorAnimations.Segments.Frames.Except([EnemyFrameId.CeresDoorRotatingOverlay])],
         };
 
     /// <summary>
@@ -137,28 +138,28 @@ internal static class EncounterArtworkDrawingDefinitions
     /// <summary>Her onion rings, whose characters her legs' look holds.</summary>
     private static readonly EnemyProjectileFrameId[] MotherBrainRings =
     [
-        EnemyProjectileFrameId.MotherBrainBlueRing00, EnemyProjectileFrameId.MotherBrainBlueRing01, EnemyProjectileFrameId.MotherBrainBlueRing02,
-        EnemyProjectileFrameId.MotherBrainBlueRing03, EnemyProjectileFrameId.MotherBrainBlueRing04, EnemyProjectileFrameId.MotherBrainBlueRing05,
+        EnemyProjectileFrameId.MotherBrainBlueRingOnionRingFirst, EnemyProjectileFrameId.MotherBrainBlueRingOnionRingSecond, EnemyProjectileFrameId.MotherBrainBlueRingOnionRingThird,
+        EnemyProjectileFrameId.MotherBrainBlueRingOnionRingFourth, EnemyProjectileFrameId.MotherBrainBlueRingOnionRingFifth, EnemyProjectileFrameId.MotherBrainBlueRingOnionRingSixth,
     ];
 
     /// <summary>Her bombs, which her attacks' look holds.</summary>
     private static readonly EnemyProjectileFrameId[] MotherBrainAttackEffects =
     [
-        EnemyProjectileFrameId.MotherBrainBombFrame00, EnemyProjectileFrameId.MotherBrainBombFrame01, EnemyProjectileFrameId.MotherBrainBombFrame02,
-        EnemyProjectileFrameId.MotherBrainBombFrame03, EnemyProjectileFrameId.MotherBrainBombFrame04, EnemyProjectileFrameId.MotherBrainBombFrame05,
-        EnemyProjectileFrameId.MotherBrainBombFrame06, EnemyProjectileFrameId.MotherBrainBombFrame07, EnemyProjectileFrameId.MotherBrainBombFrame08,
+        EnemyProjectileFrameId.MotherBrainBombFirst, EnemyProjectileFrameId.MotherBrainBombSecond, EnemyProjectileFrameId.MotherBrainBombThird,
+        EnemyProjectileFrameId.MotherBrainBombFourth, EnemyProjectileFrameId.MotherBrainBombFifth, EnemyProjectileFrameId.MotherBrainBombSixth,
+        EnemyProjectileFrameId.MotherBrainBombSeventh, EnemyProjectileFrameId.MotherBrainBombEighth, EnemyProjectileFrameId.MotherBrainBombNinth,
     ];
 
     /// <summary>The escape door's fragments, which the exploded door's look holds.</summary>
     private static readonly EnemyProjectileFrameId[] MotherBrainDoorFragments =
     [
-        EnemyProjectileFrameId.MotherBrainEscapeDoorParticleFrame00, EnemyProjectileFrameId.MotherBrainEscapeDoorParticleFrame01, EnemyProjectileFrameId.MotherBrainEscapeDoorParticleFrame02,
-        EnemyProjectileFrameId.MotherBrainEscapeDoorParticleFrame03, EnemyProjectileFrameId.MotherBrainEscapeDoorParticleFrame04, EnemyProjectileFrameId.MotherBrainEscapeDoorParticleFrame05,
-        EnemyProjectileFrameId.MotherBrainEscapeDoorParticleFrame06, EnemyProjectileFrameId.MotherBrainEscapeDoorParticleFrame07,
+        EnemyProjectileFrameId.MotherBrainEscapeDoorParticleFirst, EnemyProjectileFrameId.MotherBrainEscapeDoorParticleSecond, EnemyProjectileFrameId.MotherBrainEscapeDoorParticleThird,
+        EnemyProjectileFrameId.MotherBrainEscapeDoorParticleFourth, EnemyProjectileFrameId.MotherBrainEscapeDoorParticleFifth, EnemyProjectileFrameId.MotherBrainEscapeDoorParticleSixth,
+        EnemyProjectileFrameId.MotherBrainEscapeDoorParticleSeventh, EnemyProjectileFrameId.MotherBrainEscapeDoorParticleEighth,
     ];
 
     /// <summary>The escape's subtitle, which the escape message's look holds.</summary>
-    private static readonly EnemyProjectileFrameId[] MotherBrainSubtitle = [EnemyProjectileFrameId.MotherBrainEscapeSubtitleFrame00];
+    private static readonly EnemyProjectileFrameId[] MotherBrainSubtitle = [EnemyProjectileFrameId.MotherBrainEscapeSubtitle];
 
     /// <summary>Mother Brain's living brain, whose faces her room's load holds.</summary>
     private static readonly EncounterArtworkDrawing MotherBrainHead =
@@ -231,7 +232,7 @@ internal static class EncounterArtworkDrawingDefinitions
     private static readonly EncounterArtworkDrawing MotherBrainEffects =
         new(ComposedEncounter.MotherBrain, [EncounterLook.LoadedName])
         {
-            Projectiles = [.. MotherBrainEffectFrameDefinitions.ShownProjectileFrames.Select(entry => entry.Value)
+            Projectiles = [.. MotherBrainEffectAnimations.Segments.Frames
                 .Except(MotherBrainRings).Except(MotherBrainAttackEffects).Except(MotherBrainDoorFragments).Except(MotherBrainSubtitle)],
         };
 
@@ -263,7 +264,7 @@ internal static class EncounterArtworkDrawingDefinitions
     private static readonly EncounterArtworkDrawing MotherBrainDust =
         new(ComposedEncounter.MotherBrain, [EncounterLook.LoadedName])
         {
-            Projectiles = [.. MiscDustProjectileFrameDefinitions.ShownProjectileFrames.Select(entry => entry.Value)],
+            Projectiles = [.. MiscDustProjectileAnimations.Segments.Frames],
         };
 
     /// <summary>Every entry, by encounter.</summary>

@@ -39,7 +39,7 @@ internal sealed class EnemyTerrain
 
     /// <summary>
     /// Shared body of the three horizontal enemy movers. The remaining
-    /// process-slopes mode will reuse this seam when its first retail caller is translated.
+    /// process-slopes mode will reuse this seam when its first retail caller is modelled.
     /// </summary>
     private bool MoveEnemyHorizontally(
         RoomLevelData level,
@@ -164,7 +164,7 @@ internal sealed class EnemyTerrain
 
     /// <summary>
     /// Implements the downward, geometry-only attachment probe used by Skree/Metaree. Unlike the common
-    /// collision dispatcher, this routine deliberately tests only whether each block stops attachment.
+    /// collision dispatcher, this probe deliberately tests only whether each block stops attachment.
     /// </summary>
     internal static bool EnemyMeetsAttachmentBlockBelow(
         RoomLevelData level,
@@ -396,7 +396,7 @@ internal sealed class EnemyTerrain
     /// Resolves signed extension links exactly as the dispatcher repeats them: each link leads on in the room's reading
     /// order (<see cref="RoomReadingOrder"/>), so a horizontal link past a row's end continues on the next row.
     /// A guard converts corrupt cyclic room data into a useful exception instead of a host
-    /// stack overflow; valid chains always terminate well before the room allocation size.
+    /// recursion failure; valid chains always terminate well before the room allocation size.
     /// </summary>
     /// <returns>The block the chain ends on, or null when the start or a link lies outside the room's grid.</returns>
     internal static RoomCollisionBlock? ResolveEnemyCollisionBlock(
@@ -519,7 +519,7 @@ internal sealed class EnemyTerrain
 
     /// <summary>
     /// Runs the same two probes as <see cref="AlignEnemyYWithNonSquareSlope"/> while reporting
-    /// whether the slope alignment moved the enemy. Yard is the first translated caller that
+    /// whether the slope alignment moved the enemy. Yard is the first caller that
     /// uses that report to suppress corner-transition animation after a slope adjustment.
     /// </summary>
     internal static bool AlignEnemyYWithNonSquareSlopeAndReportAdjustment(

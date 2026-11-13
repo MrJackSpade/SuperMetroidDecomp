@@ -57,7 +57,7 @@ internal sealed class MotherBrainThirdPhaseFight
     /// <summary>Schedules phase-three inching and two retreat speeds only while the body is standing.</summary>
     private bool StepPhase3WalkingHandler(MotherBrainRandomSample randomNumberSeed)
     {
-        // The phase-three scheduler refuses to call the walking function while body bytecode advertises any
+        // The phase-three scheduler refuses to call the walking function while the body program advertises any
         // nonzero pose. This makes each request edge-triggered: the requested walk runs to
         // its standing cue before the scheduler is allowed to inspect its target again.
         if (_state.Body.Pose != MotherBrainBodyPose.Standing)
@@ -148,7 +148,7 @@ internal sealed class MotherBrainThirdPhaseFight
 
             case MotherBrainPhase3NeckPhase.Normal:
                 // The neck setup briefly writes lower index one and immediately overwrites it with
-                // two before any other code can observe the word. Preserve the observable
+                // two before anything can observe it. Preserve the observable
                 // result; the first write has no effect.
                 _state.NeckAngleDelta = 128;
                 _state.LowerNeckMovement = MotherBrainNeckMovement.BobDown;
@@ -258,7 +258,7 @@ internal sealed class MotherBrainThirdPhaseFight
     /// </summary>
     internal bool RunThirdPhaseFightingMain(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
     {
-        // The main fighting function tests death before either sub-handler. It installs the translated
+        // The main fighting function tests death before either sub-handler. It installs the
         // death explosion/fade sequence without executing that function's property
         // writes until the following body turn; no phase-two behavior leaks through.
         if (_state.BrainHealth == 0)
@@ -270,9 +270,9 @@ internal sealed class MotherBrainThirdPhaseFight
         StepPhase3NeckHandler();
         requests.BodyWalkRequested = StepPhase3WalkingHandler(frame.RandomNumberSeed);
 
-        // Walking bytecode changes pose later in the enemy instruction stage. The
+        // The walking program changes pose later in the enemy animation stage. The
         // AI therefore still sees pose zero on the call that requests a walk and may
-        // also select an attack, exactly as the source's post-handler pose load.
+        // also select an attack, since it reads the pose after the handler runs.
         if (_state.Body.Pose != MotherBrainBodyPose.Standing || Phase3DisableAttacks ||
             !frame.RandomNumberSeed.IsNegative)
             return false;

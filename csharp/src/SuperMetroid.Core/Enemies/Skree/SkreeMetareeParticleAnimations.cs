@@ -6,21 +6,21 @@ namespace SuperMetroid.Core.Enemies.Skree;
 
 /// <summary>
 /// The Skree's and Metaree's death-particle programs (#641). Each
-/// frame shows a <see cref="SkreeMetareeParticleFrame"/> pose and each command becomes a <see cref="EnemyProjectileCommonCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyProjectileFrameId"/> and each command becomes a <see cref="EnemyProjectileCommonCue"/> with its typed operands.
 /// </summary>
 internal static class SkreeMetareeParticleAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<SkreeMetareeParticleProgram, SkreeMetareeParticleFrame, EnemyProjectileCommonCue> Segments { get; } = new(
-        new Dictionary<SkreeMetareeParticleProgram, AnimationBeat<SkreeMetareeParticleFrame, EnemyProjectileCommonCue>[]>
+    internal static AnimationSegments<SkreeMetareeParticleProgram, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
+        new Dictionary<SkreeMetareeParticleProgram, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>
     {
         [P.Skree] =
         [
-            Show(0, 16),
+            Show(EnemyProjectileFrameId.SkreeDebris, 16),
         ],
         [P.Metaree] =
         [
-            Show(1, 16),
+            Show(EnemyProjectileFrameId.MetareeDebris, 16),
         ],
     });
 
@@ -34,6 +34,6 @@ internal static class SkreeMetareeParticleAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<SkreeMetareeParticleProgram> StartingWith(SkreeMetareeParticleProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<SkreeMetareeParticleFrame, EnemyProjectileCommonCue> Show(int pose, int duration) => new AnimationBeat<SkreeMetareeParticleFrame, EnemyProjectileCommonCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);
 }

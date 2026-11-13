@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Fx;
 /// </summary>
 /// <remarks>
 /// The four frame-source operands are presentation identities resolved to installed art.
-/// This catalog owns the object header, boss-wait command, durations, and loop control.
+/// This catalog owns the object definition, boss-wait command, durations, and loop control.
 /// </remarks>
 public static class WreckedShipTreadmillMechanicsDefinitions
 {
@@ -15,7 +15,7 @@ public static class WreckedShipTreadmillMechanicsDefinitions
     /// <summary>The passes each treadmill frame is shown for: every pass shows the next frame.</summary>
     public const int FrameDuration = 1;
 
-    /// <summary>The two physical conveyor directions' headers (<see cref="WreckedShipTreadmills"/>).</summary>
+    /// <summary>The two physical conveyor directions' definitions (<see cref="WreckedShipTreadmills"/>).</summary>
     internal static readonly IReadOnlyDictionary<WreckedShipTreadmillDirection, WreckedShipTreadmillLoop> Directions =
         new Dictionary<WreckedShipTreadmillDirection, WreckedShipTreadmillLoop>
         {

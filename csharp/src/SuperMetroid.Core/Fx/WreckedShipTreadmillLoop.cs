@@ -1,10 +1,10 @@
 namespace SuperMetroid.Core.Fx;
 
-/// <summary>One direction-specific treadmill header and boss-gated four-frame loop.</summary>
+/// <summary>One direction-specific treadmill definition and boss-gated four-frame loop.</summary>
 public sealed class WreckedShipTreadmillLoop
 {
 
-    /// <summary>Builds one direction's boss-gated header.</summary>
+    /// <summary>Builds one direction's boss-gated definition.</summary>
     internal WreckedShipTreadmillLoop(
         WreckedShipTreadmillDirection direction,
         AnimatedTileObject animatedObject)

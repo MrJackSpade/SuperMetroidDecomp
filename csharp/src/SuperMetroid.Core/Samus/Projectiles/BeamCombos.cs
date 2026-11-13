@@ -118,7 +118,7 @@ internal sealed class BeamCombos
         return activated;
     }
 
-    /// <summary>Selects damage and instruction data from the charged, combo, or Spazer echo tables and initializes its first frame.</summary>
+    /// <summary>Selects damage and animation data from the charged, combo, or Spazer echo tables and initializes its first frame.</summary>
     internal static void InitializeComboData(SamusProjectile slot, BeamComboData comboData)
     {
         SamusProjectileHeader header = comboData switch
@@ -337,7 +337,7 @@ internal sealed class BeamCombos
         return null;
     }
 
-    /// <summary>Advances the Spazer particle's byte-sized angular phase by its signed step.</summary>
+    /// <summary>Advances the Spazer particle's angular phase, in 256ths of a turn, by its signed step.</summary>
     private static void AdvanceSpazerAngle(SamusProjectile slot) =>
         slot.ComboAngle = slot.ComboAngle.TurnedBySteps(slot.SpazerAngleStep);
 
@@ -355,7 +355,7 @@ internal sealed class BeamCombos
             InitializeComboData(slot, BeamComboData.Echo);
         }
     }
-    /// <summary>Runs the Wave combo's homing oscillator, preserving 8.8 acceleration and 16.16 position carry.</summary>
+    /// <summary>Runs the Wave combo's homing oscillator, preserving 8.8 acceleration and 16.16 position overflow.</summary>
     internal SoundEffectId? StepWaveCombo(SamusState samus,
         SamusProjectile slot, SamusBombProjectileSystem shared)
     {

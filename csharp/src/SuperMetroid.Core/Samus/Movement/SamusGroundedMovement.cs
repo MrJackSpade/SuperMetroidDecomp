@@ -12,16 +12,16 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// <remarks>
 /// This is deliberately not a generic platformer controller. The entry points below
 /// correspond only to the standing, running, turning-on-ground, moonwalking and ran-into-wall movement types. Air/water/lava X
-/// tables and submerged Dash gating are translated; enemy collision, conveyor displacement,
+/// tables and submerged Dash gating are modelled; enemy collision, conveyor displacement,
 /// and knockback remain separate. Ordinary Dash and equipped-Speed-Booster accumulation/
-/// staging are translated; palette/echo rendering lives outside movement. Each
-/// omitted system has observable game state and must be ported before its branch is
+/// staging are modelled; palette/echo rendering lives outside movement. Each
+/// omitted system has observable game state and must be modelled before its branch is
 /// enabled; none is silently replaced with desktop physics.
 /// </remarks>
 public static class SamusGroundedMovement
 {
     /// <summary>
-    /// Ports front-view movement, including the active-elevator
+    /// Runs front-view movement, including the active-elevator
     /// one-pixel downward block scan.
     /// </summary>
     /// <remarks>
@@ -30,7 +30,7 @@ public static class SamusGroundedMovement
     /// It only clears <see cref="SamusState.SolidVerticalCollisionResult"/> while elevator status is zero.
     /// A nonzero status calls the downward block collision with exactly one pixel of downward displacement before
     /// clearing that result. The elevator actor remains a separate producer of the status,
-    /// and of the platform art; this method translates the complete Samus-side consumer.
+    /// and of the platform art; this method holds the complete Samus-side consumer.
     /// </remarks>
     [IndependentFlag("Elevator motion and door side-effect publication are independent states of the frame.")]
     internal static BlockMoveResult? StepFacingForward(
@@ -113,7 +113,7 @@ public static class SamusGroundedMovement
 
         // Cancels speed boost and clears extra speed, base speed, and
         // acceleration mode after both movement calls, whichever way Samus faces. Speed-booster
-        // bookkeeping itself is outside this no-equipment slice, but these five words are
+        // bookkeeping itself is outside this no-equipment slice, but these five values are
         // exact and live.
         speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
         return new GroundedMovementResult(horizontal, vertical);
@@ -178,7 +178,7 @@ public static class SamusGroundedMovement
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
 
         // Clears X speed on a collision immediately after block collision. Total
-        // speed deliberately remains published: the following grounding routine reads it
+        // speed deliberately remains published: the following grounding probe reads it
         // even if base speed was just cleared by a wall.
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
@@ -234,7 +234,7 @@ public static class SamusGroundedMovement
         SamusLiquidMedium liquidMedium = samus.LiquidPhysics.DetermineMovementMedium(samus);
         speed.SelectEnvironmentSpeedTable(liquidMedium);
 
-        // The turning handler calls the complete X routine before
+        // The turning handler calls the complete X movement before
         // cancelling boost. Because this movement type is not running, the Dash acceleration cannot
         // add speed; it either clears an unowned pair or preserves an already established
         // momentum pair for this final movement frame. The unconditional cancellation and
@@ -245,7 +245,7 @@ public static class SamusGroundedMovement
             speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
             liquidImpeded: liquidMedium != SamusLiquidMedium.Air);
 
-        // The pose's own turning-on-ground or turning-while-jumping twelve-byte speed-table record supplies the
+        // The pose's own turning-on-ground or turning-while-jumping speed-table record supplies the
         // deceleration. If subtraction crosses below zero,
         // the calculation clears both speed halves AND mode before the direction selector chooses direction.
         UnsignedSixteenSixteen baseSpeed = speed.CalculateBaseSpeed(movementType);
@@ -300,7 +300,7 @@ public static class SamusGroundedMovement
         speed.SelectEnvironmentSpeedTable(liquidMedium);
 
         // Runs horizontal movement, whose first operation is the Dash acceleration.
-        // Moonwalking can never enter that routine's Dash-acceleration arm, but an
+        // Moonwalking can never enter that step's Dash-acceleration arm, but an
         // existing momentum flag deliberately carries the extra pair through moonwalking;
         // without the flag the pair is cleared before displacement is calculated.
         speed.HandleExtraRunSpeed(
@@ -309,8 +309,8 @@ public static class SamusGroundedMovement
             speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
             liquidImpeded: liquidMedium != SamusLiquidMedium.Air);
 
-        // Moonwalking has its own twelve-byte speed record. Its pose-X bytes intentionally
-        // produce travel opposite the visible facing; mode one reverses that byte just as it
+        // Moonwalking has its own speed record. Its pose X directions intentionally
+        // produce travel opposite the visible facing; mode one reverses that direction just as it
         // does for every other family. Do not derive either direction from the pose's name.
         UnsignedSixteenSixteen baseSpeed = speed.CalculateBaseSpeed(movementType: SamusMovementType.Moonwalking);
         var requestedHorizontal = SamusHorizontalDisplacement.ForPoseDirection(samus, baseSpeed);
@@ -352,7 +352,7 @@ public static class SamusGroundedMovement
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
 
-        // Calls the same no-base-speed X routine as standing. Direction still
+        // Calls the same no-base-speed X movement as standing. Direction still
         // comes from the literal pose definition: the right-facing poses store eight (right), while
         // the left-facing poses store four (left). Extra speed is included in the requested move
         // before the handler's unconditional cleanup, matching the call order.
@@ -361,7 +361,7 @@ public static class SamusGroundedMovement
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
 
-        // The one-or-more-pixel downward grounding probe runs before all X words are
+        // The one-or-more-pixel downward grounding probe runs before all X values are
         // cleared. This preserves the same ledge behavior as ordinary wall stops even though the
         // ordinary wall-stop state normally begins with zero speed.
         BlockMoveResult vertical = RunNoSpeedCalculationGroundingProbe(
@@ -379,7 +379,7 @@ public static class SamusGroundedMovement
     }
 
     /// <summary>
-    /// Runs standing movement for every translated landing pose: the ordinary
+    /// Runs standing movement for every modelled landing pose: the ordinary
     /// and spin landings, plus the aimed and horizontally firing landings.
     /// Landing animation is cosmetic with respect to movement: every member uses standing's
     /// zero-base-speed horizontal pass, grounding probe, and momentum cleanup until animation
@@ -398,7 +398,7 @@ public static class SamusGroundedMovement
         // Do not duplicate the pose list here. The predicates are the single audited definition
         // of the standing movement type's landing family and deliberately include the two firing
         // landings. Keeping dispatch and this defensive guard on the same predicates prevents a
-        // newly translated landing from reaching this real movement handler only to be rejected.
+        // newly modelled landing from reaching this real movement handler only to be rejected.
         if (!SamusPoseMetadata.IsRightFacingLandingPose(samus.Pose) &&
             !SamusPoseMetadata.IsLeftFacingLandingPose(samus.Pose))
         {
@@ -420,7 +420,7 @@ public static class SamusGroundedMovement
             frameCounter,
             roomObjects);
         speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
-        // Landing art still uses standing movement: it does not reset Y words.
+        // Landing art still uses standing movement: it does not reset Y values.
         // Collision command five owns landing cleanup; a later hurt expiry may write
         // direction two while this pose remains active, and that value must survive.
         return new GroundedMovementResult(horizontal, vertical);

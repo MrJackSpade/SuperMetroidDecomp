@@ -13,7 +13,7 @@ internal sealed class TorizoCombat
     private readonly EnemyCollision _collision;
     /// <summary>Bomb and Golden Torizo's body: its behaviour flags, palette, program start and the low-health drool it triggers.</summary>
     private readonly TorizoBody _body;
-    /// <summary>Bomb and Golden Torizo's state lookups, facing, posture and the function word their branches test.</summary>
+    /// <summary>Bomb and Golden Torizo's state lookups, facing, posture and the function their branches test.</summary>
     private readonly TorizoEncounterAccess _access;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -45,8 +45,8 @@ internal sealed class TorizoCombat
         {
             // The transitional callback is a complete no-op in Bomb Torizo's area. Golden Torizo jumps to
             // a guarded path, which accepts common damage only outside the active flash and while
-            // `toriz_var_04` is zero. This transitional callback never arms the later
-            // counterattack bits or captures a projectile family.
+            // while the body's animation is unlocked. This transitional callback never arms the later
+            // counterattack flags or captures a projectile family.
             if (isBombTorizo || torizo.FlashTimer != 0 || state.AnimationLocked)
                 return;
 
@@ -87,10 +87,10 @@ internal sealed class TorizoCombat
     private static void LoadTorizoDeathPalette(RoomEnemySlot torizo, TorizoEnemyState state) =>
         TorizoBody.LoadTorizoBodyColours(torizo, state, new TorizoLook(TorizoLookKind.Normal));
 
-    /// <summary>Selects Golden Torizo's body and belly health band from health bits 11 through 14.</summary>
+    /// <summary>Selects Golden Torizo's body and belly health band from its health, one band per 2048.</summary>
     private static void LoadGoldenTorizoHealthPalette(RoomEnemySlot torizo, TorizoEnemyState state, int health)
     {
-        // The health gradient selects one of eight health bands using bits 11..14 of health, clamping
+        // The health gradient selects one of eight health bands from health divided by the band size, clamping
         // the upper half to the last band; each band resolves its colours from the installed health palettes.
         int healthBand = Ensure.AtLeastZero(health) / TorizoCombatDefinitions.HealthPerPaletteBand % TorizoCombatDefinitions.HealthPaletteBands;
         int band = Math.Min(healthBand, TorizoCombatDefinitions.LastHealthBand);
@@ -126,7 +126,7 @@ internal sealed class TorizoCombat
         SetBehavior(torizo, TorizoBehaviorFlags.GutBlownUp | TorizoBehaviorFlags.FaceBlownUp);
         // The normal Torizo shot reaction makes the actor intangible when
         // entering the death stream. This removes the dying actor from Samus contact and
-        // solid-enemy collision while its flashing/invisible instruction frames continue.
+        // solid-enemy collision while its flashing/invisible animation frames continue.
         torizo.Contact = torizo.Contact.With(EnemyContact.IgnoresSamus);
     }
 
@@ -203,9 +203,9 @@ internal sealed class TorizoCombat
         if (c.HitboxShotAi == EnemyReaction.TorizoStandUpSitDownShot)
         {
             // The transitional callback returns immediately in area zero. In nonzero areas it calls a guarded path, which admits common
-            // no-death shot damage only while both the flash timer and `toriz_var_04` are zero. Crucially it
+            // no-death shot damage only while the flash timer is zero and the body's animation is unlocked. Crucially it
             // never enters Golden's shot callback, so missiles are not caught, Supers are not reflected, and parameter-two
-            // counterattack bits are not armed through these transitional body rectangles.
+            // counterattack flags are not armed through these transitional body rectangles.
             if (isBombTorizo || enemy.FlashTimer != 0 || torizoState.AnimationLocked)
             {
                 c.Projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(c.Projectile, c.MarksCollision);

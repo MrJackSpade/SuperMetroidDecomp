@@ -123,7 +123,7 @@ public sealed class EnemyProjectile
     /// drop chances when it finishes.
     /// </summary>
     public EnemyDefinitionId DropDefinitionId { get; internal set; }
-    /// <summary>The chance table a boss-selected drop rolls against instead of its enemy header's, or null.</summary>
+    /// <summary>The chance table a boss-selected drop rolls against instead of its enemy definition's, or null.</summary>
     internal EnemyDropChances? DropChancesOverride { get; set; }
 
     /// <summary>Runs <paramref name="animation"/> from its first frame on the next pass, in place of any list.</summary>

@@ -8,7 +8,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Enemies.FaceBlocks;
 
-/// <summary>The blue Brinstar face block species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The blue Brinstar face block species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -127,7 +127,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         _glowStepCountdown = GlowFrameUpdates;
     }
 
-    /// <summary>Uses the collected-item word so unequipping Morph Ball does not put active blocks back to sleep.</summary>
+    /// <summary>Uses the collected items so unequipping Morph Ball does not put active blocks back to sleep.</summary>
     private static bool HasCollectedMorphBall([NotNullWhen(true)] SamusState? samus) =>
         samus is not null &&
         samus.CollectedItems.HasAny(SamusEquipmentFlags.MorphBall);
@@ -177,7 +177,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
             return;
         var state = RequireBlueBrinstarFaceBlockState(slot);
         AnimationPlayback<BlueBrinstarFaceBlockProgram> playback = state.Playback;
-        EnemyProgramAnimation.Play(slot, BlueBrinstarFaceBlockAnimations.Segments, ref playback, BlueBrinstarFaceBlockFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Play(slot, BlueBrinstarFaceBlockAnimations.Segments, ref playback,
             static cue => throw new InvalidOperationException($"A cue-free blue Brinstar face block animation raised {cue}."));
         state.Playback = playback;
     }

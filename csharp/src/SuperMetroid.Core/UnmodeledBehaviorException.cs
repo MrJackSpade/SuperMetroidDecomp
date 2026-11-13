@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core;
 
 /// <summary>
-/// Gameplay reached a behavior the port does not model. The failure's stable identity names that behavior, apart from
+/// Gameplay reached a behavior the model does not cover. The failure's stable identity names that behavior, apart from
 /// where it occurred, so the failure is the same bug in every room it occurs in.
 /// </summary>
 public sealed class UnmodeledBehaviorException : InvalidOperationException

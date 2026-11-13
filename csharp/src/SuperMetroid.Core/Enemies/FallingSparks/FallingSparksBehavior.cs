@@ -5,7 +5,7 @@ using SuperMetroid.Core.Enemies.SpriteObjects;
 
 namespace SuperMetroid.Core.Enemies.FallingSparks;
 
-/// <summary>The falling sparks species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The falling sparks species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class FallingSparksBehavior
 {
@@ -31,17 +31,17 @@ internal sealed class FallingSparksBehavior
         if (projectile is null)
             return;
 
-        // The common spawn routine first copies the spark's definition, including its blank
+        // The common spawn first copies the spark's definition, including its blank
         // startup map, frame behaviour, animation, radii, property flags, damage,
         // and interaction behavior. The spark's initializer then owns only the source position,
-        // aliased motion words, and RNG-selected horizontal delta below.
+        // shared motion values, and RNG-selected horizontal delta below.
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.FallingSpark,
             SpriteGraphics.SpawnedBy(source));
         projectile.Position = new(new(source.Position.X.Whole, source.Position.X.Fraction), new(CoordinateAxis.Wrap(source.Position.Y.Whole + 8), source.Position.Y.Fraction));
 
-        // The initializer zeros both ordinary velocity words, then takes a random number. The
+        // The initializer zeros both ordinary velocities, then takes a random number. The
         // authored launches are one short of the eight selections; the last selection drifts by
         // FallingSparkUnauthoredLaunch.
         projectile.Velocity = new(SignedEightEight.Zero, SignedEightEight.Zero);
@@ -87,7 +87,7 @@ internal sealed class FallingSparksBehavior
             SignedSixteenSixteen accelerated = spark.VerticalSpeed + SignedSixteenSixteen.FromParts(0, FallingSparkGravity);
 
             // The whole speed stops rising once it would reach four. The fraction still keeps its quarter-pixel
-            // increment, reproducing the original's slightly asymmetric cap.
+            // increment, giving the slightly asymmetric cap.
             spark.VerticalSpeed = accelerated.WholePixels < FallingSparkTerminalWholeSpeed
                 ? accelerated
                 : accelerated.WithWholePixels(spark.VerticalSpeed.WholePixels);
@@ -100,19 +100,19 @@ internal sealed class FallingSparksBehavior
             SpawnFallingSparkTrail(projectile);
     }
 
-    /// <summary>Adds the spark's vertical speed to its position with fractional carry.</summary>
+    /// <summary>Adds the spark's vertical speed to its position, the fraction's overflow passing into the whole.</summary>
     private static void AddFallingSparkVerticalVelocity(
         EnemyProjectile projectile) =>
         projectile.Position = projectile.Position.AdvanceY(projectile.StateOf<FallingSparkState>().VerticalSpeed);
 
-    /// <summary>Adds the spark's horizontal drift with fractional carry.</summary>
+    /// <summary>Adds the spark's horizontal drift, the fraction's overflow passing into the whole.</summary>
     internal static void AddFallingSparkHorizontalVelocity(
         EnemyProjectile projectile) =>
         projectile.Position = projectile.Position.AdvanceX(projectile.StateOf<FallingSparkState>().HorizontalStep);
 
     /// <summary>
     /// Switches a falling spark to its floor-impact program and scales its stored
-    /// horizontal delta by four with carry propagation.
+    /// horizontal delta by four, the fraction's overflow passing into the whole.
     /// </summary>
     internal static void BeginFallingSparkFloorImpact(EnemyProjectile projectile)
     {

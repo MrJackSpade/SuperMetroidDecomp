@@ -2,7 +2,7 @@ using SuperMetroid.Core.Enemies.Crawlers;
 using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Yard;
 
-/// <summary>The state of a Yard. Names follow what each word does rather than generic extension indexes.</summary>
+/// <summary>The state of a Yard. Names follow what each value does.</summary>
 public sealed class YardEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
@@ -56,7 +56,7 @@ public sealed class YardEnemyState
     public SignedEightEight IdleCrawlSpeed { get; internal set; }
     /// <summary>The live crawl speed: the placement's, or the aggressive speed while crawling aggressively after a landing.</summary>
     public SignedEightEight CrawlSpeed { get; internal set; }
-    /// <summary>The live surface direction; only direction instructions or turns publish it.</summary>
+    /// <summary>The live surface direction; only direction cues or turns publish it.</summary>
     public YardDirection Direction { get; internal set; }
 
     /// <summary>

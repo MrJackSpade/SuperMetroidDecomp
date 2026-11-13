@@ -53,7 +53,7 @@ internal sealed class BeamFiring
     /// <summary>
     /// Samus command four: consume Pseudo Screw charge,
     /// clear its visible flare and restore the normal suit palette. Unlike HUD
-    /// cancellation, this does not rewrite the previous-charge sampling word.
+    /// cancellation, this does not rewrite the previous-charge sample.
     /// </summary>
     public void ConsumePseudoScrewCharge(SamusColours colours, SamusState samus)
     {
@@ -256,7 +256,7 @@ internal sealed class BeamFiring
         if (direction is not { } aim)
         {
             // A pose that cannot shoot fires nothing. A transition shot is never refused by the game, which would fire it
-            // with its low nibble as the aim and its muzzle read past the origin tables, but no retail transition hands one
+            // with part of its value as the aim and its muzzle read past the origin tables, but no retail transition hands one
             // over: only the normal-jump initializer and the moonwalk transition publish one, and every normal-jump and
             // moonwalk pose's shot direction is one of the ten aims (#1506).
             if (samus.PendingTransitionShot is not null)
@@ -281,7 +281,7 @@ internal sealed class BeamFiring
         // composition in one projectile slot, so no child projectiles are created here.
         SamusBeamCombination beamType = slot.Type.BeamCombination;
 
-        // The projectile setup selects the combination's header, stores damage, chooses the
+        // The projectile setup selects the combination's projectile definition, stores damage, chooses the
         // direction-specific list, samples its initial radii, and arms a one-frame timer.
         SamusProjectileHeader header = SamusProjectileSelection.BeamShot(beamType, charged);
         slot.Damage = SamusProjectileDamage.Read(header);
@@ -322,10 +322,10 @@ internal sealed class BeamFiring
             // infer it from Wave bits: the table is the dispatcher, including overreads.
             SamusBeamCallbackDefinition callback =
                 SamusBeamCallbacks.Resolve(charged, beamType);
-            // The callbacks with no translation are Spazer and Plasma combinations whose table read lands outside
-            // the game's code: on the game's live state or an unconnected region. The game then executes
-            // whatever those bytes hold, which only full memory and processor emulation could reproduce, so the
-            // port rejects the shot under the emulation scope limit (#1500).
+            // The callbacks with no model are Spazer and Plasma combinations whose table read lands outside
+            // the game's code: on the game's live state or an unconnected region. The game then runs
+            // whatever that data holds, which only full memory and processor emulation could reproduce, so the
+            // model rejects the shot under the emulation scope limit (#1500).
             slot.FrameBehavior = callback.Translated ?? throw new NotSupportedException(
                 $"Beam callback {callback.Callback} executes the game's live state or an unconnected region as code; " +
                 "reproducing it needs full memory and processor emulation, which is outside the port's scope.");
@@ -374,7 +374,7 @@ internal sealed class BeamFiring
         // The Hyper Beam is a charged Plasma beam for its projectile data and animation even though
         // acquisition equips Wave and Plasma, whose pictures its shots show. It first reads the charged
         // Plasma entry; Hyper's setup then deliberately replaces its damage with 1000 before the
-        // first instruction record executes.
+        // first animation step runs.
         slot.Type = SamusProjectileType.Beam(SamusBeamCombination.Plasma, charged: true);
         slot.PicturedBeams = SamusBeamCombinations.Of(samus.EquippedBeams);
         const SamusBeamCombination hyperBeamType = SamusBeamCombination.Plasma;
@@ -418,8 +418,8 @@ internal sealed class BeamFiring
     {
         const ControllerButton shoot = ControllerButton.X;
 
-        // The fire test accepts either the current new-press word or the previous filtered
-        // drawing word. Live gameplay retains that edge through the next alpha, allowing
+        // The fire test accepts either the current new-press input or the previous filtered
+        // drawing input. Live gameplay retains that edge through the next alpha, allowing
         // a press one frame before cooldown expires to fire on the following frame.
         // Demo playback supplies the analogous scripted edge. Cooldown still
         // owns admission, so the delayed copy cannot manufacture held-button auto-fire.
@@ -469,7 +469,7 @@ internal sealed class BeamFiring
         // keeping both calls makes the one-frame ignition transition directly inspectable.
         InitializeDirectionalVelocity(samus.ProjectileInheritance, slot, baseSpeed: SignedEightEight.Zero);
 
-        // The selected HUD item chose the missile family above; the family selects the header.
+        // The selected HUD item chose the missile family above; the family selects the projectile definition.
         SamusProjectileHeader header = SamusProjectileSelection.NonBeam(slot.Type.Family);
         slot.Damage = SamusProjectileDamage.Read(header);
         SamusProjectileProgram program = SamusProjectileHeaders.Program(header, slot.Direction);
@@ -529,7 +529,7 @@ internal sealed class BeamFiring
             SamusProjectileDirection.DownLeft or SamusProjectileDirection.UpLeft;
         SamusBeamCombination beams = slot.Type.BeamCombination;
         SignedEightEight authoredSpeed = diagonal ? SamusProjectileMotionDefinitions.DiagonalSpeed : SamusProjectileMotionDefinitions.CardinalSpeed;
-        // An unauthored combination's speed is its table's 8.8 word, which the launch adds as a wrapping velocity.
+        // An unauthored combination's speed is its table's 8.8 speed, which the launch adds as a wrapping velocity.
         SignedEightEight speed = beams.IsRetail ? authoredSpeed : SignedEightEight.Wrapped(unauthoredFiring.Speed(beams, diagonal));
 
         InitializeDirectionalVelocity(inheritance, slot, speed);

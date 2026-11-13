@@ -75,7 +75,7 @@ internal sealed class EndingEscapeScenes
         _stage.Phase = EndingCreditsPhase.FadeInEscapeSceneB;
     }
 
-    /// <summary>Advances each cloud's zoom-relative motion and its private instruction stream.</summary>
+    /// <summary>Advances each cloud's zoom-relative motion and its private cue stream.</summary>
     internal void StepEscapeClouds()
     {
         foreach (EndingSprite wrapper in sprites)

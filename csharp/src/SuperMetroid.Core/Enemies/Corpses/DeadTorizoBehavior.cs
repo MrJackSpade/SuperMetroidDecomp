@@ -10,7 +10,7 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Enemies.Corpses;
 
-/// <summary>The dead Torizo species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The dead Torizo species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -280,11 +280,11 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (!EnemyProgramAnimation.Expire(slot))
             return;
-        EnemyProgramAnimation.Play(slot, DeadTorizoAnimations.Segments, ref playback, DeadTorizoFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Play(slot, DeadTorizoAnimations.Segments, ref playback,
             static cue => throw new InvalidOperationException($"A cue-free dead Torizo animation raised {cue}."));
     }
 
-    /// <summary>Ports DeadTorizo's main AI.</summary>
+    /// <summary>Runs DeadTorizo's main AI.</summary>
     internal void RunDeadTorizoMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunDeadTorizoMain(slot, frame.Samus);

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.MorphBallEye;
 
 /// <summary>
-/// The routine a morph-ball eye's main AI runs.
+/// The behaviour a morph-ball eye's main AI runs.
 /// Its values are arbitrary.
 /// </summary>
 public enum MorphBallEyeAiFunction

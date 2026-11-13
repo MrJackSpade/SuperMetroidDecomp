@@ -11,7 +11,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// Room-main routines: Ceres falling debris, the Crocomire comeback, animated tiles, and elevator drawing rules.
+/// Room-main behaviours: Ceres falling debris, the Crocomire comeback, animated tiles, and elevator drawing rules.
 /// </summary>
 internal sealed class RoomMainRoutines
 {
@@ -51,7 +51,7 @@ internal sealed class RoomMainRoutines
     /// Reconstructs the one side effect still owned by the door-transition caller.
     /// This host resumes gameplay immediately after loading the destination, so the arriving
     /// downward actor can cross its pseudo-door while statuses two/three are visible to
-    /// main gameplay. Retain its moving beta handler, but permit its type-$9 handler to
+    /// main gameplay. Retain its moving beta handler, but permit its door-block handler to
     /// publish a real transition or elevator flag only for status one; otherwise a
     /// collapsed transition can immediately depart again.
     /// </summary>
@@ -92,14 +92,14 @@ internal sealed class RoomMainRoutines
     /// Implements the complete visibility test of Samus's display while she rides an elevator. The retail handler returns on odd frames and calls the fatal/no-
     /// animation body renderer on even frames, producing the deliberate 30 Hz elevator
     /// flicker. Keeping the predicate named prevents host display cadence (including RDP)
-    /// from being mistaken for the original game-authored effect.
+    /// from being mistaken for the game-authored effect.
     /// </summary>
     internal static bool ShouldDrawSamusOnElevator(int frameCounter) =>
         SamusCadenceDefinitions.ElevatorRideDrawnEverySecondUpdate.IsDue(frameCounter);
 
     /// <summary>
     /// Executes the Falling Tile room main. It samples the existing RNG
-    /// word rather than generating a new one, preserving subsequent random consumers.
+    /// value rather than generating a new one, preserving subsequent random consumers.
     /// </summary>
     internal void RunCeresFallingDebrisRoomMain(RoomScope room)
     {

@@ -35,7 +35,7 @@ internal sealed class ShuttersEntity(ShuttersBehavior species, RoomEnemySlot slo
     };
 
     /// <summary>The shootable and destroyable vertical shutters' shot reactions, which normal bombs dispatch like the common one.</summary>
-    /// <param name="reaction">The reaction the header or the selected hitbox names, or null.</param>
+    /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>
     public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
         Slot.DefinitionId is EnemyDefinitionId.ShutterShootable or EnemyDefinitionId.Kamer && reaction == EnemyReaction.ShootableVerticalShutterShot ||
         Slot.DefinitionId == EnemyDefinitionId.ShutterDestroyable && reaction == EnemyReaction.DestroyableVerticalShutterShot;

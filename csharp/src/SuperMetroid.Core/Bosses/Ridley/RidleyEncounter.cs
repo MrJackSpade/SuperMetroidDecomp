@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
 /// Ridley encounter state shared by the Ceres and Lower Norfair fights, and the
-/// <c>ceres_status</c> escape handoff value that Ceres Ridley publishes.
+/// Ceres escape handoff value that Ceres Ridley publishes.
 /// </summary>
 [RoomLifetime]
 internal sealed class RidleyEncounter : ICeresEscapeStatus

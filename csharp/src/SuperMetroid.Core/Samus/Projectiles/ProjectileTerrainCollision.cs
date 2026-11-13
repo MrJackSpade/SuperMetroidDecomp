@@ -226,7 +226,7 @@ internal sealed class ProjectileTerrainCollision
             slot.Type.IsFamily(SamusProjectileFamily.SuperMissile))
         {
             // Missiles take the point test in RunMissileFrameBehavior; the missile
-            // branch has no caller in this port.
+            // branch has no caller here.
             throw new InvalidOperationException("Missile reached the beam square-slope shot reaction.");
         }
 
@@ -304,7 +304,7 @@ internal sealed class ProjectileTerrainCollision
         }
 
         // Chozo orbs and concealed item blocks are shootable blocks of the item-trigger behaviour. Their special
-        // reaction does not use the ordinary behaviour 0..F shot-block table: its header
+        // reaction does not use the ordinary behaviour 0..F shot-block table: its reaction
         // finds and triggers the already-loaded permanent-item room object at this origin.
         if (block.CollisionType == RoomCollisionType.ShootableBlock &&
             block.Behavior.Reaction == BlockReactionDefinitions.CollectibleTrigger)
@@ -421,7 +421,7 @@ internal sealed class ProjectileTerrainCollision
         }
 
         // The shot-block table's entries 40..43 select the four blue-door entry room objects. These are not
-        // ordinary breakable blocks: setup changes the cap origin to type $8 and the
+        // ordinary breakable blocks: setup changes the cap origin to a solid block and the
         // door's animation opens all four blocks over eighteen frames. Keep this dispatch
         // beside the general table lookup so every beam/missile/bomb collision reaches the
         // same owner and power bombs retain the blue door setup's rejection behavior.
@@ -571,8 +571,8 @@ internal sealed class ProjectileTerrainCollision
         int span = CoordinateAxis.Wrap(bottom - (top & ~15)) >> 4;
         int targetX = CoordinateAxis.Wrap(slot.Velocity.X.IsNegative
             ? slot.Position.X.Whole - slot.Radius.X : slot.Position.X.Whole + slot.Radius.X - 1);
-        // The game's sign test reads the original coordinate's high-byte sign, not bit 7
-        // of its pixel offset. Testing the latter disables Wave reactions throughout
+        // The game's sign test reads the whole coordinate's sign, not whether its pixel offset within the
+        // screen is 128 or more. Testing the latter disables Wave reactions throughout
         // the lower half of every screen, including ordinary blue-door caps.
         if (span >= 16 || CoordinateAxis.AsSigned(slot.Position.Y.Whole) < 0 ||
             (EightEight.WholeOf(slot.Position.Y.Whole)) >= (level.Size.Y + 15) / 16 ||

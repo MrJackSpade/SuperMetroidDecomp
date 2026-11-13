@@ -138,7 +138,7 @@ internal sealed class EnemyFramePhase
             {
                 int shitroidCameraX = Ensure.BetweenInclusive(0, ushort.MaxValue, cameraX);
                 // The Shitroid writes the camera X position during the enemy pass, before the ordinary
-                // scrolling routine later in this frame. Do not route it through entry
+                // scrolling later in this frame. Do not route it through entry
                 // placement, which would clear subposition and ideal-camera state.
                 _room.Camera.SetCameraXFromEnemyAi(shitroidCameraX);
                 _backgroundScroll.ForegroundPosition = _backgroundScroll.ForegroundPosition.WithX(shitroidCameraX);

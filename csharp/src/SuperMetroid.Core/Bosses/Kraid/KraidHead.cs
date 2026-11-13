@@ -56,25 +56,20 @@ internal sealed class KraidHead
     /// </summary>
     internal void UpdateKraidHealthColours(RoomEnemySlot body, KraidEnemyState state)
     {
-        int band = KraidCadenceDefinitions.HurtColoursShown.IsSetIn(state.HurtFrame) ? HurtBand : HealthBand(body, state);
+        KraidColourBand band = KraidCadenceDefinitions.HurtColoursShown.IsSetIn(state.HurtFrame)
+            ? KraidColourBand.HurtFlash
+            : KraidColourBand.Health(HealthBand(body, state));
         state.Colours.ShowBand(band, BandEyes(band), _background.EyeColours.Shaded);
         PictureShading parts = state.Colours.Parts;
         foreach (RoomEnemySlot part in _parts.All)
             part.Shading = parts;
     }
 
-    /// <summary>The eye colours of health band <paramref name="band"/>, or of the hurt flash for minus one.</summary>
-    internal ReadOnlySpan<RgbColor> BandEyes(int band)
-    {
-        KraidEyeColours eyes = _background.EyeColours;
-        return band == HurtBand ? eyes.Hurt : eyes.HealthBand(band);
-    }
+    /// <summary>The eye colours of <paramref name="band"/>: a health band's, or the hurt flash's.</summary>
+    internal ReadOnlySpan<RgbColor> BandEyes(KraidColourBand band) => _background.EyeColours.Of(band);
 
     /// <summary>The health band his colours start in, before any update: the band of his health as he initializes.</summary>
-    internal static int InitialBand(RoomEnemySlot body, KraidEnemyState state) => HealthBand(body, state);
-
-    /// <summary>The band a hurt flash shows, which shows the hurt flash's colours in place of a health band's.</summary>
-    private const int HurtBand = -1;
+    internal static KraidColourBand InitialBand(RoomEnemySlot body, KraidEnemyState state) => KraidColourBand.Health(HealthBand(body, state));
 
     /// <summary>
     /// The health band Kraid's colours show: the highest of the eight bands whose threshold his health has reached,
@@ -242,7 +237,7 @@ internal sealed class KraidHead
     internal void UnglowKraidEye(RoomEnemySlot body, KraidEnemyState state)
     {
         // The eyes' colours, read back, reaching the band's ends the fade and starts the roar (#1512).
-        bool unglowed = state.Colours.UnglowEyes(BandEyes(HealthBand(body, state)));
+        bool unglowed = state.Colours.UnglowEyes(BandEyes(KraidColourBand.Health(HealthBand(body, state))));
         if (unglowed)
         {
             state.BodyState.Function = KraidAiFunction.MouthOpenReaction;

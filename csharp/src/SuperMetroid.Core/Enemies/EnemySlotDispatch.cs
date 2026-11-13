@@ -71,7 +71,7 @@ internal sealed class EnemySlotDispatch : IEnemyDispatch
         }
     }
 
-    /// <summary>The failure for a slot whose definition names an initialization AI this build does not translate.</summary>
+    /// <summary>The failure for a slot whose definition names an initialization AI this build does not model.</summary>
     private static InvalidDataException Untranslated(RoomEnemySlot slot) =>
         new($"Enemy {slot.DefinitionId} initialization AI is not translated.");
 

@@ -24,8 +24,8 @@ public static class SamusBombJumpMovement
             throw new InvalidOperationException($"Bomb-jump start requires an accepted request, got {samus.BombJumpRequest}.");
 
         // The launch uses the same bottom-edge air/water/lava classification as ordinary
-        // launch, indexing adjacent table words by zero/two/four. Gravity is refreshed by
-        // frame-handler alpha, so this routine replaces only the launch speed/direction.
+        // launch, indexing adjacent table entries by medium. Gravity is refreshed by
+        // frame-handler alpha, so this launch replaces only the launch speed/direction.
         samus.Kinematics.YSpeed =
             SamusVerticalMotion.BombJump(samus.LiquidPhysics.DetermineMovementMedium(samus));
         samus.Kinematics.YDirection = SamusVerticalDirection.Up;
@@ -100,7 +100,7 @@ public static class SamusBombJumpMovement
             samus,
             frameCounter,
             roomObjects);
-        // The handler tests samus_collision_flag after moving Y. That move
+        // The handler tests Samus's collision result after moving Y. That move
         // replaces the horizontal result, so a shaft wall alone must not cancel the
         // upward bomb arc or return control to ordinary Morph Ball movement early.
         if (vertical.Collided)

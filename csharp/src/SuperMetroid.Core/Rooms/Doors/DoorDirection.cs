@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
 /// The direction Samus travels through a door. The values are arbitrary; the import pipeline decodes the door data's
-/// orientation byte into them (#1414).
+/// orientation into them (#1414).
 /// </summary>
 public enum DoorDirection
 {

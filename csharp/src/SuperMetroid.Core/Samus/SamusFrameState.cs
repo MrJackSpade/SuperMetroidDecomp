@@ -82,13 +82,13 @@ internal sealed class SamusFrameState
     public bool GroundedSamusMovementEnabled { get; internal set; }
 
     /// <summary>
-    /// Low-byte snapshot of the previous movement type, used by X-ray stability and post-draw spin audio.
+    /// Snapshot of the previous movement type, used by X-ray stability and post-draw spin audio.
     /// The runtime updates it after each completed gameplay frame.
     /// </summary>
     public SamusMovementType PreviousMovementTypeForXray { get; internal set; }
 
     /// <summary>
-    /// Horizontal and vertical collision results from the most recent translated grounded
+    /// Horizontal and vertical collision results from the most recent grounded
     /// movement pass. Null before movement, and always null for the cinematic stimulus.
     /// </summary>
     public GroundedMovementResult? LastGroundedSamusMovement { get; internal set; }

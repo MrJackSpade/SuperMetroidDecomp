@@ -1,18 +1,19 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Crawlers.CrawlerCueKind;
 using P = SuperMetroid.Core.Enemies.Crawlers.CrawlerProgram;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Crawlers;
 
 /// <summary>
 /// The Sciser, Zero, Viola, orange Zoomer and shared Zoomer/Zeela/Sova surface animations as typed programs (#641). Each
-/// frame shows a <see cref="CrawlerFrame"/> pose and each callback becomes a <see cref="CrawlerCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyFrameId"/> and each callback becomes a <see cref="CrawlerCue"/> with its typed operands.
 /// </summary>
 internal static class CrawlerAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<CrawlerProgram, CrawlerFrame, CrawlerCue> Segments { get; } = new(
-        new Dictionary<CrawlerProgram, AnimationBeat<CrawlerFrame, CrawlerCue>[]>
+    internal static AnimationSegments<CrawlerProgram, EnemyFrameId, CrawlerCue> Segments { get; } = new(
+        new Dictionary<CrawlerProgram, AnimationBeat<EnemyFrameId, CrawlerCue>[]>
     {
         [P.SciserUpsideRight] =
         [
@@ -20,10 +21,10 @@ internal static class CrawlerAnimations
         ],
         [P.SciserUpsideRightLoop] =
         [
-            Show(3, 8),
-            Show(4, 8),
-            Show(5, 8),
-            Show(4, 8),
+            Show(EnemyFrameId.SciserUpsideRight0, 8),
+            Show(EnemyFrameId.SciserUpsideRight1, 8),
+            Show(EnemyFrameId.SciserUpsideRight2, 8),
+            Show(EnemyFrameId.SciserUpsideRight1, 8),
         ],
         [P.SciserUpsideLeft] =
         [
@@ -31,10 +32,10 @@ internal static class CrawlerAnimations
         ],
         [P.SciserUpsideLeftLoop] =
         [
-            Show(9, 8),
-            Show(10, 8),
-            Show(11, 8),
-            Show(10, 8),
+            Show(EnemyFrameId.SciserUpsideLeft0, 8),
+            Show(EnemyFrameId.SciserUpsideLeft1, 8),
+            Show(EnemyFrameId.SciserUpsideLeft2, 8),
+            Show(EnemyFrameId.SciserUpsideLeft1, 8),
         ],
         [P.SciserUpsideDown] =
         [
@@ -42,10 +43,10 @@ internal static class CrawlerAnimations
         ],
         [P.SciserUpsideDownLoop] =
         [
-            Show(6, 8),
-            Show(7, 8),
-            Show(8, 8),
-            Show(7, 8),
+            Show(EnemyFrameId.SciserUpsideDown0, 8),
+            Show(EnemyFrameId.SciserUpsideDown1, 8),
+            Show(EnemyFrameId.SciserUpsideDown2, 8),
+            Show(EnemyFrameId.SciserUpsideDown1, 8),
         ],
         [P.SciserUpsideUp] =
         [
@@ -53,10 +54,10 @@ internal static class CrawlerAnimations
         ],
         [P.SciserUpsideUpLoop] =
         [
-            Show(0, 8),
-            Show(1, 8),
-            Show(2, 8),
-            Show(1, 8),
+            Show(EnemyFrameId.SciserUpsideUp0, 8),
+            Show(EnemyFrameId.SciserUpsideUp1, 8),
+            Show(EnemyFrameId.SciserUpsideUp2, 8),
+            Show(EnemyFrameId.SciserUpsideUp1, 8),
         ],
         [P.ZeroUpsideRight] =
         [
@@ -64,12 +65,12 @@ internal static class CrawlerAnimations
         ],
         [P.ZeroUpsideRightLoop] =
         [
-            Show(24, 4),
-            Show(25, 4),
-            Show(26, 4),
-            Show(27, 4),
-            Show(26, 4),
-            Show(25, 4),
+            Show(EnemyFrameId.ZeroCrawler00, 4),
+            Show(EnemyFrameId.ZeroCrawler01, 4),
+            Show(EnemyFrameId.ZeroCrawler02, 4),
+            Show(EnemyFrameId.ZeroCrawler03, 4),
+            Show(EnemyFrameId.ZeroCrawler02, 4),
+            Show(EnemyFrameId.ZeroCrawler01, 4),
         ],
         [P.ZeroUpsideLeft] =
         [
@@ -77,12 +78,12 @@ internal static class CrawlerAnimations
         ],
         [P.ZeroUpsideLeftLoop] =
         [
-            Show(16, 4),
-            Show(17, 4),
-            Show(18, 4),
-            Show(19, 4),
-            Show(18, 4),
-            Show(17, 4),
+            Show(EnemyFrameId.ZeroCrawler04, 4),
+            Show(EnemyFrameId.ZeroCrawler05, 4),
+            Show(EnemyFrameId.ZeroCrawler06, 4),
+            Show(EnemyFrameId.ZeroCrawler07, 4),
+            Show(EnemyFrameId.ZeroCrawler06, 4),
+            Show(EnemyFrameId.ZeroCrawler05, 4),
         ],
         [P.ZeroUpsideDown] =
         [
@@ -90,12 +91,12 @@ internal static class CrawlerAnimations
         ],
         [P.ZeroUpsideDownLoop] =
         [
-            Show(20, 4),
-            Show(21, 4),
-            Show(22, 4),
-            Show(23, 4),
-            Show(22, 4),
-            Show(21, 4),
+            Show(EnemyFrameId.ZeroCrawler08, 4),
+            Show(EnemyFrameId.ZeroCrawler09, 4),
+            Show(EnemyFrameId.ZeroCrawler10, 4),
+            Show(EnemyFrameId.ZeroCrawler11, 4),
+            Show(EnemyFrameId.ZeroCrawler10, 4),
+            Show(EnemyFrameId.ZeroCrawler09, 4),
         ],
         [P.ZeroUpsideUp] =
         [
@@ -103,12 +104,12 @@ internal static class CrawlerAnimations
         ],
         [P.ZeroUpsideUpLoop] =
         [
-            Show(12, 4),
-            Show(13, 4),
-            Show(14, 4),
-            Show(15, 4),
-            Show(14, 4),
-            Show(13, 4),
+            Show(EnemyFrameId.ZeroCrawler12, 4),
+            Show(EnemyFrameId.ZeroCrawler13, 4),
+            Show(EnemyFrameId.ZeroCrawler14, 4),
+            Show(EnemyFrameId.ZeroCrawler15, 4),
+            Show(EnemyFrameId.ZeroCrawler14, 4),
+            Show(EnemyFrameId.ZeroCrawler13, 4),
         ],
         [P.ViolaUpsideDown] =
         [
@@ -128,20 +129,20 @@ internal static class CrawlerAnimations
         ],
         [P.ViolaNormal] =
         [
-            Show(28, 10),
-            Show(29, 10),
-            Show(30, 10),
-            Show(31, 10),
-            Show(32, 10),
-            Show(33, 10),
-            Show(34, 10),
-            Show(35, 10),
-            Show(34, 10),
-            Show(33, 10),
-            Show(32, 10),
-            Show(31, 10),
-            Show(30, 10),
-            Show(29, 10),
+            Show(EnemyFrameId.ViolaSpin0, 10),
+            Show(EnemyFrameId.ViolaSpin1, 10),
+            Show(EnemyFrameId.ViolaSpin2, 10),
+            Show(EnemyFrameId.ViolaSpin3, 10),
+            Show(EnemyFrameId.ViolaSpin4, 10),
+            Show(EnemyFrameId.ViolaSpin5, 10),
+            Show(EnemyFrameId.ViolaSpin6, 10),
+            Show(EnemyFrameId.ViolaSpin7, 10),
+            Show(EnemyFrameId.ViolaSpin6, 10),
+            Show(EnemyFrameId.ViolaSpin5, 10),
+            Show(EnemyFrameId.ViolaSpin4, 10),
+            Show(EnemyFrameId.ViolaSpin3, 10),
+            Show(EnemyFrameId.ViolaSpin2, 10),
+            Show(EnemyFrameId.ViolaSpin1, 10),
         ],
         [P.HZoomerUpsideRight] =
         [
@@ -149,11 +150,11 @@ internal static class CrawlerAnimations
         ],
         [P.HZoomerUpsideRightLoop] =
         [
-            Show(51, 3),
-            Show(52, 3),
-            Show(53, 3),
-            Show(54, 3),
-            Show(55, 3),
+            Show(EnemyFrameId.HzoomerUpsideRight0, 3),
+            Show(EnemyFrameId.HzoomerUpsideRight1, 3),
+            Show(EnemyFrameId.HzoomerUpsideRight2, 3),
+            Show(EnemyFrameId.HzoomerUpsideRight3, 3),
+            Show(EnemyFrameId.HzoomerUpsideRight4, 3),
         ],
         [P.HZoomerUpsideLeft] =
         [
@@ -161,11 +162,11 @@ internal static class CrawlerAnimations
         ],
         [P.HZoomerUpsideLeftLoop] =
         [
-            Show(41, 3),
-            Show(42, 3),
-            Show(43, 3),
-            Show(44, 3),
-            Show(45, 3),
+            Show(EnemyFrameId.HzoomerUpsideLeft0, 3),
+            Show(EnemyFrameId.HzoomerUpsideLeft1, 3),
+            Show(EnemyFrameId.HzoomerUpsideLeft2, 3),
+            Show(EnemyFrameId.HzoomerUpsideLeft3, 3),
+            Show(EnemyFrameId.HzoomerUpsideLeft4, 3),
         ],
         [P.HZoomerUpsideDown] =
         [
@@ -173,11 +174,11 @@ internal static class CrawlerAnimations
         ],
         [P.HZoomerUpsideDownLoop] =
         [
-            Show(46, 3),
-            Show(47, 3),
-            Show(48, 3),
-            Show(49, 3),
-            Show(50, 3),
+            Show(EnemyFrameId.HzoomerUpsideDown0, 3),
+            Show(EnemyFrameId.HzoomerUpsideDown1, 3),
+            Show(EnemyFrameId.HzoomerUpsideDown2, 3),
+            Show(EnemyFrameId.HzoomerUpsideDown3, 3),
+            Show(EnemyFrameId.HzoomerUpsideDown4, 3),
         ],
         [P.HZoomerUpsideUp] =
         [
@@ -185,11 +186,11 @@ internal static class CrawlerAnimations
         ],
         [P.HZoomerUpsideUpLoop] =
         [
-            Show(36, 3),
-            Show(37, 3),
-            Show(38, 3),
-            Show(39, 3),
-            Show(40, 3),
+            Show(EnemyFrameId.HzoomerUpsideUp0, 3),
+            Show(EnemyFrameId.HzoomerUpsideUp1, 3),
+            Show(EnemyFrameId.HzoomerUpsideUp2, 3),
+            Show(EnemyFrameId.HzoomerUpsideUp3, 3),
+            Show(EnemyFrameId.HzoomerUpsideUp4, 3),
         ],
         [P.SharedUpsideRight] =
         [
@@ -197,11 +198,11 @@ internal static class CrawlerAnimations
         ],
         [P.SharedUpsideRightLoop] =
         [
-            Show(51, 3),
-            Show(52, 3),
-            Show(53, 3),
-            Show(54, 3),
-            Show(55, 3),
+            Show(EnemyFrameId.HzoomerUpsideRight0, 3),
+            Show(EnemyFrameId.HzoomerUpsideRight1, 3),
+            Show(EnemyFrameId.HzoomerUpsideRight2, 3),
+            Show(EnemyFrameId.HzoomerUpsideRight3, 3),
+            Show(EnemyFrameId.HzoomerUpsideRight4, 3),
         ],
         [P.SharedUpsideLeft] =
         [
@@ -209,11 +210,11 @@ internal static class CrawlerAnimations
         ],
         [P.SharedUpsideLeftLoop] =
         [
-            Show(41, 3),
-            Show(42, 3),
-            Show(43, 3),
-            Show(44, 3),
-            Show(45, 3),
+            Show(EnemyFrameId.HzoomerUpsideLeft0, 3),
+            Show(EnemyFrameId.HzoomerUpsideLeft1, 3),
+            Show(EnemyFrameId.HzoomerUpsideLeft2, 3),
+            Show(EnemyFrameId.HzoomerUpsideLeft3, 3),
+            Show(EnemyFrameId.HzoomerUpsideLeft4, 3),
         ],
         [P.SharedUpsideDown] =
         [
@@ -221,11 +222,11 @@ internal static class CrawlerAnimations
         ],
         [P.SharedUpsideDownLoop] =
         [
-            Show(46, 3),
-            Show(47, 3),
-            Show(48, 3),
-            Show(49, 3),
-            Show(50, 3),
+            Show(EnemyFrameId.HzoomerUpsideDown0, 3),
+            Show(EnemyFrameId.HzoomerUpsideDown1, 3),
+            Show(EnemyFrameId.HzoomerUpsideDown2, 3),
+            Show(EnemyFrameId.HzoomerUpsideDown3, 3),
+            Show(EnemyFrameId.HzoomerUpsideDown4, 3),
         ],
         [P.SharedUpsideUp] =
         [
@@ -233,11 +234,11 @@ internal static class CrawlerAnimations
         ],
         [P.SharedUpsideUpLoop] =
         [
-            Show(36, 3),
-            Show(37, 3),
-            Show(38, 3),
-            Show(39, 3),
-            Show(40, 3),
+            Show(EnemyFrameId.HzoomerUpsideUp0, 3),
+            Show(EnemyFrameId.HzoomerUpsideUp1, 3),
+            Show(EnemyFrameId.HzoomerUpsideUp2, 3),
+            Show(EnemyFrameId.HzoomerUpsideUp3, 3),
+            Show(EnemyFrameId.HzoomerUpsideUp4, 3),
         ],
     });
 
@@ -286,9 +287,9 @@ internal static class CrawlerAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<CrawlerProgram> StartingWith(CrawlerProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<CrawlerFrame, CrawlerCue> Show(int pose, int duration) => new AnimationBeat<CrawlerFrame, CrawlerCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyFrameId, CrawlerCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, CrawlerCue>.Frame(frame, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<CrawlerFrame, CrawlerCue> Cue(CrawlerCue cue) => new AnimationBeat<CrawlerFrame, CrawlerCue>.Event(cue);
+    private static AnimationBeat<EnemyFrameId, CrawlerCue> Cue(CrawlerCue cue) => new AnimationBeat<EnemyFrameId, CrawlerCue>.Event(cue);
 }

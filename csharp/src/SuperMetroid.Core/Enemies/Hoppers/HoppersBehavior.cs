@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.Hoppers.Artwork;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -308,7 +307,9 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         int tableIndex = 0;
         int accumulatedHeight = 0;
-        for (int iteration = 0; iteration < ushort.MaxValue; iteration++)
+        // Each pass moves the row on by the delta, so the height is reached within the table's rows or never: past them
+        // the row lookup rejects the climb, and a delta of zero sums the first row's speed of zero only (#1627).
+        for (int iteration = 0; iteration < EnemyQuadraticSpeedDefinitions.RowCount; iteration++)
         {
             tableIndex = WrappingCounter.AddCount(tableIndex, tableIndexDelta);
 
@@ -359,7 +360,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         HopperEnemyState state = slot.RequireSpeciesState<HopperEnemyState>();
         AnimationPlayback<HopperProgram> playback = state.Playback;
-        EnemyProgramAnimation.Play(slot, HopperAnimations.Segments, ref playback, HopperFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Play(slot, HopperAnimations.Segments, ref playback,
             cue => ApplyHopperCue(slot, state, cue) is { } target
                 ? new AnimationContinuation<HopperProgram>(HopperAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);

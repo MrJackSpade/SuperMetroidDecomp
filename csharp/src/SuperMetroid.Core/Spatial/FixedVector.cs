@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Spatial;
 
 /// <summary>
 /// A two-dimensional signed 16.16 displacement or per-frame velocity. Each axis is one
-/// <see cref="SignedSixteenSixteen"/>, so whole/fraction assembly, carry and 32-bit wrap live
+/// <see cref="SignedSixteenSixteen"/>, so whole/fraction assembly, overflow and 16.16 wrap live
 /// in exactly one place.
 /// </summary>
 /// <typeparam name="TSpace">The coordinate space the displacement is measured in.</typeparam>
@@ -13,13 +13,13 @@ public readonly record struct FixedVector<TSpace>(SignedSixteenSixteen X, Signed
     /// <summary>No displacement.</summary>
     public static FixedVector<TSpace> Zero => default;
 
-    /// <summary>Assembles both axes from whole and fraction words, each 0 through 65535.</summary>
+    /// <summary>Assembles both axes from whole and fraction parts, each 0 through 65535.</summary>
     [SpatialComponents("Codec: the four stored words of one displacement.")]
     public static FixedVector<TSpace> FromStoredParts(int xWhole, int xFraction, int yWhole, int yFraction) =>
         new(SignedSixteenSixteen.FromParts(CoordinateAxis.AsSigned(Ensure.BetweenInclusive(0, ushort.MaxValue, xWhole)), xFraction),
             SignedSixteenSixteen.FromParts(CoordinateAxis.AsSigned(Ensure.BetweenInclusive(0, ushort.MaxValue, yWhole)), yFraction));
 
-    /// <summary>A whole-pixel displacement with zero fraction words.</summary>
+    /// <summary>A whole-pixel displacement with zero fractions.</summary>
     public static FixedVector<TSpace> FromWholePixels(Offset16<TSpace> offset) =>
         new(SignedSixteenSixteen.FromParts(offset.X, 0), SignedSixteenSixteen.FromParts(offset.Y, 0));
 
@@ -33,13 +33,13 @@ public readonly record struct FixedVector<TSpace>(SignedSixteenSixteen X, Signed
     public FixedVector<TSpace> WithWhole(Offset16<TSpace> whole) =>
         new(X.WithWholePixels(whole.X), Y.WithWholePixels(whole.Y));
 
-    /// <summary>Replaces only the X whole pixels, as game routines that set only the whole pixels do.</summary>
+    /// <summary>Replaces only the X whole pixels, as game code that sets only the whole pixels does.</summary>
     public FixedVector<TSpace> WithWholeX(int wholePixels) => WithX(X.WithWholePixels(wholePixels));
 
-    /// <summary>Replaces only the Y whole pixels, as game routines that set only the whole pixels do.</summary>
+    /// <summary>Replaces only the Y whole pixels, as game code that sets only the whole pixels does.</summary>
     public FixedVector<TSpace> WithWholeY(int wholePixels) => WithY(Y.WithWholePixels(wholePixels));
 
-    /// <summary>Replaces only the Y fraction, as game routines that set only the fraction do.</summary>
+    /// <summary>Replaces only the Y fraction, as game code that sets only the fraction does.</summary>
     public FixedVector<TSpace> WithFractionY(int fraction) => WithY(Y.WithFraction(fraction));
 
     /// <summary>Adds two displacements, carrying fractions and wrapping each axis at 32 bits.</summary>

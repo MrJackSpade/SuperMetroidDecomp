@@ -10,6 +10,7 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Verification.Enemies.SpacePirates;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Checks compiled wall Space Pirate attack and climbing programs through production enemy behavior.</summary>
 internal static class WallSpacePirateInstructionProgramDefinitionsVerification
@@ -127,7 +128,7 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
             WallSpacePirateProgram loop = onRightWall ? WallSpacePirateProgram.MovingUpRightWallLoop : WallSpacePirateProgram.MovingUpLeftWallLoop;
             AssertEqual(
                 new AnimationPlayback<WallSpacePirateProgram>(WallSpacePirateAnimations.StartingWith(climb),
-                    AnimationSegments<WallSpacePirateProgram, WallSpacePirateFrame, WallSpacePirateCue>.PlaceOf(WallSpacePirateAnimations.StartingWith(climb), loop, 1)),
+                    AnimationSegments<WallSpacePirateProgram, EnemyFrameId, WallSpacePirateCue>.PlaceOf(WallSpacePirateAnimations.StartingWith(climb), loop, 1)),
                 state.Playback,
                 $"wall Pirate {(onRightWall ? "right" : "left")} collision installs upward list");
         }

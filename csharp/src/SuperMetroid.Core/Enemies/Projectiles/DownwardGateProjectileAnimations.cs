@@ -7,31 +7,31 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
 /// The downward shot gate's moving and closed programs (#641). Each
-/// frame shows a <see cref="DownwardGateProjectileFrame"/> pose and each command becomes a <see cref="DownwardGateProjectileCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyProjectileFrameId"/> and each command becomes a <see cref="DownwardGateProjectileCue"/> with its typed operands.
 /// </summary>
 internal static class DownwardGateProjectileAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<DownwardGateProjectileProgram, DownwardGateProjectileFrame, DownwardGateProjectileCue> Segments { get; } = new(
-        new Dictionary<DownwardGateProjectileProgram, AnimationBeat<DownwardGateProjectileFrame, DownwardGateProjectileCue>[]>
+    internal static AnimationSegments<DownwardGateProjectileProgram, EnemyProjectileFrameId, DownwardGateProjectileCue> Segments { get; } = new(
+        new Dictionary<DownwardGateProjectileProgram, AnimationBeat<EnemyProjectileFrameId, DownwardGateProjectileCue>[]>
     {
         [P.Moving] =
         [
             Cue(new DownwardGateProjectileCue.SetYVelocity(YVelocity: SignedEightEight.FromParts(1, 0))),
             Cue(new DownwardGateProjectileCue.SetFrameBehavior(FrameBehavior: EnemyProjectileFrameBehavior.DownwardGateDescent)),
-            Show(0, 1),
+            Show(EnemyProjectileFrameId.DownwardGateMoving, 1),
         ],
         [P.MovingStep2] =
         [
-            Show(1, 1),
+            Show(EnemyProjectileFrameId.DownwardGateThirdMovingStep, 1),
         ],
         [P.MovingStep3] =
         [
-            Show(2, 1),
+            Show(EnemyProjectileFrameId.DownwardGateFourthMovingStep, 1),
         ],
         [P.MovingStep4] =
         [
-            Show(3, 1),
+            Show(EnemyProjectileFrameId.DownwardGateFifthMovingStep, 1),
         ],
         [P.MovingStep5] =
         [
@@ -40,24 +40,24 @@ internal static class DownwardGateProjectileAnimations
         [P.Closed] =
         [
             Cue(new DownwardGateProjectileCue.SetYVelocity(YVelocity: -SignedEightEight.FromParts(1, 0))),
-            Show(4, 1),
+            Show(EnemyProjectileFrameId.DownwardGateClosed, 1),
         ],
         [P.ClosedStep2] =
         [
             Cue(new DownwardGateProjectileCue.SetFrameBehavior(FrameBehavior: EnemyProjectileFrameBehavior.DownwardGateDescent)),
-            Show(5, 1),
+            Show(EnemyProjectileFrameId.DownwardGateThirdClosedStep, 1),
         ],
         [P.ClosedStep3] =
         [
-            Show(6, 1),
+            Show(EnemyProjectileFrameId.DownwardGateFourthClosedStep, 1),
         ],
         [P.ClosedStep4] =
         [
-            Show(7, 1),
+            Show(EnemyProjectileFrameId.DownwardGateFifthClosedStep, 1),
         ],
         [P.ClosedStep5] =
         [
-            Show(8, 1),
+            Show(EnemyProjectileFrameId.DownwardGateSixthClosedStep, 1),
         ],
         [P.ClosedStep6] =
         [
@@ -101,9 +101,9 @@ internal static class DownwardGateProjectileAnimations
         [P.ClosedStep5] = P.ClosedStep6,
     };
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<DownwardGateProjectileFrame, DownwardGateProjectileCue> Show(int pose, int duration) => new AnimationBeat<DownwardGateProjectileFrame, DownwardGateProjectileCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyProjectileFrameId, DownwardGateProjectileCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, DownwardGateProjectileCue>.Frame(frame, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<DownwardGateProjectileFrame, DownwardGateProjectileCue> Cue(DownwardGateProjectileCue cue) => new AnimationBeat<DownwardGateProjectileFrame, DownwardGateProjectileCue>.Event(cue);
+    private static AnimationBeat<EnemyProjectileFrameId, DownwardGateProjectileCue> Cue(DownwardGateProjectileCue cue) => new AnimationBeat<EnemyProjectileFrameId, DownwardGateProjectileCue>.Event(cue);
 }

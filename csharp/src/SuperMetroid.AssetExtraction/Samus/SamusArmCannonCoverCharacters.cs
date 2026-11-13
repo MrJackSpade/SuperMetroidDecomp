@@ -6,8 +6,8 @@ namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>
 /// The arm cannon's twelve 8×8 cover characters as the import reads them from its import data (#1636), bound to the
-/// installed cover placement whose tile selections name them. The overlay sheet is composed from them; the installation
-/// never holds them, and gameplay reads only the placement (<see cref="SamusArmCannonSourceArtwork"/>).
+/// extracted arm cannon whose tile selections name them (#1638). The overlay sheet is composed from them; the installation
+/// never holds them, and gameplay reads only the layout (<see cref="SamusArmCannonLayout"/>).
 /// </summary>
 public sealed class SamusArmCannonCoverCharacters
 {
@@ -17,7 +17,7 @@ public sealed class SamusArmCannonCoverCharacters
     /// <summary>Cover characters already built, by cover tile index.</summary>
     private readonly System.Collections.Concurrent.ConcurrentDictionary<int, SpriteArtwork> coverCharacters = new();
 
-    /// <summary>Binds the cover characters <paramref name="tiles"/> to the installed cover placement <paramref name="cannon"/>.</summary>
+    /// <summary>Binds the cover characters <paramref name="tiles"/> to the extracted arm cannon <paramref name="cannon"/>.</summary>
     /// <exception cref="InvalidDataException">The characters are not the twelve cover tiles.</exception>
     public SamusArmCannonCoverCharacters(SamusArmCannonSourceArtwork cannon, RoomCharacterAtlas tiles)
     {
@@ -27,7 +27,7 @@ public sealed class SamusArmCannonCoverCharacters
             throw new InvalidDataException("Arm-cannon cover characters must be the twelve cover tiles.");
     }
 
-    /// <summary>The installed cover placement, appearances and tile selections the characters are bound to.</summary>
+    /// <summary>The extracted descriptors, appearances and tile selections the characters are bound to.</summary>
     public SamusArmCannonSourceArtwork Cannon { get; }
 
     /// <summary>The characters of cover tile <paramref name="index"/>, 0 through 11.</summary>

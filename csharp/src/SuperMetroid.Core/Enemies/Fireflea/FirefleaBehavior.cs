@@ -1,11 +1,10 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.Fireflea.Artwork;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Fireflea;
 
-/// <summary>The Fireflea species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Fireflea species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -118,7 +117,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         else
         {
             // Common attacking contact already ran the death; the Fireflea's touch reaction runs it again on the cleared
-            // slot. It spawns at (0,0) with the slot's current header (zero, or the placeholder), clears any placeholder,
+            // slot. It spawns at (0,0) with the slot's current definition (zero, or the placeholder), clears any placeholder,
             // and counts a second kill.
             _deathsAndDrops.StartGenericEnemyDeath(slot, deathAnimation:
                 FirefleaTouchDeathExplosion.AfterKillingTouch(EnemyDeathExplosionDefinitions.AuthoredOrder));
@@ -128,7 +127,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Advances the room's Fireflea darkness by one step after one Fireflea death. Retail rooms contain at most
-    /// five, so the darkness usually stops at its fifth step; the original nevertheless permits a sixth step and
+    /// five, so the darkness usually stops at its fifth step; a sixth step is nevertheless permitted, and the darkness
     /// stops there.
     /// </summary>
     private void AdvanceFirefleaDarkness()
@@ -153,11 +152,11 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Fireflea's typed animation.</summary>
     internal static void AdvanceFirefleaTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, FirefleaAnimations.Segments, FirefleaFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, FirefleaAnimations.Segments,
             static (FirefleaEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Fireflea animation raised {cue}."));
 
-    /// <summary>Ports Fireflea's main AI.</summary>
+    /// <summary>Runs Fireflea's main AI.</summary>
     internal static void RunFirefleaMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
     {
         RunFirefleaMain(slot, slot.RequireSpeciesState<FirefleaEnemyState>());

@@ -27,7 +27,7 @@ public sealed class MetareeEnemyState
     /// <summary>
     /// Whole-pixel downward speed calculated once from Samus's vertical position: the wrapped (unsigned) vertical
     /// distance divided by 24, plus four, so 4 through 2734. A Samus above the Metaree wraps the distance and gives
-    /// the original game's enormous dive.
+    /// the game's enormous dive.
     /// </summary>
     public int YVelocity { get; internal set; }
 }

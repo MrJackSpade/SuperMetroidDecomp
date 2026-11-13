@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
 /// Every cinematic sprite animation script as typed segments and animations (#641, #1600), generated from the verified
-/// animation scripts: each frame shows a <see cref="CinematicSpritePose"/>, each owner instruction becomes a
+/// animation scripts: each frame shows a <see cref="CinematicSpritePose"/>, each owner cue becomes a
 /// <see cref="CinematicSpriteCue"/>, and the shared delete ends the animation.
 /// </summary>
 internal static class CinematicSpriteAnimations

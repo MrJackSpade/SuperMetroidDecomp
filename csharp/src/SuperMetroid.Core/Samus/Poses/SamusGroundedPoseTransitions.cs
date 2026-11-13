@@ -30,7 +30,7 @@ internal static class SamusGroundedPoseTransitions
     /// Applies prospective pose change command two when a turn's input lookup
     /// fails and the pose definition retains the current pose. The three turning movement types
     /// all select command two in the lookup-failure table. This stops reverse acceleration without
-    /// restarting the unfinished turn animation or erasing velocity words.
+    /// restarting the unfinished turn animation or erasing velocity.
     /// </summary>
     public static void ApplyTurnInputFallback(SamusState samus, SamusMovementType movementType)
     {
@@ -43,8 +43,8 @@ internal static class SamusGroundedPoseTransitions
 
 
     /// <summary>
-    /// Exact 16.16 add-with-carry equivalent shared by the grounded, aerial, and spin-turn
-    /// initializers. It deliberately permits word overflow, matching the game's arithmetic.
+    /// Exact wrapping 16.16 add shared by the grounded, aerial, and spin-turn
+    /// initializers. It deliberately permits overflow past the whole range, matching the game's arithmetic.
     /// </summary>
     internal static void FoldExtraRunSpeedIntoBaseAndStartTurn(SamusState samus)
     {
@@ -62,7 +62,7 @@ internal static class SamusGroundedPoseTransitions
     /// </summary>
     /// <remarks>
     /// All admitted records have radius 21. If both endpoints are running, the pose initializer writes
-    /// 32768 to the new-frame word and the animation setup preserves the current frame and timer;
+    /// the new-frame value 32768 and the animation setup preserves the current frame and timer;
     /// this matters when firing midway through the ten-frame run cycle. A transition between
     /// movement types initializes frame zero normally. Movement type changes take effect on
     /// the following frame because pose transitions occur after movement.
@@ -258,7 +258,7 @@ internal static class SamusGroundedPoseTransitions
     /// </summary>
     /// <remarks>
     /// Standing transition tables always publish a moonwalk candidate when Shoot and the
-    /// backward direction are held. The settings word decides what that candidate
+    /// backward direction are held. The settings value decides what that candidate
     /// means: enabled retains the moonwalk pose; disabled substitutes the ordinary standing
     /// turn art. Once active, aim changes and the direct return to forward running are
     /// ordinary radius-21 pose installations with no invented velocity adjustment.
@@ -287,8 +287,8 @@ internal static class SamusGroundedPoseTransitions
             // corresponding Moonwalk pose before the option gate runs. The initializer
             // does not special-case the old landing movement type: with Moonwalk off it
             // substitutes the same ordinary standing turn used from normal standing.
-            // Tests the candidate pose-X byte. The right-facing moonwalk poses store four
-            // and become the right-to-left turn; the left-facing ones store eight and become left-to-right.
+            // Tests the candidate pose's X direction. The right-facing moonwalk poses store leftward travel
+            // and become the right-to-left turn; the left-facing ones store rightward travel and become left-to-right.
             ApplyGroundedTurn(samus, 
                 targetVisualRight ? SamusPoseId.TurningRightToLeftPose : SamusPoseId.TurningLeftToRightPose);
             return;
@@ -365,7 +365,7 @@ internal static class SamusGroundedPoseTransitions
     /// </summary>
     /// <remarks>
     /// This is intentionally not a general pose setter. For this transition, momentum
-    /// routine index zero is a no-op, both poses have radius 21, and <see cref="SamusPoseId.MovingRightNormalPose"/> uses the
+    /// index zero is a no-op, both poses have radius 21, and <see cref="SamusPoseId.MovingRightNormalPose"/> uses the
     /// already-supported default render/tile paths. Other transitions can change momentum,
     /// align radii, invoke collision, or run specialized handlers and remain rejected.
     /// </remarks>
@@ -381,7 +381,7 @@ internal static class SamusGroundedPoseTransitions
         SamusPoseMetadata.RefreshCollisionRadii(samus);
 
         // The pose initializer resets animation frame zero and loads MovingRightNormalPose's first
-        // delay byte after the pose refresh updates direction/movement metadata.
+        // delay after the pose refresh updates direction/movement metadata.
         SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
     }
 
@@ -401,11 +401,11 @@ internal static class SamusGroundedPoseTransitions
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
 
-        // MovingRightNormalPose's new-pose-unless-buttons byte is the right-facing normal pose. Once the pose
+        // MovingRightNormalPose's new-pose-unless-buttons entry is the right-facing normal pose. Once the pose
         // handling selects
-        // momentum index two, the momentum cancellation cancels the boost words but deliberately leaves the
+        // momentum index two, the momentum cancellation cancels the boost state but deliberately leaves the
         // numeric extra pair intact. The following standing movement pass consumes that
-        // final no-base-speed displacement before clearing every X-motion word.
+        // final no-base-speed displacement before clearing every X-motion value.
         samus.HorizontalSpeed.CancelRunningMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
         SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
     }
@@ -579,12 +579,12 @@ internal static class SamusGroundedPoseTransitions
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
 
         // Folds the run-button/speed-booster component into base speed
-        // with two independent additions and their carry. Use one wrapping 16.16 add to
+        // with two independent additions, the fraction's overflow reaching the whole. Use one wrapping 16.16 add to
         // preserve exactly that pair of operations, including overflow past the whole pixels.
         speed.BaseSpeed += speed.ExtraRunSpeed;
 
         // The handler consumes the extra component and selects acceleration mode
-        // one. The direction selector interprets that mode as “move opposite the NEW facing direction”
+        // one. The direction selector reads that mode as “move opposite the NEW facing direction”
         // while the speed calculation decelerates, which is how reversal preserves old momentum.
         speed.ExtraRunSpeed = default;
         speed.AccelerationMode = SamusAccelerationMode.Turning;

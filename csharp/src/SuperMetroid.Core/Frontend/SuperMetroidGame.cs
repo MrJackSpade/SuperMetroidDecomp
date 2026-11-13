@@ -139,7 +139,7 @@ public sealed class SuperMetroidGame
 
     /// <summary>
     /// The number of updates the game has run. Hosts and diagnostics name frames by it; no gameplay reads it, so it counts
-    /// on without the original frame counter's wrap.
+    /// on without the game's frame counter wrap.
     /// </summary>
     public int FrameNumber { get; private set; }
 
@@ -531,7 +531,7 @@ public sealed class SuperMetroidGame
                 Session.Random.Generate();
                 break;
             case DispatchRandomStep.NonGameplayLineEffectsThenAdvance:
-                // The per-line effects still run on the update before the pause screen; lava swaps the live random bytes.
+                // The per-line effects still run on the update before the pause screen; lava swaps the live random state.
                 Session.GameplayRuntime.DoorTransition.AdvanceEffectsAndRandom(Session.GameplayRuntime.Room.LoadedScope.RoomObjects, Session.GameplayRuntime.Room.LoadedScope);
                 break;
             case DispatchRandomStep.Advance:

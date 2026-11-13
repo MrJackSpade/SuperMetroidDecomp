@@ -9,7 +9,7 @@ internal static class FileSelectMapWindowMotions
     /// Reveal edge speeds and moving updates for the six Zebes areas.
     /// </summary>
     /// <remarks>
-    /// Independently reviewed for #1165 against all original words and their consumers.
+    /// Independently reviewed for #1165 against all authored values and their consumers.
     /// Let D=max(x,256-x,y,256-y) for the area's stock label position.
     /// An edge at distance d travels floor(256*d/D)/64 pixels per update, negative for
     /// left/top. Quantize the positive magnitude before negating, then promote to signed
@@ -19,7 +19,7 @@ internal static class FileSelectMapWindowMotions
     /// Integer numerators are at most 65536; the division comes before the speed is scaled to sixty-fourths.
     /// Stock origins intentionally remain independent of editable label positions: edits
     /// move the initial window but did not change compiled motion in the prior contract.
-    /// No generated velocity table or runtime read of the original data is used.
+    /// No generated velocity table or runtime read of game data is used.
     /// </remarks>
     public static FileSelectMapWindowMotion Get(AreaId area)
     {
@@ -34,7 +34,7 @@ internal static class FileSelectMapWindowMotions
     }
 
     /// <summary>
-    /// Selects the original geographic label anchor by named Zebes area.
+    /// Selects the stock geographic label anchor by named Zebes area.
     /// </summary>
     /// <remarks>
     /// Independently reviewed for #1165 as semantic area-to-anchor cases. Label
@@ -42,7 +42,7 @@ internal static class FileSelectMapWindowMotions
     /// X/Y pair; window setup selects the same pair. Area numbers are
     /// categorical identities, not samples of a coordinate curve. The cases express
     /// that layout selection directly. Each coordinate field is checked against its
-    /// complete original six-word view. Ceres and other unsupported identities reject.
+    /// complete authored six-value view. Ceres and other unsupported identities reject.
     /// These stock inputs determine compiled motion; independently editable installed
     /// label anchors determine the actual starting rectangle.
     /// </remarks>

@@ -3,7 +3,7 @@ using static SuperMetroid.Core.Samus.Projectiles.SamusProjectileDamageDefinition
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>The damage each projectile header starts its projectile with.</summary>
+/// <summary>The damage each projectile definition starts its projectile with.</summary>
 internal static class SamusProjectileDamage
 {
     /// <summary>The damage <paramref name="header"/> starts its projectile with.</summary>
@@ -26,7 +26,7 @@ internal static class SamusProjectileDamage
     };
 
     /// <summary>
-    /// The uncharged and charged beam headers: the charge state and beams of a beam header. The charged
+    /// The uncharged and charged beam definitions: the charge state and beams of a beam definition. The charged
     /// half swaps Wave/Plasma and Plasma-Wave/Plasma-Ice order.
     /// </summary>
     internal static SamusBeamIdentity BeamIdentity(SamusProjectileHeader header) => new(
@@ -34,11 +34,11 @@ internal static class SamusProjectileDamage
         SamusProjectileHeader.ChargedPlasmaIceWave or SamusProjectileHeader.ChargedIce or SamusProjectileHeader.ChargedPlasma or SamusProjectileHeader.ChargedWave or
         SamusProjectileHeader.ChargedIceWave or SamusProjectileHeader.ChargedSpazerWave or SamusProjectileHeader.ChargedPlasmaIce or SamusProjectileHeader.ChargedPlasmaWave, Beam(header));
 
-    /// <summary>The beams a beam header fires.</summary>
+    /// <summary>The beams a beam definition fires.</summary>
     private static SamusBeamCombination Beam(SamusProjectileHeader header) =>
         Beams.TryGetValue(header, out SamusBeamCombination value) ? value : throw new ArgumentOutOfRangeException(nameof(header), header, "Undefined projectile header.");
 
-    /// <summary>Maps a beam header to its base damage and triples charged shots.</summary>
+    /// <summary>Maps a beam definition to its base damage and triples charged shots.</summary>
     private static int BeamDamage(SamusBeamIdentity identity)
     {
         var (charged, beam) = identity;

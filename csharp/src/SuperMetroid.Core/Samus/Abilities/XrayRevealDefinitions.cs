@@ -12,8 +12,8 @@ internal static class XrayRevealDefinitions
     /// <summary>The only special-air reaction the table admits.</summary>
     /// <remarks>
     /// Issue #1028: the special-air table holds one entry for this behaviour and a terminator, then a copy-one command.
-    /// The lookup compares the zero-extended behaviour byte, so equality with it is the complete bounded algorithm over
-    /// 0..255; every other behaviour returns no reveal. The original data and all 256 special-air cases in the
+    /// The lookup compares the behaviour exactly, so equality with it is the complete bounded algorithm over
+    /// 0..255; every other behaviour returns no reveal. The authored data and all 256 special-air cases in the
     /// independent X-ray reveal oracle agree.
     /// </remarks>
     internal static readonly BlockReaction SpecialAirRevealReaction = BlockReaction.Common(70);
@@ -21,8 +21,8 @@ internal static class XrayRevealDefinitions
     /// <summary>The only spike-block reaction the table admits.</summary>
     /// <remarks>
     /// Issue #1030: the spike-block table holds one entry for this behaviour and a terminator, then a copy-one command.
-    /// The lookup compares zero-extended behaviour, making equality with it the exact bounded rule over 0..255; other
-    /// behaviour values return no reveal. The original data and all 256 spike-block cases in the independent X-ray
+    /// The lookup compares the behaviour exactly, making equality with it the exact bounded rule over 0..255; other
+    /// behaviour values return no reveal. The authored data and all 256 spike-block cases in the independent X-ray
     /// reveal oracle agree.
     /// </remarks>
     internal static readonly BlockReaction SpikeRevealReaction = BlockReaction.Common(14);

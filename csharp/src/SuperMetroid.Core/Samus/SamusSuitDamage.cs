@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus;
 /// <summary>Shared suit division for ordinary enemy and projectile damage.</summary>
 public static class SamusSuitDamage
 {
-    /// <summary>Gravity takes precedence over Varia; integer shifts discard fractions. The damage is a word, 0 through 65535.</summary>
+    /// <summary>Gravity takes precedence over Varia; halving discards fractions. The damage is 0 through 65535.</summary>
     public static int Reduce(int damage, SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems)
     {
         Ensure.BetweenInclusive(0, ushort.MaxValue, damage);

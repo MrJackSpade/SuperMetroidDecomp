@@ -61,8 +61,8 @@ public sealed class KraidEnemyState
     /// <summary>Gets the mouth's shot latches: a charged hit this pass, an armed reopen and a pending reopen.</summary>
     public KraidMouthFlags MouthFlags { get; internal set; }
     /// <summary>
-    /// Gets the number of mouth reopens still pending, from zero to two hundred fifty-five. A charged body hit arms
-    /// three; each reopen continuation removes one.
+    /// Gets the number of mouth reopens still pending, from zero to three. A charged body hit arms three; each reopen
+    /// continuation removes one, and the last removal clears the mouth with the count (#1627).
     /// </summary>
     public int PendingMouthReopens { get; internal set; }
     /// <summary>Health captured by the living initializer before combat can change it.</summary>
@@ -101,12 +101,15 @@ public sealed class KraidEnemyState
     internal void ArmMouthReopens() => PendingMouthReopens |= ArmedMouthReopens;
 
     /// <summary>
-    /// Removes one pending mouth reopen. The count wraps from zero to two hundred fifty-five as the game's count
-    /// byte does; every caller reaches here only while a reopen is pending.
+    /// Removes one pending mouth reopen (#1627). Every caller reaches here only while the mouth's reopen is pending, which a
+    /// mouth hit marks only after arming three, and the removal that leaves none clears the mouth, so a reopen is always
+    /// pending here: the original's wrap of its count byte from zero is never reached, and removing from none breaks that
+    /// order.
     /// </summary>
-    internal void RemoveOneMouthReopen() => PendingMouthReopens = PendingMouthReopens == 0
-        ? MaximumPendingMouthReopens
-        : PendingMouthReopens - 1;
+    /// <exception cref="InvalidOperationException">No reopen is pending.</exception>
+    internal void RemoveOneMouthReopen() => PendingMouthReopens = PendingMouthReopens > 0
+        ? PendingMouthReopens - 1
+        : throw new InvalidOperationException("Removing a mouth reopen from none breaks Kraid's mouth-reopen order.");
 
     /// <summary>Clears every mouth latch and the pending reopen count together, as the original game clears their shared word.</summary>
     internal void ClearMouthReactions()
@@ -118,8 +121,6 @@ public sealed class KraidEnemyState
     /// <summary>The reopen count a charged body hit arms.</summary>
     private const int ArmedMouthReopens = 3;
 
-    /// <summary>The largest pending reopen count; one below zero wraps to it.</summary>
-    private const int MaximumPendingMouthReopens = 255;
 
     /// <summary>
     /// How Kraid's body appears (#1352, #1466, #1515): behind the room's sprites once his body is ready, in front of them

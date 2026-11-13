@@ -16,9 +16,9 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// </summary>
 /// <remarks>
 /// This is deliberately a cinematic state machine rather than a video or a host-authored
-/// slideshow. Backgrounds, character art, palettes, spritemaps, and animation durations
+/// slideshow. Backgrounds, character art, palettes, sprite frames, and animation durations
 /// preserve the game's behavior; editable text and fonts come from installed assets. The named phases merely replace the
-/// game's <c>cinematic_function</c> entries, so the scene steps through the same boundaries the game does.
+/// game's cinematic functions, so the scene steps through the same boundaries the game does.
 /// </remarks>
 [RoomScopeBoundary("A cinematic scene that owns its own palette FX for the scene's lifetime; no gameplay room is loaded.")]
 internal sealed class EndingCreditsState : IFrontendScreen
@@ -309,7 +309,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
 
             case EndingCreditsPhase.PostCreditsReward:
                 // Both fade halves test their counter before the decrement. Both 64-frame halves advance
-                // their shared palette accumulator on the fourth, eighth, ... calls.
+                // their shared palette step on the fourth, eighth, ... calls.
                 if (EndingCadenceDefinitions.RewardColourStepEveryFourthUpdate.IsDue(Stage.PhaseTimer))
                 {
                     CreditsRoll.AdvanceRewardPalette();
@@ -353,7 +353,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
 
             case EndingCreditsPhase.PostCreditsShot:
                 // Cinematic function runs before actors; palette fades and queued
-                // tile replacements therefore precede the next sprite instruction.
+                // tile replacements therefore precede the next sprite cue.
                 PostShot.Step(screen);
                 RewardJump.Step();
                 if (PostShot.ReadyForWhiteFlash)
@@ -462,7 +462,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
     /// Captures the explosion's finale (#1514): the glow's picture behind the planet's, then the glow added over the whole
     /// screen with the debris glowing over it. The debris is drawn only as glow, never over the planet, which would punch
     /// holes in it. The per-tile priority tiers that interleaved the two pictures, and the single pixel that blended where
-    /// a sprite overlapped the glow, are presentation quirks the port does not keep: the glow and the debris now both add.
+    /// a sprite overlapped the glow, are presentation quirks the model does not keep: the glow and the debris now both add.
     /// </summary>
     internal LayeredScene CaptureExplosionFinale()
     {
@@ -486,7 +486,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
     /// <summary>
     /// A one-screen plane showing the whole-screen picture <paramref name="picture"/>, which is <paramref name="scenery"/>, in
     /// its own of the ending's colours (#1467, #1512, #1544): the phase that shows it shows it whole, never gated by whether
-    /// its upload has happened (#1515).
+    /// whether its picture has loaded (#1515).
     /// </summary>
     internal PicturedPlane ScreenPicture(SpriteSheetId sheet, string picture, EndingScenery scenery) =>
         new([new PlacedPlanePicture(Picture(sheet, picture), Offset16<PlanePixels>.Zero, screen.Colours.SceneryShading(scenery))]);

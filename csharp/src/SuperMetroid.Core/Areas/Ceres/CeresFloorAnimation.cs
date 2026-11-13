@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Areas.Ceres;
 
@@ -22,7 +23,7 @@ public static class CeresFloorAnimation
 
     /// <summary>The elevator platform's light (0) or dark (1) strip.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="frame"/> is neither.</exception>
-    internal static CeresFloorAnimationFrame PlatformFrame(int frame) =>
+    internal static CeresFloorAnimationFrame EnemyFrameId(int frame) =>
         (uint)frame < (uint)CeresFloorAnimationDefinitions.PlatformFrames.Length
             ? CeresFloorAnimationDefinitions.PlatformFrames[frame]
             : throw new ArgumentOutOfRangeException(nameof(frame));

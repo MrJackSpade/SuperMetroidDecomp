@@ -271,6 +271,21 @@ internal static class InstalledArtworkContentIdentity
         });
     }
 
+    /// <summary>The installed content identity of a <see cref="SuperMetroid.Core.Samus.Death.SamusDeathSteps"/>.</summary>
+    extension(SuperMetroid.Core.Samus.Death.SamusDeathSteps steps)
+    {
+        /// <summary>SHA-256 of the explosion's death steps and the whiteout colours.</summary>
+        public string ContentIdentity => SelectedPresentationHash.Create(nameof(SuperMetroid.Core.Samus.Death.SamusDeathSteps), content =>
+        {
+            Span<int> explosion = stackalloc int[SamusDeathExplosionTimingDefinitions.RecordCount];
+            for (int frame = 0; frame < explosion.Length; frame++) explosion[frame] = steps.ExplosionStep(frame);
+            content.AppendWords("explosion steps", explosion);
+            Span<RgbColor> whiteout = stackalloc RgbColor[SamusPaletteDefinitions.Death.WhiteoutShadeCount];
+            for (int step = 0; step < whiteout.Length; step++) whiteout[step] = steps.WhiteoutColour(step);
+            content.AppendColors("whiteout", whiteout);
+        });
+    }
+
     /// <summary>The installed content identity of a <see cref="InstalledSamusDeathPalettes"/>.</summary>
     extension(InstalledSamusDeathPalettes palettes)
     {

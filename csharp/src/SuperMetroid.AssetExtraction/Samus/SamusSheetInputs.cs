@@ -64,7 +64,7 @@ internal sealed record SamusSheetInputs(ImportProjectileArtwork Projectiles, Spr
             overruns.Chainsaw,
             tables.CrystalFlash,
             projectiles.Presentation.HyperBeamFxColors,
-            SamusDeathPaletteArtworkFiles.Load(samusBody),
+            SamusDeathPaletteArtworkFiles.LoadForImport(samusBodyImportData),
             maps.RoomPaletteFx);
         SamusBodyCharacterArtwork body = SamusBodyArtworkFiles.LoadCharacters(samusBody, samusBodyImportData);
         return new(

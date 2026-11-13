@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -29,7 +30,14 @@ internal static class SamusBodyArtworkVerification
         // with the sheets they compose (#1532).
         SamusBodyCharacterArtwork stockCharacters = SamusBodySheetFixtures.Inputs.SamusBody;
         SamusBodySources stock = stockCharacters.Body;
-        InstalledSamusDeathPalettes stockDeathPalettes = SamusDeathPaletteArtworkFiles.Load(RepositoryInstallation.Installation.SamusBodyDirectory);
+        // Her death colours are import data (#1637); the installation holds only the death steps the game reads.
+        InstalledSamusDeathPalettes stockDeathPalettes = SamusDeathPaletteArtworkFiles.LoadForImport(
+            SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.SamusBodyDirectoryName));
+        AssertTrue(!File.Exists(Path.Combine(RepositoryInstallation.Installation.SamusBodyDirectory, SamusDeathPaletteArtworkFiles.ArtworkFileName)),
+            "the installation holds none of Samus's death colours");
+        SuperMetroid.Core.Samus.Death.SamusDeathSteps installedSteps = SamusDeathPaletteArtworkFiles.LoadSteps(RepositoryInstallation.Installation.SamusBodyDirectory);
+        AssertEqual(stockDeathPalettes.Steps.ContentIdentity, installedSteps.ContentIdentity,
+            "the installed death steps are the death palettes' explosion steps and whiteout colours");
         SamusDeathTileAtlas stockDeathTiles = SamusBodySheetFixtures.Inputs.DeathTiles;
         Suite(nameof(VerifySamusArmCannonArtwork), () => VerifySamusArmCannonArtwork(bus, stock));
         int definitions = 0;

@@ -116,7 +116,7 @@ public static class SamusBodyArtworkFiles
             frames, top, bottom, spritemapTopBases, spritemapBottomBases,
             spritemapEntries, spritemaps, hashes);
         SamusAtmosphericArtworkFiles.Extract(bus, directory, sourceCartridgeSha256);
-        SamusDeathPaletteArtworkFiles.Extract(bus, directory, sourceCartridgeSha256);
+        SamusDeathPaletteArtworkFiles.Extract(bus, directory, importData, sourceCartridgeSha256);
         SamusDeathTileArtworkFiles.Extract(bus, directory, importData, sourceCartridgeSha256);
         SamusArmCannonArtworkFiles.Extract(bus, directory, importData, sourceCartridgeSha256);
         File.WriteAllBytes(Path.Combine(directory, ManifestFileName),
@@ -218,9 +218,9 @@ public static class SamusBodyArtworkFiles
             [.. manifest.Spritemaps.Select(parts => new SamusSpritemapDefinition(
                 [.. parts.Select(part => part.ToSpritePart(SpriteArtwork.CharactersPerRow))]))]);
         SamusAtmosphericSourceArtwork atmosphere = SamusAtmosphericArtworkFiles.Load(directory);
-        InstalledSamusDeathPalettes deathPalettes = SamusDeathPaletteArtworkFiles.Load(directory);
+        SuperMetroid.Core.Samus.Death.SamusDeathSteps deathSteps = SamusDeathPaletteArtworkFiles.LoadSteps(directory);
         SamusArmCannonSourceArtwork armCannon = SamusArmCannonArtworkFiles.Load(directory);
-        return new SamusBodyArtworkParts { TopSetStarts = manifest.TopSetStarts, BottomSetStarts = manifest.BottomSetStarts, PoseFirstFrames = manifest.PoseFirstFrames, Placements = manifest.Placements, Frames = manifest.Frames, Spritemaps = spritemaps, Atmosphere = atmosphere, DeathPalettes = deathPalettes, ArmCannon = armCannon };
+        return new SamusBodyArtworkParts { TopSetStarts = manifest.TopSetStarts, BottomSetStarts = manifest.BottomSetStarts, PoseFirstFrames = manifest.PoseFirstFrames, Placements = manifest.Placements, Frames = manifest.Frames, Spritemaps = spritemaps, Atmosphere = atmosphere, DeathSteps = deathSteps, ArmCannon = armCannon };
     }
 
     /// <summary>Re-encodes the page sets in <paramref name="importData"/> into native planar bytes and rejects painted padding tiles.</summary>

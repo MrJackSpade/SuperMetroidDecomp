@@ -26,7 +26,7 @@ internal static class SamusRenderingFixtureVerification
         if (graphicsOffsetFixtures.TryGetValue(offset, out var existing)) return existing;
         var stock = renderingFixtureStock.Value;
         PlacementTables tables = StockPlacementTables(stock);
-        var result = new SamusBodySources(new SamusBodyArtworkParts { TopSetStarts = stock.TopSetStarts.ToArray(), BottomSetStarts = stock.BottomSetStarts.ToArray(), PoseFirstFrames = stock.PoseFirstFrames.ToDictionary(), Placements = SamusBodyPlacementDecoding.Decode(Enumerable.Repeat((int)offset, SamusBodySources.PoseCount).ToArray(), tables.Landing, tables.Posture, tables.Drained), Frames = stock.Frames.ToArray(), Spritemaps = stock.Spritemaps, Atmosphere = stock.Atmosphere, DeathPalettes = stock.DeathPalettes, ArmCannon = stock.ArmCannon });
+        var result = new SamusBodySources(new SamusBodyArtworkParts { TopSetStarts = stock.TopSetStarts.ToArray(), BottomSetStarts = stock.BottomSetStarts.ToArray(), PoseFirstFrames = stock.PoseFirstFrames.ToDictionary(), Placements = SamusBodyPlacementDecoding.Decode(Enumerable.Repeat((int)offset, SamusBodySources.PoseCount).ToArray(), tables.Landing, tables.Posture, tables.Drained), Frames = stock.Frames.ToArray(), Spritemaps = stock.Spritemaps, Atmosphere = stock.Atmosphere, DeathSteps = stock.DeathSteps, ArmCannon = stock.ArmCannon });
         graphicsOffsetFixtures.Add(offset, result);
         return result;
     }
@@ -146,7 +146,7 @@ internal static class SamusRenderingFixtureVerification
         for (int index = 0; index < landing.Length; index++)
             if (bus.HasSeededByte(SamusSourceDefinitions.LandingVerticalOffsets.Value + index))
                 landing[index] = bus.ReadByte(SamusSourceDefinitions.LandingVerticalOffsets.Value + index);
-        return SamusBodyCharacterArtwork.Create(new SamusBodyArtworkParts { TopSetStarts = SamusBodyNative.Records(topPointers), BottomSetStarts = SamusBodyNative.Records(bottomPointers), PoseFirstFrames = SamusBodyNative.Frames(posePointers), Placements = SamusBodyPlacementDecoding.Decode(offsets, landing, OverrideSignedBytes(SamusSourceDefinitions.PostureTransitionVerticalOffsets.Value, tables.Posture), OverrideSignedBytes(SamusSourceDefinitions.DrainedVerticalOffsets.Value, tables.Drained)), Frames = frames, Spritemaps = sprites, Atmosphere = stock.Atmosphere, DeathPalettes = stock.DeathPalettes, ArmCannon = stock.ArmCannon }, Groups(true, topPointers), Groups(false, bottomPointers));
+        return SamusBodyCharacterArtwork.Create(new SamusBodyArtworkParts { TopSetStarts = SamusBodyNative.Records(topPointers), BottomSetStarts = SamusBodyNative.Records(bottomPointers), PoseFirstFrames = SamusBodyNative.Frames(posePointers), Placements = SamusBodyPlacementDecoding.Decode(offsets, landing, OverrideSignedBytes(SamusSourceDefinitions.PostureTransitionVerticalOffsets.Value, tables.Posture), OverrideSignedBytes(SamusSourceDefinitions.DrainedVerticalOffsets.Value, tables.Drained)), Frames = frames, Spritemaps = sprites, Atmosphere = stock.Atmosphere, DeathSteps = stock.DeathSteps, ArmCannon = stock.ArmCannon }, Groups(true, topPointers), Groups(false, bottomPointers));
     }
 
     /// <summary>

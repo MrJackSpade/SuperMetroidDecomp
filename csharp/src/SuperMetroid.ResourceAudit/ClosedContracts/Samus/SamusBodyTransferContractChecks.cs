@@ -85,7 +85,7 @@ internal static class SamusBodyTransferContractChecks
         using var cannonJson = new MemoryStream(SamusArmCannonSourceArtwork.Write(cannonDocument));
         SamusArmCannonSourceArtwork cannon = InstalledSamusArmCannonArtworkTooling.Load(cannonJson);
         SamusBodyFrameSelection[] frames = selectors ?? new SamusBodyFrameSelection[SamusBodySources.FrameCount];
-        return SamusBodyCharacterArtwork.Create(new SamusBodyArtworkParts { TopSetStarts = starts[..SamusBodySources.TopSetCount], BottomSetStarts = starts[SamusBodySources.TopSetCount..], PoseFirstFrames = EveryRecordedPose(0), Placements = SamusBodyPlacementDecoding.Decode(new int[SamusBodySources.PoseCount], new int[SamusBodyPlacementSourceDefinitions.LandingByteCount], new int[SamusBodyPlacementSourceDefinitions.PostureByteCount], new int[SamusBodyPlacementSourceDefinitions.DrainedByteCount]), Frames = frames, Spritemaps = spritemaps, Atmosphere = atmosphere, DeathPalettes = deathColors, ArmCannon = cannon },
+        return SamusBodyCharacterArtwork.Create(new SamusBodyArtworkParts { TopSetStarts = starts[..SamusBodySources.TopSetCount], BottomSetStarts = starts[SamusBodySources.TopSetCount..], PoseFirstFrames = EveryRecordedPose(0), Placements = SamusBodyPlacementDecoding.Decode(new int[SamusBodySources.PoseCount], new int[SamusBodyPlacementSourceDefinitions.LandingByteCount], new int[SamusBodyPlacementSourceDefinitions.PostureByteCount], new int[SamusBodyPlacementSourceDefinitions.DrainedByteCount]), Frames = frames, Spritemaps = spritemaps, Atmosphere = atmosphere, DeathSteps = deathColors.Steps, ArmCannon = cannon },
             groups[..SamusBodySources.TopSetCount], groups[SamusBodySources.TopSetCount..]);
     }
 

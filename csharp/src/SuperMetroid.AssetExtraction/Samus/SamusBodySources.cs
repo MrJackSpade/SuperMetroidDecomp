@@ -53,7 +53,7 @@ public sealed class SamusBodySources
         ArmCannon = Ensure.NotNull(parts.ArmCannon);
         posePictures = installed.Pictures;
         Spritemaps = Ensure.NotNull(parts.Spritemaps);
-        DeathPalettes = Ensure.NotNull(parts.DeathPalettes);
+        DeathSteps = Ensure.NotNull(parts.DeathSteps);
         topSetStarts = (int[])parts.TopSetStarts.Clone();
         bottomSetStarts = (int[])parts.BottomSetStarts.Clone();
         poseFirstFrames = parts.PoseFirstFrames.ToDictionary();
@@ -94,7 +94,7 @@ public sealed class SamusBodySources
     /// The fatal-damage suit, suitless and whiteout colours her death shades are pre-coloured from (#1512); gameplay
     /// reads only the order of those steps, through <see cref="InstalledSamusBodyArtwork.DeathSteps"/>.
     /// </summary>
-    public InstalledSamusDeathPalettes DeathPalettes { get; }
+    public SuperMetroid.Core.Samus.Death.SamusDeathSteps DeathSteps { get; }
 
     /// <summary>Where each pose with a record places the body: its art origin and, where they differ, each frame's own placement.</summary>
     public IReadOnlyDictionary<SamusPoseId, SamusBodyPosePlacement> Placements { get; }
@@ -118,7 +118,7 @@ public sealed class SamusBodySources
         }
         content.Append("spritemaps", Convert.FromHexString(Spritemaps.ContentIdentity));
         content.Append("atmosphere", Convert.FromHexString(Atmosphere.ContentIdentity));
-        content.Append("death palettes", Convert.FromHexString(DeathPalettes.ContentIdentity));
+        content.Append("death steps", Convert.FromHexString(DeathSteps.ContentIdentity));
         content.Append("arm cannon", Convert.FromHexString(ArmCannon.ContentIdentity));
     });
 
@@ -183,7 +183,7 @@ public sealed class SamusBodySources
     {
         OriginRises = installed.OriginRises,
         GraphicsYOffsets = parts.Placements.ToDictionary(pose => pose.Key, pose => pose.Value.GraphicsYOffset),
-        DeathSteps = Ensure.NotNull(parts.DeathPalettes).Steps,
+        DeathSteps = Ensure.NotNull(parts.DeathSteps),
         ArmCannon = Ensure.NotNull(parts.ArmCannon).Gameplay,
     };
 

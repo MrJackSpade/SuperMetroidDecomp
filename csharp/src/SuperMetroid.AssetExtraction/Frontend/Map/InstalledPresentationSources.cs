@@ -16,7 +16,6 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// from are not among them: the game's read leaves them unread (#1544, <see cref="ImportPresentationColours"/>), and the
 /// characters are import data the installation never holds (#1636, <see cref="ImportPresentationCharacters"/>).
 /// </summary>
-/// <param name="Messages">The editable gameplay messages, whose words compose each message box image.</param>
 /// <param name="StaffCredits">The editable staff credits, pictured into the ending's credits rows.</param>
 /// <param name="EndingText">The editable ending text, whose pages and glyphs are pictured and whose typewriter characters are compiled.</param>
 /// <param name="Screens">The map screens' pages, pictured for the world map and the room maps.</param>
@@ -30,7 +29,6 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// <param name="GameOptions">The options screen's pages, labels and compositions with the anchors the game binds (#1616).</param>
 [ArchitectureReview("context-bag", "The installed documents an installed map presentation was read with; every member is immutable artwork data the import composes pictures from, not a service.")]
 internal sealed record InstalledPresentationSources(
-    GameplayMessageArtwork Messages,
     CreditsPresentation StaffCredits,
     EndingTextPresentation EndingText,
     MapScreenPresentation Screens,

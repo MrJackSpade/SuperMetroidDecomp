@@ -207,17 +207,17 @@ public static class MapPresentationExtractor
             file.Write(fileSelect.Artwork);
         hashes.Add(FileSelectPresentationFormat.ArtworkFileName, Convert.ToHexString(SHA256.HashData(fileSelect.Artwork)));
         byte[] gameplayMessageTitleBytes = GameplayMessageTitleExtractor.Extract(bus);
-        using (var file = new FileStream(Path.Combine(directory, GameplayMessageTitleDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
+        using (var file = new FileStream(PathOf(GameplayMessageTitleDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(gameplayMessageTitleBytes);
         hashes.Add(GameplayMessageTitleDefinitions.FileName,
             Convert.ToHexString(SHA256.HashData(gameplayMessageTitleBytes)));
         byte[] gameplayMessagePanelBytes = GameplayMessagePanelExtractor.Extract(bus);
-        using (var file = new FileStream(Path.Combine(directory, GameplayMessagePanelDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
+        using (var file = new FileStream(PathOf(GameplayMessagePanelDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(gameplayMessagePanelBytes);
         hashes.Add(GameplayMessagePanelDefinitions.FileName,
             Convert.ToHexString(SHA256.HashData(gameplayMessagePanelBytes)));
         byte[] gameplayMessageNoticeBytes = GameplayMessageNoticeExtractor.Extract(bus);
-        using (var file = new FileStream(Path.Combine(directory, GameplayMessageNoticeDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
+        using (var file = new FileStream(PathOf(GameplayMessageNoticeDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(gameplayMessageNoticeBytes);
         hashes.Add(GameplayMessageNoticeDefinitions.FileName,
             Convert.ToHexString(SHA256.HashData(gameplayMessageNoticeBytes)));

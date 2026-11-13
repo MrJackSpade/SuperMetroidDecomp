@@ -50,19 +50,6 @@ internal static class GameplayMessagePanelsVerification
             $"Gameplay-message panels: {GameplayMessagePanelDefinitions.MessageIds.Length} UTF-8 titles and {comparedWords} installed words match the cartridge with message ROM reads forbidden; diagrams, remapped controls and invalid glyph rejection pass.");
     }
 
-    /// <summary>Checks that the installed gameplay-message panels are the deterministic cartridge extraction.</summary>
-    internal static void VerifyGameplayMessagePanelAssets(
-        ISnesAddressSpace bus,
-        string stockDirectory)
-    {
-        byte[] deterministic = SuperMetroid.AssetExtraction.Hud.GameplayMessagePanelExtractor.Extract(bus);
-        AssertTrue(deterministic.SequenceEqual(File.ReadAllBytes(
-            Path.Combine(stockDirectory, GameplayMessagePanelDefinitions.FileName))),
-            "installed gameplay-message panels are the deterministic cartridge extraction");
-
-        Console.WriteLine(
-            "Gameplay-message panel catalog: deterministic stock passes.");
-    }
 
     /// <summary>Runs the gameplay message panel comparison with the retail cartridge.</summary>
     [VerificationCommand("--gameplay-message-panels")]

@@ -27,7 +27,6 @@ public class InstalledAreaMapPresentation
         Screens = Ensure.NotNull(sources.Screens);
         StaffCredits = Ensure.NotNull(sources.StaffCredits);
         EndingTextPresentation = Ensure.NotNull(sources.EndingText);
-        Messages = Ensure.NotNull(sources.Messages);
         HighlightColours = Ensure.NotNull(sources.HighlightColours);
         PauseSelectors = Ensure.NotNull(sources.PauseSelectors);
         PauseReserveTanks = Ensure.NotNull(sources.PauseReserveTanks);
@@ -47,9 +46,6 @@ public class InstalledAreaMapPresentation
     /// frame's hold from the same frames (<see cref="AreaMapPresentation.HighlightCycle"/>).
     /// </summary>
     public MapPaletteCycle HighlightColours { get; }
-
-    /// <summary>The editable gameplay messages, whose words the import composes each message box image from (#1466).</summary>
-    public GameplayMessageArtwork Messages { get; }
 
     /// <summary>The map screens' pages, which the import pictures for the world map and the room maps (#1467).</summary>
     public MapScreenPresentation Screens { get; }

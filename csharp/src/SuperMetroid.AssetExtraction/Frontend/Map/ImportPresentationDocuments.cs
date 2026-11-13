@@ -1,6 +1,7 @@
 using SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Fx;
+using SuperMetroid.AssetExtraction.Hud;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
@@ -15,4 +16,6 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// </param>
 /// <param name="Pause">The pause screen's backdrops, wireframes and equipment-page artwork, pictured into the pause sheet.</param>
 /// <param name="RoomFxPages">The room effects' BG3 pages, pictured into each tileset's BG3 sheet.</param>
-internal sealed record ImportPresentationDocuments(FileSelectSourcePresentation FileSelect, PauseScreenArtwork Pause, RoomFxLayer3Pages RoomFxPages);
+/// <param name="Messages">The gameplay messages' titles, panels and notices, whose words compose each message box picture.</param>
+internal sealed record ImportPresentationDocuments(FileSelectSourcePresentation FileSelect, PauseScreenArtwork Pause, RoomFxLayer3Pages RoomFxPages,
+    GameplayMessageArtwork Messages);

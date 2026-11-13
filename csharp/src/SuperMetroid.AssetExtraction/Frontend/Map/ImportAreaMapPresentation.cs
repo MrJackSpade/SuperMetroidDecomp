@@ -6,6 +6,7 @@ using SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.AssetExtraction.Fx;
+using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.AssetExtraction.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
@@ -37,6 +38,7 @@ public sealed class ImportAreaMapPresentation : InstalledAreaMapPresentation
         FileSelect = Ensure.NotNull(documents.FileSelect);
         Pause = Ensure.NotNull(documents.Pause);
         RoomFxPages = Ensure.NotNull(documents.RoomFxPages);
+        Messages = Ensure.NotNull(documents.Messages);
         Ensure.NotNull(characters);
         Characters = Ensure.NotNull(characters.Characters);
         Sprites = Ensure.NotNull(characters.Sprites);
@@ -73,6 +75,9 @@ public sealed class ImportAreaMapPresentation : InstalledAreaMapPresentation
 
     /// <summary>The room effects' BG3 pages, import data (#1638), which the import pictures into each tileset's BG3 sheet (#1466, #1467).</summary>
     public RoomFxLayer3Pages RoomFxPages { get; }
+
+    /// <summary>The gameplay messages, import data (#1638), whose words the import composes each message box picture from (#1466).</summary>
+    public GameplayMessageArtwork Messages { get; }
 
     /// <summary>The characters the map screens, the pause interface and the HUD are pictured from.</summary>
     public MapCharacterArtwork Characters { get; }

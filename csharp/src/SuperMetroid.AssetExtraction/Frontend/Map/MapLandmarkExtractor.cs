@@ -55,7 +55,7 @@ public static class MapLandmarkExtractor
         MapLandmarkFile.Write(stream, new() { Version = MapLandmarkFormat.Version, Markers = points });
         return stream.ToArray();
 
-        ushort Pointer(SnesAddress table, AreaId area) => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), table.AddWithinBank(AreaIds.ToIndex(area) * 2));
+        ushort Pointer(SnesAddress table, AreaId area) => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), table.AddWithinBank(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(area) * 2));
         ushort Read(int pointer) => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Menu.ObjectBank | pointer);
     }
 }

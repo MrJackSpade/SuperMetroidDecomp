@@ -8,7 +8,7 @@ internal static class StoredExploredMapLoads
 {
     /// <summary>The stored maps as power-on leaves them: every area's map unexplored, kept in the areas' order.</summary>
     internal static StoredExploredMaps<AreaId> PowerOn() =>
-        new([.. Enumerable.Range(0, AreaIds.RetailCount).Select(AreaIds.At)]);
+        new([.. AreaIds.All]);
 
     /// <summary>
     /// Loads a file's exploration: every Zebes area's stored map becomes the exploration the file keeps for it, and
@@ -20,7 +20,7 @@ internal static class StoredExploredMapLoads
     {
         Ensure.NotNull(maps);
         Ensure.NotNull(file);
-        foreach (AreaId area in Enumerable.Range(0, AreaIds.RetailCount).Select(AreaIds.At))
+        foreach (AreaId area in AreaIds.All)
         {
             if (AreaIds.IsZebes(area))
                 maps.LoadStoredMap(area, file.ExploredCells(area));
@@ -34,7 +34,7 @@ internal static class StoredExploredMapLoads
     internal static void ClearForNewFile(StoredExploredMaps<AreaId> maps)
     {
         Ensure.NotNull(maps);
-        foreach (AreaId area in Enumerable.Range(0, AreaIds.RetailCount).Select(AreaIds.At))
+        foreach (AreaId area in AreaIds.All)
             maps.ClearStoredMap(area);
     }
 
@@ -54,7 +54,7 @@ internal static class StoredExploredMapLoads
     internal static void ClearForDemo(StoredExploredMaps<AreaId> maps)
     {
         Ensure.NotNull(maps);
-        foreach (AreaId area in Enumerable.Range(0, AreaIds.RetailCount).Select(AreaIds.At).Where(AreaIds.IsZebes))
+        foreach (AreaId area in AreaIds.Zebes)
             maps.ClearStoredMap(area);
     }
 }

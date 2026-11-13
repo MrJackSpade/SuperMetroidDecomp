@@ -87,7 +87,7 @@ internal static class RoomPaletteFxDefinitionsVerification
         Suite(nameof(VerifyPaletteFxDispatchSpawns), () => VerifyPaletteFxDispatchSpawns(pointers));
         Suite(nameof(VerifyColourEffectTurnOrder), () => VerifyColourEffectTurnOrder());
 
-        for (int area = 0; area < AreaIds.RetailCount; area++)
+        for (int area = 0; area < SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Count; area++)
         for (int bit = 0; bit < RoomPaletteFxDefinitions.DefinitionsPerArea; bit++)
         {
             PaletteFxObject effect = AreaPaletteFxObjects.GetAreaDefinition(area, bit);

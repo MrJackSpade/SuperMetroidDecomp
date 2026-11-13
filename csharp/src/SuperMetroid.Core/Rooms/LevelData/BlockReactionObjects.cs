@@ -375,7 +375,7 @@ internal sealed class BlockReactionObjects
         SamusProjectileType projectileType)
     {
         Ensure.NotNull(level);
-        _ = AreaIds.ToIndex(areaIndex);
+        _ = AreaIds.Require(areaIndex);
         if (projectileType.Family == SamusProjectileFamily.PowerBomb)
             return false;
         if (projectileType.Family != SamusProjectileFamily.Bomb)

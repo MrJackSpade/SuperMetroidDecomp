@@ -55,7 +55,7 @@ public static class SpecialAirReactions
     /// <summary>Restricts special-air lookup to retail areas and their sixteen authored BTS entries.</summary>
     private static void Validate(AreaId area, int areaReactionIndex, string context)
     {
-        _ = AreaIds.ToIndex(area);
+        _ = AreaIds.Require(area);
         if (areaReactionIndex >= EntriesPerArea)
         {
             throw new ArgumentOutOfRangeException(

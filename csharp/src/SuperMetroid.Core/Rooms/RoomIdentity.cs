@@ -17,7 +17,7 @@ public readonly record struct RoomIdentity
     {
         // Enum casts can manufacture arbitrary bytes. Validate at construction so a room
         // identity can safely cross table and dispatcher boundaries without another guard.
-        _ = AreaIds.ToIndex(area);
+        _ = AreaIds.Require(area);
         Area = area;
         RoomIndex = Ensure.BetweenInclusive(0, byte.MaxValue, roomIndex);
     }

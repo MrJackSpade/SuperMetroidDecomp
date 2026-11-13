@@ -224,7 +224,7 @@ internal static class ReplayTraceMemoryCatalog
         WorkRamRange.Between(NativeSnapshotMemory.PaletteBuffer, PaletteBufferEnd),
         WorkRamRange.Words(NativeSnapshotMemory.HudTilemap, HudStateConstants.MutableTileCount),
         WorkRamRange.Between(NativeSnapshotMemory.ScrollStorage,
-            NativeSnapshotMemory.SavedExploredMaps + AreaIds.RetailCount * ProgressionTableCodec.ExploredPlaneByteCount),
+            NativeSnapshotMemory.SavedExploredMaps + SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Count * ProgressionTableCodec.ExploredPlaneByteCount),
         WorkRamRange.Between(NativeSnapshotMemory.TrailLeftFrameHold, TrailArraysEnd),
         WorkRamRange.Between(NativeSnapshotMemory.Events, ProgressBitsEnd),
         WorkRamRange.Between(NativeSnapshotMemory.RoomObjectFrameHold, RoomObjectTimersEnd),

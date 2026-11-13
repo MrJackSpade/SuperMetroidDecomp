@@ -131,7 +131,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         CurrentMapArrows = new FileSelectMapAnimations(entry.MapPresentation.Arrows);
         mapHighlight.Bind(entry.MapPresentation.HighlightCycle);
         area = entry.AreaIndex;
-        _ = AreaIds.ToIndex(entry.AreaIndex);
+        _ = AreaIds.Require(entry.AreaIndex);
         this.roomMapPosition = entry.RoomMapPosition;
         this.mapRevealMode = Enum.IsDefined(entry.MapRevealMode)
             ? entry.MapRevealMode

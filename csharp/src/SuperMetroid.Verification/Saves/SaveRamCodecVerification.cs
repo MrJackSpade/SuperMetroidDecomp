@@ -190,7 +190,7 @@ internal static class SaveRamCodecVerification
         // A save image's boss byte with a bit no routine tests beside two named ones: only the named flags are progress,
         // and typed operations change only the named flags; writing the table back leaves the untested bit clear.
         byte[] areas = new byte[ProgressionTableCodec.AreaBossByteCount];
-        areas[AreaIds.ToIndex(AreaId.Norfair)] = 0x85;
+        areas[SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(AreaId.Norfair)] = 0x85;
         ProgressionTableCodec.ReadAreaBosses(areas, system.Progress);
         AssertEqual(BossBits.AreaBoss | BossBits.AreaTorizo, system.GetBossBits(AreaId.Norfair), "a loaded boss byte keeps its named flags");
         system.SetBossBits(AreaId.Norfair, BossBits.AreaMiniBoss);
@@ -199,7 +199,7 @@ internal static class SaveRamCodecVerification
         AssertTrue(system.HasAnyBossBits(AreaId.Norfair, BossBits.AreaTorizo), "a named flag is found");
         AssertTrue(!system.HasAnyBossBits(AreaId.Norfair, BossBits.AreaBoss), "a cleared named flag is absent");
         ProgressionTableCodec.WriteAreaBosses(system.Progress, areas);
-        AssertEqual((byte)0x06, areas[AreaIds.ToIndex(AreaId.Norfair)], "the written boss byte holds only the named flags");
+        AssertEqual((byte)0x06, areas[SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(AreaId.Norfair)], "the written boss byte holds only the named flags");
         AssertEqual(BossBits.None, system.GetBossBits(AreaId.Crateria), "other areas stay clear");
         Console.WriteLine("Progression saved fields: save-field ranges are enforced and boss state holds the named flags.");
     }

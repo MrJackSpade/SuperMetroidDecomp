@@ -132,11 +132,11 @@ internal static class NativeSnapshotImport
             runtime.Room.LoadedCamera.Scrolls.SetCell(cell, RoomScrollStates.FromStorageByte(memory[NativeSnapshotMemory.ScrollStorage + cell]));
         runtime.Hud.MinimapDisabled = W(NativeSnapshotMemory.MinimapDisabled) != 0;
         // The current area's exploration lives in its live plane; every other area's in the saved planes.
-        for (int area = 0; area < AreaIds.RetailCount; area++)
+        for (int area = 0; area < SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Count; area++)
         {
             int plane = area == W(NativeSnapshotMemory.CurrentArea) ? NativeSnapshotMemory.LiveExploredMap :
                 NativeSnapshotMemory.SavedExploredMaps + area * ProgressionTableCodec.ExploredPlaneByteCount;
-            ProgressionTableCodec.ReadExploredPlane(memory.AsSpan(plane, ProgressionTableCodec.ExploredPlaneByteCount), AreaIds.At(area), progress);
+            ProgressionTableCodec.ReadExploredPlane(memory.AsSpan(plane, ProgressionTableCodec.ExploredPlaneByteCount), SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area), progress);
         }
         ProgressionTableCodec.ReadUsedStations(memory.AsSpan(NativeSnapshotMemory.SaveElevatorMarkers, ProgressionTableCodec.UsedStationByteCount), progress);
         ProgressionTableCodec.ReadAreaMaps(memory.AsSpan(NativeSnapshotMemory.MapStationMarkers, ProgressionTableCodec.MapStationByteCount), progress);

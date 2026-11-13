@@ -320,7 +320,7 @@ public static class GameSaveJsonCodec
     }
 
     /// <summary>Every retail area, in area order.</summary>
-    private static IEnumerable<AreaId> RetailAreas => Enumerable.Range(0, AreaIds.RetailCount).Select(AreaIds.At);
+    private static IReadOnlyList<AreaId> RetailAreas => AreaIds.All;
 
     /// <summary>Rebuilds the persistent progress a validated document lists, rejecting anything out of place.</summary>
     /// <param name="progression">The listed progress.</param>
@@ -340,21 +340,21 @@ public static class GameSaveJsonCodec
         DecodeNamed(progression.OpenedDoors, LockedDoorDefinitions.All, door => door.Name, progress.OpenedDoors, $"{property}.openedDoors");
         foreach (AreaId area in DecodeAreaOrder(progression.DefeatedBosses.Select(entry => entry?.Area), $"{property}.defeatedBosses"))
         {
-            BossBits bosses = progression.DefeatedBosses[AreaIds.ToIndex(area)].Bosses;
+            BossBits bosses = progression.DefeatedBosses[ListPosition(area)].Bosses;
             if ((bosses & ~AllBossFlags) != BossBits.None)
                 throw new InvalidDataException($"{property}.defeatedBosses names an unknown boss in {area}");
             progress.SetDefeatedBosses(area, bosses);
         }
         foreach (AreaId area in DecodeAreaOrder(progression.UsedStations.Select(entry => entry?.Area), $"{property}.usedStations"))
         {
-            int[] stations = progression.UsedStations[AreaIds.ToIndex(area)].Stations ??
+            int[] stations = progression.UsedStations[ListPosition(area)].Stations ??
                 throw new InvalidDataException($"{property}.usedStations of {area} is required");
             DecodeNumbers(stations, progress.UsedStations(area), $"{property}.usedStations of {area}");
         }
         int previousMap = -1;
         foreach (AreaId area in progression.AcquiredMaps)
         {
-            int index = AreaIds.ToIndex(area);
+            int index = ListPosition(area);
             if (index <= previousMap)
                 throw new InvalidDataException($"{property}.acquiredMaps must be in area order without duplicates");
             progress.SetAreaMap(area, acquired: true);
@@ -362,7 +362,7 @@ public static class GameSaveJsonCodec
         }
         foreach (AreaId area in DecodeAreaOrder(progression.ExploredAreas.Select(entry => entry?.Area), $"{property}.exploredAreas"))
         {
-            MapCoordinateJsonDocument[] tiles = progression.ExploredAreas[AreaIds.ToIndex(area)].Tiles ??
+            MapCoordinateJsonDocument[] tiles = progression.ExploredAreas[ListPosition(area)].Tiles ??
                 throw new InvalidDataException($"{property}.exploredAreas of {area} requires tiles");
             int previousIndex = -1;
             foreach (MapCoordinateJsonDocument tile in tiles)
@@ -379,18 +379,28 @@ public static class GameSaveJsonCodec
         return progress;
     }
 
+    /// <summary>The position of <paramref name="area"/> in the save file's per-area lists, which follow <see cref="AreaIds.All"/>.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="area"/> names no area.</exception>
+    private static int ListPosition(AreaId area)
+    {
+        for (int position = 0; position < RetailAreas.Count; position++)
+            if (RetailAreas[position] == area)
+                return position;
+        throw new InvalidDataException($"The save names {area}, which is no area.");
+    }
+
     /// <summary>Requires one entry per retail area, in area order, and returns the areas.</summary>
     private static List<AreaId> DecodeAreaOrder(IEnumerable<AreaId?> areas, string property)
     {
         var listed = new List<AreaId>();
         foreach (AreaId? entry in areas)
         {
-            if (entry is not { } area || AreaIds.ToIndex(area) != listed.Count)
+            if (entry is not { } area || ListPosition(area) != listed.Count)
                 throw new InvalidDataException($"{property}[{listed.Count}] is missing or out of area order");
             listed.Add(area);
         }
-        if (listed.Count != AreaIds.RetailCount)
-            throw new InvalidDataException($"{property} must contain {AreaIds.RetailCount} areas");
+        if (listed.Count != RetailAreas.Count)
+            throw new InvalidDataException($"{property} must contain {RetailAreas.Count} areas");
         return listed;
     }
 

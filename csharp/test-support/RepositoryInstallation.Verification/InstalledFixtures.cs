@@ -347,7 +347,6 @@ internal static class InstalledFixtures
     private static readonly Lazy<SuperMetroid.AssetExtraction.Rooms.Artwork.RoomCharacterAtlas> standardObjects =
         Shared<SuperMetroid.AssetExtraction.Rooms.Artwork.RoomCharacterAtlas>("standard objects", () =>
             SuperMetroid.AssetExtraction.StandardObjectArtworkFiles.LoadForImport(
-                CartridgeImportContent.Component(GameInstallationLayout.StandardObjectDirectoryName),
                 CartridgeImportContent.ImportData(GameInstallationLayout.StandardObjectDirectoryName)));
 
     /// <summary>

@@ -299,7 +299,7 @@ public static class GameAssetInstaller
         new(GameInstallationLayout.StraddledTerrainDirectoryName, InstallerComponentKind.Standalone,
             Step("Decoding straddled terrain...", (_, d) => StraddledTerrainFiles.Extract(d, SupportedCartridge.Sha256))),
         new(GameInstallationLayout.StandardObjectDirectoryName,
-            Step("Extracting standard sprite artwork...", (bus, d) => StandardObjectArtworkFiles.Extract(bus, d, SupportedCartridge.Sha256))),
+            Step("Extracting standard sprite artwork...", (bus, d) => StandardObjectArtworkFiles.Extract(bus, d))),
         new(GameInstallationLayout.ProjectileDirectoryName,
             Step("Extracting projectile compositions...", (bus, d) => ProjectilePresentationFiles.Extract(bus, d))),
         new(GameInstallationLayout.EnemyTileDirectoryName,

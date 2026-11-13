@@ -8,9 +8,10 @@ namespace SuperMetroid.AssetExtraction.Progression;
 /// <summary>
 /// The cartridge's stored form of persistent progress (#1475): the event, boss, Chozo-orb, item, door, station and
 /// map-station tables of its save mirror, and each area's explored-map plane. Story events, doors and item locations
-/// are numbered through <see cref="StoryEventNumbers"/> and <see cref="RoomPlacementNumbers"/>. The import pipeline reads SpaceTime's copy
-/// through it, and the hosts' legacy save-image codec and the checks' snapshot imports read and write saves through it;
-/// nothing in the game knows this form.
+/// are numbered through <see cref="StoryEventNumbers"/> and <see cref="RoomPlacementNumbers"/>. The import pipeline
+/// decodes SpaceTime's copy through it into the story events, item locations, doors and stations it decides, which the
+/// installation holds by name (#1709); the hosts' legacy save-image codec and the checks' snapshot imports read and write
+/// saves through it. Neither the game nor the installation it loads knows this form.
 /// </summary>
 /// <remarks>
 /// Bit tables store flag <c>n</c> in bit <c>n % 8</c> of byte <c>n / 8</c>. The boss table holds a byte per area slot,

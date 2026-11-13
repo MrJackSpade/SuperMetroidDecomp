@@ -14,17 +14,22 @@ public static class TitleGradientFile
     public const string FileName = "title-gradient.json";
 
     /// <summary>
-    /// Revision 3 of the sixteen-variant schema (#1468): each variant's stops, each the line its band begins on, its RGB5
-    /// colour, the layers it blends with and whether it subtracts. Revision 2 stored every screen line; revision 1 also
-    /// stored the blend as a control byte.
+    /// Revision 4 of the sixteen-variant schema (#1468): the variants in zoom-bucket order, each by its stops, each the line
+    /// its band begins on, its RGB5 colour and the name of its blend (#1709). Revision 3 stored the blend as the layers it
+    /// blends with and whether it subtracts, and keyed each variant by its bucket; revision 2 stored every screen line;
+    /// revision 1 also stored the blend as a control byte.
     /// </summary>
-    public const int Version = 3;
+    public const int Version = 4;
+
+    /// <summary>Every gradient blend by its exact name.</summary>
+    private static readonly Dictionary<string, GradientBlend> BlendsByName =
+        Enum.GetValues<GradientBlend>().ToDictionary(blend => blend.ToString(), StringComparer.Ordinal);
 
     /// <summary>Validates all sixteen authored zoom variants and compiles their stops.</summary>
     /// <param name="json">UTF-8 JSON read from its current position to the end and left open for the caller.</param>
     /// <returns>An immutable presentation whose gradients do not retain the document's mutable arrays.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
-    /// <exception cref="InvalidDataException">JSON is invalid or ambiguous, its version or variant ordering/count is wrong, or a variant's stops do not start on line 0, run top to bottom on the screen and hold RGB5 colours.</exception>
+    /// <exception cref="InvalidDataException">JSON is invalid or ambiguous, its version or variant count is wrong, or a variant's stops do not start on line 0, run top to bottom on the screen, hold RGB5 colours and name a gradient blend.</exception>
     public static TitleGradientPresentation Read(Stream json)
     {
         TitleGradientDocument document;
@@ -53,11 +58,8 @@ public static class TitleGradientFile
         for (int variant = 0; variant < variants.Length; variant++)
         {
             TitleGradientVariant? source = document.Variants[variant];
-            if (source is null || source.ZoomHighNibble != variant || source.Stops is null || source.Stops.Length == 0)
-            {
-                throw new InvalidDataException(
-                    $"Title gradient variant {variant} must identify nibble {variant} and contain stops.");
-            }
+            if (source?.Stops is null || source.Stops.Length == 0)
+                throw new InvalidDataException($"Title gradient variant {variant} must contain stops.");
 
             var stops = ImmutableArray.CreateBuilder<GradientStop>(source.Stops.Length);
             foreach (TitleGradientStop? value in source.Stops)
@@ -82,43 +84,28 @@ public static class TitleGradientFile
     }
 
     /// <summary>
-    /// What <paramref name="stop"/>'s colour does (#1514): subtracted from the floor and the backdrop, it darkens them; added
-    /// to the floor, the backdrop and the sprites, it brightens them.
+    /// The gradient blend <paramref name="stop"/> names (#1514, #1709): its colour subtracted from the floor and the backdrop,
+    /// darkening them, or added to the floor, the backdrop and the sprites, brightening them.
     /// </summary>
-    /// <exception cref="InvalidDataException">The stop blends with other layers, or another way, than the gradient's two blends.</exception>
-    private static GradientBlend Blend(TitleGradientStop stop) => stop switch
-    {
-        { BlendsFloor: true, BlendsBackdrop: true, BlendsObjects: false, Subtracts: true } => GradientBlend.DarkensFloorAndBackdrop,
-        { BlendsFloor: true, BlendsBackdrop: true, BlendsObjects: true, Subtracts: false } => GradientBlend.BrightensFloorBackdropAndSprites,
-        _ => throw new InvalidDataException(
-            $"Title gradient stop at line {stop.Line} neither darkens the floor and the backdrop nor brightens them and the sprites."),
-    };
+    /// <exception cref="InvalidDataException">The stop names no gradient blend.</exception>
+    private static GradientBlend Blend(TitleGradientStop stop) =>
+        stop.Blend is not null && BlendsByName.TryGetValue(stop.Blend, out GradientBlend blend)
+            ? blend
+            : throw new InvalidDataException(
+                $"Title gradient stop at line {stop.Line} names blend '{stop.Blend}', which neither darkens the floor and the backdrop nor brightens them and the sprites.");
 
-    /// <summary>
-    /// The authored stop for a compiled <paramref name="stop"/>: its line, its colour, the layers it blends with and
-    /// whether it subtracts.
-    /// </summary>
+    /// <summary>The authored stop for a compiled <paramref name="stop"/>: its line, its colour and the name of its blend.</summary>
     /// <exception cref="InvalidDataException"><paramref name="stop"/>'s blend is not a defined gradient blend.</exception>
-    public static TitleGradientStop Author(GradientStop stop)
+    public static TitleGradientStop Author(GradientStop stop) => new()
     {
-        bool darkens = stop.Blend switch
-        {
-            GradientBlend.DarkensFloorAndBackdrop => true,
-            GradientBlend.BrightensFloorBackdropAndSprites => false,
-            _ => throw new InvalidDataException($"Title gradient stop blends in undefined way {stop.Blend}."),
-        };
-        return new TitleGradientStop
-        {
-            Line = stop.Line,
-            Red = stop.Colour.FadeLevels.Red,
-            Green = stop.Colour.FadeLevels.Green,
-            Blue = stop.Colour.FadeLevels.Blue,
-            BlendsFloor = true,
-            BlendsObjects = !darkens,
-            BlendsBackdrop = true,
-            Subtracts = darkens,
-        };
-    }
+        Line = stop.Line,
+        Red = stop.Colour.FadeLevels.Red,
+        Green = stop.Colour.FadeLevels.Green,
+        Blue = stop.Colour.FadeLevels.Blue,
+        Blend = Enum.IsDefined(stop.Blend)
+            ? stop.Blend.ToString()
+            : throw new InvalidDataException($"Title gradient stop blends in undefined way {stop.Blend}."),
+    };
 
     /// <summary>Serializes every gradient variant as UTF-8 JSON bytes.</summary>
     /// <param name="json">Destination stream written at its current position and left open; trailing bytes are not truncated.</param>

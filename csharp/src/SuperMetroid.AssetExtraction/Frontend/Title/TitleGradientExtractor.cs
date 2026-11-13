@@ -21,7 +21,6 @@ internal static class TitleGradientExtractor
                 CartridgeImportSource.Require(bus), checked((ushort)(variant << 4)));
             variants[variant] = new TitleGradientVariant
             {
-                ZoomHighNibble = variant,
                 Stops = [.. decoded.Stops.Select(TitleGradientFile.Author)],
             };
         }

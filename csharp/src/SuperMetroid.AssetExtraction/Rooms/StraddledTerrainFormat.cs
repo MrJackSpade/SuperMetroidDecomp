@@ -9,9 +9,11 @@ internal static class StraddledTerrainFormat
     /// <summary>
     /// Supported straddled-terrain schema revision. Revision one holds, for every block a Wave shot's scan can land halfway
     /// through, the lead its end contributes; for every block number, the tail its start contributes; and for every lead
-    /// and tail, the terrain they make (#1612).
+    /// and tail, the terrain they make (#1612). Revision two lists the classes of blocks that share a lead or a tail by
+    /// their collision kind, mirroring and block numbers, and the terrain each lead class makes with each tail class, in
+    /// place of leads and tails numbered by the level word's stored halves (#1709).
     /// </summary>
-    internal const int Version = 1;
+    internal const int Version = 2;
 
     /// <summary>JSON filename holding the decoded straddled terrain.</summary>
     internal const string FileName = "straddled-terrain.json";

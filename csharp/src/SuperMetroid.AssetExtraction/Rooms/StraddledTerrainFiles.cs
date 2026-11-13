@@ -1,5 +1,4 @@
 using System.Text.Json;
-using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -17,12 +16,20 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// to exactly one terrain block and every terrain block is stored as exactly one level word, so decoding each word once
 /// gives each block's two stored halves. A first block's lead is its second stored half, a second block's tail is its
 /// first stored half (which only its block number decides), and a lead and tail make the terrain the word stored as
-/// that lead followed by that tail decodes to.
+/// that lead followed by that tail decodes to. The halves stay here: the installed file holds the classes of blocks that
+/// share a lead or a tail, by their collision kind, mirroring and block numbers, and the terrain each pair of classes
+/// makes (#1709).
 /// </remarks>
 public static class StraddledTerrainFiles
 {
-    /// <summary>Every mirroring, in the order the leads are written.</summary>
+    /// <summary>Every mirroring, in the order the lead classes are listed within a collision kind.</summary>
     private static readonly BlockMirroring[] Mirrorings = Enum.GetValues<BlockMirroring>();
+
+    /// <summary>Every collision kind, in the order the lead classes are listed.</summary>
+    private static readonly RoomCollisionType[] Kinds = Enum.GetValues<RoomCollisionType>();
+
+    /// <summary>How many block numbers a block set holds.</summary>
+    private const int BlockCount = RoomBlockAppearance.LastBlock + 1;
 
     /// <summary>Every mirroring by its name.</summary>
     private static readonly Dictionary<string, BlockMirroring> MirroringsByName =
@@ -30,7 +37,7 @@ public static class StraddledTerrainFiles
 
     /// <summary>Every collision kind by its name.</summary>
     private static readonly Dictionary<string, RoomCollisionType> KindsByName =
-        Enum.GetValues<RoomCollisionType>().ToDictionary(kind => kind.ToString(), StringComparer.Ordinal);
+        Kinds.ToDictionary(kind => kind.ToString(), StringComparer.Ordinal);
 
     /// <summary>
     /// Decodes the straddled terrain and writes it as JSON. No manifest is written (#1693): the document names its own
@@ -60,95 +67,108 @@ public static class StraddledTerrainFiles
 
     /// <summary>
     /// The straddled terrain decoded from <see cref="RoomLevelWordCodec"/>: every level word decoded once, its halves
-    /// giving its block's lead and tail, and every lead and tail decoded as the word they are stored as.
+    /// giving its block's lead and tail; the blocks sharing a lead, and the block numbers sharing a tail, listed as
+    /// classes; and every lead and tail decoded as the word they are stored as.
     /// </summary>
-    /// <exception cref="InvalidOperationException">The codec does not store every terrain block as exactly one word.</exception>
+    /// <exception cref="InvalidOperationException">
+    /// The codec does not store every terrain block as exactly one word, the start of a block depends on more than its
+    /// number, or blocks of different collision kinds or mirrorings share a lead.
+    /// </exception>
     internal static StraddledTerrainDocument Decode()
     {
-        var leadRows = new Dictionary<RoomCollisionType, Dictionary<BlockMirroring, int[]>>();
-        foreach (RoomCollisionType kind in RoomLevelWordCodec.KindsByNibble)
-            leadRows.Add(kind, Mirrorings.ToDictionary(mirroring => mirroring, _ => Unset(RoomBlockAppearance.LastBlock + 1)));
-        int[] tails = Unset(RoomBlockAppearance.LastBlock + 1);
+        var leadOf = new Dictionary<RoomTerrainBlock, int>();
+        int[] tailOf = Enumerable.Repeat(-1, BlockCount).ToArray();
         for (int value = 0; value <= ushort.MaxValue; value++)
         {
             RoomTerrainBlock terrain = RoomLevelWordCodec.Decode((ushort)value);
-            int block = terrain.Appearance.Block;
-            int[] leads = leadRows[terrain.Collision][terrain.Appearance.Mirroring];
-            if (leads[block] >= 0)
+            if (!leadOf.TryAdd(terrain, RoomLevelWordCodec.SecondStoredHalf((ushort)value)))
                 throw new InvalidOperationException($"Two level words decode to {terrain}.");
-            leads[block] = RoomLevelWordCodec.SecondStoredHalf((ushort)value);
+            int block = terrain.Appearance.Block;
             int tail = RoomLevelWordCodec.FirstStoredHalf((ushort)value);
-            if (tails[block] >= 0 && tails[block] != tail)
+            if (tailOf[block] >= 0 && tailOf[block] != tail)
                 throw new InvalidOperationException($"The start of block {block} depends on more than its number.");
-            tails[block] = tail;
+            tailOf[block] = tail;
         }
-        if (leadRows.Values.SelectMany(rows => rows.Values).Any(row => row.Contains(-1)) || tails.Contains(-1))
+        if (leadOf.Count != Kinds.Length * Mirrorings.Length * BlockCount || tailOf.Contains(-1))
             throw new InvalidOperationException("A terrain block is stored as no level word.");
-        var outcomes = new StraddledTerrainDocument.Outcome[RoomLevelWordCodec.HalfValues][];
-        for (int lead = 0; lead < outcomes.Length; lead++)
+
+        // Each class is listed by what it holds, in the order of the first block it holds.
+        int[][] tailClasses = [.. Enumerable.Range(0, BlockCount)
+            .GroupBy(block => tailOf[block])
+            .Select(blocks => blocks.Order().ToArray())
+            .OrderBy(blocks => blocks[0])];
+        int[] tailHalves = [.. tailClasses.Select(blocks => tailOf[blocks[0]])];
+        var leads = new List<StraddledTerrainDocument.Lead>();
+        foreach (IGrouping<int, RoomTerrainBlock> leadClass in leadOf.Keys
+            .OrderBy(terrain => terrain.Collision).ThenBy(terrain => terrain.Appearance.Mirroring).ThenBy(terrain => terrain.Appearance.Block)
+            .GroupBy(terrain => leadOf[terrain]))
         {
-            outcomes[lead] = new StraddledTerrainDocument.Outcome[RoomLevelWordCodec.HalfValues];
-            for (int tail = 0; tail < outcomes[lead].Length; tail++)
-            {
-                RoomTerrainBlock straddled = RoomLevelWordCodec.Decode(RoomLevelWordCodec.OfStoredHalves(lead, tail));
-                outcomes[lead][tail] = new StraddledTerrainDocument.Outcome(straddled.Appearance.Block,
-                    straddled.Appearance.Mirroring.ToString(), straddled.Collision.ToString());
-            }
+            RoomTerrainBlock first = leadClass.First();
+            if (leadClass.Any(terrain => terrain.Collision != first.Collision || terrain.Appearance.Mirroring != first.Appearance.Mirroring))
+                throw new InvalidOperationException($"Blocks of more than one collision kind or mirroring share the lead of {first}.");
+            leads.Add(new StraddledTerrainDocument.Lead(
+                first.Collision.ToString(),
+                first.Appearance.Mirroring.ToString(),
+                Runs(leadClass.Select(terrain => terrain.Appearance.Block)),
+                [.. tailHalves.Select(tail => Outcome(RoomLevelWordCodec.Decode(RoomLevelWordCodec.OfStoredHalves(leadClass.Key, tail))))]));
         }
         return new StraddledTerrainDocument(
             StraddledTerrainFormat.Version,
-            leadRows.ToDictionary(
-                kinds => kinds.Key.ToString(),
-                kinds => (IReadOnlyDictionary<string, IReadOnlyList<int>>)kinds.Value.ToDictionary(
-                    rows => rows.Key.ToString(), rows => (IReadOnlyList<int>)rows.Value)),
-            tails,
-            outcomes);
+            [.. tailClasses.Select(blocks => new StraddledTerrainDocument.Tail(Runs(blocks)))],
+            leads);
     }
 
-    /// <summary>Builds the straddled terrain from a document, requiring a lead for every first block and a tail for every block number.</summary>
-    /// <exception cref="InvalidDataException">The document is incomplete or names a mirroring or collision kind the game does not have.</exception>
+    /// <summary>
+    /// Builds the straddled terrain from a document, requiring every block number in exactly one tail class, every block
+    /// of every mirroring and collision kind in exactly one lead class, and a straddled block for every lead and tail.
+    /// </summary>
+    /// <exception cref="InvalidDataException">
+    /// The document is incomplete, places a block in two classes, or names a block, mirroring or collision kind the game
+    /// does not have.
+    /// </exception>
     internal static StraddledTerrain<RoomTerrainBlock> Read(StraddledTerrainDocument document)
     {
         Ensure.NotNull(document);
         if (document.Version != StraddledTerrainFormat.Version)
             throw new InvalidDataException("Straddled-terrain file has an unsupported version.");
-        IReadOnlyDictionary<string, IReadOnlyDictionary<string, IReadOnlyList<int>>> leadRows =
-            Require(document.Leads, "leads");
-        RoomCollisionType[] kinds = Enum.GetValues<RoomCollisionType>();
-        if (leadRows.Count != kinds.Length)
-            throw new InvalidDataException("Straddled-terrain leads must name every collision kind once.");
-        IReadOnlyList<int> tailsByNumber = Require(document.Tails, "tails");
-        if (tailsByNumber.Count != RoomBlockAppearance.LastBlock + 1)
-            throw new InvalidDataException("Straddled-terrain tails must hold every block number.");
-        var leads = new Dictionary<RoomTerrainBlock, int>();
-        var tails = new Dictionary<RoomTerrainBlock, int>();
-        foreach (RoomCollisionType kind in kinds)
+        IReadOnlyList<StraddledTerrainDocument.Tail?> tailClasses = Require(document.Tails, "tails");
+        int[] tailOf = Enumerable.Repeat(-1, BlockCount).ToArray();
+        for (int tail = 0; tail < tailClasses.Count; tail++)
         {
-            if (!leadRows.TryGetValue(kind.ToString(), out IReadOnlyDictionary<string, IReadOnlyList<int>>? rows) || rows is null ||
-                rows.Count != Mirrorings.Length)
-                throw new InvalidDataException($"Straddled-terrain leads must name every mirroring once for {kind}.");
-            foreach (BlockMirroring mirroring in Mirrorings)
+            foreach (int block in Blocks(Require(tailClasses[tail], $"tail class {tail}").Blocks, $"tail class {tail}"))
             {
-                if (!rows.TryGetValue(mirroring.ToString(), out IReadOnlyList<int>? blocks) || blocks is null ||
-                    blocks.Count != RoomBlockAppearance.LastBlock + 1)
-                    throw new InvalidDataException(
-                        $"Straddled-terrain leads must hold every block number for {kind} mirrored {mirroring}.");
-                for (int block = 0; block < blocks.Count; block++)
-                {
-                    RoomTerrainBlock terrain = RoomTerrainBlock.Of(block, mirroring, kind);
-                    leads.Add(terrain, blocks[block]);
-                    // The start of a block contributes the same whatever its mirroring and kind.
-                    tails.Add(terrain, tailsByNumber[block]);
-                }
+                if (tailOf[block] >= 0)
+                    throw new InvalidDataException($"Straddled-terrain block {block} lies in two tail classes.");
+                tailOf[block] = tail;
             }
         }
-        IReadOnlyList<IReadOnlyList<StraddledTerrainDocument.Outcome>> rowsByLead =
-            Require(document.Outcomes, "outcomes");
-        var outcomes = new IReadOnlyList<RoomTerrainBlock>[rowsByLead.Count];
-        for (int lead = 0; lead < outcomes.Length; lead++)
+        if (tailOf.Contains(-1))
+            throw new InvalidDataException("Straddled-terrain tail classes must hold every block number.");
+
+        IReadOnlyList<StraddledTerrainDocument.Lead?> leadClasses = Require(document.Leads, "leads");
+        var leads = new Dictionary<RoomTerrainBlock, int>();
+        var tails = new Dictionary<RoomTerrainBlock, int>();
+        var outcomes = new IReadOnlyList<RoomTerrainBlock>[leadClasses.Count];
+        for (int lead = 0; lead < leadClasses.Count; lead++)
         {
-            outcomes[lead] = Require(rowsByLead[lead], $"outcomes for lead {lead}").Select(Terrain).ToArray();
+            StraddledTerrainDocument.Lead leadClass = Require(leadClasses[lead], $"lead class {lead}");
+            RoomCollisionType kind = Named(KindsByName, leadClass.Collision);
+            BlockMirroring mirroring = Named(MirroringsByName, leadClass.Mirroring);
+            foreach (int block in Blocks(leadClass.Blocks, $"lead class {lead}"))
+            {
+                RoomTerrainBlock terrain = RoomTerrainBlock.Of(block, mirroring, kind);
+                if (!leads.TryAdd(terrain, lead))
+                    throw new InvalidDataException($"Straddled-terrain block {terrain} lies in two lead classes.");
+                // The start of a block contributes the same whatever its mirroring and kind.
+                tails.Add(terrain, tailOf[block]);
+            }
+            IReadOnlyList<StraddledTerrainDocument.Outcome?> straddles = Require(leadClass.Straddles, $"straddles of lead class {lead}");
+            if (straddles.Count != tailClasses.Count)
+                throw new InvalidDataException($"Straddled-terrain lead class {lead} makes terrain with {straddles.Count} tail classes, not {tailClasses.Count}.");
+            outcomes[lead] = [.. straddles.Select(Terrain)];
         }
+        if (leads.Count != Kinds.Length * Mirrorings.Length * BlockCount)
+            throw new InvalidDataException("Straddled-terrain lead classes must hold every block of every mirroring and collision kind.");
         try
         {
             return new StraddledTerrain<RoomTerrainBlock>(leads, tails, outcomes);
@@ -158,6 +178,39 @@ public static class StraddledTerrainFiles
             throw new InvalidDataException($"Straddled-terrain file is incomplete: {error.Message}", error);
         }
     }
+
+    /// <summary>The runs of consecutive block numbers <paramref name="blocks"/> holds, lowest first.</summary>
+    private static StraddledTerrainDocument.BlockRun[] Runs(IEnumerable<int> blocks)
+    {
+        var runs = new List<StraddledTerrainDocument.BlockRun>();
+        foreach (int block in blocks.Order())
+        {
+            if (runs.Count > 0 && runs[^1].Last + 1 == block)
+                runs[^1] = runs[^1] with { Last = block };
+            else
+                runs.Add(new StraddledTerrainDocument.BlockRun(block, block));
+        }
+        return [.. runs];
+    }
+
+    /// <summary>Every block number a class's runs hold.</summary>
+    /// <exception cref="InvalidDataException">The class holds no runs, or a run is empty or names a block no block set holds.</exception>
+    private static IEnumerable<int> Blocks(IReadOnlyList<StraddledTerrainDocument.BlockRun?>? runs, string what)
+    {
+        if (runs is null || runs.Count == 0)
+            throw new InvalidDataException($"Straddled-terrain {what} holds no blocks.");
+        foreach (StraddledTerrainDocument.BlockRun? run in runs)
+        {
+            if (run is null || run.First < 0 || run.Last < run.First || run.Last > RoomBlockAppearance.LastBlock)
+                throw new InvalidDataException($"Straddled-terrain {what} holds a run of blocks no block set holds.");
+            for (int block = run.First; block <= run.Last; block++)
+                yield return block;
+        }
+    }
+
+    /// <summary>How the file names a straddled terrain block.</summary>
+    private static StraddledTerrainDocument.Outcome Outcome(RoomTerrainBlock terrain) =>
+        new(terrain.Appearance.Block, terrain.Appearance.Mirroring.ToString(), terrain.Collision.ToString());
 
     /// <summary>The terrain block an outcome names.</summary>
     /// <exception cref="InvalidDataException">The outcome names a block, mirroring or collision kind the game does not have.</exception>
@@ -175,13 +228,10 @@ public static class StraddledTerrainFiles
     private static T Named<T>(Dictionary<string, T> byName, string? name) where T : struct, Enum =>
         name is not null && byName.TryGetValue(name, out T value)
             ? value
-            : throw new InvalidDataException($"Straddled-terrain outcome names {typeof(T).Name} '{name}', which the game does not have.");
+            : throw new InvalidDataException($"Straddled-terrain file names {typeof(T).Name} '{name}', which the game does not have.");
 
     /// <summary>Requires a document member the file must hold.</summary>
     /// <exception cref="InvalidDataException">The file holds no such member.</exception>
     private static T Require<T>(T? value, string name) where T : class =>
         value ?? throw new InvalidDataException($"Straddled-terrain file has no {name}.");
-
-    /// <summary>A row of <paramref name="count"/> entries, none of them decoded yet.</summary>
-    private static int[] Unset(int count) => Enumerable.Repeat(-1, count).ToArray();
 }

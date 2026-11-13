@@ -783,7 +783,7 @@ false,             CrashSequenceFinished: true);
     /// <summary>Commits the crash's transitional standing pose after this frame's animation.</summary>
     public static void ApplyCrashFinishPose(SamusState samus)
     {
-        // Transitional command two restores the normal input handler as well as beta. That
+        // Finishing the crash restores the normal input handler as well as beta. That
         // replaces a drained pose's movement handler too: a Samus drained mid-crash is free.
         samus.InputSnapshot.ShinesparkPoseInputLocked = false;
         samus.Drained.RelinquishMovementHandler();

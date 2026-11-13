@@ -293,7 +293,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             case MotherBrainBodyFunction.FakeDeathDescentPauseBeforeUnlock:
                 if (!MotherBrainEncounterAccess.DecrementMotherBrainTimerPastZero(state))
                     return;
-                // Samus command one restores the normal handler pair.
+                // Restoring Samus's control reinstalls the normal handler pair.
                 samus?.Control.Unlock();
                 state.Function = MotherBrainBodyFunction.FakeDeathDescentPauseBeforeFlash;
                 state.FunctionTimer = 8;
@@ -480,7 +480,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         // preserves scroll zero and clears scroll one, locking the arena to screen zero.
         SamusState requiredSamus = samus ?? throw new InvalidOperationException(
             "Mother Brain's fake-death input lock requires the active Samus state.");
-        // The arena lock runs Samus command zero, the stationary lock: its alpha handler places
+        // The arena lock is the stationary lock: its alpha handler places
         // no bombs and fires nothing new while the arena drains.
         requiredSamus.Control.LockStationary();
         _room.Services.RoomScroll.Write(1, RoomScrollState.RedBoundary);

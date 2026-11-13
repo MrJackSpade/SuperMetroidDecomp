@@ -288,7 +288,7 @@ public sealed class BabyMetroidCutsceneState
                 if (brainCollision)
                 {
                     Phase = BabyMetroidCutscenePhase.LatchOntoMotherBrain;
-                    samus.Drained.PutStanding(samus); // Drained Samus command one.
+                    samus.Drained.PutStanding(samus); // Stands the drained Samus up.
                 }
                 break;
 

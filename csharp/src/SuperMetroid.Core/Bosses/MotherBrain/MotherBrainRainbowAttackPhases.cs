@@ -65,7 +65,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         _state.LowerNeckMovement = MotherBrainNeckMovement.BobDown;
         _state.UpperNeckMovement = MotherBrainNeckMovement.BobUp;
 
-        // The rainbow's Samus command selects command five at 700 energy or above and command 24
+        // The rainbow's drain setup leaves Samus able to stand at 700 energy or above and unable to stand
         // below it. The test takes the sign of the wrapped difference, retained by AtLeastBySignedDifference.
         if (samus.Health >= 700)
             samus.Drained.SetupForRainbowBeamAbleToStand(samus);
@@ -405,7 +405,7 @@ internal sealed class MotherBrainRainbowAttackPhases
             BeamActive = false;
             requests.StopEarthquake();
             _state.RainbowBeamSoundPlaying = false;
-            samus.Control.Unlock(); // Samus command one.
+            samus.Control.Unlock(); // Restores Samus's control.
             // Released, Samus waits out the beam's cooldown before her next shot.
             requests.SamusProjectileCooldown = MotherBrainBeamDefinitions.BeamEndedSamusCooldown;
             _state.Phase = MotherBrainBodyFunction.SecondPhaseRainbowLetSamusFall;

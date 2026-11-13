@@ -42,7 +42,7 @@ internal static class CeresDestructionActors
     /// Its initializer installs an empty behaviour, so this vortex has no horizontal
     /// movement or wrap. The definition still names the moving behaviour before initialization. No slide
     /// policy applies to these actors. One proof against the authored data covers the complete mapping,
-    /// initializer operands, shared aliases and invalid-index rejection. The prior authored-
+    /// initializer values, shared aliases and invalid-index rejection. The prior authored-
     /// identity retention claim is superseded by verified semantic case selection; no table
     /// or generated cache remains. Animations have their separate existing proofs.</remarks>
     public static CeresDestructionActorDefinition InitialActor(int index)
@@ -73,7 +73,7 @@ internal static class CeresDestructionActors
     /// initializers give all four sheets the same palette and acceleration; where each starts is installed (#1615).
     /// Their definitions, initializers and single-frame loop animations follow one another at fixed spacing. Only the
     /// lower-right sheet installs the completion behaviour. Planet and title are separate
-    /// named roles with their own initializer operands and animations, not curve exceptions.
+    /// named roles with their own initializer values and animations, not curve exceptions.
     /// One metadata proof against the authored data checks every field and invalid-index rejection.
     /// Animations have their existing separate proofs.
     /// </remarks>

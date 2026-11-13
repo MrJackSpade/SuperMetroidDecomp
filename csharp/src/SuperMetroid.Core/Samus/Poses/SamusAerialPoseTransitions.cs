@@ -260,7 +260,7 @@ internal static class SamusAerialPoseTransitions
 
 
     /// <summary>
-    /// Applies the wall-jump check, solid-collision command five, and the jump launch after the block
+    /// Applies the wall-jump check, the wall-jump trigger, and the jump launch after the block
     /// wall test succeeds. The launch values are read from the game's dry-air tables.
     /// </summary>
     /// <param name="samus">The Samus this reads.</param>
@@ -337,9 +337,9 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
     /// launches through the right-facing one.
     /// </summary>
     /// <remarks>
-    /// The eventual seven-pixel horizontal push remains the ordinary wall-jump animation-command
+    /// The eventual seven-pixel horizontal push remains the ordinary wall-jump animation-cue
     /// path already implemented by <see cref="SamusPresentation.AnimateNoFx"/>. This method performs only the
-    /// immediate cleanup, prospective-pose command six, and environment-selected
+    /// immediate cleanup, the X-speed kill, and environment-selected
     /// vertical launch that occur when the wall-jump function runs.
     /// </remarks>
     public static void ApplyGrappleWallJump(SamusState samus)
@@ -757,7 +757,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
     /// <remarks>
     /// This deliberately receives the already-selected target instead of testing the
     /// neutral and aimed jump-transition art. The game does not consume stored shine when Jump is
-    /// first pressed; it waits until the animation's pose-transition command installs the neutral,
+    /// first pressed; it waits until the animation's pose-transition cue installs the neutral,
     /// aimed-up or diagonally-up normal jump.
     /// That delay is visible both to animation and to the 180-frame palette countdown.
     /// </remarks>

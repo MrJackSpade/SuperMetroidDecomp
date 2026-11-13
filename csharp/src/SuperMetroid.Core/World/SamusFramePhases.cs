@@ -229,7 +229,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
     }
 
     /// <summary>
-    /// The beta handler installed for this beta: the first of death, the suit's empty beta, command zero, command six,
+    /// The beta handler installed for this beta: the first of death, the suit's empty beta, the stationary lock, the station lock,
     /// the attract demo, the gunship's handler and another lock that holds, otherwise the normal handler.
     /// </summary>
     private SamusBetaHandler DispatchedBetaHandler(SamusHandlerFrame frame, SamusState samus)
@@ -286,7 +286,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             throw new InvalidOperationException("Live Samus terrain reactions require an active room.");
         // Block-inside detection samples the body after alpha's radius update: a pose whose
         // radius grew in last frame's beta reaches air spikes with its new body now.
-        // Samus command zero replaces the ordinary alpha handler with a locked one,
+        // The stationary lock replaces the ordinary alpha handler with a locked one,
         // which never dispatches block-inside detection. Automatic Reserve recovery
         // uses this exact lock; re-sampling spikes while it owns Samus changes the
         // post-recovery knockback window used by Shinespark Suit.
@@ -398,8 +398,8 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
     {
         if (!frame.MovementEnabled)
             return;
-        // A Samus command issued by enemy AI that cancels pending transitions cleared alpha's prospective
-        // poses and commands, so nothing pending is committed this frame.
+        // A control setup issued by enemy AI that cancels pending transitions cleared alpha's prospective
+        // poses and momentum responses, so nothing pending is committed this frame.
         if (samus.ConsumePendingPoseTransitionCancellation())
         {
             _player.ProspectiveSamusPose = null;
@@ -494,7 +494,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             _player.ProspectiveSamusPose = null;
             _player.ProspectiveSamusFallbackPose = null;
         }
-        // Command zero installs an empty beta handler independently of the
+        // The stationary lock installs an empty beta handler independently of the
         // movement handler that was active beforehand. Automatic Reserve can
         // therefore freeze an in-progress hurt launch; special owners such as
         // knockback's handler must not outrank this explicitly installed handler.
@@ -520,7 +520,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         {
             // Deliberately empty: Draygon's actor owns coordinates.
         }
-        // Special prospective-pose command five installs the X-ray movement handler instead of the
+        // X-ray's activation pose installs the X-ray movement handler instead of the
         // normal movement-type dispatcher. Stable X-ray bodies select one of five
         // angle frames; turning on the ground deliberately performs no beta movement.
         else if (samus.Xray.OwnsSamusControl)
@@ -574,7 +574,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
                 _clock.Counter,
                 room.RoomObjects);
         }
-        // Special command three replaces both handlers. Preserve the retained
+        // Arming the bomb jump replaces both handlers. Preserve the retained
         // pose while input is locked; the late-rise helper can restore input
         // before the movement handler ends, allowing a matched cancellation.
         else if (samus.BombJumpStarting || samus.BombJumpActive)
@@ -601,7 +601,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         // Crystal Flash installs one of three Crystal Flash movement handlers and an
         // empty pose-input handler. Mother Brain's rainbow command keeps those handlers,
         // but temporarily replaces frame-handler beta with a lock that calls no
-        // movement at all. Once command one restores the normal beta, Flash resumes under
+        // movement at all. Once restoring Samus's control reinstalls the normal beta, Flash resumes under
         // the drained pose. The Super Metroid never installs that beta lock, so its
         // interruption continues Flash immediately. Model the physical beta owner,
         // not merely the fact that a cinematic pose exists.
@@ -630,7 +630,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         // Crystal Flash handler still owns Samus's movement handler.
         // Controller zero changes only the pose, so a crashing spark keeps
         // its handler and finishes below; the drained-fall cue relinquishes the spark itself.
-        // The rainbow-beam lock is the beta lock itself: once command one restores
+        // The rainbow-beam lock is the beta lock itself: once restoring Samus's control reinstalls
         // the normal beta during enemy AI, this same frame's beta dispatches the knockback
         // pose's knockback mover below, as the movement table does.
         // The controller-held standing/crouching phases last only while Samus keeps a
@@ -690,9 +690,9 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             !(SamusPoseMetadata.IsForwardFacingPose(samus.Pose) &&
               room.Enemies.Elevator.ElevatorRunsSamusMovement))
         {
-            // Elevator command seven installs the moving beta handler for departure.
+            // The elevator setup installs the moving beta handler for departure.
             // Finishing the door's opening scroll reinstalls it only on downward arrival. Upward arrival
-            // retains command zero until the actor reaches rest; terrain probes there
+            // retains the lock until the actor reaches rest; terrain probes there
             // would incorrectly wake the scroll triggers the platform passes.
             _player.ProspectiveSamusPose = null;
             _player.ProspectiveSamusFallbackPose = null;
@@ -706,7 +706,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         }
         // The special movement type also has a normal movement-table entry.
         // It only clears the momentum-transition selector. This path is reachable
-        // when hurt-expiry command one replaces a freshly installed Shinespark
+        // when the hit's expiry replaces a freshly installed Shinespark
         // handler while retaining its shinespark windup body and palette (Shinespark Suit).
         else if (SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.Special)
         {
@@ -1120,7 +1120,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         _player.LastGroundedSamusMovement = new GroundedMovementResult(default, grounding);
         // The normal knockback entry still publishes collision result one when its
         // downward probe hits the floor. Reuse the ordinary landing seam
-        // for presentation, pose selection and command-five speed cleanup.
+        // for presentation, pose selection and the landing's speed cleanup.
         if (grounding.Collided && !groundingDisplacement.IsNegative)
             _player.LastAerialSamusMovement = new AerialMovementResult(Landed: true, HitCeiling: false);
     }
@@ -1198,7 +1198,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
 
         // The posture-transition movement type's input dispatcher is empty. Transition
         // poses can still have table entries, but reading them here prematurely
-        // interrupts crouch/morph animations before their animation command wins.
+        // interrupts crouch/morph animations before their animation cue wins.
         frame.SamplePoseInputLocks(samus,
             ((samus.InputSnapshot.ShinesparkPoseInputLocked || samus.InputSnapshot.CrystalFlashPoseInputLocked) && !samus.InputSnapshot.AutoJumpInputPending) ||
             (SamusPoseMetadata.IsForwardFacingPose(samus.Pose) && room.Enemies.Elevator.ElevatorStatus != ElevatorActorStatus.Inactive));
@@ -1274,7 +1274,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         }
 
         // The timer/hack handler runs after movement and before animation.
-        // Two of Samus's commands install the Mother Brain-specific Up-edge branches; the
+        // Two of Samus's control setups install the Mother Brain-specific Up-edge branches; the
         // method is a cheap no-op for every ordinary gameplay state.
         if (frame.Mode.Beta != SamusBetaHandler.SuitPickup)
             samus.Drained.StepGetUpHandler(samus, _controller1.NewlyPressed);
@@ -1309,7 +1309,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
                 _player.Colours,
                 _artwork.SamusBodyArt?.DeathSteps);
         }
-        // Command six's empty beta skips animation like the locked beta.
+        // The station lock's empty beta skips animation like the locked beta.
         else if (frame.Mode.Beta is not (SamusBetaHandler.ScriptLocked or SamusBetaHandler.RefillStation or SamusBetaHandler.SuitPickup))
         {
             SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { BossPresent = room.Enemies.RoomStatus.Boss is not null, ControllerInput = _controller1.Current, FrameCounter = _clock.Counter, Random = _system.Random, BeginLiquidSoundRequestFrame = false, ProspectiveInputPose = _player.ProspectiveSamusPose?.ProspectivePose ?? _player.ProspectiveSamusFallbackPose, DemoPoseInput = _attractDemo.IsAttractDemo, QueueEchoSound = audio.QueueEchoSound });

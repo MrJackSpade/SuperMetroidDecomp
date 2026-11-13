@@ -2,8 +2,8 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Samus;
 
 /// <summary>
-/// The installed frame-handler pair and the Samus commands that replace it, both through
-/// Samus commands and through the direct handler installs elsewhere. Every change to who controls Samus goes through one of these
+/// The installed frame-handler pair and the control setups that replace it, both through
+/// scripted control setups and through the direct handler installs elsewhere. Every change to who controls Samus goes through one of these
 /// operations; gates read <see cref="Mode"/>.
 /// </summary>
 internal sealed class SamusControl : IRoomSamusControl
@@ -15,13 +15,13 @@ internal sealed class SamusControl : IRoomSamusControl
     public bool AlphaLocked => Mode.Alpha == SamusAlphaHandler.Locked;
 
     /// <summary>
-    /// Samus command zero: installs the locked alpha and the stationary beta, retaining the existing pose and animation
+    /// The stationary lock: installs the locked alpha and the stationary beta, retaining the existing pose and animation
     /// cursor. Do not reset the pose to standing: a script can legitimately freeze a running or airborne frame. The
     /// stationary beta updates contact and minimap state but does not animate Samus.
     /// </summary>
     public void LockStationary() => Install(SamusAlphaHandler.Locked, SamusBetaHandler.ScriptLocked);
 
-    /// <summary>Samus command one and every other install of the normal pair.</summary>
+    /// <summary>Restores Samus's control: every install of the normal pair.</summary>
     public void Unlock() => Mode = SamusControlMode.Normal;
 
     /// <summary>
@@ -35,13 +35,13 @@ internal sealed class SamusControl : IRoomSamusControl
     }
 
     /// <summary>
-    /// Samus command six: the locked alpha with an empty beta, which neither moves nor
+    /// The station lock: the locked alpha with an empty beta, which neither moves nor
     /// animates Samus. A map station keeps it through the pause menu until the unpause command restores the normal pair.
     /// </summary>
     public void LockIntoRefillStation() => Install(SamusAlphaHandler.Locked, SamusBetaHandler.RefillStation);
 
     /// <summary>
-    /// The handler part of the unpause command: whenever the beta is command six's empty one, it
+    /// The handler part of the unpause command: whenever the beta is the station lock's empty one, it
     /// restores the normal pair. Any station that locked Samus, map or recharge, therefore lets go when the pause menu
     /// closes.
     /// </summary>

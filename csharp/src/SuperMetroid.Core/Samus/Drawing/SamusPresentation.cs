@@ -293,7 +293,7 @@ internal sealed class SamusPresentation
                 break;
 
             case SamusAnimationVerticalSpeedTransition verticalSpeed:
-                // Read only on an operand's place (#1535): the pose depends on either part of the vertical speed alone.
+                // Read only on a cue value's place (#1535): the pose depends on either part of the vertical speed alone.
                 samus.PendingTransitionalPose = samus.Kinematics.YSpeed.Whole != 0 || samus.Kinematics.YSpeed.Fraction != 0
                     ? verticalSpeed.Airborne
                     : verticalSpeed.Grounded;
@@ -323,7 +323,7 @@ internal sealed class SamusPresentation
         if (samus.AnimationStep is not SamusAnimationDelay selected)
         {
             throw new InvalidDataException(
-                $"Samus animation instruction {step} selected frame {samus.AnimationFrame}, which is not a delay.");
+                $"Samus animation step {step} selected frame {samus.AnimationFrame}, which is not a delay.");
         }
         samus.AnimationFrameTimer = WrappingCountdown.Start(samus.AnimationFrameBuffer).AddFrames(selected.Ticks);
     }

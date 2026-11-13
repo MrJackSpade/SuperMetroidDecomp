@@ -587,7 +587,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Requires the active Samus actor for distance and attack decisions in Golden Torizo's animation.</summary>
     private static SamusState RequireGoldenTorizoSamus(SamusState? samus) =>
         samus ?? throw new InvalidOperationException(
-            "Golden Torizo instruction selection requires the active Samus actor.");
+            "Golden Torizo attack selection requires the active Samus actor.");
 
     /// <summary>Applies or reverses the displacement of a Bomb Torizo posture step.</summary>
     internal static void ApplyBombTorizoPosture(

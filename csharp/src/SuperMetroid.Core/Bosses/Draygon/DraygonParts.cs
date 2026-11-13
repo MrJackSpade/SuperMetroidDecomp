@@ -319,7 +319,7 @@ internal sealed class DraygonParts
     private void ApplyDraygonTailWhipHit(DraygonEnemyState state, SamusState? samus)
     {
         if (samus is null)
-            throw new InvalidOperationException("Draygon's tail-hit instruction requires Samus state.");
+            throw new InvalidOperationException("Draygon's tail-hit cue requires Samus state.");
 
         state.SwoopAcceleration = DraygonBehavior.DraygonInitialSwoopAcceleration;
         SamusSuitDamage.Hurt(samus, state.Body.Definition.Damage);

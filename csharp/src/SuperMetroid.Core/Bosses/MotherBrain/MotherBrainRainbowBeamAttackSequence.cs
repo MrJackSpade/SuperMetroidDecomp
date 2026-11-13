@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// updates readying the Baby's arrival, spawn request, final-beam hold, painful stagger, live neck
 /// angles/brain coordinates, rear-room retreat, crouch, grey transition, and corpse handshake.
 /// Palette, beam-effect, projectile, earthquake, graphics, spawn, and sound writes are retained as
-/// inspectable requests; coordinate, resource, timer, animation, and Samus-command
+/// inspectable requests; coordinate, resource, timer, animation, and Samus-control
 /// mutations execute directly.
 /// </remarks>
 public sealed class MotherBrainRainbowBeamAttackSequence

@@ -12,7 +12,7 @@ internal static class CeresDestructionActorDefinitions
     public const int ZebesActorCount = 6;
 
     /// <summary>The Zebes planet actor: its initializer,
-    /// waiting behaviour and animation; its operands set its placement/palette.
+    /// waiting behaviour and animation; its initializer's values set its placement/palette.
     /// Its slide behaviour accelerates by 64/256 pixels.</summary>
     internal static CeresDestructionActorDefinition ZebesPlanet =>
         new(CinematicSpriteFrameBehavior.Zebes, CinematicSpriteSegment.ZebesPlanet,

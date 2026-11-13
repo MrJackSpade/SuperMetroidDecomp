@@ -339,7 +339,7 @@ internal sealed class MotherBrainBody
     }
 
     /// <summary>
-    /// Body and background movement. The signed Y operand is added
+    /// Body and background movement. The signed Y displacement is added
     /// to the actor and subtracted from the background, keeping the large background body art
     /// rigidly attached to its small sprite hitbox record. X movement happens before this call,
     /// so the derived scroll must sample the already-updated body X.

@@ -361,13 +361,13 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = YappingMawAction.WaitingForSamus;
     }
 
-    /// <summary>Runs the observable portions of Samus command three plus holding Samus in the mouth.</summary>
+    /// <summary>Runs the observable portions of unspinning Samus plus holding Samus in the mouth.</summary>
     private void PositionSamusInYappingMaw(
         RoomEnemySlot slot,
         YappingMawEnemyState state,
         SamusState samus)
     {
-        // Samus command three drops any active grapple;
+        // Unspinning Samus drops any active grapple;
         // its transitional pose must be committed before the Maw releases input. It normalizes
         // spin-jump/wall-jump bodies. The input handler itself was already replaced by the
         // touch reaction; do not force unrelated falling/running poses to standing.

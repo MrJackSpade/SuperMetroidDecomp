@@ -25,7 +25,7 @@ public sealed class SamusGrappleState
     /// <summary>
     /// The flare position, retained under the older
     /// BeamStart name. <c>DrawConnectedBeam</c> starts drawing
-    /// here; do not use this position to reconstruct command-10 body positioning.
+    /// here; do not use this position to reconstruct the locked connection's body positioning.
     /// </summary>
     public Position16<RoomPixels> BeamStart { get; set; }
     /// <summary>

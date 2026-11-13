@@ -612,7 +612,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         if (--_state.FunctionTimer >= 0)
             return false;
 
-        // Samus command fifteen, the escape timer status, Mother Brain's boss bit, and the escape event
+        // Enabling timer handling, the escape timer status, Mother Brain's boss bit, and the escape event
         // belong to four different subsystems. Publish every edge instead of
         // silently writing the wrong debug room's area flags inside this actor.
         requests.TimerHandlingEnableRequested = true;

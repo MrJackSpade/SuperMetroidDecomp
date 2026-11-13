@@ -12,6 +12,6 @@ public enum CacatacAction
     MovingLeft = 1,
     /// <summary>Advances the split 16.16 right velocity, turns left at or beyond the maximum X bound, then evaluates the random attack gate.</summary>
     MovingRight,
-    /// <summary>Performs no patrol update while attack animation commands own the actor; also the initial target for population direction selector two.</summary>
+    /// <summary>Performs no patrol update while attack animation cues own the actor; also the initial target for population direction selector two.</summary>
     Stopped,
 }

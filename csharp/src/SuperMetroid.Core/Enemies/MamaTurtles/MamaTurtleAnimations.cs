@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.MamaTurtles;
 
 /// <summary>
 /// The Mama Turtle's and baby turtles' crawl, spin, shell and sleep animations (#641). Each
-/// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="MamaTurtleCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="MamaTurtleCue"/> naming what it does.
 /// </summary>
 internal static class MamaTurtleAnimations
 {

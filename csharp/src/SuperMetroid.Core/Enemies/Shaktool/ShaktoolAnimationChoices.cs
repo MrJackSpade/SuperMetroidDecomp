@@ -17,5 +17,5 @@ internal static class ShaktoolAnimationChoices
         (uint)segmentIndex < (uint)ShaktoolAnimationDefinitions.SegmentAnimations.Length
             ? ShaktoolAnimationDefinitions.SegmentAnimations[segmentIndex].CollisionAnimation
             : throw new InvalidDataException(
-                $"Shaktool instruction segment {segmentIndex} is outside seven records.");
+                $"Shaktool segment {segmentIndex} is not one of the seven segments.");
 }

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Skultera;
 
 /// <summary>
 /// Skultera's swimming and turning animations (#641). Each
-/// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="SkulteraCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="SkulteraCue"/> naming what it does.
 /// </summary>
 internal static class SkulteraAnimations
 {

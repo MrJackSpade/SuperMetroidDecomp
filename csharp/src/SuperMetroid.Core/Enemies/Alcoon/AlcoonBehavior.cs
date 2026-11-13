@@ -366,7 +366,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData? level)
     {
         if (level is null)
-            throw new InvalidOperationException("Alcoon movement instruction requires room collision data.");
+            throw new InvalidOperationException("Alcoon movement cue requires room collision data.");
 
         SignedSixteenSixteen displacement = state.Velocity.X;
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, displacement))

@@ -185,7 +185,7 @@ public sealed class SamusBombProjectileSystem
         // therefore reaches zero in time for a new Shoot edge during this same frame.
         // The forward-facing branch skips this call as well
         // as the HUD producer, but must still run the existing projectile slots below.
-        // Command-zero alpha runs the projectile update directly, skipping the HUD
+        // The stationary lock's alpha runs the projectile update directly, skipping the HUD
         // dispatcher that owns cooldown and new bomb placement.
         if (samus.Control.Mode.Beta != SamusBetaHandler.ScriptLocked && !SamusPoseMetadata.IsForwardFacingPose(samus.Pose))
             StepCooldown(samus.Xray.TimeIsFrozen);
@@ -340,7 +340,7 @@ public sealed class SamusBombProjectileSystem
     }
 
     /// <summary>
-    /// The Samus command that resumes her sounds. In main gameplay a spinning Samus re-queues her spin
+    /// Resumes Samus's sounds. In main gameplay a spinning Samus re-queues her spin
     /// sound through the spin-sound command; otherwise a flare of at least sixteen resumes the charge loop.
     /// </summary>
     private static void ResumeSoundsAfterPowerBombExplosion(

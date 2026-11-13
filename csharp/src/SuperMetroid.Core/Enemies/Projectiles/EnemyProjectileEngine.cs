@@ -713,7 +713,7 @@ internal sealed class EnemyProjectileEngine
     }
 
     /// <summary>
-    /// Runs the death actor's two explosion cues. Both consume one object-number operand and one
+    /// Runs the death actor's two explosion cues. Both consume one object number the cue carries and one
     /// random sample; <paramref name="xScatter"/> and <paramref name="yScatter"/> read that sample's fields that offset X and Y
     /// around the death actor, before both are centred back by <paramref name="center"/>.
     /// Sprite objects are separate from enemy projectiles, so these decorations never

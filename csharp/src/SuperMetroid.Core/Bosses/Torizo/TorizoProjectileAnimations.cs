@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
 /// Bomb and Golden Torizo's typed projectile animations (#641): each frame is a <see cref="TorizoProjectileFrame"/>
-/// pose of its animation, and each cue a <see cref="TorizoProjectileCue"/> with its typed operands.
+/// pose of its animation, and each cue a <see cref="TorizoProjectileCue"/> with the values it acts on.
 /// </summary>
 internal static class TorizoProjectileAnimations
 {

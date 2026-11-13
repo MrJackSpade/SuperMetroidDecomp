@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Chozo;
 
-/// <summary>NTSC acid-motion operands used by the Lower Norfair statue.</summary>
+/// <summary>NTSC acid-motion values used by the Lower Norfair statue.</summary>
 internal static class ChozoStatueFxData
 {
     /// <summary>Delay before motion.</summary>

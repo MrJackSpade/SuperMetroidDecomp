@@ -149,7 +149,7 @@ public sealed record GameArtwork : IGameplayArtwork
     /// <summary>The blocks room-object setups and block reactions write of their own accord.</summary>
     public InstalledRoomObjectSetupBlocks? RoomObjectSetupBlocks { get; init; }
 
-    /// <summary>X-ray reveal operands and item and special-room overlays.</summary>
+    /// <summary>X-ray reveal shapes and item and special-room overlays.</summary>
     public InstalledXrayReveals? XrayRevealVisuals { get; init; }
 
     /// <summary>Timed projectile frame sprite choices.</summary>

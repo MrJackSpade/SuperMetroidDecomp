@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Areas.Ceres;
 
-/// <summary>One cue of the Ceres steam vents' animations, with its typed operands.</summary>
+/// <summary>One cue of the Ceres steam vents' animations: what it does, with the values it acts on.</summary>
 internal abstract record CeresSteamCue
 {
     /// <summary>Closes the hierarchy to the cues declared here.</summary>

@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Samus;
 
-/// <summary>The first half of Samus's per-frame work, which Samus commands select: whether her input is handled.</summary>
+/// <summary>The first half of Samus's per-frame work, which Samus's control setups select: whether her input is handled.</summary>
 internal enum SamusAlphaHandler
 {
     /// <summary>

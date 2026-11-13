@@ -419,7 +419,7 @@ public sealed class SamusPowerBombExplosionState
     private bool StepCrystalFlashAfterglow()
     {
         // Crystal Flash's afterglow wakes once the stock components reach zero, fading a step every update as the
-        // ordinary afterglow does. The compiled operand tracks the same number of steps; editable colors only affect
+        // ordinary afterglow does. The compiled count tracks the same number of steps; editable colors only affect
         // the fade displayed inside the retained final window.
         if (_crystalFlashAfterglowStepsRemaining != 0)
         {
@@ -442,7 +442,7 @@ public sealed class SamusPowerBombExplosionState
         RenderedPhase = PowerBombExplosionPhase.Inactive;
         RenderedPreExplosionRadius = PowerBombRadius.Zero;
         RenderedExplosionRadius = PowerBombRadius.Zero;
-        // Replacement colors may be brighter than the stock lifetime operand. Once
+        // Replacement colors may be brighter than the stock lifetime count. Once
         // the window is released, do not retain their unused display remainder.
         GlowColor = RgbColor.Black;
         return true;

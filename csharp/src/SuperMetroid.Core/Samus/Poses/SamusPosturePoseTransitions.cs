@@ -138,7 +138,7 @@ internal static class SamusPosturePoseTransitions
 
     /// <summary>
     /// Applies the ordinary or aimed crouch-start/stand-start transition records,
-    /// including command seven's bottom alignment and the larger-radius collision branch
+    /// including the posture change's bottom alignment and the larger-radius collision branch
     /// of the pose-change collision. The admitted target set is exactly
     /// the unaimed and aimed crouching and standing transitions.
     /// </summary>
@@ -212,7 +212,7 @@ internal static class SamusPosturePoseTransitions
             samus.Pose = targetPose;
             SamusPoseMetadata.RefreshCollisionRadii(samus);
 
-            // Prospective command seven reads five from its distance table, installs the target's
+            // The posture change reads five from its distance table, installs the target's
             // radius 16, then probes those five pixels down through the downward block collision. On level
             // ground the bottom boundary is unchanged; descending a slope, the probe meets
             // the surface first and the shorter clipped distance is what moves center Y.
@@ -221,7 +221,7 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.CrouchEntryD
                 SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter), targetPose, roomObjects);
             samus.Kinematics.Position = samus.Kinematics.Position.WithWrappedWholeY(
                 samus.Kinematics.Position.Y.Whole + alignment.AcceptedDisplacement.WholePixels);
-            // Command seven publishes the aligned whole Y before scrolling; the
+            // The posture change publishes the aligned whole Y before scrolling; the
             // posture change itself must not become camera movement.
             samus.WritePreviousYPosition(samus.Kinematics.Position.Y.Whole);
             SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
@@ -260,11 +260,11 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.CrouchEntryD
 
     /// <summary>
     /// Applies the ordinary Morph-Ball entry and exit records selected by the crouch and
-    /// ball transition tables. This includes item gating, command-seven bottom alignment,
+    /// ball transition tables. This includes item gating, the posture change's bottom alignment,
     /// and the block-only expansion collision used when unmorphing.
     /// </summary>
     /// <remarks>
-    /// The morphing transitions shrink the current humanoid radius to seven and command seven moves center
+    /// The morphing transitions shrink the current humanoid radius to seven and the posture change moves center
     /// Y down by the table's nine-pixel request, clipped against room blocks using the
     /// new radius. This is not the source/target radius difference. The unmorphing transitions expand 7 to 16 through
     /// the larger-radius check; floor collision normally moves center up nine. If both sides constrain a
@@ -333,7 +333,7 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.MorphEntryDo
                 SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter), targetPose, roomObjects);
             samus.Kinematics.Position = samus.Kinematics.Position.WithWrappedWholeY(
                 samus.Kinematics.Position.Y.Whole + alignment.AcceptedDisplacement.WholePixels);
-            // Command seven replaces the previous whole-Y checkpoint
+            // The posture change replaces the previous whole-Y checkpoint
             // after alignment, so the camera does not count pose displacement as motion.
             samus.WritePreviousYPosition(samus.Kinematics.Position.Y.Whole);
 
@@ -346,7 +346,7 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.MorphEntryDo
             // invalid once the body has entered either ordinary or Spring Ball form.
             samus.BombSpreadChargeTimeoutCounter = 0;
 
-            // Prospective command seven also cancels an active bounce before starting the
+            // The posture change also cancels an active bounce before starting the
             // transition. Ordinary crouch entry normally sees zero, but retaining the
             // literal writes keeps a bounce that is somehow active deterministic.
             CancelBounceForPostureTransition(samus);
@@ -374,7 +374,7 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.MorphEntryDo
         samus.Pose = targetPose;
         samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
         samus.WritePreviousYPosition(samus.Kinematics.Position.Y.Whole);
-        // Unmorph uses the same prospective command seven as morph. Its zero
+        // Unmorph uses the same posture change as morph. Its zero
         // alignment-table entry does not bypass the subsequent bounce cancellation.
         // The prospective collision probes used the target radius, but the live
         // radius remains unchanged until alpha sets the radius next frame. This
@@ -385,7 +385,7 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.MorphEntryDo
     }
 
 
-    /// <summary>Shared bounce cancellation in prospective command seven.</summary>
+    /// <summary>Shared bounce cancellation of the posture change.</summary>
     private static void CancelBounceForPostureTransition(SamusState samus)
     {
         if (samus.MorphBallBounceState == SamusBallBounceState.None)
@@ -401,7 +401,7 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.MorphEntryDo
     /// is still active, without replacing the live aerial velocity.
     /// </summary>
     /// <remarks>
-    /// The game's unmorph input table remains active before the animation's transition command
+    /// The game's unmorph input table remains active before the animation's transition cue
     /// reaches its normal crouch endpoint. Up, aim, and Fire input can therefore
     /// interrupt the transition with an ordinary movement-type-six falling record. This is
     /// not a fresh jump or an animation-completion shortcut: it enters the shared

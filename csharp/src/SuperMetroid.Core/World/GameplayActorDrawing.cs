@@ -93,7 +93,7 @@ internal sealed class GameplayActorDrawing
             // and the normal-suit restoration requested by cancellation.
             // A negative super-special flag is the first branch of the palette update and returns
             // immediately after the drained/rainbow handler. Its one-shot normal restore
-            // also models the direct palette loads in controller zero and command 23.
+            // also models the direct palette loads in letting the drained Samus fall and stopping her rainbow.
             // Cancellation/pose initialization copies the normal suit during
             // movement, before this dispatch. Flush that deferred write first so charge
             // and drained palettes retain their same-frame priority.

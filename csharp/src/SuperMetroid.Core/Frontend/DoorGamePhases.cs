@@ -90,7 +90,7 @@ internal sealed class DoorGamePhases(FrontendSession session)
             // An ordinary door finishes at once.
             if (session.GameplayRuntime.Room.LoadedScope.Enemies.Elevator.ElevatorFlags == ElevatorJourneyFlag.None)
                 return true;
-            // Samus command 0 locks Samus; an upward elevator then finishes at once.
+            // The elevator locks Samus; an upward elevator then finishes at once.
             session.GameplayRuntime.Player.IntroducedSamus.Control.LockHandlers();
             if (session.GameplayRuntime.Room.LoadedScope.Enemies.Elevator.ElevatorTravelsUpward)
                 return true;

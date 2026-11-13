@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Rios;
 
 /// <summary>
 /// The Lower Norfair Rio's (Holtz's) idle, swoop and cooldown animations and its flames' animation as typed animations (#641). Each
-/// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="LowerNorfairRioCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="LowerNorfairRioCue"/> naming what it does.
 /// </summary>
 internal static class LowerNorfairRioAnimations
 {

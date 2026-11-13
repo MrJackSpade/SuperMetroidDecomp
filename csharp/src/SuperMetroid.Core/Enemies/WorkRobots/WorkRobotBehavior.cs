@@ -228,7 +228,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     private WorkRobotSegment? MoveWorkRobot(RoomEnemySlot slot, WorkRobotEnemyState state, SamusState? samus, RoomLevelData? level, WorkRobotMoveStep step)
     {
         if (level is null)
-            throw new InvalidOperationException("Work Robot movement instruction requires room collision data.");
+            throw new InvalidOperationException("Work Robot movement step requires room collision data.");
 
         DecrementWorkRobotLaserCooldown(state);
         state.LaserVelocity = step.FacingLaserVelocity;

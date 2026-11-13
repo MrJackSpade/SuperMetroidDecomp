@@ -14,7 +14,7 @@ internal static class SamusAnimationDelays
     /// <summary>The step of <paramref name="pose"/>'s animation at frame <paramref name="frame"/>.</summary>
     /// <exception cref="InvalidDataException">No step of the pose's animation is numbered <paramref name="frame"/>.</exception>
     /// <remarks>
-    /// A frame on a cue's operand reads the step the operand selects, and a frame past the animation's end reads the
+    /// A frame on a value a cue carries reads the step the value selects, and a frame past the animation's end reads the
     /// animation laid out after it, both through <paramref name="continuation"/>, which names each animation by a pose that
     /// animates by it; frame targets that animation names are shifted back to this pose's frames (#1535).
     /// </remarks>
@@ -27,7 +27,7 @@ internal static class SamusAnimationDelays
 
     /// <summary>
     /// The step of <paramref name="pose"/>'s animation at frame <paramref name="frame"/>, read as <see cref="StepFor"/> reads
-    /// it, or null when the frame reads past every animation, or lands on an operand whose step would publish a record no
+    /// it, or null when the frame reads past every animation, or lands on a cue value whose step would publish a record no
     /// gameplay path gives Samus, where the animation fails.
     /// </summary>
     /// <param name="pose">The pose whose animation is read.</param>

@@ -227,7 +227,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.IsWing)
         {
             throw new InvalidDataException(
-                "Dragon wing reached the body-only attack-finished instruction.");
+                "Dragon wing reached the body-only attack-finished cue.");
         }
         state.AnimationFinished = true;
     }

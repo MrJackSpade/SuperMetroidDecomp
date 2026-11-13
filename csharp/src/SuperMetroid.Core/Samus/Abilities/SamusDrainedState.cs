@@ -37,8 +37,8 @@ public sealed class SamusDrainedState
     public HyperBeamPaletteFxState HyperBeamPaletteFx { get; } = new();
 
     /// <summary>
-    /// The super-special-palette flag, set by the rainbow-start Samus command and cleared
-    /// by the rainbow-stop command during the Baby Metroid death sequence.
+    /// The super-special-palette flag, set by the rainbow start and cleared
+    /// by the rainbow stop during the Baby Metroid death sequence.
     /// </summary>
     public bool RainbowPaletteEnabled { get; private set; }
 
@@ -72,13 +72,13 @@ public sealed class SamusDrainedState
     internal void RelinquishMovementHandler() => Phase = DrainedSamusPhase.Inactive;
 
     /// <summary>
-    /// The Samus command that starts the countdown timer replaces the shared timer/hack
+    /// Enabling the countdown timer replaces the shared timer/hack
     /// handler with timer processing. The runtime owns that timer; the old drained behaviour must stop.
     /// </summary>
     internal void RelinquishTimerHackHandler() => GetUpHandler = DrainedGetUpHandler.Inactive;
 
     /// <summary>
-    /// Runs Samus command five: install the able-to-stand timer handler,
+    /// Runs the able-to-stand drain setup: install the able-to-stand timer handler,
     /// then enter the shared rainbow-beam setup.
     /// </summary>
     public void SetupForRainbowBeamAbleToStand(SamusState samus)
@@ -89,7 +89,7 @@ public sealed class SamusDrainedState
 
     /// <summary>
     /// Runs the unable-to-stand drain setup: install the failed-stand timer
-    /// handler, then enter the same locked left-knockback pose as command five.
+    /// handler, then enter the same locked left-knockback pose as the able-to-stand setup.
     /// </summary>
     public void SetupForRainbowBeamUnableToStand(SamusState samus)
     {
@@ -134,8 +134,8 @@ public sealed class SamusDrainedState
         return false;
     }
 
-    /// <summary>Runs the Samus command that freezes the drained animation while the Hyper Beam is acquired.</summary>
-    /// <remarks>The command reports itself handled, which cancels the pending pose transition.</remarks>
+    /// <summary>Freezes the drained animation while the Hyper Beam is acquired.</summary>
+    /// <remarks>The freeze reports itself handled, which cancels the pending pose transition.</remarks>
     public static void FreezeForHyperBeamAcquisition(SamusState samus)
     {
         Ensure.NotNull(samus);
@@ -143,7 +143,7 @@ public sealed class SamusDrainedState
         samus.CancelPendingPoseTransition();
     }
 
-    /// <summary>Runs the rainbow-start Samus command.</summary>
+    /// <summary>Starts Samus's rainbow colouring.</summary>
     public void EnableRainbow(SamusState samus)
     {
         Ensure.NotNull(samus);
@@ -167,7 +167,7 @@ public sealed class SamusDrainedState
     }
 
     /// <summary>
-    /// Runs the rainbow-stop Samus command: clear every rainbow/charge palette
+    /// Stops Samus's rainbow colouring: clear every rainbow/charge palette
     /// value and begin the standing portion of the drained animation at frame thirteen.
     /// </summary>
     public void DisableRainbowAndStartStandingAnimation(SamusState samus)
@@ -255,8 +255,8 @@ public sealed class SamusDrainedState
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         _suitPaletteRestoreRequested = true;
         Phase = DrainedSamusPhase.WaitingForFallingCue;
-        // Controller commands 0/1/2/4 report themselves handled; their dispatcher
-        // then shifts history even for a same-pose command. Hyper (3) does not.
+        // Letting her fall, standing her, crouching her and releasing her report themselves handled; their dispatcher
+        // then shifts history even when the pose is unchanged. Enabling the Hyper Beam does not.
         samus.CommitPoseHistory();
     }
 

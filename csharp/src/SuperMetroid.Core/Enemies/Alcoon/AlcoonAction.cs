@@ -12,9 +12,9 @@ public enum AlcoonAction
     EmergingRising,
     /// <summary>Descends through the terrain collision mover, then faces Samus and begins walking with one walking cycle remaining.</summary>
     EmergingFalling,
-    /// <summary>Follows the floor, hides after travelling 112 pixels from spawn, or requests a volley when the step counter is zero and Samus is ahead; animation commands perform horizontal movement.</summary>
+    /// <summary>Follows the floor, hides after travelling 112 pixels from spawn, or requests a volley when the step counter is zero and Samus is ahead; animation cues perform horizontal movement.</summary>
     WalkingAndFiring,
-    /// <summary>Performs no main-AI movement while the fire-volley animation runs, until its command restores walking.</summary>
+    /// <summary>Performs no main-AI movement while the fire-volley animation runs, until its cue restores walking.</summary>
     WaitingForFireAnimation,
     /// <summary>Integrates the retreat jump's upward motion until acceleration changes its whole velocity to nonnegative.</summary>
     HidingRising,

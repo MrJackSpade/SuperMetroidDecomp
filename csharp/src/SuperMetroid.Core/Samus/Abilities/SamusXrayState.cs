@@ -196,7 +196,7 @@ public sealed class SamusXrayState
     private void BeginAdmittedBeam(bool facingLeft)
     {
         // The cone setup runs inside the X-ray setup itself, before Samus's pose update
-        // arbitrates the special command that installs X-Ray's Samus handlers. If a
+        // arbitrates X-ray's activation, which installs X-Ray's Samus handlers. If a
         // same-frame hurt expiry wins that later arbitration, the beam effect's lifecycle,
         // frozen-time flag, and four subsystem disables still remain live: X-Mode.
         Angle = facingLeft ? RotationAngle.ThreeQuarterTurn : RotationAngle.QuarterTurn;
@@ -221,14 +221,14 @@ public sealed class SamusXrayState
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
 
-        // Special prospective-pose command five immediately overrides the freshly selected
+        // X-ray's activation pose immediately overrides the freshly selected
         // delay with frame two and a 63-tick timer, installs the dedicated handler pair, starts the
         // visor palette, clears beam-flare state, and queues activation sound nine.
         SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: 2, timer: 63);
         SpecialPaletteKind = SamusSpecialPaletteType.Xray;
         samus.Shinespark.RelinquishPaletteToXray();
         samus.Shinespark.RelinquishMovementHandler();
-        // The X-ray command installs both X-Ray handlers, so an interrupted Flash's no-op
+        // X-ray's activation installs both X-Ray handlers, so an interrupted Flash's no-op
         // pose-input handler is gone as well as its movement handler. Keeping the Crystal Flash input lock
         // would make Samus immobile again when X-Ray teardown restores ordinary input.
         samus.InputSnapshot.CrystalFlashPoseInputLocked = false;
@@ -243,7 +243,7 @@ public sealed class SamusXrayState
     }
 
     /// <summary>
-    /// Models the Samus command that replaces the X-Ray handler pair when automatic
+    /// Models the control setup that replaces the X-Ray handler pair when automatic
     /// Reserve recovery begins. The independent cone effect and shared freeze flag remain.
     /// </summary>
     internal void RelinquishSamusControlForReserveRecovery()

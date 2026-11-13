@@ -7,6 +7,6 @@ internal enum StokeCueKind
     SetMovingLeft,
     /// <summary>Makes main AI walk Stoke right.</summary>
     SetMovingRight,
-    /// <summary>Spits a fireball in the direction its operand selects.</summary>
+    /// <summary>Spits a fireball in the direction the cue names.</summary>
     SpawnFireball,
 }

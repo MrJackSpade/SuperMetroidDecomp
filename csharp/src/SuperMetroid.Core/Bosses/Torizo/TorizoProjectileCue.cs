@@ -2,7 +2,7 @@
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>One cue of Torizo's projectile animations, with the operands its command carries.</summary>
+/// <summary>One cue of Torizo's projectile animations: what it does, with the values it acts on.</summary>
 internal abstract record TorizoProjectileCue
 {
     /// <summary>Closes the hierarchy to the cues declared here.</summary>

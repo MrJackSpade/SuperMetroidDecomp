@@ -177,8 +177,8 @@ public static class SamusGrappleMovement
         if (HandleFiringPoseChange(level, samus, controllerInput) is { } poseChange)
             return poseChange;
 
-        // The common pose-command tail clamps the camera's previous position after
-        // command 9/10 snaps Samus to the accepted rope geometry. Retain the pre-snap body
+        // The connection's common tail clamps the camera's previous position after
+        // the connection pose snaps Samus to the accepted rope geometry. Retain the pre-snap body
         // position even though most firing frames return without consuming this sample.
         Position16<RoomPixels> previousPosition = samus.Position.Whole;
 
@@ -969,7 +969,7 @@ public static class SamusGrappleMovement
         }
 
         // Both the connection and the fired beam derive the angle from the body position that fired the beam,
-        // before command 9/10 changes pose and snaps Samus to the rope. The angle is stored
+        // before the connection pose is installed and snaps Samus to the rope. The angle is stored
         // as a whole step of the 256-step turn; its fraction becomes zero.
         RotationAngle angle = CalculateAngleFromXY(samus.Position.Whole - grapple.Anchor);
         grapple.Angle = angle;
@@ -1008,8 +1008,8 @@ public static class SamusGrappleMovement
 
         if (poseChange == GrapplePoseChange.Deferred)
         {
-            // The swinging and stuck tails publish special prospective command 9/10. They do not
-            // execute the pose commands inline. A super-special command can therefore keep
+            // The swinging and stuck tails publish the pending connection pose. They do not
+            // install that pose inline. The animation's pending transition pose can therefore keep
             // the old pose and every one of Samus's speeds while the Grapple function remains live.
             return new GrappleMovementResult(
                 grapple.Phase,
@@ -1033,7 +1033,7 @@ public static class SamusGrappleMovement
     }
 
     /// <summary>
-    /// Applies accepted Grapple special-pose command after the frame's
+    /// Applies the accepted grapple connection pose after the frame's
     /// super-special transition owners have declined it.
     /// </summary>
     internal static Position16<RoomPixels> ApplyPendingConnectionPose(
@@ -1049,14 +1049,14 @@ public static class SamusGrappleMovement
 
         if (pending.Swinging)
         {
-            // Special pose command 9 runs the swing. Swinging copies Start into Flare, then
+            // The swinging connection pose runs the swing. Swinging copies Start into Flare, then
             // chooses the angle-authored animation frame and body offsets.
             grapple.Phase = GrapplePhase.ConnectedSwinging;
             SamusGrappleSwing.PositionSamusFromPendulum(samus, grapple);
         }
         else
         {
-            // Special pose command 10 runs the locked placement. The locked body is positioned from
+            // The locked connection pose runs the locked placement. The locked body is positioned from
             // Start minus the raw NO-RUN origin table, then Flare is independently rebuilt
             // from the raw no-run flare table. Graphics-Y correction does not participate.
             var origin = GrappleFiring.Origin(grapple.FireDirection, running: false);
@@ -1066,7 +1066,7 @@ public static class SamusGrappleMovement
             grapple.Phase = GrapplePhase.ConnectedLocked;
         }
 
-        // The connection pose commands 9 and 10 share one tail. Speed-booster bookkeeping
+        // The swinging and locked connection poses share one tail. Speed-booster bookkeeping
         // is not modeled yet, but every modeled speed cleared there is reset here.
         // AccelerationMode is deliberately retained: the common tail does not write it.
         samus.HorizontalSpeed.BaseSpeed = default;
@@ -1159,7 +1159,7 @@ public static class SamusGrappleMovement
         if (cancelledConnectedPose)
         {
             // The cancel runs the pose-definition fallback while the current movement type is grappling.
-            // Its command-six table entry kills all X/run momentum and the pose-definition
+            // Its lookup-failure response kills all X/run momentum and the pose-definition
             // definition selects the exact standing/crouching body that existed before locking.
             SamusPoseId fallback = SamusPoseMetadata.ReadNoInputFallbackPose(samus);
             if (fallback == SamusMovementDefinitions.Poses.RetainCurrentPoseFallback)
@@ -1251,7 +1251,7 @@ public static class SamusGrappleMovement
         SamusBlockCollision.EjectAfterGrapple(level, samus.Kinematics);
         // The release bases facing on the angular velocity retained from the swing. A
         // nonnegative value selects the left-facing forward jump; a negative value selects the right.
-        // It publishes the pose as a super-special prospective pose (command 7), which
+        // It publishes the pose as the pending transition pose, which
         // Samus's pose handling commits after this frame's hit interruption and movement.
         SamusPoseId releasePose = grapple.AngularVelocity >= 0
             ? SamusPoseId.NormalJumpForwardLeftPose

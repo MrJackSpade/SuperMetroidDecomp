@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>
 /// The three Tourian entrance-statue records' animations, each of which deletes its record at once, (#641). Each
-/// frame shows a <see cref="TourianEntranceStatueFrame"/> pose and its lists use no owner callbacks.
+/// frame shows a <see cref="TourianEntranceStatueFrame"/> pose and no beat raises a cue for its owner.
 /// </summary>
 internal static class TourianEntranceStatueAnimations
 {

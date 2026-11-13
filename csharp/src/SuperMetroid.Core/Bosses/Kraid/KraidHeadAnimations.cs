@@ -4,8 +4,8 @@ using P = SuperMetroid.Core.Bosses.Kraid.KraidHeadProgram;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// Kraid's head animations (#641, #1600), and what collision and growth read at each step of each list. The head shows
-/// a pose for its duration, cries between poses and holds at each list's end; the body's head timer gates every
+/// Kraid's head animations (#641, #1600), and what collision and growth read at each step of each animation. The head shows
+/// a pose for its duration, cries between poses and holds at each animation's end; the body's head timer gates every
 /// advance. Checked against the game's head animations by the head-animation verification.
 /// </summary>
 internal static class KraidHeadAnimations
@@ -79,7 +79,7 @@ internal static class KraidHeadAnimations
         ],
     });
 
-    /// <summary>Each head animation: its segment played once, then a hold on its last pose, as each list's end does.</summary>
+    /// <summary>Each head animation: its segment played once, then a hold on its last pose.</summary>
     internal static IReadOnlyDictionary<KraidHeadProgram, Animation<KraidHeadProgram>> StartingAt { get; } = new Dictionary<KraidHeadProgram, Animation<KraidHeadProgram>>
     {
         [P.Roar] = new([new(P.Roar, 0, 8, 1)], AnimationEnd.Holds),
@@ -99,8 +99,8 @@ internal static class KraidHeadAnimations
         new(StartingWith(program), new AnimationPlace(0, position));
 
     /// <summary>
-    /// Where <paramref name="playback"/> stands in its head list: the program its one phase plays, and the step its play
-    /// reaches next, the list's end standing for a play that is done or holds there.
+    /// Where <paramref name="playback"/> stands in its head animation: the program its one phase plays, and the step its play
+    /// reaches next, the animation's end standing for a play that is done or holds there.
     /// </summary>
     internal static KraidHeadListPosition PositionOf(AnimationPlayback<KraidHeadProgram> playback)
     {
@@ -109,7 +109,7 @@ internal static class KraidHeadAnimations
     }
 
     /// <summary>
-    /// What collision and growth read at each step of each list, one entry per step, the last at the list's end. The first entry of every
+    /// What collision and growth read at each step of each animation, one entry per step, the last at the animation's end. The first entry of every
     /// program but the roar looks into the end of the program authored before it, whose last pose is the closed mouth.
     /// </summary>
     private static readonly Dictionary<KraidHeadProgram, KraidHeadCursorReads[]> Reads = new()

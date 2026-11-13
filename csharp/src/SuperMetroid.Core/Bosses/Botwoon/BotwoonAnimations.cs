@@ -141,7 +141,7 @@ internal static class BotwoonAnimations
         HeadEvent(BotwoonHeadCue.ApplyFacingRadius),
         HeadEvent(BotwoonHeadCue.QueueSpitSound),
         HeadEvent(BotwoonHeadCue.ReachSpitFrame),
-        // The original game holds the open mouth longer only when spitting left (25 frames, the rest 16).
+        // Botwoon holds its open mouth longer only when spitting left (25 updates, the rest 16).
         HeadFrame(BotwoonHeadFrame.Open(facing), facing == BotwoonFacing.Left ? MouthOpenAfterSpitLeft : MouthOpenAfterSpit),
     ];
 

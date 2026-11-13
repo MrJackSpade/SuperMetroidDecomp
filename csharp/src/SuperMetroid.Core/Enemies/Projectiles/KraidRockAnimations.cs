@@ -10,8 +10,8 @@ internal static class KraidRockAnimations
     internal const int ShotPhaseCount = 5;
 
     /// <summary>
-    /// Each rock segment's beats: the shared and right rising rocks hold their still pose for good (#1627: the original's
-    /// lists show it for the longest frame a list gives and then rest on it); the spat rock's burst takes the burst's frame
+    /// Each rock segment's beats: the shared and right rising rocks hold their still pose for good (#1627: the game
+    /// shows it for the longest duration a frame can have and then rests on it); the spat rock's burst takes the burst's frame
     /// behaviour, shows five four-update frames, then deletes itself.
     /// </summary>
     internal static AnimationSegments<KraidRockProgram, KraidRockFrame, KraidRockCue> Segments { get; } = new(

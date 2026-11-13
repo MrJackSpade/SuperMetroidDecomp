@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Flies;
 
 /// <summary>
 /// The shared Mellow, Mella and Memu flight loop as a typed program (#641). Each
-/// frame shows a <see cref="EnemyFrameId"/> and its lists use no owner callbacks.
+/// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
 internal static class FlyAnimations
 {

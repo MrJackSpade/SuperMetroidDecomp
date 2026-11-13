@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
 /// Ridley's breakup fragment animations (#641, #1600), one per <see cref="RidleyBreakupFrame"/>: each shows its pose for
-/// one update and then holds, as the one-frame lists do.
+/// one update and then holds.
 /// </summary>
 internal static class RidleyBreakupAnimations
 {
@@ -14,7 +14,7 @@ internal static class RidleyBreakupAnimations
             frame => frame,
             frame => new AnimationBeat<RidleyBreakupFrame, NoAnimationCue>[] { new AnimationBeat<RidleyBreakupFrame, NoAnimationCue>.Frame(frame, 1) }));
 
-    /// <summary>Every fragment animation: its pose once, then a hold, as the list's sleep does.</summary>
+    /// <summary>Every fragment animation: its pose once, then a hold.</summary>
     internal static IReadOnlyDictionary<RidleyBreakupFrame, Animation<RidleyBreakupFrame>> StartingAt { get; } =
         Enum.GetValues<RidleyBreakupFrame>().ToDictionary(
             frame => frame,

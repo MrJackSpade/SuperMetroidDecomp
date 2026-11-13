@@ -330,8 +330,8 @@ internal static class KraidAnimations
     internal static Animation<KraidPartProgram> StartingWith(KraidPartProgram segment) => StartingAt[segment];
 
     /// <summary>
-    /// The segment each list that runs on into the list authored next, directly after its last beat, continues into: a
-    /// part resting after that beat already stands in the next, which Kraid's arm and foot routines compare.
+    /// The segment each segment that runs on past its last beat continues into, directly after that beat: a
+    /// part resting after that beat already stands in the next, which Kraid's arm and foot behaviours compare.
     /// </summary>
     internal static IReadOnlyDictionary<KraidPartProgram, KraidPartProgram> RunsOnInto { get; } = new Dictionary<KraidPartProgram, KraidPartProgram>
     {
@@ -362,15 +362,15 @@ internal static class KraidAnimations
 
     /// <summary>
     /// Shows <paramref name="frame"/> for good (#1627): the part rests on it until its owner starts another program. The
-    /// feet's standing poses and the belly lints' poses are held: nothing reads a foot's frame timer, and a lint's routine
-    /// reloads its timer every update, so the original's longest frame never runs out where gameplay sees it.
+    /// feet's standing poses and the belly lints' poses are held: nothing reads a foot's frame timer, and a lint's behaviour
+    /// reloads its timer every update, so the longest frame duration never runs out where gameplay sees it.
     /// </summary>
     private static AnimationBeat<KraidPartFrame, KraidPartCue> Hold(KraidPartFrame frame) =>
         new AnimationBeat<KraidPartFrame, KraidPartCue>.HeldFrame(frame);
 
     /// <summary>
-    /// The updates the arm's last lunge-ready pose shows, the longest frame a list gives, kept exact (#1627): while mouth
-    /// reopens are pending, Kraid's arm routine adds an update to the arm's frame timer every update, which keeps this
+    /// The updates the arm's last lunge-ready pose shows, the longest duration a frame can have, kept exact (#1627): while mouth
+    /// reopens are pending, Kraid's arm behaviour adds an update to the arm's frame timer every update, which keeps this
     /// count standing and the arm's new-frame flag clear; a held frame's timer would run out every update instead.
     /// </summary>
     private const int ReadyToLungeArmDuration = 32767;

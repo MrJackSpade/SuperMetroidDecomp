@@ -4,7 +4,7 @@ using P = SuperMetroid.Core.Bosses.Phantoon.PhantoonFlameProgram;
 
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
-/// <summary>Phantoon's typed flame animations (#641, #1600), in place of their lists.</summary>
+/// <summary>Phantoon's typed flame animations (#641, #1600).</summary>
 internal static class PhantoonFlameAnimations
 {
     /// <summary>Poses in the idle, bouncing and starting loops.</summary>

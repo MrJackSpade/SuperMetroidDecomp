@@ -3,8 +3,8 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Bosses.Torizo.Artwork;
 
 /// <summary>
-/// The presentation boundary of Bomb and Golden Torizo's projectiles (#641): the list entries the projectile
-/// definitions name, and the projectile frame each typed frame shows.
+/// The presentation boundary of Bomb and Golden Torizo's projectiles (#641): the projectile frame each
+/// typed frame shows.
 /// </summary>
 internal static class TorizoProjectileVisualDefinitions
 {

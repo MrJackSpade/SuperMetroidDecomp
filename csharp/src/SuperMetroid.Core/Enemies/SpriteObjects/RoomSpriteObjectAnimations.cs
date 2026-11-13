@@ -5,9 +5,9 @@ using P = SuperMetroid.Core.Enemies.SpriteObjects.RoomSpriteObjectProgram;
 namespace SuperMetroid.Core.Enemies.SpriteObjects;
 
 /// <summary>
-/// Every room sprite-object list the named object kinds reach, as a typed program generated from the authored
-/// lists: each timed record shows a <see cref="RoomSpriteObjectFrame"/>, the repeat-last instruction holds the last frame,
-/// delete stops the program, and a goto continues at another program.
+/// Every room sprite-object animation the named object kinds reach, as a typed program: each timed beat shows a
+/// <see cref="RoomSpriteObjectFrame"/>, a hold keeps the last frame showing, deletion stops the program, and a jump
+/// continues at another program.
 /// </summary>
 internal static class RoomSpriteObjectAnimations
 {

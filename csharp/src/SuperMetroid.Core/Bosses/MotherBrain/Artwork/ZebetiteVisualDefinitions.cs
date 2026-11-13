@@ -2,7 +2,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
-/// <summary>The presentation boundary of the Zebetites (#641): the spritemaps of their health poses.</summary>
+/// <summary>The presentation boundary of the Zebetites (#641): the frames of their health poses.</summary>
 internal static class ZebetiteVisualDefinitions
 {
 

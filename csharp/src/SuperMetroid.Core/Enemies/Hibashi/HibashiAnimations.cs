@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Hibashi;
 
 /// <summary>
 /// The Hibashi fire pillar's eruption graphics and its collision part as typed programs (#641). Each
-/// frame shows a <see cref="EnemyFrameId"/> and each callback becomes a <see cref="HibashiCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="HibashiCue"/> with its typed operands.
 /// </summary>
 internal static class HibashiAnimations
 {

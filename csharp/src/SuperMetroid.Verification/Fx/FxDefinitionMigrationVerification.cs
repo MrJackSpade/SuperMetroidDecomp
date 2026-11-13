@@ -25,7 +25,7 @@ internal static class FxDefinitionMigrationVerification
         AssertEqual(0x82ab, FxNativeWords.AnimatedTileObjects.Word(AnimatedTileObject.Lava), "lava object header word");
         AssertEqual(AnimatedTileObject.WreckedShipTreadmillRightwards, FxNativeWords.AnimatedTileObjects.Decode(0x8275, "object"),
             "rightward treadmill header decodes");
-        AssertEqual(0xb4b6, FxNativeWords.SpecialAirReactionSetups.Word(SpecialAirReactionSetup.SandFallsFast), "fast sandfall setup word");
+        AssertEqual(0xb4b6, SpecialAirReactionNativeWords.InsideSetups[SpecialAirInsideReaction.FastSandfall], "fast sandfall setup word");
         AssertEqual(0xe440, FxNativeWords.PaletteFxSetups.Word(NativePaletteFxSetup.Norfair), "Norfair palette setup word");
         AssertEqual(ColourEffectStart.ChoosesHeatProgramForSuit, FxNativeWords.StartOf(NativePaletteFxSetup.Norfair), "Norfair palette setup start");
         AssertEqual(0xe379, FxNativeWords.PaletteFxPreInstructions.Word(NativePaletteFxPreInstruction.Heat), "heat pre-instruction word");

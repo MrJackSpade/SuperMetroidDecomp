@@ -213,7 +213,7 @@ public static class SamusBlockCollision
                         // Sand's submerging callback clears vertical speed/gravity even
                         // when reached through the horizontal dispatcher.
                         collided = SamusInsideBlockReactions.ReactCollision(new(state, state.CollisionContactDamageIndex(owner)), terrain, block, Axis.Horizontal,
-                            ref acceptedDisplacement, out _, move.BlockReactionDirection);
+                            ref acceptedDisplacement, out _, move.BlockReactionDirection) == SpecialAirCollisionOutcome.Blocks;
                         if (collided) collisionBlock = block;
                         if (block.Behavior.Reaction == BlockReactionDefinitions.ScrollTrigger &&
                             (terrain.RoomObjects is null || !terrain.RoomObjects.Scrolls.TryNotifyScrollTouch(terrain.Level.BlockAt(block.Index))))
@@ -566,7 +566,7 @@ public static class SamusBlockCollision
                     if (block.CollisionType == RoomCollisionType.SpecialAir)
                     {
                         collided = SamusInsideBlockReactions.ReactCollision(new(state, state.CollisionContactDamageIndex(owner)), terrain, block, Axis.Vertical,
-                            ref acceptedDisplacement, out bool touchedSand, move.BlockReactionDirection);
+                            ref acceptedDisplacement, out bool touchedSand, move.BlockReactionDirection) == SpecialAirCollisionOutcome.Blocks;
                         sandContact |= touchedSand;
                     }
                     if (block.CollisionType == RoomCollisionType.SpecialAir &&

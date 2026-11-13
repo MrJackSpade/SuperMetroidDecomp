@@ -19,7 +19,7 @@ internal static class RoomObjectDefinitionMigrationVerification
     internal static void VerifyObjectDefinitionMigration()
     {
         // The header words are verification's; the identities' own values are arbitrary.
-        AssertEqual(0xb62f, RoomObjectNativeWords.Word(RoomObjectHeaderId.Nothing), "first PLM header word");
+        AssertEqual(0xb6cb, RoomObjectNativeWords.Word(RoomObjectHeaderId.InsideReactionBrinstarFloorPlant), "floor plant header word");
         AssertEqual(0xc85a, RoomObjectNativeWords.Word(RoomObjectHeaderId.YellowDoorFacingLeft), "yellow door header word");
         AssertEqual(0xefcf, RoomObjectNativeWords.Word(RoomObjectHeaderId.ShotBlockReserveTank), "last PLM header word");
         AssertEqual(RoomObjectHeaderId.EyeDoorFacingRight, RoomObjectNativeWords.Header(0xdb4c), "eye door header decodes");

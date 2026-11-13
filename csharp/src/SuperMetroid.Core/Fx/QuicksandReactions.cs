@@ -1,10 +1,8 @@
-using SuperMetroid.Core.Rooms.RoomObjects;
-
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
-/// Maridia quicksand's reactions (<see cref="QuicksandDefinitions"/>): the setup each sand header selects, and the
-/// surface physics Gravity equipment selects.
+/// Maridia quicksand's reactions (<see cref="QuicksandDefinitions"/>): which special-air reactions place a sand reaction
+/// object, and the surface physics Gravity equipment selects.
 /// </summary>
 public static class QuicksandReactions
 {
@@ -20,27 +18,9 @@ public static class QuicksandReactions
     public static QuicksandSurfacePhysics SurfacePhysics(bool gravitySuit) =>
         gravitySuit ? QuicksandDefinitions.WithGravitySuit : QuicksandDefinitions.WithoutGravitySuit;
 
-    /// <summary>
-    /// The definition of one of the eight supported sand headers, whose objects leave the room on their first update; any
-    /// other header, including the unused surface clones between the named headers, returns false.
-    /// </summary>
-    internal static bool TryGetReaction(RoomObjectHeaderId header, out QuicksandReactionDefinition definition)
-    {
-        if (!QuicksandDefinitions.Reactions.TryGetValue(header, out SpecialAirReactionSetup setup))
-        {
-            definition = default;
-            return false;
-        }
-        definition = new(setup, TerrainChange.MadeAtSpawn);
-        return true;
-    }
+    /// <summary>Whether <paramref name="reaction"/> is one of the four inside sand reactions, each of which places a sand reaction object.</summary>
+    internal static bool PlacesObject(SpecialAirInsideReaction reaction) => QuicksandDefinitions.InsideObjects.ContainsKey(reaction);
 
-    /// <summary>Resolves one supported sand header or rejects an invalid allocator request.</summary>
-    internal static QuicksandReactionDefinition ResolveReaction(RoomObjectHeaderId header) =>
-        TryGetReaction(header, out QuicksandReactionDefinition definition)
-            ? definition
-            : throw new ArgumentOutOfRangeException(
-                nameof(header),
-                header,
-                "Quicksand reaction header must be one of the eight sand entries.");
+    /// <summary>Whether <paramref name="reaction"/> is one of the four collision sand reactions, each of which places a sand reaction object.</summary>
+    internal static bool PlacesObject(SpecialAirCollisionReaction reaction) => QuicksandDefinitions.CollisionObjects.ContainsKey(reaction);
 }

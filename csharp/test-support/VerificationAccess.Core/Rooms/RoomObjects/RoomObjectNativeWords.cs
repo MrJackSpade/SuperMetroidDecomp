@@ -13,8 +13,6 @@ internal static class RoomObjectNativeWords
     internal static readonly NativeWordIdentities<RoomObjectHeaderId> Headers = new(new Dictionary<RoomObjectHeaderId, ushort>
     {
         [RoomObjectHeaderId.None] = 0x0000,
-        [RoomObjectHeaderId.Nothing] = 0xb62f,
-        [RoomObjectHeaderId.CollisionReactionPassThrough] = 0xb633,
         [RoomObjectHeaderId.RightwardsScrollExtension] = 0xb63b,
         [RoomObjectHeaderId.LeftwardsScrollExtension] = 0xb63f,
         [RoomObjectHeaderId.DownwardsScrollExtension] = 0xb643,
@@ -26,7 +24,6 @@ internal static class RoomObjectNativeWords
         [RoomObjectHeaderId.MissileStation] = 0xb6eb,
         [RoomObjectHeaderId.ScrollTrigger] = 0xb703,
         [RoomObjectHeaderId.ElevatorPlatform] = 0xb70b,
-        [RoomObjectHeaderId.InsideReactionCrateriaIcePhysics] = 0xb70f,
         [RoomObjectHeaderId.InsideReactionQuicksandSurface] = 0xb713,
         [RoomObjectHeaderId.InsideReactionSubmergingQuicksand] = 0xb71f,
         [RoomObjectHeaderId.InsideReactionSandFallsSlow] = 0xb723,
@@ -90,11 +87,9 @@ internal static class RoomObjectNativeWords
         [RoomObjectHeaderId.EnemyBreakableBlock] = 0xd094,
         [RoomObjectHeaderId.CrumbleLowerNorfairChozoRoomPlug] = 0xd113,
         [RoomObjectHeaderId.LowerNorfairChozoHand] = 0xd6d6,
-        [RoomObjectHeaderId.CollisionLowerNorfairChozoHandCheck] = 0xd6da,
         [RoomObjectHeaderId.MotherBrainGlass] = 0xd6de,
         [RoomObjectHeaderId.BombTorizoHand] = 0xd6ea,
         [RoomObjectHeaderId.WreckedShipChozoHand] = 0xd6ee,
-        [RoomObjectHeaderId.CollisionWreckedShipChozoHandCheck] = 0xd6f2,
         [RoomObjectHeaderId.ClearSlopeAccessForWreckedShipChozo] = 0xd6f8,
         [RoomObjectHeaderId.BlockSlopeAccessForWreckedShipChozo] = 0xd6fc,
         [RoomObjectHeaderId.NoobTube] = 0xd70c,

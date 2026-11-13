@@ -15,15 +15,11 @@ internal static class SamusEaterObjectDefinitionsVerification
     {
         Suite(nameof(VerifySamusEaterHeaderInstructionMapping), () => VerifySamusEaterHeaderInstructionMapping(rom));
         Suite(nameof(VerifySamusEaterMountingMapping), () => VerifySamusEaterMountingMapping(rom));
-        SamusEaterObjectDefinition[] definitions =
-            [SamusEaterObjects.Plant(RoomObjectHeaderId.InsideReactionBrinstarFloorPlant), SamusEaterObjects.Plant(RoomObjectHeaderId.InsideReactionBrinstarCeilingPlant)];
-        AssertEqual(2, definitions.Length, "Samus Eater PLM definition count");
-        AssertEqual(SamusEaterObjectDefinitions.Floor, definitions[0], "floor plant header places the floor plant");
-        AssertEqual(SamusEaterObjectDefinitions.Ceiling, definitions[1], "ceiling plant header places the ceiling plant");
+        AssertEqual((ushort)0xb6cb, RoomObjectNativeWords.Word(SamusEaterObjectDefinitions.Floor.Identity), "floor plant carries the floor plant header");
+        AssertEqual((ushort)0xb6cf, RoomObjectNativeWords.Word(SamusEaterObjectDefinitions.Ceiling.Identity), "ceiling plant carries the ceiling plant header");
 
-        foreach (RoomObjectHeaderId headerPointer in new[] { RoomObjectNativeWords.Header(0xb6cb), RoomObjectNativeWords.Header(0xb6cf) })
+        foreach (SamusEaterObjectDefinition definition in Plants)
         {
-            SamusEaterObjectDefinition definition = SamusEaterObjects.Plant(headerPointer);
             const int width = 4;
             const int height = 4;
             int blockCount = width * height;
@@ -36,11 +32,11 @@ internal static class SamusEaterObjectDefinitionsVerification
             samus.Kinematics.Radius = new(8, 16);
 
             RoomCollisionBlock block = level.GetCollisionBlock(new(1, 1));
-            roomObjects.SamusEater.TrySpawnSamusEater(level, block, headerPointer, samus.RoomView);
+            roomObjects.SamusEater.TrySpawnSamusEater(level, block, definition, samus.RoomView);
 
             RoomObjectSlotSnapshot slot = roomObjects.PopulationSlots.Single();
             AssertEqual(0, slot.ProcessingPosition, "Samus Eater takes the first free slot in processing order");
-            AssertEqual(headerPointer, slot.HeaderPointer, "Samus Eater header identity");
+            AssertEqual(definition.Identity, slot.HeaderPointer, "Samus Eater header identity");
             AssertEqual(new Position16<RoomBlocks>(1, 1), slot.Block, "Samus Eater trigger block");
             AssertTrue(slot.Behaviour is SamusEaterObject { Phase: SamusEaterPhase.Biting, Holding: false } eater && eater.Plant == definition,
                 "Samus Eater starts its typed bite");
@@ -50,9 +46,6 @@ internal static class SamusEaterObjectDefinitionsVerification
                 "Samus Eater deactivates its trigger");
         }
 
-        AssertThrows<InvalidDataException>(
-            () => SamusEaterObjects.Plant(RoomObjectHeaderId.MapStation),
-            "map-station header cannot enter Samus Eater domain");
         Console.WriteLine(
             "Samus Eater PLMs: both header/program identities, the typed programs, and real aligned spawns match cartridge.");
     }
@@ -65,22 +58,15 @@ internal static class SamusEaterObjectDefinitionsVerification
     private static void VerifySamusEaterMountingMapping(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifySamusEaterHeaderField), () => VerifySamusEaterHeaderField(rom, true));
 
-    /// <summary>Checks header selection across all 16-bit identities and one native setup field.</summary>
+    /// <summary>The two plants, floor first.</summary>
+    private static readonly SamusEaterObjectDefinition[] Plants = [SamusEaterObjectDefinitions.Floor, SamusEaterObjectDefinitions.Ceiling];
+
+    /// <summary>Checks each plant's native header: its program, or its mounting against the native setup and held-Y direction.</summary>
     private static void VerifySamusEaterHeaderField(SuperMetroidAddressSpace rom, bool mounting)
     {
-        // RoomObjectHeaderId's values are arbitrary (#1414): the domain is every member, each translated to its cartridge word.
-        foreach (RoomObjectHeaderId candidate in Enum.GetValues<RoomObjectHeaderId>())
+        foreach (SamusEaterObjectDefinition actual in Plants)
         {
-            ushort header = RoomObjectNativeWords.Word(candidate);
-            if (candidate is not (RoomObjectHeaderId.InsideReactionBrinstarFloorPlant or RoomObjectHeaderId.InsideReactionBrinstarCeilingPlant))
-            {
-                AssertThrows<InvalidDataException>(() => SamusEaterObjects.Plant(candidate),
-                    "plant header selector rejects every unsupported identity");
-                continue;
-            }
-            var actual = SamusEaterObjects.Plant(candidate);
-            AssertEqual(candidate == RoomObjectHeaderId.InsideReactionBrinstarFloorPlant ? SamusEaterObjectDefinitions.Floor : SamusEaterObjectDefinitions.Ceiling,
-                actual, "plant selected header identity");
+            ushort header = RoomObjectNativeWords.Word(actual.Identity);
             if (mounting)
             {
                 ushort setup = ReadSamusEaterObjectWord(rom, 0x840000 | header);

@@ -477,7 +477,7 @@ internal static class GModeGateGlitchVerification
         {
             AssertTrue(roomObjects.Quicksand.TrySpawnQuicksandReaction(
                     block: Position16<RoomBlocks>.Zero,
-                    header: RoomObjectHeaderId.InsideReactionQuicksandSurface),
+                    reaction: SpecialAirInsideReaction.QuicksandSurface),
                 $"G-Mode fixture allocates suspended PLM slot {slot}");
         }
         AssertTrue(roomObjects.Quicksand.IsAllocationFull,

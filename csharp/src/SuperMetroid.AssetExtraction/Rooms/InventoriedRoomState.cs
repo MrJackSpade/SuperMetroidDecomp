@@ -111,8 +111,10 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
             (SpeedBoosterBlocks.TryResolve(RoomBlockBehavior.Reacting(block.Reaction), Area, out _) ||
                 (block.Reaction.IsCommonEntryBelow(BombSpecialBlockReactions.Count) &&
                     BombSpecialBlockReactions.ChangeAt(block.Reaction.Entry) == SpeedBoosterBlockObjectDefinitions.BombReveal))) ||
-        (block.Collision == RoomCollisionType.SpecialAir && block.Reaction.Entry < SpecialAirReactionDefinitions.EntriesPerArea &&
-            SpecialAirReactions.ResolveCollision(Area, block.Reaction.Entry).Setup == SpecialAirReactionSetup.SpeedBlock));
+        (block.Collision == RoomCollisionType.SpecialAir && block.Reaction.Entry < SpecialAirReactions.EntriesPerArea &&
+            SpecialAirReactions.CollisionOf(Area, AreaReactionOf(block.Reaction)) is SpecialAirCollisionReaction.BrinstarSlowRespawningSpeedBlock
+                or SpecialAirCollisionReaction.BrinstarSlowPermanentSpeedBlock or SpecialAirCollisionReaction.DachoraRespawningSpeedBlock
+                or SpecialAirCollisionReaction.PermanentSpeedBlock));
 
     /// <summary>Whether the state's terrain holds a Grapple block that breaks under the beam.</summary>
     internal bool HoldsBreakableGrappleBlocks => Terrain.Any(block => block.Collision == RoomCollisionType.GrappleBlock &&
@@ -141,9 +143,15 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
 
     /// <summary>Whether the state's terrain holds a special-air block whose area's inside reaction is a Brinstar plant that bites Samus.</summary>
     internal bool HoldsSamusEaterPlants => Terrain.Any(block => block.Collision == RoomCollisionType.SpecialAir &&
-        block.Reaction.Entry < SpecialAirReactionDefinitions.EntriesPerArea &&
-        SpecialAirReactions.ResolveInside(Area, block.Reaction.Entry) is var inside &&
-        (inside == SpecialAirReactionDefinitions.BrinstarFloorPlant || inside == SpecialAirReactionDefinitions.BrinstarCeilingPlant));
+        block.Reaction.Entry < SpecialAirReactions.EntriesPerArea &&
+        SpecialAirReactions.InsideOf(Area, AreaReactionOf(block.Reaction)) is SpecialAirInsideReaction.BrinstarFloorPlant
+            or SpecialAirInsideReaction.BrinstarCeilingPlant);
+
+    /// <summary>
+    /// The area reaction a special-air block's entry names: the inventory reads the entry as its area's reaction whatever
+    /// the block's reaction scope, as it always has, so the set of blocks the installation includes stays the same.
+    /// </summary>
+    private static BlockReaction AreaReactionOf(BlockReaction reaction) => BlockReaction.AreaSpecific(reaction.Entry);
 
     /// <summary>Whether the state's terrain holds a spike block an enemy breaks.</summary>
     internal bool HoldsEnemyBreakableBlocks => Terrain.Any(block => block.Collision == RoomCollisionType.SpikeBlock &&

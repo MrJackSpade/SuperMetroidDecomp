@@ -367,7 +367,6 @@ public static class RoomStateSelectionDefinitions
         [RoomDefinitions.GTEnergyRefill] = new(NorfairRoomStateDefinitions.GTEnergyRefill, []),
         [RoomDefinitions.LNFarming] = new(NorfairRoomStateDefinitions.LNFarming, []),
         [RoomDefinitions.FastPillarsSetup] = new(NorfairRoomStateDefinitions.FastPillarsSetup, []),
-        [RoomDefinitions.UnusedNorfairRoom] = new(NorfairRoomStateDefinitions.UnusedNorfairRoom, []),
         [RoomDefinitions.MickeyMouse] = new(NorfairRoomStateDefinitions.MickeyMouse, []),
         [RoomDefinitions.Pillar] = new(NorfairRoomStateDefinitions.Pillar, []),
         [RoomDefinitions.Plowerhouse] = new(NorfairRoomStateDefinitions.Plowerhouse, []),

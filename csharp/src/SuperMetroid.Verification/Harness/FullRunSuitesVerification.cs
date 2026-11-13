@@ -378,7 +378,6 @@ using static SuperMetroid.Verification.Bosses.MotherBrain.ShitroidGradualAcceler
 using static SuperMetroid.Verification.Rooms.RoomObjects.ShotBlockObjectProgramsVerification;
 using static SuperMetroid.Verification.Enemies.Shutters.ShutterRidingVerification;
 using static SuperMetroid.Verification.Enemies.Shutters.ShutterScrewContactVerification;
-using static SuperMetroid.Verification.Enemies.Shutters.HorizontalShutterBombVerification;
 using static SuperMetroid.Verification.Enemies.FollowUpAfterStruckPartVerification;
 using static SuperMetroid.Verification.Enemies.EnemyTerrainBlockScanVerification;
 using static SuperMetroid.Verification.Enemies.SpacePirates.SpacePirateCollisionDefinitionsVerification;
@@ -1008,8 +1007,6 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifySpringBallFallingFallback), () => VerifySpringBallFallingFallback()),
         new(nameof(VerifyFirefleaDoubleDeath), () => VerifyFirefleaDoubleDeath()),
         new(nameof(VerifyShutterScrewContact), () => VerifyShutterScrewContact()),
-        new(nameof(VerifyBombReachesHorizontalShutter), () => VerifyBombReachesHorizontalShutter(RepositoryInputsVerification.LoadRepositoryRom())),
-        new(nameof(VerifyPowerBombReachesHorizontalShutter), () => VerifyPowerBombReachesHorizontalShutter(RepositoryInputsVerification.LoadRepositoryRom())),
         new(nameof(VerifyFollowUpAfterStruckPart), () => VerifyFollowUpAfterStruckPart()),
         new(nameof(VerifyEnemyTerrainBlockScan), () => VerifyEnemyTerrainBlockScan()),
         new(nameof(SuperMetroid.Verification.Enemies.EnemyTerrainBlockAddressingVerification.VerifyEnemyCollisionBlockResolution),

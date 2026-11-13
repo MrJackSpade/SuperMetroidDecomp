@@ -716,9 +716,9 @@ internal static class SamusPoseMetadata
                 return true;
 
             case SamusMovementType.MorphBallGround:
-            case SamusMovementType.UnusedGlitchBall:
+            case SamusMovementType.GlitchBall:
             case SamusMovementType.MorphBallFalling:
-            case SamusMovementType.UnusedGlitchBallAlternate:
+            case SamusMovementType.GlitchBallKnockback:
             case SamusMovementType.Knockback:
             case SamusMovementType.SpringBallGround:
             case SamusMovementType.SpringBallInAir:

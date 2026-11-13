@@ -13,8 +13,8 @@ internal static class SamusHudObservations
         {
             SamusMovementType.SpinJumping or SamusMovementType.Knockback or SamusMovementType.CompactAirborne or
             SamusMovementType.WallJumping or SamusMovementType.DamageBoost or SamusMovementType.Special => SamusHudHandler.Jump,
-            SamusMovementType.MorphBallGround or SamusMovementType.UnusedGlitchBall or SamusMovementType.MorphBallFalling or
-            SamusMovementType.UnusedGlitchBallAlternate or SamusMovementType.SpringBallGround or
+            SamusMovementType.MorphBallGround or SamusMovementType.GlitchBall or SamusMovementType.MorphBallFalling or
+            SamusMovementType.GlitchBallKnockback or SamusMovementType.SpringBallGround or
             SamusMovementType.SpringBallInAir or SamusMovementType.SpringBallFalling => SamusHudHandler.MorphBall,
             SamusMovementType.Grappling => SamusHudHandler.Grapple,
             SamusMovementType.TurningOnGround or SamusMovementType.TurningWhileJumping or SamusMovementType.TurningWhileFalling => SamusHudHandler.Turning,

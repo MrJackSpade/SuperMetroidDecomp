@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
@@ -246,7 +246,7 @@ internal sealed class MotherBrainAttacks
             SamusMovementType.SpinJumping or
             SamusMovementType.Falling or
             SamusMovementType.MorphBallFalling or
-            SamusMovementType.UnusedGlitchBallAlternate or
+            SamusMovementType.GlitchBallKnockback or
             SamusMovementType.CompactAirborne or
             SamusMovementType.SpringBallInAir or
             SamusMovementType.SpringBallFalling or

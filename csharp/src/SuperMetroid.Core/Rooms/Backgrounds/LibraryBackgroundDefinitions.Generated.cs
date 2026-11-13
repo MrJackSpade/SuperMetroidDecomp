@@ -120,9 +120,6 @@ public static partial class LibraryBackgroundDefinitions
     /// <summary>The NorfairSmallPatternBrownPurple library background.</summary>
     public static LibraryBackground NorfairSmallPatternBrownPurple { get; } = new(nameof(NorfairSmallPatternBrownPurple), LibraryBackgroundView.Picture, []);
 
-    /// <summary>The NorfairHorizontalPatternBrick library background.</summary>
-    public static LibraryBackground NorfairHorizontalPatternBrick { get; } = new(nameof(NorfairHorizontalPatternBrick), LibraryBackgroundView.Picture, []);
-
     /// <summary>The NorfairVerticalPatternBrick library background.</summary>
     public static LibraryBackground NorfairVerticalPatternBrick { get; } = new(nameof(NorfairVerticalPatternBrick), LibraryBackgroundView.Picture, []);
 

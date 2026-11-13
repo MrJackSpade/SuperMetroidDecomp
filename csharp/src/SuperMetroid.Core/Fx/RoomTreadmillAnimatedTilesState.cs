@@ -28,9 +28,9 @@ public sealed class RoomTreadmillAnimatedTilesState
                 AnimatedTileObject.WreckedShipTreadmillLeftwards => WreckedShipTreadmillDirection.Leftwards,
                 AnimatedTileObject.None or AnimatedTileObject.TourianStatuePhantoon or
                     AnimatedTileObject.TourianStatueRidley or AnimatedTileObject.TourianStatueKraid or
-                    AnimatedTileObject.TourianStatueDraygon or AnimatedTileObject.Empty or
+                    AnimatedTileObject.TourianStatueDraygon or
                     AnimatedTileObject.HorizontalSpikes or AnimatedTileObject.VerticalSpikes or
-                    AnimatedTileObject.CrateriaLake or AnimatedTileObject.UnusedCrateriaLava or
+                    AnimatedTileObject.CrateriaLake or
                     AnimatedTileObject.BrinstarPlant or AnimatedTileObject.WreckedShipScreen or
                     AnimatedTileObject.MaridiaSandCeiling or AnimatedTileObject.MaridiaSandFalling or
                     AnimatedTileObject.Lava or AnimatedTileObject.Acid or AnimatedTileObject.Rain or

@@ -14,7 +14,6 @@ internal static class PaletteFxAnimations
     internal static IReadOnlyDictionary<PaletteFxSegment, Animation<PaletteFxSegment>> StartingAt { get; } = new Dictionary<PaletteFxSegment, Animation<PaletteFxSegment>>
     {
         [P.FadeInSuperMetroidTitleLogo] = new([new(P.FadeInSuperMetroidTitleLogo, 0, 9, 1)], AnimationEnd.Stops),
-        [P.FadeInNintendoBootLogo] = new([new(P.FadeInNintendoBootLogo, 0, 1, 1), new(P.CommonFadeInLogo, 0, 8, 1)], AnimationEnd.Stops),
         [P.CommonFadeInLogo] = new([new(P.CommonFadeInLogo, 0, 8, 1)], AnimationEnd.Stops),
         [P.FadeInNintendoCopyright] = new([new(P.FadeInNintendoCopyright, 0, 1, 1), new(P.CommonFadeInLogo, 0, 8, 1)], AnimationEnd.Stops),
         [P.TitleScreenBabyMetroidTubeLight0] = new([new(P.TitleScreenBabyMetroidTubeLight0, 0, 1, 1), new(P.TitleScreenBabyMetroidTubeLight1, 0, 8, 1)], AnimationEnd.LoopsFrom(1)),

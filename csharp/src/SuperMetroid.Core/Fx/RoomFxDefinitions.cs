@@ -647,10 +647,6 @@ public static class RoomFxDefinitions
     public static RoomFxSelection FastPillarsSetup { get; } = new(nameof(FastPillarsSetup), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.Vertical), [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [], RoomFxPaletteBlend.None));
 
-    /// <summary>The UnusedNorfairRoom room FX.</summary>
-    public static RoomFxSelection UnusedNorfairRoom { get; } = new(nameof(UnusedNorfairRoom), [],
-        new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.Vertical), [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [], RoomFxPaletteBlend.None));
-
     /// <summary>The MickeyMouse room FX.</summary>
     public static RoomFxSelection MickeyMouse { get; } = new(nameof(MickeyMouse), [],
         new(null, null, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.Vertical), [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [], RoomFxPaletteBlend.None));

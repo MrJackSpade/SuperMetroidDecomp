@@ -14,7 +14,6 @@ internal static class RoomPaletteFxSelection
     internal static RoomPaletteFxDefinition Get(PaletteFxObject paletteFxObject) => paletteFxObject switch
     {
         PaletteFxObject.FadeInSuperMetroidTitleLogo => new(ColourEffectStart.Plain, PaletteFxSegment.FadeInSuperMetroidTitleLogo),
-        PaletteFxObject.FadeInNintendoBootLogo => new(ColourEffectStart.Plain, PaletteFxSegment.FadeInNintendoBootLogo),
         PaletteFxObject.FadeInNintendoCopyright => new(ColourEffectStart.Plain, PaletteFxSegment.FadeInNintendoCopyright),
         PaletteFxObject.TitleScreenBabyMetroidTubeLight => new(ColourEffectStart.Plain, PaletteFxSegment.TitleScreenBabyMetroidTubeLight0),
         PaletteFxObject.TitleScreenFlickeringDisplays => new(ColourEffectStart.Plain, PaletteFxSegment.TitleScreenFlickeringDisplays0),

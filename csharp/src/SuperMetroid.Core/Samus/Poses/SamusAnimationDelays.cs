@@ -131,8 +131,8 @@ internal static class SamusAnimationDelays
             SamusPoseId.GlitchBallRightPose or
             SamusPoseId.MorphBallFallingRightPose or
             SamusPoseId.MorphBallFallingLeftPose or
-            SamusPoseId.UnusedKnockbackRightPose or
-            SamusPoseId.UnusedKnockbackLeftPose or
+            SamusPoseId.GlitchBallKnockbackRightPose or
+            SamusPoseId.GlitchBallKnockbackLeftPose or
             SamusPoseId.MorphBallGroundLeftPose or
             SamusPoseId.GlitchBallLeftPose or
             SamusPoseId.SpringBallGroundRightPose or

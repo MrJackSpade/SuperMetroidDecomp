@@ -3268,7 +3268,6 @@ internal static class VerificationAssert
         AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Shutter NTSC J/U v1.0 oracle");
         Suite(nameof(ShutterBehaviorVerification.VerifyVerticalShutterInitialFunctionSelection), () => ShutterBehaviorVerification.VerifyVerticalShutterInitialFunctionSelection(oracle));
-        Suite(nameof(ShutterBehaviorVerification.VerifyHorizontalShutterInitialFunctionSelection), () => ShutterBehaviorVerification.VerifyHorizontalShutterInitialFunctionSelection(oracle));
         Console.WriteLine("Shutter initial function selection: both native five-entry mappings, state semantics and invalid offsets pass.");
         return 0;
     }

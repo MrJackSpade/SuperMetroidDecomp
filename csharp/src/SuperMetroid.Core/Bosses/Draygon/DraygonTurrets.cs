@@ -44,8 +44,9 @@ internal sealed class DraygonTurrets
         SamusState samus,
         int random)
     {
-        DraygonCannonTarget target = DraygonCannonData.FiringTarget(
-            DraygonCannonData.FiringOrder[DraygonRandomDefinitions.TurretChoice.Of(random)]);
+        if (DraygonCannonData.FiringOrder[DraygonRandomDefinitions.TurretChoice.Of(random)] is not { } cannon)
+            return;
+        DraygonCannonTarget target = DraygonCannonData.FiringTarget(cannon);
         if (state.DisabledCannons.Contains(target.Cannon))
             return;
 

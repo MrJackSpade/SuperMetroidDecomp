@@ -1381,11 +1381,6 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectKind.RightwardsScrollExtension, new(8, 27), null),
     ]);
 
-    /// <summary>The UnusedNorfairRoom room-object population.</summary>
-    public static RoomObjectPopulation UnusedNorfairRoom { get; } = RoomObjectPopulation.FromRecords(nameof(UnusedNorfairRoom),
-    [
-    ]);
-
     /// <summary>The MickeyMouse room-object population.</summary>
     public static RoomObjectPopulation MickeyMouse { get; } = RoomObjectPopulation.FromRecords(nameof(MickeyMouse),
     [

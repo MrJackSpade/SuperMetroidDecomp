@@ -352,7 +352,6 @@ internal static class DoorHeaderSourceDefinitions
         [0x98fa] = NorfairDoorDefinitions.FastPillarsSetup2,
         [0x9906] = NorfairDoorDefinitions.FastPillarsSetup3,
         [0x9912] = NorfairDoorDefinitions.FastPillarsSetup4,
-        [0x991e] = DoorDefinitions.UnusedNorfairRoom0,
         [0x992a] = NorfairDoorDefinitions.MickeyMouse0,
         [0x9936] = NorfairDoorDefinitions.MickeyMouse1,
         [0x9942] = NorfairDoorDefinitions.Pillar0,

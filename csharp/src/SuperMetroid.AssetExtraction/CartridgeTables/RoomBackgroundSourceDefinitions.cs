@@ -17,7 +17,6 @@ internal static class RoomBackgroundSourceDefinitions
         {
             [RoomBackgroundTilemap.NorfairSmallPatternBrownPurpleBright] = 0xb9a634,
             [RoomBackgroundTilemap.NorfairSmallPatternBrownPurple0] = 0xb9a714,
-            [RoomBackgroundTilemap.NorfairHorizontalPatternBrick] = 0xb9a7a8,
             [RoomBackgroundTilemap.NorfairVerticalPatternBrick] = 0xb9a83a,
             [RoomBackgroundTilemap.NorfairCavernStalactites] = 0xb9ac83,
             [RoomBackgroundTilemap.NorfairCavernVertical] = 0xb9aeff,

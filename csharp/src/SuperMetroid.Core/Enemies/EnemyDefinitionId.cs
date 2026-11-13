@@ -63,8 +63,6 @@ public enum EnemyDefinitionId
     ShutterGrowing,
     /// <summary>The <c>ShutterShootable</c> enemy definition.</summary>
     ShutterShootable,
-    /// <summary>The <c>ShutterHorizShootable</c> enemy definition.</summary>
-    ShutterHorizShootable,
     /// <summary>The <c>ShutterDestroyable</c> enemy definition.</summary>
     ShutterDestroyable,
     /// <summary>The <c>Kamer</c> enemy definition.</summary>
@@ -89,8 +87,6 @@ public enum EnemyDefinitionId
     Kamer2,
     /// <summary>The <c>Sbug</c> enemy definition.</summary>
     Sbug,
-    /// <summary>The <c>Sbug2</c> enemy definition.</summary>
-    Sbug2,
     /// <summary>The <c>Mochtroid</c> enemy definition.</summary>
     Mochtroid,
     /// <summary>The <c>Sidehopper</c> enemy definition.</summary>
@@ -322,10 +318,6 @@ public enum EnemyDefinitionId
     DachoraEscape,
     /// <summary>The <c>PirateGreyWall</c> enemy definition.</summary>
     PirateGreyWall,
-    /// <summary>The <c>PirateGreenWall</c> enemy definition.</summary>
-    PirateGreenWall,
-    /// <summary>The <c>PirateRedWall</c> enemy definition.</summary>
-    PirateRedWall,
     /// <summary>The <c>PirateGoldWall</c> enemy definition.</summary>
     /// <remarks>Its colours are the ones every Ninja Pirate's divekick flashes in, whatever the ninja's own colours.</remarks>
     PirateGoldWall,
@@ -333,16 +325,8 @@ public enum EnemyDefinitionId
     PirateMagentaWall,
     /// <summary>The <c>PirateSilverWall</c> enemy definition.</summary>
     PirateSilverWall,
-    /// <summary>The <c>PirateGreyNinja</c> enemy definition.</summary>
-    PirateGreyNinja,
-    /// <summary>The <c>PirateGreenNinja</c> enemy definition.</summary>
-    PirateGreenNinja,
-    /// <summary>The <c>PirateRedNinja</c> enemy definition.</summary>
-    PirateRedNinja,
     /// <summary>The <c>PirateGoldNinja</c> enemy definition.</summary>
     PirateGoldNinja,
-    /// <summary>The <c>PirateMagentaNinja</c> enemy definition.</summary>
-    PirateMagentaNinja,
     /// <summary>The <c>PirateSilverNinja</c> enemy definition.</summary>
     PirateSilverNinja,
     /// <summary>The <c>PirateGreyWalking</c> enemy definition.</summary>

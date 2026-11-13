@@ -146,7 +146,6 @@ internal static class RoomEnemyGraphicsSetDefinitionsAccess
         [0x885f] = RoomEnemyGraphicsSetDefinitions.Plowerhouse,
         [0x8871] = RoomEnemyGraphicsSetDefinitions.LNFireflea,
         [0x8887] = RoomEnemyGraphicsSetDefinitions.MagdolliteTunnel,
-        [0x8899] = RoomEnemyGraphicsSetDefinitions.UnusedNorfairRoom,
         [0x88a3] = RoomEnemyGraphicsSetDefinitions.LavaDive,
         [0x88b1] = RoomEnemyGraphicsSetDefinitions.Pillar,
         [0x88bf] = RoomEnemyGraphicsSetDefinitions.CrocomireEscape,

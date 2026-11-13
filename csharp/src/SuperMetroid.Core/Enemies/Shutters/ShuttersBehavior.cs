@@ -280,123 +280,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = EnemyAnimationPlayback.Start(slot, ShutterAnimations.StartingWith(segment));
         slot.Radius = slot.Radius.WithY(yRadius);
     }
-    /// <summary>Samus's four-pixel correction when pushing against a horizontal shutter.</summary>
-    private const int HorizontalShutterManualPushPixels = 4;
-
-    /// <summary>Initializes a horizontal shutter.</summary>
-    internal static void InitializeHorizontalShutter(RoomEnemySlot slot)
-    {
-        var state = new HorizontalShutterEnemyState();
-        slot.SetSpeciesState(state);
-
-        ShutterSpawnSettings settings = slot.SpawnSettings<ShutterSpawnSettings>();
-        state.PrimaryDirection = settings.PrimaryDirection;
-        state.ReactionDirection = Opposite(state.PrimaryDirection);
-
-        EnemyLinearSpeedRow speeds = EnemyLinearSpeedRow.Moving(settings.Speed);
-        state.RightVelocity = speeds.Positive;
-        state.LeftVelocity = speeds.Negative;
-
-        state.MovedLeftRestTime = settings.FirstRestTime;
-        state.MovedRightRestTime = settings.SecondRestTime;
-
-        state.TriggerMode = settings.TriggerMode;
-        state.TravelDistance = settings.TravelDistance;
-        state.ProximityDistance = settings.ProximityDistance;
-        state.WaitTime = settings.WaitTime;
-        state.ActionTimer = WrappingCountdown.Start(settings.WaitTime);
-
-        Position16<RoomPixels> spawn = slot.Position.Whole;
-        var travel = new Offset16<RoomPixels>(state.TravelDistance, 0);
-        state.LeftEndpoint = spawn;
-        state.RightEndpoint = spawn + travel;
-        if (state.PrimaryDirection == ShutterHeading.LeftOrUp)
-        {
-            state.RightEndpoint = spawn;
-            state.LeftEndpoint = spawn - travel;
-        }
-
-        state.Action = HorizontalShutterAction.Initial;
-        state.MovingSamus = false;
-        state.ShotActivated = false;
-        slot.CollidesByFrameHitboxes = false;
-        slot.AnimationClock.ShowsNewFrame = false;
-        StartHorizontalShutterAnimation(slot, state);
-    }
-
-    /// <summary>Runs the horizontal shutter's main AI.</summary>
-    private void RunHorizontalShutterMain(
-        RoomEnemySlot slot,
-        HorizontalShutterEnemyState state,
-        SamusState? samus,
-        ControllerButton controllerInput)
-    {
-        if (samus is null)
-            throw new InvalidOperationException("Horizontal-shutter AI requires Samus state.");
-
-        switch (state.Action)
-        {
-            case HorizontalShutterAction.Initial:
-                SelectInitialHorizontalShutterAction(state);
-                break;
-
-            case HorizontalShutterAction.WaitForTimer:
-                state.ActionTimer = state.ActionTimer.Decrement().Remaining;
-                if (state.ActionTimer.IsZero)
-                {
-                    state.ActionTimer = WrappingCountdown.Start(state.WaitTime);
-                    ActivateHorizontalShutter(state);
-                }
-                break;
-
-            case HorizontalShutterAction.WaitForHorizontalProximity:
-                if (IsSamusWithinShutterHorizontalDistance(
-                    slot,
-                    samus,
-                    state.ProximityDistance))
-                {
-                    ActivateHorizontalShutter(state);
-                }
-                break;
-
-            case HorizontalShutterAction.Activate:
-                ActivateHorizontalShutter(state);
-                break;
-
-            case HorizontalShutterAction.InitialNoOp:
-            case HorizontalShutterAction.PermanentNoOp:
-                break;
-
-            case HorizontalShutterAction.MovingLeft:
-                MoveHorizontalShutter(slot, state, samus, controllerInput, direction: HorizontalDirection.Left);
-                break;
-
-            case HorizontalShutterAction.MovingRight:
-                MoveHorizontalShutter(slot, state, samus, controllerInput, direction: HorizontalDirection.Right);
-                break;
-
-            case HorizontalShutterAction.StoppedAfterMovingLeft:
-                RunHorizontalShutterStopped(state, end: HorizontalDirection.Left);
-                break;
-
-            case HorizontalShutterAction.StoppedAfterMovingRight:
-                RunHorizontalShutterStopped(state, end: HorizontalDirection.Right);
-                break;
-
-            default:
-                throw new InvalidDataException(
-                    $"Horizontal shutter has no behaviour for action {state.Action?.ToString() ?? "none"}.");
-        }
-
-        // An idle shutter reacts when one of Samus's four solid-enemy collisions
-        // names this enemy and she has contact damage (e.g. screw attack).
-        if (state.Action is not (HorizontalShutterAction.MovingLeft or HorizontalShutterAction.MovingRight) &&
-            SamusContactsIdleShutter(slot, samus))
-        {
-            ReactHorizontalShutter(slot);
-        }
-    }
-
     /// <summary>The end opposite <paramref name="heading"/>.</summary>
     internal static ShutterHeading Opposite(ShutterHeading heading) => heading switch
     {
@@ -404,142 +287,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         ShutterHeading.RightOrDown => ShutterHeading.LeftOrUp,
         _ => throw new InvalidOperationException($"Undefined {nameof(ShutterHeading)} {heading}."),
     };
-
-    /// <summary>Selects the population's timer, proximity, activation, or idle initial action.</summary>
-    internal static void SelectInitialHorizontalShutterAction(HorizontalShutterEnemyState state)
-    {
-        state.Action = state.TriggerMode switch
-        {
-            ShutterTriggerMode.Timer => HorizontalShutterAction.WaitForTimer,
-            ShutterTriggerMode.HorizontalProximity => HorizontalShutterAction.WaitForHorizontalProximity,
-            ShutterTriggerMode.Immediate => HorizontalShutterAction.Activate,
-            ShutterTriggerMode.OneShotReaction or ShutterTriggerMode.RepeatableReaction => HorizontalShutterAction.InitialNoOp,
-            _ => throw new InvalidDataException($"Horizontal shutter trigger mode {state.TriggerMode} is invalid."),
-        };
-    }
-
-    /// <summary>Starts movement in the population's primary direction.</summary>
-    private static void ActivateHorizontalShutter(HorizontalShutterEnemyState state) =>
-        state.Action = state.PrimaryDirection == ShutterHeading.LeftOrUp
-            ? HorizontalShutterAction.MovingLeft
-            : HorizontalShutterAction.MovingRight;
-
-    /// <summary>
-    /// Moves toward the left or right endpoint, carries Samus on contact (Samus on the leading side, pushing against the
-    /// travel by four pixels when she holds the opposite direction), and enters rest or permanent stop at the endpoint.
-    /// </summary>
-    private static void MoveHorizontalShutter(
-        RoomEnemySlot slot,
-        HorizontalShutterEnemyState state,
-        SamusState samus,
-        ControllerButton controllerInput,
-        HorizontalDirection direction)
-    {
-        bool samusLeftOfShutter = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0;
-        state.MovingSamus = HorizontalShutterOverlapsSamus(slot, samus) && samusLeftOfShutter == (direction == HorizontalDirection.Left);
-        SignedSixteenSixteen velocity = direction == HorizontalDirection.Left ? state.LeftVelocity : state.RightVelocity;
-        slot.Position = slot.Position.AdvanceX(velocity);
-        if (state.MovingSamus)
-        {
-            samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(velocity);
-            if (controllerInput.HasAny(direction == HorizontalDirection.Left ? ControllerButton.Right : ControllerButton.Left))
-            {
-                var push = new Offset16<RoomPixels>(unchecked(HorizontalShutterManualPushPixels), 0);
-                samus.Kinematics.ExtraDisplacement = direction == HorizontalDirection.Left
-                    ? samus.Kinematics.ExtraDisplacement - push
-                    : samus.Kinematics.ExtraDisplacement + push;
-                samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithFractionY(0);
-            }
-        }
-
-        int beforeEndpoint = direction == HorizontalDirection.Left
-            ? (state.LeftEndpoint - slot.Position.Whole).X
-            : -(state.RightEndpoint - slot.Position.Whole).X;
-        if (beforeEndpoint < 0)
-            return;
-        int restTime = direction == HorizontalDirection.Left ? state.MovedLeftRestTime : state.MovedRightRestTime;
-        if (restTime == PermanentStopRestTime)
-        {
-            state.Action = HorizontalShutterAction.PermanentNoOp;
-            return;
-        }
-        state.ActionTimer = WrappingCountdown.Start(restTime);
-        state.Action = direction == HorizontalDirection.Left ? HorizontalShutterAction.StoppedAfterMovingLeft : HorizontalShutterAction.StoppedAfterMovingRight;
-    }
-
-    /// <summary>
-    /// Counts down an endpoint rest before reversing, or before waiting for Samus's proximity when trigger mode one would
-    /// reverse into the population's primary direction.
-    /// </summary>
-    private static void RunHorizontalShutterStopped(HorizontalShutterEnemyState state, HorizontalDirection end)
-    {
-        CountdownStep timer = state.ActionTimer.Decrement();
-        state.ActionTimer = timer.Remaining;
-        if (timer.IsNonNegative)
-            return;
-        bool reversesIntoPrimary = (state.PrimaryDirection == ShutterHeading.LeftOrUp) != (end == HorizontalDirection.Left);
-        state.Action = state.TriggerMode == ShutterTriggerMode.HorizontalProximity && reversesIntoPrimary
-            ? HorizontalShutterAction.WaitForHorizontalProximity
-            : end == HorizontalDirection.Left ? HorizontalShutterAction.MovingRight : HorizontalShutterAction.MovingLeft;
-    }
-
-    /// <summary>Tests shutter and Samus radius boxes before applying horizontal carry.</summary>
-    private static bool HorizontalShutterOverlapsSamus(RoomEnemySlot slot, SamusState samus) =>
-        EnemyCollision.RadiusBoxesOverlap(
-            slot.Position.Whole,
-            slot.Radius,
-            samus.Position.Whole,
-            samus.Kinematics.Radius);
-
-    /// <summary>Runs the stationary/manual ejection portion of the shutter's touch AI.</summary>
-    private static void TouchHorizontalShutter(
-        RoomEnemySlot slot,
-        SamusState samus,
-        ControllerButton controllerInput)
-    {
-        HorizontalShutterEnemyState state = slot.RequireSpeciesState<HorizontalShutterEnemyState>();
-        if (state.Action != HorizontalShutterAction.PermanentNoOp)
-            return;
-
-        bool samusIsLeft = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0;
-        if (samusIsLeft && controllerInput.HasAny(ControllerButton.Right))
-        {
-            samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeX(-HorizontalShutterManualPushPixels).WithFractionY(0);
-        }
-        else if (!samusIsLeft && controllerInput.HasAny(ControllerButton.Left))
-        {
-            samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeX(HorizontalShutterManualPushPixels).WithFractionY(0);
-        }
-    }
-
-    /// <summary>Runs the movement-trigger tail shared by shot and power-bomb AI.</summary>
-    private static void ReactHorizontalShutter(RoomEnemySlot slot)
-    {
-        HorizontalShutterEnemyState state = slot.RequireSpeciesState<HorizontalShutterEnemyState>();
-        if (state.TriggerMode is not (ShutterTriggerMode.OneShotReaction or ShutterTriggerMode.RepeatableReaction))
-            return;
-
-        if (state.TriggerMode == ShutterTriggerMode.OneShotReaction)
-        {
-            if (state.ShotActivated)
-                return;
-            state.ShotActivated = true;
-        }
-
-        if (state.Action is HorizontalShutterAction.MovingLeft or HorizontalShutterAction.MovingRight)
-            return;
-
-        state.ReactionDirection = Opposite(state.ReactionDirection);
-        state.Action = state.ReactionDirection == ShutterHeading.LeftOrUp
-            ? HorizontalShutterAction.MovingLeft
-            : HorizontalShutterAction.MovingRight;
-    }
-
-    /// <summary>Restarts the stationary shutter pose after movement or reaction.</summary>
-    private static void StartHorizontalShutterAnimation(RoomEnemySlot slot, HorizontalShutterEnemyState state)
-    {
-        state.Playback = EnemyAnimationPlayback.Start(slot, ShutterAnimations.StartingWith(ShutterSegment.Horizontal));
-    }
 
     /// <summary>Rest length, in AI updates, that selects a permanent stop at an endpoint instead of a timed rest.</summary>
     private const int PermanentStopRestTime = 4080;
@@ -612,25 +359,15 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Runs common bomb damage before reacting a destroyable vertical shutter or a horizontal shutter, as their shot
-    /// reactions, which a bomb runs, do.
+    /// Runs common bomb damage before reacting a destroyable vertical shutter, as its shot reaction, which a bomb runs,
+    /// does.
     /// </summary>
-    internal void AddDestroyableAndHorizontalShutterBombReactions(EnemySharedReactions table)
+    internal void AddDestroyableShutterBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.ShutterDestroyable &&
                                                        c.SelectedShotAi == EnemyReaction.DestroyableVerticalShutterShot)
         {
             AfterCommon = c => ReactDestroyableShutterAfterCommon(c.Enemy, c.StruckOccupant),
-        });
-
-        // The horizontal shutter's shot reaction runs the common damage without the death check or the hit burst, then
-        // its reaction; a bomb it shrugs off still leaves the dud flash and sound before the reaction.
-        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.ShutterHorizShootable &&
-                                                       c.SelectedShotAi == EnemyReaction.HorizontalShutterShot)
-        {
-            RunsGenericDeath = false,
-            ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
-            AfterCommon = c => ReactHorizontalShutter(c.Enemy),
         });
     }
 
@@ -660,15 +397,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = PlayShutterAnimation(slot, state.Playback);
     }
 
-    /// <summary>Advances ShutterHorizShootable's typed animation.</summary>
-    internal static void AdvanceShutterHorizShootableTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _)
-    {
-        if (!slot.AnimationClock.Expire())
-            return;
-        HorizontalShutterEnemyState state = slot.RequireSpeciesState<HorizontalShutterEnemyState>();
-        state.Playback = PlayShutterAnimation(slot, state.Playback);
-    }
-
     /// <summary>Runs ShutterGrowing's main AI.</summary>
     internal void RunShutterGrowingMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
@@ -689,16 +417,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             frame.Camera);
     }
 
-    /// <summary>Runs ShutterHorizShootable's main AI.</summary>
-    internal void RunShutterHorizShootableMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
-    {
-        RunHorizontalShutterMain(
-            slot,
-            slot.RequireSpeciesState<HorizontalShutterEnemyState>(),
-            frame.Samus,
-            frame.ControllerInput);
-    }
-
     /// <summary>Uses movement reactions instead of common power-bomb damage for shutter families.</summary>
     internal void AddShuttersPowerBombReactions(EnemySharedReactions table)
     {
@@ -706,11 +424,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
                                                                EnemyCollision.PowerBombReaction(enemy) == EnemyReaction.VerticalShutterPowerBomb)
         {
             ReplacesCommon = (enemy, _) => ReactVerticalShutter(enemy, _shutterCamera),
-        });
-        table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.ShutterHorizShootable &&
-                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyReaction.HorizontalShutterPowerBomb)
-        {
-            ReplacesCommon = (enemy, _) => ReactHorizontalShutter(enemy),
         });
     }
 
@@ -731,26 +444,17 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         });
     }
 
-    /// <summary>Runs common shot damage for destroyable shutters and movement reactions for horizontal ones.</summary>
-    internal void AddDestroyableAndHorizontalShutterShotReactions(EnemySharedReactions table)
+    /// <summary>Runs common shot damage for destroyable shutters.</summary>
+    internal void AddDestroyableShutterShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.ShutterDestroyable &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyReaction.DestroyableVerticalShutterShot)
         {
             AfterCommon = c => ReactDestroyableShutterAfterCommon(c.Enemy, c.StruckOccupant),
         });
-
-        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.ShutterHorizShootable &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.HorizontalShutterShot)
-        {
-            ExemptFromGenericDeath = true,
-            // The horizontal shutter's shot reaction runs the common damage without the hit burst.
-            ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
-            AfterCommon = c => ReactHorizontalShutter(c.Enemy),
-        });
     }
 
-    /// <summary>Uses Samus contact to react vertical shutters or manually eject her from stopped horizontal ones.</summary>
+    /// <summary>Uses Samus contact to react vertical shutters.</summary>
     internal void AddShuttersTouch(EnemySharedReactions table)
     {
         // The touch reaction does not enter common contact damage. Body overlap is itself the trigger, and the reaction test decides
@@ -758,18 +462,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddTouch(slot => IsVerticalShutterDefinition(slot.DefinitionId) &&
                                EnemyCollision.TouchAi(slot) == EnemyReaction.VerticalShutterTouch,
             context => ReactVerticalShutter(context.Slot, _shutterCamera));
-
-        table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.ShutterHorizShootable &&
-                               EnemyCollision.TouchAi(slot) == EnemyReaction.HorizontalShutterTouch,
-            context =>
-            {
-                // The touch AI provides manual ejection only after a permanently stopped shutter.
-                // The main AI's subsequent nonzero contact-damage-index check reuses the
-                // shot reaction, allowing Screw/Speed contact to trigger modes three/four.
-                TouchHorizontalShutter(context.Slot, context.Samus, context.ControllerInput);
-                if (context.ContactDamageIndex != SamusContactDamageIndex.None)
-                    ReactHorizontalShutter(context.Slot);
-            });
     }
     /// <summary>Initializes a vertical shutter through either initializer and their shared tail.</summary>
     internal static void InitializeVerticalShutter(RoomEnemySlot slot)

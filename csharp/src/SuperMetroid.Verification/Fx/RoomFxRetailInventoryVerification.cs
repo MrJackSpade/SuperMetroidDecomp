@@ -27,11 +27,11 @@ using SuperMetroid.TestSupport.FrameRendering;
 internal static class RoomFxRetailInventoryVerification
 {
     /// <summary>Expected number of distinct retail room headers in the FX audit.</summary>
-    private const int RetailRoomFxRoomCount = 262;
+    private const int RetailRoomFxRoomCount = 261;
     /// <summary>Expected number of named retail room states selected by the source inventory.</summary>
-    private const int RetailRoomFxStateCount = 323;
+    private const int RetailRoomFxStateCount = 322;
     /// <summary>Expected number of physical bank-$83 entry doors exercised by the audit.</summary>
-    private const int RetailRoomFxDoorCount = 597;
+    private const int RetailRoomFxDoorCount = 596;
 
     /// <summary>
     /// The animated tiles' characters as the import reads them from the shared installation's import data (#1527, #1680):
@@ -57,7 +57,7 @@ internal static class RoomFxRetailInventoryVerification
             .Select(ParseRetailFxRoomState)
             .Where(state => state.HasValue)
             .Select(state => (state ?? throw new InvalidOperationException("Verification requires state.")))
-            .Where(state => state.RoomPointer != RetailRoomFxDefinitions.DebugRoomHeader)
+            .Where(state => state.RoomPointer is not (RetailRoomFxDefinitions.DebugRoomHeader or RetailRoomFxDefinitions.UnreferencedRoomHeader))
             .DistinctBy(state => state.StatePointer)
             .OrderBy(state => state.RoomPointer)
             .ThenBy(state => state.StatePointer)
@@ -1102,6 +1102,9 @@ internal static class RoomFxRetailInventoryVerification
     {
         /// <summary>Developer debug room excluded by every retail-state audit.</summary>
         public const ushort DebugRoomHeader = 0xe82c;
+
+        /// <summary>The Norfair room no door list names (#1686), excluded as no room of the game.</summary>
+        public const ushort UnreferencedRoomHeader = 0xb3e1;
 
         /// <summary>Chosen screen-relative surface position for path-independent visibility.</summary>
         public const ushort AuditSurfaceScreenY = 96;

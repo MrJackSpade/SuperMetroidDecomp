@@ -160,7 +160,7 @@ public sealed class DraygonEnemyState
 
 
     /// <summary>
-    /// The wall cannons disabled by Draygon setup or a destroyed room object.
+    /// The wall cannons disabled by a destroyed or already-destroyed room object.
     /// This is the shared state Draygon's firing selector observes.
     /// </summary>
     internal HashSet<DraygonWallCannon> DisabledCannons { get; } = [];

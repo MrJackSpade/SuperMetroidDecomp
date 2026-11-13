@@ -133,7 +133,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
                 owned.Add(definitionPointer);
         }
 
-        AssertEqual(161, definitions.Length,
+        AssertEqual(153, definitions.Length,
             "owner audit enumerates every named retail enemy definition a room places or code spawns");
         AssertTrue(translated.Count > 100,
             "owner audit recognizes the translated retail initializer surface");
@@ -181,12 +181,15 @@ internal static class EnemyInstructionOwnerCoverageVerification
     private static bool IsUnportedSpecies(InvalidDataException exception, EnemyDefinitionId definitionPointer) =>
         exception.Message.EndsWith($" holds {definitionPointer}, which no retail room places and which has no species.", StringComparison.Ordinal);
 
-    /// <summary>The bank-$A0 headers of Bang and the spinning turtle eye, which no room places and no code spawns.</summary>
-    private static readonly HashSet<ushort> UnplacedEnemyHeaders = [0xdb3f, 0xf153];
+    /// <summary>
+    /// The bank-$A0 headers no room places and no code spawns: Bang, the spinning turtle eye, the horizontal shutter, the
+    /// second Sbug, the green and red wall pirates and the grey, green, red and magenta ninja pirates (#1686).
+    /// </summary>
+    private static readonly HashSet<ushort> UnplacedEnemyHeaders = [0xd57f, 0xd8bf, 0xdb3f, 0xf153, 0xf393, 0xf3d3, 0xf4d3, 0xf513, 0xf553, 0xf5d3];
 
     /// <summary>
     /// Extracts the species of the distinct bank-$A0 enemy headers named in the pinned symbol inventory. A header no
-    /// room places and no code spawns (Bang, the spinning turtle eye) is cartridge inventory with no species, and is
+    /// room places and no code spawns (<see cref="UnplacedEnemyHeaders"/>) is cartridge inventory with no species, and is
     /// not one.
     /// </summary>
     private static EnemyDefinitionId[] ReadNamedRetailEnemyDefinitions()

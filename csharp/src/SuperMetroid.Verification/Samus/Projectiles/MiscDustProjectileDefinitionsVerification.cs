@@ -13,25 +13,37 @@ using SuperMetroid.Core.World;
 /// <summary>Checks misc-dust instruction and smoke-placement tables through their production projectile consumers.</summary>
 internal static class MiscDustProjectileDefinitionsVerification
 {
-    /// <summary>Compares thirty selectors and five placement records, including RNG advancement and invalid allocation behavior.</summary>
+    /// <summary>
+    /// Compares the fourteen selectors a spawner asks for and five placement records, including RNG advancement and invalid
+    /// allocation behavior; the cartridge table's sixteen other selectors no spawner asks for (#1686).
+    /// </summary>
     internal static void VerifyMiscDustProjectileDefinitions(CartridgeImportAddressSpace rom)
     {
         const int instructionTable = 0x86e42c;
         const int placementTable = 0x86e47e;
 
-        for (ushort index = 0; index < 30; index++)
+        int unrequested = 0;
+        for (ushort index = 0; index < MiscDustAnimationIndices.SelectorCount; index++)
         {
+            if (MiscDustAnimationIndices.TryDecode(index) is not { } animation)
+            {
+                unrequested++;
+                continue;
+            }
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord((instructionTable + index * 2));
-            MiscDustProjectileSegment program = MiscDustProjectiles.Animation((MiscDustAnimation)index);
+            MiscDustProjectileSegment program = MiscDustProjectiles.Animation(animation);
             AssertEqual(native, MiscDustProjectileNativeListAddresses.Entry(program), $"misc-dust instruction selector {index}");
 
             var enemies = CreateMiscDustEnemySystem();
             var spawn = new Action<Position16<RoomPixels>, MiscDustAnimation>(enemies.Projectiles.SpawnRoomGraphicsDustExplosion);
-            spawn(new(0x1234, 0x5678), (MiscDustAnimation)index);
+            spawn(new(0x1234, 0x5678), animation);
             EnemyProjectile roomSlot = enemies.Projectiles.EnemyProjectiles.Single(slot => slot.IsActive);
             AssertTrue(roomSlot.Animation is MiscDustProjectileAnimation started && started.PlayingSegment == program,
                 $"room-graphics misc-dust production selector {index}");
         }
+        AssertEqual(16, unrequested, "misc-dust selectors no spawner asks for");
+        AssertEqual(Enum.GetValues<MiscDustAnimation>().Length, MiscDustAnimationIndices.SelectorCount - unrequested,
+            "every misc-dust animation has its selector");
 
         for (ushort index = 0; index < 5; index++)
         {
@@ -79,7 +91,7 @@ internal static class MiscDustProjectileDefinitionsVerification
         var invalidRoom = CreateMiscDustEnemySystem();
         var spawnInvalidRoom = new Action<Position16<RoomPixels>, MiscDustAnimation>(invalidRoom.Projectiles.SpawnRoomGraphicsDustExplosion);
         AssertThrows<ArgumentOutOfRangeException>(
-            () => spawnInvalidRoom(Position16<RoomPixels>.Zero, (MiscDustAnimation)30),
+            () => spawnInvalidRoom(Position16<RoomPixels>.Zero, (MiscDustAnimation)byte.MaxValue),
             "room-graphics selector beyond authored table");
         AssertEqual(0, invalidRoom.ActiveEnemyProjectileCount,
             "invalid room-graphics misc dust does not partially allocate a slot");
@@ -88,7 +100,7 @@ internal static class MiscDustProjectileDefinitionsVerification
             () => MiscDustProjectiles.SmokePlacement(5),
             "misc-dust placement beyond authored table");
         Console.WriteLine(
-            "Misc dust definitions: thirty selectors, five placement records, and Mother Brain, room-graphics, Eye Door, and Ridley production consumers pass with both ROM tables forbidden.");
+            "Misc dust definitions: fourteen selectors, five placement records, and Mother Brain, room-graphics, Eye Door, and Ridley production consumers pass with both ROM tables forbidden.");
     }
 
     /// <summary>Builds an enemy fixture that forbids runtime access to compiled misc-dust tables.</summary>

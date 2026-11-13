@@ -9,7 +9,7 @@ namespace SuperMetroid.Verification.Rooms.Doors;
 /// <summary>Checks compiled retail room-door lists and BTS resolution against native room headers.</summary>
 internal static class LookupRetailDoorListsVerification
 {
-    /// <summary>Derives list lengths independently, then compares 262 identities and every BTS value, including shared elevator insertions and unknown lists.</summary>
+    /// <summary>Derives list lengths independently, then compares 261 identities and every BTS value, including shared elevator insertions and unknown lists.</summary>
     internal static void VerifyRetailDoorListMapping(CartridgeImportAddressSpace rom)
     {
         ushort[] rooms = File.ReadLines(Path.GetFullPath(Path.Combine("upstream-sm", "assets", "names.txt")))
@@ -55,16 +55,16 @@ internal static class LookupRetailDoorListsVerification
             }
             total += original.Count;
         }
-        AssertEqual(262, originalLists.Count, "All original retail door lists");
-        AssertEqual(606, total, "All original room-door references");
+        AssertEqual(261, originalLists.Count, "All original retail door lists");
+        AssertEqual(605, total, "All original room-door references");
         AssertEqual(14, elevatorReferences, "All original shared elevator insertions");
-        AssertEqual(594, referenced.Count, "All unique physical targets plus shared elevator");
+        AssertEqual(593, referenced.Count, "All unique physical targets plus shared elevator");
         for (int value = 0; value <= ushort.MaxValue; value++)
         {
             ushort pointer = (ushort)value;
             if (originalLists.Contains(pointer)) continue;
             AssertThrows<ArgumentOutOfRangeException>(() => DoorDefinitions.Resolve(pointer, 0), "Unknown list rejects resolution");
         }
-        Console.WriteLine("Retail door lists: 262 identities, 606 original references, 14 elevator insertions, all256 BTS values and every unknown list identity pass.");
+        Console.WriteLine("Retail door lists: 261 identities, 605 original references, 14 elevator insertions, all256 BTS values and every unknown list identity pass.");
     }
 }

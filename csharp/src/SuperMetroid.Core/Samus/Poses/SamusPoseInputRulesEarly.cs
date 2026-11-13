@@ -41,8 +41,8 @@ internal static class SamusPoseInputRulesEarly
         FallingLeftPoseList => MatchFallingRightPoseList(MirrorButtons(held)).Mirrored(),
         MorphBallFallingRightPoseList => MatchMorphBallFallingRightPoseList(held, newlyPressed),
         MorphBallFallingLeftPoseList => MatchMorphBallFallingRightPoseList(MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored(),
-        UnusedKnockbackRightPoseList => MatchUnusedKnockbackRightPoseList(),
-        UnusedKnockbackLeftPoseList => MatchUnusedKnockbackRightPoseList().Mirrored(),
+        GlitchBallKnockbackRightPoseList => MatchGlitchBallKnockbackRightPoseList(),
+        GlitchBallKnockbackLeftPoseList => MatchGlitchBallKnockbackRightPoseList().Mirrored(),
         MoonwalkFacingLeftPoseList => MatchMoonwalkFacingLeftPoseList(held, newlyPressed),
         MoonwalkFacingRightPoseList => MatchMoonwalkFacingRightPoseList(held, newlyPressed),
         KnockbackRightPoseList => MatchKnockbackRightPoseList(held),
@@ -583,8 +583,8 @@ internal static class SamusPoseInputRulesEarly
     }
 
 
-    /// <summary>The input-transition list of <see cref="SamusPoseId.UnusedKnockbackRightPose"/>: priority order; the input-transition list of <see cref="SamusPoseId.UnusedKnockbackLeftPose"/> is the same list mirrored.</summary>
-    private static SamusPoseInputMatch MatchUnusedKnockbackRightPoseList()
+    /// <summary>The input-transition list of <see cref="SamusPoseId.GlitchBallKnockbackRightPose"/>: priority order; the input-transition list of <see cref="SamusPoseId.GlitchBallKnockbackLeftPose"/> is the same list mirrored.</summary>
+    private static SamusPoseInputMatch MatchGlitchBallKnockbackRightPoseList()
     {
         return new(null, HasConditions: false);
     }

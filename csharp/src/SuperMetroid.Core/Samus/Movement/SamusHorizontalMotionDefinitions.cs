@@ -61,8 +61,8 @@ internal static class SamusHorizontalMotionDefinitions
     [
         SamusMovementType.Standing, SamusMovementType.Running, SamusMovementType.NormalJumping,
         SamusMovementType.SpinJumping, SamusMovementType.MorphBallGround, SamusMovementType.Crouching,
-        SamusMovementType.Falling, SamusMovementType.UnusedGlitchBall, SamusMovementType.MorphBallFalling,
-        SamusMovementType.UnusedGlitchBallAlternate, SamusMovementType.Knockback, null,
+        SamusMovementType.Falling, SamusMovementType.GlitchBall, SamusMovementType.MorphBallFalling,
+        SamusMovementType.GlitchBallKnockback, SamusMovementType.Knockback, null,
         null, SamusMovementType.CompactAirborne, SamusMovementType.TurningOnGround,
         SamusMovementType.PostureTransition, SamusMovementType.Moonwalking, SamusMovementType.SpringBallGround,
         SamusMovementType.SpringBallInAir, SamusMovementType.SpringBallFalling, SamusMovementType.WallJumping,

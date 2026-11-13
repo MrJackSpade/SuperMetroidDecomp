@@ -766,7 +766,6 @@ internal static class EnemyFrameCartridgeLocationDefinitions
         [EnemyFrameId.ShutterGrowingTwentyPixels] = new(0xa2, 0xed57),
         [EnemyFrameId.ShutterGrowingThirtyPixels] = new(0xa2, 0xed74),
         [EnemyFrameId.ShutterFortyPixels] = new(0xa2, 0xed9b),
-        [EnemyFrameId.ShutterHorizontal] = new(0xa2, 0xedb1),
         [EnemyFrameId.MetroidChasingSamusFirst] = new(0xa3, 0xf10d),
         [EnemyFrameId.MetroidChasingSamusSecond] = new(0xa3, 0xf137),
         [EnemyFrameId.MetroidChasingSamusThird] = new(0xa3, 0xf157),

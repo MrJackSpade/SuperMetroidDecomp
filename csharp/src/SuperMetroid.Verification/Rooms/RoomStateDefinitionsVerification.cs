@@ -12,7 +12,7 @@ using SuperMetroid.AssetExtraction.World.RoomStates;
 /// <summary>Compares compiled room-state payloads and cartridge-free production selection with the pinned retail ROM.</summary>
 internal static class RoomStateDefinitionsVerification
 {
-    /// <summary>Checks all 323 room-state identities and fifteen settings fields, then confirms Ceres loads the compiled selection without a cartridge reader.</summary>
+    /// <summary>Checks all 322 room-state identities and fifteen settings fields, then confirms Ceres loads the compiled selection without a cartridge reader.</summary>
     internal static void VerifyCompiledRoomStateDefinitions()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -27,7 +27,7 @@ internal static class RoomStateDefinitionsVerification
         AssertEqual(RoomStateDefinitions.Get(ceresStatePointer), compiledRoom.State,
             "production Ceres header construction uses its compiled room-state settings without a cartridge capability");
         Console.WriteLine(
-            "Room state settings: all 323 identities and 15 fields match cartridge data; " +
+            "Room state settings: all 322 identities and 15 fields match cartridge data; " +
             "production Ceres state selection has no cartridge-reader capability.");
     }
 

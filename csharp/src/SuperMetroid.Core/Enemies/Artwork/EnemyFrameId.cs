@@ -1510,8 +1510,6 @@ public enum EnemyFrameId
     ShutterGrowingThirtyPixels,
     /// <summary>The shutter: forty pixels.</summary>
     ShutterFortyPixels,
-    /// <summary>The shutter: horizontal.</summary>
-    ShutterHorizontal,
     /// <summary>The Metroid: chasing Samus, first frame.</summary>
     MetroidChasingSamusFirst,
     /// <summary>The Metroid: chasing Samus, second frame.</summary>

@@ -3,8 +3,10 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>
-/// The bank-$7E addresses of Draygon's five cannon-control words, which room PLM data and Draygon's AI name them by in
-/// the cartridge, for oracles that compare the port's words with cartridge memory.
+/// The bank-$7E addresses of Draygon's cannon-control words, which room PLM data and Draygon's AI name them by in the
+/// cartridge, for oracles that compare the port's words with cartridge memory. The fifth word, $880A, names a bottom cannon
+/// no room places and Draygon's setup disables (#1686); it is no cannon of the game, and the firing's fourth choice fires
+/// from none.
 /// </summary>
 internal static class DraygonWallCannonAddresses
 {
@@ -15,7 +17,6 @@ internal static class DraygonWallCannonAddresses
         [0x8804] = DraygonWallCannon.LowerLeft,
         [0x8806] = DraygonWallCannon.UpperRight,
         [0x8808] = DraygonWallCannon.LowerRight,
-        [0x880a] = DraygonWallCannon.UnusedBottom,
     };
 
     /// <summary>The cannon word at bank-relative WRAM address <paramref name="address"/>, failing for any other address.</summary>

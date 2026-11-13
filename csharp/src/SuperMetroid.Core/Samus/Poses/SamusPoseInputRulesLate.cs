@@ -86,8 +86,8 @@ internal static class SamusPoseInputRulesLate
             SamusPoseInputList.FallingLeftPoseList or
             SamusPoseInputList.MorphBallFallingRightPoseList or
             SamusPoseInputList.MorphBallFallingLeftPoseList or
-            SamusPoseInputList.UnusedKnockbackRightPoseList or
-            SamusPoseInputList.UnusedKnockbackLeftPoseList or
+            SamusPoseInputList.GlitchBallKnockbackRightPoseList or
+            SamusPoseInputList.GlitchBallKnockbackLeftPoseList or
             SamusPoseInputList.MoonwalkFacingLeftPoseList or
             SamusPoseInputList.MoonwalkFacingRightPoseList or
             SamusPoseInputList.KnockbackRightPoseList or

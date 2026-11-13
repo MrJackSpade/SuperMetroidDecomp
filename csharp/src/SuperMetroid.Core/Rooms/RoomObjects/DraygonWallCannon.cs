@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// Draygon's five wall cannons. Destroying a cannon's room object stops Draygon firing from it; Draygon's AI skips a disabled
+/// Draygon's four wall cannons. Destroying a cannon's room object stops Draygon firing from it; Draygon's AI skips a disabled
 /// cannon when it fires. The room import decodes each cannon placement's room-object argument into the cannon it controls.
 /// </summary>
 public enum DraygonWallCannon
@@ -14,6 +14,4 @@ public enum DraygonWallCannon
     UpperRight,
     /// <summary>The lower-right cannon.</summary>
     LowerRight,
-    /// <summary>The unused bottom cannon, which Draygon's body setup disables.</summary>
-    UnusedBottom,
 }

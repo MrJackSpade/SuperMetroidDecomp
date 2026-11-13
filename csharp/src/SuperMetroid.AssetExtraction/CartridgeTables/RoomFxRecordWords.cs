@@ -24,7 +24,6 @@ internal static class RoomFxRecordWords
         [RoomFxType.Rain] = 0x0a,
         [RoomFxType.Fog] = 0x0c,
         [RoomFxType.ScrollingSky] = 0x20,
-        [RoomFxType.UnusedScrollingSky] = 0x22,
         [RoomFxType.Fireflea] = 0x24,
         [RoomFxType.TourianEntranceStatue] = 0x26,
         [RoomFxType.CeresRidley] = 0x28,

@@ -220,11 +220,11 @@ internal sealed class CrocomireCombat
         if (!bodyLeftEdgeIsOnScreen || stepCount != 0)
         {
             state.StepCounter += stepCount;
-            if ((state.FightFlags & CrocomireFightFlags.DamageReactionPending) == CrocomireFightFlags.None)
+            if (!state.DamageReactionPending)
             {
                 body.AnimationClock.Extend(MouthShotReactionHoldFrames);
             }
-            state.FightFlags |= CrocomireFightFlags.DamageReactionPending;
+            state.DamageReactionPending = true;
         }
 
         body.FlashTimer += 14;
@@ -253,7 +253,6 @@ internal sealed class CrocomireCombat
         if (state.Phase == CrocomirePhase.PowerBombCharge)
             return;
 
-        state.FightFlags |= CrocomireFightFlags.Engaged;
         body.FlashTimer += 4;
         body.AiStates |= EnemyAiStates.Hurt;
         state.Phase = CrocomirePhase.PowerBombCharge;

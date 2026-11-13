@@ -38,7 +38,7 @@ public static class RoomObjectMotherBrainFakeDeathVisualFiles
     /// </summary>
     private static Dictionary<MotherBrainFakeDeathDraw, RoomObjectFrameLayout> Layouts()
     {
-        // The mural and solid rows are one thirteen-cell row. The wall writes the origin and the block below it, then the
+        // The mural rows are one thirteen-cell row. The wall writes the origin and the block below it, then the
         // block above; the door writes its left column, then its right. A tube clear writes its column, the middle pair its
         // right column after, and a side tube its one centreward cell after.
         Offset16<RoomBlocks> origin = Offset16<RoomBlocks>.Zero;
@@ -59,8 +59,6 @@ public static class RoomObjectMotherBrainFakeDeathVisualFiles
             [MotherBrainFakeDeathDraw.MuralRow10] = row,
             [MotherBrainFakeDeathDraw.MuralRow11] = row,
             [MotherBrainFakeDeathDraw.MuralRow12] = row,
-            [MotherBrainFakeDeathDraw.UnusedFirstSolidRow] = row,
-            [MotherBrainFakeDeathDraw.UnusedSecondSolidRow] = row,
             [MotherBrainFakeDeathDraw.ClearCeilingBlock] = [RoomObjectShapeRun.Column(origin, 2)],
             [MotherBrainFakeDeathDraw.ClearCeilingTube] = [RoomObjectShapeRun.Column(origin, 5)],
             [MotherBrainFakeDeathDraw.ClearBottomMiddleSideTube] = [RoomObjectShapeRun.Column(origin, 4)],

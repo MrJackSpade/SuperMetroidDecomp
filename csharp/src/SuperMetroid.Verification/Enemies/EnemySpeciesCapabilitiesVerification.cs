@@ -23,12 +23,10 @@ internal static class EnemySpeciesCapabilitiesVerification
     /// <summary>The ordinary Pirate definitions: the wall, walking and ninja families in every colour.</summary>
     private static readonly EnemyDefinitionId[] OrdinaryPirates =
     [
-        EnemyDefinitionId.PirateGreyWall, EnemyDefinitionId.PirateGreenWall, EnemyDefinitionId.PirateRedWall,
-        EnemyDefinitionId.PirateGoldWall, EnemyDefinitionId.PirateMagentaWall, EnemyDefinitionId.PirateSilverWall,
+        EnemyDefinitionId.PirateGreyWall, EnemyDefinitionId.PirateGoldWall, EnemyDefinitionId.PirateMagentaWall, EnemyDefinitionId.PirateSilverWall,
         EnemyDefinitionId.PirateGreyWalking, EnemyDefinitionId.PirateGreenWalking, EnemyDefinitionId.PirateRedWalking,
         EnemyDefinitionId.PirateGoldWalking, EnemyDefinitionId.PirateMagentaWalking, EnemyDefinitionId.PirateSilverWalking,
-        EnemyDefinitionId.PirateGreyNinja, EnemyDefinitionId.PirateGreenNinja, EnemyDefinitionId.PirateRedNinja,
-        EnemyDefinitionId.PirateGoldNinja, EnemyDefinitionId.PirateMagentaNinja, EnemyDefinitionId.PirateSilverNinja,
+        EnemyDefinitionId.PirateGoldNinja, EnemyDefinitionId.PirateSilverNinja,
     ];
 
     /// <summary>The dead Tourian corpses, whose rot trigger is owned by pointer when their header names it.</summary>
@@ -86,7 +84,6 @@ internal static class EnemySpeciesCapabilitiesVerification
             [EnemyDefinitionId.ShutterShootable] = [EnemyReaction.ShootableVerticalShutterShot],
             [EnemyDefinitionId.Kamer] = [EnemyReaction.ShootableVerticalShutterShot],
             [EnemyDefinitionId.ShutterDestroyable] = [EnemyReaction.DestroyableVerticalShutterShot],
-            [EnemyDefinitionId.ShutterHorizShootable] = [EnemyReaction.HorizontalShutterShot],
             [EnemyDefinitionId.Metaree] = [EnemyReaction.MetareeShot],
             [EnemyDefinitionId.Fireflea] = [EnemyReaction.FirefleaShot],
             [EnemyDefinitionId.Tripper] = [EnemyReaction.TripperShot],

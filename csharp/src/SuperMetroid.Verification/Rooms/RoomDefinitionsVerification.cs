@@ -11,7 +11,7 @@ using SuperMetroid.AssetExtraction.Rooms;
 /// <summary>Checks the compiled room roster and each room definition's fields against the pinned retail cartridge's room headers.</summary>
 internal static class RoomDefinitionsVerification
 {
-    /// <summary>Checks all 262 named room identities and ten native fields, including sorted enumeration.</summary>
+    /// <summary>Checks all 261 named room identities and ten native fields, including sorted enumeration.</summary>
     internal static void VerifyCompiledRoomDefinitions()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -31,13 +31,13 @@ internal static class RoomDefinitionsVerification
         Suite(nameof(VerifyRoomDefinitionDownScroller), () => VerifyRoomDefinitionDownScroller(rom, rooms));
         Suite(nameof(VerifyRoomDefinitionIsolatedDoorTransition), () => VerifyRoomDefinitionIsolatedDoorTransition(rom, rooms));
         Suite(nameof(VerifyRoomDefinitionDoorListPointer), () => VerifyRoomDefinitionDoorListPointer(rom, rooms));
-        Console.WriteLine("Room definitions: all 262 identities, ten fields against the cartridge's headers, sorted enumeration and complete ushort rejection domain pass.");
+        Console.WriteLine("Room definitions: all 261 identities, ten fields against the cartridge's headers, sorted enumeration and complete ushort rejection domain pass.");
     }
 
     /// <summary>Checks every ushort pointer for roster membership and production header construction.</summary>
     private static void VerifyRoomDefinitionIdentities(ushort[] rooms)
     {
-        AssertEqual(262, rooms.Length, "Independent retail room roster");
+        AssertEqual(261, rooms.Length, "Independent retail room roster");
         AssertTrue(RetailRooms.All.Select(header => header.Pointer).SequenceEqual(rooms),
             "Header enumeration preserves original sorted identities");
         var known = rooms.ToHashSet();

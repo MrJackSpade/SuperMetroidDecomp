@@ -664,8 +664,8 @@ public sealed class SamusXrayState
         SamusMovementType.Crouching => XrayPosture.Crouching,
         SamusMovementType.NormalJumping or SamusMovementType.SpinJumping or
             SamusMovementType.MorphBallGround or SamusMovementType.Falling or
-            SamusMovementType.UnusedGlitchBall or SamusMovementType.MorphBallFalling or
-            SamusMovementType.UnusedGlitchBallAlternate or SamusMovementType.Knockback or
+            SamusMovementType.GlitchBall or SamusMovementType.MorphBallFalling or
+            SamusMovementType.GlitchBallKnockback or SamusMovementType.Knockback or
             SamusMovementType.CompactAirborne or
             SamusMovementType.TurningOnGround or SamusMovementType.PostureTransition or
             SamusMovementType.Moonwalking or SamusMovementType.SpringBallGround or

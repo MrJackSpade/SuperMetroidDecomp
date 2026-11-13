@@ -85,7 +85,7 @@ public static class SamusKnockbackMovement
         bool morphed = sourceMovementType is
             SamusMovementType.MorphBallGround or
             SamusMovementType.MorphBallFalling or
-            SamusMovementType.UnusedGlitchBallAlternate or
+            SamusMovementType.GlitchBallKnockback or
             SamusMovementType.SpringBallGround or
             SamusMovementType.SpringBallInAir or
             SamusMovementType.SpringBallFalling;
@@ -100,7 +100,7 @@ public static class SamusKnockbackMovement
             SamusMovementType.Moonwalking or
             SamusMovementType.WallJumping or
             SamusMovementType.RanIntoWall;
-        bool unusedMovementSeven = sourceMovementType == SamusMovementType.UnusedGlitchBall;
+        bool glitchBall = sourceMovementType == SamusMovementType.GlitchBall;
         bool suppressesKnockback = sourceMovementType is
             SamusMovementType.Knockback or
             SamusMovementType.TurningOnGround or
@@ -111,7 +111,7 @@ public static class SamusKnockbackMovement
             SamusMovementType.DamageBoost or
             SamusMovementType.DraygonHeld or
             SamusMovementType.Special;
-        if (!morphed && !humanoid && !unusedMovementSeven && !suppressesKnockback)
+        if (!morphed && !humanoid && !glitchBall && !suppressesKnockback)
         {
             // The knockback check contains exactly 28 entries, indexed by the movement type.
             // A larger value cannot name another game behavior; it means the caller supplied
@@ -146,15 +146,13 @@ level, targetPose, frameCounter, roomObjects))
             // The interrupted pose commits after movement. The input phase publishes its radius
             // next frame; keep the collision resolver's old live radius through this one.
         }
-        else if (unusedMovementSeven)
+        else if (glitchBall)
         {
-            // Is dead in retail play but fully specified: unlike the ball
-            // path it installs the unused knockback pose, then continues through the same knockback-start hurt
-            // initializer. This preserves the actual table instead of turning an unused
-            // arm into an exception.
+            // A hit on the glitch ball, unlike the ball path, installs the glitch ball's knockback pose, then continues
+            // through the same knockback-start hurt initializer as a humanoid pose.
             samus.Pose = facingLeft
-                ? SamusPoseId.UnusedKnockbackLeftPose
-                : SamusPoseId.UnusedKnockbackRightPose;
+                ? SamusPoseId.GlitchBallKnockbackLeftPose
+                : SamusPoseId.GlitchBallKnockbackRightPose;
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             humanoid = true;
         }

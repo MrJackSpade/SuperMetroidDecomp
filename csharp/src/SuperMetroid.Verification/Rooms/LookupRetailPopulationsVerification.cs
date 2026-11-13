@@ -27,7 +27,7 @@ internal static class LookupRetailPopulationsVerification
         0x8C36, 0x8C3E, 0x8C4C, 0x8C5A, 0x8C6E, 0x8C82, 0x8C8A, 0x8CB0, 0x8CCA, 0x8CD2, 0x8CD4, 0x8D1E,
         0x8D56, 0x8D58, 0x8D7E, 0x8D80, 0x8D88, 0x8D96, 0x8D98, 0x8D9A, 0x8D9C, 0x8DA4, 0x8DA6, 0x8DD8,
         0x8DE0, 0x8DE8, 0x8DEA, 0x8DEC, 0x8DF4, 0x8DFC, 0x8E04, 0x8E12, 0x8E3E, 0x8E82, 0x8E90, 0x8E98,
-        0x8EA6, 0x8EBA, 0x8ED4, 0x8ED6, 0x8F38, 0x8F3A, 0x8F3C, 0x8F7A, 0x8F7C, 0x8FD2, 0x8FDA, 0x9036,
+        0x8EA6, 0x8EBA, 0x8ED6, 0x8F38, 0x8F3A, 0x8F3C, 0x8F7A, 0x8F7C, 0x8FD2, 0x8FDA, 0x9036,
         0x90C8, 0x90D0, 0x9108, 0x9110, 0x9118, 0x918C, 0xC215, 0xC22F, 0xC231, 0xC245, 0xC247, 0xC27F,
         0xC281, 0xC28F, 0xC291, 0xC2B1, 0xC2B3, 0xC2BB, 0xC2BD, 0xC2BF, 0xC2C7, 0xC2C9, 0xC2D1, 0xC2FD,
         0xC2FF, 0xC319, 0xC321, 0xC323, 0xC337, 0xC33F, 0xC34D, 0xC355, 0xC357, 0xC35F, 0xC36D, 0xC375,
@@ -40,7 +40,7 @@ internal static class LookupRetailPopulationsVerification
         0xC8A5, 0xC8B3, 0xC8BB, 0xC8BD, 0xC8BF, 0xC8C1, 0xC8C3, 0xC8C5,
     ];
 
-    /// <summary>Checks 284 population identities and all 941 placement records field by field.</summary>
+    /// <summary>Checks 283 population identities and all 941 placement records field by field.</summary>
     internal static void VerifyRetailPopulationMappings(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyRetailPopulationIdentities), () => VerifyRetailPopulationIdentities());
@@ -55,7 +55,7 @@ internal static class LookupRetailPopulationsVerification
     private static void VerifyRetailPopulationIdentities()
     {
         var original = OriginalRetailPopulationPointers.ToHashSet();
-        AssertEqual(284, original.Count, "original population identities are unique");
+        AssertEqual(283, original.Count, "original population identities are unique");
         AssertTrue(RoomObjectPopulationDefinitions.Pointers.SequenceEqual(OriginalRetailPopulationPointers),
             "population enumeration retains original sorted identities");
         AssertTrue(RoomStateDefinitions.All.Select(state => state.RoomObjectPointer).ToHashSet().SetEquals(original),

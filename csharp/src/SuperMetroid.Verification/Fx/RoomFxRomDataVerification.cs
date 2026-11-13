@@ -76,8 +76,10 @@ internal static class RoomFxRomDataVerification
     {
         // Original pre-conversion enum membership, independently cross-checked with
         // the native function pointer table. Zero is deliberately named; the other
-        // entries targeting the same RTL were never accepted by this port boundary.
-        ushort[] original = [0, 2, 4, 6, 8, 10, 12, 32, 34, 36, 38, 40, 42, 44];
+        // entries targeting the same RTL were never accepted by this port boundary, nor is
+        // the alternate scrolling sky's, which no retail record selects (#1686).
+        ushort[] original = [0, 2, 4, 6, 8, 10, 12, 32, 36, 38, 40, 42, 44];
+        const int AlternateScrollingSkySlot = 34;
         // The identities' values are arbitrary (#1415); each member's dispatcher byte is the import's native word.
         AssertTrue(Enum.GetValues<RoomFxType>().Select(SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.Types.Word).SequenceEqual(original),
             "All named room FX identities name their original dispatcher bytes");
@@ -85,8 +87,8 @@ internal static class RoomFxRomDataVerification
         for (int slot = 0; slot <= 44; slot += 2)
         {
             ushort pointer = ReadVerificationWord(rom, 0x83ac18 + slot);
-            AssertEqual(original.Contains((ushort)slot), slot == 0 || pointer != 0xb278,
-                "Original named membership matches native routines excluding unnamed RTL slots");
+            AssertEqual(original.Contains((ushort)slot), slot == 0 || (pointer != 0xb278 && slot != AlternateScrollingSkySlot),
+                "Original named membership matches native routines excluding unnamed RTL slots and the unselected sky");
         }
         for (int value = 0; value <= byte.MaxValue; value++)
         {
@@ -130,7 +132,7 @@ internal static class RoomFxRomDataVerification
             RoomFxType.Rain => new() { [0x0e] = RoomEffectBlendDefinitions.OverlayBrightens },
             RoomFxType.Fog => new() { [0x30] = RoomEffectBlendDefinitions.OverlayBrightens },
             RoomFxType.Spores => new() { [0x0a] = RoomEffectBlendDefinitions.SporesBrightenBehind },
-            RoomFxType.None or RoomFxType.ScrollingSky or RoomFxType.UnusedScrollingSky or RoomFxType.Fireflea or
+            RoomFxType.None or RoomFxType.ScrollingSky or RoomFxType.Fireflea or
                 RoomFxType.CeresRidley or RoomFxType.CeresElevator or RoomFxType.CeresHaze => new() { [0x00] = null, [0x02] = null },
             _ => throw new InvalidOperationException($"Unexpected room FX {type}."),
         };
@@ -215,7 +217,6 @@ internal static class RoomFxRomDataVerification
             RoomFxType.None or
                 RoomFxType.Spores or
                 RoomFxType.ScrollingSky or
-                RoomFxType.UnusedScrollingSky or
                 RoomFxType.Fireflea or
                 RoomFxType.TourianEntranceStatue or
                 RoomFxType.CeresRidley or
@@ -322,7 +323,6 @@ internal static class RoomFxRomDataVerification
                 RoomFxType.Spores or
                 RoomFxType.Fog or
                 RoomFxType.ScrollingSky or
-                RoomFxType.UnusedScrollingSky or
                 RoomFxType.Fireflea or
                 RoomFxType.TourianEntranceStatue or
                 RoomFxType.CeresRidley or

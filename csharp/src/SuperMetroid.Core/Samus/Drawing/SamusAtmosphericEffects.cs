@@ -18,8 +18,8 @@ internal static class SamusAtmosphericEffects
             SamusMovementType.TurningOnGround or SamusMovementType.PostureTransition or SamusMovementType.Moonwalking or
             SamusMovementType.SpringBallGround or SamusMovementType.RanIntoWall => WaterSplashKind.GroundedPair,
             SamusMovementType.Running or SamusMovementType.NormalJumping or SamusMovementType.SpinJumping or
-                SamusMovementType.Falling or SamusMovementType.UnusedGlitchBall or
-                SamusMovementType.MorphBallFalling or SamusMovementType.UnusedGlitchBallAlternate or
+                SamusMovementType.Falling or SamusMovementType.GlitchBall or
+                SamusMovementType.MorphBallFalling or SamusMovementType.GlitchBallKnockback or
                 SamusMovementType.Knockback or
                 SamusMovementType.CompactAirborne or SamusMovementType.SpringBallInAir or
                 SamusMovementType.SpringBallFalling or SamusMovementType.WallJumping or

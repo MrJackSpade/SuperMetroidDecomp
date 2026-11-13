@@ -384,10 +384,10 @@ internal sealed class EnemySheetShades
                 or EnemyDefinitionId.Rio or EnemyDefinitionId.Squeept or EnemyDefinitionId.Geruta or EnemyDefinitionId.Holtz or EnemyDefinitionId.Oum
                 or EnemyDefinitionId.Choot or EnemyDefinitionId.GRipper or EnemyDefinitionId.Ripper2 or EnemyDefinitionId.Ripper
                 or EnemyDefinitionId.Dragon or EnemyDefinitionId.ShutterGrowing or EnemyDefinitionId.ShutterShootable
-                or EnemyDefinitionId.ShutterHorizShootable or EnemyDefinitionId.Kamer or EnemyDefinitionId.Waver or EnemyDefinitionId.Metaree
+                or EnemyDefinitionId.Kamer or EnemyDefinitionId.Waver or EnemyDefinitionId.Metaree
                 or EnemyDefinitionId.Fireflea or EnemyDefinitionId.Skultera or EnemyDefinitionId.Elevator or EnemyDefinitionId.Sciser
                 or EnemyDefinitionId.Zero or EnemyDefinitionId.Tripper or EnemyDefinitionId.Kamer2 or EnemyDefinitionId.Sbug
-                or EnemyDefinitionId.Sbug2 or EnemyDefinitionId.Mochtroid or EnemyDefinitionId.Sidehopper or EnemyDefinitionId.Dessgeega
+                or EnemyDefinitionId.Mochtroid or EnemyDefinitionId.Sidehopper or EnemyDefinitionId.Dessgeega
                 or EnemyDefinitionId.SidehopperLarge or EnemyDefinitionId.SidehopperTourian or EnemyDefinitionId.DessgeegaLarge
                 or EnemyDefinitionId.Zoa or EnemyDefinitionId.Viola or EnemyDefinitionId.Respawn or EnemyDefinitionId.Skree
                 or EnemyDefinitionId.Yard or EnemyDefinitionId.Reflec or EnemyDefinitionId.HZoomer or EnemyDefinitionId.Zeela
@@ -406,10 +406,10 @@ internal sealed class EnemySheetShades
                 or EnemyDefinitionId.TourianStatue or EnemyDefinitionId.TourianStatueGhost or EnemyDefinitionId.Shaktool
                 or EnemyDefinitionId.NoobTubeCrack or EnemyDefinitionId.Chozo or EnemyDefinitionId.Zeb
                 or EnemyDefinitionId.Zebbo or EnemyDefinitionId.Gamet or EnemyDefinitionId.Geega or EnemyDefinitionId.EtecoonEscape
-                or EnemyDefinitionId.DachoraEscape or EnemyDefinitionId.PirateGreyWall or EnemyDefinitionId.PirateGreenWall
-                or EnemyDefinitionId.PirateRedWall or EnemyDefinitionId.PirateGoldWall or EnemyDefinitionId.PirateMagentaWall
-                or EnemyDefinitionId.PirateSilverWall or EnemyDefinitionId.PirateGreyNinja or EnemyDefinitionId.PirateGreenNinja
-                or EnemyDefinitionId.PirateRedNinja or EnemyDefinitionId.PirateGoldNinja or EnemyDefinitionId.PirateMagentaNinja
+                or EnemyDefinitionId.DachoraEscape or EnemyDefinitionId.PirateGreyWall
+                or EnemyDefinitionId.PirateGoldWall or EnemyDefinitionId.PirateMagentaWall
+                or EnemyDefinitionId.PirateSilverWall
+                or EnemyDefinitionId.PirateGoldNinja
                 or EnemyDefinitionId.PirateSilverNinja or EnemyDefinitionId.PirateGreyWalking or EnemyDefinitionId.PirateGreenWalking
                 or EnemyDefinitionId.PirateRedWalking or EnemyDefinitionId.PirateGoldWalking or EnemyDefinitionId.PirateMagentaWalking
                 or EnemyDefinitionId.PirateSilverWalking:
@@ -444,8 +444,8 @@ internal sealed class EnemySheetShades
             rows.Add(new(TourianCorpseShades.Drained, EnemySheetRowDefinitions.DrainedCorpses, colours.With(EnemySheetRowDefinitions.DrainedCorpses, 0,
                 Frame(ShitroidColorDefinitions.TargetColorCount, colour => shitroid.TargetColor(ShitroidColorTarget.DeadSidehopper, colour)))));
         }
-        if (enemy is EnemyDefinitionId.PirateGoldNinja or EnemyDefinitionId.PirateGreenNinja or EnemyDefinitionId.PirateGreyNinja
-            or EnemyDefinitionId.PirateMagentaNinja or EnemyDefinitionId.PirateRedNinja or EnemyDefinitionId.PirateSilverNinja)
+        if (enemy is EnemyDefinitionId.PirateGoldNinja
+            or EnemyDefinitionId.PirateSilverNinja)
         {
             rows.Add(new(NinjaSpacePirateShades.GoldWall, EnemySheetRowDefinitions.NinjaGoldWall, colours.With(EnemySheetRowDefinitions.NinjaGoldWall, 0,
                 inputs.Enemies.PaletteOf(EnemyDefinitionId.PirateGoldWall).Colours)));

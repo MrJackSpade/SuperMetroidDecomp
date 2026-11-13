@@ -14,7 +14,6 @@ internal static class PaletteFxObjectAccess
     private static readonly Dictionary<PaletteFxObject, ushort> Addresses = new()
     {
         [PaletteFxObject.FadeInSuperMetroidTitleLogo] = 0xe194,
-        [PaletteFxObject.FadeInNintendoBootLogo] = 0xe198,
         [PaletteFxObject.FadeInNintendoCopyright] = 0xe19c,
         [PaletteFxObject.TitleScreenBabyMetroidTubeLight] = 0xe1a0,
         [PaletteFxObject.TitleScreenFlickeringDisplays] = 0xe1a4,
@@ -94,6 +93,13 @@ internal static class PaletteFxObjectAccess
         /// <summary>Starts the effect whose definition is at <paramref name="definition"/>.</summary>
         internal void Start(ushort definition, SamusEquipmentFlags equippedItems, bool areaMiniBossDefeated = false) =>
             self.Start(FromNative(definition), equippedItems, areaMiniBossDefeated);
+
+        /// <summary>
+        /// Starts the Torizo belly glow whose definition is at <paramref name="definition"/> lighting <paramref name="torizo"/>,
+        /// as the Torizo's fight start does (#1700).
+        /// </summary>
+        internal void StartTorizoBellyGlow(ushort definition, ILitTorizo torizo, SamusEquipmentFlags equippedItems) =>
+            self.StartTorizoBellyGlow(FromNative(definition), torizo, equippedItems);
 
         /// <summary>Whether the effect whose definition is at <paramref name="definition"/> is running.</summary>
         internal bool IsRunning(ushort definition) => self.IsRunning(FromNative(definition));

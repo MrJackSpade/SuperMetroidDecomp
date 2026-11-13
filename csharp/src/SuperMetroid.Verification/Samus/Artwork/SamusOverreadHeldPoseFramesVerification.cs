@@ -27,8 +27,8 @@ internal static class SamusOverreadHeldPoseFramesVerification
     [
         SamusPoseId.GlitchBallRightPose,
         SamusPoseId.GlitchBallLeftPose,
-        SamusPoseId.UnusedKnockbackRightPose,
-        SamusPoseId.UnusedKnockbackLeftPose,
+        SamusPoseId.GlitchBallKnockbackRightPose,
+        SamusPoseId.GlitchBallKnockbackLeftPose,
         SamusPoseId.DraygonHeldBallLeftPose,
         SamusPoseId.DraygonHeldStandingUpLeftPose,
     ];

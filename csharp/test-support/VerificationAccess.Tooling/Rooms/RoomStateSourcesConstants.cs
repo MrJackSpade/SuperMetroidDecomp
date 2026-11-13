@@ -13,10 +13,10 @@ internal static class RoomStateSourcesConstants
     public static RoomStateSettings State(ushort pointer) =>
         RoomStateSourceDefinitions.ByPointer.TryGetValue(pointer, out RoomStateSettings? found)
             ? found
-            : throw new ArgumentOutOfRangeException(nameof(pointer), pointer, "Pointer is not one of the 323 selected retail room states.");
+            : throw new ArgumentOutOfRangeException(nameof(pointer), pointer, "Pointer is not one of the 322 selected retail room states.");
     /// <summary>The pointer of the compiled state <paramref name="state"/> is, or was imported as, by its name.</summary>
     public static ushort PointerOf(RoomStateSettings state) =>
         PointersByName.TryGetValue(Ensure.NotNull(state).Name, out ushort pointer)
             ? pointer
-            : throw new ArgumentOutOfRangeException(nameof(state), state.Name, "State is not one of the 323 retail room states.");
+            : throw new ArgumentOutOfRangeException(nameof(state), state.Name, "State is not one of the 322 retail room states.");
 }

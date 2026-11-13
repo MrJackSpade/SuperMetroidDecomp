@@ -76,7 +76,6 @@ public sealed class RoomFxLayer3Pages
         RoomFxType.TourianEntranceStatue => pages[RoomFxType.Water],
         RoomFxType.None or
             RoomFxType.ScrollingSky or
-            RoomFxType.UnusedScrollingSky or
             RoomFxType.Fireflea or
             RoomFxType.CeresRidley or
             RoomFxType.CeresElevator or

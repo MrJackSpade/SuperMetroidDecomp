@@ -22,16 +22,16 @@ internal static class LookupPaletteFxDispatchVerification
     }
 
     /// <summary>
-    /// The declared objects no scene spawns and no room's record sets, which are no effect of the game: the cinematic
-    /// fade, the dark lightning, the Wrecked Ship lights' copy and the Tourian glow's copy.
+    /// The declared objects no scene spawns and no room's record sets, which are no effect of the game: the Nintendo boot
+    /// logo's fade (#1686), the cinematic fade, the dark lightning, the Wrecked Ship lights' copy and the Tourian glow's copy.
     /// </summary>
-    private static readonly HashSet<int> UnreachableObjects = [0xe1ec, 0xf769, 0xf771, 0xf7a5];
+    private static readonly HashSet<int> UnreachableObjects = [0xe198, 0xe1ec, 0xf769, 0xf771, 0xf7a5];
 
-    /// <summary>Accepts exactly the 59 reachable declared object pointers and rejects every other 16-bit value.</summary>
+    /// <summary>Accepts exactly the 58 reachable declared object pointers and rejects every other 16-bit value.</summary>
     internal static void VerifyPaletteFxDispatchDomain()
     {
         var original = OriginalPaletteFxObjects().ToHashSet();
-        AssertEqual(59, original.Count, "Native palette-FX identity count");
+        AssertEqual(58, original.Count, "Native palette-FX identity count");
         for (int value = 0; value <= ushort.MaxValue; value++)
         {
             ushort pointer = (ushort)value;

@@ -354,7 +354,6 @@ public static class DoorDefinitions
         Door(nameof(NorfairDoorDefinitions.FastPillarsSetup2), RoomDefinitions.MainHall, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(126, 38), new(7, 2), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None),
         Door(nameof(NorfairDoorDefinitions.FastPillarsSetup3), RoomDefinitions.FastRipper, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(62, 6), new(3, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None),
         Door(nameof(NorfairDoorDefinitions.FastPillarsSetup4), RoomDefinitions.Pillar, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None),
-        Door(nameof(UnusedNorfairRoom0), RoomDefinitions.FastPillarsSetup, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(14, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None),
         Door(nameof(NorfairDoorDefinitions.MickeyMouse0), RoomDefinitions.FastPillarsSetup, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(14, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None),
         Door(nameof(NorfairDoorDefinitions.MickeyMouse1), RoomDefinitions.WorstRoomInTheGame, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.WorstRoomInTheGameOpensScreen0x0),
         Door(nameof(NorfairDoorDefinitions.Pillar0), RoomDefinitions.FastPillarsSetup, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(14, 38), new(0, 2), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.FastPillarsSetupClosesScreen0x1OpensScreen0x2TopAligned),
@@ -622,8 +621,6 @@ public static class DoorDefinitions
         new(name, destination, orientation, roomObjectBlock, destinationScreen, samusSpeed, setup);
     /// <summary>The door into the Landing Site room that demo set 3 uses for its demos 0, 2 and 4.</summary>
     public static DoorDefinition DemoSet3024 { get; } = Find(nameof(DemoSet3024));
-    /// <summary>An unused door that no room lists.</summary>
-    public static DoorDefinition UnusedNorfairRoom0 { get; } = Find(nameof(UnusedNorfairRoom0));
     /// <summary>An unused third door of the West Sand Hall room.</summary>
     public static DoorDefinition WestSandHallUnlistedThirdDoor { get; } = Find(nameof(WestSandHallUnlistedThirdDoor));
     /// <summary>An unused third door of the East Sand Hall room.</summary>

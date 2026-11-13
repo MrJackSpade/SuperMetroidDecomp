@@ -86,7 +86,7 @@ internal static class RoomFxRecordCodec
         RoomFxType.Rain => value == RainBlendByte,
         RoomFxType.Fog => value == FogBlendByte,
         RoomFxType.Spores => value == SporesBlendByte,
-        RoomFxType.None or RoomFxType.ScrollingSky or RoomFxType.UnusedScrollingSky or RoomFxType.Fireflea or
+        RoomFxType.None or RoomFxType.ScrollingSky or RoomFxType.Fireflea or
             RoomFxType.CeresRidley or RoomFxType.CeresElevator or RoomFxType.CeresHaze =>
             value is UnconfiguredBlendByte or NormalBlendByte,
         _ => throw new ArgumentOutOfRangeException(nameof(type), type, "Unknown room effect."),
@@ -170,7 +170,7 @@ internal static class RoomFxRecordCodec
                 : Has(SurfaceIgnoredOrHorizontalHazeBit) ? HeatHazeDirection.Horizontal
                 : HeatHazeDirection.None),
             RoomFxType.None or RoomFxType.Rain or RoomFxType.Fog or RoomFxType.Spores or RoomFxType.ScrollingSky or
-                RoomFxType.UnusedScrollingSky or RoomFxType.Fireflea or RoomFxType.CeresRidley or RoomFxType.CeresElevator or
+                RoomFxType.Fireflea or RoomFxType.CeresRidley or RoomFxType.CeresElevator or
                 RoomFxType.CeresHaze => null,
             _ => throw new ArgumentOutOfRangeException(nameof(type), type, "Unknown room effect."),
         };
@@ -219,10 +219,11 @@ internal static class RoomFxRecordCodec
 
     /// <summary>
     /// The animated-tile objects a record's animated-tile byte starts in a room of <paramref name="area"/>, in ascending
-    /// bit order, leaving out <see cref="AnimatedTileObject.Empty"/>, the object an unused bit selects.
+    /// bit order. No retail record sets a bit that selects no object of the game (#1686), and the decode rejects one.
     /// </summary>
     internal static ImmutableArray<AnimatedTileObject> AnimatedTiles(AreaId area, byte value) =>
-        [.. SetBits(value).Select(bit => AreaAnimatedTileObjects.Read(area, bit)).Where(tiles => tiles != AnimatedTileObject.Empty)];
+        [.. SetBits(value).Select(bit => AreaAnimatedTileObjects.Read(area, bit) ?? throw new InvalidDataException(
+            $"A {area} record sets animated-tile bit {bit}, which selects no object of the game."))];
 
     /// <summary>The bits <paramref name="value"/> sets, lowest first.</summary>
     private static IEnumerable<int> SetBits(byte value) =>

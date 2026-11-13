@@ -19,7 +19,6 @@ internal static class ShutterNativeListAddresses
         new NativeProgramEntry<ShutterSegment>(ShutterSegment.GrowingTwentyPixels, 0xe99e),
         new NativeProgramEntry<ShutterSegment>(ShutterSegment.GrowingThirtyPixels, 0xe9a4),
         new NativeProgramEntry<ShutterSegment>(ShutterSegment.FortyPixels, 0xe9aa),
-        new NativeProgramEntry<ShutterSegment>(ShutterSegment.Horizontal, 0xe9d4),
         new NativeProgramEntry<ShutterSegment>(ShutterSegment.KamerPlatform, 0xede7),
     ];
 

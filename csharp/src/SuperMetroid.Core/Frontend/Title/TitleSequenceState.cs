@@ -146,8 +146,11 @@ public sealed class TitleSequenceState : IFrontendScreen
         BeginTextSequence(TitleSequenceDefinitions.TextSequences.Year);
     }
 
-    /// <summary>Current title sub-state.</summary>
+    /// <summary>The title's running step; the skip's fade-out runs alongside it (#1719).</summary>
     public TitleSequencePhase Phase { get; internal set; }
+
+    /// <summary>How far the skip to the title screen has run alongside the running step (#1719).</summary>
+    internal TitleSkipStage SkipStage { get; private set; }
 
     /// <summary>True after the title's slow fade has handed control to file select.</summary>
     public bool FileSelectRequested { get; private set; }
@@ -185,14 +188,51 @@ public sealed class TitleSequenceState : IFrontendScreen
         titleBackdrop = backdrop;
     }
 
-    /// <summary>Runs one accepted title-sequence frame.</summary>
+    /// <summary>
+    /// Runs one accepted title-sequence frame: the running step, then the skip's check and fade-out alongside it (#1719),
+    /// or, on the update after the skip's fade-out reaches black, the rebuild of the title objects in place of the step.
+    /// </summary>
     public void Step(ControllerButton controllerInput)
     {
         controller.Latch(controllerInput);
-        bool restartColourEffectsAfterStep = false;
         bool confirmPressed =
             controller.NewlyPressed.HasAny(TitleSequenceDefinitions.Timing.ConfirmButtons);
+        bool rebuiltTitleObjects = SkipStage == TitleSkipStage.Rebuilding;
+        if (rebuiltTitleObjects)
+        {
+            // The fade-out's black stopped the running step on the previous update; this update rebuilds the title
+            // objects in its place, and the fade-in starts on the next update.
+            EnterImmediateTitleObjects();
+            Phase = TitleSequencePhase.TitleScreenFadeIn;
+            SkipStage = TitleSkipStage.NotSkipping;
+        }
+        else
+        {
+            StepRunningStep(confirmPressed);
+            // A new B, Start or A press skips to the title screen, read after this update's step has run (#1715): the
+            // step this update ends in decides, so the update the zoom completes on already refuses it, and a running
+            // skip does not restart. The skip's fade-out then runs alongside the running step (#1719), which keeps
+            // running until the screen is black; its first fade step falls on the update of the press.
+            if (confirmPressed && SkipStage == TitleSkipStage.NotSkipping && AcceptsSkip(Phase))
+                SkipStage = TitleSkipStage.FadingOut;
+            if (SkipStage == TitleSkipStage.FadingOut)
+                StepSkipFadeOut();
+        }
 
+        StepBabyMetroidAnimation();
+        // The title runs the same colour effects as rooms. The console lights and the
+        // logo's and copyright's fades own their colours and timers; nothing else synthesizes a blink or a fade.
+        colourEffects.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
+        // The skip's rebuild follows the palette effects for this frame. Restart
+        // only here, not when the subsequent fade-in arms the title idle countdown.
+        if (rebuiltTitleObjects)
+            RestartColourEffects();
+    }
+
+    /// <summary>Runs one update of the title's running step.</summary>
+    /// <param name="confirmPressed">Whether B, Start or A is newly pressed, which the idle title screen reads as its confirmation.</param>
+    private void StepRunningStep(bool confirmPressed)
+    {
         switch (Phase)
         {
             case TitleSequencePhase.YearText:
@@ -257,10 +297,6 @@ public sealed class TitleSequenceState : IFrontendScreen
                     EnterTitleScreen();
                 break;
 
-            case TitleSequencePhase.SkipFadeOut:
-                restartColourEffectsAfterStep = StepSkipFadeOut();
-                break;
-
             case TitleSequencePhase.TitleScreenFadeIn:
                 Brightness = Math.Min(
                     TitleSequenceDefinitions.Timing.MaximumBrightness,
@@ -299,32 +335,13 @@ public sealed class TitleSequenceState : IFrontendScreen
             default:
                 throw new InvalidOperationException($"Undefined {nameof(TitleSequencePhase)} {Phase}.");
         }
-
-        // A new B, Start or A press skips to the title screen, read after this update's step has run (#1715): the step
-        // this update ends in decides, so the update the zoom completes on already refuses it. The skip fades out
-        // fast, rebuilds the final title objects and fades in fast rather than jumping to file select; its first
-        // fade step falls on the update of the press.
-        if (confirmPressed && AcceptsSkip(Phase))
-        {
-            Phase = TitleSequencePhase.SkipFadeOut;
-            restartColourEffectsAfterStep = StepSkipFadeOut();
-        }
-
-        StepBabyMetroidAnimation();
-        // The title runs the same colour effects as rooms. The console lights and the
-        // logo's and copyright's fades own their colours and timers; nothing else synthesizes a blink or a fade.
-        colourEffects.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
-        // The skip reconstruction follows the palette effects for this frame. Restart
-        // only here, not when the subsequent fade-in arms the title idle countdown.
-        if (restartColourEffectsAfterStep)
-            RestartColourEffects();
     }
 
     /// <summary>
-    /// Whether a new skip press read at the end of an update in <paramref name="phase"/> skips to the title screen (#1715):
-    /// only while the opening runs, from the first title card until the update the final zoom completes on. The logo's and
-    /// the copyright's holds refuse it, a running skip or fade-in does not restart, and the idle title screen reads its own
-    /// confirmation instead.
+    /// Whether a new skip press read at the end of an update in <paramref name="phase"/> skips to the title screen (#1715),
+    /// while no skip is running: only while the opening runs, from the first title card until the update the final zoom
+    /// completes on. The logo's and the copyright's holds refuse it, the skip's fade-in does not restart, and the idle title
+    /// screen reads its own confirmation instead.
     /// </summary>
     private static bool AcceptsSkip(TitleSequencePhase phase) => phase switch
     {
@@ -338,7 +355,6 @@ public sealed class TitleSequenceState : IFrontendScreen
             TitleSequencePhase.SceneThreeZoom => true,
         TitleSequencePhase.TitleLogoFade or
             TitleSequencePhase.CopyrightFade or
-            TitleSequencePhase.SkipFadeOut or
             TitleSequencePhase.TitleScreenFadeIn or
             TitleSequencePhase.TitleScreen or
             TitleSequencePhase.TitleScreenFadeOut => false,
@@ -346,23 +362,20 @@ public sealed class TitleSequenceState : IFrontendScreen
     };
 
     /// <summary>
-    /// Runs one update of the skip's fast fade-out; at black it queues the immediate title song, rebuilds the immediate
-    /// title objects and starts the fade-in.
+    /// Runs one update of the skip's fast fade-out, after the running step; at black it stops the running step and queues
+    /// the immediate title song, and the title objects rebuild on the next update.
     /// </summary>
-    /// <returns>Whether the colour effects restart once this update's effects have stepped, which the rebuild requires.</returns>
-    private bool StepSkipFadeOut()
+    private void StepSkipFadeOut()
     {
         Brightness = Math.Max(
             0,
             Brightness - TitleSequenceDefinitions.Timing.SkipFadeBrightnessStep);
         if (Brightness != 0)
-            return false;
-        // The transition queues the immediate title song before rebuilding the immediate title objects.
+            return;
+        // The transition queues the immediate title song an update before rebuilding the immediate title objects.
         audio?.QueueMusic(
             MusicRequest.SelectTrack(TitleSequenceDefinitions.Music.ImmediateTitleTrack));
-        EnterImmediateTitleObjects();
-        Phase = TitleSequencePhase.TitleScreenFadeIn;
-        return true;
+        SkipStage = TitleSkipStage.Rebuilding;
     }
 
     /// <summary>
@@ -463,7 +476,9 @@ public sealed class TitleSequenceState : IFrontendScreen
                 ActiveOrigin.ToSpritePosition(), ActiveShading);
         }
 
-        if (Phase is TitleSequencePhase.CopyrightFade or TitleSequencePhase.SkipFadeOut or TitleSequencePhase.TitleScreenFadeIn or
+        // The skip's fade-out draws what its running step draws, which never includes the copyright: the copyright first
+        // shows in the copyright's hold, which refuses the skip (#1719).
+        if (Phase is TitleSequencePhase.CopyrightFade or TitleSequencePhase.TitleScreenFadeIn or
             TitleSequencePhase.TitleScreen or TitleSequencePhase.TitleScreenFadeOut)
         {
             TitleSpriteDrawing.DrawSprite(sheet, TitleSprite.NintendoCopyright, objects,
@@ -541,9 +556,8 @@ public sealed class TitleSequenceState : IFrontendScreen
         panPosition = new(panPosition.X.WithFraction(0), panPosition.Y.WithFraction(0));
 
         // Initial setup and each of the first three completed pan phases hide the floor,
-        // showing objects alone, before the next text actor becomes visible. Keeping the
-        // visibility explicit also matters when Start skips during a pan: the fade-out keeps
-        // whichever visibility was live rather than inferring it from the phase name.
+        // showing objects alone, before the next text actor becomes visible, also while the
+        // skip's fade-out runs alongside the step (#1719).
         floorBackgroundEnabled = false;
     }
 

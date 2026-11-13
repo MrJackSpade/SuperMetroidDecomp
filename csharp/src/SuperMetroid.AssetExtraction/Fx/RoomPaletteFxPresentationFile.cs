@@ -92,20 +92,7 @@ public static class RoomPaletteFxPresentationFile
             ValidateAndCompile($"{definition.Owner} belly", frames, definition.ColorFrames, colors);
         }
         ValidateAndCompile("Tourian statue grey-out", document.TourianStatueGrey, TourianStatueGreyPaletteFxColorDefinitions.ColorFrames, colors);
-        foreach (CrateriaLightningPaletteFxColorDefinition definition in
-                 CrateriaLightningPaletteFxColorDefinitions.All)
-        {
-            PaletteRgb5[][]? frames = definition.Owner switch
-            {
-                CrateriaLightningPaletteOwner.SurfaceLightning =>
-                    document.CrateriaSurfaceLightning,
-                CrateriaLightningPaletteOwner.UnusedDarkLightning =>
-                    document.CrateriaUnusedDarkLightning,
-                _ => throw new InvalidDataException(
-                    $"Unsupported Crateria lightning owner {definition.Owner}."),
-            };
-            ValidateAndCompile($"Crateria {definition.Owner}", frames, definition.ColorFrames, colors);
-        }
+        ValidateAndCompile("Crateria surface lightning", document.CrateriaSurfaceLightning, CrateriaLightningPaletteFxColorDefinitions.Surface.ColorFrames, colors);
         ValidateAndCompile("Ceres gunship-engine lights", document.CeresGunshipEngineLights, CeresCinematicLightPaletteFxColorDefinitions.GunshipEngineFrames, colors);
         ValidateAndCompile("Ceres navigation lights", document.CeresNavigationLights, CeresCinematicLightPaletteFxColorDefinitions.NavigationLightsFrames, colors);
         foreach (PlanetZebesTextPaletteFxColorDefinition definition in
@@ -137,7 +124,6 @@ public static class RoomPaletteFxPresentationFile
             ValidateAndCompile($"Cinematic glow {definition.Owner}", frames, definition.ColorFrames, colors);
         }
         ValidateAndCompile("exploding Zebes fade", document.ExplodingZebesFade, ExplodingZebesFadePaletteFxColorDefinitions.ColorFrames, colors);
-        ValidateAndCompile("unused cinematic fade", document.UnusedCinematicFade, UnusedCinematicFadePaletteFxColorDefinitions.ColorFrames, colors);
         ValidateAndCompile("title-logo fade", document.TitleLogoFade, TitleLogoFadePaletteFxColorDefinitions.ColorFrames, colors);
         ValidateAndCompile("Nintendo shared fade", document.NintendoSharedFade, NintendoLogoFadePaletteFxColorDefinitions.ColorFrames, colors);
         ValidateAndCompile("Zebes explosion foreground", document.ZebesExplosionForeground, ZebesExplosionForegroundPaletteFxColorDefinitions.ColorFrames, colors);

@@ -15,7 +15,7 @@ internal static class CrocomireBodyAnimationGroups
     /// </summary>
     internal static readonly FrozenSet<CrocomireBodySegment> BeforeSteppingBack = new[]
     {
-        CrocomireBodySegment.Initial, CrocomireBodySegment.UnusedChargeForwardOneStep, CrocomireBodySegment.ProjectileAttack,
+        CrocomireBodySegment.Initial, CrocomireBodySegment.ProjectileAttack,
         CrocomireBodySegment.ProjectileAttackLoop, CrocomireBodySegment.StepForwardAfterDelay, CrocomireBodySegment.StepForward,
         CrocomireBodySegment.StepBack,
     }.ToFrozenSet();
@@ -26,7 +26,7 @@ internal static class CrocomireBodyAnimationGroups
     /// </summary>
     internal static readonly FrozenSet<CrocomireBodySegment> BeforeRoarCloseMouthLoop = new[]
     {
-        CrocomireBodySegment.Initial, CrocomireBodySegment.UnusedChargeForwardOneStep, CrocomireBodySegment.ProjectileAttack,
+        CrocomireBodySegment.Initial, CrocomireBodySegment.ProjectileAttack,
         CrocomireBodySegment.ProjectileAttackLoop, CrocomireBodySegment.StepForwardAfterDelay, CrocomireBodySegment.StepForward,
         CrocomireBodySegment.StepBack, CrocomireBodySegment.SteppingBack, CrocomireBodySegment.WaitForFirstSecondDamage,
         CrocomireBodySegment.MovingClaws, CrocomireBodySegment.Roar, CrocomireBodySegment.RoarCloseMouth,

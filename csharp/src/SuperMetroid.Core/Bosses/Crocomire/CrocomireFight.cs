@@ -319,7 +319,7 @@ internal sealed class CrocomireFight
     private static bool CrocomireBodyIsOnScreen(RoomEnemySlot body, int cameraX) =>
         CoordinateAxis.Difference(body.Position.X.Whole - body.Radius.X - 260, cameraX) < 0;
 
-    /// <summary>Runs Crocomire's fight AI, including the shipped but normally unused states.</summary>
+    /// <summary>Runs Crocomire's fight AI for the phase his fight is in.</summary>
     private CrocomireBodySegment? RunCrocomireFightCue(
         CrocomireEnemyState state,
         SamusState? samus,
@@ -330,10 +330,6 @@ internal sealed class CrocomireFight
             case CrocomirePhase.ResetAnimation:
                 state.Body.AnimationClock.StepOnNextUpdate();
                 return CrocomireBodySegment.Initial;
-
-            case CrocomirePhase.StepForward:
-                state.Phase = CrocomirePhase.Sleeping;
-                return CrocomireBodySegment.StepForward;
 
             case CrocomirePhase.Sleeping:
                 if (samus is not null && CoordinateAxis.Distance(
@@ -408,10 +404,6 @@ internal sealed class CrocomireFight
                 }
                 return null;
 
-            case CrocomirePhase.RoarAndStepForwardUnused:
-                state.Phase = CrocomirePhase.SteppingForward;
-                return CrocomireBodySegment.Roar;
-
             case CrocomirePhase.WaitingForFirstDamage:
                 return RunCrocomireWaitingForDamage(
                     state,
@@ -419,7 +411,6 @@ internal sealed class CrocomireFight
                     CrocomirePhase.WaitingForSecondDamage);
 
             case CrocomirePhase.WaitingForSecondDamage:
-            case CrocomirePhase.WaitingForSecondDamageUnused:
                 return RunCrocomireWaitingForDamage(
                     state,
                     continuation,
@@ -440,102 +431,6 @@ internal sealed class CrocomireFight
                 return null;
             }
 
-            case CrocomirePhase.NearSpikeWallChargeUnused:
-                if ((state.FightFlags & CrocomireFightFlags.DamageReactionPending) != CrocomireFightFlags.None)
-                {
-                    state.FightFlags = (state.FightFlags & (CrocomireFightFlags.UnusedPreferClawAttack | CrocomireFightFlags.UnusedAttackSequenceStarted |
-                        CrocomireFightFlags.UnusedClawsMoving | CrocomireFightFlags.DamageReactionPending | CrocomireFightFlags.UnusedKeptByChargeReset)) |
-                        CrocomireFightFlags.Engaged | CrocomireFightFlags.UnusedForwardStepsDone;
-                    state.StepCounter = 1;
-                    state.Phase = CrocomirePhase.SteppingBack;
-                    _access.RequestCrocomireSound(CrocomireSoundDefinitions.UnusedChargeInterrupted);
-                    return null;
-                }
-                state.Phase = CrocomirePhase.NearSpikeWallCharge;
-                return CrocomireBodySegment.RoarCloseMouth;
-
-            case CrocomirePhase.ResetAnimationUnused:
-                state.Body.AnimationClock.StepOnNextUpdate();
-                state.FightFlags |= CrocomireFightFlags.UnusedAttackSequenceStarted;
-                state.StepCounter = 32;
-                state.Phase = CrocomirePhase.ChooseAttackUnused;
-                return CrocomireBodySegment.Initial;
-
-            case CrocomirePhase.ChooseAttackUnused:
-                if ((state.FightFlags & CrocomireFightFlags.UnusedPreferClawAttack) != CrocomireFightFlags.None)
-                {
-                    state.Body.AnimationClock.StepOnNextUpdate();
-                    state.StepCounter = 16;
-                    state.Phase = CrocomirePhase.MoveUntilSamusUnused;
-                    return CrocomireBodySegment.Initial;
-                }
-                state.Phase = CrocomirePhase.StepForwardUnused;
-                return CrocomireBodySegment.UnusedChargeForwardOneStep;
-
-            case CrocomirePhase.StepForwardUnused:
-                state.Body.AnimationClock.StepOnNextUpdate();
-                if (state.StepCounter == 0)
-                {
-                    state.FightFlags |= CrocomireFightFlags.UnusedForwardStepsDone;
-                    state.Phase = CrocomirePhase.MoveClawsUnused;
-                    return CrocomireBodySegment.StepForward;
-                }
-                return CrocomireBodySegment.Initial;
-
-            case CrocomirePhase.MoveUntilSamusUnused:
-                if (CoordinateAxis.Difference(state.Body.Position.X.Whole, 672) < 0)
-                {
-                    state.Phase = CrocomirePhase.MoveClawsUnused;
-                    state.StepCounter = 3;
-                    return CrocomireBodySegment.StepForward;
-                }
-                if ((state.FightFlags & CrocomireFightFlags.ClawTouchedSamus) == CrocomireFightFlags.None)
-                {
-                    state.Phase = CrocomirePhase.StepForwardVariantUnused;
-                    state.FightFlags &= ~CrocomireFightFlags.UnusedClawsMoving;
-                    return CrocomireBodySegment.MovingClaws;
-                }
-                state.StepCounter = 5;
-                state.PhaseToResume = state.Phase;
-                state.Phase = CrocomirePhase.UnwrittenTableEntry;
-                return CrocomireBodySegment.MovingClaws;
-
-            case CrocomirePhase.MoveClawsUnused:
-                if (state.StepCounter == 0 || --state.StepCounter == 0)
-                {
-                    state.Phase = CrocomirePhase.MovingClawsUnused;
-                    state.FightFlags &= ~CrocomireFightFlags.UnusedClawsMoving;
-                    return CrocomireBodySegment.StepForward;
-                }
-                state.Phase = CrocomirePhase.MoveClawsUnused;
-                state.FightFlags |= CrocomireFightFlags.UnusedClawsMoving;
-                return CrocomireBodySegment.MovingClaws;
-
-            case CrocomirePhase.StepForwardVariantUnused:
-                if ((state.FightFlags & CrocomireFightFlags.UnusedForwardStepsDone) == CrocomireFightFlags.None)
-                    state.FightFlags &= ~(CrocomireFightFlags.UnusedPreferClawAttack | CrocomireFightFlags.UnusedAttackSequenceStarted);
-                state.Phase = CrocomirePhase.MovingClawsUnused;
-                return CrocomireBodySegment.StepForward;
-
-            case CrocomirePhase.MovingClawsUnused:
-                if (state.StepCounter == 0)
-                {
-                    state.FightFlags &= ~CrocomireFightFlags.ClawTouchedSamus;
-                    state.Body.AnimationClock.StepOnNextUpdate();
-                    state.Phase = state.PhaseToResume;
-                    return CrocomireBodySegment.MovingClaws;
-                }
-                if ((state.FightFlags & CrocomireFightFlags.ClawTouchedSamus) != CrocomireFightFlags.None)
-                {
-                    state.StepCounter--;
-                    _access.RequestCrocomireSound(CrocomireSoundDefinitions.ClawStrike);
-                    return CrocomireBodySegment.MovingClaws;
-                }
-                state.FightFlags &= ~CrocomireFightFlags.ClawTouchedSamus;
-                state.Phase = CrocomirePhase.SteppingBack;
-                return null;
-
-            case CrocomirePhase.UnwrittenTableEntry:
             default:
                 throw new InvalidDataException(
                     $"Crocomire fight has no behaviour for phase {state.Phase}.");

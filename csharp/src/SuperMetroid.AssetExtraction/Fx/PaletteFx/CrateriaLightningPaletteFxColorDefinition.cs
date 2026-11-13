@@ -1,7 +1,6 @@
-
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
-/// <summary>Calculated setup, two repeated flash groups and neutral intervals for one lightning owner.</summary>
+/// <summary>Calculated setup, two repeated flash groups and neutral intervals of the Landing Site's lightning.</summary>
 public sealed class CrateriaLightningPaletteFxColorDefinition
 {
     /// <summary>Only the catalog creates definitions.</summary>
@@ -9,13 +8,10 @@ public sealed class CrateriaLightningPaletteFxColorDefinition
     {
     }
 
-    /// <summary>Program identity selecting either the live surface lightning or the retained unused dark-lightning mechanics and color resource.</summary>
-    public required CrateriaLightningPaletteOwner Owner { get; init; }
-
-    /// <summary>Live colours per timed record: eight for surface lightning, or seven for dark lightning.</summary>
+    /// <summary>Live colours per timed record: the eight the lightning flashes.</summary>
     public required int ColorsPerFrame { get; init; }
 
-    /// <summary>The dark program inserts a second 240-update neutral record before its last flash group.</summary>
+    /// <summary>The 240-update neutral records the program shows before its last flash group.</summary>
     internal int NeutralCount { get; init; }
 
     /// <summary>The program's records, consecutive from the first its program shows, and the colours each writes.</summary>

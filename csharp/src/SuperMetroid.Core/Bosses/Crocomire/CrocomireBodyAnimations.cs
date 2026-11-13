@@ -16,35 +16,6 @@ internal static class CrocomireBodyAnimations
             Show(Body(12), 1),
             Cue(K.FightAi),
         ],
-        [P.UnusedChargeForwardOneStep] =
-        [
-            Show(Body(0), 8),
-            Cue(K.ShakeScreen),
-            Cue(K.MoveLeftWithDust),
-            Show(Body(1), 8),
-            Cue(K.MoveLeft),
-            Show(Body(2), 8),
-            Cue(K.MoveLeft),
-            Show(Body(3), 8),
-            Cue(K.MoveLeftWithDust),
-            Show(Body(4), 8),
-            Cue(K.MoveLeft),
-            Show(Body(5), 8),
-            Cue(K.MoveLeft),
-            Show(Body(6), 8),
-            Cue(K.ShakeScreen),
-            Cue(K.MoveLeftWithDust),
-            Show(Body(7), 8),
-            Cue(K.MoveLeft),
-            Show(Body(8), 8),
-            Cue(K.MoveLeft),
-            Show(Body(9), 8),
-            Cue(K.MoveLeftWithDust),
-            Show(Body(10), 8),
-            Cue(K.MoveLeft),
-            Show(Body(11), 8),
-            Cue(K.FightAi),
-        ],
         [P.ProjectileAttack] =
         [
             Dust(16),
@@ -524,7 +495,6 @@ internal static class CrocomireBodyAnimations
     internal static IReadOnlyDictionary<CrocomireBodySegment, Animation<CrocomireBodySegment>> StartingAt { get; } = new Dictionary<CrocomireBodySegment, Animation<CrocomireBodySegment>>
     {
         [P.Initial] = new([new(P.Initial, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.UnusedChargeForwardOneStep] = new([new(P.UnusedChargeForwardOneStep, 0, 26, 1), new(P.ProjectileAttack, 0, 29, 1), new(P.ProjectileAttackLoop, 0, 6, 1)], AnimationEnd.LoopsFrom(2)),
         [P.ProjectileAttack] = new([new(P.ProjectileAttack, 0, 29, 1), new(P.ProjectileAttackLoop, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
         [P.ProjectileAttackLoop] = new([new(P.ProjectileAttackLoop, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
         [P.StepForwardAfterDelay] = new([new(P.StepForwardAfterDelay, 0, 1, 1), new(P.StepForward, 0, 35, 1)], AnimationEnd.LoopsFrom(1)),
@@ -568,7 +538,6 @@ internal static class CrocomireBodyAnimations
     /// </summary>
     internal static IReadOnlyDictionary<CrocomireBodySegment, CrocomireBodySegment> RunsOnInto { get; } = new Dictionary<CrocomireBodySegment, CrocomireBodySegment>
     {
-        [P.UnusedChargeForwardOneStep] = P.ProjectileAttack,
         [P.ProjectileAttack] = P.ProjectileAttackLoop,
         [P.StepForwardAfterDelay] = P.StepForward,
         [P.StepBack] = P.SteppingBack,

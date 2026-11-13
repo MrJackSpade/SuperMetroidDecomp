@@ -57,7 +57,6 @@ internal sealed class EnemyPaletteFxShows(
             case PaletteFxColours.ExplodingZebesCrust:
             case PaletteFxColours.ExplodingZebesGreyClouds:
             case PaletteFxColours.GunshipEmergingFromExplosion:
-            case PaletteFxColours.UnusedCinematicFade:
             case PaletteFxColours.HyperBeam:
             case PaletteFxColours.SamusLoadingSuit:
             case PaletteFxColours.PostCreditsSuperMetroidIcon:
@@ -66,7 +65,6 @@ internal sealed class EnemyPaletteFxShows(
             case PaletteFxColours.HeatSuitGlow:
             case PaletteFxColours.WreckedShipGreenLights:
             case PaletteFxColours.LandingSiteLightning:
-            case PaletteFxColours.UnusedDarkLightning:
             case PaletteFxColours.BrinstarBlueSpores:
             case PaletteFxColours.BrinstarRedGlow:
             case PaletteFxColours.Beacon:

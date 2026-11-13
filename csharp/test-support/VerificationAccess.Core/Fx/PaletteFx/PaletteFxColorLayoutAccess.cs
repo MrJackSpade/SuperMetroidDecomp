@@ -318,23 +318,6 @@ internal static class ZebesExplosionGunshipPaletteFxColorDefinitionsLayoutAccess
     }
 }
 
-/// <summary>Native view of <see cref="UnusedCinematicFadePaletteFxColorDefinitions"/>.</summary>
-internal static class UnusedCinematicFadePaletteFxColorDefinitionsLayoutAccess
-{
-    /// <summary>The family's record and colour addresses.</summary>
-    extension(UnusedCinematicFadePaletteFxColorDefinitions)
-    {
-        /// <summary>The bank-$8D address of the first record.</summary>
-        internal static ushort FirstFramePointer => PaletteFxColorLayoutAccess.RecordAddress(UnusedCinematicFadePaletteFxColorDefinitions.ColorFrames.Frame(0));
-
-        /// <summary>The bank-$8D address of record <paramref name="frame"/>.</summary>
-        internal static ushort FramePointer(int frame) => PaletteFxColorLayoutAccess.RecordAddress(UnusedCinematicFadePaletteFxColorDefinitions.ColorFrames.Frame(frame));
-
-        /// <summary>The bank-$8D address of colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
-        internal static ushort ColorPointer(int frame, int color) => PaletteFxColorLayoutAccess.ColorAddress(UnusedCinematicFadePaletteFxColorDefinitionsConstants.Color(frame, color));
-    }
-}
-
 /// <summary>Native view of <see cref="PostCreditsIconGlarePaletteFxColorDefinitions"/>.</summary>
 internal static class PostCreditsIconGlarePaletteFxColorDefinitionsLayoutAccess
 {

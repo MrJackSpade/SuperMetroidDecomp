@@ -50,8 +50,6 @@ public enum PaletteFxObject
     GunshipEmergingFromZebesExplosion,
     /// <summary>The background of the wide shot of the planet's explosion.</summary>
     WidePartOfZebesExplosionBackground,
-    /// <summary>A cinematic fade that no scene uses.</summary>
-    UnusedCinematicFade,
     /// <summary>The Hyper Beam's cycling colours.</summary>
     HyperBeam,
     /// <summary>Samus materialising in the Power Suit as a game loads.</summary>
@@ -80,12 +78,8 @@ public enum PaletteFxObject
     SamusInHeat,
     /// <summary>The lightning flashing over the Crateria surface.</summary>
     CrateriaLightning,
-    /// <summary>A darker lightning flash that no room uses.</summary>
-    UnusedDarkLightning,
     /// <summary>The Wrecked Ship's pulsing green lights.</summary>
     WreckedShipGreenLights,
-    /// <summary>A copy of the Wrecked Ship's green lights that no room uses.</summary>
-    UnusedWreckedShipGreenLightsDuplicate,
     /// <summary>The blue spores drifting in Brinstar's background.</summary>
     BrinstarBlueBackgroundSpores,
     /// <summary>The blue background spores of Spore Spawn's room.</summary>
@@ -119,8 +113,6 @@ public enum PaletteFxObject
     MaridiaBackgroundWaterfalls,
     /// <summary>Tourian's glowing blocks and red orbs.</summary>
     TourianGlowingArkanoidBlocksAndRedOrbs,
-    /// <summary>A copy of Tourian's glowing blocks and red orbs that no room uses.</summary>
-    UnusedTourianGlowClone,
     /// <summary>Tourian's shutters flashing red.</summary>
     TourianShutterRedFlashing,
     /// <summary>Tourian's background flashing red during the escape.</summary>

@@ -18,8 +18,6 @@ internal enum NativePaletteFxPreInstruction
     Heat,
     /// <summary>Restarts the lightning while Samus is above Y $380: the surface lightning's calm.</summary>
     SwitchAboveY380,
-    /// <summary>Restarts the unused dark lightning while Samus is above Y $380: its calm.</summary>
-    SwitchAboveY380Second,
     /// <summary>Deletes the object when the area's mini-boss dies: <see cref="ColourEffectCondition.EndsWhenAreaMiniBossDies"/>.</summary>
     DeleteWhenAreaMiniBossDies,
 }

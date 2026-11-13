@@ -37,9 +37,10 @@ internal static class CrocomireDefinitionMigrationVerification
         }
         AssertEqual(4, CrocomireProjectileDefinitions.VelocityMultiplier, "volley velocity factor");
 
-        // The fight latches pack into the cartridge's body variable B, whose mouth-hit count nothing in the fight reads.
+        // The fight latches pack into the cartridge's body variable B, whose mouth-hit count nothing in the fight reads,
+        // nor the claw-touch latch only the unreachable claw attack reads.
         AssertEqual(0x8000, CrocomireNativeWords.FightWord(CrocomireFightFlags.Engaged), "engaged");
-        AssertEqual(CrocomireFightFlags.ClawTouchedSamus | CrocomireFightFlags.DamageReactionPending,
+        AssertEqual(CrocomireFightFlags.DamageReactionPending,
             CrocomireNativeWords.FightFlags(0x4801), "latches of a recorded word");
 
         AssertEqual(0xc65e, CrocomireNativeWords.TongueFrames.Word(CrocomireTongueFrame.Fight0), "first tongue frame");

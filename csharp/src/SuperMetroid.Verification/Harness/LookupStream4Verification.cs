@@ -1398,7 +1398,6 @@ internal static class LookupStream4Verification
             AssertEqual(new Position16<RoomPixels>(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xb3949b + offset + 0), CartridgeImportSource.Require(rom).ReadCartridgeWord(0xb3949b + offset + 4)), hole.TopLeft, "Botwoon named hole native top-left boundary");
             AssertEqual(new Position16<RoomPixels>((ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xb3949b + offset + 0) + 4), (ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xb3949b + offset + 4) + 4)), hole.Target, "Botwoon named hole center");
         }
-        Suite(nameof(VerifyLookupStream4DarkLightningColors), () => VerifyLookupStream4DarkLightningColors(rom));
         Suite(nameof(VerifyLookupStream4LightningColors), () => VerifyLookupStream4LightningColors(rom));
         Suite(nameof(VerifyLookupStream4BotwoonColors), () => VerifyLookupStream4BotwoonColors(rom));
         Suite(nameof(VerifyLookupStream4DraygonColors), () => VerifyLookupStream4DraygonColors(rom));
@@ -1465,28 +1464,10 @@ internal static class LookupStream4Verification
             AssertThrows<InvalidDataException>(() => SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.RidleyExplosionPart(invalid), "stream4 invalid breakup parameter");
     }
 
-    /// <summary>Checks dark lightning palette rows and their source pointers against native values.</summary>
-    private static void VerifyLookupStream4DarkLightningColors(ISnesAddressSpace rom)
-    {
-        var program = CrateriaLightningPaletteFxColorDefinitions.All.Single(item => item.Owner == CrateriaLightningPaletteOwner.UnusedDarkLightning);
-        byte[] originalJson = RoomPaletteFxPresentationExtractor.Extract(rom);
-        using var originalStream = new MemoryStream(originalJson);
-        var original = RoomPaletteFxPresentationFile.Read(originalStream);
-        for (int frame = 0; frame < 14; frame++)
-        for (int index = 0; index < 7; index++)
-        {
-            ushort pointer = program.ColorPointer(frame, index);
-            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x8d0000 | pointer);
-            AssertTrue(original.TryReadColor(pointer, out RgbColor actual), "dark lightning installed color exists");
-            AssertEqual(native, actual, "dark lightning installed native RGB5");
-            AssertEqual(1, original.ColorPointers.Count(p => p == pointer), "dark lightning audit identity enumerates once");
-        }
-    }
-
     /// <summary>Checks normal lightning palette rows and their source pointers against native values.</summary>
     private static void VerifyLookupStream4LightningColors(ISnesAddressSpace rom)
     {
-        var program = CrateriaLightningPaletteFxColorDefinitions.All.Single(item => item.Owner == CrateriaLightningPaletteOwner.SurfaceLightning);
+        var program = CrateriaLightningPaletteFxColorDefinitions.Surface;
         byte[] originalJson = RoomPaletteFxPresentationExtractor.Extract(rom);
         using var originalStream = new MemoryStream(originalJson);
         var original = RoomPaletteFxPresentationFile.Read(originalStream);

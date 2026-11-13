@@ -17,14 +17,21 @@ internal static class LookupPaletteFxDispatchVerification
         // Independent physical regions from pinned bank8D object declarations.
         foreach ((int first, int last) in new[] { new OriginalPaletteFxObjectsCase(0xe194, 0xe200), new OriginalPaletteFxObjectsCase(0xf745, 0xf7a5), new OriginalPaletteFxObjectsCase(0xffc9, 0xffed) })
             for (int pointer = first; pointer <= last; pointer += 4)
-                yield return (ushort)pointer;
+                if (!UnreachableObjects.Contains(pointer))
+                    yield return (ushort)pointer;
     }
 
-    /// <summary>Accepts exactly 63 declared object pointers and rejects every other 16-bit value.</summary>
+    /// <summary>
+    /// The declared objects no scene spawns and no room's record sets, which are no effect of the game: the cinematic
+    /// fade, the dark lightning, the Wrecked Ship lights' copy and the Tourian glow's copy.
+    /// </summary>
+    private static readonly HashSet<int> UnreachableObjects = [0xe1ec, 0xf769, 0xf771, 0xf7a5];
+
+    /// <summary>Accepts exactly the 59 reachable declared object pointers and rejects every other 16-bit value.</summary>
     internal static void VerifyPaletteFxDispatchDomain()
     {
         var original = OriginalPaletteFxObjects().ToHashSet();
-        AssertEqual(63, original.Count, "Native palette-FX identity count");
+        AssertEqual(59, original.Count, "Native palette-FX identity count");
         for (int value = 0; value <= ushort.MaxValue; value++)
         {
             ushort pointer = (ushort)value;

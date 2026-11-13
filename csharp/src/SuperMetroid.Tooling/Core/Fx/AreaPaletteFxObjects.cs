@@ -11,12 +11,15 @@ namespace SuperMetroid.Core.Fx;
 /// </summary>
 internal static class AreaPaletteFxObjects
 {
-    /// <summary>Selects the palette-FX object enabled by one area's effect bit.</summary>
+    /// <summary>
+    /// Selects the palette-FX object enabled by one area's effect bit, or null for Tourian's third bit, which selects a copy
+    /// of Tourian's glow that no room's record sets and that is therefore no effect of the game.
+    /// </summary>
     /// <remarks>Direct semantic area/bit dispatch for all eight areas and eight bits.
     /// Unused selections (including Ceres/debug) select the empty object.
     /// Validate area before bit, preserving both rejection domains and precedence.
     /// All 64 selections are independently verified; no selection matrix remains.</remarks>
-    internal static PaletteFxObject GetAreaDefinition(int areaIndex, int bitIndex)
+    internal static PaletteFxObject? GetAreaDefinition(int areaIndex, int bitIndex)
     {
         if ((uint)areaIndex >= AreaCount)
             throw new ArgumentOutOfRangeException(nameof(areaIndex));
@@ -50,7 +53,7 @@ internal static class AreaPaletteFxObjects
             (AreaId.Maridia, 2) => PaletteFxObject.MaridiaBackgroundWaterfalls,
             (AreaId.Tourian, 0) => PaletteFxObject.SamusInHeat,
             (AreaId.Tourian, 1) => PaletteFxObject.TourianGlowingArkanoidBlocksAndRedOrbs,
-            (AreaId.Tourian, 2) => PaletteFxObject.UnusedTourianGlowClone,
+            (AreaId.Tourian, 2) => null,
             (AreaId.Tourian, 3) => PaletteFxObject.TourianShutterRedFlashing,
             (AreaId.Tourian, 4) => PaletteFxObject.TourianBackgroundRedFlashing,
             (AreaId.Tourian, 5) => PaletteFxObject.TourianGeneralLevelRedFlashing,
@@ -59,7 +62,7 @@ internal static class AreaPaletteFxObjects
         };
     }
 
-    /// <summary>Returns the object selected by one retail area/bit pair.</summary>
+    /// <summary>Returns the object selected by one retail area/bit pair, or null for the glow copy no room sets.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="area"/> is not a retail area, or <paramref name="bit"/> is not 0 through 7.</exception>
-    internal static PaletteFxObject Read(AreaId area, int bit) => GetAreaDefinition(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(area), bit);
+    internal static PaletteFxObject? Read(AreaId area, int bit) => GetAreaDefinition(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(area), bit);
 }

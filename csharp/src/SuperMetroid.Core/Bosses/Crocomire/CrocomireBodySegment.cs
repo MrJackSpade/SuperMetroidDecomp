@@ -9,8 +9,6 @@ public enum CrocomireBodySegment
 {
     /// <summary>Crocomire animation: initial.</summary>
     Initial,
-    /// <summary>Unused Crocomire animation: charge forward one step.</summary>
-    UnusedChargeForwardOneStep,
     /// <summary>Crocomire animation: projectile attack, part 0.</summary>
     ProjectileAttack,
     /// <summary>Crocomire animation: projectile attack, part 1.</summary>

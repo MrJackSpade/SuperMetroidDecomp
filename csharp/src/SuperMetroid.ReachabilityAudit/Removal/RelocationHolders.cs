@@ -3,6 +3,7 @@ using System.Globalization;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using SuperMetroid.ReachabilityAudit.Declarations;
 using SuperMetroid.ReachabilityAudit.SolutionLoading;
 
 namespace SuperMetroid.ReachabilityAudit.Removal;
@@ -40,6 +41,46 @@ internal sealed class RelocationHolders
             tree.FilePath.Length > 0 && Path.GetFullPath(tree.FilePath).StartsWith(prefix, StringComparison.OrdinalIgnoreCase)))];
         if (targetProjects.Count == 0)
             throw new InvalidOperationException($"No project compiles a file in {targetDirectory}, so code moved there would compile nowhere.");
+    }
+
+    /// <summary>
+    /// The relocation's holder step: the class each owner's moved members of each kind go into, chosen before any reference
+    /// names it. An owner implementing a moved interface gets an abstract adapter, and a members class of forwarders even
+    /// when only instance members move.
+    /// </summary>
+    /// <param name="solution">The loaded solution.</param>
+    /// <param name="moves">The declarations that move.</param>
+    /// <param name="targetDirectory">The directory moved code goes into.</param>
+    /// <param name="style">How moved members are packaged.</param>
+    /// <param name="identity">Gives each source file its repository-relative path.</param>
+    /// <exception cref="InvalidOperationException">An extension block would go into an abstract adapter, which cannot declare one.</exception>
+    public static RelocationHolders ForMoves(LoadedSolution solution, RelocationMoves moves, string targetDirectory, RelocationStyle style,
+        SymbolIdentity identity)
+    {
+        var holders = new RelocationHolders(solution, targetDirectory);
+        var holderRequests = moves.All.Where(m => m.Placement != RelocationPlacement.WholeType)
+            .GroupBy(m => (Owner: moves.OwnerKey(m.AdapterOwner), Kind: m.HolderKind))
+            .OrderBy(g => g.Key.Owner, StringComparer.Ordinal).ThenBy(g => g.Key.Kind).ToList();
+        foreach (var request in holderRequests)
+        {
+            var owner = request.First().AdapterOwner;
+            // An owner implementing a moved interface gets an abstract adapter, and only a static class declares extension blocks.
+            if (request.Key.Kind == RelocationHolderKind.Members && moves.ImplementsMovedInterface(owner) &&
+                request.FirstOrDefault(m => m.Symbol is INamedTypeSymbol { IsExtension: true }) is { } block)
+                throw new InvalidOperationException($"{block.Symbol.ToDisplayString()} cannot move: {owner.ToDisplayString()} implements a " +
+                    "moved interface, so its moved members go into an abstract adapter class, which cannot declare an extension block.");
+            string directory = Path.Combine(targetDirectory, request
+                .Select(m => Path.GetDirectoryName(RelocationSymbols.TargetRelativePath(identity.Relative(m.Tree.FilePath), style.KeepsProjectDirectory)) ?? "")
+                .Order(StringComparer.Ordinal).First());
+            holders.Resolve(owner, request.Key.Owner, request.Key.Kind,
+                request.Key.Kind == RelocationHolderKind.Extensions ? style.ExtensionsName(owner) : style.AdapterName(owner),
+                directory, request.Key.Kind == RelocationHolderKind.Members && moves.ImplementsMovedInterface(owner),
+                [.. request.Select(m => m.Symbol)]);
+            // An owner implementing a moved interface gets a members class of forwarders even when only instance members move.
+            if (request.Key.Kind == RelocationHolderKind.Extensions && moves.ImplementsMovedInterface(owner))
+                holders.Resolve(owner, request.Key.Owner, RelocationHolderKind.Members, style.AdapterName(owner), directory, true, []);
+        }
+        return holders;
     }
 
     /// <summary>The holder <see cref="Resolve"/> chose for the owner's members of this kind.</summary>

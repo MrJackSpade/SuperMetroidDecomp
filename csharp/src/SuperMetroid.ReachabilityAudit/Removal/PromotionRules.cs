@@ -44,13 +44,13 @@ internal static class PromotionRules
         {
             RejectExposedField(symbol, promotedSet);
             if (symbol.DeclaredAccessibility == Accessibility.Private)
-                foreach (var declaration in SymbolRelocator.DeclarationsOf(identity, symbol))
+                foreach (var declaration in RelocationSymbols.DeclarationsOf(identity, symbol))
                     RejectArgumentGuard(symbol, declaration, modelOf);
             RejectHiding(symbol, nameOf(symbol), types);
         }
         foreach (var property in setters.OrderBy(property => property.ToDisplayString(), StringComparer.Ordinal))
             if (property.SetMethod is { DeclaredAccessibility: Accessibility.Private } setter)
-                foreach (var declaration in SymbolRelocator.DeclarationsOf(identity, setter))
+                foreach (var declaration in RelocationSymbols.DeclarationsOf(identity, setter))
                     RejectArgumentGuard(setter, declaration, modelOf);
     }
 

@@ -19,16 +19,16 @@ internal static class CrocomireBodyLayerPlacementDefinitions
     /// </summary>
     internal static readonly Dictionary<EnemyFrameId, int> Corrections = new()
     {
-        [EnemyFrameId.CrocomireBody1] = -2,
-        [EnemyFrameId.CrocomireBody2] = -2,
-        [EnemyFrameId.CrocomireBody3] = -1,
-        [EnemyFrameId.CrocomireBody4] = -2,
-        [EnemyFrameId.CrocomireBody5] = -2,
-        [EnemyFrameId.CrocomireBody6] = -1,
-        [EnemyFrameId.CrocomireBody7] = -1,
-        [EnemyFrameId.CrocomireBody20] = -2,
-        [EnemyFrameId.CrocomireBody21] = -4,
-        [EnemyFrameId.CrocomireBody22] = -2,
-        [EnemyFrameId.CrocomireBody23] = -1,
+        [EnemyFrameId.CrocomireBodyPowerBombReactionMouthNotOpenLoopSecond] = -2,
+        [EnemyFrameId.CrocomireBodyPowerBombReactionMouthNotOpenLoopThird] = -2,
+        [EnemyFrameId.CrocomireBodyPowerBombReactionMouthNotOpenLoopFourth] = -1,
+        [EnemyFrameId.CrocomireBodyPowerBombReactionMouthNotOpenLoopFifth] = -2,
+        [EnemyFrameId.CrocomireBodyPowerBombReactionMouthNotOpenLoopSixth] = -2,
+        [EnemyFrameId.CrocomireBodyPowerBombReactionMouthNotOpenLoopSeventh] = -1,
+        [EnemyFrameId.CrocomireBodySteppingBackFifth] = -1,
+        [EnemyFrameId.CrocomireBodyProjectileAttackSecond] = -2,
+        [EnemyFrameId.CrocomireBodyProjectileAttackThird] = -4,
+        [EnemyFrameId.CrocomireBodyProjectileAttackFourth] = -2,
+        [EnemyFrameId.CrocomireBodyProjectileAttackFifth] = -1,
     };
 }

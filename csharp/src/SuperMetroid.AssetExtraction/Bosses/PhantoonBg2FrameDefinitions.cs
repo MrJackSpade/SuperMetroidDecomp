@@ -10,8 +10,8 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// </summary>
 internal static class PhantoonBg2FrameDefinitions
 {
-    /// <summary>Schema version of the extracted BG2 frame artwork file.</summary>
-    internal const int Version = 2;
+    /// <summary>Schema version of the extracted BG2 frame artwork file; 3 names each frame for the animation that first shows it (#1623).</summary>
+    internal const int Version = 3;
     /// <summary>Installed filename for Phantoon's BG2 frame artwork.</summary>
     internal const string FileName = "phantoon-bg2-frames.json";
     /// <summary>Phantoon's tentacle frames have at most two BG2 components.</summary>
@@ -20,27 +20,27 @@ internal static class PhantoonBg2FrameDefinitions
     /// <summary>Enumerates the selected native frames in instruction-program order.</summary>
     internal static ImmutableArray<EnemyFrameName> Frames { get; } =
     [
-        new(EnemyFrameId.PhantoonInvulnerableBody0, "body_invulnerable"),
-        new(EnemyFrameId.PhantoonFullHitboxBody0, "body_full_hitbox"),
-        new(EnemyFrameId.PhantoonEyeHitboxBody0, "body_eye_hitbox_only"),
-        new(EnemyFrameId.PhantoonClosedEye0, "eye_closed"),
-        new(EnemyFrameId.PhantoonOpeningEye0, "eye_open_0"),
-        new(EnemyFrameId.PhantoonOpeningEye1, "eye_open_1"),
-        new(EnemyFrameId.PhantoonOpeningEye2, "eye_open_2"),
-        new(EnemyFrameId.PhantoonCenteredEye0, "eyeball_center"),
-        new(EnemyFrameId.PhantoonGaze0, "eyeball_up"),
-        new(EnemyFrameId.PhantoonGaze4, "eyeball_down"),
-        new(EnemyFrameId.PhantoonGaze6, "eyeball_left"),
-        new(EnemyFrameId.PhantoonGaze2, "eyeball_right"),
-        new(EnemyFrameId.PhantoonGaze5, "eyeball_down_left"),
-        new(EnemyFrameId.PhantoonGaze3, "eyeball_down_right"),
-        new(EnemyFrameId.PhantoonGaze7, "eyeball_up_left"),
-        new(EnemyFrameId.PhantoonGaze1, "eyeball_up_right"),
-        new(EnemyFrameId.PhantoonTentacle0, "tentacles_0"),
-        new(EnemyFrameId.PhantoonTentacle1, "tentacles_1"),
-        new(EnemyFrameId.PhantoonTentacle2, "tentacles_2"),
-        new(EnemyFrameId.PhantoonMouth0, "mouth_0"),
-        new(EnemyFrameId.PhantoonMouth1, "mouth_1"),
-        new(EnemyFrameId.PhantoonMouth2, "mouth_2"),
+        new(EnemyFrameId.PhantoonInvulnerableBody, "body_invulnerable"),
+        new(EnemyFrameId.PhantoonFullHitboxBody, "body_full_hitbox"),
+        new(EnemyFrameId.PhantoonEyeHitboxBody, "body_eye_hitbox_only"),
+        new(EnemyFrameId.PhantoonEyeClosed, "eye_closed"),
+        new(EnemyFrameId.PhantoonEyeOpenFirst, "eye_open_0"),
+        new(EnemyFrameId.PhantoonEyeOpenSecond, "eye_open_1"),
+        new(EnemyFrameId.PhantoonEyeOpenThird, "eye_open_2"),
+        new(EnemyFrameId.PhantoonEyeballCentered, "eyeball_center"),
+        new(EnemyFrameId.PhantoonEyeLookingUp, "eyeball_up"),
+        new(EnemyFrameId.PhantoonEyeLookingDown, "eyeball_down"),
+        new(EnemyFrameId.PhantoonEyeLookingLeft, "eyeball_left"),
+        new(EnemyFrameId.PhantoonEyeLookingRight, "eyeball_right"),
+        new(EnemyFrameId.PhantoonEyeLookingDownLeft, "eyeball_down_left"),
+        new(EnemyFrameId.PhantoonEyeLookingDownRight, "eyeball_down_right"),
+        new(EnemyFrameId.PhantoonEyeLookingUpLeft, "eyeball_up_left"),
+        new(EnemyFrameId.PhantoonEyeLookingUpRight, "eyeball_up_right"),
+        new(EnemyFrameId.PhantoonTentaclesFirst, "tentacles_0"),
+        new(EnemyFrameId.PhantoonTentaclesSecond, "tentacles_1"),
+        new(EnemyFrameId.PhantoonTentaclesThird, "tentacles_2"),
+        new(EnemyFrameId.PhantoonMouthInitial, "mouth_0"),
+        new(EnemyFrameId.PhantoonMouthSpawnFlameSecond, "mouth_1"),
+        new(EnemyFrameId.PhantoonMouthSpawnFlameFirst, "mouth_2"),
     ];
 }

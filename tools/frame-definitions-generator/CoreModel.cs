@@ -76,8 +76,8 @@ internal sealed class CoreModel
         RoomEnemySlot = SingleType("RoomEnemySlot");
         _entity = SingleType("IEnemyEntity");
         INamedTypeSymbol factory = SingleType("IEnemyEntityFactory");
-        INamedTypeSymbol programAnimation = SingleType("EnemyProjectileProgramAnimation", arity: 3);
-        ProgramAnimation = programAnimation;
+        INamedTypeSymbol typedAnimation = SingleType("EnemyProjectileTypedAnimation", arity: 3);
+        TypedAnimation = typedAnimation;
         foreach (string name in TableNames)
             _tables.Add(SingleType(name));
         foreach (string name in MemberSpawnerTypeNames)
@@ -85,7 +85,7 @@ internal sealed class CoreModel
 
         foreach (INamedTypeSymbol type in Types)
         {
-            if (type.TypeKind == TypeKind.Class && !type.IsAbstract && DerivesFrom(type, programAnimation))
+            if (type.TypeKind == TypeKind.Class && !type.IsAbstract && DerivesFrom(type, typedAnimation))
                 _families.Add(type);
         }
         foreach (INamedTypeSymbol type in Types)
@@ -139,10 +139,13 @@ internal sealed class CoreModel
     /// <summary>An enemy slot.</summary>
     public INamedTypeSymbol RoomEnemySlot { get; }
 
-    /// <summary>The base every projectile program family derives from, whose type arguments are its program, pose and cue types.</summary>
-    public INamedTypeSymbol ProgramAnimation { get; }
+    /// <summary>
+    /// The base every projectile program family derives from (#1600), whose type arguments are its segment, frame and event
+    /// types; the segment type names the programs (the segments an animation starts at).
+    /// </summary>
+    public INamedTypeSymbol TypedAnimation { get; }
 
-    /// <summary>What each projectile program family's programs show, read from their program sets once.</summary>
+    /// <summary>What each projectile program family's animations show, read from their segments and animations once.</summary>
     public ProjectileProgramFrames ProgramFrames => _programFrames ??= new ProjectileProgramFrames(this);
 
     private ProjectileProgramFrames? _programFrames;
@@ -189,15 +192,25 @@ internal sealed class CoreModel
 
     /// <summary>The initializer value of Core type <paramref name="type"/>'s property or field <paramref name="member"/>.</summary>
     /// <exception cref="InvalidDataException">No one type has that name, it declares no one such member, or the member has no initializer.</exception>
-    public ExpressionSyntax MemberInitializer(string type, string member)
+    public ExpressionSyntax MemberInitializer(string type, string member) => InitializerOf(Member(type, member));
+
+    /// <summary>Core type <paramref name="type"/>'s property or field <paramref name="member"/>.</summary>
+    /// <exception cref="InvalidDataException">No one type has that name, or it declares no one such member.</exception>
+    public ISymbol Member(string type, string member)
     {
         INamedTypeSymbol[] types = [.. Types.Where(candidate => candidate.Name == type)];
         if (types is not [var declaring])
             throw new InvalidDataException($"Expected one Core type {type}; found {types.Length}.");
-        ISymbol symbol = declaring.GetMembers(member) is [var single]
+        return declaring.GetMembers(member) is [var single and (IPropertySymbol or IFieldSymbol)]
             ? single
-            : throw new InvalidDataException($"{type} does not declare one member {member}.");
-        foreach (SyntaxReference reference in symbol.DeclaringSyntaxReferences)
+            : throw new InvalidDataException($"{type} does not declare one property or field {member}.");
+    }
+
+    /// <summary>The initializer value of property or field <paramref name="member"/>.</summary>
+    /// <exception cref="InvalidDataException">The member has no initializer this generator can read.</exception>
+    public static ExpressionSyntax InitializerOf(ISymbol member)
+    {
+        foreach (SyntaxReference reference in member.DeclaringSyntaxReferences)
         {
             switch (reference.GetSyntax())
             {
@@ -209,7 +222,29 @@ internal sealed class CoreModel
                     return value;
             }
         }
-        throw new InvalidDataException($"{type}.{member} has no initializer this generator can read.");
+        throw new InvalidDataException($"{member.ToDisplayString()} has no initializer this generator can read.");
+    }
+
+    /// <summary>
+    /// The initializer of <paramref name="member"/>, followed by the initializer of every dictionary member it spreads in, in
+    /// the order spread, as <c>TorizoAnimations.Segments</c> joins four tables of segments.
+    /// </summary>
+    public List<ExpressionSyntax> InitializersWithSpreads(ISymbol member)
+    {
+        var initializers = new List<ExpressionSyntax>();
+        var pending = new Queue<ExpressionSyntax>([InitializerOf(member)]);
+        while (pending.TryDequeue(out ExpressionSyntax? initializer))
+        {
+            initializers.Add(initializer);
+            SemanticModel semantic = ModelOf(initializer.SyntaxTree);
+            foreach (SpreadElementSyntax spread in initializer.DescendantNodes().OfType<SpreadElementSyntax>())
+            {
+                if (semantic.GetTypeInfo(spread.Expression).Type is INamedTypeSymbol { Name: "Dictionary" or "IReadOnlyDictionary" }
+                    && semantic.GetSymbolInfo(spread.Expression).Symbol is (IPropertySymbol or IFieldSymbol) and var table)
+                    pending.Enqueue(InitializerOf(table.OriginalDefinition));
+            }
+        }
+        return initializers;
     }
 
     /// <summary>The EnemyFrameId members <paramref name="initializer"/> names.</summary>
@@ -244,7 +279,7 @@ internal sealed class CoreModel
         INamedTypeSymbol? programType = null;
         for (INamedTypeSymbol? type = family; type is not null; type = type.BaseType)
         {
-            if (SymbolEqualityComparer.Default.Equals(type.OriginalDefinition, ProgramAnimation))
+            if (SymbolEqualityComparer.Default.Equals(type.OriginalDefinition, TypedAnimation))
             {
                 programType = type.TypeArguments[0] as INamedTypeSymbol;
                 break;

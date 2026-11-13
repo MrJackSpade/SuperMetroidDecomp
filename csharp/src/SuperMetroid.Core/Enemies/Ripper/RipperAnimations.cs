@@ -16,45 +16,45 @@ internal static class RipperAnimations
     {
         [P.GRipperMovingLeft] =
         [
-            Show(EnemyFrameId.RipperSharedLeft0, 8),
-            Show(EnemyFrameId.RipperSharedLeft1, 7),
-            Show(EnemyFrameId.RipperSharedLeft0, 8),
-            Show(EnemyFrameId.RipperSharedLeft2, 7),
+            Show(EnemyFrameId.GRipperMovingLeftFirst, 8),
+            Show(EnemyFrameId.GRipperMovingLeftSecond, 7),
+            Show(EnemyFrameId.GRipperMovingLeftFirst, 8),
+            Show(EnemyFrameId.GRipperMovingLeftThird, 7),
         ],
         [P.GRipperMovingRight] =
         [
-            Show(EnemyFrameId.RipperSharedRight0, 8),
-            Show(EnemyFrameId.RipperSharedRight1, 7),
-            Show(EnemyFrameId.RipperSharedRight0, 8),
-            Show(EnemyFrameId.RipperSharedRight2, 7),
+            Show(EnemyFrameId.GRipperMovingRightFirst, 8),
+            Show(EnemyFrameId.GRipperMovingRightSecond, 7),
+            Show(EnemyFrameId.GRipperMovingRightFirst, 8),
+            Show(EnemyFrameId.GRipperMovingRightThird, 7),
         ],
         [P.Ripper2MovingRight] =
         [
-            Show(EnemyFrameId.RipperSharedLeft0, 8),
-            Show(EnemyFrameId.RipperSharedLeft1, 7),
-            Show(EnemyFrameId.RipperSharedLeft0, 8),
-            Show(EnemyFrameId.RipperSharedLeft2, 7),
+            Show(EnemyFrameId.GRipperMovingLeftFirst, 8),
+            Show(EnemyFrameId.GRipperMovingLeftSecond, 7),
+            Show(EnemyFrameId.GRipperMovingLeftFirst, 8),
+            Show(EnemyFrameId.GRipperMovingLeftThird, 7),
         ],
         [P.Ripper2MovingLeft] =
         [
-            Show(EnemyFrameId.RipperSharedRight0, 8),
-            Show(EnemyFrameId.RipperSharedRight1, 7),
-            Show(EnemyFrameId.RipperSharedRight0, 8),
-            Show(EnemyFrameId.RipperSharedRight2, 7),
+            Show(EnemyFrameId.GRipperMovingRightFirst, 8),
+            Show(EnemyFrameId.GRipperMovingRightSecond, 7),
+            Show(EnemyFrameId.GRipperMovingRightFirst, 8),
+            Show(EnemyFrameId.GRipperMovingRightThird, 7),
         ],
         [P.RipperMovingRight] =
         [
-            Show(EnemyFrameId.RipperRight0, 8),
-            Show(EnemyFrameId.RipperRight1, 7),
-            Show(EnemyFrameId.RipperRight0, 8),
-            Show(EnemyFrameId.RipperRight2, 7),
+            Show(EnemyFrameId.RipperMovingRightFirst, 8),
+            Show(EnemyFrameId.RipperMovingRightSecond, 7),
+            Show(EnemyFrameId.RipperMovingRightFirst, 8),
+            Show(EnemyFrameId.RipperMovingRightThird, 7),
         ],
         [P.RipperMovingLeft] =
         [
-            Show(EnemyFrameId.RipperLeft0, 8),
-            Show(EnemyFrameId.RipperLeft1, 7),
-            Show(EnemyFrameId.RipperLeft0, 8),
-            Show(EnemyFrameId.RipperLeft2, 7),
+            Show(EnemyFrameId.RipperMovingLeftFirst, 8),
+            Show(EnemyFrameId.RipperMovingLeftSecond, 7),
+            Show(EnemyFrameId.RipperMovingLeftFirst, 8),
+            Show(EnemyFrameId.RipperMovingLeftThird, 7),
         ],
     });
 

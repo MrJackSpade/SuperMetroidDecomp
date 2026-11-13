@@ -12,5 +12,5 @@ internal static class CommonEnemyEmptyFrameDefinitions
     /// The frames that show the empty frame: the common empty frame, and the Norfair lava jumper frame catalogued at the
     /// same picture.
     /// </summary>
-    internal static readonly HashSet<EnemyFrameId> EmptyFrames = [EnemyFrameId.Empty, EnemyFrameId.NorfairLavaJumperPose0];
+    internal static readonly HashSet<EnemyFrameId> EmptyFrames = [EnemyFrameId.Empty, EnemyFrameId.NorfairLavaJumperFollowerSecond];
 }

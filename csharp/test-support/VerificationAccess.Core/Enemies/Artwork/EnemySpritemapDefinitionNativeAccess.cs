@@ -15,12 +15,13 @@ internal static class EnemySpritemapDefinitionNativeAccess
         internal NativeEnemySpritemapDefinition Native => new(definition.Bank, definition.Pointer, definition.LegacyName);
 
         /// <summary>
-        /// The name composition documents gave the frame before frames were named for their meaning (#1465), its current
-        /// name when it kept it.
+        /// The name composition documents gave the frame before frames were named for their meaning (#1465), or before
+        /// #1623 named them for the animation segment or table key that first shows them; its current name when it kept it.
         /// </summary>
         internal string LegacyName =>
             EnemyFrameLegacyNameDefinitions.OrdinaryCompositions.TryGetValue(definition.Frame, out string? ordinary) ? ordinary
             : EnemyFrameLegacyNameDefinitions.ExtendedCompositions.TryGetValue(definition.Frame, out string? extended) ? extended
+            : EnemyFrameLegacyNameDefinitions.BeforeSegmentNames.TryGetValue(definition.Frame, out string? before) ? before
             : definition.Name;
     }
 }

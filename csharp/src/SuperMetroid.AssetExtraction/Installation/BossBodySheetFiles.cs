@@ -28,9 +28,10 @@ public static class BossBodySheetFiles
     /// depth it is drawn at (#1634), a part drawn over the parts before it with no rectangles it covers (#1540), Kraid's body
     /// below his head and the head it rises with as one frame each; with no cell footprints, blank (#1515), pieces of
     /// pictures laid over a frame (#1513) or frames pictured again to be drawn in front of the sprites; 7 pictures each of
-    /// Crocomire's melt images once, with the cells its dissolve erases, and no step of it (#1652).
+    /// Crocomire's melt images once, with the cells its dissolve erases, and no step of it (#1652); 8 keys each frame by the
+    /// animation segment or table key that first shows it (#1623).
     /// </summary>
-    private const int ManifestVersion = 7;
+    private const int ManifestVersion = 8;
 
     /// <summary>
     /// Composes every boss's body sheet and writes their manifest; the sheets are returned for the picture store to write

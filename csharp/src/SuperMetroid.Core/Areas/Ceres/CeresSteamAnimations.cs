@@ -18,90 +18,90 @@ internal static class CeresSteamAnimations
         [P.Up] =
         [
             Cue(new CeresSteamCue.Command(K.Vanish)),
-            Show(EnemyFrameId.CeresSteamPose0, 1),
+            Show(EnemyFrameId.CeresSteamUp, 1),
             Cue(new CeresSteamCue.CountDownToActivation(P.Up, P.UpLoop2)),
         ],
         [P.UpLoop] =
         [
             Cue(new CeresSteamCue.Command(K.Vanish)),
-            Show(EnemyFrameId.CeresSteamPose0, 64),
+            Show(EnemyFrameId.CeresSteamUp, 64),
             Cue(new CeresSteamCue.Command(K.Appear)),
         ],
         [P.UpLoop2] =
         [
-            Show(EnemyFrameId.CeresSteamPose0, 3),
-            Show(EnemyFrameId.CeresSteamPose1, 3),
-            Show(EnemyFrameId.CeresSteamPose2, 3),
-            Show(EnemyFrameId.CeresSteamPose3, 3),
-            Show(EnemyFrameId.CeresSteamPose4, 3),
-            Show(EnemyFrameId.CeresSteamPose5, 3),
-            Show(EnemyFrameId.CeresSteamPose6, 3),
+            Show(EnemyFrameId.CeresSteamUp, 3),
+            Show(EnemyFrameId.CeresSteamUpLoopTwoSecond, 3),
+            Show(EnemyFrameId.CeresSteamUpLoopTwoThird, 3),
+            Show(EnemyFrameId.CeresSteamUpLoopTwoFourth, 3),
+            Show(EnemyFrameId.CeresSteamUpLoopTwoFifth, 3),
+            Show(EnemyFrameId.CeresSteamUpLoopTwoSixth, 3),
+            Show(EnemyFrameId.CeresSteamUpLoopTwoSeventh, 3),
         ],
         [P.Left] =
         [
             Cue(new CeresSteamCue.Command(K.Vanish)),
-            Show(EnemyFrameId.CeresSteamPose7, 1),
+            Show(EnemyFrameId.CeresSteamLeft, 1),
             Cue(new CeresSteamCue.CountDownToActivation(P.Left, P.LeftLoop2)),
         ],
         [P.LeftLoop] =
         [
             Cue(new CeresSteamCue.Command(K.Vanish)),
-            Show(EnemyFrameId.CeresSteamPose7, 64),
+            Show(EnemyFrameId.CeresSteamLeft, 64),
             Cue(new CeresSteamCue.Command(K.Appear)),
         ],
         [P.LeftLoop2] =
         [
-            Show(EnemyFrameId.CeresSteamPose7, 3),
-            Show(EnemyFrameId.CeresSteamPose8, 3),
-            Show(EnemyFrameId.CeresSteamPose9, 3),
-            Show(EnemyFrameId.CeresSteamPose10, 3),
-            Show(EnemyFrameId.CeresSteamPose11, 3),
-            Show(EnemyFrameId.CeresSteamPose12, 3),
-            Show(EnemyFrameId.CeresSteamPose13, 3),
+            Show(EnemyFrameId.CeresSteamLeft, 3),
+            Show(EnemyFrameId.CeresSteamLeftLoopTwoSecond, 3),
+            Show(EnemyFrameId.CeresSteamLeftLoopTwoThird, 3),
+            Show(EnemyFrameId.CeresSteamLeftLoopTwoFourth, 3),
+            Show(EnemyFrameId.CeresSteamLeftLoopTwoFifth, 3),
+            Show(EnemyFrameId.CeresSteamLeftLoopTwoSixth, 3),
+            Show(EnemyFrameId.CeresSteamLeftLoopTwoSeventh, 3),
         ],
         [P.Down] =
         [
             Cue(new CeresSteamCue.Command(K.Vanish)),
-            Show(EnemyFrameId.CeresSteamPose14, 1),
+            Show(EnemyFrameId.CeresSteamDown, 1),
             Cue(new CeresSteamCue.CountDownToActivation(P.Down, P.DownLoop2)),
         ],
         [P.DownLoop] =
         [
             Cue(new CeresSteamCue.Command(K.Vanish)),
-            Show(EnemyFrameId.CeresSteamPose14, 64),
+            Show(EnemyFrameId.CeresSteamDown, 64),
             Cue(new CeresSteamCue.Command(K.Appear)),
         ],
         [P.DownLoop2] =
         [
-            Show(EnemyFrameId.CeresSteamPose14, 3),
-            Show(EnemyFrameId.CeresSteamPose15, 3),
-            Show(EnemyFrameId.CeresSteamPose16, 3),
-            Show(EnemyFrameId.CeresSteamPose17, 3),
-            Show(EnemyFrameId.CeresSteamPose18, 3),
-            Show(EnemyFrameId.CeresSteamPose19, 3),
-            Show(EnemyFrameId.CeresSteamPose20, 3),
+            Show(EnemyFrameId.CeresSteamDown, 3),
+            Show(EnemyFrameId.CeresSteamDownLoopTwoSecond, 3),
+            Show(EnemyFrameId.CeresSteamDownLoopTwoThird, 3),
+            Show(EnemyFrameId.CeresSteamDownLoopTwoFourth, 3),
+            Show(EnemyFrameId.CeresSteamDownLoopTwoFifth, 3),
+            Show(EnemyFrameId.CeresSteamDownLoopTwoSixth, 3),
+            Show(EnemyFrameId.CeresSteamDownLoopTwoSeventh, 3),
         ],
         [P.Right] =
         [
             Cue(new CeresSteamCue.Command(K.Vanish)),
-            Show(EnemyFrameId.CeresSteamPose21, 1),
+            Show(EnemyFrameId.CeresSteamRight, 1),
             Cue(new CeresSteamCue.CountDownToActivation(P.Right, P.RightLoop2)),
         ],
         [P.RightLoop] =
         [
             Cue(new CeresSteamCue.Command(K.Vanish)),
-            Show(EnemyFrameId.CeresSteamPose21, 64),
+            Show(EnemyFrameId.CeresSteamRight, 64),
             Cue(new CeresSteamCue.Command(K.Appear)),
         ],
         [P.RightLoop2] =
         [
-            Show(EnemyFrameId.CeresSteamPose21, 3),
-            Show(EnemyFrameId.CeresSteamPose22, 3),
-            Show(EnemyFrameId.CeresSteamPose23, 3),
-            Show(EnemyFrameId.CeresSteamPose24, 3),
-            Show(EnemyFrameId.CeresSteamPose25, 3),
-            Show(EnemyFrameId.CeresSteamPose26, 3),
-            Show(EnemyFrameId.CeresSteamPose27, 3),
+            Show(EnemyFrameId.CeresSteamRight, 3),
+            Show(EnemyFrameId.CeresSteamRightLoopTwoSecond, 3),
+            Show(EnemyFrameId.CeresSteamRightLoopTwoThird, 3),
+            Show(EnemyFrameId.CeresSteamRightLoopTwoFourth, 3),
+            Show(EnemyFrameId.CeresSteamRightLoopTwoFifth, 3),
+            Show(EnemyFrameId.CeresSteamRightLoopTwoSixth, 3),
+            Show(EnemyFrameId.CeresSteamRightLoopTwoSeventh, 3),
         ],
     });
 

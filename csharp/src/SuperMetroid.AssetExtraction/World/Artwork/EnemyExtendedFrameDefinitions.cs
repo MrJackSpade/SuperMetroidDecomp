@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Bosses.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Kraid.Artwork;
@@ -87,4 +88,35 @@ internal static class EnemyExtendedFrameDefinitions
 
     /// <summary>Indexed view spanning the complete schema-ordered visual catalog.</summary>
     internal static EnemyExtendedFrameSequence Frames => new(0, ExpectedFrameCount);
+
+    /// <summary>The document's frames as runs of one enemy family each, in the document's order (#1623).</summary>
+    internal static ImmutableArray<EnemyExtendedFrameRun> FamilyRuns { get; } =
+    [
+        new(EnemyExtendedFrameFamily.WalkingPirate, WalkingFrameCount),
+        new(EnemyExtendedFrameFamily.WallPirate, WallFrameCount),
+        new(EnemyExtendedFrameFamily.NinjaPirate, NinjaFrameCount),
+        new(EnemyExtendedFrameFamily.RidleyBody, BossSpriteFrameDefinitions.RidleyFrameCount),
+        new(EnemyExtendedFrameFamily.Draygon, BossSpriteFrameDefinitions.DraygonSpriteFrameCount),
+        new(EnemyExtendedFrameFamily.SporeSpawn, BossSpriteFrameDefinitions.SporeSpawnSpriteFrameCount),
+        new(EnemyExtendedFrameFamily.CeresSteam, CeresSteamFrameCount),
+        new(EnemyExtendedFrameFamily.Oum, OumFrameCount),
+        new(EnemyExtendedFrameFamily.CrocomireTongue, CrocomireSpriteFrameCount),
+        new(EnemyExtendedFrameFamily.CrocomireBody, CrocomireBodyFrameCount),
+        new(EnemyExtendedFrameFamily.BombTorizo, BombTorizoDormantFrameCount),
+        new(EnemyExtendedFrameFamily.GoldenTorizo, GoldenTorizoInitialFrameCount),
+        new(EnemyExtendedFrameFamily.KraidArm, KraidArmFrameCount),
+        new(EnemyExtendedFrameFamily.GoldenTorizo, GoldenTorizoAwakeningFrameCount + GoldenTorizoWalkingFrameCount + GoldenTorizoRightwardFrameCount),
+        new(EnemyExtendedFrameFamily.TorizoJumpBack, TorizoJumpBackFrameCount),
+        new(EnemyExtendedFrameFamily.GoldenTorizo, GoldenTorizoRightOrbFrameCount + GoldenTorizoRightSonicFrameCount),
+        new(EnemyExtendedFrameFamily.TorizoFallingLeft, TorizoFallingLeftFrameCount),
+        new(EnemyExtendedFrameFamily.GoldenTorizo, GoldenTorizoLeftFootOrbFrameCount),
+        new(EnemyExtendedFrameFamily.TorizoJumpBack, TorizoJumpBackLeftNewFrameCount),
+        new(EnemyExtendedFrameFamily.GoldenTorizo, GoldenTorizoLeftOrbFrameCount),
+        new(EnemyExtendedFrameFamily.TorizoCombat, CompleteTorizoAdditionalFrameCount),
+        new(EnemyExtendedFrameFamily.MotherBrainBody, MotherBrainBodyFrameDefinitions.FrameCount),
+        new(EnemyExtendedFrameFamily.Phantoon, PhantoonBg2FrameCount),
+        new(EnemyExtendedFrameFamily.Draygon, DraygonBg2FrameCount),
+        new(EnemyExtendedFrameFamily.CrocomireSkeleton, CrocomireSkeletonVisualDefinitions.FrameCount),
+        new(EnemyExtendedFrameFamily.KraidFoot, KraidFootVisualDefinitions.FrameCount),
+    ];
 }

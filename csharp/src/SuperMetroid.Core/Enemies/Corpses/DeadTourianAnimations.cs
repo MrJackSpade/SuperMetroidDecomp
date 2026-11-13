@@ -41,35 +41,35 @@ internal static class DeadTourianAnimations
         ],
         [P.ZoomerCorpse0] =
         [
-            Show(EnemyFrameId.DeadZoomerCorpse0, 1),
+            Show(EnemyFrameId.DeadZoomerCorpseFirst, 1),
         ],
         [P.ZoomerCorpse1] =
         [
-            Show(EnemyFrameId.DeadZoomerCorpse2, 1),
+            Show(EnemyFrameId.DeadZoomerCorpseSecond, 1),
         ],
         [P.ZoomerCorpse2] =
         [
-            Show(EnemyFrameId.DeadZoomerCorpse4, 1),
+            Show(EnemyFrameId.DeadZoomerCorpseThird, 1),
         ],
         [P.RipperCorpse0] =
         [
-            Show(EnemyFrameId.DeadRipperCorpse0, 1),
+            Show(EnemyFrameId.DeadRipperCorpseFirst, 1),
         ],
         [P.RipperCorpse1] =
         [
-            Show(EnemyFrameId.DeadRipperCorpse2, 1),
+            Show(EnemyFrameId.DeadRipperCorpseSecond, 1),
         ],
         [P.SkreeCorpse0] =
         [
-            Show(EnemyFrameId.DeadSkreeCorpse0, 1),
+            Show(EnemyFrameId.DeadSkreeCorpseFirst, 1),
         ],
         [P.SkreeCorpse1] =
         [
-            Show(EnemyFrameId.DeadSkreeCorpse2, 1),
+            Show(EnemyFrameId.DeadSkreeCorpseSecond, 1),
         ],
         [P.SkreeCorpse2] =
         [
-            Show(EnemyFrameId.DeadSkreeCorpse4, 1),
+            Show(EnemyFrameId.DeadSkreeCorpseThird, 1),
         ],
     });
 

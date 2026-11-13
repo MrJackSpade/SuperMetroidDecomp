@@ -22,10 +22,10 @@ internal static class BoyonAnimations
         ],
         [P.IdleLoop] =
         [
-            Show(EnemyFrameId.BoyonIdle0, 10),
-            Show(EnemyFrameId.BoyonIdle1, 10),
-            Show(EnemyFrameId.BoyonIdle2, 10),
-            Show(EnemyFrameId.BoyonIdle1, 10),
+            Show(EnemyFrameId.BoyonIdleLoopFirst, 10),
+            Show(EnemyFrameId.BoyonIdleLoopSecond, 10),
+            Show(EnemyFrameId.BoyonIdleLoopThird, 10),
+            Show(EnemyFrameId.BoyonIdleLoopSecond, 10),
         ],
         [P.Bouncing] =
         [
@@ -34,12 +34,12 @@ internal static class BoyonAnimations
         ],
         [P.BouncingLoop] =
         [
-            Show(EnemyFrameId.BoyonBounce0, 5),
-            Show(EnemyFrameId.BoyonBounce1, 5),
-            Show(EnemyFrameId.BoyonBounce2, 5),
-            Show(EnemyFrameId.BoyonBounce3, 5),
-            Show(EnemyFrameId.BoyonBounce2, 5),
-            Show(EnemyFrameId.BoyonBounce1, 5),
+            Show(EnemyFrameId.BoyonBouncingLoopFirst, 5),
+            Show(EnemyFrameId.BoyonBouncingLoopSecond, 5),
+            Show(EnemyFrameId.BoyonBouncingLoopThird, 5),
+            Show(EnemyFrameId.BoyonBouncingLoopFourth, 5),
+            Show(EnemyFrameId.BoyonBouncingLoopThird, 5),
+            Show(EnemyFrameId.BoyonBouncingLoopSecond, 5),
         ],
     });
 

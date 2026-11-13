@@ -21,8 +21,8 @@ internal static class DragonAnimations
         ],
         [P.WingsFacingLeft] =
         [
-            Show(EnemyFrameId.DragonWingLeft0, 5),
-            Show(EnemyFrameId.DragonWingLeft1, 5),
+            Show(EnemyFrameId.DragonWingsFacingLeftFirst, 5),
+            Show(EnemyFrameId.DragonWingsFacingLeftSecond, 5),
         ],
         [P.IdleFacingRight] =
         [
@@ -30,25 +30,25 @@ internal static class DragonAnimations
         ],
         [P.WingsFacingRight] =
         [
-            Show(EnemyFrameId.DragonWingRight0, 5),
-            Show(EnemyFrameId.DragonWingRight1, 5),
+            Show(EnemyFrameId.DragonWingsFacingRightFirst, 5),
+            Show(EnemyFrameId.DragonWingsFacingRightSecond, 5),
         ],
         [P.AttackingFacingLeft] =
         [
-            Show(EnemyFrameId.DragonBodyAttackLeft0, 32),
-            Show(EnemyFrameId.DragonBodyAttackLeft1, 3),
-            Show(EnemyFrameId.DragonBodyAttackLeft2, 7),
-            Show(EnemyFrameId.DragonBodyAttackLeft1, 3),
-            Show(EnemyFrameId.DragonBodyAttackLeft0, 1),
+            Show(EnemyFrameId.DragonAttackingFacingLeftFirst, 32),
+            Show(EnemyFrameId.DragonAttackingFacingLeftSecond, 3),
+            Show(EnemyFrameId.DragonAttackingFacingLeftThird, 7),
+            Show(EnemyFrameId.DragonAttackingFacingLeftSecond, 3),
+            Show(EnemyFrameId.DragonAttackingFacingLeftFirst, 1),
             Cue(new(K.FinishAttack)),
         ],
         [P.AttackingFacingRight] =
         [
-            Show(EnemyFrameId.DragonBodyAttackRight0, 32),
-            Show(EnemyFrameId.DragonBodyAttackRight1, 3),
-            Show(EnemyFrameId.DragonBodyAttackRight2, 7),
-            Show(EnemyFrameId.DragonBodyAttackRight1, 3),
-            Show(EnemyFrameId.DragonBodyAttackRight0, 1),
+            Show(EnemyFrameId.DragonAttackingFacingRightFirst, 32),
+            Show(EnemyFrameId.DragonAttackingFacingRightSecond, 3),
+            Show(EnemyFrameId.DragonAttackingFacingRightThird, 7),
+            Show(EnemyFrameId.DragonAttackingFacingRightSecond, 3),
+            Show(EnemyFrameId.DragonAttackingFacingRightFirst, 1),
             Cue(new(K.FinishAttack)),
         ],
     });

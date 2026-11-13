@@ -16,7 +16,7 @@ internal static class KzanAnimations
     {
         [P.Idle] =
         [
-            Show(EnemyFrameId.Kzan00, 1),
+            Show(EnemyFrameId.KzanIdle, 1),
         ],
     });
 

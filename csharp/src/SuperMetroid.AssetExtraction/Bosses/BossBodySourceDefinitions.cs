@@ -33,28 +33,28 @@ internal static class BossBodySourceDefinitions
     /// </summary>
     internal static IReadOnlyDictionary<EnemyFrameId, EnemyFrameId> FramesDrawnOver { get; } = new Dictionary<EnemyFrameId, EnemyFrameId>
     {
-        [EnemyFrameId.MotherBrainBodyDeathBeam1] = EnemyFrameId.MotherBrainBodyDeathBeam0,
-        [EnemyFrameId.MotherBrainBodyDeathBeam2] = EnemyFrameId.MotherBrainBodyDeathBeam1,
-        [EnemyFrameId.MotherBrainBodyDeathBeam3] = EnemyFrameId.MotherBrainBodyDeathBeam2,
-        [EnemyFrameId.PhantoonCenteredEye0] = EnemyFrameId.PhantoonOpeningEye2,
-        [EnemyFrameId.PhantoonGaze0] = EnemyFrameId.PhantoonOpeningEye2,
-        [EnemyFrameId.PhantoonGaze1] = EnemyFrameId.PhantoonOpeningEye2,
-        [EnemyFrameId.PhantoonGaze2] = EnemyFrameId.PhantoonOpeningEye2,
-        [EnemyFrameId.PhantoonGaze3] = EnemyFrameId.PhantoonOpeningEye2,
-        [EnemyFrameId.PhantoonGaze4] = EnemyFrameId.PhantoonOpeningEye2,
-        [EnemyFrameId.PhantoonGaze5] = EnemyFrameId.PhantoonOpeningEye2,
-        [EnemyFrameId.PhantoonGaze6] = EnemyFrameId.PhantoonOpeningEye2,
-        [EnemyFrameId.PhantoonGaze7] = EnemyFrameId.PhantoonOpeningEye2,
-        [EnemyFrameId.DraygonFrame7] = EnemyFrameId.DraygonFrame6,
-        [EnemyFrameId.DraygonFrame10] = EnemyFrameId.DraygonFrame22,
-        [EnemyFrameId.DraygonFrame11] = EnemyFrameId.DraygonFrame22,
-        [EnemyFrameId.DraygonFrame12] = EnemyFrameId.DraygonFrame22,
-        [EnemyFrameId.DraygonFrame13] = EnemyFrameId.DraygonFrame22,
-        [EnemyFrameId.DraygonFrame48] = EnemyFrameId.DraygonFrame47,
-        [EnemyFrameId.DraygonFrame51] = EnemyFrameId.DraygonFrame63,
-        [EnemyFrameId.DraygonFrame52] = EnemyFrameId.DraygonFrame63,
-        [EnemyFrameId.DraygonFrame53] = EnemyFrameId.DraygonFrame63,
-        [EnemyFrameId.DraygonFrame54] = EnemyFrameId.DraygonFrame63,
+        [EnemyFrameId.MotherBrainBodyHandBeamThird] = EnemyFrameId.MotherBrainBodyHandBeamSecond,
+        [EnemyFrameId.MotherBrainBodyHandBeamFourth] = EnemyFrameId.MotherBrainBodyHandBeamThird,
+        [EnemyFrameId.MotherBrainBodyHandBeamFifth] = EnemyFrameId.MotherBrainBodyHandBeamFourth,
+        [EnemyFrameId.PhantoonEyeballCentered] = EnemyFrameId.PhantoonEyeOpenThird,
+        [EnemyFrameId.PhantoonEyeLookingUp] = EnemyFrameId.PhantoonEyeOpenThird,
+        [EnemyFrameId.PhantoonEyeLookingUpRight] = EnemyFrameId.PhantoonEyeOpenThird,
+        [EnemyFrameId.PhantoonEyeLookingRight] = EnemyFrameId.PhantoonEyeOpenThird,
+        [EnemyFrameId.PhantoonEyeLookingDownRight] = EnemyFrameId.PhantoonEyeOpenThird,
+        [EnemyFrameId.PhantoonEyeLookingDown] = EnemyFrameId.PhantoonEyeOpenThird,
+        [EnemyFrameId.PhantoonEyeLookingDownLeft] = EnemyFrameId.PhantoonEyeOpenThird,
+        [EnemyFrameId.PhantoonEyeLookingLeft] = EnemyFrameId.PhantoonEyeOpenThird,
+        [EnemyFrameId.PhantoonEyeLookingUpLeft] = EnemyFrameId.PhantoonEyeOpenThird,
+        [EnemyFrameId.DraygonArmsFacingLeftDyingSecond] = EnemyFrameId.DraygonArmsFacingLeftDyingFirst,
+        [EnemyFrameId.DraygonBodyFacingLeftFireGoopFirst] = EnemyFrameId.DraygonBodyFacingLeftReset,
+        [EnemyFrameId.DraygonBodyFacingLeftFireGoopSecond] = EnemyFrameId.DraygonBodyFacingLeftReset,
+        [EnemyFrameId.DraygonBodyFacingLeftFireGoopThird] = EnemyFrameId.DraygonBodyFacingLeftReset,
+        [EnemyFrameId.DraygonBodyFacingLeftFireGoopFourth] = EnemyFrameId.DraygonBodyFacingLeftReset,
+        [EnemyFrameId.DraygonArmsFacingRightDyingSecond] = EnemyFrameId.DraygonArmsFacingRightDyingFirst,
+        [EnemyFrameId.DraygonBodyFacingRightFireGoopFirst] = EnemyFrameId.DraygonBodyFacingRightReset,
+        [EnemyFrameId.DraygonBodyFacingRightFireGoopSecond] = EnemyFrameId.DraygonBodyFacingRightReset,
+        [EnemyFrameId.DraygonBodyFacingRightFireGoopThird] = EnemyFrameId.DraygonBodyFacingRightReset,
+        [EnemyFrameId.DraygonBodyFacingRightFireGoopFourth] = EnemyFrameId.DraygonBodyFacingRightReset,
     };
 
     /// <summary>
@@ -64,8 +64,8 @@ internal static class BossBodySourceDefinitions
     /// </summary>
     internal static IReadOnlyDictionary<EnemyFrameId, EnemyFrameId> FramesPicturedWith { get; } = new Dictionary<EnemyFrameId, EnemyFrameId>
     {
-        [EnemyFrameId.PhantoonInvulnerableBody0] = EnemyFrameId.PhantoonClosedEye0,
-        [EnemyFrameId.PhantoonFullHitboxBody0] = EnemyFrameId.PhantoonClosedEye0,
-        [EnemyFrameId.PhantoonEyeHitboxBody0] = EnemyFrameId.PhantoonClosedEye0,
+        [EnemyFrameId.PhantoonInvulnerableBody] = EnemyFrameId.PhantoonEyeClosed,
+        [EnemyFrameId.PhantoonFullHitboxBody] = EnemyFrameId.PhantoonEyeClosed,
+        [EnemyFrameId.PhantoonEyeHitboxBody] = EnemyFrameId.PhantoonEyeClosed,
     };
 }

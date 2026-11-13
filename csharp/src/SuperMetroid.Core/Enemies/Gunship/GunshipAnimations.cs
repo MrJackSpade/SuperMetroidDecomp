@@ -16,35 +16,35 @@ internal static class GunshipAnimations
     {
         [P.EntrancePadOpening] =
         [
-            Show(EnemyFrameId.GunshipEntrance00, 40),
-            Show(EnemyFrameId.GunshipEntrance01, 8),
-            Show(EnemyFrameId.GunshipEntrance02, 8),
-            Show(EnemyFrameId.GunshipEntrance03, 8),
-            Show(EnemyFrameId.GunshipEntrance04, 24),
-            Show(EnemyFrameId.GunshipEntrance05, 8),
-            Show(EnemyFrameId.GunshipEntrance06, 7),
-            Show(EnemyFrameId.GunshipEntrance07, 6),
-            Show(EnemyFrameId.GunshipEntrance08, 5),
-            Show(EnemyFrameId.GunshipEntrance09, 4),
+            Show(EnemyFrameId.GunshipEntrancePadOpeningFirst, 40),
+            Show(EnemyFrameId.GunshipEntrancePadOpeningSecond, 8),
+            Show(EnemyFrameId.GunshipEntrancePadOpeningThird, 8),
+            Show(EnemyFrameId.GunshipEntrancePadOpeningFourth, 8),
+            Show(EnemyFrameId.GunshipEntrancePadOpeningFifth, 24),
+            Show(EnemyFrameId.GunshipEntrancePadOpeningSixth, 8),
+            Show(EnemyFrameId.GunshipEntrancePadOpeningSeventh, 7),
+            Show(EnemyFrameId.GunshipEntrancePadOpeningEighth, 6),
+            Show(EnemyFrameId.GunshipEntrancePadOpeningNinth, 5),
+            Show(EnemyFrameId.GunshipEntrancePadOpeningTenth, 4),
         ],
         [P.EntrancePadOpen] =
         [
-            Show(EnemyFrameId.GunshipEntrance10, 4),
+            Show(EnemyFrameId.GunshipEntrancePadOpen, 4),
         ],
         [P.EntrancePadClosing] =
         [
-            Show(EnemyFrameId.GunshipEntrance09, 4),
-            Show(EnemyFrameId.GunshipEntrance08, 5),
-            Show(EnemyFrameId.GunshipEntrance07, 6),
-            Show(EnemyFrameId.GunshipEntrance06, 7),
-            Show(EnemyFrameId.GunshipEntrance05, 8),
-            Show(EnemyFrameId.GunshipEntrance04, 24),
-            Show(EnemyFrameId.GunshipEntrance03, 8),
-            Show(EnemyFrameId.GunshipEntrance01, 8),
+            Show(EnemyFrameId.GunshipEntrancePadOpeningTenth, 4),
+            Show(EnemyFrameId.GunshipEntrancePadOpeningNinth, 5),
+            Show(EnemyFrameId.GunshipEntrancePadOpeningEighth, 6),
+            Show(EnemyFrameId.GunshipEntrancePadOpeningSeventh, 7),
+            Show(EnemyFrameId.GunshipEntrancePadOpeningSixth, 8),
+            Show(EnemyFrameId.GunshipEntrancePadOpeningFifth, 24),
+            Show(EnemyFrameId.GunshipEntrancePadOpeningFourth, 8),
+            Show(EnemyFrameId.GunshipEntrancePadOpeningSecond, 8),
         ],
         [P.BottomEntrancePad] =
         [
-            Show(EnemyFrameId.GunshipEntrance00, 8),
+            Show(EnemyFrameId.GunshipEntrancePadOpeningFirst, 8),
         ],
         [P.TopHull] =
         [

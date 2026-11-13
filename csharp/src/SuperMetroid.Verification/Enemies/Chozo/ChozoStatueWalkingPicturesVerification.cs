@@ -112,14 +112,14 @@ internal static class ChozoStatueWalkingPicturesVerification
     /// <summary>The walking statue's poses, each with the cartridge spritemap it shows, in the order its walk shows them.</summary>
     private static readonly WalkingPose[] WalkingPoses =
     [
-        new(EnemyFrameId.ChozoStatuePose11, 0xAAEC49),
-        new(EnemyFrameId.ChozoStatuePose4, 0xAAE943),
-        new(EnemyFrameId.ChozoStatuePose5, 0xAAE9AE),
-        new(EnemyFrameId.ChozoStatuePose6, 0xAAEA1E),
-        new(EnemyFrameId.ChozoStatuePose7, 0xAAEA8E),
-        new(EnemyFrameId.ChozoStatuePose8, 0xAAEAFE),
-        new(EnemyFrameId.ChozoStatuePose9, 0xAAEB69),
-        new(EnemyFrameId.ChozoStatuePose10, 0xAAEBD9),
+        new(EnemyFrameId.ChozoStatueWreckedShipActivatedLoopTwoFirst, 0xAAEC49),
+        new(EnemyFrameId.ChozoStatueWreckedShipActivatedLoopTwoSecond, 0xAAE943),
+        new(EnemyFrameId.ChozoStatueWreckedShipActivatedLoopTwoThird, 0xAAE9AE),
+        new(EnemyFrameId.ChozoStatueWreckedShipActivatedLoopTwoFourth, 0xAAEA1E),
+        new(EnemyFrameId.ChozoStatueWreckedShipActivatedLoopTwoFifth, 0xAAEA8E),
+        new(EnemyFrameId.ChozoStatueWreckedShipActivatedLoopTwoSixth, 0xAAEAFE),
+        new(EnemyFrameId.ChozoStatueWreckedShipActivatedLoopTwoSeventh, 0xAAEB69),
+        new(EnemyFrameId.ChozoStatueWreckedShipActivatedLoopTwoEighth, 0xAAEBD9),
     ];
 
     /// <summary>

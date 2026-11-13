@@ -18,32 +18,32 @@ internal static class ZoaAnimations
         [P.FacingLeftShooting] =
         [
             Cue(new(K.SetSpeedStage1)),
-            Show(EnemyFrameId.ZoaShootLeft0, 64),
+            Show(EnemyFrameId.ZoaFacingLeftShootingFirst, 64),
             Cue(new(K.SetSpeedStage2)),
-            Show(EnemyFrameId.ZoaShootLeft1, 8),
+            Show(EnemyFrameId.ZoaFacingLeftShootingSecond, 8),
             Cue(new(K.SetSpeedStage3)),
-            Show(EnemyFrameId.ZoaShootLeft2, 48),
+            Show(EnemyFrameId.ZoaFacingLeftShootingThird, 48),
         ],
         [P.FacingLeftRising] =
         [
-            Show(EnemyFrameId.ZoaRiseLeft0, 4),
-            Show(EnemyFrameId.ZoaRiseLeft1, 4),
-            Show(EnemyFrameId.ZoaRiseLeft2, 4),
+            Show(EnemyFrameId.ZoaFacingLeftRisingFirst, 4),
+            Show(EnemyFrameId.ZoaFacingLeftRisingSecond, 4),
+            Show(EnemyFrameId.ZoaFacingLeftRisingThird, 4),
         ],
         [P.FacingRightShooting] =
         [
             Cue(new(K.SetSpeedStage1)),
-            Show(EnemyFrameId.ZoaShootRight0, 64),
+            Show(EnemyFrameId.ZoaFacingRightShootingFirst, 64),
             Cue(new(K.SetSpeedStage2)),
-            Show(EnemyFrameId.ZoaShootRight1, 8),
+            Show(EnemyFrameId.ZoaFacingRightShootingSecond, 8),
             Cue(new(K.SetSpeedStage3)),
-            Show(EnemyFrameId.ZoaShootRight2, 48),
+            Show(EnemyFrameId.ZoaFacingRightShootingThird, 48),
         ],
         [P.FacingRightRising] =
         [
-            Show(EnemyFrameId.ZoaRiseRight0, 4),
-            Show(EnemyFrameId.ZoaRiseRight1, 4),
-            Show(EnemyFrameId.ZoaRiseRight2, 4),
+            Show(EnemyFrameId.ZoaFacingRightRisingFirst, 4),
+            Show(EnemyFrameId.ZoaFacingRightRisingSecond, 4),
+            Show(EnemyFrameId.ZoaFacingRightRisingThird, 4),
         ],
     });
 

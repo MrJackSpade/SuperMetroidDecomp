@@ -16,10 +16,10 @@ internal static class FlyAnimations
     {
         [P.Flight] =
         [
-            Show(EnemyFrameId.FlyShared0, 2),
-            Show(EnemyFrameId.FlyShared1, 2),
-            Show(EnemyFrameId.FlyShared2, 2),
-            Show(EnemyFrameId.FlyShared3, 2),
+            Show(EnemyFrameId.FlyFlightFirst, 2),
+            Show(EnemyFrameId.FlyFlightSecond, 2),
+            Show(EnemyFrameId.FlyFlightThird, 2),
+            Show(EnemyFrameId.FlyFlightFourth, 2),
         ],
     });
 

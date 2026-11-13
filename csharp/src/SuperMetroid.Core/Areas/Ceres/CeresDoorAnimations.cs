@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
 /// The Ceres doors' and walls' typed animations (#641). Each
-/// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="CeresDoorCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="CeresDoorCue"/> with the values it acts on.
 /// </summary>
 internal static class CeresDoorAnimations
 {

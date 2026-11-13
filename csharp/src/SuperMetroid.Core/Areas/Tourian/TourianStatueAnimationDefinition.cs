@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>
 /// One Tourian boss statue's background animation: the named pictures it shows, the typed animation the statue runs and
-/// the operands that animation's cues act on.
+/// the values that animation's cues act on.
 /// </summary>
 public sealed class TourianStatueAnimationDefinition
 {

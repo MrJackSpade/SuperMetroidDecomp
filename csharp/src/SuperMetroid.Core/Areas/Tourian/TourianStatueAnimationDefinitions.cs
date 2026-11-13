@@ -4,7 +4,7 @@ using SuperMetroid.Core.Areas.Tourian.Artwork;
 namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>
-/// The four Tourian entrance statues' background animations: the operands their shared typed animation
+/// The four Tourian entrance statues' background animations: the values their shared typed animation
 /// (<see cref="TourianStatueTileAnimations"/>) acts on.
 /// </summary>
 public static class TourianStatueAnimationDefinitions

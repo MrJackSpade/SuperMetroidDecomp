@@ -1,6 +1,6 @@
 ﻿namespace SuperMetroid.Core.Areas.Ceres;
 
-/// <summary>One cue of the Ceres Baby's animations, with its typed operand.</summary>
+/// <summary>One cue of the Ceres Baby's animations: what it does, with the values it acts on.</summary>
 internal abstract record CeresBabyCue
 {
     /// <summary>Closes the hierarchy to the cues declared here.</summary>

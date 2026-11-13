@@ -86,7 +86,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
                 if (samus is null)
                 {
                     throw new InvalidOperationException(
-                        "Ceres door proximity instruction requires the active Samus actor.");
+                        "Ceres door proximity cue requires the active Samus actor.");
                 }
 
                 // The distance test subtracts the two unsigned positions, reads the

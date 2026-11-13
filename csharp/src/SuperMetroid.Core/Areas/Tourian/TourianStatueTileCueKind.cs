@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Areas.Tourian;
 
-/// <summary>What one cue of a Tourian boss statue's animated-tile animation does; the operands come from the statue's definition.</summary>
+/// <summary>What one cue of a Tourian boss statue's animated-tile animation does; the values it acts on come from the statue's definition.</summary>
 internal enum TourianStatueTileCueKind
 {
     /// <summary>Sets the statue's own animating flag in the shared animation state.</summary>

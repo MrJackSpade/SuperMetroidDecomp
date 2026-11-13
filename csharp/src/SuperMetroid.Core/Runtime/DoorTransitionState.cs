@@ -322,7 +322,7 @@ internal sealed class DoorTransitionState
                     // does not replace that handler: release only the temporary door
                     // input gate, never a stationary script's movement ownership.
                     if (runtime.Room.LoadedScope.Enemies.Elevator.ElevatorStatus == ElevatorActorStatus.Inactive &&
-                        runtime.Player.Samus is { } arrivingSamus && arrivingSamus.Control.Mode.Beta != SamusBetaHandler.ScriptLocked)
+                        runtime.Player.Samus is { } arrivingSamus && arrivingSamus.Control.Mode.Movement != SamusMovementMode.ScriptLocked)
                         arrivingSamus.Control.Unlock();
                     Phase = DoorTransitionPhase.Complete;
                 }

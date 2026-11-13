@@ -163,7 +163,7 @@ internal static void VerifyReserveAutoRecovery()
     };
     var reserve = new SamusReserveAutoRecoveryState();
     reserve.Begin(samus);
-    AssertTrue(samus.Control.AlphaLocked, "reserve command $1B locks Samus");
+    AssertTrue(samus.Control.InputLocked, "reserve command $1B locks Samus");
 
     SamusReserveAutoRecoveryStep first = reserve.StepAfterFrame(samus, 8);
     AssertEqual(1, samus.Health, "first reserve frame restores one energy");
@@ -174,7 +174,7 @@ internal static void VerifyReserveAutoRecovery()
     SamusReserveAutoRecoveryStep second = reserve.StepAfterFrame(samus, 9);
     AssertEqual(2, samus.Health, "second reserve frame restores one energy");
     AssertEqual(0, samus.ReserveEnergy, "second reserve frame exhausts reserve");
-    AssertTrue(second.Completed && !samus.Control.AlphaLocked,
+    AssertTrue(second.Completed && !samus.Control.InputLocked,
         "empty reserve publishes state eight and command $10 unlocks Samus");
 
     samus.Health = 0;

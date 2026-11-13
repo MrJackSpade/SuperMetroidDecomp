@@ -28,7 +28,7 @@ public sealed class SamusXrayState
     /// <summary>
     /// True while X-Ray owns Samus's input and movement handlers.
     /// The cone effect can remain active after automatic Reserve recovery restores the
-    /// normal handler pair; that game state is the persistent greyout glitch.
+    /// normal input and movement modes; that game state is the persistent greyout glitch.
     /// </summary>
     public bool OwnsSamusControl { get; private set; }
 
@@ -61,7 +61,7 @@ public sealed class SamusXrayState
     public bool ArePaletteFxSuspended =>
         (SuspendedSubsystems & XraySuspendedSubsystems.PaletteFx) != XraySuspendedSubsystems.None;
 
-    /// <summary>Interrupted pose published by alpha, awaiting pose commit in beta.</summary>
+    /// <summary>Interrupted pose published by the input phase, awaiting pose commit in the movement phase.</summary>
     public SamusPoseId? PendingActivationPose { get; private set; }
 
     /// <summary>X-ray freezes enemy/projectile/room-object/animated-tile time.</summary>
@@ -339,7 +339,7 @@ public sealed class SamusXrayState
         }
 
         // The game waits until the final visible turning frame has exactly one tick left.
-        // Its beta movement handler does nothing for a grounded turn, so generic animation owns this
+        // Its movement handler does nothing for a grounded turn, so generic animation owns this
         // countdown without X-ray's usual per-frame timer reset.
         if (samus.AnimationFrame != 2 || !samus.AnimationFrameTimer.IsAt(1))
             return default;

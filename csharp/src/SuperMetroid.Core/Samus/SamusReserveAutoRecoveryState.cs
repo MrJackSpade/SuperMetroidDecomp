@@ -31,7 +31,7 @@ public sealed class SamusReserveAutoRecoveryState
         // If X-Ray installed its own pair earlier in this gameplay frame, the reserve-recovery
         // lock replaces those handlers without ending the independently running cone effect.
         // It leaves Mother Brain's rainbow-beam pair in place.
-        bool rainbowBeam = samus.Control.Mode.Beta == SamusBetaHandler.RainbowBeam;
+        bool rainbowBeam = samus.Control.Mode.Movement == SamusMovementMode.RainbowBeam;
         if (!rainbowBeam)
             samus.Xray.RelinquishSamusControlForReserveRecovery();
         samus.Xray.FreezeSharedTimeForReserveRecovery();
@@ -74,7 +74,7 @@ public sealed class SamusReserveAutoRecoveryState
             samus.Xray.ClearSharedFreezeForReserveMode();
             // Restoring Samus's control reinstalls the ordinary input/movement handlers unless
             // Mother Brain's rainbow-beam pair holds them.
-            if (samus.Control.Mode.Beta != SamusBetaHandler.RainbowBeam)
+            if (samus.Control.Mode.Movement != SamusMovementMode.RainbowBeam)
                 samus.Control.Unlock();
             IsActive = false;
         }

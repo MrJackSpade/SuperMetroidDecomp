@@ -6,8 +6,8 @@ using SuperMetroid.Core.World;
 namespace SuperMetroid.Core.Samus;
 
 /// <summary>
-/// One gameplay frame of the Samus handler: the values alpha samples before movement and the ones
-/// beta and the animation transitions update, shared by <see cref="SuperMetroidRuntime"/> and
+/// One gameplay frame of the Samus handler: the values the input phase samples before movement and the ones
+/// the movement phase and the animation transitions update, shared by <see cref="SuperMetroidRuntime"/> and
 /// <see cref="SamusFramePhases"/>. Each value changes only through the sampling operation that names its point in
 /// the handler sequence.
 /// </summary>
@@ -16,11 +16,11 @@ internal sealed class SamusHandlerFrame
     /// <summary>Samus's camera point carried across the frame boundary; movement and the frame tail advance it.</summary>
     internal FixedPosition<RoomPixels> PreviousCameraPoint { get; private set; }
 
-    /// <summary>The pose alpha sampled before any movement.</summary>
+    /// <summary>The pose the input phase sampled before any movement.</summary>
     internal SamusPoseId PoseAtFrameStart { get; private set; }
 
-    /// <summary>The pose beta dispatches on, which the enemy update can replace after alpha.</summary>
-    internal SamusPoseId PoseAtBetaMovement { get; private set; }
+    /// <summary>The pose the movement phase dispatches on, which the enemy update can replace after the input phase.</summary>
+    internal SamusPoseId PoseAtMovement { get; private set; }
 
     /// <summary>The movement type of the pose at frame start.</summary>
     internal SamusMovementType MovementTypeAtFrameStart { get; private set; }
@@ -41,8 +41,8 @@ internal sealed class SamusHandlerFrame
     internal bool UsePoseDefinitionFallback { get; private set; }
 
     /// <summary>
-    /// The alpha installed at the frame's start and the beta the frame dispatches, read from the installed pair when
-    /// alpha begins and again before beta; beta-handler gates read <see cref="SamusControlMode.Beta"/>.
+    /// The input mode installed at the frame's start and the movement mode the frame runs, read from the installed modes when
+    /// the input phase begins and again before the movement phase; movement-mode gates read <see cref="SamusControlMode.Movement"/>.
     /// </summary>
     internal SamusControlMode Mode { get; private set; }
 
@@ -50,7 +50,7 @@ internal sealed class SamusHandlerFrame
     internal bool DeceleratingFallbackHasMomentum { get; private set; }
 
     /// <summary>
-    /// Whether Samus movement was enabled when alpha's head finished; alpha's tail, the resample after the enemy update and beta
+    /// Whether Samus movement was enabled when the input phase's head finished; the input phase's tail, the resample after the enemy update and the movement phase
     /// movement run only then.
     /// </summary>
     internal bool MovementEnabled { get; private set; }
@@ -59,27 +59,27 @@ internal sealed class SamusHandlerFrame
     internal bool EnemyMainAlreadyRan { get; private set; }
 
     /// <summary>
-    /// Whether that hoisted enemy update restored the normal handler pair (the gunship). The locked alpha has
-    /// already been installed for this frame, so only alpha's checks still see the lock.
+    /// Whether that hoisted enemy update restored the normal modes (the gunship). The locked input mode has
+    /// already been installed for this frame, so only the input phase's checks still see the lock.
     /// </summary>
-    internal bool EnemyMainReleasedAlphaLock { get; private set; }
+    internal bool EnemyMainReleasedInputLock { get; private set; }
 
     /// <summary>Whether X-ray owns pose input this frame.</summary>
     internal bool XrayOwnsPoseInput { get; private set; }
 
-    /// <summary>Whether the locked alpha, a bomb jump, Shinespark or Crystal Flash, or the elevator locks pose input.</summary>
+    /// <summary>Whether the locked input mode, a bomb jump, Shinespark or Crystal Flash, or the elevator locks pose input.</summary>
     internal bool ActorLocksPoseInput { get; private set; }
 
     /// <summary>Whether the posture-transition input dispatcher, an empty handler, skips pose input.</summary>
     internal bool PostureTransitionSkipsPoseInput { get; private set; }
 
-    /// <summary>Whether ordinary alpha's HUD, bomb and projectile owners run.</summary>
-    internal bool AlphaRuns { get; private set; }
+    /// <summary>Whether the ordinary input phase's HUD, bomb and projectile owners run.</summary>
+    internal bool InputHandlingRuns { get; private set; }
 
-    /// <summary>Whether grapple owns beta movement.</summary>
+    /// <summary>Whether grapple owns movement.</summary>
     internal bool GrappleOwnsMovement { get; private set; }
 
-    /// <summary>Whether the grapple-release mover keeps alpha's pending aim or turn transition.</summary>
+    /// <summary>Whether the grapple-release mover keeps the input phase's pending aim or turn transition.</summary>
     internal bool GrappleReleaseAcceptsPoseInput { get; private set; }
 
     /// <summary>Samples Samus's camera point carried across the frame boundary.</summary>
@@ -88,11 +88,11 @@ internal sealed class SamusHandlerFrame
     /// <summary>Replaces the camera point's whole pixels with a grapple snap's corrected position, keeping its subpositions.</summary>
     internal void SnapCameraPoint(Position16<RoomPixels> whole) => PreviousCameraPoint = PreviousCameraPoint.WithWhole(whole);
 
-    /// <summary>Samples the pose alpha dispatches on, which beta also dispatches on until the enemy update replaces it.</summary>
+    /// <summary>Samples the pose the input phase dispatches on, which the movement phase also dispatches on until the enemy update replaces it.</summary>
     internal void SampleFrameStartPose(SamusPoseId pose)
     {
         PoseAtFrameStart = pose;
-        PoseAtBetaMovement = pose;
+        PoseAtMovement = pose;
     }
 
     /// <summary>Samples the movement type of the pose at frame start.</summary>
@@ -101,7 +101,7 @@ internal sealed class SamusHandlerFrame
     /// <summary>Samples whether the death sequence owns Samus this frame.</summary>
     internal void SampleDeathOwnership(bool owns) => DeathOwnsSamus = owns;
 
-    /// <summary>Records the handler pair the frame dispatches and X-ray's hold on pose input, before X-ray admission runs.</summary>
+    /// <summary>Records the modes the frame runs and X-ray's hold on pose input, before X-ray admission runs.</summary>
     internal void BeginControl(SamusControlMode mode, bool xrayOwnsPoseInput, SamusMovementType movementBeforeXray)
     {
         Mode = mode;
@@ -111,13 +111,13 @@ internal sealed class SamusHandlerFrame
     }
 
     /// <summary>
-    /// Samples what locks pose input: Samus's bomb jump, the live alpha lock, <paramref name="otherActorLocks"/> (Shinespark,
+    /// Samples what locks pose input: Samus's bomb jump, the live input lock, <paramref name="otherActorLocks"/> (Shinespark,
     /// Crystal Flash or the elevator), and the posture-transition dispatcher's empty handler.
     /// </summary>
     internal void SamplePoseInputLocks(SamusState samus, bool otherActorLocks)
     {
         BombJumpLocksPoseInput = samus.BombJumpPoseInputLocked;
-        ActorLocksPoseInput = AlphaInputLocked(samus) || BombJumpLocksPoseInput || otherActorLocks;
+        ActorLocksPoseInput = InputHandlingLocked(samus) || BombJumpLocksPoseInput || otherActorLocks;
         PostureTransitionSkipsPoseInput = MovementTypeAtFrameStart == SamusMovementType.PostureTransition;
     }
 
@@ -128,36 +128,36 @@ internal sealed class SamusHandlerFrame
         DeceleratingFallbackHasMomentum = samus.HorizontalSpeed.HasBaseSpeed;
     }
 
-    /// <summary>Samples whether Samus movement is enabled as alpha's head finishes.</summary>
+    /// <summary>Samples whether Samus movement is enabled as the input phase's head finishes.</summary>
     internal void SampleMovementEnabled(bool enabled) => MovementEnabled = enabled;
 
-    /// <summary>Samples whether ordinary alpha's HUD, bomb and projectile owners run.</summary>
-    internal void SampleAlphaRuns(bool runs) => AlphaRuns = runs;
+    /// <summary>Samples whether the ordinary input phase's HUD, bomb and projectile owners run.</summary>
+    internal void SampleInputHandlingRuns(bool runs) => InputHandlingRuns = runs;
 
     /// <summary>Records that X-ray took control of Samus during this frame.</summary>
     internal void MarkXrayActivated() => XrayActivatedThisFrame = true;
 
-    /// <summary>Records whether grapple owns beta movement.</summary>
+    /// <summary>Records whether grapple owns movement.</summary>
     internal void SampleGrappleOwnership(bool owns) => GrappleOwnsMovement = owns;
 
-    /// <summary>Replaces the beta handler the frame runs, which an actor's control setup does before it runs.</summary>
-    internal void ReplaceBeta(SamusBetaHandler beta) => Mode = Mode with { Beta = beta };
+    /// <summary>Replaces the movement mode the frame runs, which an actor's control setup does before it runs.</summary>
+    internal void ReplaceMovementMode(SamusMovementMode movement) => Mode = Mode with { Movement = movement };
 
-    /// <summary>Records whether the grapple-release mover keeps alpha's pending aim or turn transition.</summary>
+    /// <summary>Records whether the grapple-release mover keeps the input phase's pending aim or turn transition.</summary>
     internal void SampleGrappleReleasePoseInput(bool accepts) => GrappleReleaseAcceptsPoseInput = accepts;
 
-    /// <summary>Samples the pose beta movement dispatches on.</summary>
-    internal void SampleBetaMovementPose(SamusPoseId pose) => PoseAtBetaMovement = pose;
+    /// <summary>Samples the pose movement dispatches on.</summary>
+    internal void SampleMovementPose(SamusPoseId pose) => PoseAtMovement = pose;
 
     /// <summary>Records whether the enemy update ran before Samus because this frame has no movement to wait for.</summary>
     internal void RecordHoistedEnemyMain(bool hoisted) => EnemyMainAlreadyRan = hoisted;
 
-    /// <summary>Records whether that hoisted enemy update restored the normal handler pair.</summary>
-    internal void RecordEnemyMainReleasedAlphaLock(bool released) => EnemyMainReleasedAlphaLock = released;
+    /// <summary>Records whether that hoisted enemy update restored the normal modes.</summary>
+    internal void RecordEnemyMainReleasedInputLock(bool released) => EnemyMainReleasedInputLock = released;
 
     /// <summary>
-    /// Whether this frame's alpha handler is the locked one installed at its start. Read live at each check: X-ray
+    /// Whether this frame's input mode is the locked one installed at its start. Read live at each check: X-ray
     /// admission can change the lock between them.
     /// </summary>
-    internal bool AlphaInputLocked(SamusState samus) => samus.Control.AlphaLocked || EnemyMainReleasedAlphaLock;
+    internal bool InputHandlingLocked(SamusState samus) => samus.Control.InputLocked || EnemyMainReleasedInputLock;
 }

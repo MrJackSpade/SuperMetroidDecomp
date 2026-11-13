@@ -43,7 +43,7 @@ internal static class GunshipEscapeTimerVerification
         runtime.EscapeTimer.SelectRunningPhase(EscapeTimerPhase.InPlace);
         runtime.EscapeTimer.SetRemaining(EscapeTimerClock.Time(2, 59, 50));
         runtime.StepFrame(0);
-        AssertTrue(samus.Control.Mode.Beta != SamusBetaHandler.Gunship, "Idle ship retains normal Samus handler");
+        AssertTrue(samus.Control.Mode.Movement != SamusMovementMode.Gunship, "Idle ship retains normal Samus handler");
         AssertTrue(TimerSpritesPresent(), "Ordinary escape timer remains visible before boarding");
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWholeY(0x0440);

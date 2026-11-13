@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// The elevator journey state the runtime reads and the operations it performs on it at fixed phase points. Reads are
-/// live: alpha, beta and the door transition see the state after their own updates within the frame.
+/// live: input, movement and the door transition see the state after their own updates within the frame.
 /// </summary>
 internal interface IElevatorJourney
 {

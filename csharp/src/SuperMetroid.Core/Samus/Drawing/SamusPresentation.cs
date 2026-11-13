@@ -177,7 +177,7 @@ internal sealed class SamusPresentation
     /// <remarks>
     /// Crystal Flash writes the frame and timer directly. This narrow internal
     /// seam preserves the ordering: movement writes the pair, then animation later
-    /// in beta immediately decrements the newly written timer.
+    /// in the movement phase immediately decrements the newly written timer.
     /// </remarks>
     internal static void SetAnimationFrameFromSpecialHandler(SamusState samus, int frame, int timer)
     {
@@ -263,12 +263,12 @@ internal sealed class SamusPresentation
             case SamusAnimationTurnTransition turn:
                 // A jump the pose input already selected survives the turn's final frame; checking held Jump instead
                 // would accept inputs the pose input never matched.
-                if (!samus.Control.AlphaLocked && !demoPoseInput && prospectiveInputPose is
+                if (!samus.Control.InputLocked && !demoPoseInput && prospectiveInputPose is
                     SamusPoseId.NeutralJumpTransitionRightPose or
                     SamusPoseId.NeutralJumpTransitionLeftPose or
                     SamusPoseId.SpinJumpRightPose or SamusPoseId.SpinJumpLeftPose)
                     return;
-                if (!samus.Control.AlphaLocked && !demoPoseInput) samus.InputSnapshot.AutoJumpInputPending = true;
+                if (!samus.Control.InputLocked && !demoPoseInput) samus.InputSnapshot.AutoJumpInputPending = true;
                 // The transition neither selects a new delay nor advances the shown frame; the pose transitions that
                 // follow the animation consume it.
                 samus.PendingTransitionalPose = turn.Pose;

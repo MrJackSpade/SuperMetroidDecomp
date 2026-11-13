@@ -935,7 +935,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
                     hooks.ResolveBeforeOrdinaryHits(frame);
                 Collision.ResolveOrdinaryProjectileHits(frame.SamusProjectiles, frame.SharedProjectiles,
                     frame.Samus, slot);
-                // Alpha already updated the bomb slots. The enemy pass checks
+                // The input phase already updated the bomb slots. The enemy pass checks
                 // them before this actor's touch and AI, so escape starts now.
                 Collision.ResolveOrdinaryBombHits(frame.SharedProjectiles, frame.SamusProjectiles, frame.Samus, slot);
                 if (slot.DefinitionId == EnemyDefinitionId.None)

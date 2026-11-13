@@ -86,7 +86,7 @@ internal static class SamusAerialPoseTransitions
 
         samus.Pose = targetPose;
         // The changed-pose collision keeps the source collision radius for the rest of this update.
-        // Alpha's SetRadius publishes the new pose radius on the next update.
+        // The input phase's SetRadius publishes the new pose radius on the next update.
         samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
 
         // Aim may cancel the spin into a pose that consumes stored shine. Run that
@@ -107,7 +107,7 @@ internal static class SamusAerialPoseTransitions
             return true;
 
         // Publishes the newly installed pose's shot direction on the exact Fire
-        // edge that selected this record. The projectile producer consumes it in alpha.
+        // edge that selected this record. The projectile producer consumes it in the input phase.
         if ((controllerNewInput & ControllerButton.X) != ControllerButton.None)
             samus.PendingTransitionShot = new SamusTransitionShot(SamusPoseMetadata.ReadAimDirection(samus));
 
@@ -209,7 +209,7 @@ internal static class SamusAerialPoseTransitions
         // A crouch substitution never reaches the aerial-turn momentum initializer.
         SamusGroundedPoseTransitions.FoldExtraRunSpeedIntoBaseAndStartTurn(samus);
         samus.Pose = selectedTurnPose;
-        // The changed-pose handler preserves the source radius until next alpha.
+        // The changed-pose handler preserves the source radius until the next input phase.
         samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
         SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
         return true;
@@ -309,7 +309,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
             samus.HorizontalSpeed.RequestNormalSuitPaletteRestore();
 
         samus.Pose = targetPose;
-        // Leaves the collision radius at the spin body's radius; alpha's radius update takes
+        // Leaves the collision radius at the spin body's radius; the input phase's radius update takes
         // the wall-jump body only next frame, so this frame's enemy and projectile
         // collision still use the compact spin radius.
 
@@ -881,8 +881,8 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         samus.Pose = targetPose is SamusPoseId.SpinJumpRightPose or SamusPoseId.SpinJumpLeftPose
             ? SelectEquippedSpinPose(samus, targetPose)
             : targetPose;
-        // Pose dispatch happens after movement. The next alpha phase, including
-        // the intro-demo alpha handler, owns publication of the new live radius.
+        // Pose dispatch happens after movement. The next input phase, including
+        // the intro-demo input mode, owns publication of the new live radius.
         SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
         SamusAerialMovement.InitializeJump(samus);
 
@@ -1042,7 +1042,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         if (sourcePose != samus.Pose)
         {
             // Pose collision uses prospective geometry; the live radius belongs to
-            // the current frame's alpha and changes only at the next alpha.
+            // the current frame's input phase and changes only at the next input phase.
             // Successful expansion still runs the normal-jump initializer. A stored
             // shine may replace the requested aim pose; collision rejection above must
             // not consume the charge or apply the windup's one-pixel adjustment.

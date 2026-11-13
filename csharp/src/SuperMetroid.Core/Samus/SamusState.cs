@@ -23,7 +23,7 @@ public sealed class SamusState
     /// <summary>The <see cref="SamusHudSelection"/> owner of this SamusState.</summary>
     internal SamusHudSelection HudSelection { get; }
 
-    /// <summary>The installed frame-handler pair and the control setups that replace it.</summary>
+    /// <summary>The installed input and movement modes and the control setups that replace them.</summary>
     internal SamusControl Control { get; } = new();
 
     /// <summary>Samus as room objects read and change her.</summary>
@@ -511,8 +511,8 @@ public sealed class SamusState
     internal UnauthoredBoostCadence UnauthoredBoostCadence { get; }
 
     /// <summary>
-    /// Room-dependent admission for the spike block's first common reaction, populated by the alpha-phase
-    /// inside-block owner before beta movement reaches a directional collision scan.
+    /// Room-dependent admission for the spike block's first common reaction, populated by the input-phase
+    /// inside-block owner before movement reaches a directional collision scan.
     /// </summary>
     internal bool HeavySpikeDamageEnabled { get; set; } = true;
 
@@ -780,7 +780,7 @@ level, probe, this, amount, scanLeftToRight, roomObjects);
         Pose = fallbackPose;
         int fallbackRadius = SamusPoseMetadata.ReadPoseYRadius(fallbackPose);
         // The collision fallback reads the prospective radius for center correction,
-        // but leaves the live radius untouched until the next ordinary alpha phase.
+        // but leaves the live radius untouched until the next ordinary input phase.
         if (oldRadius < fallbackRadius)
         {
             // Subtracts the extra crouch radius from center Y. This is
@@ -864,7 +864,7 @@ level, probe, this, amount, scanLeftToRight, roomObjects);
         return written;
     }
 
-    /// <summary>Persistent low-energy warning state, shared by beta and reserve recovery.</summary>
+    /// <summary>Persistent low-energy warning state, shared by the movement phase and reserve recovery.</summary>
     public SamusHealthWarningState HealthWarning => field ??= new();
 
     /// <summary>

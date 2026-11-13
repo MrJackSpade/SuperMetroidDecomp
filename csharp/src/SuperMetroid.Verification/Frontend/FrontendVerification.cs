@@ -351,7 +351,7 @@ internal static void VerifySavedGameLoadAppearance()
         "saved-game load enters command-nine appearance handler");
     AssertEqual(0x0168, runtime.SamusLoadAppearanceFramesRemaining,
         "saved-game appearance uses native 360-frame fanfare lifetime");
-    AssertTrue(runtime.Player.Samus is { Control.AlphaLocked: true } &&
+    AssertTrue(runtime.Player.Samus is { Control.InputLocked: true } &&
         SamusPoseMetadata.IsForwardFacingPose(runtime.Player.Samus.Pose),
         "saved-game appearance begins locked and front-facing");
     AssertTrue(runtime.RoomObjects.StationSnapshots.Where(station => station.Kind == StationKind.Save)
@@ -373,7 +373,7 @@ internal static void VerifySavedGameLoadAppearance()
     AssertEqual(SamusPoseMetadata.ReadMovementType(runtime.Player.IntroducedSamus),
         appearanceHistory.PreviousMovement, "appearance completion commits current metadata");
     AssertTrue(!runtime.SamusLoadAppearanceActive &&
-        runtime.Player.Samus is { Control.AlphaLocked: false },
+        runtime.Player.Samus is { Control.InputLocked: false },
         "saved-game appearance restores ordinary input on call 360");
     AssertTrue(!runtime.MessageBox.IsActive,
         "save pod cannot immediately reopen after a load in the same room entry");

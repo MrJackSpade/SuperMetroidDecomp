@@ -32,13 +32,13 @@ internal static class MotherBrainFakeDeathLockVerification
         state.PhaseTimer = 0;
 
         runtime.Enemies.MotherBrainBehavior.RunMotherBrainFakeDeath(state, samus);
-        AssertTrue(samus.Control.AlphaLocked && samus.Control.Mode.Beta == SamusBetaHandler.ScriptLocked,
+        AssertTrue(samus.Control.InputLocked && samus.Control.Mode.Movement == SamusMovementMode.ScriptLocked,
             "the descent locks Samus with command zero's stationary handlers");
 
         state.Phase = MotherBrainBodyPhase.FakeDeathDescentPauseBeforeUnlock;
         state.PhaseTimer = 0;
         runtime.Enemies.MotherBrainBehavior.RunMotherBrainFakeDeath(state, samus);
-        AssertTrue(!samus.Control.AlphaLocked && samus.Control.Mode.Beta != SamusBetaHandler.ScriptLocked,
+        AssertTrue(!samus.Control.InputLocked && samus.Control.Mode.Movement != SamusMovementMode.ScriptLocked,
             "command one restores the normal handlers");
         Console.WriteLine("  Mother Brain fake-death lock: command zero locks Samus, command one frees her.");
     }

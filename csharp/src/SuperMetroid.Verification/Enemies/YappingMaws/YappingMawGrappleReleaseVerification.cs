@@ -53,16 +53,16 @@ internal static class YappingMawGrappleReleaseVerification
         // completes in the next frame's handler, before the Maw's delay underflows.
         runtime.StepFrame((ControllerButton.Left | ControllerButton.X | ControllerButton.R));
         AssertEqual(GrapplePhase.Dropped, samus.Grapple.Phase, "command three queues the C8C5 drop while held");
-        AssertTrue(samus.Control.AlphaLocked && maw.HasGrabbedSamus, "Maw retains input until native delay underflows");
+        AssertTrue(samus.Control.InputLocked && maw.HasGrabbedSamus, "Maw retains input until native delay underflows");
         runtime.StepFrame((ControllerButton.B | ControllerButton.Left | ControllerButton.R));
         SamusPoseId heldPose = samus.Pose;
         var heldMovement = runtime.Player.LastGrappleMovement;
-        Console.WriteLine($"Maw drop frame: pose=${(int)SamusPoseNumbers.Number(heldPose):X2}, grapple={samus.Grapple.Phase}, locked={samus.Control.AlphaLocked}.");
+        Console.WriteLine($"Maw drop frame: pose=${(int)SamusPoseNumbers.Number(heldPose):X2}, grapple={samus.Grapple.Phase}, locked={samus.Control.InputLocked}.");
         AssertEqual(GrapplePhase.Inactive, samus.Grapple.Phase, "the next grapple handler completes the queued drop");
         AssertEqual(SamusPoseId.FacingLeftNormalPose, heldPose, "command three drops swing to native standing pose while held");
         // Only the `$9B:C8C5` drop completion publishes a deferred drop pose.
         AssertTrue(heldMovement is { Phase: GrapplePhase.Inactive, PendingDropPose: SamusPoseId.FacingLeftNormalPose }, "Maw uses C8C5 deferred drop, not C856 cancellation");
-        AssertTrue(!samus.Control.AlphaLocked && !maw.HasGrabbedSamus, "native timer expiry releases player control");
+        AssertTrue(!samus.Control.InputLocked && !maw.HasGrabbedSamus, "native timer expiry releases player control");
         AssertTrue(SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.Grappling, "released Samus has an ordinary movement body");
         runtime.StepFrame((ControllerButton.Left | ControllerButton.X | ControllerButton.R));
         AssertTrue(runtime.Player.LastGrappleMovement is { Fired: true }, "released control accepts a new shoot edge as a new grapple");

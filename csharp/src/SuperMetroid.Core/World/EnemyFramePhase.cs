@@ -70,7 +70,7 @@ internal sealed class EnemyFramePhase
         }
     }
 
-    /// <summary>Runs the enemy pass after Samus alpha and projectiles, then applies enemy-authored palette, scroll, escape, per-line effect, and player handoffs before beta movement.</summary>
+    /// <summary>Runs the enemy pass after Samus's input phase and projectiles, then applies enemy-authored palette, scroll, escape, per-line effect, and player handoffs before movement.</summary>
     /// <param name="processingList">
     /// True in main gameplay, whose frame start already built the processing list. Door-transition
     /// enemy passes build the list immediately before the enemy pass instead.
@@ -95,7 +95,7 @@ internal sealed class EnemyFramePhase
                 SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem.LoadBeamPalette(_player.Colours, hyperBeamSamus.EquippedBeams);
             if (result.Elevator == ElevatorFrameEvent.DepartureStarted)
             {
-                // Making Samus face forward clears all pending pose requests after alpha
+                // Making Samus face forward clears all pending pose requests after the input phase
                 // has sampled this frame's controls. Do not apply that stale Down
                 // crouch request to the new forward-facing, elevator-owned body.
                 _player.ProspectiveSamusPose = null;
@@ -109,7 +109,7 @@ internal sealed class EnemyFramePhase
             if (result.DraygonDiscardedSamusPoseRequests)
             {
                 // The grab and release discard the transitions
-                // alpha chose for the old pose, including the no-input fallback that shares the
+                // the input phase chose for the old pose, including the no-input fallback that shares the
                 // prospective-pose slot.
                 _player.ProspectiveSamusPose = null;
                 _player.ProspectiveSamusFallbackPose = null;

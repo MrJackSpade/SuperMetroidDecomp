@@ -8,7 +8,7 @@ using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
-/// Grounded Samus alpha/beta subset shared by the discovery and Mother Brain intro demos.
+/// Grounded Samus input/movement subset shared by the discovery and Mother Brain intro demos.
 /// </summary>
 /// <remarks>
 /// The shared movement and pose classes remain the authorities. This coordinator preserves
@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// </remarks>
 internal static class IntroSamusDemoMovement
 {
-    /// <summary>Runs the left-facing intro demo's alpha/beta movement, then animation and prospective-pose commit in gameplay order.</summary>
+    /// <summary>Runs the left-facing intro demo's input and movement phases, then animation and prospective-pose commit in gameplay order.</summary>
     public static void StepGroundedLeft(
 
         RoomLevelData level,
@@ -105,7 +105,7 @@ internal static class IntroSamusDemoMovement
 
         if (fallback == poseAtFrameStart)
         {
-            // Decelerating rechecks speed after beta movement. A remaining residue
+            // Decelerating rechecks speed after movement. A remaining residue
             // selects the decelerating mode; exact zero lets next frame choose standing.
             samus.HorizontalSpeed.AccelerationMode =
                 samus.HorizontalSpeed.HasBaseSpeed ? SamusAccelerationMode.Decelerating : SamusAccelerationMode.Accelerating;

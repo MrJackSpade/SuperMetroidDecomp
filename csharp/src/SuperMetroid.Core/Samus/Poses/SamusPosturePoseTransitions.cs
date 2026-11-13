@@ -61,7 +61,7 @@ internal static class SamusPosturePoseTransitions
         samus.Pose = targetPose;
         // Explicitly publishes the previous pose's radius while probing the
         // enlargement, and this direct transition does not set the radius afterward.
-        // Ordinary alpha publishes the standing radius at the start of the next frame.
+        // The ordinary input phase publishes the standing radius at the start of the next frame.
         samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
         SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
         return true;
@@ -122,7 +122,7 @@ internal static class SamusPosturePoseTransitions
         samus.Pose = targetPose;
         samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
 
-        // Alpha owns the new radius next frame; collision correction and jump setup
+        // The input phase owns the new radius next frame; collision correction and jump setup
         // below must not publish it during this frame's pose-commit stage.
         // The normal-jumping jump transition performs this after pose
         // initialization/collision but before the jump starts. It writes only current Y;
@@ -249,7 +249,7 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.CrouchEntryD
         samus.Pose = targetPose;
         // Restores the source radius before returning. The prospective
         // standing-transition geometry was used only by the collision probes above;
-        // ordinary alpha publishes the target radius at the start of the next frame.
+        // the ordinary input phase publishes the target radius at the start of the next frame.
         // Keeping that one-frame handoff is observable when the crouched body is resting
         // on a frozen enemy inside a ceiling, as in the Botwoon-pipe Mochtroid clip.
         samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
@@ -377,7 +377,7 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.MorphEntryDo
         // Unmorph uses the same posture change as morph. Its zero
         // alignment-table entry does not bypass the subsequent bounce cancellation.
         // The prospective collision probes used the target radius, but the live
-        // radius remains unchanged until alpha sets the radius next frame. This
+        // radius remains unchanged until the input phase sets the radius next frame. This
         // matters to the later enemy-projectile pickup overlap tests.
         CancelBounceForPostureTransition(samus);
         SamusPresentation.InitializeAnimation(samus, initialFrame: 0);

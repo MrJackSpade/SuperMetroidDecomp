@@ -759,7 +759,7 @@ internal sealed class RoomLoader
         // black silhouette after every ordinary desktop door transition.
         SuperMetroid.Core.Samus.Palettes.SamusNormalSuitPalette.Load(_player.Colours, _player.Samus.EquippedItems);
 
-        // The door loader sets no Samus radius; the next unlocked alpha's radius update
+        // The door loader sets no Samus radius; the next unlocked input mode's radius update
         // does, so an elevator rider keeps the boarding pose's radius through the door.
         _player.Samus.LiquidPhysics.RoomIdentity = room.Identity;
         _player.GroundedSamusMovementEnabled = true;

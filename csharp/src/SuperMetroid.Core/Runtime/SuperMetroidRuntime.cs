@@ -480,7 +480,7 @@ internal sealed class SuperMetroidRuntime
         if (Player.Samus is not null && Room.Camera is not null)
         {
             RunSamusAndEnemyMain(context, Player.Samus, Room.Camera, frameRequest.Audio);
-            bool deathOwnsSamus = context.Samus.Mode.Beta == SamusBetaHandler.Fatal;
+            bool deathOwnsSamus = context.Samus.Mode.Movement == SamusMovementMode.Fatal;
             if (!deathOwnsSamus)
                 DoorTransition.RunEnemyProjectileHandler(Room.LoadedScope.BombProjectiles, Room.LoadedScope);
             RoomObjectPhase.RunObjectPhase(deathOwnsSamus, Player.Samus, Room.LoadedScope.RoomObjects, Room.LoadedScope.BombProjectiles, Room.LoadedScope);
@@ -653,31 +653,31 @@ internal sealed class SuperMetroidRuntime
     private void PrepareEnemiesAndHoistedEnemyMain(GameplayFrameContext context)
     {
         EnemyPhase.PrepareEnemyFrame(Room.LoadedScope);
-        // Host-disabled Samus movement has no alpha phase to wait for. Otherwise
-        // defer actors until projectile production/update, immediately before beta.
+        // Host-disabled Samus movement has no input phase to wait for. Otherwise
+        // defer actors until projectile production/update, immediately before the movement phase.
         SamusHandlerFrame frame = context.Samus;
         frame.RecordHoistedEnemyMain(Player.Samus is null || Room.Camera is null || !Player.GroundedSamusMovementEnabled);
-        // The enemy phase follows Samus's alpha handler. An actor that restores the
-        // normal handler pair there (the gunship) affects this frame's beta only:
-        // the locked alpha has already run, so it still sees the lock below.
+        // The enemy phase follows Samus's input mode. An actor that restores the
+        // normal modes there (the gunship) affects this frame's movement phase only:
+        // the locked input mode has already run, so it still sees the lock below.
         if (frame.EnemyMainAlreadyRan)
         {
-            bool lockedBeforeEnemyMain = Player.Samus?.Control.AlphaLocked == true;
+            bool lockedBeforeEnemyMain = Player.Samus?.Control.InputLocked == true;
             EnemyPhase.RunEnemyMainPhase(processingList: EnemyProcessingList.Prepared,
                 Room.Camera?.PreviousSamusPoint ?? context.SamusCameraPointAtFrameStart, Room.LoadedScope);
-            frame.RecordEnemyMainReleasedAlphaLock(lockedBeforeEnemyMain && Player.Samus?.Control.AlphaLocked == false);
+            frame.RecordEnemyMainReleasedInputLock(lockedBeforeEnemyMain && Player.Samus?.Control.InputLocked == false);
         }
     }
 
-    /// <summary>Runs the frame handler's alpha, the enemy phase, the resample after it and beta, in the game's order.</summary>
+    /// <summary>Runs the input phase, the enemy phase, the resample after it and the movement phase, in the game's order.</summary>
     private void RunSamusAndEnemyMain(GameplayFrameContext context, SamusState samus, ScrollBoundaryCamera camera, RuntimeFrameAudio audio)
     {
         SamusHandlerFrame frame = context.Samus;
-        SamusPhases.RunAlpha(frame, RunningGameState, samus, camera, context.SamusCameraPointAtFrameStart, Room.LoadedScope);
+        SamusPhases.RunInputPhase(frame, RunningGameState, samus, camera, context.SamusCameraPointAtFrameStart, Room.LoadedScope);
         if (frame.MovementEnabled && !frame.EnemyMainAlreadyRan)
             EnemyPhase.RunEnemyMainPhase(processingList: EnemyProcessingList.Prepared, frame.PreviousCameraPoint, Room.LoadedScope);
         SamusPhases.RunPostEnemyMainResample(frame, samus, Room.LoadedScope.BombProjectiles, Room.LoadedScope.Projectiles, Room.LoadedScope);
-        SamusPhases.RunBeta(frame, samus, camera, audio, Room.LoadedScope);
+        SamusPhases.RunMovementPhase(frame, samus, camera, audio, Room.LoadedScope);
     }
 
     /// <summary>Opens the gunship's save prompt at the shared suspension seam after the room objects.</summary>
@@ -722,7 +722,7 @@ internal sealed class SuperMetroidRuntime
     {
         if (frameTail is { } tail && Player.Samus is not null && Room.Camera is not null)
         {
-            bool deathOwnsSamus = tail.Mode.Beta == SamusBetaHandler.Fatal;
+            bool deathOwnsSamus = tail.Mode.Movement == SamusMovementMode.Fatal;
             ResolveEnemyProjectileAndPowerBombHits(Player.Samus, deathOwnsSamus);
             StepCeresElevatorArrival(Player.Samus, deathOwnsSamus);
             RunMainScrolling(Player.Samus, Room.Camera, tail.PreviousCameraPoint, deathOwnsSamus);
@@ -812,7 +812,7 @@ internal sealed class SuperMetroidRuntime
 
             // The main gameplay state runs the main scrolling after movement and room objects and before
             // drawing Samus, enemies and projectiles, regardless of which Samus input handler is
-            // installed. A locked alpha suppresses controller transitions; it does not
+            // installed. A locked input mode suppresses controller transitions; it does not
             // suppress scrolling. That is why the station-eighteen gunship can carry
             // Samus down several screens while her ordinary movement handler is absent.
             if (samus.Grapple.SlowScrolling)
@@ -860,7 +860,7 @@ internal sealed class SuperMetroidRuntime
             // following frame shows the room from level data at the new position.
             BackgroundPhase.UpdateBackgroundScrollingFromCamera(Freeze.TimeIsFrozen);
 
-            // UpdateMinimap belongs to Samus's normal frame-handler beta; it uses world
+            // UpdateMinimap belongs to Samus's normal movement phase; it uses world
             // position, not camera position. Fresh debug sessions begin without an area
             // map, so only tiles actually visited by this runtime are revealed.
             Hud.UpdateMinimap(System, new MinimapFrame { AreaIndex = roomGeometry.AreaIndex, RoomMap = roomGeometry.MapPosition, RoomSize = Room.LevelData.Size, Samus = samus.Position.Whole, FrameCounter = Clock.ShortCounter, MapRevealMode = Assists.Current.MapReveal, PresentationMap = Artwork.MapPresentation?.Get(roomGeometry.AreaIndex) });
@@ -874,20 +874,20 @@ internal sealed class SuperMetroidRuntime
 
         RoomScope scope = Room.LoadedScope;
         ActorDrawing.DrawGameplayActors(scope, deathOwnsSamus ? SamusDrawOwner.DeathSequence : SamusDrawOwner.Gameplay,
-            // The stationary lock's beta handler does not dispatch Samus's
+            // The stationary lock's movement mode does not dispatch Samus's
             // palette effects. In particular, automatic Reserve recovery freezes a
             // stored shine instead of consuming it while Samus is stationary.
-            tail.Mode.Beta is SamusBetaHandler.SuitPickup or SamusBetaHandler.ScriptLocked ? SamusPaletteEffects.Hold : SamusPaletteEffects.Advance);
+            tail.Mode.Movement is SamusMovementMode.SuitPickup or SamusMovementMode.ScriptLocked ? SamusPaletteEffects.Hold : SamusPaletteEffects.Advance);
     }
 
-    /// <summary>Runs the escape-timer handler unless the gunship's beta handler owns the frame.</summary>
+    /// <summary>Runs the escape-timer handler unless the gunship's movement mode owns the frame.</summary>
     private void RunEscapeTimerHandler(SuspendedGameplayFrameTail? frameTail)
     {
-        // The enemy phase can install the gunship's beta handler on this frame.
+        // The enemy phase can install the gunship's movement mode on this frame.
         // It omits the normal timer-drawing call: neither countdown nor its sprites
         // survives boarding, even though timer status stays active. Decide after the
         // actor transition, before liftoff can repurpose the timer's sprite tiles as dust.
-        bool runEscapeTimerHandler = frameTail?.Mode.Beta != SamusBetaHandler.Gunship;
+        bool runEscapeTimerHandler = frameTail?.Mode.Movement != SamusMovementMode.Gunship;
         if (runEscapeTimerHandler && EscapeTimer.Process(Clock.Counter, Assists.Current.EscapeTimerHoldsAtOneSecond))
         {
             // The expired countdown publishes the time-up game state for the
@@ -1075,7 +1075,7 @@ internal sealed class SuperMetroidRuntime
     /// The message runs inside that handler, so a room object that opens a box
     /// suspends the frame; the model parks this state until the box closes.
     /// </summary>
-    /// <param name="Mode">The frame's installed alpha and beta handlers.</param>
+    /// <param name="Mode">The frame's installed input and movement modes.</param>
     /// <param name="PreviousCameraPoint">Samus's camera point carried to the frame tail.</param>
     internal readonly record struct SuspendedGameplayFrameTail(
         SamusControlMode Mode,

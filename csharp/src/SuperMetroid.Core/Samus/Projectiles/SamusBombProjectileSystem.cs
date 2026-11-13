@@ -120,7 +120,7 @@ public sealed class SamusBombProjectileSystem
 
     /// <summary>
     /// Advances the Power Bomb explosion's shape independently of Samus's alpha/input handler.
-    /// Scripted carries suppress alpha but do not stop the per-line effect phase.
+    /// Scripted carries suppress the input phase but do not stop the per-line effect phase.
     /// </summary>
     public void AdvancePowerBombExplosion(
         SamusState samus,
@@ -157,8 +157,8 @@ public sealed class SamusBombProjectileSystem
     }
 
     /// <summary>
-    /// Runs the bomb-owned portion of Samus frame-handler alpha, followed by the enemy
-    /// overlap pass that the main gameplay loop invokes before movement-handler beta: <see cref="RunHudProducer"/>,
+    /// Runs the bomb-owned portion of the input phase, followed by the enemy
+    /// overlap pass that the main gameplay loop invokes before the movement phase: <see cref="RunHudProducer"/>,
     /// then <see cref="HandleBombs"/>.
     /// </summary>
     public void StepFrame(SamusTerrain terrain, SamusState samus, ControllerButton controllerInput, ControllerButton controllerNewInput, BombJumpOverlapPublication overlap = BombJumpOverlapPublication.Immediate, PowerBombExplosionStep explosion = PowerBombExplosionStep.Advance)
@@ -185,13 +185,13 @@ public sealed class SamusBombProjectileSystem
         // therefore reaches zero in time for a new Shoot edge during this same frame.
         // The forward-facing branch skips this call as well
         // as the HUD producer, but must still run the existing projectile slots below.
-        // The stationary lock's alpha runs the projectile update directly, skipping the HUD
+        // The stationary lock's input mode runs the projectile update directly, skipping the HUD
         // dispatcher that owns cooldown and new bomb placement.
-        if (samus.Control.Mode.Beta != SamusBetaHandler.ScriptLocked && !SamusPoseMetadata.IsForwardFacingPose(samus.Pose))
+        if (samus.Control.Mode.Movement != SamusMovementMode.ScriptLocked && !SamusPoseMetadata.IsForwardFacingPose(samus.Pose))
             StepCooldown(samus.Xray.TimeIsFrozen);
 
         bool beamChargeConsumed = false;
-        if (samus.Control.Mode.Beta != SamusBetaHandler.ScriptLocked && SamusPoseMetadata.IsStableBallPose(samus.Pose))
+        if (samus.Control.Mode.Movement != SamusMovementMode.ScriptLocked && SamusPoseMetadata.IsStableBallPose(samus.Pose))
         {
             BombSpreadAdmission spread = HandleBombSpreadInput(samus, controllerInput);
             beamChargeConsumed = spread is
@@ -264,8 +264,8 @@ public sealed class SamusBombProjectileSystem
             projectileDeleted |= AdvanceProjectileAnimation(slot);
         }
 
-        // Main gameplay runs the bomb overlap check after frame-handler alpha (which placed/updated the
-        // bombs) and before beta moves Samus. Store only the direction here. The
+        // Main gameplay runs the bomb overlap check after the input phase (which placed/updated the
+        // bombs) and before the movement phase moves Samus. Store only the direction here. The
         // same frame's hit-interruption phase can arm the bomb movement handler.
         // Runtime defers this until the humanoid shot producer has also run: a
         // shot this frame may suppress overlap before the bomb direction is stored.
@@ -274,7 +274,7 @@ public sealed class SamusBombProjectileSystem
         return publishedDirection;
     }
 
-    /// <summary>Runs the bomb subset of the post-alpha Samus/projectile interaction pass.</summary>
+    /// <summary>Runs the bomb subset of the post-input-phase Samus/projectile interaction pass.</summary>
     public void ResolveSamusOverlap(SamusState samus, int projectileInvincibilityTimer)
     {
         Ensure.NotNull(samus);

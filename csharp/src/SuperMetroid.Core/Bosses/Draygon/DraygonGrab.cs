@@ -323,7 +323,7 @@ internal sealed class DraygonGrab
 
     /// <summary>
     /// Runs <c>ReleaseSamusFromDraygon</c> from Draygon's AI and publishes it so the
-    /// runtime clears the prospective poses alpha already chose, as the grab does.
+    /// runtime clears the prospective poses the input phase already chose, as the grab does.
     /// </summary>
     internal void ReleaseSamusDuringEnemyMain(SamusState samus)
     {

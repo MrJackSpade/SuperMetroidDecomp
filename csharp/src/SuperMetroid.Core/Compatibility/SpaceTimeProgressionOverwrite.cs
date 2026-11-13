@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// <remarks>
 /// Consulted by the SpaceTime shot's frame behaviour during the projectile update, after its animation has installed a
 /// frame. Before that, or with no animation, the copy starts low and ends long before progress. Evidence: the SpaceTime check
-/// replays the native Pit Room probe's two alpha passes, whose corrupted loading state it matches, and runs the original
+/// replays the native Pit Room probe's two input phases, whose corrupted loading state it matches, and runs the original
 /// copy over the cartridge for every position and slot, requiring this service's overwrite to leave every flag of
 /// progress as the copy does.
 /// </remarks>

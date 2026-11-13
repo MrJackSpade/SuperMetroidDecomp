@@ -149,7 +149,7 @@ public sealed class SamusProjectileSystem
         private set => Charge.LastBeamChargePaletteStep = value;
     }
 
-    /// <summary>The last alpha-pass result, whose queued sounds the frontend routes after the frame.</summary>
+    /// <summary>The last input-phase result, whose queued sounds the frontend routes after the frame.</summary>
     public SamusProjectileFrameResult LastFrameResult { get; private set; }
 
     /// <summary>
@@ -356,7 +356,7 @@ public sealed class SamusProjectileSystem
         // the normal beam producer. With grapple inactive that handler does
         // nothing: held/released Shoot must leave the charge untouched.
         // Existing projectiles still advance below. Pose input can leave spin
-        // first, making the normal producer eligible on the following alpha.
+        // first, making the normal producer eligible on the following input phase.
         SamusHudHandler hudHandler = SamusHudObservations.MovementHandler(SamusPoseMetadata.ReadMovementType(samus));
         bool preservesJumpHandlerCharge = samus.Grapple.Phase == GrapplePhase.Inactive &&
             hudHandler == SamusHudHandler.Jump;

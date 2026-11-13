@@ -343,7 +343,7 @@ internal sealed class GameplayActorDrawing
             room.Projectiles.AdvanceTrails(_freeze.TimeIsFrozen);
             room.Projectiles.DrawTrails(_sprites, _room.Camera.PixelPosition, ProjectileArtwork);
 
-            // The post-draw input snapshot survives the next alpha pass. In
+            // The post-draw input snapshot survives the next input phase. In
             // particular, Fire can first cancel a spin and then start Grapple without
             // requiring another physical press after the prospective pose is applied.
             _player.Samus.InputSnapshot.SnapshotDrawInput(_controller1.Current, _controller1.NewlyPressed);

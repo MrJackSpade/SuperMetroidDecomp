@@ -127,7 +127,7 @@ internal static class IntroBabyActorDefinitionsVerification
             "SR388 egg actually deletes on the first reverse-crossfade frame");
         AssertEqual(nativeDemo.Enabled, demo.Enabled,
             "SR388 end-demo enable state matches ROM-backed controller");
-        AssertEqual(reference.Samus.Control.AlphaLocked, discovery.Samus.Control.AlphaLocked,
+        AssertEqual(reference.Samus.Control.InputLocked, discovery.Samus.Control.InputLocked,
             "SR388 end-demo Samus input lock matches ROM-backed controller");
 
         IntroScientistCutsceneState delivery = IntroScientistCutsceneState.CreateDelivery();

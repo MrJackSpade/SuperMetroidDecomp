@@ -65,7 +65,7 @@ internal sealed class AttractGamePhases(FrontendSession session)
                 {
                     session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false }, Audio = GameplayFrameAudio.Attract(session.GameplayRuntime) });
                     session.display.PublishGameplay(session.GameplayRuntime);
-                    // Demo beta has restored the physical controller pair at this point.
+                    // The demo's movement phase has restored the physical controller pair at this point.
                     if (session.GameplayRuntime.Controller1.NewlyPressed != ControllerButton.None)
                         FinishAttractPlayback(end: AttractPlaybackEnd.Cancelled);
                     else

@@ -146,7 +146,7 @@ internal static class GunshipLandingVerification
             "gunship completes post-Ceres landing");
         AssertEqual(641, frames, "gunship full landing frame count");
         AssertEqual(GunshipPhase.Idle, GunshipPartState.Of(top).Phase, "gunship installs ordinary idle function");
-        AssertTrue(!samus.Control.AlphaLocked, "gunship completion restores Samus input handler");
+        AssertTrue(!samus.Control.InputLocked, "gunship completion restores Samus input handler");
         AssertEqual(0x0440, samus.Position.Y.Whole, "gunship raises Samus to deck standing Y");
 
         var openingSound = new SoundRequest(

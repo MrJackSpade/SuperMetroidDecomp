@@ -385,7 +385,7 @@ internal static class GModeGateGlitchVerification
                 accessBlock,
                 RoomBlockBehavior.Reacting(BlockReactionDefinitions.StationAccesses.ReactionFor(StationAccessBehavior.EnergyRight))),
             "G-Mode fixture reaches the resident Energy Station through its real access setup");
-        AssertTrue(samus.Control.AlphaLocked,
+        AssertTrue(samus.Control.InputLocked,
             "station setup executes Samus command six before the suspended PLM handler");
         AssertTrue(roomObjects.StationSnapshots.Single().Triggered,
             "disabled PLM handler leaves the station activation pending");
@@ -398,7 +398,7 @@ internal static class GModeGateGlitchVerification
         roomObjects.Step(level);
         AssertTrue(!roomObjects.StationSnapshots.Single().Triggered,
             "first post-G-Mode PLM pass consumes the pending station setup");
-        AssertTrue(samus.Control.AlphaLocked,
+        AssertTrue(samus.Control.InputLocked,
             "resumed station owns Samus until the full access sequence finishes");
     }
 
@@ -459,7 +459,7 @@ internal static class GModeGateGlitchVerification
             "Power Bomb publishes its hit to the intact glass-tube resident");
         AssertEqual(new ResidentObjectProjectileHit(SamusProjectileFamily.PowerBomb), (roomObjects.PopulationSlots.Single().Behaviour as NoobTubeObject)?.PendingHit,
             "G-Mode-disabled tube retains the pending Power Bomb hit");
-        AssertTrue(!brokenEvent && projectiles.Count == 0 && !samus.Control.AlphaLocked,
+        AssertTrue(!brokenEvent && projectiles.Count == 0 && !samus.Control.InputLocked,
             "without a PLM handler pass the glass tube cannot arm, break, or lock Samus");
         AssertTrue(roomFx.Liquid is RoomWater { IgnoresSurfaceUntilEnabled: true },
             "suspended glass tube leaves Samus ignoring the water's surface");

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// Immutable summary of one ordinary-projectile alpha pass. The pass has already queued its sounds into its audio
+/// Immutable summary of one ordinary-projectile input phase. The pass has already queued its sounds into its audio
 /// requests as it made them; the firing sound is also reported here for a cinematic that plays its projectiles' firing
 /// sound itself.
 /// </summary>

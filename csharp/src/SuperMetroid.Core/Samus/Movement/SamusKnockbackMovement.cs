@@ -143,7 +143,7 @@ public static class SamusKnockbackMovement
 level, targetPose, frameCounter, roomObjects))
                 return false;
             samus.Pose = targetPose;
-            // The interrupted pose commits after movement. Alpha publishes its radius
+            // The interrupted pose commits after movement. The input phase publishes its radius
             // next frame; keep the collision resolver's old live radius through this one.
         }
         else if (unusedMovementSeven)
@@ -277,7 +277,7 @@ level, targetPose, frameCounter, roomObjects))
         SamusPoseId targetPose)
     {
         Ensure.NotNull(samus);
-        // Alpha selects a prospective pose; it does not mutate the live movement type.
+        // The input phase selects a prospective pose; it does not mutate the live movement type.
         // The owning transition dispatcher must resolve higher-priority expiry first.
         bool valid = new SamusPoseChange(sourcePose, targetPose) is
             (SamusPoseId.KnockbackRightPose, SamusPoseId.DamageBoostRightPose) or
@@ -389,7 +389,7 @@ level, targetPose, frameCounter, roomObjects))
     /// <summary>Restores ordinary input and movement ownership and clears hurt motion values after expiry.</summary>
     private static KnockbackMovementResult FinishKnockback(SamusState samus)
     {
-        // Knockback's expiry restores the normal input handler as well as
+        // Knockback's expiry restores the normal input mode as well as
         // movement, including when hurt interrupted a still-input-locked bomb rise.
         samus.BombJumpPoseInputLocked = false;
         // Installs the ordinary movement handler. A Shinespark windup can

@@ -131,8 +131,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             ? entry.MapRevealMode
             : throw new ArgumentOutOfRangeException(nameof(entry.MapRevealMode));
 
-        // The pause's setup loads the map, pause interface, menu sprites and HUD characters; the
-        // screen binds that artwork and its capture places the characters.
+        // The pause's setup loads the map, pause interface, menu sprites and HUD artwork; the
+        // screen binds that artwork and its capture places the pictures.
         screen = new PauseScreen(entry.MapPresentation, entry.SpriteSheets);
         BindSpriteSheets(entry.SpriteSheets);
         if (entry.GameplayHud is not null)
@@ -145,7 +145,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // Pause setup ends by clearing the effect overlay
         // beneath the four HUD rows. Pause draws
         // only the HUD's own layer (PauseScreen.ShownHudPictures), so every otherwise-empty map
-        // cell shows nothing rather than pause character zero, the visible orange `1` glyph.
+        // cell shows nothing rather than the pause artwork's first picture, the visible orange `1` glyph.
 
         // The pause screen's base page shows the button page's two label rows over the backdrop's bottom rows, its labels
         // lit or dimmed by the highlight; the frame is the area's backdrop picture, the button rows' picture and each

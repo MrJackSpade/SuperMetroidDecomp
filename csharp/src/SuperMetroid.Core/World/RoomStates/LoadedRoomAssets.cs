@@ -37,7 +37,7 @@ public sealed class LoadedRoomAssets
     public RoomLevelData LevelData { get; }
     /// <summary>Room's screen-indexed scroll-control grid used to initialize the boundary camera, separate from current camera position or editable map-marker artwork.</summary>
     public RoomScrollGrid Scrolls { get; }
-    /// <summary>Compiled graphics-set source identities selected by the room-state index and used to resolve installed block pictures, characters, and palette artwork.</summary>
+    /// <summary>Compiled graphics-set source identities selected by the room-state index and used to resolve the installed block pictures and their colours.</summary>
     public TilesetDefinition Tileset { get; }
 
     /// <summary>The installed pre-coloured room artwork: block sheets and library background images (#1392).</summary>
@@ -69,7 +69,7 @@ public sealed class LoadedRoomAssets
 
     /// <summary>
     /// The turning floor the room's state shows (#1349, #1467, #1649): its tileset's installed floor, which the import
-    /// pictures from the tileset's floor map and characters (#1422), with nothing drawn over it yet; null for a state that
+    /// pictures from the tileset's floor map and artwork (#1422), with nothing drawn over it yet; null for a state that
     /// shows none (<see cref="RoomTurningFloor.None"/>), whose tileset installs none.
     /// </summary>
     /// <exception cref="InvalidDataException">The state shows a floor, but none is installed for the room's tileset.</exception>

@@ -241,7 +241,7 @@ public sealed class IntroCinematicState : IFrontendScreen
 
         // The game's setup loads the ordinary beam palette before the full intro palette replaces it, so the flashback
         // Samus shows the opening's colours from the start (her intro shades); the flashback projectile pages bind the
-        // beam's characters.
+        // beam's pictures.
 
         // The loads above are invisible: the intro stays black until its fade.
         // The setup dispatch itself runs as the next dispatch's cinematic function.

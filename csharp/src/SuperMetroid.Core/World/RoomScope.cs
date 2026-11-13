@@ -40,7 +40,7 @@ internal sealed record RoomScope
 
     /// <summary>
     /// The frame each of the room's animations shows (#1406): its animated tiles, statues, corpses and bosses select their
-    /// pictures here, and the display resolves the pictures of the characters they paint from it.
+    /// pictures here, and the display resolves the pictures they show from it.
     /// </summary>
     public required ArtworkFrameSelections ArtworkFrames { get; init; }
 

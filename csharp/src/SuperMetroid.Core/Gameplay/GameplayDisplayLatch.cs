@@ -10,8 +10,8 @@ namespace SuperMetroid.Core.Gameplay;
 /// <summary>
 /// The scene one shown (or loading) frame shows (#1407): the camera's layer scrolls and room shake, the layers
 /// shown, the Ceres perspective floor, the room's and the bosses' backgrounds, the effects' tints and the
-/// effects' latched state. Gameplay latches it before Samus's graphics are copied, so a change the main loop makes
-/// shows from the next shown frame. An update without a frame boundary leaves the previous latch in place. Arrays are owned copies;
+/// effects' latched state. Gameplay latches it at the frame boundary, before the update's controller latch, so a change
+/// the main loop makes shows from the next shown frame. An update without a frame boundary leaves the previous latch in place. Arrays are owned copies;
 /// simulation cannot change them.
 /// </summary>
 /// <param name="Scrolls">The foreground's and the background's scrolls and the room shake.</param>
@@ -21,10 +21,10 @@ namespace SuperMetroid.Core.Gameplay;
 /// <param name="MorphBallEyeBeam">The Morph Ball eye beam's cone as the frame ends: its eye's position and aim, its width and colour; null while no beam exists.</param>
 /// <param name="Phantoon">Phantoon's wave, blend, and mosaic latches, when Phantoon exists.</param>
 /// <param name="TourianStatueVerticalOffset">
-/// Tourian statue background vertical offset in pixels: the statue state's signed offset, which the capture adds to the
-/// camera position with the scroll's own wrap.
+/// How far the Tourian statues move the background vertically, in pixels, up or down: the background shows the foreground
+/// camera's top row plus this offset, wrapping as room positions do.
 /// </param>
-/// <param name="Scene">The room's effect-overlay characters, blending, sky and X-ray context.</param>
+/// <param name="Scene">The room effect's blending, the scrolling sky, and the room and boss the X-ray's blending reads.</param>
 /// <param name="Bosses">The bodies bosses draw as the background.</param>
 /// <param name="Tints">The tints the frame's effects blend with, each published by its own effect.</param>
 /// <param name="XrayReveal">

@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>
 /// A room's background image as the background shows it at one moment (#1392, #1403, #1555): the image's picture placed on
-/// the background by its rectangles, and the block picture of each 16x16 cell whose characters show artwork the room bound
-/// after loading.
+/// the background by its rectangles, and the block picture each 16x16 cell shows in the image's place where the room bound
+/// other artwork there after loading.
 /// </summary>
 public sealed class RoomBackgroundImagePlane
 {

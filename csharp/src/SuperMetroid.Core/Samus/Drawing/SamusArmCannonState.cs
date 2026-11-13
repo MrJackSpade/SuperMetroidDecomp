@@ -80,7 +80,7 @@ public sealed class SamusArmCannonState
     }
 
     /// <summary>
-    /// Draws the direction-specific small sprite bound to its selected cover character. The caller chooses
+    /// Draws the direction-specific small sprite showing its selected cover frame. The caller chooses
     /// before/after-body order from <see cref="DrawOrder"/>.
     /// </summary>
     public SamusArmCannonDrawResult Draw(
@@ -107,9 +107,8 @@ public sealed class SamusArmCannonState
         int screenX = CoordinateAxis.Wrap(samus.Position.X.Whole + offset.X - cameraPosition.X);
         int screenY = CoordinateAxis.Wrap(
             samus.Position.Y.Whole + offset.Y - graphicsYOffset - cameraPosition.Y);
-        // Selector -> one of four orientation lists -> current cover frame. The game loads that
-        // character to the tile the sprite names; the sheet frame is that cover as the sprite shows it. Frame
-        // zero, the null entry, returned above.
+        // Selector -> one of four orientation lists -> current cover frame, whose sheet frame is that cover as
+        // the sprite shows it. Frame zero, the null entry, returned above.
         InstalledSpriteSheets sheets = samus.Presentation.Sheets ?? throw new InvalidOperationException(
             "Arm cannon requires the installed sprite sheets.");
         sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusArmCannon),

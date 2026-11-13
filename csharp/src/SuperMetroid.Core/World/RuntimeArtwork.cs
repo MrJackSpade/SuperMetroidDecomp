@@ -49,7 +49,7 @@ internal sealed class RuntimeArtwork
         _player = dependencies.Player;
     }
     /// <summary>Gets or binds the host-owned presentation catalog used by maps, HUD, messages, room effects, Samus/enemy colors, and named artwork assets.</summary>
-    /// <remarks>Binding nonnull artwork rebinds the presentation owners; assigning null removes them. The HUD shows the HUD sheet's pictures, so no characters are shown again.</remarks>
+    /// <remarks>Binding nonnull artwork rebinds the presentation owners; assigning null removes them. The HUD shows the HUD sheet's pictures, so binding has no HUD artwork to show again.</remarks>
     public IGameplayPresentationContent? MapPresentation
     {
         get;

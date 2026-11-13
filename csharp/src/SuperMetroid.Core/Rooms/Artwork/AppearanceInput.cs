@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// shows, the frame an animation selected, or whether an encounter has brought up a page the Ceres Ridley
 /// arena's blocks show. Extraction records which inputs each block, background cell and written cell depends on and
 /// pictures it for every value they can take; the room reads the values gameplay published and names the picture by
-/// them, so nothing in the room knows which characters a picture was composed from.
+/// them, so nothing in the room knows which source artwork a picture was composed from.
 /// </summary>
 public abstract record AppearanceInput
 {

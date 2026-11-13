@@ -194,6 +194,29 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { // host PCM at the host rate, host pixels, host artwork, host options, host elapsed time, host diagnostics\n }");
         Expect("class P { // the host renderer, a host compositor, one host call and the hosts' import format\n }");
         Expect("class P { /// <summary>The ghost flag and the ghost's state.</summary>\nint F => 0; }");
+        // The display path's hardware vocabulary (#1632): tile characters, video and display memory, and per-line tables, in
+        // documentation, line comments and string literals.
+        Expect("class P { /// <summary>The turning floor's map; its characters are the room tileset's.</summary>\nint F => 0; }", "('characters')");
+        Expect("class P { // the game's crumble also loads the debris character before the fragments\n }", "('character')");
+        Expect("class P { /// <summary>Shows nothing rather than pause character zero, the visible glyph.</summary>\nint F => 0; }", "('character zero')");
+        Expect("class P { string Name => \"The HUD characters are missing.\"; }", "('characters')");
+        Expect("class P { /// <summary>The narration types its text; the HUD characters stay.</summary>\nint F => 0; }", "('characters')");
+        Expect("class TextureCache { // its characters are loaded first\n }", "('characters')");
+        Expect("class P { // copies the picture into video memory\n }", "('video memory')");
+        Expect("class P { /// <summary>Pause owns no display memory.</summary>\nint F => 0; }", "('display memory')");
+        Expect("class P { string Name => \"Out of graphics memory.\"; }", "('graphics memory')");
+        Expect("class P { /// <summary>The phase of the lava background per-line table.</summary>\nint F => 0; }", "('per-line table')");
+        Expect("class P { // the haze's per-line fixed-colour table\n }", "('per-line fixed-colour table')");
+        Expect("class P { // fills the scanline table\n }", "('scanline table')");
+        // Text characters, a type of text, people, markup, per-line effects and other memory are not the display's.
+        Expect("class P { /// <summary>Types the warning one character at a time; the typed characters and the message's characters wait.</summary>\nint F => 0; }");
+        Expect("class P { // a two-call character delay, the character cadence and the next character\n }");
+        Expect("class P { /// <summary>Width of one text character; the letters' characters and the narration characters.</summary>\nint F => 0; }");
+        Expect("class P { /// <summary>Shows <paramref name=\"character\"/> at its place.</summary>\nvoid Show(int character) { } }");
+        Expect("class EndingTypewriter { /// <summary>The installed characters.</summary>\nint F => 0; }");
+        Expect("class IntroTextCell { // the cell's characters\n }");
+        Expect("class P { // the game's characters and every playable character; characters who speak\n }");
+        Expect("class P { /// <summary>The room's per-line effects and per-line scroll run first; the credits table and the memory of the room.</summary>\nint F => 0; }");
         // A compound name in a comment is a routine label unless Core's code spells it (#1558).
         Expect("class P { // as EnemyMain does\n }", "('EnemyMain')");
         Expect("class P { // set by InitAI\n }", "('InitAI')");

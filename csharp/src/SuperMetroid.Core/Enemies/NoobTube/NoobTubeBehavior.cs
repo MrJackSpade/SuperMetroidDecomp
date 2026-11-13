@@ -19,7 +19,7 @@ internal sealed class NoobTubeBehavior
         NoobTubeProjectileSegment.Shard9,
     ];
 
-    /// <summary>The characters and shading every tube piece draws with: the shared sheet in the tube's crack colours.</summary>
+    /// <summary>The pictures and shading every tube piece draws with: the shared sheet in the tube's crack colours.</summary>
     private static readonly SpriteGraphics TubePieceGraphics =
         SpriteGraphics.SharedIn(PictureShading.Shaded(ChozoAndTubeShades.TubeCracks));
 

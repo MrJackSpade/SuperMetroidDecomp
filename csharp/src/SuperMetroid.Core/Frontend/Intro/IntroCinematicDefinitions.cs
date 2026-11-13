@@ -61,7 +61,7 @@ public static class IntroCinematicDefinitions
         public const int CaretFirstTextY = 24;
         /// <summary>Width and height of one text character in pixels.</summary>
         public const int CharacterPixelSize = 8;
-        /// <summary>Pixels from a character's origin to its baseline.</summary>
+        /// <summary>Pixels from a text character's origin to its baseline.</summary>
         public const int CharacterBaselineOffset = 8;
         /// <summary>The Japanese text's next-page arrow's column, in pixels from the screen's left: the screen's middle (#1655).</summary>
         public const int NextPageArrowX = 128;

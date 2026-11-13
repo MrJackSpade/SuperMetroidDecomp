@@ -25,7 +25,8 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// <c>[CompatibilityService]</c> type, which reproduces hardware behaviour, or an <c>[EncodingOwner]</c> codec, which owns
 /// an encoding, may describe the hardware. One diagnostic per comment or literal; there is no allowance list.
 /// #1624 adds the interpreter vocabulary of the original's streams: operands, instructions and numbered, Samus and
-/// animation commands.
+/// animation commands. #1632 adds the display path's hardware vocabulary: the tile characters pictures were assembled
+/// from, video and display memory, and per-line tables.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -182,6 +183,48 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
+    /// The display's memory and its line tables in prose (#1632): video, display or graphics memory, and a per-line or
+    /// scanline table. Core publishes pictures, layers and sampled waves; it owns no display memory and fills no table
+    /// the display reads line by line. A per-line effect, scroll or window is the effect itself and stays legal.
+    /// </summary>
+    private static readonly Regex DisplayMemoryProse = new(
+        @"\b(?:video|display|graphics)[-\s]+memor(?:y|ies)\b" +
+        @"|\bper[-\s]+(?:scan)?line\s+(?:[\w-]+\s+){0,2}?tables?\b|\bscanline\s+tables?\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>The words of text in prose: what is typed, written or spelled, and the text, message, letter or glyph it is.</summary>
+    private const string TextWords =
+        @"(?:typ(?:es|ed|ing)|typewriters?|texts?|narrations?|messages?|captions?|letters?|glyphs?|alphabets?" +
+        @"|spell(?:s|ed|ing)?|strings?|chars?|fonts?)";
+
+    /// <summary>
+    /// The hardware's tile characters in prose (#1632): the eight-pixel squares the original assembled its pictures from,
+    /// loaded, copied or shown as characters. Core shows whole pictures; what a picture was composed from is the import's.
+    /// A character by number always reports (<c>character zero</c>). Any other character is read as the hardware's unless
+    /// it is text or a person: text names itself in the same clause (up to a full stop, semicolon or colon) by a word of
+    /// text (typed, typewriter, text, narration, message, caption, letter, glyph, alphabet, spelled, string, font), by the
+    /// typing it measures (a character at a time, a character's delay, cadence, cursor, call, records, placements,
+    /// processing, work, glow or count, per-character, the next character), or by its type, one named for text (see
+    /// <see cref="TextTypeName"/>); a person is a game's, story's, playable, player or non-player character, or a
+    /// character who acts. Markup is not prose, so a parameter named <c>character</c> is not read.
+    /// </summary>
+    private static readonly Regex TileCharacter = new(
+        @"\bcharacters?[-\s]+(?:zero|number\s+\w+|[0-9]+)\b" +
+        @"|(?<!\b(?:per|next)[-\s])(?<!\b(?:game's|games'|story's|playable|player|non-player)\s+)" +
+        @"(?<!\b" + TextWords + @"\b[^.;:!?]*)\bcharacters?\b" +
+        @"(?!(?:'s?)?[-\s]+(?:at\s+a\s+time|delays?|cadences?|cursors?|calls?|records?|placements?|processing|work|glows?|counts?)\b)" +
+        @"(?![^.;:!?]*\b(?:" + TextWords + @"|who|whom)\b)",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// A type named for text, whose characters are the text's (#1632): a typewriter, text, narration, caption, glyph,
+    /// letter, font or message, read as a whole camel-case word (<c>EscapeTypewriterState</c>, <c>EndingTextCharacter</c>;
+    /// not <c>Texture</c>).
+    /// </summary>
+    private static readonly Regex TextTypeName = new(
+        @"(?:Typewriter|Text|Narration|Caption|Glyph|Letter|Font|Message)s?(?![a-z])", RegexOptions.CultureInvariant);
+
+    /// <summary>
     /// A memory symbol of the original program in a comment: a lower-case name joined by underscores (<c>toriz_var_00</c>,
     /// <c>palette_change_num</c>) (#1632). The installed artwork's frame names are the snake case of Core's own frame
     /// identities (<c>draygon_goop_first</c> is <c>DraygonGoopFirst</c>), so a name whose Pascal-case form Core's code spells
@@ -289,11 +332,33 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : OperationProse.Match(text) is { Success: true } operation ? operation.Value
             : WorkingMemoryProse.Match(text) is { Success: true } memory ? memory.Value
             : HostProvenanceProse.Match(text) is { Success: true } host ? host.Value
+            : DisplayMemoryProse.Match(text) is { Success: true } display ? display.Value
+            : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;
         if (word is null || IsInHardwareOwner(owner))
             return;
         context.ReportDiagnostic(Diagnostic.Create(Rule, location, word));
+    }
+
+    /// <summary>
+    /// The hardware's tile character <paramref name="text"/>'s prose names, outside its markup; null when it names none or
+    /// lies in a type named for text, whose characters are the text's.
+    /// </summary>
+    private static string? TileCharacterFinding(string text, SyntaxNode? owner) =>
+        TileCharacter.Match(Markup.Replace(text, " ")) is { Success: true } character && !IsInTextType(owner)
+            ? character.Value
+            : null;
+
+    /// <summary>Whether a node lies in a type named for text (<see cref="TextTypeName"/>).</summary>
+    private static bool IsInTextType(SyntaxNode? node)
+    {
+        for (SyntaxNode? current = node; current is not null; current = current.Parent)
+        {
+            if (current is BaseTypeDeclarationSyntax declaration && TextTypeName.IsMatch(declaration.Identifier.ValueText))
+                return true;
+        }
+        return false;
     }
 
     /// <summary>

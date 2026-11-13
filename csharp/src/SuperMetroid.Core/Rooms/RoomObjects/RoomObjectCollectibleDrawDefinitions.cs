@@ -18,7 +18,7 @@ internal static class RoomObjectCollectibleDrawDefinitions
     /// <summary>The six collectible draw groups, in the order their frames are published.</summary>
     internal enum DrawGroup
     {
-        /// <summary>Air tile after an item is removed.</summary>
+        /// <summary>Air block after an item is removed.</summary>
         Empty,
         /// <summary>Three shootable Chozo orb animation frames.</summary>
         Orb,
@@ -37,7 +37,7 @@ internal static class RoomObjectCollectibleDrawDefinitions
     /// <param name="Index">The frame within the group, counted from zero.</param>
     internal readonly record struct Draw(DrawGroup Group, [property: IntegerQuantity("frame within the collectible draw group")] int Index);
 
-    /// <summary>The air tile left after an item is removed.</summary>
+    /// <summary>The air block left after an item is removed.</summary>
     internal static RoomObjectFrameDraw<Draw> Empty { get; } = RoomObjectDraw.Of(new Draw(DrawGroup.Empty, 0));
 
     /// <summary>The solid burst frame drawn when a Chozo orb opens.</summary>

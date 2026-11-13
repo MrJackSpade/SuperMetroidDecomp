@@ -13,7 +13,7 @@ internal sealed class PauseGamePhases(FrontendSession session)
     /// <summary>Runs one update of <see cref="SuperMetroidGameState.Pausing"/>.</summary>
     internal void RunPausing(ControllerButton controllerInput)
     {
-        // The pause preparation runs on a blank display: pause tiles, base maps,
+        // The pause preparation runs on a blank display: pause pictures, base maps,
         // colours and inventory labels are installed before the pause fades in.
         // The frame still begins, so the controller's previous sample remains truthful.
         session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
@@ -84,7 +84,7 @@ internal sealed class PauseGamePhases(FrontendSession session)
     internal void RunRestoringGameplayFromPause(ControllerButton controllerInput)
     {
         // Unpausing restores gameplay's layers, colours,
-        // hooks, per-line effects and animated tiles on a blank display. Pause graphics live in a
+        // hooks, per-line effects and block animations on a blank display. Pause graphics live in a
         // separate display image here, so discarding it restores the untouched runtime
         // image without rebuilding it.
         SamusState resumedSamus = session.GameplayRuntime.Player.Samus ??

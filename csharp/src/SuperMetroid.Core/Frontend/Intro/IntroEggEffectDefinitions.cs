@@ -23,9 +23,8 @@ internal static class IntroEggEffectDefinitions
     /// animations select five one-entry visual frames,
     /// one for each of f=0..4, matching the authored data.
     /// Each record has one part, at X=508, Y=252, drawn in the egg's colours in front of the
-    /// scene, and a tile. Tiles are 269+f for f=0..2, then
-    /// 269+16*(f-2) for f=3..4: 269/270/271/285/301.
-    /// These are authored artwork choices; preserve the five bounded tile
+    /// scene, showing that frame's own picture.
+    /// These are authored artwork choices; preserve the five bounded picture
     /// identities and do not infer a sixth frame from adjacent data.
     /// </remarks>
     public static CinematicActorDefinition SlimeDrop =>

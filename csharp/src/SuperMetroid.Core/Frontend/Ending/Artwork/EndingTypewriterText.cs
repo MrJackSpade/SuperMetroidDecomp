@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 /// <summary>
 /// The characters the ending's typewriter types (#1467): the item-percentage labels and the final message, each character
 /// with the cell it is typed at and the style it shows in. The import compiles them from the installed ending text; the
-/// game types them and places each glyph's installed picture, reading no tile of the text.
+/// game types them and places each glyph's installed picture, reading nothing else of the text.
 /// </summary>
 public sealed class EndingTypewriterText
 {

@@ -32,9 +32,8 @@ internal static class IntroEggParticleActors
     ///
     /// Issues #625 and #983: of the six referenced visual frames,
     /// i=0..5, each holds one sprite part, matching the authored data:
-    /// X=508, Y=252, drawn in the egg's colours in front of the scene, and a tile,
-    /// where tile=261+16*(i/2)+(i%2). Thus the six tile
-    /// identities are 261/262, 277/278, and 293/294 in three pairs.
+    /// X=508, Y=252, drawn in the egg's colours in front of the scene, with that
+    /// frame's own picture. The six pictures come in three pairs.
     /// The bounded selector reaches only these six records.
     /// </remarks>
     public static CinematicActorDefinition Particle(int index) =>

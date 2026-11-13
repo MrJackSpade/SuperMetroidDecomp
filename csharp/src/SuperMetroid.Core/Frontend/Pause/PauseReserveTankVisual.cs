@@ -21,6 +21,6 @@ public enum PauseReserveTankVisual
     Fill5,
     /// <summary>Partial tank, six fill steps.</summary>
     Fill6,
-    /// <summary>Partial tank, seven fill steps; drawn with the full-tank tile.</summary>
+    /// <summary>Partial tank, seven fill steps; drawn with the full-tank picture.</summary>
     Fill7,
 }

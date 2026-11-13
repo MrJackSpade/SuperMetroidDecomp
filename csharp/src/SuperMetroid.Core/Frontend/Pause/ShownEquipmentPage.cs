@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Frontend.Pause;
 /// <param name="HyperBeam">Whether the beam labels are blanked and Hyper's label shows in their column.</param>
 /// <param name="Wireframe">The Samus wireframe the page shows.</param>
 /// <param name="Reserve">The reserve labels and digits, or none while Samus has no reserve capacity and the template shows.</param>
-/// <param name="Arrow">How the reserve arrow's tiles are coloured.</param>
+/// <param name="Arrow">How the reserve arrow's pictures are coloured.</param>
 internal sealed record ShownEquipmentPage(ImmutableArray<ShownEquipmentLabel> Labels, bool HyperBeam,
     PauseWireframeKind Wireframe, ShownReserveDisplay? Reserve, ShownReserveArrow Arrow)
 {

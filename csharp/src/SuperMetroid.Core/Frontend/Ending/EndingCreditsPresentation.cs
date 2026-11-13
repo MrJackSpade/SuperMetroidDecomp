@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// <summary>
 /// The ending scene's presentation (#1514): its turning floor, pictures, sprite layers and glows as an ordered layered
 /// scene, drawn from the scene state it belongs to. The ending's stars lie behind the planet, the gunship and the
-/// backdrops they shine through; its other sprites lie in front of the scene's pictures. The per-tile and
+/// backdrops they shine through; its other sprites lie in front of the scene's pictures. The per-square and
 /// per-sprite-part priority tiers that once interleaved them, and the single pixel that blended where a sprite overlapped
 /// a glow, are presentation quirks the model does not keep.
 /// </summary>

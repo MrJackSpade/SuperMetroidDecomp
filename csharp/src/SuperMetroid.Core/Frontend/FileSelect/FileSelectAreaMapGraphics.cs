@@ -42,7 +42,7 @@ public sealed class FileSelectAreaMapGraphics
     /// <summary>Initializes the unmasked world-map picture and backdrop owners from installed artwork and selects the requested Zebes area; labels must be bound separately or through <see cref="FromPresentation"/>.</summary>
     /// <param name="selectedArea">One of the six Zebes areas.</param>
     /// <param name="backdrops">Required menu backdrops, including each area's world-map backdrop.</param>
-    /// <param name="sheets">Required installed sprite sheets: the map sprites the title and labels draw from, and the background tiles.</param>
+    /// <param name="sheets">Required installed sprite sheets: the map sprites the title and labels draw from, and the background pictures.</param>
     /// <exception cref="InvalidOperationException">Any required presentation resource is absent despite its optional parameter default.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The selected area is not one of the six Zebes areas.</exception>
     public FileSelectAreaMapGraphics(AreaId selectedArea, MenuBackdrops? backdrops = null,
@@ -88,7 +88,7 @@ public sealed class FileSelectAreaMapGraphics
         if (content is not null) screen.Backdrop = content.World(SelectedArea);
     }
 
-    /// <summary>Rebinds the installed sheets: the map sprites the title and labels draw from, and the background tiles.</summary>
+    /// <summary>Rebinds the installed sheets: the map sprites the title and labels draw from, and the background pictures.</summary>
     internal void BindSheets(InstalledSpriteSheets? sheets)
     {
         InstalledSpriteSheets installed = sheets ?? throw new InvalidOperationException("Area-map graphics require the installed sprite sheets.");

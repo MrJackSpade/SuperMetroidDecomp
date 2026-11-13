@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// </summary>
 /// <remarks>
 /// This class deliberately models the game's menu index and brightness transitions instead
-/// of replacing the screen with desktop widgets. Its tile graphics, starfield, text, palette,
+/// of replacing the screen with desktop widgets. Its pictures, starfield, text, palette,
 /// border, helmets, and selection missile all come from the installed artwork. Slot
 /// validity and displayed energy/time are decoded from the redundant save
 /// checksum layout rather than from separately authored metadata.

@@ -27,7 +27,7 @@ public sealed class ScreenFade
     public const int LongestSlowDelay = 127;
 
     /// <summary>
-    /// Dispatches remaining before the next brightness step: a wrapping countdown whose sign after the decrement
+    /// Dispatches remaining before the next brightness step: a wrapping countdown; whether it reads as negative after the decrement
     /// decides whether the dispatch steps brightness.
     /// </summary>
     public WrappingCountdown Counter { get; private set; }

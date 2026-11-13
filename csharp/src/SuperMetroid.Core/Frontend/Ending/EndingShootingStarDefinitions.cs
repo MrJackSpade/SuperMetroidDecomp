@@ -70,7 +70,7 @@ internal static class EndingShootingStarDefinitions
     ];
     /// <summary>Exposes the forty star records in order for initialization and motion updates.</summary>
     internal static ReadOnlySpan<EndingShootingStarDefinition> Records => records;
-    /// <summary>The animation frames the shooting stars' tile values give attributes for.</summary>
+    /// <summary>The animation frames a shooting star shows.</summary>
     internal const int FrameCount = 20;
 
     /// <summary>The first animation frame showing the full star; every later frame shows it too.</summary>

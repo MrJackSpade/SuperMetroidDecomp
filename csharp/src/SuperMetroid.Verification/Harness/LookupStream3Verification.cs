@@ -682,7 +682,7 @@ internal static class LookupStream3Verification
             DoorSetupCode.ClimbOpensScreen2x0TopAligned,
             DoorSetupCode.ClimbOpensScreen2x7TopAligned,
             DoorSetupCode.GauntletETankOpensScreen4x0TopAligned,
-            DoorSetupCode.CaterpillarFromRedBinstarElevOpensScreen0x2,
+            DoorSetupCode.CaterpillarOpensScreen0x2,
             DoorSetupCode.GreenPiratesShaftOpensScreen0x3,
             DoorSetupCode.GreenBrinstarMainShaftOpensScreens0x6And0x7,
             DoorSetupCode.EtecoonETankOpensScreens0x1And1x1TopAligned,
@@ -698,12 +698,11 @@ internal static class LookupStream3Verification
             DoorSetupCode.RedTowerOpensScreens0x6And0x7,
             DoorSetupCode.RedFishClosesScreen2x0OpensScreen1x0TopAligned,
             DoorSetupCode.SporeSpawnSuperClosesScreen1x1OpensScreen1x0TopAligned,
-            DoorSetupCode.EastTunnelFromWarehouseEntranceClosesScreen0x0OpensScreen0x1TopAligned,
+            DoorSetupCode.EastTunnelClosesScreen0x0OpensScreen0x1TopAligned,
             DoorSetupCode.WarehouseKihunterOpensScreens2x0And3x0TopAligned,
             DoorSetupCode.BelowSpazerOpensScreens0x0And1x0,
             DoorSetupCode.BigPinkOpensScreen1x0,
             DoorSetupCode.CaterpillarOpensScreens0x5And0x6,
-            DoorSetupCode.CaterpillarFromHellwayOpensScreen0x2,
             DoorSetupCode.ConstructionZoneOpensScreen0x0OpensScreen0x1TopAligned,
             DoorSetupCode.GreenBrinstarElevOpensScreen0x2BelowTheRoom,
             DoorSetupCode.AcidStatueClosesScreens0x1And1x1OpensScreens0x2And1x2And2x2TopAligned,
@@ -716,12 +715,11 @@ internal static class LookupStream3Verification
             DoorSetupCode.IceBeamSnakeClosesScreen0x1OpensScreen1x1TopAligned,
             DoorSetupCode.WastelandOpensScreen1x1,
             DoorSetupCode.FastPillarsSetupClosesScreen0x1OpensScreen0x2TopAligned,
-            DoorSetupCode.RedKihunterShaftFromAmphitheatreClosesScreen0x1OpensScreen0x0TopAligned,
+            DoorSetupCode.RedKihunterShaftClosesScreen0x1OpensScreen0x0TopAligned,
             DoorSetupCode.LNFirefleaClosesScreen1x1OpensScreen1x0TopAligned,
             DoorSetupCode.GoldenTorizoClosesScreens1x0And0x1And1x1OpensScreen0x0TopAligned,
             DoorSetupCode.WorstRoomInTheGameOpensScreen0x0,
             DoorSetupCode.LNFirefleaClosesScreen1x1OpensScreens0x0And1x0TopAligned,
-            DoorSetupCode.RedKihunterShaftFromLNFirefleaClosesScreen0x1OpensScreen0x0TopAligned,
             DoorSetupCode.GreenBubblesMissilesOpensScreen0x0TopAligned,
             DoorSetupCode.PurpleShaftClosesScreen0x1OpensScreen0x0TopAligned,
             DoorSetupCode.IceBeamGateOpensScreen3x3TopAligned,
@@ -734,7 +732,6 @@ internal static class LookupStream3Verification
             DoorSetupCode.WreckedShipMainShaftOpensScreens4x6And4x7,
             DoorSetupCode.BowlingAlleyClosesScreens0x1And1x1And2x1And3x1And4x1And5x1,
             DoorSetupCode.HalfieClimbClosesScreen0x2OpensScreen1x2TopAligned,
-            DoorSetupCode.EastTunnelFromGlassTunnelClosesScreen0x0OpensScreen0x1TopAligned,
             DoorSetupCode.CrabHoleClosesScreen0x0OpensScreen0x1TopAligned,
             DoorSetupCode.CaterpillarClosesScreen0x3OpensScreen1x3TopAligned,
             DoorSetupCode.GlassTunnelClosesScreens0x0And0x2OpensScreen0x1TopAligned,
@@ -759,16 +756,18 @@ internal static class LookupStream3Verification
                 () => SuperMetroid.Core.Rooms.Doors.DoorScrollChanges.Contains((DoorSetupCode)undefined),
                 "stream 3 undefined door setup code");
         // Each callback runs over a grid of red cells and one of blue cells, so every write differs from the cells it
-        // replaces in at least one run; the native writes are compared as the cells the camera reads them as.
+        // replaces in at least one run; the native writes are compared as the cells the camera reads them as. A setup the
+        // cartridge has two routines for is checked against both, as the import maps them.
         foreach (DoorSetupCode pointer in expectedDoorCallbacks)
+        foreach (ushort routine in DoorIdentityWords.SetupRoutines.WordsByIdentity[pointer])
         foreach (RoomScrollState fill in new[] { RoomScrollState.RedBoundary, RoomScrollState.Blue })
         {
             byte[] expected = Enumerable.Repeat(fill.ToStorageByte(), RoomScrollGrid.KeptCellCount).ToArray();
             var actual = RoomScrollGrid.LoadNativeTable(expected, new Extent16<RoomScreens>(10, 5));
-            ExecuteStream3DoorScroll(rom, DoorIdentityWords.SetupRoutines.Word(pointer), expected);
+            ExecuteStream3DoorScroll(rom, routine, expected);
             AssertTrue(SuperMetroid.Core.Rooms.Doors.DoorScrollChanges.TryApply(pointer, actual), "stream 3 callback recognized");
             AssertTrue(actual.KeptStates.SequenceEqual(RoomScrollStates.FromStorageBytes(expected)),
-                "stream 3 native ordered door writes and all untouched cells");
+                $"stream 3 {pointer} makes the native routine ${routine:X4}'s ordered door writes and leaves all other cells");
         }
         var unchangedScroll = RoomScrollGrid.LoadNativeTable(new byte[RoomScrollGrid.KeptCellCount], new Extent16<RoomScreens>(10, 5));
         AssertTrue(!SuperMetroid.Core.Rooms.Doors.DoorScrollChanges.TryApply(DoorSetupCode.None, unchangedScroll), "stream 3 setup without scroll writes is a no-op");

@@ -131,10 +131,11 @@ internal static class RoomDefinitionIntegrationVerification
             if (doorPointer == DoorDefinitionsAccess.SharedElevatorPseudoDoorPointer)
                 continue;
             DoorDefinition door = DoorDefinitions.Get(doorPointer);
+            // A setup the cartridge has two routines for forbids both: the import maps either routine to it.
             if (door.SetupCode != DoorSetupCode.None)
             {
-                forbidden.Add(RoomHeaderRomDataConstants.BankAddress |
-                    DoorIdentityWords.SetupRoutines.Word(door.SetupCode));
+                foreach (ushort routine in DoorIdentityWords.SetupRoutines.WordsByIdentity[door.SetupCode])
+                    forbidden.Add(RoomHeaderRomDataConstants.BankAddress | routine);
             }
         }
 

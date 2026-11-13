@@ -134,7 +134,7 @@ internal sealed class DoorTransitionRunner
             case DoorSetupCode.ClimbOpensScreen2x0TopAligned:
             case DoorSetupCode.ClimbOpensScreen2x7TopAligned:
             case DoorSetupCode.GauntletETankOpensScreen4x0TopAligned:
-            case DoorSetupCode.CaterpillarFromRedBinstarElevOpensScreen0x2:
+            case DoorSetupCode.CaterpillarOpensScreen0x2:
             case DoorSetupCode.GreenPiratesShaftOpensScreen0x3:
             case DoorSetupCode.GreenBrinstarMainShaftOpensScreens0x6And0x7:
             case DoorSetupCode.EtecoonETankOpensScreens0x1And1x1TopAligned:
@@ -150,12 +150,11 @@ internal sealed class DoorTransitionRunner
             case DoorSetupCode.RedTowerOpensScreens0x6And0x7:
             case DoorSetupCode.RedFishClosesScreen2x0OpensScreen1x0TopAligned:
             case DoorSetupCode.SporeSpawnSuperClosesScreen1x1OpensScreen1x0TopAligned:
-            case DoorSetupCode.EastTunnelFromWarehouseEntranceClosesScreen0x0OpensScreen0x1TopAligned:
+            case DoorSetupCode.EastTunnelClosesScreen0x0OpensScreen0x1TopAligned:
             case DoorSetupCode.WarehouseKihunterOpensScreens2x0And3x0TopAligned:
             case DoorSetupCode.BelowSpazerOpensScreens0x0And1x0:
             case DoorSetupCode.BigPinkOpensScreen1x0:
             case DoorSetupCode.CaterpillarOpensScreens0x5And0x6:
-            case DoorSetupCode.CaterpillarFromHellwayOpensScreen0x2:
             case DoorSetupCode.ConstructionZoneOpensScreen0x0OpensScreen0x1TopAligned:
             case DoorSetupCode.GreenBrinstarElevOpensScreen0x2BelowTheRoom:
             case DoorSetupCode.AcidStatueClosesScreens0x1And1x1OpensScreens0x2And1x2And2x2TopAligned:
@@ -168,12 +167,11 @@ internal sealed class DoorTransitionRunner
             case DoorSetupCode.IceBeamSnakeClosesScreen0x1OpensScreen1x1TopAligned:
             case DoorSetupCode.WastelandOpensScreen1x1:
             case DoorSetupCode.FastPillarsSetupClosesScreen0x1OpensScreen0x2TopAligned:
-            case DoorSetupCode.RedKihunterShaftFromAmphitheatreClosesScreen0x1OpensScreen0x0TopAligned:
+            case DoorSetupCode.RedKihunterShaftClosesScreen0x1OpensScreen0x0TopAligned:
             case DoorSetupCode.LNFirefleaClosesScreen1x1OpensScreen1x0TopAligned:
             case DoorSetupCode.GoldenTorizoClosesScreens1x0And0x1And1x1OpensScreen0x0TopAligned:
             case DoorSetupCode.WorstRoomInTheGameOpensScreen0x0:
             case DoorSetupCode.LNFirefleaClosesScreen1x1OpensScreens0x0And1x0TopAligned:
-            case DoorSetupCode.RedKihunterShaftFromLNFirefleaClosesScreen0x1OpensScreen0x0TopAligned:
             case DoorSetupCode.GreenBubblesMissilesOpensScreen0x0TopAligned:
             case DoorSetupCode.PurpleShaftClosesScreen0x1OpensScreen0x0TopAligned:
             case DoorSetupCode.IceBeamGateOpensScreen3x3TopAligned:
@@ -186,7 +184,6 @@ internal sealed class DoorTransitionRunner
             case DoorSetupCode.WreckedShipMainShaftOpensScreens4x6And4x7:
             case DoorSetupCode.BowlingAlleyClosesScreens0x1And1x1And2x1And3x1And4x1And5x1:
             case DoorSetupCode.HalfieClimbClosesScreen0x2OpensScreen1x2TopAligned:
-            case DoorSetupCode.EastTunnelFromGlassTunnelClosesScreen0x0OpensScreen0x1TopAligned:
             case DoorSetupCode.CrabHoleClosesScreen0x0OpensScreen0x1TopAligned:
             case DoorSetupCode.CaterpillarClosesScreen0x3OpensScreen1x3TopAligned:
             case DoorSetupCode.GlassTunnelClosesScreens0x0And0x2OpensScreen0x1TopAligned:

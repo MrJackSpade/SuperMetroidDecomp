@@ -645,7 +645,7 @@ public sealed class SamusBombProjectileSystem
             slot.BombTimer = slot.BombTimer.Decrement().Remaining;
             if (slot.BombTimer.IsAt(15))
             {
-                // The slow and fast lists have identical four-frame layouts and differ by
+                // The slow and fast animations have identical four-frame layouts and differ by
                 // a fixed distance. Moving the live animation by it preserves phase.
                 slot.Playback = SamusPowerBombFuse.FastAnimation(slot.Playback);
             }

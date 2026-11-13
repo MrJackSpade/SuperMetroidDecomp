@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>Allocation and sleeping-list phases of the power-bomb explosion, plus Crystal Flash.</summary>
+/// <summary>Allocation and sleeping phases of the power-bomb explosion, plus Crystal Flash.</summary>
 public enum PowerBombExplosionPhase
 {
     /// <summary>No active window/color animation; an armed projectile may still be waiting for its fuse.</summary>

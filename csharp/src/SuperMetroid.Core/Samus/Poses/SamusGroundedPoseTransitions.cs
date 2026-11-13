@@ -106,14 +106,14 @@ internal static class SamusGroundedPoseTransitions
         if (!preservesRunningAnimation)
         {
             // This is the pose initializer's ordinary target installation. Replacing Pose
-            // directly would omit radius refresh, delay-list selection, and command cleanup.
+            // directly would omit radius refresh, animation selection, and command cleanup.
             ApplySimpleGroundedPoseChange(samus, sourcePose, targetPose, "Grounded arm");
             return;
         }
 
         // Sees previous movement type one and publishes 32768. The sign test
         // in the animation setup exits before touching frame, timer, or delay-buffer state. Every live
-        // running arm pose points to the same delay list, so the cached list is
+        // running arm pose plays the same animation, so the cached animation is
         // already exact and must not be rebound or reset here.
         int oldRadius = samus.Kinematics.Radius.Y;
         samus.Pose = targetPose;

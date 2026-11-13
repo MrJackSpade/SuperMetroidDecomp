@@ -287,7 +287,7 @@ internal sealed class BeamFiring
         SamusBeamCombination beamType = slot.Type.BeamCombination;
 
         // The projectile setup selects the combination's projectile kind, stores damage, chooses the
-        // direction-specific list, samples its initial radii, and arms a one-frame timer.
+        // direction-specific animation, samples its initial radii, and arms a one-frame timer.
         SamusProjectileKind kind = SamusProjectileSelection.BeamShot(beamType, charged);
         slot.Damage = SamusProjectileDamage.Read(kind);
         SamusProjectileSegment? segment = SamusProjectileSelection.BeamShotAnimation(beamType, charged, aim);

@@ -76,7 +76,7 @@ internal sealed class ProjectileTrails
 
     /// <summary>
     /// The animation frame a trail reads from <paramref name="projectile"/>: the frame of the record its animation last
-    /// installed, or null before its list has installed one.
+    /// installed, or null before its animation has installed one.
     /// </summary>
     internal static int? GetTrailAnimationFrame(SamusProjectile projectile) =>
         SamusProjectilePlayback.ShownAnimationFrame(projectile.Playback

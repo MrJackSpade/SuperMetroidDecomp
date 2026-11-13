@@ -192,7 +192,7 @@ internal static class SamusPoseMetadata
     /// The behaviour also locks the global current/new-state handlers, kills grapple,
     /// clears beam-flare presentation state, and reloads the suit palette. Those owners do
     /// not live in this state object. This method deliberately covers only the state it can
-    /// own exactly: equipment-selected pose, its delay list, the radius-dependent lift and
+    /// own exactly: equipment-selected pose, its animation, the radius-dependent lift and
     /// all motion values cleared by the setup. It does not write the collision radius;
     /// the next alpha's radius update does. Runtime/debug callers remain responsible for
     /// input lock, palette and grapple before their first displayed frame.
@@ -278,7 +278,7 @@ internal static class SamusPoseMetadata
     /// <summary>
     /// Applies one ordinary Draygon-held transition without inventing pose physics.
     /// Every admitted record stays within one facing, retains radius 21, and restarts the
-    /// target's delay list at its start through the normal pose initializer.
+    /// target's animation at its start through the normal pose initializer.
     /// </summary>
     public static void ApplyDraygonGrabbedPoseChange(SamusState samus, SamusPoseId targetPose)
     {

@@ -924,7 +924,6 @@ internal sealed class RoomLoader
         scope.BombProjectiles = bombs;
         scope.Projectiles = projectiles;
         _artwork.BindProjectiles(projectiles, bombs);
-        _player.Samus?.Shinespark.BindProjectileOwners(bombs.PowerBombExplosion);
 
         // The room-object loader walks this list once. Each record allocates
         // the highest free one of forty IDs before its setup executes. Immediate
@@ -953,7 +952,6 @@ internal sealed class RoomLoader
             new RoomObjectPlaces());
         scope.RoomObjects = roomObjects;
         roomObjects.Sounds.BindAudioRequests(_audioRequests);
-        roomObjects.Sounds.BindPowerBombAudio(bombs.PowerBombExplosion.Activity);
         var areaServices = new RoomEnemyRuntimeServices(_system, _room, _player, roomObjects, _display, progress);
         scope.Services = areaServices;
         roomObjects.PopulationLoader.LoadRoomPopulation(roomObjectRoom, room.State.ObjectPopulation, roomObjectBindings);

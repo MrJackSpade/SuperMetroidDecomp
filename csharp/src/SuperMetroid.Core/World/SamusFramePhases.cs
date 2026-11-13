@@ -349,9 +349,8 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             // X-ray's freeze disables enemy room.Projectiles, room objects, animated tiles,
             // and palette FX while time is frozen. Normal bombs cannot be placed or
             // advanced through this translated producer during the X-ray interval.
-            BombProjectileFrameResult bombFrame = room.BombProjectiles.StepFrame(new SamusTerrain { Level = _room.LevelData, RoomObjects = room.RoomObjects }, samus, _controller1.Current, _controller1.NewlyPressed, overlap: BombJumpOverlapPublication.Deferred, explosion: PowerBombExplosionStep.Skip);
-
-            if (bombFrame.BeamChargeConsumed)
+            // The bombs' share of the HUD handler runs the shared cooldown, then the morph ball's producer.
+            if (room.BombProjectiles.RunHudProducer(samus, _controller1.Current, _controller1.NewlyPressed))
             {
                 room.Projectiles.Firing.CancelChargeForBombSpread();
                 SuperMetroid.Core.Samus.Palettes.SamusNormalSuitPalette.Load(_player.Colours, samus.EquippedItems);
@@ -363,15 +362,15 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
 
         if (frame.AlphaRuns)
         {
-            // The bomb half above has already decremented the shared projectile cooldown.
-            // The humanoid handler then dispatches the HUD producer before the same
-            // projectile pass. Passing the live camera position also gives
-            // the projectile deletion check its exact off-screen deletion window.
-            // The Spacetime beam's malformed callback entry writes straight into
-            // Samus's progression owners during this pass, so later
-            // consumers this frame, and saves, observe them.
-            room.Projectiles.StepFrame(new SamusTerrain { Level = _room.LevelData, RoomObjects = room.RoomObjects,
-                Progression = _system }, samus, new ProjectileButtonInput { ControllerInput = _controller1.Current, ControllerNewInput = _controller1.NewlyPressed, ControllerPreviousNewInput = samus.InputSnapshot.PreviousDrawNewInput }, camera.PixelPosition, room.BombProjectiles, projectileProducerEnabled: !frame.AlphaInputLocked(samus), producerSoundSuppressed: room.BombProjectiles.SoundSuppressedBeforeProjectileHandling);
+            // The bomb half above has already decremented the shared projectile cooldown. The humanoid handler then
+            // dispatches the HUD producer, which fires and queues its sound, before the game handles any projectile: the
+            // bombs, then the shots (#1620). Passing the live camera position also gives the projectile deletion check
+            // its exact off-screen deletion window. The Spacetime beam's malformed callback entry writes straight into
+            // Samus's progression owners during this pass, so later consumers this frame, and saves, observe them.
+            var shotTerrain = new SamusTerrain { Level = _room.LevelData, RoomObjects = room.RoomObjects, Progression = _system };
+            room.Projectiles.FireFromHud(shotTerrain, samus, new ProjectileButtonInput { ControllerInput = _controller1.Current, ControllerNewInput = _controller1.NewlyPressed, ControllerPreviousNewInput = samus.InputSnapshot.PreviousDrawNewInput }, room.BombProjectiles, projectileProducerEnabled: !frame.AlphaInputLocked(samus));
+            _ = room.BombProjectiles.HandleBombs(new SamusTerrain { Level = _room.LevelData, RoomObjects = room.RoomObjects }, samus, overlap: BombJumpOverlapPublication.Deferred);
+            room.Projectiles.HandleShots(shotTerrain, samus, camera.PixelPosition, room.BombProjectiles);
 
             if (!_freeze.TimeIsFrozen)
                 room.BombProjectiles.ResolveSamusOverlap(samus, room.Projectiles.Firing.ProjectileInvincibilityTimer);

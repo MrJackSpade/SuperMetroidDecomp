@@ -40,8 +40,13 @@ internal static class PaletteFxProgramLayoutAccess
     extension(PaletteFxHeatAnimationScriptDefinitions)
     {
         /// <summary>The bank-$8D record <paramref name="suit"/>'s program shows at <paramref name="phase"/>.</summary>
-        internal static ushort Resolve(PaletteFxHeatSuit suit, ushort phase) =>
-            PaletteFxColorLayoutAccess.RecordAddress(PaletteFxHeatProgramMechanicsDefinitions.All.Single(item => item.Suit == suit).ColorFrames.Frame(phase));
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="suit"/> names no heat program's suit, or <paramref name="phase"/> no phase.</exception>
+        internal static ushort Resolve(PaletteFxHeatSuit suit, ushort phase)
+        {
+            PaletteFxHeatProgramDefinition program = PaletteFxHeatProgramMechanicsDefinitions.All.SingleOrDefault(item => item.Suit == suit)
+                ?? throw new ArgumentOutOfRangeException(nameof(suit), suit, "No heat program belongs to this suit.");
+            return PaletteFxColorLayoutAccess.RecordAddress(program.ColorFrames.Frame(phase));
+        }
     }
 
     /// <summary>Crateria lightning's native list structure.</summary>

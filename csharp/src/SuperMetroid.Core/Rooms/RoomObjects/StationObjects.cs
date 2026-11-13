@@ -37,21 +37,6 @@ internal sealed class StationObjects
     /// <summary>Blocks repeated save confirmation during the current room entry.</summary>
     internal bool SaveStationLockedOut { get; private set; }
 
-    /// <summary>
-    /// The saving sound queued when the save was accepted, until the frontend publishes it. The
-    /// acceptance runs at the message-close boundary, which completes no gameplay audio publication, so the sound
-    /// cannot ride the room-object sound list: the next room-object pass would clear it unheard.
-    /// </summary>
-    private SoundRequest? _pendingSavingSound;
-
-    /// <summary>Returns and clears the saving sound an accepted save queued, once.</summary>
-    internal SoundRequest? ConsumeSavingSoundRequest()
-    {
-        SoundRequest? request = _pendingSavingSound;
-        _pendingSavingSound = null;
-        return request;
-    }
-
     /// <summary>Frame start: drops the previous pass's activation events.</summary>
     internal void BeginFrame() => _stationActivationEvents.Clear();
 
@@ -114,8 +99,8 @@ internal sealed class StationObjects
         samus.FaceForward();
         samus.Control.LockHandlers();
 
-        // The accepted route queues the saving sound right after centring Samus.
-        _pendingSavingSound = _sounds.CreateSoundRequest(SamusSound.Saving, Priority: SoundRequestPriority.Normal);
+        // The accepted route queues the saving sound right after centring Samus, in the pass the message returned into.
+        _sounds.Queue(SamusSound.Saving, SoundRequestPriority.Normal);
         station.StartSaveAnimation(_drawing, level, activation.Block);
         return true;
     }

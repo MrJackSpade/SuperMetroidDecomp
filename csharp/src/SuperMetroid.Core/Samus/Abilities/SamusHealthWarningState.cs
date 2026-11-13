@@ -22,17 +22,17 @@ public sealed class SamusHealthWarningState
     /// Executes one admitted check. The caller owns handler admission and ordering;
     /// frozen gameplay alone is not a reason to omit the automatic-reserve external call.
     /// </summary>
-    internal void Update(int health, GameplayAudioRequests audio, bool soundSuppressed = false)
+    internal void Update(int health, GameplayAudioRequests audio)
     {
         Ensure.NotNull(audio);
         bool critical = health < HealthyThreshold;
         if (critical == IsActive) return;
 
-        // The latch changes regardless of queue admission. In particular a
-        // Power Bomb can suppress the sound while retaining this transition, and a
+        // The latch changes regardless of queue admission. In particular an exploding
+        // Power Bomb turns the sound away in the queue while this transition stays, and a
         // later call at unchanged health must not invent a retry of the lost request.
         if (!critical) IsActive = false;
-        audio.QueueSound(critical ? Start : Stop, WarningSoundPriority, soundSuppressed);
+        audio.QueueSound(critical ? Start : Stop, WarningSoundPriority);
         if (critical) IsActive = true;
     }
 }

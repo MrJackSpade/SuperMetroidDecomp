@@ -20,8 +20,6 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// </remarks>
 public sealed class SamusShinesparkState
 {
-    /// <summary>Live Power Bomb state consulted when a spark sound request is produced.</summary>
-    private SamusPowerBombExplosionState? _audioPowerBomb;
     /// <summary>
     /// The update's audio requests the spark's sounds join as they are made: Samus's, which her runtime points at its own.
     /// </summary>
@@ -50,16 +48,9 @@ public sealed class SamusShinesparkState
         _orbitTravel = Ensure.NotNull(orbitTravel);
     }
 
-    /// <summary>
-    /// Binds the room's projectile and sound owners before movement/palette production.
-    /// </summary>
-    internal void BindProjectileOwners(SamusPowerBombExplosionState powerBomb) => _audioPowerBomb = powerBomb;
-
     /// <summary>Points the spark's sounds at <paramref name="requests"/>, Samus's audio requests.</summary>
     internal void BindAudioRequests(GameplayAudioRequests requests) => AudioRequests = Ensure.NotNull(requests);
 
-    /// <summary>Whether the live power bomb's explosion silences a spark sound requested now.</summary>
-    private bool SoundSuppressed => _audioPowerBomb?.IsActive == true;
     /// <summary>The special suit colouring the shine runs: none, the stored shine's, or the shinespark's.</summary>
     public SamusSpecialPaletteType PaletteType { get; private set; }
 
@@ -227,7 +218,7 @@ public sealed class SamusShinesparkState
         {
             samus.BeamCharge.ClearChargeAndFlare();
             if (cancelledCharge >= BeamChargeDefinitions.ChargeSoundStartCounter)
-                AudioRequests.QueueSound(SamusSound.Silence, SoundRequestPriority.High, SoundSuppressed);
+                AudioRequests.QueueSound(SamusSound.Silence, SoundRequestPriority.High);
         }
 
         // The windup takes over Samus's movement and suit colouring. Flash's live
@@ -521,7 +512,7 @@ public sealed class SamusShinesparkState
         if (!deferPoseChange)
             ApplyDirectionalLaunchPose(samus, targetPose);
         samus.HorizontalSpeed.ClearSpeedEchoes();
-        AudioRequests.QueueSound(RoomSound.Shinespark, SoundRequestPriority.High, SoundSuppressed);
+        AudioRequests.QueueSound(RoomSound.Shinespark, SoundRequestPriority.High);
     }
 
     /// <summary>Commits the interrupted launch pose after the current frame's animation.</summary>
@@ -639,7 +630,7 @@ false);
             return false;
 
         if (PaletteType == SamusSpecialPaletteType.SpeedBoosterShine && ShineTimer == 170)
-            AudioRequests.QueueSound(RoomSound.StoredShinespark, SoundRequestPriority.High, SoundSuppressed);
+            AudioRequests.QueueSound(RoomSound.StoredShinespark, SoundRequestPriority.High);
 
         bool expired = --ShineTimer <= 0;
         if (expired)
@@ -697,10 +688,9 @@ false);
         samus.HorizontalSpeed.ClearSpeedEchoes();
         FirstOrbitingCopy = SecondOrbitingCopy = samus.Position.Whole;
         Phase = ShinesparkPhase.Crash;
-        // The crash entry queues its two sounds together, under one test of the power bomb.
-        bool crashSoundSuppressed = SoundSuppressed;
-        AudioRequests.QueueSound(SamusSound.SamusDamaged, SoundRequestPriority.Normal, crashSoundSuppressed);
-        AudioRequests.QueueSound(RoomSound.ShinesparkEnd, SoundRequestPriority.Normal, crashSoundSuppressed);
+        // The crash entry queues its two sounds together.
+        AudioRequests.QueueSound(SamusSound.SamusDamaged, SoundRequestPriority.Normal);
+        AudioRequests.QueueSound(RoomSound.ShinesparkEnd, SoundRequestPriority.Normal);
     }
 
     /// <summary>The steps of a 256-step turn the orbiting copies turn by on each orbiting call.</summary>

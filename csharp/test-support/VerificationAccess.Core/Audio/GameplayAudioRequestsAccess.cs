@@ -93,13 +93,9 @@ internal static class GameplayAudioRequestsAccess
 
         /// <summary>
         /// Begins a check's update of Samus's audio, as an animation call outside the runtime does: the earlier requests
-        /// leave her record and <paramref name="powerBomb"/> becomes the explosion that silences her sounds.
+        /// leave her record.
         /// </summary>
-        internal void BeginFrameSoundRequests(SamusPowerBombExplosionState? powerBomb = null)
-        {
-            self.AudioRequests.BeginUpdate();
-            self.BindPowerBombAudio(powerBomb);
-        }
+        internal void BeginFrameSoundRequests() => self.AudioRequests.BeginUpdate();
     }
 
     /// <summary>The state of a check's game, which no attract demo drives.</summary>

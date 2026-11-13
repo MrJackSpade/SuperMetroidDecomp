@@ -82,13 +82,10 @@ public sealed class HudState
     /// <param name="samus">Samus, whose values the HUD shows.</param>
     /// <param name="audio">The update's audio requests the selection sound joins.</param>
     /// <param name="timeIsFrozen">Whether time is frozen, which silences the selection.</param>
-    /// <param name="soundSuppressed">Whether sounds are suppressed as the HUD requests its sound.</param>
-    [IndependentFlag("Time freeze and sound suppression are separate runtime states supplied by the frame.")]
     internal void UpdateGameplayCounters(
         SamusState samus,
         GameplayAudioRequests audio,
-        bool timeIsFrozen = false,
-        bool soundSuppressed = false)
+        bool timeIsFrozen = false)
     {
         Ensure.NotNull(samus);
         Ensure.NotNull(audio);
@@ -108,7 +105,7 @@ public sealed class HudState
             if (movementType is not (SamusMovementType.SpinJumping or SamusMovementType.WallJumping) &&
                 samus.Grapple.Phase == GrapplePhase.Inactive &&
                 !timeIsFrozen)
-                audio.QueueSound(SamusSound.HudWeaponSelect, SoundRequestPriority.Normal, soundSuppressed);
+                audio.QueueSound(SamusSound.HudWeaponSelect, SoundRequestPriority.Normal);
         }
     }
 

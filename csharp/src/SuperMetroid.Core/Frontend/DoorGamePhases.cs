@@ -22,7 +22,7 @@ internal sealed class DoorGamePhases(FrontendSession session)
         // The door's next state follows in the same dispatch and publishes the one after it.
         // The update's per-line effect pass runs before this phase. A rising
         // liquid's rumble or ambient sound it requests is queued as it runs, ahead of the cancels.
-        session.GameplayRuntime.DoorTransition.RunDoorSoundWaitPrologue(controllerInput, session.GameplayRuntime.Room.LoadedScope.RoomObjects, session.GameplayRuntime.Room.LoadedScope.BombProjectiles, session.GameplayRuntime.Room.LoadedScope);
+        session.GameplayRuntime.DoorTransition.RunDoorSoundWaitPrologue(controllerInput, session.GameplayRuntime.Room.LoadedScope.RoomObjects, session.GameplayRuntime.Room.LoadedScope);
         // The door sets the door/enemy pause flags, then runs the source
         // enemy/draw owners while sounds are still admitted, so an enemy instruction's
         // sound on this frame is queued, as it runs, before the door's cancels.
@@ -34,24 +34,23 @@ internal sealed class DoorGamePhases(FrontendSession session)
         SamusState doorSamus = session.GameplayRuntime.Player.Samus
             ?? throw new InvalidOperationException("Door transition requires live Samus state.");
         SamusMovementType doorMovementType = SamusPoseMetadata.ReadMovementType(doorSamus);
-        // A live power-bomb explosion drops all three requests inside the queue
-        // queues, so neither ring holds anything for the door to wait on.
-        bool doorSoundsSuppressed = session.GameplayRuntime.PowerBombExplosionSuppressesSounds;
+        // A live power-bomb explosion turns all three requests away in the queues' own test, so neither ring holds
+        // anything for the door to wait on.
         if (doorMovementType is
             SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
         {
             session.audio.QueueSound(SamusSound.SpinJumpEnd,
-                priority: SoundRequestPriority.Essential, soundSuppressed: doorSoundsSuppressed);
+                priority: SoundRequestPriority.Essential);
         }
         // The door's spin-sound check tests the shot binding; the action latch holds it as X.
         else if ((session.GameplayRuntime.Controller1.Current & ControllerButton.X) == ControllerButton.None &&
             session.GameplayRuntime.BeamCharge.FlareCounter < 16)
         {
             session.audio.QueueSound(SamusSound.Silence,
-                priority: SoundRequestPriority.Essential, soundSuppressed: doorSoundsSuppressed);
+                priority: SoundRequestPriority.Essential);
         }
         session.audio.QueueSound(EnemySound.Silence,
-            priority: SoundRequestPriority.Essential, soundSuppressed: doorSoundsSuppressed);
+            priority: SoundRequestPriority.Essential);
         // The door's music step follows both entry cancellation commands, not precedes them.
         session.audio.DoorTransitionSoundsDisabled = true;
         // For ordinary doors the door-collision state runs the transition's beginning in the same update, and the
@@ -74,8 +73,7 @@ internal sealed class DoorGamePhases(FrontendSession session)
             // The game resumes spin audio only after sound admission is
             // restored at the final fade boundary, not on each fade frame.
             if (SamusSpinSoundCommand.Select(session.GameplayRuntime.Player.IntroducedSamus) is { } spinSound)
-                session.audio.QueueSound(spinSound, priority: SoundRequestPriority.High,
-                    soundSuppressed: session.GameplayRuntime.AttractDemo.IsAttractDemo || session.GameplayRuntime.PowerBombExplosionSuppressesSounds);
+                session.audio.QueueSound(spinSound, priority: SoundRequestPriority.High);
             session.GameState = SuperMetroidGameState.MainGameplay;
         }
     }

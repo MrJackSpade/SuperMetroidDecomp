@@ -66,9 +66,8 @@ internal sealed class GameplayAudioRequests
     /// <summary>Requests <paramref name="soundEffect"/> now (see <see cref="QueueSound(SoundRequest)"/>).</summary>
     /// <param name="soundEffect">The sound.</param>
     /// <param name="priority">How full its queue may be for the request to join it.</param>
-    /// <param name="soundSuppressed">Whether sounds were suppressed when the request was made.</param>
-    internal SoundQueueAdmission? QueueSound(SoundEffectId soundEffect, SoundRequestPriority priority, bool soundSuppressed = false) =>
-        QueueSound(new SoundRequest(soundEffect, priority, soundSuppressed));
+    internal SoundQueueAdmission? QueueSound(SoundEffectId soundEffect, SoundRequestPriority priority) =>
+        QueueSound(new SoundRequest(soundEffect, priority));
 
     /// <summary>Schedules <paramref name="request"/> now, after the update's earlier music requests.</summary>
     internal void ScheduleMusic(DelayedMusicRequest request) => QueueMusic(new GameplayMusicRequest.Scheduled(request));

@@ -23,6 +23,13 @@ request for the end of a pass or the end of the update, and nothing joins reques
 queues only the audio of its own boundaries (room music, the music a loading room's enemies start, a message box's
 one-shot sounds). The record is cleared when the next update begins and is what a check reads.
 
+Whether a sound joins its queue is the queue's own test, made as the request reaches it (`SoundQueueAdmission`,
+`docs/compatibility-layer.md`): the queue's occupancy against the request's priority, then whether the door's switch
+disables sounds, an attract demo plays or a power bomb explodes, read from the session's live runtime at that moment. No
+requester tests any of these itself and no request carries a suppression flag, as every request in the original passes
+through one of its three sound-queue routines, which each make all of these tests (#1620). The music queue tests only the
+demo.
+
 ## The rule
 
 `AudioRequestAnalyzer` reports, in the `SuperMetroid.Core` assembly only, every instance field or property of an audio

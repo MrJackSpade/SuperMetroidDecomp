@@ -207,6 +207,7 @@ internal static void VerifySamusHorizontalSpeed()
     AssertEqual(0, booster.ExtraRunSpeed.Fraction, "Speed Booster cap has zero fraction");
 
     int boostFrame = 1;
+    int echoRequests = 0;
     for (int command = 0; command < 4; command++)
     {
         bool intercepted = booster.TryAdvanceSpeedBoosterAnimationStage(
@@ -215,7 +216,12 @@ internal static void VerifySamusHorizontalSpeed()
             controllerInput: ControllerButton.B,
             animationFrameBuffer: 0,
             ref boostFrame,
-            out int boostTimer);
+            out int boostTimer,
+            requestEchoSound: () =>
+            {
+                echoRequests++;
+                return null;
+            });
         if (command == 0)
         {
             AssertTrue(intercepted, "first stage-zero command advances Speed Booster");
@@ -224,11 +230,7 @@ internal static void VerifySamusHorizontalSpeed()
         }
     }
     AssertEqual(new SamusSpeedBoostCounter(4, 2), booster.SpeedBoostCounter, "Speed Booster reaches stage four countdown");
-    AssertTrue(booster.EchoSoundRequested, "stage four publishes speed-echo sound event");
-    AssertTrue(booster.ConsumeEchoSoundRequest(),
-        "frontend can consume the speed-echo publication exactly once");
-    AssertTrue(!booster.ConsumeEchoSoundRequest(),
-        "consumed speed-echo publication cannot replay on a later frame");
+    AssertEqual(1, echoRequests, "reaching stage four requests the speed-echo sound once, as the stage advances");
     AssertEqual(SamusContactDamageIndex.None, booster.ContactDamageIndex, "stage four animation waits for movement to publish contact damage");
 
     // $90:9813 is a common epilogue, including the released/airborne/liquid

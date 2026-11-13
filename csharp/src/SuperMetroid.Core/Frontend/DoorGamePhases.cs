@@ -21,15 +21,13 @@ internal sealed class DoorGamePhases(FrontendSession session)
             return;
         // The door's next state follows in the same dispatch and publishes the one after it.
         // The update's per-line effect pass runs before this phase. A rising
-        // liquid's rumble or ambient sound it requests is admitted ahead of the cancels.
+        // liquid's rumble or ambient sound it requests is queued as it runs, ahead of the cancels.
         session.GameplayRuntime.DoorTransition.RunDoorSoundWaitPrologue(controllerInput, session.GameplayRuntime.Room.LoadedScope.RoomObjects, session.GameplayRuntime.Room.LoadedScope.BombProjectiles, session.GameplayRuntime.Room.LoadedScope);
-        PublishDoorEntryRoomFxSounds(session.GameplayRuntime);
         // The door sets the door/enemy pause flags, then runs the source
         // enemy/draw owners while sounds are still admitted, so an enemy instruction's
-        // sound on this frame is queued before the door's cancels.
+        // sound on this frame is queued, as it runs, before the door's cancels.
         session.doorTransition.Begin(session.GameplayRuntime);
         session.GameplayRuntime.DoorTransition.DrawDoorTransitionActors(enemyProjectiles: DoorTransitionEnemyProjectiles.Held, session.GameplayRuntime.Room.LoadedScope);
-        CollectDoorSoundWaitAudioRequests(session.GameplayRuntime);
         // The door runs Samus's door-entry command, then queues
         // the enemy library's silence so movement/charge loops terminate rather than leaking
         // into the next room.
@@ -65,8 +63,7 @@ internal sealed class DoorGamePhases(FrontendSession session)
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.DoorTransition"/>.</summary>
     internal void DispatchDoorTransition(ControllerButton controllerInput)
     {
-        session.doorTransition.Step(session.GameplayRuntime, session.audio, controllerInput, session.RoomLoadProgress,
-            publishSoundWaitAudio: () => CollectDoorSoundWaitAudioRequests(session.GameplayRuntime));
+        session.doorTransition.Step(session.GameplayRuntime, session.audio, controllerInput, session.RoomLoadProgress);
         session.display.PublishGameplay(session.GameplayRuntime);
         if (session.doorTransition.Phase == DoorTransitionPhase.Complete)
         {
@@ -81,29 +78,6 @@ internal sealed class DoorGamePhases(FrontendSession session)
                     soundSuppressed: session.GameplayRuntime.AttractDemo.IsAttractDemo || session.GameplayRuntime.PowerBombExplosionSuppressesSounds);
             session.GameState = SuperMetroidGameState.MainGameplay;
         }
-    }
-
-    /// <summary>Queues the sounds the entry update's per-line effect pass requested while sounds are still enabled.</summary>
-    private void PublishDoorEntryRoomFxSounds(SuperMetroidRuntime source)
-    {
-        if (source.AttractDemo.IsAttractDemo)
-            return;
-        foreach (var request in source.Room.LoadedScope.FxOverlay.SoundRequests)
-            session.audio.QueueSound(request);
-    }
-
-    /// <summary>Collects only enemy and Samus audio emitted during the door music-wait pass.</summary>
-    private void CollectDoorSoundWaitAudioRequests(SuperMetroidRuntime source)
-    {
-        // This coroutine completes no ordinary gameplay publication. Only the
-        // owners run by its enemy/draw pass may refill the rings before the test.
-        foreach (SoundRequest request in source.Room.LoadedScope.Enemies.Audio.SoundRequests)
-            session.audio.QueueSound(request);
-        foreach (DelayedMusicRequest request in source.Room.LoadedScope.Enemies.Audio.MusicRequests)
-            session.audio.ScheduleMusic(request.Request, request.Delay);
-        if (source.Player.Samus is { } samus)
-            foreach (SoundRequest request in samus.LiquidPhysics.SoundRequests)
-                session.audio.QueueSound(request);
     }
 
     /// <summary>

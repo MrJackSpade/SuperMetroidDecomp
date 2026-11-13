@@ -59,9 +59,9 @@ internal sealed class LoadingGamePhases(FrontendSession session)
     }
 
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.MainGameplayFadeIn"/>.</summary>
-    internal void DispatchMainGameplayFadeIn(ControllerButton controllerInput, GameplayAudioFramePublication gameplayAudio)
+    internal void DispatchMainGameplayFadeIn(ControllerButton controllerInput)
     {
-        session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Audio = gameplayAudio.GameplayFrameAudio(session.GameplayRuntime) });
+        session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Audio = GameplayFrameAudio.Gameplay(session.GameplayRuntime) });
         session.display.PublishGameplay(session.GameplayRuntime);
         session.SetDisplayBrightness(session.GameplayFadeIn.Brightness);
         session.HandleGunshipLandingSave();

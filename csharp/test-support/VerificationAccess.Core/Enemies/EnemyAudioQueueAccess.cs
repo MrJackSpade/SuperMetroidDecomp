@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies;
 
-/// <summary>Verification reads of the sounds <see cref="EnemyAudioQueue"/> has queued, through its public request list.</summary>
+/// <summary>Verification reads of the sounds the enemies have queued, through the audio requests their queue joins.</summary>
 internal static class EnemyAudioQueueAccess
 {
     /// <summary>Reads the sounds a check's enemies have queued since the update's audio began.</summary>

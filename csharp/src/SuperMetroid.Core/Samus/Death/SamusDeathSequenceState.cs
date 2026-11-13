@@ -50,16 +50,6 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
     /// <summary>Screen-space position captured at death-pose setup.</summary>
     public Position16<ScreenPixels> ScreenPosition { get; private set; }
 
-    /// <summary>Set only when the source movement type was spin jumping and the spin-jump sound's end is queued.</summary>
-    public bool SpinJumpSoundRequested { get; private set; }
-
-    /// <summary>Consumes death setup's normal-priority sound request.</summary>
-    public bool ConsumeSpinJumpSoundRequest()
-    {
-        bool requested = SpinJumpSoundRequested;
-        SpinJumpSoundRequested = false;
-        return requested;
-    }
 
     /// <summary>The suit-explosion frame shown, or null outside the explosion.</summary>
     public int? ExplosionFrame =>
@@ -112,7 +102,9 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
         AnimationIndex = 0;
         AnimationCounter = 0;
         Whiteout = null;
-        SpinJumpSoundRequested = sourceMovementType == SamusMovementType.SpinJumping;
+        // Dying while spin jumping ends the spin's sound at normal priority.
+        if (sourceMovementType == SamusMovementType.SpinJumping)
+            samus.AudioRequests.QueueSound(SamusSound.SpinJumpEnd, SoundRequestPriority.Normal);
         Phase = SamusDeathSequencePhase.PreFlashing;
 
         return new SamusDeathSequenceStartResult();

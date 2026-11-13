@@ -105,20 +105,6 @@ public sealed class SamusCrystalFlashState
     /// <summary>Set when the raise finishes and the bubble's two per-line window effects start.</summary>
     public bool BubbleEffectRequested { get; private set; }
 
-    /// <summary>Set when the raising handler queues the activation sound.</summary>
-    public bool ActivationSoundRequested { get; private set; }
-
-    /// <summary>
-    /// Consumes the one essential-priority sound request made when the raising phase
-    /// becomes the main Crystal Flash phase. The flag stays set until consumed; this
-    /// method gives the frontend the one-shot semantics.
-    /// </summary>
-    public bool ConsumeActivationSoundRequest()
-    {
-        bool requested = ActivationSoundRequested;
-        ActivationSoundRequested = false;
-        return requested;
-    }
 
     /// <summary>
     /// Starts Crystal Flash when Samus may use it: checks every admission condition and sets up the raise.
@@ -200,7 +186,6 @@ public sealed class SamusCrystalFlashState
         BeamPaletteRestoreRequested = false;
         BodyStep = 0;
         BubbleEffectRequested = false;
-        ActivationSoundRequested = false;
         // Activation discards existing hit immunity; Crystal Flash is not a damage shield.
         samus.InvincibilityTimer = WrappingCountdown.Start(0);
         samus.KnockbackTimer = 0;
@@ -271,7 +256,8 @@ public sealed class SamusCrystalFlashState
         RaisedPosition = Position16<RoomPixels>.Zero.WithY(samus.Position.Y.Whole);
         Phase = CrystalFlashPhase.DrainingAmmo;
         BubbleEffectRequested = true;
-        ActivationSoundRequested = true;
+        // The raise becomes the main phase with one essential-priority request that silences the room library.
+        samus.AudioRequests.QueueSound(RoomSound.Silence, SoundRequestPriority.Essential);
         samus.InvincibilityTimer = WrappingCountdown.Start(0);
         samus.KnockbackTimer = 0;
         samus.KnockbackActive = false;

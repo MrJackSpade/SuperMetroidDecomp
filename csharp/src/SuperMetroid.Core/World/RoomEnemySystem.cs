@@ -879,7 +879,6 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         Presentation.BindBackgrounds(request.Appearance);
         FrameResults.Begin();
         BossFrameResults.Begin();
-        BeginEnemySoundRequestFrame();
         // Initialization AI reads the already-positioned destination camera before the first enemy frame captures its own.
         RinkaBehavior.SetRinkaCamera(request.Camera);
         ShuttersBehavior.BeginShutterFrame(request.Camera);
@@ -911,7 +910,6 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         var aiFrame = new ClockedEnemyAiFrame(frame, new FrameCounters(frame.ShortCounter));
         FrameResults.Begin();
         BossFrameResults.Begin();
-        BeginEnemySoundRequestFrame();
         foreach (IEnemySpecies species in _species)
             species.BeginEnemyFrame(frame);
         Drawing.Clear();
@@ -1087,12 +1085,6 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
                 slot.ShakeTimer = RoomEarthquakeDefinitions.EnemyShakeDuration;
         }
         return Earthquake.LastRoomShake;
-    }
-
-    /// <summary>Begins the update's enemy audio: the previous update's requests, already received by the audio queues, are dropped.</summary>
-    internal void BeginEnemySoundRequestFrame()
-    {
-        Audio.BeginFrame();
     }
 
     /// <summary>

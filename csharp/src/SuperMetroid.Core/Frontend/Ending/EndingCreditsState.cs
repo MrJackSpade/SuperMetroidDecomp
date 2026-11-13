@@ -413,7 +413,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
 
         // The cinematic runs its colour effects after actors; the ending's colours show the record each holds (#1512, #1597).
         Stage.PaletteFxSystem.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false });
-        if (Stage.PaletteFxSystem.SoundRequests.Count != 0)
+        if (Stage.PaletteFxSystem.AudioRequests.SoundRequests.Count != 0)
             throw new InvalidDataException("Ending palette program requested an unhandled audio command.");
         // The ending follows cinematic actors even while a text-only screen hides sprites.
         // The credits' end enables the already-initialized records when the credits finish.

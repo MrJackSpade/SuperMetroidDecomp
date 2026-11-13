@@ -92,8 +92,11 @@ public sealed class SamusLiquidPhysicsState
     /// </summary>
     public BreathBubbleAndLavaSprayWaits EffectWaits { get; }
 
-    /// <summary>Audio requests published by movement, liquid effects, and landing during one Samus handler frame.</summary>
-    private readonly List<SoundRequest> _soundRequests = [];
+    /// <summary>
+    /// The update's audio requests her movement, liquid, landing and footstep sounds join as they are made: Samus's, which
+    /// her runtime points at its own.
+    /// </summary>
+    internal GameplayAudioRequests AudioRequests { get; private set; } = new();
     /// <summary>Transient Power Bomb state that suppresses selected sounds without entering saved Samus state.</summary>
     private SamusPowerBombExplosionState? _audioPowerBomb;
 
@@ -138,34 +141,24 @@ public sealed class SamusLiquidPhysicsState
     /// </summary>
     public SamusLiquidMedium LiquidPhysicsType { get; internal set; }
 
-    /// <summary>
-    /// Sound-library requests emitted by the current Samus animation call. A host audio
-    /// backend may consume these without moving sound policy out of the translated routines.
-    /// </summary>
-    public IReadOnlyList<SoundRequest> SoundRequests => _soundRequests;
+    /// <summary>Points her sounds at <paramref name="requests"/>, Samus's audio requests.</summary>
+    internal void BindAudioRequests(GameplayAudioRequests requests) => AudioRequests = Ensure.NotNull(requests);
 
     /// <summary>
-    /// Starts one Samus-handler sound-publication window. Runtime calls this before
-    /// movement because landing audio is emitted by collision, before
-    /// Samus is animated. Standalone animation calls retain their convenient default of
-    /// beginning a window themselves.
+    /// Binds the live power bomb whose explosion suppresses her sounds. The runtime binds it before movement because
+    /// landing audio is emitted by collision, before Samus is animated.
     /// </summary>
-    public void BeginFrameSoundRequests(SamusPowerBombExplosionState? powerBomb = null)
-    {
-        _soundRequests.Clear();
-        // One live owner spans movement, animation and post-draw calls. Capture its
-        // value on each request because a bomb may activate between those stages.
+    public void BindPowerBombAudio(SamusPowerBombExplosionState? powerBomb) =>
+        // One live owner spans movement, animation and post-draw calls. Its value is read on each request because a bomb
+        // may activate between those stages.
         _audioPowerBomb = powerBomb;
-    }
 
     /// <summary>
-    /// Publishes a sound selected by a movement routine into the same per-frame Samus queue
-    /// used by liquid entry, footsteps, and landing impact.
+    /// Queues a sound selected by a movement routine now, beside those of liquid entry, footsteps and landing impact.
     /// </summary>
     /// <remarks>
     /// This is intentionally not a general audio backend. movement owns a handful
-    /// of exact queue calls—most notably underwater Space Jump's sound—and
-    /// the runtime already begins one shared publication window before movement.
+    /// of exact queue calls, most notably underwater Space Jump's sound.
     /// </remarks>
     public void QueueMovementSound(SoundEffectId soundEffect, SoundRequestPriority priority) =>
         QueueSound(soundEffect, priority);
@@ -232,7 +225,6 @@ public sealed class SamusLiquidPhysicsState
         LiquidOptions = RoomLiquidOptions.None;
         LiquidPhysicsType = SamusLiquidMedium.Air;
         PendingPeriodicDamage = default;
-        _soundRequests.Clear();
         EffectWaits.Clear();
         _particles.Clear();
     }
@@ -338,12 +330,15 @@ public sealed class SamusLiquidPhysicsState
     {
         Ensure.NotNull(samus);
 
-        // A call made outside the frame loop begins a publication window here. The full runtime
-        // begins it before movement and passes false, preserving collision sounds queued by
-        // landing before this animation phase. Particles, effect waits and damage are
-        // persistent state and therefore are never cleared merely because a frame began.
+        // A call made outside the frame loop is an update of its own: it begins the update's audio and unbinds the power
+        // bomb here. The full runtime begins its update before movement and passes false, preserving collision sounds
+        // queued by landing before this animation phase. Particles, effect waits and damage are persistent state and
+        // therefore are never cleared merely because a frame began.
         if (beginSoundRequestFrame)
-            BeginFrameSoundRequests();
+        {
+            AudioRequests.BeginUpdate();
+            BindPowerBombAudio(null);
+        }
 
         SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
         TrySpawnRunningFootsteps(samus, movementType, bossPresent);
@@ -840,7 +835,7 @@ public sealed class SamusLiquidPhysicsState
 
     /// <summary>Publishes a bounded sound request marked for suppression while a Power Bomb is active.</summary>
     private void QueueSound(SoundEffectId soundEffect, SoundRequestPriority priority) =>
-        _soundRequests.Add(new SoundRequest(soundEffect, priority,
+        AudioRequests.QueueSound(new SoundRequest(soundEffect, priority,
             SoundSuppressed: _audioPowerBomb?.IsActive == true));
 
     /// <summary>

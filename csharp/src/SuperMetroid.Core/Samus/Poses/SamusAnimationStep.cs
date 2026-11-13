@@ -21,7 +21,10 @@ public sealed record SamusAnimationStep
     /// <summary>The session's random-number generator, which Samus's liquid effects draw air bubbles from.</summary>
     public required SharedRandom Random { get; init; }
 
-    /// <summary>Begin liquid sound request frame.</summary>
+    /// <summary>
+    /// Whether the animation call is an update of its own, which begins Samus's audio requests; the runtime's animation
+    /// runs inside its update and passes false.
+    /// </summary>
     public bool BeginLiquidSoundRequestFrame { get; init; } = true;
 
     /// <summary>Prospective input pose.</summary>

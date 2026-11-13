@@ -58,12 +58,6 @@ public sealed class SamusHorizontalSpeedState
     public int SpecialPaletteTimer { get; set; }
 
     /// <summary>
-    /// One-shot event set when the boost reaches stage four. Audio can consume this flag
-    /// later without making the movement translation depend on a host sound backend.
-    /// </summary>
-    public bool EchoSoundRequested { get; set; }
-
-    /// <summary>
     /// The echo sound's flag: set before the echo sound's start request,
     /// consumed after boost ends, or cleared silently by quicksand: one while set, zero while clear, and the setter rejects
     /// any other value.
@@ -72,14 +66,6 @@ public sealed class SamusHorizontalSpeedState
     {
         get;
         set => field = Ensure.BetweenInclusive(0, 1, value);
-    }
-
-    /// <summary>Consumes speed stage four's normal-priority echo sound request.</summary>
-    public bool ConsumeEchoSoundRequest()
-    {
-        bool requested = EchoSoundRequested;
-        EchoSoundRequested = false;
-        return requested;
     }
 
     /// <summary>Contact-damage selector published when the counter reaches stage four.</summary>
@@ -267,11 +253,10 @@ public sealed class SamusHorizontalSpeedState
     /// <param name="animationFrameBuffer">Frame-delay adjustment added to the selected stage's first animation delay.</param>
     /// <param name="animationFrame">Current animation frame, reset to zero only when this call consumes the command.</param>
     /// <param name="animationFrameTimer">Zero when the command is not consumed; otherwise the new first-frame delay plus the buffer, wrapped to sixteen bits.</param>
-    /// <param name="queueEchoSound">
-    /// Synchronous sound call, returning what the queue did with the echo.
-    /// Supplying it reproduces the game's queue-dependent table selection and
-    /// replaces deferred sound publication. Null retains the legacy deferred path;
-    /// standalone callers can omit it when no audio queue is attached.
+    /// <param name="requestEchoSound">
+    /// Requests the echo's sound as the stage reaches four, returning what its queue did with it, which selects the
+    /// restart countdown and the first frame's cadence; or none when no queue answered (a Samus outside a session), when
+    /// the stage just stored selects them.
     /// </param>
     public bool TryAdvanceSpeedBoosterAnimationStage(
         UnauthoredBoostCadence unauthoredBoostCadence,
@@ -280,8 +265,9 @@ public sealed class SamusHorizontalSpeedState
         int animationFrameBuffer,
         ref int animationFrame,
         out int animationFrameTimer,
-        Func<SoundQueueAdmission>? queueEchoSound = null)
+        Func<SoundQueueAdmission?> requestEchoSound)
     {
+        Ensure.NotNull(requestEchoSound);
         animationFrameTimer = 0;
         const ControllerButton dashButton = ControllerButton.B;
         ControllerButton heldButtons = controllerInput;
@@ -302,15 +288,11 @@ public sealed class SamusHorizontalSpeedState
             if (SpeedBoostCounter.IsAtFullStage)
             {
                 EchoSoundFlag = 1;
-                if (queueEchoSound is null)
-                    EchoSoundRequested = true;
-                else
-                {
-                    // What the echo's queue request reports, not the stage just stored, picks
-                    // both the restart countdown and the first frame's cadence. Do not clamp
-                    // it: a full queue picks the unauthored cadence.
-                    echoSelection = SamusRunningCadences.EchoQueueSelection(queueEchoSound());
-                }
+                // What the echo's queue request reports, not the stage just stored, picks
+                // both the restart countdown and the first frame's cadence. Do not clamp
+                // it: a full queue picks the unauthored cadence.
+                if (requestEchoSound() is { } admission)
+                    echoSelection = SamusRunningCadences.EchoQueueSelection(admission);
             }
         }
 

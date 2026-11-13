@@ -12,11 +12,11 @@ namespace SuperMetroid.Core.Frontend;
 internal sealed class DeathGamePhases(FrontendSession session)
 {
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.DeathSequenceStart"/>.</summary>
-    internal void DispatchDeathSequenceStart(ControllerButton controllerInput, GameplayAudioFramePublication gameplayAudio)
+    internal void DispatchDeathSequenceStart(ControllerButton controllerInput)
     {
         // The death sequence's first state deliberately completes one final gameplay pass with the game clock held, then
         // begins fading the whole display to black, which Samus's own colours are spared (#1544).
-        session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false }, Audio = gameplayAudio.GameplayFrameAudio(session.GameplayRuntime) });
+        session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false }, Audio = GameplayFrameAudio.Gameplay(session.GameplayRuntime) });
         session.display.PublishGameplay(session.GameplayRuntime);
         BeginDeathFade();
         SamusState dyingSamus = session.GameplayRuntime.Player.Samus
@@ -30,9 +30,9 @@ internal sealed class DeathGamePhases(FrontendSession session)
     }
 
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.DeathBlackOutSurroundings"/>.</summary>
-    internal void DispatchDeathBlackOutSurroundings(ControllerButton controllerInput, GameplayAudioFramePublication gameplayAudio)
+    internal void DispatchDeathBlackOutSurroundings(ControllerButton controllerInput)
     {
-        session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false }, Audio = gameplayAudio.GameplayFrameAudio(session.GameplayRuntime) });
+        session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false }, Audio = GameplayFrameAudio.Gameplay(session.GameplayRuntime) });
         bool fadeComplete = StepDeathFade();
         session.display.PublishGameplay(session.GameplayRuntime);
         if (fadeComplete)

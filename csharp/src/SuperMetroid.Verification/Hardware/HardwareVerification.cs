@@ -501,17 +501,8 @@ internal static void VerifyFrameRuntime()
     runtime.StepFrame(ControllerButton.Start);
     AssertEqual(ControllerButton.None, runtime.Controller1.NewlyPressed, "second runtime frame sees stable hold");
     AssertEqual(2, runtime.Clock.Counter, "accepted NMI counter advances twice");
-    AssertEqual((ulong)2, runtime.FrameBoundary.CompletedGameplayAudioPublication,
-        "complete gameplay passes publish distinct audio generations");
     AssertEqual(CeresPerspectiveFloors.ElevatorShaft(secondMode7, runtime.Display.DisplayedGameplayScrolls.ForegroundScroll),
         runtime.Display.DisplayedPerspectiveFloor, "the following accepted frame shows the changed transform");
-
-    // Door/pause frontend coroutines accept NMIs without running the gameplay owner list.
-    // They must not make the frontend consume the preceding enemy/PLM audio publication
-    // again, or a door waiting for unread SFX entries can refill its own queue forever.
-    runtime.RunBlankGameplayFrame(controllerInput: 0);
-    AssertEqual((ulong)2, runtime.FrameBoundary.CompletedGameplayAudioPublication,
-        "NMI-only frontend frame does not republish gameplay audio");
 
     Console.WriteLine("  Runtime: frame seam, NMI order, and lag accounting agree.");
 }

@@ -271,9 +271,8 @@ internal sealed class DoorTransitionRunner
     internal void DrawDoorTransitionActors(DoorTransitionEnemyProjectiles enemyProjectiles, RoomScope room)
     {
         _sprites.BeginFrame();
-        // The draw handler can append spin-stop/charge sounds. Do not publish the
-        // prior gameplay frame's liquid, movement, projectile or room-object requests again.
-        _player.Samus?.LiquidPhysics.BeginFrameSoundRequests(room.BombProjectiles.PowerBombExplosion);
+        // The draw handler can queue spin-stop/charge sounds, which the live power bomb silences.
+        _player.Samus?.LiquidPhysics.BindPowerBombAudio(room.BombProjectiles.PowerBombExplosion);
         _enemyPhase.RunEnemyMainPhase(processingList: EnemyProcessingList.Unprepared, _room.Camera?.PreviousSamusPoint, room);
         // The Samus-collision pass belongs to gameplay only.
         if (enemyProjectiles == DoorTransitionEnemyProjectiles.Run)

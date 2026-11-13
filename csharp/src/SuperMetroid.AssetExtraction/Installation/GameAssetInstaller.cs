@@ -106,10 +106,29 @@ public static class GameAssetInstaller
         using FileStream gate = Lock(installation.Root);
         RecoverInterruptedPublish(installation);
         if (IsComplete(installation)) return installation;
+        WriteImportCopy(installation, rom);
         return ExtractAndPublish(installation, rom, components, cancellationToken, progress);
     }
 
-    /// <summary>Requires both an installed cartridge copy and a current receipt.</summary>
+    /// <summary>
+    /// Keeps <paramref name="rom"/>, validated, as the import's private copy beside the content directory (#1711), which repair
+    /// extracts from again. The copy is written beside its final name and moved over it, so an interrupted write never leaves
+    /// a partial copy under that name.
+    /// </summary>
+    private static void WriteImportCopy(GameInstallation installation, byte[] rom)
+    {
+        string directory = Path.Combine(installation.Root, GameInstallationLayout.ImportDirectoryName);
+        Directory.CreateDirectory(directory);
+        string written = Path.Combine(directory, GameInstallationLayout.StagingPrefix + GameInstallationLayout.RomFileName);
+        File.WriteAllBytes(written, rom);
+        File.Move(written, installation.RomPath, overwrite: true);
+    }
+
+    /// <summary>
+    /// Requires both the import's private cartridge copy and a current receipt. An installation whose copy is not where this
+    /// importer keeps it, as one an older importer published with its copy inside the content directory, is not complete:
+    /// it is extracted again only from a cartridge the player supplies.
+    /// </summary>
     private static bool IsComplete(GameInstallation installation) =>
         File.Exists(installation.RomPath) && IsExtractedContentComplete(installation);
 
@@ -140,7 +159,6 @@ public static class GameAssetInstaller
         Directory.CreateDirectory(staging);
         try
         {
-            File.WriteAllBytes(Path.Combine(staging, GameInstallationLayout.RomFileName), rom);
             InstallComponents(rom, staging, components, cancellationToken, progress);
             // The character and tile pages are the import's own data (#1636): every component that composes from them has
             // finished, so they are deleted before the receipt is written and nothing published holds them.
@@ -152,7 +170,7 @@ public static class GameAssetInstaller
             progress?.Report("Finishing setup…");
             cancellationToken.ThrowIfCancellationRequested();
             // These are fixed app-owned content directories. Player saves, recordings,
-            // configuration and the original chosen ROM are outside this transaction.
+            // configuration, the import's private copy and the original chosen ROM are outside this transaction.
             if (Directory.Exists(previous)) Directory.Delete(previous, recursive: true);
             if (Directory.Exists(installation.ContentDirectory)) Directory.Move(installation.ContentDirectory, previous);
             try { Directory.Move(staging, installation.ContentDirectory); }

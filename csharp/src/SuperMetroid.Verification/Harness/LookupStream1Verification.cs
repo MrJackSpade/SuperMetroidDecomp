@@ -1519,7 +1519,7 @@ internal static class LookupStream1Verification
         foreach (EscapeTypewriterMessageId id in new[] { EscapeTypewriterMessageId.Ceres, EscapeTypewriterMessageId.Zebes })
         {
             var program = stock.Get(id);
-            var original = document.Programs[id.ToString()].Lines;
+            var original = document.Messages[id.ToString()].Lines;
             AssertEqual(original.Length, EscapeTypewriterLines.LineCount(id), "escape text required line grouping");
             AssertEqual(0, Stored(program), "escape text stock contains no sampled line overrides");
             for (int index = 0; index < original.Length; index++)

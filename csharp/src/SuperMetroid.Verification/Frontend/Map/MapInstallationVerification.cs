@@ -16,7 +16,8 @@ internal static class MapInstallationVerification
 {
     /// <summary>
     /// The installer's transaction on a private installation of the map component alone (#1680): startup that never opens
-    /// the ROM, cancelled and real format upgrades, the no-op restart and player-data preservation. The transaction is the
+    /// the ROM, cancelled and real format upgrades, the no-op restart, player-data preservation, the import's cartridge copy
+    /// kept outside the published content and an older installation's copy inside it never read (#1711). The transaction is the
     /// same whatever components it extracts, so the map component keeps each extraction small. All ROM and fixture data
     /// stays in ignored test-temp.
     /// </summary>
@@ -32,6 +33,8 @@ internal static class MapInstallationVerification
         GameInstallation installation = GameAssetInstaller.Install(sourceRom, root, mapComponent, CancellationToken.None,
             new ImmediateInstallProgress());
         Console.WriteLine($"Installation fixture: {root}");
+        byte[] cartridge = File.ReadAllBytes(installation.RomPath);
+        CheckContentHoldsNoCartridge("a fresh import");
         if (OperatingSystem.IsWindows())
         {
             // An exclusive handle makes a startup ROM read fail deterministically.
@@ -82,7 +85,33 @@ internal static class MapInstallationVerification
             throw new InvalidOperationException("Complete installation unexpectedly extracted again.")));
         AssertTrue(unchanged is not null, "complete installation fast path remains available");
         AssertTrue(sourceHash.SequenceEqual(SHA256.HashData(File.ReadAllBytes(sourceRom))), "installer leaves original ROM unchanged");
-        Console.WriteLine("Installer: fresh import, cancelled upgrade, real version replacement, no-op restart and player-data preservation pass.");
+        CheckContentHoldsNoCartridge("an upgrade");
+
+        // An installation an older importer published keeps its cartridge copy inside its content (#1711). Its older format
+        // is extracted again from a cartridge the player supplies, never from that copy.
+        File.Move(installation.RomPath, Path.Combine(installation.ContentDirectory, GameInstallationLayout.RomFileName));
+        MarkReceiptOutdated();
+        AssertTrue(GameAssetInstaller.EnsureInstalled(root, mapComponent, CancellationToken.None, new ImmediateInstallProgress(_ =>
+            throw new InvalidOperationException("An older installation was extracted again from the copy inside its content."))) is null,
+            "an older installation whose cartridge copy lies inside its content is not extracted again from that copy");
+        AssertTrue(GameAssetInstaller.TryOpenExtractedContent(root) is null, "an older installation's content is not current");
+        GameAssetInstaller.Install(sourceRom, root, mapComponent, CancellationToken.None, new ImmediateInstallProgress());
+        AssertTrue(GameAssetInstaller.TryOpenExtractedContent(root) is not null && cartridge.SequenceEqual(File.ReadAllBytes(installation.RomPath)),
+            "the cartridge the player supplies extracts an older installation again and is kept beside its content");
+        CheckContentHoldsNoCartridge("re-extraction of an older installation");
+        CheckPreserved();
+        Console.WriteLine("Installer: fresh import, cancelled upgrade, real version replacement, no-op restart, player-data preservation, " +
+            "the cartridge copy kept outside the content and an older installation extracted again from a supplied cartridge pass.");
+
+        // The import keeps its cartridge copy beside the content and the published content holds no cartridge image (#1711).
+        void CheckContentHoldsNoCartridge(string scenario)
+        {
+            AssertTrue(File.Exists(installation.RomPath) && cartridge.SequenceEqual(File.ReadAllBytes(installation.RomPath)),
+                $"{scenario}: the import keeps its cartridge copy beside the content");
+            AssertTrue(!Directory.EnumerateFiles(installation.ContentDirectory, "*", SearchOption.AllDirectories).Any(file =>
+                    new FileInfo(file).Length == cartridge.Length && cartridge.SequenceEqual(File.ReadAllBytes(file))),
+                $"{scenario}: the published content holds no cartridge image");
+        }
 
         void MarkReceiptOutdated()
         {

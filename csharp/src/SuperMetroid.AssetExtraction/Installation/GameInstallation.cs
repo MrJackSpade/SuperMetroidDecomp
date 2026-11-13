@@ -36,7 +36,7 @@ using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 namespace SuperMetroid.AssetExtraction.Installation;
 
 /// <summary>App-owned immutable cartridge/audio content, separate from persistent player data.</summary>
-/// <param name="Root">Installation root containing the replaceable <c>game</c> content and persistent player data; constructing this record does not create or validate it.</param>
+/// <param name="Root">Installation root containing the replaceable <c>game</c> content, the import's private cartridge copy and persistent player data; constructing this record does not create or validate it.</param>
 /// <remarks>
 /// Directory properties compute paths without accessing the filesystem. Loaders validate the
 /// installed formats. Missing files, unreadable paths, and malformed installed content
@@ -46,8 +46,11 @@ public sealed record GameInstallation(string Root)
 {
     /// <summary>Replaceable stock-content tree published by the installer beneath the installation root.</summary>
     public string ContentDirectory => Path.Combine(Root, GameInstallationLayout.ContentDirectoryName);
-    /// <summary>Private validated cartridge copy used for extraction and repair; gameplay can open complete extracted content without it.</summary>
-    public string RomPath => Path.Combine(ContentDirectory, GameInstallationLayout.RomFileName);
+    /// <summary>
+    /// The import's private validated cartridge copy, used for extraction and repair, beside the content directory and never
+    /// inside it (#1711); gameplay can open complete extracted content without it.
+    /// </summary>
+    public string RomPath => Path.Combine(Root, GameInstallationLayout.ImportDirectoryName, GameInstallationLayout.RomFileName);
     /// <summary>
     /// Requires current extracted content before a host binds it. The game runs on that content alone: it holds no
     /// address space and never maps a cartridge image, even when the private import copy exists (#1688).

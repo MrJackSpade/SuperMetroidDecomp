@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using System.Globalization;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.World.RoomStates;
 using SuperMetroid.Core.Rooms;
@@ -50,7 +49,7 @@ internal static class RoomBlockSheetsWholeVerification
                 {
                     ImmutableArray<AppearanceInput> inputs = sheet.Inputs.Of(block, shownOver);
                     foreach (AppearanceInput input in inputs.Where(input => input is not (AnimationAppearance or KraidBackdropAppearance or EncounterLookAppearance)))
-                        failures.Add($"{name}: block {Hex(block)} depends on {input.Token} over {shownOver}, which shows no artwork over a room's blocks");
+                        failures.Add($"{name}: block {block} depends on {input.Token} over {shownOver}, which shows no artwork over a room's blocks");
                 }
             }
             foreach (CollectiblePicture collectible in Enum.GetValues<InWorldCollectibleKind>().Where(CollectibleObjects.ShowsOwnPicture)
@@ -99,9 +98,6 @@ internal static class RoomBlockSheetsWholeVerification
         }
         return placed;
     }
-
-    /// <summary>A block's index as picture names spell it.</summary>
-    private static string Hex(int block) => block.ToString("X3", CultureInfo.InvariantCulture);
 
     /// <summary>Runs the room block sheets' whole-block check.</summary>
     [VerificationCommand("--room-block-sheets-whole")]

@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 /// The opening cinematic as the import reads it (#1544, #1636, #1638, #1693): its installed documents with its characters,
 /// layouts, Mode 7 maps and sprite compositions, from the component's import data, and the colours only the import pre-colours the opening's, the Ceres scenes'
 /// and the ending flyaway's sheets in. The game reads none of them; its own read of the opening
-/// (<see cref="IntroCinematicArtworkFiles.Load"/>) reads no character page, layout or map and leaves the colour documents unread.
+/// (<see cref="IntroCinematicArtworkFiles.LoadCinematic"/>) reads no character page, layout or map and leaves the colour documents unread.
 /// </summary>
 public sealed class ImportIntroCinematicArtwork : IntroCinematicSourceArtwork
 {

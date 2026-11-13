@@ -76,7 +76,11 @@ public static class IntroCinematicArtworkFiles
         CeresFlightArtworkFileFormat.MapFileName, CeresDestructionMapFormat.FileName,
     ];
 
-    /// <summary>Creates the stock opening-cinematic, Ceres-flight, and destruction-scene PNG and JSON resources with their provenance manifest.</summary>
+    /// <summary>
+    /// Installs the opening-cinematic, Ceres-flight and destruction-scene documents the game binds, and writes the character
+    /// pages, palettes, layouts, Mode 7 maps and compositions they are pictured from, with the provenance manifest naming
+    /// them, to the component's import data (#1636, #1637, #1638, #1693).
+    /// </summary>
     /// <param name="bus">Non-null cartridge import address space supplying character graphics, tilemaps, palettes, sprites, and scene artwork.</param>
     /// <param name="directory">Output directory, created if needed; each resource and the manifest require a previously absent filename. The character pages, palettes, layouts, Mode 7 maps, compositions and the manifest go to its import-data directory.</param>
     /// <param name="sourceCartridgeSha256">Nonempty source-cartridge SHA-256 recorded with the generated stock-resource hashes.</param>
@@ -459,12 +463,6 @@ public static class IntroCinematicArtworkFiles
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(encoded)));
         }
     }
-
-    /// <summary>
-    /// Loads the opening's source artwork, which only the import reads: every installed document as installed. No character
-    /// page (#1636), palette (#1544, #1637), Mode 7 map or manifest (#1693) is read: they are import data.
-    /// </summary>
-    public static IntroCinematicSourceArtwork Load(string directory) => new(ReadParts(directory));
 
     /// <summary>
     /// Checks the manifest's provenance and coverage in the component's import data <paramref name="importData"/> (#1693),

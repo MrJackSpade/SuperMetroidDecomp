@@ -10,6 +10,7 @@ using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -361,6 +362,47 @@ internal static class InstalledArtworkContentIdentity
                 content.Append("x", placement.X);
                 content.Append("y", placement.Y);
             }
+        });
+    }
+
+    /// <summary>The installed content identity of a <see cref="CeresFlightArtwork"/>.</summary>
+    extension(CeresFlightArtwork flight)
+    {
+        /// <summary>
+        /// Identity of the selected approach backdrop and placements; the characters (#1636), floor maps (#1693) and
+        /// compositions (#1638) are import data, which the import's read adds (<see cref="Areas.Ceres.CeresFlightCharacters"/>).
+        /// </summary>
+        public string ContentIdentity => SelectedPresentationHash.Create("CeresFlightArtworkCatalog-v4", content =>
+        {
+            content.AppendColors("backdrop", [flight.Backdrop]);
+            content.Append("actors", Convert.FromHexString(flight.Actors.ContentIdentity));
+        });
+    }
+
+    /// <summary>The installed content identity of a <see cref="CeresDestructionArtwork"/>.</summary>
+    extension(CeresDestructionArtwork destruction)
+    {
+        /// <summary>Identity of the selected destruction and Zebes-reveal actor placements.</summary>
+        public string ContentIdentity => SelectedPresentationHash.Create("CeresDestructionArtworkCatalog-v4", content =>
+        {
+            content.Append("reveal-actors", Convert.FromHexString(destruction.RevealActors.ContentIdentity));
+            content.Append("destruction-actors", Convert.FromHexString(destruction.DestructionActors.ContentIdentity));
+        });
+    }
+
+    /// <summary>The installed content identity of an <see cref="IntroCinematicArtwork"/>, the opening the game binds.</summary>
+    extension(IntroCinematicArtwork intro)
+    {
+        /// <summary>
+        /// Identity of the opening's installed documents, from what the game bound of them (#1693): its backdrop and the Ceres
+        /// scenes' backdrop and placements. Its characters, layouts, Mode 7 maps and compositions are import data the
+        /// installation never holds (#1636, #1638, #1693), which the sheets composed from them carry the identity of.
+        /// </summary>
+        public string ContentIdentity => SelectedPresentationHash.Create("IntroCinematicArtworkCatalog-v5", content =>
+        {
+            content.AppendColors("backdrop", [intro.Backdrop]);
+            content.Append("ceres-flight", Convert.FromHexString(intro.CeresFlight.ContentIdentity));
+            content.Append("ceres-destruction", Convert.FromHexString(intro.CeresDestruction.ContentIdentity));
         });
     }
 

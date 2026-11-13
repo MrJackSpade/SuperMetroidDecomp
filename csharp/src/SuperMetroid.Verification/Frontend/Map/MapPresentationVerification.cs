@@ -329,6 +329,8 @@ internal static class MapPresentationVerification
             SuperMetroid.AssetExtraction.Samus.SamusHyperBeamColorFormat.FileName,
             MotherBrainRainbowPaletteFile.FileName,
             SuperMetroid.AssetExtraction.Fx.Artwork.RoomPaletteFxPresentationFormat.FileName,
+            // The highlight cycle's colours; the installed cycle holds each frame's hold alone (#1693).
+            MapPaletteCycleFile.FileName,
         ];
         string importData = SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.MapDirectoryName);
         foreach (string name in importColours)

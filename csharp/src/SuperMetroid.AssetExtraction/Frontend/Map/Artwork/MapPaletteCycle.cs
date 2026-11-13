@@ -4,9 +4,9 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 
 /// <summary>
-/// The installed map highlight cycle (#1512): each frame's hold and the colour its highlight shows, kept as installed (#1615,
-/// #1637). Only the import reads the highlight colours, pre-colouring the map sprite sheet in one highlight shade per frame;
-/// gameplay keeps only the holds and the frame count through <see cref="Timing"/>.
+/// The map highlight cycle's colours (#1512): each frame's hold and the colour its highlight shows, as extracted (#1615,
+/// #1637). They are import data (#1693): only the import reads them, pre-colouring the map sprite sheet in one highlight
+/// shade per frame. The game reads each frame's hold from the installed cycle (<see cref="MapHighlightTimingFile"/>).
 /// </summary>
 public sealed class MapPaletteCycle
 {

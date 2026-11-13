@@ -25,23 +25,21 @@ using SuperMetroid.Core.Frontend.Ending.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>
-/// The map presentation as the import reads it (#1544, #1636, #1638): the game's presentation with the characters and the
-/// documents whose entries are the original's packed tile placements, from the component's import data, and the colours only
-/// the import pre-colours sheets and pictures from. The game reads none of them; its own read of the map presentation
-/// (<see cref="MapPresentationFiles.Load"/>) reads no import data and leaves the colour documents unread.
+/// The map presentation as the import reads it (#1544, #1636, #1638, #1693): the game's presentation with the characters,
+/// the documents whose entries are the original's packed tile placements and the staff credits, from the component's import
+/// data, and the colours only the import pre-colours sheets and pictures from. The game reads none of them; its own read of
+/// the map presentation (<see cref="MapPresentationFiles.Load"/>) reads no import data.
 /// </summary>
 [ArchitectureReview("context-bag", "The import's characters and colours of the map presentation; every member is immutable artwork data the import composes and pre-colours pictures from, not a service.")]
 public sealed class ImportAreaMapPresentation : InstalledAreaMapPresentation
 {
-    /// <summary>
-    /// Takes the catalog the game binds, the installed documents, and the characters, colours and documents only the import
-    /// reads.
-    /// </summary>
-    internal ImportAreaMapPresentation(AreaMapPresentation game, InstalledPresentationSources sources, ImportPresentationCharacters characters,
+    /// <summary>Takes the catalog the game binds and the characters, colours and documents only the import reads.</summary>
+    internal ImportAreaMapPresentation(AreaMapPresentation game, ImportPresentationCharacters characters,
         ImportPresentationColours colours, ImportPresentationDocuments documents)
-        : base(game, sources)
+        : base(game)
     {
         Ensure.NotNull(documents);
+        StaffCredits = Ensure.NotNull(documents.StaffCredits);
         FileSelect = Ensure.NotNull(documents.FileSelect);
         Pause = Ensure.NotNull(documents.Pause);
         RoomFxPages = Ensure.NotNull(documents.RoomFxPages);
@@ -74,7 +72,17 @@ public sealed class ImportAreaMapPresentation : InstalledAreaMapPresentation
         RoomFxPaletteBlends = Ensure.NotNull(colours.RoomFxPaletteBlends);
         RoomPaletteFx = Ensure.NotNull(colours.RoomPaletteFx);
         MotherBrainRainbowColours = Ensure.NotNull(colours.MotherBrainRainbow);
+        HighlightColours = Ensure.NotNull(colours.HighlightColours);
     }
+
+    /// <summary>The staff credits, import data (#1693), which the import pictures into the ending's credits rows (#1467).</summary>
+    public CreditsPresentation StaffCredits { get; }
+
+    /// <summary>
+    /// The map highlight cycle's colours, import data (#1693), which the map sprite sheet's highlight shades are pre-coloured
+    /// from (#1512); the game takes each frame's hold from the installed cycle (<see cref="AreaMapPresentation.HighlightCycle"/>).
+    /// </summary>
+    public MapPaletteCycle HighlightColours { get; }
 
     /// <summary>
     /// The file-select screen's pages, fields and compositions, import data (#1638), which the import composes the file-select

@@ -119,10 +119,9 @@ public static class MapPresentationExtractor
         using (var file = new FileStream(PathOf(HudTileAtlasFormat.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(hudBytes);
         hashes.Add(HudTileAtlasFormat.FileName, Convert.ToHexString(SHA256.HashData(hudBytes)));
-        byte[] cycleBytes = MapPaletteCycleExtractor.Extract(bus);
-        using (var file = new FileStream(PathOf(MapPaletteCycleFile.FileName), FileMode.CreateNew, FileAccess.Write))
-            file.Write(cycleBytes);
-        hashes.Add(MapPaletteCycleFile.FileName, Convert.ToHexString(SHA256.HashData(cycleBytes)));
+        // The highlight cycle's colours are import data; each frame's hold, taken from them once, is installed (#1693).
+        WriteSplit(MapHighlightTimingFile.FileName, MapPaletteCycleFile.FileName, MapPaletteCycleExtractor.Extract(bus),
+            MapHighlightTimingFile.Extract);
         byte[] paletteBytes = MapStaticPalettesExtractor.Extract(bus);
         using (var file = new FileStream(PathOf(MapStaticPalettesFormat.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(paletteBytes);
@@ -257,6 +256,7 @@ public static class MapPresentationExtractor
             file.Write(endingFontBytes);
         hashes.Add(EndingFontAtlasFormat.FileName,
             Convert.ToHexString(SHA256.HashData(endingFontBytes)));
+        // The staff credits are import data, which only the import pictures (#1693).
         byte[] creditsBytes = CreditsPresentationExtractor.Extract(bus);
         using (var file = new FileStream(PathOf(CreditsPresentationDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(creditsBytes);

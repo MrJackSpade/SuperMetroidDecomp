@@ -4,11 +4,15 @@ using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
-/// <summary>Reads and writes the installed map highlight cycle document.</summary>
+/// <summary>
+/// Reads and writes the map highlight cycle's colours (#1512): each frame's hold and highlight colour, as extracted. It is
+/// import data the installation never holds (#1693), which the import pre-colours the map sprite sheet's highlight shades
+/// from; the installed cycle holds each frame's hold alone (<see cref="MapHighlightTimingFile"/>).
+/// </summary>
 public static class MapPaletteCycleFile
 {
-    /// <summary>JSON presentation filename used by pause and file-select map highlight animation.</summary>
-    public const string FileName = "map-highlight-cycle.json";
+    /// <summary>JSON filename, in the component's import data, of each highlight frame's hold and highlight colour.</summary>
+    public const string FileName = "map-highlight-colours.json";
 
     /// <summary>Required cycle-document schema revision: 2 states each frame's look as its highlight colour, not a palette row (#1637).</summary>
     public const int Version = 2;

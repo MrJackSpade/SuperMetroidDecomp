@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Fx.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
@@ -26,6 +27,9 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// Mother Brain's rainbow, drain, revival, fake-death and restoration colours, which her sheets and body layer are
 /// pre-coloured from (#1512); her beam backdrop's colours the game works with are installed by purpose (#1637).
 /// </param>
+/// <param name="HighlightColours">
+/// The map highlight cycle's colours, which the map sprite sheet's highlight shades are pre-coloured from (#1512, #1693).
+/// </param>
 internal sealed record ImportPresentationColours(
     SamusMapColourTables SamusColours,
     TitlePalettePresentation TitlePalette,
@@ -36,4 +40,5 @@ internal sealed record ImportPresentationColours(
     MotherBrainRoomColorPresentation MotherBrainRoomColors,
     RoomFxBlendInks RoomFxPaletteBlends,
     RoomPaletteFxPresentation RoomPaletteFx,
-    InstalledMotherBrainRainbowPalette MotherBrainRainbow);
+    InstalledMotherBrainRainbowPalette MotherBrainRainbow,
+    MapPaletteCycle HighlightColours);

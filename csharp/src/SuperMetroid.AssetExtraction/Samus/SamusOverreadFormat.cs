@@ -19,11 +19,19 @@ internal static class SamusOverreadFormat
     /// runtime reaches (#1624); revision seventeen keys the steps a program's places read on a cue's value as cue-value steps
     /// (#1624); revision eighteen names the story events, item locations, doors and used stations SpaceTime's overwrite
     /// decides, the Zebetite count it leaves and the startup route it saves, in place of the save image's flag numbering
-    /// and the saved loading-state word (#1709).
+    /// and the saved loading-state word (#1709); revision nineteen holds neither the Speed Booster's overrun colours nor the
+    /// Chainsaw beam's colours, which are import data (#1693).
     /// </summary>
-    internal const int Version = 18;
+    internal const int Version = 19;
     /// <summary>JSON filename holding the decoded over-read results.</summary>
     internal const string FileName = "samus-overreads.json";
+    /// <summary>Supported revision of the import data's overrun colour document (<see cref="ColourFileName"/>).</summary>
+    internal const int ColourVersion = 1;
+    /// <summary>
+    /// JSON filename, in the component's import data, holding the colours Samus's palette loaders read past their tables,
+    /// which only the import reads to pre-colour her sheets (#1693).
+    /// </summary>
+    internal const string ColourFileName = "samus-overrun-colours.json";
     /// <summary>Shared camel-case, case-insensitive JSON options that reject unknown fields; the file is written compactly.</summary>
     internal static readonly JsonSerializerOptions JsonOptions = new()
     {

@@ -40,21 +40,9 @@ public class IntroCinematicSourceArtwork
     public CeresDestructionArtwork CeresDestruction { get; }
 
     /// <summary>
-    /// Identity of the entire selected opening bundle's installed documents; its characters, layouts, Mode 7 maps and
-    /// compositions are import data the installation never holds (#1636, #1638, #1693), which the sheets composed from them
-    /// carry the identity of.
+    /// Identity of the entire selected opening bundle's installed documents, which is the identity of what the game binds of
+    /// them (<see cref="Cinematic"/>, #1693); its characters, layouts, Mode 7 maps and compositions are import data the
+    /// installation never holds (#1636, #1638, #1693), which the sheets composed from them carry the identity of.
     /// </summary>
-    public virtual string ContentIdentity => SelectedPresentationHash.Create("IntroCinematicArtworkCatalog-v5", content =>
-    {
-        content.AppendColors("backdrop", [Backdrop]);
-        content.Append("ceres-flight", Convert.FromHexString(CeresFlight.ContentIdentity));
-        content.Append("ceres-destruction", Convert.FromHexString(CeresDestructionIdentity));
-    });
-
-    /// <summary>Identity of the selected destruction and Zebes-reveal actor placements.</summary>
-    private string CeresDestructionIdentity => SelectedPresentationHash.Create("CeresDestructionArtworkCatalog-v4", content =>
-    {
-        content.Append("reveal-actors", Convert.FromHexString(CeresDestruction.RevealActors.ContentIdentity));
-        content.Append("destruction-actors", Convert.FromHexString(CeresDestruction.DestructionActors.ContentIdentity));
-    });
+    public virtual string ContentIdentity => Cinematic.ContentIdentity;
 }

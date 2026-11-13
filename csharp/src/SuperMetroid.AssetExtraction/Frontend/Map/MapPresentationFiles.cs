@@ -46,10 +46,12 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// <summary>
 /// Reads the installed map and menu presentation (#1409), as the player may have edited it in place, compiled into the
 /// presentation catalog the game binds. The game's read (<see cref="Load"/>) reads no palette document (#1544): the colours
-/// it shows that no picture holds are the scene colours (<see cref="SceneColourFiles"/>). The colour documents only the
-/// import pre-colours sheets from (#1637) and the character pages (#1636) are import data, which only the import's read
-/// (<see cref="LoadForImport"/>) reads, from the component's import-data directory (<see cref="ImportDataFiles"/>): the
-/// installation holds none of them.
+/// it shows that no picture holds are the scene colours (<see cref="SceneColourFiles"/>), and of the map highlight cycle it
+/// reads each frame's hold alone (<see cref="MapHighlightTimingFile"/>, #1693). The colour documents only the import
+/// pre-colours sheets from (#1637), the highlight cycle's colours among them (#1693), the documents only the import
+/// pictures, the staff credits among them (#1638, #1693), and the character pages (#1636) are import data, which only the
+/// import's read (<see cref="LoadForImport"/>) reads, from the component's import data directory
+/// (<see cref="ImportDataFiles"/>): the installation holds none of them.
 /// </summary>
 public static class MapPresentationFiles
 {
@@ -67,9 +69,10 @@ public static class MapPresentationFiles
     ];
 
     /// <summary>
-    /// The component's documents only the import reads whose entries are the original's packed tile placements (#1638), which
-    /// the extraction writes to its import-data directory beside the pages: the installation never holds them. The manifest
-    /// lists their hashes beside the installed documents'.
+    /// The component's documents only the import reads whose entries are the original's packed tile placements (#1638), and
+    /// the staff credits, which the import pictures into the ending's credits rows (#1693). The extraction writes them to its
+    /// import-data directory beside the pages: the installation never holds them. The manifest lists their hashes beside the
+    /// installed documents'.
     /// </summary>
     internal static readonly string[] ImportDocumentFiles =
     [
@@ -79,13 +82,13 @@ public static class MapPresentationFiles
         GameplayMessageNoticeDefinitions.FileName, GameplayHudDocumentDefinitions.ArtworkFileName, MapSpriteFormat.JsonFile,
         TitleGraphicsFormat.FloorMapFile, MapScreenDefinitions.FileName, PauseSelectorFormat.ArtworkFileName,
         PauseReserveTankFormat.ArtworkFileName, GameOverPresentationFormat.ArtworkFileName, GameOptionsPresentationFormat.ArtworkFileName,
-        EndingTextDefinitions.ArtworkFileName,
+        EndingTextDefinitions.ArtworkFileName, CreditsPresentationDefinitions.FileName,
     ];
 
     /// <summary>
-    /// The colour documents only the import pre-colours sheets from (#1544), which the extraction writes to the component's
-    /// import-data directory beside the pages (#1637), and the game's read leaves unread: the installation never holds them.
-    /// The manifest lists their hashes beside the documents'.
+    /// The colour documents only the import pre-colours sheets from (#1544), the map highlight cycle's colours among them
+    /// (#1693), which the extraction writes to the component's import-data directory beside the pages (#1637), and the game's
+    /// read leaves unread: the installation never holds them. The manifest lists their hashes beside the documents'.
     /// </summary>
     internal static readonly string[] ImportColourFiles =
     [
@@ -94,7 +97,7 @@ public static class MapPresentationFiles
         SamusHurtColorFile.FileName, SamusSuitColorFile.FileName, SamusFullBodyCycleColorFormat.FileName,
         CrystalFlashColorFile.FileName, SamusChargeColorFormat.FileName, CeresRidleyColorFormat.FileName,
         CeresRidleyFloorColorFormat.FileName, SamusHyperBeamColorFormat.FileName, MotherBrainRainbowPaletteFile.FileName,
-        RoomPaletteFxPresentationFormat.FileName,
+        RoomPaletteFxPresentationFormat.FileName, MapPaletteCycleFile.FileName,
     ];
 
     /// <summary>
@@ -104,22 +107,21 @@ public static class MapPresentationFiles
     internal static readonly string[] ImportDataFiles = [.. PageFiles, .. ImportColourFiles, .. ImportDocumentFiles];
 
     /// <summary>
-    /// Reads all areas atomically into the catalog the game binds (<see cref="InstalledAreaMapPresentation.Game"/>), beside
-    /// the source artwork only the import composes from; a file that does not decode fails loudly, naming the file. The colour
-    /// documents only the import reads are left unread.
+    /// Reads all areas atomically into the catalog the game binds (<see cref="InstalledAreaMapPresentation.Game"/>); a file
+    /// that does not decode fails loudly, naming the file. It opens only the documents the game binds (#1693).
     /// </summary>
     public static InstalledAreaMapPresentation Load(string directory)
     {
         // The manifest is import data (#1693): the game reads the documents it binds by name, and opens no manifest.
         using var installed = InstalledMapReader.Open(directory, importData: null);
-        GameRead game = ReadGame(installed);
-        return new InstalledAreaMapPresentation(new AreaMapPresentation(game.Parts), game.Sources);
+        return new InstalledAreaMapPresentation(new AreaMapPresentation(ReadGame(installed)));
     }
 
     /// <summary>
     /// Reads all areas atomically into the catalog the import composes from: the game's catalog with the characters, from
-    /// the component's import data <paramref name="importData"/> (#1636), and the colours only the import pre-colours sheets
-    /// and pictures from (#1544), from the same import data (#1637). A file that does not decode fails loudly, naming the file.
+    /// the component's import data <paramref name="importData"/> (#1636), the colours only the import pre-colours sheets
+    /// and pictures from (#1544), from the same import data (#1637), and the documents only the import pictures, the staff
+    /// credits among them (#1638, #1693). A file that does not decode fails loudly, naming the file.
     /// </summary>
     /// <param name="directory">The component's directory, holding the documents.</param>
     /// <param name="importData">The component's import-data directory, holding the manifest (#1693), the character and tile pages and the import's colour documents.</param>
@@ -127,7 +129,7 @@ public static class MapPresentationFiles
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(importData);
         using var installed = InstalledMapReader.Open(directory, importData);
-        GameRead game = ReadGame(installed);
+        AreaMapPresentationParts game = ReadGame(installed);
         var characters = new ImportPresentationCharacters(
             new MapCharacterArtwork(
                 Page(MapTileAtlasFormat.FileName, "map tile atlas", s => MapTileCharacters.Read(s)),
@@ -160,7 +162,8 @@ public static class MapPresentationFiles
             Colours(MotherBrainRoomColorFormat.FileName, "Mother Brain room colors", s => MotherBrainRoomColorFile.Read(s)),
             Colours(RoomFxPaletteBlendDefinitions.FileName, "room-FX blends", s => RoomFxPaletteBlendFile.Read(s)),
             Colours(RoomPaletteFxPresentationFormat.FileName, "room palette effects", s => RoomPaletteFxPresentationFile.Read(s)),
-            Colours(MotherBrainRainbowPaletteFile.FileName, "Mother Brain rainbow palette", s => MotherBrainRainbowPaletteFile.Read(s)));
+            Colours(MotherBrainRainbowPaletteFile.FileName, "Mother Brain rainbow palette", s => MotherBrainRainbowPaletteFile.Read(s)),
+            Colours(MapPaletteCycleFile.FileName, "map highlight colours", s => MapPaletteCycleFile.Read(s)));
         var documents = new ImportPresentationDocuments(
             Compile<FileSelectSourcePresentation>([installed.Read(FileSelectPresentationFormat.FileName), installed.Read(FileSelectPresentationFormat.ArtworkFileName)],
                 [FileSelectPresentationFormat.FileName, FileSelectPresentationFormat.ArtworkFileName], installed, "file-select artwork",
@@ -183,9 +186,10 @@ public static class MapPresentationFiles
                 Document(PauseReserveTankFormat.ArtworkFileName, "reserve tank presentation", s => PauseReserveTankSourcePresentation.Load(s)),
                 Document(GameOverPresentationFormat.ArtworkFileName, "game-over presentation", s => GameOverSourcePresentation.Load(s)),
                 Document(GameOptionsPresentationFormat.ArtworkFileName, "options-menu presentation", s => GameOptionsSourcePresentation.Load(s)),
-                Document(EndingTextDefinitions.ArtworkFileName, "ending text", s => EndingTextPresentation.Load(s))));
+                Document(EndingTextDefinitions.ArtworkFileName, "ending text", s => EndingTextPresentation.Load(s))),
+            Document(CreditsPresentationDefinitions.FileName, "staff credits", s => CreditsPresentation.Load(s)));
         installed.RequireAllManifestFilesRead();
-        return new ImportAreaMapPresentation(new AreaMapPresentation(game.Parts), game.Sources, characters, colours, documents);
+        return new ImportAreaMapPresentation(new AreaMapPresentation(game), characters, colours, documents);
 
         // The import's colours and characters are not part of the presentation's identity: the game reads none of them,
         // and the sheets composed from them carry their own.
@@ -208,7 +212,7 @@ public static class MapPresentationFiles
     /// Reads what the game binds: the areas, the presentation resources and the scene colours, framing each into the
     /// presentation's identity in a fixed order.
     /// </summary>
-    private static GameRead ReadGame(InstalledMapReader installed)
+    private static AreaMapPresentationParts ReadGame(InstalledMapReader installed)
     {
         Dictionary<AreaId, HashSet<int>> stationCells = installed.ReadStationCells();
         var areas = new Dictionary<AreaId, IAreaMapView>();
@@ -237,7 +241,7 @@ public static class MapPresentationFiles
             AppendFramed(stationPlane);
         }
         // Each resource below is framed into the identity in this fixed order. No character page is among them (#1636).
-        MapPaletteCycle cycle = Resource(MapPaletteCycleFile.FileName, "map highlight cycle", s => MapPaletteCycleFile.Read(s));
+        MapHighlightCycle cycle = Resource(MapHighlightTimingFile.FileName, "map highlight cycle", s => MapHighlightTimingFile.Read(s));
         SceneColours sceneColours = Resource(SceneColourFiles.FileName, "scene colours", s => SceneColourFiles.Read(s));
         WorldMapLabelPositions labels = Resource(WorldMapLabelFormat.FileName, "world-map labels", s => WorldMapLabelFile.Read(s));
         MapStationPositions stations = Resource(MapStationLayoutFormat.FileName, "map station labels", s => MapStationLayoutFile.Read(s));
@@ -254,13 +258,11 @@ public static class MapPresentationFiles
         EscapeTypewriterPresentation escapeTypewriter = Resource(EscapeTypewriterDocumentDefinitions.FileName, "escape typewriter", s => EscapeTypewriterPresentationFile.Load(s));
         IntroNarrationPresentation introNarration = Resource(IntroNarrationFile.FileName, "intro narration", s => IntroNarrationFile.Read(s));
         EndingTypewriterText endingText = Resource(EndingTextDefinitions.FileName, "ending typewriter text", s => EndingTextPresentation.ReadTypewriter(s));
-        CreditsPresentation staffCredits = Resource(CreditsPresentationDefinitions.FileName, "staff credits", s => CreditsPresentation.Load(s));
         TitleGradientPresentation titleGradient = Resource(TitleGradientFile.FileName, "title gradient", s => TitleGradientFile.Read(s));
         MotherBrainRainbowPalettePresentation motherBrainBeam = Resource(MotherBrainBeamColourFile.FileName, "Mother Brain beam colours", s => MotherBrainBeamColourFile.Read(s));
         InstalledPowerBombGlowColors powerBombGlowColors = Resource(PowerBombGlowColorFile.FileName, "Power Bomb glow colours", s => PowerBombGlowColorFile.Read(s));
         CeresRidleyGetawayBoostDelays ceresRidleyGetawayBoostDelays = Resource(CeresRidleyGetawayBoostDelayFormat.FileName, "Ceres Ridley getaway boost delays", s => CeresRidleyGetawayBoostDelayFiles.Read(s));
-        return new GameRead(new AreaMapPresentationParts { Areas = areas, ContentIdentity = Convert.ToHexString(identity.GetHashAndReset()), HighlightCycle = cycle.Timing, Backdrops = sceneColours.Menus, Labels = labels, Stations = stations, Landmarks = landmarks, SaveMarkers = saveMarkers, Arrows = arrows, PauseSelectors = pauseSelectors, PauseReserveTanks = pauseReserveTanks, EscapeTimer = escapeTimer, GameplayHud = gameplayHud, GameOver = gameOver, GameOptions = gameOptions, FileSelect = fileSelect, EscapeTypewriter = escapeTypewriter, IntroNarration = introNarration, EndingText = endingText, TitleBackdrop = sceneColours.TitleBackdrop, TitleGradient = titleGradient, MotherBrainRainbowPalette = motherBrainBeam, CeresHaze = sceneColours.CeresHaze, PowerBombGlowColors = powerBombGlowColors, CeresRidleyGetawayBoostDelays = ceresRidleyGetawayBoostDelays },
-            new InstalledPresentationSources(staffCredits, cycle));
+        return new AreaMapPresentationParts { Areas = areas, ContentIdentity = Convert.ToHexString(identity.GetHashAndReset()), HighlightCycle = cycle, Backdrops = sceneColours.Menus, Labels = labels, Stations = stations, Landmarks = landmarks, SaveMarkers = saveMarkers, Arrows = arrows, PauseSelectors = pauseSelectors, PauseReserveTanks = pauseReserveTanks, EscapeTimer = escapeTimer, GameplayHud = gameplayHud, GameOver = gameOver, GameOptions = gameOptions, FileSelect = fileSelect, EscapeTypewriter = escapeTypewriter, IntroNarration = introNarration, EndingText = endingText, TitleBackdrop = sceneColours.TitleBackdrop, TitleGradient = titleGradient, MotherBrainRainbowPalette = motherBrainBeam, CeresHaze = sceneColours.CeresHaze, PowerBombGlowColors = powerBombGlowColors, CeresRidleyGetawayBoostDelays = ceresRidleyGetawayBoostDelays };
 
         T Resource<T>(string file, string description, Func<Stream, T> compile) where T : class =>
             MultiFileResource<T>([file], description, streams => compile(streams[0]));
@@ -298,11 +300,6 @@ public static class MapPresentationFiles
             throw new InvalidDataException($"Invalid {description} '{string.Join("', '", files.Select(installed.PathOf))}': {error.Message}", error);
         }
     }
-
-    /// <summary>What the game binds of the map presentation: its parts and the installed documents it was read with.</summary>
-    /// <param name="Parts">The parts the game reads.</param>
-    /// <param name="Sources">The installed documents the import composes pictures from and the game names sheet frames from.</param>
-    private sealed record GameRead(AreaMapPresentationParts Parts, InstalledPresentationSources Sources);
 
     /// <summary>
     /// A read-only view whose buffer the JSON reader may parse in place. Compilers copy what

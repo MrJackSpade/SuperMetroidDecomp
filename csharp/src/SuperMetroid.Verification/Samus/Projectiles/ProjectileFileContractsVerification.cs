@@ -27,6 +27,8 @@ internal static class ProjectileFileContractsVerification
         var compiledBeams = InstalledFixtures.ImportProjectiles.BeamTiles;
         AssertTrue(!File.Exists(Path.Combine(installed.ProjectileDirectory, BeamPaletteFile.FileName)),
             "the installation holds no beam colours: they are import data (#1637)");
+        AssertTrue(ReferenceEquals(compiledBeams.HyperBeamFxColors, InstalledFixtures.ImportProjectiles.HyperBeamFxColors),
+            "the beam catalog and the import's read share the Hyper Beam colours read from the import data");
         AssertTrue(ReferenceEquals(compiledBeams.Palettes, InstalledFixtures.ImportProjectiles.BeamPalettes),
             "the beam catalog and the import's read share the beam colours read from the import data");
         for (int selection = 0; selection < BeamTileAtlasDefinitions.SelectionCount; selection++)

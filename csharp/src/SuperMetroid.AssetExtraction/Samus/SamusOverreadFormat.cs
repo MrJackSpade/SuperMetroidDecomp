@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
-/// <summary>Defines the installed Samus overread file and its manifest.</summary>
+/// <summary>Defines the installed Samus overread file.</summary>
 internal static class SamusOverreadFormat
 {
     /// <summary>
@@ -21,8 +21,6 @@ internal static class SamusOverreadFormat
     internal const int Version = 16;
     /// <summary>JSON filename holding the decoded over-read results.</summary>
     internal const string FileName = "samus-overreads.json";
-    /// <summary>Manifest filename recording the overread file's cartridge identity and digest.</summary>
-    internal const string ManifestFileName = "samus-overreads-manifest.json";
     /// <summary>Shared camel-case, case-insensitive JSON options that reject unknown fields; the file is written compactly.</summary>
     internal static readonly JsonSerializerOptions JsonOptions = new()
     {

@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Fx;
 /// characters under (#1415). Frames that show the same picture again (the horizontal spikes' fourth step, the leftward
 /// treadmill's reversed loop) name the picture they repeat. The picture is the atlas's storage ordinal (#1527): the game
 /// selects frames, and only the import folds a frame into the picture the atlas stores
-/// (<see cref="RoomFxAnimatedTileLoops"/>).
+/// (<see cref="RoomFxBlockAnimationLoops"/>).
 /// </summary>
 /// <param name="Object">The object whose art the picture is.</param>
 /// <param name="Index">The picture's place among the object's distinct pictures, from zero.</param>

@@ -110,7 +110,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
     /// <param name="suppliedDefinition">A record to use instead of the door's selection.</param>
     internal static RoomPaletteFxSystem ForRecord(PaletteFxSessionState session, RoomFxSelection? fx, DoorDefinition? door,
         SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems, bool areaMiniBossDefeated,
-        RoomFxRecordDefinition? suppliedDefinition)
+        RoomEffectDefinition? suppliedDefinition)
     {
         var system = new RoomPaletteFxSystem(session);
         if ((suppliedDefinition ?? fx?.Select(door)) is { } record)

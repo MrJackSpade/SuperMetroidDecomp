@@ -5,22 +5,22 @@ using SuperMetroid.Core.Rooms.Doors;
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
-/// Treadmill objects the room FX record starts, independently
+/// Treadmill animations the room's effect starts, independently
 /// of the additional entrance object spawned by door ASM.
 /// </summary>
 [RoomLifetime]
 public sealed class RoomTreadmillBlockAnimationsState
 {
-    /// <summary>Treadmill animations the current room FX record starts, in the record's order.</summary>
+    /// <summary>Treadmill animations the current room's effect starts, in the effect's order.</summary>
     internal readonly List<WreckedShipTreadmillBlockAnimationsState> objects = [];
 
-    /// <summary>Spawns one room's objects from the door-selected FX record in the record's order.</summary>
+    /// <summary>Spawns one room's objects from the door-selected room effect in the effect's order.</summary>
     /// <param name="fx">The room state's FX definition.</param>
-    /// <param name="door">The entry door, which selects the FX record.</param>
+    /// <param name="door">The entry door, which selects the room effect.</param>
     public RoomTreadmillBlockAnimationsState(RoomFxSelection? fx, DoorDefinition? door)
     {
-        if (fx?.Select(door) is not { } record) return;
-        foreach (BlockAnimation definition in record.BlockAnimations)
+        if (fx?.Select(door) is not { } effect) return;
+        foreach (BlockAnimation definition in effect.BlockAnimations)
         {
             WreckedShipTreadmillDirection? direction = definition switch
             {

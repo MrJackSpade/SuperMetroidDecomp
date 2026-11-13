@@ -47,23 +47,23 @@ internal static class FxDefinitionMigrationVerification
         AssertEqual(6, FirefleaShades.FlashingShade(6), "brightest flash level");
 
         // The atlas is keyed by picture; the import reads each picture from the address it was keyed by.
-        AssertEqual(34, RoomFxAnimatedTileAtlasFile.Segments.Count(), "atlas segments");
-        AssertEqual(0x8791e4, RoomFxAnimatedTileSources.Of(RoomFxAnimatedTileAtlasFile.Segments.First()).Value, "first atlas segment source");
-        AssertEqual(0x879e84, RoomFxAnimatedTileSources.Of(new AnimatedTileImage(BlockAnimation.HorizontalSpikes, 2)).Value, "third spike picture source");
-        AssertEqual(0x879364, RoomFxAnimatedTileSources.Of(new RoomFxAtlasSegment.TourianStatueStrip()).Value, "statue strip source");
+        AssertEqual(34, RoomFxBlockAnimationAtlasFile.Segments.Count(), "atlas segments");
+        AssertEqual(0x8791e4, RoomFxBlockAnimationSources.Of(RoomFxBlockAnimationAtlasFile.Segments.First()).Value, "first atlas segment source");
+        AssertEqual(0x879e84, RoomFxBlockAnimationSources.Of(new AnimatedTileImage(BlockAnimation.HorizontalSpikes, 2)).Value, "third spike picture source");
+        AssertEqual(0x879364, RoomFxBlockAnimationSources.Of(new RoomFxAtlasSegment.TourianStatueStrip()).Value, "statue strip source");
         AssertEqual(0x878ec4, AnimatedTileImageSources.Treadmill(3), "fourth treadmill picture source");
         AssertEqual(0x8798e4, AnimatedTileImageSources.TourianStatue(SuperMetroid.Core.Areas.Tourian.TourianGreyStatues.Draygon, TourianStatueBlockPicture.Released),
             "Draygon released statue picture source");
-        AssertEqual(0x40, RoomFxAnimatedTilePictures.TourianStatuePictureByteCount(SuperMetroid.Core.Areas.Tourian.TourianGreyStatues.Ridley),
+        AssertEqual(0x40, RoomFxBlockAnimationPictures.TourianStatuePictureByteCount(SuperMetroid.Core.Areas.Tourian.TourianGreyStatues.Ridley),
             "Ridley statue picture size");
-        RoomFxBlockAnimationLoop spikes = RoomFxAnimatedTileLoops.Require(BlockAnimation.HorizontalSpikes);
+        RoomFxBlockAnimationLoop spikes = RoomFxBlockAnimationLoops.Require(BlockAnimation.HorizontalSpikes);
         AssertEqual(new AnimatedTileImage(BlockAnimation.HorizontalSpikes, 1), spikes.Image(3), "the fourth spike step repeats the second picture");
         AssertEqual(new AnimatedTileImage(BlockAnimation.WreckedShipTreadmillRightwards, 3),
             WreckedShipTreadmills.ForDirection(WreckedShipTreadmillDirection.Leftwards).Image(0),
             "the leftward treadmill starts on the rightward loop's last picture");
-        AssertEqual(0x20, RoomFxAnimatedTileLoops.TreadmillFrameByteCount, "treadmill frame size");
-        AssertEqual(0x40, RoomFxAnimatedTileLoops.Require(BlockAnimation.Lava).PictureByteCount, "liquid frame size");
-        AssertEqual(0x50, RoomFxAnimatedTileLoops.Require(BlockAnimation.Rain).PictureByteCount, "rain frame size");
+        AssertEqual(0x20, RoomFxBlockAnimationLoops.TreadmillFrameByteCount, "treadmill frame size");
+        AssertEqual(0x40, RoomFxBlockAnimationLoops.Require(BlockAnimation.Lava).PictureByteCount, "liquid frame size");
+        AssertEqual(0x50, RoomFxBlockAnimationLoops.Require(BlockAnimation.Rain).PictureByteCount, "rain frame size");
 
         // RoomFxRomData's effect motion, waves and tides.
         AssertEqual(10, WaterWaveDefinitions.OverlayWavePhaseDuration, "water layer-three wave step");
@@ -109,7 +109,7 @@ internal static class FxDefinitionMigrationVerification
             "the statue effect shows the water page");
         AssertEqual(0x89aa02 + 0x62, RoomFxLayer3TilemapSources.PaletteBlend(RoomFxPaletteBlend.Fog).Value, "fog blend source");
         // The FX records hold decoded fields; the record codec encodes them back to the bytes the catalog held before.
-        RoomFxRecordDefinition climb = RoomFxDefinitions.ClimbWhenZebesTimebombSet.Records[0];
+        RoomEffectDefinition climb = RoomFxDefinitions.ClimbWhenZebesTimebombSet.Effects[0];
         AssertEqual(RoomFxType.Acid, climb.Type, "Climb FX type");
         AssertEqual(RoomEffectBlendDefinitions.OverlayBrightens, climb.EffectBlend, "Climb effect blend");
         // Acid does not read the drift bit Climb's record sets, so its liquid has neither tide nor haze (#1695).
@@ -120,8 +120,8 @@ internal static class FxDefinitionMigrationVerification
         AssertEqual((byte)0x04, RoomFxRecordEncoding.TypeByte(climb.Type), "Climb type byte");
         AssertEqual((byte)0x38, RoomFxRecordEncoding.PaletteEffectsByte(climb.PaletteEffects, AreaId.Crateria), "Climb palette-effect byte");
         AssertEqual(0x2c, SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.Types.Word(RoomFxType.CeresHaze), "Ceres haze type byte");
-        AssertEqual(0xee, SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.PaletteBlends.Word(RoomFxPaletteBlend.MaridiaWaterD), "Maridia water D blend byte");
-        AssertEqual("blend-EE", RoomFxPaletteBlendDocumentRules.Key(RoomFxPaletteBlend.MaridiaWaterD), "installed blend key keeps its name");
+        AssertEqual(0xee, SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.PaletteBlends.Word(RoomFxPaletteBlend.PurpleMaridiaWater), "Maridia water D blend byte");
+        AssertEqual("purple-maridia-water", RoomFxPaletteBlendDocumentRules.Key(RoomFxPaletteBlend.PurpleMaridiaWater), "installed blend key names its tint");
         AssertEqual((byte)0x80, RoomFxRecordEncoding.PaletteEffectsByte([PaletteFxObject.BeaconFlashing], AreaId.Crateria),
             "Crateria's eighth palette effect");
         Console.WriteLine("Fx definition migration: native words, catalog values, atlas picture sources, effect page sources and decoded FX records keep their values.");

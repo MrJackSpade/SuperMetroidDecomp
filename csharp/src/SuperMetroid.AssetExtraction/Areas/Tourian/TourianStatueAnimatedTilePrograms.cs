@@ -25,7 +25,7 @@ internal static class TourianStatueAnimatedTilePrograms
 
     /// <summary>The animated-tile object whose header copies <paramref name="statue"/>'s pictures.</summary>
     /// <exception cref="InvalidDataException"><paramref name="statue"/> is not one statue.</exception>
-    internal static BlockAnimation ObjectOf(TourianGreyStatues statue) => RoomFxAnimatedTilePictures.TourianStatueWindow(statue).Object;
+    internal static BlockAnimation ObjectOf(TourianGreyStatues statue) => RoomFxBlockAnimationPictures.TourianStatueWindow(statue).Object;
 
     /// <summary>The animation of <paramref name="statue"/>.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="statue"/> is not cataloged.</exception>

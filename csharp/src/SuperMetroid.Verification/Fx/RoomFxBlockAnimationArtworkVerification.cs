@@ -7,10 +7,10 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Fx;
 
 /// <summary>Retail checks for room-FX, treadmill, and Tourian statue animated-tile PNG frames.</summary>
-internal static class RoomFxAnimatedTileArtworkVerification
+internal static class RoomFxBlockAnimationArtworkVerification
 {
     /// <summary>Checks retail room-FX and treadmill frames against native bytes and the frame each animation shows.</summary>
-    internal static void VerifyRoomFxAnimatedTileArtwork()
+    internal static void VerifyRoomFxBlockAnimationArtwork()
     {
         if (!File.Exists("Super Metroid.smc"))
         {
@@ -19,12 +19,12 @@ internal static class RoomFxAnimatedTileArtworkVerification
         }
 
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
-        byte[] png = RoomFxAnimatedTileAtlasExtractor.Extract(rom);
-        RoomFxAnimatedTileAtlas atlas = RoomFxAnimatedTileAtlasPng.Read(new MemoryStream(png));
+        byte[] png = RoomFxBlockAnimationAtlasExtractor.Extract(rom);
+        RoomFxBlockAnimationAtlas atlas = RoomFxBlockAnimationAtlasPng.Read(new MemoryStream(png));
         var guarded = NewRoomFxArtworkForbiddenBus(rom);
         int frameCount = 0;
         foreach (RoomFxBlockAnimationLoop definition in
-                 RoomFxAnimatedTileLoops.All)
+                 RoomFxBlockAnimationLoops.All)
         {
             var state = new RoomFxBlockAnimationsState();
             state.LoadDefinition(definition.AnimatedObject);
@@ -63,14 +63,14 @@ internal static class RoomFxAnimatedTileArtworkVerification
             BlockAnimation treadmillObject = WreckedShipTreadmills.ForDirection(direction).AnimatedObject;
             AssertTrue(!waitFrames.TryShown(BlockAnimationFrames.Of(treadmillObject), out _),
                 $"{direction} waits for Phantoon's area-boss bit before presenting art");
-            for (int frame = 0; frame < RoomFxAnimatedTileAtlasFormat.TreadmillFrameCount;
+            for (int frame = 0; frame < RoomFxBlockAnimationAtlasFormat.TreadmillFrameCount;
                  frame++)
             {
                 int nativeFrame = direction == WreckedShipTreadmillDirection.Rightwards
                     ? frame : 3 - frame;
                 int source = AnimatedTileImageSources.Treadmill(nativeFrame);
                 byte[] native = RomDataReader.ReadFixedBank(rom, source,
-                    RoomFxAnimatedTileLoops.TreadmillFrameByteCount);
+                    RoomFxBlockAnimationLoops.TreadmillFrameByteCount);
                 AssertTrue(atlas.TryResolve(source, native.Length,
                         out ReadOnlyMemory<byte> installed) &&
                     installed.Span.SequenceEqual(native),
@@ -89,7 +89,7 @@ internal static class RoomFxAnimatedTileArtworkVerification
         AssertThrows<InvalidDataException>(() => atlas.TryResolve(
             AnimatedTileImageSources.Of(new AnimatedTileImage(BlockAnimation.Lava, 0)), 1, out _),
             "artwork cannot change the native transfer byte count");
-        AssertThrows<InvalidDataException>(() => RoomFxAnimatedTileAtlasPng.Read(
+        AssertThrows<InvalidDataException>(() => RoomFxBlockAnimationAtlasPng.Read(
             new MemoryStream([1, 2, 3])), "corrupt room-FX PNG fails loudly");
         Console.WriteLine("  Room-FX animation artwork: 30 simple and four treadmill PNG frames match native bytes, each shown on its update.");
     }

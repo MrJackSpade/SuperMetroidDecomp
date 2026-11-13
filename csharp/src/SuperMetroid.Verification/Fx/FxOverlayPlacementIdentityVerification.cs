@@ -66,7 +66,7 @@ internal static class FxOverlayPlacementIdentityVerification
         {
             // A still surface at line 600, the camera swept so the surface lies from 300 lines above the screen's top to 300
             // below it.
-            RoomFxRecordDefinition record = Still(RetailRecord(type)) with { BaseYPosition = 600 };
+            RoomEffectDefinition record = Still(RetailRecord(type)) with { LiquidStartLevel = 600 };
             RoomFxOverlayState fx = RoomFxOverlayState.ForDefinition(session, record, 0);
             for (int surfaceLine = -300; surfaceLine <= 300; surfaceLine++)
             {
@@ -87,7 +87,7 @@ internal static class FxOverlayPlacementIdentityVerification
         foreach (int cameraY in new[] { 0, 150 })
         {
             // The tide carries the surface through both extremes; a surface four lines below the room's top leaves the room.
-            RoomFxRecordDefinition record = Still(RetailRecord(type)) with { BaseYPosition = baseLine, Liquid = liquid };
+            RoomEffectDefinition record = Still(RetailRecord(type)) with { LiquidStartLevel = baseLine, Liquid = liquid };
             RoomFxOverlayState fx = RoomFxOverlayState.ForDefinition(session, record, 0);
             var camera = new Position16<RoomPixels>(0, cameraY);
             int lowest = int.MaxValue, highest = int.MinValue;
@@ -117,7 +117,7 @@ internal static class FxOverlayPlacementIdentityVerification
         }
 
         // A liquid last placed while its surface lay above the room's top showed nothing, even once the surface returned.
-        RoomFxOverlayState placedAbove = RoomFxOverlayState.ForDefinition(session, Still(RetailRecord(RoomFxType.Water)) with { BaseYPosition = 100 }, 0);
+        RoomFxOverlayState placedAbove = RoomFxOverlayState.ForDefinition(session, Still(RetailRecord(RoomFxType.Water)) with { LiquidStartLevel = 100 }, 0);
         Step(placedAbove, frames, new Position16<RoomPixels>(0, 0));
         RoomFxOverlayRenderSnapshot returned = (placedAbove.CaptureForDisplay() ?? throw new InvalidOperationException("Water publishes its effect."))
             with { LiquidSurfaceLine = null };
@@ -188,12 +188,12 @@ internal static class FxOverlayPlacementIdentityVerification
             new DisplayLayer[] { new OverlayBlendLayer(picture, FirstLine, BlendOperation.Add, across) }, 15));
 
     /// <summary>The first retail record of effect <paramref name="type"/> for its room's default entry.</summary>
-    private static RoomFxRecordDefinition RetailRecord(RoomFxType type) =>
+    private static RoomEffectDefinition RetailRecord(RoomFxType type) =>
         RoomFxDefinitions.AllRecords.First(candidate => candidate.Type == type);
 
     /// <summary><paramref name="record"/> with its liquid neither rising nor falling.</summary>
-    private static RoomFxRecordDefinition Still(RoomFxRecordDefinition record) =>
-        record with { TargetYPosition = null, YVelocity = default };
+    private static RoomEffectDefinition Still(RoomEffectDefinition record) =>
+        record with { LiquidTargetLevel = null, LiquidLevelSpeed = default };
 
     /// <summary>Runs one effect step of <paramref name="fx"/> under <paramref name="camera"/>.</summary>
     private static void Step(RoomFxOverlayState fx, ArtworkFrameSelections frames, Position16<RoomPixels> camera) =>

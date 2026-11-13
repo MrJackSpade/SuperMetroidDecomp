@@ -8,13 +8,13 @@ namespace SuperMetroid.AssetExtraction.Fx;
 /// Maps the room-FX atlas's picture identities to where the cartridge stores their characters (#1415): the only place
 /// the import knows the bank-$87 artwork addresses the runtime atlas used to be keyed by.
 /// </summary>
-internal static class RoomFxAnimatedTileSources
+internal static class RoomFxBlockAnimationSources
 {
     /// <summary>Where the cartridge stores <paramref name="segment"/>'s characters.</summary>
     internal static SnesAddress Of(RoomFxAtlasSegment segment) => segment switch
     {
         RoomFxAtlasSegment.Image image => Of(image.Picture),
-        RoomFxAtlasSegment.TourianStatueStrip => RoomFxAnimatedTileSourceDefinitions.TourianStatueStrip,
+        RoomFxAtlasSegment.TourianStatueStrip => RoomFxBlockAnimationSourceDefinitions.TourianStatueStrip,
         _ => throw new InvalidDataException($"Undefined room-FX atlas segment {segment}."),
     };
 
@@ -24,15 +24,15 @@ internal static class RoomFxAnimatedTileSources
     {
         (SnesAddress first, int byteCount) = image.Object switch
         {
-            BlockAnimation.HorizontalSpikes => Simple(RoomFxAnimatedTileSourceDefinitions.HorizontalSpikes),
-            BlockAnimation.MaridiaSandCeiling => Simple(RoomFxAnimatedTileSourceDefinitions.MaridiaSandCeiling),
-            BlockAnimation.MaridiaSandFalling => Simple(RoomFxAnimatedTileSourceDefinitions.MaridiaSandFalling),
-            BlockAnimation.Lava => Simple(RoomFxAnimatedTileSourceDefinitions.Lava),
-            BlockAnimation.Acid => Simple(RoomFxAnimatedTileSourceDefinitions.Acid),
-            BlockAnimation.Rain => Simple(RoomFxAnimatedTileSourceDefinitions.Rain),
-            BlockAnimation.Spores => Simple(RoomFxAnimatedTileSourceDefinitions.Spores),
+            BlockAnimation.HorizontalSpikes => Simple(RoomFxBlockAnimationSourceDefinitions.HorizontalSpikes),
+            BlockAnimation.MaridiaSandCeiling => Simple(RoomFxBlockAnimationSourceDefinitions.MaridiaSandCeiling),
+            BlockAnimation.MaridiaSandFalling => Simple(RoomFxBlockAnimationSourceDefinitions.MaridiaSandFalling),
+            BlockAnimation.Lava => Simple(RoomFxBlockAnimationSourceDefinitions.Lava),
+            BlockAnimation.Acid => Simple(RoomFxBlockAnimationSourceDefinitions.Acid),
+            BlockAnimation.Rain => Simple(RoomFxBlockAnimationSourceDefinitions.Rain),
+            BlockAnimation.Spores => Simple(RoomFxBlockAnimationSourceDefinitions.Spores),
             BlockAnimation.WreckedShipTreadmillRightwards => new PictureRun(
-                RoomFxAnimatedTileSourceDefinitions.WreckedShipTreadmill, RoomFxAnimatedTileLoops.TreadmillFrameByteCount),
+                RoomFxBlockAnimationSourceDefinitions.WreckedShipTreadmill, RoomFxBlockAnimationLoops.TreadmillFrameByteCount),
             BlockAnimation.WreckedShipTreadmillLeftwards or BlockAnimation.None or BlockAnimation.TourianStatuePhantoon or BlockAnimation.TourianStatueRidley
                 or BlockAnimation.TourianStatueKraid or BlockAnimation.TourianStatueDraygon
                 or BlockAnimation.VerticalSpikes or BlockAnimation.CrateriaLake
@@ -43,7 +43,7 @@ internal static class RoomFxAnimatedTileSources
         return first.AddWithinBank(image.Index * byteCount);
 
         PictureRun Simple(SnesAddress start) =>
-            new(start, RoomFxAnimatedTileLoops.Require(image.Object).PictureByteCount);
+            new(start, RoomFxBlockAnimationLoops.Require(image.Object).PictureByteCount);
     }
 
     /// <summary>An object's first picture and the bytes between consecutive pictures.</summary>

@@ -1,12 +1,12 @@
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
-/// The room effect a room-FX record selects. Its values are arbitrary; the import decodes the record's dispatcher
-/// type (#1415).
+/// The kind of room effect a room shows: a liquid, an atmosphere, a sky, a darkness or a scripted scene's effect. Its
+/// values are arbitrary (#1415, #1740).
 /// </summary>
 public enum RoomFxType
 {
-    /// <summary>No animated room-FX object is present.</summary>
+    /// <summary>The room shows no effect of its own.</summary>
     None = 0,
     /// <summary>Animated damaging lava surface with the effect overlay's pictures, palette effects, and optional background distortion.</summary>
     Lava = 1,

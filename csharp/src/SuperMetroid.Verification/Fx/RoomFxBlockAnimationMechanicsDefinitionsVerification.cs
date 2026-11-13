@@ -1,6 +1,6 @@
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.Core.Assets;
-using static SuperMetroid.Verification.Fx.RoomFxAnimatedTileArtworkVerification;
+using static SuperMetroid.Verification.Fx.RoomFxBlockAnimationArtworkVerification;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Fx.LookupAnimatedArtworkSourcesVerification;
 using static SuperMetroid.Verification.Fx.LookupAnimatedFramesVerification;
@@ -15,13 +15,13 @@ namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
 
 /// <summary>Checks compiled room-FX animation controls and complete loops without live ROM reads.</summary>
-internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
+internal static class RoomFxBlockAnimationMechanicsDefinitionsVerification
 {
     /// <summary>
     /// Compares every compiled room-FX animation control word to the pinned cartridge,
     /// then runs every complete loop while rejecting reads of those mechanics bytes.
     /// </summary>
-    internal static void VerifyRoomFxAnimatedTileMechanicsDefinitions()
+    internal static void VerifyRoomFxBlockAnimationMechanicsDefinitions()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
@@ -42,7 +42,7 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
         int mechanicsWordCount = 0;
         int frameCount = 0;
         foreach (RoomFxBlockAnimationLoop definition in
-                 RoomFxAnimatedTileLoops.All)
+                 RoomFxBlockAnimationLoops.All)
         {
             mechanicsWordCount += 3;
 
@@ -60,7 +60,7 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
             mechanicsWordCount += 2;
 
             int presentationReadCount = 0;
-            var guarded = NewRoomFxAnimatedTileMechanicsForbiddenBus(bus, definition, () => presentationReadCount++);
+            var guarded = NewRoomFxBlockAnimationMechanicsForbiddenBus(bus, definition, () => presentationReadCount++);
             var state = new RoomFxBlockAnimationsState();
             state.LoadDefinition(definition.AnimatedObject);
 
@@ -83,7 +83,7 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
                 $"object {definition.AnimatedObject} reads no compiled artwork-source operands");
         }
 
-        AssertEqual(7, RoomFxAnimatedTileLoops.All.Count(),
+        AssertEqual(7, RoomFxBlockAnimationLoops.All.Count(),
             "simple room-FX animated-tile object count");
         AssertEqual(30, frameCount, "simple room-FX animated-tile frame count");
         AssertEqual(65, mechanicsWordCount,
@@ -93,7 +93,7 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
     }
 
     /// <summary>Rejects compiled mechanics reads and counts unexpected artwork operand reads in bank $87.</summary>
-    private static CartridgeReadGuard NewRoomFxAnimatedTileMechanicsForbiddenBus(
+    private static CartridgeReadGuard NewRoomFxBlockAnimationMechanicsForbiddenBus(
         ISnesAddressSpace inner, RoomFxBlockAnimationLoop definition, Action presentationRead)
     {
         bool InAnimatedTileBank(int address) =>
@@ -123,28 +123,28 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
     /// </summary>
     private static void VerifySimpleAnimationLoopWrapsToFirstFrame()
     {
-        foreach (RoomFxBlockAnimationLoop definition in RoomFxAnimatedTileLoops.All)
+        foreach (RoomFxBlockAnimationLoop definition in RoomFxBlockAnimationLoops.All)
         {
-            var expected = new List<RoomFxAnimatedTileMechanicsDefinitionsExpected>();
+            var expected = new List<RoomFxBlockAnimationMechanicsDefinitionsExpected>();
             int update = 0;
             for (int index = 0; index <= definition.Frames.Count; index++)
             {
                 int frame = index % definition.Frames.Count;
-                expected.Add(new RoomFxAnimatedTileMechanicsDefinitionsExpected(update,
+                expected.Add(new RoomFxBlockAnimationMechanicsDefinitionsExpected(update,
                     AnimatedTileImageSources.OfCursor(definition, definition.FrameInstructionPointer(frame))));
                 update += definition.Frames[frame].Duration;
             }
 
             var state = new RoomFxBlockAnimationsState();
             state.LoadDefinition(definition.AnimatedObject);
-            var observed = new List<RoomFxAnimatedTileMechanicsDefinitionsExpected>();
+            var observed = new List<RoomFxBlockAnimationMechanicsDefinitionsExpected>();
             for (int step = 0; step <= expected[^1].Update; step++)
             {
                 // Each pass selects into fresh selections, so a selection read back is the one this pass made.
                 var frames = new ArtworkFrameSelections();
                 state.Step(frames);
                 if (AnimatedTileImageSources.OfShown(frames, definition.AnimatedObject) is int source)
-                    observed.Add(new RoomFxAnimatedTileMechanicsDefinitionsExpected(step, source));
+                    observed.Add(new RoomFxBlockAnimationMechanicsDefinitionsExpected(step, source));
             }
             AssertTrue(expected.SequenceEqual(observed),
                 $"{definition.AnimatedObject} shows each frame on its update and returns to the first after the last");
@@ -155,16 +155,16 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
     [VerificationCommand("--lookup-animated-frames")]
     internal static int LookupAnimatedFramesCommand()
     {
-        Suite(nameof(VerifyRoomFxAnimatedTileMechanicsDefinitions), () => VerifyRoomFxAnimatedTileMechanicsDefinitions());
+        Suite(nameof(VerifyRoomFxBlockAnimationMechanicsDefinitions), () => VerifyRoomFxBlockAnimationMechanicsDefinitions());
         return 0;
     }
 
     /// <summary>Runs both mechanics and artwork checks for room-FX animated tiles.</summary>
     [VerificationCommand("--room-fx-animated-tiles")]
-    internal static int RoomFxAnimatedTilesCommand()
+    internal static int RoomFxBlockAnimationsCommand()
     {
-        Suite(nameof(VerifyRoomFxAnimatedTileMechanicsDefinitions), () => VerifyRoomFxAnimatedTileMechanicsDefinitions());
-        Suite(nameof(VerifyRoomFxAnimatedTileArtwork), () => VerifyRoomFxAnimatedTileArtwork());
+        Suite(nameof(VerifyRoomFxBlockAnimationMechanicsDefinitions), () => VerifyRoomFxBlockAnimationMechanicsDefinitions());
+        Suite(nameof(VerifyRoomFxBlockAnimationArtwork), () => VerifyRoomFxBlockAnimationArtwork());
         return 0;
     }
 }

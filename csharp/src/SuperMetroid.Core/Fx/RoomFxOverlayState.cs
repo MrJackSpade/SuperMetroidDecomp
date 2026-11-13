@@ -8,11 +8,11 @@ using SuperMetroid.Core.Earthquakes;
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
-/// Game-owned room effect selected by the room's effect record for the door Samus entered by.
+/// Game-owned room effect the room's effect selection shows for the door Samus entered by.
 /// </summary>
 /// <remarks>
-/// Every room effect shares the base/target position, packed 8.8 Y velocity, and
-/// timer the room-FX loader sets. This owner retains those values for every effect, including those that show nothing
+/// Every room effect shares the liquid's level and target, its signed 8.8 level speed, and
+/// the delay before it moves, which the room effect's load sets. This owner retains those values for every effect, including those that show nothing
 /// on the effect overlay (the scrolling skies, the Fireflea darkness, Ceres's effects), so room objects make their shared-state
 /// writes into one representation of the room effect's state.
 /// The modelled effect overlay effects are lava, acid, water, spores, Landing Site rain, and Climb fog.
@@ -36,8 +36,8 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     public RgbColor? FirefleaTint => Type == RoomFxType.Fireflea ? Fireflea.Tint : null;
 
     /// <summary>
-    /// Whether the room's last applied FX record animates Samus's visor (<see cref="RoomFxRecordDefinition.VisorAnimation"/>):
-    /// selected when the room loads, steady for a room with no record, and replaced when a fight applies another record.
+    /// Whether the room's last applied effect animates Samus's visor (<see cref="RoomEffectDefinition.VisorAnimation"/>):
+    /// selected when the room loads, steady for a room with no effect, and replaced when a fight applies another effect.
     /// </summary>
     public RoomVisorAnimation VisorAnimation { get; private set; }
 
@@ -48,7 +48,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     public FxOverlayPlane EffectPlane => FxOverlayPlane.Of(OverlayEffect);
 
     /// <summary>
-    /// The palette blend the last FX record loaded selected for the effect overlay's blend colours (#1512), or null while no record
+    /// The palette blend the last effect loaded selected for the effect overlay's blend colours (#1512), or null while no effect
     /// has loaded one and the colours stay the tileset's.
     /// </summary>
     public RoomFxPaletteBlend? PaletteBlend { get; private set; }
@@ -113,7 +113,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
 
     /// <summary>The lava/acid effect overlay's ambient sound timer.</summary>
     private int lavaSoundTimer;
-    /// <summary>Current liquid rise or fall state selected by the FX record.</summary>
+    /// <summary>Current liquid rise or fall state the room effect's liquid motion selects.</summary>
     private LiquidRisePhase liquidRisePhase;
     /// <summary>
     /// The update's audio requests the effect's sounds join as it makes them: the runtime's, once it points the room's
@@ -125,14 +125,14 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// <summary>Position in the room earthquake sound sequence.</summary>
     internal int EarthquakeSoundSequenceIndex { get; set; }
 
-    /// <summary>The FX type the active room/door record selects.</summary>
+    /// <summary>The kind of effect the room shows.</summary>
     public RoomFxType Type { get; internal set; }
 
     /// <summary>
     /// The liquid surface before tide displacement, a room Y with subpixels from 0 through
-    /// <see cref="CoordinateAxis.LastNonNegative"/>: the FX record's base
-    /// whole pixels (a room load starts the fraction at half a pixel), moved toward <see cref="TargetSurface"/> by
-    /// <see cref="YVelocity"/>; null when the record names no surface (#1546).
+    /// <see cref="CoordinateAxis.LastNonNegative"/>: the room effect's starting
+    /// level in whole pixels (a room load starts the fraction at half a pixel), moved toward <see cref="TargetSurface"/> by
+    /// <see cref="LiquidLevelSpeed"/>; null when the effect names no surface (#1546).
     /// </summary>
     public FixedCoordinate? BaseY { get; internal set; }
 
@@ -142,13 +142,13 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// </summary>
     public int? TargetSurface { get; private set; }
 
-    /// <summary>The liquid's signed 8.8 vertical velocity in room pixels per update while it moves toward its target.</summary>
-    public SignedEightEight YVelocity { get; private set; }
+    /// <summary>The liquid's signed 8.8 level speed in room pixels per update while it moves toward its target: negative rises.</summary>
+    public SignedEightEight LiquidLevelSpeed { get; private set; }
 
-    /// <summary>The FX timer, 0 through 255, the active record supplies.</summary>
-    public WrappingCountdown Timer { get; private set; }
+    /// <summary>The updates, 0 through 255, the liquid waits before it moves toward its target, as the room effect or a room object sets it.</summary>
+    public WrappingCountdown LiquidMoveDelay { get; private set; }
 
-    /// <summary>How the effect's overlay blends with the room (#1545), as the FX record describes it, or null when it shows no overlay.</summary>
+    /// <summary>How the effect's overlay blends with the room (#1545), as the room effect describes it, or null when it shows no overlay.</summary>
     public RoomEffectBlend? Blend { get; private set; }
 
     /// <summary>
@@ -173,7 +173,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     public int? Surface { get; internal set; }
 
     /// <summary>
-    /// The liquid the FX record fills the room with, as room objects have since changed it, or null for an effect with no
+    /// The liquid the room effect fills the room with, as room objects have since changed it, or null for an effect with no
     /// liquid (#1695).
     /// </summary>
     public RoomLiquid? Liquid { get; internal set; }
@@ -187,10 +187,10 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// </summary>
     public EarthquakeShake? SustainedEarthquake { get; private set; }
 
-    /// <summary>Builds one room's effect-overlay FX from the current door's FX record.</summary>
+    /// <summary>Builds one room's effect-overlay FX from the effect the current door selects.</summary>
     /// <param name="session">The Fireflea state, which outlives each room.</param>
     /// <param name="fx">The room state's FX definition.</param>
-    /// <param name="door">The entry door, which selects the FX record.</param>
+    /// <param name="door">The entry door, which selects the room effect.</param>
     /// <param name="randomNumber">The session random number rain reads.</param>
     /// <param name="room">The room, for rooms that suppress the earthquake sound.</param>
     public static RoomFxOverlayState ForRoom(
@@ -199,24 +199,24 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         DoorDefinition? door,
         int randomNumber,
         RoomDefinition? room = null) =>
-        ForRecord(session, new RoomFxLoadSource { Fx = fx, Door = door, RandomNumber = randomNumber, Room = room, SuppliedDefinition = null });
+        ForSource(session, new RoomFxLoadSource { Fx = fx, Door = door, RandomNumber = randomNumber, Room = room, SuppliedDefinition = null });
 
-    /// <summary>Builds one room's effect-overlay FX from a load source, which may supply its record directly.</summary>
+    /// <summary>Builds one room's effect-overlay FX from a load source, which may supply its effect directly.</summary>
     /// <param name="session">The Fireflea state, which outlives each room.</param>
-    /// <param name="source">The FX record's source.</param>
-    internal static RoomFxOverlayState ForRecord(RoomFxSession session, RoomFxLoadSource source)
+    /// <param name="source">The room effect's source.</param>
+    internal static RoomFxOverlayState ForSource(RoomFxSession session, RoomFxLoadSource source)
     {
         var fx = new RoomFxOverlayState(session);
-        fx.SelectRecord(source);
+        fx.SelectEffect(source);
         return fx;
     }
 
     /// <summary>
-    /// Selects the door's FX record and initializes the liquid and palette state shared by room effects and room objects.
+    /// Selects the door's room effect and initializes the liquid and palette state shared by room effects and room objects.
     /// From then until Samus leaves the room, the effect overlay shows the effect's liquid or atmosphere, or nothing for an
     /// effect without one (<see cref="FxOverlayPlane"/>).
     /// </summary>
-    private void SelectRecord(RoomFxLoadSource source)
+    private void SelectEffect(RoomFxLoadSource source)
     {
         if (source.Room is { } room && RoomEarthquakeDefinitions.SoundSuppressedRooms.Contains(room))
             EarthquakeSoundTimer = WrappingCountdown.Start(WrappingCountdown.LongestStart);
@@ -224,8 +224,8 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
             return;
 
         LoadSurfaceAndTarget(definition);
-        YVelocity = definition.YVelocity;
-        Timer = WrappingCountdown.Start(definition.Timer);
+        LiquidLevelSpeed = definition.LiquidLevelSpeed;
+        LiquidMoveDelay = WrappingCountdown.Start(definition.LiquidMoveDelay);
         Liquid = definition.Liquid;
         Surface = BaseLine;
 
@@ -273,13 +273,13 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         Type is RoomFxType.Lava or RoomFxType.Acid || RoomFxTypes.UsesWater(Type);
 
     /// <summary>
-    /// Loads the record's surface and target: a named surface keeps the fraction the surface had, or a room load's half
+    /// Loads the effect's liquid level and target: a named surface keeps the fraction the surface had, or a room load's half
     /// pixel when it had none.
     /// </summary>
-    private void LoadSurfaceAndTarget(RoomFxRecordDefinition definition)
+    private void LoadSurfaceAndTarget(RoomEffectDefinition definition)
     {
-        BaseY = definition.BaseYPosition is int baseY ? SurfaceAt(baseY) : null;
-        TargetSurface = definition.TargetYPosition is int targetY ? SurfaceLine(targetY) : null;
+        BaseY = definition.LiquidStartLevel is int baseY ? SurfaceAt(baseY) : null;
+        TargetSurface = definition.LiquidTargetLevel is int targetY ? SurfaceLine(targetY) : null;
     }
 
     /// <summary>The base surface at whole line <paramref name="line"/>, keeping the current fraction or a room load's.</summary>
@@ -461,35 +461,35 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// on its next ordinary effect pass, just as the game does.
     /// </summary>
     internal void SetLiquidMotion(
-        int? baseYPosition = null,
-        int? targetYPosition = null,
-        SignedEightEight? yVelocity = null,
-        int? timer = null)
+        int? liquidLevel = null,
+        int? targetLevel = null,
+        SignedEightEight? levelSpeed = null,
+        int? moveDelay = null)
     {
         // Each value is a line or cell the writer copies; the checks reject anything outside a room's lines or wider.
-        if (baseYPosition is int baseY)
+        if (liquidLevel is int baseY)
             BaseY = SurfaceAt(baseY);
-        if (targetYPosition is int targetY)
+        if (targetLevel is int targetY)
             TargetSurface = SurfaceLine(targetY);
-        if (yVelocity is { } velocity)
-            YVelocity = velocity;
-        if (timer is int newTimer)
-            Timer = WrappingCountdown.Start(newTimer);
+        if (levelSpeed is { } velocity)
+            LiquidLevelSpeed = velocity;
+        if (moveDelay is int newDelay)
+            LiquidMoveDelay = WrappingCountdown.Start(newDelay);
     }
 
     /// <summary>Removes the liquid's target, as the Speed Booster escape does when Samus has no Speed Booster: the liquid stops.</summary>
     internal void RemoveLiquidTarget() => TargetSurface = null;
 
     /// <summary>
-    /// Reloading a record's entry restores motion, blending and three colors, but does not restart
+    /// Reapplying a room effect restores motion, blending and three colors, but does not restart
     /// per-line effects, block animations, or the liquid's current motion phase as a room load would.
     /// </summary>
-    internal void ApplyEntry(RoomFxRecordDefinition definition)
+    internal void ApplyEntry(RoomEffectDefinition definition)
     {
         Ensure.NotNull(definition);
         LoadSurfaceAndTarget(definition);
-        YVelocity = definition.YVelocity;
-        Timer = WrappingCountdown.Start(definition.Timer);
+        LiquidLevelSpeed = definition.LiquidLevelSpeed;
+        LiquidMoveDelay = WrappingCountdown.Start(definition.LiquidMoveDelay);
         Liquid = definition.Liquid;
         Blend = definition.EffectBlend;
         VisorAnimation = definition.VisorAnimation;
@@ -497,7 +497,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     }
 
     /// <summary>
-    /// Lays the shade of the palette blend the last record selected over the room effect's pictures and over the HUD's
+    /// Lays the shade of the palette blend the last effect selected over the room effect's pictures and over the HUD's
     /// (#1512), each group pre-coloured in it on its own sheet (#1731).
     /// </summary>
     public void ShadeGameplay(GameplayShadingBuilder frame)
@@ -603,7 +603,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// <summary>
     /// Runs the parallel three-phase motions for lava/acid
     /// and for water. A nonzero velocity first arms the wait phase,
-    /// the record timer then expires, and only then does the signed 8.8 velocity move the
+    /// the liquid's move delay then expires, and only then does the signed 8.8 velocity move the
     /// 16.16 base position toward the target. Door-specific Norfair entries rely on this
     /// sequence to raise lava into the visible viewport.
     /// </summary>
@@ -616,9 +616,9 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
                 // A missing surface or target lies below every line (AbsentLiquidSurfaceDepth).
                 int surface = AbsentLiquidSurfaceDepth.Of(BaseLine);
                 int target = AbsentLiquidSurfaceDepth.Of(TargetSurface);
-                bool movesTowardTarget = YVelocity > SignedEightEight.Zero
+                bool movesTowardTarget = LiquidLevelSpeed > SignedEightEight.Zero
                     ? target > surface
-                    : YVelocity.IsNegative && target < surface;
+                    : LiquidLevelSpeed.IsNegative && target < surface;
                 if (movesTowardTarget)
                     liquidRisePhase = LiquidRisePhase.Waiting;
                 return;
@@ -626,8 +626,8 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
 
             case LiquidRisePhase.Waiting:
                 PublishRisingLiquidFeedback(randomNumber, earthquakeSoundDelay);
-                Timer = Timer.Decrement().Remaining;
-                if (Timer.IsZero)
+                LiquidMoveDelay = LiquidMoveDelay.Decrement().Remaining;
+                if (LiquidMoveDelay.IsZero)
                     liquidRisePhase = LiquidRisePhase.Moving;
                 return;
 
@@ -635,7 +635,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
                 PublishRisingLiquidFeedback(randomNumber, earthquakeSoundDelay);
                 if (AdvanceBaseYToTarget())
                 {
-                    YVelocity = default;
+                    LiquidLevelSpeed = default;
                     liquidRisePhase = LiquidRisePhase.Dormant;
                 }
                 return;
@@ -706,12 +706,12 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
             return true;
 
         FixedCoordinate moved = (BaseY ?? new FixedCoordinate(AbsentLiquidSurfaceDepth.Of(null), LoadedSurfaceFraction))
-            .MovedBy(YVelocity.ToSixteenSixteenDelta());
+            .MovedBy(LiquidLevelSpeed.ToSixteenSixteenDelta());
         int candidate = moved.Whole;
 
         // Moving down, the surface reaches the target once it passes it, or passes the deepest line a surface can hold;
         // moving up, once it reaches it or rises past the room's top.
-        bool reached = !YVelocity.IsNegative
+        bool reached = !LiquidLevelSpeed.IsNegative
             ? candidate > target
             : CoordinateAxis.AsSigned(candidate) < 0 || candidate <= target;
         if (!reached)
@@ -763,7 +763,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
 
     /// <summary>
     /// Adds signed fixed-point tide displacement to the base liquid surface, giving its signed line; a liquid with no
-    /// surface has none, and no retail record gives one a tide.
+    /// surface has none, and no retail room effect gives one a tide.
     /// </summary>
     /// <exception cref="InvalidOperationException">A liquid with no surface has a tide.</exception>
     private int? ComputeTidalYPosition()
@@ -775,15 +775,15 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
             : throw new InvalidOperationException("A room liquid with no surface has a tide.");
     }
 
-    /// <summary>Creates one room's effect state, with no FX record selected, over the session's carried state.</summary>
+    /// <summary>Creates one room's effect state, with no room effect selected, over the session's carried state.</summary>
     /// <param name="session">The Fireflea state, which outlives each room.</param>
     public RoomFxOverlayState(RoomFxSession session)
     {
         _session = Ensure.NotNull(session);
         Type = RoomFxType.None;
         TargetSurface = 0;
-        YVelocity = default;
-        Timer = WrappingCountdown.Start(0);
+        LiquidLevelSpeed = default;
+        LiquidMoveDelay = WrappingCountdown.Start(0);
         Blend = null;
         Scroll = Position16<OverlayPixels>.Zero;
         drift = Offset16<OverlaySubpixels>.Zero;

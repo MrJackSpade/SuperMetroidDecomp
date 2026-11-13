@@ -1,10 +1,10 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
-using static SuperMetroid.Verification.Fx.AreaAnimatedTileObjectDefinitionsVerification;
+using static SuperMetroid.Verification.Fx.AreaBlockAnimationDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
-using static SuperMetroid.Verification.Fx.RoomFxAnimatedTileArtworkVerification;
-using static SuperMetroid.Verification.Fx.RoomFxAnimatedTileMechanicsDefinitionsVerification;
+using static SuperMetroid.Verification.Fx.RoomFxBlockAnimationArtworkVerification;
+using static SuperMetroid.Verification.Fx.RoomFxBlockAnimationMechanicsDefinitionsVerification;
 using static SuperMetroid.Verification.Fx.RoomFxLayer3TilemapsVerification;
 using static SuperMetroid.Verification.Fx.RoomFxPaletteBlendsVerification;
 using static SuperMetroid.Verification.Fx.RoomFxRetailInventoryVerification;
@@ -48,9 +48,9 @@ internal static class RoomFxRomDataVerification
             AssertEqual(nativeValue, SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.Types.Word(type), $"{type} native room-FX value");
 
         Suite(nameof(VerifyRoomLayer3FxTypes), () => VerifyRoomLayer3FxTypes());
-        Suite(nameof(VerifyAreaAnimatedTileObjectDefinitions), () => VerifyAreaAnimatedTileObjectDefinitions());
-        Suite(nameof(VerifyRoomFxAnimatedTileMechanicsDefinitions), () => VerifyRoomFxAnimatedTileMechanicsDefinitions());
-        Suite(nameof(VerifyRoomFxAnimatedTileArtwork), () => VerifyRoomFxAnimatedTileArtwork());
+        Suite(nameof(VerifyAreaBlockAnimationDefinitions), () => VerifyAreaBlockAnimationDefinitions());
+        Suite(nameof(VerifyRoomFxBlockAnimationMechanicsDefinitions), () => VerifyRoomFxBlockAnimationMechanicsDefinitions());
+        Suite(nameof(VerifyRoomFxBlockAnimationArtwork), () => VerifyRoomFxBlockAnimationArtwork());
         Suite(nameof(VerifyRoomFxLayer3Tilemaps), () => VerifyRoomFxLayer3Tilemaps());
         Suite(nameof(VerifyRoomFxPaletteBlends), () => VerifyRoomFxPaletteBlends());
         Suite(nameof(VerifyRetailRoomFxInventory), () => VerifyRetailRoomFxInventory());
@@ -341,7 +341,7 @@ internal static class RoomFxRomDataVerification
         RoomFxOverlayState.ForDefinition(session, ReadSyntheticRoomFxRecord(bus, pointer), randomNumber: 0);
 
     /// <summary>Reads all sixteen bank-$83 record bytes in native word/byte order for the independent fixture oracle.</summary>
-    private static RoomFxRecordDefinition ReadSyntheticRoomFxRecord(TestAddressSpace bus, ushort pointer)
+    private static RoomEffectDefinition ReadSyntheticRoomFxRecord(TestAddressSpace bus, ushort pointer)
     {
         int address = 0x830000 | pointer;
         byte Byte(int offset) => bus.ReadByte(address + offset);

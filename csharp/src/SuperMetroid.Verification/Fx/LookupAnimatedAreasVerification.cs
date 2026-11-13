@@ -14,10 +14,10 @@ internal static class LookupAnimatedAreasVerification
     {
         for (int area = 0; area < 8; area++)
             AssertEqual(ReadVerificationWord(rom, 0x83ac56 + 2 * area),
-                AreaAnimatedTileObjectDefinitions.NativeListPointer(area), "Original animation area pointer");
+                AreaBlockAnimationDefinitions.NativeListPointer(area), "Original animation area pointer");
         foreach (int invalid in new[] { int.MinValue, -1, 8, 255, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(
-                () => AreaAnimatedTileObjectDefinitions.NativeListPointer(invalid), "Native area bounds");
+                () => AreaBlockAnimationDefinitions.NativeListPointer(invalid), "Native area bounds");
     }
 
     /// <summary>Checks each area/bit selection and preserves the distinct native and retail validation order.</summary>
@@ -33,12 +33,12 @@ internal static class LookupAnimatedAreasVerification
                 {
                     ushort pointer = ReadVerificationWord(rom, 0x83ac56 + 2 * area);
                     ushort expected = ReadVerificationWord(rom, 0x830000 | (pointer + 2 * bit));
-                    AssertEqual(expected, AreaAnimatedTileObjectDefinitions.NativeObjectPointer(area, bit),
+                    AssertEqual(expected, AreaBlockAnimationDefinitions.NativeObjectPointer(area, bit),
                         "Original native animation area/bit selection");
                     // A bit no record of the area sets selects no object of the game (#1686): the cartridge's word there is
                     // its empty object, or Crateria's unused lava.
                     if (area < 7)
-                        AssertEqual(expected, AreaAnimatedTileObjects.Read((AreaId)area, bit) is { } selected
+                        AssertEqual(expected, AreaBlockAnimations.Read((AreaId)area, bit) is { } selected
                                 ? FxNativeWords.AnimatedTileObjects.Word(selected)
                                 : FxNativeWords.UnselectedAnimatedTileObject(area, bit),
                             "Retail view shares original selection");
@@ -46,13 +46,13 @@ internal static class LookupAnimatedAreasVerification
                 else
                 {
                     var failure = AssertThrows<ArgumentOutOfRangeException>(
-                        () => AreaAnimatedTileObjectDefinitions.NativeObjectPointer(area, bit), "Native selection rejects");
+                        () => AreaBlockAnimationDefinitions.NativeObjectPointer(area, bit), "Native selection rejects");
                     AssertEqual(area >= 8 ? "nativeAreaIndex" : "bit", failure.ParamName, "Native area-first validation");
                 }
                 if (area >= 7 || bit >= 8)
                 {
                     var failure = AssertThrows<ArgumentOutOfRangeException>(
-                        () => AreaAnimatedTileObjects.Read((AreaId)area, bit), "Retail selection rejects");
+                        () => AreaBlockAnimations.Read((AreaId)area, bit), "Retail selection rejects");
                     AssertEqual(bit >= 8 ? "bit" : "area", failure.ParamName, "Retail bit-first validation");
                 }
             }
@@ -60,11 +60,11 @@ internal static class LookupAnimatedAreasVerification
         foreach (int invalid in new[] { int.MinValue, -1, int.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(
-                () => AreaAnimatedTileObjectDefinitions.NativeObjectPointer(invalid, 0), "Signed native area bound");
+                () => AreaBlockAnimationDefinitions.NativeObjectPointer(invalid, 0), "Signed native area bound");
             AssertThrows<ArgumentOutOfRangeException>(
-                () => AreaAnimatedTileObjectDefinitions.NativeObjectPointer(0, invalid), "Signed native bit bound");
+                () => AreaBlockAnimationDefinitions.NativeObjectPointer(0, invalid), "Signed native bit bound");
             AssertThrows<ArgumentOutOfRangeException>(
-                () => AreaAnimatedTileObjects.Read(AreaId.Crateria, invalid), "Signed retail bit bound");
+                () => AreaBlockAnimations.Read(AreaId.Crateria, invalid), "Signed retail bit bound");
         }
     }
 }

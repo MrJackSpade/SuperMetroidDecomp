@@ -2,7 +2,7 @@ using SuperMetroid.AssetExtraction.Fx;
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>Verification access to <see cref="RoomFxBlockAnimationLoop"/> members production does not use.</summary>
-internal static class RoomFxAnimatedTileObjectDefinitionAccess
+internal static class RoomFxBlockAnimationDefinitionAccess
 {
     /// <summary>The bank-$87 cursor of <paramref name="animatedObject"/>'s first timed frame.</summary>
     internal static ushort FirstCursor(BlockAnimation animatedObject) => animatedObject switch

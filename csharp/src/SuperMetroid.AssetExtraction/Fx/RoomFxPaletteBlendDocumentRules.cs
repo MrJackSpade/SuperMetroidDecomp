@@ -16,31 +16,31 @@ public static class RoomFxPaletteBlendDocumentRules
         {
             yield return RoomFxPaletteBlend.Lava;
             yield return RoomFxPaletteBlend.LandingSiteRain;
-            yield return RoomFxPaletteBlend.MaridiaWaterA;
+            yield return RoomFxPaletteBlend.IndigoMaridiaWater;
             yield return RoomFxPaletteBlend.WaterAndAcid;
             yield return RoomFxPaletteBlend.Fog;
-            yield return RoomFxPaletteBlend.MaridiaWaterB;
-            yield return RoomFxPaletteBlend.MaridiaWaterC;
-            yield return RoomFxPaletteBlend.MaridiaWaterD;
+            yield return RoomFxPaletteBlend.TealMaridiaWater;
+            yield return RoomFxPaletteBlend.GreenMaridiaWater;
+            yield return RoomFxPaletteBlend.PurpleMaridiaWater;
         }
     }
 
     /// <summary>
-    /// The installed document's key for <paramref name="id"/>. The keys keep the names the installed file has always
-    /// used, so renaming or renumbering a blend never changes an installed key (#1415).
+    /// The installed document's key for <paramref name="id"/>. Each key names the tint as the blend's identity does (#1740),
+    /// never the cartridge's colour-table offset.
     /// </summary>
     /// <param name="id">One of the eight blends exposed by <see cref="Ids"/>; <see cref="RoomFxPaletteBlend.None"/> clears the blend and has no resource key.</param>
     /// <exception cref="InvalidDataException">The blend is not one of the eight catalogued blends.</exception>
     public static string Key(RoomFxPaletteBlend id) => id switch
     {
-        RoomFxPaletteBlend.Lava => "blend-02",
-        RoomFxPaletteBlend.LandingSiteRain => "blend-22",
-        RoomFxPaletteBlend.MaridiaWaterA => "blend-42",
-        RoomFxPaletteBlend.WaterAndAcid => "blend-48",
-        RoomFxPaletteBlend.Fog => "blend-62",
-        RoomFxPaletteBlend.MaridiaWaterB => "blend-E2",
-        RoomFxPaletteBlend.MaridiaWaterC => "blend-E8",
-        RoomFxPaletteBlend.MaridiaWaterD => "blend-EE",
+        RoomFxPaletteBlend.Lava => "lava",
+        RoomFxPaletteBlend.LandingSiteRain => "landing-site-rain",
+        RoomFxPaletteBlend.IndigoMaridiaWater => "indigo-maridia-water",
+        RoomFxPaletteBlend.WaterAndAcid => "water-and-acid",
+        RoomFxPaletteBlend.Fog => "fog",
+        RoomFxPaletteBlend.TealMaridiaWater => "teal-maridia-water",
+        RoomFxPaletteBlend.GreenMaridiaWater => "green-maridia-water",
+        RoomFxPaletteBlend.PurpleMaridiaWater => "purple-maridia-water",
         RoomFxPaletteBlend.None => throw new InvalidDataException($"Room-FX palette blend {id} is not catalogued."),
         _ => throw new InvalidDataException($"Room-FX palette blend {id} is not catalogued."),
     };

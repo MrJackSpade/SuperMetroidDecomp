@@ -10,7 +10,8 @@ public static class RoomFxPaletteBlendDefinitions
     public const string FileName = "room-fx-blend-palettes.json";
     /// <summary>
     /// Supported revision of the complete eight-selection blend schema. Revision 2 (#1544) holds the blends alone: the
-    /// Ceres haze's tints are scene colours.
+    /// Ceres haze's tints are scene colours. Revision 3 (#1740) keys each blend by what it tints, not by the cartridge's
+    /// colour-table offset.
     /// </summary>
-    public const int Version = 2;
+    public const int Version = 3;
 }

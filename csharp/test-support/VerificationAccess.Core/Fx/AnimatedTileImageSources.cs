@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Fx;
 internal static class AnimatedTileImageSources
 {
     /// <summary>The cartridge address the import reads <paramref name="image"/>'s characters from.</summary>
-    internal static int Of(AnimatedTileImage image) => RoomFxAnimatedTileSources.Of(image).Value;
+    internal static int Of(AnimatedTileImage image) => RoomFxBlockAnimationSources.Of(image).Value;
 
     /// <summary>
     /// The cartridge address of the picture the frame <paramref name="animatedObject"/> shows in <paramref name="frames"/>
@@ -30,17 +30,17 @@ internal static class AnimatedTileImageSources
 
     /// <summary>The cartridge address <paramref name="picture"/> of <paramref name="statue"/> starts at in the shared statue strip.</summary>
     internal static int TourianStatue(TourianGreyStatues statue, TourianStatueBlockPicture picture) =>
-        RoomFxAnimatedTileSourceDefinitions.TourianStatueStrip.AddWithinBank(
-            RoomFxAnimatedTilePictures.TourianStatueFirstTile(statue, picture) * TourianStatueTileStripDefinitions.CharacterByteCount).Value;
+        RoomFxBlockAnimationSourceDefinitions.TourianStatueStrip.AddWithinBank(
+            RoomFxBlockAnimationPictures.TourianStatueFirstTile(statue, picture) * TourianStatueTileStripDefinitions.CharacterByteCount).Value;
 
     /// <summary>The cartridge address the shared Tourian statue strip starts at.</summary>
-    internal static int TourianStatueStripStart => RoomFxAnimatedTileSourceDefinitions.TourianStatueStrip.Value;
+    internal static int TourianStatueStripStart => RoomFxBlockAnimationSourceDefinitions.TourianStatueStrip.Value;
 
     /// <summary>The cartridge address after the shared Tourian statue strip.</summary>
-    internal static int TourianStatueStripEnd => TourianStatueStripStart + RoomFxAnimatedTileLoops.TourianStatueStripByteCount;
+    internal static int TourianStatueStripEnd => TourianStatueStripStart + RoomFxBlockAnimationLoops.TourianStatueStripByteCount;
 
     /// <summary>Resolves installed characters by the cartridge address a native frame operand names.</summary>
-    extension(RoomFxAnimatedTileAtlas atlas)
+    extension(RoomFxBlockAnimationAtlas atlas)
     {
         /// <summary>
         /// The installed characters of the picture the import reads from <paramref name="sourceAddress"/>: a ROM oracle's
@@ -49,15 +49,15 @@ internal static class AnimatedTileImageSources
         /// <exception cref="InvalidDataException"><paramref name="byteCount"/> is not the picture's size.</exception>
         internal bool TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data)
         {
-            foreach (RoomFxAtlasSegment segment in RoomFxAnimatedTileAtlasFile.Segments)
+            foreach (RoomFxAtlasSegment segment in RoomFxBlockAnimationAtlasFile.Segments)
                 if (segment is RoomFxAtlasSegment.Image image && Of(image.Picture) == sourceAddress)
                     return atlas.TryResolve(image.Picture, byteCount, out data);
             foreach (TourianStatueAnimationDefinition statue in TourianStatueAnimatedTilePrograms.All)
-            foreach (TourianStatueBlockPicture picture in RoomFxAnimatedTilePictures.TourianStatuePictures)
+            foreach (TourianStatueBlockPicture picture in RoomFxBlockAnimationPictures.TourianStatuePictures)
             {
                 if (TourianStatue(statue.Statue, picture) != sourceAddress)
                     continue;
-                int pictureByteCount = RoomFxAnimatedTilePictures.TourianStatuePictureByteCount(statue.Statue);
+                int pictureByteCount = RoomFxBlockAnimationPictures.TourianStatuePictureByteCount(statue.Statue);
                 if (byteCount != pictureByteCount)
                     throw new InvalidDataException(
                         $"Tourian statue {statue.Statue} {picture} requires {pictureByteCount} bytes, not {byteCount}.");

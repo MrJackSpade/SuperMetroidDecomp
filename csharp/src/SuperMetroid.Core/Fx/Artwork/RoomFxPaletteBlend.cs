@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>
-/// The palette blend a room-FX record selects; <see cref="None"/> clears the blend. Its values are arbitrary; the
-/// import decodes the record's blend selector (#1415).
+/// The palette blend a room effect tints its overlay and the HUD with; <see cref="None"/> clears the blend. Each is named for
+/// what it tints, the four Maridia waters by their retail colour. Its values are arbitrary (#1415, #1740).
 /// </summary>
 public enum RoomFxPaletteBlend
 {
@@ -12,16 +12,19 @@ public enum RoomFxPaletteBlend
     Lava = 1,
     /// <summary>The blend used by Landing Site rain.</summary>
     LandingSiteRain,
-    /// <summary>The blend used by several Maridia water rooms.</summary>
-    MaridiaWaterA,
+    /// <summary>
+    /// The deep indigo of the water around Plasma, Draygon, the Maridia elevator and the Forgotten Highway's entrance
+    /// shafts, and of their dry rooms.
+    /// </summary>
+    IndigoMaridiaWater,
     /// <summary>The blend used by Ceres and other water/acid rooms.</summary>
     WaterAndAcid,
     /// <summary>The blend used by fog and nonliquid room states.</summary>
     Fog,
-    /// <summary>The blend used by western Maridia water rooms.</summary>
-    MaridiaWaterB,
-    /// <summary>The blend used by central Maridia water rooms.</summary>
-    MaridiaWaterC,
-    /// <summary>The blend used by eastern Maridia water rooms.</summary>
-    MaridiaWaterD,
+    /// <summary>The teal of western Maridia's open water: Main Street, the glass tunnel, the crab rooms and the fish tank.</summary>
+    TealMaridiaWater,
+    /// <summary>The dark green of central Maridia's sand rooms: the sand halls, the Oasis, Shaktool's and the Spring Ball's rooms.</summary>
+    GreenMaridiaWater,
+    /// <summary>The purple of eastern Maridia's water: the aqueduct, Botwoon's rooms, the Colosseum and the cactus alleys.</summary>
+    PurpleMaridiaWater,
 }

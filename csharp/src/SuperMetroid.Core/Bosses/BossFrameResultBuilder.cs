@@ -54,7 +54,7 @@ internal sealed class BossFrameResultBuilder
     /// The change Mother Brain's fight makes to her room's acid, or null for none: her initialization requests the acid
     /// rising and her fake death its draining (<see cref="MotherBrainRoomFxDefinitions"/>), and the pass reset clears it.
     /// </summary>
-    internal RoomFxRecordDefinition? MotherBrainAcidChange { get; set; }
+    internal RoomEffectDefinition? MotherBrainAcidChange { get; set; }
 
     /// <summary>Mother Brain's room mutations, in publication order.</summary>
     internal List<RoomObjectSpawnRequest<MotherBrainRoomMutation>> MotherBrainObjects { get; } = [];

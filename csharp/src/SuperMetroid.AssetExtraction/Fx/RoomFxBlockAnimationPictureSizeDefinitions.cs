@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Fx;
 /// object header copies per frame, which only the import needs to cut the atlas into pictures and read them from the
 /// cartridge.
 /// </summary>
-internal static class RoomFxAnimatedTilePictureSizeDefinitions
+internal static class RoomFxBlockAnimationPictureSizeDefinitions
 {
     /// <summary>The bytes of each picture of each looping animation.</summary>
     internal static readonly FrozenDictionary<BlockAnimation, int> PictureByteCounts = new Dictionary<BlockAnimation, int>

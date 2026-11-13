@@ -2,7 +2,7 @@
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>Verification access to <see cref="RoomSandBlockAnimationsState"/> members production does not use.</summary>
-internal static class RoomSandAnimatedTilesStateAccess
+internal static class RoomSandBlockAnimationsStateAccess
 {
     /// <summary>Counts room-selected sand animation objects after the current FX bitset is applied.</summary>
     extension(RoomSandBlockAnimationsState self)

@@ -42,17 +42,17 @@ internal static class SpeedBoosterPickupVerification
             fixture.RoomObjects.Step(fixture.Level);
             AssertTrue(fixture.Samus.CollectedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
                 "Speed Booster acquired before message continuation");
-            AssertEqual((ushort)0, fx.YVelocity.RawValue, "message has not yet armed lava");
-            AssertEqual((ushort)0x20, fx.Timer.RawValue, "pickup preserves native liquid delay");
+            AssertEqual((ushort)0, fx.LiquidLevelSpeed.RawValue, "message has not yet armed lava");
+            AssertEqual((ushort)0x20, fx.LiquidMoveDelay.RawValue, "pickup preserves native liquid delay");
             AssertEqual((ushort)0xda, fx.NamedBaseY.Whole, "pickup preserves native liquid surface");
 
             // Runtime suspends gameplay while the message is active and invokes this
             // continuation when the routine returns, before the next FX pass.
             fixture.RoomObjects.CollectibleObjects.CompleteCollectibleMessage(fixture.Level);
-            AssertEqual(chozo ? (ushort)0xffe0 : (ushort)0, fx.YVelocity.RawValue,
+            AssertEqual(chozo ? (ushort)0xffe0 : (ushort)0, fx.LiquidLevelSpeed.RawValue,
                 "only the Chozo instruction list writes the native upward velocity");
             fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
-            AssertEqual((ushort)0x20, fx.Timer.RawValue, "first FX pass selects waiting phase");
+            AssertEqual((ushort)0x20, fx.LiquidMoveDelay.RawValue, "first FX pass selects waiting phase");
             for (int frame = 0; frame < 32; frame++)
             {
                 fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
@@ -68,9 +68,9 @@ internal static class SpeedBoosterPickupVerification
                 AssertEqual(chozo && frame == 5 ? (ushort)0xd9 : (ushort)0xda,
                     fx.NamedBaseY.Whole, "lava rises at native subpixel speed after delay");
             }
-            fx.SetLiquidMotion(yVelocity: SignedEightEight.Zero);
+            fx.SetLiquidMotion(levelSpeed: SignedEightEight.Zero);
             fixture.RoomObjects.CollectibleObjects.CompleteCollectibleMessage(fixture.Level);
-            AssertEqual((ushort)0, fx.YVelocity.RawValue, "message continuation is consumed once");
+            AssertEqual((ushort)0, fx.LiquidLevelSpeed.RawValue, "message continuation is consumed once");
         }
         Console.WriteLine("Speed Booster pickup continuation, delay, rise and earthquake verified.");
     }

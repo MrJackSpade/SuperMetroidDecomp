@@ -664,9 +664,9 @@ internal static class RoomObjectPopulationVerification
             "missing Speed Booster deletes the resident controller");
         AssertTrue(unequippedFx.TargetSurface is null,
             "missing Speed Booster removes the FX target");
-        AssertEqual(0, unequippedFx.YVelocity.RawValue,
+        AssertEqual(0, unequippedFx.LiquidLevelSpeed.RawValue,
             "missing Speed Booster clears packed FX velocity");
-        AssertEqual(0, unequippedFx.Timer.RawValue,
+        AssertEqual(0, unequippedFx.LiquidMoveDelay.RawValue,
             "missing Speed Booster clears FX timer");
         AssertTrue(earthquakeStopped,
             "missing Speed Booster stops the room's earthquake");
@@ -705,14 +705,14 @@ internal static class RoomObjectPopulationVerification
         active.Step(activeLevel);
         active.Step(activeLevel);
         AssertEqual(SpeedBoosterEscapeDefinitions.InitialLavaquakeVelocity.RawValue,
-            activeFx.YVelocity.RawValue,
+            activeFx.LiquidLevelSpeed.RawValue,
             "collected Speed Booster starts the regional lavaquake velocity");
         active.Step(activeLevel);
-        AssertEqual(0, activeFx.Timer.RawValue,
+        AssertEqual(0, activeFx.LiquidMoveDelay.RawValue,
             "Samus right of $0AE0 leaves FX motion sleeping");
         activeSamus.Position = activeSamus.Position.WithWholeX(SpeedBoosterEscapeDefinitions.StartFxMotionSamusX);
         active.Step(activeLevel);
-        AssertEqual(1, activeFx.Timer.RawValue,
+        AssertEqual(1, activeFx.LiquidMoveDelay.RawValue,
             "Samus reaching $0AE0 starts FX motion");
 
         activeSamus.Position = activeSamus.Position.WithWholeX(0x072c);
@@ -723,7 +723,7 @@ internal static class RoomObjectPopulationVerification
         active.Step(activeLevel);
         AssertEqual(0x01bf, activeFx.NamedBaseY.Whole,
             "first lava stage clamps maximum FX Y");
-        AssertEqual(0xff50, activeFx.YVelocity.RawValue,
+        AssertEqual(0xff50, activeFx.LiquidLevelSpeed.RawValue,
             "first lava stage installs ROM velocity");
         activeSamus.Position = activeSamus.Position.WithWholeX(0x050a);
         active.Step(activeLevel);

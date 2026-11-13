@@ -52,7 +52,7 @@ internal static class LookupTourianDescriptorsVerification
     private static void VerifyTourianStatueTransferSizes(ISnesAddressSpace rom)
     {
         foreach (ushort header in OriginalTourianObjects)
-            AssertEqual(HeaderWord(rom, header, 1), RoomFxAnimatedTilePictures.TourianStatuePictureByteCount(Resolve(header).Statue),
+            AssertEqual(HeaderWord(rom, header, 1), RoomFxBlockAnimationPictures.TourianStatuePictureByteCount(Resolve(header).Statue),
                 "Original statue transfer size");
     }
 

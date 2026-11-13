@@ -76,11 +76,11 @@ internal static class LowerNorfairHandVerification
         {
             runtime.StepFrame(0);
             // The statue's lowering cue is the one write of the acid's lowering velocity.
-            if (!sawStartCommand && runtime.RoomFxOverlay.YVelocity.RawValue == 64)
+            if (!sawStartCommand && runtime.RoomFxOverlay.LiquidLevelSpeed.RawValue == 64)
             {
                 sawStartCommand = true;
-                AssertEqual((ushort)32, runtime.RoomFxOverlay.Timer.RawValue, "start instruction writes live delay once");
-                AssertEqual((ushort)64, runtime.RoomFxOverlay.YVelocity.RawValue, "start instruction writes live 8.8 velocity");
+                AssertEqual((ushort)32, runtime.RoomFxOverlay.LiquidMoveDelay.RawValue, "start instruction writes live delay once");
+                AssertEqual((ushort)64, runtime.RoomFxOverlay.LiquidLevelSpeed.RawValue, "start instruction writes live 8.8 velocity");
             }
             sawAcidDrain |= runtime.RoomFxOverlay.NamedBaseY.Whole > startingAcidY &&
                 runtime.RoomFxOverlay.NamedBaseY.Whole < 0x2d2;

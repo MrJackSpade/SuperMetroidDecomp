@@ -52,7 +52,7 @@ internal static class TreadmillVisualVerification
             ArtworkAnimation treadmill = BlockAnimationFrames.Of(rightwards
                 ? BlockAnimation.WreckedShipTreadmillRightwards : BlockAnimation.WreckedShipTreadmillLeftwards);
             // The animated tiles' characters are import data no installation holds: the cartridge-derived extraction's (#1636).
-            RoomFxAnimatedTileAtlas animatedTiles = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.ImportMaps.RoomFxAnimatedTiles;
+            RoomFxBlockAnimationAtlas animatedTiles = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.ImportMaps.BlockAnimationAtlas;
             for (int frame = 0; frame < 12; frame++)
             {
                 ArtworkFrame? latched = runtime.Room.LoadedScope.ArtworkFrames.TryShown(treadmill, out ArtworkFrame selected) ? selected : null;
@@ -65,7 +65,7 @@ internal static class TreadmillVisualVerification
                 // pointer or unrelated enemy animation.
                 byte[] floor = shown.AsSpan(
                     AnimatedTileVramDestinations.WordOf(BlockAnimation.WreckedShipTreadmillRightwards) * 2,
-                    RoomFxAnimatedTileLoops.TreadmillFrameByteCount).ToArray();
+                    RoomFxBlockAnimationLoops.TreadmillFrameByteCount).ToArray();
                 images.Add(Convert.ToHexString(floor));
                 if (frame > 0)
                 {
@@ -84,8 +84,8 @@ internal static class TreadmillVisualVerification
     {
         var expected = new SnesVram();
         ushort destination = AnimatedTileVramDestinations.WordOf(BlockAnimation.WreckedShipTreadmillRightwards);
-        ImportedVramOracle.ExecuteHardware(expected, bus, source, RoomFxAnimatedTileLoops.TreadmillFrameByteCount, destination);
-        return expected.Bytes.Slice(destination * 2, RoomFxAnimatedTileLoops.TreadmillFrameByteCount).ToArray();
+        ImportedVramOracle.ExecuteHardware(expected, bus, source, RoomFxBlockAnimationLoops.TreadmillFrameByteCount, destination);
+        return expected.Bytes.Slice(destination * 2, RoomFxBlockAnimationLoops.TreadmillFrameByteCount).ToArray();
     }
 
     /// <summary>Runs the focused Wrecked Ship treadmill visual comparison.</summary>

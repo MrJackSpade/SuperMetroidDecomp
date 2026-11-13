@@ -39,7 +39,7 @@ internal static class RoomFxRetailInventoryVerification
     /// own check compares the atlas with the cartridge; these checks only draw from it, so they read the atlas the shared
     /// map fixture already holds instead of extracting it again.
     /// </summary>
-    private static RoomFxAnimatedTileAtlas AnimatedTiles => InstalledFixtures.ImportMaps.RoomFxAnimatedTiles;
+    private static RoomFxBlockAnimationAtlas AnimatedTiles => InstalledFixtures.ImportMaps.BlockAnimationAtlas;
 
     /// <summary>
     /// Exhaustively compares every named retail room state and every physical entry door
@@ -76,7 +76,7 @@ internal static class RoomFxRetailInventoryVerification
             "retail room-FX inventory state count");
         AssertEqual(RetailRoomFxDoorCount, doors.Length,
             "retail room-FX inventory physical door count");
-        Suite(nameof(VerifyRetailRoomFxAnimatedTileHeaders), () => VerifyRetailRoomFxAnimatedTileHeaders(bus));
+        Suite(nameof(VerifyRetailRoomFxBlockAnimationHeaders), () => VerifyRetailRoomFxBlockAnimationHeaders(bus));
         Suite(nameof(VerifyRetailLavaSurface), () => VerifyRetailLavaSurface(bus, states));
 
         var doorByPointer = doors.ToDictionary(door => door.Pointer);
@@ -281,7 +281,7 @@ internal static class RoomFxRetailInventoryVerification
         AssertEqual(expectedTarget, RoomFxRecordEncoding.SurfaceWord(actual.TargetSurface),
             $"room {room.Identity} state $8F:{room.State.Pointer:X4} entry " +
             $"$83:{doorPointer:X4} FX target Y");
-        AssertEqual(expectedVelocity, actual.YVelocity.RawValue,
+        AssertEqual(expectedVelocity, actual.LiquidLevelSpeed.RawValue,
             $"room {room.Identity} state $8F:{room.State.Pointer:X4} entry " +
             $"$83:{doorPointer:X4} FX velocity");
 
@@ -365,29 +365,29 @@ internal static class RoomFxRetailInventoryVerification
     }
 
     /// <summary>Checks the native animated-tile headers used by water, lava, and other room-FX objects.</summary>
-    private static void VerifyRetailRoomFxAnimatedTileHeaders(CartridgeImportAddressSpace bus)
+    private static void VerifyRetailRoomFxBlockAnimationHeaders(CartridgeImportAddressSpace bus)
     {
-        Suite(nameof(VerifyRetailRoomFxAnimatedTileHeader), () => VerifyRetailRoomFxAnimatedTileHeader(
+        Suite(nameof(VerifyRetailRoomFxBlockAnimationHeader), () => VerifyRetailRoomFxBlockAnimationHeader(
             bus,
             FxNativeWords.AnimatedTileObjects.Word(BlockAnimation.Lava),
             RoomFxNativeSources.LavaFirstInstruction,
-            RoomFxAnimatedTileLoops.Require(BlockAnimation.Lava).PictureByteCount,
+            RoomFxBlockAnimationLoops.Require(BlockAnimation.Lava).PictureByteCount,
             AnimatedTileVramDestinations.WordOf(BlockAnimation.Lava),
             RoomFxNativeSources.LavaFirstFrame,
             "lava"));
-        Suite(nameof(VerifyRetailRoomFxAnimatedTileHeader), () => VerifyRetailRoomFxAnimatedTileHeader(
+        Suite(nameof(VerifyRetailRoomFxBlockAnimationHeader), () => VerifyRetailRoomFxBlockAnimationHeader(
             bus,
             FxNativeWords.AnimatedTileObjects.Word(BlockAnimation.Acid),
             RoomFxNativeSources.AcidFirstInstruction,
-            RoomFxAnimatedTileLoops.Require(BlockAnimation.Lava).PictureByteCount,
+            RoomFxBlockAnimationLoops.Require(BlockAnimation.Lava).PictureByteCount,
             AnimatedTileVramDestinations.WordOf(BlockAnimation.Lava),
             RoomFxNativeSources.AcidFirstFrame,
             "acid"));
-        Suite(nameof(VerifyRetailRoomFxAnimatedTileHeader), () => VerifyRetailRoomFxAnimatedTileHeader(
+        Suite(nameof(VerifyRetailRoomFxBlockAnimationHeader), () => VerifyRetailRoomFxBlockAnimationHeader(
             bus,
             FxNativeWords.AnimatedTileObjects.Word(BlockAnimation.Rain),
             RoomFxNativeSources.RainFirstInstruction,
-            RoomFxAnimatedTileLoops.Require(BlockAnimation.Rain).PictureByteCount,
+            RoomFxBlockAnimationLoops.Require(BlockAnimation.Rain).PictureByteCount,
             AnimatedTileVramDestinations.WordOf(BlockAnimation.Rain),
             RoomFxNativeSources.RainFirstFrame,
             "rain"));
@@ -421,7 +421,7 @@ internal static class RoomFxRetailInventoryVerification
         fx.PrimeViewport(new Position16<RoomPixels>(0, cameraY));
         // The lava's frames are selected, and BG3's pictures show the selected frame: the render reads it where the cartridge copies it.
         var lavaFrames = new ArtworkFrameSelections();
-        RoomFxAnimatedTileAtlas lavaArtwork = AnimatedTiles;
+        RoomFxBlockAnimationAtlas lavaArtwork = AnimatedTiles;
         fx.Step(lavaFrames, new RoomFxOverlayFrame { Camera = new Position16<RoomPixels>(0, cameraY), TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
         AnimatedTileFrameArtwork.ShowIn(vram, lavaFrames, lavaArtwork, BlockAnimation.Lava);
 
@@ -603,7 +603,7 @@ internal static class RoomFxRetailInventoryVerification
         .ToArray();
 
     /// <summary>Compares an animated FX object's instruction pointer, transfer size, destination, and first source with ROM.</summary>
-    private static void VerifyRetailRoomFxAnimatedTileHeader(
+    private static void VerifyRetailRoomFxBlockAnimationHeader(
         CartridgeImportAddressSpace bus,
         ushort objectPointer,
         ushort expectedInstruction,
@@ -746,7 +746,7 @@ internal static class RoomFxRetailInventoryVerification
         for (; movingFrames < RetailRoomFxDefinitions.MaximumRiseAuditFrames; movingFrames++)
         {
             fx.Step(risenFrames, new RoomFxOverlayFrame { Camera = new Position16<RoomPixels>(0, cameraY), TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
-            if (fx.YVelocity.RawValue == 0)
+            if (fx.LiquidLevelSpeed.RawValue == 0)
                 break;
         }
         AssertTrue(movingFrames < RetailRoomFxDefinitions.MaximumRiseAuditFrames,
@@ -892,7 +892,7 @@ internal static class RoomFxRetailInventoryVerification
             emittedSounds += EarthquakeSounds();
             if (firstMovementFrame < 0 && runtime.RoomFxOverlay.NamedBaseY.Whole != initialY)
                 firstMovementFrame = frame;
-            if (targetFrame < 0 && runtime.RoomFxOverlay.YVelocity.RawValue == 0)
+            if (targetFrame < 0 && runtime.RoomFxOverlay.LiquidLevelSpeed.RawValue == 0)
                 targetFrame = frame;
             if (targetFrame >= 0 && !runtime.Enemies.Earthquake.IsShaking)
                 break;

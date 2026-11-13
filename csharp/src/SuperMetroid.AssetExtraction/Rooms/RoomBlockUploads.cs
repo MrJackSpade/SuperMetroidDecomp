@@ -455,7 +455,7 @@ internal static class RoomBlockUploads
         internal void AddBackground(RoomBackgroundMap background)
         {
             if (!backgrounds.TryAdd(background.Name, background) && (backgrounds[background.Name].WidthTiles != background.WidthTiles
-                || !backgrounds[background.Name].Words.AsSpan().SequenceEqual(background.Words)))
+                || !backgrounds[background.Name].Words.SequenceEqual(background.Words)))
                 throw new InvalidDataException($"Rooms show library background {background.Name} in two ways; it has one picture.");
         }
 

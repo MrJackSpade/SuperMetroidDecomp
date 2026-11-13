@@ -1,6 +1,3 @@
-using SuperMetroid.AssetExtraction.Frontend.Map;
-using SuperMetroid.Core;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;

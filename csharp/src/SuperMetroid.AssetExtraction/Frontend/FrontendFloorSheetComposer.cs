@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction.Frontend.Map;
 using System.Collections.Frozen;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -13,9 +12,7 @@ using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.CeresCinematics;
-using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Frontend.Ending;
-using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.AssetExtraction.Fx.Artwork;
 

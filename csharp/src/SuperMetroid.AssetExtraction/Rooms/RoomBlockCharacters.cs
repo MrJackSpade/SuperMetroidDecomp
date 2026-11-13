@@ -1,6 +1,5 @@
 using System.Collections.Immutable;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 

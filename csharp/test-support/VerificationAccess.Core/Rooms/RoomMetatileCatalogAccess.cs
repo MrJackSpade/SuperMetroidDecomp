@@ -1,6 +1,4 @@
-﻿using SuperMetroid.Core.Rooms.LevelData;
-
-namespace SuperMetroid.AssetExtraction.Rooms;
+﻿namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Verification access to <see cref="RoomMetatileCatalog"/> members production does not use.</summary>
 internal static class RoomMetatileCatalogAccess

@@ -5,8 +5,8 @@ using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Bosses.Ridley;
+
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 
 /// <summary>Checks Ceres Ridley's compiled eye-fade row schedule and body-fade handoff.</summary>

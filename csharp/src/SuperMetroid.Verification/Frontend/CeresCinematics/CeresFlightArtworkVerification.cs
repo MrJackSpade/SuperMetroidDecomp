@@ -9,7 +9,6 @@ using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
-using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.TestSupport.FrameRendering;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Video;

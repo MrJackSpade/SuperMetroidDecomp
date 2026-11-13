@@ -21,7 +21,6 @@ using SuperMetroid.Core.Enemies.WreckedShip;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Areas.Ceres.Artwork;

@@ -10,10 +10,10 @@ using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Rooms;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.AssetExtraction.Hud;
-using SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Retail and synthetic checks for installed library-background command execution.</summary>
 internal static class RoomBackgroundLibraryParityVerification

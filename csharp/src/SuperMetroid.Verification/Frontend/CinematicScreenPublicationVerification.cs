@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Frontend.Ending;

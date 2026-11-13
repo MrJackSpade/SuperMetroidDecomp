@@ -3,7 +3,6 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.AssetExtraction.Samus;
 
 namespace SuperMetroid.AssetExtraction.Installation;
 

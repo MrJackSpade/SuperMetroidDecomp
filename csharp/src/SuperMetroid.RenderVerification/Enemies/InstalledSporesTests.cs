@@ -8,7 +8,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
 namespace SuperMetroid.RenderVerification.Enemies;

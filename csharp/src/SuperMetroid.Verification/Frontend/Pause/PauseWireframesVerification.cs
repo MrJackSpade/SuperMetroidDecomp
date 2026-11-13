@@ -49,8 +49,8 @@ internal static class PauseWireframesVerification
                 {
                     native.Step(input, input); pause.Step(input, input);
                     var nativeInputs = native.CaptureRenderSnapshot(); var portInputs = pause.CaptureRenderSnapshot();
-                    AssertTrue(native.ShownVram().SequenceEqual(pause.ShownVram()), "every native wireframe variant retains exact VRAM through page transitions, including Gravity");
-                    AssertTrue(PauseShownColours.Of(native).SequenceEqual(PauseShownColours.Of(pause)) && nativeInputs.SpriteParts().SequenceEqual(portInputs.SpriteParts()) &&
+                    AssertTrue(native.ShownVram(original).SequenceEqual(pause.ShownVram(original)), "every native wireframe variant retains exact VRAM through page transitions, including Gravity");
+                    AssertTrue(PauseShownColours.Of(native, original).SequenceEqual(PauseShownColours.Of(pause, original)) && nativeInputs.SpriteParts().SequenceEqual(portInputs.SpriteParts()) &&
                         nativeInputs.Brightness == portInputs.Brightness, "every native wireframe variant retains exact colors, objects and brightness through page transitions");
                 }
                 void AssertPixels() =>
@@ -86,7 +86,7 @@ internal static class PauseWireframesVerification
         { EnterPauseEquipment(pause); AssertEqual(PauseScreenMode.Equipment, pause.ScreenMode, "wireframe fixture enters equipment"); }
         static void AssertPage(PauseMenuState pause, AreaMapPresentation catalog, PauseWireframeKind kind)
         {
-            BackgroundTile[] actual = BackgroundTileWordBytes.Tiles(pause.ShownVram().AsSpan(0x6000, 0x800));
+            BackgroundTile[] actual = BackgroundTileWordBytes.Tiles(pause.ShownVram(catalog).AsSpan(0x6000, 0x800));
             BackgroundTile[] expected = actual.ToArray(); InstalledFixtures.ImportOf(catalog).Pause.Wireframes.ApplyTo(expected, kind);
             AssertTrue(expected.SequenceEqual(actual), "actual equipment page contains the selected current-content wireframe patch");
         }

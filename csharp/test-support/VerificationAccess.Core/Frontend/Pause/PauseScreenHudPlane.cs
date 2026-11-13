@@ -17,19 +17,17 @@ internal static class PauseScreenHudPlane
     extension(PauseScreen screen)
     {
         /// <summary>
-        /// The HUD plane's tiles across both screens, row by row, laid out from the tiles of the installed HUD artwork the
-        /// screen's presentation was read with (#1616).
+        /// The HUD plane's tiles across both screens, row by row, laid out from the tiles of the installed HUD artwork
+        /// <paramref name="artwork"/> was read with (#1616).
         /// </summary>
-        internal BackgroundTile[] Bg3Tiles
+        /// <param name="artwork">The map presentation the fixture bound the screen to.</param>
+        internal BackgroundTile[] Bg3Tiles(SuperMetroid.Core.Frontend.Map.Artwork.AreaMapPresentation artwork)
         {
-            get
-            {
-                var tiles = new BackgroundTile[PlaneCells];
-                tiles.AsSpan().Fill(PauseHudPlaneDefinitions.ClearedCell);
-                SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.ImportOf(screen.Artwork).GameplayHud
-                    .RowsOver(screen.Hud, PauseHudPlaneDefinitions.ClearedCell).CopyTo(tiles, 0);
-                return tiles;
-            }
+            var tiles = new BackgroundTile[PlaneCells];
+            tiles.AsSpan().Fill(PauseHudPlaneDefinitions.ClearedCell);
+            SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.ImportOf(artwork).GameplayHud
+                .RowsOver(screen.Hud, PauseHudPlaneDefinitions.ClearedCell).CopyTo(tiles, 0);
+            return tiles;
         }
     }
 }

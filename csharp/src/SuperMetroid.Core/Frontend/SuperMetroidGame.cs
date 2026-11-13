@@ -223,13 +223,13 @@ public sealed class SuperMetroidGame
             : [.. prologueMusicRequests, .. trailingAudioRequests];
         // The sound acceptance clock acts on this update's requests during the update's own
         // samples; its acknowledgements become visible to the next update's sound handlers.
-        Session.AdvanceAudio(audioRequests);
+        AudioFrameEvents audio = new(Session.audioSession.Advance(audioRequests));
         // The pause phases publish held input after they return, even though Samus's
         // draw-time epilogue did not run. Preserve its held-only publication;
         // updating the press edge or auto-jump timer here would invent gameplay.
         if (pauseInputEpilogue)
             Session.GameplayRuntime.Player.IntroducedSamus.InputSnapshot.PublishMainLoopHeldInput(Session.GameplayRuntime.Controller1.Current);
-        return CurrentFrame;
+        return new(Session.GameState, PhaseName, FrameNumber, audio);
     }
 
     /// <summary>One phase per game state; each runs that state's update.</summary>
@@ -431,8 +431,11 @@ public sealed class SuperMetroidGame
                 name: () => nameof(SuperMetroidGameState.RoutingAfterDemo)),
         ]);
 
-    /// <summary>Reads the current status without advancing the dispatcher.</summary>
-    public FrontendFrame CurrentFrame => new(Session.GameState, PhaseName, FrameNumber);
+    /// <summary>
+    /// Reads the current status without advancing the dispatcher. No update ran, so it publishes no audio; an update's
+    /// audio events come only with the frame <see cref="Step"/> returns.
+    /// </summary>
+    public FrontendFrame CurrentFrame => new(Session.GameState, PhaseName, FrameNumber, new AudioFrameEvents([]));
 
     /// <summary>Human-readable active subphase for diagnostics, without changing state.</summary>
     private string PhaseName => Phases.Of(Session.GameState).Name;

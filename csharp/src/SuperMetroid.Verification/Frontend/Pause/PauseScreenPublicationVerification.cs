@@ -54,23 +54,26 @@ internal static class PauseScreenPublicationVerification
     private static void AssertPublished(PauseMenuState pause, string page)
     {
         PauseScreen screen = pause.screen;
+        // The retail pause fixture binds the installation's map presentation.
+        var artwork = RetailPresentationFixture();
+        byte[] characters = PauseScreenMemory.Characters(artwork);
         LayeredScene scene = pause.CaptureRenderSnapshot();
         FramePaint memory = scene.Paint;
         // The page's markers, cursors and labels are the scene's sprite layer (#1514), not draws in the paint.
         ImmutableArray<SpriteDraw> painted = scene.Layers.ToArray().OfType<SpritesLayer>().Single().Draws;
-        byte[] vram = pause.ShownVram();
-        BackgroundTile[] frame = pause.ShownBg2Tiles;
-        AssertTiles(vram, PauseMenuLayoutConstants.Bg1TilemapWord, pause.ShownBg1Tiles, $"{page} BG1");
+        byte[] vram = pause.ShownVram(artwork);
+        BackgroundTile[] frame = pause.ShownBg2Tiles(artwork);
+        AssertTiles(vram, PauseMenuLayoutConstants.Bg1TilemapWord, pause.ShownBg1Tiles(artwork), $"{page} BG1");
         AssertTiles(vram, PauseMenuLayoutConstants.Bg2TilemapWord, frame, $"{page} BG2");
-        AssertTiles(vram, GameplayVramLayoutConstants.HudTilemapWord, screen.Bg3Tiles, $"{page} BG3");
+        AssertTiles(vram, GameplayVramLayoutConstants.HudTilemapWord, screen.Bg3Tiles(artwork), $"{page} BG3");
         AssertShownPlanes(pause, page);
         int tilemapsFirst = PauseMenuLayoutConstants.Bg1TilemapWord * sizeof(ushort);
         int tilemapsEnd = (PauseMenuLayoutConstants.Bg2TilemapWord + frame.Length) * sizeof(ushort);
-        AssertTrue(vram.AsSpan(0, tilemapsFirst).SequenceEqual(screen.Characters[..tilemapsFirst]) &&
+        AssertTrue(vram.AsSpan(0, tilemapsFirst).SequenceEqual(characters[..tilemapsFirst]) &&
             vram.AsSpan(tilemapsEnd, GameplayVramLayoutConstants.HudTilemapWord * sizeof(ushort) - tilemapsEnd)
-                .SequenceEqual(screen.Characters[tilemapsEnd..(GameplayVramLayoutConstants.HudTilemapWord * sizeof(ushort))]),
+                .SequenceEqual(characters[tilemapsEnd..(GameplayVramLayoutConstants.HudTilemapWord * sizeof(ushort))]),
             $"{page} draws its bound characters");
-        AssertEqual(screen.Artwork.Backdrops.Pause, memory.Backdrop, $"{page} shows its own backdrop");
+        AssertEqual(artwork.Backdrops.Pause, memory.Backdrop, $"{page} shows its own backdrop");
         AssertTrue(screen.Objects.Draws.Length > 0 && PaintedSpriteEntries.AreOwn(painted, screen.Objects.Draws),
             $"{page} draws its own sprite entries ({PaintedSpriteEntries.FirstDifference(painted, screen.Objects.Draws)})");
     }

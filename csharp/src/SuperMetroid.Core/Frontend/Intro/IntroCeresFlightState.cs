@@ -15,8 +15,6 @@ internal sealed class IntroCeresFlightState
     internal RgbColor Backdrop { get; private set; }
     /// <summary>The front-star or rear-view actors' sprite entries over the flight sprite page (#1358).</summary>
     internal readonly ScreenSprites objects;
-    /// <summary>The installed flight's backdrop and placements the scene was bound with, rebound whenever the game is bound to its installed content.</summary>
-    internal CeresFlightArtwork? Artwork { get; private set; }
     /// <summary>Installed sprite compositions, rebound without restarting the scene.</summary>
     private CinematicSpriteSheet? spriteArtwork;
     /// <summary>Optional edited rear-view actor positions.</summary>
@@ -78,7 +76,6 @@ internal sealed class IntroCeresFlightState
 
         CeresFlightArtwork content = artwork ?? throw new InvalidOperationException(
             "Ceres approach requires installed cinematic artwork.");
-        Artwork = content;
 
         // Setup loads the floor's front view and the actors' artwork; the scene shows the front view's installed floor (#1467).
         objects = new ScreenSprites();
@@ -102,7 +99,6 @@ internal sealed class IntroCeresFlightState
     public void BindArtwork(CeresFlightArtwork? artwork)
     {
         actorLayout = artwork?.Actors;
-        Artwork = artwork;
         if (artwork is null) return;
         Backdrop = artwork.Backdrop;
     }

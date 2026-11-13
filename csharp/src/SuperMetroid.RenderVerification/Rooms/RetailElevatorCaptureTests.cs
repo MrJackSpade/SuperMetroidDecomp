@@ -31,7 +31,7 @@ internal static class RetailElevatorCaptureTests
             var actual = captured.StepCaptured(input);
             if (expected.GameState != actual.Frame.GameState ||
                 expected.Phase != actual.Frame.Phase || expected.FrameNumber != actual.Frame.FrameNumber ||
-                !legacy.AudioEventsForVerification.SequenceEqual(captured.AudioEventsForVerification))
+                !expected.Audio.Events.SequenceEqual(actual.Frame.Audio.Events))
                 throw new InvalidOperationException($"Elevator frontend capture diverged at {tick}.");
             var arrival = legacy.RuntimeForVerification?.Room.CeresElevatorArrival;
             if (arrival is null) continue;

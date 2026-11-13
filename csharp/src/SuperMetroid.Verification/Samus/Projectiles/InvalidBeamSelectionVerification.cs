@@ -44,7 +44,7 @@ internal static class InvalidBeamSelectionVerification
         EnterPauseEquipment(pause);
         SelectPauseBoots(pause);
         AssertEqual(0, pause.SelectedItem, "fixture starts on Hi-Jump Boots");
-        byte[] beforeVram = pause.ShownVram();
+        byte[] beforeVram = pause.ShownVram(RetailPresentationFixture());
         pause.Step(0, (scenario == 0 ? ControllerButton.Left | ControllerButton.A : ControllerButton.Left));
         if (scenario == 1) pause.Step(0, ControllerButton.A);
         AssertEqual(PauseEquipmentCategory.Beams, pause.SelectedCategory, "same-frame Left+A moves Boots to Beams");
@@ -52,7 +52,7 @@ internal static class InvalidBeamSelectionVerification
         AssertEqual(scenario == 0 ? 0x000c : scenario == 1 ? 0x0008 : 0x0004, samus.EquippedBeams.ToEquipmentWord(),
             "native beam bits distinguish simultaneous, adjacent and direction-only input");
         var after = pause.CaptureRenderSnapshot();
-        byte[] afterVram = pause.ShownVram();
+        byte[] afterVram = pause.ShownVram(RetailPresentationFixture());
         byte[] expectedVram = afterVram.ToArray();
         // Restore the entire label region to its before-input contents, then apply the native label of each beam whose
         // state changed. Preserve the moving OBJ selector. The cartridge writes a boots-dispatched Plasma label nine cells
@@ -79,7 +79,7 @@ internal static class InvalidBeamSelectionVerification
         AssertTrue(expectedVram.AsSpan(0x6508, 18).SequenceEqual(afterVram.AsSpan(0x6508, 18)),
             $"Plasma's label in its item's state and no overrun after it, scenario {scenario}");
         // The expected frame shows the port's sprites in the cartridge's pause colours (#1512).
-        var expectedPixels = DisplayRendering.Render(after.WithNativeColours(PauseShownColours.Of(pause)));
+        var expectedPixels = DisplayRendering.Render(after.WithNativeColours(PauseShownColours.Of(pause, RetailPresentationFixture())));
         var actualPixels = pause.Render();
         if (!expectedPixels.SequenceEqual(actualPixels))
             for (int offset = 0x6000; offset < 0x6800; offset += 2)

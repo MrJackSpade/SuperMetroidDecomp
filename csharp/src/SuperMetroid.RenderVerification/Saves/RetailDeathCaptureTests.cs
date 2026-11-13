@@ -42,7 +42,7 @@ internal static class RetailDeathCaptureTests
             var actual = captured.StepCaptured(input);
             if (expected.GameState != actual.Frame.GameState ||
                 expected.Phase != actual.Frame.Phase || expected.FrameNumber != actual.Frame.FrameNumber ||
-                !legacy.AudioEventsForVerification.SequenceEqual(captured.AudioEventsForVerification))
+                !expected.Audio.Events.SequenceEqual(actual.Frame.Audio.Events))
                 throw new InvalidOperationException($"Death capture cadence/commands diverged at {sequence}.");
             legacy.CopyAudioFrame(legacyAudio);
             captured.CopyAudioFrame(capturedAudio);

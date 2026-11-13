@@ -44,7 +44,7 @@ internal static class FrontendRenderCaptureTestsVerification
             AssertEqual(expected.GameState, actual.Frame.GameState, "captured frontend state cadence");
             AssertEqual(expected.Phase, actual.Frame.Phase, "captured frontend phase cadence");
             AssertEqual(expected.FrameNumber, actual.Frame.FrameNumber, "captured frontend NMI identity");
-            AssertSequenceEqual(legacy.AudioEventsForVerification, captured.AudioEventsForVerification, "captured frontend audio event order");
+            AssertSequenceEqual(expected.Audio.Events, actual.Frame.Audio.Events, "captured frontend audio event order");
             states.Add(expected.GameState);
             DisplayPacket packet = actual.Snapshot;
             {

@@ -29,12 +29,12 @@ internal static class PauseHudPlaneVerification
             Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()), System = new SharedGameState(new SharedRandom()), AreaIndex = AreaId.Crateria,
             RoomMapPosition = new(28, 1), GameplayHud = entered,
         });
-        AssertTrue(HudWords(pause).SequenceEqual(HudWords(pause, entered)), "pause entry keeps the HUD's four rows");
+        AssertTrue(HudWords(pause).SequenceEqual(HudWords(entered)), "pause entry keeps the HUD's four rows");
 
         ShownHud accepted = Hud(7);
         pause.SynchronizeAcceptedHud(accepted);
         AssertTrue(ReferenceEquals(accepted, pause.screen.Hud), "pause shows the HUD gameplay latched since, whole (#1626)");
-        AssertTrue(HudWords(pause).SequenceEqual(HudWords(pause, accepted)), "pause's four HUD rows are the latched HUD's");
+        AssertTrue(HudWords(pause).SequenceEqual(HudWords(accepted)), "pause's four HUD rows are the latched HUD's");
         Console.WriteLine("  Pause HUD: entry and accepted HUDs are the HUD gameplay latched.");
     }
 
@@ -55,7 +55,7 @@ internal static class PauseHudPlaneVerification
     /// <summary>The HUD rows of pause's captured BG3 tilemap.</summary>
     private static ushort[] HudWords(PauseMenuState pause)
     {
-        ReadOnlySpan<byte> vram = pause.ShownVram();
+        ReadOnlySpan<byte> vram = pause.ShownVram(RetailPresentationFixture());
         var words = new ushort[HudWordCount];
         for (int i = 0; i < words.Length; i++)
         {
@@ -65,9 +65,12 @@ internal static class PauseHudPlaneVerification
         return words;
     }
 
-    /// <summary>The words <paramref name="hud"/>'s images lay out over pause's HUD rows, over the cleared cell.</summary>
-    private static ushort[] HudWords(PauseMenuState pause, ShownHud hud) =>
-        BackgroundTileWordBytes.Words(InstalledFixtures.ImportOf(pause.screen.Artwork).GameplayHud.RowsOver(hud, PauseHudPlaneDefinitions.ClearedCell));
+    /// <summary>
+    /// The words <paramref name="hud"/>'s images lay out over pause's HUD rows, over the cleared cell, from the HUD artwork
+    /// of the installation's map presentation, which the retail pause fixture binds.
+    /// </summary>
+    private static ushort[] HudWords(ShownHud hud) =>
+        BackgroundTileWordBytes.Words(InstalledFixtures.ImportOf(RetailPresentationFixture()).GameplayHud.RowsOver(hud, PauseHudPlaneDefinitions.ClearedCell));
 
     /// <summary>Runs the pause HUD plane check.</summary>
     [VerificationCommand("--pause-hud-plane")]

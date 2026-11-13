@@ -68,7 +68,6 @@ internal static class RoomObjectSystemAccess
             .. ActiveSlots(self).Select(slot => new ColoredDoorSlot(slot, Door: slot.Behaviour as ColoredDoorObject))
                 .Where(entry => entry.Door is not null)
                 .Select(entry => new ColoredDoorObjectSnapshot(
-                    entry.Slot.Kind,
                     entry.Slot.Block,
                     entry.Slot.NativeRoomArgument,
                     (entry.Door ?? throw new InvalidOperationException("Verification requires entry.door.")).Color,
@@ -82,7 +81,6 @@ internal static class RoomObjectSystemAccess
             .. ActiveSlots(self).Select(slot => new GreyDoorSlot(slot, Door: slot.Behaviour as GreyDoorObject))
                 .Where(entry => entry.Door is not null)
                 .Select(entry => new GreyDoorObjectSnapshot(
-                    entry.Slot.Kind,
                     entry.Slot.Block,
                     entry.Slot.NativeRoomArgument,
                     (entry.Door ?? throw new InvalidOperationException("Verification requires entry.door.")).Orientation,
@@ -96,7 +94,6 @@ internal static class RoomObjectSystemAccess
             .. ActiveSlots(self).Select(slot => new EyeDoorSlot(slot, Door: slot.Behaviour as EyeDoorEyeObject, Part: slot.Behaviour as EyeDoorPartObject))
                 .Where(entry => entry.Door is not null || entry.Part is not null)
                 .Select(entry => new EyeDoorObjectSnapshot(
-                    entry.Slot.Kind,
                     entry.Slot.Block,
                     entry.Slot.NativeRoomArgument,
                     entry.Door is not null ? EyeDoorComponent.Eye
@@ -176,7 +173,7 @@ internal static class RoomObjectSystemAccess
 
         /// <summary>Every live elevator-platform PLM, in processing order.</summary>
         internal IReadOnlyList<RoomObjectSlotSnapshot> ElevatorPlatforms => self.PopulationSlots
-            .Where(snapshot => snapshot.Kind == RoomObjectKind.ElevatorPlatform)
+            .Where(snapshot => snapshot.Behaviour is ElevatorPlatformObject)
             .ToArray();
 
         /// <summary>Views of the occupied slots, in the table's processing order.</summary>
@@ -187,7 +184,6 @@ internal static class RoomObjectSystemAccess
                 .Where(entry => entry.Slot.Active)
                 .Select(entry => new RoomObjectSlotSnapshot(
                     ProcessingPosition: entry.Index,
-                    Kind: entry.Slot.Kind,
                     Block: entry.Slot.Block,
                     RoomArgument: entry.Slot.NativeRoomArgument,
                     ProjectileHit: entry.Slot.ProjectileHit,

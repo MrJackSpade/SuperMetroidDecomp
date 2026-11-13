@@ -63,10 +63,10 @@ internal static class PauseReserveArrowVerification
         void CheckArrow(bool enabled, ushort color6, ushort colorB, string context)
         {
             var capture = pause.CaptureRenderSnapshot();
-            byte[] captureVram = pause.ShownVram();
+            byte[] captureVram = pause.ShownVram(RetailPresentationFixture());
             var tiles = captureVram.ToArray();
             // The arrow's colours are the shade its current state names (#1512, #1597), shown over the pause colours.
-            RgbColor[] colors = PauseShownColours.Of(pause);
+            RgbColor[] colors = PauseShownColours.Of(pause, RetailPresentationFixture());
             // Independent native AE01/AE46 walk: eight vertical words followed
             // by two horizontal words. Only the three palette bits may change.
             foreach (int offset in Enumerable.Range(0, 8).Select(i => 0x102 + i * 0x40).Concat(HorizontalArrowWordOffsets))

@@ -80,7 +80,7 @@ public static class AudioInputReplaySmokeTest
             }
 
             projectileFired |= game.GameplayLastFiredProjectileSlot is not null;
-            powerBeamCommandObserved |= game.AudioEventsForVerification.Any(audioEvent =>
+            powerBeamCommandObserved |= frame.Audio.Events.Any(audioEvent =>
                 audioEvent is AudioEvent.StartSoundEffect { SoundEffect: var started } &&
                 started == SamusSound.UnchargedPowerBeam);
             powerBeamAcknowledged |= acknowledgements[SoundEffectLibrary.Samus].Acknowledges(SamusSound.UnchargedPowerBeam);
@@ -212,7 +212,7 @@ public static class AudioInputReplaySmokeTest
             }
             if (active is { } pause)
             {
-                AudioEvent[] events = [.. game.AudioEventsForVerification.Where(audioEvent => audioEvent is not AudioEvent.ClockStep)];
+                AudioEvent[] events = [.. frame.Audio.Events.Where(audioEvent => audioEvent is not AudioEvent.ClockStep)];
                 pause.AudioEvents += events.Length;
                 if (events.Length != 0)
                     pause.RecordEvents(frameIndex, frame.GameState, events);

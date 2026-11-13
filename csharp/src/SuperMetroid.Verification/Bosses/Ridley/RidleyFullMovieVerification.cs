@@ -681,12 +681,14 @@ internal static class RidleyFullMovieVerification
         var menu = game.Session.ScreenAs<PauseMenuState>();
         // The pause screen's colours are the shadings its pictures name (#1512): the highlight frame and the reserve arrow's.
         PauseMenuState pause = menu ?? throw new InvalidOperationException("Verification requires menu.");
-        RgbColor[] initial = PauseShownColours.Of(pause);
+        // The pause screen is bound to the map presentation the game was bound with.
+        var maps = game.Session.Artwork.MapPresentation ?? throw new InvalidOperationException("The game is bound to no map presentation.");
+        RgbColor[] initial = PauseShownColours.Of(pause, maps);
         int fadeFrames = 0;
         while (game.GameState == SuperMetroidGameState.PauseScreenFadeIn && fadeFrames++ < 32)
         {
             game.Step(0);
-            AssertTrue(PauseShownColours.Of(pause).SequenceEqual(initial), "pause fade-in retains all palette colors");
+            AssertTrue(PauseShownColours.Of(pause, maps).SequenceEqual(initial), "pause fade-in retains all palette colors");
         }
         AssertEqual(SuperMetroidGameState.Paused, game.GameState, "pause fade-in completes");
         AssertEqual(SuperMetroid.Core.Assets.PictureShading.Shaded(SuperMetroid.Core.Frontend.Map.Artwork.MapSpriteShades.Highlight(0)),
@@ -694,14 +696,14 @@ internal static class RidleyFullMovieVerification
         game.Step(0);
         AssertEqual(SuperMetroid.Core.Assets.PictureShading.Shaded(SuperMetroid.Core.Frontend.Map.Artwork.MapSpriteShades.Highlight(1)),
             pause.mapHighlight.Shading, "the first stable pause step shows the highlight cycle's frame one");
-        RgbColor[] animated = PauseShownColours.Of(pause);
+        RgbColor[] animated = PauseShownColours.Of(pause, maps);
         game.GameState = SuperMetroidGameState.PauseScreenFadeOut;
         game.Session.BeginPauseFade(15);
         fadeFrames = 0;
         while (game.GameState == SuperMetroidGameState.PauseScreenFadeOut && fadeFrames++ < 32)
         {
             game.Step(0);
-            AssertTrue(PauseShownColours.Of(pause).SequenceEqual(animated), "unpause fade-out retains the last palette phase");
+            AssertTrue(PauseShownColours.Of(pause, maps).SequenceEqual(animated), "unpause fade-out retains the last palette phase");
         }
         AssertEqual(SuperMetroidGameState.RestoringGameplayFromPause, game.GameState, "unpause fade-out completes");
         Console.WriteLine("Pause palette advances only in stable pause, remaining latched through both outer fades.");

@@ -72,13 +72,13 @@ internal static class CinematicScreenPublicationVerification
             flight.StepFrame();
         AssertEqual(IntroCeresFlightPhase.FlyingTowardCeres, flight.Phase, "the flight reaches its rear view");
         FramePaint rear = flight.CaptureRenderSnapshot().Paint;
-        byte[] rearVram = flight.ShownVram();
+        byte[] rearVram = flight.ShownVram(InstalledFixtures.IntroArtwork.FlightCharacters.BoundCatalog);
         ReadOnlySpan<byte> maps = InstalledFixtures.IntroArtwork.FlightCharacters.FloorMaps.Span;
         for (int cell = 0; cell < CeresFlightArtworkFileFormat.MapCellsPerView; cell++)
             AssertEqual(maps[CeresFlightArtworkFileFormat.MapCellsPerView + cell], rearVram[cell * 2], $"rear view shows rear map cell {cell}");
         var restoredFlight = RoundTrip(flight);
         restoredFlight.BindFixtureFlightArtwork(InstalledFixtures.IntroArtwork.FlightCharacters);
-        AssertSameFrame(rearVram, rear, restoredFlight.ShownVram(), restoredFlight.CaptureRenderSnapshot().Paint, "Ceres flight");
+        AssertSameFrame(rearVram, rear, restoredFlight.ShownVram(InstalledFixtures.IntroArtwork.FlightCharacters.BoundCatalog), restoredFlight.CaptureRenderSnapshot().Paint, "Ceres flight");
 
         var destruction = InstalledFixtures.CreateDestruction();
         for (int frame = 0; frame < 600; frame++)

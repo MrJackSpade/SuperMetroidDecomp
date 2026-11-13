@@ -50,9 +50,9 @@ internal static class PauseHudLocationVerification
             for (int frame = 0; frame < 24; frame++)
             {
                 game.StepCaptured(0);
-                AssertEqual(center, pause.screen.Bg3Tiles[centerWord].PackedWord, $"phase {phase} frame {frame} retained HUD position tile");
+                AssertEqual(center, pause.screen.Bg3Tiles(RetailPresentationFixture())[centerWord].PackedWord, $"phase {phase} frame {frame} retained HUD position tile");
                 for (int color = 0; color < centerColors.Length; color++)
-                    AssertEqual(centerColors[color], PauseShownColours.Of(pause)[inks + 1 + color], $"phase {phase} frame {frame} HUD position ink {color + 1}");
+                    AssertEqual(centerColors[color], PauseShownColours.Of(pause, RetailPresentationFixture())[inks + 1 + color], $"phase {phase} frame {frame} HUD position ink {color + 1}");
             }
             Console.WriteLine($"Pause HUD location: phase {phase}, tile ${center:X4}, tile and native inks retained through 24 paused HUD/NMI updates.");
         }

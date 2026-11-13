@@ -26,18 +26,18 @@ internal static class PauseEquipmentLabelsVerification
         ];
         foreach (SamusState inventory in inventories)
         {
-            byte[] expected = EquipmentPage(new PauseMenuState(new PauseMenuEntry { Samus = Clone(inventory), System = new SharedGameState(new SharedRandom()), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) }));
-            byte[] actual = EquipmentPage(new PauseMenuState(new PauseMenuEntry { Samus = Clone(inventory), System = new SharedGameState(new SharedRandom()), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) }));
+            byte[] expected = EquipmentPage(new PauseMenuState(new PauseMenuEntry { Samus = Clone(inventory), System = new SharedGameState(new SharedRandom()), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) }), original);
+            byte[] actual = EquipmentPage(new PauseMenuState(new PauseMenuEntry { Samus = Clone(inventory), System = new SharedGameState(new SharedRandom()), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) }), original);
             AssertTrue(expected.SequenceEqual(actual),
                 "installed equipment labels match native tilemap with label ROM sources forbidden");
         }
 
         Console.WriteLine("Pause equipment labels: native inventory/Hyper parity with blocked ROM sources passes.");
 
-        static byte[] EquipmentPage(PauseMenuState pause)
+        static byte[] EquipmentPage(PauseMenuState pause, AreaMapPresentation maps)
         {
             EnterPauseEquipment(pause);
-            return pause.ShownVram().AsSpan(0x6000, 0x800).ToArray();
+            return pause.ShownVram(maps).AsSpan(0x6000, 0x800).ToArray();
         }
 
         static SamusState Clone(SamusState value) => new(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())

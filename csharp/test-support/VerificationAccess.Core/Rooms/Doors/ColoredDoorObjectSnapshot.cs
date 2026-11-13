@@ -4,9 +4,8 @@ namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Verification view of a resident colored-door PLM slot.</summary>
 internal readonly record struct ColoredDoorObjectSnapshot(
-    RoomObjectKind Kind,
     Position16<RoomBlocks> Block,
-    ushort RoomArgument,
+    ushort? RoomArgument,
     ColoredDoorColor Color,
     ColoredDoorOrientation Orientation,
     ColoredDoorPhase Phase,

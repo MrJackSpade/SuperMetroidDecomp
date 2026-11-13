@@ -32,7 +32,7 @@ internal static class PauseReserveLabelsVerification
             EnterPauseEquipment(pause);
             AssertEqual(PauseScreenMode.Equipment, pause.ScreenMode, "reserve label test reached equipment page");
             var snapshot = pause.CaptureRenderSnapshot();
-            byte[] snapshotVram = pause.ShownVram();
+            byte[] snapshotVram = pause.ShownVram(RetailPresentationFixture());
             byte[] expectedVram = snapshotVram.ToArray();
             // Reset the label regions from the cartridge template first. Otherwise
             // the no-capacity case would compare the renderer against its own output.
@@ -72,7 +72,7 @@ internal static class PauseReserveLabelsVerification
                 AssertTrue(SuperMetroid.AssetExtraction.Artwork.InstalledPictureColoursConstants.ShowsNativeColours(placed.Picture.Sheet,
                         PictureShading.Standard.KeyColours(placed.Picture.Sheet), nativeColours.Colors),
                     $"pause picture {placed.Picture.Sheet.Name} shows the cartridge's pause colours ({capacity}/{mode})");
-            var expectedPixels = DisplayRendering.Render(snapshot.WithNativeColours(PauseShownColours.Of(pause)));
+            var expectedPixels = DisplayRendering.Render(snapshot.WithNativeColours(PauseShownColours.Of(pause, RetailPresentationFixture())));
             var actualPixels = pause.Render();
 
             AssertTrue(actualPixels.SequenceEqual(expectedPixels),

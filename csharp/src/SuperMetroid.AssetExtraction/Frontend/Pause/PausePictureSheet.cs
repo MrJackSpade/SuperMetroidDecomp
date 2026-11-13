@@ -112,8 +112,8 @@ internal static class PausePictureSheet
         Ensure.NotNull(maps);
         foreach (ScreenPictureSubject cell in MapPictureSheets.CellSubjects(maps))
             yield return cell.Name;
-        for (int index = 0; index < AreaIds.RetailCount; index++)
-            yield return PauseFramePictures.BackdropFrame(AreaIds.At(index));
+        foreach (AreaId area in AreaIds.All)
+            yield return PauseFramePictures.BackdropFrame(area);
         yield return PauseFramePictures.ButtonRowsFrame;
         foreach (PauseButtonLabel label in Enum.GetValues<PauseButtonLabel>())
         foreach (PauseButtonLabelShade shade in Enum.GetValues<PauseButtonLabelShade>())

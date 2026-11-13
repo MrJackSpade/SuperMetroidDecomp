@@ -12,12 +12,15 @@ public sealed class MapHighlightCycle
     private readonly ImmutableArray<int> durations;
 
     /// <summary>Keeps each frame's hold.</summary>
-    /// <param name="durations">The hold of each frame, one to 255 frames, each held for up to 255 updates.</param>
-    /// <exception cref="InvalidDataException">The cycle has no frames, more than 255, or a hold outside a byte.</exception>
+    /// <param name="durations">
+    /// The hold of each frame, in updates; the cycle has at least one frame. The cycle wraps at its own frame count and
+    /// each hold is a plain count of updates, so neither has a limit of its own (#1627).
+    /// </param>
+    /// <exception cref="InvalidDataException">The cycle has no frame, or a hold below zero.</exception>
     public MapHighlightCycle(ImmutableArray<int> durations)
     {
-        if (durations.IsDefault || durations.Length is < 1 or > 255 || durations.Any(hold => hold is < 0 or > byte.MaxValue))
-            throw new InvalidDataException("The map highlight cycle holds one to 255 frames, each held for a byte of updates.");
+        if (durations.IsDefault || durations.Length < 1 || durations.Any(hold => hold < 0))
+            throw new InvalidDataException("The map highlight cycle holds at least one frame, each held for zero or more updates.");
         this.durations = durations;
     }
 

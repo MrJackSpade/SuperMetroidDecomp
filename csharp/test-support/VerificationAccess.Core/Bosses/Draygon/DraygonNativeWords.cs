@@ -25,6 +25,22 @@ internal static class DraygonNativeWords
     /// </summary>
     public const int SwoopEntryBytes = 4;
 
+    /// <summary>The work-memory offset of the cartridge's swoop path table: each entry's height is its first word.</summary>
+    private const int SwoopPathTable = 0x9002;
+
+    /// <summary>
+    /// The swoop path a native snapshot holds: <paramref name="lengthBytes"/> (the record's path length, a byte distance)
+    /// covers the climb's entries, and the entry after them holds the height the swoop started at.
+    /// </summary>
+    /// <param name="word">Reads the snapshot's work-memory word at an offset.</param>
+    /// <param name="lengthBytes">The recorded path length in bytes.</param>
+    internal static DraygonSwoopPath SwoopPathAt(Func<int, ushort> word, int lengthBytes)
+    {
+        int count = lengthBytes / SwoopEntryBytes;
+        System.Collections.Immutable.ImmutableArray<int> heights = [.. Enumerable.Range(0, count).Select(entry => (int)word(SwoopPathTable + entry * SwoopEntryBytes))];
+        return new DraygonSwoopPath(heights, word(SwoopPathTable + count * SwoopEntryBytes));
+    }
+
     /// <summary>What the record word the cartridge shares between three of Draygon's values holds.</summary>
     internal enum SharedValue
     {

@@ -79,7 +79,7 @@ internal sealed class EnemyDrawList
             // Power-bomb damage runs after queue construction and can clear a
             // queued actor or replace it with the inert respawn reservation.
             // Neither lifecycle state owns a display composition.
-            if (slot.DefinitionId is 0 or EnemyDefinitionId.Respawn)
+            if (slot.DefinitionId is EnemyDefinitionId.None or EnemyDefinitionId.Respawn)
                 continue;
 
             // The draw offset is zero for ordinary room-population entries; the addition

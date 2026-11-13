@@ -101,17 +101,11 @@ public sealed class DraygonEnemyState
     /// </summary>
     public Position16<RoomPixels> BodyOrigin { get; internal set; }
 
-    /// <summary>The most heights a swoop path may hold; building a longer one fails.</summary>
-    internal const int SwoopPathCapacity = 512;
-
     /// <summary>
-    /// The swoop path: the body's height at each entry, from the swoop's lowest point up toward the reset height,
-    /// followed by the height the body started the swoop at.
+    /// The path of the swoop Draygon is flying or last flew: none until he plans his first swoop, then the heights from
+    /// the swoop's lowest point up toward the reset height and the height he started it at.
     /// </summary>
-    public int[] SwoopYPositions { get; } = new int[SwoopPathCapacity + 1];
-
-    /// <summary>How many heights the swoop path was built with, not counting the starting height after them.</summary>
-    public int SwoopPathEntryCount { get; internal set; }
+    internal DraygonSwoopPath? SwoopPath { get; set; }
 
     /// <summary>Long facing word: zero left, one right.</summary>
     public bool FacingRight { get; internal set; }
@@ -209,13 +203,13 @@ public sealed class DraygonEnemyState
     public int BurialWait { get; internal set; }
 
     /// <summary>
-    /// The swoop path entry whose height the body takes next: it counts down from <see cref="SwoopPathEntryCount"/>
-    /// to zero on the descent and back up on the ascent.
+    /// The swoop path entry whose height the body takes next: it counts down from the path's
+    /// <see cref="DraygonSwoopPath.EntryCount"/> to zero on the descent and back up on the ascent.
     /// </summary>
     internal int SwoopEntry
     {
         get;
-        set => field = Ensure.BetweenInclusive(0, SwoopPathCapacity, value);
+        set => field = Ensure.AtLeastZero(value);
     }
 
     /// <summary>The horizontal speed the swoop and goop passes move the body's X by, toward their side.</summary>

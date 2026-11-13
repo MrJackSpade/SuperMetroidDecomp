@@ -15,6 +15,12 @@ public sealed class EtecoonEnemyState
     /// <summary>The current behaviour's wrapping countdown, in updates.</summary>
     public WrappingCountdown FunctionTimer { get; internal set; }
 
+    /// <summary>
+    /// Whether the Etecoon still lies dormant, waiting for Samus to come level with it (#1627): from its initialization
+    /// until she does, when it starts flexing and <see cref="FunctionTimer"/> counts the flex down.
+    /// </summary>
+    public bool AwaitingSamus { get; internal set; }
+
     /// <summary>The teaching hops counted before the count empties.</summary>
     internal const int TeachingHopsPerLesson = 4;
 

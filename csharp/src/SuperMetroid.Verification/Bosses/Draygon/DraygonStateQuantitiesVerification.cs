@@ -135,32 +135,59 @@ internal static class DraygonStateQuantitiesVerification
     /// </summary>
     private static void VerifySwoopPath()
     {
-        (_, DraygonEnemyState state) = NewDraygon();
-        const ushort resetX = 65456, resetY = 128;
-        state.LeftSideReset = new Position16<RoomPixels>(resetX, resetY);
-        state.SwoopAcceleration = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 40);
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = FixedPosition<RoomPixels>.FromWhole(new(200, 400)) };
+        // The second path climbs at a 256th of a pixel per update per update to a reset height four pixels below the
+        // first's: 513 heights, past the 512 the original game's table holds, which the path keeps (#1627).
+        VerifySwoopPath(acceleration: 40, resetY: 128);
+        VerifySwoopPath(acceleration: 1, resetY: 124, expectedCount: 513);
 
-        DraygonSwoops.BuildDraygonSwoopYPositions(state, samus);
+        (_, DraygonEnemyState still) = NewDraygon();
+        still.LeftSideReset = new Position16<RoomPixels>(65456, 128);
+        still.SwoopAcceleration = default;
+        AssertThrows<InvalidOperationException>(() => DraygonSwoops.BuildDraygonSwoopYPositions(still, NewSwoopSamus()),
+            "a swoop path is not planned without a swoop acceleration");
+        AssertTrue(still.SwoopPath is null, "Draygon has no swoop path before he plans one");
+    }
+
+    /// <summary>
+    /// Builds a swoop path under <paramref name="acceleration"/> 256ths of a pixel per update per update to
+    /// <paramref name="resetY"/> and compares it, entry by entry, with the original game's table build.
+    /// </summary>
+    private static void VerifySwoopPath(ushort acceleration, ushort resetY, int? expectedCount = null)
+    {
+        (_, DraygonEnemyState state) = NewDraygon();
+        const ushort resetX = 65456;
+        state.LeftSideReset = new Position16<RoomPixels>(resetX, resetY);
+        state.SwoopAcceleration = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, acceleration);
+
+        DraygonSwoops.BuildDraygonSwoopYPositions(state, NewSwoopSamus());
 
         var expected = new List<ushort>();
         ushort y = 384, speed = 0;
         while (true)
         {
-            speed = unchecked((ushort)(speed + 40));
+            speed = unchecked((ushort)(speed + acceleration));
             ushort candidate = unchecked((ushort)(y - EightEight.WholeOf(speed)));
             if (unchecked((short)(candidate - resetY)) < 0)
                 break;
             y = candidate;
             expected.Add(candidate);
         }
-        AssertEqual(expected.Count, state.SwoopPathEntryCount, "swoop path sample count");
+        if (expectedCount is { } count)
+            AssertEqual(count, expected.Count, $"the reference table build under acceleration {acceleration} holds {count} heights");
+        DraygonSwoopPath path = state.SwoopPath ?? throw new InvalidOperationException("The swoop plans its path.");
+        AssertEqual(expected.Count, path.EntryCount, "swoop path sample count");
         for (int index = 0; index < expected.Count; index++)
-            AssertEqual(expected[index], state.SwoopYPositions[index], $"swoop path sample {index}");
-        AssertEqual(state.Body.Position.Y.Whole, state.SwoopYPositions[expected.Count], "the path ends at the body's height");
+            AssertEqual(expected[index], path.HeightAt(index), $"swoop path sample {index}");
+        AssertEqual(state.Body.Position.Y.Whole, path.HeightAt(expected.Count), "the path ends at the body's height");
+        AssertThrows<ArgumentOutOfRangeException>(() => path.HeightAt(expected.Count + 1), "the path has no height past its starting height");
         uint velocity = SixteenSixteenWords.FromWhole((uint)Math.Abs(CoordinateAxis.AsSigned(unchecked(resetX - 200)))) / (uint)expected.Count;
         AssertEqual(velocity, state.SwoopVelocity.RawValue, "swoop horizontal speed");
+        AssertEqual(expected.Count, state.SwoopEntry, "the descent starts at the swoop's starting height");
     }
+
+    /// <summary>Samus at the point the swoop paths aim at.</summary>
+    private static SamusState NewSwoopSamus() =>
+        new(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = FixedPosition<RoomPixels>.FromWhole(new(200, 400)) };
 
     /// <summary>A Draygon encounter over a fresh enemy system with all four parts bound and asleep.</summary>
     private static NewDraygonResult NewDraygon()

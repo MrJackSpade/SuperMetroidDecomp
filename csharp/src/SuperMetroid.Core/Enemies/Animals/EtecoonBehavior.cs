@@ -99,7 +99,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Timer = WrappingCountdown.Start(0);
         state.Playback = new(EtecoonAnimations.StartingWith(EtecoonProgram.Initial), AnimationPlace.StartOfAnimation);
         state.Function = EtecoonAiFunction.WaitingForSamus;
-        state.FunctionTimer = WrappingCountdown.Start(ushort.MaxValue);
+        state.AwaitingSamus = true;
     }
 
     /// <summary>Runs an Etecoon's per-frame behaviour and its function dispatcher.</summary>
@@ -199,7 +199,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         // Preserve the initial wake edge and the countdown until the pause clears.
         if (_elevatorBehavior.ElevatorDoorTransitionActive)
             return;
-        if (!state.FunctionTimer.IsNegative)
+        if (!state.AwaitingSamus)
         {
             if (DecrementEtecoonTimerAndTestExpired(state))
             {
@@ -216,6 +216,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.Route == EtecoonRoute.RunLeftToTeachingStart)
             _audio.QueueEnemySound(EtecoonWakeSound, priority: SoundRequestPriority.Essential);
         InstallEtecoonInstruction(slot, state, EtecoonProgram.Flexing);
+        state.AwaitingSamus = false;
         state.FunctionTimer = WrappingCountdown.Start(256);
     }
 

@@ -18,13 +18,23 @@ public sealed class EnemyFrameDisplays
     /// <summary>The frame displayed for each frame an enemy shows, where the installed bindings name one.</summary>
     private readonly Dictionary<EnemyFrameId, EnemyFrameId> _displayFrames;
 
-    /// <summary>Retains the installed frames, the frames with a picture and the display bindings the import pipeline validated.</summary>
+    /// <summary>
+    /// Retains the installed frames, the frames with a picture and the display bindings the import pipeline validated.
+    /// Every binding displays an installed frame (#1627): the installation is complete, so no frame falls back to
+    /// displaying itself in place of the frame its binding names.
+    /// </summary>
+    /// <exception cref="InvalidDataException">A binding names a frame the installation does not hold.</exception>
     internal EnemyFrameDisplays(HashSet<EnemyFrameId> frames, HashSet<EnemyFrameId> pictured,
         Dictionary<EnemyFrameId, EnemyFrameId> displayFrames)
     {
         _frames = Ensure.NotNull(frames);
         _pictured = Ensure.NotNull(pictured);
         _displayFrames = Ensure.NotNull(displayFrames);
+        foreach ((EnemyFrameId shown, EnemyFrameId displayed) in _displayFrames)
+        {
+            if (!_frames.Contains(displayed))
+                throw new InvalidDataException($"The installed enemy frame binding displays enemy frame {shown} as frame {displayed}, which is not installed.");
+        }
     }
 
     /// <summary>
@@ -42,12 +52,8 @@ public sealed class EnemyFrameDisplays
         EnemyFrameId displayed = GetDisplayFrame(frame);
         if (!_frames.Contains(displayed))
         {
-            displayed = frame;
-            if (!_frames.Contains(displayed))
-            {
-                pictured = false;
-                return false;
-            }
+            pictured = false;
+            return false;
         }
         pictured = _pictured.Contains(displayed);
         return true;

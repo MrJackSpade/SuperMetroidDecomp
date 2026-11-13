@@ -5,7 +5,8 @@ namespace SuperMetroid.Core.Compatibility;
 /// place within 256, so a radius of 256 or more continues from zero, and a point in the turn's second half is reversed by
 /// negating its whole pixels and its fraction each on their own, so a reversed point with a fraction lies one pixel further
 /// along the original direction than a true reversal. Fireflea circles, Ki-Hunter swoops, Nuclear Waffle orbits and Evir
-/// spit therefore move along exactly the original's points.
+/// spit therefore move along exactly the original's points. Phantoon's circling flames keep only the radius rule: their
+/// radius grows past 255 as a plain count (#1627), and their own product negates its whole result.
 /// </summary>
 /// <remarks>
 /// Consulted whenever an enemy reads a sine, cosine or negative-sine product by a short radius during its update.

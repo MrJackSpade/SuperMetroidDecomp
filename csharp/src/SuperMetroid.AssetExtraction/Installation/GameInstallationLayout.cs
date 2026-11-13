@@ -139,9 +139,6 @@ public static class GameInstallationLayout
     public const string ReceiptFileName = "installation.json";
     /// <summary>Current installation-receipt version; content whose receipt names another is extracted again before opening.</summary>
     public const int FormatVersion = 306;
-=======
-    public const int FormatVersion = 301;
->>>>>>> worktree-agent-a7afedf8e9112ffd0
 
     /// <summary>Backup of the previously published stock game tree during an atomic install.</summary>
     internal const string PreviousDirectoryName = ".game.previous";

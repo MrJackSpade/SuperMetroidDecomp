@@ -17,12 +17,14 @@ public static class ScreenGeometry
     public static Extent16<ScreenPixels> ScreenSize => new(ScreenWidthPixels, ScreenHeightPixels);
 
     /// <summary>
-    /// The rows the room's layers are drawn above the sprites placed from the same camera (#1514): the screen's top row
-    /// shows the layers' row one below the camera's top row, while a sprite is drawn at its row less the camera's. The
-    /// gameplay view publishes the row each layer shows at the screen's top, so this lead is applied once, where the
-    /// camera becomes the view. Verified against #516's captured frames.
+    /// The camera rows the screen hides above its top row when it shows the room's layers (#1514, #1705): the screen's
+    /// top row shows each layer's row below the camera's top row, while a sprite is placed at its position less the
+    /// camera's, from the camera's top row itself. The game keeps this one-row offset between the layers and the sprites
+    /// so every sprite shows against the room exactly where the original shows it. The gameplay view publishes the row
+    /// each layer shows at the screen's top, so the offset is applied once, where the camera becomes the view. Verified
+    /// against #516's captured frames.
     /// </summary>
-    public const int LayerRowsAboveSprites = 1;
+    public const int LayerRowsHiddenAboveScreen = 1;
 
     /// <summary>The height of the gameplay HUD band across the top of the screen.</summary>
     public const int GameplayHudHeightPixels = 32;

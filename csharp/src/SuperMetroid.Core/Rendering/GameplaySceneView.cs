@@ -22,21 +22,24 @@ public readonly record struct GameplaySceneView(
 {
     /// <summary>
     /// The foreground pixel the screen's top-left corner shows while the foreground's camera is at
-    /// <paramref name="camera"/>: the camera's column, one row below its top row (<see cref="ScreenGeometry.LayerRowsAboveSprites"/>).
+    /// <paramref name="camera"/>: the camera's column, on the row below the camera row the screen hides
+    /// (<see cref="ScreenGeometry.LayerRowsHiddenAboveScreen"/>).
     /// </summary>
-    public static Position16<RoomPixels> ShownAtScreenTop(Position16<RoomPixels> camera) =>
-        camera + new Offset16<RoomPixels>(0, ScreenGeometry.LayerRowsAboveSprites);
+    public static Position16<RoomPixels> LayerPixelAtScreenTop(Position16<RoomPixels> camera) =>
+        camera + new Offset16<RoomPixels>(0, ScreenGeometry.LayerRowsHiddenAboveScreen);
 
     /// <summary>
     /// The background pixel the screen's top-left corner shows while the background's camera is at
-    /// <paramref name="camera"/>: the camera's column, one row below its top row (<see cref="ScreenGeometry.LayerRowsAboveSprites"/>).
+    /// <paramref name="camera"/>: the camera's column, on the row below the camera row the screen hides
+    /// (<see cref="ScreenGeometry.LayerRowsHiddenAboveScreen"/>).
     /// </summary>
-    public static Position16<BackgroundPixels> ShownAtScreenTop(Position16<BackgroundPixels> camera) =>
-        camera + new Offset16<BackgroundPixels>(0, ScreenGeometry.LayerRowsAboveSprites);
+    public static Position16<BackgroundPixels> LayerPixelAtScreenTop(Position16<BackgroundPixels> camera) =>
+        camera + new Offset16<BackgroundPixels>(0, ScreenGeometry.LayerRowsHiddenAboveScreen);
 
     /// <summary>
-    /// The background row the screen's top row shows while the background's camera is at row <paramref name="cameraRow"/>,
-    /// for a line scroll given in the background's camera rows.
+    /// The background row the screen's top row shows while the background's camera is at row <paramref name="cameraRow"/>:
+    /// the row below the camera row the screen hides (<see cref="ScreenGeometry.LayerRowsHiddenAboveScreen"/>), for a line
+    /// scroll given in the background's camera rows.
     /// </summary>
-    public static int ShownRowAtScreenTop(int cameraRow) => CoordinateAxis.Wrap(cameraRow + ScreenGeometry.LayerRowsAboveSprites);
+    public static int LayerRowAtScreenTop(int cameraRow) => CoordinateAxis.Wrap(cameraRow + ScreenGeometry.LayerRowsHiddenAboveScreen);
 }

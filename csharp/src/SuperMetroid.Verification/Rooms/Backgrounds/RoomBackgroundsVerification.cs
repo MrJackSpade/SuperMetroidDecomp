@@ -77,7 +77,7 @@ internal static class RoomBackgroundsVerification
         var sourceView = new Position16<PlanePixels>(0x20, 0x10);
         var destinationView = new Position16<PlanePixels>(0x300, 0x100);
         var door = RoomDoorBackground.Begin(source, sourceView, destinationView, downward: false);
-        var belowHud = new Offset16<PlanePixels>(0, ScreenGeometry.LayerRowsAboveSprites + ScreenGeometry.GameplayHudHeightPixels);
+        var belowHud = new Offset16<PlanePixels>(0, ScreenGeometry.LayerRowsHiddenAboveScreen + ScreenGeometry.GameplayHudHeightPixels);
         Position16<PlanePixels> top = destinationView + belowHud + new Offset16<PlanePixels>(0x18, 0);
         AssertTrue(door.Covers(top) && ReferenceEquals(door.SourceRoom.Pictures, sourcePictures),
             "the door window's first gameplay line shows the source room");

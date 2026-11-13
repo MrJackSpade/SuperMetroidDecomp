@@ -94,7 +94,7 @@ internal static class CrocomirePresentation1193Verification
                         "Rumble becomes visible at the following accepted NMI");
                     var layer = (GameplaySceneLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()).Layers[0];
                     // The view shows the foreground row below the displayed camera row at the screen's top (#1514).
-                    AssertEqual(GameplaySceneView.ShownRowAtScreenTop(previousScroll), layer.View.ForegroundScroll.Y,
+                    AssertEqual(GameplaySceneView.LayerRowAtScreenTop(previousScroll), layer.View.ForegroundScroll.Y,
                         "Production foreground composition receives the displayed rumble scroll");
                 }
                 previousScroll = expected;

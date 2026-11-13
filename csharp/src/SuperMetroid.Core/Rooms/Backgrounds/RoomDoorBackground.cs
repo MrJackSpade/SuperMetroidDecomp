@@ -13,8 +13,8 @@ public sealed record RoomDoorBackground(RoomBackgroundLayer SourceRoom, Position
     /// <summary>
     /// The source screen of a door that began with the source room's foreground view at <paramref name="sourceView"/>,
     /// lying where the destination's foreground view begins the door's scroll, <paramref name="destinationView"/>: the
-    /// screen's top-left gameplay pixel is the foreground row the screen showed below the HUD, the layers showing one row
-    /// below their views (<see cref="ScreenGeometry.LayerRowsAboveSprites"/>). A downward door's setup keeps the source's
+    /// screen's top-left gameplay pixel is the foreground row the screen showed below the HUD, below the view row the
+    /// screen hides (<see cref="ScreenGeometry.LayerRowsHiddenAboveScreen"/>). A downward door's setup keeps the source's
     /// view one row lower than the destination's, so the source screen lies one row higher on the destination.
     /// </summary>
     /// <param name="sourceRoom">The source room's foreground.</param>
@@ -24,7 +24,7 @@ public sealed record RoomDoorBackground(RoomBackgroundLayer SourceRoom, Position
     public static RoomDoorBackground Begin(RoomBackgroundLayer sourceRoom, Position16<PlanePixels> sourceView,
         Position16<PlanePixels> destinationView, bool downward)
     {
-        var belowHud = new Offset16<PlanePixels>(0, ScreenGeometry.LayerRowsAboveSprites + ScreenGeometry.GameplayHudHeightPixels);
+        var belowHud = new Offset16<PlanePixels>(0, ScreenGeometry.LayerRowsHiddenAboveScreen +ScreenGeometry.GameplayHudHeightPixels);
         return new(sourceRoom, destinationView + belowHud - new Offset16<PlanePixels>(0, downward ? 1 : 0), sourceView + belowHud);
     }
 }

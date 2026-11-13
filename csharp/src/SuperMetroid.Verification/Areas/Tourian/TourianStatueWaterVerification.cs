@@ -71,7 +71,7 @@ internal static class TourianStatueWaterVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var descending = (GameplaySceneLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()).Layers[0];
         // The view shows the background row below the descent's camera row at the screen's top (#1514).
-        AssertEqual(GameplaySceneView.ShownRowAtScreenTop(runtime.Display.DisplayedGameplayScrolls.ForegroundPosition.Y + runtime.TourianStatues.DisplayedVerticalOffset),
+        AssertEqual(GameplaySceneView.LayerRowAtScreenTop(runtime.Display.DisplayedGameplayScrolls.ForegroundPosition.Y + runtime.TourianStatues.DisplayedVerticalOffset),
             descending.View.BackgroundScroll.Y, "Statue descent retains its independent BG2 vertical scroll");
         AssertEqual(0xb0, (runtime.Display.DisplayedRoomFxOverlay ?? throw new InvalidOperationException("Verification requires a published room FX snapshot.")).WaterSurfaceScreenY,
             "Statue motion does not move its water surface");

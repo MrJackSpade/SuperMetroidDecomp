@@ -62,7 +62,8 @@ public static class GameplayEffectCapture
 
     /// <summary>
     /// Describes the Norfair heat-haze the background's vertical scroll wave (#1468), or null without it: around the
-    /// background row each line shows at the screen's top (#1514), its samples counted from the camera's row.
+    /// background row the screen's top shows, below the camera row it hides (#1514), its samples counted from the
+    /// camera's row.
     /// </summary>
     /// <param name="fx">The room effect the frame shows.</param>
     /// <param name="backgroundVerticalScroll">The background camera's top row.</param>
@@ -75,7 +76,7 @@ public static class GameplayEffectCapture
 
         // The vertical haze repeats the water wave's samples. Its lines move about the row the screen's top shows, while
         // its phase stays counted from the camera's row.
-        return HeatHaze(GameplaySceneView.ShownRowAtScreenTop(backgroundVerticalScroll), backgroundVerticalScroll,
+        return HeatHaze(GameplaySceneView.LayerRowAtScreenTop(backgroundVerticalScroll), backgroundVerticalScroll,
             fx.LavaAcidBackgroundWavePhase, LiquidEffects.WaterWaveform);
     }
 

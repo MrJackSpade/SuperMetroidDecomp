@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -36,4 +37,7 @@ internal sealed record ZebetiteBehaviorDependencies
 
     /// <summary>The enemy update's sound and music requests.</summary>
     public required EnemyAudioQueue Audio { get; init; }
+
+    /// <summary>The fade step count every gradual fade shares, past whose start the Zebetites' pulse holds.</summary>
+    public required SharedFadeStepCount FadeStepCount { get; init; }
 }

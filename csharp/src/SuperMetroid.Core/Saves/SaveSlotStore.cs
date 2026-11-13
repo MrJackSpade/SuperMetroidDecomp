@@ -21,7 +21,7 @@ public sealed class SaveSlotStore
     /// <summary>
     /// The earthquake rumble delay the save image this store was imported from gives at power-on, which its host decided
     /// from the image's raw completion mark; null once the mark is rewritten, or when the store was never imported.
-    /// Saving, copying or clearing a slot leaves the mark, as the original game does.
+    /// Saving, copying or clearing a slot leaves the mark, as the game does.
     /// </summary>
     private PowerOnEarthquakeSoundDelay? importedEarthquakeDelay;
 

@@ -528,7 +528,7 @@ public static class StockAttractDemoScenes
         _ => throw new ArgumentOutOfRangeException(nameof(demonstration)),
     };
 
-    /// <summary>Chosen loadouts share actual item abilities, rather than repeating full equipment words. Stage membership and additional abilities remain selected performance inputs; the unassigned shinespark bit is preserved without inventing an ability.</summary>
+    /// <summary>Chosen loadouts share actual item abilities, rather than repeating full equipment sets. Stage membership and additional abilities remain selected performance inputs; the unassigned shinespark flag is preserved without inventing an ability.</summary>
     private static SamusEquipmentFlags ItemsFor(Demonstration demonstration)
     {
         const SamusEquipmentFlags mobility = SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.MorphBall |

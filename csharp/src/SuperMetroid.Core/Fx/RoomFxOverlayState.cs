@@ -106,7 +106,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// </summary>
     internal bool LiquidMotionStopped { get; set; }
 
-    /// <summary>per-line effect object variable two of the lava/acid effect overlay object: the ambient sound timer.</summary>
+    /// <summary>The lava/acid effect overlay's ambient sound timer.</summary>
     private int lavaSoundTimer;
     /// <summary>Current liquid rise or fall state selected by the FX record.</summary>
     private LiquidRisePhase liquidRisePhase;

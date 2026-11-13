@@ -18,7 +18,7 @@ internal static class EscapeTimerCadenceDefinitions
     internal const int PeriodCentiseconds = (PeriodFrames * CentisecondsPerSecond + NominalFramesPerSecond / 2) / NominalFramesPerSecond;
     /// <summary>The period partitions into four32-frame budgets53,53,53,54; an exact quantizer subdivision.</summary>
     internal const int QuarterCount = 4;
-    /// <summary>Each quarter divides into two16-frame accumulators, front-loading an odd budget's extra unit; the exact budget ordering.</summary>
+    /// <summary>Each quarter divides into two 16-frame halves, front-loading an odd budget's extra unit; the exact budget ordering.</summary>
     internal const int HalvesPerQuarter = 2;
     /// <summary>27-centisecond halves preload the running sum with 1 in a 16-unit denominator; the exact initial condition.</summary>
     internal const int HigherBudgetPhase = 1;

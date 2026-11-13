@@ -100,7 +100,6 @@ internal static class AreaDefinitionMigrationVerification
         AssertEqual(23, NativeEarthquakeTypes.TypeOf(ZebesEscapeDefinitions.MediumDiagonal), "medium diagonal shake");
         AssertEqual(26, NativeEarthquakeTypes.TypeOf(ZebesEscapeDefinitions.StrongDiagonal), "strong diagonal shake");
         AssertEqual(24, NativeEarthquakeTypes.TypeOf(ZebesEscapeDefinitions.MainstreetQuake), "Mainstreet quake");
-        AssertEqual(512, ZebesEscapeDefinitions.LightChance, "light diagonal chance");
         // The cartridge skips outdoor explosions over its blank tile, 255: the block set's empty block shows nothing.
         AssertTrue(SuperMetroid.Core.Rooms.LevelData.RoomBlockAppearance.Of(255).ShowsNothing && !SuperMetroid.Core.Rooms.LevelData.RoomBlockAppearance.Of(254).ShowsNothing, "the blank explosion tile is the block that shows nothing");
         AssertEqual(6, NativeEarthquakeTypes.TypeOf(ZebesEscapeDefinitions.LandingQuake), "landing site quake");

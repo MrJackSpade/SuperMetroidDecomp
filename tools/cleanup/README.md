@@ -210,7 +210,11 @@ generic one among them) and a moved nested type: `see`, `seealso` and `inheritdo
 namespace too, or alone inside the moved code; a moved block's cref to a member of the owner's staying block; and a
 labelled `see` in shipped code, which becomes its label. `partial-members` moves a partial method without an
 implementation as written and an implemented one, both into a partial `<Owner>Constants`, and joins the two parts of an
-instance partial method and property into one extension member each.
+instance partial method and property into one extension member each. `same-receiver-blocks` holds two extension blocks
+of one class taking the same receiver, one production uses and one only checks use: the second moves whole. Such blocks
+share a documentation-comment ID, so the audit keys each block by where it is declared as well; before, the two counted
+as one reachable declaration, the second block's members moved one by one and an empty block stayed in shipped code. A
+staying block every member of which would move out one by one fails the run.
 
 The prune puts an owner's moved members in the class its style names, in the owner's namespace, unless a project
 compiling the destination already knows that name. It then merges into that class when it is one static class (abstract,

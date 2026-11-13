@@ -133,6 +133,7 @@ internal static class SymbolRelocator
         Move? MoveOf(ISymbol? symbol) => identity.Key(symbol) is { } key && moveBySymbol.TryGetValue(key, out var m) ? m : null;
         bool Moved(ISymbol symbol) => MoveOf(symbol) is not null || Containers(symbol).Any(c => identity.Key(c) is { } k && movingTypeKeys.Contains(k));
         bool SameOwner(INamedTypeSymbol? a, INamedTypeSymbol? b) => a is not null && b is not null && identity.Key(a) == identity.Key(b);
+        RejectEmptiedBlocks(moves);
         var movedInterfaces = moves.Where(m => m is { Placement: Placement.WholeType, Symbol: INamedTypeSymbol { TypeKind: TypeKind.Interface } })
             .Select(m => (INamedTypeSymbol)m.Symbol).ToHashSet<INamedTypeSymbol>(Comparer);
         var movedInterfaceKeys = movedInterfaces.Select(identity.Key).OfType<string>().ToHashSet();
@@ -800,6 +801,24 @@ internal static class SymbolRelocator
         return symbol.DeclaringSyntaxReferences.Concat(implementation?.DeclaringSyntaxReferences ?? [])
             .Where(reference => identity.IsRepositorySource(reference.SyntaxTree))
             .Select(reference => reference.GetSyntax()).Distinct();
+    }
+
+    /// <summary>
+    /// Fails when every member of an extension block that stays would move out of it one by one. A block is reached only
+    /// through its members, so a block none of whose members stays is itself selected and moves whole; one emptied member by
+    /// member means the audit took it for reachable through another declaration. The 2026-11-13 fixture work found blocks of
+    /// one class taking the same receiver sharing one key, so a verification-only block left an empty block in shipped code
+    /// (<see cref="SymbolIdentity"/> keys each block by where it is declared).
+    /// </summary>
+    /// <exception cref="InvalidOperationException">A staying block would be left with no members.</exception>
+    private static void RejectEmptiedBlocks(IReadOnlyList<Move> moves)
+    {
+        foreach (var group in moves.Where(m => m.Placement == Placement.ExtensionMember && m.Node.Parent is ExtensionBlockDeclarationSyntax)
+                     .GroupBy(m => (ExtensionBlockDeclarationSyntax)m.Node.Parent!))
+            if (group.Key.Members.All(member => group.Any(m => m.Node == member)) &&
+                !moves.Any(m => m.Tree == group.First().Tree && m.Node.FullSpan.Contains(group.Key.Span)))
+                throw new InvalidOperationException($"Every member of the extension block at {group.Key.GetLocation().GetLineSpan()} " +
+                    "would move out of it one by one, leaving the block empty, while the block itself is not selected to move.");
     }
 
     /// <summary>Whether a declaration is one part of a partial method, property, indexer or event.</summary>

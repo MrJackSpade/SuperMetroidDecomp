@@ -60,7 +60,7 @@ internal sealed record SamusSheetInputs(ImportProjectileArtwork Projectiles, Spr
             overruns.SpeedBooster,
             tables.Hurt,
             tables.Visor,
-            projectiles.Presentation.BeamPalettes,
+            projectiles.BeamPalettes,
             overruns.Chainsaw,
             tables.CrystalFlash,
             projectiles.Presentation.HyperBeamFxColors,

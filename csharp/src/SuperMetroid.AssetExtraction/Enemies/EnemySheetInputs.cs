@@ -38,7 +38,7 @@ internal sealed record EnemySheetInputs(EnemyTileSourceArtwork Enemies, BossSour
             GameplayBasePaletteFiles.LoadForImport(ImportDataDirectory.Of(Path.Combine(content, GameInstallationLayout.GameplayBasePaletteDirectoryName))),
             LoadEscapeTimer(Path.Combine(ImportDataDirectory.Of(maps), EscapeTimerTileAtlasFormat.FileName)))
         {
-            BeamPalettes = LoadBeamPalettes(Path.Combine(content, GameInstallationLayout.ProjectileDirectoryName, BeamPaletteFile.FileName)),
+            BeamPalettes = LoadBeamPalettes(Path.Combine(ImportDataDirectory.Of(Path.Combine(content, GameInstallationLayout.ProjectileDirectoryName)), BeamPaletteFile.FileName)),
             Maps = MapPresentationFiles.LoadForImport(maps, ImportDataDirectory.Of(maps)),
         };
     }
@@ -56,7 +56,7 @@ internal sealed record EnemySheetInputs(EnemyTileSourceArtwork Enemies, BossSour
     /// </summary>
     internal IReadOnlyDictionary<string, RoomEnemyGraphicsSetMembers> SetMembers { get; init; } = RoomEnemyGraphicsSetLists.Members;
 
-    /// <summary>The installed beam colours, which a frozen enemy's shade is coloured from (#1512); null for fixtures that draw no frozen enemy.</summary>
+    /// <summary>The beam colours, which a frozen enemy's shade is coloured from (#1512); null for fixtures that draw no frozen enemy.</summary>
     internal InstalledBeamPalettes? BeamPalettes { get; init; }
 
     /// <summary>
@@ -65,7 +65,7 @@ internal sealed record EnemySheetInputs(EnemyTileSourceArtwork Enemies, BossSour
     /// </summary>
     internal ImportAreaMapPresentation? Maps { get; init; }
 
-    /// <summary>The installed beam colours at <paramref name="path"/>.</summary>
+    /// <summary>The beam colours the import extracted at <paramref name="path"/> (#1637).</summary>
     private static InstalledBeamPalettes LoadBeamPalettes(string path)
     {
         using FileStream json = File.OpenRead(path);

@@ -65,8 +65,8 @@ public sealed class CrocomireEnemyState
     public CrocomirePhase Phase { get; internal set; }
 
     /// <summary>
-    /// During combat: queued backward steps (and the unused attacks' move counts). Producers store an authored count of
-    /// at most thirty-two or add at most three per mouth hit while stepping back consumes them, so the count stays far
+    /// During combat: queued backward steps. Producers store an authored count of at most three or add at most three per
+    /// mouth hit while stepping back consumes them, so the count stays far
     /// inside <see cref="MaximumStepCount"/>. A store outside that range is rejected rather than wrapped, because the
     /// power-bomb charge's signed comparison is exact only inside it.
     /// </summary>
@@ -112,12 +112,6 @@ public sealed class CrocomireEnemyState
     /// counted up to <see cref="CrocomireProjectileDefinitions.VolleyShotCount"/>.
     /// </summary>
     public int ShotsSpat { get; internal set; }
-
-    /// <summary>
-    /// In the unused claw attack: the fight phase resumed when the claws stop. The game parks it in the
-    /// projectile counter's value; only that unused attack writes or reads it, so it is kept apart.
-    /// </summary>
-    internal CrocomirePhase PhaseToResume { get; set; }
 
     /// <summary>
     /// While the body sinks or rises: the vertical position below a whole pixel carried between frames, in 256ths of a

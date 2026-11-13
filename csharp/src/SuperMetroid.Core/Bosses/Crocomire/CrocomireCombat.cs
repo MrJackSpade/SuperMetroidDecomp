@@ -131,13 +131,10 @@ internal sealed class CrocomireCombat
                 }
 
                 _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus);
+                // A claw's touch also pushes Samus back. The game latches the touch too, but only its unused claw attack
+                // reads that latch, so it is not kept.
                 if (context.HitboxTouchAi == EnemyReaction.CrocomireClawTouch)
-                {
-                    CrocomireEnemyState crocomire = _access.Crocomire ??
-                        throw new InvalidOperationException("Crocomire claw has no body owner.");
-                    crocomire.FightFlags |= CrocomireFightFlags.ClawTouchedSamus;
                     context.Samus.Kinematics.ExtraDisplacement = context.Samus.Kinematics.ExtraDisplacement.WithWholeX(-4);
-                }
             });
     }
 
@@ -227,8 +224,7 @@ internal sealed class CrocomireCombat
             {
                 body.AnimationClock.Extend(MouthShotReactionHoldFrames);
             }
-            state.FightFlags = (state.FightFlags & ~(CrocomireFightFlags.DamageReactionPending | CrocomireFightFlags.ClawTouchedSamus)) |
-                CrocomireFightFlags.DamageReactionPending;
+            state.FightFlags |= CrocomireFightFlags.DamageReactionPending;
         }
 
         body.FlashTimer += 14;
@@ -257,8 +253,7 @@ internal sealed class CrocomireCombat
         if (state.Phase == CrocomirePhase.PowerBombCharge)
             return;
 
-        state.FightFlags = (state.FightFlags & ~(CrocomireFightFlags.ClawTouchedSamus | CrocomireFightFlags.Engaged)) |
-            CrocomireFightFlags.Engaged;
+        state.FightFlags |= CrocomireFightFlags.Engaged;
         body.FlashTimer += 4;
         body.AiStates |= EnemyAiStates.Hurt;
         state.Phase = CrocomirePhase.PowerBombCharge;

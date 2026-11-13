@@ -28,7 +28,6 @@ internal static class CrocomireNativeListAddresses
     internal static readonly BodyEntryValue[] BodyEntries =
     [
         new BodyEntryValue(CrocomireBodySegment.Initial, 0xbade),
-        new BodyEntryValue(CrocomireBodySegment.UnusedChargeForwardOneStep, 0xbaea),
         new BodyEntryValue(CrocomireBodySegment.ProjectileAttack, 0xbb36),
         new BodyEntryValue(CrocomireBodySegment.ProjectileAttackLoop, 0xbb94),
         new BodyEntryValue(CrocomireBodySegment.StepForwardAfterDelay, 0xbbca),

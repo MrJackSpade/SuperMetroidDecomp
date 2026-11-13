@@ -27,12 +27,6 @@ internal static class CrocomireSoundDefinitions
     /// <summary>The sound queued as the collapsing bridge drops the body into the acid.</summary>
     internal static readonly SoundEffectId BridgeCollapse = EnemySound.DachoraShinespark;
 
-    /// <summary>The sound the unused claw branch queues for each claw strike on Samus.</summary>
-    internal static readonly SoundEffectId ClawStrike = EnemySound.DachoraShinespark;
-
-    /// <summary>The sound the unused near-spike-wall charge queues when a hit interrupts it.</summary>
-    internal static readonly SoundEffectId UnusedChargeInterrupted = EnemySound.ShotCrocomire;
-
     /// <summary>Crocomire's cry.</summary>
     internal static readonly SoundEffectId Cry = EnemySound.CrocomireCry;
 

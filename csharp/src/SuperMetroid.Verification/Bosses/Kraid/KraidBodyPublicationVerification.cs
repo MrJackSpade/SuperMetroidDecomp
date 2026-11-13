@@ -32,7 +32,7 @@ internal static class KraidBodyPublicationVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(StoryEvent.ZebesAwake);
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Kraid);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Kraid);
         KraidEnemyState state = runtime.Enemies.KraidBehavior.Access.Kraid
             ?? throw new InvalidOperationException("Kraid's room loads Kraid.");
         // The retail runtime draws Kraid's body from the installation's body sheet, composed from these frames.

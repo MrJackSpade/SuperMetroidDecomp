@@ -29,7 +29,7 @@ internal static class SpringBallEquipmentJumpVerification
             BindInstalledArtwork(installation)(game, false);
             game.InitializeDirectRoomVerification();
             var runtime = game.GameplayRuntimeForVerification;
-            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.WestOcean);
+            runtime.LoadCartridgeRoomForDebug(RoomDefinitions.WestOcean);
             // A bounded underwater fixture retains the retail FX but removes terrain/enemies,
             // isolating the reported pause/equipment/launch contract from room obstacles.
             foreach (var enemy in runtime.Enemies.SlotTable.Slots) enemy.Clear();

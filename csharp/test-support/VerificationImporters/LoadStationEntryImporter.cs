@@ -42,7 +42,7 @@ internal static class LoadStationEntryImporter
 /// <param name="CameraPosition">The initial camera top-left.</param>
 /// <param name="SamusOffset">Samus's placement relative to the camera.</param>
 internal sealed record NativeLoadStation(
-    RoomHeaderDefinition? Room, DoorDefinition? Door, Position16<RoomPixels> CameraPosition, Offset16<RoomPixels> SamusOffset)
+    RoomDefinition? Room, DoorDefinition? Door, Position16<RoomPixels> CameraPosition, Offset16<RoomPixels> SamusOffset)
 {
     /// <summary>The room position the record places Samus at, wrapping each axis at sixteen bits.</summary>
     public Position16<RoomPixels> SamusPosition => CameraPosition + LoadStationPlacement.SamusOffsetOrigin + SamusOffset;

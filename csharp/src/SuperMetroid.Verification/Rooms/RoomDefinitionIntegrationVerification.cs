@@ -156,7 +156,7 @@ internal static class RoomDefinitionIntegrationVerification
                     tracingBus, roomPointer, context).State.Pointer);
             }
 
-            RoomHeaderDefinition header = RoomHeaderDefinitions.Get(roomPointer);
+            RoomDefinition header = RoomDefinitions.Get(roomPointer);
             AddAddressRange(forbidden,
                 RoomHeaderRomDataConstants.BankAddress | RoomDoorListDefinitions.ListPointerOf(header),
                 RoomDoorListDefinitions.ByRoom[header].Count * sizeof(ushort));

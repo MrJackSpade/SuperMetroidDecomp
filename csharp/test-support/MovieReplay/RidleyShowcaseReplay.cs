@@ -298,7 +298,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 DoorTransitionPhase.AlignSourceCamera or DoorTransitionPhase.DestinationSetupWait or
                 DoorTransitionPhase.MoveToDoorScrollStart or
                 DoorTransitionPhase.PlaceSamusInDestination or DoorTransitionPhase.LoadDestinationRoom
-                ? RoomHeaderDefinitions.PointerOf((runtime.RoomLoader.PendingDoorTransition ?? throw new InvalidDataException("Missing selected destination door")).DestinationRoom)
+                ? RoomDefinitions.PointerOf((runtime.RoomLoader.PendingDoorTransition ?? throw new InvalidDataException("Missing selected destination door")).DestinationRoom)
                 : runtime.Room.LoadedRoom.Pointer;
             Check("Selected room", selectedRoom, NativeSnapshotMemory.Room);
             Check("Camera X", runtime.Room.LoadedCamera.PixelPosition.X, NativeSnapshotMemory.CameraX);

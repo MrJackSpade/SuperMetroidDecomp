@@ -29,7 +29,7 @@ internal static class DoorDefinitionsVerification
     /// <summary>Confirms Landing Site door collision resolves the compiled BTS-indexed transition.</summary>
     internal static void VerifyCompiledDoorListCollision()
     {
-        IReadOnlyList<DoorListEntry> landingDoors = RoomDoorListDefinitions.ByRoom[RoomHeaderDefinitions.LandingSite];
+        IReadOnlyList<DoorListEntry> landingDoors = RoomDoorListDefinitions.ByRoom[RoomDefinitions.LandingSite];
         var level = new RoomLevelData(new Extent16<RoomBlocks>(1, 1), new RoomLevelPlanes([RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.Air)], [RoomBlockBehavior.None], [RoomBlockAppearance.Of(0)]), RoomLevelData.NothingBeyondGrid(), doors: landingDoors);
         DoorDefinition resolved = (level.ResolveDoorCollision(
             behavior: RoomBlockBehavior.None, samusPose: SamusPoseId.ForwardFacingPowerSuitPose.ForRoomCollision()).Door ?? throw new InvalidOperationException("Verification requires level.ResolveDoorCollision( NewDoorNoReadAddressSpace(), behavior: 0.ForRoomCollision(), samusPose: 0).Door."));

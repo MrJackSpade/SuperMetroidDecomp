@@ -19,7 +19,7 @@ internal sealed record RoomFxLoadSource
     public required int RandomNumber { get; init => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value); }
 
     /// <summary>The room being entered, or null for a load outside a room.</summary>
-    public required RoomHeaderDefinition? Room { get; init; }
+    public required RoomDefinition? Room { get; init; }
 
     /// <summary>Supplied definition.</summary>
     public required RoomFxRecordDefinition? SuppliedDefinition { get; init; }

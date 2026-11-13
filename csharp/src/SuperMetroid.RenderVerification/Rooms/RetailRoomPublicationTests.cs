@@ -22,17 +22,17 @@ internal static class RetailRoomPublicationTests
     {
         PublishedRoom[] rooms =
         [
-            new PublishedRoom(RoomHeaderDefinitions.LandingSite, PublishedFx.Unchecked),
-            new PublishedRoom(RoomHeaderDefinitions.Parlor, PublishedFx.Unchecked),
-            new PublishedRoom(RoomHeaderDefinitions.ElevToBlueBrinstar, PublishedFx.Unchecked),
-            new PublishedRoom(RoomHeaderDefinitions.GreenBrinstarMainShaft, PublishedFx.Unchecked),
-            new PublishedRoom(RoomHeaderDefinitions.MorphBall, PublishedFx.Unchecked),
-            new PublishedRoom(RoomHeaderDefinitions.DeadScientist, PublishedFx.Unchecked),
+            new PublishedRoom(RoomDefinitions.LandingSite, PublishedFx.Unchecked),
+            new PublishedRoom(RoomDefinitions.Parlor, PublishedFx.Unchecked),
+            new PublishedRoom(RoomDefinitions.ElevToBlueBrinstar, PublishedFx.Unchecked),
+            new PublishedRoom(RoomDefinitions.GreenBrinstarMainShaft, PublishedFx.Unchecked),
+            new PublishedRoom(RoomDefinitions.MorphBall, PublishedFx.Unchecked),
+            new PublishedRoom(RoomDefinitions.DeadScientist, PublishedFx.Unchecked),
             new PublishedRoom(RoomPublicationFixtureDefinitions.BrinstarWater, PublishedFx.Water),
             new PublishedRoom(RoomPublicationFixtureDefinitions.NorfairBusinessCenter, PublishedFx.Heat),
         ];
         long sequence = 0;
-        foreach ((RoomHeaderDefinition room, PublishedFx fx) in rooms)
+        foreach ((RoomDefinition room, PublishedFx fx) in rooms)
         {
             var runtime = RepositoryInstallation.CreateRuntime();
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);

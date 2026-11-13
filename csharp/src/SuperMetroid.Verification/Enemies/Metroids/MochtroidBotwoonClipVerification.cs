@@ -72,7 +72,7 @@ internal static class MochtroidBotwoonClipVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.BotwoonHallway);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.BotwoonHallway);
 
         RoomLevelData level = runtime.Room.LevelData ??
             throw new InvalidDataException("Botwoon Hallway level data was not loaded.");

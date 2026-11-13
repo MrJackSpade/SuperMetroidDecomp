@@ -186,7 +186,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         RoomFxHeader? fx,
         DoorDefinition? door,
         int randomNumber,
-        RoomHeaderDefinition? room = null) =>
+        RoomDefinition? room = null) =>
         ForRecord(session, new RoomFxLoadSource { Fx = fx, Door = door, RandomNumber = randomNumber, Room = room, SuppliedDefinition = null });
 
     /// <summary>Builds one room's effect-overlay FX from a load source, which may supply its record directly.</summary>

@@ -81,7 +81,7 @@ internal static class RoomBlockSheetsWholeVerification
     private static Dictionary<TilesetDefinition, HashSet<InWorldCollectibleKind>> CollectiblesPlaced()
     {
         var placed = new Dictionary<TilesetDefinition, HashSet<InWorldCollectibleKind>>();
-        foreach (RoomHeaderDefinition room in RetailRoomHeaders.All)
+        foreach (RoomDefinition room in RetailRooms.All)
         {
             foreach (RoomStateSettings state in RoomStateLists.GetStates(room))
             {

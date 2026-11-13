@@ -40,7 +40,7 @@ internal static class SuperMissileDeathAnimationVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.RisingTide);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.RisingTide);
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.Control.LockHandlers();
         RoomEnemySlot enemy = runtime.Enemies.SlotTable.Slots.First(slot => slot.DefinitionId == enemyDefinition);

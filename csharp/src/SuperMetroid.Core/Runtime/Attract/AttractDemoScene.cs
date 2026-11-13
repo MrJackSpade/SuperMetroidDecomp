@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Runtime.Attract;
 /// the camera, X from the screen's horizontal centre and Y from its top.
 /// </remarks>
 public sealed record AttractDemoScene(
-    RoomHeaderDefinition Room, DoorDefinition Door, Position16<RoomPixels> CameraPosition, Offset16<RoomPixels> SamusOffset,
+    RoomDefinition Room, DoorDefinition Door, Position16<RoomPixels> CameraPosition, Offset16<RoomPixels> SamusOffset,
     int Duration, AttractDemoRoomSetup RoomSetup, AttractDemoSamusSetup SamusSetup,
     SuperMetroid.Core.Progression.SamusEquipmentFlags Items, int Missiles, int SuperMissiles, int PowerBombs,
     int Health, SuperMetroid.Core.Progression.SamusBeamFlags CollectedBeams, SuperMetroid.Core.Progression.SamusBeamFlags EquippedBeams, AttractDemoInputDefinition Input)

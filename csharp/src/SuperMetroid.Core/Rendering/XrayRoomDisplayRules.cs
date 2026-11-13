@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rendering;
 public static class XrayRoomDisplayRules
 {
     /// <summary>True only for the room where X-ray, keeping the room's backgrounds, also hides the background layer.</summary>
-    public static bool RemovesBackground(RoomHeaderDefinition room) => room == RoomHeaderDefinitions.GlassTunnel;
+    public static bool RemovesBackground(RoomDefinition room) => room == RoomDefinitions.GlassTunnel;
     /// <summary>The dark grey backdrop shown while the X-ray beam is out.</summary>
     public static RgbColor ActiveBackdrop => new(24, 24, 24);
 
@@ -51,7 +51,7 @@ public static class XrayRoomDisplayRules
     };
 
     /// <summary>Fireflea's room takes its own blend before the ordinary room and boss exclusions apply.</summary>
-    public static XrayRoomBlendMode Select(RoomHeaderDefinition room, RoomFxType fx, AreaBoss? boss)
+    public static XrayRoomBlendMode Select(RoomDefinition room, RoomFxType fx, AreaBoss? boss)
     {
         if (fx == RoomFxType.Fireflea) return XrayRoomBlendMode.Fireflea;
         if (!XrayBlockRevealRules.RevealsBlocks(room, boss))

@@ -103,7 +103,7 @@ internal static class GreyDoorObjectDrawDefinitionsVerification
             {
                 var enteringDoor = new DoorDefinition(
                     Name: "fixture door",
-                    DestinationRoom: FixtureRoomHeaders.UnloadedDestination,
+                    DestinationRoom: FixtureRooms.UnloadedDestination,
                     Orientation: new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses),
                     RoomObjectBlock: new(4, 4),
                     DestinationScreen: new(0, 0),
@@ -181,7 +181,7 @@ internal static class GreyDoorObjectDrawDefinitionsVerification
     {
         var enteringDoor = new DoorDefinition(
             Name: "fixture door",
-            DestinationRoom: FixtureRoomHeaders.UnloadedDestination,
+            DestinationRoom: FixtureRooms.UnloadedDestination,
             Orientation: new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses),
             RoomObjectBlock: new(4, 4),
             DestinationScreen: new(0, 0),

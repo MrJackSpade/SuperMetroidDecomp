@@ -27,7 +27,7 @@ internal static class MinimapBlinkAudit
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Get(room), new Position16<RoomPixels>(0, 0));
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Get(room), new Position16<RoomPixels>(0, 0));
         runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWholeX(128);
         runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWholeY(128);
         runtime.FrameBoundary.BeginAcceptedFrame(0);

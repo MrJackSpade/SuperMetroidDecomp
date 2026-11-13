@@ -21,7 +21,7 @@ internal static class RoomStateSelectionDefinitionsVerification
             .Select(TryParseRoomHeaderPointer).Where(pointer => pointer.HasValue)
             .Select(pointer => (pointer ?? throw new InvalidOperationException("Verification requires pointer."))).Distinct().Order().ToArray();
         AssertEqual(262, rooms.Length, "Original retail room selector identities");
-        var uncompiled = new RoomHeaderDefinition("uncompiled fixture room", 0, AreaId.Crateria, new(0, 0), new(1, 1), 0, 0, RoomDoorTransitionStyle.Standard);
+        var uncompiled = new RoomDefinition("uncompiled fixture room", 0, AreaId.Crateria, new(0, 0), new(1, 1), 0, 0, RoomDoorTransitionStyle.Standard);
         AssertThrows<ArgumentOutOfRangeException>(() => RoomStateSelection.Select(uncompiled, default),
             "Uncompiled room selector rejects before condition evaluation");
         AssertThrows<ArgumentOutOfRangeException>(() => RoomStateSelection.GetStatePointers(uncompiled),
@@ -54,7 +54,7 @@ internal static class RoomStateSelectionDefinitionsVerification
             if (native.Count != 0) conditional++;
             clauses += native.Count;
             ushort[] expectedVariants = new[] { fallback }.Concat(native.Select(clause => clause.Target)).ToArray();
-            AssertTrue(RoomStateSelection.GetStatePointers(RoomHeaderDefinitions.Get(room)).SequenceEqual(expectedVariants),
+            AssertTrue(RoomStateSelection.GetStatePointers(RoomDefinitions.Get(room)).SequenceEqual(expectedVariants),
                 $"Room {room:X4} default and alternatives retain native order");
 
             // All truth assignments of the predicates this native program actually
@@ -104,9 +104,9 @@ internal static class RoomStateSelectionDefinitionsVerification
                     storedEvents.Set(storyEvent, number / 8 < events.Length && (events[number / 8] & (1 << (number % 8))) != 0);
                 }
                 var context = new RoomStateSelectionContext(storedEvents, ProgressionTableCodec.StoredBosses(bosses), morph, powerBombs);
-                AssertEqual(expected, RoomStateSelection.Select(RoomHeaderDefinitions.Get(room), context).Pointer,
+                AssertEqual(expected, RoomStateSelection.Select(RoomDefinitions.Get(room), context).Pointer,
                     $"Room {room:X4} native first-match/default selection");
-                AssertEqual(expected, SelectedRoom.LoadUsingCompiledSelection(RoomHeaderDefinitions.Get(room), context).State.Pointer,
+                AssertEqual(expected, SelectedRoom.LoadUsingCompiledSelection(RoomDefinitions.Get(room), context).State.Pointer,
                     "Production room loading uses the selected compiled state without cartridge capability");
                 reached.Add(expected);
                 comparisons++;

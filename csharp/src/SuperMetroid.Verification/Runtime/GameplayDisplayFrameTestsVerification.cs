@@ -43,7 +43,7 @@ internal static class GameplayDisplayFrameTestsVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         VerifyCeresModeTiming(runtime);
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
 
         VerifyRepaintAndImmutability(runtime);
@@ -71,7 +71,7 @@ internal static class GameplayDisplayFrameTestsVerification
         explosion.Spawn(new(128, 120));
         for (int i = 0; i < 20; i++) explosion.StepFrame();
         // A sky room installs a live sky the published frame never had (#1403).
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LandingSite, new Position16<RoomPixels>(0, 0));
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         // Wiping VRAM unbinds the room's artwork, so it follows the next frame's latch; the room reloads below.
         runtime.Vram.LoadBytes(0, new byte[SnesVram.ByteCount]);
@@ -83,7 +83,7 @@ internal static class GameplayDisplayFrameTestsVerification
             "a published frame survives later simulation, latch and PPU memory changes");
 
         explosion.Reset();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
     }
 
@@ -91,7 +91,7 @@ internal static class GameplayDisplayFrameTestsVerification
     private static void VerifyBossBackgroundTiming(SuperMetroidRuntime runtime)
     {
         // Each boss's body shows in its own room, whose artwork pictures it (#1392).
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Kraid, new Position16<RoomPixels>(0, 0));
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Kraid, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         GameplaySceneView before = Registers(runtime);
         var kraid = new KraidEnemyState { ShowsBodyLayer = true, BodyOrigin = new Position16<RoomPixels>(320, 88) };
@@ -103,7 +103,7 @@ internal static class GameplayDisplayFrameTestsVerification
         runtime.Enemies.KraidBehavior.Access.Kraid = null;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
 
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.MotherBrain, new Position16<RoomPixels>(0, 0));
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         before = Registers(runtime);
         var motherBrain = new MotherBrainEnemyState(runtime.Enemies.SlotTable.Slots[0]) { PlacesBodyLayer = true, DeathHidesBodyLayer = true };
@@ -114,7 +114,7 @@ internal static class GameplayDisplayFrameTestsVerification
         AssertEqual(motherBrain.RainbowBeam.Color, runtime.PublishDisplayFrame().Latched.Tints.RainbowBeam,
             "rainbow beam COLDATA is latched with Mother Brain's registers");
         runtime.Enemies.MotherBrainEncounter.MotherBrain = null;
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
     }
 
@@ -125,7 +125,7 @@ internal static class GameplayDisplayFrameTestsVerification
         // $88:AFB2 writes the BG2VOFS mirror while the same pass rebuilds the band table.
         // HDMA reads the table during display; the mirror waits for the NMI upload. A sky room installs its sky, and
         // the sky's image, as it loads (#1403).
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LandingSite, new Position16<RoomPixels>(0, 0));
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         before = Registers(runtime);
         ScrollingSkyState sky = runtime.Room.ScrollingSky ?? throw new InvalidOperationException("The Landing Site installs its scrolling sky.");
@@ -135,7 +135,7 @@ internal static class GameplayDisplayFrameTestsVerification
         AssertPending(runtime, registers => registers.BackgroundScroll.Y == before.BackgroundScroll.Y, "the sky's vertical scroll");
         // The view shows the sky row below the published scroll at the screen's top (#1514).
         AssertPublished(runtime, registers => registers.BackgroundScroll.Y == GameplaySceneView.ShownRowAtScreenTop(SkyLayer1Y), "the sky's vertical scroll");
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
     }
 
@@ -206,7 +206,7 @@ internal static class GameplayDisplayFrameTestsVerification
         AssertTrue(shaft.PerspectiveFloor is { Below: BelowPerspectiveFloor.Nothing },
             "door setup $8F:E4E0 shows the elevator shaft's floor");
 
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.CeresRidley, new Position16<RoomPixels>(0, 0));
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.CeresRidley, new Position16<RoomPixels>(0, 0));
         GameplayDisplayLatch arena = runtime.PublishDisplayFrame().Latched;
         AssertTrue(arena.PerspectiveFloor is null,
             "door setup $8F:E513 removes the elevator shaft's floor");

@@ -11,8 +11,8 @@ internal static class RoomPictureClosedContractDefinitions
     /// <summary>The retail room states the import walks and the tileset each selects.</summary>
     private static readonly ReviewedSource[] RetailStates =
     [
-        new("csharp/src/SuperMetroid.Core/Rooms/RoomHeaderDefinitions.cs"),
-        new("csharp/src/SuperMetroid.AssetExtraction/Rooms/RetailRoomHeaders.cs"),
+        new("csharp/src/SuperMetroid.Core/Rooms/RoomDefinitions.cs"),
+        new("csharp/src/SuperMetroid.AssetExtraction/Rooms/RetailRooms.cs"),
         new("csharp/src/SuperMetroid.AssetExtraction/World/RoomStates/RoomStateLists.cs"),
         new("csharp/src/SuperMetroid.Core/Rooms/LevelData/RoomTilesets.cs"),
         new("csharp/src/SuperMetroid.Core/World/RoomStates/SelectedRoom.cs"),

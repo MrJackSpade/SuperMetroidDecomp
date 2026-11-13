@@ -85,7 +85,7 @@ internal static class RoomFxRetailInventoryVerification
 
         var doorByPointer = doors.ToDictionary(door => door.Pointer);
         ILookup<ushort, DoorDefinition> incomingDoors = doors
-            .ToLookup(door => RoomHeaderDefinitions.PointerOf(door.DestinationRoom));
+            .ToLookup(door => RoomDefinitions.PointerOf(door.DestinationRoom));
         var classifications = new Dictionary<RetailLiquidClassification, int>();
         var auditedStatePointers = new HashSet<ushort>();
         var knownExamples = new Dictionary<RoomIdentity, HashSet<RetailLiquidClassification>>();

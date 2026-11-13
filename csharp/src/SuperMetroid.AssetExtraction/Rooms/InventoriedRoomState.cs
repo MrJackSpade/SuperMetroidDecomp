@@ -201,7 +201,7 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
     /// background scrolls over its level data, as the room streams it; otherwise the background shows a library background
     /// or nothing of the level.
     /// </summary>
-    internal static InventoriedRoomState Of(RoomHeaderDefinition room, RoomStateSettings state, RoomLevelArtwork level,
+    internal static InventoriedRoomState Of(RoomDefinition room, RoomStateSettings state, RoomLevelArtwork level,
         InstalledRoomLevel terrain, IReadOnlySet<RoomTerrainReaction> straddledShots, IEnumerable<DoorDefinition> entrances)
     {
         Ensure.NotNull(room);

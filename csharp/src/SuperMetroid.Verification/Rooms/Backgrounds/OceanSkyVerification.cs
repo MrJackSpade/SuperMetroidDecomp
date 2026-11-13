@@ -25,7 +25,7 @@ internal static class OceanSkyVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.WestOcean, camera: new Position16<RoomPixels>(128, 768));
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.WestOcean, camera: new Position16<RoomPixels>(128, 768));
         // Capture consumes the accepted NMI's register snapshot, not the room's mutable scroll state.
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var scene = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());

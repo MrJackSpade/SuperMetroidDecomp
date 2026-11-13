@@ -308,7 +308,7 @@ public static class GameplayDisplayCapture
             throw new NotSupportedException("X-ray display requires ordinary gameplay layers.");
         GameplayDisplayLatch latched = frame.Latched;
         GameplayLatchedScene scene = latched.Scene;
-        RoomHeaderDefinition xrayRoom = scene.Room ?? throw new InvalidOperationException("X-ray has no room.");
+        RoomDefinition xrayRoom = scene.Room ?? throw new InvalidOperationException("X-ray has no room.");
         var scrolls = latched.Scrolls;
         var mode = XrayRoomDisplayRules.Select(xrayRoom, scene.FxType, scene.Boss);
         bool reveal = mode == XrayRoomBlendMode.RevealBlocks;

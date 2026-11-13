@@ -27,7 +27,7 @@ internal static class RidleyAcidVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Ridley);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Ridley);
         // The room load's queued uploads, the acid's characters among them, are shown once its first frame drains them.
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var fx = runtime.RoomFxOverlay;

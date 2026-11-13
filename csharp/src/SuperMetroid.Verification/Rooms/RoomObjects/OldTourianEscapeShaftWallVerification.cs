@@ -31,7 +31,7 @@ internal static class OldTourianEscapeShaftWallVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(StoryEvent.ZebesTimebombSet);
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Climb);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Climb);
         AssertTrue(runtime.RoomObjects.PopulationSlots.Any(slot => slot.Behaviour is OldTourianWallObject),
             "the escape state's setup spawns the fake-wall PLM");
 

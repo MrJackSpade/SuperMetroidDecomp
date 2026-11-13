@@ -76,7 +76,7 @@ internal static class GModeGateGlitchVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.KronicBoost);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.KronicBoost);
 
         RoomLevelData level = runtime.Room.LoadedLevelData;
         RoomObjectSystem roomObjects = runtime.RoomObjects;
@@ -164,7 +164,7 @@ internal static class GModeGateGlitchVerification
         AssertEqual(SamusSpecialPaletteType.None, samus.Xray.SpecialPaletteKind,
             "indirect G-Mode transition removes the stranded X-Ray palette handler");
 
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.KronicBoost);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.KronicBoost);
         AssertTrue(runtime.Enemies.Projectiles.EnemyProjectiles.All(projectile =>
                 !projectile.IsActive || projectile.Kind is not (
                     RoomEnemyProjectileKind.DownwardGateClosed or

@@ -60,7 +60,7 @@ internal sealed class ShutterBombArcScenario
         Runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         Runtime.RoomLoader.InitializeStartingCeresRoom();
         Runtime.RoomLoader.InitializeCeresStartSamus();
-        Runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.XrayScope);
+        Runtime.LoadCartridgeRoomForDebug(RoomDefinitions.XrayScope);
         var samus = Samus;
         var platform = Platform;
         samus.Control.Unlock();

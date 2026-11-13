@@ -24,7 +24,7 @@ internal static class JumpNoXMovementVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.RedFish);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.RedFish);
         var samus = runtime.Player.IntroducedSamus;
         samus.Pose = SamusPoseId.NormalJumpAimDownLeftPose;
         samus.Position = samus.Position.WithWhole(new(0x0225, 0x004a));

@@ -141,7 +141,7 @@ internal static class RoomObjectPopulationVerification
                 new RoomBlockBehavior[16]);
             var door = new DoorDefinition(
                 Name: "fixture door",
-                DestinationRoom: FixtureRoomHeaders.UnloadedDestination,
+                DestinationRoom: FixtureRooms.UnloadedDestination,
                 Orientation: DoorRecordCodec.DecodeOrientation(direction),
                 RoomObjectBlock: new(1, 1),
                 DestinationScreen: new(0, 0),
@@ -220,7 +220,7 @@ internal static class RoomObjectPopulationVerification
 
             var enteringDoor = new DoorDefinition(
                 Name: "fixture door",
-                DestinationRoom: FixtureRoomHeaders.UnloadedDestination,
+                DestinationRoom: FixtureRooms.UnloadedDestination,
                 Orientation: new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses),
                 RoomObjectBlock: new(blockX, blockY),
                 DestinationScreen: new(0, 0),
@@ -246,7 +246,7 @@ internal static class RoomObjectPopulationVerification
             "a shot blue cap stands at the door's block");
         var blueDoor = new DoorDefinition(
             Name: "fixture door",
-            DestinationRoom: FixtureRoomHeaders.UnloadedDestination,
+            DestinationRoom: FixtureRooms.UnloadedDestination,
             Orientation: new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses),
             RoomObjectBlock: new(1, 1),
             DestinationScreen: new(0, 0),
@@ -415,7 +415,7 @@ internal static class RoomObjectPopulationVerification
 
         var enteringDoor = new DoorDefinition(
             Name: nameof(CrateriaDoorDefinitions.Flyway1),
-            DestinationRoom: RoomHeaderDefinitions.BombTorizo,
+            DestinationRoom: RoomDefinitions.BombTorizo,
             Orientation: new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses),
             RoomObjectBlock: new(doorX, doorY),
             DestinationScreen: new(0, 0),
@@ -520,7 +520,7 @@ internal static class RoomObjectPopulationVerification
 
         var enteringDoor = new DoorDefinition(
             Name: nameof(BrinstarDoorDefinitions.GreenBrinstarMainShaft1),
-            DestinationRoom: RoomHeaderDefinitions.BrinstarPreMap,
+            DestinationRoom: RoomDefinitions.BrinstarPreMap,
             Orientation: new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses),
             RoomObjectBlock: new(doorX, doorY),
             DestinationScreen: new(0, 0),
@@ -884,7 +884,7 @@ internal static class RoomObjectPopulationVerification
         RoomObjectFixtures.LoadPopulation(ref escape, new RoomObjectRoom(escapeLevel, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Tourian), RoomObjectPopulationImporter.Read(guarded, population), new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
         var motherBrainExit = new DoorDefinition(
             Name: nameof(TourianDoorDefinitions.MotherBrain1),
-            DestinationRoom: RoomHeaderDefinitions.TourianEscape1,
+            DestinationRoom: RoomDefinitions.TourianEscape1,
             Orientation: new(DoorDirection.Left, DoorClosingBehavior.EscapeGateCloses),
             RoomObjectBlock: new(gateX, gateY),
             DestinationScreen: new(0, 0),

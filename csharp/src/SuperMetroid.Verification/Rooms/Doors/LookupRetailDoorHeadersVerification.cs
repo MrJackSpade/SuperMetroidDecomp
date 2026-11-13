@@ -68,7 +68,7 @@ internal static class LookupRetailDoorHeadersVerification
 
     /// <summary>Matches each door's two-byte destination room pointer at record offset zero.</summary>
     private static void VerifyDoorHeaderDestinationRoomPointer(CartridgeImportAddressSpace rom) =>
-        VerifyDoorHeaderField<int>(rom, 0, 2, raw => raw, header => RoomHeaderDefinitions.PointerOf(header.DestinationRoom));
+        VerifyDoorHeaderField<int>(rom, 0, 2, raw => raw, header => RoomDefinitions.PointerOf(header.DestinationRoom));
     /// <summary>The orientation byte at offset three decodes to the compiled direction and closing behavior.</summary>
     private static void VerifyDoorHeaderOrientation(CartridgeImportAddressSpace rom) =>
         VerifyDoorHeaderField(rom, 3, 1, raw => DoorRecordCodec.DecodeOrientation(checked((byte)raw)), header => header.Orientation);

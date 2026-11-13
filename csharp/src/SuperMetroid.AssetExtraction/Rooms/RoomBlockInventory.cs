@@ -88,13 +88,13 @@ internal sealed class RoomBlockInventory
     private static IEnumerable<InventoriedRoomState> RetailStates(RoomLevelArtworks levels, InstalledRoomLevelStreams terrain,
         StraddledTerrain<RoomTerrainBlock> straddled)
     {
-        ILookup<RoomHeaderDefinition, DoorDefinition> entrances = RoomDoorListDefinitions.ByRoom.Values
+        ILookup<RoomDefinition, DoorDefinition> entrances = RoomDoorListDefinitions.ByRoom.Values
             .SelectMany(list => list)
             .Select(entry => entry.Door)
             .OfType<DoorDefinition>()
             .ToLookup(door => door.DestinationRoom);
         var straddledShots = new Dictionary<InstalledRoomLevel, IReadOnlySet<RoomTerrainReaction>>();
-        foreach (RoomHeaderDefinition room in RetailRoomHeaders.All)
+        foreach (RoomDefinition room in RetailRooms.All)
         {
             foreach (RoomStateSettings state in RoomStateLists.GetStates(room))
             {

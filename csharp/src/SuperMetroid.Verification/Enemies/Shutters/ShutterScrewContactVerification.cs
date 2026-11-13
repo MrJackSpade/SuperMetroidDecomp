@@ -29,7 +29,7 @@ internal static class ShutterScrewContactVerification
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
-            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.ThreeMusketeers);
+            runtime.LoadCartridgeRoomForDebug(RoomDefinitions.ThreeMusketeers);
             var samus = runtime.Player.IntroducedSamus;
             RoomEnemySlot shutter = runtime.Enemies.SlotTable.Slots[10];
             VerticalShutterEnemyState state = (runtime.Enemies.VerticalShutterStates[10] ?? throw new InvalidOperationException("Verification requires runtime.Enemies.VerticalShutterStates[10]."));

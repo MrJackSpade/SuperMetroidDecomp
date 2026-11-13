@@ -28,7 +28,7 @@ internal static class GrappleSpinVerification
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
-            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.WestOcean);
+            runtime.LoadCartridgeRoomForDebug(RoomDefinitions.WestOcean);
             var samus = runtime.Player.IntroducedSamus;
             samus.Control.Unlock();
             samus.Position = samus.Position.WithWhole(new(512, 256));

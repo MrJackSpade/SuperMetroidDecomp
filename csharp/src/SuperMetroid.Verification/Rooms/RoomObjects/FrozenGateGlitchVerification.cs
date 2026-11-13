@@ -70,7 +70,7 @@ internal static class FrozenGateGlitchVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(
-            RoomHeaderDefinitions.Caterpillar,
+            RoomDefinitions.Caterpillar,
             new Position16<RoomPixels>(FrozenGateCameraX, FrozenGateCameraY));
 
         RoomLevelData level = runtime.Room.LoadedLevelData;

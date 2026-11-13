@@ -32,7 +32,7 @@ internal static class MotherBrainRinkaDoorSpawnVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.RinkaShaft);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.RinkaShaft);
         var samus = runtime.Player.IntroducedSamus;
         samus.PoseId = SamusPoseId.FacingLeftNormalPose;
         samus.Position = samus.Position.WithWhole(new(0x14, 0x028b));
@@ -52,7 +52,7 @@ internal static class MotherBrainRinkaDoorSpawnVerification
             var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock ||
                 level.ResolveDoorCollision(block.Behavior, samus.Pose.ForRoomCollision(), publishDoorSideEffects: false)
-                    .Door?.DestinationRoom != RoomHeaderDefinitions.MotherBrain)
+                    .Door?.DestinationRoom != RoomDefinitions.MotherBrain)
                 continue;
             level.ResolveDoorCollision(block.Behavior, samus.Pose.ForRoomCollision(), publishDoorSideEffects: true);
             selected = true;
@@ -62,7 +62,7 @@ internal static class MotherBrainRinkaDoorSpawnVerification
         for (int guard = 0; game.GameState != SuperMetroidGameState.MainGameplay && guard < 600; guard++)
             game.Step(0);
         AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "the door transition completes");
-        AssertEqual(RoomHeaderDefinitions.MotherBrain, runtime.Room.LoadedRoom.Definition, "Samus is in Mother Brain's room");
+        AssertEqual(RoomDefinitions.MotherBrain, runtime.Room.LoadedRoom.Definition, "Samus is in Mother Brain's room");
 
         RoomEnemySlot[] rinkas = runtime.Enemies.SlotTable.Slots
             .Where(slot => slot.DefinitionId == EnemyDefinitionId.Rinka && slot.SpawnSettings<RinkaSpawnSettings>().Placement == RinkaPlacement.FreeSpawnPoint)

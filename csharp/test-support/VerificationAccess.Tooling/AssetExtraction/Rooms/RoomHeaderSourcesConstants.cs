@@ -10,7 +10,7 @@ internal static class RoomHeaderSourcesConstants
     public static bool Contains(ushort pointer) => RoomHeaderSourceDefinitions.ByPointer.ContainsKey(pointer);
     /// <summary>The header pointer of the room named like <paramref name="room"/>.</summary>
     /// <exception cref="InvalidOperationException">No compiled room header, or more than one, is named like the room.</exception>
-    public static ushort PointerOf(RoomHeaderDefinition room)
+    public static ushort PointerOf(RoomDefinition room)
     {
         Ensure.NotNull(room);
         return PointersByName.Value[room.Name].Single();

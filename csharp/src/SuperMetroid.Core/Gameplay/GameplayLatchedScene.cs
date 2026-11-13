@@ -17,5 +17,5 @@ public readonly record struct GameplayLatchedScene(
     RoomFxType FxType,
     RoomEffectBlend? Blend,
     LatchedScrollingSky? ScrollingSky,
-    RoomHeaderDefinition? Room,
+    RoomDefinition? Room,
     AreaBoss? Boss);

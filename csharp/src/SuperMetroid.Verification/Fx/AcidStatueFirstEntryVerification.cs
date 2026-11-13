@@ -24,8 +24,8 @@ internal static class AcidStatueFirstEntryVerification
     /// <summary>Follows the retail door and checks drained acid height and pixels during destination fade.</summary>
     internal static void VerifyAcidStatueFirstEntry()
     {
-        RoomHeaderDefinition sourceRoom = RoomHeaderDefinitions.MainHall;
-        RoomHeaderDefinition destinationRoom = RoomHeaderDefinitions.AcidStatue;
+        RoomDefinition sourceRoom = RoomDefinitions.MainHall;
+        RoomDefinition destinationRoom = RoomDefinitions.AcidStatue;
         const ushort drainedAcidY = 0x02d2;
 
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -81,7 +81,7 @@ internal static class AcidStatueFirstEntryVerification
         {
             DoorTransitionPhase phase = transition.Phase;
             transition.Step(runtime, audio, 0, SuperMetroid.Core.Compatibility.InstantRoomLoad.Instance);
-            RoomHeaderDefinition activeRoom = runtime.Room.LoadedRoom.Definition;
+            RoomDefinition activeRoom = runtime.Room.LoadedRoom.Definition;
             RoomFxOverlayRenderSnapshot? displayed = runtime.Display.DisplayedRoomFxOverlay;
             if (activeRoom != destinationRoom)
                 continue;

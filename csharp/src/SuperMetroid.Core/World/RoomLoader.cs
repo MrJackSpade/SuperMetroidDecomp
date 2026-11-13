@@ -1072,7 +1072,7 @@ internal sealed class RoomLoader
     /// no production path executes selector data. Keeping this at the shared loader
     /// boundary prevents doors, save stations, and attract scenes from choosing differently.
     /// </remarks>
-    internal SelectedRoom LoadSelectedRoom(RoomHeaderDefinition room)
+    internal SelectedRoom LoadSelectedRoom(RoomDefinition room)
     {
         AreaId areaIndex = Ensure.NotNull(room).AreaIndex;
 

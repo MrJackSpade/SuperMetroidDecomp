@@ -27,7 +27,7 @@ internal static class RoomScopeVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LandingSite);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
         RoomScope source = runtime.Room.Scope ?? throw new InvalidOperationException("The debug load adopted no scope.");
         ScrollBoundaryCamera previous = source.Camera;
         previous.Position = previous.Position.WithFractionsOf(FixedPosition<RoomPixels>.FromStoredParts(0, 0x1234, 0, 0x5678));
@@ -48,11 +48,11 @@ internal static class RoomScopeVerification
         sourceShot.Damage = 1;
         sourceShot.Position = FixedPosition<RoomPixels>.FromStoredParts(0x0120, 0x4321, 0x0080, 0x8765);
 
-        SelectedRoom parlor = runtime.RoomLoader.LoadSelectedRoom(RoomHeaderDefinitions.Parlor);
+        SelectedRoom parlor = runtime.RoomLoader.LoadSelectedRoom(RoomDefinitions.Parlor);
         var camera = new Position16<RoomPixels>(0, 0);
         var door = new DoorDefinition(
             Name: "room scope verification door",
-            DestinationRoom: RoomHeaderDefinitions.Parlor,
+            DestinationRoom: RoomDefinitions.Parlor,
             Orientation: new(DoorDirection.Right, DoorClosingBehavior.None),
             RoomObjectBlock: default,
             DestinationScreen: camera.ToRoomScreen(),

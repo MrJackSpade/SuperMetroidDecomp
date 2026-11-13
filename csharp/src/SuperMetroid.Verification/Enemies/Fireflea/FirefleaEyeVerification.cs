@@ -23,7 +23,7 @@ internal static class FirefleaEyeVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LNFireflea);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LNFireflea);
         AssertEqual(RoomFxType.Fireflea, runtime.RoomFxOverlay.Type, "reported room uses Fireflea darkness");
         var eye = runtime.Enemies.SlotTable.Slots[0];
         AssertEqual(EnemyDefinitionId.Fune, eye.DefinitionId, "reported rock eye is retail Fune/Namihe family");

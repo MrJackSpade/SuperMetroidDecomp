@@ -53,7 +53,7 @@ internal static class DraygonGrabVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Draygon);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Draygon);
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.Pose = SamusPoseId.MovingLeftNormalPose;
         samus.XSpeedDivisor = 1;

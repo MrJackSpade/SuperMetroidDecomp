@@ -31,7 +31,7 @@ internal static class CeresRidleyPicturesVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.CeresRidley);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.CeresRidley);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var ridley = new RidleyEnemyState { Function = RidleyAiFunction.CeresActivateSelfDestruct };
         runtime.Enemies.RidleyEncounter.Ridley = ridley;

@@ -34,7 +34,7 @@ internal static class GateJumpTraceVerification
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
-            runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.KronicBoost);
+            runtime.LoadCartridgeRoomForDebug(RoomDefinitions.KronicBoost);
             var samus = runtime.Player.IntroducedSamus;
             samus.Control.Unlock();
             samus.PoseId = SamusPoseId.StandingAimDiagonalUpLeftPose;

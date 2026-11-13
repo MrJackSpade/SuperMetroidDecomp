@@ -36,7 +36,7 @@ internal static class GroundedSpreadTransitionVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LandingSite);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
         var level = runtime.Room.LoadedLevelData;
         // A local flat clearing isolates the input/pose/charge path from slopes,
         // gunship interaction and scenery. The actual runtime still drives each tick.

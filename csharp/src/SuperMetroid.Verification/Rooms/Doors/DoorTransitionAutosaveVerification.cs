@@ -70,11 +70,11 @@ internal static class DoorTransitionAutosaveVerification
             AssertThrows<FileNotFoundException>(() => store.Load(DebuggerStateFormat.AutomaticSlot), "missing auto load error");
             AssertThrows<ArgumentOutOfRangeException>(() => store.GetSlotPath(11), "no other implicit slots");
 
-            var doorBlocks = new Dictionary<(RoomHeaderDefinition Source, RoomHeaderDefinition Destination), Position16<RoomBlocks>>();
-            PrepareDoor(RoomHeaderDefinitions.Parlor, RoomHeaderDefinitions.LandingSite);
+            var doorBlocks = new Dictionary<(RoomDefinition Source, RoomDefinition Destination), Position16<RoomBlocks>>();
+            PrepareDoor(RoomDefinitions.Parlor, RoomDefinitions.LandingSite);
             int writes = FinishDoor(enabled: true);
             AssertEqual(1, writes, "one autosave only at completed transition");
-            AssertEqual(RoomHeaderDefinitions.LandingSite, (game.GameplayActiveRoom ?? throw new InvalidOperationException("Verification requires game.GameplayActiveRoom.")), "autosave destination is Landing Site");
+            AssertEqual(RoomDefinitions.LandingSite, (game.GameplayActiveRoom ?? throw new InvalidOperationException("Verification requires game.GameplayActiveRoom.")), "autosave destination is Landing Site");
             byte[] first = File.ReadAllBytes(autoPath);
             var loaded = store.Load(DebuggerStateFormat.AutomaticSlot);
             AssertEqual(SuperMetroidGameState.MainGameplay, loaded.Game.GameState, "auto resumes after destination fade");
@@ -105,13 +105,13 @@ internal static class DoorTransitionAutosaveVerification
             AssertTrue(first.SequenceEqual(File.ReadAllBytes(autoPath)), "advancing gameplay preserves transition snapshot");
             AssertTrue(DoorTransitionAutosave.TrySave(true, true, SuperMetroidGameState.DoorTransition,
                 store, game) is null, "replay does not overwrite recovery");
-            PrepareDoor(RoomHeaderDefinitions.LandingSite, RoomHeaderDefinitions.Parlor);
+            PrepareDoor(RoomDefinitions.LandingSite, RoomDefinitions.Parlor);
             AssertEqual(1, FinishDoor(enabled: true), "second transition writes one replacement");
-            AssertEqual(RoomHeaderDefinitions.Parlor.Name, (store.Load(DebuggerStateFormat.AutomaticSlot).Metadata.Room ?? throw new InvalidOperationException("Verification requires store.Load(DebuggerStateFormat.AutomaticSlot).Metadata.Room.")),
+            AssertEqual(RoomDefinitions.Parlor.Name, (store.Load(DebuggerStateFormat.AutomaticSlot).Metadata.Room ?? throw new InvalidOperationException("Verification requires store.Load(DebuggerStateFormat.AutomaticSlot).Metadata.Room.")),
                 "second auto points at new destination");
             byte[] second = File.ReadAllBytes(autoPath);
             AssertTrue(!first.SequenceEqual(second), "second transition replaces auto");
-            PrepareDoor(RoomHeaderDefinitions.Parlor, RoomHeaderDefinitions.LandingSite);
+            PrepareDoor(RoomDefinitions.Parlor, RoomDefinitions.LandingSite);
             AssertEqual(0, FinishDoor(enabled: false), "disabled transition makes no autosave");
             AssertTrue(second.SequenceEqual(File.ReadAllBytes(autoPath)), "disabled policy preserves prior auto");
             // Keep the destination open without delete sharing: replacement must fail
@@ -157,7 +157,7 @@ internal static class DoorTransitionAutosaveVerification
                 }
                 throw new InvalidDataException("Autosave fixture door did not complete.");
             }
-            void PrepareDoor(RoomHeaderDefinition source, RoomHeaderDefinition destination)
+            void PrepareDoor(RoomDefinition source, RoomDefinition destination)
             {
                 Position16<RoomBlocks> doorBlock = FindDoor(source, destination);
                 int x = doorBlock.X, y = doorBlock.Y;
@@ -175,7 +175,7 @@ internal static class DoorTransitionAutosaveVerification
             // The door block leading from a source room to a destination, found in the room's cartridge level the first
             // time that door is asked for (#1532): a repeated door reuses it instead of loading the room once more to
             // search its unchanged level again.
-            Position16<RoomBlocks> FindDoor(RoomHeaderDefinition source, RoomHeaderDefinition destination)
+            Position16<RoomBlocks> FindDoor(RoomDefinition source, RoomDefinition destination)
             {
                 if (doorBlocks.TryGetValue((source, destination), out Position16<RoomBlocks> known))
                     return known;

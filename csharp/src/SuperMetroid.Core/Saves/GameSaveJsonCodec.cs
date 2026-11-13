@@ -454,8 +454,8 @@ public static class GameSaveJsonCodec
     }
 
     /// <summary>
-    /// Records the stations of <paramref name="area"/> the save lists by their numbers as used, rejecting duplicates,
-    /// disorder and a number that names no station Samus uses.
+    /// Records the stations of <paramref name="area"/> the save lists by their numbers as used, rejecting duplicates and
+    /// disorder. A number that names no station Samus uses is not kept, as the other save decoders drop it.
     /// </summary>
     private static void DecodeStations(int[] numbers, AreaId area, ProgressSet<LoadStation> used, string property)
     {
@@ -465,11 +465,12 @@ public static class GameSaveJsonCodec
             int number = numbers[index];
             if (number <= previous)
                 throw new InvalidDataException($"{property} must be strictly increasing without duplicates");
-            LoadStation station = LoadStationNumberCodec.Find(area, number) is { } found && LoadStationDefinitions.Usable.Contains(found)
-                ? found
-                : throw new InvalidDataException($"{property}[{index}]={number} names no station Samus uses");
-            used.Add(station);
             previous = number;
+            // A save written while the used-station record kept every number can list such a number: a glitched beam's
+            // overwrite of the record marks numbers no station has. They name no station, nothing in the game reads them
+            // and the record has no place for them, so they are dropped rather than rejected.
+            if (LoadStationNumberCodec.Find(area, number) is { } station && LoadStationDefinitions.Usable.Contains(station))
+                used.Add(station);
         }
     }
 }

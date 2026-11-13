@@ -39,7 +39,6 @@ internal static class AndroidBundleReplay
 
         string romPath = Path.GetFullPath("Super Metroid.smc");
         var importBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
-        SuperMetroidAddressSpace bus = importBus;
         if (!SHA256.HashData(importBus.Rom).SequenceEqual(recording.RomSha256))
             throw new InvalidDataException("Local ROM does not match Android recording digest.");
         ClipAudioLibrary assets = RepositoryInstallation.Installation.LoadAudioClips().Clips;
@@ -62,9 +61,7 @@ internal static class AndroidBundleReplay
                 var store = DebuggerSaveStateStoreTooling.ForCartridge(romPath, importBus.Rom, identity, content, temporary);
                 using (var output = File.Create(store.GetSlotPath(0)))
                 using (var input = Required(bundle, "input-recordings/" + seed).Open()) input.CopyTo(output);
-                var loaded = store.Load(0);
-                bus = loaded.AddressSpace;
-                game = loaded.Game;
+                game = store.Load(0).Game;
                 // Compare decoded saves: the journal's image may hold padding or noncanonical marker bytes the store
                 // does not keep, so its canonical encoding is what a matching seed reproduces.
                 if (!SaveRamCodec.Encode(game.Saves, maps).SequenceEqual(SaveRamCodec.Encode(journalSaves, maps)))

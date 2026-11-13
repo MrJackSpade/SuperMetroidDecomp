@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms;
 
 /// <summary>
 /// The authored parts of one door entry into Landing Site that are needed before
-/// the first gameplay frame: camera screen and door-selected scrolling-sky transfer.
+/// the first gameplay frame: camera screen and door-selected scrolling sky.
 /// </summary>
 [RoomLifetime]
 public sealed record LandingSiteEntryState(

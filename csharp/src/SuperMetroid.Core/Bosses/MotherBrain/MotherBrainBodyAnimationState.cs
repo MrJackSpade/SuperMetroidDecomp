@@ -1,12 +1,12 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// The enemy-instruction state needed by Mother Brain's locomotion and posture
+/// The animation state needed by Mother Brain's locomotion and posture
 /// animations.
 /// </summary>
 /// <remarks>
 /// Mother Brain's body movement is not performed by her AI function. The AI installs one of
-/// the body programs (<see cref="MotherBrainBodyProgram"/>); the enemy instruction stage later advances
+/// the body programs (<see cref="MotherBrainBodyProgram"/>); the enemy animation stage later advances
 /// that program and its cues mutate body position, pose, the background's alignment, footsteps,
 /// and the displayed frame. Keeping that second processing stage explicit is
 /// essential: replacing a requested walk with a direct X adjustment would skip roughly ninety
@@ -19,7 +19,7 @@ public sealed class MotherBrainBodyAnimationState
     public Position16<RoomPixels> Position { get; set; }
 
     /// <summary>
-    /// Body pose word. The admitted programs publish standing, walking, the
+    /// Body pose. The admitted programs publish standing, walking, the
     /// posture transition, crouched and leaning down.
     /// </summary>
     public MotherBrainBodyPose Pose { get; set; }

@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies.NoobTube;
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// The n00b tube's crack, glass shard and released-air bubble programs (#641), one per list a spawn, branch or family routine enters, in authored order.
+/// The n00b tube's crack, glass shard and released-air bubble programs (#641), one per list a spawn, branch or family step enters, in authored order.
 /// Generated from the verified lists; see <see cref="NoobTubeProjectileAnimations"/>.
 /// </summary>
 internal enum NoobTubeProjectileProgram

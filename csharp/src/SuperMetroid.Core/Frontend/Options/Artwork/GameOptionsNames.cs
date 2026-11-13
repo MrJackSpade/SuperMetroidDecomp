@@ -4,7 +4,7 @@ using static SuperMetroid.Core.Frontend.Options.Artwork.GameOptionsPresentationD
 namespace SuperMetroid.Core.Frontend.Options.Artwork;
 
 /// <summary>
-/// Names the options document's tilemaps, headings, controller labels and toggles, and counts each menu page's
+/// Names the options document's pictures, headings, controller labels and toggles, and counts each menu page's
 /// cursor rows (<see cref="GameOptionsPresentationDefinitions"/>).
 /// </summary>
 public static class GameOptionsNames

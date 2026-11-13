@@ -17,9 +17,7 @@ namespace SuperMetroid.Core.Samus;
 /// </summary>
 /// <remarks>
 /// This class owns the state shared by the exact standing/right-running render, animation,
-/// and grounded movement slices. It does not claim to port damage, equipment, most poses,
-/// or the Landing Site cinematic actor. Keeping those boundaries blunt is preferable to
-/// filling unported behavior with plausible-looking host code.
+/// and grounded movement slices. The Landing Site cinematic actor is not part of it.
 /// </remarks>
 public sealed class SamusState
 {
@@ -51,7 +49,7 @@ public sealed class SamusState
         {
             field = value;
             InitializedPose = value;
-            // Block collision reads the global pose word directly while resolving special
+            // Block collision reads the global pose directly while resolving special
             // elevator doors. Mirror every pose write into the collision snapshot so the
             // low-level dispatcher can reproduce that test without owning Samus state.
             Kinematics.CollisionPose = value;
@@ -110,7 +108,7 @@ public sealed class SamusState
 
     /// <summary>
     /// Animation frame countdown. Zero and negative-after-decrement both advance,
-    /// matching the original routine's zero and positive tests.
+    /// matching the game's zero and positive tests.
     /// </summary>
     public WrappingCountdown AnimationFrameTimer { get; internal set; }
 
@@ -128,15 +126,15 @@ public sealed class SamusState
     public SamusHorizontalSpeedState HorizontalSpeed { get; } = new();
 
     /// <summary>
-    /// Live room-FX surface words and remembered liquid medium. Physics, animation, and
+    /// Live room-FX surface values and remembered liquid medium. Physics, animation, and
     /// pose initialization intentionally share this object because the game shares
-    /// room-FX words across all three phases.
+    /// room-FX values across all three phases.
     /// </summary>
     public SamusLiquidPhysicsState LiquidPhysics { get; }
 
     /// <summary>
     /// Stored-shine palette countdown and the special shinespark movement-handler state.
-    /// Its fields map to the reused words documented on
+    /// Its fields are the values documented on
     /// <see cref="SamusShinesparkState"/> and keep their individual values.
     /// </summary>
     public SamusShinesparkState Shinespark { get; }
@@ -158,13 +156,13 @@ public sealed class SamusState
     /// <summary>
     /// Crystal Flash initiation, ammo cadence, energy restoration, and installed handler
     /// state. It is deliberately separate from <see cref="Shinespark"/> even though the
-    /// original aliases a few words between the mutually exclusive effects.
+    /// game shares a few values between the mutually exclusive effects.
     /// </summary>
     public SamusCrystalFlashState CrystalFlash { get; }
 
     /// <summary>
     /// X-ray admission, dedicated pose input/movement, beam-angle state, visor palette, and
-    /// teardown. Revealed-block tilemaps and the cone window remain presentation-owned outputs.
+    /// teardown. Revealed-block pictures and the cone window remain presentation-owned outputs.
     /// </summary>
     public SamusXrayState Xray { get; } = new();
 
@@ -182,7 +180,7 @@ public sealed class SamusState
 
     /// <summary>
     /// The grabbed-pose hack handler and the narrow owner-position seam.
-    /// Draygon's enemy AI owns its own flight path; this child owns every Samus-side word.
+    /// Draygon's enemy AI owns its own flight path; this child owns every Samus-side value.
     /// </summary>
     public SamusDraygonGrabbedState DraygonGrabbed { get; }
 
@@ -277,7 +275,7 @@ public sealed class SamusState
 
     /// <summary>
     /// The missile reserve. Super Metroid never exposes a missile-reserve tank in normal
-    /// play, but its shared restore routine still sends overflow here and caps it at either
+    /// play, but its shared restore still sends overflow here and caps it at either
     /// max missiles or 99. Retaining the otherwise-unused value makes enemy drops exact.
     /// </summary>
     public int ReserveMissiles { get; set; }
@@ -309,7 +307,7 @@ public sealed class SamusState
     /// <summary>
     /// Collected-beam bitfield. Unlike
     /// <see cref="EquippedBeams"/>, this retains beams disabled from the pause equipment
-    /// screen and is therefore the authoritative ownership word the save file keeps.
+    /// screen and is therefore the authoritative ownership record the save file keeps.
     /// </summary>
     public SamusBeamFlags CollectedBeams { get; set; }
 
@@ -322,7 +320,7 @@ public sealed class SamusState
 
     /// <summary>
     /// The shared bomb-spread charge timeout. The game clears this
-    /// word in the morphing-transition pose initializer after a
+    /// timeout in the morphing-transition pose initializer after a
     /// successful Morph Ball item check, regardless of the humanoid movement family that
     /// selected the transition. Keeping it separate from the beam flare counter prevents a
     /// mid-air morph from accidentally cancelling ordinary arm-cannon charge state.
@@ -350,16 +348,15 @@ public sealed class SamusState
     public bool HyperBeamEnabled { get; set; }
 
     /// <summary>
-    /// Equipped-item bitfield. Bit two is Morph
-    /// Ball, bit one is Spring Ball, and bit twelve is Bombs. Animation
-    /// command's equipment test and the Morph-Ball projectile handler read this word directly.
+    /// Equipped-item flags. The animation command's equipment test and the Morph-Ball projectile
+    /// handler read them directly.
     /// </summary>
     public SamusEquipmentFlags EquippedItems { get; set; }
 
     /// <summary>
     /// Collected-item bitfield. This normally contains
-    /// every equipped item, but equipment-menu toggles can make the two words differ. Enemy
-    /// logic such as the morph-ball eye tests ownership through this word specifically.
+    /// every equipped item, but equipment-menu toggles can make the two sets differ. Enemy
+    /// logic such as the morph-ball eye tests ownership through this set specifically.
     /// </summary>
     public SamusEquipmentFlags CollectedItems { get; set; }
 
@@ -417,7 +414,7 @@ public sealed class SamusState
 
     /// <summary>
     /// Initialized to five by enemy damage collision and decremented once
-    /// per enemy-processing pass. The translated special handler owns movement only while
+    /// per enemy-processing pass. The special handler owns movement only while
     /// this counter remains nonzero.
     /// </summary>
     public int KnockbackTimer { get; set; }
@@ -435,8 +432,8 @@ public sealed class SamusState
     }
 
     /// <summary>
-    /// The grapple-beam state. Keeping this as a named child object makes the original
-    /// words individually watchable without polluting ordinary Samus kinematics.
+    /// The grapple-beam state. Keeping this as a named child object makes the grapple
+    /// values individually watchable without polluting ordinary Samus kinematics.
     /// </summary>
     public SamusGrappleState Grapple { get; } = new();
 
@@ -458,7 +455,7 @@ public sealed class SamusState
     /// <remarks>
     /// Holds the enemy slot, or null for none. Enemy AI owns consumption.
     /// Retaining the slot now makes the movement result complete even before the general
-    /// live-enemy update loop is translated.
+    /// live-enemy update loop is modelled.
     /// </remarks>
     public int? EnemySlotToShake { get; set; }
 
@@ -498,7 +495,7 @@ public sealed class SamusState
     /// </remarks>
     public SamusPoseId? PendingTransitionalPose { get; internal set; }
 
-    /// <summary>Exact fixed-point position/radius words consumed by collision.</summary>
+    /// <summary>Exact fixed-point position and radius values consumed by collision.</summary>
     public SamusKinematicsState Kinematics { get; }
 
     /// <summary>
@@ -532,7 +529,7 @@ public sealed class SamusState
     internal bool HeavySpikeDamageEnabled { get; set; } = true;
 
     /// <summary>Creates independent player state and owned movement/special-sequence children, binding live kinematics back to this owner and seeding its collision pose with the standing-right default.</summary>
-    /// <remarks>Construction performs no reads of the original data and does not initialize room position, pose-dependent radii, animation data, or installed artwork; gameplay setup supplies those separately.</remarks>
+    /// <remarks>Construction reads no game data and does not initialize room position, pose-dependent radii, animation data, or installed artwork; gameplay setup supplies those separately.</remarks>
     /// <param name="animationContinuation">What an animation frame past her pose's program reads, the session's installed service.</param>
     /// <param name="unauthoredBoostCadence">The session's unauthored Speed Booster cadence, which outlives her.</param>
     /// <param name="compatibility">The compatibility services she owns, created with her by whoever builds her.</param>
@@ -569,7 +566,7 @@ public sealed class SamusState
     public SignedSixteenSixteen HorizontalDistanceMovedPlusOne { get; internal set; }
 
     /// <summary>
-    /// The solid vertical collision result the latest vertical movement or wall jump published. Most translated
+    /// The solid vertical collision result the latest vertical movement or wall jump published. Most
     /// movement methods return collision results directly; Draygon-held movement has no displacement and its sole
     /// side effect is explicitly clearing this otherwise-stale result.
     /// </summary>
@@ -737,8 +734,8 @@ level,
     /// cross from the solid lower quadrant into an air upper quadrant at its final boundary.
     /// A single final-boundary scan therefore misses the floor, expands Samus downward, and
     /// lets her fall through the platform. Each probe uses a separate kinematics copy because
-    /// the game collision routine publishes a distance without moving live Samus.
-    /// The probe carries the pose being installed: the pose initializer writes it to samus_pose
+    /// the collision check publishes a distance without moving live Samus.
+    /// The probe carries the pose being installed: the pose initializer writes it to Samus's pose
     /// before the larger-radius check, so the elevator pseudo-door's standing-pose gate tests it.
     /// </remarks>
     internal BlockMoveResult ProbeChangedPoseVertical(
@@ -773,7 +770,7 @@ level, probe, this, amount, scanLeftToRight, roomObjects);
             // Preserve these reaction writes without committing the probe's position.
             Kinematics.YSpeed = probe.YSpeed;
             Kinematics.YAcceleration = probe.YAcceleration;
-            // Block dispatch clamps the live fractional Y word even for a
+            // Block dispatch clamps the live fractional Y even for a
             // changed-pose observation. Preserve that write, but never copy the
             // probe's whole-position movement into the live body.
             if (result.Collided)
@@ -837,7 +834,7 @@ level, probe, this, amount, scanLeftToRight, roomObjects);
     /// <summary>
     /// Aligns Samus's bottom with the previous pose after installing a new pose:
     /// preserve the feet and shift the previous whole-Y checkpoint by the same delta.
-    /// Neither fractional word changes.
+    /// Neither fraction changes.
     /// </summary>
     internal void AlignBottomAfterPoseChange(int previousRadius, int targetRadius)
     {
@@ -866,7 +863,7 @@ level, probe, this, amount, scanLeftToRight, roomObjects);
         CoordinateAxis.Wrap((_poseCollisionPreviousYPosition ?? previous.Y.Whole) + _poseAlignmentPreviousYDelta));
 
     /// <summary>
-    /// Applies this frame's whole previous-position writes before the scrolling routine calculates
+    /// Applies this frame's whole previous-position writes before scrolling calculates
     /// distance; the fractions are kept. Its normal tail subsequently replaces the complete checkpoint.
     /// </summary>
     internal FixedPosition<RoomPixels> ApplyPreviousPositionWrites(FixedPosition<RoomPixels> previous)
@@ -888,7 +885,7 @@ level, probe, this, amount, scanLeftToRight, roomObjects);
     /// <summary>
     /// Copies the inventory and energy, which lie below the Samus
     /// state that Samus's initialization clears. A Samus created
-    /// fresh and given these values is that routine's result for the same player.
+    /// fresh and given these values is the initialization's result for the same player.
     /// </summary>
     internal void CopyInventoryFrom(SamusState source)
     {
@@ -942,7 +939,7 @@ level, probe, this, amount, scanLeftToRight, roomObjects);
     public SamusPoseHistoryState PoseHistory { get; } = new();
 
     /// <summary>
-    /// Commits current pose metadata through the four-word history shift.
+    /// Commits current pose metadata through the four-entry history shift.
     /// Transition owners must call this after their final pose/metadata selection,
     /// not for intermediate assignments, rollbacks, or ordinary frame sampling.
     /// </summary>

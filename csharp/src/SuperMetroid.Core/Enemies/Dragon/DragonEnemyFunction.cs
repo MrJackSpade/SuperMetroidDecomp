@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Dragon;
 
 /// <summary>
-/// The routine Dragon's main AI runs each frame.
+/// The behaviour Dragon's main AI runs each frame.
 /// Its values are arbitrary.
 /// </summary>
 public enum DragonEnemyFunction

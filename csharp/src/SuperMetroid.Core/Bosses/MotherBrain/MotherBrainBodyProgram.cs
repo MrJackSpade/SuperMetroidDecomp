@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// Mother Brain's body programs, declared in the order the original game authors them. The body enemy slot
+/// Mother Brain's body programs, in authored order. The body enemy slot
 /// runs them, and so does the head slot, which keeps <see cref="InitialDummy"/> (its frame being its hitbox) for life.
 /// </summary>
 public enum MotherBrainBodyProgram

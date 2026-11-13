@@ -8,7 +8,7 @@ using SuperMetroid.Core.Samus.Grapple;
 
 namespace SuperMetroid.Core.Enemies.Grapple;
 
-/// <summary>The Grapple species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Grapple species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class GrappleBehavior : IGrappleTargets
 {
@@ -29,7 +29,7 @@ internal sealed class GrappleBehavior : IGrappleTargets
 
     /// <summary>
     /// Resolves the grapple beam's endpoint against enemies. Extended hitboxes are
-    /// intentionally ignored: the original compares the endpoint with each ordinary radius
+    /// intentionally ignored: the beam compares the endpoint with each ordinary radius
     /// plus an eight-pixel beam-point radius and selects the first interactive slot.
     /// </summary>
     public GrappleEnemyCollision ResolveGrappleEndpoint(Position16<RoomPixels> endpoint)
@@ -103,7 +103,7 @@ internal sealed class GrappleBehavior : IGrappleTargets
 
             case GrappleAiRoutine.Kill:
                 // Grapple kills always select explosion variant zero. The shared death
-                // routine preserves the actor's position/drop identity and any respawn
+                // death preserves the actor's position/drop identity and any respawn
                 // marker; directly deleting the enemy loses the complete visual tail.
                 _deathsAndDrops.StartGenericEnemyDeath(enemy, deathAnimation: EnemyDeathExplosion.Small);
                 enemy.AiStates = EnemyAiStates.None;

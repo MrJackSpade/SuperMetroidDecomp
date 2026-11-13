@@ -2,22 +2,23 @@ using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.SpriteObjects;
 using K = SuperMetroid.Core.Enemies.Deaths.EnemyDeathProjectileCueKind;
 using P = SuperMetroid.Core.Enemies.Deaths.EnemyDeathProjectileProgram;
+using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Core.Enemies.Deaths;
 
 /// <summary>
 /// The generic enemy-death explosions, the drops they become and the respawn tail (#641). Each
-/// frame shows a <see cref="EnemyDeathProjectileFrame"/> pose and each command becomes a <see cref="EnemyDeathProjectileCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyProjectileFrameId"/> and each command becomes a <see cref="EnemyDeathProjectileCue"/> with its typed operands.
 /// </summary>
 internal static class EnemyDeathProjectileAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<EnemyDeathProjectileProgram, EnemyDeathProjectileFrame, EnemyDeathProjectileCue> Segments { get; } = new(
-        new Dictionary<EnemyDeathProjectileProgram, AnimationBeat<EnemyDeathProjectileFrame, EnemyDeathProjectileCue>[]>
+    internal static AnimationSegments<EnemyDeathProjectileProgram, EnemyProjectileFrameId, EnemyDeathProjectileCue> Segments { get; } = new(
+        new Dictionary<EnemyDeathProjectileProgram, AnimationBeat<EnemyProjectileFrameId, EnemyDeathProjectileCue>[]>
     {
         [P.RespawnTail] =
         [
-            Show(0, 64),
+            Show(EnemyProjectileFrameId.EnemyDeathRespawnTail, 64),
             Cue(new(K.HandleRespawningEnemy)),
             Cue(new(K.Delete)),
         ],
@@ -28,7 +29,7 @@ internal static class EnemyDeathProjectileAnimations
         [
             Cue(new(K.SpawnSpriteWithin16, SpriteObject: RoomSpriteObjectKind.SmallExplosion)),
             Cue(new(K.SpawnSpriteWithin16, SpriteObject: RoomSpriteObjectKind.Smoke)),
-            Show(1, 8),
+            Show(EnemyProjectileFrameId.EnemyDeathBigExplosion, 8),
             Cue(new(K.PlaySmallExplosionSound)),
             Cue(new(K.BecomePickup)),
         ],
@@ -40,82 +41,82 @@ internal static class EnemyDeathProjectileAnimations
             Cue(new(K.SpawnSpriteWithin32, SpriteObject: RoomSpriteObjectKind.SmallExplosion)),
             Cue(new(K.SpawnSpriteWithin32, SpriteObject: RoomSpriteObjectKind.Smoke)),
             Cue(new(K.SpawnSpriteWithin32, SpriteObject: RoomSpriteObjectKind.DustCloud)),
-            Show(2, 8),
+            Show(EnemyProjectileFrameId.EnemyDeathMiniKraidExplosion, 8),
             Cue(new(K.PlaySmallExplosionSound)),
             Cue(new(K.BecomePickup)),
         ],
         [P.NormalExplosion] =
         [
-            Show(3, 5),
-            Show(4, 5),
-            Show(5, 5),
+            Show(EnemyProjectileFrameId.EnemyDeathNormalExplosionFirst, 5),
+            Show(EnemyProjectileFrameId.EnemyDeathNormalExplosionSecond, 5),
+            Show(EnemyProjectileFrameId.EnemyDeathNormalExplosionThird, 5),
             Cue(new(K.PlayEnemyKilledSound)),
-            Show(6, 5),
-            Show(7, 5),
-            Show(8, 5),
+            Show(EnemyProjectileFrameId.EnemyDeathNormalExplosionFourth, 5),
+            Show(EnemyProjectileFrameId.EnemyDeathNormalExplosionFifth, 5),
+            Show(EnemyProjectileFrameId.EnemyDeathNormalExplosionSixth, 5),
             Cue(new(K.BecomePickup)),
         ],
         [P.SmallExplosion] =
         [
-            Show(9, 4),
-            Show(10, 6),
-            Show(11, 5),
+            Show(EnemyProjectileFrameId.EnemyDeathSmallExplosionFirst, 4),
+            Show(EnemyProjectileFrameId.EnemyDeathSmallExplosionSecond, 6),
+            Show(EnemyProjectileFrameId.EnemyDeathSmallExplosionThird, 5),
             Cue(new(K.PlayEnemyKilledSound)),
-            Show(12, 5),
-            Show(13, 5),
-            Show(14, 6),
+            Show(EnemyProjectileFrameId.EnemyDeathSmallExplosionFourth, 5),
+            Show(EnemyProjectileFrameId.EnemyDeathSmallExplosionFifth, 5),
+            Show(EnemyProjectileFrameId.EnemyDeathSmallExplosionSixth, 6),
             Cue(new(K.BecomePickup)),
         ],
         [P.SmallEnergy] =
         [
-            Show(31, 8),
-            Show(32, 8),
-            Show(33, 8),
-            Show(34, 8),
+            Show(EnemyProjectileFrameId.EnemyPickupSmallEnergyFirst, 8),
+            Show(EnemyProjectileFrameId.EnemyPickupSmallEnergySecond, 8),
+            Show(EnemyProjectileFrameId.EnemyPickupSmallEnergyThird, 8),
+            Show(EnemyProjectileFrameId.EnemyPickupSmallEnergyFourth, 8),
         ],
         [P.BigEnergy] =
         [
-            Show(35, 8),
-            Show(36, 8),
-            Show(37, 8),
-            Show(38, 8),
+            Show(EnemyProjectileFrameId.EnemyPickupBigEnergyFirst, 8),
+            Show(EnemyProjectileFrameId.EnemyPickupBigEnergySecond, 8),
+            Show(EnemyProjectileFrameId.EnemyPickupBigEnergyThird, 8),
+            Show(EnemyProjectileFrameId.EnemyPickupBigEnergyFourth, 8),
         ],
         [P.Missiles] =
         [
-            Show(39, 5),
-            Show(40, 5),
+            Show(EnemyProjectileFrameId.EnemyPickupMissilesFirst, 5),
+            Show(EnemyProjectileFrameId.EnemyPickupMissilesSecond, 5),
         ],
         [P.SuperMissiles] =
         [
-            Show(41, 5),
-            Show(42, 5),
+            Show(EnemyProjectileFrameId.EnemyPickupSuperMissilesFirst, 5),
+            Show(EnemyProjectileFrameId.EnemyPickupSuperMissilesSecond, 5),
         ],
         [P.PowerBombs] =
         [
-            Show(43, 5),
-            Show(44, 5),
-            Show(45, 5),
-            Show(46, 5),
+            Show(EnemyProjectileFrameId.EnemyPickupPowerBombsFirst, 5),
+            Show(EnemyProjectileFrameId.EnemyPickupPowerBombsSecond, 5),
+            Show(EnemyProjectileFrameId.EnemyPickupPowerBombsThird, 5),
+            Show(EnemyProjectileFrameId.EnemyPickupPowerBombsFourth, 5),
         ],
         [P.KilledBySamusContact] =
         [
-            Show(15, 2),
-            Show(16, 2),
-            Show(17, 2),
-            Show(18, 2),
-            Show(19, 2),
-            Show(20, 2),
-            Show(21, 2),
+            Show(EnemyProjectileFrameId.EnemyDeathKilledBySamusContactFirst, 2),
+            Show(EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSecond, 2),
+            Show(EnemyProjectileFrameId.EnemyDeathKilledBySamusContactThird, 2),
+            Show(EnemyProjectileFrameId.EnemyDeathKilledBySamusContactFourth, 2),
+            Show(EnemyProjectileFrameId.EnemyDeathKilledBySamusContactFifth, 2),
+            Show(EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixth, 2),
+            Show(EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSeventh, 2),
             Cue(new(K.PlayContactKilledSound)),
-            Show(22, 2),
-            Show(23, 2),
-            Show(24, 2),
-            Show(25, 2),
-            Show(26, 2),
-            Show(27, 2),
-            Show(28, 2),
-            Show(29, 2),
-            Show(30, 2),
+            Show(EnemyProjectileFrameId.EnemyDeathKilledBySamusContactEighth, 2),
+            Show(EnemyProjectileFrameId.EnemyDeathKilledBySamusContactNinth, 2),
+            Show(EnemyProjectileFrameId.EnemyDeathKilledBySamusContactTenth, 2),
+            Show(EnemyProjectileFrameId.EnemyDeathKilledBySamusContactEleventh, 2),
+            Show(EnemyProjectileFrameId.EnemyDeathKilledBySamusContactTwelfth, 2),
+            Show(EnemyProjectileFrameId.EnemyDeathKilledBySamusContactThirteenth, 2),
+            Show(EnemyProjectileFrameId.EnemyDeathKilledBySamusContactFourteenth, 2),
+            Show(EnemyProjectileFrameId.EnemyDeathKilledBySamusContactFifteenth, 2),
+            Show(EnemyProjectileFrameId.EnemyDeathKilledBySamusContactSixteenth, 2),
             Cue(new(K.BecomePickup)),
         ],
     });
@@ -139,9 +140,9 @@ internal static class EnemyDeathProjectileAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<EnemyDeathProjectileProgram> StartingWith(EnemyDeathProjectileProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<EnemyDeathProjectileFrame, EnemyDeathProjectileCue> Show(int pose, int duration) => new AnimationBeat<EnemyDeathProjectileFrame, EnemyDeathProjectileCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyProjectileFrameId, EnemyDeathProjectileCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyDeathProjectileCue>.Frame(frame, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<EnemyDeathProjectileFrame, EnemyDeathProjectileCue> Cue(EnemyDeathProjectileCue cue) => new AnimationBeat<EnemyDeathProjectileFrame, EnemyDeathProjectileCue>.Event(cue);
+    private static AnimationBeat<EnemyProjectileFrameId, EnemyDeathProjectileCue> Cue(EnemyDeathProjectileCue cue) => new AnimationBeat<EnemyProjectileFrameId, EnemyDeathProjectileCue>.Event(cue);
 }

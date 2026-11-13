@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.WreckedShip;
 
 /// <summary>
-/// The routine the Wrecked Ship ghost's main AI runs.
+/// The behaviour the Wrecked Ship ghost's main AI runs.
 /// Its values are arbitrary.
 /// </summary>
 public enum WreckedShipGhostAiFunction

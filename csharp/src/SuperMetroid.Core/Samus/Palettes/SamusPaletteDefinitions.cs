@@ -74,7 +74,7 @@ public static class SamusPaletteDefinitions
     /// 14336; the other nine in each step are the same grayscale colour
     /// with every channel at <c>16 + floor(11*min(r,6-r)/3)</c>. This yields channel
     /// levels 16, 19, 23, 27, 23, 19 and matches all 60 colours in the
-    /// original data. The body colour program selects steps
+    /// authored data. The body colour program selects steps
     /// 0,1,2,3,4,5,4,3,2,1 and copies only ten colors per transition;
     /// the following six bubble colors have a separate cursor and timer.
     /// Keep both streams live for the stock presentation. Body-color
@@ -85,7 +85,7 @@ public static class SamusPaletteDefinitions
     /// The stock colour is 32767 less 1056 times <c>q</c>, except
     /// <c>r = 5, c = 0</c> is 32767 rather than 31711.
     /// All 36 colours, including that authored exception, match the
-    /// original data. The bubble cursor visits steps 0..5 and wraps
+    /// authored data. The bubble cursor visits steps 0..5 and wraps
     /// independently of the body records. Bubble-color investigation:
     /// #625 / #903.
     /// </remarks>

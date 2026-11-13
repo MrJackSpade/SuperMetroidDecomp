@@ -1,5 +1,6 @@
 ﻿using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.FuneNamihe.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.FuneNamihe;
 
@@ -9,6 +10,6 @@ internal static class FuneNamiheAnimationsConstants
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params FuneNamiheProgram[] programs) =>
         programs.SelectMany(program => FuneNamiheAnimations.Segments.Beats(program))
-            .OfType<AnimationBeat<FuneNamiheFrame, FuneNamiheCue>.Frame>()
+            .OfType<AnimationBeat<EnemyFrameId, FuneNamiheCue>.Frame>()
             .Select(frame => FuneNamiheFrameToolingDefinitions.Spritemap(frame.Shown));
 }

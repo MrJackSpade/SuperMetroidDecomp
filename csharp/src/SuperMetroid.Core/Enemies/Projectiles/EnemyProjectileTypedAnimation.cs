@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// (#1607), events, counted phases and a hold. Each event goes to the handler its family registered with
 /// <see cref="EnemyProjectileHandlerTable.AddCue{TCue}"/>, or with
 /// <see cref="EnemyProjectileHandlerTable.AddBranchingCue{TProgram, TCue}"/> when its reaction continues the play in the
-/// animation starting at another segment, as a conditional goto does. Counted phases count the projectile's
+/// animation starting at another segment, as a conditional jump does. Counted phases count the projectile's
 /// <see cref="EnemyProjectile.LoopCountdown"/>.
 /// </summary>
 /// <typeparam name="TSegment">The family's segment identity.</typeparam>

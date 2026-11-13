@@ -3,13 +3,13 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
-/// The room-object headers that install coloured and grey doors, and the door each installs (#1414: named by member, replacing
-/// the header ranges the room-object headers implied). A header absent here installs no
+/// The room-object definitions that install coloured and grey doors, and the door each installs (#1414: named by member,
+/// replacing the ranges the room-object definitions implied). A definition absent here installs no
 /// coloured or grey door.
 /// </summary>
 internal static class DoorObjectHeaderDefinitions
 {
-    /// <summary>The colour and facing of the door each coloured-door header installs.</summary>
+    /// <summary>The colour and facing of the door each coloured-door definition installs.</summary>
     internal static IReadOnlyDictionary<RoomObjectHeaderId, ColoredDoorVariant> ColoredDoors { get; } = new Dictionary<RoomObjectHeaderId, ColoredDoorVariant>
     {
         [RoomObjectHeaderId.YellowDoorFacingLeft] = new(ColoredDoorColor.Yellow, ColoredDoorOrientation.Left),
@@ -27,7 +27,7 @@ internal static class DoorObjectHeaderDefinitions
     };
 
     /// <summary>
-    /// The facing of the door each grey-door header installs; Bomb Torizo's grey door faces right like the generic
+    /// The facing of the door each grey-door definition installs; Bomb Torizo's grey door faces right like the generic
     /// right-facing one.
     /// </summary>
     internal static IReadOnlyDictionary<RoomObjectHeaderId, ColoredDoorOrientation> GreyDoors { get; } = new Dictionary<RoomObjectHeaderId, ColoredDoorOrientation>

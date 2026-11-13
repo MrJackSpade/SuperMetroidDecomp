@@ -26,7 +26,7 @@ internal sealed class RidleyBodyAnimation
     }
 
     /// <summary>
-    /// Plays Ridley's body animation where the enemy instruction interpreter would: the frame expires on the update its
+    /// Plays Ridley's body animation where the shared enemy animation runs: the frame expires on the update its
     /// timer would, and a newly shown frame raises the new-frame flag.
     /// </summary>
     internal void AdvanceRidleyBodyAnimation(RoomEnemySlot slot, SamusState? samus)
@@ -43,7 +43,7 @@ internal sealed class RidleyBodyAnimation
         state.BodyPlayback = playback;
     }
 
-    /// <summary>Carries out one cue of Ridley's body animation, returning the segment whose animation a goto cue continues in.</summary>
+    /// <summary>Carries out one cue of Ridley's body animation, returning the segment whose animation a continue-at cue continues in.</summary>
     internal RidleyBodyProgram? ApplyRidleyBodyCue(RoomEnemySlot slot, RidleyEnemyState state, SamusState? samus, RidleyBodyCue cue)
     {
         switch (cue)
@@ -60,7 +60,7 @@ internal sealed class RidleyBodyAnimation
                 }
                 if (samus.Health >= 30)
                     return null;
-                // The fireball list stores 8 to the Ridley timer before the goto,
+                // The fireball list stores 8 to the Ridley timer before it continues elsewhere,
                 // cutting the fireball hover short.
                 state.FunctionTimer = 8;
                 return goToIfCeresAndSamusLowEnergy.Target;
@@ -129,7 +129,7 @@ internal sealed class RidleyBodyAnimation
         AdvanceRidleyBodyAnimation(slot, context.Samus);
 
     /// <summary>
-    /// Runs a breakup fragment's program where the enemy instruction interpreter would: its pose shows for one update
+    /// Runs a breakup fragment's program where the shared enemy animation runs: its pose shows for one update
     /// and then holds, raising the new-frame flag when shown.
     /// </summary>
     internal static void AdvanceRidleyBreakupAnimation(RoomEnemySlot fragment)

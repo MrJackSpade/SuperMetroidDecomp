@@ -59,11 +59,11 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         RoomEnemyGraphicsSetDefinition set = RoomEnemyGraphicsSetLists.DrawnUnder.First(candidate =>
             RoomEnemyGraphicsSetLists.MembersOf(candidate).Records.ToArray().Any(record => record.DefinitionId == EnemyDefinitionId.TourianStatue));
         SpawnedObjectSheet scenePictures = InstalledFixtures.EnemySheets.Spawned(set, SpawnedObjectOwner.Shared);
-        SpriteImage statueSheet = scenePictures.Frame(EnemySheetDefinitions.ProjectileFrameName(EnemyProjectileFrameId.TourianStatueFrame24)).Sheet;
+        SpriteImage statueSheet = scenePictures.Frame(EnemySheetDefinitions.ProjectileFrameName(EnemyProjectileFrameId.TourianStatueBaseDecoration)).Sheet;
         foreach (EnemyProjectileFrameId scene in new[]
         {
-            EnemyProjectileFrameId.TourianStatueFrame14, EnemyProjectileFrameId.TourianStatueFrame18,
-            EnemyProjectileFrameId.TourianStatueFrame25, EnemyProjectileFrameId.TourianStatueFrame26, EnemyProjectileFrameId.TourianStatueFrame27,
+            EnemyProjectileFrameId.TourianStatueParticleFirst, EnemyProjectileFrameId.TourianStatueTailFirst,
+            EnemyProjectileFrameId.TourianStatueBaseDecorationLoop, EnemyProjectileFrameId.TourianStatueRidley, EnemyProjectileFrameId.TourianStatuePhantoon,
         })
         {
             AssertEqual(statueSheet.Name, scenePictures.Frame(EnemySheetDefinitions.ProjectileFrameName(scene)).Sheet.Name,
@@ -71,7 +71,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         }
         // The scene sheet composed in-process, which knows the palette index each pixel was composed as (#1633).
         SpriteImage composedStatueSheet = EnemySheetFixtures.ComposedSpawnedSheet(set, SpawnedObjectOwner.Shared)
-            .Frame(EnemySheetDefinitions.ProjectileFrameName(EnemyProjectileFrameId.TourianStatueFrame24)).Sheet;
+            .Frame(EnemySheetDefinitions.ProjectileFrameName(EnemyProjectileFrameId.TourianStatueBaseDecoration)).Sheet;
         var guard = NewTourianStatueColorGuard(bus, forbidden);
         // The places of the native image the scene sheet holds a colour for (#1544): a sheet holds only the colours its
         // pictures show, so a native write to any other place shows nothing in the port.

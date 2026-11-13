@@ -5,7 +5,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>What Bomb and Golden Torizo instructions read: Samus, the room, controller input and the frame counter's count within its 256-frame cycle, which both attack choosers add (#633).</summary>
+/// <summary>What Bomb and Golden Torizo cues read: Samus, the room, controller input and the frame counter's count within its 256-frame cycle, which both attack choosers add (#633).</summary>
 [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
 internal readonly record struct TorizoInstructionInputs
 {

@@ -44,7 +44,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     private readonly FileSelectMapAnimations animations;
     /// <summary>Controls whether room-map scrolling arrows are included in a frame.</summary>
     private bool drawArrows;
-    /// <summary>Interprets latched input and owns area/room navigation phases.</summary>
+    /// <summary>Reads latched input and owns area/room navigation phases.</summary>
     private readonly FileSelectMapNavigation navigation;
     /// <summary>Owns the initial reveal and fade before navigation can consume input.</summary>
     private readonly FileSelectMapEntry entry;
@@ -123,7 +123,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     }
 
     /// <summary>Advances one menu update, retaining input latching during entry and the game's ordering of icon/palette animation, scrolling, navigation, transition sounds, and delayed load/options handoff.</summary>
-    /// <param name="input">Current held controller-button word; edge interpretation is owned by navigation, not by rendering.</param>
+    /// <param name="input">Current held controller buttons; edge reading is owned by navigation, not by rendering.</param>
     public void Step(ControllerButton input)
     {
         if (!entry.IsComplete)

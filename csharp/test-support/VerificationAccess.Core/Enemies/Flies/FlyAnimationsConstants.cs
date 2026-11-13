@@ -1,5 +1,6 @@
 ﻿using SuperMetroid.Core.Enemies.Flies.Artwork;
 using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Flies;
 
@@ -9,6 +10,6 @@ internal static class FlyAnimationsConstants
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params FlyProgram[] programs) =>
         programs.SelectMany(program => FlyAnimations.Segments.Beats(program))
-            .OfType<AnimationBeat<FlyFrame, NoAnimationCue>.Frame>()
+            .OfType<AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame>()
             .Select(frame => FlyFrameToolingDefinitions.Spritemap(frame.Shown));
 }

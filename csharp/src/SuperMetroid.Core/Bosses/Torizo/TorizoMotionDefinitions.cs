@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>The fixed speeds, offsets and turns Torizo's movement routines and projectile frame behaviours use.</summary>
+/// <summary>The fixed speeds, offsets and turns Torizo's movement steps and projectile frame behaviours use.</summary>
 internal static class TorizoMotionDefinitions
 {
     /// <summary>
@@ -70,8 +70,8 @@ internal static class TorizoMotionDefinitions
     internal const int BlockPixels = 16;
 
     /// <summary>
-    /// The pixels the initial drool is lifted above the jittered spawn height. The original game adds this as
-    /// minus five, whose carry (set unless the lift wraps) its fall speed adds.
+    /// The pixels the initial drool is lifted above the jittered spawn height. When lifting does not wrap the height
+    /// below zero, the drool's fall speed gains one 256th of a pixel per frame.
     /// </summary>
     internal const int InitialDroolLift = 5;
 

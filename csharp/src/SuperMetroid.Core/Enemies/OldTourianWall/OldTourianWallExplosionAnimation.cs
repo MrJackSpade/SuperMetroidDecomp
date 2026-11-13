@@ -59,11 +59,11 @@ internal sealed class OldTourianWallExplosionAnimation(OldTourianWallExplosionPr
     internal static IReadOnlyDictionary<int, EnemyProjectileFrameId> ShownProjectileFrames { get; } =
         new Dictionary<int, EnemyProjectileFrameId>
         {
-            [0] = EnemyProjectileFrameId.OldTourianEscapeWallExplosionFrame00,
-            [1] = EnemyProjectileFrameId.OldTourianEscapeWallExplosionFrame01,
-            [2] = EnemyProjectileFrameId.OldTourianEscapeWallExplosionFrame02,
-            [3] = EnemyProjectileFrameId.OldTourianEscapeWallExplosionFrame03,
-            [4] = EnemyProjectileFrameId.OldTourianEscapeWallExplosionFrame04,
-            [5] = EnemyProjectileFrameId.OldTourianEscapeWallExplosionFrame05,
+            [0] = EnemyProjectileFrameId.OldTourianEscapeWallExplosionFirst,
+            [1] = EnemyProjectileFrameId.OldTourianEscapeWallExplosionSecond,
+            [2] = EnemyProjectileFrameId.OldTourianEscapeWallExplosionThird,
+            [3] = EnemyProjectileFrameId.OldTourianEscapeWallExplosionFourth,
+            [4] = EnemyProjectileFrameId.OldTourianEscapeWallExplosionFifth,
+            [5] = EnemyProjectileFrameId.OldTourianEscapeWallExplosionSixth,
         };
 }

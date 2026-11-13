@@ -23,7 +23,7 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
     /// <summary>Whether one of the two door-spawned objects occupies its slot.</summary>
     public bool IsActive { get; private set; }
 
-    /// <summary>Direction selected by the object header passed when the object spawns.</summary>
+    /// <summary>Direction selected by the object definition passed when the object spawns.</summary>
     public WreckedShipTreadmillDirection Direction { get; private set; }
 
     /// <summary>Index of the next entry in the four-frame animation script.</summary>

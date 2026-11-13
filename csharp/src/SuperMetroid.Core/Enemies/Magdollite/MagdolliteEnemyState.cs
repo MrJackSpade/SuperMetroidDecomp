@@ -2,8 +2,8 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Magdollite;
 
 /// <summary>
-/// The state of one Magdollite part, with its extra values. They are named here instead of reproducing
-/// the original's deliberately obscure drawing-queue/spawn-snapshot aliases between three neighboring records.
+/// The state of one Magdollite part, with its extra values. They are named here instead of sharing storage between
+/// three neighboring records.
 /// </summary>
 public sealed class MagdolliteEnemyState
 {
@@ -54,9 +54,9 @@ public sealed class MagdolliteEnemyState
     public Position16<RoomPixels> Origin { get; internal set; }
 
     /// <summary>
-    /// Extension variable four. Only the overlay's instance is polled by the head; decrementing it in every part
-    /// remains observable and matches main AI exactly. The wrapping word counts enemy updates, is reset to 256 by the
-    /// throw list, and expires when the head observes its sign bit after decrementing through zero.
+    /// Only the overlay's instance is polled by the head; decrementing it in every part
+    /// remains observable and matches main AI exactly. The wrapping countdown counts enemy updates, is reset to 256 by the
+    /// throw list, and expires when the head sees it negative after decrementing through zero.
     /// </summary>
     public WrappingCountdown AttackTimer { get; internal set; }
 

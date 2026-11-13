@@ -10,8 +10,8 @@ internal enum SamusBeamCallback
     /// <summary>Wave-Plasma and the other Wave combinations: Wave movement with a four-frame trail reload.</summary>
     WaveFourFrameTrail,
     /// <summary>
-    /// Uncharged combination twelve reads the charged-shot routine's first instruction bytes past the callback table;
-    /// they name an unconnected region, so the game executes open bus. That is outside the emulation scope limit
+    /// Uncharged combination twelve reads past the callback table into a value that
+    /// names an unconnected region, so the game executes open bus. That is outside the emulation scope limit
     /// (#1500): the shot is rejected loudly.
     /// </summary>
     UnchargedCombinationTwelveOverrun,
@@ -33,17 +33,17 @@ internal enum SamusBeamCallback
     /// Charged combination thirteen overruns the callback table and
     /// reads a callback from Samus's state. It therefore enters
     /// whatever Samus's cached previous Super-Missile count encodes. The game's
-    /// execution is data-dependent and may crash; it is not a stable routine.
+    /// execution is data-dependent and may crash; it is not a stable behaviour.
     /// </summary>
     ChargedChainsawOverrun,
     /// <summary>
-    /// Uncharged combination fifteen reads an operand of the charged-shot routine past the callback table; it names a
+    /// Uncharged combination fifteen reads past the callback table into a value that names a
     /// place in the game's live state, so the game executes Samus's state as code. That is outside the emulation scope limit
     /// (#1500): the shot is rejected loudly.
     /// </summary>
     UnchargedCombinationFifteenOverrun,
     /// <summary>
-    /// Charged combination twelve reads the first instruction of the projectile placement routine past the charged
+    /// Charged combination twelve reads past the charged
     /// callback table; it names a place in the game's live state, so the game executes that state as code. That is outside the
     /// emulation scope limit (#1500): the shot is rejected loudly.
     /// </summary>

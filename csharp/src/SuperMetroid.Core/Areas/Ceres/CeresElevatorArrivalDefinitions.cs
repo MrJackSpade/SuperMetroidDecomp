@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
 /// Compiled mechanics for the two enemy projectiles used by the initial
-/// Ceres elevator arrival. Spritemap payloads remain presentation data.
+/// Ceres elevator arrival. Frame pictures remain presentation data.
 /// </summary>
 internal static class CeresElevatorArrivalDefinitions
 {
@@ -47,8 +47,8 @@ internal static class CeresElevatorArrivalDefinitions
     internal static readonly IReadOnlyDictionary<CeresElevatorArrivalPose, EnemyProjectileFrameId> Frames =
         new Dictionary<CeresElevatorArrivalPose, EnemyProjectileFrameId>
         {
-            [CeresElevatorArrivalPose.PadFirst] = EnemyProjectileFrameId.CeresElevatorPad0,
-            [CeresElevatorArrivalPose.PadSecond] = EnemyProjectileFrameId.CeresElevatorPad1,
+            [CeresElevatorArrivalPose.PadFirst] = EnemyProjectileFrameId.CeresElevatorPadFirst,
+            [CeresElevatorArrivalPose.PadSecond] = EnemyProjectileFrameId.CeresElevatorPadSecond,
             [CeresElevatorArrivalPose.Platform] = EnemyProjectileFrameId.CeresElevatorPlatform,
         };
 }

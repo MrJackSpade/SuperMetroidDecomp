@@ -9,24 +9,24 @@ using SuperMetroid.Core.Samus.Drawing;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>The projectile animation interpreter and drawing: slot clearing, live projectile and charge-flare sprites, flare animation state and the suit palette the flare restores.</summary>
+/// <summary>The projectile animation player and drawing: slot clearing, live projectile and charge-flare sprites, flare animation state and the suit palette the flare restores.</summary>
 internal sealed class ProjectileAnimation
 {
-    /// <summary>Owns charge-flare frame and countdown arrays advanced by the interpreter.</summary>
+    /// <summary>Owns charge-flare frame and countdown arrays advanced by the animation.</summary>
     private readonly BeamChargeState _charge;
-    /// <summary>Owns the shot count reduced when a delete instruction ends a projectile.</summary>
+    /// <summary>Owns the shot count reduced when a delete cue ends a projectile.</summary>
     private readonly ProjectileSlotTable _slotTable;
     /// <summary>The delays a flare frame wrapping below the flare's programs reads.</summary>
     private readonly ChargeFlareDelaysBelowPrograms _flareDelaysBelow;
 
-    /// <summary>Binds projectile instructions to live slot ownership and charge-flare state.</summary>
+    /// <summary>Binds projectile cues to live slot ownership and charge-flare state.</summary>
     internal ProjectileAnimation(BeamChargeState charge, ProjectileSlotTable slotTable, ChargeFlareDelaysBelowPrograms flareDelaysBelow)
     {
         _charge = charge;
         _slotTable = slotTable;
         _flareDelaysBelow = Ensure.NotNull(flareDelaysBelow);
     }
-    /// <summary>Decodes timed frames, goto, and delete; publishes frame radius and animation metadata when the countdown expires.</summary>
+    /// <summary>Plays timed frames, jumps and deletion; publishes frame radius and animation metadata when the countdown expires.</summary>
     internal bool RunProjectileInstructionHandler(
         SamusProjectile slot)
     {
@@ -59,7 +59,7 @@ internal sealed class ProjectileAnimation
             : _slotTable.ProjectileCounter - 1;
     }
 
-    /// <summary>Publishes an installed projectile composition when its screen origin passes horizontal and Y-byte clipping.</summary>
+    /// <summary>Publishes an installed projectile composition when its screen origin passes horizontal and vertical clipping.</summary>
     internal static void DrawSlot(
         SpriteFrameBuffer sprites,
         SpriteSource source,
@@ -85,45 +85,22 @@ internal sealed class ProjectileAnimation
             SpriteMirror.None));
     }
 
-    /// <summary>Advances a flare component only after its countdown underflows, honoring restart and rewind delay commands.</summary>
-    internal void AdvanceFlareComponent(int component)
+    /// <summary>Counts one update off a flare component's wait and shows its program's next picture once the wait is spent.</summary>
+    internal void AdvanceFlareComponent(ChargeFlareComponent component)
     {
-        // The game advances only when the decrement crosses zero into 65535. A timer
-        // value of zero therefore survives one visible call; testing equality here would
-        // make every authored delay one frame too short.
-        CountdownStep timer = _charge.DecrementFlareTimer(component);
-        if (timer.IsNonNegative)
+        // The next picture shows on the update the wait's count passes below zero, so a wait of zero still holds its
+        // picture for one update; testing for zero would show every picture one update too short.
+        CountdownStep hold = _charge.CountFlareHold(component);
+        if (hold.IsNonNegative)
             return;
-
-        int frame = ChargeFlareAnimations.StepFrame(_charge.FlareFrame(component), 1);
-        int delay = ChargeFlareAnimations.ReadDelay(component, frame, _flareDelaysBelow);
-        if (ChargeFlareAnimations.TryDecodeCommand(delay, out ChargeFlareDelayCommand command))
-        {
-            switch (command)
-            {
-                case ChargeFlareDelayCommand.Restart:
-                    frame = 0;
-                    delay = ChargeFlareAnimations.ReadDelay(component, 0, _flareDelaysBelow);
-                    break;
-                case ChargeFlareDelayCommand.Rewind:
-                    int rewind = ChargeFlareAnimations.ReadDelay(component, frame + 1, _flareDelaysBelow);
-                    frame = ChargeFlareAnimations.StepFrame(frame, -rewind);
-                    delay = ChargeFlareAnimations.ReadDelay(component, frame, _flareDelaysBelow);
-                    break;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(ChargeFlareDelayCommand)} {command}.");
-            }
-        }
-
-        _charge.SetFlareFrame(component, frame);
-        _charge.StartFlareTimer(component, delay);
+        _charge.ShowFlare(component, ChargeFlareAnimations.Next(component, _charge.FlarePhase(component), _flareDelaysBelow));
     }
 
     /// <summary>
     /// Reads Samus's shot direction and movement metadata before drawing an eligible charge-flare component. Only a pose
     /// that disables shooting draws no flare; a turning pose's restriction selects its authored turn row (#1504).
     /// </summary>
-    internal void DrawFlareComponent(SpriteFrameBuffer sprites, SamusState samus, Position16<RoomPixels> cameraPosition, int component, TurningFloorTransform? turningFloor, ChargeFlareArtwork artwork)
+    internal void DrawFlareComponent(SpriteFrameBuffer sprites, SamusState samus, Position16<RoomPixels> cameraPosition, ChargeFlareComponent component, TurningFloorTransform? turningFloor, ChargeFlareArtwork artwork)
     {
         if (SamusPoseMetadata.ReadAim(samus).Flare is not { } flare)
             return;
@@ -132,7 +109,7 @@ internal sealed class ProjectileAnimation
     }
 
     /// <summary>Applies pose muzzle offsets after optional Ceres turning-floor center transform, then draws the installed component frame.</summary>
-    internal void DrawFlareComponentWithMetadata(SpriteFrameBuffer sprites, SamusState samus, Position16<RoomPixels> cameraPosition, int component, TurningFloorTransform? turningFloor, ChargeFlareArtwork artwork, ChargeFlarePose pose)
+    internal void DrawFlareComponentWithMetadata(SpriteFrameBuffer sprites, SamusState samus, Position16<RoomPixels> cameraPosition, ChargeFlareComponent component, TurningFloorTransform? turningFloor, ChargeFlareArtwork artwork, ChargeFlarePose pose)
     {
         var visualOffset = (artwork.Placement ?? throw new InvalidOperationException(
             "Charge flare requires installed placement definitions."))
@@ -153,20 +130,13 @@ internal sealed class ProjectileAnimation
 
         // The flare is published wherever it lies; the display clips it to the view (#1541).
 
-        int indexOffset = CoordinateAxis.Wrap(pose.FacingLeft
-            ? component switch { 0 => 0, 1 => 42, _ => 48 }
-            : component switch { 0 => 0, 1 => 30, _ => 36 });
-        int tableIndex = CoordinateAxis.Wrap(indexOffset + ChargeFlareAnimations.DrawnFrame(_charge.FlareFrame(component)));
-        // A frame that wrapped to 255 selects an entry past the end of the flare table. The game then
-        // draws a "spritemap" out of unrelated memory (into the sprite list only; the
-        // index is kept below 512). That garbage needs full memory emulation and has no
-        // gameplay effect, so the port draws nothing for it (#1275, Mother Brain glitch movie).
-        if (!SuperMetroid.Core.Samus.Artwork.ChargeFlareSpriteSelection.Contains(tableIndex))
+        // A component the Hyper Beam's count wrapped past its first picture may stand at a place that shows no flare
+        // picture; it draws nothing there (#1275, Mother Brain glitch movie).
+        if (ChargeFlarePictures.Of(component, pose.FacingLeft, _charge.FlarePhase(component)) is not { } picture)
             return;
         // The flare is Samus's own charge, so it shows the sheet of the beams she has equipped (#1586).
-        SpriteSheetFrame image = artwork.Objects.SheetOf(SamusBeamCombinations.Of(samus.EquippedBeams)).Frame(ProjectileSheetFrames.FlareFrame(
-            SuperMetroid.Core.Samus.Artwork.ChargeFlareSpriteSelection.Selectors[tableIndex]));
-        sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusChargeFlare, component), image,
+        SpriteSheetFrame image = artwork.Objects.SheetOf(SamusBeamCombinations.Of(samus.EquippedBeams)).Frame(ProjectileSheetFrames.FlareFrame(picture));
+        sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusChargeFlare, ChargeFlarePictures.DrawSlot(component)), image,
             Position16<ScreenPixels>.Of(screenX, screenY), SpriteMirror.None));
     }
 

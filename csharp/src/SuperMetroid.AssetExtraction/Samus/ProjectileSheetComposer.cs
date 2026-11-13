@@ -30,8 +30,8 @@ internal static class ProjectileSheetComposer
         SamusBeamCombination.SpazerPlasmaWave, SamusBeamCombination.SpazerPlasmaIce,
     ];
 
-    /// <summary>The flare compositions a projectile sheet holds: those the flare's selectors name.</summary>
-    internal static IEnumerable<ProjectileSpriteId> FlareCompositions => ChargeFlareSpriteSelection.Selectors.Distinct();
+    /// <summary>The flare compositions a projectile sheet holds: every flare and spark composition.</summary>
+    internal static IEnumerable<ProjectileSpriteId> FlareCompositions => ChargeFlareSpriteDefinitions.All;
 
     /// <summary>
     /// Every frame projectile sheet <paramref name="sheet"/> holds: each composition its beam combination's projectiles
@@ -97,8 +97,7 @@ internal static class ProjectileSheetComposer
         }
         foreach (ProjectileSpriteId composition in FlareCompositions)
         {
-            int selector = checked((ushort)ChargeFlareSpriteSelection.Selectors.ToList().IndexOf(composition));
-            frames.Add(new(ProjectileSheetFrames.FlareFrame(composition), artwork.Compositions.Flares.Frame(selector), page));
+            frames.Add(new(ProjectileSheetFrames.FlareFrame(composition), artwork.Compositions.Flares.Frame(composition), page));
         }
         foreach (ProjectileTrailFrame pose in Enum.GetValues<ProjectileTrailFrame>())
             frames.Add(new(ProjectileSheetFrames.TrailFrame(pose), SpritePartFrames.SmallObject(artwork.Compositions.Trails.Resolve(pose), 0), page));

@@ -235,7 +235,7 @@ internal sealed class IntroCinematicObjectSystem
             return;
         if (narrationInitialMarkerPending)
         {
-            // Each page list opens with the page's subtitle-creating instruction.
+            // Each page list opens with the page's subtitle-creating cue.
             subtitles.BeginPage(narrationPage ?? throw new InvalidDataException(
                 "Installed narration started without an active page identity."));
             narrationInitialMarkerPending = false;
@@ -303,7 +303,7 @@ internal sealed class IntroCinematicObjectSystem
             IntroFinishRequested = true;
             return;
         }
-        // The page's blinking-markers-and-wait instruction first
+        // The page's blinking-markers-and-wait cue first
         // sets the caret blinking, and with Japanese text spawns the next-page arrow. Japanese pages two to five then
         // wait for the press that shows their second subtitle, whose object selects the page's input wait.
         SetCaretBlinking();
@@ -400,7 +400,7 @@ internal sealed class IntroCinematicObjectSystem
     /// <summary>Points the existing caret slot at its blinking list and primes its timer.</summary>
     internal void SetCaretBlinking()
     {
-        // The caret-blink instruction starts the existing slot's blinking program and primes timer
+        // The caret-blink cue starts the existing slot's blinking program and primes timer
         // one, allowing the generic sprite handler to select the first frame now.
         caretSprite.Start(CinematicSpriteProgram.IntroTextCaretBlink);
     }

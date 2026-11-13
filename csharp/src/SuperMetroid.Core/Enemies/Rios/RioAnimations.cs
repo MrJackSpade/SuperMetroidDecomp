@@ -1,58 +1,59 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Rios.RioCueKind;
 using P = SuperMetroid.Core.Enemies.Rios.RioProgram;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Rios;
 
 /// <summary>
 /// The Rio's idle, swoop and cooldown animations as typed programs (#641). Each
-/// frame shows a <see cref="RioFrame"/> pose and each callback becomes a <see cref="RioCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyFrameId"/> and each callback becomes a <see cref="RioCue"/> with its typed operands.
 /// </summary>
 internal static class RioAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<RioProgram, RioFrame, RioCue> Segments { get; } = new(
-        new Dictionary<RioProgram, AnimationBeat<RioFrame, RioCue>[]>
+    internal static AnimationSegments<RioProgram, EnemyFrameId, RioCue> Segments { get; } = new(
+        new Dictionary<RioProgram, AnimationBeat<EnemyFrameId, RioCue>[]>
     {
         [P.Idle] =
         [
-            Show(0, 4),
-            Show(1, 4),
+            Show(EnemyFrameId.RioPose0, 4),
+            Show(EnemyFrameId.RioPose1, 4),
         ],
         [P.PostSwoopIdle] =
         [
-            Show(0, 4),
-            Show(1, 4),
-            Show(0, 4),
-            Show(1, 4),
-            Show(0, 4),
-            Show(1, 4),
-            Show(2, 4),
-            Show(3, 4),
-            Show(2, 4),
-            Show(3, 4),
+            Show(EnemyFrameId.RioPose0, 4),
+            Show(EnemyFrameId.RioPose1, 4),
+            Show(EnemyFrameId.RioPose0, 4),
+            Show(EnemyFrameId.RioPose1, 4),
+            Show(EnemyFrameId.RioPose0, 4),
+            Show(EnemyFrameId.RioPose1, 4),
+            Show(EnemyFrameId.RioPose2, 4),
+            Show(EnemyFrameId.RioPose3, 4),
+            Show(EnemyFrameId.RioPose2, 4),
+            Show(EnemyFrameId.RioPose3, 4),
         ],
         [P.SwoopingPart1] =
         [
-            Show(2, 3),
-            Show(3, 3),
-            Show(4, 3),
-            Show(5, 3),
-            Show(6, 3),
+            Show(EnemyFrameId.RioPose2, 3),
+            Show(EnemyFrameId.RioPose3, 3),
+            Show(EnemyFrameId.RioPose4, 3),
+            Show(EnemyFrameId.RioPose5, 3),
+            Show(EnemyFrameId.RioPose6, 3),
             Cue(new(K.AnimationFinished)),
         ],
         [P.SwoopingPart2] =
         [
-            Show(7, 3),
-            Show(6, 3),
+            Show(EnemyFrameId.RioPose7, 3),
+            Show(EnemyFrameId.RioPose6, 3),
         ],
         [P.SwoopCooldown] =
         [
-            Show(6, 3),
-            Show(5, 3),
-            Show(4, 3),
-            Show(3, 3),
-            Show(2, 3),
+            Show(EnemyFrameId.RioPose6, 3),
+            Show(EnemyFrameId.RioPose5, 3),
+            Show(EnemyFrameId.RioPose4, 3),
+            Show(EnemyFrameId.RioPose3, 3),
+            Show(EnemyFrameId.RioPose2, 3),
             Cue(new(K.AnimationFinished)),
         ],
     });
@@ -70,9 +71,9 @@ internal static class RioAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<RioProgram> StartingWith(RioProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<RioFrame, RioCue> Show(int pose, int duration) => new AnimationBeat<RioFrame, RioCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyFrameId, RioCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, RioCue>.Frame(frame, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<RioFrame, RioCue> Cue(RioCue cue) => new AnimationBeat<RioFrame, RioCue>.Event(cue);
+    private static AnimationBeat<EnemyFrameId, RioCue> Cue(RioCue cue) => new AnimationBeat<EnemyFrameId, RioCue>.Event(cue);
 }

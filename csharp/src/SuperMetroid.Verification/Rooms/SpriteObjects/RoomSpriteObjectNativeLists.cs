@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Enemies.SpriteObjects;
 
 namespace SuperMetroid.Verification.Rooms.SpriteObjects;
 
@@ -7,9 +8,6 @@ internal static class RoomSpriteObjectNativeLists
 {
     /// <summary>The native selector table <c>$B4:BDA8</c>.</summary>
     internal const int SelectorTable = 0xb4bda8;
-
-    /// <summary>The cartridge's 62 object selectors.</summary>
-    internal const int SelectorCount = 62;
 
     /// <summary><c>Instruction_SpriteObject_GoBack4Bytes</c> at $B4:BCF0.</summary>
     internal const ushort GoBack4Bytes = 0xbcf0;
@@ -28,11 +26,15 @@ internal static class RoomSpriteObjectNativeLists
     internal static ushort Entry(ISnesAddressSpace rom, int selector) =>
         CartridgeImportSource.Require(rom).ReadCartridgeWord(SelectorTable + selector * sizeof(ushort));
 
-    /// <summary>Every spritemap the lists reachable from the 62 selectors show, following gotos.</summary>
+    /// <summary>
+    /// Every spritemap the lists of the objects the game spawns show (each <see cref="RoomSpriteObjectKind"/>'s
+    /// selector), following gotos; the lists of selectors nothing spawns are not the game's.
+    /// </summary>
     internal static IEnumerable<ushort> SpritemapPointers(ISnesAddressSpace rom)
     {
         var seen = new HashSet<ushort>();
-        var work = new Stack<ushort>(Enumerable.Range(0, SelectorCount).Select(selector => Entry(rom, selector)));
+        var work = new Stack<ushort>(Enum.GetValues<RoomSpriteObjectKind>().Distinct()
+            .Select(kind => Entry(rom, RoomSpriteObjectNativeWords.Kinds.Word(kind))));
         while (work.Count != 0)
         {
             ushort pointer = work.Pop();

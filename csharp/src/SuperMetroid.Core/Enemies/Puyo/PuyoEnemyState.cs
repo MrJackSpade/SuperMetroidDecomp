@@ -16,7 +16,7 @@ public sealed class PuyoEnemyState
 
     /// <summary>
     /// The furthest place the Puyo's index keeps: a step past it, as past the first row, restarts the fall, as the game's
-    /// sign test on the index's word does.
+    /// sign test on the index does.
     /// </summary>
     internal static readonly EnemyQuadraticSpeedIndex LargestYSpeedTableIndex =
         EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(short.MaxValue);

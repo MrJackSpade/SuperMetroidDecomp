@@ -11,7 +11,7 @@ using SuperMetroid.Core.Samus.Movement;
 
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
-/// <summary>The Spore Spawn species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Spore Spawn species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -147,8 +147,8 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         state.BodyPlayback = new AnimationPlayback<SporeSpawnBodyProgram>(SporeSpawnAnimations.StartingWith(SporeSpawnBodyProgram.InitialAlive), AnimationPlace.StartOfAnimation);
         body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole - 128);
 
-        // `flag_process_all_enemies = FFFF` is a global activity override, not an
-        // enemy property. Preserve that distinction so all room actors use the same scan.
+        // A full sweep is a global activity override, not an enemy property.
+        // Preserve that distinction so all room actors use the same scan.
         _frameContext.RequestFullSweep();
         state.ScrollClampHookActive = true;
         for (int argument = 0; argument < 4; argument++)
@@ -380,20 +380,20 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         });
     }
 
-    /// <summary>Ports SporeSpawn's main AI.</summary>
+    /// <summary>Runs SporeSpawn's main AI.</summary>
     internal void RunSporeSpawnMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
     {
         RunSporeSpawnMain(slot, RequireSporeSpawnState(slot));
     }
 
-    /// <summary>Plays Spore Spawn's body animation where the enemy instruction interpreter would run its list.</summary>
+    /// <summary>Plays Spore Spawn's body animation where the shared enemy animation would run its list.</summary>
     internal void AdvanceSporeSpawnAnimation(RoomEnemySlot body)
     {
         if (!EnemyProgramAnimation.Expire(body))
             return;
         SporeSpawnEnemyState state = RequireSporeSpawnState(body);
         AnimationPlayback<SporeSpawnBodyProgram> playback = state.BodyPlayback;
-        // The open-pulse and death-burst repeats count the body's timer word, as the timer commands do.
+        // The open-pulse and death-burst repeats count the body's frame timer, as the timer commands do.
         EnemyProgramAnimation.Play(body, SporeSpawnAnimations.Segments, ref playback, SporeSpawnFrameDefinitions.ShownFrames.Of,
             cue =>
             {
@@ -460,8 +460,8 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     }
     /// <summary>
     /// Whether the vulnerable core accepts the projectile: a charged beam, or any family but an
-    /// uncharged beam and a missile explosion. The original game tests the family nibble's low three bits, which only those
-    /// two families (nibbles 0 and 8) leave clear.
+    /// uncharged beam and a missile explosion. Of the projectile families, only those two leave the tested part of the
+    /// family clear.
     /// </summary>
     private static bool SporeSpawnAcceptsProjectile(SamusProjectileType projectileType) =>
         !projectileType.IsFamily(SamusProjectileFamily.Beam) && !projectileType.IsFamily(SamusProjectileFamily.MissileExplosion) ||

@@ -9,7 +9,7 @@ internal static class CeresDoorQuakeDefinitions
 {
     /// <summary>
     /// The door's earthquake strength, read from the current sample without drawing (#1619): the lowest 128 of the 4096
-    /// rolls of the sample's bits 0-11, one in 32, start the stronger quake; the rest the light one.
+    /// rolls of the sample modulo 4096, one in 32, start the stronger quake; the rest the light one.
     /// </summary>
     internal static readonly RandomChance StrongQuake = RandomChance.Lowest(128, new RandomSampleField(0, 12));
 

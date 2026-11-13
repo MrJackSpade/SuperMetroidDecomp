@@ -7,13 +7,12 @@ using SuperMetroid.Core.Samus.Abilities;
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>
-/// Incremental port of Samus's room-block movement scans.
+/// Samus's room-block movement scans.
 /// </summary>
 /// <remarks>
-/// Supported dispatcher categories are deliberately explicit: type 0 air, type 1
-/// non-square slopes, and ordinary solid-family types $8/$C/$E. Other types have room-object,
+/// Supported dispatcher categories are deliberately explicit: air, non-square slopes, and the ordinary solid,
+/// shootable and grapple types. Other types have room-object,
 /// damage, door, extension, or square-slope behavior and throw instead of being flattened
-/// to “air” or “solid.”
 /// </remarks>
 public static class SamusBlockCollision
 {
@@ -33,25 +32,25 @@ public static class SamusBlockCollision
         Ensure.NotNull(state);
         SamusKinematicsState probe = state.CreateCollisionProbe();
 
-        // Reusing the translated horizontal dispatcher also preserves square-slope and
+        // Reusing the horizontal dispatcher also preserves square-slope and
         // unsupported-block behavior. Any post-scan slope alignment touches only `probe`,
         // but collision side effects are not observational: touching a scroll
         // trigger still wakes its owner. Pass that shared owner through rather
         // than treating an extension-resolved trigger as an orphan during wall-jump checks.
         BlockMoveResult result = MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, probe, owner, new HorizontalBlockMove { Displacement = signedDistance, BlockReactionDirection = SamusCollisionDirection.NonDirectionalProbe });
-        // Submerging sand writes these real motion words even through wall observation.
+        // Submerging sand writes these real motion values even through wall observation.
         state.YSpeed = probe.YSpeed;
         state.YAcceleration = probe.YAcceleration;
 
         // (and square-slope clipping) writes Samus's real X subposition
         // even through the observational wall-jump probe entry point. The probe's accepted
-        // displacement is whole pixels on a block hit, so its final fractional word
+        // displacement is whole pixels on a block hit, so its final fraction
         // retains that write. Keep the live integer X unchanged. Dropping this write
         // let away movement accumulate fractional speed during the wall-check pose.
         if (result.Collided && result.EnemyCollision is null)
             state.Position = state.Position.WithFractionX(probe.Position.X.Fraction);
 
-        // The routine preceding the block scan has a separate
+        // The step preceding the block scan has a separate
         // real side effect: its touching path clears Samus's Y subposition. Copy that single
         // write back without committing the probe's X movement or slope alignment.
         if (result.EnemyCollision is { WasTouching: true })
@@ -65,7 +64,7 @@ public static class SamusBlockCollision
     /// without solid-enemy collision, and the subsequent non-square slope alignment.
     /// </summary>
     /// <param name="terrain">SamusTerrain</param>
-    /// <param name="state">Live or probe kinematics whose position, subposition, and collision-related motion words are updated.</param>
+    /// <param name="state">Live or probe kinematics whose position, subposition, and collision-related motion values are updated.</param>
     /// <param name="owner">The Samus whose collision reactions (spikes, boost blocks, bomb blocks) act, or null for an ownerless probe.</param>
     /// <param name="move">One horizontal block move: the displacement and which collision side effects it publishes (#633).</param>
     public static BlockMoveResult MoveHorizontal(SamusTerrain terrain, SamusKinematicsState state, SamusState? owner, HorizontalBlockMove move)
@@ -273,7 +272,7 @@ public static class SamusBlockCollision
                         {
                             break;
                         }
-                        // Station setups reject direction $F before finding their
+                        // Station setups reject the both-ways direction before finding their
                         // parent. An observational scan still clips against the access
                         // tile, but must not activate the station or demand an owner.
                         if (move.BlockReactionDirection != SamusCollisionDirection.NonDirectionalProbe &&
@@ -517,9 +516,8 @@ public static class SamusBlockCollision
                         break;
                     }
 
-                    // Selects its floor or ceiling test from bit 0 of
-                    // CollisionMovementDirection, not the distance's sign. The changed-
-                    // pose probe's direction $F therefore tests both ways as a floor.
+                    // Selects its floor or ceiling test from the collision movement direction, not the distance's sign. The
+                    // changed-pose probe's both-ways direction therefore tests both ways as a floor.
                     (acceptedDisplacement, collided) = ClipVerticalToNonSquareSlope(
                         state,
                         block,
@@ -640,8 +638,8 @@ public static class SamusBlockCollision
                     }
                     if (block.Behavior.TryGetContactCrumble(out ContactCrumbleBlock crumble) &&
                         acceptedDisplacement.IsPositive &&
-                        // The contact crumble checks the direction nibble, not the sign of
-                        // the tested clearance. Pose probes use F and delete the room object.
+                        // The contact crumble checks the collision direction, not the sign of
+                        // the tested clearance. Pose probes use the both-ways direction and delete the room object.
                         (move.BlockReactionDirection ?? SamusCollisionDirection.Down) == SamusCollisionDirection.Down)
                     {
                         if (terrain.RoomObjects is null)
@@ -652,15 +650,15 @@ public static class SamusBlockCollision
                         }
 
                         // The contact crumble always reports the block solid. Setup removes
-                        // the special collision nibble immediately (leaving the block
-                        // type-eight solid), and this downward scan remains clipped.
+                        // the special collision kind immediately (leaving the block
+                        // solid), and this downward scan remains clipped.
                         if (!terrain.RoomObjects.BlockReactions.TrySpawnSamusContactCrumbleBlock(
                                 terrain.Level,
                                 block.At,
                                 crumble))
                             break;
                     }
-                    // Pose expansion carries direction $F, not a downward
+                    // Pose expansion carries the both-ways direction, not a downward
                     // landing. Keep solidity without waking the save-station owner.
                     if (move.BlockReactionDirection != SamusCollisionDirection.NonDirectionalProbe &&
                         block.Behavior.TryGetStationAccess(out _) &&
@@ -859,7 +857,7 @@ public static class SamusBlockCollision
         if (remainingRows == 0)
         {
             // On the bottom scanned block, the body's bottom half can accept the selected
-            // quadrant directly. Otherwise the routine falls through to the opposite
+            // quadrant directly. Otherwise the test falls through to the opposite
             // vertical quadrant test below.
             if (((state.Radius.Y + state.Position.Y.Whole - 1) & 8) == 0 && !selectedSolid)
             {
@@ -919,7 +917,7 @@ public static class SamusBlockCollision
         bool collide;
 
         // A blocks-left count of zero always denotes the physical rightmost block, independent of
-        // which of the two alternating scan routines reached it. A count equal to the span denotes the physical leftmost
+        // which of the two alternating scans reached it. A count equal to the span denotes the physical leftmost
         // block. Interior blocks necessarily test both eight-pixel halves.
         if (blocksLeftToCheck == 0)
         {
@@ -1127,7 +1125,7 @@ public static class SamusBlockCollision
     /// </summary>
     public static void EjectAfterGrapple(RoomLevelData level, SamusKinematicsState state)
     {
-        // The game's horizontal scans only populate scratch distances: this routine never
+        // The game's horizontal scans only populate scratch distances: this step never
         // applies them. These probes do not trigger room objects, doors, damage, or enemies.
         int up = GrappleVerticalOverlap(level, state, direction: VerticalDirection.Down);
         int down = GrappleVerticalOverlap(level, state, direction: VerticalDirection.Up);

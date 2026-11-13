@@ -4,61 +4,61 @@
 internal static class EnemySpritemapDefinitionsConstants
 {
     /// <summary>Revision 60 prefix before gunship display compositions.</summary>
-    internal const int PreGunshipFrameCount = 1199;
+    internal const int PreGunshipFrameCount = 1046;
     /// <summary>Revision 59 prefix before Botwoon visual frames.</summary>
-    internal const int PreBotwoonFrameCount = 1183;
+    internal const int PreBotwoonFrameCount = 1030;
     /// <summary>Revision 58 prefix before Yard enemy visual frames.</summary>
-    internal const int PreYardFrameCount = 1079;
+    internal const int PreYardFrameCount = 926;
     /// <summary>Revision 57 prefix before work-robot visual frames.</summary>
-    internal const int PreWorkRobotFrameCount = 1052;
+    internal const int PreWorkRobotFrameCount = 899;
     /// <summary>Revision 56 prefix before Evir visual frames.</summary>
-    internal const int PreEvirFrameCount = 1028;
+    internal const int PreEvirFrameCount = 875;
     /// <summary>Revision 55 prefix before Mochtroid visual frames.</summary>
-    internal const int PreMochtroidFrameCount = 1022;
+    internal const int PreMochtroidFrameCount = 869;
     /// <summary>Revision 54 prefix before Tourian corpse artwork.</summary>
-    internal const int PreDeadTourianCorpseFrameCount = 1009;
+    internal const int PreDeadTourianCorpseFrameCount = 856;
     /// <summary>Revision 53 prefix before stationary dead Torizo artwork.</summary>
-    internal const int PreDeadTorizoStationaryFrameCount = 1008;
+    internal const int PreDeadTorizoStationaryFrameCount = 855;
     /// <summary>Revision 52 prefix before Rinka visual frames.</summary>
-    internal const int PreRinkaFrameCount = 1003;
+    internal const int PreRinkaFrameCount = 850;
     /// <summary>Revision 51 prefix before Viola visual frames.</summary>
-    internal const int PreViolaFrameCount = 995;
+    internal const int PreViolaFrameCount = 842;
     /// <summary>Revision 50 prefix before Chozo statue artwork.</summary>
-    internal const int PreChozoStatueFrameCount = 969;
+    internal const int PreChozoStatueFrameCount = 816;
     /// <summary>Revision 49 prefix before Norfair lava-jumper frames.</summary>
-    internal const int PreNorfairLavaJumperFrameCount = 958;
+    internal const int PreNorfairLavaJumperFrameCount = 805;
     /// <summary>Revision 48 prefix before Multiviola visual frames.</summary>
-    internal const int PreMultiviolaFrameCount = 950;
+    internal const int PreMultiviolaFrameCount = 797;
     /// <summary>Revision 47 prefix before Dragon enemy visual frames.</summary>
-    internal const int PreDragonFrameCount = 938;
+    internal const int PreDragonFrameCount = 785;
     /// <summary>Revision 46 prefix before Tripper/Kamer compositions.</summary>
-    internal const int PreTripperKamerFrameCount = 920;
+    internal const int PreTripperKamerFrameCount = 767;
     /// <summary>Revision 45 prefix before Shaktool visual frames.</summary>
-    internal const int PreShaktoolFrameCount = 905;
+    internal const int PreShaktoolFrameCount = 752;
     /// <summary>Revision 44 prefix before Metroid visual frames.</summary>
-    internal const int PreMetroidFrameCount = 901;
+    internal const int PreMetroidFrameCount = 748;
     /// <summary>Revision 43 prefix before shutter compositions.</summary>
-    internal const int PreShutterFrameCount = 896;
+    internal const int PreShutterFrameCount = 743;
     /// <summary>Revision 42 prefix before morph-ball eye artwork.</summary>
-    internal const int PreMorphBallEyeFrameCount = 874;
+    internal const int PreMorphBallEyeFrameCount = 721;
     /// <summary>Revision 41 prefix before face-block visual frames.</summary>
-    internal const int PreFaceBlockFrameCount = 869;
+    internal const int PreFaceBlockFrameCount = 716;
     /// <summary>Revision 40 prefix before Kago visual frames.</summary>
-    internal const int PreKagoFrameCount = 866;
+    internal const int PreKagoFrameCount = 713;
     /// <summary>Revision 39 prefix before Fly visual frames.</summary>
-    internal const int PreFlyFrameCount = 862;
+    internal const int PreFlyFrameCount = 709;
     /// <summary>Revision 38 prefix before Sciser visual frames.</summary>
-    internal const int PreSciserFrameCount = 850;
+    internal const int PreSciserFrameCount = 697;
     /// <summary>Revision 37 prefix before supplementary Ridley artwork.</summary>
-    internal const int PreRidleySupplementFrameCount = 819;
+    internal const int PreRidleySupplementFrameCount = 666;
     /// <summary>Revision 36 prefix before dead Torizo artwork.</summary>
-    internal const int PreDeadTorizoFrameCount = 818;
+    internal const int PreDeadTorizoFrameCount = 665;
     /// <summary>Revision 35 prefix before Mother Brain visual frames.</summary>
-    internal const int PreMotherBrainFrameCount = 800;
+    internal const int PreMotherBrainFrameCount = 647;
     /// <summary>Revision 34 retained-frame prefix before Ki Hunter artwork.</summary>
-    internal const int PreKiHunterFrameCount = 759;
+    internal const int PreKiHunterFrameCount = 606;
     /// <summary>Revision 33 retained-frame prefix before Yapping Maw artwork.</summary>
-    internal const int PreYappingMawFrameCount = 735;
+    internal const int PreYappingMawFrameCount = 582;
     /// <summary>Revision 32 prefix before room sprite-object compositions.</summary>
     internal const int PreRoomSpriteObjectFrameCount = 472;
     /// <summary>Revision 31 prefix before Draygon breath frames.</summary>

@@ -3,8 +3,8 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// Plays the Samus projectiles' typed animations (#1301, #1600) as the instruction handlers run their lists: each timed
-/// record installs its duration, spritemap and radii.
+/// Plays the Samus projectiles' typed animations (#1301, #1600) as the projectile animation runs their lists: each
+/// timed record installs its duration, frame and radii.
 /// </summary>
 internal static class SamusProjectilePrograms
 {
@@ -64,7 +64,7 @@ internal static class SamusProjectilePrograms
 
     /// <summary>
     /// The hitbox a freshly selected list declares through its first record, as the initializers' reads of the list's
-    /// radius bytes see it; a projectile with no list (the safe left-facing Murder Beam) reads zero.
+    /// radii see it; a projectile with no list (the safe left-facing Murder Beam) reads zero.
     /// </summary>
     internal static Extent16<RoomPixels> InitialRadius(SamusProjectileProgram? program)
     {

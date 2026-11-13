@@ -5,7 +5,7 @@ using SuperMetroid.Core.Enemies.SpriteObjects;
 
 namespace SuperMetroid.Core.Areas.Escape;
 
-/// <summary>The escape explosions species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The escape explosions species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class EscapeExplosionsBehavior
 {
@@ -22,11 +22,11 @@ internal sealed class EscapeExplosionsBehavior
     }
 
     /// <summary>Spawns an escape explosion's sprite object and requests its sound.</summary>
-    /// <remarks>A random low nibble of eight or more leaves the inherited X selector unchanged; the caller may supply zero or a block offset.</remarks>
+    /// <remarks>A random value whose remainder modulo 16 is eight or more leaves the inherited X selector unchanged; the caller may supply zero or a block offset.</remarks>
     public void SpawnEscapeExplosion(Position16<RoomPixels> position, int random, int inheritedX)
     {
         int choice = ZebesEscapeDefinitions.ExplosionChoice.Of(random);
-        // Preserve the game's unchanged-X branch, not the upstream C port's bugfix.
+        // Preserve the game's unchanged-X branch, not the upstream C rewrite's bugfix.
         if (choice < ZebesEscapeExplosionDefinitions.Choices.Length)
         {
             inheritedX = choice;

@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.Rios.Artwork;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -7,7 +6,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Rios;
 
-/// <summary>The Rio species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Rio species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -65,7 +64,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
         Position16<RoomPixels> camera)
     {
         // The Rio's main behaviour advances the global enemy RNG even though this particular family never
-        // consumes the returned word. Omitting that apparently-useless call changes every
+        // consumes the returned number. Omitting that apparently-useless call changes every
         // later random enemy in the room, so it is part of Rio's observable behavior.
         _room.Random.Generate();
 
@@ -253,7 +252,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidOperationException("Rio movement requires the current room level data.");
     }
 
-    /// <summary>Ports Rio's main AI.</summary>
+    /// <summary>Runs Rio's main AI.</summary>
     internal void RunRioMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunRioMain(
@@ -266,7 +265,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Rio's typed animation.</summary>
     internal static void AdvanceRioTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, RioAnimations.Segments, RioFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, RioAnimations.Segments,
             static (RioEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

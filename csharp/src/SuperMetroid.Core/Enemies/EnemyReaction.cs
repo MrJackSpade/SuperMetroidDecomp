@@ -1,13 +1,13 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// The named reactions an enemy has to Samus's touch, to her shots and bombs, and to her Power Bombs. A header names one
+/// The named reactions an enemy has to Samus's touch, to her shots and bombs, and to her Power Bombs. A definition names one
 /// for each kind of contact, and an extended hitbox names one for touch and one for shot; the import decides each from
 /// the game once. The values are arbitrary.
 /// </summary>
 public enum EnemyReaction
 {
-    /// <summary>The ordinary contact reaction: Samus takes the header damage, or her contact attack damages the enemy.</summary>
+    /// <summary>The ordinary contact reaction: Samus takes the definition's damage, or her contact attack damages the enemy.</summary>
     NormalEnemyTouch,
     /// <summary>The ordinary shot reaction: the enemy takes the weapon's damage by its vulnerabilities.</summary>
     NormalEnemyShot,
@@ -15,7 +15,7 @@ public enum EnemyReaction
     DudShot,
     /// <summary>
     /// The reaction that does nothing. Every reaction that returns at once is this one reaction, whichever enemy names
-    /// it; whether the engine still tests an enemy's extended hitboxes is the header's separate
+    /// it; whether the engine still tests an enemy's extended hitboxes is the definition's separate
     /// <see cref="EnemyHitboxScan"/>, not a property of this reaction.
     /// </summary>
     Ignore,

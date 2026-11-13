@@ -207,9 +207,9 @@ internal static class SamusOverreadServicesReader
 
     /// <summary>The charge flare's delays below its programs, one per byte of the table naming them.</summary>
     private static ChargeFlareDelaysBelowPrograms ChargeFlareDelays(IReadOnlyList<int> delays) =>
-        delays.Count == ChargeFlareAnimationDefinitions.ProgramTableLength && delays.All(delay => delay is >= 0 and <= byte.MaxValue)
+        delays.Count == ChargeFlareDelaysBelowPrograms.Places && delays.All(delay => delay is >= 0 and <= byte.MaxValue)
             ? new(delays)
-            : throw new InvalidDataException($"Samus overread file holds {delays.Count} charge-flare delays below the programs, not {ChargeFlareAnimationDefinitions.ProgramTableLength} bytes.");
+            : throw new InvalidDataException($"Samus overread file holds {delays.Count} charge-flare delays below the programs, not {ChargeFlareDelaysBelowPrograms.Places} bytes.");
 
     /// <summary>Whether each pose outside the transition table admits weapons.</summary>
     private static PostureAdmissionBeyondTransitions<SamusPoseId> PostureAdmission(IReadOnlyDictionary<string, bool> admissions)

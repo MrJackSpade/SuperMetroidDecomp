@@ -6,15 +6,15 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.World.RoomStates;
 
 /// <summary>
-/// A retail room and the state its selection chose: the room's fixed header and the settings of that state.
+/// A retail room and the state its selection chose: the room's fixed definition and the settings of that state.
 /// </summary>
 /// <remarks>
 /// The game selects the room's state immediately after reading
-/// the fixed header. State selection is data-driven and can depend on events, bosses, or
+/// the fixed definition. State selection is data-driven and can depend on events, bosses, or
 /// inventory. This first reusable loader accepts those facts explicitly; a fresh Ceres
 /// start supplies an all-clear context and therefore follows the exact default branch.
 /// <c>UpScroller</c> and <c>DownScroller</c> are the camera's vertical scroller distances in pixels, 0 through 255.
-/// <c>UsesIsolatedDoorTransition</c> is the header's common-room-element bit that door transitions read: when the
+/// <c>UsesIsolatedDoorTransition</c> is the definition's common-room-element flag that door transitions read: when the
 /// source or destination room sets it, the transition hides the foreground below the HUD and does not keep the common
 /// room elements' colours while the source palette fades.
 /// </remarks>
@@ -41,7 +41,7 @@ public sealed record SelectedRoom(RoomHeaderDefinition Definition, RoomStateSett
     /// <summary>Whether door transitions into or out of this room hide the foreground and drop the common room elements' colours.</summary>
     public bool UsesIsolatedDoorTransition => Definition.UsesIsolatedDoorTransition;
 
-    /// <summary>The entries the room's type-$9 blocks select by index.</summary>
+    /// <summary>The entries the room's door blocks select by index.</summary>
     public IReadOnlyList<DoorListEntry> Doors => RoomDoorListDefinitions.ByRoom[Definition];
 
     /// <summary>Logical area/room pair.</summary>

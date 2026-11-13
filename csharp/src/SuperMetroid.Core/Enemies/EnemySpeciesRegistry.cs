@@ -5,13 +5,13 @@ namespace SuperMetroid.Core.Enemies;
 /// <summary>
 /// The species registry: which factory creates the entity for each definition. An enemy system's registry covers every
 /// definition a retail room or the respawn placeholder can bind (<see cref="ForRetailRooms"/>), except the species no
-/// code ports yet.
+/// species without a model yet.
 /// </summary>
 internal sealed class EnemySpeciesRegistry
 {
     /// <summary>
-    /// Room-referenced definitions whose species AI is not ported: Reflec and the second dead
-    /// Sidehopper header, whose initialization was ported only for the first. Binding one fails loudly.
+    /// Room-referenced definitions whose species AI is not modelled: Reflec and the second dead
+    /// Sidehopper definition, whose initialization is modelled only for the first. Binding one fails loudly.
     /// </summary>
     private static readonly HashSet<EnemyDefinitionId> UnportedDefinitions = [EnemyDefinitionId.Reflec, EnemyDefinitionId.CorpseSidehopper2];
 
@@ -39,7 +39,7 @@ internal sealed class EnemySpeciesRegistry
 
     /// <summary>
     /// The registry of an enemy system: every definition a retail room places, and the respawn placeholder, has exactly
-    /// one factory unless its species is listed as not ported.
+    /// one factory unless its species is listed as not modelled.
     /// </summary>
     /// <param name="common">The shared participation every entity composes.</param>
     /// <param name="factories">The species' factories.</param>
@@ -57,12 +57,12 @@ internal sealed class EnemySpeciesRegistry
     }
 
     /// <summary>
-    /// Creates the entity for the occupant <paramref name="slot"/> now holds. A header outside the retail placements
-    /// (constructed test data, or a labelled header no room places) has no species: it runs only the shared
+    /// Creates the entity for the occupant <paramref name="slot"/> now holds. A definition outside the retail placements
+    /// (constructed test data, or a named definition no room places) has no species: it runs only the shared
     /// participation, and any AI it names beyond the shared no-op fails at dispatch.
     /// </summary>
     /// <param name="slot">The slot, already holding its new identity.</param>
-    /// <exception cref="InvalidDataException">The slot holds a definition whose species AI is not ported.</exception>
+    /// <exception cref="InvalidDataException">The slot holds a definition whose species AI is not modelled.</exception>
     internal IEnemyEntity Create(RoomEnemySlot slot)
     {
         Ensure.NotNull(slot);

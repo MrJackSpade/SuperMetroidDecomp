@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// update, then this one runs: unless the object rests,
 /// it counts down the updates its shown step stays and, when they run out, shows its sequence's next step, or, after
 /// the last step, ends the sequence and decides what comes next. A sequence the object starts while it updates shows
-/// its first step on that same update, as the original game's objects continued into their next list on the same
+/// its first step on that same update, as the game's objects continued into their next list on the same
 /// update. An object just placed decides on its first update, ending its empty first sequence there.
 /// </summary>
 /// <typeparam name="TStep">One step of the object's sequences.</typeparam>

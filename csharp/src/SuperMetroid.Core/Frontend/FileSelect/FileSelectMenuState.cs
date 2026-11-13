@@ -37,7 +37,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     private readonly AudioQueues? audio;
     /// <summary>Reads and mutates the checksummed three-slot save layout.</summary>
     private readonly SaveSlotStore saves;
-    /// <summary>The menu screen file select draws: its artwork, tilemaps, palette and sprite entries.</summary>
+    /// <summary>The menu screen file select draws: its artwork, pictures, palette and sprite entries.</summary>
     internal readonly MenuScreen screen;
     /// <summary>Tracks button edges used by menu navigation and confirmation.</summary>
     private readonly ControllerInputState controller = new();
@@ -363,7 +363,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         if (FileSelectItemRows.TryGetSaveSlot(SelectedItem, out _))
         {
             audio?.QueueSound(SamusSound.FileSelected, priority: SoundRequestPriority.Normal);
-            // `menu_index += 27` enters index 31 and enables only the selected helmet.
+            // The menu advances 27 places to index 31, which enables only the selected helmet.
             HelmetAnimationFrame = 0;
             helmetAnimationTimer = 1;
             Phase = FileSelectPhase.TurnSelectedHelmet;

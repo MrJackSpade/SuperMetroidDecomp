@@ -33,7 +33,7 @@ internal sealed class RoomEnemyRuntimeServices(
     public IZebetiteProgress ZebetiteProgress => progress;
     /// <summary>Exposes boss bits for the active room's area.</summary>
     public IAreaBossFlags Bosses => progress;
-    /// <summary>Exposes active room-object-header presence to enemy AI.</summary>
+    /// <summary>Exposes active room-object presence to enemy AI.</summary>
     public IRoomObjectPresence RoomObjects => this;
     /// <summary>Exposes the room camera's scroll-zone storage.</summary>
     public IRoomScrollZoneAccess RoomScroll => this;
@@ -86,6 +86,6 @@ internal sealed class RoomEnemyRuntimeServices(
         (room.LoadedScope.Floor ?? throw new InvalidOperationException("Only a room that shows a turning floor has its parts to animate."))
             .Show(frame);
 
-    /// <summary>Checks whether a requested Bomb Torizo hand room-object header remains active.</summary>
+    /// <summary>Checks whether a requested Bomb Torizo hand room object remains active.</summary>
     public bool BombTorizoHandRemains => roomObjects.BombTorizoHand.HandRemains;
 }

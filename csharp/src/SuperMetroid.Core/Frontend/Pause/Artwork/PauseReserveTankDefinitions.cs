@@ -7,7 +7,7 @@ public static class PauseReserveTankDefinitions
     public const int AnchorCount = 6;
 
     /// <summary>Full tank, trailing cap, empty tank and seven fill levels, as ten stable
-    /// frame-name/spritemap pairs in full, end-cap, empty, then Fill1..Fill7 order.</summary>
+    /// frame-name/picture pairs in full, end-cap, empty, then Fill1..Fill7 order.</summary>
     internal static readonly PauseReserveTankFrame[] Frames =
     [
         new("Full", PauseReserveTankVisual.Full),
@@ -22,7 +22,7 @@ public static class PauseReserveTankDefinitions
         new("Fill7", PauseReserveTankVisual.Fill7),
     ];
 
-    /// <summary>The partial-tank spritemap identity for each fill-step count, empty (zero steps) through seven steps.</summary>
+    /// <summary>The partial-tank picture identity for each fill-step count, empty (zero steps) through seven steps.</summary>
     internal static readonly PauseReserveTankVisual[] FillLevels =
     [
         PauseReserveTankVisual.Empty,

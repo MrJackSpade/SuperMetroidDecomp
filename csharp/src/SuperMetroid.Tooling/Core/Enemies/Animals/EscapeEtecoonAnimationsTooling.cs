@@ -1,5 +1,6 @@
 ﻿using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Animals.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Animals;
 
@@ -9,6 +10,6 @@ internal static class EscapeEtecoonAnimationsTooling
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params EscapeEtecoonProgram[] programs) =>
         programs.SelectMany(program => EscapeEtecoonAnimations.Segments.Beats(program))
-            .OfType<AnimationBeat<EscapeEtecoonFrame, EscapeEtecoonCue>.Frame>()
+            .OfType<AnimationBeat<EnemyFrameId, EscapeEtecoonCue>.Frame>()
             .Select(frame => EscapeEtecoonFrameToolingDefinitions.Spritemap(frame.Shown));
 }

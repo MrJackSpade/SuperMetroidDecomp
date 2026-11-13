@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>The beam-trail instructions; either stream may execute any of them.</summary>
+/// <summary>The beam-trail cues; either stream may run any of them.</summary>
 public enum ProjectileTrailInstruction
 {
     /// <summary>Left-stream step that moves its sprite one pixel down.</summary>

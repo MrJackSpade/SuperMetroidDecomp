@@ -13,7 +13,7 @@ internal enum TorizoProjectileCueKind
     AimSuperMissileTowardSamus,
     /// <summary>Aims a thrown super missile away from Samus.</summary>
     AimSuperMissileAwayFromSamus,
-    /// <summary>Requests the Chozo orb's drop from the loaded Torizo's orb header.</summary>
+    /// <summary>Requests the Chozo orb's drop from the loaded Torizo's orb definition.</summary>
     SpawnOrbDrops,
     /// <summary>Returns the projectile to the origin its spawn recorded.</summary>
     ReturnToOrigin,

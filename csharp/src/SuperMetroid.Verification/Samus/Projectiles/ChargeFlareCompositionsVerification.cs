@@ -33,10 +33,10 @@ internal static class ChargeFlareCompositionsVerification
         Suite(nameof(VerifyGrappleFlarePresentation), () => VerifyGrappleFlarePresentation(bus, body,
             roomAssets, maps, InstalledFixtures.Projectiles.Grapple));
         int cases = 0;
-        for (ushort selector = 0; selector < ChargeFlareSpriteSelection.Selectors.Count; selector++)
+        for (ushort selector = 0; selector < ChargeFlareSpriteNative.NativeSelectorCount; selector++)
         {
             AssertEqual(ReadNativeChargeFlareSelector(bus, selector),
-                ProjectileSpriteNative.Address(ChargeFlareSpriteSelection.Selectors[selector]), "Compiled charge-flare selector matches pinned cartridge");
+                ProjectileSpriteNative.Address(ChargeFlareSpriteDefinitions.NativeSelector(selector)), "Compiled charge-flare selector matches pinned cartridge");
             foreach (ushort x in new ushort[] { 0, 1, 127, 255, 256, 511, 65535 })
             foreach (ushort y in new ushort[] { 0, 1, 127, 255, 256, 511, 65535 })
             foreach (int occupied in new[] { 0, 126, 127 })
@@ -56,7 +56,7 @@ internal static class ChargeFlareCompositionsVerification
             }
         }
         var document = RequiredJson.Parse(json);
-        string first = ChargeFlareSpriteSelection.Selectors[0].Name;
+        string first = ChargeFlareSpriteDefinitions.All[0].Name;
         document.Required("frames").AsObject().Remove(first);
         AssertThrows<InvalidDataException>(() => Load(document), "Missing charge-flare composition rejected");
         document = JsonNode.Parse(json); (document ?? throw new InvalidOperationException("Verification requires document."))["damage"] = 1;

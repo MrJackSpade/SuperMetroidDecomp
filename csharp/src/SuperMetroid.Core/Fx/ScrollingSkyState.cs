@@ -5,27 +5,27 @@ using SuperMetroid.Core.Rooms.Scrolling;
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
-/// The scrolling sky's 23 parallax bands and the background vertical scroll (#1347).
+/// The scrolling sky's drifting bands and the background vertical scroll (#1347, #1687).
 /// </summary>
 /// <remarks>
-/// <see cref="ProcessFrame"/> advances the bands and the sky's vertical scroll. The sky's rows are
-/// drawn from its installed picture (<see cref="SuperMetroid.Core.Rooms.Backgrounds.SkyPictures"/>), so the game's
-/// circular row streaming is not modeled; the bands are published with <see cref="Publish"/>.
+/// <see cref="ProcessFrame"/> moves each drift (<see cref="ScrollingSkyBandDefinitions"/>) and the sky's vertical
+/// scroll. The sky's rows are drawn from its installed picture
+/// (<see cref="SuperMetroid.Core.Rooms.Backgrounds.SkyPictures"/>); the bands are published with <see cref="Publish"/>.
 /// </remarks>
 /// <param name="variant">The land or ocean chunk table the room main selects.</param>
-/// <param name="hasBands">Whether the sky FX or setup spawned the band per-line effect object.</param>
+/// <param name="hasBands">Whether the sky's effect or setup made the sky's bands drift.</param>
 [RoomLifetime]
 public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool hasBands = true)
 {
-    /// <summary>Only the sky FX/setup spawns the horizontal per-line effect object; the room-main callback alone does not.</summary>
+    /// <summary>Whether the sky's bands drift: only the sky's effect or setup starts them; the room-main callback alone does not.</summary>
     public bool HasBands { get; } = hasBands;
 
     /// <summary>The land or ocean chunk table the sky's rows follow.</summary>
     public ScrollingSkyChunkTable Variant { get; } = variant;
 
-    /// <summary>23 16.16 per-line data slots; the last slot is stationary.</summary>
-    private readonly FixedCoordinate[] _fixedHorizontalScrolls =
-        new FixedCoordinate[ScrollingSkyBandDefinitions.DataSlotCount];
+    /// <summary>How far each drift's bands have slid, in pixels and 65536ths, from where the room loaded them.</summary>
+    private readonly Dictionary<SkyDrift, FixedCoordinate> _phases =
+        ScrollingSkyBandDefinitions.Drifts.ToDictionary(drift => drift, _ => default(FixedCoordinate));
 
     /// <summary>
     /// Returns whether a room-state callback dispatches to the translated land-sky
@@ -67,59 +67,47 @@ public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool hasBa
     /// </summary>
     public Position16<BackgroundPixels> BackgroundScroll { get; private set; }
 
-    /// <summary>Whether the indirect table has not been terminated by a frozen frame.</summary>
-    public bool BandsShown { get; private set; } = hasBands;
+    /// <summary>Whether the frame shows the bands drifted: false on a frozen frame, which shows every band unshifted.</summary>
+    public bool ShowsDrift { get; private set; } = hasBands;
 
-    /// <summary>The whole-pixel horizontal offset of band <paramref name="slot"/>, one of the sky's 23 bands.</summary>
-    public int GetDataSlotPosition(int slot)
-    {
-        if ((uint)slot >= _fixedHorizontalScrolls.Length)
-            throw new ArgumentOutOfRangeException(nameof(slot));
-        return _fixedHorizontalScrolls[slot].Whole;
-    }
+    /// <summary>How many whole pixels the bands moving with <paramref name="drift"/> have slid sideways.</summary>
+    /// <param name="drift">One of the sky's drifts (<see cref="ScrollingSkyBandDefinitions.Drifts"/>).</param>
+    /// <exception cref="KeyNotFoundException"><paramref name="drift"/> is not one of the sky's drifts.</exception>
+    public int OffsetOf(SkyDrift drift) => _phases[Ensure.NotNull(drift)].Whole;
 
-    /// <summary>Advances the fixed-point sky bands and copies the camera Y into the background vertical scroll.</summary>
+    /// <summary>Moves each drift by its speed and copies the camera Y into the background vertical scroll; a frozen frame moves nothing.</summary>
     public void ProcessFrame(int cameraY, bool timeIsFrozen)
     {
         if (timeIsFrozen)
         {
-            // The sky's setup writes a zero first entry, terminating the table. The
-            // per-frame step likewise skips fixed-point advancement.
-            BandsShown = false;
+            // A frozen frame shows the bands unshifted and leaves every drift where it stands.
+            ShowsDrift = false;
             return;
         }
 
-        BandsShown = HasBands;
-        if (HasBands) AdvanceHorizontalScrolls();
+        ShowsDrift = HasBands;
+        if (HasBands)
+            foreach (SkyDrift drift in ScrollingSkyBandDefinitions.Drifts)
+                _phases[drift] = _phases[drift].MovedBy(drift.Speed);
         BackgroundScroll = new Position16<BackgroundPixels>(0, cameraY);
     }
 
     /// <summary>
-    /// The sky layer the frame shows, positioned from <paramref name="cameraY"/>; null when the room spawned no
-    /// band per-line effect object, whose background is the room's own background.
+    /// The sky the frame shows, its bands placed against the camera at <paramref name="cameraY"/>; null when the sky's bands
+    /// do not drift, whose background is the room's own background.
     /// </summary>
-    /// <param name="cameraY">The camera Y the bands are positioned from.</param>
+    /// <param name="cameraY">The camera's vertical position; a camera above the room's top reads as a negative room row.</param>
     public ScrollingSkyLayer? Publish(int cameraY)
     {
         if (!HasBands)
             return null;
-        var offsets = ImmutableArray.CreateBuilder<int>(_fixedHorizontalScrolls.Length);
-        for (int slot = 0; slot < _fixedHorizontalScrolls.Length; slot++)
-            offsets.Add(GetDataSlotPosition(slot));
-        return new ScrollingSkyLayer(cameraY, offsets.MoveToImmutable(), BandsShown);
-    }
-
-    /// <summary>Adds each strip's 16.16 speed and resets the stationary bottom strip.</summary>
-    private void AdvanceHorizontalScrolls()
-    {
-        for (int index = 0; index < ScrollingSkyBandDefinitions.SectionCount; index++)
+        ImmutableArray<SkyBand> bands = ScrollingSkyBandDefinitions.Bands;
+        var shown = ImmutableArray.CreateBuilder<ShownSkyBand>(bands.Length);
+        for (int index = 0; index < bands.Length; index++)
         {
-            SkyScrollSection section = ScrollingSkyBands.GetSection(index);
-            _fixedHorizontalScrolls[section.DataSlot] = _fixedHorizontalScrolls[section.DataSlot].MovedBy(section.Velocity);
+            int endRow = index + 1 < bands.Length ? bands[index + 1].TopRow : ScrollingSkyBandDefinitions.EndRow;
+            shown.Add(new ShownSkyBand(bands[index].TopRow, endRow, OffsetOf(bands[index].Drift)));
         }
-
-        // The sky clears the final fractional and integer words after all 23
-        // additions, keeping the bottommost section stationary.
-        _fixedHorizontalScrolls[ScrollingSkyBandDefinitions.DataSlotCount - 1] = default;
+        return new ScrollingSkyLayer(CoordinateAxis.AsSigned(cameraY), shown.MoveToImmutable(), ShowsDrift);
     }
 }

@@ -10,7 +10,7 @@ internal static class CeresDoorInitializationDefinitions
     /// <summary>
     /// The per-variant behaviour and animation choices
     /// of the Ceres door initializer.
-    /// Full-word population variants 0..6 select, in order, the animations for the
+    /// Population variants 0..6 select, in order, the animations for the
     /// normal right/left, pre-explosion, Ridley-room, invisible-wall, and
     /// two mode-7 wall programs; variant seven is outside the table.
     /// The separate main behaviour is the escape earthquake for

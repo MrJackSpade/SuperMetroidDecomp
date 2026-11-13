@@ -42,8 +42,8 @@ public sealed class HopperEnemyState
     /// <summary>Latch set by the idle animation's ready cue and consumed by WaitToHop; authored animation cadence, not a host jump timer, controls the next hop.</summary>
     public bool ReadyToHop { get; internal set; }
 
-    /// <summary>The header variant, 0 through 3: Sidehopper, large Sidehopper, large Dessgeega or Dessgeega; it selects the animation programs.</summary>
-    public int Variant { get; internal set; }
+    /// <summary>The kind of hopper its definition is, which selects its animation programs.</summary>
+    public HopperKind Kind { get; internal set; }
 
     /// <summary>Population parameter one: zero means floor, nonzero means ceiling.</summary>
     public bool UpsideDown { get; internal set; }

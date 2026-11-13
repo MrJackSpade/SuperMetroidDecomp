@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Progression;
 
 /// <summary>
 /// The bosses defeated in one area: its area boss, its mini-boss and its Torizo. The values are arbitrary and nothing
-/// reads them: the stored boss byte and the masks that test it are the import's progression table codec's.
+/// reads them: the stored boss flags and the masks that test them are the import's progression table codec's.
 /// </summary>
 [Flags]
 public enum BossBits

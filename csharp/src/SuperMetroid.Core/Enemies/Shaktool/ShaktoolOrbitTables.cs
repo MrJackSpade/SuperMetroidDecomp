@@ -7,12 +7,12 @@ public static class ShaktoolOrbitTables
     /// <remarks>
     /// Independently verified for #1165: trunc(3072*sin(angle*3.14159/128)) toward zero. Reduced pi and full-cycle
     /// evaluation preserve the asymmetric values and +/-3071 peaks without corrective samples. Reflection, true pi or
-    /// direct negative cosine differ. This exact convention does not identify the original authoring software.
+    /// direct negative cosine differ. This exact convention does not identify the authoring software.
     /// </remarks>
     internal static int SampleAt(TrigonometryAngle angle) => (int)UnquantizedSampleAt(angle);
 
-    /// <summary>Evaluates Shaktool's byte-angle sine with 24 decimal Taylor terms instead of platform math functions.</summary>
-    /// <remarks>Terms through x^47/47! keep full-cycle remainder and decimal roundoff below 1e-19 before scaling; the original-table proof checks both bounds at every angle.</remarks>
+    /// <summary>Evaluates Shaktool's sine, in 256ths of a turn, with 24 decimal Taylor terms instead of platform math functions.</summary>
+    /// <remarks>Terms through x^47/47! keep full-cycle remainder and decimal roundoff below 1e-19 before scaling; the authored-table proof checks both bounds at every angle.</remarks>
     internal static decimal UnquantizedSampleAt(TrigonometryAngle angle)
     {
         decimal x = angle.RawValue * 3.14159m / 128;

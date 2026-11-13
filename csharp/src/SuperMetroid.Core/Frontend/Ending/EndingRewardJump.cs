@@ -34,7 +34,7 @@ internal sealed class EndingRewardJump
     private readonly IntroDiscoverySprite? head;
     /// <summary>Shared vertical velocity; each active actor movement applies gravity to it.</summary>
     internal SignedSixteenSixteen Velocity { get; private set; }
-    /// <summary>Whether the shooting instruction has requested the ending screen capture.</summary>
+    /// <summary>Whether the shooting cue has requested the ending screen capture.</summary>
     public bool ShotRequested { get; private set; }
     /// <summary>Set when the body passes above the screen and Samus starts to fall back, as the falling Samus.</summary>
     public bool Falling { get; private set; }
@@ -50,7 +50,7 @@ internal sealed class EndingRewardJump
         body = Spawn(EndingRewardCast.JumpBody(reward));
     }
 
-    /// <summary>Advances head before body, including shared gravity and instruction effects.</summary>
+    /// <summary>Advances head before body, including shared gravity and cue effects.</summary>
     public void Step()
     {
         // Fixed slots put the head above the body in the descending handler.
@@ -162,7 +162,7 @@ internal sealed class EndingRewardJump
     }
 
 
-    /// <summary>Requires a suited jump's head actor when a head-specific instruction runs.</summary>
+    /// <summary>Requires a suited jump's head actor when a head-specific cue runs.</summary>
     private IntroDiscoverySprite RequireHead() => head ?? throw new InvalidDataException("Suited jump requested a missing head actor.");
     /// <summary>Creates a jump actor from its catalogued initial position, palette, and programs.</summary>
     private static IntroDiscoverySprite Spawn(EndingRewardActor definition)

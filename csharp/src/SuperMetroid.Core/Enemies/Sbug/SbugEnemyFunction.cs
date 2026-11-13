@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Sbug;
 
 /// <summary>
-/// The routine a Sbug enemy's main AI runs.
+/// The behaviour a Sbug enemy's main AI runs.
 /// Its values are arbitrary.
 /// </summary>
 public enum SbugEnemyFunction

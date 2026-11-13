@@ -6,7 +6,7 @@ using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Enemies.WreckedShip;
 
-/// <summary>The Wrecked Ship ghost species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Wrecked Ship ghost species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -37,9 +37,9 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     internal static void InitializeWreckedShipGhost(RoomEnemySlot slot)
     {
         // Every named retail ghost population places this actor in physical slot zero.
-        // Its tracking routine contains several absolute-Samus reads indexed by the
-        // enemy's slot; a nonzero slot would deliberately alias unrelated memory. Enforce the
-        // authored layout rather than silently pretending that retail bug has generic rules.
+        // Its tracking reads Samus's position through the enemy's slot; a nonzero slot would read
+        // unrelated state. Enforce the authored layout rather than silently pretending that retail
+        // bug has generic rules.
         if (!slot.IsListedFirst())
         {
             throw new InvalidDataException(
@@ -47,7 +47,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         }
 
         // The initializer sets the animation-script, intangibility and invisibility properties. In this host those mean
-        // instruction processing, exclusion from Samus interaction, and invisibility.
+        // animation processing, exclusion from Samus interaction, and invisibility.
         slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
         slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
         slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
@@ -351,7 +351,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
 
     /// <summary>Advances the Wrecked Ship ghost's typed animation.</summary>
     internal static void AdvanceWreckedShipGhostTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, WreckedShipGhostAnimations.Segments, WreckedShipGhostFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, WreckedShipGhostAnimations.Segments,
             static (WreckedShipGhostEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"The Wrecked Ship ghost's cue-free animation raised {cue}."));
 

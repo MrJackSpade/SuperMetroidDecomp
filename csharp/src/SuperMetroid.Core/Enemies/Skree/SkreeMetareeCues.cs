@@ -5,7 +5,7 @@ internal static class SkreeMetareeCues
 {
     /// <summary>
     /// Carries out one cue. The wind-up sleeps immediately after marking the attack ready; main AI consumes the flag on
-    /// the following enemy frame and starts the dive, exactly matching the instruction/AI hand-off.
+    /// the following enemy frame and starts the dive, exactly matching the animation-to-AI hand-off.
     /// </summary>
     /// <param name="slot">The enemy.</param>
     /// <param name="cue">The cue the program published.</param>

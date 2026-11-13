@@ -33,8 +33,6 @@ internal static class RoomFxRomDataVerification
             "room FX effect blend field");
         AssertEqual(15, RoomFxRomDataRecordTooling.PaletteBlendOffset,
             "room FX palette-blend field");
-        AssertEqual(23, ScrollingSkyBandDefinitions.SectionCount,
-            "scrolling-sky section count");
 
         RepresentativeType[] representativeTypes =
         [

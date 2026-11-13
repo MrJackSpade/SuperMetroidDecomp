@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// Draygon's colours (#1512, #1544, #1597): whether a hurt update last showed his material colours or their white flash,
 /// and his health band, which his material colours show and his white flash covers. His body layer shows the import's
 /// shades of them, and his sprites show his opening's colours and his sprite shades. His room and the Evirs he spawns show
-/// their own colours: the original game drew them in colours his hurt updates rewrote, which the port does not share.
+/// their own colours, which his hurt updates do not change.
 /// </summary>
 internal sealed class DraygonColours : IGameplayShadingSource
 {

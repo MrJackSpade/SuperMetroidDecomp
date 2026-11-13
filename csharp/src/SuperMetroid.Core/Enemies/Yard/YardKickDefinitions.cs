@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Yard;
 
-/// <summary>Yard vertical launch words indexed by the player's whole horizontal displacement.</summary>
+/// <summary>Yard vertical launch speeds indexed by the player's whole horizontal displacement.</summary>
 public static class YardKickDefinitions
 {
     /// <summary>The highest whole speed that selects its own launch; faster speeds share the last.</summary>

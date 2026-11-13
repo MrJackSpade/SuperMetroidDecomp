@@ -3,9 +3,6 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// <summary>The charge/Hyper flare and its directional sparks.</summary>
 public static class ChargeFlareSpriteDefinitions
 {
-    /// <summary>The flare frame offsets: both facing rows select the main flare at offset zero.</summary>
-    public const int MainFlareSelectorOffset = 0;
-
     /// <summary>How many compositions each flare family holds: four main flares, then the right slow, right fast, left slow and left fast spark groups.</summary>
     internal static readonly ProjectileSpriteGroupSize[] Groups =
     [
@@ -18,4 +15,31 @@ public static class ChargeFlareSpriteDefinitions
 
     /// <summary>The twenty-eight distinct flare and spark compositions, in family order.</summary>
     public static IReadOnlyList<ProjectileSpriteId> All { get; } = [.. Groups.SelectMany(group => group.Members)];
+
+    /// <summary>
+    /// The main flare composition each of the main flare's thirty pictures shows, by its place among the four main
+    /// compositions: the first two alternate for eight pictures, the third and second for eight more, and the third and
+    /// fourth for the last fourteen, which the main flare's loop repeats. Both facings show the same pictures.
+    /// </summary>
+    internal static readonly int[] MainFlarePictures =
+    [
+        0, 1, 0, 1, 0, 1, 0, 1,
+        2, 1, 2, 1, 2, 1, 2, 1,
+        2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3,
+    ];
+
+    /// <summary>
+    /// The spark compositions' families after the main flare's pictures, in the order the flare's draw lays its pictures
+    /// out: the right-facing slow and fast sparks, then the left-facing slow and fast sparks, six pictures each.
+    /// </summary>
+    internal static readonly ProjectileSpriteGroup[] SparkRuns =
+    [
+        ProjectileSpriteGroup.FlareSlowSparksRight,
+        ProjectileSpriteGroup.FlareFastSparksRight,
+        ProjectileSpriteGroup.FlareSlowSparksLeft,
+        ProjectileSpriteGroup.FlareFastSparksLeft,
+    ];
+
+    /// <summary>The pictures the flare's draw counts a component's place within: a place 256 pictures on shows the same one.</summary>
+    internal const int DrawnPictureCycle = 256;
 }

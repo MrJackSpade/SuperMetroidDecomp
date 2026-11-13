@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// A Power Bomb radius, or a per-frame change of radius, in 1/256 pixels from 0 through 65535. The explosion advances
 /// its radii and their shared speed with wraparound at 65536: a speed decelerated below zero wraps to a large value
 /// and a radius advanced past the top wraps to a small one, and the window shapes follow those wrapped values. The
-/// wrapping and carry-testing operations below are the only arithmetic the explosion performs on it.
+/// wrapping and overflow-testing operations below are the only arithmetic the explosion performs on it.
 /// </summary>
 public readonly record struct PowerBombRadius
 {
@@ -43,7 +43,7 @@ public readonly record struct PowerBombRadius
     public PowerBombRadius WrappingSubtract(int amount) => Wrap(RawValue - amount);
 
     /// <summary>
-    /// Adds <paramref name="other"/> unless the sum carries past 65535, the carry test the shape phases make before
+    /// Adds <paramref name="other"/> unless the sum passes 65535, the overflow test the shape phases make before
     /// changing either the radius or its speed.
     /// </summary>
     /// <returns>True with the sum when it fits; false, leaving <paramref name="sum"/> at this value, when it carries.</returns>

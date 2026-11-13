@@ -81,7 +81,7 @@ internal static class SamusCadenceDefinitions
 
     /// <summary>
     /// The updates on which Samus riding an elevator is drawn: every second update of the frame counter, on its even
-    /// place, so she flickers as the original's elevator did.
+    /// place, so she flickers on the elevator.
     /// </summary>
     internal static readonly UpdateCadence ElevatorRideDrawnEverySecondUpdate = new(2, 0);
 }

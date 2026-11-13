@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.MaridiaSnails.Artwork;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -7,7 +6,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 
-/// <summary>The Maridia large snail species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Maridia large snail species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -32,13 +31,6 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         _terrain = terrain;
         _collision = collision;
     }
-
-    /// <summary>The animation selector's left-facing choice: the right-facing program's selector plus one.</summary>
-    private const int MaridiaLargeSnailFacingSelector = 1;
-    /// <summary>Added to an idle selector to choose the same facing's forward roll.</summary>
-    private const int MaridiaLargeSnailRollingSelector = 2;
-    /// <summary>Selects the same facing's attack from idle, and toggles a roll between forwards and backwards.</summary>
-    private const int MaridiaLargeSnailAttackSelector = 4;
 
     /// <summary>Strict horizontal range in which Oum can push or carry Samus.</summary>
     private const int MaridiaLargeSnailPushingXDistance = 24;
@@ -69,8 +61,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     {
         var state = new MaridiaLargeSnailEnemyState
         {
-            RequestedAnimationScriptIndex = 0,
-            InstalledAnimationScriptIndex = 0,
+            RequestedAnimation = MaridiaLargeSnailAnimation.FacingRightIdle,
+            InstalledAnimation = MaridiaLargeSnailAnimation.FacingRightIdle,
             AttackAnimationFinished = false,
             AttackAllowsRotation = false,
             SamusInPushingRange = false,
@@ -86,9 +78,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         };
         slot.SetSpeciesState(state);
 
-        // The initial left-facing animation intentionally disagrees with installed selector zero,
-        // whose table entry is right-facing idle. Because installing the snail's animation suppresses equal
-        // selectors, this oddity is observable until Samus first selects a different index.
+        // The initial left-facing animation intentionally disagrees with the installed right-facing idle. Because asking for
+        // the installed animation again starts nothing, this oddity is observable until the snail first asks for another.
         state.Playback = new(MaridiaLargeSnailAnimations.StartingWith(MaridiaLargeSnailProgram.FacingLeftIdle), AnimationPlace.StartOfAnimation);
     }
 
@@ -144,12 +135,10 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             return;
         }
 
-        state.RequestedAnimationScriptIndex = 0;
-        if (CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0)
-        {
+        bool samusIsLeft = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0;
+        if (samusIsLeft)
             state.MovingLeft = true;
-            state.RequestedAnimationScriptIndex = 1;
-        }
+        state.RequestedAnimation = MaridiaLargeSnailPrograms.Idle(samusIsLeft);
         InstallMaridiaLargeSnailAnimationScript(slot, state);
 
         if (!EnemyMath.IsWithinStrictModularDistance(
@@ -160,7 +149,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             return;
         }
 
-        state.RequestedAnimationScriptIndex |= MaridiaLargeSnailRollingSelector;
+        state.RequestedAnimation = MaridiaLargeSnailPrograms.RollingFrom(state.RequestedAnimation);
         InstallMaridiaLargeSnailAnimationScript(slot, state);
         state.Function = MaridiaLargeSnailEnemyFunction.Rolling;
     }
@@ -203,17 +192,9 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                 state.RemainingBounces == 0;
             if (mayAttack)
             {
-                state.RequestedAnimationScriptIndex = 0;
-                state.MovingLeft = false;
-                if (CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0)
-                {
-                    state.RequestedAnimationScriptIndex = 1;
-                    state.MovingLeft = true;
-                }
-
+                state.MovingLeft = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0;
                 state.AttackCooldown = MaridiaLargeSnailInitialAttackCooldown;
-                state.RequestedAnimationScriptIndex =
-                    (state.RequestedAnimationScriptIndex & MaridiaLargeSnailFacingSelector) | MaridiaLargeSnailAttackSelector;
+                state.RequestedAnimation = MaridiaLargeSnailPrograms.Attacking(state.MovingLeft);
                 InstallMaridiaLargeSnailAnimationScript(slot, state);
                 state.Function = MaridiaLargeSnailEnemyFunction.Attacking;
                 return;
@@ -232,7 +213,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             return;
 
         state.AttackAnimationFinished = false;
-        state.RequestedAnimationScriptIndex -= MaridiaLargeSnailRollingSelector;
+        state.RequestedAnimation = MaridiaLargeSnailPrograms.RollingAfter(state.RequestedAnimation);
         InstallMaridiaLargeSnailAnimationScript(slot, state);
         state.Function = MaridiaLargeSnailEnemyFunction.Rolling;
     }
@@ -247,7 +228,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         {
             case MaridiaLargeSnailBounceFunction.Falling:
                 // The record stays within 3712 256ths of a record below the start through record 64, so the game's
-                // signed word comparisons are ordinary comparisons.
+                // signed comparisons are ordinary comparisons.
                 state.YSpeedTableIndex = EnemyQuadraticSpeedIndex.Min(
                     state.YSpeedTableIndex + MaridiaLargeSnailBounceAcceleration,
                     MaridiaLargeSnailMaximumFallIndex);
@@ -326,7 +307,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             return;
 
         state.MovingLeft = !state.MovingLeft;
-        state.RequestedAnimationScriptIndex ^= MaridiaLargeSnailAttackSelector;
+        state.RequestedAnimation = MaridiaLargeSnailPrograms.Reversed(state.RequestedAnimation);
         InstallMaridiaLargeSnailAnimationScript(slot, state);
     }
 
@@ -364,7 +345,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         if (MaridiaLargeSnailTouchesSamusFromBelow(slot, samus))
         {
             // Unlike most moving-platform producers, Oum assigns—not adds—the vertical
-            // displacement word. This preserves the last touching Oum's ownership.
+            // displacement. This preserves the last touching Oum's ownership.
             samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeY(CoordinateAxis.Difference(
                 slot.Position.Y.Whole, state.PreviousPosition.Y));
         }
@@ -463,23 +444,16 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         }
     }
 
-    /// <summary>Starts one of eight Oum animations only when the requested index changes.</summary>
+    /// <summary>Starts the requested animation only when it differs from the one the snail last started.</summary>
     internal static void InstallMaridiaLargeSnailAnimationScript(
         RoomEnemySlot slot,
         MaridiaLargeSnailEnemyState state)
     {
-        if (state.RequestedAnimationScriptIndex == state.InstalledAnimationScriptIndex)
+        if (state.RequestedAnimation == state.InstalledAnimation)
             return;
-        if (state.RequestedAnimationScriptIndex >= 8)
-        {
-            throw new InvalidDataException(
-                $"Maridia Large Snail list index {state.RequestedAnimationScriptIndex} " +
-                "is outside the retail eight-entry table.");
-        }
-
-        state.InstalledAnimationScriptIndex = state.RequestedAnimationScriptIndex;
+        state.InstalledAnimation = state.RequestedAnimation;
         state.Playback = new(MaridiaLargeSnailAnimations.StartingWith(MaridiaLargeSnailPrograms
-            .Program(state.RequestedAnimationScriptIndex)), AnimationPlace.StartOfAnimation);
+            .Program(state.RequestedAnimation)), AnimationPlace.StartOfAnimation);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
@@ -531,7 +505,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
 
     /// <summary>Advances the Maridia large snail's typed animation.</summary>
     internal void AdvanceMaridiaLargeSnailTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, MaridiaLargeSnailAnimations.Segments, MaridiaLargeSnailFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, MaridiaLargeSnailAnimations.Segments,
             static (MaridiaLargeSnailEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {
@@ -589,7 +563,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
 
                 // The damaging touch enters common touch damage and falls directly through the harmless touch's
                 // asymmetric shove. Harmless-touch frames execute only the shove, which is why the
-                // closed shell can carry/push Samus without inflicting the header's 100 HP.
+                // closed shell can carry/push Samus without inflicting the definition's 100 HP.
                 if (context.HitboxTouchAi == EnemyReaction.MaridiaLargeSnailDamagingTouch)
                     _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus);
                 ResolveMaridiaLargeSnailTouchAfterCommon(context.Slot, context.Samus);

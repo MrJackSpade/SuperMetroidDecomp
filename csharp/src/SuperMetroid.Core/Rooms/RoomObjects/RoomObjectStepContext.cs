@@ -30,7 +30,7 @@ internal readonly record struct RoomObjectStepContext(
         RoomObjects.Sounds.Queue(sound, Priority: priority);
 
     /// <summary>
-    /// Moves the slot's origin by whole blocks, as the game's move-room-object instructions do: through the room's blocks in
+    /// Moves the slot's origin by whole blocks, as the game's move-room-object cues do: through the room's blocks in
     /// reading order (<see cref="RoomLevelData.ObjectBlockStep"/>).
     /// </summary>
     internal void MoveOrigin(RoomObjectSlot slot, Offset16<RoomBlocks> step) =>

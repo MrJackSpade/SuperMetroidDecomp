@@ -8,7 +8,7 @@ internal static class EnemySoundEffectDefinitions
     /// <summary>Enemy-library sound queued when Alcoon emerges near Samus.</summary>
     internal static readonly SoundEffectId AlcoonEmergeSound = EnemySound.SidehopperLanding;
 
-    /// <summary>Enemy-library sound queued by each fireball instruction.</summary>
+    /// <summary>Enemy-library sound queued by each fireball cue.</summary>
     internal static readonly SoundEffectId AlcoonFireSound = EnemySound.AlcoonSpit;
 
     /// <summary>Enemy-library cue replacing the impact cue when the boulder breaks into dust.</summary>
@@ -17,7 +17,7 @@ internal static class EnemySoundEffectDefinitions
     /// <summary>Enemy-library cue published when a falling boulder touches ground.</summary>
     internal static readonly SoundEffectId BoulderImpactSound = EnemySound.BoulderBounce;
 
-    /// <summary>Enemy-library sound request emitted by Boyon's start-bounce instruction.</summary>
+    /// <summary>Enemy-library sound request emitted by Boyon's start-bounce cue.</summary>
     internal static readonly SoundEffectId BoyonBounceSound = EnemySound.SplashOut;
 
     /// <summary>Enemy-library request emitted by the spike-release animation command.</summary>
@@ -62,7 +62,7 @@ internal static class EnemySoundEffectDefinitions
     /// <summary>Enemy-library sound queued when an airborne Etecoon meets a wall.</summary>
     internal static readonly SoundEffectId EtecoonWallSound = EnemySound.EtecoonWallJump;
 
-    /// <summary>Enemy-library sound emitted by the spit instruction.</summary>
+    /// <summary>Enemy-library sound emitted by the spit cue.</summary>
     internal static readonly SoundEffectId EvirSpitSound = EnemySound.SidehopperLanding;
 
     /// <summary>Enemy-library cue when the eye finishes opening and requests its beam.</summary>
@@ -80,7 +80,7 @@ internal static class EnemySoundEffectDefinitions
     /// <summary>The enemy-library sound published when the Rio starts its return.</summary>
     internal static readonly SoundEffectId LowerNorfairRioReturnSound = EnemySound.HoltzCry;
 
-    /// <summary>Enemy-library sound requested by the spinning animation instruction.</summary>
+    /// <summary>Enemy-library sound requested by the spinning animation cue.</summary>
     internal static readonly SoundEffectId MamaTurtleSpinSound = EnemySound.TatoriSpinning;
 
     /// <summary>Enemy-library sound requested on Mama's hover collision with a wall.</summary>
@@ -92,7 +92,7 @@ internal static class EnemySoundEffectDefinitions
     /// <summary>Enemy-library splash sound emitted at the water collision.</summary>
     internal static readonly SoundEffectId MaridiaLargeSnailSplashSound = EnemySound.SplashOut;
 
-    /// <summary>Enemy-library sound selected by Metroid's private animation bytecode.</summary>
+    /// <summary>Enemy-library sound selected by Metroid's private animation program.</summary>
     internal static readonly SoundEffectId MetroidAnimationSoundEffect = EnemySound.MetroidDrain;
 
     /// <summary>Enemy-library sound queued when an unfrozen Metroid recoils.</summary>
@@ -128,13 +128,13 @@ internal static class EnemySoundEffectDefinitions
     /// <summary>Enemy-library attack sound emitted only while the Maw is on screen.</summary>
     internal static readonly SoundEffectId YappingMawAttackSound = EnemySound.YappingMaw;
 
-    /// <summary>Enemy-library sound queued by the Chozo statue's grab instruction.</summary>
+    /// <summary>Enemy-library sound queued by the Chozo statue's grab cue.</summary>
     internal static readonly SoundEffectId ChozoGrabsSamusSound = EnemySound.ChozoGrab;
 
-    /// <summary>Enemy-library sound queued by the Chozo statue's footstep instruction.</summary>
+    /// <summary>Enemy-library sound queued by the Chozo statue's footstep cue.</summary>
     internal static readonly SoundEffectId ChozoFootstepsSound = EnemySound.ChozoFootsteps;
 
-    /// <summary>Enemy-library small-explosion sound queued by an enemy death explosion's instruction.</summary>
+    /// <summary>Enemy-library small-explosion sound queued by an enemy death explosion's cue.</summary>
     internal static readonly SoundEffectId DeathSmallExplosionSound = EnemySound.SmallExplosion;
 
     /// <summary>Enemy-library sound queued by an enemy death explosion when contact killed the enemy.</summary>

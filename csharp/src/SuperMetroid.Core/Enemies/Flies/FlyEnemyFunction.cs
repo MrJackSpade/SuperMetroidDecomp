@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Flies;
 
 /// <summary>
-/// The routine a Mellow-family enemy's main AI runs each frame.
+/// The behaviour a Mellow-family enemy's main AI runs each frame.
 /// Its values are arbitrary.
 /// </summary>
 public enum FlyEnemyFunction

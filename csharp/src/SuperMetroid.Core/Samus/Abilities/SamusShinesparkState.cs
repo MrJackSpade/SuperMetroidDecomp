@@ -13,10 +13,10 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// State for stored Speed Booster shine and Samus's shinespark handler.
 /// </summary>
 /// <remarks>
-/// This is a transcription of the state machine, not a desktop “dash”
+/// This is the game's state machine, not a desktop “dash”
 /// controller. Timers wrap at 65536, movement retains split 16.16 values, and every
 /// palette is selected through the user's installed artwork. Solid-enemy collision remains an explicit
-/// boundary; block collision uses the translated dispatcher.
+/// boundary; block collision uses the shared dispatcher.
 /// </remarks>
 public sealed class SamusShinesparkState
 {
@@ -83,7 +83,7 @@ public sealed class SamusShinesparkState
     internal void RelinquishMovementHandler() => Phase = ShinesparkPhase.Inactive;
 
     /// <summary>
-    /// Whether the spark's routine is installed in the single movement-handler word: the windup setup
+    /// Whether the spark's handler is the single installed movement handler: the windup setup
     /// installs windup, and launch and crash replace it in turn until the crash finishes.
     /// </summary>
     public bool OwnsMovementHandler => Phase is
@@ -578,8 +578,8 @@ false);
 
         BlockMoveResult? horizontal = null;
         BlockMoveResult? vertical = null;
-        // Each axis ends by capping how far the camera's previous-position word trails
-        // Samus. Only a camera reads that word; fixtures without one pass no checkpoint.
+        // Each axis ends by capping how far the camera's previous position trails
+        // Samus. Only a camera reads it; fixtures without one pass no checkpoint.
         if (Phase is ShinesparkPhase.Horizontal or ShinesparkPhase.Diagonal)
         {
             horizontal = MoveX(terrain.Level, samus, terrain.RoomObjects);
@@ -785,7 +785,7 @@ false,             CrashSequenceFinished: true);
     public static void ApplyCrashFinishPose(SamusState samus)
     {
         // Transitional command two restores the normal input handler as well as beta. That
-        // replaces a drained pose's movement word too: a Samus drained mid-crash is free.
+        // replaces a drained pose's movement handler too: a Samus drained mid-crash is free.
         samus.InputSnapshot.ShinesparkPoseInputLocked = false;
         samus.Drained.RelinquishMovementHandler();
         SamusPoseId standingPose = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left)
@@ -855,7 +855,7 @@ false,             CrashSequenceFinished: true);
         return true;
     }
 
-    /// <summary>Exact byte-split multiplication used by the crash's sine and cosine.</summary>
+    /// <summary>Exact split multiplication used by the crash's sine and cosine.</summary>
     internal static Offset16<RoomPixels> ProjectileSinLookup(
         RotationAngle angle,
         int radius)
@@ -867,7 +867,7 @@ false,             CrashSequenceFinished: true);
         return new(x, y);
     }
 
-    /// <summary>Multiplies a positive sine half-wave and restores its sign after truncation, matching the projectile table routine.</summary>
+    /// <summary>Multiplies a positive sine half-wave and restores its sign after truncation, matching the projectile table.</summary>
     private static int LookupSignedComponent(
         RotationAngle angle,
         int radius)
@@ -950,7 +950,7 @@ false,             CrashSequenceFinished: true);
         // it back before the room move. If external Y is strong enough to reverse motion
         // downward, the temporary value is negative and deliberately bypasses this clamp.
         // The cap test is the sign of the whole pixels' difference from fifteen, which wraps for a magnitude more
-        // than 32753 pixels upward or downward, as the game's word comparison does.
+        // than 32753 pixels upward or downward, as the game's comparison does.
         SignedSixteenSixteen collisionMagnitude = -upwardDisplacement;
         if (CoordinateAxis.Difference(collisionMagnitude.WholePixels, 15) >= 0)
         {

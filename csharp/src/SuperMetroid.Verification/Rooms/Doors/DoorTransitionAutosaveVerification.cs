@@ -44,7 +44,6 @@ internal static class DoorTransitionAutosaveVerification
         string directory = Directory.CreateDirectory(Path.Combine(parent, "door-autosave-" + Guid.NewGuid().ToString("N"))).FullName;
         try
         {
-            var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             var random = new SharedRandom();
             var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random);
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
@@ -95,18 +94,17 @@ internal static class DoorTransitionAutosaveVerification
                 AssertEqual(game.AudioAcknowledgementsForVerification, loaded.Game.AudioAcknowledgementsForVerification,
                     "restored continuation acknowledgements");
                 AssertEqual(game.FrameNumber, loaded.Game.FrameNumber, "restored frame cadence");
-                AssertSameBytes(bus.WorkRam, loaded.AddressSpace.WorkRam, "restored continuation WRAM");
                 AssertSameBytes(SuperMetroid.Diagnostics.Saves.SaveRamCodec.Encode(game.Saves, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps),
                     SuperMetroid.Diagnostics.Saves.SaveRamCodec.Encode(loaded.Game.Saves, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), "restored continuation saves");
                 AssertEqual(runtime.Player.IntroducedSamus.Position.X.Whole, loaded.Game.GameplayRuntimeForVerification.Player.IntroducedSamus.Position.X.Whole, "restored Samus movement");
                 AssertEqual(runtime.System.RandomNumber, loaded.Game.GameplayRuntimeForVerification.System.RandomNumber, "restored RNG");
                 AssertTrue(expectedPcm.SequenceEqual(actualPcm), "restored continuation PCM");
                 AssertTrue(DoorTransitionAutosave.TrySave(true, false, SuperMetroidGameState.MainGameplay,
-                    store, bus, game) is null, "ordinary gameplay does not replace auto");
+                    store, game) is null, "ordinary gameplay does not replace auto");
             }
             AssertTrue(first.SequenceEqual(File.ReadAllBytes(autoPath)), "advancing gameplay preserves transition snapshot");
             AssertTrue(DoorTransitionAutosave.TrySave(true, true, SuperMetroidGameState.DoorTransition,
-                store, bus, game) is null, "replay does not overwrite recovery");
+                store, game) is null, "replay does not overwrite recovery");
             PrepareDoor(RoomHeaderDefinitions.LandingSite, RoomHeaderDefinitions.Parlor);
             AssertEqual(1, FinishDoor(enabled: true), "second transition writes one replacement");
             AssertEqual(RoomHeaderDefinitions.Parlor.Name, (store.Load(DebuggerStateFormat.AutomaticSlot).Metadata.Room ?? throw new InvalidOperationException("Verification requires store.Load(DebuggerStateFormat.AutomaticSlot).Metadata.Room.")),
@@ -119,7 +117,7 @@ internal static class DoorTransitionAutosaveVerification
             // Keep the destination open without delete sharing: replacement must fail
             // after a complete temporary write and retain the last valid snapshot.
             using (var locked = new FileStream(autoPath, FileMode.Open, FileAccess.Read, FileShare.Read))
-                AssertThrows<IOException>(() => store.Save(DebuggerStateFormat.AutomaticSlot, bus, game),
+                AssertThrows<IOException>(() => store.Save(DebuggerStateFormat.AutomaticSlot, game),
                     "failed atomic replacement is reported");
             AssertTrue(second.SequenceEqual(File.ReadAllBytes(autoPath)), "failed replacement preserves last valid auto");
             AssertEqual(0, Directory.GetFiles(storeDirectory, "*.tmp").Length, "failed replacement cleans temporary file");
@@ -127,7 +125,7 @@ internal static class DoorTransitionAutosaveVerification
             // runs in the background, where it is reported and leaves the previous recovery state in place.
             using (var locked = new FileStream(autoPath, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
-                AssertTrue(DoorTransitionAutosave.TrySave(true, false, SuperMetroidGameState.DoorTransition, store, bus, game) is not null,
+                AssertTrue(DoorTransitionAutosave.TrySave(true, false, SuperMetroidGameState.DoorTransition, store, game) is not null,
                     "door autosave returns its capture without waiting for the disk write");
                 store.WaitForPendingWrites();
             }
@@ -137,7 +135,7 @@ internal static class DoorTransitionAutosaveVerification
                 AssertEqual("manual slot " + slot, File.ReadAllText(store.GetSlotPath(slot)), "manual slots untouched");
             File.WriteAllText(autoPath, "invalid state");
             AssertThrows<InvalidDataException>(() => store.Load(DebuggerStateFormat.AutomaticSlot), "malformed auto retains normal compatibility validation");
-            Console.WriteLine("Door autosave: default/disabled INI, old options, real door completion, six-frame WRAM/SRAM/movement/RNG/PCM continuation, second replacement, replay exclusion, failed-write preservation and ten untouched manual slots pass.");
+            Console.WriteLine("Door autosave: default/disabled INI, old options, real door completion, six-frame SRAM/movement/RNG/PCM continuation, second replacement, replay exclusion, failed-write preservation and ten untouched manual slots pass.");
 
             int FinishDoor(bool enabled)
             {
@@ -146,7 +144,7 @@ internal static class DoorTransitionAutosaveVerification
                 {
                     var before = game.GameState;
                     game.Step(0);
-                    var saved = DoorTransitionAutosave.TrySave(enabled, false, before, store, bus, game);
+                    var saved = DoorTransitionAutosave.TrySave(enabled, false, before, store, game);
                     if (saved is not null)
                     {
                         store.WaitForPendingWrites();

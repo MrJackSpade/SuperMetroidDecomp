@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
-/// <summary>Compiled sound selections owned by Phantoon's instruction callbacks.</summary>
+/// <summary>Compiled sound selections owned by Phantoon's program cues.</summary>
 internal static class PhantoonSoundDefinitions
 {
     /// <summary>Fight-intro starting-flame spawn: room-library blue-flame sound.</summary>

@@ -1,11 +1,10 @@
 ﻿using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.Kzan.Artwork;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Enemies.Kzan;
 
-/// <summary>The Kzan species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Kzan species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -248,11 +247,11 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances Kzan's typed animation.</summary>
     internal static void AdvanceKzanTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, KzanAnimations.Segments, KzanFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, KzanAnimations.Segments,
             static (KzanEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A cue-free Kzan animation raised {cue}."));
 
-    /// <summary>Ports KzanTop's main AI.</summary>
+    /// <summary>Runs KzanTop's main AI.</summary>
     internal void RunKzanTopMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunKzanTopMain(slot, slot.RequireSpeciesState<KzanEnemyState>(), frame.Samus);

@@ -56,7 +56,7 @@ public sealed class FileSelectMapNavigation
         {
             case FileSelectMapNavigationPhase.Area:
                 // The game's direction handling changes areas only with debug enabled.
-                // Its non-debug branch replaces the working input word with zero when
+                // Its non-debug branch replaces the working input with none when
                 // a direction/Select edge exists, also suppressing a simultaneous confirm.
                 if ((pressed & (ControllerButton.Up | ControllerButton.Down | ControllerButton.Left |
                         ControllerButton.Right | ControllerButton.Select)) != ControllerButton.None) break;

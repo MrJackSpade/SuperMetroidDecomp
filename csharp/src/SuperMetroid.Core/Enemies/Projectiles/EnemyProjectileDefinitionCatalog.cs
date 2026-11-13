@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// </summary>
 internal static class EnemyProjectileDefinitionCatalog
 {
-    /// <summary>The complete definition of each translated projectile identity.</summary>
+    /// <summary>The complete definition of each modelled projectile identity.</summary>
     internal static readonly Dictionary<RoomEnemyProjectileKind, EnemyProjectileDefinition> Definitions = new()
     {
         [RoomEnemyProjectileKind.PrePhantoonRoom] = new(

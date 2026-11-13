@@ -1084,21 +1084,21 @@ internal static void VerifyScrollingSkyState()
     // The land sky's five chunks repeat from its first: chunk five shows page zero.
     AssertEqual(0, ScrollingSkyChunks.PageOf(ScrollingSkyChunkTable.Land, 5), "land chunk five wraps to the first sky page");
 
-    // The $02E0 section aliases data slot eight, which already received the $0238 row's
-    // +0.8000. Its additional +0.C000 produces integer 1 after only one frame.
-    AssertEqual(1, sky.GetDataSlotPosition(8), "sky aliased fast HDMA slot");
+    // The $02E0 band shows data slot eight, which receives both the $0238 row's +0.8000 and its
+    // own +0.C000: the shared fastest drift, a pixel and a quarter a frame, reaches pixel 1 after one frame.
+    AssertEqual(1, sky.OffsetOf(ScrollingSkyBandDefinitions.Fastest), "the bands at rows 568 and 736 share the fastest drift");
     ScrollingSkyLayer layer = sky.Publish(0x02c0) ?? throw new InvalidOperationException("The configured sky publishes its layer.");
-    AssertEqual(1, ScrollShapeLines.BandScroll(SkyBandScrolls.Of(layer, 0), DisplayScreen.HudHeight), "sky scanline resolves aliased HDMA slot");
+    AssertEqual(1, ScrollShapeLines.BandScroll(SkyBandScrolls.Of(layer, 0), DisplayScreen.HudHeight), "the first gameplay line shows row 736's shared fastest drift");
 
     sky.ProcessFrame(cameraY: 0x041f, timeIsFrozen: true);
-    AssertEqual(false, sky.BandsShown, "frozen sky terminates HDMA table");
+    AssertEqual(false, sky.ShowsDrift, "a frozen frame shows the bands unshifted");
     ScrollingSkyLayer frozen = sky.Publish(0x02c0) ?? throw new InvalidOperationException("The configured sky publishes its layer.");
-    AssertTrue(!frozen.BandsShown && ScrollShapeLines.GameplayScrolls(SkyBandScrolls.Of(frozen, 0)).All(scroll => scroll == 0), "a frozen frame shows every band unshifted");
-    AssertEqual(1, frozen.BandOffsets[8], "a frozen frame keeps the band offsets");
+    AssertTrue(!frozen.ShowsDrift && ScrollShapeLines.GameplayScrolls(SkyBandScrolls.Of(frozen, 0)).All(scroll => scroll == 0), "a frozen frame shows every band unshifted");
+    AssertEqual<int?>(1, frozen.BandAt(0x02e0)?.Offset, "a frozen frame keeps the band offsets");
     AssertTrue(new ScrollingSkyState(ScrollingSkyChunkTable.Land, hasBands: false).Publish(0) is null,
-        "a sky main without the band HDMA object publishes no sky layer");
+        "a sky main without drifting bands publishes no sky layer");
 
-    Console.WriteLine("  Sky: HDMA bands, chunk wrap and the published layer agree.");
+    Console.WriteLine("  Sky: drifting bands, chunk wrap and the published layer agree.");
 }
 
     /// <summary>Runs the HUD template and map reveal checks.</summary>

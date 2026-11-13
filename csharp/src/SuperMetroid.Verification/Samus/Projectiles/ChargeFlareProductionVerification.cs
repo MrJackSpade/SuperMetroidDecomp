@@ -47,7 +47,7 @@ internal static class ChargeFlareProductionVerification
                 // The flare draw writes only the charge's flare counter, frames and timers: each tick compares those, and
                 // the first tick of each pose compares the whole projectile state (#1567).
                 AssertEqual(native.Charge.FlareCounter, compiled.Charge.FlareCounter, "Drawing leaves the flare counters identical");
-                AssertTrue(native.Charge.FlareFrames.SequenceEqual(compiled.Charge.FlareFrames) && native.Charge.FlareTimers.SequenceEqual(compiled.Charge.FlareTimers),
+                AssertTrue(native.Charge.FlarePhases.SequenceEqual(compiled.Charge.FlarePhases) && native.Charge.FlareHolds.SequenceEqual(compiled.Charge.FlareHolds),
                     "Drawing leaves the flare animation state identical");
                 if (tick == 0)
                     AssertTrue(SameGraph(native, compiled, InstalledFixtures.BoundContent), "Drawing leaves projectile, flare-counter and animation state identical");
@@ -60,7 +60,7 @@ internal static class ChargeFlareProductionVerification
         foreach (ushort outOfTableFrame in new ushort[] { 54, 0xffff })
         {
             var invalidSelector = Create();
-            Array.Fill(invalidSelector.Charge.FlareFrames, outOfTableFrame);
+            Array.Fill(invalidSelector.Charge.FlarePhases, outOfTableFrame);
             var subject = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
             subject.Presentation.BindBodyFixture(body);
             OamBuffer outOfTableOam = invalidSelector.ChargeFlareOam(subject, new(0, 0), placement);
@@ -80,7 +80,7 @@ internal static class ChargeFlareProductionVerification
         SamusPresentation.InitializeAnimation(runtime.Player.IntroducedSamus);
         InstalledFixtures.BindProjectileArtwork(runtime);
         runtime.Projectiles.Charge.FlareCounter = 30;
-        Array.Fill(runtime.Projectiles.Charge.FlareTimers, WrappingCountdown.Start(100));
+        Array.Fill(runtime.Projectiles.Charge.FlareHolds, WrappingCountdown.Start(100));
         var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), null, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random);
         game.AdoptRuntime(runtime);
         SpriteImage PowerBeamSheet(InstalledSpriteSheets sheets) => sheets.Get(SpriteSheetId.ProjectilesPower).Image;
@@ -106,9 +106,9 @@ internal static class ChargeFlareProductionVerification
         {
             var system = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.SlotCount));
             system.Charge.FlareCounter = 30;
-            var frames = system.Charge.FlareFrames;
+            var frames = system.Charge.FlarePhases;
             Array.Fill(frames, 3);
-            Array.Fill(system.Charge.FlareTimers, WrappingCountdown.Start(3));
+            Array.Fill(system.Charge.FlareHolds, WrappingCountdown.Start(3));
             return system;
         }
     }

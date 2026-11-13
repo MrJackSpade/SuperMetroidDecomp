@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Cacatac;
 
-/// <summary>What a cue of Cacatac's programs does: one per instruction its lists use.</summary>
+/// <summary>What a cue of Cacatac's programs does: one per kind of step its lists use.</summary>
 internal enum CacatacCueKind
 {
     /// <summary>Plays the spike-release sound.</summary>

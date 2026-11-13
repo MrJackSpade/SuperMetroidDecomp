@@ -58,7 +58,7 @@ internal sealed record AreaMapPresentationParts
     /// <summary>Escape countdown visual layout and digit presentation.</summary>
     public required EscapeTimerPresentation EscapeTimer { get; init; }
 
-    /// <summary>Gameplay HUD tilemap and display presentation, separate from the standard HUD character atlas.</summary>
+    /// <summary>Gameplay HUD picture and display presentation, separate from the standard HUD character atlas.</summary>
     public required GameplayHudPresentation GameplayHud { get; init; }
 
     /// <summary>Selected game-over screen presentation resources.</summary>

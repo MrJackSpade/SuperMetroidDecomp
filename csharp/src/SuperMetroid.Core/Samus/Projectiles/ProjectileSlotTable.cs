@@ -23,7 +23,7 @@ internal sealed class ProjectileSlotTable
 
     /// <summary>Each place's projectile, in place order.</summary>
     internal IReadOnlyList<SamusProjectile> Slots => _places;
-    /// <summary>The lowest place no projectile holds, which the firing routines and the Super Missile's link take, or -1 when all are held.</summary>
+    /// <summary>The lowest place no projectile holds, which firing and the Super Missile's link take, or -1 when all are held.</summary>
     internal int FindFreeSlotIndex() => Array.FindIndex(_places, projectile => !projectile.IsOccupied);
 
     /// <summary>
@@ -94,7 +94,7 @@ internal sealed class ProjectileSlotTable
     }
 
     /// <summary>
-    /// How many shots Samus has out by the firing routines' count, zero or more; kept separately from the free-place
+    /// How many shots Samus has out by the firing count, zero or more; kept separately from the free-place
     /// search, so the two can disagree (a special attack sets it to four whatever its fifth place holds), and a deletion
     /// at zero leaves it at zero.
     /// </summary>

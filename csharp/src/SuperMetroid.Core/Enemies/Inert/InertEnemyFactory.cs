@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Inert;
 
 /// <summary>
-/// The occupants whose headers name no AI routine and ignore Samus's touch and shots: the respawn placeholder that holds
+/// The occupants whose definitions name no AI and ignore Samus's touch and shots: the respawn placeholder that holds
 /// a killed enemy's slot, and the Tourian statue ghost. They run the shared participation and no species AI.
 /// </summary>
 internal sealed class InertEnemyFactory : IEnemyEntityFactory

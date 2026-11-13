@@ -8,10 +8,10 @@ namespace SuperMetroid.Core.Input;
 /// so they deliberately do not appear in this type.
 /// </summary>
 /// <remarks>
-/// Most movement routines already compare their input against the default
+/// Most movement behaviours already compare their input against the default
 /// action bits. <see cref="Normalize"/> is the single equivalent of the game loading
 /// those configurable bindings before each comparison: it converts physical buttons into the
-/// canonical action bits without making every movement routine own a second binding table.
+/// canonical action bits without making every movement behaviour own a second binding table.
 /// </remarks>
 public readonly record struct ControllerBindings(
     ControllerButton Shoot,
@@ -121,7 +121,7 @@ public readonly record struct ControllerBindings(
 
     /// <summary>
     /// Converts one physical controller sample into the default action layout expected by the
-    /// translated gameplay routines while preserving non-configurable directions and Start.
+    /// gameplay while preserving non-configurable directions and Start.
     /// </summary>
     public ControllerButton Normalize(ControllerButton physicalInput)
     {

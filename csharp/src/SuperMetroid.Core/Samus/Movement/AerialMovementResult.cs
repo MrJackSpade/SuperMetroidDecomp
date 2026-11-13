@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// <param name="HitCeiling">Whether the upward pass stopped Samus at a ceiling.</param>
 /// <param name="WallJumpTriggered">Whether the wall probe accepted a wall-jump launch this frame.</param>
 /// <param name="WallContact">Whether the eight-pixel wall probe touched a wall or solid enemy.</param>
-/// <param name="WallDistance">Whole pixels the wall probe travelled before contact, never more than a signed word's magnitude; zero without contact.</param>
+/// <param name="WallDistance">Whole pixels the wall probe travelled before contact, never more than 32768; zero without contact.</param>
 [IndependentFlag("independent outcomes of one aerial step")]
 public readonly record struct AerialMovementResult(
     bool Landed,

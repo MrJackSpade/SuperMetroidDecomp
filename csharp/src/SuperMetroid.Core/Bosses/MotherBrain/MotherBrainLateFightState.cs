@@ -10,8 +10,8 @@ internal sealed class MotherBrainLateFightState
     }
 
     /// <summary>
-    /// Body enemy-slot animation state. The caller advances its enemy-instruction stage
-    /// after <see cref="MotherBrainRainbowBeamAttackSequence.Step"/>, matching the AI-then-instruction order.
+    /// Body enemy-slot animation state. The caller advances its animation stage
+    /// after <see cref="MotherBrainRainbowBeamAttackSequence.Step"/>, matching the AI-then-animation order.
     /// </summary>
     public MotherBrainBodyAnimationState Body { get; } = new();
 
@@ -92,7 +92,7 @@ internal sealed class MotherBrainLateFightState
     /// <summary>True once the final beam's Baby spawn has requested the cutscene Baby enemy population entry.</summary>
     public bool BabyMetroidSpawned { get; internal set; }
 
-    /// <summary>Restarts the separate brain instruction stream and publishes a new head-list request serial.</summary>
+    /// <summary>Restarts the separate brain program and publishes a new head-list request serial.</summary>
     internal void SetHeadProgram(MotherBrainHeadProgram program)
     {
         // The brain-program request restarts the separate brain program and its timer. Unlike ordinary
@@ -187,7 +187,7 @@ internal sealed class MotherBrainLateFightState
     internal bool MaybeRequestStandUpOrLeanDown(MotherBrainRandomSample randomNumberSeed)
     {
         // The lean helper ignores every pose except standing (zero) and leaning (six). A request still executes as body
-        // instruction bytecode later in the enemy-processing stage.
+        // animation later in the enemy-processing stage.
         if (!randomNumberSeed.Takes(MotherBrainRandomDefinitions.PostureChanges))
             return false;
 
@@ -230,7 +230,7 @@ internal sealed class MotherBrainLateFightState
         return false;
     }
 
-    /// <summary>Whether <paramref name="value"/> is at least <paramref name="threshold"/> by the sign of their wrapped difference, as the original game compares positions.</summary>
+    /// <summary>Whether <paramref name="value"/> is at least <paramref name="threshold"/> by the sign of their wrapped difference, as the game compares positions.</summary>
     internal static bool AtLeastBySignedDifference(int value, int threshold) =>
         CoordinateAxis.Difference(value, threshold) >= 0;
 

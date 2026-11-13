@@ -1,8 +1,7 @@
 namespace SuperMetroid.Core.Enemies.SpriteObjects;
 
 /// <summary>
-/// The spritemaps of every room sprite-object list the game's 62 object selectors reach: the frames the
-/// programs show and the rest of the installed sprite-object artwork.
+/// The frames the room sprite-object programs show.
 /// </summary>
 internal enum RoomSpriteObjectFrame
 {
@@ -22,40 +21,6 @@ internal enum RoomSpriteObjectFrame
     DraygonFoamingAtTheMouth6,
     /// <summary>Draygon foaming at the mouth, frame 7.</summary>
     DraygonFoamingAtTheMouth7,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject47,
-    /// <summary>Unused beam charge, frame 0.</summary>
-    BeamCharge0,
-    /// <summary>Unused beam charge, frame 1.</summary>
-    BeamCharge1,
-    /// <summary>Unused beam charge, frame 2.</summary>
-    BeamCharge2,
-    /// <summary>Unused beam charge, frame 3.</summary>
-    BeamCharge3,
-    /// <summary>Unused Mother Brain elbow particle, frame 0.</summary>
-    MBElbowParticle0,
-    /// <summary>Unused Mother Brain elbow particle, frame 1.</summary>
-    MBElbowParticle1,
-    /// <summary>Unused Mother Brain elbow particle, frame 2.</summary>
-    MBElbowParticle2,
-    /// <summary>Unused Mother Brain elbow particle, frame 3.</summary>
-    MBElbowParticle3,
-    /// <summary>Unused Mother Brain elbow particle, frame 4.</summary>
-    MBElbowParticle4,
-    /// <summary>Unused Mother Brain elbow particle, frame 5.</summary>
-    MBElbowParticle5,
-    /// <summary>Unused Mother Brain elbow energy, frame 0.</summary>
-    MBElbowEnergy0,
-    /// <summary>Unused Mother Brain elbow energy, frame 1.</summary>
-    MBElbowEnergy1,
-    /// <summary>Unused Mother Brain elbow energy, frame 2.</summary>
-    MBElbowEnergy2,
-    /// <summary>Unused Mother Brain elbow energy, frame 3.</summary>
-    MBElbowEnergy3,
-    /// <summary>Unused Mother Brain elbow energy, frame 4.</summary>
-    MBElbowEnergy4,
-    /// <summary>Unused Mother Brain elbow energy, frame 5.</summary>
-    MBElbowEnergy5,
     /// <summary>Small explosion, frame 0.</summary>
     SmallExplosion0,
     /// <summary>Small explosion, frame 1.</summary>
@@ -68,24 +33,6 @@ internal enum RoomSpriteObjectFrame
     SmallExplosion4,
     /// <summary>Small explosion, frame 5.</summary>
     SmallExplosion5,
-    /// <summary>Unused Bomb explosion, frame 0.</summary>
-    BombExplosion0,
-    /// <summary>Unused Bomb explosion, frame 1.</summary>
-    BombExplosion1,
-    /// <summary>Unused Bomb explosion, frame 2.</summary>
-    BombExplosion2,
-    /// <summary>Unused Bomb explosion, frame 3.</summary>
-    BombExplosion3,
-    /// <summary>Unused Bomb explosion, frame 4.</summary>
-    BombExplosion4,
-    /// <summary>Unused beam trail, frame 0.</summary>
-    BeamTrail0,
-    /// <summary>Unused beam trail, frame 1.</summary>
-    BeamTrail1,
-    /// <summary>Unused beam trail, frame 2.</summary>
-    BeamTrail2,
-    /// <summary>Unused beam trail, frame 3.</summary>
-    BeamTrail3,
     /// <summary>Dud shot, frame 0.</summary>
     DudShot0,
     /// <summary>Dud shot, frame 1.</summary>
@@ -98,16 +45,6 @@ internal enum RoomSpriteObjectFrame
     DudShot4,
     /// <summary>Dud shot, frame 5.</summary>
     DudShot5,
-    /// <summary>Unused power Bomb, frame 0.</summary>
-    PowerBomb0,
-    /// <summary>Unused power Bomb, frame 1.</summary>
-    PowerBomb1,
-    /// <summary>Unused power Bomb, frame 2.</summary>
-    PowerBomb2,
-    /// <summary>Unused elevator pad, frame 0.</summary>
-    ElevatorPad0,
-    /// <summary>Unused elevator pad, frame 1.</summary>
-    ElevatorPad1,
     /// <summary>Pirate landing dust cloud, frame 0.</summary>
     PirateLandingDustCloud0,
     /// <summary>Small dust cloud, frame 0.</summary>
@@ -124,14 +61,6 @@ internal enum RoomSpriteObjectFrame
     PirateLandingDustCloud2,
     /// <summary>Pirate landing dust cloud, frame 3.</summary>
     PirateLandingDustCloud3,
-    /// <summary>Unused eye door sweat drop, frame 0.</summary>
-    EyeDoorSweatDrop0,
-    /// <summary>Unused eye door sweat drop, frame 1.</summary>
-    EyeDoorSweatDrop1,
-    /// <summary>Unused eye door sweat drop, frame 2.</summary>
-    EyeDoorSweatDrop2,
-    /// <summary>Unused eye door sweat drop, frame 3.</summary>
-    EyeDoorSweatDrop3,
     /// <summary>Smoke, frame 0.</summary>
     Smoke0,
     /// <summary>Smoke, frame 1.</summary>
@@ -152,68 +81,6 @@ internal enum RoomSpriteObjectFrame
     BigExplosion4,
     /// <summary>Big explosion, frame 5.</summary>
     BigExplosion5,
-    /// <summary>Unused small energy drop of sprite object 13, frame 0.</summary>
-    SmallEnergyDropObject13Frame0,
-    /// <summary>Unused small energy drop of sprite object 13, frame 1.</summary>
-    SmallEnergyDropObject13Frame1,
-    /// <summary>Unused small energy drop of sprite object 13, frame 2.</summary>
-    SmallEnergyDropObject13Frame2,
-    /// <summary>Unused small energy drop of sprite object 13, frame 3.</summary>
-    SmallEnergyDropObject13Frame3,
-    /// <summary>Unused big energy drop, frame 0.</summary>
-    BigEnergyDrop0,
-    /// <summary>Unused big energy drop, frame 1.</summary>
-    BigEnergyDrop1,
-    /// <summary>Unused big energy drop, frame 2.</summary>
-    BigEnergyDrop2,
-    /// <summary>Unused big energy drop, frame 3.</summary>
-    BigEnergyDrop3,
-    /// <summary>Unused bomb, frame 0.</summary>
-    Bomb0,
-    /// <summary>Unused bomb, frame 1.</summary>
-    Bomb1,
-    /// <summary>Unused bomb, frame 2.</summary>
-    Bomb2,
-    /// <summary>Unused bomb, frame 3.</summary>
-    Bomb3,
-    /// <summary>Unused small energy drop of sprite object 16, frame 0.</summary>
-    SmallEnergyDropObject16Frame0,
-    /// <summary>Unused small energy drop of sprite object 16, frame 1.</summary>
-    SmallEnergyDropObject16Frame1,
-    /// <summary>Unused small energy drop of sprite object 16, frame 2.</summary>
-    SmallEnergyDropObject16Frame2,
-    /// <summary>Unused rock particles, frame 0.</summary>
-    RockParticles0,
-    /// <summary>Unused rock particles, frame 1.</summary>
-    RockParticles1,
-    /// <summary>Unused rock particles, frame 2.</summary>
-    RockParticles2,
-    /// <summary>Unused rock particles, frame 3.</summary>
-    RockParticles3,
-    /// <summary>Unused rock particles, frame 4.</summary>
-    RockParticles4,
-    /// <summary>Unused rock particles, frame 5.</summary>
-    RockParticles5,
-    /// <summary>Unused rock particles, frame 6.</summary>
-    RockParticles6,
-    /// <summary>Unused rock particles, frame 7.</summary>
-    RockParticles7,
-    /// <summary>Unused rock particles, frame 8.</summary>
-    RockParticles8,
-    /// <summary>Unused rock particles, frame 9.</summary>
-    RockParticles9,
-    /// <summary>Unused rock particles, frame 10.</summary>
-    RockParticles10,
-    /// <summary>Unused rock particles, frame 11.</summary>
-    RockParticles11,
-    /// <summary>Unused rock particles, frame 12.</summary>
-    RockParticles12,
-    /// <summary>Unused rock particles, frame 13.</summary>
-    RockParticles13,
-    /// <summary>Unused rock particles, frame 14.</summary>
-    RockParticles14,
-    /// <summary>Unused rock particles, frame 15.</summary>
-    RockParticles15,
     /// <summary>Big dust cloud, frame 0.</summary>
     BigDustCloud0,
     /// <summary>Big dust cloud, frame 1.</summary>
@@ -230,22 +97,6 @@ internal enum RoomSpriteObjectFrame
     BigDustCloud6,
     /// <summary>Big dust cloud, frame 7.</summary>
     BigDustCloud7,
-    /// <summary>Unused dust cloud beam, frame 0.</summary>
-    DustCloudBeam0,
-    /// <summary>Unused dust cloud beam, frame 1.</summary>
-    DustCloudBeam1,
-    /// <summary>Unused dust cloud beam, frame 2.</summary>
-    DustCloudBeam2,
-    /// <summary>Unused dust cloud beam, frame 3.</summary>
-    DustCloudBeam3,
-    /// <summary>Unused dust cloud beam, frame 4.</summary>
-    DustCloudBeam4,
-    /// <summary>Unused dust cloud beam, frame 5.</summary>
-    DustCloudBeam5,
-    /// <summary>Unused dust cloud beam, frame 6.</summary>
-    DustCloudBeam6,
-    /// <summary>Unused dust cloud beam, frame 7.</summary>
-    DustCloudBeam7,
     /// <summary>Short Draygon breath bubbles, frame 0.</summary>
     ShortDraygonBreathBubbles0,
     /// <summary>Short Draygon breath bubbles, frame 1.</summary>
@@ -264,132 +115,6 @@ internal enum RoomSpriteObjectFrame
     ShortDraygonBreathBubbles7,
     /// <summary>Short Draygon breath bubbles, frame 8.</summary>
     ShortDraygonBreathBubbles8,
-    /// <summary>Unused save station elect, frame 0.</summary>
-    SaveStationElect0,
-    /// <summary>Unused save station elect, frame 1.</summary>
-    SaveStationElect1,
-    /// <summary>Unused save station elect, frame 2.</summary>
-    SaveStationElect2,
-    /// <summary>Unused save station elect, frame 3.</summary>
-    SaveStationElect3,
-    /// <summary>Unused save station elect, frame 4.</summary>
-    SaveStationElect4,
-    /// <summary>Unused save station elect, frame 5.</summary>
-    SaveStationElect5,
-    /// <summary>Unused save station elect, frame 6.</summary>
-    SaveStationElect6,
-    /// <summary>Unused save station elect, frame 7.</summary>
-    SaveStationElect7,
-    /// <summary>Unused vertical gate, frame 0.</summary>
-    VerticalGate0,
-    /// <summary>Unused vertical gate, frame 1.</summary>
-    VerticalGate1,
-    /// <summary>Unused vertical gate, frame 2.</summary>
-    VerticalGate2,
-    /// <summary>Unused vertical gate, frame 3.</summary>
-    VerticalGate3,
-    /// <summary>Unused vertical gate, frame 4.</summary>
-    VerticalGate4,
-    /// <summary>Unused vertical gate, frame 5.</summary>
-    VerticalGate5,
-    /// <summary>Unused vertical gate, frame 6.</summary>
-    VerticalGate6,
-    /// <summary>Unused vertical gate, frame 7.</summary>
-    VerticalGate7,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject30Frame0,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject30Frame1,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject30Frame2,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject31Frame0,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject31Frame1,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject31Frame2,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject32Frame0,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject32Frame1,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject32Frame2,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject33Frame0,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject33Frame1,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject33Frame2,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject34Frame0,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject34Frame1,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject34Frame2,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject35Frame0,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject35Frame1,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject35Frame2,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject36Frame0,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject36Frame1,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject36Frame2,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject37Frame0,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject37Frame1,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject37Frame2,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject38Frame0,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject38Frame1,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject38Frame2,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject38Frame3,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject38Frame4,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject38Frame5,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject39Frame0,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject39Frame1,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject39Frame2,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject39Frame3,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject39Frame4,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject40Frame0,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject40Frame1,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject40Frame2,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject40Frame3,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject40Frame4,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject40Frame5,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject41Frame0,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject41Frame1,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject41Frame2,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject41Frame3,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject41Frame4,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject42,
     /// <summary>Puromi, frame 0.</summary>
     Puromi0,
     /// <summary>Puromi, frame 1.</summary>
@@ -450,14 +175,6 @@ internal enum RoomSpriteObjectFrame
     FallingSparkTrail2,
     /// <summary>Falling spark trail, frame 3.</summary>
     FallingSparkTrail3,
-    /// <summary>Unused Metroid insides, frame 0.</summary>
-    MetroidInsides0,
-    /// <summary>Unused Metroid insides, frame 1.</summary>
-    MetroidInsides1,
-    /// <summary>Unused Metroid insides, frame 2.</summary>
-    MetroidInsides2,
-    /// <summary>Unused Metroid insides, frame 3.</summary>
-    MetroidInsides3,
     /// <summary>Metroid electricity, frame 0.</summary>
     MetroidElectricity0,
     /// <summary>Metroid electricity, frame 1.</summary>
@@ -514,34 +231,10 @@ internal enum RoomSpriteObjectFrame
     MetroidShell1,
     /// <summary>Metroid shell, frame 2.</summary>
     MetroidShell2,
-    /// <summary>Enemy shot, frame 0.</summary>
-    EnemyShot0,
-    /// <summary>Enemy shot, frame 1.</summary>
-    EnemyShot1,
-    /// <summary>Enemy shot, frame 2.</summary>
-    EnemyShot2,
-    /// <summary>Enemy shot, frame 3.</summary>
-    EnemyShot3,
     /// <summary>Yapping maw base facing down frame.</summary>
     YappingMawBaseFacingDown,
     /// <summary>Yapping maw base facing up frame.</summary>
     YappingMawBaseFacingUp,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject58Frame0,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject58Frame1,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject58Frame2,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject58Frame3,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject58Frame4,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject58Frame5,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject58Frame6,
-    /// <summary>Unused sprite-object frame.</summary>
-    UnusedObject58Frame7,
     /// <summary>Evir facing left, frame 0.</summary>
     EvirFacingLeft0,
     /// <summary>Evir facing left, frame 1.</summary>

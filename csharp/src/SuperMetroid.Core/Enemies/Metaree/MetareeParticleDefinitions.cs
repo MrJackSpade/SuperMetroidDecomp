@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Enemies.Metaree;
 
 /// <summary>
-/// The particles Metaree bursts into. Their motion is Skree's, but each selects Metaree's own spritemap
+/// The particles Metaree bursts into. Their motion is Skree's, but each selects Metaree's own frame
 /// rather than Skree's visually different debris.
 /// </summary>
 internal static class MetareeParticleDefinitions

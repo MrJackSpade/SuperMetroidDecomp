@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 
-/// <summary>What a cue of Oum's programs does: one per instruction its lists use.</summary>
+/// <summary>What a cue of Oum's programs does: one per kind of step its lists use.</summary>
 internal enum MaridiaLargeSnailCueKind
 {
     /// <summary>Opens the window in which an attack may rotate the shell.</summary>

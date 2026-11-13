@@ -39,8 +39,8 @@ internal sealed class FakeKraidProjectileAnimation(FakeKraidProjectilePose pose)
     internal static IReadOnlyDictionary<FakeKraidProjectilePose, EnemyProjectileFrameId> ShownProjectileFrames { get; } =
         new Dictionary<FakeKraidProjectilePose, EnemyProjectileFrameId>
         {
-            [FakeKraidProjectilePose.Spit] = EnemyProjectileFrameId.FakeKraidFrame00,
-            [FakeKraidProjectilePose.SpikeLeft] = EnemyProjectileFrameId.FakeKraidFrame01,
-            [FakeKraidProjectilePose.SpikeRight] = EnemyProjectileFrameId.FakeKraidFrame02,
+            [FakeKraidProjectilePose.Spit] = EnemyProjectileFrameId.FakeKraidSpit,
+            [FakeKraidProjectilePose.SpikeLeft] = EnemyProjectileFrameId.FakeKraidSpikeLeft,
+            [FakeKraidProjectilePose.SpikeRight] = EnemyProjectileFrameId.FakeKraidSpikeRight,
         };
 }

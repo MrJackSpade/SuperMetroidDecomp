@@ -1,22 +1,22 @@
 namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 
-/// <summary>The eight mutually exclusive facing/action animation states used by Oum.</summary>
-internal enum MaridiaLargeSnailAnimation
+/// <summary>Oum's animation: idle, rolling forwards or backwards, or attacking, facing left or right.</summary>
+public enum MaridiaLargeSnailAnimation
 {
-    /// <summary>Selects the one-frame, sleeping right-facing list.</summary>
-    FacingRightIdle = 0,
-    /// <summary>Selects the one-frame, sleeping left-facing list.</summary>
-    FacingLeftIdle = 1,
-    /// <summary>Selects the right-facing rolling loop that changes attack-rotation permission.</summary>
-    FacingRightRollingForwards = 2,
-    /// <summary>Selects the corresponding left-facing rolling loop.</summary>
-    FacingLeftRollingForwards = 3,
-    /// <summary>Selects the right-facing attack with its splash sound and completion callback.</summary>
-    FacingRightAttacking = 4,
-    /// <summary>Selects the left-facing attack with its splash sound and completion callback.</summary>
-    FacingLeftAttacking = 5,
-    /// <summary>Selects the right-facing backward roll that loops to its own first frame.</summary>
-    FacingRightRollingBackwards = 6,
-    /// <summary>Selects the left-facing backward roll that loops to its own first frame.</summary>
-    FacingLeftRollingBackwards = 7,
+    /// <summary>The one-frame, sleeping right-facing idle.</summary>
+    FacingRightIdle,
+    /// <summary>The one-frame, sleeping left-facing idle.</summary>
+    FacingLeftIdle,
+    /// <summary>The right-facing rolling loop that changes attack-rotation permission.</summary>
+    FacingRightRollingForwards,
+    /// <summary>The corresponding left-facing rolling loop.</summary>
+    FacingLeftRollingForwards,
+    /// <summary>The right-facing attack with its splash sound and completion cue.</summary>
+    FacingRightAttacking,
+    /// <summary>The left-facing attack with its splash sound and completion cue.</summary>
+    FacingLeftAttacking,
+    /// <summary>The right-facing backward roll that loops to its own first frame.</summary>
+    FacingRightRollingBackwards,
+    /// <summary>The left-facing backward roll that loops to its own first frame.</summary>
+    FacingLeftRollingBackwards,
 }

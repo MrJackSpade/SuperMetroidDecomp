@@ -1,7 +1,9 @@
+using SuperMetroid.Core.Samus.Projectiles;
+
 namespace SuperMetroid.Core.Samus.Grapple;
 
 /// <summary>
-/// Named equivalents of the grapple words used by connected swinging.
+/// The grapple state connected swinging uses.
 /// </summary>
 public sealed class SamusGrappleState
 {
@@ -21,7 +23,7 @@ public sealed class SamusGrappleState
     public Position16<RoomPixels> RopeStart { get; set; }
 
     /// <summary>
-    /// The flare position, retained under the original host-facing
+    /// The flare position, retained under the older host-facing
     /// BeamStart name. <c>DrawConnectedBeam</c> starts drawing
     /// here; do not use this position to reconstruct command-10 body positioning.
     /// </summary>
@@ -62,7 +64,7 @@ public sealed class SamusGrappleState
     /// <summary>
     /// The beam's quarter velocity, whole and fractional, on both axes.
     /// Each firing frame rebuilds them from the extension
-    /// velocity, but the outer bytes keep last frame's values, so they are state rather than
+    /// velocity, but parts of each keep last frame's values, so they are state rather than
     /// a pure function of the velocity.
     /// </summary>
     public FixedVector<RoomPixels> QuarterVelocity { get; set; }
@@ -175,13 +177,16 @@ public sealed class SamusGrappleState
     public GrappleFlareStage FlareStage { get; set; }
 
     /// <summary>
-    /// Position in the main-flare delay stream, 0 through 65535. The flare step advances and rewinds it as a
-    /// counter wrapping at 65536, so a malformed rewind operand wraps it exactly as the game's arithmetic does;
-    /// values outside that range are rejected.
+    /// The main-flare picture the grapple's flare shows, one of the main flare's pictures: the flare restarts at the
+    /// main flare's loop when fired and plays its program on from there.
     /// </summary>
-    public int FlareAnimationFrame { get; set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value); }
+    public int FlareAnimationFrame
+    {
+        get;
+        set => field = Ensure.BetweenInclusive(0, ChargeFlareAnimations.LastPicture(ChargeFlareComponent.MainFlare), value);
+    }
 
-    /// <summary>Decrement-before-test animation timer.</summary>
+    /// <summary>The wait the grapple's flare holds its picture for: the picture shows for it and one update more.</summary>
     public WrappingCountdown FlareAnimationTimer { get; set; }
 
     /// <summary>Gets or sets the grapple endpoint animation countdown.</summary>

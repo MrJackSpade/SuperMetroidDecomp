@@ -19,7 +19,7 @@ public sealed class MaridiaElevatubeRoomMainState
     public bool IsActive { get; private set; }
 
     /// <summary>
-    /// The tube's tracked room position at X zero: its whole Y pixels, wrapping at 16 bits as the game's word does.
+    /// The tube's tracked room position at X zero: its whole Y pixels, wrapping as the game's coordinate does.
     /// </summary>
     public Position16<RoomPixels> TrackedPosition { get; private set; }
 
@@ -34,7 +34,7 @@ public sealed class MaridiaElevatubeRoomMainState
 
     /// <summary>
     /// Builds one room's elevatube owner, selecting whether the elevatube owns the room. The door callbacks initialize the
-    /// room-main words this routine reads.
+    /// room-main values this behaviour reads.
     /// </summary>
     /// <param name="active">Whether the room state runs the elevatube.</param>
     /// <param name="carryover">The room-main value the previous room left, whose fraction the tube adopts.</param>
@@ -70,7 +70,7 @@ public sealed class MaridiaElevatubeRoomMainState
 
     /// <summary>
     /// Applies Samus command one used by both exit callbacks. Room loading has already
-    /// selected a non-elevatube main routine, so no host-side movement state survives.
+    /// selected a non-elevatube main behaviour, so no host-side movement state survives.
     /// </summary>
     public void ResetOnExit(SamusState samus)
     {
@@ -101,7 +101,7 @@ public sealed class MaridiaElevatubeRoomMainState
         SamusState activeSamus = samus ?? throw new InvalidOperationException(
             "Maridia elevatube room main requires an active Samus state.");
 
-        // Stores the whole and fractional X words separately every frame.
+        // Stores the whole and fractional X separately every frame.
         activeSamus.Kinematics.Position = activeSamus.Kinematics.Position.WithX(new FixedCoordinate(MaridiaElevatubeDefinitions.SamusCenterX, 0));
 
         SignedSixteenSixteen displacement = Velocity.ToSixteenSixteenDelta();
@@ -115,7 +115,7 @@ public sealed class MaridiaElevatubeRoomMainState
 
         // The game's biased unsigned range test is exactly the inclusive signed range of the maximum speed either
         // way; a candidate outside it is rejected rather than clamped, leaving the preceding velocity intact. The sum
-        // wraps as the game's word does, so an overflowed candidate is judged by its wrapped sign.
+        // wraps as the game's coordinate does, so an overflowed candidate is judged by its wrapped sign.
         SignedEightEight candidate = Velocity + Acceleration;
         if (candidate >= -MaridiaElevatubeDefinitions.MaximumSpeed && candidate <= MaridiaElevatubeDefinitions.MaximumSpeed)
             Velocity = candidate;

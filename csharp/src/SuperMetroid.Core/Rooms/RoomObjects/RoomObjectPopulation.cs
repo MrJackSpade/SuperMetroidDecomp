@@ -36,7 +36,7 @@ public sealed class RoomObjectPopulation
 
     /// <summary>Builds a retail population from its compiled records, binding scroll triggers to their compiled program identities.</summary>
     /// <param name="name">The population's name.</param>
-    /// <param name="records">Each record's room-object header, block coordinates and room argument, in authored order.</param>
+    /// <param name="records">Each record's room-object identity, block coordinates and room argument, in authored order.</param>
     internal static RoomObjectPopulation FromRecords(string name, RoomObjectPlacementDefinition[] records) =>
         new(name, Ensure.NotNull(records).Select(record => new RoomObjectPlacement(
             RoomObjectHeaders.Get(record.Header), record.Block, record.Argument, Cannon: record.Cannon)

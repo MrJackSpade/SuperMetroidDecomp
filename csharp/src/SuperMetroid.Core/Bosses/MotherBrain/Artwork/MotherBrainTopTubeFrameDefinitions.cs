@@ -11,9 +11,9 @@ internal static class MotherBrainTopTubeFrameDefinitions
     internal static IReadOnlyDictionary<MotherBrainTopTubeProgram, EnemyProjectileFrameId> ShownProjectileFrames { get; } =
         new Dictionary<MotherBrainTopTubeProgram, EnemyProjectileFrameId>
         {
-            [MotherBrainTopTubeProgram.TopRight] = EnemyProjectileFrameId.MotherBrainTopTubeFrame00,
-            [MotherBrainTopTubeProgram.TopLeft] = EnemyProjectileFrameId.MotherBrainTopTubeFrame01,
-            [MotherBrainTopTubeProgram.TopMiddleLeft] = EnemyProjectileFrameId.MotherBrainTopTubeFrame02,
-            [MotherBrainTopTubeProgram.TopMiddleRight] = EnemyProjectileFrameId.MotherBrainTopTubeFrame03,
+            [MotherBrainTopTubeProgram.TopRight] = EnemyProjectileFrameId.MotherBrainTopTubeTopRight,
+            [MotherBrainTopTubeProgram.TopLeft] = EnemyProjectileFrameId.MotherBrainTopTubeTopLeft,
+            [MotherBrainTopTubeProgram.TopMiddleLeft] = EnemyProjectileFrameId.MotherBrainTopTubeTopMiddleLeft,
+            [MotherBrainTopTubeProgram.TopMiddleRight] = EnemyProjectileFrameId.MotherBrainTopTubeTopMiddleRight,
         };
 }

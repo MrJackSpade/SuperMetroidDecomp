@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// Compiled mechanics definitions consumed by the downward-gate shot-block setup routine.
+/// Compiled mechanics definitions consumed by the downward-gate shot-block setup.
 /// </summary>
 internal static class DownwardGateShotBlockDefinitions
 {

@@ -183,9 +183,9 @@ internal sealed class MotherBrainRainbowAndDeath
             throw new InvalidOperationException(
                 "Mother Brain entered a rainbow function without its live sequence owner.");
 
-        // Body bytecode and articulated-head AI ran through the physical room records on
-        // previous frames. Import those words before dispatch so walk completion and neck
-        // aiming are decided from the same state the original game would read.
+        // The body program and articulated-head AI ran through the physical room records on
+        // previous frames. Import that state before dispatch so walk completion and neck
+        // aiming are decided from the same state the game would read.
         SynchronizeLiveMotherBrainRainbowActor(state, sequence);
 
         bool typewriterFinished = false;
@@ -215,7 +215,7 @@ internal sealed class MotherBrainRainbowAndDeath
     /// <summary>
     /// Publishes only values produced by the current body-AI call. In particular, cooldown
     /// and earthquake timers are event writes rather than continuously mirrored values;
-    /// continuously copying the sequence's retained word would undo the global owners'
+    /// continuously copying the sequence's retained value would undo the global owners'
     /// normal per-frame decrements.
     /// </summary>
     internal void ApplyLiveMotherBrainRainbowState(
@@ -258,7 +258,7 @@ internal sealed class MotherBrainRainbowAndDeath
             // The rainbow setup loads fifty during the one-shot setup call, immediately before the
             // fallthrough decrements neck timer eleven to ten. Her brain's draw owns
             // subsequent shake decrements, so publish this event only on that exact setup
-            // result rather than copying the sequence's retained word every enemy frame.
+            // result rather than copying the sequence's retained value every enemy frame.
             state.BrainMainShakeTimer = 50;
         }
         state.Form = sequence.State.Body.Form;
@@ -274,8 +274,8 @@ internal sealed class MotherBrainRainbowAndDeath
         head.Presence = sequence.ThirdPhaseDeath.BrainPresence;
         head.CollidesByFrameHitboxes = sequence.ThirdPhaseDeath.BrainCollidesByFrameHitboxes;
         head.NewInstructionFrame = sequence.ThirdPhaseDeath.BrainNewInstructionFrame;
-        // The live word begins at two, while the reusable sequence needs only its Boolean
-        // branch meaning. Preserve every nonzero value; only a translated clear
+        // The live flag begins at two, while the reusable sequence needs only its Boolean
+        // branch meaning. Preserve every nonzero value; only an explicit clear
         // is allowed to collapse it to zero.
         if (!sequence.ThirdPhaseDeath.HitboxesEnabled)
             state.HitboxesEnabled = MotherBrainHitboxParts.None;
@@ -287,7 +287,7 @@ internal sealed class MotherBrainRainbowAndDeath
         state.DroolGenerationEnabled = sequence.State.DroolGenerationEnabled;
 
         // These values drive the rainbow beam effect. The beam renderer is deliberately fed
-        // from this single translated aim calculation.
+        // from this single aim calculation.
         state.RainbowBeamActive = sequence.RainbowAttack.BeamActive;
         state.RainbowBeamAngle = sequence.RainbowBeamAngle;
         state.RainbowBeamAngularWidth = sequence.RainbowAttack.AngularWidth;

@@ -193,9 +193,11 @@ without changing movement or collision.
 each of the nine explosion frames shows and the 22 colours the room whitens to, each
 an RGB colour with channels 0..31. Her suited and suitless death colours only
 pre-colour her death shades: they are import data, not installed.
-`samus-arm-cannon.json` in the same directory contains each pose's drawing descriptor and the drawing
-window's direction, drawing-mode and signed placement bytes; keep its table sizes and references within the
-drawing data. It does not change the HUD selection, cover opening/closing cadence, projectile origin,
+`samus-arm-cannon.json` in the same directory holds each pose's arm-cannon cover placement: its
+`drawOrder` (`Hidden`, `BeforeBody` or `AfterBody`), the aim `direction` whose cover picture it shows and
+an optional `laterDirection` shown after animation frame zero, and the cover's pixel `displacements` from
+Samus at each animation frame the pose shows. Keep a placement for every pose and a displacement for every
+frame listed. It does not change the HUD selection, cover opening/closing cadence, projectile origin,
 damage, or equipment behavior.
 
 Edited files are validated on load. Run the extractor again to restore the

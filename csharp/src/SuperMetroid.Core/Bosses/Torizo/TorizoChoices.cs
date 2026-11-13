@@ -16,7 +16,7 @@ internal sealed class TorizoChoices
     private readonly EnemyRoomBinding _room;
     /// <summary>Resolves body movement against room blocks and slopes.</summary>
     private readonly EnemyTerrain _terrain;
-    /// <summary>Bomb and Golden Torizo's state lookups, facing, posture and the function word their branches test.</summary>
+    /// <summary>Bomb and Golden Torizo's state lookups, facing, posture and the function their branches test.</summary>
     private readonly TorizoEncounterAccess _access;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -34,8 +34,7 @@ internal sealed class TorizoChoices
     /// <param name="frameCounter">The frame counter on the update the choice is made.</param>
     /// <param name="samusX">Samus's X, in whole pixels.</param>
     internal static bool InFirstAttackPhase(int frameCounter, int samusX) =>
-        // Halving by an arithmetic shift rounds toward lower values, so adding one first rounds every X up, a negative one
-        // included, exactly as the original added the bit its halving dropped.
+        // Halving rounds toward lower values, so adding one first rounds every X up, a negative one included.
         TorizoCadenceDefinitions.FirstAttackPhase.IsSetIn(frameCounter + ((samusX + 1) >> 1));
 
     /// <summary>Branches to the grounded-ball response only when Samus is four to 39 pixels away behind the statue.</summary>
@@ -159,7 +158,7 @@ internal sealed class TorizoChoices
         return null;
     }
 
-    /// <summary>Sets the facing-dependent forward leap velocity and restarts its instruction timer.</summary>
+    /// <summary>Sets the facing-dependent forward leap velocity and restarts its frame timer.</summary>
     private void StartGoldenTorizoForwardJump(
         RoomEnemySlot torizo,
         TorizoEnemyState state)
@@ -204,7 +203,7 @@ internal sealed class TorizoChoices
         return null;
     }
 
-    /// <summary>Saves the next instruction and branches when Samus is within 56 pixels behind the statue.</summary>
+    /// <summary>Saves the next cue and branches when Samus is within 56 pixels behind the statue.</summary>
     internal AnimationContinuation<TorizoBodyProgram>? SelectBombTorizoCloseBehindBranch(
         RoomEnemySlot torizo,
         TorizoEnemyState state,

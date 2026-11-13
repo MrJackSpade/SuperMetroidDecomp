@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Audio;
 
 /// <summary>
 /// The game's music queue and its three sound queues (#1410): each music request waits its delay and plays on the update
-/// the original plays it; a data set change withdraws every library's sound request for
+/// the game plays it; a data set change withdraws every library's sound request for
 /// <see cref="AudioQueueDefinitions.MusicChangeSoundDowntimeCalls"/> sound-handler calls; a full music queue drops a
 /// request queued with the shortest delay and overwrites with a scheduled one; and a sound queue admits a request by its
 /// priority (<see cref="SoundQueueAdmission.For"/>) and hands it to its library through the session's

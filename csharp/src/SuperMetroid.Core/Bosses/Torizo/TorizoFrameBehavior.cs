@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>The movement step a Torizo runs before its instructions; each member names the routine it replaced (#1413: the values are arbitrary).</summary>
+/// <summary>The movement step a Torizo runs before its animation (#1413: the values are arbitrary).</summary>
 public enum TorizoFrameBehavior
 {
     /// <summary>The shared no-op movement step.</summary>

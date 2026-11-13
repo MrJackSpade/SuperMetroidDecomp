@@ -20,7 +20,7 @@ internal sealed class BackgroundScrollPhase
         _room = room;
     }
 
-    /// <summary>Copies the translated camera into the background scroll bookkeeping and steps the scroll offsets.</summary>
+    /// <summary>Copies the camera into the background scroll bookkeeping and steps the scroll offsets.</summary>
     public void UpdateBackgroundScrollingFromCamera(bool timeIsFrozen = false)
     {
         if (_room.Camera is null)
@@ -30,6 +30,6 @@ internal sealed class BackgroundScrollPhase
         _backgroundScroll.StepScrolling(timeIsFrozen);
     }
 
-    /// <summary>Adopts the camera position whose fraction words survived the previous runtime.</summary>
+    /// <summary>Adopts the camera position whose fractions survived the previous runtime.</summary>
     internal void AdoptCameraPosition(FixedPosition<RoomPixels> retained) => _room.InheritedCameraPosition = retained;
 }

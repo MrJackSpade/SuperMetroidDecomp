@@ -1,31 +1,32 @@
 using P = SuperMetroid.Core.Enemies.Metroids.MochtroidProgram;
 using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Metroids;
 
 /// <summary>
 /// Mochtroid's free-flight and attached pulse loops as typed programs (#641). Each
-/// frame shows a <see cref="MochtroidFrame"/> pose and its lists use no owner callbacks.
+/// frame shows a <see cref="EnemyFrameId"/> and its lists use no owner callbacks.
 /// </summary>
 internal static class MochtroidAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<MochtroidProgram, MochtroidFrame, NoAnimationCue> Segments { get; } = new(
-        new Dictionary<MochtroidProgram, AnimationBeat<MochtroidFrame, NoAnimationCue>[]>
+    internal static AnimationSegments<MochtroidProgram, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<MochtroidProgram, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
     {
         [P.FreeFlight] =
         [
-            Show(0, 14),
-            Show(1, 14),
-            Show(2, 14),
-            Show(1, 14),
+            Show(EnemyFrameId.MochtroidFlight0, 14),
+            Show(EnemyFrameId.MochtroidFlight1, 14),
+            Show(EnemyFrameId.MochtroidFlight2, 14),
+            Show(EnemyFrameId.MochtroidFlight1, 14),
         ],
         [P.Attached] =
         [
-            Show(3, 5),
-            Show(4, 5),
-            Show(5, 5),
-            Show(4, 5),
+            Show(EnemyFrameId.MochtroidAttached0, 5),
+            Show(EnemyFrameId.MochtroidAttached1, 5),
+            Show(EnemyFrameId.MochtroidAttached2, 5),
+            Show(EnemyFrameId.MochtroidAttached1, 5),
         ],
     });
 
@@ -39,6 +40,6 @@ internal static class MochtroidAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<MochtroidProgram> StartingWith(MochtroidProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<MochtroidFrame, NoAnimationCue> Show(int pose, int duration) => new AnimationBeat<MochtroidFrame, NoAnimationCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);
 }

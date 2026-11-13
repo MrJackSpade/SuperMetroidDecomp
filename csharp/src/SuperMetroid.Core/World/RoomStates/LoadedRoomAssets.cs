@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.World.RoomStates;
 [RoomLifetime]
 public sealed class LoadedRoomAssets
 {
-    /// <summary>Retains the selected header, the room's grid, scroll grid, and installed graphics.</summary>
+    /// <summary>Retains the selected definition, the room's grid, scroll grid, and installed graphics.</summary>
     private LoadedRoomAssets(
         SelectedRoom header,
         RoomLevelData levelData,
@@ -31,7 +31,7 @@ public sealed class LoadedRoomAssets
         Pictures = tileset.Pictures;
     }
 
-    /// <summary>Selected room header and room-state metadata used to choose level source, graphics set, dimensions, scrolls, and door table; loading these assets does not execute its room ASM.</summary>
+    /// <summary>Selected room definition and room-state metadata used to choose level source, graphics set, dimensions, scrolls, and door table; loading these assets does not run its room setup.</summary>
     public SelectedRoom Header { get; }
     /// <summary>The room's grid: terrain, behaviours and appearances, with the terrain beyond the room; its rows may exceed the visible screens.</summary>
     public RoomLevelData LevelData { get; }
@@ -79,7 +79,7 @@ public sealed class LoadedRoomAssets
     /// Builds the room's grid from its installed level, with its own terrain beyond the room for this room's lifetime.
     /// </summary>
     /// <remarks>
-    /// The room header sizes the camera's screens; the installed level sizes the grid. Most rooms make them equal, but
+    /// The room definition sizes the camera's screens; the installed level sizes the grid. Most rooms make them equal, but
     /// a shipped Wrecked Ship room is a counterexample: its 6x3 camera owns a 6x4-screen level. Room objects and enemy
     /// collision may reach those extra rows, so the grid keeps them.
     /// </remarks>

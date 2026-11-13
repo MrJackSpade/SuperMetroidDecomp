@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// The door-transition gates a door load carries from the room it replaces. Door-transition code owns both words for
+/// The door-transition gates a door load carries from the room it replaces. Door-transition code owns both gates for
 /// the whole transition; the destination's enemy population initializes with them clear, and the load re-asserts them
 /// once the enemies are loaded (#1329).
 /// </summary>

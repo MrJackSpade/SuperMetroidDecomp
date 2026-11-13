@@ -26,7 +26,7 @@ public static class WreckedShipGhostAppearanceDefinitions
 
     /// <summary>
     /// The signed spawn offsets, i=0..8. Horizontal and vertical movement classes select columns and
-    /// rows, each spaced 64 pixels around Samus. The upper-right approach spawns level with Samus: its Y word
+    /// rows, each spaced 64 pixels around Samus. The upper-right approach spawns level with Samus: its Y offset
     /// is zero, consumed directly by the position addition.
     /// </summary>
     internal static readonly Offset16<RoomPixels>[] SpawnOffsets =

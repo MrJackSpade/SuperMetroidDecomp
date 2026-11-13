@@ -6,7 +6,7 @@ using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
-/// <summary>The wall space pirate species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The wall space pirate species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -76,9 +76,9 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
             : WallSpacePirateFunction.ClimbingLeftWall;
         state.ClimbDirection = WallSpacePirateClimbDirection.Down;
 
-        // The USA/Japan build uses byte angles. Bit fifteen selects 63 two-step frames;
-        // clearing it selects 32 four-step frames with adjusted endpoints. These values are
-        // not approximations: they are the literal 190/66/2 and 192/64/4 branches.
+        // The USA/Japan build measures angles in 256ths of a turn. A slow jump takes 63 two-step frames; a fast
+        // one takes 32 four-step frames with adjusted endpoints. These values are not approximations: they are the
+        // literal 190/66/2 and 192/64/4 branches.
         state.RightJumpTargetAngle = RotationAngle.FromSteps(slowJump ? 190 : 192);
         state.LeftJumpTargetAngle = RotationAngle.FromSteps(slowJump ? 66 : 64);
         state.JumpAngleDelta = slowJump ? 2 : 4;
@@ -192,7 +192,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
             : CoordinateAxis.Wrap(RoomGridConversions.BlockStart(x) + 16));
     }
 
-    /// <summary>Starts a selected wall-Pirate list on its first instruction frame.</summary>
+    /// <summary>Starts a selected wall-Pirate list on its first animation frame.</summary>
     private static void InstallWallSpacePirateInstruction(
         RoomEnemySlot slot,
         WallSpacePirateEnemyState state,
@@ -341,7 +341,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
 
     /// <summary>Advances the wall Space Pirate's typed animation.</summary>
     internal void AdvanceWallSpacePirateTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context) =>
-        EnemyProgramAnimation.Advance(slot, WallSpacePirateAnimations.Segments, WallSpacePirateFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, WallSpacePirateAnimations.Segments,
             static (WallSpacePirateEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyWallSpacePirateCue(slot, cue, context.Level) is { } continuesAt
                 ? new AnimationContinuation<WallSpacePirateProgram>(WallSpacePirateAnimations.StartingWith(continuesAt), AnimationPlace.StartOfAnimation)

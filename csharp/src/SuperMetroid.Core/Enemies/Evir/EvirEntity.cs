@@ -27,7 +27,7 @@ internal sealed class EvirEntity(EvirBehavior species, RoomEnemySlot slot, Enemy
     public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => species.AdvanceEvirTypedAnimation;
 
     /// <summary>The Evir body's own shot reaction, which normal bombs dispatch like the common one.</summary>
-    /// <param name="reaction">The reaction the header or the selected hitbox names, or null.</param>
+    /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>
     public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
         Slot.DefinitionId == EnemyDefinitionId.Evir && reaction == EnemyReaction.EvirShot;
 }

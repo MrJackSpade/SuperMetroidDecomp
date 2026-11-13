@@ -50,12 +50,12 @@ internal sealed class MotherBrainEntity(MotherBrainBehavior species, RoomEnemySl
         Slot.DefinitionId == EnemyDefinitionId.MotherBrainBody && MotherBrainBodyVisualDefinitions.BodyLayerFrames.Contains(selected)
             ? _bossArtwork.Body(BossBodyOwner.MotherBrain).Frame(selected) : null;
 
-    /// <summary>Shots meet the body's and head's frames' hitboxes; their contact and the tubes' use the header radius.</summary>
+    /// <summary>Shots meet the body's and head's frames' hitboxes; their contact and the tubes' use the definition's radius.</summary>
     public override EnemyCapabilities Capabilities =>
         Slot.DefinitionId is EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.MotherBrainHead ? EnemyCapabilities.ProjectileFrameHitboxes : EnemyCapabilities.None;
 
     /// <summary>The body's and head's own shot reactions, which normal bombs dispatch like the common one.</summary>
-    /// <param name="reaction">The reaction the header or the selected hitbox names, or null.</param>
+    /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>
     public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
         Slot.DefinitionId == EnemyDefinitionId.MotherBrainBody && reaction == EnemyReaction.MotherBrainBodyShot ||
         Slot.DefinitionId == EnemyDefinitionId.MotherBrainHead && reaction == EnemyReaction.MotherBrainHeadShot;

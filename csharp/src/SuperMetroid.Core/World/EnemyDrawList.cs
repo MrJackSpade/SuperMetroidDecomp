@@ -186,7 +186,7 @@ internal sealed class EnemyDrawList
     /// selects the frozen colours. Keeping this at the common writer is
     /// important: Space Pirates are merely the first enemies whose missing flash
     /// was obvious, and a family-specific colouring change would corrupt every later draw.
-    /// Ridley's translated AI already publishes the exact common-writer colouring because
+    /// Ridley's AI already publishes the exact common-writer colouring because
     /// its body, wings, and tail must share one latched phase.
     /// </remarks>
     private PictureShading SelectCommonEnemyDrawShading(RoomEnemySlot slot)

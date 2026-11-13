@@ -6,7 +6,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Corpses;
 
-/// <summary>The dead Tourian corpse species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The dead Tourian corpse species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -35,11 +35,11 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         _projectiles = projectiles;
     }
 
-    /// <summary>Recognizes the three Tourian corpse enemy headers handled by this owner.</summary>
+    /// <summary>Recognizes the three Tourian corpse enemy definitions handled by this owner.</summary>
     internal static bool IsDeadTourianCorpseDefinition(EnemyDefinitionId definitionId) =>
         definitionId is EnemyDefinitionId.CorpseZoomer or EnemyDefinitionId.CorpseRipper or EnemyDefinitionId.CorpseSkree;
 
-    /// <summary>Selects the species-specific callbacks and art layout for a corpse header.</summary>
+    /// <summary>Selects the species-specific callbacks and art layout for a corpse definition.</summary>
     internal static DeadTourianCorpseProfile ProfileForDeadTourianCorpse(EnemyDefinitionId definitionId) =>
         DeadTourianPartDefinitions.Parts[definitionId] switch
         {
@@ -49,7 +49,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
             _ => throw new ArgumentOutOfRangeException(nameof(definitionId)),
         };
 
-    /// <summary>Checks that the header's touch AI points to its species' rot trigger.</summary>
+    /// <summary>Checks that the definition's touch AI points to its species' rot trigger.</summary>
     private static bool HasDeadTourianCorpseTouchOrShotCallback(RoomEnemySlot slot)
     {
         if (!IsDeadTourianCorpseDefinition(slot.DefinitionId))
@@ -57,7 +57,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         return EnemyCollision.TouchAi(slot) == ProfileForDeadTourianCorpse(slot.DefinitionId).TouchAndShot;
     }
 
-    /// <summary>Checks that the header's shot AI points to its species' rot trigger.</summary>
+    /// <summary>Checks that the definition's shot AI points to its species' rot trigger.</summary>
     internal static bool HasDeadTourianCorpseShotCallback(RoomEnemySlot slot)
     {
         if (!IsDeadTourianCorpseDefinition(slot.DefinitionId))
@@ -65,7 +65,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         return EnemyCollision.ShotAi(slot) == ProfileForDeadTourianCorpse(slot.DefinitionId).TouchAndShot;
     }
 
-    /// <summary>Checks that the header's power-bomb AI points to its species' rot trigger.</summary>
+    /// <summary>Checks that the definition's power-bomb AI points to its species' rot trigger.</summary>
     private static bool HasDeadTourianCorpsePowerBombCallback(RoomEnemySlot slot)
     {
         if (!IsDeadTourianCorpseDefinition(slot.DefinitionId))
@@ -178,10 +178,10 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         return state;
     }
 
-    /// <summary>Groups one corpse species with its header rot-trigger callbacks.</summary>
+    /// <summary>Groups one corpse species with its definition's rot-trigger callbacks.</summary>
     /// <param name="Species">The corpse species.</param>
-    /// <param name="TouchAndShot">The callback its header names for touch and shot, which starts its rot.</param>
-    /// <param name="PowerBomb">The callback its header names for a power bomb, which starts its rot.</param>
+    /// <param name="TouchAndShot">The callback its definition names for touch and shot, which starts its rot.</param>
+    /// <param name="PowerBomb">The callback its definition names for a power bomb, which starts its rot.</param>
     internal sealed record DeadTourianCorpseProfile(
         DeadTourianCorpseSpecies Species,
         EnemyReaction TouchAndShot,
@@ -202,7 +202,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         DeadTourianCorpseEnemyState state = RequireDeadTourianCorpseState(slot);
         AnimationPlayback<DeadTourianProgram> playback = state.Playback;
-        EnemyProgramAnimation.Play(slot, DeadTourianAnimations.Segments, ref playback, DeadTourianFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Play(slot, DeadTourianAnimations.Segments, ref playback,
             cue => throw new InvalidDataException($"A corpse pose published {cue.Kind}."));
         state.Playback = playback;
     }
@@ -241,7 +241,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Starts decomposition on physical contact without applying ordinary enemy contact damage.</summary>
     internal static void AddDeadTourianTouch(EnemySharedReactions table)
     {
-        // Dead Zoomer/Ripper/Skree headers intentionally point touch and shot at the same private callback.
+        // Dead Zoomer/Ripper/Skree definitions intentionally point touch and shot at the same private callback.
         // Physical contact begins decomposition; these already-dead actors never apply ordinary contact damage.
         table.AddTouch(HasDeadTourianCorpseTouchOrShotCallback,
             context => TriggerDeadTourianCorpseRotting(context.Slot));

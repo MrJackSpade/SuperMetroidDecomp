@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Puyo;
 
 /// <summary>
-/// Puyo's airborne routines; entries zero through six of its hop table select them.
+/// Puyo's airborne behaviours; entries zero through six of its hop table select them.
 /// Its values are arbitrary.
 /// </summary>
 public enum PuyoAirborneFunction

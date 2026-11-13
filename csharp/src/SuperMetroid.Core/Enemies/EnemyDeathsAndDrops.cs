@@ -18,7 +18,7 @@ internal sealed class EnemyDeathsAndDrops
     private readonly EnemyRoomStatus _roomStatus;
     /// <summary>Allocates death explosions and direct item-drop projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>Supplies RNG and enemy header definitions for drop selection.</summary>
+    /// <summary>Supplies RNG and enemy definitions for drop selection.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Reinitializes a respawned enemy from its saved population record.</summary>
     private readonly IEnemyDispatch _dispatch;
@@ -76,7 +76,7 @@ internal sealed class EnemyDeathsAndDrops
 
     /// <summary>
     /// Starts an enemy's generic death. The enemy is cleared immediately,
-    /// while the death explosion retains the header, position, and optional respawn index until
+    /// while the death explosion retains the definition, position, and optional respawn index until
     /// its authored animation reaches its become-pickup cue.
     /// </summary>
     internal void StartGenericEnemyDeath(
@@ -118,7 +118,7 @@ internal sealed class EnemyDeathsAndDrops
         _roomStatus.RecordKill();
     }
 
-    /// <summary>Keeps a killed respawning slot occupied by replacing its header with the respawn placeholder.</summary>
+    /// <summary>Keeps a killed respawning slot occupied by replacing its definition with the respawn placeholder.</summary>
     internal void InstallRespawnPlaceholder(RoomEnemySlot enemy)
     {
         // The game reads the new definition on every dispatch.
@@ -141,7 +141,7 @@ internal sealed class EnemyDeathsAndDrops
     }
 
     /// <summary>
-    /// Shared implementation of the twelve item-drop routines.
+    /// Shared implementation of the twelve item-drop behaviours.
     /// Each iteration advances RNG once for both coordinates; allocation
     /// and drop selection then advance it independently inside the pickup. Both scatters read
     /// their fields from the one sample.
@@ -179,9 +179,9 @@ internal sealed class EnemyDeathsAndDrops
     }
 
     /// <summary>
-    /// Allocates a pickup projectile using an ordinary enemy header. The
-    /// allocation search, slot-zero failure, random selection, and no-drop tail all match
-    /// the original's enemy-projectile spawn followed by the pickup's initializer.
+    /// Allocates a pickup projectile using an ordinary enemy definition. The
+    /// allocation search, slot-zero failure, random selection, and no-drop tail follow
+    /// the enemy-projectile spawn and then the pickup's initializer.
     /// </summary>
     internal EnemyProjectile? SpawnEnemyDropFromEnemyHeader(
         Position16<RoomPixels> position,
@@ -205,8 +205,8 @@ internal sealed class EnemyDeathsAndDrops
 
     /// <summary>
     /// Allocates a pickup from a chance table already selected by specialized
-    /// boss code. This represents routines such as Botwoon's Draygon-eye drop instruction
-    /// without manufacturing a fake enemy header solely to get back to the same six bytes.
+    /// boss code, such as Botwoon's Draygon-eye drop cue, without manufacturing a fake enemy definition solely to reach
+    /// the same six chances.
     /// </summary>
     internal EnemyProjectile? SpawnEnemyDropFromChanceTable(
         Position16<RoomPixels> position,
@@ -284,7 +284,7 @@ internal sealed class EnemyDeathsAndDrops
     }
 
     /// <summary>
-    /// Exact translation of the random drop selection, whose chances are counts of 0 through 255. Minor drops are
+    /// The random drop selection, whose chances are counts of 0 through 255. Minor drops are
     /// renormalized into the budget left after enabled super/PB chances; the two major drops retain their raw
     /// table probabilities. Every addition wraps past 255, explicitly here. The drops Samus can use are offered in the chance table's column order (the minor
     /// columns first, then the two major ones), and the first whose accumulated chance reaches the random draw is
@@ -390,7 +390,7 @@ internal sealed class EnemyDeathsAndDrops
     private const int FullWeightBudget = 255;
 
     /// <summary>
-    /// Uses an explicit boss chance table, a saved enemy header's, or none. A death explosion from a cleared enemy slot
+    /// Uses an explicit boss chance table, a saved enemy definition's, or none. A death explosion from a cleared enemy slot
     /// drops nothing: the drop-chance table indexed by the empty definition reads a value
     /// the boot clears and the game never sets to anything but zero.
     /// </summary>
@@ -556,8 +556,8 @@ internal sealed class EnemyDeathsAndDrops
 
         RoomEnemyDefinition definition = _room.LoadedDefinitions.ReadEnemyDefinition(spawn.Population.DefinitionId);
         // Unlike the room's enemy setup and an ordinary enemy spawn, a respawn
-        // never writes the spritemap: the actor keeps the word its death cleared,
-        // or what its init AI wrote, until its first instruction. A zero spritemap is also
+        // never sets the frame: the actor keeps the empty frame its death left,
+        // or what its init AI set, until its first cue. An empty frame is also
         // the contact gate, so the respawned actor cannot touch Samus before then.
         _dispatch.InitializeSlotFromDefinition(slot, spawn.Population, definition);
         _dispatch.RunInitializationAi(slot, EnemySpawnSurroundings.None);
@@ -608,7 +608,7 @@ internal sealed class EnemyDeathsAndDrops
                     center: 16);
                 return null;
             case EnemyDeathProjectileCueKind.PlayEnemyKilledSound:
-                // The sound-queueing instruction returns to the next instruction, so the following duration starts the next frame.
+                // The sound-queueing cue continues to the next cue, so the following duration starts the next frame.
                 QueueEnemyKilledSound();
                 return null;
             case EnemyDeathProjectileCueKind.PlaySmallExplosionSound:

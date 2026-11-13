@@ -9,8 +9,8 @@ namespace SuperMetroid.Core.Areas.Tourian;
 internal static class TourianStatueProjectileAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<TourianStatueProjectileProgram, TourianStatueProjectileFrame, TourianStatueProjectileCue> Segments { get; } = new(
-        new Dictionary<TourianStatueProjectileProgram, AnimationBeat<TourianStatueProjectileFrame, TourianStatueProjectileCue>[]>
+    internal static AnimationSegments<TourianStatueProjectileProgram, EnemyProjectileFrameId, TourianStatueProjectileCue> Segments { get; } = new(
+        new Dictionary<TourianStatueProjectileProgram, AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue>[]>
     {
         [P.Delete] =
         [
@@ -18,24 +18,24 @@ internal static class TourianStatueProjectileAnimations
         ],
         [P.Splash] =
         [
-            Show(0, 8),
-            Show(1, 8),
-            Show(2, 8),
-            Show(3, 8),
+            Show(EnemyProjectileFrameId.TourianStatueSplashFirst, 8),
+            Show(EnemyProjectileFrameId.TourianStatueSplashSecond, 8),
+            Show(EnemyProjectileFrameId.TourianStatueSplashThird, 8),
+            Show(EnemyProjectileFrameId.TourianStatueSplashFourth, 8),
             Cue(new TourianStatueProjectileCue.Command(K.Delete)),
         ],
         [P.EyeGlow] =
         [
-            Show(4, 8),
-            Show(5, 8),
-            Show(6, 8),
-            Show(7, 7),
-            Show(8, 7),
-            Show(9, 7),
-            Show(10, 6),
-            Show(11, 6),
-            Show(12, 5),
-            Show(13, 48),
+            Show(EnemyProjectileFrameId.TourianStatueEyeGlowFirst, 8),
+            Show(EnemyProjectileFrameId.TourianStatueEyeGlowSecond, 8),
+            Show(EnemyProjectileFrameId.TourianStatueEyeGlowThird, 8),
+            Show(EnemyProjectileFrameId.TourianStatueEyeGlowFourth, 7),
+            Show(EnemyProjectileFrameId.TourianStatueEyeGlowFifth, 7),
+            Show(EnemyProjectileFrameId.TourianStatueEyeGlowSixth, 7),
+            Show(EnemyProjectileFrameId.TourianStatueEyeGlowSeventh, 6),
+            Show(EnemyProjectileFrameId.TourianStatueEyeGlowEighth, 6),
+            Show(EnemyProjectileFrameId.TourianStatueEyeGlowNinth, 5),
+            Show(EnemyProjectileFrameId.TourianStatueEyeGlowTenth, 48),
             Cue(new TourianStatueProjectileCue.Command(K.PlayReleaseSound)),
             Cue(new TourianStatueProjectileCue.Command(K.Earthquake)),
             Cue(new TourianStatueProjectileCue.Command(K.SpawnParticle)),
@@ -46,44 +46,44 @@ internal static class TourianStatueProjectileAnimations
         ],
         [P.Particle] =
         [
-            Show(14, 3),
-            Show(15, 3),
+            Show(EnemyProjectileFrameId.TourianStatueParticleFirst, 3),
+            Show(EnemyProjectileFrameId.TourianStatueParticleSecond, 3),
             Cue(new TourianStatueProjectileCue.Command(K.SpawnTail)),
-            Show(16, 3),
-            Show(17, 3),
+            Show(EnemyProjectileFrameId.TourianStatueParticleThird, 3),
+            Show(EnemyProjectileFrameId.TourianStatueParticleFourth, 3),
         ],
         [P.Tail] =
         [
-            Show(18, 4),
+            Show(EnemyProjectileFrameId.TourianStatueTailFirst, 4),
             Cue(new TourianStatueProjectileCue.MoveDown(Pixels: 8)),
-            Show(19, 4),
+            Show(EnemyProjectileFrameId.TourianStatueTailSecond, 4),
             Cue(new TourianStatueProjectileCue.MoveDown(Pixels: 4)),
-            Show(20, 4),
+            Show(EnemyProjectileFrameId.TourianStatueTailThird, 4),
             Cue(new TourianStatueProjectileCue.MoveDown(Pixels: 2)),
-            Show(21, 4),
+            Show(EnemyProjectileFrameId.TourianStatueTailFourth, 4),
             Cue(new TourianStatueProjectileCue.Command(K.Delete)),
         ],
         [P.Soul] =
         [
-            Show(22, 8),
-            Show(23, 8),
+            Show(EnemyProjectileFrameId.TourianStatueSoulFirst, 8),
+            Show(EnemyProjectileFrameId.TourianStatueSoulSecond, 8),
         ],
         [P.BaseDecoration] =
         [
-            Show(24, 128),
+            Show(EnemyProjectileFrameId.TourianStatueBaseDecoration, 128),
             Cue(new TourianStatueProjectileCue.StartMoving(Movement: EnemyProjectileFrameBehavior.TourianStatueRevealFollow)),
         ],
         [P.BaseDecorationLoop] =
         [
-            Show(25, 1911),
+            Show(EnemyProjectileFrameId.TourianStatueBaseDecorationLoop, 1911),
         ],
         [P.Ridley] =
         [
-            Show(26, 1911),
+            Show(EnemyProjectileFrameId.TourianStatueRidley, 1911),
         ],
         [P.Phantoon] =
         [
-            Show(27, 1911),
+            Show(EnemyProjectileFrameId.TourianStatuePhantoon, 1911),
         ],
     });
 
@@ -109,9 +109,9 @@ internal static class TourianStatueProjectileAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<TourianStatueProjectileProgram> StartingWith(TourianStatueProjectileProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<TourianStatueProjectileFrame, TourianStatueProjectileCue> Show(int pose, int duration) => new AnimationBeat<TourianStatueProjectileFrame, TourianStatueProjectileCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue>.Frame(frame, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<TourianStatueProjectileFrame, TourianStatueProjectileCue> Cue(TourianStatueProjectileCue cue) => new AnimationBeat<TourianStatueProjectileFrame, TourianStatueProjectileCue>.Event(cue);
+    private static AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue> Cue(TourianStatueProjectileCue cue) => new AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue>.Event(cue);
 }

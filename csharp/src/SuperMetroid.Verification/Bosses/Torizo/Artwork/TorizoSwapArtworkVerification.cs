@@ -11,6 +11,7 @@ using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Bosses.Torizo;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Verification.Bosses.Torizo.Artwork;
 
@@ -99,7 +100,7 @@ internal static class TorizoSwapArtworkVerification
         goldenSlot.Bind(goldenSlot.DefinitionId, installedSlot.Definition);
         // Golden Torizo's initial program shows its awakening sheet first.
         TorizoArtworkSwap goldenSwap = TorizoAnimations.Segments.Beats(TorizoBodyProgram.GoldenInitial0)
-            .OfType<AnimationBeat<TorizoFrame, TorizoCue>.Event>().Select(beat => beat.Raised).OfType<TorizoCue.ShowArtwork>().First().Swap;
+            .OfType<AnimationBeat<EnemyFrameId, TorizoCue>.Event>().Select(beat => beat.Raised).OfType<TorizoCue.ShowArtwork>().First().Swap;
         int goldenUpload = goldenSwap.Ordinal;
         AssertEqual(golden.SourceAddress, TorizoArtworkSwapDefinitions.All[goldenUpload].SourceAddress,
             "Golden Torizo's initial swap shows its awakening sheet");

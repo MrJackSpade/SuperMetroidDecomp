@@ -18,13 +18,13 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// Samus's ordinary projectile slots (see <see cref="ProjectileSlotTable"/> for their slot order).
 /// </summary>
 /// <remarks>
-/// This class is deliberately a field-for-field translation rather than a desktop particle
+/// This class deliberately holds the game's own fields rather than a desktop particle
 /// effect. Firing, damage and animation records, and terrain movement each keep
 /// their own seam. Keeping those seams separate prevents a convenient host sprite from
 /// replacing the actual projectile lifecycle.
 ///
 /// The implemented producer covers ordinary and charged plain power beams. The shared slot
-/// model and interpreter are intentionally general enough for the remaining beam
+/// model and animation are intentionally general enough for the remaining beam
 /// and missile families, but unsupported producers are rejected before allocating a slot.
 /// </remarks>
 [RoomLifetime]
@@ -64,7 +64,7 @@ public sealed class SamusProjectileSystem
     /// <summary>Advances special beam combinations that share ordinary projectile storage.</summary>
     internal BeamCombos Combos { get; }
 
-    /// <summary>Interprets projectile records and draws their sprite compositions.</summary>
+    /// <summary>Plays projectile records and draws their sprite compositions.</summary>
     internal ProjectileAnimation Animation { get; }
 
     /// <summary>Applies HUD, cooldown, equipment, and charge rules when allocating a shot.</summary>
@@ -359,7 +359,7 @@ public sealed class SamusProjectileSystem
         // controller samples without allowing them to charge or fire a weapon.
         // Spin, wall-jump, hurt and special entries dispatch the jumping HUD selection handler, not
         // the normal beam producer. With grapple inactive that handler does
-        // nothing: held/released Shoot must leave the charge word untouched.
+        // nothing: held/released Shoot must leave the charge untouched.
         // Existing projectiles still advance below. Pose input can leave spin
         // first, making the normal producer eligible on the following alpha.
         SamusHudHandler hudHandler = SamusHudObservations.MovementHandler(SamusPoseMetadata.ReadMovementType(samus));
@@ -405,7 +405,7 @@ public sealed class SamusProjectileSystem
                     queuedSoundMaximum = SoundRequestPriority.Normal;
             }
         }
-        // The firing routine queues its sound as it fires, before any projectile moves.
+        // Firing queues its sound as it fires, before any projectile moves.
         if (queuedSound is { } firingSound)
         {
             AudioRequests.QueueSound(firingSound,
@@ -432,8 +432,8 @@ public sealed class SamusProjectileSystem
         bool collisionStartedExplosion = false;
         bool projectileDeleted = false;
 
-        // Bombs were handled by the companion class first; the shots run in update order here because instruction
-        // deletion changes the counter. The HUD producer can activate X-ray during this pass, so the freeze is checked
+        // Bombs were handled by the companion class first; the shots run in update order here because a delete cue
+        // changes the counter. The HUD producer can activate X-ray during this pass, so the freeze is checked
         // before each slot, not only at entry.
         foreach (SamusProjectile slot in SlotTable.InUpdateOrder)
         {
@@ -524,9 +524,9 @@ public sealed class SamusProjectileSystem
                 SamusProjectileFrameBehavior.ChargedChainsawOverrun)
             {
                 // Charged combination thirteen does not point at game code. Its table
-                // overrun reads a word of Samus's state, so the game jumps there and begins
+                // overrun reads a value of Samus's state, so the game jumps there and begins
                 // decoding the cached previous-Super-Missile value as code. This semantic
-                // port cannot execute arbitrary mutable data as code; fail at the
+                // model cannot execute arbitrary mutable data as code; fail at the
                 // same callback-dispatch seam instead of silently substituting Wave motion.
                 throw new NotSupportedException(
                     "Charged Chainsaw callback enters Samus's mutable state as code; reproducing it needs full " +
@@ -566,31 +566,33 @@ public sealed class SamusProjectileSystem
 
         if (samus.HyperBeamEnabled)
         {
-            // Hyper Beam replaces the ordinary count-up flare with the flare's descending
-            // three-component program. The game iterates fast spark -> slow spark -> main
-            // flare (offsets four, two, zero), so preserve that reverse drawing order.
-            for (int component = 2; component >= 0; component--)
+            // Hyper Beam replaces the ordinary flare's programs with a backward count through the components'
+            // pictures, fast sparks first, then slow sparks, then the main flare.
+            var hyper = new ChargeFlareComponents(3, Descending: true);
+            foreach (ChargeFlareComponent component in hyper.DrawOrder)
             {
-                CountdownStep timer = Charge.DecrementFlareTimer(component);
-                if (timer.IsZeroOrNegative)
+                CountdownStep hold = Charge.CountFlareHold(component);
+                if (hold.IsZeroOrNegative)
                 {
-                    bool finalFrame = Charge.FlareFrame(component) == 1;
-                    Charge.SetFlareFrame(component, WrappingCounter.DecrementCount(Charge.FlareFrame(component)));
-                    if (finalFrame)
+                    int phase = Charge.FlarePhase(component);
+                    int previous = WrappingCounter.DecrementCount(phase);
+                    if (phase == 1)
                     {
-                        // The fast-spark component at offset four owns the global
-                        // completion signal. Other zero frames merely stop rearming.
-                        if (component == 2)
+                        // The component reaches its first picture and stops counting: its wait is left spent. The fast
+                        // sparks reaching theirs end the whole flare.
+                        Charge.ShowFlare(component, new(previous, hold.Remaining));
+                        if (component == ChargeFlareComponent.FastSparks)
                             Charge.FlareCounter = 0;
                     }
                     else
                     {
-                        Charge.StartFlareTimer(component, 3);
+                        Charge.ShowFlare(component, new(previous,
+                            WrappingCountdown.Start(ChargeFlareAnimationDefinitions.HyperBeamPictureUpdates)));
                     }
                 }
             }
             // Every component is shown, the fast spark first, even on the frame that ends the flare.
-            return new ChargeFlareComponents(3, Descending: true);
+            return hyper;
         }
 
         // Calls 1..14 initialize/retain the hidden animation state. Call 15 begins drawing
@@ -602,10 +604,10 @@ public sealed class SamusProjectileSystem
         if (Charge.FlareCounter < 15)
             return default;
 
-        int componentCount = Charge.FlareCounter < 30 ? 1 : 3;
-        for (int component = 0; component < componentCount; component++)
+        var shown = new ChargeFlareComponents(Charge.FlareCounter < 30 ? 1 : 3, Descending: false);
+        foreach (ChargeFlareComponent component in shown.DrawOrder)
             Animation.AdvanceFlareComponent(component);
-        return new ChargeFlareComponents(componentCount, Descending: false);
+        return shown;
     }
 
     /// <summary>Publishes the charge-flare components <see cref="AdvanceChargeFlare"/> reported, before Samus.</summary>
@@ -619,7 +621,7 @@ public sealed class SamusProjectileSystem
     {
         Ensure.NotNull(sprites);
         Ensure.NotNull(samus);
-        foreach (int component in components.DrawOrder)
+        foreach (ChargeFlareComponent component in components.DrawOrder)
             Animation.DrawFlareComponent(sprites, samus, cameraPosition, component, turningFloor, artwork);
     }
 

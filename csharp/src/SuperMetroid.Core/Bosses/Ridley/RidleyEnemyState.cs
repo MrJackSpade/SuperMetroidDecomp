@@ -6,13 +6,13 @@ using SuperMetroid.Core.Escape;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
-/// Named projection of Ridley's common enemy slot and three extended workspaces.
+/// Named projection of Ridley's common enemy slot and his encounter's own values.
 /// Ceres-only Baby/rotating-getaway values and Norfair-only combat values intentionally coexist here:
-/// the original shared initializer owns one layout and only one Ridley can exist at a time.
+/// one initializer serves both encounters and only one Ridley can exist at a time.
 /// </summary>
 /// <remarks>
-/// The Lower Norfair combat values replace opaque numbered words with the meanings their consumers establish.
-/// Ceres's private Baby actor and rotating getaway reuse Ridley's extended workspaces, and the Ceres self-destruct
+/// The Lower Norfair combat values carry the meanings their consumers establish.
+/// Ceres's private Baby actor and rotating getaway share Ridley's encounter values, and the Ceres self-destruct
 /// presentation's function timer deliberately keeps the phase values 0, 2, 4, 6, 8, 10 and 12.
 /// </remarks>
 public sealed class RidleyEnemyState
@@ -52,19 +52,19 @@ public sealed class RidleyEnemyState
     /// fifteen), or the Lower Norfair reveal step (zero through fifteen). Each fade resets it to zero when it completes.
     /// </summary>
     public int FadeStep { get; internal set; }
-    /// <summary>Gets the movement clamp's minimum whole-pixel corner, retaining negative limits as wrapped words.</summary>
+    /// <summary>Gets the movement clamp's minimum whole-pixel corner, retaining negative limits wrapped into the coordinate range.</summary>
     public Position16<RoomPixels> MovementMinimum { get; internal set; }
     /// <summary>Gets the movement clamp's maximum whole-pixel corner.</summary>
     public Position16<RoomPixels> MovementMaximum { get; internal set; }
     /// <summary>Whether Ridley's movement hit a room boundary, consumed by the swoop.</summary>
     public bool HitRoomBoundary { get; internal set; }
-    /// <summary>Gets Ridley's signed 8.8 velocity, each axis stored as its unchanged word.</summary>
+    /// <summary>Gets Ridley's signed 8.8 velocity, each axis held unchanged.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
     /// <summary>Gets the shared wing animation phase, zero through nine, advancing when its timer underflows.</summary>
     public int WingFrame { get; internal set; }
-    /// <summary>Gets the wing animation's countdown accumulator, reloaded to 32 once it runs below zero.</summary>
+    /// <summary>Gets the wing animation's countdown, reloaded to 32 once it runs below zero.</summary>
     public int WingAnimationTimer { get; internal set; }
-    /// <summary>Gets the decrement (zero through 48) selected from velocity magnitude for the wing accumulator; nonnegative vertical motion halves it.</summary>
+    /// <summary>Gets the decrement (zero through 48) selected from velocity magnitude for the wing countdown; nonnegative vertical motion halves it.</summary>
     public int WingAnimationTimerDelta { get; internal set; }
     /// <summary>Gets the shared tail-controller index; zero retains offsets, one selects neutral control, and the other defined indexes select pogo/stab variants.</summary>
     public RidleyTailFunction TailFunctionIndex { get; internal set; }
@@ -136,7 +136,7 @@ public sealed class RidleyEnemyState
     /// <summary>Gets Samus's signed whole-pixel displacement from the claw anchor; carry updates decay each axis toward zero.</summary>
     public Offset16<RoomPixels> GrabOffset { get; internal set; }
     /// <summary>
-    /// Gets the Lower Norfair hit-pressure accumulator, zero through eight: each hurt frame raises it by one and each ordinary
+    /// Gets the Lower Norfair hit-pressure count, zero through eight: each hurt frame raises it by one and each ordinary
     /// AI frame lowers it by four; at eight a hurt frame also carries a grabbed Samus.
     /// </summary>
     public int HurtMovementClamp { get; internal set; }
@@ -152,7 +152,7 @@ public sealed class RidleyEnemyState
     public int FxTimer { get; internal set; }
     /// <summary>Gets whether Lower Norfair's twelve independently moving breakup actors have already been allocated.</summary>
     public bool DeathBreakupSpawned { get; internal set; }
-    /// <summary>Gets whether the terminal Lower Norfair death routine has written the persistent area-boss defeat bit.</summary>
+    /// <summary>Gets whether the Lower Norfair death has written the persistent area-boss defeat flag.</summary>
     public bool BossDefeatPublished { get; internal set; }
 
     /// <summary>The Ceres Baby's playing cutscene animation, standing after its current pose; owned separately from Ridley's body.</summary>
@@ -193,9 +193,9 @@ public sealed class RidleyEnemyState
     public FloorZoom FloorZoom { get; internal set; }
     /// <summary>Gets the floor point the Ceres getaway turns and zooms its floor about, (64, 64) while it runs and cleared on completion.</summary>
     public Position16<FloorPixels> FloorCenter { get; internal set; }
-    /// <summary>Gets the four-phase Ceres Baby graphics-transfer animation index (zero through three) during the getaway.</summary>
+    /// <summary>Gets the four-phase Ceres Baby graphics animation index (zero through three) during the getaway.</summary>
     public int GetawayBabyFrame { get; internal set; }
-    /// <summary>Gets the two-phase Ridley wing graphics-transfer animation index (zero or one) during the getaway.</summary>
+    /// <summary>Gets the two-phase Ridley wing graphics animation index (zero or one) during the getaway.</summary>
     public int GetawayWingFrame { get; internal set; }
 
     /// <summary>Which step of the Ceres self-destruct warning runs next; the getaway's end starts it.</summary>

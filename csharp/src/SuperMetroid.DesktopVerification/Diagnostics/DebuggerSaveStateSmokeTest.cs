@@ -45,7 +45,7 @@ public static class DebuggerSaveStateSmokeTest
             bool emptySlotReported = !store.TryLoad(9, out _);
             if (!emptySlotReported)
                 throw new InvalidDataException("An empty debugger slot was reported as occupied.");
-            DebuggerSaveStateMetadata saved = store.Save(0, bus, game);
+            DebuggerSaveStateMetadata saved = store.Save(0, game);
             if (store.Load(0).Warnings.Count != 0)
                 throw new InvalidDataException("Same-build debugger state emitted a build warning.");
             DebuggerSaveStateLoadResult installedLoad = DebuggerSaveStateStore.ForInstalledGame(

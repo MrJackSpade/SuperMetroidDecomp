@@ -1,47 +1,48 @@
 using P = SuperMetroid.Core.Enemies.Powamp.PowampProgram;
 using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Powamp;
 
 /// <summary>
 /// Powamp's body pulses and balloon inflate and sink animations as typed programs (#641). Each
-/// frame shows a <see cref="PowampFrame"/> pose and its lists use no owner callbacks.
+/// frame shows a <see cref="EnemyFrameId"/> and its lists use no owner callbacks.
 /// </summary>
 internal static class PowampAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<PowampProgram, PowampFrame, NoAnimationCue> Segments { get; } = new(
-        new Dictionary<PowampProgram, AnimationBeat<PowampFrame, NoAnimationCue>[]>
+    internal static AnimationSegments<PowampProgram, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<PowampProgram, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
     {
         [P.BodyFast] =
         [
-            Show(0, 5),
-            Show(1, 5),
-            Show(2, 5),
+            Show(EnemyFrameId.Powamp00, 5),
+            Show(EnemyFrameId.Powamp01, 5),
+            Show(EnemyFrameId.Powamp02, 5),
         ],
         [P.BodySlow] =
         [
-            Show(0, 9),
-            Show(1, 9),
-            Show(2, 9),
+            Show(EnemyFrameId.Powamp00, 9),
+            Show(EnemyFrameId.Powamp01, 9),
+            Show(EnemyFrameId.Powamp02, 9),
         ],
         [P.BalloonInflate0] =
         [
-            Show(3, 1),
+            Show(EnemyFrameId.Powamp03, 1),
         ],
         [P.BalloonInflate1] =
         [
-            Show(4, 6),
-            Show(5, 160),
+            Show(EnemyFrameId.Powamp04, 6),
+            Show(EnemyFrameId.Powamp05, 160),
         ],
         [P.BalloonStartSinking] =
         [
-            Show(5, 1),
-            Show(4, 6),
+            Show(EnemyFrameId.Powamp05, 1),
+            Show(EnemyFrameId.Powamp04, 6),
         ],
         [P.BalloonDeflated] =
         [
-            Show(3, 160),
+            Show(EnemyFrameId.Powamp03, 160),
         ],
     });
 
@@ -59,6 +60,6 @@ internal static class PowampAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<PowampProgram> StartingWith(PowampProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<PowampFrame, NoAnimationCue> Show(int pose, int duration) => new AnimationBeat<PowampFrame, NoAnimationCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);
 }

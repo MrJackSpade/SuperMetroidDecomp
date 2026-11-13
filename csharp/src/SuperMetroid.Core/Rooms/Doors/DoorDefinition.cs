@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// <summary>One door: where it leads, how it is passed, where its cap stands and what it runs as Samus passes.</summary>
 /// <remarks>
 /// A load-station entry identifies both a room and the door through which that room is
-/// entered. The latter is behaviorally significant: its setup routine can change how the
+/// entered. The latter is behaviorally significant: its setup can change how the
 /// room is shown before gameplay. Treating the station's room as sufficient discarded
 /// exactly the turning-floor view of the opening Ceres elevator.
 /// </remarks>
@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// <param name="RoomObjectBlock">The block of the destination room where the arrival's closing door cap stands.</param>
 /// <param name="DestinationScreen">The destination room's screen the camera arrives on.</param>
 /// <param name="SamusSpeed">How far the transition pushes Samus on each step of the door-opening scroll.</param>
-/// <param name="SetupCode">The setup routine the door runs while Samus passes through it.</param>
+/// <param name="SetupCode">The setup the door runs while Samus passes through it.</param>
 public sealed record DoorDefinition(
     string Name,
     RoomHeaderDefinition DestinationRoom,

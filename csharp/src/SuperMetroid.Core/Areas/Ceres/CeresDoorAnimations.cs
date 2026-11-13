@@ -1,37 +1,38 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Areas.Ceres.CeresDoorCueKind;
 using P = SuperMetroid.Core.Areas.Ceres.CeresDoorProgram;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
 /// The Ceres doors' and walls' typed programs (#641). Each
-/// frame shows a <see cref="CeresDoorFrame"/> pose and each callback becomes a <see cref="CeresDoorCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyFrameId"/> and each callback becomes a <see cref="CeresDoorCue"/> with its typed operands.
 /// </summary>
 internal static class CeresDoorAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<CeresDoorProgram, CeresDoorFrame, CeresDoorCue> Segments { get; } = new(
-        new Dictionary<CeresDoorProgram, AnimationBeat<CeresDoorFrame, CeresDoorCue>[]>
+    internal static AnimationSegments<CeresDoorProgram, EnemyFrameId, CeresDoorCue> Segments { get; } = new(
+        new Dictionary<CeresDoorProgram, AnimationBeat<EnemyFrameId, CeresDoorCue>[]>
     {
         [P.RidleyRoomFacingRight] =
         [
             Cue(new(K.MakeIntangible)),
             Cue(new(K.MakeInvisible)),
-            Show(10, 2),
+            Show(EnemyFrameId.CeresDoorRightTransition3, 2),
             Cue(new(K.MakeTangible)),
             Cue(new(K.MakeVisible)),
-            Show(10, 2),
-            Show(9, 2),
-            Show(8, 2),
-            Show(7, 2),
+            Show(EnemyFrameId.CeresDoorRightTransition3, 2),
+            Show(EnemyFrameId.CeresDoorRightTransition2, 2),
+            Show(EnemyFrameId.CeresDoorRightTransition1, 2),
+            Show(EnemyFrameId.CeresDoorRightTransition0, 2),
             Cue(new(K.HandDrawingToRidley)),
-            Show(6, 1),
+            Show(EnemyFrameId.CeresDoorRightHold, 1),
             Cue(new(K.MakeInvisible)),
         ],
         [P.RidleyRoomFacingRightWait] =
         [
-            Show(6, 2),
+            Show(EnemyFrameId.CeresDoorRightHold, 2),
             Cue(new(K.GoToIfAreaBossAlive, Target: P.RidleyRoomFacingRightWait)),
             Cue(new(K.MakeVisibleAndTakeDrawingBack)),
         ],
@@ -39,22 +40,22 @@ internal static class CeresDoorAnimations
         [
             Cue(new(K.MakeIntangible)),
             Cue(new(K.MakeInvisible)),
-            Show(6, 2),
+            Show(EnemyFrameId.CeresDoorRightHold, 2),
             Cue(new(K.GoToIfSamusDistant, Target: P.ClosedFacingRight)),
         ],
         [P.OpenFacingRight] =
         [
-            Show(10, 2),
+            Show(EnemyFrameId.CeresDoorRightTransition3, 2),
             Cue(new(K.GoToIfSamusDistant, Target: P.CloseFacingRight)),
         ],
         [P.CloseFacingRight] =
         [
             Cue(new(K.MakeTangible)),
             Cue(new(K.MakeVisible)),
-            Show(10, 5),
-            Show(9, 5),
-            Show(8, 5),
-            Show(7, 5),
+            Show(EnemyFrameId.CeresDoorRightTransition3, 5),
+            Show(EnemyFrameId.CeresDoorRightTransition2, 5),
+            Show(EnemyFrameId.CeresDoorRightTransition1, 5),
+            Show(EnemyFrameId.CeresDoorRightTransition0, 5),
         ],
         [P.ClosedFacingRight] =
         [
@@ -63,13 +64,13 @@ internal static class CeresDoorAnimations
         ],
         [P.ClosedFacingRightWait] =
         [
-            Show(6, 2),
+            Show(EnemyFrameId.CeresDoorRightHold, 2),
             Cue(new(K.GoToIfSamusDistant, Target: P.ClosedFacingRightWait)),
             Cue(new(K.PlayOpeningSound)),
-            Show(7, 5),
-            Show(8, 5),
-            Show(9, 5),
-            Show(10, 5),
+            Show(EnemyFrameId.CeresDoorRightTransition0, 5),
+            Show(EnemyFrameId.CeresDoorRightTransition1, 5),
+            Show(EnemyFrameId.CeresDoorRightTransition2, 5),
+            Show(EnemyFrameId.CeresDoorRightTransition3, 5),
             Cue(new(K.MakeIntangible)),
             Cue(new(K.MakeInvisible)),
         ],
@@ -77,22 +78,22 @@ internal static class CeresDoorAnimations
         [
             Cue(new(K.MakeIntangible)),
             Cue(new(K.MakeInvisible)),
-            Show(6, 2),
+            Show(EnemyFrameId.CeresDoorRightHold, 2),
             Cue(new(K.GoToIfSamusDistant, Target: P.ClosedFacingLeft)),
         ],
         [P.OpenFacingLeft] =
         [
-            Show(1, 2),
+            Show(EnemyFrameId.CeresDoorLeftHold, 2),
             Cue(new(K.GoToIfSamusDistant, Target: P.CloseFacingLeft)),
         ],
         [P.CloseFacingLeft] =
         [
             Cue(new(K.MakeTangible)),
             Cue(new(K.MakeVisible)),
-            Show(5, 5),
-            Show(4, 5),
-            Show(3, 5),
-            Show(2, 5),
+            Show(EnemyFrameId.CeresDoorLeftTransition3, 5),
+            Show(EnemyFrameId.CeresDoorLeftTransition2, 5),
+            Show(EnemyFrameId.CeresDoorLeftTransition1, 5),
+            Show(EnemyFrameId.CeresDoorLeftTransition0, 5),
         ],
         [P.ClosedFacingLeft] =
         [
@@ -101,13 +102,13 @@ internal static class CeresDoorAnimations
         ],
         [P.ClosedFacingLeftWait] =
         [
-            Show(1, 2),
+            Show(EnemyFrameId.CeresDoorLeftHold, 2),
             Cue(new(K.GoToIfSamusDistant, Target: P.ClosedFacingLeftWait)),
             Cue(new(K.PlayOpeningSound)),
-            Show(2, 5),
-            Show(3, 5),
-            Show(4, 5),
-            Show(5, 5),
+            Show(EnemyFrameId.CeresDoorLeftTransition0, 5),
+            Show(EnemyFrameId.CeresDoorLeftTransition1, 5),
+            Show(EnemyFrameId.CeresDoorLeftTransition2, 5),
+            Show(EnemyFrameId.CeresDoorLeftTransition3, 5),
             Cue(new(K.MakeIntangible)),
             Cue(new(K.MakeInvisible)),
         ],
@@ -117,7 +118,7 @@ internal static class CeresDoorAnimations
         ],
         [P.RotatingElevatorPreExplosionOverlayLoop] =
         [
-            Show(0, 1),
+            Show(EnemyFrameId.CeresDoorRotatingOverlay, 1),
         ],
         [P.RotatingElevatorInvisibleWall] =
         [
@@ -127,7 +128,7 @@ internal static class CeresDoorAnimations
         ],
         [P.RotatingElevatorInvisibleWallLoop] =
         [
-            Show(1, 1),
+            Show(EnemyFrameId.CeresDoorLeftHold, 1),
         ],
         [P.RidleyEscapeFloorLeftWall] =
         [
@@ -135,7 +136,7 @@ internal static class CeresDoorAnimations
         ],
         [P.RidleyEscapeFloorLeftWallLoop] =
         [
-            Show(11, 1),
+            Show(EnemyFrameId.CeresDoorTurningFloorLeftWall, 1),
         ],
         [P.RidleyEscapeFloorRightWall] =
         [
@@ -143,7 +144,7 @@ internal static class CeresDoorAnimations
         ],
         [P.RidleyEscapeFloorRightWallLoop] =
         [
-            Show(12, 1),
+            Show(EnemyFrameId.CeresDoorTurningFloorRightWall, 1),
         ],
     });
 
@@ -175,9 +176,9 @@ internal static class CeresDoorAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<CeresDoorProgram> StartingWith(CeresDoorProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<CeresDoorFrame, CeresDoorCue> Show(int pose, int duration) => new AnimationBeat<CeresDoorFrame, CeresDoorCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyFrameId, CeresDoorCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, CeresDoorCue>.Frame(frame, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<CeresDoorFrame, CeresDoorCue> Cue(CeresDoorCue cue) => new AnimationBeat<CeresDoorFrame, CeresDoorCue>.Event(cue);
+    private static AnimationBeat<EnemyFrameId, CeresDoorCue> Cue(CeresDoorCue cue) => new AnimationBeat<EnemyFrameId, CeresDoorCue>.Event(cue);
 }

@@ -22,7 +22,7 @@ public sealed class SamusPoseHistoryState
 
     /// <summary>
     /// Whether the wall-jump probe may run: only when the older committed transition recorded spin jumping or wall
-    /// jumping. The original name says "last different", but the history also shifts on same-pose transitions.
+    /// jumping. The game's name says "last different", but the history also shifts on same-pose transitions.
     /// </summary>
     public bool AllowsWallJumpProbe => LastDifferentMovement is SamusMovementType.SpinJumping or SamusMovementType.WallJumping;
 

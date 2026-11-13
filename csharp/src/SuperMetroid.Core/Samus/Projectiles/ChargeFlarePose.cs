@@ -12,7 +12,7 @@ internal readonly record struct ChargeFlarePose
     public required bool Running { get; init; }
 
     /// <summary>
-    /// Pose graphics Y offset in pixels, 0 through 255: the pose's offset taken as an unsigned byte, so a negative
+    /// Pose graphics Y offset in pixels, 0 through 255: the pose's offset taken modulo 256, so a negative
     /// pose offset raises the flare by 256 minus its magnitude, as the game's unsigned subtraction does.
     /// </summary>
     public required int PoseYOffset { get; init; }

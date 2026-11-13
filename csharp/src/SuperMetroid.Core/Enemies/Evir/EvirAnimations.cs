@@ -1,80 +1,81 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Evir.EvirCueKind;
 using P = SuperMetroid.Core.Enemies.Evir.EvirProgram;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Evir;
 
 /// <summary>
 /// The Evir body's and arms' facing loops and its projectile's spit and regeneration animations as typed programs (#641). Each
-/// frame shows a <see cref="EvirFrame"/> pose and each callback becomes a <see cref="EvirCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyFrameId"/> and each callback becomes a <see cref="EvirCue"/> with its typed operands.
 /// </summary>
 internal static class EvirAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<EvirProgram, EvirFrame, EvirCue> Segments { get; } = new(
-        new Dictionary<EvirProgram, AnimationBeat<EvirFrame, EvirCue>[]>
+    internal static AnimationSegments<EvirProgram, EnemyFrameId, EvirCue> Segments { get; } = new(
+        new Dictionary<EvirProgram, AnimationBeat<EnemyFrameId, EvirCue>[]>
     {
         [P.BodyFacingLeft] =
         [
-            Show(0, 10),
-            Show(1, 10),
-            Show(2, 10),
-            Show(3, 10),
-            Show(4, 10),
-            Show(5, 10),
+            Show(EnemyFrameId.EvirBodyLeft0, 10),
+            Show(EnemyFrameId.EvirBodyLeft1, 10),
+            Show(EnemyFrameId.EvirBodyLeft2, 10),
+            Show(EnemyFrameId.EvirBodyLeft3, 10),
+            Show(EnemyFrameId.EvirBodyLeft4, 10),
+            Show(EnemyFrameId.EvirBodyLeft5, 10),
         ],
         [P.ArmsFacingLeft] =
         [
-            Show(6, 10),
-            Show(7, 10),
-            Show(8, 10),
-            Show(9, 10),
-            Show(6, 10),
-            Show(7, 10),
-            Show(8, 10),
-            Show(9, 10),
-            Show(6, 10),
-            Show(7, 10),
-            Show(8, 10),
-            Show(9, 10),
-            Show(6, 10),
-            Show(7, 10),
-            Show(8, 10),
-            Show(9, 10),
-            Show(10, 48),
+            Show(EnemyFrameId.EvirArmsLeft0, 10),
+            Show(EnemyFrameId.EvirArmsLeft1, 10),
+            Show(EnemyFrameId.EvirArmsLeft2, 10),
+            Show(EnemyFrameId.EvirArmsLeft3, 10),
+            Show(EnemyFrameId.EvirArmsLeft0, 10),
+            Show(EnemyFrameId.EvirArmsLeft1, 10),
+            Show(EnemyFrameId.EvirArmsLeft2, 10),
+            Show(EnemyFrameId.EvirArmsLeft3, 10),
+            Show(EnemyFrameId.EvirArmsLeft0, 10),
+            Show(EnemyFrameId.EvirArmsLeft1, 10),
+            Show(EnemyFrameId.EvirArmsLeft2, 10),
+            Show(EnemyFrameId.EvirArmsLeft3, 10),
+            Show(EnemyFrameId.EvirArmsLeft0, 10),
+            Show(EnemyFrameId.EvirArmsLeft1, 10),
+            Show(EnemyFrameId.EvirArmsLeft2, 10),
+            Show(EnemyFrameId.EvirArmsLeft3, 10),
+            Show(EnemyFrameId.EvirArmsLeft4, 48),
         ],
         [P.BodyFacingRight] =
         [
-            Show(13, 10),
-            Show(14, 10),
-            Show(15, 10),
-            Show(16, 10),
-            Show(17, 10),
-            Show(18, 10),
+            Show(EnemyFrameId.EvirBodyRight0, 10),
+            Show(EnemyFrameId.EvirBodyRight1, 10),
+            Show(EnemyFrameId.EvirBodyRight2, 10),
+            Show(EnemyFrameId.EvirBodyRight3, 10),
+            Show(EnemyFrameId.EvirBodyRight4, 10),
+            Show(EnemyFrameId.EvirBodyRight5, 10),
         ],
         [P.ArmsFacingRight] =
         [
-            Show(19, 10),
-            Show(20, 10),
-            Show(21, 10),
-            Show(22, 10),
-            Show(19, 10),
-            Show(20, 10),
-            Show(21, 10),
-            Show(22, 10),
-            Show(19, 10),
-            Show(20, 10),
-            Show(21, 10),
-            Show(22, 10),
-            Show(19, 10),
-            Show(20, 10),
-            Show(21, 10),
-            Show(22, 10),
-            Show(23, 48),
+            Show(EnemyFrameId.EvirArmsRight0, 10),
+            Show(EnemyFrameId.EvirArmsRight1, 10),
+            Show(EnemyFrameId.EvirArmsRight2, 10),
+            Show(EnemyFrameId.EvirArmsRight3, 10),
+            Show(EnemyFrameId.EvirArmsRight0, 10),
+            Show(EnemyFrameId.EvirArmsRight1, 10),
+            Show(EnemyFrameId.EvirArmsRight2, 10),
+            Show(EnemyFrameId.EvirArmsRight3, 10),
+            Show(EnemyFrameId.EvirArmsRight0, 10),
+            Show(EnemyFrameId.EvirArmsRight1, 10),
+            Show(EnemyFrameId.EvirArmsRight2, 10),
+            Show(EnemyFrameId.EvirArmsRight3, 10),
+            Show(EnemyFrameId.EvirArmsRight0, 10),
+            Show(EnemyFrameId.EvirArmsRight1, 10),
+            Show(EnemyFrameId.EvirArmsRight2, 10),
+            Show(EnemyFrameId.EvirArmsRight3, 10),
+            Show(EnemyFrameId.EvirArmsRight4, 48),
         ],
         [P.ProjectileNormal] =
         [
-            Show(12, 1),
+            Show(EnemyFrameId.EvirProjectileFlight, 1),
         ],
         [P.ProjectileRegenerating] =
         [
@@ -83,9 +84,9 @@ internal static class EvirAnimations
         ],
         [P.ProjectileRegenerationLoop] =
         [
-            Show(11, 8),
+            Show(EnemyFrameId.EvirProjectileRegenerating, 8),
             Cue(new(K.AdvanceRegenerationOffset)),
-            Show(12, 16),
+            Show(EnemyFrameId.EvirProjectileFlight, 16),
             Cue(new(K.FinishRegeneration)),
         ],
     });
@@ -104,9 +105,9 @@ internal static class EvirAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<EvirProgram> StartingWith(EvirProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<EvirFrame, EvirCue> Show(int pose, int duration) => new AnimationBeat<EvirFrame, EvirCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyFrameId, EvirCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, EvirCue>.Frame(frame, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<EvirFrame, EvirCue> Cue(EvirCue cue) => new AnimationBeat<EvirFrame, EvirCue>.Event(cue);
+    private static AnimationBeat<EnemyFrameId, EvirCue> Cue(EvirCue cue) => new AnimationBeat<EnemyFrameId, EvirCue>.Event(cue);
 }

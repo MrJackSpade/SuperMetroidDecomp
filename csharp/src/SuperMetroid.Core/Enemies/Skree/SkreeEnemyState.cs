@@ -19,6 +19,6 @@ public sealed class SkreeEnemyState
     /// <summary>The animation phase whose program is currently installed.</summary>
     public SkreeMetareeAnimationPhase InstalledInstructionIndex { get; internal set; }
 
-    /// <summary>The wind-up instruction's one-shot authorization to begin diving.</summary>
+    /// <summary>The wind-up cue's one-shot authorization to begin diving.</summary>
     public bool AttackReady { get; internal set; }
 }

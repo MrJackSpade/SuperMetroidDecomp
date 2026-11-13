@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Zoa;
 
-/// <summary>What a cue of Zoa's programs does: one per instruction its lists use.</summary>
+/// <summary>What a cue of Zoa's programs does: one per kind of step its lists use.</summary>
 internal enum ZoaCueKind
 {
     /// <summary>Selects the third, two-pixel launch speed.</summary>

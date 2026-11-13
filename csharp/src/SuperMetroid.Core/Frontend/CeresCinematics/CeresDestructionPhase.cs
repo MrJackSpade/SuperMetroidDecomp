@@ -15,13 +15,13 @@ internal enum CeresDestructionPhase
     HoldAfterExplosion,
     /// <summary>Darkens Ceres before Zebes reveal or the game-over exit with Samus aboard.</summary>
     FadeOutCeres,
-    /// <summary>Transfers the planet-reveal art on the following dispatcher call.</summary>
+    /// <summary>Shows the planet-reveal art on the following dispatcher call.</summary>
     FlyToZebesInitial,
     /// <summary>Raises planet-scene brightness while reducing its mosaic.</summary>
     FadeInZebes,
     /// <summary>Finishes mosaic reduction before creating the turning-floor planet actors.</summary>
     RemoveZebesMosaic,
-    /// <summary>Waits for the title actor's instruction to start the camera approach.</summary>
+    /// <summary>Waits for the title actor's cue to start the camera approach.</summary>
     PlanetZebesTitle,
     /// <summary>Moves toward Zebes and increases scale to the first approach limit.</summary>
     FlyingTowardZebesA,

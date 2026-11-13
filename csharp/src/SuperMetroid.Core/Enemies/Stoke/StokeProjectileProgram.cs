@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Stoke;
 
 /// <summary>
-/// The Stoke's projectile program (#641), one per animation a spawn, branch or family routine enters, in authored order.
+/// The Stoke's projectile program (#641), one per animation a spawn, branch or family step enters, in authored order.
 /// Their steps are <see cref="StokeProjectileAnimations"/>.
 /// </summary>
 internal enum StokeProjectileProgram

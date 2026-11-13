@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.Intro;
 
-/// <summary>Exact fixed-point additions shared by translated opening-cinematic actors.</summary>
+/// <summary>Exact fixed-point additions shared by opening-cinematic actors.</summary>
 internal static class IntroCinematicMotion
 {
     /// <summary>
@@ -15,7 +15,7 @@ internal static class IntroCinematicMotion
         FixedCoordinate position,
         SignedEightEight velocity) =>
         // The velocity's fraction lands in the subposition's upper half.
-        // Its carry past 255 then feeds the signed whole part.
+        // Its overflow past 255 then feeds the signed whole part.
         velocity
             .ToSixteenSixteenDelta()
             .AddTo(position.Whole, position.Fraction);

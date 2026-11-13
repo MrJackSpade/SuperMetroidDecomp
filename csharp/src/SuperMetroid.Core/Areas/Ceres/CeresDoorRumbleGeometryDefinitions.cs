@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// </summary>
 internal static class CeresDoorRumbleGeometryDefinitions
 {
-    /// <summary>The routine emits four separate impact effects around the door.</summary>
+    /// <summary>The rumble emits four separate impact effects around the door.</summary>
     internal const int Count = 4;
     /// <summary>Each interleaved horizontal column is two pixels from the next.</summary>
     internal const int ColumnSpacing = 2;

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Nuclear;
 
 /// <summary>
 /// The state of the Nuclear Waffle, with its projectile and sprite-object links. The seven articulated body links
-/// alternate between enemy projectiles and sprite objects, exactly as the original actor does.
+/// alternate between enemy projectiles and sprite objects.
 /// </summary>
 public sealed class NuclearWaffleEnemyState
 {
@@ -15,7 +15,7 @@ public sealed class NuclearWaffleEnemyState
     /// <summary>The current waiting or sweeping behaviour.</summary>
     public NuclearWaffleEnemyFunction? Function { get; internal set; }
 
-    /// <summary>Wrapping wait countdown in enemy AI calls, expiring only after decrement produces a signed-negative word and reloaded from the population reset byte.</summary>
+    /// <summary>Wrapping wait countdown in enemy AI calls, expiring only after decrement produces a negative value and reloaded from the population reset.</summary>
     public int WaitingTimer { get; internal set; }
 
     /// <summary>
@@ -34,7 +34,7 @@ public sealed class NuclearWaffleEnemyState
     public int WaitingTimerReset { get; internal set; }
 
     /// <summary>
-    /// The sweep angle accumulator: the whole part is the head's angle in units of 1/256 turn and
+    /// The sweep angle: the whole part is the head's angle in units of 1/256 turn and
     /// the fraction carries between updates. It restarts at <see cref="SweepStartAngle"/> with a zero fraction and
     /// moves monotonically toward <see cref="SweepEndAngle"/> until the last damaging link reaches it, so its whole
     /// part stays between 140 and 500 and never wraps; the orbit lookup uses only its position within the turn.

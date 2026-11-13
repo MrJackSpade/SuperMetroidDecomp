@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// The downward shot gate's moving and closed programs (#641), one per list a spawn, branch or family routine enters, in authored order.
+/// The downward shot gate's moving and closed programs (#641), one per list a spawn, branch or family step enters, in authored order.
 /// Generated from the verified lists; see <see cref="DownwardGateProjectileAnimations"/>.
 /// </summary>
 internal enum DownwardGateProjectileProgram

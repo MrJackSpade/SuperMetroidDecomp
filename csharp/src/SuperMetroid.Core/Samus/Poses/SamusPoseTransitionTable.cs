@@ -36,7 +36,7 @@ public static class SamusPoseTransitionTable
     {
 
         // Branches directly to lookup-failure handling when the raw controller
-        // word is zero, before it reads this table at all.
+        // input is empty, before it reads this table at all.
         if (canonicalHeldInput == ControllerButton.None)
             return new SamusPoseTransitionLookup(null, UsesPoseDefinitionFallback: true);
 

@@ -83,7 +83,7 @@ public static class SamusInsideBlockReactions
                             break;
                         case SamusVerticalDirection.Up:
                             SignedSixteenSixteen limit = physics.UpwardSpeedLimit;
-                            // The original compares the speed and limit in 256ths of a pixel, then
+                            // The game compares the speed and limit in 256ths of a pixel, then
                             // replaces the speed's whole pixels and fraction with the limit's.
                             if (body.YSpeed.InTwoFiftySixths > limit.InTwoFiftySixths)
                             {
@@ -123,7 +123,7 @@ public static class SamusInsideBlockReactions
             if (conveyor.Condition == ConveyorCarryCondition.OnFootWithPower &&
                 ((area == AreaId.WreckedShip && !areaBossDefeated) || body.YSpeed.Whole != 0))
                 return;
-            // The original checks only whole Y speed: fractional vertical motion does
+            // The game checks only whole Y speed: fractional vertical motion does
             // not suppress carry. This replaces external X displacement, never adds to it.
             body.ExtraDisplacement = body.ExtraDisplacement.WithX(SignedSixteenSixteen.FromParts(
                 rightward ? ConveyorBlockDefinitions.RightwardCarry : ConveyorBlockDefinitions.LeftwardCarry, 0));

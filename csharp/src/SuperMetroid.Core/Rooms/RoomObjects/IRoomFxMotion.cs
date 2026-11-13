@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>The room liquid's motion words room objects write and read (#1395). The room FX state implements it.</summary>
+/// <summary>The room liquid's motion values room objects write and read (#1395). The room FX state implements it.</summary>
 public interface IRoomFxMotion
 {
     /// <summary>The liquid's base surface, or null when it has none (#1546).</summary>

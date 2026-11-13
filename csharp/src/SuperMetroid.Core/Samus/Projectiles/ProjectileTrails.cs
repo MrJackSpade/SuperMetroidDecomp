@@ -99,7 +99,7 @@ internal sealed class ProjectileTrails
         _ = trails.RemoveAll(static trail => trail.IsFinished);
     }
 
-    /// <summary>Advances one side's instruction stream unless time is frozen.</summary>
+    /// <summary>Advances one side's cue stream unless time is frozen.</summary>
     private static void AdvanceTrailSide(
         SamusProjectileTrail pair,
         bool timeIsFrozen,
@@ -138,7 +138,7 @@ internal sealed class ProjectileTrails
                     ProjectileTrailInstruction movement = ((ProjectileTrailStep.Move)step).Movement;
                     switch (movement)
                     {
-                        // The instruction names the side it moves. Both streams run the same moves, including
+                        // The cue names the side it moves. Both streams run the same moves, including
                         // moves of their sibling.
                         case ProjectileTrailInstruction.MoveLeftDown:
                             pair.Left.Position = pair.Left.Position.WithY(CoordinateAxis.Wrap(pair.Left.Position.Y + 1));

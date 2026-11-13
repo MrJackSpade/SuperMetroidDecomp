@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Skree;
+using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.TestSupport.MovieReplay;
 
@@ -22,11 +23,11 @@ internal static class SkreeMetareeParticleNativeListAddresses
     /// <summary>The native entry of <paramref name="program"/>.</summary>
     internal static ushort Entry(SkreeMetareeParticleProgram program) => NativeEnemyProjectileProgramOracle.EntryOf(Entries, program);
 
-    /// <summary>The bank-$86 operand of each pose's native frame; it selects the composition the pose's frame draws.</summary>
-    private static Dictionary<SkreeMetareeParticleFrame, ushort> NativeOperands { get; } = new()
+    /// <summary>The bank-$86 operand of each frame's native record; it selects the composition the frame draws.</summary>
+    private static Dictionary<EnemyProjectileFrameId, ushort> NativeOperands { get; } = new()
     {
-        [new(0)] = (ushort)SkreeMetareeParticleOperand.Skree,
-        [new(1)] = (ushort)SkreeMetareeParticleOperand.Metaree,
+        [EnemyProjectileFrameId.SkreeDebris] = (ushort)SkreeMetareeParticleOperand.Skree,
+        [EnemyProjectileFrameId.MetareeDebris] = (ushort)SkreeMetareeParticleOperand.Metaree,
     };
 
     /// <summary>The family's typed programs beside their native lists.</summary>

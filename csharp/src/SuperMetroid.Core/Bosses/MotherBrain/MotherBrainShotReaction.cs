@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// Ports the walk-counter arithmetic of Mother Brain's phase-two/three shot reaction
+/// Runs the walk-counter arithmetic of Mother Brain's phase-two/three shot reaction
 /// Independent of which object currently owns the counter.
 /// </summary>
 internal static class MotherBrainShotReaction

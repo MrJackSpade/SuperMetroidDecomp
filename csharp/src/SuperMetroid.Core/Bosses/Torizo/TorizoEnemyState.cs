@@ -16,7 +16,7 @@ public sealed class TorizoEnemyState
         IsGolden = isGolden;
     }
 
-    /// <summary>The owning room enemy body slot, whose common position, health, properties, and instruction state this extension supplements.</summary>
+    /// <summary>The owning room enemy body slot, whose common position, health, properties, and animation state this extension supplements.</summary>
     public RoomEnemySlot Slot { get; }
 
     /// <summary>Which way Torizo faces, which leg is forward and whether it is turning around.</summary>
@@ -33,25 +33,24 @@ public sealed class TorizoEnemyState
     /// <summary>The body animation playing and where it stands in it (#1600).</summary>
     internal AnimationPlayback<TorizoBodyProgram> BodyPlayback { get; set; }
 
-    /// <summary><c>toriz_var_00</c>: where the body's play returns or lands: a call's return point, or a landing's animation.</summary>
+    /// <summary>Where the body's play returns or lands: a call's return point, or a landing's animation.</summary>
     internal AnimationPlayback<TorizoBodyProgram> ReturnPlayback { get; set; }
 
-    /// <summary><c>toriz_var_01</c>: where the gut explosion interrupted the body's play, resumed afterwards.</summary>
+    /// <summary>Where the gut explosion interrupted the body's play, resumed afterwards.</summary>
     internal AnimationPlayback<TorizoBodyProgram> InterruptedPlayback { get; set; }
 
-    /// <summary><c>toriz_var_03</c>: delayed in-air transition counter.</summary>
+    /// <summary>Delayed in-air transition counter.</summary>
     public int AirTransitionTimer { get; internal set; }
 
     /// <summary>
-    /// <c>toriz_var_04</c>, held as whether the body's animation is locked: the awakening list locks it and
+    /// Whether the body's animation is locked: the awakening list locks it and
     /// later unlocks it. While it is locked Bomb Torizo rejects shots before common damage, and Golden Torizo sends
-    /// them to common damage without its catches or its stun. The original game marks the lock with a nonzero word that
-    /// nothing reads; every test is locked versus unlocked.
+    /// them to common damage without its catches or its stun. Every test is locked versus unlocked.
     /// </summary>
     public bool AnimationLocked { get; internal set; }
 
     /// <summary>
-    /// <c>toriz_var_09</c>: stepping cues counted since a decision last reset it, from zero to
+    /// Stepping cues counted since a decision last reset it, from zero to
     /// <see cref="LargestCount"/>. Golden Torizo's repeated-jump branch fires once it reaches eight.
     /// </summary>
     public int DecisionCounter { get; internal set; }
@@ -60,7 +59,7 @@ public sealed class TorizoEnemyState
     public bool EyeBeamExplosionsEnabled { get; internal set; }
 
     /// <summary>
-    /// <c>toriz_var_07</c>: consecutive frames Samus has space-jumped, from zero to <see cref="LargestCount"/>.
+    /// Consecutive frames Samus has space-jumped, from zero to <see cref="LargestCount"/>.
     /// Past 360 it lets Golden Torizo's forward leap fire without its input and random gates.
     /// </summary>
     public int SamusSpaceJumpFrames { get; internal set; }
@@ -87,9 +86,9 @@ public sealed class TorizoEnemyState
     public bool AwakeningReleased { get; internal set; }
     /// <summary>Host latch preventing repeat entry into the death script after lethal damage; remains set for this state instance.</summary>
     public bool DeathStarted { get; internal set; }
-    /// <summary>Whether the area's Torizo defeat bit was already set at initialization or was set by the translated death step.</summary>
+    /// <summary>Whether the area's Torizo defeat flag was already set at initialization or was set by the death step.</summary>
     public bool BossBitSet { get; internal set; }
-    /// <summary>Host latch recording the death instruction's 16-pickup scatter request in the variant's arena; does not mean those pickups were collected.</summary>
+    /// <summary>Host latch recording the death cue's 16-pickup scatter request in the variant's arena; does not mean those pickups were collected.</summary>
     public bool ItemDropRequested { get; internal set; }
 
     /// <summary>

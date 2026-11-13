@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Deaths;
 
 /// <summary>
-/// The generic enemy-death explosions, the drops they become and the respawn tail (#641), one per animation a spawn, branch or family routine enters, in authored order.
+/// The generic enemy-death explosions, the drops they become and the respawn tail (#641), one per animation a spawn, branch or family step enters, in authored order.
 /// Their steps are <see cref="EnemyDeathProjectileAnimations"/>.
 /// </summary>
 internal enum EnemyDeathProjectileProgram

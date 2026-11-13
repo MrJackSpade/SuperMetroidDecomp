@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Yard;
 
 /// <summary>
-/// Yard's movement routine.
+/// Yard's movement behaviour.
 /// Its values are arbitrary.
 /// </summary>
 public enum YardMovementFunction
@@ -26,6 +26,6 @@ public enum YardMovementFunction
     CrawlingUpsideDownMovingLeft,
     /// <summary>Upward crawl with Yard's top facing left, using vertical surface and corner probes.</summary>
     CrawlingUpsideLeftMovingUp,
-    /// <summary>Applies 16.16 shell motion, horizontal decay, gravity, per-word collision bounces, and low-speed floor landing.</summary>
+    /// <summary>Applies 16.16 shell motion, horizontal decay, gravity, per-axis collision bounces, and low-speed floor landing.</summary>
     Airborne,
 }

@@ -10,14 +10,14 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>
-/// Literal Samus-side translation of the drained controller and its
+/// The Samus side of the drained controller and its
 /// installed falling handler.
 /// </summary>
 /// <remarks>
 /// Mother Brain and the Baby Metroid own when controller functions zero through four are
 /// called. This class deliberately does not invent that enemy AI. It owns only the state
 /// mutations made by those calls and the movement handler installed later by the
-/// drained-fall animation instruction.
+/// drained-fall animation cue.
 /// </remarks>
 public sealed class SamusDrainedState
 {
@@ -78,7 +78,7 @@ public sealed class SamusDrainedState
     internal void RelinquishTimerHackHandler() => GetUpHandler = DrainedGetUpHandler.Inactive;
 
     /// <summary>
-    /// Ports Samus command five: install the able-to-stand timer handler,
+    /// Runs Samus command five: install the able-to-stand timer handler,
     /// then enter the shared rainbow-beam setup.
     /// </summary>
     public void SetupForRainbowBeamAbleToStand(SamusState samus)
@@ -88,7 +88,7 @@ public sealed class SamusDrainedState
     }
 
     /// <summary>
-    /// Ports the unable-to-stand drain setup: install the failed-stand timer
+    /// Runs the unable-to-stand drain setup: install the failed-stand timer
     /// handler, then enter the same locked left-knockback pose as command five.
     /// </summary>
     public void SetupForRainbowBeamUnableToStand(SamusState samus)
@@ -134,7 +134,7 @@ public sealed class SamusDrainedState
         return false;
     }
 
-    /// <summary>Ports the Samus command that freezes the drained animation while the Hyper Beam is acquired.</summary>
+    /// <summary>Runs the Samus command that freezes the drained animation while the Hyper Beam is acquired.</summary>
     /// <remarks>The command reports itself handled, which cancels the pending pose transition.</remarks>
     public static void FreezeForHyperBeamAcquisition(SamusState samus)
     {
@@ -143,7 +143,7 @@ public sealed class SamusDrainedState
         samus.CancelPendingPoseTransition();
     }
 
-    /// <summary>Ports the rainbow-start Samus command.</summary>
+    /// <summary>Runs the rainbow-start Samus command.</summary>
     public void EnableRainbow(SamusState samus)
     {
         Ensure.NotNull(samus);
@@ -156,7 +156,7 @@ public sealed class SamusDrainedState
 
     /// <summary>
     /// Applies the Baby's frame increment after the Baby's fractional 768
-    /// accumulator overflows a whole unit. The comparison clamps at ten rather than wrapping.
+    /// counter overflows a whole unit. The comparison clamps at ten rather than wrapping.
     /// </summary>
     /// <param name="maximumFrame">The largest hold the cycle may reach; the Baby passes ten.</param>
     public void IncrementRainbowPaletteFrame(int maximumFrame)
@@ -167,7 +167,7 @@ public sealed class SamusDrainedState
     }
 
     /// <summary>
-    /// Ports the rainbow-stop Samus command: clear every rainbow/charge palette
+    /// Runs the rainbow-stop Samus command: clear every rainbow/charge palette
     /// value and begin the standing portion of the drained animation at frame thirteen.
     /// </summary>
     public void DisableRainbowAndStartStandingAnimation(SamusState samus)
@@ -223,7 +223,7 @@ public sealed class SamusDrainedState
     }
 
     /// <summary>
-    /// Ports controller function zero, “let drained Samus fall,”.
+    /// Runs controller function zero, “let drained Samus fall,”.
     /// </summary>
     public void LetFall(SamusState samus)
     {
@@ -261,8 +261,8 @@ public sealed class SamusDrainedState
     }
 
     /// <summary>
-    /// Called only by the drained-fall animation instruction; the generic delay
-    /// interpreter performs the command's separate frame increment. The instruction does not look at the pose: the drained
+    /// Called only by the drained-fall animation cue; the generic delay
+    /// step performs the command's separate frame increment. The cue does not look at the pose: the drained
     /// crouches' programs hold it, and a landing pose whose frame the Baby's Hyper Beam freeze or rainbow stop sets reads
     /// into the drained crouch's program and reaches it too, so that pose falls as a drained Samus does (#1535).
     /// </summary>
@@ -270,10 +270,10 @@ public sealed class SamusDrainedState
     {
         Ensure.NotNull(samus);
 
-        // The instruction installs the drained falling handler as Samus's one movement handler.
+        // The cue installs the drained falling handler as Samus's one movement handler.
         // It therefore replaces either kind of special owner: an ordinary uncrashed spark
-        // retains its boost words as Blue Suit, while Crystal Flash retains its independent
-        // palette/input state as Shinespark Suit. Neither old movement routine may resume.
+        // retains its boost state as Blue Suit, while Crystal Flash retains its independent
+        // palette/input state as Shinespark Suit. Neither old movement behaviour may resume.
         samus.Shinespark.RelinquishMovementHandler();
         samus.CrystalFlash.RelinquishMovementHandler();
         Phase = DrainedSamusPhase.Falling;
@@ -317,7 +317,7 @@ public sealed class SamusDrainedState
             impactYSpeed);
     }
 
-    /// <summary>Ports controller function one.</summary>
+    /// <summary>Runs controller function one.</summary>
     public void PutStanding(SamusState samus)
     {
         Ensure.NotNull(samus);
@@ -330,7 +330,7 @@ public sealed class SamusDrainedState
         samus.CommitPoseHistory();
     }
 
-    /// <summary>Ports controller function four.</summary>
+    /// <summary>Runs controller function four.</summary>
     public void PutCrouchingOrFalling(SamusState samus)
     {
         Ensure.NotNull(samus);
@@ -343,14 +343,14 @@ public sealed class SamusDrainedState
         samus.CommitPoseHistory();
     }
 
-    /// <summary>Ports controller function two.</summary>
+    /// <summary>Runs controller function two.</summary>
     public void Release(SamusState samus)
     {
         Ensure.NotNull(samus);
 
-        // These are literal byte indices into the asymmetrical delay programs, not visual
-        // frame counts. In particular, the left-facing drained crouch's index 13 lands inside an
-        // instruction's argument rather than on a frame; the game
+        // These are literal indices into the asymmetrical delay programs, not visual
+        // frame counts. In particular, the left-facing drained crouch's index 13 lands inside a
+        // cue's argument rather than on a frame; the game
         // intentionally draws that index until the next animation decrement advances it.
         if (samus.Pose is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose)
             SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: SamusDrainedAnimationDefinitions.ReleaseCrouchingFrame, timer: 1);

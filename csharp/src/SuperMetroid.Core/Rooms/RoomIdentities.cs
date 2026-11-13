@@ -3,7 +3,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>
-/// Named logical room identities that are actually inspected by translated behavior.
+/// Named logical room identities that are actually inspected by game behavior.
 /// Where each room is stored is the import pipeline's knowledge.
 /// </summary>
 public static class RoomIdentities
@@ -54,7 +54,7 @@ public static class RoomIdentities
 
     /// <summary>
     /// Reproduces the shared room-index test without allowing an equal
-    /// room byte from an unrelated area to masquerade as the same logical room.
+    /// room index from an unrelated area to masquerade as the same logical room.
     /// </summary>
     public static bool UsesTourianStyleLandingDust(RoomIdentity room) =>
         (room.Area is AreaId.Brinstar or AreaId.Tourian) &&

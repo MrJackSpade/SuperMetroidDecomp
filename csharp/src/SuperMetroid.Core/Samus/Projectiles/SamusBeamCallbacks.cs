@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <summary>Which callback each beam projectile runs.</summary>
 internal static class SamusBeamCallbacks
 {
-    /// <summary>Resolves the complete low-nibble domain for one beam producer.</summary>
+    /// <summary>Resolves every combination for one beam producer.</summary>
     public static SamusBeamCallbackDefinition Resolve(bool charged, SamusBeamCombination combination) => combination switch
     {
         SamusBeamCombination.Power or SamusBeamCombination.Ice or SamusBeamCombination.Spazer or

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.MamaTurtles;
 
 /// <summary>
-/// The routine each Baby Turtle's main AI runs.
+/// The behaviour each Baby Turtle's main AI runs.
 /// Its values are arbitrary.
 /// </summary>
 public enum BabyTurtleAiFunction

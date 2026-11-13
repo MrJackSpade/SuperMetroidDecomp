@@ -1,5 +1,5 @@
 namespace SuperMetroid.Core.Areas.Ceres;
 
-/// <summary>One immutable enemy-projectile header.</summary>
+/// <summary>One immutable enemy-projectile definition.</summary>
 internal readonly record struct CeresElevatorProjectileDefinition(
     CeresElevatorArrivalProgram Program);

@@ -81,7 +81,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
         {
             // The regain-balance step contains an apparent missing store: it loads one and then
             // immediately reloads the neck-enable flag. Preserve that no-op rather
-            // than silently "fixing" the original game.
+            // than silently "fixing" it.
             PainfulWalkingForward = true;
             PainfulWalkingStage = 0;
             PainfulWalkingAnimationDelay = 2;
@@ -101,7 +101,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
     {
         // The rainbow step refreshes the shake timer only if another subsystem has cleared it.
         // The head animation owns any decrement; retaining the write gate avoids
-        // fabricating a body-side countdown that does not exist in this routine.
+        // fabricating a body-side countdown that does not exist in this step.
         if (_state.BrainMainShakeTimer == 0)
             _state.BrainMainShakeTimer = 50;
         requests.ColoursRequested = true;

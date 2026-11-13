@@ -1,5 +1,6 @@
 ﻿using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Cacatac.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Cacatac;
 
@@ -9,6 +10,6 @@ internal static class CacatacAnimationsConstants
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params CacatacProgram[] programs) =>
         programs.SelectMany(program => CacatacAnimations.Segments.Beats(program))
-            .OfType<AnimationBeat<CacatacFrame, CacatacCue>.Frame>()
+            .OfType<AnimationBeat<EnemyFrameId, CacatacCue>.Frame>()
             .Select(frame => CacatacFrameToolingDefinitions.Spritemap(frame.Shown));
 }

@@ -13,14 +13,14 @@ namespace SuperMetroid.Core.Enemies;
 internal sealed class EnemyFrameContext
 {
     /// <summary>Binds the enemy pass to the session that holds the random enemy counter.</summary>
-    /// <param name="session">The enemy words that outlive each room.</param>
+    /// <param name="session">The enemy state that outlives each room.</param>
     internal EnemyFrameContext(EnemySession session) => _session = Ensure.NotNull(session);
 
-    /// <summary>The enemy words that outlive each room.</summary>
+    /// <summary>The enemy state that outlives each room.</summary>
     private readonly EnemySession _session;
 
     /// <summary>
-    /// Enemy-pass random counter read by AI and projectile routines, 0 through 65535. Its one advance wraps
+    /// Enemy-pass random counter read by AI and projectiles, 0 through 65535. Its one advance wraps
     /// from 65535 back to zero, and every reader takes it modulo a power of two or copies it whole, so a wider store holds exactly
     /// the counter the game keeps.
     /// </summary>

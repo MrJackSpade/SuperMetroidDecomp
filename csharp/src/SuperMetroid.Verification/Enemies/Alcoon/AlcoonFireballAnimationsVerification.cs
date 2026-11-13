@@ -4,6 +4,7 @@ using static SuperMetroid.TestSupport.MovieReplay.AlcoonFireballNativeListAddres
 using SuperMetroid.Core.Enemies.Alcoon;
 using SuperMetroid.Core.Enemies.Alcoon.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Verification.Enemies.Alcoon;
 
@@ -14,13 +15,12 @@ internal static class AlcoonFireballAnimationsVerification
     internal static void VerifyAlcoonFireballAnimations(SuperMetroidAddressSpace rom)
     {
         int steps = Family.CompareAll(CartridgeImportSource.Require(rom));
-        for (int pose = 0; pose < AlcoonFireballFrameToolingDefinitions.PoseCount; pose++)
+        foreach (EnemyProjectileFrameId frame in AlcoonFireballFrameToolingDefinitions.Frames)
         {
-            AlcoonFireballFrame frame = new(pose);
-            ushort key = EnemyProjectileProgramFrameSources.Operand(AlcoonFireballFrameDefinitions.ShownProjectileFrames[frame]);
+            ushort key = EnemyProjectileProgramFrameSources.Operand(frame);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(NativeEnemyProjectileListDefinitions.ProjectileBank | key), AlcoonFireballFrameToolingDefinitions.Spritemap(frame),
-                $"Alcoon fireball pose {pose} spritemap");
-            AssertTrue(AlcoonFireballFrameToolingDefinitions.TryFrame(key, out AlcoonFireballFrame found) && found == frame, $"Alcoon fireball pose {pose} is found by its key");
+                $"Alcoon fireball frame {frame} spritemap");
+            AssertTrue(AlcoonFireballFrameToolingDefinitions.TryFrame(key, out EnemyProjectileFrameId found) && found == frame, $"Alcoon fireball frame {frame} is found by its key");
         }
         Console.WriteLine($"  Alcoon fireball programs: {Entries.Length} programs ({steps} steps) match bank $86.");
     }

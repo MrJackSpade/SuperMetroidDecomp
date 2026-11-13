@@ -21,5 +21,5 @@ internal static class PowampSpikeNativeListAddresses
     internal static readonly MotherBrainEffectNativeListAddressesExtent Extent = new MotherBrainEffectNativeListAddressesExtent(0xd208, 0xd21a);
 
     /// <summary>The family's typed programs beside their native lists.</summary>
-    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, PowampSpikeAnimations.Segments, PowampSpikeAnimations.StartingAt, (frame => EnemyProjectileProgramFrameSources.Operand(PowampSpikeFrameDefinitions.ShownProjectileFrames[frame])), NativeEnemyProjectileCommonCues.Rules);
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, PowampSpikeAnimations.Segments, PowampSpikeAnimations.StartingAt, (frame => EnemyProjectileProgramFrameSources.Operand(frame)), NativeEnemyProjectileCommonCues.Rules);
 }

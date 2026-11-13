@@ -339,8 +339,8 @@ public static class GameplayDisplayCapture
         // blends with its shade alone.
         OverlayBlendLayer? overlayBehind = mode != XrayRoomBlendMode.Fireflea && latched.RoomFxOverlay is { } fx
             ? GameplayEffectCapture.CaptureRoomFxOverlay(fx, ordinary.Rooms.ShownFxOverlay) : null;
-        // A room with no visible effect blends with nothing behind (#1514): the cleared effect area the original game left
-        // opaque is a presentation quirk the port does not keep. With nothing lying behind, the room combines with the
+        // A room with no visible effect blends with nothing behind (#1514): the cleared effect area the game left
+        // opaque is a presentation quirk the model does not keep. With nothing lying behind, the room combines with the
         // blend's colour unhalved, as it does wherever its liquid shows nothing.
         // Whether the blend darkens belongs to the room's liquid, even when the liquid is currently off screen and shows
         // nothing: it darkens where the room effect's own blend does (#1545).

@@ -144,6 +144,7 @@ public static class SamusBodyArtworkFiles
         LaidOutProgramContinuation<SamusPoseId, SamusAnimationProgramStep> continuation =
             SamusOverreadServicesReader.ReadAnimationContinuation(SamusOverreadDecoding.Decode(CartridgeImportSource.Require(bus)));
         InstalledSamusBody installed = LoadForImport(directory, importData).InstalledBody(continuation);
+        SamusArmCannonArtworkFiles.Install(directory, installed.ArmCannon);
         File.WriteAllBytes(Path.Combine(directory, ManifestFileName),
             JsonSerializer.SerializeToUtf8Bytes(new GameManifest(FormatVersion, sourceCartridgeSha256,
                 SamusPoseNumbers.RecordedPoses.ToDictionary(pose => pose,

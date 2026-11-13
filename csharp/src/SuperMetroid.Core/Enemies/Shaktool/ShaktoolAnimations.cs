@@ -1,18 +1,19 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Shaktool.ShaktoolCueKind;
 using P = SuperMetroid.Core.Enemies.Shaktool.ShaktoolProgram;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Shaktool;
 
 /// <summary>
 /// The Shaktool's saw-hand, arm and head animations as typed programs (#641). Each
-/// frame shows a <see cref="ShaktoolFrame"/> pose and each callback becomes a <see cref="ShaktoolCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyFrameId"/> and each callback becomes a <see cref="ShaktoolCue"/> with its typed operands.
 /// </summary>
 internal static class ShaktoolAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<ShaktoolProgram, ShaktoolFrame, ShaktoolCue> Segments { get; } = new(
-        new Dictionary<ShaktoolProgram, AnimationBeat<ShaktoolFrame, ShaktoolCue>[]>
+    internal static AnimationSegments<ShaktoolProgram, EnemyFrameId, ShaktoolCue> Segments { get; } = new(
+        new Dictionary<ShaktoolProgram, AnimationBeat<EnemyFrameId, ShaktoolCue>[]>
     {
         [P.SawHandAttackPrimaryPiece] =
         [
@@ -34,15 +35,15 @@ internal static class ShaktoolAnimations
         ],
         [P.SawHandPrimaryPiece] =
         [
-            Show(12, 10),
-            Show(13, 10),
-            Show(14, 10),
+            Show(EnemyFrameId.ShaktoolPrimarySaw0, 10),
+            Show(EnemyFrameId.ShaktoolPrimarySaw1, 10),
+            Show(EnemyFrameId.ShaktoolPrimarySaw2, 10),
         ],
         [P.SawHandFinalPiece] =
         [
-            Show(0, 3),
-            Show(1, 3),
-            Show(2, 3),
+            Show(EnemyFrameId.ShaktoolFinalSaw0, 3),
+            Show(EnemyFrameId.ShaktoolFinalSaw1, 3),
+            Show(EnemyFrameId.ShaktoolFinalSaw2, 3),
         ],
         [P.ArmPieceAttackBack] =
         [
@@ -76,7 +77,7 @@ internal static class ShaktoolAnimations
         ],
         [P.ArmPieceNormal] =
         [
-            Show(3, 119),
+            Show(EnemyFrameId.ShaktoolArm, 119),
         ],
         [P.HeadAttack] =
         [
@@ -99,35 +100,35 @@ internal static class ShaktoolAnimations
         ],
         [P.HeadAimingLeft] =
         [
-            Show(4, 1908),
+            Show(EnemyFrameId.ShaktoolHeadLeft, 1908),
         ],
         [P.HeadAimingUpLeft] =
         [
-            Show(5, 1909),
+            Show(EnemyFrameId.ShaktoolHeadUpLeft, 1909),
         ],
         [P.HeadAimingUp] =
         [
-            Show(6, 1910),
+            Show(EnemyFrameId.ShaktoolHeadUp, 1910),
         ],
         [P.HeadAimingUpRight] =
         [
-            Show(7, 1911),
+            Show(EnemyFrameId.ShaktoolHeadUpRight, 1911),
         ],
         [P.HeadAimingRight] =
         [
-            Show(8, 1912),
+            Show(EnemyFrameId.ShaktoolHeadRight, 1912),
         ],
         [P.HeadAimingDownRight] =
         [
-            Show(9, 1913),
+            Show(EnemyFrameId.ShaktoolHeadDownRight, 1913),
         ],
         [P.HeadAimingDown] =
         [
-            Show(10, 1914),
+            Show(EnemyFrameId.ShaktoolHeadDown, 1914),
         ],
         [P.HeadAimingDownLeft] =
         [
-            Show(11, 1915),
+            Show(EnemyFrameId.ShaktoolHeadDownLeft, 1915),
         ],
     });
 
@@ -160,12 +161,12 @@ internal static class ShaktoolAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<ShaktoolProgram> StartingWith(ShaktoolProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<ShaktoolFrame, ShaktoolCue> Show(int pose, int duration) => new AnimationBeat<ShaktoolFrame, ShaktoolCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyFrameId, ShaktoolCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, ShaktoolCue>.Frame(frame, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<ShaktoolFrame, ShaktoolCue> Cue(ShaktoolCue cue) => new AnimationBeat<ShaktoolFrame, ShaktoolCue>.Event(cue);
+    private static AnimationBeat<EnemyFrameId, ShaktoolCue> Cue(ShaktoolCue cue) => new AnimationBeat<EnemyFrameId, ShaktoolCue>.Event(cue);
 
     /// <summary>Waits <paramref name="updates"/> updates on the current frame.</summary>
-    private static AnimationBeat<ShaktoolFrame, ShaktoolCue> Wait(int updates) => new AnimationBeat<ShaktoolFrame, ShaktoolCue>.Pause(updates);
+    private static AnimationBeat<EnemyFrameId, ShaktoolCue> Wait(int updates) => new AnimationBeat<EnemyFrameId, ShaktoolCue>.Pause(updates);
 }

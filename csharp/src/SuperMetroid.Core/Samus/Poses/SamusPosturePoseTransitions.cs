@@ -98,7 +98,7 @@ internal static class SamusPosturePoseTransitions
             targetPose == SamusPoseId.NeutralJumpTransitionLeftPose;
         if (!rightRoute && !leftRoute)
         {
-            // Only the two neutral jump-transition records enter this routine; aimed
+            // Only the two neutral jump-transition records enter this transition; aimed
             // crouches deliberately reuse the same facing-selected target.
             throw new InvalidOperationException(
                 $"Crouch jump {samus.Pose} -> {targetPose} is not a transition-table route.");
@@ -195,7 +195,7 @@ internal static class SamusPosturePoseTransitions
 
         if (startsCrouching)
         {
-            // The crouching transition samples the high stage byte before later
+            // The crouching transition samples the boost stage before later
             // posture movement can cancel running momentum. A stage-four crouch therefore
             // stores 180 palette-handler ticks even though the following stable crouch has
             // no horizontal Speed Booster state of its own.
@@ -229,7 +229,7 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.CrouchEntryD
         }
 
         // Expanding from crouch radius 16 to standing-transition radius 21 invokes the
-        // common pose-change collision routine before initialization. The shared helper
+        // common pose-change collision check before initialization. The shared helper
         // reads the target radius from the pose definition rather than assuming the ordinary value 21.
         SamusPoseId sourcePose = samus.Pose;
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
@@ -377,7 +377,7 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.MorphEntryDo
         // Unmorph uses the same prospective command seven as morph. Its zero
         // alignment-table entry does not bypass the subsequent bounce cancellation.
         // The prospective collision probes used the target radius, but the live
-        // word remains unchanged until alpha sets the radius next frame. This
+        // radius remains unchanged until alpha sets the radius next frame. This
         // matters to the later enemy-projectile pickup overlap tests.
         CancelBounceForPostureTransition(samus);
         SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
@@ -494,12 +494,12 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.MorphEntryDo
             (previousDirection == SamusFacingDirection.Left && currentDirection == SamusFacingDirection.Right);
         if (reversed)
         {
-            // Folds run momentum into base speed with one carry past the whole pixels,
+            // Folds run momentum into base speed, the fraction's overflow passing into the whole pixels,
             // clears the extra speeds, and selects mode one so displacement initially keeps
             // travelling in the old direction while the ball decelerates through its turn.
             samus.HorizontalSpeed.BaseSpeed += samus.HorizontalSpeed.ExtraRunSpeed;
             // Cancels the speed boost between the 16.16 fold and the
-            // explicit extra-word clear. Preserve that ordering even for ordinary Dash.
+            // explicit extra-speed clear. Preserve that ordering even for ordinary Dash.
             samus.HorizontalSpeed.CancelRunningMomentum(currentDirection);
             samus.HorizontalSpeed.ExtraRunSpeed = default;
             samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Turning;

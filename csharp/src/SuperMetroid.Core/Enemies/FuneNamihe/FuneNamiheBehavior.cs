@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Enemies.FuneNamihe.Artwork;
 using SuperMetroid.Core.Enemies.Cacatac;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
@@ -7,7 +6,7 @@ using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Enemies.FuneNamihe;
 
-/// <summary>The Fune/Namihe species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Fune/Namihe species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -187,7 +186,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         }, EnemyProjectileFrameBehavior.FuneNamiheFireballFlight);
     }
 
-    /// <summary>Ports FuneNamihe's main AI.</summary>
+    /// <summary>Runs FuneNamihe's main AI.</summary>
     internal static void RunFuneNamiheMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunFuneNamiheMain(slot, slot.RequireSpeciesState<FuneNamiheEnemyState>(), frame.Samus);
@@ -195,7 +194,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Advances FuneNamihe's typed animation.</summary>
     internal void AdvanceFuneNamiheTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, FuneNamiheAnimations.Segments, FuneNamiheFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, FuneNamiheAnimations.Segments,
             static (FuneNamiheEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyFuneNamiheCue(slot, state, cue) is { } target
                 ? new AnimationContinuation<FuneNamiheProgram>(FuneNamiheAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)

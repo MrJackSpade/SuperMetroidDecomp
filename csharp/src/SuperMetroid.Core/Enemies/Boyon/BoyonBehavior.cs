@@ -1,11 +1,10 @@
 ﻿using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.Boyon.Artwork;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Boyon;
 
-/// <summary>The Boyon species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Boyon species owner: its per-room state, behaviour and the interactions it registers.</summary>
 internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
@@ -54,7 +53,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Initialization writes the ordinary empty frame before selecting the
         // idle list. RoomEnemySystem's load tail intentionally restores the same transient
-        // empty map; the first processed instruction frame installs real art.
+        // empty frame; the first processed animation frame installs real art.
         slot.Frame = EnemyFrameId.Empty;
 
         var state = new BoyonEnemyState
@@ -199,7 +198,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
         return CoordinateAxis.Precedes(distance, slot.SpawnSettings<BoyonSpawnSettings>().TriggerDistance);
     }
 
-    /// <summary>Starts the idle or bounce animation and restarts its instruction and auxiliary timers.</summary>
+    /// <summary>Starts the idle or bounce animation and restarts its frame and auxiliary timers.</summary>
     private static void SetBoyonProgram(RoomEnemySlot slot, BoyonEnemyState state, BoyonProgram program)
     {
         state.Playback = new(BoyonAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
@@ -216,7 +215,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs Boyon's idle and bouncing loops as typed programs (#641).</summary>
     internal void AdvanceBoyonAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, BoyonAnimations.Segments, BoyonFrameDefinitions.ShownFrames.Of,
+        EnemyProgramAnimation.Advance(slot, BoyonAnimations.Segments,
             static (BoyonEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyBoyonCue(slot, state, cue) is { } target
                 ? new AnimationContinuation<BoyonProgram>(BoyonAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)

@@ -51,7 +51,7 @@ internal sealed class EndingPostShot
     /// </summary>
     private static void ApplyFade(EndingColours colours, EndingFade group, int elapsed)
     {
-        // The original fade lowers each colour component by a 32nd of its full value on every call;
+        // The game's fade lowers each colour component by a 32nd of its full value on every call;
         // the whole part left is exactly floor(component * remaining / 32).
         colours.Fade(group, EndingPostShotDefinitions.FadeFrames - elapsed);
     }

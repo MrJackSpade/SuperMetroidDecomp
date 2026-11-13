@@ -8,7 +8,7 @@ public static class SamusEnergyRestoration
     /// <summary>
     /// Restores energy to Samus. Fill regular energy first, spill
     /// only the excess into reserves, and enable auto reserve only from disabled mode.
-    /// Gunship and crystal-flash restoration both call this routine.
+    /// Gunship and crystal-flash restoration both call this.
     /// </summary>
     public static void Restore(SamusState samus, int amount)
     {

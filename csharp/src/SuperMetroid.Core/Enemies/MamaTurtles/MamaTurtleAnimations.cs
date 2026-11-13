@@ -1,161 +1,162 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.MamaTurtles.MamaTurtleCueKind;
 using P = SuperMetroid.Core.Enemies.MamaTurtles.MamaTurtleProgram;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.MamaTurtles;
 
 /// <summary>
 /// The Mama Turtle's and baby turtles' crawl, spin, shell and sleep animations as typed programs (#641). Each
-/// frame shows a <see cref="MamaTurtleFrame"/> pose and each callback becomes a <see cref="MamaTurtleCue"/> with its typed operands.
+/// frame shows a <see cref="EnemyFrameId"/> and each callback becomes a <see cref="MamaTurtleCue"/> with its typed operands.
 /// </summary>
 internal static class MamaTurtleAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<MamaTurtleProgram, MamaTurtleFrame, MamaTurtleCue> Segments { get; } = new(
-        new Dictionary<MamaTurtleProgram, AnimationBeat<MamaTurtleFrame, MamaTurtleCue>[]>
+    internal static AnimationSegments<MamaTurtleProgram, EnemyFrameId, MamaTurtleCue> Segments { get; } = new(
+        new Dictionary<MamaTurtleProgram, AnimationBeat<EnemyFrameId, MamaTurtleCue>[]>
     {
         [P.BabyCrawlingLeft] =
         [
             Cue(new(K.Crawl)),
-            Show(0, 10),
-            Show(1, 10),
+            Show(EnemyFrameId.Tatori00, 10),
+            Show(EnemyFrameId.Tatori01, 10),
             Cue(new(K.Crawl)),
-            Show(2, 10),
-            Show(3, 10),
+            Show(EnemyFrameId.Tatori02, 10),
+            Show(EnemyFrameId.Tatori03, 10),
             Cue(new(K.Crawl)),
-            Show(0, 10),
-            Show(1, 10),
+            Show(EnemyFrameId.Tatori00, 10),
+            Show(EnemyFrameId.Tatori01, 10),
             Cue(new(K.Crawl)),
-            Show(2, 10),
-            Show(3, 10),
+            Show(EnemyFrameId.Tatori02, 10),
+            Show(EnemyFrameId.Tatori03, 10),
             Cue(new(K.Crawl)),
-            Show(0, 10),
-            Show(1, 10),
+            Show(EnemyFrameId.Tatori00, 10),
+            Show(EnemyFrameId.Tatori01, 10),
             Cue(new(K.Crawl)),
-            Show(5, 10),
-            Show(6, 10),
+            Show(EnemyFrameId.Tatori04, 10),
+            Show(EnemyFrameId.Tatori05, 10),
             Cue(new(K.Crawl)),
-            Show(0, 10),
-            Show(4, 10),
+            Show(EnemyFrameId.Tatori00, 10),
+            Show(EnemyFrameId.Tatori06, 10),
             Cue(new(K.Crawl)),
-            Show(5, 10),
-            Show(6, 10),
+            Show(EnemyFrameId.Tatori04, 10),
+            Show(EnemyFrameId.Tatori05, 10),
             Cue(new(K.LoopOrTurnAround)),
         ],
         [P.BabySpinning] =
         [
-            Show(7, 1),
+            Show(EnemyFrameId.Tatori07, 1),
             Cue(new(K.PlaySpinningSound)),
-            Show(7, 4),
-            Show(8, 5),
-            Show(9, 5),
-            Show(10, 5),
+            Show(EnemyFrameId.Tatori07, 4),
+            Show(EnemyFrameId.Tatori08, 5),
+            Show(EnemyFrameId.Tatori09, 5),
+            Show(EnemyFrameId.Tatori10, 5),
             Cue(new(K.SetSpinningStoppable)),
         ],
         [P.MamaSpinning] =
         [
-            Show(11, 1),
+            Show(EnemyFrameId.Tatori11, 1),
             Cue(new(K.PlaySpinningSound)),
-            Show(11, 4),
-            Show(16, 5),
-            Show(15, 5),
-            Show(16, 5),
+            Show(EnemyFrameId.Tatori11, 4),
+            Show(EnemyFrameId.Tatori12, 5),
+            Show(EnemyFrameId.Tatori13, 5),
+            Show(EnemyFrameId.Tatori12, 5),
         ],
         [P.MamaEnterShellLeft] =
         [
-            Show(14, 32),
-            Show(13, 5),
-            Show(12, 5),
+            Show(EnemyFrameId.Tatori14, 32),
+            Show(EnemyFrameId.Tatori15, 5),
+            Show(EnemyFrameId.Tatori16, 5),
             Cue(new(K.RiseToHoverRightwards)),
-            Hold(11),
+            Hold(EnemyFrameId.Tatori11),
         ],
         [P.BabyHidingLeft] =
         [
-            Show(4, 5),
-            Show(5, 5),
-            Show(7, 64),
+            Show(EnemyFrameId.Tatori06, 5),
+            Show(EnemyFrameId.Tatori04, 5),
+            Show(EnemyFrameId.Tatori07, 64),
             Cue(new(K.LeaveShell)),
-            Hold(7),
+            Hold(EnemyFrameId.Tatori07),
         ],
         [P.MamaAsleep] =
         [
-            Hold(11),
+            Hold(EnemyFrameId.Tatori11),
         ],
         [P.MamaLeaveShellLeft] =
         [
-            Show(11, 16),
-            Show(12, 5),
-            Show(13, 5),
-            Show(14, 96),
+            Show(EnemyFrameId.Tatori11, 16),
+            Show(EnemyFrameId.Tatori16, 5),
+            Show(EnemyFrameId.Tatori15, 5),
+            Show(EnemyFrameId.Tatori14, 96),
             Cue(new(K.EnterShell)),
-            Hold(14),
+            Hold(EnemyFrameId.Tatori14),
         ],
         [P.BabyLeaveShellLeft] =
         [
-            Show(5, 5),
-            Show(4, 47),
+            Show(EnemyFrameId.Tatori04, 5),
+            Show(EnemyFrameId.Tatori06, 47),
             Cue(new(K.LeftShell)),
-            Show(4, 47),
+            Show(EnemyFrameId.Tatori06, 47),
         ],
         [P.BabyCrawlingRight] =
         [
             Cue(new(K.Crawl)),
-            Show(17, 10),
-            Show(18, 10),
+            Show(EnemyFrameId.Tatori17, 10),
+            Show(EnemyFrameId.Tatori18, 10),
             Cue(new(K.Crawl)),
-            Show(19, 10),
-            Show(20, 10),
+            Show(EnemyFrameId.Tatori19, 10),
+            Show(EnemyFrameId.Tatori20, 10),
             Cue(new(K.Crawl)),
-            Show(17, 10),
-            Show(18, 10),
+            Show(EnemyFrameId.Tatori17, 10),
+            Show(EnemyFrameId.Tatori18, 10),
             Cue(new(K.Crawl)),
-            Show(19, 10),
-            Show(20, 10),
+            Show(EnemyFrameId.Tatori19, 10),
+            Show(EnemyFrameId.Tatori20, 10),
             Cue(new(K.Crawl)),
-            Show(17, 10),
-            Show(18, 10),
+            Show(EnemyFrameId.Tatori17, 10),
+            Show(EnemyFrameId.Tatori18, 10),
             Cue(new(K.Crawl)),
-            Show(22, 10),
-            Show(23, 10),
+            Show(EnemyFrameId.Tatori21, 10),
+            Show(EnemyFrameId.Tatori22, 10),
             Cue(new(K.Crawl)),
-            Show(17, 10),
-            Show(21, 10),
+            Show(EnemyFrameId.Tatori17, 10),
+            Show(EnemyFrameId.Tatori23, 10),
             Cue(new(K.Crawl)),
-            Show(22, 10),
-            Show(23, 10),
+            Show(EnemyFrameId.Tatori21, 10),
+            Show(EnemyFrameId.Tatori22, 10),
             Cue(new(K.LoopOrTurnAround)),
         ],
         [P.MamaEnterShellRight] =
         [
-            Show(28, 1),
-            Show(27, 5),
-            Show(26, 5),
+            Show(EnemyFrameId.Tatori24, 1),
+            Show(EnemyFrameId.Tatori25, 5),
+            Show(EnemyFrameId.Tatori26, 5),
             Cue(new(K.RiseToHoverLeftwards)),
-            Hold(25),
+            Hold(EnemyFrameId.Tatori27),
         ],
         [P.BabyHidingRight] =
         [
-            Show(21, 5),
-            Show(22, 5),
-            Show(24, 64),
+            Show(EnemyFrameId.Tatori23, 5),
+            Show(EnemyFrameId.Tatori21, 5),
+            Show(EnemyFrameId.Tatori28, 64),
             Cue(new(K.LeaveShell)),
-            Hold(24),
+            Hold(EnemyFrameId.Tatori28),
         ],
         [P.MamaLeaveShellRight] =
         [
-            Show(25, 16),
-            Show(26, 5),
-            Show(27, 5),
-            Show(28, 96),
+            Show(EnemyFrameId.Tatori27, 16),
+            Show(EnemyFrameId.Tatori26, 5),
+            Show(EnemyFrameId.Tatori25, 5),
+            Show(EnemyFrameId.Tatori24, 96),
             Cue(new(K.EnterShell)),
-            Hold(28),
+            Hold(EnemyFrameId.Tatori24),
         ],
         [P.BabyLeaveShellRight] =
         [
-            Show(5, 5),
-            Show(4, 47),
+            Show(EnemyFrameId.Tatori04, 5),
+            Show(EnemyFrameId.Tatori06, 47),
             Cue(new(K.LeftShell)),
-            Show(4, 47),
+            Show(EnemyFrameId.Tatori06, 47),
         ],
     });
 
@@ -180,12 +181,12 @@ internal static class MamaTurtleAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<MamaTurtleProgram> StartingWith(MamaTurtleProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<MamaTurtleFrame, MamaTurtleCue> Show(int pose, int duration) => new AnimationBeat<MamaTurtleFrame, MamaTurtleCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyFrameId, MamaTurtleCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, MamaTurtleCue>.Frame(frame, duration);
 
-    /// <summary>Shows pose <paramref name="pose"/> for good: the animation rests on it until its owner plays another (#1607).</summary>
-    private static AnimationBeat<MamaTurtleFrame, MamaTurtleCue> Hold(int pose) => new AnimationBeat<MamaTurtleFrame, MamaTurtleCue>.HeldFrame(new(pose));
+    /// <summary>Shows <paramref name="frame"/> for good: the animation rests on it until its owner plays another (#1607).</summary>
+    private static AnimationBeat<EnemyFrameId, MamaTurtleCue> Hold(EnemyFrameId frame) => new AnimationBeat<EnemyFrameId, MamaTurtleCue>.HeldFrame(frame);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<MamaTurtleFrame, MamaTurtleCue> Cue(MamaTurtleCue cue) => new AnimationBeat<MamaTurtleFrame, MamaTurtleCue>.Event(cue);
+    private static AnimationBeat<EnemyFrameId, MamaTurtleCue> Cue(MamaTurtleCue cue) => new AnimationBeat<EnemyFrameId, MamaTurtleCue>.Event(cue);
 }

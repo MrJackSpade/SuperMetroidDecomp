@@ -14,14 +14,14 @@ public static class PlaneConversions
 
     /// <summary>
     /// The plane offset an area-map scroll shows at the screen's top-left (pause and file-select map views, #1555): the
-    /// map's scroll words wrap at sixteen bits, so a word past the signed range names a scroll left of or above the map's
+    /// map's scroll wraps within the coordinate range, so a scroll past the signed range names a scroll left of or above the map's
     /// origin, and the map, which does not repeat, shows nothing there.
     /// </summary>
     public static Offset16<PlanePixels> AsPlaneOffset(this Position16<MapPixels> scroll) => Offset16<PlanePixels>.Wrapped(scroll.X, scroll.Y);
 
     /// <summary>
     /// The plane offset a room scroll shows at the screen's top-left, for a pictured plane drawn with the room's camera
-    /// (#1555): a scroll word past the signed range names a scroll left of or above the plane's origin.
+    /// (#1555): a scroll past the signed range names a scroll left of or above the plane's origin.
     /// </summary>
     public static Offset16<PlanePixels> AsPlaneOffset(this Position16<RoomPixels> scroll) => Offset16<PlanePixels>.Wrapped(scroll.X, scroll.Y);
 

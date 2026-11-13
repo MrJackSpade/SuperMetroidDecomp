@@ -21,7 +21,7 @@ public sealed class MamaTurtleEnemyState
 
     /// <summary>
     /// Signed 16.16 horizontal acceleration per hovering update, toward Samus's side when hovering starts; a wall
-    /// reversal negates it with the game's carry quirk.
+    /// reversal negates it with the game's quirk of negating the whole and fraction parts separately.
     /// </summary>
     public SignedSixteenSixteen XAcceleration { get; internal set; }
 }

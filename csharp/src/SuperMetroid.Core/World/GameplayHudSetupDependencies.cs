@@ -9,6 +9,6 @@ internal sealed record GameplayHudSetupDependencies
     public required RuntimeArtwork Artwork { get; init; }
 
 
-    /// <summary>The HUD tilemap initialization fills.</summary>
+    /// <summary>The HUD state initialization fills.</summary>
     public required HudState Hud { get; init; }
 }

@@ -7,7 +7,7 @@ public static class SamusPowerBombFuse
     /// <summary>
     /// Computes the timer/list writes and requests the caller's existing explosion
     /// or deletion operation. The step that runs the fuse out starts the explosion; the caller's
-    /// boundary reactions wait for the update after it, because other callbacks can reach this routine.
+    /// boundary reactions wait for the update after it, because other callbacks can reach this step.
     /// </summary>
     public static PowerBombFuseStep Step(WrappingCountdown timer, bool explosionArmed)
     {

@@ -5,7 +5,7 @@ public enum ElevatorPseudoDoor
 {
     /// <summary>
     /// The elevator pseudo-door that the elevator rooms share. Its zero destination is what marks
-    /// it as a pseudo-door; the remaining bytes overlap the first physical door record because collision never consumes them
+    /// it as a pseudo-door; the remaining values overlap the first physical door record because collision never consumes them
     /// for this entry.
     /// </summary>
     Shared,

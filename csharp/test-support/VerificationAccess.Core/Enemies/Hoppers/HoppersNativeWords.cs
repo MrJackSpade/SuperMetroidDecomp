@@ -27,4 +27,16 @@ internal static class HoppersNativeWords
         [HopperEnemyFunction.JumpingUpsideDownForward] = 0xad44,
         [HopperEnemyFunction.WaitToHop] = 0xad56,
     });
+
+    /// <summary>
+    /// The variant word naming each <see cref="HopperKind"/> in a hopper's enemy header, which indexes its four-entry
+    /// animation tables.
+    /// </summary>
+    internal static readonly NativeWordIdentities<HopperKind> HopperKinds = new(new Dictionary<HopperKind, ushort>
+    {
+        [HopperKind.Sidehopper] = 0,
+        [HopperKind.LargeSidehopper] = 1,
+        [HopperKind.LargeDessgeega] = 2,
+        [HopperKind.Dessgeega] = 3,
+    });
 }

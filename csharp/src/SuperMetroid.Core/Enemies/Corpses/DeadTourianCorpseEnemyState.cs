@@ -22,7 +22,7 @@ public sealed class DeadTourianCorpseEnemyState
     public RoomEnemySlot Slot { get; }
     /// <summary>The phase main AI runs.</summary>
     public DeadTourianCorpseFunction? Function { get; internal set; }
-    /// <summary>Corpse family selected by the enemy header, determining callbacks and the tiled artwork layout.</summary>
+    /// <summary>Corpse family selected by the enemy definition, determining callbacks and the tiled artwork layout.</summary>
     public DeadTourianCorpseSpecies Species { get; }
     /// <summary>Zero-based variant within the species, its place in the species' corpses; Rippers have 0–1, Zoomers and Skrees 0–2.</summary>
     public int VariantIndex { get; }
@@ -35,11 +35,11 @@ public sealed class DeadTourianCorpseEnemyState
     /// never returns to the delay, so the count stops at sixteen. Touch/shot callbacks enter rotting directly.
     /// </summary>
     public int PreRotDelayCounter { get; internal set; }
-    /// <summary>Port diagnostic count of shared rotting-scheduler calls for this corpse; the final completion call is included.</summary>
+    /// <summary>Diagnostic count of shared rotting-scheduler calls for this corpse; the final completion call is included.</summary>
     public uint ProcessCallCount { get; internal set; }
-    /// <summary>Port diagnostic count of row-table completion callbacks, including the final entry before the AI becomes a no-operation.</summary>
+    /// <summary>Diagnostic count of row-table completion callbacks, including the final entry before the AI becomes a no-operation.</summary>
     public uint FinishedEntryCount { get; internal set; }
-    /// <summary>Port diagnostic count of dust spawn requests from completed rows; each uses animation 10 at corpse Y plus 16 pixels and a RNG-masked horizontal offset.</summary>
+    /// <summary>Diagnostic count of dust spawn requests from completed rows; each uses animation 10 at corpse Y plus 16 pixels and a RNG-masked horizontal offset.</summary>
     public uint DustSpawnCount { get; internal set; }
 
     /// <summary>Assembly-internal callback profile and tile-row layout of this corpse's species.</summary>

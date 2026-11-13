@@ -76,7 +76,7 @@ public sealed class HudState
 
     /// <summary>
     /// The HUD's update: reads Samus's values for the HUD to show and, when the selected item has changed, queues the
-    /// item-selection sound into <paramref name="audio"/> at once, as the HUD routine does. Gameplay runs it every gameplay
+    /// item-selection sound into <paramref name="audio"/> at once, as the HUD does. Gameplay runs it every gameplay
     /// pass, so enemy damage that changes Samus's state during the pass reaches the next accepted frame.
     /// </summary>
     /// <param name="samus">Samus, whose values the HUD shows.</param>
@@ -124,7 +124,7 @@ public sealed class HudState
             throw new ArgumentException("Map presentation belongs to a different area.", nameof(frame.PresentationMap));
         if (frame.RoomSize.X == 0 || frame.RoomSize.Y == 0)
             throw new ArgumentOutOfRangeException(nameof(frame.RoomSize));
-        // The room header stores its map coordinates as bytes.
+        // The room definition holds its map coordinates below 256.
         if (frame.RoomMap.X > byte.MaxValue || frame.RoomMap.Y > byte.MaxValue)
             throw new ArgumentOutOfRangeException(nameof(frame.RoomMap));
 
@@ -134,7 +134,7 @@ public sealed class HudState
             return;
 
         // One area-map tile represents one 256x256 room screen. The Y formula has
-        // an intentional +1 because the HUD map convention places the room header's Y one
+        // an intentional +1 because the HUD map convention places the room definition's Y one
         // row above the screen containing Samus.
         int centerX = (frame.RoomMap.X + RoomGridConversions.PixelToScreen(frame.Samus.X)) & 63;
         int centerY = frame.RoomMap.Y + RoomGridConversions.PixelToScreen(frame.Samus.Y) + 1;

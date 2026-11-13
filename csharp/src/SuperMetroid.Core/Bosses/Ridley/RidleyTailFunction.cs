@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
-/// Indexes into Ridley's tail-controller table that the translated AI installs.
-/// The table's two trailing entries (7 and 8) have no translated producer.
+/// The tail controllers Ridley's AI installs.
+/// The table's two trailing entries (7 and 8) have no producer.
 /// </summary>
 public enum RidleyTailFunction
 {

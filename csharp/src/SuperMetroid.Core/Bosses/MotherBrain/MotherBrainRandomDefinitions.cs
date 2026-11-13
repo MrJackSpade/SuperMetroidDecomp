@@ -6,10 +6,10 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 internal static class MotherBrainRandomDefinitions
 {
-    /// <summary>The roll most of her chances read: the sample's bits 0-11, 0 through 4095.</summary>
+    /// <summary>The roll most of her chances read: the sample modulo 4096, 0 through 4095.</summary>
     private static readonly RandomSampleField RollOf4096 = new(0, 12);
 
-    /// <summary>The roll her posture and phase-three attack chances read: the sample's bits 0-7, 0 through 255.</summary>
+    /// <summary>The roll her posture and phase-three attack chances read: the sample modulo 256, 0 through 255.</summary>
     private static readonly RandomSampleField RollOf256 = new(0, 8);
 
     /// <summary>The baby metroid's ambient cry on its way to Samus: the top 96 of the 4096 rolls, 4000 and over, cry.</summary>
@@ -54,13 +54,13 @@ internal static class MotherBrainRandomDefinitions
     /// <summary>Phase three's attack: the lowest 128 of the 256 rolls drop a bomb, the rest fire four onion rings.</summary>
     internal static readonly RandomChance ThirdPhaseBombs = RandomChance.Lowest(128, RollOf256);
 
-    /// <summary>A rotting corpse's dust offset, 0 through 31 pixels added to the brain's X less sixteen: the sample's bits 0-4.</summary>
+    /// <summary>A rotting corpse's dust offset, 0 through 31 pixels added to the brain's X less sixteen: the sample modulo 32.</summary>
     internal static readonly RandomSampleField CorpseDustOffset = new(0, 5);
 
     /// <summary>Whether phase three's forward inch waits two updates longer: the sample's bit one.</summary>
     internal static readonly RandomSampleField ForwardInchLongerDelay = new(1, 1);
 
-    /// <summary>A fired hand beam's scatter speed, 0 through 7 whole pixels: the sample's bits 8-10.</summary>
+    /// <summary>A fired hand beam's scatter speed, 0 through 7 whole pixels: the sample divided by 256, modulo 8.</summary>
     internal static readonly RandomSampleField HandBeamScatterSpeed = new(8, 3);
 
     /// <summary>The roll her second-phase attack choice reads: 0 through 255 from the sample.</summary>
@@ -143,7 +143,7 @@ internal static class MotherBrainRandomDefinitions
         new(5, 1),
         new(1, 2));
 
-    /// <summary>A fired hand beam's scatter turn, in byte-angle units: 0 through 255 from the sample.</summary>
+    /// <summary>A fired hand beam's scatter turn, in 256ths of a turn: the sample modulo 256.</summary>
     internal static readonly RandomSampleField HandBeamScatterTurn = new(0, 8);
 
     /// <summary>A turret's wait before it chooses another direction, raised to its minimum: 0 through 255 from the sample.</summary>

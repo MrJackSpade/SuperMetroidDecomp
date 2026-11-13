@@ -1,5 +1,6 @@
 ﻿using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Owtch.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Owtch;
 
@@ -9,6 +10,6 @@ internal static class OwtchAnimationsConstants
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params OwtchProgram[] programs) =>
         programs.SelectMany(program => OwtchAnimations.Segments.Beats(program))
-            .OfType<AnimationBeat<OwtchFrame, OwtchCue>.Frame>()
+            .OfType<AnimationBeat<EnemyFrameId, OwtchCue>.Frame>()
             .Select(frame => OwtchFrameToolingDefinitions.Spritemap(frame.Shown));
 }

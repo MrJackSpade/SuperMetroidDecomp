@@ -147,7 +147,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.Unpausing"/>.</summary>
     internal void DispatchUnpausing(ControllerButton controllerInput)
     {
-        // The fade-in state runs the whole main-gameplay routine behind the screen fade, so
+        // The fade-in state runs the whole main-gameplay update behind the screen fade, so
         // its out-of-health, pause, door and other publications all apply here.
         RunMainGameplayState(controllerInput);
         if (session.StepScreenFadeIn() == PauseFadeTiming.FullyLit)
@@ -190,7 +190,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.TimeUp"/>.</summary>
     internal void DispatchTimeUp(ControllerButton controllerInput)
     {
-        // The time-up state runs the whole main-gameplay routine, then advances every palette
+        // The time-up state runs the whole main-gameplay update, then advances every palette
         // toward the white target with denominator eight.
         RunMainGameplayState(controllerInput);
         if ((session.Runtime ?? throw new InvalidOperationException("Time-up white-out requires a gameplay runtime.")).FadeOut.Step())
@@ -268,7 +268,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
 
     /// <summary>
     /// The main gameplay state: one gameplay frame and the state publications its
-    /// routines make. The fade-in state calls the same routine before fading in.
+    /// steps make. The fade-in state calls the same update before fading in.
     /// </summary>
     private void RunMainGameplayState(ControllerButton controllerInput)
     {
@@ -358,7 +358,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         else
         {
             // Samus's death code disables palette effects and installs fatal-input and
-            // fatal-draw handlers. Input locking is the shared translated representation;
+            // fatal-draw handlers. Input locking is the shared representation;
             // the following named death states own palette and animation side effects.
             samus.Control.LockHandlers();
             session.GameState = SuperMetroidGameState.DeathSequenceStart;

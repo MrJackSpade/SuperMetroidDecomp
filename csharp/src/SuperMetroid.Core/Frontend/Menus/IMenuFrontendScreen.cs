@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Frontend.Menus;
 /// </summary>
 internal interface IMenuFrontendScreen : IFrontendScreen
 {
-    /// <summary>Rebinds the menu presentation the screen's tilemaps, palettes and sprites come from.</summary>
+    /// <summary>Rebinds the menu presentation the screen's pictures, palettes and sprites come from.</summary>
     void BindMapPresentation(AreaMapPresentation? catalog);
 
     /// <summary>Binds the installed sprite sheets the screen's sprites draw from.</summary>

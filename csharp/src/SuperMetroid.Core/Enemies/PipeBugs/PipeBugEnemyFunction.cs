@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.PipeBugs;
 
 /// <summary>
-/// The routines of all three Pipe Bug state machines; an unknown branch fails explicitly instead of
+/// The behaviours of all three Pipe Bug state machines; an unknown branch fails explicitly instead of
 /// silently selecting a plausible-looking behaviour.
 /// Its values are arbitrary.
 /// </summary>

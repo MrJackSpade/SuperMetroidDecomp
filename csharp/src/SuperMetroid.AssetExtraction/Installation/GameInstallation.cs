@@ -8,7 +8,6 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus;
@@ -50,15 +49,15 @@ public sealed record GameInstallation(string Root)
     /// <summary>Private validated cartridge copy used for extraction and repair; gameplay can open complete extracted content without it.</summary>
     public string RomPath => Path.Combine(ContentDirectory, GameInstallationLayout.RomFileName);
     /// <summary>
-    /// Opens mutable game memory only after validating the extracted installation.
-    /// Gameplay never maps a cartridge image, even when the private import copy exists.
+    /// Requires current extracted content before a host binds it. The game runs on that content alone: it holds no
+    /// address space and never maps a cartridge image, even when the private import copy exists (#1688).
     /// </summary>
-    public SuperMetroidAddressSpace OpenRuntimeAddressSpace()
+    /// <exception cref="InvalidDataException">The extracted content is incomplete or was extracted for another format.</exception>
+    public void RequireExtractedContent()
     {
         if (GameAssetInstaller.TryOpenExtractedContent(Root) is null)
             throw new InvalidDataException(
                 "Extracted game content is incomplete or invalid.");
-        return SuperMetroidAddressSpace.CreateWithoutCartridge();
     }
     /// <summary>Installed audio files and manifests, which the player edits in place.</summary>
     public string AudioDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.AudioDirectoryName);

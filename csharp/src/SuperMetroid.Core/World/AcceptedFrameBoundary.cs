@@ -46,7 +46,7 @@ internal sealed class AcceptedFrameBoundary
     private readonly GameplayScreenLayers _screenLayers;
     /// <summary>Sprite frame the update finalized for the next frame boundary.</summary>
     private readonly SpriteFrameBuffer _sprites;
-    /// <summary>Supplies Samus's per-frame graphics for frame boundary transfers.</summary>
+    /// <summary>Supplies Samus's per-frame graphics for the frame boundary.</summary>
     private readonly SamusFrameState _player;
     /// <summary>The HUD whose images each frame boundary latches.</summary>
     private readonly HudState _hud;
@@ -101,11 +101,11 @@ internal sealed class AcceptedFrameBoundary
     /// <summary>Publishes the frame's sprites, Samus's graphics, queued artwork and the rotating-view state, in that order.</summary>
     private void PublishAcceptedFrameTransfers()
     {
-        // Preserve this order: Samus's dedicated graphics transfer precedes the general
+        // Preserve this order: Samus's own frame graphics precede the general
         // artwork queue, and both precede controller latching. The finished sprite list is
-        // published immediately before Samus's graphics, and the rotating-view matrix
+        // published immediately before Samus's graphics, and the turning floor's rotation
         // after them. Retain both displayed values so rendering sees one coherent frame
-        // instead of combining old sprites with a newer room-main matrix.
+        // instead of combining old sprites with a newer room-main rotation.
         _displayedSprites.LatchFrom(_sprites);
         _screenLayers.Latch();
         var displayScroll = new GameplayRenderSnapshot(
@@ -134,7 +134,7 @@ internal sealed class AcceptedFrameBoundary
             scene,
             CaptureBossBackgrounds(displayScroll.ForegroundPosition),
             CaptureTints(),
-            // The reveal and the room's planes are drawn once this frame boundary's uploads have bound (WithBlockPictures).
+            // The reveal and the room's planes are drawn once this frame boundary's pictures are bound (WithBlockPictures).
             null,
             CaptureRoomBackgrounds(),
             _room.Scope is null ? null : CaptureFxOverlayPlane(),
@@ -207,7 +207,7 @@ internal sealed class AcceptedFrameBoundary
             return null;
         RoomLevelData level = scope.LevelData;
         BackgroundScrollModes backgroundModes = _backgroundScroll.BackgroundScrollModes;
-        // Each plane's pictures are resolved once this frame boundary's uploads have bound (WithBlockPictures).
+        // Each plane's pictures are resolved once this frame boundary's pictures are bound (WithBlockPictures).
         return new RoomBackgrounds(
             new RoomBackgroundLayer(level.ForegroundPlane.Cells, null),
             backgroundModes.Source == RoomBackgroundSource.Level
@@ -215,7 +215,7 @@ internal sealed class AcceptedFrameBoundary
                 : null,
             null,
             _room.DoorSourceBackground,
-            // The text shown over the foreground and the background is drawn once this frame boundary's uploads have bound (WithBlockPictures).
+            // The text shown over the foreground and the background is drawn once this frame boundary's pictures are bound (WithBlockPictures).
             null,
             Floor: scope.Floor?.Publish(),
             BlockArtwork: RoomScope.BlockArtworkOf(_room.ActiveRoom));

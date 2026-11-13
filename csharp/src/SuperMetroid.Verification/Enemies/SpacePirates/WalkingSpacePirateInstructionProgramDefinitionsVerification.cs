@@ -9,6 +9,7 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Verification.Enemies.SpacePirates;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Checks walking Space Pirate movement, flinch, look, and laser lists against bank B2.</summary>
 internal static class WalkingSpacePirateInstructionProgramDefinitionsVerification
@@ -102,7 +103,7 @@ internal static class WalkingSpacePirateInstructionProgramDefinitionsVerificatio
 
         // The place in the animation starting at start whose next beat is the segment's beat.
         static AnimationPlace PlaceOf(WalkingSpacePirateProgram start, WalkingSpacePirateProgram segment, int beat) =>
-            AnimationSegments<WalkingSpacePirateProgram, WalkingSpacePirateFrame, WalkingSpacePirateCue>.PlaceOf(WalkingSpacePirateAnimations.StartingWith(start), segment, beat);
+            AnimationSegments<WalkingSpacePirateProgram, EnemyFrameId, WalkingSpacePirateCue>.PlaceOf(WalkingSpacePirateAnimations.StartingWith(start), segment, beat);
 
         WalkingSpacePirateInstructionProgramDefinitionsCreateSystemResult CreateSystem()
         {

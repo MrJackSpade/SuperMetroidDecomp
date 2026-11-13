@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 /// </summary>
 public enum CameraDistanceMode
 {
-    /// <summary>Normal tracking, restored by the camera reset and boss completion routines.</summary>
+    /// <summary>Normal tracking, restored by the camera reset and boss completion.</summary>
     NormalTracking,
     /// <summary>Boss tracking, selected by Kraid and Crocomire.</summary>
     BossTracking,

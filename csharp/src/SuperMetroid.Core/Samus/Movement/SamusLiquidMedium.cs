@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Samus.Movement;
 
-/// <summary>State values stored in Samus's remembered liquid-physics word.</summary>
+/// <summary>State values stored in Samus's remembered liquid-physics state.</summary>
 public enum SamusLiquidMedium
 {
     /// <summary>No liquid physics are active at Samus's movement sample point.</summary>

@@ -91,10 +91,10 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
         samus.CommitPoseHistory();
         SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, initialFrame, timer: 2);
 
-        // The game subtracts the foreground directly from Samus's live words because its death
+        // The game subtracts the foreground directly from Samus's live position because its death
         // renderer adds the foreground back before drawing. Retain world coordinates in Samus
         // for this host's shared camera/minimap model and capture the mathematically identical
-        // screen-space pair here for the eventual explosion-spritemap path.
+        // screen-space pair here for the eventual explosion-frame path.
         ScreenPosition = samus.Position.Whole.ToScreen(cameraPosition);
 
         PreFlashingTimer = SamusDeathSequenceDefinitions.PreFlashFrameCount;
@@ -148,7 +148,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
                 if (AnimationCounter >= SamusDeathSequenceDefinitions.FlashFrameCount)
                 {
                     // The explosion step loads palette pair zero, resets the reused counters, and immediately
-                    // draws explosion spritemap zero in this very same game-state-17 call.
+                    // draws explosion frame zero in this very same game-state-17 call.
                     WritePalettePair(samus, samusColours, paletteIndex: 0);
                     paletteChanged = true;
                     AnimationTimer =
@@ -197,7 +197,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
 
             case SamusDeathSequencePhase.Complete:
                 // The game advances to the room fade with no Samus draw. The outer game-state
-                // owner has not been translated into this gameplay host, so remain locked.
+                // owner is not part of this gameplay host, so remain locked.
                 break;
 
             case SamusDeathSequencePhase.Inactive:

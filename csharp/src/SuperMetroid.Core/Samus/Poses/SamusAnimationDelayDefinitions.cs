@@ -3,12 +3,12 @@ using static SuperMetroid.Core.Samus.Poses.SamusAnimationDelayPrograms;
 
 namespace SuperMetroid.Core.Samus.Poses;
 
-/// <summary>Samus's pose animation programs: each frame's delay and the instruction that ends each run (#1473).</summary>
+/// <summary>Samus's pose animation programs: each frame's delay and the cue that ends each run (#1473).</summary>
 /// <remarks>
-/// Independently reviewed for #1165 against the game's pose animation data and interpreter, and typed for #1473: a
+/// Independently reviewed for #1165 against the game's pose animation data and its playback, and typed for #1473: a
 /// program is the runs of frames a pose animates by, numbered as the pose's artwork numbers its frames, and closed by
-/// the instruction each run ends in. A program holds every run up to the next pose's program, so the frames the breathing,
-/// drained, falling, spin and wall-jump animations reach by instruction or by a special handler's frame all lie in it.
+/// the cue each run ends in. A program holds every run up to the next pose's program, so the frames the breathing,
+/// drained, falling, spin and wall-jump animations reach by cue or by a special handler's frame all lie in it.
 /// These are gameplay cadence and transition definitions, not editable sprite artwork.
 /// </remarks>
 internal static class SamusAnimationDelayDefinitions

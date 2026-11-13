@@ -31,7 +31,7 @@ public sealed class CeresElevatorShaftRoomMainState
     /// <summary>The elevator hold reaching the Ceres elevator writes.</summary>
     public const int DepartureHoldFrames = 60;
 
-    /// <summary>Whether the active room owns this room-main routine.</summary>
+    /// <summary>Whether the active room owns this room-main behaviour.</summary>
     public bool IsActive { get; private set; }
 
     /// <summary>The countdown to the shaft's next turn step.</summary>
@@ -56,7 +56,7 @@ public sealed class CeresElevatorShaftRoomMainState
     /// Builds one room's shaft owner, selecting whether the room runs the shaft's main behaviour. An active entry is the elevator
     /// door, whose setup writes the rotation index and timer.
     /// </summary>
-    /// <param name="active">Whether the room's main routine is the shaft and its entry door uses the turning floor.</param>
+    /// <param name="active">Whether the room's main behaviour is the shaft and its entry door uses the turning floor.</param>
     /// <param name="carryover">The room-main value the following room inherits, which receives the initial turn step.</param>
     public CeresElevatorShaftRoomMainState(bool active, RoomMainCarryover carryover)
     {

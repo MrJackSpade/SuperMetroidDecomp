@@ -23,7 +23,7 @@ public sealed class BackgroundScrollState
 
     /// <summary>
     /// The room state's per-axis background scroll. Before a room state sets it, both axes copy the foreground and stream,
-    /// as the game's cleared mode bytes select.
+    /// as the game's cleared mode values select.
     /// </summary>
     public BackgroundScrollModes BackgroundScrollModes { get; set; } = BackgroundScrollModes.FollowsForeground;
 
@@ -56,11 +56,11 @@ public sealed class BackgroundScrollState
     /// <summary>
     /// Implements the two background position calculations made by each directional door
     /// setup after the door installs the destination camera coordinates. Fixed mode one
-    /// deliberately retains its old background position, exactly like the original early return.
+    /// deliberately retains its old background position, exactly like the game's early return.
     /// </summary>
     /// <param name="destination">The foreground destination published to <see cref="ForegroundPosition"/>.</param>
     /// <param name="parallaxBasis">
-    /// The foreground words the parallax calculation reads. An upward door calculates background from
+    /// The foreground position the parallax calculation reads. An upward door calculates background from
     /// destination+31 before the scroll's foreground endpoint becomes destination+32.
     /// </param>
     public void PrepareDoorOpeningDestination(Position16<RoomPixels> destination, Position16<RoomPixels> parallaxBasis)

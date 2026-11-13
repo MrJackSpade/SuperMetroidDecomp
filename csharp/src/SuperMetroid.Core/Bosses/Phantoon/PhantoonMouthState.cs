@@ -45,8 +45,8 @@ public sealed class PhantoonMouthState
     public int ShotPattern { get; internal set => field = Ensure.AtLeastZero(value); }
 
     /// <summary>
-    /// Starts the mouth as a Phantoon part: no shot pattern. The original copied the part's number into the value that
-    /// holds the pattern, which no reader consumes before a phase overwrites it (#1472).
+    /// Starts the mouth as a Phantoon part: no shot pattern. No reader consumes this value before a phase sets it
+    /// (#1472).
     /// </summary>
     internal void StartPart() => ShotPattern = 0;
 }

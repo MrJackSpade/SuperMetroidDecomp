@@ -1,153 +1,154 @@
 using P = SuperMetroid.Core.Enemies.PipeBugs.PipeBugProgram;
 using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.PipeBugs;
 
 /// <summary>
 /// The Zeb, Zebbo, Gamet and Geega Pipe Bugs' rising, shooting, flying and arcing loops as typed programs (#641). Each
-/// frame shows a <see cref="PipeBugFrame"/> pose and its lists use no owner callbacks.
+/// frame shows a <see cref="EnemyFrameId"/> and its lists use no owner callbacks.
 /// </summary>
 internal static class PipeBugAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<PipeBugProgram, PipeBugFrame, NoAnimationCue> Segments { get; } = new(
-        new Dictionary<PipeBugProgram, AnimationBeat<PipeBugFrame, NoAnimationCue>[]>
+    internal static AnimationSegments<PipeBugProgram, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<PipeBugProgram, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
     {
         [P.ZebRisingLeft] =
         [
-            Show(0, 2),
-            Show(1, 2),
-            Show(2, 2),
-            Show(3, 2),
-            Show(4, 2),
-            Show(3, 2),
-            Show(2, 2),
-            Show(1, 2),
+            Show(EnemyFrameId.PipeBrinstarNormalLeft0, 2),
+            Show(EnemyFrameId.PipeBrinstarNormalLeft1, 2),
+            Show(EnemyFrameId.PipeBrinstarNormalLeft2, 2),
+            Show(EnemyFrameId.PipeBrinstarNormalLeft3, 2),
+            Show(EnemyFrameId.PipeBrinstarNormalLeft4, 2),
+            Show(EnemyFrameId.PipeBrinstarNormalLeft3, 2),
+            Show(EnemyFrameId.PipeBrinstarNormalLeft2, 2),
+            Show(EnemyFrameId.PipeBrinstarNormalLeft1, 2),
         ],
         [P.ZebShootingLeft] =
         [
-            Show(0, 1),
-            Show(1, 1),
-            Show(3, 1),
-            Show(4, 1),
-            Show(3, 1),
-            Show(1, 1),
+            Show(EnemyFrameId.PipeBrinstarNormalLeft0, 1),
+            Show(EnemyFrameId.PipeBrinstarNormalLeft1, 1),
+            Show(EnemyFrameId.PipeBrinstarNormalLeft3, 1),
+            Show(EnemyFrameId.PipeBrinstarNormalLeft4, 1),
+            Show(EnemyFrameId.PipeBrinstarNormalLeft3, 1),
+            Show(EnemyFrameId.PipeBrinstarNormalLeft1, 1),
         ],
         [P.ZebRisingRight] =
         [
-            Show(5, 2),
-            Show(6, 2),
-            Show(7, 2),
-            Show(8, 2),
-            Show(9, 2),
-            Show(8, 2),
-            Show(7, 2),
-            Show(6, 2),
+            Show(EnemyFrameId.PipeBrinstarNormalRight0, 2),
+            Show(EnemyFrameId.PipeBrinstarNormalRight1, 2),
+            Show(EnemyFrameId.PipeBrinstarNormalRight2, 2),
+            Show(EnemyFrameId.PipeBrinstarNormalRight3, 2),
+            Show(EnemyFrameId.PipeBrinstarNormalRight4, 2),
+            Show(EnemyFrameId.PipeBrinstarNormalRight3, 2),
+            Show(EnemyFrameId.PipeBrinstarNormalRight2, 2),
+            Show(EnemyFrameId.PipeBrinstarNormalRight1, 2),
         ],
         [P.ZebShootingRight] =
         [
-            Show(5, 1),
-            Show(6, 1),
-            Show(8, 1),
-            Show(9, 1),
-            Show(8, 1),
-            Show(6, 1),
+            Show(EnemyFrameId.PipeBrinstarNormalRight0, 1),
+            Show(EnemyFrameId.PipeBrinstarNormalRight1, 1),
+            Show(EnemyFrameId.PipeBrinstarNormalRight3, 1),
+            Show(EnemyFrameId.PipeBrinstarNormalRight4, 1),
+            Show(EnemyFrameId.PipeBrinstarNormalRight3, 1),
+            Show(EnemyFrameId.PipeBrinstarNormalRight1, 1),
         ],
         [P.ZebboRisingLeft] =
         [
-            Show(13, 2),
-            Show(14, 1),
-            Show(15, 2),
-            Show(14, 1),
+            Show(EnemyFrameId.PipeBrinstarStrongRiseLeft0, 2),
+            Show(EnemyFrameId.PipeBrinstarStrongRiseLeft1, 1),
+            Show(EnemyFrameId.PipeBrinstarStrongRiseLeft2, 2),
+            Show(EnemyFrameId.PipeBrinstarStrongRiseLeft1, 1),
         ],
         [P.ZebboShootingLeft] =
         [
-            Show(10, 3),
-            Show(11, 3),
-            Show(12, 3),
-            Show(11, 3),
+            Show(EnemyFrameId.PipeBrinstarStrongShootLeft0, 3),
+            Show(EnemyFrameId.PipeBrinstarStrongShootLeft1, 3),
+            Show(EnemyFrameId.PipeBrinstarStrongShootLeft2, 3),
+            Show(EnemyFrameId.PipeBrinstarStrongShootLeft1, 3),
         ],
         [P.ZebboRisingRight] =
         [
-            Show(19, 2),
-            Show(20, 1),
-            Show(21, 2),
-            Show(20, 1),
+            Show(EnemyFrameId.PipeBrinstarStrongRiseRight0, 2),
+            Show(EnemyFrameId.PipeBrinstarStrongRiseRight1, 1),
+            Show(EnemyFrameId.PipeBrinstarStrongRiseRight2, 2),
+            Show(EnemyFrameId.PipeBrinstarStrongRiseRight1, 1),
         ],
         [P.ZebboShootingRight] =
         [
-            Show(16, 3),
-            Show(17, 3),
-            Show(18, 3),
-            Show(17, 3),
+            Show(EnemyFrameId.PipeBrinstarStrongShootRight0, 3),
+            Show(EnemyFrameId.PipeBrinstarStrongShootRight1, 3),
+            Show(EnemyFrameId.PipeBrinstarStrongShootRight2, 3),
+            Show(EnemyFrameId.PipeBrinstarStrongShootRight1, 3),
         ],
         [P.GametRisingLeft] =
         [
-            Show(22, 2),
-            Show(23, 2),
-            Show(24, 2),
-            Show(25, 2),
-            Show(26, 2),
-            Show(25, 2),
-            Show(24, 2),
-            Show(23, 2),
+            Show(EnemyFrameId.PipeNorfairLeft0, 2),
+            Show(EnemyFrameId.PipeNorfairLeft1, 2),
+            Show(EnemyFrameId.PipeNorfairLeft2, 2),
+            Show(EnemyFrameId.PipeNorfairLeft3, 2),
+            Show(EnemyFrameId.PipeNorfairLeft4, 2),
+            Show(EnemyFrameId.PipeNorfairLeft3, 2),
+            Show(EnemyFrameId.PipeNorfairLeft2, 2),
+            Show(EnemyFrameId.PipeNorfairLeft1, 2),
         ],
         [P.GametFlyingLeft] =
         [
-            Show(22, 1),
-            Show(23, 1),
-            Show(25, 1),
-            Show(26, 1),
-            Show(25, 1),
-            Show(23, 1),
+            Show(EnemyFrameId.PipeNorfairLeft0, 1),
+            Show(EnemyFrameId.PipeNorfairLeft1, 1),
+            Show(EnemyFrameId.PipeNorfairLeft3, 1),
+            Show(EnemyFrameId.PipeNorfairLeft4, 1),
+            Show(EnemyFrameId.PipeNorfairLeft3, 1),
+            Show(EnemyFrameId.PipeNorfairLeft1, 1),
         ],
         [P.GametRisingRight] =
         [
-            Show(27, 2),
-            Show(28, 2),
-            Show(29, 2),
-            Show(30, 2),
-            Show(31, 2),
-            Show(30, 2),
-            Show(29, 2),
-            Show(28, 2),
+            Show(EnemyFrameId.PipeNorfairRight0, 2),
+            Show(EnemyFrameId.PipeNorfairRight1, 2),
+            Show(EnemyFrameId.PipeNorfairRight2, 2),
+            Show(EnemyFrameId.PipeNorfairRight3, 2),
+            Show(EnemyFrameId.PipeNorfairRight4, 2),
+            Show(EnemyFrameId.PipeNorfairRight3, 2),
+            Show(EnemyFrameId.PipeNorfairRight2, 2),
+            Show(EnemyFrameId.PipeNorfairRight1, 2),
         ],
         [P.GametFlyingRight] =
         [
-            Show(27, 1),
-            Show(28, 1),
-            Show(30, 1),
-            Show(31, 1),
-            Show(30, 1),
-            Show(28, 1),
+            Show(EnemyFrameId.PipeNorfairRight0, 1),
+            Show(EnemyFrameId.PipeNorfairRight1, 1),
+            Show(EnemyFrameId.PipeNorfairRight3, 1),
+            Show(EnemyFrameId.PipeNorfairRight4, 1),
+            Show(EnemyFrameId.PipeNorfairRight3, 1),
+            Show(EnemyFrameId.PipeNorfairRight1, 1),
         ],
         [P.GeegaFlyingLeft] =
         [
-            Show(32, 4),
-            Show(33, 4),
-            Show(34, 4),
-            Show(33, 4),
+            Show(EnemyFrameId.PipeYellowFlyLeft0, 4),
+            Show(EnemyFrameId.PipeYellowFlyLeft1, 4),
+            Show(EnemyFrameId.PipeYellowFlyLeft2, 4),
+            Show(EnemyFrameId.PipeYellowFlyLeft1, 4),
         ],
         [P.GeegaArcingLeft] =
         [
-            Show(35, 1),
-            Show(36, 1),
-            Show(37, 1),
-            Show(36, 1),
+            Show(EnemyFrameId.PipeYellowArcLeft0, 1),
+            Show(EnemyFrameId.PipeYellowArcLeft1, 1),
+            Show(EnemyFrameId.PipeYellowArcLeft2, 1),
+            Show(EnemyFrameId.PipeYellowArcLeft1, 1),
         ],
         [P.GeegaFlyingRight] =
         [
-            Show(38, 4),
-            Show(39, 4),
-            Show(40, 4),
-            Show(39, 4),
+            Show(EnemyFrameId.PipeYellowFlyRight0, 4),
+            Show(EnemyFrameId.PipeYellowFlyRight1, 4),
+            Show(EnemyFrameId.PipeYellowFlyRight2, 4),
+            Show(EnemyFrameId.PipeYellowFlyRight1, 4),
         ],
         [P.GeegaArcingRight] =
         [
-            Show(41, 1),
-            Show(42, 1),
-            Show(43, 1),
-            Show(42, 1),
+            Show(EnemyFrameId.PipeYellowArcRight0, 1),
+            Show(EnemyFrameId.PipeYellowArcRight1, 1),
+            Show(EnemyFrameId.PipeYellowArcRight2, 1),
+            Show(EnemyFrameId.PipeYellowArcRight1, 1),
         ],
     });
 
@@ -175,6 +176,6 @@ internal static class PipeBugAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<PipeBugProgram> StartingWith(PipeBugProgram segment) => StartingAt[segment];
 
-    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<PipeBugFrame, NoAnimationCue> Show(int pose, int duration) => new AnimationBeat<PipeBugFrame, NoAnimationCue>.Frame(new(pose), duration);
+    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);
 }

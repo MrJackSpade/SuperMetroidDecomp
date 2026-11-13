@@ -26,7 +26,7 @@ public sealed class RoomEnemySlot
     public int SlotIndex { get; }
     /// <summary>The occupant's enemy identity; <see cref="EnemyDefinitionId.None"/> denotes an empty slot.</summary>
     public EnemyDefinitionId DefinitionId { get; private set; }
-    /// <summary>Immutable resolved header for the current enemy identity, supplying initialization, collision, and AI definitions.</summary>
+    /// <summary>Immutable resolved definition for the current enemy identity, supplying initialization, collision, and AI definitions.</summary>
     public RoomEnemyDefinition Definition { get; private set; }
 
     /// <summary>The species registry that creates the entity for each installed occupant.</summary>
@@ -59,7 +59,7 @@ public sealed class RoomEnemySlot
     /// here, at the statement that changes the definition, because the game re-reads the definition each dispatch.
     /// </summary>
     /// <param name="definitionId">The occupant's definition.</param>
-    /// <param name="definition">The occupant's header.</param>
+    /// <param name="definition">The occupant's resolved definition.</param>
     internal void Bind(EnemyDefinitionId definitionId, RoomEnemyDefinition definition)
     {
         DefinitionId = definitionId;

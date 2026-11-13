@@ -17,14 +17,14 @@ internal sealed class GameplayOptions
 
     /// <summary>
     /// The Icon Cancel option. Projectile-data teardown clears the selected HUD icon
-    /// when this word is nonzero; retaining it beside Moonwalk keeps both special-options
-    /// words available to their actual gameplay owners.
+    /// when this option is set; retaining it beside Moonwalk keeps both special options
+    /// available to their actual gameplay owners.
     /// </summary>
     public bool IconCancelEnabled { get; set; }
 
     /// <summary>
     /// The live controller bindings. Physical controller buttons arrive each update; each
-    /// gameplay frame boundary translates them once, at the same point where gameplay
+    /// gameplay frame boundary maps them once, at the same point where gameplay
     /// compares input with these configurable actions.
     /// </summary>
     public ControllerBindings ControllerBindings { get; set; } = ControllerBindings.Default;

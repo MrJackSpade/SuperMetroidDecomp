@@ -34,7 +34,7 @@ internal sealed class MotherBrainGlassObjects
     internal bool MotherBrainGlassWasLoaded { get; private set; }
     /// <summary>
     /// Glass hit count retained after the glass has left the room. Only glass-phase head hits add to it, so it stays far
-    /// below the word's range; nothing in play reads it back.
+    /// below the counter's range; nothing in play reads it back.
     /// </summary>
     internal int MotherBrainGlassLastRoomArgument { get; private set; }
 
@@ -100,7 +100,7 @@ internal sealed class MotherBrainGlassObjects
     internal void SpawnShards(RoomObjectSlot slot, IReadOnlyList<MotherBrainGlassShard> shards)
     {
         _sounds.Queue(RoomSound.MotherBrainGlassShatter, Priority: ShatterSoundPriority);
-        // The fragment spawn carries both block coordinates as bytes.
+        // The fragment spawn carries both block coordinates, each below 256.
         Position16<RoomBlocks> glassBlock = slot.Block;
         foreach (MotherBrainGlassShard shard in shards)
             _motherBrainGlassProjectileRequests.Add(new MotherBrainGlassProjectileRequest(

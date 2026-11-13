@@ -2,7 +2,7 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>Which callback each beam projectile runs.</summary>
+/// <summary>Which frame behaviour each beam projectile runs.</summary>
 internal static class SamusBeamCallbacks
 {
     /// <summary>Resolves every combination for one beam producer.</summary>
@@ -17,7 +17,7 @@ internal static class SamusBeamCallbacks
         SamusBeamCombination.SpazerWave or SamusBeamCombination.SpazerIceWave or SamusBeamCombination.PlasmaWave or
             SamusBeamCombination.PlasmaIceWave =>
             Translated(SamusBeamCallback.WaveFourFrameTrail, SamusProjectileFrameBehavior.WaveBeamFourFrameTrail),
-        // The four glitched combinations read past the twelve authored callbacks.
+        // The four glitched combinations read past the twelve authored frame behaviours.
         SamusBeamCombination.SpazerPlasma => charged
             ? Untranslated(SamusBeamCallback.ChargedCombinationTwelveOverrun)
             : Untranslated(SamusBeamCallback.UnchargedCombinationTwelveOverrun),
@@ -38,13 +38,13 @@ internal static class SamusBeamCallbacks
         _ => throw new ArgumentOutOfRangeException(nameof(combination), combination, "Undefined beam combination."),
     };
 
-    /// <summary>Pairs a callback with an implemented projectile frame behaviour.</summary>
+    /// <summary>Pairs a beam's choice with an implemented projectile frame behaviour.</summary>
     private static SamusBeamCallbackDefinition Translated(
         SamusBeamCallback callback,
         SamusProjectileFrameBehavior translated) =>
         new(callback, translated);
 
-    /// <summary>Keeps an adjacent-code callback visible without assigning unsupported behavior.</summary>
+    /// <summary>Keeps a choice past the authored list visible without assigning unsupported behavior.</summary>
     private static SamusBeamCallbackDefinition Untranslated(SamusBeamCallback callback) =>
         new(callback, null);
 }

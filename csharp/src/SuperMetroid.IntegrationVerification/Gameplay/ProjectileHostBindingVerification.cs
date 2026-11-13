@@ -21,7 +21,7 @@ internal static class ProjectileHostBindingVerification
         {
             CheckFrameBindings(session.Game.Artwork.ProjectileFrameBindings, projectiles.FrameBindings);
             CheckGrapple(session.Game.Artwork, projectiles.Grapple);
-            CheckFlare(session.Game.Artwork.ChargeFlarePlacement ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.ChargeFlarePlacement."), projectiles.FlarePlacement);
+            CheckFlare(session.Game.Artwork.ChargeFlarePlacement ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.ChargeFlarePlacement."), projectiles.FlarePlacement, ChargeFlareSource.Beam);
         }
         Console.WriteLine("PASS installed projectile binding: the host binds the installed frame choices, flare placement and Grapple presentation at startup.");
         return 0;
@@ -35,11 +35,14 @@ internal static class ProjectileHostBindingVerification
             throw new InvalidDataException("Host did not bind current projectile frame choices.");
     }
 
-    /// <summary>Checks flare placement for both running states and every direction.</summary>
-    private static void CheckFlare(ChargeFlarePlacements actual, ChargeFlarePlacements expected)
+    /// <summary>
+    /// Checks every placement <paramref name="source"/>'s flare holds: both running states, every direction and, for the
+    /// beam flare, every turning placement (the Grapple flare holds none, #1500).
+    /// </summary>
+    private static void CheckFlare(ChargeFlarePlacements actual, ChargeFlarePlacements expected, ChargeFlareSource source)
     {
         if (actual is null) throw new InvalidDataException("Host did not bind flare placement.");
-        foreach (ChargeFlarePlacement placement in ChargeFlarePlacements.Placements(ChargeFlareSource.Beam))
+        foreach (ChargeFlarePlacement placement in ChargeFlarePlacements.Placements(source))
             if (actual.Resolve(placement.Running, placement.Aim) != expected.Resolve(placement.Running, placement.Aim))
                 throw new InvalidDataException("Host restored stale flare placement.");
     }
@@ -47,7 +50,7 @@ internal static class ProjectileHostBindingVerification
     /// <summary>Checks the Grapple flare placement and swing choices the host bound.</summary>
     private static void CheckGrapple(GameArtwork actual, InstalledGrapplePresentation expected)
     {
-        CheckFlare((actual.GrappleFlarePlacement ?? throw new InvalidOperationException("Verification requires actual.GrappleFlarePlacement.")), expected.FlarePlacement);
+        CheckFlare((actual.GrappleFlarePlacement ?? throw new InvalidOperationException("Verification requires actual.GrappleFlarePlacement.")), expected.FlarePlacement, ChargeFlareSource.Grapple);
         if (actual.GrappleSwingFrames is null) throw new InvalidDataException("Host did not bind Grapple swing frames.");
         foreach (SuperMetroid.Core.Samus.Grapple.GrappleSwingDirection direction in SuperMetroid.Core.Samus.Grapple.GrappleSwingDirection.All)
             if (actual.GrappleSwingFrames.Resolve(direction) != expected.SwingFrames.Resolve(direction))

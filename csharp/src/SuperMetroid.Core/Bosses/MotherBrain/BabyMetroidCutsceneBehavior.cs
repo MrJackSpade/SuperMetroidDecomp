@@ -172,7 +172,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
 
         // Cross-enemy writes happen during the later Baby slot and become visible in the
         // body record immediately, though body AI cannot execute them until the next frame.
-        state.Phase = sequence.State.Phase ?? throw new InvalidDataException("The live Mother Brain rainbow sequence has no body function yet.");
+        state.Phase = sequence.State.Phase ?? throw new InvalidDataException("The live Mother Brain rainbow sequence has no body phase yet.");
 
         if (baby.Animation != state.BabyAppliedAnimation)
             SetBabyMetroidCutsceneAnimation(state, slot, baby.Animation);

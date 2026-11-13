@@ -175,7 +175,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
     {
         CeresDoorEnemyState state = slot.RequireSpeciesState<CeresDoorEnemyState>();
         CeresDoorAction action = state.Action
-            ?? throw new InvalidDataException("A Ceres door has no main function.");
+            ?? throw new InvalidDataException("A Ceres door has no action.");
         switch (action)
         {
             case CeresDoorAction.HandleEarthquakeDuringEscape:

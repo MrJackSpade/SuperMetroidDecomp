@@ -126,7 +126,7 @@ internal sealed class MotherBrainThirdPhaseFight
 
             default:
                 throw new InvalidOperationException(
-                    $"Unsupported phase-three walking function {Phase3WalkingPhase}.");
+                    $"Unsupported phase-three walking phase {Phase3WalkingPhase}.");
         }
     }
 
@@ -209,7 +209,7 @@ internal sealed class MotherBrainThirdPhaseFight
 
             default:
                 throw new InvalidOperationException(
-                    $"Unsupported phase-three neck function {Phase3NeckPhase}.");
+                    $"Unsupported phase-three neck phase {Phase3NeckPhase}.");
         }
     }
 

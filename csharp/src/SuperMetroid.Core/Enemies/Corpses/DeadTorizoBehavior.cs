@@ -82,7 +82,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             TriggerDeadTorizoRotting(slot);
         }
 
-        switch (state.Phase ?? throw new InvalidDataException("Dead Torizo has no corpse function."))
+        switch (state.Phase ?? throw new InvalidDataException("Dead Torizo has no corpse phase."))
         {
             case DeadTorizoPhase.Wait:
                 if (samus?.Kinematics.DidCollideWithSolidEnemy(slot) == true)

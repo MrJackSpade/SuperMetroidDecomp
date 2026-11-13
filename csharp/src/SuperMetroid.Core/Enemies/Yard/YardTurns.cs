@@ -14,6 +14,6 @@ internal static class YardTurns
         return YardTurnDefinitions.Turns.TryGetValue(movement, out YardTurnDefinition turn)
             ? turn
             : throw new InvalidDataException(
-                $"Yard crawl function {movement} has no turn definition.");
+                $"Yard crawl movement {movement} has no turn definition.");
     }
 }

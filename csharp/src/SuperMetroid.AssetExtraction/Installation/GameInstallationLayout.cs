@@ -43,7 +43,7 @@ public static class GameInstallationLayout
     public const string EndingObjectDirectoryName = "ending-objects";
     /// <summary>Content child directory for the ending scenes' backdrops (#1544).</summary>
     public const string EndingBackdropDirectoryName = "ending-backdrops";
-    /// <summary>Content child directory for stock RGB5 room palettes.</summary>
+    /// <summary>Component directory whose import data holds the rooms' base colours, which only the import reads (#1637); nothing of it is installed.</summary>
     public const string RoomPaletteDirectoryName = "room-palettes";
     /// <summary>Content child directory for visual block compositions independent of collision.</summary>
     public const string RoomMetatileDirectoryName = "room-blocks";

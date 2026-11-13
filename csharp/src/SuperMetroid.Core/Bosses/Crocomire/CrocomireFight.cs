@@ -262,13 +262,13 @@ internal sealed class CrocomireFight
 
             case CrocomireBodyCueKind.MoveLeft:
                 RequireCrocomireLevel(level);
-                if ((state.FightFlags & CrocomireFightFlags.DamageReactionPending) == CrocomireFightFlags.None)
+                if (!state.DamageReactionPending)
                     MoveCrocomire(body, level, -4);
                 return null;
             case CrocomireBodyCueKind.MoveLeftWithDust:
                 SpawnCrocomireRandomFootDust(state);
                 RequireCrocomireLevel(level);
-                if ((state.FightFlags & CrocomireFightFlags.DamageReactionPending) == CrocomireFightFlags.None)
+                if (!state.DamageReactionPending)
                     MoveCrocomire(body, level, -4);
                 return null;
             case CrocomireBodyCueKind.MoveLeftTowardSpikeWall:
@@ -335,16 +335,15 @@ internal sealed class CrocomireFight
                 if (samus is not null && CoordinateAxis.Distance(
                         state.Body.Position.X.Whole, samus.Position.X.Whole) < 224)
                 {
-                    state.FightFlags |= CrocomireFightFlags.Engaged;
                     state.Phase = CrocomirePhase.WaitingForFirstDamage;
                     return CrocomireBodySegment.WaitForFirstSecondDamage;
                 }
                 return null;
 
             case CrocomirePhase.SteppingForward:
-                if ((state.FightFlags & CrocomireFightFlags.DamageReactionPending) != CrocomireFightFlags.None)
+                if (state.DamageReactionPending)
                 {
-                    state.FightFlags &= ~CrocomireFightFlags.DamageReactionPending;
+                    state.DamageReactionPending = false;
                     if (state.StepCounter != 0)
                     {
                         state.Phase = CrocomirePhase.SteppingBack;
@@ -362,9 +361,9 @@ internal sealed class CrocomireFight
                     : null;
 
             case CrocomirePhase.ProjectileAttack:
-                if ((state.FightFlags & CrocomireFightFlags.DamageReactionPending) != CrocomireFightFlags.None)
+                if (state.DamageReactionPending)
                 {
-                    state.FightFlags &= ~CrocomireFightFlags.DamageReactionPending;
+                    state.DamageReactionPending = false;
                     state.Phase = CrocomirePhase.SteppingBack;
                     return CrocomireBodySegment.StepBack;
                 }
@@ -379,9 +378,9 @@ internal sealed class CrocomireFight
                 return CrocomireBodySegment.StepForwardAfterDelay;
 
             case CrocomirePhase.NearSpikeWallCharge:
-                if ((state.FightFlags & CrocomireFightFlags.DamageReactionPending) != CrocomireFightFlags.None)
+                if (state.DamageReactionPending)
                 {
-                    state.FightFlags &= ~CrocomireFightFlags.DamageReactionPending;
+                    state.DamageReactionPending = false;
                     state.Phase = CrocomirePhase.SteppingBack;
                     return CrocomireBodySegment.StepBack;
                 }
@@ -443,9 +442,9 @@ internal sealed class CrocomireFight
         CrocomireBodySegment continuation,
         CrocomirePhase damagedDestination)
     {
-        if ((state.FightFlags & CrocomireFightFlags.DamageReactionPending) != CrocomireFightFlags.None)
+        if (state.DamageReactionPending)
         {
-            state.FightFlags &= ~CrocomireFightFlags.DamageReactionPending;
+            state.DamageReactionPending = false;
             state.Phase = damagedDestination;
             return CrocomireBodySegment.StepBack;
         }

@@ -10,12 +10,11 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// </summary>
 internal static class CrocomireNativeWords
 {
-    /// <summary>The bit of body variable B holding each fight latch.</summary>
-    private static readonly Dictionary<CrocomireFightFlags, int> FightFlagBits = new()
-    {
-        [CrocomireFightFlags.DamageReactionPending] = 0x0800,
-        [CrocomireFightFlags.Engaged] = 0x8000,
-    };
+    /// <summary>
+    /// The bit of body variable B holding the damage-reaction latch. Its top bit, which waking and a Power Bomb set, is read by
+    /// nothing (#1686), so it is no latch of the game.
+    /// </summary>
+    private const int DamageReactionPendingBit = 0x0800;
 
     /// <summary>
     /// The byte offset into the death dispatcher's jump table, body variable A, naming each <see cref="CrocomireDeathPhase"/>.
@@ -110,25 +109,9 @@ internal static class CrocomireNativeWords
         [CrocomireTongueHitboxList.Melting] = 0xcc3b,
     });
 
-    /// <summary>The fight latches a recorded body variable B holds.</summary>
-    internal static CrocomireFightFlags FightFlags(ushort word)
-    {
-        CrocomireFightFlags flags = 0;
-        foreach ((CrocomireFightFlags flag, int bit) in FightFlagBits)
-            if ((word & bit) != 0)
-                flags |= flag;
-        return flags;
-    }
+    /// <summary>Whether a recorded body variable B holds the damage-reaction latch.</summary>
+    internal static bool DamageReactionPending(ushort word) => (word & DamageReactionPendingBit) != 0;
 
-    /// <summary>The body variable B the cartridge stores for <paramref name="flags"/> with no mouth hits counted.</summary>
-    internal static ushort FightWord(CrocomireFightFlags flags)
-    {
-        int word = 0;
-        foreach ((CrocomireFightFlags flag, int bit) in FightFlagBits)
-            if ((flags & flag) != 0)
-                word |= bit;
-        return checked((ushort)word);
-    }
 
     /// <summary>
     /// Imports the body's values the cartridge keeps in record words D, E and F (#1476): during the fight the queued

@@ -145,7 +145,6 @@ internal static class CrocomireAnimationsVerification
         samus.Position = samus.Position.WithWholeX(state.Body.Position.X.Whole);
         Pass(enemies, state, samus);
         AssertEqual(CrocomirePhase.WaitingForFirstDamage, state.Phase, "Samus within range wakes Crocomire");
-        AssertTrue((state.FightFlags & CrocomireFightFlags.Engaged) != 0, "waking engages Samus");
         AssertEqual(CrocomireBodyFramesTooling.Spritemap(new CrocomireBodyFrame(CrocomireBodyFrameSet.Body, 18)), state.Body.SpritemapPointer,
             "the redirect shows the damage wait's first frame in the same update");
         AssertEqual((ushort)34, state.Body.AnimationClock.Hold.RawValue, "the damage wait's first frame lasts 34 updates");

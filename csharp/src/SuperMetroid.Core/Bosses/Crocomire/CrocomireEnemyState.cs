@@ -58,8 +58,8 @@ public sealed class CrocomireEnemyState
     /// <summary>The phase of his death sequence; <see cref="CrocomireDeathPhase.Fighting"/> runs the fight and bridge checks, and <see cref="CrocomireDeathPhase.DefeatedRoomAdvance"/> displays an already-defeated corpse.</summary>
     public CrocomireDeathPhase DeathPhase { get; internal set; }
 
-    /// <summary>The fight latches.</summary>
-    public CrocomireFightFlags FightFlags { get; internal set; }
+    /// <summary>Whether a mouth hit is waiting for the fight AI to start a backward step.</summary>
+    public bool DamageReactionPending { get; internal set; }
 
     /// <summary>The fight's phase, run when the body animation's fight-AI cue fires rather than once per main-AI frame.</summary>
     public CrocomirePhase Phase { get; internal set; }

@@ -1,7 +1,8 @@
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
-/// How Samus's block scans and the enemies' terrain movers number the rows and columns they look up (#1552, #1593): each
+/// How Samus's block scans, the enemies' terrain movers and the enemy projectiles' block scans number the rows and columns
+/// they look up (#1552, #1593, #1628): each
 /// lookup holds the row it starts from within a cycle of 256, so a row past the 256th, or one above the room's top whose
 /// number continued from the bottom of the cycle, addresses a row counted from the top of the room again. The scan then
 /// counts the blocks it steps through within a cycle of 32768, so one that runs past it continues from the room's first
@@ -13,7 +14,9 @@ namespace SuperMetroid.Core.Compatibility;
 /// Consulted wherever one of those scans turns a row or column into a block: a Wave shot's horizontal and vertical
 /// reaction scans during the projectile pass, the grapple swing's body probe on every swinging update, the X-ray scope's
 /// reveal and its extension chains on every update the scope is held, and every enemy's horizontal and vertical terrain
-/// move during the enemy pass, with the extension links its blocks lead it through. A scan starts at a block named by its
+/// move during the enemy pass, with the extension links its blocks lead it through, and every enemy projectile's
+/// horizontal and vertical block scan during the enemy projectile pass (<c>EnemyProjectileBlockScan</c>). A scan starts at
+/// a block named by its
 /// column and row; the column is added to the start of the row as it is, so a column past the room's width runs into the
 /// rows below. The blocks a scan reaches are found in the room's reading order (<see cref="RoomReadingOrder"/>), within
 /// the room's columns, and a row past the room's height is a block beyond its grid.
@@ -22,7 +25,8 @@ namespace SuperMetroid.Core.Compatibility;
 /// Evidence: each of the original routines multiplies the row by the room's width with eight-bit operands, keeping only
 /// the row's and the width's lowest eight bits; the Wave scans (<c>$94:A352</c>, <c>$94:A3E4</c>) take the projectile's
 /// row that way, the X-ray reveal (<c>$91:CC70</c>, <c>$91:CE57</c>) its rows, and the enemy movers
-/// (<c>$A0:C6AD</c>, <c>$A0:C788</c>) the row of the enemy's top edge or of its leading edge. The scans then step their
+/// (<c>$A0:C6AD</c>, <c>$A0:C788</c>) and the enemy projectile moves (<c>$86:88B6</c>, <c>$86:897B</c>) the row of the
+/// top edge or of the leading edge. The scans then step their
 /// block index, and the enemies' extension reactions (<c>$A0:C619</c>, <c>$A0:C64F</c>) add their offsets to it, as a
 /// sixteen-bit offset two bytes a block.
 /// </para>

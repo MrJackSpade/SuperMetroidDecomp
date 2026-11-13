@@ -182,23 +182,24 @@ internal sealed class EnemyTerrainFixtureRoom
     }
 
     /// <summary>
-    /// The place model of an enemy projectile's block scan along one edge: from the edge's first block, a scan down the
-    /// column steps the place by the width and a scan along the row by one block; the first block is read where it
-    /// lies, a later one at its place, which fails past the grid's last block. A block whose links find none, or of a
-    /// kind other than air, an extension or a grapple block, stops the scan as a wall.
+    /// The place model of an enemy projectile's block scan along one edge, the original's arithmetic: the first row taken
+    /// within 256 (its low eight bits) times the width plus the first column is the first place; a scan down the column
+    /// steps the place by the width and a scan along the row by one block, each place counted within 32768 blocks. A
+    /// first place past the grid is a wall, and a later one fails. A block whose links find none, or of a kind other than
+    /// air, an extension or a grapple block, stops the scan as a wall.
     /// </summary>
     internal EnemyTerrainScanOutcome ScanEdge(int fixedBlock, int startBlock, int extraBlocks, Axis edge)
     {
-        int place = edge == Axis.Vertical ? fixedBlock * Width + startBlock : startBlock * Width + fixedBlock;
+        int row = edge == Axis.Vertical ? fixedBlock : startBlock;
+        int column = edge == Axis.Vertical ? startBlock : fixedBlock;
+        int first = (row & 0xff) * Width + column;
         int step = edge == Axis.Vertical ? 1 : Width;
-        for (int tested = 0; tested <= extraBlocks; tested++, place += step)
+        for (int tested = 0; tested <= extraBlocks; tested++)
         {
-            if (tested > 0 && place >= Area)
-                return new(false, typeof(InvalidDataException));
-            Position16<RoomBlocks> block = tested > 0
-                ? Position16<RoomBlocks>.Of(place % Width, place / Width)
-                : edge == Axis.Vertical ? Position16<RoomBlocks>.Of(startBlock, fixedBlock) : Position16<RoomBlocks>.Of(fixedBlock, startBlock);
-            EnemyTerrainResolvedPlace resolved = ResolveCollisionPlace(block);
+            int place = (first + tested * step) % ScanCycleBlocks;
+            if (place >= Area)
+                return tested > 0 ? new(false, typeof(InvalidDataException)) : new(true, null);
+            EnemyTerrainResolvedPlace resolved = ResolveCollisionPlace(Position16<RoomBlocks>.Of(place % Width, place / Width));
             if (resolved.Failure is { } failure)
                 return new(false, failure);
             if (resolved.Place is not { } reached || terrain[reached].Collision is not (

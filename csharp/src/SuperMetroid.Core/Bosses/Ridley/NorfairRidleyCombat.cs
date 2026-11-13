@@ -92,7 +92,7 @@ internal sealed class NorfairRidleyCombat
             IdealInterSegmentTailAngle = RidleyTailDefinitions.IdealInterSegmentSpacing,
             TailSegments = RidleyTail.CreateInitialRidleyTailSegments(),
         };
-        CeresRidleyFlight.StartRidleyProgram(_ridleyEncounter.Ridley, slot, RidleyBodyProgram.Initial);
+        CeresRidleyFlight.StartRidleyAnimation(_ridleyEncounter.Ridley, slot, RidleyBodySegment.Initial);
 
         // He arrives in his own colours, his body and tail hidden in black, and his arena hidden for its reveal.
         _ridleyEncounter.Ridley.Colours.ShowNorfairArrival();
@@ -122,7 +122,7 @@ internal sealed class NorfairRidleyCombat
         RidleyLiquidMotion.Publish(_roomFx, state, RidleyLiquidDefinitions.BattleHeight,
             RidleyLiquidDefinitions.RiseVelocity, RidleyLiquidDefinitions.RiseDelay);
         state.FadeStep = 0;
-        CeresRidleyFlight.StartRidleyProgram(state, slot, RidleyBodyProgram.TransitionToFlying);
+        CeresRidleyFlight.StartRidleyAnimation(state, slot, RidleyBodySegment.TransitionToFlying);
         state.WingAnimationTimer = 8;
         state.WingAnimationTimerDelta = 8;
         foreach (RidleyTailSegment segment in state.TailSegments)
@@ -212,7 +212,7 @@ internal sealed class NorfairRidleyCombat
 
         // The pogo choice uses the current random number; it does not draw a new one.
         if (RidleyRandomDefinitions.PogoFireballs.IsTakenBy(_room.Random.Read()) && !state.Roaring && state.FacingDirection != RidleyFacing.Turning)
-            CeresRidleyFlight.StartRidleyProgram(state, slot, RidleyBodyProgram.Fireballing);
+            CeresRidleyFlight.StartRidleyAnimation(state, slot, RidleyBodySegment.Fireballing);
 
         if (!NorfairRidleyMovement.TickRidleyFunctionTimer(state))
             return;
@@ -221,7 +221,7 @@ internal sealed class NorfairRidleyCombat
             ? RidleyAiFunction.NorfairPogoAscending
             : RidleyAiFunction.NorfairPogoDescending;
         state.FunctionTimer = 128;
-        SelectNorfairRidleyFacingInstruction(slot, state);
+        SelectNorfairRidleyFacingAnimation(slot, state);
     }
 
     /// <summary>Resets tail extension and enters the ground fireball/pogo setup.</summary>
@@ -241,7 +241,7 @@ internal sealed class NorfairRidleyCombat
     {
         if (CoordinateAxis.Difference(slot.Position.Y.Whole, 288) < 0)
         {
-            SelectNorfairRidleyFacingInstruction(slot, state);
+            SelectNorfairRidleyFacingAnimation(slot, state);
             state.Function = RidleyAiFunction.NorfairFireballMoveToHeight;
             state.FunctionTimer = 32;
             TickNorfairRidleyGroundAttackMoveToHeight(slot, state, samus);
@@ -310,7 +310,7 @@ internal sealed class NorfairRidleyCombat
         {
             state.PogoBounceCount = 0;
             if (state.FacingDirection != RidleyFacing.Turning)
-                CeresRidleyFlight.StartRidleyProgram(state, slot, RidleyBodyProgram.Fireballing);
+                CeresRidleyFlight.StartRidleyAnimation(state, slot, RidleyBodySegment.Fireballing);
         }
         state.Function = RidleyAiFunction.NorfairFireballRecover;
     }
@@ -479,8 +479,8 @@ internal sealed class NorfairRidleyCombat
     private static int GetNorfairRidleyClawY(RoomEnemySlot slot, RidleyEnemyState state) =>
         CoordinateAxis.Wrap(slot.Position.Y.Whole + RidleyClawOffsets.ReadY(state.FeetDistanceIndex));
 
-    /// <summary>Starts a turn only when Ridley faces away from the arena half identified by X bit seven.</summary>
-    internal static void SelectNorfairRidleyFacingInstruction(RoomEnemySlot slot, RidleyEnemyState state)
+    /// <summary>Starts a turn only when Ridley faces away from the half of its 256-pixel screen his X lies in.</summary>
+    internal static void SelectNorfairRidleyFacingAnimation(RoomEnemySlot slot, RidleyEnemyState state)
     {
         if (state.FacingDirection == RidleyFacing.Turning)
             return;
@@ -490,13 +490,13 @@ internal sealed class NorfairRidleyCombat
         bool rightHalf = RoomGridConversions.OffsetWithinScreen(slot.Position.X.Whole) >= 128;
         if (state.FacingDirection == RidleyFacing.Left ? rightHalf : !rightHalf)
             return;
-        CeresRidleyFlight.StartRidleyProgram(
+        CeresRidleyFlight.StartRidleyAnimation(
             state,
             slot,
             state.FacingDirection == RidleyFacing.Left
-                ? RidleyBodyProgram.TurnFromLeftToRight
-                : RidleyBodyProgram.TurnFromRightToLeft);
-        slot.FrameHold = WrappingCountdown.Start(2);
+                ? RidleyBodySegment.TurnFromLeftToRight
+                : RidleyBodySegment.TurnFromRightToLeft);
+        slot.AnimationClock.HoldFor(2);
     }
 
     /// <summary>Selects a hover acceleration divisor from Ridley's capped health stage.</summary>
@@ -565,7 +565,7 @@ internal sealed class NorfairRidleyCombat
         RoomEnemySlot body,
         RidleyEnemyState state)
     {
-        CeresRidleyFlight.StartRidleyProgram(state, body, RidleyBodyProgram.DeathRoar);
+        CeresRidleyFlight.StartRidleyAnimation(state, body, RidleyBodySegment.DeathRoar);
         state.Function = RidleyAiFunction.NorfairDeathExplosions;
         state.FunctionTimer = 32;
     }

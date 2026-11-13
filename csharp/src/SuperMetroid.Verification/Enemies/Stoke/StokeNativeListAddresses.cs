@@ -14,14 +14,14 @@ internal static class StokeNativeListAddresses
     internal const byte Bank = 0xa2;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<StokeProgram>[] Entries =
+    internal static readonly NativeProgramEntry<StokeSegment>[] Entries =
     [
-        new NativeProgramEntry<StokeProgram>(StokeProgram.MovingLeft, 0x8932),
-        new NativeProgramEntry<StokeProgram>(StokeProgram.MovingLeftLoop, 0x8934),
-        new NativeProgramEntry<StokeProgram>(StokeProgram.AttackingLeft, 0x8948),
-        new NativeProgramEntry<StokeProgram>(StokeProgram.MovingRight, 0x8958),
-        new NativeProgramEntry<StokeProgram>(StokeProgram.MovingRightLoop, 0x895a),
-        new NativeProgramEntry<StokeProgram>(StokeProgram.AttackingRight, 0x896e),
+        new NativeProgramEntry<StokeSegment>(StokeSegment.MovingLeft, 0x8932),
+        new NativeProgramEntry<StokeSegment>(StokeSegment.MovingLeftLoop, 0x8934),
+        new NativeProgramEntry<StokeSegment>(StokeSegment.AttackingLeft, 0x8948),
+        new NativeProgramEntry<StokeSegment>(StokeSegment.MovingRight, 0x8958),
+        new NativeProgramEntry<StokeSegment>(StokeSegment.MovingRightLoop, 0x895a),
+        new NativeProgramEntry<StokeSegment>(StokeSegment.AttackingRight, 0x896e),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>

@@ -31,24 +31,24 @@ internal static class DachoraInstructionProgramDefinitionsVerification
     {
         InitializerCase[] initializerCases =
         [
-            new InitializerCase(0, DachoraProgram.IdleLeft),
-            new InitializerCase(1, DachoraProgram.IdleRight),
-            new InitializerCase(0xfffe, DachoraProgram.EchoLeft),
-            new InitializerCase(0xffff, DachoraProgram.EchoRight),
+            new InitializerCase(0, DachoraSegment.IdleLeft),
+            new InitializerCase(1, DachoraSegment.IdleRight),
+            new InitializerCase(0xfffe, DachoraSegment.EchoLeft),
+            new InitializerCase(0xffff, DachoraSegment.EchoRight),
         ];
-        foreach ((ushort parameter, DachoraProgram expected) in initializerCases)
+        foreach ((ushort parameter, DachoraSegment expected) in initializerCases)
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot) = NewDachora(parameter);
             slot.Bind(EnemyDefinitionId.Dachora, slot.Definition);
             enemies.DachoraBehavior.InitializeDachora(slot);
-            AssertEqual(new AnimationPlayback<DachoraProgram>(DachoraAnimations.StartingWith(expected), AnimationPlace.StartOfAnimation), enemies.SlotTable.Slots[0].EntityState<DachoraEntity, DachoraEnemyState>()?.Playback,
+            AssertEqual(new AnimationPlayback<DachoraSegment>(DachoraAnimations.StartingWith(expected), AnimationPlace.StartOfAnimation), enemies.SlotTable.Slots[0].EntityState<DachoraEntity, DachoraEnemyState>()?.Playback,
                 $"Dachora initializer parameter ${parameter:X4}");
         }
 
-        foreach (DachoraProgram program in Enum.GetValues<DachoraProgram>())
+        foreach (DachoraSegment program in Enum.GetValues<DachoraSegment>())
         {
             // The self-looping animations: one phase of their own segment, played again and again.
-            if (!DachoraAnimations.StartingAt.TryGetValue(program, out Animation<DachoraProgram>? animation) ||
+            if (!DachoraAnimations.StartingAt.TryGetValue(program, out Animation<DachoraSegment>? animation) ||
                 animation is not { Phases: [{ Plays: 1 } only], End: AnimationEnd.Loop { Phase: 0 } } || only.Segment != program)
                 continue;
             (RoomEnemySystem enemies, RoomEnemySlot slot) = NewDachora(0);
@@ -56,16 +56,16 @@ internal static class DachoraInstructionProgramDefinitionsVerification
             enemies.DachoraBehavior.InitializeDachora(slot);
             DachoraEnemyState state = enemies.SlotTable.Slots[0].EntityState<DachoraEntity, DachoraEnemyState>() ?? throw new InvalidOperationException("The Dachora has no state.");
             state.Playback = new(DachoraAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-            slot.FrameHold = WrappingCountdown.Start(1);
+            slot.AnimationClock.StepOnNextUpdate();
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(DachoraAnimations.Segments, program, DachoraFrameToolingDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(DachoraAnimations.Segments, program)),
                 $"Dachora {program} loop");
         }
 
-        foreach ((DachoraProgram slow, DachoraProgram fast, DachoraProgram fastest) in new[]
+        foreach ((DachoraSegment slow, DachoraSegment fast, DachoraSegment fastest) in new[]
                  {
-                     new VerifyDachoraInstructionProgramDefinitionsCase(DachoraProgram.RunningLeft, DachoraProgram.RunningLeftFast, DachoraProgram.RunningLeftVeryFast),
-                     new VerifyDachoraInstructionProgramDefinitionsCase(DachoraProgram.RunningRight, DachoraProgram.RunningRightFast, DachoraProgram.RunningRightVeryFast),
+                     new VerifyDachoraInstructionProgramDefinitionsCase(DachoraSegment.RunningLeft, DachoraSegment.RunningLeftFast, DachoraSegment.RunningLeftVeryFast),
+                     new VerifyDachoraInstructionProgramDefinitionsCase(DachoraSegment.RunningRight, DachoraSegment.RunningRightFast, DachoraSegment.RunningRightVeryFast),
                  })
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot) = NewDachora(0);
@@ -77,15 +77,15 @@ internal static class DachoraInstructionProgramDefinitionsVerification
             state.Playback = new(DachoraAnimations.StartingWith(slow), new AnimationPlace(0, 3));
             state.Speed = SignedSixteenSixteen.FromParts(3, 0xf000);
             enemies.DachoraBehavior.AccelerateDachora(slot, state, empty);
-            AssertEqual(new AnimationPlayback<DachoraProgram>(DachoraAnimations.StartingWith(fast), new AnimationPlace(0, 3)), state.Playback, $"Dachora {slow} speeds up at the same pose");
+            AssertEqual(new AnimationPlayback<DachoraSegment>(DachoraAnimations.StartingWith(fast), new AnimationPlace(0, 3)), state.Playback, $"Dachora {slow} speeds up at the same pose");
             state.Speed = SignedSixteenSixteen.FromParts(7, 0xf000);
             enemies.DachoraBehavior.AccelerateDachora(slot, state, empty);
-            AssertEqual(new AnimationPlayback<DachoraProgram>(DachoraAnimations.StartingWith(fastest), new AnimationPlace(0, 3)), state.Playback, $"Dachora {fast} speeds up at the same pose");
+            AssertEqual(new AnimationPlayback<DachoraSegment>(DachoraAnimations.StartingWith(fastest), new AnimationPlace(0, 3)), state.Playback, $"Dachora {fast} speeds up at the same pose");
         }
 
-        AssertEqual(DachoraProgram.EchoRight, DachoraAnimations.AfterSleep(DachoraProgram.ChargeRight),
+        AssertEqual(DachoraSegment.EchoRight, DachoraAnimations.AfterSleep(DachoraSegment.ChargeRight),
             "the shinespark launch steps the charge into the right-facing echo");
-        AssertTrue(DachoraAnimationsTooling.Spritemaps(Enum.GetValues<DachoraProgram>()).Where(pointer => pointer != 0x804d).ToHashSet().SetEquals(
+        AssertTrue(DachoraAnimationsTooling.Spritemaps(Enum.GetValues<DachoraSegment>()).Where(pointer => pointer != 0x804d).ToHashSet().SetEquals(
                 EnemySpritemapDefinitions.Frames.Where(frame => frame.Name.StartsWith("dachora_", StringComparison.Ordinal)).Select(frame => frame.Pointer)),
             "the Dachora's programs show exactly its installed frames");
         Suite(nameof(DachoraAnimationsVerification.VerifyDachoraAnimations), () => DachoraAnimationsVerification.VerifyDachoraAnimations(rom));

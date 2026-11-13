@@ -31,13 +31,13 @@ internal static class DraygonAnimationsVerification
     internal static void VerifyDraygonAnimations(ISnesAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
-        AssertEqual(Enum.GetValues<DraygonProgram>().Length, Entries.Length, "every typed Draygon program has a native entry");
+        AssertEqual(Enum.GetValues<DraygonSegment>().Length, Entries.Length, "every typed Draygon program has a native entry");
         for (int index = 0; index < Entries.Length; index++)
-            AssertEqual((DraygonProgram)index, Entries[index].Program, "the Draygon programs are declared in authored order");
+            AssertEqual((DraygonSegment)index, Entries[index].Program, "the Draygon programs are declared in authored order");
         AssertTrue(EntriesAscend, "native Draygon entries ascend");
 
         var drawn = new HashSet<ushort>();
-        Dictionary<DraygonProgram, NativeEnemyList<DraygonProgram>> lists =
+        Dictionary<DraygonSegment, NativeEnemyList<DraygonSegment>> lists =
             Entries.ToDictionary(item => item.Program, item => ReadList(cartridge, item.Program, item.Entry, drawn));
         NativeEnemyAnimationOracle.CompareAnimations(lists, DraygonAnimations.StartingAt);
         int beatCount = lists.Values.Sum(list => list.BeatAddresses.Length);
@@ -55,11 +55,11 @@ internal static class DraygonAnimationsVerification
     /// address and the list's control instructions (sleeps, stops, gotos, counter loads, counted repeats and runs on into
     /// the next authored list), which <see cref="NativeEnemyAnimationOracle.CompareAnimations"/> matches with the animations.
     /// </summary>
-    private static NativeEnemyList<DraygonProgram> ReadList(IImportCartridgeSource cartridge, DraygonProgram segment, ushort entry, HashSet<ushort> drawn)
+    private static NativeEnemyList<DraygonSegment> ReadList(IImportCartridgeSource cartridge, DraygonSegment segment, ushort entry, HashSet<ushort> drawn)
     {
         IReadOnlyList<AnimationBeat<DraygonFrame, DraygonCue>> beats = DraygonAnimations.Segments.Beats(segment);
         var addresses = new List<ushort>();
-        var controls = new List<NativeEnemyControl<DraygonProgram>>();
+        var controls = new List<NativeEnemyControl<DraygonSegment>>();
         ushort cursor = entry;
         while (true)
         {
@@ -100,7 +100,7 @@ internal static class DraygonAnimationsVerification
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case NativeEnemyListDefinitions.WordKind.RepeatWhileCounting:
-                    AssertEqual<DraygonProgram?>(segment, ProgramAt(operand), $"{at}: a counted repeat replays its own list");
+                    AssertEqual<DraygonSegment?>(segment, ProgramAt(operand), $"{at}: a counted repeat replays its own list");
                     controls.Add(new(NativeEnemyControlKind.Repeat, beat, segment, null, cursor));
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
@@ -127,10 +127,10 @@ internal static class DraygonAnimationsVerification
             }
         }
 
-        NativeEnemyList<DraygonProgram> Finish()
+        NativeEnemyList<DraygonSegment> Finish()
         {
             AssertEqual(beats.Count, addresses.Count, $"Draygon {segment}: its native list holds each of its beats");
-            return new NativeEnemyList<DraygonProgram>([.. addresses], [.. controls]);
+            return new NativeEnemyList<DraygonSegment>([.. addresses], [.. controls]);
         }
 
         AnimationBeat<DraygonFrame, DraygonCue> Beat(int beat, string at) => beat < beats.Count
@@ -168,7 +168,7 @@ internal static class DraygonAnimationsVerification
         state.Tail.Bind(EnemyDefinitionId.DraygonTail, state.Tail.Definition);
         state.Arms.Bind(EnemyDefinitionId.DraygonArms, state.Arms.Definition);
         foreach (RoomEnemySlot part in new[] { body, state.Eye, state.Tail, state.Arms })
-            state.StartAnimation(part, DraygonProgram.Sleep);
+            state.StartAnimation(part, DraygonSegment.Sleep);
         enemies.DraygonBehavior.Parts.Draygon = state;
         enemies.VerificationServices().NextRandom = () => 4660;
         enemies.VerificationServices().ReadRandom = () => 4660;
@@ -176,12 +176,12 @@ internal static class DraygonAnimationsVerification
     }
 
     /// <summary>The animation starting at <paramref name="segment"/>, before its first play.</summary>
-    private static AnimationPlayback<DraygonProgram> Started(DraygonProgram segment) =>
+    private static AnimationPlayback<DraygonSegment> Started(DraygonSegment segment) =>
         new(DraygonAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
 
     /// <summary>Runs one update of <paramref name="part"/> through the production interpreter.</summary>
     private static void Pass(RoomEnemySlot part) =>
-        EnemyInstructionInterpreter.RunsAnimationScript(part, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
+        EnemyAnimationPlayer.AdvanceAnimation(part, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
 
     /// <summary>
     /// The body's reset starts all four parts in the same update, gives the eye its tracking function and the
@@ -190,15 +190,15 @@ internal static class DraygonAnimationsVerification
     private static void VerifyReset()
     {
         (_, DraygonEnemyState state) = NewDraygon();
-        state.StartAnimation(state.Body, DraygonProgram.BodyFacingRightReset);
-        state.Body.FrameHold = WrappingCountdown.Start(1);
+        state.StartAnimation(state.Body, DraygonSegment.BodyFacingRightReset);
+        state.Body.AnimationClock.StepOnNextUpdate();
         Pass(state.Body);
-        AssertEqual(Started(DraygonProgram.EyeFacingRightIdle), state.Playback(state.Eye), "the reset starts the eye");
-        AssertEqual(Started(DraygonProgram.TailFacingRightIdle), state.Playback(state.Tail), "the reset starts the tail");
-        AssertEqual(Started(DraygonProgram.ArmsFacingRightIdle), state.Playback(state.Arms), "the reset starts the arms");
+        AssertEqual(Started(DraygonSegment.EyeFacingRightIdle), state.Playback(state.Eye), "the reset starts the eye");
+        AssertEqual(Started(DraygonSegment.TailFacingRightIdle), state.Playback(state.Tail), "the reset starts the tail");
+        AssertEqual(Started(DraygonSegment.ArmsFacingRightIdle), state.Playback(state.Arms), "the reset starts the arms");
         foreach (RoomEnemySlot part in new[] { state.Eye, state.Tail, state.Arms })
-            AssertEqual((ushort)1, part.FrameHold.RawValue, "the reset's started parts run on their next update");
-        AssertEqual(new AnimationPlayback<DraygonProgram>(DraygonAnimations.StartingWith(DraygonProgram.BodyFacingRightReset), new AnimationPlace(0, 3)),
+            AssertEqual((ushort)1, part.AnimationClock.Hold.RawValue, "the reset's started parts run on their next update");
+        AssertEqual(new AnimationPlayback<DraygonSegment>(DraygonAnimations.StartingWith(DraygonSegment.BodyFacingRightReset), new AnimationPlace(0, 3)),
             state.Playback(state.Body), "the body's own frame keeps it in the reset, after its frame");
         AssertEqual(DraygonFrameToolingDefinitions.Spritemap(new DraygonFrame(63)), state.Body.SpritemapPointer, "the reset shows the right-facing body frame");
         AssertEqual<DraygonEyeFunction?>(DraygonEyeFunction.FacingRight, state.Eye.SpeciesState<DraygonEyeState>()?.Function, "the reset gives the eye its tracking function");
@@ -213,9 +213,9 @@ internal static class DraygonAnimationsVerification
     {
         (RoomEnemySystem enemies, DraygonEnemyState state) = NewDraygon();
         RoomEnemySlot arms = state.Arms;
-        state.StartAnimation(arms, DraygonProgram.ArmsFacingLeftDying);
-        arms.FrameHold = WrappingCountdown.Start(1);
-        var native = new NativeEnemyListReader(BodyBankNumber, Entry(DraygonProgram.ArmsFacingLeftDying), 1, OperandWords);
+        state.StartAnimation(arms, DraygonSegment.ArmsFacingLeftDying);
+        arms.AnimationClock.StepOnNextUpdate();
+        var native = new NativeEnemyListReader(BodyBankNumber, Entry(DraygonSegment.ArmsFacingLeftDying), 1, OperandWords);
         bool paralysed = false;
         for (int update = 0; update < 400; update++)
         {
@@ -223,19 +223,19 @@ internal static class DraygonAnimationsVerification
             Pass(arms);
             List<NativeEnemyListDefinitions.Callback> callbacks = native.Step(cartridge);
             string at = $"Draygon dying update {update}";
-            AssertEqual(native.Timer, arms.FrameHold.RawValue, $"{at}: timer");
+            AssertEqual(native.Timer, arms.AnimationClock.Hold.RawValue, $"{at}: timer");
             AssertEqual(native.Spritemap, arms.SpritemapPointer, $"{at}: frame");
-            AssertEqual(native.NewFrame, arms.NewInstructionFrame, $"{at}: new-frame flag");
-            AssertEqual(native.Counter, arms.Timer.RawValue, $"{at}: loop counter");
+            AssertEqual(native.NewFrame, arms.AnimationClock.ShowsNewFrame, $"{at}: new-frame flag");
+            AssertEqual(native.Counter, arms.AnimationClock.Repeats.RawValue, $"{at}: loop counter");
             DraygonCue[] cues = [.. callbacks.Where(callback => !SelectsHudSplit(callback.Word)).Select(callback => CueOf(callback.Word, callback.Operands))];
             AssertEqual(EnemyAudioQueueAccess.SoundList(cues.OfType<DraygonCue.QueueSound>().Select(sound => sound.Sound)),
                 enemies.Audio.QueuedSoundList, $"{at}: every sound the native list queues, in its order");
             if (cues.Any(cue => cue is DraygonCue.ParalyseTailAndArms))
             {
                 paralysed = true;
-                AssertEqual(Started(DraygonProgram.Sleep), state.Playback(state.Tail), $"{at}: the tail sleeps");
-                AnimationPlayback<DraygonProgram> armsPlayback = state.Playback(arms);
-                AssertEqual(DraygonProgram.BodyDyingExplosionsLoop, armsPlayback.Animation.Phases[armsPlayback.Place.Phase].Segment,
+                AssertEqual(Started(DraygonSegment.Sleep), state.Playback(state.Tail), $"{at}: the tail sleeps");
+                AnimationPlayback<DraygonSegment> armsPlayback = state.Playback(arms);
+                AssertEqual(DraygonSegment.BodyDyingExplosionsLoop, armsPlayback.Animation.Phases[armsPlayback.Place.Phase].Segment,
                     $"{at}: the running arms keep their own program, as the native final store replaces the paralysis");
             }
         }
@@ -250,8 +250,8 @@ internal static class DraygonAnimationsVerification
     internal static void VerifyDraygonProjectileAnimations(ISnesAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
-        AssertEqual(Enum.GetValues<DraygonProjectileProgram>().Length, ProjectileEntries.Length, "every projectile segment has a native entry");
-        Dictionary<DraygonProjectileProgram, NativeEnemyList<DraygonProjectileProgram>> projectileLists =
+        AssertEqual(Enum.GetValues<DraygonProjectileSegment>().Length, ProjectileEntries.Length, "every projectile segment has a native entry");
+        Dictionary<DraygonProjectileSegment, NativeEnemyList<DraygonProjectileSegment>> projectileLists =
             ProjectileEntries.ToDictionary(item => item.Program, item => ReadProjectileList(cartridge, item.Program, item.Entry));
         NativeEnemyAnimationOracle.CompareAnimations(projectileLists, DraygonProjectileAnimations.StartingAt);
         AssertEqual(DraygonProjectileVisualDefinitions.ProjectileFrameCount, DraygonProjectileVisualDefinitions.ProjectileFrames.Count,
@@ -260,11 +260,11 @@ internal static class DraygonAnimationsVerification
         (RoomEnemySystem enemies, DraygonEnemyState state) = NewDraygon();
         enemies.DraygonBehavior.Parts.SpawnDraygonGoop(state, movingRight: true);
         EnemyProjectile goop = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == RoomEnemyProjectileKind.DraygonGoop);
-        AssertTrue(goop.Animation is DraygonProjectileAnimation { PlayingSegment: DraygonProjectileProgram.Goop },
+        AssertTrue(goop.Animation is DraygonProjectileAnimation { PlayingSegment: DraygonProjectileSegment.Goop },
             "the real goop producer starts the typed goop loop");
-        goop.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileProgram.GoopTouch));
+        goop.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileSegment.GoopTouch));
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
-        enemies.Projectiles.ProcessEnemyProjectileInstructions(goop, samus, Position16<RoomPixels>.Zero);
+        enemies.Projectiles.AdvanceEnemyProjectileAnimations(goop, samus, Position16<RoomPixels>.Zero);
         AssertEqual(EnemyProjectileFrameBehavior.DraygonGoopStuckToSamus, goop.FrameBehavior, "the goop touch sticks the goop to Samus");
         AssertEqual(EnemyProjectileProgramFrameSources.Operand(DraygonProjectileVisualDefinitions.ShownProjectileFrames[new(DraygonProjectileFrameKind.Goop, 0)]), goop.PresentationOperandAddress,
             "the goop touch shows the goop's first frame in the same update");
@@ -277,11 +277,11 @@ internal static class DraygonAnimationsVerification
     /// its beats' addresses and control instructions; a goto into the shared deletion list continues with its deletion,
     /// after which the animation holds.
     /// </summary>
-    private static NativeEnemyList<DraygonProjectileProgram> ReadProjectileList(IImportCartridgeSource cartridge, DraygonProjectileProgram segment, ushort entry)
+    private static NativeEnemyList<DraygonProjectileSegment> ReadProjectileList(IImportCartridgeSource cartridge, DraygonProjectileSegment segment, ushort entry)
     {
         IReadOnlyList<AnimationBeat<DraygonProjectileFrame, DraygonProjectileCue>> beats = DraygonProjectileAnimations.Segments.Beats(segment);
         var addresses = new List<ushort>();
-        var controls = new List<NativeEnemyControl<DraygonProjectileProgram>>();
+        var controls = new List<NativeEnemyControl<DraygonProjectileSegment>>();
         ushort cursor = entry;
         while (true)
         {
@@ -327,10 +327,10 @@ internal static class DraygonAnimationsVerification
             }
         }
 
-        NativeEnemyList<DraygonProjectileProgram> Finish()
+        NativeEnemyList<DraygonProjectileSegment> Finish()
         {
             AssertEqual(beats.Count, addresses.Count, $"Draygon projectile {segment}: its native list holds each of its beats");
-            return new NativeEnemyList<DraygonProjectileProgram>([.. addresses], [.. controls]);
+            return new NativeEnemyList<DraygonProjectileSegment>([.. addresses], [.. controls]);
         }
 
         AnimationBeat<DraygonProjectileFrame, DraygonProjectileCue> Beat(int beat, string at) => beat < beats.Count

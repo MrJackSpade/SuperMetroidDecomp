@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Hibashi;
 public sealed class HibashiEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<HibashiProgram> Playback { get; set; }
+    internal AnimationPlayback<HibashiSegment> Playback { get; set; }
 
     /// <summary>The graphics part's behaviour, initialized to inactive; collision parts do not dispatch it.</summary>
     public HibashiEnemyFunction? Function { get; internal set; }

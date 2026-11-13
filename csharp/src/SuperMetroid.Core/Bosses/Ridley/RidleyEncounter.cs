@@ -95,7 +95,7 @@ internal sealed class RidleyEncounter : ICeresEscapeStatus
             Ridley is null)
         {
             throw new InvalidOperationException(
-                $"Enemy slot {slot.SlotIndex} executed a Ceres Ridley routine without being " +
+                $"Enemy slot {slot.SlotIndex} ran Ceres Ridley's behaviour without being " +
                 "Ceres Ridley's body with the extended Ceres Ridley state.");
         }
 

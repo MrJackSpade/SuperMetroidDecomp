@@ -40,7 +40,7 @@ internal sealed record AttractDemoDriverDependencies
     public required SharedGameState System { get; init; }
 
     /// <summary>What a demo Samus's animation frame past her pose's program reads.</summary>
-    public required LaidOutProgramContinuation<SuperMetroid.Core.Samus.Poses.SamusPoseId, SuperMetroid.Core.Samus.Poses.SamusAnimationProgramStep> AnimationContinuation { get; init; }
+    public required LaidOutAnimationContinuation<SuperMetroid.Core.Samus.Poses.SamusPoseId, SuperMetroid.Core.Samus.Poses.SamusPoseAnimationStep> AnimationContinuation { get; init; }
 
     /// <summary>The session's beam charge, which a demo Samus reads and clears (#1577).</summary>
     public required SuperMetroid.Core.Samus.Projectiles.BeamChargeState BeamCharge { get; init; }

@@ -17,7 +17,7 @@ public sealed class KiHunterEnemyState
     }
 
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<KiHunterProgram> Playback { get; set; }
+    internal AnimationPlayback<KiHunterSegment> Playback { get; set; }
 
     /// <summary>Role fixed by the initializer, retained even if deletion clears the slot's definition; body and wing callbacks still use adjacent physical slots.</summary>
     public bool IsWing { get; }

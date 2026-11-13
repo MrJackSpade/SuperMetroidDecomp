@@ -80,10 +80,10 @@ internal sealed class EnemyCollision
         {
             if (onlyEnemy is not null && slot != onlyEnemy)
                 continue;
-            // Collision entry rejects a zero sprite map before resetting Samus's
+            // Collision entry rejects an enemy showing no frame before resetting Samus's
             // invulnerability. Keep this per enemy: an empty interactive list or an actor
-            // not yet publishing its map must not erase the timer. The reset still precedes
-            // overlap testing, so a distant actor with a map can legitimately clear it.
+            // not yet showing a frame must not erase the timer. The reset still precedes
+            // overlap testing, so a distant actor with a frame can legitimately clear it.
             if (slot.Frame is null)
                 continue;
             bool usesFrameHitboxes = UsesFrameHitboxesForSamus(slot);
@@ -377,7 +377,7 @@ internal sealed class EnemyCollision
                     {
                         // A lethal Ice-bearing beam leaves health unchanged and freezes the
                         // actor. This is not the same path as an authored freezing entry above:
-                        // hurt flash/bit two were already installed before the lethal test.
+                        // hurt flash and hurt state were already set before the lethal test.
                         FreezeEnemyFromNormalShot(enemy, samus);
                     }
                     else

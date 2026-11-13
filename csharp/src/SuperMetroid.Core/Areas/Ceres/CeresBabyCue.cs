@@ -12,7 +12,7 @@ internal abstract record CeresBabyCue
     /// Continues at the target while the baby's vertical velocity is nonzero.
     /// </summary>
     /// <param name="Target">The program a branch continues at.</param>
-    internal sealed record GoToIfMoving(CeresBabyProgram Target) : CeresBabyCue;
+    internal sealed record GoToIfMoving(CeresBabySegment Target) : CeresBabyCue;
 
     /// <summary>Shows one of the Baby's shades.</summary>
     /// <param name="Shade">The shade an <see cref="UpdateColors"/> cue shows.</param>
@@ -22,5 +22,5 @@ internal abstract record CeresBabyCue
     /// Cries, or, while the baby is still and the game's current random number is odd, continues silently at the target.
     /// </summary>
     /// <param name="Target">The program a branch continues at.</param>
-    internal sealed record CryOrGoTo(CeresBabyProgram Target) : CeresBabyCue;
+    internal sealed record CryOrGoTo(CeresBabySegment Target) : CeresBabyCue;
 }

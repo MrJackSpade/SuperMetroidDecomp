@@ -1,4 +1,4 @@
-using P = SuperMetroid.Core.Enemies.Kzan.KzanProgram;
+using P = SuperMetroid.Core.Enemies.Kzan.KzanSegment;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Artwork;
 
@@ -11,8 +11,8 @@ namespace SuperMetroid.Core.Enemies.Kzan;
 internal static class KzanAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<KzanProgram, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
-        new Dictionary<KzanProgram, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
+    internal static AnimationSegments<KzanSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<KzanSegment, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
     {
         [P.Idle] =
         [
@@ -21,13 +21,13 @@ internal static class KzanAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<KzanProgram, Animation<KzanProgram>> StartingAt { get; } = new Dictionary<KzanProgram, Animation<KzanProgram>>
+    internal static IReadOnlyDictionary<KzanSegment, Animation<KzanSegment>> StartingAt { get; } = new Dictionary<KzanSegment, Animation<KzanSegment>>
     {
         [P.Idle] = new([new(P.Idle, 0, 1, 1)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<KzanProgram> StartingWith(KzanProgram segment) => StartingAt[segment];
+    internal static Animation<KzanSegment> StartingWith(KzanSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);

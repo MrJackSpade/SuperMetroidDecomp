@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies;
 internal static class EnemyDeathExplosionDefinitions
 {
     /// <summary>The blank-frame wait a drop runs after it is collected or expires.</summary>
-    internal const EnemyDeathProjectileProgram NoDropTail = EnemyDeathProjectileProgram.RespawnTail;
+    internal const EnemyDeathProjectileSegment NoDropTail = EnemyDeathProjectileSegment.RespawnTail;
 
     /// <summary>
     /// The random field that places a death explosion's sprite 0-63 pixels right of the 32 it is centred back by: the
@@ -15,8 +15,8 @@ internal static class EnemyDeathExplosionDefinitions
     internal static readonly RandomSampleField WideSpriteHorizontalScatter = new(0, 6);
 
     /// <summary>
-    /// The random field that places a death explosion's sprite 0-63 pixels below the 32 it is centred back by: bits eight
-    /// to thirteen of the random sample.
+    /// The random field that places a death explosion's sprite 0-63 pixels below the 32 it is centred back by: the random
+    /// sample divided by 256, modulo 64.
     /// </summary>
     internal static readonly RandomSampleField WideSpriteVerticalScatter = new(8, 6);
 
@@ -27,8 +27,8 @@ internal static class EnemyDeathExplosionDefinitions
     internal static readonly RandomSampleField NarrowSpriteHorizontalScatter = new(0, 5);
 
     /// <summary>
-    /// The random field that places a death explosion's sprite 0-31 pixels below the 16 it is centred back by: bits eight
-    /// to twelve of the random sample.
+    /// The random field that places a death explosion's sprite 0-31 pixels below the 16 it is centred back by: the random
+    /// sample divided by 256, modulo 32.
     /// </summary>
     internal static readonly RandomSampleField NarrowSpriteVerticalScatter = new(8, 5);
 

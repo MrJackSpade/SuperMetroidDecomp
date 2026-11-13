@@ -26,7 +26,7 @@ internal static class YardAnimationsVerification
                         'D' => checked((ushort)SuperMetroid.AssetExtraction.Enemies.YardDirectionCodec.NumberOf(AssertIs<YardCue.SetDirection>(cue, $"{at}: cue").Direction)),
                         'S' => unchecked((ushort)AssertIs<YardCue.MoveBy>(cue, $"{at}: cue").Offset.X),
                         'Y' => unchecked((ushort)AssertIs<YardCue.MoveBy>(cue, $"{at}: cue").Offset.Y),
-                        'N' => AssertIs<YardCue.SetHidingProgram>(cue, $"{at}: cue").OptionalTarget is { } optional ? NativeEnemyAnimationOracle.EntryOf(Entries, optional) : NullTarget,
+                        'N' => AssertIs<YardCue.SetHidingAnimation>(cue, $"{at}: cue").OptionalTarget is { } optional ? NativeEnemyAnimationOracle.EntryOf(Entries, optional) : NullTarget,
                         'E' => YardNativeWords.YardMovementFunctions.Word(AssertIs<YardCue.SetMovementFunction>(cue, $"{at}: cue").MovementFunction),
                         _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
                     }, $"{at}: operand {index}");

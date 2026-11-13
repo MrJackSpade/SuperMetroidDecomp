@@ -210,7 +210,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.DeathPhase = state.DeathPhase.Next();
                 return;
             case CrocomireDeathPhase.SixthHopRise:
-                CrocomireBridgeCollapse.SelectCrocomireRisingInstruction(state);
+                CrocomireBridgeCollapse.SelectCrocomireRisingAnimation(state);
                 BodyLayer.SpawnCrocomireAcidSmoke(state, samus);
                 BridgeCollapse.RunCrocomireRise(state);
                 return;
@@ -249,7 +249,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                 Skeleton.FinishCrocomireArenaScrolls(state);
                 return;
             case CrocomireDeathPhase.WaitForStableSkeleton:
-                if (CrocomireBodyProgramGroups.SkeletonAtRest.Contains(state.BodyResidentProgram))
+                if (CrocomireBodyAnimationGroups.SkeletonAtRest.Contains(state.BodyResidentAnimation))
                     state.DeathPhase = state.DeathPhase.Next();
                 return;
             case CrocomireDeathPhase.WaitOneUpdate:
@@ -277,7 +277,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Crocomire's typed animation.</summary>
-    internal void AdvanceCrocomireTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context)
+    internal void AdvanceCrocomireTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext context)
     {
         Fight.AdvanceCrocomireBodyAnimation(slot, context.Samus, context.Level, context.Camera.X);
     }

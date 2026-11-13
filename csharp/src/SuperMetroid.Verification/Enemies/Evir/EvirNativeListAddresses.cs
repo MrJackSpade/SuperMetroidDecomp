@@ -14,15 +14,15 @@ internal static class EvirNativeListAddresses
     internal const byte Bank = 0xa8;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<EvirProgram>[] Entries =
+    internal static readonly NativeProgramEntry<EvirSegment>[] Entries =
     [
-        new NativeProgramEntry<EvirProgram>(EvirProgram.BodyFacingLeft, 0x86a7),
-        new NativeProgramEntry<EvirProgram>(EvirProgram.ArmsFacingLeft, 0x86c3),
-        new NativeProgramEntry<EvirProgram>(EvirProgram.BodyFacingRight, 0x870b),
-        new NativeProgramEntry<EvirProgram>(EvirProgram.ArmsFacingRight, 0x8727),
-        new NativeProgramEntry<EvirProgram>(EvirProgram.ProjectileNormal, 0x876f),
-        new NativeProgramEntry<EvirProgram>(EvirProgram.ProjectileRegenerating, 0x8775),
-        new NativeProgramEntry<EvirProgram>(EvirProgram.ProjectileRegenerationLoop, 0x877d),
+        new NativeProgramEntry<EvirSegment>(EvirSegment.BodyFacingLeft, 0x86a7),
+        new NativeProgramEntry<EvirSegment>(EvirSegment.ArmsFacingLeft, 0x86c3),
+        new NativeProgramEntry<EvirSegment>(EvirSegment.BodyFacingRight, 0x870b),
+        new NativeProgramEntry<EvirSegment>(EvirSegment.ArmsFacingRight, 0x8727),
+        new NativeProgramEntry<EvirSegment>(EvirSegment.ProjectileNormal, 0x876f),
+        new NativeProgramEntry<EvirSegment>(EvirSegment.ProjectileRegenerating, 0x8775),
+        new NativeProgramEntry<EvirSegment>(EvirSegment.ProjectileRegenerationLoop, 0x877d),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>

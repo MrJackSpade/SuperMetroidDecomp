@@ -12,10 +12,10 @@ internal static class MotherBrainGlassShardDefinitions
     /// <summary>A launched shard's jitter on each axis, 0 through 15 pixels less eight: the sample modulo 16.</summary>
     internal static readonly RandomSampleField ShardJitter = new(0, 4);
 
-    /// <summary>One of the two bits a falling shard's sparkle check reads, bit five; the shard sparkles when both are clear.</summary>
+    /// <summary>One of the two parts of the sample a falling shard's sparkle check reads, the sample divided by 32; the shard sparkles when both are even.</summary>
     internal static readonly RandomSampleField SparkleCheckLowBit = new(5, 1);
 
-    /// <summary>The other bit a falling shard's sparkle check reads, bit ten; the shard sparkles when both are clear.</summary>
+    /// <summary>The other part of the sample a falling shard's sparkle check reads, the sample divided by 1024; the shard sparkles when both are even.</summary>
     internal static readonly RandomSampleField SparkleCheckHighBit = new(10, 1);
 
     /// <summary>A sparkle's offset from its shard on each axis, 0 through 31 pixels less sixteen: the sample modulo 32.</summary>

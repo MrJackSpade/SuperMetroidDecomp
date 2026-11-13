@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Programs;
-using P = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainTopTubeProgram;
+using P = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainTopTubeSegment;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -7,13 +7,13 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal static class MotherBrainTopTubeAnimations
 {
     /// <summary>Every segment; each shows its own tube.</summary>
-    internal static AnimationSegments<MotherBrainTopTubeProgram, MotherBrainTopTubeProgram, NoAnimationCue> Segments { get; } = new(
+    internal static AnimationSegments<MotherBrainTopTubeSegment, MotherBrainTopTubeSegment, NoAnimationCue> Segments { get; } = new(
         Enum.GetValues<P>().ToDictionary(tube => tube, tube => new AnimationBeat<P, NoAnimationCue>[]
         {
             new AnimationBeat<P, NoAnimationCue>.Frame(tube, 1),
         }));
 
     /// <summary>Each tube's animation: its pose, held.</summary>
-    internal static IReadOnlyDictionary<MotherBrainTopTubeProgram, Animation<MotherBrainTopTubeProgram>> StartingAt { get; } =
+    internal static IReadOnlyDictionary<MotherBrainTopTubeSegment, Animation<MotherBrainTopTubeSegment>> StartingAt { get; } =
         Enum.GetValues<P>().ToDictionary(tube => tube, tube => new Animation<P>([new(tube, 0, 1, 1)], AnimationEnd.Holds));
 }

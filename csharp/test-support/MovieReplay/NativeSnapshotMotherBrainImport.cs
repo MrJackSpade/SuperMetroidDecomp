@@ -62,11 +62,11 @@ internal static class NativeSnapshotMotherBrainImport
         // Bit 15 clear means the brain list is not live.
         state.BrainPlayback = unchecked((short)brain) >= 0 ? null : BrainPlaybackAt(cartridge, brain);
         state.BrainFrameTimer = W(MotherBrainMemory.BrainFrameHold);
-        Dictionary<MotherBrainBodyProgram, NativeEnemyList<MotherBrainBodyProgram>> body = MotherBrainNativeListAddresses.CompareBody(cartridge);
+        Dictionary<MotherBrainBodySegment, NativeEnemyList<MotherBrainBodySegment>> body = MotherBrainNativeListAddresses.CompareBody(cartridge);
         // Each record's instruction-list word is read from the snapshot; the port keeps the typed playback it stands for.
         ushort AnimationScript(RoomEnemySlot slot) => W(NativeSnapshotMemory.EnemyBase +
             SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.OffsetOf(slot.SlotIndex) + MovieDesyncMemory.EnemyAnimationScriptOffset);
-        AnimationPlayback<MotherBrainBodyProgram> BodyPlaybackAt(RoomEnemySlot slot) => NativeEnemyAnimationOracle.PlaybackAt(
+        AnimationPlayback<MotherBrainBodySegment> BodyPlaybackAt(RoomEnemySlot slot) => NativeEnemyAnimationOracle.PlaybackAt(
             body, MotherBrainNativeListAddresses.BodyEntries, MotherBrainAnimations.BodyStartingAt, AnimationScript(slot));
         state.BodyPlayback = BodyPlaybackAt(state.Body);
         state.HeadSlotPlayback = BodyPlaybackAt(state.Head);
@@ -124,9 +124,9 @@ internal static class NativeSnapshotMotherBrainImport
     /// The brain playback the recorded brain list pointer <paramref name="pointer"/> stands for. The native pointer rests
     /// on the beat it plays next, so a pointer at a list's entry rests on that list's first beat, entered.
     /// </summary>
-    private static AnimationPlayback<MotherBrainHeadProgram> BrainPlaybackAt(IImportCartridgeSource cartridge, ushort pointer)
+    private static AnimationPlayback<MotherBrainHeadSegment> BrainPlaybackAt(IImportCartridgeSource cartridge, ushort pointer)
     {
-        AnimationPlayback<MotherBrainHeadProgram> playback = NativeEnemyAnimationOracle.PlaybackAt(MotherBrainNativeListAddresses.CompareHead(cartridge),
+        AnimationPlayback<MotherBrainHeadSegment> playback = NativeEnemyAnimationOracle.PlaybackAt(MotherBrainNativeListAddresses.CompareHead(cartridge),
             MotherBrainNativeListAddresses.HeadEntries, MotherBrainAnimations.HeadStartingAt, pointer);
         return playback.Place.Beat == AnimationPlace.NotEntered ? playback with { Place = AnimationPlace.StartOf(playback.Place.Phase) } : playback;
     }

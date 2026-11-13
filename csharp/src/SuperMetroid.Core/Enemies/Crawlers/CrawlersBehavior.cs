@@ -32,7 +32,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Carries out a crawler animation's cue: each surface's first step installs the movement function main AI runs.</summary>
-    private static CrawlerProgram? ApplyCrawlerCue(CrawlerEnemyState state, CrawlerCue cue)
+    private static CrawlerSegment? ApplyCrawlerCue(CrawlerEnemyState state, CrawlerCue cue)
     {
         switch (cue.Kind)
         {
@@ -84,11 +84,11 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         Bind(slot, state);
 
-        state.Playback = new(CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.ProgramFor(
+        state.Playback = new(CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.AnimationFor(
             animationFamily, orientation)), AnimationPlace.StartOfAnimation);
         slot.Frame = EnemyFrameId.Empty;
-        slot.FrameHold = WrappingCountdown.Start(1);
-        state.Function = CrawlerEnemyFunction.InstructionPending;
+        slot.AnimationClock.StepOnNextUpdate();
+        state.Function = CrawlerEnemyFunction.AwaitingAnimationCue;
 
         state.Velocity = ResetCrawlerVelocities(blockSide, crawlSpeed, state.Velocity);
     }
@@ -126,15 +126,15 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
 
         var state = new CrawlerEnemyState
         {
-            Function = CrawlerEnemyFunction.HZoomerInstructionPending,
+            Function = CrawlerEnemyFunction.HZoomerAwaitingAnimationCue,
             SurfaceFamily = settings.SurfaceFamily,
         };
         Bind(slot, state);
         CrawlerSurfaceOrientation orientation = settings.Orientation;
-        state.Playback = new(CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.ProgramFor(
+        state.Playback = new(CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.AnimationFor(
             CrawlerAnimationFamily.HZoomer, orientation)), AnimationPlace.StartOfAnimation);
         slot.Frame = EnemyFrameId.Empty;
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.AnimationClock.StepOnNextUpdate();
         state.Velocity = SignedForBlockSide(settings.BlockSide, new EightEightVector<RoomPixels>(crawlSpeed, crawlSpeed));
     }
 
@@ -154,7 +154,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         CrawlerEnemyState state = slot.RequireSpeciesState<CrawlerEnemyState>();
         switch (state.Function)
         {
-            case CrawlerEnemyFunction.HZoomerInstructionPending:
+            case CrawlerEnemyFunction.HZoomerAwaitingAnimationCue:
                 return;
             case CrawlerEnemyFunction.HZoomerCrawlingVertically:
                 RunHZoomerVertical(slot, state, samus, level);
@@ -165,7 +165,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             case CrawlerEnemyFunction.Falling:
                 RunCrawlerFalling(slot, state, level);
                 return;
-            case CrawlerEnemyFunction.InstructionPending:
+            case CrawlerEnemyFunction.AwaitingAnimationCue:
             case CrawlerEnemyFunction.CrawlingVertically:
             case CrawlerEnemyFunction.CrawlingHorizontally:
             default:
@@ -191,7 +191,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             if (_terrain.MoveEnemyVertically(level, slot, tangent))
             {
                 state.Velocity = state.Velocity.ReversedX();
-                SetHZoomerVerticalInstruction(slot, state);
+                SetHZoomerVerticalAnimation(slot, state);
                 return;
             }
 
@@ -209,7 +209,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
         state.Velocity = state.Velocity.ReversedY();
-        SetHZoomerVerticalInstruction(slot, state);
+        SetHZoomerVerticalAnimation(slot, state);
     }
 
     /// <summary>Tracks Samus along a floor or ceiling, accounting for slopes and repeated loss of surface contact.</summary>
@@ -228,7 +228,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, tangent))
             {
                 state.Velocity = state.Velocity.ReversedY();
-                SetHZoomerHorizontalInstruction(slot, state);
+                SetHZoomerHorizontalAnimation(slot, state);
                 return;
             }
 
@@ -247,7 +247,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
         state.Velocity = state.Velocity.ReversedX();
-        SetHZoomerHorizontalInstruction(slot, state);
+        SetHZoomerHorizontalAnimation(slot, state);
     }
 
     /// <summary>Changes an attached orange Zoomer to falling during the Super Missile earthquake.</summary>
@@ -258,40 +258,38 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Selects orange Zoomer's wall-climbing animation from its vertical velocity sign.</summary>
-    private static void SetHZoomerVerticalInstruction(
+    private static void SetHZoomerVerticalAnimation(
         RoomEnemySlot slot,
         CrawlerEnemyState state) =>
-        SetHZoomerProgram(
+        SetHZoomerAnimation(
             slot,
             state,
             state.Velocity.Y.IsNegative
-                ? CrawlerSurfaceAnimations.ProgramFor(
+                ? CrawlerSurfaceAnimations.AnimationFor(
                     CrawlerAnimationFamily.HZoomer, CrawlerSurfaceOrientation.UpsideDown)
-                : CrawlerSurfaceAnimations.ProgramFor(
+                : CrawlerSurfaceAnimations.AnimationFor(
                     CrawlerAnimationFamily.HZoomer, CrawlerSurfaceOrientation.UpsideUp));
 
     /// <summary>Selects orange Zoomer's floor or ceiling animation from its horizontal velocity sign.</summary>
-    private static void SetHZoomerHorizontalInstruction(
+    private static void SetHZoomerHorizontalAnimation(
         RoomEnemySlot slot,
         CrawlerEnemyState state) =>
-        SetHZoomerProgram(
+        SetHZoomerAnimation(
             slot,
             state,
             state.Velocity.X.IsNegative
-                ? CrawlerSurfaceAnimations.ProgramFor(
+                ? CrawlerSurfaceAnimations.AnimationFor(
                     CrawlerAnimationFamily.HZoomer, CrawlerSurfaceOrientation.UpsideRight)
-                : CrawlerSurfaceAnimations.ProgramFor(
+                : CrawlerSurfaceAnimations.AnimationFor(
                     CrawlerAnimationFamily.HZoomer, CrawlerSurfaceOrientation.UpsideLeft));
 
     /// <summary>Starts the chosen orange-Zoomer animation with fresh frame and loop timers.</summary>
-    private static void SetHZoomerProgram(
+    private static void SetHZoomerAnimation(
         RoomEnemySlot slot,
         CrawlerEnemyState state,
-        CrawlerProgram program)
+        CrawlerSegment segment)
     {
-        state.Playback = new(CrawlerAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        state.Playback = EnemyAnimationPlayback.Start(slot, CrawlerAnimations.StartingWith(segment));
     }
 
     /// <summary>Runs shared crawler main AI.</summary>
@@ -302,7 +300,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         CrawlerEnemyState state = slot.RequireSpeciesState<CrawlerEnemyState>();
         switch (state.Function)
         {
-            case CrawlerEnemyFunction.InstructionPending:
+            case CrawlerEnemyFunction.AwaitingAnimationCue:
                 return;
             case CrawlerEnemyFunction.CrawlingVertically:
                 RunCrawlerVertical(slot, state, level);
@@ -313,7 +311,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             case CrawlerEnemyFunction.CrawlingHorizontally:
                 RunCrawlerHorizontal(slot, state, level);
                 return;
-            case CrawlerEnemyFunction.HZoomerInstructionPending:
+            case CrawlerEnemyFunction.HZoomerAwaitingAnimationCue:
             case CrawlerEnemyFunction.HZoomerCrawlingVertically:
             case CrawlerEnemyFunction.HZoomerCrawlingHorizontally:
             default:
@@ -342,7 +340,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
 
             // Inside corner: the wall normal changes from X to Y.
             state.Velocity = state.Velocity.ReversedX();
-            SetCrawlerVerticalSurfaceInstruction(slot, state);
+            SetCrawlerVerticalSurfaceAnimation(slot, state);
             return;
         }
 
@@ -356,7 +354,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         // Outside corner: reverse the tangent for up to three frames while the
         // list rotates the actor around the exposed block edge.
         state.Velocity = state.Velocity.ReversedY();
-        SetCrawlerVerticalSurfaceInstruction(slot, state);
+        SetCrawlerVerticalSurfaceAnimation(slot, state);
     }
 
     /// <summary>Moves while attached to a floor or ceiling.</summary>
@@ -375,7 +373,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 // Inside corner: the surface normal changes from Y to X.
                 state.Velocity = state.Velocity.ReversedY();
-                SetCrawlerHorizontalSurfaceInstruction(slot, state);
+                SetCrawlerHorizontalSurfaceAnimation(slot, state);
             }
             else
             {
@@ -392,7 +390,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         state.Velocity = state.Velocity.ReversedX();
-        SetCrawlerHorizontalSurfaceInstruction(slot, state);
+        SetCrawlerHorizontalSurfaceAnimation(slot, state);
     }
 
     /// <summary>Runs the earthquake/outside-corner falling owner.</summary>
@@ -431,29 +429,29 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Chooses a shared crawler's wall animation from its vertical tangent direction.</summary>
-    internal static void SetCrawlerVerticalSurfaceInstruction(
+    internal static void SetCrawlerVerticalSurfaceAnimation(
         RoomEnemySlot slot,
         CrawlerEnemyState state)
     {
         CrawlerSurfaceOrientation orientation = state.Velocity.Y.IsNegative
             ? CrawlerSurfaceOrientation.UpsideDown
             : CrawlerSurfaceOrientation.UpsideUp;
-        SetCrawlerProgramFromTable(slot, state, orientation);
+        SetCrawlerAnimationFromTable(slot, state, orientation);
     }
 
     /// <summary>Chooses a shared crawler's floor or ceiling animation from its horizontal tangent direction.</summary>
-    internal static void SetCrawlerHorizontalSurfaceInstruction(
+    internal static void SetCrawlerHorizontalSurfaceAnimation(
         RoomEnemySlot slot,
         CrawlerEnemyState state)
     {
         CrawlerSurfaceOrientation orientation = state.Velocity.X.IsNegative
             ? CrawlerSurfaceOrientation.UpsideRight
             : CrawlerSurfaceOrientation.UpsideLeft;
-        SetCrawlerProgramFromTable(slot, state, orientation);
+        SetCrawlerAnimationFromTable(slot, state, orientation);
     }
 
     /// <summary>Starts the crawler's surface family's animation for <paramref name="orientation"/> and resets animation timers.</summary>
-    private static void SetCrawlerProgramFromTable(
+    private static void SetCrawlerAnimationFromTable(
         RoomEnemySlot slot,
         CrawlerEnemyState state,
         CrawlerSurfaceOrientation orientation)
@@ -461,10 +459,8 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         // The orange Zoomer turns corners with its own selection; only the shared crawlers come here.
         if (state.SurfaceFamily is CrawlerAnimationFamily.HZoomer)
             throw new InvalidDataException("The orange Zoomer's animations are not a shared crawler surface family.");
-        state.Playback = new(CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.ProgramFor(
-            state.SurfaceFamily, orientation)), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        state.Playback = EnemyAnimationPlayback.Start(slot, CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.AnimationFor(
+            state.SurfaceFamily, orientation)));
     }
 
     /// <summary>Converts the current crawler velocity to a horizontal move adjusted for the supporting slope.</summary>
@@ -537,10 +533,10 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         RunHZoomerMain(slot, frame.Samus, frame.Level);
 
     /// <summary>Runs the crawlers' surface animations as typed programs (#641).</summary>
-    internal static void AdvanceCrawlerTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, CrawlerAnimations.Segments,
+    internal static void AdvanceCrawlerTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(slot, CrawlerAnimations.Segments,
             static (CrawlerEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyCrawlerCue(state, cue) is { } target
-                ? new AnimationContinuation<CrawlerProgram>(CrawlerAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
+                ? new AnimationContinuation<CrawlerSegment>(CrawlerAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
 }

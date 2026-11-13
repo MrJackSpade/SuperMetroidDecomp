@@ -4,20 +4,20 @@ namespace SuperMetroid.Core.Enemies.Skree;
 internal static class SkreeMetareeAnimationDefinitions
 {
     /// <summary>The Metaree program for each named animation phase.</summary>
-    internal static readonly Dictionary<SkreeMetareeAnimationPhase, SkreeMetareeProgram> MetareePrograms = new()
+    internal static readonly Dictionary<SkreeMetareeAnimationPhase, SkreeMetareeSegment> MetareeAnimations = new()
     {
-        [SkreeMetareeAnimationPhase.Idling] = SkreeMetareeProgram.MetareeIdling,
-        [SkreeMetareeAnimationPhase.PreparingAttack] = SkreeMetareeProgram.MetareePreparingAttack,
-        [SkreeMetareeAnimationPhase.Diving] = SkreeMetareeProgram.MetareeDiving,
-        [SkreeMetareeAnimationPhase.StopAnimating] = SkreeMetareeProgram.MetareeStopAnimating,
+        [SkreeMetareeAnimationPhase.Idling] = SkreeMetareeSegment.MetareeIdling,
+        [SkreeMetareeAnimationPhase.PreparingAttack] = SkreeMetareeSegment.MetareePreparingAttack,
+        [SkreeMetareeAnimationPhase.Diving] = SkreeMetareeSegment.MetareeDiving,
+        [SkreeMetareeAnimationPhase.StopAnimating] = SkreeMetareeSegment.MetareeStopAnimating,
     };
 
     /// <summary>The Skree program for each named animation phase.</summary>
-    internal static readonly Dictionary<SkreeMetareeAnimationPhase, SkreeMetareeProgram> SkreePrograms = new()
+    internal static readonly Dictionary<SkreeMetareeAnimationPhase, SkreeMetareeSegment> SkreeAnimations = new()
     {
-        [SkreeMetareeAnimationPhase.Idling] = SkreeMetareeProgram.SkreeIdling,
-        [SkreeMetareeAnimationPhase.PreparingAttack] = SkreeMetareeProgram.SkreePreparingAttack,
-        [SkreeMetareeAnimationPhase.Diving] = SkreeMetareeProgram.SkreeDiving,
-        [SkreeMetareeAnimationPhase.StopAnimating] = SkreeMetareeProgram.SkreeStopAnimating,
+        [SkreeMetareeAnimationPhase.Idling] = SkreeMetareeSegment.SkreeIdling,
+        [SkreeMetareeAnimationPhase.PreparingAttack] = SkreeMetareeSegment.SkreePreparingAttack,
+        [SkreeMetareeAnimationPhase.Diving] = SkreeMetareeSegment.SkreeDiving,
+        [SkreeMetareeAnimationPhase.StopAnimating] = SkreeMetareeSegment.SkreeStopAnimating,
     };
 }

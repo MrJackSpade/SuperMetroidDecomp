@@ -51,7 +51,7 @@ namespace SuperMetroid.Core.Samus.Drawing;
 internal sealed class SamusShownFrames
 {
     /// <summary>The frames computed for each continuation an animation reads past its programs with.</summary>
-    private static readonly ConditionalWeakTable<LaidOutProgramContinuation<SamusPoseId, SamusAnimationProgramStep>, SamusShownFrames> computed = new();
+    private static readonly ConditionalWeakTable<LaidOutAnimationContinuation<SamusPoseId, SamusPoseAnimationStep>, SamusShownFrames> computed = new();
 
     /// <summary>
     /// The movement types Samus can be initialized in: the movement types of the poses some path gives her. The drained
@@ -63,7 +63,7 @@ internal sealed class SamusShownFrames
         [.. SamusPoseMetadata.ReachablePoses.Select(SamusPoseMetadata.ReadMovementType).Distinct().Order()];
 
     /// <summary>What a frame past a program's end reads.</summary>
-    private readonly LaidOutProgramContinuation<SamusPoseId, SamusAnimationProgramStep> continuation;
+    private readonly LaidOutAnimationContinuation<SamusPoseId, SamusPoseAnimationStep> continuation;
 
     /// <summary>The frames each pose can show.</summary>
     private readonly Dictionary<SamusPoseId, SortedSet<int>> shown = [];
@@ -85,7 +85,7 @@ internal sealed class SamusShownFrames
     /// frames, then the unauthored paths, until no further frame shows; and maps every shown frame to its picture frame.
     /// </summary>
     /// <exception cref="InvalidDataException">A shown frame has no picture frame of its pose at or before it.</exception>
-    private SamusShownFrames(LaidOutProgramContinuation<SamusPoseId, SamusAnimationProgramStep> continuation)
+    private SamusShownFrames(LaidOutAnimationContinuation<SamusPoseId, SamusPoseAnimationStep> continuation)
     {
         this.continuation = continuation;
         var pending = new Queue<SamusPoseFrame>();
@@ -109,7 +109,7 @@ internal sealed class SamusShownFrames
     }
 
     /// <summary>The frames Samus's body can show, for the programs <paramref name="continuation"/> reads past.</summary>
-    internal static SamusShownFrames Of(LaidOutProgramContinuation<SamusPoseId, SamusAnimationProgramStep> continuation) =>
+    internal static SamusShownFrames Of(LaidOutAnimationContinuation<SamusPoseId, SamusPoseAnimationStep> continuation) =>
         computed.GetValue(Ensure.NotNull(continuation), static key => new SamusShownFrames(key));
 
     /// <summary>Every pose some path of the game gives Samus: the poses the body can show.</summary>
@@ -191,7 +191,7 @@ internal sealed class SamusShownFrames
 
     /// <summary>Whether <paramref name="frame"/> is a delay or a hold of <paramref name="pose"/>'s own program.</summary>
     private static bool IsPicture(SamusPoseId pose, int frame) =>
-        SamusAnimationDelays.ProgramForPose(pose).TryStepAt(frame) is SamusAnimationDelay or SamusAnimationHold;
+        SamusAnimationDelays.AnimationForPose(pose).TryStepAt(frame) is SamusAnimationDelay or SamusAnimationHold;
 
     /// <summary>The frames the animation can show after <paramref name="frame"/> of <paramref name="pose"/> when its delay runs out.</summary>
     private int[] Next(SamusPoseId pose, int frame) => Reach(pose, frame + 1, FrameReach.Advancing);
@@ -204,7 +204,7 @@ internal sealed class SamusShownFrames
     /// <exception cref="InvalidDataException">A program holds a step the animation has no handler for.</exception>
     private int[] Reach(SamusPoseId pose, int frame, FrameReach reach)
     {
-        SamusAnimationProgramStep? step = SamusAnimationDelays.TryStepFor(pose, frame, continuation);
+        SamusPoseAnimationStep? step = SamusAnimationDelays.TryStepFor(pose, frame, continuation);
         if (step is SamusAnimationDelay)
             return [frame];
         if (reach == FrameReach.Selection || step is null)
@@ -355,8 +355,8 @@ internal sealed class SamusShownFrames
     /// </summary>
     private static int[] Starts(SamusPoseId pose)
     {
-        SamusAnimationProgram program = SamusAnimationDelays.ProgramForPose(pose);
-        return [.. Poses.Where(other => ReferenceEquals(SamusAnimationDelays.ProgramForPose(other), program))
+        SamusPoseAnimation animation = SamusAnimationDelays.AnimationForPose(pose);
+        return [.. Poses.Where(other => ReferenceEquals(SamusAnimationDelays.AnimationForPose(other), animation))
             .SelectMany(InitialFrames).Distinct().Order().Where(frame => IsPicture(pose, frame))];
     }
 
@@ -397,7 +397,7 @@ internal sealed class SamusShownFrames
             SamusPoseId.CrystalFlashRightPose or SamusPoseId.CrystalFlashLeftPose or
             SamusPoseId.ForwardFacingPowerSuitPose or SamusPoseId.ForwardFacingSuitedPose)
         {
-            for (int frame = 0; frame < SamusAnimationDelays.ProgramForPose(pose).FrameCount; frame++)
+            for (int frame = 0; frame < SamusAnimationDelays.AnimationForPose(pose).FrameCount; frame++)
                 yield return frame;
         }
     }

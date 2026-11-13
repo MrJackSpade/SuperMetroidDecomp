@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Programs;
 using C = SuperMetroid.Core.Bosses.Ridley.RidleyFireballCue;
 using K = SuperMetroid.Core.Bosses.Ridley.RidleyFireballFrameKind;
-using P = SuperMetroid.Core.Bosses.Ridley.RidleyFireballProgram;
+using P = SuperMetroid.Core.Bosses.Ridley.RidleyFireballSegment;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
@@ -21,8 +21,8 @@ internal static class RidleyFireballAnimations
     private const int AfterburnDuration = 5;
 
     /// <summary>Every fireball and afterburn segment's beats.</summary>
-    internal static AnimationSegments<RidleyFireballProgram, RidleyFireballFrame, RidleyFireballCue> Segments { get; } = new(
-        new Dictionary<RidleyFireballProgram, AnimationBeat<RidleyFireballFrame, RidleyFireballCue>[]>
+    internal static AnimationSegments<RidleyFireballSegment, RidleyFireballFrame, RidleyFireballCue> Segments { get; } = new(
+        new Dictionary<RidleyFireballSegment, AnimationBeat<RidleyFireballFrame, RidleyFireballCue>[]>
     {
         [P.Fireball] =
         [
@@ -42,8 +42,8 @@ internal static class RidleyFireballAnimations
     /// The animation that starts at each segment: the launch runs on into the flight loop, and each afterburn run holds
     /// after its deletion.
     /// </summary>
-    internal static IReadOnlyDictionary<RidleyFireballProgram, Animation<RidleyFireballProgram>> StartingAt { get; } =
-        new Dictionary<RidleyFireballProgram, Animation<RidleyFireballProgram>>
+    internal static IReadOnlyDictionary<RidleyFireballSegment, Animation<RidleyFireballSegment>> StartingAt { get; } =
+        new Dictionary<RidleyFireballSegment, Animation<RidleyFireballSegment>>
         {
             [P.Fireball] = new([Whole(P.Fireball), Whole(P.FireballLoop)], AnimationEnd.LoopsFrom(1)),
             [P.FireballLoop] = new([Whole(P.FireballLoop)], AnimationEnd.LoopsFrom(0)),
@@ -54,10 +54,10 @@ internal static class RidleyFireballAnimations
         };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<RidleyFireballProgram> StartingWith(RidleyFireballProgram segment) => StartingAt[segment];
+    internal static Animation<RidleyFireballSegment> StartingWith(RidleyFireballSegment segment) => StartingAt[segment];
 
     /// <summary>A phase playing every beat of <paramref name="segment"/> once.</summary>
-    private static AnimationPhase<RidleyFireballProgram> Whole(RidleyFireballProgram segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
+    private static AnimationPhase<RidleyFireballSegment> Whole(RidleyFireballSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>
     /// An afterburn run: it stops moving, shows five poses (raising <paramref name="spawn"/> after the first, when it has

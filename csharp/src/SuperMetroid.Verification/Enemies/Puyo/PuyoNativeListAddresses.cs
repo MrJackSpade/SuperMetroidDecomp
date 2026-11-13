@@ -13,16 +13,16 @@ internal static class PuyoNativeListAddresses
     internal const byte Bank = 0xa2;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<PuyoProgram>[] Entries =
+    internal static readonly NativeProgramEntry<PuyoSegment>[] Entries =
     [
-        new NativeProgramEntry<PuyoProgram>(PuyoProgram.GroundedFast, 0x99ad),
-        new NativeProgramEntry<PuyoProgram>(PuyoProgram.GroundedMedium, 0x99c1),
-        new NativeProgramEntry<PuyoProgram>(PuyoProgram.GroundedSlow, 0x99d5),
-        new NativeProgramEntry<PuyoProgram>(PuyoProgram.RightFrame0LeftFrame4, 0x99e9),
-        new NativeProgramEntry<PuyoProgram>(PuyoProgram.RightFrame1LeftFrame3, 0x99ef),
-        new NativeProgramEntry<PuyoProgram>(PuyoProgram.Frame2, 0x99f5),
-        new NativeProgramEntry<PuyoProgram>(PuyoProgram.RightFrame3LeftFrame1, 0x99fb),
-        new NativeProgramEntry<PuyoProgram>(PuyoProgram.RightFrame4LeftFrame0, 0x9a01),
+        new NativeProgramEntry<PuyoSegment>(PuyoSegment.GroundedFast, 0x99ad),
+        new NativeProgramEntry<PuyoSegment>(PuyoSegment.GroundedMedium, 0x99c1),
+        new NativeProgramEntry<PuyoSegment>(PuyoSegment.GroundedSlow, 0x99d5),
+        new NativeProgramEntry<PuyoSegment>(PuyoSegment.RightFrame0LeftFrame4, 0x99e9),
+        new NativeProgramEntry<PuyoSegment>(PuyoSegment.RightFrame1LeftFrame3, 0x99ef),
+        new NativeProgramEntry<PuyoSegment>(PuyoSegment.Frame2, 0x99f5),
+        new NativeProgramEntry<PuyoSegment>(PuyoSegment.RightFrame3LeftFrame1, 0x99fb),
+        new NativeProgramEntry<PuyoSegment>(PuyoSegment.RightFrame4LeftFrame0, 0x9a01),
     ];
 
 }

@@ -18,11 +18,11 @@ internal static class CeresSceneActors
     {
         const string scene = "The Ceres flight";
         var poses = new Dictionary<CinematicSpritePose, CeresSpriteColouring>();
-        Add(poses, scene, CeresFlightActorDefinitions.FrontStars.Program, CeresFlightActorDefinitions.FrontStars.Colouring);
+        Add(poses, scene, CeresFlightActorDefinitions.FrontStars.Animation, CeresFlightActorDefinitions.FrontStars.Colouring);
         for (int index = 0; index < CeresFlightActorDefinitions.RearViewActorCount; index++)
         {
             CeresFlightActorDefinition actor = CeresFlightActors.RearViewActor(index);
-            Add(poses, scene, actor.Program, actor.Colouring);
+            Add(poses, scene, actor.Animation, actor.Colouring);
         }
         return poses;
     }
@@ -39,12 +39,12 @@ internal static class CeresSceneActors
         for (int index = 0; index < CeresDestructionActorDefinitions.InitialActorCount; index++)
         {
             CeresDestructionActorDefinition actor = CeresDestructionActors.InitialActor(index);
-            Add(poses, scene, actor.Program, actor.Colouring);
+            Add(poses, scene, actor.Animation, actor.Colouring);
         }
-        Add(poses, scene, CeresExplosionDefinitions.InitialActor.Program, CeresSpriteColouring.Explosions);
-        Add(poses, scene, CeresExplosionDefinitions.RepeatingActor.Program, CeresSpriteColouring.Explosions);
-        Add(poses, scene, CeresExplosionDefinitions.FinalWaveActor.Program, CeresSpriteColouring.Explosions);
-        Add(poses, scene, CeresExplosionDefinitions.StationBlastActor.Program, CeresSpriteColouring.Explosions);
+        Add(poses, scene, CeresExplosionDefinitions.InitialActor.Animation, CeresSpriteColouring.Explosions);
+        Add(poses, scene, CeresExplosionDefinitions.RepeatingActor.Animation, CeresSpriteColouring.Explosions);
+        Add(poses, scene, CeresExplosionDefinitions.FinalWaveActor.Animation, CeresSpriteColouring.Explosions);
+        Add(poses, scene, CeresExplosionDefinitions.StationBlastActor.Animation, CeresSpriteColouring.Explosions);
         return poses;
     }
 
@@ -57,7 +57,7 @@ internal static class CeresSceneActors
         for (int index = 0; index < CeresDestructionActorDefinitions.ZebesActorCount; index++)
         {
             CeresDestructionActorDefinition actor = CeresDestructionActors.ZebesActor(index);
-            Add(poses, scene, actor.Program, actor.Colouring);
+            Add(poses, scene, actor.Animation, actor.Colouring);
         }
         return poses;
     }
@@ -66,7 +66,7 @@ internal static class CeresSceneActors
     /// <exception cref="InvalidDataException">
     /// The scene already draws one of the poses in a colouring of another sprite set: one picture cannot show both.
     /// </exception>
-    private static void Add(Dictionary<CinematicSpritePose, CeresSpriteColouring> poses, string scene, CinematicSpriteProgram program,
+    private static void Add(Dictionary<CinematicSpritePose, CeresSpriteColouring> poses, string scene, CinematicSpriteSegment program,
         CeresSpriteColouring colouring)
     {
         foreach (CinematicSpritePose pose in CinematicShownFrames.PosesOf([program]))

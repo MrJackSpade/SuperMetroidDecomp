@@ -65,19 +65,19 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
     /// <summary>Plays a door's typed animation where the shared enemy animation would run its list.</summary>
     private void AdvanceCeresDoorAnimation(RoomEnemySlot slot, SamusState? samus)
     {
-        if (!EnemyProgramAnimation.Expire(slot))
+        if (!slot.AnimationClock.Expire())
             return;
         CeresDoorEnemyState state = slot.RequireSpeciesState<CeresDoorEnemyState>();
-        AnimationPlayback<CeresDoorProgram> playback = state.Playback;
-        EnemyProgramAnimation.Play(slot, CeresDoorAnimations.Segments, ref playback,
+        AnimationPlayback<CeresDoorSegment> playback = state.Playback;
+        EnemyAnimationPlayback.Play(slot, CeresDoorAnimations.Segments, ref playback,
             cue => ApplyCeresDoorCue(slot, samus, cue) is { } target
-                ? new AnimationContinuation<CeresDoorProgram>(CeresDoorAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
+                ? new AnimationContinuation<CeresDoorSegment>(CeresDoorAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
         state.Playback = playback;
     }
 
     /// <summary>Carries out one cue of a door's program, returning the program a branch continues at, or null to run on.</summary>
-    private CeresDoorProgram? ApplyCeresDoorCue(RoomEnemySlot slot, SamusState? samus, CeresDoorCue cue)
+    private CeresDoorSegment? ApplyCeresDoorCue(RoomEnemySlot slot, SamusState? samus, CeresDoorCue cue)
     {
         switch (cue.Kind)
         {
@@ -97,10 +97,10 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
                 return xDistance >= 48 || yDistance >= 48 ? cue.Target : null;
             }
             case CeresDoorCueKind.GoToIfAreaBossAlive:
-                // The test samples bit zero of the current area's saved
-                // boss flags. Ceres begins with that flag clear, so the facing-right door
+                // The test reads whether the current area's boss is saved
+                // as defeated. Ceres begins with that flag clear, so the facing-right door
                 // loops as a tangible actor during Ridley's fight. Ridley's escape publishes
-                // the boss bit together with status two; the next pass must then run on
+                // the boss's defeat together with status two; the next pass must then run on
                 // past the branch to the intangible setup.
                 // Hardcoding the early-game branch stranded the invisible 8x32 actor at
                 // X=8 and clipped Samus at X=29 after the getaway cutscene.
@@ -150,12 +150,11 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
         CeresDoorInitializationDefinition initialization = CeresDoorInitializations.For(variant);
 
         slot.Frame = EnemyFrameId.CeresDoorInitial;
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        slot.AnimationClock.Restart();
         var state = new CeresDoorEnemyState
         {
             Function = initialization.MainFunction,
-            Playback = new AnimationPlayback<CeresDoorProgram>(CeresDoorAnimations.StartingWith(initialization.Program), AnimationPlace.StartOfAnimation),
+            Playback = new AnimationPlayback<CeresDoorSegment>(CeresDoorAnimations.StartingWith(initialization.Animation), AnimationPlace.StartOfAnimation),
         };
         slot.SetSpeciesState(state);
 
@@ -300,7 +299,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
     }
 
     /// <summary>Advances CeresDoor's typed animation.</summary>
-    internal void AdvanceCeresDoorTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context)
+    internal void AdvanceCeresDoorTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext context)
     {
         AdvanceCeresDoorAnimation(slot, context.Samus);
     }

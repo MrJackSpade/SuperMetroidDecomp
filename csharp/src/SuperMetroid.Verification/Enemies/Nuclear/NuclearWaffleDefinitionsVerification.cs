@@ -70,7 +70,7 @@ internal static class NuclearWaffleDefinitionsVerification
                 $"Nuclear Waffle production second threshold {direction}");
             AssertEqual(definition.FirstTurnThreshold, state.FirstTurnThreshold,
                 $"Nuclear Waffle production first threshold {direction}");
-            AssertEqual(new AnimationPlayback<NuclearWaffleProgram>(NuclearWaffleAnimations.StartingWith(NuclearWaffleProgram.BodyLoop), AnimationPlace.StartOfAnimation), state.Playback,
+            AssertEqual(new AnimationPlayback<NuclearWaffleSegment>(NuclearWaffleAnimations.StartingWith(NuclearWaffleSegment.BodyLoop), AnimationPlace.StartOfAnimation), state.Playback,
                 $"Nuclear Waffle production initial animation {direction}");
             AssertEqual(4, state.ProjectileSegments.Count(segment => segment is not null),
                 $"Nuclear Waffle production projectile links {direction}");

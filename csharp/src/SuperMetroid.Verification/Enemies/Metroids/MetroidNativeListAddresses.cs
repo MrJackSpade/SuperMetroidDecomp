@@ -14,10 +14,10 @@ internal static class MetroidNativeListAddresses
     internal const byte Bank = 0xa3;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<MetroidProgram>[] Entries =
+    internal static readonly NativeProgramEntry<MetroidSegment>[] Entries =
     [
-        new NativeProgramEntry<MetroidProgram>(MetroidProgram.ChasingSamus, 0xe9cf),
-        new NativeProgramEntry<MetroidProgram>(MetroidProgram.DrainingSamus, 0xea25),
+        new NativeProgramEntry<MetroidSegment>(MetroidSegment.ChasingSamus, 0xe9cf),
+        new NativeProgramEntry<MetroidSegment>(MetroidSegment.DrainingSamus, 0xea25),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>

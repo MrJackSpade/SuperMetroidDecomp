@@ -15,18 +15,18 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 internal static class TourianStatueProjectileNativeListAddresses
 {
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<TourianStatueProjectileProgram>[] Entries =
+    internal static readonly NativeProgramEntry<TourianStatueProjectileSegment>[] Entries =
     [
-        new NativeProgramEntry<TourianStatueProjectileProgram>(TourianStatueProjectileProgram.Delete, TourianStatueProjectileInstructionProgramToolingDefinitions.Delete),
-        new NativeProgramEntry<TourianStatueProjectileProgram>(TourianStatueProjectileProgram.Splash, TourianStatueProjectileInstructionProgramDefinitionsConstants.Splash),
-        new NativeProgramEntry<TourianStatueProjectileProgram>(TourianStatueProjectileProgram.EyeGlow, TourianStatueProjectileInstructionProgramDefinitionsConstants.EyeGlow),
-        new NativeProgramEntry<TourianStatueProjectileProgram>(TourianStatueProjectileProgram.Particle, TourianStatueProjectileInstructionProgramDefinitions.Particle),
-        new NativeProgramEntry<TourianStatueProjectileProgram>(TourianStatueProjectileProgram.Tail, TourianStatueProjectileInstructionProgramDefinitions.Tail),
-        new NativeProgramEntry<TourianStatueProjectileProgram>(TourianStatueProjectileProgram.Soul, TourianStatueProjectileInstructionProgramDefinitions.Soul),
-        new NativeProgramEntry<TourianStatueProjectileProgram>(TourianStatueProjectileProgram.BaseDecoration, TourianStatueProjectileInstructionProgramDefinitionsConstants.BaseDecoration),
-        new NativeProgramEntry<TourianStatueProjectileProgram>(TourianStatueProjectileProgram.BaseDecorationLoop, BaseDecorationLoop),
-        new NativeProgramEntry<TourianStatueProjectileProgram>(TourianStatueProjectileProgram.Ridley, TourianStatueProjectileInstructionProgramDefinitionsConstants.Ridley),
-        new NativeProgramEntry<TourianStatueProjectileProgram>(TourianStatueProjectileProgram.Phantoon, TourianStatueProjectileInstructionProgramDefinitionsConstants.Phantoon),
+        new NativeProgramEntry<TourianStatueProjectileSegment>(TourianStatueProjectileSegment.Delete, TourianStatueProjectileInstructionProgramToolingDefinitions.Delete),
+        new NativeProgramEntry<TourianStatueProjectileSegment>(TourianStatueProjectileSegment.Splash, TourianStatueProjectileInstructionProgramDefinitionsConstants.Splash),
+        new NativeProgramEntry<TourianStatueProjectileSegment>(TourianStatueProjectileSegment.EyeGlow, TourianStatueProjectileInstructionProgramDefinitionsConstants.EyeGlow),
+        new NativeProgramEntry<TourianStatueProjectileSegment>(TourianStatueProjectileSegment.Particle, TourianStatueProjectileInstructionProgramDefinitions.Particle),
+        new NativeProgramEntry<TourianStatueProjectileSegment>(TourianStatueProjectileSegment.Tail, TourianStatueProjectileInstructionProgramDefinitions.Tail),
+        new NativeProgramEntry<TourianStatueProjectileSegment>(TourianStatueProjectileSegment.Soul, TourianStatueProjectileInstructionProgramDefinitions.Soul),
+        new NativeProgramEntry<TourianStatueProjectileSegment>(TourianStatueProjectileSegment.BaseDecoration, TourianStatueProjectileInstructionProgramDefinitionsConstants.BaseDecoration),
+        new NativeProgramEntry<TourianStatueProjectileSegment>(TourianStatueProjectileSegment.BaseDecorationLoop, BaseDecorationLoop),
+        new NativeProgramEntry<TourianStatueProjectileSegment>(TourianStatueProjectileSegment.Ridley, TourianStatueProjectileInstructionProgramDefinitionsConstants.Ridley),
+        new NativeProgramEntry<TourianStatueProjectileSegment>(TourianStatueProjectileSegment.Phantoon, TourianStatueProjectileInstructionProgramDefinitionsConstants.Phantoon),
     ];
 
     /// <summary>$86:B862, where the base decoration's list rests after installing its movement.</summary>
@@ -81,6 +81,6 @@ internal static class TourianStatueProjectileNativeListAddresses
     internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, TourianStatueProjectileAnimations.Segments,
         TourianStatueProjectileAnimations.StartingAt,
         frame => EnemyProjectileProgramFrameSources.Operand(frame), Rules,
-        startsWithClearedCounter: new HashSet<TourianStatueProjectileProgram> { TourianStatueProjectileProgram.Particle });
+        startsWithClearedCounter: new HashSet<TourianStatueProjectileSegment> { TourianStatueProjectileSegment.Particle });
 
 }

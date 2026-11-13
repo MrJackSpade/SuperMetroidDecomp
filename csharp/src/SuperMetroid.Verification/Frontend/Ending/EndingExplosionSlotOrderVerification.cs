@@ -27,7 +27,7 @@ internal static class EndingExplosionSlotOrderVerification
         for (int frame = 0; frame < 100; frame++) ending.Step();
         var definition = EndingActorDefinitions.ExplosionAfterglow;
         var afterglow = new IntroDiscoverySprite(new(definition.Position.X, definition.Position.Y),
-            EndingShades.Drawn(definition.Colouring), definition.Program);
+            EndingShades.Drawn(definition.Colouring), definition.Animation);
         afterglow.Step();
         var expected = ScreenSpritesFixtures.Blank();
         expected.BeginFrame();

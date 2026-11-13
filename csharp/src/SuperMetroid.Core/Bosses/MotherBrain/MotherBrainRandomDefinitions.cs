@@ -18,7 +18,7 @@ internal static class MotherBrainRandomDefinitions
     /// <summary>The Shitroid's hover: the top 32 of the 4096 rolls, 4064 and over, restart its hover.</summary>
     internal static readonly RandomChance ShitroidHoverRestarts = RandomChance.Highest(32, RollOf4096);
 
-    /// <summary>Whether a dust cloud of Mother Brain's ascent is the short big cloud: the sample's bit eight.</summary>
+    /// <summary>Whether a dust cloud of Mother Brain's ascent is the short big cloud: taken when the sample divided by 256 is odd.</summary>
     internal static readonly RandomSampleField AscentDustBig = new(8, 1);
 
     /// <summary>
@@ -57,7 +57,7 @@ internal static class MotherBrainRandomDefinitions
     /// <summary>A rotting corpse's dust offset, 0 through 31 pixels added to the brain's X less sixteen: the sample modulo 32.</summary>
     internal static readonly RandomSampleField CorpseDustOffset = new(0, 5);
 
-    /// <summary>Whether phase three's forward inch waits two updates longer: the sample's bit one.</summary>
+    /// <summary>Whether phase three's forward inch waits two updates longer: taken when the sample divided by 2 is odd.</summary>
     internal static readonly RandomSampleField ForwardInchLongerDelay = new(1, 1);
 
     /// <summary>A fired hand beam's scatter speed, 0 through 7 whole pixels: the sample divided by 256, modulo 8.</summary>
@@ -133,11 +133,11 @@ internal static class MotherBrainRandomDefinitions
 
     /// <summary>
     /// The program a mixed death explosion plays, as its projectile parameter, an index into
-    /// <see cref="MotherBrainDeathExplosionDefinitions.Programs"/>, read from the sample's top three bits: their lowest two
+    /// <see cref="MotherBrainDeathExplosionDefinitions.Animations"/>, read from the sample's top three bits: their lowest two
     /// values, every sample below 16384, the small explosion (zero), the next five smoke (one) and the top one, every sample
     /// from 57344, the big explosion (two).
     /// </summary>
-    internal static readonly WeightedRandomChoice<int> MixedDeathExplosionProgram = new(
+    internal static readonly WeightedRandomChoice<int> MixedDeathExplosionAnimation = new(
         new RandomSampleField(13, 3),
         new(2, 0),
         new(5, 1),

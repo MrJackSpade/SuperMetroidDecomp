@@ -42,7 +42,7 @@ internal sealed class MotherBrainAttacks
                 // every active shell before starting the visually dense recursive beam.
                 if (state.BombCounter != 0)
                     return;
-                MotherBrainEncounterAccess.SetMotherBrainBodyProgram(state, MotherBrainBodyProgram.HandBeam);
+                MotherBrainEncounterAccess.SetMotherBrainBodyAnimation(state, MotherBrainBodySegment.HandBeam);
                 state.HandBeamPhase = MotherBrainHandBeamPhase.Firing;
                 return;
 
@@ -52,7 +52,7 @@ internal sealed class MotherBrainAttacks
                 return;
 
             case MotherBrainHandBeamPhase.Finish:
-                MotherBrainEncounterAccess.SetMotherBrainBrainProgram(state, MotherBrainHeadProgram.NeutralPhase2);
+                MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.NeutralPhase2);
                 state.LowerNeckMovement = MotherBrainNeckMovement.BobDown;
                 state.UpperNeckMovement = MotherBrainNeckMovement.BobUp;
                 state.HandBeamPhase = MotherBrainHandBeamPhase.BackUp;
@@ -81,7 +81,7 @@ internal sealed class MotherBrainAttacks
         if (CoordinateAxis.Difference(state.Body.Position.X.Whole, 48) < 0)
             return true;
 
-        MotherBrainEncounterAccess.SetMotherBrainBodyProgram(state, MotherBrainBodyProgram.WalkBackwardSlow);
+        MotherBrainEncounterAccess.SetMotherBrainBodyAnimation(state, MotherBrainBodySegment.WalkBackwardSlow);
         return false;
     }
 
@@ -188,7 +188,7 @@ internal sealed class MotherBrainAttacks
             // commits immediately and skips the proximity/fallback thresholds entirely.
             if (MotherBrainRandomDefinitions.AttackPresses.IsTakenBy(random))
             {
-                MotherBrainEncounterAccess.SetMotherBrainBrainProgram(state, MotherBrainHeadProgram.FourOnionRingsPhase2);
+                MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.FourOnionRingsPhase2);
                 return;
             }
 
@@ -217,10 +217,10 @@ internal sealed class MotherBrainAttacks
         switch (attack)
         {
             case MotherBrainSecondPhaseAttack.Neutral:
-                MotherBrainEncounterAccess.SetMotherBrainBrainProgram(state, MotherBrainHeadProgram.NeutralPhase2);
+                MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.NeutralPhase2);
                 return;
             case MotherBrainSecondPhaseAttack.FourOnionRings:
-                MotherBrainEncounterAccess.SetMotherBrainBrainProgram(state, MotherBrainHeadProgram.FourOnionRingsPhase2);
+                MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.FourOnionRingsPhase2);
                 return;
             case MotherBrainSecondPhaseAttack.Laser:
                 state.Function = MotherBrainBodyFunction.SecondPhaseLaserPositionHeadQuickly;
@@ -308,7 +308,7 @@ internal sealed class MotherBrainAttacks
     /// <summary>Runs the unstored firing tail.</summary>
     private static void FireMotherBrainBomb(MotherBrainEnemyState state)
     {
-        MotherBrainEncounterAccess.SetMotherBrainBrainProgram(state, MotherBrainHeadProgram.BombPhase2);
+        MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.BombPhase2);
         state.Function = MotherBrainBodyFunction.SecondPhaseBombFired;
         state.FunctionTimer = 44;
     }
@@ -360,7 +360,7 @@ internal sealed class MotherBrainAttacks
         if (CoordinateAxis.Difference(state.Body.Position.X.Whole, 48) < 0)
             return true;
 
-        MotherBrainEncounterAccess.SetMotherBrainBodyProgram(state, MotherBrainBodyProgram.WalkBackwardMedium);
+        MotherBrainEncounterAccess.SetMotherBrainBodyAnimation(state, MotherBrainBodySegment.WalkBackwardMedium);
         return false;
     }
 
@@ -372,7 +372,7 @@ internal sealed class MotherBrainAttacks
         if (state.Pose == MotherBrainBodyPose.Standing)
             // The static crouched list is only appropriate during ascent initialization.
             // Combat must first lower the body so the subsequent stand reverses that move.
-            MotherBrainEncounterAccess.SetMotherBrainBodyProgram(state, MotherBrainBodyProgram.CrouchSlow);
+            MotherBrainEncounterAccess.SetMotherBrainBodyAnimation(state, MotherBrainBodySegment.CrouchSlow);
         return false;
     }
 
@@ -384,10 +384,10 @@ internal sealed class MotherBrainAttacks
             case MotherBrainBodyPose.Standing:
                 return true;
             case MotherBrainBodyPose.Crouched:
-                MotherBrainEncounterAccess.SetMotherBrainBodyProgram(state, MotherBrainBodyProgram.StandAfterCrouchFast);
+                MotherBrainEncounterAccess.SetMotherBrainBodyAnimation(state, MotherBrainBodySegment.StandAfterCrouchFast);
                 return false;
             case MotherBrainBodyPose.LeaningDown:
-                MotherBrainEncounterAccess.SetMotherBrainBodyProgram(state, MotherBrainBodyProgram.StandAfterLeaning);
+                MotherBrainEncounterAccess.SetMotherBrainBodyAnimation(state, MotherBrainBodySegment.StandAfterLeaning);
                 return false;
             case MotherBrainBodyPose.Walking:
             case MotherBrainBodyPose.CrouchingTransition:
@@ -439,7 +439,7 @@ internal sealed class MotherBrainAttacks
             return;
 
         state.NeckAngleDelta = state.NeckAngleDelta >= 0 ? 256 : -256;
-        MotherBrainEncounterAccess.SetMotherBrainBrainProgram(state, MotherBrainHeadProgram.Laser);
+        MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.Laser);
         state.Function = MotherBrainBodyFunction.SecondPhaseLaserFinishAttack;
         state.FunctionTimer = 16;
     }
@@ -474,7 +474,7 @@ internal sealed class MotherBrainAttacks
             state.WalkCounter = MotherBrainWalkCredit.Of(1);
             if (state.Body.Position.X.Whole >= 48)
             {
-                MotherBrainEncounterAccess.SetMotherBrainBodyProgram(state, MotherBrainBodyProgram.WalkBackwardFast);
+                MotherBrainEncounterAccess.SetMotherBrainBodyAnimation(state, MotherBrainBodySegment.WalkBackwardFast);
                 return;
             }
         }
@@ -500,7 +500,7 @@ internal sealed class MotherBrainAttacks
     {
         state.WalkCounter = MotherBrainWalkCredit.Of(128);
         if (state.Body.Position.X.Whole < 128)
-            MotherBrainEncounterAccess.SetMotherBrainBodyProgram(state, MotherBrainBodyProgram.WalkForwardMedium);
+            MotherBrainEncounterAccess.SetMotherBrainBodyAnimation(state, MotherBrainBodySegment.WalkForwardMedium);
     }
 
     /// <summary>
@@ -522,7 +522,7 @@ internal sealed class MotherBrainAttacks
         sequence.StartAttackCycle();
         state.RainbowBeamSequence = sequence;
         state.NextRainbowFrame = 0;
-        state.RainbowAppliedHeadProgram = null;
+        state.RainbowAppliedHeadAnimation = null;
         state.RainbowAppliedSmallPurpleBreathWrites = 0;
         _rainbowAndDeath.ApplyLiveMotherBrainRainbowState(
             state,

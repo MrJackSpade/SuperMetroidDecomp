@@ -14,7 +14,7 @@ internal sealed class PlatformsEntity(PlatformsBehavior species, RoomEnemySlot s
     public EnemyMainAiHandler? FindMain() => species.RunPlatformsMainAi;
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => PlatformsBehavior.AdvancePlatformsTypedAnimation;
+    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => PlatformsBehavior.AdvancePlatformsTypedAnimation;
 
     /// <summary>The Tripper's own shot reaction, which normal bombs dispatch like the common one.</summary>
     /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>

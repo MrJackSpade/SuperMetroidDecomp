@@ -14,5 +14,5 @@ internal sealed class PuyoEntity(PuyoBehavior species, RoomEnemySlot slot, Enemy
     public EnemyMainAiHandler? FindMain() => species.RunPuyoMainAi;
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => PuyoBehavior.AdvancePuyoTypedAnimation;
+    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => PuyoBehavior.AdvancePuyoTypedAnimation;
 }

@@ -14,7 +14,7 @@ internal sealed class BlueBrinstarFaceBlockEntity(BlueBrinstarFaceBlockBehavior 
     public EnemyMainAiHandler? FindMain() => species.RunBlueBrinstarFaceBlockMainAi;
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => BlueBrinstarFaceBlockBehavior.AdvanceBlueBrinstarFaceBlockTypedAnimation;
+    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => BlueBrinstarFaceBlockBehavior.AdvanceBlueBrinstarFaceBlockTypedAnimation;
 
     /// <summary>The pass-through shot reaction, ahead of the shared ones (only other species' precede it there).</summary>
     public override EnemyShotReaction? FindShot() =>

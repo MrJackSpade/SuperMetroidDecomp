@@ -225,13 +225,13 @@ internal sealed class EndingEscapeScenes
         _stage.SpawnSprite(
             new(x, EndingActorDefinitions.ClearTimeDigitY),
             EndingActorDefinitions.ClearTimeDigitColouring,
-            ClearTimeDigitProgram(normalized),
+            ClearTimeDigitAnimation(normalized),
             EndingSpriteRole.ClearTimeDigit);
     }
 
     /// <summary>The program showing clear-time <paramref name="digit"/>.</summary>
-    private static CinematicSpriteProgram ClearTimeDigitProgram(int digit) => (uint)digit < (uint)EndingCreditsState.ClearTimeDigitPrograms.Length
-        ? EndingCreditsState.ClearTimeDigitPrograms[digit]
+    private static CinematicSpriteSegment ClearTimeDigitAnimation(int digit) => (uint)digit < (uint)EndingCreditsState.ClearTimeDigitAnimations.Length
+        ? EndingCreditsState.ClearTimeDigitAnimations[digit]
         : throw new ArgumentOutOfRangeException(nameof(digit), digit, "A clear-time digit is 0..9.");
 
     /// <summary>Installs the two-piece Samus reward art selected by clear-time thresholds.</summary>

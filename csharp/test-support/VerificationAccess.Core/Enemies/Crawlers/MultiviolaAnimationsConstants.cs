@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 internal static class MultiviolaAnimationsConstants
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params MultiviolaProgram[] programs) =>
+    internal static IEnumerable<ushort> Spritemaps(params MultiviolaSegment[] programs) =>
         programs.SelectMany(program => MultiviolaAnimations.Segments.Beats(program))
             .OfType<AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame>()
             .Select(frame => MultiviolaFrameToolingDefinitions.Spritemap(frame.Shown));

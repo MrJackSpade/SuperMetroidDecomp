@@ -19,11 +19,11 @@ public readonly record struct PaletteFxColorFrames(int FirstRecord, int FrameCou
     /// </summary>
     /// <param name="program">The segment whose first frame is the family's first frame.</param>
     /// <param name="colorsPerFrame">The colours each frame writes.</param>
-    public static PaletteFxColorFrames Of(PaletteFxProgram program, int colorsPerFrame)
+    public static PaletteFxColorFrames Of(PaletteFxSegment program, int colorsPerFrame)
     {
         int first = -1, count = 0;
-        PaletteFxProgram[] authored = Enum.GetValues<PaletteFxProgram>();
-        for (PaletteFxProgram running = program; ; running = authored[Array.IndexOf(authored, running) + 1])
+        PaletteFxSegment[] authored = Enum.GetValues<PaletteFxSegment>();
+        for (PaletteFxSegment running = program; ; running = authored[Array.IndexOf(authored, running) + 1])
         {
             int frame = 0;
             foreach (AnimationBeat<int, PaletteFxCue> beat in PaletteFxSegments.All.Beats(running))
@@ -47,7 +47,7 @@ public readonly record struct PaletteFxColorFrames(int FirstRecord, int FrameCou
     }
 
     /// <summary>The frames found, rejecting a program that shows nothing.</summary>
-    private static PaletteFxColorFrames Found(PaletteFxProgram program, int first, int count, int colorsPerFrame) =>
+    private static PaletteFxColorFrames Found(PaletteFxSegment program, int first, int count, int colorsPerFrame) =>
         first < 0
             ? throw new InvalidOperationException($"Palette-FX program {program} shows no record.")
             : new(first, count, colorsPerFrame);

@@ -55,7 +55,7 @@ internal static class XrayControlsVerification
             // ten-slot update gate. Its long instruction delay avoids consuming data.
             var pendingBomb = runtime.BombProjectiles.Slots[0];
             pendingBomb.Type = SamusBombProjectileSystem.NormalBombType;
-            pendingBomb.Playback = SamusProjectilePrograms.Start(SamusProjectileProgram.Bomb);
+            pendingBomb.Playback = SamusProjectilePlayback.Start(SamusProjectileSegment.Bomb);
             pendingBomb.SpritemapPointer = (runtime.Artwork.ProjectileFrameBindings ?? throw new InvalidOperationException("Verification requires runtime.Artwork.ProjectileFrameBindings.")).Resolve(checked((ushort)pendingBomb.InstructionPointer));
             pendingBomb.FrameHold = WrappingCountdown.Start(100);
             pendingBomb.BombTimer = WrappingCountdown.Start(60);

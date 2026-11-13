@@ -35,17 +35,17 @@ internal static class NoobTubeProjectileBehaviorVerification
 
         RoomEnemySystem crackSystem = NewSystem();
         EnemyProjectile crack = Spawn(crackSystem, RoomEnemyProjectileKind.NoobTubeCrack, piece: null);
-        AssertTrue(crack.Animation is NoobTubeProjectileAnimation { PlayingSegment: NoobTubeProjectileProgram.Crack },
+        AssertTrue(crack.Animation is NoobTubeProjectileAnimation { PlayingSegment: NoobTubeProjectileSegment.Crack },
             "real n00b-tube crack producer starts the crack program");
         AssertEqual(48, RunThroughDeletion(crackSystem, crack, maximumTicks: 64),
             "n00b-tube crack completes 47 frames and its terminal deletion tick");
 
-        NoobTubeProjectileProgram[] shards =
+        NoobTubeProjectileSegment[] shards =
         [
-            NoobTubeProjectileProgram.Shard0, NoobTubeProjectileProgram.Shard1, NoobTubeProjectileProgram.Shard2,
-            NoobTubeProjectileProgram.Shard3, NoobTubeProjectileProgram.Shard4, NoobTubeProjectileProgram.Shard5,
-            NoobTubeProjectileProgram.Shard6, NoobTubeProjectileProgram.Shard7, NoobTubeProjectileProgram.Shard8,
-            NoobTubeProjectileProgram.Shard9,
+            NoobTubeProjectileSegment.Shard0, NoobTubeProjectileSegment.Shard1, NoobTubeProjectileSegment.Shard2,
+            NoobTubeProjectileSegment.Shard3, NoobTubeProjectileSegment.Shard4, NoobTubeProjectileSegment.Shard5,
+            NoobTubeProjectileSegment.Shard6, NoobTubeProjectileSegment.Shard7, NoobTubeProjectileSegment.Shard8,
+            NoobTubeProjectileSegment.Shard9,
         ];
         for (int piece = 0; piece < shards.Length; piece++)
         {
@@ -61,7 +61,7 @@ internal static class NoobTubeProjectileBehaviorVerification
         {
             RoomEnemySystem bubbleSystem = NewSystem();
             EnemyProjectile bubble = Spawn(bubbleSystem, RoomEnemyProjectileKind.NoobTubeReleasedAirBubble, piece);
-            AssertTrue(bubble.Animation is NoobTubeProjectileAnimation { PlayingSegment: NoobTubeProjectileProgram.ReleasedAirBubble },
+            AssertTrue(bubble.Animation is NoobTubeProjectileAnimation { PlayingSegment: NoobTubeProjectileSegment.ReleasedAirBubble },
                 $"real released-air-bubble producer for bubble {piece} starts the bubble program");
             AssertEqual(16, RunThroughDeletion(bubbleSystem, bubble, maximumTicks: 24),
                 $"released-air bubble {piece} completes fifteen frames and deletion");
@@ -234,7 +234,7 @@ internal static class NoobTubeProjectileBehaviorVerification
 
         void Process(RoomEnemySystem system, EnemyProjectile projectile)
         {
-            system.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()), Position16<RoomPixels>.Zero);
+            system.Projectiles.AdvanceEnemyProjectileAnimations(projectile, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()), Position16<RoomPixels>.Zero);
             if (!projectile.IsActive)
                 return;
             ushort expectedOperand = projectile.PresentationOperandAddress;

@@ -39,14 +39,14 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
     {
         FuneNamiheProgramCase[] programs =
         [
-            new(FuneNamiheProgram.FuneActiveLeft, 0x96d3, false, false, true),
-            new(FuneNamiheProgram.FuneActiveRight, 0x96d5, false, true, true),
-            new(FuneNamiheProgram.FuneIdleLeft, 0x96d7, false, false, false),
-            new(FuneNamiheProgram.FuneIdleRight, 0x96d9, false, true, false),
-            new(FuneNamiheProgram.NamiheActiveLeft, 0x96db, true, false, true),
-            new(FuneNamiheProgram.NamiheActiveRight, 0x96dd, true, true, true),
-            new(FuneNamiheProgram.NamiheIdleLeft, 0x96df, true, false, false),
-            new(FuneNamiheProgram.NamiheIdleRight, 0x96e1, true, true, false),
+            new(FuneNamiheSegment.FuneActiveLeft, 0x96d3, false, false, true),
+            new(FuneNamiheSegment.FuneActiveRight, 0x96d5, false, true, true),
+            new(FuneNamiheSegment.FuneIdleLeft, 0x96d7, false, false, false),
+            new(FuneNamiheSegment.FuneIdleRight, 0x96d9, false, true, false),
+            new(FuneNamiheSegment.NamiheActiveLeft, 0x96db, true, false, true),
+            new(FuneNamiheSegment.NamiheActiveRight, 0x96dd, true, true, true),
+            new(FuneNamiheSegment.NamiheIdleLeft, 0x96df, true, false, false),
+            new(FuneNamiheSegment.NamiheIdleRight, 0x96e1, true, true, false),
         ];
 
         foreach (FuneNamiheProgramCase program in programs)
@@ -87,7 +87,7 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
         slot.SetSpawnParameter1(EnemyDefinitionId.Fune, unchecked((ushort)((program.Namihe ? 1 : 0) | (program.Right ? 0x10 : 0))));
         slot.SetSpawnParameter2(EnemyDefinitionId.Fune, 0);
         slot.Position = slot.Position.WithWhole(new(128, 128));
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.AnimationClock.StepOnNextUpdate();
 
         var state = new FuneNamiheEnemyState
         {
@@ -111,7 +111,7 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
 
     /// <summary>Program, selector cursor, variant, facing, and active state for one of the eight production programs.</summary>
     internal readonly record struct FuneNamiheProgramCase(
-        FuneNamiheProgram Entry,
+        FuneNamiheSegment Entry,
         ushort SelectorCursor,
         bool Namihe,
         bool Right,

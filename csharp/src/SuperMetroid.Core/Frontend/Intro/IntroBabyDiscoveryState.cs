@@ -135,7 +135,7 @@ internal sealed class IntroBabyDiscoveryState
         if (egg.FrameBehavior == IntroBabyActorDefinitions.Egg.FrameBehavior &&
             CoordinateAxis.Difference(Samus.Position.X.Whole, 169) < 0)
         {
-            egg.Start(CinematicSpriteProgram.MetroidEggHatching);
+            egg.Start(CinematicSpriteSegment.MetroidEggHatching);
             egg.InstallFrameBehavior(
                 CinematicSpriteFrameBehavior.NoOp);
             EggHatchingStarted = true;
@@ -146,7 +146,7 @@ internal sealed class IntroBabyDiscoveryState
         if (egg.ListFrameBehavior == CinematicSpriteFrameBehavior.MetroidEggDeleteAfterCrossFade &&
             introCrossfadeTimer == 0)
         {
-            egg.Start(CinematicSpriteProgram.Delete);
+            egg.Start(CinematicSpriteSegment.Delete);
             // Page three's text hides Samus.
             SamusDisplay = IntroSamusDisplay.Hidden;
         }
@@ -214,7 +214,7 @@ internal sealed class IntroBabyDiscoveryState
     private void HandleDemoCue(DemoInputCue cue)
     {
         if (cue != DemoInputCue.EndIntroBabyDiscovery)
-            throw new InvalidOperationException($"The Baby-discovery demo calls no {cue} routine.");
+            throw new InvalidOperationException($"The Baby-discovery demo handles no {cue} cue.");
 
         // The scene's end replaces both Samus handlers with ones that do nothing, disables demo input, and
         // returns into the following shared delete step. Samus is never processed again.
@@ -291,8 +291,8 @@ internal sealed class IntroBabyDiscoveryState
                 // The confused baby watches the egg's *next* animation step reach the first fully-hatched frame:
                 // the egg's program is then MetroidEggHatchedFrame2 or a later one, so the baby starts moving on that
                 // exact handoff.
-                if (egg.CurrentProgram is CinematicSpriteProgram.MetroidEggHatchedFrame2 or
-                    CinematicSpriteProgram.MetroidEggHatched or CinematicSpriteProgram.Delete)
+                if (egg.CurrentAnimation is CinematicSpriteSegment.MetroidEggHatchedFrame2 or
+                    CinematicSpriteSegment.MetroidEggHatched or CinematicSpriteSegment.Delete)
                 {
                     confusedBaby.InstallFrameBehavior(
                         CinematicSpriteFrameBehavior.ConfusedBabyHatched);
@@ -482,7 +482,7 @@ internal sealed class IntroBabyDiscoveryState
         var actor = new IntroDiscoverySprite(
             definition.Position,
             IntroShades.Drawn(definition.Colouring),
-            definition.Program);
+            definition.Animation);
         actor.InstallFrameBehavior(definition.FrameBehavior);
         return actor;
     }

@@ -48,7 +48,7 @@ internal static class MotherBrainRandomChancesVerification
             AssertSameAt(roll256 < 128, MotherBrainRandomDefinitions.ThirdPhaseBombs.IsTakenBy(sample), "phase-three bomb", sample);
             AssertSameAt(sample < 16384, MotherBrainRandomDefinitions.FakeDeathDustSmokes.IsTakenBy(sample), "fake death dust smoke", sample);
             AssertSameAt(sample < 16384, MotherBrainRandomDefinitions.EscapeDoorDustSmokes.IsTakenBy(sample), "escape door dust smoke", sample);
-            AssertSameAt(sample < 16384 ? 0 : sample < 57344 ? 1 : 2, MotherBrainRandomDefinitions.MixedDeathExplosionProgram.Choose(sample),
+            AssertSameAt(sample < 16384 ? 0 : sample < 57344 ? 1 : 2, MotherBrainRandomDefinitions.MixedDeathExplosionAnimation.Choose(sample),
                 "mixed death explosion program", sample);
 
             MotherBrainRandomSample seed = MotherBrainRandomSample.FromGenerator(sample);

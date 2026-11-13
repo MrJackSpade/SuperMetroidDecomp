@@ -13,12 +13,12 @@ internal static class AtomicNativeListAddresses
     internal const byte Bank = 0xa8;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<AtomicProgram>[] Entries =
+    internal static readonly NativeProgramEntry<AtomicSegment>[] Entries =
     [
-        new NativeProgramEntry<AtomicProgram>(AtomicProgram.UpRight, 0xe310),
-        new NativeProgramEntry<AtomicProgram>(AtomicProgram.UpLeft, 0xe32c),
-        new NativeProgramEntry<AtomicProgram>(AtomicProgram.DownLeft, 0xe348),
-        new NativeProgramEntry<AtomicProgram>(AtomicProgram.DownRight, 0xe364),
+        new NativeProgramEntry<AtomicSegment>(AtomicSegment.UpRight, 0xe310),
+        new NativeProgramEntry<AtomicSegment>(AtomicSegment.UpLeft, 0xe32c),
+        new NativeProgramEntry<AtomicSegment>(AtomicSegment.DownLeft, 0xe348),
+        new NativeProgramEntry<AtomicSegment>(AtomicSegment.DownRight, 0xe364),
     ];
 
 }

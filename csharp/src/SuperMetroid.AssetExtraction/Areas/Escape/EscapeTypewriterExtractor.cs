@@ -24,9 +24,9 @@ public static class EscapeTypewriterExtractor
     {
         Ensure.NotNull(bus);
         var programs = new Dictionary<string, EscapeTypewriterProgramDocument>(StringComparer.Ordinal);
-        foreach (EscapeTypewriterProgramId id in Enum.GetValues<EscapeTypewriterProgramId>())
+        foreach (EscapeTypewriterMessageId id in Enum.GetValues<EscapeTypewriterMessageId>())
         {
-            if (id == EscapeTypewriterProgramId.None) continue;
+            if (id == EscapeTypewriterMessageId.None) continue;
             programs.Add(id.ToString(), new() { Lines = ReadProgram(bus, id) });
         }
         using var output = new MemoryStream();
@@ -41,13 +41,13 @@ public static class EscapeTypewriterExtractor
     /// <summary>Parses one native warning stream, requiring its delay header and at most sixteen destination-prefixed text lines.</summary>
     private static EscapeTypewriterLineDocument[] ReadProgram(
         ISnesAddressSpace bus,
-        EscapeTypewriterProgramId id)
+        EscapeTypewriterMessageId id)
     {
         int cursor = id switch
         {
-            EscapeTypewriterProgramId.Ceres => (int)EscapeSourceDefinitions.CeresWarningText,
-            EscapeTypewriterProgramId.Zebes => (int)EscapeSourceDefinitions.ZebesWarningText,
-            EscapeTypewriterProgramId.None => throw new ArgumentOutOfRangeException(nameof(id), id, "No native escape text source exists."),
+            EscapeTypewriterMessageId.Ceres => (int)EscapeSourceDefinitions.CeresWarningText,
+            EscapeTypewriterMessageId.Zebes => (int)EscapeSourceDefinitions.ZebesWarningText,
+            EscapeTypewriterMessageId.None => throw new ArgumentOutOfRangeException(nameof(id), id, "No native escape text source exists."),
             _ => throw new ArgumentOutOfRangeException(nameof(id), id, "No native escape text source exists."),
         };
         if (CartridgeImportSource.Require(bus).ReadCartridgeWord(cursor) != DelayCommand ||
@@ -106,11 +106,11 @@ public static class EscapeTypewriterExtractor
     /// The VRAM word of the tilemap <paramref name="id"/>'s program types over: the Ceres warning types over BG1, the Zebes
     /// warning over BG2.
     /// </summary>
-    private static int TilemapWordOf(EscapeTypewriterProgramId id) => id switch
+    private static int TilemapWordOf(EscapeTypewriterMessageId id) => id switch
     {
-        EscapeTypewriterProgramId.Ceres => GameplayVramLayout.Bg1TilemapWord,
-        EscapeTypewriterProgramId.Zebes => GameplayVramLayout.Bg2TilemapWord,
-        EscapeTypewriterProgramId.None => throw new ArgumentOutOfRangeException(nameof(id), id, "No native escape text source exists."),
+        EscapeTypewriterMessageId.Ceres => GameplayVramLayout.Bg1TilemapWord,
+        EscapeTypewriterMessageId.Zebes => GameplayVramLayout.Bg2TilemapWord,
+        EscapeTypewriterMessageId.None => throw new ArgumentOutOfRangeException(nameof(id), id, "No native escape text source exists."),
         _ => throw new ArgumentOutOfRangeException(nameof(id), id, "No native escape text source exists."),
     };
 

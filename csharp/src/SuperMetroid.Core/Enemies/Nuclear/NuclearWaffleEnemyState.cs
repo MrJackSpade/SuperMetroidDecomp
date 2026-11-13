@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.Nuclear;
 public sealed class NuclearWaffleEnemyState
 {
     /// <summary>Where the body's typed animation (#641) resumes.</summary>
-    internal AnimationPlayback<NuclearWaffleProgram> Playback { get; set; }
+    internal AnimationPlayback<NuclearWaffleSegment> Playback { get; set; }
 
     /// <summary>The current waiting or sweeping behaviour.</summary>
     public NuclearWaffleEnemyFunction? Function { get; internal set; }

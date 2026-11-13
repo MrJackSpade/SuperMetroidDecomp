@@ -1030,7 +1030,7 @@ level, samus, frameCounter);
     private void HandleMotherBrainDemoCue(DemoInputCue cue)
     {
         if (cue != DemoInputCue.EndIntroMotherBrainFlashback)
-            throw new InvalidOperationException($"The Mother Brain flashback demo calls no {cue} routine.");
+            throw new InvalidOperationException($"The Mother Brain flashback demo handles no {cue} cue.");
 
         // The flashback's end locks Samus in pose two, reinitializes the pose/animation bookkeeping,
         // disables demo publication, and then returns to the demo's animation script. The next

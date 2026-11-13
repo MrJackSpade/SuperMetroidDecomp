@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Programs;
 using F = SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnFrameKind;
 using K = SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnCueKind;
-using P = SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnBodyProgram;
+using P = SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnBodySegment;
 
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
@@ -35,8 +35,8 @@ internal static class SporeSpawnAnimations
     private static readonly int[] OpeningDurations = [8, 8, 8, 7, 7, 6, 1];
 
     /// <summary>Every body program.</summary>
-    internal static AnimationSegments<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue> Segments { get; } = new(
-        new Dictionary<SporeSpawnBodyProgram, AnimationBeat<SporeSpawnFrame, SporeSpawnCue>[]>
+    internal static AnimationSegments<SporeSpawnBodySegment, SporeSpawnFrame, SporeSpawnCue> Segments { get; } = new(
+        new Dictionary<SporeSpawnBodySegment, AnimationBeat<SporeSpawnFrame, SporeSpawnCue>[]>
     {
         [P.InitialDead] =
         [
@@ -113,7 +113,7 @@ internal static class SporeSpawnAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<SporeSpawnBodyProgram, Animation<SporeSpawnBodyProgram>> StartingAt { get; } = new Dictionary<SporeSpawnBodyProgram, Animation<SporeSpawnBodyProgram>>
+    internal static IReadOnlyDictionary<SporeSpawnBodySegment, Animation<SporeSpawnBodySegment>> StartingAt { get; } = new Dictionary<SporeSpawnBodySegment, Animation<SporeSpawnBodySegment>>
     {
         [P.InitialDead] = new([new(P.InitialDead, 0, 3, 1)], AnimationEnd.Holds),
         [P.InitialAlive] = new([new(P.InitialAlive, 0, 3, 1)], AnimationEnd.Holds),
@@ -124,7 +124,7 @@ internal static class SporeSpawnAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<SporeSpawnBodyProgram> StartingWith(SporeSpawnBodyProgram segment) => StartingAt[segment];
+    internal static Animation<SporeSpawnBodySegment> StartingWith(SporeSpawnBodySegment segment) => StartingAt[segment];
 
     /// <summary>The six closing poses, from the second-to-last opening pose back to the first.</summary>
     private static IEnumerable<AnimationBeat<SporeSpawnFrame, SporeSpawnCue>> Closing() =>

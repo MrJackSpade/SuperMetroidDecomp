@@ -34,7 +34,7 @@ internal static class CrawlerAnimationDefinitionsVerification
         for (int orientation = 0; orientation < 4; orientation++)
         {
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + orientation * 2)),
-                NativeEnemyAnimationOracle.EntryOf(CrawlerNativeListAddresses.Entries, CrawlerSurfaceAnimations.ProgramFor(
+                NativeEnemyAnimationOracle.EntryOf(CrawlerNativeListAddresses.Entries, CrawlerSurfaceAnimations.AnimationFor(
                     family, orientations[orientation])),
                 $"crawler initial selector {family}/{orientation}");
         }
@@ -46,7 +46,7 @@ internal static class CrawlerAnimationDefinitionsVerification
         {
             CrawlerAnimationFamily family = SuperMetroid.AssetExtraction.Enemies.CrawlerSurfaceTableOrder.FamilyAt(column * 2);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((surfaceTables[orientation] + column * 2)),
-                NativeEnemyAnimationOracle.EntryOf(CrawlerNativeListAddresses.Entries, CrawlerSurfaceAnimations.ProgramFor(
+                NativeEnemyAnimationOracle.EntryOf(CrawlerNativeListAddresses.Entries, CrawlerSurfaceAnimations.AnimationFor(
                     family, orientations[orientation])),
                 $"crawler surface selector column {column} ({family})/{orientation}");
         }
@@ -80,14 +80,14 @@ internal static class CrawlerAnimationDefinitionsVerification
                         slot, family, speciesSurfaceFamily);
             }
 
-            AssertEqual(new AnimationPlayback<CrawlerProgram>(CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.ProgramFor(
+            AssertEqual(new AnimationPlayback<CrawlerSegment>(CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.AnimationFor(
                     family, (CrawlerSurfaceOrientation)orientation)), AnimationPlace.StartOfAnimation),
                 (enemies.CrawlerStates[0] ?? throw new InvalidOperationException("The crawler has no state.")).Playback,
                 $"crawler production initial selector {family}/{orientation}");
         }
 
-        Action<RoomEnemySlot, CrawlerEnemyState> setVertical = CrawlersBehavior.SetCrawlerVerticalSurfaceInstruction;
-        Action<RoomEnemySlot, CrawlerEnemyState> setHorizontal = CrawlersBehavior.SetCrawlerHorizontalSurfaceInstruction;
+        Action<RoomEnemySlot, CrawlerEnemyState> setVertical = CrawlersBehavior.SetCrawlerVerticalSurfaceAnimation;
+        Action<RoomEnemySlot, CrawlerEnemyState> setHorizontal = CrawlersBehavior.SetCrawlerHorizontalSurfaceAnimation;
         foreach (CrawlerAnimationFamily surfaceFamily in new[] { CrawlerAnimationFamily.Shared, CrawlerAnimationFamily.Viola, CrawlerAnimationFamily.Sciser, CrawlerAnimationFamily.Zero })
         {
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
@@ -96,28 +96,28 @@ internal static class CrawlerAnimationDefinitionsVerification
 
             state.Velocity = state.Velocity.WithX(new SignedEightEight(0xffff));
             setHorizontal(slot, state);
-            AssertEqual(new AnimationPlayback<CrawlerProgram>(CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.ProgramFor(
+            AssertEqual(new AnimationPlayback<CrawlerSegment>(CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.AnimationFor(
                     surfaceFamily, CrawlerSurfaceOrientation.UpsideRight)), AnimationPlace.StartOfAnimation),
                 state.Playback, $"crawler production right surface {surfaceFamily}");
             state.Velocity = state.Velocity.WithX(new SignedEightEight(1));
             setHorizontal(slot, state);
-            AssertEqual(new AnimationPlayback<CrawlerProgram>(CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.ProgramFor(
+            AssertEqual(new AnimationPlayback<CrawlerSegment>(CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.AnimationFor(
                     surfaceFamily, CrawlerSurfaceOrientation.UpsideLeft)), AnimationPlace.StartOfAnimation),
                 state.Playback, $"crawler production left surface {surfaceFamily}");
             state.Velocity = state.Velocity.WithY(new SignedEightEight(0xffff));
             setVertical(slot, state);
-            AssertEqual(new AnimationPlayback<CrawlerProgram>(CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.ProgramFor(
+            AssertEqual(new AnimationPlayback<CrawlerSegment>(CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.AnimationFor(
                     surfaceFamily, CrawlerSurfaceOrientation.UpsideDown)), AnimationPlace.StartOfAnimation),
                 state.Playback, $"crawler production down surface {surfaceFamily}");
             state.Velocity = state.Velocity.WithY(new SignedEightEight(1));
             setVertical(slot, state);
-            AssertEqual(new AnimationPlayback<CrawlerProgram>(CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.ProgramFor(
+            AssertEqual(new AnimationPlayback<CrawlerSegment>(CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.AnimationFor(
                     surfaceFamily, CrawlerSurfaceOrientation.UpsideUp)), AnimationPlace.StartOfAnimation),
                 state.Playback, $"crawler production up surface {surfaceFamily}");
         }
 
         AssertThrows<InvalidDataException>(
-            () => CrawlerSurfaceAnimations.ProgramFor(
+            () => CrawlerSurfaceAnimations.AnimationFor(
                 (CrawlerAnimationFamily)5, CrawlerSurfaceOrientation.UpsideRight),
             "crawler initial family beyond authored tables");
         Console.WriteLine(

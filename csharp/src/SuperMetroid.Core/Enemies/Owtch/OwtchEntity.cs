@@ -14,7 +14,7 @@ internal sealed class OwtchEntity(OwtchBehavior species, RoomEnemySlot slot, Ene
     public EnemyMainAiHandler? FindMain() => species.RunOwtchMainAi;
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => OwtchBehavior.AdvanceOwtchTypedAnimation;
+    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => OwtchBehavior.AdvanceOwtchTypedAnimation;
 
     /// <summary>The Owtch's own shot reaction, which normal bombs dispatch like the common one.</summary>
     /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>

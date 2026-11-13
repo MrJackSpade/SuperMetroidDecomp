@@ -106,10 +106,10 @@ internal static class ProjectileInstructionsVerification
         // list position; a shot whose list has installed none yet shows no frame, and leaves no trail (#1625).
         foreach (ushort entry in entries)
         {
-            AnimationPlayback<SamusProjectileProgram> playback = SamusProjectileProgramAddresses.PlaybackAt(entry)
+            AnimationPlayback<SamusProjectileSegment> playback = SamusProjectileProgramAddresses.PlaybackAt(entry)
                 ?? throw new InvalidOperationException($"Projectile list position ${entry:X4} names no playback.");
             trailSlot.Playback = playback;
-            int? expected = SamusProjectilePrograms.BeatOf(playback).Beat == 0
+            int? expected = SamusProjectilePlayback.BeatOf(playback).Beat == 0
                 ? null
                 : CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x930000 | (entry - 2));
             foreach (ushort timer in new ushort[] { 0, 1, 2, ushort.MaxValue })
@@ -146,8 +146,8 @@ internal static class ProjectileInstructionsVerification
                         trail = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((a + 6)); pointer = unchecked((ushort)(pointer + 8)); break;
                     }
                 }
-                AssertEqual(deleted, system.Animation.RunProjectileInstructionHandler(slot), "Native delete/timed outcome");
-                AssertEqual(deleted, bombs.RunProjectileInstructionHandler(bomb), "Bomb native delete/timed outcome");
+                AssertEqual(deleted, system.Animation.AdvanceProjectileAnimation(slot), "Native delete/timed outcome");
+                AssertEqual(deleted, bombs.AdvanceProjectileAnimation(bomb), "Bomb native delete/timed outcome");
                 frames++;
                 if (deleted)
                 {

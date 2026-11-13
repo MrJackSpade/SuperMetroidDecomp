@@ -11,19 +11,19 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 internal static class EyeDoorProjectileNativeListAddresses
 {
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<EyeDoorProjectileProgram>[] Entries =
+    internal static readonly NativeProgramEntry<EyeDoorProjectileSegment>[] Entries =
     [
-        new NativeProgramEntry<EyeDoorProjectileProgram>(EyeDoorProjectileProgram.Initial, 0xb5d9),
-        new NativeProgramEntry<EyeDoorProjectileProgram>(EyeDoorProjectileProgram.FlyingLoop, 0xb5eb),
-        new NativeProgramEntry<EyeDoorProjectileProgram>(EyeDoorProjectileProgram.Impact, 0xb5f3),
-        new NativeProgramEntry<EyeDoorProjectileProgram>(EyeDoorProjectileProgram.Shot, 0xb603),
+        new NativeProgramEntry<EyeDoorProjectileSegment>(EyeDoorProjectileSegment.Initial, 0xb5d9),
+        new NativeProgramEntry<EyeDoorProjectileSegment>(EyeDoorProjectileSegment.FlyingLoop, 0xb5eb),
+        new NativeProgramEntry<EyeDoorProjectileSegment>(EyeDoorProjectileSegment.Impact, 0xb5f3),
+        new NativeProgramEntry<EyeDoorProjectileSegment>(EyeDoorProjectileSegment.Shot, 0xb603),
     ];
 
     /// <summary>The bank-$86 bytes from the first list to the end of the last, $86:B5D9-B614, which production must never read.</summary>
     internal static readonly MotherBrainEffectNativeListAddressesExtent Extent = new MotherBrainEffectNativeListAddressesExtent(0xb5d9, 0xb615);
 
     /// <summary>The native entry of <paramref name="program"/>.</summary>
-    internal static ushort Entry(EyeDoorProjectileProgram program) => NativeEnemyProjectileProgramOracle.EntryOf(Entries, program);
+    internal static ushort Entry(EyeDoorProjectileSegment program) => NativeEnemyProjectileProgramOracle.EntryOf(Entries, program);
 
     /// <summary>The family's typed programs beside their native lists.</summary>
     internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, EyeDoorProjectileAnimations.Segments, EyeDoorProjectileAnimations.StartingAt, (frame => EnemyProjectileProgramFrameSources.Operand(frame)), EyeDoorProjectileCueRules.Rules);

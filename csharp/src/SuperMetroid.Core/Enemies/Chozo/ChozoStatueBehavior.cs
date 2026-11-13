@@ -93,10 +93,9 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The initializer makes the statue solid to Samus and animates it, on screen or off.
         statue.Contact = statue.Contact.With(EnemyContact.SolidToSamus);
-        statue.Processing = statue.Processing.With(EnemyProcessing.AnimationScript | EnemyProcessing.OffScreen);
+        statue.Processing = statue.Processing.With(EnemyProcessing.Animates | EnemyProcessing.OffScreen);
         statue.Frame = EnemyFrameId.Empty;
-        statue.FrameHold = WrappingCountdown.Start(1);
-        statue.Timer = WrappingCountdown.Start(0);
+        statue.AnimationClock.Restart();
 
         // The statue shows its own colours, the shade of its site's statue, which no other enemy shows (#1512).
         statue.Shading = PictureShading.Shaded(isWreckedShip ? ChozoAndTubeShades.WreckedShipStatue : ChozoAndTubeShades.LowerNorfairStatue);
@@ -112,13 +111,13 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (state.IsWreckedShip)
         {
-            state.Playback = new(ChozoStatueAnimations.StartingWith(ChozoStatueProgram.WreckedShipInitial), AnimationPlace.StartOfAnimation);
+            state.Playback = new(ChozoStatueAnimations.StartingWith(ChozoStatueSegment.WreckedShipInitial), AnimationPlace.StartOfAnimation);
             RequestChozoObject(ChozoStatueRoomObject.WreckedShipHand, ChozoStatueRoomDefinitions.WreckedShipHandBlock);
             RequestChozoObject(ChozoStatueRoomObject.SlopeAccessClosing, ChozoStatueRoomDefinitions.WreckedShipSlopeAccessBlock);
         }
         else
         {
-            state.Playback = new(ChozoStatueAnimations.StartingWith(ChozoStatueProgram.LowerNorfairInitial), AnimationPlace.StartOfAnimation);
+            state.Playback = new(ChozoStatueAnimations.StartingWith(ChozoStatueSegment.LowerNorfairInitial), AnimationPlace.StartOfAnimation);
             RequestChozoObject(ChozoStatueRoomObject.LowerNorfairHand, ChozoStatueRoomDefinitions.LowerNorfairHandBlock);
         }
     }
@@ -180,16 +179,16 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
             case ChozoStatueFrameBehavior.WaitForLowerNorfairHandTrigger:
                 if (state.HandTriggered)
                 {
-                    state.Playback = new(ChozoStatueAnimations.StartingWith(ChozoStatueProgram.LowerNorfairActivated), AnimationPlace.StartOfAnimation);
-                    statue.FrameHold = WrappingCountdown.Start(1);
+                    state.Playback = new(ChozoStatueAnimations.StartingWith(ChozoStatueSegment.LowerNorfairActivated), AnimationPlace.StartOfAnimation);
+                    statue.AnimationClock.StepOnNextUpdate();
                 }
                 return;
 
             case ChozoStatueFrameBehavior.WaitForWreckedShipHandTrigger:
                 if (_room.Services.Bosses.IsDefeated(BossBits.AreaBoss) && state.HandTriggered)
                 {
-                    state.Playback = new(ChozoStatueAnimations.StartingWith(ChozoStatueProgram.WreckedShipActivated), AnimationPlace.StartOfAnimation);
-                    statue.FrameHold = WrappingCountdown.Start(1);
+                    state.Playback = new(ChozoStatueAnimations.StartingWith(ChozoStatueSegment.WreckedShipActivated), AnimationPlace.StartOfAnimation);
+                    statue.AnimationClock.StepOnNextUpdate();
                 }
                 return;
 
@@ -203,7 +202,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Carries out one cue of the Chozo statues' animations: every cue
     /// the four statue animations raise. Every cue runs on to the next step, so none redirects.
     /// </summary>
-    private ChozoStatueProgram? ApplyChozoStatueCue(
+    private ChozoStatueSegment? ApplyChozoStatueCue(
         RoomEnemySlot statue,
         ChozoStatueCue cue,
         SamusState? samus,
@@ -379,10 +378,10 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances ChozoStatue's typed animation.</summary>
-    internal void AdvanceChozoStatueTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context) =>
-        EnemyProgramAnimation.Advance(slot, ChozoStatueAnimations.Segments,
+    internal void AdvanceChozoStatueTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext context) =>
+        EnemyAnimationPlayback.Advance(slot, ChozoStatueAnimations.Segments,
             static (ChozoStatueState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyChozoStatueCue(slot, cue, context.Samus, context.Level) is { } target
-                ? new AnimationContinuation<ChozoStatueProgram>(ChozoStatueAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
+                ? new AnimationContinuation<ChozoStatueSegment>(ChozoStatueAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
 }

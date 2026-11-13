@@ -2,8 +2,8 @@ namespace SuperMetroid.Core.Progression;
 
 /// <summary>
 /// Reserve-health mode (#1323): zero until the first reserve tank, then AUTO or MANUAL. Pickups and refills
-/// write only one, the pause menu toggles between one and two, and AUTO is the only mode with bit zero set, so the
-/// game's bit-zero tests are AUTO tests.
+/// write only AUTO, the pause menu toggles between AUTO and MANUAL, and AUTO is the only odd mode, so the game's
+/// oddness tests are AUTO tests.
 /// </summary>
 public enum ReserveTankMode
 {

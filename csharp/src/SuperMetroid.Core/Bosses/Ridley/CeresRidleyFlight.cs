@@ -70,7 +70,7 @@ internal sealed class CeresRidleyFlight
             Velocity = EightEightVector<RoomPixels>.Zero,
             MovementMinimum = Position16<RoomPixels>.Wrapped(40, -32),
             MovementMaximum = new Position16<RoomPixels>(224, 176),
-            BabyPlayback = new AnimationPlayback<CeresBabyProgram>(CeresBabyAnimations.StartingWith(CeresBabyProgram.Initial), AnimationPlace.StartOfAnimation),
+            BabyPlayback = new AnimationPlayback<CeresBabySegment>(CeresBabyAnimations.StartingWith(CeresBabySegment.Initial), AnimationPlace.StartOfAnimation),
             BabyFrameHold = 1,
             BabyFunction = CeresBabyFunction.CarriedInArms,
             BabyCurrentPose = null,
@@ -89,7 +89,7 @@ internal sealed class CeresRidleyFlight
             IdealInterSegmentTailAngle = RidleyTailDefinitions.IdealInterSegmentSpacing,
             TailSegments = RidleyTail.CreateInitialRidleyTailSegments(),
         };
-        StartRidleyProgram(_ridleyEncounter.Ridley, slot, RidleyBodyProgram.Initial);
+        StartRidleyAnimation(_ridleyEncounter.Ridley, slot, RidleyBodySegment.Initial);
         // Ceres Ridley's initialization ends by queuing music zero (stop).
         _audio.RequestRoomEnemyStartMusic(MusicRequest.Stop);
 
@@ -185,7 +185,7 @@ internal sealed class CeresRidleyFlight
         // The fireball function installs the complete retail mouth/fireball animation script.
         // Its fireball commands calculate and spawn actors; leaving this
         // assignment out produces correct boss motion with a conspicuously silent attack.
-        StartRidleyProgram(state, slot, RidleyBodyProgram.Fireballing);
+        StartRidleyAnimation(state, slot, RidleyBodySegment.Fireballing);
         state.Function = RidleyAiFunction.CeresFireballShooting;
         state.FunctionTimer = 224;
         TickCeresRidleyFireballShooting(slot, state);
@@ -516,11 +516,9 @@ internal sealed class CeresRidleyFlight
     }
 
     /// <summary>Restarts Ridley's body animation and frame timer at a selected list.</summary>
-    internal static void StartRidleyProgram(RidleyEnemyState state, RoomEnemySlot slot, RidleyBodyProgram program)
+    internal static void StartRidleyAnimation(RidleyEnemyState state, RoomEnemySlot slot, RidleyBodySegment segment)
     {
-        state.BodyPlayback = new AnimationPlayback<RidleyBodyProgram>(RidleyAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        state.BodyPlayback = EnemyAnimationPlayback.Start(slot, RidleyAnimations.StartingWith(segment));
     }
 
     /// <summary>Animates Ridley's wings after the common Ridley movement pass.</summary>
@@ -575,7 +573,7 @@ internal sealed class CeresRidleyFlight
             EnemyDefinitionId.CeresDoor,
             Position: position,
             Contact: EnemyContact.None,
-            Processing: EnemyProcessing.AnimationScript | EnemyProcessing.OffScreen,
+            Processing: EnemyProcessing.Animates | EnemyProcessing.OffScreen,
             Presence: EnemyPresence.Hidden,
             CollidesByFrameHitboxes: false,
             SpawnSettings: new CeresDoorSpawnSettings(variant));

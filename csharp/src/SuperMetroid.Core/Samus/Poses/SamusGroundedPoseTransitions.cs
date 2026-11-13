@@ -521,7 +521,7 @@ internal static class SamusGroundedPoseTransitions
         // Reads the PREVIOUS pose record before it installs the final turn art.
         // Previous movement type five selects the second shot-direction table; every other admitted source uses
         // the first. Both tables have ten entries, but shot directions four/five belong to
-        // the compact straight-down family that remains untranslated.
+        // the compact straight-down family, which this transition does not handle.
         SamusPoseId selectedTurnPose;
         if (wasForwardFacing)
         {

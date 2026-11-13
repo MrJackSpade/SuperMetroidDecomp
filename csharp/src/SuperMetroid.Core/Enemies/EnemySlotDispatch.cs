@@ -44,10 +44,8 @@ internal sealed class EnemySlotDispatch : IEnemyDispatch
         slot.Processing = population.Processing;
         slot.Presence = population.Presence;
         slot.CollidesByFrameHitboxes = population.CollidesByFrameHitboxes;
-        slot.NewInstructionFrame = false;
         slot.AiStates = EnemyAiStates.None;
-        slot.Timer = WrappingCountdown.Start(0);
-        slot.FrameHold = WrappingCountdown.Start(1);
+        slot.AnimationClock.Restart();
         slot.FrameCounter = 0;
         slot.HurtAiTime = definition.HurtFlashFrames;
         slot.Shading = PictureShading.Standard;
@@ -92,7 +90,7 @@ internal sealed class EnemySlotDispatch : IEnemyDispatch
         InitializeSlotFromDefinition(slot, population, _room.LoadedDefinitions.ReadEnemyDefinition(population.DefinitionId));
         RunInitializationAi(slot, EnemySpawnSurroundings.None);
         // Spawning writes the empty frame after initialization, before the first animation tick.
-        slot.Frame = slot.Processing.HasAny(EnemyProcessing.AnimationScript)
+        slot.Frame = slot.Processing.HasAny(EnemyProcessing.Animates)
             ? EnemyFrameId.Empty
             : null;
         _slotTable.CoverSpawn(slot);

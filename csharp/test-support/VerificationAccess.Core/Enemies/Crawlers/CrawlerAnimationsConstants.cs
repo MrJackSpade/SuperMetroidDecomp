@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 internal static class CrawlerAnimationsConstants
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params CrawlerProgram[] programs) =>
+    internal static IEnumerable<ushort> Spritemaps(params CrawlerSegment[] programs) =>
         programs.SelectMany(program => CrawlerAnimations.Segments.Beats(program))
             .OfType<AnimationBeat<EnemyFrameId, CrawlerCue>.Frame>()
             .Select(frame => CrawlerFrameToolingDefinitions.Spritemap(frame.Shown));

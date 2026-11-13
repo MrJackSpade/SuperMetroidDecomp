@@ -13,11 +13,11 @@ internal static class BlueBrinstarFaceBlockNativeListAddresses
     internal const byte Bank = 0xa8;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<BlueBrinstarFaceBlockProgram>[] Entries =
+    internal static readonly NativeProgramEntry<BlueBrinstarFaceBlockSegment>[] Entries =
     [
-        new NativeProgramEntry<BlueBrinstarFaceBlockProgram>(BlueBrinstarFaceBlockProgram.SamusLeft, 0xe80c),
-        new NativeProgramEntry<BlueBrinstarFaceBlockProgram>(BlueBrinstarFaceBlockProgram.SamusRight, 0xe81a),
-        new NativeProgramEntry<BlueBrinstarFaceBlockProgram>(BlueBrinstarFaceBlockProgram.Initial, 0xe828),
+        new NativeProgramEntry<BlueBrinstarFaceBlockSegment>(BlueBrinstarFaceBlockSegment.SamusLeft, 0xe80c),
+        new NativeProgramEntry<BlueBrinstarFaceBlockSegment>(BlueBrinstarFaceBlockSegment.SamusRight, 0xe81a),
+        new NativeProgramEntry<BlueBrinstarFaceBlockSegment>(BlueBrinstarFaceBlockSegment.Initial, 0xe828),
     ];
 
 }

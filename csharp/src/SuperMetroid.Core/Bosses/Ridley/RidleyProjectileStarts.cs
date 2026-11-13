@@ -10,10 +10,10 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 internal static class RidleyProjectileStarts
 {
     /// <summary>Each kind's initial program.</summary>
-    private static readonly Dictionary<RoomEnemyProjectileKind, Func<EnemyProjectileAnimation>> InitialPrograms = new()
+    private static readonly Dictionary<RoomEnemyProjectileKind, Func<EnemyProjectileAnimation>> InitialAnimations = new()
     {
-        [RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnCenter] = () => new RidleyFireballAnimation(RidleyFireballProgram.HorizontalCenter),
-        [RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnCenter] = () => new RidleyFireballAnimation(RidleyFireballProgram.VerticalCenter),
+        [RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnCenter] = () => new RidleyFireballAnimation(RidleyFireballSegment.HorizontalCenter),
+        [RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnCenter] = () => new RidleyFireballAnimation(RidleyFireballSegment.VerticalCenter),
     };
 
     /// <summary>Initializes <paramref name="projectile"/> from its definition and starts the program its kind names.</summary>
@@ -21,6 +21,6 @@ internal static class RidleyProjectileStarts
     internal static void Initialize(EnemyProjectile projectile, RoomEnemyProjectileKind kind, SpriteGraphics graphics)
     {
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, graphics);
-        projectile.StartAnimation(InitialPrograms[kind]());
+        projectile.StartAnimation(InitialAnimations[kind]());
     }
 }

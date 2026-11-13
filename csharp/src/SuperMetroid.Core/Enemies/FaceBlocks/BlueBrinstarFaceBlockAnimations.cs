@@ -1,4 +1,4 @@
-using P = SuperMetroid.Core.Enemies.FaceBlocks.BlueBrinstarFaceBlockProgram;
+using P = SuperMetroid.Core.Enemies.FaceBlocks.BlueBrinstarFaceBlockSegment;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Artwork;
 
@@ -11,8 +11,8 @@ namespace SuperMetroid.Core.Enemies.FaceBlocks;
 internal static class BlueBrinstarFaceBlockAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<BlueBrinstarFaceBlockProgram, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
-        new Dictionary<BlueBrinstarFaceBlockProgram, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
+    internal static AnimationSegments<BlueBrinstarFaceBlockSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<BlueBrinstarFaceBlockSegment, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
     {
         [P.SamusLeft] =
         [
@@ -33,7 +33,7 @@ internal static class BlueBrinstarFaceBlockAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<BlueBrinstarFaceBlockProgram, Animation<BlueBrinstarFaceBlockProgram>> StartingAt { get; } = new Dictionary<BlueBrinstarFaceBlockProgram, Animation<BlueBrinstarFaceBlockProgram>>
+    internal static IReadOnlyDictionary<BlueBrinstarFaceBlockSegment, Animation<BlueBrinstarFaceBlockSegment>> StartingAt { get; } = new Dictionary<BlueBrinstarFaceBlockSegment, Animation<BlueBrinstarFaceBlockSegment>>
     {
         [P.SamusLeft] = new([new(P.SamusLeft, 0, 3, 1)], AnimationEnd.Holds),
         [P.SamusRight] = new([new(P.SamusRight, 0, 3, 1)], AnimationEnd.Holds),
@@ -41,7 +41,7 @@ internal static class BlueBrinstarFaceBlockAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<BlueBrinstarFaceBlockProgram> StartingWith(BlueBrinstarFaceBlockProgram segment) => StartingAt[segment];
+    internal static Animation<BlueBrinstarFaceBlockSegment> StartingWith(BlueBrinstarFaceBlockSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);

@@ -14,5 +14,5 @@ internal sealed class NorfairLavaJumpingEnemyEntity(NorfairLavaJumpingEnemyBehav
     public EnemyMainAiHandler? FindMain() => species.RunNorfairLavaJumpingEnemyMainAi;
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => NorfairLavaJumpingEnemyBehavior.AdvanceNorfairLavaJumpingEnemyTypedAnimation;
+    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => NorfairLavaJumpingEnemyBehavior.AdvanceNorfairLavaJumpingEnemyTypedAnimation;
 }

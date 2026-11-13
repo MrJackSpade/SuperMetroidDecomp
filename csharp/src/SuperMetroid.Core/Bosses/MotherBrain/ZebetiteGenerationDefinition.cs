@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal readonly record struct ZebetiteGenerationDefinition(
     ZebetiteGenerationFlags GenerationFlags,
     int YRadius,
-    ZebetiteProgram Program,
+    ZebetiteSegment Animation,
     int XPosition,
     int PrimaryYPosition,
     int LinkedYPosition);

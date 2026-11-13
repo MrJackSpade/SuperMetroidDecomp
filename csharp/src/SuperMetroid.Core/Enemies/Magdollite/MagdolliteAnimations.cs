@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Magdollite.MagdolliteCueKind;
-using P = SuperMetroid.Core.Enemies.Magdollite.MagdolliteProgram;
+using P = SuperMetroid.Core.Enemies.Magdollite.MagdolliteSegment;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Magdollite;
@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 internal static class MagdolliteAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<MagdolliteProgram, EnemyFrameId, MagdolliteCue> Segments { get; } = new(
-        new Dictionary<MagdolliteProgram, AnimationBeat<EnemyFrameId, MagdolliteCue>[]>
+    internal static AnimationSegments<MagdolliteSegment, EnemyFrameId, MagdolliteCue> Segments { get; } = new(
+        new Dictionary<MagdolliteSegment, AnimationBeat<EnemyFrameId, MagdolliteCue>[]>
     {
         [P.LeftIdle] =
         [
@@ -178,7 +178,7 @@ internal static class MagdolliteAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<MagdolliteProgram, Animation<MagdolliteProgram>> StartingAt { get; } = new Dictionary<MagdolliteProgram, Animation<MagdolliteProgram>>
+    internal static IReadOnlyDictionary<MagdolliteSegment, Animation<MagdolliteSegment>> StartingAt { get; } = new Dictionary<MagdolliteSegment, Animation<MagdolliteSegment>>
     {
         [P.LeftIdle] = new([new(P.LeftIdle, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
         [P.LeftThrow] = new([new(P.LeftThrow, 0, 15, 1)], AnimationEnd.Holds),
@@ -200,7 +200,7 @@ internal static class MagdolliteAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<MagdolliteProgram> StartingWith(MagdolliteProgram segment) => StartingAt[segment];
+    internal static Animation<MagdolliteSegment> StartingWith(MagdolliteSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, MagdolliteCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, MagdolliteCue>.Frame(frame, duration);

@@ -78,7 +78,7 @@ internal static class DraygonTurretCadenceVerification
         runtime.Enemies.FrameContext.SeedPowerBombExplosion(explosion);
         runtime.Player.IntroducedSamus.XSpeedDivisor = 3;
         ushort bombedX = bombed.Position.X.Whole;
-        runtime.Enemies.StepEnemyProjectileInstructions(runtime.Room.LoadedLevelData, runtime.Player.Samus,
+        runtime.Enemies.AdvanceEnemyProjectileAnimations(runtime.Room.LoadedLevelData, runtime.Player.Samus,
             new(runtime.Room.LoadedCamera.PixelPosition.X, runtime.Room.LoadedCamera.PixelPosition.Y), runtime.Enemies.NextStandaloneProjectileFrame(),
             samusBombs: null, frameCounter: runtime.Enemies.FrameContext.RandomEnemyCounter);
         AssertTrue(!bombed.IsActive, "a power-bombed goop loses its projectile ID");

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.FaceBlocks;
 public sealed class BlueBrinstarFaceBlockEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<BlueBrinstarFaceBlockProgram> Playback { get; set; }
+    internal AnimationPlayback<BlueBrinstarFaceBlockSegment> Playback { get; set; }
 
     /// <summary>
     /// Once set, the face has selected its directional animation and the main AI never performs the proximity test
@@ -21,7 +21,7 @@ public sealed class BlueBrinstarFaceBlockEnemyState
     public int LastHorizontalDelta { get; internal set; }
 
     /// <summary>
-    /// Whether the face looks right (parameter two's bit zero). Activation needs Samus on the side opposite the one
+    /// Whether the face looks right, as its spawn setting's facing says. Activation needs Samus on the side opposite the one
     /// this names, so a face looking right wakes for Samus to its left.
     /// </summary>
     public bool FacesRight { get; internal set; }

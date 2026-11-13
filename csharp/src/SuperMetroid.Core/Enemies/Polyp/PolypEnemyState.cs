@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Polyp;
 public sealed class PolypEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<PolypProgram> Playback { get; set; }
+    internal AnimationPlayback<PolypSegment> Playback { get; set; }
 
     /// <summary>The current Polyp behaviour.</summary>
     public PolypEnemyFunction? Function { get; internal set; }

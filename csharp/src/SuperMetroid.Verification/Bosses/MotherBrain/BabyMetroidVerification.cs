@@ -82,12 +82,12 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     baby.Initialize(previousOccupant: FixedPosition<RoomPixels>.Zero);
     // The population's animation and off-screen processing, plus initialization's Plasma Beam block (native $3800).
     AssertEqual(EnemyContact.BlocksPlasmaBeam, baby.Contact, "Baby population/init contact OR");
-    AssertEqual(EnemyProcessing.AnimationScript | EnemyProcessing.OffScreen, baby.Processing, "Baby population/init processing OR");
+    AssertEqual(EnemyProcessing.Animates | EnemyProcessing.OffScreen, baby.Processing, "Baby population/init processing OR");
     AssertEqual(EnemyPresence.None, baby.Presence, "Baby population/init presence OR");
     AssertEqual(false, baby.HurtFlashShown, "Baby cutscene shows its own palette, not the hit flash");
     // The Baby keeps no graphics: its sheet pictures its frames where its tile rows are transferred, and its parts carry
     // their own palette rows (#1422, #1513).
-    AssertEqual(MotherBrainBabyProgram.Initial, baby.Program, "Baby initial program");
+    AssertEqual(MotherBrainBabySegment.Initial, baby.Animation, "Baby initial program");
     // Whole/subpixel coordinates in native `$0F7A/$0F7C/$0F7E/$0F80` order.
     FixedPosition<RoomPixels> BabyPoint() => baby.Position;
     static FixedPosition<RoomPixels> ExpectedBabyPoint(
@@ -164,11 +164,11 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     AssertTrue(sawBodyStumbleRequest, "Baby requests Mother Brain fast backward stumble");
     AssertTrue(sawMotherBrainInterrupt, "Baby overwrites Mother Brain final-beam function");
     AssertTrue(sawLatchSound, "Baby latch queues sound library one effect $40");
-    AssertEqual(MotherBrainBabyProgram.DrainingMotherBrain, baby.Program, "Baby pin installs draining animation");
+    AssertEqual(MotherBrainBabySegment.DrainingMotherBrain, baby.Animation, "Baby pin installs draining animation");
     AssertEqual(ExpectedBabyPoint(0x0040, 0xc500, 0x0048, 0xf000),
         BabyPoint(),
         "Baby pin changes whole coordinates but retains native subpositions");
-    AssertEqual(MotherBrainBodyProgram.WalkBackwardReallyFast, motherBrain.State.Body.Program,
+    AssertEqual(MotherBrainBodySegment.WalkBackwardReallyFast, motherBrain.State.Body.Animation,
         "Baby stumble uses animation-delay index two");
     AssertEqual(MotherBrainBodyFunction.SecondPhaseDrainedByBabyTakenAback,
         motherBrain.State.Phase,

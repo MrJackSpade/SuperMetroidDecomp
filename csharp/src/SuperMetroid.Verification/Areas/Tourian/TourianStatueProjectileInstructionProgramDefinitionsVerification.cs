@@ -99,7 +99,7 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
         Run(soul, 3);
         AssertEqual((ushort)0xb852, NativePointer(soul),
             "statue soul loops through both authored poses");
-        soul.StartAnimation(new TourianStatueProjectileAnimation(TourianStatueProjectileProgram.Delete));
+        soul.StartAnimation(new TourianStatueProjectileAnimation(TourianStatueProjectileSegment.Delete));
         Run(soul, 1);
         AssertTrue(!soul.IsActive, "private Tourian delete list clears a soul actor");
 
@@ -166,7 +166,7 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
             for (int frame = 0; frame < frames; frame++)
             {
                 projectile.FrameHold = WrappingCountdown.Start(1);
-                enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, null, Position16<RoomPixels>.Zero);
+                enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, null, Position16<RoomPixels>.Zero);
                 // The shown frame's operand sits just before the instruction the native pointer stands on.
                 VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands,
                     projectile.IsActive ? unchecked((ushort)(NativePointer(projectile) - 2)) : null);

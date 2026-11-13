@@ -13,9 +13,9 @@ internal static class NuclearWaffleNativeListAddresses
     internal const byte Bank = 0xa6;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<NuclearWaffleProgram>[] Entries =
+    internal static readonly NativeProgramEntry<NuclearWaffleSegment>[] Entries =
     [
-        new NativeProgramEntry<NuclearWaffleProgram>(NuclearWaffleProgram.BodyLoop, 0x9490),
+        new NativeProgramEntry<NuclearWaffleSegment>(NuclearWaffleSegment.BodyLoop, 0x9490),
     ];
 
 }

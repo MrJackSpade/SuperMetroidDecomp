@@ -15,15 +15,15 @@ internal static class SporeSpawnNativeListAddresses
     /// <summary>Each typed body program's native entry point in bank $A5, in authored order.</summary>
     internal static readonly SporeSpawnNativeListAddressesBodyEntry[] BodyEntries =
     [
-        new SporeSpawnNativeListAddressesBodyEntry(SporeSpawnBodyProgram.InitialDead, 0xe6b9),
-        new SporeSpawnNativeListAddressesBodyEntry(SporeSpawnBodyProgram.InitialAlive, 0xe6c7),
-        new SporeSpawnNativeListAddressesBodyEntry(SporeSpawnBodyProgram.FightStarted, 0xe6d5),
-        new SporeSpawnNativeListAddressesBodyEntry(SporeSpawnBodyProgram.OpenAndStop, 0xe6e3),
-        new SporeSpawnNativeListAddressesBodyEntry(SporeSpawnBodyProgram.OpenPulse, 0xe715),
-        new SporeSpawnNativeListAddressesBodyEntry(SporeSpawnBodyProgram.CloseAndMove, 0xe729),
-        new SporeSpawnNativeListAddressesBodyEntry(SporeSpawnBodyProgram.Death, 0xe77d),
-        new SporeSpawnNativeListAddressesBodyEntry(SporeSpawnBodyProgram.DyingExplosions, 0xe78d),
-        new SporeSpawnNativeListAddressesBodyEntry(SporeSpawnBodyProgram.Hardening, 0xe7bd),
+        new SporeSpawnNativeListAddressesBodyEntry(SporeSpawnBodySegment.InitialDead, 0xe6b9),
+        new SporeSpawnNativeListAddressesBodyEntry(SporeSpawnBodySegment.InitialAlive, 0xe6c7),
+        new SporeSpawnNativeListAddressesBodyEntry(SporeSpawnBodySegment.FightStarted, 0xe6d5),
+        new SporeSpawnNativeListAddressesBodyEntry(SporeSpawnBodySegment.OpenAndStop, 0xe6e3),
+        new SporeSpawnNativeListAddressesBodyEntry(SporeSpawnBodySegment.OpenPulse, 0xe715),
+        new SporeSpawnNativeListAddressesBodyEntry(SporeSpawnBodySegment.CloseAndMove, 0xe729),
+        new SporeSpawnNativeListAddressesBodyEntry(SporeSpawnBodySegment.Death, 0xe77d),
+        new SporeSpawnNativeListAddressesBodyEntry(SporeSpawnBodySegment.DyingExplosions, 0xe78d),
+        new SporeSpawnNativeListAddressesBodyEntry(SporeSpawnBodySegment.Hardening, 0xe7bd),
     ];
 
     /// <summary>The native body lists' extent, $A5:E6B9..E811, which production must never read.</summary>
@@ -51,17 +51,17 @@ internal static class SporeSpawnNativeListAddresses
     /// <summary>Each typed projectile program's native entry point in bank $86.</summary>
     internal static readonly SporeSpawnNativeListAddressesProjectileEntry[] ProjectileEntries =
     [
-        new SporeSpawnNativeListAddressesProjectileEntry(SporeSpawnProjectileProgram.SpawnerClosed, 0xdc00),
-        new SporeSpawnNativeListAddressesProjectileEntry(SporeSpawnProjectileProgram.SpawnerRelease, 0xdc06),
-        new SporeSpawnNativeListAddressesProjectileEntry(SporeSpawnProjectileProgram.Spore, 0xdc1e),
-        new SporeSpawnNativeListAddressesProjectileEntry(SporeSpawnProjectileProgram.Stalk, 0xdc2e),
-        new SporeSpawnNativeListAddressesProjectileEntry(SporeSpawnProjectileProgram.SporeShot, 0xdc34),
+        new SporeSpawnNativeListAddressesProjectileEntry(SporeSpawnProjectileSegment.SpawnerClosed, 0xdc00),
+        new SporeSpawnNativeListAddressesProjectileEntry(SporeSpawnProjectileSegment.SpawnerRelease, 0xdc06),
+        new SporeSpawnNativeListAddressesProjectileEntry(SporeSpawnProjectileSegment.Spore, 0xdc1e),
+        new SporeSpawnNativeListAddressesProjectileEntry(SporeSpawnProjectileSegment.Stalk, 0xdc2e),
+        new SporeSpawnNativeListAddressesProjectileEntry(SporeSpawnProjectileSegment.SporeShot, 0xdc34),
     ];
 
     /// <summary>The body program whose native list starts at <paramref name="address"/>, if one does.</summary>
-    internal static SporeSpawnBodyProgram? BodyProgramAt(ushort address) =>
-        BodyEntries.Where(item => item.Entry == address).Select(item => (SporeSpawnBodyProgram?)item.Program).SingleOrDefault();
+    internal static SporeSpawnBodySegment? BodyProgramAt(ushort address) =>
+        BodyEntries.Where(item => item.Entry == address).Select(item => (SporeSpawnBodySegment?)item.Program).SingleOrDefault();
 
     /// <summary>The native entry point of <paramref name="program"/>.</summary>
-    internal static ushort BodyEntry(SporeSpawnBodyProgram program) => BodyEntries.Single(item => item.Program == program).Entry;
+    internal static ushort BodyEntry(SporeSpawnBodySegment program) => BodyEntries.Single(item => item.Program == program).Entry;
 }

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 public sealed class CrawlerEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<CrawlerProgram> Playback { get; set; }
+    internal AnimationPlayback<CrawlerSegment> Playback { get; set; }
 
     /// <summary>
     /// Signed 8.8 motion. On horizontal surfaces X is the tangent and Y the floor/ceiling-probe

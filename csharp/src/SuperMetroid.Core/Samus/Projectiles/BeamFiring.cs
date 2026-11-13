@@ -290,9 +290,9 @@ internal sealed class BeamFiring
         // direction-specific list, samples its initial radii, and arms a one-frame timer.
         SamusProjectileKind kind = SamusProjectileSelection.BeamShot(beamType, charged);
         slot.Damage = SamusProjectileDamage.Read(kind);
-        SamusProjectileProgram? program = SamusProjectileSelection.BeamShotProgram(beamType, charged, aim);
-        slot.Playback = SamusProjectilePrograms.Start(program);
-        slot.Radius = SamusProjectilePrograms.InitialRadius(program);
+        SamusProjectileSegment? segment = SamusProjectileSelection.BeamShotAnimation(beamType, charged, aim);
+        slot.Playback = SamusProjectilePlayback.Start(segment);
+        slot.Radius = SamusProjectilePlayback.InitialRadius(segment);
         slot.FrameHold = WrappingCountdown.Start(1);
 
         // The cooldown selection checks Charge equipment and both input-edge latches before
@@ -387,9 +387,9 @@ internal sealed class BeamFiring
         const SamusBeamCombination hyperBeamType = SamusBeamCombination.Plasma;
         SamusProjectileKind kind = SamusProjectileSelection.BeamShot(hyperBeamType, charged: true);
         slot.Damage = SamusProjectileDamage.Read(kind);
-        SamusProjectileProgram program = SamusProjectileKinds.Program(kind, slot.Direction);
-        slot.Playback = SamusProjectilePrograms.Start(program);
-        slot.Radius = SamusProjectilePrograms.InitialRadius(program);
+        SamusProjectileSegment segment = SamusProjectileKinds.Animation(kind, slot.Direction);
+        slot.Playback = SamusProjectilePlayback.Start(segment);
+        slot.Radius = SamusProjectilePlayback.InitialRadius(segment);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Damage = 1000;
 
@@ -477,9 +477,9 @@ internal sealed class BeamFiring
         // The selected HUD item chose the missile family above; the family selects the projectile kind.
         SamusProjectileKind kind = SamusProjectileSelection.NonBeam(slot.Type.Family);
         slot.Damage = SamusProjectileDamage.Read(kind);
-        SamusProjectileProgram program = SamusProjectileKinds.Program(kind, slot.Direction);
-        slot.Playback = SamusProjectilePrograms.Start(program);
-        slot.Radius = SamusProjectilePrograms.InitialRadius(program);
+        SamusProjectileSegment segment = SamusProjectileKinds.Animation(kind, slot.Direction);
+        slot.Playback = SamusProjectilePlayback.Start(segment);
+        slot.Radius = SamusProjectilePlayback.InitialRadius(segment);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.FrameBehavior = isSuperMissile
             ? SamusProjectileFrameBehavior.SuperMissile

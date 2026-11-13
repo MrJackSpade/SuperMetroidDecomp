@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// <remarks>
 /// The Baby's Hyper Beam freeze and its rainbow stop set the animation frame of a Samus the drain has let go of, whatever
 /// pose she holds, and a crouch, morph or stand transition reads that frame past its own short program into the programs
-/// laid out after it (<see cref="Compatibility.LaidOutProgramContinuation{TProgram, TStep}"/>). Those reads install the glitch
+/// laid out after it (<see cref="Compatibility.LaidOutAnimationContinuation{TAnimation, TStep}"/>). Those reads install the glitch
 /// balls and the Draygon-held ball, which are therefore held poses and are not listed here (#1535). The transitions whose
 /// programs those reads run through are still never held: their programs run under the reading pose, which is the pose
 /// drawn, and nothing installs the transitions themselves.

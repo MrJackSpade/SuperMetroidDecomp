@@ -62,7 +62,7 @@ internal sealed record PartFrameConfiguration(
     /// </summary>
     public static IReadOnlyList<PartFrameConfiguration> All { get; } =
     [
-        new("DraygonBehavior", "DraygonFrameDefinitions", "ShownFrames", "DraygonAnimations", "StartPartPrograms",
+        new("DraygonBehavior", "DraygonFrameDefinitions", "ShownFrames", "DraygonAnimations", "StartPartAnimations",
             ["DraygonBody", "DraygonEye", "DraygonTail", "DraygonArms"],
             new Dictionary<string, string[]>(StringComparer.Ordinal)
             {
@@ -332,7 +332,7 @@ internal sealed record PartFrameConfiguration(
             },
             new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, [])
         {
-            StepHelperTypes = ["TorizoProgramSteps"],
+            StepHelperTypes = ["TorizoAnimationSteps"],
         },
         // Ridley's body poses: Lower Norfair Ridley's programs stand, roar, lift off, breathe fire, turn through the
         // forward pose and roar as he dies; Ceres Ridley's stand, roar, lift off, lunge, take the Baby and breathe fire,

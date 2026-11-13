@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Programs;
 using C = SuperMetroid.Core.Bosses.Phantoon.PhantoonPartCue;
 using F = SuperMetroid.Core.Bosses.Phantoon.PhantoonPartFrameKind;
-using P = SuperMetroid.Core.Bosses.Phantoon.PhantoonPartProgram;
+using P = SuperMetroid.Core.Bosses.Phantoon.PhantoonPartSegment;
 
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
@@ -16,8 +16,8 @@ internal static class PhantoonAnimations
     private const int MouthFrameDuration = 5;
 
     /// <summary>Every body, eye, tentacle and mouth segment.</summary>
-    internal static AnimationSegments<PhantoonPartProgram, PhantoonPartFrame, PhantoonPartCue> Segments { get; } = new(
-        new Dictionary<PhantoonPartProgram, AnimationBeat<PhantoonPartFrame, PhantoonPartCue>[]>
+    internal static AnimationSegments<PhantoonPartSegment, PhantoonPartFrame, PhantoonPartCue> Segments { get; } = new(
+        new Dictionary<PhantoonPartSegment, AnimationBeat<PhantoonPartFrame, PhantoonPartCue>[]>
     {
         [P.InvulnerableBody] = Still(new(F.InvulnerableBody, 0)),
         [P.FullHitboxBody] = Still(new(F.FullHitboxBody, 0)),
@@ -76,7 +76,7 @@ internal static class PhantoonAnimations
     /// the closing eye closes and holds closed, the tentacles sway for good, and the flame-spitting mouth runs on into its
     /// initial pose and holds it.
     /// </summary>
-    internal static IReadOnlyDictionary<PhantoonPartProgram, Animation<PhantoonPartProgram>> StartingAt { get; } = new Dictionary<PhantoonPartProgram, Animation<PhantoonPartProgram>>
+    internal static IReadOnlyDictionary<PhantoonPartSegment, Animation<PhantoonPartSegment>> StartingAt { get; } = new Dictionary<PhantoonPartSegment, Animation<PhantoonPartSegment>>
     {
         [P.InvulnerableBody] = Held(P.InvulnerableBody),
         [P.FullHitboxBody] = Held(P.FullHitboxBody),
@@ -100,17 +100,17 @@ internal static class PhantoonAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<PhantoonPartProgram> StartingWith(PhantoonPartProgram segment) => StartingAt[segment];
+    internal static Animation<PhantoonPartSegment> StartingWith(PhantoonPartSegment segment) => StartingAt[segment];
 
     /// <summary>Plays <paramref name="segment"/> once and holds its last frame.</summary>
-    private static Animation<PhantoonPartProgram> Held(PhantoonPartProgram segment) => new([Whole(segment)], AnimationEnd.Holds);
+    private static Animation<PhantoonPartSegment> Held(PhantoonPartSegment segment) => new([Whole(segment)], AnimationEnd.Holds);
 
     /// <summary>Plays <paramref name="first"/>, then <paramref name="then"/>, and holds the last frame.</summary>
-    private static Animation<PhantoonPartProgram> HeldAfter(PhantoonPartProgram first, PhantoonPartProgram then) =>
+    private static Animation<PhantoonPartSegment> HeldAfter(PhantoonPartSegment first, PhantoonPartSegment then) =>
         new([Whole(first), Whole(then)], AnimationEnd.Holds);
 
     /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
-    private static AnimationPhase<PhantoonPartProgram> Whole(PhantoonPartProgram segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
+    private static AnimationPhase<PhantoonPartSegment> Whole(PhantoonPartSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>Shows one frame for an update; its animation holds it, as the script's sleep does.</summary>
     private static AnimationBeat<PhantoonPartFrame, PhantoonPartCue>[] Still(PhantoonPartFrame frame) => [Show(frame, 1)];

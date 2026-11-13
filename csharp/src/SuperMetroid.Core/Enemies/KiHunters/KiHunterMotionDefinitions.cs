@@ -14,7 +14,7 @@ public static class KiHunterMotionDefinitions
     public const int DetachedWingRadius = 48;
 
     /// <summary>
-    /// The random bit that takes one pixel per update off a grounded Ki-Hunter's upward jump speed: bit zero, added to
+    /// The random choice that takes one pixel per update off a grounded Ki-Hunter's upward jump speed: the sample modulo 2, added to
     /// the jump's eight pixels upward.
     /// </summary>
     internal static readonly RandomSampleField ShallowerGroundJump = new(0, 1);

@@ -11,5 +11,5 @@ internal static class NuclearWaffleVisualDefinitions
     internal const int FrameCount = 8;
 
     /// <summary>The head compositions Puromi's typed body animation (#641) shows, in order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps() => NuclearWaffleAnimationsTooling.Spritemaps(NuclearWaffleProgram.BodyLoop);
+    internal static IEnumerable<ushort> Spritemaps() => NuclearWaffleAnimationsTooling.Spritemaps(NuclearWaffleSegment.BodyLoop);
 }

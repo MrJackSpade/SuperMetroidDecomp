@@ -103,7 +103,7 @@ internal sealed class DraygonCombat
             state.Colours.ShowBand(RequireHealthBand(state));
         state.ShadeSprites();
 
-        // Grapple-connected flag bit zero is the retail electrocution channel. It is
+        // A grapple connected to the turrets is the game's electrocution channel. It is
         // sampled only while hurt AI owns the body and subtracts exactly 256 HP on every
         // eighth body frame before running the same fatal/nonfatal reaction as a shot.
         if (samus is null || !DraygonGrab.IsDraygonGrappleConnected(samus) ||
@@ -149,16 +149,16 @@ internal sealed class DraygonCombat
     {
         RoomEnemySlot body = state.Body;
         samus?.Grapple.Phase = GrapplePhase.Dropped;
-        _parts.StartDraygonProgram(
+        _parts.StartDraygonAnimation(
             body,
             state.FacingRight
-                ? DraygonProgram.ArmsFacingRightDying
-                : DraygonProgram.ArmsFacingLeftDying);
-        _parts.StartDraygonProgram(
+                ? DraygonSegment.ArmsFacingRightDying
+                : DraygonSegment.ArmsFacingLeftDying);
+        _parts.StartDraygonAnimation(
             state.Eye,
             state.FacingRight
-                ? DraygonProgram.EyeFacingRightDying
-                : DraygonProgram.EyeFacingLeftDying);
+                ? DraygonSegment.EyeFacingRightDying
+                : DraygonSegment.EyeFacingLeftDying);
         (DraygonParts.RequirePart(state.Eye)).RequireSpeciesState<DraygonEyeState>().Function = DraygonEyeFunction.Inert;
         state.Function = DraygonAiFunction.Dying;
 

@@ -10,13 +10,13 @@ internal static class EndingLogoDefinitions
     internal const EndingSpriteColouring Colouring = EndingSpriteColouring.Logo;
 
     /// <summary>Upper S, moving into place, showing LogoUpperS.</summary>
-    internal static CinematicActorDefinition UpperS => new(CinematicSpriteFrameBehavior.SuperMetroidIconTopHalf, CinematicSpriteProgram.LogoUpperS);
+    internal static CinematicActorDefinition UpperS => new(CinematicSpriteFrameBehavior.SuperMetroidIconTopHalf, CinematicSpriteSegment.LogoUpperS);
     /// <summary>Lower S, moving into place, showing LogoLowerS.</summary>
-    internal static CinematicActorDefinition LowerS => new(CinematicSpriteFrameBehavior.SuperMetroidIconBottomHalf, CinematicSpriteProgram.LogoLowerS);
+    internal static CinematicActorDefinition LowerS => new(CinematicSpriteFrameBehavior.SuperMetroidIconBottomHalf, CinematicSpriteSegment.LogoLowerS);
     /// <summary>Upper circle, stationary, running LogoUpperCircle.</summary>
-    internal static CinematicActorDefinition UpperCircle => new(CinematicSpriteFrameBehavior.NoOp, CinematicSpriteProgram.LogoUpperCircle);
+    internal static CinematicActorDefinition UpperCircle => new(CinematicSpriteFrameBehavior.NoOp, CinematicSpriteSegment.LogoUpperCircle);
     /// <summary>Lower circle, stationary, running LogoLowerCircle.</summary>
-    internal static CinematicActorDefinition LowerCircle => new(CinematicSpriteFrameBehavior.NoOp, CinematicSpriteProgram.LogoLowerCircle);
+    internal static CinematicActorDefinition LowerCircle => new(CinematicSpriteFrameBehavior.NoOp, CinematicSpriteSegment.LogoLowerCircle);
 
     /// <summary>The logo actors in allocation order.</summary>
     internal static readonly EndingLogoActorKind[] ActorKinds =

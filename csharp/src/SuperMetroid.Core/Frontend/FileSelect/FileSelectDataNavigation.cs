@@ -11,9 +11,9 @@ internal static class FileSelectDataNavigation
     /// <summary>Moves among occupied save slots and Exit, without wrapping.</summary>
     /// <remarks>
     /// Independently reviewed for #1165 against the game's source/clear selection and
-    /// the prior managed filtered lists. Bits0..2 represent the live occupancy of
-    /// slots A..C; the game's bit selectors are 1 shifted
-    /// by the slot. Exit is always selectable, including an empty occupancy mask.
+    /// the prior managed filtered lists. The occupied slots hold one flag each
+    /// for slots A..C, each slot's flag twice the one before
+    /// it. Exit is always selectable, even when no slot is occupied.
     /// No ordinal lookup or generated list is required.
     /// </remarks>
     internal static FileSelectItem MoveSourceOrClear(FileSelectItem selected, int occupiedSlots, ControllerButton pressed)

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 internal static class MagdolliteAnimationsConstants
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params MagdolliteProgram[] programs) =>
+    internal static IEnumerable<ushort> Spritemaps(params MagdolliteSegment[] programs) =>
         programs.SelectMany(program => MagdolliteAnimations.Segments.Beats(program))
             .OfType<AnimationBeat<EnemyFrameId, MagdolliteCue>.Frame>()
             .Select(frame => MagdolliteFrameToolingDefinitions.Spritemap(frame.Shown));

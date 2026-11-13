@@ -72,7 +72,7 @@ public sealed class SamusArmCannonSourceArtwork
     /// at every animation frame the pose shows when her animation reads past its programs with <paramref name="continuation"/>,
     /// where the drawing window holds one.
     /// </summary>
-    internal SamusArmCannonLayout Installed(LaidOutProgramContinuation<SamusPoseId, SamusAnimationProgramStep> continuation) =>
+    internal SamusArmCannonLayout Installed(LaidOutAnimationContinuation<SamusPoseId, SamusPoseAnimationStep> continuation) =>
         Descriptors.Installed(SamusShownFrames.Of(continuation));
 
     /// <summary>Parses the extracted arm-cannon document and validates descriptor, attribute, and tile-source geometry.</summary>

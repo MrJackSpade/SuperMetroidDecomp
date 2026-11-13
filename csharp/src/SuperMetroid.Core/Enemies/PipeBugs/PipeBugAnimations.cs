@@ -1,4 +1,4 @@
-using P = SuperMetroid.Core.Enemies.PipeBugs.PipeBugProgram;
+using P = SuperMetroid.Core.Enemies.PipeBugs.PipeBugSegment;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Artwork;
 
@@ -11,8 +11,8 @@ namespace SuperMetroid.Core.Enemies.PipeBugs;
 internal static class PipeBugAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<PipeBugProgram, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
-        new Dictionary<PipeBugProgram, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
+    internal static AnimationSegments<PipeBugSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<PipeBugSegment, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
     {
         [P.ZebRisingLeft] =
         [
@@ -153,7 +153,7 @@ internal static class PipeBugAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<PipeBugProgram, Animation<PipeBugProgram>> StartingAt { get; } = new Dictionary<PipeBugProgram, Animation<PipeBugProgram>>
+    internal static IReadOnlyDictionary<PipeBugSegment, Animation<PipeBugSegment>> StartingAt { get; } = new Dictionary<PipeBugSegment, Animation<PipeBugSegment>>
     {
         [P.ZebRisingLeft] = new([new(P.ZebRisingLeft, 0, 8, 1)], AnimationEnd.LoopsFrom(0)),
         [P.ZebShootingLeft] = new([new(P.ZebShootingLeft, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
@@ -174,7 +174,7 @@ internal static class PipeBugAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<PipeBugProgram> StartingWith(PipeBugProgram segment) => StartingAt[segment];
+    internal static Animation<PipeBugSegment> StartingWith(PipeBugSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);

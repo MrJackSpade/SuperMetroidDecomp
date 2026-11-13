@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Hibashi.HibashiCueKind;
-using P = SuperMetroid.Core.Enemies.Hibashi.HibashiProgram;
+using P = SuperMetroid.Core.Enemies.Hibashi.HibashiSegment;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Hibashi;
@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Enemies.Hibashi;
 internal static class HibashiAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<HibashiProgram, EnemyFrameId, HibashiCue> Segments { get; } = new(
-        new Dictionary<HibashiProgram, AnimationBeat<EnemyFrameId, HibashiCue>[]>
+    internal static AnimationSegments<HibashiSegment, EnemyFrameId, HibashiCue> Segments { get; } = new(
+        new Dictionary<HibashiSegment, AnimationBeat<EnemyFrameId, HibashiCue>[]>
     {
         [P.Graphics] =
         [
@@ -72,14 +72,14 @@ internal static class HibashiAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<HibashiProgram, Animation<HibashiProgram>> StartingAt { get; } = new Dictionary<HibashiProgram, Animation<HibashiProgram>>
+    internal static IReadOnlyDictionary<HibashiSegment, Animation<HibashiSegment>> StartingAt { get; } = new Dictionary<HibashiSegment, Animation<HibashiSegment>>
     {
         [P.Graphics] = new([new(P.Graphics, 0, 47, 1)], AnimationEnd.Holds),
         [P.Hitbox] = new([new(P.Hitbox, 0, 1, 1)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<HibashiProgram> StartingWith(HibashiProgram segment) => StartingAt[segment];
+    internal static Animation<HibashiSegment> StartingWith(HibashiSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, HibashiCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, HibashiCue>.Frame(frame, duration);

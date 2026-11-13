@@ -49,8 +49,8 @@ internal sealed class KraidProjectiles
         KraidParts.Require(lint, _parts.Lint(expected), "lint");
         _access.AttachKraidPart(lint, state);
         lint.Shading = _parts.Body.Shading;
-        lint.FrameHold = WrappingCountdown.Start(KraidBehavior.KraidStillPartTimer);
-        _access.SetKraidPartProgram(lint, KraidPartProgram.LintInitial);
+        lint.AnimationClock.HoldFor(KraidBehavior.KraidStillPartTimer);
+        _access.SetKraidPartAnimation(lint, KraidPartSegment.LintInitial);
         lint.Frame = EnemyFrameId.KraidLintInitial;
         _parts.LintStateOf(state, lint).Function = KraidAiFunction.LintInactive;
         _parts.LintStateOf(state, lint).LintXOffset = expected == KraidLintPart.Top ? 0 : -16;
@@ -74,8 +74,8 @@ internal sealed class KraidProjectiles
         // A fingernail set up, at the room's first setup or a respawn, has taken no alternate spawn (KilledFingernailStops).
         nailPart.AlternateSpawn = false;
         nail.Presence = nail.Presence.With(EnemyPresence.Hidden);
-        nail.FrameHold = WrappingCountdown.Start(KraidBehavior.KraidStillPartTimer);
-        _access.SetKraidPartProgram(nail, KraidPartProgram.NailLoop);
+        nail.AnimationClock.HoldFor(KraidBehavior.KraidStillPartTimer);
+        _access.SetKraidPartAnimation(nail, KraidPartSegment.NailLoop);
         nail.Frame = EnemyFrameId.KraidNailLoopFirst;
         _parts.NailStateOf(state, nail).NextFunction = KraidAiFunction.FingernailInitialize;
         _parts.NailStateOf(state, nail).Function = KraidAiFunction.HandleFunctionTimer;
@@ -130,7 +130,7 @@ internal sealed class KraidProjectiles
     internal static void AddKraidRockAnimations(EnemyProjectileHandlerTable table)
     {
         table.AddShotAnimation(RoomEnemyProjectileKind.KraidSpitRock,
-            () => new KraidRockAnimation(KraidRockProgram.SpitRockShot));
+            () => new KraidRockAnimation(KraidRockSegment.SpitRockShot));
         table.AddCue<KraidRockCue>((context, cue) =>
         {
             EnemyProjectile projectile = context.Projectile;
@@ -228,7 +228,7 @@ internal sealed class KraidProjectiles
             case KraidAiFunction.AlignPartToKraid:
             case KraidAiFunction.DecrementFunctionTimerAndStartWalk:
             case KraidAiFunction.FootFirstPhaseThinking:
-            case KraidAiFunction.ProcessHeadInstructionAndTimer:
+            case KraidAiFunction.AdvanceHeadAnimationAndTimer:
             case KraidAiFunction.FootSecondPhaseThinking:
             case KraidAiFunction.FootSecondPhaseWalkingRight:
             case KraidAiFunction.FootSecondPhaseWalkToStart:
@@ -281,8 +281,8 @@ internal sealed class KraidProjectiles
         part.NailLaunched = true;
         nail.Contact = nail.Contact.Without(EnemyContact.IgnoresSamus);
         nail.Presence = nail.Presence.Without(EnemyPresence.Hidden);
-        nail.FrameHold = WrappingCountdown.Start(1);
-        _access.SetKraidPartProgram(nail, KraidPartProgram.NailLoop);
+        nail.AnimationClock.StepOnNextUpdate();
+        _access.SetKraidPartAnimation(nail, KraidPartSegment.NailLoop);
         part.Function = KraidAiFunction.FingernailFire;
 
         if (!KraidRandomDefinitions.NailWaitsForLint.IsSetIn(random) ||
@@ -343,7 +343,7 @@ internal sealed class KraidProjectiles
         KraidEnemyState state = _access.RequireKraidState(lint);
         if (samus is not null)
             ResolveKraidLintContact(lint, samus);
-        lint.FrameHold = WrappingCountdown.Start(KraidBehavior.KraidStillPartTimer);
+        lint.AnimationClock.HoldFor(KraidBehavior.KraidStillPartTimer);
         KraidLintState part = _parts.LintStateOf(state, lint);
         switch (_parts.LintStateOf(state, lint).Function)
         {
@@ -377,7 +377,7 @@ internal sealed class KraidProjectiles
             case KraidAiFunction.HandleFunctionTimer:
             case KraidAiFunction.DecrementFunctionTimerAndStartWalk:
             case KraidAiFunction.FootFirstPhaseThinking:
-            case KraidAiFunction.ProcessHeadInstructionAndTimer:
+            case KraidAiFunction.AdvanceHeadAnimationAndTimer:
             case KraidAiFunction.FootSecondPhaseThinking:
             case KraidAiFunction.FootSecondPhaseWalkingRight:
             case KraidAiFunction.FootSecondPhaseWalkToStart:

@@ -14,7 +14,7 @@ internal sealed class MagdolliteEntity(MagdolliteBehavior species, RoomEnemySlot
     public EnemyMainAiHandler? FindMain() => species.RunMagdolliteMainAi;
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => species.AdvanceMagdolliteTypedAnimation;
+    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => species.AdvanceMagdolliteTypedAnimation;
 
     /// <summary>The Magdollite's own shot reaction, which normal bombs dispatch like the common one.</summary>
     /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>

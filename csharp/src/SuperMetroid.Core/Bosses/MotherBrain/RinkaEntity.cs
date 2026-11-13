@@ -16,7 +16,7 @@ internal sealed class RinkaEntity(RinkaBehavior species, RoomEnemySlot slot, Ene
     public EnemyMainAiHandler? FindMain() => species.RunRinkaMainAi;
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => RinkaBehavior.AdvanceRinkaTypedAnimation;
+    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => RinkaBehavior.AdvanceRinkaTypedAnimation;
 
     /// <summary>The Rinka's own shot reaction, which normal bombs dispatch like the common one.</summary>
     /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>

@@ -465,8 +465,8 @@ internal static class NativeEnemyFamilyStateImport
         {
             skreeRecord.BurrowTimer = unchecked((short)words.A);
             skreeRecord.Function = words.B == 0 ? null : SkreeNativeWords.SkreeEnemyFunctions.Decode(words.B, "recorded SkreeEnemyFunction");
-            skreeRecord.RequestedInstructionIndex = (SkreeMetareeAnimationPhase)words.C;
-            skreeRecord.InstalledInstructionIndex = (SkreeMetareeAnimationPhase)words.D;
+            skreeRecord.RequestedAnimation = (SkreeMetareeAnimationPhase)words.C;
+            skreeRecord.InstalledAnimation = (SkreeMetareeAnimationPhase)words.D;
             skreeRecord.AttackReady = words.E != 0;
         }
         if (slot.SpeciesState<BoulderEnemyState>() is { } boulderRecord)
@@ -750,8 +750,8 @@ internal static class NativeEnemyFamilyStateImport
         {
             metaree.BurrowTimer = unchecked((short)words.A);
             metaree.Function = words.B == 0 ? null : MetareeNativeWords.MetareeEnemyFunctions.Decode(words.B, "recorded MetareeEnemyFunction");
-            metaree.RequestedAnimationScriptIndex = (SkreeMetareeAnimationPhase)words.C;
-            metaree.InstalledAnimationScriptIndex = (SkreeMetareeAnimationPhase)words.D;
+            metaree.RequestedAnimation = (SkreeMetareeAnimationPhase)words.C;
+            metaree.InstalledAnimation = (SkreeMetareeAnimationPhase)words.D;
             metaree.AttackReady = words.E != 0;
             metaree.YVelocity = Index(words.F, 2734, "Metaree dive speed");
         }

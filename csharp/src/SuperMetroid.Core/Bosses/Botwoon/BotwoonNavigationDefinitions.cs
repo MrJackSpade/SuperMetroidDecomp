@@ -13,7 +13,7 @@ internal static class BotwoonNavigationDefinitions
     /// <summary>How many of the <see cref="ActionChoice"/> actions, counted from the first, follow an authored path.</summary>
     internal const int AuthoredPathActions = 3;
 
-    /// <summary>Whether Botwoon starts its next path inside the hole: the sample's bit zero, set for inside.</summary>
+    /// <summary>Whether Botwoon starts its next path inside the hole: taken by an odd sample.</summary>
     internal static readonly RandomSampleField StartsInsideHole = new(0, 1);
 
     /// <summary>The random selection of one of the target hole's four path descriptors.</summary>

@@ -54,7 +54,7 @@ internal static class EnemyFormatDrawEntriesVerification
         extended.Bind(EnemyDefinitionId.PirateGreenWalking, default(RoomEnemyDefinition));
         extended.CollidesByFrameHitboxes = true;
         extended.Frame = extendedFrame;
-        extended.FrameHold = WrappingCountdown.Start(7);
+        extended.AnimationClock.HoldFor(7);
         extended.Position = extended.Position.WithWhole(new(120, 110));
         enemies.Drawing.Enqueue(extended, reached: true);
 

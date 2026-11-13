@@ -14,13 +14,13 @@ internal static class RioNativeListAddresses
     internal const byte Bank = 0xa2;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<RioProgram>[] Entries =
+    internal static readonly NativeProgramEntry<RioSegment>[] Entries =
     [
-        new NativeProgramEntry<RioProgram>(RioProgram.Idle, 0xbb4b),
-        new NativeProgramEntry<RioProgram>(RioProgram.PostSwoopIdle, 0xbb53),
-        new NativeProgramEntry<RioProgram>(RioProgram.SwoopingPart1, 0xbb7f),
-        new NativeProgramEntry<RioProgram>(RioProgram.SwoopingPart2, 0xbb97),
-        new NativeProgramEntry<RioProgram>(RioProgram.SwoopCooldown, 0xbba3),
+        new NativeProgramEntry<RioSegment>(RioSegment.Idle, 0xbb4b),
+        new NativeProgramEntry<RioSegment>(RioSegment.PostSwoopIdle, 0xbb53),
+        new NativeProgramEntry<RioSegment>(RioSegment.SwoopingPart1, 0xbb7f),
+        new NativeProgramEntry<RioSegment>(RioSegment.SwoopingPart2, 0xbb97),
+        new NativeProgramEntry<RioSegment>(RioSegment.SwoopCooldown, 0xbba3),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>

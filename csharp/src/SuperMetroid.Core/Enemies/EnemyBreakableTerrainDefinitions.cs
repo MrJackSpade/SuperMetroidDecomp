@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// Enemy/spike collision dispatch, the spike-block reaction's room-object table:
-/// the game masks bit seven, treats entries zero through fourteen as solid, and spawns the block's break
+/// the game reads the block's reaction entry, treats entries zero through fourteen as solid, and spawns the block's break
 /// (<see cref="EnemyBreakableTerrainObjects.TrySpawnEnemyBreakableBlock"/>) for entry fifteen.
 /// </summary>
 public static class EnemyBreakableTerrainDefinitions

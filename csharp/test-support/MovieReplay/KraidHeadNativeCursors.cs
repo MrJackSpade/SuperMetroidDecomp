@@ -44,8 +44,8 @@ internal sealed class KraidHeadNativeCursors
         {
             ushort opcode = Word(pointer);
             bool pose = opcode < 0x8000;
-            KraidHeadProgram list = Enum.GetValues<KraidHeadProgram>()[program];
-            AnimationPlayback<KraidHeadProgram> playback = opcode == Terminator
+            KraidHeadSegment list = Enum.GetValues<KraidHeadSegment>()[program];
+            AnimationPlayback<KraidHeadSegment> playback = opcode == Terminator
                 ? new(KraidHeadAnimations.StartingWith(list), AnimationPlace.HoldingIn(0, position))
                 : KraidHeadAnimations.At(list, position);
             records.Add(new((ushort)pointer, playback, opcode,
@@ -59,27 +59,27 @@ internal sealed class KraidHeadNativeCursors
                 position = 0;
             }
         }
-        if (program != Enum.GetValues<KraidHeadProgram>().Length)
+        if (program != Enum.GetValues<KraidHeadSegment>().Length)
             throw new InvalidDataException($"The native Kraid head lists hold {program} programs.");
         Records = records;
     }
 
     /// <summary>The typed playback native pointer <paramref name="pointer"/> stands for, or null when it is no record's start.</summary>
-    internal AnimationPlayback<KraidHeadProgram>? TryPlaybackAt(ushort pointer) =>
+    internal AnimationPlayback<KraidHeadSegment>? TryPlaybackAt(ushort pointer) =>
         Records.FirstOrDefault(record => record.Pointer == pointer) is { Pointer: not 0 } record ? record.Playback : null;
 
     /// <summary>The typed playback native pointer <paramref name="pointer"/> stands for.</summary>
-    internal AnimationPlayback<KraidHeadProgram> PlaybackAt(ushort pointer) => TryPlaybackAt(pointer)
+    internal AnimationPlayback<KraidHeadSegment> PlaybackAt(ushort pointer) => TryPlaybackAt(pointer)
         ?? throw new InvalidDataException($"Native Kraid head pointer $A7:{pointer:X4} is no record's start.");
 
     /// <summary>
     /// The native pointer <paramref name="playback"/> stands for: its record's, a play done after its last beat standing
     /// at the list's terminator whether or not it has held there yet.
     /// </summary>
-    internal ushort PointerAt(AnimationPlayback<KraidHeadProgram> playback) => RecordAt(playback).Pointer;
+    internal ushort PointerAt(AnimationPlayback<KraidHeadSegment> playback) => RecordAt(playback).Pointer;
 
     /// <summary>The native record <paramref name="playback"/> stands for.</summary>
-    internal KraidHeadNativeRecord RecordAt(AnimationPlayback<KraidHeadProgram> playback)
+    internal KraidHeadNativeRecord RecordAt(AnimationPlayback<KraidHeadSegment> playback)
     {
         KraidHeadListPosition position = KraidHeadAnimations.PositionOf(playback);
         return Records.Single(record => KraidHeadAnimations.PositionOf(record.Playback) == position);

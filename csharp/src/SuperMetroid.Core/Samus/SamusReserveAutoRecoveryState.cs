@@ -16,7 +16,7 @@ public sealed class SamusReserveAutoRecoveryState
     /// <summary>True between the Samus command that locks her for reserve recovery and the one that restores control.</summary>
     public bool IsActive { get; private set; }
 
-    /// <summary>Starts only the retail automatic-mode path selected by reserve-mode bit zero.</summary>
+    /// <summary>Starts only the game's automatic-mode path, which only the AUTO reserve mode selects.</summary>
     public void Begin(SamusState samus)
     {
         Ensure.NotNull(samus);

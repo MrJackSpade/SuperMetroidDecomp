@@ -22,10 +22,10 @@ namespace SuperMetroid.Verification.Frontend;
 internal static class TypedTextGlyphsVerification
 {
     /// <summary>The ending's typed texts: the programs that type THE OPERATION WAS, COMPLETED SUCCESSFULLY and CLEAR TIME.</summary>
-    private static readonly CinematicSpriteProgram[] EndingTypedPrograms =
+    private static readonly CinematicSpriteSegment[] EndingTypedPrograms =
     [
-        EndingActorDefinitions.OperationWasText.Program, EndingActorDefinitions.CompletedSuccessfullyText.Program,
-        EndingActorDefinitions.ClearTimeText.Program,
+        EndingActorDefinitions.OperationWasText.Animation, EndingActorDefinitions.CompletedSuccessfullyText.Animation,
+        EndingActorDefinitions.ClearTimeText.Animation,
     ];
 
     /// <summary>Fails, naming every typed step the title or ending explosion sheet pictures as a whole frame.</summary>
@@ -43,7 +43,7 @@ internal static class TypedTextGlyphsVerification
                     typed.Add(new(SpriteSheetId.Title, TitleSpriteDefinitions.FrameName(sprite)));
             }
         }
-        foreach (CinematicSpriteProgram program in EndingTypedPrograms)
+        foreach (CinematicSpriteSegment program in EndingTypedPrograms)
         {
             foreach (CinematicSpritePose pose in CinematicSpriteAnimations.Segments.FramesOf(CinematicSpriteAnimations.StartingWith(program)))
             {
@@ -64,7 +64,7 @@ internal static class TypedTextGlyphsVerification
             for (int glyph = 0; glyph < TitleTypedCardSteps.Of(card).Count; glyph++)
                 glyphs.Add(new(SpriteSheetId.Title, TitleSpriteDefinitions.GlyphFrameName(card, glyph)));
         }
-        foreach (CinematicSpriteProgram text in EndingTypedTexts.Texts.Texts)
+        foreach (CinematicSpriteSegment text in EndingTypedTexts.Texts.Texts)
         {
             for (int glyph = 0; glyph < EndingTypedTexts.Texts.Steps(text).Count; glyph++)
                 glyphs.Add(new(SpriteSheetId.EndingExplosionSprites, TypedTextSpriteSheet.GlyphFrameName(EndingTypedTexts.Family, text, glyph)));

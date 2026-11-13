@@ -6,7 +6,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Hoppers;
 
-/// <summary>The Hoppers species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Hoppers species owner: its per-room state, AI behaviours and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -33,7 +33,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Carries out one cue of the hoppers' animations.</summary>
-    private HopperProgram? ApplyHopperCue(RoomEnemySlot slot, HopperEnemyState state, HopperCue cue)
+    private HopperSegment? ApplyHopperCue(RoomEnemySlot slot, HopperEnemyState state, HopperCue cue)
     {
         switch (cue.Kind)
         {
@@ -63,7 +63,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Hopper.</summary>
     internal void InitializeHopper(RoomEnemySlot slot)
     {
-        HopperKind kind = HopperPrograms.KindOf(slot.DefinitionId);
+        HopperKind kind = HopperAnimationChoices.KindOf(slot.DefinitionId);
         // The initializer overwrites the global RNG seed and consumes one generated value
         // even though it never reads that value. This changes later enemy randomness and is
         // therefore observable whenever a hopper appears earlier in population order.
@@ -80,7 +80,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         slot.SetSpeciesState(state);
 
-        SetHopperProgram(slot, state, ReadHopperProgram(state, SurfaceOf(state), HopperPhase.Landed));
+        SetHopperAnimation(slot, state, ReadHopperAnimation(state, SurfaceOf(state), HopperPhase.Landed));
 
         // Every Hopper definition authors the same small and big hop heights and speed steps, so the definition
         // selects nothing here; the two hop sizes' starting speeds are still calculated independently.
@@ -212,7 +212,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         if (direction == HopperHopDirection.Backward)
             state.XVelocity = -state.XVelocity;
 
-        SetHopperProgram(slot, state, ReadHopperProgram(state, surface, HopperPhase.Jumping));
+        SetHopperAnimation(slot, state, ReadHopperAnimation(state, surface, HopperPhase.Jumping));
         state.Function = new HopperHop(surface, direction) switch
         {
             (HopperSurface.Floor, HopperHopDirection.Backward) => HopperEnemyFunction.JumpingUpsideUpBackward,
@@ -226,7 +226,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Installs the landed list and returns the actor to its wait-for-hop function.</summary>
     internal static void LandHopper(RoomEnemySlot slot, HopperEnemyState state)
     {
-        SetHopperProgram(slot, state, ReadHopperProgram(state, SurfaceOf(state), HopperPhase.Landed));
+        SetHopperAnimation(slot, state, ReadHopperAnimation(state, SurfaceOf(state), HopperPhase.Landed));
         state.Function = HopperEnemyFunction.WaitToHop;
     }
 
@@ -238,7 +238,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         HopperSurface surface)
     {
         bool movingAwayFromSurface = !state.Falling;
-        // Has four movement routines: floor actors use the negative half while
+        // Has four movements: floor actors use the negative half while
         // jumping and the positive half while falling; ceiling actors do the inverse.
         // Inequality expresses that table exactly. Equality reverses both phases, making
         // each actor collide with its starting surface and then migrate to the opposite one.
@@ -327,25 +327,23 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Selects the program for this kind's facing and jumping or landing half.</summary>
-    private static HopperProgram ReadHopperProgram(
+    private static HopperSegment ReadHopperAnimation(
         HopperEnemyState state,
         HopperSurface surface,
         HopperPhase phase) =>
-        HopperPrograms.Program(state.Kind, surface, phase);
+        HopperAnimationChoices.Animation(state.Kind, surface, phase);
 
     /// <summary>The surface the population's first parameter placed this hopper on.</summary>
     private static HopperSurface SurfaceOf(HopperEnemyState state) =>
         state.UpsideDown ? HopperSurface.Ceiling : HopperSurface.Floor;
 
     /// <summary>Starts a new animation with a one-tick countdown.</summary>
-    private static void SetHopperProgram(
+    private static void SetHopperAnimation(
         RoomEnemySlot slot,
         HopperEnemyState state,
-        HopperProgram program)
+        HopperSegment segment)
     {
-        state.Playback = new(HopperAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        state.Playback = EnemyAnimationPlayback.Start(slot, HopperAnimations.StartingWith(segment));
     }
 
     /// <summary>Ports Hoppers's main AI.</summary>
@@ -355,15 +353,15 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Hoppers's typed animation.</summary>
-    internal void AdvanceHoppersTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    internal void AdvanceHoppersTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _)
     {
-        if (!EnemyProgramAnimation.Expire(slot))
+        if (!slot.AnimationClock.Expire())
             return;
         HopperEnemyState state = slot.RequireSpeciesState<HopperEnemyState>();
-        AnimationPlayback<HopperProgram> playback = state.Playback;
-        EnemyProgramAnimation.Play(slot, HopperAnimations.Segments, ref playback,
+        AnimationPlayback<HopperSegment> playback = state.Playback;
+        EnemyAnimationPlayback.Play(slot, HopperAnimations.Segments, ref playback,
             cue => ApplyHopperCue(slot, state, cue) is { } target
-                ? new AnimationContinuation<HopperProgram>(HopperAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
+                ? new AnimationContinuation<HopperSegment>(HopperAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
         state.Playback = playback;
     }

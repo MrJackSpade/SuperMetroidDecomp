@@ -7,4 +7,4 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// </summary>
 /// <param name="Segment">The segment the animation plays.</param>
 /// <param name="Beat">The segment's beats played so far: its next beat, or its beat count at its end.</param>
-internal readonly record struct SamusProjectileSegmentBeat(SamusProjectileProgram Segment, int Beat);
+internal readonly record struct SamusProjectileSegmentBeat(SamusProjectileSegment Segment, int Beat);

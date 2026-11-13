@@ -20,7 +20,7 @@ internal static class KraidFunctionGroups
         KraidAiFunction.LintInactive, KraidAiFunction.LintProduce, KraidAiFunction.LintCharge, KraidAiFunction.LintFire,
         KraidAiFunction.FingernailWaitForLint, KraidAiFunction.AlignPartToKraid, KraidAiFunction.HandleFunctionTimer,
         KraidAiFunction.DecrementFunctionTimerAndStartWalk, KraidAiFunction.FootFirstPhaseThinking,
-        KraidAiFunction.ProcessHeadInstructionAndTimer, KraidAiFunction.FootSecondPhaseThinking,
+        KraidAiFunction.AdvanceHeadAnimationAndTimer, KraidAiFunction.FootSecondPhaseThinking,
         KraidAiFunction.FootSecondPhaseWalkingRight, KraidAiFunction.FootSecondPhaseWalkToStart,
         KraidAiFunction.FootSecondPhaseInitialize, KraidAiFunction.FootSecondPhaseWalkingLeft,
         KraidAiFunction.MainAttackWithMouthOpen, KraidAiFunction.FingernailInitialize, KraidAiFunction.FingernailFire,
@@ -43,27 +43,27 @@ internal static class KraidFunctionGroups
     }.ToFrozenSet();
 
     /// <summary>The part programs laid out before the slow arm swing: the feet's and the normal arm's.</summary>
-    internal static readonly FrozenSet<KraidPartProgram> BeforeArmSlow = new[]
+    internal static readonly FrozenSet<KraidPartSegment> BeforeArmSlow = new[]
     {
-        KraidPartProgram.FootInitial, KraidPartProgram.FootNeutral, KraidPartProgram.FootWalkingForward,
-        KraidPartProgram.FootWalkingForwardFinished, KraidPartProgram.FootLungeForward, KraidPartProgram.FootLungeForwardFinished,
-        KraidPartProgram.FootWalkingBackward, KraidPartProgram.FootWalkingBackwardLoop, KraidPartProgram.ArmNormal,
-        KraidPartProgram.ArmNormalPause,
+        KraidPartSegment.FootInitial, KraidPartSegment.FootNeutral, KraidPartSegment.FootWalkingForward,
+        KraidPartSegment.FootWalkingForwardFinished, KraidPartSegment.FootLungeForward, KraidPartSegment.FootLungeForwardFinished,
+        KraidPartSegment.FootWalkingBackward, KraidPartSegment.FootWalkingBackwardLoop, KraidPartSegment.ArmNormal,
+        KraidPartSegment.ArmNormalPause,
     }.ToFrozenSet();
 
     /// <summary>The part programs laid out before the normal arm's pause: the feet's and the normal arm swing.</summary>
-    internal static readonly FrozenSet<KraidPartProgram> BeforeArmNormalPause = new[]
+    internal static readonly FrozenSet<KraidPartSegment> BeforeArmNormalPause = new[]
     {
-        KraidPartProgram.FootInitial, KraidPartProgram.FootNeutral, KraidPartProgram.FootWalkingForward,
-        KraidPartProgram.FootWalkingForwardFinished, KraidPartProgram.FootLungeForward, KraidPartProgram.FootLungeForwardFinished,
-        KraidPartProgram.FootWalkingBackward, KraidPartProgram.FootWalkingBackwardLoop, KraidPartProgram.ArmNormal,
+        KraidPartSegment.FootInitial, KraidPartSegment.FootNeutral, KraidPartSegment.FootWalkingForward,
+        KraidPartSegment.FootWalkingForwardFinished, KraidPartSegment.FootLungeForward, KraidPartSegment.FootLungeForwardFinished,
+        KraidPartSegment.FootWalkingBackward, KraidPartSegment.FootWalkingBackwardLoop, KraidPartSegment.ArmNormal,
     }.ToFrozenSet();
 
     /// <summary>The foot programs laid out before the backward walk's loop: the foot has not yet settled into walking back.</summary>
-    internal static readonly FrozenSet<KraidPartProgram> BeforeFootWalkingBackwardLoop = new[]
+    internal static readonly FrozenSet<KraidPartSegment> BeforeFootWalkingBackwardLoop = new[]
     {
-        KraidPartProgram.FootInitial, KraidPartProgram.FootNeutral, KraidPartProgram.FootWalkingForward,
-        KraidPartProgram.FootWalkingForwardFinished, KraidPartProgram.FootLungeForward, KraidPartProgram.FootLungeForwardFinished,
-        KraidPartProgram.FootWalkingBackward,
+        KraidPartSegment.FootInitial, KraidPartSegment.FootNeutral, KraidPartSegment.FootWalkingForward,
+        KraidPartSegment.FootWalkingForwardFinished, KraidPartSegment.FootLungeForward, KraidPartSegment.FootLungeForwardFinished,
+        KraidPartSegment.FootWalkingBackward,
     }.ToFrozenSet();
 }

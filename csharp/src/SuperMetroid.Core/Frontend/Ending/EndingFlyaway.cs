@@ -87,7 +87,7 @@ internal sealed class EndingFlyaway
             if (crittersEscaped)
             {
                 EndingSprite podActor = _stage.SpawnSprite(new(EndingAnimalEscapeDefinitions.Origin, EndingAnimalEscapeDefinitions.Origin),
-                    EndingAnimalEscapeDefinitions.Colouring, EndingAnimalEscapeDefinitions.Program,
+                    EndingAnimalEscapeDefinitions.Colouring, EndingAnimalEscapeDefinitions.Animation,
                     EndingSpriteRole.AnimalEscape);
                 // Cinematic dispatch precedes actors, so a newly spawned pod
                 // moves and selects its first animation frame on this same call.

@@ -34,10 +34,10 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
             case PlatformCueKind.MoveLeft:
                 // The ordinary and duplicate commands are equivalent: both publish horizontal
                 // dispatcher index zero before the next frame.
-                SetPlatformHorizontalMovementFromInstruction(slot, PlatformHorizontalMovement.Left);
+                SetPlatformHorizontalMovementFromCue(slot, PlatformHorizontalMovement.Left);
                 break;
             case PlatformCueKind.MoveRight:
-                SetPlatformHorizontalMovementFromInstruction(slot, PlatformHorizontalMovement.Right);
+                SetPlatformHorizontalMovementFromCue(slot, PlatformHorizontalMovement.Right);
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(PlatformCueKind)} {cue.Kind}.");
@@ -62,7 +62,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         PlatformSpawnSettings settings = slot.SpawnSettings<PlatformSpawnSettings>();
         state.XMovement = settings.Movement;
 
-        state.Playback = new(PlatformAnimations.StartingWith(PlatformPrograms.SelectProgram(
+        state.Playback = new(PlatformAnimations.StartingWith(PlatformAnimationChoices.SelectAnimation(
             isKamer, axis: Axis.Horizontal, state.XMovement)), AnimationPlace.StartOfAnimation);
 
         // The spawn settings name the speed the platform moves at.
@@ -202,18 +202,18 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         if (CoordinateAxis.Difference(slot.Position.Y.Whole, state.RestingHeight.Y) < 0)
         {
             state.YSpeedTableIndex = EnemyQuadraticSpeedIndex.Start;
-            SetPlatformVerticallyStillInstruction(slot, state);
+            SetPlatformVerticallyStillAnimation(slot, state);
             return;
         }
 
-        SetPlatformVerticallyMovingInstruction(slot, state);
+        SetPlatformVerticallyMovingAnimation(slot, state);
         IncrementAndClampPlatformYSpeed(state);
         SignedSixteenSixteen displacement = state.YSpeedTableIndex.Row.Negative;
         if (!_terrain.MoveEnemyVertically(level, slot, displacement))
             return;
 
         state.YSpeedTableIndex = EnemyQuadraticSpeedIndex.Start;
-        SetPlatformVerticallyStillInstruction(slot, state);
+        SetPlatformVerticallyStillAnimation(slot, state);
     }
 
     /// <summary>Accelerates a ridden platform downward and publishes its collision-clipped displacement to Samus.</summary>
@@ -243,7 +243,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_terrain.MoveEnemyVertically(level, slot, displacement))
         {
             state.YSpeedTableIndex = EnemyQuadraticSpeedIndex.Start;
-            SetPlatformVerticallyStillInstruction(slot, state);
+            SetPlatformVerticallyStillAnimation(slot, state);
         }
 
         // This delta is measured after collision clipping, so Samus follows the platform's
@@ -265,7 +265,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Installs moving art once per phase and always clears the still-art flag at the merge label.</summary>
-    private static void SetPlatformVerticallyMovingInstruction(
+    private static void SetPlatformVerticallyMovingAnimation(
         RoomEnemySlot slot,
         PlatformEnemyState state)
     {
@@ -280,7 +280,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Installs stationary art once per phase and always clears the moving-art flag.</summary>
-    private static void SetPlatformVerticallyStillInstruction(
+    private static void SetPlatformVerticallyStillAnimation(
         RoomEnemySlot slot,
         PlatformEnemyState state)
     {
@@ -298,7 +298,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot slot,
         PlatformEnemyState state)
     {
-        InstallPlatformProgram(slot, state, PlatformPrograms.SelectProgram(
+        StartPlatformAnimation(slot, state, PlatformAnimationChoices.SelectAnimation(
             state.IsSuspensorPlatform, axis: Axis.Vertical, state.XMovement));
     }
 
@@ -307,20 +307,18 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot slot,
         PlatformEnemyState state)
     {
-        InstallPlatformProgram(slot, state, PlatformPrograms.SelectProgram(
+        StartPlatformAnimation(slot, state, PlatformAnimationChoices.SelectAnimation(
             state.IsSuspensorPlatform, axis: Axis.Horizontal, state.XMovement));
     }
 
     /// <summary>Starts the selected animation with a one-tick frame timer.</summary>
-    private static void InstallPlatformProgram(RoomEnemySlot slot, PlatformEnemyState state, PlatformProgram program)
+    private static void StartPlatformAnimation(RoomEnemySlot slot, PlatformEnemyState state, PlatformSegment segment)
     {
-        state.Playback = new(PlatformAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        state.Playback = EnemyAnimationPlayback.Start(slot, PlatformAnimations.StartingWith(segment));
     }
 
     /// <summary>Runs the four equivalent movement cues.</summary>
-    private static void SetPlatformHorizontalMovementFromInstruction(
+    private static void SetPlatformHorizontalMovementFromCue(
         RoomEnemySlot slot,
         PlatformHorizontalMovement movement)
     {
@@ -348,8 +346,8 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Platforms's typed animation.</summary>
-    internal static void AdvancePlatformsTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, PlatformAnimations.Segments,
+    internal static void AdvancePlatformsTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(slot, PlatformAnimations.Segments,
             static (PlatformEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

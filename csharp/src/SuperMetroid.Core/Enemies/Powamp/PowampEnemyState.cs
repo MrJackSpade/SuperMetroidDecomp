@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Powamp;
 public sealed class PowampEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<PowampProgram> Playback { get; set; }
+    internal AnimationPlayback<PowampSegment> Playback { get; set; }
 
     /// <summary>Whether this half is the balloon (population parameter one nonzero) rather than the moving body.</summary>
     public bool IsBalloon { get; internal set; }

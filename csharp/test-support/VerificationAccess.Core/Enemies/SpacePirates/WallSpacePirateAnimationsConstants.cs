@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 internal static class WallSpacePirateAnimationsConstants
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params WallSpacePirateProgram[] programs) =>
+    internal static IEnumerable<ushort> Spritemaps(params WallSpacePirateSegment[] programs) =>
         programs.SelectMany(program => WallSpacePirateAnimations.Segments.Beats(program))
             .OfType<AnimationBeat<EnemyFrameId, WallSpacePirateCue>.Frame>()
             .Select(frame => WallSpacePirateFrameToolingDefinitions.Spritemap(frame.Shown));

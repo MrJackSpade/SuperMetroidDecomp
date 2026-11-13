@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Choot;
 internal static class ChootAnimationsConstants
 {
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params ChootProgram[] programs) =>
+    internal static IEnumerable<ushort> Spritemaps(params ChootSegment[] programs) =>
         programs.SelectMany(program => ChootAnimations.Segments.Beats(program))
             .OfType<AnimationBeat<EnemyFrameId, ChootCue>.Frame>()
             .Select(frame => ChootFrameToolingDefinitions.Spritemap(frame.Shown));

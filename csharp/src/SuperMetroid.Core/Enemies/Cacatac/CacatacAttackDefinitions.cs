@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Cacatac;
 internal static class CacatacAttackDefinitions
 {
     /// <summary>
-    /// The random field a patrolling Cacatac's attack roll starts from: bits zero to seven, 0 through 255. The roll adds
+    /// The random field a patrolling Cacatac's attack roll starts from: the sample modulo 256, 0 through 255. The roll adds
     /// the enemy's frame counter and continues past the field's last value from zero.
     /// </summary>
     internal static readonly RandomSampleField AttackRoll = new(0, 8);

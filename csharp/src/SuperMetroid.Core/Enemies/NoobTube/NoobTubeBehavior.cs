@@ -11,12 +11,12 @@ namespace SuperMetroid.Core.Enemies.NoobTube;
 internal sealed class NoobTubeBehavior
 {
     /// <summary>The program each shard of the burst runs, in burst order.</summary>
-    private static readonly NoobTubeProjectileProgram[] ShardPrograms =
+    private static readonly NoobTubeProjectileSegment[] ShardAnimations =
     [
-        NoobTubeProjectileProgram.Shard0, NoobTubeProjectileProgram.Shard1, NoobTubeProjectileProgram.Shard2,
-        NoobTubeProjectileProgram.Shard3, NoobTubeProjectileProgram.Shard4, NoobTubeProjectileProgram.Shard5,
-        NoobTubeProjectileProgram.Shard6, NoobTubeProjectileProgram.Shard7, NoobTubeProjectileProgram.Shard8,
-        NoobTubeProjectileProgram.Shard9,
+        NoobTubeProjectileSegment.Shard0, NoobTubeProjectileSegment.Shard1, NoobTubeProjectileSegment.Shard2,
+        NoobTubeProjectileSegment.Shard3, NoobTubeProjectileSegment.Shard4, NoobTubeProjectileSegment.Shard5,
+        NoobTubeProjectileSegment.Shard6, NoobTubeProjectileSegment.Shard7, NoobTubeProjectileSegment.Shard8,
+        NoobTubeProjectileSegment.Shard9,
     ];
 
     /// <summary>The characters and shading every tube piece draws with: the shared sheet in the tube's crack colours.</summary>
@@ -86,7 +86,7 @@ internal sealed class NoobTubeBehavior
                 projectile.Position = projectile.Position.WithWrappedWholeY(
                     blockY * 16 + NoobTubeDebrisDefinitions.CrackYOffset +
                     NoobTubeDebrisDefinitions.ShardOffsets[index].Y);
-                projectile.StartAnimation(new NoobTubeProjectileAnimation(ShardPrograms[index]));
+                projectile.StartAnimation(new NoobTubeProjectileAnimation(ShardAnimations[index]));
                 projectile.Velocity = NoobTubeDebrisDefinitions.ShardVelocities[index];
                 return;
             }

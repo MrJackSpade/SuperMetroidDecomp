@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Rios;
 public sealed class RioEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<RioProgram> Playback { get; set; }
+    internal AnimationPlayback<RioSegment> Playback { get; set; }
 
     /// <summary>Signed 8.8 horizontal dive velocity retained while the hovering phase temporarily stops X.</summary>
     public SignedEightEight SavedHorizontalVelocity { get; internal set; }
@@ -20,5 +20,5 @@ public sealed class RioEnemyState
     public bool AnimationFinished { get; internal set; }
 
     /// <summary>The last animation installed by a behavioural transition; none at room load.</summary>
-    internal RioProgram? InstalledProgram { get; set; }
+    internal RioSegment? InstalledAnimation { get; set; }
 }

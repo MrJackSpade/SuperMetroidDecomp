@@ -27,11 +27,11 @@ internal static class DownwardGateProjectileBehaviorVerification
         EnemyProjectile gate = enemies.Projectiles.EnemyProjectiles[0];
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(gate, RoomEnemyProjectileKind.DownwardGateMoving,
             SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard);
-        AssertTrue(gate.Animation is DownwardGateProjectileAnimation { PlayingSegment: DownwardGateProjectileProgram.Moving }, "the moving gate starts its program");
+        AssertTrue(gate.Animation is DownwardGateProjectileAnimation { PlayingSegment: DownwardGateProjectileSegment.Moving }, "the moving gate starts its program");
         // The gate's spawn gives it its state; this fixture initializes the projectile directly, so it gives it here.
         gate.State = new DownwardGateState(Position16<RoomBlocks>.Zero);
 
-        DownwardGateProjectileProgram current = DownwardGateProjectileProgram.Moving;
+        DownwardGateProjectileSegment current = DownwardGateProjectileSegment.Moving;
         int resumes = 0;
         while (true)
         {
@@ -45,7 +45,7 @@ internal static class DownwardGateProjectileBehaviorVerification
             gate.StateOf<DownwardGateState>().TravelSinceBlock = DownwardGateDefinitions.OneBlockDistance - 1;
             gate.Velocity = gate.Velocity.WithY(new SignedEightEight(256));
             DownwardGateBehavior.RunDownwardGateProjectileMovement(gate);
-            DownwardGateProjectileProgram resumed = DownwardGateProjectileAnimations.Resumption[current];
+            DownwardGateProjectileSegment resumed = DownwardGateProjectileAnimations.Resumption[current];
             AssertTrue(gate.Animation is DownwardGateProjectileAnimation next && next.PlayingSegment == resumed, $"a block's travel resumes {current} with {resumed}");
             AssertEqual((ushort)1, gate.FrameHold.RawValue, $"{resumed} wakes on the same pass");
             current = resumed;

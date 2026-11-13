@@ -13,10 +13,10 @@ internal static class KagoNativeListAddresses
     internal const byte Bank = 0xa8;
 
     /// <summary>Each typed program's native entry point, in authored order.</summary>
-    internal static readonly NativeProgramEntry<KagoProgram>[] Entries =
+    internal static readonly NativeProgramEntry<KagoSegment>[] Entries =
     [
-        new NativeProgramEntry<KagoProgram>(KagoProgram.Slow, 0xab1e),
-        new NativeProgramEntry<KagoProgram>(KagoProgram.Fast, 0xab32),
+        new NativeProgramEntry<KagoSegment>(KagoSegment.Slow, 0xab1e),
+        new NativeProgramEntry<KagoSegment>(KagoSegment.Fast, 0xab32),
     ];
 
 }

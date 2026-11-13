@@ -62,7 +62,7 @@ public sealed class SamusDraygonGrabbedState
     public ControllerButton PreviousDpadInput { get; private set; }
 
     /// <summary>
-    /// Set by release exactly like grapple-connected-flags bit one. Draygon's
+    /// Set by the release, the signal Draygon reads when Samus breaks free. Draygon's
     /// next <c>MoveSamusWithDraygon</c> call consumes the signal and starts flying upward.
     /// </summary>
     public bool ReleasePublishedToOwner { get; private set; }

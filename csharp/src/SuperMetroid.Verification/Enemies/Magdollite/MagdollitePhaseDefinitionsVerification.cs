@@ -22,7 +22,7 @@ internal static class MagdollitePhaseDefinitionsVerification
             AssertEqual(ReadMagdolliteWord(rom, thresholdTable + phaseIndex * 2),
                 phase.DistanceThreshold, $"Magdollite threshold {phaseIndex}");
             AssertEqual(ReadMagdolliteWord(rom, instructionTable + phaseIndex * 2),
-                NativeEnemyAnimationOracle.EntryOf(MagdolliteNativeListAddresses.Entries, phase.BodyProgram), $"Magdollite body list {phaseIndex}");
+                NativeEnemyAnimationOracle.EntryOf(MagdolliteNativeListAddresses.Entries, phase.BodyAnimation), $"Magdollite body list {phaseIndex}");
             AssertEqual(ReadMagdolliteWord(rom, overlayOffsetTable + phaseIndex * 2),
                 phase.OverlayYOffset, $"Magdollite overlay offset {phaseIndex}");
         }
@@ -52,8 +52,8 @@ internal static class MagdollitePhaseDefinitionsVerification
         headState.DownwardVelocity = SignedSixteenSixteen.Zero;
         headState.UpwardVelocity = SignedSixteenSixteen.Zero;
 
-        AssertEqual(MagdolliteRise.Phase(0).BodyProgram,
-            bodyState.DesiredProgram, "Magdollite production initial body list");
+        AssertEqual(MagdolliteRise.Phase(0).BodyAnimation,
+            bodyState.DesiredAnimation, "Magdollite production initial body list");
 
         for (int phaseIndex = 0; phaseIndex < 9; phaseIndex++)
         {
@@ -85,7 +85,7 @@ internal static class MagdollitePhaseDefinitionsVerification
                 MagdollitePhaseDefinition next = MagdolliteRise.Phase(phaseIndex + 1);
                 AssertEqual(phaseIndex + 1, bodyState.BodyPhase,
                     $"Magdollite production rise phase {phaseIndex}");
-                AssertEqual(next.BodyProgram, bodyState.DesiredProgram,
+                AssertEqual(next.BodyAnimation, bodyState.DesiredAnimation,
                     $"Magdollite production rise list {phaseIndex}");
             }
             else
@@ -104,8 +104,8 @@ internal static class MagdollitePhaseDefinitionsVerification
             fall(body, bodyState);
             AssertEqual(priorPhase, bodyState.BodyPhase,
                 $"Magdollite production fall phase {priorPhase}");
-            AssertEqual(MagdolliteRise.Phase(priorPhase).BodyProgram,
-                bodyState.DesiredProgram,
+            AssertEqual(MagdolliteRise.Phase(priorPhase).BodyAnimation,
+                bodyState.DesiredAnimation,
                 $"Magdollite production fall list {priorPhase}");
         }
 

@@ -15,11 +15,11 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Advances Zoa's typed animation (#641) where the shared enemy animation would run its list.</summary>
     internal static void AdvanceZoaAnimation(RoomEnemySlot slot)
     {
-        if (!EnemyProgramAnimation.Expire(slot))
+        if (!slot.AnimationClock.Expire())
             return;
         ZoaEnemyState state = slot.RequireSpeciesState<ZoaEnemyState>();
-        AnimationPlayback<ZoaProgram> playback = state.Playback;
-        EnemyProgramAnimation.Play(slot, ZoaAnimations.Segments, ref playback,
+        AnimationPlayback<ZoaSegment> playback = state.Playback;
+        EnemyAnimationPlayback.Play(slot, ZoaAnimations.Segments, ref playback,
             cue =>
             {
                 ApplyZoaCue(state, cue);
@@ -62,7 +62,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The initializer starts the left-facing shooting animation directly and records it as started, so asking for it
         // again at rest starts nothing.
-        state.Playback = new(ZoaAnimations.StartingWith(ZoaPrograms.Program(ZoaAnimationSelector.ShootingFacingLeft)), AnimationPlace.StartOfAnimation);
+        state.Playback = new(ZoaAnimations.StartingWith(ZoaAnimationChoices.Animation(ZoaAnimationSelector.ShootingFacingLeft)), AnimationPlace.StartOfAnimation);
         slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
     }
 
@@ -107,8 +107,8 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         // The Zoa rises facing Samus; the sign test uses the same wrapped Samus-minus-enemy distance as the common helper.
-        state.RequestedAnimation = ZoaPrograms.Rising(facingRight: CoordinateAxis.AsSigned(signedDistance) >= 0);
-        SetZoaProgram(slot, state);
+        state.RequestedAnimation = ZoaAnimationChoices.Rising(facingRight: CoordinateAxis.AsSigned(signedDistance) >= 0);
+        SetZoaAnimation(slot, state);
         state.Function = ZoaEnemyFunction.Rising;
     }
 
@@ -127,8 +127,8 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        state.RequestedAnimation = ZoaPrograms.ShootingWithSameFacing(state.RequestedAnimation);
-        SetZoaProgram(slot, state);
+        state.RequestedAnimation = ZoaAnimationChoices.ShootingWithSameFacing(state.RequestedAnimation);
+        SetZoaAnimation(slot, state);
         state.Function = ZoaEnemyFunction.Shooting;
     }
 
@@ -149,7 +149,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Position = slot.Position.AdvanceX(xDisplacement);
         if (EnemyProcessingWindow.EnemyCenterIsOnScreen(slot, camera))
         {
-            SetZoaProgram(slot, state);
+            SetZoaAnimation(slot, state);
             return;
         }
 
@@ -160,19 +160,17 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
         slot.Position = slot.Position.WithWhole(state.SpawnPosition);
         state.RequestedAnimation = ZoaAnimationSelector.ShootingFacingLeft;
-        SetZoaProgram(slot, state);
+        SetZoaAnimation(slot, state);
         state.Function = ZoaEnemyFunction.WaitForSamus;
     }
 
     /// <summary>Starts the selected animation, restarting its timers, only when it differs from the previous one.</summary>
-    internal static void SetZoaProgram(RoomEnemySlot slot, ZoaEnemyState state)
+    internal static void SetZoaAnimation(RoomEnemySlot slot, ZoaEnemyState state)
     {
         if (state.RequestedAnimation == state.InstalledAnimation)
             return;
         state.InstalledAnimation = state.RequestedAnimation;
-        state.Playback = new(ZoaAnimations.StartingWith(ZoaPrograms.Program(state.RequestedAnimation)), AnimationPlace.StartOfAnimation);
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        state.Playback = EnemyAnimationPlayback.Start(slot, ZoaAnimations.StartingWith(ZoaAnimationChoices.Animation(state.RequestedAnimation)));
     }
 
     /// <summary>Runs Zoa's main AI.</summary>

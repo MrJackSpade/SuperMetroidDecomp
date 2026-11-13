@@ -8,12 +8,12 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 internal static class MotherBrainTopTubeFrameDefinitions
 {
     /// <summary>The projectile frame each frame of the family shows.</summary>
-    internal static IReadOnlyDictionary<MotherBrainTopTubeProgram, EnemyProjectileFrameId> ShownProjectileFrames { get; } =
-        new Dictionary<MotherBrainTopTubeProgram, EnemyProjectileFrameId>
+    internal static IReadOnlyDictionary<MotherBrainTopTubeSegment, EnemyProjectileFrameId> ShownProjectileFrames { get; } =
+        new Dictionary<MotherBrainTopTubeSegment, EnemyProjectileFrameId>
         {
-            [MotherBrainTopTubeProgram.TopRight] = EnemyProjectileFrameId.MotherBrainTopTubeTopRight,
-            [MotherBrainTopTubeProgram.TopLeft] = EnemyProjectileFrameId.MotherBrainTopTubeTopLeft,
-            [MotherBrainTopTubeProgram.TopMiddleLeft] = EnemyProjectileFrameId.MotherBrainTopTubeTopMiddleLeft,
-            [MotherBrainTopTubeProgram.TopMiddleRight] = EnemyProjectileFrameId.MotherBrainTopTubeTopMiddleRight,
+            [MotherBrainTopTubeSegment.TopRight] = EnemyProjectileFrameId.MotherBrainTopTubeTopRight,
+            [MotherBrainTopTubeSegment.TopLeft] = EnemyProjectileFrameId.MotherBrainTopTubeTopLeft,
+            [MotherBrainTopTubeSegment.TopMiddleLeft] = EnemyProjectileFrameId.MotherBrainTopTubeTopMiddleLeft,
+            [MotherBrainTopTubeSegment.TopMiddleRight] = EnemyProjectileFrameId.MotherBrainTopTubeTopMiddleRight,
         };
 }

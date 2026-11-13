@@ -17,7 +17,7 @@ internal static class WorkRobotVisualsVerification
     internal static void VerifyInstalledWorkRobotVisuals(
         CartridgeImportAddressSpace rom, EnemyTileSourceArtwork stock)
     {
-        HashSet<ushort> shown = WorkRobotAnimationsConstants.Spritemaps(Enum.GetValues<WorkRobotProgram>()).ToHashSet();
+        HashSet<ushort> shown = WorkRobotAnimationsConstants.Spritemaps(Enum.GetValues<WorkRobotSegment>()).ToHashSet();
         foreach (ushort pointer in shown)
         {
             AssertTrue((stock.Spritemaps ?? throw new InvalidOperationException("Verification requires stock.Spritemaps.")).TryGetDisplay(

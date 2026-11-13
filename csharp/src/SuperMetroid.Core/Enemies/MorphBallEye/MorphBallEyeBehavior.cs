@@ -43,10 +43,9 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new MorphBallEyeEnemyState();
         slot.SetSpeciesState(state);
 
-        slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
+        slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
         slot.Frame = EnemyFrameId.Empty;
-        slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Timer = WrappingCountdown.Start(0);
+        slot.AnimationClock.Restart();
 
         MorphBallEyeSpawnSettings settings = slot.SpawnSettings<MorphBallEyeSpawnSettings>();
         if (settings.Part != MorphBallEyePart.BeamMount)
@@ -54,15 +53,15 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
             // The placement's facing is fixed by its mounting, not a live facing test.
             state.Function = MorphBallEyeAiFunction.WaitForSamus;
             state.Playback = new(MorphBallEyeAnimations.StartingWith(settings.Facing == HorizontalDirection.Right
-                ? MorphBallEyeProgram.FacingRightClosed
-                : MorphBallEyeProgram.FacingLeftClosed), AnimationPlace.StartOfAnimation);
+                ? MorphBallEyeSegment.FacingRightClosed
+                : MorphBallEyeSegment.FacingLeftClosed), AnimationPlace.StartOfAnimation);
             return;
         }
 
         var mount = MorphBallEyeGeometry.Mount(settings.MountSide);
         slot.Position += mount.Offset;
         state.Function = MorphBallEyeAiFunction.MountNoOp;
-        state.Playback = new(MorphBallEyeAnimations.StartingWith(mount.Program), AnimationPlace.StartOfAnimation);
+        state.Playback = new(MorphBallEyeAnimations.StartingWith(mount.Animation), AnimationPlace.StartOfAnimation);
 
         // A mount clears any beam when the room loads, so a prior room's reveal never
         // shows in this one.
@@ -115,10 +114,10 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         state.FunctionTimer = EyeTransitionDuration;
-        eye.FrameHold = WrappingCountdown.Start(1);
+        eye.AnimationClock.StepOnNextUpdate();
         state.Playback = new(MorphBallEyeAnimations.StartingWith(eye.SpawnSettings<MorphBallEyeSpawnSettings>().Facing == HorizontalDirection.Right
-            ? MorphBallEyeProgram.FacingRightActivating
-            : MorphBallEyeProgram.FacingLeftActivating), AnimationPlace.StartOfAnimation);
+            ? MorphBallEyeSegment.FacingRightActivating
+            : MorphBallEyeSegment.FacingLeftActivating), AnimationPlace.StartOfAnimation);
         state.Function = MorphBallEyeAiFunction.Activating;
     }
 
@@ -154,18 +153,18 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
             state.IsActivated = false;
             state.FunctionTimer = EyeTransitionDuration;
             state.Playback = new(MorphBallEyeAnimations.StartingWith(eye.SpawnSettings<MorphBallEyeSpawnSettings>().Facing == HorizontalDirection.Right
-                ? MorphBallEyeProgram.FacingRightDeactivating
-                : MorphBallEyeProgram.FacingLeftDeactivating), AnimationPlace.StartOfAnimation);
+                ? MorphBallEyeSegment.FacingRightDeactivating
+                : MorphBallEyeSegment.FacingLeftDeactivating), AnimationPlace.StartOfAnimation);
             state.Function = MorphBallEyeAiFunction.Deactivating;
-            eye.FrameHold = WrappingCountdown.Start(1);
+            eye.AnimationClock.StepOnNextUpdate();
             return;
         }
 
         state.Angle = CalculateMorphBallEyeAngle(eye, samus);
 
         // The tracking loop resumes at the pose for the arc of the turn the angle lies in.
-        state.Playback = new(MorphBallEyeAnimations.StartingWith(MorphBallEyeProgram.Active), MorphBallEyeAnimations.TrackingPlaces.At(state.Angle));
-        eye.FrameHold = WrappingCountdown.Start(1);
+        state.Playback = new(MorphBallEyeAnimations.StartingWith(MorphBallEyeSegment.Active), MorphBallEyeAnimations.TrackingPlaces.At(state.Angle));
+        eye.AnimationClock.StepOnNextUpdate();
     }
 
     /// <summary>Returns to waiting when the closing countdown reaches zero or goes below it.</summary>
@@ -299,8 +298,8 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances MorphBallEye's typed animation.</summary>
-    internal static void AdvanceMorphBallEyeTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
-        EnemyProgramAnimation.Advance(slot, MorphBallEyeAnimations.Segments,
+    internal static void AdvanceMorphBallEyeTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
+        EnemyAnimationPlayback.Advance(slot, MorphBallEyeAnimations.Segments,
             static (MorphBallEyeEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (state, cue) => throw new InvalidOperationException($"The Morph Ball eye's cue-free animation raised {cue}."));
 

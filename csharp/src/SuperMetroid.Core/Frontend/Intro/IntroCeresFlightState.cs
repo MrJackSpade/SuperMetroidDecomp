@@ -266,7 +266,7 @@ internal sealed class IntroCeresFlightState
         var actor = new IntroDiscoverySprite(
             start,
             CeresShades.Drawn(definition.Colouring),
-            definition.Program)
+            definition.Animation)
         {
             HorizontalLoopWidth = definition.WrapX ? CeresDestructionSceneDefinitions.WorldWidth : null,
         };

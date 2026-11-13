@@ -10,6 +10,6 @@ internal static class ProjectileFixturePlaybacks
     /// A live shot for fixtures that only need the slot active (its native pointer nonzero): they check collision,
     /// damage or drawing and never play the shot's animation.
     /// </summary>
-    internal static AnimationPlayback<SamusProjectileProgram> Active { get; } =
-        new(SamusProjectileAnimations.StartingWith(SamusProjectileProgram.PowerRight), AnimationPlace.StartOfAnimation);
+    internal static AnimationPlayback<SamusProjectileSegment> Active { get; } =
+        new(SamusProjectileAnimations.StartingWith(SamusProjectileSegment.PowerRight), AnimationPlace.StartOfAnimation);
 }

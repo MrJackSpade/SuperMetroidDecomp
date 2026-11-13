@@ -22,7 +22,7 @@ internal static class TorizoInitializationDefinitionsVerification
                 CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.WakeAnimationScripts + variant * 2), CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.WakePropertyMasks + variant * 2),
                 CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.WakeXRadii + variant * 2), CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.WakeYRadii + variant * 2)];
             var compiled = variant == 0 ? TorizoInitializationDefinitions.Bomb : TorizoInitializationDefinitions.Golden;
-            ushort[] actual = [compiled.Position.X, compiled.Position.Y, TorizoNativeListAddresses.Entry(compiled.Program), checked((ushort)EnemyPropertyWordCodec.EncodePropertyWord(new EnemyPropertyState(EnemyContact.None, compiled.Processing, EnemyPresence.None, CollidesByFrameHitboxes: false, NewInstructionFrame: false))), compiled.Radius.X, compiled.Radius.Y];
+            ushort[] actual = [compiled.Position.X, compiled.Position.Y, TorizoNativeListAddresses.Entry(compiled.Animation), checked((ushort)EnemyPropertyWordCodec.EncodePropertyWord(new EnemyPropertyState(EnemyContact.None, compiled.Processing, EnemyPresence.None, CollidesByFrameHitboxes: false, NewInstructionFrame: false))), compiled.Radius.X, compiled.Radius.Y];
             AssertTrue(native.SequenceEqual(actual), "Every Torizo initialization record word matches ROM");
 
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
@@ -43,13 +43,13 @@ internal static class TorizoInitializationDefinitionsVerification
                 actor.Processing = population.Processing;
                 actor.Presence = population.Presence;
                 actor.CollidesByFrameHitboxes = populationCollidesByFrameHitboxes;
-                actor.NewInstructionFrame = populationNewInstructionFrame;
+                actor.AnimationClock.ShowsNewFrame = populationNewInstructionFrame;
                 actor.Radius = new(0xffff, 0xffff);
                 actor.Position = new(new(0xffff, 0x1234), new(0xffff, 0xabcd));
                 actor.Health = 0x3456;
                 actor.Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook;
-                actor.Timer = WrappingCountdown.Start(0xffff);
-                actor.FrameHold = WrappingCountdown.Start(0xffff);
+                actor.AnimationClock.Repeats = WrappingCountdown.Start(0xffff);
+                actor.AnimationClock.HoldFor(0xffff);
                 initialize(actor);
                 AssertEqual(native[0], actor.Position.X.Whole, "Real Torizo initial X");
                 AssertEqual(native[1], actor.Position.Y.Whole, "Real Torizo initial Y");
@@ -64,12 +64,12 @@ internal static class TorizoInitializationDefinitionsVerification
                 AssertEqual(native[4], actor.Radius.X, "Real Torizo X hitbox radius");
                 AssertEqual(native[5], actor.Radius.Y, "Real Torizo Y hitbox radius");
                 AssertTrue(actor.CollidesByFrameHitboxes, "Torizo initialization collides by frame hitboxes");
-                AssertEqual(populationNewInstructionFrame, actor.NewInstructionFrame, "Extended map flag preserves the population's new-frame property");
+                AssertEqual(populationNewInstructionFrame, actor.AnimationClock.ShowsNewFrame, "Extended map flag preserves the population's new-frame property");
                 AssertEqual((ushort)0x1234, actor.Position.X.Fraction, "Torizo initialization preserves X fraction");
                 AssertEqual((ushort)0xabcd, actor.Position.Y.Fraction, "Torizo initialization preserves Y fraction");
                 AssertEqual(0x3456, actor.Health, "Torizo initialization preserves population health");
-                AssertEqual((ushort)1, actor.FrameHold.RawValue, "Initial instruction timer");
-                AssertEqual((ushort)0, actor.Timer.RawValue, "Initial actor timer");
+                AssertEqual((ushort)1, actor.AnimationClock.Hold.RawValue, "Initial instruction timer");
+                AssertEqual((ushort)0, actor.AnimationClock.Repeats.RawValue, "Initial actor timer");
                 var state = variant == 0 ? enemies.BombTorizo : enemies.BombTorizoBehavior.Attacks.GoldenTorizo;
                 AssertEqual((ushort)0, (state ?? throw new InvalidOperationException("Verification requires state.")).Velocity.X.RawValue, "Initial horizontal velocity");
                 AssertEqual(state.Colours.Shading, actor.Shading, "Initial colours: the shading his colours name for his starting look");
@@ -81,14 +81,14 @@ internal static class TorizoInitializationDefinitionsVerification
             actor.Processing = EnemyProcessing.None;
             actor.Presence = EnemyPresence.None;
             actor.Position = actor.Position.WithWhole(new(0x1111, 0x2222));
-            actor.FrameHold = WrappingCountdown.Start(0x3333);
+            actor.AnimationClock.HoldFor(0x3333);
             initialize(actor);
             AssertEqual(EnemyContact.BlocksPlasmaBeam | EnemyContact.IgnoresSamus, actor.Contact, "Defeated Torizo keeps its contact");
             AssertEqual(EnemyProcessing.None, actor.Processing, "Defeated Torizo gains no processing");
             AssertEqual(EnemyPresence.Deleted, actor.Presence, "Defeated Torizo is deleted before initialization writes");
             AssertEqual((ushort)0x1111, actor.Position.X.Whole, "Defeated Torizo preserves X");
             AssertEqual((ushort)0x2222, actor.Position.Y.Whole, "Defeated Torizo preserves Y");
-            AssertEqual((ushort)0x3333, actor.FrameHold.RawValue, "Defeated Torizo leaves its animation untouched");
+            AssertEqual((ushort)0x3333, actor.AnimationClock.Hold.RawValue, "Defeated Torizo leaves its animation untouched");
         }
         Console.WriteLine("Torizo initialization: all 12 native words, 131072 real live initializations and both defeated early returns pass without ROM reads.");
     }

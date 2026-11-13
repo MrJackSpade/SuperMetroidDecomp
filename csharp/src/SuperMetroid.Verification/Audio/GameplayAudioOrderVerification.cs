@@ -71,7 +71,7 @@ internal static class GameplayAudioOrderVerification
             "the first update records the Ki Hunter's spit");
 
         // The Ki Hunter's next step lies far ahead, so the second update's enemies request nothing.
-        kiHunter.FrameHold = WrappingCountdown.Start(200);
+        kiHunter.AnimationClock.HoldFor(200);
         runtime.StepFrame(0, new RuntimeFrameRequest { Audio = GameplayFrameAudio.Gameplay(runtime) });
 
         AssertTrue(!runtime.AudioRequests.SoundRequests.Any(request => request.SoundEffect == EnemySound.AcidSpit),
@@ -165,8 +165,8 @@ internal static class GameplayAudioOrderVerification
         body.Position = body.Position.WithWhole(new(128, 128));
         state.Function = KiHunterEnemyFunction.NoOp;
         // The spit cue, four poses into the right spit animation, which queues the acid spit (library two).
-        state.Playback = new(KiHunterAnimations.StartingWith(KiHunterProgram.SpitRight), new AnimationPlace(0, 4));
-        body.FrameHold = WrappingCountdown.Start(1);
+        state.Playback = new(KiHunterAnimations.StartingWith(KiHunterSegment.SpitRight), new AnimationPlace(0, 4));
+        body.AnimationClock.StepOnNextUpdate();
         return body;
     }
 }

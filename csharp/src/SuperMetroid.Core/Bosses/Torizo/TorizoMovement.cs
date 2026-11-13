@@ -53,7 +53,7 @@ internal sealed class TorizoMovement
         };
         _access.TorizoState = state;
 
-        // Boss bit four is shared by the Bomb and Golden Torizo encounters, but it is stored
+        // The area's Torizo defeat is shared by the Bomb and Golden Torizo encounters, but it is stored
         // per area. The room loader supplies the current area's accessor, keeping the actor
         // independent from save-memory layout and avoiding a room-number special case.
         if (_room.Services.Bosses.IsDefeated(BossBits.AreaTorizo))
@@ -66,12 +66,11 @@ internal sealed class TorizoMovement
         TorizoInitializationDefinition definition = isGolden
             ? TorizoInitializationDefinitions.Golden : TorizoInitializationDefinitions.Bomb;
         torizo.Position = torizo.Position.WithWhole(definition.Position);
-        state.BodyPlayback = TorizoAnimations.Start(definition.Program);
+        state.BodyPlayback = TorizoAnimations.Start(definition.Animation);
         torizo.Processing = torizo.Processing.With(definition.Processing);
         torizo.CollidesByFrameHitboxes = true;
         torizo.Radius = definition.Radius;
-        torizo.FrameHold = WrappingCountdown.Start(1);
-        torizo.Timer = WrappingCountdown.Start(0);
+        torizo.AnimationClock.Restart();
         torizo.Shading = state.Colours.Shading;
         torizo.Frame = EnemyFrameId.BombTorizoDormant;
 
@@ -119,7 +118,7 @@ internal sealed class TorizoMovement
             torizo.Health < BombTorizoBehavior.BombTorizoHeadExplosionHealth)
         {
             state.InterruptedPlayback = state.BodyPlayback;
-            TorizoBody.StartTorizoBodyProgram(torizo, state, TorizoAnimations.Start(TorizoBodyProgram.SpecialCallableBlowUpBombTorizosGut));
+            TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(TorizoBodySegment.SpecialCallableBlowUpBombTorizosGut));
             return;
         }
 
@@ -127,9 +126,9 @@ internal sealed class TorizoMovement
             torizo.Health < BombTorizoBehavior.BombTorizoCoreExplosionHealth)
         {
             state.ReturnPlayback = TorizoAnimations.Start(_access.FacesRight(torizo)
-                ? TorizoBodyProgram.FacingLeftFacelessTurningLeft
-                : TorizoBodyProgram.FacingRightFacelessTurningRight);
-            TorizoBody.StartTorizoBodyProgram(torizo, state, TorizoAnimations.Start(TorizoBodyProgram.CallableBlowUpBombTorizosFace));
+                ? TorizoBodySegment.FacingLeftFacelessTurningLeft
+                : TorizoBodySegment.FacingRightFacelessTurningRight);
+            TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(TorizoBodySegment.CallableBlowUpBombTorizosFace));
             return;
         }
 
@@ -217,7 +216,7 @@ internal sealed class TorizoMovement
                 torizo,
                 state.Velocity.Y.ToSixteenSixteenDelta()))
         {
-            TorizoBody.StartTorizoBodyProgram(torizo, state, state.ReturnPlayback);
+            TorizoBody.StartTorizoBodyAnimation(torizo, state, state.ReturnPlayback);
             state.Velocity = state.Velocity.WithY(SignedEightEight.FromPixels(1));
             _earthquake.Start(LandingShake, 32);
             return;
@@ -237,13 +236,13 @@ internal sealed class TorizoMovement
         {
             if (--state.AirTransitionTimer == 0)
             {
-                TorizoBody.StartTorizoBodyProgram(torizo, state, TorizoAnimations.Start(alternateLanding
+                TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(alternateLanding
                     ? (_access.FacesRight(torizo)
-                        ? TorizoBodyProgram.FacingLeftFacelessTurningLeft
-                        : TorizoBodyProgram.FacingRightFacelessTurningRight)
+                        ? TorizoBodySegment.FacingLeftFacelessTurningLeft
+                        : TorizoBodySegment.FacingRightFacelessTurningRight)
                     : (_access.FacesRight(torizo)
-                        ? TorizoBodyProgram.FacingLeftTurningLeft
-                        : TorizoBodyProgram.FacingRightTurningRight)));
+                        ? TorizoBodySegment.FacingLeftTurningLeft
+                        : TorizoBodySegment.FacingRightTurningRight)));
                 return;
             }
         }
@@ -252,9 +251,9 @@ internal sealed class TorizoMovement
         {
             // Bomb Torizo's fall swaps to the authored in-air list while the downward probe remains
             // clear. Landing itself is handled by the list-installed gravity/jump callback.
-            TorizoBody.StartTorizoBodyProgram(torizo, _access.RequireBombTorizoState(torizo), TorizoAnimations.Start(_access.FacesRight(torizo)
-                ? TorizoBodyProgram.FacingRightFalling0
-                : TorizoBodyProgram.FacingLeftFalling0));
+            TorizoBody.StartTorizoBodyAnimation(torizo, _access.RequireBombTorizoState(torizo), TorizoAnimations.Start(_access.FacesRight(torizo)
+                ? TorizoBodySegment.FacingRightFalling0
+                : TorizoBodySegment.FacingLeftFalling0));
             state.Velocity = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 256);
         }
     }
@@ -271,18 +270,18 @@ internal sealed class TorizoMovement
         {
             if (--state.AirTransitionTimer == 0)
             {
-                TorizoBody.StartTorizoBodyProgram(torizo, _access.RequireBombTorizoState(torizo), TorizoAnimations.Start(_access.FacesRight(torizo)
-                    ? TorizoBodyProgram.GoldenTurningLeft
-                    : TorizoBodyProgram.GoldenTurningRight));
+                TorizoBody.StartTorizoBodyAnimation(torizo, _access.RequireBombTorizoState(torizo), TorizoAnimations.Start(_access.FacesRight(torizo)
+                    ? TorizoBodySegment.GoldenTurningLeft
+                    : TorizoBodySegment.GoldenTurningRight));
                 return;
             }
         }
 
         if (!_terrain.MoveEnemyVertically(level, torizo, SignedSixteenSixteen.FromWholePixels(TorizoGroundProbeFall.Pixels(state.Velocity.X))))
         {
-            TorizoBody.StartTorizoBodyProgram(torizo, _access.RequireBombTorizoState(torizo), TorizoAnimations.Start(_access.FacesRight(torizo)
-                ? TorizoBodyProgram.FacingRightFalling0
-                : TorizoBodyProgram.FacingLeftFalling0));
+            TorizoBody.StartTorizoBodyAnimation(torizo, _access.RequireBombTorizoState(torizo), TorizoAnimations.Start(_access.FacesRight(torizo)
+                ? TorizoBodySegment.FacingRightFalling0
+                : TorizoBodySegment.FacingLeftFalling0));
             state.Velocity = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 256);
         }
     }

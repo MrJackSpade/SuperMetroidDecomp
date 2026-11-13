@@ -33,15 +33,15 @@ internal static class CrocomireMouthShotHoldVerification
             {
                 var state = new CrocomireEnemyState(body) { FightFunction = function, Camera = new(cameraX, 0) };
                 enemies.CrocomireBehavior.Access.Crocomire = state;
-                body.FrameHold = WrappingCountdown.Start(StartingHold);
+                body.AnimationClock.HoldFor(StartingHold);
                 body.FlashTimer = 0;
 
                 SamusProjectileType superMissile = SamusProjectileType.Of(SamusProjectileFamily.SuperMissile);
                 enemies.CrocomireBehavior.Combat.ResolveCrocomireMouthShot(state, body, superMissile, body.Position.Whole);
-                AssertEqual(expected, body.FrameHold.RemainingFrames, $"a {place} mouth shot during {function} holds the frame eight more");
+                AssertEqual(expected, body.AnimationClock.Hold.RemainingFrames, $"a {place} mouth shot during {function} holds the frame eight more");
 
                 enemies.CrocomireBehavior.Combat.ResolveCrocomireMouthShot(state, body, superMissile, body.Position.Whole);
-                AssertEqual(expected, body.FrameHold.RemainingFrames, $"a {place} mouth shot during {function}'s pending reaction adds no hold");
+                AssertEqual(expected, body.AnimationClock.Hold.RemainingFrames, $"a {place} mouth shot during {function}'s pending reaction adds no hold");
                 cases++;
             }
         }

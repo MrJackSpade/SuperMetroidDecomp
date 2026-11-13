@@ -55,14 +55,14 @@ internal static class TorizoRandomDefinitions
     /// The drool each <see cref="LowHealthDroolDelay"/> entry starts, in entry order: the no-delay, two-frame and
     /// four-frame drools in turn, so the first two kinds are each drawn three times in eight and the last twice.
     /// </summary>
-    internal static readonly TorizoProjectileProgram[] LowHealthDroolPrograms =
+    internal static readonly TorizoProjectileSegment[] LowHealthDroolAnimations =
     [
-        TorizoProjectileProgram.DroolNoDelay, TorizoProjectileProgram.DroolTwoFrameDelay, TorizoProjectileProgram.DroolFourFrameDelay,
-        TorizoProjectileProgram.DroolNoDelay, TorizoProjectileProgram.DroolTwoFrameDelay, TorizoProjectileProgram.DroolFourFrameDelay,
-        TorizoProjectileProgram.DroolNoDelay, TorizoProjectileProgram.DroolTwoFrameDelay,
+        TorizoProjectileSegment.DroolNoDelay, TorizoProjectileSegment.DroolTwoFrameDelay, TorizoProjectileSegment.DroolFourFrameDelay,
+        TorizoProjectileSegment.DroolNoDelay, TorizoProjectileSegment.DroolTwoFrameDelay, TorizoProjectileSegment.DroolFourFrameDelay,
+        TorizoProjectileSegment.DroolNoDelay, TorizoProjectileSegment.DroolTwoFrameDelay,
     ];
 
-    /// <summary>Whether a sonic boom flies high, twelve pixels above Torizo's Y rather than twenty below: the sample's bit zero.</summary>
+    /// <summary>Whether a sonic boom flies high, twelve pixels above Torizo's Y rather than twenty below: taken by an odd sample.</summary>
     internal static readonly RandomSampleField SonicBoomHigh = new(0, 1);
 
     /// <summary>A randomized projectile's jitter on one axis, less 128, in 256ths of a pixel: 0 through 255 from the sample.</summary>

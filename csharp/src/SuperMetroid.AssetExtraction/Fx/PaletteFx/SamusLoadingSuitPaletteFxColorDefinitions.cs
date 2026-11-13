@@ -24,7 +24,7 @@ public static class SamusLoadingSuitPaletteFxColorDefinitions
         {
             Owner = SamusLoadingSuitPaletteFxProgramOwner.PowerSuit,
             Object = PaletteFxObject.SamusLoadingPowerSuit,
-            ColorFrames = PaletteFxColorFrames.Of(PaletteFxProgram.SamusLoadingPowerSuit1, ColorsPerFrame),
+            ColorFrames = PaletteFxColorFrames.Of(PaletteFxSegment.SamusLoadingPowerSuit1, ColorsPerFrame),
         };
     /// <summary>The Varia-suit definition's program.</summary>
     private static readonly SamusLoadingSuitPaletteFxColorDefinition Varia =
@@ -32,7 +32,7 @@ public static class SamusLoadingSuitPaletteFxColorDefinitions
         {
             Owner = SamusLoadingSuitPaletteFxProgramOwner.VariaSuit,
             Object = PaletteFxObject.SamusLoadingVariaSuit,
-            ColorFrames = PaletteFxColorFrames.Of(PaletteFxProgram.SamusLoadingVairaSuit1, ColorsPerFrame),
+            ColorFrames = PaletteFxColorFrames.Of(PaletteFxSegment.SamusLoadingVairaSuit1, ColorsPerFrame),
         };
     /// <summary>The Gravity-suit definition's program.</summary>
     private static readonly SamusLoadingSuitPaletteFxColorDefinition Gravity =
@@ -40,7 +40,7 @@ public static class SamusLoadingSuitPaletteFxColorDefinitions
         {
             Owner = SamusLoadingSuitPaletteFxProgramOwner.GravitySuit,
             Object = PaletteFxObject.SamusLoadingGravitySuit,
-            ColorFrames = PaletteFxColorFrames.Of(PaletteFxProgram.SamusLoadingGravitySuit1, ColorsPerFrame),
+            ColorFrames = PaletteFxColorFrames.Of(PaletteFxSegment.SamusLoadingGravitySuit1, ColorsPerFrame),
         };
 
     /// <summary>The power, Varia, and gravity programs in definition order.</summary>

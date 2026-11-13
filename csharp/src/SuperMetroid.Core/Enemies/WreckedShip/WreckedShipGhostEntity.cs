@@ -13,5 +13,5 @@ internal sealed class WreckedShipGhostEntity(RoomEnemySlot slot, EnemyCommonPart
     public EnemyMainAiHandler? FindMain() => WreckedShipGhostBehavior.RunWreckedShipGhostMainAi;
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => WreckedShipGhostBehavior.AdvanceWreckedShipGhostTypedAnimation;
+    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => WreckedShipGhostBehavior.AdvanceWreckedShipGhostTypedAnimation;
 }

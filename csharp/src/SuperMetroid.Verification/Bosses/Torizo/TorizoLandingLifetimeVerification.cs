@@ -26,12 +26,12 @@ internal static class TorizoLandingLifetimeVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.BombTorizo);
         var body=runtime.Enemies.SlotTable.Slots.First(e=>e.DefinitionId==EnemyDefinitionId.BombTorizo);
         var state= runtime.Enemies.BombTorizoBehavior.Access.TorizoState ?? throw new InvalidOperationException("Verification requires runtime.Enemies.BombTorizoBehavior._torizoState.");
-        state.Function=TorizoFunction.Active;state.FrameBehavior=TorizoFrameBehavior.Jump;state.ReturnPlayback=TorizoAnimations.Start(TorizoBodyProgram.FacingLeftFalling2);
+        state.Function=TorizoFunction.Active;state.FrameBehavior=TorizoFrameBehavior.Jump;state.ReturnPlayback=TorizoAnimations.Start(TorizoBodySegment.FacingLeftFalling2);
         state.Velocity=EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 1024);state.JumpAcceleration=EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 40);
         body.Health=body.Definition.Health;state.Posture=TorizoPostureFlags.None;state.Behavior=0;
         body.Contact = EnemyContact.None;
-        body.Processing = EnemyProcessing.AnimationScript;
-        body.Presence = EnemyPresence.None;state.BodyPlayback=TorizoAnimations.Start(TorizoBodyProgram.FacingLeftFalling1);body.FrameHold=WrappingCountdown.Start(5);
+        body.Processing = EnemyProcessing.Animates;
+        body.Presence = EnemyPresence.None;state.BodyPlayback=TorizoAnimations.Start(TorizoBodySegment.FacingLeftFalling1);body.AnimationClock.HoldFor(5);
         body.Position = body.Position.WithWhole(new(128, (ushort)(190-body.Radius.Y)));
         var terrain=new RoomTerrainBlock[256];for(int i=12*16;i<13*16;i++)terrain[i]=RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
         // A flat floor across row 12 of the room's own blocks, which its block sheet pictures.

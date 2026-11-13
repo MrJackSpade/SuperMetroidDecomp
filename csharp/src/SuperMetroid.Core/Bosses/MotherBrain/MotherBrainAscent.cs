@@ -92,7 +92,7 @@ internal sealed class MotherBrainAscent
         // typed lifetime rather than pretending it is a body-visibility flag.
         state.RisingFloorClipActive = true;
         state.Head.Presence = state.Head.Presence.With(EnemyPresence.Hidden);
-        MotherBrainEncounterAccess.SetMotherBrainBrainProgram(state, MotherBrainHeadProgram.Initial);
+        MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.Initial);
         state.Function = MotherBrainBodyFunction.FakeDeathAscentReadyStandingBody;
         state.FunctionTimer = 256;
 
@@ -149,8 +149,8 @@ internal sealed class MotherBrainAscent
     /// <summary>Switches the body into the rising state after its setup pause.</summary>
     internal void StartMotherBrainAscent(MotherBrainEnemyState state)
     {
-        MotherBrainEncounterAccess.SetMotherBrainBodyProgram(state, MotherBrainBodyProgram.Crouched);
-        state.Head.FrameHold = WrappingCountdown.Start(1);
+        MotherBrainEncounterAccess.SetMotherBrainBodyAnimation(state, MotherBrainBodySegment.Crouched);
+        state.Head.AnimationClock.StepOnNextUpdate();
         state.Body.Presence = state.Body.Presence.Without(EnemyPresence.Hidden);
         state.Body.Position = state.Body.Position.WithWhole(new(59, 279));
         MotherBrainBody.PlaceMotherBrainBodyLayer(state, Position16<BackgroundPixels>.Wrapped(-27, -217));
@@ -181,7 +181,7 @@ internal sealed class MotherBrainAscent
         state.Body.Position = state.Body.Position.WithWholeY(188);
         _earthquake.Stop();
         state.RisingFloorClipActive = false;
-        MotherBrainEncounterAccess.SetMotherBrainBodyProgram(state, MotherBrainBodyProgram.StandAfterCrouchSlow);
+        MotherBrainEncounterAccess.SetMotherBrainBodyAnimation(state, MotherBrainBodySegment.StandAfterCrouchSlow);
         state.Function = MotherBrainBodyFunction.FakeDeathAscentWaitUntilUncrouched;
     }
 
@@ -216,7 +216,7 @@ internal sealed class MotherBrainAscent
         if (!MotherBrainEncounterAccess.DecrementMotherBrainTimerPastZero(state))
             return;
 
-        MotherBrainEncounterAccess.SetMotherBrainBrainProgram(state, MotherBrainHeadProgram.StretchingPhase2);
+        MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.StretchingPhase2);
         state.Function = MotherBrainBodyFunction.SecondPhaseStretchingBringHeadUp;
         state.NeckAngleDelta = 64;
         state.FunctionTimer = 256;

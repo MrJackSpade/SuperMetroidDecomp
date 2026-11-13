@@ -18,10 +18,10 @@ internal static class OwtchBehaviorVerification
     /// </summary>
     internal static void VerifyOwtchBehavior()
     {
-        foreach ((OwtchBehaviorState initial, OwtchProgram program, OwtchProgram loop, OwtchBehaviorState walking) in new[]
+        foreach ((OwtchBehaviorState initial, OwtchSegment program, OwtchSegment loop, OwtchBehaviorState walking) in new[]
                  {
-                     new VerifyOwtchBehaviorCase(OwtchBehaviorState.MovingRight, OwtchProgram.MovingLeft, OwtchProgram.MovingLeftLoop, OwtchBehaviorState.MovingLeft),
-                     new VerifyOwtchBehaviorCase(OwtchBehaviorState.MovingLeft, OwtchProgram.MovingRight, OwtchProgram.MovingRightLoop, OwtchBehaviorState.MovingRight),
+                     new VerifyOwtchBehaviorCase(OwtchBehaviorState.MovingRight, OwtchSegment.MovingLeft, OwtchSegment.MovingLeftLoop, OwtchBehaviorState.MovingLeft),
+                     new VerifyOwtchBehaviorCase(OwtchBehaviorState.MovingLeft, OwtchSegment.MovingRight, OwtchSegment.MovingRightLoop, OwtchBehaviorState.MovingRight),
                  })
         {
             var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
@@ -31,8 +31,8 @@ internal static class OwtchBehaviorVerification
             slot.SetSpawnParameter1(EnemyDefinitionId.Owtch, OwtchNativeWords.Behaviors.Word(initial));
             OwtchBehavior.InitializeOwtch(slot);
             OwtchEnemyState state = enemies.OwtchStates[0] ?? throw new InvalidOperationException("Owtch has no state.");
-            OwtchProgram started = initial == OwtchBehaviorState.MovingLeft ? OwtchProgram.MovingLeft : OwtchProgram.MovingRight;
-            AssertEqual(new AnimationPlayback<OwtchProgram>(OwtchAnimations.StartingWith(started), AnimationPlace.StartOfAnimation), state.Playback, $"Owtch state {initial} starts {started}");
+            OwtchSegment started = initial == OwtchBehaviorState.MovingLeft ? OwtchSegment.MovingLeft : OwtchSegment.MovingRight;
+            AssertEqual(new AnimationPlayback<OwtchSegment>(OwtchAnimations.StartingWith(started), AnimationPlace.StartOfAnimation), state.Playback, $"Owtch state {initial} starts {started}");
 
             state.Playback = new(OwtchAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(OwtchAnimations.Segments, loop, OwtchFrameToolingDefinitions.Spritemap),

@@ -97,13 +97,13 @@ internal sealed class RoomObjectPopulationLoader
 
             if (!TryRunRoomPopulationSetup(room, services.Bosses, record, slot, placement))
             {
-                // Do not leave the preallocated but untranslated actor resident. The load is
+                // Do not leave the preallocated but unsupported actor resident. The load is
                 // intentionally loud and includes every value needed to locate the exact authored
                 // record without relying on a room-name special case.
                 slot.Delete();
                 throw new NotSupportedException(
                     $"Room-object population {population.Name} record {recordIndex} " +
-                    $"uses untranslated room-object kind " +
+                    $"uses unsupported room-object kind " +
                     $"{objectKind} at block ({record.Block.X},{record.Block.Y}) " +
                     $"with argument {record.Argument}.");
             }
@@ -162,7 +162,7 @@ internal sealed class RoomObjectPopulationLoader
             RoomObjectKind.DownwardsScrollExtension or
             RoomObjectKind.UpwardsScrollExtension)
         {
-            ScrollObjects.SetupScrollSlot(level, slot, objectKind, placement.ScrollProgram, placement.CompiledScrollProgram);
+            ScrollObjects.SetupScrollSlot(level, slot, objectKind, placement.ScrollChange, placement.CompiledScrollChange);
             return true;
         }
 

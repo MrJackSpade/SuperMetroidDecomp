@@ -4,12 +4,12 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Enemies.Stoke;
 
 /// <summary>Stoke projectile's typed animation.</summary>
-internal sealed class StokeProjectileAnimation(StokeProjectileProgram program)
-    : EnemyProjectileFrameAnimation<StokeProjectileProgram, EnemyProjectileCommonCue>(StokeProjectileAnimations.StartingWith(program))
+internal sealed class StokeProjectileAnimation(StokeProjectileSegment segment)
+    : EnemyProjectileFrameAnimation<StokeProjectileSegment, EnemyProjectileCommonCue>(StokeProjectileAnimations.StartingWith(segment))
 {
     /// <inheritdoc/>
-    private protected override AnimationSegments<StokeProjectileProgram, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => StokeProjectileAnimations.Segments;
+    private protected override AnimationSegments<StokeProjectileSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => StokeProjectileAnimations.Segments;
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<StokeProjectileProgram, Animation<StokeProjectileProgram>> StartingAt => StokeProjectileAnimations.StartingAt;
+    private protected override IReadOnlyDictionary<StokeProjectileSegment, Animation<StokeProjectileSegment>> StartingAt => StokeProjectileAnimations.StartingAt;
 }

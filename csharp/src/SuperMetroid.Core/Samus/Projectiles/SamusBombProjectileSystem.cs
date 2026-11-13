@@ -262,7 +262,7 @@ public sealed class SamusBombProjectileSystem
                 continue;
             }
 
-            projectileDeleted |= RunProjectileInstructionHandler(slot);
+            projectileDeleted |= AdvanceProjectileAnimation(slot);
         }
 
         // Main gameplay runs the bomb overlap check after frame-handler alpha (which placed/updated the
@@ -581,7 +581,7 @@ public sealed class SamusBombProjectileSystem
 
         slot.Damage = SamusProjectileDamage.Read(kind);
 
-        slot.Playback = SamusProjectilePrograms.Start(SamusProjectileKinds.SoleProgram(kind));
+        slot.Playback = SamusProjectilePlayback.Start(SamusProjectileKinds.SoleAnimation(kind));
         slot.FrameHold = WrappingCountdown.Start(1);
     }
 
@@ -653,7 +653,7 @@ public sealed class SamusBombProjectileSystem
             {
                 // The explosion reads the animation embedded in the bomb-explosion data
                 // record and resets the animation timer to one.
-                slot.Playback = SamusProjectilePrograms.Start(SamusProjectileProgram.BombExplosion);
+                slot.Playback = SamusProjectilePlayback.Start(SamusProjectileSegment.BombExplosion);
                 slot.FrameHold = WrappingCountdown.Start(1);
                 explosionStarted = true;
             }
@@ -956,7 +956,7 @@ public sealed class SamusBombProjectileSystem
             {
                 // Gameplay always owns the room's room-object pool. Null is supported only for
                 // nonreactive synthetic fixtures, so reaching a producer without it is a
-                // caller-composition error rather than untranslated game behavior.
+                // caller-composition error rather than unsupported game behavior.
                 throw new InvalidOperationException(
                     $"Bombed block reaction type {block.CollisionType}/behaviour ({block.Behavior}) " +
                     $"at ({x},{y}) requires a room-object owner.");
@@ -1057,7 +1057,7 @@ public sealed class SamusBombProjectileSystem
     }
 
     /// <summary>Ticks the bomb animation, including timed frames, delete and jump steps.</summary>
-    internal bool RunProjectileInstructionHandler(
+    internal bool AdvanceProjectileAnimation(
         SamusBombProjectileSlot slot)
     {
         // The animation timer is a decrement wrapping at 65536. A legitimate initialized timer is always at
@@ -1066,9 +1066,9 @@ public sealed class SamusBombProjectileSystem
         if (!slot.FrameHold.IsZero)
             return false;
 
-        AnimationPlayback<SamusProjectileProgram> playback = slot.Playback
+        AnimationPlayback<SamusProjectileSegment> playback = slot.Playback
             ?? throw new InvalidOperationException("An inactive bomb has no list to run.");
-        if (SamusProjectilePrograms.RunToNextRecord(ref playback, out int duration) is not { } frame)
+        if (SamusProjectilePlayback.RunToNextRecord(ref playback, out int duration) is not { } frame)
         {
             ClearProjectile(slot);
             return true;
@@ -1076,7 +1076,7 @@ public sealed class SamusBombProjectileSystem
         if (duration == 0)
             throw new InvalidDataException($"Bomb record {frame} has zero duration.");
         SamusProjectileRecord record = SamusProjectileRecordDefinitions.Get(frame);
-        slot.FrameHold = WrappingCountdown.FromRaw(duration);
+        slot.FrameHold = WrappingCountdown.Start(duration);
         slot.Sprite = (FrameBindings ?? throw new InvalidOperationException(
             "Samus's bombs show their records' installed compositions, which are not bound.")).Resolve(frame);
         slot.Radius = record.Radius;

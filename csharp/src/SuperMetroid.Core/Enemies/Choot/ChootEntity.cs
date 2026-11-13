@@ -13,5 +13,5 @@ internal sealed class ChootEntity(RoomEnemySlot slot, EnemyCommonParticipation c
     public EnemyMainAiHandler? FindMain() => ChootBehavior.RunChootMainAi;
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => ChootBehavior.AdvanceChootTypedAnimation;
+    public Action<RoomEnemySlot, EnemyAnimationCueContext>? FindTypedAnimation() => ChootBehavior.AdvanceChootTypedAnimation;
 }

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Puyo;
 public sealed class PuyoEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<PuyoProgram> Playback { get; set; }
+    internal AnimationPlayback<PuyoSegment> Playback { get; set; }
 
     /// <summary>
     /// The Puyo's place along the shared quadratic speed table, whose whole rows choose its vertical speed, from the first

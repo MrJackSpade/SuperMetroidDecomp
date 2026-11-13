@@ -747,16 +747,16 @@ internal static class LookupStream3Verification
             DoorSetupCode.DoorASM_Scroll_0_1_Green_duplicate,
             DoorSetupCode.DoorASM_Scroll_18_Blue_19_Red,
         ];
-        AssertTrue(expectedDoorCallbacks.SequenceEqual(SuperMetroid.Core.Rooms.Doors.DoorScrollPrograms.Pointers),
+        AssertTrue(expectedDoorCallbacks.SequenceEqual(SuperMetroid.Core.Rooms.Doors.DoorScrollChanges.Pointers),
             "stream 3 pure door callback original registration order");
         var expectedCallbacks = expectedDoorCallbacks.ToHashSet();
         foreach (DoorSetupCode pointer in Enum.GetValues<DoorSetupCode>())
             AssertEqual(expectedCallbacks.Contains(pointer),
-                SuperMetroid.Core.Rooms.Doors.DoorScrollPrograms.Contains(pointer), "stream 3 exact callback ownership");
+                SuperMetroid.Core.Rooms.Doors.DoorScrollChanges.Contains(pointer), "stream 3 exact callback ownership");
         // DoorSetupCode's values are arbitrary (#1414): zero and values far past the last member name no routine.
         foreach (ushort undefined in new ushort[] { 0x0000, 0xb972, 0xffff })
             AssertThrows<InvalidOperationException>(
-                () => SuperMetroid.Core.Rooms.Doors.DoorScrollPrograms.Contains((DoorSetupCode)undefined),
+                () => SuperMetroid.Core.Rooms.Doors.DoorScrollChanges.Contains((DoorSetupCode)undefined),
                 "stream 3 undefined door setup code");
         // Each callback runs over a grid of red cells and one of blue cells, so every write differs from the cells it
         // replaces in at least one run; the native writes are compared as the cells the camera reads them as.
@@ -766,12 +766,12 @@ internal static class LookupStream3Verification
             byte[] expected = Enumerable.Repeat(fill.ToStorageByte(), RoomScrollGrid.KeptCellCount).ToArray();
             var actual = RoomScrollGrid.LoadNativeTable(expected, new Extent16<RoomScreens>(10, 5));
             ExecuteStream3DoorScroll(rom, DoorIdentityWords.SetupRoutines.Word(pointer), expected);
-            AssertTrue(SuperMetroid.Core.Rooms.Doors.DoorScrollPrograms.TryApply(pointer, actual), "stream 3 callback recognized");
+            AssertTrue(SuperMetroid.Core.Rooms.Doors.DoorScrollChanges.TryApply(pointer, actual), "stream 3 callback recognized");
             AssertTrue(actual.KeptStates.SequenceEqual(RoomScrollStates.FromStorageBytes(expected)),
                 "stream 3 native ordered door writes and all untouched cells");
         }
         var unchangedScroll = RoomScrollGrid.LoadNativeTable(new byte[RoomScrollGrid.KeptCellCount], new Extent16<RoomScreens>(10, 5));
-        AssertTrue(!SuperMetroid.Core.Rooms.Doors.DoorScrollPrograms.TryApply(DoorSetupCode.None, unchangedScroll), "stream 3 setup without scroll writes is a no-op");
+        AssertTrue(!SuperMetroid.Core.Rooms.Doors.DoorScrollChanges.TryApply(DoorSetupCode.None, unchangedScroll), "stream 3 setup without scroll writes is a no-op");
         // The cartridge's four crossfade routines at the native boundary, each region the cartridge position of its first colour
         // and its colour count: the narration's colours on the way out and on the way back, the flashback's and the
         // laboratory's. Each crossfaded scene the import shades is the union of its routines' regions (#1597).
@@ -932,7 +932,7 @@ internal static class LookupStream3Verification
             ushort list = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa8e682 + offset);
             var function = SparksNativeWords.SparkEnemyFunctions.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa8e688 + offset), "Spark function");
             SparkMovementDefinition definition = SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.SparkStart(parameter);
-            AssertEqual(list, NativeEnemyAnimationOracle.EntryOf(SparkNativeListAddresses.Entries, definition.Program),
+            AssertEqual(list, NativeEnemyAnimationOracle.EntryOf(SparkNativeListAddresses.Entries, definition.Animation),
                 "stream 3 native Spark list selector");
             AssertEqual(function, definition.Function, "stream 3 native Spark function selector");
         }
@@ -941,19 +941,19 @@ internal static class LookupStream3Verification
         {
             int address = 0xaadd15 + 2 * (bucket >> 5);
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-            AssertEqual(expected, NativeEnemyAnimationOracle.EntryOf(ShaktoolNativeListAddresses.Entries, ShaktoolPrograms.ForOrientation(new Bearing(bucket).DirectionOfEighth())),
+            AssertEqual(expected, NativeEnemyAnimationOracle.EntryOf(ShaktoolNativeListAddresses.Entries, ShaktoolAnimationChoices.ForOrientation(new Bearing(bucket).DirectionOfEighth())),
                 "stream 3 native Shaktool orientation");
         }
         for (int segment = 0; segment < 7; segment++)
         {
             int offset = segment * 2;
             ushort collision = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xaadf13 + offset);
-            AssertEqual(collision, NativeEnemyAnimationOracle.EntryOf(ShaktoolNativeListAddresses.Entries, ShaktoolPrograms.CollisionForSegment(segment)),
+            AssertEqual(collision, NativeEnemyAnimationOracle.EntryOf(ShaktoolNativeListAddresses.Entries, ShaktoolAnimationChoices.CollisionForSegment(segment)),
                 "stream 3 native Shaktool collision program");
         }
         foreach (int invalid in new[] { -1, 7, int.MinValue, int.MaxValue })
         {
-            AssertThrows<InvalidDataException>(() => ShaktoolPrograms.CollisionForSegment(invalid),
+            AssertThrows<InvalidDataException>(() => ShaktoolAnimationChoices.CollisionForSegment(invalid),
                 "stream 3 invalid Shaktool collision segment");
         }
         Suite(nameof(VerifyStream3WorkRobotColors), () => VerifyStream3WorkRobotColors(rom));
@@ -1076,10 +1076,10 @@ internal static class LookupStream3Verification
     private static void VerifyStream3DeathSelectors(ISnesAddressSpace rom)
     {
         for (ushort parameter = 0; parameter < 3; parameter++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86c929 + 2 * parameter)), MiscDustProjectileNativeListAddresses.Entry(MotherBrainDeathExplosions.Program(parameter)),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86c929 + 2 * parameter)), MiscDustProjectileNativeListAddresses.Entry(MotherBrainDeathExplosions.Animation(parameter)),
                 "stream 3 native death explosion variant");
         foreach (ushort invalid in new ushort[] { 3, 4, ushort.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainDeathExplosions.Program(invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainDeathExplosions.Animation(invalid),
                 "stream 3 death explosion selector bounds");
         // Confirm the retained visual payload's catalog move and the independent group arithmetic.
         for (int index = 0; index < 28; index++)
@@ -1580,11 +1580,11 @@ internal static class LookupStream3Verification
         {
             EnemyPickupAnimationDefinition animation = EnemyPickups.Animation(EnemyPickupNativeWords.Selectors.Decode(kind, "enemy pickup selector"));
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86ef04 + 2 * kind)),
-                animation.Program is { } program ? EnemyDeathProjectileNativeListAddresses.Entry(program) : (ushort)0, "stream 3 pickup kind dispatch");
+                animation.Animation is { } program ? EnemyDeathProjectileNativeListAddresses.Entry(program) : (ushort)0, "stream 3 pickup kind dispatch");
         }
         for (ushort animation = 0; animation < 5; animation++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86efd5 + 2 * animation)),
-                EnemyDeathProjectileNativeListAddresses.Entry(EnemyDeathExplosions.Program(
+                EnemyDeathProjectileNativeListAddresses.Entry(EnemyDeathExplosions.Animation(
                     SuperMetroid.AssetExtraction.CartridgeTables.EnemyDeathExplosionWords.Selectors.Decode(animation, "death explosion"))),
                 "stream 3 death variant dispatch");
         foreach (ushort invalid in new ushort[] { 6, 7, ushort.MaxValue })
@@ -1707,7 +1707,7 @@ internal static class LookupStream3Verification
     {
         byte[] json = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.Extract(rom);
         var stock = MotherBrainRoomColorFile.Read(new MemoryStream(json));
-        for (int frame = 0; frame < MotherBrainRoomPaletteProgramDefinitions.FlashFrameCount; frame++)
+        for (int frame = 0; frame < MotherBrainRoomPaletteAnimationDefinitions.FlashFrameCount; frame++)
         {
             ushort entry = checked((ushort)(SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomFlashSourceDefinitions.FlashList + frame * SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomFlashSourceDefinitions.FlashEntryBytes));
             int operand = MotherBrainSourceDefinitions.RoomColors.FlashBank + entry + SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomFlashSourceDefinitions.FlashPaletteOperandOffset;

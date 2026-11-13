@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Fx;
 public static class AtmosphereDrift
 {
     /// <summary>
-    /// The wind a rainy room's load chooses from the shared random number: its bits two and three choose one of the
-    /// four winds, every other bit is ignored.
+    /// The wind a rainy room's load chooses from the shared random number: the number divided by 4, modulo 4, chooses
+    /// one of the four winds, and the rest of the number is ignored.
     /// </summary>
     /// <remarks>The four original velocities and every random input are independently verified against NTSC J/U v1.0
     /// and pinned reference sources (362be646929cf8e483f692b73a6561cfc2dc1d0d).</remarks>

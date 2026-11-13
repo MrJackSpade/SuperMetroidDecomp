@@ -994,7 +994,7 @@ level, samus, frameCounter);
 
         // The intro-demo handler consumes the timer published by Rinka zero on the preceding cinematic-
         // sprite pass. Keeping this after animation matches the intro demo's Samus state handler:
-        // the hit frame finishes its standing animation before command one installs the knockback pose.
+        // the hit frame finishes its standing animation before the knockback start installs the knockback pose.
         if (!samus.KnockbackActive &&
             samus.KnockbackTimer != 0 &&
             samus.KnockbackDirection == Samus.Movement.SamusKnockbackDirection.None)

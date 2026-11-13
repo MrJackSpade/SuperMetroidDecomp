@@ -249,7 +249,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         if (session.Runtime?.Player.Samus is not SamusState samus || session.Runtime.Room.ActiveRoom is null)
             return false;
 
-        // The pause check only runs from Samus's normal new-state handler. Station command six
+        // The pause check only runs from Samus's normal new-state handler. The station lock
         // replaces that handler with an inert one, so its entire insertion,
         // message/data-load, and retraction sequence bypasses pause-check even though game
         // state remains eight. The locked alpha installed with it stands for that handler
@@ -281,7 +281,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         bool messageBoxOwnedFrame = session.GameplayRuntime.MessageBox.IsActive;
         bool mapStationMessageOwnedFrame = messageBoxOwnedFrame &&
             session.GameplayRuntime.MessageBox.MessageId == GameplayMessageIds.MapDataAccessCompleted;
-        // Station command six installs an inert new-state handler before this
+        // The station lock installs an inert new-state handler before this
         // frame. Retraction can restore normal input later in StepFrame, after the
         // game's Samus-handler call site has already passed pause-check.
         bool samusInputLockedAtFrameStart = session.GameplayRuntime.Player.Samus?.Control.AlphaLocked == true;

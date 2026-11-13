@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.PirateGoldWall, EnemyDefinitionId.PirateGreenWall, EnemyDefinitionId.PirateGreyWall, EnemyDefinitionId.PirateMagentaWall, EnemyDefinitionId.PirateRedWall, EnemyDefinitionId.PirateSilverWall];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.PirateGoldWall, EnemyDefinitionId.PirateGreyWall, EnemyDefinitionId.PirateMagentaWall, EnemyDefinitionId.PirateSilverWall];
 
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new WallSpacePirateEntity(this, slot, common);
@@ -43,11 +43,9 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     /// <summary>Pixels above the actor origin where the shared Pirate laser is emitted.</summary>
     private const int WallPirateLaserMuzzleYOffset = 16;
 
-    /// <summary>Recognizes the six color variants that use wall-climbing Pirate AI.</summary>
+    /// <summary>Recognizes the four color variants that use wall-climbing Pirate AI.</summary>
     internal static bool IsWallSpacePirateDefinition(EnemyDefinitionId definition) => definition is
         EnemyDefinitionId.PirateGreyWall or
-        EnemyDefinitionId.PirateGreenWall or
-        EnemyDefinitionId.PirateRedWall or
         EnemyDefinitionId.PirateGoldWall or
         EnemyDefinitionId.PirateMagentaWall or
         EnemyDefinitionId.PirateSilverWall;

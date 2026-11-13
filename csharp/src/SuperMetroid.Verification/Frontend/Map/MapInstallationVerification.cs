@@ -11,22 +11,27 @@ namespace SuperMetroid.Verification.Frontend.Map;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 
-/// <summary>Verifies installer startup, upgrade and player-data preservation on a private installation copy.</summary>
+/// <summary>Verifies installer startup, upgrade and player-data preservation on a private map-only installation.</summary>
 internal static class MapInstallationVerification
 {
     /// <summary>
-    /// Opt-in installer transaction on a private copy of the shared installation, which the repository's fresh import
-    /// produced (#1532): startup that never opens the ROM, cancelled and real format upgrades, the no-op restart and
-    /// player-data preservation. All ROM/audio/fixture data stays in ignored test-temp.
+    /// The installer's transaction on a private installation of the map component alone (#1680): startup that never opens
+    /// the ROM, cancelled and real format upgrades, the no-op restart and player-data preservation. The transaction is the
+    /// same whatever components it extracts, so the map component keeps each extraction small. All ROM and fixture data
+    /// stays in ignored test-temp.
     /// </summary>
-    [PrivateInstallation("Repairs and upgrades a private copy of the shared installation to check startup that never opens the ROM, cancelled and real format upgrades, the no-op restart and player-data preservation.")]
+    [PrivateInstallation("Installs the map component alone into a private scratch root and upgrades it, to check the installer's transaction: startup that never opens the ROM, cancelled and real format upgrades, the no-op restart and player-data preservation.")]
     internal static void VerifyMapInstallation(string sourceRom)
     {
-        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy();
-        string root = copy.Root;
+        using var scratch = new TestScratchDirectory("map-installation");
+        string root = scratch.Root;
         byte[] sourceHash = SHA256.HashData(File.ReadAllBytes(sourceRom));
+        GameAssetInstaller.InstallerComponent[] mapComponent =
+            [.. GameAssetInstaller.Components.Where(component => component.DirectoryName == GameInstallationLayout.MapDirectoryName)];
+        AssertEqual(1, mapComponent.Length, "the installer has one map component");
+        GameInstallation installation = GameAssetInstaller.Install(sourceRom, root, mapComponent, CancellationToken.None,
+            new ImmediateInstallProgress());
         Console.WriteLine($"Installation fixture: {root}");
-        var installation = copy.Installation;
         if (OperatingSystem.IsWindows())
         {
             // An exclusive handle makes a startup ROM read fail deterministically.
@@ -36,7 +41,6 @@ internal static class MapInstallationVerification
             AssertTrue(GameAssetInstaller.OpenOrRepair(root) is not null,
                 "complete host startup does not open the installed ROM");
         }
-        var stock = installation.LoadMaps();
         // Synthetic sentinels, not a copy of the player's real files.
         var preserved = new Dictionary<string, byte[]>
         {
@@ -51,10 +55,9 @@ internal static class MapInstallationVerification
             Directory.CreateDirectory((Path.GetDirectoryName(pair.Key) ?? throw new InvalidOperationException("Verification requires Path.GetDirectoryName(pair.Key).")));
             File.WriteAllBytes(pair.Key, pair.Value);
         }
-        // An installed map document stands for the catalog an older importer wrote; the manifest is import data (#1693).
+        // An installed map document stands for the content an older importer wrote.
         string documentPath = Path.Combine(installation.MapDirectory, AreaMapCatalogFormat.StationRevealFile);
-        byte[] stockDocument = File.ReadAllBytes(documentPath);
-        File.WriteAllBytes(documentPath, [.. stockDocument, .. "\n"u8]);
+        File.WriteAllBytes(documentPath, [.. File.ReadAllBytes(documentPath), .. "\n"u8]);
         // The receipt alone decides currency (#1532): content written by an older importer names its older format.
         MarkReceiptOutdated();
         byte[] outdatedDocument = File.ReadAllBytes(documentPath);
@@ -65,22 +68,21 @@ internal static class MapInstallationVerification
             {
                 if (message.StartsWith("Finishing setup", StringComparison.Ordinal)) cancellation.Cancel();
             });
-            AssertThrows<OperationCanceledException>(() => GameAssetInstaller.EnsureInstalled(root, cancellation.Token, cancelBeforePublish),
-                "cancelled full extraction does not publish its staging directory");
+            AssertThrows<OperationCanceledException>(() => GameAssetInstaller.EnsureInstalled(root, mapComponent, cancellation.Token, cancelBeforePublish),
+                "cancelled extraction does not publish its staging directory");
         }
-        AssertTrue(outdatedDocument.SequenceEqual(File.ReadAllBytes(documentPath)), "cancelled upgrade retains original installed catalog");
+        AssertTrue(outdatedDocument.SequenceEqual(File.ReadAllBytes(documentPath)), "cancelled upgrade retains the installed content");
         AssertTrue(!Directory.EnumerateDirectories(root, ".game.install-*").Any(), "cancelled upgrade cleans its own staging directory");
         CheckPreserved();
-        var repaired = GameAssetInstaller.EnsureInstalled(root, progress: new ImmediateInstallProgress())
+        _ = GameAssetInstaller.EnsureInstalled(root, mapComponent, CancellationToken.None, new ImmediateInstallProgress())
             ?? throw new InvalidOperationException("Installation vanished during map upgrade.");
-        AssertEqual(stock.ContentIdentity, repaired.LoadMaps().ContentIdentity, "full installer upgrade reinstalls the same map presentation");
-        AssertTrue(stockDocument.SequenceEqual(File.ReadAllBytes(documentPath)), "upgrade publishes the current catalog");
+        AssertTrue(!outdatedDocument.SequenceEqual(File.ReadAllBytes(documentPath)), "upgrade replaces the content the older importer wrote");
         CheckPreserved();
-        var unchanged = GameAssetInstaller.EnsureInstalled(root, progress: new ImmediateInstallProgress(_ =>
+        var unchanged = GameAssetInstaller.EnsureInstalled(root, mapComponent, CancellationToken.None, new ImmediateInstallProgress(_ =>
             throw new InvalidOperationException("Complete installation unexpectedly extracted again.")));
         AssertTrue(unchanged is not null, "complete installation fast path remains available");
-        AssertTrue(sourceHash.SequenceEqual(SHA256.HashData(File.ReadAllBytes(sourceRom))), "full installer leaves original ROM unchanged");
-        Console.WriteLine("Full installer: fresh import, cancelled upgrade, real version replacement, no-op restart and player-data preservation pass.");
+        AssertTrue(sourceHash.SequenceEqual(SHA256.HashData(File.ReadAllBytes(sourceRom))), "installer leaves original ROM unchanged");
+        Console.WriteLine("Installer: fresh import, cancelled upgrade, real version replacement, no-op restart and player-data preservation pass.");
 
         void MarkReceiptOutdated()
         {
@@ -104,7 +106,7 @@ internal static class MapInstallationVerification
         public void Report(string message) { Console.WriteLine(message); onReport?.Invoke(message); }
     }
 
-    /// <summary>Runs the full map installation audit using the repository's retail cartridge input.</summary>
+    /// <summary>Runs the map installation's installer transaction check using the repository's retail cartridge input.</summary>
     [VerificationCommand("--map-installation")]
     internal static int MapInstallationCommand()
     {

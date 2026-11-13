@@ -393,7 +393,10 @@ internal static class EnemyContentIdentityFixtureVerification
                     OffsetY = last && edit == "extended-y" ? 1 : 0,
                     Parts = Parts("extended-parts", last),
                 };
-                EnemyExtendedVisualComponent[] components = last && edit == "extended-order" ? [second, first]
+                // A frame drawn only on BG2 has no sprite piece, as the loader requires (#1638); the edits change the last
+                // frame, a Kraid foot pose, which has sprite pieces.
+                EnemyExtendedVisualComponent[] components = EnemyExtendedFrameBounds.IsBg2Only(frame) ? []
+                    : last && edit == "extended-order" ? [second, first]
                     : last && edit == "extended-count" ? [first] : [first, second];
                 return KeyValuePair.Create(frame.Name, components);
             });

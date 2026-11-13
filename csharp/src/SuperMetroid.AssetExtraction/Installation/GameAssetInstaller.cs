@@ -21,12 +21,21 @@ public static class GameAssetInstaller
 
     /// <summary>Copies, never moves, a user's input. The input file is closed before replacing installed content.</summary>
     public static GameInstallation Install(string sourcePath, string root,
-        CancellationToken cancellationToken = default, IProgress<string>? progress = null)
+        CancellationToken cancellationToken = default, IProgress<string>? progress = null) =>
+        Install(sourcePath, root, Components, cancellationToken, progress);
+
+    /// <summary>
+    /// <see cref="Install(string, string, CancellationToken, IProgress{string}?)"/> extracting <paramref name="components"/>:
+    /// the installer's transaction is the same whatever components it extracts, and the game's installation extracts every
+    /// one of <see cref="Components"/>.
+    /// </summary>
+    internal static GameInstallation Install(string sourcePath, string root, IReadOnlyList<InstallerComponent> components,
+        CancellationToken cancellationToken, IProgress<string>? progress)
     {
         byte[] rom;
         progress?.Report("Checking ROM…");
         using (Stream source = File.OpenRead(sourcePath)) rom = SupportedCartridge.Read(source, cancellationToken);
-        return InstallValidated(rom, root, cancellationToken, progress);
+        return InstallValidated(rom, root, components, cancellationToken, progress);
     }
 
     /// <summary>
@@ -36,7 +45,16 @@ public static class GameAssetInstaller
     /// for: it fails loudly where it is loaded.
     /// </summary>
     public static GameInstallation? EnsureInstalled(string root,
-        CancellationToken cancellationToken = default, IProgress<string>? progress = null)
+        CancellationToken cancellationToken = default, IProgress<string>? progress = null) =>
+        EnsureInstalled(root, Components, cancellationToken, progress);
+
+    /// <summary>
+    /// <see cref="EnsureInstalled(string, CancellationToken, IProgress{string}?)"/> extracting <paramref name="components"/>
+    /// when the installation is not current: the installer's transaction is the same whatever components it extracts, and
+    /// the game's installation extracts every one of <see cref="Components"/>.
+    /// </summary>
+    internal static GameInstallation? EnsureInstalled(string root, IReadOnlyList<InstallerComponent> components,
+        CancellationToken cancellationToken, IProgress<string>? progress)
     {
         var installation = new GameInstallation(Path.GetFullPath(root));
         if (IsComplete(installation)) return installation;
@@ -46,7 +64,7 @@ public static class GameAssetInstaller
         if (!File.Exists(installation.RomPath)) return null;
         byte[] rom;
         using (Stream source = File.OpenRead(installation.RomPath)) rom = SupportedCartridge.Read(source, cancellationToken);
-        return ExtractAndPublish(installation, rom, cancellationToken, progress);
+        return ExtractAndPublish(installation, rom, components, cancellationToken, progress);
     }
 
     /// <summary>
@@ -79,8 +97,8 @@ public static class GameAssetInstaller
         return IsExtractedContentComplete(installation) ? installation : null;
     }
 
-    /// <summary>Serializes setup, reuses a current installation or extracts every component from a newly supplied ROM.</summary>
-    private static GameInstallation InstallValidated(byte[] rom, string root,
+    /// <summary>Serializes setup, reuses a current installation or extracts <paramref name="components"/> from a newly supplied ROM.</summary>
+    private static GameInstallation InstallValidated(byte[] rom, string root, IReadOnlyList<InstallerComponent> components,
         CancellationToken cancellationToken, IProgress<string>? progress)
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -88,7 +106,7 @@ public static class GameAssetInstaller
         using FileStream gate = Lock(installation.Root);
         RecoverInterruptedPublish(installation);
         if (IsComplete(installation)) return installation;
-        return ExtractAndPublish(installation, rom, cancellationToken, progress);
+        return ExtractAndPublish(installation, rom, components, cancellationToken, progress);
     }
 
     /// <summary>Requires both an installed cartridge copy and a current receipt.</summary>
@@ -113,8 +131,8 @@ public static class GameAssetInstaller
     internal static string? ReceiptMismatchAt(string receiptPath) =>
         ReceiptMismatch(JsonSerializer.Deserialize<InstallationReceipt>(File.ReadAllText(receiptPath)), receiptPath);
 
-    /// <summary>Stages a complete content directory extracted from <paramref name="rom"/> and publishes it atomically.</summary>
-    private static GameInstallation ExtractAndPublish(GameInstallation installation, byte[] rom,
+    /// <summary>Stages a content directory of <paramref name="components"/> extracted from <paramref name="rom"/> and publishes it atomically.</summary>
+    private static GameInstallation ExtractAndPublish(GameInstallation installation, byte[] rom, IReadOnlyList<InstallerComponent> components,
         CancellationToken cancellationToken, IProgress<string>? progress)
     {
         string staging = Path.Combine(installation.Root, GameInstallationLayout.StagingPrefix + Guid.NewGuid().ToString("N"));
@@ -123,7 +141,7 @@ public static class GameAssetInstaller
         try
         {
             File.WriteAllBytes(Path.Combine(staging, GameInstallationLayout.RomFileName), rom);
-            InstallComponents(rom, staging, cancellationToken, progress);
+            InstallComponents(rom, staging, components, cancellationToken, progress);
             // The character and tile pages are the import's own data (#1636): every component that composes from them has
             // finished, so they are deleted before the receipt is written and nothing published holds them.
             Directory.Delete(Path.Combine(staging, GameInstallationLayout.ImportDataDirectoryName), recursive: true);
@@ -152,14 +170,15 @@ public static class GameAssetInstaller
     }
 
     /// <summary>
-    /// Installs every component into <paramref name="staging"/> (#1530): every extraction and standalone component at once,
+    /// Installs each of <paramref name="components"/> into <paramref name="staging"/> (#1530): every extraction and standalone component at once,
     /// as each reads only the cartridge and its own directory, then every composition component at once as soon as the
     /// extraction components it reads have finished, while any standalone component may still run, and then the picture
     /// store once every composition component has composed its sheets (#1635). Reports are serialized,
     /// so a progress listener sees one at a time. A failure cancels the rest, which are awaited; every failure that was not
     /// the cancellation is rethrown, the first as it was thrown when it is the only one.
     /// </summary>
-    private static void InstallComponents(byte[] rom, string staging, CancellationToken cancellationToken, IProgress<string>? progress)
+    private static void InstallComponents(byte[] rom, string staging, IReadOnlyList<InstallerComponent> components,
+        CancellationToken cancellationToken, IProgress<string>? progress)
     {
         using var failed = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         IProgress<string>? reports = progress is null ? null : new SerializedProgress(progress);
@@ -172,7 +191,7 @@ public static class GameAssetInstaller
             try { InstallComponent(rom, staging, component, families, failed.Token, reports); }
             catch { failed.Cancel(); throw; }
         }, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default);
-        InstallerComponent[] first = [.. Components.Where(component => component.Kind is InstallerComponentKind.Extraction or InstallerComponentKind.Standalone)];
+        InstallerComponent[] first = [.. components.Where(component => component.Kind is InstallerComponentKind.Extraction or InstallerComponentKind.Standalone)];
         Task[] firstTasks = [.. first.Select(Start)];
         Task extracted = Task.WhenAll(firstTasks.Where((_, index) => first[index].Kind == InstallerComponentKind.Extraction));
         // Composition starts only once every extraction component it reads has finished, and not at all after a failure.
@@ -193,7 +212,7 @@ public static class GameAssetInstaller
 
         // Every component of kind, all at once, once preceding has finished, and none after it failed.
         Task After(Task preceding, InstallerComponentKind kind) => preceding.ContinueWith(done => done.IsCompletedSuccessfully
-            ? Task.WhenAll(Components.Where(component => component.Kind == kind).Select(Start))
+            ? Task.WhenAll(components.Where(component => component.Kind == kind).Select(Start))
             : Task.CompletedTask, CancellationToken.None, TaskContinuationOptions.None, TaskScheduler.Default).Unwrap();
     }
 

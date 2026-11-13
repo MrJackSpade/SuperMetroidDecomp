@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>
-/// Which visor-colour sequence X-ray's suit colouring runs, and whether teardown has asked it to restore the
+/// Which sequence of colours X-ray's suit colouring shows on the visor, and whether teardown has asked it to restore the
 /// normal suit colours.
 /// </summary>
 public enum XrayVisorPaletteMode

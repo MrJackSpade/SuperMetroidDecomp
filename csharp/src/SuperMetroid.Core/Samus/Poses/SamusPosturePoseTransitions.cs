@@ -197,7 +197,7 @@ internal static class SamusPosturePoseTransitions
         {
             // The crouching transition samples the boost stage before later
             // posture movement can cancel running momentum. A stage-four crouch therefore
-            // stores 180 palette-handler ticks even though the following stable crouch has
+            // stores a 180-update shinespark charge even though the following stable crouch has
             // no horizontal Speed Booster state of its own.
             if (samus.Shinespark.TryStoreFromSpeedBooster(samus.HorizontalSpeed.SpeedBoostCounter))
             {

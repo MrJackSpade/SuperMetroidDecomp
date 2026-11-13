@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// corpse. Mother Brain, the dead Torizo and every dead monster rot by the same schedule, each corpse with its own.
 /// </summary>
 /// <remarks>
-/// The game keeps every corpse's schedule in one shared work-memory heap, but no room places two corpses whose
+/// The game keeps every corpse's schedule in one place all corpses share, but no room places two corpses whose
 /// schedules overlap there, so no corpse's rot can reach another's (#1472).
 /// </remarks>
 public sealed class CorpseRotSchedule

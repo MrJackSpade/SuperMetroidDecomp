@@ -118,12 +118,12 @@ internal sealed class ProjectileTerrainCollision
             return true;
         }
 
-        // Wave collision deliberately discards carry after retaining every block/room-object side
-        // effect. Its caller will overwrite the temporary zero/-1 speeds immediately.
+        // Wave collision deliberately discards whether terrain stopped it, after retaining every block and
+        // room-object side effect. Its caller will overwrite the temporary zero/-1 speeds immediately.
         return false;
     }
 
-    /// <summary>Advances a shot by its signed 8.8 Y velocity and scans its leading edge; Wave retains reactions but clears collision carry.</summary>
+    /// <summary>Advances a shot by its signed 8.8 Y velocity and scans its leading edge; Wave retains reactions but is never stopped.</summary>
     internal static bool MoveVertically(
         RoomLevelData level,
         SamusProjectile slot,
@@ -160,7 +160,7 @@ internal sealed class ProjectileTerrainCollision
             return false;
         }
 
-        // The span scan decrements its target counter only for carry-set reactions. A tall
+        // The span scan decrements its target counter only for reactions that stop the shot. A tall
         // projectile grazing air beside one solid block therefore keeps moving; every
         // touched block still gets its side effect before that aggregate result is tested.
         bool everyBlockSolid = true;
@@ -217,7 +217,7 @@ internal sealed class ProjectileTerrainCollision
 
     /// <summary>
     /// Square-slope collision for a beam, horizontal or vertical: the quarter cells of a
-    /// square slope that the beam's edges reach in this block. A hit returns carry like a
+    /// square slope that the beam's edges reach in this block. A hit stops the beam like a
     /// solid block; unlike a non-square slope it does not end the span.
     /// </summary>
     private static bool SquareSlopeShotReaction(SamusProjectile slot, RoomCollisionBlock block,
@@ -299,7 +299,7 @@ internal sealed class ProjectileTerrainCollision
             if (block.Behavior.Slope.FlipsVertically) y ^= 15;
             bool hit = SlopeHeights.Read(block.Behavior.Slope.Shape, x) <= y;
             // A surface hit clears both scan counters. This overrides
-            // earlier air rows and ends the span; Wave still discards collision carry.
+            // earlier air rows and ends the span; Wave still discards whether the hit stops it.
             endSpan = hit;
             return hit;
         }
@@ -338,8 +338,8 @@ internal sealed class ProjectileTerrainCollision
             return block.CollisionType == RoomCollisionType.ShootableBlock;
         }
 
-        // The block reactions return carry for 8/B/E directly. Door ($9), spike ($A), and
-        // bombable ($F) also collide; their actor/weapon-gated setup remains a later slice.
+        // Solid, special and grapple blocks stop the shot directly. Door, spike and bombable
+        // blocks also stop it; their actor/weapon-gated setup remains a later slice.
         return block.CollisionType.IsSolidKind();
     }
 
@@ -605,7 +605,7 @@ internal sealed class ProjectileTerrainCollision
                 block = block with { Terrain = straddledTerrain.Straddling(block.Terrain, next) };
             }
             RunShotReaction(level, slot, block, roomObjects, new ShotSpan(span, span - step, targetX), out bool endSpan);
-            // Wave discards collision carry, but still honors room-object scan termination.
+            // Wave discards whether a block stops it, but still honors room-object scan termination.
             if (endSpan) return;
         }
     }

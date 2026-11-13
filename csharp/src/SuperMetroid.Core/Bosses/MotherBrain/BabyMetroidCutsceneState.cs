@@ -972,7 +972,7 @@ public sealed class BabyMetroidCutsceneState
     private bool AccelerateTowardsPoint(Position16<RoomPixels> target, SignedEightEight acceleration)
     {
         // The prediction counts axes whose next whole-pixel prediction reaches/crosses target,
-        // then shifts the count twice. Carry is set only for count two.
+        // and reports arrival only when both axes count.
         bool reachedX = AccelerateTowardsXPosition(target.X, acceleration);
         bool reachedY = AccelerateTowardsYPosition(target.Y, acceleration);
         return reachedX && reachedY;

@@ -251,7 +251,7 @@ public static class SamusGrappleMovement
             if (reaction != GrappleBlockReaction.Connects)
                 continue;
 
-            // A connection is the carry+overflow result. The collision centers the point in
+            // The beam has connected. The collision centers the point in
             // the accepted 16x16 block before the grapple chooses the swing/locked pose.
             grapple.Anchor = new(
                 CoordinateAxis.Wrap((grapple.Anchor.X & ~15) | 8),
@@ -264,8 +264,8 @@ public static class SamusGrappleMovement
                 connectionPoseChange);
         }
 
-        // The rope collision does not stop when an intermediate probe returns carry without
-        // overflow. It executes all four quarter-velocity probes and returns only the
+        // The rope collision does not stop when an intermediate probe reports a solid block it
+        // does not connect to. It executes all four quarter-velocity probes and returns only the
         // fourth reaction to the firing handler. At high running speed a thin solid cell can
         // therefore be sampled and then cleared before the caller decides whether to
         // cancel. Green Hill Zone's Grapple/Speed Booster gate exploit depends on this
@@ -744,7 +744,10 @@ public static class SamusGrappleMovement
         grapple.BeamStart = samus.Position.Whole + grapple.FlareOffset;
     }
 
-    /// <summary>Dispatches the endpoint block and extensions, including room-object effects, into the carry and overflow reaction.</summary>
+    /// <summary>
+    /// Dispatches the endpoint block and extensions, including room-object effects, into what the block does to the beam:
+    /// lets it pass, stops it, or connects it.
+    /// </summary>
     internal static GrappleBlockReaction ReactAtEndpoint(
         RoomLevelData level,
         SamusState samus,
@@ -757,8 +760,8 @@ public static class SamusGrappleMovement
             level.GetCollisionBlockOrEdgeSolid(new(CoordinateAxis.Wrap(blockX), CoordinateAxis.Wrap(blockY)));
         if (initialBlock.Index < 0)
         {
-            // The edge-solid block outside the room dispatches as an ordinary solid endpoint: carry
-            // set, overflow clear, which queues grapple cancellation rather than connecting.
+            // The edge-solid block outside the room dispatches as an ordinary solid endpoint: it stops
+            // the beam without connecting, which queues grapple cancellation.
             return GrappleBlockReaction.Solid;
         }
 
@@ -771,14 +774,14 @@ public static class SamusGrappleMovement
             int resolvedY = block.Index < 0 ? -1 : block.Index / level.Size.X;
             switch (block.CollisionType)
             {
-                // These four dispatcher entries return clear carry: the beam remains live.
+                // These four dispatcher entries let the beam pass: it remains live.
                 case RoomCollisionType.Air:
                 case RoomCollisionType.SpikeAir:
                 case RoomCollisionType.SpecialAir:
                 case RoomCollisionType.UnusedAir:
                     return GrappleBlockReaction.Passes;
 
-                // Slopes and these solid-family entries return carry with overflow clear,
+                // Slopes and these solid-family entries stop the beam without connecting,
                 // which makes the firing handler queue cancellation rather than establish a rope.
                 case RoomCollisionType.Slope:
                 case RoomCollisionType.SolidBlock:
@@ -821,7 +824,7 @@ public static class SamusGrappleMovement
 
                 case RoomCollisionType.GrappleBlock:
                     // The reaction rejects bit-seven behaviour. Values zero and three spawn the persistent
-                    // grapple room object, whose setup returns carry and overflow set.
+                    // grapple room object, whose setup connects the beam.
                     // The persistent room object has no level mutation, so this result is complete.
                     if (block.Behavior.Reaction.IsAreaSpecific)
                         return GrappleBlockReaction.Passes;
@@ -829,7 +832,7 @@ public static class SamusGrappleMovement
                         return GrappleBlockReaction.Connects;
 
                     // behaviour one/two spawn the breakable grapple room objects. Their setup synchronously saves the
-                    // complete terrain block and clears the behaviour before returning C+V; the new room object
+                    // complete terrain block and clears the behaviour before connecting the beam; the new room object
                     // executes its first timer/draw record later in this same gameplay frame.
                     // A caller which omitted the independent room owner cannot honestly
                     // preserve that lifecycle, so keep the missing integration seam explicit.
@@ -860,8 +863,8 @@ public static class SamusGrappleMovement
                     // The shootable block reactions use the same table as ordinary
                     // projectiles. Grapple owns no projectile family, so weapon-gated
                     // entries reject it while behaviour 0..7 retain their unconditional block
-                    // animation. The collision nibble—not room-object setup—owns carry: type 4 is
-                    // air and type C is solid.
+                    // animation. The block's collision kind, not the room-object setup, decides whether
+                    // the beam stops: shootable air lets it pass and a shootable block stops it.
                     if (roomObjects is null)
                     {
                         throw new InvalidOperationException(
@@ -912,7 +915,7 @@ public static class SamusGrappleMovement
 
                 case RoomCollisionType.BombableAir:
                     // The bombable-air setup immediately deletes its provisional
-                    // room object for grapple's zero projectile family. Carry remains clear.
+                    // room object for grapple's zero projectile family. The beam passes.
                     return GrappleBlockReaction.Passes;
 
                 case RoomCollisionType.BombableBlock:

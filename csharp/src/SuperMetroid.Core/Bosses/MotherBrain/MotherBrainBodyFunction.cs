@@ -94,7 +94,7 @@ public enum MotherBrainBodyFunction
     SecondPhaseRainbowExtendNeckDown,
     /// <summary>Widens/aims the beam while an active Power Bomb freezes its countdown, then locks Samus and starts the active beam.</summary>
     SecondPhaseRainbowStartFiring,
-    /// <summary>Maintains beam effects and forced wallward movement until its carry result selects the one-call delay.</summary>
+    /// <summary>Maintains beam effects and forced wallward movement until Samus reaches the wall, which selects the one-call delay.</summary>
     SecondPhaseRainbowMoveSamusTowardWall,
     /// <summary>Runs another beam/movement call, underflows the zero timer, and starts an eight-count earthquake before draining setup.</summary>
     SecondPhaseRainbowOneFrameDelay,
@@ -106,7 +106,7 @@ public enum MotherBrainBodyFunction
     SecondPhaseRainbowFinishFiring,
     /// <summary>Changes the drained Samus controller/pose and falls directly into the first custom falling movement call.</summary>
     SecondPhaseRainbowLetSamusFall,
-    /// <summary>Advances forced falling until its carry result reports landing.</summary>
+    /// <summary>Advances forced falling until Samus lands.</summary>
     SecondPhaseRainbowWaitForSamusToLand,
     /// <summary>Lowers the neck targets and installs the 128-count next-action pause.</summary>
     SecondPhaseRainbowLowerHead,

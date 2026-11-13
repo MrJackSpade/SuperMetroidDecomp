@@ -161,9 +161,9 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// <summary>Drains one health with Varia or two without, clamping underflow to zero.</summary>
     private static void DamageSamusDueToRainbowBeam(SamusState samus)
     {
-        // The drain step loads -2 in both branches. The meaningful Varia distinction is
-        // carry left by the Varia test: Varia adds one back, producing -1 with Varia
-        // and -2 without it. The sign test then clamps wrapped/below-one health to zero.
+        // The drain step starts from -2 in both branches; the Varia test then adds one back
+        // with Varia, producing -1 with Varia and -2 without it. The sign test then clamps
+        // wrapped/below-one health to zero.
         int damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit) ? 1 : 2;
         int candidate = samus.Health - damage;
         samus.Health = candidate >= 1 ? candidate : 0;

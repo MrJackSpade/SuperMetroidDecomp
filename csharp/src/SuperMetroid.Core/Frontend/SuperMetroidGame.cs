@@ -68,7 +68,10 @@ public sealed class SuperMetroidGame
     }
 
 
-    /// <summary>Creates a reset-state session, reading the selected save slot and capturing the boot carry before any dispatcher frame runs.</summary>
+    /// <summary>
+    /// Creates a reset-state session, reading the selected save slot and fixing the power-on save check's outcome
+    /// (<see cref="Compatibility.PowerOnEarthquakeSoundDelay"/>) before any dispatcher frame runs.
+    /// </summary>
     /// <param name="saves">The saves the session owns; the host loads them and persists them on <see cref="SavesChanged"/>.</param>
     /// <param name="assists">The assists the session plays under, or <see langword="null"/> for the unassisted game.</param>
     public SuperMetroidGame(

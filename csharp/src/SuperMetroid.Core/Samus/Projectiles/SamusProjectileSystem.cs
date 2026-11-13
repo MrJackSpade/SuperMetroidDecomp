@@ -281,7 +281,7 @@ public sealed class SamusProjectileSystem
         if (glowStep == 0)
         {
             // Hyper's final call branches before the decrement. The game explicitly zeroes the
-            // already-32768 timer and returns carry so the outer handler performs the suit copy.
+            // already-32768 timer and reports the glow finished so the outer handler performs the suit copy.
             Charge.ChargedShotGlowTimer = WrappingCountdown.Start(0);
             ProjectileAnimation.LoadNormalSuitPalette(colours, samus);
             LastBeamChargePaletteStep = new(

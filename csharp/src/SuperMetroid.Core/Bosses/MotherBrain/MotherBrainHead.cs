@@ -338,8 +338,8 @@ internal sealed class MotherBrainHead
             // The neutral hold holds the phase-two neutral pose again on fifteen samples in sixteen.
             case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.MaybeHoldNeutralPhase2 }:
                 return MotherBrainRandomDefinitions.NeutralPhase2Holds.IsTakenBy(_room.Random.Read()) ? MotherBrainHeadProgram.NeutralPhase2Hold : null;
-            // Retail contains an unconditional branch where the adjacent commentary might suggest a
-            // carry branch: the hold's chance alone decides whether the phase-three pose holds again.
+            // Retail branches unconditionally here, where the adjacent commentary might suggest a
+            // conditional one: the hold's chance alone decides whether the phase-three pose holds again.
             case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.MaybeHoldNeutralPhase3 }:
                 return MotherBrainRandomDefinitions.NeutralPhase3Holds.IsTakenBy(_room.Random.Read()) ? MotherBrainHeadProgram.NeutralPhase3Hold : null;
             // The drool hold returns its destination: only the burst's chance bursts into more drool; every other sample

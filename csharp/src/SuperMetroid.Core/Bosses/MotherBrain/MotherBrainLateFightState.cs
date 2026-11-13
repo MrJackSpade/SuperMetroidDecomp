@@ -148,9 +148,9 @@ internal sealed class MotherBrainLateFightState
         MakeBodyWalkBackwards(targetX, MotherBrainBodyProgram.WalkBackwardReallySlow);
 
     /// <summary>
-    /// Makes the body walk forwards. A signed overshoot of the target reports carry first; at
-    /// equality the walk is still requested. A body still mid-pose then reports no carry,
-    /// ahead of the 128 arena limit that also reports carry. Only a standing body
+    /// Makes the body walk forwards. A signed overshoot of the target reports it reached first; at
+    /// equality the walk is still requested. A body still mid-pose then reports it waiting,
+    /// ahead of the 128 arena limit that also reports the target reached. Only a standing body
     /// inside both limits installs the walk.
     /// </summary>
     internal MotherBrainWalkResult MakeBodyWalkForwards(int targetX, MotherBrainBodyProgram program)
@@ -166,10 +166,10 @@ internal sealed class MotherBrainLateFightState
     }
 
     /// <summary>
-    /// Makes the body walk backwards. Reaching or passing the target reports carry first, so a walk
+    /// Makes the body walk backwards. Reaching or passing the target reports it reached first, so a walk
     /// can complete the AI phase on the frame its movement step arrives. A body still
-    /// mid-pose then reports no carry, ahead of the 48 arena limit that also reports
-    /// carry. Only a standing body inside both limits installs the walk.
+    /// mid-pose then reports it waiting, ahead of the 48 arena limit that also reports
+    /// the target reached. Only a standing body inside both limits installs the walk.
     /// </summary>
     internal MotherBrainWalkResult MakeBodyWalkBackwards(int targetX, MotherBrainBodyProgram program)
     {

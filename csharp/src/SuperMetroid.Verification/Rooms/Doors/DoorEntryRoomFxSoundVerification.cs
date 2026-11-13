@@ -31,7 +31,7 @@ internal static class DoorEntryRoomFxSoundVerification
         // Rising Tide's lava rises only under the FX record of a door that requests it.
         DoorDefinition entry = RetailDoorHeaderCatalog.EnumeratePointers()
             .Select(pointer => CartridgeDoorHeaderImporter.Load(bus, pointer))
-            .Where(door => door.DestinationRoom == RoomHeaderDefinitions.RisingTide)
+            .Where(door => door.DestinationRoom == RoomDefinitions.RisingTide)
             .First(door =>
             {
                 var candidate = LoadRisingTide(door, new SharedRandom());

@@ -9,4 +9,4 @@ namespace SuperMetroid.Verification.Samus.Projectiles;
 /// <param name="Target">The target.</param>
 /// <param name="Beams">The beams.</param>
 /// <param name="Hit">The hit.</param>
-internal readonly record struct VerifyRetailWrapShotDoorsCase(RoomHeaderDefinition Room, int X, int Y, int Target, int Beams, int Hit);
+internal readonly record struct VerifyRetailWrapShotDoorsCase(RoomDefinition Room, int X, int Y, int Target, int Beams, int Hit);

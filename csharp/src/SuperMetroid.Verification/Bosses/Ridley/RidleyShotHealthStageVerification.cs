@@ -30,7 +30,7 @@ internal static class RidleyShotHealthStageVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Ridley);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Ridley);
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.Control.LockHandlers();
         RoomEnemySlot ridley = runtime.Enemies.SlotTable.Slots[0];

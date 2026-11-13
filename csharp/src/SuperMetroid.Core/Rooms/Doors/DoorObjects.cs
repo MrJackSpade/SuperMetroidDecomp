@@ -74,7 +74,7 @@ internal sealed class DoorObjects
         if (_slotTable.Spawn() is not { } slot)
             return false;
 
-        slot.Header = fallback.Header;
+        slot.Kind = fallback.Kind;
         slot.Block = block;
         slot.Become(fallback.BlueCapFacing is { } facing
             ? new BlueDoorCapObject(facing, BlueDoorCapPhase.Closing)
@@ -151,11 +151,11 @@ internal sealed class DoorObjects
     /// the color ranges the room-object definitions implied).
     /// </summary>
     internal static bool TryIdentifyColoredDoor(
-        RoomObjectHeaderId header,
+        RoomObjectKind kind,
         out ColoredDoorColor color,
         out ColoredDoorOrientation orientation)
     {
-        bool found = DoorObjectHeaderDefinitions.ColoredDoors.TryGetValue(header, out ColoredDoorVariant variant);
+        bool found = DoorObjectKindDefinitions.ColoredDoors.TryGetValue(kind, out ColoredDoorVariant variant);
         color = variant.Color;
         orientation = variant.Orientation;
         return found;
@@ -189,20 +189,20 @@ internal sealed class DoorObjects
         if (projectileType.Family == SamusProjectileFamily.PowerBomb)
             return false;
 
-        RoomObjectHeaderId blueDoorHeader = orientation switch
+        RoomObjectKind blueDoorKind = orientation switch
         {
-            ColoredDoorOrientation.Left => RoomObjectHeaderId.BlueDoorFacingLeft,
-            ColoredDoorOrientation.Right => RoomObjectHeaderId.BlueDoorFacingRight,
-            ColoredDoorOrientation.Up => RoomObjectHeaderId.BlueDoorFacingUp,
-            ColoredDoorOrientation.Down => RoomObjectHeaderId.BlueDoorFacingDown,
+            ColoredDoorOrientation.Left => RoomObjectKind.BlueDoorFacingLeft,
+            ColoredDoorOrientation.Right => RoomObjectKind.BlueDoorFacingRight,
+            ColoredDoorOrientation.Up => RoomObjectKind.BlueDoorFacingUp,
+            ColoredDoorOrientation.Down => RoomObjectKind.BlueDoorFacingDown,
             _ => throw new InvalidOperationException(
-                "A validated blue-door facing escaped its four-way header table."),
+                "A validated blue-door facing escaped its four-way kind table."),
         };
 
         if (_slotTable.Spawn() is not { } slot)
             return false;
 
-        slot.Header = blueDoorHeader;
+        slot.Kind = blueDoorKind;
         slot.Block = position;
         slot.Become(new BlueDoorCapObject(orientation, BlueDoorCapPhase.Opening));
         // The spawn leaves the argument the game's first door, the Landing Site's green door, which a later closing

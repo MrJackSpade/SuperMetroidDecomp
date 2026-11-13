@@ -193,7 +193,7 @@ internal static partial class SwapchainTests
 
     /// <summary>Checks that a blocked GPU consumer does not let a queued gameplay door transition corrupt frame identity or progress.</summary>
     internal static void VerifyBlockedDoor(D3D11RenderDevice device, D3D11FrameRenderer renderer,
-        SuperMetroidRuntime runtime, ushort door, RoomHeaderDefinition destination, string context)
+        SuperMetroidRuntime runtime, ushort door, RoomDefinition destination, string context)
     {
         nint window = CreateWindowExW(0, "STATIC", "Hidden door backlog verification", 0, 0, 0, 640, 480, 0, 0, 0, 0);
         if (window == 0) throw new Win32Exception(Marshal.GetLastWin32Error());
@@ -288,13 +288,13 @@ internal static partial class SwapchainTests
     /// <summary>Compares real desktop audio under normal and blocked GPU consumption in two recorded room slices.</summary>
     internal static void RunSlowConsumerAudio(D3D11RenderDevice selection)
     {
-        foreach (RoomHeaderDefinition room in new[] { RoomHeaderDefinitions.AlphaPowerBomb, RoomHeaderDefinitions.GlassTunnel })
+        foreach (RoomDefinition room in new[] { RoomDefinitions.AlphaPowerBomb, RoomDefinitions.GlassTunnel })
             foreach (bool blockConsumer in new[] { false, true })
                 RunSlowConsumerAudioRoom(selection, room, blockConsumer);
     }
 
     /// <summary>Runs one room-local controller and pause slice through legacy, captured and headless audio paths.</summary>
-    private static void RunSlowConsumerAudioRoom(D3D11RenderDevice selection, RoomHeaderDefinition room, bool blockConsumer)
+    private static void RunSlowConsumerAudioRoom(D3D11RenderDevice selection, RoomDefinition room, bool blockConsumer)
     {
         byte[] rom = File.ReadAllBytes("Super Metroid.smc");
         var options = new SuperMetroid.Core.Gameplay.GameplayAssists { SkipOpeningCinematic = true };

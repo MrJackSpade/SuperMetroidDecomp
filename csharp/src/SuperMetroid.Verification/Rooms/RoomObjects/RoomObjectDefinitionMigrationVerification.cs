@@ -19,24 +19,24 @@ internal static class RoomObjectDefinitionMigrationVerification
     internal static void VerifyObjectDefinitionMigration()
     {
         // The header words are verification's; the identities' own values are arbitrary.
-        AssertEqual(0xb6cb, RoomObjectNativeWords.Word(RoomObjectHeaderId.InsideReactionBrinstarFloorPlant), "floor plant header word");
-        AssertEqual(0xc85a, RoomObjectNativeWords.Word(RoomObjectHeaderId.YellowDoorFacingLeft), "yellow door header word");
-        AssertEqual(0xefcf, RoomObjectNativeWords.Word(RoomObjectHeaderId.ShotBlockReserveTank), "last PLM header word");
-        AssertEqual(RoomObjectHeaderId.EyeDoorFacingRight, RoomObjectNativeWords.Header(0xdb4c), "eye door header decodes");
+        AssertEqual(0xb6cb, RoomObjectNativeWords.Word(RoomObjectKind.InsideReactionBrinstarFloorPlant), "floor plant header word");
+        AssertEqual(0xc85a, RoomObjectNativeWords.Word(RoomObjectKind.YellowDoorFacingLeft), "yellow door header word");
+        AssertEqual(0xefcf, RoomObjectNativeWords.Word(RoomObjectKind.ShotBlockReserveTank), "last PLM header word");
+        AssertEqual(RoomObjectKind.EyeDoorFacingRight, RoomObjectNativeWords.Header(0xdb4c), "eye door header decodes");
 
         // Door and item identification by member equals the former range and stride arithmetic.
-        AssertTrue(DoorObjects.TryIdentifyColoredDoor(RoomObjectHeaderId.GreenDoorFacingUp, out ColoredDoorColor color, out ColoredDoorOrientation orientation)
+        AssertTrue(DoorObjects.TryIdentifyColoredDoor(RoomObjectKind.GreenDoorFacingUp, out ColoredDoorColor color, out ColoredDoorOrientation orientation)
             && color == ColoredDoorColor.Green && orientation == ColoredDoorOrientation.Up, "green door facing up");
-        AssertTrue(!DoorObjects.TryIdentifyColoredDoor(RoomObjectHeaderId.BlueDoorFacingLeft, out _, out _), "blue door is not a colored door");
-        AssertTrue(GreyDoorObjects.TryIdentifyGreyDoor(RoomObjectHeaderId.BombTorizoGreyDoor, out ColoredDoorOrientation torizo)
+        AssertTrue(!DoorObjects.TryIdentifyColoredDoor(RoomObjectKind.BlueDoorFacingLeft, out _, out _), "blue door is not a colored door");
+        AssertTrue(GreyDoorObjects.TryIdentifyGreyDoor(RoomObjectKind.BombTorizoGreyDoor, out ColoredDoorOrientation torizo)
             && torizo == ColoredDoorOrientation.Right, "Bomb Torizo grey door faces right");
-        AssertTrue(GreyDoorObjects.TryIdentifyGreyDoor(RoomObjectHeaderId.GreyDoorFacingDown, out ColoredDoorOrientation down)
+        AssertTrue(GreyDoorObjects.TryIdentifyGreyDoor(RoomObjectKind.GreyDoorFacingDown, out ColoredDoorOrientation down)
             && down == ColoredDoorOrientation.Down, "grey door facing down");
-        AssertTrue(CollectibleObjects.TryIdentifyPermanentCollectible(RoomObjectHeaderId.ChozoMorphBall, out InWorldCollectibleKind kind, out CollectiblePresentation presentation)
+        AssertTrue(CollectibleObjects.TryIdentifyPermanentCollectible(RoomObjectKind.ChozoMorphBall, out InWorldCollectibleKind kind, out CollectiblePresentation presentation)
             && kind == InWorldCollectibleKind.MorphBall && presentation == CollectiblePresentation.ChozoOrb, "Chozo Morph Ball");
-        AssertTrue(CollectibleObjects.TryIdentifyPermanentCollectible(RoomObjectHeaderId.ShotBlockReserveTank, out kind, out presentation)
+        AssertTrue(CollectibleObjects.TryIdentifyPermanentCollectible(RoomObjectKind.ShotBlockReserveTank, out kind, out presentation)
             && kind == InWorldCollectibleKind.ReserveTank && presentation == CollectiblePresentation.ShotBlock, "shot-block Reserve Tank");
-        AssertTrue(!CollectibleObjects.TryIdentifyPermanentCollectible(RoomObjectHeaderId.RedDoorFacingUp, out _, out _), "a door is no item");
+        AssertTrue(!CollectibleObjects.TryIdentifyPermanentCollectible(RoomObjectKind.RedDoorFacingUp, out _, out _), "a door is no item");
         AssertEqual(63, PermanentCollectibleObjectDefinitions.Items.Count, "three presentations of twenty-one items");
 
         // The station animations are named by access rule instead of the header's list word plus an offset.

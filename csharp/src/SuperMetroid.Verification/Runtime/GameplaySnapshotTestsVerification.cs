@@ -50,7 +50,7 @@ internal static class GameplaySnapshotTestsVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         AssertThrows<InvalidOperationException>(() => GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()),
             "Mode-7 shaft cannot silently capture as ordinary tiles");
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         LayeredScene captured = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());
         RgbaPixel[] retail = RenderForComparison(captured);

@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// <param name="SetupCode">The setup the door runs while Samus passes through it.</param>
 public sealed record DoorDefinition(
     string Name,
-    RoomHeaderDefinition DestinationRoom,
+    RoomDefinition DestinationRoom,
     DoorOrientation Orientation,
     Position16<RoomBlocks> RoomObjectBlock,
     Position16<RoomScreens> DestinationScreen,

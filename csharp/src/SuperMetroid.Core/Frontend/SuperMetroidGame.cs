@@ -144,7 +144,7 @@ public sealed class SuperMetroidGame
     public int FrameNumber { get; private set; }
 
     /// <summary>The active room, exposed for door-transition watches, or null before gameplay.</summary>
-    public RoomHeaderDefinition? GameplayActiveRoom => Session.Runtime?.Room.ActiveRoom?.Definition;
+    public RoomDefinition? GameplayActiveRoom => Session.Runtime?.Room.ActiveRoom?.Definition;
 
     /// <summary>The active room's selected state, exposed beside the room identity, or null before gameplay.</summary>
     public RoomStateSettings? GameplayActiveRoomState => Session.Runtime?.Room.ActiveRoom?.State;

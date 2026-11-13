@@ -30,7 +30,7 @@ internal static class DoorAnimatedTilesVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         for (int area = 1; area <= 4; area++)
             runtime.System.SetBossBits(area, BossBits.AreaBoss);
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.StatuesHallway);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.StatuesHallway);
         var samus = runtime.Player.IntroducedSamus;
         samus.Control.LockHandlers();
 
@@ -43,7 +43,7 @@ internal static class DoorAnimatedTilesVerification
             var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
             DoorDefinition? door = level.ResolveDoorCollision(block.Behavior, samus.Pose.ForRoomCollision(), false).Door;
-            if (door?.DestinationRoom == RoomHeaderDefinitions.Statues)
+            if (door?.DestinationRoom == RoomDefinitions.Statues)
                 entry = level.ResolveDoorCollision(block.Behavior, samus.Pose.ForRoomCollision(), true).Door;
         }
         AssertTrue(entry is not null, "the Tourian entrance has a door into the statue room");
@@ -61,7 +61,7 @@ internal static class DoorAnimatedTilesVerification
             game.Step(0);
         }
         AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "the door completes");
-        AssertEqual(RoomHeaderDefinitions.Statues, runtime.Room.LoadedRoom.Definition, "the door enters the statue room");
+        AssertEqual(RoomDefinitions.Statues, runtime.Room.LoadedRoom.Definition, "the door enters the statue room");
 
         // A directly loaded statue room stepped by the same number of handler calls.
         var reference = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);

@@ -52,12 +52,12 @@ internal static class RoomBlockInventoryVerification
         TilesetDefinition holding = RoomTilesets.Get(RoomGraphicsSet.UpperCrateria);
         TilesetDefinition lacking = RoomTilesets.Get(RoomGraphicsSet.RedCrateria);
         InventoriedRoomState holder = State(holding, AreaId.Crateria, new(RoomCollisionType.BombableBlock, BlockReaction.Common(0)),
-            RoomObjectHeaderId.MotherBrainGlass);
+            RoomObjectKind.MotherBrainGlass);
         InventoriedRoomState other = State(lacking, AreaId.Crateria, new(RoomCollisionType.BombableBlock, BlockReaction.Common(8)));
         RoomBlockWriter[] writers =
         [
             new(new HashSet<int> { BombWrittenBlock }, state => state.HoldsBombBlocks),
-            new(new HashSet<int> { GlassWrittenBlock }, state => state.Headers.Contains(RoomObjectHeaderId.MotherBrainGlass)),
+            new(new HashSet<int> { GlassWrittenBlock }, state => state.Headers.Contains(RoomObjectKind.MotherBrainGlass)),
         ];
         RoomBlockInventory inventory = RoomBlockInventory.Of([holder, other], writers);
         IReadOnlySet<int> held = inventory.Shown(holding);
@@ -110,7 +110,7 @@ internal static class RoomBlockInventoryVerification
     }
 
     /// <summary>A Zebes or Ceres room state of <paramref name="tileset"/> placing <see cref="PlacedBlock"/>, its terrain one block of <paramref name="terrain"/>, placing <paramref name="headers"/>.</summary>
-    private static InventoriedRoomState State(TilesetDefinition tileset, AreaId area, RoomTerrainReaction terrain, params RoomObjectHeaderId[] headers) =>
+    private static InventoriedRoomState State(TilesetDefinition tileset, AreaId area, RoomTerrainReaction terrain, params RoomObjectKind[] headers) =>
         new(tileset, area, new HashSet<int> { PlacedBlock }, new HashSet<RoomTerrainReaction> { terrain }, new HashSet<RoomTerrainReaction>(),
             headers.ToHashSet(), new HashSet<EnemyDefinitionId>(), RoomSetupCallback.None, RoomMainCallback.None, new HashSet<DoorDefinition>(), null);
 
@@ -121,7 +121,7 @@ internal static class RoomBlockInventoryVerification
     /// </summary>
     private static InventoriedRoomState Quiet(TilesetDefinition tileset, params RoomTerrainReaction[] straddledShots) =>
         new(tileset, AreaId.Brinstar, new HashSet<int> { PlacedBlock }, new HashSet<RoomTerrainReaction>(), straddledShots.ToHashSet(),
-            new HashSet<RoomObjectHeaderId>(), new HashSet<EnemyDefinitionId>(), RoomSetupCallback.None, RoomMainCallback.None,
+            new HashSet<RoomObjectKind>(), new HashSet<EnemyDefinitionId>(), RoomSetupCallback.None, RoomMainCallback.None,
             new HashSet<DoorDefinition>(), null);
 
     /// <summary>The common shootable reaction whose entry selects <paramref name="reaction"/> first.</summary>

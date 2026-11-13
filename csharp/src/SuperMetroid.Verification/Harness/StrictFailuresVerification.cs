@@ -32,9 +32,9 @@ internal static void VerifyStrictFailureBoundaries()
         "display brightness above full is rejected");
 
     AssertTrue(RoomObjectSystem.IsSupportedRoomPopulationHeader(
-            RoomObjectHeaderId.YellowDoorFacingLeft),
+            RoomObjectKind.YellowDoorFacingLeft),
         "translated yellow-door PLM is classified by the production dispatcher");
-    AssertTrue(!RoomObjectSystem.IsSupportedRoomPopulationHeader((RoomObjectHeaderId)(-1)),
+    AssertTrue(!RoomObjectSystem.IsSupportedRoomPopulationHeader((RoomObjectKind)(-1)),
         "unknown PLM is absent from the production dispatcher");
 
     var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());

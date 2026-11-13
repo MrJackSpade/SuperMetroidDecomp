@@ -29,7 +29,7 @@ internal static class GameplayCaptureIntegrationTestsVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
 
 
@@ -84,7 +84,7 @@ internal static class GameplayCaptureIntegrationTestsVerification
         // following slice only exercises one room and its pause/fade dispatch states.
         foreach (SuperMetroidGame game in new[] { legacy, packets })
         {
-            game.GameplayRuntimeForVerification.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
+            game.GameplayRuntimeForVerification.LoadCartridgeRoomForDebug(RoomDefinitions.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
             game.GameplayRuntimeForVerification.FrameBoundary.BeginAcceptedFrame(0);
         }
         bool sawPause = false;

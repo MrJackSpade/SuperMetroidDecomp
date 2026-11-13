@@ -9,12 +9,12 @@ public static class XrayBlockRevealRules
     /// Whether X-ray reveals <paramref name="room"/>'s blocks while <paramref name="boss"/> is loaded: not in the two
     /// rooms X-ray excludes, nor while a boss whose background X-ray preserves is loaded.
     /// </summary>
-    public static bool RevealsBlocks(RoomHeaderDefinition room, AreaBoss? boss) =>
+    public static bool RevealsBlocks(RoomDefinition room, AreaBoss? boss) =>
         !IsExcludedRoom(room) && !PreservesBossBackground(boss);
 
     /// <summary>True for the two rooms X-ray excludes; every other room is unaffected.</summary>
-    private static bool IsExcludedRoom(RoomHeaderDefinition room) =>
-        room == RoomHeaderDefinitions.Statues || room == RoomHeaderDefinitions.GlassTunnel;
+    private static bool IsExcludedRoom(RoomDefinition room) =>
+        room == RoomDefinitions.Statues || room == RoomDefinitions.GlassTunnel;
 
     /// <summary>
     /// Kraid, Crocomire, Phantoon, Draygon and Mother Brain keep

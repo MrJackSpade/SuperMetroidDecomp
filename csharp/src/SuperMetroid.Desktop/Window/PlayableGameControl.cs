@@ -89,7 +89,7 @@ public sealed class PlayableGameControl : UserControl
     /// <summary>Persistent debugger snapshots bound to installed content identity.</summary>
     private DebuggerSaveStateStore stateStore;
     /// <summary>Room last shown in the window caption.</summary>
-    private RoomHeaderDefinition? displayedRoom;
+    private RoomDefinition? displayedRoom;
     /// <summary>Most recent frame timing sample used by the toolbar.</summary>
     private FrameTimingSnapshot? latestFrameTiming;
     /// <summary>Latest error text retained while simulation recovers.</summary>
@@ -708,7 +708,7 @@ public sealed class PlayableGameControl : UserControl
     /// <summary>Publishes the active room's name, logical identity and selected state in the window caption.</summary>
     private void RefreshRoomIdentity()
     {
-        RoomHeaderDefinition? room = game.GameplayActiveRoom;
+        RoomDefinition? room = game.GameplayActiveRoom;
         if (room == displayedRoom)
             return;
         displayedRoom = room;

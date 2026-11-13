@@ -27,7 +27,7 @@ internal static class DoorMusicTimingVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Parlor);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Parlor);
         var level = runtime.Room.LoadedLevelData;
         int doorX = -1, doorY = -1;
         RoomBlockBehavior behavior = RoomBlockBehavior.None;
@@ -37,11 +37,11 @@ internal static class DoorMusicTimingVerification
             var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
             var door = level.ResolveDoorCollision(block.Behavior, SamusPoseId.FacingRightNormalPose.ForRoomCollision(), false);
-            if (door.Door?.DestinationRoom != RoomHeaderDefinitions.LandingSite) continue;
+            if (door.Door?.DestinationRoom != RoomDefinitions.LandingSite) continue;
             doorX = x; doorY = y; behavior = block.Behavior; break;
         }
         AssertTrue(doorX >= 0, "Parlor has the retail Landing Site door");
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Parlor,
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Parlor,
             camera: new Position16<RoomPixels>((ushort)(doorX / 16 * 256), (ushort)(doorY / 16 * 256)));
         var samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();
@@ -81,7 +81,7 @@ internal static class DoorMusicTimingVerification
             }
             if (game.GameState == SuperMetroidGameState.MainGameplay && trackFrame >= 0) break;
         }
-        AssertEqual(RoomHeaderDefinitions.LandingSite, runtime.Room.LoadedRoom.Definition, "transition reaches Landing Site");
+        AssertEqual(RoomDefinitions.LandingSite, runtime.Room.LoadedRoom.Definition, "transition reaches Landing Site");
         AssertEqual(musicWaitFrame + 15, uploadFrame, "stop and upload delays advance on outer dispatches after scrolling");
         AssertEqual(uploadFrame + 9, trackFrame, "track queued after upload is acquired on the next prologue, then waits eight dispatches");
         AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "music transition resumes gameplay");

@@ -30,7 +30,7 @@ internal static class MotherBrainTankBackgroundVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(StoryEvent.ZebesAwake);
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.MotherBrain);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain);
         if (ascentMaskOnly) return VerifyMotherBrainAscentCapture(runtime);
         // The room shows its library background as the installed image of the pages its list builds (#1406, #1466),
         // whatever Mother Brain's initialization stages for her own BG2.

@@ -27,7 +27,7 @@ internal static class MotherBrainBodyPublicationVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.MotherBrain);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain);
         MotherBrainEnemyState state = runtime.Enemies.MotherBrainEncounter.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room loads Mother Brain.");
         Position16<BackgroundPixels> roomScroll = runtime.BackgroundScroll.BackgroundScroll;

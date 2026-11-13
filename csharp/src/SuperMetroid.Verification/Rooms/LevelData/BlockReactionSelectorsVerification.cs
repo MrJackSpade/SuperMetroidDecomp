@@ -105,11 +105,11 @@ internal static class BlockReactionSelectorsVerification
             AssertEqual(index < 8, selected, $"common special-block BTS {index:X2} selects a crumble block exactly when it is one of the first eight");
             if (selected)
                 AssertEqual(RoomObjectNativeWords.Header(ReadRomWord(rom, 0x949139 + 2 * index)),
-                    RoomObjectHeaders.ContactCrumbleOf(crumble), $"contact crumble native header selection at BTS {index:X2}");
+                    RoomObjectKinds.ContactCrumbleOf(crumble), $"contact crumble native header selection at BTS {index:X2}");
             AssertTrue(!BlockReactionDefinitions.ContactCrumbles.TryGetMeaning(BlockReaction.AreaSpecific(index), out _),
                 $"area special-block reaction {index} selects no crumble block");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => RoomObjectHeaders.ContactCrumbleOf((ContactCrumbleBlock)(-1)),
+        AssertThrows<ArgumentOutOfRangeException>(() => RoomObjectKinds.ContactCrumbleOf((ContactCrumbleBlock)(-1)),
             "contact crumble header rejects an undefined crumble block");
         AssertThrows<ArgumentOutOfRangeException>(() => BlockReactionChanges.ContactCrumble((ContactCrumbleBlock)(-1)),
             "contact crumble program rejects an undefined crumble block");

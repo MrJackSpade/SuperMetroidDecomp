@@ -63,7 +63,7 @@ internal static class DoorAlignmentVerification
         {
             var door = new DoorDefinition(
                 Name: "fixture door",
-                DestinationRoom: FixtureRoomHeaders.UnloadedDestination,
+                DestinationRoom: FixtureRooms.UnloadedDestination,
                 Orientation: DoorRecordCodec.DecodeOrientation(checked((byte)direction)),
                 RoomObjectBlock: new(0, 0),
                 DestinationScreen: new(3, 2),
@@ -96,8 +96,8 @@ internal static class DoorAlignmentVerification
     /// <summary>Drives a retail door transition to verify alignment calls, input continuity, game time, and running momentum.</summary>
     private static void VerifyCompleteDoorAlignmentHandoff()
     {
-        RoomHeaderDefinition sourceRoom = RoomHeaderDefinitions.MainHall;
-        RoomHeaderDefinition destinationRoom = RoomHeaderDefinitions.AcidStatue;
+        RoomDefinition sourceRoom = RoomDefinitions.MainHall;
+        RoomDefinition destinationRoom = RoomDefinitions.AcidStatue;
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);

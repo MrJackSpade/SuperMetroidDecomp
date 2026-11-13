@@ -9,26 +9,26 @@ public static class QuicksandDefinitions
     /// The identity of the room object each inside sand reaction places at its block (<see cref="QuicksandObjects"/>);
     /// every one leaves the room on its first update. No other inside reaction places a sand reaction.
     /// </summary>
-    internal static readonly IReadOnlyDictionary<SpecialAirInsideReaction, RoomObjectHeaderId> InsideObjects =
-        new Dictionary<SpecialAirInsideReaction, RoomObjectHeaderId>
+    internal static readonly IReadOnlyDictionary<SpecialAirInsideReaction, RoomObjectKind> InsideObjects =
+        new Dictionary<SpecialAirInsideReaction, RoomObjectKind>
         {
-            [SpecialAirInsideReaction.QuicksandSurface] = RoomObjectHeaderId.InsideReactionQuicksandSurface,
-            [SpecialAirInsideReaction.SubmergingQuicksand] = RoomObjectHeaderId.InsideReactionSubmergingQuicksand,
-            [SpecialAirInsideReaction.SlowSandfall] = RoomObjectHeaderId.InsideReactionSandFallsSlow,
-            [SpecialAirInsideReaction.FastSandfall] = RoomObjectHeaderId.InsideReactionSandFallsFast,
+            [SpecialAirInsideReaction.QuicksandSurface] = RoomObjectKind.InsideReactionQuicksandSurface,
+            [SpecialAirInsideReaction.SubmergingQuicksand] = RoomObjectKind.InsideReactionSubmergingQuicksand,
+            [SpecialAirInsideReaction.SlowSandfall] = RoomObjectKind.InsideReactionSandFallsSlow,
+            [SpecialAirInsideReaction.FastSandfall] = RoomObjectKind.InsideReactionSandFallsFast,
         };
 
     /// <summary>
     /// The identity of the room object each collision sand reaction places at its block (<see cref="QuicksandObjects"/>);
     /// every one leaves the room on its first update. No other collision reaction places a sand reaction.
     /// </summary>
-    internal static readonly IReadOnlyDictionary<SpecialAirCollisionReaction, RoomObjectHeaderId> CollisionObjects =
-        new Dictionary<SpecialAirCollisionReaction, RoomObjectHeaderId>
+    internal static readonly IReadOnlyDictionary<SpecialAirCollisionReaction, RoomObjectKind> CollisionObjects =
+        new Dictionary<SpecialAirCollisionReaction, RoomObjectKind>
         {
-            [SpecialAirCollisionReaction.QuicksandSurface] = RoomObjectHeaderId.CollisionReactionQuicksandSurface,
-            [SpecialAirCollisionReaction.SubmergingQuicksand] = RoomObjectHeaderId.CollisionReactionSubmergingQuicksand,
-            [SpecialAirCollisionReaction.SlowSandfall] = RoomObjectHeaderId.CollisionReactionSandFallsSlow,
-            [SpecialAirCollisionReaction.FastSandfall] = RoomObjectHeaderId.CollisionReactionSandFallsFast,
+            [SpecialAirCollisionReaction.QuicksandSurface] = RoomObjectKind.CollisionReactionQuicksandSurface,
+            [SpecialAirCollisionReaction.SubmergingQuicksand] = RoomObjectKind.CollisionReactionSubmergingQuicksand,
+            [SpecialAirCollisionReaction.SlowSandfall] = RoomObjectKind.CollisionReactionSandFallsSlow,
+            [SpecialAirCollisionReaction.FastSandfall] = RoomObjectKind.CollisionReactionSandFallsFast,
         };
 
     /// <summary>Without Gravity: 2-pixel moving and 1.125-pixel stationary displacement, 2.5-pixel upward speed cap.</summary>

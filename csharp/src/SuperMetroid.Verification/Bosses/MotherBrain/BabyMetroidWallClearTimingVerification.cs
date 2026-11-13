@@ -28,7 +28,7 @@ internal static class BabyMetroidWallClearTimingVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.BigBoy);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.BigBoy);
         RoomLevelData level = runtime.Room.LoadedLevelData;
         const int WallColumn = 0x30, WallRow = 11;
         // The wall as Baby Metroid's earlier create request leaves it: rows 9-12 solid.

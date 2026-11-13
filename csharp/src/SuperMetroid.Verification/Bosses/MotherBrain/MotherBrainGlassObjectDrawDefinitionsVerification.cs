@@ -66,8 +66,8 @@ internal static class MotherBrainGlassObjectDrawDefinitionsVerification
         TestAddressSpace bus = CreateBank84Cartridge(bank84);
         SeedRoomObjectPopulation(bus, 0x9000,
         [
-            unchecked((byte)RoomObjectNativeWords.Word(RoomObjectHeaderId.MotherBrainGlass)),
-            LittleEndianBytes.HighByte(RoomObjectNativeWords.Word(RoomObjectHeaderId.MotherBrainGlass)),
+            unchecked((byte)RoomObjectNativeWords.Word(RoomObjectKind.MotherBrainGlass)),
+            LittleEndianBytes.HighByte(RoomObjectNativeWords.Word(RoomObjectKind.MotherBrainGlass)),
             originX, originY, 0x00, 0x80, 0x00, 0x00,
         ]);
         // The production control list is compiled and immutable. Draw each layout through the

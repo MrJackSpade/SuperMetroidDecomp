@@ -29,7 +29,7 @@ internal static class SaveStationSoundVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.CrateriaSave);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.CrateriaSave);
         _ = runtime.Room.LevelData ?? throw new InvalidOperationException("The save room has no level data.");
         RoomObjectSlot station = runtime.Room.LoadedScope.RoomObjects.SlotTable.InProcessingOrder.Single(slot =>
             slot.Active && slot.Behaviour is StationObject { Kind: StationKind.Save });

@@ -45,15 +45,15 @@ internal sealed class ScrollObjects
 
     /// <summary>Runs one scroll trigger's or extension's setup at the place the room population took for it.</summary>
     internal static void SetupScrollSlot(RoomLevelData level, RoomObjectSlot slot,
-        RoomObjectHeaderId header, IReadOnlyList<RoomScrollWrite>? program, RoomScrollProgram? compiledProgram)
+        RoomObjectKind kind, IReadOnlyList<RoomScrollWrite>? program, RoomScrollProgram? compiledProgram)
     {
         Ensure.NotNull(level);
         Ensure.NotNull(slot);
-        if (header != RoomObjectHeaderId.ScrollTrigger)
+        if (kind != RoomObjectKind.ScrollTrigger)
         {
-            (RoomCollisionType collisionType, int offset) = ScrollExtensionDefinitions.Extensions.TryGetValue(header, out ScrollExtension extension)
+            (RoomCollisionType collisionType, int offset) = ScrollExtensionDefinitions.Extensions.TryGetValue(kind, out ScrollExtension extension)
                 ? extension
-                : throw new InvalidOperationException($"Room object {header} is neither a scroll trigger nor a scroll extension.");
+                : throw new InvalidOperationException($"Room object {kind} is neither a scroll trigger nor a scroll extension.");
             level.SetTerrain(
                 slot.Block,
                 level.GetCollisionBlock(slot.Block).Terrain.WithCollision(collisionType));

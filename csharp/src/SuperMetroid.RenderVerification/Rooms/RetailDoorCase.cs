@@ -9,5 +9,5 @@ internal readonly record struct RetailDoorCase
     public required ushort Door { get; init; }
 
     /// <summary>Destination.</summary>
-    public required RoomHeaderDefinition Destination { get; init; }
+    public required RoomDefinition Destination { get; init; }
 }

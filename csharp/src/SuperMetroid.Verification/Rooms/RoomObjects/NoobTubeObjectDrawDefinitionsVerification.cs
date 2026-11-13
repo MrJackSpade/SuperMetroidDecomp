@@ -61,8 +61,8 @@ internal static class NoobTubeObjectDrawDefinitionsVerification
         TestAddressSpace bus = CreateBank84Cartridge(bank84);
         SeedRoomObjectPopulation(bus, 0x9400, 
         [
-            unchecked((byte)RoomObjectNativeWords.Word(RoomObjectHeaderId.NoobTube)),
-            LittleEndianBytes.HighByte(RoomObjectNativeWords.Word(RoomObjectHeaderId.NoobTube)),
+            unchecked((byte)RoomObjectNativeWords.Word(RoomObjectKind.NoobTube)),
+            LittleEndianBytes.HighByte(RoomObjectNativeWords.Word(RoomObjectKind.NoobTube)),
             originX, originY, 0, 0, 0, 0,
         ]);
         // The retail control stream is compiled and immutable. Draw each physical layout through

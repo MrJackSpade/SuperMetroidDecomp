@@ -81,13 +81,13 @@ internal static class RoomBlockSheetsWholeVerification
     private static Dictionary<TilesetDefinition, HashSet<InWorldCollectibleKind>> CollectiblesPlaced()
     {
         var placed = new Dictionary<TilesetDefinition, HashSet<InWorldCollectibleKind>>();
-        foreach (RoomHeaderDefinition room in RetailRoomHeaders.All)
+        foreach (RoomDefinition room in RetailRooms.All)
         {
             foreach (RoomStateSettings state in RoomStateLists.GetStates(room))
             {
                 foreach (RoomObjectPlacement placement in state.ObjectPopulation.Placements.Span)
                 {
-                    if (!CollectibleObjects.TryIdentifyPermanentCollectible(placement.Header.Header, out InWorldCollectibleKind kind, out _)
+                    if (!CollectibleObjects.TryIdentifyPermanentCollectible(placement.Kind, out InWorldCollectibleKind kind, out _)
                         || !CollectibleObjects.ShowsOwnPicture(kind))
                         continue;
                     TilesetDefinition tileset = RoomTilesets.Get(state.GraphicsSet);

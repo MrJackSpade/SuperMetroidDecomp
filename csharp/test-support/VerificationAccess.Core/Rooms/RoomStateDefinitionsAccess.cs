@@ -18,7 +18,7 @@ internal static class RoomStateDefinitionsAccess
     extension(RoomStateSelection)
     {
         /// <summary>The pointers of <see cref="RoomStateLists.GetStates"/>, default first.</summary>
-        internal static IReadOnlyList<ushort> GetStatePointers(RoomHeaderDefinition room) =>
+        internal static IReadOnlyList<ushort> GetStatePointers(RoomDefinition room) =>
             RoomStateLists.GetStates(room).Select(RoomStateSourcesConstants.PointerOf).ToArray();
     }
 

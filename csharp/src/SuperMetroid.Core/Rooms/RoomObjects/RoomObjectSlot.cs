@@ -35,11 +35,11 @@ internal sealed class RoomObjectSlot
     /// </summary>
     public bool Active => _places.IsHeld(_place);
     /// <summary>
-    /// The identity the object's spawner gave it, <see cref="RoomObjectHeaderId.None"/> for one spawned by what it does.
+    /// The kind the object's spawner gave it, <see cref="RoomObjectKind.None"/> for one spawned by what it does.
     /// No room object, family or search reads it (#1622): the room's population selects a setup by its record's kind
     /// and hands that kind to the setup.
     /// </summary>
-    public RoomObjectHeaderId Header { get; set; }
+    public RoomObjectKind Kind { get; set; }
     /// <summary>
     /// The room block this room object sits on and draws from: a block of the room's grid, or one past its last row in the
     /// terrain beyond the room. It is always the block's own position (its column inside the room's width); a step to a
@@ -106,7 +106,7 @@ internal sealed class RoomObjectSlot
     /// <summary>Clears what the place holds.</summary>
     private void ClearRecord()
     {
-        Header = RoomObjectHeaderId.None;
+        Kind = RoomObjectKind.None;
         Block = default;
         RestoreTerrain = null;
         Argument = null;

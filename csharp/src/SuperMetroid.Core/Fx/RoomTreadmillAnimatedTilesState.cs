@@ -17,7 +17,7 @@ public sealed class RoomTreadmillAnimatedTilesState
     /// <summary>Spawns one room's objects from the door-selected FX record in the record's order.</summary>
     /// <param name="fx">The room state's FX definition.</param>
     /// <param name="door">The entry door, which selects the FX record.</param>
-    public RoomTreadmillAnimatedTilesState(RoomFxHeader? fx, DoorDefinition? door)
+    public RoomTreadmillAnimatedTilesState(RoomFxSelection? fx, DoorDefinition? door)
     {
         if (fx?.Select(door) is not { } record) return;
         foreach (AnimatedTileObject definition in record.AnimatedTiles)

@@ -46,8 +46,8 @@ public static class AudioInputReplaySmokeTest
         bool powerBeamAcknowledged = false;
         bool firstDoorBegan = false;
         bool firstDoorCompleted = false;
-        RoomHeaderDefinition? sourceRoom = null;
-        RoomHeaderDefinition? destinationRoom = null;
+        RoomDefinition? sourceRoom = null;
+        RoomDefinition? destinationRoom = null;
         RgbaPixel[]? firstSourceFrame = null;
         RgbaPixel[]? lastSourceGameplayFrame = null;
         RgbaPixel[]? completedDestinationFrame = null;
@@ -65,7 +65,7 @@ public static class AudioInputReplaySmokeTest
             SoundAcknowledgements<SoundEffectLibrary, SoundEffectId> acknowledgements = game.AudioAcknowledgementsForVerification;
             framesExecuted++;
 
-            RoomHeaderDefinition? activeRoom = game.GameplayActiveRoom;
+            RoomDefinition? activeRoom = game.GameplayActiveRoom;
             if (sourceRoom is null && activeRoom is { } firstRoom)
                 sourceRoom = firstRoom;
             if (sourceRoom is not null &&

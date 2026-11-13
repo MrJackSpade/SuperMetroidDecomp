@@ -2,15 +2,14 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Rooms;
 
-/// <summary>The fixed configuration of the 262 non-debug retail rooms.</summary>
-/// <remarks>Each entry holds a room's room/area indexes, map position, dimensions,
-/// scrolling thresholds and whether its door transitions are isolated, as the room's fixed metadata defines
-/// them. The developer area-seven room is not compiled.</remarks>
-[NumberedIdentities("Rooms such as Metroids1-4 and TourianEscape1-4 are distinct rooms with their own headers; the number is part of each room's name, not a position callers index.")]
-public static class RoomHeaderDefinitions
+/// <summary>The game's 262 rooms.</summary>
+/// <remarks>Each entry holds a room's index within its area, its area, map position, size in screens, camera
+/// scroll offsets and whether its door transitions are isolated. The developer area-seven room is not compiled.</remarks>
+[NumberedIdentities("Rooms such as Metroids1-4 and TourianEscape1-4 are distinct rooms with their own definitions; the number is part of each room's name, not a position callers index.")]
+public static class RoomDefinitions
 {
     /// <summary>Retail rooms in their authored order.</summary>
-    internal static readonly RoomHeaderDefinition[] Retail =
+    internal static readonly RoomDefinition[] Retail =
     [
         new(nameof(LandingSite), 0, AreaId.Crateria, new(23, 0), new(9, 5), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(GauntletEntrance), 1, AreaId.Crateria, new(18, 2), new(5, 1), 112, 160, RoomDoorTransitionStyle.Standard),
@@ -277,533 +276,533 @@ public static class RoomHeaderDefinitions
     ];
 
     /// <summary>Every compiled room by its name.</summary>
-    private static readonly Dictionary<string, RoomHeaderDefinition> ByName = Retail.ToDictionary(room => room.Name);
+    private static readonly Dictionary<string, RoomDefinition> ByName = Retail.ToDictionary(room => room.Name);
 
     /// <summary>The compiled room named <paramref name="name"/>.</summary>
-    private static RoomHeaderDefinition Find(string name) => ByName[name];
+    private static RoomDefinition Find(string name) => ByName[name];
 
     /// <summary>The Landing Site room.</summary>
-    public static RoomHeaderDefinition LandingSite { get; } = Find(nameof(LandingSite));
+    public static RoomDefinition LandingSite { get; } = Find(nameof(LandingSite));
     /// <summary>The Gauntlet Entrance room.</summary>
-    public static RoomHeaderDefinition GauntletEntrance { get; } = Find(nameof(GauntletEntrance));
+    public static RoomDefinition GauntletEntrance { get; } = Find(nameof(GauntletEntrance));
     /// <summary>The Parlor room.</summary>
-    public static RoomHeaderDefinition Parlor { get; } = Find(nameof(Parlor));
+    public static RoomDefinition Parlor { get; } = Find(nameof(Parlor));
     /// <summary>The Crateria Power Bombs room.</summary>
-    public static RoomHeaderDefinition CrateriaPowerBombs { get; } = Find(nameof(CrateriaPowerBombs));
+    public static RoomDefinition CrateriaPowerBombs { get; } = Find(nameof(CrateriaPowerBombs));
     /// <summary>The Crateria Save room.</summary>
-    public static RoomHeaderDefinition CrateriaSave { get; } = Find(nameof(CrateriaSave));
+    public static RoomDefinition CrateriaSave { get; } = Find(nameof(CrateriaSave));
     /// <summary>The West Ocean room.</summary>
-    public static RoomHeaderDefinition WestOcean { get; } = Find(nameof(WestOcean));
+    public static RoomDefinition WestOcean { get; } = Find(nameof(WestOcean));
     /// <summary>The Bowling Alley Path room.</summary>
-    public static RoomHeaderDefinition BowlingAlleyPath { get; } = Find(nameof(BowlingAlleyPath));
+    public static RoomDefinition BowlingAlleyPath { get; } = Find(nameof(BowlingAlleyPath));
     /// <summary>The Crateria Kihunter room.</summary>
-    public static RoomHeaderDefinition CrateriaKihunter { get; } = Find(nameof(CrateriaKihunter));
+    public static RoomDefinition CrateriaKihunter { get; } = Find(nameof(CrateriaKihunter));
     /// <summary>The Forgotten Highway Elevator room.</summary>
-    public static RoomHeaderDefinition ForgottenHighwayElev { get; } = Find(nameof(ForgottenHighwayElev));
+    public static RoomDefinition ForgottenHighwayElev { get; } = Find(nameof(ForgottenHighwayElev));
     /// <summary>The East Ocean room.</summary>
-    public static RoomHeaderDefinition EastOcean { get; } = Find(nameof(EastOcean));
+    public static RoomDefinition EastOcean { get; } = Find(nameof(EastOcean));
     /// <summary>The Forgotten Highway Kagos room.</summary>
-    public static RoomHeaderDefinition ForgottenHighwayKagos { get; } = Find(nameof(ForgottenHighwayKagos));
+    public static RoomDefinition ForgottenHighwayKagos { get; } = Find(nameof(ForgottenHighwayKagos));
     /// <summary>The Crab Maze room.</summary>
-    public static RoomHeaderDefinition CrabMaze { get; } = Find(nameof(CrabMaze));
+    public static RoomDefinition CrabMaze { get; } = Find(nameof(CrabMaze));
     /// <summary>The Forgotten Highway Elbow room.</summary>
-    public static RoomHeaderDefinition ForgottenHighwayElbow { get; } = Find(nameof(ForgottenHighwayElbow));
+    public static RoomDefinition ForgottenHighwayElbow { get; } = Find(nameof(ForgottenHighwayElbow));
     /// <summary>The Crateria Tube room.</summary>
-    public static RoomHeaderDefinition CrateriaTube { get; } = Find(nameof(CrateriaTube));
+    public static RoomDefinition CrateriaTube { get; } = Find(nameof(CrateriaTube));
     /// <summary>The Moat room.</summary>
-    public static RoomHeaderDefinition Moat { get; } = Find(nameof(Moat));
+    public static RoomDefinition Moat { get; } = Find(nameof(Moat));
     /// <summary>The Red Brinstar Elevator room.</summary>
-    public static RoomHeaderDefinition RedBinstarElev { get; } = Find(nameof(RedBinstarElev));
+    public static RoomDefinition RedBinstarElev { get; } = Find(nameof(RedBinstarElev));
     /// <summary>The Gauntlet Energy Tank room.</summary>
-    public static RoomHeaderDefinition GauntletETank { get; } = Find(nameof(GauntletETank));
+    public static RoomDefinition GauntletETank { get; } = Find(nameof(GauntletETank));
     /// <summary>The Pre Bowling room.</summary>
-    public static RoomHeaderDefinition PreBowling { get; } = Find(nameof(PreBowling));
+    public static RoomDefinition PreBowling { get; } = Find(nameof(PreBowling));
     /// <summary>The Climb room.</summary>
-    public static RoomHeaderDefinition Climb { get; } = Find(nameof(Climb));
+    public static RoomDefinition Climb { get; } = Find(nameof(Climb));
     /// <summary>The Pit room.</summary>
-    public static RoomHeaderDefinition Pit { get; } = Find(nameof(Pit));
+    public static RoomDefinition Pit { get; } = Find(nameof(Pit));
     /// <summary>The Elevator to Blue Brinstar room.</summary>
-    public static RoomHeaderDefinition ElevToBlueBrinstar { get; } = Find(nameof(ElevToBlueBrinstar));
+    public static RoomDefinition ElevToBlueBrinstar { get; } = Find(nameof(ElevToBlueBrinstar));
     /// <summary>The Bomb Torizo room.</summary>
-    public static RoomHeaderDefinition BombTorizo { get; } = Find(nameof(BombTorizo));
+    public static RoomDefinition BombTorizo { get; } = Find(nameof(BombTorizo));
     /// <summary>The Flyway room.</summary>
-    public static RoomHeaderDefinition Flyway { get; } = Find(nameof(Flyway));
+    public static RoomDefinition Flyway { get; } = Find(nameof(Flyway));
     /// <summary>The Pre Map Flyway room.</summary>
-    public static RoomHeaderDefinition PreMapFlyway { get; } = Find(nameof(PreMapFlyway));
+    public static RoomDefinition PreMapFlyway { get; } = Find(nameof(PreMapFlyway));
     /// <summary>The Terminator room.</summary>
-    public static RoomHeaderDefinition Terminator { get; } = Find(nameof(Terminator));
+    public static RoomDefinition Terminator { get; } = Find(nameof(Terminator));
     /// <summary>The Green Brinstar Elevator room.</summary>
-    public static RoomHeaderDefinition GreenBrinstarElev { get; } = Find(nameof(GreenBrinstarElev));
+    public static RoomDefinition GreenBrinstarElev { get; } = Find(nameof(GreenBrinstarElev));
     /// <summary>The Lower Mushrooms room.</summary>
-    public static RoomHeaderDefinition LowerMushrooms { get; } = Find(nameof(LowerMushrooms));
+    public static RoomDefinition LowerMushrooms { get; } = Find(nameof(LowerMushrooms));
     /// <summary>The Crateria Map room.</summary>
-    public static RoomHeaderDefinition CrateriaMap { get; } = Find(nameof(CrateriaMap));
+    public static RoomDefinition CrateriaMap { get; } = Find(nameof(CrateriaMap));
     /// <summary>The Green Pirates Shaft room.</summary>
-    public static RoomHeaderDefinition GreenPiratesShaft { get; } = Find(nameof(GreenPiratesShaft));
+    public static RoomDefinition GreenPiratesShaft { get; } = Find(nameof(GreenPiratesShaft));
     /// <summary>The Crateria Super room.</summary>
-    public static RoomHeaderDefinition CrateriaSuper { get; } = Find(nameof(CrateriaSuper));
+    public static RoomDefinition CrateriaSuper { get; } = Find(nameof(CrateriaSuper));
     /// <summary>The Final Missile Bombway room.</summary>
-    public static RoomHeaderDefinition FinalMissileBombway { get; } = Find(nameof(FinalMissileBombway));
+    public static RoomDefinition FinalMissileBombway { get; } = Find(nameof(FinalMissileBombway));
     /// <summary>The Final Missile room.</summary>
-    public static RoomHeaderDefinition FinalMissile { get; } = Find(nameof(FinalMissile));
+    public static RoomDefinition FinalMissile { get; } = Find(nameof(FinalMissile));
     /// <summary>The Green Brinstar Main Shaft room.</summary>
-    public static RoomHeaderDefinition GreenBrinstarMainShaft { get; } = Find(nameof(GreenBrinstarMainShaft));
+    public static RoomDefinition GreenBrinstarMainShaft { get; } = Find(nameof(GreenBrinstarMainShaft));
     /// <summary>The Spore Spawn Super room.</summary>
-    public static RoomHeaderDefinition SporeSpawnSuper { get; } = Find(nameof(SporeSpawnSuper));
+    public static RoomDefinition SporeSpawnSuper { get; } = Find(nameof(SporeSpawnSuper));
     /// <summary>The Brinstar Pre Map room.</summary>
-    public static RoomHeaderDefinition BrinstarPreMap { get; } = Find(nameof(BrinstarPreMap));
+    public static RoomDefinition BrinstarPreMap { get; } = Find(nameof(BrinstarPreMap));
     /// <summary>The Early Supers room.</summary>
-    public static RoomHeaderDefinition EarlySupers { get; } = Find(nameof(EarlySupers));
+    public static RoomDefinition EarlySupers { get; } = Find(nameof(EarlySupers));
     /// <summary>The Brinstar Reserve Tank room.</summary>
-    public static RoomHeaderDefinition BrinstarReserveTank { get; } = Find(nameof(BrinstarReserveTank));
+    public static RoomDefinition BrinstarReserveTank { get; } = Find(nameof(BrinstarReserveTank));
     /// <summary>The Green Brinstar Map room.</summary>
-    public static RoomHeaderDefinition GreenBrinstarMap { get; } = Find(nameof(GreenBrinstarMap));
+    public static RoomDefinition GreenBrinstarMap { get; } = Find(nameof(GreenBrinstarMap));
     /// <summary>The Green Brinstar Firefleas room.</summary>
-    public static RoomHeaderDefinition GreenBrinstarFirefleas { get; } = Find(nameof(GreenBrinstarFirefleas));
+    public static RoomDefinition GreenBrinstarFirefleas { get; } = Find(nameof(GreenBrinstarFirefleas));
     /// <summary>The Green Brinstar Missile Refill room.</summary>
-    public static RoomHeaderDefinition GreenBrinstarMissileRefill { get; } = Find(nameof(GreenBrinstarMissileRefill));
+    public static RoomDefinition GreenBrinstarMissileRefill { get; } = Find(nameof(GreenBrinstarMissileRefill));
     /// <summary>The Dachora room.</summary>
-    public static RoomHeaderDefinition Dachora { get; } = Find(nameof(Dachora));
+    public static RoomDefinition Dachora { get; } = Find(nameof(Dachora));
     /// <summary>The Big Pink room.</summary>
-    public static RoomHeaderDefinition BigPink { get; } = Find(nameof(BigPink));
+    public static RoomDefinition BigPink { get; } = Find(nameof(BigPink));
     /// <summary>The Spore Spawn Kihunters room.</summary>
-    public static RoomHeaderDefinition SporeSpawnKihunters { get; } = Find(nameof(SporeSpawnKihunters));
+    public static RoomDefinition SporeSpawnKihunters { get; } = Find(nameof(SporeSpawnKihunters));
     /// <summary>The Spore Spawn room.</summary>
-    public static RoomHeaderDefinition SporeSpawn { get; } = Find(nameof(SporeSpawn));
+    public static RoomDefinition SporeSpawn { get; } = Find(nameof(SporeSpawn));
     /// <summary>The Pink Brinstar Power Bombs room.</summary>
-    public static RoomHeaderDefinition PinkBrinstarPowerBombs { get; } = Find(nameof(PinkBrinstarPowerBombs));
+    public static RoomDefinition PinkBrinstarPowerBombs { get; } = Find(nameof(PinkBrinstarPowerBombs));
     /// <summary>The Green Hill Zone room.</summary>
-    public static RoomHeaderDefinition GreenHillZone { get; } = Find(nameof(GreenHillZone));
+    public static RoomDefinition GreenHillZone { get; } = Find(nameof(GreenHillZone));
     /// <summary>The Morph Ball room.</summary>
-    public static RoomHeaderDefinition MorphBall { get; } = Find(nameof(MorphBall));
+    public static RoomDefinition MorphBall { get; } = Find(nameof(MorphBall));
     /// <summary>The Construction Zone room.</summary>
-    public static RoomHeaderDefinition ConstructionZone { get; } = Find(nameof(ConstructionZone));
+    public static RoomDefinition ConstructionZone { get; } = Find(nameof(ConstructionZone));
     /// <summary>The Blue Brinstar Energy Tank room.</summary>
-    public static RoomHeaderDefinition BlueBrinstarETank { get; } = Find(nameof(BlueBrinstarETank));
+    public static RoomDefinition BlueBrinstarETank { get; } = Find(nameof(BlueBrinstarETank));
     /// <summary>The Noob Bridge room.</summary>
-    public static RoomHeaderDefinition NoobBridge { get; } = Find(nameof(NoobBridge));
+    public static RoomDefinition NoobBridge { get; } = Find(nameof(NoobBridge));
     /// <summary>The Green Brinstar Beetoms room.</summary>
-    public static RoomHeaderDefinition GreenBrinstarBeetoms { get; } = Find(nameof(GreenBrinstarBeetoms));
+    public static RoomDefinition GreenBrinstarBeetoms { get; } = Find(nameof(GreenBrinstarBeetoms));
     /// <summary>The Etecoon Energy Tank room.</summary>
-    public static RoomHeaderDefinition EtecoonETank { get; } = Find(nameof(EtecoonETank));
+    public static RoomDefinition EtecoonETank { get; } = Find(nameof(EtecoonETank));
     /// <summary>The Etecoon Super room.</summary>
-    public static RoomHeaderDefinition EtecoonSuper { get; } = Find(nameof(EtecoonSuper));
+    public static RoomDefinition EtecoonSuper { get; } = Find(nameof(EtecoonSuper));
     /// <summary>The Dachora Energy Refill room.</summary>
-    public static RoomHeaderDefinition DachoraEnergyRefill { get; } = Find(nameof(DachoraEnergyRefill));
+    public static RoomDefinition DachoraEnergyRefill { get; } = Find(nameof(DachoraEnergyRefill));
     /// <summary>The Spore Spawn Farming room.</summary>
-    public static RoomHeaderDefinition SporeSpawnFarming { get; } = Find(nameof(SporeSpawnFarming));
+    public static RoomDefinition SporeSpawnFarming { get; } = Find(nameof(SporeSpawnFarming));
     /// <summary>The Waterway Energy Tank room.</summary>
-    public static RoomHeaderDefinition WaterwayETank { get; } = Find(nameof(WaterwayETank));
+    public static RoomDefinition WaterwayETank { get; } = Find(nameof(WaterwayETank));
     /// <summary>The First Missile room.</summary>
-    public static RoomHeaderDefinition FirstMissile { get; } = Find(nameof(FirstMissile));
+    public static RoomDefinition FirstMissile { get; } = Find(nameof(FirstMissile));
     /// <summary>The Pink Brinstar Hoppers room.</summary>
-    public static RoomHeaderDefinition PinkBrinstarHoppers { get; } = Find(nameof(PinkBrinstarHoppers));
+    public static RoomDefinition PinkBrinstarHoppers { get; } = Find(nameof(PinkBrinstarHoppers));
     /// <summary>The Hopper Energy Tank room.</summary>
-    public static RoomHeaderDefinition HopperETank { get; } = Find(nameof(HopperETank));
+    public static RoomDefinition HopperETank { get; } = Find(nameof(HopperETank));
     /// <summary>The Big Pink Save Room.</summary>
-    public static RoomHeaderDefinition BigPinkSaveRoom { get; } = Find(nameof(BigPinkSaveRoom));
+    public static RoomDefinition BigPinkSaveRoom { get; } = Find(nameof(BigPinkSaveRoom));
     /// <summary>The Blue Brinstar Boulders room.</summary>
-    public static RoomHeaderDefinition BlueBrinstarBoulders { get; } = Find(nameof(BlueBrinstarBoulders));
+    public static RoomDefinition BlueBrinstarBoulders { get; } = Find(nameof(BlueBrinstarBoulders));
     /// <summary>The Billy Mays room.</summary>
-    public static RoomHeaderDefinition BillyMays { get; } = Find(nameof(BillyMays));
+    public static RoomDefinition BillyMays { get; } = Find(nameof(BillyMays));
     /// <summary>The Green Brinstar Save room.</summary>
-    public static RoomHeaderDefinition GreenBrinstarSave { get; } = Find(nameof(GreenBrinstarSave));
+    public static RoomDefinition GreenBrinstarSave { get; } = Find(nameof(GreenBrinstarSave));
     /// <summary>The Etecoon Save room.</summary>
-    public static RoomHeaderDefinition EtecoonSave { get; } = Find(nameof(EtecoonSave));
+    public static RoomDefinition EtecoonSave { get; } = Find(nameof(EtecoonSave));
     /// <summary>The Red Tower room.</summary>
-    public static RoomHeaderDefinition RedTower { get; } = Find(nameof(RedTower));
+    public static RoomDefinition RedTower { get; } = Find(nameof(RedTower));
     /// <summary>The Red Brinstar Firefleas room.</summary>
-    public static RoomHeaderDefinition RedBrinstarFirefleas { get; } = Find(nameof(RedBrinstarFirefleas));
+    public static RoomDefinition RedBrinstarFirefleas { get; } = Find(nameof(RedBrinstarFirefleas));
     /// <summary>The X-Ray Scope room.</summary>
-    public static RoomHeaderDefinition XrayScope { get; } = Find(nameof(XrayScope));
+    public static RoomDefinition XrayScope { get; } = Find(nameof(XrayScope));
     /// <summary>The Hellway room.</summary>
-    public static RoomHeaderDefinition Hellway { get; } = Find(nameof(Hellway));
+    public static RoomDefinition Hellway { get; } = Find(nameof(Hellway));
     /// <summary>The Caterpillar room.</summary>
-    public static RoomHeaderDefinition Caterpillar { get; } = Find(nameof(Caterpillar));
+    public static RoomDefinition Caterpillar { get; } = Find(nameof(Caterpillar));
     /// <summary>The Beta Power Bomb room.</summary>
-    public static RoomHeaderDefinition BetaPowerBomb { get; } = Find(nameof(BetaPowerBomb));
+    public static RoomDefinition BetaPowerBomb { get; } = Find(nameof(BetaPowerBomb));
     /// <summary>The Alpha Power Bomb room.</summary>
-    public static RoomHeaderDefinition AlphaPowerBomb { get; } = Find(nameof(AlphaPowerBomb));
+    public static RoomDefinition AlphaPowerBomb { get; } = Find(nameof(AlphaPowerBomb));
     /// <summary>The Skree Boost room.</summary>
-    public static RoomHeaderDefinition SkreeBoost { get; } = Find(nameof(SkreeBoost));
+    public static RoomDefinition SkreeBoost { get; } = Find(nameof(SkreeBoost));
     /// <summary>The Below Spazer room.</summary>
-    public static RoomHeaderDefinition BelowSpazer { get; } = Find(nameof(BelowSpazer));
+    public static RoomDefinition BelowSpazer { get; } = Find(nameof(BelowSpazer));
     /// <summary>The Spazer room.</summary>
-    public static RoomHeaderDefinition Spazer { get; } = Find(nameof(Spazer));
+    public static RoomDefinition Spazer { get; } = Find(nameof(Spazer));
     /// <summary>The Warehouse Zeela room.</summary>
-    public static RoomHeaderDefinition WarehouseZeela { get; } = Find(nameof(WarehouseZeela));
+    public static RoomDefinition WarehouseZeela { get; } = Find(nameof(WarehouseZeela));
     /// <summary>The Warehouse Energy Tank room.</summary>
-    public static RoomHeaderDefinition WarehouseETank { get; } = Find(nameof(WarehouseETank));
+    public static RoomDefinition WarehouseETank { get; } = Find(nameof(WarehouseETank));
     /// <summary>The Warehouse Kihunter room.</summary>
-    public static RoomHeaderDefinition WarehouseKihunter { get; } = Find(nameof(WarehouseKihunter));
+    public static RoomDefinition WarehouseKihunter { get; } = Find(nameof(WarehouseKihunter));
     /// <summary>The Mini Kraid room.</summary>
-    public static RoomHeaderDefinition MiniKraid { get; } = Find(nameof(MiniKraid));
+    public static RoomDefinition MiniKraid { get; } = Find(nameof(MiniKraid));
     /// <summary>The Kraid Eye Door room.</summary>
-    public static RoomHeaderDefinition KraidEyeDoor { get; } = Find(nameof(KraidEyeDoor));
+    public static RoomDefinition KraidEyeDoor { get; } = Find(nameof(KraidEyeDoor));
     /// <summary>The Kraid room.</summary>
-    public static RoomHeaderDefinition Kraid { get; } = Find(nameof(Kraid));
+    public static RoomDefinition Kraid { get; } = Find(nameof(Kraid));
     /// <summary>The Statues Hallway room.</summary>
-    public static RoomHeaderDefinition StatuesHallway { get; } = Find(nameof(StatuesHallway));
+    public static RoomDefinition StatuesHallway { get; } = Find(nameof(StatuesHallway));
     /// <summary>The Red Tower Refill room.</summary>
-    public static RoomHeaderDefinition RedTowerRefill { get; } = Find(nameof(RedTowerRefill));
+    public static RoomDefinition RedTowerRefill { get; } = Find(nameof(RedTowerRefill));
     /// <summary>The Kraid Refill room.</summary>
-    public static RoomHeaderDefinition KraidRefill { get; } = Find(nameof(KraidRefill));
+    public static RoomDefinition KraidRefill { get; } = Find(nameof(KraidRefill));
     /// <summary>The Statues room.</summary>
-    public static RoomHeaderDefinition Statues { get; } = Find(nameof(Statues));
+    public static RoomDefinition Statues { get; } = Find(nameof(Statues));
     /// <summary>The Warehouse Entrance room.</summary>
-    public static RoomHeaderDefinition WarehouseEntrance { get; } = Find(nameof(WarehouseEntrance));
+    public static RoomDefinition WarehouseEntrance { get; } = Find(nameof(WarehouseEntrance));
     /// <summary>The Varia Suit room.</summary>
-    public static RoomHeaderDefinition VariaSuit { get; } = Find(nameof(VariaSuit));
+    public static RoomDefinition VariaSuit { get; } = Find(nameof(VariaSuit));
     /// <summary>The Warehouse Save room.</summary>
-    public static RoomHeaderDefinition WarehouseSave { get; } = Find(nameof(WarehouseSave));
+    public static RoomDefinition WarehouseSave { get; } = Find(nameof(WarehouseSave));
     /// <summary>The Red Brinstar Save room.</summary>
-    public static RoomHeaderDefinition RedBrinstarSave { get; } = Find(nameof(RedBrinstarSave));
+    public static RoomDefinition RedBrinstarSave { get; } = Find(nameof(RedBrinstarSave));
     /// <summary>The Ice Beam Acid room.</summary>
-    public static RoomHeaderDefinition IceBeamAcid { get; } = Find(nameof(IceBeamAcid));
+    public static RoomDefinition IceBeamAcid { get; } = Find(nameof(IceBeamAcid));
     /// <summary>The Cathedral room.</summary>
-    public static RoomHeaderDefinition Cathedral { get; } = Find(nameof(Cathedral));
+    public static RoomDefinition Cathedral { get; } = Find(nameof(Cathedral));
     /// <summary>The Cathedral Entrance room.</summary>
-    public static RoomHeaderDefinition CathedralEntrance { get; } = Find(nameof(CathedralEntrance));
+    public static RoomDefinition CathedralEntrance { get; } = Find(nameof(CathedralEntrance));
     /// <summary>The Business Center room.</summary>
-    public static RoomHeaderDefinition BusinessCenter { get; } = Find(nameof(BusinessCenter));
+    public static RoomDefinition BusinessCenter { get; } = Find(nameof(BusinessCenter));
     /// <summary>The Ice Beam Gate room.</summary>
-    public static RoomHeaderDefinition IceBeamGate { get; } = Find(nameof(IceBeamGate));
+    public static RoomDefinition IceBeamGate { get; } = Find(nameof(IceBeamGate));
     /// <summary>The Ice Beam Tutorial room.</summary>
-    public static RoomHeaderDefinition IceBeamTutorial { get; } = Find(nameof(IceBeamTutorial));
+    public static RoomDefinition IceBeamTutorial { get; } = Find(nameof(IceBeamTutorial));
     /// <summary>The Ice Beam room.</summary>
-    public static RoomHeaderDefinition IceBeam { get; } = Find(nameof(IceBeam));
+    public static RoomDefinition IceBeam { get; } = Find(nameof(IceBeam));
     /// <summary>The Ice Beam Snake room.</summary>
-    public static RoomHeaderDefinition IceBeamSnake { get; } = Find(nameof(IceBeamSnake));
+    public static RoomDefinition IceBeamSnake { get; } = Find(nameof(IceBeamSnake));
     /// <summary>The Crumble Shaft room.</summary>
-    public static RoomHeaderDefinition CrumbleShaft { get; } = Find(nameof(CrumbleShaft));
+    public static RoomDefinition CrumbleShaft { get; } = Find(nameof(CrumbleShaft));
     /// <summary>The Crocomire Speedway room.</summary>
-    public static RoomHeaderDefinition CrocomireSpeedway { get; } = Find(nameof(CrocomireSpeedway));
+    public static RoomDefinition CrocomireSpeedway { get; } = Find(nameof(CrocomireSpeedway));
     /// <summary>The Crocomire room.</summary>
-    public static RoomHeaderDefinition Crocomire { get; } = Find(nameof(Crocomire));
+    public static RoomDefinition Crocomire { get; } = Find(nameof(Crocomire));
     /// <summary>The Hi-Jump Boots room.</summary>
-    public static RoomHeaderDefinition HiJumpBoots { get; } = Find(nameof(HiJumpBoots));
+    public static RoomDefinition HiJumpBoots { get; } = Find(nameof(HiJumpBoots));
     /// <summary>The Crocomire Escape room.</summary>
-    public static RoomHeaderDefinition CrocomireEscape { get; } = Find(nameof(CrocomireEscape));
+    public static RoomDefinition CrocomireEscape { get; } = Find(nameof(CrocomireEscape));
     /// <summary>The Hi-Jump Energy Tank room.</summary>
-    public static RoomHeaderDefinition HiJumpETank { get; } = Find(nameof(HiJumpETank));
+    public static RoomDefinition HiJumpETank { get; } = Find(nameof(HiJumpETank));
     /// <summary>The Post-Crocomire Farming room.</summary>
-    public static RoomHeaderDefinition PostCrocFarming { get; } = Find(nameof(PostCrocFarming));
+    public static RoomDefinition PostCrocFarming { get; } = Find(nameof(PostCrocFarming));
     /// <summary>The Post-Crocomire Save room.</summary>
-    public static RoomHeaderDefinition PostCrocSave { get; } = Find(nameof(PostCrocSave));
+    public static RoomDefinition PostCrocSave { get; } = Find(nameof(PostCrocSave));
     /// <summary>The Post-Crocomire Power Bombs room.</summary>
-    public static RoomHeaderDefinition PostCrocPowerBombs { get; } = Find(nameof(PostCrocPowerBombs));
+    public static RoomDefinition PostCrocPowerBombs { get; } = Find(nameof(PostCrocPowerBombs));
     /// <summary>The Post-Crocomire Shaft room.</summary>
-    public static RoomHeaderDefinition PostCrocShaft { get; } = Find(nameof(PostCrocShaft));
+    public static RoomDefinition PostCrocShaft { get; } = Find(nameof(PostCrocShaft));
     /// <summary>The Post-Crocomire Missile room.</summary>
-    public static RoomHeaderDefinition PostCrocMissile { get; } = Find(nameof(PostCrocMissile));
+    public static RoomDefinition PostCrocMissile { get; } = Find(nameof(PostCrocMissile));
     /// <summary>The Grapple Tutorial 3 room.</summary>
-    public static RoomHeaderDefinition GrappleTutorial3 { get; } = Find(nameof(GrappleTutorial3));
+    public static RoomDefinition GrappleTutorial3 { get; } = Find(nameof(GrappleTutorial3));
     /// <summary>The Post-Crocomire Jump room.</summary>
-    public static RoomHeaderDefinition PostCrocJump { get; } = Find(nameof(PostCrocJump));
+    public static RoomDefinition PostCrocJump { get; } = Find(nameof(PostCrocJump));
     /// <summary>The Grapple Tutorial 2 room.</summary>
-    public static RoomHeaderDefinition GrappleTutorial2 { get; } = Find(nameof(GrappleTutorial2));
+    public static RoomDefinition GrappleTutorial2 { get; } = Find(nameof(GrappleTutorial2));
     /// <summary>The Grapple Tutorial 1 room.</summary>
-    public static RoomHeaderDefinition GrappleTutorial1 { get; } = Find(nameof(GrappleTutorial1));
+    public static RoomDefinition GrappleTutorial1 { get; } = Find(nameof(GrappleTutorial1));
     /// <summary>The Grapple Beam room.</summary>
-    public static RoomHeaderDefinition GrappleBeam { get; } = Find(nameof(GrappleBeam));
+    public static RoomDefinition GrappleBeam { get; } = Find(nameof(GrappleBeam));
     /// <summary>The Norfair Reserve Tank room.</summary>
-    public static RoomHeaderDefinition NorfairReserveTank { get; } = Find(nameof(NorfairReserveTank));
+    public static RoomDefinition NorfairReserveTank { get; } = Find(nameof(NorfairReserveTank));
     /// <summary>The Green Bubbles Missiles room.</summary>
-    public static RoomHeaderDefinition GreenBubblesMissiles { get; } = Find(nameof(GreenBubblesMissiles));
+    public static RoomDefinition GreenBubblesMissiles { get; } = Find(nameof(GreenBubblesMissiles));
     /// <summary>The Bubble Mountain room.</summary>
-    public static RoomHeaderDefinition BubbleMountain { get; } = Find(nameof(BubbleMountain));
+    public static RoomDefinition BubbleMountain { get; } = Find(nameof(BubbleMountain));
     /// <summary>The Speed Booster Hall room.</summary>
-    public static RoomHeaderDefinition SpeedBoosterHall { get; } = Find(nameof(SpeedBoosterHall));
+    public static RoomDefinition SpeedBoosterHall { get; } = Find(nameof(SpeedBoosterHall));
     /// <summary>The Speed Booster room.</summary>
-    public static RoomHeaderDefinition SpeedBooster { get; } = Find(nameof(SpeedBooster));
+    public static RoomDefinition SpeedBooster { get; } = Find(nameof(SpeedBooster));
     /// <summary>The Single Chamber room.</summary>
-    public static RoomHeaderDefinition SingleChamber { get; } = Find(nameof(SingleChamber));
+    public static RoomDefinition SingleChamber { get; } = Find(nameof(SingleChamber));
     /// <summary>The Double Chamber room.</summary>
-    public static RoomHeaderDefinition DoubleChamber { get; } = Find(nameof(DoubleChamber));
+    public static RoomDefinition DoubleChamber { get; } = Find(nameof(DoubleChamber));
     /// <summary>The Wave Beam room.</summary>
-    public static RoomHeaderDefinition WaveBeam { get; } = Find(nameof(WaveBeam));
+    public static RoomDefinition WaveBeam { get; } = Find(nameof(WaveBeam));
     /// <summary>The Spiky Platforms Tunnel room.</summary>
-    public static RoomHeaderDefinition SpikyPlatformsTunnel { get; } = Find(nameof(SpikyPlatformsTunnel));
+    public static RoomDefinition SpikyPlatformsTunnel { get; } = Find(nameof(SpikyPlatformsTunnel));
     /// <summary>The Volcano room.</summary>
-    public static RoomHeaderDefinition Volcano { get; } = Find(nameof(Volcano));
+    public static RoomDefinition Volcano { get; } = Find(nameof(Volcano));
     /// <summary>The Kronic Boost room.</summary>
-    public static RoomHeaderDefinition KronicBoost { get; } = Find(nameof(KronicBoost));
+    public static RoomDefinition KronicBoost { get; } = Find(nameof(KronicBoost));
     /// <summary>The Magdollite Tunnel room.</summary>
-    public static RoomHeaderDefinition MagdolliteTunnel { get; } = Find(nameof(MagdolliteTunnel));
+    public static RoomDefinition MagdolliteTunnel { get; } = Find(nameof(MagdolliteTunnel));
     /// <summary>The Purple Shaft room.</summary>
-    public static RoomHeaderDefinition PurpleShaft { get; } = Find(nameof(PurpleShaft));
+    public static RoomDefinition PurpleShaft { get; } = Find(nameof(PurpleShaft));
     /// <summary>The Lava Dive room.</summary>
-    public static RoomHeaderDefinition LavaDive { get; } = Find(nameof(LavaDive));
+    public static RoomDefinition LavaDive { get; } = Find(nameof(LavaDive));
     /// <summary>The Lower Norfair Elevator room.</summary>
-    public static RoomHeaderDefinition LowerNorfairElev { get; } = Find(nameof(LowerNorfairElev));
+    public static RoomDefinition LowerNorfairElev { get; } = Find(nameof(LowerNorfairElev));
     /// <summary>The Upper Norfair Farming room.</summary>
-    public static RoomHeaderDefinition UpperNorfairFarming { get; } = Find(nameof(UpperNorfairFarming));
+    public static RoomDefinition UpperNorfairFarming { get; } = Find(nameof(UpperNorfairFarming));
     /// <summary>The Rising Tide room.</summary>
-    public static RoomHeaderDefinition RisingTide { get; } = Find(nameof(RisingTide));
+    public static RoomDefinition RisingTide { get; } = Find(nameof(RisingTide));
     /// <summary>The Acid Snakes Tunnel room.</summary>
-    public static RoomHeaderDefinition AcidSnakesTunnel { get; } = Find(nameof(AcidSnakesTunnel));
+    public static RoomDefinition AcidSnakesTunnel { get; } = Find(nameof(AcidSnakesTunnel));
     /// <summary>The Spiky Acid Snakes Tunnel room.</summary>
-    public static RoomHeaderDefinition SpikyAcidSnakesTunnel { get; } = Find(nameof(SpikyAcidSnakesTunnel));
+    public static RoomDefinition SpikyAcidSnakesTunnel { get; } = Find(nameof(SpikyAcidSnakesTunnel));
     /// <summary>The Upper Norfair Refill room.</summary>
-    public static RoomHeaderDefinition UpperNorfairRefill { get; } = Find(nameof(UpperNorfairRefill));
+    public static RoomDefinition UpperNorfairRefill { get; } = Find(nameof(UpperNorfairRefill));
     /// <summary>The Purple Farming room.</summary>
-    public static RoomHeaderDefinition PurpleFarming { get; } = Find(nameof(PurpleFarming));
+    public static RoomDefinition PurpleFarming { get; } = Find(nameof(PurpleFarming));
     /// <summary>The Bat Cave room.</summary>
-    public static RoomHeaderDefinition BatCave { get; } = Find(nameof(BatCave));
+    public static RoomDefinition BatCave { get; } = Find(nameof(BatCave));
     /// <summary>The Norfair Map room.</summary>
-    public static RoomHeaderDefinition NorfairMap { get; } = Find(nameof(NorfairMap));
+    public static RoomDefinition NorfairMap { get; } = Find(nameof(NorfairMap));
     /// <summary>The Bubble Mountain Save room.</summary>
-    public static RoomHeaderDefinition BubbleMountainSave { get; } = Find(nameof(BubbleMountainSave));
+    public static RoomDefinition BubbleMountainSave { get; } = Find(nameof(BubbleMountainSave));
     /// <summary>The Frog Speedway room.</summary>
-    public static RoomHeaderDefinition FrogSpeedway { get; } = Find(nameof(FrogSpeedway));
+    public static RoomDefinition FrogSpeedway { get; } = Find(nameof(FrogSpeedway));
     /// <summary>The Red Pirate Shaft room.</summary>
-    public static RoomHeaderDefinition RedPirateShaft { get; } = Find(nameof(RedPirateShaft));
+    public static RoomDefinition RedPirateShaft { get; } = Find(nameof(RedPirateShaft));
     /// <summary>The Frog Save room.</summary>
-    public static RoomHeaderDefinition FrogSave { get; } = Find(nameof(FrogSave));
+    public static RoomDefinition FrogSave { get; } = Find(nameof(FrogSave));
     /// <summary>The Crocomire Save room.</summary>
-    public static RoomHeaderDefinition CrocomireSave { get; } = Find(nameof(CrocomireSave));
+    public static RoomDefinition CrocomireSave { get; } = Find(nameof(CrocomireSave));
     /// <summary>The Lower Norfair Elevator Save room.</summary>
-    public static RoomHeaderDefinition LNElevSave { get; } = Find(nameof(LNElevSave));
+    public static RoomDefinition LNElevSave { get; } = Find(nameof(LNElevSave));
     /// <summary>The Acid Statue room.</summary>
-    public static RoomHeaderDefinition AcidStatue { get; } = Find(nameof(AcidStatue));
+    public static RoomDefinition AcidStatue { get; } = Find(nameof(AcidStatue));
     /// <summary>The Main Hall room.</summary>
-    public static RoomHeaderDefinition MainHall { get; } = Find(nameof(MainHall));
+    public static RoomDefinition MainHall { get; } = Find(nameof(MainHall));
     /// <summary>The Golden Torizo room.</summary>
-    public static RoomHeaderDefinition GoldenTorizo { get; } = Find(nameof(GoldenTorizo));
+    public static RoomDefinition GoldenTorizo { get; } = Find(nameof(GoldenTorizo));
     /// <summary>The Fast Ripper room.</summary>
-    public static RoomHeaderDefinition FastRipper { get; } = Find(nameof(FastRipper));
+    public static RoomDefinition FastRipper { get; } = Find(nameof(FastRipper));
     /// <summary>The Golden Torizo Energy Refill room.</summary>
-    public static RoomHeaderDefinition GTEnergyRefill { get; } = Find(nameof(GTEnergyRefill));
+    public static RoomDefinition GTEnergyRefill { get; } = Find(nameof(GTEnergyRefill));
     /// <summary>The Ridley room.</summary>
-    public static RoomHeaderDefinition Ridley { get; } = Find(nameof(Ridley));
+    public static RoomDefinition Ridley { get; } = Find(nameof(Ridley));
     /// <summary>The Lower Norfair Farming room.</summary>
-    public static RoomHeaderDefinition LNFarming { get; } = Find(nameof(LNFarming));
+    public static RoomDefinition LNFarming { get; } = Find(nameof(LNFarming));
     /// <summary>The Fast Pillars Setup room.</summary>
-    public static RoomHeaderDefinition FastPillarsSetup { get; } = Find(nameof(FastPillarsSetup));
+    public static RoomDefinition FastPillarsSetup { get; } = Find(nameof(FastPillarsSetup));
     /// <summary>An unused room that no door leads to.</summary>
-    public static RoomHeaderDefinition UnusedNorfairRoom { get; } = Find(nameof(UnusedNorfairRoom));
+    public static RoomDefinition UnusedNorfairRoom { get; } = Find(nameof(UnusedNorfairRoom));
     /// <summary>The Mickey Mouse room.</summary>
-    public static RoomHeaderDefinition MickeyMouse { get; } = Find(nameof(MickeyMouse));
+    public static RoomDefinition MickeyMouse { get; } = Find(nameof(MickeyMouse));
     /// <summary>The Pillar room.</summary>
-    public static RoomHeaderDefinition Pillar { get; } = Find(nameof(Pillar));
+    public static RoomDefinition Pillar { get; } = Find(nameof(Pillar));
     /// <summary>The Plowerhouse room.</summary>
-    public static RoomHeaderDefinition Plowerhouse { get; } = Find(nameof(Plowerhouse));
+    public static RoomDefinition Plowerhouse { get; } = Find(nameof(Plowerhouse));
     /// <summary>The Worst Room in the Game.</summary>
-    public static RoomHeaderDefinition WorstRoomInTheGame { get; } = Find(nameof(WorstRoomInTheGame));
+    public static RoomDefinition WorstRoomInTheGame { get; } = Find(nameof(WorstRoomInTheGame));
     /// <summary>The Amphitheatre room.</summary>
-    public static RoomHeaderDefinition Amphitheatre { get; } = Find(nameof(Amphitheatre));
+    public static RoomDefinition Amphitheatre { get; } = Find(nameof(Amphitheatre));
     /// <summary>The Lower Norfair Spring Ball Maze room.</summary>
-    public static RoomHeaderDefinition LNSpringBallMaze { get; } = Find(nameof(LNSpringBallMaze));
+    public static RoomDefinition LNSpringBallMaze { get; } = Find(nameof(LNSpringBallMaze));
     /// <summary>The Lower Norfair Escape Power Bombs room.</summary>
-    public static RoomHeaderDefinition LNEscapePowerBombs { get; } = Find(nameof(LNEscapePowerBombs));
+    public static RoomDefinition LNEscapePowerBombs { get; } = Find(nameof(LNEscapePowerBombs));
     /// <summary>The Red Kihunter Shaft room.</summary>
-    public static RoomHeaderDefinition RedKihunterShaft { get; } = Find(nameof(RedKihunterShaft));
+    public static RoomDefinition RedKihunterShaft { get; } = Find(nameof(RedKihunterShaft));
     /// <summary>The Wasteland room.</summary>
-    public static RoomHeaderDefinition Wasteland { get; } = Find(nameof(Wasteland));
+    public static RoomDefinition Wasteland { get; } = Find(nameof(Wasteland));
     /// <summary>The Metal Pirates room.</summary>
-    public static RoomHeaderDefinition MetalPirates { get; } = Find(nameof(MetalPirates));
+    public static RoomDefinition MetalPirates { get; } = Find(nameof(MetalPirates));
     /// <summary>The Three Musketeers room.</summary>
-    public static RoomHeaderDefinition ThreeMusketeers { get; } = Find(nameof(ThreeMusketeers));
+    public static RoomDefinition ThreeMusketeers { get; } = Find(nameof(ThreeMusketeers));
     /// <summary>The Ridley Energy Tank room.</summary>
-    public static RoomHeaderDefinition RidleyETank { get; } = Find(nameof(RidleyETank));
+    public static RoomDefinition RidleyETank { get; } = Find(nameof(RidleyETank));
     /// <summary>The Screw Attack room.</summary>
-    public static RoomHeaderDefinition ScrewAttack { get; } = Find(nameof(ScrewAttack));
+    public static RoomDefinition ScrewAttack { get; } = Find(nameof(ScrewAttack));
     /// <summary>The Lower Norfair Fireflea room.</summary>
-    public static RoomHeaderDefinition LNFireflea { get; } = Find(nameof(LNFireflea));
+    public static RoomDefinition LNFireflea { get; } = Find(nameof(LNFireflea));
     /// <summary>The Lower Norfair Save room.</summary>
-    public static RoomHeaderDefinition LNSave { get; } = Find(nameof(LNSave));
+    public static RoomDefinition LNSave { get; } = Find(nameof(LNSave));
     /// <summary>The Bowling Alley room.</summary>
-    public static RoomHeaderDefinition BowlingAlley { get; } = Find(nameof(BowlingAlley));
+    public static RoomDefinition BowlingAlley { get; } = Find(nameof(BowlingAlley));
     /// <summary>The Wrecked Ship Entrance room.</summary>
-    public static RoomHeaderDefinition WreckedShipEntrance { get; } = Find(nameof(WreckedShipEntrance));
+    public static RoomDefinition WreckedShipEntrance { get; } = Find(nameof(WreckedShipEntrance));
     /// <summary>The Attic room.</summary>
-    public static RoomHeaderDefinition Attic { get; } = Find(nameof(Attic));
+    public static RoomDefinition Attic { get; } = Find(nameof(Attic));
     /// <summary>Wrecked Ship's Assembly Line room.</summary>
-    public static RoomHeaderDefinition AssemblyLine { get; } = Find(nameof(AssemblyLine));
+    public static RoomDefinition AssemblyLine { get; } = Find(nameof(AssemblyLine));
     /// <summary>The Wrecked Ship Main Shaft room.</summary>
-    public static RoomHeaderDefinition WreckedShipMainShaft { get; } = Find(nameof(WreckedShipMainShaft));
+    public static RoomDefinition WreckedShipMainShaft { get; } = Find(nameof(WreckedShipMainShaft));
     /// <summary>The Spiky Death room.</summary>
-    public static RoomHeaderDefinition SpikyDeath { get; } = Find(nameof(SpikyDeath));
+    public static RoomDefinition SpikyDeath { get; } = Find(nameof(SpikyDeath));
     /// <summary>The Electric Death room.</summary>
-    public static RoomHeaderDefinition ElectricDeath { get; } = Find(nameof(ElectricDeath));
+    public static RoomDefinition ElectricDeath { get; } = Find(nameof(ElectricDeath));
     /// <summary>The Wrecked Ship Energy Tank room.</summary>
-    public static RoomHeaderDefinition WreckedShipETank { get; } = Find(nameof(WreckedShipETank));
+    public static RoomDefinition WreckedShipETank { get; } = Find(nameof(WreckedShipETank));
     /// <summary>The Basement room.</summary>
-    public static RoomHeaderDefinition Basement { get; } = Find(nameof(Basement));
+    public static RoomDefinition Basement { get; } = Find(nameof(Basement));
     /// <summary>The Wrecked Ship Map room.</summary>
-    public static RoomHeaderDefinition WreckedShipMap { get; } = Find(nameof(WreckedShipMap));
+    public static RoomDefinition WreckedShipMap { get; } = Find(nameof(WreckedShipMap));
     /// <summary>The Phantoon room.</summary>
-    public static RoomHeaderDefinition Phantoon { get; } = Find(nameof(Phantoon));
+    public static RoomDefinition Phantoon { get; } = Find(nameof(Phantoon));
     /// <summary>The Sponge Bath room.</summary>
-    public static RoomHeaderDefinition SpongeBath { get; } = Find(nameof(SpongeBath));
+    public static RoomDefinition SpongeBath { get; } = Find(nameof(SpongeBath));
     /// <summary>The Wrecked Ship West Super room.</summary>
-    public static RoomHeaderDefinition WSWestSuper { get; } = Find(nameof(WSWestSuper));
+    public static RoomDefinition WSWestSuper { get; } = Find(nameof(WSWestSuper));
     /// <summary>The Wrecked Ship East Super room.</summary>
-    public static RoomHeaderDefinition WSEastSuper { get; } = Find(nameof(WSEastSuper));
+    public static RoomDefinition WSEastSuper { get; } = Find(nameof(WSEastSuper));
     /// <summary>The Gravity Suit room.</summary>
-    public static RoomHeaderDefinition GravitySuit { get; } = Find(nameof(GravitySuit));
+    public static RoomDefinition GravitySuit { get; } = Find(nameof(GravitySuit));
     /// <summary>The Wrecked Ship Save room.</summary>
-    public static RoomHeaderDefinition WreckedShipSave { get; } = Find(nameof(WreckedShipSave));
+    public static RoomDefinition WreckedShipSave { get; } = Find(nameof(WreckedShipSave));
     /// <summary>The Glass Tunnel Save room.</summary>
-    public static RoomHeaderDefinition GlassTunnelSave { get; } = Find(nameof(GlassTunnelSave));
+    public static RoomDefinition GlassTunnelSave { get; } = Find(nameof(GlassTunnelSave));
     /// <summary>The Glass Tunnel room.</summary>
-    public static RoomHeaderDefinition GlassTunnel { get; } = Find(nameof(GlassTunnel));
+    public static RoomDefinition GlassTunnel { get; } = Find(nameof(GlassTunnel));
     /// <summary>The West Tunnel room.</summary>
-    public static RoomHeaderDefinition WestTunnel { get; } = Find(nameof(WestTunnel));
+    public static RoomDefinition WestTunnel { get; } = Find(nameof(WestTunnel));
     /// <summary>The East Tunnel room.</summary>
-    public static RoomHeaderDefinition EastTunnel { get; } = Find(nameof(EastTunnel));
+    public static RoomDefinition EastTunnel { get; } = Find(nameof(EastTunnel));
     /// <summary>The Main Street room.</summary>
-    public static RoomHeaderDefinition MainStreet { get; } = Find(nameof(MainStreet));
+    public static RoomDefinition MainStreet { get; } = Find(nameof(MainStreet));
     /// <summary>The Fish Tank room.</summary>
-    public static RoomHeaderDefinition FishTank { get; } = Find(nameof(FishTank));
+    public static RoomDefinition FishTank { get; } = Find(nameof(FishTank));
     /// <summary>The Mama Turtle room.</summary>
-    public static RoomHeaderDefinition MamaTurtle { get; } = Find(nameof(MamaTurtle));
+    public static RoomDefinition MamaTurtle { get; } = Find(nameof(MamaTurtle));
     /// <summary>The Crab Tunnel room.</summary>
-    public static RoomHeaderDefinition CrabTunnel { get; } = Find(nameof(CrabTunnel));
+    public static RoomDefinition CrabTunnel { get; } = Find(nameof(CrabTunnel));
     /// <summary>The Mt. Everest room.</summary>
-    public static RoomHeaderDefinition MtEverest { get; } = Find(nameof(MtEverest));
+    public static RoomDefinition MtEverest { get; } = Find(nameof(MtEverest));
     /// <summary>The Red Fish room.</summary>
-    public static RoomHeaderDefinition RedFish { get; } = Find(nameof(RedFish));
+    public static RoomDefinition RedFish { get; } = Find(nameof(RedFish));
     /// <summary>The Watering Hole room.</summary>
-    public static RoomHeaderDefinition WateringHole { get; } = Find(nameof(WateringHole));
+    public static RoomDefinition WateringHole { get; } = Find(nameof(WateringHole));
     /// <summary>The Northwest Maridia Bug room.</summary>
-    public static RoomHeaderDefinition NWestMaridiaBug { get; } = Find(nameof(NWestMaridiaBug));
+    public static RoomDefinition NWestMaridiaBug { get; } = Find(nameof(NWestMaridiaBug));
     /// <summary>The Crab Shaft room.</summary>
-    public static RoomHeaderDefinition CrabShaft { get; } = Find(nameof(CrabShaft));
+    public static RoomDefinition CrabShaft { get; } = Find(nameof(CrabShaft));
     /// <summary>The Pseudo Plasma Spark room.</summary>
-    public static RoomHeaderDefinition PseudoPlasmaSpark { get; } = Find(nameof(PseudoPlasmaSpark));
+    public static RoomDefinition PseudoPlasmaSpark { get; } = Find(nameof(PseudoPlasmaSpark));
     /// <summary>The Crab Hole room.</summary>
-    public static RoomHeaderDefinition CrabHole { get; } = Find(nameof(CrabHole));
+    public static RoomDefinition CrabHole { get; } = Find(nameof(CrabHole));
     /// <summary>The West Sand Hall Tunnel room.</summary>
-    public static RoomHeaderDefinition WestSandHallTunnel { get; } = Find(nameof(WestSandHallTunnel));
+    public static RoomDefinition WestSandHallTunnel { get; } = Find(nameof(WestSandHallTunnel));
     /// <summary>The Plasma Tutorial room.</summary>
-    public static RoomHeaderDefinition PlasmaTutorial { get; } = Find(nameof(PlasmaTutorial));
+    public static RoomDefinition PlasmaTutorial { get; } = Find(nameof(PlasmaTutorial));
     /// <summary>The Plasma room.</summary>
-    public static RoomHeaderDefinition Plasma { get; } = Find(nameof(Plasma));
+    public static RoomDefinition Plasma { get; } = Find(nameof(Plasma));
     /// <summary>The Thread the Needle room.</summary>
-    public static RoomHeaderDefinition ThreadTheNeedle { get; } = Find(nameof(ThreadTheNeedle));
+    public static RoomDefinition ThreadTheNeedle { get; } = Find(nameof(ThreadTheNeedle));
     /// <summary>The Maridia Elevator room.</summary>
-    public static RoomHeaderDefinition MaridiaElev { get; } = Find(nameof(MaridiaElev));
+    public static RoomDefinition MaridiaElev { get; } = Find(nameof(MaridiaElev));
     /// <summary>The Plasma Spark room.</summary>
-    public static RoomHeaderDefinition PlasmaSpark { get; } = Find(nameof(PlasmaSpark));
+    public static RoomDefinition PlasmaSpark { get; } = Find(nameof(PlasmaSpark));
     /// <summary>The Kassiuz room.</summary>
-    public static RoomHeaderDefinition Kassiuz { get; } = Find(nameof(Kassiuz));
+    public static RoomDefinition Kassiuz { get; } = Find(nameof(Kassiuz));
     /// <summary>The Maridia Map room.</summary>
-    public static RoomHeaderDefinition MaridiaMap { get; } = Find(nameof(MaridiaMap));
+    public static RoomDefinition MaridiaMap { get; } = Find(nameof(MaridiaMap));
     /// <summary>The Forgotten Highway Save room.</summary>
-    public static RoomHeaderDefinition ForgottenHighwaySave { get; } = Find(nameof(ForgottenHighwaySave));
+    public static RoomDefinition ForgottenHighwaySave { get; } = Find(nameof(ForgottenHighwaySave));
     /// <summary>The Toilet room.</summary>
-    public static RoomHeaderDefinition Toilet { get; } = Find(nameof(Toilet));
+    public static RoomDefinition Toilet { get; } = Find(nameof(Toilet));
     /// <summary>The Bug Sand Hole room.</summary>
-    public static RoomHeaderDefinition BugSandHole { get; } = Find(nameof(BugSandHole));
+    public static RoomDefinition BugSandHole { get; } = Find(nameof(BugSandHole));
     /// <summary>The West Sand Hall room.</summary>
-    public static RoomHeaderDefinition WestSandHall { get; } = Find(nameof(WestSandHall));
+    public static RoomDefinition WestSandHall { get; } = Find(nameof(WestSandHall));
     /// <summary>The Oasis room.</summary>
-    public static RoomHeaderDefinition Oasis { get; } = Find(nameof(Oasis));
+    public static RoomDefinition Oasis { get; } = Find(nameof(Oasis));
     /// <summary>The East Sand Hall room.</summary>
-    public static RoomHeaderDefinition EastSandHall { get; } = Find(nameof(EastSandHall));
+    public static RoomDefinition EastSandHall { get; } = Find(nameof(EastSandHall));
     /// <summary>The West Sand Hole room.</summary>
-    public static RoomHeaderDefinition WestSandHole { get; } = Find(nameof(WestSandHole));
+    public static RoomDefinition WestSandHole { get; } = Find(nameof(WestSandHole));
     /// <summary>The East Sand Hole room.</summary>
-    public static RoomHeaderDefinition EastSandHole { get; } = Find(nameof(EastSandHole));
+    public static RoomDefinition EastSandHole { get; } = Find(nameof(EastSandHole));
     /// <summary>The West Aqueduct Quicksand room.</summary>
-    public static RoomHeaderDefinition WestAqueductQuicksand { get; } = Find(nameof(WestAqueductQuicksand));
+    public static RoomDefinition WestAqueductQuicksand { get; } = Find(nameof(WestAqueductQuicksand));
     /// <summary>The East Aqueduct Quicksand room.</summary>
-    public static RoomHeaderDefinition EastAqueductQuicksand { get; } = Find(nameof(EastAqueductQuicksand));
+    public static RoomDefinition EastAqueductQuicksand { get; } = Find(nameof(EastAqueductQuicksand));
     /// <summary>The Aqueduct room.</summary>
-    public static RoomHeaderDefinition Aqueduct { get; } = Find(nameof(Aqueduct));
+    public static RoomDefinition Aqueduct { get; } = Find(nameof(Aqueduct));
     /// <summary>The Butterfly room.</summary>
-    public static RoomHeaderDefinition Butterfly { get; } = Find(nameof(Butterfly));
+    public static RoomDefinition Butterfly { get; } = Find(nameof(Butterfly));
     /// <summary>The Botwoon Hallway room.</summary>
-    public static RoomHeaderDefinition BotwoonHallway { get; } = Find(nameof(BotwoonHallway));
+    public static RoomDefinition BotwoonHallway { get; } = Find(nameof(BotwoonHallway));
     /// <summary>The Pants room.</summary>
-    public static RoomHeaderDefinition Pants { get; } = Find(nameof(Pants));
+    public static RoomDefinition Pants { get; } = Find(nameof(Pants));
     /// <summary>The East Pants room.</summary>
-    public static RoomHeaderDefinition EastPants { get; } = Find(nameof(EastPants));
+    public static RoomDefinition EastPants { get; } = Find(nameof(EastPants));
     /// <summary>The Springball room.</summary>
-    public static RoomHeaderDefinition Springball { get; } = Find(nameof(Springball));
+    public static RoomDefinition Springball { get; } = Find(nameof(Springball));
     /// <summary>The Below Botwoon Energy Tank room.</summary>
-    public static RoomHeaderDefinition BelowBotwoonETank { get; } = Find(nameof(BelowBotwoonETank));
+    public static RoomDefinition BelowBotwoonETank { get; } = Find(nameof(BelowBotwoonETank));
     /// <summary>The Colosseum room.</summary>
-    public static RoomHeaderDefinition Colosseum { get; } = Find(nameof(Colosseum));
+    public static RoomDefinition Colosseum { get; } = Find(nameof(Colosseum));
     /// <summary>The Aqueduct Save room.</summary>
-    public static RoomHeaderDefinition AqueductSave { get; } = Find(nameof(AqueductSave));
+    public static RoomDefinition AqueductSave { get; } = Find(nameof(AqueductSave));
     /// <summary>The Precious room.</summary>
-    public static RoomHeaderDefinition ThePrecious { get; } = Find(nameof(ThePrecious));
+    public static RoomDefinition ThePrecious { get; } = Find(nameof(ThePrecious));
     /// <summary>The Botwoon Energy Tank room.</summary>
-    public static RoomHeaderDefinition BotwoonETank { get; } = Find(nameof(BotwoonETank));
+    public static RoomDefinition BotwoonETank { get; } = Find(nameof(BotwoonETank));
     /// <summary>The Draygon Save room.</summary>
-    public static RoomHeaderDefinition DraygonSave { get; } = Find(nameof(DraygonSave));
+    public static RoomDefinition DraygonSave { get; } = Find(nameof(DraygonSave));
     /// <summary>The Maridia Missile Refill room.</summary>
-    public static RoomHeaderDefinition MaridiaMissileRefill { get; } = Find(nameof(MaridiaMissileRefill));
+    public static RoomDefinition MaridiaMissileRefill { get; } = Find(nameof(MaridiaMissileRefill));
     /// <summary>The Plasma Beach Quicksand room.</summary>
-    public static RoomHeaderDefinition PlasmaBeachQuicksand { get; } = Find(nameof(PlasmaBeachQuicksand));
+    public static RoomDefinition PlasmaBeachQuicksand { get; } = Find(nameof(PlasmaBeachQuicksand));
     /// <summary>The Botwoon Quicksand room.</summary>
-    public static RoomHeaderDefinition BotwoonQuicksand { get; } = Find(nameof(BotwoonQuicksand));
+    public static RoomDefinition BotwoonQuicksand { get; } = Find(nameof(BotwoonQuicksand));
     /// <summary>The Shaktool room.</summary>
-    public static RoomHeaderDefinition Shaktool { get; } = Find(nameof(Shaktool));
+    public static RoomDefinition Shaktool { get; } = Find(nameof(Shaktool));
     /// <summary>The Halfie Climb room.</summary>
-    public static RoomHeaderDefinition HalfieClimb { get; } = Find(nameof(HalfieClimb));
+    public static RoomDefinition HalfieClimb { get; } = Find(nameof(HalfieClimb));
     /// <summary>The Botwoon room.</summary>
-    public static RoomHeaderDefinition Botwoon { get; } = Find(nameof(Botwoon));
+    public static RoomDefinition Botwoon { get; } = Find(nameof(Botwoon));
     /// <summary>The Space Jump room.</summary>
-    public static RoomHeaderDefinition SpaceJump { get; } = Find(nameof(SpaceJump));
+    public static RoomDefinition SpaceJump { get; } = Find(nameof(SpaceJump));
     /// <summary>The Maridia Energy Refill room.</summary>
-    public static RoomHeaderDefinition MaridiaEnergyRefill { get; } = Find(nameof(MaridiaEnergyRefill));
+    public static RoomDefinition MaridiaEnergyRefill { get; } = Find(nameof(MaridiaEnergyRefill));
     /// <summary>The West Cactus Alley room.</summary>
-    public static RoomHeaderDefinition WestCactusAlley { get; } = Find(nameof(WestCactusAlley));
+    public static RoomDefinition WestCactusAlley { get; } = Find(nameof(WestCactusAlley));
     /// <summary>The East Cactus Alley room.</summary>
-    public static RoomHeaderDefinition EastCactusAlley { get; } = Find(nameof(EastCactusAlley));
+    public static RoomDefinition EastCactusAlley { get; } = Find(nameof(EastCactusAlley));
     /// <summary>The Draygon room.</summary>
-    public static RoomHeaderDefinition Draygon { get; } = Find(nameof(Draygon));
+    public static RoomDefinition Draygon { get; } = Find(nameof(Draygon));
     /// <summary>The Tourian First room.</summary>
-    public static RoomHeaderDefinition TourianFirst { get; } = Find(nameof(TourianFirst));
+    public static RoomDefinition TourianFirst { get; } = Find(nameof(TourianFirst));
     /// <summary>The Metroids 1 room.</summary>
-    public static RoomHeaderDefinition Metroids1 { get; } = Find(nameof(Metroids1));
+    public static RoomDefinition Metroids1 { get; } = Find(nameof(Metroids1));
     /// <summary>The Metroids 2 room.</summary>
-    public static RoomHeaderDefinition Metroids2 { get; } = Find(nameof(Metroids2));
+    public static RoomDefinition Metroids2 { get; } = Find(nameof(Metroids2));
     /// <summary>The Metroids 3 room.</summary>
-    public static RoomHeaderDefinition Metroids3 { get; } = Find(nameof(Metroids3));
+    public static RoomDefinition Metroids3 { get; } = Find(nameof(Metroids3));
     /// <summary>The Metroids 4 room.</summary>
-    public static RoomHeaderDefinition Metroids4 { get; } = Find(nameof(Metroids4));
+    public static RoomDefinition Metroids4 { get; } = Find(nameof(Metroids4));
     /// <summary>The Blue Hopper room.</summary>
-    public static RoomHeaderDefinition BlueHopper { get; } = Find(nameof(BlueHopper));
+    public static RoomDefinition BlueHopper { get; } = Find(nameof(BlueHopper));
     /// <summary>The Dust Torizo room.</summary>
-    public static RoomHeaderDefinition DustTorizo { get; } = Find(nameof(DustTorizo));
+    public static RoomDefinition DustTorizo { get; } = Find(nameof(DustTorizo));
     /// <summary>The Big Boy room.</summary>
-    public static RoomHeaderDefinition BigBoy { get; } = Find(nameof(BigBoy));
+    public static RoomDefinition BigBoy { get; } = Find(nameof(BigBoy));
     /// <summary>The Seaweed room.</summary>
-    public static RoomHeaderDefinition Seaweed { get; } = Find(nameof(Seaweed));
+    public static RoomDefinition Seaweed { get; } = Find(nameof(Seaweed));
     /// <summary>The Tourian Recharge room.</summary>
-    public static RoomHeaderDefinition TourianRecharge { get; } = Find(nameof(TourianRecharge));
+    public static RoomDefinition TourianRecharge { get; } = Find(nameof(TourianRecharge));
     /// <summary>The Mother Brain room.</summary>
-    public static RoomHeaderDefinition MotherBrain { get; } = Find(nameof(MotherBrain));
+    public static RoomDefinition MotherBrain { get; } = Find(nameof(MotherBrain));
     /// <summary>The Tourian Eye Door room.</summary>
-    public static RoomHeaderDefinition TourianEyeDoor { get; } = Find(nameof(TourianEyeDoor));
+    public static RoomDefinition TourianEyeDoor { get; } = Find(nameof(TourianEyeDoor));
     /// <summary>The Rinka Shaft room.</summary>
-    public static RoomHeaderDefinition RinkaShaft { get; } = Find(nameof(RinkaShaft));
+    public static RoomDefinition RinkaShaft { get; } = Find(nameof(RinkaShaft));
     /// <summary>The Mother Brain Save room.</summary>
-    public static RoomHeaderDefinition MotherBrainSave { get; } = Find(nameof(MotherBrainSave));
+    public static RoomDefinition MotherBrainSave { get; } = Find(nameof(MotherBrainSave));
     /// <summary>The Tourian Escape 1 room.</summary>
-    public static RoomHeaderDefinition TourianEscape1 { get; } = Find(nameof(TourianEscape1));
+    public static RoomDefinition TourianEscape1 { get; } = Find(nameof(TourianEscape1));
     /// <summary>The Tourian Escape 2 room.</summary>
-    public static RoomHeaderDefinition TourianEscape2 { get; } = Find(nameof(TourianEscape2));
+    public static RoomDefinition TourianEscape2 { get; } = Find(nameof(TourianEscape2));
     /// <summary>The Tourian Escape 3 room.</summary>
-    public static RoomHeaderDefinition TourianEscape3 { get; } = Find(nameof(TourianEscape3));
+    public static RoomDefinition TourianEscape3 { get; } = Find(nameof(TourianEscape3));
     /// <summary>The Tourian Escape 4 room.</summary>
-    public static RoomHeaderDefinition TourianEscape4 { get; } = Find(nameof(TourianEscape4));
+    public static RoomDefinition TourianEscape4 { get; } = Find(nameof(TourianEscape4));
     /// <summary>The Upper Tourian Save room.</summary>
-    public static RoomHeaderDefinition UpperTourianSave { get; } = Find(nameof(UpperTourianSave));
+    public static RoomDefinition UpperTourianSave { get; } = Find(nameof(UpperTourianSave));
     /// <summary>The Ceres Elevator room.</summary>
-    public static RoomHeaderDefinition CeresElev { get; } = Find(nameof(CeresElev));
+    public static RoomDefinition CeresElev { get; } = Find(nameof(CeresElev));
     /// <summary>The Falling Tile room.</summary>
-    public static RoomHeaderDefinition FallingTile { get; } = Find(nameof(FallingTile));
+    public static RoomDefinition FallingTile { get; } = Find(nameof(FallingTile));
     /// <summary>The Magnet Stairs room.</summary>
-    public static RoomHeaderDefinition MagnetStairs { get; } = Find(nameof(MagnetStairs));
+    public static RoomDefinition MagnetStairs { get; } = Find(nameof(MagnetStairs));
     /// <summary>The Dead Scientist room.</summary>
-    public static RoomHeaderDefinition DeadScientist { get; } = Find(nameof(DeadScientist));
+    public static RoomDefinition DeadScientist { get; } = Find(nameof(DeadScientist));
     /// <summary>The Room 58 Escape.</summary>
-    public static RoomHeaderDefinition Room58Escape { get; } = Find(nameof(Room58Escape));
+    public static RoomDefinition Room58Escape { get; } = Find(nameof(Room58Escape));
     /// <summary>The Ceres Ridley room.</summary>
-    public static RoomHeaderDefinition CeresRidley { get; } = Find(nameof(CeresRidley));
+    public static RoomDefinition CeresRidley { get; } = Find(nameof(CeresRidley));
 }

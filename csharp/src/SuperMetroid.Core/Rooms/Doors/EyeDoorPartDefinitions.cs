@@ -6,13 +6,13 @@ namespace SuperMetroid.Core.Rooms.Doors;
 internal static class EyeDoorPartDefinitions
 {
     /// <summary>Each eye-door room object's part and facing.</summary>
-    internal static readonly IReadOnlyDictionary<RoomObjectHeaderId, EyeDoorPart> Parts = new Dictionary<RoomObjectHeaderId, EyeDoorPart>
+    internal static readonly IReadOnlyDictionary<RoomObjectKind, EyeDoorPart> Parts = new Dictionary<RoomObjectKind, EyeDoorPart>
     {
-        [RoomObjectHeaderId.EyeDoorEyeFacingRight] = new(EyeDoorComponent.Eye, EyeDoorOrientation.Right),
-        [RoomObjectHeaderId.EyeDoorFacingRight] = new(EyeDoorComponent.Door, EyeDoorOrientation.Right),
-        [RoomObjectHeaderId.EyeDoorBottomFacingRight] = new(EyeDoorComponent.Bottom, EyeDoorOrientation.Right),
-        [RoomObjectHeaderId.EyeDoorEyeFacingLeft] = new(EyeDoorComponent.Eye, EyeDoorOrientation.Left),
-        [RoomObjectHeaderId.EyeDoorFacingLeft] = new(EyeDoorComponent.Door, EyeDoorOrientation.Left),
-        [RoomObjectHeaderId.EyeDoorBottomFacingLeft] = new(EyeDoorComponent.Bottom, EyeDoorOrientation.Left),
+        [RoomObjectKind.EyeDoorEyeFacingRight] = new(EyeDoorComponent.Eye, EyeDoorOrientation.Right),
+        [RoomObjectKind.EyeDoorFacingRight] = new(EyeDoorComponent.Door, EyeDoorOrientation.Right),
+        [RoomObjectKind.EyeDoorBottomFacingRight] = new(EyeDoorComponent.Bottom, EyeDoorOrientation.Right),
+        [RoomObjectKind.EyeDoorEyeFacingLeft] = new(EyeDoorComponent.Eye, EyeDoorOrientation.Left),
+        [RoomObjectKind.EyeDoorFacingLeft] = new(EyeDoorComponent.Door, EyeDoorOrientation.Left),
+        [RoomObjectKind.EyeDoorBottomFacingLeft] = new(EyeDoorComponent.Bottom, EyeDoorOrientation.Left),
     };
 }

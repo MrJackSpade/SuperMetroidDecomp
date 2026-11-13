@@ -24,7 +24,7 @@ internal static class PowampDeathSequenceVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.MtEverest);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MtEverest);
         RoomEnemySlot body = runtime.Enemies.SlotTable.Slots.First(slot => slot.DefinitionId == EnemyDefinitionId.Powamp &&
             !slot.RequireSpeciesState<PowampEnemyState>().IsBalloon);
         var state = body.RequireSpeciesState<PowampEnemyState>();

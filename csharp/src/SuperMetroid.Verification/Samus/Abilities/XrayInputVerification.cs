@@ -31,7 +31,7 @@ internal static class XrayInputVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.XrayScope);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.XrayScope);
         var samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();
         samus.Pose = SamusPoseId.FacingRightNormalPose;
@@ -133,7 +133,7 @@ internal static class XrayInputVerification
             "a queued X-ray frame remains immutable after gameplay resumes");
         AssertTrue(Enumerable.SequenceEqual(beforeRelease, captured.LayersOf<GameplayBlendLayer>().Single().Gameplay.Rooms.XrayReveal?.Blocks.ToArray() ?? []),
             "a queued X-ray frame retains its reveal after gameplay resumes");
-        foreach (RoomHeaderDefinition excludedRoom in new[] { RoomHeaderDefinitions.Statues, RoomHeaderDefinitions.GlassTunnel })
+        foreach (RoomDefinition excludedRoom in new[] { RoomDefinitions.Statues, RoomDefinitions.GlassTunnel })
         {
             runtime.LoadCartridgeRoomForDebug(excludedRoom);
             samus.Control.Unlock();
@@ -153,7 +153,7 @@ internal static class XrayInputVerification
             AssertTrue(excluded.Gameplay.Rooms.XrayReveal is null && excluded.Gameplay.Rooms.Background == baseRooms.Background
                     && excluded.Gameplay.Rooms.BackgroundImage == baseRooms.BackgroundImage, "excluded room retains the room's own BG2");
             AssertTrue((excluded.Blend.Blended & BlendedLayers.Actors) == 0, "an excluded room's blend leaves Samus color unchanged");
-            AssertEqual(excludedRoom != RoomHeaderDefinitions.GlassTunnel,
+            AssertEqual(excludedRoom != RoomDefinitions.GlassTunnel,
                 excluded.Gameplay.View.ShownLayers.HasFlag(ScreenLayers.Background), "CEFB alone removes BG2");
             for (int frame = 0; frame < 8; frame++) runtime.StepFrame(0);
         }

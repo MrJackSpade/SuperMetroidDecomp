@@ -27,7 +27,7 @@ internal static class PowerBombRuntimeIntegrationVerification
         CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         SelectedRoom room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(
             bus,
-            RoomHeaderDefinitions.AlphaPowerBomb.Pointer);
+            RoomDefinitions.AlphaPowerBomb.Pointer);
         AssertEqual(
             new RoomIdentity(AreaId.Brinstar, 0x26),
             room.Identity,
@@ -39,7 +39,7 @@ internal static class PowerBombRuntimeIntegrationVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(
-            RoomHeaderDefinitions.AlphaPowerBomb,
+            RoomDefinitions.AlphaPowerBomb,
             camera: new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(controller1Input: 0);
 

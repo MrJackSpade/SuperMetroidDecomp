@@ -24,7 +24,7 @@ internal static class SpeedBoosterPickupVerification
             var vram = new SnesVram();
             var fxSession = new RoomFxSession();
             var fx = RoomFxOverlayState.ForRoom(fxSession, RoomFxDefinitions.Suffix(0x8600), null, 0);
-            CollectibleFixture fixture = LoadCollectible(bus, RoomObjectNativeWords.Word(chozo ? RoomObjectHeaderId.ChozoSpeedBooster : RoomObjectHeaderId.ExposedSpeedBooster), roomArgument: 8, precollected: false, roomFx: fx);
+            CollectibleFixture fixture = LoadCollectible(bus, RoomObjectNativeWords.Word(chozo ? RoomObjectKind.ChozoSpeedBooster : RoomObjectKind.ExposedSpeedBooster), roomArgument: 8, precollected: false, roomFx: fx);
             fixture.RoomObjects.Step(fixture.Level);
             if (chozo)
             {

@@ -33,7 +33,7 @@ internal static class Layer3PlaneVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LandingSite);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         GameplayHudArtwork artwork = runtime.InstalledHudArtwork;
         ShownHud first = runtime.AcceptedHud;

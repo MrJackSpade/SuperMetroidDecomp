@@ -38,8 +38,8 @@ internal static class LookupRetailDoorListsVerification
                 referenced.Add(target);
                 if (target is 0x88fc or 0xa18a) elevatorReferences++;
             }
-            IReadOnlyList<DoorListEntry> actual = RoomDoorListDefinitions.ByRoom[RoomHeaderDefinitions.Get(room)];
-            AssertEqual(pointer, RoomDoorListDefinitions.ListPointerOf(RoomHeaderDefinitions.Get(room)), "Door list keeps its room's source identity");
+            IReadOnlyList<DoorListEntry> actual = RoomDoorListDefinitions.ByRoom[RoomDefinitions.Get(room)];
+            AssertEqual(pointer, RoomDoorListDefinitions.ListPointerOf(RoomDefinitions.Get(room)), "Door list keeps its room's source identity");
             AssertTrue(actual.Select(entry => entry.Pointer).SequenceEqual(original),
                 $"Door list {pointer:X4} count and all original targets match");
             for (int behavior = 0; behavior <= byte.MaxValue; behavior++)

@@ -23,7 +23,7 @@ internal static class ShitroidGradualAccelerationVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.BigBoy);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.BigBoy);
         RoomEnemySlot shitroid = runtime.Enemies.SlotTable.Slots.First(slot =>
             slot.DefinitionId == EnemyDefinitionId.BabyMetroid);
 
@@ -53,7 +53,7 @@ internal static class ShitroidGradualAccelerationVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.BigBoy);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.BigBoy);
         RoomEnemySlot shitroid = runtime.Enemies.SlotTable.Slots.First(slot =>
             slot.DefinitionId == EnemyDefinitionId.BabyMetroid);
         var samus = runtime.Player.IntroducedSamus;

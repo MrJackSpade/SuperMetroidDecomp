@@ -38,7 +38,7 @@ internal static class PhantoonPositionVerification
             boundary.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             boundary.RoomLoader.InitializeStartingCeresRoom();
             boundary.RoomLoader.InitializeCeresStartSamus();
-            boundary.LoadCartridgeRoomForDebug(SuperMetroid.Core.Rooms.RoomHeaderDefinitions.Phantoon);
+            boundary.LoadCartridgeRoomForDebug(SuperMetroid.Core.Rooms.RoomDefinitions.Phantoon);
             var state = boundary.Enemies.PhantoonBehavior.Combat.Phantoon;
             PhantoonEnemyState boundaryState = state ?? throw new InvalidOperationException("Verification requires state.");
             boundaryState.BodyState.Function = PhantoonAiFunction.MoveInFigureEightThenOpenEye;
@@ -51,7 +51,7 @@ internal static class PhantoonPositionVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Phantoon);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Phantoon);
         PhantoonEnemyState loaded = runtime.Enemies.PhantoonBehavior.Combat.Phantoon ?? throw new InvalidOperationException("Verification requires runtime.Enemies.PhantoonBehavior.Phantoon.");
         AssertEqual(120, loaded.BodyState.FunctionTimer,
             "Original NTSC Phantoon initializer waits 120 frames, not PAL's 96");

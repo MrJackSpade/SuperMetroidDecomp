@@ -208,11 +208,11 @@ internal sealed class CollectibleObjects
     /// lets audits inventory room populations without duplicating the permanent-item catalog.
     /// </summary>
     public static bool TryIdentifyPermanentCollectible(
-        RoomObjectHeaderId header,
+        RoomObjectKind objectKind,
         out InWorldCollectibleKind kind,
         out CollectiblePresentation presentation)
     {
-        bool found = PermanentCollectibleObjectDefinitions.Items.TryGetValue(header, out PermanentCollectibleObject item);
+        bool found = PermanentCollectibleObjectDefinitions.Items.TryGetValue(objectKind, out PermanentCollectibleObject item);
         kind = item.Kind;
         presentation = item.Presentation;
         return found;

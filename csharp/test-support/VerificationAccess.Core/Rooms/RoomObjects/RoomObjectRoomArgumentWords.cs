@@ -27,22 +27,22 @@ internal static class RoomObjectRoomArgumentWords
     private const ushort Filler = 0x8000;
 
     /// <summary>Headers whose retail placements carry a fixed word that no setup reads.</summary>
-    private static readonly Dictionary<RoomObjectHeaderId, ushort> FixedWords = new Dictionary<RoomObjectHeaderId, ushort>
+    private static readonly Dictionary<RoomObjectKind, ushort> FixedWords = new Dictionary<RoomObjectKind, ushort>
     {
-        [RoomObjectHeaderId.NoobTube] = 0x0080,
-        [RoomObjectHeaderId.BombTorizoHand] = 0x0000,
-        [RoomObjectHeaderId.DraygonCannonFacingLeft] = 0x0000,
-        [RoomObjectHeaderId.DraygonCannonFacingRight] = 0x0000,
-        [RoomObjectHeaderId.DraygonCannonFacingRightDestroyed] = 0x0000,
+        [RoomObjectKind.NoobTube] = 0x0080,
+        [RoomObjectKind.BombTorizoHand] = 0x0000,
+        [RoomObjectKind.DraygonCannonFacingLeft] = 0x0000,
+        [RoomObjectKind.DraygonCannonFacingRight] = 0x0000,
+        [RoomObjectKind.DraygonCannonFacingRightDestroyed] = 0x0000,
     };
 
     /// <summary>Headers whose retail placements carry the filler word.</summary>
-    private static readonly HashSet<RoomObjectHeaderId> FillerHeaders =
+    private static readonly HashSet<RoomObjectKind> FillerHeaders =
     [
-        RoomObjectHeaderId.DownwardGate, RoomObjectHeaderId.RightwardsScrollExtension, RoomObjectHeaderId.LeftwardsScrollExtension,
-        RoomObjectHeaderId.DownwardsScrollExtension, RoomObjectHeaderId.UpwardsScrollExtension, RoomObjectHeaderId.ElevatorPlatform,
-        RoomObjectHeaderId.MapStation, RoomObjectHeaderId.MotherBrainEscapeRoomGate, RoomObjectHeaderId.MotherBrainGlass,
-        RoomObjectHeaderId.SpeedBoosterEscape, RoomObjectHeaderId.WreckedShipAttic,
+        RoomObjectKind.DownwardGate, RoomObjectKind.RightwardsScrollExtension, RoomObjectKind.LeftwardsScrollExtension,
+        RoomObjectKind.DownwardsScrollExtension, RoomObjectKind.UpwardsScrollExtension, RoomObjectKind.ElevatorPlatform,
+        RoomObjectKind.MapStation, RoomObjectKind.MotherBrainEscapeRoomGate, RoomObjectKind.MotherBrainGlass,
+        RoomObjectKind.SpeedBoosterEscape, RoomObjectKind.WreckedShipAttic,
     ];
 
     /// <summary>
@@ -50,8 +50,8 @@ internal static class RoomObjectRoomArgumentWords
     /// numbers it in room data, but neither its setup nor its refill reads the number (#1623), so the import places the
     /// station without an argument and the number is not kept.
     /// </summary>
-    internal static bool NumbersUnread(RoomObjectHeaderId header) =>
-        header is RoomObjectHeaderId.EnergyStation or RoomObjectHeaderId.MissileStation;
+    internal static bool NumbersUnread(RoomObjectKind header) =>
+        header is RoomObjectKind.EnergyStation or RoomObjectKind.MissileStation;
 
     /// <summary>Whether a door word's opening is remembered: its sign bit set means it never is.</summary>
     private static DoorOpeningPersistence Persistence(int word) =>
@@ -65,14 +65,14 @@ internal static class RoomObjectRoomArgumentWords
     /// null when the population is decoded outside a room, which then holds no save station.
     /// </param>
     /// <exception cref="InvalidDataException">The word does not decode for the header.</exception>
-    internal static RoomObjectRoomArgument? Decode(RoomObjectHeaderId header, int word, SuperMetroid.Core.Progression.AreaId? area = null)
+    internal static RoomObjectRoomArgument? Decode(RoomObjectKind header, int word, SuperMetroid.Core.Progression.AreaId? area = null)
     {
         string name = header.ToString();
-        if (header == RoomObjectHeaderId.ScrollTrigger || FixedWords.ContainsKey(header) || FillerHeaders.Contains(header))
+        if (header == RoomObjectKind.ScrollTrigger || FixedWords.ContainsKey(header) || FillerHeaders.Contains(header))
             return null;
         if (CollectibleObjects.TryIdentifyPermanentCollectible(header, out _, out _))
             return new CollectedItemArgument(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Item(word));
-        if (name.StartsWith("GreyDoor", StringComparison.Ordinal) || header == RoomObjectHeaderId.BombTorizoGreyDoor)
+        if (name.StartsWith("GreyDoor", StringComparison.Ordinal) || header == RoomObjectKind.BombTorizoGreyDoor)
         {
             return new GreyDoorArgument((word >> GreyConditionShift) & GreyConditionMask,
                 new DoorBitArgument(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(word & GreyDoorBitMask), Persistence(word)));
@@ -84,19 +84,19 @@ internal static class RoomObjectRoomArgumentWords
         }
         if (NumbersUnread(header))
             return null;
-        if (header == RoomObjectHeaderId.SaveStation)
+        if (header == RoomObjectKind.SaveStation)
         {
             return new SaveStationArgument(SuperMetroid.Core.Saves.LoadStationNumberCodec.Decode(
                 area ?? throw new InvalidDataException($"A save station's argument ${word:X4} names its station only in a room's area."),
                 word, "A save station's room argument"));
         }
-        if (header == RoomObjectHeaderId.MetroidRoomClearance)
+        if (header == RoomObjectKind.MetroidRoomClearance)
         {
             return (word & 1) == 0
                 ? new MetroidRoomArgument(word / 2)
                 : throw new InvalidDataException($"Metroids-cleared argument ${word:X4} is odd.");
         }
-        if (header == RoomObjectHeaderId.DownwardGateShotBlock)
+        if (header == RoomObjectKind.DownwardGateShotBlock)
         {
             return (word & 1) == 0
                 ? new GateTriggerArgument(word / 2)
@@ -109,9 +109,9 @@ internal static class RoomObjectRoomArgumentWords
     /// The native word of an argument: the hit count for a cannon or the glass once set up, the scroll program's place for
     /// a scroll trigger, the fixed or filler word of a placement that carries nothing, else zero.
     /// </summary>
-    internal static ushort Encode(RoomObjectHeaderId header, RoomObjectRoomArgument? argument, int? hitCounter, RoomScrollProgram? scroll)
+    internal static ushort Encode(RoomObjectKind header, RoomObjectRoomArgument? argument, int? hitCounter, RoomScrollProgram? scroll)
     {
-        if (hitCounter is { } hits && (DraygonCannonObjects.IsDraygonCannonHeader(header) || header == RoomObjectHeaderId.MotherBrainGlass))
+        if (hitCounter is { } hits && (DraygonCannonObjects.IsDraygonCannonKind(header) || header == RoomObjectKind.MotherBrainGlass))
             return unchecked((ushort)hits);
         return argument switch
         {
@@ -123,9 +123,9 @@ internal static class RoomObjectRoomArgumentWords
             SaveStationArgument saved => checked((ushort)SuperMetroid.Core.Saves.LoadStationNumberCodec.Number(saved.Station)),
             MetroidRoomArgument metroids => checked((ushort)(metroids.Entry * 2)),
             GateTriggerArgument gate => checked((ushort)(gate.Trigger * 2)),
-            null when header == RoomObjectHeaderId.ScrollTrigger && scroll is { } program => RoomScrollProgramNative.Addresses[program],
+            null when header == RoomObjectKind.ScrollTrigger && scroll is { } program => RoomScrollProgramNative.Addresses[program],
             null when FixedWords.TryGetValue(header, out ushort fixedWord) => fixedWord,
-            null when FillerHeaders.Contains(header) || header == RoomObjectHeaderId.ScrollTrigger => Filler,
+            null when FillerHeaders.Contains(header) || header == RoomObjectKind.ScrollTrigger => Filler,
             null => 0,
             _ => throw new InvalidOperationException($"Undefined room argument {argument}."),
         };
@@ -152,7 +152,7 @@ internal static class RoomObjectRoomArgumentWords
     extension(RoomObjectSlot slot)
     {
         /// <summary>The word native work RAM holds for the slot's argument.</summary>
-        internal ushort NativeRoomArgument => Encode(slot.Header, slot.Argument, HitWord(slot),
+        internal ushort NativeRoomArgument => Encode(slot.Kind, slot.Argument, HitWord(slot),
             (slot.Behaviour as ScrollTriggerObject)?.Program);
     }
 
@@ -160,6 +160,6 @@ internal static class RoomObjectRoomArgumentWords
     extension(RoomObjectPlacement placement)
     {
         /// <summary>The word the cartridge stores for the placement's argument.</summary>
-        internal ushort NativeRoomArgument => Encode(placement.Header.Header, placement.Argument, null, placement.CompiledScrollProgram);
+        internal ushort NativeRoomArgument => Encode(placement.Kind, placement.Argument, null, placement.CompiledScrollProgram);
     }
 }

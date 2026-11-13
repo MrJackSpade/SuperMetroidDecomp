@@ -22,21 +22,21 @@ internal static class LookupRetailObjectHeadersVerification
             0xdf59,0xdf65,0xdf71,0xeed7,0xeedb,0xeedf,0xeee3,0xef23,0xef2f,0xef33,
             0xef37,0xef3b,0xef3f,0xef43,0xef47,0xef4b,0xef4f,0xef53,0xef57,0xef5b,
             0xef5f,0xef63,0xef67,0xef6b,0xef6f,0xef73,0xef7b,0xef7f,0xef83,0xef87];
-        var exported = RoomObjectHeaderDefinitionsTooling.All.ToArray();
-        AssertEqual(70, RoomObjectHeaderDefinitions.RetailHeaderCount, "Retail header contract count");
+        var exported = RoomObjectKindDefinitionsTooling.All.ToArray();
+        AssertEqual(70, RoomObjectKindDefinitions.PlacedKindCount, "Retail header contract count");
         AssertEqual(70, exported.Length, "Retail header enumeration count");
         for (int index = 0; index < headers.Length; index++)
-            AssertEqual(headers[index], RoomObjectNativeWords.Word(exported[index].Header), "Retail header ascending enumeration");
-        AssertThrows<InvalidOperationException>(() => RoomObjectHeaders.Get((RoomObjectHeaderId)(-1)), "Undefined header identities fail");
+            AssertEqual(headers[index], RoomObjectNativeWords.Word(exported[index]), "Retail header ascending enumeration");
+        AssertThrows<InvalidOperationException>(() => RoomObjectKinds.RequirePlaced((RoomObjectKind)(-1)), "Undefined header identities fail");
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             ushort word = (ushort)raw;
-            if (!RoomObjectNativeWords.Headers.TryDecode(word, out RoomObjectHeaderId header))
+            if (!RoomObjectNativeWords.Headers.TryDecode(word, out RoomObjectKind header))
                 continue;
             if (!headers.Contains(word))
-                AssertThrows<InvalidDataException>(() => RoomObjectHeaders.Get(header), "Retail header rejects all unsupported headers");
+                AssertThrows<InvalidDataException>(() => RoomObjectKinds.RequirePlaced(header), "Retail header rejects all unsupported headers");
             else
-                AssertEqual(header, RoomObjectHeaders.Get(header).Header, "Retail header identity preserved");
+                AssertEqual(header, RoomObjectKinds.RequirePlaced(header), "Retail header identity preserved");
         }
         // Native records independently establish which header identities the retail
         // populations reference; expected pointer fields never come from the new cases.

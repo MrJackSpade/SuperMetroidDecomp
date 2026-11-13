@@ -114,7 +114,7 @@ internal static class RoomFloorSheetsVerification
     /// </summary>
     internal static void VerifyRoomBindsNoFloorWhereNoneShows()
     {
-        SuperMetroidRuntime hall = LoadRoom(RoomHeaderDefinitions.FallingTile);
+        SuperMetroidRuntime hall = LoadRoom(RoomDefinitions.FallingTile);
         AssertTrue(hall.Room.LoadedScope.Floor is null, "the Ceres hall before the elevator binds no turning floor");
         AssertTrue(!hall.Room.LoadedScope.Assets.Pictures.Floors.ContainsKey(hall.Room.LoadedScope.Assets.Tileset),
             "the hall's tileset installs no turning floor");
@@ -129,7 +129,7 @@ internal static class RoomFloorSheetsVerification
         }
         AssertTrue(refused, "drawing over the floor of a room that shows none is refused");
 
-        SuperMetroidRuntime shaft = LoadRoom(RoomHeaderDefinitions.CeresElev);
+        SuperMetroidRuntime shaft = LoadRoom(RoomDefinitions.CeresElev);
         RoomFloor floor = shaft.Room.LoadedScope.Floor ?? throw new InvalidOperationException("The elevator shaft binds no turning floor.");
         AssertEqual(shaft.Room.LoadedScope.Assets.Tileset, floor.Sheet.Tileset, "the shaft binds its tileset's floor");
         Console.WriteLine("  Turning floors: a room that shows none binds none; the shaft binds its tileset's.");
@@ -143,7 +143,7 @@ internal static class RoomFloorSheetsVerification
     /// </summary>
     internal static void VerifyRidleyFloorMatchesCartridge()
     {
-        SuperMetroidRuntime runtime = LoadRoom(RoomHeaderDefinitions.CeresRidley);
+        SuperMetroidRuntime runtime = LoadRoom(RoomDefinitions.CeresRidley);
         TilesetDefinition tileset = runtime.Room.LoadedScope.Assets.Tileset;
         SpriteSheetFrame image = (runtime.Room.LoadedScope.Floor ?? throw new InvalidOperationException("Ceres Ridley's arena binds no turning floor."))
             .Sheet.Floor.Image;
@@ -190,7 +190,7 @@ internal static class RoomFloorSheetsVerification
     }
 
     /// <summary>A retail runtime with <paramref name="room"/> loaded.</summary>
-    private static SuperMetroidRuntime LoadRoom(RoomHeaderDefinition room)
+    private static SuperMetroidRuntime LoadRoom(RoomDefinition room)
     {
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);

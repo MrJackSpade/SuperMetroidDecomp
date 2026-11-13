@@ -106,7 +106,7 @@ internal static class LookupRetailPopulationsVerification
                 };
                 int result = field switch
                 {
-                    0 => RoomObjectNativeWords.Word(placement.Header.Header),
+                    0 => RoomObjectNativeWords.Word(placement.Kind),
                     1 => placement.Block.X,
                     2 => placement.Block.Y,
                     3 => placement.NativeRoomArgument,
@@ -119,7 +119,7 @@ internal static class LookupRetailPopulationsVerification
                         $"population {pointer:X4} operation {count} cannon control");
                     AssertEqual(0, result, $"population {pointer:X4} operation {count} cannon carries no raw argument");
                 }
-                else if (field == 3 && RoomObjectRoomArgumentWords.NumbersUnread(placement.Header.Header))
+                else if (field == 3 && RoomObjectRoomArgumentWords.NumbersUnread(placement.Kind))
                 {
                     // A refill station's number is read by nothing (#1623): the placement carries no argument instead of it.
                     AssertEqual<RoomObjectRoomArgument?>(null, placement.Argument,

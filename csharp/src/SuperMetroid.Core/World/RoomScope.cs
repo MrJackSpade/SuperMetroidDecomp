@@ -39,7 +39,7 @@ internal sealed record RoomScope
     public required ScrollBoundaryCamera Camera { get; init; }
 
     /// <summary>
-    /// The frame each of the room's animations shows (#1406): its animated tiles, statues, corpses and bosses select their
+    /// The frame each of the room's animations shows (#1406): its block animations, statues, corpses and bosses select their
     /// pictures here, and the display resolves the pictures they show from it.
     /// </summary>
     public required ArtworkFrameSelections ArtworkFrames { get; init; }
@@ -107,19 +107,19 @@ internal sealed record RoomScope
     /// <summary>The room's Ceres haze, enabled only where the room's setup spawns it.</summary>
     public required CeresHazeState CeresHaze { get; init; }
 
-    /// <summary>The room's sand animated tiles.</summary>
+    /// <summary>The room's sand block animations.</summary>
     public required RoomSandAnimatedTilesState SandTiles { get; init; }
 
-    /// <summary>The room's horizontal-spike animated tiles.</summary>
+    /// <summary>The room's horizontal-spike block animations.</summary>
     public required RoomSpikeAnimatedTilesState SpikeTiles { get; init; }
 
-    /// <summary>The room's FX-selected treadmill animated tiles.</summary>
+    /// <summary>The room's FX-selected treadmill block animations.</summary>
     public required RoomTreadmillAnimatedTilesState TreadmillTiles { get; init; }
 
-    /// <summary>The Wrecked Ship entrance treadmill tiles a door's setup code may start.</summary>
+    /// <summary>The Wrecked Ship entrance treadmill block animations a door's setup code may start.</summary>
     public required WreckedShipTreadmillAnimatedTilesState WreckedShipTreadmill { get; init; }
 
-    /// <summary>The room's Tourian statue tile animations and descent, enabled only in the statue room.</summary>
+    /// <summary>The room's Tourian statue animations and descent, enabled only in the statue room.</summary>
     public required TourianStatueSequence TourianStatues { get; init; }
 
     /// <summary>The room's Maridia elevatube room main, active only in the elevatube.</summary>

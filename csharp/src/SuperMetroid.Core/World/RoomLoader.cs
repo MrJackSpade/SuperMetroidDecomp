@@ -399,7 +399,7 @@ internal sealed class RoomLoader
     /// <summary>
     /// The axis the door alignment aligns, perpendicular to travel: right/left converge camera Y,
     /// while down/up converge camera X. This literal branch matters because aligning the
-    /// travel axis instead moves a horizontal door frame by a tile row while its room
+    /// travel axis instead moves a horizontal door frame by a row while its room
     /// scroll is being staged.
     /// </summary>
     internal static bool DoorTransitionAlignsX(DoorDirection direction) => direction.IsVertical();
@@ -439,7 +439,7 @@ internal sealed class RoomLoader
     }
 
     /// <summary>
-    /// Restarts the short frame counter on an update of the door scroll, from the update that places Samus for tile
+    /// Restarts the short frame counter on an update of the door scroll, from the update that places Samus for the destination's
     /// loading on (<see cref="DoorTransitionFrameCounting"/>); enemies and projectiles that read the counter see the
     /// restart.
     /// </summary>
@@ -463,7 +463,7 @@ internal sealed class RoomLoader
     }
 
 
-    /// <summary>Rebases Samus and publishes the scroll's first moving step during tile loading.</summary>
+    /// <summary>Rebases Samus and publishes the scroll's first moving step during the destination's loading.</summary>
     internal void PlaceSamusForDoorTileLoading()
     {
         DoorDefinition door = PendingDoorTransition
@@ -485,10 +485,10 @@ internal sealed class RoomLoader
 
     /// <summary>
     /// Rewinds an atomically loaded destination to the position established by the
-    /// scroll's setup and Samus's placement for tile loading.
+    /// scroll's setup and Samus's placement for the destination's loading.
     /// </summary>
     /// <remarks>
-    /// The room constructor loads tiles, room objects, FX and enemies in one operation, while the
+    /// The room constructor loads the room's blocks, room objects, FX and enemies in one operation, while the
     /// door's scroll is already moving. Capturing the source fixed coordinates before that
     /// constructor and rewinding only the four scroll-owned coordinate pairs preserves the
     /// same observable trajectory; how far loading had progressed on each scroll update is
@@ -755,7 +755,7 @@ internal sealed class RoomLoader
         // The door transition loads Samus's suit target palette after room/enemy palettes have been
         // loaded and before the door fade captures the destination fade target. The source fade
         // has already driven Samus's colours to black at this point. Omitting this shared
-        // reload therefore retained valid sprite and tile data but rendered Samus as a solid
+        // reload therefore retained valid sprite and room pictures but rendered Samus as a solid
         // black silhouette after every ordinary desktop door transition.
         SuperMetroid.Core.Samus.Palettes.SamusNormalSuitPalette.Load(_player.Colours, _player.Samus.EquippedItems);
 
@@ -1101,7 +1101,7 @@ internal sealed class RoomLoader
     {
         DoorDirection direction = door.Orientation.Direction;
 
-        // Setup's first directional call (none for down), then placing Samus's load tiles replaces
+        // Setup's first directional call (none for down), then placing Samus for the destination's loading replaces
         // both whole positions, then every remaining scroll update moves along the travel axis.
         FixedPosition<RoomPixels> samus = DoorOpeningScrollState.RebaseSamus(
             door, DoorOpeningScrollState.ApplySetupMovement(door, source));

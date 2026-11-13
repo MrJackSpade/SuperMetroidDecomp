@@ -203,7 +203,7 @@ internal sealed class DoorTransitionRunner
         }
     }
 
-    /// <summary>Starts animated treadmill tiles and attempts the matching entrance room-object spawn.</summary>
+    /// <summary>Starts the treadmills' block animations and attempts the matching entrance room-object spawn.</summary>
     private void StartWreckedShipTreadmill(WreckedShipTreadmillDirection direction, RoomObjectSystem roomObjects, WreckedShipTreadmillAnimatedTilesState wreckedShipTreadmill)
     {
         if (_room.LevelData is null || _room.ActiveRoom is null)

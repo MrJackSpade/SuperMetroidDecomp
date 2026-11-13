@@ -323,7 +323,7 @@ internal sealed class AcceptedFrameBoundary
     /// X-ray is active in a room it reveals blocks in; otherwise null, and the background is the room's own.
     /// </summary>
     private XrayRevealedBlocks? CaptureXrayReveal(GameplayLatchedScene scene) =>
-        // Where X-ray preserves the backgrounds it reveals no blocks: the tiles are another room's.
+        // Where X-ray preserves the backgrounds it reveals no blocks: the pictures are another room's.
         _player.Samus?.Xray.IsActive == true && scene.Room is { } room && XrayBlockRevealRules.RevealsBlocks(room, scene.Boss)
             ? _xray.Reveal((_room.Scope ?? throw new InvalidOperationException("The X-ray reveals no loaded room.")).RoomObjects)
             : null;

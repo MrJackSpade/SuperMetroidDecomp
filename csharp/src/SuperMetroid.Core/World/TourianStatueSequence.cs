@@ -11,7 +11,7 @@ using SuperMetroid.Core.Fx.Artwork;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// Owns the four statue tile animations and the descending background's
+/// Owns the four statue animations and the descending background's
 /// per-frame steps. Boss victories and grey-statue events are deliberately separate:
 /// visiting the room must play each release before opening the elevator route.
 /// </summary>
@@ -27,16 +27,16 @@ public sealed class TourianStatueSequence
     private readonly ActiveRoomState _room;
     /// <summary>Feeds water height and authored earthquake sound into the descending statue effects.</summary>
     private readonly RoomFxOverlayState _roomFxOverlay;
-    /// <summary>Creates the palette effect selected by a statue animated-tile cue.</summary>
+    /// <summary>Creates the palette effect selected by a statue animation cue.</summary>
     private readonly RoomPaletteFxSystem _roomPaletteFx;
     /// <summary>Tracks boss and statue events, area boss bits, RNG, and the final Tourian unlock event.</summary>
     private readonly SharedGameState _system;
-    /// <summary>The open-statues assist skips tile playback and starts the statue at its completed offset.</summary>
+    /// <summary>The open-statues assist skips the statue animation and starts the statue at its completed offset.</summary>
     private readonly ActiveAssists _assists;
     /// <summary>Pauses quarter-pixel descent while gameplay time is frozen.</summary>
     private readonly GameplayTimeFreeze _freeze;
 
-    /// <summary>Builds one room's statue sequence over the session services that run its tile and the background descent animations.</summary>
+    /// <summary>Builds one room's statue sequence over the session services that run its statue and background descent animations.</summary>
     /// <param name="dependencies">The session owners the sequence reads and writes.</param>
     /// <param name="roomFxOverlay">The room's effect overlay FX, whose earthquake sound the descent publishes.</param>
     /// <param name="roomPaletteFx">The room's palette FX.</param>
@@ -62,13 +62,13 @@ public sealed class TourianStatueSequence
     {
         /// <summary>The statue's animation and the values its events act on.</summary>
         public TourianStatueAnimationDefinition Definition { get; } = definition;
-        /// <summary>The statue's typed animated-tile segments, built once for its first-frame duration.</summary>
+        /// <summary>The statue's typed animation segments, built once for its first-frame duration.</summary>
         public AnimationSegments<TourianStatueTileSegment, TourianStatueTilePicture, TourianStatueTileCue> Segments { get; } =
             TourianStatueTileAnimations.SegmentsFor(definition.FirstFrameDuration);
         /// <summary>The statue's animation and where it stands in it; null once the animation has ended and the object is deleted.</summary>
         public AnimationPlayback<TourianStatueTileSegment>? Playback { get; private set; } =
             new AnimationPlayback<TourianStatueTileSegment>(TourianStatueTileAnimations.StartingWith(TourianStatueTileSegment.Entry), AnimationPlace.StartOfAnimation);
-        /// <summary>Remaining duration of the current tile frame.</summary>
+        /// <summary>Remaining duration of the current statue frame.</summary>
         public int Timer { get; private set; } = 1;
 
         /// <summary>Counts a live statue's frame down one tick and reports whether the frame has expired; an ended statue never counts.</summary>
@@ -125,10 +125,10 @@ public sealed class TourianStatueSequence
         Begin(roomObjects);
     }
 
-    /// <summary>Begins the room's statue sequence, enabling the four statue tile animations only for the statue-unlocking room setup.</summary>
+    /// <summary>Begins the room's statue sequence, enabling the four statue animations only for the statue-unlocking room setup.</summary>
     /// <remarks>
     /// A prior unlock event or the open-statues assist starts at the fully descended offset, clears the access obstruction through its room object, and enables vertical scrolling.
-    /// Otherwise the sequence starts raised and constrains scrolling until the authored release and descent finish. Disabled rooms retain no tile objects.
+    /// Otherwise the sequence starts raised and constrains scrolling until the authored release and descent finish. Disabled rooms retain no statue animations.
     /// </remarks>
     private void Begin(RoomObjectSystem roomObjects)
     {
@@ -172,7 +172,7 @@ public sealed class TourianStatueSequence
     }
 
     /// <summary>
-    /// Runs the animated tiles in spawn order: each live statue counts its frame down and, when it expires,
+    /// Runs the statue animations in spawn order: each live statue counts its frame down and, when it expires,
     /// plays its typed animation on to the next shown picture, carrying out the animation's events on the way.
     /// </summary>
     public void StepTiles()

@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// Samus's phases of a gameplay frame: grounded movement, animation transitions, uninitialized-pose movement,
-/// the grapple beam, X-ray from the HUD, load appearance and beam tile loading.
+/// the grapple beam, X-ray from the HUD, load appearance and beam picture loading.
 /// </summary>
 internal sealed class SamusFramePhases
 {
@@ -345,7 +345,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
                 _player.ProspectiveSamusFallbackPose = null;
             }
 
-            // X-ray's freeze disables enemy room.Projectiles, room objects, animated tiles,
+            // X-ray's freeze disables enemy room.Projectiles, room objects, block animations,
             // and palette FX while time is frozen. Normal bombs cannot be placed or
             // advanced through this producer during the X-ray interval.
             // The bombs' share of the HUD handler runs the shared cooldown, then the morph ball's producer.
@@ -1131,7 +1131,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
     private void RunAlphaHead(SamusHandlerFrame frame, SamusState samus, ScrollBoundaryCamera camera,
         FixedPosition<RoomPixels>? cameraPointAtFrameStart, RoomScope room)
     {
-        // X-ray's per-line effect object is not part of the Samus handler. Advance its explicit
+        // X-ray's beam is not part of the Samus handler. Advance its explicit
         // setup/beam/deactivation state before alpha so state five can restore the
         // ordinary pose and handler pair before this frame samples pose input. The
         // reveal and the beam's window are the frame boundary's to show.
@@ -1297,7 +1297,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         }
 
         // Normal gameplay advances animation during frame-handler beta, before the
-        // pose-transition handler, draw handler, and next frame's tile selection.
+        // pose-transition handler, draw handler, and next frame's picture selection.
         // Animation sees the same held input as movement. Ordinary Dash uses B
         // both to accumulate the running delay and to intercept the running animation's
         // cue; passing a reconstructed input later would skew art.

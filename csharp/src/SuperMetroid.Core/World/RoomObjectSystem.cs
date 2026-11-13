@@ -90,7 +90,7 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects
     /// <summary>Runs the glass tube's scripted break and sound sequence.</summary>
     internal NoobTubeObjects NoobTube { get; }
 
-    /// <summary>Advances Wrecked Ship treadmill animated tile objects.</summary>
+    /// <summary>Advances Wrecked Ship treadmill block animations.</summary>
     internal WreckedShipTreadmillObjects WreckedShipTreadmill { get; }
 
     /// <summary>Opens and closes colored gates after their matching triggers.</summary>

@@ -17,7 +17,10 @@ internal static class XrayReveals
     public static XrayRevealShape? Find(RoomCollisionType type, RoomBlockBehavior behavior) =>
         Find(type, behavior.ReactionUnder(type));
 
-    /// <summary>Returns the reveal shape for one collision kind and the reaction it reads, null for a kind that reads none.</summary>
+    /// <summary>
+    /// Returns the reveal shape for one collision kind and the reaction it reads, null for a kind that reads none or a block
+    /// with no reaction of its kind.
+    /// </summary>
     /// <exception cref="ArgumentException"><paramref name="reaction"/> is not the reaction <paramref name="type"/> reads.</exception>
     public static XrayRevealShape? Find(RoomCollisionType type, Enum? reaction) => type switch
     {
@@ -39,11 +42,16 @@ internal static class XrayReveals
         _ => throw new InvalidOperationException($"Undefined RoomCollisionType {type}."),
     };
 
-    /// <summary>The shape a reaction table selects for <paramref name="reaction"/>, or none when the table has no entry.</summary>
+    /// <summary>
+    /// The shape a reaction table selects for <paramref name="reaction"/>, or none when the table has no entry or the block
+    /// has no reaction.
+    /// </summary>
     /// <exception cref="ArgumentException"><paramref name="reaction"/> is not the table's reaction type.</exception>
     private static XrayRevealShape? Lookup<TReaction>(IReadOnlyDictionary<TReaction, XrayRevealShape> table, Enum? reaction)
-        where TReaction : struct, Enum =>
-        reaction is TReaction read
-            ? table.TryGetValue(read, out XrayRevealShape shape) ? shape : null
-            : throw new ArgumentException($"The reaction {reaction} is not a {typeof(TReaction).Name}.", nameof(reaction));
+        where TReaction : struct, Enum => reaction switch
+        {
+            null => null,
+            TReaction read => table.TryGetValue(read, out XrayRevealShape shape) ? shape : null,
+            _ => throw new ArgumentException($"The reaction {reaction} is not a {typeof(TReaction).Name}.", nameof(reaction)),
+        };
 }

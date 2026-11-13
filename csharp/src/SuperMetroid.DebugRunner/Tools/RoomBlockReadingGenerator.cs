@@ -40,16 +40,21 @@ internal static class RoomBlockReadingGenerator
         {
             RoomBlockReadings readings = RoomBlockBehaviorCodec.ReadingsOf(value);
             text.Append("        new(")
-                .Append("ShootableReaction.").Append(readings.Shootable).Append(", ")
-                .Append("BombableReaction.").Append(readings.Bombable).Append(", ")
-                .Append("SpecialBlockReaction.").Append(readings.Special).Append(", ")
-                .Append("SpecialAirReaction.").Append(readings.SpecialAir).Append(", ")
-                .Append("SpikeReaction.").Append(readings.Spike).Append(", ")
-                .Append("GrappleReaction.").Append(readings.Grapple).Append(",\n            ")
+                .Append(Reaction(readings.Shootable)).Append(", ")
+                .Append(Reaction(readings.Bombable)).Append(", ")
+                .Append(Reaction(readings.Special)).Append(", ")
+                .Append(Reaction(readings.SpecialAir)).Append(", ")
+                .Append(Reaction(readings.Spike)).Append(", ")
+                .Append(Reaction(readings.Grapple)).Append(",\n            ")
                 .Append("new(").Append(readings.Slope.Shape).Append(", BlockMirroring.").Append(readings.Slope.Mirroring).Append("), ")
                 .Append(readings.ExtensionOffset).Append(", ").Append(readings.DoorLink).Append("),\n");
         }
         text.Append("    ];\n}\n");
         return text.ToString();
     }
+
+    /// <summary>A reading's source: the reaction by its type and name, or null for a kind with no reaction (#1742).</summary>
+    private static string Reaction<TReaction>(TReaction? reaction)
+        where TReaction : struct, Enum =>
+        reaction is { } named ? $"{typeof(TReaction).Name}.{named}" : "null";
 }

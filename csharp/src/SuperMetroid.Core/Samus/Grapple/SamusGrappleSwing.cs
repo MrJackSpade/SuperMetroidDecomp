@@ -533,8 +533,8 @@ public static class SamusGrappleSwing
 
                 case RoomCollisionType.SpikeBlock:
                     // The solid spike reaction always reports collision. Before reporting it, it applies
-                    // 60 damage for behaviour zero or 16 for behaviour one; every other entry is
-                    // literally zero. A negative behaviour skips the table entirely.
+                    // 60 damage for the heavy spike or 16 for the light spike; every other spike deals
+                    // none.
                     ApplySwingSpikeDamage(samus, block.Behavior.Spike, block: SwingSpikeBlock.Solid);
                     return true;
 
@@ -575,13 +575,13 @@ public static class SamusGrappleSwing
     /// <summary>Applies behaviour-specific spike damage once per invincibility window and starts knockback.</summary>
     private static void ApplySwingSpikeDamage(
         SamusState samus,
-        SpikeReaction reaction,
+        SpikeReaction? reaction,
         SwingSpikeBlock block)
     {
-        // Both handlers return immediately while the invincibility timer is nonzero or for an area reaction. This shared
-        // guard is observable because one sweep can sample the same damaging block up to six times, yet only its first
-        // sample may publish damage.
-        if (!samus.InvincibilityTimer.IsZero || SpikeReactions.IsArea(reaction))
+        // Both handlers return immediately while the invincibility timer is nonzero. This shared guard is observable
+        // because one sweep can sample the same damaging block up to six times, yet only its first sample may publish
+        // damage. Every reaction other than the damaging ones, and a spike with no reaction, deals none.
+        if (!samus.InvincibilityTimer.IsZero)
             return;
 
         int damage = block == SwingSpikeBlock.Solid

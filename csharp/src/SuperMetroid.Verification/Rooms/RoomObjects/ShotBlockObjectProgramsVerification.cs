@@ -228,11 +228,11 @@ internal static class ShotBlockObjectProgramsVerification
             AssertThrows<ArgumentOutOfRangeException>(() => BlockReactionChanges.PermanentShot(PermanentShotAt(size)), "permanent shot size domain");
     }
 
-    /// <summary>The shootable reaction the BTS of respawning shape <paramref name="size"/> decodes as.</summary>
-    private static ShootableReaction RespawningShotAt(int size) => RoomBlockBehaviorCodec.Decode(size).Shootable;
+    /// <summary>The shootable reaction the BTS of respawning shape <paramref name="size"/> decodes as, or none.</summary>
+    private static ShootableReaction? RespawningShotAt(int size) => RoomBlockBehaviorCodec.Decode(size).Shootable;
 
-    /// <summary>The shootable reaction the BTS of permanent shape <paramref name="size"/> decodes as: four past the respawning shapes.</summary>
-    private static ShootableReaction PermanentShotAt(int size) => RoomBlockBehaviorCodec.Decode(unchecked(size + 4)).Shootable;
+    /// <summary>The shootable reaction the BTS of permanent shape <paramref name="size"/> decodes as, or none: four past the respawning shapes.</summary>
+    private static ShootableReaction? PermanentShotAt(int size) => RoomBlockBehaviorCodec.Decode(unchecked(size + 4)).Shootable;
 
     /// <summary>Lists the thirteen native timed-list layouts used to derive control and draw operand addresses.</summary>
     private static ShotBlockNativeProgramLayoutsResult[] ShotBlockNativeProgramLayouts() =>

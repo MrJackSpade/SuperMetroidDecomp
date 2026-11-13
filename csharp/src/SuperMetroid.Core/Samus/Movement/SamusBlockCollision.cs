@@ -306,7 +306,7 @@ public static class SamusBlockCollision
                         // reports no collision, so this scan continues through the new air.
                         if (terrain.RoomObjects?.Quicksand.IsAllocationFull == true)
                             break;
-                        if (block.Behavior.Bombable == BombableReaction.AreaIgnored || !CanBreakCollisionBombBlock(owner, move.CanBreakBombBlocks))
+                        if (block.Behavior.Bombable == BombableReaction.Inert || !CanBreakCollisionBombBlock(owner, move.CanBreakBombBlocks))
                         {
                             acceptedDisplacement = ClipHorizontalToSolid(
                                 state,
@@ -692,7 +692,7 @@ public static class SamusBlockCollision
                         // treats an untouched bomb block as air.
                         break;
                     }
-                    if (block.Behavior.Bombable == BombableReaction.AreaIgnored || !CanBreakCollisionBombBlock(owner, move.CanBreakBombBlocks))
+                    if (block.Behavior.Bombable == BombableReaction.Inert || !CanBreakCollisionBombBlock(owner, move.CanBreakBombBlocks))
                     {
                         acceptedDisplacement = ClipVerticalToSolid(
                             state,
@@ -770,7 +770,7 @@ public static class SamusBlockCollision
         // The game's horizontal/vertical air dispatch invokes the same setup as solid
         // bomb blocks, but ignores its collision result. Rejection or exhausted actor slots
         // must never turn this non-solid cell into a movement obstruction.
-        if (block.Behavior.Bombable == BombableReaction.AreaIgnored || !CanBreakCollisionBombBlock(owner, explicitAdmission))
+        if (block.Behavior.Bombable == BombableReaction.Inert || !CanBreakCollisionBombBlock(owner, explicitAdmission))
             return;
         RoomObjectsBreaking(terrain, block.At).BlockReactions.TrySpawnCollisionBombBlock(terrain.Level, block.At, block.Behavior);
     }

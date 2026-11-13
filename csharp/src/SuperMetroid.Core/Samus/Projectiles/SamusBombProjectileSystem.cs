@@ -937,19 +937,17 @@ public sealed class SamusBombProjectileSystem
 
         if (block.CollisionType is RoomCollisionType.BombableAir or RoomCollisionType.BombableBlock)
         {
-            // Both bombable-air and bombable-solid handlers use the bomb-block table. Negative
-            // behaviour takes the duplicate/area-dependent early return and therefore
-            // neither allocates a room object nor mutates terrain.
-            if (block.Behavior.Bombable == BombableReaction.AreaIgnored)
+            // Both bombable-air and bombable-solid handlers use the bomb-block reactions. An inert
+            // block returns early and therefore neither allocates a room object nor mutates terrain.
+            if (block.Behavior.Bombable == BombableReaction.Inert)
                 return;
-            if (block.Behavior.Bombable == BombableReaction.PastTable)
+            if (block.Behavior.Bombable is null)
             {
-                // The bomb-block table is a literal sixteen-entry table. Retail room data must keep a
-                // nonnegative bombable behaviour within that table; a larger value would make
-                // the game read unrelated following data as a room-object definition.
+                // A bombable block with no bomb reaction would make the game read unrelated data as a
+                // room-object definition; retail room data holds none, and the import refuses one.
                 throw new InvalidDataException(
-                    $"Bombable block {block.Position} has behaviour ({block.Behavior}) outside " +
-                    "the bomb-block reaction table.");
+                    $"Bombable block {block.Position} has behaviour ({block.Behavior}) with no " +
+                    "bomb-block reaction.");
             }
             if (roomObjects is null)
             {
@@ -991,25 +989,19 @@ public sealed class SamusBombProjectileSystem
                 return;
             }
 
-            // Shootable air treats negative behaviour as a duplicate and returns.
-            // A shootable block instead indexes one of eight area tables; every retail entry is
-            // the empty room object, but spawning it still consumes a slot for one pass.
+            // Shootable air passes a bomb by when its reaction sets off only in a shootable block. A
+            // shootable block with that reaction still spawns the empty room object, which consumes a
+            // slot for one pass.
             if (block.CollisionType == RoomCollisionType.ShootableAir &&
-                ShotBlockReactions.IsArea(block.Behavior.Shootable))
+                block.Behavior.Shootable is { } shootable && shootable.SetsOffOnlyInSolidBlocks)
                 return;
-            if (!ShotBlockReactions.IsArea(block.Behavior.Shootable) &&
-                block.Behavior.Shootable is not (ShootableReaction.AnimalEscape or ShootableReaction.CollisionProbe) &&
+            if (block.Behavior.Shootable is not (ShootableReaction.NothingWhenSolid or ShootableReaction.AnimalEscape or
+                    ShootableReaction.CollisionProbe) &&
                 !ShotBlockReactions.IsLeading(block.Behavior.Shootable))
             {
                 throw new InvalidDataException(
-                    $"Shootable block {block.Position} has behaviour ({block.Behavior}) outside " +
-                    "the translated bomb-reaction table range.");
-            }
-            if (block.Behavior.Shootable == ShootableReaction.PastAreaTable)
-            {
-                throw new InvalidDataException(
-                    $"Area-dependent shootable block {block.Position} has behaviour " +
-                    $"({block.Behavior}) outside its eight-entry table.");
+                    $"Shootable block {block.Position} has behaviour ({block.Behavior}) with no " +
+                    "reaction a bomb sets off.");
             }
             if (roomObjects is null)
             {

@@ -182,7 +182,8 @@ public static class RoomLevelStreamFiles
             {
                 BlockReactionFamily family = BlockReactionFamilies.Of(kind) ??
                     throw new InvalidOperationException($"Collision kind {kind} reads no reaction.");
-                Enum reaction = behavior.ReactionIn(family);
+                Enum reaction = behavior.ReactionIn(family) ?? throw new InvalidDataException(
+                    $"Room level {level} block {index} is {kind} with behaviour {behavior}, which gives its kind no reaction.");
                 writer.Write(checked((byte)IndexOf(BlockReactionFamilies.Reactions(family), reaction)));
                 rebuilt = RoomBlockBehavior.ReactingAs(reaction);
                 break;

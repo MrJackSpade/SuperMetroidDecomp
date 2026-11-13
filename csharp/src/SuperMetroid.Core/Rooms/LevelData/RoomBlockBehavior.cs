@@ -29,27 +29,27 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
 
     /// <summary>Writes behaviours as shootable reactions.</summary>
     private static readonly BlockParameterCarryOver<RoomBlockReadings, ShootableReaction> ShootableWrites =
-        new(RoomBlockReadingDefinitions.Kept, static readings => readings.Shootable);
+        ReactionWrites(static readings => readings.Shootable);
 
     /// <summary>Writes behaviours as bombable reactions.</summary>
     private static readonly BlockParameterCarryOver<RoomBlockReadings, BombableReaction> BombableWrites =
-        new(RoomBlockReadingDefinitions.Kept, static readings => readings.Bombable);
+        ReactionWrites(static readings => readings.Bombable);
 
     /// <summary>Writes behaviours as special-block reactions.</summary>
     private static readonly BlockParameterCarryOver<RoomBlockReadings, SpecialBlockReaction> SpecialWrites =
-        new(RoomBlockReadingDefinitions.Kept, static readings => readings.Special);
+        ReactionWrites(static readings => readings.Special);
 
     /// <summary>Writes behaviours as special-air reactions.</summary>
     private static readonly BlockParameterCarryOver<RoomBlockReadings, SpecialAirReaction> SpecialAirWrites =
-        new(RoomBlockReadingDefinitions.Kept, static readings => readings.SpecialAir);
+        ReactionWrites(static readings => readings.SpecialAir);
 
     /// <summary>Writes behaviours as spike reactions.</summary>
     private static readonly BlockParameterCarryOver<RoomBlockReadings, SpikeReaction> SpikeWrites =
-        new(RoomBlockReadingDefinitions.Kept, static readings => readings.Spike);
+        ReactionWrites(static readings => readings.Spike);
 
     /// <summary>Writes behaviours as grapple reactions.</summary>
     private static readonly BlockParameterCarryOver<RoomBlockReadings, GrappleReaction> GrappleWrites =
-        new(RoomBlockReadingDefinitions.Kept, static readings => readings.Grapple);
+        ReactionWrites(static readings => readings.Grapple);
 
     /// <summary>Writes behaviours as slopes.</summary>
     private static readonly BlockParameterCarryOver<RoomBlockReadings, SlopeGeometry> SlopeWrites =
@@ -66,6 +66,15 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
     /// <summary>The kept behaviour each set of readings is, for <see cref="Holding"/>.</summary>
     private static readonly Dictionary<RoomBlockReadings, RoomBlockReadings> KeptByReadings =
         RoomBlockReadingDefinitions.Kept.ToDictionary(readings => readings);
+
+    /// <summary>
+    /// Writes behaviours as one reacting kind's reactions: the kept behaviours that give the kind a reaction, read as it. A
+    /// behaviour giving the kind none is never written as its reaction.
+    /// </summary>
+    private static BlockParameterCarryOver<RoomBlockReadings, TReaction> ReactionWrites<TReaction>(Func<RoomBlockReadings, TReaction?> read)
+        where TReaction : struct, Enum =>
+        new(RoomBlockReadingDefinitions.Kept.Where(readings => read(readings) is not null),
+            readings => read(readings) ?? throw new InvalidOperationException("A kept behaviour lost its reaction."));
 
     /// <summary>The empty behaviour's readings: the kept behaviour whose extension ends its chain.</summary>
     private static readonly RoomBlockReadings EmptyReadings = ExtensionWrites.Carrying(0);
@@ -144,23 +153,23 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
     public static RoomBlockBehavior LinkingDoor(int doorLink) =>
         new(DoorWrites.Carrying(Ensure.BetweenInclusive(0, LastDoorLink, doorLink)));
 
-    /// <summary>The reaction shootable blocks and shootable air read.</summary>
-    public ShootableReaction Shootable => Readings.Shootable;
+    /// <summary>The reaction shootable blocks and shootable air read, or null when they have none for this behaviour.</summary>
+    public ShootableReaction? Shootable => Readings.Shootable;
 
-    /// <summary>The reaction bombable blocks and bombable air read.</summary>
-    public BombableReaction Bombable => Readings.Bombable;
+    /// <summary>The reaction bombable blocks and bombable air read, or null when they have none for this behaviour.</summary>
+    public BombableReaction? Bombable => Readings.Bombable;
 
-    /// <summary>The reaction special blocks read.</summary>
-    public SpecialBlockReaction Special => Readings.Special;
+    /// <summary>The reaction special blocks read, or null when they have none for this behaviour.</summary>
+    public SpecialBlockReaction? Special => Readings.Special;
 
-    /// <summary>The reaction special-air blocks read.</summary>
-    public SpecialAirReaction SpecialAir => Readings.SpecialAir;
+    /// <summary>The reaction special-air blocks read, or null when they have none for this behaviour.</summary>
+    public SpecialAirReaction? SpecialAir => Readings.SpecialAir;
 
-    /// <summary>The reaction spike blocks and spike air read.</summary>
-    public SpikeReaction Spike => Readings.Spike;
+    /// <summary>The reaction spike blocks and spike air read, or null when they have none for this behaviour.</summary>
+    public SpikeReaction? Spike => Readings.Spike;
 
-    /// <summary>The reaction grapple blocks read.</summary>
-    public GrappleReaction Grapple => Readings.Grapple;
+    /// <summary>The reaction grapple blocks read, or null when they have none for this behaviour.</summary>
+    public GrappleReaction? Grapple => Readings.Grapple;
 
     /// <summary>A slope block's shape and mirroring.</summary>
     public SlopeGeometry Slope => Readings.Slope;
@@ -183,9 +192,9 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
     /// <summary>Every reading of this behaviour.</summary>
     public RoomBlockReadings AllReadings => Readings;
 
-    /// <summary>The reaction <paramref name="family"/>'s kinds read.</summary>
+    /// <summary>The reaction <paramref name="family"/>'s kinds read, or null when they have none for this behaviour.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="family"/> is undefined.</exception>
-    public Enum ReactionIn(BlockReactionFamily family) => family switch
+    public Enum? ReactionIn(BlockReactionFamily family) => family switch
     {
         BlockReactionFamily.Shootable => Shootable,
         BlockReactionFamily.Bombable => Bombable,
@@ -196,7 +205,7 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
         _ => throw new InvalidOperationException($"Undefined reaction family {family}."),
     };
 
-    /// <summary>The reaction <paramref name="kind"/> reads, or null for a kind that reads no reaction.</summary>
+    /// <summary>The reaction <paramref name="kind"/> reads, or null for a kind that reads no reaction or has none for this behaviour.</summary>
     public Enum? ReactionUnder(RoomCollisionType kind) =>
         BlockReactionFamilies.Of(kind) is { } family ? ReactionIn(family) : null;
 
@@ -237,12 +246,16 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
     /// <summary>Whether they are different kept behaviours.</summary>
     public static bool operator !=(RoomBlockBehavior left, RoomBlockBehavior right) => !left.Equals(right);
 
+    /// <summary>A reaction's name, or "none" when the kind has no reaction for the behaviour.</summary>
+    private static string Named<TReaction>(TReaction? reaction)
+        where TReaction : struct, Enum => reaction?.ToString() ?? "none";
+
     /// <summary>Names every reading of the behaviour.</summary>
     public override string ToString()
     {
         RoomBlockReadings readings = Readings;
-        return $"shootable {readings.Shootable}, bombable {readings.Bombable}, special {readings.Special}, " +
-            $"special air {readings.SpecialAir}, spike {readings.Spike}, grapple {readings.Grapple}, " +
+        return $"shootable {Named(readings.Shootable)}, bombable {Named(readings.Bombable)}, special {Named(readings.Special)}, " +
+            $"special air {Named(readings.SpecialAir)}, spike {Named(readings.Spike)}, grapple {Named(readings.Grapple)}, " +
             $"slope {readings.Slope.Shape} {readings.Slope.Mirroring}, extension {readings.ExtensionOffset}, door {readings.DoorLink}";
     }
 }

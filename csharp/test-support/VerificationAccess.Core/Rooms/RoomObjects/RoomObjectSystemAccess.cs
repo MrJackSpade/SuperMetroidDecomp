@@ -299,12 +299,12 @@ internal static class RoomObjectSystemAccess
             SamusProjectileType projectileType)
         {
             Ensure.NotNull(level);
-            bool areaDependent = ShotBlockReactions.IsArea(bts.Shootable);
-            if (bts.Shootable == ShootableReaction.PastAreaTable)
+            bool areaDependent = bts.Shootable == ShootableReaction.NothingWhenSolid;
+            if (bts.Shootable is null)
             {
                 throw new ArgumentOutOfRangeException(
                     nameof(bts),
-                    "Area-dependent shootable BTS must address one of its eight native entries.");
+                    "The shootable BTS gives a shootable block no reaction.");
             }
             if (!areaDependent && !ShotBlockReactions.IsLeading(bts.Shootable))
             {

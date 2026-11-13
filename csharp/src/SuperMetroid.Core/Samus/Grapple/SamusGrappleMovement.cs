@@ -760,14 +760,15 @@ public static class SamusGrappleMovement
                     return GrappleBlockReaction.Solid;
 
                 case RoomCollisionType.SpikeBlock:
-                    // The grapple block reaction selects a grapple-reaction room object by the low seven
-                    // behaviour bits. A negative behaviour rejects the beam. Every ordinary entry uses
-                    // the empty reaction, which stops the beam without latching, and immediately deletes; behaviour
-                    // three alone uses Draygon's broken-turret setup, which adds
-                    // one whole periodic-damage unit and latches the beam.
-                    if (SpikeReactions.IsArea(block.Behavior.Spike))
+                    // The spike's reaction selects a grapple-reaction room object. A spike that lets the
+                    // beam through rejects it. Every other spike uses the empty reaction, which stops the
+                    // beam without latching, and immediately deletes; the turret spike alone uses Draygon's
+                    // broken-turret setup, which adds one whole periodic-damage unit and latches the beam.
+                    if (block.Behavior.Spike is not { } spike)
+                        throw new InvalidDataException($"Grapple reached spike block {block.Position} with no spike reaction ({block.Behavior}).");
+                    if (spike.LetsGrappleBeamThrough)
                         return GrappleBlockReaction.Passes;
-                    if (block.Behavior.Spike == SpikeReaction.TurretSpike)
+                    if (spike == SpikeReaction.TurretSpike)
                     {
                         samus.LiquidPhysics.AccumulatePeriodicDamage(
                             subDamage: 0,
@@ -787,8 +788,8 @@ public static class SamusGrappleMovement
                     continue;
 
                 case RoomCollisionType.GrappleBlock:
-                    // The reaction rejects bit-seven behaviour. Values zero and three spawn the persistent
-                    // grapple room object, whose setup connects the beam.
+                    // A rejecting reaction lets the beam through. The anchors spawn the persistent grapple
+                    // room object, whose setup connects the beam.
                     // The persistent room object has no level mutation, so this result is complete.
                     if (block.Behavior.Grapple == GrappleReaction.Rejected)
                         return GrappleBlockReaction.Passes;
@@ -816,8 +817,8 @@ public static class SamusGrappleMovement
                         return GrappleBlockReaction.Connects;
                     }
 
-                    // Nonnegative behaviour values beyond the four authored grapple reactions
-                    // would index outside the four grapple room objects in the selection table.
+                    // A grapple block with no grapple reaction would index outside the four grapple room
+                    // objects in the selection table.
                     throw new InvalidDataException(
                         $"Invalid grapple block behaviour ({block.Behavior}) at {block.Position}.");
 

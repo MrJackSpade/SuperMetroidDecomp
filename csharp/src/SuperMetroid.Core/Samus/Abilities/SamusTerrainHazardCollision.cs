@@ -46,8 +46,9 @@ public static class SamusTerrainHazardCollision
         if (!samus.InvincibilityTimer.IsZero)
             return;
 
-        // Every other spike-block reaction is harmless.
-        if (!SpikeHazardDefinitions.DamagingSpikeBlocks.TryGetValue(block.Behavior.Spike, out SpikeBlockBehavior behavior))
+        // Every other spike-block reaction, and a spike with no reaction, is harmless.
+        if (block.Behavior.Spike is not { } spike ||
+            !SpikeHazardDefinitions.DamagingSpikeBlocks.TryGetValue(spike, out SpikeBlockBehavior behavior))
             return;
         int damage = behavior switch
         {

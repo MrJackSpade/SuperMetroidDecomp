@@ -185,11 +185,11 @@ internal sealed class BlockReactionObjects
         SamusProjectileType projectileType)
     {
         Ensure.NotNull(level);
-        if (behavior.Bombable is BombableReaction.PastTable or BombableReaction.AreaIgnored)
+        if (behavior.Bombable is not ({ } bombable and not BombableReaction.Inert))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(behavior),
-                "Bomb-reaction behaviour must be one of the bomb table's breaks or its empty reaction.");
+                "Bomb-reaction behaviour must be one of the bomb-block breaks or the empty reaction.");
         }
 
         SamusProjectileFamily projectileFamily = projectileType.Family;
@@ -208,7 +208,7 @@ internal sealed class BlockReactionObjects
         RoomCollisionBlock block = level.GetCollisionBlock(position);
         slot.Block = position;
 
-        if (behavior.Bombable == BombableReaction.Nothing)
+        if (bombable == BombableReaction.Nothing)
         {
             // The empty reaction's setup does nothing, and it leaves on its first update.
             slot.Become(new BlockReactionObject(BlockReactionChange.MadeAtSpawn));
@@ -221,14 +221,14 @@ internal sealed class BlockReactionObjects
         slot.RestoreTerrain = restore;
         // Only normal bombs skip the reaction sound: a normal bomb starts the shared break tail.
         slot.Become(new BlockReactionObject(projectileFamily == SamusProjectileFamily.Bomb
-            ? BlockReactionChanges.BombBreak(behavior.Bombable)
-            : BlockReactionChanges.ReactionBomb(behavior.Bombable)));
+            ? BlockReactionChanges.BombBreak(bombable)
+            : BlockReactionChanges.ReactionBomb(bombable)));
 
         level.SetTerrain(position, restore.Deactivated());
         return true;
     }
 
-    /// <summary>Selects a shot-block room object by behaviour, weapon family, area table, and air-versus-solid collision semantics.</summary>
+    /// <summary>Selects a shot-block room object by behaviour, weapon family, and air-versus-solid collision semantics.</summary>
     public bool TrySpawnProjectileShotBlock(
         RoomLevelData level,
         Position16<RoomBlocks> position,
@@ -239,24 +239,16 @@ internal sealed class BlockReactionObjects
         Ensure.NotNull(level);
         if (behavior == EscapeAnimalWallDefinitions.ReactionBehavior)
             return _escapeAnimals.TrySpawnCrittersEscapeReaction(level, position, projectileType);
-        bool areaDependent = ShotBlockReactions.IsArea(behavior.Shootable);
-        if (behavior.Shootable == ShootableReaction.PastAreaTable)
+        if (ShotBlockReactions.Of(behavior.Shootable) is not { } reaction)
         {
             throw new UnsupportedShotBlockReactionException(
                 nameof(behavior),
-                "Area-dependent shootable behaviour must name one of its area's eight shootable entries.");
-        }
-        ShotBlockReaction? reaction = ShotBlockReactions.Of(behavior.Shootable);
-        if (!areaDependent && reaction is null)
-        {
-            throw new UnsupportedShotBlockReactionException(
-                nameof(behavior),
-                $"Shootable behaviour {behavior} requires a specialized reaction outside the breakable/nothing room-object dispatcher.");
+                $"Shootable behaviour {behavior} has no reaction, or requires a specialized reaction outside the breakable/nothing room-object dispatcher.");
         }
 
-        // Shootable air checks the area-table selector before spawning. Its solid-block sibling instead performs the
-        // area-table lookup and allocates the retail no-op entry. This early return is therefore collision-kind-specific.
-        if (areaDependent && !solidBlock)
+        // A reaction that sets its object off only in a shootable block leaves shootable air before spawning; its
+        // solid-block sibling allocates the no-op object. This early return is therefore collision-kind-specific.
+        if (behavior.Shootable is { } shootable && shootable.SetsOffOnlyInSolidBlocks && !solidBlock)
             return false;
 
         SamusProjectileFamily projectileFamily = projectileType.Family;
@@ -282,12 +274,6 @@ internal sealed class BlockReactionObjects
 
         switch (reaction)
         {
-            case null:
-                // Every retail area-table target is the nothing entry. The spawn still holds a place until its first
-                // update.
-                slot.Become(new BlockReactionObject(BlockReactionChange.MadeAtSpawn));
-                return true;
-
             case ShotBlockReaction.CollisionProbe:
                 // Setup ends the projectile scan and forces its collision counter;
                 // the caller publishes those scan effects only after successful
@@ -347,8 +333,7 @@ internal sealed class BlockReactionObjects
                 return true;
 
             case ShotBlockReaction.Nothing:
-                // The empty reaction and the empty entries leave the block alone, and the object leaves on its first
-                // update.
+                // The empty reactions leave the block alone, and the object still holds a place until its first update.
                 slot.Become(new BlockReactionObject(BlockReactionChange.MadeAtSpawn));
                 return true;
 
@@ -357,7 +342,7 @@ internal sealed class BlockReactionObjects
         }
     }
 
-    /// <summary>Dispatches normal-bomb special blocks through the area-independent or Brinstar reaction table.</summary>
+    /// <summary>Dispatches normal-bomb special blocks by their reaction and the room's area.</summary>
     public bool TrySpawnBombedSpecialBlock(
         RoomLevelData level,
         Position16<RoomBlocks> position,
@@ -376,29 +361,9 @@ internal sealed class BlockReactionObjects
                 "The bomb-special setup accepts only normal-bomb and Power-Bomb families.");
         }
 
-        BlockReactionChange change;
-        SpecialBlockReaction special = behavior.Special;
-        if (!BombSpecialBlockReactions.IsArea(special))
-        {
-            if (special == SpecialBlockReaction.PastTable)
-                throw new ArgumentOutOfRangeException(nameof(behavior),
-                    "Area-independent special-block behaviour has no special-block reaction.");
-
-            change = BombSpecialBlockReactions.ChangeFor(special);
-        }
-        else
-        {
-            if (special == SpecialBlockReaction.PastAreaTable)
-            {
-                throw new ArgumentOutOfRangeException(
-                    nameof(behavior),
-                    "Area-dependent bomb-special behaviour must name one of its area's eight bomb-special entries.");
-            }
-
-            change = areaIndex == AreaId.Brinstar && SpeedBoosterBlockObjectDefinitions.BrinstarBlocks.ContainsKey(special)
-                ? SpeedBoosterBlockObjectDefinitions.BombReveal
-                : BlockReactionChange.MadeAtSpawn;
-        }
+        if (behavior.Special is null)
+            throw new ArgumentOutOfRangeException(nameof(behavior), "The special block's behaviour has no special-block reaction.");
+        BlockReactionChange change = BombSpecialBlockReactions.ChangeFor(behavior.Special, areaIndex);
 
         if (_slotTable.Spawn() is not { } slot)
             return false;

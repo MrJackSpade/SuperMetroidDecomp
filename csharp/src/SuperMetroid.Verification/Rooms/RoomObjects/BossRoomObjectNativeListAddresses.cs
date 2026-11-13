@@ -4,6 +4,7 @@ using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.Botwoon;
+using SuperMetroid.Core.Bosses.Phantoon;
 
 namespace SuperMetroid.Verification.Rooms.RoomObjects;
 
@@ -74,6 +75,13 @@ internal static class BossRoomObjectNativeListAddresses
         new NativeProgramEntry<MotherBrainRoomMutation>(MotherBrainRoomMutation.ClearBottomMiddleTubes, 0xac77),
         new NativeProgramEntry<MotherBrainRoomMutation>(MotherBrainRoomMutation.ClearBottomLeftTube, 0xac7d),
         new NativeProgramEntry<MotherBrainRoomMutation>(MotherBrainRoomMutation.ClearBottomRightTube, 0xac83),
+    ];
+
+    /// <summary>Phantoon's door lists at $84:B77B..B784 and $84:B785..B78E, by the change each starts (#1678).</summary>
+    internal static IReadOnlyList<NativeProgramEntry<PhantoonDoorChange>> PhantoonDoorEntries { get; } =
+    [
+        new NativeProgramEntry<PhantoonDoorChange>(PhantoonDoorChange.FightDoor, 0xb77b),
+        new NativeProgramEntry<PhantoonDoorChange>(PhantoonDoorChange.RestoredDoor, 0xb785),
     ];
 
     /// <summary>Whether a bank-$84 offset lies in one of these typed families' native lists or routines.</summary>

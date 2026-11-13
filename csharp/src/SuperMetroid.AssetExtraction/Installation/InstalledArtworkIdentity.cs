@@ -47,6 +47,7 @@ public static class InstalledArtworkIdentity
                 EscapeGate = Require(artwork.RoomObjectEscapeGateVisuals),
                 BombTorizoHand = Require(artwork.RoomObjectBombTorizoHandVisuals),
                 DraygonCannon = Require(artwork.RoomObjectDraygonCannonVisuals),
+                PhantoonDoor = Require(artwork.RoomObjectPhantoonDoorVisuals),
                 ChozoStatue = Require(artwork.RoomObjectChozoStatueVisuals),
                 LinkedRestore = Require(artwork.RoomObjectLinkedRestoreVisuals),
                 TourianAccess = Require(artwork.RoomObjectTourianAccessVisuals),

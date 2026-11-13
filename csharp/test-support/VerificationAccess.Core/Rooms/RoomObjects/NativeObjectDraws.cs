@@ -3,6 +3,7 @@ using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Rooms.Doors;
@@ -37,6 +38,7 @@ internal static class NativeObjectDraws
             .Concat(Enum.GetValues<MotherBrainFakeDeathDraw>().Select(Of))
             .Concat(Enum.GetValues<MotherBrainGlassDraw>().Select(Of))
             .Concat(Enum.GetValues<NoobTubeDraw>().Select(Of))
+            .Concat(Enum.GetValues<PhantoonDoorDraw>().Select(Of))
             .Concat(Enum.GetValues<RoomObjectBombedRevealDraw>().Select(Of))
             .Concat(Enum.GetValues<SamusEaterDraw>().Select(Of))
             .Concat(Enum.GetValues<SporeSpawnCeilingDraw>().Select(Of))

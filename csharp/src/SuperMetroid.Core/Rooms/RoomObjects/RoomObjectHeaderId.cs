@@ -93,12 +93,6 @@ public enum RoomObjectHeaderId
     /// <summary>Clears the way to the Tourian elevator in a room loaded after the statues have sunk.</summary>
     ClearAccessToTourianElevator,
 
-    /// <summary>Closes Phantoon's arena door for the fight.</summary>
-    DrawPhantoonDoorDuringBossFight,
-
-    /// <summary>Restores Phantoon's arena door after the fight.</summary>
-    RestorePhantoonDoorAfterBossFight,
-
     /// <summary>The lava quake of the Speed Booster room's escape, once the Speed Booster is taken.</summary>
     SpeedBoosterEscape,
 

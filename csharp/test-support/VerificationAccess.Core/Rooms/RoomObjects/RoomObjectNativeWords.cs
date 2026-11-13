@@ -38,8 +38,6 @@ internal static class RoomObjectNativeWords
         [RoomObjectHeaderId.SaveStation] = 0xb76f,
         [RoomObjectHeaderId.CrumbleAccessToTourianElevator] = 0xb773,
         [RoomObjectHeaderId.ClearAccessToTourianElevator] = 0xb777,
-        [RoomObjectHeaderId.DrawPhantoonDoorDuringBossFight] = 0xb781,
-        [RoomObjectHeaderId.RestorePhantoonDoorAfterBossFight] = 0xb78b,
         [RoomObjectHeaderId.SpeedBoosterEscape] = 0xb8ac,
         [RoomObjectHeaderId.ShaktoolRoomController] = 0xb8eb,
         [RoomObjectHeaderId.OldTourianEscapeShaftFakeWall] = 0xb964,

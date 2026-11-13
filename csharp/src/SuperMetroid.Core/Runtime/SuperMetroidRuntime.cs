@@ -264,6 +264,7 @@ internal sealed class SuperMetroidRuntime
         Bind(a => a.RoomObjectEscapeGateVisuals, value => ShotBlockVisuals.RoomObjectEscapeGateVisuals = value);
         Bind(a => a.RoomObjectBombTorizoHandVisuals, value => ShotBlockVisuals.RoomObjectBombTorizoHandVisuals = value);
         Bind(a => a.RoomObjectDraygonCannonVisuals, value => ShotBlockVisuals.RoomObjectDraygonCannonVisuals = value);
+        Bind(a => a.RoomObjectPhantoonDoorVisuals, value => ShotBlockVisuals.RoomObjectPhantoonDoorVisuals = value);
         Bind(a => a.RoomObjectChozoStatueVisuals, value => ShotBlockVisuals.RoomObjectChozoStatueVisuals = value);
         Bind(a => a.RoomObjectLinkedRestoreVisuals, value => ShotBlockVisuals.RoomObjectLinkedRestoreVisuals = value);
         Bind(a => a.RoomObjectTourianAccessVisuals, value => ShotBlockVisuals.RoomObjectTourianAccessVisuals = value);

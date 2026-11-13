@@ -1,6 +1,5 @@
 ﻿using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Phantoon;
@@ -15,13 +14,16 @@ internal sealed class PhantoonOpening
     private readonly EnemyAudioQueue _audio;
     /// <summary>Phantoon's fades, health colors, wave amplitude, programs and function timer, shared by every phase of the fight.</summary>
     private readonly PhantoonPresentation _presentation;
+    /// <summary>The bosses' results of the pass, where the opening asks for the fight's door.</summary>
+    private readonly BossFrameResultBuilder _frameResults;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal PhantoonOpening(EnemyProjectileEngine projectiles, EnemyAudioQueue audio, PhantoonPresentation presentation)
+    internal PhantoonOpening(EnemyProjectileEngine projectiles, EnemyAudioQueue audio, PhantoonPresentation presentation, BossFrameResultBuilder frameResults)
     {
         _projectiles = projectiles;
         _audio = audio;
         _presentation = presentation;
+        _frameResults = Ensure.NotNull(frameResults);
     }
 
     /// <summary>Emits the intro flames on the authored schedule before Phantoon materializes.</summary>
@@ -45,7 +47,7 @@ internal sealed class PhantoonOpening
         state.TentaclesState.RoundDamage = 0;
         state.BodyState.Function = PhantoonAiFunction.WaitBeforeActivatingStartingFlames;
         state.BodyState.FunctionTimer = 30;
-        state.BossDoorObjectRequest = RoomObjectHeaderId.DrawPhantoonDoorDuringBossFight;
+        _frameResults.PhantoonDoor = PhantoonDoorChange.FightDoor;
     }
 
     /// <summary>Holds the body between intro flame spawns.</summary>

@@ -31,4 +31,7 @@ internal sealed record PhantoonDeathDependencies
 
     /// <summary>Receives the death's sounds and music change.</summary>
     public required EnemyAudioQueue Audio { get; init; }
+
+    /// <summary>The bosses' results of the pass, where the death asks for the restored door.</summary>
+    public required BossFrameResultBuilder FrameResults { get; init; }
 }

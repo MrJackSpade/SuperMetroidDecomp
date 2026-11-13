@@ -44,6 +44,7 @@ using static SuperMetroid.Verification.Bosses.RestartingFallSpeedVerification;
 using static SuperMetroid.Verification.Bosses.Botwoon.BotwoonObjectIdentityVerification;
 using static SuperMetroid.Verification.Bosses.Botwoon.BotwoonPositionHistoryVerification;
 using static SuperMetroid.Verification.Bosses.Botwoon.BotwoonWallObjectsVerification;
+using static SuperMetroid.Verification.Bosses.Phantoon.PhantoonDoorObjectsVerification;
 using static SuperMetroid.Verification.Bosses.Botwoon.BotwoonWallVisualsVerification;
 using static SuperMetroid.Verification.Samus.Movement.CeilingWrapRoomVerification;
 using static SuperMetroid.Verification.Samus.Movement.CeilingWrapVerification;
@@ -777,6 +778,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyCompiledBotwoonWallObjects), () => VerifyCompiledBotwoonWallObjects()),
         new(nameof(VerifyBotwoonWallVisuals), () => VerifyBotwoonWallVisuals()),
         new(nameof(VerifyCompiledKraidRoomObjects), () => VerifyCompiledKraidRoomObjects()),
+        new(nameof(VerifyCompiledPhantoonDoorObjects), () => VerifyCompiledPhantoonDoorObjects()),
         new(nameof(VerifyCompiledCrocomireArenaObjects), () => VerifyCompiledCrocomireArenaObjects()),
         new(nameof(VerifyCompiledMotherBrainFakeDeathObjects), () => VerifyCompiledMotherBrainFakeDeathObjects()),
         new(nameof(VerifyMotherBrainFakeDeathVisuals), () => VerifyMotherBrainFakeDeathVisuals()),

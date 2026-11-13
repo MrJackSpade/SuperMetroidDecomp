@@ -17,6 +17,7 @@ using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
 
@@ -84,6 +85,9 @@ internal interface IGameplayArtwork
 
     /// <summary>Room-object draygon cannon visuals.</summary>
     InstalledDraygonCannonFrames? RoomObjectDraygonCannonVisuals { get; }
+
+    /// <summary>Room-object Phantoon door visuals.</summary>
+    InstalledPhantoonDoorFrames? RoomObjectPhantoonDoorVisuals { get; }
 
     /// <summary>Room-object chozo statue visuals.</summary>
     InstalledRoomObjectChozoStatueVisuals? RoomObjectChozoStatueVisuals { get; }

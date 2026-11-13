@@ -24,21 +24,12 @@ public class InstalledAreaMapPresentation
     {
         Game = Ensure.NotNull(game);
         Ensure.NotNull(sources);
-        Screens = Ensure.NotNull(sources.Screens);
         StaffCredits = Ensure.NotNull(sources.StaffCredits);
-        EndingTextPresentation = Ensure.NotNull(sources.EndingText);
         HighlightColours = Ensure.NotNull(sources.HighlightColours);
-        PauseSelectors = Ensure.NotNull(sources.PauseSelectors);
-        PauseReserveTanks = Ensure.NotNull(sources.PauseReserveTanks);
-        GameOptions = Ensure.NotNull(sources.GameOptions);
-        GameOverSource = Ensure.NotNull(sources.GameOver);
     }
 
     /// <summary>The catalog the game binds: only what the game reads of the installed presentation (#1616).</summary>
     public AreaMapPresentation Game { get; }
-
-    /// <summary>The game-over page's tiles, compositions and palette selectors, which only the import reads (#1616).</summary>
-    public GameOverSourcePresentation GameOverSource { get; }
 
     /// <summary>
     /// The map highlight cycle with each frame's colours (#1512): only the import reads the colours, and the game takes each
@@ -46,30 +37,8 @@ public class InstalledAreaMapPresentation
     /// </summary>
     public MapPaletteCycle HighlightColours { get; }
 
-    /// <summary>The map screens' pages, which the import pictures for the world map and the room maps (#1467).</summary>
-    public MapScreenPresentation Screens { get; }
-
     /// <summary>The editable staff credits, which the import pictures into the ending's credits rows (#1467).</summary>
     public CreditsPresentation StaffCredits { get; }
 
-    /// <summary>The editable ending text, whose pages and glyphs the import pictures and whose typewriter characters it compiles (#1467).</summary>
-    public EndingTextPresentation EndingTextPresentation { get; }
 
-    /// <summary>
-    /// The equipment selectors' frame compositions, which the import composes the pause sheet from, with the anchors and
-    /// timing the game binds (<see cref="AreaMapPresentation.PauseSelectors"/>).
-    /// </summary>
-    public PauseSelectorSourcePresentation PauseSelectors { get; }
-
-    /// <summary>
-    /// The reserve strip's frame compositions, which the import composes the pause sheet from, with the anchors the game
-    /// binds (<see cref="AreaMapPresentation.PauseReserveTanks"/>).
-    /// </summary>
-    public PauseReserveTankSourcePresentation PauseReserveTanks { get; }
-
-    /// <summary>
-    /// The options screen's pages, labels and compositions, which the import composes the options and menu sheets from, with
-    /// the anchors the game binds (<see cref="AreaMapPresentation.GameOptions"/>).
-    /// </summary>
-    public GameOptionsSourcePresentation GameOptions { get; }
 }

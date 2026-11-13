@@ -11,6 +11,8 @@ public static class GameOptionsPresentationFormat
     public const int Version = 1;
     /// <summary>Extracted JSON filename for options artwork, highlight regions, sprite compositions, and anchors.</summary>
     public const string FileName = "options-menu.json";
+    /// <summary>Import-data filename of the extracted options document: its pages, labels, compositions and layout (#1638).</summary>
+    public const string ArtworkFileName = "options-menu-artwork.json";
     /// <summary>The JSON name of the common background page, separate from the foreground option pages.</summary>
     public const string BackgroundPageName = "Background";
     /// <summary>The foreground option pages in document order: primary, then English and Japanese controller and special pages.</summary>

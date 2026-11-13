@@ -36,6 +36,10 @@ using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Frontend.Pause.Artwork;
+using SuperMetroid.Core.Frontend.GameOver.Artwork;
+using SuperMetroid.Core.Frontend.Options.Artwork;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
@@ -73,7 +77,9 @@ public static class MapPresentationFiles
         PauseEquipmentBaseDefinitions.FileName, PauseEquipmentLabelArtworkDefinitions.FileName, PauseReserveUiDefinitions.FileName,
         RoomFxLayer3TilemapFormat.FileName, GameplayMessageTitleDefinitions.FileName, GameplayMessagePanelDefinitions.FileName,
         GameplayMessageNoticeDefinitions.FileName, GameplayHudDocumentDefinitions.ArtworkFileName, MapSpriteFormat.JsonFile,
-        TitleGraphicsFormat.FloorMapFile,
+        TitleGraphicsFormat.FloorMapFile, MapScreenDefinitions.FileName, PauseSelectorFormat.ArtworkFileName,
+        PauseReserveTankFormat.ArtworkFileName, GameOverPresentationFormat.ArtworkFileName, GameOptionsPresentationFormat.ArtworkFileName,
+        EndingTextDefinitions.ArtworkFileName,
     ];
 
     /// <summary>
@@ -170,7 +176,14 @@ public static class MapPresentationFiles
                 Document(GameplayMessageTitleDefinitions.FileName, "gameplay-message titles", s => GameplayMessageTitlePresentation.Load(s)),
                 Document(GameplayMessagePanelDefinitions.FileName, "gameplay-message panels", s => GameplayMessagePanelPresentation.Load(s)),
                 Document(GameplayMessageNoticeDefinitions.FileName, "gameplay-message notices", s => GameplayMessageNoticePresentation.Load(s))),
-            Document(GameplayHudDocumentDefinitions.ArtworkFileName, "gameplay HUD presentation", s => GameplayHudPresentationFile.Read(s)));
+            Document(GameplayHudDocumentDefinitions.ArtworkFileName, "gameplay HUD presentation", s => GameplayHudPresentationFile.Read(s)),
+            Document(MapScreenDefinitions.FileName, "map screens", s => MapScreenPresentation.Load(s)),
+            new ImportMenuDocuments(
+                Document(PauseSelectorFormat.ArtworkFileName, "pause selectors", s => PauseSelectorSourcePresentation.Load(s)),
+                Document(PauseReserveTankFormat.ArtworkFileName, "reserve tank presentation", s => PauseReserveTankSourcePresentation.Load(s)),
+                Document(GameOverPresentationFormat.ArtworkFileName, "game-over presentation", s => GameOverSourcePresentation.Load(s)),
+                Document(GameOptionsPresentationFormat.ArtworkFileName, "options-menu presentation", s => GameOptionsSourcePresentation.Load(s)),
+                Document(EndingTextDefinitions.ArtworkFileName, "ending text", s => EndingTextPresentation.Load(s))));
         installed.RequireAllManifestFilesRead([]);
         return new ImportAreaMapPresentation(new AreaMapPresentation(game.Parts), game.Sources, characters, colours, documents);
 
@@ -231,28 +244,23 @@ public static class MapPresentationFiles
         MapLandmarkPositions landmarks = Resource(MapLandmarkFormat.FileName, "map landmarks", s => MapLandmarkFile.Read(s));
         MapSaveMarkerPositions saveMarkers = Resource(MapSaveMarkerFormat.FileName, "save markers", s => MapSaveMarkerFile.Read(s));
         MapArrowPresentation arrows = Resource(MapArrowFormat.FileName, "map arrows", s => MapArrowFile.Read(s));
-        MapScreenPresentation screens = Resource(MapScreenDefinitions.FileName, "map screens", s => MapScreenPresentation.Load(s));
-        PauseSelectorSourcePresentation pauseSelectors = Resource(PauseSelectorFormat.FileName, "pause selectors", s => PauseSelectorSourcePresentation.Load(s));
-        PauseReserveTankSourcePresentation pauseReserveTanks = Resource(PauseReserveTankFormat.FileName, "reserve tank presentation", s => PauseReserveTankSourcePresentation.Load(s));
+        PauseSelectorPresentation pauseSelectors = Resource(PauseSelectorFormat.FileName, "pause selector layout", s => PauseSelectorLayoutFile.Read(s));
+        PauseReserveTankPresentation pauseReserveTanks = Resource(PauseReserveTankFormat.FileName, "reserve tank layout", s => PauseReserveTankLayoutFile.Read(s));
         EscapeTimerPresentation escapeTimer = Resource(EscapeTimerLayoutDefinitions.FileName, "escape timer presentation", s => EscapeTimerPresentationFile.Load(s));
         GameplayHudPresentation gameplayHud = Resource(GameplayHudDocumentDefinitions.FileName, "gameplay HUD layout", s => GameplayHudLayoutFile.Read(s));
-        GameOverSourcePresentation gameOver = Resource(GameOverPresentationFormat.FileName, "game-over presentation", s => GameOverSourcePresentation.Load(s));
-        GameOptionsSourcePresentation gameOptions = Resource(GameOptionsPresentationFormat.FileName, "options-menu presentation", s => GameOptionsSourcePresentation.Load(s));
+        GameOverPresentation gameOver = Resource(GameOverPresentationFormat.FileName, "game-over layout", s => GameOverLayoutFile.Read(s));
+        GameOptionsPresentation gameOptions = Resource(GameOptionsPresentationFormat.FileName, "options-menu layout", s => GameOptionsLayoutFile.Read(s));
         FileSelectPresentation fileSelect = Resource(FileSelectPresentationFormat.FileName, "file-select presentation", s => FileSelectSourcePresentation.ReadLayout(s));
         EscapeTypewriterPresentation escapeTypewriter = Resource(EscapeTypewriterDocumentDefinitions.FileName, "escape typewriter", s => EscapeTypewriterPresentationFile.Load(s));
         IntroNarrationPresentation introNarration = Resource(IntroNarrationFile.FileName, "intro narration", s => IntroNarrationFile.Read(s));
-        EndingTextPresentation endingText = Resource(EndingTextDefinitions.FileName, "ending text", s => EndingTextPresentation.Load(s));
+        EndingTypewriterText endingText = Resource(EndingTextDefinitions.FileName, "ending typewriter text", s => EndingTextPresentation.ReadTypewriter(s));
         CreditsPresentation staffCredits = Resource(CreditsPresentationDefinitions.FileName, "staff credits", s => CreditsPresentation.Load(s));
         TitleGradientPresentation titleGradient = Resource(TitleGradientFile.FileName, "title gradient", s => TitleGradientFile.Read(s));
         MotherBrainRainbowPalettePresentation motherBrainBeam = Resource(MotherBrainBeamColourFile.FileName, "Mother Brain beam colours", s => MotherBrainBeamColourFile.Read(s));
         InstalledPowerBombGlowColors powerBombGlowColors = Resource(PowerBombGlowColorFile.FileName, "Power Bomb glow colours", s => PowerBombGlowColorFile.Read(s));
         CeresRidleyGetawayBoostDelays ceresRidleyGetawayBoostDelays = Resource(CeresRidleyGetawayBoostDelayFormat.FileName, "Ceres Ridley getaway boost delays", s => CeresRidleyGetawayBoostDelayFiles.Read(s));
-        return new GameRead(new AreaMapPresentationParts { Areas = areas, ContentIdentity = Convert.ToHexString(identity.GetHashAndReset()), HighlightCycle = cycle.Timing, Backdrops = sceneColours.Menus, Labels = labels, Stations = stations, Landmarks = landmarks, SaveMarkers = saveMarkers, Arrows = arrows, PauseSelectors = pauseSelectors.Presentation, PauseReserveTanks = pauseReserveTanks.Presentation, EscapeTimer = escapeTimer, GameplayHud = gameplayHud, GameOver = gameOver.Presentation, GameOptions = gameOptions.Presentation, FileSelect = fileSelect, EscapeTypewriter = escapeTypewriter, IntroNarration = introNarration, EndingText = endingText.Typewriter(), TitleBackdrop = sceneColours.TitleBackdrop, TitleGradient = titleGradient, MotherBrainRainbowPalette = motherBrainBeam, CeresHaze = sceneColours.CeresHaze, PowerBombGlowColors = powerBombGlowColors, CeresRidleyGetawayBoostDelays = ceresRidleyGetawayBoostDelays },
-            new InstalledPresentationSources(
-                staffCredits,
-                endingText, screens,
-                cycle, pauseSelectors, pauseReserveTanks,
-                gameOptions) { GameOver = gameOver });
+        return new GameRead(new AreaMapPresentationParts { Areas = areas, ContentIdentity = Convert.ToHexString(identity.GetHashAndReset()), HighlightCycle = cycle.Timing, Backdrops = sceneColours.Menus, Labels = labels, Stations = stations, Landmarks = landmarks, SaveMarkers = saveMarkers, Arrows = arrows, PauseSelectors = pauseSelectors, PauseReserveTanks = pauseReserveTanks, EscapeTimer = escapeTimer, GameplayHud = gameplayHud, GameOver = gameOver, GameOptions = gameOptions, FileSelect = fileSelect, EscapeTypewriter = escapeTypewriter, IntroNarration = introNarration, EndingText = endingText, TitleBackdrop = sceneColours.TitleBackdrop, TitleGradient = titleGradient, MotherBrainRainbowPalette = motherBrainBeam, CeresHaze = sceneColours.CeresHaze, PowerBombGlowColors = powerBombGlowColors, CeresRidleyGetawayBoostDelays = ceresRidleyGetawayBoostDelays },
+            new InstalledPresentationSources(staffCredits, cycle));
 
         T Resource<T>(string file, string description, Func<Stream, T> compile) where T : class =>
             MultiFileResource<T>([file], description, streams => compile(streams[0]));

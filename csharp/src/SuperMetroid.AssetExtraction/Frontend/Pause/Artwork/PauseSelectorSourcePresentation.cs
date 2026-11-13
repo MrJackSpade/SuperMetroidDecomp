@@ -7,9 +7,10 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>
-/// The installed equipment-selector presentation as the import pipeline reads it (#1463): the anchors, frame sequences and
-/// timing the game binds (<see cref="Presentation"/>), and each named frame's composition the pause sheet is composed
-/// from, kept as installed (#1615), which the game never receives (#1616).
+/// The equipment-selector presentation as the import pipeline reads it (#1463, #1638), from the extracted artwork document in
+/// the component's import data: the anchors, frame sequences and timing (<see cref="Presentation"/>), which the installed
+/// layout holds for the game (<see cref="PauseSelectorLayoutFile"/>), and each named frame's composition the pause sheet is
+/// composed from, which the game never receives (#1616).
 /// </summary>
 public sealed class PauseSelectorSourcePresentation
 {
@@ -35,8 +36,14 @@ public sealed class PauseSelectorSourcePresentation
     /// The name of every distinct frame the animation shows, in the order the animation first shows it: the reserve
     /// category's phases, then the beam category's, then the equipment category's.
     /// </summary>
-    internal IEnumerable<string> FrameNames =>
-        Presentation.reserve.Concat(Presentation.beam).Concat(Presentation.equipment).Distinct(StringComparer.Ordinal);
+    internal IEnumerable<string> FrameNames => FrameNamesOf(Presentation);
+
+    /// <summary>
+    /// The name of every distinct frame <paramref name="presentation"/>'s animation shows, in the order it first shows it: the
+    /// reserve category's phases, then the beam category's, then the equipment category's.
+    /// </summary>
+    internal static IEnumerable<string> FrameNamesOf(PauseSelectorPresentation presentation) =>
+        presentation.reserve.Concat(presentation.beam).Concat(presentation.equipment).Distinct(StringComparer.Ordinal);
 
     /// <summary>The installed composition of the frame named <paramref name="name"/> as a whole frame of the pause sheet (#1392).</summary>
     /// <param name="name">The installed frame name.</param>
@@ -50,44 +57,17 @@ public sealed class PauseSelectorSourcePresentation
         try { document = JsonAssetDocument.Read<PauseSelectorDocument>(json, ArtworkJson.Options)
             ?? throw new InvalidDataException("Pause selector document is null."); }
         catch (JsonException error) { throw new InvalidDataException("Invalid pause selector JSON.", error); }
-        if (document.Version != PauseSelectorFormat.Version || document.InitialDurationTicks is < 1 or > PauseSelectorFormat.MaximumDuration ||
-            (uint)document.Palette > 7 || document.Anchors is null || document.Anchors.Count != PauseSelectorFormat.AnchorCount ||
-            document.Frames is null || document.Frames.Count is < 1 or > PauseSelectorFormat.MaximumFrames ||
-            document.Animation is null || document.Animation.Length is < 1 or > PauseSelectorFormat.MaximumPhases)
+        if (document.Version != PauseSelectorFormat.Version || (uint)document.Palette > 7 ||
+            document.Frames is null || document.Frames.Count is < 1 or > PauseSelectorFormat.MaximumFrames)
             throw new InvalidDataException("Pause selectors require version 1, sixteen anchors, palette 0..7, valid named frames and positive bounded timing.");
-        var anchors = new Dictionary<string, Position16<SpritePixels>>(StringComparer.Ordinal);
-        foreach (var definition in PauseSelectorAnchors.Anchors())
-        {
-            string name = PauseSelectorAnchors.Anchor(definition.Category, definition.Item);
-            if (!document.Anchors.TryGetValue(name, out var point) || point.X is < 0 or > 255 || point.Y is < 0 or > 223)
-                throw new InvalidDataException($"Pause selector {name} requires screen coordinates X=0..255/Y=0..223.");
-            anchors.Add(name, point);
-        }
         var frames = new Dictionary<string, SpriteComposition>();
         foreach (var frame in document.Frames)
         {
             if (string.IsNullOrWhiteSpace(frame.Key) || frame.Value is null) throw new InvalidDataException("Pause selector frame requires a name and parts.");
             frames.Add(frame.Key, MenuSpriteCompiler.Compile(frame.Value, frame.Key));
         }
-        var reserve = new string[document.Animation.Length];
-        var beam = new string[document.Animation.Length];
-        var equipment = new string[document.Animation.Length];
-        var durations = new int[document.Animation.Length];
-        for (int i = 0; i < document.Animation.Length; i++)
-        {
-            var phase = document.Animation[i];
-            if (phase is null || phase.DurationTicks is < 1 or > PauseSelectorFormat.MaximumDuration ||
-                phase.Reserve is null || !frames.ContainsKey(phase.Reserve) ||
-                phase.Beam is null || !frames.ContainsKey(phase.Beam) ||
-                phase.Equipment is null || !frames.ContainsKey(phase.Equipment))
-                throw new InvalidDataException($"Pause selector phase {i} has invalid timing or an unknown frame.");
-            reserve[i] = phase.Reserve;
-            beam[i] = phase.Beam;
-            equipment[i] = phase.Equipment;
-            durations[i] = phase.DurationTicks;
-        }
-        return new(new PauseSelectorPresentation(new PauseSelectorPresentation.PauseSelectorParts { Anchors = anchors, Reserve = reserve,
-            Beam = beam, Equipment = equipment, Durations = durations, InitialDuration = document.InitialDurationTicks }), frames, document.Palette);
+        return new(PauseSelectorLayoutFile.Presentation(document.InitialDurationTicks, document.Anchors, document.Animation, frames.ContainsKey),
+            frames, document.Palette);
     }
 
     /// <summary>Writes a pause-selector document as JSON.</summary>

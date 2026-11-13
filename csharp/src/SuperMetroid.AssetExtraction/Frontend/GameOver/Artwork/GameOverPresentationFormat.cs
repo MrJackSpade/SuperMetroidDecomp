@@ -7,8 +7,10 @@ public static class GameOverPresentationFormat
 {
     /// <summary>Supported game-over presentation JSON schema version.</summary>
     public const int Version = 1;
-    /// <summary>Extracted JSON filename for game-over artwork, palette phases, and layout.</summary>
+    /// <summary>Installed filename of the game-over layout the game binds (#1638).</summary>
     public const string FileName = "game-over.json";
+    /// <summary>Import-data filename of the extracted game-over document: its page, compositions, palette phases and layout (#1638).</summary>
+    public const string ArtworkFileName = "game-over-artwork.json";
     /// <summary>The colours in each Baby palette phase.</summary>
     public const int BabyPaletteColorCount = 16;
 

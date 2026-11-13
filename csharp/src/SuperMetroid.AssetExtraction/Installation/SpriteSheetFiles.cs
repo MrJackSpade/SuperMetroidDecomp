@@ -146,7 +146,7 @@ public static class SpriteSheetFiles
         SpriteSheetId.MapSprites => MapSpriteArtwork.SheetFrames,
         SpriteSheetId.PauseSprites => PauseSheetComposer.FrameNames(maps.Value),
         SpriteSheetId.PauseHud => HudImageSheet.PauseFrameNames(maps.Value.Game),
-        SpriteSheetId.MenuPictures => MenuPictureSheet.FrameNames(maps.Value),
+        SpriteSheetId.MenuPictures => MenuPictureSheet.FrameNames(),
         SpriteSheetId.RoomMapPictures => MapPictureSheets.RoomMapFrameNames(maps.Value),
         SpriteSheetId.PausePictures => PausePictureSheet.FrameNames(maps.Value),
         SpriteSheetId.AreaMapForegroundCrateria or SpriteSheetId.AreaMapForegroundBrinstar or

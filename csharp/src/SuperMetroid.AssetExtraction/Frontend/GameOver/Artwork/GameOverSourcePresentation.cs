@@ -13,9 +13,10 @@ using SuperMetroid.AssetExtraction.Map.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 
 /// <summary>
-/// The installed game-over presentation as the import pipeline reads it (#1463, #1616): the page's tiles the menus' picture
-/// of the page is composed from (#1467), the Baby, egg and cursor compositions and palette selectors the game-over sheet is
-/// composed from, and what the game binds of it (<see cref="Presentation"/>).
+/// The game-over presentation as the import pipeline reads it (#1463, #1616, #1638), from the extracted artwork document in
+/// the component's import data: the page's tiles the menus' picture of the page is composed from (#1467), the Baby, egg and
+/// cursor compositions and palette selectors the game-over sheet is composed from, and the layout
+/// (<see cref="Presentation"/>), which the installed layout holds for the game (<see cref="GameOverLayoutFile"/>).
 /// </summary>
 public sealed class GameOverSourcePresentation
 {
@@ -29,17 +30,10 @@ public sealed class GameOverSourcePresentation
     internal readonly SpriteComposition[] cursorSprites;
 
     /// <summary>Retains the compiled presentation and its compositions.</summary>
-    private GameOverSourcePresentation(GameOverPresentationDocument document, BackgroundTile[] tilemap, GameOverBabyPaint babyPaint,
-        GameOverSprites sprites, string contentIdentity)
+    private GameOverSourcePresentation(GameOverPresentationDocument document, GameOverPresentation presentation, BackgroundTile[] tilemap,
+        GameOverBabyPaint babyPaint, GameOverSprites sprites, string contentIdentity)
     {
-        Presentation = new GameOverPresentation(new GameOverPlacements
-        {
-            BabyAnchor = document.BabyAnchor,
-            CursorX = document.CursorX,
-            YesCursorY = document.YesCursorY,
-            NoCursorY = document.NoCursorY,
-            CursorFrameDuration = document.CursorFrameDuration,
-        });
+        Presentation = presentation;
         BabyPaint = babyPaint;
         ContentIdentity = contentIdentity;
         BabyPaletteIndex = document.BabyPalette;
@@ -108,15 +102,17 @@ public sealed class GameOverSourcePresentation
         if (document.BabyPalettes is null ||
             document.BabyPalettes.Count != GameOverPresentationFormat.BabyPaletteNames.Length)
             throw new InvalidDataException("Game-over presentation requires all four named Baby palettes.");
-        ValidatePoint(document.BabyAnchor, "Baby anchor");
-        ValidateCoordinate(document.CursorX, nameof(document.CursorX));
-        ValidateCoordinate(document.YesCursorY, nameof(document.YesCursorY));
-        ValidateCoordinate(document.NoCursorY, nameof(document.NoCursorY));
+        GameOverPresentation presentation = GameOverLayoutFile.Presentation(new GameOverPlacements
+        {
+            BabyAnchor = document.BabyAnchor,
+            CursorX = document.CursorX,
+            YesCursorY = document.YesCursorY,
+            NoCursorY = document.NoCursorY,
+            CursorFrameDuration = document.CursorFrameDuration,
+        });
         ValidatePaletteIndex(document.BabyPalette, nameof(document.BabyPalette));
         ValidatePaletteIndex(document.EggPalette, nameof(document.EggPalette));
         ValidatePaletteIndex(document.CursorPalette, nameof(document.CursorPalette));
-        if (document.CursorFrameDuration < 1)
-            throw new InvalidDataException("Game-over cursor frame duration must be at least one update.");
 
         var tilemap = new BackgroundTile[GameOverPageDefinitions.TilemapCellCount];
         for (int index = 0; index < document.Tilemap.Length; index++)
@@ -150,7 +146,7 @@ public sealed class GameOverSourcePresentation
             palettes.Add(palette, Array.ConvertAll(colors, RgbColor.FromWord));
         }
 
-        return new(document, tilemap, new GameOverBabyPaint(palettes), new(babySprites, eggSprite, cursorSprites),
+        return new(document, presentation, tilemap, new GameOverBabyPaint(palettes), new(babySprites, eggSprite, cursorSprites),
             Convert.ToHexString(SHA256.HashData(bytes)));
     }
 
@@ -166,20 +162,6 @@ public sealed class GameOverSourcePresentation
     /// <summary>The menus' picture of the page: every cell of the page, named for the game to place (#1467).</summary>
     internal ScreenPictureSubject PageSubject() =>
         ScreenPictureSubject.Page(GameOverPresentationDefinitions.PageFrame, page, GameOverPageDefinitions.TilemapWidth);
-
-    /// <summary>Checks both coordinates of a game-over screen anchor fit the native OAM byte range.</summary>
-    private static void ValidatePoint(Position16<SpritePixels> point, string name)
-    {
-        ValidateCoordinate(point.X, $"{name} X");
-        ValidateCoordinate(point.Y, $"{name} Y");
-    }
-
-    /// <summary>Rejects a screen coordinate outside the 0–255 range used by authored menu layout.</summary>
-    private static void ValidateCoordinate(int value, string name)
-    {
-        if ((uint)value > byte.MaxValue)
-            throw new InvalidDataException($"{name} must be 0..255.");
-    }
 
     /// <summary>Rejects an OBJ palette selector outside the eight hardware rows.</summary>
     private static void ValidatePaletteIndex(int value, string name)

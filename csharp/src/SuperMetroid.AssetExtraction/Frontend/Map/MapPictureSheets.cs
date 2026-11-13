@@ -77,7 +77,7 @@ internal static class MapPictureSheets
     }
 
     /// <summary>The room maps' pictures: every map cell, then each Zebes area's room frame.</summary>
-    internal static IEnumerable<ScreenPictureSubject> RoomMapSubjects(InstalledAreaMapPresentation maps)
+    internal static IEnumerable<ScreenPictureSubject> RoomMapSubjects(ImportAreaMapPresentation maps)
     {
         MapScreenPresentation screens = maps.Screens;
         foreach (ScreenPictureSubject cell in CellSubjects(maps))
@@ -105,5 +105,6 @@ internal static class MapPictureSheets
             maps.Palettes.World(area));
 
     /// <summary>The frames a room-map sheet must hold.</summary>
-    internal static IEnumerable<string> RoomMapFrameNames(InstalledAreaMapPresentation maps) => RoomMapSubjects(maps).Select(subject => subject.Name);
+    internal static IEnumerable<string> RoomMapFrameNames(InstalledAreaMapPresentation maps) =>
+        CellSubjects(maps).Select(subject => subject.Name).Concat(AreaIds.Zebes.Select(AreaMapPictures.RoomFrameName));
 }

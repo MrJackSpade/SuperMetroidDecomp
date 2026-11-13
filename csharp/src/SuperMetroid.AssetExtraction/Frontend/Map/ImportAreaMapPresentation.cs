@@ -14,6 +14,13 @@ using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
+using SuperMetroid.Core.Frontend.Pause.Artwork;
+using SuperMetroid.Core.Frontend.GameOver.Artwork;
+using SuperMetroid.Core.Frontend.Options.Artwork;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
@@ -40,6 +47,13 @@ public sealed class ImportAreaMapPresentation : InstalledAreaMapPresentation
         RoomFxPages = Ensure.NotNull(documents.RoomFxPages);
         Messages = Ensure.NotNull(documents.Messages);
         GameplayHud = Ensure.NotNull(documents.GameplayHud);
+        Screens = Ensure.NotNull(documents.Screens);
+        Ensure.NotNull(documents.Menus);
+        PauseSelectors = Ensure.NotNull(documents.Menus.PauseSelectors);
+        PauseReserveTanks = Ensure.NotNull(documents.Menus.PauseReserveTanks);
+        GameOverSource = Ensure.NotNull(documents.Menus.GameOver);
+        GameOptions = Ensure.NotNull(documents.Menus.GameOptions);
+        EndingTextPresentation = Ensure.NotNull(documents.Menus.EndingText);
         Ensure.NotNull(characters);
         Characters = Ensure.NotNull(characters.Characters);
         Sprites = Ensure.NotNull(characters.Sprites);
@@ -85,6 +99,33 @@ public sealed class ImportAreaMapPresentation : InstalledAreaMapPresentation
     /// the game binds (<see cref="AreaMapPresentation.GameplayHud"/>).
     /// </summary>
     public GameplayHudArtwork GameplayHud { get; }
+
+    /// <summary>The map screens' pages, import data (#1638), which the import pictures for the world map and the room maps (#1467).</summary>
+    public MapScreenPresentation Screens { get; }
+
+    /// <summary>
+    /// The equipment selectors' frame compositions, import data (#1638), which the import composes the pause sheet from, with
+    /// the anchors and timing the installed layout holds for the game (<see cref="AreaMapPresentation.PauseSelectors"/>).
+    /// </summary>
+    public PauseSelectorSourcePresentation PauseSelectors { get; }
+
+    /// <summary>
+    /// The reserve strip's frame compositions, import data (#1638), which the import composes the pause sheet from, with the
+    /// anchors the installed layout holds for the game (<see cref="AreaMapPresentation.PauseReserveTanks"/>).
+    /// </summary>
+    public PauseReserveTankSourcePresentation PauseReserveTanks { get; }
+
+    /// <summary>The game-over page's tiles, compositions and palette selectors, import data (#1616, #1638).</summary>
+    public GameOverSourcePresentation GameOverSource { get; }
+
+    /// <summary>
+    /// The options screen's pages, labels and compositions, import data (#1638), which the import composes the options and
+    /// menu sheets from, with the anchors the installed layout holds for the game (<see cref="AreaMapPresentation.GameOptions"/>).
+    /// </summary>
+    public GameOptionsSourcePresentation GameOptions { get; }
+
+    /// <summary>The ending text's panels and subtitle, import data (#1638), which the import pictures (#1467).</summary>
+    public EndingTextPresentation EndingTextPresentation { get; }
 
     /// <summary>The characters the map screens, the pause interface and the HUD are pictured from.</summary>
     public MapCharacterArtwork Characters { get; }

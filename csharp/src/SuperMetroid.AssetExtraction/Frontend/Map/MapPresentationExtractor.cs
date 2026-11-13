@@ -25,6 +25,10 @@ using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
+using SuperMetroid.Core.Frontend.Pause.Artwork;
+using SuperMetroid.Core.Frontend.GameOver.Artwork;
+using SuperMetroid.Core.Frontend.Options.Artwork;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
@@ -52,6 +56,19 @@ public static class MapPresentationExtractor
         string PathOf(string name) => Path.Combine(MapPresentationFiles.ImportDataFiles.Contains(name) ? importData : directory, name);
         var hashes = new Dictionary<string, string>();
         var stationCells = new Dictionary<string, int[]>();
+        // A document mixing what the game binds with the original's packed placements is split (#1638): the extracted
+        // document is import data, and the part the game binds, taken from it once, is installed.
+        void WriteSplit(string installedName, string artworkName, byte[] artwork, Func<byte[], byte[]> installedPart)
+        {
+            WriteDocument(artworkName, artwork);
+            WriteDocument(installedName, installedPart(artwork));
+        }
+        void WriteDocument(string name, byte[] bytes)
+        {
+            using (var file = new FileStream(PathOf(name), FileMode.CreateNew, FileAccess.Write))
+                file.Write(bytes);
+            hashes.Add(name, Convert.ToHexString(SHA256.HashData(bytes)));
+        }
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -158,14 +175,10 @@ public static class MapPresentationExtractor
         using (var file = new FileStream(PathOf(PauseWireframeDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(wireframeBytes);
         hashes.Add(PauseWireframeDefinitions.FileName, Convert.ToHexString(SHA256.HashData(wireframeBytes)));
-        byte[] selectorBytes = PauseSelectorExtractor.Extract(bus);
-        using (var file = new FileStream(PathOf(PauseSelectorFormat.FileName), FileMode.CreateNew, FileAccess.Write))
-            file.Write(selectorBytes);
-        hashes.Add(PauseSelectorFormat.FileName, Convert.ToHexString(SHA256.HashData(selectorBytes)));
-        byte[] reserveTankBytes = PauseReserveTankExtractor.Extract(bus);
-        using (var file = new FileStream(PathOf(PauseReserveTankFormat.FileName), FileMode.CreateNew, FileAccess.Write))
-            file.Write(reserveTankBytes);
-        hashes.Add(PauseReserveTankFormat.FileName, Convert.ToHexString(SHA256.HashData(reserveTankBytes)));
+        WriteSplit(PauseSelectorFormat.FileName, PauseSelectorFormat.ArtworkFileName, PauseSelectorExtractor.Extract(bus),
+            PauseSelectorLayoutFile.Extract);
+        WriteSplit(PauseReserveTankFormat.FileName, PauseReserveTankFormat.ArtworkFileName, PauseReserveTankExtractor.Extract(bus),
+            PauseReserveTankLayoutFile.Extract);
         byte[] reserveUiBytes = PauseReserveUiExtractor.Extract(bus);
         using (var file = new FileStream(PathOf(PauseReserveUiDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(reserveUiBytes);
@@ -195,14 +208,10 @@ public static class MapPresentationExtractor
         using (var file = new FileStream(PathOf(GameplayHudDocumentDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(gameplayHudLayoutBytes);
         hashes.Add(GameplayHudDocumentDefinitions.FileName, Convert.ToHexString(SHA256.HashData(gameplayHudLayoutBytes)));
-        byte[] gameOverBytes = GameOverPresentationExtractor.Extract(bus);
-        using (var file = new FileStream(PathOf(GameOverPresentationFormat.FileName), FileMode.CreateNew, FileAccess.Write))
-            file.Write(gameOverBytes);
-        hashes.Add(GameOverPresentationFormat.FileName, Convert.ToHexString(SHA256.HashData(gameOverBytes)));
-        byte[] gameOptionsBytes = GameOptionsPresentationExtractor.Extract(bus);
-        using (var file = new FileStream(PathOf(GameOptionsPresentationFormat.FileName), FileMode.CreateNew, FileAccess.Write))
-            file.Write(gameOptionsBytes);
-        hashes.Add(GameOptionsPresentationFormat.FileName, Convert.ToHexString(SHA256.HashData(gameOptionsBytes)));
+        WriteSplit(GameOverPresentationFormat.FileName, GameOverPresentationFormat.ArtworkFileName, GameOverPresentationExtractor.Extract(bus),
+            GameOverLayoutFile.Extract);
+        WriteSplit(GameOptionsPresentationFormat.FileName, GameOptionsPresentationFormat.ArtworkFileName, GameOptionsPresentationExtractor.Extract(bus),
+            GameOptionsLayoutFile.Extract);
         FileSelectExtraction fileSelect = FileSelectPresentationExtractor.Extract(bus);
         using (var file = new FileStream(PathOf(FileSelectPresentationFormat.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(fileSelect.Layout);
@@ -240,11 +249,8 @@ public static class MapPresentationExtractor
             file.Write(introFontBytes);
         hashes.Add(IntroFontCharacters.FileName,
             Convert.ToHexString(SHA256.HashData(introFontBytes)));
-        byte[] endingTextBytes = EndingTextExtractor.Extract(bus);
-        using (var file = new FileStream(PathOf(EndingTextDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
-            file.Write(endingTextBytes);
-        hashes.Add(EndingTextDefinitions.FileName,
-            Convert.ToHexString(SHA256.HashData(endingTextBytes)));
+        WriteSplit(EndingTextDefinitions.FileName, EndingTextDefinitions.ArtworkFileName, EndingTextExtractor.Extract(bus),
+            EndingTextPresentation.ExtractTypewriter);
         byte[] endingFontBytes = EndingFontAtlasExtractor.Extract(bus);
         using (var file = new FileStream(PathOf(EndingFontAtlasFormat.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(endingFontBytes);

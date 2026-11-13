@@ -9,9 +9,10 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>
-/// The installed reserve-strip presentation as the import pipeline reads it (#1463): the anchors the game binds
-/// (<see cref="Presentation"/>), and the reserve visuals' compositions the pause sheet is composed from, kept as installed
-/// (#1615), which the game never receives (#1616).
+/// The reserve-strip presentation as the import pipeline reads it (#1463, #1638), from the extracted artwork document in the
+/// component's import data: the anchors (<see cref="Presentation"/>), which the installed layout holds for the game
+/// (<see cref="PauseReserveTankLayoutFile"/>), and the reserve visuals' compositions the pause sheet is composed from, which
+/// the game never receives (#1616).
 /// </summary>
 public sealed class PauseReserveTankSourcePresentation
 {
@@ -49,12 +50,9 @@ public sealed class PauseReserveTankSourcePresentation
             ?? throw new InvalidDataException("Reserve tank document is null."); }
         catch (JsonException error) { throw new InvalidDataException("Invalid reserve tank JSON.", error); }
         if (document.Version != PauseReserveTankFormat.Version || (uint)document.Palette > 7 ||
-            document.Anchors is null || document.Anchors.Length != PauseReserveTankDefinitions.AnchorCount ||
             document.Frames is null || document.Frames.Count != PauseReserveTankParts.Frames().Count())
             throw new InvalidDataException("Reserve tanks require version 1, palette 0..7, six anchors and ten named frames.");
-        foreach (var point in document.Anchors)
-            if (point.X is < 0 or > 255 || point.Y is < 0 or > 223)
-                throw new InvalidDataException("Reserve tank anchor requires screen coordinates X=0..255/Y=0..223.");
+        Position16<SpritePixels>[] anchors = PauseReserveTankLayoutFile.Anchors(document.Anchors);
         var frames = new Dictionary<PauseReserveTankVisual, SpriteComposition>();
         foreach (var frame in PauseReserveTankParts.Frames())
         {
@@ -62,7 +60,7 @@ public sealed class PauseReserveTankSourcePresentation
                 throw new InvalidDataException($"Missing reserve tank frame {frame.Name}.");
             frames.Add(frame.Id, MenuSpriteCompiler.Compile(parts, frame.Name));
         }
-        return new(document.Anchors, frames, document.Palette);
+        return new(anchors, frames, document.Palette);
     }
 
     /// <summary>Writes an editable reserve-tank presentation document as JSON.</summary>

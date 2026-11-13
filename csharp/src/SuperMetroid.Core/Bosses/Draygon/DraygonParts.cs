@@ -285,23 +285,25 @@ internal sealed class DraygonParts
             return;
 
         eyeState.LookAngle = bearing;
-        // The quarter of the turn centred on up, right, down or left that the bearing lies in chooses the look.
-        int quarter = bearing.TurnedBySteps(RotationAngle.StepsPerTurn / 8).Sector(4);
-        DraygonProgram look = quarter switch
+        // The straight direction nearest the bearing, up, right, down or left, chooses the look.
+        CompassDirection direction = bearing.NearestStraightDirection();
+        DraygonProgram look = direction switch
         {
-            0 => facing == HorizontalDirection.Right
+            CompassDirection.Up => facing == HorizontalDirection.Right
                 ? DraygonProgram.EyeFacingRightLookingUp
                 : DraygonProgram.EyeFacingLeftLookingUp,
-            1 => facing == HorizontalDirection.Right
+            CompassDirection.Right => facing == HorizontalDirection.Right
                 ? DraygonProgram.EyeFacingRightLookingRight
                 : DraygonProgram.EyeFacingLeftLookingRight,
-            2 => facing == HorizontalDirection.Right
+            CompassDirection.Down => facing == HorizontalDirection.Right
                 ? DraygonProgram.EyeFacingRightLookingDown
                 : DraygonProgram.EyeFacingLeftLookingDown,
-            3 => facing == HorizontalDirection.Right
+            CompassDirection.Left => facing == HorizontalDirection.Right
                 ? DraygonProgram.EyeFacingRightLookingLeft
                 : DraygonProgram.EyeFacingLeftLookingLeft,
-            _ => throw new InvalidOperationException($"Draygon's eye bearing {bearing} lies in no quarter of the turn."),
+            CompassDirection.UpRight or CompassDirection.DownRight or CompassDirection.DownLeft or CompassDirection.UpLeft =>
+                throw new InvalidOperationException($"Draygon's eye bearing {bearing} is nearest the diagonal {direction}."),
+            _ => throw new InvalidOperationException($"Draygon's eye bearing {bearing} is nearest no straight direction."),
         };
         StartDraygonProgram(eye, look);
         eye.Timer = WrappingCountdown.Start(0);

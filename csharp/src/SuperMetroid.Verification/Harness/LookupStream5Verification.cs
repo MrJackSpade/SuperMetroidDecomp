@@ -1018,15 +1018,17 @@ internal static class LookupStream5Verification
     internal static void VerifyLookupStream5YappingMawOffsets(CartridgeImportAddressSpace rom)
     {
         Action<RoomEnemySlot,YappingMawEnemyState> begin = YappingMawBehavior.BeginYappingMawExtension;
-        Action<YappingMawEnemyState,int> set = YappingMawBehavior.SetYappingMawHeldOffset;
+        Action<YappingMawEnemyState,YappingMawAim> set = YappingMawBehavior.SetYappingMawHeldOffset;
         var slot = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()).SlotTable.Slots[0];
         var state = new YappingMawEnemyState(slot) { DistanceToSamus = 32 };
+        // The cartridge's held-offset table lists the aims clockwise from up, the order of the aim sequence.
         for (int direction = 0; direction < 8; direction++)
         {
-            var offset = YappingMawAttackGeometry.HeldSamusOffset(direction);
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa8a0a7 + direction * 4)), unchecked((ushort)offset.X), "Native held X");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa8a0a9 + direction * 4)), unchecked((ushort)offset.Y), "Native held Y");
-            set(state, direction);
+            YappingMawAim aim = YappingMawAnimationDefinitions.Aims.At(direction);
+            var offset = YappingMawAttackGeometry.HeldSamusOffset(aim);
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa8a0a7 + direction * 4)), unchecked((ushort)offset.X), $"Native held X aiming {aim}");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa8a0a9 + direction * 4)), unchecked((ushort)offset.Y), $"Native held Y aiming {aim}");
+            set(state, aim);
             Check(direction, "Actual held-offset callback");
         }
         for (ushort angle = 0; angle < 256; angle++)
@@ -1038,8 +1040,7 @@ internal static class LookupStream5Verification
                 "Actual angle quantization/wrap retained");
             Check(direction, "Actual begin-extension held offset");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => YappingMawAttackGeometry.HeldSamusOffset(-1), "Held direction lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => YappingMawAttackGeometry.HeldSamusOffset(8), "Held direction upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => YappingMawAttackGeometry.HeldSamusOffset((YappingMawAim)Enum.GetValues<YappingMawAim>().Length), "Held aim beyond the eight aims");
         Console.WriteLine("Yapping Maw offsets:16 native words, eight actual held callbacks,256 angle-quantized begin-extension writes and direction bounds pass.");
 
         void Check(int direction, string context)
@@ -1263,24 +1264,15 @@ internal static class LookupStream5Verification
             }
         }
 
-        EyeTarget[] eyeTargets =
-        [
-            new EyeTarget(0, -100, 0), new EyeTarget(100, -100, 1), new EyeTarget(100, 0, 2), new EyeTarget(100, 100, 3),
-            new EyeTarget(0, 100, 4), new EyeTarget(-100, 100, 6), new EyeTarget(-100, 0, 7), new EyeTarget(-100, -100, 8),
-        ];
-        for (ushort direction = 0; direction < 9; direction++)
-        {
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7d40d + direction * 2)),
-                PhantoonNativeListAddresses.PartEntry(PhantoonEyeGaze.EyeProgram(direction)),
-                $"native Phantoon eye direction {direction}");
-        }
+        EyeTarget[] eyeTargets = PhantoonEyeTargets.All;
+        PhantoonEyeTargets.VerifyGazeProgramsAgainstCartridge(CartridgeImportSource.Require(rom));
         var eyeEnemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot, PhantoonEnemyState, SamusState> pointEye = PhantoonPatterns.PointPhantoonEyeAtSamus;
         RoomEnemySlot eyeBody = eyeEnemies.SlotTable.Slots[0];
         RoomEnemySlot trackingEye = eyeEnemies.SlotTable.Slots[1];
         var eyeState = new PhantoonEnemyState(eyeBody) { Eye = trackingEye, Tentacles = eyeEnemies.SlotTable.Slots[2], Mouth = eyeEnemies.SlotTable.Slots[3] };
         eyeBody.Position = eyeBody.Position.WithWhole(new(0x4000, 0x4000));
-        foreach ((short x, short y, ushort direction) in eyeTargets)
+        foreach ((short x, short y, CompassDirection direction, _) in eyeTargets)
         {
             pointEye(eyeBody, eyeState, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
             {
@@ -1291,8 +1283,8 @@ internal static class LookupStream5Verification
                 $"production Phantoon eye direction {direction}");
         }
         AssertThrows<InvalidDataException>(
-            () => PhantoonEyeGaze.EyeProgram(9),
-            "Phantoon eye direction beyond authored table");
+            () => PhantoonEyeGaze.EyeProgram((CompassDirection)Enum.GetValues<CompassDirection>().Length),
+            "Phantoon eye direction beyond the eight directions");
         AssertThrows<ArgumentOutOfRangeException>(() => _ = PhantoonFlameRain.FirstRainColumns[-1], "rain pattern lower bound");
         AssertThrows<ArgumentOutOfRangeException>(() => _ = PhantoonFlameRain.FirstRainColumns[8], "rain pattern upper bound");
         Console.WriteLine("Stream 5 Phantoon: eight native rain columns, eight actual rain populations/gaps and nine eye selectors/eight actual octants pass with native tables forbidden; shot markers have a separately reviewed random-bucket exception.");

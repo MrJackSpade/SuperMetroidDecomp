@@ -54,24 +54,15 @@ internal static class PhantoonPatternsVerification
             }
         }
 
-        EyeTarget[] eyeTargets =
-        [
-            new EyeTarget(0, -100, 0), new EyeTarget(100, -100, 1), new EyeTarget(100, 0, 2), new EyeTarget(100, 100, 3),
-            new EyeTarget(0, 100, 4), new EyeTarget(-100, 100, 6), new EyeTarget(-100, 0, 7), new EyeTarget(-100, -100, 8),
-        ];
-        for (ushort direction = 0; direction < 9; direction++)
-        {
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7d40d + direction * 2)),
-                PhantoonNativeListAddresses.PartEntry(PhantoonEyeGaze.EyeProgram(direction)),
-                $"native Phantoon eye direction {direction}");
-        }
+        EyeTarget[] eyeTargets = PhantoonEyeTargets.All;
+        PhantoonEyeTargets.VerifyGazeProgramsAgainstCartridge(CartridgeImportSource.Require(rom));
         var eyeEnemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot, PhantoonEnemyState, SamusState> pointEye = PhantoonPatterns.PointPhantoonEyeAtSamus;
         RoomEnemySlot eyeBody = eyeEnemies.SlotTable.Slots[0];
         RoomEnemySlot trackingEye = eyeEnemies.SlotTable.Slots[1];
         var eyeState = new PhantoonEnemyState(eyeBody) { Eye = trackingEye, Tentacles = eyeEnemies.SlotTable.Slots[2], Mouth = eyeEnemies.SlotTable.Slots[3] };
         eyeBody.Position = eyeBody.Position.WithWhole(new(0x4000, 0x4000));
-        foreach ((short x, short y, ushort direction) in eyeTargets)
+        foreach ((short x, short y, CompassDirection direction, _) in eyeTargets)
         {
             pointEye(eyeBody, eyeState, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
             {
@@ -82,8 +73,8 @@ internal static class PhantoonPatternsVerification
                 $"production Phantoon eye direction {direction}");
         }
         AssertThrows<InvalidDataException>(
-            () => PhantoonEyeGaze.EyeProgram(9),
-            "Phantoon eye direction beyond authored table");
+            () => PhantoonEyeGaze.EyeProgram((CompassDirection)Enum.GetValues<CompassDirection>().Length),
+            "Phantoon eye direction beyond the eight directions");
         var shotEnemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
         var shotBody = shotEnemies.SlotTable.Slots[0];
         var shotState = new PhantoonEnemyState(shotBody) { Eye = shotEnemies.SlotTable.Slots[1], Tentacles = shotEnemies.SlotTable.Slots[2], Mouth = shotEnemies.SlotTable.Slots[3] };

@@ -27,12 +27,12 @@ internal sealed class BeamCombos
         _spaceTimeOverwrite = Ensure.NotNull(spaceTimeOverwrite);
     }
     /// <summary>
-    /// Angle step the Ice and Plasma special attacks add to every orbiting slot's angle each update: four, or minus
-    /// four when a left-facing Samus starts the attack; activation also stores four for Wave and zero for Spazer,
-    /// which never read it. Each slot's angle plus step wraps around the angle's 256 steps, so minus four turns the
-    /// angle the opposite way by the same four steps.
+    /// The turn the Ice and Plasma special attacks add to every orbiting particle's angle each update: four steps on,
+    /// or four steps back (the turn of a full circle less four) when a left-facing Samus starts the attack; activation
+    /// also stores four steps on for Wave and no turn for Spazer, which never read it. Each particle's angle turns on
+    /// round its circle, so the turn back carries it the opposite way by the same four steps.
     /// </summary>
-    public int ComboState { get; internal set; }
+    public TrigonometryAngle OrbitTurnPerUpdate { get; internal set; }
 
     /// <summary>
     /// Fires the special beam attack: debit the selected beam cost before attempting its family.
@@ -117,8 +117,9 @@ internal sealed class BeamCombos
             _slotTable.ProjectileCounter = parts.Count;
             // The attack waits the cooldown of its first slot's projectile: the combination's charged shot.
             shared.SetSharedCooldown(SamusProjectileCooldowns.Read(beam, BeamShotCooldowns.Shot.Charged));
-            ComboState = kind == SamusComboKind.Spazer ? 0
-                : kind == SamusComboKind.Wave || SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Right) ? 4 : -4;
+            OrbitTurnPerUpdate = kind == SamusComboKind.Spazer ? TrigonometryAngle.Zero
+                : kind == SamusComboKind.Wave || SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Right) ? BeamComboDefinitions.OrbitTurnOn
+                : BeamComboDefinitions.OrbitTurnBack;
             sound = kind switch
             {
                 SamusComboKind.Wave => SamusSound.WaveSpecialAttack,
@@ -190,7 +191,7 @@ internal sealed class BeamCombos
             _animation.ClearProjectile(slot);
             return null;
         }
-        slot.ComboAngle = slot.ComboAngle.TurnedBySteps(ComboState);
+        slot.ComboAngle += OrbitTurnPerUpdate;
         SoundEffectId? sound = null;
         if (outward)
             slot.ComboOrbitRadius = SamusComboMechanics.GrownOrbitRadius(slot.ComboOrbitRadius, 8);
@@ -226,7 +227,7 @@ internal sealed class BeamCombos
         Offset16<RoomPixels> orbit = SamusComboMechanics.GetSineOffset(
             slot.ComboAngle, slot.ComboOrbitRadius);
         slot.Position = slot.Position.WithWhole(new(CoordinateAxis.Wrap(orbit.X + samus.Position.X.Whole), CoordinateAxis.Wrap(orbit.Y + samus.Position.Y.Whole)));
-        slot.ComboAngle = slot.ComboAngle.TurnedBySteps(ComboState);
+        slot.ComboAngle += OrbitTurnPerUpdate;
         switch (slot.PlasmaPhase)
         {
             case PlasmaRingPhase.Expanding:

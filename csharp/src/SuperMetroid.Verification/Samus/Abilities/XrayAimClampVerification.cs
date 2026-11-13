@@ -21,8 +21,8 @@ internal static class XrayAimClampVerification
         for (int width = 0; width <= WidestHalfWidth; width++)
         {
             RotationAngle center = RotationAngle.FromSteps(steps, fraction);
-            AssertEqual(UnwrappedAimUp(center, width), SamusXrayState.AimedUp(center, width), $"aim up from {steps}.{fraction} with half-width {width}");
-            AssertEqual(UnwrappedAimDown(center, width), SamusXrayState.AimedDown(center, width), $"aim down from {steps}.{fraction} with half-width {width}");
+            AssertEqual(UnwrappedAimUp(center, width), SamusXrayState.AimedUp(center, new TrigonometryAngle(width)), $"aim up from {steps}.{fraction} with half-width {width}");
+            AssertEqual(UnwrappedAimDown(center, width), SamusXrayState.AimedDown(center, new TrigonometryAngle(width)), $"aim down from {steps}.{fraction} with half-width {width}");
             cases += 2;
         }
 

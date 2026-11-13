@@ -77,12 +77,12 @@ internal static class EnemyQuadraticSpeedsVerification
         AssertThrows<InvalidDataException>(() => beetom(1, 0), "Beetom's climb with no delta never reaches a height");
         AssertThrows<InvalidDataException>(() => hopper(1, 0), "Hopper's climb with no delta never reaches a height");
 
-        var wings = new Func<EnemyQuadraticSpeedIndex, EnemySpeedSign, RotationAngle>(KiHunterBehavior.ReadKiHunterQuadraticAngleDelta);
+        var wings = new Func<EnemyQuadraticSpeedIndex, EnemySpeedSign, int>(KiHunterBehavior.DetachedWingCoarseSpeed);
         for (int index = 0; index < EnemyQuadraticSpeedDefinitions.RowCount; index++)
         for (int low = 0; low < 256; low++)
         foreach (EnemySpeedSign sign in signs)
-            AssertEqual(EnemySpeedTableCodec.QuadraticCoarseSpeed(cartridge, index, sign), wings(EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(index * 256 + low), sign).RawValue,
-                "KiHunter high-byte index and coarse angle delta");
+            AssertEqual(EnemySpeedTableCodec.QuadraticCoarseSpeed(cartridge, index, sign), wings(EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(index * 256 + low), sign),
+                "KiHunter high-byte index and coarse wing orbit speed");
 
         var addMaw = new Action<YappingMawEnemyState>(YappingMawBehavior.AddYappingMawQuadraticSpeed);
         var maw = new YappingMawEnemyState(new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()).SlotTable.Slots[0]);

@@ -46,7 +46,10 @@ public static class XrayScopeDefinitions
     /// <summary>How the X-ray scope's cone widens.</summary>
     public static class Window
     {
-        /// <summary>Per-frame angular-width growth applied while widening: 2048/65536 of a table unit.</summary>
-        public static readonly SignedSixteenSixteen WideningStep = SignedSixteenSixteen.FromParts(0, 2048);
+        /// <summary>The widening speed's growth each widening call: eight 256ths of a step.</summary>
+        public static readonly RotationAngle WideningStep = RotationAngle.FromSteps(0, 8);
+
+        /// <summary>The half-width a full beam keeps: ten whole steps either side of its centre.</summary>
+        public static readonly RotationAngle WidestHalfWidth = RotationAngle.FromSteps(10);
     }
 }

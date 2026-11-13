@@ -91,7 +91,7 @@ internal sealed class IntroBabyDiscoveryState
 
     /// <summary>
     /// Samus, her demo input and the cinematic sprite objects for one dispatch. All run after
-    /// the cinematic function, so the setup dispatch already plays the demo's first
+    /// the cinematic phase, so the setup dispatch already plays the demo's first
     /// entry, moves Samus and steps the egg and baby.
     /// </summary>
     public void Step(int frameCounter, int introCrossfadeTimer)
@@ -235,7 +235,7 @@ internal sealed class IntroBabyDiscoveryState
                 return;
 
             case CinematicSpriteCueKind.StartIntroPage3:
-                // This cue switches the outer cinematic function to page three. The state
+                // This cue switches the outer cinematic phase to page three. The state
                 // owner performs the palette transition; the actor merely reports the request.
                 PageThreeRequested = true;
                 return;

@@ -17,8 +17,8 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// <remarks>
 /// This is deliberately a cinematic state machine rather than a video or an invented
 /// slideshow. Backgrounds, pictures, palettes, sprite frames, and animation durations
-/// preserve the game's behavior; editable text and fonts come from installed assets. The named phases merely replace the
-/// game's cinematic functions, so the scene steps through the same boundaries the game does.
+/// preserve the game's behavior; editable text and fonts come from installed assets. The named phases follow the
+/// game's cinematic steps one for one, so the scene steps through the same boundaries the game does.
 /// </remarks>
 [RoomScopeBoundary("A cinematic scene that owns its own palette FX for the scene's lifetime; no gameplay room is loaded.")]
 internal sealed class EndingCreditsState : IFrontendScreen
@@ -113,7 +113,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
         switch (Stage.Phase)
         {
             case EndingCreditsPhase.SetupEscapeFromZebes:
-                // Each wait ends the call inside the setup function, before the dispatcher's
+                // Each wait ends the call inside the setup phase, before the dispatcher's
                 // manual-return tail; the call after the last wait runs the scene setup.
                 if (setupFrameWaits < EndingSequenceDefinitions.SetupFrameWaits)
                 {
@@ -352,7 +352,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 break;
 
             case EndingCreditsPhase.PostCreditsShot:
-                // Cinematic function runs before actors; palette fades and queued
+                // The cinematic phase runs before actors; palette fades and queued
                 // tile replacements therefore precede the next sprite cue.
                 PostShot.Step(screen);
                 RewardJump.Step();

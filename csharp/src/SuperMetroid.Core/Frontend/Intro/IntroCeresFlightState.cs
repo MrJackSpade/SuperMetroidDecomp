@@ -81,7 +81,7 @@ internal sealed class IntroCeresFlightState
         objects = new ScreenSprites();
         Backdrop = content.Backdrop;
         // The loads above are invisible: the screen stays black until the music queue drains.
-        // The display setup itself runs as the next dispatch's cinematic function.
+        // The display setup itself runs as the next dispatch's cinematic phase.
         Phase = IntroCeresFlightPhase.Initial;
     }
 
@@ -156,8 +156,8 @@ internal sealed class IntroCeresFlightState
                 break;
 
             case IntroCeresFlightPhase.StartGameAtCeres:
-                // The handoff runs as the update after the screen goes black; it hands control to state
-                // the new-game setup state, whose owner also performs this function's area-six checkpoint save.
+                // The handoff runs as the update after the screen goes black; it hands control to
+                // the new-game setup state, whose owner also performs this phase's area-six checkpoint save.
                 Phase = IntroCeresFlightPhase.Finished;
                 break;
 

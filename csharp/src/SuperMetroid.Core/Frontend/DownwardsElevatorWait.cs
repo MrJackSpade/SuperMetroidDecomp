@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies.Elevator;
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>
-/// The door function before destination loading: every door hit installs an immediate finish, and a downward elevator replaces it
+/// The door transition's phase before destination loading: every door hit installs an immediate finish, and a downward elevator replaces it
 /// with a delay before destination loading resumes.
 /// </summary>
 internal sealed class DownwardsElevatorWait

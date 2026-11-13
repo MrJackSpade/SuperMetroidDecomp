@@ -48,7 +48,7 @@ internal sealed class IntroScientistCutsceneState
     /// <summary>Starts the examined-Baby page with a downward camera pan and page-five handoff.</summary>
     public static IntroScientistCutsceneState CreateExamination() => new(IntroLaboratoryScene.Examination);
 
-    /// <summary>Advances the Baby script and pans on every fourth function tick until the alternate crossfade timer redirects it to deletion.</summary>
+    /// <summary>Advances the Baby script and pans on every fourth cinematic-phase tick until the alternate crossfade timer redirects it to deletion.</summary>
     public void Step(
         int cinematicTimer,
         int introCrossfadeTimer)
@@ -58,7 +58,7 @@ internal sealed class IntroScientistCutsceneState
 
         // The delivery behaviour deletes only when the *alternate* intro counter reaches zero during the
         // later page-four reverse crossfade. The forward scientist fade decrements the
-        // cinematic-function counter while the intro crossfade counter remains 127.
+        // cinematic-phase counter while the intro crossfade counter remains 127.
         if (introCrossfadeTimer == 0)
         {
             baby.Start(CinematicSpriteSegment.Delete);

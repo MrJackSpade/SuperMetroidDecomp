@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.Audio.Synthesis;
 namespace SuperMetroid.AssetExtraction.Audio;
 
 /// <summary>
-/// Renders the extracted audio catalog into installed clips (#1305): every music track in every
+/// Renders the audio's import data, the extracted catalog, into installed clips (#1305, #1693): every music track in every
 /// bank, and every sound effect in every bank context, written as content-addressed 16-bit stereo
 /// WAV files at the native S-DSP rate with an <see cref="AudioClipManifest"/>. Tracks and effects
 /// render in parallel; an effect renders once per distinct start, and a bank context whose start
@@ -18,11 +18,14 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// </summary>
 internal static class AudioClipExporter
 {
+    /// <summary>Directory of every clip file beneath the audio root, which holds it beside the clip index alone.</summary>
+    internal const string ClipDirectory = "clips";
+
     /// <summary>Directory of music clip files beneath the audio root.</summary>
-    internal const string MusicDirectory = "clips/music";
+    internal const string MusicDirectory = ClipDirectory + "/music";
 
     /// <summary>Directory of sound-effect clip files beneath the audio root.</summary>
-    internal const string SoundEffectDirectory = "clips/sfx";
+    internal const string SoundEffectDirectory = ClipDirectory + "/sfx";
 
     /// <summary>One music track to export.</summary>
     /// <param name="Bank">The track's bank.</param>
@@ -39,11 +42,14 @@ internal static class AudioClipExporter
         public int Command { get; init; } = Ensure.BetweenInclusive(0, byte.MaxValue, Command);
     }
 
-    /// <summary>Renders every track and every effect in every bank context of the catalog in <paramref name="audioDirectory"/> into it.</summary>
+    /// <summary>
+    /// Renders every track and every effect in every bank context of the catalog in <paramref name="importDataDirectory"/>
+    /// into <paramref name="audioDirectory"/>.
+    /// </summary>
     /// <exception cref="InvalidDataException">A track has no period, or an effect does not render as its program structure requires.</exception>
-    internal static void Export(string audioDirectory)
+    internal static void Export(string importDataDirectory, string audioDirectory)
     {
-        ExtractedAudioAssetCatalog catalog = ExtractedAudioAssetCatalog.Load(audioDirectory);
+        ExtractedAudioAssetCatalog catalog = ExtractedAudioAssetCatalog.Load(importDataDirectory);
         Export(catalog, audioDirectory, AllTracks(catalog), AllSoundEffects(catalog));
     }
 
@@ -104,7 +110,6 @@ internal static class AudioClipExporter
 
         var manifest = new AudioClipManifest(
             AudioClipManifest.CurrentFormatVersion,
-            catalog.ContentIdentity,
             SpcAudioClipRenderer.NativeSampleRate,
             music,
             [.. outcomes.OfType<InstalledSoundEffectClip>()],
@@ -159,12 +164,12 @@ internal static class AudioClipExporter
             .Single(library => library.Library == SoundLibraryNumbers.Number(key.Library))
             .Effects.Single(candidate => candidate.Command == key.Command);
         AudioBank bank = key.Context ?? AudioAssetCatalogDefinitions.Common.AudioSet;
-        string[] missing = [.. effect.ChannelPrograms
-            .SelectMany(program => scans[program].UnmappedSources(catalog.GetInstrumentBank(bank), catalog.GetSampleBank(bank)))
-            .Distinct()];
         MusicDataSet? context = key.Context is AudioBank loaded ? AudioAssetCatalogDefinitions.Get(loaded).DataSet : null;
-        if (missing.Length != 0)
-            return new UnrenderableSoundEffect(context, SoundEffectCommands.Decode(key.Library, key.Command), missing);
+        // The index records only that the clip set lacks a sample the effect plays: which instrument and sample number
+        // the driver would have looked up is the catalog's numbering, which the installed clips do not carry (#1693).
+        if (effect.ChannelPrograms.Any(program =>
+                scans[program].UnmappedSources(catalog.GetInstrumentBank(bank), catalog.GetSampleBank(bank)).Any()))
+            return new UnrenderableSoundEffect(context, SoundEffectCommands.Decode(key.Library, key.Command));
 
         SoundEffectClipPolicy policy = Policy(libraryIndex, key.Command, effect.Configuration);
         bool loops = effect.ChannelPrograms.Any(program => scans[program].RepeatsForever);
@@ -236,7 +241,10 @@ internal static class AudioClipExporter
             IgnoresLowHealthMode: libraryIndex == 2 && !SpcSoundLibraries.RejectsRequest(libraryIndex, command, priority: 0, mode: SpcDriverDefinitions.SoundEffects.LowHealthMode));
     }
 
-    /// <summary>Writes <paramref name="pcm"/> once under its SHA-256 and returns its manifest file record.</summary>
+    /// <summary>
+    /// Writes <paramref name="pcm"/> once, named by its samples' SHA-256 so identical PCM shares one file, and returns its
+    /// index record.
+    /// </summary>
     private static AudioClipFile Write(string root, string directory, ConcurrentDictionary<string, Lazy<AudioClipFile>> files, short[] pcm)
     {
         string pcmHash = Convert.ToHexString(SHA256.HashData(MemoryMarshal.AsBytes(pcm.AsSpan())));
@@ -245,8 +253,8 @@ internal static class AudioClipExporter
         {
             string path = Path.Combine(root, relative);
             Directory.CreateDirectory(Path.GetDirectoryName(path) ?? throw new InvalidOperationException($"Clip path '{path}' has no directory."));
-            string fileHash = Convert.ToHexString(PcmWaveFile.WriteHashedStereoPcm16(path, SpcAudioClipRenderer.NativeSampleRate, pcm));
-            return new AudioClipFile(relative, fileHash, pcm.Length / 2);
+            PcmWaveFile.WriteStereoPcm16(path, SpcAudioClipRenderer.NativeSampleRate, pcm);
+            return new AudioClipFile(relative, pcm.Length / 2);
         })).Value;
     }
 

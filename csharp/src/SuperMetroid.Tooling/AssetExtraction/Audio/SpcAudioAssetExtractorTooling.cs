@@ -5,16 +5,16 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// <summary>Development-tool members of <see cref="SpcAudioAssetExtractor"/>; never linked by player hosts.</summary>
 internal static class SpcAudioAssetExtractorTooling
 {
-    /// <summary>Extracts all required assets from the repository's private raw directory.</summary>
-    public static AudioAssetManifest Extract(string rawDirectory, string audioDirectory)
+    /// <summary>Extracts the audio's import data, the catalog the clips are rendered from, from the repository's private raw directory into <paramref name="importDataDirectory"/>.</summary>
+    public static AudioAssetManifest Extract(string rawDirectory, string importDataDirectory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(rawDirectory);
-        ArgumentException.ThrowIfNullOrWhiteSpace(audioDirectory);
+        ArgumentException.ThrowIfNullOrWhiteSpace(importDataDirectory);
         rawDirectory = Path.GetFullPath(rawDirectory);
-        audioDirectory = Path.GetFullPath(audioDirectory);
+        importDataDirectory = Path.GetFullPath(importDataDirectory);
         if (!Directory.Exists(rawDirectory))
             throw new DirectoryNotFoundException($"Raw asset directory '{rawDirectory}' does not exist.");
 
-        return SpcAudioAssetExtractor.Extract(definition => File.ReadAllBytes(Path.Combine(rawDirectory, definition.Name + ".bin")), audioDirectory);
+        return SpcAudioAssetExtractor.Extract(definition => File.ReadAllBytes(Path.Combine(rawDirectory, definition.Name + ".bin")), importDataDirectory);
     }
 }

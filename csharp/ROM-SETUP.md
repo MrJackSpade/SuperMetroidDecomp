@@ -69,7 +69,9 @@ Within either platform's application-data root:
 
 - `game/SuperMetroid.smc`: validated, unheadered ROM copy retained by default;
   optional only while all extracted assets remain complete and valid.
-- `game/audio/`: extracted audio streams, WAVs, and metadata catalog.
+- `game/audio/`: the rendered clips of every song and sound (`clips/`) and their index (`audio-clips.json`),
+  which names each sound by name, and nothing else; audio is replaced by clip. The SPC upload streams, the
+  instrument samples and the catalog manifest the clips are rendered from are import data (#1693).
 - `game/maps/gameplay-hud.json`: the HUD's layout, the screen pixel each of its pictures shows at; the HUD's
   tiles, whose cells are the original's packed tile placements, are import data the import pictures the HUD from.
 - `game/pictures/`: the picture store, the pre-coloured pictures every sheet below names, edited in place, and
@@ -89,14 +91,14 @@ Within either platform's application-data root:
 - `game/room-level-streams/`: stock-only native level allocations (collision, BTS and
   streaming baseline) for every room level source. These files are not artwork.
 - `game/xray-reveals/`: stock visual metatile choices for X-ray block reveals.
-- `game/installation.json`: extraction format version and ROM identity. Outside the audio directory, no installed
-  document records the cartridge's digest or the hashes of the files beside it (#1693): the manifests that list
-  the import data's hashes stay with the import data.
+- `game/installation.json`: extraction format version and ROM identity. No other installed document records the
+  cartridge's digest or the hashes of the files beside it (#1693): the manifests that list the import data's
+  hashes stay with the import data.
 - `SuperMetroid.ini`, `SuperMetroid.save.json`, `debug-states/`, and
   `input-recordings/`: player data, outside the replaceable game directory.
 
 Setup stages and validates all generated content before publishing it. A complete
-installation is reused, including valid custom sample replacements. Missing or damaged
+installation is reused, including edited clips. Missing or damaged
 audio is regenerated from the installed ROM; this restores stock audio. Player data is
 preserved. An interrupted directory swap is recovered on the next launch. Concurrent
 installers cannot modify the same installation.
@@ -161,7 +163,8 @@ From the repository root:
 ```powershell
 # Same installation used by the desktop application; optional final argument overrides its root.
 dotnet run --project csharp/src/SuperMetroid.DebugRunner -- assets install "C:\ROMs\Super Metroid.smc"
-# Extract just runtime audio into a chosen directory.
+# Extract just the audio: its clips and their index into the chosen directory, and the catalog they are rendered from
+# into the import-data directory beside it (here C:\private\import-data\audio), as the installer lays them out.
 dotnet run --project csharp/src/SuperMetroid.DebugRunner -- assets audio-rom "C:\ROMs\Super Metroid.smc" "C:\private\audio"
 # Synthetic validation, or full integration from the repository-root Super Metroid.smc.
 dotnet run --project csharp/src/SuperMetroid.IntegrationVerification -c Release -- --asset-import
@@ -178,8 +181,7 @@ dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --tilema
 dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --room-asset-json-contracts "C:\private\SuperMetroid"
 ```
 
-The integration verifier accepts an optional second argument containing reference audio
-to compare every extracted file byte-for-byte. It also tests non-seekable document streams,
+The integration verifier tests non-seekable document streams,
 header normalization, invalid input, cancellation, asset repair, interrupted publication,
 save preservation, and booting the production Android session from the installed layout.
 Legacy raw-data/PNG/map extraction commands remain developer tools; normal setup does not

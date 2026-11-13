@@ -7,20 +7,19 @@ namespace SuperMetroid.AssetExtraction.Audio;
 
 /// <summary>
 /// Reads the installed pre-rendered audio clips (#1305, #1410) into the game's <see cref="ClipAudioLibrary"/>. The clip
-/// manifest, <c>audio-clips.json</c>, names each song by its data set and its part in it, and each sound by its library
-/// and request number, the cartridge's numbering of the sounds; this reader decodes the request numbers into the game's
-/// sounds, and the exporter encodes them back, so the file keeps its format.
-/// Loading checks the manifest's format, contained paths and every file's size; each clip's SHA-256 is checked as
-/// <see cref="InstalledClipFiles"/> reads it.
+/// index, <c>audio-clips.json</c>, names each song by its data set and its part in it, and each sound by its name
+/// (#1693). The audio folder holds this index and the clips it lists, and nothing else.
+/// Loading checks the index's format, contained paths and every file's size; <see cref="InstalledClipFiles"/> checks
+/// each clip's encoding and rate as it reads it.
 /// </summary>
 public static class InstalledAudioClips
 {
-    /// <summary>The clip manifest's file name in the audio root.</summary>
+    /// <summary>The clip index's file name in the audio root.</summary>
     public const string ManifestFileName = "audio-clips.json";
 
     /// <summary>
-    /// Serializer settings of the installed audio files: names in camel case and enums by name. The clip manifest's
-    /// reader adds the decoding of its sound identities to these.
+    /// Serializer settings of the installed audio files: names in camel case and enums by name. The clip index's
+    /// reader adds the spelling of its sound identities to these.
     /// </summary>
     public static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -30,19 +29,17 @@ public static class InstalledAudioClips
     };
 
     /// <summary>
-    /// The clip manifest's serializer settings: the installed audio files' settings plus the decoding of each sound
-    /// entry's library and request number.
+    /// The clip index's serializer settings: the installed audio files' settings plus each sound's name.
     /// </summary>
     public static JsonSerializerOptions ManifestOptions { get; } = new(JsonOptions)
     {
-        Converters = { new SoundEffectClipEntryJsonConverter(), new UnrenderableSoundEffectJsonConverter() },
+        Converters = { new SoundEffectIdJsonConverter() },
     };
 
     /// <summary>
     /// Loads the installed clips beneath <paramref name="audioDirectory"/>, as the player may have edited them in place:
-    /// reads the clip manifest and checks its format and every clip file's containment and size. The manifest names each
-    /// sound by its library and request number; <see cref="ManifestOptions"/> decode them into sounds. The catalog checks
-    /// the manifest's meaning.
+    /// reads the clip index and checks its format and every clip file's containment and size. The catalog checks the
+    /// index's meaning.
     /// </summary>
     /// <exception cref="FileNotFoundException">The manifest or a clip file is missing.</exception>
     /// <exception cref="InvalidDataException">The format, rate, an identity, a sound, a path, a duplicate key, loop bounds or a file size is invalid.</exception>

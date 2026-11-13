@@ -35,7 +35,7 @@ public sealed class InstalledClipAudioLibrary
     /// <summary>The songs, sound effects and acceptance policies the game plays, whose samples the installed clips supply.</summary>
     public ClipAudioLibrary Clips { get; }
 
-    /// <summary>The validated manifest.</summary>
+    /// <summary>The validated clip index.</summary>
     public AudioClipManifest Manifest { get; }
 
     /// <summary>
@@ -43,15 +43,13 @@ public sealed class InstalledClipAudioLibrary
     /// </summary>
     public string ContentIdentity { get; }
 
-    /// <summary>Checks the manifest's rate, source identity, clip lengths, loop bounds and tempo timelines.</summary>
+    /// <summary>Checks the manifest's rate, clip lengths, loop bounds and tempo timelines.</summary>
     /// <returns><paramref name="manifest"/>, once checked.</returns>
     private static AudioClipManifest Validated(AudioClipManifest manifest)
     {
         Ensure.NotNull(manifest);
         if (manifest.SampleRate != SoundClockTiming.SamplesPerUpdate * UpdatesPerSecond)
             throw new InvalidDataException($"Audio clip manifest has rate {manifest.SampleRate}.");
-        if (string.IsNullOrWhiteSpace(manifest.SourceContentIdentity))
-            throw new InvalidDataException("Audio clip manifest names no source content identity.");
         foreach (MusicClipEntry entry in manifest.Music)
         {
             ValidateClip(entry.Clip);
@@ -78,11 +76,11 @@ public sealed class InstalledClipAudioLibrary
         return manifest;
     }
 
-    /// <summary>Checks a clip has frames and a content hash.</summary>
+    /// <summary>Checks a clip has frames.</summary>
     private static void ValidateClip(AudioClipFile clip)
     {
-        if (clip.Frames <= 0 || string.IsNullOrWhiteSpace(clip.Sha256))
-            throw new InvalidDataException($"Audio clip '{clip.Path}' has {clip.Frames} frames or no hash.");
+        if (clip.Frames <= 0)
+            throw new InvalidDataException($"Audio clip '{clip.Path}' has {clip.Frames} frames.");
     }
 
     /// <summary>A data set's name in diagnostics.</summary>

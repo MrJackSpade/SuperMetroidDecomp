@@ -20,7 +20,7 @@ internal static class PausePaletteSoundVerification
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(rom);
         var audio = AudioQueues.Standalone();
         var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()), System = new SharedGameState(new SharedRandom()), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), Audio = audio });
-        var assets = ExtractedAudioAssetCatalog.Load(RepositoryInstallation.Installation.AudioDirectory);
+        var assets = InstalledFixtures.Audio;
         var session = AudioSessionAccess.CreateSynthesizing(assets);
         short[] pcm = new short[AudioSession.PcmSamplesPerFrame];
         int requests = 0;

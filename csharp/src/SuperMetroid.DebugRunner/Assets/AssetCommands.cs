@@ -48,10 +48,13 @@ if (args.Length == 3 && args[0].Equals("audio-rom", StringComparison.OrdinalIgno
 {
     using Stream source = File.OpenRead(args[1]);
     byte[] rom = SupportedCartridge.Read(source);
-    AudioAssetManifest manifest = SpcAudioAssetExtractor.Extract(new CartridgeImportAddressSpace(rom), args[2]);
-    // The installed audio domain also holds the clips rendered from that extraction (#1445).
-    AudioClipExporter.Export(args[2]);
-    Console.WriteLine($"Extracted {manifest.Uploads.Count} streams and {manifest.CanonicalSamples.Count} PCM samples, and rendered their clips.");
+    // As the installer lays them out (#1693): the catalog the clips are rendered from goes to the audio directory's
+    // import data beside it, and the audio directory holds the clips and their index.
+    string audioDirectory = Path.GetFullPath(args[2]);
+    string importData = ImportDataDirectory.Of(audioDirectory);
+    AudioAssetManifest manifest = SpcAudioAssetExtractor.Extract(new CartridgeImportAddressSpace(rom), importData);
+    AudioClipExporter.Export(importData, audioDirectory);
+    Console.WriteLine($"Extracted {manifest.Uploads.Count} streams and {manifest.CanonicalSamples.Count} PCM samples into {importData}, and rendered their clips into {audioDirectory}.");
     return 0;
 }
 if (args.Length == 3 && args[0].Equals("maps", StringComparison.OrdinalIgnoreCase))

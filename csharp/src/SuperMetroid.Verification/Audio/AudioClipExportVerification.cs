@@ -1,6 +1,7 @@
 using System.Text.Json;
 using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
@@ -11,8 +12,9 @@ namespace SuperMetroid.Verification.Audio;
 /// <summary>
 /// Confirms #1305's clip export (confirmation 1): exported clips equal an independent offline
 /// render through <see cref="ManagedSpcAudioBackend"/> from the same entry state, each loop region
-/// equals the render's next pass, and the clip loader rejects hash, path and format mismatches
-/// and a request for an effect its bank context cannot render.
+/// equals the render's next pass, the clip index stores each sound by its name and only its schema fields, and the clip
+/// loader rejects path and format mismatches and a request for an effect its bank context cannot render. The catalog
+/// rendered from is the audio's import data (#1693).
 /// </summary>
 internal static class AudioClipExportVerification
 {
@@ -25,16 +27,16 @@ internal static class AudioClipExportVerification
     /// <summary>The stereo frame its loop starts at.</summary>
     private const long GreenBrinstarPhaseExactLoopStart = 677_376;
 
-    /// <summary>Exports the fixture's music clip into a scratch directory and checks it.</summary>
-    internal static void VerifyMusicClipExport(string audioDirectory) => VerifyAudioClipExport(audioDirectory, music: true);
+    /// <summary>Exports the fixture's music clip from the stock audio catalog into a scratch directory and checks it.</summary>
+    internal static void VerifyMusicClipExport() => VerifyAudioClipExport(music: true);
 
-    /// <summary>Exports the fixture's effect clips into a scratch directory and checks them and the loader.</summary>
-    internal static void VerifyEffectClipExport(string audioDirectory) => VerifyAudioClipExport(audioDirectory, music: false);
+    /// <summary>Exports the fixture's effect clips from the stock audio catalog into a scratch directory and checks them and the loader.</summary>
+    internal static void VerifyEffectClipExport() => VerifyAudioClipExport(music: false);
 
     /// <summary>Exports the fixture's music clip or its effect clips into a scratch directory and checks them.</summary>
-    private static void VerifyAudioClipExport(string audioDirectory, bool music)
+    private static void VerifyAudioClipExport(bool music)
     {
-        ExtractedAudioAssetCatalog catalog = ExtractedAudioAssetCatalog.Load(audioDirectory);
+        ExtractedAudioAssetCatalog catalog = InstalledFixtures.Audio;
         DirectoryInfo scratch = Directory.CreateTempSubdirectory("sm-audio-clips-");
         try
         {
@@ -53,7 +55,6 @@ internal static class AudioClipExportVerification
                     new AudioClipExporter.SoundEffectKey(AudioBank.EmptyCrateria, SoundEffectLibrary.Enemies, SoundEffectCommands.Command(EnemySound.EtecoonTheme)),
                 ]);
             InstalledClipAudioLibrary clips = InstalledAudioClips.Load(scratch.FullName);
-            AssertEqual(catalog.ContentIdentity, clips.Manifest.SourceContentIdentity, "clips name the catalog they were rendered from");
             if (music)
             {
                 VerifyMusic(catalog, clips.Clips, GreenBrinstarPhaseExactTrack);
@@ -99,9 +100,9 @@ internal static class AudioClipExportVerification
     /// clip's end with its loop's first pass again. The clip's length and loop start are the export's, which the music
     /// export check confirms equal the same render.
     /// </summary>
-    internal static void VerifyMusicLoopRepeatsExactly(string audioDirectory)
+    internal static void VerifyMusicLoopRepeatsExactly()
     {
-        ExtractedAudioAssetCatalog catalog = ExtractedAudioAssetCatalog.Load(audioDirectory);
+        ExtractedAudioAssetCatalog catalog = InstalledFixtures.Audio;
         (long frames, long loopStart) = (GreenBrinstarPhaseExactFrames, GreenBrinstarPhaseExactLoopStart);
         short[] independent = RenderTrack(catalog, GreenBrinstarPhaseExactTrack, frames + (frames - loopStart));
         AssertSequenceEqual(independent[(int)(loopStart * 2)..(int)(frames * 2)], independent[(int)(frames * 2)..],
@@ -217,15 +218,22 @@ internal static class AudioClipExportVerification
     }
 
     /// <summary>
-    /// Confirms the manifest stores each sound effect and layer as exactly its schema fields: the game's views the
-    /// records convert to are not written beside them (a stored <c>layer</c> copy changed the receipt in #1503).
+    /// Confirms the index stores itself, each sound effect, layer, clip and unrenderable effect as exactly its schema
+    /// fields: the game's views the records convert to are not written beside them (a stored <c>layer</c> copy changed
+    /// the receipt in #1503), and no source catalog identity, clip digest, request number or instrument source is
+    /// written (#1693). Each sound is stored by its name.
     /// </summary>
     private static void VerifyStoredSoundEffectFields(string manifestPath)
     {
         using JsonDocument manifest = JsonDocument.Parse(File.ReadAllBytes(manifestPath));
-        string[] effectFields = ["context", "library", "command", "policy", "activeFrames", "layers"];
+        string[] indexFields = ["formatVersion", "sampleRate", "music", "soundEffects", "unrenderable"];
+        string[] effectFields = ["context", "sound", "policy", "activeFrames", "layers"];
         // A layer no longer records the voices it was rendered from: only layer replacement read them (#1533).
         string[] layerFields = ["clip", "loopStart", "keyOnFrames"];
+        string[] clipFields = ["path", "frames"];
+        string[] unrenderableFields = ["context", "sound"];
+        AssertTrue(manifest.RootElement.EnumerateObject().Select(field => field.Name).SequenceEqual(indexFields),
+            "the stored index holds exactly its schema fields");
         foreach (JsonElement effect in manifest.RootElement.GetProperty("soundEffects").EnumerateArray())
         {
             AssertTrue(effect.EnumerateObject().Select(field => field.Name).SequenceEqual(effectFields),
@@ -234,34 +242,41 @@ internal static class AudioClipExportVerification
             {
                 AssertTrue(layer.EnumerateObject().Select(field => field.Name).SequenceEqual(layerFields),
                     "a stored sound-effect layer holds exactly its schema fields");
+                AssertTrue(layer.GetProperty("clip").EnumerateObject().Select(field => field.Name).SequenceEqual(clipFields),
+                    "a stored clip holds exactly its path and length");
             }
         }
+        JsonElement[] unrenderable = [.. manifest.RootElement.GetProperty("unrenderable").EnumerateArray()];
+        AssertEqual(1, unrenderable.Length, "the Etecoons' theme is the one effect its Empty Crateria context cannot render");
+        AssertTrue(unrenderable[0].EnumerateObject().Select(field => field.Name).SequenceEqual(unrenderableFields),
+            "a stored unrenderable effect holds exactly its schema fields");
+        AssertEqual("EnemySound.EtecoonTheme", unrenderable[0].GetProperty("sound").GetString(), "an unrenderable effect is stored by its sound's name");
+        AssertTrue(manifest.RootElement.GetProperty("soundEffects").EnumerateArray()
+                .Any(effect => effect.GetProperty("sound").GetString() == "SamusSound.UnchargedPowerBeam"),
+            "a sound effect is stored by its sound's name");
     }
 
-    /// <summary>Runs the clip-export confirmation over the repository installation's audio.</summary>
+    /// <summary>Runs the clip-export confirmation over the repository installation's audio catalog.</summary>
     [VerificationCommand("--music-clip-export")]
     internal static int MusicClipExportCommand()
     {
-        string audioDirectory = RepositoryInstallation.Installation.AudioDirectory;
-        Suite(nameof(VerifyMusicClipExport), () => VerifyMusicClipExport(audioDirectory));
+        Suite(nameof(VerifyMusicClipExport), () => VerifyMusicClipExport());
         return 0;
     }
 
-    /// <summary>Runs the music loop confirmation over the repository installation's audio.</summary>
+    /// <summary>Runs the music loop confirmation over the repository installation's audio catalog.</summary>
     [VerificationCommand("--music-loop-repeats-exactly")]
     internal static int MusicLoopRepeatsExactlyCommand()
     {
-        string audioDirectory = RepositoryInstallation.Installation.AudioDirectory;
-        Suite(nameof(VerifyMusicLoopRepeatsExactly), () => VerifyMusicLoopRepeatsExactly(audioDirectory));
+        Suite(nameof(VerifyMusicLoopRepeatsExactly), () => VerifyMusicLoopRepeatsExactly());
         return 0;
     }
 
-    /// <summary>Runs the effect clip-export confirmation over the repository installation's audio.</summary>
+    /// <summary>Runs the effect clip-export confirmation over the repository installation's audio catalog.</summary>
     [VerificationCommand("--effect-clip-export")]
     internal static int EffectClipExportCommand()
     {
-        string audioDirectory = RepositoryInstallation.Installation.AudioDirectory;
-        Suite(nameof(VerifyEffectClipExport), () => VerifyEffectClipExport(audioDirectory));
+        Suite(nameof(VerifyEffectClipExport), () => VerifyEffectClipExport());
         return 0;
     }
 }

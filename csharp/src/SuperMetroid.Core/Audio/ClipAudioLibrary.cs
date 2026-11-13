@@ -17,7 +17,7 @@ public sealed class ClipAudioLibrary
     /// <summary>Each sound's acceptance policy, the same in every data set.</summary>
     private readonly Dictionary<SoundEffectId, SoundEffectClipPolicy> policies = [];
     /// <summary>Effects with no clip in a clip set, by clip set and sound.</summary>
-    private readonly Dictionary<SoundEffectClipKey, UnrenderableSoundEffect> unrenderable;
+    private readonly HashSet<SoundEffectClipKey> unrenderable;
 
     /// <summary>Creates a catalog over the import's songs and sound effects, whose clips <paramref name="source"/> supplies.</summary>
     /// <param name="music">One clip per song of each clip set.</param>
@@ -51,7 +51,7 @@ public sealed class ClipAudioLibrary
         foreach (UnrenderableSoundEffect entry in unrenderable)
         {
             if (this.soundEffects.ContainsKey(new SoundEffectClipKey(entry.Context, entry.Sound)) ||
-                !this.unrenderable.TryAdd(new SoundEffectClipKey(entry.Context, entry.Sound), entry))
+                !this.unrenderable.Add(new SoundEffectClipKey(entry.Context, entry.Sound)))
             {
                 throw new InvalidDataException(
                     $"Clip manifest lists {entry.Sound} in {ContextName(entry.Context)} twice.");
@@ -73,12 +73,8 @@ public sealed class ClipAudioLibrary
     {
         if (soundEffects.TryGetValue(new SoundEffectClipKey(context, sound), out SoundEffectClipEntry? entry))
             return entry;
-        if (unrenderable.TryGetValue(new SoundEffectClipKey(context, sound), out UnrenderableSoundEffect? missing))
-        {
-            throw new InvalidDataException(
-                $"{sound} has no clip in {ContextName(context)}: the clip set lacks " +
-                $"{string.Join("; ", missing.MissingSources)}.");
-        }
+        if (unrenderable.Contains(new SoundEffectClipKey(context, sound)))
+            throw new InvalidDataException($"{sound} has no clip in {ContextName(context)}: the clip set lacks a sample it plays.");
         throw new KeyNotFoundException($"No sound effect {sound} in {ContextName(context)}.");
     }
 

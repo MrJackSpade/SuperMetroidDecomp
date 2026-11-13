@@ -7,7 +7,7 @@ public static class GameInstallationLayout
     public const string ContentDirectoryName = "game";
     /// <summary>Private validated, unheadered ROM filename retained for asset extraction and repair.</summary>
     public const string RomFileName = "SuperMetroid.smc";
-    /// <summary>Content child directory for the installed audio.</summary>
+    /// <summary>Content child directory for the installed audio: the clips and their index; the catalog they are rendered from is its import data (#1693).</summary>
     public const string AudioDirectoryName = "audio";
     /// <summary>Content child directory for area-map artwork and stock exploration masks.</summary>
     public const string MapDirectoryName = "maps";
@@ -138,7 +138,7 @@ public static class GameInstallationLayout
     /// <summary>Receipt filename within stock content, recording the installation format and source cartridge digest.</summary>
     public const string ReceiptFileName = "installation.json";
     /// <summary>Current installation-receipt version; content whose receipt names another is extracted again before opening.</summary>
-    public const int FormatVersion = 335;
+    public const int FormatVersion = 337;
 
     /// <summary>Backup of the previously published stock game tree during an atomic install.</summary>
     internal const string PreviousDirectoryName = ".game.previous";

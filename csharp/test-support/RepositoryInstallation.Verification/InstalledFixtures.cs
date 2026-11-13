@@ -193,14 +193,15 @@ internal static class InstalledFixtures
         RoomBlockComposition.StockTiles(BlockCompositions, tileset.Blocks, ceres);
 
     /// <summary>
-    /// The installation's stock extracted audio catalog, which the synthesizer's read-only checks compare with uploaded
-    /// APU memory, loaded once per process (#1532). Checks that mutate audio definitions load a private copy instead.
+    /// The installation's stock extracted audio catalog, the import data its clips are rendered from (#1693), which the
+    /// synthesizer's read-only checks compare with uploaded APU memory, loaded once per process (#1532). Checks that mutate
+    /// audio definitions load a private copy instead.
     /// </summary>
     internal static ExtractedAudioAssetCatalog Audio => audio.Value;
 
     /// <summary>Backing loader for <see cref="Audio"/>.</summary>
     private static readonly Lazy<ExtractedAudioAssetCatalog> audio = new(() => SharedFixtureTiming.Load("Fixture: extracted audio",
-        () => ExtractedAudioAssetCatalog.Load(RepositoryInstallation.Installation.AudioDirectory)));
+        () => RepositoryInstallation.Installation.LoadAudio()));
 
     /// <summary>The installation's stock map and presentation catalog the game binds, loaded once per process.</summary>
     internal static AreaMapPresentation Maps => maps.Value.Game;

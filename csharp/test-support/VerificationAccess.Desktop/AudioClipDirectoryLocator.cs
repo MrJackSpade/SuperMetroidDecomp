@@ -1,9 +1,9 @@
 namespace SuperMetroid.Desktop;
 
-/// <summary>Finds extracted audio beside the working or executable directory for verification hosts.</summary>
-internal static class ExtractedAudioAssetLocator
+/// <summary>Finds installed audio clips beside the working or executable directory for verification hosts.</summary>
+internal static class AudioClipDirectoryLocator
 {
-    /// <summary>Walks upward from the working and executable directories to find an audio manifest.</summary>
+    /// <summary>Walks upward from the working and executable directories to find an audio directory holding the clip index.</summary>
     internal static string FindAudioDirectory()
     {
         foreach (string start in new[] { Environment.CurrentDirectory, AppContext.BaseDirectory })
@@ -17,17 +17,18 @@ internal static class ExtractedAudioAssetLocator
                     Path.Combine(directory.FullName, "standalone-assets", "audio"),
                 })
                 {
-                    if (File.Exists(Path.Combine(nested, SuperMetroid.AssetExtraction.Audio.Synthesis.ExtractedAudioAssetCatalog.ManifestFileName)))
+                    if (File.Exists(Path.Combine(nested, SuperMetroid.AssetExtraction.Audio.InstalledAudioClips.ManifestFileName)))
                         return nested;
                 }
                 // Published builds copy the contents under an adjacent audio directory.
                 string adjacent = Path.Combine(directory.FullName, "audio");
-                if (File.Exists(Path.Combine(adjacent, SuperMetroid.AssetExtraction.Audio.Synthesis.ExtractedAudioAssetCatalog.ManifestFileName)))
+                if (File.Exists(Path.Combine(adjacent, SuperMetroid.AssetExtraction.Audio.InstalledAudioClips.ManifestFileName)))
                     return adjacent;
             }
         }
         throw new DirectoryNotFoundException(
-            "Could not find standalone-assets/audio/audio-manifest.json from the working or executable directory. " +
-            "Run SuperMetroid.DebugRunner assets audio standalone-assets/raw standalone-assets/audio first.");
+            "Could not find an audio directory holding audio-clips.json (csharp/.cache/verification-installed-content/game/audio " +
+            "or standalone-assets/audio) from the working or executable directory. " +
+            "Run SuperMetroid.DebugRunner assets audio-rom \"Super Metroid.smc\" standalone-assets/audio first.");
     }
 }

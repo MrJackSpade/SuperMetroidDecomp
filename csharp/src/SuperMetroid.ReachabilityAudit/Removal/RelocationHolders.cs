@@ -1,6 +1,8 @@
 using System.Collections.Immutable;
 using System.Globalization;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SuperMetroid.ReachabilityAudit.SolutionLoading;
 
 namespace SuperMetroid.ReachabilityAudit.Removal;
@@ -71,7 +73,7 @@ internal sealed class RelocationHolders
             RelocationHolder holder;
             if (declared.All(types => types.IsEmpty))
                 holder = new RelocationHolder(name, Path.GetFullPath(Path.Combine(directory, name + ".cs")));
-            else if (MergeTarget(declared, kind, abstractHolder) is { } existing)
+            else if (MergeTarget(declared, kind, abstractHolder, kind == RelocationHolderKind.Members && moved.Any(IsPartialMember)) is { } existing)
             {
                 string path = Path.GetFullPath(existing.DeclaringSyntaxReferences[0].SyntaxTree.FilePath);
                 RejectDeclaredMembers(existing, path, kind, moved);
@@ -92,14 +94,15 @@ internal sealed class RelocationHolders
     /// The class to merge into: one compatible class each target project declares itself, from one file that exactly the
     /// target's projects compile; or null when the name is declared any other way.
     /// </summary>
-    private INamedTypeSymbol? MergeTarget(List<ImmutableArray<INamedTypeSymbol>> declared, RelocationHolderKind kind, bool abstractHolder)
+    private INamedTypeSymbol? MergeTarget(List<ImmutableArray<INamedTypeSymbol>> declared, RelocationHolderKind kind, bool abstractHolder,
+        bool partialMembers)
     {
         var types = new List<INamedTypeSymbol>();
         for (int index = 0; index < targetProjects.Count; index++)
         {
             if (declared[index] is not [var type] ||
                 !SymbolEqualityComparer.Default.Equals(type.ContainingAssembly, targetProjects[index].Compilation.Assembly) ||
-                type.DeclaringSyntaxReferences.Length != 1 || !Compatible(type, kind, abstractHolder))
+                type.DeclaringSyntaxReferences.Length != 1 || !Compatible(type, kind, abstractHolder, partialMembers))
                 return null;
             types.Add(type);
         }
@@ -114,11 +117,19 @@ internal sealed class RelocationHolders
 
     /// <summary>
     /// Whether an existing class can take the members as the tool would render them: a top-level non-generic class, static,
-    /// or abstract and not static for a members holder implementing moved interfaces.
+    /// or abstract and not static for a members holder implementing moved interfaces, and declared partial when partial
+    /// members move into it (CS0751).
     /// </summary>
-    private static bool Compatible(INamedTypeSymbol type, RelocationHolderKind kind, bool abstractHolder) =>
+    private static bool Compatible(INamedTypeSymbol type, RelocationHolderKind kind, bool abstractHolder, bool partialMembers) =>
         type is { TypeKind: TypeKind.Class, IsGenericType: false, ContainingType: null } &&
-        (kind == RelocationHolderKind.Members && abstractHolder ? type is { IsAbstract: true, IsStatic: false } : type.IsStatic);
+        (kind == RelocationHolderKind.Members && abstractHolder ? type is { IsAbstract: true, IsStatic: false } : type.IsStatic) &&
+        (!partialMembers || type.DeclaringSyntaxReferences[0].GetSyntax() is ClassDeclarationSyntax declaration &&
+            declaration.Modifiers.Any(SyntaxKind.PartialKeyword));
+
+    /// <summary>Whether a moved symbol is a partial method or property, whose parts only a partial class declares.</summary>
+    private static bool IsPartialMember(ISymbol symbol) => symbol is IMethodSymbol { IsPartialDefinition: true } or
+        IMethodSymbol { PartialDefinitionPart: not null } or IPropertySymbol { IsPartialDefinition: true } or
+        IPropertySymbol { PartialDefinitionPart: not null };
 
     /// <summary>
     /// Fails when the class merged into already declares a member that moves into it: two such members never compile. An

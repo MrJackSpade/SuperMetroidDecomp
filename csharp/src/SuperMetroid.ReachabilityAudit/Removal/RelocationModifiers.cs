@@ -22,6 +22,9 @@ namespace SuperMetroid.ReachabilityAudit.Removal;
 /// <item>A moved declaration drops <c>new</c>: its holder has no base member to hide. An instance member that becomes an
 /// extension member drops <c>readonly</c>, which an extension member cannot take (CS0106) and which its by-value receiver
 /// makes moot.</item>
+/// <item>A partial method declared without an implementation moves as written: an accessibility modifier would require an
+/// implementation (CS8795). An instance partial method or property that becomes an extension member, whose two parts the
+/// relocator joins into one, drops <c>partial</c>, which no extension block member takes (CS0751).</item>
 /// <item>A staying property's private or protected setter that moved code writes becomes internal, or loses its modifier
 /// when the property is internal, since an accessor's accessibility must be narrower than its property's (CS0273).</item>
 /// </list>
@@ -33,9 +36,16 @@ internal static class RelocationModifiers
     /// <summary>The text of a moved declaration as a member of its holder class.</summary>
     /// <param name="text">The declaration's moved text, with its leading and trailing trivia.</param>
     /// <param name="options">The parse options of the tree the declaration leaves.</param>
-    /// <param name="becomesExtension">Whether the declaration is an instance member of a type that becomes an extension member.</param>
+    /// <param name="becomesExtension">
+    /// Whether the declaration is an instance member of a type that becomes an extension member; it drops <c>partial</c>
+    /// too, since an extension block holds no partial member (CS0751) and the relocator has joined the two parts.
+    /// </param>
+    /// <param name="keepsAccessibility">
+    /// Whether the declaration is a partial method without an implementation, which takes no accessibility modifier
+    /// without becoming one that must be implemented (CS8795), and so moves as written.
+    /// </param>
     /// <exception cref="InvalidOperationException">The text is not one declaration, or is a kind a holder cannot take.</exception>
-    public static string AsHolderMember(string text, CSharpParseOptions options, bool becomesExtension)
+    public static string AsHolderMember(string text, CSharpParseOptions options, bool becomesExtension, bool keepsAccessibility)
     {
         var member = SyntaxFactory.ParseMemberDeclaration(text, options: options);
         if (member is null || member.FullSpan.Length != text.Length || member.ContainsDiagnostics)
@@ -48,10 +58,16 @@ internal static class RelocationModifiers
         }
         else
         {
-            edits.AddRange(HolderAccessibility(member));
+            if (keepsAccessibility)
+            {
+                if (member is not MethodDeclarationSyntax || member.Modifiers.Any(IsAccessibility))
+                    throw new InvalidOperationException($"{Described(member)} is not a partial method declared without accessibility.");
+            }
+            else
+                edits.AddRange(HolderAccessibility(member));
             edits.AddRange(member.Modifiers.Where(m => m.IsKind(SyntaxKind.NewKeyword)).Select(Removal));
             if (becomesExtension)
-                edits.AddRange(member.Modifiers.Where(m => m.IsKind(SyntaxKind.ReadOnlyKeyword)).Select(Removal));
+                edits.AddRange(member.Modifiers.Where(m => m.Kind() is SyntaxKind.ReadOnlyKeyword or SyntaxKind.PartialKeyword).Select(Removal));
         }
         return Applied(text, edits);
     }

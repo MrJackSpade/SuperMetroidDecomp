@@ -16,14 +16,15 @@ using SuperMetroid.AssetExtraction.Rooms.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
 /// <summary>
-/// Extracts the ending/reward maps and sprite compositions, and the ending/reward character pages into the component's
-/// import data (#1636), which only the import reads.
+/// Extracts the ending/reward character pages (#1636) and the maps and sprite compositions, whose entries are the original's
+/// packed tile and sprite placements (#1638), into the component's import data, which only the import reads; the
+/// installation holds only the provenance manifest and the pictures composed from them.
 /// </summary>
 public static class EndingObjectArtworkFiles
 {
     /// <summary>Creates ending/reward PNG transports, BG2 map JSON, sprite-composition JSON, and a hashed manifest.</summary>
     /// <param name="bus">Cartridge import source for compressed character/map streams and native cloud, explosion, text, reward, and logo spritemaps.</param>
-    /// <param name="directory">Destination directory, created if absent; artwork files and manifest must not already exist. The character pages go to its import-data directory.</param>
+    /// <param name="directory">Destination directory, created if absent; artwork files and manifest must not already exist. The character pages, maps and compositions go to its import-data directory.</param>
     /// <param name="sourceCartridgeSha256">Source identity recorded in the manifest; installation loading requires the supported cartridge identity.</param>
     /// <exception cref="InvalidDataException">A native source is too short or a sprite composition is invalid.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory,
@@ -83,7 +84,7 @@ public static class EndingObjectArtworkFiles
             });
             byte[] file = sprites.ToArray();
             string name = EndingCloudSpriteFormat.FileName;
-            using (var output = new FileStream(Path.Combine(directory, name),
+            using (var output = new FileStream(Path.Combine(importData, name),
                        FileMode.CreateNew, FileAccess.Write))
                 output.Write(file);
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(file)));
@@ -103,7 +104,7 @@ public static class EndingObjectArtworkFiles
                 });
             byte[] file = sprites.ToArray();
             string name = EndingExplosionSpriteFormat.FileName;
-            using (var output = new FileStream(Path.Combine(directory, name),
+            using (var output = new FileStream(Path.Combine(importData, name),
                        FileMode.CreateNew, FileAccess.Write))
                 output.Write(file);
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(file)));
@@ -123,7 +124,7 @@ public static class EndingObjectArtworkFiles
                 });
             byte[] file = sprites.ToArray();
             string name = EndingCompletionTextSpriteFormat.FileName;
-            using (var output = new FileStream(Path.Combine(directory, name),
+            using (var output = new FileStream(Path.Combine(importData, name),
                        FileMode.CreateNew, FileAccess.Write))
                 output.Write(file);
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(file)));
@@ -142,7 +143,7 @@ public static class EndingObjectArtworkFiles
                 });
             byte[] file = sprites.ToArray();
             string name = EndingRewardSpriteFormat.FileName;
-            using (var output = new FileStream(Path.Combine(directory, name),
+            using (var output = new FileStream(Path.Combine(importData, name),
                        FileMode.CreateNew, FileAccess.Write))
                 output.Write(file);
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(file)));
@@ -161,7 +162,7 @@ public static class EndingObjectArtworkFiles
                 });
             byte[] file = sprites.ToArray();
             string name = EndingLogoSpriteFormat.FileName;
-            using (var output = new FileStream(Path.Combine(directory, name),
+            using (var output = new FileStream(Path.Combine(importData, name),
                        FileMode.CreateNew, FileAccess.Write))
                 output.Write(file);
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(file)));
@@ -200,7 +201,7 @@ public static class EndingObjectArtworkFiles
                 throw new InvalidDataException($"Ending map source ${source:X6} is shorter than {name}'s native DMA.");
             byte[] native = decoded.AsSpan(0, count).ToArray();
             byte[] json = RoomBackgroundTilemapExtractor.Encode(native);
-            using (var output = new FileStream(Path.Combine(directory, name),
+            using (var output = new FileStream(Path.Combine(importData, name),
                        FileMode.CreateNew, FileAccess.Write))
                 output.Write(json);
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(json)));
@@ -208,25 +209,16 @@ public static class EndingObjectArtworkFiles
     }
 
     /// <summary>
-    /// Checks the manifest's provenance and coverage, then compiles the installed ending maps and sprite compositions
-    /// without cartridge access. No character page is read (#1636).
-    /// </summary>
-    /// <param name="directory">Installed directory containing the BG2 maps, sprite JSON, and provenance/digest manifest.</param>
-    /// <returns>The map and OAM-composition catalog, while actor instructions, timing, and palette selection remain engine-owned.</returns>
-    /// <exception cref="InvalidDataException">Manifest provenance or coverage, or an installed map or sprite composition is invalid.</exception>
-    public static EndingObjectSourceArtwork Load(string directory) => new(ReadParts(directory));
-
-    /// <summary>
     /// Checks the manifest's provenance and coverage, then compiles the ending's maps and sprite compositions with its
     /// object characters from the component's import data <paramref name="importData"/> (#1636).
     /// </summary>
-    /// <param name="directory">The component's directory, holding the maps, sprite JSON and manifest.</param>
-    /// <param name="importData">The component's import-data directory, holding the character pages.</param>
+    /// <param name="directory">The component's directory, holding the manifest.</param>
+    /// <param name="importData">The component's import-data directory, holding the character pages, maps and sprite JSON.</param>
     /// <exception cref="InvalidDataException">Manifest provenance or coverage, or a page, map or sprite composition is invalid.</exception>
     public static ImportEndingObjectArtwork LoadForImport(string directory, string importData)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(importData);
-        EndingObjectArtworkParts parts = ReadParts(directory);
+        EndingObjectArtworkParts parts = ReadParts(directory, importData);
         return new ImportEndingObjectArtwork(parts, new EndingObjectCharacters(
             LoadSheet(EndingObjectArtworkFormat.CloudFileName, EndingObjectArtworkFormat.CloudByteCount),
             LoadSheet(EndingObjectArtworkFormat.ExplosionFileName, EndingObjectArtworkFormat.ExplosionByteCount),
@@ -250,9 +242,12 @@ public static class EndingObjectArtworkFiles
         }
     }
 
-    /// <summary>Checks the manifest's provenance and coverage, then reads the installed maps and sprite compositions.</summary>
-    /// <exception cref="InvalidDataException">Manifest provenance or coverage, or an installed map or sprite composition is invalid.</exception>
-    private static EndingObjectArtworkParts ReadParts(string directory)
+    /// <summary>
+    /// Checks the manifest's provenance and coverage in <paramref name="directory"/>, then reads the maps and sprite
+    /// compositions from the import data <paramref name="importData"/> (#1638).
+    /// </summary>
+    /// <exception cref="InvalidDataException">Manifest provenance or coverage, or a map or sprite composition is invalid.</exception>
+    private static EndingObjectArtworkParts ReadParts(string directory, string importData)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         string manifestPath = Path.Combine(directory,
@@ -305,7 +300,7 @@ public static class EndingObjectArtworkFiles
         EndingCloudSpritePresentation LoadCloudSprites()
         {
             string name = EndingCloudSpriteFormat.FileName;
-            string installedPath = Path.Combine(directory, name);
+            string installedPath = Path.Combine(importData, name);
             try
             {
                 return EndingCloudSpritePresentation.Load(new MemoryStream(
@@ -322,7 +317,7 @@ public static class EndingObjectArtworkFiles
         EndingExplosionSpritePresentation LoadExplosionSprites()
         {
             string name = EndingExplosionSpriteFormat.FileName;
-            string installedPath = Path.Combine(directory, name);
+            string installedPath = Path.Combine(importData, name);
             try
             {
                 return EndingExplosionSpritePresentation.Load(new MemoryStream(
@@ -339,7 +334,7 @@ public static class EndingObjectArtworkFiles
         EndingCompletionTextSpritePresentation LoadCompletionTextSprites()
         {
             string name = EndingCompletionTextSpriteFormat.FileName;
-            string installedPath = Path.Combine(directory, name);
+            string installedPath = Path.Combine(importData, name);
             try
             {
                 return EndingCompletionTextSpritePresentation.Load(new MemoryStream(
@@ -356,7 +351,7 @@ public static class EndingObjectArtworkFiles
         EndingRewardSpritePresentation LoadRewardSprites()
         {
             string name = EndingRewardSpriteFormat.FileName;
-            string installedPath = Path.Combine(directory, name);
+            string installedPath = Path.Combine(importData, name);
             try
             {
                 return EndingRewardSpritePresentation.Load(new MemoryStream(
@@ -373,7 +368,7 @@ public static class EndingObjectArtworkFiles
         EndingLogoSpritePresentation LoadLogoSprites()
         {
             string name = EndingLogoSpriteFormat.FileName;
-            string installedPath = Path.Combine(directory, name);
+            string installedPath = Path.Combine(importData, name);
             try
             {
                 return EndingLogoSpritePresentation.Load(new MemoryStream(
@@ -389,7 +384,7 @@ public static class EndingObjectArtworkFiles
 
         RoomBackgroundTilemapAtlas LoadMap(string name, int expectedBytes)
         {
-            string installedPath = Path.Combine(directory, name);
+            string installedPath = Path.Combine(importData, name);
             try
             {
                 return RoomBackgroundTilemapAtlas.Load(new MemoryStream(

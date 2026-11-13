@@ -2,6 +2,8 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
@@ -71,6 +73,24 @@ public class EndingObjectSourceArtwork
     public EndingRewardSpritePresentation RewardSprites { get; }
     /// <summary>Eight editable compositions for the final assembling logo.</summary>
     public EndingLogoSpritePresentation LogoSprites { get; }
+
+    /// <summary>The compositions of <paramref name="family"/>: the ending's own, or the escaping animals' compiled pods.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The family is not an ending family.</exception>
+    internal ICinematicSpriteFrames SpritesOf(CinematicSpriteFamily family) => family switch
+    {
+        CinematicSpriteFamily.EndingCloud => CloudSprites,
+        CinematicSpriteFamily.EndingExplosion => ExplosionSprites,
+        CinematicSpriteFamily.EndingCompletionText => CompletionTextSprites,
+        CinematicSpriteFamily.EndingReward => RewardSprites,
+        CinematicSpriteFamily.EndingLogo => LogoSprites,
+        CinematicSpriteFamily.EndingAnimalEscape => EndingAnimalEscapeParts.Sprites,
+        CinematicSpriteFamily.IntroDiscoveryActor or CinematicSpriteFamily.IntroEggEffect or CinematicSpriteFamily.IntroRinka or
+            CinematicSpriteFamily.IntroScientist or CinematicSpriteFamily.IntroMotherBrain or CinematicSpriteFamily.IntroMotherBrainExplosion or
+            CinematicSpriteFamily.IntroCaret or CinematicSpriteFamily.IntroNextPageArrow or CinematicSpriteFamily.CeresFlight or
+            CinematicSpriteFamily.CeresDestruction =>
+            throw new ArgumentOutOfRangeException(nameof(family), family, "The family is not an ending family."),
+        _ => throw new ArgumentOutOfRangeException(nameof(family), family, "Undefined cinematic family."),
+    };
 
     /// <summary>
     /// Identity of every selected ending/credits map and the compositions its sheets are composed from; the characters are

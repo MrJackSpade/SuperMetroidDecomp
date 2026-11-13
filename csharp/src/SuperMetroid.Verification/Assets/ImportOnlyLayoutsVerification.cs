@@ -59,6 +59,17 @@ internal static class ImportOnlyLayoutsVerification
         yield return (intro, CeresDestructionSpriteFormat.FileName);
         foreach (string document in MapPresentationFiles.ImportDocumentFiles)
             yield return (GameInstallationLayout.MapDirectoryName, document);
+        string ending = GameInstallationLayout.EndingObjectDirectoryName;
+        for (int fragment = 0; fragment < SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectArtworkFormat.FragmentCount; fragment++)
+            yield return (ending, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectArtworkFormat.FragmentFileName(fragment));
+        yield return (ending, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectArtworkFormat.WaitingTilemapFileName);
+        yield return (ending, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectArtworkFormat.PostCreditsFragmentBFileName);
+        yield return (ending, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectArtworkFormat.PostShotLogoMapFileName);
+        yield return (ending, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingCloudSpriteFormat.FileName);
+        yield return (ending, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingExplosionSpriteFormat.FileName);
+        yield return (ending, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingCompletionTextSpriteFormat.FileName);
+        yield return (ending, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingRewardSpriteFormat.FileName);
+        yield return (ending, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingLogoSpriteFormat.FileName);
         string projectiles = GameInstallationLayout.ProjectileDirectoryName;
         yield return (projectiles, ProjectileSpriteDefinitions.FileName);
         yield return (projectiles, ChargeFlareSpriteExtractor.FileName);

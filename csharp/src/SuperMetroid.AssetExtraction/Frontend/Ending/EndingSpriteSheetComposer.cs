@@ -47,12 +47,12 @@ internal static class EndingSpriteSheetComposer
         SpriteArtwork characters = Characters(page.Transfers, transferArtwork, objectSelection);
         var frames = new List<ColouredFrame<EndingSpriteColouring>>();
         var blank = new List<string>();
-        foreach (ICinematicSpriteFrames family in ShownFamilies(sheet, page.Families(objects), draws))
+        foreach (ICinematicSpriteFrames family in ShownFamilies(sheet, page.Families.Select(objects.SpritesOf), draws))
             AddFamily(frames, blank, family, draws, characters, sizes);
         if (page.Logo)
         {
             SpriteArtwork logo = Characters(LogoTransfers, transferArtwork, objectSelection);
-            foreach (ICinematicSpriteFrames family in ShownFamilies(sheet, [objects.LogoSprites], draws))
+            foreach (ICinematicSpriteFrames family in ShownFamilies(sheet, [objects.SpritesOf(CinematicSpriteFamily.EndingLogo)], draws))
                 AddFamily(frames, blank, family, draws, logo, sizes);
         }
         if (draws.Stars)
@@ -76,38 +76,45 @@ internal static class EndingSpriteSheetComposer
         };
     }
 
-    /// <summary>The frames ending sheet <paramref name="sheet"/> holds: the poses its scene's actors draw from it, and the stars where they cross it.</summary>
-    internal static IEnumerable<string> FrameNames(SpriteSheetId sheet, EndingObjectSourceArtwork objects)
+    /// <summary>
+    /// The frames ending sheet <paramref name="sheet"/> holds: the poses its scene's actors draw from it, and the stars where
+    /// they cross it. They are named from the families' poses (#1638): the compositions are import data.
+    /// </summary>
+    internal static IEnumerable<string> FrameNames(SpriteSheetId sheet)
     {
-        Ensure.NotNull(objects);
         EndingPage page = Page(sheet);
         EndingSheetDraws draws = EndingSceneActors.Of(sheet);
-        IEnumerable<ICinematicSpriteFrames> families = ShownFamilies(sheet, page.Families(objects), draws);
-        if (page.Logo)
-            families = families.Concat(ShownFamilies(sheet, [objects.LogoSprites], draws));
-        IEnumerable<string> names = families.SelectMany(family => family.Frames.Keys.OrderBy(pose => pose.Index)
-            .Where(pose => family.Family != EndingTypedTexts.Family || EndingTypedTexts.Texts.Find(pose) is null)
-            .Select(pose => CinematicSpriteSheet.FrameName(family.Family, pose)).Concat(GlyphNames(family.Family)));
+        IEnumerable<CinematicSpriteFamily> families = page.Logo ? page.Families.Append(CinematicSpriteFamily.EndingLogo) : page.Families;
+        IEnumerable<string> names = families.SelectMany(family => ShownPoses(sheet, family, draws)
+            .Where(pose => family != EndingTypedTexts.Family || EndingTypedTexts.Texts.Find(pose) is null)
+            .Select(pose => CinematicSpriteSheet.FrameName(family, pose)).Concat(GlyphNames(family)));
         return draws.Stars ? names.Concat(StarSheetFrames.Select(EndingShootingStarFrames.SheetFrameName)) : names;
+    }
+
+    /// <summary>
+    /// The poses of <paramref name="family"/> the scene of <paramref name="sheet"/> draws, as <paramref name="draws"/>
+    /// records them, in pose order.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The scene draws a pose the family does not compose.</exception>
+    private static IEnumerable<CinematicSpritePose> ShownPoses(SpriteSheetId sheet, CinematicSpriteFamily family, EndingSheetDraws draws)
+    {
+        var poses = new HashSet<CinematicSpritePose>(draws.Poses(family).Keys);
+        var composed = new HashSet<CinematicSpritePose>(CinematicSpritePoses.Of(family));
+        foreach (CinematicSpritePose pose in poses)
+        {
+            if (!composed.Contains(pose))
+                throw new InvalidDataException($"The scene of {sheet} shows pose {pose.Index}, which none of its families composes.");
+        }
+        return composed.Where(poses.Contains).OrderBy(pose => pose.Index);
     }
 
     /// <summary>
     /// <paramref name="families"/> keeping only the poses the scene of <paramref name="sheet"/> draws from each, as
     /// <paramref name="draws"/> records them.
     /// </summary>
-    /// <exception cref="InvalidDataException">The scene draws nothing from a family, or a pose its family does not compose.</exception>
-    private static ICinematicSpriteFrames[] ShownFamilies(SpriteSheetId sheet, IEnumerable<ICinematicSpriteFrames> families, EndingSheetDraws draws)
-    {
-        var shown = new List<ICinematicSpriteFrames>();
-        foreach (ICinematicSpriteFrames family in families)
-        {
-            var poses = new HashSet<CinematicSpritePose>(draws.Poses(family.Family).Keys);
-            ICinematicSpriteFrames drawn = CinematicShownFrames.Of(family, poses, _ => true);
-            CinematicShownFrames.RequireComposed($"The scene of {sheet}", poses, [drawn]);
-            shown.Add(drawn);
-        }
-        return [.. shown];
-    }
+    /// <exception cref="InvalidDataException">The scene draws a pose its family does not compose.</exception>
+    private static ICinematicSpriteFrames[] ShownFamilies(SpriteSheetId sheet, IEnumerable<ICinematicSpriteFrames> families, EndingSheetDraws draws) =>
+        [.. families.Select(family => CinematicShownFrames.Of(family, new HashSet<CinematicSpritePose>(ShownPoses(sheet, family.Family, draws)), _ => true))];
 
     /// <summary>
     /// Adds each of <paramref name="family"/>'s poses over <paramref name="characters"/>, its palette-inheriting parts in the
@@ -199,14 +206,14 @@ internal static class EndingSpriteSheetComposer
         return sheet switch
         {
             SpriteSheetId.EndingCloudSprites => new(EndingReward.Armored, [new EndingTransfer(EndingTransferKind.EscapeClouds)],
-                objects => [objects.CloudSprites], Logo: false, EscapeColours),
+                [CinematicSpriteFamily.EndingCloud], Logo: false, EscapeColours),
             SpriteSheetId.EndingExplosionSprites => new(EndingReward.Armored,
                 [
                     new EndingTransfer(EndingTransferKind.ExplosionObjects),
                     .. Enum.GetValues<EndingObjectFragmentId>().Select(fragment => new EndingTransfer(EndingTransferKind.ExplosionMap, Fragment: fragment)),
                     new EndingTransfer(EndingTransferKind.EndingFont),
                 ],
-                objects => [objects.ExplosionSprites, objects.CompletionTextSprites, EndingAnimalEscapeParts.Sprites], Logo: false,
+                [CinematicSpriteFamily.EndingExplosion, CinematicSpriteFamily.EndingCompletionText, CinematicSpriteFamily.EndingAnimalEscape], Logo: false,
                 palettes => SpritesOf(palettes, EndingPaletteId.Explosion)),
             SpriteSheetId.EndingSuitedRewardSprites => Reward(EndingReward.Armored),
             SpriteSheetId.EndingSuitlessRewardSprites => Reward(EndingReward.Suitless),
@@ -245,14 +252,14 @@ internal static class EndingSpriteSheetComposer
 
     /// <summary>The post-credits reward page of an ending of <paramref name="reward"/>.</summary>
     private static EndingPage Reward(EndingReward reward) => new(reward,
-        [new EndingTransfer(EndingTransferKind.CreditsCharacterArt)], objects => [objects.RewardSprites], Logo: false, PostCreditsColours);
+        [new EndingTransfer(EndingTransferKind.CreditsCharacterArt)], [CinematicSpriteFamily.EndingReward], Logo: false, PostCreditsColours);
 
     /// <summary>
     /// The shooting scene: the falling, landing and shooting Samus and the stars over the post-credits art, and the logo
     /// the scene ends on over its own characters. The reward's characters lie outside this page, so any reward shows it.
     /// </summary>
     private static EndingPage Shooting => new(EndingReward.Armored,
-        [new EndingTransfer(EndingTransferKind.CreditsCharacterArt)], objects => [objects.RewardSprites], Logo: true, PostCreditsColours);
+        [new EndingTransfer(EndingTransferKind.CreditsCharacterArt)], [CinematicSpriteFamily.EndingReward], Logo: true, PostCreditsColours);
 
     /// <summary>The escape scenes' sprite colours.</summary>
     private static RgbColor[] EscapeColours(EndingPaletteSet palettes) => SpritesOf(palettes, EndingPaletteId.Escape);
@@ -268,6 +275,6 @@ internal static class EndingSpriteSheetComposer
     /// sprite colours its scene loads.
     /// </summary>
     private sealed record EndingPage(EndingReward Reward, IReadOnlyList<EndingTransfer> Transfers,
-        Func<EndingObjectSourceArtwork, IEnumerable<ICinematicSpriteFrames>> Families, bool Logo,
+        IReadOnlyList<CinematicSpriteFamily> Families, bool Logo,
         Func<EndingPaletteSet, RgbColor[]> SpriteColours);
 }

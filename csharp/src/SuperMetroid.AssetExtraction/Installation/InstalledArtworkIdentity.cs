@@ -64,7 +64,7 @@ public static class InstalledArtworkIdentity
                 SetupBlocks = Require(artwork.RoomObjectSetupBlocks),
             }))
             .Concat(GameplayPresentationIdentity.Create(Require(artwork.XrayRevealVisuals)))
-            .Concat(EndingPresentationIdentity.Create(sources.EndingObjects, Require(artwork.EndingBackdrops)))
+            .Concat(EndingPresentationIdentity.Create(Require(artwork.EndingBackdrops)))
             .Append(KeyValuePair.Create(GameInstallationLayout.IntroCinematicDirectoryName, sources.Intro.ContentIdentity))
             .Append(KeyValuePair.Create(GameInstallationLayout.SpriteSheetDirectoryName, Require(artwork.SpriteSheets).ContentIdentity))
             .Append(KeyValuePair.Create(GameInstallationLayout.EnemySheetDirectoryName, Require(artwork.EnemySheets).ContentIdentity))

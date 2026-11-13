@@ -15,14 +15,14 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks installed projectile sprite bindings independently of timed mechanics.</summary>
 internal static class ProjectileFrameBindingsVerification
 {
-    /// <summary>Checks every timed record's native sprite reference, both projectile handlers, the installed bindings and malformed binding documents.</summary>
+    /// <summary>Checks every projectile frame's native sprite reference, both projectile handlers, the installed bindings and malformed binding documents.</summary>
     internal static void VerifyProjectileFrameBindings(ISnesAddressSpace rom)
     {
         byte[] stockJson = ProjectileFrameBindingExtractor.Extract(rom);
         var stock = ProjectileFrameBindingFile.Load(new MemoryStream(stockJson, writable: false));
         AssertEqual(ProjectileFrameBindingFormat.FrameCount,
             SamusProjectileFrameDefinitions.TimedRecordAddresses.Count,
-            "physical timed records and visual frame bindings have identical coverage");
+            "the frames' gameplay and their visual bindings have identical coverage");
         foreach (ushort pointer in SamusProjectileFrameDefinitions.TimedRecordAddresses)
         {
             int address = SamusSourceDefinitions.ProjectileDataBank.Value | unchecked((ushort)(pointer + 2));
@@ -58,9 +58,9 @@ internal static class ProjectileFrameBindingsVerification
             AssertTrue(nativeShot.FrameHold.RawValue is > 0 and < 0x8000,
                 "native inventory contains timed records");
             AssertEqual(false, shots.Animation.AdvanceProjectileAnimation(installedShot),
-                "installed projectile timed record survives");
+                "installed projectile frame survives");
             AssertEqual(false, bombs.AdvanceProjectileAnimation(installedBomb),
-                "installed bomb timed record survives");
+                "installed bomb frame survives");
             AssertEqual(nativeShot.SpritemapPointer, installedShot.SpritemapPointer,
                 "installed projectile frame selects the native sprite");
             AssertEqual(nativeBomb.SpritemapPointer, installedBomb.SpritemapPointer,
@@ -94,7 +94,7 @@ internal static class ProjectileFrameBindingsVerification
         document.Frames[frameName] = "sprite_0000";
         AssertThrows<InvalidDataException>(() => ProjectileFrameBindingFile.Load(new MemoryStream(ProjectileFrameBindingFile.Write(document))),
             "uncatalogued sprite selection fails before gameplay");
-        Console.WriteLine("Projectile frame bindings: 805 timed records, both handlers, installed bindings and malformed documents pass.");
+        Console.WriteLine("Projectile frame bindings: 805 frames, both handlers, installed bindings and malformed documents pass.");
     }
 
     /// <summary>Runs the projectile frame binding checks.</summary>

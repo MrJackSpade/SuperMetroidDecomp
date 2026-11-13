@@ -39,6 +39,22 @@ internal static class CoreVocabularyAnalyzerTests
         Expect("class P { void Run() { int frameCounterByte = 0; } }", "'frameCounterByte' names the hardware ('Byte')");
         Expect("class P { void SaveToSram() { } }", "'SaveToSram' names the hardware ('Sram')");
         Expect("class P { void SpawnEprojInner() { } }", "'SpawnEprojInner' names the hardware ('Eproj')");
+        Expect("class P { int ReadOpcodes() => 0; }", "'ReadOpcodes' names the hardware ('Opcode')");
+        // The interpreter's vocabulary for the original's streams, its instructions, their operands and its numbered
+        // handler commands, in each kind of declaration a renamed Core identifier used it in (#1624).
+        Expect("abstract record CeresSteamCue { internal sealed record Command : CeresSteamCue; }", "'Command' names the hardware ('Command')");
+        Expect("enum SamusProspectivePoseChangeCommand { None }", "'SamusProspectivePoseChangeCommand' names the hardware ('Command')");
+        Expect("static class SamusPoseChangeCommands { }", "'SamusPoseChangeCommands' names the hardware ('Command')");
+        Expect("class P { void ApplyLookupFailureCommand() { } }", "'ApplyLookupFailureCommand' names the hardware ('Command')");
+        Expect("enum DrainedSamusPhase { WaitingForFallingCommand }", "'WaitingForFallingCommand' names the hardware ('Command')");
+        Expect("class P { void Run(bool selectedMomentumCommand) { } }", "'selectedMomentumCommand' names the hardware ('Command')");
+        Expect("class P { int[] _instructions = []; }", "'_instructions' names the hardware ('Instruction')");
+        Expect("sealed class EnemyInstructionContext { }", "'EnemyInstructionContext' names the hardware ('Instruction')");
+        Expect("class P { int OperandStep(int frame) => frame; }", "'OperandStep' names the hardware ('Operand')");
+        Expect("static class RoomStateSelectorOperands { }", "'RoomStateSelectorOperands' names the hardware ('Operand')");
+        Expect("class P { void Run() { int operandSteps = 0; _ = operandSteps; } }", "'operandSteps' names the hardware ('Operand')");
+        // Words that begin with the same letters are the game's own: a commander, a commando, an instructor, an operator.
+        Expect("class P { int Commander; int Commando; int Instructor; int Operator; int Operation; int Operational; }");
         // The cartridge's record headers, in each kind of declaration a renamed identity used them in (#1685).
         Expect("sealed class RoomHeaderDefinition { }", "'RoomHeaderDefinition' names the hardware ('Header')");
         Expect("static class SamusProjectileHeaders { }", "'SamusProjectileHeaders' names the hardware ('Header')");

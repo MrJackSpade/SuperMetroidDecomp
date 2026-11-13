@@ -13,11 +13,11 @@ namespace SuperMetroid.Verification.Samus.Poses;
 /// <summary>
 /// Confirms #1535's reported chains through the production animation stepper: the Baby's rainbow stop on the right-facing
 /// morph and the Hyper Beam freeze on the left-facing unmorph and the right-facing crouch transition read on past the
-/// pose's program, operands included, and end in the transition the game reaches. Every expected value is derived from
+/// pose's program, cue values included, and end in the transition the game reaches. Every expected value is derived from
 /// the cartridge's programs: the ticks are the bytes the read passes, each a delay, and the pose is the one the decoded
-/// instruction it reaches publishes.
+/// cue it reaches publishes.
 /// </summary>
-internal static class SamusOperandPlaceReadsVerification
+internal static class SamusCueValuePlaceReadsVerification
 {
     /// <summary>The bank holding the animation programs, whose table words name places in it.</summary>
     private const int ProgramBank = 0x910000;
@@ -29,7 +29,7 @@ internal static class SamusOperandPlaceReadsVerification
     private const int ProgramsEnd = 0xb5d1;
 
     /// <summary>Drives each reported chain and compares it with the cartridge's bytes.</summary>
-    internal static void VerifySamusOperandPlaceReads(ISnesAddressSpace bus)
+    internal static void VerifySamusCueValuePlaceReads(ISnesAddressSpace bus)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
         VerifyChain(cartridge, SamusPoseId.MorphingTransitionRightPose, "rainbow stop",
@@ -38,13 +38,13 @@ internal static class SamusOperandPlaceReadsVerification
             SamusDrainedState.FreezeForHyperBeamAcquisition, SamusPoseId.DraygonHeldBallLeftPose);
         VerifyChain(cartridge, SamusPoseId.CrouchingTransitionRightPose, "Hyper Beam freeze",
             SamusDrainedState.FreezeForHyperBeamAcquisition, SamusPoseId.FacingRightNormalPose);
-        Console.WriteLine("Samus operand-place reads: the three reported over-read chains end where the cartridge's bytes lead.");
+        Console.WriteLine("Samus cue-value place reads: the three reported over-read chains end where the cartridge's bytes lead.");
     }
 
     /// <summary>
     /// Starts <paramref name="pose"/>'s animation, applies <paramref name="write"/>, then steps the animation tick by tick:
     /// no transition may be pending until the read has passed every delay byte after the written frame, and on that tick
-    /// the decoded instruction's pose, which must be <paramref name="reported"/>, is pending.
+    /// the decoded cue's pose, which must be <paramref name="reported"/>, is pending.
     /// </summary>
     private static void VerifyChain(IImportCartridgeSource cartridge, SamusPoseId pose, string writer, Action<SamusState> write,
         SamusPoseId reported)
@@ -70,8 +70,8 @@ internal static class SamusOperandPlaceReadsVerification
             place++;
             AssertTrue(place < ProgramsEnd, $"{pose} at the {writer} reads within the programs");
         }
-        SamusPoseId expected = PublishedPose(DecodedInstructionAt(cartridge, place));
-        AssertEqual(reported, expected, $"{pose} at the {writer} reaches the instruction that publishes {reported}");
+        SamusPoseId expected = PublishedPose(DecodedCueAt(cartridge, place));
+        AssertEqual(reported, expected, $"{pose} at the {writer} reaches the cue that publishes {reported}");
 
         for (int tick = 1; tick <= ticks; tick++)
         {
@@ -81,9 +81,9 @@ internal static class SamusOperandPlaceReadsVerification
         AssertEqual<SamusPoseId?>(expected, samus.PendingTransitionalPose, $"{pose} at the {writer} publishes {expected} after {ticks} ticks");
     }
 
-    /// <summary>The instruction a decoded program holds at window position <paramref name="place"/>.</summary>
-    /// <exception cref="InvalidDataException">No program's run ends with an instruction there.</exception>
-    private static SamusAnimationCue DecodedInstructionAt(IImportCartridgeSource cartridge, int place)
+    /// <summary>The cue a decoded program holds at window position <paramref name="place"/>.</summary>
+    /// <exception cref="InvalidDataException">No program's run ends with a cue there.</exception>
+    private static SamusAnimationCue DecodedCueAt(IImportCartridgeSource cartridge, int place)
     {
         for (int number = 0; number < SamusAnimationProgramCodec.PoseCount; number++)
         {
@@ -96,28 +96,28 @@ internal static class SamusOperandPlaceReadsVerification
                     return run.End;
             }
         }
-        throw new InvalidDataException($"No decoded Samus program holds an instruction at $91:{place:X4}.");
+        throw new InvalidDataException($"No decoded Samus program holds a cue at $91:{place:X4}.");
     }
 
-    /// <summary>The pose <paramref name="instruction"/> publishes for a Samus with no items who is not moving vertically.</summary>
-    /// <exception cref="InvalidDataException">The instruction publishes no pose.</exception>
-    private static SamusPoseId PublishedPose(SamusAnimationCue instruction) => instruction switch
+    /// <summary>The pose <paramref name="cue"/> publishes for a Samus with no items who is not moving vertically.</summary>
+    /// <exception cref="InvalidDataException">The cue publishes no pose.</exception>
+    private static SamusPoseId PublishedPose(SamusAnimationCue cue) => cue switch
     {
         SamusAnimationTransition transition => transition.Pose,
         SamusAnimationTurnTransition turn => turn.Pose,
         SamusAnimationItemTransition item => item.Unequipped,
         SamusAnimationItemAirborneTransition itemAirborne => itemAirborne.UnequippedGrounded,
         SamusAnimationVerticalSpeedTransition verticalSpeed => verticalSpeed.Grounded,
-        _ => throw new InvalidDataException($"Samus animation instruction {instruction} publishes no pose."),
+        _ => throw new InvalidDataException($"Samus animation cue {cue} publishes no pose."),
     };
 
-    /// <summary>Runs the operand-place reads check against the retail ROM.</summary>
-    [VerificationCommand("--samus-operand-place-reads")]
-    internal static int SamusOperandPlaceReadsCommand()
+    /// <summary>Runs the cue-value place reads check against the retail ROM.</summary>
+    [VerificationCommand("--samus-cue-value-place-reads")]
+    internal static int SamusCueValuePlaceReadsCommand()
     {
         string sourceRom = Path.GetFullPath("Super Metroid.smc");
         CartridgeImportAddressSpace bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
-        Suite(nameof(VerifySamusOperandPlaceReads), () => VerifySamusOperandPlaceReads(bus));
+        Suite(nameof(VerifySamusCueValuePlaceReads), () => VerifySamusCueValuePlaceReads(bus));
         return 0;
     }
 }

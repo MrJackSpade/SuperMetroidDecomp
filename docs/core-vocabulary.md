@@ -23,7 +23,9 @@ The words, kept in one place in the analyzer (`CoreVocabularyAnalyzer.HardwareWo
 `Snes`, `Vram`, `Cgram`, `Oam`, `Obj`, `Dma`, `Hdma`, `Nmi`, `Apu`, `Spc`, `Dsp`, `Wram`, `Ppu`, `Native`, `Rom`, `Bank`,
 `Pointer`, `Address`, `Cartridge`, `Mode7`, `Register`, and the CPU's return and jump mnemonics `Rts`, `Rtl`, `Jsr`,
 `Jsl`, `Jmp`, `Jml` that routine labels carry (#1481), the storage widths, save memory, opcodes and program labels
-`Word`, `Byte`, `Sram`, `Opcode`, `Plm`, `Eproj` (#1558), and `Header`, the cartridge's record headers that named rooms,
+`Word`, `Byte`, `Sram`, `Opcode`, `Plm`, `Eproj` (#1558), the interpreter's vocabulary for the original's streams
+`Command`, `Operand`, `Instruction` (#1624: a Core cue signals, a reveal has a shape, a frame carries its gameplay and
+a pose update has a momentum response), and `Header`, the cartridge's record headers that named rooms,
 room objects, effects, projectiles and enemies by the structure the program stored them in (#1685), and the
 cartridge's sprite and raster vocabulary (#1694): `Spritemap`, the frame the cartridge built from hardware sprite
 pieces (a Core picture is a frame, a picture or a composition); `Scanline`, the display's raster line (a Core screen

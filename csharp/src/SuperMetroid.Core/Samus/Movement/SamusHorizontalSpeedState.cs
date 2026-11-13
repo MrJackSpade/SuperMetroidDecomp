@@ -580,7 +580,7 @@ public sealed class SamusHorizontalSpeedState
         AccelerationMode = SamusAccelerationMode.Accelerating;
     }
 
-    /// <summary>Runs input fallback command two: stop acceleration and cancel boost, without clearing velocity.</summary>
+    /// <summary>Stops Samus on an input fallback: stops acceleration and cancels boost, without clearing velocity.</summary>
     public void ApplyStoppedInputFallback(SamusFacingDirection facingDirection)
     {
         AccelerationMode = SamusAccelerationMode.Accelerating;

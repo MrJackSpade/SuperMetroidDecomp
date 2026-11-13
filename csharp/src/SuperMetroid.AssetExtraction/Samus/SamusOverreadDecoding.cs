@@ -35,7 +35,7 @@ internal static class SamusOverreadDecoding
         return new SamusOverreadDocument(
             SamusOverreadFormat.Version,
             AnimationContinuations(cartridge),
-            SamusAnimationOperandDecoding.OperandSteps(cartridge),
+            SamusAnimationCueValueDecoding.CueValueSteps(cartridge),
             SpaceTimeOverwrites(cartridge, lists),
             ChainsawFuseLandings(lists),
             PostureAdmissions(cartridge),

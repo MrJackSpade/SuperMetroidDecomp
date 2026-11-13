@@ -9,8 +9,9 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// The pose update after normal beta's animation: animation command three, the interruptions, the collision
-/// transitions, the input transition alpha selected or its lookup-failure command, and the pose-history commit.
+/// The pose update after normal beta's animation: the pose the animation's pose-transition cue left pending, the
+/// interruptions, the collision transitions, the input transition alpha selected or the momentum response its lookup
+/// failure selected, and the pose-history commit.
 /// </summary>
 internal sealed class SamusPoseTransitionPhase
 {
@@ -53,11 +54,11 @@ internal sealed class SamusPoseTransitionPhase
         if (samus.KnockbackTimer == 0 && samus.KnockbackDirection == SuperMetroid.Core.Samus.Movement.SamusKnockbackDirection.None)
             SamusPoseMetadata.RejectUnsupportedPublishedBombJump(samus, _freeze.TimeIsFrozen);
 
-        // The turn-transition animation cue's command-three “super-special” transition wins at this seam.
-        // It publishes a turn-completion pose only if alpha did not select one
-        // of its four jump exceptions. When published, it still wins here.
-        // The hurt-expiry check samples hurt expiry before the pose update applies a queued
-        // animation command. Preserve that decision even if Shinespark setup
+        // The pose the animation's pose-transition cue left pending outranks every other transition at this seam.
+        // The turn's cue leaves a turn-completion pose only if alpha did not select one
+        // of its four jump exceptions. When left pending, it still wins here.
+        // The hurt-expiry check samples hurt expiry before the pose update installs the animation's
+        // pending pose. Preserve that decision even if Shinespark setup
         // clears the live knockback direction while installing the shinespark windup poses.
         bool hitInterruptionExpiryPending =
             SamusKnockbackMovement.IsExpiredHitInterruptionPending(samus);
@@ -73,7 +74,7 @@ internal sealed class SamusPoseTransitionPhase
         else if (!animationTransitionApplied)
             ApplyLookupFailureResponse(frame, samus);
 
-        // Crouching selects command two only on lookup failure. A matched
+        // Crouching stops Samus's momentum only on lookup failure. A matched
         // angle-held pose must retain boost even though movement zeroed X speed.
         if (!animationTransitionApplied && frame.UsePoseDefinitionFallback &&
             _player.ProspectiveSamusPose is null &&
@@ -82,7 +83,7 @@ internal sealed class SamusPoseTransitionPhase
             samus.HorizontalSpeed.ApplyStoppedInputFallback(SamusPoseMetadata.ReadFacingDirection(samus));
 
         // Windup still runs the ordinary special-movement-type input lookup. Its unmatched
-        // chord selects command two, just like crouching. Skipping
+        // chord stops Samus's momentum, just like crouching. Skipping
         // this loses the one-frame momentum cancellation before a delayed
         // midair launch. A selected launch or timeout must win instead.
         if (!animationTransitionApplied && frame.UsePoseDefinitionFallback &&
@@ -91,7 +92,7 @@ internal sealed class SamusPoseTransitionPhase
             samus.Shinespark.Phase == ShinesparkPhase.Windup)
             samus.HorizontalSpeed.ApplyStoppedInputFallback(SamusPoseMetadata.ReadFacingDirection(samus));
 
-        // Falling's lookup-failure command still runs when its definition
+        // Falling's lookup-failure momentum response still runs when its definition
         // retains the current pose. It follows pose initialization, and must
         // not run when a higher-priority collision or interruption won.
         if (!animationTransitionApplied && frame.UsePoseDefinitionFallback &&
@@ -112,7 +113,7 @@ internal sealed class SamusPoseTransitionPhase
         // The grapple launch applies its transitional
         // slot early and clears ordinary alpha input. It still reaches this
         // same history epilogue, once, after the forced launch pose.
-        // X-ray setup applies interrupted-slot command five early and clears
+        // X-ray's activation installs its pose and handlers early and clears
         // ordinary alpha targets. Preserve its final history commit here.
         if (animationTransitionApplied || frame.XrayActivatedThisFrame || _player.LastGrappleMovement is { WallJumpStarted: true } ||
             _player.ProspectiveSamusPose is not null ||
@@ -156,8 +157,8 @@ internal sealed class SamusPoseTransitionPhase
         }
 
         // Crash movement queues a transitional pose; it must not replace the
-        // body Samus's animation saw earlier in this frame. Command-three
-        // animation transitions retain their higher priority.
+        // body Samus's animation saw earlier in this frame. The animation's
+        // pending transition pose retains its higher priority.
         if (!animationTransitionApplied && _player.LastShinesparkMovement is { CrashSequenceFinished: true })
         {
             SamusShinesparkState.ApplyCrashFinishPose(samus);
@@ -170,8 +171,8 @@ internal sealed class SamusPoseTransitionPhase
         // Expiry still permits this frame's movement and animation. Its
         // transitional slot wins over the ordinary input selected in alpha,
         // even when a damage boost has already restored normal movement.
-        // With an animation command three already pending, changes it
-        // to command eight: keep the animation pose and ALSO clear hurt state.
+        // With the animation's transition pose already installed, finishing
+        // the hit keeps that pose and ALSO clears the hurt state.
         if (hitInterruptionExpiryPending)
         {
             SamusKnockbackMovement.FinishExpiredHitInterruption(samus);
@@ -184,7 +185,7 @@ internal sealed class SamusPoseTransitionPhase
         // The pose interruption runs after Samus's animation and before the pose update. Terrain
         // spike reactions only publish their damage request; this common interruption
         // converts that request into the same hurt pose and special movement handler
-        // used by every damage producer. Animation command three retains
+        // used by every damage producer. The animation's pending transition pose retains
         // its higher pose-update priority and therefore suppresses this branch.
         if (!animationTransitionApplied &&
             SamusKnockbackMovement.TryStartPendingHitInterruption(
@@ -207,7 +208,7 @@ internal sealed class SamusPoseTransitionPhase
         // Active hurt values retain the request without arming or rejecting it;
         // expiry owns this frame even after clearing those values. This permits
         // a later bomb launch to retain the damaged pose, with input locked by
-        // special command three rather than an early speculative pose change.
+        // the armed bomb jump rather than an early speculative pose change.
         if (!animationTransitionApplied && samus.KnockbackTimer == 0 &&
             samus.KnockbackDirection == SuperMetroid.Core.Samus.Movement.SamusKnockbackDirection.None &&
             SamusPoseMetadata.TrySetupPublishedBombJump(samus, 
@@ -246,8 +247,8 @@ internal sealed class SamusPoseTransitionPhase
             animationTransitionApplied = true;
         }
 
-        // Grapple connection publishes a special prospective command.
-        // Super-special animation/hurt owners above can suppress it without
+        // Grapple connection publishes a pending connection pose.
+        // The animation and hurt transitions above can suppress it without
         // undoing the already-installed beam function. This is the
         // ordering used by bounded Grapple momentum-retention setups.
         if (!animationTransitionApplied &&
@@ -306,7 +307,7 @@ internal sealed class SamusPoseTransitionPhase
         }
 
         // The wall-stop check runs inside the pose update after beta movement/animation and
-        // only when no super-special animation command has already won. Its first
+        // only when no animation or interruption transition has already won. Its first
         // branch consumes the X-speed-killed flag produced by CURRENT type-one
         // running movement. This creates a wall-stop pose even with no input match.
         // An unobstructed upward platform carry leaves the prospective input
@@ -349,7 +350,7 @@ internal sealed class SamusPoseTransitionPhase
             SamusGroundedPoseTransitions.ApplyRanIntoWallPoseChange(samus, wallCollisionPose);
             animationTransitionApplied = true;
             // The wall-stop check replaces only ProspectivePose. When alpha's table lookup
-            // failed, the pose update still runs the command
+            // failed, the pose update still runs the momentum response
             // selected for the pre-wall movement type.
             if (_player.ProspectiveSamusPose is null && _player.ProspectiveSamusFallbackPose is not null)
             {
@@ -380,8 +381,8 @@ internal sealed class SamusPoseTransitionPhase
             animationTransitionApplied = true;
         }
 
-        // The wall-jump check publishes solid-vertical collision result five and reports
-        // a collision, preventing vertical motion. The matching command
+        // The wall-jump check publishes its wall-jump collision result and reports
+        // a collision, preventing vertical motion. The wall-jump trigger
         // installs the wall-jump pose, clears old momentum, and launches from fixed constants.
         if (!animationTransitionApplied &&
             _player.LastAerialSamusMovement is { WallJumpTriggered: true })
@@ -402,10 +403,10 @@ internal sealed class SamusPoseTransitionPhase
             animationTransitionApplied = true;
         }
 
-        // A downward collision publishes result one. The landing check chooses normal or
-        // spin landing from the movement type that executed this frame, then pose
-        // command five clears both velocity axes. This ordinary prospective pose
-        // is lower priority than an animation command-three transition above.
+        // A downward collision publishes a landing. The landing check chooses normal or
+        // spin landing from the movement type that executed this frame, then settling
+        // the accepted landing clears both velocity axes. This ordinary prospective pose
+        // is lower priority than the animation's pending transition pose above.
         if (!animationTransitionApplied &&
             _player.LastAerialSamusMovement is { Landed: true } &&
             !SamusPoseMetadata.IsAerialTurnPose(frame.PoseAtFrameStart))
@@ -937,9 +938,9 @@ internal sealed class SamusPoseTransitionPhase
         if (frame.PoseAtFrameStart is SamusPoseId.KnockbackRightPose or SamusPoseId.KnockbackLeftPose &&
                  _player.ProspectiveSamusFallbackPose == frame.PoseAtFrameStart)
         {
-            // The retained hurt pose still executes prospective command two.
+            // The retained hurt pose still stops Samus's momentum.
             // Reset deceleration and cancel the momentum flag after movement.
-            // Extra speed survives this command, but the next normal mover
+            // Extra speed survives the stop, but the next normal mover
             // consumes the cancellation through HandleExtraRunSpeed.
             samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
             samus.HorizontalSpeed.CancelRunningMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
@@ -968,11 +969,11 @@ internal sealed class SamusPoseTransitionPhase
                      SamusPoseId.SpinJumpRightPose or SamusPoseId.SpinJumpLeftPose)
         {
             // The pose definition leaves the launch animation for ordinary spin
-            // art. The wall-jumping movement type selects command six. The pose change
+            // art. The wall-jumping movement type kills Samus's X speed. The pose change
             // reports a replacement only when the pose's initialization itself replaces the
-            // installed pose; then the pose update skips the command. So
+            // installed pose; then the pose update skips the kill. So
             // a spin jump keeps its launch speed only when initialization promotes it
-            // to Space Jump or Screw Attack; otherwise the command clears base/extra speed.
+            // to Space Jump or Screw Attack; otherwise the kill clears base/extra speed.
             SamusPoseId spinFallback = unchecked(_player.ProspectiveSamusFallbackPose.Value);
             SamusAerialPoseTransitions.ApplySpinJumpDirectionTransition(samus, spinFallback);
             if (samus.Pose == spinFallback)
@@ -988,8 +989,8 @@ internal sealed class SamusPoseTransitionPhase
                      SamusPoseId.SpringBallFallingRightPose or SamusPoseId.SpringBallFallingLeftPose &&
                  _player.ProspectiveSamusFallbackPose == frame.PoseAtFrameStart)
         {
-            // Spring Ball in air/falling (their own movement types) select command six in
-            // the pose command table. After this frame's movement, command six clears mode and base
+            // Spring Ball in air/falling (their own movement types) kill Samus's X speed on
+            // lookup failure. After this frame's movement, the kill clears mode and base
             // speed and falls through to its boost/extra-speed cancel.
             samus.HorizontalSpeed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
         }
@@ -997,8 +998,8 @@ internal sealed class SamusPoseTransitionPhase
                      SamusPoseId.SpringBallGroundRightPose or SamusPoseId.SpringBallGroundLeftPose &&
                  _player.ProspectiveSamusFallbackPose == frame.PoseAtFrameStart)
         {
-            // Command six clears base/mode, then cancels extra running momentum.
-            // Consume the same-pose command after this frame's movement.
+            // Killing X speed clears base/mode, then cancels extra running momentum.
+            // Consume the same-pose response after this frame's movement.
             samus.HorizontalSpeed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
         }
         else if ((frame.PoseAtFrameStart is SamusPoseId.MorphBallMovingRightPose or
@@ -1007,9 +1008,9 @@ internal sealed class SamusPoseTransitionPhase
                      SamusPoseId.SpringBallMovingLeftPose) &&
                  _player.ProspectiveSamusFallbackPose == frame.PoseAtFrameStart)
         {
-            // Prospective command one rechecks the post-movement base speeds. A
-            // residue selects mode two deceleration; exact zero falls through to
-            // command two's stopped mode and definition fallback on the next frame.
+            // Decelerating rechecks the post-movement base speeds. A
+            // residue selects the decelerating mode; exact zero falls through to
+            // the stop's accelerating mode and definition fallback on the next frame.
             samus.HorizontalSpeed.AccelerationMode =
                 samus.HorizontalSpeed.HasBaseSpeed ? SamusAccelerationMode.Decelerating : SamusAccelerationMode.Accelerating;
         }
@@ -1021,7 +1022,7 @@ internal sealed class SamusPoseTransitionPhase
                      SamusPoseId.MorphBallGroundRightPose or SamusPoseId.MorphBallGroundLeftPose or
                      SamusPoseId.SpringBallGroundRightPose or SamusPoseId.SpringBallGroundLeftPose)
         {
-            // Command six clears base and extra momentum after the
+            // Killing X speed clears base and extra momentum after the
             // current movement frame for both grounded ball movement types.
             samus.HorizontalSpeed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
             SamusPosturePoseTransitions.ApplyMorphBallPoseChange(samus, 
@@ -1031,7 +1032,7 @@ internal sealed class SamusPoseTransitionPhase
                   SamusPoseMetadata.IsLeftFacingRunningPose(frame.PoseAtFrameStart)) &&
                  _player.ProspectiveSamusFallbackPose == frame.PoseAtFrameStart)
         {
-            // Retaining the running fallback selected command one in alpha.
+            // Retaining the running fallback selected deceleration in alpha.
             // After movement, fold extra dash speed into base and cancel boost
             // before decelerating; changing only the mode leaves stale dash
             // speed alive and changes the subsequent stopping trajectory.
@@ -1059,7 +1060,7 @@ internal sealed class SamusPoseTransitionPhase
         else if (SamusPoseMetadata.IsMoonwalkingPose(frame.PoseAtFrameStart) &&
                  _player.ProspectiveSamusFallbackPose is { } moonwalkFallback)
         {
-            // Command two selected the literal standing/aim fallback during alpha.
+            // The stop selected the literal standing/aim fallback during alpha.
             // Applying it after movement preserves the one-last-step timing.
             SamusGroundedPoseTransitions.ApplyMoonwalkPoseChange(samus, 
                 unchecked(moonwalkFallback),
@@ -1103,7 +1104,7 @@ internal sealed class SamusPoseTransitionPhase
                   frame.MovementTypeAtFrameStart == SamusMovementType.TurningOnGround))
         {
             // A definition without a fallback pose retains the animation, not the momentum
-            // command. Command two still cancels reverse acceleration,
+            // response. The stop still cancels reverse acceleration,
             // for ground turns exactly as for aerial ones.
             SamusGroundedPoseTransitions.ApplyTurnInputFallback(samus, frame.MovementTypeAtFrameStart);
         }
@@ -1111,7 +1112,7 @@ internal sealed class SamusPoseTransitionPhase
                  _player.ProspectiveSamusFallbackPose is { } jumpFallback)
         {
             // An unchanged prospective pose must not reset animation or invoke
-            // compact-radius expansion. Command one still folds momentum after
+            // compact-radius expansion. Decelerating still folds momentum after
             // beta movement and rechecks the remaining base speed there.
             if (jumpFallback != samus.Pose)
                 SamusAerialPoseTransitions.ApplyAerialAimTransition(samus, unchecked(jumpFallback));
@@ -1122,7 +1123,7 @@ internal sealed class SamusPoseTransitionPhase
                  _player.ProspectiveSamusFallbackPose is { } aerialFallback)
         {
             // Install the fallback's pose metadata and initializer first.
-            // Falling command eight below then clears only the extra component;
+            // Falling's run-speed kill, after this response, then clears only the extra component;
             // it must not be folded into base speed like running deceleration.
             // A retained compact pose selects history/momentum work only;
             // pose initialization and animation restart require a change.

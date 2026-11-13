@@ -60,7 +60,7 @@ public static class SamusGrappleBeamDrawing
 
         grapple.FlareAnimationTimer = grapple.FlareAnimationTimer.Decrement().Remaining;
         if (grapple.FlareAnimationTimer.IsNegative)
-            ShowFlare(grapple, ChargeFlareAnimations.NextMainFlare(grapple.FlareAnimationFrame));
+            ShowFlare(grapple, ChargeFlareAnimations.NextMainFlare(grapple.FlarePicture));
 
         int screenX = CoordinateAxis.Wrap(grapple.BeamStart.X - cameraPosition.X);
         int screenY = CoordinateAxis.Wrap(grapple.BeamStart.Y - cameraPosition.Y);
@@ -69,8 +69,8 @@ public static class SamusGrappleBeamDrawing
         // The grapple shows the main flare's pictures alone, the same for either facing. The flare is Samus's own, so it
         // shows the sheet of the beams she has equipped (#1586).
         SuperMetroid.Core.Samus.Artwork.ProjectileSpriteId picture =
-            SuperMetroid.Core.Samus.Artwork.ChargeFlarePictures.Of(ChargeFlareComponent.MainFlare, facingLeft: false, grapple.FlareAnimationFrame)
-            ?? throw new InvalidOperationException($"The grapple flare's picture {grapple.FlareAnimationFrame} shows no main flare.");
+            SuperMetroid.Core.Samus.Artwork.ChargeFlarePictures.Of(ChargeFlareComponent.MainFlare, facingLeft: false, grapple.FlarePicture.Index)
+            ?? throw new InvalidOperationException($"The grapple flare's picture {grapple.FlarePicture.Index} shows no main flare.");
         SpriteSheetFrame image = objects.SheetOf(SamusBeamCombinations.Of(samus.EquippedBeams)).Frame(SuperMetroid.Core.Samus.Artwork.ProjectileSheetFrames.FlareFrame(
             picture));
         sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusGrappleFlare), image,
@@ -86,7 +86,7 @@ public static class SamusGrappleBeamDrawing
         // A beam that starts already connected has no preceding firing history, so it
         // begins at the same first flare state rather than inventing a static flare.
         grapple.FlareStage = GrappleFlareStage.JustFired;
-        grapple.FlareAnimationFrame = 0;
+        grapple.FlarePicture = ChargeFlareAnimations.FirstPicture;
         grapple.FlareAnimationTimer = WrappingCountdown.Start(0);
         grapple.PointAnimationTimer = WrappingCountdown.Start(GrapplePointAnimationDefinitions.Delay);
         grapple.PointAnimationFrame = 0;
@@ -120,7 +120,7 @@ public static class SamusGrappleBeamDrawing
     /// <summary>Shows <paramref name="step"/>'s main-flare picture on the grapple's flare and holds it for the step's wait.</summary>
     private static void ShowFlare(SamusGrappleState grapple, ChargeFlareStep step)
     {
-        grapple.FlareAnimationFrame = step.Phase;
+        grapple.FlarePicture = new ChargeFlarePhase(step.Phase);
         grapple.FlareAnimationTimer = step.Hold;
     }
 
@@ -233,7 +233,7 @@ public static class SamusGrappleBeamDrawing
         // Every grapple teardown clears these same shared charge/grapple
         // values before restoring the ordinary draw handler and projectile palette.
         grapple.FlareStage = GrappleFlareStage.None;
-        grapple.FlareAnimationFrame = 0;
+        grapple.FlarePicture = ChargeFlareAnimations.FirstPicture;
         grapple.FlareAnimationTimer = WrappingCountdown.Start(0);
     }
 }

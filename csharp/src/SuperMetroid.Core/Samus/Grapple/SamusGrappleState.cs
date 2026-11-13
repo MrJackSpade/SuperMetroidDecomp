@@ -180,10 +180,12 @@ public sealed class SamusGrappleState
     /// The main-flare picture the grapple's flare shows, one of the main flare's pictures: the flare restarts at the
     /// main flare's loop when fired and plays its program on from there.
     /// </summary>
-    public int FlareAnimationFrame
+    public ChargeFlarePhase FlarePicture
     {
         get;
-        set => field = Ensure.BetweenInclusive(0, ChargeFlareAnimations.LastPicture(ChargeFlareComponent.MainFlare), value);
+        set => field = ChargeFlareAnimations.IsPicture(ChargeFlareComponent.MainFlare, value.Index)
+            ? value
+            : throw new ArgumentOutOfRangeException(nameof(value), value, "The grapple's flare shows only the main flare's pictures.");
     }
 
     /// <summary>The wait the grapple's flare holds its picture for: the picture shows for it and one update more.</summary>

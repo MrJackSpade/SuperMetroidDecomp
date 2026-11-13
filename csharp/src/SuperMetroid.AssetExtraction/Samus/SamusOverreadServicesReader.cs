@@ -31,7 +31,6 @@ internal static class SamusOverreadServicesReader
         var projectiles = new SamusProjectileOverreads(
             SpaceTimeOverwrite(Require(document.SpaceTimeOverwrites, nameof(document.SpaceTimeOverwrites))),
             ChainsawFuseShift(Require(document.ChainsawFuseLandings, nameof(document.ChainsawFuseLandings))),
-            ChargeFlareDelays(Require(document.ChargeFlareDelaysBelowPrograms, nameof(document.ChargeFlareDelaysBelowPrograms))),
             PostureAdmission(Require(document.PostureAdmissions, nameof(document.PostureAdmissions))),
             UnauthoredFiring(Require(document.UnauthoredBeamLaunchSpeeds, nameof(document.UnauthoredBeamLaunchSpeeds)),
                 Require(document.UnauthoredBeamCooldowns, nameof(document.UnauthoredBeamCooldowns))),
@@ -204,12 +203,6 @@ internal static class SamusOverreadServicesReader
             ? new(program, cursor.Position)
             : throw new InvalidDataException($"Samus overread file names step {cursor.Position} of {program}, which it does not have.");
     }
-
-    /// <summary>The charge flare's delays below its programs, one per byte of the table naming them.</summary>
-    private static ChargeFlareDelaysBelowPrograms ChargeFlareDelays(IReadOnlyList<int> delays) =>
-        delays.Count == ChargeFlareDelaysBelowPrograms.Places && delays.All(delay => delay is >= 0 and <= byte.MaxValue)
-            ? new(delays)
-            : throw new InvalidDataException($"Samus overread file holds {delays.Count} charge-flare delays below the programs, not {ChargeFlareDelaysBelowPrograms.Places} bytes.");
 
     /// <summary>Whether each pose outside the transition table admits weapons.</summary>
     private static PostureAdmissionBeyondTransitions<SamusPoseId> PostureAdmission(IReadOnlyDictionary<string, bool> admissions)

@@ -16,15 +16,12 @@ internal sealed class ProjectileAnimation
     private readonly BeamChargeState _charge;
     /// <summary>Owns the shot count reduced when a delete cue ends a projectile.</summary>
     private readonly ProjectileSlotTable _slotTable;
-    /// <summary>The delays a flare frame wrapping below the flare's programs reads.</summary>
-    private readonly ChargeFlareDelaysBelowPrograms _flareDelaysBelow;
 
     /// <summary>Binds projectile cues to live slot ownership and charge-flare state.</summary>
-    internal ProjectileAnimation(BeamChargeState charge, ProjectileSlotTable slotTable, ChargeFlareDelaysBelowPrograms flareDelaysBelow)
+    internal ProjectileAnimation(BeamChargeState charge, ProjectileSlotTable slotTable)
     {
         _charge = charge;
         _slotTable = slotTable;
-        _flareDelaysBelow = Ensure.NotNull(flareDelaysBelow);
     }
     /// <summary>Plays timed frames, jumps and deletion; publishes frame radius and animation metadata when the countdown expires.</summary>
     internal bool RunProjectileInstructionHandler(
@@ -93,7 +90,7 @@ internal sealed class ProjectileAnimation
         CountdownStep hold = _charge.CountFlareHold(component);
         if (hold.IsNonNegative)
             return;
-        _charge.ShowFlare(component, ChargeFlareAnimations.Next(component, _charge.FlarePhase(component), _flareDelaysBelow));
+        _charge.ShowFlare(component, ChargeFlareAnimations.Next(component, _charge.FlarePhase(component)));
     }
 
     /// <summary>

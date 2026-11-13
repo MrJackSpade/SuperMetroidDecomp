@@ -27,19 +27,4 @@ public static class ChargeFlareSpriteDefinitions
         2, 1, 2, 1, 2, 1, 2, 1,
         2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3,
     ];
-
-    /// <summary>
-    /// The spark compositions' families after the main flare's pictures, in the order the flare's draw lays its pictures
-    /// out: the right-facing slow and fast sparks, then the left-facing slow and fast sparks, six pictures each.
-    /// </summary>
-    internal static readonly ProjectileSpriteGroup[] SparkRuns =
-    [
-        ProjectileSpriteGroup.FlareSlowSparksRight,
-        ProjectileSpriteGroup.FlareFastSparksRight,
-        ProjectileSpriteGroup.FlareSlowSparksLeft,
-        ProjectileSpriteGroup.FlareFastSparksLeft,
-    ];
-
-    /// <summary>The pictures the flare's draw counts a component's place within: a place 256 pictures on shows the same one.</summary>
-    internal const int DrawnPictureCycle = 256;
 }

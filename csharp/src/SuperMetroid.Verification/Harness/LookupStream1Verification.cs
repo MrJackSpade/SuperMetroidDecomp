@@ -980,7 +980,6 @@ internal static class LookupStream1Verification
         Suite(nameof(VerifyLookupStream1PowampMotion), () => VerifyLookupStream1PowampMotion(rom));
         Suite(nameof(VerifyLookupStream1CommonFrames), () => VerifyLookupStream1CommonFrames(rom));
         Suite(nameof(VerifyLookupStream1EnemyMovement), () => VerifyLookupStream1EnemyMovement(rom));
-        Suite(nameof(VerifyLookupStream1CadencePrograms), () => VerifyLookupStream1CadencePrograms(rom));
         ushort Word(int address) => LittleEndianBytes.Word(LookupStream1RomByte(rom, address), LookupStream1RomByte(rom, address + 1));
         foreach (SamusLiquidMedium medium in Enum.GetValues<SamusLiquidMedium>())
         {
@@ -1072,29 +1071,6 @@ internal static class LookupStream1Verification
     /// <summary>The patrol distance the import decodes from a Cacatac's travel selector.</summary>
     private static int CacatacTravelDistance(int selector) =>
         ((CacatacSpawnSettings)EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Cacatac, PopulationWords.Parameters(0, selector))).TravelDistance;
-    /// <summary>Checks the installed waits below the charge flare's programs against the table naming the programs.</summary>
-    internal static void VerifyLookupStream1CadencePrograms(ISnesAddressSpace rom)
-    {
-        // A main-flare place wrapping below its first picture reads the table naming the programs: the three program
-        // words, which hold each program's place in the bank. The installed waits must be those bytes.
-        var below = InstalledFixtures.SamusOverreads.Projectiles.ChargeFlareDelays;
-        int[] programStarts = [0, 32, 39];
-        int places = SuperMetroid.Core.Compatibility.ChargeFlareDelaysBelowPrograms.Places;
-        for (int distance = 1; distance <= places; distance++)
-        {
-            int tableByte = places - distance;
-            ushort programWord = (ushort)(SamusSourceDefinitions.ChargeFlarePrograms.Offset + programStarts[tableByte / sizeof(ushort)]);
-            byte expected = tableByte % sizeof(ushort) == 0 ? LittleEndianBytes.LowByte(programWord) : LittleEndianBytes.HighByte(programWord);
-            AssertEqual(LookupStream1CadenceProgramsRomByte(rom, SamusSourceDefinitions.ChargeFlarePrograms.Value - distance), expected,
-                "stream1 flare program table names each program's place");
-            AssertEqual(expected, below.DelayBelow(distance), "stream1 installed flare wait below the programs");
-        }
-        AssertThrows<ArgumentOutOfRangeException>(() => below.DelayBelow(places + 1),
-            "stream1 flare read below the program table is rejected");
-    }
-
-    /// <summary>Reads native charge-flare and animation cadence instructions.</summary>
-    private static byte LookupStream1CadenceProgramsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     /// <summary>Checks the beam initializer's launch speeds against the bank-$90 speed words it reads, overreads included.</summary>
     internal static void VerifyLookupStream1ProjectileMotion(ISnesAddressSpace rom)
     {
@@ -2145,15 +2121,6 @@ internal static class LookupStream1Verification
     internal static int LookupStream1HudPostureCommand()
     {
         Suite(nameof(VerifyLookupStream1HudPosture), () => VerifyLookupStream1HudPosture(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
-        return 0;
-    }
-
-    /// <summary>Runs the charge flare cadence program lookups against the retail cartridge.</summary>
-    [VerificationCommand("--lookup-stream-1-cadence-programs")]
-    internal static int LookupStream1CadenceProgramsCommand()
-    {
-        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        Suite(nameof(VerifyLookupStream1CadencePrograms), () => VerifyLookupStream1CadencePrograms(rom));
         return 0;
     }
 

@@ -22,9 +22,8 @@ internal static class ChargeFlareDefinitionsVerification
 
     /// <summary>
     /// Decodes each component's original delay program into its pictures' waits and the picture its end continues at,
-    /// and compares them with the typed programs; then plays every component over repeated loops, from every picture at
-    /// each wait boundary, and below the main flare's first picture, comparing each picture and wait with the original
-    /// routine's reading of the cartridge.
+    /// and compares them with the typed animations; then plays every component over repeated loops and from every picture
+    /// at each wait boundary, comparing each picture and wait with the original routine's reading of the cartridge.
     /// </summary>
     internal static void VerifyChargeFlareDefinitions(CartridgeImportAddressSpace bus)
     {
@@ -78,10 +77,6 @@ internal static class ChargeFlareDefinitionsVerification
                 ticks++;
             }
             IEnumerable<int> starts = Enumerable.Range(0, ChargeFlareAnimations.LastPicture(component) + 1);
-            // The places the Hyper Beam's backward count leaves below the main flare's first picture read the table below
-            // its program, then reach the first picture.
-            if (component == ChargeFlareComponent.MainFlare)
-                starts = starts.Concat(Enumerable.Range(ushort.MaxValue - SuperMetroid.Core.Compatibility.ChargeFlareDelaysBelowPrograms.Places, SuperMetroid.Core.Compatibility.ChargeFlareDelaysBelowPrograms.Places + 1));
             foreach (ushort hold in new ushort[] { 0, 1, 2, 0x8000, 0xffff })
             foreach (int start in starts)
             {
@@ -97,17 +92,17 @@ internal static class ChargeFlareDefinitionsVerification
             }
         }
 
-        // A place outside a program that is neither below the main flare's first picture nor just before a first
-        // picture is no program's; the port plays no further.
+        // A place outside an animation is no picture of it: only the Hyper Beam's backward count reaches one, and the ordinary
+        // flare never plays again once Samus has the Hyper Beam, so the port plays no further from it (#1624).
         foreach ((ChargeFlareComponent component, int phase) in new[]
                  {
                      (ChargeFlareComponent.MainFlare, 30), (ChargeFlareComponent.MainFlare, ushort.MaxValue - 7),
+                     (ChargeFlareComponent.MainFlare, ushort.MaxValue - 1), (ChargeFlareComponent.MainFlare, ushort.MaxValue),
                      (ChargeFlareComponent.SlowSparks, 6), (ChargeFlareComponent.FastSparks, ushort.MaxValue - 1),
                  })
         {
-            AssertThrows<InvalidOperationException>(
-                () => ChargeFlareAnimations.Next(component, phase, InstalledFixtures.SamusOverreads.Projectiles.ChargeFlareDelays),
-                $"{component} picture {phase} is outside its program");
+            AssertThrows<InvalidOperationException>(() => ChargeFlareAnimations.Next(component, phase),
+                $"{component} picture {phase} is outside its animation");
         }
         // The Hyper Beam's flare counts each component's picture back three updates at a time, fast sparks first, and the
         // fast sparks reaching their first picture end the flare; from its own start and from an ordinary flare's pictures
@@ -156,8 +151,9 @@ internal static class ChargeFlareDefinitionsVerification
             }
         }
 
-        // Each component's picture for each facing at every place 0 through 65535 is the composition the original
-        // selector table names at the component's run start plus the place within 256, and nothing past the table.
+        // Each component's picture for each facing is the composition the original selector table names at the component's
+        // run start plus the picture; every other place 0 through 65535, which only the Hyper Beam's count reaches, shows
+        // nothing, not the next run's picture the original draw showed there (a presentation quirk, #1624).
         ushort[] nativeTable = [.. Enumerable.Range(0, SuperMetroid.Core.Samus.Artwork.ChargeFlareSpriteNative.NativeSelectorCount)
             .Select(selector => RomDataReader.ReadWordFixedBank(cartridge, SuperMetroid.Core.Samus.Artwork.ChargeFlareSpriteDefinitionsConstants.SelectorTable + selector * 2))];
         int pictures = 0;
@@ -171,14 +167,14 @@ internal static class ChargeFlareDefinitionsVerification
                 ChargeFlareComponent.FastSparks => facingLeft ? 48 : 36,
                 _ => throw new InvalidOperationException($"Undefined {nameof(ChargeFlareComponent)} {component}."),
             };
+            int runLength = ChargeFlareAnimations.LastPicture(component) + 1;
             for (int phase = 0; phase <= ushort.MaxValue; phase++)
             {
-                int selector = runStart + phase % 256;
                 SuperMetroid.Core.Samus.Artwork.ProjectileSpriteId? picture = SuperMetroid.Core.Samus.Artwork.ChargeFlarePictures.Of(component, facingLeft, phase);
-                if (selector >= nativeTable.Length)
-                    AssertTrue(picture is null, $"{component} place {phase} facing left {facingLeft} shows nothing past the selector table");
+                if (phase >= runLength)
+                    AssertTrue(picture is null, $"{component} place {phase} facing left {facingLeft} is none of its pictures and shows nothing");
                 else
-                    AssertEqual(nativeTable[selector], picture is { } named ? SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.Address(named) : (ushort)0,
+                    AssertEqual(nativeTable[runStart + phase], picture is { } named ? SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.Address(named) : (ushort)0,
                         $"{component} place {phase} facing left {facingLeft} shows the original selector's composition");
                 pictures++;
             }

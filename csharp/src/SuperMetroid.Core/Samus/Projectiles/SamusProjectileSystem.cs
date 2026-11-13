@@ -107,7 +107,7 @@ public sealed class SamusProjectileSystem
         SlotTable = new ProjectileSlotTable(muzzleCarry);
         Earthquakes = new ProjectileEarthquakes();
         ImpactAudio = new ProjectileImpactAudio(AudioRequests);
-        Animation = new ProjectileAnimation(Charge, SlotTable, overreads.ChargeFlareDelays);
+        Animation = new ProjectileAnimation(Charge, SlotTable);
         TerrainCollision = new ProjectileTerrainCollision(Animation, Earthquakes, ImpactAudio, samusOverreads.StraddledTerrain);
         EnemyImpacts = new ProjectileEnemyImpacts(Animation, Earthquakes, SlotTable, TerrainCollision, overreads.UnauthoredBeamFiring);
         Trails = new ProjectileTrails();

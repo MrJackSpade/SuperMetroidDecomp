@@ -3,25 +3,34 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Installation;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
-/// <summary>Installs seven literal bank-$8A sky tilemap pages as JSON a player edits in place.</summary>
+/// <summary>
+/// The scrolling sky's seven tilemap pages as import data (#1638): each cell's placed character is the import's input to the
+/// sky's pictures, and the game reads none of them, so the pages and their manifest go to the shared background component's
+/// import-data directory (<see cref="ImportDataDirectory.Of"/>), which the installer deletes before it publishes.
+/// </summary>
 public static class RoomSkyTilemapArtworkFiles
 {
-    /// <summary>Schema version recorded with the extracted sky-page manifest; 2 names each page by its place rather than its cartridge address (#1414).</summary>
-    private const int FormatVersion = 2;
+    /// <summary>
+    /// Schema version recorded with the extracted sky-page manifest; 2 names each page by its place rather than its cartridge
+    /// address (#1414), and 3 writes the pages as import data, not installed (#1638).
+    /// </summary>
+    private const int FormatVersion = 3;
 
-    /// <summary>Exports seven contiguous bank-$8A scrolling-sky pages to editable BG tile-word JSON and creates their hashed provenance manifest.</summary>
+    /// <summary>Exports seven contiguous bank-$8A scrolling-sky pages to BG tile-word JSON in the component's import data and creates their hashed provenance manifest.</summary>
     /// <param name="bus">Cartridge import source for seven 32x32 tilemap pages beginning at $8A:B180.</param>
-    /// <param name="directory">Destination directory, created if absent; page JSON files and manifest must not already exist.</param>
+    /// <param name="directory">The component's directory; the page JSON files and manifest go to its import-data directory, created if absent, where they must not already exist.</param>
     /// <param name="sourceCartridgeSha256">Source identity recorded in the manifest; installation loading requires the supported cartridge identity.</param>
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {
         Ensure.NotNull(bus);
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         ArgumentException.ThrowIfNullOrWhiteSpace(sourceCartridgeSha256);
-        Directory.CreateDirectory(directory);
+        string importData = ImportDataDirectory.Of(directory);
+        Directory.CreateDirectory(importData);
         var hashes = new Dictionary<string, string>();
         for (int page = 0; page < RoomSkyTilemapFormat.PageCount; page++)
         {
@@ -29,24 +38,24 @@ public static class RoomSkyTilemapArtworkFiles
             byte[] native = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                 LibraryBackgroundOperands.SkyPageAddress(page), RoomSkyTilemapFormat.PageByteCount);
             byte[] json = RoomBackgroundTilemapExtractor.Encode(native);
-            using (var output = new FileStream(Path.Combine(directory, name), FileMode.CreateNew, FileAccess.Write))
+            using (var output = new FileStream(Path.Combine(importData, name), FileMode.CreateNew, FileAccess.Write))
                 output.Write(json);
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(json)));
         }
-        using var manifest = new FileStream(Path.Combine(directory,
+        using var manifest = new FileStream(Path.Combine(importData,
             RoomSkyTilemapFormat.ManifestFileName), FileMode.CreateNew, FileAccess.Write);
         JsonSerializer.Serialize(manifest,
             new RoomSkyFileManifest(FormatVersion, sourceCartridgeSha256, hashes), JsonOptions);
     }
 
-    /// <summary>Checks installed provenance and seven-page manifest coverage, then compiles each installed page as the player left it, without cartridge access.</summary>
-    /// <param name="directory">Installed directory containing the seven sky-page JSON files and their provenance manifest.</param>
-    /// <returns>The installed contiguous tilemap pages, with native page/row streaming and scrolling pointer arithmetic unchanged.</returns>
-    /// <exception cref="InvalidDataException">Manifest provenance or coverage, or an installed page's BG tile-word format and transfer size is invalid.</exception>
-    public static RoomSkyTilemaps Load(string directory)
+    /// <summary>Checks the pages' provenance and seven-page manifest coverage, then compiles each page of the component's import data, without cartridge access.</summary>
+    /// <param name="importData">The background component's import-data directory, holding the seven sky-page JSON files and their provenance manifest.</param>
+    /// <returns>The contiguous tilemap pages, with native page/row streaming and scrolling pointer arithmetic unchanged.</returns>
+    /// <exception cref="InvalidDataException">Manifest provenance or coverage, or a page's BG tile-word format and transfer size is invalid.</exception>
+    public static RoomSkyTilemaps LoadForImport(string importData)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(directory);
-        string manifestPath = Path.Combine(directory, RoomSkyTilemapFormat.ManifestFileName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(importData);
+        string manifestPath = Path.Combine(importData, RoomSkyTilemapFormat.ManifestFileName);
         using var manifestStream = File.OpenRead(manifestPath);
         RoomSkyFileManifest manifest = JsonAssetDocument.Read<RoomSkyFileManifest>(
             manifestStream, JsonOptions, $"scrolling-sky manifest {manifestPath}");
@@ -57,13 +66,13 @@ public static class RoomSkyTilemapArtworkFiles
             Enumerable.Range(0, RoomSkyTilemapFormat.PageCount)
                 .Any(page => !manifest.Sha256.ContainsKey(RoomSkyTilemapFormat.FileName(page))))
             throw new InvalidDataException(
-                $"Scrolling-sky manifest {manifestPath} does not describe this installation.");
+                $"Scrolling-sky manifest {manifestPath} does not describe this import.");
 
         var pages = new RoomBackgroundTilemapAtlas[RoomSkyTilemapFormat.PageCount];
         for (int page = 0; page < pages.Length; page++)
         {
             string name = RoomSkyTilemapFormat.FileName(page);
-            string path = Path.Combine(directory, name);
+            string path = Path.Combine(importData, name);
             byte[] json = File.ReadAllBytes(path);
             try
             {

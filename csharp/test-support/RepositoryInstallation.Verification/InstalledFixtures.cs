@@ -74,9 +74,26 @@ internal static class InstalledFixtures
         RoomCharacterArtworkFiles.LoadForImport(CartridgeImportContent.Component(GameInstallationLayout.RoomCharacterDirectoryName),
             CartridgeImportContent.ImportData(GameInstallationLayout.RoomCharacterDirectoryName)));
 
-    /// <summary>Lazy stock block compositions, which extraction composes the block sheets from (#1431).</summary>
+    /// <summary>
+    /// Lazy stock block compositions, which extraction composes the block sheets from (#1431). They are import data no
+    /// installation holds (#1638), so they are read from the cartridge-derived extraction.
+    /// </summary>
     private static readonly Lazy<RoomMetatileCatalog> blockCompositions = Shared<RoomMetatileCatalog>("block compositions", () =>
-        RoomMetatileArtworkFiles.Load(RepositoryInstallation.Installation.RoomMetatileDirectory));
+        RoomMetatileArtworkFiles.LoadForImport(CartridgeImportContent.ImportData(GameInstallationLayout.RoomMetatileDirectoryName)));
+
+    /// <summary>
+    /// Lazy stock library background tilemaps, which extraction composes the room backgrounds' pictures from (#1466). They
+    /// are import data no installation holds (#1638), so they are read from the cartridge-derived extraction.
+    /// </summary>
+    private static readonly Lazy<RoomBackgroundTilemaps> backgroundTilemaps = Shared<RoomBackgroundTilemaps>("background tilemaps", () =>
+        RoomBackgroundTilemapArtworkFiles.LoadForImport(CartridgeImportContent.ImportData(GameInstallationLayout.RoomBackgroundTilemapDirectoryName)));
+
+    /// <summary>
+    /// Lazy stock scrolling-sky pages, which extraction composes the sky's pictures from (#1466). They are import data no
+    /// installation holds (#1638), so they are read from the cartridge-derived extraction.
+    /// </summary>
+    private static readonly Lazy<RoomSkyTilemaps> skyTilemaps = Shared<RoomSkyTilemaps>("sky tilemaps", () =>
+        RoomSkyTilemapArtworkFiles.LoadForImport(CartridgeImportContent.ImportData(GameInstallationLayout.RoomBackgroundTilemapDirectoryName)));
 
     /// <summary>
     /// Lazy map and shared presentation resources, as the import reads them (#1544, #1636): the game's presentation with the
@@ -160,6 +177,12 @@ internal static class InstalledFixtures
 
     /// <summary>The installation's stock block compositions, which extraction composes the block sheets from (#1431).</summary>
     internal static RoomMetatileCatalog BlockCompositions => blockCompositions.Value;
+
+    /// <summary>The stock library background tilemaps, which extraction composes the room backgrounds' pictures from (#1466).</summary>
+    internal static RoomBackgroundTilemaps BackgroundTilemaps => backgroundTilemaps.Value;
+
+    /// <summary>The stock scrolling-sky pages, which extraction composes the sky's pictures from (#1466).</summary>
+    internal static RoomSkyTilemaps SkyTilemaps => skyTilemaps.Value;
 
     /// <summary>
     /// The stock tiles of every block a room of <paramref name="tileset"/> loads, four per block, as extraction composes

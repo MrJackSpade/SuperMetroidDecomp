@@ -488,11 +488,9 @@ song loops back to. Running the extractor again restores the originals.
 Room tileset palettes are import data, which only the import pre-colours the room sheets from; they are not
 installed. The character sheets in
 `game/room-characters` are what the room pictures are composed from, and a room's blocks, backgrounds and written
-pictures are changed through those pictures in the block sheets (below); the block compositions in `game/room-blocks`
-are what those sheets are composed from. Library-background tilemaps and scrolling-sky pages are in
-`game/room-backgrounds`: a tilemap is named for the background it pictures,
-`room-background-{background}.json` (for example `room-background-brinstar-kraid-upper.json`), and a sky page
-for its place among the seven, `scrolling-sky-page-{0-6}.json`.
+pictures are changed through those pictures in the block sheets (below). The block compositions those sheets are
+composed from, and the library-background tilemaps and scrolling-sky pages the backgrounds' and the sky's pictures are
+composed from, are import data as well: only the import reads the characters they place, and they are not installed.
 
 Sprites are moving to finished images. A sprite family that has moved is drawn from a pre-coloured
 sheet in `game/sprite-sheets`: its frame list (`{family}.json`: the sheet's size, each frame's rectangle on the

@@ -42,6 +42,12 @@ public static class CoordinateAxis
     public static int AsSigned(int coordinate) => unchecked((short)coordinate);
 
     /// <summary>
+    /// The farthest coordinate past the origin that a signed reading (<see cref="AsSigned"/>) still finds at or past the
+    /// origin: one further reads as lying above or left of it (#1627).
+    /// </summary>
+    public const int LastNonNegative = short.MaxValue;
+
+    /// <summary>
     /// The distance between two coordinates regardless of direction, 0 through 32768: the magnitude of their wrapped
     /// signed <see cref="Difference"/>. The farthest wrapped difference, -32768, keeps its magnitude 32768.
     /// </summary>

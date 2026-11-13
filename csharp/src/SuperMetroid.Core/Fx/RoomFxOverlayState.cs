@@ -124,14 +124,15 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     public RoomFxType Type { get; internal set; }
 
     /// <summary>
-    /// The liquid surface before tide displacement, a room Y with subpixels from 0 through 32767: the FX record's base
+    /// The liquid surface before tide displacement, a room Y with subpixels from 0 through
+    /// <see cref="CoordinateAxis.LastNonNegative"/>: the FX record's base
     /// whole pixels (a room load starts the fraction at half a pixel), moved toward <see cref="TargetSurface"/> by
     /// <see cref="YVelocity"/>; null when the record names no surface (#1546).
     /// </summary>
     public FixedCoordinate? BaseY { get; internal set; }
 
     /// <summary>
-    /// The room line from 0 through 32767 a rising or falling liquid stops at, or null when nothing names one and the
+    /// The room line from 0 through <see cref="CoordinateAxis.LastNonNegative"/> a rising or falling liquid stops at, or null when nothing names one and the
     /// liquid never moves (#1546).
     /// </summary>
     public int? TargetSurface { get; private set; }
@@ -276,8 +277,13 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     private FixedCoordinate SurfaceAt(int line) =>
         (BaseY ?? new FixedCoordinate(0, LoadedSurfaceFraction)).WithWhole(SurfaceLine(line));
 
-    /// <summary>Accepts a named surface or target line, which lies from the room's top to the deepest line a room can reach.</summary>
-    private static int SurfaceLine(int line) => Ensure.BetweenInclusive(0, short.MaxValue, line);
+    /// <summary>
+    /// Accepts a named surface or target line: a line from the room's top that the liquid's readers find within the room.
+    /// The tide's surface line, the rise's test for passing the room's top and the overlay's test for no surface read the
+    /// line signed, so it stays within <see cref="CoordinateAxis.LastNonNegative"/>; a line past it would read as above the
+    /// room's top (#1627).
+    /// </summary>
+    private static int SurfaceLine(int line) => Ensure.BetweenInclusive(0, CoordinateAxis.LastNonNegative, line);
 
     /// <summary>The base surface's whole line, or null without a surface.</summary>
     private int? BaseLine => BaseY is { } baseY ? baseY.Whole : null;

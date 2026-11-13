@@ -6,6 +6,8 @@ using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.Diagnostics.Configuration;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Verification.Runtime;
 using SuperMetroid.Verification.Harness;
 
@@ -24,43 +26,46 @@ internal static class DebuggerStateLayoutVerification
             "a current-layout graph round-trips");
 
         // Same-length replacements keep every length prefix valid, so only the identity changes.
-        RequireUnsupported(Replace(current, "<PoseChangeAutoFireTimer>k__BackingField", "<PoseChangeAutoFireTamer>k__BackingField"),
+        RequireUnsupported<SamusGrappleState>(Replace(current, "<PoseChangeAutoFireTimer>k__BackingField", "<PoseChangeAutoFireTamer>k__BackingField"),
             "a renamed field");
-        RequireUnsupported(Replace(current, "SuperMetroid.Core.Samus.Grapple.SamusGrappleState,", "SuperMetroid.Core.Samus.Grapple.SamusGrappleStatf,"),
+        RequireUnsupported<SamusGrappleState>(Replace(current, "SuperMetroid.Core.Samus.Grapple.SamusGrappleState,", "SuperMetroid.Core.Samus.Grapple.SamusGrappleStatf,"),
             "a type this build does not have");
-        RequireUnsupported(Replace(current, "System.Int32,", "System.Int64,"), "a retyped field value");
+        RequireUnsupported<SamusGrappleState>(Replace(current, "System.Int32,", "System.Int64,"), "a retyped field value");
         Console.WriteLine("Debugger state layout: current graphs round-trip; renamed fields, missing types and retyped values are rejected.");
 
-        static void RequireUnsupported(byte[] stale, string label)
-        {
-            try
-            {
-                _ = DeserializeDebuggerGraph<SamusGrappleState>(stale);
-            }
-            catch (InvalidDataException exception) when (
-                exception.Message.Contains(DebuggerObjectGraphSerializer.UnsupportedVersion, StringComparison.Ordinal))
-            {
-                return;
-            }
-            catch (EndOfStreamException)
-            {
-                throw new InvalidOperationException($"Verification failed: {label} was misread instead of rejected.");
-            }
-            throw new InvalidOperationException($"Verification failed: {label} was restored instead of rejected.");
-        }
+    }
 
-        static byte[] Replace(byte[] graph, string from, string to)
+    /// <summary>Requires restoring <paramref name="stale"/> as a <typeparamref name="T"/> to be rejected as an unsupported version.</summary>
+    private static void RequireUnsupported<T>(byte[] stale, string label) where T : class
+    {
+        try
         {
-            byte[] source = Encoding.UTF8.GetBytes(from), target = Encoding.UTF8.GetBytes(to);
-            if (source.Length != target.Length)
-                throw new InvalidOperationException("A layout substitution must keep the encoded length.");
-            int index = graph.AsSpan().IndexOf(source);
-            if (index < 0)
-                throw new InvalidOperationException($"The serialized graph does not contain '{from}'.");
-            byte[] copy = [.. graph];
-            target.CopyTo(copy, index);
-            return copy;
+            _ = DeserializeDebuggerGraph<T>(stale);
         }
+        catch (InvalidDataException exception) when (
+            exception.Message.Contains(DebuggerObjectGraphSerializer.UnsupportedVersion, StringComparison.Ordinal))
+        {
+            return;
+        }
+        catch (EndOfStreamException)
+        {
+            throw new InvalidOperationException($"Verification failed: {label} was misread instead of rejected.");
+        }
+        throw new InvalidOperationException($"Verification failed: {label} was restored instead of rejected.");
+    }
+
+    /// <summary>A copy of <paramref name="graph"/> with the first occurrence of <paramref name="from"/> replaced by the same-length <paramref name="to"/>.</summary>
+    private static byte[] Replace(byte[] graph, string from, string to)
+    {
+        byte[] source = Encoding.UTF8.GetBytes(from), target = Encoding.UTF8.GetBytes(to);
+        if (source.Length != target.Length)
+            throw new InvalidOperationException("A layout substitution must keep the encoded length.");
+        int index = graph.AsSpan().IndexOf(source);
+        if (index < 0)
+            throw new InvalidOperationException($"The serialized graph does not contain '{from}'.");
+        byte[] copy = [.. graph];
+        target.CopyTo(copy, index);
+        return copy;
     }
 
     /// <summary>
@@ -165,6 +170,55 @@ internal static class DebuggerStateLayoutVerification
         Console.WriteLine("Debugger state hash-keyed collections: every rebuilt kind finds each restored key; unrebuilt kinds are refused.");
     }
 
+    /// <summary>
+    /// The most bytes a Landing Site runtime's debugger state may take (#1696). Its level data alone made the state 137 MB
+    /// when every block was written as a framed object naming its type and each field; written as packed runs of the
+    /// blocks' values, the whole state fits in a small fraction of that.
+    /// </summary>
+    private const int LandingSiteStateBound = 16 * 1024 * 1024;
+
+    /// <summary>
+    /// #1696: a debugger state writes a room's per-block arrays (terrain, behaviours, appearances and the terrain beyond
+    /// the room) as packed runs of their values rather than a framed object per block. A runtime standing in Landing Site
+    /// captures within <see cref="LandingSiteStateBound"/>, and its restore is the same graph: its digest equals the
+    /// captured runtime's, and its level data equals the captured room's field by field.
+    /// </summary>
+    internal static void VerifyDebuggerStatePacksLevelBlocks()
+    {
+        SuperMetroidRuntime runtime = RetailRuntimeFixtureVerification.CreateRetailRuntimeFixture();
+        runtime.HudSetup.InitializeHud(SuperMetroid.Core.Hud.HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.LoadCartridgeRoomForDebug(SuperMetroid.Core.Rooms.RoomDefinitions.LandingSite);
+        object[] content = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BoundContent;
+
+        byte[] captured = GraphDigestVerification.SerializeGraph(runtime, content);
+        Console.WriteLine($"Debugger state packing: a Landing Site runtime captures to {captured.Length} bytes (bound {LandingSiteStateBound}).");
+        AssertTrue(captured.Length <= LandingSiteStateBound,
+            $"a Landing Site runtime's state takes {captured.Length} bytes, over the {LandingSiteStateBound}-byte bound");
+
+        var restored = GraphDigestVerification.RestoreGraph<SuperMetroidRuntime>(captured, content);
+        AssertTrue(GraphDigestVerification.GraphDigest(restored, content).SequenceEqual(GraphDigestVerification.GraphDigest(runtime, content)),
+            "the restored Landing Site runtime has the captured runtime's graph digest");
+        AssertTrue(GraphDigestVerification.InstanceStateEquals(restored.Room.LoadedLevelData, runtime.Room.LoadedLevelData),
+            "the restored Landing Site level data equals the captured room's, field by field");
+        Console.WriteLine("Debugger state packing: the Landing Site runtime restores to an equal graph and equal level data.");
+
+        // A packed run's schema is checked against this build field by field before a value is read, as a framed object is.
+        RoomTerrainBlock[] blocks =
+        [
+            RoomTerrainBlock.Of(5, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.SolidBlock),
+            RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.Air),
+        ];
+        byte[] packed = SerializeDebuggerGraph(blocks);
+        AssertTrue(DeserializeDebuggerGraph<RoomTerrainBlock[]>(packed).SequenceEqual(blocks), "a packed block run round-trips");
+        RequireUnsupported<RoomTerrainBlock[]>(Replace(packed, "<Collision>k__BackingField", "<Collisiom>k__BackingField"),
+            "a packed run with a renamed field");
+        RequireUnsupported<RoomTerrainBlock[]>(Replace(packed, "LevelData.RoomCollisionType,", "LevelData.RoomCollisionTypf,"),
+            "a packed run naming a type this build does not have");
+        Console.WriteLine("Debugger state packing: packed runs with renamed fields or missing types are rejected.");
+    }
+
     /// <summary>A key compared by reference identity, whose hash is its object's.</summary>
     /// <param name="name">The name the fixture gives it.</param>
     private sealed class HashedOwner(string name)
@@ -237,6 +291,7 @@ internal static class DebuggerStateLayoutVerification
         Suite(nameof(VerifyDebuggerStateRejectsStaleLayouts), () => VerifyDebuggerStateRejectsStaleLayouts());
         Suite(nameof(VerifyDebuggerStateRestoresCatalogMembers), () => VerifyDebuggerStateRestoresCatalogMembers());
         Suite(nameof(VerifyDebuggerStateRebuildsHashKeyedCollections), () => VerifyDebuggerStateRebuildsHashKeyedCollections());
+        Suite(nameof(VerifyDebuggerStatePacksLevelBlocks), () => VerifyDebuggerStatePacksLevelBlocks());
         return 0;
     }
 }

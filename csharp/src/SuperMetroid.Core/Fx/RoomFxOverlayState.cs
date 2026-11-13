@@ -316,7 +316,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
             return;
         if (!lavaOrAcid)
         {
-            // Water's rising function and tide; water leaves the random number alone.
+            // Water's rise and tide; water leaves the random number alone.
             AdvanceLiquidMotion(system.RandomNumber, system.EarthquakeSoundDelay);
             return;
         }

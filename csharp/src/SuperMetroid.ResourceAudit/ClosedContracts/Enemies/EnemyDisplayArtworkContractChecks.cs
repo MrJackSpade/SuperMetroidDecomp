@@ -32,13 +32,15 @@ internal static class EnemyDisplayArtworkContractChecks
         Reject(() => EnemySpritemapDocuments.Load(Json(simpleDocument)), "unowned simple display target");
         simpleBindings[simpleId.Name] = simpleId.Name;
 
-        var extendedFrames = EnemyExtendedFrameDefinitions.Frames.ToDictionary(frame => frame.Name, _ => new[] {
-            new EnemyExtendedVisualComponent { OffsetX = 0, OffsetY = 0, Parts = [] } });
+        // A frame drawn only on BG2 holds no sprite piece and every other extended frame holds one (#1638).
+        var extendedFrames = EnemyExtendedFrameDefinitions.Frames.ToDictionary(frame => frame.Name,
+            frame => EnemyExtendedFrameBounds.IsBg2Only(frame) ? [] : new[] {
+                new EnemyExtendedVisualComponent { OffsetX = 0, OffsetY = 0, Parts = [] } });
         var extendedBindings = extendedFrames.Keys.ToDictionary(name => name, name => name);
         var extendedDocument = new EnemyExtendedFrameDocument {
             Version = EnemyExtendedFrameSchema.Revision, Frames = extendedFrames, DisplayFrames = extendedBindings };
         EnemyExtendedFrameCatalog extended = EnemyExtendedFrameDocuments.Load(Json(extendedDocument));
-        EnemyFrameName extendedId = EnemyExtendedFrameDefinitions.Frames.First();
+        EnemyFrameName extendedId = EnemyExtendedFrameDefinitions.Frames.First(frame => !EnemyExtendedFrameBounds.IsBg2Only(frame));
         Require(extended.TryGetDisplay(extendedId.Frame, out var components) && components.Length == 1 &&
             extended.TryGetDisplay(EnemyFrameId.Empty, out components) && components.IsEmpty,
             "installed extended binding and compiled empty fallback");

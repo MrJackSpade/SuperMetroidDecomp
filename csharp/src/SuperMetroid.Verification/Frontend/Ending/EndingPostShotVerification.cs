@@ -11,7 +11,6 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
 
 using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.AssetExtraction.Frontend.Map;
 namespace SuperMetroid.Verification.Frontend.Ending;
 
 /// <summary>Checks post-shot ending rotation, palette fades, white-flash timing, and the logo's native transfers.</summary>

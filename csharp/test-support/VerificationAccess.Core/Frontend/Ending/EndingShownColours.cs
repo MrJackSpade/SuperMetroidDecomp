@@ -4,7 +4,6 @@ using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Fx.Artwork;
-using SuperMetroid.AssetExtraction.Frontend.Map;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 

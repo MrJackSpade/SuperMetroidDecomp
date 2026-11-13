@@ -1,6 +1,5 @@
 using System.Collections.Frozen;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 

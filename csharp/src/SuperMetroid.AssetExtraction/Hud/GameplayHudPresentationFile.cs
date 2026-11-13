@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.Core;

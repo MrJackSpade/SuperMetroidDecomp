@@ -13,7 +13,6 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Bosses.Ridley;
-using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Verification.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;

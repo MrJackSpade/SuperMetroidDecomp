@@ -11,7 +11,6 @@ using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.Core.Gameplay;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 

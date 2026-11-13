@@ -14,11 +14,11 @@ namespace SuperMetroid.Core.Compatibility;
 /// restoring update, the door transition's waits and fades, and the update before the pause screen opens), before the
 /// draw. Stopped by the door transition after the draw of the update that reads the door; resumed when the destination room has loaded.
 /// Evidence: the original main loop runs its per-line effect objects (<c>$88:84B9</c>) and then draws its random number
-/// (<c>$82:894F</c>) on every pass; the door header routine (<c>$82:E2F7</c>) switches the per-line effects off, and the
+/// (<c>$82:894F</c>) on every pass; the routine that reads the door's definition (<c>$82:E2F7</c>) switches the per-line effects off, and the
 /// door's updates up to the destination's load draw their random number without them. The Ridley full-movie check
 /// compares the random number on every update of a door transition.
 /// </remarks>
-[CompatibilityService("the room's per-line effects advance before each update's random draw, and stop from a door's header update until its destination loads")]
+[CompatibilityService("the room's per-line effects advance before each update's random draw, and stop from the update that reads a door's definition until its destination loads")]
 public sealed class EffectPhaseRandomOrder
 {
     /// <summary>Whether an update that draws its random number runs the per-line effect work first.</summary>

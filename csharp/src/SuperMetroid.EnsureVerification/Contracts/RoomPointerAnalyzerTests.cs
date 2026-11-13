@@ -17,7 +17,7 @@ internal static class RoomPointerAnalyzerTests
         Expect("class C { int RoomStatePointer => 0; }", "'RoomStatePointer'");
         Expect("class C { void Load(ushort doorPointer) { } }", "'doorPointer'");
         Expect("class C { ushort DestinationRoomPointer() => 0; }", "'DestinationRoomPointer'");
-        ExpectNone("sealed class RoomHeaderDefinition { } class C { RoomHeaderDefinition? Room { get; } void Load(RoomHeaderDefinition room) { } }");
+        ExpectNone("sealed class RoomDefinition { } class C { RoomDefinition? Room { get; } void Load(RoomDefinition room) { } }");
         ExpectNone("enum RoomSetup : ushort { } class C { RoomSetup RoomSetupPointer { get; } }");
         ExpectNone("class C { ushort InstructionPointer; ushort SpritemapPointer { get; } }");
     }

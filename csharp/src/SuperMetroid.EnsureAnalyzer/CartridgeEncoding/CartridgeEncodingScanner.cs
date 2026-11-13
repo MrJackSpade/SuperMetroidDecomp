@@ -22,7 +22,7 @@ internal static class CartridgeEncodingScanner
     internal static readonly string[] CatalogSuffixes =
     [
         "Catalog.cs", "Codes.cs", "Constants.cs", "Definition.cs", "Definitions.cs", "Flags.cs", "AnimationScripts.cs",
-        "Layout.cs", "Masks.cs", "RoomObjectHeaderId.cs", "RoomObjectInstruction.cs", "SamusPoseId.cs", "Values.cs", "Words.cs",
+        "Layout.cs", "Masks.cs", "RoomObjectInstruction.cs", "SamusPoseId.cs", "Values.cs", "Words.cs",
     ];
 
     /// <summary>

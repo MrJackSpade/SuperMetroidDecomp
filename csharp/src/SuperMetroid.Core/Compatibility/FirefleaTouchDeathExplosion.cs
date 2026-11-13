@@ -11,8 +11,8 @@ namespace SuperMetroid.Core.Compatibility;
 /// <remarks>
 /// Consulted once per touch, after the ordinary touch reaction, as the Fireflea's death starts. Evidence: the Fireflea's
 /// touch reaction (<c>$A3:8E6B</c>) calls the enemy death routine straight after the common touch reaction, with the
-/// accumulator still holding the health that reaction last loaded, or zero (or the respawn placeholder's header, past
-/// every explosion) when the reaction already ran the death and cleared the enemy; the death routine takes zero through
+/// accumulator still holding the health that reaction last loaded, or zero (or the identity of the respawn placeholder
+/// the cleared enemy became, a number past every explosion) when the reaction already ran the death and cleared the enemy; the death routine takes zero through
 /// four as its explosions in their authored order and any other number as the first.
 /// </remarks>
 [CompatibilityService("a Fireflea Samus touches dies in the explosion its remaining health names")]

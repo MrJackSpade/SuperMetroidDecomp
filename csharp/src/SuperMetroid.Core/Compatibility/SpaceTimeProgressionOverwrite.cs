@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
-/// SpaceTime's progression overwrite (#1318, #1330, #1474, #1475). An uncharged SpaceTime shot's callback starts inside a
+/// SpaceTime's progression overwrite (#1318, #1330, #1474, #1475). An uncharged SpaceTime shot's frame behaviour starts inside a
 /// long store and falls back into the beam palette's copy loop with the position its update loop left behind: the copy
 /// starts one colour past the shot's slot in the beam palette and reads from the place its animation has reached. Its
 /// bound is a signed test of that read position, so a shot animating from an animation laid out late in its animation data copies on through the

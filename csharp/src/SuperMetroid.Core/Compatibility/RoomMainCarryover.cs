@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// Consulted when a room main is set up for a room (it adopts the value) and whenever a room main changes its value (it
 /// leaves the new one). Evidence: the original game's room mains share one working word that room loading never
 /// clears; the Ceres pre-elevator hall's debris timer (<c>$8F:E525</c>) starts from the shaft's turn index
-/// (<c>$89:AD41</c>), and the elevatube's door callbacks (<c>$8F:E26C/$E291</c>) leave its fraction as they find it.
+/// (<c>$89:AD41</c>), and the elevatube's door behaviours (<c>$8F:E26C/$E291</c>) leave its fraction as they find it.
 /// The value is held in the word's form only here; every owner reads and writes it as its own typed value.
 /// </remarks>
 [CompatibilityService("a room main that does not set up its working value starts from the value the previous room's main left: the Ceres hall's debris timer, an escape room's diagonal quake and the elevatube's position fraction")]

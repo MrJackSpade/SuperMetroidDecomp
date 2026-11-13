@@ -23,6 +23,15 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// and each following block as its collision kind, block number and mirroring. A collision kind is written as its
 /// position in the collision-kind document's <c>collisionKinds</c>, which names the kinds; mirroring is written as
 /// <see cref="MirroringCodes"/>'s position of its value.
+/// <para>
+/// A foreground block's behaviour is written as the reading its collision kind takes of it (#1709), one byte per field:
+/// a reacting kind (shootable, bombable, special, spike and grapple blocks, and their air siblings) writes its reaction's
+/// list as <see cref="ReactionScopes"/>'s position of it, then the entry, 0 through 127; a slope writes its shape, 0
+/// through 31, then its mirroring's code; an extension writes its offset as a signed byte, -128 through 127; a door
+/// writes the entry of the room's door list it selects, 0 through 127; air, unused air and solid blocks write nothing
+/// and hold <see cref="RoomBlockBehavior.None"/>. The load rebuilds every other reading from the one written, as the
+/// game reads one behaviour under every kind (<see cref="SuperMetroid.Core.Compatibility.BlockParameterCarryOver"/>).
+/// </para>
 /// </remarks>
 public static class RoomLevelStreamFiles
 {
@@ -33,9 +42,10 @@ public static class RoomLevelStreamFiles
     public const string CollisionKindsFileName = "room-level-streams.json";
     /// <summary>
     /// Collision-kind document schema version this loader accepts; version 3 installs typed blocks instead of decompressed
-    /// level data, and 4 names the collision kinds alone, with no level list, hash or cartridge digest (#1693).
+    /// level data, 4 names the collision kinds alone, with no level list, hash or cartridge digest (#1693), and 5 writes
+    /// each block's behaviour as the reading its collision kind takes instead of the game's behaviour byte (#1709).
     /// </summary>
-    private const int FormatVersion = 4;
+    private const int FormatVersion = 5;
 
     /// <summary>The collision kinds in the order the level files write them by position.</summary>
     private static readonly ImmutableArray<RoomCollisionType> CollisionKinds = [.. Enum.GetValues<RoomCollisionType>()];
@@ -43,6 +53,10 @@ public static class RoomLevelStreamFiles
     /// <summary>Each mirroring in the order the level files write it by position.</summary>
     private static readonly ImmutableArray<BlockMirroring> MirroringCodes =
         [BlockMirroring.None, BlockMirroring.Horizontal, BlockMirroring.Vertical, BlockMirroring.Horizontal | BlockMirroring.Vertical];
+
+    /// <summary>Each reaction list in the order the level files write it by position.</summary>
+    private static readonly ImmutableArray<BlockReactionScope> ReactionScopes =
+        [BlockReactionScope.Common, BlockReactionScope.AreaSpecific];
 
     /// <summary>Serializer settings shared by the collision-kind document's writes and reads.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -76,7 +90,7 @@ public static class RoomLevelStreamFiles
         foreach ((RoomLevelId level, int width) in RoomVisualLayoutFiles.RetailLevels.OrderBy(item => item.Key.Name, StringComparer.Ordinal))
         {
             byte[] stream = RomDataReader.Decompress(cartridge, RoomLevelSourceDefinitions.Addresses[level]);
-            byte[] file = Encode(RoomLevelStreamDecoder.Decode(level, stream, width));
+            byte[] file = Encode(level, RoomLevelStreamDecoder.Decode(level, stream, width));
             using var output = new FileStream(Path.Combine(directory, LevelFileName(level)), FileMode.CreateNew, FileAccess.Write);
             output.Write(file);
         }
@@ -125,7 +139,8 @@ public static class RoomLevelStreamFiles
     }
 
     /// <summary>Writes one level as the installed file format.</summary>
-    private static byte[] Encode(InstalledRoomLevel level)
+    /// <exception cref="InvalidDataException">A block's behaviour is not the one its collision kind's reading rebuilds.</exception>
+    private static byte[] Encode(RoomLevelId name, InstalledRoomLevel level)
     {
         using var memory = new MemoryStream();
         using (var writer = new BinaryWriter(memory))
@@ -137,7 +152,7 @@ public static class RoomLevelStreamFiles
             for (int index = 0; index < level.Foreground.Length; index++)
             {
                 WriteTerrain(writer, level.Foreground[index]);
-                writer.Write(checked((byte)RoomBlockBehaviorCodec.Encode(level.Behaviors[index])));
+                WriteBehavior(writer, level.Foreground[index].Collision, level.Behaviors[index], name, index);
             }
             foreach (RoomBlockAppearance appearance in level.Background)
                 WriteAppearance(writer, appearance);
@@ -146,6 +161,92 @@ public static class RoomLevelStreamFiles
         }
         return memory.ToArray();
     }
+
+    /// <summary>
+    /// Writes a foreground block's behaviour as the reading its collision kind takes, requiring that reading to rebuild the
+    /// whole behaviour, so nothing another kind would read of it is lost.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The reading does not rebuild the behaviour.</exception>
+    private static void WriteBehavior(BinaryWriter writer, RoomCollisionType kind, RoomBlockBehavior behavior,
+        RoomLevelId level, int index)
+    {
+        RoomBlockBehavior rebuilt;
+        switch (ReadingOf(kind))
+        {
+            case BehaviorReading.Reaction:
+                writer.Write(checked((byte)ReactionScopes.IndexOf(behavior.Reaction.Scope)));
+                writer.Write(checked((byte)behavior.Reaction.Entry));
+                rebuilt = RoomBlockBehavior.Reacting(behavior.Reaction);
+                break;
+            case BehaviorReading.Slope:
+                writer.Write(checked((byte)behavior.Slope.Shape));
+                writer.Write(checked((byte)MirroringCodes.IndexOf(behavior.Slope.Mirroring)));
+                rebuilt = RoomBlockBehavior.Sloping(behavior.Slope);
+                break;
+            case BehaviorReading.Extension:
+                writer.Write(checked((sbyte)behavior.ExtensionOffset));
+                rebuilt = RoomBlockBehavior.Extending(behavior.ExtensionOffset);
+                break;
+            case BehaviorReading.DoorLink:
+                writer.Write(checked((byte)behavior.DoorLink));
+                rebuilt = RoomBlockBehavior.LinkingDoor(behavior.DoorLink);
+                break;
+            case BehaviorReading.Nothing:
+                rebuilt = RoomBlockBehavior.None;
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined behaviour reading for collision kind {kind}.");
+        }
+        if (rebuilt != behavior)
+            throw new InvalidDataException(
+                $"Room level {level} block {index} is {kind} with behaviour {behavior}, which its kind's reading does not hold whole.");
+    }
+
+    /// <summary>Reads a foreground block's behaviour written by <see cref="WriteBehavior"/>, rebuilding every reading.</summary>
+    /// <exception cref="InvalidDataException">The reaction list or mirroring code is unknown.</exception>
+    private static RoomBlockBehavior ReadBehavior(BinaryReader reader, RoomCollisionType kind)
+    {
+        switch (ReadingOf(kind))
+        {
+            case BehaviorReading.Reaction:
+            {
+                int scope = reader.ReadByte();
+                if (scope >= ReactionScopes.Length)
+                    throw new InvalidDataException($"Reaction list code {scope} is not one of the {ReactionScopes.Length} codes.");
+                return RoomBlockBehavior.Reacting(new BlockReaction(ReactionScopes[scope], reader.ReadByte()));
+            }
+            case BehaviorReading.Slope:
+            {
+                int shape = reader.ReadByte();
+                int mirroring = reader.ReadByte();
+                if (mirroring >= MirroringCodes.Length)
+                    throw new InvalidDataException($"Mirroring code {mirroring} is not one of the {MirroringCodes.Length} codes.");
+                return RoomBlockBehavior.Sloping(new SlopeGeometry(shape, MirroringCodes[mirroring]));
+            }
+            case BehaviorReading.Extension:
+                return RoomBlockBehavior.Extending(reader.ReadSByte());
+            case BehaviorReading.DoorLink:
+                return RoomBlockBehavior.LinkingDoor(reader.ReadByte());
+            case BehaviorReading.Nothing:
+                return RoomBlockBehavior.None;
+            default:
+                throw new InvalidOperationException($"Undefined behaviour reading for collision kind {kind}.");
+        }
+    }
+
+    /// <summary>The reading a collision kind takes of its block's behaviour, which decides how the level files write it.</summary>
+    private static BehaviorReading ReadingOf(RoomCollisionType kind) => kind switch
+    {
+        RoomCollisionType.Slope => BehaviorReading.Slope,
+        RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension => BehaviorReading.Extension,
+        RoomCollisionType.DoorBlock => BehaviorReading.DoorLink,
+        RoomCollisionType.SpikeAir or RoomCollisionType.SpecialAir or RoomCollisionType.ShootableAir or
+            RoomCollisionType.BombableAir or RoomCollisionType.SpikeBlock or RoomCollisionType.SpecialBlock or
+            RoomCollisionType.ShootableBlock or RoomCollisionType.GrappleBlock or RoomCollisionType.BombableBlock =>
+            BehaviorReading.Reaction,
+        RoomCollisionType.Air or RoomCollisionType.UnusedAir or RoomCollisionType.SolidBlock => BehaviorReading.Nothing,
+        _ => throw new InvalidOperationException($"Undefined collision kind {kind}."),
+    };
 
     /// <summary>Writes a terrain block: its collision kind's position, then its appearance.</summary>
     private static void WriteTerrain(BinaryWriter writer, RoomTerrainBlock block)
@@ -162,7 +263,7 @@ public static class RoomLevelStreamFiles
     }
 
     /// <summary>Reads one installed level file.</summary>
-    /// <exception cref="InvalidDataException">The file is truncated, has trailing bytes, or holds an unknown kind, mirroring or block.</exception>
+    /// <exception cref="InvalidDataException">The file is truncated, has trailing bytes, or holds an unknown kind, mirroring, block or reaction list, or a reading out of its range.</exception>
     private static InstalledRoomLevel Decode(byte[] file, RoomCollisionType[] kinds, string path)
     {
         try
@@ -178,8 +279,9 @@ public static class RoomLevelStreamFiles
             var behaviors = ImmutableArray.CreateBuilder<RoomBlockBehavior>(blocks);
             for (int index = 0; index < blocks; index++)
             {
-                foreground.Add(ReadTerrain(reader, kinds));
-                behaviors.Add(RoomBlockBehaviorCodec.Decode(reader.ReadByte()));
+                RoomTerrainBlock block = ReadTerrain(reader, kinds);
+                foreground.Add(block);
+                behaviors.Add(ReadBehavior(reader, block.Collision));
             }
             var background = ImmutableArray.CreateBuilder<RoomBlockAppearance>(blocks);
             for (int index = 0; index < blocks; index++)
@@ -231,6 +333,25 @@ public static class RoomLevelStreamFiles
         if (kinds.Distinct().Count() != kinds.Length)
             throw new InvalidDataException($"Room-level collision kinds {kindsPath} repeat a collision kind.");
         return kinds;
+    }
+
+    /// <summary>The readings a collision kind takes of its block's behaviour, which decide how the level files write it.</summary>
+    private enum BehaviorReading
+    {
+        /// <summary>The kind reads no behaviour; its block holds <see cref="RoomBlockBehavior.None"/>.</summary>
+        Nothing,
+
+        /// <summary>The kind reads an entry of its common or area reactions.</summary>
+        Reaction,
+
+        /// <summary>The kind reads a slope's shape and mirroring.</summary>
+        Slope,
+
+        /// <summary>The kind reads a signed offset to the block it collides as.</summary>
+        Extension,
+
+        /// <summary>The kind reads an entry of the room's door list.</summary>
+        DoorLink,
     }
 
     /// <summary>The collision kinds by the position the level files write them at, under the document's schema revision.</summary>

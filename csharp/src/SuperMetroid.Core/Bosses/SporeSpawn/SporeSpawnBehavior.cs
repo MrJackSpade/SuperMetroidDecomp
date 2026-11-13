@@ -394,6 +394,9 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         state.BodyPlayback = playback;
     }
 
+    /// <summary>A bomb striking one of Spore Spawn's dud-shot hitboxes: the dud flash where the bomb lies and the dud sound.</summary>
+    internal void CreateBombDudShot(EnemyBombContext context) => _projectiles.CreateBombDudShot(context.Bomb);
+
     /// <summary>Restricts core-hitbox damage to accepted projectile families and handles boss death.</summary>
     internal void AddSporeSpawnShotReactions(EnemySharedReactions table)
     {

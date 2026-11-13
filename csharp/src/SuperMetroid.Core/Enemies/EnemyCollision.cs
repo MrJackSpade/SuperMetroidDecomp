@@ -572,14 +572,20 @@ internal sealed class EnemyCollision
         EnemyWeaponVulnerability vulnerability = EnemyVulnerabilities.Of(enemy.Definition).Ordnance.Bomb;
         int damage = vulnerability.DamageFrom(bomb.Damage);
 
-        // A zero multiplier still consumes the collision and leaves the hit direction on
-        // the bomb. Emits a dud sprite/sound here; those presentation queues are not
-        // yet shared by Samus's bomb system, so enemy state correctly remains untouched.
+        // A zero multiplier still consumes the collision and leaves the hit direction on the bomb: the bomb shows the
+        // dud flash where it lies and the dud sound plays, and the enemy is untouched.
         if (damage == 0)
+        {
+            _projectiles.CreateBombDudShot(bomb);
             return;
+        }
 
         enemy.FlashTimer = enemy.HurtFlashFrames + 8;
         enemy.AiStates = enemy.AiStates | EnemyAiStates.Hurt;
+        // The common shot reaction a bomb runs queues the definition's cry before subtracting health, lethal hits
+        // included, as it does for a beam or a missile; a frozen enemy makes no cry.
+        if (enemy.FrozenTimer == 0 && enemy.Definition.HurtSoundEffect is SoundEffectId cry)
+            _audio.QueueEnemySound(cry, SoundRequestPriority.Low);
         enemy.Health = damage >= enemy.Health
             ? 0
             : enemy.Health - damage;

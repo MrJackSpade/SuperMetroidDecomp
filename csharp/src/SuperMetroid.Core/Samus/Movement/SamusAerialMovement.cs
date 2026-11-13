@@ -249,14 +249,14 @@ public static class SamusAerialMovement
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
 
-        WallJumpCheckResult wall = CheckBlockWallJump(
+        bool wallJumpTriggered = CheckBlockWallJump(
 
             level,
             samus,
             controllerInput,
             controllerNewInput,
             roomObjects);
-        if (wall.Triggered)
+        if (wallJumpTriggered)
         {
             // A triggered wall-jump check skips gravity, so gravity and vertical displacement
             // do not execute on the trigger frame. Runtime pose handling consumes command
@@ -264,22 +264,15 @@ public static class SamusAerialMovement
             return new AerialMovementResult(
                 Landed: false,
                 HitCeiling: false,
-                WallJumpTriggered: true,
-                WallContact: true,
-                WallDistance: wall.Distance);
+                WallJumpTriggered: true);
         }
 
-        AerialMovementResult verticalResult = FinishVerticalMovement(
+        return FinishVerticalMovement(
 
             level,
             samus,
             frameCounter,
             roomObjects: roomObjects);
-        return verticalResult with
-        {
-            WallContact = wall.Contact,
-            WallDistance = wall.Distance,
-        };
     }
 
     /// <summary>
@@ -716,9 +709,9 @@ public static class SamusAerialMovement
             : (controllerInput & ControllerButton.Right) != ControllerButton.None;
 
     /// <summary>
-    /// Runs the wall-jump check's block and solid-enemy wall probes, including enemy-shake publication.
+    /// Runs the wall-jump check's block and solid-enemy wall probes; returns whether the jump chord launched a wall jump.
     /// </summary>
-    private static WallJumpCheckResult CheckBlockWallJump(
+    private static bool CheckBlockWallJump(
 
         RoomLevelData level,
         SamusState samus,
@@ -729,12 +722,12 @@ public static class SamusAerialMovement
         // Rejects before either enemy or terrain observation. Probing
         // first is not equivalent: block contact can mutate real X subposition.
         if (!samus.PoseHistory.AllowsWallJumpProbe)
-            return default;
+            return false;
 
         bool heldLeft = (controllerInput & ControllerButton.Left) != ControllerButton.None;
         bool heldRight = (controllerInput & ControllerButton.Right) != ControllerButton.None;
         if (!heldLeft && !heldRight)
-            return default;
+            return false;
 
         // Test Left first and probe RIGHT; the mirror Right chord probes
         // LEFT. That counter-intuitive direction is deliberate: the button points away from
@@ -747,7 +740,7 @@ public static class SamusAerialMovement
             requested,
             roomObjects);
         if (!probe.Collided)
-            return default;
+            return false;
 
         // The accepted whole travel is signed, so its magnitude is at most 32768 and the
         // distance holds the exact unsigned value.
@@ -758,7 +751,7 @@ public static class SamusAerialMovement
         if (samus.AnimationFrame < firstEligibleFrame)
         {
             SamusAerialPoseTransitions.ApplyWallContactAnimationRewind(samus);
-            return new WallJumpCheckResult(Triggered: false, Contact: true, Distance: distance);
+            return false;
         }
 
         bool jumpNew = (controllerNewInput & ControllerButton.A) != ControllerButton.None;
@@ -771,15 +764,8 @@ public static class SamusAerialMovement
             // state, so retain the publication even though the host result below also tells
             // the runtime to install the wall-jump pose explicitly.
             samus.SolidVerticalCollisionResult = SamusVerticalCollisionResult.WallJump;
-
-            if (probe.EnemyCollision is { EnemySlot: int enemySlot })
-            {
-                // Publishes only enemy-backed launches. Terrain wall
-                // jumps intentionally leave the previous wall-jump enemy alone.
-                samus.EnemySlotToShake = enemySlot;
-            }
         }
-        return new WallJumpCheckResult(triggered, Contact: true, distance);
+        return triggered;
     }
 
     /// <summary>

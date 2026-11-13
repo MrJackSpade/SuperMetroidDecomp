@@ -323,11 +323,9 @@ internal static class RidleyFullMovieVerification
             samus.PoseHistory.PreviousPose = pose;
             SamusMovementType spinMovement = SamusMovementType.SpinJumping;
             samus.PoseHistory.PreviousMovement = spinMovement;
-            samus.PoseHistory.LastDifferentPose = SamusPoseId.RunningAimUpRightPose;
             samus.PoseHistory.LastDifferentMovement = SamusMovementType.Running;
             runtime.StepFrame(0);
             AssertEqual(pose, samus.PoseHistory.PreviousPose, "fallback retains spin pose");
-            AssertEqual(pose, samus.PoseHistory.LastDifferentPose, "fallback commits same-pose history");
             AssertEqual(spinMovement, samus.PoseHistory.LastDifferentMovement, "fallback publishes older spin movement");
             AssertTrue(samus.PoseHistory.AllowsWallJumpProbe, "next update admits native wall observation");
         }

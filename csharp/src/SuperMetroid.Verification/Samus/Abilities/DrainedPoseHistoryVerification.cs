@@ -16,7 +16,6 @@ internal static class DrainedPoseHistoryVerification
             var history = samus.PoseHistory;
             history.PreviousPose = source;
             history.PreviousMovement = SamusPoseMetadata.ReadMovementType(samus);
-            history.LastDifferentPose = SamusPoseId.SpinJumpRightPose;
             history.LastDifferentMovement = SamusMovementType.SpinJumping;
             DrainedPoseHistoryCommand[] commands =
             [
@@ -32,18 +31,15 @@ internal static class DrainedPoseHistoryVerification
                 SamusPoseId previousPose = history.PreviousPose;
                 SamusMovementType previousMetadata = history.PreviousMovement;
                 command.Apply();
-                AssertEqual(previousPose, history.LastDifferentPose, $"drain {command.Name} shifts previous pose");
                 AssertEqual(previousMetadata, history.LastDifferentMovement, $"drain {command.Name} shifts metadata");
                 AssertEqual(samus.Pose, history.PreviousPose, $"drain {command.Name} publishes current pose");
                 AssertEqual(SamusPoseMetadata.ReadMovementType(samus),
                     history.PreviousMovement, $"drain {command.Name} publishes current metadata");
             }
-            SamusPoseId olderPose = history.LastDifferentPose;
-            SamusMovementType olderMetadata = history.LastDifferentMovement;
+                SamusMovementType olderMetadata = history.LastDifferentMovement;
             SamusPoseId currentPose = history.PreviousPose;
             SamusMovementType currentMetadata = history.PreviousMovement;
             samus.Drained.EnableHyperBeam(samus);
-            AssertEqual(olderPose, history.LastDifferentPose, "Hyper command does not shift older pose");
             AssertEqual(olderMetadata, history.LastDifferentMovement, "Hyper command retains older metadata");
             AssertEqual(currentPose, history.PreviousPose, "Hyper command retains previous pose");
             AssertEqual(currentMetadata, history.PreviousMovement, "Hyper command retains previous metadata");

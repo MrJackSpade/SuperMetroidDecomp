@@ -35,12 +35,6 @@ public sealed class HyperBeamPaletteFxState
     public int? CurrentFrameIndex { get; private set; }
 
     /// <summary>
-    /// Number of completed ten-frame loops, a count this model keeps. No game value holds it and nothing in
-    /// gameplay reads it, so it is an ordinary count that starts at zero on spawn and grows by one per loop.
-    /// </summary>
-    public int CompletedCycles { get; private set; }
-
-    /// <summary>
     /// Performs the palette effect's spawn-time state initialization for
     /// the Hyper Beam palette object. No colors are copied until the global handler runs.
     /// </summary>
@@ -52,7 +46,6 @@ public sealed class HyperBeamPaletteFxState
         IsActive = true;
         FrameHold = 1;
         CurrentFrameIndex = null;
-        CompletedCycles = 0;
         Place = AnimationPlace.StartOfAnimation;
     }
 
@@ -100,9 +93,6 @@ public sealed class HyperBeamPaletteFxState
         if (shown.Segment != PaletteFxSegment.HyperBeam1)
             throw new InvalidDataException($"The Hyper Beam's colour animation showed frame {shown.Shown} of {shown.Segment}, outside its cycle.");
         int frameIndex = shown.Shown;
-        // The cycle's jump returns to its first frame: showing it again completes a cycle.
-        if (frameIndex == 0 && CurrentFrameIndex is not null)
-            CompletedCycles++;
 
         colours.LayOverBeams(SamusShades.HyperBeamCycle(frameIndex));
 

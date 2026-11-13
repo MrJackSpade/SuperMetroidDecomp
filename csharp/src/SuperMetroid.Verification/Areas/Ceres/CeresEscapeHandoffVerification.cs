@@ -47,11 +47,8 @@ internal static class CeresEscapeHandoffVerification
 
         samus.PoseHistory.PreviousPose = SamusPoseId.FacingRightNormalPose;
         samus.PoseHistory.PreviousMovement = SamusMovementType.Standing;
-        samus.PoseHistory.LastDifferentPose = SamusPoseId.SpinJumpLeftPose;
         samus.PoseHistory.LastDifferentMovement = SamusMovementType.SpinJumping;
         samus.CeresRidleyEjection.Request(samus);
-        AssertEqual(SamusPoseId.SpinJumpLeftPose, samus.PoseHistory.LastDifferentPose,
-            "installing the ejection handler does not publish pose history early");
         AssertEqual(SamusPoseId.FacingRightNormalPose, samus.Pose, "request does not execute gamma early");
         AssertTrue(samus.CeresRidleyEjection.IsActive, "room-main request installs Ridley ejection");
         AssertTrue(!samus.Control.AlphaLocked, "installed ejection replaces movement but not pose input");
@@ -67,7 +64,6 @@ internal static class CeresEscapeHandoffVerification
             frameCounter: 0);
         AssertTrue(initializationWasPending && !samus.CeresRidleyEjection.InitializationPending,
             "first ejection gamma initializes state");
-        AssertEqual(SamusPoseId.FacingRightNormalPose, samus.PoseHistory.LastDifferentPose, "ejection initialization shifts prior pose");
         AssertEqual(SamusMovementType.Standing, samus.PoseHistory.LastDifferentMovement, "ejection initialization shifts prior metadata");
         AssertEqual(SamusPoseId.KnockbackRightPose, samus.PoseHistory.PreviousPose, "ejection initialization publishes hurt pose");
         AssertEqual(SamusMovementType.Knockback, samus.PoseHistory.PreviousMovement, "ejection initialization publishes hurt metadata");

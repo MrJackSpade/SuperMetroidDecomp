@@ -65,9 +65,6 @@ internal sealed class BeamChargeState
     /// <summary>The most recent charged-shot palette sub-handler result, which survives room loads.</summary>
     internal SamusBeamChargePaletteStepResult LastBeamChargePaletteStep { get; set; }
 
-    /// <summary>The nested visor palette result, which survives room loads.</summary>
-    internal SamusVisorPaletteStepResult LastVisorPaletteStep { get; set; }
-
     /// <summary>
     /// The picture each flare component shows, in <see cref="ChargeFlareComponent"/> order: a place of its program, or,
     /// after the Hyper Beam's backward count has run a component past its first picture, the 0 through 65535 place the

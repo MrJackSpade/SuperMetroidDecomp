@@ -159,7 +159,6 @@ internal static class SpikeDamageBoostVerification
             samus.PoseHistory.PreviousPose = retainedPose;
             samus.PoseHistory.PreviousMovement =
                 SamusPoseMetadata.ReadMovementType(samus);
-            samus.PoseHistory.LastDifferentPose = SamusPoseId.NormalLandingRightPose;
             // Standing must have floor support; spin stays above that floor. Held Jump
             // without a new edge selects definition fallback rather than a fresh jump.
             if (retainedPose is SamusPoseId.FacingRightNormalPose or SamusPoseId.FacingLeftNormalPose or
@@ -168,7 +167,6 @@ internal static class SpikeDamageBoostVerification
             runtime.Controller1.Latch(ControllerButton.A);
             runtime.StepFrame(ControllerButton.A);
             AssertEqual(retainedPose, samus.Pose, "fallback retains visible standing/spin/turn pose");
-            AssertEqual(retainedPose, samus.PoseHistory.LastDifferentPose, "same-pose fallback shifts history");
         }
 
         // Native carry mode 6 / water / forward / delay 11, end of frame 25.

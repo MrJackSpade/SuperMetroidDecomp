@@ -115,7 +115,6 @@ internal static class MetroidBombPlacementVerification
         samus.PoseHistory.PreviousMovement =
             SamusMovementType.MorphBallGround;
         samus.PoseHistory.LastDifferentMovement = SamusMovementType.Standing;
-        samus.PoseHistory.LastDifferentPose = 0;
         var target = runtime.Enemies.SlotTable.Slots[0];
         foreach (var other in runtime.Enemies.SlotTable.Slots.Skip(1)) other.Clear();
         target.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 145));

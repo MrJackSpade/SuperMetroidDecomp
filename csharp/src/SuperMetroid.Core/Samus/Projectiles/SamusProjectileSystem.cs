@@ -149,13 +149,6 @@ public sealed class SamusProjectileSystem
         private set => Charge.LastBeamChargePaletteStep = value;
     }
 
-    /// <summary>Nested visor result when inactive charging falls through to visor handling.</summary>
-    public SamusVisorPaletteStepResult LastVisorPaletteStep
-    {
-        get => Charge.LastVisorPaletteStep;
-        private set => Charge.LastVisorPaletteStep = value;
-    }
-
     /// <summary>The last alpha-pass result, whose queued sounds the frontend routes after the frame.</summary>
     public SamusProjectileFrameResult LastFrameResult { get; private set; }
 
@@ -214,7 +207,6 @@ public sealed class SamusProjectileSystem
     {
         Ensure.NotNull(colours);
         Ensure.NotNull(samus);
-        LastVisorPaletteStep = default;
 
         ChargedShotGlow glow = Charge.ChargedShotGlow;
         if (glow.Kind == ChargedShotGlowKind.None)
@@ -250,7 +242,7 @@ public sealed class SamusProjectileSystem
             // owns its function. This guarantees the next eligible call starts at
             // the first charge colour step rather than resuming a partially completed cycle.
             Charge.ChargePaletteStep = 0;
-            LastVisorPaletteStep = samus.VisorPalette.Update(
+            samus.VisorPalette.Update(
                 colours,
                 samus.Xray.SpecialPaletteKind,
                 roomVisorAnimation);
@@ -710,7 +702,6 @@ public sealed class SamusProjectileSystem
         Charge.ChargedShotGlow = ChargedShotGlow.None;
         Charge.ClearFlare();
         LastBeamChargePaletteStep = default;
-        LastVisorPaletteStep = default;
         Charge.ChargePaletteStep = 0;
     }
 

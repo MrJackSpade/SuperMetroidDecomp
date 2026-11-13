@@ -449,17 +449,6 @@ public sealed class SamusState
     public SamusVisorPaletteState VisorPalette { get; } = new();
 
     /// <summary>
-    /// The enemy to shake, written when an ordinary or grapple wall jump
-    /// launches from a solid/frozen enemy instead of room terrain.
-    /// </summary>
-    /// <remarks>
-    /// Holds the enemy slot, or null for none. Enemy AI owns consumption.
-    /// Retaining the slot now makes the movement result complete even before the general
-    /// live-enemy update loop is modelled.
-    /// </remarks>
-    public int? EnemySlotToShake { get; set; }
-
-    /// <summary>
     /// Host-visible equivalent of the knockback movement handler. It is separate from
     /// the knockback movement type because the game also uses that type for crystal-flash art.
     /// </summary>

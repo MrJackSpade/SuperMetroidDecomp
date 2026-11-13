@@ -215,7 +215,7 @@ internal sealed class DoorTransitionState
                 // elevator AI stays frozen through the final palette fade. The destination stays dark until its fade in
                 // takes its first step.
                 runtime.RoomLoader.BeginDoorOpeningScroll(
-                    door ?? throw new InvalidOperationException("Door header was not captured."),
+                    door ?? throw new InvalidOperationException("The transition's door was not captured."),
                     sourceSamus,
                     loaderProgress,
                     completedLoadingScrollUpdates: 1);

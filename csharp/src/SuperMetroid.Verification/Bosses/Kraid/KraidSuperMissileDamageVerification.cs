@@ -42,11 +42,8 @@ internal static class KraidSuperMissileDamageVerification
         state.BodyState.Function=KraidAiFunction.MainAttackWithMouthOpen;
         state.HeadPlayback=RoarPastOpenPose;state.BodyState.HeadTimer=64;
         state.DisplayedHeadFrame = FullyOpenRoarFrame();
-        var terrain=new RoomTerrainBlock[32*64];for(int i=32*32;i<33*32;i++)terrain[i]=RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
         var scope = runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.");
-        // The synthetic floor keeps Kraid's own block definitions: the room's PLMs write its blocks into the level on the
-        // first frame, and the published plane must resolve them.
-        var level=new RoomLevelData(new Extent16<RoomBlocks>(32, 64), new RoomLevelPlanes(terrain, new RoomBlockBehavior[2048], new RoomBlockAppearance[2048]), RoomLevelData.NothingBeyondGrid());
+        var level = KraidFloorLevel(scope.LevelData);
         runtime.Room.Adopt(scope with { LevelData = level });
         var samus=runtime.Player.IntroducedSamus;samus.Pose=SamusPoseId.FacingRightNormalPose;
         samus.Health=samus.MaxHealth=999;samus.SuperMissiles=samus.MaxSuperMissiles=10;samus.SelectedHudItem=HudItem.SuperMissile;
@@ -100,6 +97,39 @@ internal static class KraidSuperMissileDamageVerification
         if((nativeCompare&0x8000)!=0)throw new InvalidDataException("Native scratch-word rejection is not satisfied by the reproduced coordinates.");
         Suite(nameof(VerifyKraidCollisionSlotOrder), () => VerifyKraidCollisionSlotOrder(bus, runtime, body, state));
         return 0;
+    }
+
+    /// <summary>Blocks across the fixture's arena: Kraid's room is two screens wide.</summary>
+    private const int ArenaWidth = 32;
+
+    /// <summary>Rows in the fixture's arena: Kraid's room extended downward, so its floor and Kraid's body lie inside the grid.</summary>
+    private const int ArenaHeight = 64;
+
+    /// <summary>The arena's one solid row, which Samus stands on at height 512.</summary>
+    private const int FloorRow = 32;
+
+    /// <summary>
+    /// Kraid's room as a flat arena: one solid row, open air everywhere else and no block behaviours, over a grid extended
+    /// below the room. Each block shows what Kraid's room shows in its column, the rows past the room's last repeating that
+    /// row, so every block the arena shows is one the Kraid tileset's sheet pictures (#1677); only collision is the fixture's.
+    /// </summary>
+    /// <exception cref="InvalidDataException">Kraid's room is not as wide as the arena.</exception>
+    private static RoomLevelData KraidFloorLevel(RoomLevelData room)
+    {
+        if (room.Size.X != ArenaWidth)
+            throw new InvalidDataException($"Kraid's room is {room.Size.X} blocks wide; the fixture's arena is {ArenaWidth}.");
+        var background = room.BackgroundPlane.Cells.Cells;
+        var terrain = new RoomTerrainBlock[ArenaWidth * ArenaHeight];
+        var backdrop = new RoomBlockAppearance[terrain.Length];
+        for (int index = 0; index < terrain.Length; index++)
+        {
+            int row = index / ArenaWidth;
+            int shown = Math.Min(row, room.Size.Y - 1) * ArenaWidth + index % ArenaWidth;
+            terrain[index] = new RoomTerrainBlock(room.ShownForeground[shown], row == FloorRow ? RoomCollisionType.SolidBlock : RoomCollisionType.Air);
+            backdrop[index] = RoomBlockAppearance.Of(background[shown].Definition, background[shown].Flips);
+        }
+        return new RoomLevelData(new Extent16<RoomBlocks>(ArenaWidth, ArenaHeight),
+            new RoomLevelPlanes(terrain, new RoomBlockBehavior[terrain.Length], backdrop), RoomLevelData.NothingBeyondGrid());
     }
 
     /// <summary>The roar's fully open head pose, with its two open-mouth collision shapes.</summary>

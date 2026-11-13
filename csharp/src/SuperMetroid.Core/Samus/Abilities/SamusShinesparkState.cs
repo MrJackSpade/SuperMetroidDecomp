@@ -15,8 +15,8 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// <remarks>
 /// This is the game's state machine, not a desktop “dash”
 /// controller. Timers wrap at 65536, movement retains split 16.16 values, and every
-/// palette is selected through the user's installed artwork. Solid-enemy collision remains an explicit
-/// boundary; block collision uses the shared dispatcher.
+/// palette is selected through the user's installed artwork. Block collision uses the shared dispatcher; solid
+/// enemies stop a sideways spark through it, and an upward spark tests them before its block move.
 /// </remarks>
 public sealed class SamusShinesparkState
 {

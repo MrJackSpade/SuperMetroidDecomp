@@ -194,6 +194,9 @@ internal sealed class DraygonCombat
         state.Colours.ShowBand(RequireHealthBand(state));
     }
 
+    /// <summary>A bomb striking one of Draygon's body dud-shot hitboxes: the dud flash where the bomb lies and the dud sound.</summary>
+    internal void CreateBombDudShot(EnemyBombContext context) => _projectiles.CreateBombDudShot(context.Bomb);
+
     /// <summary>Registers Draygon's shot response, including acceleration and special death exemption.</summary>
     internal void AddDraygonShotReactions(EnemySharedReactions table)
     {

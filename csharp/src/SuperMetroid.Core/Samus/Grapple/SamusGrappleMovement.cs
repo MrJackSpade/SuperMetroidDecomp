@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Samus.Drawing;
+using SuperMetroid.Core.Samus.Hud;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Movement;
@@ -16,15 +17,13 @@ namespace SuperMetroid.Core.Samus.Grapple;
 /// The retail game does not run grapple physics through the grappling movement type's tiny handler.
 /// The grapple beam's handler updates the pendulum before normal beta
 /// movement, and the block collision advances its angle while probing room collision. This class keeps
-/// those responsibilities separate from ordinary aerial movement. Firing, persistent grapple
-/// blocks, per-pixel rope adjustment, and the six-point angular terrain sweep are modelled
-/// here; solid/frozen-enemy wall-jump probing is shared with ordinary movement and retains
-/// the enemy slot to shake. The firing-only Draygon-turret damage and both behaviour-indexed swing
-/// spike-damage tables are applied through the shared periodic damage. Breakable
-/// block acquisition now installs the independent room-object lifecycle; enemy acquisition
-/// and the live enemy/shake loop remain explicit later routes rather than being approximated.
+/// those responsibilities separate from ordinary aerial movement. Firing, persistent and breakable
+/// grapple blocks, enemy anchors, per-pixel rope adjustment, and the six-point angular terrain sweep are
+/// here; solid/frozen-enemy wall-jump probing is shared with ordinary movement and asks the next enemy
+/// pass to shake the enemy launched from. The firing-only Draygon-turret damage and both behaviour-indexed swing
+/// spike-damage tables are applied through the shared periodic damage.
 /// Grapple's narrower water flag and persistent environment-selected
-/// release handler are modelled rather than collapsed into ordinary aerial movement.
+/// release handler are kept apart from ordinary aerial movement.
 /// </remarks>
 public static class SamusGrappleMovement
 {
@@ -388,10 +387,9 @@ public static class SamusGrappleMovement
                 !SamusGrappleSwing.IsStillConnectedToSupportedBlock(terrain.Level, samus, grapple));
         if (anchorDisconnected)
         {
-            // The persistent block path normally remains connected forever. Retain the
-            // validation seam so a future dynamic/breakable room object cannot leave a rope
-            // attached to air. A motionless straight-down body queues the drop; a moving
-            // pendulum uses the velocity-preserving release handoff.
+            // A block that still stops the beam keeps the rope; one replaced with air (a breakable grapple block that
+            // has crumbled), or an enemy anchor the rope has lost, ends the connection. A motionless straight-down
+            // body queues the drop; a moving pendulum uses the velocity-preserving release handoff.
             if (grapple.AngularVelocity == 0 && grapple.Angle == RotationAngle.HalfTurn)
             {
                 grapple.Phase = GrapplePhase.Dropped;
@@ -581,6 +579,7 @@ public static class SamusGrappleMovement
         SamusBlockCollision.EjectAfterGrapple(level, samus.Kinematics);
         SamusAerialPoseTransitions.ApplyGrappleWallJump(samus);
         ClearConnectedGrapple(grapple);
+        SamusHudSelection.ReturnAutoCancelledItem(samus);
         return new GrappleMovementResult(
             GrapplePhase.Inactive,
             WallJumpStarted: true);
@@ -607,6 +606,7 @@ public static class SamusGrappleMovement
         if (!deferPoseChange)
             SamusAerialPoseTransitions.ApplyGrappleDropTransition(samus, level, targetPose, frameCounter, roomObjects);
         ClearConnectedGrapple(grapple);
+        SamusHudSelection.ReturnAutoCancelledItem(samus);
         return new GrappleMovementResult(
             GrapplePhase.Inactive,
             OwnsMovement: !deferPoseChange || emptyBeta,
@@ -1066,9 +1066,10 @@ public static class SamusGrappleMovement
             grapple.Phase = GrapplePhase.ConnectedLocked;
         }
 
-        // The swinging and locked connection poses share one tail. Speed-booster bookkeeping
-        // is not modeled yet, but every modeled speed cleared there is reset here.
-        // AccelerationMode is deliberately retained: the common tail does not write it.
+        // The swinging and locked connections share one tail: it cancels the speed boost, the echoes leaving the way
+        // the connection pose faces, then clears the base, extra-run and vertical speeds. AccelerationMode is
+        // deliberately retained: the common tail does not write it.
+        samus.HorizontalSpeed.CancelRunningMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
         samus.HorizontalSpeed.BaseSpeed = default;
         samus.HorizontalSpeed.ExtraRunSpeed = default;
         samus.Kinematics.YSpeed = default;
@@ -1137,9 +1138,9 @@ public static class SamusGrappleMovement
     }
 
     /// <summary>
-    /// Completes the one-frame cancellation function installed by firing. The game's
-    /// step also clears palette/sound bookkeeping not yet modeled by this runtime;
-    /// every gameplay-visible firing value owned by this class is cleared here.
+    /// Completes the one-frame cancellation function installed by firing: the stop sound, the ejection, the fallback
+    /// pose of a cancelled connected pose, every firing value, and the end of an auto-cancelled selection. The equipped
+    /// beams' colours return in the frame's grapple phase, after every grapple ending.
     /// </summary>
     public static GrappleMovementResult CompleteFiringCancellation(
         RoomLevelData level,
@@ -1186,6 +1187,7 @@ public static class SamusGrappleMovement
         grapple.EndpointOffset = FixedVector<RoomPixels>.Zero;
         grapple.CancelFromConnectedPose = false;
         SamusGrappleBeamDrawing.ClearFlareAnimation(grapple);
+        SamusHudSelection.ReturnAutoCancelledItem(samus);
         return new GrappleMovementResult(
             GrapplePhase.Inactive,
             Fired: false,
@@ -1269,6 +1271,7 @@ public static class SamusGrappleMovement
         grapple.ValidateAnchorBlock = false;
         grapple.ValidateAnchorEnemy = false;
         SamusGrappleBeamDrawing.ClearFlareAnimation(grapple);
+        SamusHudSelection.ReturnAutoCancelledItem(samus);
         return deferPoseChange ? releasePose : null;
     }
 
@@ -1283,9 +1286,9 @@ public static class SamusGrappleMovement
     /// <summary>Resets grapple-owned movement and rendering state so a later shot cannot inherit connection state.</summary>
     private static void ClearConnectedGrapple(SamusGrappleState grapple)
     {
-        // The drop and wall-jump teardowns share the same long cleanup tail. Palette, sound, and HUD-item
-        // producers live outside this state object; every owned movement/rendering value is
-        // reset here so a later firing edge cannot inherit wall-grace or collision state.
+        // The drop and wall-jump teardowns share the same long cleanup tail. Every owned movement/rendering value is
+        // reset here so a later firing edge cannot inherit wall-grace or collision state; their callers end an
+        // auto-cancelled selection, and the frame's grapple phase shows the equipped beams' colours again.
         grapple.Phase = GrapplePhase.Inactive;
         grapple.RopeLength = 0;
         grapple.RopeLengthDelta = 0;

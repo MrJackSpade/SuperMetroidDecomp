@@ -14,10 +14,9 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// The game does not treat the ball as a generic circular rigid body. Grounded,
 /// falling, bouncing, and transition poses enter different wrappers which share only a few
 /// steps. This class keeps those entry points separate while reusing their exact
-/// 16.16 collision operations. Their air/water/lava tables are modelled; bomb displacement,
-/// enemies, conveyors, and Spring Ball projectiles remain explicit future branches. Bomb-
-/// jump displacement itself lives
-/// in <see cref="SamusBombJumpMovement"/> rather than being approximated here.
+/// 16.16 collision operations and their air/water/lava tables. Solid enemies stop the ball through the shared block
+/// collision, conveyors carry it as inside-block reactions, and bomb-jump displacement lives
+/// in <see cref="SamusBombJumpMovement"/>.
 /// </remarks>
 public static class SamusMorphBallMovement
 {

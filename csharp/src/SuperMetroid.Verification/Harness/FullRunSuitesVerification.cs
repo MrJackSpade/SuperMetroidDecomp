@@ -92,6 +92,7 @@ using static SuperMetroid.Verification.Hardware.CompressionVerification;
 using static SuperMetroid.Verification.Rooms.RoomObjects.ContactCrumbleProgramsVerification;
 using static SuperMetroid.Verification.Audio.ContactDamageSoundVerification;
 using static SuperMetroid.Verification.Enemies.EnemySoundOrderVerification;
+using static SuperMetroid.Verification.Enemies.EnemyBombShotReactionVerification;
 using static SuperMetroid.Verification.Frontend.Recording.ControllerInputRecordingVerification;
 using static SuperMetroid.Verification.Hardware.WorkRamCellVerification;
 using static SuperMetroid.Verification.Samus.Movement.CrampedAerialLandingVerification;
@@ -179,6 +180,7 @@ using static SuperMetroid.Verification.Samus.Grapple.GrappleEnemyDeathVerificati
 using static SuperMetroid.Verification.Samus.Grapple.GrappleGatesVerification;
 using static SuperMetroid.Verification.Samus.Grapple.GrapplePoseRefireVerification;
 using static SuperMetroid.Verification.Samus.Grapple.GrappleSoundsVerification;
+using static SuperMetroid.Verification.Samus.Grapple.GrappleConnectionSpeedBoostVerification;
 using static SuperMetroid.Verification.Samus.Grapple.GrappleSpinVerification;
 using static SuperMetroid.Verification.Rooms.RoomObjects.GreenHillGateGlitchVerification;
 using static SuperMetroid.Verification.Samus.Movement.GroundedBombSpreadVerification;
@@ -337,6 +339,7 @@ using static SuperMetroid.Verification.Rooms.RoomObjects.SamusEaterVisualsVerifi
 using static SuperMetroid.Verification.Samus.Grapple.GrappleBeamDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Grapple.SamusGrappleVerification;
 using static SuperMetroid.Verification.Samus.Hud.SamusHudSelectionVerification;
+using static SuperMetroid.Verification.Samus.Hud.AutoCancelledItemVerification;
 using static SuperMetroid.Verification.Samus.Palettes.SamusHurtColorsVerification;
 using static SuperMetroid.Verification.Samus.Palettes.SamusHyperBeamColorsVerification;
 using static SuperMetroid.Verification.Samus.Abilities.SamusMorphBallVerification;
@@ -782,9 +785,12 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyGrappleSpinInput), () => VerifyGrappleSpinInput()),
         new(nameof(VerifyGrappleGreenGateVisibility), () => VerifyGrappleGreenGateVisibility()),
         new(nameof(VerifyGrappleEnemyDeath), () => VerifyGrappleEnemyDeath()),
+        new(nameof(VerifyGrappleConnectionCancelsSpeedBoost), () => VerifyGrappleConnectionCancelsSpeedBoost()),
+        new(nameof(VerifyGrappleEndReturnsAutoCancelledItem), () => VerifyGrappleEndReturnsAutoCancelledItem()),
         new(nameof(VerifyShutterRiding), () => VerifyShutterRiding()),
         new(nameof(VerifyXrayInput), () => VerifyXrayInput()),
         new(nameof(VerifyXrayGameState), () => VerifyXrayGameState()),
+        new(nameof(VerifyXrayEndReturnsAutoCancelledItem), () => VerifyXrayEndReturnsAutoCancelledItem()),
         new(nameof(VerifySpeedBoosterStageFiveResidue), () => VerifySpeedBoosterStageFiveResidue()),
         new(nameof(VerifyDraygonPrebattleXray), () => VerifyDraygonPrebattleXray()),
         new(nameof(VerifyXraySetupBuffers), () => VerifyXraySetupBuffers()),
@@ -1125,6 +1131,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyContactDamageSound), () => VerifyContactDamageSound()),
         new(nameof(VerifyEnemySoundsQueueInRunOrder), () => VerifyEnemySoundsQueueInRunOrder()),
         new(nameof(VerifyProjectileDudSoundsQueueWhenRejected), () => VerifyProjectileDudSoundsQueueWhenRejected()),
+        new(nameof(VerifyBombHitCriesOrDuds), () => VerifyBombHitCriesOrDuds()),
         new(nameof(VerifyBombJumpRunMomentum), () => VerifyBombJumpRunMomentum()),
         new(nameof(VerifyBabyMetroidWallClearTiming), () => VerifyBabyMetroidWallClearTiming()),
         new(nameof(VerifyDrainedSparkCrash), () => VerifyDrainedSparkCrash()),

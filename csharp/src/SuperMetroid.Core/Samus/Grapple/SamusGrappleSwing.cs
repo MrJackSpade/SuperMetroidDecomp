@@ -117,7 +117,7 @@ public static class SamusGrappleSwing
         ControllerButton newlyPressedInput)
     {
         // The swing changes length only on a new directional edge. Once selected, the signed
-        // delta remains live until a bound or future collision code clears it.
+        // delta remains live until a bound or a later collision clears it.
         if ((newlyPressedInput & ControllerButton.Up) != ControllerButton.None)
         {
             if (grapple.RopeLength != 0)

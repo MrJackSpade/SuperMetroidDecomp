@@ -46,7 +46,7 @@ internal sealed class DraygonEntity(DraygonBehavior species, RoomEnemySlot slot,
     /// <summary>The Draygon body's dud shot after the no-op check, ahead of the shared ones.</summary>
     public override Action<EnemyBombContext>? FindBombSpecialAfterNoOp(EnemyBombContext context) =>
         Slot.DefinitionId == EnemyDefinitionId.DraygonBody && context.SelectedShotAi == EnemyReaction.DudShot
-            ? EnemyDudShot.Bomb
+            ? species.Combat.CreateBombDudShot
             : base.FindBombSpecialAfterNoOp(context);
 
     /// <inheritdoc/>

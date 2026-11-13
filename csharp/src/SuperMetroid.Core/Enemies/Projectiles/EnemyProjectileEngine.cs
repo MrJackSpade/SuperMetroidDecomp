@@ -937,6 +937,19 @@ internal sealed class EnemyProjectileEngine
     }
 
     /// <summary>
+    /// Creates the dud shot for an exploding bomb an enemy shrugs off: the dud flash where the bomb lies and the dud sound.
+    /// The bomb pass has already marked the bomb as having hit.
+    /// </summary>
+    internal void CreateBombDudShot(SamusBombProjectileSlot bomb)
+    {
+        _ = _spriteObjects.SpawnRoomSpriteObject(
+            Ensure.NotNull(bomb).Position.Whole,
+            RoomSpriteObjectKind.EnemyProjectileDud,
+            graphics: default);
+        QueueDudSound(SoundRequestPriority.Low);
+    }
+
+    /// <summary>
     /// Deletes an enemy projectile once it is vertically off screen, shared by
     /// Dragon's fireball and both n00b-tube shard frame behaviours.
     /// </summary>

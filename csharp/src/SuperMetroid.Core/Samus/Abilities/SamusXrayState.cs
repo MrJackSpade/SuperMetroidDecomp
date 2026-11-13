@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Samus.Drawing;
+using SuperMetroid.Core.Samus.Hud;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Palettes;
@@ -598,7 +599,7 @@ public sealed class SamusXrayState
     private static int LaterEdgeStepsFrom(RotationAngle center, TrigonometryAngle halfWidth, RotationAngle limit) =>
         (center.ToTrigonometryAngle() + halfWidth).StepsFrom(limit.ToTrigonometryAngle());
 
-    /// <summary>Restores Samus' normal pose and handlers, subsystem enables, palette request, and beam state.</summary>
+    /// <summary>Restores Samus' normal pose and handlers, subsystem enables, palette request and beam state, and ends an auto-cancelled selection.</summary>
     private void Finish(SamusState samus)
     {
         // The X-ray teardown intentionally classifies a grounded turn as standing. Releasing
@@ -638,6 +639,7 @@ public sealed class SamusXrayState
         AngularWideningSpeed = RotationAngle.Zero;
         VisorPaletteMode = XrayVisorPaletteMode.RestoreSuitPalette;
         samus.AudioRequests.QueueSound(SamusSound.XrayEnd, SoundRequestPriority.Normal);
+        SamusHudSelection.ReturnAutoCancelledItem(samus);
     }
 
     /// <summary>Commits a frozen X-ray turn pose with refreshed radii, animation, and history.</summary>

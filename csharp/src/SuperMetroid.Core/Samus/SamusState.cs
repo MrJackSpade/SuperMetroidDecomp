@@ -13,11 +13,10 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus;
 
 /// <summary>
-/// First breakpoint-friendly slice of normal gameplay Samus state and rendering.
+/// Samus's gameplay state: her pose, movement, abilities, projectiles' shared state, presentation and equipment.
 /// </summary>
 /// <remarks>
-/// This class owns the state shared by the exact standing/right-running render, animation,
-/// and grounded movement slices. The Landing Site cinematic actor is not part of it.
+/// The movement, pose, ability and drawing systems share it. The Landing Site cinematic actor is not part of it.
 /// </remarks>
 public sealed class SamusState
 {
@@ -168,7 +167,7 @@ public sealed class SamusState
 
     /// <summary>
     /// Fatal-damage death-pose ownership, death tiles/palettes, whiteout, and suit explosion.
-    /// The outer music wait and post-explosion room fade remain explicit game-state seams.
+    /// The outer music wait and post-explosion room fade are the death game states' (<c>DeathGamePhases</c>).
     /// </summary>
     public SamusDeathSequenceState DeathSequence { get; } = new();
 
@@ -478,7 +477,7 @@ public sealed class SamusState
     /// the animation has not requested that transition.
     /// </summary>
     /// <remarks>
-    /// This holds the pose between the animation's cue and the pose update that installs it. The grounded slice
+    /// This holds the pose between the animation's cue and the pose update that installs it. Samus's pose handling
     /// consumes it after animation, at the same pose-transition point used by the game.
     /// Keeping it explicit makes the turn's final facing change its own step.
     /// </remarks>
@@ -569,15 +568,14 @@ public sealed class SamusState
     }
 
     /// <summary>
-    /// Resolves the block-only portion of the pose-change collision for
-    /// a target whose Y radius is larger than the live body's radius.
+    /// Resolves the pose-change collision for a target whose Y radius is larger than the live body's radius: solid
+    /// enemies first, then blocks.
     /// </summary>
     /// <remarks>
     /// The game first probes the radius difference upward and downward while retaining
     /// the old radius. A one-sided hit calculates a compensating center shift, then probes
     /// that shift toward the opposite surface before committing it. Failure of that second
-    /// probe restores the source pose; simultaneous initial hits select stable crouch. Solid-
-    /// enemy collision is deliberately outside the current room slice, with no substitute.
+    /// probe restores the source pose; simultaneous initial hits select stable crouch.
     /// </remarks>
     internal LargerPoseCollisionOutcome ResolveLargerPoseCollision(
 

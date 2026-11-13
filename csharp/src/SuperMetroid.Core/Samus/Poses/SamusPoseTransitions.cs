@@ -303,8 +303,8 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
     }
 
     /// <summary>
-    /// Installs the pose the current pose's animation names at its pose-transition cue, for every animation that ends
-    /// in one in the current grounded/ordinary-air slice.
+    /// Installs the pose the current pose's animation names at its pose-transition cue: every pose a retail
+    /// animation's cue names.
     /// </summary>
     public static bool ApplyPendingVerifiedAnimationTransition(SamusState samus)
     {

@@ -37,22 +37,19 @@ internal sealed class CeresRidleyFlight
     }
 
     /// <summary>
-    /// Sets up the Ceres branch of Ridley's initializer. The shared initializer also
-    /// initializes Norfair Ridley, but selecting that branch here would be fiction:
-    /// this loader currently has no saved boss-bit input and the playable path is fresh Ceres.
+    /// Sets up the Ceres branch of Ridley's initializer; Norfair Ridley's branch is his own part's. The initializer's
+    /// branch for a Ceres Ridley whose boss is already dead never runs: the room's state once its boss is dead places
+    /// no Ridley, only its door.
     /// </summary>
     internal void InitializeCeresRidley(RoomEnemySlot slot)
     {
         _ridleyEncounter.Parts.RequireBody(slot, "Ceres Ridley");
 
-        // Ceres Ridley's initialization clears the shared boss drawing workspace, disables the minimap, and
-        // marks the room explored. Those consumers are not yet represented by RoomEnemySystem;
-        // every actor-owned write that follows is retained below.
+        // Ceres Ridley's initialization clears the boss's working state, which the fresh Ridley state below holds, and
+        // disables the minimap, which the room loader does once the enemies are loaded; Ceres has no arena to mark explored.
         slot.CollidesByFrameHitboxes = true;
 
-        // Two property bits are proven by the initializer, but the first has not yet
-        // been given a cross-enemy semantic name. Preserve it raw; the intangible bit already has the
-        // verified ignores-Samus identity used by the scheduler.
+        // The initializer sets both of Ridley's contact properties: he stops the Plasma Beam and ignores Samus.
         slot.Contact = slot.Contact.With(EnemyContact.BlocksPlasmaBeam);
         slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
         slot.Position = slot.Position.WithWhole(new(186, 169));

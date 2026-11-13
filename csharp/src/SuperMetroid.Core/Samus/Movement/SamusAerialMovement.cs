@@ -14,7 +14,8 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// <remarks>
 /// This deliberately retains the game's split 16.16 magnitudes and separate vertical
 /// direction. It does not use floating point, host elapsed time, or a guessed gravity
-/// curve. Live enemy production and external displacement remain explicit boundaries. Ordinary
+/// curve. Solid enemies stop Samus through the shared block collision, and the displacement enemies and blocks
+/// add to her is the shared extra displacement. Ordinary
 /// Dash and equipped Speed Booster momentum are retained through environment-selected
 /// jumps, including the equipped vertical bonus. Terrain and solid/frozen-enemy wall jumps
 /// plus all three liquid launch-table entries are distinct results.

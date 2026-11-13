@@ -609,7 +609,7 @@ internal sealed class MotherBrainProjectiles
             if (MotherBrainOnionRingOverlapsBaby(ring, baby))
             {
                 state.PendingBabyCryCount++;
-                _ = baby.ApplyMotherBrainOnionRingHit();
+                _ = baby.ApplyMotherBrainOnionRingHit(MotherBrainAttackDamage.OnionRing);
                 // The ring writes the Baby slot's Enemy.health from this projectile
                 // pass; it must not wait for the Baby's next AI turn to publish it.
                 RoomEnemySlot babySlot = state.BabyMetroidSlot ?? throw new InvalidDataException(
@@ -625,7 +625,7 @@ internal sealed class MotherBrainProjectiles
         if (samus is not null && MotherBrainOnionRingOverlapsSamus(ring, samus))
         {
             Position16<RoomPixels> ringPosition = ring.Position.Whole;
-            SamusSuitDamage.Hurt(samus, 80);
+            SamusSuitDamage.Hurt(samus, MotherBrainAttackDamage.OnionRing);
             samus.InvincibilityTimer = WrappingCountdown.Start(96);
             samus.KnockbackTimer = 5;
             samus.KnockbackXDirection = CoordinateAxis.Difference(samus.Position.X.Whole, ringPosition.X) >= 0

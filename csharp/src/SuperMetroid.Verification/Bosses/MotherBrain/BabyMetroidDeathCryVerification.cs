@@ -33,7 +33,7 @@ internal static class BabyMetroidDeathCryVerification
         ushort[] charged = Shown();
         for (int index = 0; index < 256; index++)
             AssertEqual((ushort)(index + 1), charged[index], "Live final charge preserves room colors");
-        baby.ApplyMotherBrainOnionRingHit(80);
+        baby.ApplyMotherBrainOnionRingHit(MotherBrainAttackDamage.OnionRing);
         var fatal = baby.Step(samus, sequence, HeadOf(sequence));
         AssertEqual(BabyMetroidCutscenePhase.TakeFinalBlow, fatal.PhaseAfter, "Fatal hit enters native shake phase");
         apply(fatal);

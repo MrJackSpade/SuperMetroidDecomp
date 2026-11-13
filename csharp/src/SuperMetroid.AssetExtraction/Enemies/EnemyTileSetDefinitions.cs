@@ -13,7 +13,6 @@ internal static class EnemyTileSetDefinitions
     internal static IReadOnlyDictionary<EnemyDefinitionId, int> ByteCounts { get; } = new Dictionary<EnemyDefinitionId, int>
     {
         [EnemyDefinitionId.Boyon] = 1024,
-        [EnemyDefinitionId.Stoke] = 1024,
         [EnemyDefinitionId.MamaTurtle] = 3072,
         [EnemyDefinitionId.BabyTurtle] = 3072,
         [EnemyDefinitionId.Puyo] = 512,
@@ -61,7 +60,6 @@ internal static class EnemyTileSetDefinitions
         [EnemyDefinitionId.Viola] = 1024,
         [EnemyDefinitionId.Skree] = 1024,
         [EnemyDefinitionId.Yard] = 2048,
-        [EnemyDefinitionId.Reflec] = 1536,
         [EnemyDefinitionId.HZoomer] = 1536,
         [EnemyDefinitionId.Zeela] = 1536,
         [EnemyDefinitionId.Sova] = 1536,
@@ -129,7 +127,6 @@ internal static class EnemyTileSetDefinitions
         [EnemyDefinitionId.MotherBrainBody] = 1536,
         [EnemyDefinitionId.CorpseTorizo] = 6144,
         [EnemyDefinitionId.CorpseSidehopper] = 3584,
-        [EnemyDefinitionId.CorpseSidehopper2] = 1536,
         [EnemyDefinitionId.CorpseZoomer] = 0,
         [EnemyDefinitionId.CorpseRipper] = 0,
         [EnemyDefinitionId.CorpseSkree] = 0,
@@ -137,7 +134,6 @@ internal static class EnemyTileSetDefinitions
         [EnemyDefinitionId.BombTorizo] = 8192,
         [EnemyDefinitionId.GoldenTorizo] = 8192,
         [EnemyDefinitionId.TourianStatue] = 5632,
-        [EnemyDefinitionId.TourianStatueGhost] = 1536,
         [EnemyDefinitionId.Shaktool] = 1024,
         [EnemyDefinitionId.NoobTubeCrack] = 6144,
         [EnemyDefinitionId.Chozo] = 4608,
@@ -178,6 +174,19 @@ internal static class EnemyTileSetDefinitions
         [EnemyDefinitionId.Crocomire] = 1,
         [EnemyDefinitionId.MotherBrainBody] = 1,
         [EnemyDefinitionId.RidleyExplosion] = 2,
-        [EnemyDefinitionId.TourianStatueGhost] = 1,
+    };
+
+    /// <summary>The bytes of each unplaced artwork's tile set, which its graphics sets upload into the enemy tile area.</summary>
+    internal static IReadOnlyDictionary<UnplacedEnemyArtwork, int> UnplacedByteCounts { get; } = new Dictionary<UnplacedEnemyArtwork, int>
+    {
+        [UnplacedEnemyArtwork.Stoke] = 1024,
+        [UnplacedEnemyArtwork.DeadSidehopperLivingTiles] = 1536,
+        [UnplacedEnemyArtwork.TourianStatueGhosts] = 1536,
+    };
+
+    /// <summary>The fixed staging block each unplaced artwork whose header places its tiles at a fixed block uploads them to.</summary>
+    internal static IReadOnlyDictionary<UnplacedEnemyArtwork, int> UnplacedFixedBlocks { get; } = new Dictionary<UnplacedEnemyArtwork, int>
+    {
+        [UnplacedEnemyArtwork.TourianStatueGhosts] = 1,
     };
 }

@@ -77,7 +77,16 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
         ? SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(definition)
         : (ushort)definition;
 
-    /// <summary>The identity a fixture's seeded header pointer names: the inverse of <see cref="FixtureHeaderPointer"/>.</summary>
+    /// <summary>
+    /// The bank-$A0 header pointer a fixture seeds graphics-set record <paramref name="record"/> at: its enemy's (see
+    /// <see cref="FixtureHeaderPointer(EnemyDefinitionId)"/>), or the header of the artwork it loads for no enemy (#1686).
+    /// </summary>
+    internal static ushort FixtureHeaderPointer(RoomEnemyGraphicsSetMember record) => record.DefinitionId is { } enemy
+        ? FixtureHeaderPointer(enemy)
+        : SuperMetroid.AssetExtraction.CartridgeTables.EnemyHeaderWords.UnplacedArtworkHeaders.WordsByIdentity[
+            record.Unplaced ?? throw new InvalidOperationException("A graphics-set record names neither an enemy nor unplaced artwork.")].Single();
+
+    /// <summary>The identity a fixture's seeded header pointer names: the inverse of <see cref="FixtureHeaderPointer(EnemyDefinitionId)"/>.</summary>
     internal static EnemyDefinitionId FixtureDefinitionId(ushort pointer) =>
         SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.TryFromHeaderPointer(pointer, out EnemyDefinitionId id)
             ? id
@@ -146,10 +155,12 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
                 SuperMetroid.TestSupport.RepositoryInstallation.Verification.FixtureGraphicsSetRows.Record(fixture, [.. rows]);
                 return fixture;
             }
-            EnemyDefinitionId definitionPointer = FixtureDefinitionId(definitionPointerWord);
             if (slot == 4)
                 throw new InvalidDataException($"Fixture graphics set ${pointer:X4} exceeds four entries.");
-            records.Add(new RoomEnemyGraphicsSetMember(definitionPointer));
+            // A seeded header of artwork a set loads for no enemy (#1686) is that artwork's record.
+            records.Add(SuperMetroid.AssetExtraction.CartridgeTables.EnemyHeaderWords.UnplacedArtworkHeaders.TryDecode(definitionPointerWord, out UnplacedEnemyArtwork unplaced)
+                ? new RoomEnemyGraphicsSetMember(unplaced)
+                : new RoomEnemyGraphicsSetMember(FixtureDefinitionId(definitionPointerWord)));
             rows.Add(RoomEnemyGraphicsSetMember.NativePaletteRow(ReadFixtureWord(cursor + 2)));
             cursor += 4;
         }

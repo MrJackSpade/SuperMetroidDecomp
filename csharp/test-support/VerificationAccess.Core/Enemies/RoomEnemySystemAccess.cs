@@ -49,7 +49,6 @@ using SuperMetroid.Core.Enemies.Skree;
 using SuperMetroid.Core.Enemies.Skultera;
 using SuperMetroid.Core.Enemies.SpacePirates;
 using SuperMetroid.Core.Enemies.Sparks;
-using SuperMetroid.Core.Enemies.Stoke;
 using SuperMetroid.Core.Enemies.Waver;
 using SuperMetroid.Core.Enemies.WorkRobots;
 using SuperMetroid.Core.Enemies.YappingMaws;
@@ -194,10 +193,6 @@ internal static class RoomEnemySystemAccess
         /// <summary>Typed state for all physical slots occupied by Fune or Namihe.</summary>
         internal IReadOnlyList<FuneNamiheEnemyState?> FuneNamiheStates =>
             [.. self.SlotTable.Slots.Select(slot => slot.EntityState<FuneNamiheEntity, FuneNamiheEnemyState>())];
-
-        /// <summary>Typed Stoke state for each of the 32 physical enemy slots.</summary>
-        internal IReadOnlyList<StokeEnemyState?> StokeStates =>
-            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<StokeEntity, StokeEnemyState>())];
 
         /// <summary>Fake Kraid extensions indexed by physical enemy slot.</summary>
         internal IReadOnlyList<FakeKraidEnemyState?> FakeKraidStates =>

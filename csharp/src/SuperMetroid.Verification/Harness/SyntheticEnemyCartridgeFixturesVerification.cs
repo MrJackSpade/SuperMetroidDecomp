@@ -46,8 +46,8 @@ internal static class SyntheticEnemyCartridgeFixturesVerification
         int address = 0xb40000 | tileset;
         foreach (RoomEnemyGraphicsSetMember record in records)
         {
-            WriteTestWords(bus, address, TestAddressSpace.FixtureHeaderPointer(record.DefinitionId), RoomEnemyGraphicsSetMember.NativePlacement(FixturePaletteRow,
-                SuperMetroid.AssetExtraction.Enemies.EnemyTileSetDefinitions.FixedBlocks.GetValueOrDefault(record.DefinitionId)));
+            WriteTestWords(bus, address, TestAddressSpace.FixtureHeaderPointer(record), RoomEnemyGraphicsSetMember.NativePlacement(FixturePaletteRow,
+                record.FixedBlock ?? 0));
             address += 4;
         }
         WriteTestWord(bus, address, 0xffff);

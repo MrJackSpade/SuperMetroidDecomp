@@ -550,16 +550,6 @@ internal static class SpawnedObjectFrameDefinitions
         RoomSpriteObjectKind.FallingSparkTrail,
     ];
 
-    /// <summary>The projectile frames <c>Enemies/Stoke/StokeBehavior.cs</c> spawns.</summary>
-    private static readonly EnemyProjectileFrameId[] StokeProjectiles =
-    [
-        EnemyProjectileFrameId.StokeInitialFirst,
-        EnemyProjectileFrameId.StokeInitialSecond,
-    ];
-
-    /// <summary>The room sprite objects <c>Enemies/Stoke/StokeBehavior.cs</c> spawns.</summary>
-    private static readonly RoomSpriteObjectKind[] StokeSpriteObjects = [];
-
     /// <summary>The projectile frames <c>Enemies/YappingMaws/YappingMawBehavior.cs</c> spawns.</summary>
     private static readonly EnemyProjectileFrameId[] YappingMawProjectiles =
     [
@@ -5083,7 +5073,6 @@ internal static class SpawnedObjectFrameDefinitions
             [EnemyDefinitionId.PirateGoldNinja] = new(NinjaSpacePirateProjectiles, NinjaSpacePirateSpriteObjects),
             [EnemyDefinitionId.PirateSilverNinja] = new(NinjaSpacePirateProjectiles, NinjaSpacePirateSpriteObjects),
             [EnemyDefinitionId.Spark] = new(SparkProjectiles, SparkSpriteObjects),
-            [EnemyDefinitionId.Stoke] = new(StokeProjectiles, StokeSpriteObjects),
             [EnemyDefinitionId.YappingMaw] = new(YappingMawProjectiles, YappingMawSpriteObjects),
         };
 

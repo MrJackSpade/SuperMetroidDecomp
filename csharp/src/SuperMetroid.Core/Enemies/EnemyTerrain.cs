@@ -223,8 +223,8 @@ internal sealed class EnemyTerrain
 
     /// <summary>
     /// Implements the read-only vertical attachment probe. It does not move the
-    /// actor or apply slope or extension behavior; Yard hiding and Stoke support checks
-    /// use it to test attachment without consuming their look-ahead distance.
+    /// actor or apply slope or extension behavior; the Yard's hiding check uses it to test
+    /// attachment without consuming its look-ahead distance.
     /// </summary>
     internal static bool EnemyMeetsAttachmentBlockVerticallyAhead(RoomLevelData level, RoomEnemySlot slot, SignedSixteenSixteen displacement)
     {

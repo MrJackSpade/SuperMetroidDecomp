@@ -22,7 +22,7 @@ internal static class TourianRoomEnemyGraphicsSetDefinitions
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.BigBoy), [
             new(EnemyDefinitionId.CorpseSidehopper),
-            new(EnemyDefinitionId.CorpseSidehopper2),
+            new(UnplacedEnemyArtwork.DeadSidehopperLivingTiles),
             new(EnemyDefinitionId.BabyMetroid),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.MotherBrain01), [

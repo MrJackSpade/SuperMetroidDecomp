@@ -36,9 +36,6 @@ internal static class EnemySpeciesCapabilitiesVerification
     /// <summary>Crocomire's body and tongue, whose hitbox shot callbacks are owned by pointer.</summary>
     private static readonly EnemyDefinitionId[] CrocomireParts = [EnemyDefinitionId.Crocomire, EnemyDefinitionId.CrocomireTongue];
 
-    /// <summary>Room-referenced definitions with no ported species; binding one fails by design, so none is asked.</summary>
-    private static readonly EnemyDefinitionId[] UnportedDefinitions = [EnemyDefinitionId.Reflec, EnemyDefinitionId.CorpseSidehopper2];
-
     /// <summary>The removed catalog's capabilities per definition; every definition not listed takes none.</summary>
     private static Dictionary<EnemyDefinitionId, EnemyCapabilities> ExpectedCapabilities()
     {
@@ -153,7 +150,7 @@ internal static class EnemySpeciesCapabilitiesVerification
             .Concat(namedCallbacks.Keys)
             .Concat(DeadTourianCorpses)
             .Concat(CrocomireParts)
-            .Where(definition => definition != EnemyDefinitionId.None && !UnportedDefinitions.Contains(definition))
+            .Where(definition => definition != EnemyDefinitionId.None)
             .Distinct();
         EnemyReaction?[] callbacks =
             [null, .. Enum.GetValues<EnemyReaction>().Select(callback => (EnemyReaction?)callback)];

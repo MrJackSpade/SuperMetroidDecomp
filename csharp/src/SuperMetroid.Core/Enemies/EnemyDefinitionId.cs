@@ -11,8 +11,6 @@ public enum EnemyDefinitionId
     None,
     /// <summary>The <c>Boyon</c> enemy definition.</summary>
     Boyon,
-    /// <summary>The <c>Stoke</c> enemy definition.</summary>
-    Stoke,
     /// <summary>The <c>MamaTurtle</c> enemy definition.</summary>
     MamaTurtle,
     /// <summary>The <c>BabyTurtle</c> enemy definition.</summary>
@@ -110,8 +108,6 @@ public enum EnemyDefinitionId
     Skree,
     /// <summary>The <c>Yard</c> enemy definition.</summary>
     Yard,
-    /// <summary>The <c>Reflec</c> enemy definition.</summary>
-    Reflec,
     /// <summary>The <c>HZoomer</c> enemy definition.</summary>
     HZoomer,
     /// <summary>The <c>Zeela</c> enemy definition.</summary>
@@ -265,8 +261,6 @@ public enum EnemyDefinitionId
     /// <summary>The <c>CorpseSidehopper</c> enemy definition.</summary>
     /// <remarks>The dead-sidehopper family: an initially alive victim or an already dead Tourian corpse.</remarks>
     CorpseSidehopper,
-    /// <summary>The <c>CorpseSidehopper2</c> enemy definition.</summary>
-    CorpseSidehopper2,
     /// <summary>The <c>CorpseZoomer</c> enemy definition.</summary>
     /// <remarks>The dead Zoomer, with its three corpse variants sharing the corpse-rotting engine.</remarks>
     CorpseZoomer,
@@ -289,8 +283,6 @@ public enum EnemyDefinitionId
     GoldenTorizoOrb,
     /// <summary>The <c>TourianStatue</c> enemy definition.</summary>
     TourianStatue,
-    /// <summary>The <c>TourianStatueGhost</c> enemy definition.</summary>
-    TourianStatueGhost,
     /// <summary>The <c>Shaktool</c> enemy definition.</summary>
     Shaktool,
     /// <summary>The <c>NoobTubeCrack</c> enemy definition.</summary>

@@ -12,6 +12,9 @@ using SuperMetroid.AssetExtraction.World.RoomStates;
 /// <summary>Checks compiled enemy populations and graphics sets against retail room-state references.</summary>
 internal static class EnemyRoomListsVerification
 {
+    /// <summary>The Reflec's bank-$A0 header, whose artwork two graphics sets load though no picture shows it (#1686).</summary>
+    private const ushort ReflecHeader = 0xdbff;
+
     /// <summary>Compares every ordered enemy placement, death quota, and graphics-set member to the cartridge.</summary>
     internal static void VerifyCompiledEnemyRoomLists()
     {
@@ -69,24 +72,30 @@ internal static class EnemyRoomListsVerification
             var importRows = new GraphicsSetRows(members, EnemyGraphicsSetPaletteRowDefinitions.Rows);
             int address = RoomEnemyRomLayout.TilesetBank | pointer;
             ReadOnlySpan<RoomEnemyGraphicsSetMember> records = members.Records.Span;
-            for (int index = 0; index < records.Length; index++, address += 4)
+            int index = 0;
+            for (ushort definitionWord = ReadVerificationWord(bus, address); definitionWord != 0xffff;
+                 address += 4, definitionWord = ReadVerificationWord(bus, address))
             {
-                ushort definitionWord = ReadVerificationWord(bus, address);
-                AssertTrue(definitionWord != 0xffff,
-                    $"graphics set $B4:{pointer:X4} has no early terminator");
+                // The Reflec's artwork, which two sets load and no picture shows, is no record of the import's (#1686).
+                if (definitionWord == ReflecHeader)
+                    continue;
+                AssertTrue(index < records.Length, $"graphics set $B4:{pointer:X4} compiles its native record {index}");
                 ushort placementWord = ReadVerificationWord(bus, address + 2);
-                var native = new RoomEnemyGraphicsSetMember(EnemyDefinitionIds.FromHeaderPointer(definitionWord));
+                RoomEnemyGraphicsSetMember native = EnemyDefinitionIds.TryFromHeaderPointer(definitionWord, out EnemyDefinitionId enemy)
+                    ? new RoomEnemyGraphicsSetMember(enemy)
+                    : new RoomEnemyGraphicsSetMember(SuperMetroid.AssetExtraction.CartridgeTables.EnemyHeaderWords.UnplacedArtworkHeaders
+                        .Decode(definitionWord, "header of unplaced enemy artwork"));
                 AssertEqual(native, records[index],
                     $"graphics set $B4:{pointer:X4} ordered member {index}");
                 // The member's palette row is the import's knowledge, which colours its sheets (#1512).
                 AssertEqual(RoomEnemyGraphicsSetMember.NativePaletteRow(placementWord), importRows.RecordRow(index),
                     $"graphics set $B4:{pointer:X4} member {index}'s palette row in the import's catalog");
                 // So is the fixed block its tiles stage at, which places them among the sprite characters (#1513).
-                AssertEqual(RoomEnemyGraphicsSetMember.NativeStagingBlock(placementWord),
-                    SuperMetroid.AssetExtraction.Enemies.EnemyTileSetDefinitions.FixedBlocks.GetValueOrDefault(native.DefinitionId),
+                AssertEqual(RoomEnemyGraphicsSetMember.NativeStagingBlock(placementWord), native.FixedBlock ?? 0,
                     $"graphics set $B4:{pointer:X4} member {index}'s staging block in the import's catalog");
+                index++;
             }
-            AssertEqual(0xffff, ReadVerificationWord(bus, address),
+            AssertEqual(records.Length, index,
                 $"graphics set $B4:{pointer:X4} length reaches its native terminator");
             graphicsRecords += records.Length;
         }

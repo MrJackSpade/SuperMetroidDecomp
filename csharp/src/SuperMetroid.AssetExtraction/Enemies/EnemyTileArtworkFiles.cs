@@ -72,64 +72,54 @@ public static class EnemyTileArtworkFiles
         string importData = SuperMetroid.AssetExtraction.Installation.ImportDataDirectory.Of(directory);
         Directory.CreateDirectory(importData);
 
+        // The artwork the compiled graphics sets load, each header once: every member enemy's, and the artwork three sets load
+        // for no enemy (#1686). A header a set loads only for what nothing shows, as the Reflec's, is not extracted.
         var entries = new Dictionary<int, EnemyTileFileEntry>();
-        foreach (int graphicsSetPointer in RoomStateSources.Pointers
-                     .Select(pointer => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                         RoomStateSourceDefinitions.Bank | (pointer + RoomStateSourceDefinitions.EnemySetOffset)))
-                     .Distinct().Order())
+        foreach (int headerWord in EnemyTileSourceDefinitions.All.Select(source => (int)EnemyDefinitionIds.HeaderPointer(source.DefinitionId))
+                     .Concat(EnemyTileSourceDefinitions.Unplaced.Select(artwork => (int)EnemyHeaderWords.UnplacedArtworkHeaders.WordsByIdentity[artwork].Single()))
+                     .Order())
         {
-            int cursor = EnemySourceDefinitions.GraphicsSetBank | graphicsSetPointer;
-            for (int slot = 0; slot <= 4; slot++, cursor += 4)
+            int byteCount = SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileSetAt(bus, headerWord).ByteCount;
+            int tileCount = RoomCharacterAtlasFormat.ValidateTileCount(byteCount);
+            byte[] planar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+                SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileDataSourceAt(bus, headerWord), byteCount);
+            int columns = Math.Min(RoomCharacterAtlasFormat.TileColumns, tileCount);
+            byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, columns,
+                out Extent16<ImagePixels> size);
+            using var png = new MemoryStream();
+            IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
+            byte[] encoded = png.ToArray();
+
+            File.WriteAllBytes(Path.Combine(importData, FileName(headerWord)), encoded);
+            byte[] nativeColors = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+                SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.PaletteAddressAt(bus, headerWord),
+                EnemyPaletteSheetFile.ColorCount * sizeof(ushort));
+            var colors = new PaletteRgb5[EnemyPaletteSheetFile.ColorCount];
+            for (int color = 0; color < colors.Length; color++)
             {
-                int headerWord = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), cursor);
-                if (headerWord == CartridgeFormatDefinitions.ListTerminator) break;
-                if (slot == 4)
-                    throw new InvalidDataException($"Enemy graphics set ${graphicsSetPointer:X4} exceeds four entries.");
-                if (entries.ContainsKey(headerWord)) continue;
-                EnemyDefinitionId definitionPointer = EnemyDefinitionIds.FromHeaderPointer(headerWord);
-
-                int byteCount = SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileSet(bus, definitionPointer).ByteCount;
-                int tileCount = RoomCharacterAtlasFormat.ValidateTileCount(byteCount);
-                byte[] planar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-                    SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileDataSource(bus, definitionPointer), byteCount);
-                int columns = Math.Min(RoomCharacterAtlasFormat.TileColumns, tileCount);
-                byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, columns,
-                    out Extent16<ImagePixels> size);
-                using var png = new MemoryStream();
-                IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
-                byte[] encoded = png.ToArray();
-
-                File.WriteAllBytes(Path.Combine(importData, FileName(definitionPointer)), encoded);
-                byte[] nativeColors = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-                    SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.PaletteAddress(bus, definitionPointer),
-                    EnemyPaletteSheetFile.ColorCount * sizeof(ushort));
-                var colors = new PaletteRgb5[EnemyPaletteSheetFile.ColorCount];
-                for (int color = 0; color < colors.Length; color++)
+                int word = BinaryPrimitives.ReadUInt16LittleEndian(nativeColors.AsSpan(color * 2));
+                if (!ColourWordCodec.IsColorWord(checked((ushort)word)))
+                    throw new InvalidDataException($"Enemy ${headerWord:X4} palette has an unrepresentable high bit.");
+                colors[color] = new PaletteRgb5
                 {
-                    int word = BinaryPrimitives.ReadUInt16LittleEndian(nativeColors.AsSpan(color * 2));
-                    if (!ColourWordCodec.IsColorWord(checked((ushort)word)))
-                        throw new InvalidDataException($"Enemy ${headerWord:X4} palette has an unrepresentable high bit.");
-                    colors[color] = new PaletteRgb5
-                    {
-                        Red = word & 31,
-                        Green = word >> 5 & 31,
-                        Blue = word >> 10 & 31,
-                    };
-                }
-                byte[] paletteJson = EnemyPaletteSheetFile.Write(new EnemyPaletteSheetDocument
-                {
-                    Version = 1,
-                    Colors = colors,
-                });
-                File.WriteAllBytes(Path.Combine(importData,
-                    PaletteFileName(definitionPointer)), paletteJson);
-                entries.Add(headerWord, new EnemyTileFileEntry(
-                    byteCount, Convert.ToHexString(SHA256.HashData(encoded)),
-                    Convert.ToHexString(SHA256.HashData(paletteJson))));
+                    Red = word & 31,
+                    Green = word >> 5 & 31,
+                    Blue = word >> 10 & 31,
+                };
             }
+            byte[] paletteJson = EnemyPaletteSheetFile.Write(new EnemyPaletteSheetDocument
+            {
+                Version = 1,
+                Colors = colors,
+            });
+            File.WriteAllBytes(Path.Combine(importData,
+                PaletteFileName(headerWord)), paletteJson);
+            entries.Add(headerWord, new EnemyTileFileEntry(
+                byteCount, Convert.ToHexString(SHA256.HashData(encoded)),
+                Convert.ToHexString(SHA256.HashData(paletteJson))));
         }
-        if (entries.Count != EnemyTileArtworkFormat.RetailDefinitionCount)
-            throw new InvalidDataException($"Expected {EnemyTileArtworkFormat.RetailDefinitionCount} retail enemy sheets; found {entries.Count}.");
+        if (entries.Count != EnemyTileArtworkFormat.RetailEntryCount)
+            throw new InvalidDataException($"Expected {EnemyTileArtworkFormat.RetailEntryCount} retail enemy sheets; found {entries.Count}.");
         ValidateDefinitionIds(entries.Keys);
         byte[] firstMelt = ExtractCrocomireMelt(bus,
             CrocomireMeltingIllustration.First,
@@ -452,20 +442,24 @@ public static class EnemyTileArtworkFiles
         EnemyTileArtworkReader.Open(importData).LoadForImport(importData);
 
     /// <summary>
-    /// SHA-256 of the 122 sorted four-digit bank-$A0 header pointers joined with commas, independently
-    /// enumerated from every bank-$B4 enemy graphics set referenced by retail room states.
+    /// SHA-256 of the 121 sorted four-digit bank-$A0 header pointers joined with commas: the headers whose artwork the
+    /// retail room states' enemy graphics sets load and some picture shows, 118 enemies' and three loaded for no enemy (#1686).
     /// This makes a missing or substituted sheet fail during installation validation.
     /// </summary>
     private const string RetailDefinitionIdsSha256 =
-        "8B665DEC36A4AA649CDF2327E4B7F60197D42B84534CD354347F4581D1442DD1";
+        "26EB49B1B4E24925A9A53D816B9FE5BBFB995EC4AD73B240A766E774E32A3D8B";
 
     /// <summary>The indexed-PNG import-data file name of <paramref name="definitionId"/>'s tiles, named by its header pointer.</summary>
-    internal static string FileName(EnemyDefinitionId definitionId) =>
-        $"enemy-{EnemyDefinitionIds.HeaderPointer(definitionId):X4}-tiles.png";
+    internal static string FileName(EnemyDefinitionId definitionId) => FileName(EnemyDefinitionIds.HeaderPointer(definitionId));
 
     /// <summary>The import-data RGB5 palette JSON file name of <paramref name="definitionId"/>'s colours, named by its header pointer.</summary>
-    internal static string PaletteFileName(EnemyDefinitionId definitionId) =>
-        $"enemy-{EnemyDefinitionIds.HeaderPointer(definitionId):X4}-colors.json";
+    internal static string PaletteFileName(EnemyDefinitionId definitionId) => PaletteFileName(EnemyDefinitionIds.HeaderPointer(definitionId));
+
+    /// <summary>The indexed-PNG import-data file name of the tiles the bank-$A0 header at <paramref name="headerPointer"/> names.</summary>
+    internal static string FileName(int headerPointer) => $"enemy-{headerPointer:X4}-tiles.png";
+
+    /// <summary>The import-data RGB5 palette JSON file name of the colours the bank-$A0 header at <paramref name="headerPointer"/> names.</summary>
+    internal static string PaletteFileName(int headerPointer) => $"enemy-{headerPointer:X4}-colors.json";
 
     /// <summary>Rejects missing or substituted retail enemy graphics identities using the pinned ordered ID digest.</summary>
     internal static void ValidateDefinitionIds(IEnumerable<int> pointers)

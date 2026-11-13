@@ -2,7 +2,6 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Enemies.YappingMaws;
 using SuperMetroid.Core.Enemies.Shaktool;
-using SuperMetroid.Core.Enemies.Stoke;
 using SuperMetroid.Core.Enemies.Nuclear;
 using SuperMetroid.Core.Enemies.Cacatac;
 using SuperMetroid.Core.Enemies.Deaths;
@@ -63,7 +62,6 @@ internal static class EnemyProjectileTypedStarts
         [RoomEnemyProjectileKind.EnemyDeathExplosion] = () => new EnemyDeathProjectileAnimation(EnemyDeathProjectileSegment.SmallEnergy),
         [RoomEnemyProjectileKind.CacatacSpike] = () => new CacatacProjectileAnimation(CacatacProjectileSegment.LeftFacingUp),
         [RoomEnemyProjectileKind.NuclearWaffleBody] = () => new NuclearWaffleProjectileAnimation(NuclearWaffleProjectileSegment.Initial),
-        [RoomEnemyProjectileKind.StokeProjectile] = () => new StokeProjectileAnimation(StokeProjectileSegment.Initial),
         [RoomEnemyProjectileKind.ShaktoolAttackFrontCircle] = () => new ShaktoolProjectileAnimation(ShaktoolProjectileSegment.Front),
         [RoomEnemyProjectileKind.ShaktoolAttackMiddleCircle] = () => new ShaktoolProjectileAnimation(ShaktoolProjectileSegment.Middle),
         [RoomEnemyProjectileKind.ShaktoolAttackBackCircle] = () => new ShaktoolProjectileAnimation(ShaktoolProjectileSegment.Back),

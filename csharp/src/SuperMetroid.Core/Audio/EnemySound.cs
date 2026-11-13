@@ -162,15 +162,13 @@ public enum EnemySound
     ShotCoven,
     /// <summary>The Baby Metroid's remorse.</summary>
     BabyMetroidRemorse,
-    /// <summary>A mini-Crocomire hit.</summary>
-    ShotMiniCrocomire,
     /// <summary>Crocomire hit; no code plays it; a high-priority sound.</summary>
     ShotCrocomire,
     /// <summary>A Beetom hit.</summary>
     ShotBeetom,
     /// <summary>A suit acquired: the Varia or Gravity Suit's transformation.</summary>
     SuitAcquired,
-    /// <summary>A door or gate shot with a shot it ignores, or a Reflec or Oum hit.</summary>
+    /// <summary>A door or gate shot with a shot it ignores, or an Oum hit.</summary>
     DudShotOnDoor,
     /// <summary>A Mochtroid hit, or a Metroid's cry.</summary>
     ShotMochtroid,

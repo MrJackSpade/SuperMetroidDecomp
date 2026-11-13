@@ -106,7 +106,6 @@ internal static class EnemyProjectileFrameBehaviorWords
         [0xcfe6] = EnemyProjectileFrameBehavior.KiHunterAcidLaunchRight,
         [0xd263] = EnemyProjectileFrameBehavior.PowampSpikeFlight,
         [0xd3bf] = EnemyProjectileFrameBehavior.WorkRobotLaserFlight,
-        [0xdb5b] = EnemyProjectileFrameBehavior.StokeFireballFlight,
         [0xd9db] = EnemyProjectileFrameBehavior.CacatacSpikeFlight,
         [0xbc0f] = EnemyProjectileFrameBehavior.PolypRockFlight,
         [0xdf39] = EnemyProjectileFrameBehavior.FuneNamiheFireballFlight,

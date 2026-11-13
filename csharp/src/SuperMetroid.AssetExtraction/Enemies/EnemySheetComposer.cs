@@ -427,7 +427,8 @@ internal static class EnemySheetComposer
     /// </summary>
     private static EnemyDefinitionId[] DrawnUnder(RoomEnemyGraphicsSetDefinition set, GraphicsSetCharacterLayout layout)
     {
-        List<EnemyDefinitionId> members = [.. layout.Members.Select(member => member.DefinitionId)];
+        // A record loading artwork for no enemy draws nothing (#1686); only the set's enemies are drawn under it.
+        List<EnemyDefinitionId> members = [.. layout.Members.Select(member => member.DefinitionId).OfType<EnemyDefinitionId>()];
         IEnumerable<EnemyDefinitionId> placed = StatesOf(set)
             .SelectMany(state => state.EnemyPopulation.Records.Span.SelectToArray(record => record.DefinitionId))
             .Except(members).Distinct().Order();
@@ -470,9 +471,9 @@ internal static class EnemySheetComposer
         inputs.StandardObjects.Span.CopyTo(table);
         foreach (GraphicsSetMemberCharacters entry in layout.Members)
         {
-            ReadOnlyMemory<byte> tiles = inputs.Enemies.TilesOf(entry.DefinitionId);
+            ReadOnlyMemory<byte> tiles = entry.Member.TilesIn(inputs.Enemies);
             if (tiles.Length != entry.TileByteCount)
-                throw new InvalidDataException($"Enemy {entry.DefinitionId} has no installed tiles for its graphics-set upload.");
+                throw new InvalidDataException($"Graphics-set record {entry.Member.Name} has no installed tiles for its upload.");
             int first = EnemyRegionTableByte + entry.StagingOffset;
             int shown = Math.Min(tiles.Length, table.Length - first);
             if (shown > 0)

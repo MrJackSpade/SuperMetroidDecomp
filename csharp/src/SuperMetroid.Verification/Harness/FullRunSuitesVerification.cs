@@ -603,8 +603,6 @@ internal static class FullRunSuitesVerification
             SuperMetroid.Verification.Enemies.Cacatac.CacatacAttackChanceVerification.VerifyCacatacAttackChance),
         new(nameof(SuperMetroid.Verification.Enemies.Owtch.OwtchSinkChanceVerification.VerifyOwtchSinkChance),
             SuperMetroid.Verification.Enemies.Owtch.OwtchSinkChanceVerification.VerifyOwtchSinkChance),
-        new(nameof(SuperMetroid.Verification.Enemies.Stoke.StokeAttackChanceVerification.VerifyStokeAttackChance),
-            SuperMetroid.Verification.Enemies.Stoke.StokeAttackChanceVerification.VerifyStokeAttackChance),
         new(nameof(SuperMetroid.Verification.Enemies.Puyo.PuyoHopChoicesVerification.VerifyPuyoHopChoices),
             SuperMetroid.Verification.Enemies.Puyo.PuyoHopChoicesVerification.VerifyPuyoHopChoices),
         new(nameof(SuperMetroid.Verification.Enemies.MamaTurtles.MamaTurtleCounterPhasesVerification.VerifyMamaTurtleCounterPhases),

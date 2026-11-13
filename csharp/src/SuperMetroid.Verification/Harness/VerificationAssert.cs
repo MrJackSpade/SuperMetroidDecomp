@@ -5,7 +5,6 @@ using SuperMetroid.Verification.Enemies.Metroids;
 using SuperMetroid.Verification.Enemies.Crawlers;
 using SuperMetroid.Verification.Enemies.Dragon;
 using SuperMetroid.Verification.Enemies.Cacatac;
-using SuperMetroid.Verification.Enemies.Stoke;
 using SuperMetroid.Verification.Enemies.Owtch;
 using SuperMetroid.Verification.Enemies.PipeBugs;
 using SuperMetroid.Verification.Enemies.Elevator;
@@ -1434,7 +1433,6 @@ internal static class VerificationAssert
         Suite(nameof(VerifySamusDeathSequence), () => VerifySamusDeathSequence());
         Suite(nameof(VerifyNuclearWaffleDefinitions), () => VerifyNuclearWaffleDefinitions(rom));
         Suite(nameof(OwtchBehaviorVerification.VerifyOwtchBehavior), () => OwtchBehaviorVerification.VerifyOwtchBehavior());
-        Suite(nameof(StokeBehaviorVerification.VerifyStokeBehavior), () => StokeBehaviorVerification.VerifyStokeBehavior());
         Suite(nameof(VerifyPuyoInstructionProgramDefinitions), () => VerifyPuyoInstructionProgramDefinitions());
         Suite(nameof(VerifyMiscDustProjectileDefinitions), () => VerifyMiscDustProjectileDefinitions(rom));
         Suite(nameof(VerifyMetroidsClearedStateObject), () => VerifyMetroidsClearedStateObject(new TestAddressSpace()));

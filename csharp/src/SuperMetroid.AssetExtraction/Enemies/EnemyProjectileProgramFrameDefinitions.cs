@@ -787,8 +787,6 @@ internal static class EnemyProjectileProgramFrameDefinitions
         [EnemyProjectileFrameId.CacatacSpikeDown] = 0xd95a,
         [EnemyProjectileFrameId.CacatacSpikeDownRight] = 0xd960,
         [EnemyProjectileFrameId.CacatacSpikeRightFacingDown] = 0xd966,
-        [EnemyProjectileFrameId.StokeInitialFirst] = 0xdb0e,
-        [EnemyProjectileFrameId.StokeInitialSecond] = 0xdb12,
         [EnemyProjectileFrameId.SporeSpawnSpawnerClosed] = 0xdc02,
         [EnemyProjectileFrameId.SporeSpawnSpawnerReleaseFirst] = 0xdc08,
         [EnemyProjectileFrameId.SporeSpawnSpawnerReleaseSecond] = 0xdc0c,

@@ -12,12 +12,18 @@ public static class EnemyTileArtworkFormat
     /// installs the enemy frames' display bindings and no enemy composition (#1638); 78 binds no frame no animation shows (#1623);
     /// 79 names each frame for the animation segment or table key that first shows it (#1623); 80 names the frames that rule
     /// misnamed for what they show (#1623); 81 names the Wrecked Ship Chozo statue's walk frames for its walk (#1623); 82 is
-    /// import data only the import reads (#1693); 83 binds the frames of the burst at an enemy a shot or bomb hurts (#1713).
+    /// import data only the import reads (#1693); 83 binds the frames of the burst at an enemy a shot or bomb hurts (#1713); 84
+    /// extracts no artwork for the Reflec, which nothing shows, keeps the artwork three graphics sets load for no enemy apart
+    /// from the enemies' and binds no Stoke frame (#1686).
     /// </summary>
-    public const int Version = 83;
+    public const int Version = 84;
     /// <summary>Stable, source-address-free name for a gunship takeoff character chunk.</summary>
     public static string GunshipLiftoffFileName(int index) =>
         $"gunship-liftoff-{index + 1}-tiles.png";
     /// <summary>All distinct ordinary graphics-set definitions in the pinned retail room states.</summary>
-    public const int RetailDefinitionCount = 122;
+    public const int RetailDefinitionCount = 118;
+    /// <summary>All distinct artworks the pinned retail graphics sets load for no enemy (#1686).</summary>
+    public const int RetailUnplacedArtworkCount = 3;
+    /// <summary>The import-data manifest's entries: one per enemy and per unplaced artwork, each keyed by its header.</summary>
+    public const int RetailEntryCount = RetailDefinitionCount + RetailUnplacedArtworkCount;
 }

@@ -299,8 +299,8 @@ internal static class RoomBlockUploads
         IReadOnlyList<GraphicsSetMemberCharacters> members = GraphicsSetCharacterLayout.Of(RoomEnemyGraphicsSetLists.MembersOf(RoomEnemyGraphicsSetLists.Of(state))).Members;
         for (int member = 0; member < members.Count; member++)
         {
-            ReadOnlyMemory<byte> tiles = inputs.Objects.Enemies.TilesOf(members[member].DefinitionId);
-            yield return new BgCharacterUpload(new BgArtworkIdentity($"{members[member].DefinitionId} set tiles"), BgCharacterSet.Tiles,
+            ReadOnlyMemory<byte> tiles = members[member].Member.TilesIn(inputs.Objects.Enemies);
+            yield return new BgCharacterUpload(new BgArtworkIdentity($"{members[member].Member.Name} set tiles"), BgCharacterSet.Tiles,
                 EncounterCharacterPlacementDefinitions.EnemyTileAreaFirstCharacter + members[member].StagingOffset / SpriteCharacterTableLayout.CharacterByteCount, tiles);
         }
     }

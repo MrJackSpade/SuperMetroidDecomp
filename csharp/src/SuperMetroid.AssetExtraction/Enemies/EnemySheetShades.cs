@@ -377,7 +377,7 @@ internal sealed class EnemySheetShades
                 }
                 break;
             }
-            case EnemyDefinitionId.None or EnemyDefinitionId.Boyon or EnemyDefinitionId.Stoke or EnemyDefinitionId.MamaTurtle
+            case EnemyDefinitionId.None or EnemyDefinitionId.Boyon or EnemyDefinitionId.MamaTurtle
                 or EnemyDefinitionId.BabyTurtle or EnemyDefinitionId.Puyo or EnemyDefinitionId.Cacatac or EnemyDefinitionId.Owtch
                 or EnemyDefinitionId.ShipTop or EnemyDefinitionId.ShipBottomEntrance or EnemyDefinitionId.Mellow or EnemyDefinitionId.Mella
                 or EnemyDefinitionId.Menu or EnemyDefinitionId.Multiviola or EnemyDefinitionId.LavaRocks or EnemyDefinitionId.Rinka
@@ -390,7 +390,7 @@ internal sealed class EnemySheetShades
                 or EnemyDefinitionId.Mochtroid or EnemyDefinitionId.Sidehopper or EnemyDefinitionId.Dessgeega
                 or EnemyDefinitionId.SidehopperLarge or EnemyDefinitionId.SidehopperTourian or EnemyDefinitionId.DessgeegaLarge
                 or EnemyDefinitionId.Zoa or EnemyDefinitionId.Viola or EnemyDefinitionId.Respawn or EnemyDefinitionId.Skree
-                or EnemyDefinitionId.Yard or EnemyDefinitionId.Reflec or EnemyDefinitionId.HZoomer or EnemyDefinitionId.Zeela
+                or EnemyDefinitionId.Yard or EnemyDefinitionId.HZoomer or EnemyDefinitionId.Zeela
                 or EnemyDefinitionId.Sova or EnemyDefinitionId.Zoomer or EnemyDefinitionId.MZoomer or EnemyDefinitionId.Metroid
                 or EnemyDefinitionId.SporeSpawnStalk or EnemyDefinitionId.Boulder or EnemyDefinitionId.KzanTop or EnemyDefinitionId.KzanBottom
                 or EnemyDefinitionId.Hibashi or EnemyDefinitionId.Puromi or EnemyDefinitionId.MiniKraid or EnemyDefinitionId.Steam
@@ -401,9 +401,9 @@ internal sealed class EnemySheetShades
                 or EnemyDefinitionId.Bull or EnemyDefinitionId.Alcoon or EnemyDefinitionId.Atomic or EnemyDefinitionId.Spark
                 or EnemyDefinitionId.KihunterGreen or EnemyDefinitionId.KihunterGreenWings or EnemyDefinitionId.KihunterYellow
                 or EnemyDefinitionId.KihunterYellowWings or EnemyDefinitionId.KihunterRed or EnemyDefinitionId.KihunterRedWings
-                or EnemyDefinitionId.MotherBrainTubes or EnemyDefinitionId.CorpseTorizo or EnemyDefinitionId.CorpseSidehopper2
+                or EnemyDefinitionId.MotherBrainTubes or EnemyDefinitionId.CorpseTorizo
                 or EnemyDefinitionId.CorpseZoomer or EnemyDefinitionId.CorpseRipper or EnemyDefinitionId.CorpseSkree
-                or EnemyDefinitionId.TourianStatue or EnemyDefinitionId.TourianStatueGhost or EnemyDefinitionId.Shaktool
+                or EnemyDefinitionId.TourianStatue or EnemyDefinitionId.Shaktool
                 or EnemyDefinitionId.NoobTubeCrack or EnemyDefinitionId.Chozo or EnemyDefinitionId.Zeb
                 or EnemyDefinitionId.Zebbo or EnemyDefinitionId.Gamet or EnemyDefinitionId.Geega or EnemyDefinitionId.EtecoonEscape
                 or EnemyDefinitionId.DachoraEscape or EnemyDefinitionId.PirateGreyWall

@@ -28,7 +28,6 @@ internal static class NativeEnemyProjectileFamilies
         ShaktoolProjectileNativeListAddresses.Family,
         SkreeMetareeParticleNativeListAddresses.Family,
         SpacePirateProjectileNativeListAddresses.Family,
-        StokeProjectileNativeListAddresses.Family,
         WorkRobotLaserNativeListAddresses.Family,
         YappingMawBodyProjectileNativeListAddresses.Family,
         EyeDoorProjectileNativeListAddresses.Family,

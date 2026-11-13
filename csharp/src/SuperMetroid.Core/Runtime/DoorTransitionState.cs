@@ -203,7 +203,7 @@ internal sealed class DoorTransitionState
             case DoorTransitionPhase.LoadDestinationRoom:
                 runtime.RunBlankGameplayFrame(controllerInput);
                 runtime.DoorTransition.AdvanceEffectsAndRandom(runtime.Room.LoadedScope.RoomObjects, runtime.Room.LoadedScope);
-                // Loading initializes enemy graphics, music, projectiles, animated tiles,
+                // Loading initializes enemy graphics, music, projectiles, block animations,
                 // room objects, FX and backgrounds, and then waits one update at a time until the
                 // door's scroll finishes. The room constructor performs that setup
                 // atomically; the following updates run the scroll's real coordinate path.
@@ -260,7 +260,7 @@ internal sealed class DoorTransitionState
                 break;
 
             case DoorTransitionPhase.StepDestinationAnimatedTiles:
-                // LoadRoom already initialized the destination's animated tiles; the
+                // LoadRoom already initialized the destination's block animations; the
                 // transition gives them one explicit step before polling the music queue.
                 runtime.RunBlankGameplayFrame(controllerInput);
                 runtime.DoorTransition.AdvanceEffectsAndRandom(runtime.Room.LoadedScope.RoomObjects, runtime.Room.LoadedScope);
@@ -302,7 +302,7 @@ internal sealed class DoorTransitionState
             case DoorTransitionPhase.FadeInDestinationPalette:
                 runtime.FrameBoundary.BeginAcceptedFrame(controllerInput);
                 runtime.DoorTransition.AdvanceEffectsAndRandom(runtime.Room.LoadedScope.RoomObjects, runtime.Room.LoadedScope);
-                // Every fade step runs the animated tiles, then the enemy and draw owners,
+                // Every fade step runs the block animations, then the enemy and draw owners,
                 // without Samus's movement and animation or the camera's scrolling.
                 runtime.RoomMains.RunAnimatedTilesObjectHandler(runtime.Room.LoadedScope);
                 runtime.DoorTransition.DrawDoorTransitionActors(enemyProjectiles: DoorTransitionEnemyProjectiles.Run, runtime.Room.LoadedScope);

@@ -21,7 +21,8 @@ namespace SuperMetroid.ReachabilityAudit.Removal;
 /// target's projects already compile: a class of the style's name is merged into or passed over, never declared twice.</item>
 /// </list>
 /// Moved bodies are rewritten so that references back to the owner resolve; owner members they
-/// use that were private become internal. Every reference and documentation cref in the solution
+/// use that were private become internal, and every modifier the move writes is one its declaration
+/// kind takes (<see cref="RelocationModifiers"/>). Every reference and documentation cref in the solution
 /// is retargeted, and crefs in shipped assemblies, which cannot see the target, become plain text.
 /// Anything that cannot move mechanically (instance fields, constructors, indexers, operators,
 /// generic owners, mutating struct members) is reported and left in place.
@@ -149,6 +150,11 @@ internal static class SymbolRelocator
         foreach (var request in holderRequests)
         {
             var owner = request.First().AdapterOwner;
+            // An owner implementing a moved interface gets an abstract adapter, and only a static class declares extension blocks.
+            if (request.Key.Kind == RelocationHolderKind.Members && ImplementsMovedInterface(owner) &&
+                request.FirstOrDefault(m => m.Symbol is INamedTypeSymbol { IsExtension: true }) is { } block)
+                throw new InvalidOperationException($"{block.Symbol.ToDisplayString()} cannot move: {owner.ToDisplayString()} implements a " +
+                    "moved interface, so its moved members go into an abstract adapter class, which cannot declare an extension block.");
             string directory = Path.Combine(targetDirectory, request
                 .Select(m => Path.GetDirectoryName(TargetRelativePath(identity.Relative(m.Tree.FilePath), style.KeepsProjectDirectory)) ?? "")
                 .Order(StringComparer.Ordinal).First());
@@ -259,6 +265,11 @@ internal static class SymbolRelocator
                     }
                     if (bound is not null && MoveOf(bound) is { Placement: Placement.ExtensionMember } accessed)
                         RequireExtensionNamespace(tree, model, node, accessed);
+                    // Moved code reaching a staying member of its owner through a qualifier, the owner's name or a receiver of
+                    // one of the owner's extension blocks, reaches it from outside the owner.
+                    if (bound is not null && !Moved(bound) && EnclosingMove(tree, node) is { Placement: not Placement.WholeType } reaching &&
+                        DeclaringOwner(bound) is { } boundOwner && InOwnerChain(reaching.AdapterOwner, boundOwner))
+                        Promote(bound, promotions, IsWritten(node));
                     if (bound is null || MoveOf(bound) is not { Placement: Placement.AdapterMember } move)
                         continue;
                     if (model.GetSymbolInfo(left).Symbol is not INamedTypeSymbol) continue;
@@ -326,31 +337,29 @@ internal static class SymbolRelocator
             Edit(tree, new TextSpan(unit.Usings.Count > 0 ? unit.Usings[^1].FullSpan.End : 0, 0), directives);
         }
 
-        // 3. Accessibility: staying members used by moved code become internal.
+        // 3. Accessibility: staying members used by moved code become internal (RelocationModifiers).
         foreach (var symbol in setterPromotions)
-            foreach (var reference in symbol.DeclaringSyntaxReferences)
-                if (reference.GetSyntax() is PropertyDeclarationSyntax { AccessorList: { } accessors } property &&
+            foreach (var syntax in DeclarationsOf(symbol))
+                if (syntax is PropertyDeclarationSyntax { AccessorList: { } accessors } property &&
                     !InMovedSpan(property.SyntaxTree, property.Span) &&
-                    accessors.Accessors.FirstOrDefault(a => a.IsKind(SyntaxKind.SetAccessorDeclaration) || a.IsKind(SyntaxKind.InitAccessorDeclaration)) is { } setter &&
-                    setter.Modifiers.Where(m => m.Kind() is SyntaxKind.PrivateKeyword or SyntaxKind.ProtectedKeyword).ToList() is [var firstModifier, ..] setterModifiers)
-                    Edit(property.SyntaxTree, TextSpan.FromBounds(firstModifier.SpanStart, setterModifiers[^1].Span.End), "internal");
+                    accessors.Accessors.FirstOrDefault(a => a.IsKind(SyntaxKind.SetAccessorDeclaration) || a.IsKind(SyntaxKind.InitAccessorDeclaration)) is { } setter)
+                    foreach (var (span, text) in RelocationModifiers.PromotedSetter(setter,
+                                 symbol.DeclaredAccessibility is not (Accessibility.Public or Accessibility.ProtectedOrInternal)))
+                        Edit(property.SyntaxTree, span, text);
         foreach (var symbol in promotions)
-            foreach (var reference in symbol.DeclaringSyntaxReferences)
+        {
+            if (symbol.DeclaredAccessibility is Accessibility.Internal or Accessibility.Public or Accessibility.ProtectedOrInternal) continue;
+            foreach (var syntax in DeclarationsOf(symbol))
             {
-                var syntax = reference.GetSyntax();
                 var declaration = syntax is VariableDeclaratorSyntax { Parent.Parent: BaseFieldDeclarationSyntax sharedField } ? sharedField : DeclarationNode(syntax);
-                if (declaration is not MemberDeclarationSyntax member || InMovedSpan(declaration.SyntaxTree, declaration.Span)) continue;
-                var accessibility = member.Modifiers.Where(m => m.Kind() is SyntaxKind.PrivateKeyword or SyntaxKind.ProtectedKeyword).ToList();
-                if (symbol.DeclaredAccessibility is Accessibility.Internal or Accessibility.Public or Accessibility.ProtectedOrInternal) continue;
-                if (accessibility.Count > 0)
-                    Edit(declaration.SyntaxTree, TextSpan.FromBounds(accessibility[0].SpanStart, accessibility[^1].Span.End), "internal");
-                else
-                {
-                    var first = member.Modifiers.Count > 0 ? member.Modifiers[0] : member.GetFirstToken(includeSkipped: false);
-                    if (member.AttributeLists.Count > 0) first = member.AttributeLists[^1].GetLastToken().GetNextToken();
-                    Edit(declaration.SyntaxTree, new TextSpan(first.SpanStart, 0), "internal ");
-                }
+                if (InMovedSpan(declaration.SyntaxTree, declaration.Span)) continue;
+                if (declaration is not MemberDeclarationSyntax member)
+                    throw new InvalidOperationException($"{symbol.ToDisplayString()}, which moved code uses, is declared by a " +
+                        $"{declaration.Kind()} at {declaration.GetLocation().GetLineSpan()}, which takes no accessibility modifier.");
+                foreach (var (span, text) in RelocationModifiers.Promoted(member))
+                    Edit(declaration.SyntaxTree, span, text);
             }
+        }
 
         // 4. Moved text, grouped into target files.
         // A source project's global usings do not follow its code; each moved declaration takes those it names.
@@ -381,7 +390,8 @@ internal static class SymbolRelocator
             var file = FileFor(holders.Of(OwnerKey(move.AdapterOwner), KindOf(move)).Path, move);
             var adapter = file.Adapter(move.AdapterOwner, kind => HolderName(move.AdapterOwner, kind), movedInterfaces,
                 implementation => MoveOf(implementation) is not null);
-            text = AsAdapterMember(text);
+            text = RelocationModifiers.AsHolderMember(text, (CSharpParseOptions)move.Tree.Options,
+                move is { Placement: Placement.ExtensionMember, ExtensionReceiver: null });
             if (move.Placement == Placement.ExtensionMember)
                 adapter.Extensions.Add(new RelocatedExtension(move.ExtensionReceiver ?? adapter.SelfReceiver,
                     move.ExtensionReceiver is null ? text : Outdent(text)));
@@ -665,32 +675,26 @@ internal static class SymbolRelocator
     private static string Outdent(string text) =>
         string.Join("\n", text.Replace("\r\n", "\n").Split('\n').Select(l => l.StartsWith("    ", StringComparison.Ordinal) ? l[4..] : l));
 
-    /// <summary>Private and protected members become internal once outside their owner.</summary>
-    private static string AsAdapterMember(string text)
+    /// <summary>
+    /// Every declaration of a symbol: each part of a partial type, and both parts of a partial method, property or event,
+    /// whose accessibility must stay identical (CS8799).
+    /// </summary>
+    private static IEnumerable<SyntaxNode> DeclarationsOf(ISymbol symbol)
     {
-        var member = SyntaxFactory.ParseMemberDeclaration(text.Trim('\r', '\n'));
-        if (member is null) return text;
-        // An explicit interface implementation takes no accessibility modifier.
-        if (member is BasePropertyDeclarationSyntax { ExplicitInterfaceSpecifier: not null } or
-            MethodDeclarationSyntax { ExplicitInterfaceSpecifier: not null })
-            return text;
-        var accessibility = member.Modifiers.Where(m => m.Kind() is SyntaxKind.PrivateKeyword or SyntaxKind.ProtectedKeyword).ToList();
-        if (accessibility.Count == 0 && member.Modifiers.Any(m => m.Kind() is SyntaxKind.PublicKeyword or SyntaxKind.InternalKeyword))
-            return text;
-        string body = text;
-        if (accessibility.Count > 0)
+        ISymbol? implementation = symbol switch
         {
-            int offset = text.IndexOf(text.Trim('\r', '\n'), StringComparison.Ordinal);
-            int start = offset + accessibility[0].SpanStart - member.FullSpan.Start;
-            int end = offset + accessibility[^1].Span.End - member.FullSpan.Start;
-            return body[..start] + "internal" + body[end..];
-        }
-        int firstToken = text.IndexOf(text.Trim('\r', '\n'), StringComparison.Ordinal) +
-            (member.Modifiers.Count > 0 ? member.Modifiers[0].SpanStart : member.GetFirstToken().SpanStart) - member.FullSpan.Start;
-        if (member.AttributeLists.Count > 0)
-            firstToken = text.IndexOf(text.Trim('\r', '\n'), StringComparison.Ordinal) + member.AttributeLists[^1].GetLastToken().GetNextToken().SpanStart - member.FullSpan.Start;
-        return body[..firstToken] + "internal " + body[firstToken..];
+            IMethodSymbol method => method.PartialImplementationPart,
+            IPropertySymbol property => property.PartialImplementationPart,
+            IEventSymbol @event => @event.PartialImplementationPart,
+            _ => null,
+        };
+        return symbol.DeclaringSyntaxReferences.Concat(implementation?.DeclaringSyntaxReferences ?? [])
+            .Select(reference => reference.GetSyntax()).Distinct();
     }
+
+    /// <summary>The type that declares a member: for a member of an extension block, the static class declaring the block.</summary>
+    private static INamedTypeSymbol? DeclaringOwner(ISymbol symbol) =>
+        symbol.ContainingType is { IsExtension: true, ContainingType: { } declaring } ? declaring : symbol.ContainingType;
 
     /// <summary>Copies source using directives into a relocated target file.</summary>
     private static IReadOnlyList<string> Usings(SyntaxTree tree) =>

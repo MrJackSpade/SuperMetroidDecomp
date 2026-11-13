@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Reachability prune fixture (tools/cleanup/check-prune-fixtures.ps1): the shipped assembly whose members only
+       verification uses move into test-support. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="SuperMetroid.Game" />
+    <InternalsVisibleTo Include="SuperMetroid.Verification" />
+  </ItemGroup>
+</Project>

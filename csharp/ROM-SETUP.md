@@ -72,21 +72,22 @@ Within either platform's application-data root:
 - `game/audio/`: extracted audio streams, WAVs, and metadata catalog.
 - `game/maps/gameplay-hud.json`: the HUD's layout, the screen pixel each of its pictures shows at; the HUD's
   tiles, whose cells are the original's packed tile placements, are import data the import pictures the HUD from.
-- `game/room-characters/`: stock indexed room-character PNGs and their manifest.
+- `game/pictures/`: the picture store, the pre-coloured pictures every sheet below names, edited in place.
+- `game/sprite-sheets/`, `game/enemy-sheets/`, `game/boss-body-sheets/` and `game/room-block-sheets/`: the
+  sheets the import composes, each naming its frames' pictures in the picture store.
 - `game/samus-body/`: what the game binds of Samus's body: each pose's art origin and the body frames her body
   sheet pictures (`samus-body.json`), her death steps and the arm cannon's layout. Her body pages, selectors,
   compositions, atmospheric lists and cover appearances are import data the import pictures her sheets from.
-- `game/enemy-tiles/`: the enemies' compositions and extended frames, the bosses' BG2 layouts and
-  tile-reference maps, Kraid's eye colours, and their manifest. The enemies' characters and the enemy, boss
-  and area colour documents are import data, which only pre-colour the sheets and are not installed.
-- `game/intro-cinematic/`: three stock indexed opening-scene character PNGs and their manifest.
-- `game/standard-objects/standard-object-characters.png`: indexed 4-bpp common
-  gameplay sprite sheet, edited in place.
+- `game/enemy-tiles/`: the enemies' frame display bindings (`enemy-frame-displays.json`) and Kraid's eye
+  colours. The enemies' characters, compositions and extended frames, the bosses' BG2 layouts and
+  tile-reference maps, the enemy, boss and area colour documents and their manifest are import data, which
+  only compose and pre-colour the sheets and are not installed.
+- `game/intro-cinematic/`: the opening's and the Ceres scenes' backdrops and actor placements. Their
+  character pages, layouts, Mode 7 maps, compositions, palettes and manifest are import data.
 - `game/room-layouts/`: stock BG1/BG2 visual block-reference JSON for every room level source.
 - `game/room-level-streams/`: stock-only native level allocations (collision, BTS and
   streaming baseline) for every room level source. These files are not artwork.
 - `game/xray-reveals/`: stock visual metatile choices for X-ray block reveals.
-- `game/room-art-index.json`: read-only area/room ID guide to installed art files and state variants.
 - `game/installation.json`: extraction format version and ROM identity.
 - `SuperMetroid.ini`, `SuperMetroid.save.json`, `debug-states/`, and
   `input-recordings/`: player data, outside the replaceable game directory.
@@ -163,7 +164,7 @@ dotnet run --project csharp/src/SuperMetroid.IntegrationVerification -c Release 
 dotnet run --project csharp/src/SuperMetroid.IntegrationVerification -c Release -- --asset-import-rom
 # Check room-character, palette and visual-block stock import.
 dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --room-artwork-installation "C:\ROMs\Super Metroid.smc"
-# Check all opening character PNGs against the cartridge.
+# Check the opening's, Ceres' and ending's extracted artwork against the cartridge.
 dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --intro-cinematic-artwork "C:\ROMs\Super Metroid.smc"
 # Constructed palette JSON contracts and exact BG/OBJ pixels; no retail ROM needed.
 dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --palette-json-contracts
@@ -180,7 +181,7 @@ save preservation, and booting the production Android session from the installed
 Legacy raw-data/PNG/map extraction commands remain developer tools; normal setup does not
 require their input directories. Keep all ROMs and generated game resources out of Git.
 
-## Samus body PNG and frame selectors
+## Samus body pictures and placements
 
 Samus's body, atmosphere, overlay and death pictures are installed whole in the sprite sheets. The
 body pages, frame selectors, pose-half compositions, the atmospheric lists and the arm cannon's cover
@@ -205,73 +206,31 @@ originals. These files do not change pose timing, movement, collision, or
 equipment. The same installed artwork is used by normal gameplay, attract demos,
 and the opening flashbacks.
 
-## Opening-cinematic character PNGs
+## Opening and Ceres cinematics
 
-The opening cinematic installs three indexed 4-bpp sheets under `game/intro-cinematic/`:
-`intro-background-characters.png` (256x256), `intro-object-characters.png` (256x64),
-and `intro-cinematic-object-characters.png` (256x72). Edit a sheet's pixel indexes (0 through 15)
-in place. The
-two object sheets follow cartridge upload order; the cinematic sheet overwrites the
-last 1 KiB of the fixed intro sheet in VRAM. Restart to select edits; loading a
-debugger state rebinds the current sheets. Palette colors, scene tilemaps, sprite
-compositions, scrolling, and timing are not changed by these PNGs. An invalid file fails
-with its path; running the extractor again restores the originals.
+The opening's pictures are installed whole in the sprite sheets (`intro-scene-pictures`,
+`intro-narration-pictures` and `intro-sprites` in `game/sprite-sheets/`), and the Ceres scenes'
+likewise (`ceres-floor`, `ceres-cinematic-pictures`, `ceres-flight-sprites`,
+`ceres-destruction-sprites` and `zebes-reveal-sprites`). Edit their pictures in the picture store
+to change what the scenes show. What the pictures are composed from is import data, never
+installed (#1636, #1637, #1638, #1693): the opening's and the Ceres approach's character pages, the
+opening's layouts (its four scene pages, the portrait, the first narration card, the subtitle line,
+the portrait's four blinking-eye rectangles and the Zebes reveal's map), the Ceres approach's and
+destruction's Mode 7 maps, the caret, next-page arrow, Mother Brain, explosion, Rinka, egg-effect,
+discovery, scientist, Ceres flight and destruction sprite compositions, the opening's and the Ceres
+approach's palettes, and the manifest naming them. Their cells and parts are the original's packed
+tile and sprite placements. The cartridge's blink script, caret and arrow cadence, frame durations,
+Mother Brain's missile damage and hitboxes, camera, scale, rotation, actor movement, letter timing
+and scene handoffs remain compiled behavior.
 
-The opening's layouts are import data, never installed: the four scene pages
-`intro-background-page-0.json` through `intro-background-page-3.json`, the portrait
-`intro-portrait-tilemap.json`, the first narration card `intro-initial-narration-tilemap.json`,
-the subtitle line `intro-final-text-divider.json`, the portrait's four blinking-eye rectangles
-`intro-samus-eye-frames.json` and the Zebes reveal's `zebes-reveal-tilemap.json`. Their cells are
-the original's packed tile placements; the import composes the scene, narration and planet
-pictures from them, and the installation holds those pictures, which a player edits in place.
-The cartridge's blink script, frame durations and portrait placement remain compiled behavior.
-`intro-narration-palette.json` in the same directory contains the opening scene's
-256 native-precision RGB5 colors, which only the import reads to pre-colour the opening's
-sheets; edit it and reinstall to recolor them without changing narration timing or scene
-transitions. `intro-backdrops.json` holds the colours the opening shows where nothing is
-drawn: the narration's `opening` backdrop and the Ceres scenes' `ceresFlight` backdrop. The
-game reads these colours and neither palette document; edit them in place, each channel 0–31.
-`intro-caret-sprites.json` contains the illustrated-page text caret's visible
-OAM composition. Its blink alternates this one frame with no sprite; the three
-nearby ROM spritemaps are not caret frames. Sprite offsets, tile regions,
-priority, flips, and an optional fixed palette are editable. A null palette
-inherits the caret's live color. Position and blink durations remain code.
-`intro-next-page-arrow-sprites.json` contains the three OAM compositions of the
-next-page arrow the narration shows below the text at each page's input wait
-when Japanese text is selected. Sprite offsets, tile regions, priority, flips,
-and an optional fixed palette are editable; its position, frame durations, and
-the pause while a second subtitle holds the page remain code.
-`intro-mother-brain-sprites.json` contains the three nine-part Mother Brain
-frames used in the opening flashback. Their OAM offsets, tile references,
-priority, flips, and optional palette are editable; missile damage, hitboxes,
-explosion timing, and the page-two handoff remain compiled behavior.
-
-The Ceres approach also installs `ceres-flight-mode7-characters.png` (128x128 indexed),
-`ceres-flight-object-characters.png` (256x128 indexed), and
-`ceres-flight-mode7-maps.json` (32x24 front and rear views), plus
-`ceres-flight-palette.json` (all 256 native-precision RGB5 colors, read only by the import) and
-`ceres-flight-sprites.json` (the six star, asteroid, station, and vortex OAM frames).
-The sprite JSON exposes offsets, tile references, priority, flips, and optional
-palette selections; it does not change actor paths or frame timing. Edit these files in
-place. The two Mode-7 maps share one character
-sheet and palette; the game's camera, scale, rotation, actor movement and letter timing
-remain code. Palette edits take effect when the import recolours the sheets.
-`ceres-flight-actors.json` exposes the five rear-view actors' initial 16-bit
+`game/intro-cinematic/intro-backdrops.json` holds the colours the opening shows where nothing is
+drawn: the narration's `opening` backdrop and the Ceres scenes' `ceresFlight` backdrop. The game
+reads these colours and neither palette; edit them in place, each channel 0–31.
+`ceres-flight-actors.json` in the same directory exposes the five rear-view actors' initial 16-bit
 screen X/Y positions, in large-asteroid, station, small-asteroid, vortex, and
 rear-stars order. Their stock values come from the pinned cartridge's initializer
 operands. Keep the IDs and order; edit only `x`/`y`, then restart the scene. Actor speed, wrapping,
 instruction timing, and scene handoffs remain compiled.
-
-Ceres destruction reuses those character sheets and the approach's front/rear maps.
-Its two station views and clear-map slice are in `ceres-destruction-mode7-maps.json`
-(three ordered 32x24 views). The following planet reveal's picture is composed by the import
-from its layout and characters, both import data; restored debugger states rebind these visuals
-without restarting the destruction or descent timeline. Explosion, actor and
-camera behavior remain compiled cartridge logic.
-`ceres-destruction-sprites.json` adds the 23 distinct station-blast, explosion,
-planet, star-sheet, and title OAM frames. Destruction actors also use shared frames
-from `ceres-flight-sprites.json`. Both files support visual part edits without
-changing the native actor instruction timing, motion, or scene handoff.
 `ceres-destruction-actors.json` holds the initial 16-bit screen X/Y positions
 of the large asteroid, small asteroid, and vortex behind the station blast.
 Keep those three IDs and their order, and edit only `x`/`y`. The stock values come from the cartridge-checked
@@ -283,47 +242,27 @@ their order; edit only `x`/`y`, then restart
 the scene. These values are read from the pinned cartridge's actor initializer
 operands. The slide acceleration, visibility schedule, deletion, and phase
 handoff remain compiled. Missing, reordered, or malformed entries fail loudly.
-The ending's ship flyaway also reuses the Ceres Mode-7 character PNG and the front
-view of the Ceres flight map, with its original sixteen-frame upload cadence.
+Restored debugger states rebind these visuals without restarting the destruction or
+descent timeline.
+
+The ending's ship flyaway is composed by the import from the Ceres Mode 7 characters and the
+front view of the Ceres flight map; its picture is the `ending-flyaway-floor` sheet, shown with
+its original sixteen-frame upload cadence.
 
 The ending's two escape views, planet-explosion backdrop and reward-jump icon are
 not installed as cell maps or character pages: the import composes their floor
 pictures from the cartridge, and the installation holds only those pictures in the
 picture store. Edit the floor pictures to change what the scenes show.
 
-Ending/credits character streams are installed under `game/ending-objects/`:
-`ending-cloud-characters.png` and `ending-explosion-objects.png`, plus
-`credits-waiting-samus.png`, `post-credits-shooting.png`, and
-`post-credits-suitless-samus.png`. The waiting sheet also supplies the two suited
-reward variants. The planet explosion's four maps are ordered tile references in
-`ending-explosion-fragment-*.json`, and the waiting scene's ordered BG2 tile
-references are `credits-waiting-tilemap.json` in the same directory.
-`ending-cloud-sprites.json` contains the six editable atmospheric-cloud OAM
-compositions, including part offsets, tile references, flips, priority, and
-optional palette selections. `ending-explosion-sprites.json` contains the sixteen
-editable planet-damage, flash, lava, glow, starfield, silhouette, and afterglow
-OAM compositions. Their actor instruction lists, movement, and scene callbacks
-remain compiled game logic rather than artwork.
-`ending-completion-text-sprites.json` contains the 56 progressive operation,
-success, clear-time, digit, and colon OAM compositions. Editing these parts
-does not alter the cartridge-matched typewriter pacing or credits handoff.
-`ending-reward-sprites.json` contains the 37 suitless, helmetless, and armored
-Samus pose compositions used across the reward reveal, gesture, jump, landing,
-and shot. Their shared actor instructions and physical handoff remain compiled
-game logic.
-`ending-logo-sprites.json` contains the eight final assembling-logo OAM
-compositions: two S halves and three frames for each circle half. Logo motion,
-wrap timing, and palette-crossfade behavior remain compiled game logic.
-The small transformation character upload is installed as the indexed PNG
-`post-credits-tile-fragment-a.png`, and its map as the ordered tile references in
-`post-credits-tile-fragment-b.json`. The
-final assembling logo uses `post-credits-logo-tiles.png` and the ordered BG2
-references in `post-credits-logo-map.json`; its six upload positions and timing
-are fixed game logic. Edit any indexed PNG or JSON file in place to change it without changing
-scene mechanics.
-The planet-explosion upload still overlays the four fragments after its main sheet,
-then restores the already-installed ending font over the overlapping font region.
-Other sprite placement, animation scripts, palette-FX mechanics and scene timing remain compiled code.
+The ending's and credits' character pages, its planet-explosion fragments, the waiting scene's
+and the final logo's tile references, the transformation fragments and the cloud, explosion,
+completion-text, reward and logo sprite compositions are import data as well: the import composes
+the ending's sheets in `game/sprite-sheets/` from them, and the installation holds no
+`game/ending-objects/` directory. Edit the ending's pictures in the picture store to change
+them. The actors' instruction lists, movement, the cartridge-matched typewriter pacing, the
+reward's actor instructions and physical handoff, the logo's motion, wrap timing and palette
+crossfade, the final logo's six upload positions, the planet-explosion upload order and scene
+callbacks remain compiled game logic.
 
 The ending's colours are pre-coloured into its installed sprite sheets; edit a sheet
 in place to change them. Each ending scene's backdrop, the solid colour it shows
@@ -369,27 +308,25 @@ is displayed in two CGRAM destinations. `phaseTwoAttack` and
 `phaseTwoRearLeg` each contain fifteen nontransparent sprite colors.
 `initialGlassShard` and `initialTubeProjectile` contain the two fifteen-color
 room-entry sprite palettes. `recoveryLights` contains seven two-slice room-light images shown
-after the Baby Metroid cutscene. Edit this file in place to recolor those effects. The cartridge bytecode, flash
+after the Baby Metroid cutscene. The import pre-colours those effects' pictures from it; edit the pictures
+in the picture store to recolor them. The cartridge bytecode, flash
 cadence, phase handoff, and CGRAM copy destinations remain engine logic.
 
-The `game/maps/room-fx-animated-tiles.png` indexed 2-bpp strip contains the
+The room effects' animated characters, the `room-fx-animated-tiles.png` strip of the
 native lava, acid, rain, and Maridia sand frames, Wrecked Ship's four 32-byte
-treadmill frames, the Tourian statue strip, then three 48-byte spores frames.
-Edit it in place to change the pixels. Activation, frame order,
-cadence, loop control and VRAM destinations remain compiled. Queued NMI
-transfers use the installed art rather than reading bank $87. Adding spores does not shift any
-existing character or statue transfer alias.
+treadmill frames, the Tourian statue strip and three 48-byte spores frames, are
+import data: the import composes the effect pictures from them, and the installation
+holds those pictures. Activation, frame order,
+cadence, loop control and VRAM destinations remain compiled.
 
 Spores use a ten-tick three-frame loop and camera-anchored quarter-pixel
 vertical scroll. Their `room-fx-layer3-tilemaps.json` page is import data, whose cells are the original's packed tile
-placements: the import composes the effect pictures from it, and the installation holds the pictures. The
-`room-fx-blend-palettes.json` colors can be edited in place. Native source-aware
+placements: the import composes the effect pictures from it, and the installation holds the pictures. Native source-aware
 color math keeps the effect behind BG1 terrain and excludes OBJ palettes
 zero through three; it never tints the HUD or enables liquid physics.
-Malformed FX artwork/tilemap/palette files fail with the exact path.
 
-`game/maps/room-fx-blend-palettes.json` holds the room-FX blend colors, which the
-import pre-colours the effect overlay pictures in; edit it and reinstall to recolor them.
+The room-FX blend colors, `room-fx-blend-palettes.json`, are import data too, which only
+the import pre-colours the effect overlay pictures in; they are not installed.
 
 `game/maps/scene-colours.json` holds the colours the game shows that no picture
 holds: the title's backdrop, the pause, file-select and each Zebes area's world-map
@@ -412,77 +349,57 @@ checks the installed colours' complete effect lifetimes, state restoration and
 software/Direct3D output without importing a cartridge or touching player data.
 See the source-access audit for exact coverage and remaining environmental gates.
 
-## Room-character PNGs
+## Room pictures
 
-Setup extracts the shared CRE characters, each distinct graphics-set character
-stream, and the Tourian statue-ghost characters to `game/room-characters/*.png`.
-The ghost sheet is `room-characters-87AD64.png`. These are indexed 8x8 tile sheets, not
-screenshots: pixel indexes must remain 0 through 15, dimensions must remain fixed,
-and the neutral PNG palette is only a preview. The room palette and metatile map
-still supply the on-screen colors and arrangement. These sheets are what the room pictures
-are composed from. Edit a room's look through its pictures in
-the installed `game/room-block-sheets` instead.
+The shared CRE characters, each distinct graphics-set character stream and the Tourian
+statue-ghost characters, the room character pages and their manifest, are import data, which
+only the import composes the room block sheets from; none is installed. A room draws from its
+tileset's sheet in `game/room-block-sheets`, whose pictures are in the picture store: edit a
+room's look through those pictures. Sheets are shared across rooms, so an edit can affect every
+room that uses the tileset.
 
-To find a room's files, open `game/room-art-index.json` and search for its
-`roomId`, such as `00/00` for Landing Site. Each room lists a `default` state and,
-when applicable, numbered alternate states selected by in-game conditions. The
-entry gives the relative character PNG, visual block JSON, palette JSON, and
-possible background-art files. Background lists include door-dependent
-alternatives, so a listed file is not necessarily visible on every entrance.
-The `sharedCharacters` and `sharedBlocks` fields identify the common CRE art.
-`scrollingSkyArtwork` lists the seven shared sky pages used by the streaming path.
-Files are shared across rooms: an edit can affect every room that cites it.
-Edit the listed file in place; do not edit the index, which is regenerated when
-content is extracted again.
-
-Landing Site's dedicated setup path uses these same installed CRE and area
-sheets, plus the installed visual block definitions. Its BG1/BTS/BG2 level
+Landing Site's dedicated setup path uses the same block sheets. Its BG1/BTS/BG2 level
 allocation comes from the installed stock-only room-level streams because those
 words also drive collision and placement; artwork edits do not edit room geometry.
-
-The room character pages and their manifest are import data, which only the
-import composes the block sheets from; neither is installed.
 
 Ordinary room-enemy tile uploads and OBJ colors are import data, which only the
 import composes the enemy sheets from: each `enemy-XXXX-tiles.png` and matching
 `enemy-XXXX-colors.json` pair is identified by the enemy definition's stable
 four-digit cartridge ID, and neither is installed. PNG pixels must remain indexed 0..15; its diagnostic PNG
 palette is only a preview. The JSON contains exactly sixteen RGB5 colors, each
-channel 0..31. Enemy VRAM/CGRAM destinations,
-health, and AI are unchanged by these tile/color edits. This covers
+channel 0..31. This covers
 the ordinary bank-$B4 room graphics-set uploads, not dynamic boss BG2 art or
-enemy-projectile sheets. Restart to load edits; a saved in-room VRAM image may
-retain its old pixels until the next room load.
+enemy-projectile sheets. Edit an enemy's pictures in its sheet in `game/enemy-sheets` instead;
+enemy health and AI are unchanged by picture edits.
 Ninja Space Pirates also copy the shared gold-Pirate colors from
 `enemy-F413-colors.json` into OBJ palette seven when initialized; the import
 pre-colours their gold shade from it.
 
-The ordinary `enemy-ED3F-tiles.png` sheet also supplies Dead Torizo's corpse
+The ordinary `enemy-ED3F-tiles.png` page also supplies Dead Torizo's corpse
 and falling-sand rows. `enemy-ED7F-tiles.png` supplies the dead sidehopper,
 Zoomer, Ripper, and Skree corpse layouts. Mother Brain's decaying body instead
-uses `mother-brain-corpse-tiles.png`, a separate indexed 4bpp source sheet.
+uses `mother-brain-corpse-tiles.png`, a separate indexed 4bpp source page.
 The escape typewriter's five character uploads use
 `mother-brain-escape-text-tiles.png`, also separate from the ordinary enemy
-sheet and editable without changing text timing or placement.
+page.
 The Baby Metroid, restored Mother Brain attack, and exploded escape-door OBJ
 pages are separate `mother-brain-baby-tiles.png`,
 `mother-brain-attack-tiles.png`, and `mother-brain-exploded-door-tiles.png`
-sheets. Each holds only character pixels; the original page timing and
-VRAM destinations remain compiled.
+pages.
 Phase-two leg loading also uses `mother-brain-leg-tiles.png` for its first
-eight pages; the following four reuse the attack sheet. Its twelve-record
+eight pages; the following four reuse the attack page. Its twelve-record
 timing and destination list remain compiled game definitions.
-Editing any of these changes those visuals; their row timing, collision, and
-decay mechanics remain compiled.
+All of these pages are import data, which only the import composes the enemy and boss
+sheets from; edit those sheets' pictures instead. Text timing and placement, row timing,
+collision, and decay mechanics remain compiled.
 
 Magdollite's separate four-frame OBJ color cycle is in
 the import data's `magdollite-palette-cycle.json`, four RGB5 colors per frame. The cartridge's
 eight-tick cadence, frame order, and selected OBJ palette slot stay in code.
-The installed game uses this asset for the cycle rather than reading its
-colors from the ROM during play.
-Work Robot's six four-color records are similarly editable in
+The import pre-colours the cycle's pictures from it; the game reads no colour from the ROM.
+Work Robot's six four-color records are similarly in
 the import data's `work-robot-palette-cycle.json`. Its 64/16-tick durations, record wrap, and powered/unpowered state
-remain compiled; only the RGB5 words are replaceable.
+remain compiled.
 Crocomire's fight-body restore, initial wall and projectile transfers,
 skeleton-arm transfer, and wall-spike transfer are in
 the import data's `crocomire-colors.json`. The two initial transfers intentionally contain
@@ -534,7 +451,7 @@ grey-transition colors are in the import data's `tourian-statue-colors.json`. Bo
 eye positions, unlock timing, and the four grey-palette destinations remain
 compiled behavior.
 
-The same directory contains `enemy-compositions.json` with named Boyon,
+The enemy-tile import data contains `enemy-compositions.json` with named Boyon,
 Cacatac, Boulder, Atomic, Skultera, Waver, Skree, Metaree, Zoa, and the
 Brinstar/Norfair/yellow Pipe Bug, Fake Kraid, Kraid fingernail, Owtch, Stoke,
 the three Ripper variants, Fireflea, Magdollite, Ceres door visual frames
@@ -556,40 +473,39 @@ address-named edit can affect more than one effect. Object allocation, frame
 durations, movement, and collision remain engine-owned.
 Mother Brain's head, neck joint, and five falling-tube compositions use stable
 `mother_brain_a9_` names followed by the native address. The private head/neck
-draw hook preserves its world-space clipping and palette logic while using
-these installed OAM parts; animation timing and encounter physics are separate.
+draw hook preserves its world-space clipping and palette logic while drawing
+these frames' pictures; animation timing and encounter physics are separate.
 Dead Torizo's private corpse hook likewise uses the named
-`dead_torizo_corpse_a9_d761` composition, while its rotting tile sheet remains
-the separate indexed PNG.
+`dead_torizo_corpse_a9_d761` composition, while its rotting tiles remain
+a separate page.
 The Landing Site gunship uses `gunship_top_hull`, `gunship_bottom_hull`, and
 eleven `gunship_entrance_` compositions. Gameplay resolves installed artwork
 without ROM access.
 Ridley's private wing and articulated-tail hooks use 31 named
 `ridley_supplement_a6_` compositions; the fixed wing and tip pointer tables
-remain compiled pose selections, separate from editable OAM parts.
-Edit it in place to change a frame's ordered OAM
-parts: `offsetX`, `offsetY`, `tileColumn`, `tileRow`, `size`, `priority`, `palette`,
-`flipX`, or `flipY`. The `displayFrames` table may also bind each named native
+remain compiled pose selections.
+Each frame's ordered OAM parts (`offsetX`, `offsetY`, `tileColumn`, `tileRow`, `size`,
+`priority`, `palette`, `flipX`, `flipY`) are the original's packed sprite placements, so the
+compositions are import data the import composes the enemy sheets from, and none is installed;
+edit a frame's picture in the enemy sheets instead.
+The installed `game/enemy-tiles/enemy-frame-displays.json` holds what the game reads of them:
+its `displayFrames` table binds each named native
 frame to a different named frame in the same bank, letting an artist rearrange
 the visible sequence without moving its native frame boundaries. For example,
 setting `"boyon_idle_loop_first": "boyon_idle_loop_second"` displays the second Boyon composition
 whenever the first is selected by gameplay. Native frame duration, collision
 selection, enemy hitboxes, movement, and damage remain engine-owned. A malformed
-document fails with a load error. Runtime drawing has no ROM-spritemap fallback. The current
-document's named `frames` entries are the authoritative replacement inventory;
-the examples above are not an exhaustive family list. A required installed
-composition that is unavailable fails explicitly. Only the current document
-revision loads; a catalog missing a required frame fails with an error instead of
-silently rereading cartridge art.
-The Evir character sheet is the ordinary extracted enemy PNG; the boss-room
-intro reuses that sheet for its VRAM upload rather than reading raw cartridge bytes.
+document fails with a load error. Runtime drawing has no ROM-spritemap fallback.
+The examples above are not an exhaustive family list. A required
+frame that is unavailable fails explicitly instead of silently rereading cartridge art.
+The Evir characters are the ordinary extracted enemy page; the boss-room
+intro reuses that page for its VRAM upload rather than reading raw cartridge bytes.
 The Ceres Baby's four fifteen-color RGB5 palette rows are in
 the import data's `ceres-ridley-colors.json`, which the import pre-colours the Baby's sheets from. Its
 `babyShades` rows are separate from the Ridley start/fade/health/alarm/retreat colors. The draw
-program still chooses rows using the cartridge's animation cadence; palette
-edits do not change movement, collisions, or timing. The sixteen `alarm` rows
-are edited the same way; their cadence and wrap remain engine behavior. Only the
-current document version loads; re-run the extractor to restore the original file.
+program still chooses rows using the cartridge's animation cadence, and the sixteen
+`alarm` rows' cadence and wrap remain engine behavior; recolouring the pictures does not
+change movement, collisions, or timing.
 The separate `enemy-projectile-compositions.json`, import data whose parts are the original's packed sprite placements
 (the import composes the spawned-object sheets from it, and the installation holds their pictures), contains the Ceres elevator
 platform/pad, Skree/Metaree debris, and named timed-frame OAM compositions for
@@ -600,28 +516,27 @@ generic enemy-death explosions and pickups. It also includes Ceres debris,
 save-station electricity, gunship dust, Tourian dust, falling sparks, lava
 throws, eye-door sweat, Ki Hunter acid, Fune/Namihe and Dragon fireballs, and
 Powamp spikes, Bomb Torizo statue fragments, and Mother Brain glass, hand beam,
-top tubes and turrets. Editing its visual parts does not change projectile
+top tubes and turrets. Their drawing does not change projectile
 timing, damage, motion, or collision. The `programFrames` names identify bank-$86
-animation lists and frame numbers; only their drawing is editable. Only the current
-document revision loads.
-The five `gunship-liftoff-N-tiles.png` files in `game/enemy-tiles/` contain the
-gunship's takeoff character uploads, each an indexed 4-bpp image. The five upload
-times and VRAM destinations stay fixed; edits are resolved when each queued
-upload reaches NMI, including after restoring an older pending debugger state.
+animation lists and frame numbers.
+The five `gunship-liftoff-N-tiles.png` pages, the gunship's takeoff character uploads, are
+import data in the enemy-tile component's import data, which the import composes the
+gunship's pictures from. The five upload times stay fixed.
 Walking, wall, and ninja Space Pirates use the separate, historically named
-`game/enemy-tiles/enemy-walking-pirate-compositions.json`, which holds the named Pirate,
+`enemy-walking-pirate-compositions.json`, import data too, which holds the named Pirate,
 Ridley-body, Draygon, Spore Spawn, Torizo and other multipart OAM frames. Each frame contains
 ordered visual components with `offsetX`, `offsetY`, and `parts` using the same
-OAM fields listed above. Its `displayFrames` table can remap any named visual
-frame to another frame of the same enemy family, without changing the native
-instruction frame, duration, or hitbox. Component offsets move only the drawing;
-native hitbox geometry and touch/shot callbacks remain engine-owned. Walking,
-wall, and ninja Pirate collision records are compiled and unaffected by JSON edits.
+OAM fields listed above. The installed `extendedDisplayFrames` table in
+`game/enemy-tiles/enemy-frame-displays.json` can remap any of its named visual
+frames to another frame of the same enemy family, without changing the native
+instruction frame, duration, or hitbox; native hitbox geometry and touch/shot callbacks
+remain engine-owned. Walking,
+wall, and ninja Pirate collision records are compiled and unaffected by display edits.
 Display bindings cannot cross between Draygon and Spore Spawn. The 22
 `phantoon_bg2_*` and 34 `draygon_bg2_*` display-binding keys have their tilemap
-commands in the separate BG2 files; those native BG2-only roots have empty
-component arrays in stock, and an edit may add ordinary OAM components to them.
-Missing or malformed frames fail loudly. Only the current document revision loads.
+commands in the separate BG2 frames; those native BG2-only roots have empty
+component arrays in stock. Missing or malformed bindings fail loudly. Only the current
+document revision loads.
 
 Enemy animation remains tied to compiled gameplay frames. `displayFrames` changes
 which picture is drawn at a native frame; it does not edit durations, movement,
@@ -697,9 +612,8 @@ verify identified conversion paths, not the complete battles or every corpse fam
 checks strict fields, and `--mother-brain-corpse-stock-artwork` uses import-only
 stock data to check installed pixels, staging and sprite uploads.
 Crocomire's six skeleton-character uploads share the indexed 4-bpp
-`crocomire-skeleton-tiles.png` sheet in `game/enemy-tiles/`, the pixels used during
-his death sequence. The upload sequence and VRAM destinations remain fixed. A
-malformed sheet fails when the artwork loads.
+`crocomire-skeleton-tiles.png` page, the pixels used during his death sequence: it is
+import data, which the import composes his death pictures from. The upload sequence remains fixed.
 Kraid's BG2 body sources, `kraid-upper-bg2.json` and `kraid-lower-bg2.json`, and his
 four animated head layouts, `kraid-head-0.json` to `kraid-head-3.json` by mouth stage, are
 import data: the import composes Kraid's body sheet from them, and the installation holds its
@@ -717,9 +631,8 @@ and the four HUD-restoration quarters against import-only stock data. Production
 RAM only. This is focused presentation/control acceptance, not a full boss battle
 or GPU-output comparison.
 The fixed backdrop characters revealed after growth or defeat are the
-`kraid-room-background.png` indexed sheet in the same directory. Its pixel
-indices, not the PNG's preview colors, become 4-bpp VRAM characters. Other Kraid
-character uploads remain outside this set. An invalid sheet fails during load.
+`kraid-room-background.png` indexed page, import data beside his body sources, which the
+import composes the backdrop's pictures from.
 Kraid's colours are import data, which only pre-colour his pictures. The game works with his
 eyes' colours alone: `kraid-eye-colours.json` in `game/enemy-tiles/` holds the three eyes'
 colours under the hurt flash (`hurtFlash`) and under each of his eight health bands
@@ -747,13 +660,10 @@ The import's library tilemaps cover the 58 compressed room BG tilemaps.
 All 68 retail library-background command lists, including Landing Site's six
 door-to-sky choices, are compiled engine definitions.
 The bank-$88 sky pointer arithmetic, scrolling rates and VRAM timing remain
-engine behavior. Kraid's direct HUD-character upload also uses the existing
-`game/maps/hud-tiles.png` artwork instead of
-rereading those characters from the ROM. Kraid's four-frame death restoration
-reads the same indexed HUD sheet in four ordered quarters; editing that PNG
-changes those BG3 characters too, without changing the native transfer cadence.
-The Tourian statue-ghost library upload
-likewise uses the installed room-character sheet instead of the raw ROM source.
+engine behavior. The HUD's characters, `hud-tiles.png`, are import data too, which the
+import composes the HUD's pictures from, including the quarters Kraid's four-frame death
+restoration shows, without changing the native transfer cadence. The Tourian statue-ghost
+library upload likewise draws pictures composed from the import's room character pages.
 
 Room-level visual arrangements are installed as 246 `game/room-layouts/level-*.json`
 files, one per level. Each level is named for the room whose state first uses it, for
@@ -890,7 +800,7 @@ bank-$8F scroll programs. The 17 dynamically uploaded permanent-item kinds
 also use compiled character bytes and palette offsets rather than reading
 bank $89 and their initial bank-$84 instruction lists during retail loads.
 Constructed rooms can still supply their own item graphics on the bus. These
-tile uploads are compiled definitions with installed, editable PNGs and palettes;
+items are drawn from their pictures in the room block sheets, described below;
 other PLM instruction-program ROM dependencies remain to be migrated.
 
 Downward-gate PLM block appearances are installed as
@@ -1023,51 +933,35 @@ list of rooms intact; the name identifies which overlay a room state shows. Inst
 these entries without reading the item draw table or room overlay records from
 the ROM during X-ray setup.
 
-The room-ID guide makes visual-layout files discoverable, but shared sheet and
-palette filenames still encode source identities. Further required-reference,
+Further required-reference,
 format compatibility and presentation-parity review remains tracked in
 #530 and #549; Core does not retain a runtime ROM fallback for that work.
 
-## Projectile composition and beam PNGs
+## Projectile pictures and bindings
 
-Installed hosts extract `game/projectiles/projectile-compositions.json` under the
-player-data root. Edit it in place; run the extractor again to restore the original.
+The projectiles' pictures are installed whole in the projectile sheets (`projectiles-*` in
+`game/sprite-sheets/`, one per beam combination, and `grapple`). What they are composed from is
+import data, never installed (#1636, #1637, #1638): the beam character pages, the trail and
+Grapple endpoint/segment pages, the shared standard sprite characters that hold missile and bomb
+pixels, the projectile, trail, charge-flare and Grapple compositions (`projectile-compositions.json`
+and `projectile-trails.json` among them) and the ordinary beam colors. Edit the pictures in the
+picture store to change what a projectile shows. Damage, collision radii, trail cadence and motion
+are not artwork.
 
-Each `sprite_XXXX` entry exposes part offsets, tile row/column, size, flips, palette
-index and priority. Keep every entry and the version field. These are compositions
-of graphics. Damage, collision radii and
-timing are not editable here. Trails, charge flares and Grapple visuals are not
-covered by this composition file.
-
-`projectile-frame-bindings.json` in the same directory selects which existing
+`game/projectiles/projectile-frame-bindings.json` selects which existing
 `sprite_XXXX` composition each of the 805 timed beam, missile, Super Missile and
 bomb instruction frames draws. Keep all `frame_XXXX` entries and select only sprite
-IDs present in `projectile-compositions.json`; duration, trail cadence, collision
+IDs the stock file names; duration, trail cadence, collision
 radii, damage and instruction flow remain compiled gameplay data. Edits are included
 in recorded content identity.
-
-Trail appearance uses `projectile-trails.json` in the same directory: tile
-row/column, palette, priority and flips. Timing and trail movement are intentionally
-not editable. This selects existing trail graphics; their pixels are in
-`game/projectiles/projectile-trails.png`, a 96x8 indexed 4-bpp image. The first eight
-tiles are ice/wave trails and the last four are missile/Super Missile trails; their
-two VRAM destinations stay fixed. The Mother Brain intro flashback shares the
-installed projectile, explosion and trail compositions, including after loading a
+`charge-flare-placement.json`, `grapple-flare-placement.json` and `grapple-swing-frames.json`
+in the same directory hold the charge flare's and the Grapple flare's signed visual offsets and the
+orientation each Grapple swing direction displays; these edits do not alter projectile
+origins, collision or motion. The Mother Brain intro flashback shares the
+installed projectile, explosion and trail pictures, including after loading a
 debugger state.
 
-Beam sheets `beam-00-tiles.png` through `beam-0B-tiles.png` are also installed in
-`game/projectiles`, one per beam combination. Keep each 64x8 indexed format and pixel
-indices 0 through 15. PNG palette colors are diagnostic: gameplay uses the separately
-installed beam palette. These sheets do not hold missile, bomb, trail, flare or
-Grapple artwork. Missile and bomb pixels are part of the shared
-`game/standard-objects/standard-object-characters.png` sheet; trail pixels use
-the separate PNG above, while Grapple endpoint/segment pixels use
-`game/projectiles/grapple-tiles.png`. Charge-flare and Grapple sprite
-compositions and their visual placement rules are separately editable JSON in
-`game/projectiles/`; these edits do not alter projectile collision or motion.
-
-The ordinary beam colors are import data, which only the import pre-colours the
-projectile and frozen-enemy sheets from; they are not installed. The ten-frame Hyper Beam
+The ten-frame Hyper Beam
 projectile palette cycle is `game/projectiles/hyper-beam-fx-colors.json`, eight RGB5
 colors per frame. This changes appearance only: the frame order, two-tick cadence and
 loop remain compiled cartridge behavior. Loading a state refreshes ordinary colors at
@@ -1075,7 +969,7 @@ the next accepted display update, but preserves an active Crystal Flash or Hyper
 palette.
 
 Restart to load edits. Loading a debugger state retains the current session's
-composition and beam catalogs rather than restoring old artwork from the state.
+projectile catalogs rather than restoring old artwork from the state.
 Startup logs the projectile content hash. An invalid file fails loudly with its path,
 retaining the underlying exception. All required manifest fields must be present.
 Core rendering has no ROM fallback; explicit native image decoding remains

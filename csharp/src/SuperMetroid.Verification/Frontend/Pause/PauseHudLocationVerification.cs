@@ -20,17 +20,18 @@ internal static class PauseHudLocationVerification
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var cart = CartridgeImportSource.Require(bus);
-        var random = new SharedRandom();
-        var runtime = CreateRetailRuntimeFixture(random: random);
-        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
         var maps = RetailPresentationFixture();
-        var samus = runtime.Player.IntroducedSamus;
-        samus.Position = samus.Position.WithWhole(new(0x200, 0x300));
-
         foreach (byte phase in new byte[] { 0, 8 })
         {
+            // A runtime belongs to the one session that runs it, as every runtime a session builds does (its audio
+            // requests reach that session's queues alone), so each phase's new game adopts a runtime of its own.
+            var random = new SharedRandom();
+            var runtime = CreateRetailRuntimeFixture(random: random);
+            runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+            runtime.RoomLoader.InitializeStartingCeresRoom();
+            runtime.RoomLoader.InitializeCeresStartSamus();
+            var samus = runtime.Player.IntroducedSamus;
+            samus.Position = samus.Position.WithWhole(new(0x200, 0x300));
             runtime.Hud.UpdateMinimap(runtime.System, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(28, 1), RoomSize = new(0x90, 0x50), Samus = samus.Position.Whole, FrameCounter = phase, PresentationMap = maps.Get(AreaId.Crateria) });
             ushort center = runtime.Hud.Tiles(runtime.InstalledHudArtwork)[60].PackedWord;
             AssertEqual(phase == 0 ? 0xbc26 : 0xa826, center, "independent native minimap capture");

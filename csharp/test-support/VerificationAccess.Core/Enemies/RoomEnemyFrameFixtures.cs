@@ -90,6 +90,6 @@ internal static class RoomEnemyFrameFixtures
         internal SamusColours Colours { get; } = new();
 
         /// <summary>The enemy-breakable terrain of a room-object table with no objects.</summary>
-        internal EnemyBreakableTerrainObjects CollisionObjects { get; } = new(new RoomObjectSlotTable());
+        internal EnemyBreakableTerrainObjects CollisionObjects { get; } = new(new RoomObjectSlotTable(new RoomObjectPlaces()));
     }
 }

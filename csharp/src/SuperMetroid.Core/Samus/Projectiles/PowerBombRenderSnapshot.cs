@@ -21,16 +21,6 @@ public readonly record struct PowerBombRenderSnapshot(
     PowerBombRadius RenderedExplosionRadius,
     RgbColor GlowColor)
 {
-    /// <summary>
-    /// The glow colour under its earlier name, which the display capture's latched-colour substitution still sets;
-    /// it reads and writes <see cref="GlowColor"/> and goes when that substitution names the glow (#1631).
-    /// </summary>
-    public RgbColor FixedColor
-    {
-        get => GlowColor;
-        init => GlowColor = value;
-    }
-
     /// <summary>Copies the explosion's rendered window inputs and its current glow colour.</summary>
     public static PowerBombRenderSnapshot Capture(SamusPowerBombExplosionState explosion)
     {

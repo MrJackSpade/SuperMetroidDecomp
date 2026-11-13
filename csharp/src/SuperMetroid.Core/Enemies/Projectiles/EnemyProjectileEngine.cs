@@ -805,7 +805,7 @@ internal sealed class EnemyProjectileEngine
         projectile.Position = projectile.Position.WithWhole(position);
 
         // The dust-cloud-or-explosion initializer ignores the definition's placeholder animation and
-        // indexes this literal thirty-entry table with the spawner's choice: the Rinka's
+        // starts the animation the spawner chooses: the Rinka's
         // is the small explosion, and the Boulder's its impact cloud.
         projectile.StartAnimation(new MiscDustProjectileAnimation(segment));
     }

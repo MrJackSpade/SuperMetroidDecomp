@@ -132,7 +132,7 @@ internal static class MotherBrainNativeListAddresses
         [0x9718] = new BodyOp(0, _ => new B.SetPose(MotherBrainBodyPose.CrouchingTransition)),
         [0x9720] = new BodyOp(0, _ => new B.SetPose(MotherBrainBodyPose.DeathBeam)),
         [0x9728] = new BodyOp(0, _ => new B.SetPose(MotherBrainBodyPose.LeaningDown)),
-        [0x9ac8] = new BodyOp(3, operands => new B.SpawnHandDust(new(unchecked((short)operands[0]), unchecked((short)operands[1])), (MiscDustAnimation)operands[2])),
+        [0x9ac8] = new BodyOp(3, operands => new B.SpawnHandDust(new(unchecked((short)operands[0]), unchecked((short)operands[1])), MiscDustAnimationIndices.Decode(operands[2]))),
         [0x9aef] = new BodyOp(0, _ => B.FireHandBeam),
         [0x9b05] = new BodyOp(0, _ => B.AdvanceHandBeamPhase),
     };

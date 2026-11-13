@@ -78,7 +78,6 @@ internal static class EnemyProjectileTypedStarts
         [RoomEnemyProjectileKind.NoobTubeReleasedAirBubble] = () => new NoobTubeProjectileAnimation(NoobTubeProjectileSegment.ReleasedAirBubble),
         [RoomEnemyProjectileKind.MotherBrainRainbowBeamExplosion] = () => new MiscDustProjectileAnimation(MiscDustProjectileSegment.RainbowBeamExplosion),
         [RoomEnemyProjectileKind.EyeDoorSmoke] = () => new MiscDustProjectileAnimation(MiscDustProjectileSegment.SmallExplosion),
-        [RoomEnemyProjectileKind.MiscDustExplosion] = () => new MiscDustProjectileAnimation(MiscDustProjectileSegment.BeamCharge),
     };
 
     /// <summary>A new animation running the typed initial segment of <paramref name="kind"/>, or null when the kind has none.</summary>

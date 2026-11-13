@@ -17,7 +17,7 @@ internal static class AudioQueuesAccess
             (self.PendingMusic is PendingMusicDispatch pending
                 ? $"wait={pending.Request}@{pending.CallsUntilDispatch:X}"
                 : "wait=fetch") +
-            (self.Music.NextToFetch is QueuedMusic next ? $" next={next.Request}@{next.Delay.Updates:X}" : " next=none") +
+            (self.Music.TryPeek(out QueuedMusic? next) ? $" next={next.Request}@{next.Delay.Updates:X}" : " next=none") +
             $" queued={self.HasQueuedMusic}";
 
         /// <summary>One sound library's waiting requests, oldest first, and its handler's handshake phase.</summary>

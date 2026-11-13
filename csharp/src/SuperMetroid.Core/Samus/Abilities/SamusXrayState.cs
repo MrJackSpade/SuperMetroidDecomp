@@ -131,10 +131,7 @@ public sealed class SamusXrayState
         if ((IsActive && !cancellingDirectGMode) || PendingActivationPose is not null)
             return false;
 
-        // X-ray setup contains a very specific five-bomb/cooldown/divisor rejection.
-        // Preserve the three-way conjunction; rejecting every nonzero cooldown would erase
-        // a retail quirk, while ignoring it would permit the exact forbidden state.
-        if (conditions.ProjectileCooldownTimer.IsAt(7) && conditions.BombCounter == 5 && samus.XSpeedDivisor == 2)
+        if (XrayRefusedAsDrained.Refuses(conditions.ProjectileCooldownTimer, conditions.BombCounter, samus.XSpeedDivisor))
             return false;
 
         // Landing art (the normal and spin landings and the aimed and firing landings) is explicitly

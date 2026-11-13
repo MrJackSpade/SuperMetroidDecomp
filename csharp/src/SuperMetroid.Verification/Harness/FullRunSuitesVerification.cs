@@ -1051,6 +1051,15 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyBabyMetroidWrongWaySpeed), () => VerifyBabyMetroidWrongWaySpeed()),
         new(nameof(VerifyMotherBrainGlitchMechanics), () => VerifyMotherBrainGlitchMechanics()),
         new(nameof(VerifyXrayWarmUp), () => VerifyXrayWarmUp()),
+        // X-ray's drained refusal against the original's test (#1692).
+        new(nameof(SuperMetroid.Verification.Samus.Abilities.XrayRefusedAsDrainedVerification.VerifyXrayRefusedAsDrained),
+            SuperMetroid.Verification.Samus.Abilities.XrayRefusedAsDrainedVerification.VerifyXrayRefusedAsDrained),
+        // The suit pickup's closing line against the original's arithmetic (#1692).
+        new(nameof(SuperMetroid.Verification.Samus.Abilities.SuitPickupClosingLineWrapVerification.VerifySuitPickupClosingLineWrap),
+            SuperMetroid.Verification.Samus.Abilities.SuitPickupClosingLineWrapVerification.VerifySuitPickupClosingLineWrap),
+        // The music queue against the original's ring (#1692).
+        new(nameof(SuperMetroid.Verification.Audio.MusicQueueVerification.VerifyMusicQueueMatchesOriginalRing),
+            SuperMetroid.Verification.Audio.MusicQueueVerification.VerifyMusicQueueMatchesOriginalRing),
         new(nameof(VerifyDoorOrientationDomain), () => VerifyDoorOrientationDomain()),
         new(nameof(VerifyRgbColorDomain), () => VerifyRgbColorDomain()),
         new(nameof(VerifyBabyMetroidFatalBlowShake), () => VerifyBabyMetroidFatalBlowShake()),

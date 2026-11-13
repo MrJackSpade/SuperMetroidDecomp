@@ -39,6 +39,7 @@ public static class SaveRamCodec
     /// <param name="image">The exact 8-KiB SRAM image.</param>
     /// <param name="maps">Installed stock map rules that unpack each valid slot's explored map.</param>
     /// <exception cref="ArgumentException"><paramref name="image"/> is not exactly 8 KiB.</exception>
+    /// <exception cref="InvalidDataException">A valid slot's clock words are not a reading of the game clock.</exception>
     public static SaveSlotStore Decode(ReadOnlySpan<byte> image, IAreaMapSource maps)
     {
         Ensure.LengthEqual(image, SaveRamLayout.ImageByteCount);
@@ -96,9 +97,18 @@ public static class SaveRamCodec
         DecodePayload(Payload(image, slot), slot, maps);
 
     /// <summary>Decodes one native slot payload into the slot record <see cref="SaveSlotStore"/> holds.</summary>
+    /// <exception cref="InvalidDataException">The payload's clock words are not a reading of the game clock.</exception>
     internal static SuperMetroidSaveSlot DecodePayload(ReadOnlySpan<byte> payload, int slot, IAreaMapSource maps)
     {
         Ensure.LengthEqual(payload, SaveRamLayout.SlotByteCount);
+        int frames = ReadWord(payload, SaveRamLayout.GameTimeFramesOffset);
+        int seconds = ReadWord(payload, SaveRamLayout.GameTimeSecondsOffset);
+        int minutes = ReadWord(payload, SaveRamLayout.GameTimeMinutesOffset);
+        int hours = ReadWord(payload, SaveRamLayout.GameTimeHoursOffset);
+        // The game's clock words hold only the clock's own domain: every update rolls each component over at its unit and
+        // saturates the hours, so words outside it are no save the game wrote.
+        if (!GameTimeState.IsInDomain(frames, seconds, minutes, hours))
+            throw new InvalidDataException($"Save slot {slot}'s clock words {hours}:{minutes}:{seconds}.{frames} are not a reading of the game clock.");
         return new SuperMetroidSaveSlot(
             Slot: slot,
             EquippedItems: SamusEquipmentWordCodec.FromSavedEquipmentWord(ReadWord(payload, SaveRamLayout.EquippedItemsOffset)),
@@ -117,10 +127,10 @@ public static class SaveRamCodec
             HudItem: SaveSlotNumbering.SavedHudItem(ReadWord(payload, SaveRamLayout.HudItemOffset)),
             MaxReserveEnergy: SamusCountWords.Decode(ReadWord(payload, SaveRamLayout.MaxReserveEnergyOffset)),
             ReserveEnergy: SamusCountWords.Decode(ReadWord(payload, SaveRamLayout.ReserveEnergyOffset)),
-            GameTimeFrames: ReadWord(payload, SaveRamLayout.GameTimeFramesOffset),
-            GameTimeSeconds: ReadWord(payload, SaveRamLayout.GameTimeSecondsOffset),
-            GameTimeMinutes: ReadWord(payload, SaveRamLayout.GameTimeMinutesOffset),
-            GameTimeHours: ReadWord(payload, SaveRamLayout.GameTimeHoursOffset),
+            GameTimeFrames: frames,
+            GameTimeSeconds: seconds,
+            GameTimeMinutes: minutes,
+            GameTimeHours: hours,
             Progression: DecodeProgression(payload, maps),
             StartupRoute: SuperMetroid.AssetExtraction.Progression.SaveLoadingGameStateCodec.Route(ReadWord(payload, SaveRamLayout.LoadingGameStateOffset)),
             Checkpoint: LoadStationNumberCodec.Decode(

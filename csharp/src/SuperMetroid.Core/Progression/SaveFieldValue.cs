@@ -1,10 +1,10 @@
 namespace SuperMetroid.Core.Progression;
 
 /// <summary>
-/// The range of the counters a save copies unchanged: the item-load counter and the four game-clock components. Saves
-/// carry these as <see cref="int"/> in <c>[0, <see cref="MaximumValue"/>]</c>, so every value a save holds survives a
-/// round trip exactly. The range is load-bearing gameplay: the item-load counter and each game-clock component go from
-/// <see cref="MaximumValue"/> back to zero when the game advances them, and the clock's value decides which ending plays.
+/// The range of the counter a save copies unchanged: the item-load counter. Saves carry it as <see cref="int"/> in
+/// <c>[0, <see cref="MaximumValue"/>]</c>, so every value a save holds survives a round trip exactly. The range is
+/// load-bearing gameplay: the item-load counter goes from <see cref="MaximumValue"/> back to zero when the game advances
+/// it. The game clock holds its own domain instead (<see cref="GameTimeState.IsInDomain"/>, #1692).
 /// </summary>
 public static class SaveFieldValue
 {

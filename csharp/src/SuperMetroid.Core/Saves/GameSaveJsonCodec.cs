@@ -270,9 +270,8 @@ public static class GameSaveJsonCodec
             throw new InvalidDataException(
                 $"slots[{expectedSlot}].resources contains a current value above its maximum");
         }
-        if (slot.GameTime.Frames is < 0 or > 59 || slot.GameTime.Seconds is < 0 or > 59 ||
-            slot.GameTime.Minutes is < 0 or > 59 || slot.GameTime.Hours is < 0 or > 99)
-            throw new InvalidDataException($"slots[{expectedSlot}].gameTime is outside retail ranges");
+        if (!GameTimeState.IsInDomain(slot.GameTime.Frames, slot.GameTime.Seconds, slot.GameTime.Minutes, slot.GameTime.Hours))
+            throw new InvalidDataException($"slots[{expectedSlot}].gameTime is not a reading of the game clock");
         if ((slot.Inventory.CollectedItems & ~AllEquipmentFlags) != SamusEquipmentFlags.None ||
             (slot.Inventory.EquippedItems & ~AllEquipmentFlags) != SamusEquipmentFlags.None ||
             (slot.Inventory.CollectedBeams & ~AllBeamFlags) != SamusBeamFlags.None ||

@@ -41,27 +41,81 @@ internal static class GameTimeVerification
         AssertEqual(59, snapshot.GameTimeMinutes, "save captures game-time minutes");
         AssertEqual(99, snapshot.GameTimeHours, "save captures game-time hours");
 
-        // A loaded save may hold any save-field value; the clock accepts it and steps it as the cartridge does.
-        time.Load(frames: 65535, seconds: 0, minutes: 0, hours: 150);
-        AssertEqual(65535, time.Frames, "game time loads a corrupt frame count unchanged");
-        AssertEqual(150, time.Hours, "game time loads a corrupt hour unchanged");
-        AssertThrows<ArgumentOutOfRangeException>(() => time.Load(frames: 65536, seconds: 0, minutes: 0, hours: 0),
-            "game time rejects a component past a save field");
-        AssertThrows<ArgumentOutOfRangeException>(() => time.Load(frames: 0, seconds: 0, minutes: 0, hours: -1),
-            "game time rejects a negative component");
-        time.Step();
-        AssertEqual(59, time.Frames, "a corrupt hour saturates frames on the next step");
-        AssertEqual(59, time.Seconds, "a corrupt hour saturates seconds on the next step");
-        AssertEqual(59, time.Minutes, "a corrupt hour saturates minutes on the next step");
-        AssertEqual(99, time.Hours, "a corrupt hour saturates to 99 on the next step");
+        // The clock holds its own domain (#1692): a component outside it is rejected, never stepped.
+        foreach (OriginalClock outside in OutsideDomain)
+        {
+            string reading = $"{outside.Hours}:{outside.Minutes}:{outside.Seconds}.{outside.Frames}";
+            AssertTrue(!GameTimeState.IsInDomain(outside.Frames, outside.Seconds, outside.Minutes, outside.Hours), $"{reading} is no clock reading");
+            AssertThrows<ArgumentOutOfRangeException>(() => time.Load(outside.Frames, outside.Seconds, outside.Minutes, outside.Hours),
+                $"game time rejects {reading}");
+        }
+        AssertEqual(59, time.Frames, "a rejected load leaves the clock unchanged");
 
-        time.Load(frames: 65535, seconds: 7, minutes: 3, hours: 1);
-        time.Step();
-        AssertEqual(0, time.Frames, "65535 frames wrap to zero as a sixteen-bit increment");
-        AssertEqual(7, time.Seconds, "a wrapped frame count is below 60, so no second is added");
-        AssertEqual(3, time.Minutes, "a wrapped frame count leaves the minutes");
-        AssertEqual(1, time.Hours, "a wrapped frame count leaves the hours");
+        // Every reading of the clock steps as the original's clock does: from 0:00:00.00 the clock passes through each reading
+        // once, in order, and saturates at the last.
+        time.Load(frames: 0, seconds: 0, minutes: 0, hours: 0);
+        var original = new OriginalClock(0, 0, 0, 0);
+        int readings = 0;
+        bool saturated = false;
+        while (!saturated)
+        {
+            readings++;
+            OriginalClock expected = OriginalClock.Step(original);
+            time.Step();
+            if (time.Frames != expected.Frames || time.Seconds != expected.Seconds ||
+                time.Minutes != expected.Minutes || time.Hours != expected.Hours)
+            {
+                throw new InvalidOperationException(
+                    $"{original} steps to {time.Hours}:{time.Minutes}:{time.Seconds}.{time.Frames}; the original's clock steps it to {expected}.");
+            }
+            saturated = expected.Frames == original.Frames && expected.Hours == original.Hours &&
+                expected.Seconds == original.Seconds && expected.Minutes == original.Minutes;
+            original = expected;
+        }
+        AssertTrue(GameTimeState.IsInDomain(original.Frames, original.Seconds, original.Minutes, original.Hours),
+            "the clock saturates at a reading of its domain");
+        AssertEqual(100 * 60 * 60 * 60, readings, "every reading of the clock was stepped");
 
-        Console.WriteLine("  Game time: 60-Hz rollover, 99:59 saturation, and SRAM capture agree.");
+        Console.WriteLine("  Game time: 60-Hz rollover, 99:59 saturation, domain rejection, every reading against the original's clock, and SRAM capture agree.");
+    }
+
+    /// <summary>Clock components just outside the clock's domain, one component at a time, and a save word's largest value.</summary>
+    private static readonly OriginalClock[] OutsideDomain =
+    [
+        new(60, 0, 0, 0), new(0, 60, 0, 0), new(0, 0, 60, 0), new(0, 0, 0, 100),
+        new(-1, 0, 0, 0), new(0, -1, 0, 0), new(0, 0, -1, 0), new(0, 0, 0, -1),
+        new(ushort.MaxValue, 0, 0, 0), new(0, 0, 0, ushort.MaxValue),
+    ];
+
+    /// <summary>
+    /// The four components of a clock reading, and a transcription of the original's clock step: each component a word,
+    /// incremented and compared by its sign against 60, the hours saturating every component once they read 100 or more.
+    /// </summary>
+    private readonly record struct OriginalClock(int Frames, int Seconds, int Minutes, int Hours)
+    {
+        /// <summary>One step of the original's clock.</summary>
+        internal static OriginalClock Step(OriginalClock clock)
+        {
+            ushort frames = (ushort)clock.Frames;
+            ushort seconds = (ushort)clock.Seconds;
+            ushort minutes = (ushort)clock.Minutes;
+            ushort hours = (ushort)clock.Hours;
+            if ((short)(++frames - 60) >= 0)
+            {
+                frames = 0;
+                if ((short)(++seconds - 60) >= 0)
+                {
+                    seconds = 0;
+                    if ((short)(++minutes - 60) >= 0)
+                    {
+                        minutes = 0;
+                        ++hours;
+                    }
+                }
+            }
+            if ((short)(hours - 100) >= 0)
+                return new OriginalClock(59, 59, 59, 99);
+            return new OriginalClock(frames, seconds, minutes, hours);
+        }
     }
 }

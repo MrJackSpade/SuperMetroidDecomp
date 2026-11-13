@@ -60,8 +60,8 @@ public sealed class SamusSuitPickupState
     /// <summary>
     /// The beam's inclusive left screen column while it is a column or centre line (the uniform, curved,
     /// dissipating and finishing stages); only X is meaningful. It always lies across the screen's width
-    /// (<see cref="ScreenColumn"/>): the widening stops its edges at the screen's sides, and the dissipation wraps them
-    /// round the row (<see cref="WrappedColumn"/>).
+    /// (<see cref="ScreenColumn"/>): the widening stops its edges at the screen's sides, and the dissipation carries them
+    /// round the row (<see cref="SuitPickupClosingLineWrap"/>).
     /// </summary>
     private Position16<ScreenPixels> _lightBeamLeft;
 
@@ -349,14 +349,12 @@ public sealed class SamusSuitPickupState
     /// <summary>Closes the single remaining center row until the threshold ends the effect.</summary>
     private void StepLightBeamDissipates()
     {
-        // The edges are screen columns that wrap around the row: the starting left edge at the rightmost column wraps
-        // to 7 on the first call, which keeps the line closing until the left edge climbs back past 112.
-        int left = WrappedColumn(_lightBeamLeft.X + 8);
-        int right = WrappedColumn(_lightBeamRight.X - 8);
+        int left = SuitPickupClosingLineWrap.NarrowedLeft(_lightBeamLeft.X);
+        int right = SuitPickupClosingLineWrap.NarrowedRight(_lightBeamRight.X);
         _lightBeamLeft = ScreenColumn(left);
         _lightBeamRight = ScreenColumn(right);
         Beam = new(SamusSuitPickupBeamShape.CenterLine, _lightBeamLeft, _lightBeamRight, 0);
-        if (left is >= 112 and < 240)
+        if (left >= 112)
             Stage = SamusSuitPickupStage.Finish;
     }
 
@@ -388,15 +386,6 @@ public sealed class SamusSuitPickupState
     /// </summary>
     private static Position16<ScreenPixels> ScreenColumn(int column) =>
         Position16<ScreenPixels>.Of(Ensure.BetweenInclusive(0, SuitPickupBeamDefinitions.RightmostColumn, column), 0);
-
-    /// <summary>
-    /// The screen column <paramref name="column"/> wraps to within the row: an edge moved past either side of the
-    /// screen continues from the other side. Gameplay-observable: the dissipation starts its left edge at the
-    /// rightmost column, and only because the first narrowing carries it round to column 7 does the line keep closing
-    /// until the left edge climbs back past 112, which is when the pickup finishes and releases Samus.
-    /// </summary>
-    private static int WrappedColumn(int column) =>
-        (column % ScreenGeometry.ScreenWidthPixels + ScreenGeometry.ScreenWidthPixels) % ScreenGeometry.ScreenWidthPixels;
 
     /// <summary>Raises each channel by two toward the white reveal colour.</summary>
     private void AdvanceColorTowardWhite() =>

@@ -27,10 +27,11 @@ internal static class SaveSlotRetention
         int maxReserveEnergy = Kept(snapshot.MaxReserveEnergy), reserveEnergy = Kept(snapshot.ReserveEnergy);
         int reserveMissiles = Kept(snapshot.ReserveMissiles);
         int loadedItemCount = SaveFieldValue.Require(snapshot.LoadedItemCount, nameof(snapshot.LoadedItemCount));
-        int gameTimeFrames = SaveFieldValue.Require(snapshot.GameTimeFrames, nameof(snapshot.GameTimeFrames));
-        int gameTimeSeconds = SaveFieldValue.Require(snapshot.GameTimeSeconds, nameof(snapshot.GameTimeSeconds));
-        int gameTimeMinutes = SaveFieldValue.Require(snapshot.GameTimeMinutes, nameof(snapshot.GameTimeMinutes));
-        int gameTimeHours = SaveFieldValue.Require(snapshot.GameTimeHours, nameof(snapshot.GameTimeHours));
+        if (!GameTimeState.IsInDomain(snapshot.GameTimeFrames, snapshot.GameTimeSeconds, snapshot.GameTimeMinutes, snapshot.GameTimeHours))
+        {
+            throw new InvalidOperationException(
+                $"Save clock {snapshot.GameTimeHours}:{snapshot.GameTimeMinutes}:{snapshot.GameTimeSeconds}.{snapshot.GameTimeFrames} is not a reading of the game clock.");
+        }
 
         LoadStation checkpoint = Ensure.NotNull(snapshot.Checkpoint);
         PersistentProgress progression = ExploredMapStorage.Retained(snapshot.Progress, maps);
@@ -53,10 +54,10 @@ internal static class SaveSlotRetention
             HudItem: hudItem,
             MaxReserveEnergy: maxReserveEnergy,
             ReserveEnergy: reserveEnergy,
-            GameTimeFrames: gameTimeFrames,
-            GameTimeSeconds: gameTimeSeconds,
-            GameTimeMinutes: gameTimeMinutes,
-            GameTimeHours: gameTimeHours,
+            GameTimeFrames: snapshot.GameTimeFrames,
+            GameTimeSeconds: snapshot.GameTimeSeconds,
+            GameTimeMinutes: snapshot.GameTimeMinutes,
+            GameTimeHours: snapshot.GameTimeHours,
             Progression: progression,
             StartupRoute: snapshot.StartupRoute,
             Checkpoint: checkpoint)

@@ -8,16 +8,17 @@ At runtime the saves are `SaveSlotStore` state: `GameSaveJsonCodec` maps the doc
 store, and the address space has no SRAM. `SaveRamCodec` rebuilds the native SRAM image from the store only at
 the import and export boundaries: legacy `.srm`, recording `InitialSaveRam` and recorder seeds.
 
-The four previously omitted meanings are:
+The previously omitted meanings are:
 
 | JSON field | Native meaning | Runtime owner |
 | --- | --- | --- |
 | `slots[].resources.reserveMissiles` | `$09D8`, excess missile accumulator | `SamusState.ReserveMissiles` |
 | `slots[].japaneseText` | `$09E2`, alternate text option | Options and runtime language setting |
-| `slots[].loadedItemCount` | `$7E:D91A`, cumulative item PLM setup count, wrapping at 65536 | `SharedGameState`; incremented on item setup, including already collected items |
 | `gameCompleted` | Exact twelve-byte `supermetroid` signature at `$70:1FE0` | Ending final-message transition; fourth attract-demo set requires this and a valid slot |
 
-The item-load counter is **not** collected item count or completion percentage.
+Schemas two through seven also carried `slots[].loadedItemCount`, the cartridge's cumulative item-PLM setup count at
+`$7E:D91A`. Nothing in the game reads it, so schema eight drops it (#1691): the upgrade discards it, `SaveRamCodec`
+does not decode the SRAM word and writes zero there, the word a new file saved from power-on holds.
 The signature has no NUL terminator: selected-slot metadata starts immediately after it.
 
 ## Complete native storage inventory
@@ -44,7 +45,7 @@ each occupies `065C` bytes. The per-slot ranges below are relative to its start.
 | `0138–0147` | Used save station/elevator bits |
 | `0148–0153` | Acquired map-station plane (including its existing reserved bits) |
 | `0154–0159` | Loading state, save station, area |
-| `015A–015B` | Item-load counter |
+| `015A–015B` | Item-load counter; not decoded, written as zero |
 | `015C–02A2` | Six packed map planes, represented as explored coordinates |
 | `02A3–065B` | Unused remainder of map allocation; zeroed |
 

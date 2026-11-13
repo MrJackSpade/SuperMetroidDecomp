@@ -55,19 +55,6 @@ public sealed class SharedGameState
         SavedStartupRoute = Enum.IsDefined(route) ? route : throw new ArgumentOutOfRangeException(nameof(route), route, "Undefined startup route.");
 
     /// <summary>
-    /// Cumulative item room-object initializations, including repeat visits, 0 through 65,535. The count is saved as one save
-    /// field and wraps from 65,535 to zero when an item initializes, a wrap the saved value shows; the setter rejects
-    /// anything outside the field's range, so the producer that counts must apply that wrap.
-    /// </summary>
-    public int LoadedItemCount
-    {
-        get;
-        set => field = SaveFieldValue.IsInRange(value)
-            ? value
-            : throw new ArgumentOutOfRangeException(nameof(value), value, "The loaded-item count is a save field.");
-    }
-
-    /// <summary>
     /// Applies the Spacetime Beam's progression overwrite (#1318, #1330, #1474, #1475): every story event, boss, item, door,
     /// station and map the overwrite decides takes the state it gives, and the saved loading state when the overwrite
     /// reaches it.

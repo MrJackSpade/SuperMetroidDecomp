@@ -106,12 +106,12 @@ internal static class SaveRamCodecVerification
     }
 
     /// <summary>
-    /// The slot fields saves now carry as <see cref="int"/> (item-load counter, clock, dispatcher route and checkpoint)
-    /// hold every value their own domain does: the item-load counter's range ends and the clock's latest reading survive
-    /// SRAM, store and SRAM again byte for byte, a value past its domain is rejected instead of wrapping into the image, and
-    /// an imported image whose clock words lie outside the clock's domain is rejected on decode (#1692). The debug build's
-    /// placement-mode word and the never-read word after it always encode as the words the game's own saves hold, whatever
-    /// an imported image held there.
+    /// The slot fields saves now carry as <see cref="int"/> (clock, dispatcher route and checkpoint) hold every value their
+    /// own domain does: the clock's latest reading survives SRAM, store and SRAM again byte for byte, a value past its
+    /// domain is rejected instead of wrapping into the image, and an imported image whose clock words lie outside the
+    /// clock's domain is rejected on decode (#1692). The debug build's placement-mode word, the never-read word after it
+    /// and the item set-up count nothing reads always encode as the words the port's saves hold, whatever an imported
+    /// image held there (#1691).
     /// </summary>
     internal static void VerifyWidenedSlotFieldsRoundTrip()
     {
@@ -119,7 +119,6 @@ internal static class SaveRamCodecVerification
         var written = new SaveSlotStore(maps);
         SuperMetroidSaveSnapshot extremes = Snapshot(health: 61, area: AreaId.Brinstar) with
         {
-            LoadedItemCount = SaveFieldValue.MaximumValue,
             StartupRoute = SaveLoadingGameState.CeresDestruction,
             GameTimeFrames = 59,
             GameTimeSeconds = 0,
@@ -132,16 +131,19 @@ internal static class SaveRamCodecVerification
         AssertTrue(SaveRamCodec.Encode(decoded, maps).SequenceEqual(image),
             "SRAM -> store -> SRAM keeps the full-range slot fields byte for byte");
         SuperMetroidSaveSlot slot = decoded.ReadSlot(0) ?? throw new InvalidOperationException("The full-range slot failed its checksums.");
-        AssertEqual(SaveFieldValue.MaximumValue, slot.LoadedItemCount, "the item-load counter decodes its largest value");
         AssertEqual(SaveRamLayout.DebugFlagSavedWord, SaveRamCodec.ReadSlotWord(image, 0, SaveRamLayout.DebugFlagOffset),
             "a save holds the placement-mode word a new file stores");
         AssertEqual(SaveRamLayout.NewFileMarkerSavedWord, SaveRamCodec.ReadSlotWord(image, 0, SaveRamLayout.NewFileMarkerOffset),
             "a save holds the never-read word a new file stores");
-        // An imported image whose two unread words hold values the game never writes re-encodes with the game's words.
+        AssertEqual(SaveRamLayout.LoadedItemCountSavedWord, SaveRamCodec.ReadSlotWord(image, 0, SaveRamLayout.LoadedItemCountOffset),
+            "a save holds the item set-up count a new file saved from power-on holds");
+        // An imported image whose unread words hold other values re-encodes with the port's words.
         byte[] importedPayload = SaveRamCodec.EncodePayload(SaveRamCodec.ToSnapshot(slot), maps);
         importedPayload[SaveRamLayout.DebugFlagOffset] = byte.MaxValue;
         importedPayload[SaveRamLayout.DebugFlagOffset + 1] = byte.MaxValue;
         importedPayload[SaveRamLayout.NewFileMarkerOffset] = 0;
+        importedPayload[SaveRamLayout.LoadedItemCountOffset] = 0x21;
+        importedPayload[SaveRamLayout.LoadedItemCountOffset + 1] = 0x43;
         byte[] importedImage = (byte[])image.Clone();
         SaveRamCodec.WriteSlot(importedImage, 0, importedPayload);
         AssertTrue(SaveRamCodec.Encode(SaveRamCodec.Decode(importedImage, maps), maps).SequenceEqual(image),
@@ -175,12 +177,9 @@ internal static class SaveRamCodecVerification
                     $"an imported clock word {word} at slot offset {offset} outside the clock's domain is rejected");
             }
         }
-        AssertEqual(SaveFieldValue.MaximumValue, SaveRamCodec.ReadSlotWord(image, 0, SaveRamLayout.LoadedItemCountOffset),
-            "the item-load counter's SRAM field holds the counter's largest value");
 
         foreach ((string field, SuperMetroidSaveSnapshot outOfRange) in new VerifyWidenedSlotFieldsRoundTripCase[]
                  {
-                     new VerifyWidenedSlotFieldsRoundTripCase("item-load counter", extremes with { LoadedItemCount = SaveFieldValue.MaximumValue + 1 }),
                      new VerifyWidenedSlotFieldsRoundTripCase("clock minutes", extremes with { GameTimeMinutes = -1 }),
                      new VerifyWidenedSlotFieldsRoundTripCase("clock frames", extremes with { GameTimeFrames = 60 }),
                      new VerifyWidenedSlotFieldsRoundTripCase("clock hours", extremes with { GameTimeHours = 100 }),
@@ -194,18 +193,12 @@ internal static class SaveRamCodecVerification
     }
 
     /// <summary>
-    /// The progression owner's saved fields: the loaded-item count accepts exactly a save field's range, the saved startup route
-    /// only a defined route, and an area's boss state holds the named flags a save image's boss byte stores; the bits no routine
+    /// The progression owner's saved fields: the saved startup route accepts only a defined route, and an area's boss state holds the named flags a save image's boss byte stores; the bits no routine
     /// tests are not progress (#1475).
     /// </summary>
     internal static void VerifyProgressionSavedFields()
     {
-        var system = new SharedGameState(new SharedRandom()) { LoadedItemCount = SaveFieldValue.MaximumValue };
-        AssertEqual(SaveFieldValue.MaximumValue, system.LoadedItemCount, "the loaded-item count holds a save field's largest value");
-        AssertThrows<ArgumentOutOfRangeException>(() => system.LoadedItemCount = SaveFieldValue.MaximumValue + 1,
-            "a loaded-item count past a save field is rejected instead of wrapping");
-        AssertThrows<ArgumentOutOfRangeException>(() => system.LoadedItemCount = -1, "a negative loaded-item count is rejected");
-        AssertEqual(SaveFieldValue.MaximumValue, system.LoadedItemCount, "a rejected count leaves the count unchanged");
+        var system = new SharedGameState(new SharedRandom());
         AssertThrows<ArgumentOutOfRangeException>(() => system.LoadSavedStartupRoute((SaveLoadingGameState)(-1)),
             "an undefined startup route is rejected");
 

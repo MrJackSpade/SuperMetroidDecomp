@@ -37,7 +37,7 @@ internal static class SaveSchemaTranslationVerification
             SelectedHudItem = HudItem.PowerBomb,
             ReserveTankMode = ReserveTankMode.Manual,
         };
-        var system = new SharedGameState(new SharedRandom()) { LoadedItemCount = 65535 };
+        var system = new SharedGameState(new SharedRandom());
         // Progress in every set schema two listed by table position, so its upgrade is exercised (#1475).
         system.SetBossBits(AreaId.Brinstar, BossBits.AreaBoss | BossBits.AreaTorizo);
         system.MarkSaveStationUsed(LoadStationDefinitions.CrocomireSave);
@@ -55,7 +55,7 @@ internal static class SaveSchemaTranslationVerification
         AssertTrue(!json.Contains("preservedUntranslatedSram", StringComparison.Ordinal) &&
             json.Contains("\"gameCompleted\": true", StringComparison.Ordinal) &&
             json.Contains("\"reserveMissiles\": 27", StringComparison.Ordinal) &&
-            json.Contains("\"loadedItemCount\": 65535", StringComparison.Ordinal) &&
+            !json.Contains("loadedItemCount", StringComparison.Ordinal) &&
             json.Contains("\"japaneseText\": true", StringComparison.Ordinal), "schema two contains named missing state and no SRAM blob");
         SaveSlotStore targetSaves = GameSaveJsonCodec.ToStore(GameSaveJsonCodec.Deserialize(json), RetailPresentationFixture());
         AssertSameBytes(SaveRamCodec.Encode(targetSaves, RetailPresentationFixture()), SaveRamCodec.Encode(ram, RetailPresentationFixture()),
@@ -65,7 +65,6 @@ internal static class SaveSchemaTranslationVerification
         var restoredSystem = new SharedGameState(new SharedRandom());
         (loaded ?? throw new InvalidOperationException("Verification requires loaded.")).ApplyTo(restoredSamus, restoredSystem);
         AssertEqual(27, restoredSamus.ReserveMissiles, "reserve missiles reach the live Samus owner");
-        AssertEqual(65535, restoredSystem.LoadedItemCount, "item load count reaches live progression owner");
         AssertTrue(loaded.JapaneseText && targetSaves.HasCompletedGame, "language and completion survive save load");
 
         Suite(nameof(VerifyNamedSaveRuntime), () => VerifyNamedSaveRuntime(ram));
@@ -98,6 +97,21 @@ internal static class SaveSchemaTranslationVerification
             AssertEqual(route, (upgradedThree.Slots[0] ?? throw new InvalidOperationException("The upgraded save lost slot 0.")).StartupRoute,
                 $"schema three's loading-state word ${word:X4} becomes its startup route");
         }
+
+        // A schema-seven save carries the count of item set-ups, which nothing in the game reads (#1691); the current
+        // schema's strict reader rejects it, and the save upgrades to the same saves without it.
+        JsonObject schemaSeven = RequiredJson.Parse(json).AsObject();
+        schemaSeven["schemaVersion"] = 7;
+        ToSchemaSevenSlots(schemaSeven);
+        JsonObject sevenAsCurrent = RequiredJson.Parse(schemaSeven.ToJsonString()).AsObject();
+        sevenAsCurrent["schemaVersion"] = GameSaveJsonFormat.SchemaVersion;
+        AssertInvalidJsonSave(sevenAsCurrent.ToJsonString(), "loadedItemCount");
+        GameSaveJsonDocument upgradedSeven = LegacyGameSaveJson.Deserialize(schemaSeven.ToJsonString(), "game save", out bool migratedSeven);
+        AssertTrue(migratedSeven, "a schema-seven save is upgraded");
+        AssertTrue(!GameSaveJsonCodec.Serialize(upgradedSeven).Contains("loadedItemCount", StringComparison.Ordinal),
+            "a schema-seven save's item set-up count is not carried");
+        AssertSameBytes(SaveRamCodec.Encode(GameSaveJsonCodec.ToStore(upgradedSeven, RetailPresentationFixture()), RetailPresentationFixture()),
+            SaveRamCodec.Encode(ram, RetailPresentationFixture()), "a schema-seven save upgrades to the same saves");
 
         // A schema-six save keeps the HUD selection and reserve-tank mode as numbers and carries the debug build's
         // placement setting and the never-read new-file word (#1605); it upgrades to the names and the same saves,
@@ -184,6 +198,12 @@ internal static class SaveSchemaTranslationVerification
         slot.Required("resources")["health"] = 42; // Deliberately differs from native image health 99.
         byte[] native = SaveRamCodec.Encode(ram, RetailPresentationFixture());
         native[0x1a00] = 0xa5; // Unused SRAM, outside all slots and metadata.
+        // The image's item set-up count, which schema one read from the image, is not carried (#1691).
+        byte[] countedPayload = SaveRamCodec.EncodePayload(SaveRamCodec.ToSnapshot(ram.ReadSlot(0) ??
+            throw new InvalidOperationException("Verification requires slot 0.")), RetailPresentationFixture());
+        countedPayload[SaveRamLayout.LoadedItemCountOffset] = 0x21;
+        countedPayload[SaveRamLayout.LoadedItemCountOffset + 1] = 0x43;
+        SaveRamCodec.WriteSlot(native, 0, countedPayload);
         var pages = new JsonArray();
         for (int offset = 0; offset < native.Length; offset += 256)
             pages.Add(new JsonObject { ["offset"] = $"0x{offset:X4}", ["bytes"] = Convert.ToHexString(native.AsSpan(offset, 256)) });
@@ -195,7 +215,9 @@ internal static class SaveSchemaTranslationVerification
         var imported = importedSaves.ReadSlot(0);
         AssertEqual(42, (imported ?? throw new InvalidOperationException("Verification requires imported.")).Health, "legacy named health overrides stale raw image");
         AssertEqual(27, imported.ReserveMissiles, "legacy importer decodes reserve missile word");
-        AssertEqual(65535, imported.LoadedItemCount, "legacy importer decodes item load word");
+        AssertEqual(SaveRamLayout.LoadedItemCountSavedWord,
+            SaveRamCodec.ReadSlotWord(SaveRamCodec.Encode(importedSaves, RetailPresentationFixture()), 0, SaveRamLayout.LoadedItemCountOffset),
+            "legacy importer does not carry the image's item set-up count");
         AssertTrue(imported.JapaneseText && importedSaves.HasCompletedGame, "legacy importer decodes language and completion");
         AssertEqual(0, SaveRamCodec.Encode(importedSaves, RetailPresentationFixture())[0x1a00], "confirmed unused bytes are not perpetuated");
         AssertTrue(!GameSaveJsonCodec.Serialize(upgraded).Contains("preservedUntranslatedSram", StringComparison.Ordinal), "legacy import never re-emits its blob");
@@ -259,12 +281,25 @@ internal static class SaveSchemaTranslationVerification
     }
 
     /// <summary>
-    /// Rewrites each slot as schema six wrote it (#1605): the HUD selection as its place in the selection ring, the
+    /// Rewrites each slot as schema seven wrote it (#1691): with the count of item set-ups, here the largest a save field holds.
+    /// </summary>
+    private static void ToSchemaSevenSlots(JsonObject root)
+    {
+        foreach (JsonNode? slotNode in root.Required("slots").AsArray())
+        {
+            if (slotNode is null) continue;
+            slotNode.AsObject()["loadedItemCount"] = 65535;
+        }
+    }
+
+    /// <summary>
+    /// Rewrites each slot as schema seven wrote it (<see cref="ToSchemaSevenSlots"/>), then as schema six wrote it (#1605): the HUD selection as its place in the selection ring, the
     /// reserve-tank mode as none, auto or manual counted from zero, and the two words a new file sets, holding the one
     /// a new file stores.
     /// </summary>
     private static void ToSchemaSixSlots(JsonObject root)
     {
+        ToSchemaSevenSlots(root);
         foreach (JsonNode? slotNode in root.Required("slots").AsArray())
         {
             if (slotNode is null) continue;
@@ -347,7 +382,7 @@ internal static class SaveSchemaTranslationVerification
         }
     }
 
-    /// <summary>Confirms translated completion and item-load fields are consumed by the live frontend.</summary>
+    /// <summary>Confirms the translated completion field is consumed by the live frontend.</summary>
     private static void VerifyNamedSaveRuntime(SaveSlotStore ram)
     {
         // Confirm the translated completion bit is consumed and produced by the frontend.
@@ -383,16 +418,6 @@ internal static class SaveSchemaTranslationVerification
         frontend.Step(0);
         AssertEqual(1, writes, "final-message idle does not repeatedly save");
 
-        var fixtureBus = new TestAddressSpace();
-        SeedCollectibleRom(fixtureBus);
-        // One representative for each native setup path; precollected items still count.
-        var exposed = LoadCollectible(fixtureBus, 0xeed7, 0, precollected: false);
-        var shot = LoadCollectible(fixtureBus, 0xef7f, 0, precollected: true);
-        AssertEqual(1, exposed.System.LoadedItemCount, "exposed item setup increments saved counter");
-        AssertEqual(1, shot.System.LoadedItemCount, "collected shot-block setup increments saved counter");
-        shot.System.LoadedItemCount = ushort.MaxValue;
-        shot.RoomObjects.PopulationLoader.LoadRoomPopulation(new RoomObjectRoom(shot.Level, BgArtworkFixtures.For(new SnesVram()), shot.System, AreaId.Crateria), SuperMetroid.TestSupport.VerificationImporters.RoomObjectPopulationImporter.Read(fixtureBus, 0x9000), new RoomObjectServices { Samus = new FixtureRoomSamus(() => shot.Samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
-        AssertEqual(0, shot.System.LoadedItemCount, "saved item-load counter wraps as a native word");
         ram.SelectSlot(0);
     }
 

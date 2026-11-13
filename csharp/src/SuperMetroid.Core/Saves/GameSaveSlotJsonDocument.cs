@@ -46,12 +46,6 @@ public sealed record GameSaveSlotJsonDocument
     /// <summary>Whether the alternate Japanese text setting is active.</summary>
     public required bool JapaneseText { get; init; }
 
-    /// <summary>
-    /// The cumulative count of item room objects set up, not a percentage. Gameplay wraps it to zero after
-    /// <see cref="SaveFieldValue.MaximumValue"/>; the save only carries the value it reached.
-    /// </summary>
-    public required int LoadedItemCount { get; init; }
-
     /// <summary>The startup route the save resumes by; a save without one resumes the main game.</summary>
     public SaveLoadingGameState StartupRoute { get; init; } = SaveLoadingGameState.MainGame;
 }

@@ -137,7 +137,6 @@ public static class GameSaveJsonCodec
         MoonwalkEnabled = slot.MoonwalkEnabled,
         IconCancelEnabled = slot.IconCancelEnabled,
         JapaneseText = slot.JapaneseText,
-        LoadedItemCount = slot.LoadedItemCount,
         StartupRoute = slot.StartupRoute,
         Progression = CaptureProgression(slot.Progression),
     };
@@ -176,7 +175,6 @@ public static class GameSaveJsonCodec
             MoonwalkEnabled = slot.MoonwalkEnabled,
             IconCancelEnabled = slot.IconCancelEnabled,
             JapaneseText = slot.JapaneseText,
-            LoadedItemCount = slot.LoadedItemCount,
             StartupRoute = slot.StartupRoute,
             EquippedItems = slot.Inventory.EquippedItems,
             CollectedItems = slot.Inventory.CollectedItems,
@@ -246,7 +244,6 @@ public static class GameSaveJsonCodec
             throw new InvalidDataException($"slots[{expectedSlot}].reserveMode names no reserve-tank mode");
         if (!Enum.IsDefined(slot.HudItem))
             throw new InvalidDataException($"slots[{expectedSlot}].hudItem names no HUD item");
-        RequireRange(slot.LoadedItemCount, SaveFieldValue.MaximumValue, expectedSlot, "loadedItemCount");
         if (!Enum.IsDefined(slot.StartupRoute))
             throw new InvalidDataException($"slots[{expectedSlot}].startupRoute names no startup route");
         SaveResourcesJsonDocument resources = slot.Resources;

@@ -512,7 +512,7 @@ internal sealed class ProjectileMotion
         if (block.CollisionType == RoomCollisionType.ShootableBlock &&
             block.Behavior.Reaction == BlockReactionDefinitions.CollectibleTrigger)
         {
-            _ = roomObjects?.CollectibleObjects.TryNotifyCollectibleProjectileHit(level.BlockAt(block.Index));
+            _ = roomObjects?.CollectibleObjects.TryNotifyCollectibleProjectileHit(block.At);
             return true;
         }
         if (block.CollisionType is RoomCollisionType.ShootableAir or RoomCollisionType.ShootableBlock)
@@ -562,9 +562,9 @@ internal sealed class ProjectileMotion
                 RoomCollisionType.ShootableBlock or
                 RoomCollisionType.VerticalExtension or
                 RoomCollisionType.BombableBlock => throw new InvalidDataException(
-                $"Invalid missile collision type {block.CollisionType} at block {block.Index}."),
+                $"Invalid missile collision type {block.CollisionType} at block {block.Position}."),
             _ => throw new InvalidDataException(
-                $"Invalid missile collision type {block.CollisionType} at block {block.Index}."),
+                $"Invalid missile collision type {block.CollisionType} at block {block.Position}."),
         };
     }
 

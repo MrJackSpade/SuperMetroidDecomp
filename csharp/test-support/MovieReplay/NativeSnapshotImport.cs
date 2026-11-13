@@ -83,10 +83,12 @@ internal static class NativeSnapshotImport
         // these from the pristine room header would no longer represent this movie frame.
         RoomLevelData level = runtime.Room.LevelData ?? throw new InvalidDataException(
             "The native Ridley checkpoint did not load room collision data.");
-        for (int index = 0; index < level.Size.X * level.Size.Y; index++)
+        // The native snapshot holds the room's level words and behaviour bytes row by row.
+        for (int index = 0; index < level.Size.Area; index++)
         {
-            level.SetTerrain(index, RoomLevelWordCodec.Decode(W(NativeSnapshotMemory.Level + index * sizeof(ushort))));
-            level.SetBehavior(index, RoomBlockBehaviorCodec.Decode(memory[NativeSnapshotMemory.Bts + index]));
+            Position16<RoomBlocks> block = level.Size.CellAtRowMajorIndex(index);
+            level.SetTerrain(block, RoomLevelWordCodec.Decode(W(NativeSnapshotMemory.Level + index * sizeof(ushort))));
+            level.SetBehavior(block, RoomBlockBehaviorCodec.Decode(memory[NativeSnapshotMemory.Bts + index]));
         }
 
         // Each live native object becomes a running colour effect. The handler visits its objects from the last down, so

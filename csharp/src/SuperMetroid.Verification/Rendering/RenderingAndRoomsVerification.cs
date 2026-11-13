@@ -783,7 +783,7 @@ internal static void VerifyRoomLevelData()
     var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(foreground, behavior, background), RoomLevelData.NothingBeyondGrid());
 
     RoomCollisionBlock block = level.GetCollisionBlock(new(1, 1));
-    AssertEqual(4, block.Index, "room collision row-major index");
+    AssertEqual(Position16<RoomBlocks>.Of(1, 1), block.Position, "room collision block position");
     AssertEqual(foreground[4], block.Terrain, "room collision reads the block's terrain");
     AssertEqual(RoomBlockBehaviorCodec.Decode(0x22), block.Behavior, "room collision reads the block's behaviour");
     AssertEqual(RoomCollisionType.GrappleBlock, block.CollisionType, "room collision kind");

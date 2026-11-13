@@ -34,7 +34,7 @@ internal static class LowerNorfairHandVerification
         runtime.StepFrame(0);
         var level = runtime.Room.LoadedLevelData;
         var hand = level.GetCollisionBlock(new(4, 8));
-        AssertTrue(runtime.RoomObjects.BlockReactions.TrySpawnProjectileShotBlock(level, level.BlockAt(hand.Index),
+        AssertTrue(runtime.RoomObjects.BlockReactions.TrySpawnProjectileShotBlock(level, hand.At,
             hand.Behavior, SamusProjectileType.Of(SamusProjectileFamily.PowerBomb), true), "power bomb breaks the retail hand cover");
         for (int frame = 0; frame < 30; frame++) runtime.StepFrame(0);
         hand = level.GetCollisionBlock(new(4, 8));
@@ -61,8 +61,8 @@ internal static class LowerNorfairHandVerification
         // only candidate is the hand block at (4, 8).
         int leftColumn = (samus.Kinematics.Position.X.Whole - samus.Kinematics.Radius.X) >> 4;
         int rightColumn = (samus.Kinematics.Position.X.Whole + samus.Kinematics.Radius.X - 1) >> 4;
-        AssertTrue(collision.Collided && leftColumn == hand.Index % level.Size.X &&
-            rightColumn == hand.Index % level.Size.X,
+        AssertTrue(collision.Collided && leftColumn == hand.At.X &&
+            rightColumn == hand.At.X,
             "downward morph contact lands on the actual hand tile");
         AssertTrue(runtime.System.HasEvent(StoryEvent.LowerNorfairChozoLoweredAcid), "hand sets native acid event");
         AssertTrue((runtime.Enemies.SlotTable.Slots[0].SpeciesState<ChozoStatueState>() ?? throw new InvalidOperationException("Verification requires the statue state.")).HandTriggered, "hand wakes statue");

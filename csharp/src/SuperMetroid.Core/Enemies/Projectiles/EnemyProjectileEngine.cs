@@ -471,21 +471,22 @@ internal sealed class EnemyProjectileEngine
             : projectile.Radius.X;
 
         // The block scan checks every room block crossed by the projectile's perpendicular
-        // diameter. The positive edge is inclusive, hence radius - 1; using +radius made
+        // diameter (EnemyProjectileBlockScan). The positive edge is inclusive, hence radius - 1; using +radius made
         // right/down projectiles collide one pixel earlier than their counterparts.
         // The edge wraps past the room coordinates' 65535, as the probe's block bounds check expects.
         int movementEdge = CoordinateAxis.Wrap(nextPosition +
             (movingNegative ? -movementRadius : movementRadius - 1));
-        int firstPerpendicularBlock = (perpendicularPosition - perpendicularRadius) >> 4;
-        int lastPerpendicularBlock = (perpendicularPosition + perpendicularRadius - 1) >> 4;
-        for (int block = firstPerpendicularBlock; block <= lastPerpendicularBlock; block++)
+        var scan = EnemyProjectileBlockScan.Across(
+            movementEdge,
+            CoordinateAxis.Wrap(perpendicularPosition - perpendicularRadius),
+            CoordinateAxis.Wrap(perpendicularPosition + perpendicularRadius - 1),
+            axis);
+        for (int tested = 0; tested <= scan.ExtraBlocks; tested++)
         {
-            int blockX = axis == Axis.Horizontal ? movementEdge >> 4 : block;
-            int blockY = axis == Axis.Horizontal ? block : movementEdge >> 4;
             if (ProjectileAxisProbeHitsRoom(
                     level,
                     projectile,
-                    new(CoordinateAxis.Wrap(blockX), CoordinateAxis.Wrap(blockY)),
+                    scan.Block(tested, level.Size.X),
                     axis,
                     movingNegative: movingNegative,
                     targetEdge: movementEdge,

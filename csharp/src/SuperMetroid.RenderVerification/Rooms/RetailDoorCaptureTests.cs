@@ -71,7 +71,7 @@ internal static class RetailDoorCaptureTests
         var level = runtime.Room.LoadedLevelData;
         for (int index = 0; index < level.Size.Area; index++)
         {
-            var block = level.GetCollisionBlockByIndex(index);
+            var block = level.GetCollisionBlock(level.Size.CellAtRowMajorIndex(index));
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
             var door = level.ResolveDoorCollision(block.Behavior, runtime.Player.IntroducedSamus.Pose.ForRoomCollision(), publishDoorSideEffects: false);
             if (door.Pointer != pointer) continue;

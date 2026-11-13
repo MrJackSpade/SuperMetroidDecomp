@@ -110,9 +110,10 @@ internal static class ShutterNativeArc
         var level = runtime.Room.LoadedLevelData;
         Word(0x7A5, level.Size.X);
         Word(0x7A7, level.Size.Y);
-        for (int i = 0; i < level.Size.X * level.Size.Y; i++)
+        for (int i = 0; i < level.Size.Area; i++)
         {
-            var block = level.GetCollisionBlockByIndex(i);
+            // The native capture holds the room's level words and behaviour bytes row by row.
+            var block = level.GetCollisionBlock(level.Size.CellAtRowMajorIndex(i));
             Word(0x10002 + i * 2, RoomLevelWordEncoder.Encode(block.Terrain));
             ram[0x16402 + i] = checked((byte)RoomBlockBehaviorCodec.Encode(block.Behavior));
         }

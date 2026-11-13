@@ -35,13 +35,15 @@ public static class XrayRevealMap
         for (int row = 0; row < XrayRevealArea.Rows; row++)
         for (int col = 0; col < XrayRevealArea.Columns; col++)
             Place(col, row, Copied(col, row));
-        int firstBlock = BlockScanCycle.RowStart(foregroundPosition.Y >> 4, level.Size.X) + (foregroundPosition.X >> 4);
+        // The reveal's lookups take the camera's row within the scan cycle and its column as it is, and reach each revealed
+        // block in the room's reading order, so a column past the room's width runs into the following rows.
+        var firstBlock = Position16<RoomBlocks>.Of(foregroundPosition.X >> 4, BlockScanCycle.Within(foregroundPosition.Y >> 4));
         for (int row = 0; row < XrayRevealArea.Rows; row++)
         {
-            int first = firstBlock + row * level.Size.X;
             // The prior column may own a 2-wide reveal crossing the left edge. Its
-            // right half is copied before this row's own commands overwrite it.
-            if (first != 0 && Lookup(first - 1) is { } predecessor)
+            // right half is copied before this row's own commands overwrite it; the room's first block has none.
+            if (RoomReadingOrder.Step(firstBlock, Offset16<RoomBlocks>.Of(-1, row), level.Size.X) is { } before &&
+                Lookup(before) is { } predecessor)
             {
                 if (predecessor.Command == XrayRevealCommand.CopySquare)
                     CopyMetatile(0, row + 1, predecessor.BottomRight);
@@ -50,11 +52,12 @@ public static class XrayRevealMap
             }
             for (int col = 0; col < XrayRevealArea.Columns; col++)
             {
-                int index = first + col;
-                if (Lookup(index) is not { } reveal) continue;
+                Position16<RoomBlocks> block = RoomReadingOrder.Step(firstBlock, Offset16<RoomBlocks>.Of(col, row), level.Size.X) ??
+                    throw new InvalidOperationException("A revealed block lies before the room's first block.");
+                if (Lookup(block) is not { } reveal) continue;
                 if (reveal.Command is XrayRevealCommand.HorizontalExtension or XrayRevealCommand.VerticalExtension)
                 {
-                    if (XrayRevealExtensions.Resolve(level, index, visuals) is { } replacement)
+                    if (XrayRevealExtensions.Resolve(level, block, visuals) is { } replacement)
                         CopyMetatile(col, row, replacement);
                     continue;
                 }
@@ -71,9 +74,9 @@ public static class XrayRevealMap
         }
         return result;
 
-        XrayRevealDefinition? Lookup(int index)
+        XrayRevealDefinition? Lookup(Position16<RoomBlocks> at)
         {
-            RoomCollisionBlock block = level.GetObjectCollisionBlockByIndex(index);
+            RoomCollisionBlock block = level.GetObjectCollisionBlock(at);
             return visuals.Apply(block.CollisionType, block.Behavior);
         }
         // The foreground block the revealed block lies over, mirrored as the level mirrors it.

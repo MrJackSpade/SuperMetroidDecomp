@@ -59,6 +59,14 @@ public readonly record struct WaveScanRead(int Block, bool StraddlesNext)
         return new WaveScanRead(place / HalvesPerBlock, place % HalvesPerBlock != 0);
     }
 
+    /// <summary>
+    /// The block the read starts in, as a position: <see cref="Block"/>'s place along the room's rows in the room's
+    /// reading order (<see cref="RoomReadingOrder"/>), in the room's columns; a row past the room's height is a block
+    /// beyond its grid.
+    /// </summary>
+    /// <param name="roomWidth">The room's width in blocks, one or more.</param>
+    public Position16<RoomBlocks> BlockIn(int roomWidth) => RoomReadingOrder.BlockAt(Block, roomWidth);
+
     /// <summary>A place of the scan within its cycle of halves.</summary>
     private static int WithinPlaces(int halves) => halves % HalfPlaces;
 }

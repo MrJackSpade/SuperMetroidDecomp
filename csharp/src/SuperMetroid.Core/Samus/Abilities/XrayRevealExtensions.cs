@@ -11,18 +11,18 @@ public static class XrayRevealExtensions
     /// X-ray extensions reveal only a terminal scroll-trigger block, not arbitrary linked terrain.
     /// </summary>
     /// <param name="level">The room whose extension chain is followed.</param>
-    /// <param name="blockIndex">The extension block the chain starts at.</param>
+    /// <param name="start">The extension block the chain starts at, in the room's columns.</param>
     /// <param name="visuals">The installed reveal blocks, which a terminal special-air block or a backward exit from the room shows.</param>
-    public static int? Resolve(RoomLevelData level, int blockIndex, InstalledXrayReveals visuals)
+    public static int? Resolve(RoomLevelData level, Position16<RoomBlocks> start, InstalledXrayReveals visuals)
     {
         Ensure.NotNull(level);
         Ensure.NotNull(visuals);
-        RoomCollisionBlock block = level.GetObjectCollisionBlockByIndex(blockIndex);
+        RoomCollisionBlock block = level.GetObjectCollisionBlock(start);
         if (block.CollisionType is not (RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension))
-            throw new ArgumentException("X-ray extension traversal requires an extension block.", nameof(blockIndex));
+            throw new ArgumentException("X-ray extension traversal requires an extension block.", nameof(start));
         if (block.Behavior.EndsExtension) return null;
-        int x = blockIndex % level.Size.X;
-        int y = blockIndex / level.Size.X;
+        int x = start.X;
+        int y = start.Y;
         bool vertical = block.CollisionType == RoomCollisionType.VerticalExtension;
         // Both entry points read the initial offset signed. Later reads are asymmetric: only the horizontal-extension
         // branch reads it signed again; the vertical branch reads a backward offset as a forward step of its distance
@@ -32,13 +32,13 @@ public static class XrayRevealExtensions
         while (true)
         {
             if (!visited.Add(new(Position16<RoomBlocks>.Of(x, y), vertical, step)))
-                throw new InvalidDataException($"Cyclic X-ray extension chain from block {blockIndex}.");
+                throw new InvalidDataException($"Cyclic X-ray extension chain from block {start}.");
             int coordinate = CoordinateAxis.Wrap((vertical ? y : x) + step);
             if (CoordinateAxis.AsSigned(coordinate) < 0) return visuals.ExtensionExitBlock;
             if (vertical) y = coordinate; else x = coordinate;
             // The block lookup takes Y's row within the scan cycle; X is then added, so it may legitimately spill into
             // the next row.
-            block = level.GetObjectCollisionBlockByIndex(CoordinateAxis.Wrap(BlockScanCycle.RowStart(y, level.Size.X) + x));
+            block = level.GetObjectCollisionBlock(BlockScanCycle.RevealLookupBlock(Position16<RoomBlocks>.Of(x, y), level.Size.X));
             if (block.CollisionType == RoomCollisionType.VerticalExtension)
             {
                 step = ForwardStep(block.Behavior.ExtensionOffset);

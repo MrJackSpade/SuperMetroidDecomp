@@ -874,7 +874,7 @@ public sealed class SamusBombProjectileSystem
         if (block.Behavior.Reaction == BlockReactionDefinitions.CollectibleTrigger &&
             block.CollisionType is RoomCollisionType.SpecialBlock or RoomCollisionType.ShootableBlock)
         {
-            _ = roomObjects?.CollectibleObjects.TryNotifyCollectibleProjectileHit(level.BlockAt(block.Index));
+            _ = roomObjects?.CollectibleObjects.TryNotifyCollectibleProjectileHit(block.At);
             return;
         }
 
@@ -887,10 +887,10 @@ public sealed class SamusBombProjectileSystem
             block.Behavior.Reaction == BlockReactionDefinitions.ResidentObjectTrigger)
         {
             if (roomObjects is null ||
-                !roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(level.BlockAt(block.Index), projectileType))
+                !roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(block.At, projectileType))
             {
                 throw new InvalidOperationException(
-                    $"Bombed resident-trigger block {block.Index} has no active room-object owner.");
+                    $"Bombed resident-trigger block {block.Position} has no active room-object owner.");
             }
             return;
         }
@@ -911,7 +911,7 @@ public sealed class SamusBombProjectileSystem
             }
             roomObjects.DoorObjects.TrySpawnBlueDoorOpening(
                 level,
-                level.BlockAt(block.Index),
+                block.At,
                 block.Behavior,
                 projectileType);
             return;
@@ -945,7 +945,7 @@ public sealed class SamusBombProjectileSystem
                 // nonnegative bombable behaviour within that table; a larger value would make
                 // the game read unrelated following data as a room-object header.
                 throw new InvalidDataException(
-                    $"Bombable block {block.Index} has behaviour ({block.Behavior}) outside " +
+                    $"Bombable block {block.Position} has behaviour ({block.Behavior}) outside " +
                     "the bomb-block reaction table.");
             }
             if (roomObjects is null)
@@ -962,7 +962,7 @@ public sealed class SamusBombProjectileSystem
             // or type-$0 word before the caller proceeds to its next border/cross member.
             roomObjects.BlockReactions.TrySpawnBombReactionBlock(
                 level,
-                level.BlockAt(block.Index),
+                block.At,
                 block.Behavior,
                 projectileType);
             return;
@@ -982,7 +982,7 @@ public sealed class SamusBombProjectileSystem
                 }
                 roomObjects.Gates.TrySpawnDownwardGateTrigger(
                     level,
-                    level.BlockAt(block.Index),
+                    block.At,
                     block.Behavior,
                     projectileType);
                 return;
@@ -1000,14 +1000,14 @@ public sealed class SamusBombProjectileSystem
                 !block.Behavior.Reaction.IsShotCollisionProbe)
             {
                 throw new InvalidDataException(
-                    $"Shootable block {block.Index} has behaviour ({block.Behavior}) outside " +
+                    $"Shootable block {block.Position} has behaviour ({block.Behavior}) outside " +
                     "the translated bomb-reaction table range.");
             }
             if (block.Behavior.Reaction.IsAreaSpecific &&
                 !block.Behavior.Reaction.IsAreaEntryBelow(8))
             {
                 throw new InvalidDataException(
-                    $"Area-dependent shootable block {block.Index} has behaviour " +
+                    $"Area-dependent shootable block {block.Position} has behaviour " +
                     $"({block.Behavior}) outside its eight-entry table.");
             }
             if (roomObjects is null)
@@ -1019,7 +1019,7 @@ public sealed class SamusBombProjectileSystem
 
             roomObjects.BlockReactions.TrySpawnProjectileShotBlock(
                 level,
-                level.BlockAt(block.Index),
+                block.At,
                 block.Behavior,
                 projectileType,
                 solidBlock: block.CollisionType == RoomCollisionType.ShootableBlock);
@@ -1037,7 +1037,7 @@ public sealed class SamusBombProjectileSystem
 
             roomObjects.BlockReactions.TrySpawnBombedSpecialBlock(
                 level,
-                level.BlockAt(block.Index),
+                block.At,
                 block.Behavior,
                 areaIndex,
                 projectileType);

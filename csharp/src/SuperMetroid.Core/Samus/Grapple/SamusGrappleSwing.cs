@@ -469,16 +469,14 @@ public static class SamusGrappleSwing
         SamusState samus,
         Position16<RoomBlocks> blockPosition)
     {
-        RoomCollisionBlock initialBlock =
+        RoomCollisionBlock block =
             level.GetCollisionBlockOrEdgeSolid(blockPosition);
-        if (initialBlock.Index < 0)
+        if (block.Position is null)
             return true;
 
-        int index = initialBlock.Index;
+        // Each extension link leads on in the room's reading order; one that leads outside the grid reads the edge-solid block.
         for (int extensionDepth = 0; extensionDepth <= 16; extensionDepth++)
         {
-            RoomCollisionBlock block =
-                level.GetCollisionBlockByIndexOrEdgeSolid(index);
             switch (block.CollisionType)
             {
                 // The swing dispatcher intentionally treats shootable/bombable air as air;
@@ -517,15 +515,10 @@ public static class SamusGrappleSwing
                     return true;
 
                 case RoomCollisionType.HorizontalExtension:
-                    if (block.Behavior.EndsExtension)
-                        return false;
-                    index += block.Behavior.ExtensionOffset;
-                    continue;
-
                 case RoomCollisionType.VerticalExtension:
                     if (block.Behavior.EndsExtension)
                         return false;
-                    index += block.Behavior.ExtensionOffset * level.Size.X;
+                    block = level.LinkedBlockOrEdgeSolid(block);
                     continue;
 
                 default:

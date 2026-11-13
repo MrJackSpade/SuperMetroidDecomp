@@ -427,12 +427,12 @@ internal sealed class EyeDoorBehavior
 
     /// <summary>Scans every touched room block along one projectile collision edge.</summary>
     /// <remarks>
-    /// The block scans count the blocks to test as the distance from the start's block edge to the end, over 16,
-    /// wrapping past 65535,
-    /// and test one more than that, stepping a row down the edge's column (horizontal edge) or a block along the
-    /// edge's row (vertical edge), in the room's reading order (<see cref="RoomReadingOrder"/>): a scan along a row
-    /// past its end continues on the next row. A zero radius on a block boundary makes the count underflow to
-    /// 4095, so the scan runs on through the room until it meets a solid block.
+    /// The block scan (<see cref="EnemyProjectileBlockScan"/>) counts the blocks to test as the distance from the start's
+    /// block edge to the end, over 16, wrapping past 65535, and tests one more than that, stepping a row down the edge's
+    /// column (horizontal edge) or a block along the edge's row (vertical edge): its first row is taken within the scan
+    /// cycle of 256, and a scan along a row past its end continues on the next row. A first block outside the room's grid
+    /// is a wall. A zero radius on a block boundary makes the count underflow to 4095, so the scan runs on through the
+    /// room until it meets a solid block.
     /// </remarks>
     /// <param name="level">The room's terrain.</param>
     /// <param name="fixedAxisPixel">The leading edge's pixel on the axis of the move.</param>
@@ -447,16 +447,14 @@ internal sealed class EyeDoorBehavior
         int spanEndPixel,
         Axis edge)
     {
-        int fixedBlock = CoordinateAxis.Wrap(fixedAxisPixel) >> 4;
-        int startBlock = CoordinateAxis.Wrap(spanStartPixel) >> 4;
-        int extraBlocks = CoordinateAxis.Wrap(spanEndPixel - (spanStartPixel & ~15)) >> 4;
-        Position16<RoomBlocks> first = edge == Axis.Vertical
-            ? Position16<RoomBlocks>.Of(startBlock, fixedBlock)
-            : Position16<RoomBlocks>.Of(fixedBlock, startBlock);
-        for (int tested = 0; tested <= extraBlocks; tested++)
+        var scan = EnemyProjectileBlockScan.Across(fixedAxisPixel, spanStartPixel, spanEndPixel, edge);
+        for (int tested = 0; tested <= scan.ExtraBlocks; tested++)
         {
-            // A first block outside the room is a wall, so every later block steps on from a block of the grid.
-            Position16<RoomBlocks> scanned = tested == 0 ? first : EyeDoorEffectScanBlock(level, first, edge, tested);
+            Position16<RoomBlocks> scanned = scan.Block(tested, level.Size.X);
+            // A first block outside the room is a wall, so every later block steps on from a block of the grid; one
+            // that runs on past the room's last block reads terrain the room does not hold.
+            if (tested > 0 && !level.Size.Contains(scanned))
+                throw new InvalidDataException("Enemy projectile block scan ran past the end of the room's level data.");
             if (EnemyTerrain.ResolveEnemyCollisionBlock(level, scanned) is not { } block)
                 return true;
 
@@ -475,23 +473,6 @@ internal sealed class EyeDoorBehavior
             }
         }
         return false;
-    }
-
-    /// <summary>
-    /// The block <paramref name="tested"/> blocks on from the scan's <paramref name="first"/>, a block of the room's grid:
-    /// down the column for a horizontal edge, along the room's rows for a vertical one.
-    /// </summary>
-    /// <exception cref="InvalidDataException">The block lies past the room's last block.</exception>
-    private static Position16<RoomBlocks> EyeDoorEffectScanBlock(
-        RoomLevelData level,
-        Position16<RoomBlocks> first,
-        Axis edge,
-        int tested)
-    {
-        Offset16<RoomBlocks> step = edge == Axis.Vertical ? Offset16<RoomBlocks>.Of(tested, 0) : Offset16<RoomBlocks>.Of(0, tested);
-        if (RoomReadingOrder.Step(first, step, level.Size.X) is { } reached && level.Size.Contains(reached))
-            return reached;
-        throw new InvalidDataException("Enemy projectile block scan ran past the end of the room's level data.");
     }
 
     /// <summary>Routes live eye shots and sweat through their distinct movement routines.</summary>

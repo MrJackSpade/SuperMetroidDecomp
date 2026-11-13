@@ -23,7 +23,7 @@ public static class SamusInsideBlockReactions
         void Visit(int y, bool bottomPoint, bool centerPoint)
         {
             var block = level.GetCollisionBlockOrEdgeSolid(new(CoordinateAxis.Wrap(body.Position.X.Whole >> 4), CoordinateAxis.Wrap(y >> 4)));
-            if (block.Index < 0 || !SamusBlockCollision.TryResolveExtension(level, ref block) ||
+            if (block.Position is null || !SamusBlockCollision.TryResolveExtension(level, ref block) ||
                 block.CollisionType != RoomCollisionType.SpecialAir)
                 return;
             if (!block.Behavior.Reaction.IsAreaSpecific)
@@ -33,8 +33,8 @@ public static class SamusInsideBlockReactions
                 // this center wake-up lets a lower trigger win after the torso clears
                 // an upper trigger, without changing room-object slot priority.
                 if (centerPoint && block.Behavior.Reaction == BlockReactionDefinitions.ScrollTrigger &&
-                    (roomObjects is null || !roomObjects.Scrolls.TryNotifyScrollTouch(level.BlockAt(block.Index))))
-                    throw new InvalidOperationException($"Inside scroll trigger block {block.Index} has no active room-object owner.");
+                    (roomObjects is null || !roomObjects.Scrolls.TryNotifyScrollTouch(block.At)))
+                    throw new InvalidOperationException($"Inside scroll trigger block {block.Position} has no active room-object owner.");
                 // The normal table contains conveyors; area-table entries below own
                 // sand. Both must be visited in the same bottom/center/top order.
                 ApplyConveyor(block.Behavior.Reaction);
@@ -43,7 +43,7 @@ public static class SamusInsideBlockReactions
             SpecialAirInsideReaction reaction = SpecialAirReactions.InsideOf(area, block.Behavior.Reaction);
             // A sand reaction takes a room-object place before it acts; with every place taken it does nothing.
             if (QuicksandReactions.PlacesObject(reaction) && roomObjects is not null &&
-                !roomObjects.Quicksand.TrySpawnQuicksandReaction(level.BlockAt(block.Index), reaction))
+                !roomObjects.Quicksand.TrySpawnQuicksandReaction(block.At, reaction))
             {
                 return;
             }
@@ -160,7 +160,7 @@ public static class SamusInsideBlockReactions
         SpecialAirCollisionReaction reaction = SpecialAirReactions.CollisionOf(body.SandCollisionArea, block.Behavior.Reaction);
         // A sand reaction takes a room-object place before it acts; with every place taken Samus passes as through air.
         if (QuicksandReactions.PlacesObject(reaction) && roomObjects is not null &&
-            !roomObjects.Quicksand.TrySpawnQuicksandReaction(level.BlockAt(block.Index), reaction))
+            !roomObjects.Quicksand.TrySpawnQuicksandReaction(block.At, reaction))
         {
             return SpecialAirCollisionOutcome.PassesThrough;
         }

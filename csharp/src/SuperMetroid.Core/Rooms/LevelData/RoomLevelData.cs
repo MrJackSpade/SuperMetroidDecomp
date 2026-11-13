@@ -130,61 +130,29 @@ public sealed class RoomLevelData
     /// <summary>The background plane as the room shows it; nothing changes the background after loading, so it is built once.</summary>
     public RoomLevelPlane BackgroundPlane => field ??= new(Size, background);
 
-    /// <summary>Converts a block coordinate to its row-major index. Coordinates outside the room fail loudly.</summary>
-    public int GetBlockIndex(Position16<RoomBlocks> block)
-    {
-        if (block.X >= (uint)Size.X)
-            throw new ArgumentOutOfRangeException(nameof(block), $"Block X {block.X} lies outside the {Size.X}-block room width.");
-        if (block.Y >= (uint)Size.Y)
-            throw new ArgumentOutOfRangeException(nameof(block), $"Block Y {block.Y} lies outside the {Size.Y}-block room height.");
-        return Size.RowMajorIndex(block);
-    }
-
-    /// <summary>
-    /// The row-major index of a room object's block, without the room's width or height bounds: a column past the
-    /// width runs into the next row, and a row past the height lands in the terrain beyond the room.
-    /// </summary>
-    /// <remarks>
-    /// This is intentionally distinct from <see cref="GetBlockIndex"/>. A room object that requires a block of the grid
-    /// still uses the strict index and fails at that point; setup and draws reach the terrain beyond the room through
-    /// this one, as the two shipped off-room coloured doors do.
-    /// </remarks>
-    /// <exception cref="ArgumentOutOfRangeException">A coordinate is negative, or the block lies past the terrain beyond the room.</exception>
-    internal int GetObjectBlockIndex(Position16<RoomBlocks> block)
-    {
-        if (block.X < 0 || block.Y < 0)
-            throw new ArgumentOutOfRangeException(nameof(block), $"Room-object block {block} has a negative coordinate.");
-        int blockIndex = checked(block.Y * Size.X + block.X);
-        if ((uint)blockIndex >= (uint)(Terrain.Length + BeyondRoom.Count))
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(block),
-                $"Room-object block ({block.X},{block.Y}) resolves to index {blockIndex}, past the room's " +
-                $"{Terrain.Length}-block grid and the {BeyondRoom.Count} blocks beyond it.");
-        }
-
-        return blockIndex;
-    }
-
     /// <summary>
     /// <paramref name="block"/>, which must be a block of the room's grid, as a room object that sits on the grid is
-    /// placed. Coordinates outside the room fail loudly, as <see cref="GetBlockIndex"/> does.
+    /// placed. Coordinates outside the room fail loudly.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The block lies outside the room's width or height.</exception>
     internal Position16<RoomBlocks> GridBlock(Position16<RoomBlocks> block)
     {
-        _ = GetBlockIndex(block);
+        _ = GridPlace(block);
         return block;
     }
 
     /// <summary>
     /// The block a room object placed at <paramref name="placed"/> sits on, as its own position: a placement whose column
     /// lies past the room's width is the block that many columns into the following rows, as the two shipped off-room
-    /// coloured doors are placed.
+    /// coloured doors are placed, and a row past the room's height lands in the terrain beyond the room.
     /// </summary>
+    /// <remarks>
+    /// A room object that requires a block of the grid uses <see cref="GridBlock"/> and fails at that point; setup and
+    /// draws reach the terrain beyond the room through this one, as the two shipped off-room coloured doors do.
+    /// </remarks>
     /// <exception cref="ArgumentOutOfRangeException">The block lies past the terrain beyond the room.</exception>
     internal Position16<RoomBlocks> ObjectBlock(Position16<RoomBlocks> placed) =>
-        Size.CellAtRowMajorIndex(GetObjectBlockIndex(placed));
+        Size.CellAtRowMajorIndex(ObjectPlace(placed));
 
     /// <summary>
     /// The block <paramref name="step"/> blocks from a room object's <paramref name="block"/>, as the game's room objects
@@ -203,41 +171,87 @@ public sealed class RoomLevelData
         throw new ArgumentOutOfRangeException(nameof(step), $"A step of {step} from room-object block {block} reaches before the room's first block.");
 
     /// <summary>
-    /// The position of the block a collision read found at its row-major <paramref name="blockIndex"/>, so a room object at
-    /// that block can be found.
+    /// The block of the room's grid <paramref name="step"/> blocks from <paramref name="block"/> in the room's reading
+    /// order (<see cref="RoomReadingOrder"/>), as Samus's collision extensions, her shots' and the grapple's extension
+    /// links and a Wave shot's straddled read reach it: a column step past a row's end continues on the next row.
     /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException">The index is negative: the read found no block of the room.</exception>
-    internal Position16<RoomBlocks> BlockAt(int blockIndex) =>
-        blockIndex >= 0
-            ? Size.CellAtRowMajorIndex(blockIndex)
-            : throw new ArgumentOutOfRangeException(nameof(blockIndex), blockIndex, "The collision read found no block of the room.");
+    /// <param name="block">The block stepped from.</param>
+    /// <param name="step">The columns and rows stepped.</param>
+    /// <returns>The block reached, or null when the step leads before the room's first block or past its grid.</returns>
+    internal Position16<RoomBlocks>? GridBlockStepped(Position16<RoomBlocks> block, Offset16<RoomBlocks> step) =>
+        RoomReadingOrder.Step(block, step, Size.X) is { } reached && Size.Contains(reached) ? reached : null;
+
+    /// <summary>
+    /// The block <paramref name="extension"/>'s link leads to (<see cref="RoomCollisionBlock.ExtensionLink"/>), or the
+    /// edge-solid block a probe outside the room reads when it leads outside the room's grid, as the grapple's extension
+    /// links reach it.
+    /// </summary>
+    /// <param name="extension">An extension block the read found in the grid.</param>
+    internal RoomCollisionBlock LinkedBlockOrEdgeSolid(RoomCollisionBlock extension) =>
+        GridBlockStepped(extension.At, extension.ExtensionLink) is { } reached ? GetCollisionBlock(reached) : EdgeSolid();
 
     /// <summary>Reads a room object's block, inside the grid or in the terrain beyond the room.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The block is past the terrain beyond the room.</exception>
     internal RoomCollisionBlock GetObjectCollisionBlock(Position16<RoomBlocks> block) =>
-        GetObjectCollisionBlockByIndex(Size.RowMajorIndex(block));
+        ObjectCollisionBlockAt(Size.RowMajorIndex(block));
 
-    /// <summary>A room object's terrain write at its block, showing the terrain's own picture (see the index form).</summary>
+    /// <summary>
+    /// A room object's terrain write at its block, showing the terrain's own picture. Writes inside the grid reach
+    /// collision and the display; writes past it persist in the terrain beyond the room.
+    /// </summary>
     internal void SetObjectTerrain(Position16<RoomBlocks> block, RoomTerrainBlock terrain) =>
-        SetObjectTerrain(Size.RowMajorIndex(block), terrain);
+        WriteObjectTerrain(Size.RowMajorIndex(block), terrain, terrain.Appearance);
+
+    /// <summary>
+    /// A room object's terrain write at its block that shows <paramref name="shown"/> over the terrain instead of the
+    /// terrain's own picture. Past the grid nothing is shown, so only the terrain persists.
+    /// </summary>
+    internal void SetObjectTerrain(Position16<RoomBlocks> block, RoomTerrainBlock terrain, RoomBlockAppearance shown) =>
+        WriteObjectTerrain(Size.RowMajorIndex(block), terrain, shown);
 
     /// <summary>A room object's behaviour write at its block, inside the grid or in the terrain beyond the room.</summary>
-    internal void SetObjectBehavior(Position16<RoomBlocks> block, RoomBlockBehavior behavior) =>
-        SetObjectBehavior(Size.RowMajorIndex(block), behavior);
+    internal void SetObjectBehavior(Position16<RoomBlocks> block, RoomBlockBehavior behavior)
+    {
+        int place = Size.RowMajorIndex(block);
+        if (place >= Terrain.Length)
+        {
+            BeyondRoom.SetBehavior(BeyondPlace(place), behavior);
+            return;
+        }
 
-    /// <summary>Shows a collectible's own picture at its block (see the index form); past the grid nothing is shown.</summary>
-    internal void ShowCollectible(Position16<RoomBlocks> block, CollectiblePicture picture) =>
-        ShowCollectible(Size.RowMajorIndex(block), picture);
+        Behaviors[place] = behavior;
+    }
 
-    /// <summary>Replaces one foreground block's terrain and shows its picture; the block must lie in the grid.</summary>
+    /// <summary>
+    /// Shows <paramref name="picture"/> at a foreground block over its terrain's appearance, as a collectible showing its
+    /// own picture does where it lies (#1538), until a write changes what the block shows. Past the grid nothing is shown,
+    /// as for a room object's terrain write there.
+    /// </summary>
+    internal void ShowCollectible(Position16<RoomBlocks> block, CollectiblePicture picture)
+    {
+        int place = Size.RowMajorIndex(block);
+        if (place >= Terrain.Length)
+            return;
+        shownCollectibles[place] = picture;
+        PublishedForeground = null;
+    }
+
+    /// <summary>
+    /// Replaces one foreground block's terrain, collision kind and picture together, and shows its picture; the block must
+    /// lie in the grid.
+    /// </summary>
+    /// <remarks>
+    /// Room-object draws write the whole block: breakable grapple frames alternate between grapple terrain and air, so
+    /// a narrower "change the picture" helper would be incorrect here.
+    /// </remarks>
     /// <exception cref="ArgumentOutOfRangeException">The block is outside the grid.</exception>
     internal void SetTerrain(Position16<RoomBlocks> block, RoomTerrainBlock terrain) =>
-        SetTerrain(GetBlockIndex(block), terrain);
+        WriteObjectTerrain(GridPlace(block), terrain, terrain.Appearance);
 
     /// <summary>Replaces the behaviour of one foreground block; the block must lie in the grid.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The block is outside the grid.</exception>
     internal void SetBehavior(Position16<RoomBlocks> block, RoomBlockBehavior behavior) =>
-        SetBehavior(GetBlockIndex(block), behavior);
+        Behaviors[GridPlace(block)] = behavior;
 
     /// <summary>A block past the room's grid, as an enemy terrain read finds it.</summary>
     /// <param name="block">A block in the room's columns whose row lies past the room's height.</param>
@@ -249,87 +263,19 @@ public sealed class RoomLevelData
             throw new ArgumentOutOfRangeException(nameof(block), $"Block {block} lies outside the {Size.X}-block room width.");
         if (Size.Contains(block))
             throw new ArgumentOutOfRangeException(nameof(block), "The block is inside the room's grid.");
-        int blockIndex = Size.RowMajorIndex(block);
-        int beyond = blockIndex - Terrain.Length;
+        int beyond = Size.RowMajorIndex(block) - Terrain.Length;
         if (beyond >= BeyondRoom.Count)
         {
             throw new NotSupportedException(
                 $"Block {block} lies past the room's grid and the {BeyondRoom.Count} blocks beyond it.");
         }
-        return new RoomCollisionBlock(blockIndex, BeyondRoom.TerrainAt(beyond), BeyondRoom.BehaviorAt(beyond));
-    }
-
-    /// <summary>Whether a room object's block index belongs to the room's grid.</summary>
-    internal bool IsLogicalBlockIndex(int blockIndex) =>
-        (uint)blockIndex < (uint)Terrain.Length;
-
-    /// <summary>Reads a room object's block, inside the grid or in the terrain beyond the room.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The block is past the terrain beyond the room.</exception>
-    internal RoomCollisionBlock GetObjectCollisionBlockByIndex(int blockIndex)
-    {
-        if (IsLogicalBlockIndex(blockIndex))
-            return GetCollisionBlockByIndex(blockIndex);
-        int beyond = BeyondIndex(blockIndex);
-        return new RoomCollisionBlock(blockIndex, BeyondRoom.TerrainAt(beyond), BeyondRoom.BehaviorAt(beyond));
-    }
-
-    /// <summary>
-    /// A room object's terrain write, showing the terrain's own picture. Writes inside the grid reach collision and the
-    /// display; writes past it persist in the terrain beyond the room.
-    /// </summary>
-    internal void SetObjectTerrain(int blockIndex, RoomTerrainBlock block) =>
-        SetObjectTerrain(blockIndex, block, block.Appearance);
-
-    /// <summary>
-    /// A room object's terrain write that shows <paramref name="shown"/> over the terrain instead of the terrain's own
-    /// picture. Past the grid nothing is shown, so only the terrain persists.
-    /// </summary>
-    internal void SetObjectTerrain(int blockIndex, RoomTerrainBlock block, RoomBlockAppearance shown)
-    {
-        if (!IsLogicalBlockIndex(blockIndex))
-        {
-            BeyondRoom.SetTerrain(BeyondIndex(blockIndex), block);
-            return;
-        }
-
-        Terrain[blockIndex] = block;
-        if (ShownForeground[blockIndex] != shown)
-            shownCollectibles.Remove(blockIndex);
-        ShownForeground[blockIndex] = shown;
-        PublishedForeground = null;
-    }
-
-    /// <summary>
-    /// Shows <paramref name="picture"/> at a foreground block over its terrain's appearance, as a collectible showing its
-    /// own picture does where it lies (#1538), until a write changes what the block shows. Past the grid nothing is shown,
-    /// as for a room object's terrain write there.
-    /// </summary>
-    internal void ShowCollectible(int blockIndex, CollectiblePicture picture)
-    {
-        if (!IsLogicalBlockIndex(blockIndex))
-            return;
-        shownCollectibles[blockIndex] = picture;
-        PublishedForeground = null;
-    }
-
-    /// <summary>A room object's behaviour write, inside the grid or in the terrain beyond the room.</summary>
-    internal void SetObjectBehavior(int blockIndex, RoomBlockBehavior behavior)
-    {
-        if (!IsLogicalBlockIndex(blockIndex))
-        {
-            BeyondRoom.SetBehavior(BeyondIndex(blockIndex), behavior);
-            return;
-        }
-
-        Behaviors[blockIndex] = behavior;
+        return new RoomCollisionBlock(block, BeyondRoom.TerrainAt(beyond), BeyondRoom.BehaviorAt(beyond));
     }
 
     /// <summary>Returns the terrain and behaviour collision reads for one block of the grid.</summary>
-    public RoomCollisionBlock GetCollisionBlock(Position16<RoomBlocks> block)
-    {
-        int index = GetBlockIndex(block);
-        return GetCollisionBlockByIndex(index);
-    }
+    /// <exception cref="ArgumentOutOfRangeException">The block is outside the grid.</exception>
+    public RoomCollisionBlock GetCollisionBlock(Position16<RoomBlocks> block) =>
+        GridCollisionBlockAt(GridPlace(block));
 
     /// <summary>
     /// Reads a block of the grid, or the edge-solid block when a collision probe asks about a position outside the
@@ -337,21 +283,6 @@ public sealed class RoomLevelData
     /// </summary>
     internal RoomCollisionBlock GetCollisionBlockOrEdgeSolid(Position16<RoomBlocks> block) =>
         Size.Contains(block) ? GetCollisionBlock(block) : EdgeSolid();
-
-    /// <summary>
-    /// Applies the same edge rule after a collision extension has already reduced its target to a row-major index.
-    /// </summary>
-    internal RoomCollisionBlock GetCollisionBlockByIndexOrEdgeSolid(int blockIndex) =>
-        IsLogicalBlockIndex(blockIndex) ? GetCollisionBlockByIndex(blockIndex) : EdgeSolid();
-
-    /// <summary>Reads a block of the grid by its row-major index, as collision extensions reach it.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The index is outside the grid.</exception>
-    public RoomCollisionBlock GetCollisionBlockByIndex(int blockIndex)
-    {
-        if (!IsLogicalBlockIndex(blockIndex))
-            throw new ArgumentOutOfRangeException(nameof(blockIndex));
-        return new RoomCollisionBlock(blockIndex, Terrain[blockIndex], Behaviors[blockIndex]);
-    }
 
     /// <summary>Reads the block containing a room pixel: sixteen pixels to a block.</summary>
     public RoomCollisionBlock GetCollisionBlockAtPixel(Position16<RoomPixels> position) =>
@@ -412,39 +343,75 @@ public sealed class RoomLevelData
     }
 
     /// <summary>
-    /// Replaces one foreground block's terrain, collision kind and picture together, and shows its picture.
+    /// The place of <paramref name="block"/>, which must be a block of the room's grid, in the row-by-row planes that hold
+    /// the grid. Coordinates outside the room fail loudly.
     /// </summary>
-    /// <remarks>
-    /// Room-object draws write the whole block: breakable grapple frames alternate between grapple terrain and air, so
-    /// a narrower "change the picture" helper would be incorrect here.
-    /// </remarks>
-    /// <exception cref="ArgumentOutOfRangeException">The index is outside the grid.</exception>
-    public void SetTerrain(int blockIndex, RoomTerrainBlock block)
+    /// <exception cref="ArgumentOutOfRangeException">The block lies outside the room's width or height.</exception>
+    private int GridPlace(Position16<RoomBlocks> block)
     {
-        if (!IsLogicalBlockIndex(blockIndex))
-            throw new ArgumentOutOfRangeException(nameof(blockIndex));
-        Terrain[blockIndex] = block;
-        if (ShownForeground[blockIndex] != block.Appearance)
-            shownCollectibles.Remove(blockIndex);
-        ShownForeground[blockIndex] = block.Appearance;
+        if (block.X >= Size.X)
+            throw new ArgumentOutOfRangeException(nameof(block), $"Block X {block.X} lies outside the {Size.X}-block room width.");
+        if (block.Y >= Size.Y)
+            throw new ArgumentOutOfRangeException(nameof(block), $"Block Y {block.Y} lies outside the {Size.Y}-block room height.");
+        return Size.RowMajorIndex(block);
+    }
+
+    /// <summary>
+    /// The place of a room object's block in the room's level space, the grid's planes and then the terrain beyond the
+    /// room, without the room's width or height bounds: a column past the width runs into the next row, and a row past
+    /// the height lands in the terrain beyond the room.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The block lies past the terrain beyond the room.</exception>
+    private int ObjectPlace(Position16<RoomBlocks> block)
+    {
+        int place = Size.RowMajorIndex(block);
+        if (place >= Terrain.Length + BeyondRoom.Count)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(block),
+                $"Room-object block ({block.X},{block.Y}) lies at place {place}, past the room's " +
+                $"{Terrain.Length}-block grid and the {BeyondRoom.Count} blocks beyond it.");
+        }
+
+        return place;
+    }
+
+    /// <summary>The block of the grid at <paramref name="place"/> in its planes, as collision reads it.</summary>
+    private RoomCollisionBlock GridCollisionBlockAt(int place) =>
+        new(Size.CellAtRowMajorIndex(place), Terrain[place], Behaviors[place]);
+
+    /// <summary>A room object's block at <paramref name="place"/> in the level space, inside the grid or beyond it.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The place is past the terrain beyond the room.</exception>
+    private RoomCollisionBlock ObjectCollisionBlockAt(int place)
+    {
+        if (place < Terrain.Length)
+            return GridCollisionBlockAt(place);
+        int beyond = BeyondPlace(place);
+        return new RoomCollisionBlock(Size.CellAtRowMajorIndex(place), BeyondRoom.TerrainAt(beyond), BeyondRoom.BehaviorAt(beyond));
+    }
+
+    /// <summary>
+    /// A terrain write at <paramref name="place"/> in the level space that shows <paramref name="shown"/>. Writes inside
+    /// the grid reach collision and the display; writes past it persist in the terrain beyond the room.
+    /// </summary>
+    private void WriteObjectTerrain(int place, RoomTerrainBlock block, RoomBlockAppearance shown)
+    {
+        if (place >= Terrain.Length)
+        {
+            BeyondRoom.SetTerrain(BeyondPlace(place), block);
+            return;
+        }
+
+        Terrain[place] = block;
+        if (ShownForeground[place] != shown)
+            shownCollectibles.Remove(place);
+        ShownForeground[place] = shown;
         PublishedForeground = null;
     }
 
-    /// <summary>Replaces the behaviour of one foreground block.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The index is outside the grid.</exception>
-    public void SetBehavior(int blockIndex, RoomBlockBehavior behavior)
-    {
-        if (!IsLogicalBlockIndex(blockIndex))
-            throw new ArgumentOutOfRangeException(nameof(blockIndex));
-        Behaviors[blockIndex] = behavior;
-    }
-
     /// <summary>The block a collision probe outside the room reads.</summary>
-    private RoomCollisionBlock EdgeSolid() => new(Index: -1, BeyondRoom.EdgeSolid, BeyondRoom.NoBehavior);
+    private RoomCollisionBlock EdgeSolid() => new(Position: null, BeyondRoom.EdgeSolid, BeyondRoom.NoBehavior);
 
-    /// <summary>A row-major index past the grid, counted from the first block past it.</summary>
-    private int BeyondIndex(int blockIndex) =>
-        blockIndex >= Terrain.Length
-            ? blockIndex - Terrain.Length
-            : throw new ArgumentOutOfRangeException(nameof(blockIndex), blockIndex, "A room object's block index is negative.");
+    /// <summary>A place in the level space past the grid, counted from the first block past it.</summary>
+    private int BeyondPlace(int place) => place - Terrain.Length;
 }

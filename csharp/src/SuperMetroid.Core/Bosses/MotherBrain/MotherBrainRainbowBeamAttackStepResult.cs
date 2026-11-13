@@ -33,4 +33,5 @@ public readonly record struct MotherBrainRainbowBeamAttackStepResult(
     bool ZebesTimebombEventRequested,
     IReadOnlyList<MotherBrainEscapeDoorParticleSpawnRequest> EscapeDoorParticleSpawns,
     RoomObjectSpawnRequest<MotherBrainRoomMutation>? EscapeDoorObject,
-    MotherBrainEarthquakeRequest? Earthquake);
+    MotherBrainEarthquakeRequest? Earthquake,
+    int? SamusProjectileCooldown);

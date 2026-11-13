@@ -1,52 +1,42 @@
 namespace SuperMetroid.Core.Frontend.Intro;
 
-/// <summary>Eight independently aging glows of typed narration letters.</summary>
+/// <summary>
+/// The glows of typed narration letters, each aging on its own (#1625): every typed letter starts one, and none is
+/// dropped or displaces another. Each recolours only its own letter, so the order they step in is not observable.
+/// </summary>
 internal sealed class CinematicTextGlowSystem
 {
-    /// <summary>Eight glow records age independently and are allocated from the highest free slot.</summary>
-    private readonly GlowSlot[] slots = new GlowSlot[CinematicTextGlowDefinitions.SlotCount];
+    /// <summary>The glows still running, oldest first.</summary>
+    private readonly List<Glow> glows = [];
+
+    /// <summary>Starts a glow over the letter at <paramref name="column"/> of row <paramref name="row"/>.</summary>
+    public void Spawn(int column, int row) => glows.Add(new Glow { Column = column, Row = row, Timer = 1 });
 
     /// <summary>
-    /// Starts a glow over the letter at <paramref name="column"/> of row <paramref name="row"/>; an occupied eight-slot pool
-    /// silently drops the request.
-    /// </summary>
-    public void Spawn(int column, int row)
-    {
-        for (int i = slots.Length - 1; i >= 0; i--)
-        {
-            if (slots[i].Active) continue;
-            slots[i] = new GlowSlot { Active = true, Column = column, Row = row, Timer = 1 };
-            return;
-        }
-    }
-
-    /// <summary>
-    /// Advances active glows when their timers expire, giving the letter each covers the glow's current colour variant
-    /// while keeping the letter, and ending after the final variant.
+    /// Advances the glows whose timers expire, giving the letter each covers the glow's current colour variant while
+    /// keeping the letter, and ends each glow after its final variant.
     /// </summary>
     public void Step(IntroNarrationText text)
     {
         Ensure.NotNull(text);
-        for (int i = slots.Length - 1; i >= 0; i--)
+        foreach (Glow glow in glows)
         {
-            ref GlowSlot slot = ref slots[i];
-            if (!slot.Active || --slot.Timer != 0) continue;
-            text.Recolour(slot.Column, slot.Row, slot.ColourVariant);
-            if (slot.ColourVariant == CinematicTextGlowDefinitions.FinalVariant)
-                slot.Active = false;
+            if (--glow.Timer != 0) continue;
+            text.Recolour(glow.Column, glow.Row, glow.ColourVariant);
+            if (glow.ColourVariant == CinematicTextGlowDefinitions.FinalVariant)
+                glow.Ended = true;
             else
             {
-                slot.ColourVariant++;
-                slot.Timer = CinematicTextGlowDefinitions.VariantDuration;
+                glow.ColourVariant++;
+                glow.Timer = CinematicTextGlowDefinitions.VariantDuration;
             }
         }
+        _ = glows.RemoveAll(glow => glow.Ended);
     }
 
-    /// <summary>One independently timed letter glow in the cinematic glow pool.</summary>
-    private struct GlowSlot
+    /// <summary>One independently timed letter glow.</summary>
+    private sealed class Glow
     {
-        /// <summary>Whether this slot currently participates in text glow updates.</summary>
-        public bool Active;
         /// <summary>The glowing letter's column of the narration's text rows.</summary>
         public int Column;
         /// <summary>The glowing letter's row, counted from the narration's top.</summary>
@@ -58,5 +48,7 @@ internal sealed class CinematicTextGlowSystem
         /// <see cref="CinematicTextGlowDefinitions.FinalVariant"/>, where the glow ends.
         /// </summary>
         public int ColourVariant;
+        /// <summary>Whether the glow has shown its final variant, so the system drops it.</summary>
+        public bool Ended;
     }
 }

@@ -43,18 +43,19 @@ internal static class CinematicTextGlowVerification
                 restoredText = RoundTrip(text);
             }
         }
-        // Eight simultaneous allocations fit; the ninth has no slot. After the final variant releases the slots, that same
-        // rectangle can allocate.
+        // Every glow started runs, however many are running at once (#1625): a whole row of simultaneous glows all mature,
+        // and a letter glows again after its earlier glow has ended.
         glow = new CinematicTextGlowSystem();
         text = LetteredText();
-        for (int i = 0; i < 9; i++) glow.Spawn(i, 4);
+        for (int i = 0; i < IntroNarrationText.RowCells; i++) glow.Spawn(i, 4);
         for (int frame = 0; frame < 16; frame++) glow.Step(text);
-        for (int i = 0; i < 8; i++) AssertEqual(3, text.ShownAt(i, 4).ColourVariant, "eight native glow slots mature");
-        AssertEqual(0, text.ShownAt(8, 4).ColourVariant, "full pool declines ninth glow");
+        for (int i = 0; i < IntroNarrationText.RowCells; i++)
+            AssertEqual(3, text.ShownAt(i, 4).ColourVariant, $"simultaneous glow {i} of {IntroNarrationText.RowCells} matures");
+        text.Recolour(8, 4, 0);
         glow.Spawn(8, 4);
         for (int frame = 0; frame < 16; frame++) glow.Step(text);
-        AssertEqual(3, text.ShownAt(8, 4).ColourVariant, "finished glow frees a native slot");
-        Console.WriteLine("  Cinematic text glow: exact 0/5/10/15-frame colour variants, letter preservation, pool exhaustion/reuse, and debugger continuation pass.");
+        AssertEqual(3, text.ShownAt(8, 4).ColourVariant, "a letter glows again after its earlier glow ended");
+        Console.WriteLine("  Cinematic text glow: exact 0/5/10/15-frame colour variants, letter preservation, unbounded simultaneous glows, and debugger continuation pass.");
     }
 
     /// <summary>Narration text with the letter A typed at every place of the text rows.</summary>

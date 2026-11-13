@@ -47,7 +47,7 @@ public sealed record SelectedRoom(RoomDefinition Definition, RoomStateSettings S
     /// <summary>Logical area/room pair.</summary>
     public RoomIdentity Identity => new(AreaIndex, RoomIndex);
 
-    /// <summary>Builds a room entirely from compiled fixed metadata, selection, and state payloads.</summary>
+    /// <summary>Selects <paramref name="room"/>'s state for <paramref name="selection"/> from the compiled room definitions.</summary>
     public static SelectedRoom LoadUsingCompiledSelection(
         RoomDefinition room,
         RoomStateSelectionContext selection = default) =>

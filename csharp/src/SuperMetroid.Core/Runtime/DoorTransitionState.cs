@@ -81,7 +81,7 @@ internal sealed class DoorTransitionState
         runtime.Room.LoadedScope.Enemies.RoomStatus.EnemyDoorTransitionActive = true;
         door = runtime.RoomLoader.PendingDoorTransition;
         sourceIsolated = runtime.Room.ActiveRoom?.UsesIsolatedDoorTransition
-            ?? throw new InvalidOperationException("Door transition requires a source room header.");
+            ?? throw new InvalidOperationException("Door transition requires a source room.");
         destinationIsolated = runtime.RoomLoader.PendingDoorDestinationUsesIsolatedDoorTransition;
         sourceSamus = runtime.Player.Samus.Position;
         FadeSteps = new GradualFadeSteps(DoorTransitionColourDefinitions.FadeDenominator, runtime.FadeStepCount);

@@ -7,16 +7,17 @@ using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 /// <summary>
-/// Turns a fixture's tile words into what the effect overlay shows (#1403, #1514): the words laid row by row into one
-/// picture, each painted, mirrored and coloured as the word says from its two-bit character and installed as its part behind
-/// and its part in front as each word's priority says, as extraction installs a room's effect overlay sheet (#1634). A fixture's page is the rows the original game wrote the effect's page to; a
-/// fixture's whole plane is placed through <see cref="Rows"/>.
+/// Turns a fixture's tile words into what the effect overlay shows (#1403, #1514, #1706): the words laid row by row into
+/// pictures, each painted, mirrored and coloured as the word says from its two-bit character and installed as its part
+/// behind and its part in front as each word's priority says, as extraction installs a room's effect overlay sheet (#1634).
+/// An effect's artwork is cut from the rows the original game wrote the effect's transfer to, as the import cuts it
+/// (<see cref="RoomEffectTransferCuts"/>); a fixture's rows of a whole plane are shown through <see cref="Rows"/>.
 /// </summary>
 internal static class FxOverlayFixtures
 {
@@ -31,41 +32,63 @@ internal static class FxOverlayFixtures
         Picture(PlaneWords(image), image, palette, characterWord);
 
     /// <summary>
-    /// The page the gameplay overlay tilemap in <paramref name="image"/> shows: its rows from the row the original game
-    /// wrote an effect's page to, painted as <see cref="PlaneFromVram"/> paints them.
+    /// The artwork effect <paramref name="type"/> shows of the gameplay overlay tilemap in <paramref name="image"/>: its rows
+    /// from the row the original game wrote an effect's transfer to, painted as <see cref="PlaneFromVram"/> paints them.
     /// </summary>
-    internal static FxOverlayPage PageFromVram(ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette, int characterWord = GameplayVramLayout.HudCharacterWord) =>
-        PageFromPlaneWords(PlaneWords(image), image, palette, characterWord);
+    internal static FxOverlayArtwork ArtworkFromVram(RoomFxType type, ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette,
+        int characterWord = GameplayVramLayout.HudCharacterWord, LiquidTransferRows? liquidCut = null) =>
+        ArtworkFromPlaneWords(type, PlaneWords(image), image, palette, characterWord, liquidCut);
 
     /// <summary>
-    /// The page a whole plane of <paramref name="plane"/> tile words shows: its rows from the row the original game wrote an
-    /// effect's page to, their characters read from <paramref name="characterWord"/> in <paramref name="image"/>.
+    /// The artwork effect <paramref name="type"/> shows of a whole plane of <paramref name="plane"/> tile words: its rows from
+    /// the row the original game wrote an effect's transfer to, cut as the import cuts them or, for a liquid whose rows
+    /// repeat nowhere such as a plane of seeded words, at <paramref name="liquidCut"/>, their characters read from
+    /// <paramref name="characterWord"/> in <paramref name="image"/>.
     /// </summary>
-    internal static FxOverlayPage PageFromPlaneWords(ReadOnlySpan<ushort> plane, ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette,
-        int characterWord = GameplayVramLayout.HudCharacterWord)
+    internal static FxOverlayArtwork ArtworkFromPlaneWords(RoomFxType type, ReadOnlySpan<ushort> plane, ReadOnlySpan<byte> image,
+        ReadOnlySpan<RgbColor> palette, int characterWord = GameplayVramLayout.HudCharacterWord, LiquidTransferRows? liquidCut = null)
     {
         Ensure.LengthEqual(plane, FxOverlayPlaneConstants.Columns * FxOverlayPlaneConstants.Rows);
-        return new FxOverlayPage(Picture(plane[(FxOverlayPlaneConstants.EffectPageFirstRow * FxOverlayPlaneConstants.Columns)..], image, palette, characterWord));
+        ReadOnlySpan<ushort> transfer = plane[(FxOverlayPlaneConstants.EffectPageFirstRow * FxOverlayPlaneConstants.Columns)..];
+        int columns = FxOverlayPlaneConstants.Columns;
+        if (!RoomFxTypes.ShowsLiquid(type))
+        {
+            int first = RoomEffectTransferCuts.AtmosphereFirstRow(transfer);
+            return new FxOverlayArtwork(new AtmosphereArtwork(Picture(transfer[(first * columns)..], image, palette, characterWord)));
+        }
+        // The strip and the body share one sheet, as an installed overlay sheet holds both.
+        LiquidTransferRows cut = liquidCut ?? RoomEffectTransferCuts.Liquid(transfer);
+        SpriteSheet sheet = Sheet(transfer[..((cut.BodyFirstRow + cut.BodyRows) * columns)], image, palette, characterWord,
+            [("surface", 0, cut.BodyFirstRow, new Offset16<ImagePixels>(0, RoomEffectTransferCuts.SurfaceRow)),
+             ("body", cut.BodyFirstRow, cut.BodyRows, default)]);
+        return new FxOverlayArtwork(new LiquidArtwork(PictureParts.Of(sheet, "surface"), PictureParts.Of(sheet, "body")));
     }
 
     /// <summary>
-    /// The page <paramref name="plane"/> shows with the installed <paramref name="pages"/>, painted from the characters at
-    /// <paramref name="characterWord"/> in <paramref name="image"/>, or nothing where it shows no page.
+    /// The artwork <paramref name="plane"/> shows with the installed <paramref name="pages"/>, painted from the characters at
+    /// <paramref name="characterWord"/> in <paramref name="image"/>, or nothing where it shows no effect.
     /// </summary>
-    internal static FxOverlayPage PageOf(FxOverlayPlane plane, RoomFxLayer3Pages pages, ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette,
+    internal static FxOverlayArtwork ArtworkOf(FxOverlayPlane plane, RoomFxLayer3Pages pages, ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette,
         int characterWord = GameplayVramLayout.HudCharacterWord) =>
-        Ensure.NotNull(plane).EffectPage is null ? new FxOverlayPage(null) : PageFromPlaneWords(plane.WordsIn(pages), image, palette, characterWord);
+        Ensure.NotNull(plane).EffectPage is not { } type ? new FxOverlayArtwork(null)
+            : ArtworkFromPlaneWords(type, plane.WordsIn(pages), image, palette, characterWord);
 
     /// <summary>
-    /// The overlay a whole plane's picture shows from tile row <paramref name="firstRow"/>, <paramref name="rows"/> rows
-    /// repeating down and the plane's width repeating across, as the original game's plane showed a window of its rows.
+    /// The atmosphere a whole plane's picture shows of its <paramref name="rows"/> tile rows from row
+    /// <paramref name="firstRow"/>, repeating down and the plane's width repeating across, as the original game's plane
+    /// showed a window of its rows: the plane's parts cut to those rows.
     /// </summary>
-    internal static OverlayPicture Rows(LayeredPicture plane, int firstRow, int rows)
+    internal static AtmosphereArtwork Rows(LayeredPicture plane, int firstRow, int rows)
     {
         Ensure.NotNull(plane);
         Extent16<ImagePixels> pictured = plane.Size ?? throw new InvalidOperationException("An overlay fixture's plane installs neither part.");
-        var size = new Extent16<OverlayPixels>(pictured.X, rows * TilePixels);
-        return new OverlayPicture(plane, new Position16<ImagePixels>(0, firstRow * TilePixels), size, Position16<OverlayPixels>.Zero, size);
+        var offset = new Offset16<ImagePixels>(0, firstRow * TilePixels);
+        var size = new Extent16<ImagePixels>(pictured.X, checked((ushort)(rows * TilePixels)));
+        if (offset.Y + size.Y > pictured.Y)
+            throw new ArgumentOutOfRangeException(nameof(rows), $"Rows {firstRow} through {firstRow + rows - 1} leave the {pictured.Y / TilePixels}-row plane.");
+        SpriteSheetFrame? Cut(SpriteSheetFrame? part) => part is null ? null
+            : new SpriteSheetFrame(part.Sheet, part.Corner + offset, size, default) { Depth = part.Depth, Blends = part.Blends };
+        return new AtmosphereArtwork(new LayeredPicture(Cut(plane.Behind), Cut(plane.InFront)));
     }
 
     /// <summary>
@@ -73,7 +96,15 @@ internal static class FxOverlayFixtures
     /// <paramref name="characterWord"/> in <paramref name="image"/> and coloured from <paramref name="palette"/>.
     /// </summary>
     internal static LayeredPicture Picture(ReadOnlySpan<ushort> words, ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette,
-        int characterWord = GameplayVramLayout.HudCharacterWord)
+        int characterWord = GameplayVramLayout.HudCharacterWord) =>
+        PictureParts.Of(Sheet(words, image, palette, characterWord, [("overlay", 0, words.Length / FxOverlayPlaneConstants.Columns, default)]), "overlay");
+
+    /// <summary>
+    /// One sheet of what <paramref name="words"/> show, laid as <see cref="Picture"/> lays them, with each of
+    /// <paramref name="frames"/> its named run of tile rows and its origin.
+    /// </summary>
+    private static SpriteSheet Sheet(ReadOnlySpan<ushort> words, ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette, int characterWord,
+        (string Name, int FirstRow, int Rows, Offset16<ImagePixels> Origin)[] frames)
     {
         const int characterWords = 8;
         int columns = FxOverlayPlaneConstants.Columns;
@@ -94,14 +125,11 @@ internal static class FxOverlayFixtures
             }
             canvas.PaintTwoBppTile(cell % columns * TilePixels, cell / columns * TilePixels, word, character, colours);
         }
-        var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal)
-        {
-            ["overlay"] = WrittenPictureSheetComposer.Frame(canvas, 0, rows, WrittenPictureLayer.FxOverlayAndHud),
-        };
-        ComposedSpriteSheet composed = canvas.ToSplitRoomSheet(colours, frames, SpriteImageColours.TwoBppBackground);
-        SpriteSheet sheet = SpriteSheetFileConstants.Load(composed.Manifest, "overlay-fixture",
-            composed.Size, composed.Pixels, composed.PaletteIndices);
-        return PictureParts.Of(sheet, "overlay");
+        var documents = frames.ToDictionary(frame => frame.Name,
+            frame => WrittenPictureSheetComposer.Frame(canvas, frame.FirstRow, frame.Rows, WrittenPictureLayer.FxOverlayAndHud) with { Origin = frame.Origin },
+            StringComparer.Ordinal);
+        ComposedSpriteSheet composed = canvas.ToSplitRoomSheet(colours, documents, SpriteImageColours.TwoBppBackground);
+        return SpriteSheetFileConstants.Load(composed.Manifest, "overlay-fixture", composed.Size, composed.Pixels, composed.PaletteIndices);
     }
 
     /// <summary>The gameplay overlay tilemap's words in <paramref name="image"/>, row by row.</summary>

@@ -89,8 +89,8 @@ internal static class ClosedPresentationIdentityDefinitions
         ("RoomFloorSheet", "Picture", "frame") => Enum.GetValues<CeresFloorAnimationFrame>().SelectToArray(frame => (int)frame),
         // A form's message is one the message box shows, which the import pictures in every form it takes (#1536).
         ("MessageBoxSheet", "Picture", "shown.Message") => GameplayMessageArtwork.Forms().Select(form => (int)form.Message).Distinct().ToArray(),
-        // Only the effects that show a page are pictured as one (#1536).
-        ("FxOverlayPagePictures", "Page", "type") => Enum.GetValues<RoomFxType>().Where(RoomFxOverlayState.ShowsPage)
+        // Only the effects that show artwork are pictured (#1536, #1706).
+        ("RoomEffectPictures", "Artwork", "type") => Enum.GetValues<RoomFxType>().Where(RoomFxOverlayState.ShowsPage)
             .Select(type => (int)type).ToArray(),
         // A sky is installed for each variant some retail room state's scrolling-sky room main reads (#1536).
         ("InstalledRoomArtwork", "Sky", "variant") => RetailRooms.All.SelectMany(RoomStateLists.GetStates)

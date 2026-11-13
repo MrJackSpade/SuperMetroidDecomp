@@ -74,9 +74,14 @@ Each pass runs over the screen, or over a band of lines, in the order the scene 
   model describes colours as plain colours (`RgbColor`, 0-255 a channel), each on the game's fade scale; a colour reaches
   the tile shaders' colour maths as its own levels (`FadeLevelColour`, #1544), and one off the scale is rejected.
 - **Line colour add.** Adds each line's colour within that line's window.
-- **Add / subtract layer.** Adds or subtracts the room effect's overlay, each line at its own scroll, eight bits a
-  channel, clamped. The overlay is a rectangle of its picture placed in an area that repeats across and down
-  (`OverlayPicture`, #1514); nothing shows outside the rectangle.
+- **Add / subtract layer.** Adds or subtracts the room effect's overlay, each line at its own horizontal scroll, eight
+  bits a channel, clamped. The overlay is a liquid or an atmosphere (`OverlayPicture`, #1514, #1706), each picture
+  repeating across at its own width. An atmosphere (`AtmosphereOverlay`) is one picture repeating down at its height,
+  scrolled line by line. A liquid (`LiquidOverlay`) is its surface's screen line, its surface strip drawn with the
+  strip's origin row on that line and nothing above it, and its body repeating down from the strip's last row; while
+  the surface lies at or above the screen's top line the strip does not show and the body fills every line at the place
+  in its repeat it has below the strip. The room buffer holds the pictures; where they lie reaches each pass as its
+  vertical scroll, so a moving surface or scroll repacks nothing.
 - **Add layer behind.** Adds a frontend layer's colours where the layer covering it shows (and, optionally, where a
   sprite that blends shows over it), each line at its own scroll, in thirty-two levels a channel.
 - **Message text.** Draws the message box's text image from its top line, within the reveal window's lines.

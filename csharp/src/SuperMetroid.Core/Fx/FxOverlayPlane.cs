@@ -1,10 +1,9 @@
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
-/// The room effect's page the effect overlay shows (#1348, #1466, #1514, #1601): the effect whose page picture it shows,
-/// or none, in which case the overlay shows nothing. Liquids show the whole page below a band of nothing and atmospheres
-/// the page from below its top eight pixels, each repeating, where <see cref="FxOverlayPageDefinitions"/> places them in
-/// pixels. The HUD is not on the overlay: it is its own display layer.
+/// The room effect the effect overlay shows (#1348, #1466, #1514, #1601): the effect whose artwork it shows, or none, in
+/// which case the overlay shows nothing. A liquid shows its surface strip on its surface line and its body below; an
+/// atmosphere shows its picture repeating, scrolled (#1706). The HUD is not on the overlay: it is its own display layer.
 /// </summary>
 public sealed class FxOverlayPlane
 {

@@ -9,6 +9,7 @@ using SuperMetroid.Core.Samus.Abilities;
 using System.Collections.Immutable;
 using Vortice.Direct3D11;
 using SuperMetroid.Core.Enemies.BossBodies;
+using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Hud;
 
 namespace SuperMetroid.Rendering.Direct3D11.Frames;
@@ -49,13 +50,22 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     /// <summary>Words of a written picture's record: its parts, its corner and its size.</summary>
     private const int WrittenPictureWords = PartWords + 2;
     /// <summary>
-    /// Header word of what the effect overlay shows (#1403, #1514), or zero where it shows nothing: its picture's two parts'
-    /// offsets (#1634), the picture pixel its rectangle's corner shows, the rectangle's size, the overlay pixel the corner lies on and the
-    /// size the overlay repeats at, each x below y.
+    /// Header word of what the effect overlay shows (#1403, #1514, #1706), or zero where it shows nothing: its kind
+    /// (<see cref="FxOverlayAtmosphere"/>, <see cref="FxOverlayLiquidWithSurface"/> or <see cref="FxOverlayLiquidBodyOnly"/>),
+    /// then an atmosphere's picture or a liquid's surface strip, then a liquid's body, each as its two parts' offsets
+    /// (#1634) and its width and height, x below y.
     /// </summary>
     private const int FxOverlayWord = OverlayWord + 1;
-    /// <summary>Words of the effect overlay's record.</summary>
-    private const int FxOverlayWords = PartWords + 4;
+    /// <summary>Words of each picture in the effect overlay's record: its parts and its size.</summary>
+    private const int FxOverlayPictureWords = PartWords + 1;
+    /// <summary>Words of the effect overlay's record: its kind and two pictures.</summary>
+    private const int FxOverlayWords = 1 + 2 * FxOverlayPictureWords;
+    /// <summary>The effect overlay's kind for an atmosphere: its picture repeats across and down.</summary>
+    private const uint FxOverlayAtmosphere = 0;
+    /// <summary>The effect overlay's kind for a liquid whose surface strip shows, nothing above it and the body below it.</summary>
+    private const uint FxOverlayLiquidWithSurface = 1;
+    /// <summary>The effect overlay's kind for a liquid whose surface lies at or above the screen's top: the body on every line.</summary>
+    private const uint FxOverlayLiquidBodyOnly = 2;
     /// <summary>Header word of the pictures written over the background, laid out as <see cref="OverlayWord"/>'s, or zero without any (#1348).</summary>
     private const int WrittenOverBackgroundWord = FxOverlayWord + 1;
     /// <summary>
@@ -199,7 +209,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         RoomDoorBackground? door = frame.Door;
         RoomOverlayPictures? writtenOverForeground = frame.ForegroundText, writtenOverBackground = frame.BackgroundText;
         SkyPictures? sky = frame.Sky;
-        OverlayPicture? fxOverlay = frame.FxOverlay;
+        ShownFxOverlay? fxOverlay = frame.FxOverlay;
         AffineFloor? turningFloor = frame.Floor;
         ShownBossBody? bossBody = frame.BossBody;
         XrayRevealPlane? reveal = frame.XrayReveal;
@@ -412,18 +422,39 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         if (bossBody is not null)
             PackBossBody(upload, bossBody, bossBodyOffset, pictureWords);
         upload[FxOverlayWord] = (uint)fxOverlayOffset;
-        if (fxOverlay is not null)
-        {
-            PackParts(upload, fxOverlayOffset, fxOverlay.Picture, D3D11PictureColouring.FxOverlay, pictureWords);
-            upload[fxOverlayOffset + PartWords] = D3D11ConstantPacking.Halves(fxOverlay.Source.X, fxOverlay.Source.Y);
-            upload[fxOverlayOffset + PartWords + 1] = D3D11ConstantPacking.Halves(fxOverlay.Size.X, fxOverlay.Size.Y);
-            upload[fxOverlayOffset + PartWords + 2] = D3D11ConstantPacking.Halves(fxOverlay.Place.X, fxOverlay.Place.Y);
-            upload[fxOverlayOffset + PartWords + 3] = D3D11ConstantPacking.Halves(fxOverlay.Repeat.X, fxOverlay.Repeat.Y);
-        }
+        if (fxOverlay is { } shownFx)
+            PackFxOverlay(upload, fxOverlayOffset, shownFx, pictureWords);
         upload[MessagePictureWord] = message is null ? 0 : (uint)pictureWords[new(message, D3D11PictureColouring.MessageBox)];
         packed = frame;
         packedGeneration = images.Generation;
         return true;
+    }
+
+    /// <summary>Packs what the effect overlay shows at <paramref name="offset"/>, as <see cref="FxOverlayWord"/> describes.</summary>
+    private static void PackFxOverlay(Span<uint> upload, int offset, ShownFxOverlay shown, Dictionary<ShownPicture, int> pictureWords)
+    {
+        switch (shown.Artwork)
+        {
+            case AtmosphereArtwork atmosphere:
+                upload[offset] = FxOverlayAtmosphere;
+                PackFxOverlayPicture(upload, offset + 1, atmosphere.Picture, atmosphere.Size, pictureWords);
+                break;
+            case LiquidArtwork liquid:
+                upload[offset] = shown.ShowsSurface ? FxOverlayLiquidWithSurface : FxOverlayLiquidBodyOnly;
+                PackFxOverlayPicture(upload, offset + 1, liquid.Surface, liquid.SurfaceSize, pictureWords);
+                PackFxOverlayPicture(upload, offset + 1 + FxOverlayPictureWords, liquid.Body, liquid.BodySize, pictureWords);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(shown), shown.Artwork, "Undefined room effect artwork.");
+        }
+    }
+
+    /// <summary>Packs one of the effect overlay's pictures at <paramref name="at"/>: its parts, then its size.</summary>
+    private static void PackFxOverlayPicture(Span<uint> upload, int at, LayeredPicture picture, Extent16<ImagePixels> size,
+        Dictionary<ShownPicture, int> pictureWords)
+    {
+        PackParts(upload, at, picture, D3D11PictureColouring.FxOverlay, pictureWords);
+        upload[at + PartWords] = D3D11ConstantPacking.Halves(size.X, size.Y);
     }
 
     /// <summary>
@@ -579,7 +610,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     /// <summary>
     /// Every picture <paramref name="frame"/> draws and how it is coloured, in packing order: the planes' and the reveal's
     /// block pictures, the background images, the message, the boss body's pictures, the HUD's pictures, the pictured planes'
-    /// and the picture grids' pictures, then the written pictures and the effect overlay's picture. A picture may appear more
+    /// and the picture grids' pictures, then the written pictures and the effect overlay's pictures. A picture may appear more
     /// than once, and under more than one colouring (#1512).
     /// </summary>
     private static IEnumerable<ShownPicture> Pictures(RoomLevelLayers frame)
@@ -640,7 +671,14 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             foreach (SpriteSheetFrame part in placed.Picture.Parts)
                 yield return new(part, D3D11PictureColouring.WrittenOverRoom);
         }
-        foreach (SpriteSheetFrame part in frame.FxOverlay?.Picture.Parts ?? [])
+        IEnumerable<LayeredPicture> fxPictures = frame.FxOverlay?.Artwork switch
+        {
+            null => [],
+            AtmosphereArtwork atmosphere => [atmosphere.Picture],
+            LiquidArtwork liquid => [liquid.Surface, liquid.Body],
+            { } other => throw new ArgumentOutOfRangeException(nameof(frame), other, "Undefined room effect artwork."),
+        };
+        foreach (SpriteSheetFrame part in fxPictures.SelectMany(picture => picture.Parts))
             yield return new(part, D3D11PictureColouring.FxOverlay);
     }
 

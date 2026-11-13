@@ -260,8 +260,8 @@ internal static class RoomFxRomDataVerification
                 : new RoomLavaOrAcid(LiquidTide.None, HeatHazeDirection.Vertical);
             AssertEqual(expectedLiquid, snapshot.Liquid,
                 $"{type} render snapshot retains its liquid's waves");
-            AssertEqual((ushort)0x009b, snapshot.Scroll.Y,
-                $"{type} anchors BG3 row zero immediately below surface Y 100");
+            AssertEqual<int?>(100, snapshot.LiquidSurfaceLine,
+                $"{type} places its liquid on the screen from surface line 100");
 
             // A liquid with no surface, or one above the room's top, shows no BG3 liquid plane at all (#1546).
             AssertTrue(GameplayEffectCapture.CaptureRoomFxOverlay(snapshot with

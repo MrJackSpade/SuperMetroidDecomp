@@ -64,8 +64,8 @@ internal static class HudAtlasVerification
                 colours[i] = RgbColor.FromWord((ushort)(i * 0x421));
             SuperMetroid.Core.Assets.LayeredPicture plane = FxOverlayFixtures.Picture(runtime.FrameBoundary.CaptureFxOverlayPlane().WordsIn(InstalledFixtures.ImportMaps.RoomFxPages), runtime.ComposedVram(),
                 colours);
-            var layer = new OverlayBlendLayer(FxOverlayFixtures.Rows(plane, 0, FxOverlayPlaneConstants.Rows), 0, BlendOperation.Add,
-                ScrollBands.Uniform(0), ScrollBands.Uniform(0));
+            var layer = new OverlayBlendLayer(new AtmosphereOverlay(FxOverlayFixtures.Rows(plane, 0, FxOverlayPlaneConstants.Rows), ScrollBands.Uniform(0)), 0,
+                BlendOperation.Add, ScrollBands.Uniform(0));
             RgbaPixel[] frame = DisplayRendering.Render(new LayeredScene(FramePaint.FromNativeGameplay(colours, []),
                 new DisplayLayer[] { layer }, DisplayBrightness.Full));
             return frame[..(DisplayScreen.HudHeight * DisplayScreen.Width)];

@@ -2,6 +2,7 @@ using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
@@ -12,6 +13,7 @@ using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
@@ -19,7 +21,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// <summary>
 /// Pre-assembles and pre-colours the pictures shown on each tileset's rooms' display layers (#1392, #1466, #1601): each
 /// picture a writer writes over the room's layers, BG1 or BG2 (a Ceres warning page, a typed glyph), or the effect overlay,
-/// BG3, shows (an effect's page), composed from the tile words the cartridge would write for it, coloured with the
+/// BG3, shows (an effect's liquid or atmosphere, #1706), composed from the tile words the cartridge would write for it, coloured with the
 /// tileset's standard palette over the characters the room has loaded, and pictured again for each value of the appearance
 /// inputs that reach any of its characters, named by <see cref="AppearancePictureNames"/>; with the inputs each picture
 /// depends on. The effect overlay's sheet also pictures each of the HUD's images as its own frame. Every position here is a
@@ -39,7 +41,7 @@ internal static class WrittenPictureSheetComposer
 
     /// <summary>
     /// Pixels across and down the largest sheet the installation can hold, which pictures are packed into: an effect overlay
-    /// sheet pictures each room effect's whole page again for each frame its effects animate, more than a page-wide sheet
+    /// sheet pictures each room effect's artwork again for each frame its effects animate, more than a screen-wide sheet
     /// could hold.
     /// </summary>
     private const int PackedPixels = RgbaPng.MaximumDimension;
@@ -95,7 +97,7 @@ internal static class WrittenPictureSheetComposer
 
     /// <summary>
     /// Composes the sheet of the effect overlay's pictures a room of <paramref name="tileset"/> shows: each of the HUD's images as its own
-    /// frame (#1466) and the page of each room effect its rooms run, over the HUD's characters, and again
+    /// frame (#1466) and the artwork of each room effect its rooms run (#1706), over the HUD's characters, and again
     /// for each frame its rooms' effects animate over BG3's characters (#1406).
     /// </summary>
     /// <exception cref="InvalidDataException">
@@ -107,14 +109,39 @@ internal static class WrittenPictureSheetComposer
         Ensure.NotNull(inputs);
         Ensure.NotNull(uploads);
         HudSheetLayout hud = HudImageSheet.Layout(inputs.Maps.GameplayHud, HudImageSheet.Maps(inputs.Maps.Game));
-        // The game shows nothing where no effect's page lies (#1514), so the cell the effect area is cleared to is not pictured.
-        // A page whose every row repeats across is pictured as one period, which the overlay repeats at the picture's width (#1675).
-        List<WrittenSubject> subjects = [.. uploads.FxTypes.Order().Select(type => new WrittenSubject(FxOverlayPagePictures.PictureName(type),
-                OnePeriodAcross(BackgroundTileWords.ToWords(inputs.Maps.RoomFxPages.Resolve(type).Span))))];
+        // The game shows nothing where no effect's artwork lies (#1514), so the cell the effect area is cleared to is not
+        // pictured. Each effect's transfer is cut into the pictures its overlay shows (#1706); a picture whose every row
+        // repeats across is pictured as one period, which the overlay repeats at the picture's width (#1675).
+        List<WrittenSubject> subjects = [.. uploads.FxTypes.Order().SelectMany(type => EffectSubjects(type,
+                BackgroundTileWords.ToWords(inputs.Maps.RoomFxPages.Resolve(type).Span)))];
         return Compose(inputs, tileset, WrittenPictureLayer.FxOverlayAndHud, new WrittenSubjects(subjects, [.. HudShelves(hud)], [.. HudFrames(hud)]),
             uploads.Bg3Content ?? throw new InvalidDataException($"No room of {tileset} records what BG3 shows over."),
             new WrittenOptions(new AppearanceOptions(uploads.Bg3Options), BgCharacterSet.Layer3, []),
             RoomStaticPaletteImage.Colours(inputs.Palettes.Get(tileset.Palette)));
+    }
+
+    /// <summary>
+    /// The pictures effect <paramref name="type"/> shows of its transfer <paramref name="words"/> (#1706): a liquid's surface
+    /// strip, its origin on the surface line, and its body; an atmosphere's rows it shows.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The transfer cannot be cut into the pictures its effect shows.</exception>
+    private static IEnumerable<WrittenSubject> EffectSubjects(RoomFxType type, ushort[] words)
+    {
+        if (!RoomFxTypes.ShowsLiquid(type))
+        {
+            int first = RoomEffectTransferCuts.AtmosphereFirstRow(words);
+            return [new WrittenSubject(RoomEffectPictures.AtmosphereName(type), OnePeriodAcross(words[(first * SheetTiles)..]))];
+        }
+        LiquidTransferRows cut = RoomEffectTransferCuts.Liquid(words);
+        return
+        [
+            new WrittenSubject(RoomEffectPictures.SurfaceName(type), OnePeriodAcross(words[..(cut.BodyFirstRow * SheetTiles)]))
+            {
+                Origin = new Offset16<ImagePixels>(0, RoomEffectTransferCuts.SurfaceRow),
+            },
+            new WrittenSubject(RoomEffectPictures.BodyName(type),
+                OnePeriodAcross(words[(cut.BodyFirstRow * SheetTiles)..((cut.BodyFirstRow + cut.BodyRows) * SheetTiles)])),
+        ];
     }
 
     /// <summary>The name of the part holding shelf <paramref name="shelf"/> of the HUD's images.</summary>
@@ -236,7 +263,7 @@ internal static class WrittenPictureSheetComposer
             foreach (PictureWord word in picture.Words)
                 Paint(corner + word.Offset, word.Word);
             partCorners.Add(picture.Name, corner);
-            frames.Add(picture.Name, Frame(canvas, corner, picture.Size, layer));
+            frames.Add(picture.Name, Frame(canvas, corner, picture.Size, layer) with { Origin = picture.Origin });
         }
         foreach (PartFrame frame in partFrames)
             frames.Add(frame.Name, Frame(canvas, partCorners[frame.Part] + (frame.Corner - Position16<ImagePixels>.Zero), frame.Size, layer));
@@ -259,7 +286,7 @@ internal static class WrittenPictureSheetComposer
                     return null;
                 words.Add(new PictureWord(written.Corner - origin, new ShownWord(word, shown)));
             }
-            return new ShownPicture(name, new(right - left + TilePixels, bottom - top + TilePixels), words);
+            return new ShownPicture(name, new(right - left + TilePixels, bottom - top + TilePixels), words, subject.Origin);
         }
 
         void Paint(Position16<ImagePixels> corner, ShownWord word)
@@ -351,9 +378,9 @@ internal static class WrittenPictureSheetComposer
         [.. words.Select((word, index) => new SubjectWord(new(index % width * TilePixels, index / width * TilePixels), new SnesBgTilemapWord(word)))];
 
     /// <summary>
-    /// The words of an effect's page, rows of <see cref="SheetTiles"/>, as one period across (#1675): where every row repeats
+    /// The words of a picture of an effect's transfer, rows of <see cref="SheetTiles"/>, as one period across (#1675): where every row repeats
     /// with a shorter period of whole 16x16 cells that divides the row, that period of each row; otherwise every row whole.
-    /// BG3 wraps the page across every row's width, so the period repeated shows what the whole row does.
+    /// BG3 wraps the transfer across every row's width, so the period repeated shows what the whole row does.
     /// </summary>
     private static SubjectWord[] OnePeriodAcross(ushort[] words)
     {
@@ -392,13 +419,18 @@ internal static class WrittenPictureSheetComposer
     /// <summary>One picture something writes: the name gameplay writes it by and the tile words it is composed from.</summary>
     /// <param name="Name">The name.</param>
     /// <param name="Words">The words, each at its tile's pixel.</param>
-    private sealed record WrittenSubject(string Name, SubjectWord[] Words);
+    private sealed record WrittenSubject(string Name, SubjectWord[] Words)
+    {
+        /// <summary>The picture's origin from its top-left pixel: a liquid's surface strip's lies on its surface line (#1706), every other picture's at its corner.</summary>
+        public Offset16<ImagePixels> Origin { get; init; }
+    }
 
     /// <summary>One frame of the sheet: a picture's words as they show for one set of values of its inputs.</summary>
     /// <param name="Name">The frame's name.</param>
     /// <param name="Size">Its size in pixels.</param>
     /// <param name="Words">Each word as it shows, at its tile's pixel within the frame.</param>
-    private sealed record ShownPicture(string Name, Extent16<ImagePixels> Size, List<PictureWord> Words);
+    /// <param name="Origin">Its origin from its top-left pixel, its subject's.</param>
+    private sealed record ShownPicture(string Name, Extent16<ImagePixels> Size, List<PictureWord> Words, Offset16<ImagePixels> Origin);
 
     /// <summary>One word of a frame as it shows, at its tile's offset from the frame's top-left pixel.</summary>
     /// <param name="Offset">The offset of the word's tile from the frame's top-left pixel.</param>

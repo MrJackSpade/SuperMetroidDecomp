@@ -15,7 +15,7 @@ internal enum D3D11PictureColouring
     DoorSourceRoom,
     /// <summary>In the shading of the HUD's pictures.</summary>
     Hud,
-    /// <summary>In the shading of the room effect's effect overlay pages.</summary>
+    /// <summary>In the shading of the room effect's effect overlay pictures.</summary>
     FxOverlay,
     /// <summary>In the shading of the message box's pictures.</summary>
     MessageBox,

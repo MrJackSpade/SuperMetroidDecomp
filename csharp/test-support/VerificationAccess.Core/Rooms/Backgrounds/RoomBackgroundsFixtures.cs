@@ -6,6 +6,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -28,8 +29,8 @@ internal static class RoomBackgroundsFixtures
     /// <summary>A room whose BG1 shows tile word zero over the whole unscrolled screen, no BG2 plane, and no effect page.</summary>
     internal static RoomBackgrounds Blank() => Uniform(new byte[SnesVram.ByteCount], new RgbColor[SnesCgram.ColorCount], default);
 
-    /// <summary>An effect overlay showing no page (#1403, #1514).</summary>
-    internal static FxOverlayPage BlankFxOverlay() => new(null);
+    /// <summary>An effect overlay showing nothing (#1403, #1514, #1706).</summary>
+    internal static FxOverlayArtwork BlankFxOverlay() => new(null);
 
     /// <summary>A Ceres room's turning floor, with its floor animation frames, whose drawing a check does not look at (#1467).</summary>
     internal static RoomFloor CeresFloor() => new(AffineFloorConstants.BlankCeresRoom());
@@ -228,17 +229,17 @@ internal static class RoomBackgroundsFixtures
     }
 
     /// <summary>
-    /// An effect overlay page of a seeded two-bit picture (#1392, #1403, #1514) as wide as the overlay and two pages tall,
-    /// its pixels keeping colour zero's row, even 16-colour rows coloured as <paramref name="scene"/> is and odd ones
-    /// differently, with a seeded part behind and a seeded part in front (#1634).
+    /// An effect overlay atmosphere of a seeded two-bit picture (#1392, #1403, #1514, #1706) as wide as the overlay and as
+    /// tall as its whole plane, its pixels keeping colour zero's row, even 16-colour rows coloured as <paramref name="scene"/>
+    /// is and odd ones differently, with a seeded part behind and a seeded part in front (#1634).
     /// </summary>
-    internal static FxOverlayPage SeededFxOverlay(Random random, RgbColor[] scene)
+    internal static FxOverlayArtwork SeededFxOverlay(Random random, RgbColor[] scene)
     {
         var size = new Extent16<ImagePixels>(FxOverlayPlaneConstants.Columns * 8, FxOverlayPlaneConstants.Rows * 8);
         SpriteSheet sheet = SeededSheet(random, scene, new Extent16<ImagePixels>(size.X, checked((ushort)(2 * size.Y))),
             new Dictionary<string, Position16<ImagePixels>> { ["overlay"] = default, ["overlay in front"] = new(0, size.Y) }, size,
             "seeded overlay", SpriteImageColours.TwoBppBackground);
-        return new FxOverlayPage(new LayeredPicture(sheet.Frame("overlay"), sheet.Frame("overlay in front")));
+        return new FxOverlayArtwork(new AtmosphereArtwork(new LayeredPicture(sheet.Frame("overlay"), sheet.Frame("overlay in front"))));
     }
 
     /// <summary>

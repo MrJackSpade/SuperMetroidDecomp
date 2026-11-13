@@ -109,7 +109,7 @@ internal static class InstalledSporesTests
                     var gameplay = new GameplaySceneLayer(new(default, default,
                         ScreenLayers.Background), RoomBackgroundsFixtures.Blank() with
                         {
-                            FxOverlay = FxOverlayFixtures.PageOf(baseline.EffectPlane, stock.RoomFxPages,
+                            FxOverlay = FxOverlayFixtures.ArtworkOf(baseline.EffectPlane, stock.RoomFxPages,
                                 new byte[SnesVram.ByteCount], new RgbColor[SnesCgram.ColorCount]),
                         });
                     var layer = GameplayEffectCapture.CaptureEffectBlendingBehind(gameplay, (baseline.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires baseline.CaptureForDisplay().")));
@@ -200,7 +200,7 @@ internal static class InstalledSporesTests
                     ((enabled & 2) != 0 ? ScreenLayers.Background : 0));
             var layer = GameplayEffectCapture.CaptureEffectBlendingBehind(new(registers, RoomBackgroundsFixtures.Uniform(vram.Bytes, colors, new((ushort)(1 | (bg1High ? 0x2000 : 0)))) with
                 {
-                    FxOverlay = FxOverlayFixtures.PageFromVram(vram.Bytes, colors, 0x4000),
+                    FxOverlay = FxOverlayFixtures.ArtworkFromVram(RoomFxType.Spores, vram.Bytes, colors, 0x4000),
                 }),
                 new(RoomFxType.Spores, RoomEffectBlendDefinitions.SporesBrightenBehind, Position16<OverlayPixels>.Zero, null));
             var scene = new LayeredScene(FramePaint.FromOamGameplay(vram.Bytes, colors, oam, 1, 0), [layer], 15);

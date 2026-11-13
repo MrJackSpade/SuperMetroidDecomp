@@ -150,67 +150,39 @@ public static class GameplayEffectCapture
     }
 
     /// <summary>
-    /// Resolves the room effect's blend, its liquid's visibility and its wave's phase into the effect overlay's blend: what
-    /// the overlay shows of the effect's <paramref name="page"/>, its line scrolls and how it combines. A liquid shows
-    /// nothing while it has no surface, its surface lies above the room, or the frame has not placed it on the screen.
+    /// Resolves the room effect's blend, its liquid's place and its wave's phase into the effect overlay's blend (#1706): an
+    /// atmosphere's <paramref name="artwork"/> repeating at its scroll, or a liquid's strip and body from its surface line,
+    /// with the overlay's horizontal scroll and how it combines. A liquid shows nothing while it has no surface, its surface
+    /// lies above the room, or the frame has not placed it on the screen.
     /// </summary>
-    /// <exception cref="InvalidDataException">The effect shows a page but describes no blend.</exception>
-    public static OverlayBlendLayer? CaptureRoomFxOverlay(RoomFxOverlayRenderSnapshot fx, FxOverlayPage page)
+    /// <exception cref="InvalidDataException">The effect shows artwork but describes no blend, or its artwork is another kind of effect's.</exception>
+    public static OverlayBlendLayer? CaptureRoomFxOverlay(RoomFxOverlayRenderSnapshot fx, FxOverlayArtwork artwork)
     {
         if (!RoomFxOverlayState.ShowsPage(fx.Type))
             throw new NotSupportedException($"Room FX type {fx.Type} has no captured effect overlay compositor.");
         RoomEffectBlend blend = fx.Blend
-            ?? throw new InvalidDataException($"Room FX type {fx.Type} shows a page but describes no blend.");
-        bool liquid = fx.Type is RoomFxType.Water or RoomFxType.TourianEntranceStatue or RoomFxType.Lava or RoomFxType.Acid;
-        if (!liquid)
-            return new(AtmosphereOverlayOf(Ensure.NotNull(page)), HudHeight, blend.Operation,
-                ScrollBands.Uniform(fx.Scroll.X), ScrollBands.Uniform(fx.Scroll.Y));
-        if (fx.Surface is not >= 0 || fx.WaterSurfaceScreenY is not int surfaceLine) return null;
+            ?? throw new InvalidDataException($"Room FX type {fx.Type} shows artwork but describes no blend.");
+        RoomEffectArtwork? shown = Ensure.NotNull(artwork).Shown;
+        if (!RoomFxTypes.ShowsLiquid(fx.Type))
+        {
+            return new(shown is null ? null : new AtmosphereOverlay(shown as AtmosphereArtwork
+                    ?? throw new InvalidDataException($"Room FX type {fx.Type} is an atmosphere but shows a liquid's artwork."), ScrollBands.Uniform(fx.Scroll.Y)),
+                HudHeight, blend.Operation, ScrollBands.Uniform(fx.Scroll.X));
+        }
+        if (fx.Surface is not >= 0 || fx.WaterSurfaceScreenY is not int placedLine) return null;
         // Below a water surface the overlay moves sideways with the water waveform, one sample a line counted from the line
         // below the surface and drawn back by the wave's phase (#1468).
-        int belowSurface = surfaceLine + 1;
+        int belowSurface = placedLine + 1;
         LineScroll horizontal = RoomFxTypes.UsesWater(fx.Type)
             ? new SampledScrollWave(fx.Scroll.X, LiquidEffects.WaterWaveform, OnePixelPerSample,
                 SampledScrollWave.PhaseWhere(-fx.WaterOverlayWavePhase, belowSurface, LiquidEffects.WaterWaveform.Length),
                 Math.Clamp(belowSurface, HudHeight, Height), Height)
             : ScrollBands.Uniform(fx.Scroll.X);
-        // A liquid's lines above the tile row holding its surface show the overlay's top, above the page, where nothing shows.
-        int firstSurfaceLine = surfaceLine - (ScreenGeometry.BackgroundTileSizePixels - 1);
-        LineScroll vertical = ScrollBands.Split(0, firstSurfaceLine, fx.Scroll.Y);
-        return new(LiquidOverlayOf(Ensure.NotNull(page)), HudHeight, blend.Operation, horizontal, vertical);
+        // A liquid last placed while its surface lay above the room shows nothing until the effect places it again.
+        return new(shown is null || fx.LiquidSurfaceLine is not int surfaceLine ? null : new LiquidOverlay(shown as LiquidArtwork
+                ?? throw new InvalidDataException($"Room FX type {fx.Type} is a liquid but shows an atmosphere's artwork."), surfaceLine),
+            HudHeight, blend.Operation, horizontal);
     }
-
-    /// <summary>
-    /// What an atmosphere's effect overlay shows of <paramref name="page"/> (#1514), or nothing without a page: the page
-    /// from below its first row, repeating every page down and across every page picture's width, which is one period
-    /// across of what the layer shows (#1675).
-    /// </summary>
-    private static OverlayPicture? AtmosphereOverlayOf(FxOverlayPage page)
-    {
-        if (page.Picture is not { } picture)
-            return null;
-        Extent16<ImagePixels> size = PageSize(picture);
-        int first = FxOverlayPageDefinitions.AtmosphereFirstPageRow;
-        return new OverlayPicture(picture, new Position16<ImagePixels>(0, first),
-            new Extent16<OverlayPixels>(size.X, size.Y - first), Position16<OverlayPixels>.Zero,
-            new Extent16<OverlayPixels>(size.X, FxOverlayPageDefinitions.AtmosphereRepeatHeight));
-    }
-
-    /// <summary>
-    /// What a liquid's effect overlay shows of <paramref name="page"/> (#1514), or nothing without a page: its whole page
-    /// below a band of nothing, repeating down every two pages' height and across every page picture's width, which is one
-    /// period across of what the layer shows (#1675).
-    /// </summary>
-    private static OverlayPicture? LiquidOverlayOf(FxOverlayPage page) =>
-        page.Picture is not { } picture ? null
-            : new OverlayPicture(picture, Position16<ImagePixels>.Zero, new Extent16<OverlayPixels>(PageSize(picture).X, PageSize(picture).Y),
-                new Position16<OverlayPixels>(0, FxOverlayPageDefinitions.LiquidPageTop),
-                new Extent16<OverlayPixels>(PageSize(picture).X, FxOverlayPageDefinitions.LiquidRepeatHeight));
-
-    /// <summary>The width and height of an effect's page picture (#1634).</summary>
-    /// <exception cref="InvalidDataException">The page installs neither of its parts.</exception>
-    private static Extent16<ImagePixels> PageSize(LayeredPicture picture) =>
-        picture.Size ?? throw new InvalidDataException("An effect's page installs neither of its parts.");
 
     /// <summary>
     /// The Ceres haze: its tint added across the gameplay area, strengthening in bands down the screen and dimmed by

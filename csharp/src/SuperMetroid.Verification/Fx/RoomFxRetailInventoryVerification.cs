@@ -490,15 +490,15 @@ internal static class RoomFxRetailInventoryVerification
         RgbColor[] cgram,
         RoomFxOverlayRenderSnapshot snapshot,
         ushort[] plane) =>
-        RenderRoomFx(FxOverlayFixtures.PageFromPlaneWords(plane, image, cgram), cgram, snapshot);
+        RenderRoomFx(FxOverlayFixtures.ArtworkFromPlaneWords(snapshot.Type, plane, image, cgram), cgram, snapshot);
 
     /// <summary>
-    /// The frame the display renderer draws of a captured BG3 FX layer alone over the backdrop, showing <paramref name="page"/>,
-    /// the page painted from the layer's plane, VRAM image and <paramref name="cgram"/>'s colours.
+    /// The frame the display renderer draws of a captured BG3 FX layer alone over the backdrop, showing <paramref name="artwork"/>,
+    /// the artwork painted from the layer's plane, VRAM image and <paramref name="cgram"/>'s colours.
     /// </summary>
-    private static RgbaPixel[] RenderRoomFx(FxOverlayPage page, RgbColor[] cgram, RoomFxOverlayRenderSnapshot snapshot)
+    private static RgbaPixel[] RenderRoomFx(FxOverlayArtwork artwork, RgbColor[] cgram, RoomFxOverlayRenderSnapshot snapshot)
     {
-        OverlayBlendLayer? layer = GameplayEffectCapture.CaptureRoomFxOverlay(snapshot, page);
+        OverlayBlendLayer? layer = GameplayEffectCapture.CaptureRoomFxOverlay(snapshot, artwork);
         return DisplayRendering.Render(new LayeredScene(FramePaint.FromNativeGameplay(cgram, []),
             layer is null ? [] : new DisplayLayer[] { layer }, DisplayBrightness.Full));
     }
@@ -507,16 +507,16 @@ internal static class RoomFxRetailInventoryVerification
     /// The frames the entry-path audit has drawn, one per distinct input (#1532). Many entry paths select one record and
     /// show one picture; the renderer draws the same pixels from the same snapshot, plane, VRAM image and colours, so each
     /// distinct input is drawn once and every path that shows it compares that frame. Inputs are matched on their whole
-    /// values: the hash only narrows which drawn inputs are compared. The page a frame shows is painted once per distinct
-    /// plane, VRAM image and colours (#1680): the paths of one effect differ in where their layer lies, not in the page it
-    /// shows, so they draw their frames from the one page painted for that effect.
+    /// values: the hash only narrows which drawn inputs are compared. The artwork a frame shows is painted once per distinct
+    /// effect, plane, VRAM image and colours (#1680): the paths of one effect differ in where their layer lies, not in the
+    /// artwork it shows, so they draw their frames from the one artwork painted for that effect.
     /// </summary>
     private sealed class EntryPathFrames
     {
         /// <summary>Each drawn input and its frame, by snapshot and the hash of its VRAM image.</summary>
         private readonly Dictionary<(RoomFxOverlayRenderSnapshot Snapshot, int ImageHash), List<DrawnFrame>> drawn = [];
 
-        /// <summary>Each painted page and the inputs it was painted from, by the hash of its VRAM image.</summary>
+        /// <summary>Each painted effect's artwork and the inputs it was painted from, by the hash of its VRAM image.</summary>
         private readonly Dictionary<int, List<PaintedPage>> painted = [];
 
         /// <summary>The frame <see cref="RenderRoomFx(SnesVram, RgbColor[], RoomFxOverlayRenderSnapshot, ushort[])"/> draws of these inputs.</summary>
@@ -536,13 +536,13 @@ internal static class RoomFxRetailInventoryVerification
                 if (candidate.Image.AsSpan().SequenceEqual(image) && candidate.Plane.AsSpan().SequenceEqual(plane) &&
                     candidate.Colours.AsSpan().SequenceEqual(cgram))
                     return candidate.Frame;
-            RgbaPixel[] frame = RenderRoomFx(PageOf(image, imageHash, plane, cgram), cgram, snapshot);
+            RgbaPixel[] frame = RenderRoomFx(ArtworkOf(snapshot.Type, image, imageHash, plane, cgram), cgram, snapshot);
             candidates.Add(new DrawnFrame(image, [.. plane], [.. cgram], frame));
             return frame;
         }
 
-        /// <summary>The page painted from <paramref name="plane"/>, <paramref name="image"/> and <paramref name="cgram"/>, painted on its first use.</summary>
-        private FxOverlayPage PageOf(byte[] image, int imageHash, ushort[] plane, RgbColor[] cgram)
+        /// <summary>The artwork of <paramref name="type"/> painted from <paramref name="plane"/>, <paramref name="image"/> and <paramref name="cgram"/>, painted on its first use.</summary>
+        private FxOverlayArtwork ArtworkOf(RoomFxType type, byte[] image, int imageHash, ushort[] plane, RgbColor[] cgram)
         {
             if (!painted.TryGetValue(imageHash, out List<PaintedPage>? pages))
             {
@@ -550,12 +550,12 @@ internal static class RoomFxRetailInventoryVerification
                 painted.Add(imageHash, pages);
             }
             foreach (PaintedPage candidate in pages)
-                if (candidate.Image.AsSpan().SequenceEqual(image) && candidate.Plane.AsSpan().SequenceEqual(plane) &&
+                if (candidate.Type == type && candidate.Image.AsSpan().SequenceEqual(image) && candidate.Plane.AsSpan().SequenceEqual(plane) &&
                     candidate.Colours.AsSpan().SequenceEqual(cgram))
-                    return candidate.Page;
-            FxOverlayPage page = FxOverlayFixtures.PageFromPlaneWords(plane, image, cgram);
-            pages.Add(new PaintedPage(image, [.. plane], [.. cgram], page));
-            return page;
+                    return candidate.Artwork;
+            FxOverlayArtwork artwork = FxOverlayFixtures.ArtworkFromPlaneWords(type, plane, image, cgram);
+            pages.Add(new PaintedPage(type, image, [.. plane], [.. cgram], artwork));
+            return artwork;
         }
 
         /// <summary>One drawn input and the frame drawn of it.</summary>
@@ -565,12 +565,13 @@ internal static class RoomFxRetailInventoryVerification
         /// <param name="Frame">The frame drawn.</param>
         private sealed record DrawnFrame(byte[] Image, ushort[] Plane, RgbColor[] Colours, RgbaPixel[] Frame);
 
-        /// <summary>One painted page and the inputs it was painted from.</summary>
+        /// <summary>One painted effect's artwork and the inputs it was painted from.</summary>
+        /// <param name="Type">The effect whose artwork it is.</param>
         /// <param name="Image">The VRAM image.</param>
         /// <param name="Plane">The BG3 plane's tile words.</param>
         /// <param name="Colours">The colours.</param>
-        /// <param name="Page">The page painted.</param>
-        private sealed record PaintedPage(byte[] Image, ushort[] Plane, RgbColor[] Colours, FxOverlayPage Page);
+        /// <param name="Artwork">The artwork painted.</param>
+        private sealed record PaintedPage(RoomFxType Type, byte[] Image, ushort[] Plane, RgbColor[] Colours, FxOverlayArtwork Artwork);
     }
 
     /// <summary>The frame the display renderer draws of the backdrop alone, which an absent FX layer leaves unchanged.</summary>

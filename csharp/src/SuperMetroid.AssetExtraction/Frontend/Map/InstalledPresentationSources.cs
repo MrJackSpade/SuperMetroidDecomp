@@ -12,9 +12,10 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>
 /// The installed documents an installed map presentation was read with that the import composes pictures from (#1466,
-/// #1467) and the game names its picture sheets' frames from. The colours only the import pre-colours sheets from are not
-/// among them: the game's read leaves them unread (#1544, <see cref="ImportPresentationColours"/>), and the characters are
-/// import data the installation never holds (#1636, <see cref="ImportPresentationCharacters"/>).
+/// #1467) and the game names its picture sheets' frames from: the game reads none of them, only the catalogs the selector,
+/// reserve-strip, HUD, options and file-select sources build for it (#1616). The colours only the import pre-colours sheets
+/// from are not among them: the game's read leaves them unread (#1544, <see cref="ImportPresentationColours"/>), and the
+/// characters are import data the installation never holds (#1636, <see cref="ImportPresentationCharacters"/>).
 /// </summary>
 /// <param name="Messages">The editable gameplay messages, whose words compose each message box image.</param>
 /// <param name="RoomFxPages">The editable room effects' BG3 pages, pictured into each tileset's BG3 sheet.</param>

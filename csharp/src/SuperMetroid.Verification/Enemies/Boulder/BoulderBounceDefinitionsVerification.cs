@@ -25,13 +25,13 @@ internal static class BoulderBounceDefinitionsVerification
         {
             int address = 0xa686f1 + (counter - 1) * 2;
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-            AssertEqual(expected, BoulderBounces.SpeedIndex(counter), "Boulder native leading-zero/bounce word");
+            AssertEqual((int)expected, BoulderBounces.SpeedIndex(counter).InTwoHundredFiftySixthsOfRow, "Boulder native leading-zero/bounce word");
             actor.Position = actor.Position.WithY(new(55, 0));
             state.BounceCounter = counter;
-            state.BounceSpeedAccumulator = 0x2000;
+            state.BounceSpeedAccumulator = EnemyQuadraticSpeedIndex.FromRows(32);
             state.Function = BoulderAiFunction.Falling;
             fall(actor, state, level);
-            AssertEqual(expected, state.BounceSpeedAccumulator, "Boulder real collision installs compiled sample without bus");
+            AssertEqual((int)expected, state.BounceSpeedAccumulator.InTwoHundredFiftySixthsOfRow, "Boulder real collision installs compiled sample without bus");
             AssertEqual(counter - 1, state.BounceCounter, "Boulder bounce count after the impact, minus one after the last");
             AssertEqual(counter == 0 ? BoulderAiFunction.Rolling : BoulderAiFunction.Rebound,
                 state.Function, "Boulder last collision enters rolling");

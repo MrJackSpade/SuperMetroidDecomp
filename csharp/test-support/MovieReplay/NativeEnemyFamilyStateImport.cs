@@ -295,7 +295,7 @@ internal static class NativeEnemyFamilyStateImport
         {
             kiHunterRecord.Function = words.A == 0 ? null : KiHuntersNativeWords.KiHunterEnemyFunctions.Decode(words.A, "recorded KiHunterEnemyFunction");
             kiHunterRecord.SwoopTarget = new(words.B, 0);
-            kiHunterRecord.DetachedSpeedIndex = words.B;
+            kiHunterRecord.DetachedSpeedIndex = EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(words.B);
             kiHunterRecord.SwoopOrigin = new(0, words.C);
             kiHunterRecord.DetachedSpeedAccumulator = words.D;
             kiHunterRecord.AnimationChangeAngle = words.E;
@@ -437,7 +437,7 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.SpeciesState<MaridiaLargeSnailEnemyState>() is { } maridiaLargeSnailRecord)
         {
             maridiaLargeSnailRecord.Function = words.A == 0 ? null : MaridiaSnailsNativeWords.MaridiaLargeSnailEnemyFunctions.Decode(words.A, "recorded MaridiaLargeSnailEnemyFunction");
-            maridiaLargeSnailRecord.YSpeedTableIndex = unchecked((short)words.B);
+            maridiaLargeSnailRecord.YSpeedTableIndex = EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(unchecked((short)words.B));
             maridiaLargeSnailRecord.AttackCooldown = unchecked((short)words.C);
             maridiaLargeSnailRecord.MovingLeft = words.D != 0;
             maridiaLargeSnailRecord.RemainingBounces = unchecked((short)words.E);
@@ -470,8 +470,8 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.SpeciesState<BoulderEnemyState>() is { } boulderRecord)
         {
             boulderRecord.Function = words.A == 0 ? null : BoulderNativeWords.BoulderAiFunctions.Decode(words.A, "recorded BoulderAiFunction");
-            boulderRecord.TravelSpeedAccumulator = words.B;
-            boulderRecord.BounceSpeedAccumulator = words.C;
+            boulderRecord.TravelSpeedAccumulator = EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(words.B);
+            boulderRecord.BounceSpeedAccumulator = EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(words.C);
             boulderRecord.BounceCounter = unchecked((short)words.D);
             boulderRecord.Roll = words.E switch
             {

@@ -5,7 +5,7 @@ public static class BoulderBounces
 {
     /// <summary>The curve index for the impact with <paramref name="remainingBounces"/> bounces left.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="remainingBounces"/> is outside zero through two.</exception>
-    public static int SpeedIndex(int remainingBounces) =>
+    public static EnemyQuadraticSpeedIndex SpeedIndex(int remainingBounces) =>
         (uint)remainingBounces < (uint)BoulderBounceDefinitions.SpeedIndices.Length
             ? BoulderBounceDefinitions.SpeedIndices[remainingBounces]
             : throw new ArgumentOutOfRangeException(nameof(remainingBounces));

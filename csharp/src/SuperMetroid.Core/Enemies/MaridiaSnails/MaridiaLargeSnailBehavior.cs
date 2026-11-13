@@ -51,11 +51,11 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     /// <summary>Number of impacts in Oum's landing or ledge-fall settling sequence.</summary>
     private const int MaridiaLargeSnailInitialBounceCount = 3;
     /// <summary>Per-frame 8.8 index change in the quadratic vertical speed table.</summary>
-    private const int MaridiaLargeSnailBounceAcceleration = 384;
+    private static readonly EnemyQuadraticSpeedIndex MaridiaLargeSnailBounceAcceleration = EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(384);
     /// <summary>Maximum falling speed-table index before the next impact.</summary>
-    private const int MaridiaLargeSnailMaximumFallIndex = 16384;
+    private static readonly EnemyQuadraticSpeedIndex MaridiaLargeSnailMaximumFallIndex = EnemyQuadraticSpeedIndex.FromRows(64);
     /// <summary>Speed-table index removed at each floor impact.</summary>
-    private const int MaridiaLargeSnailImpactIndexLoss = 4096;
+    private static readonly EnemyQuadraticSpeedIndex MaridiaLargeSnailImpactIndexLoss = EnemyQuadraticSpeedIndex.FromRows(16);
 
     /// <summary>Enemy-library sound queued by Oum's attack splash.</summary>
     private static readonly SoundEffectId MaridiaLargeSnailSplashSound =
@@ -78,7 +78,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             PreviousPosition = Position16<RoomPixels>.Zero,
             StopMovementNextFrame = false,
             Function = MaridiaLargeSnailEnemyFunction.Idle,
-            YSpeedTableIndex = 0,
+            YSpeedTableIndex = EnemyQuadraticSpeedIndex.Start,
             AttackCooldown = MaridiaLargeSnailInitialAttackCooldown,
             MovingLeft = false,
             RemainingBounces = MaridiaLargeSnailInitialBounceCount,
@@ -180,7 +180,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         {
             // No floor one pixel below means Oum walked off a ledge. Retail restarts the
             // complete three-impact settling sequence without skipping horizontal work.
-            state.YSpeedTableIndex = 0;
+            state.YSpeedTableIndex = EnemyQuadraticSpeedIndex.Start;
             state.BounceFunction = MaridiaLargeSnailBounceFunction.Falling;
             state.RemainingBounces = MaridiaLargeSnailInitialBounceCount;
         }
@@ -246,16 +246,16 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         switch (state.BounceFunction)
         {
             case MaridiaLargeSnailBounceFunction.Falling:
-                // The record stays within -3712 through 16384, so the game's signed word comparisons are
-                // ordinary comparisons.
-                state.YSpeedTableIndex = Math.Min(
+                // The record stays within 3712 256ths of a record below the start through record 64, so the game's
+                // signed word comparisons are ordinary comparisons.
+                state.YSpeedTableIndex = EnemyQuadraticSpeedIndex.Min(
                     state.YSpeedTableIndex + MaridiaLargeSnailBounceAcceleration,
                     MaridiaLargeSnailMaximumFallIndex);
 
                 if (!_terrain.MoveEnemyVertically(
                         level,
                         slot,
-                        EnemyQuadraticSpeeds.Row(EightEight.WholeOf(state.YSpeedTableIndex)).Positive))
+                        state.YSpeedTableIndex.Row.Positive))
                 {
                     return;
                 }
@@ -263,27 +263,26 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                 state.RemainingBounces--;
                 // An impact that leaves the record below zero ends the bounces; the negative record is kept.
                 state.YSpeedTableIndex -= MaridiaLargeSnailImpactIndexLoss;
-                if (state.YSpeedTableIndex < 0)
+                if (state.YSpeedTableIndex.IsNegative)
                     state.RemainingBounces = 0;
                 state.BounceFunction = MaridiaLargeSnailBounceFunction.Rising;
                 return;
 
             case MaridiaLargeSnailBounceFunction.Rising:
                 state.YSpeedTableIndex -= MaridiaLargeSnailBounceAcceleration;
-                if (state.YSpeedTableIndex < 0)
+                if (state.YSpeedTableIndex.IsNegative)
                 {
-                    state.YSpeedTableIndex = 0;
+                    state.YSpeedTableIndex = EnemyQuadraticSpeedIndex.Start;
                     state.BounceFunction = MaridiaLargeSnailBounceFunction.Falling;
                     return;
                 }
 
                 // The rising half reads the negative member of the same quadratic row. The record is not
-                // negative here, so its whole part is the row the game's sign-clearing AND selects.
-                int tableIndex = EightEight.WholeOf(state.YSpeedTableIndex);
+                // negative here, so its whole records are the row the game's sign-clearing AND selects.
                 _terrain.MoveEnemyVertically(
                     level,
                     slot,
-                    EnemyQuadraticSpeeds.Row(tableIndex).Negative);
+                    state.YSpeedTableIndex.Row.Negative);
                 return;
 
             default:

@@ -45,23 +45,23 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     private static readonly SoundEffectId BoulderBreakSound =
         EnemySoundEffectDefinitions.BoulderBreakSound;
 
-    /// <summary>Bounce-clock value the first rebound starts from: quadratic-speed record 32.</summary>
-    private const int FirstReboundBounceSpeed = 8192;
+    /// <summary>Bounce-clock place the first rebound starts from: quadratic-speed record 32.</summary>
+    private static readonly EnemyQuadraticSpeedIndex FirstReboundBounceSpeed = EnemyQuadraticSpeedIndex.FromRows(32);
 
     /// <summary>Change in the bounce clock per falling or rebounding update: one quadratic-speed record.</summary>
-    private const int BounceSpeedStep = 256;
+    private static readonly EnemyQuadraticSpeedIndex BounceSpeedStep = EnemyQuadraticSpeedIndex.FromRows(1);
 
     /// <summary>Largest clock the initial fall, and the travel clock while bouncing, reach: quadratic-speed record 80.</summary>
-    private const int MaximumBouncingSpeed = 20480;
+    private static readonly EnemyQuadraticSpeedIndex MaximumBouncingSpeed = EnemyQuadraticSpeedIndex.FromRows(80);
 
     /// <summary>Change in the travel clock per bouncing update, an eighth of a record.</summary>
-    private const int BouncingTravelSpeedStep = 32;
+    private static readonly EnemyQuadraticSpeedIndex BouncingTravelSpeedStep = EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(32);
 
     /// <summary>Change in the travel clock per rolling update, a quarter of a record.</summary>
-    private const int RollingTravelSpeedStep = 64;
+    private static readonly EnemyQuadraticSpeedIndex RollingTravelSpeedStep = EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(64);
 
     /// <summary>Largest travel clock while rolling: quadratic-speed record 64.</summary>
-    private const int MaximumRollingTravelSpeed = 16384;
+    private static readonly EnemyQuadraticSpeedIndex MaximumRollingTravelSpeed = EnemyQuadraticSpeedIndex.FromRows(64);
 
     /// <summary>Interprets both spawn parameters as direction, trigger windows, vertical compensation, and initial height; a zero offset starts rolling without bounces.</summary>
     internal static void InitializeBoulder(RoomEnemySlot slot)
@@ -69,8 +69,8 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new BoulderEnemyState();
         slot.SetSpeciesState(state);
 
-        state.BounceSpeedAccumulator = 0;
-        state.TravelSpeedAccumulator = 0;
+        state.BounceSpeedAccumulator = EnemyQuadraticSpeedIndex.Start;
+        state.TravelSpeedAccumulator = EnemyQuadraticSpeedIndex.Start;
         state.BounceCounter = 2;
         state.Function = BoulderAiFunction.WaitingForSamus;
         state.InitialPosition = slot.Position.Whole;
@@ -192,10 +192,10 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The game subtracts one record and branches on the sign of the result, storing zero in place of a
         // result below zero, so the clock never keeps a value below zero past this update.
-        int slowed = state.BounceSpeedAccumulator - BounceSpeedStep;
-        if (slowed < 0)
+        EnemyQuadraticSpeedIndex slowed = state.BounceSpeedAccumulator - BounceSpeedStep;
+        if (slowed.IsNegative)
         {
-            state.BounceSpeedAccumulator = 0;
+            state.BounceSpeedAccumulator = EnemyQuadraticSpeedIndex.Start;
             state.Function = BoulderAiFunction.Falling;
             return;
         }
@@ -211,7 +211,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Accelerates through terrain contact; ordinary impacts consume bounce indexes while selector two breaks immediately.</summary>
     internal void RunBoulderFalling(RoomEnemySlot slot, BoulderEnemyState state, RoomLevelData level)
     {
-        SignedSixteenSixteen verticalDisplacement = EnemyQuadraticSpeeds.Row(EightEight.WholeOf(state.BounceSpeedAccumulator)).Positive;
+        SignedSixteenSixteen verticalDisplacement = state.BounceSpeedAccumulator.Row.Positive;
         if (_terrain.MoveEnemyVertically(level, slot, verticalDisplacement))
         {
             _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Boulder, BoulderImpactSound, priority: SoundRequestPriority.Normal);
@@ -252,7 +252,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunBoulderRolling(RoomEnemySlot slot, BoulderEnemyState state, RoomLevelData level)
     {
         SignedSixteenSixteen verticalDisplacement =
-            EnemyQuadraticSpeeds.Row(EightEight.WholeOf(state.TravelSpeedAccumulator)).Positive +
+            state.TravelSpeedAccumulator.Row.Positive +
             SignedSixteenSixteen.FromWholePixels(state.VerticalCompensation.Y);
         _terrain.MoveEnemyVertically(level, slot, verticalDisplacement);
         slot.Position = slot.Position.WithWhole(slot.Position.Whole - state.VerticalCompensation);
@@ -289,12 +289,12 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Reads the quadratic speed sample and signs it according to the spawn direction selector.</summary>
     private static SignedSixteenSixteen ReadBoulderHorizontalDisplacement(BoulderEnemyState state) =>
-        EnemyQuadraticSpeeds.Row(EightEight.WholeOf(state.TravelSpeedAccumulator)).Toward(state.Roll != BoulderRoll.Right ? EnemySpeedSign.Negative : EnemySpeedSign.Positive);
+        state.TravelSpeedAccumulator.Row.Toward(state.Roll != BoulderRoll.Right ? EnemySpeedSign.Negative : EnemySpeedSign.Positive);
 
     /// <summary>Moves the actor vertically by a quadratic table speed toward <paramref name="direction"/>, wrapping within the coordinate range.</summary>
-    private static void AddBoulderVerticalVelocity(RoomEnemySlot slot, int accumulator, VerticalDirection direction)
+    private static void AddBoulderVerticalVelocity(RoomEnemySlot slot, EnemyQuadraticSpeedIndex accumulator, VerticalDirection direction)
     {
-        SignedSixteenSixteen displacement = EnemyQuadraticSpeeds.Row(EightEight.WholeOf(accumulator)).Toward(direction == VerticalDirection.Up ? EnemySpeedSign.Negative : EnemySpeedSign.Positive);
+        SignedSixteenSixteen displacement = accumulator.Row.Toward(direction == VerticalDirection.Up ? EnemySpeedSign.Negative : EnemySpeedSign.Positive);
         slot.Position = slot.Position.WithY(slot.Position.Y.MovedBy(displacement));
     }
 
@@ -302,7 +302,9 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Advances an acceleration clock and caps it. The game compares the sum with the cap by the sign of their
     /// word difference; both stay within 0 through 24576 here, so that is the ordinary comparison.
     /// </summary>
-    private static int AddAndCap(int value, int increment, int maximum) => Math.Min(value + increment, maximum);
+    private static EnemyQuadraticSpeedIndex AddAndCap(
+        EnemyQuadraticSpeedIndex value, EnemyQuadraticSpeedIndex increment, EnemyQuadraticSpeedIndex maximum) =>
+        EnemyQuadraticSpeedIndex.Min(value + increment, maximum);
 
     /// <summary>Advances Boulder's typed animation.</summary>
     internal static void AdvanceBoulderTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>

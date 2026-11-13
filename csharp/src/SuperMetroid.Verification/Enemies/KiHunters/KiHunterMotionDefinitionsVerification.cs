@@ -21,7 +21,7 @@ internal static class KiHunterMotionDefinitionsVerification
         AssertEqual(high, KiHunterMotionDefinitions.Gravity.UnsignedWholePixels, "Native KiHunter whole acceleration");
         AssertEqual(radius, KiHunterMotionDefinitions.DetachedWingRadius, "Native KiHunter low-byte wing radius");
         var orbit = new Action<RoomEnemySlot, KiHunterEnemyState>(KiHunterBehavior.RunDetachedKiHunterWingOrbit);
-        var delta = new Func<int, EnemySpeedSign, RotationAngle>(KiHunterBehavior.ReadKiHunterQuadraticAngleDelta);
+        var delta = new Func<EnemyQuadraticSpeedIndex, EnemySpeedSign, RotationAngle>(KiHunterBehavior.ReadKiHunterQuadraticAngleDelta);
         var cosine = new Func<ushort, ushort, int>((angle, radius) => EnemyMath.ReadEightBitCosineProduct(new TrigonometryAngle(unchecked((byte)angle)), radius));
         var sine = new Func<ushort, ushort, int>((angle, radius) => EnemyMath.ReadEightBitNegativeSineProduct(new TrigonometryAngle(unchecked((byte)angle)), radius));
         var gravity = KiHunterBehavior.KiHunterGravity;
@@ -29,13 +29,13 @@ internal static class KiHunterMotionDefinitionsVerification
         var state = new KiHunterEnemyState(slot);
         // Any reset distinguishes an arc change, which restores it, from a slowing step, which lands on 256.
         const int speedReset = 10752;
-        state.DetachedSpeedReset = speedReset;
+        state.DetachedSpeedReset = EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(speedReset);
         int arcChanges = 0;
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             // The native decrement clamps to this minimum speed; varying arbitrary
             // high-byte indexes would leave the authored quadratic-speed records.
-            const ushort speed = 256;
+            EnemyQuadraticSpeedIndex speed = EnemyQuadraticSpeedIndex.FromRows(1);
             ushort angle = unchecked((ushort)(raw + delta(speed, EnemySpeedSign.Negative).RawValue));
             state.WingArcAngle = RotationAngle.FromRaw((ushort)raw);
             state.WingFunction = KiHunterWingFunction.Orbit;
@@ -53,7 +53,7 @@ internal static class KiHunterMotionDefinitionsVerification
             arcChanges += changesArc ? 1 : 0;
             AssertEqual(changesArc ? KiHunterWingFunction.FallingCollisionArc : KiHunterWingFunction.Orbit, state.WingFunction,
                 $"Detached orbit at advanced angle {angle} changes arc only within the middle half turn");
-            AssertEqual(changesArc ? speedReset : 256, state.DetachedSpeedIndex,
+            AssertEqual(changesArc ? speedReset : 256, state.DetachedSpeedIndex.InTwoHundredFiftySixthsOfRow,
                 $"Detached orbit at advanced angle {angle} restores the reset on an arc change or lands a slowing step on 256");
             SignedSixteenSixteen actual = SignedSixteenSixteen.FromParts(
                 unchecked((short)(ushort.MaxValue - raw)), (ushort)raw) + gravity;
@@ -66,10 +66,10 @@ internal static class KiHunterMotionDefinitionsVerification
         {
             state.WingArcAngle = RotationAngle.Zero;
             state.WingFunction = KiHunterWingFunction.Orbit;
-            state.DetachedSpeedIndex = before;
+            state.DetachedSpeedIndex = EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(before);
             orbit(slot, state);
             AssertEqual(KiHunterWingFunction.Orbit, state.WingFunction, $"Detached orbit from speed index {before} keeps orbiting");
-            AssertEqual(after, state.DetachedSpeedIndex, $"Detached orbit slows speed index {before} by one step or lands on 256");
+            AssertEqual(after, state.DetachedSpeedIndex.InTwoHundredFiftySixthsOfRow, $"Detached orbit slows speed index {before} by one step or lands on 256");
         }
         Console.WriteLine("KiHunter motion: native constants, 65536 bus-free orbit placements, arc changes and speed steps, and all gravity fractional carries pass.");
     }

@@ -92,9 +92,9 @@ internal sealed class MotherBrainFinishSamusOffPhases
     /// </summary>
     internal bool RunSecondPhaseFinishSamusOffStandUp(MotherBrainRainbowBeamStepRequests requests)
     {
-        // The standing helper reports carry only if pose was already zero at call entry.
-        // Crouched/leaning poses request their matching stand animation and return
-        // clear; walking/transition poses simply wait for their current bytecode.
+        // The standing helper reports her standing only if she already stood at call entry.
+        // Crouched/leaning poses request their matching stand animation and report her not
+        // yet standing; walking/transition poses simply wait for their current animation.
         bool stoodUp = _state.MakeBodyStandUp(out bool postureRequested);
         requests.BodyPostureRequested = postureRequested;
         if (stoodUp)

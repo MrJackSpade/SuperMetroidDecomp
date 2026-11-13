@@ -91,21 +91,36 @@ internal static class BlockReactionSelectorsVerification
         }
     }
 
-    /// <summary>Checks contact-crumble headers for all supported BTS values and rejects unsupported indexes.</summary>
+    /// <summary>
+    /// Checks that exactly the first eight common special-block reactions select crumble blocks, that each selects the
+    /// cartridge's header for its BTS, and that an undefined crumble block is rejected.
+    /// </summary>
     internal static void VerifyContactCrumbleHeaderSelection(SuperMetroidAddressSpace rom)
     {
         // Header identities are arbitrary values since #1452, so the cartridge's header pointer is decoded
         // through the native header table and compared as an identity.
-        for (int index = 0; index < 8; index++)
-            AssertEqual(RoomObjectNativeWords.Header(ReadRomWord(rom, 0x949139 + 2 * index)),
-                RoomObjectHeaders.ContactCrumbleByReactionIndex(index), "contact crumble native header selection");
-        for (int index = 8; index <= byte.MaxValue; index++)
-            AssertThrows<ArgumentOutOfRangeException>(() => RoomObjectHeaders.ContactCrumbleByReactionIndex(index),
-                "contact crumble header rejects unsupported BTS without masking");
-        foreach (int index in new[] {int.MinValue, -1, 256, int.MaxValue})
-            AssertThrows<ArgumentOutOfRangeException>(() => RoomObjectHeaders.ContactCrumbleByReactionIndex(index),
-                "contact crumble header int bounds");
+        for (int index = 0; index <= BlockReaction.LastEntry; index++)
+        {
+            bool selected = BlockReactionDefinitions.ContactCrumbles.TryGetMeaning(BlockReaction.Common(index), out ContactCrumbleBlock crumble);
+            AssertEqual(index < 8, selected, $"common special-block BTS {index:X2} selects a crumble block exactly when it is one of the first eight");
+            if (selected)
+                AssertEqual(RoomObjectNativeWords.Header(ReadRomWord(rom, 0x949139 + 2 * index)),
+                    RoomObjectHeaders.ContactCrumbleOf(crumble), $"contact crumble native header selection at BTS {index:X2}");
+            AssertTrue(!BlockReactionDefinitions.ContactCrumbles.TryGetMeaning(BlockReaction.AreaSpecific(index), out _),
+                $"area special-block reaction {index} selects no crumble block");
+        }
+        AssertThrows<ArgumentOutOfRangeException>(() => RoomObjectHeaders.ContactCrumbleOf((ContactCrumbleBlock)(-1)),
+            "contact crumble header rejects an undefined crumble block");
+        AssertThrows<ArgumentOutOfRangeException>(() => BlockReactionChanges.ContactCrumble((ContactCrumbleBlock)(-1)),
+            "contact crumble program rejects an undefined crumble block");
     }
+
+    /// <summary>The crumble block common special-block reaction <paramref name="index"/> selects, rejecting any other index.</summary>
+    private static ContactCrumbleBlock ContactCrumbleAt(int index) =>
+        index is >= 0 and <= BlockReaction.LastEntry &&
+            BlockReactionDefinitions.ContactCrumbles.TryGetMeaning(BlockReaction.Common(index), out ContactCrumbleBlock crumble)
+            ? crumble
+            : throw new ArgumentOutOfRangeException(nameof(index), index, "The reaction selects no crumble block.");
 
     /// <summary>Checks collision-triggered bomb PLM instruction selection through native headers.</summary>
     internal static void VerifyCollisionBombInstructionSelection(SuperMetroidAddressSpace rom) =>
@@ -125,7 +140,7 @@ internal static class BlockReactionSelectorsVerification
     /// <summary>Checks contact-crumble instruction selection for the eight native reactions.</summary>
     internal static void VerifyContactCrumbleInstructionSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyNativeBlockInstructionSelection), () => VerifyNativeBlockInstructionSelection(rom, 0x949139, 8,
-            index => RoomObjectNativeListAddresses.BlockReactionEntry(BlockReactionChanges.ContactCrumble(index)), "contact crumble"));
+            index => RoomObjectNativeListAddresses.BlockReactionEntry(BlockReactionChanges.ContactCrumble(ContactCrumbleAt(index))), "contact crumble"));
 
     /// <summary>Checks the bounded bomb-special BTS domain, including adjacent area aliases.</summary>
     internal static void VerifyBombSpecialInstructionSelection(SuperMetroidAddressSpace rom)

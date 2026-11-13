@@ -524,9 +524,9 @@ internal sealed class EnemyTerrain
         AlignEnemyYWithNonSquareSlopeAndReportAdjustment(level, slot);
 
     /// <summary>
-    /// Runs the same two probes as <see cref="AlignEnemyYWithNonSquareSlope"/> while retaining
-    /// the carry result the slope alignment returns. Yard is the first translated caller that
-    /// consumes that carry to suppress corner-transition animation after a slope adjustment.
+    /// Runs the same two probes as <see cref="AlignEnemyYWithNonSquareSlope"/> while reporting
+    /// whether the slope alignment moved the enemy. Yard is the first translated caller that
+    /// uses that report to suppress corner-transition animation after a slope adjustment.
     /// </summary>
     internal static bool AlignEnemyYWithNonSquareSlopeAndReportAdjustment(
         RoomLevelData level,

@@ -510,7 +510,7 @@ public static class SamusGrappleSwing
                     return true;
 
                 case RoomCollisionType.SpikeBlock:
-                    // The solid spike reaction always reports collision. Before setting carry it applies
+                    // The solid spike reaction always reports collision. Before reporting it, it applies
                     // 60 damage for behaviour zero or 16 for behaviour one; every other entry is
                     // literally zero. A negative behaviour skips the table entirely.
                     ApplySwingSpikeDamage(samus, block.Behavior.Reaction, block: SwingSpikeBlock.Solid);
@@ -538,14 +538,14 @@ public static class SamusGrappleSwing
     }
 
 
-    /// <summary>Rechecks the stored endpoint through the firing dispatcher and retains the connection when carry is set.</summary>
+    /// <summary>Rechecks the stored endpoint through the firing dispatcher and retains the connection while the block there stops the beam.</summary>
     internal static bool IsStillConnectedToSupportedBlock(
         RoomLevelData level,
         SamusState samus,
         SamusGrappleState grapple)
     {
         // The anchor validation calls the firing block dispatcher again at the stored endpoint and tests
-        // carry only. A persistent grapple block of behaviour zero or three therefore stays connected; replacing
+        // only whether the block stops the beam. A persistent grapple block of behaviour zero or three therefore stays connected; replacing
         // it with air disconnects. Room-object-producing dynamic blocks retain their explicit stop.
         GrappleBlockReaction reaction = SamusGrappleMovement.ReactAtEndpoint(
             level,

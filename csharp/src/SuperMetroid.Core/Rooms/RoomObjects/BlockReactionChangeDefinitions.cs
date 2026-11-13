@@ -604,19 +604,6 @@ internal static class BlockReactionChangeDefinitions
         CrumbleReveal2x2,
     ];
 
-    /// <summary>The contact crumbles by reaction index: 1x1, 2x1, 1x2, 2x2 respawning, then permanent.</summary>
-    internal static IReadOnlyList<BlockReactionChange> ContactCrumble { get; } =
-    [
-        ContactCrumble1x1Respawning,
-        ContactCrumble2x1Respawning,
-        ContactCrumble1x2Respawning,
-        ContactCrumble2x2Respawning,
-        ContactCrumble1x1Permanent,
-        ContactCrumble2x1Permanent,
-        ContactCrumble1x2Permanent,
-        ContactCrumble2x2Permanent,
-    ];
-
     /// <summary>The respawning shot blocks by size.</summary>
     internal static IReadOnlyList<BlockReactionChange> RespawningShot { get; } =
     [

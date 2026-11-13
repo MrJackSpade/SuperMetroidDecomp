@@ -84,9 +84,8 @@ internal sealed class CeresRidleyHits
                 $"definition {slot.DefinitionId}.");
         }
 
-        // The hurt flash starts with Y=13, shifts the old nonzero timer once, and selects
-        // 14 only when that shift produced carry. In host terms this is precisely old bit
-        // zero; testing bit one (or simply toggling the new value) changes repeated-hit
+        // The hurt flash starts at 13 and selects 14 only when the old nonzero timer is odd.
+        // Testing any other property of it (or simply toggling the new value) changes repeated-hit
         // timing and eventually moves the escape threshold relative to the hurt palette.
         slot.FlashTimer = slot.FlashTimer != 0 && RidleyCadenceDefinitions.CeresHurtFlashOddCount.IsSetIn(slot.FlashTimer)
             ? 14

@@ -248,7 +248,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         else
         {
-            // Finish-wiggle ignores collision carry; terrain clips the displacement
+            // Finish-wiggle ignores whether the move hit terrain; terrain clips the displacement
             // but does not select another function until the horizontal wiggle is centered.
             _terrain.MoveEnemyVertically(level, body, ComposePowampVerticalDisplacement(state));
         }

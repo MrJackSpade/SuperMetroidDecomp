@@ -107,8 +107,8 @@ internal sealed class DoorGamePhases(FrontendSession session)
     }
 
     /// <summary>
-    /// Runs this dispatch's hit-door function. Returns true when it sets carry, so
-    /// the room-loading state runs in the same dispatch.
+    /// Runs this dispatch's hit-door function. Returns true when the step finishes,
+    /// so the room-loading state runs in the same dispatch.
     /// </summary>
     private bool StepHitDoorBlockFunction(ControllerButton controllerInput)
     {

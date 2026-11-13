@@ -610,14 +610,15 @@ internal static class SamusPoseMetadata
         samus.BombJumpRequest = SamusBombJumpRequest.Published(direction);
 
     /// <summary>
-    /// Executes the carry-clear branches of the bomb-jump movement table before pose selection.
+    /// Executes the bomb-jump movement table's entry for Samus's movement before pose selection, dropping the request where
+    /// the entry turns it down.
     /// </summary>
     /// <remarks>
     /// Standing and crouching reject the request only while time is frozen. Running,
     /// falling, moonwalking, wall-jump, wall-stop, and grapple families first select the
     /// ordinary forward-jump body. Ball, unused glitch-ball, and knockback-family
     /// entries retain their current pose. Jump/turn/transition/damage-boost and actor-owned
-    /// families clear the published direction exactly like the table's carry-clear routines.
+    /// families clear the published direction exactly like the table's rejecting routines.
     /// </remarks>
     /// <returns>True when the pending request was rejected and dropped.</returns>
     public static bool RejectUnsupportedPublishedBombJump(SamusState samus, bool timeIsFrozen)

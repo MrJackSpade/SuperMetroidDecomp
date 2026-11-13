@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus.Abilities;
 
 namespace SuperMetroid.Core.Samus.Movement;
@@ -637,8 +638,7 @@ public static class SamusBlockCollision
                     {
                         break;
                     }
-                    if (!block.Behavior.Reaction.IsAreaSpecific &&
-                        block.Behavior.Reaction.IsCommonEntryBelow(8) &&
+                    if (block.Behavior.TryGetContactCrumble(out ContactCrumbleBlock crumble) &&
                         acceptedDisplacement.IsPositive &&
                         // The contact crumble checks the direction nibble, not the sign of
                         // the tested clearance. Pose probes use F and delete the room object.
@@ -657,7 +657,7 @@ public static class SamusBlockCollision
                         if (!terrain.RoomObjects.BlockReactions.TrySpawnSamusContactCrumbleBlock(
                                 terrain.Level,
                                 terrain.Level.BlockAt(block.Index),
-                                block.Behavior))
+                                crumble))
                             break;
                     }
                     // Pose expansion carries direction $F, not a downward

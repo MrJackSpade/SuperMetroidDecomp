@@ -388,7 +388,7 @@ internal sealed class BeamFiring
         slot.Damage = 1000;
 
         // Hyper uses the Wave beam collision check at this same producer seam. It publishes door and
-        // shootable-block reactions but, like every Wave family, ignores solid carry and
+        // shootable-block reactions but, like every Wave family, is not stopped by solid blocks and
         // survives to receive its normal movement state.
         _ = _terrainCollision.RunInitialBeamCollision(
             level,

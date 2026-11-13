@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>
 /// The common reactions several collision kinds' dispatchers name: the triggers room objects install on the blocks they
-/// own, and the runs of reactions that stand for door caps, station accesses and gate triggers.
+/// own, and the runs of reactions that stand for crumble blocks, door caps, station accesses and gate triggers.
 /// </summary>
 public static class BlockReactionDefinitions
 {
@@ -21,6 +21,16 @@ public static class BlockReactionDefinitions
     /// <summary>The four blue-door caps a shootable block selects, starting at the left-facing cap.</summary>
     public static readonly BlockReactionRun<ColoredDoorOrientation> BlueDoorCaps = new(64,
         ColoredDoorOrientation.Left, ColoredDoorOrientation.Right, ColoredDoorOrientation.Up, ColoredDoorOrientation.Down);
+
+    /// <summary>
+    /// The eight crumble blocks a special block selects, from its first common reaction: the one-block, two-wide, two-tall
+    /// and two-by-two blocks that grow back, then the same shapes for good.
+    /// </summary>
+    public static readonly BlockReactionRun<ContactCrumbleBlock> ContactCrumbles = new(0,
+        ContactCrumbleBlock.Respawning1x1, ContactCrumbleBlock.Respawning2x1,
+        ContactCrumbleBlock.Respawning1x2, ContactCrumbleBlock.Respawning2x2,
+        ContactCrumbleBlock.Permanent1x1, ContactCrumbleBlock.Permanent2x1,
+        ContactCrumbleBlock.Permanent1x2, ContactCrumbleBlock.Permanent2x2);
 
     /// <summary>The seven station accesses a special block selects, starting at the map station's right-side access.</summary>
     public static readonly BlockReactionRun<StationAccessBehavior> StationAccesses = new(71,

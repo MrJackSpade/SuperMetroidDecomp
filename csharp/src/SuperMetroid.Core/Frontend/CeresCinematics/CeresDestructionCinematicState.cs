@@ -21,7 +21,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 /// The cinematic owns this sequence. The state deliberately retains the
 /// game's phase boundaries, counters, 16.16 camera motion, turning-floor rotation values, and
 /// compiled sprite animations, so the scene's progress is game state:
-/// there is no host-authored video or timer that merely happens to end at the
+/// there is no separately authored video or timer that merely happens to end at the
 /// same gameplay room.
 /// </remarks>
 [RoomScopeBoundary("A cinematic scene that owns its own palette FX for the scene's lifetime; no gameplay room is loaded.")]
@@ -727,7 +727,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 return;
 
             case CinematicSpriteCueKind.StartFlyingToZebes:
-                // The title actor, not a host timer, publishes the camera flight exactly
+                // The title actor, not a separate timer, publishes the camera flight exactly
                 // where its animation reaches the flight step.
                 Background = new(Background.X.WithWhole(CeresDestructionSceneDefinitions.Motion.FloorExitX),
                     Background.Y.WithWrappedWhole(-112));

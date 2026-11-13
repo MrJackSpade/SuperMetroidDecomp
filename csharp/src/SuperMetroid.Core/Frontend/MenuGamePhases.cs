@@ -163,7 +163,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
             else if (session.Assists.SkipOpeningCinematic)
             {
                 // This is the same dispatcher boundary reached by the intro's end after
-                // the SPACE COLONY fade. Do not fake Start presses or build a host-
+                // the SPACE COLONY fade. Do not fake Start presses or build a separately
                 // authored Ceres room: the following frame will execute the ordinary
                 // new-game loader, elevator arrival, and movement-unlock sequence.
                 session.Close<GameOptionsMenuState>();

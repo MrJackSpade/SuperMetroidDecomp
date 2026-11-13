@@ -190,7 +190,7 @@ public sealed class TitleSequenceState : IFrontendScreen
 
         // The title admits B, Start, or A during every pre-title cinematic function. The
         // game performs a fast fade-out, reconstructs the final title objects, then a
-        // fast fade-in. Do not jump straight to a host menu: those intermediate frames and
+        // fast fade-in. Do not jump straight to the file-select menu: those intermediate frames and
         // their brightness levels are observable in recorded traces.
         bool confirmPressed =
             controller.NewlyPressed.HasAny(TitleSequenceDefinitions.Timing.ConfirmButtons);
@@ -315,7 +315,7 @@ public sealed class TitleSequenceState : IFrontendScreen
 
         StepBabyMetroidAnimation();
         // The title runs the same colour effects as rooms. Its two console
-        // animations own their colors and timers; the host must not synthesize a blink.
+        // animations own their colors and timers; nothing else synthesizes a blink.
         consolePaletteFx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
         // The skip reconstruction follows the palette effects for this frame. Restart
         // only here, not when the subsequent fade-in arms the title idle countdown.
@@ -480,7 +480,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         // Initial setup and each of the first three completed pan functions hide the floor,
         // showing objects alone, before the next text actor becomes visible. Keeping the
         // visibility explicit also matters when Start skips during a pan: the fade-out keeps
-        // whichever visibility was live rather than inferring it from the host phase name.
+        // whichever visibility was live rather than inferring it from the phase name.
         floorBackgroundEnabled = false;
     }
 

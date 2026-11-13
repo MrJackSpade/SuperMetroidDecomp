@@ -87,20 +87,36 @@ internal static class RoomBackgroundPeriodVerification
     }
 
     /// <summary>
-    /// Fails unless every installed effect page (#1675) is one period across of the page's tilemap: its width is the
-    /// shortest period of whole 16x16 cells that every row of its words repeats with, or the whole row where none does. Two
-    /// characters showing the same pixels are still two characters, so a page's pixels may repeat more often than its words.
+    /// Fails unless every installed effect picture (#1675, #1706), a liquid's surface strip or body or an atmosphere's
+    /// picture, is one period across of the rows of the effect's transfer it shows: its width is the shortest period of whole
+    /// 16x16 cells that every one of those rows repeats with, or the whole row where none does. Two characters showing the
+    /// same pixels are still two characters, so a picture's pixels may repeat more often than its words.
     /// </summary>
     internal static void VerifyFxPagesStoreOnePeriodAcross()
     {
         GameInstallation installation = RepositoryInstallation.Installation;
         // The pages are import data (#1638): the import's read holds them.
         RoomFxLayer3Pages tilemaps = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.ImportMaps.RoomFxPages;
-        Dictionary<string, RoomFxType> pages = [];
-        foreach (RoomFxType type in Enum.GetValues<RoomFxType>())
+        // Each effect picture's name, and the rows of the effect's transfer it shows, cut as the import cuts them.
+        Dictionary<string, ushort[]> pages = [];
+        const int rowWords = RoomBackgroundImageGeometry.PageTiles;
+        foreach (RoomFxType type in Enum.GetValues<RoomFxType>().Where(RoomFxOverlayState.ShowsPage))
         {
-            pages[FxOverlayPagePictures.PictureName(type)] = type;
-            pages[PictureParts.InFront(FxOverlayPagePictures.PictureName(type))] = type;
+            ushort[] transfer = BackgroundTileWords.ToWords(tilemaps.Resolve(type).Span);
+            var shown = new List<(string Name, ushort[] Rows)>();
+            if (RoomFxTypes.ShowsLiquid(type))
+            {
+                LiquidTransferRows cut = RoomEffectTransferCuts.Liquid(transfer);
+                shown.Add((RoomEffectPictures.SurfaceName(type), transfer[..(cut.BodyFirstRow * rowWords)]));
+                shown.Add((RoomEffectPictures.BodyName(type), transfer[(cut.BodyFirstRow * rowWords)..((cut.BodyFirstRow + cut.BodyRows) * rowWords)]));
+            }
+            else
+                shown.Add((RoomEffectPictures.AtmosphereName(type), transfer[(RoomEffectTransferCuts.AtmosphereFirstRow(transfer) * rowWords)..]));
+            foreach ((string name, ushort[] rows) in shown)
+            {
+                pages[name] = rows;
+                pages[PictureParts.InFront(name)] = rows;
+            }
         }
         var wrong = new List<string>();
         var narrowed = new SortedSet<string>(StringComparer.Ordinal);
@@ -112,17 +128,16 @@ internal static class RoomBackgroundPeriodVerification
             foreach ((string frame, InstalledSheetFrameDocument entry) in document.Frames.Where(frame => pages.ContainsKey(frame.Key)))
             {
                 checkedPages++;
-                ushort[] words = BackgroundTileWords.ToWords(tilemaps.Resolve(pages[frame]).Span);
-                int expected = PeriodAcross(words) * TilePixels;
+                int expected = PeriodAcross(pages[frame]) * TilePixels;
                 if (entry.Size.X != expected)
                     wrong.Add($"{sheet} frame {frame} is {entry.Size.X} wide; its words repeat every {expected} pixels across");
                 if (entry.Size.X < RoomBackgroundImageGeometryConstants.PagePixels)
                     narrowed.Add($"{frame} {entry.Size.X} wide");
             }
         }
-        AssertTrue(checkedPages > 0, "the installation holds effect pages");
-        AssertTrue(wrong.Count == 0, $"{wrong.Count} effect pages are not one period across of their words:{Environment.NewLine}{string.Join(Environment.NewLine, wrong)}");
-        Console.WriteLine($"Effect pages: {checkedPages} page pictures are one period across of their words ({string.Join(", ", narrowed)}).");
+        AssertTrue(checkedPages > 0, "the installation holds effect pictures");
+        AssertTrue(wrong.Count == 0, $"{wrong.Count} effect pictures are not one period across of their words:{Environment.NewLine}{string.Join(Environment.NewLine, wrong)}");
+        Console.WriteLine($"Effect pictures: {checkedPages} pictures are one period across of their words ({string.Join(", ", narrowed)}).");
     }
 
     /// <summary>Pixels along a tile's side.</summary>

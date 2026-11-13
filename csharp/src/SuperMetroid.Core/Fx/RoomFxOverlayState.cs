@@ -91,6 +91,11 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// null while the liquid has no surface or none has been placed on the screen yet.
     /// </summary>
     private int? waterSurfaceScreenY;
+    /// <summary>
+    /// The screen line the liquid was last placed on the screen at (<see cref="RoomFxOverlayRenderSnapshot.LiquidSurfaceLine"/>),
+    /// or null while it is not placed: none has been, or the liquid had no surface within the room then.
+    /// </summary>
+    private int? liquidSurfaceLine;
     /// <summary>Countdown for lava or acid's optional background wave.</summary>
     private int lavaAcidBackgroundWaveTimer;
     /// <summary>Selected lava or acid background wave displacement frame.</summary>
@@ -146,7 +151,10 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// <summary>How the effect's overlay blends with the room (#1545), as the FX record describes it, or null when it shows no overlay.</summary>
     public RoomEffectBlend? Blend { get; private set; }
 
-    /// <summary>The effect overlay's live scroll.</summary>
+    /// <summary>
+    /// The effect overlay's live scroll: an atmosphere's across and down; a liquid's across only, as its surface line
+    /// places it down (#1706).
+    /// </summary>
     public Position16<OverlayPixels> Scroll { get; private set; }
 
     /// <summary>Whether the room's effect shows its page on the effect overlay over the gameplay area.</summary>
@@ -205,8 +213,8 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
 
     /// <summary>
     /// Selects the door's FX record and initializes the liquid and palette state shared by room effects and room objects.
-    /// From then until Samus leaves the room, the effect overlay shows the effect's page where <see cref="FxOverlayPageDefinitions"/>
-    /// places it, or nothing for an effect without one (<see cref="FxOverlayPlane"/>).
+    /// From then until Samus leaves the room, the effect overlay shows the effect's liquid or atmosphere, or nothing for an
+    /// effect without one (<see cref="FxOverlayPlane"/>).
     /// </summary>
     private void SelectRecord(RoomFxLoadSource source)
     {
@@ -406,16 +414,27 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// </summary>
     public void PrimeViewport(Position16<RoomPixels> camera)
     {
-        if (Type is not (RoomFxType.Water or RoomFxType.TourianEntranceStatue or RoomFxType.Lava or RoomFxType.Acid))
+        if (!RoomFxTypes.ShowsLiquid(Type))
             return;
         Surface = BaseLine;
-        waterSurfaceScreenY = SurfaceScreenLine(camera);
-        Scroll = camera.AsOverlayScroll().WithY(ComputeLiquidVerticalScroll(Surface, camera.Y));
+        PlaceLiquid(camera, Offset16<OverlayPixels>.Zero);
     }
 
     /// <summary>The surface's screen line below <paramref name="camera"/>'s top, or null without a surface.</summary>
     private int? SurfaceScreenLine(Position16<RoomPixels> camera) =>
         Surface is int line ? CoordinateAxis.Difference(CoordinateAxis.Wrap(line), camera.Y) : null;
+
+    /// <summary>
+    /// Places the liquid on the screen below <paramref name="camera"/> (#1706): its surface's screen line, which the effect
+    /// overlay shows the liquid from while the surface lies within the room, and the overlay's horizontal scroll, the
+    /// camera's moved by <paramref name="surfaceDrift"/>. A liquid scrolls only across: its surface line places it down.
+    /// </summary>
+    private void PlaceLiquid(Position16<RoomPixels> camera, Offset16<OverlayPixels> surfaceDrift)
+    {
+        waterSurfaceScreenY = SurfaceScreenLine(camera);
+        liquidSurfaceLine = Surface is >= 0 ? waterSurfaceScreenY : null;
+        Scroll = (camera.AsOverlayScroll() + surfaceDrift).WithY(0);
+    }
 
     /// <summary>Captures values visible alongside the current frame boundary's sprite frame.</summary>
     public RoomFxOverlayRenderSnapshot? CaptureForDisplay() => IsRenderable
@@ -430,6 +449,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
             waterSurfaceScreenY)
         {
             LavaAcidBackgroundWavePhase = lavaAcidBackgroundWavePhase,
+            LiquidSurfaceLine = liquidSurfaceLine,
         }
         : null;
 
@@ -513,8 +533,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     {
         if (!liquidMotionAlreadyAdvanced)
             AdvanceLiquidMotion(randomNumber, earthquakeSoundDelay);
-        waterSurfaceScreenY = SurfaceScreenLine(camera);
-        Scroll = (camera.AsOverlayScroll() + waterDrift.WholePixels()).WithY(ComputeLiquidVerticalScroll(Surface, camera.Y));
+        PlaceLiquid(camera, waterDrift.WholePixels());
 
         if (--waterOverlayWaveTimer == 0)
         {
@@ -559,11 +578,8 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     {
         if (!liquidMotionAlreadyAdvanced)
             AdvanceLiquidMotion(randomNumber, earthquakeSoundDelay);
-        waterSurfaceScreenY = SurfaceScreenLine(camera);
-        // Lava/acid uses the same surface-relative vertical scroll equation as water.
-        // Zeroing it anchored the animated characters to the screen instead of
-        // beginning their first texture row immediately below the liquid boundary.
-        Scroll = camera.AsOverlayScroll().WithY(ComputeLiquidVerticalScroll(Surface, camera.Y));
+        // Lava and acid lie on the screen from their surface line as water does, the strip's surface row on that line.
+        PlaceLiquid(camera, Offset16<OverlayPixels>.Zero);
 
         if (Liquid is not RoomLavaOrAcid { Haze: HeatHazeDirection.Horizontal or HeatHazeDirection.Vertical })
             return;
@@ -759,33 +775,6 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
             : throw new InvalidOperationException("A room liquid with no surface has a tide.");
     }
 
-    /// <summary>The overlay's lines in its surface band, above the liquid's body.</summary>
-    private const int SurfaceBandLines = 256;
-
-    /// <summary>The lines in which the liquid's body below its surface repeats.</summary>
-    private const int LiquidBodyRepeatLines = 32;
-
-    /// <summary>
-    /// Computes the effect overlay's vertical scroll from the liquid surface relative to the camera's top; none shows nothing.
-    /// A surface below the camera's top scrolls the overlay up from the last line of its surface band, so the surface lies
-    /// where it is; a surface at or above the camera's top shows the liquid's body, the band after the surface band, at the
-    /// place in its repeat that the lines the surface lies above the camera reach.
-    /// </summary>
-    private static int ComputeLiquidVerticalScroll(int? surfaceY, int cameraY)
-    {
-        if (surfaceY is not int line || line < 0)
-            return 0;
-        int belowCameraTop = CoordinateAxis.Difference(line, cameraY);
-        if (belowCameraTop <= 0)
-        {
-            int aboveCameraTop = -belowCameraTop;
-            return SurfaceBandLines + (aboveCameraTop + LiquidBodyRepeatLines - 1) % LiquidBodyRepeatLines;
-        }
-        return belowCameraTop < SurfaceBandLines
-            ? SurfaceBandLines - 1 - belowCameraTop
-            : 0;
-    }
-
     /// <summary>Creates one room's effect state, with no FX record selected, over the session's carried state.</summary>
     /// <param name="session">The Fireflea state, which outlives each room.</param>
     public RoomFxOverlayState(RoomFxSession session)
@@ -810,6 +799,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         waterOverlayWaveTimer = 0;
         waterOverlayWavePhase = waterBackgroundWavePhase = 0;
         waterSurfaceScreenY = null;
+        liquidSurfaceLine = null;
         lavaAcidBackgroundWaveTimer = 0;
         lavaAcidBackgroundWavePhase = 0;
         liquidRisePhase = LiquidRisePhase.Dormant;

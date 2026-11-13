@@ -40,9 +40,10 @@ public static class RoomBlockSheetFiles
     /// The written picture manifest's schema revision: revision 1 names each picture by what is written and the values of
     /// its appearance inputs (#1466); revision 2 no longer pictures the cell the effect area is cleared to (#1514); revision
     /// 3 names an encounter's look input by the encounter and the look (#1538); revision 4 installs the effect overlay's
-    /// sheets as <c>OverlayPictures.</c> (#1601).
+    /// sheets as <c>OverlayPictures.</c> (#1601); revision 5 installs each liquid's surface strip and body and each
+    /// atmosphere's repeating picture in place of the effects' tilemap pages (#1706).
     /// </summary>
-    private const int WrittenManifestVersion = 4;
+    private const int WrittenManifestVersion = 5;
 
     /// <summary>The manifest naming each tileset whose turning floor is installed: each whose rooms show one (#1649).</summary>
     public const string FloorManifestFileName = "room-floors.json";
@@ -148,7 +149,7 @@ public static class RoomBlockSheetFiles
     /// Requires the manifests to install the room artwork every retail room state can select (#1536), so that no lookup a
     /// room makes by its tileset, background, sky or effect finds nothing: the block sheet and message boxes of every
     /// tileset are read for each of <paramref name="tilesets"/> itself; this requires an effect overlay picture sheet of each
-    /// of them with the page of every effect its rooms show, the turning floor of every tileset whose rooms show one, and every background
+    /// of them with the artwork of every effect its rooms show (#1706), the turning floor of every tileset whose rooms show one, and every background
     /// image a room state shows (<see cref="RoomBlockUploads.BackgroundNames"/>: none of a library background the player sees
     /// as something else, #1649).
     /// </summary>
@@ -173,9 +174,11 @@ public static class RoomBlockSheetFiles
                 ?? throw new InvalidDataException($"Written picture sheet {WrittenPictureSheet.NameOf(overlay.Layer, tileset)} records no pictures.");
             foreach (RoomFxType effect in RoomBlockUploads.EffectPagesOf(tileset))
             {
-                string page = FxOverlayPagePictures.PictureName(effect);
-                if (!pictures.Any(picture => picture.Picture == page))
-                    throw new InvalidDataException($"Written picture sheet {WrittenPictureSheet.NameOf(overlay.Layer, tileset)} pictures no page {page}, which a room of {installed} shows.");
+                foreach (string name in RoomEffectPictures.NamesOf(effect))
+                {
+                    if (!pictures.Any(picture => picture.Picture == name))
+                        throw new InvalidDataException($"Written picture sheet {WrittenPictureSheet.NameOf(overlay.Layer, tileset)} pictures no {name}, which a room of {installed} shows.");
+                }
             }
         }
         string[] floorTilesets = floors.Tilesets ?? throw new InvalidDataException($"Floor manifest {floorPath} names no tilesets.");

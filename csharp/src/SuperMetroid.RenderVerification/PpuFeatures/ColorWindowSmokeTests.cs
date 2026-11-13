@@ -56,9 +56,9 @@ internal static class ColorWindowSmokeTests
         foreach (ushort offset in new ushort[] { 0, 255, 511, ushort.MaxValue })
         {
             // Each line scrolls on both axes by a described sixteen-sample ramp (#1468).
-            var math = new OverlayBlendLayer(FxOverlayFixtures.Rows(bg3, height == 32 ? 32 : 0, height), first, operation,
-                new SampledScrollWave(offset, [.. Enumerable.Range(0, 16)], 7 * 256, 0, 0, 224),
-                new SampledScrollWave(offset, [.. Enumerable.Range(0, 16).Select(sample => -sample)], 3 * 256, 0, 0, 224));
+            var math = new OverlayBlendLayer(new AtmosphereOverlay(FxOverlayFixtures.Rows(bg3, height == 32 ? 32 : 0, height),
+                    new SampledScrollWave(offset, [.. Enumerable.Range(0, 16).Select(sample => -sample)], 3 * 256, 0, 0, 224)), first, operation,
+                new SampledScrollWave(offset, [.. Enumerable.Range(0, 16)], 7 * 256, 0, 0, 224));
             count++;
             var frame = new DisplayPacket(0, new LayeredScene(memory,
                 new DisplayLayer[] { background, math }, 15));

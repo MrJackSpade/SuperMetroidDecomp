@@ -223,15 +223,19 @@ public sealed class D3D11FrameRenderer : IDisposable
     }
 
     /// <summary>
-    /// The one effect overlay a frame shows (#1348, #1514): every layer that blends with the overlay shows the same
-    /// picture, placed the same way.
+    /// The one effect overlay a frame shows (#1348, #1514, #1706): every layer that blends with the overlay shows the same
+    /// artwork, placed the same way.
     /// </summary>
     /// <exception cref="InvalidOperationException">Two of the frame's layers show different overlays.</exception>
     private static OverlayBlendLayer SameOverlay(OverlayBlendLayer? shown, OverlayBlendLayer overlay) =>
         shown is null || Equals(shown.Picture, overlay.Picture) ? overlay
             : throw new InvalidOperationException("A frame's layers show two different effect overlays.");
 
-    /// <summary>Adds or subtracts the room effect's overlay, each line at the scroll its described line scrolls give it (#1468); the room buffer places its picture (#1514).</summary>
+    /// <summary>
+    /// Adds or subtracts the room effect's overlay, each line at the scroll its described line scrolls give it (#1468): an
+    /// atmosphere's own vertical scroll, or a liquid's lines counted from its surface strip's top (#1706). The room buffer
+    /// holds its artwork (#1514).
+    /// </summary>
     private unsafe void DispatchBackgroundMath(OverlayBlendLayer layer)
     {
         var data = ClearUploadConstants();
@@ -241,7 +245,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         data[14] = (uint)D3D11RoomSource.FxOverlay;
         data[25] = (uint)layer.FirstLine; data[26] = 224;
         D3D11LineScrolls.Pack(data, D3D11LineScrolls.Horizontal, layer.Horizontal, 0);
-        D3D11LineScrolls.Pack(data, D3D11LineScrolls.Vertical, layer.Vertical, 0);
+        D3D11LineScrolls.Pack(data, D3D11LineScrolls.Vertical, ShownFxOverlay.VerticalScroll(layer.Picture), 0);
         fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.Dispatch(32, 28, 1);
     }
@@ -348,7 +352,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         if (layer.OverlayBehind is { } lyingOverlay)
         {
             D3D11LineScrolls.Pack(data, D3D11LineScrolls.BlendPlaneHorizontal, lyingOverlay.Horizontal, 0);
-            D3D11LineScrolls.Pack(data, D3D11LineScrolls.BlendPlaneVertical, lyingOverlay.Vertical, 0);
+            D3D11LineScrolls.Pack(data, D3D11LineScrolls.BlendPlaneVertical, ShownFxOverlay.VerticalScroll(lyingOverlay.Picture), 0);
         }
         fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.Dispatch(32, 28, 1);
@@ -712,7 +716,7 @@ public sealed class D3D11FrameRenderer : IDisposable
             else if (layer is GameplayBlendLayer { OverlayBehind: { } behind })
                 overlay = SameOverlay(overlay, behind);
         }
-        var levels = new RoomLevelLayers(rooms?.Foreground, rooms?.Background ?? floor, rooms?.DoorSource, rooms?.ForegroundText, rooms?.Sky, overlay?.Picture,
+        var levels = new RoomLevelLayers(rooms?.Foreground, rooms?.Background ?? floor, rooms?.DoorSource, rooms?.ForegroundText, rooms?.Sky, ShownFxOverlay.Of(overlay?.Picture),
             rooms?.BackgroundText, floorMap, rooms?.BossBody, rooms?.XrayReveal, rooms?.BackgroundImage,
             messagePicture, hud,
             planes.Count == 0 ? null : new PicturedPlaneTables([.. planes]), grids.Count == 0 ? null : new PictureGridTables([.. grids]),

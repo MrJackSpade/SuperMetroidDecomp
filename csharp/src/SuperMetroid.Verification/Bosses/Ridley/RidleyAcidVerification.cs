@@ -78,9 +78,9 @@ internal static class RidleyAcidVerification
             // The colours the frame's pictures show, composed from their published shading and the import's colours (#1512),
             // in a gameplay frame whose groups show their pictures' own colours, which the acid page is painted in.
             var memory = FramePaint.FromNativeGameplay(GameplayShownColours.Of(runtime, InstalledFixtures.SamusShadeSources), runtime.DisplayedSprites.Draws);
-            // The room's effect page: the acid page the room effect chose (#1514).
+            // The room's effect artwork: the acid the room effect chose (#1514, #1706).
             var effect = GameplayEffectCapture.CaptureRoomFxOverlay((fx.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires fx.CaptureForDisplay().")),
-                FxOverlayFixtures.PageOf(fx.EffectPlane, InstalledFixtures.ImportMaps.RoomFxPages, runtime.ComposedVram(),
+                FxOverlayFixtures.ArtworkOf(fx.EffectPlane, InstalledFixtures.ImportMaps.RoomFxPages, runtime.ComposedVram(),
                     GameplayShownColours.Of(runtime, InstalledFixtures.SamusShadeSources)));
             var baseline = DisplayRendering.Render(new LayeredScene(memory, [], 15));
             var actual = DisplayRendering.Render(new LayeredScene(memory,

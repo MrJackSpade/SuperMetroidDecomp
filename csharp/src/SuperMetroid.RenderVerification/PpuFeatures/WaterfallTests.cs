@@ -48,8 +48,8 @@ internal static class WaterfallTests
         SuperMetroid.Core.Assets.LayeredPicture plane = FxOverlayFixtures.PlaneFromVram(vram.Bytes, cgram.Colors, 0x1000);
         var registers = new GameplaySceneView(new Position16<RoomPixels>(0, 0), new Position16<BackgroundPixels>(0, 0),
             WaterfallRoomDisplayRules.ShownLayers);
-        var bg3 = new OverlayBlendLayer(FxOverlayFixtures.Rows(plane, FxOverlayPlaneConstants.Rows / 2, 32), 32,
-            BlendOperation.Subtract, ScrollBands.Uniform(0), ScrollBands.Uniform(0));
+        var bg3 = new OverlayBlendLayer(new AtmosphereOverlay(FxOverlayFixtures.Rows(plane, FxOverlayPlaneConstants.Rows / 2, 32), ScrollBands.Uniform(0)), 32,
+            BlendOperation.Subtract, ScrollBands.Uniform(0));
         var layer = new GameplayBlendLayer(new(registers, RoomBackgroundsFixtures.Uniform(vram.Bytes, cgram.Colors, new(1), new TilemapCell(14, 8, new(4)))), ScreenWindow.Closed, false,
             new GameplayBlend
             {

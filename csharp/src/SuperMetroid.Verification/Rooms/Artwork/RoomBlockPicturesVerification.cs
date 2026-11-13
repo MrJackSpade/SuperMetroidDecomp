@@ -16,6 +16,7 @@ using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Hud;
@@ -405,10 +406,11 @@ internal static class RoomBlockPicturesVerification
     }
 
     /// <summary>
-    /// Confirms BG3 draws from the tileset's BG3 word sheet (#1392): in a room of each effect whose page BG3 shows, and in
+    /// Confirms BG3 draws from the tileset's BG3 word sheet (#1392): in a room of each effect whose artwork BG3 shows, and in
     /// Kraid's room, whose library background moves the HUD's characters, the latched BG3 plane draws from pictures, and
-    /// every word of the effect's page under a stocked HUD is painted in the page's picture as its two-bit character paints
-    /// at the HUD character base BG3 shows, colour zero's row included (#1514); a room showing no page shows none. The words are resolved against the characters as the check
+    /// every word of the effect's transfer under a stocked HUD is painted in the picture showing its row as its two-bit
+    /// character paints at the HUD character base BG3 shows, colour zero's row included (#1514, #1706); a room showing no
+    /// artwork shows none. The words are resolved against the characters as the check
     /// reads them, since an effect can bind its next frame after the latch.
     /// </summary>
     internal static void VerifyBg3Pictures()
@@ -435,20 +437,22 @@ internal static class RoomBlockPicturesVerification
             int characterBase = BgCharacterWordsConstants.WordOf(layer3, 0);
             ArtworkFrameSelections frames = RoomScopeOf(runtime).ArtworkFrames;
             var effects = new RoomAnimatedCharacters(UploadsOf(runtime).Bg3Options, layer3, AnimatedTilesOf(runtime, room.Name));
-            // The overlay shows the effect's page picture (#1514): each of its cells paints the word the cartridge writes
-            // there, from the row it writes the page to.
-            FxOverlayPage page = new WrittenPictureResolver((runtime.Room.Scope
+            // The overlay shows the effect's artwork (#1514, #1706): each cell of the effect's transfer paints the word the
+            // cartridge writes there, from the row it writes the transfer to, in the picture showing that row. A liquid's
+            // strip shows the transfer's top rows and its body, repeating down, every row below them; an atmosphere's picture
+            // shows every row below the ones it never shows. Each picture is one period across of its rows, repeated at its
+            // width (#1675).
+            FxOverlayArtwork artwork = new WrittenPictureResolver((runtime.Room.Scope
                 ?? throw new InvalidOperationException($"{room.Name} has no room scope.")).FxOverlayPictures.Sheet).Resolve(plane, AppearanceOf(runtime, frames));
-            // A room whose effect shows no page shows nothing on the overlay.
-            if (page.Picture is not { } shownPage)
+            // A room whose effect shows no artwork shows nothing on the overlay.
+            if (artwork.Shown is not { } shownArtwork)
             {
-                AssertTrue(plane.EffectPage is null, $"{room.Name}: BG3 shows its effect's page");
-                Console.WriteLine($"BG3 pictures: {room.Name} shows no effect page.");
+                AssertTrue(plane.EffectPage is null, $"{room.Name}: BG3 shows its effect's artwork");
+                Console.WriteLine($"BG3 pictures: {room.Name} shows no effect artwork.");
                 continue;
             }
             int firstWord = FxOverlayPlaneConstants.EffectPageFirstRow * FxOverlayPlaneConstants.Columns;
-            // The page picture is one period across of what the plane shows, repeated at its width (#1675).
-            int pageWidth = (shownPage.Size ?? throw new InvalidOperationException($"{room.Name}: its effect page installs neither part.")).X;
+            int transferPixels = (FxOverlayPlaneConstants.Rows - FxOverlayPlaneConstants.EffectPageFirstRow) * CharacterPixels;
             for (int index = firstWord; index < FxOverlayPlaneConstants.Columns * FxOverlayPlaneConstants.Rows; index++)
             {
                 int cellX = (index - firstWord) % FxOverlayPlaneConstants.Columns * CharacterPixels;
@@ -464,7 +468,9 @@ internal static class RoomBlockPicturesVerification
                     int address = pixelRow * 2;
                     int colour = (bytes[address] >> bit & 1) | (bytes[address + 1] >> bit & 1) << 1;
                     int expected = word.PaletteIndex * 4 + colour;
-                    var at = new Position16<ImagePixels>((cellX + x) % pageWidth, cellY + y);
+                    if (ShownRow(shownArtwork, cellY + y, transferPixels) is not ({ } shownPage, int row))
+                        continue;
+                    var at = new Position16<ImagePixels>((cellX + x) % (shownPage.Size ?? throw new InvalidOperationException($"{room.Name}: an effect picture installs neither part.")).X, row);
                     // The message names the character's picture, which costs a lookup, so it is built only for a failing pixel.
                     if (!PaintsTwoBitInPart(shownPage, at, expected, word.PaletteIndex * 4, word.HasPriority))
                     {
@@ -474,7 +480,28 @@ internal static class RoomBlockPicturesVerification
                     }
                 }
             }
-            Console.WriteLine($"BG3 pictures: {room.Name}'s HUD and effect page painted from their pictures at base ${characterBase:X4}.");
+            Console.WriteLine($"BG3 pictures: {room.Name}'s HUD and effect artwork painted from their pictures at base ${characterBase:X4}.");
+        }
+    }
+
+    /// <summary>
+    /// The picture of <paramref name="artwork"/> showing pixel row <paramref name="transferRow"/> of the effect's
+    /// <paramref name="transferPixels"/>-row transfer, and its row there (#1706): a liquid's strip from the transfer's top and
+    /// its body repeating below it; an atmosphere's picture holding the transfer's bottom rows. Null for a row the atmosphere
+    /// never shows.
+    /// </summary>
+    private static (LayeredPicture Picture, int Row)? ShownRow(RoomEffectArtwork artwork, int transferRow, int transferPixels)
+    {
+        switch (artwork)
+        {
+            case LiquidArtwork liquid:
+                return transferRow < liquid.SurfaceSize.Y ? (liquid.Surface, transferRow)
+                    : (liquid.Body, (transferRow - liquid.SurfaceSize.Y) % liquid.BodySize.Y);
+            case AtmosphereArtwork atmosphere:
+                int hidden = transferPixels - atmosphere.Size.Y;
+                return transferRow < hidden ? null : (atmosphere.Picture, transferRow - hidden);
+            default:
+                throw new ArgumentOutOfRangeException(nameof(artwork), artwork, "Undefined room effect artwork.");
         }
     }
 

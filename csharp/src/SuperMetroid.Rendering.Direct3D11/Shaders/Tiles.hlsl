@@ -138,25 +138,42 @@ void SkyPicture(uint2 scrolled, uint part, out uint2 within, out uint picture)
     // The sky's one rectangle is its whole image at the area's corner, so the image pixel is the position.
     BackgroundImagePicture(RoomLevels[RoomSkyImageWord], position, part, within, picture);
 }
-// What the effect overlay shows at a scrolled position (OverlayPicture, #1514), from its record at room level word
-// RoomFxOverlayWord: its picture's parts (#1634), the picture pixel its rectangle's corner shows, the rectangle's size, the
-// overlay pixel the corner lies on and the size the overlay repeats at, each x below y. The overlay repeats at that
-// size; a position within the rectangle gives part `part` of the picture as `picture`, with `within` its pixel there,
-// and nothing shows elsewhere.
+// What the effect overlay shows at a scrolled position (OverlayPicture, #1514, #1706), from its record at room level word
+// RoomFxOverlayWord: its kind, then an atmosphere's picture or a liquid's surface strip, then a liquid's body, each as its
+// parts (#1634) and its width and height, x below y. Every picture repeats across at its width. An atmosphere's picture
+// repeats down at its height. A liquid's scrolled row counts down from its strip's top line, a signed half: the strip
+// shows its rows, nothing shows above it and the body repeats down below it; a liquid without its strip shows the body
+// on every row, at the place in its repeat it has below the strip. Gives part `part` of the picture shown as `picture`,
+// with `within` its pixel there. It computes every case and leaves by one exit: written with early returns inside its
+// liquid branches, the WARP device drew some of an atmosphere's pixels from the wrong place, differently from one device
+// to the next (#1706).
+static const uint FxOverlayAtmosphere = 0, FxOverlayLiquidWithSurface = 1, FxOverlayLiquidBodyOnly = 2;
+static const uint FxOverlayPictureWords = PictureParts + 1;
 bool FxOverlayPicture(uint2 scrolled, uint part, out uint2 within, out uint picture)
 {
-    picture = 0;
-    within = uint2(0, 0);
     uint table = RoomLevels[RoomFxOverlayWord];
-    if (table == 0) return false;
-    uint source = RoomLevels[table + PictureParts], size = RoomLevels[table + PictureParts + 1];
-    uint place = RoomLevels[table + PictureParts + 2], repeatSize = RoomLevels[table + PictureParts + 3];
-    uint2 position = scrolled % uint2(repeatSize & 65535, repeatSize >> 16);
-    uint2 offset = position - uint2(place & 65535, place >> 16);
-    if (offset.x >= (size & 65535) || offset.y >= (size >> 16)) return false;
-    picture = RoomLevels[table + part];
-    within = uint2(source & 65535, source >> 16) + offset;
-    return true;
+    uint kind = RoomLevels[table];
+    uint strip = table + 1, body = strip + FxOverlayPictureWords;
+    uint stripSize = RoomLevels[strip + PictureParts], bodySize = RoomLevels[body + PictureParts];
+    uint2 stripExtent = max(uint2(stripSize & 65535, stripSize >> 16), uint2(1, 1));
+    uint2 bodyExtent = max(uint2(bodySize & 65535, bodySize >> 16), uint2(1, 1));
+    // A liquid's scrolled row counts down from its strip's top line as a signed half; lifted by half the halves' range it
+    // is never negative, so the arithmetic stays unsigned.
+    uint lifted = (scrolled.y + 32768) & 65535;
+    bool liquid = kind != FxOverlayAtmosphere;
+    bool showsStrip = kind == FxOverlayLiquidWithSurface;
+    bool aboveStrip = lifted < 32768;
+    bool inStrip = showsStrip && !aboveStrip && lifted - 32768 < stripExtent.y;
+    bool inBody = liquid && !inStrip && !(showsStrip && aboveStrip);
+    // The body's row: the rows below the strip's last, counted from a whole number of bodies above the lift.
+    uint shift = 32768 + stripExtent.y;
+    uint whole = (shift + bodyExtent.y - 1) / bodyExtent.y * bodyExtent.y;
+    uint2 atStrip = uint2(scrolled.x % stripExtent.x, inStrip ? lifted - 32768 : scrolled.y % stripExtent.y);
+    uint2 atBody = uint2(scrolled.x % bodyExtent.x, (lifted + whole - shift) % bodyExtent.y);
+    bool shown = table != 0 && (!liquid || inStrip || inBody);
+    within = shown ? (inBody ? atBody : atStrip) : uint2(0, 0);
+    picture = shown ? RoomLevels[(inBody ? body : strip) + part] : 0;
+    return shown;
 }
 // The HUD's picture at a screen position (#1466): the last placed picture covering it, as `picture`, with `within` its
 // pixel there; false where no picture covers it, which shows nothing.

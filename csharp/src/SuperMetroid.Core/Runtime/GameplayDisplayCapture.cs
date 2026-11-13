@@ -156,8 +156,8 @@ public static class GameplayDisplayCapture
         ?? throw new InvalidOperationException("A gameplay frame shows the HUD once the frame boundary that latched it resolves its pictures."),
         DrawsOpaque: true);
 
-    /// <summary>The room effect's page the frame boundary displays on the effect overlay (#1348, #1514).</summary>
-    private static FxOverlayPage FxOverlay(GameplayDisplayLatch latched) => (latched.Rooms
+    /// <summary>The room effect's artwork the frame boundary displays on the effect overlay (#1348, #1514, #1706).</summary>
+    private static FxOverlayArtwork FxOverlay(GameplayDisplayLatch latched) => (latched.Rooms
         ?? throw new InvalidOperationException("A gameplay frame shows the effect overlay only once a room is loaded.")).ShownFxOverlay;
 
     /// <summary>

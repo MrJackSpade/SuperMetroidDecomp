@@ -57,13 +57,16 @@ internal static class RoomPictureClosedContractDefinitions
              new("csharp/src/SuperMetroid.AssetExtraction/Hud/GameplayMessageArtwork.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Rooms/MessageBoxSheetComposer.cs"),
              Loader]),
-        new("SuperMetroid.Core.Fx.Artwork.FxOverlayPagePictures", "fx-overlay-complete-effect-pages", ["Page"],
-            [new("csharp/src/SuperMetroid.Core/Fx/Artwork/FxOverlayPagePictures.cs"),
+        new("SuperMetroid.Core.Fx.Artwork.RoomEffectPictures", "fx-overlay-complete-effect-artwork", ["Artwork"],
+            [new("csharp/src/SuperMetroid.Core/Fx/Artwork/RoomEffectPictures.cs"),
+             new("csharp/src/SuperMetroid.Core/Fx/Artwork/RoomEffectArtwork.cs"),
+             new("csharp/src/SuperMetroid.Core/Fx/RoomFxTypes.cs"),
              new("csharp/src/SuperMetroid.Core/Fx/RoomFxOverlayState.cs"),
              new("csharp/src/SuperMetroid.Core/Fx/FxOverlayPlane.cs"),
              new("csharp/src/SuperMetroid.Core/Fx/FxOverlayPictureResolution.cs"),
              new("csharp/src/SuperMetroid.Core/Rooms/Artwork/WrittenPictureSheet.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Rooms/WrittenPictureSheetComposer.cs"),
+             new("csharp/src/SuperMetroid.AssetExtraction/Fx/RoomEffectTransferCuts.cs"),
              .. RetailStates, Uploads, Loader]),
     ];
 }

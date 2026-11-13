@@ -10,6 +10,7 @@ namespace SuperMetroid.RenderVerification.PpuFeatures;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Checks gameplay color math and X-ray source selection against the WARP reference and D3D11 pixels.</summary>
@@ -49,8 +50,8 @@ internal static class XrayGameplayTests
                 ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
             // The X-ray's window covers the screen's right half (#1468).
             var lines = ScreenWindow.Of(WindowRectangle.Spanning(128, 0, 255, 223));
-            var bg3 = sub ? new OverlayBlendLayer(FxOverlayFixtures.Rows(plane, FxOverlayPlaneConstants.Rows / 2, 32), 32,
-                BlendOperation.Add, ScrollBands.Uniform(0), ScrollBands.Uniform(0)) : null;
+            var bg3 = sub ? new OverlayBlendLayer(new AtmosphereOverlay(FxOverlayFixtures.Rows(plane, FxOverlayPlaneConstants.Rows / 2, 32), ScrollBands.Uniform(0)), 32,
+                BlendOperation.Add, ScrollBands.Uniform(0)) : null;
             // With no overlay lying behind, the room combines with the X-ray's colour unhalved, as the capture describes it.
             var layer = new GameplayBlendLayer(new(registers, bg1), lines, reveal, new GameplayBlend
             {
@@ -164,12 +165,14 @@ internal static class XrayGameplayTests
                 });
             var lines = RandomWindow(random);
             int bg3Rows = frame % 2 == 0 ? 32 : 64;
-            var bg3 = new OverlayBlendLayer(FxOverlayFixtures.Rows(gameplay.Rooms.ShownFxOverlay.Picture
-                    ?? throw new InvalidOperationException("A seeded room shows a seeded effect page."),
-                random.Next(FxOverlayPlaneConstants.Rows - bg3Rows + 1), bg3Rows), 32,
-                // The blend plane's line scrolls are random described shapes (#1468): a sine wave across, a stretch down.
-                BlendOperation.Add, new ScrollWave(Word(), random.Next(65536), new TrigonometryAngle((byte)random.Next(256)), 1 + random.Next(256), 32, 224),
-                new ScrollStretch(Word(), Word(), 32 + random.Next(64), 128 + random.Next(96), random.Next(65536)));
+            AtmosphereArtwork seededOverlay = gameplay.Rooms.ShownFxOverlay.Shown as AtmosphereArtwork
+                ?? throw new InvalidOperationException("A seeded room shows a seeded effect atmosphere.");
+            int bg3FirstRow = random.Next(FxOverlayPlaneConstants.Rows - bg3Rows + 1);
+            // The blend plane's line scrolls are random described shapes (#1468): a sine wave across, a stretch down.
+            var bg3Across = new ScrollWave(Word(), random.Next(65536), new TrigonometryAngle((byte)random.Next(256)), 1 + random.Next(256), 32, 224);
+            var bg3 = new OverlayBlendLayer(new AtmosphereOverlay(FxOverlayFixtures.Rows(seededOverlay.Picture, bg3FirstRow, bg3Rows),
+                    new ScrollStretch(Word(), Word(), 32 + random.Next(64), 128 + random.Next(96), random.Next(65536))), 32,
+                BlendOperation.Add, bg3Across);
             bool bg2Subscreen = frame % 4 == 0;
             // Every fourth frame blends with the background lying behind; most others with the overlay; the rest with the colour.
             var layer = new GameplayBlendLayer(gameplay, lines, frame % 2 == 0, RandomBlend(random),

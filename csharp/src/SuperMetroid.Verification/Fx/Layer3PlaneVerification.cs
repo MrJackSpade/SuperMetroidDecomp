@@ -90,16 +90,14 @@ internal static class Layer3PlaneVerification
         water.PrimeViewport(Position16<RoomPixels>.Zero);
         RoomFxOverlayRenderSnapshot shown = water.CaptureForDisplay() ?? throw new InvalidOperationException("Water is a renderable effect.");
         AssertEqual(0x0080, shown.NamedSurface, "the published effect carries the constructed liquid level");
-        FxOverlayPage shownPage = FxOverlayFixtures.PageFromPlaneWords(plane, new byte[SnesVram.ByteCount], new RgbColor[SnesCgram.ColorCount]);
-        OverlayBlendLayer layer = GameplayEffectCapture.CaptureRoomFxOverlay(shown, shownPage)
+        FxOverlayArtwork shownArtwork = FxOverlayFixtures.ArtworkFromPlaneWords(RoomFxType.Water, plane, new byte[SnesVram.ByteCount], new RgbColor[SnesCgram.ColorCount]);
+        OverlayBlendLayer layer = GameplayEffectCapture.CaptureRoomFxOverlay(shown, shownArtwork)
             ?? throw new InvalidOperationException("Water at a visible level captures a BG3 layer.");
-        // The overlay shows the whole page from the row the cartridge writes it to, repeating every two pages (#1514).
-        OverlayPicture overlay = layer.Picture ?? throw new InvalidOperationException("Water shows its page.");
-        AssertTrue(ReferenceEquals(shownPage.Picture, overlay.Picture) && overlay.Source == Position16<ImagePixels>.Zero
-            && overlay.Size.Y == overlay.Picture.Size?.Y
-            && overlay.Place.Y == FxOverlayPlaneConstants.EffectPageFirstRow * 8
-            && overlay.Repeat.Y == FxOverlayPlaneConstants.Rows * 8,
-            "a liquid's overlay shows its whole page where the published plane holds it");
+        // The overlay shows the water's strip and body from its surface's screen line (#1706): the camera at the room's origin
+        // places the surface on the line the level names.
+        LiquidOverlay overlay = layer.Picture as LiquidOverlay ?? throw new InvalidOperationException("Water shows a liquid.");
+        AssertTrue(ReferenceEquals(shownArtwork.Shown, overlay.Artwork) && overlay.SurfaceLine == 0x0080 && overlay.ShowsSurface,
+            "a liquid's overlay shows its artwork from its surface's screen line");
         Console.WriteLine("  BG3 plane: a water effect shows its page under the HUD and captures from the plane.");
     }
 

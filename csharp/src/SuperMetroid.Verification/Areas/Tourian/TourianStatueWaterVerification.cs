@@ -68,7 +68,7 @@ internal static class TourianStatueWaterVerification
             "Actual water artwork visibly changes submerged room pixels");
         AssertTrue(GameplayEffectCapture.BuildWaterBackgroundHorizontalScrolls(displayed, new Position16<BackgroundPixels>(0, 0)) is null,
             "Special statue FX does not install ordinary-water BG2 X-wave HDMA");
-        runtime.TourianStatues.Descent = 64 << 16;
+        runtime.TourianStatues.Descent = SignedSixteenSixteen.FromWholePixels(64);
         runtime.TourianStatues.LatchDisplay();
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var descending = (GameplaySceneLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()).Layers[0];
@@ -78,7 +78,7 @@ internal static class TourianStatueWaterVerification
         AssertEqual(0xb0, (runtime.Display.DisplayedRoomFxOverlay ?? throw new InvalidOperationException("Verification requires a published room FX snapshot.")).WaterSurfaceScreenY,
             "Statue motion does not move its water surface");
         runtime.RoomFxOverlay.SetLiquidMotion(targetYPosition: 0xb4,
-            yVelocity: SignedEightEight.FromSignedRaw(0x0100), timer: 1);
+            yVelocity: SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0x0100), timer: 1);
         game.Step(0);
         AssertEqual(0xb0, runtime.RoomFxOverlay.NamedSurface, "Water motion first arms its native wait");
         game.Step(0);

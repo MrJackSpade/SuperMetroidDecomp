@@ -92,5 +92,5 @@ internal readonly struct ProjectileInheritanceRecordsAccess(ProjectileLaunchInhe
 
     /// <summary>The signed 16.16 distance record at <paramref name="offset"/>: its whole-pixel word, then its fraction word.</summary>
     private static SignedSixteenSixteen SnapshotDistance(ReadOnlySpan<byte> bytes, int offset) =>
-        SignedSixteenSixteen.FromRaw(unchecked((int)SixteenSixteenWords.Compose(SnapshotWord(bytes, offset), SnapshotWord(bytes, offset + 2))));
+        SixteenSixteenWords.ToDisplacement(SnapshotWord(bytes, offset), SnapshotWord(bytes, offset + 2));
 }

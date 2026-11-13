@@ -36,11 +36,11 @@ public sealed class KiHunterEnemyState
     }
 
     /// <summary>
-    /// A detached wing's speed index, in 1/256 records of the shared quadratic speed table: reset to <see
-    /// cref="DetachedSpeedReset"/> at each arc and lowered by 384 per update, landing on 256 when the step would go
-    /// below zero, so it stays from zero to 24,319.
+    /// A detached wing's place along the shared quadratic speed table: reset to <see cref="DetachedSpeedReset"/> at each
+    /// arc and lowered by a record and a half per update, landing on record one when the step would go below the start,
+    /// so it stays within the table.
     /// </summary>
-    public int DetachedSpeedIndex { get; internal set; }
+    public EnemyQuadraticSpeedIndex DetachedSpeedIndex { get; internal set; }
 
     /// <summary>
     /// A body's swoop origin: its room position when the swoop begins, from which the dive's ellipse hangs. Only the Y
@@ -96,10 +96,10 @@ public sealed class KiHunterEnemyState
     /// <summary>A body's upper patrol boundary, sixteen pixels above its spawn Y. Only the Y axis is stored and meaningful.</summary>
     public Position16<RoomPixels> UpperPatrol { get; internal set; }
     /// <summary>
-    /// A detached wing's speed-index reset, computed at detachment by stepping 384 at a time until the quadratic speed
-    /// sum reaches its threshold, and reapplied at each arc change; from 384 to 24,319.
+    /// A detached wing's speed-index reset, computed at detachment by stepping a record and a half at a time until the
+    /// quadratic speed sum reaches its threshold, and reapplied at each arc change; within the table.
     /// </summary>
-    public int DetachedSpeedReset { get; internal set; }
+    public EnemyQuadraticSpeedIndex DetachedSpeedReset { get; internal set; }
     /// <summary>
     /// A body's lower patrol boundary, sixteen pixels below its spawn Y; wing detachment reads the wing's own boundary,
     /// which its initializer never sets. Only the Y axis is stored and meaningful.

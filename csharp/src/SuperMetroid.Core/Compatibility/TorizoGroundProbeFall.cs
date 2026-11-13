@@ -19,5 +19,5 @@ public static class TorizoGroundProbeFall
     /// <summary>The whole pixels the probe drops the Torizo this update.</summary>
     /// <param name="sidewaysVelocity">The Torizo's sideways velocity.</param>
     public static int Pixels(SignedEightEight sidewaysVelocity) =>
-        Math.Min(Math.Abs(sidewaysVelocity.SignedRawValue) + 1, FastestPixels);
+        Math.Min(Math.Abs(sidewaysVelocity.InTwoHundredFiftySixthsOfPixel) + 1, FastestPixels);
 }

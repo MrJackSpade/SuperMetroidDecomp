@@ -42,11 +42,11 @@ internal static class QuicksandVerification
             AssertEqual(0x7fff, samus.HorizontalSpeed.BaseSpeed.Fraction, "quicksand retains low fractional X");
             AssertEqual(0, samus.HorizontalSpeed.BaseSpeed.Whole, "quicksand clears whole base X");
             AssertEqual(false, samus.HorizontalSpeed.HasRunningMomentum, "quicksand cancels running momentum");
-            var move = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level }, body, samus, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromRaw(0x28000), ScanLeftToRight = true });
+            var move = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level }, body, samus, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromParts(2, 32768), ScanLeftToRight = true });
             AssertEqual(direction == SamusVerticalDirection.None ? 0x3000 : 0x28000, move.AcceptedDisplacement.RawValue, "surface probe accepts native sinking distance");
             AssertEqual(direction != SamusVerticalDirection.Up, move.Collided, "surface publishes grounded contact separately from carry");
             body.Position = body.Position.WithWholeY(24);
-            var poseProbe = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level }, body, samus, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromRaw(0x28000), ScanLeftToRight = true, PublishQuicksandGrounding = false });
+            var poseProbe = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level }, body, samus, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromParts(2, 32768), ScanLeftToRight = true, PublishQuicksandGrounding = false });
             AssertEqual(false, poseProbe.Collided, "pose clearance does not treat sand contact as solid carry");
         }
         for (int kind = 0; kind < 3; kind++)
@@ -60,7 +60,7 @@ internal static class QuicksandVerification
             SamusInsideBlockReactions.PrepareFrame(sand, samus, AreaId.Maridia);
             AssertEqual(kind == 0 ? 0x12000 : kind == 1 ? 0x14000 : 0x1c000,
                 samus.Kinematics.ExtraDisplacement.Y.RawValue, "submerging and sandfall forces");
-            SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = sand }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromRaw(1 << 16) });
+            SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = sand }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1) });
             AssertEqual(kind == 0 ? (ushort)0 : (ushort)4, samus.Kinematics.YSpeed.Whole, "submerging horizontal collision speed side effect");
             AssertEqual(kind == 0 ? (ushort)0 : (ushort)0x1c00, samus.Kinematics.YAcceleration.Fraction, "submerging horizontal collision gravity side effect");
         }
@@ -127,7 +127,7 @@ internal static class QuicksandVerification
                 YSpeed = new UnsignedSixteenSixteen(4, 0),
                 YAcceleration = new UnsignedSixteenSixteen(0, 0x1c00),
             };
-            SignedSixteenSixteen displacement = SignedSixteenSixteen.FromRaw(0x28000);
+            SignedSixteenSixteen displacement = SignedSixteenSixteen.FromParts(2, 32768);
             SpecialAirCollisionOutcome outcome = SamusInsideBlockReactions.ReactCollision(
                 new(body, body.CollisionContactDamageIndex(null)),
                 new SamusTerrain { Level = level },
@@ -209,7 +209,7 @@ internal static class QuicksandVerification
         Func<QuicksandSurfacePhysics, SignedSixteenSixteen> field)
     {
         for (int suit = 0; suit < 2; suit++)
-            AssertEqual(SignedSixteenSixteen.FromRaw(SixteenSixteen.FromEightEight(ReadRomWord(rom, address + suit * 2))),
+            AssertEqual(SixteenSixteenWords.ToDisplacement(SixteenSixteen.FromEightEight(ReadRomWord(rom, address + suit * 2))),
                 field(QuicksandReactions.SurfacePhysics(suit != 0)),
                 $"quicksand physics {address:X6} suit {suit}");
     }
@@ -253,7 +253,7 @@ internal static class QuicksandVerification
                 SandCollisionArea = AreaId.Maridia,
                 YDirection = SamusVerticalDirection.None,
             };
-            SignedSixteenSixteen displacement = SignedSixteenSixteen.FromRaw(probe);
+            SignedSixteenSixteen displacement = SixteenSixteenWords.ToDisplacement(probe);
             SamusInsideBlockReactions.ReactCollision(
                 new(body, body.CollisionContactDamageIndex(null)),
                 new SamusTerrain { Level = level },

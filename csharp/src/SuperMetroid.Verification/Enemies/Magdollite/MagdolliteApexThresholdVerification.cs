@@ -63,7 +63,7 @@ internal static class MagdolliteApexThresholdVerification
                 enemies.MagdolliteBehavior.InitializeMagdollite(member, null);
             }
             MagdolliteEnemyState head = enemies.MagdolliteStates[0] ?? throw new InvalidOperationException("Magdollite head has no state.");
-            head.UpwardVelocity = SignedSixteenSixteen.Zero - SignedSixteenSixteen.FromRaw(onePixel + onePixel / 2);
+            head.UpwardVelocity = SignedSixteenSixteen.Zero - SixteenSixteenWords.ToDisplacement(onePixel + onePixel / 2);
             RoomEnemySlot body = enemies.SlotTable.Slots[1];
             MagdolliteEnemyState state = enemies.MagdolliteStates[1] ?? throw new InvalidOperationException("Magdollite arm has no state.");
             state.Function = MagdolliteEnemyFunction.BodyRising;

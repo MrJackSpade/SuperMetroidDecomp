@@ -92,7 +92,7 @@ internal static class FamilyTrigonometryVerification
             {
                 bull.Position = new(new(FixedCoordinate.WholeOf(unchecked((int)initial)), unchecked((ushort)initial)), new(FixedCoordinate.WholeOf(unchecked((int)initial)), unchecked((ushort)initial)));
                 bullState.Angle = new TrigonometryAngle(angle);
-                bullState.Speed = (ushort)speed;
+                bullState.Speed = new SignedEightEight(speed);
                 bullMove(bull, bullState);
                 uint x = bull.Position.X.RawValue;
                 uint y = bull.Position.Y.RawValue;

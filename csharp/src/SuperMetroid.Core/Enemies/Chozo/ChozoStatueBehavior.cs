@@ -225,7 +225,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
                 // The cue writes the liquid words consumed by the liquid handler once, when
                 // it runs; the liquid owns them from then on.
                 _roomFx.FxOverlay?.SetLiquidMotion(
-                    timer: ChozoStatueFxData.LoweringDelay, yVelocity: SignedEightEight.FromSignedRaw(ChozoStatueFxData.LoweringVelocity));
+                    timer: ChozoStatueFxData.LoweringDelay, yVelocity: ChozoStatueFxData.LoweringVelocity);
                 return null;
 
             case ChozoStatueCue.Command { Kind: ChozoStatueCueKind.SetLoweredAcidPosition }:

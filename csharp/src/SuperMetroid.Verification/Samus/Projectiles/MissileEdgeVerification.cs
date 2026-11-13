@@ -45,7 +45,7 @@ internal static class MissileEdgeVerification
                 var shot = projectiles.Slots[0];
                 ushort[] expected = native[new MissileEdgeNative(edge, frame)];
                 ushort[] actual = [shot.Position.X.Whole, shot.Position.X.Fraction, shot.Position.Y.Whole, shot.Position.Y.Fraction,
-                    unchecked((ushort)shot.Velocity.X.SignedRawValue), unchecked((ushort)shot.Velocity.Y.SignedRawValue), checked((ushort)shot.InstructionPointer)];
+                    unchecked((ushort)shot.Velocity.X.InTwoHundredFiftySixthsOfPixel), unchecked((ushort)shot.Velocity.Y.InTwoHundredFiftySixthsOfPixel), checked((ushort)shot.InstructionPointer)];
                 // The recorded type word is compared as the projectile it decodes to.
                 AssertTrue(actual.SequenceEqual(expected.Where((_, column) => column != NativeTypeColumn)),
                     $"Missile edge={edge} frame={frame} native comparison: {string.Join(',', actual.Select(v => v.ToString("X4")))}");

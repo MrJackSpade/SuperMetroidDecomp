@@ -114,7 +114,7 @@ internal static class DraygonStateQuantitiesVerification
     private static void VerifyShotSwoopAcceleration()
     {
         (_, DraygonEnemyState state) = NewDraygon();
-        state.SwoopAcceleration = new EightEightVector<RoomPixels>(0, 24);
+        state.SwoopAcceleration = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 24);
         ushort native = 24;
         for (int hit = 0; hit < 20; hit++)
         {
@@ -138,7 +138,7 @@ internal static class DraygonStateQuantitiesVerification
         (_, DraygonEnemyState state) = NewDraygon();
         const ushort resetX = 65456, resetY = 128;
         state.LeftSideReset = new Position16<RoomPixels>(resetX, resetY);
-        state.SwoopAcceleration = new EightEightVector<RoomPixels>(0, 40);
+        state.SwoopAcceleration = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 40);
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = FixedPosition<RoomPixels>.FromWhole(new(200, 400)) };
 
         DraygonSwoops.BuildDraygonSwoopYPositions(state, samus);

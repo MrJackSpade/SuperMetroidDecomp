@@ -184,7 +184,7 @@ internal static class RoomFxRecordCatalogSource
     /// <summary>Renders one record as the generated catalog spells it.</summary>
     private static string RenderRecord(RoomFxRecordDefinition record) =>
         $"new({SurfaceY(record.BaseYPosition)}, {SurfaceY(record.TargetYPosition)}, " +
-        $"SignedEightEight.FromSignedRaw({record.YVelocity.SignedRawValue.ToString(System.Globalization.CultureInfo.InvariantCulture)}), " +
+        $"SignedEightEight.FromTwoHundredFiftySixthsOfPixel({record.YVelocity.InTwoHundredFiftySixthsOfPixel.ToString(System.Globalization.CultureInfo.InvariantCulture)}), " +
         $"{record.Timer.ToString(System.Globalization.CultureInfo.InvariantCulture)}, {Member(record.Type)}, " +
         $"{Member(record.VisorAnimation)}, {EffectBlend(record.EffectBlend)}, " +
         $"{Flags(record.LiquidOptions)}, {Effects(record.PaletteEffects)}, " +

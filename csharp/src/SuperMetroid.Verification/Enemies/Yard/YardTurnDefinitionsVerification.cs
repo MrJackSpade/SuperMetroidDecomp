@@ -107,7 +107,7 @@ internal static class YardTurnDefinitionsVerification
                 Playback = new(YardAnimations.StartingWith(YardProgram.HidingUpsideUpMovingLeft), AnimationPlace.StartOfAnimation),
                 MovementFunction = movement,
                 TurnTransitionDisabled = disabled,
-                CrawlingVelocity = new EightEightVector<RoomPixels>(0x0100, 0x0100),
+                CrawlingVelocity = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(256, 256),
             };
 
             run(slot, state, level);

@@ -91,7 +91,10 @@ public readonly record struct FixedCoordinate
     /// difference in 65536ths of a pixel, wrapped to 32 bits, so moving <paramref name="from"/> by it lands on
     /// <paramref name="to"/>.
     /// </summary>
-    public static SignedSixteenSixteen operator -(FixedCoordinate to, FixedCoordinate from) =>
-        SignedSixteenSixteen.FromRaw(unchecked((int)(to.Subpixels - from.Subpixels)));
+    public static SignedSixteenSixteen operator -(FixedCoordinate to, FixedCoordinate from)
+    {
+        int difference = unchecked((int)(to.Subpixels - from.Subpixels));
+        return SignedSixteenSixteen.FromParts(difference >> 16, difference & ushort.MaxValue);
+    }
 
 }

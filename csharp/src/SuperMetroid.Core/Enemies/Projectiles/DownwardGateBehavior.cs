@@ -98,7 +98,7 @@ internal sealed class DownwardGateBehavior
     internal static void RunDownwardGateProjectileMovement(EnemyProjectile projectile)
     {
         DownwardGateState gate = projectile.StateOf<DownwardGateState>();
-        int speedMagnitude = Math.Abs(projectile.Velocity.Y.SignedRawValue);
+        int speedMagnitude = Math.Abs(projectile.Velocity.Y.InTwoHundredFiftySixthsOfPixel);
         int travelled = gate.TravelSinceBlock + speedMagnitude;
         if (travelled >= DownwardGateDefinitions.OneBlockDistance)
         {

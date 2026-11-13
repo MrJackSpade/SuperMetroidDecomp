@@ -43,10 +43,24 @@ internal sealed class GunshipPartState
     public GunshipFunction Function { get; internal set; }
 
     /// <summary>
-    /// The bottom hull's unsigned 8.8 escape speed in pixels per update, raised each update up to its cap: the update
-    /// that reaches <see cref="GunshipMotionDefinitions.EscapeVelocityCapTrigger"/> sets it back to the cap.
+    /// The bottom hull's upward escape speed, raised each update up to its cap (<see cref="AccelerateEscape"/>). It
+    /// starts at two pixels an update, grows by a quarter pixel and never passes ten pixels and three quarters, so it
+    /// never reaches the type's wrap.
     /// </summary>
-    public int EscapeVelocity { get; internal set; }
+    public SignedEightEight EscapeVelocity { get; internal set; }
+
+    /// <summary>
+    /// One update of the escape's acceleration: the speed grows by <see cref="GunshipMotionDefinitions.EscapeAcceleration"/>,
+    /// and an update whose speed's whole pixels reach <see cref="GunshipMotionDefinitions.EscapeVelocityCapTriggerPixels"/>
+    /// sets it back to <see cref="GunshipMotionDefinitions.EscapeVelocityCap"/>, so the speed saws between nine and ten
+    /// pixels an update once it first gets there.
+    /// </summary>
+    internal void AccelerateEscape()
+    {
+        EscapeVelocity += GunshipMotionDefinitions.EscapeAcceleration;
+        if (EscapeVelocity.WholePixels >= GunshipMotionDefinitions.EscapeVelocityCapTriggerPixels)
+            EscapeVelocity = GunshipMotionDefinitions.EscapeVelocityCap;
+    }
 
     /// <summary>The state of a gunship slot, failing if the slot never initialized as a gunship part.</summary>
     internal static GunshipPartState Of(RoomEnemySlot slot) =>

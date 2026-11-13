@@ -172,9 +172,9 @@ internal static class CrocomireNativeWords
         else
         {
             state.DeathPhaseDelay = wordD;
-            state.VerticalAcceleration = wordD;
+            state.VerticalAcceleration = new SignedEightEight(wordD);
         }
-        state.VerticalSpeed = wordE;
+        state.VerticalSpeed = new SignedEightEight(wordE);
         state.VerticalSubpixel = LittleEndianBytes.HighByte(wordF);
         state.SkeletonVelocity = SignedSixteenSixteen.FromParts(unchecked((short)wordF), wordE);
     }

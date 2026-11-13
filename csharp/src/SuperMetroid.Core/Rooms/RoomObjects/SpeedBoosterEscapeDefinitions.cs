@@ -7,5 +7,5 @@ public static class SpeedBoosterEscapeDefinitions
     public const int StartFxMotionSamusX = 2784;
 
     /// <summary>The lavaquake's initial vertical speed: half a pixel upward per update.</summary>
-    public static SignedEightEight InitialLavaquakeVelocity { get; } = SignedEightEight.FromSignedRaw(-128);
+    public static SignedEightEight InitialLavaquakeVelocity { get; } = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-128);
 }

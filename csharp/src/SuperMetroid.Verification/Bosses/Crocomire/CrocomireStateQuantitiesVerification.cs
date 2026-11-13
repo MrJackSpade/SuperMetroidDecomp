@@ -113,8 +113,8 @@ internal static class CrocomireStateQuantitiesVerification
         (RoomEnemySystem enemies, CrocomireEnemyState state) = NewCrocomire();
         RoomEnemySlot body = state.Body;
         state.DeathPhase = CrocomireDeathPhase.FirstHopSink;
-        state.VerticalAcceleration = acceleration;
-        state.VerticalSpeed = speed;
+        state.VerticalAcceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(acceleration);
+        state.VerticalSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(speed);
         // The subposition word's high byte is the vertical subpixel; the low byte is the cartridge's alone.
         state.VerticalSubpixel = LittleEndianBytes.HighByte(subposition);
         body.Position = body.Position.WithWholeY(y);
@@ -138,8 +138,8 @@ internal static class CrocomireStateQuantitiesVerification
         (RoomEnemySystem enemies, CrocomireEnemyState state) = NewCrocomire();
         RoomEnemySlot body = state.Body;
         state.DeathPhase = CrocomireDeathPhase.FirstHopRise;
-        state.VerticalAcceleration = acceleration;
-        state.VerticalSpeed = speed;
+        state.VerticalAcceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(acceleration);
+        state.VerticalSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(speed);
         // The subposition word's high byte is the vertical subpixel; the low byte is the cartridge's alone.
         state.VerticalSubpixel = LittleEndianBytes.HighByte(subposition);
         body.Position = body.Position.WithWholeY(y);
@@ -161,8 +161,8 @@ internal static class CrocomireStateQuantitiesVerification
     private static void AssertMotionWords(CrocomireEnemyState state, ushort acceleration, ushort speed,
         ushort subposition, ushort y, string at)
     {
-        AssertEqual(acceleration, state.VerticalAcceleration, $"{at}: acceleration word");
-        AssertEqual(speed, state.VerticalSpeed, $"{at}: speed word");
+        AssertEqual((int)acceleration, state.VerticalAcceleration.InTwoHundredFiftySixthsOfPixel, $"{at}: acceleration in 256ths");
+        AssertEqual((int)speed, state.VerticalSpeed.InTwoHundredFiftySixthsOfPixel, $"{at}: speed in 256ths");
         AssertEqual(LittleEndianBytes.HighByte(subposition), state.VerticalSubpixel, $"{at}: subpixel");
         AssertEqual(y, state.Body.Position.Y.Whole, $"{at}: Y");
     }

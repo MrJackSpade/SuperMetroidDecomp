@@ -105,7 +105,7 @@ public readonly record struct UnsignedSixteenSixteen
     /// The speed as a displacement along its positive direction, as the game moves by a speed word pair: the same
     /// whole and fraction, the whole read as signed, so a speed whose whole word is 32768 or more moves backward.
     /// </summary>
-    public SignedSixteenSixteen AsDisplacement() => SignedSixteenSixteen.FromRaw(unchecked((int)RawValue));
+    public SignedSixteenSixteen AsDisplacement() => SignedSixteenSixteen.FromParts(unchecked((short)Whole), Fraction);
 
     /// <summary>
     /// The displacement's whole and fraction kept as a speed, as the game stores a signed result in a speed's words:

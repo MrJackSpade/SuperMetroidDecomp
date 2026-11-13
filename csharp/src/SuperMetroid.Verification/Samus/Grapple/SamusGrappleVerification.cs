@@ -157,7 +157,7 @@ internal static void VerifySamusGrappleSwingAndRelease()
     firingSamus.Kinematics.YSpeed = firingSamus.Kinematics.YSpeed.WithWhole(1); // selects moving-vertically connection table $C3EE
     SamusGrappleMovement.BeginFiring(firingSamus);
     AssertEqual(GrapplePhase.Firing, firingSamus.Grapple.Phase, "grapple firing phase");
-    AssertEqual(0x0bf4, firingSamus.Grapple.ExtensionVelocity.X.SignedRawValue,
+    AssertEqual(0x0bf4, firingSamus.Grapple.ExtensionVelocity.X.InTwoHundredFiftySixthsOfPixel,
         "grapple X extension velocity comes from ROM");
     AssertEqual(34, firingSamus.Grapple.Anchor.X, "grapple initial endpoint X");
     AssertEqual(50, firingSamus.Grapple.Anchor.Y, "grapple initial endpoint Y");

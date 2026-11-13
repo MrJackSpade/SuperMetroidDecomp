@@ -205,7 +205,7 @@ internal sealed class CrocomireBridgeCollapse
             return;
         }
         state.DeathPhase = state.DeathPhase.Next();
-        state.VerticalSpeed = EightEight.FromWhole(CrocomireBehavior.MaximumSinkSpeedWhole);
+        state.VerticalSpeed = SignedEightEight.FromPixels(CrocomireBehavior.MaximumSinkSpeedWhole);
     }
 
     /// <summary>Crocomire's exact fixed-point sinking fall.</summary>
@@ -221,7 +221,7 @@ internal sealed class CrocomireBridgeCollapse
             state.DeathPhase = state.DeathPhase.Next();
             state.DeathPhaseDelay = 48;
             // The next rise, after a submerged pause or directly after a melt, starts from no acceleration.
-            state.VerticalAcceleration = 0;
+            state.VerticalAcceleration = SignedEightEight.Zero;
             return;
         }
 
@@ -230,27 +230,18 @@ internal sealed class CrocomireBridgeCollapse
 
         // The acceleration's fraction carries into its whole part before the whole part is clamped, and the
         // speed's into its whole part before that is clamped: each clamp keeps the fraction it carried from.
-        int acceleration = ClampWholePixels(
-            state.VerticalAcceleration + CrocomireBehavior.SinkAccelerationIncrement, CrocomireBehavior.MaximumSinkAccelerationWhole);
+        SignedEightEight acceleration = (state.VerticalAcceleration + CrocomireBehavior.SinkAccelerationIncrement)
+            .WithWholePixelsAtMost(CrocomireBehavior.MaximumSinkAccelerationWhole);
         state.VerticalAcceleration = acceleration;
-        // The speed grows by the acceleration's whole part read as 1/256 pixels.
-        int speed = ClampWholePixels(
-            state.VerticalSpeed + EightEight.WholeOf(acceleration), CrocomireBehavior.MaximumSinkSpeedWhole);
+        // The speed grows by the acceleration's whole pixels read as 256ths of a pixel.
+        SignedEightEight speed = (state.VerticalSpeed + SignedEightEight.FromTwoHundredFiftySixthsOfPixel(acceleration.WholePixels))
+            .WithWholePixelsAtMost(CrocomireBehavior.MaximumSinkSpeedWhole);
         state.VerticalSpeed = speed;
 
-        int travelled = state.VerticalSubpixel + speed;
-        state.VerticalSubpixel = EightEight.FractionOf(travelled);
-        body.Position = body.Position.WithWrappedWholeY(
-            body.Position.Y.Whole + EightEight.WholeOf(travelled));
+        SignedEightEight travelled = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(state.VerticalSubpixel) + speed;
+        state.VerticalSubpixel = travelled.FractionSubpixels;
+        body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole + travelled.WholePixels);
     }
-
-    /// <summary>
-    /// An 8.8 quantity in 1/256 pixels with its whole part clamped to <paramref name="maximumWhole"/> and its
-    /// fraction kept, as the sink's byte-wise clamps leave it.
-    /// </summary>
-    private static int ClampWholePixels(int value, int maximumWhole) =>
-        EightEight.FromWhole(Math.Min(EightEight.WholeOf(value), maximumWhole)) +
-        EightEight.FractionOf(value);
 
     /// <summary>Byte-for-byte fixed-point rise.</summary>
     internal void RunCrocomireRise(CrocomireEnemyState state)
@@ -264,22 +255,21 @@ internal sealed class CrocomireBridgeCollapse
         }
 
         _bodyLayer.PlaceCrocomireBodyLayer(state);
-        int acceleration = Math.Min(
-            state.VerticalAcceleration + EightEight.FromWhole(1),
-            EightEight.FromWhole(CrocomireBehavior.MaximumRiseAccelerationWhole));
+        SignedEightEight acceleration = SignedEightEight.Min(
+            state.VerticalAcceleration + SignedEightEight.FromPixels(1), CrocomireBehavior.MaximumRiseAcceleration);
         state.VerticalAcceleration = acceleration;
 
-        // The speed loses the acceleration's whole part read as 1/256 pixels; a speed that would fall below zero
+        // The speed loses the acceleration's whole pixels read as 256ths of a pixel; a speed that would fall below zero
         // stalls just under one pixel per frame instead of reversing.
-        int speed = state.VerticalSpeed - EightEight.WholeOf(acceleration);
-        if (speed < 0)
+        SignedEightEight speed = state.VerticalSpeed - SignedEightEight.FromTwoHundredFiftySixthsOfPixel(acceleration.WholePixels);
+        if (speed.IsNegative)
             speed = CrocomireBehavior.RiseSpeedAfterStalling;
         state.VerticalSpeed = speed;
 
-        int remaining = state.VerticalSubpixel - speed;
-        state.VerticalSubpixel = EightEight.FractionOf(remaining);
-        body.Position = body.Position.WithWrappedWholeY(
-            body.Position.Y.Whole + EightEight.WholeOf(remaining));
+        // The rise moves up: the subpixel less the speed, its whole pixels zero or below.
+        SignedEightEight remaining = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(state.VerticalSubpixel) - speed;
+        state.VerticalSubpixel = remaining.FractionSubpixels;
+        body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole + remaining.WholePixels);
     }
 
     /// <summary>Selects the body melting program for the rows still above the acid.</summary>

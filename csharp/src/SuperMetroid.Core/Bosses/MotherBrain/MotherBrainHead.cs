@@ -392,6 +392,9 @@ internal sealed class MotherBrainHead
             : OnionRingLowestAim;
     }
 
+    /// <summary>The speed an onion ring flies at along its aim: four pixels and 80 256ths an update.</summary>
+    private static readonly SignedEightEight OnionRingSpeed = SignedEightEight.FromParts(4, 80);
+
     /// <summary>The lowest aim an onion ring launches at: a sixteenth of a turn.</summary>
     private static readonly TrigonometryAngle OnionRingLowestAim = new(16);
 
@@ -446,9 +449,9 @@ internal sealed class MotherBrainHead
             RoomEnemyProjectileKind.MotherBrainOnionRing,
             graphics: SpriteGraphics.SharedIn(state.Colours.OwnShading));
         ring.State = new MotherBrainOnionRingState(MotherBrainOnionRingAttachDelay);
-        ring.Velocity = ring.Velocity.WithX(EnemyMath.MultiplySineSample(1104, angle));
+        ring.Velocity = ring.Velocity.WithX(EnemyMath.MultiplySineSample(OnionRingSpeed, angle));
         ring.Velocity = ring.Velocity.WithY(EnemyMath.MultiplySineSample(
-            1104,
+            OnionRingSpeed,
             angle.TurnedBy(TrigonometryAngle.QuarterTurn)));
 
         // The ring's initializer falls through into its attachment step, making the mouth position observable before

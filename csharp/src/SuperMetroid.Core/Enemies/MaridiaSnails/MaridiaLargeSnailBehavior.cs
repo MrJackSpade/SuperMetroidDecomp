@@ -287,7 +287,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         {
             // Temporarily extends the whole-pixel move sixteen pixels toward Samus,
             // performs collision, then retracts the center. Net velocity remains the table
-            // speed while wall clipping naturally transfers the lost distance to Samus.
+            // speed while wall clipping naturally passes the lost distance to Samus.
             speed = speed.WithWholePixels(speed.WholePixels + (state.MovingLeft ? -16 : 16));
         }
 

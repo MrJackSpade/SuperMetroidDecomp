@@ -2,7 +2,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.SpriteObjects;
 
-/// <summary>The installed spritemap each room sprite-object frame draws.</summary>
+/// <summary>The installed picture each room sprite-object frame draws.</summary>
 internal static class RoomSpriteObjectVisualDefinitions
 {
 

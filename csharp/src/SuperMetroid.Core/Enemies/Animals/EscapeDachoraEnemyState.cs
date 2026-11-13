@@ -2,7 +2,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>
-/// The escape Dachora's state. Dachora owns no private variables: all of its
+/// The escape Dachora's state. Dachora owns no private values: all of its
 /// movement is authored directly in its three animations, so its state is the
 /// animation it is running.
 /// </summary>

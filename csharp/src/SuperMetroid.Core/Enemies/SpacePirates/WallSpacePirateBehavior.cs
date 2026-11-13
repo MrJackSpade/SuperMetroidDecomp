@@ -184,8 +184,8 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     /// <summary>Applies the split alignment rule when a Pirate starts or lands on a wall.</summary>
     private static void SnapWallSpacePirateXToTile(RoomEnemySlot slot)
     {
-        // The wall alignment deliberately has two alignment grids. Nibbles 0..10 round down to an
-        // eight-pixel boundary; 11..15 round up to the next sixteen-pixel boundary.
+        // The wall alignment deliberately has two alignment grids. Offsets 0..10 within a block round down to an
+        // eight-pixel boundary; 11..15 round up to the next block's start.
         int x = slot.Position.X.Whole;
         slot.Position = slot.Position.WithWholeX(RoomGridConversions.OffsetWithinBlock(x) < 11
             ? RoomGridConversions.HalfBlockStart(x)

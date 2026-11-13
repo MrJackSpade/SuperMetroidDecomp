@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.YappingMaws;
 
-/// <summary>What a cue of the Yapping Maw's programs does: one per instruction its lists use.</summary>
+/// <summary>What a cue of the Yapping Maw's programs does: one per kind of step its lists use.</summary>
 internal enum YappingMawCueKind
 {
     /// <summary>Holds a grabbed Samus at the downward mouth offset.</summary>

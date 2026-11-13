@@ -7,7 +7,7 @@ internal static class EnemyProjectileEmptyFrames
 {
     /// <summary>
     /// Whether a projectile showing <paramref name="frame"/> draws nothing: the blank frame, or a program frame showing the
-    /// empty projectile spritemap (#1513).
+    /// empty projectile picture (#1513).
     /// </summary>
     internal static bool DrawsNothing(EnemyProjectileFrameId frame) =>
         frame == EnemyProjectileFrameId.Blank || EnemyProjectileEmptyFrameDefinitions.EmptySpritemapFrames.Contains(frame);

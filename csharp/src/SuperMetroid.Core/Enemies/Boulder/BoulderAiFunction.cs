@@ -8,7 +8,7 @@ public enum BoulderAiFunction
 {
     /// <summary>Waits for Samus to enter the direction-dependent X window and vertical trigger range before selecting an initial fall or immediate roll.</summary>
     WaitingForSamus = 1,
-    /// <summary>Accelerates downward without terrain collision checks until the original spawn Y is reached, then starts the first rebound.</summary>
+    /// <summary>Accelerates downward without terrain collision checks until the authored spawn Y is reached, then starts the first rebound.</summary>
     InitialFall,
     /// <summary>Decelerates the upward quadratic-table motion while accelerating horizontally, then enters the falling half of the bounce.</summary>
     Rebound,

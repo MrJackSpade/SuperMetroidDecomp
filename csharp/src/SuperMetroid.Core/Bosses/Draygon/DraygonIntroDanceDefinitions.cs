@@ -13,8 +13,7 @@ internal static class DraygonIntroDanceDefinitions
 
     /// <summary>
     /// How many dance updates each Evir waits before it takes the path's first step, in the order the Evirs spawn. Even
-    /// the first Evir waits 128 updates: the original game reads its four delays from the first half of an eight-entry
-    /// table, so no Evir starts at once.
+    /// the first Evir waits 128 updates, so no Evir starts at once.
     /// </summary>
     internal static readonly int[] StartDelays = [128, 160, 192, 224];
 
@@ -22,7 +21,7 @@ internal static class DraygonIntroDanceDefinitions
     /// The handwritten Keiko Love path every dancing Evir follows, one step per update. Two delete steps end each
     /// Evir's dance part way through; the steps after them stay part of the path.
     /// </summary>
-    /// <remarks>Independently reviewed for #1165: integrating the original deltas visibly traces hidden
+    /// <remarks>Independently reviewed for #1165: integrating the path's deltas visibly traces hidden
     /// lettering. Retain this drawing content under the nonsense exception: fitted splines, per-stroke
     /// corrections or a numeric switch would encode the same particular letter shapes and pen timing. This is not a
     /// sampled physical trajectory. See the Draygon intro trace review in the #1165 inventory.</remarks>

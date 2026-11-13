@@ -164,7 +164,7 @@ internal sealed class DraygonCombat
 
         // The death callback releases Samus unconditionally, even during an
         // unrelated movement handler. In particular, this can interrupt a shinespark.
-        // The caller then clears the grapple word, including the owner-release signal.
+        // The caller then clears Samus's grapple flags, including the owner-release signal.
         if (samus is not null)
         {
             _grab.ReleaseSamusDuringEnemyMain(samus);

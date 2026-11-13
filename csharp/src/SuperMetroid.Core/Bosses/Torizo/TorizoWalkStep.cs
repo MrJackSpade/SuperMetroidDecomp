@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>One Bomb Torizo walk instruction's step and facing collision probes (#633).</summary>
+/// <summary>One Bomb Torizo walk cue's step and facing collision probes (#633).</summary>
 internal sealed record TorizoWalkStep
 {
     /// <summary>The walking step the cue carries, one of <see cref="BombTorizoMovement.WalkStepCount"/> steps.</summary>

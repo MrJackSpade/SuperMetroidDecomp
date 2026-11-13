@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>
-/// The phase of Phantoon's encounter the body runs each update. Each member names the routine it replaced;
-/// the values are arbitrary identities (#1413), and the main AI dispatches on the member.
+/// The phase of Phantoon's encounter the body runs each update. The values are arbitrary
+/// identities (#1413), and the main AI dispatches on the member.
 /// </summary>
 public enum PhantoonAiFunction
 {

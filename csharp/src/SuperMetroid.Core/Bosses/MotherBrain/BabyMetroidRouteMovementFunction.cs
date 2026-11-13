@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// The movement routines the Baby Metroid route records name.
-/// Its values are arbitrary; verification's catalog names each member's original routine (#1413).
+/// The steering behaviours the Baby Metroid route records name.
+/// Its values are arbitrary; verification's catalog relates each member to its source (#1413).
 /// </summary>
 internal enum BabyMetroidRouteMovementFunction
 {

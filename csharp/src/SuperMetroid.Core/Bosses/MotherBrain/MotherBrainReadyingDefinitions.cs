@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
 /// How many updates each of Mother Brain's readying phases waits before it moves on (#1406, #1538). Each phase readies
-/// one update at a time, as the original game's encounter readies one part a frame, and the phase that follows starts on
+/// one update at a time, as the encounter readies one part a frame, and the phase that follows starts on
 /// the update the last one runs; her frames show their finished pictures throughout.
 /// </summary>
 internal static class MotherBrainReadyingDefinitions

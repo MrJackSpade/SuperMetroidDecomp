@@ -19,7 +19,7 @@ internal static class GoldenTorizoCodeDefinitions
     internal const int PowerBombs = 20;
     /// <summary>
     /// Every item but the Screw Attack, replacing the collected and equipped items without merging
-    /// prior upgrades. The game's word also sets bit 4, which names no item and no retail routine tests.
+    /// prior upgrades. The game's item set also holds one more flag, which names no item and nothing tests.
     /// </summary>
     internal const SamusEquipmentFlags Items = SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.SpringBall |
         SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.HiJumpBoots |

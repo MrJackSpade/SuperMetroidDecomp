@@ -66,6 +66,6 @@ internal sealed record MotherBrainLiveActorSnapshot
     /// <summary>Number of live Mother Brain bomb enemy projectiles.</summary>
     public required int BombCounter { get; init; }
 
-    /// <summary>Shared Mother Brain hitbox-enable word cleared at both death boundaries.</summary>
+    /// <summary>Shared Mother Brain hitbox-enable flag cleared at both death boundaries.</summary>
     public required bool HitboxesEnabled { get; init; }
 }

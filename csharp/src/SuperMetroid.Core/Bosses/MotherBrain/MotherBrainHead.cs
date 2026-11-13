@@ -359,7 +359,7 @@ internal sealed class MotherBrainHead
 
         // The bomb spawn gives an explicit mouth coordinate as the common
         // spawn position, selects direction one (right), and invokes
-        // the bomb's definition. The source header remains the head record, so the shared
+        // the bomb's definition. The source definition remains the head record, so the shared
         // initializer obtains Mother Brain's authored contact damage and
         // her parameter-one speed flag without any encounter-specific substitute.
         EnemyProjectile? laser = _roomActors.SpawnPirateLaser(
@@ -372,7 +372,7 @@ internal sealed class MotherBrainHead
 
     /// <summary>
     /// The shared onion-ring aim tail. Both target selectors subtract the same mouth offsets,
-    /// call the original game angle routine, rotate by a half turn, and clamp the launch arc to
+    /// take the angle from those offsets, rotate by a half turn, and clamp the launch arc to
     /// <see cref="OnionRingLowestAim"/> through <see cref="OnionRingHighestAim"/>; only the source coordinate differs.
     /// </summary>
     private static void AimMotherBrainOnionRingsAt(
@@ -434,7 +434,7 @@ internal sealed class MotherBrainHead
     /// <summary>
     /// Runs the head's onion-ring step and the ring's initializer. The shared
     /// allocator deliberately runs after the twelve room turrets and all lingering drool,
-    /// so pool saturation drops the ring exactly as it does in the original game.
+    /// so pool saturation drops the ring when the pool is full.
     /// </summary>
     internal void SpawnMotherBrainOnionRing(
         MotherBrainEnemyState state,

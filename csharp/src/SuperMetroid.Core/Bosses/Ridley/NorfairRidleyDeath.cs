@@ -69,7 +69,7 @@ internal sealed class NorfairRidleyDeath
             _ridleyEncounter.Ridley ?? throw new InvalidOperationException(
                 "A Ridley breakup actor has no shared Ridley owner."));
 
-    /// <summary>Last item-drop request published by Ridley's terminal routine.</summary>
+    /// <summary>Last item-drop request published by Ridley's death.</summary>
     public bool RidleyDeathDropRequested { get; private set; }
 
     /// <summary>
@@ -157,7 +157,7 @@ internal sealed class NorfairRidleyDeath
 
         // The death drops scatter sixteen pickups through Ridley's authored 128x64 arena
         // rectangle. The body is deleted immediately afterward, so the drop actors must
-        // retain Ridley's header themselves.
+        // retain Ridley's definition themselves.
         _deathsAndDrops.SpawnEnemyDropScatter(
             EnemyDefinitionId.Ridley,
             count: 16,
@@ -205,7 +205,7 @@ internal sealed class NorfairRidleyDeath
         void SpawnPart(RidleyExplosionPart part)
         {
             // The embedded entries all use the same zero position and properties and name one
-            // body part. Initialization replaces position and instruction from the still-live
+            // body part. Initialization replaces position and program from the still-live
             // shared Ridley joints below.
             RoomEnemyPopulationRecord population = new(
                 EnemyDefinitionId.RidleyExplosion,
@@ -290,7 +290,7 @@ internal sealed class NorfairRidleyDeath
             return;
 
         // The breakup actor runs the small enemy death: clear the slot immediately and
-        // retain the fragment header/position in the shared explosion-to-pickup actor.
+        // retain the fragment's definition and position in the shared explosion-to-pickup actor.
         _deathsAndDrops.StartGenericEnemyDeath(fragment, deathAnimation: EnemyDeathExplosion.Small);
     }
 }

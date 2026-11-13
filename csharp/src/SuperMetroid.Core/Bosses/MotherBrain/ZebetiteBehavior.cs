@@ -12,7 +12,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>The Zebetite species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Zebetite species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -64,7 +64,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     private static readonly SoundEffectId ZebetiteShotSound = RoomSound.MissileDoorHit;
 
     /// <summary>
-    /// <c>palette_change_num</c>, the count of scripted palette fades in progress. A
+    /// The count of scripted palette fades in progress. A
     /// nonzero count suppresses the Zebetite's private two-color cycle; normal gameplay leaves
     /// this at zero.
     /// </summary>
@@ -96,8 +96,8 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new ZebetiteEnemyState(slot.Spawn.Population);
         slot.SetSpeciesState(state);
 
-        // One more property bit is still unnamed globally: its wider engine meaning is not proven. Keep it
-        // raw while naming only the independently verified instruction-processing bit.
+        // One more processing property is still unnamed: its wider meaning is not proven. Keep it as
+        // loaded while naming only the verified animation-script property.
         slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
         slot.Contact = slot.Contact.With(EnemyContact.SolidToSamus);
         slot.FrameHold = WrappingCountdown.Start(1);
@@ -279,7 +279,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Runs a half's health program where the enemy instruction interpreter would: its pose shows on the update the
+    /// Runs a half's health program where the shared enemy animation runs: its pose shows on the update the
     /// timer expires, raising the new-frame flag, and the script's sleep then keeps it.
     /// </summary>
     internal static void AdvanceZebetiteAnimation(RoomEnemySlot slot)

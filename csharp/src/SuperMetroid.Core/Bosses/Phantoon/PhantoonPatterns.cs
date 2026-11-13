@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 [RoomLifetime]
 internal sealed class PhantoonPatterns
 {
-    /// <summary>Room services and tilemap state used by the Wrecked Ship encounter.</summary>
+    /// <summary>Room services and background state used by the Wrecked Ship encounter.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Owns the starting, casual, rain, rage, and spiral flame actors.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -225,9 +225,8 @@ internal sealed class PhantoonPatterns
     }
 
     /// <summary>Starts the spiral-flame pattern around the body.</summary>
-    /// <remarks>The spiral fireballs are the first ordinary combat attack. Their exact translation belongs to
-    /// the next combat slice; retaining the explicit call boundary prevents the eye-opening instruction from being
-    /// mistaken for completed behavior.</remarks>
+    /// <remarks>The spiral fireballs are the first ordinary combat attack: eight destroyable flames, spawned from
+    /// direction seven down to zero.</remarks>
     private void SpawnPhantoonSpiralFlames(RoomEnemySlot body)
     {
         for (int direction = 7; direction >= 0; direction--)

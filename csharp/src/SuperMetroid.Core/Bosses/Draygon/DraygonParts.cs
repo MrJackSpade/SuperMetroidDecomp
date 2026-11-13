@@ -144,9 +144,9 @@ internal sealed class DraygonParts
     }
 
     /// <summary>
-    /// Runs a Draygon part's program where the enemy instruction interpreter would: the frame expires on the update
+    /// Runs a Draygon part's program where the shared enemy animation runs: the frame expires on the update
     /// its timer would, a new frame raises the new-frame flag, waits keep the frame, and a stop deletes the
-    /// part. The part's loop counter is its timer word.
+    /// part. The part's loop counter is its frame timer.
     /// </summary>
     internal void AdvanceDraygonPartAnimation(RoomEnemySlot part, SamusState? samus)
     {
@@ -349,7 +349,7 @@ internal sealed class DraygonParts
             graphics: default);
     }
 
-    /// <summary>Ports the two body instruction producers.</summary>
+    /// <summary>Spawns a goop as either of the body program's two goop cues does.</summary>
     internal void SpawnDraygonGoop(DraygonEnemyState state, bool movingRight)
     {
         EnemyProjectile? goop = _projectiles.AllocateEnemyProjectile();

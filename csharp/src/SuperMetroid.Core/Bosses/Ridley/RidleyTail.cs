@@ -22,7 +22,7 @@ internal sealed class RidleyTail
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Supplies the current Ridley body and tail state for post-solve Samus contact.</summary>
     private readonly RidleyEncounter _ridleyEncounter;
-    /// <summary>Provides the live random word sampled by Ceres curl and pogo whip decisions.</summary>
+    /// <summary>Provides the live random number sampled by Ceres curl and pogo whip decisions.</summary>
     private readonly EnemyRoomBinding _room;
 
     /// <summary>Connects tail kinematics, collision, and encounter control to shared room and projectile state.</summary>
@@ -35,11 +35,11 @@ internal sealed class RidleyTail
     }
 
     /// <summary>
-    /// Ports the neutral-tail controller, the segment update,
-    /// and the position/distance chains. The retail routine deliberately
+    /// Runs the neutral-tail controller, the segment update,
+    /// and the position/distance chains. The controller deliberately
     /// adds the preceding segment's direction when deriving every later offset;
-    /// retaining that documented anomaly is why the tail curls and rotates at the same
-    /// rate as the original game.
+    /// retaining that documented anomaly is why the tail curls and rotates at the game's
+    /// rate.
     /// </summary>
     internal void TickRidleyTail(
         RoomEnemySlot slot,
@@ -112,7 +112,7 @@ internal sealed class RidleyTail
             }
             else if (state.IdleTailWhipEnabled)
             {
-                // Read the existing seed; this branch never advances the original game RNG.
+                // Read the existing seed; this branch never advances the RNG.
                 // An idle random whip with no request pending aims one whole turn short of a requested one.
                 if (RidleyRandomDefinitions.TailWhips.IsTakenBy(_room.Random.Read()))
                     AimCeresRidleyTailWhip(state, samus, turnsBeyond: state.TailWhipRequest - 1);
@@ -530,7 +530,7 @@ internal sealed class RidleyTail
             TickRidleyTailSegment(state, index);
         if (pointed && !state.TailSegments.Any(segment => segment.Active))
             state.TailFunctionIndex = RidleyTailFunction.Pogo;
-        // The setup/stab wrappers overwrite the result of the shared pointed-tail routine.
+        // The setup/stab wrappers overwrite the result of the shared pointed-tail step.
         if (function == RidleyTailFunction.PogoSetup)
             state.TailFunctionIndex = RidleyTailFunction.PointDown;
         else if (function == RidleyTailFunction.Stab)

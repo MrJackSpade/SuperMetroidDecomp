@@ -49,7 +49,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// <summary>Whether the brain's animation just installed a frame; cleared when the rot animation completes.</summary>
     public bool BrainNewInstructionFrame { get; internal set; }
 
-    /// <summary>Shared Mother Brain hitbox-enable word cleared at both death boundaries.</summary>
+    /// <summary>Shared Mother Brain hitbox-enable flag cleared at both death boundaries.</summary>
     public bool HitboxesEnabled { get; internal set; } = true;
 
     /// <summary>
@@ -174,7 +174,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         Func<int>? nextRandomNumber)
     {
         // The escape-door dust shares the old death-explosion interval value but replaces its cadence with
-        // four. A cleared word underflows on the first call, so a new explosion is immediate.
+        // four. A cleared timer underflows on the first call, so a new explosion is immediate.
         if (--DeathExplosionIntervalTimer >= 0)
             return null;
 
@@ -182,9 +182,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         if (--DeathAndEscapeExplosionIndex < 0)
             DeathAndEscapeExplosionIndex = 3;
 
-        // The table is stored as interleaved X/Y words and indexed by `index * 4` bytes.
-        // Spell out the semantic pairs so neither host endianness nor array stride can alter
-        // the 3,2,1,0 repeating order.
+        // The explosion positions repeat in the order 3, 2, 1, 0; the switch spells out each X/Y pair.
         Position16<RoomPixels> position = DeathAndEscapeExplosionIndex switch
         {
             0 => new(8, 108),

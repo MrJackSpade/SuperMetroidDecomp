@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 internal static class TorizoInitializationDefinitions
 {
     /// <summary>
-    /// The Torizo initializer's parallel X/Y, instruction, processing and radius tables.
+    /// The Torizo initializer's positions, programs, processing and radii.
     /// First entries select Bomb Torizo, including its first initial body program.
     /// The processing flags are added to the population's existing processing.
     /// </summary>

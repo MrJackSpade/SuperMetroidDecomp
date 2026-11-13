@@ -8,14 +8,14 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// Literal stateful translation of the Baby Metroid cutscene entrance, Mother Brain drain,
+/// The Baby Metroid cutscene entrance, Mother Brain drain,
 /// release, ceiling retreat, route to Samus, latch, and healing, and its shared
 /// movement helpers.
 /// </summary>
 /// <remarks>
-/// The retail routine does not use floating point, a spline, or a host physics engine. It
-/// carries an 8.8 velocity, updates only byte <c>+1</c> of each enemy subposition, and lets
-/// the carry from that byte addition enter the whole-pixel position. The curved entrance
+/// The entrance uses no floating point, spline or physics engine. It holds an 8.8 velocity, adds
+/// its fraction to the upper half of each enemy subpixel position only, and lets that addition's
+/// overflow enter the whole-pixel position. The curved entrance
 /// also reads the game's signed sine table. Keeping those details
 /// here is important: replacing them with visually similar interpolation changes the exact
 /// frame on which the Baby's collision rectangle reaches Mother Brain's brain slot.
@@ -32,9 +32,8 @@ public sealed class BabyMetroidCutsceneState
     private static readonly Offset16<RoomPixels> SamusLatchOffset = new(0, -20);
 
     /// <summary>Horizontal collision half-extent, 36 room pixels from the Baby's center, copied without halving from the Baby's enemy definition.</summary>
-    /// <remarks>The enemy header declares width/height 36. Despite the header macro's friendly names,
-    /// enemy loading copies those values directly into the enemy slot's X/Y *radius* fields; there is no
-    /// diameter-to-radius division anywhere in between.</remarks>
+    /// <remarks>The Baby's enemy definition declares a width and height of 36, and enemy loading uses those
+    /// values directly as the slot's X and Y radii; nothing halves them.</remarks>
     public const int XHitboxRadius = 36;
     /// <summary>Vertical collision half-extent, 36 room pixels from the Baby's center, copied without halving from the Baby's enemy definition.</summary>
     public const int YHitboxRadius = 36;
@@ -61,7 +60,7 @@ public sealed class BabyMetroidCutsceneState
     /// <summary>The Baby's current program.</summary>
     public MotherBrainBabyProgram Program { get; private set; }
 
-    /// <summary>Enemy instruction timer, restarted at one whenever the program changes.</summary>
+    /// <summary>The current frame's remaining hold, restarted at one whenever the program changes.</summary>
     public int FrameHold { get; private set; }
 
     /// <summary>
@@ -92,8 +91,8 @@ public sealed class BabyMetroidCutsceneState
     public int RouteLeg { get; private set; }
 
     /// <summary>
-    /// Enemy health. The Baby's enemy header supplies 3,200; Mother Brain later drains
-    /// this word after the healing hold, so it belongs to actor state rather than rendering.
+    /// Enemy health. The Baby's enemy definition supplies 3,200; Mother Brain later drains
+    /// this value after the healing hold, so it belongs to actor state rather than rendering.
     /// </summary>
     public int Health { get; internal set; }
 
@@ -113,13 +112,12 @@ public sealed class BabyMetroidCutsceneState
     /// <summary>The shade the Baby's fade to black has reached; valid stored values are 0..6.</summary>
     public int FadeToBlackShade { get; private set; }
 
-    /// <summary>Five-call cadence word for the dust explosions surrounding the dying Baby.</summary>
+    /// <summary>Five-call cadence timer for the dust explosions surrounding the dying Baby.</summary>
     public int DeathExplosionTimer { get; private set; }
 
     /// <summary>
     /// Index into the shared death-explosion scatter pattern, cycling through its ten offsets.
-    /// The original game keeps it in the word it calls Mother Brain body's walk counter, indexed
-    /// through the Baby's slot, so this actor owns its increment and wrap.
+    /// This actor owns its increment and wrap.
     /// </summary>
     public int DeathExplosionPatternIndex { get; private set; }
 
@@ -206,7 +204,7 @@ public sealed class BabyMetroidCutsceneState
     /// Executes one complete main-AI call: function first, then the unconditional enemy
     /// velocity mover. Flash/palette presentation is intentionally kept
     /// as inspectable state because it does not alter this entrance's coordinates.
-    /// Every Baby routine reads the physical head enemy <c>Enemy[1]</c>'s coordinates, which
+    /// Every Baby step reads the physical head enemy <c>Enemy[1]</c>'s coordinates, which
     /// the head AI has already moved this frame; <paramref name="head"/> carries them.
     /// </summary>
     public BabyMetroidCutsceneStepResult Step(
@@ -411,7 +409,7 @@ public sealed class BabyMetroidCutsceneState
                 ambientCrySoundQueued = MotherBrainRandomDefinitions.BabyMetroidCries.IsTakenBy(randomNumber);
 
                 // The route is eight overlapping records. The fixed targets, divisors, and callback identities are
-                // compiled mechanics definitions; sprite/instruction presentation remains separately backed.
+                // compiled mechanics definitions; sprite and animation presentation remains separately backed.
                 BabyMetroidRouteRecord record = BabyMetroidRoute.GetRecord(RouteLeg);
                 Position16<RoomPixels> target = record.Target;
                 int accelerationDivisor = record.AccelerationDivisor;
@@ -475,7 +473,7 @@ public sealed class BabyMetroidCutsceneState
 
             case BabyMetroidCutscenePhase.IdleUntilNoHealth:
                 // The Baby's damaged step consumes Mother Brain's one-shot cry flag before inspecting
-                // the hit-flash word. Sound queuing is returned by the ring system; this
+                // the hit-flash timer. Sound queuing is returned by the ring system; this
                 // actor owns only the resulting shake and health-to-function transition.
                 if (OnionRingHitFlashTimer != 0)
                 {
@@ -525,7 +523,7 @@ public sealed class BabyMetroidCutsceneState
 
             case BabyMetroidCutscenePhase.FlyOffScreen:
                 // Despite the function's historical name, this leg targets the fixed point
-                // `(272,64)` just beyond the right edge of the original 256-pixel camera.
+                // `(272,64)` just beyond the right edge of the 256-pixel camera.
                 GraduallyAccelerateTowardsPoint(
                     new Position16<RoomPixels>(272, 64),
                     accelerationDivisor: 16,
@@ -606,7 +604,7 @@ public sealed class BabyMetroidCutsceneState
             }
 
             case BabyMetroidCutscenePhase.PlaySamusTheme:
-                // The expiry call queues the two delayed music words and immediately
+                // The expiry call queues the two delayed music requests and immediately
                 // performs the first twelve-count prepare-Hyper-Beam decrement.
                 if (--FunctionTimer < 0)
                 {
@@ -619,7 +617,7 @@ public sealed class BabyMetroidCutsceneState
             case BabyMetroidCutscenePhase.PrepareSamusForHyperBeam:
                 if (--FunctionTimer < 0)
                 {
-                    // The Hyper Beam acquisition freezes Samus's drained animation at byte-index 28.
+                    // The Hyper Beam acquisition freezes Samus's drained animation on its Hyper Beam acquisition frame.
                     // The Hyper Beam step also installs the first rainbow handler; neither handler is
                     // executed until the Baby's following enemy-AI call.
                     SamusDrainedState.FreezeForHyperBeamAcquisition(samus);
@@ -747,7 +745,7 @@ public sealed class BabyMetroidCutsceneState
         return new BabyMetroidOnionRingHitResult();
     }
 
-    /// <summary>Activates Samus's healed rainbow palette when the Baby reaches her, then slows its frame cadence by a fractional accumulator.</summary>
+    /// <summary>Activates Samus's healed rainbow palette when the Baby reaches her, then slows its frame cadence by a fractional counter.</summary>
     private void StepSamusRainbowPaletteAnimation(
         SamusState samus,
         ref bool samusRainbowActivated)
@@ -836,7 +834,7 @@ public sealed class BabyMetroidCutsceneState
             SoundEffect: MotherBrainSoundDefinitions.Explosion);
     }
 
-    /// <summary>Switches the Baby's program and restarts its instruction timer.</summary>
+    /// <summary>Switches the Baby's program and restarts its frame timer.</summary>
     private void SetProgram(MotherBrainBabyProgram program)
     {
         Program = program;
@@ -888,15 +886,15 @@ public sealed class BabyMetroidCutsceneState
         TrigonometryAngle angle)
     {
         // The sine multiply takes unsigned speed by the absolute signed-table value,
-        // returns product bits 8..23, then reapplies the original sign.
+        // returns the product divided by 256, then reapplies the sign.
         return Trigonometry.MultiplySignedSine(speed, angle);
     }
 
-    /// <summary>Advances 16.16 position from 8.8 velocity while leaving the low subposition byte untouched.</summary>
+    /// <summary>Advances 16.16 position from 8.8 velocity while leaving the lower half of the subpixel position untouched.</summary>
     private void MoveAccordingToVelocity()
     {
         // The velocity's fraction is added to the upper half of the subpixel position and its
-        // whole part to the whole pixels, with the fraction's carry. That is exactly a 16.16
+        // whole part to the whole pixels, with the fraction's overflow. That is exactly a 16.16
         // add of the 8.8 velocity: the lower half of the subpixel position is unchanged.
         Position = Position.Advance(Velocity.ToSixteenSixteen());
     }

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <summary>
 /// All eleven extended body frames selected by Ceres and Lower Norfair
 /// Ridley's animation programs, and their seventeen distinct hitbox lists.
-/// The original contact and shot collision walkers consume these offsets and
+/// The contact and shot collision walkers consume these offsets and
 /// rectangles independently of the displayed sprite composition.
 /// </summary>
 internal static class RidleyCollisionDefinitions

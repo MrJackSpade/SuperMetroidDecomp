@@ -10,7 +10,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>The Rinka species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Rinka species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -42,7 +42,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int RinkaInitialDelay = 26;
     /// <summary>Health restored to a special Rinka after its death delay.</summary>
     private const int RinkaHealth = 10;
-    /// <summary>Flight speed in 8.8 pixels per update (1 + 32/256 pixels), resolved along the original game angle into flight velocity.</summary>
+    /// <summary>Flight speed in 8.8 pixels per update (1 + 32/256 pixels), resolved along its aim angle into flight velocity.</summary>
     private static readonly SignedEightEight RinkaSpeed = SignedEightEight.FromParts(1, 32);
     /// <summary>Number of Mother Brain Rinka actors sharing the eleven spawn resources.</summary>
     private const int RinkaMaximumSpecialActors = 3;
@@ -544,7 +544,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySpawnSnapshot survivingSpawnSnapshot = slot.Spawn;
 
         // The death explosion draws from the room's shared sheet in its standard colours. When every place is held,
-        // the spawn is lost, and with it both the effect and the only future respawn instruction.
+        // the spawn is lost, and with it both the effect and the only future respawn cue.
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is not null)
         {

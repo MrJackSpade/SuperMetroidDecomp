@@ -2,8 +2,8 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
 /// A Bomb or Golden Torizo's posture. The stepping commands replace all three latches and the turning command sets its
-/// latch alone, so they compose. The original game keeps them in the top three bits of enemy parameter 1; where, is the
-/// checks' knowledge, and the values here are arbitrary bits (#1413).
+/// latch alone, so they compose. The values here are arbitrary flags (#1413); where the game stores them is the
+/// checks' knowledge.
 /// </summary>
 [Flags]
 internal enum TorizoPostureFlags

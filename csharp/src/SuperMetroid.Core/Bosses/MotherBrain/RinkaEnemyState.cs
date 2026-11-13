@@ -9,7 +9,7 @@ public sealed class RinkaEnemyState
     internal AnimationPlayback<RinkaProgram> Playback { get; set; } = new(RinkaAnimations.StartingWith(default), AnimationPlace.StartOfAnimation);
 
     /// <summary>
-    /// Routine dispatched by main AI, changed by initialization, the fire step, aim completion, or the special death
+    /// Behaviour dispatched by main AI, changed by initialization, the fire step, aim completion, or the special death
     /// tail.
     /// </summary>
     public RinkaEnemyFunction? Function { get; internal set; }

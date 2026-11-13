@@ -10,7 +10,7 @@ internal sealed class TorizoBody
 {
     /// <summary>Supplies the live room services, boss flag, random state, and artwork for both statue variants.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Bomb and Golden Torizo's state lookups, facing, posture and the function word their branches test.</summary>
+    /// <summary>Bomb and Golden Torizo's state lookups, facing, posture and the function their branches test.</summary>
     private readonly TorizoEncounterAccess _access;
     /// <summary>Bomb and Golden Torizo's projectiles: drool, swipes, sonic booms, Chozo orbs, eggs, super missiles, eye beams and explosions.</summary>
     private readonly TorizoAttacks _attacks;
@@ -45,7 +45,7 @@ internal sealed class TorizoBody
     /// <summary>Whether Torizo has latched <paramref name="flag"/>.</summary>
     internal bool HasBehavior(RoomEnemySlot torizo, TorizoBehaviorFlags flag) => _access.RequireBombTorizoState(torizo).Behavior.HasFlag(flag);
 
-    /// <summary>Requests the awakening drool variant whose position and speed use carry-sensitive jitter.</summary>
+    /// <summary>Requests the awakening drool variant whose position and speed use wrap-sensitive jitter.</summary>
     internal void SpawnBombTorizoInitialDrool(RoomEnemySlot torizo) =>
         _attacks.SpawnBombTorizoDrool(torizo, RoomEnemyProjectileKind.BombTorizoInitialDrool);
 

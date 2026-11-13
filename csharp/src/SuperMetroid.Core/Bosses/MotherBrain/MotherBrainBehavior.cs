@@ -7,7 +7,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>The Mother Brain species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Mother Brain species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -305,7 +305,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                     return;
 
                 // The fake-death flash starts the looping room flash, drains the room's acid,
-                // arms the head's independent tube sequence, and clears both fade words.
+                // arms the head's independent tube sequence, and clears both fade timers.
                 state.RoomFlashFrame = 0;
                 state.RoomFlashTimer = 1;
                 _frameResults.MotherBrainAcidChange = MotherBrainRoomFxDefinitions.AcidDrains;

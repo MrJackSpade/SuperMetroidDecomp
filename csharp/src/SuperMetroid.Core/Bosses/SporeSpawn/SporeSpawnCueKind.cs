@@ -1,6 +1,6 @@
 ﻿namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
-/// <summary>What a cue of Spore Spawn's body programs does: one per Spore Spawn instruction its lists use.</summary>
+/// <summary>What a cue of Spore Spawn's body programs does: one per kind of step its lists use.</summary>
 internal enum SporeSpawnCueKind
 {
     /// <summary>Widens the sway by eight pixels up to forty.</summary>

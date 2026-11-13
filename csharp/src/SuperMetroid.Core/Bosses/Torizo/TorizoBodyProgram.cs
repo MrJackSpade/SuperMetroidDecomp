@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
-/// Bomb and Golden Torizo's typed body programs (#641), one per list and per segment a goto, call,
+/// Bomb and Golden Torizo's typed body programs (#641), one per list and per segment a jump, call,
 /// link or resumed sleep enters, in authored order. Generated from the verified lists; see
 /// <see cref="TorizoAnimations"/>.
 /// </summary>

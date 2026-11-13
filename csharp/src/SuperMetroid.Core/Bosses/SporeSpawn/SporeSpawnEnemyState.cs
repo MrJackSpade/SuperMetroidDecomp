@@ -15,7 +15,7 @@ public sealed class SporeSpawnEnemyState
     /// <summary>Spore Spawn's body's and his room's colours (#1512).</summary>
     internal SporeSpawnColours Colours { get; } = new();
 
-    /// <summary>Live common enemy slot owned by the room enemy system; shared by movement, combat, instruction, and stalk-projectile owners.</summary>
+    /// <summary>Live common enemy slot owned by the room enemy system; shared by movement, combat, animation, and stalk-projectile owners.</summary>
     public RoomEnemySlot Body { get; }
     /// <summary>Current main-AI function: the phase of the fight it runs each update.</summary>
     public SporeSpawnFunction Function { get; internal set; }
@@ -62,9 +62,9 @@ public sealed class SporeSpawnEnemyState
     public FixedVector<RoomPixels> DeathVelocityMagnitude { get; internal set; }
     /// <summary>Whether the live fight's scrolling-finished hook still enforces the arena's minimum camera Y; cleared at death and never installed for an already defeated load.</summary>
     public bool ScrollClampHookActive { get; internal set; }
-    /// <summary>Host guard recording that zero health has already triggered projectile cleanup, the defeated flag, death instructions, and the ceiling-crumble request.</summary>
+    /// <summary>Host guard recording that zero health has already triggered projectile cleanup, the defeated flag, the death program, and the ceiling-crumble request.</summary>
     public bool DeathStarted { get; internal set; }
-    /// <summary>Whether the death instruction has published its sixteen boss item-drop attempts; separate from individual destroyed-spore drops and actual drop-pool allocation success.</summary>
+    /// <summary>Whether the death cue has published its sixteen boss item-drop attempts; separate from individual destroyed-spore drops and actual drop-pool allocation success.</summary>
     public bool DeathDropRequested { get; internal set; }
     /// <summary>Defeated-area miniboss flag sampled at room initialization; selects the solid dead body and cleared ceiling instead of the live fight setup.</summary>
     public bool LoadedAsDefeated { get; internal set; }

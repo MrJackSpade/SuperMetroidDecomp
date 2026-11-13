@@ -26,7 +26,7 @@ internal sealed class BombTorizoHandObjects
         _samus = samus;
         _sounds = Ensure.NotNull(sounds);
     }
-    /// <summary>Statue-fragment spawns queued by the hand's breaking instruction for this frame.</summary>
+    /// <summary>Statue-fragment spawns queued by the hand's breaking cue for this frame.</summary>
     private readonly List<BombTorizoStatueProjectileRequest>
         _bombTorizoStatueProjectileRequests = [];
     /// <summary>The room objects' audio requests, which the hand's music joins.</summary>
@@ -76,7 +76,7 @@ internal sealed class BombTorizoHandObjects
     internal void SpawnFragment(RoomObjectSlot slot, int fragment) =>
         _bombTorizoStatueProjectileRequests.Add(new BombTorizoStatueProjectileRequest(
             fragment,
-            // The fragment spawn carries both block coordinates as bytes.
+            // The fragment spawn carries both block coordinates, each below 256.
             slot.Block));
 
     /// <summary>

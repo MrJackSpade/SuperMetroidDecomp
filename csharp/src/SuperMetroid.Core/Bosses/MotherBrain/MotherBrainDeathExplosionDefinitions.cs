@@ -2,7 +2,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Compiled instruction selectors for Mother Brain's body-relative death explosions.</summary>
+/// <summary>Compiled animation selectors for Mother Brain's body-relative death explosions.</summary>
 internal static class MotherBrainDeathExplosionDefinitions
 {
     /// <summary>Seven four-anchor groups selected in reverse order by the death explosions.</summary>

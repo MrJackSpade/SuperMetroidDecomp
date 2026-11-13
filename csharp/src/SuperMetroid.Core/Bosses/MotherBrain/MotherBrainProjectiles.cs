@@ -687,7 +687,7 @@ internal sealed class MotherBrainProjectiles
     {
         // The ring's impact clears the source before allocating parameter-three room dust. If the
         // allocator reuses this physical slot, the outer projectile scheduler will advance
-        // the newborn dust animation during the same pass, matching the original's projectile order.
+        // the newborn dust animation during the same pass.
         ring.Delete();
         _projectiles.SpawnRoomGraphicsDustExplosion(position, MiscDustAnimation.SmallExplosion);
         _motherBrainEncounter.RequestCueSound(MotherBrainSoundDefinitions.Explosion);
@@ -754,8 +754,8 @@ internal sealed class MotherBrainProjectiles
             return;
         }
 
-        // A disallowed next step reverses the signed high-byte delta and immediately takes
-        // one step in the new direction. The original game does not perform a second mask test.
+        // A disallowed next step reverses the signed rotation delta and immediately takes
+        // one step in the new direction, with no second sector test.
         // Every turret's sector spans at least three ring positions, so the step back stays inside it.
         state.RotationStep = -rotationDelta;
         state.RingPosition = currentDirection + state.RotationStep;
@@ -809,7 +809,7 @@ internal sealed class MotherBrainProjectiles
             MotherBrainTurrets.ForDirection(direction);
         bullet.Velocity = definition.BulletVelocity;
         bullet.Position = bullet.Position.WithWhole(turret.Position.Whole + definition.BulletOffset);
-        // The bullet list's first instruction jumps to the pose for this direction.
+        // The bullet list's first cue jumps to the pose for this direction.
         bullet.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretProgram.BulletPose, direction));
     }
 

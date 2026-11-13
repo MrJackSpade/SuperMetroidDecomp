@@ -10,8 +10,8 @@ internal abstract record MotherBrainEffectCue
     {
     }
 
-    /// <summary>Installs a movement routine.</summary>
-    /// <param name="FrameBehavior">The movement routine the cue installs.</param>
+    /// <summary>Installs a movement behaviour.</summary>
+    /// <param name="FrameBehavior">The movement behaviour the cue installs.</param>
     internal sealed record SetFrameBehavior(EnemyProjectileFrameBehavior FrameBehavior) : MotherBrainEffectCue;
 
     /// <summary>Sets the projectile's packed X and Y collision radii.</summary>

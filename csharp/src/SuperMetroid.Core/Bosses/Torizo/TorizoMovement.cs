@@ -24,7 +24,7 @@ internal sealed class TorizoMovement
         new(EarthquakeStrength.Medium, EarthquakeDirection.Vertical, EarthquakeReach.Foreground);
     /// <summary>Bomb and Golden Torizo's body: its behaviour flags, palette, program start and the low-health drool it triggers.</summary>
     private readonly TorizoBody _body;
-    /// <summary>Bomb and Golden Torizo's state lookups, facing, posture and the function word their branches test.</summary>
+    /// <summary>Bomb and Golden Torizo's state lookups, facing, posture and the function their branches test.</summary>
     private readonly TorizoEncounterAccess _access;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -39,9 +39,8 @@ internal sealed class TorizoMovement
 
     /// <summary>
     /// Runs the shared Torizo initializer for the area-zero Bomb and area-two
-    /// Golden definitions. The original game indexes parallel two-word tables by area; using
-    /// the concrete definition here is equivalent and prevents an unrelated host area enum
-    /// from becoming a second authority for actor identity.
+    /// Golden definitions. The concrete definition selects the values, so an unrelated host area enum
+    /// cannot become a second authority for actor identity.
     /// </summary>
     internal void InitializeBombTorizo(RoomEnemySlot torizo, SamusState? samus, ControllerButton controllerInput)
     {
@@ -91,7 +90,7 @@ internal sealed class TorizoMovement
             {
                 if (samus is null)
                     throw new InvalidOperationException("The Golden Torizo code requires the live Samus owner.");
-                // Initialization overwrites both inventory words, even if
+                // Initialization overwrites both the collected and equipped items, even if
                 // this reduces capacity or equips normally incompatible beams.
                 samus.Health = samus.MaxHealth = GoldenTorizoCodeDefinitions.Energy;
                 samus.ReserveEnergy = samus.MaxReserveEnergy = GoldenTorizoCodeDefinitions.ReserveEnergy;

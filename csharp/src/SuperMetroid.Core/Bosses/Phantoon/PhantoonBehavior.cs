@@ -10,7 +10,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
-/// <summary>The Phantoon species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Phantoon species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -20,11 +20,11 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new PhantoonEntity(this, slot, common, _bossArtwork);
 
-    /// <summary>Room services and tilemap state used by the Wrecked Ship encounter.</summary>
+    /// <summary>Room services and background state used by the Wrecked Ship encounter.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Queues encounter sounds in enemy update order.</summary>
     private readonly EnemyAudioQueue _audio;
-    /// <summary>Applies body palettes and the background tilemap changes.</summary>
+    /// <summary>Applies body palettes and the background changes.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Phantoon's entrance: the starting flames and its wavy fade-in.</summary>
     internal PhantoonOpening Opening { get; }
@@ -257,10 +257,8 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                     $"Phantoon function {state.BodyState.Function} is not translated.");
         }
 
-        // The original runs this synchronization block only for the body's invocation; the main dispatcher likewise
-        // calls it only for the body, then copies the updated point into the three drawing parts.
-        // The synchronization tests the X the function returned with: the wave setup leaves it at the background
-        // write-stack index, so that frame skips the part sync and body-layer scroll entirely.
+        // This synchronization runs only for the body's invocation, then copies the updated point into the three
+        // drawing parts. The almost-dead phase skips the part sync and body-layer scroll entirely on that frame.
         if (dispatched == PhantoonAiFunction.AlmostDead)
             return;
         state.Mouth.Position = state.Mouth.Position.WithWholeX(body.Position.X.Whole);
@@ -318,7 +316,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal const int PhantoonDeathWaveMaximum = 61440;
 
     /// <summary>
-    /// Runs a Phantoon part's program where the enemy instruction interpreter would: the frame expires on the update
+    /// Runs a Phantoon part's program where the shared enemy animation runs: the frame expires on the update
     /// its timer would, and a newly shown frame raises the new-frame flag.
     /// </summary>
     internal void AdvancePhantoonPartAnimation(RoomEnemySlot part)

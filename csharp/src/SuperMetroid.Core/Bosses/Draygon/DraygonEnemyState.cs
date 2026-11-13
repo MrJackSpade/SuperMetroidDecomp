@@ -107,7 +107,7 @@ public sealed class DraygonEnemyState
     /// </summary>
     internal DraygonSwoopPath? SwoopPath { get; set; }
 
-    /// <summary>Long facing word: zero left, one right.</summary>
+    /// <summary>Whether Draygon faces right; false faces left.</summary>
     public bool FacingRight { get; internal set; }
 
     /// <summary>
@@ -135,7 +135,7 @@ public sealed class DraygonEnemyState
     /// <summary>
     /// Center point of the carry spiral, initialized to (256, 384).
     /// The Y axis carries its fractional part: retail subtracts a quarter pixel each
-    /// spiral frame, lifting the center by one pixel every four. X has no fractional word and
+    /// spiral frame, lifting the center by one pixel every four. X has no fractional part and
     /// stays whole.
     /// </summary>
     public FixedPosition<RoomPixels> SpiralCenter { get; internal set; }
@@ -162,12 +162,11 @@ public sealed class DraygonEnemyState
 
 
     /// <summary>
-    /// The installed health-palette band 0-7 (the game stores twice this, since the threshold table is
-    /// indexed by word); null until a band is installed.
+    /// The installed health-palette band 0-7; null until a band is installed.
     /// </summary>
     public int? HealthBand { get; internal set; }
 
-    /// <summary>True after the terminal burial routine scatters sixteen physical pickups using the body's drop definition.</summary>
+    /// <summary>True after the burial at the end of the fight scatters sixteen physical pickups using the body's drop definition.</summary>
     public bool ItemDropRequested { get; internal set; }
     /// <summary>True after terminal burial invokes the persistent area-boss-defeated callback; prevents repeating that persistence write.</summary>
     public bool BossDefeatPersisted { get; internal set; }
@@ -189,9 +188,9 @@ public sealed class DraygonEnemyState
     /// one more after each of that stage's updates. The opening delay ends at 256 and the dance at its duration.
     /// </summary>
     /// <remarks>
-    /// The original game keeps this count and <see cref="BurialWait"/> in one record value (#1476). Neither is read
-    /// under the other's meaning: each intro stage ends by zeroing the count, and the burial wait is loaded with its
-    /// full length when the dying body reaches its burial point, so they are held apart.
+    /// This count and <see cref="BurialWait"/> are never read under each other's meaning (#1476): each intro stage ends by
+    /// zeroing the count, and the burial wait is loaded with its full length when the dying body reaches its burial point,
+    /// so they are held apart.
     /// </remarks>
     public int IntroFrames
     {

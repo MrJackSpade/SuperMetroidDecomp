@@ -6,7 +6,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
 
-/// <summary>The Draygon species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Draygon species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
 {
@@ -178,7 +178,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // These are four physical enemy records, but Draygon's main behaviour makes the body coordinate
         // authoritative after its function returns. Copying here preserves that ordering for
-        // the eye AI and each part's later instruction tick in the same enemy frame.
+        // the eye AI and each part's later animation step in the same enemy frame.
         state.Arms.Position = state.Arms.Position.WithWholeX(body.Position.X.Whole);
         state.Tail.Position = state.Tail.Position.WithWholeX(body.Position.X.Whole);
         state.Eye.Position = state.Eye.Position.WithWholeX(body.Position.X.Whole);
@@ -205,7 +205,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         DraygonProgram.ArmsFacingLeftIdle, DraygonAiFunction.SwoopLeftApex, DraygonAiFunction.SwoopLeftAscending);
 
     /// <summary>
-    /// The X Draygon parks at off the left edge (-80 as a signed word); a goop pass leftwards ends once
+    /// The X Draygon parks at off the left edge (-80, wrapped into the coordinate range); a goop pass leftwards ends once
     /// the body crosses it.
     /// </summary>
     internal static readonly int DraygonOffscreenLeftX = CoordinateAxis.Wrap(-80);

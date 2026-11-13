@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 /// <param name="Target">The waypoint the Baby steers toward.</param>
 /// <param name="AccelerationDivisor">What the gradual acceleration divides the remaining distance by, 1 through 16.</param>
-/// <param name="MovementFunction">The steering routine, which selects the wrong-way correction.</param>
+/// <param name="MovementFunction">The steering behaviour, which selects the wrong-way correction.</param>
 /// <param name="EndsWithLatchOntoSamus">
 /// Whether reaching this waypoint ends the route and installs the latch-onto-Samus function,
 /// rather than moving on to the next leg.

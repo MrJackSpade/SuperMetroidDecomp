@@ -219,7 +219,7 @@ internal sealed class DraygonSwoops
 
     /// <summary>
     /// Sets the swoop's 16.16 horizontal velocity: the whole-pixel distance promoted to 16.16 and divided by the path's
-    /// frame count, the quotient code splits into the swoop speed's whole and subpixel words.
+    /// frame count, the quotient split into the swoop speed's whole and subpixel parts.
     /// </summary>
     /// <param name="state">Draygon's state, which receives the velocity.</param>
     /// <param name="distance">The whole pixels the swoop covers.</param>

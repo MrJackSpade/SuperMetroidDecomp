@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// Which of Mother Brain's contact regions currently hurt Samus. The original game tests each part's bit independently
+/// Which of Mother Brain's contact regions currently hurt Samus. The game tests each part's flag independently
 /// and composes them (the brain alone during the glass phase, all three from the ascent onward, none after death),
 /// so the set is composable flags. One codec converts the set to its snapshot
 /// value.

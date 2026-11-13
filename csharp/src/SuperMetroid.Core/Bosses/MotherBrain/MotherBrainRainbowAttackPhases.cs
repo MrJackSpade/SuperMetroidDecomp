@@ -138,7 +138,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// <summary>Converts the angle from the offset brain origin to Samus into the rainbow beam's orientation.</summary>
     private void AimBeamAtSamus(SamusState samus)
     {
-        // The aim step aims from brain position (+16,+4) to Samus. The angle routine consumes
+        // The aim step aims from brain position (+16,+4) to Samus. The angle calculation consumes
         // signed offsets; the aim step converts its clockwise-up angle to the
         // rainbow beam's anti-clockwise-down convention with `-angle + half turn`.
         RotationAngle sourceAngle = SamusGrappleMovement.CalculateAngleFromXY(
@@ -201,11 +201,11 @@ internal sealed class MotherBrainRainbowAttackPhases
         if (decremented >= 1)
             return decremented;
 
-        // The original briefly reloads the selected HUD item for the comparison, but both the
-        // matching and nonmatching branches converge at a label that first loads zero.
+        // The step briefly reloads the selected HUD item for the comparison, but both the
+        // matching and nonmatching branches converge on a step that first loads zero.
         // Therefore the depleted count is always zero; only the selected-item
         // store itself is conditional. Spell that convergence out to avoid the tempting but
-        // incorrect interpretation that the HUD item number leaks into the ammo count.
+        // incorrect reading that the HUD item number leaks into the ammo count.
         if (samus.SelectedHudItem == selectedItem)
             samus.SelectedHudItem = HudItem.Beam;
 
@@ -300,8 +300,8 @@ internal sealed class MotherBrainRainbowAttackPhases
         {
             if (--_state.FunctionTimer < 0)
             {
-                // The original game redundantly rereads the power-bomb flag here. The
-                // parameter is one stable sample of the flag for this translated AI call.
+                // The step rereads the power-bomb flag here. The
+                // parameter is one stable sample of the flag for this AI call.
                 SamusProjectileCooldownTimer = 0;
                 StartActiveBeam(samus);
             }
@@ -445,7 +445,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// </summary>
     internal bool RunSecondPhaseRainbowLowerHead()
     {
-        // Neck words are presentation/actor-animation state. This phase's movement-
+        // Neck positions are presentation/actor-animation state. This phase's movement-
         // relevant effect is the exact function/timer handoff to the lower-head step.
         _state.Phase = MotherBrainBodyFunction.SecondPhaseRainbowDecideNextAction;
         _state.FunctionTimer = 128;

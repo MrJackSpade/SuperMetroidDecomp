@@ -49,7 +49,7 @@ internal sealed class DraygonGrab
         if (samus is null)
             throw new InvalidOperationException("Draygon chase AI requires the active Samus actor.");
 
-        // Attached goop actors own this word. Once the final actor disappears, retail
+        // Attached goop actors own this divisor. Once the final actor disappears, retail
         // abandons the chase immediately and exits through the same upward flight used
         // after a completed grab.
         if (samus.XSpeedDivisor == 0)
@@ -145,8 +145,8 @@ internal sealed class DraygonGrab
     }
 
     /// <summary>
-    /// Ports the expanding, rising spiral. Radius growth, angular
-    /// deceleration, and center lift stay as separate fixed-point word pairs.
+    /// Runs the expanding, rising spiral. Radius growth, angular
+    /// deceleration, and center lift stay separate fixed-point values.
     /// </summary>
     internal void CarrySamusInDraygonSpiral(DraygonEnemyState state, SamusState? samus)
     {
@@ -253,8 +253,8 @@ internal sealed class DraygonGrab
         if (samus.DraygonGrabbed.IsActive)
         {
             ReleaseSamusDuringEnemyMain(samus);
-            // ReleaseSamusFromDraygon publishes bit one, and the release immediately clears
-            // the complete grapple-flags word. Consume the host projection here so
+            // ReleaseSamusFromDraygon publishes the owner-release flag, and the release immediately clears
+            // all of Samus's grapple flags. Consume the host projection here so
             // a later encounter cannot observe a stale owner-release request.
             samus.DraygonGrabbed.ConsumeOwnerReleaseSignal();
         }
@@ -270,7 +270,7 @@ internal sealed class DraygonGrab
 
     /// <summary>
     /// <c>MoveSamusWithDraygon</c>. It places Samus without checking that she is
-    /// still held, and only then tests the escape bit Samus's grapple publishes. The first carry
+    /// still held, and only then tests the escape flag Samus's grapple publishes. The first carry
     /// call after an escape therefore drags the released Samus once more before Draygon
     /// switches to flying straight up.
     /// </summary>

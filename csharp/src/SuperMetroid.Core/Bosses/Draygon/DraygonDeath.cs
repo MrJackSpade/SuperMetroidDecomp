@@ -105,7 +105,7 @@ internal sealed class DraygonDeath
 
         _parts.StartDraygonProgram(body, DraygonProgram.Delete);
 
-        // The death drops use Draygon's body header for sixteen independent drops over the
+        // The death drops use Draygon's body definition for sixteen independent drops over the
         // lower half of the arena. The drops spawn before the body is deleted.
         _deathsAndDrops.SpawnEnemyDropScatter(
             EnemyDefinitionId.DraygonBody,

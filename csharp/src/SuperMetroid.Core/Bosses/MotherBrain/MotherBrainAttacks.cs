@@ -47,7 +47,7 @@ internal sealed class MotherBrainAttacks
                 return;
 
             case MotherBrainHandBeamPhase.Firing:
-                // The charge-beam function is intentionally empty. Body bytecode owns the
+                // The charge-beam function is intentionally empty. The body program owns the
                 // charge effects, projectile emission, 240-frame hold, and phase advance.
                 return;
 
@@ -133,8 +133,8 @@ internal sealed class MotherBrainAttacks
     }
 
     /// <summary>
-    /// Ports the three-entry body dispatcher. The selected head
-    /// list is ordinary enemy bytecode, so attacks remain synchronized with map
+    /// Runs the three-entry body attack choice. The selected head
+    /// program is an ordinary enemy program, so attacks remain synchronized with its frame
     /// durations instead of being represented by host timers.
     /// </summary>
     internal void RunMotherBrainSecondPhaseTryAttack(
@@ -166,7 +166,7 @@ internal sealed class MotherBrainAttacks
         }
     }
 
-    /// <summary>Chooses Mother Brain's second-phase attack, including its unusual stack-return strategy.</summary>
+    /// <summary>Chooses Mother Brain's second-phase attack, whose airborne branches end the whole choice at once.</summary>
     private void ChooseMotherBrainSecondPhaseAttack(
         MotherBrainEnemyState state,
         SamusState samus)
@@ -282,7 +282,7 @@ internal sealed class MotherBrainAttacks
     }
 
     /// <summary>
-    /// Ports the fallthrough. This routine advances the global RNG—unlike
+    /// Runs the fallthrough. This step advances the global RNG—unlike
     /// attack selection—and fires immediately on the lower half; the upper half enters the
     /// ordinary slow-crouch body list before firing.
     /// </summary>
@@ -429,7 +429,7 @@ internal sealed class MotherBrainAttacks
 
     /// <summary>
     /// Positions the head slowly and fires the laser. Its unsigned timer expires only after decrementing through
-    /// zero to -1, at which point neck rotation slows and ordinary head bytecode
+    /// zero to -1, at which point neck rotation slows and the ordinary head program
     /// owns the muzzle animation and projectile spawn.
     /// </summary>
     internal static void PositionMotherBrainHeadSlowlyAndFireLaser(
@@ -446,7 +446,7 @@ internal sealed class MotherBrainAttacks
 
     /// <summary>
     /// Finishes the laser attack, including its same-frame jump back into thinking. The attack
-    /// phase/cooldown words intentionally remain as selected: the laser body state replaces
+    /// phase and cooldown intentionally remain as selected: the laser body state replaces
     /// the dispatcher, so the chain does not pass through that dispatcher's end phase.
     /// </summary>
     internal void FinishMotherBrainLaserAttack(
@@ -465,8 +465,8 @@ internal sealed class MotherBrainAttacks
     /// <summary>Advances the chosen walk direction, animation, and footstep cadence.</summary>
     private void HandleMotherBrainWalking(MotherBrainEnemyState state)
     {
-        // The backward walk alters only the walk accumulator and installs an authored body list;
-        // actual displacement remains bytecode-owned, which also keeps the background scroll aligned.
+        // The backward walk alters only the walk credit and installs an authored body list;
+        // actual displacement remains owned by the body program, which also keeps the background scroll aligned.
         if (state.Pose != MotherBrainBodyPose.Standing)
             return;
         if (state.WalkCounter.IsEmpty)
@@ -490,7 +490,7 @@ internal sealed class MotherBrainAttacks
                 return;
         }
 
-        // The original game reads the current random number; it does not draw a new one.
+        // The choice reads the current random number; it does not draw a new one.
         if (MotherBrainForwardWalkDefinitions.ForwardWalk.IsTakenBy(_room.Random.Read()))
             StartMotherBrainForwardWalk(state);
     }

@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// The phases Mother Brain's body dispatcher runs, one per routine; unrelated phases are not interchangeable.
-/// Its values are arbitrary; verification's catalog names each member's original routine (#1413).
+/// The phases Mother Brain's body dispatcher runs; unrelated phases are not interchangeable.
+/// Its values are arbitrary; verification's catalog relates each member to its source (#1413).
 /// </summary>
 public enum MotherBrainBodyFunction
 {
@@ -34,7 +34,7 @@ public enum MotherBrainBodyFunction
     FakeDeathAscentDrawMuralRows9And10,
     /// <summary>Requests the mural's last two rows and hands off to phase-two graphics setup.</summary>
     FakeDeathAscentDrawMuralRows11And12,
-    /// <summary>Shows her phase-two attack and rear-leg colours and transfers the prepared enemy background tilemap.</summary>
+    /// <summary>Shows her phase-two attack and rear-leg colours and shows the prepared enemy background.</summary>
     FakeDeathAscentSetupPhase2Graphics,
     /// <summary>Configures articulated drawing and blending, makes head/body tangible, sets head health 18,000, and immediately starts the 128-count suspense wait.</summary>
     FakeDeathAscentSetupPhase2Brain,
@@ -50,7 +50,7 @@ public enum MotherBrainBodyFunction
     FakeDeathAscentStartMusicAndEarthquake,
     /// <summary>Every fourth frame of the frame counter raises the body two pixels with dust and matching background scroll, then ends the floor-clipping effect and starts uncrouching.</summary>
     FakeDeathAscentRaiseMotherBrain,
-    /// <summary>Waits for body bytecode to publish the standing pose before initializing grey-palette restoration.</summary>
+    /// <summary>Waits for the body program to publish the standing pose before initializing grey-palette restoration.</summary>
     FakeDeathAscentWaitUntilUncrouched,
     /// <summary>Restores brain sprite colors on the four-count timer cadence, then enables phase-two palette handling and drool.</summary>
     FakeDeathAscentTransitionFromGray,
@@ -62,7 +62,7 @@ public enum MotherBrainBodyFunction
     SecondPhaseStretchingFinish,
     /// <summary>Zero head health starts the rainbow sequence; otherwise standing pose, health, and the current RNG choose walking, ordinary attacks, or the red hand beam.</summary>
     SecondPhaseThinking,
-    /// <summary>Runs the choose/cooldown/end sub-dispatcher, selecting head bytecode or a bomb/laser body state from Samus movement and sampled RNG.</summary>
+    /// <summary>Runs the choose/cooldown/end sub-dispatcher, selecting a head program or a bomb/laser body state from Samus movement and sampled RNG.</summary>
     SecondPhaseTryAttack,
     /// <summary>Samples an optional backward target, then advances RNG for the independent crouch-or-fire choice.</summary>
     SecondPhaseBombDecideWalking,
@@ -76,7 +76,7 @@ public enum MotherBrainBodyFunction
     SecondPhaseBombStandUp,
     /// <summary>Chooses neck targets from head/Samus Y ordering and seeds a four-count quick-positioning wait.</summary>
     SecondPhaseLaserPositionHeadQuickly,
-    /// <summary>On timer underflow slows neck rotation, installs laser head bytecode, and seeds a 16-count recovery wait.</summary>
+    /// <summary>On timer underflow slows neck rotation, installs the laser head program, and seeds a 16-count recovery wait.</summary>
     SecondPhaseLaserPositionHeadSlowlyAndFire,
     /// <summary>Restores neutral neck targets after the wait and immediately re-enters thinking without the ordinary attack sub-dispatcher's end phase.</summary>
     SecondPhaseLaserFinishAttack,
@@ -84,7 +84,7 @@ public enum MotherBrainBodyFunction
     SecondPhaseHandBeam,
     /// <summary>Sets the initial extended neck geometry and installs the 256-count charging-start pause.</summary>
     SecondPhaseRainbowExtendNeck,
-    /// <summary>Expires the extension pause, installs charging head bytecode, and falls into backward-walk/neck retraction.</summary>
+    /// <summary>Expires the extension pause, installs the charging head program, and falls into backward-walk/neck retraction.</summary>
     SecondPhaseRainbowStartCharging,
     /// <summary>Requests really-slow backward walking toward X 40, then retracts the head and starts a 256-count charge wait.</summary>
     SecondPhaseRainbowRetractNeck,
@@ -118,11 +118,11 @@ public enum MotherBrainBodyFunction
     SecondPhaseFinishSamusOffStandUp,
     /// <summary>Expires the admiration pause, installs the stretching head list, and starts a 256-count final-charge delay.</summary>
     SecondPhaseFinishSamusOffAdmire,
-    /// <summary>On timer underflow installs charging head bytecode and immediately begins readying the Baby Metroid's arrival.</summary>
+    /// <summary>On timer underflow installs the charging head program and immediately begins readying the Baby Metroid's arrival.</summary>
     SecondPhaseFinishSamusOffChargeFinalBeam,
     /// <summary>Readies the Baby Metroid's arrival one update per call; the last retracts the head, spawns the baby, and seeds a 256-count firing wait.</summary>
     SecondPhaseFinishSamusOffReadyBaby,
-    /// <summary>Expires the final wait, starts firing head bytecode/neck extension and its sound, then installs its own empty step as the holding function.</summary>
+    /// <summary>Expires the final wait, starts the firing head program, neck extension and its sound, then installs its own empty step as the holding function.</summary>
     SecondPhaseFinishSamusOffFireFinalBeam,
     /// <summary>Inert step that waits until the independently running baby latches on and replaces the body function.</summary>
     SecondPhaseFinalRainbowBeamHolding,
@@ -150,7 +150,7 @@ public enum MotherBrainBodyFunction
     SecondPhaseReviveTransitionFromGrey,
     /// <summary>Waits for the posture helper to observe standing, then extends the neck and immediately begins a 16-count wake-up stretch.</summary>
     SecondPhaseReviveWakeUp,
-    /// <summary>Expires the short stretch delay, installs phase-three stretching head bytecode, and seeds a 128-count walking delay.</summary>
+    /// <summary>Expires the short stretch delay, installs the phase-three stretching head program, and seeds a 128-count walking delay.</summary>
     SecondPhaseReviveWakeUpStretch,
     /// <summary>After the wait repeatedly requests forward walking until X passes 80, then enables health-based palettes and prepares the neck.</summary>
     SecondPhaseReviveWalkUpToBaby,

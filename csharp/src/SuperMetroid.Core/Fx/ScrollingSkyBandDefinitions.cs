@@ -12,6 +12,6 @@ public static class ScrollingSkyBandDefinitions
     /// <summary>The world row below the last band.</summary>
     public const int WorldEndPosition = 1280;
 
-    /// <summary>First gameplay scanline below the 32-pixel HUD.</summary>
+    /// <summary>First gameplay screen row below the 32-pixel HUD.</summary>
     public const int GameplayFirstScanline = 32;
 }

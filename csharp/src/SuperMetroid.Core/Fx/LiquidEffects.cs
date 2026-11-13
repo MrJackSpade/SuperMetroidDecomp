@@ -14,7 +14,7 @@ public static class LiquidEffects
     public static ImmutableArray<int> HeatHorizontalWaveform { get; } =
         [.. Enumerable.Range(0, LavaAcidWaveDefinitions.WaveDisplacementCount).Select(index => HeatHorizontalWaveDisplacement(index))];
 
-    /// <summary>Calculates the signed scanline displacement for a water wave index 0..15.</summary>
+    /// <summary>Calculates the signed row displacement for a water wave index 0..15.</summary>
     /// <remarks>The water waveform consists of two identical eight-sample
     /// periods. Within each four-sample half-wave, reflect the integer ramp around
     /// its midpoint: min(index&amp;3, 3-(index&amp;3)). Bit two reverses its sign.

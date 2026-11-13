@@ -6,7 +6,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Areas.Ceres;
 
-/// <summary>The Ceres steam species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Ceres steam species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class CeresSteamBehavior : IEnemyEntityFactory
 {
@@ -28,7 +28,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
         _collision = collision;
     }
 
-    /// <summary>Plays a vent's typed animation where the enemy instruction interpreter would run its list.</summary>
+    /// <summary>Plays a vent's typed animation where the shared enemy animation would run its list.</summary>
     internal static void AdvanceCeresSteamAnimation(RoomEnemySlot slot)
     {
         if (!EnemyProgramAnimation.Expire(slot))
@@ -71,7 +71,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
                 throw new InvalidOperationException($"Undefined Ceres steam cue {cue}.");
         }
     }
-    /// <summary>Health restored by steam's main and touch routines so the vent cannot be destroyed.</summary>
+    /// <summary>Health restored by steam's main and touch behaviours so the vent cannot be destroyed.</summary>
     private const int CeresSteamIndestructibleHealth = 32767;
 
     /// <summary>Initializes the Ceres steam.</summary>
@@ -80,8 +80,8 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
         CeresSteamInitialization initialization = CeresSteamInitializations.Initialization(
             slot.Spawn.Population.SpawnSettingsOf<CeresSteamSpawnSettings>().Variant);
 
-        // Both property changes are literal ORs performed by the initializer: normal instructions animate visibility,
-        // while extended maps supply per-frame art and collision boxes whose geometry cannot be represented by header radii.
+        // Both property changes are literal ORs performed by the initializer: normal animation steps animate visibility,
+        // while extended frames supply per-frame art and collision boxes whose geometry cannot be represented by definition radii.
         slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
         slot.CollidesByFrameHitboxes = true;
         slot.FrameHold = WrappingCountdown.Start(1);
@@ -113,13 +113,13 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
         switch (state.Function)
         {
             // Parameters zero through three use a behaviour that does nothing. Their base
-            // world position is also their draw position, so no graphical word is changed.
+            // world position is also their draw position, so no drawing offset is changed.
             case CeresSteamFunction.None:
                 return;
 
             // Parameters four and five are the vents inside the rotating elevator shaft.
             // The rotating-shaft behaviour calls the same transform used for Samus, then stores only
-            // transformed-minus-base deltas in the enemy's graphical-offset words.
+            // transformed-minus-base deltas as the enemy's drawing offsets.
             // Collision continues to use the untransformed world point; drawing consumes
             // these offsets later, when the enemy is drawn.
             case CeresSteamFunction.ApplyRotatingElevatorOffset:
@@ -164,7 +164,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
                 }
 
                 // The steam's touch reaction restores health immediately before entering common touch AI.
-                // Header damage is deliberately zero: contact still installs the common
+                // Definition damage is deliberately zero: contact still installs the common
                 // invincibility/knockback state, while Screw/Speed cannot destroy the vent.
                 context.Slot.Health = CeresSteamIndestructibleHealth;
                 _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus);

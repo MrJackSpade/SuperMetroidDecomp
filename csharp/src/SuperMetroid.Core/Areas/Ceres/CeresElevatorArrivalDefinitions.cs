@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
 /// Compiled mechanics for the two enemy projectiles used by the initial
-/// Ceres elevator arrival. Spritemap payloads remain presentation data.
+/// Ceres elevator arrival. Frame pictures remain presentation data.
 /// </summary>
 internal static class CeresElevatorArrivalDefinitions
 {

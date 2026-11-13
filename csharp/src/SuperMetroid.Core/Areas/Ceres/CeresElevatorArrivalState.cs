@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// the authored definitions; frame stepping executes their
 /// animation scripts and frame behaviours. Keeping this tiny
 /// pair separate avoids pretending that the larger general enemy-projectile engine has
-/// already been translated.
+/// already been modelled.
 /// </remarks>
 [RoomLifetime]
 public sealed class CeresElevatorArrivalState
@@ -33,7 +33,7 @@ public sealed class CeresElevatorArrivalState
 
         // Spawning a projectile with graphics first copies enemy slot zero's tile and palette choice. The shared
         // initializer then clears it, so both actors use room-loaded sprite tiles and the
-        // palettes authored by their spritemaps. Retaining the transient choice is
+        // palettes authored by their frames. Retaining the transient choice is
         // what previously made the level-data concealer teal until touchdown.
         pad = LoadProjectile(
             CeresElevatorArrivalDefinitions.MovingPad,
@@ -97,7 +97,7 @@ public sealed class CeresElevatorArrivalState
     }
 
     /// <summary>
-    /// Emits the low-priority spritemaps selected by the live programs.
+    /// Emits the low-priority frames selected by the live programs.
     /// </summary>
     /// <param name="sprites">The frame's sprite description.</param>
     /// <param name="presentation">Publishes the platforms from the room's enemy artwork.</param>
@@ -200,7 +200,7 @@ public sealed class CeresElevatorArrivalState
             FrameHold = 1;
             Playback = new AnimationPlayback<CeresElevatorArrivalProgram>(CeresElevatorArrivalAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
         }
-        /// <summary>Frames until this projectile's next instruction pass.</summary>
+        /// <summary>Frames until this projectile's next animation pass.</summary>
         public int FrameHold { get; set; } = 1;
         /// <summary>The pose the projectile shows, none before its first frame.</summary>
         internal CeresElevatorArrivalPose? Pose { get; set; }

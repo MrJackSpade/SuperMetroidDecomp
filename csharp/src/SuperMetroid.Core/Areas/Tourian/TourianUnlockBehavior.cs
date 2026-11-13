@@ -5,7 +5,7 @@ using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Areas.Tourian;
 
-/// <summary>The Tourian unlock species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Tourian unlock species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class TourianUnlockBehavior
 {
@@ -13,7 +13,7 @@ internal sealed class TourianUnlockBehavior
     private readonly EnemyRoomBinding _room;
     /// <summary>Allocator and initializer for statue, dust, particle, and splash projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>Earthquake state written by the statue release instruction.</summary>
+    /// <summary>Earthquake state written by the statue release cue.</summary>
     private readonly RoomEarthquake _earthquake;
     /// <summary>Audio queue receiving the statue eye release sound.</summary>
     private readonly EnemyAudioQueue _audio;

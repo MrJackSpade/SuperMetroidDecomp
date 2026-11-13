@@ -13,7 +13,7 @@ using SuperMetroid.Core.Earthquakes;
 
 namespace SuperMetroid.Core.Areas.Ceres;
 
-/// <summary>The Ceres door species owner: its per-room state, AI routines and the interactions it registers.</summary>
+/// <summary>The Ceres door species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IGameplayShadingSource
 {
@@ -62,7 +62,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
             frame.Shade(GameplayPictures.Room, CeresDoorShades.ElevatorRoomGlow(step));
     }
 
-    /// <summary>Plays a door's typed animation where the enemy instruction interpreter would run its list.</summary>
+    /// <summary>Plays a door's typed animation where the shared enemy animation would run its list.</summary>
     private void AdvanceCeresDoorAnimation(RoomEnemySlot slot, SamusState? samus)
     {
         if (!EnemyProgramAnimation.Expire(slot))
@@ -89,7 +89,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
                         "Ceres door proximity instruction requires the active Samus actor.");
                 }
 
-                // The distance test subtracts the two unsigned position words, interprets the
+                // The distance test subtracts the two unsigned positions, reads the
                 // wrapped result as signed, then takes its absolute value independently
                 // on each axis. If either distance is at least 48 pixels, the door branches.
                 int xDistance = CoordinateAxis.Distance(slot.Position.X.Whole, samus.Position.X.Whole);
@@ -98,7 +98,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
             }
             case CeresDoorCueKind.GoToIfAreaBossAlive:
                 // The test samples bit zero of the current area's saved
-                // boss byte. Ceres begins with that bit clear, so the facing-right door
+                // boss flags. Ceres begins with that flag clear, so the facing-right door
                 // loops as a tangible actor during Ridley's fight. Ridley's escape publishes
                 // the boss bit together with status two; the next pass must then run on
                 // past the branch to the intangible setup.
@@ -243,7 +243,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
     {
         CeresDoorEnemyState state = slot.RequireSpeciesState<CeresDoorEnemyState>();
         // The counters are small counts that each run below zero only once before the call ends the destruction or
-        // reloads them, so nothing reaches a word's range.
+        // reloads them, so nothing reaches the counter's range.
         state.RumbleCallsLeft--;
         if (state.RumbleCallsLeft < 0)
         {
@@ -281,7 +281,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
 
     /// <summary>
     /// Cycles the elevator room's glow and the room's turning-floor elevator frame by <paramref name="door"/>'s own update
-    /// count. The glow and the platform strip are only drawn, so the door clocks them itself; the original game read the
+    /// count. The glow and the platform strip are only drawn, so the door clocks them itself; the game read the
     /// room's first enemy's count, which only shifts the drawn phase where another enemy is listed first.
     /// </summary>
     internal void RunCeresDoorPaletteAnimation(RoomEnemySlot door)

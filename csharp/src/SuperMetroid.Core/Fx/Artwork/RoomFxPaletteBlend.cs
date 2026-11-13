@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>
 /// The palette blend a room-FX record selects; <see cref="None"/> clears the blend. Its values are arbitrary; the
-/// import decodes the record's selector byte (#1415).
+/// import decodes the record's blend selector (#1415).
 /// </summary>
 public enum RoomFxPaletteBlend
 {

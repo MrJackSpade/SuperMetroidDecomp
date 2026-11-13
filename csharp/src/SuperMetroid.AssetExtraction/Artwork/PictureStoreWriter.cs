@@ -82,7 +82,7 @@ internal static class PictureStoreWriter
         IReadOnlyList<Extent16<ImagePixels>> pages = shelves.Pages;
         WriteStore(root, pages, store, sourceCartridgeSha256);
         foreach (InstalledSheetFamily family in families)
-            WriteManifests(family, [.. placed.Where(sheet => ReferenceEquals(sheet.Family, family))], sourceCartridgeSha256);
+            WriteManifests(family, [.. placed.Where(sheet => ReferenceEquals(sheet.Family, family))]);
     }
 
     /// <summary>
@@ -197,15 +197,15 @@ internal static class PictureStoreWriter
 
     /// <summary>
     /// Writes each of <paramref name="sheets"/>' manifests, every frame naming where the store holds its picture and the
-    /// maps it shows it with, and the family's provenance manifest; the manifests are serialized in parallel and written in
-    /// the sheets' order.
+    /// maps it shows it with; the manifests are serialized in parallel and written in the sheets' order. No provenance manifest
+    /// lists them (#1693).
     /// </summary>
-    private static void WriteManifests(InstalledSheetFamily family, SheetPictures[] sheets, string sourceCartridgeSha256)
+    private static void WriteManifests(InstalledSheetFamily family, SheetPictures[] sheets)
     {
         var manifests = new byte[sheets.Length][];
         Parallel.For(0, sheets.Length, index => manifests[index] = Manifest(sheets[index]));
-        SpriteSheetStore.Write(family.Directory, family.ProvenanceFileName,
-            [.. sheets.Select((sheet, index) => KeyValuePair.Create(sheet.Sheet.Name, manifests[index]))], sourceCartridgeSha256);
+        SpriteSheetStore.Write(family.Directory,
+            [.. sheets.Select((sheet, index) => KeyValuePair.Create(sheet.Sheet.Name, manifests[index]))]);
     }
 
     /// <summary>

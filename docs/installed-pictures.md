@@ -16,8 +16,8 @@ Every sheet belongs to a family, and each family has its own directory under `ga
 | `room-block-sheets/` | room blocks, backgrounds, written pictures, the effect overlay and HUD band, message boxes and turning floors |
 | `boss-body-sheets/` | the bosses' bodies |
 
-A family directory holds each sheet's manifest, `game/<family>/<sheet>.json`, and the family's provenance manifest (for
-example `sprite-sheets.json`), which lists every sheet manifest's SHA-256. A family directory holds no pictures.
+A family directory holds each sheet's manifest, `game/<family>/<sheet>.json`, and no provenance manifest (#1693): the
+sheet catalog, the tilesets or the family's own manifest name the sheets it holds. A family directory holds no pictures.
 
 Every picture any sheet shows is in the picture store, `game/pictures/`:
 

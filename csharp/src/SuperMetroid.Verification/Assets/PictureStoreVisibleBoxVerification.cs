@@ -116,7 +116,7 @@ internal static class PictureStoreVisibleBoxVerification
             new(GameInstallationLayout.EnemySheetDirectoryName, enemies),
         ];
         PictureStoreWriter.Write(content, [.. families.Select(family => new InstalledSheetFamily(Path.Combine(content, family.Directory),
-            family.Directory + ".json", [.. family.Sheets.Select(sheet => new NamedInstalledSheet(sheet.Name, sheet.Sheet))]))],
+            [.. family.Sheets.Select(sheet => new NamedInstalledSheet(sheet.Name, sheet.Sheet))]))],
             SupportedCartridge.Sha256);
 
         InstalledPictureStore store = InstalledPictureStore.Open(Path.Combine(content, PictureStoreFiles.DirectoryName));

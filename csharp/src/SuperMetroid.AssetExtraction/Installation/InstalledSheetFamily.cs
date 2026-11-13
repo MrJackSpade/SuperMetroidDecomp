@@ -8,18 +8,16 @@ namespace SuperMetroid.AssetExtraction.Installation;
 /// pictures once for the whole installation and then their manifests into the family's directory.
 /// </summary>
 /// <param name="Directory">The family's directory, directly under the content directory the store is written to.</param>
-/// <param name="ProvenanceFileName">The file name of the family's provenance manifest, which lists its sheet manifests.</param>
 /// <param name="Sheets">The family's sheets, each under its installed name.</param>
-internal sealed record InstalledSheetFamily(string Directory, string ProvenanceFileName, IReadOnlyList<NamedInstalledSheet> Sheets)
+internal sealed record InstalledSheetFamily(string Directory, IReadOnlyList<NamedInstalledSheet> Sheets)
 {
     /// <summary>
     /// The family of <paramref name="sheets"/>, each converted as the installation holds it (#1633); the sheets convert in
     /// parallel, each into its own place, so the family's order stays the sheets' own.
     /// </summary>
     /// <param name="directory">The family's directory.</param>
-    /// <param name="provenanceFileName">The file name of the family's provenance manifest.</param>
     /// <param name="sheets">The composed sheets, each under its installed name.</param>
-    internal static InstalledSheetFamily Install(string directory, string provenanceFileName, IReadOnlyList<NamedComposedSheet> sheets)
+    internal static InstalledSheetFamily Install(string directory, IReadOnlyList<NamedComposedSheet> sheets)
     {
         Ensure.NotNull(sheets);
         var installed = new NamedInstalledSheet[sheets.Count];
@@ -29,7 +27,7 @@ internal sealed record InstalledSheetFamily(string Directory, string ProvenanceF
             installed[index] = new NamedInstalledSheet(sheets[index].Name,
                 InstalledSheetConversion.Install(sheet.Manifest, sheet.Size, sheet.Pixels, sheet.PaletteIndices) with { ShownWhole = sheet.ShownWhole });
         });
-        return new InstalledSheetFamily(directory, provenanceFileName, installed);
+        return new InstalledSheetFamily(directory, installed);
     }
 
     /// <summary>The family's directory name, which orders it among the families the store writes.</summary>

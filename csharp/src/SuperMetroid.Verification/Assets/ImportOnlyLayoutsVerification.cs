@@ -117,6 +117,11 @@ internal static class ImportOnlyLayoutsVerification
         yield return (GameInstallationLayout.SamusBodyDirectoryName, "samus-arm-cannon-manifest.json");
         yield return (GameInstallationLayout.SamusBodyDirectoryName, "samus-death-explosion-manifest.json");
         yield return (GameInstallationLayout.SamusBodyDirectoryName, "samus-death-palettes-manifest.json");
+        // The sheet families' provenance listed each sheet manifest's hash; the families' catalogs and manifests name the sheets.
+        yield return (GameInstallationLayout.SpriteSheetDirectoryName, "sprite-sheets.json");
+        yield return (GameInstallationLayout.EnemySheetDirectoryName, "enemy-sheets-provenance.json");
+        yield return (GameInstallationLayout.RoomBlockSheetDirectoryName, "room-block-sheets-provenance.json");
+        yield return (GameInstallationLayout.BossBodySheetDirectoryName, "boss-body-sheets-provenance.json");
     }
 
     /// <summary>

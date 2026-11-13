@@ -16,14 +16,11 @@ namespace SuperMetroid.AssetExtraction.Installation;
 /// blocks depend on, and each library background's image, each as a sheet manifest whose pictures the installation's picture
 /// store holds (#1635), the tilemap words each background pictures with the inputs its changing cells depend on, the written
 /// picture sheets with the inputs each picture depends on, the turning floor of each tileset whose rooms show one (#1467,
-/// #1649), and the provenance of
-/// their hashes. A player edits a sheet's or image's installed file in place.
+/// #1649); the tilesets and those manifests name the sheets (#1693). A player edits a sheet's or image's installed file in
+/// place.
 /// </summary>
 public static class RoomBlockSheetFiles
 {
-    /// <summary>The provenance manifest's file name.</summary>
-    public const string ProvenanceFileName = "room-block-sheets-provenance.json";
-
     /// <summary>The manifest naming each background image and the tilemap words it pictures.</summary>
     public const string BackgroundManifestFileName = "room-backgrounds.json";
 
@@ -83,7 +80,7 @@ public static class RoomBlockSheetFiles
                 [.. cell.Inputs.Select(input => input.Token)])).ToArray(), StringComparer.Ordinal),
             composition.Backgrounds.ToDictionary(entry => entry.Key, entry => entry.Value.WidthTiles, StringComparer.Ordinal));
         File.WriteAllBytes(Path.Combine(directory, BackgroundManifestFileName), JsonSerializer.SerializeToUtf8Bytes(manifest, JsonOptions));
-        return InstalledSheetFamily.Install(directory, ProvenanceFileName, [
+        return InstalledSheetFamily.Install(directory, [
             .. composition.BlockSheets.Select(entry => new NamedComposedSheet(RoomBlockSheet.NameOf(entry.Key), entry.Value)),
             .. composition.Backgrounds.Select(entry => new NamedComposedSheet(entry.Key, entry.Value.Sheet)),
             .. writtenSheets.Select(written => new NamedComposedSheet(WrittenPictureSheet.NameOf(written.Layer, written.Tileset), written.Sheet)),
@@ -118,8 +115,7 @@ public static class RoomBlockSheetFiles
         IReadOnlyList<TilesetDefinition> tilesets = RoomBlockUploads.Tilesets();
         Dictionary<string, TilesetDefinition> byName = tilesets.ToDictionary(RoomBlockSheet.NameOf, StringComparer.Ordinal);
         RequireRetailSelections(directory, tilesets, manifest, written, floors);
-        SpriteSheetStore store = SpriteSheetStore.Open(directory, ProvenanceFileName,
-            2 * tilesets.Count + manifest.Words.Count + written.Sheets.Length + floors.Tilesets.Length);
+        SpriteSheetStore store = SpriteSheetStore.Open(directory);
         // The inputs each block depends on are the extraction's record: an edit repaints a block's pictures, not what they
         // depend on.
         return new InstalledRoomArtwork(

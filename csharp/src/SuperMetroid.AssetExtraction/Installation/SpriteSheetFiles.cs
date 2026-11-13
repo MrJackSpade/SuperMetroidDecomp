@@ -27,15 +27,12 @@ using SuperMetroid.Core.Frontend.Title;
 namespace SuperMetroid.AssetExtraction.Installation;
 
 /// <summary>
-/// Installs the pre-coloured sprite sheets (#1392, #1635): for each sheet its frame manifest, with a provenance manifest of
-/// their hashes, its pictures held in the installation's picture store (<see cref="PictureStoreFiles"/>). A player edits the
+/// Installs the pre-coloured sprite sheets (#1392, #1635): for each sheet its frame manifest, which the sheet catalog names
+/// (#1693), its pictures held in the installation's picture store (<see cref="PictureStoreFiles"/>). A player edits the
 /// installed files in place.
 /// </summary>
 public static class SpriteSheetFiles
 {
-    /// <summary>The provenance manifest's file name.</summary>
-    public const string ManifestFileName = "sprite-sheets.json";
-
     /// <summary>
     /// Composes every sheet as the installation holds it, in the sheets' own order, for the picture store to write
     /// (<see cref="PictureStoreFiles"/>, #1635).
@@ -64,15 +61,15 @@ public static class SpriteSheetFiles
             if (sheets[index] == SpriteSheetId.EscapeTimer)
                 composed[index] = EscapeTimerSheetComposer.Compose(bus);
         }
-        return InstalledSheetFamily.Install(directory, ManifestFileName,
+        return InstalledSheetFamily.Install(directory,
             [.. sheets.Select((sheet, index) => new NamedComposedSheet(SpriteSheetDefinitions.FileNames[sheet], composed[index]))]);
     }
 
-    /// <summary>Checks the installed files against their manifest and loads every sheet, its pictures from the picture store.</summary>
-    /// <exception cref="InvalidDataException">The manifest, a frame manifest or the picture store is invalid.</exception>
+    /// <summary>Loads every sheet the catalog names from its installed manifest, its pictures from the picture store.</summary>
+    /// <exception cref="InvalidDataException">A frame manifest is missing or invalid, or the picture store is invalid.</exception>
     public static InstalledSpriteSheets Load(string directory)
     {
-        SpriteSheetStore store = SpriteSheetStore.Open(directory, ManifestFileName, SpriteSheetDefinitions.Sheets.Count);
+        SpriteSheetStore store = SpriteSheetStore.Open(directory);
         var sheets = new Dictionary<SpriteSheetId, SpriteSheet>();
         // The body sheet is named from the bodies Samus can show with the body installed beside it (#1513).
         string content = Path.GetDirectoryName(Path.GetFullPath(directory))

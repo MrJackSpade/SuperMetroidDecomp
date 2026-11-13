@@ -419,6 +419,9 @@ using static SuperMetroid.Verification.Enemies.Crawlers.ZeroDistanceJumpContactV
 using static SuperMetroid.Verification.Frontend.Ending.EndingShootingStarFieldVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapAnimationLimitsVerification;
 using static SuperMetroid.Verification.Runtime.Attract.AttractDemoLoadWaitsVerification;
+using static SuperMetroid.Verification.Enemies.EnemyMathBoundsVerification;
+using static SuperMetroid.Verification.Bosses.Botwoon.BotwoonTrailRingVerification;
+using static SuperMetroid.Verification.Frontend.Ending.EndingWavySamusWaveVerification;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationOracles;
 using System.Collections.Frozen;
@@ -1076,5 +1079,8 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyEndingShootingStarField), () => VerifyEndingShootingStarField()),
         new(nameof(VerifyMapAnimationLimits), () => VerifyMapAnimationLimits()),
         new(nameof(VerifyAttractDemoLoadWaits), () => VerifyAttractDemoLoadWaits()),
+        new(nameof(VerifyEnemyMathBounds), () => VerifyEnemyMathBounds()),
+        new(nameof(VerifyBotwoonTrailRing), () => VerifyBotwoonTrailRing()),
+        new(nameof(VerifyEndingWavySamusWave), () => VerifyEndingWavySamusWave()),
     ];
 }

@@ -89,7 +89,7 @@ internal static class CeresDestructionArtworkExtractor
                 CeresCinematicSourceDefinitions.PlacementBank | source.SecondOperand);
             placements[index] = new CeresRevealActorPlacement
             {
-                Id = source.Id, X = x, Y = y,
+                Id = source.Id, X = CoordinateAxis.AsSigned(x), Y = CoordinateAxis.AsSigned(y),
             };
         }
         using var actorsJson = new MemoryStream();
@@ -110,10 +110,10 @@ internal static class CeresDestructionArtworkExtractor
             destructionPlacements[index] = new CeresDestructionActorPlacement
             {
                 Id = source.Id,
-                X = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                    CeresCinematicSourceDefinitions.PlacementBank | source.FirstOperand),
-                Y = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                    CeresCinematicSourceDefinitions.PlacementBank | source.SecondOperand),
+                X = CoordinateAxis.AsSigned(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+                    CeresCinematicSourceDefinitions.PlacementBank | source.FirstOperand)),
+                Y = CoordinateAxis.AsSigned(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+                    CeresCinematicSourceDefinitions.PlacementBank | source.SecondOperand)),
             };
         }
         using var destructionActorsJson = new MemoryStream();

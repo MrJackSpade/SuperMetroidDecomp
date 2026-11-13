@@ -87,29 +87,29 @@ public enum SpriteSheetId
     RoomMapPictures,
     /// <summary>The pause screen's pictures under the pause palette: each map cell picture, each area's backdrop, the button rows and labels, and the equipment page's parts (#1467).</summary>
     PausePictures,
-    /// <summary>The menu's world foreground characters under Crateria's world-map palette (#1392).</summary>
+    /// <summary>The file-select world map's foreground picture in Crateria's world-map colours (#1392).</summary>
     AreaMapForegroundCrateria,
-    /// <summary>The menu's world foreground characters under Brinstar's world-map palette (#1392).</summary>
+    /// <summary>The file-select world map's foreground picture in Brinstar's world-map colours (#1392).</summary>
     AreaMapForegroundBrinstar,
-    /// <summary>The menu's world foreground characters under Norfair's world-map palette (#1392).</summary>
+    /// <summary>The file-select world map's foreground picture in Norfair's world-map colours (#1392).</summary>
     AreaMapForegroundNorfair,
-    /// <summary>The menu's world foreground characters under WreckedShip's world-map palette (#1392).</summary>
+    /// <summary>The file-select world map's foreground picture in Wrecked Ship's world-map colours (#1392).</summary>
     AreaMapForegroundWreckedShip,
-    /// <summary>The menu's world foreground characters under Maridia's world-map palette (#1392).</summary>
+    /// <summary>The file-select world map's foreground picture in Maridia's world-map colours (#1392).</summary>
     AreaMapForegroundMaridia,
-    /// <summary>The menu's world foreground characters under Tourian's world-map palette (#1392).</summary>
+    /// <summary>The file-select world map's foreground picture in Tourian's world-map colours (#1392).</summary>
     AreaMapForegroundTourian,
-    /// <summary>The menu's world background characters under Crateria's world-map palette (#1392).</summary>
+    /// <summary>The file-select world map's background picture in Crateria's world-map colours (#1392).</summary>
     AreaMapBackgroundCrateria,
-    /// <summary>The menu's world background characters under Brinstar's world-map palette (#1392).</summary>
+    /// <summary>The file-select world map's background picture in Brinstar's world-map colours (#1392).</summary>
     AreaMapBackgroundBrinstar,
-    /// <summary>The menu's world background characters under Norfair's world-map palette (#1392).</summary>
+    /// <summary>The file-select world map's background picture in Norfair's world-map colours (#1392).</summary>
     AreaMapBackgroundNorfair,
-    /// <summary>The menu's world background characters under WreckedShip's world-map palette (#1392).</summary>
+    /// <summary>The file-select world map's background picture in Wrecked Ship's world-map colours (#1392).</summary>
     AreaMapBackgroundWreckedShip,
-    /// <summary>The menu's world background characters under Maridia's world-map palette (#1392).</summary>
+    /// <summary>The file-select world map's background picture in Maridia's world-map colours (#1392).</summary>
     AreaMapBackgroundMaridia,
-    /// <summary>The menu's world background characters under Tourian's world-map palette (#1392).</summary>
+    /// <summary>The file-select world map's background picture in Tourian's world-map colours (#1392).</summary>
     AreaMapBackgroundTourian,
     /// <summary>The HUD's images and the cleared cell pause shows on its HUD plane, under the pause palette (#1392, #1466).</summary>
     PauseHud,

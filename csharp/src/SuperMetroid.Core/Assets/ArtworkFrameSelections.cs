@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Assets;
 
 /// <summary>
 /// The frame each of a room's animations shows (#1406): the display state a behaviour publishes when it selects a picture,
-/// in place of copying the picture's characters into video memory. Each room builds its own, so a frame selected in one
+/// which is all it does to show that picture. Each room builds its own, so a frame selected in one
 /// room never shows in the next; the display reads the selections when it resolves the frame's pictures.
 /// </summary>
 public sealed class ArtworkFrameSelections

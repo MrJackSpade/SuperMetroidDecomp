@@ -5,6 +5,7 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Rendering;
@@ -29,8 +30,8 @@ public static class GameplayEffectCapture
     /// <summary>
     /// Describes water's optional background wave (#1468): below the surface, background's horizontal scroll follows
     /// the water waveform one sample a line, counted from the line below the surface and advanced by the wave's phase and
-    /// The background's fine vertical scroll; the lines above keep background's own scroll. Null without the wave, or while
-    /// the frame places no water surface.
+    /// the background's vertical scroll within its 16-pixel block; the lines above keep background's own scroll. Null
+    /// without the wave, or while the frame places no water surface.
     /// </summary>
     public static SampledScrollWave? BuildWaterBackgroundHorizontalScrolls(
         RoomFxOverlayRenderSnapshot fx,
@@ -41,7 +42,7 @@ public static class GameplayEffectCapture
             return null;
         int belowSurface = surfaceLine + 1;
         return new SampledScrollWave(backgroundScroll.X, LiquidEffects.WaterWaveform, OnePixelPerSample,
-            SampledScrollWave.PhaseWhere(fx.WaterBackgroundWavePhase + (backgroundScroll.Y & 15), belowSurface, LiquidEffects.WaterWaveform.Length),
+            SampledScrollWave.PhaseWhere(fx.WaterBackgroundWavePhase + PhaseInBackgroundBlock(backgroundScroll.Y), belowSurface, LiquidEffects.WaterWaveform.Length),
             Math.Clamp(belowSurface, HudHeight, Height), Height);
     }
 
@@ -79,15 +80,22 @@ public static class GameplayEffectCapture
     }
 
     /// <summary>
-    /// The rotating sixteen-sample heat haze over every gameplay line (#1468). The haze is sixteen one-line
-    /// entries repeated through the frame: it starts at the background's vertical scroll's last four bits, while each
-    /// frame rotates the sixteen samples backward, so the first gameplay line reaches the sample at that remainder plus the
-    /// wave's phase.
+    /// The rotating sixteen-sample heat haze over every gameplay line (#1468). The haze repeats its sixteen samples, one a
+    /// line, down the frame: it starts at the background's vertical scroll within its 16-pixel block, while each frame
+    /// rotates the sixteen samples backward, so the first gameplay line reaches the sample at that place plus the wave's
+    /// phase.
     /// </summary>
     private static SampledScrollWave HeatHaze(int baseScroll, int backgroundVerticalScroll, int wavePhase, ImmutableArray<int> waveform) =>
         new(baseScroll, waveform, OnePixelPerSample,
-            SampledScrollWave.PhaseWhere((backgroundVerticalScroll & 15) + wavePhase, HudHeight, waveform.Length),
+            SampledScrollWave.PhaseWhere(PhaseInBackgroundBlock(backgroundVerticalScroll) + wavePhase, HudHeight, waveform.Length),
             HudHeight, Height);
+
+    /// <summary>
+    /// Where the background's vertical scroll lies within the background's 16-pixel block: the row of its block the
+    /// camera's top row is on, zero through fifteen, counted downward for a scroll above the room's top as well.
+    /// </summary>
+    private static int PhaseInBackgroundBlock(int backgroundVerticalScroll) =>
+        ((backgroundVerticalScroll % RoomLevelPlane.BlockPixels) + RoomLevelPlane.BlockPixels) % RoomLevelPlane.BlockPixels;
 
     /// <summary>Converts the eye's aim and half-width into the cone its beam lights.</summary>
     /// <remarks>The cone's apex is one line above the eye's position.</remarks>

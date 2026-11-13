@@ -11,7 +11,7 @@ public sealed record TurningRoomLayer : DisplayLayer
 {
     /// <summary>How the floor appears on the screen, measured from the top of the screen even below the HUD.</summary>
     public FloorView Transform { get; }
-    /// <summary>The turning floor's map the room shows (#1349); its characters are the room tileset's.</summary>
+    /// <summary>The turning floor's map the room shows (#1349); its pictures are the room tileset's.</summary>
     public AffineFloor Map { get; }
     /// <summary>The screen lines at the top the floor leaves to the HUD, 0..224 in multiples of eight; zero leaves none.</summary>
     public int HudLines { get; }
@@ -24,8 +24,8 @@ public sealed record TurningRoomLayer : DisplayLayer
     /// <param name="transform">How the floor appears on the screen.</param>
     /// <param name="map">The turning floor's map.</param>
     /// <param name="hudLines">The lines the floor leaves to the HUD, from zero through 224 screen lines and a multiple of eight.</param>
-    /// <param name="floor">The optional bottom band, copied; its first line must follow the HUD and be above the screen's bottom, with each map dimension 32 or 64 tiles.</param>
-    /// <exception cref="ArgumentOutOfRangeException">The HUD's lines, or the band's first line or map size, are invalid.</exception>
+    /// <param name="floor">The optional bottom band, copied; its first line must follow the HUD and be above the screen's bottom.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The HUD's lines, or the band's first line, are invalid.</exception>
     public TurningRoomLayer(FloorView transform, AffineFloor map,
         int hudLines, TurningRoomLowerBand? floor = null)
     {

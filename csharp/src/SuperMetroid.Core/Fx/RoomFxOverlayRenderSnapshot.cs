@@ -17,8 +17,8 @@ public readonly record struct RoomFxOverlayRenderSnapshot(
     int? WaterSurfaceScreenY = null)
 {
     /// <summary>
-    /// Effective circular phase of the lava/acid background per-line table. Zero is the first table
-    /// produced after the haze starts; subsequent phases move backward through 16 entries.
+    /// The phase of the lava or acid heat haze over the background, circular over its sixteen samples. Zero is the phase
+    /// the haze shows first after it starts; each later phase steps the samples backward one place.
     /// </summary>
     public int LavaAcidBackgroundWavePhase { get; init; }
 }

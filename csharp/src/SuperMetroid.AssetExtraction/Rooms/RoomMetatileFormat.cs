@@ -21,7 +21,7 @@ public static class RoomMetatileFormat
     public const string CreFileName = "room-blocks-cre.json";
 
     /// <summary>The editable JSON file name of a block table; graphics sets that share a table share one file.</summary>
-    public static string FileName(SuperMetroid.Core.Rooms.LevelData.RoomBlockSet set) =>
+    public static string FileName(RoomBlockSet set) =>
         $"room-blocks-{SuperMetroid.AssetExtraction.Assets.InstalledArtworkNames.Hyphenated(set.ToString())}.json";
 
     /// <summary>Validates that a native table length contains 1..1024 complete eight-byte definitions and returns its block count.</summary>

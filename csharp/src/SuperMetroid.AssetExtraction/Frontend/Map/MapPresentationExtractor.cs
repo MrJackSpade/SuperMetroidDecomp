@@ -41,7 +41,7 @@ public static class MapPresentationExtractor
     /// <summary>JSON options: Indented output.</summary>
     private static readonly JsonSerializerOptions IndentedJson = new() { WriteIndented = true };
 
-    /// <summary>Creates the complete stock map family in fresh staging, including area maps, reveal masks, character atlases, palettes, labels, markers, sprites, screens, and a provenance/hash manifest.</summary>
+    /// <summary>Creates the complete stock map family in fresh staging, including area maps, reveal masks, character atlases, palettes, labels, markers, sprites, screens, and a provenance/hash manifest, which is import data (#1693).</summary>
     /// <param name="bus">Supported-cartridge address space supplying every native map presentation source.</param>
     /// <param name="directory">Destination stock directory; generated files use create-new semantics. The character and tile pages (#1636), the colour documents only the import reads (#1637) and the import-only documents (#1638) go to its import-data directory (<see cref="MapPresentationFiles.ImportDataFiles"/>).</param>
     /// <param name="sourceCartridgeSha256">Source identity recorded in the completed map manifest.</param>
@@ -390,7 +390,8 @@ public static class MapPresentationExtractor
             file.Write(samusHyperBeamColorBytes);
         hashes.Add(SamusHyperBeamColorFormat.FileName,
             Convert.ToHexString(SHA256.HashData(samusHyperBeamColorBytes)));
-        using var manifest = new FileStream(PathOf(AreaMapCatalogFormat.ManifestFile), FileMode.CreateNew, FileAccess.Write);
+        // The manifest lists the import data's hashes beside the documents', and only the import's read opens it (#1693).
+        using var manifest = new FileStream(Path.Combine(importData, AreaMapCatalogFormat.ManifestFile), FileMode.CreateNew, FileAccess.Write);
         JsonSerializer.Serialize(manifest, new AreaMapCatalogManifest
         {
             Version = AreaMapCatalogFormat.Version, SourceCartridgeSha256 = sourceCartridgeSha256, Sha256 = hashes

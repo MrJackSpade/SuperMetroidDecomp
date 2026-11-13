@@ -67,6 +67,8 @@ internal static class ImportOnlyLayoutsVerification
         yield return (intro, CeresDestructionSpriteFormat.FileName);
         foreach (string document in MapPresentationFiles.ImportDocumentFiles)
             yield return (GameInstallationLayout.MapDirectoryName, document);
+        // The map manifest lists the import data's hashes, and only the import's read opens it (#1693).
+        yield return (GameInstallationLayout.MapDirectoryName, AreaMapCatalogFormat.ManifestFile);
         string ending = GameInstallationLayout.EndingObjectDirectoryName;
         for (int fragment = 0; fragment < SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectArtworkFormat.FragmentCount; fragment++)
             yield return (ending, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectArtworkFormat.FragmentFileName(fragment));

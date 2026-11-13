@@ -51,13 +51,13 @@ internal static class MapInstallationVerification
             Directory.CreateDirectory((Path.GetDirectoryName(pair.Key) ?? throw new InvalidOperationException("Verification requires Path.GetDirectoryName(pair.Key).")));
             File.WriteAllBytes(pair.Key, pair.Value);
         }
-        string manifestPath = Path.Combine(installation.MapDirectory, AreaMapCatalogFormat.ManifestFile);
-        var manifest = RequiredJson.Parse(File.ReadAllText(manifestPath));
-        manifest["version"] = AreaMapCatalogFormat.Version - 1;
-        File.WriteAllText(manifestPath, manifest.ToJsonString());
+        // An installed map document stands for the catalog an older importer wrote; the manifest is import data (#1693).
+        string documentPath = Path.Combine(installation.MapDirectory, AreaMapCatalogFormat.StationRevealFile);
+        byte[] stockDocument = File.ReadAllBytes(documentPath);
+        File.WriteAllBytes(documentPath, [.. stockDocument, .. "\n"u8]);
         // The receipt alone decides currency (#1532): content written by an older importer names its older format.
         MarkReceiptOutdated();
-        byte[] outdatedManifest = File.ReadAllBytes(manifestPath);
+        byte[] outdatedDocument = File.ReadAllBytes(documentPath);
 
         using (var cancellation = new CancellationTokenSource())
         {
@@ -68,13 +68,13 @@ internal static class MapInstallationVerification
             AssertThrows<OperationCanceledException>(() => GameAssetInstaller.EnsureInstalled(root, cancellation.Token, cancelBeforePublish),
                 "cancelled full extraction does not publish its staging directory");
         }
-        AssertTrue(outdatedManifest.SequenceEqual(File.ReadAllBytes(manifestPath)), "cancelled upgrade retains original installed catalog");
+        AssertTrue(outdatedDocument.SequenceEqual(File.ReadAllBytes(documentPath)), "cancelled upgrade retains original installed catalog");
         AssertTrue(!Directory.EnumerateDirectories(root, ".game.install-*").Any(), "cancelled upgrade cleans its own staging directory");
         CheckPreserved();
         var repaired = GameAssetInstaller.EnsureInstalled(root, progress: new ImmediateInstallProgress())
             ?? throw new InvalidOperationException("Installation vanished during map upgrade.");
         AssertEqual(stock.ContentIdentity, repaired.LoadMaps().ContentIdentity, "full installer upgrade reinstalls the same map presentation");
-        AssertEqual(AreaMapCatalogFormat.Version, RequiredJson.Parse(File.ReadAllText(manifestPath)).Required("version").GetValue<int>(), "upgrade publishes current catalog version");
+        AssertTrue(stockDocument.SequenceEqual(File.ReadAllBytes(documentPath)), "upgrade publishes the current catalog");
         CheckPreserved();
         var unchanged = GameAssetInstaller.EnsureInstalled(root, progress: new ImmediateInstallProgress(_ =>
             throw new InvalidOperationException("Complete installation unexpectedly extracted again.")));

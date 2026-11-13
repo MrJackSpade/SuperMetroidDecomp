@@ -1,9 +1,14 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.SpacePirates;
 using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Samus.Grapple;
+using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -134,12 +139,11 @@ internal static class EnemyHitBurstVerification
     /// The burst takes a sprite-object place like every sprite object, so a dud flash after it takes the next place down,
     /// which is what Kraid's mouth pass leaves as its bound; it ends after its eight updates, freeing its place for the next
     /// spawn; and drawn inside the view it is a sprite-object draw that leaves a Puyo's ceiling strike not turning back,
-    /// drawn as the installed burst picture.
+    /// drawn as one of Samus's draws from the installed burst picture on the sheet of her equipped beams (#1713).
     /// </summary>
     internal static void VerifyHitBurstPlaces()
     {
         (RoomEnemySystem enemies, RoomEnemySlot slot) = RoomWith(EnemyDefinitionId.Mellow, RoomEnemyDefinitionCatalog.ById[EnemyDefinitionId.Mellow], 1000, 0);
-        enemies.DrawUnder(SpawnedObjectFixtures.SetLoading(EnemyDefinitionId.Mellow));
         (SamusProjectileSystem shots, SamusBombProjectileSystem bombs) = ShotAt(SamusBeamCombination.Power);
         AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(shots, bombs, samus: null, onlyEnemy: slot), "the beam hurts the Mellow");
         RoomSpriteObject burst = Bursts(enemies).Single();
@@ -160,14 +164,15 @@ internal static class EnemyHitBurstVerification
         var drawn = new SpriteFrameBuffer();
         drawn.BeginFrame();
         dud.End();
-        enemies.SpriteObjects.DrawRoomSpriteObjects(drawn, camera);
+        enemies.SpriteObjects.DrawRoomSpriteObjects(drawn, camera, HitBurstArtwork(SamusBeamCombination.Power));
         drawn.FinalizeFrame();
         AssertTrue(!enemies.PuyoCeilingTurn.TurnsBack, "the burst's draw inside the view leaves a strike not turning back");
-        ImageSpriteDraw draw = drawn.Draws.OfType<ImageSpriteDraw>().Single(candidate => candidate.Source.Kind == SpriteSourceKind.RoomSpriteObject);
+        ImageSpriteDraw draw = drawn.Draws.OfType<ImageSpriteDraw>().Single(candidate => candidate.Source.Kind == SpriteSourceKind.SamusHitBurst);
+        AssertEqual(new SpriteSource(SpriteSourceKind.SamusHitBurst, 0), draw.Source, "the burst is the first live sprite object drawn");
         AssertEqual(Place.ToScreen(camera), draw.Origin, "the burst draws centred on the enemy's position");
-        SpriteSheetFrame installed = enemies.Presentation.Artwork.Spawned(burst.Graphics.Owner).Sheet
-            .Frame(EnemySheetDefinitions.SpriteObjectFrameName(EnemyFrameId.SpriteObjectEnemyHitFirst));
-        AssertEqual(installed, draw.Image, "the burst draws its first installed picture from the room's shared sheet");
+        SpriteSheetFrame installed = ProjectileSheets.Gameplay(InstalledFixtures.SpriteSheets).For(SamusBeamCombination.Power)
+            .Frame(ProjectileSheetFrames.HitBurstFrame(HitBurstSpriteDefinitions.All[0]));
+        AssertEqual(installed, draw.Image, "the burst draws its first installed picture from the sheet of Samus's equipped beams");
         AssertTrue(!draw.Image.IsEmpty, "the burst's first picture shows its pieces");
 
         for (int update = 1; update <= BurstFrames.Length; update++)
@@ -177,6 +182,98 @@ internal static class EnemyHitBurstVerification
         AssertEqual<int?>(SpriteObjectPlaces.PlaceCount - 1, enemies.SpriteObjects.PlaceOf(next), "the ended burst's place is the next one taken");
         Console.WriteLine("  Hit burst places: the burst takes a place before a later dud, frees it as it ends, and its draw is a Puyo-visible sprite-object draw.");
     }
+
+    /// <summary>
+    /// The burst is one of Samus's weapon effects (#1713): with each beam combination the game shows a beam colouring for
+    /// equipped, retail and glitched, and under the grapple's, the Crystal Flash's, the Hyper Beam cycle's and the death
+    /// whiteout's colourings laid over her beams, it draws from the sheet of her equipped beams as one of her draws, so it
+    /// shows her shading, and every colour it shows is the colour her beams show at the place the burst's pixel was coloured
+    /// from. Power and Plasma show it in different colours.
+    /// </summary>
+    internal static void VerifyHitBurstColouring()
+    {
+        (RoomEnemySystem enemies, RoomEnemySlot slot) = RoomWith(EnemyDefinitionId.Mellow, RoomEnemyDefinitionCatalog.ById[EnemyDefinitionId.Mellow], 1000, 0);
+        (SamusProjectileSystem shots, SamusBombProjectileSystem bombs) = ShotAt(SamusBeamCombination.Power);
+        AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(shots, bombs, samus: null, onlyEnemy: slot), "the beam hurts the Mellow");
+        _ = Bursts(enemies).Single();
+        var camera = new Position16<RoomPixels>(Place.X - 128, Place.Y - 112);
+        // Every beam combination the game shows a beam colouring for, retail and glitched: the import's beam shades.
+        var cases = new List<(string Name, SamusBeamCombination Equipped, Action<SamusColours> Lay)>();
+        foreach (SamusBeamCombination beams in SuperMetroid.AssetExtraction.Samus.SamusBeamColours.Shown)
+            cases.Add(($"{beams} equipped", beams, _ => { }));
+        cases.Add(("the grapple firing", SamusBeamCombination.Power,
+            colours => colours.ShowBeams(SamusShades.Beam(GrappleBeamDefinitions.Palettes.FiringSelection))));
+        cases.Add(("the Crystal Flash", SamusBeamCombination.Plasma, colours =>
+        {
+            colours.LayOverBeams(SamusShades.CrystalFlashBody(1));
+            colours.LayOverBeams(SamusShades.CrystalFlashBubble(2));
+        }));
+        cases.Add(("the Hyper Beam cycle", SamusBeamCombination.Power, colours => colours.LayOverBeams(SamusShades.HyperBeamCycle(3))));
+        cases.Add(("the death whiteout", SamusBeamCombination.Wave, colours => colours.ShowBeams(SamusShades.DeathWhiteout(5))));
+        var shownBy = new Dictionary<string, RgbColor[]>(StringComparer.Ordinal);
+        foreach ((string name, SamusBeamCombination equipped, Action<SamusColours> lay) in cases)
+        {
+            var colours = new SamusColours();
+            SamusProjectileSystem.LoadBeamPalette(colours, equipped);
+            lay(colours);
+            var drawn = new SpriteFrameBuffer();
+            drawn.BeginFrame();
+            enemies.SpriteObjects.DrawRoomSpriteObjects(drawn, camera, HitBurstArtwork(equipped));
+            drawn.FinalizeFrame();
+            ImageSpriteDraw draw = colours.ShadeOwnDraws(drawn.Draws).OfType<ImageSpriteDraw>()
+                .Single(candidate => candidate.Source.Kind == SpriteSourceKind.SamusHitBurst);
+            SpriteSheetFrame expected = ProjectileSheets.Gameplay(InstalledFixtures.SpriteSheets).For(equipped)
+                .Frame(ProjectileSheetFrames.HitBurstFrame(HitBurstSpriteDefinitions.All[0]));
+            AssertEqual(expected, draw.Image, $"{name}: the burst draws from the sheet of the equipped beams");
+            AssertEqual(colours.Shading, draw.Shading, $"{name}: the burst shows Samus's shading");
+            shownBy[name] = ShownColours(draw, colours, name);
+        }
+        AssertTrue(!shownBy["Power equipped"].SequenceEqual(shownBy["Plasma equipped"]),
+            "the burst shows the Power beam's colours and the Plasma beam's differently");
+        Console.WriteLine($"  Hit burst colouring: {cases.Count} beam colourings each show the burst in Samus's beams' colours from her equipped beams' sheet.");
+    }
+
+    /// <summary>
+    /// The colours <paramref name="draw"/>'s burst shows, in the order its pixels first show them, each checked to be the
+    /// colour Samus's beams show under <paramref name="colours"/> at every place its key was coloured from.
+    /// </summary>
+    private static RgbColor[] ShownColours(ImageSpriteDraw draw, SamusColours colours, string name)
+    {
+        SpriteSheetFrame frame = draw.Image;
+        SpriteImage sheet = frame.Sheet;
+        RgbColor[] keyColours = (draw.Shading ?? throw new InvalidOperationException($"{name}: the burst's draw names a shading.")).KeyColours(sheet);
+        RgbColor[] beams = colours.ShownBeams(InstalledFixtures.SamusShadeSources);
+        var shown = new List<RgbColor>();
+        var seen = new HashSet<ColourKey>();
+        ReadOnlySpan<RgbaPixel> pixels = sheet.Pixels;
+        for (int row = 0; row < frame.Size.Y; row++)
+        {
+            for (int column = 0; column < frame.Size.X; column++)
+            {
+                int at = (frame.Corner.Y + row) * sheet.Size.X + frame.Corner.X + column;
+                if (pixels[at].A == 0)
+                    continue;
+                ColourKey key = sheet.KeyAt(at);
+                if (!seen.Add(key))
+                    continue;
+                RgbColor colour = keyColours[sheet.ColourKeys.IndexOf(key)];
+                foreach (int place in InstalledPictureColoursConstants.CartridgeColoursOf(sheet, key))
+                {
+                    AssertTrue(place >= GameplayShownColours.SamusBeamsFirst && place < GameplayShownColours.SamusBeamsFirst + beams.Length,
+                        $"{name}: the burst's colour {key} was coloured from her beams' colours, not place {place}");
+                    AssertEqual(beams[place - GameplayShownColours.SamusBeamsFirst], colour,
+                        $"{name}: the burst's colour from place {place} shows her beams' colour there");
+                }
+                shown.Add(colour);
+            }
+        }
+        AssertTrue(shown.Count > 1, $"{name}: the burst shows more than one colour");
+        return [.. shown];
+    }
+
+    /// <summary>What the burst draws with <paramref name="beams"/> equipped: the installed projectile sheets, as gameplay draws it.</summary>
+    private static SamusHitBurstArtwork HitBurstArtwork(SamusBeamCombination beams) =>
+        new(new ProjectileDrawArtwork(ProjectileSheets.Gameplay(InstalledFixtures.SpriteSheets)), beams);
 
     /// <summary>
     /// <paramref name="burst"/> lies at <see cref="Place"/>, draws with the room's graphics, took the highest place, shows
@@ -246,6 +343,7 @@ internal static class EnemyHitBurstVerification
         Suite(nameof(VerifyBombHitBursts), () => VerifyBombHitBursts());
         Suite(nameof(VerifyPirateHitBursts), () => VerifyPirateHitBursts());
         Suite(nameof(VerifyHitBurstPlaces), () => VerifyHitBurstPlaces());
+        Suite(nameof(VerifyHitBurstColouring), () => VerifyHitBurstColouring());
         return 0;
     }
 }

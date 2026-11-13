@@ -15,6 +15,7 @@ internal static class SamusColourDefinitions
         SpriteSourceKind.Samus, SpriteSourceKind.SamusArmCannon, SpriteSourceKind.SamusAtmosphere, SpriteSourceKind.SamusBomb,
         SpriteSourceKind.SamusChargeFlare, SpriteSourceKind.SamusDeathExplosion,
         SpriteSourceKind.SamusEcho, SpriteSourceKind.SamusGrappleEndpoint, SpriteSourceKind.SamusGrappleFlare,
-        SpriteSourceKind.SamusGrappleRope, SpriteSourceKind.SamusProjectile, SpriteSourceKind.SamusProjectileTrail,
+        SpriteSourceKind.SamusGrappleRope, SpriteSourceKind.SamusHitBurst, SpriteSourceKind.SamusProjectile,
+        SpriteSourceKind.SamusProjectileTrail,
     ];
 }

@@ -296,10 +296,12 @@ internal sealed class EnemyProjectileEngine
     /// </summary>
     /// <param name="sprites">The frame's sprite description.</param>
     /// <param name="camera">Camera position in whole room pixels.</param>
+    /// <param name="hitBursts">What the hit bursts among the sprite objects draw: Samus's projectile sheets and her equipped beams.</param>
     /// <param name="timeIsFrozen">Whether time is frozen, which stops the earthquake displacement.</param>
     public void DrawEnemyProjectilesInFrontOfSamus(
         SpriteFrameBuffer sprites,
         Position16<RoomPixels> camera,
+        SamusHitBurstArtwork hitBursts,
         bool timeIsFrozen = false)
     {
         Ensure.NotNull(sprites);
@@ -307,7 +309,7 @@ internal sealed class EnemyProjectileEngine
 
         // Sprite objects are drawn once, with the projectiles in front of Samus. Drawing them again with the
         // projectiles behind her would duplicate explosions, dust, and Spark's trail in the same frame.
-        _spriteObjects.DrawRoomSpriteObjects(sprites, camera);
+        _spriteObjects.DrawRoomSpriteObjects(sprites, camera, hitBursts);
         DrawEnemyProjectilesAt(
             sprites,
             camera,

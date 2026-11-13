@@ -4,7 +4,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>
-/// The pre-coloured sheets Samus's projectiles, bombs, charge flare and trails draw from (#1392): one per beam
+/// The pre-coloured sheets Samus's projectiles, bombs, charge flare, trails and hit bursts draw from (#1392, #1713): one per beam
 /// combination with pictures of its own, whose pictures and beam colours differ, and one for the intro's flashbacks,
 /// and the names of the frames each holds.
 /// </summary>

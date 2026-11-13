@@ -34,6 +34,13 @@ public sealed class InstalledProjectileSprites
     public static InstalledProjectileSprites Load(Stream json)
         => LoadFrames(json, ProjectileSpriteDefinitions.All);
 
+    /// <summary>Validates and compiles the compositions of the burst Samus's hit shows at an enemy it hurts (#1713).</summary>
+    /// <param name="json">Readable JSON stream at its current position; it remains open and caller-owned.</param>
+    /// <returns>The burst's four compositions, each exactly as the import data holds it.</returns>
+    /// <exception cref="InvalidDataException">JSON is malformed or ambiguous, or its version or composition set is invalid.</exception>
+    public static InstalledProjectileSprites LoadHitBursts(Stream json)
+        => LoadFrames(json, HitBurstSpriteDefinitions.All);
+
     /// <summary>
     /// Loads the native part format for either timed projectiles or charge flares. Charge
     /// flares have a separate required composition set.

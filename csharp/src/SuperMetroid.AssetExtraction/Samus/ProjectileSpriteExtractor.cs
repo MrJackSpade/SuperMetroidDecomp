@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core;
 using System.Text.Json;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -24,10 +25,20 @@ public static class ProjectileSpriteExtractor
     internal static byte[] ExtractFrames(ISnesAddressSpace bus, IReadOnlyList<ProjectileSpriteId> required,
         IReadOnlyDictionary<ProjectileSpriteId, ushort> locations)
     {
+        Ensure.NotNull(locations);
+        return ExtractFrames(bus, required, locations.ToDictionary(entry => entry.Key,
+            entry => SnesAddress.FromBusAddress(CartridgeBankWindow.At(SamusSourceDefinitions.ProjectileBank, entry.Value))));
+    }
+
+    /// <summary>Decodes the <paramref name="required"/> compositions, each from the record <paramref name="locations"/> places it at, into named OAM parts.</summary>
+    internal static byte[] ExtractFrames(ISnesAddressSpace bus, IReadOnlyList<ProjectileSpriteId> required,
+        IReadOnlyDictionary<ProjectileSpriteId, SnesAddress> locations)
+    {
+        Ensure.NotNull(locations);
         var frames = new Dictionary<string, SpriteVisualPart[]>();
         foreach (ProjectileSpriteId id in required)
         {
-            int address = CartridgeBankWindow.At(SamusSourceDefinitions.ProjectileBank, locations[id]);
+            int address = (int)locations[id];
             int count = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
             if (count > ProjectileSpriteDefinitions.MaximumParts) throw new InvalidDataException($"Projectile sprite {id.Name} exceeds OAM capacity.");
             var parts = new SpriteVisualPart[count];

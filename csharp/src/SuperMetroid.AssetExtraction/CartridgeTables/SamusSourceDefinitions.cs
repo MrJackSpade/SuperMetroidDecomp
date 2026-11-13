@@ -294,6 +294,12 @@ internal static class SamusSourceDefinitions
         "projectile spritemaps (u16 count + 5-byte parts)");
 
     /// <summary>
+    /// $B4:D857: the first of the four four-part spritemaps of the burst Samus's hit shows at an enemy it hurts (#1713), which
+    /// sprite object $37's list at $B4:C5C6 shows in order; each follows the last.
+    /// </summary>
+    internal static readonly SnesAddress HitBurstSpritemaps = new(0xb4, 0xd857);
+
+    /// <summary>
     /// $9B:8000-$9B:93FF: Samus's death-explosion characters, in the order its spritemaps name them. The death
     /// sequence uploads them as five $400-byte pages listed at $9B:B7BF (sources) and $9B:B7C9 (destinations).
     /// </summary>

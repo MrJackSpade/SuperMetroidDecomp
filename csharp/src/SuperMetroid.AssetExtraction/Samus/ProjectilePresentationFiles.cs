@@ -37,6 +37,7 @@ public static class ProjectilePresentationFiles
         byte[] trailTiles = ProjectileTrailAtlasExtractor.Extract(validatedBus);
         byte[] flarePlacement = ChargeFlarePlacementExtractor.Extract(validatedBus);
         byte[] flareCompositions = ChargeFlareSpriteExtractor.Extract(validatedBus);
+        byte[] hitBurstCompositions = HitBurstSpriteExtractor.Extract(validatedBus);
         byte[] grappleTiles = GrappleTileExtractor.Extract(validatedBus);
         byte[] grappleSprites = GrappleSpriteExtractor.Extract(validatedBus);
         byte[] grappleFlare = GrappleFlarePlacementExtractor.Extract(validatedBus);
@@ -46,6 +47,7 @@ public static class ProjectilePresentationFiles
         File.WriteAllBytes(Path.Combine(importData, GrappleSpriteDefinitions.FileName), grappleSprites);
         File.WriteAllBytes(Path.Combine(importData, GrappleTileDefinitions.FileName), grappleTiles);
         File.WriteAllBytes(Path.Combine(importData, ChargeFlareSpriteExtractor.FileName), flareCompositions);
+        File.WriteAllBytes(Path.Combine(importData, HitBurstSpriteExtractor.FileName), hitBurstCompositions);
         File.WriteAllBytes(Path.Combine(directory, ChargeFlarePlacementExtractor.FileName), flarePlacement);
         File.WriteAllBytes(Path.Combine(importData, ProjectileTrailAtlasDefinitions.FileName), trailTiles);
         File.WriteAllBytes(Path.Combine(importData, ProjectileTrailVisualDefinitions.FileName), trails);
@@ -108,7 +110,8 @@ public static class ProjectilePresentationFiles
             new ProjectileCompositions(Read(ProjectileSpriteDefinitions.FileName).Compile(InstalledProjectileSprites.Load),
                 Read(ChargeFlareSpriteExtractor.FileName).Compile(ChargeFlareSprites.Load),
                 Read(ProjectileTrailVisualDefinitions.FileName).Compile(InstalledProjectileTrails.Load),
-                Read(GrappleSpriteDefinitions.FileName).Compile(InstalledGrappleSprites.Load)));
+                Read(GrappleSpriteDefinitions.FileName).Compile(InstalledGrappleSprites.Load),
+                Read(HitBurstSpriteExtractor.FileName).Compile(InstalledProjectileSprites.LoadHitBursts)));
     }
 
     /// <summary>Retains a file's identity through codec admission without hiding the original failure.</summary>

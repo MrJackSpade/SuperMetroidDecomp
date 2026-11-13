@@ -1141,6 +1141,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyBombHitBursts), () => VerifyBombHitBursts()),
         new(nameof(VerifyPirateHitBursts), () => VerifyPirateHitBursts()),
         new(nameof(VerifyHitBurstPlaces), () => VerifyHitBurstPlaces()),
+        new(nameof(VerifyHitBurstColouring), () => VerifyHitBurstColouring()),
         new(nameof(VerifyBombJumpRunMomentum), () => VerifyBombJumpRunMomentum()),
         new(nameof(VerifyBabyMetroidWallClearTiming), () => VerifyBabyMetroidWallClearTiming()),
         new(nameof(VerifyDrainedSparkCrash), () => VerifyDrainedSparkCrash()),

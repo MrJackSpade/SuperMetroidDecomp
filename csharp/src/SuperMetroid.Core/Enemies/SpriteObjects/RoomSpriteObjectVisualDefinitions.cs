@@ -1,12 +1,13 @@
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Samus.Artwork;
 
 namespace SuperMetroid.Core.Enemies.SpriteObjects;
 
-/// <summary>The installed picture each room sprite-object frame draws.</summary>
+/// <summary>The installed picture each room sprite-object frame draws: an enemy sheet's, or for a hit burst one of Samus's.</summary>
 internal static class RoomSpriteObjectVisualDefinitions
 {
 
-    /// <summary>The installed frame each room sprite-object frame draws.</summary>
+    /// <summary>The installed enemy-sheet frame each room sprite-object frame draws, a hit burst's frames aside.</summary>
     internal static EnemyFrameTable<RoomSpriteObjectFrame> ShownFrames { get; } = new()
     {
         { RoomSpriteObjectFrame.DraygonFoamingAtTheMouth0, EnemyFrameId.SpriteObjectDraygonFoamingAtTheMouthFirst },
@@ -132,9 +133,24 @@ internal static class RoomSpriteObjectVisualDefinitions
         { RoomSpriteObjectFrame.EvirFacingRight1, EnemyFrameId.SpriteObjectEvirFacingRightSecond },
         { RoomSpriteObjectFrame.EvirFacingRight2, EnemyFrameId.SpriteObjectEvirFacingRightThird },
         { RoomSpriteObjectFrame.EvirFacingRight3, EnemyFrameId.SpriteObjectEvirFacingRightFourth },
-        { RoomSpriteObjectFrame.EnemyHit0, EnemyFrameId.SpriteObjectEnemyHitFirst },
-        { RoomSpriteObjectFrame.EnemyHit1, EnemyFrameId.SpriteObjectEnemyHitSecond },
-        { RoomSpriteObjectFrame.EnemyHit2, EnemyFrameId.SpriteObjectEnemyHitThird },
-        { RoomSpriteObjectFrame.EnemyHit3, EnemyFrameId.SpriteObjectEnemyHitFourth },
+    };
+
+    /// <summary>
+    /// The room sprite objects that are Samus's weapon effects (#1713): the burst her hit shows at an enemy it hurts. They take
+    /// the room's sprite-object places like every other, but are pictured on her projectile sheets, in her beams' colouring,
+    /// and on no enemy sheet.
+    /// </summary>
+    internal static IReadOnlySet<RoomSpriteObjectKind> SamusHitBursts { get; } = new HashSet<RoomSpriteObjectKind>
+    {
+        RoomSpriteObjectKind.EnemyHit,
+    };
+
+    /// <summary>The burst composition each frame of a hit burst shows, nearest its centre first.</summary>
+    internal static IReadOnlyDictionary<RoomSpriteObjectFrame, ProjectileSpriteId> HitBurstPictures { get; } = new Dictionary<RoomSpriteObjectFrame, ProjectileSpriteId>
+    {
+        [RoomSpriteObjectFrame.EnemyHit0] = new(ProjectileSpriteGroup.HitBurst, 0),
+        [RoomSpriteObjectFrame.EnemyHit1] = new(ProjectileSpriteGroup.HitBurst, 1),
+        [RoomSpriteObjectFrame.EnemyHit2] = new(ProjectileSpriteGroup.HitBurst, 2),
+        [RoomSpriteObjectFrame.EnemyHit3] = new(ProjectileSpriteGroup.HitBurst, 3),
     };
 }

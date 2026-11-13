@@ -57,4 +57,9 @@ public enum ProjectileSpriteGroup
     FlareSlowSparksLeft,
     /// <summary>The six fast left-facing spark poses.</summary>
     FlareFastSparksLeft,
+    /// <summary>
+    /// The burst a hit of Samus's weapon shows at an enemy it hurts (#1713): four poses, each four mirrored pieces, nearest
+    /// its centre first.
+    /// </summary>
+    HitBurst,
 }

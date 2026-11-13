@@ -293,8 +293,7 @@ internal static class EnemySpritemapArtworkVerification
                 KraidLintVisualDefinitions.FrameCount + NuclearWaffleVisualDefinitions.FrameCount +
                 2 + // Single-frame Kzan and Polyp.
                 RidleyBreakupVisualDefinitions.Legs.Length + RidleyBreakupVisualDefinitions.Torso.Length +
-                RidleyBreakupVisualDefinitions.Head.Length + RidleyBreakupVisualDefinitions.Claw.Length +
-                4, // The enemy-hit burst's four sprite-object frames (#1713).
+                RidleyBreakupVisualDefinitions.Head.Length + RidleyBreakupVisualDefinitions.Claw.Length,
             EnemySpritemapDefinitions.Frames.Length,
             "post-Gunship installed composition groups account for the complete current catalog");
         HashSet<ushort> installedHunterPointers = EnemySpritemapDefinitions.Frames
@@ -314,9 +313,10 @@ internal static class EnemySpritemapArtworkVerification
         AssertTrue(YappingMawAnimationsConstants.Spritemaps(Enum.GetValues<YappingMawSegment>()).ToHashSet().SetEquals(installedMawPointers),
             "every installed Yapping Maw frame is shown by a program, and every shown pose is installed");
         AssertEqual(24, installedMawPointers.Count, "Yapping Maw's programs show 24 distinct frames");
-        AssertEqual(127, EnemySpritemapDefinitions.Frames.Count(
+        // The hit burst's four frames are Samus's weapon effect, installed with her projectile pictures (#1713).
+        AssertEqual(123, EnemySpritemapDefinitions.Frames.Count(
                 frame => frame.Bank == EnemySpritemapDefinitions.RoomSpriteObjectBank),
-            "the bank-B4 sprite-object programs the game starts select 127 distinct visual frames");
+            "the bank-B4 sprite-object programs the game starts select 123 distinct enemy-sheet visual frames");
         HashSet<ushort> installedSpritePointers = EnemySpritemapDefinitions.Frames
             
             .Where(frame => frame.Bank == EnemySpritemapDefinitions.RoomSpriteObjectBank)
@@ -326,8 +326,11 @@ internal static class EnemySpritemapArtworkVerification
                 .SetEquals(SuperMetroid.Verification.Rooms.SpriteObjects.RoomSpriteObjectNativeLists.SpritemapPointers(rom)),
             "the room sprite-object frames are exactly the spritemaps the native lists show");
         foreach (RoomSpriteObjectFrame frame in Enum.GetValues<RoomSpriteObjectFrame>())
-            AssertTrue(installedSpritePointers.Contains(RoomSpriteObjectVisualDefinitionsConstants.Spritemap(frame)),
-                $"room sprite-object frame {frame} has installed art");
+        {
+            bool samusHitBurst = RoomSpriteObjectVisualDefinitions.HitBurstPictures.ContainsKey(frame);
+            AssertEqual(!samusHitBurst, installedSpritePointers.Contains(RoomSpriteObjectVisualDefinitionsConstants.Spritemap(frame)),
+                $"room sprite-object frame {frame} has installed enemy art unless it is Samus's hit burst");
+        }
         AssertTrue(FuneNamiheAnimationsConstants.Spritemaps(Enum.GetValues<FuneNamiheSegment>()).ToHashSet().SetEquals(
                 EnemySpritemapDefinitions.Frames.Where(frame => frame.Name.StartsWith("fune_", StringComparison.Ordinal) ||
                     frame.Name.StartsWith("namihe_", StringComparison.Ordinal)).Select(frame => frame.Pointer)),

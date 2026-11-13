@@ -116,7 +116,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
             Enemies.Room.EnsureLoaded();
             Enemies.Drawing.Advance(new(0, 0));
             Enemies.Drawing.Draw(frame, new(0, 0));
-            Enemies.SpriteObjects.DrawRoomSpriteObjects(frame, Position16<RoomPixels>.Zero);
+            Enemies.SpriteObjects.DrawRoomSpriteObjects(frame, Position16<RoomPixels>.Zero, EnemyFormatDrawAccess.NoHitBurstSheets);
             Enemies.Projectiles.DrawEnemyProjectilesAt(frame, Position16<RoomPixels>.Zero, EnemyProjectileDepth.InFrontOfSamus, timeIsFrozen: false);
             Enemies.Projectiles.DrawEnemyProjectilesAt(frame, Position16<RoomPixels>.Zero, EnemyProjectileDepth.BehindSamus, timeIsFrozen: false);
         }

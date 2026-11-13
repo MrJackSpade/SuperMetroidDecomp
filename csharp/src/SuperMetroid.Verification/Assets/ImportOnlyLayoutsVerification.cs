@@ -37,6 +37,8 @@ internal static class ImportOnlyLayoutsVerification
         yield return (enemyTiles, CrocomireBg2FrameDefinitions.FileName);
         yield return (enemyTiles, MotherBrainBodyBg2FrameDefinitions.FileName);
         yield return (enemyTiles, EnemyProjectileSpritemapDefinitions.FileName);
+        yield return (enemyTiles, SuperMetroid.AssetExtraction.World.Artwork.EnemySpritemapDefinitions.FileName);
+        yield return (enemyTiles, SuperMetroid.AssetExtraction.World.Artwork.EnemyExtendedFrameDefinitions.FileName);
         string intro = GameInstallationLayout.IntroCinematicDirectoryName;
         for (int page = 0; page < IntroCinematicArtworkFormat.BackgroundPageCount; page++)
             yield return (intro, IntroCinematicArtworkFormat.BackgroundPageFileName(page));

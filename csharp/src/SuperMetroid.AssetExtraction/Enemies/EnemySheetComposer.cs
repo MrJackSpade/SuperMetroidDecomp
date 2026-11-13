@@ -483,14 +483,6 @@ internal static class EnemySheetComposer
     }
 
     /// <summary>
-    /// The names of the frames an enemy's sheets hold, in composition order, from the installed enemy compositions
-    /// <paramref name="spritemaps"/> and extended frames <paramref name="extended"/>: no character is read (#1636).
-    /// </summary>
-    internal static IEnumerable<string> FrameNames(EnemySpritemapCatalog spritemaps, EnemyExtendedFrameCatalog extended, EnemyDefinitionId enemy) =>
-        EnemyDefinitionFrameDefinitions.Frames.TryGetValue(enemy, out IReadOnlyList<EnemyFrameId>? shown)
-            ? Composed(spritemaps, extended, shown).Select(frame => frame.Name) : [];
-
-    /// <summary>
     /// Each shown frame's pictures over the set's characters, every frame one whole picture: an extended frame's pieces
     /// are composed into it at their placements (#1513).
     /// </summary>

@@ -78,6 +78,7 @@ internal sealed class EnemyTileArtworkReader
             string.IsNullOrWhiteSpace(manifest.EnemyCompositionsSha256) ||
             string.IsNullOrWhiteSpace(manifest.EnemyProjectileCompositionsSha256) ||
             string.IsNullOrWhiteSpace(manifest.EnemyExtendedCompositionsSha256) ||
+            string.IsNullOrWhiteSpace(manifest.EnemyFrameDisplaysSha256) ||
             string.IsNullOrWhiteSpace(manifest.PhantoonBg2FramesSha256) ||
             string.IsNullOrWhiteSpace(manifest.DraygonBg2FramesSha256) ||
             string.IsNullOrWhiteSpace(manifest.CrocomireBg2FramesSha256) ||
@@ -141,12 +142,13 @@ internal sealed class EnemyTileArtworkReader
     }
 
     /// <summary>
-    /// Reads what the game binds from the installed documents: every enemy frame's display, from both frame documents, and
-    /// Kraid's eye colours (#1637). No character page (#1636) or colour document only the import reads is read.
+    /// Reads what the game binds from the installed documents: every enemy frame's display, from the display bindings
+    /// (#1638), and Kraid's eye colours (#1637). No character page (#1636), colour document or composition only the import
+    /// reads is read.
     /// </summary>
     /// <exception cref="InvalidDataException">An installed document is invalid.</exception>
     internal InstalledEnemyArtwork LoadInstalled() =>
-        new(InstalledEnemyFrameDisplays.Of(Spritemaps(), ExtendedFrames()), KraidEyes(),
+        new(FrameDisplays().Displays(), KraidEyes(),
             SelectedPresentationHash.Create("enemy-directory-v2", content =>
             {
                 // Every installed document, framed by name in name order: the directory holds no character page (#1636).
@@ -166,9 +168,9 @@ internal sealed class EnemyTileArtworkReader
         EnemyTileArtworkParts enemySheets = EnemySheets(importData);
         CrocomireMeltingArtwork crocomire = CrocomireMelting(importData);
         CrocomireSkeletonArtwork skeleton = CrocomireSkeleton(importData);
-        EnemySpritemapCatalog spritemaps = Spritemaps();
+        EnemySpritemapCatalog spritemaps = Spritemaps(importData);
         EnemyProjectileSpritemapCatalog projectileSpritemaps = ProjectileSpritemaps(importData);
-        EnemyExtendedFrameCatalog extendedFrames = ExtendedFrames();
+        EnemyExtendedFrameCatalog extendedFrames = ExtendedFrames(importData);
         PhantoonBg2FrameCatalog phantoonBg2Frames = PhantoonBg2Frames(importData);
         DraygonBg2FrameCatalog draygonBg2Frames = DraygonBg2Frames(importData);
         CrocomireBg2FrameCatalog crocomireBg2Frames = CrocomireBg2Frames(importData);
@@ -312,23 +314,38 @@ internal sealed class EnemyTileArtworkReader
         }
     }
 
-    /// <summary>The enemies' compositions.</summary>
-    /// <exception cref="InvalidDataException">A composition is invalid.</exception>
-    internal EnemySpritemapCatalog Spritemaps() => Spritemaps(Read(EnemySpritemapDefinitions.FileName));
-
-    /// <summary>The enemies' compositions, from the document's <paramref name="installed"/> bytes.</summary>
-    /// <exception cref="InvalidDataException">A composition is invalid.</exception>
-    private EnemySpritemapCatalog Spritemaps(byte[] installed)
+    /// <summary>
+    /// The installed display bindings of every enemy frame (#1638), which the game reads and the enemy sheets' frames are
+    /// named from.
+    /// </summary>
+    /// <exception cref="InvalidDataException">A binding is invalid.</exception>
+    internal InstalledEnemyFrameDisplays FrameDisplays()
     {
         try
         {
-            return EnemyFrameCartridgeLookup.RequireSameBankDisplayBindings(EnemySpritemapDocuments.Load(
-                new MemoryStream(installed, writable: false)));
+            return EnemyFrameDisplayFiles.Load(new MemoryStream(Read(EnemyFrameDisplayFiles.FileName), writable: false));
         }
         catch (InvalidDataException error)
         {
             throw new InvalidDataException(
-                $"Invalid enemy compositions in {directory}: {error.Message}",
+                $"Invalid enemy display bindings in {directory}: {error.Message}",
+                error);
+        }
+    }
+
+    /// <summary>The enemies' compositions, import data whose parts are packed sprite placements (#1638), from <paramref name="importData"/>.</summary>
+    /// <exception cref="InvalidDataException">A composition is invalid.</exception>
+    internal static EnemySpritemapCatalog Spritemaps(string importData)
+    {
+        try
+        {
+            return EnemyFrameCartridgeLookup.RequireSameBankDisplayBindings(EnemySpritemapDocuments.Load(
+                new MemoryStream(ReadImportData(importData, EnemySpritemapDefinitions.FileName), writable: false)));
+        }
+        catch (InvalidDataException error)
+        {
+            throw new InvalidDataException(
+                $"Invalid extracted enemy compositions in {importData}: {error.Message}",
                 error);
         }
     }
@@ -349,22 +366,19 @@ internal sealed class EnemyTileArtworkReader
         }
     }
 
-    /// <summary>The enemies' extended frames.</summary>
+    /// <summary>The enemies' extended frames, import data whose parts are packed sprite placements (#1638), from <paramref name="importData"/>.</summary>
     /// <exception cref="InvalidDataException">A frame is invalid.</exception>
-    internal EnemyExtendedFrameCatalog ExtendedFrames() => ExtendedFrames(Read(EnemyExtendedFrameDefinitions.FileName));
-
-    /// <summary>The enemies' extended frames, from the document's <paramref name="installed"/> bytes.</summary>
-    /// <exception cref="InvalidDataException">A frame is invalid.</exception>
-    private EnemyExtendedFrameCatalog ExtendedFrames(byte[] installed)
+    internal static EnemyExtendedFrameCatalog ExtendedFrames(string importData)
     {
         try
         {
-            return EnemyExtendedFrameDocuments.Load(new MemoryStream(installed, writable: false));
+            return EnemyExtendedFrameDocuments.Load(new MemoryStream(
+                ReadImportData(importData, EnemyExtendedFrameDefinitions.FileName), writable: false));
         }
         catch (InvalidDataException error)
         {
             throw new InvalidDataException(
-                $"Invalid extended enemy compositions in {directory}: {error.Message}",
+                $"Invalid extracted extended enemy compositions in {importData}: {error.Message}",
                 error);
         }
     }

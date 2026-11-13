@@ -22,15 +22,15 @@ using SuperMetroid.AssetExtraction.Artwork;
 internal static class GunshipInstalledCompositionsVerification
 {
     /// <summary>
-    /// Read the installation's enemy bundle, which production import code extracted, then confirm only
+    /// Read the enemy compositions production import code extracted into the import data (#1638), then confirm only
     /// the reported gunship frames and landing draw.
     /// Native bytes are a reference oracle, never the gameplay bus.
     /// </summary>
-    internal static void VerifyExtractedGunshipCompositions(string installationRoot, string romPath)
+    internal static void VerifyExtractedGunshipCompositions(string romPath)
     {
         var imported = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath(romPath));
-        string directory = new GameInstallation(Path.GetFullPath(installationRoot)).EnemyTileDirectory;
-        EnemySpritemapCatalog compositions = EnemyTileArtworkReader.Open(directory).Spritemaps();
+        EnemySpritemapCatalog compositions = EnemyTileArtworkReader.Spritemaps(
+            SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(GameInstallationLayout.EnemyTileDirectoryName));
         NativeEnemySpritemapDefinition[] shipFrames = GunshipVisualDefinitions.Frames();
         AssertEqual(GunshipVisualDefinitions.FrameCount, shipFrames.Length,
             "#1154 gunship exports its two hull and eleven pad compositions");
@@ -44,7 +44,7 @@ internal static class GunshipInstalledCompositionsVerification
                 $"#1154 {frame.Name} retains native offsets, sizes, tiles, priority and flips");
         }
 
-        Console.WriteLine("#1154: all 13 gunship compositions match native OAM. Bundle: " + directory);
+        Console.WriteLine("#1154: all 13 gunship compositions match native OAM.");
     }
 
     /// <summary>
@@ -91,7 +91,7 @@ internal static class GunshipInstalledCompositionsVerification
     [VerificationCommand("--gunship-extracted-compositions")]
     internal static int GunshipExtractedCompositionsCommand()
     {
-        Suite(nameof(VerifyExtractedGunshipCompositions), () => VerifyExtractedGunshipCompositions(RepositoryInstallation.Installation.Root, RepositoryRomPath));
+        Suite(nameof(VerifyExtractedGunshipCompositions), () => VerifyExtractedGunshipCompositions(RepositoryRomPath));
         return 0;
     }
 

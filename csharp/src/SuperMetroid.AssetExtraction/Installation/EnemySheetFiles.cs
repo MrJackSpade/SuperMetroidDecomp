@@ -73,20 +73,19 @@ public static class EnemySheetFiles
             .Distinct(StringComparer.Ordinal)];
         SpriteSheetStore store = SpriteSheetStore.Open(directory, ProvenanceFileName, names.Length);
         var loaded = names.ToDictionary(name => name, store.Read, StringComparer.Ordinal);
-        // The sheets' frames are named from the stock enemy compositions installed beside them, without a character (#1636).
-        var compositions = new Lazy<EnemyTileArtworkReader>(() => EnemyTileArtworkReader.Open(
+        // The sheets' frames are named from the display bindings installed beside them, without a character (#1636) or a
+        // composition (#1638).
+        var bindings = new Lazy<InstalledEnemyFrameDisplays>(() => EnemyTileArtworkReader.Open(
             Path.Combine(Path.GetDirectoryName(Path.GetFullPath(directory))
                 ?? throw new ArgumentException($"Directory {directory} has no installation above it.", nameof(directory)),
-                GameInstallationLayout.EnemyTileDirectoryName)));
-        var spritemaps = new Lazy<EnemySpritemapCatalog>(() => compositions.Value.Spritemaps());
-        var extendedFrames = new Lazy<EnemyExtendedFrameCatalog>(() => compositions.Value.ExtendedFrames());
+                GameInstallationLayout.EnemyTileDirectoryName)).FrameDisplays());
         var variants = new Dictionary<string, EnemyArtworkVariant<SpriteSheet>>(StringComparer.Ordinal);
         foreach ((string name, EnemyVariantDocument entry) in manifest.Variants)
         {
             EnemyDefinitionId enemy = Enemy(entry.Enemy, $"variant {name}");
             SpriteSheet sheet = loaded[entry.Sheet];
             Dictionary<string, FrameLookChange[]> frameChanges = LookChanges(entry.LookChanges, name);
-            HashSet<string> pictures = [.. EnemySheetComposer.FrameNames(spritemaps.Value, extendedFrames.Value, enemy).SelectMany(frame => PictureNames(frame, frameChanges))];
+            HashSet<string> pictures = [.. bindings.Value.FrameNames(enemy).SelectMany(frame => PictureNames(frame, frameChanges))];
             // The sheet holds each of the frames' finished pictures, or names it among those that show nothing (#1538).
             if (!sheet.HoldsExactly(pictures))
                 throw new InvalidDataException($"Enemy sheet {entry.Sheet} of variant {name} does not hold exactly the pictures of the frames {enemy} shows.");

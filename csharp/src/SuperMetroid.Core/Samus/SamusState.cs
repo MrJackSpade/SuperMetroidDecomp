@@ -749,11 +749,9 @@ level,
         int wholePixels = displacement.WholePixels;
         if (Math.Abs(wholePixels) >= 8)
         {
-            // Computes `(wholePixels & 65520) | 8`. Retain the literal
-            // two's-complement expression rather than replacing it with a magnitude
-            // shortcut; negative probes deliberately produce -8 for the known pose radii.
-            // The whole pixels lie within -32768 through 32767, and so does the intermediate boundary.
-            BlockMoveResult intermediate = Probe(SignedSixteenSixteen.FromWholePixels((wholePixels & ~15) | 8));
+            // The intermediate probe is the centre of the block step the displacement lies in, rounded toward lower
+            // values rather than by magnitude: negative probes deliberately produce -8 for the known pose radii.
+            BlockMoveResult intermediate = Probe(SignedSixteenSixteen.FromWholePixels(RoomGridConversions.BlockStepCentre(wholePixels)));
             if (intermediate.Collided)
                 return intermediate;
         }

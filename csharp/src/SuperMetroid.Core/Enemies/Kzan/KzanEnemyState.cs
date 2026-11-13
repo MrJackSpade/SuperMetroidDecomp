@@ -13,7 +13,7 @@ public sealed class KzanEnemyState
     internal AnimationPlayback<KzanSegment> Playback { get; set; }
 
     /// <summary>The current AI behaviour.</summary>
-    public KzanEnemyFunction? Function { get; internal set; }
+    public KzanAction? Action { get; internal set; }
 
     /// <summary>
     /// Top-position wait in actor updates; decremented with a wrap below zero to 65535, so an initial zero does not expire

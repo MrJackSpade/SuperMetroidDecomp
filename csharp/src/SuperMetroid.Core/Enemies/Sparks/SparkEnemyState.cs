@@ -8,7 +8,7 @@ public sealed class SparkEnemyState
     internal AnimationPlayback<SparkSegment>? Playback { get; set; }
 
     /// <summary>The always-active, intermittent or falling-spark behaviour.</summary>
-    public SparkEnemyFunction? Function { get; internal set; }
+    public SparkAction? Action { get; internal set; }
 
     /// <summary>The updates the Spark waits between functions when it does not randomize them, from its spawn settings.</summary>
     public int BaseFunctionTime { get; internal set; }

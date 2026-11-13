@@ -36,7 +36,7 @@ internal static class PhantoonDeathExplosionsVerification
             Action<RoomEnemySlot, PhantoonEnemyState> step = enemies.PhantoonBehavior.Death.RunPhantoonDyingExplosions;
             body.Position = body.Position.WithWhole(new(origin, origin));
             state.BodyState.FunctionTimer = 15;
-            state.BodyState.Function = PhantoonAiFunction.DyingExplosions;
+            state.BodyState.Phase = PhantoonPhase.DyingExplosions;
             if (full) foreach (var projectile in enemies.Projectiles.EnemyProjectiles) projectile.Kind = RoomEnemyProjectileKind.MiscDustExplosion;
             int index = 0, passes = 0, timer = 15, requests = 0;
             for (int frame = 0; passes < 3; frame++)
@@ -59,7 +59,7 @@ internal static class PhantoonDeathExplosionsVerification
                 // A due explosion takes the emptied pool's one place; a full pool leaves the schedule as it is.
                 if (!full)
                     AssertEqual(due ? 1 : 0, enemies.Projectiles.EnemyProjectiles.Count(p => p.IsActive), "Exact death request frame");
-                AssertEqual((passes == 3 ? PhantoonAiFunction.BeginFinalWavyDeath : PhantoonAiFunction.DyingExplosions), state.BodyState.Function, "Exact final death phase handoff");
+                AssertEqual((passes == 3 ? PhantoonPhase.BeginFinalWavyDeath : PhantoonPhase.DyingExplosions), state.BodyState.Phase, "Exact final death phase handoff");
                 if (due)
                 {
                     AssertEqual((SoundEffectId?)SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, type == 0x1d ? (ushort)0x24 : (ushort)0x2b), enemies.Audio.LatestSound, "Death sound choice survives pool exhaustion");

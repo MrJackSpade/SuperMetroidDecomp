@@ -52,7 +52,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         var state = new ZoaEnemyState
         {
-            Function = ZoaEnemyFunction.WaitForSamus,
+            Action = ZoaAction.WaitForSamus,
             RequestedAnimation = ZoaAnimationSelector.ShootingFacingLeft,
             InstalledAnimation = ZoaAnimationSelector.ShootingFacingLeft,
             ShotSpeedStage = 0,
@@ -76,20 +76,20 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         if (samus is null)
             throw new InvalidOperationException("Zoa AI requires the active Samus actor.");
 
-        switch (state.Function)
+        switch (state.Action)
         {
-            case ZoaEnemyFunction.WaitForSamus:
+            case ZoaAction.WaitForSamus:
                 RunZoaWait(slot, state, samus);
                 return;
-            case ZoaEnemyFunction.Rising:
+            case ZoaAction.Rising:
                 RunZoaRising(slot, state, samus);
                 return;
-            case ZoaEnemyFunction.Shooting:
+            case ZoaAction.Shooting:
                 RunZoaShooting(slot, state, camera);
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Zoa function {state.Function?.ToString() ?? "none"} is not translated.");
+                    $"Zoa function {state.Action?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -109,7 +109,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         // The Zoa rises facing Samus; the sign test uses the same wrapped Samus-minus-enemy distance as the common helper.
         state.RequestedAnimation = ZoaAnimationChoices.Rising(facingRight: CoordinateAxis.AsSigned(signedDistance) >= 0);
         SetZoaAnimation(slot, state);
-        state.Function = ZoaEnemyFunction.Rising;
+        state.Action = ZoaAction.Rising;
     }
 
     /// <summary>Reveals Zoa and rises until it reaches Samus's height, then starts its shooting animation.</summary>
@@ -129,7 +129,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.RequestedAnimation = ZoaAnimationChoices.ShootingWithSameFacing(state.RequestedAnimation);
         SetZoaAnimation(slot, state);
-        state.Function = ZoaEnemyFunction.Shooting;
+        state.Action = ZoaAction.Shooting;
     }
 
     /// <summary>Travels in the selected facing direction and resets whole-pixel position when its center exits the camera square.</summary>
@@ -161,7 +161,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Position = slot.Position.WithWhole(state.SpawnPosition);
         state.RequestedAnimation = ZoaAnimationSelector.ShootingFacingLeft;
         SetZoaAnimation(slot, state);
-        state.Function = ZoaEnemyFunction.WaitForSamus;
+        state.Action = ZoaAction.WaitForSamus;
     }
 
     /// <summary>Starts the selected animation, restarting its timers, only when it differs from the previous one.</summary>

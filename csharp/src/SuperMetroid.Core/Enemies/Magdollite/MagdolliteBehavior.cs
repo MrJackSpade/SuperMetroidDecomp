@@ -127,7 +127,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             ? MagdolliteSegment.LeftIdle
             : MagdolliteSegment.RightIdle;
         StartMagdolliteAnimation(slot, state);
-        state.Function = MagdolliteEnemyFunction.HeadWaiting;
+        state.Action = MagdolliteAction.HeadWaiting;
     }
 
     /// <summary>Hides the rising body 32 pixels below its origin until the head triggers an attack.</summary>
@@ -142,7 +142,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         state.DesiredAnimation = MagdolliteRise.Phase(0).BodyAnimation;
         StartMagdolliteAnimation(slot, state);
         slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + 32);
-        state.Function = MagdolliteEnemyFunction.BodyDormant;
+        state.Action = MagdolliteAction.BodyDormant;
         slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
     }
 
@@ -157,7 +157,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         state.DesiredAnimation = MagdolliteSegment.PillarCap;
         StartMagdolliteAnimation(slot, state);
         slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + 32);
-        state.Function = MagdolliteEnemyFunction.OverlayWaitingForAttack;
+        state.Action = MagdolliteAction.OverlayWaitingForAttack;
         slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
     }
 
@@ -168,46 +168,46 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState? samus)
     {
         state.AttackTimer = state.AttackTimer.Decrement().Remaining;
-        switch (state.Function)
+        switch (state.Action)
         {
-            case MagdolliteEnemyFunction.HeadWaiting:
+            case MagdolliteAction.HeadWaiting:
                 RunMagdolliteHeadWaiting(slot, state, samus);
                 return;
-            case MagdolliteEnemyFunction.HeadWaitingForAttackAnimation:
+            case MagdolliteAction.HeadWaitingForAttackAnimation:
                 RunMagdolliteHeadWaitingForAttackAnimation(slot, state);
                 return;
-            case MagdolliteEnemyFunction.HeadWaitingForBodyLanding:
+            case MagdolliteAction.HeadWaitingForBodyLanding:
                 RunMagdolliteHeadWaitingForBodyLanding(slot, state, samus);
                 return;
-            case MagdolliteEnemyFunction.HeadWaitingForReturnAnimation:
+            case MagdolliteAction.HeadWaitingForReturnAnimation:
                 RunMagdolliteHeadWaitingForReturnAnimation(slot, state, samus);
                 return;
-            case MagdolliteEnemyFunction.BodyDormant:
+            case MagdolliteAction.BodyDormant:
                 RunMagdolliteBodyDormant(slot, state);
                 return;
-            case MagdolliteEnemyFunction.BodyRising:
+            case MagdolliteAction.BodyRising:
                 RunMagdolliteBodyRising(slot, state, samus);
                 return;
-            case MagdolliteEnemyFunction.NoOpAtApex:
+            case MagdolliteAction.NoOpAtApex:
                 return;
-            case MagdolliteEnemyFunction.BodyFalling:
+            case MagdolliteAction.BodyFalling:
                 RunMagdolliteBodyFalling(slot, state);
                 return;
-            case MagdolliteEnemyFunction.OverlayWaitingForAttack:
+            case MagdolliteAction.OverlayWaitingForAttack:
                 RunMagdolliteOverlayWaiting(slot, state);
                 return;
-            case MagdolliteEnemyFunction.OverlayWaitingForThrowAnimation:
+            case MagdolliteAction.OverlayWaitingForThrowAnimation:
                 RunMagdolliteOverlayAnimation(slot, state);
                 return;
-            case MagdolliteEnemyFunction.OverlayTrackingRisingBody:
+            case MagdolliteAction.OverlayTrackingRisingBody:
                 RunMagdolliteOverlayTrackingRise(slot, state, samus);
                 return;
-            case MagdolliteEnemyFunction.OverlayTrackingFallingBody:
+            case MagdolliteAction.OverlayTrackingFallingBody:
                 RunMagdolliteOverlayTrackingFall(slot, state);
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Magdollite function {state.Function?.ToString() ?? "none"} is not translated.");
+                    $"Magdollite function {state.Action?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -240,7 +240,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             ? MagdolliteSegment.RightSubmerge
             : MagdolliteSegment.LeftSubmerge;
         StartMagdolliteAnimation(head, state);
-        state.Function = MagdolliteEnemyFunction.HeadWaitingForAttackAnimation;
+        state.Action = MagdolliteAction.HeadWaitingForAttackAnimation;
     }
 
     /// <summary>Wakes the adjacent body only after the head's submerge animation has cleared its busy flag.</summary>
@@ -254,7 +254,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         (_, RoomEnemySlot body, _) = RequireMagdolliteComposite(head);
         state.HeadWaitsForBodyLanding = true;
         body.RequireSpeciesState<MagdolliteEnemyState>().BodyWakeRequested = false;
-        state.Function = MagdolliteEnemyFunction.HeadWaitingForBodyLanding;
+        state.Action = MagdolliteAction.HeadWaitingForBodyLanding;
     }
 
     /// <summary>Starts the Samus-facing emerge animation once the falling body releases the head's landing latch.</summary>
@@ -272,7 +272,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             ? MagdolliteSegment.RightEmerge
             : MagdolliteSegment.LeftEmerge;
         StartMagdolliteAnimation(head, state);
-        state.Function = MagdolliteEnemyFunction.HeadWaitingForReturnAnimation;
+        state.Action = MagdolliteAction.HeadWaitingForReturnAnimation;
     }
 
     /// <summary>Restores the appropriate idle animation after the emerge animation finishes.</summary>
@@ -290,7 +290,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             ? MagdolliteSegment.RightIdle
             : MagdolliteSegment.LeftIdle;
         StartMagdolliteAnimation(head, state);
-        state.Function = MagdolliteEnemyFunction.HeadWaiting;
+        state.Action = MagdolliteAction.HeadWaiting;
     }
 
     /// <summary>Returns the hidden body to its origin and enters rising once the head clears its wake latch.</summary>
@@ -301,7 +301,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.BodyWakeRequested)
             return;
 
-        state.Function = MagdolliteEnemyFunction.BodyRising;
+        state.Action = MagdolliteAction.BodyRising;
         state.RiseDisplacement = Offset16<RoomPixels>.Zero;
         state.BodyWakeRequested = false;
         state.BodyPhase = 1;
@@ -333,7 +333,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (roseMaximum || rosePastSamus)
         {
-            state.Function = MagdolliteEnemyFunction.NoOpAtApex;
+            state.Action = MagdolliteAction.NoOpAtApex;
             state.BodyReachedApex = true;
             if (!growsAPhase)
                 return;
@@ -364,7 +364,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             state.BodyWakeRequested = true;
             (RoomEnemySlot head, _, _) = RequireMagdolliteComposite(body);
             head.RequireSpeciesState<MagdolliteEnemyState>().HeadWaitsForBodyLanding = false;
-            state.Function = MagdolliteEnemyFunction.BodyDormant;
+            state.Action = MagdolliteAction.BodyDormant;
             return;
         }
 
@@ -386,10 +386,10 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         MagdolliteEnemyState state)
     {
         (RoomEnemySlot head, _, _) = RequireMagdolliteComposite(overlay);
-        if (head.RequireSpeciesState<MagdolliteEnemyState>().Function ==
-            MagdolliteEnemyFunction.HeadWaitingForAttackAnimation)
+        if (head.RequireSpeciesState<MagdolliteEnemyState>().Action ==
+            MagdolliteAction.HeadWaitingForAttackAnimation)
         {
-            state.Function = MagdolliteEnemyFunction.OverlayTrackingRisingBody;
+            state.Action = MagdolliteAction.OverlayTrackingRisingBody;
         }
     }
 
@@ -404,8 +404,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             MagdolliteEnemyState bodyState = body.RequireSpeciesState<MagdolliteEnemyState>();
             state.DesiredAnimation = MagdolliteSegment.PillarCap;
             StartMagdolliteAnimation(overlay, state);
-            bodyState.Function = MagdolliteEnemyFunction.BodyFalling;
-            state.Function = MagdolliteEnemyFunction.OverlayTrackingFallingBody;
+            bodyState.Action = MagdolliteAction.BodyFalling;
+            state.Action = MagdolliteAction.OverlayTrackingFallingBody;
             bodyState.BodyReachedApex = false;
             overlay.Position = overlay.Position.WithWhole(state.ThrowOrigin);
         }
@@ -430,7 +430,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
                 : MagdolliteSegment.LeftThrow;
             state.ThrowsRight = samusIsRight;
             StartMagdolliteAnimation(overlay, state);
-            state.Function = MagdolliteEnemyFunction.OverlayWaitingForThrowAnimation;
+            state.Action = MagdolliteAction.OverlayWaitingForThrowAnimation;
             state.ThrowOrigin = overlay.Position.Whole;
         }
         else
@@ -451,9 +451,9 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         (RoomEnemySlot head, RoomEnemySlot body, _) = RequireMagdolliteComposite(overlay);
         MagdolliteEnemyState headState = head.RequireSpeciesState<MagdolliteEnemyState>();
         MagdolliteEnemyState bodyState = body.RequireSpeciesState<MagdolliteEnemyState>();
-        if (headState.Function == MagdolliteEnemyFunction.HeadWaiting)
+        if (headState.Action == MagdolliteAction.HeadWaiting)
         {
-            state.Function = MagdolliteEnemyFunction.OverlayWaitingForAttack;
+            state.Action = MagdolliteAction.OverlayWaitingForAttack;
         }
         else
         {

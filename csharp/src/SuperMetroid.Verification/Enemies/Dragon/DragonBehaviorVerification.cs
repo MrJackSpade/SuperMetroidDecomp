@@ -70,7 +70,7 @@ internal static class DragonBehaviorVerification
         foreach (int bodySlot in new[] { 0, 2 })
         {
             DragonEnemyState body = enemies.DragonStates[bodySlot] ?? throw new InvalidOperationException("Dragon has no state.");
-            body.Function = DragonEnemyFunction.Attacking;
+            body.Action = DragonAction.Attacking;
             body.RequestedAnimation = DragonAnimationSelector.AttackingFacingLeft;
             body.AttackCounter = 3;
             body.AnimationFinished = true;

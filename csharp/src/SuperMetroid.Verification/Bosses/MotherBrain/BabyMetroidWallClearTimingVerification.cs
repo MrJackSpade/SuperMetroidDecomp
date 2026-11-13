@@ -37,7 +37,7 @@ internal static class BabyMetroidWallClearTimingVerification
                 RoomTerrainBlock.Of(0xff, BlockMirroring.None, RoomCollisionType.SolidBlock));
 
         var shitroid = runtime.Enemies.ShitroidBehavior.Shitroid ?? throw new InvalidOperationException("Verification requires runtime.Enemies.ShitroidBehavior._shitroid.");
-        shitroid.Function = ShitroidAiFunction.RiseAfterFeeding;
+        shitroid.Action = ShitroidAction.RiseAfterFeeding;
         shitroid.StateTimer = 0;
 
         // A dash like the movie's: the wall's left edge is three pixels ahead and she moves 2.F000.
@@ -52,7 +52,7 @@ internal static class BabyMetroidWallClearTimingVerification
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0x0200, 0x0000));
         runtime.StepFrame(unchecked((ControllerButton.Right | ControllerButton.B)));
 
-        AssertEqual(ShitroidAiFunction.HoverNearSamus, shitroid.Function, "Baby Metroid finished rising this frame");
+        AssertEqual(ShitroidAction.HoverNearSamus, shitroid.Action, "Baby Metroid finished rising this frame");
         AssertEqual(RoomCollisionType.Air, level.GetCollisionBlock(new(WallColumn, WallRow)).CollisionType,
             "the wall is cleared");
         AssertEqual(SamusPoseId.MovingRightNormalPose, samus.Pose, "Samus keeps running");

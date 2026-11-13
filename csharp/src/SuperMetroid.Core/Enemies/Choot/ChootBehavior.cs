@@ -28,7 +28,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.SetSpeciesState(state);
 
         SetChootAnimation(slot, state, ChootSegment.Idle);
-        state.Function = ChootEnemyFunction.WaitingForSamus;
+        state.Action = ChootAction.WaitingForSamus;
         state.SpawnPosition = slot.Position.Whole;
 
         ChootFallingPath fallingPath = slot.SpawnSettings<ChootSpawnSettings>().FallingPath;
@@ -50,23 +50,23 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         ChootEnemyState state,
         SamusState? samus)
     {
-        switch (state.Function)
+        switch (state.Action)
         {
-            case ChootEnemyFunction.WaitingForSamus:
+            case ChootAction.WaitingForSamus:
                 WaitForChootActivation(slot, state, samus);
                 return;
-            case ChootEnemyFunction.PreparingJump:
+            case ChootAction.PreparingJump:
                 PrepareChootJump(slot, state);
                 return;
-            case ChootEnemyFunction.Jumping:
+            case ChootAction.Jumping:
                 RunChootJump(slot, state);
                 return;
-            case ChootEnemyFunction.Falling:
+            case ChootAction.Falling:
                 RunChootFall(slot, state);
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Choot function {state.Function?.ToString() ?? "none"} is not translated.");
+                    $"Choot function {state.Action?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -86,7 +86,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.JumpDelayTimer = slot.SpawnSettings<ChootSpawnSettings>().JumpDelay;
-        state.Function = ChootEnemyFunction.PreparingJump;
+        state.Action = ChootAction.PreparingJump;
     }
 
     /// <summary>Decrements the delay until it turns negative, then starts the jumping animation.</summary>
@@ -96,7 +96,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         SetChootAnimation(slot, state, ChootSegment.Jumping);
-        state.Function = ChootEnemyFunction.Jumping;
+        state.Action = ChootAction.Jumping;
     }
 
     /// <summary>Applies quadratic ascent without room collision and snaps whole coordinates to the calculated falling origin at the apex.</summary>
@@ -119,7 +119,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         // A population loop count of zero starts below zero, so the fall ends at the first loop's end as a count of one does.
         state.FallingPatternLoopCounter = slot.SpawnSettings<ChootSpawnSettings>().PatternLoops - 1;
         SetChootAnimation(slot, state, ChootSegment.Falling);
-        state.Function = ChootEnemyFunction.Falling;
+        state.Action = ChootAction.Falling;
     }
 
     /// <summary>Follows authored path offsets, advancing its origin at each loop's end and restoring the exact spawn state after the final loop.</summary>
@@ -141,7 +141,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
             state.YSpeedTableIndex = state.InitialYSpeedTableIndex;
             slot.Position = FixedPosition<RoomPixels>.FromWhole(state.SpawnPosition);
             SetChootAnimation(slot, state, ChootSegment.Idle);
-            state.Function = ChootEnemyFunction.WaitingForSamus;
+            state.Action = ChootAction.WaitingForSamus;
             return;
         }
 

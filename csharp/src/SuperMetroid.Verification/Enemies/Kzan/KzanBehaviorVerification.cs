@@ -58,27 +58,27 @@ internal static class KzanBehaviorVerification
             RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false },
             new FrameCounters(0));
 
-        state.Function = KzanEnemyFunction.Falling;
+        state.Action = KzanAction.Falling;
         enemies.KzanBehavior.RunKzanTopMainAi(slot, frame);
-        AssertEqual(KzanEnemyFunction.Falling, state.Function, "above the wrapped falling target the top keeps falling");
+        AssertEqual(KzanAction.Falling, state.Action, "above the wrapped falling target the top keeps falling");
         AssertEqual((ushort)65520, slot.Position.Y.Whole, "the first falling step uses the zero speed entry");
         AssertEqual(SignedSixteenSixteen.FromSixteenthsOfPixel(1), state.FallingSpeed, "each falling step accelerates the fall by a sixteenth of a pixel per update");
 
         slot.Position = slot.Position.WithWholeY(16);
         enemies.KzanBehavior.RunKzanTopMainAi(slot, frame);
-        AssertEqual(KzanEnemyFunction.WaitingToRise, state.Function, "reaching the wrapped falling target lands the top");
+        AssertEqual(KzanAction.WaitingToRise, state.Action, "reaching the wrapped falling target lands the top");
         AssertEqual((ushort)16, slot.Position.Y.Whole, "the top lands on the falling target");
         AssertEqual((SoundEffectId?)EnemySoundEffectDefinitions.KzanLandingSoundEffect,
             enemies.Audio.LatestSound, "landing queues the library-two landing sound");
 
-        state.Function = KzanEnemyFunction.Rising;
+        state.Action = KzanAction.Rising;
         enemies.KzanBehavior.RunKzanTopMainAi(slot, frame);
-        AssertEqual(KzanEnemyFunction.Rising, state.Function, "below the wrapped rising target the top keeps rising");
+        AssertEqual(KzanAction.Rising, state.Action, "below the wrapped rising target the top keeps rising");
         AssertEqual((ushort)15, slot.Position.Y.Whole, "half a pixel of rise borrows from the whole position");
 
         slot.Position = slot.Position.WithWholeY(65519);
         enemies.KzanBehavior.RunKzanTopMainAi(slot, frame);
-        AssertEqual(KzanEnemyFunction.WaitingToFall, state.Function, "passing above the rising target stops the rise");
+        AssertEqual(KzanAction.WaitingToFall, state.Action, "passing above the rising target stops the rise");
         AssertEqual((ushort)65520, slot.Position.Y.Whole, "the top stops on the rising target");
         Console.WriteLine("  Kzan targets: the top's fall and rise compare with wrapped targets by the wrapped spatial difference.");
     }

@@ -8,17 +8,17 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// </summary>
 internal static class AnimalsNativeWords
 {
-    /// <summary>The routine word naming each <see cref="DachoraAiFunction"/>.</summary>
-    internal static readonly NativeWordIdentities<DachoraAiFunction> DachoraAiFunctions = new(new Dictionary<DachoraAiFunction, ushort>
+    /// <summary>The routine word naming each <see cref="DachoraAction"/>.</summary>
+    internal static readonly NativeWordIdentities<DachoraAction> DachoraActions = new(new Dictionary<DachoraAction, ushort>
     {
-        [DachoraAiFunction.WaitingForSamus] = 0xf570,
-        [DachoraAiFunction.BlinkingBeforeRun] = 0xf5bc,
-        [DachoraAiFunction.RunningLeft] = 0xf5ed,
-        [DachoraAiFunction.RunningRight] = 0xf65e,
-        [DachoraAiFunction.ChargingShinespark] = 0xf78f,
-        [DachoraAiFunction.Shinesparking] = 0xf806,
-        [DachoraAiFunction.Falling] = 0xf935,
-        [DachoraAiFunction.Echo] = 0xf98c,
+        [DachoraAction.WaitingForSamus] = 0xf570,
+        [DachoraAction.BlinkingBeforeRun] = 0xf5bc,
+        [DachoraAction.RunningLeft] = 0xf5ed,
+        [DachoraAction.RunningRight] = 0xf65e,
+        [DachoraAction.ChargingShinespark] = 0xf78f,
+        [DachoraAction.Shinesparking] = 0xf806,
+        [DachoraAction.Falling] = 0xf935,
+        [DachoraAction.Echo] = 0xf98c,
     });
 
     /// <summary>The routine word naming each <see cref="EscapeEtecoonFrameBehavior"/>.</summary>
@@ -30,28 +30,28 @@ internal static class AnimalsNativeWords
         [EscapeEtecoonFrameBehavior.WalkAndFall] = 0xe680,
     });
 
-    /// <summary>The routine word naming each <see cref="EtecoonAiFunction"/>.</summary>
-    internal static readonly NativeWordIdentities<EtecoonAiFunction> EtecoonAiFunctions = new(new Dictionary<EtecoonAiFunction, ushort>
+    /// <summary>The routine word naming each <see cref="EtecoonAction"/>.</summary>
+    internal static readonly NativeWordIdentities<EtecoonAction> EtecoonActions = new(new Dictionary<EtecoonAction, ushort>
     {
-        [EtecoonAiFunction.WaitingForSamus] = 0xe9af,
-        [EtecoonAiFunction.PreJumpCountdown] = 0xea00,
-        [EtecoonAiFunction.InitialJump] = 0xea37,
-        [EtecoonAiFunction.FaceSamusPause] = 0xeab5,
-        [EtecoonAiFunction.RunLeftToWall] = 0xeb02,
-        [EtecoonAiFunction.RunRightToWall] = 0xeb2c,
-        [EtecoonAiFunction.Airborne] = 0xeb50,
-        [EtecoonAiFunction.WallPause] = 0xebcd,
-        [EtecoonAiFunction.RouteAfterLanding] = 0xec1b,
-        [EtecoonAiFunction.MoveLeftToTeachingStart] = 0xec97,
-        [EtecoonAiFunction.MoveRightToTeachingStart] = 0xecbb,
-        [EtecoonAiFunction.RunRightToLongJump] = 0xecdf,
-        [EtecoonAiFunction.LongJump] = 0xed09,
-        [EtecoonAiFunction.RunRightAfterLongJump] = 0xed2a,
-        [EtecoonAiFunction.LongJumpLanding] = 0xed54,
-        [EtecoonAiFunction.TeachingJump] = 0xed75,
-        [EtecoonAiFunction.IdleBetweenTeachingJumps] = 0xedc7,
-        [EtecoonAiFunction.WaitForSamusBeforeLongRun] = 0xee3e,
-        [EtecoonAiFunction.RunRightToReturnJump] = 0xee9a,
-        [EtecoonAiFunction.ReturnJump] = 0xeeb8,
+        [EtecoonAction.WaitingForSamus] = 0xe9af,
+        [EtecoonAction.PreJumpCountdown] = 0xea00,
+        [EtecoonAction.InitialJump] = 0xea37,
+        [EtecoonAction.FaceSamusPause] = 0xeab5,
+        [EtecoonAction.RunLeftToWall] = 0xeb02,
+        [EtecoonAction.RunRightToWall] = 0xeb2c,
+        [EtecoonAction.Airborne] = 0xeb50,
+        [EtecoonAction.WallPause] = 0xebcd,
+        [EtecoonAction.RouteAfterLanding] = 0xec1b,
+        [EtecoonAction.MoveLeftToTeachingStart] = 0xec97,
+        [EtecoonAction.MoveRightToTeachingStart] = 0xecbb,
+        [EtecoonAction.RunRightToLongJump] = 0xecdf,
+        [EtecoonAction.LongJump] = 0xed09,
+        [EtecoonAction.RunRightAfterLongJump] = 0xed2a,
+        [EtecoonAction.LongJumpLanding] = 0xed54,
+        [EtecoonAction.TeachingJump] = 0xed75,
+        [EtecoonAction.IdleBetweenTeachingJumps] = 0xedc7,
+        [EtecoonAction.WaitForSamusBeforeLongRun] = 0xee3e,
+        [EtecoonAction.RunRightToReturnJump] = 0xee9a,
+        [EtecoonAction.ReturnJump] = 0xeeb8,
     });
 }

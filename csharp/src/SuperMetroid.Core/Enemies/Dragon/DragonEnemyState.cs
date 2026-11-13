@@ -23,7 +23,7 @@ public sealed class DragonEnemyState
     public int AttackCounter { get; internal set; }
 
     /// <summary>The current behaviour.</summary>
-    public DragonEnemyFunction? Function { get; internal set; }
+    public DragonAction? Action { get; internal set; }
 
     /// <summary>The animation main AI asks for.</summary>
     public DragonAnimationSelector RequestedAnimation { get; internal set; }

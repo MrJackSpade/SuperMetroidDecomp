@@ -76,39 +76,39 @@ internal sealed class CeresRidleyBehavior
         if (state.MovementAnimationEnabled && _ridleyEncounter.CeresStatus == CeresEscapeStatus.RidleyNotEscaped)
             CeresRidleyHits.UpdateRidleyHurtFlashPalettes(slot, state, slot.FrameCounter);
 
-        switch (state.Function)
+        switch (state.Phase)
         {
-            case RidleyAiFunction.WaitForDoorTransition:
+            case RidleyPhase.WaitForDoorTransition:
                 // The wait holds even though enemy animations run during the fade.
                 if (_roomStatus.EnemyDoorTransitionActive)
                     break;
-                state.Function = RidleyAiFunction.InitialDelay;
+                state.Phase = RidleyPhase.InitialDelay;
                 state.FunctionTimer = 512;
                 CeresRidleyFlight.TickCeresRidleyInitialDelay(state);
                 break;
 
-            case RidleyAiFunction.InitialDelay:
+            case RidleyPhase.InitialDelay:
                 CeresRidleyFlight.TickCeresRidleyInitialDelay(state);
                 break;
 
-            case RidleyAiFunction.FadeInEyes:
+            case RidleyPhase.FadeInEyes:
                 CeresRidleyFades.TickCeresRidleyEyeFade(state);
                 break;
 
-            case RidleyAiFunction.FadeInBody:
+            case RidleyPhase.FadeInBody:
                 Fades.TickCeresRidleyBodyFade(slot, state);
                 break;
 
-            case RidleyAiFunction.WaitBeforeRoar:
+            case RidleyPhase.WaitBeforeRoar:
                 if (--state.FunctionTimer < 0)
                 {
                     CeresRidleyFlight.StartRidleyAnimation(state, slot, RidleyBodySegment.OpeningRoar);
                     state.FunctionTimer = 252;
-                    state.Function = RidleyAiFunction.WaitBeforeLiftoff;
+                    state.Phase = RidleyPhase.WaitBeforeLiftoff;
                 }
                 break;
 
-            case RidleyAiFunction.WaitBeforeLiftoff:
+            case RidleyPhase.WaitBeforeLiftoff:
                 if (--state.FunctionTimer < 0)
                 {
                     state.FadeStep = 0;
@@ -121,83 +121,83 @@ internal sealed class CeresRidleyBehavior
                     foreach (RidleyTailSegment segment in state.TailSegments)
                         segment.Active = true;
                     state.TailFunctionIndex = RidleyTailFunction.Neutral;
-                    state.Function = RidleyAiFunction.ClearVelocity;
+                    state.Phase = RidleyPhase.ClearVelocity;
                 }
                 break;
 
-            case RidleyAiFunction.ClearVelocity:
+            case RidleyPhase.ClearVelocity:
                 state.Velocity = EightEightVector<RoomPixels>.Zero;
                 break;
 
-            case RidleyAiFunction.CeresLiftoffAccelerating:
+            case RidleyPhase.CeresLiftoffAccelerating:
                 // The rising step adds -16 to the 8.8 Y velocity before the common movement pass. Ridley rises from rest
                 // until he passes line 112 of his chamber, so the speed stays a few pixels an update.
                 state.Velocity = state.Velocity.WithY(state.Velocity.Y - SignedEightEight.FromTwoHundredFiftySixthsOfPixel(16));
                 if (CoordinateAxis.Difference(slot.Position.Y.Whole, 112) < 0)
                 {
-                    state.Function = RidleyAiFunction.CeresLiftoffDecelerating;
+                    state.Phase = RidleyPhase.CeresLiftoffDecelerating;
                     CeresRidleyFlight.TickCeresRidleyLiftoffDecelerating(slot, state);
                 }
                 break;
 
-            case RidleyAiFunction.CeresLiftoffDecelerating:
+            case RidleyPhase.CeresLiftoffDecelerating:
                 CeresRidleyFlight.TickCeresRidleyLiftoffDecelerating(slot, state);
                 break;
 
-            case RidleyAiFunction.CeresHovering:
+            case RidleyPhase.CeresHovering:
                 Flight.TickCeresRidleyHover(slot, state, samus);
                 break;
 
-            case RidleyAiFunction.CeresFireballMoveToPosition:
+            case RidleyPhase.CeresFireballMoveToPosition:
                 Flight.TickCeresRidleyFireballMove(slot, state);
                 break;
 
-            case RidleyAiFunction.CeresFireballShooting:
+            case RidleyPhase.CeresFireballShooting:
                 Flight.TickCeresRidleyFireballShooting(slot, state);
                 break;
 
-            case RidleyAiFunction.CeresLungeSetup:
+            case RidleyPhase.CeresLungeSetup:
                 CeresRidleyFlight.StartRidleyAnimation(state, slot, RidleyBodySegment.CeresLunge);
-                state.Function = RidleyAiFunction.CeresLungeMain;
+                state.Phase = RidleyPhase.CeresLungeMain;
                 state.FunctionTimer = 64;
                 CeresRidleyFlight.TickCeresRidleyLunge(slot, state, samus);
                 break;
 
-            case RidleyAiFunction.CeresLungeMain:
+            case RidleyPhase.CeresLungeMain:
                 CeresRidleyFlight.TickCeresRidleyLunge(slot, state, samus);
                 break;
 
-            case RidleyAiFunction.CeresSwoopSetup:
-                state.Function = RidleyAiFunction.CeresSwoopMoveToPosition;
+            case RidleyPhase.CeresSwoopSetup:
+                state.Phase = RidleyPhase.CeresSwoopMoveToPosition;
                 state.FunctionTimer = 10;
                 state.SwoopAngleAccumulator = RotationAngle.Zero;
                 state.IdleTailWhipEnabled = false;
                 CeresRidleyFlight.TickCeresRidleySwoopMoveToPosition(slot, state);
                 break;
 
-            case RidleyAiFunction.CeresSwoopMoveToPosition:
+            case RidleyPhase.CeresSwoopMoveToPosition:
                 CeresRidleyFlight.TickCeresRidleySwoopMoveToPosition(slot, state);
                 break;
 
-            case RidleyAiFunction.CeresSwoopDescendingAimingDown:
+            case RidleyPhase.CeresSwoopDescendingAimingDown:
                 CeresRidleyFlight.TickCeresRidleySwoopPhase(
                     state,
                     angleDelta: -32,
                     targetAngle: RotationAngle.Zero - RotationAngle.FromSteps(4),
                     targetMagnitude: 768,
-                    nextFunction: RidleyAiFunction.CeresSwoopDescendingAimingLeft,
+                    nextPhase: RidleyPhase.CeresSwoopDescendingAimingLeft,
                     nextTimer: 36);
                 break;
 
-            case RidleyAiFunction.CeresSwoopDescendingAimingLeft:
+            case RidleyPhase.CeresSwoopDescendingAimingLeft:
                 CeresRidleyFlight.TickCeresRidleySwoopPhase(
                     state,
                     angleDelta: -512,
                     targetAngle: RotationAngle.ThreeQuarterTurn,
                     targetMagnitude: 768,
-                    nextFunction: RidleyAiFunction.CeresSwoopAscendingAimingUp,
+                    nextPhase: RidleyPhase.CeresSwoopAscendingAimingUp,
                     nextTimer: 28);
-                if (state.Function == RidleyAiFunction.CeresSwoopAscendingAimingUp)
+                if (state.Phase == RidleyPhase.CeresSwoopAscendingAimingUp)
                 {
                     // The swoop requests one aimed tail fling at the exact bottom
                     // of the swoop. Neutral tail AI consumes and clears it later this same
@@ -207,115 +207,115 @@ internal sealed class CeresRidleyBehavior
                 }
                 break;
 
-            case RidleyAiFunction.CeresSwoopAscendingAimingUp:
+            case RidleyPhase.CeresSwoopAscendingAimingUp:
                 CeresRidleyFlight.TickCeresRidleySwoopPhase(
                     state,
                     angleDelta: -512,
                     targetAngle: RotationAngle.Zero - SwoopClimbTarget,
                     targetMagnitude: 768,
-                    nextFunction: RidleyAiFunction.CeresSwoopAscendingAimingUpFaster,
+                    nextPhase: RidleyPhase.CeresSwoopAscendingAimingUpFaster,
                     nextTimer: 1);
                 break;
 
-            case RidleyAiFunction.CeresSwoopAscendingAimingUpFaster:
+            case RidleyPhase.CeresSwoopAscendingAimingUpFaster:
                 CeresRidleyFlight.UpdateRidleySwoopVelocity(
                     state, angleDelta: -768, targetAngle: RotationAngle.Zero - SwoopClimbTarget, targetMagnitude: 768);
                 if (--state.FunctionTimer < 0)
                 {
-                    state.Function = RidleyAiFunction.CeresHovering;
+                    state.Phase = RidleyPhase.CeresHovering;
                     state.HoverCounter = 0;
                     state.IdleTailWhipEnabled = true;
                 }
                 break;
 
-            case RidleyAiFunction.CeresFakeRetreatMoveToPosition:
+            case RidleyPhase.CeresFakeRetreatMoveToPosition:
                 CeresRidleyFlight.TickCeresRidleyFakeRetreatMoveToPosition(slot, state);
                 break;
 
-            case RidleyAiFunction.CeresFakeRetreatRising:
+            case RidleyPhase.CeresFakeRetreatRising:
                 CeresRidleyFlight.TickCeresRidleyFakeRetreatRising(slot, state);
                 break;
 
-            case RidleyAiFunction.CeresWaitBeforeRetrievingBaby:
+            case RidleyPhase.CeresWaitBeforeRetrievingBaby:
                 if (--state.FunctionTimer < 0)
                 {
                     CeresRidleyFlight.StartRidleyAnimation(state, slot, RidleyBodySegment.RetrieveBabyMetroid);
-                    state.Function = RidleyAiFunction.CeresRetrieveBaby;
+                    state.Phase = RidleyPhase.CeresRetrieveBaby;
                     CeresRidleyFlight.TickCeresRidleyRetrieveBaby(slot, state);
                 }
                 break;
 
-            case RidleyAiFunction.CeresRetrieveBaby:
+            case RidleyPhase.CeresRetrieveBaby:
                 CeresRidleyFlight.TickCeresRidleyRetrieveBaby(slot, state);
                 break;
 
-            case RidleyAiFunction.CeresRealRetreatRising:
+            case RidleyPhase.CeresRealRetreatRising:
                 Flight.TickCeresRidleyRetreat(slot, state);
                 break;
 
-            case RidleyAiFunction.CeresRetreatDelay:
+            case RidleyPhase.CeresRetreatDelay:
                 Flight.TickCeresRidleyRetreatDelay(state);
                 break;
 
-            case RidleyAiFunction.CeresPublishEscapeHandoff:
+            case RidleyPhase.CeresPublishEscapeHandoff:
                 // The getaway handoff installs a null dispatcher and publishes the room-main cutscene
                 // state. The renderer stops emitting Ridley's ordinary composite at
                 // this point because the rotating view owns his departure; hide the ordinary actor so
                 // it cannot remain parked over that separately scoped presentation seam.
-                state.Function = RidleyAiFunction.CeresInactive;
+                state.Phase = RidleyPhase.CeresInactive;
                 slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
                 _ridleyEncounter.CeresStatus = CeresEscapeStatus.RidleyEscaped;
                 CeresRidleyGetaway.SetupCeresRidleyGetawayFloor(state);
                 break;
 
-            case RidleyAiFunction.CeresInactive:
+            case RidleyPhase.CeresInactive:
                 // The inactive function is empty; room main owns the getaway.
                 return;
 
-            case RidleyAiFunction.CeresActivateSelfDestruct:
+            case RidleyPhase.CeresActivateSelfDestruct:
                 Getaway.TickCeresRidleySelfDestruct(state);
                 return;
 
-            case RidleyAiFunction.CeresSelfDestructPaletteOnly:
+            case RidleyPhase.CeresSelfDestructPaletteOnly:
                 CeresRidleyGetaway.UpdateCeresSelfDestructAlarm(state, slot.FrameCounter);
                 return;
 
-            case RidleyAiFunction.NorfairEnterArena:
-            case RidleyAiFunction.NorfairSelectAttack:
-            case RidleyAiFunction.NorfairHoverSetup:
-            case RidleyAiFunction.NorfairHover:
-            case RidleyAiFunction.NorfairSwoopSetup:
-            case RidleyAiFunction.NorfairSwoopMoveToStart:
-            case RidleyAiFunction.NorfairSwoopAimDown:
-            case RidleyAiFunction.NorfairSwoopAimSideways:
-            case RidleyAiFunction.NorfairSwoopAimUp:
-            case RidleyAiFunction.NorfairSwoopClimb:
-            case RidleyAiFunction.NorfairSwoopRecover:
-            case RidleyAiFunction.NorfairPogoSetup:
-            case RidleyAiFunction.NorfairPogoDescending:
-            case RidleyAiFunction.NorfairPogoAscending:
-            case RidleyAiFunction.NorfairFireballSetup:
-            case RidleyAiFunction.NorfairFireballMoveToSide:
-            case RidleyAiFunction.NorfairFireballMoveToHeight:
-            case RidleyAiFunction.NorfairFireballAttack:
-            case RidleyAiFunction.NorfairFireballRecover:
-            case RidleyAiFunction.NorfairGrabApproach:
-            case RidleyAiFunction.NorfairCarrySetup:
-            case RidleyAiFunction.NorfairCarryMoveToAnchor:
-            case RidleyAiFunction.NorfairCarryRise:
-            case RidleyAiFunction.NorfairCarryRelease:
-            case RidleyAiFunction.NorfairReturnToArena:
-            case RidleyAiFunction.NorfairReleaseSamus:
-            case RidleyAiFunction.NorfairDeathStart:
-            case RidleyAiFunction.NorfairDeathExplosions:
-            case RidleyAiFunction.NorfairDeathFall:
-            case RidleyAiFunction.NorfairDeathImpact:
-            case RidleyAiFunction.NorfairDeathWait:
-            case RidleyAiFunction.NorfairDeathFinish:
-            case RidleyAiFunction.NorfairDeathComplete:
+            case RidleyPhase.NorfairEnterArena:
+            case RidleyPhase.NorfairSelectAttack:
+            case RidleyPhase.NorfairHoverSetup:
+            case RidleyPhase.NorfairHover:
+            case RidleyPhase.NorfairSwoopSetup:
+            case RidleyPhase.NorfairSwoopMoveToStart:
+            case RidleyPhase.NorfairSwoopAimDown:
+            case RidleyPhase.NorfairSwoopAimSideways:
+            case RidleyPhase.NorfairSwoopAimUp:
+            case RidleyPhase.NorfairSwoopClimb:
+            case RidleyPhase.NorfairSwoopRecover:
+            case RidleyPhase.NorfairPogoSetup:
+            case RidleyPhase.NorfairPogoDescending:
+            case RidleyPhase.NorfairPogoAscending:
+            case RidleyPhase.NorfairFireballSetup:
+            case RidleyPhase.NorfairFireballMoveToSide:
+            case RidleyPhase.NorfairFireballMoveToHeight:
+            case RidleyPhase.NorfairFireballAttack:
+            case RidleyPhase.NorfairFireballRecover:
+            case RidleyPhase.NorfairGrabApproach:
+            case RidleyPhase.NorfairCarrySetup:
+            case RidleyPhase.NorfairCarryMoveToAnchor:
+            case RidleyPhase.NorfairCarryRise:
+            case RidleyPhase.NorfairCarryRelease:
+            case RidleyPhase.NorfairReturnToArena:
+            case RidleyPhase.NorfairReleaseSamus:
+            case RidleyPhase.NorfairDeathStart:
+            case RidleyPhase.NorfairDeathExplosions:
+            case RidleyPhase.NorfairDeathFall:
+            case RidleyPhase.NorfairDeathImpact:
+            case RidleyPhase.NorfairDeathWait:
+            case RidleyPhase.NorfairDeathFinish:
+            case RidleyPhase.NorfairDeathComplete:
             default:
                 throw new InvalidDataException(
-                    $"Ceres Ridley function {state.Function} is not translated.");
+                    $"Ceres Ridley function {state.Phase} is not translated.");
         }
 
         // Once the eye fade enables composite animation, Ceres Ridley's main behaviour performs the

@@ -101,7 +101,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
 
         DeadSidehopperEnemyState state = InitializeDeadSidehopperCorpseState(slot);
         SetDeadSidehopperAnimation(slot, state, DeadTourianSegment.SidehopperIdle);
-        state.Function = DeadSidehopperAiFunction.AliveWaitForCamera;
+        state.Action = DeadSidehopperAction.AliveWaitForCamera;
         // The victim shows the colours the Shitroid's entry gives it, the target the room's colours fade to (#1512).
         state.DrainStage = 0;
         slot.Shading = state.Shading;
@@ -115,7 +115,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         SetDeadSidehopperAnimation(slot, state, DeadTourianSegment.SidehopperInitiallyDead);
         state.DrainStage = null;
         slot.Shading = state.Shading;
-        state.Function = DeadSidehopperAiFunction.WaitForSamusCollision;
+        state.Action = DeadSidehopperAction.WaitForSamusCollision;
     }
 
     /// <summary>Allocates slot state with the corpse's own rot schedule and its own rows.</summary>
@@ -147,73 +147,73 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         RoomLevelData? level,
         Position16<RoomPixels> camera)
     {
-        switch (state.Function)
+        switch (state.Action)
         {
-            case DeadSidehopperAiFunction.AliveWaitForCamera:
+            case DeadSidehopperAction.AliveWaitForCamera:
                 if ((camera - VictimActivationCamera).X < 0)
                 {
-                    state.Function = DeadSidehopperAiFunction.ActivatedMovement;
-                    goto case DeadSidehopperAiFunction.ActivatedMovement;
+                    state.Action = DeadSidehopperAction.ActivatedMovement;
+                    goto case DeadSidehopperAction.ActivatedMovement;
                 }
                 return;
 
-            case DeadSidehopperAiFunction.ActivatedMovement:
+            case DeadSidehopperAction.ActivatedMovement:
                 if (MoveDeadSidehopper(slot, state, level))
                 {
                     state.JumpPhase = (state.JumpPhase + 1) % DeadSidehopperLaunchDefinitions.PhaseCount;
                     SetDeadSidehopperAnimation(slot, state, DeadTourianSegment.SidehopperHopping);
-                    state.Function = DeadSidehopperAiFunction.NoOperation;
+                    state.Action = DeadSidehopperAction.NoOperation;
                 }
                 return;
 
-            case DeadSidehopperAiFunction.NoOperation:
+            case DeadSidehopperAction.NoOperation:
                 return;
 
-            case DeadSidehopperAiFunction.BeginPostLandingDelay:
-                state.Function = DeadSidehopperAiFunction.PostLandingDelay;
+            case DeadSidehopperAction.BeginPostLandingDelay:
+                state.Action = DeadSidehopperAction.PostLandingDelay;
                 state.StateTimer = 64;
                 return;
 
-            case DeadSidehopperAiFunction.PostLandingDelay:
+            case DeadSidehopperAction.PostLandingDelay:
                 if (--state.StateTimer >= 0)
                     return;
 
                 if (state.HasBegunDraining)
                 {
-                    state.Function = DeadSidehopperAiFunction.Draining;
+                    state.Action = DeadSidehopperAction.Draining;
                     return;
                 }
 
-                state.Function = DeadSidehopperAiFunction.ActivatedMovement;
+                state.Action = DeadSidehopperAction.ActivatedMovement;
                 SetDeadSidehopperAnimation(slot, state, DeadTourianSegment.SidehopperIdle);
                 state.Velocity = DeadSidehopperLaunchDefinitions.Velocity(state.JumpPhase);
                 return;
 
-            case DeadSidehopperAiFunction.Draining:
+            case DeadSidehopperAction.Draining:
                 StepDeadSidehopperDrain(slot, state);
                 return;
 
-            case DeadSidehopperAiFunction.WaitForSamusCollision:
+            case DeadSidehopperAction.WaitForSamusCollision:
                 if (samus?.Kinematics.DidCollideWithSolidEnemy(slot) == true)
-                    state.Function = DeadSidehopperAiFunction.PreRotDelay;
+                    state.Action = DeadSidehopperAction.PreRotDelay;
                 return;
 
-            case DeadSidehopperAiFunction.PreRotDelay:
+            case DeadSidehopperAction.PreRotDelay:
                 state.CountPreRotDelayCall();
                 if (state.PreRotDelayCounter >= 16)
                 {
-                    state.Function = DeadSidehopperAiFunction.Rotting;
+                    state.Action = DeadSidehopperAction.Rotting;
                     slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
                 }
                 return;
 
-            case DeadSidehopperAiFunction.Rotting:
+            case DeadSidehopperAction.Rotting:
                 RunDeadSidehopperRotting(slot, state);
                 return;
 
             default:
                 throw new InvalidDataException(
-                    $"Dead sidehopper function {state.Function?.ToString() ?? "none"} is not translated.");
+                    $"Dead sidehopper function {state.Action?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -306,7 +306,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
             return;
 
         SetDeadSidehopperAnimation(slot, state, DeadTourianSegment.SidehopperCorpse);
-        state.Function = DeadSidehopperAiFunction.WaitForSamusCollision;
+        state.Action = DeadSidehopperAction.WaitForSamusCollision;
         slot.Contact = slot.Contact.With(EnemyContact.SolidToSamus);
         slot.Radius = slot.Radius.WithY(12);
     }
@@ -319,9 +319,9 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     private static void SelectDeadSidehopperPostAnimationState(RoomEnemySlot slot)
     {
         DeadSidehopperEnemyState state = RequireDeadSidehopperState(slot);
-        state.Function = state.HasBegunDraining
-            ? DeadSidehopperAiFunction.Draining
-            : DeadSidehopperAiFunction.BeginPostLandingDelay;
+        state.Action = state.HasBegunDraining
+            ? DeadSidehopperAction.Draining
+            : DeadSidehopperAction.BeginPostLandingDelay;
     }
 
     /// <summary>Begins Shitroid's drain of its victim, when the Shitroid latches on to feed.</summary>
@@ -380,7 +380,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         RoomEnemySlot slot,
         DeadSidehopperEnemyState state)
     {
-        state.Function = DeadSidehopperAiFunction.Rotting;
+        state.Action = DeadSidehopperAction.Rotting;
         slot.Processing = slot.Processing.With(EnemyProcessing.OffScreen);
         slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
     }
@@ -394,7 +394,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
             state.Rows.MoveRow,
             _ => FinishDeadSidehopperCorpseRow(slot));
         if (!stillRotting)
-            state.Function = DeadSidehopperAiFunction.WaitForSamusCollision;
+            state.Action = DeadSidehopperAction.WaitForSamusCollision;
     }
 
     /// <summary>The rows <paramref name="slot"/>'s frames show: its corpse's own, as its rot calls have left them (#1539).</summary>

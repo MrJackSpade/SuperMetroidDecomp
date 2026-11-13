@@ -56,7 +56,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         var state = new WreckedShipGhostEnemyState
         {
             Playback = new(WreckedShipGhostAnimations.StartingWith(WreckedShipGhostSegment.Floating), AnimationPlace.StartOfAnimation),
-            Function = WreckedShipGhostAiFunction.InitialInvisibleDelay,
+            Action = WreckedShipGhostAction.InitialInvisibleDelay,
             PhaseTimer = WreckedShipGhostInitialDelay,
         };
 
@@ -80,29 +80,29 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         SamusState activeSamus = samus ?? throw new InvalidOperationException(
             "Wrecked Ship ghost AI requires the active Samus actor.");
 
-        switch (state.Function)
+        switch (state.Action)
         {
-            case WreckedShipGhostAiFunction.BrighteningAndFlickering:
+            case WreckedShipGhostAction.BrighteningAndFlickering:
                 RunWreckedShipGhostBrightening(slot, state);
                 break;
-            case WreckedShipGhostAiFunction.FadingToGhostColours:
+            case WreckedShipGhostAction.FadingToGhostColours:
                 RunWreckedShipGhostColourFade(slot, state, activeSamus);
                 break;
-            case WreckedShipGhostAiFunction.WaitingForWhiteFade:
+            case WreckedShipGhostAction.WaitingForWhiteFade:
                 RunWreckedShipGhostWhiteFade(slot, state);
                 break;
-            case WreckedShipGhostAiFunction.BobbingWhileVisible:
+            case WreckedShipGhostAction.BobbingWhileVisible:
                 RunWreckedShipGhostBobbing(slot, state);
                 break;
-            case WreckedShipGhostAiFunction.InitialInvisibleDelay:
+            case WreckedShipGhostAction.InitialInvisibleDelay:
                 RunWreckedShipGhostInitialDelay(state);
                 break;
-            case WreckedShipGhostAiFunction.TrackingSamusForSpawn:
+            case WreckedShipGhostAction.TrackingSamusForSpawn:
                 RunWreckedShipGhostTracking(slot, state, activeSamus);
                 break;
             default:
                 throw new InvalidDataException(
-                    $"Wrecked Ship ghost function {state.Function?.ToString() ?? "none"} is not translated.");
+                    $"Wrecked Ship ghost function {state.Action?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -118,7 +118,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
 
         state.PhaseTimer = 1;
         state.NextFlickerStep = 0;
-        state.Function = WreckedShipGhostAiFunction.TrackingSamusForSpawn;
+        state.Action = WreckedShipGhostAction.TrackingSamusForSpawn;
     }
 
     /// <summary>The one-pixel margin of the nearly-still box on each axis.</summary>
@@ -219,7 +219,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
 
         slot.Position = slot.Position.WithWhole(samusPosition + WreckedShipGhostAppearance.SpawnOffset(
             state.SpawnRow * WreckedShipGhostMovementClassCount + state.SpawnColumn));
-        state.Function = WreckedShipGhostAiFunction.BrighteningAndFlickering;
+        state.Action = WreckedShipGhostAction.BrighteningAndFlickering;
         state.StablePositionTimer = WreckedShipGhostStablePositionDuration;
         state.StableDirectionTimer = WreckedShipGhostStableDirectionDuration;
     }
@@ -240,7 +240,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         if (colorsChanged != 0)
             return;
 
-        state.Function = WreckedShipGhostAiFunction.FadingToGhostColours;
+        state.Action = WreckedShipGhostAction.FadingToGhostColours;
         state.Fade = state.Fade.Materializing(WreckedShipGhostAppearance.Colours);
     }
 
@@ -259,7 +259,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         // ordinary touch/shot collision handlers authored by its enemy definition.
         slot.Presence = slot.Presence.Without(EnemyPresence.Hidden);
         slot.Contact = slot.Contact.Without(EnemyContact.IgnoresSamus);
-        state.Function = WreckedShipGhostAiFunction.BobbingWhileVisible;
+        state.Action = WreckedShipGhostAction.BobbingWhileVisible;
         state.BobbingOrigin = new(0, slot.Position.Y.Whole);
         state.PhaseTimer = WreckedShipGhostVisibleDuration;
         state.NextFlickerStep = 0;
@@ -288,7 +288,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         if (--state.PhaseTimer != 0)
             return;
 
-        state.Function = WreckedShipGhostAiFunction.WaitingForWhiteFade;
+        state.Action = WreckedShipGhostAction.WaitingForWhiteFade;
         slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
         state.Fade = state.Fade.Vanishing();
     }
@@ -301,7 +301,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         if (StepWreckedShipGhostFadeTowardTarget(slot, state) != 0)
             return;
 
-        state.Function = WreckedShipGhostAiFunction.InitialInvisibleDelay;
+        state.Action = WreckedShipGhostAction.InitialInvisibleDelay;
         slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
         state.PhaseTimer = WreckedShipGhostVisibleDuration;
     }

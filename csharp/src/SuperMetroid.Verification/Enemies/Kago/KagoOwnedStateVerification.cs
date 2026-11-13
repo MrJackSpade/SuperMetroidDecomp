@@ -18,7 +18,7 @@ internal static class KagoOwnedStateVerification
         slot.SetSpawnParameter1(EnemyDefinitionId.Kago, 10);
         KagoBehavior.InitializeKago(slot);
         KagoEnemyState state = enemies.KagoStates[0] ?? throw new InvalidDataException("Kago initializer did not publish typed state.");
-        AssertTrue(state.Function is not null, "an initialized Kago has a behaviour");
+        AssertTrue(state.Action is not null, "an initialized Kago has a behaviour");
         Console.WriteLine("Kago owned state: an initialized Kago behaves.");
     }
 

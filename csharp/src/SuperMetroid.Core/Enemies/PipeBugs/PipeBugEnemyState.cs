@@ -25,8 +25,8 @@ public sealed class PipeBugEnemyState
     /// </summary>
     public bool BrinstarFliesLeft { get; internal set; }
 
-    /// <summary>The current AI function.</summary>
-    public PipeBugEnemyFunction? Function { get; internal set; }
+    /// <summary>The current action.</summary>
+    public PipeBugAction? Action { get; internal set; }
 
     /// <summary>Gets the whole-pixel spawn position restored after leaving the screen.</summary>
     public Position16<RoomPixels> SpawnPosition { get; internal set; }
@@ -71,8 +71,8 @@ public sealed class PipeBugEnemyState
     public Position16<RoomPixels> RiseEnd { get; internal set; }
     /// <summary>The formation count, 72 through 136, at which this Norfair member departs.</summary>
     public int StaggerTarget { get; internal set; }
-    /// <summary>Gets the function selected for this Norfair member after rising.</summary>
-    public PipeBugEnemyFunction NorfairPostRiseFunction { get; internal set; }
+    /// <summary>Gets the action selected for this Norfair member after rising.</summary>
+    public PipeBugAction NorfairPostRiseAction { get; internal set; }
     /// <summary>A yellow Pipe Bug's signed 16.16 rightward flight velocity in room pixels per update: the spawn settings' speed.</summary>
     public SignedSixteenSixteen PositiveVelocity { get; internal set; }
     /// <summary>A yellow Pipe Bug's leftward flight velocity: the spawn settings' speed, negated.</summary>

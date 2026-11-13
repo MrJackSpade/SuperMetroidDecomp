@@ -8,14 +8,14 @@ namespace SuperMetroid.Core.Enemies.Boulder;
 /// </summary>
 internal static class BoulderNativeWords
 {
-    /// <summary>The routine word naming each <see cref="BoulderAiFunction"/>.</summary>
-    internal static readonly NativeWordIdentities<BoulderAiFunction> BoulderAiFunctions = new(new Dictionary<BoulderAiFunction, ushort>
+    /// <summary>The routine word naming each <see cref="BoulderAction"/>.</summary>
+    internal static readonly NativeWordIdentities<BoulderAction> BoulderActions = new(new Dictionary<BoulderAction, ushort>
     {
-        [BoulderAiFunction.WaitingForSamus] = 0x879a,
-        [BoulderAiFunction.InitialFall] = 0x87ed,
-        [BoulderAiFunction.Rebound] = 0x8832,
-        [BoulderAiFunction.Falling] = 0x888b,
-        [BoulderAiFunction.Rolling] = 0x8942,
-        [BoulderAiFunction.Inert] = 0x89fc,
+        [BoulderAction.WaitingForSamus] = 0x879a,
+        [BoulderAction.InitialFall] = 0x87ed,
+        [BoulderAction.Rebound] = 0x8832,
+        [BoulderAction.Falling] = 0x888b,
+        [BoulderAction.Rolling] = 0x8942,
+        [BoulderAction.Inert] = 0x89fc,
     });
 }

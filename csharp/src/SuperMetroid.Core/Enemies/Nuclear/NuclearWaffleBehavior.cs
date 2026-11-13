@@ -43,7 +43,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.OrbitRadius = settings.OrbitRadius;
         state.WaitingTimerReset = settings.WaitTime;
         state.WaitingTimer = state.WaitingTimerReset;
-        state.Function = NuclearWaffleEnemyFunction.Waiting;
+        state.Action = NuclearWaffleAction.Waiting;
 
         NuclearWaffleSweepDefinition sweep = NuclearWaffleSweeps.Sweep(settings.Direction);
         state.SweepsForward = settings.Direction == NuclearWaffleSweepDirection.Forward;
@@ -70,19 +70,19 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the Nuclear Waffle's main AI.</summary>
     private void RunNuclearWaffleMain(RoomEnemySlot slot, NuclearWaffleEnemyState state)
     {
-        switch (state.Function)
+        switch (state.Action)
         {
-            case NuclearWaffleEnemyFunction.Waiting:
+            case NuclearWaffleAction.Waiting:
                 RunNuclearWaffleWaiting(slot, state);
                 return;
 
-            case NuclearWaffleEnemyFunction.Sweeping:
+            case NuclearWaffleAction.Sweeping:
                 RunNuclearWaffleSweep(slot, state);
                 return;
 
             default:
                 throw new InvalidDataException(
-                    $"Nuclear Waffle function {state.Function?.ToString() ?? "none"} is not translated.");
+                    $"Nuclear Waffle function {state.Action?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -96,7 +96,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.WaitingTimer = state.WaitingTimerReset;
         state.SweepAngle = SignedSixteenSixteen.FromParts(state.SweepStartAngle, 0);
-        state.Function = NuclearWaffleEnemyFunction.Sweeping;
+        state.Action = NuclearWaffleAction.Sweeping;
         state.HeadOrientationState = NuclearWaffleTurnState.BeforeTurns;
         Array.Clear(state.ProjectileOrientationStates);
         Array.Clear(state.SpriteOrientationStates);
@@ -127,7 +127,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!sweepFinished)
             return;
 
-        state.Function = NuclearWaffleEnemyFunction.Waiting;
+        state.Action = NuclearWaffleAction.Waiting;
         slot.Processing = slot.Processing.Without(EnemyProcessing.OffScreen);
     }
 

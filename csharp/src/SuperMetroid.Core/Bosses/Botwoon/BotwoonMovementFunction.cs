@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
-/// <summary>Botwoon's movement behaviour: how his body travels each update. Members start at one, as for <see cref="BotwoonEnemyFunction"/>.</summary>
+/// <summary>Botwoon's movement behaviour: how his body travels each update. Members start at one, as for <see cref="BotwoonPhase"/>.</summary>
 public enum BotwoonMovementFunction
 {
     /// <summary>Computes a clamped target vector and moves until the inside-hole transition is observed.</summary>

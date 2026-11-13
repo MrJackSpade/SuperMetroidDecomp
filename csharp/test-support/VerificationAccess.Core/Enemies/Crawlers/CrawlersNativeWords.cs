@@ -8,15 +8,15 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 /// </summary>
 internal static class CrawlersNativeWords
 {
-    /// <summary>The routine word naming each <see cref="CrawlerEnemyFunction"/>.</summary>
-    internal static readonly NativeWordIdentities<CrawlerEnemyFunction> CrawlerEnemyFunctions = new(new Dictionary<CrawlerEnemyFunction, ushort>
+    /// <summary>The routine word naming each <see cref="CrawlerAction"/>.</summary>
+    internal static readonly NativeWordIdentities<CrawlerAction> CrawlerActions = new(new Dictionary<CrawlerAction, ushort>
     {
-        [CrawlerEnemyFunction.HZoomerAwaitingAnimationCue] = 0xe08a,
-        [CrawlerEnemyFunction.HZoomerCrawlingVertically] = 0xe091,
-        [CrawlerEnemyFunction.HZoomerCrawlingHorizontally] = 0xe168,
-        [CrawlerEnemyFunction.AwaitingAnimationCue] = 0xe6c1,
-        [CrawlerEnemyFunction.CrawlingVertically] = 0xe6c8,
-        [CrawlerEnemyFunction.Falling] = 0xe785,
-        [CrawlerEnemyFunction.CrawlingHorizontally] = 0xe7f2,
+        [CrawlerAction.HZoomerAwaitingAnimationCue] = 0xe08a,
+        [CrawlerAction.HZoomerCrawlingVertically] = 0xe091,
+        [CrawlerAction.HZoomerCrawlingHorizontally] = 0xe168,
+        [CrawlerAction.AwaitingAnimationCue] = 0xe6c1,
+        [CrawlerAction.CrawlingVertically] = 0xe6c8,
+        [CrawlerAction.Falling] = 0xe785,
+        [CrawlerAction.CrawlingHorizontally] = 0xe7f2,
     });
 }

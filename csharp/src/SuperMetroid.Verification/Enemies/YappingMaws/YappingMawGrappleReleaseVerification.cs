@@ -44,7 +44,7 @@ internal static class YappingMawGrappleReleaseVerification
         // Stage the last two frames of the actual Maw's held delay. The report's
         // (936,172) is this population mouth (936,192) plus native held offset (0,-20).
         var maw = runtime.Enemies.YappingMawStates.Single(state => state?.Origin.X == 936);
-        (maw ?? throw new InvalidOperationException("Verification requires maw.")).Function = YappingMawAiFunction.RetractedDelay;
+        (maw ?? throw new InvalidOperationException("Verification requires maw.")).Action = YappingMawAction.RetractedDelay;
         maw.HasGrabbedSamus = true;
         maw.RetractedDelayTimer = 1;
         maw.HeldSamusOffset = new Offset16<RoomPixels>(0, -20);

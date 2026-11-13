@@ -166,7 +166,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
         AssertEqual(DraygonIntroDanceDefinitions.DurationFrames, state.IntroFrames,
             "Draygon intro exact native duration");
         run(state, null, 1);
-        AssertEqual(DraygonAiFunction.SwoopRightSetup, state.Function,
+        AssertEqual(DraygonPhase.SwoopRightSetup, state.Phase,
             "Draygon intro transitions to right-swoop setup after the native duration");
         AssertEqual(0, state.IntroFrames,
             "Draygon intro clears its frame count at the native handoff");

@@ -20,11 +20,11 @@ internal static class SbugMovement
             ? segment
             : throw new InvalidDataException($"Sbug facing {facing} is not one of the eight facings.");
 
-    /// <summary>The function <paramref name="behavior"/> starts.</summary>
+    /// <summary>The action <paramref name="behavior"/> starts.</summary>
     /// <exception cref="InvalidDataException"><paramref name="behavior"/> is outside the seven selectors.</exception>
-    internal static SbugEnemyFunction ActivationFunction(SbugActivationBehavior behavior) =>
-        SbugMovementDefinitions.ActivationFunctions.TryGetValue(behavior, out SbugEnemyFunction function)
-            ? function
+    internal static SbugAction ActivationAction(SbugActivationBehavior behavior) =>
+        SbugMovementDefinitions.ActivationActions.TryGetValue(behavior, out SbugAction action)
+            ? action
             : throw new InvalidDataException(
                 $"Sbug activation behavior {behavior} is not one of the seven activation behaviours.");
 }

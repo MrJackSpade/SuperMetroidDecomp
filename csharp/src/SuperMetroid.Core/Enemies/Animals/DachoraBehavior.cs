@@ -107,7 +107,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Playback = new(DachoraAnimations.StartingWith(settings.Facing == HorizontalDirection.Right
                 ? DachoraSegment.EchoRight
                 : DachoraSegment.EchoLeft), AnimationPlace.StartOfAnimation);
-            state.Function = DachoraAiFunction.Echo;
+            state.Action = DachoraAction.Echo;
             return;
         }
 
@@ -115,7 +115,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = new(DachoraAnimations.StartingWith(settings.Facing == HorizontalDirection.Right
             ? DachoraSegment.IdleRight
             : DachoraSegment.IdleLeft), AnimationPlace.StartOfAnimation);
-        state.Function = DachoraAiFunction.WaitingForSamus;
+        state.Action = DachoraAction.WaitingForSamus;
     }
 
     /// <summary>Dispatches the Dachora's main AI through its indirect jump.</summary>
@@ -129,7 +129,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         // Echo AI needs only the frame counter's parity. Every body state needs both the active
         // Samus gravity values and authentic room collision, so fail loudly if a caller
         // attempts to run the family without the state that code reads globally.
-        if (state.Function == DachoraAiFunction.Echo)
+        if (state.Action == DachoraAction.Echo)
         {
             RunDachoraEcho(slot, state, frameCycle);
             return;
@@ -139,33 +139,33 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             "Dachora body AI requires the active Samus actor.");
         RoomLevelData activeLevel = level ?? throw new InvalidOperationException(
             "Dachora body AI requires active room collision data.");
-        switch (state.Function)
+        switch (state.Action)
         {
-            case DachoraAiFunction.WaitingForSamus:
+            case DachoraAction.WaitingForSamus:
                 RunDachoraWaiting(slot, state, activeSamus, activeLevel);
                 break;
-            case DachoraAiFunction.BlinkingBeforeRun:
+            case DachoraAction.BlinkingBeforeRun:
                 RunDachoraBlinking(slot, state);
                 break;
-            case DachoraAiFunction.RunningLeft:
+            case DachoraAction.RunningLeft:
                 RunDachoraLeft(slot, state, activeLevel);
                 break;
-            case DachoraAiFunction.RunningRight:
+            case DachoraAction.RunningRight:
                 RunDachoraRight(slot, state, activeLevel);
                 break;
-            case DachoraAiFunction.ChargingShinespark:
+            case DachoraAction.ChargingShinespark:
                 RunDachoraCharging(slot, state);
                 break;
-            case DachoraAiFunction.Shinesparking:
+            case DachoraAction.Shinesparking:
                 RunDachoraShinespark(slot, state, activeSamus, activeLevel);
                 break;
-            case DachoraAiFunction.Falling:
+            case DachoraAction.Falling:
                 RunDachoraFalling(slot, state, activeSamus, activeLevel);
                 break;
-            case DachoraAiFunction.Echo:
+            case DachoraAction.Echo:
             default:
                 throw new InvalidDataException(
-                    $"Dachora function {state.Function?.ToString() ?? "none"} is not translated.");
+                    $"Dachora function {state.Action?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -189,7 +189,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             state.FacingRight
                 ? DachoraSegment.BlinkRight
                 : DachoraSegment.BlinkLeft);
-        state.Function = DachoraAiFunction.BlinkingBeforeRun;
+        state.Action = DachoraAction.BlinkingBeforeRun;
         state.StartBlinking(DachoraBlinkDuration);
         _audio.QueueEnemySound(DachoraActivationSound, priority: SoundRequestPriority.Normal);
     }
@@ -206,9 +206,9 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             state.FacingRight
                 ? DachoraSegment.RunningRight
                 : DachoraSegment.RunningLeft);
-        state.Function = state.FacingRight
-            ? DachoraAiFunction.RunningRight
-            : DachoraAiFunction.RunningLeft;
+        state.Action = state.FacingRight
+            ? DachoraAction.RunningRight
+            : DachoraAction.RunningLeft;
         state.SetGlowCycle(frame: 0, ticks: 1);
     }
 
@@ -230,7 +230,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         StartDachoraAnimation(slot, state, DachoraSegment.RunningRight);
-        state.Function = DachoraAiFunction.RunningRight;
+        state.Action = DachoraAction.RunningRight;
         state.SetGlowCycle(frame: 0, ticks: 1);
         state.FacingRight = true;
         state.Speed = SignedSixteenSixteen.Zero;
@@ -248,7 +248,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             _audio.QueueEnemySound(DachoraWallImpactSound, priority: SoundRequestPriority.Normal);
             StartDachoraAnimation(slot, state, DachoraSegment.RunningLeft);
-            state.Function = DachoraAiFunction.RunningLeft;
+            state.Action = DachoraAction.RunningLeft;
             state.FacingRight = false;
             state.Speed = SignedSixteenSixteen.Zero;
             state.SetGlowCycle(frame: 0, ticks: 0);
@@ -261,7 +261,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         StartDachoraAnimation(slot, state, DachoraSegment.ChargeRight);
-        state.Function = DachoraAiFunction.ChargingShinespark;
+        state.Action = DachoraAction.ChargingShinespark;
         state.StartCharging(DachoraChargeDuration);
         state.SetGlowCycle(frame: 0, ticks: 0);
         slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + 8);
@@ -334,7 +334,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         // right-facing echo animation used by the four trails, exactly as the game does on launch.
         state.Playback = new(DachoraAnimations.StartingWith(DachoraAnimations.AfterSleep(Playing(state.Playback))), AnimationPlace.StartOfAnimation);
         slot.AnimationClock.StepOnNextUpdate();
-        state.Function = DachoraAiFunction.Shinesparking;
+        state.Action = DachoraAction.Shinesparking;
 
         RoomEnemySlot[] echoes = RequireDachoraEchoSlots(slot);
         echoes[0].RequireSpeciesState<DachoraEnemyState>().EchoPositionTimer = 0;
@@ -384,7 +384,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             StartDachoraAnimation(slot, state, DachoraSegment.FallingLeft);
             state.FacingRight = false;
         }
-        state.Function = DachoraAiFunction.Falling;
+        state.Action = DachoraAction.Falling;
         state.Speed = SignedSixteenSixteen.Zero;
         state.SetGlowCycle(frame: 0, ticks: 0);
         ShowDachoraColours(slot, DachoraColourPhase.Default, frame: 0);
@@ -416,9 +416,9 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             state.FacingRight
                 ? DachoraSegment.RunningRight
                 : DachoraSegment.RunningLeft);
-        state.Function = state.FacingRight
-            ? DachoraAiFunction.RunningRight
-            : DachoraAiFunction.RunningLeft;
+        state.Action = state.FacingRight
+            ? DachoraAction.RunningRight
+            : DachoraAction.RunningLeft;
         state.Speed = SignedSixteenSixteen.Zero;
     }
 

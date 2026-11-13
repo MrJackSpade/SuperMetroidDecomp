@@ -28,8 +28,8 @@ public sealed class NorfairLavaJumpingEnemyState
     /// <summary>Parent variant's immutable population position (Y at the lava surface).</summary>
     public Position16<RoomPixels> SpawnPosition { get; internal set; }
 
-    /// <summary>Parent parts traverse the four jump phases, while followers keep the follow function.</summary>
-    public NorfairLavaJumpingEnemyFunction? Function { get; internal set; }
+    /// <summary>Parent parts traverse the four jump phases, while followers keep the follow action.</summary>
+    public NorfairLavaJumpingEnemyAction? Action { get; internal set; }
 
     /// <summary>Whether this is the visual follower half rather than the jumping parent.</summary>
     public bool IsFollower { get; internal set; }

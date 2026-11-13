@@ -8,14 +8,14 @@ namespace SuperMetroid.Core.Enemies.WreckedShip;
 /// </summary>
 internal static class WreckedShipNativeWords
 {
-    /// <summary>The routine word naming each <see cref="WreckedShipGhostAiFunction"/>.</summary>
-    internal static readonly NativeWordIdentities<WreckedShipGhostAiFunction> WreckedShipGhostAiFunctions = new(new Dictionary<WreckedShipGhostAiFunction, ushort>
+    /// <summary>The routine word naming each <see cref="WreckedShipGhostAction"/>.</summary>
+    internal static readonly NativeWordIdentities<WreckedShipGhostAction> WreckedShipGhostActions = new(new Dictionary<WreckedShipGhostAction, ushort>
     {
-        [WreckedShipGhostAiFunction.BrighteningAndFlickering] = 0x9b42,
-        [WreckedShipGhostAiFunction.FadingToGhostColours] = 0x9bad,
-        [WreckedShipGhostAiFunction.WaitingForWhiteFade] = 0x9c69,
-        [WreckedShipGhostAiFunction.BobbingWhileVisible] = 0x9c8a,
-        [WreckedShipGhostAiFunction.InitialInvisibleDelay] = 0x9d13,
-        [WreckedShipGhostAiFunction.TrackingSamusForSpawn] = 0x9d36,
+        [WreckedShipGhostAction.BrighteningAndFlickering] = 0x9b42,
+        [WreckedShipGhostAction.FadingToGhostColours] = 0x9bad,
+        [WreckedShipGhostAction.WaitingForWhiteFade] = 0x9c69,
+        [WreckedShipGhostAction.BobbingWhileVisible] = 0x9c8a,
+        [WreckedShipGhostAction.InitialInvisibleDelay] = 0x9d13,
+        [WreckedShipGhostAction.TrackingSamusForSpawn] = 0x9d36,
     });
 }

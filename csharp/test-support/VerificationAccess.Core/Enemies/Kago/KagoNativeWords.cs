@@ -8,10 +8,10 @@ namespace SuperMetroid.Core.Enemies.Kago;
 /// </summary>
 internal static class KagoNativeWords
 {
-    /// <summary>The routine word naming each <see cref="KagoEnemyFunction"/>.</summary>
-    internal static readonly NativeWordIdentities<KagoEnemyFunction> KagoEnemyFunctions = new(new Dictionary<KagoEnemyFunction, ushort>
+    /// <summary>The routine word naming each <see cref="KagoAction"/>.</summary>
+    internal static readonly NativeWordIdentities<KagoAction> KagoActions = new(new Dictionary<KagoAction, ushort>
     {
-        [KagoEnemyFunction.InstallNoOp] = 0xab7b,
-        [KagoEnemyFunction.NoOp] = 0xab81,
+        [KagoAction.InstallNoOp] = 0xab7b,
+        [KagoAction.NoOp] = 0xab81,
     });
 }

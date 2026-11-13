@@ -50,10 +50,10 @@ internal static class PhantoonDefinitionMigrationVerification
         AssertEqual(0xf2, PhantoonNativeWords.DeathMosaicWord(PhantoonDeathDefinitions.FinalMosaicSize), "last death mosaic word");
 
         // The AI functions: every phase has its routine word.
-        foreach (PhantoonAiFunction function in Enum.GetValues<PhantoonAiFunction>())
-            _ = PhantoonNativeWords.AiFunctions.Word(function);
-        AssertEqual(0xd4a9, PhantoonNativeWords.AiFunctions.Word(PhantoonAiFunction.SpawnStartingFlames), "first phase's routine");
-        AssertEqual(0xdb3d, PhantoonNativeWords.AiFunctions.Word(PhantoonAiFunction.Dead), "dead phase's routine");
+        foreach (PhantoonPhase phase in Enum.GetValues<PhantoonPhase>())
+            _ = PhantoonNativeWords.Phases.Word(phase);
+        AssertEqual(0xd4a9, PhantoonNativeWords.Phases.Word(PhantoonPhase.SpawnStartingFlames), "first phase's routine");
+        AssertEqual(0xdb3d, PhantoonNativeWords.Phases.Word(PhantoonPhase.Dead), "dead phase's routine");
         Console.WriteLine("Phantoon definition migration: colours, wave, flame, motion, mosaic and phase identities keep their values.");
     }
 

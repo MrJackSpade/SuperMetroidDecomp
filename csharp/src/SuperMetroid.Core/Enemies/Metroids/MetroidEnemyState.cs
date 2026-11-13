@@ -27,7 +27,7 @@ public sealed class MetroidEnemyState
     public int EscapeTimer { get; internal set; }
 
     /// <summary>Zero-based movement dispatcher index 0..3, not an AI behaviour.</summary>
-    public MetroidAiFunction Function { get; internal set; }
+    public MetroidMovement Movement { get; internal set; }
 
     /// <summary>The electricity sprite object the Metroid spawned; its owner repositions, freezes and ends it alongside the central body.</summary>
     public RoomSpriteObject OuterBodyA { get; }

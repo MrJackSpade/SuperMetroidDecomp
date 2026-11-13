@@ -59,7 +59,7 @@ internal static class SbugReversalVerification
             state.CustomYVelocity = y;
             state.StraightMovementTimer = WrappingCountdown.Start(512);
             state.MovementTimer = 32;
-            state.Function = SbugEnemyFunction.MoveStraightAndReverseWhenFar;
+            state.Action = SbugAction.MoveStraightAndReverseWhenFar;
 
             enemies.SbugBehavior.RunSbugMain(slot, samus, null);
             var expected = new FixedPosition<RoomPixels>(start.X.MovedBy(-x), start.Y.MovedBy(-y));

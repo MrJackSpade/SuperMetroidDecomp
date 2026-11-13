@@ -17,7 +17,7 @@ public sealed class ZebetiteEnemyState
     }
 
     /// <summary>The indirect main-AI entry, independent for each physical half.</summary>
-    public ZebetiteAiFunction? Function { get; internal set; }
+    public ZebetiteAction? Action { get; internal set; }
 
     /// <summary>
     /// Barrier generation 0 through <see cref="PersistentProgress.ZebetiteCount"/>: how many Zebetites had been destroyed

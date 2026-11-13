@@ -62,137 +62,137 @@ internal sealed class KraidDeath
     }
 
     /// <summary>Dispatches the staged sinking, palette, and room-repair death sequence.</summary>
-    internal void RunKraidDeathFunction(
+    internal void RunKraidDeathPhase(
         RoomEnemySlot body,
         KraidEnemyState state,
         int cameraX)
     {
-        switch (state.BodyState.Function)
+        switch (state.BodyState.Phase)
         {
-            case KraidAiFunction.DeathInitialize:
+            case KraidPhase.DeathInitialize:
                 InitializeKraidDeath(state);
                 return;
 
-            case KraidAiFunction.DeathFadeOut:
+            case KraidPhase.DeathFadeOut:
                 _ = _head.AdvanceKraidHeadAnimation(state);
                 if (_background.AdvanceKraidRoomBackgroundFade(fade: KraidBackdropFade.ToBlack))
                 {
-                    state.BodyState.Function = KraidAiFunction.DeathShowUpperBody;
+                    state.BodyState.Phase = KraidPhase.DeathShowUpperBody;
                     state.HurtFrameTimer = 1;
                     state.HurtFrame = 1;
                     state.ShowBody();
                 }
                 return;
 
-            case KraidAiFunction.DeathShowUpperBody:
+            case KraidPhase.DeathShowUpperBody:
                 _ = _head.AdvanceKraidHeadAnimation(state);
-                state.BodyState.Function = KraidAiFunction.DeathShowLowerBody;
+                state.BodyState.Phase = KraidPhase.DeathShowLowerBody;
                 foreach (RoomEnemySlot lint in _parts.Lints)
                 {
-                    _parts.LintStateOf(state, lint).Function = KraidAiFunction.AlignPartToKraid;
+                    _parts.LintStateOf(state, lint).Phase = KraidPhase.AlignPartToKraid;
                     _parts.LintStateOf(state, lint).FunctionTimer = KraidBehavior.KraidStillPartTimer;
                 }
                 state.ShowBody();
                 return;
 
-            case KraidAiFunction.DeathShowLowerBody:
+            case KraidPhase.DeathShowLowerBody:
                 _ = _head.AdvanceKraidHeadAnimation(state);
-                state.BodyState.Function = KraidAiFunction.DeathSink;
+                state.BodyState.Phase = KraidPhase.DeathSink;
                 state.DeathSoundTimer = 43;
                 body.Contact = body.Contact.With(EnemyContact.SolidToSamus);
                 _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), 256);
                 _access.StartKraidPartAnimation(_parts.Arm, KraidPartSegment.ArmRisingOrSinking);
                 _access.StartKraidPartAnimation(_parts.Foot, KraidPartSegment.FootInitial);
-                state.FootState.Function = KraidAiFunction.NoOperation;
+                state.FootState.Phase = KraidPhase.NoOperation;
                 return;
 
-            case KraidAiFunction.DeathSink:
+            case KraidPhase.DeathSink:
                 RunKraidDeathSink(body, state);
                 return;
 
-            case KraidAiFunction.DeathHideUpperBody:
-                state.BodyState.Function = KraidAiFunction.DeathHideLowerBody;
+            case KraidPhase.DeathHideUpperBody:
+                state.BodyState.Phase = KraidPhase.DeathHideLowerBody;
                 HideKraidBody(state);
                 return;
-            case KraidAiFunction.DeathHideLowerBody:
-                state.BodyState.Function = KraidAiFunction.DeathWaitBeforeFadeIn1;
+            case KraidPhase.DeathHideLowerBody:
+                state.BodyState.Phase = KraidPhase.DeathWaitBeforeFadeIn1;
                 return;
             // The death waits four updates before the room fades back in.
-            case KraidAiFunction.DeathWaitBeforeFadeIn1:
-                state.BodyState.Function = KraidAiFunction.DeathWaitBeforeFadeIn2;
+            case KraidPhase.DeathWaitBeforeFadeIn1:
+                state.BodyState.Phase = KraidPhase.DeathWaitBeforeFadeIn2;
                 return;
-            case KraidAiFunction.DeathWaitBeforeFadeIn2:
-                state.BodyState.Function = KraidAiFunction.DeathWaitBeforeFadeIn3;
+            case KraidPhase.DeathWaitBeforeFadeIn2:
+                state.BodyState.Phase = KraidPhase.DeathWaitBeforeFadeIn3;
                 return;
-            case KraidAiFunction.DeathWaitBeforeFadeIn3:
-                state.BodyState.Function = KraidAiFunction.DeathWaitBeforeFadeIn4;
+            case KraidPhase.DeathWaitBeforeFadeIn3:
+                state.BodyState.Phase = KraidPhase.DeathWaitBeforeFadeIn4;
                 return;
-            case KraidAiFunction.DeathWaitBeforeFadeIn4:
-                state.BodyState.Function = KraidAiFunction.DeathFadeInBackground;
+            case KraidPhase.DeathWaitBeforeFadeIn4:
+                state.BodyState.Phase = KraidPhase.DeathFadeInBackground;
                 return;
-            case KraidAiFunction.DeathFadeInBackground:
+            case KraidPhase.DeathFadeInBackground:
                 if (!_background.AdvanceKraidRoomBackgroundFade(fade: KraidBackdropFade.ToRoomColors))
                     return;
                 _access.RequestKraidMusic(MusicRequest.SelectTrack(MusicTrack.Elevator));
                 if (_room.Services.Bosses.IsDefeated(BossBits.AreaBoss))
                 {
-                    state.BodyState.Function = KraidAiFunction.DeathFinishedWasDead;
+                    state.BodyState.Phase = KraidPhase.DeathFinishedWasDead;
                 }
                 else
                 {
                     _room.Services.Bosses.SetDefeated(BossBits.AreaBoss);
-                    state.BodyState.Function = KraidAiFunction.DeathFinishedWasAlive;
+                    state.BodyState.Phase = KraidPhase.DeathFinishedWasAlive;
                 }
                 return;
-            case KraidAiFunction.DeathFinishedWasAlive:
+            case KraidPhase.DeathFinishedWasAlive:
                 MarkKraidDeadUnlessDeadAtLeftEdge(body, cameraX);
                 return;
-            case KraidAiFunction.DeathFinishedWasDead:
+            case KraidPhase.DeathFinishedWasDead:
                 MarkKraidDeadUnlessDeadAtLeftEdge(body, cameraX);
                 return;
-            case KraidAiFunction.NoOperation:
-            case KraidAiFunction.GrowBreakCeilingPlatforms:
-            case KraidAiFunction.GrowBringBodyInFront:
-            case KraidAiFunction.GrowShowLowerBodyInFront:
-            case KraidAiFunction.GrowDrawRoomBackground:
-            case KraidAiFunction.GrowFadeInRoomBackground:
-            case KraidAiFunction.MainloopThinking:
-            case KraidAiFunction.SecondPhaseThinking:
-            case KraidAiFunction.MouthOpenReaction:
-            case KraidAiFunction.InitializeEyeGlow:
-            case KraidAiFunction.GlowEye:
-            case KraidAiFunction.UnglowEye:
-            case KraidAiFunction.LintInactive:
-            case KraidAiFunction.LintProduce:
-            case KraidAiFunction.LintCharge:
-            case KraidAiFunction.LintFire:
-            case KraidAiFunction.FingernailWaitForLint:
-            case KraidAiFunction.AlignPartToKraid:
-            case KraidAiFunction.HandleFunctionTimer:
-            case KraidAiFunction.DecrementFunctionTimerAndStartWalk:
-            case KraidAiFunction.FootFirstPhaseThinking:
-            case KraidAiFunction.AdvanceHeadAnimationAndTimer:
-            case KraidAiFunction.FootSecondPhaseThinking:
-            case KraidAiFunction.FootSecondPhaseWalkingRight:
-            case KraidAiFunction.FootSecondPhaseWalkToStart:
-            case KraidAiFunction.FootSecondPhaseInitialize:
-            case KraidAiFunction.FootSecondPhaseWalkingLeft:
-            case KraidAiFunction.MainAttackWithMouthOpen:
-            case KraidAiFunction.FingernailInitialize:
-            case KraidAiFunction.FingernailFire:
-            case KraidAiFunction.FootPrepareFirstPhaseLunge:
-            case KraidAiFunction.FootFirstPhaseLunge:
-            case KraidAiFunction.FootFirstPhaseRetreat:
-            case KraidAiFunction.GrowReleaseCamera:
-            case KraidAiFunction.RestrictSamusToFirstScreen:
-            case KraidAiFunction.RaiseKraidThroughFloor:
-            case KraidAiFunction.RaiseShowLowerBody:
-            case KraidAiFunction.RaiseRocksEvery16Frames:
-            case KraidAiFunction.RaiseRocksEvery8Frames:
-            case KraidAiFunction.RaiseBody:
-            case KraidAiFunction.None:
+            case KraidPhase.NoOperation:
+            case KraidPhase.GrowBreakCeilingPlatforms:
+            case KraidPhase.GrowBringBodyInFront:
+            case KraidPhase.GrowShowLowerBodyInFront:
+            case KraidPhase.GrowDrawRoomBackground:
+            case KraidPhase.GrowFadeInRoomBackground:
+            case KraidPhase.MainloopThinking:
+            case KraidPhase.SecondPhaseThinking:
+            case KraidPhase.MouthOpenReaction:
+            case KraidPhase.InitializeEyeGlow:
+            case KraidPhase.GlowEye:
+            case KraidPhase.UnglowEye:
+            case KraidPhase.LintInactive:
+            case KraidPhase.LintProduce:
+            case KraidPhase.LintCharge:
+            case KraidPhase.LintFire:
+            case KraidPhase.FingernailWaitForLint:
+            case KraidPhase.AlignPartToKraid:
+            case KraidPhase.HandleFunctionTimer:
+            case KraidPhase.DecrementFunctionTimerAndStartWalk:
+            case KraidPhase.FootFirstPhaseThinking:
+            case KraidPhase.AdvanceHeadAnimationAndTimer:
+            case KraidPhase.FootSecondPhaseThinking:
+            case KraidPhase.FootSecondPhaseWalkingRight:
+            case KraidPhase.FootSecondPhaseWalkToStart:
+            case KraidPhase.FootSecondPhaseInitialize:
+            case KraidPhase.FootSecondPhaseWalkingLeft:
+            case KraidPhase.MainAttackWithMouthOpen:
+            case KraidPhase.FingernailInitialize:
+            case KraidPhase.FingernailFire:
+            case KraidPhase.FootPrepareFirstPhaseLunge:
+            case KraidPhase.FootFirstPhaseLunge:
+            case KraidPhase.FootFirstPhaseRetreat:
+            case KraidPhase.GrowReleaseCamera:
+            case KraidPhase.RestrictSamusToFirstScreen:
+            case KraidPhase.RaiseKraidThroughFloor:
+            case KraidPhase.RaiseShowLowerBody:
+            case KraidPhase.RaiseRocksEvery16Frames:
+            case KraidPhase.RaiseRocksEvery8Frames:
+            case KraidPhase.RaiseBody:
+            case KraidPhase.None:
             default:
-                throw new InvalidOperationException($"Kraid body function {state.BodyState.Function} is not a death function.");
+                throw new InvalidOperationException($"Kraid body function {state.BodyState.Phase} is not a death function.");
         }
     }
 
@@ -214,7 +214,7 @@ internal sealed class KraidDeath
             return;
         state.Colours.ShowDeathArm();
         _access.StartKraidPartAnimation(_parts.Arm, KraidPartSegment.ArmDyingOrPreparingToLunge);
-        state.BodyState.Function = KraidAiFunction.DeathFadeOut;
+        state.BodyState.Phase = KraidPhase.DeathFadeOut;
         state.HeadPlayback = KraidHeadAnimations.DeathAfterEntryFrame;
         state.BodyState.HeadTimer = KraidHeadAnimations.DeathEntryDuration;
         // The death clears the fingernails' respawn bit, then kills the
@@ -262,7 +262,7 @@ internal sealed class KraidDeath
         _parts.Foot.Contact = otherContact;
         _parts.Foot.Processing = otherProcessing;
         _parts.Foot.Presence = arm.Presence;
-        state.BodyState.Function = KraidAiFunction.DeathHideUpperBody;
+        state.BodyState.Phase = KraidPhase.DeathHideUpperBody;
         // The death returns the camera to distance index zero before the death drop.
         _zebetiteBehavior.CameraDistance = CameraDistanceMode.NormalTracking;
 

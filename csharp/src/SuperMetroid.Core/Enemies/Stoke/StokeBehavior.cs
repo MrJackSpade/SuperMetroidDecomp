@@ -69,7 +69,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             RightVelocity = speeds.Positive,
             LeftVelocity = speeds.Negative,
-            Function = StokeAiFunction.Moving,
+            Action = StokeAction.Moving,
             Direction = settings.Direction,
         };
         slot.SetSpeciesState(state);
@@ -91,12 +91,12 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
         if (level is null)
             throw new InvalidOperationException("Stoke walking AI requires the active room level.");
 
-        switch (state.Function)
+        switch (state.Action)
         {
-            case StokeAiFunction.IdleDuringAttack:
+            case StokeAction.IdleDuringAttack:
                 return;
 
-            case StokeAiFunction.Moving:
+            case StokeAction.Moving:
                 // A nonzero spawn direction other than one takes the right-facing branch, so only the left
                 // value walks left.
                 bool left = state.Direction == StokeDirection.Left;
@@ -110,7 +110,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Stoke main-AI function {state.Function?.ToString() ?? "none"} is not translated.");
+                    $"Stoke main-AI function {state.Action?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -130,7 +130,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The attack animation owns Stoke until its trailing branch reaches the resume-moving cue and that
         // wrapper's command installs the corresponding moving function again.
-        state.Function = StokeAiFunction.IdleDuringAttack;
+        state.Action = StokeAction.IdleDuringAttack;
         SetStokeAnimation(slot, state, attackingSegment);
     }
 
@@ -178,7 +178,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Animation cues for left and right: resume movement in <paramref name="direction"/>.</summary>
     private static void SetStokeMoving(StokeEnemyState state, StokeDirection direction)
     {
-        state.Function = StokeAiFunction.Moving;
+        state.Action = StokeAction.Moving;
         state.Direction = direction;
     }
 

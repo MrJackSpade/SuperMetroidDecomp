@@ -78,102 +78,102 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunDraygonBodyMain(RoomEnemySlot body, SamusState? samus, int frameCounter)
     {
         DraygonEnemyState state = Combat.RequireCompleteDraygonState(body);
-        switch (state.Function)
+        switch (state.Phase)
         {
-            case DraygonAiFunction.IntroInitialDelay:
+            case DraygonPhase.IntroInitialDelay:
                 Intro.RunDraygonIntroInitialDelay(state, samus, frameCounter);
                 break;
-            case DraygonAiFunction.IntroDance:
+            case DraygonPhase.IntroDance:
                 Intro.RunDraygonIntroDance(state, samus, frameCounter);
                 break;
-            case DraygonAiFunction.SwoopRightSetup:
+            case DraygonPhase.SwoopRightSetup:
                 Swoops.SetupDraygonRightSwoop(state, samus, frameCounter);
                 break;
-            case DraygonAiFunction.SwoopRightDescending:
+            case DraygonPhase.SwoopRightDescending:
                 Swoops.DescendDraygonSwoop(state, samus, frameCounter, RightSwoop);
                 break;
-            case DraygonAiFunction.SwoopRightApex:
+            case DraygonPhase.SwoopRightApex:
                 Swoops.CrossDraygonRightSwoopApex(state, samus, frameCounter);
                 break;
-            case DraygonAiFunction.SwoopRightAscending:
+            case DraygonPhase.SwoopRightAscending:
                 Swoops.AscendDraygonSwoop(state, samus, frameCounter, RightSwoop);
                 break;
-            case DraygonAiFunction.SwoopLeftSetup:
+            case DraygonPhase.SwoopLeftSetup:
                 Swoops.SetupDraygonLeftSwoop(state, samus, frameCounter);
                 break;
-            case DraygonAiFunction.SwoopLeftDescending:
+            case DraygonPhase.SwoopLeftDescending:
                 Swoops.DescendDraygonSwoop(state, samus, frameCounter, LeftSwoop);
                 break;
-            case DraygonAiFunction.SwoopLeftApex:
+            case DraygonPhase.SwoopLeftApex:
                 Swoops.CrossDraygonLeftSwoopApex(state, samus, frameCounter);
                 break;
-            case DraygonAiFunction.SwoopLeftAscending:
+            case DraygonPhase.SwoopLeftAscending:
                 Swoops.AscendDraygonSwoop(state, samus, frameCounter, LeftSwoop);
                 break;
-            case DraygonAiFunction.GoopRightSetup:
+            case DraygonPhase.GoopRightSetup:
                 Goop.SetupDraygonGoopPass(state, direction: HorizontalDirection.Right, samus, frameCounter);
                 break;
-            case DraygonAiFunction.GoopRight:
+            case DraygonPhase.GoopRight:
                 Goop.ApproachSamusForDraygonGoop(state, direction: HorizontalDirection.Right, samus, frameCounter);
                 break;
-            case DraygonAiFunction.GoopRightTail:
+            case DraygonPhase.GoopRightTail:
                 Goop.FireDraygonGoop(state, direction: HorizontalDirection.Right, samus, frameCounter);
                 break;
-            case DraygonAiFunction.GoopRightRecovery:
+            case DraygonPhase.GoopRightRecovery:
                 Goop.ExitDraygonGoopPass(state, direction: HorizontalDirection.Right);
                 break;
-            case DraygonAiFunction.GoopLeftSetup:
+            case DraygonPhase.GoopLeftSetup:
                 Goop.SetupDraygonGoopPass(state, direction: HorizontalDirection.Left, samus, frameCounter);
                 break;
-            case DraygonAiFunction.GoopLeft:
+            case DraygonPhase.GoopLeft:
                 Goop.ApproachSamusForDraygonGoop(state, direction: HorizontalDirection.Left, samus, frameCounter);
                 break;
-            case DraygonAiFunction.GoopLeftTail:
+            case DraygonPhase.GoopLeftTail:
                 Goop.FireDraygonGoop(state, direction: HorizontalDirection.Left, samus, frameCounter);
                 break;
-            case DraygonAiFunction.GoopLeftRecovery:
+            case DraygonPhase.GoopLeftRecovery:
                 Goop.ExitDraygonGoopPass(state, direction: HorizontalDirection.Left, samus);
                 break;
-            case DraygonAiFunction.TryGrabSamus:
+            case DraygonPhase.TryGrabSamus:
                 Grab.ChaseAndTryToGrabSamus(state, samus, frameCounter);
                 break;
-            case DraygonAiFunction.GrabbedSamus:
+            case DraygonPhase.GrabbedSamus:
                 DraygonGrab.RepelDraygonWithGrapple(state, samus);
                 break;
-            case DraygonAiFunction.CarrySamus:
+            case DraygonPhase.CarrySamus:
                 Grab.CarrySamusToDraygonSpiral(state, samus);
                 break;
-            case DraygonAiFunction.FlailWithSamus:
+            case DraygonPhase.FlailWithSamus:
                 Grab.CarrySamusInDraygonSpiral(state, samus);
                 break;
-            case DraygonAiFunction.TailWhipWithSamus:
+            case DraygonPhase.TailWhipWithSamus:
                 Grab.RunDraygonTailWhip(state, samus);
                 break;
-            case DraygonAiFunction.FinalTailWhips:
+            case DraygonPhase.FinalTailWhips:
                 Grab.BeginDraygonFinalTailWhips(state, samus);
                 break;
-            case DraygonAiFunction.FinalTailWhipsWait:
+            case DraygonPhase.FinalTailWhipsWait:
                 Grab.WaitForDraygonFinalTailWhips(state, samus);
                 break;
-            case DraygonAiFunction.ReleaseSamus:
+            case DraygonPhase.ReleaseSamus:
                 Grab.ReleaseSamusFromDraygon(state, samus);
                 break;
-            case DraygonAiFunction.FlyStraightUp:
+            case DraygonPhase.FlyStraightUp:
                 Swoops.FlyDraygonStraightUp(state, samus, frameCounter);
                 break;
-            case DraygonAiFunction.Dying:
+            case DraygonPhase.Dying:
                 Death.DriftDyingDraygonToBurialPoint(state);
                 break;
-            case DraygonAiFunction.DyingSink:
+            case DraygonPhase.DyingSink:
                 Death.WaitForDraygonBurialEvirs(state, frameCounter);
                 break;
-            case DraygonAiFunction.DyingFinish:
+            case DraygonPhase.DyingFinish:
                 Death.SinkDraygonBelowTheRoom(state, frameCounter);
                 break;
-            case DraygonAiFunction.None:
+            case DraygonPhase.None:
             default:
                 throw new InvalidDataException(
-                    $"Draygon body function {state.Function} is not translated.");
+                    $"Draygon body function {state.Phase} is not translated.");
         }
 
         // These are four physical enemy records, but Draygon's main behaviour makes the body coordinate
@@ -194,15 +194,15 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <param name="Apex">The function that recalculates velocity at the bottom of the swoop.</param>
     /// <param name="Ascending">The function that climbs back up after the apex.</param>
     internal sealed record DraygonSwoopSide(HorizontalDirection Direction, DraygonSegment ArmsNearApex, DraygonSegment ArmsIdle,
-        DraygonAiFunction Apex, DraygonAiFunction Ascending);
+        DraygonPhase Apex, DraygonPhase Ascending);
 
     /// <summary>The swoop from the left edge to the right.</summary>
     internal static readonly DraygonSwoopSide RightSwoop = new(HorizontalDirection.Right, DraygonSegment.ArmsFacingRightNearSwoopApex,
-        DraygonSegment.ArmsFacingRightIdle, DraygonAiFunction.SwoopRightApex, DraygonAiFunction.SwoopRightAscending);
+        DraygonSegment.ArmsFacingRightIdle, DraygonPhase.SwoopRightApex, DraygonPhase.SwoopRightAscending);
 
     /// <summary>The mirrored swoop from the right edge to the left.</summary>
     internal static readonly DraygonSwoopSide LeftSwoop = new(HorizontalDirection.Left, DraygonSegment.ArmsFacingLeftNearSwoopApex,
-        DraygonSegment.ArmsFacingLeftIdle, DraygonAiFunction.SwoopLeftApex, DraygonAiFunction.SwoopLeftAscending);
+        DraygonSegment.ArmsFacingLeftIdle, DraygonPhase.SwoopLeftApex, DraygonPhase.SwoopLeftAscending);
 
     /// <summary>
     /// The X Draygon parks at off the left edge (-80, wrapped into the coordinate range); a goop pass leftwards ends once

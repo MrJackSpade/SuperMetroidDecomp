@@ -150,13 +150,13 @@ internal static class MotherBrainNativeWords
         [MotherBrainBodyFunction.ThirdPhaseDeathKeepEarthquakeGoing] = 0xb33c,
     });
 
-    /// <summary>The bank-$A2 routine word naming each <see cref="RinkaEnemyFunction"/>.</summary>
-    internal static readonly NativeWordIdentities<RinkaEnemyFunction> RinkaEnemyFunctions = new(new Dictionary<RinkaEnemyFunction, ushort>
+    /// <summary>The bank-$A2 routine word naming each <see cref="RinkaAction"/>.</summary>
+    internal static readonly NativeWordIdentities<RinkaAction> RinkaActions = new(new Dictionary<RinkaAction, ushort>
     {
-        [RinkaEnemyFunction.AimDelay] = 0xb7df,
-        [RinkaEnemyFunction.DeathRespawnDelay] = 0xb844,
-        [RinkaEnemyFunction.WatchForLeavingViewport] = 0xb852,
-        [RinkaEnemyFunction.Flying] = 0xb85b,
+        [RinkaAction.AimDelay] = 0xb7df,
+        [RinkaAction.DeathRespawnDelay] = 0xb844,
+        [RinkaAction.WatchForLeavingViewport] = 0xb852,
+        [RinkaAction.Flying] = 0xb85b,
     });
 
     /// <summary>
@@ -185,32 +185,32 @@ internal static class MotherBrainNativeWords
         [BabyMetroidRouteMovementFunction.GradualAccelerationExtraSixteen] = 0xf466,
     });
 
-    /// <summary>The bank-$A9 routine word naming each <see cref="ShitroidAiFunction"/>.</summary>
-    internal static readonly NativeWordIdentities<ShitroidAiFunction> ShitroidAiFunctions = new(new Dictionary<ShitroidAiFunction, ushort>
+    /// <summary>The bank-$A9 routine word naming each <see cref="ShitroidAction"/>.</summary>
+    internal static readonly NativeWordIdentities<ShitroidAction> ShitroidActions = new(new Dictionary<ShitroidAction, ushort>
     {
-        [ShitroidAiFunction.Dormant] = 0xefdf,
-        [ShitroidAiFunction.WaitForCamera] = 0xefe6,
-        [ShitroidAiFunction.BeginEntranceDelay] = 0xf02b,
-        [ShitroidAiFunction.EntranceDelay] = 0xf037,
-        [ShitroidAiFunction.FlyToSidehopper] = 0xf049,
-        [ShitroidAiFunction.ChaseSidehopper] = 0xf06d,
-        [ShitroidAiFunction.AttachToSidehopper] = 0xf094,
-        [ShitroidAiFunction.DrainSidehopper] = 0xf0e6,
-        [ShitroidAiFunction.ActivateSidehopperCorpse] = 0xf125,
-        [ShitroidAiFunction.RiseAfterFeeding] = 0xf138,
-        [ShitroidAiFunction.HoverNearSamus] = 0xf180,
-        [ShitroidAiFunction.ChaseSamus] = 0xf1fa,
-        [ShitroidAiFunction.BeginDrainingSamus] = 0xf20e,
-        [ShitroidAiFunction.DrainSamus] = 0xf21b,
-        [ShitroidAiFunction.BeginPostDrainPause] = 0xf2a2,
-        [ShitroidAiFunction.PostDrainPause] = 0xf2ae,
-        [ShitroidAiFunction.RiseAfterDrainingSamus] = 0xf2c0,
-        [ShitroidAiFunction.FlyLeft] = 0xf2fb,
-        [ShitroidAiFunction.FlyRight] = 0xf324,
-        [ShitroidAiFunction.BeginExit] = 0xf360,
-        [ShitroidAiFunction.Exit] = 0xf36d,
-        [ShitroidAiFunction.HoldSamusBeforeRelease] = 0xf3a3,
-        [ShitroidAiFunction.ReleasedFollow] = 0xf3be,
+        [ShitroidAction.Dormant] = 0xefdf,
+        [ShitroidAction.WaitForCamera] = 0xefe6,
+        [ShitroidAction.BeginEntranceDelay] = 0xf02b,
+        [ShitroidAction.EntranceDelay] = 0xf037,
+        [ShitroidAction.FlyToSidehopper] = 0xf049,
+        [ShitroidAction.ChaseSidehopper] = 0xf06d,
+        [ShitroidAction.AttachToSidehopper] = 0xf094,
+        [ShitroidAction.DrainSidehopper] = 0xf0e6,
+        [ShitroidAction.ActivateSidehopperCorpse] = 0xf125,
+        [ShitroidAction.RiseAfterFeeding] = 0xf138,
+        [ShitroidAction.HoverNearSamus] = 0xf180,
+        [ShitroidAction.ChaseSamus] = 0xf1fa,
+        [ShitroidAction.BeginDrainingSamus] = 0xf20e,
+        [ShitroidAction.DrainSamus] = 0xf21b,
+        [ShitroidAction.BeginPostDrainPause] = 0xf2a2,
+        [ShitroidAction.PostDrainPause] = 0xf2ae,
+        [ShitroidAction.RiseAfterDrainingSamus] = 0xf2c0,
+        [ShitroidAction.FlyLeft] = 0xf2fb,
+        [ShitroidAction.FlyRight] = 0xf324,
+        [ShitroidAction.BeginExit] = 0xf360,
+        [ShitroidAction.Exit] = 0xf36d,
+        [ShitroidAction.HoldSamusBeforeRelease] = 0xf3a3,
+        [ShitroidAction.ReleasedFollow] = 0xf3be,
     });
 
     /// <summary>The glass-shard spawn parameter (the emitter's byte offset into the placement tables) naming each <see cref="MotherBrainGlassShard"/>.</summary>
@@ -229,12 +229,12 @@ internal static class MotherBrainNativeWords
         [MotherBrainTubeFunction.MainTube_Falling] = 0x8bd6,
     });
 
-    /// <summary>The bank-$A6 routine word naming each <see cref="ZebetiteAiFunction"/>.</summary>
-    internal static readonly NativeWordIdentities<ZebetiteAiFunction> ZebetiteAiFunctions = new(new Dictionary<ZebetiteAiFunction, ushort>
+    /// <summary>The bank-$A6 routine word naming each <see cref="ZebetiteAction"/>.</summary>
+    internal static readonly NativeWordIdentities<ZebetiteAction> ZebetiteActions = new(new Dictionary<ZebetiteAction, ushort>
     {
-        [ZebetiteAiFunction.SpawnLinkedHalf] = 0xfc41,
-        [ZebetiteAiFunction.WaitForDoorTransition] = 0xfc5b,
-        [ZebetiteAiFunction.Active] = 0xfc67,
+        [ZebetiteAction.SpawnLinkedHalf] = 0xfc41,
+        [ZebetiteAction.WaitForDoorTransition] = 0xfc5b,
+        [ZebetiteAction.Active] = 0xfc67,
     });
 
     /// <summary>The cartridge's sign bit of a Zebetite generation's variable F: set for a split pair.</summary>

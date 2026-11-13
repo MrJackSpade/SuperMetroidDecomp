@@ -8,21 +8,21 @@ internal static class CeresRidleyAttackDefinitions
     /// (the attack choice reads the seed; it does not generate another number). Six entries start a
     /// fireball route, five a lunge and five a swoop.
     /// </summary>
-    private static ReadOnlySpan<RidleyAiFunction> AttackByRandomNibble =>
+    private static ReadOnlySpan<RidleyPhase> AttackByRandomNibble =>
     [
-        RidleyAiFunction.CeresFireballMoveToPosition, RidleyAiFunction.CeresFireballMoveToPosition,
-        RidleyAiFunction.CeresFireballMoveToPosition, RidleyAiFunction.CeresFireballMoveToPosition,
-        RidleyAiFunction.CeresLungeSetup, RidleyAiFunction.CeresLungeSetup,
-        RidleyAiFunction.CeresLungeSetup, RidleyAiFunction.CeresLungeSetup,
-        RidleyAiFunction.CeresLungeSetup, RidleyAiFunction.CeresFireballMoveToPosition,
-        RidleyAiFunction.CeresSwoopSetup, RidleyAiFunction.CeresSwoopSetup,
-        RidleyAiFunction.CeresSwoopSetup, RidleyAiFunction.CeresSwoopSetup,
-        RidleyAiFunction.CeresSwoopSetup, RidleyAiFunction.CeresFireballMoveToPosition,
+        RidleyPhase.CeresFireballMoveToPosition, RidleyPhase.CeresFireballMoveToPosition,
+        RidleyPhase.CeresFireballMoveToPosition, RidleyPhase.CeresFireballMoveToPosition,
+        RidleyPhase.CeresLungeSetup, RidleyPhase.CeresLungeSetup,
+        RidleyPhase.CeresLungeSetup, RidleyPhase.CeresLungeSetup,
+        RidleyPhase.CeresLungeSetup, RidleyPhase.CeresFireballMoveToPosition,
+        RidleyPhase.CeresSwoopSetup, RidleyPhase.CeresSwoopSetup,
+        RidleyPhase.CeresSwoopSetup, RidleyPhase.CeresSwoopSetup,
+        RidleyPhase.CeresSwoopSetup, RidleyPhase.CeresFireballMoveToPosition,
     ];
 
     /// <summary>The attack choice, one of sixteen: the sample modulo 16.</summary>
     private static readonly RandomSampleField AttackChoice = new(0, 4);
 
     /// <summary>The attack the table selects for a random number; only its <see cref="AttackChoice"/> indexes the table.</summary>
-    internal static RidleyAiFunction SelectAttack(int random) => AttackByRandomNibble[AttackChoice.Of(random)];
+    internal static RidleyPhase SelectAttack(int random) => AttackByRandomNibble[AttackChoice.Of(random)];
 }

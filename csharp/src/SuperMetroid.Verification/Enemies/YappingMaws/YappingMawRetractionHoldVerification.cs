@@ -46,7 +46,7 @@ internal static class YappingMawRetractionHoldVerification
                 new FrameCounters(0));
             enemies.YappingMawBehavior.RunYappingMawMainAi(slot, frame);
             enemies.YappingMawBehavior.RunYappingMawMainAi(slot, frame);
-            AssertEqual(YappingMawAiFunction.ExtendingOrRetracting, state.Function, $"{context}: setup begins the extension");
+            AssertEqual(YappingMawAction.ExtendingOrRetracting, state.Action, $"{context}: setup begins the extension");
 
             state.Aim = aim;
             state.Extension = SixteenSixteenWords.ToDisplacement(-retract - 1);
@@ -57,7 +57,7 @@ internal static class YappingMawRetractionHoldVerification
             samus.Position = samus.Position.WithWhole(EarlierHold);
             enemies.YappingMawBehavior.RunYappingMawMainAi(slot, frame);
 
-            AssertEqual(YappingMawAiFunction.RetractedDelay, state.Function, $"{context}: the curl below nothing ends the retraction");
+            AssertEqual(YappingMawAction.RetractedDelay, state.Action, $"{context}: the curl below nothing ends the retraction");
             AssertEqual(moved ? slot.Position.Whole + state.HeldSamusOffset : EarlierHold, samus.Position.Whole,
                 $"{context}: where Samus stands after the retraction's last update");
         }

@@ -13,7 +13,7 @@ public sealed class MetareeEnemyState
     public int BurrowTimer { get; internal set; }
 
     /// <summary>The idle, preparing, diving or burrowing behaviour.</summary>
-    public MetareeEnemyFunction? Function { get; internal set; }
+    public MetareeAction? Action { get; internal set; }
 
     /// <summary>Animation phase requested by AI.</summary>
     public SkreeMetareeAnimationPhase RequestedAnimation { get; internal set; }

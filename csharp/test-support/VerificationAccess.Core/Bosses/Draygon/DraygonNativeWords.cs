@@ -54,13 +54,13 @@ internal static class DraygonNativeWords
 
     /// <summary>
     /// What the record word the cartridge shares between the intro frame count, the burial wait and the swoop entry
-    /// holds during <paramref name="function"/>: the intro count before the first swoop, the burial wait while dying,
+    /// holds during <paramref name="phase"/>: the intro count before the first swoop, the burial wait while dying,
     /// and the swoop entry otherwise.
     /// </summary>
-    internal static SharedValue MeaningOfSharedValue(DraygonAiFunction function) =>
-        function is DraygonAiFunction.None or DraygonAiFunction.IntroInitialDelay or DraygonAiFunction.IntroDance
+    internal static SharedValue MeaningOfSharedValue(DraygonPhase phase) =>
+        phase is DraygonPhase.None or DraygonPhase.IntroInitialDelay or DraygonPhase.IntroDance
             ? SharedValue.IntroFrames
-            : function is DraygonAiFunction.Dying or DraygonAiFunction.DyingSink or DraygonAiFunction.DyingFinish
+            : phase is DraygonPhase.Dying or DraygonPhase.DyingSink or DraygonPhase.DyingFinish
                 ? SharedValue.BurialWait
                 : SharedValue.SwoopEntry;
 }

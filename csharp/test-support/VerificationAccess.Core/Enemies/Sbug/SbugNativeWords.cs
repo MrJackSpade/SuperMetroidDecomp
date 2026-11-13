@@ -8,25 +8,25 @@ namespace SuperMetroid.Core.Enemies.Sbug;
 /// </summary>
 internal static class SbugNativeWords
 {
-    /// <summary>The routine word naming each <see cref="SbugEnemyFunction"/>.</summary>
-    internal static readonly NativeWordIdentities<SbugEnemyFunction> SbugEnemyFunctions = new(new Dictionary<SbugEnemyFunction, ushort>
+    /// <summary>The routine word naming each <see cref="SbugAction"/>.</summary>
+    internal static readonly NativeWordIdentities<SbugAction> SbugActions = new(new Dictionary<SbugAction, ushort>
     {
-        [SbugEnemyFunction.WaitForSamus] = 0xa2d7,
-        [SbugEnemyFunction.ActivateMoveForward] = 0xa301,
-        [SbugEnemyFunction.ActivateZigZag] = 0xa30b,
-        [SbugEnemyFunction.ActivateRandomUntilCollision] = 0xa315,
-        [SbugEnemyFunction.ActivateRandomAndReverseWhenFar] = 0xa325,
-        [SbugEnemyFunction.ActivateMoveForwardThenWait] = 0xa33b,
-        [SbugEnemyFunction.ActivateMoveTowardSamus] = 0xa34b,
-        [SbugEnemyFunction.ActivateMoveAwayFromSamus] = 0xa380,
-        [SbugEnemyFunction.MoveForward] = 0xa407,
-        [SbugEnemyFunction.ZigZag] = 0xa40e,
-        [SbugEnemyFunction.MoveTowardSamus] = 0xa440,
-        [SbugEnemyFunction.MoveAwayFromSamus] = 0xa447,
-        [SbugEnemyFunction.MoveForwardThenWait] = 0xa44e,
-        [SbugEnemyFunction.MoveRandomlyUntilCollision] = 0xa462,
-        [SbugEnemyFunction.MoveStraightAndReverseWhenFar] = 0xa476,
-        [SbugEnemyFunction.ChooseRandomDirectionAndReverseWhenFar] = 0xa4b6,
-        [SbugEnemyFunction.ChooseRandomDirectionUntilCollision] = 0xa4f0,
+        [SbugAction.WaitForSamus] = 0xa2d7,
+        [SbugAction.ActivateMoveForward] = 0xa301,
+        [SbugAction.ActivateZigZag] = 0xa30b,
+        [SbugAction.ActivateRandomUntilCollision] = 0xa315,
+        [SbugAction.ActivateRandomAndReverseWhenFar] = 0xa325,
+        [SbugAction.ActivateMoveForwardThenWait] = 0xa33b,
+        [SbugAction.ActivateMoveTowardSamus] = 0xa34b,
+        [SbugAction.ActivateMoveAwayFromSamus] = 0xa380,
+        [SbugAction.MoveForward] = 0xa407,
+        [SbugAction.ZigZag] = 0xa40e,
+        [SbugAction.MoveTowardSamus] = 0xa440,
+        [SbugAction.MoveAwayFromSamus] = 0xa447,
+        [SbugAction.MoveForwardThenWait] = 0xa44e,
+        [SbugAction.MoveRandomlyUntilCollision] = 0xa462,
+        [SbugAction.MoveStraightAndReverseWhenFar] = 0xa476,
+        [SbugAction.ChooseRandomDirectionAndReverseWhenFar] = 0xa4b6,
+        [SbugAction.ChooseRandomDirectionUntilCollision] = 0xa4f0,
     });
 }

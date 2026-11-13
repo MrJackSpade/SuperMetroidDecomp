@@ -88,7 +88,7 @@ internal sealed class NorfairRidleyDeath
             RidleyLiquidDefinitions.DrainVelocity, RidleyLiquidDefinitions.DrainDelay);
         state.DeathExplosionTimer = 0;
         state.DeathExplosionCount = 0;
-        state.Function = RidleyAiFunction.NorfairDeathFall;
+        state.Phase = RidleyPhase.NorfairDeathFall;
         state.FunctionTimer = 160;
         TickNorfairRidleyDeathExplosions(body, state, samus: null);
     }
@@ -109,7 +109,7 @@ internal sealed class NorfairRidleyDeath
 
         if (state.GrabState != RidleyGrabState.Released)
             ReleaseNorfairRidleyGrab(state, samus);
-        state.Function = RidleyAiFunction.NorfairDeathImpact;
+        state.Phase = RidleyPhase.NorfairDeathImpact;
         state.Velocity = EightEightVector<RoomPixels>.Zero;
         SpawnNorfairRidleyBreakupActors(state);
     }
@@ -125,7 +125,7 @@ internal sealed class NorfairRidleyDeath
         SpawnSmallExplosionNearNorfairRidley(body, state);
         state.MovementAnimationEnabled = false;
         body.Presence = body.Presence.With(EnemyPresence.Hidden);
-        state.Function = RidleyAiFunction.NorfairDeathWait;
+        state.Phase = RidleyPhase.NorfairDeathWait;
         state.FunctionTimer = 32;
     }
 
@@ -134,7 +134,7 @@ internal sealed class NorfairRidleyDeath
     {
         if (!NorfairRidleyMovement.TickRidleyFunctionTimer(state))
             return;
-        state.Function = RidleyAiFunction.NorfairDeathFinish;
+        state.Phase = RidleyPhase.NorfairDeathFinish;
         state.FunctionTimer = 256;
     }
 
@@ -163,7 +163,7 @@ internal sealed class NorfairRidleyDeath
             yScatter: EnemyDropScatterDefinitions.ArenaBandVerticalScatter);
         _audio.RequestRidleyMusic(MusicRequest.SelectTrack(MusicTrack.Elevator));
         body.Presence = body.Presence.With(EnemyPresence.Deleted);
-        state.Function = RidleyAiFunction.NorfairDeathComplete;
+        state.Phase = RidleyPhase.NorfairDeathComplete;
     }
 
     /// <summary>Spawns a small explosion at one of its ten signed X/Y offset pairs.</summary>

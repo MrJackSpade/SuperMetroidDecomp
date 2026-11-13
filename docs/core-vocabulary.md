@@ -28,7 +28,11 @@ room objects, effects, projectiles and enemies by the structure the program stor
 cartridge's sprite and raster vocabulary (#1694): `Spritemap`, the frame the cartridge built from hardware sprite
 pieces (a Core picture is a frame, a picture or a composition); `Scanline`, the display's raster line (a Core screen
 row is a line); and `Tilemap`, the cartridge's one-word background tilemap (a Core page or layout is named for what it
-shows). An underscore-separated part that is a cartridge address (four or six
+shows). Three two-word names are listed too (`CoreVocabularyAnalyzer.HardwarePhrases`, #1701): `AiFunction`,
+`EnemyFunction` and `FightFunction`, the enemy record's AI function field, which named an enemy's or a boss's behaviour
+state by the routine the program stored (a Core behaviour state is a phase or an action: `KraidPhase`, `BeetomAction`).
+The words must be consecutive, the last may take an ending (`PipeBugEnemyFunctions`), and each word alone stays the
+game's own (`Function`, `FunctionTimer`, `EnemyState`, `FightPhase`). An underscore-separated part that is a cartridge address (four or six
 hexadecimal digits with at least one decimal digit, as in `RTS_86BB30` or `Instr_A0B3`) is reported as well.
 
 A name that says `Callback` names the original's function-pointer dispatch and is reported too (#1624,

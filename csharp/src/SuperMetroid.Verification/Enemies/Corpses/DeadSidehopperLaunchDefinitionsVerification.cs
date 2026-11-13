@@ -29,7 +29,7 @@ internal static class DeadSidehopperLaunchDefinitionsVerification
             // The delay starts at 64 and the phase ends on the step below zero, so every count it can hold is swept.
             for (int raw = 0; raw <= 64; raw++)
             {
-                state.Function = DeadSidehopperAiFunction.PostLandingDelay;
+                state.Action = DeadSidehopperAction.PostLandingDelay;
                 state.StateTimer = raw;
                 state.DrainStage = drainStage;
                 state.JumpPhase = phase;
@@ -44,8 +44,8 @@ internal static class DeadSidehopperLaunchDefinitionsVerification
                 AssertEqual(timer, state.StateTimer, "Exact delay decrement, ending below zero");
                 AssertEqual(launch ? vx : (ushort)0x1234, state.Velocity.X.RawValue, "Timer and drain gates control X launch");
                 AssertEqual(launch ? vy : (ushort)0x1234, state.Velocity.Y.RawValue, "Timer and drain gates control Y launch");
-                AssertEqual(expired ? (launch ? DeadSidehopperAiFunction.ActivatedMovement : DeadSidehopperAiFunction.Draining) : DeadSidehopperAiFunction.PostLandingDelay,
-                    state.Function, "Exact launch versus transformation handoff");
+                AssertEqual(expired ? (launch ? DeadSidehopperAction.ActivatedMovement : DeadSidehopperAction.Draining) : DeadSidehopperAction.PostLandingDelay,
+                    state.Action, "Exact launch versus transformation handoff");
                 AssertEqual(new AnimationPlayback<DeadTourianSegment>(DeadTourianAnimations.StartingWith(launch ? DeadTourianSegment.SidehopperIdle : DeadTourianSegment.SidehopperCorpse), AnimationPlace.StartOfAnimation),
                     state.Playback, "Launch restarts the alive-idle animation");
                 AssertEqual(launch ? (ushort)1 : (ushort)9, slot.AnimationClock.Hold.RawValue, "Launch instruction timer");

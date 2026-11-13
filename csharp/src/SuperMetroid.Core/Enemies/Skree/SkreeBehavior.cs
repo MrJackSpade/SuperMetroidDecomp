@@ -41,7 +41,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
             RequestedAnimation = SkreeMetareeAnimationPhase.Idling,
             InstalledAnimation = SkreeMetareeAnimationPhase.Idling,
             AttackReady = false,
-            Function = SkreeEnemyFunction.Idling,
+            Action = SkreeAction.Idling,
         };
         slot.SetSpeciesState(state);
         state.Playback = new(SkreeMetareeAnimations.StartingWith(SkreeMetareeSegment.SkreeIdling), AnimationPlace.StartOfAnimation);
@@ -53,44 +53,44 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
         if (samus is null)
             throw new InvalidOperationException("Skree AI requires the active Samus actor.");
         SkreeEnemyState state = slot.RequireSpeciesState<SkreeEnemyState>();
-        switch (state.Function)
+        switch (state.Action)
         {
-            case SkreeEnemyFunction.Idling:
+            case SkreeAction.Idling:
                 if (CoordinateAxis.Distance(slot.Position.X.Whole, samus.Position.X.Whole) < 48)
                 {
                     state.RequestedAnimation =
                         SkreeMetareeAnimationPhase.PreparingAttack;
                     StartRequestedSkreeAnimation(slot, state);
-                    state.Function = SkreeEnemyFunction.PreparingAttack;
+                    state.Action = SkreeAction.PreparingAttack;
                 }
                 return;
 
-            case SkreeEnemyFunction.PreparingAttack:
+            case SkreeAction.PreparingAttack:
                 if (!state.AttackReady)
                     return;
                 state.AttackReady = false;
                 state.RequestedAnimation = SkreeMetareeAnimationPhase.Diving;
                 StartRequestedSkreeAnimation(slot, state);
-                state.Function = SkreeEnemyFunction.Diving;
+                state.Action = SkreeAction.Diving;
                 // The dive queues its dive sound on the exact frame the wind-up
                 // cue releases the dive. Publishing it as a frame event retains
                 // the game's timing without coupling enemy AI to a particular audio backend.
                 _audio.QueueEnemySound(EnemySound.SkreeDive, priority: SoundRequestPriority.Normal);
                 return;
 
-            case SkreeEnemyFunction.Diving:
+            case SkreeAction.Diving:
                 if (level is null)
                     throw new InvalidOperationException("Skree dive collision requires room level data.");
                 RunSkreeDive(slot, state, samus, level);
                 return;
 
-            case SkreeEnemyFunction.Burrowing:
+            case SkreeAction.Burrowing:
                 RunSkreeBurrow(slot, state);
                 return;
 
             default:
                 throw new InvalidDataException(
-                    $"Skree function {state.Function?.ToString() ?? "none"} is not translated.");
+                    $"Skree function {state.Action?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -107,7 +107,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
         if (EnemyTerrain.EnemyMeetsAttachmentBlockBelow(level, slot, SignedSixteenSixteen.FromWholePixels(6)))
         {
             slot.AnimationClock.Restart();
-            state.Function = SkreeEnemyFunction.Burrowing;
+            state.Action = SkreeAction.Burrowing;
             // The floor collision has its own distinct impact/burrow request.
             _audio.QueueEnemySound(EnemySound.SkreeBurrow, priority: SoundRequestPriority.Normal);
             return;

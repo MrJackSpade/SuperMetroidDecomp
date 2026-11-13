@@ -48,7 +48,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             YSpeedTableIndex = EnemyQuadraticSpeedIndex.Start,
             HopCooldownTimer = slot.SpawnSettings<PuyoSpawnSettings>().HopCooldown,
-            Function = PuyoEnemyFunction.Grounded,
+            Action = PuyoAction.Grounded,
             // The initialization AI never writes the airborne function or the inactive extra values. The room loader's
             // cleared enemy allocation therefore leaves them empty until the first hop owns
             // them; do not pre-populate plausible values the game has not written.
@@ -79,17 +79,17 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         if (level is null)
             throw new InvalidOperationException("Puyo movement requires decoded room collision data.");
 
-        switch (state.Function)
+        switch (state.Action)
         {
-            case PuyoEnemyFunction.Grounded:
+            case PuyoAction.Grounded:
                 RunGroundedPuyo(slot, state, samus);
                 return;
-            case PuyoEnemyFunction.Airborne:
+            case PuyoAction.Airborne:
                 RunAirbornePuyo(slot, state, level);
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Puyo function {state.Function?.ToString() ?? "none"} is not translated.");
+                    $"Puyo function {state.Action?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -101,7 +101,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         if (--state.HopCooldownTimer >= 0)
             return;
 
-        state.Function = PuyoEnemyFunction.Airborne;
+        state.Action = PuyoAction.Airborne;
         state.HopCooldownTimer = slot.SpawnSettings<PuyoSpawnSettings>().HopCooldown;
         state.HoppingAnimationActive = true;
         InitiatePuyoHop(slot, state, samus);
@@ -258,7 +258,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!state.InvertDirection)
         {
             state.HopType = PuyoHopType.NormalSmall;
-            state.Function = PuyoEnemyFunction.Grounded;
+            state.Action = PuyoAction.Grounded;
         }
 
         state.HoppingAnimationActive = false;
@@ -277,7 +277,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         state.HopType = PuyoHopDefinitions.BigDroppedBounce.IsTakenBy(_room.Random.Generate(), advancedBy: slot.FrameCounter)
             ? PuyoHopType.DroppedBig
             : PuyoHopType.DroppedSmall;
-        state.Function = PuyoEnemyFunction.Grounded;
+        state.Action = PuyoAction.Grounded;
     }
 
     /// <summary>Runs the post-drop bounce wrapper.</summary>
@@ -288,7 +288,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.HopType = PuyoHopType.Giant;
-        state.Function = PuyoEnemyFunction.Grounded;
+        state.Action = PuyoAction.Grounded;
         SetPuyoAnimation(slot, state, PuyoSegment.GroundedSlow);
     }
 
@@ -312,7 +312,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
             }
             else
             {
-                state.Function = PuyoEnemyFunction.Grounded;
+                state.Action = PuyoAction.Grounded;
                 state.HoppingAnimationActive = false;
             }
             return;

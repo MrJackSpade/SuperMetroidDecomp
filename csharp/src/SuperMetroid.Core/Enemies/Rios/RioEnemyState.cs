@@ -11,7 +11,7 @@ public sealed class RioEnemyState
     public SignedEightEight SavedHorizontalVelocity { get; internal set; }
 
     /// <summary>The behaviour dispatched after the main AI's RNG advance.</summary>
-    public RioEnemyFunction? Function { get; internal set; }
+    public RioAction? Action { get; internal set; }
 
     /// <summary>Signed 8.8 velocity; the horizontal component feeds the 16.16 collision helper.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }

@@ -34,7 +34,7 @@ internal static class KraidReportedCollisionsVerification
             runtime.Projectiles.Reset();
             samus.Position = samus.Position.WithWhole(new(120, 491));
             body.Position = body.Position.WithWhole(new(176, 592));
-            state.BodyState.Function = KraidAiFunction.MainloopThinking;
+            state.BodyState.Phase = KraidPhase.MainloopThinking;
             state.ThinkingTimer = 100;
             // The closed case starts the roar; the open case stands just past the roar cry, on the fully open pose.
             state.HeadPlayback = closed
@@ -92,7 +92,7 @@ internal static class KraidReportedCollisionsVerification
             var lint = runtime.Enemies.SlotTable.Slots[2];
             lint.Position = lint.Position.WithWhole(new(126, 400));
             lint.Contact = lint.Contact.Without(EnemyContact.IgnoresSamus);
-            runtime.Enemies.KraidBehavior.Parts.LintStateOf(state, lint).Function = KraidAiFunction.LintInactive;
+            runtime.Enemies.KraidBehavior.Parts.LintStateOf(state, lint).Phase = KraidPhase.LintInactive;
             ResetSamus(100, 400);
             runtime.Enemies.KraidBehavior.Projectiles.RunKraidLintMain(lint, samus);
             AssertEqual((ushort)(999 - lint.Definition.Damage), samus.Health, "Lint leading edge damages Samus");
@@ -103,9 +103,9 @@ internal static class KraidReportedCollisionsVerification
         {
             runtime.Projectiles.Reset();
             body.Position = body.Position.WithWhole(new(176, 457));
-            state.BodyState.Function = KraidAiFunction.RaiseBody;
+            state.BodyState.Phase = KraidPhase.RaiseBody;
             state.DisplayedHeadFrame = null;
-            runtime.Enemies.KraidBehavior.Rise.RunKraidRiseFunction(body, state, samus);
+            runtime.Enemies.KraidBehavior.Rise.RunKraidRisePhase(body, state, samus);
             AssertEqual((AnimationPlayback<KraidHeadSegment>?)KraidHeadAnimations.RoarAfterEntryFrame, state.HeadPlayback, "Rise selects native next head cursor");
             var shot = runtime.Projectiles.Slots[0];
             shot.Type = SamusProjectileType.Beam(SamusBeamCombination.Spazer, charged: false); shot.Damage = 40;
@@ -119,7 +119,7 @@ internal static class KraidReportedCollisionsVerification
         Check("Kraid body contact", () =>
         {
             body.Position = body.Position.WithWhole(new(176, 592));
-            state.BodyState.Function = KraidAiFunction.MainloopThinking;
+            state.BodyState.Phase = KraidPhase.MainloopThinking;
             state.ThinkingTimer = 100;
             ResetSamus(180, 500);
             runtime.Enemies.KraidBehavior.RunKraidBodyMain(body, samus, new Position16<RoomPixels>(0, 384), null, null);
@@ -133,7 +133,7 @@ internal static class KraidReportedCollisionsVerification
             Position16<RoomPixels> smallFormLimit = state.EjectionLimit;
             state.EjectionLimit = new Position16<RoomPixels>(0, 496);
             body.Position = body.Position.WithWhole(new(176, 592));
-            state.BodyState.Function = KraidAiFunction.MainloopThinking;
+            state.BodyState.Phase = KraidPhase.MainloopThinking;
             state.ThinkingTimer = 100;
             ResetSamus(180, 500);
             runtime.Enemies.KraidBehavior.RunKraidBodyMain(body, samus, new Position16<RoomPixels>(0, 384), null, null);

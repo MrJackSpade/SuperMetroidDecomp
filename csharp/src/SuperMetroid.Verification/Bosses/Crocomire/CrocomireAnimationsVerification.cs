@@ -134,7 +134,7 @@ internal static class CrocomireAnimationsVerification
     private static void VerifyFightAiRedirect()
     {
         (RoomEnemySystem enemies, CrocomireEnemyState state) = NewCrocomire();
-        state.FightFunction = CrocomireFightFunction.Sleeping;
+        state.Phase = CrocomirePhase.Sleeping;
         Start(state, CrocomireBodySegment.Initial);
         Pass(enemies, state);
         AssertEqual(CrocomireBodyFramesTooling.Spritemap(new CrocomireBodyFrame(CrocomireBodyFrameSet.Body, 12)), state.Body.SpritemapPointer,
@@ -144,7 +144,7 @@ internal static class CrocomireAnimationsVerification
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
         samus.Position = samus.Position.WithWholeX(state.Body.Position.X.Whole);
         Pass(enemies, state, samus);
-        AssertEqual(CrocomireFightFunction.WaitingForFirstDamage, state.FightFunction, "Samus within range wakes Crocomire");
+        AssertEqual(CrocomirePhase.WaitingForFirstDamage, state.Phase, "Samus within range wakes Crocomire");
         AssertTrue((state.FightFlags & CrocomireFightFlags.Engaged) != 0, "waking engages Samus");
         AssertEqual(CrocomireBodyFramesTooling.Spritemap(new CrocomireBodyFrame(CrocomireBodyFrameSet.Body, 18)), state.Body.SpritemapPointer,
             "the redirect shows the damage wait's first frame in the same update");
@@ -159,7 +159,7 @@ internal static class CrocomireAnimationsVerification
     private static void VerifyRoarResidentProgram()
     {
         (RoomEnemySystem enemies, CrocomireEnemyState state) = NewCrocomire();
-        state.FightFunction = CrocomireFightFunction.WaitingForFirstDamage;
+        state.Phase = CrocomirePhase.WaitingForFirstDamage;
         Start(state, CrocomireBodySegment.RoarCloseMouth);
         CrocomireAnimationsExpected[] expected = [new CrocomireAnimationsExpected(26, 32), new CrocomireAnimationsExpected(25, 5), new CrocomireAnimationsExpected(25, 8), new CrocomireAnimationsExpected(24, 2), new CrocomireAnimationsExpected(24, 1), new CrocomireAnimationsExpected(24, 48)];
         for (int index = 0; index < expected.Length; index++)

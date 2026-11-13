@@ -54,7 +54,7 @@ internal sealed class DraygonGrab
         // after a completed grab.
         if (samus.XSpeedDivisor == 0)
         {
-            state.Function = DraygonAiFunction.FlyStraightUp;
+            state.Phase = DraygonPhase.FlyStraightUp;
             return;
         }
 
@@ -85,7 +85,7 @@ internal sealed class DraygonGrab
         // it must not enter a grabbed pose and then undo it with a bespoke correction.
         if (samus.Grapple.Phase != GrapplePhase.Inactive)
         {
-            state.Function = DraygonAiFunction.GrabbedSamus;
+            state.Phase = DraygonPhase.GrabbedSamus;
             return;
         }
 
@@ -97,7 +97,7 @@ internal sealed class DraygonGrab
         state.SpiralXRadius = SignedSixteenSixteen.Zero;
         state.SpiralAngle = DraygonBehavior.DraygonInitialSpiralAngle;
         state.SpiralAngleDelta = DraygonBehavior.DraygonInitialSpiralAngleDelta;
-        state.Function = DraygonAiFunction.CarrySamus;
+        state.Phase = DraygonPhase.CarrySamus;
     }
 
     /// <summary>Runs the one-frame grapple rejection.</summary>
@@ -107,7 +107,7 @@ internal sealed class DraygonGrab
             throw new InvalidOperationException("Draygon grapple rejection requires Samus state.");
 
         samus.Grapple.Phase = GrapplePhase.Dropped;
-        state.Function = DraygonAiFunction.ReleaseSamus;
+        state.Phase = DraygonPhase.ReleaseSamus;
     }
 
     /// <summary>
@@ -129,7 +129,7 @@ internal sealed class DraygonGrab
             EnemyMath.IsWithinStrictModularDistance(body.Position.Y.Whole, DraygonBehavior.DraygonSpiralTarget.Y, 2);
         if (reachedTarget)
         {
-            state.Function = DraygonAiFunction.FlailWithSamus;
+            state.Phase = DraygonPhase.FlailWithSamus;
             _parts.StartDraygonAnimation(
                 body,
                 state.FacingRight
@@ -161,7 +161,7 @@ internal sealed class DraygonGrab
         if (DraygonRandomDefinitions.TailWhips.IsTakenBy(_room.Random.Read()))
         {
             state.TailWhipTimer = DraygonBehavior.DraygonTailWhipDuration;
-            state.Function = DraygonAiFunction.TailWhipWithSamus;
+            state.Phase = DraygonPhase.TailWhipWithSamus;
             return;
         }
 
@@ -185,7 +185,7 @@ internal sealed class DraygonGrab
         state.SpiralXRadius += DraygonBehavior.DraygonSpiralRadiusGrowth;
         if (state.SpiralXRadius.WholePixels >= DraygonBehavior.DraygonMaximumSpiralRadius)
         {
-            state.Function = DraygonAiFunction.FinalTailWhips;
+            state.Phase = DraygonPhase.FinalTailWhips;
             return;
         }
 
@@ -195,7 +195,7 @@ internal sealed class DraygonGrab
         state.SpiralCenter = state.SpiralCenter.AdvanceY(DraygonBehavior.DraygonSpiralCenterLift);
         if (CoordinateAxis.Difference(state.SpiralCenter.Y.Whole, DraygonBehavior.DraygonMinimumSpiralCenterY) < 0)
         {
-            state.Function = DraygonAiFunction.FinalTailWhips;
+            state.Phase = DraygonPhase.FinalTailWhips;
             return;
         }
 
@@ -208,7 +208,7 @@ internal sealed class DraygonGrab
         MoveSamusWithDraygon(state, RequireDraygonGrabbedSamus(samus));
         if (--state.TailWhipTimer == 0)
         {
-            state.Function = DraygonAiFunction.FlailWithSamus;
+            state.Phase = DraygonPhase.FlailWithSamus;
             return;
         }
 
@@ -231,7 +231,7 @@ internal sealed class DraygonGrab
             state.FacingRight
                 ? DraygonSegment.TailFacingRightFinalWhips
                 : DraygonSegment.TailFacingLeftFinalWhips);
-        state.Function = DraygonAiFunction.FinalTailWhipsWait;
+        state.Phase = DraygonPhase.FinalTailWhipsWait;
     }
 
     /// <summary>
@@ -258,7 +258,7 @@ internal sealed class DraygonGrab
             samus.DraygonGrabbed.ConsumeOwnerReleaseSignal();
         }
 
-        state.Function = DraygonAiFunction.FlyStraightUp;
+        state.Phase = DraygonPhase.FlyStraightUp;
         state.Body.Contact = state.Body.Contact.Without(EnemyContact.IgnoresSamus);
         _parts.StartDraygonAnimation(
             state.Tail,
@@ -281,7 +281,7 @@ internal sealed class DraygonGrab
             state.FacingRight);
         _scrollCap.CapSamusScrollingSpeed(samus);
         if (samus.DraygonGrabbed.ConsumeOwnerReleaseSignal())
-            state.Function = DraygonAiFunction.FlyStraightUp;
+            state.Phase = DraygonPhase.FlyStraightUp;
     }
 
     /// <summary>

@@ -51,7 +51,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         if (settings.Part != MorphBallEyePart.BeamMount)
         {
             // The placement's facing is fixed by its mounting, not a live facing test.
-            state.Function = MorphBallEyeAiFunction.WaitForSamus;
+            state.Action = MorphBallEyeAction.WaitForSamus;
             state.Playback = new(MorphBallEyeAnimations.StartingWith(settings.Facing == HorizontalDirection.Right
                 ? MorphBallEyeSegment.FacingRightClosed
                 : MorphBallEyeSegment.FacingLeftClosed), AnimationPlace.StartOfAnimation);
@@ -60,7 +60,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
 
         var mount = MorphBallEyeGeometry.Mount(settings.MountSide);
         slot.Position += mount.Offset;
-        state.Function = MorphBallEyeAiFunction.MountNoOp;
+        state.Action = MorphBallEyeAction.MountNoOp;
         state.Playback = new(MorphBallEyeAnimations.StartingWith(mount.Animation), AnimationPlace.StartOfAnimation);
 
         // A mount clears any beam when the room loads, so a prior room's reveal never
@@ -79,25 +79,25 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         if (samus is null || !samus.CollectedItems.HasAny(SamusEquipmentFlags.MorphBall))
             return;
 
-        switch (state.Function)
+        switch (state.Action)
         {
-            case MorphBallEyeAiFunction.MountNoOp:
+            case MorphBallEyeAction.MountNoOp:
                 return;
-            case MorphBallEyeAiFunction.WaitForSamus:
+            case MorphBallEyeAction.WaitForSamus:
                 WaitForSamusNearMorphBallEye(slot, state, samus);
                 return;
-            case MorphBallEyeAiFunction.Activating:
+            case MorphBallEyeAction.Activating:
                 AdvanceMorphBallEyeActivation(slot, state, samus);
                 return;
-            case MorphBallEyeAiFunction.Active:
+            case MorphBallEyeAction.Active:
                 TrackSamusWithMorphBallEye(slot, state, samus);
                 return;
-            case MorphBallEyeAiFunction.Deactivating:
+            case MorphBallEyeAction.Deactivating:
                 AdvanceMorphBallEyeDeactivation(state);
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Morph-ball eye function {state.Function?.ToString() ?? "none"} is not translated.");
+                    $"Morph-ball eye function {state.Action?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -118,7 +118,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = new(MorphBallEyeAnimations.StartingWith(eye.SpawnSettings<MorphBallEyeSpawnSettings>().Facing == HorizontalDirection.Right
             ? MorphBallEyeSegment.FacingRightActivating
             : MorphBallEyeSegment.FacingLeftActivating), AnimationPlace.StartOfAnimation);
-        state.Function = MorphBallEyeAiFunction.Activating;
+        state.Action = MorphBallEyeAction.Activating;
     }
 
     /// <summary>Counts the opening down, then sounds activation, requests the beam, and captures Samus's angle.</summary>
@@ -134,7 +134,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
 
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.EyeActivationSound, priority: SoundRequestPriority.Normal);
         RequestMorphBallEyeBeam(eye);
-        state.Function = MorphBallEyeAiFunction.Active;
+        state.Action = MorphBallEyeAction.Active;
         state.Angle = CalculateMorphBallEyeAngle(eye, samus);
     }
 
@@ -155,7 +155,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Playback = new(MorphBallEyeAnimations.StartingWith(eye.SpawnSettings<MorphBallEyeSpawnSettings>().Facing == HorizontalDirection.Right
                 ? MorphBallEyeSegment.FacingRightDeactivating
                 : MorphBallEyeSegment.FacingLeftDeactivating), AnimationPlace.StartOfAnimation);
-            state.Function = MorphBallEyeAiFunction.Deactivating;
+            state.Action = MorphBallEyeAction.Deactivating;
             eye.AnimationClock.StepOnNextUpdate();
             return;
         }
@@ -171,7 +171,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void AdvanceMorphBallEyeDeactivation(MorphBallEyeEnemyState state)
     {
         if (--state.FunctionTimer <= 0)
-            state.Function = MorphBallEyeAiFunction.WaitForSamus;
+            state.Action = MorphBallEyeAction.WaitForSamus;
     }
 
     /// <summary>Calculates the game angle from signed wrapped eye-to-Samus displacement.</summary>

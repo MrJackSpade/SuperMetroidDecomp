@@ -8,12 +8,12 @@ namespace SuperMetroid.Core.Enemies.Skree;
 /// </summary>
 internal static class SkreeNativeWords
 {
-    /// <summary>The routine word naming each <see cref="SkreeEnemyFunction"/>.</summary>
-    internal static readonly NativeWordIdentities<SkreeEnemyFunction> SkreeEnemyFunctions = new(new Dictionary<SkreeEnemyFunction, ushort>
+    /// <summary>The routine word naming each <see cref="SkreeAction"/>.</summary>
+    internal static readonly NativeWordIdentities<SkreeAction> SkreeActions = new(new Dictionary<SkreeAction, ushort>
     {
-        [SkreeEnemyFunction.Idling] = 0xc6d5,
-        [SkreeEnemyFunction.PreparingAttack] = 0xc6f7,
-        [SkreeEnemyFunction.Diving] = 0xc716,
-        [SkreeEnemyFunction.Burrowing] = 0xc77f,
+        [SkreeAction.Idling] = 0xc6d5,
+        [SkreeAction.PreparingAttack] = 0xc6f7,
+        [SkreeAction.Diving] = 0xc716,
+        [SkreeAction.Burrowing] = 0xc77f,
     });
 }

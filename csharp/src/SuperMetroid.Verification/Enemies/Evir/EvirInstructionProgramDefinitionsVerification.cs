@@ -68,7 +68,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
             state.Facing = EvirFacing.Right;
             state.InFlight = true;
             state.Regenerating = true;
-            state.Function = EvirAiFunction.ProjectileRegenerating;
+            state.Action = EvirAction.ProjectileRegenerating;
             enemies.SlotTable.Slots[0].SetSpeciesState(new EvirEnemyState { InstalledAnimation = EvirSegment.BodyFacingLeft });
             object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, ControllerButton.None];
             for (int call = 0; call < 10; call++)
@@ -84,7 +84,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
             AssertEqual(Offset16<RoomPixels>.Zero, state.RegenerationOffset, "regeneration loop advances the projectile mouth offset eight times");
             AssertTrue(!state.Regenerating, "regeneration finish cue clears regeneration ownership");
             AssertTrue(!state.InFlight, "regeneration finish cue leaves the projectile stationary");
-            AssertEqual((EvirAiFunction?)EvirAiFunction.ProjectileIdle, state.Function, "regeneration finish cue restores idle AI");
+            AssertEqual((EvirAction?)EvirAction.ProjectileIdle, state.Action, "regeneration finish cue restores idle AI");
             const ushort nativeSpitSound = 0x005e;
             AssertEqual((SoundEffectId?)SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, nativeSpitSound),
                 enemies.Audio.LatestSound, "regeneration publishes the native library-two spit sound");

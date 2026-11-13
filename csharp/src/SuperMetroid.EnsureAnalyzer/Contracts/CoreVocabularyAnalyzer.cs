@@ -13,7 +13,7 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// The v0.9.0 remnant detector (#1400, SME6438): in <c>SuperMetroid.Core</c>, no declared identifier (type, type parameter,
 /// member, parameter, local, local function, namespace segment or file name) names the machine the game was ported from.
 /// An identifier is split into camel-case words; a word that is one of <see cref="HardwareWords"/>, or one of them with a
-/// plural or verb ending, is reported. Whole words only: <c>Object</c> is not <c>Obj</c>, <c>Roman</c> is not <c>Rom</c>.
+/// plural or verb ending, is reported, as is a run of words that is one of <see cref="HardwarePhrases"/>. Whole words only: <c>Object</c> is not <c>Obj</c>, <c>Roman</c> is not <c>Rom</c>.
 /// Compatibility services may describe the hardware behaviour they reproduce in their documentation; identifiers never
 /// may, so there is no identifier allowance. An identifier that spells a cartridge value in hexadecimal is the machine's
 /// numbering too (#1554, <see cref="HexCode"/>): a capital code after a word (<c>Unused0B</c>, <c>PoseFD</c>,
@@ -58,6 +58,17 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
     /// </summary>
     internal static readonly ImmutableArray<string> DispatchWords = ["Callback"];
 
+    /// <summary>
+    /// The machine's two-word names, matched as consecutive whole camel-case words without regard to case, the last with
+    /// the endings of <see cref="Endings"/> (#1701): the enemy record's AI function field, which named an enemy's or a
+    /// boss's behaviour state by the routine pointer the program stored (<c>AiFunction</c>, <c>EnemyFunction</c>,
+    /// <c>FightFunction</c>). Each word alone stays the game's own: an enemy, a fight, a function.
+    /// </summary>
+    internal static readonly ImmutableArray<ImmutableArray<string>> HardwarePhrases =
+    [
+        ["Ai", "Function"], ["Enemy", "Function"], ["Fight", "Function"],
+    ];
+
     /// <summary>Endings that keep a word the same hardware word: <c>Banks</c>, <c>Addresses</c>, <c>Banked</c>, <c>Addressing</c>.</summary>
     private static readonly string[] Endings = ["", "s", "es", "ed", "ing"];
 
@@ -71,7 +82,7 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
         description: "Core is a C# game. Its identifiers say what things are in the game, never which chip, memory or " +
             "cartridge structure the original stored them in, never number them as the cartridge did in hexadecimal, and " +
             "never call a behaviour the callback the original dispatched it through; hardware behaviour the game needs lives in " +
-            "a compatibility service named for the game (#1400, #1554, #1624, #1685, #1694, docs/core-vocabulary.md).");
+            "a compatibility service named for the game (#1400, #1554, #1624, #1685, #1694, #1701, docs/core-vocabulary.md).");
 
     /// <inheritdoc/>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [Rule];
@@ -429,7 +440,7 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
             if (IsAddressWord(part))
                 return part;
         }
-        return ContainedWord(identifier, HardwareWords);
+        return ContainedWord(identifier, HardwareWords) ?? ContainedPhrase(identifier);
     }
 
     /// <summary>
@@ -451,6 +462,32 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
                         return listed;
                     }
                 }
+            }
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// The phrase of <see cref="HardwarePhrases"/> whose words <paramref name="identifier"/> holds consecutively, ignoring
+    /// case, the last with one of <see cref="Endings"/>, or null.
+    /// </summary>
+    private static string? ContainedPhrase(string identifier)
+    {
+        string[] words = Words(identifier).ToArray();
+        foreach (ImmutableArray<string> phrase in HardwarePhrases)
+        {
+            for (int start = 0; start + phrase.Length <= words.Length; start++)
+            {
+                bool matches = true;
+                for (int offset = 0; offset < phrase.Length && matches; offset++)
+                {
+                    string word = words[start + offset];
+                    matches = offset == phrase.Length - 1
+                        ? ContainedWord(word, [phrase[offset]]) is not null
+                        : string.Equals(word, phrase[offset], StringComparison.OrdinalIgnoreCase);
+                }
+                if (matches)
+                    return string.Concat(phrase);
             }
         }
         return null;

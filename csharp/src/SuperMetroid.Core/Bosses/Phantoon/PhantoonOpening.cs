@@ -43,7 +43,7 @@ internal sealed class PhantoonOpening
 
         state.BodyState.StartingFlameIndex = 0;
         state.TentaclesState.RoundDamage = 0;
-        state.BodyState.Function = PhantoonAiFunction.WaitBeforeActivatingStartingFlames;
+        state.BodyState.Phase = PhantoonPhase.WaitBeforeActivatingStartingFlames;
         state.BodyState.FunctionTimer = 30;
         _frameResults.PhantoonDoor = PhantoonDoorChange.FightDoor;
     }
@@ -55,7 +55,7 @@ internal sealed class PhantoonOpening
             return;
         body.FunctionTimer = 240;
         body.StartingFlamesActive = true;
-        body.Function = PhantoonAiFunction.WaitForStartingFlamesToDisappear;
+        body.Phase = PhantoonPhase.WaitForStartingFlamesToDisappear;
     }
 
     /// <summary>Waits for the initial flames to finish orbiting before the next phase.</summary>
@@ -67,7 +67,7 @@ internal sealed class PhantoonOpening
 
         state.BodyState.StartingFlamesActive = false;
         state.Translucent = true;
-        state.BodyState.Function = PhantoonAiFunction.WavyFadeIn;
+        state.BodyState.Phase = PhantoonPhase.WavyFadeIn;
         state.MouthState.BodyLayer = PhantoonBodyLayer.Shown;
         state.BodyState.FunctionTimer = 120;
         state.MouthState.WaveAmplitude = PhantoonBehavior.PhantoonIntroMaximumAmplitude;
@@ -89,7 +89,7 @@ internal sealed class PhantoonOpening
                 PhantoonBehavior.PhantoonIntroAmplitudeDelta,
                 PhantoonBehavior.PhantoonIntroMaximumAmplitude))
         {
-            state.BodyState.Function = PhantoonAiFunction.PickFirstRoundPattern;
+            state.BodyState.Phase = PhantoonPhase.PickFirstRoundPattern;
             state.MouthState.BodyLayer = PhantoonBodyLayer.Shown;
             state.BodyState.FunctionTimer = 30;
             return;

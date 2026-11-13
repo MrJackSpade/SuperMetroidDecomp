@@ -55,10 +55,10 @@ internal static class CrawlerBehaviorVerification
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(CrawlerAnimations.Segments, loop, CrawlerFrameToolingDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(CrawlerAnimations.Segments, loop)), $"{context} loop");
             bool sideWall = orientation is CrawlerSurfaceOrientation.UpsideRight or CrawlerSurfaceOrientation.UpsideLeft;
-            CrawlerEnemyFunction expected = family == CrawlerAnimationFamily.HZoomer
-                ? sideWall ? CrawlerEnemyFunction.HZoomerCrawlingVertically : CrawlerEnemyFunction.HZoomerCrawlingHorizontally
-                : sideWall ? CrawlerEnemyFunction.CrawlingVertically : CrawlerEnemyFunction.CrawlingHorizontally;
-            AssertEqual(expected, state.Function, $"{context} installs its movement function");
+            CrawlerAction expected = family == CrawlerAnimationFamily.HZoomer
+                ? sideWall ? CrawlerAction.HZoomerCrawlingVertically : CrawlerAction.HZoomerCrawlingHorizontally
+                : sideWall ? CrawlerAction.CrawlingVertically : CrawlerAction.CrawlingHorizontally;
+            AssertEqual(expected, state.Action, $"{context} installs its movement function");
             if (artwork is not null)
                 foreach (ushort pose in CrawlerAnimationsConstants.Spritemaps(loop))
                     AssertTrue((artwork.Enemies.Spritemaps ?? throw new InvalidOperationException("Verification requires installed spritemaps.")).TryGet(CrawlerFrameToolingDefinitions.Bank, pose, out _),

@@ -67,7 +67,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         FuneNamiheEnemyState state = new()
         {
             ShowsActiveAnimation = false,
-            Function = FuneNamiheEnemyFunction.FuneWaitForCooldown,
+            Action = FuneNamiheAction.FuneWaitForCooldown,
             Variant = settings.Variant,
             YProximity = settings.YProximity,
             CooldownTime = settings.CooldownTime,
@@ -78,7 +78,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         // The behaviour follows the placement's variant rather than the enemy's species. This sounds redundant, but
         // preserving it lets custom populations give one species the other's behaviour, as the game does.
         if (state.IsNamihe)
-            state.Function = FuneNamiheEnemyFunction.NamiheWaitForSamus;
+            state.Action = FuneNamiheAction.NamiheWaitForSamus;
 
         slot.SetSpeciesState(state);
         StartFuneNamiheAnimation(slot, state);
@@ -90,9 +90,9 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         FuneNamiheEnemyState state,
         SamusState? samus)
     {
-        switch (state.Function)
+        switch (state.Action)
         {
-            case FuneNamiheEnemyFunction.FuneWaitForCooldown:
+            case FuneNamiheAction.FuneWaitForCooldown:
                 // The counter steps before the comparison. The comparison tests the sign of the difference rather
                 // than comparing unsigned; ordinary room parameters are small,
                 // but the distinction remains visible at the 32768 wrap boundary.
@@ -102,11 +102,11 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
 
                 state.ShowsActiveAnimation = true;
                 StartFuneNamiheAnimation(slot, state);
-                state.Function = FuneNamiheEnemyFunction.FuneActivityNoOp;
+                state.Action = FuneNamiheAction.FuneActivityNoOp;
                 state.CooldownTimer = 0;
                 return;
 
-            case FuneNamiheEnemyFunction.NamiheWaitForSamus:
+            case FuneNamiheAction.NamiheWaitForSamus:
                 if (samus is null)
                 {
                     throw new InvalidOperationException(
@@ -125,18 +125,18 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
 
                 state.ShowsActiveAnimation = true;
                 StartFuneNamiheAnimation(slot, state);
-                state.Function = FuneNamiheEnemyFunction.NamiheActivityNoOp;
+                state.Action = FuneNamiheAction.NamiheActivityNoOp;
                 return;
 
-            case FuneNamiheEnemyFunction.FuneActivityNoOp:
-            case FuneNamiheEnemyFunction.NamiheActivityNoOp:
+            case FuneNamiheAction.FuneActivityNoOp:
+            case FuneNamiheAction.NamiheActivityNoOp:
                 // The active animation's finish step is the only owner allowed to leave
                 // these inert states. Main AI intentionally does nothing until that command.
                 return;
 
             default:
                 throw new InvalidDataException(
-                    $"Fune/Namihe function {state.Function?.ToString() ?? "none"} is not translated.");
+                    $"Fune/Namihe function {state.Action?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -169,9 +169,9 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void FinishFuneNamiheActivity(FuneNamiheEnemyState state)
     {
         state.ShowsActiveAnimation = false;
-        state.Function = state.IsNamihe
-            ? FuneNamiheEnemyFunction.NamiheWaitForSamus
-            : FuneNamiheEnemyFunction.FuneWaitForCooldown;
+        state.Action = state.IsNamihe
+            ? FuneNamiheAction.NamiheWaitForSamus
+            : FuneNamiheAction.FuneWaitForCooldown;
     }
 
     /// <summary>Binds the shared fireball frame behaviour to 8.8 horizontal travel and inclusive camera culling.</summary>

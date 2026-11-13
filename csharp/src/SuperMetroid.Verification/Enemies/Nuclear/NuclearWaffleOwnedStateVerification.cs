@@ -22,7 +22,7 @@ internal static class NuclearWaffleOwnedStateVerification
         slot.Position = slot.Position.WithWhole(new(384, 512));
         enemies.NuclearWaffleBehavior.InitializeNuclearWaffle(slot);
         NuclearWaffleEnemyState state = enemies.NuclearWaffleStates[0] ?? throw new InvalidOperationException("Nuclear Waffle has no state.");
-        AssertEqual<NuclearWaffleEnemyFunction?>(NuclearWaffleEnemyFunction.Waiting, state.Function, "a new Nuclear Waffle waits");
+        AssertEqual<NuclearWaffleAction?>(NuclearWaffleAction.Waiting, state.Action, "a new Nuclear Waffle waits");
         AssertEqual(6, state.WaitingTimer, "the wait starts at the population's reset value");
         Console.WriteLine("Nuclear Waffle owned state: the initial wait matches.");
     }

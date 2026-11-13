@@ -83,7 +83,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
         }
         DraygonEnemyState state = enemies.DraygonBehavior.Parts.Draygon ??
             throw new InvalidOperationException("Draygon body initialization lost its owner.");
-        AssertEqual(DraygonAiFunction.IntroInitialDelay, state.Function,
+        AssertEqual(DraygonPhase.IntroInitialDelay, state.Phase,
             "installed Draygon colors leave intro mechanics unchanged");
         AssertBand(DraygonColorDestinations.IntroDestination,
             DraygonColorDefinitions.IntroCount, colors.ResolveIntro, "intro CGRAM");
@@ -122,7 +122,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
                     Shown()[DraygonColorDestinations.HealthDestination + color],
                     $"Draygon live health band {band} color {color}");
         }
-        AssertEqual(DraygonAiFunction.IntroInitialDelay, state.Function,
+        AssertEqual(DraygonPhase.IntroInitialDelay, state.Phase,
             "visual health-band checks leave Draygon AI unchanged");
         AssertThrows<ArgumentOutOfRangeException>(() => colors.ResolveHealthBand(-1, 0),
             "negative Draygon health band fails loudly");

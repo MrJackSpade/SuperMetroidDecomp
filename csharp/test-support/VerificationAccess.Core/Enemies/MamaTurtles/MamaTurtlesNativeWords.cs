@@ -8,29 +8,29 @@ namespace SuperMetroid.Core.Enemies.MamaTurtles;
 /// </summary>
 internal static class MamaTurtlesNativeWords
 {
-    /// <summary>The routine word naming each <see cref="BabyTurtleAiFunction"/>.</summary>
-    internal static readonly NativeWordIdentities<BabyTurtleAiFunction> BabyTurtleAiFunctions = new(new Dictionary<BabyTurtleAiFunction, ushort>
+    /// <summary>The routine word naming each <see cref="BabyTurtleAction"/>.</summary>
+    internal static readonly NativeWordIdentities<BabyTurtleAction> BabyTurtleActions = new(new Dictionary<BabyTurtleAction, ushort>
     {
-        [BabyTurtleAiFunction.CrawlingNotCarryingSamus] = 0x9142,
-        [BabyTurtleAiFunction.HidingCarryingSamus] = 0x916e,
-        [BabyTurtleAiFunction.HidingNotCarryingSamus] = 0x9198,
-        [BabyTurtleAiFunction.SpinningUnstoppable] = 0x91f8,
-        [BabyTurtleAiFunction.SpinningStoppable] = 0x9239,
-        [BabyTurtleAiFunction.CrawlingCarryingSamus] = 0x925e,
+        [BabyTurtleAction.CrawlingNotCarryingSamus] = 0x9142,
+        [BabyTurtleAction.HidingCarryingSamus] = 0x916e,
+        [BabyTurtleAction.HidingNotCarryingSamus] = 0x9198,
+        [BabyTurtleAction.SpinningUnstoppable] = 0x91f8,
+        [BabyTurtleAction.SpinningStoppable] = 0x9239,
+        [BabyTurtleAction.CrawlingCarryingSamus] = 0x925e,
     });
 
-    /// <summary>The routine word naming each <see cref="MamaTurtleAiFunction"/>.</summary>
-    internal static readonly NativeWordIdentities<MamaTurtleAiFunction> MamaTurtleAiFunctions = new(new Dictionary<MamaTurtleAiFunction, ushort>
+    /// <summary>The routine word naming each <see cref="MamaTurtleAction"/>.</summary>
+    internal static readonly NativeWordIdentities<MamaTurtleAction> MamaTurtleActions = new(new Dictionary<MamaTurtleAction, ushort>
     {
-        [MamaTurtleAiFunction.Initial] = 0x8dd8,
-        [MamaTurtleAiFunction.Idle] = 0x8e09,
-        [MamaTurtleAiFunction.Asleep] = 0x8e0a,
-        [MamaTurtleAiFunction.LeavingShell] = 0x8ee0,
-        [MamaTurtleAiFunction.EnteringShell] = 0x8f3f,
-        [MamaTurtleAiFunction.RisingToHover] = 0x8f8d,
-        [MamaTurtleAiFunction.Hovering] = 0x8feb,
-        [MamaTurtleAiFunction.RisingToPeak] = 0x9083,
-        [MamaTurtleAiFunction.HoveringAtPeak] = 0x90cc,
-        [MamaTurtleAiFunction.Falling] = 0x90e1,
+        [MamaTurtleAction.Initial] = 0x8dd8,
+        [MamaTurtleAction.Idle] = 0x8e09,
+        [MamaTurtleAction.Asleep] = 0x8e0a,
+        [MamaTurtleAction.LeavingShell] = 0x8ee0,
+        [MamaTurtleAction.EnteringShell] = 0x8f3f,
+        [MamaTurtleAction.RisingToHover] = 0x8f8d,
+        [MamaTurtleAction.Hovering] = 0x8feb,
+        [MamaTurtleAction.RisingToPeak] = 0x9083,
+        [MamaTurtleAction.HoveringAtPeak] = 0x90cc,
+        [MamaTurtleAction.Falling] = 0x90e1,
     });
 }

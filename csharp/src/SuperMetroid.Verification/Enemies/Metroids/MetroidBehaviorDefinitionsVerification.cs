@@ -62,7 +62,7 @@ internal static class MetroidBehaviorDefinitionsVerification
                 new RoomSpriteObject(RoomSpriteObjectKind.MetroidOuterBodyB, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard))
             {
                 EscapeTimer = timer,
-                Function = MetroidAiFunction.PowerBombEscape,
+                Movement = MetroidMovement.PowerBombEscape,
                 Playback = new(MetroidAnimations.StartingWith(MetroidSegment.DrainingSamus), AnimationPlace.StartOfAnimation),
             };
 
@@ -75,8 +75,8 @@ internal static class MetroidBehaviorDefinitionsVerification
                 $"production Metroid escape Y timer {timer}");
             AssertEqual(timer - 1, state.EscapeTimer,
                 $"production Metroid escape countdown {timer}");
-            AssertEqual(timer == 1 ? MetroidAiFunction.Homing : MetroidAiFunction.PowerBombEscape,
-                state.Function,
+            AssertEqual(timer == 1 ? MetroidMovement.Homing : MetroidMovement.PowerBombEscape,
+                state.Movement,
                 $"production Metroid escape function {timer}");
             AssertEqual(
                 new AnimationPlayback<MetroidSegment>(

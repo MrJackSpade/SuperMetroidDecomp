@@ -51,9 +51,9 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = new(SkulteraAnimations.StartingWith(startsLeft
             ? SkulteraSegment.SwimmingLeft
             : SkulteraSegment.SwimmingRight), AnimationPlace.StartOfAnimation);
-        state.Function = startsLeft
-            ? SkulteraEnemyFunction.SwimmingLeft
-            : SkulteraEnemyFunction.SwimmingRight;
+        state.Action = startsLeft
+            ? SkulteraAction.SwimmingLeft
+            : SkulteraAction.SwimmingRight;
 
         EnemyLinearSpeedRow speeds = EnemyLinearSpeedRow.Moving(settings.Speed);
         state.RightVelocity = speeds.Positive;
@@ -77,23 +77,23 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
         if (level is null)
             throw new InvalidOperationException("Skultera AI requires active room collision data.");
 
-        switch (state.Function)
+        switch (state.Action)
         {
-            case SkulteraEnemyFunction.SwimmingLeft:
+            case SkulteraAction.SwimmingLeft:
                 SwimSkultera(slot, state, level, direction: HorizontalDirection.Left);
                 return;
-            case SkulteraEnemyFunction.SwimmingRight:
+            case SkulteraAction.SwimmingRight:
                 SwimSkultera(slot, state, level, direction: HorizontalDirection.Right);
                 return;
-            case SkulteraEnemyFunction.TurningRight:
+            case SkulteraAction.TurningRight:
                 FinishSkulteraTurn(slot, state, direction: HorizontalDirection.Right);
                 return;
-            case SkulteraEnemyFunction.TurningLeft:
+            case SkulteraAction.TurningLeft:
                 FinishSkulteraTurn(slot, state, direction: HorizontalDirection.Left);
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Skultera function {state.Function?.ToString() ?? "none"} is not translated.");
+                    $"Skultera function {state.Action?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -143,9 +143,9 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
         SkulteraEnemyState state,
         bool currentlyMovingLeft)
     {
-        state.Function = currentlyMovingLeft
-            ? SkulteraEnemyFunction.TurningRight
-            : SkulteraEnemyFunction.TurningLeft;
+        state.Action = currentlyMovingLeft
+            ? SkulteraAction.TurningRight
+            : SkulteraAction.TurningLeft;
         state.Playback = EnemyAnimationPlayback.Start(slot, SkulteraAnimations.StartingWith(currentlyMovingLeft
             ? SkulteraSegment.TurningRight
             : SkulteraSegment.TurningLeft));
@@ -161,9 +161,9 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.TurnFinished = false;
-        state.Function = direction == HorizontalDirection.Left
-            ? SkulteraEnemyFunction.SwimmingLeft
-            : SkulteraEnemyFunction.SwimmingRight;
+        state.Action = direction == HorizontalDirection.Left
+            ? SkulteraAction.SwimmingLeft
+            : SkulteraAction.SwimmingRight;
         state.AngleDelta = -state.AngleDelta;
         state.Playback = EnemyAnimationPlayback.Start(slot, SkulteraAnimations.StartingWith(direction == HorizontalDirection.Left
             ? SkulteraSegment.SwimmingLeft

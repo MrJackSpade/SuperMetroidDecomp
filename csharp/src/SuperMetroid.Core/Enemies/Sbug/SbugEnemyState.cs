@@ -17,7 +17,7 @@ public sealed class SbugEnemyState
     public WrappingCountdown StraightMovementTimer { get; internal set; }
 
     /// <summary>The current AI behaviour.</summary>
-    public SbugEnemyFunction? Function { get; internal set; }
+    public SbugAction? Action { get; internal set; }
 
     /// <summary>
     /// The custom movement heading, in standard-mathematics orientation (zero right, a quarter turn up). The game

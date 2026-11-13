@@ -8,15 +8,15 @@ namespace SuperMetroid.Core.Enemies.Alcoon;
 /// </summary>
 internal static class AlcoonNativeWords
 {
-    /// <summary>The routine word naming each <see cref="AlcoonEnemyFunction"/>.</summary>
-    internal static readonly NativeWordIdentities<AlcoonEnemyFunction> AlcoonEnemyFunctions = new(new Dictionary<AlcoonEnemyFunction, ushort>
+    /// <summary>The routine word naming each <see cref="AlcoonAction"/>.</summary>
+    internal static readonly NativeWordIdentities<AlcoonAction> AlcoonActions = new(new Dictionary<AlcoonAction, ushort>
     {
-        [AlcoonEnemyFunction.WaitingForSamus] = 0xdd71,
-        [AlcoonEnemyFunction.EmergingRising] = 0xddc6,
-        [AlcoonEnemyFunction.EmergingFalling] = 0xde05,
-        [AlcoonEnemyFunction.WalkingAndFiring] = 0xde4b,
-        [AlcoonEnemyFunction.WaitingForFireAnimation] = 0xdecc,
-        [AlcoonEnemyFunction.HidingRising] = 0xdecd,
-        [AlcoonEnemyFunction.HidingFalling] = 0xdeec,
+        [AlcoonAction.WaitingForSamus] = 0xdd71,
+        [AlcoonAction.EmergingRising] = 0xddc6,
+        [AlcoonAction.EmergingFalling] = 0xde05,
+        [AlcoonAction.WalkingAndFiring] = 0xde4b,
+        [AlcoonAction.WaitingForFireAnimation] = 0xdecc,
+        [AlcoonAction.HidingRising] = 0xdecd,
+        [AlcoonAction.HidingFalling] = 0xdeec,
     });
 }

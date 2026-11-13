@@ -27,7 +27,7 @@ internal static class StokeOwnedStateVerification
             SignedSixteenSixteen left = EnemyLinearSpeeds.Row(record).Negative;
             AssertEqual(right, state.RightVelocity, $"record {record} rightward speed");
             AssertEqual(left, state.LeftVelocity, $"record {record} leftward speed");
-            AssertEqual(StokeAiFunction.Moving, state.Function, $"record {record} walks");
+            AssertEqual(StokeAction.Moving, state.Action, $"record {record} walks");
             AssertEqual(StokeDirection.Right, state.Direction, $"record {record} walks right");
         }
         Console.WriteLine("Stoke owned state: all linear-speed records match.");

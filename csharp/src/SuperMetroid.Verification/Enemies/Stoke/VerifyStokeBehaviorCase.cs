@@ -9,4 +9,4 @@ namespace SuperMetroid.Verification.Enemies.Stoke;
 /// <param name="Attack">The attack.</param>
 /// <param name="Moving">The moving.</param>
 /// <param name="Fireball">The fireball.</param>
-internal readonly record struct VerifyStokeBehaviorCase(StokeDirection Direction, StokeSegment Walk, StokeSegment Loop, StokeSegment Attack, StokeAiFunction Moving, ushort Fireball);
+internal readonly record struct VerifyStokeBehaviorCase(StokeDirection Direction, StokeSegment Walk, StokeSegment Loop, StokeSegment Attack, StokeAction Moving, ushort Fireball);

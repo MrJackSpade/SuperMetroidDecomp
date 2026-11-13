@@ -23,7 +23,7 @@ internal static class BotwoonAttackCooldownVerification
     {
         // Moving frame: the only path on which the cooldown starts at zero and runs below it.
         (RoomEnemySystem moving, RoomEnemySlot movingHead, BotwoonEnemyState movingState) = NewBotwoon();
-        movingState.Function = BotwoonEnemyFunction.ChooseNextAction;
+        movingState.Phase = BotwoonPhase.ChooseNextAction;
         movingState.MovementFunction = BotwoonMovementFunction.MoveTowardHole;
         movingState.HeadFunction = BotwoonHeadFunction.AttackCooldown;
         movingState.AttackTimer = 1;
@@ -38,17 +38,17 @@ internal static class BotwoonAttackCooldownVerification
 
         // Hidden spit: the state's gate runs the cooldown while it is nonzero and leaves once it reads zero.
         (RoomEnemySystem hidden, RoomEnemySlot hiddenHead, BotwoonEnemyState hiddenState) = NewBotwoon();
-        hiddenState.Function = BotwoonEnemyFunction.SpitWhileHidden;
+        hiddenState.Phase = BotwoonPhase.SpitWhileHidden;
         hiddenState.HeadFunction = BotwoonHeadFunction.AttackCooldown;
         hiddenState.AttackTimer = 1;
 
         hidden.BotwoonBehavior.RunBotwoonMainAi(hiddenHead, Frame());
         AssertEqual(0, hiddenState.AttackTimer, "the hidden-spit gate runs a nonzero cooldown");
-        AssertEqual(BotwoonEnemyFunction.SpitWhileHidden, hiddenState.Function, "a running cooldown keeps Botwoon spitting from the hole");
+        AssertEqual(BotwoonPhase.SpitWhileHidden, hiddenState.Phase, "a running cooldown keeps Botwoon spitting from the hole");
 
         hidden.BotwoonBehavior.RunBotwoonMainAi(hiddenHead, Frame());
         AssertEqual(0, hiddenState.AttackTimer, "the gate does not decrement a zero cooldown");
-        AssertEqual(BotwoonEnemyFunction.FollowAuthoredPath, hiddenState.Function, "a zero cooldown ends the hidden spit");
+        AssertEqual(BotwoonPhase.FollowAuthoredPath, hiddenState.Phase, "a zero cooldown ends the hidden spit");
         AssertEqual(BotwoonHeadFunction.AnimateFromMovement, hiddenState.HeadFunction, "leaving the hidden spit returns the head to movement");
 
         Console.WriteLine("  Botwoon attack cooldown: steps to zero, runs below it and pins to zero, and gates the hidden spit on zero.");

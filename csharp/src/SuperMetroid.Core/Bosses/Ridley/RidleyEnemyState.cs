@@ -17,8 +17,8 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// </remarks>
 public sealed class RidleyEnemyState
 {
-    /// <summary>Gets the live AI function identity, shared by reveal logic and encounter-specific attack or escape phases.</summary>
-    public RidleyAiFunction Function { get; internal set; }
+    /// <summary>Gets the live phase, shared by reveal logic and encounter-specific attack or escape phases.</summary>
+    public RidleyPhase Phase { get; internal set; }
     /// <summary>Gets the encounter mode: zero during reveal, positive during combat, and dying during Lower Norfair death.</summary>
     public RidleyFightMode FightMode { get; internal set; }
     /// <summary>

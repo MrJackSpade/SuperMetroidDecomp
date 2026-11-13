@@ -27,7 +27,7 @@ internal static class RioOwnedStateVerification
         NorfairRioEnemyState followerState = follower.EntityState<NorfairRioEntity, NorfairRioEnemyState>()
             ?? throw new InvalidOperationException("The Norfair Rio follower has no state.");
         AssertTrue(!parentState.IsFollower && followerState.IsFollower, "parameter one's sign bit selects the follower");
-        AssertEqual(NorfairRioEnemyFunction.FollowParent, followerState.Function, "the follower follows its parent");
+        AssertEqual(NorfairRioAction.FollowParent, followerState.Action, "the follower follows its parent");
         Console.WriteLine("Rio owned state: the follower selection matches.");
     }
 

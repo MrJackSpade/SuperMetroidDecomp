@@ -94,7 +94,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
                 CreatePair();
             Install(body, state, program);
             RunFrames(enemies, body, 40);
-            AssertEqual(KiHunterEnemyFunction.GroundJump, state.Function,
+            AssertEqual(KiHunterAction.GroundJump, state.Action,
                 $"KiHunter {direction} jump installs ground-jump owner");
             AssertAsleep(state, program, $"KiHunter {direction} jump reaches terminal sleep");
         }
@@ -105,7 +105,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
                 CreatePair();
             Install(body, state, program);
             RunFrames(enemies, body, 45);
-            AssertEqual(KiHunterEnemyFunction.GroundWait, state.Function,
+            AssertEqual(KiHunterAction.GroundWait, state.Action,
                 $"KiHunter {direction} landing installs ground-wait owner");
             AssertAsleep(state, program, $"KiHunter {direction} landing reaches terminal sleep");
         }
@@ -116,7 +116,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
                 CreatePair();
             Install(body, state, program);
             RunFrames(enemies, body, 90);
-            AssertEqual(KiHunterEnemyFunction.GroundWait, state.Function,
+            AssertEqual(KiHunterAction.GroundWait, state.Action,
                 $"KiHunter {(movingRight ? "right" : "left")} spit restores ground wait");
             AssertEqual(24, state.WaitTimer,
                 $"KiHunter {(movingRight ? "right" : "left")} spit wait timer");
@@ -145,7 +145,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
             ushort accelerationFraction = acceleration.Fraction;
             ushort cap = swoopLeft ? unchecked((ushort)-2) : (ushort)2;
             ushort angle = swoopLeft ? (ushort)255 : (ushort)128;
-            state.Function = KiHunterEnemyFunction.Swooping;
+            state.Action = KiHunterAction.Swooping;
             state.AngularVelocity = SignedSixteenSixteen.Zero;
             state.AngularAcceleration = SignedSixteenSixteen.FromParts(unchecked((short)accelerationWhole), accelerationFraction);
             state.MaximumAngularVelocity = unchecked((short)cap);
@@ -187,7 +187,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
                 AssertEqual(SignedSixteenSixteen.FromParts(unchecked((short)velocityWhole), velocityFraction), state.AngularVelocity,
                     $"KiHunter {side} swoop update {update} angular velocity carries and caps only its whole part");
                 AssertEqual(angle, state.SwoopAngle, $"KiHunter {side} swoop update {update} steps the angle by the whole velocity");
-                AssertEqual(ended ? KiHunterEnemyFunction.FlyingPatrol : KiHunterEnemyFunction.Swooping, state.Function,
+                AssertEqual(ended ? KiHunterAction.FlyingPatrol : KiHunterAction.Swooping, state.Action,
                     $"KiHunter {side} swoop update {update} ends only when the native angle test ends it");
             }
             AssertTrue(ended, $"KiHunter {(swoopLeft ? "left" : "right")} swoop ends");

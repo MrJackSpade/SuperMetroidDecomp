@@ -8,12 +8,12 @@ namespace SuperMetroid.Core.Enemies.Polyp;
 /// </summary>
 internal static class PolypNativeWords
 {
-    /// <summary>The routine word naming each <see cref="PolypEnemyFunction"/>.</summary>
-    internal static readonly NativeWordIdentities<PolypEnemyFunction> PolypEnemyFunctions = new(new Dictionary<PolypEnemyFunction, ushort>
+    /// <summary>The routine word naming each <see cref="PolypAction"/>.</summary>
+    internal static readonly NativeWordIdentities<PolypAction> PolypActions = new(new Dictionary<PolypAction, ushort>
     {
-        [PolypEnemyFunction.WaitingForSamus] = 0xb596,
-        [PolypEnemyFunction.ShootingRock] = 0xb5b2,
-        [PolypEnemyFunction.Cooldown] = 0xb5ea,
+        [PolypAction.WaitingForSamus] = 0xb596,
+        [PolypAction.ShootingRock] = 0xb5b2,
+        [PolypAction.Cooldown] = 0xb5ea,
     });
 
     /// <summary>The routine word naming each <see cref="PolypRockFunction"/>.</summary>

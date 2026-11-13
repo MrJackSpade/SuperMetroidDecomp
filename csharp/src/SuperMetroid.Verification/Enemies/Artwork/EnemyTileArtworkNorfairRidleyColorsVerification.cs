@@ -69,12 +69,12 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
                 $"Norfair Ridley reveal call {call} row/terminator position");
             AssertEqual(nativeState.FunctionTimer, installedState.FunctionTimer,
                 $"Norfair Ridley reveal call {call} three-call cadence");
-            AssertEqual(nativeState.Function, installedState.Function,
+            AssertEqual(nativeState.Phase, installedState.Phase,
                 $"Norfair Ridley reveal call {call} terminal function");
             AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(Shown(installedState, stock))),
                 $"Norfair Ridley reveal call {call} preserves full native CGRAM");
         }
-        AssertEqual(RidleyAiFunction.ClearVelocity, installedState.Function,
+        AssertEqual(RidleyPhase.ClearVelocity, installedState.Phase,
             "Norfair Ridley reveal zero terminator enters the native movement handoff");
         AssertEqual<int?>(RidleyLiquidDefinitions.BattleHeight, installedLiquid.TargetSurface,
             "Norfair Ridley reveal terminator publishes the battle liquid height");
@@ -112,7 +112,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
                 cgram.SetColor(113 + color, new RgbColor(0, 0, 0));
                 cgram.SetColor(241 + color, new RgbColor(0, 0, 0));
             }
-            return new CreateReferenceResult(cgram, new RidleyEnemyState { Function = RidleyAiFunction.WaitBeforeLiftoff });
+            return new CreateReferenceResult(cgram, new RidleyEnemyState { Phase = RidleyPhase.WaitBeforeLiftoff });
         }
 
         // Applies one native reveal update, including the three-call timer and terminating pointer.
@@ -130,7 +130,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
                 return;
             }
             state.FadeStep = 0;
-            state.Function = RidleyAiFunction.ClearVelocity;
+            state.Phase = RidleyPhase.ClearVelocity;
         }
 
         // Reads a raw cartridge word for the independent palette oracle.
@@ -148,7 +148,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
             enemy.RidleyBehavior.Combat.InitializeNorfairRidley(slot);
             RidleyEnemyState state = enemy.RidleyEncounter.Ridley ??
                 throw new InvalidOperationException("Norfair Ridley initialization did not publish its state.");
-            state.Function = RidleyAiFunction.WaitBeforeLiftoff;
+            state.Phase = RidleyPhase.WaitBeforeLiftoff;
             state.FunctionTimer = 0;
             return new EnemyTileArtworkNorfairRidleyColorsCreateResult(enemy, slot, state);
         }

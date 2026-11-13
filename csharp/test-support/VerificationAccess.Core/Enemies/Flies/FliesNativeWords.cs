@@ -8,12 +8,12 @@ namespace SuperMetroid.Core.Enemies.Flies;
 /// </summary>
 internal static class FliesNativeWords
 {
-    /// <summary>The routine word naming each <see cref="FlyEnemyFunction"/>.</summary>
-    internal static readonly NativeWordIdentities<FlyEnemyFunction> FlyEnemyFunctions = new(new Dictionary<FlyEnemyFunction, ushort>
+    /// <summary>The routine word naming each <see cref="FlyAction"/>.</summary>
+    internal static readonly NativeWordIdentities<FlyAction> FlyActions = new(new Dictionary<FlyAction, ushort>
     {
-        [FlyEnemyFunction.ClockwiseCircle] = 0xb14e,
-        [FlyEnemyFunction.AntiClockwiseCircle] = 0xb17c,
-        [FlyEnemyFunction.AttackSamus] = 0xb1aa,
-        [FlyEnemyFunction.Retreat] = 0xb1d2,
+        [FlyAction.ClockwiseCircle] = 0xb14e,
+        [FlyAction.AntiClockwiseCircle] = 0xb17c,
+        [FlyAction.AttackSamus] = 0xb1aa,
+        [FlyAction.Retreat] = 0xb1d2,
     });
 }

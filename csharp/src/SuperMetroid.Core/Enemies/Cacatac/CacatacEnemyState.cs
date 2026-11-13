@@ -22,7 +22,7 @@ public sealed class CacatacEnemyState
     public CacatacDirection Direction { get; internal set; }
 
     /// <summary>The current behaviour.</summary>
-    public CacatacEnemyFunction? Function { get; internal set; }
+    public CacatacAction? Action { get; internal set; }
 
     /// <summary>
     /// Left patrol limit; only X is meaningful. Leftward patrol turns right once the whole X position lies strictly

@@ -378,7 +378,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Shot-animation cue: requests the bug's drop.</summary>
     internal void RequestKagoBugDrop(EnemyProjectile projectile)
     {
-        _deathsAndDrops.SpawnEnemyDropFromEnemyHeader(
+        _deathsAndDrops.SpawnEnemyDropFromDefinition(
             projectile.Position.Whole,
             EnemyDefinitionId.Kago);
     }

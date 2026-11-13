@@ -224,7 +224,7 @@ internal sealed class DraygonGoop
                     return;
                 case DraygonProjectileCue.SpawnDrops:
                     // The drop is allocated before the deletion releases this projectile, preserving slot order.
-                    _deathsAndDrops.SpawnEnemyDropFromEnemyHeader(projectile.Position.Whole, EnemyDefinitionId.DraygonEye);
+                    _deathsAndDrops.SpawnEnemyDropFromDefinition(projectile.Position.Whole, EnemyDefinitionId.DraygonEye);
                     return;
                 case DraygonProjectileCue.Delete:
                     projectile.Delete();

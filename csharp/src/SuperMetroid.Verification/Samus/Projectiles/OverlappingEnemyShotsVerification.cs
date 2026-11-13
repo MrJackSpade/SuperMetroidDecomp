@@ -31,7 +31,7 @@ internal static class OverlappingEnemyShotsVerification
         {
             var enemy = enemies.SlotTable.Slots[index];
             enemy.Bind(EnemyDefinitionId.Beetom, enemy.Definition);
-            enemy.Bind(enemy.DefinitionId, RoomEnemyHeaders.Get(enemy.DefinitionId));
+            enemy.Bind(enemy.DefinitionId, RoomEnemyDefinitionLookup.Get(enemy.DefinitionId));
             enemy.Position = enemy.Position.WithWhole(new(128, 128));
             enemy.Radius = new(enemy.Definition.Radius.X, enemy.Definition.Radius.Y);
             // Keep the real Beetom callback and vulnerability, but enough health to

@@ -262,7 +262,7 @@ internal sealed class MotherBrainProjectiles
             Position16<RoomPixels> position = bomb.Position.Whole;
             DeleteMotherBrainBomb(bomb, state);
             _projectiles.SpawnRoomGraphicsDustExplosion(position, MiscDustAnimation.SmallDustCloud);
-            _deathsAndDrops.SpawnEnemyDropFromEnemyHeader(
+            _deathsAndDrops.SpawnEnemyDropFromDefinition(
                 position,
                 state.Head.DefinitionId);
             return true;

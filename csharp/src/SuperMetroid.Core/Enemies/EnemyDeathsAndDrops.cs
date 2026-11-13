@@ -157,7 +157,7 @@ internal sealed class EnemyDeathsAndDrops
         for (int drop = 0; drop < count; drop++)
         {
             int random = _room.Random.Generate();
-            SpawnEnemyDropFromEnemyHeader(new(
+            SpawnEnemyDropFromDefinition(new(
                 CoordinateAxis.Wrap(xScatter.Of(random) + xBase),
                 CoordinateAxis.Wrap(yScatter.Of(random) + yBase)), definitionId);
         }
@@ -172,7 +172,7 @@ internal sealed class EnemyDeathsAndDrops
         for (int drop = 0; drop < count; drop++)
         {
             int random = _room.Random.Generate();
-            SpawnEnemyDropFromEnemyHeader(new(
+            SpawnEnemyDropFromDefinition(new(
                 CoordinateAxis.Wrap(origin.X + EnemyDropScatterDefinitions.HorizontalScatter.Of(random) - 16),
                 CoordinateAxis.Wrap(origin.Y + EnemyDropScatterDefinitions.VerticalScatter.Of(random) - 16)), definitionId);
         }
@@ -183,7 +183,7 @@ internal sealed class EnemyDeathsAndDrops
     /// allocation search, slot-zero failure, random selection, and no-drop tail follow
     /// the enemy-projectile spawn and then the pickup's initializer.
     /// </summary>
-    internal EnemyProjectile? SpawnEnemyDropFromEnemyHeader(
+    internal EnemyProjectile? SpawnEnemyDropFromDefinition(
         Position16<RoomPixels> position,
         EnemyDefinitionId definitionId)
     {

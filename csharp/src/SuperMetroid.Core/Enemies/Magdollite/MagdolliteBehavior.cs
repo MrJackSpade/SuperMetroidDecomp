@@ -828,7 +828,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Shot-animation cue: requests the lava's drop.</summary>
     internal void RequestMagdolliteLavaDrop(EnemyProjectile projectile)
     {
-        _deathsAndDrops.SpawnEnemyDropFromEnemyHeader(
+        _deathsAndDrops.SpawnEnemyDropFromDefinition(
             projectile.Position.Whole,
             EnemyDefinitionId.Magdollite);
     }

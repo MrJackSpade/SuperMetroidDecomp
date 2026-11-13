@@ -143,12 +143,12 @@ public sealed class CrocomireEnemyState
 
     /// <summary>
     /// Starts a sink from rest: clears the vertical speed and subpixel, then sets the starting acceleration of
-    /// <paramref name="acceleration"/> 256ths of a pixel per frame per frame.
+    /// <paramref name="acceleration"/> per frame per frame.
     /// </summary>
-    internal void StartVerticalMotion(int acceleration)
+    internal void StartVerticalMotion(SignedEightEight acceleration)
     {
         VerticalSpeed = SignedEightEight.Zero;
         VerticalSubpixel = 0;
-        VerticalAcceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(acceleration);
+        VerticalAcceleration = acceleration;
     }
 }

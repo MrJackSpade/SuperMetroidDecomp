@@ -23,7 +23,16 @@ public static class PowampMotionDefinitions
     /// axis the direction leans along. The Y component is the X component rotated two compass steps.
     /// </summary>
     internal static readonly EightEightVector<RoomPixels>[] SpikeAccelerations =
-        [new(0, -32), new(32, -32), new(32, 0), new(32, 32), new(0, 32), new(-32, 32), new(-32, 0), new(-32, -32)];
+        [
+            EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, -32),
+            EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(32, -32),
+            EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(32, 0),
+            EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(32, 32),
+            EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 32),
+            EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-32, 32),
+            EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-32, 0),
+            EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-32, -32),
+        ];
 
     /// <summary>
     /// The inflate stage a sinking balloon restarts when Powamp dies, by the sinking poses it had shown: after two it

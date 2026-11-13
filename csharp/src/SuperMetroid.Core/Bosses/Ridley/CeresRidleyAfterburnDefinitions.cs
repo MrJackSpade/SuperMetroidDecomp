@@ -7,18 +7,18 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// </summary>
 internal static class CeresRidleyAfterburnDefinitions
 {
-    /// <summary>The signed 8.8 speed of every directional afterburn, fourteen pixels per frame.</summary>
-    private const int Speed = 3584;
+    /// <summary>The speed of every directional afterburn, fourteen pixels per frame.</summary>
+    private static readonly SignedEightEight Speed = SignedEightEight.FromPixels(14);
 
     /// <summary>The rightward horizontal afterburn's velocity.</summary>
-    internal static EightEightVector<RoomPixels> Right => new(Speed, 0);
+    internal static EightEightVector<RoomPixels> Right => new(Speed, SignedEightEight.Zero);
 
     /// <summary>The leftward horizontal afterburn's velocity.</summary>
-    internal static EightEightVector<RoomPixels> Left => new(-Speed, 0);
+    internal static EightEightVector<RoomPixels> Left => new(-Speed, SignedEightEight.Zero);
 
     /// <summary>The upward vertical afterburn's velocity.</summary>
-    internal static EightEightVector<RoomPixels> Up => new(0, -Speed);
+    internal static EightEightVector<RoomPixels> Up => new(SignedEightEight.Zero, -Speed);
 
     /// <summary>The downward vertical afterburn's velocity.</summary>
-    internal static EightEightVector<RoomPixels> Down => new(0, Speed);
+    internal static EightEightVector<RoomPixels> Down => new(SignedEightEight.Zero, Speed);
 }

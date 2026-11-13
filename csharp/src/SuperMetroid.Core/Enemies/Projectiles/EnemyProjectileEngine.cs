@@ -906,10 +906,10 @@ internal sealed class EnemyProjectileEngine
     internal void SpawnMetalParticleBurst(RoomEnemySlot source, MetalParticleBurst burst)
     {
         Ensure.NotNull(burst);
-        SpawnSkreeOrMetareeParticle(source, burst.DownRight, 6, new(320, -769));
-        SpawnSkreeOrMetareeParticle(source, burst.UpRight, 6, new(96, -1025));
-        SpawnSkreeOrMetareeParticle(source, burst.DownLeft, -6, new(-320, -769));
-        SpawnSkreeOrMetareeParticle(source, burst.UpLeft, -6, new(-96, -1025));
+        SpawnSkreeOrMetareeParticle(source, burst.DownRight, 6, EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(320, -769));
+        SpawnSkreeOrMetareeParticle(source, burst.UpRight, 6, EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(96, -1025));
+        SpawnSkreeOrMetareeParticle(source, burst.DownLeft, -6, EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-320, -769));
+        SpawnSkreeOrMetareeParticle(source, burst.UpLeft, -6, EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-96, -1025));
     }
 
     /// <summary>

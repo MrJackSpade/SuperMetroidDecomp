@@ -80,7 +80,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The speed a rise keeps when its deceleration would take it below zero: 255/256 pixel per frame.</summary>
     internal static readonly SignedEightEight RiseSpeedAfterStalling = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(255);
     /// <summary>Starting acceleration of every sink: eight pixels per frame per frame.</summary>
-    internal const int SinkStartingAccelerationWhole = 8;
+    internal static readonly SignedEightEight SinkStartingAcceleration = SignedEightEight.FromPixels(8);
     /// <summary>The skeleton's fixed fall through its arc: 224/256 pixel per frame.</summary>
     internal static readonly SignedSixteenSixteen SkeletonArcFallSpeed =
         SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(224);

@@ -44,8 +44,13 @@ internal static class EnemySpawnSelectorDefinitions
         new(10, 4), new(11, 4), new(12, 5), new(13, 5), new(14, 6), new(15, 6),
     ];
 
-    /// <summary>A Bull's maximum speed in 256ths of a pixel per update, by its second parameter: one pixel a step from just under four.</summary>
-    public static readonly int[] BullMaximumSpeeds = [1023, 1279, 1535, 1791, 2047, 2303, 2559, 2815];
+    /// <summary>A Bull's maximum speed per update, by its second parameter: one pixel a step from just under four.</summary>
+    public static readonly SignedEightEight[] BullMaximumSpeeds =
+    [
+        SignedEightEight.FromParts(3, 255), SignedEightEight.FromParts(4, 255), SignedEightEight.FromParts(5, 255),
+        SignedEightEight.FromParts(6, 255), SignedEightEight.FromParts(7, 255), SignedEightEight.FromParts(8, 255),
+        SignedEightEight.FromParts(9, 255), SignedEightEight.FromParts(10, 255),
+    ];
 
     /// <summary>How far, in pixels, a Cacatac patrols to either side, by its second parameter's low byte: one block, then four through eight.</summary>
     public static readonly int[] CacatacTravelDistances = [16, 64, 80, 96, 112, 128];

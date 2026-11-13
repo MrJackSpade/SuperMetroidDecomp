@@ -198,8 +198,20 @@ internal static class BotwoonAnimationsVerification
         EnemyProjectile body = enemies.Projectiles.EnemyProjectiles.First(item => item.Kind == RoomEnemyProjectileKind.BotwoonBody);
         AssertEqual(BotwoonSegmentProgram.Hidden, ((BotwoonProjectileAnimation)(body.Animation ?? throw new InvalidOperationException("Verification requires body.Animation."))).Segment,
             "the real body producer starts a non-tail segment hidden");
-        body.Position = body.Position.WithWholeY(200);
+        // A falling segment starts at the quadratic table's first row and moves on three quarters of a row each update
+        // it has not landed; the whole rows of its place before the update choose the speed it falls by.
+        body.Position = body.Position.WithWholeY(0);
         state.SegmentFunctions[1] = BotwoonBodyFunction.Falling;
+        FixedPosition<RoomPixels> expected = body.Position;
+        foreach ((int update, int rows) in new[] { (1, 0), (2, 0), (3, 1), (4, 2) })
+        {
+            expected = expected.AdvanceY(EnemyQuadraticSpeeds.Row(rows).Positive);
+            runBody(body, 0);
+            AssertEqual(expected, body.Position, $"a falling Botwoon segment's update {update} falls by row {rows}");
+            AssertEqual(EnemyQuadraticSpeedIndex.FromTwoHundredFiftySixthsOfRow(192 * update), body.StateOf<BotwoonSegmentState>().FallPlace,
+                $"a falling Botwoon segment's place after update {update}");
+        }
+        body.Position = body.Position.WithWholeY(200);
         runBody(body, 0);
         // The landed phase is the segment's own state (#1413); this no longer asserts the cartridge's RTS word in the
         // X-velocity slot.

@@ -52,7 +52,7 @@ internal sealed class CrocomireBridgeCollapse
         state.DeathPhase = CrocomireDeathPhase.CrumbleBridgeAndSink;
         CrocomireEncounterAccess.StartCrocomireBodyProgram(state, CrocomireBodyProgram.BridgeCollapsed);
         body.Contact = body.Contact.With(EnemyContact.SolidToSamus);
-        state.StartVerticalMotion(EightEight.FromWhole(CrocomireBehavior.SinkStartingAccelerationWhole));
+        state.StartVerticalMotion(CrocomireBehavior.SinkStartingAcceleration);
         body.Radius = body.Radius.WithY(16);
         _access.RequestCrocomireSound(CrocomireSoundDefinitions.BridgeCollapse);
         CrocomireDeathState death = _access.RequireCrocomireDeath();

@@ -8,29 +8,13 @@ using SuperMetroid.AssetExtraction.Samus.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>
-/// Installs the projectile presentation documents with their versioned provenance manifest, which the player edits in place,
-/// and extracts the beam, trail and grapple characters (#1636), the beam colours the projectile and frozen-enemy sheets are
+/// Installs the projectile presentation documents, which the player edits in place, with no manifest (#1693): each document
+/// names its own format and the installation receipt the cartridge. It extracts the beam, trail and grapple characters (#1636), the beam colours the projectile and frozen-enemy sheets are
 /// pre-coloured in (#1637) and the projectile, flare, trail and grapple compositions, whose parts are the original's packed
 /// sprite placements (#1638), into the component's import data, which only the import reads.
 /// </summary>
 public static class ProjectilePresentationFiles
 {
-    /// <summary>Projectile provenance manifest filename.</summary>
-    public const string ManifestFileName = "projectile-manifest.json";
-    /// <summary>
-    /// Current projectile manifest schema version covering all projectile, beam, flare, trail, and Grapple visual assets; 19
-    /// installs no composition (#1638).
-    /// </summary>
-    public const int Version = 19;
-    /// <summary>Strict manifest JSON encoding with required fields and no unknown properties.</summary>
-    private static readonly JsonSerializerOptions Options = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
-        RespectRequiredConstructorParameters = true,
-        WriteIndented = true,
-    };
-
     /// <summary>
     /// Writes into the installer's unpublished staging directory after ROM validation: the documents into
     /// <paramref name="directory"/>, the character pages, the beam colours and the compositions into its import-data directory.
@@ -66,23 +50,15 @@ public static class ProjectilePresentationFiles
         File.WriteAllBytes(Path.Combine(importData, BeamPaletteFile.FileName), palettes);
         File.WriteAllBytes(Path.Combine(directory, HyperBeamFxColorFormat.FileName), hyperBeamFxColors);
         foreach (var file in beams) File.WriteAllBytes(Path.Combine(importData, file.Key), file.Value);
-        File.WriteAllText(Path.Combine(directory, ManifestFileName), JsonSerializer.Serialize(
-            new Manifest(Version, SupportedCartridge.Sha256), Options));
     }
 
     /// <summary>
-    /// Checks the manifest's provenance and loads the installed projectile documents, as the player may have edited them.
-    /// No character page (#1636), beam colour (#1637) or composition (#1638) is read. An invalid file fails loudly with its path.
+    /// Loads the installed projectile documents, as the player may have edited them. No character page (#1636), beam colour
+    /// (#1637), composition (#1638) or manifest (#1693) is read. An invalid file fails loudly with its path.
     /// </summary>
     public static InstalledProjectilePresentation Load(string directory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
-        string manifestPath = Path.Combine(directory, ManifestFileName);
-        using var manifestStream = File.OpenRead(manifestPath);
-        Manifest manifest = JsonAssetDocument.Read<Manifest>(manifestStream, Options,
-            $"projectile manifest {manifestPath}");
-        if (manifest.Version != Version || manifest.RomSha256 != SupportedCartridge.Sha256)
-            throw new InvalidDataException($"Projectile manifest {manifestPath} does not match the supported cartridge/revision.");
         ProjectileFile frameBindings = Read(ProjectileFrameBindingFormat.FileName);
         ProjectileFile hyperBeamFxColors = Read(HyperBeamFxColorFormat.FileName);
         ProjectileFile flarePlacement = Read(ChargeFlarePlacementExtractor.FileName);
@@ -159,9 +135,6 @@ public static class ProjectilePresentationFiles
         // Fixed-size component hashes in a fixed order prevent ambiguous concatenation.
         return Hash(System.Text.Encoding.ASCII.GetBytes(Hash(files.HyperBeamFxColors.Bytes) + Hash(files.FlarePlacement.Bytes) + Hash(files.GrappleFlare.Bytes) + Hash(files.GrappleSwing.Bytes) + Hash(files.FrameBindings.Bytes)));
     }
-    /// <summary>Cartridge provenance and expected hashes for every extracted projectile presentation asset.</summary>
-    private sealed record Manifest(int Version, string RomSha256);
-
     /// <summary>The installed projectile presentation documents whose contents form the presentation identity (#633, #1636).</summary>
     [ArchitectureReview("context-bag", "The projectile presentation's source files read for one extraction; every member is file content, not a service.")]
     private sealed record ProjectilePresentationSourceFiles

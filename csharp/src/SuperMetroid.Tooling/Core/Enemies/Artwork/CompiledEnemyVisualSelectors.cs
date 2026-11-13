@@ -17,7 +17,9 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 /// <remarks>
 /// The per-bank definition declarations were generated from the pinned cartridge by the retired
 /// --generate-enemy-visual-selectors and are frozen (#1367); --verify-enemy-visual-selectors checks every entry
-/// against the cartridge.
+/// against the cartridge. With no generator to rerun, the frozen tables follow the game by deletion only: no bank-$B4
+/// selector names a frame that only the sprite-object lists no spawned object reaches show, the frames #1623 deleted
+/// (#1732).
 /// </remarks>
 internal static partial class CompiledEnemyVisualSelectors
 {

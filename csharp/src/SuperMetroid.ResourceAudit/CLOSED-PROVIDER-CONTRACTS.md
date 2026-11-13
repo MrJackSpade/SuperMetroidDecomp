@@ -808,14 +808,17 @@ form whose message the message box never shows remains a finding.
 loads when that type shows a page; the import pictures, for each tileset, the page of every such effect its retail
 states run, and the loader requires each one. A constant effect that shows no page remains a finding.
 
-`spawned-object-sheet-exact-spawned-pictures` covers `SpawnedObjectSheet.Frame`. Its picture name is computed from
+`spawned-object-sheet-exact-spawned-pictures` covers `SpawnedObjectSheet.Frame` and `ShowsNothing` (#1732). Its
+picture name is computed from
 several identities: the kind and identity of the frame a spawned object shows and the step of each artwork
 sequence that changes it. The generated `SpawnedObjectFrameDefinitions` list what each enemy, each common spawner
 and each sheet-specific owner spawns, and `EncounterFrameDefinitions` the frames each encounter draws itself.
 `EnemySheetFiles` requires each installed sheet to hold exactly the pictures of the frames its owner's spawners
 spawn, in every step its variations record, and the presentation names the picture it draws from those same
 variations. A constant picture must name a frame some spawner's objects show; a constant naming a step's picture
-is not owned and remains a finding. A construction of a sheet outside the reviewed sources revokes the rule.
+is not owned and remains a finding. `ShowsNothing` answers over the same pictures: the loader requires the sheet's
+pictures and its pictures that show nothing (#1538) to be exactly the owner's, and a name outside both throws, so
+its constant domain is `Frame`'s. A construction of a sheet outside the reviewed sources revokes the rule.
 
 The rules certify availability of the selected key in the installed sheets, not caller state, timing, placement or
 pixels. A source that builds the installed room artwork or a spawned-object sheet without naming its type is not
@@ -824,6 +827,29 @@ inspected for the construction escape.
 `RoomPicturePresentationContractChecks` compiles the reviewed sources with sixteen consumer calls: all sixteen are
 unresolved without the adapter; with it twelve classify and four known invalid constants (sky, floor frame, message,
 pageless effect) remain findings; a forged construction of the installed room artwork revokes its six lookups.
-`SpawnedObjectSheetContractChecks` compiles three calls: a computed picture and an owned constant classify, an
-unowned constant remains a finding, and a forged sheet construction revokes the rule. Both run under `--self-check`
-and `--room-picture-contract-check`.
+`SpawnedObjectSheetContractChecks` compiles three calls each of `Frame` and `ShowsNothing`: a computed picture and
+an owned constant classify, an unowned constant remains a finding, and a forged sheet construction revokes the rule.
+Both run under `--self-check` and `--room-picture-contract-check`.
+
+## Room-object frame pictures - twenty-six additional original boundaries
+
+#1557 replaced the index-based room-object picture contracts with frame pictures keyed by the frame's draw, and the
+drawing's twenty-six `Installed*Visuals.Image` lookups in `RoomObjectBlockDrawing` were left with no adapter. Each of
+the twenty-three families now has a reviewed rule (`RoomObjectFrameClosedContractDefinitions`, #1732), named for its
+family (`room-object-blue-door-complete-frames`, ...), covering its `Image`. No lookup was excused.
+
+A family's provider holds the pictures `RoomObjectFrameImageFiles.Load` read for it, and only its loader
+(`RoomObject*VisualFiles.Load`) builds one. The loader's family enumerates every frame the family's descriptor
+describes (`BlueDoorCaps`, `ShotBlockObjectDraws`, the four reveal-and-wall descriptors, ...), and `Load` requires a
+picture of each of those frames and rejects any other frame, cell or block. `Image` rejects a draw its descriptor
+does not describe, and the drawing calls it only on the branch that descriptor accepts, so every frame the drawing
+names has an installed picture. Two families show one frame under a second identity: a closed blue cap shows its
+facing's first opening frame, and an eye door's mirrored clear shows the shared clear mirrored; both read the installed
+frame. A collectible's block pair is drawn as terrain before its `Image` branch and has no picture of its own. The rule
+reviews each provider, its loader, its descriptor sources and the shared frame-picture, draw and loader sources; the
+providers are loader-built, so a construction outside the reviewed sources revokes the family's rule. The draw is
+always computed: no constant draw reaches a lookup.
+
+`RoomObjectFramePresentationContractChecks` compiles two calls, the Botwoon wall's and the blue door's: both are
+unresolved without the adapter and classify with it, and a forged construction of the Botwoon wall's pictures revokes
+that family's rule alone. It runs under `--self-check`.

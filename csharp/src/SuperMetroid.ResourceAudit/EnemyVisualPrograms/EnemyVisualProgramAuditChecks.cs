@@ -6,6 +6,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.ResourceAudit.Reports;
+using SuperMetroid.ResourceAudit.Resources;
 using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.ResourceAudit.EnemyVisualPrograms;
@@ -32,14 +33,27 @@ internal static class EnemyVisualProgramAuditChecks
             class RoomEnemySystem {
                 ushort ReadEnemyInstructionMechanicsWord(ushort p) => RenamedCatalog.ReadWord(p);
             }
+            namespace SuperMetroid.Core.Animation { interface IPresentationOperandCatalog { } }
+            namespace SuperMetroid.Tooling {
+                sealed class ToolingForAttribute : System.Attribute { public ToolingForAttribute(System.Type owner) { } }
+            }
+            class RenamedAnimation { }
+            [SuperMetroid.Tooling.ToolingFor(typeof(RenamedAnimation))]
+            class RenamedProgramTooling : SuperMetroid.Core.Animation.IPresentationOperandCatalog { }
+            class UnpairedProgramTooling : SuperMetroid.Core.Animation.IPresentationOperandCatalog { }
             """);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         var compilation = CSharpCompilation.Create("VisualAuditFixture", [syntax],
             platforms.Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
-        var owners = EnemyVisualProgramAudit.DiscoverOwners(compilation);
-        Require(owners.SetEquals(["SingleInstructionProgramDefinitions", "UnknownInstructionProgramDefinitions", "RenamedCatalog"]),
-            "single-operand, unknown and renamed interpreter owners must all be inventoried");
+        var adapters = new ToolingAdapterPairings(compilation);
+        var owners = EnemyVisualProgramAudit.DiscoverOwners(compilation, adapters);
+        Require(owners.SetEquals(["SingleInstructionProgramDefinitions", "UnknownInstructionProgramDefinitions", "RenamedCatalog", "RenamedAnimation"]),
+            "single-operand, unknown, renamed interpreter and [ToolingFor]-paired owners must all be inventoried");
+        Require(adapters.AdapterDeclarations("RenamedAnimation").Select(adapter => adapter.Identifier.ValueText).SequenceEqual(["RenamedProgramTooling"]),
+            "an adapter pairs with the shipped program its [ToolingFor] names, whatever either is called");
+        Require(adapters.Unpaired.Select(adapter => adapter.Name).SequenceEqual(["UnpairedProgramTooling"]),
+            "an adapter with no [ToolingFor] pairing is listed for the audit to fail on");
         var missingDeclarations = new Dictionary<ushort, ushort>
         {
             [FixtureFrame] = 1,

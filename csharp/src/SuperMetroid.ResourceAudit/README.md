@@ -50,6 +50,9 @@ full exception on stderr. Windows entry-point failures cannot open a CLR error d
 - Source-declared `PresentationWordCount` program catalogs are discovered semantically.
   Their bounded operand-address declarations must have compiled selectors or projectile
   resources. A new program with unknown ownership/kind is unresolved, not silently skipped.
+  A catalog is a development adapter implementing a program-catalog contract, and it names the
+  shipped program it describes through `[ToolingFor]` (#1732); both audits pair it by that
+  attribute, never by name, and an adapter with no pairing fails them.
 - Finite room/title palette-FX color declarations are compared with identities installed
   by the production extractors and loaders. Extractors receive a recording source with
   zero RGB5 values, not a ROM; only declared color reads are allowed. Installed aliases

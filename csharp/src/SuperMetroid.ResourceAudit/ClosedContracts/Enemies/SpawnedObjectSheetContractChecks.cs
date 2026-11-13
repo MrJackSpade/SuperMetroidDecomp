@@ -8,13 +8,14 @@ using SuperMetroid.ResourceAudit.Resources;
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Enemies;
 
 /// <summary>
-/// Confirms the spawned-object sheet contract (#1536) on constructed consumer calls, never an installation: a computed
-/// picture and a constant naming a spawned frame classify, a constant naming none fails, and a construction of a sheet
+/// Confirms the spawned-object sheet contract (#1536) on constructed consumer calls, never an installation: for both the
+/// frame lookup and the shows-nothing question (#1732), a computed picture and a constant naming a spawned frame classify,
+/// a constant naming none fails, and a construction of a sheet
 /// outside its reviewed loader revokes the loader's proof.
 /// </summary>
 internal static class SpawnedObjectSheetContractChecks
 {
-    /// <summary>Compiles the reviewed spawned-object sources with three consumer calls, then checks each classification.</summary>
+    /// <summary>Compiles the reviewed spawned-object sources with six consumer calls, then checks each classification.</summary>
     internal static void Run()
     {
         string owned = (ClosedPresentationIdentityDefinitions.GetNames("SpawnedObjectSheet", "Frame", "picture")
@@ -30,6 +31,9 @@ internal static class SpawnedObjectSheetContractChecks
                     sheet.Frame(picture);
                     sheet.Frame("{{owned}}");
                     sheet.Frame("Projectile.NoSuchFrame");
+                    sheet.ShowsNothing(picture);
+                    sheet.ShowsNothing("{{owned}}");
+                    sheet.ShowsNothing("Projectile.NoSuchFrame");
                 }
             }
             """, path: "fixture-spawned-object-consumer.cs");
@@ -42,8 +46,8 @@ internal static class SpawnedObjectSheetContractChecks
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         FixtureConsumerBinding.Require(compilation, calls, nameof(SpawnedObjectSheetContractChecks));
         AuditReport before = Inspect(compilation, calls, adapted: false), after = Inspect(compilation, calls, adapted: true);
-        Require(before.UnresolvedCount == 3, "constructed calls must first expose the missing adapter (" + before.Describe() + ")");
-        Require(after.Classifications.Count == 2 && after.UnresolvedCount == 1 && after.MissingCount == 0 && after.Consumers.Count == 3,
+        Require(before.UnresolvedCount == 6, "constructed calls must first expose the missing adapter (" + before.Describe() + ")");
+        Require(after.Classifications.Count == 4 && after.UnresolvedCount == 2 && after.MissingCount == 0 && after.Consumers.Count == 6,
             "computed and owned pictures classify and an unowned constant fails (" + after.Describe() + ")");
 
         // Only the reviewed loader's exact-picture check proves a sheet complete; a construction elsewhere revokes it.
@@ -54,7 +58,7 @@ internal static class SpawnedObjectSheetContractChecks
             }
             """, path: "fixture-spawned-object-forger.cs"));
         AuditReport revoked = Inspect(forged, calls, adapted: true);
-        Require(revoked.Classifications.Count == 0 && revoked.UnresolvedCount == 3 && revoked.Consumers.Count == 3,
+        Require(revoked.Classifications.Count == 0 && revoked.UnresolvedCount == 6 && revoked.Consumers.Count == 6,
             "a construction of a spawned-object sheet outside its loader must revoke its proof (" + revoked.Describe() + ")");
     }
 

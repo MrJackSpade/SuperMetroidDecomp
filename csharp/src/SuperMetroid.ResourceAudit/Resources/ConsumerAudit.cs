@@ -18,7 +18,7 @@ internal static class ConsumerAudit
     public static void Run(string root, ResourceIndex exports, AuditReport report)
     {
         CSharpCompilation compilation = CreateCompilation(root);
-        var operands = new ProgramOperandAudit(exports, report);
+        var operands = new ProgramOperandAudit(exports, report, new ToolingAdapterPairings(compilation));
         var closedProviders = new ClosedPresentationAudit(compilation, exports);
         foreach (SyntaxTree tree in compilation.SyntaxTrees)
         {

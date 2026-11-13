@@ -109,7 +109,7 @@ internal static class ClosedPresentationIdentityDefinitions
         // A spawned object draws a frame some spawner's objects show: on its spawner's own sheet, on a set's shared sheet
         // with every encounter's own frames and every common spawner's objects, or on a sheet of its own (#1536). A picture
         // of an artwork sequence's step is named after its frame; a constant naming one is not owned here.
-        ("SpawnedObjectSheet", "Frame", "picture") => SpawnedObjectSheetComposer.FrameNames(SpawnedObjectOwner.Shared,
+        ("SpawnedObjectSheet", "Frame" or "ShowsNothing", "picture") => SpawnedObjectSheetComposer.FrameNames(SpawnedObjectOwner.Shared,
                 SpawnedObjectFrameDefinitions.ByEnemy.Keys.Concat(EncounterFrameDefinitions.ByEnemy.Keys).Distinct(),
                 SpawnedObjectFrameDefinitions.SharedByEnemy.Keys, SpawnedObjectFrameDefinitions.Common)
             .Concat(SpawnedObjectFrameDefinitions.BySheet.Keys.SelectMany(owner => SpawnedObjectSheetComposer.FrameNames(owner, [], [], [])))

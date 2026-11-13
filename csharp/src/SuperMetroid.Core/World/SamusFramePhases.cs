@@ -70,7 +70,7 @@ internal sealed class SamusFramePhases
     /// Samus's HUD-specific behaviour and projectiles in her alpha pass.
     /// It therefore runs before Samus's projectiles and before the enemies' main step,
     /// so enemies see the beam endpoint and Samus position it leaves this frame. Only
-    /// connected and release functions own Samus's movement; an extending or cancelling
+    /// connected and release phases own Samus's movement; an extending or cancelling
     /// beam coexists with the current pose's ordinary movement.
     /// </summary>
     private bool RunGrappleBeamHandler(SamusBetaHandler beta, ISamusRoomObjects roomObjects, SamusProjectileSystem projectiles, RoomScope room)
@@ -132,7 +132,7 @@ internal sealed class SamusFramePhases
             _player.Colours.ShowBeams(SuperMetroid.Core.Samus.Palettes.SamusShades.Beam(SamusBeamCombinations.Of(_player.Samus.EquippedBeams)));
         }
 
-        // The grapple's bottom-boundary check runs after every grapple function, including inactive.
+        // The grapple's bottom-boundary check runs after every grapple phase, including inactive.
         // Swing calculations above therefore consumed last frame's bit; this write
         // publishes the current bottom-boundary result for the next frame exactly
         // where the handler does.
@@ -452,8 +452,8 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
                 frame.MovementTypeAtFrameStart != SamusMovementType.Grappling &&
                 samus.Pose == frame.PoseAtFrameStart);
             // The grapple release replaces the normal beta movement handler on the
-            // release-input frame. It remains independent of the beam function, so
-            // it must also run after the grapple cancel has made that function inactive.
+            // release-input frame. It remains independent of the beam phase, so
+            // it must also run after the grapple cancel has made the beam inactive.
             SamusAerialMovement.ConfigureEnvironmentGravity(samus);
             _player.LastAerialSamusMovement = SamusAerialMovement.StepReleasedFromGrapple(
 
@@ -622,7 +622,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
                 room.BombProjectiles.PowerBombExplosion.BeginCrystalFlash(samus.Position.Whole);
             }
         }
-        // Drained controller functions install special-movement-type poses whose normal
+        // The drain's operations install special-movement-type poses whose normal
         // beta dispatcher is empty. Only the drained-fall animation cue replaces the handler
         // with the drained-falling mover; the other phases stay motionless while enemy AI controls
         // pose/timing. This branch is reached only when no independently retained
@@ -1240,7 +1240,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
     private void RunBetaTail(SamusHandlerFrame frame, SamusState samus, ISamusFrameAudio audio, ISamusRoomObjects roomObjects, RoomScope room)
     {
         // Samus's normal movement handler calls the speed-echo update after the selected movement
-        // function and before animation/pose transitions. Every fourth gameplay frame
+        // handler and before animation/pose transitions. Every fourth gameplay frame
         // at boost stage four, it alternates between two exact world-position snapshots.
         // Keeping this producer here means the draw handler below consumes post-motion
         // coordinates with the same frame ordering as the game.

@@ -386,7 +386,7 @@ public static class GameAssetInstaller
         new(GameInstallationLayout.RoomObjectSetupBlockDirectoryName,
             Step("Extracting room-object setup blocks...", (bus, d) => RoomObjectSetupBlockFiles.Extract(bus, d, SupportedCartridge.Sha256))),
         new(GameInstallationLayout.XrayRevealVisualDirectoryName,
-            Step("Extracting X-ray reveal visuals...", (bus, d) => XrayRevealVisualFiles.Extract(bus, d, SupportedCartridge.Sha256))),
+            Step("Extracting X-ray reveal visuals...", (bus, d) => XrayRevealVisualFiles.Extract(bus, d))),
         new(GameInstallationLayout.SpriteSheetDirectoryName, InstallerComponentKind.Composition,
             SheetStep("Composing sprite sheets...", (bus, d, families) => families.Add(SpriteSheetFiles.Extract(bus, InstallationOf(d), d)))),
         new(GameInstallationLayout.RoomBlockSheetDirectoryName, InstallerComponentKind.Composition,

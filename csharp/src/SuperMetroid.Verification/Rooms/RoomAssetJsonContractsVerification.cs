@@ -47,7 +47,8 @@ internal static class RoomAssetJsonContractsVerification
                     stock => BlockCompositionIdentity(RoomMetatileArtworkFiles.LoadForImport(stock))),
                 new("layouts", installed.RoomVisualLayoutDirectory, RoomVisualLayoutFiles.ManifestFileName,
                     stock => RoomVisualLayoutFiles.Load(stock).ContentIdentity),
-                new("X-ray", installed.XrayRevealVisualDirectory, XrayRevealVisualFiles.ManifestFileName,
+                // The X-ray reveals install no manifest (#1693): their document is the file corrupted.
+                new("X-ray", installed.XrayRevealVisualDirectory, XrayRevealVisualFiles.VisualFileName,
                     stock => XrayRevealVisualFiles.Load(stock).ContentIdentity),
             ];
             foreach (RoomJsonFileContract contract in contracts)

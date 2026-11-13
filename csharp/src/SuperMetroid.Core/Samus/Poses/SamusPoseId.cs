@@ -355,14 +355,14 @@ public enum SamusPoseId
     MorphBallFallingLeftPose,
 
     /// <summary>
-    /// This pose is the unused right-facing body selected only by the unused glitch-ball movement type's
-    /// otherwise-unused knockback transition. Naming it keeps the exhaustive
-    /// pose table executable without pretending the retail game reaches it.
+    /// This pose is the right-facing glitch ball knocked back by a hit (#1686): a hit on <see cref="GlitchBallRightPose"/>
+    /// or <see cref="GlitchBallLeftPose"/> gives her the knockback pose facing her way, with the
+    /// <see cref="Movement.SamusMovementType.GlitchBallKnockback"/> movement.
     /// </summary>
-    UnusedKnockbackRightPose,
+    GlitchBallKnockbackRightPose,
 
-    /// <summary>Left-facing partner of <see cref="UnusedKnockbackRightPose"/>.</summary>
-    UnusedKnockbackLeftPose,
+    /// <summary>Left-facing partner of <see cref="GlitchBallKnockbackRightPose"/>.</summary>
+    GlitchBallKnockbackLeftPose,
 
     /// <summary>This pose is the right-facing crouch-to-morph transition.</summary>
     MorphingTransitionRightPose,

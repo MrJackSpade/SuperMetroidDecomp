@@ -42,7 +42,7 @@ internal static class SamusPoseDispatch
         SamusPoseId.FallingAimDownLeftPose or
         SamusPoseId.TurningRightToLeftJumpPose or
         SamusPoseId.MorphBallFallingLeftPose or
-        SamusPoseId.UnusedKnockbackLeftPose or
+        SamusPoseId.GlitchBallKnockbackLeftPose or
         SamusPoseId.CrouchingTransitionLeftPose or
         SamusPoseId.MorphingTransitionLeftPose or
         SamusPoseId.GlitchBallMorphingLeftPose or
@@ -159,7 +159,7 @@ internal static class SamusPoseDispatch
         SamusPoseId.FallingAimDownRightPose or
         SamusPoseId.TurningLeftToRightJumpPose or
         SamusPoseId.MorphBallFallingRightPose or
-        SamusPoseId.UnusedKnockbackRightPose or
+        SamusPoseId.GlitchBallKnockbackRightPose or
         SamusPoseId.CrouchingTransitionRightPose or
         SamusPoseId.MorphingTransitionRightPose or
         SamusPoseId.GlitchBallMorphingRightPose or
@@ -357,11 +357,11 @@ internal static class SamusPoseDispatch
         SamusPoseId.FallingAimDiagonalDownRightPose or
         SamusPoseId.FallingAimDiagonalDownLeftPose => SamusMovementType.Falling,
         SamusPoseId.GlitchBallRightPose or
-        SamusPoseId.GlitchBallLeftPose => SamusMovementType.UnusedGlitchBall,
+        SamusPoseId.GlitchBallLeftPose => SamusMovementType.GlitchBall,
         SamusPoseId.MorphBallFallingRightPose or
         SamusPoseId.MorphBallFallingLeftPose => SamusMovementType.MorphBallFalling,
-        SamusPoseId.UnusedKnockbackRightPose or
-        SamusPoseId.UnusedKnockbackLeftPose => SamusMovementType.UnusedGlitchBallAlternate,
+        SamusPoseId.GlitchBallKnockbackRightPose or
+        SamusPoseId.GlitchBallKnockbackLeftPose => SamusMovementType.GlitchBallKnockback,
         SamusPoseId.KnockbackRightPose or
         SamusPoseId.KnockbackLeftPose or
         SamusPoseId.DeathSequenceRightPose or
@@ -620,8 +620,8 @@ internal static class SamusPoseDispatch
         SamusPoseId.TurningLeftToRightJumpPose or
         SamusPoseId.MorphBallFallingRightPose or
         SamusPoseId.MorphBallFallingLeftPose or
-        SamusPoseId.UnusedKnockbackRightPose or
-        SamusPoseId.UnusedKnockbackLeftPose or
+        SamusPoseId.GlitchBallKnockbackRightPose or
+        SamusPoseId.GlitchBallKnockbackLeftPose or
         SamusPoseId.CrouchingTransitionRightPose or
         SamusPoseId.CrouchingTransitionLeftPose or
         SamusPoseId.MorphingTransitionRightPose or

@@ -69,10 +69,10 @@ internal static class SamusHorizontalMotion
                 SamusMovementType.SpringBallInAir or SamusMovementType.Grappling => JumpingMaximum,
             SamusMovementType.SpinJumping or SamusMovementType.WallJumping => SpinJumpingMaximum,
             SamusMovementType.MorphBallGround or SamusMovementType.SpringBallGround => air ? AirMorphBallGroundMaximum : LiquidMorphBallGroundMaximum,
-            SamusMovementType.Falling or SamusMovementType.UnusedGlitchBall => FallingMaximum,
+            SamusMovementType.Falling or SamusMovementType.GlitchBall => FallingMaximum,
             SamusMovementType.MorphBallFalling or SamusMovementType.SpringBallFalling =>
                 air ? FallingMaximum : water ? WaterBallFallingMaximum : LavaBallFallingMaximum,
-            SamusMovementType.UnusedGlitchBallAlternate or SamusMovementType.CompactAirborne => GlitchBallMaximum,
+            SamusMovementType.GlitchBallKnockback or SamusMovementType.CompactAirborne => GlitchBallMaximum,
             SamusMovementType.Knockback or SamusMovementType.DraygonHeld or SamusMovementType.Special => KnockbackMaximum,
             SamusMovementType.Moonwalking => MoonwalkingMaximum,
             SamusMovementType.DamageBoost => air ? KnockbackMaximum : MoonwalkingMaximum,
@@ -84,7 +84,7 @@ internal static class SamusHorizontalMotion
         SignedSixteenSixteen acceleration = movement switch
         {
             SamusMovementType.Running => air ? AirRunningAcceleration : LiquidGroundAcceleration,
-            SamusMovementType.UnusedGlitchBall or SamusMovementType.UnusedGlitchBallAlternate => GlitchBallAcceleration,
+            SamusMovementType.GlitchBall or SamusMovementType.GlitchBallKnockback => GlitchBallAcceleration,
             SamusMovementType.Knockback => KnockbackAcceleration,
             SamusMovementType.MorphBallGround or SamusMovementType.MorphBallFalling or
                 SamusMovementType.SpringBallGround or SamusMovementType.SpringBallInAir or

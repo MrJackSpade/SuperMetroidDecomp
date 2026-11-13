@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
@@ -589,8 +589,8 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
                 SamusPoseId.MorphBallMovingLeftPose or
                 SamusPoseId.MorphBallFallingRightPose or
                 SamusPoseId.MorphBallFallingLeftPose or
-                SamusPoseId.UnusedKnockbackRightPose or
-                SamusPoseId.UnusedKnockbackLeftPose or
+                SamusPoseId.GlitchBallKnockbackRightPose or
+                SamusPoseId.GlitchBallKnockbackLeftPose or
                 SamusPoseId.MorphingTransitionRightPose or
                 SamusPoseId.MorphingTransitionLeftPose or
                 SamusPoseId.UnmorphingTransitionRightPose or

@@ -1199,8 +1199,8 @@ internal static void VerifySamusMoonwalking()
                 SamusPoseId.MorphBallMovingLeftPose or
                 SamusPoseId.MorphBallFallingRightPose or
                 SamusPoseId.MorphBallFallingLeftPose or
-                SamusPoseId.UnusedKnockbackRightPose or
-                SamusPoseId.UnusedKnockbackLeftPose or
+                SamusPoseId.GlitchBallKnockbackRightPose or
+                SamusPoseId.GlitchBallKnockbackLeftPose or
                 SamusPoseId.MorphingTransitionRightPose or
                 SamusPoseId.MorphingTransitionLeftPose or
                 SamusPoseId.UnmorphingTransitionRightPose or
@@ -1460,8 +1460,8 @@ internal static void VerifySamusMoonwalking()
                 SamusPoseId.MorphBallMovingLeftPose or
                 SamusPoseId.MorphBallFallingRightPose or
                 SamusPoseId.MorphBallFallingLeftPose or
-                SamusPoseId.UnusedKnockbackRightPose or
-                SamusPoseId.UnusedKnockbackLeftPose or
+                SamusPoseId.GlitchBallKnockbackRightPose or
+                SamusPoseId.GlitchBallKnockbackLeftPose or
                 SamusPoseId.MorphingTransitionRightPose or
                 SamusPoseId.MorphingTransitionLeftPose or
                 SamusPoseId.UnmorphingTransitionRightPose or

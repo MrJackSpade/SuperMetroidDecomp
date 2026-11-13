@@ -20,12 +20,18 @@ public enum SamusMovementType
     Crouching,
     /// <summary>Upright descending aerial movement after the vertical-speed apex.</summary>
     Falling,
-    /// <summary>Unused retail movement type associated with a glitch-ball pose family.</summary>
-    UnusedGlitchBall,
+    /// <summary>
+    /// The glitch ball's movement (<see cref="Poses.SamusPoseId.GlitchBallRightPose"/>): Samus takes no pose input and
+    /// keeps her pose; a hit knocks her back in <see cref="GlitchBallKnockback"/>'s poses.
+    /// </summary>
+    GlitchBall,
     /// <summary>Descending morph-ball movement with airborne ball collision bounds.</summary>
     MorphBallFalling,
-    /// <summary>Second unused retail glitch-ball movement type.</summary>
-    UnusedGlitchBallAlternate,
+    /// <summary>
+    /// The movement of the poses a hit gives the glitch ball (<see cref="Poses.SamusPoseId.GlitchBallKnockbackRightPose"/>):
+    /// it moves Samus no further of its own, and a further hit treats her as a ball.
+    /// </summary>
+    GlitchBallKnockback,
     /// <summary>Damage knockback movement until the hurt trajectory returns control to a normal pose.</summary>
     Knockback,
     /// <summary>The movement of the compact airborne poses, which no retail transition enters.</summary>

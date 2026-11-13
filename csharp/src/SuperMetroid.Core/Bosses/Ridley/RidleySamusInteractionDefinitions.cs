@@ -25,9 +25,9 @@ internal static class RidleySamusInteractionDefinitions
     internal static readonly Dictionary<SamusMovementType, GrabPolicy> GrabPolicies = new()
     {
         [SamusMovementType.MorphBallGround] = GrabPolicy.Morphed,
-        [SamusMovementType.UnusedGlitchBall] = GrabPolicy.Morphed,
+        [SamusMovementType.GlitchBall] = GrabPolicy.Morphed,
         [SamusMovementType.MorphBallFalling] = GrabPolicy.Morphed,
-        [SamusMovementType.UnusedGlitchBallAlternate] = GrabPolicy.Morphed,
+        [SamusMovementType.GlitchBallKnockback] = GrabPolicy.Morphed,
         [SamusMovementType.SpringBallGround] = GrabPolicy.Morphed,
         [SamusMovementType.SpringBallInAir] = GrabPolicy.Morphed,
         [SamusMovementType.SpringBallFalling] = GrabPolicy.Morphed,

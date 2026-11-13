@@ -924,20 +924,20 @@ floorLevel, downKnockback, frameCounter: 0);
 
     // The unused movement-type-seven table arm is nevertheless completely defined by the
     // cartridge. It selects `$33/$34` instead of throwing, then enters the same hurt handler.
-    WritePoseDefinition(bus, SamusPoseNumbers.Number(SamusPoseId.UnusedKnockbackRightPose),
+    WritePoseDefinition(bus, SamusPoseNumbers.Number(SamusPoseId.GlitchBallKnockbackRightPose),
         [0x08, 0x07, 0xff, 0xff, 0x06, 0x00, 0x15, 0x00]);
-    WritePoseDefinition(bus, SamusPoseNumbers.Number(SamusPoseId.UnusedKnockbackLeftPose),
+    WritePoseDefinition(bus, SamusPoseNumbers.Number(SamusPoseId.GlitchBallKnockbackLeftPose),
         [0x04, 0x07, 0xff, 0xff, 0x06, 0x00, 0x15, 0x00]);
-    WritePoseAnimationDelays(bus, SamusPoseId.UnusedKnockbackRightPose, 0xc170, [4]);
-    WritePoseAnimationDelays(bus, SamusPoseId.UnusedKnockbackLeftPose, 0xc171, [4]);
+    WritePoseAnimationDelays(bus, SamusPoseId.GlitchBallKnockbackRightPose, 0xc170, [4]);
+    WritePoseAnimationDelays(bus, SamusPoseId.GlitchBallKnockbackLeftPose, 0xc171, [4]);
     var unusedMovementHit = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
     {
-        Pose = SamusPoseId.UnusedKnockbackRightPose,
+        Pose = SamusPoseId.GlitchBallKnockbackRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(96, 96)),
     };
     bool unusedStarted = SamusKnockbackMovement.Start(unusedMovementHit, controllerInput: 0, launch: new KnockbackLaunch { KnockbackXDirection = KnockbackHorizontalDirection.Left });
     AssertTrue(unusedStarted, "movement type $07 installs native unused knockback arm");
-    AssertEqual(SamusPoseId.UnusedKnockbackRightPose, unusedMovementHit.Pose,
+    AssertEqual(SamusPoseId.GlitchBallKnockbackRightPose, unusedMovementHit.Pose,
         "movement type $07 selects right-facing pose $33");
     AssertTrue(unusedMovementHit.KnockbackActive,
         "movement type $07 installs special hurt movement");
